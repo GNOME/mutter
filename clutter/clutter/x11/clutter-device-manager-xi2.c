@@ -30,6 +30,7 @@
 #include "clutter-backend-x11.h"
 #include "clutter-input-device-xi2.h"
 #include "clutter-input-device-tool-xi2.h"
+#include "clutter-input-pointer-a11y-private.h"
 #include "clutter-virtual-input-device-x11.h"
 #include "clutter-stage-x11.h"
 
@@ -1273,6 +1274,60 @@ translate_pad_event (ClutterEvent       *event,
   return TRUE;
 }
 
+static void
+handle_raw_event (ClutterDeviceManagerXI2 *manager_xi2,
+                  XEvent                  *xevent)
+{
+  ClutterInputDevice *device;
+  XGenericEventCookie *cookie;
+  XIEvent *xi_event;
+  XIRawEvent *xev;
+  float x,y;
+
+  cookie = &xevent->xcookie;
+  xi_event = (XIEvent *) cookie->data;
+  xev = (XIRawEvent *) xi_event;
+
+  device = g_hash_table_lookup (manager_xi2->devices_by_id,
+                                GINT_TO_POINTER (xev->deviceid));
+  if (device == NULL)
+    return;
+
+  if (!_clutter_is_input_pointer_a11y_enabled (device))
+    return;
+
+  switch (cookie->evtype)
+    {
+    case XI_RawMotion:
+      CLUTTER_NOTE (EVENT,
+                    "raw motion: device:%d '%s'",
+                    device->id,
+                    device->device_name);
+      /* We don't get actual pointer location with raw events, and we cannot
+       * rely on `clutter_input_device_get_coords()` either because of
+       * unreparented toplevels (like all client-side decoration windows),
+       * so we need to explicitely query the pointer here...
+       */
+      if (clutter_input_device_xi2_get_pointer_location (device, &x, &y))
+        _clutter_input_pointer_a11y_on_motion_event (device, x, y);
+      break;
+    case XI_RawButtonPress:
+    case XI_RawButtonRelease:
+      CLUTTER_NOTE (EVENT,
+                    "raw button %s: device:%d '%s' button %i",
+                    cookie->evtype == XI_RawButtonPress
+                      ? "press  "
+                      : "release",
+                    device->id,
+                    device->device_name,
+                    xev->detail);
+      _clutter_input_pointer_a11y_on_button_event (device,
+                                                  xev->detail,
+                                                  (cookie->evtype == XI_RawButtonPress));
+      break;
+    }
+}
+
 static ClutterTranslateReturn
 clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
                                             gpointer                native,
@@ -1302,6 +1357,14 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
 
   if (!xi_event)
     return CLUTTER_TRANSLATE_REMOVE;
+
+  if (cookie->evtype == XI_RawMotion ||
+      cookie->evtype == XI_RawButtonPress ||
+      cookie->evtype == XI_RawButtonRelease)
+    {
+      handle_raw_event (manager_xi2, xevent);
+      return CLUTTER_TRANSLATE_REMOVE;
+    }
 
   if (!(xi_event->evtype == XI_HierarchyChanged ||
         xi_event->evtype == XI_DeviceChanged ||
@@ -2031,7 +2094,7 @@ clutter_device_manager_xi2_constructed (GObject *gobject)
   GHashTable *masters, *slaves;
   XIDeviceInfo *info;
   XIEventMask event_mask;
-  unsigned char mask[2] = { 0, };
+  unsigned char mask[(XI_LASTEVENT + 7) / 8] = { 0, };
   int n_devices, i;
 
   backend_x11 =
@@ -2080,6 +2143,19 @@ clutter_device_manager_xi2_constructed (GObject *gobject)
   XISetMask (mask, XI_PropertyEvent);
 
   event_mask.deviceid = XIAllDevices;
+  event_mask.mask_len = sizeof (mask);
+  event_mask.mask = mask;
+
+  clutter_device_manager_xi2_select_events (manager,
+                                            clutter_x11_get_root_window (),
+                                            &event_mask);
+
+  memset(mask, 0, sizeof (mask));
+  XISetMask (mask, XI_RawMotion);
+  XISetMask (mask, XI_RawButtonPress);
+  XISetMask (mask, XI_RawButtonRelease);
+
+  event_mask.deviceid = XIAllMasterDevices;
   event_mask.mask_len = sizeof (mask);
   event_mask.mask = mask;
 
