@@ -55,6 +55,7 @@
 #include "clutter-evdev.h"
 #include "clutter-stage-private.h"
 #include "clutter-input-device-tool-evdev.h"
+#include "clutter-input-pointer-a11y-private.h"
 
 #include "clutter-device-manager-evdev.h"
 
@@ -1234,6 +1235,29 @@ process_tablet_axis (ClutterDeviceManagerEvdev *manager_evdev,
     }
 }
 
+static int
+translate_evdev_to_clutter_button (uint32_t button)
+{
+  switch (button)
+    {
+    case BTN_LEFT:
+      return CLUTTER_BUTTON_PRIMARY;
+      break;
+
+    case BTN_RIGHT:
+      return CLUTTER_BUTTON_SECONDARY;
+      break;
+
+    case BTN_MIDDLE:
+      return CLUTTER_BUTTON_MIDDLE;
+      break;
+
+    default:
+      return button - (BTN_LEFT - 1) + 4;
+      break;
+    }
+}
+
 static gboolean
 process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
                       struct libinput_event *event)
@@ -1283,19 +1307,25 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
         double dy;
         double dx_unaccel;
         double dy_unaccel;
+        ClutterSeatEvdev *seat;
+        ClutterPoint pos;
 
         device = libinput_device_get_user_data (libinput_device);
+        seat = seat_from_device (device);
         time_us = libinput_event_pointer_get_time_usec (pointer_event);
         dx = libinput_event_pointer_get_dx (pointer_event);
         dy = libinput_event_pointer_get_dy (pointer_event);
         dx_unaccel = libinput_event_pointer_get_dx_unaccelerated (pointer_event);
         dy_unaccel = libinput_event_pointer_get_dy_unaccelerated (pointer_event);
 
-        clutter_seat_evdev_notify_relative_motion (seat_from_device (device),
+        clutter_seat_evdev_notify_relative_motion (seat,
                                                    device,
                                                    time_us,
                                                    dx, dy,
                                                    dx_unaccel, dy_unaccel);
+
+        clutter_input_device_get_coords (seat->core_pointer, NULL, &pos);
+        _clutter_input_pointer_a11y_on_motion_event (seat->core_pointer, pos.x, pos.y);
 
         break;
       }
@@ -1309,6 +1339,7 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
         struct libinput_event_pointer *motion_event =
           libinput_event_get_pointer_event (event);
         device = libinput_device_get_user_data (libinput_device);
+        ClutterSeatEvdev *seat;
 
         stage = _clutter_input_device_get_stage (device);
         if (stage == NULL)
@@ -1322,12 +1353,15 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
                                                                stage_width);
         y = libinput_event_pointer_get_absolute_y_transformed (motion_event,
                                                                stage_height);
+        seat = seat_from_device (device);
 
-        clutter_seat_evdev_notify_absolute_motion (seat_from_device (device),
+        clutter_seat_evdev_notify_absolute_motion (seat,
                                                    device,
                                                    time_us,
                                                    x, y,
                                                    NULL);
+
+        _clutter_input_pointer_a11y_on_motion_event (seat->core_pointer, x, y);
 
         break;
       }
@@ -1356,6 +1390,10 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
 
         clutter_seat_evdev_notify_button (seat_from_device (device), device,
                                           time_us, button, button_state);
+
+        _clutter_input_pointer_a11y_on_button_event (seat_from_device (device)->core_pointer,
+                                                     translate_evdev_to_clutter_button (button),
+                                                     button_state);
         break;
       }
 
