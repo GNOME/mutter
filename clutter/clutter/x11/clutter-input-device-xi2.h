@@ -48,6 +48,9 @@ void  _clutter_input_device_xi2_translate_state (ClutterEvent    *event,
 void  clutter_input_device_xi2_update_tool      (ClutterInputDevice     *device,
                                                  ClutterInputDeviceTool *tool);
 ClutterInputDeviceTool * clutter_input_device_xi2_get_current_tool (ClutterInputDevice *device);
+gboolean clutter_input_device_xi2_get_pointer_location (ClutterInputDevice *device,
+                                                        float              *x,
+                                                        float              *y);
 
 #ifdef HAVE_LIBWACOM
 void clutter_input_device_xi2_ensure_wacom_info (ClutterInputDevice  *device,
