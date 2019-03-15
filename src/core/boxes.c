@@ -899,6 +899,25 @@ meta_rectangle_overlaps_with_region (const GList         *spanning_rects,
   return overlaps;
 }
 
+gboolean
+meta_rectangle_is_adjacent_to_any_in_region (const GList   *spanning_rects,
+                                             MetaRectangle *rect)
+{
+  const GList *l;
+
+  for (l = spanning_rects; l; l = l->next)
+    {
+      MetaRectangle *other = (MetaRectangle *) l->data;
+
+      if (rect == other || meta_rectangle_equal (rect, other))
+        continue;
+
+      if (meta_rectangle_is_adjacent_to (rect, other))
+        return TRUE;
+    }
+
+  return FALSE;
+}
 
 void
 meta_rectangle_clamp_to_fit_into_region (const GList         *spanning_rects,
