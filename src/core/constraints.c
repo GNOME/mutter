@@ -911,18 +911,45 @@ constrain_custom_rule (MetaWindow         *window,
   if (current_rule.constraint_adjustment &
       META_PLACEMENT_CONSTRAINT_ADJUSTMENT_SLIDE_X)
     {
-      if (info->current.x != intersection.x)
-        info->current.x = intersection.x;
-      else if (info->current.width != intersection.width)
-        info->current.x -= info->current.width - intersection.width;
+      int current_x2;
+      int work_area_monitor_x2;
+
+      current_x2 = info->current.x + info->current.width;
+      work_area_monitor_x2 = (info->work_area_monitor.x +
+                              info->work_area_monitor.width);
+
+      if (current_x2 > work_area_monitor_x2)
+        {
+          info->current.x = MAX (info->work_area_monitor.x,
+                                 info->current.x - (current_x2 -
+                                                    work_area_monitor_x2));
+        }
+      else
+        {
+          info->current.x = info->work_area_monitor.x;
+        }
     }
   if (current_rule.constraint_adjustment &
       META_PLACEMENT_CONSTRAINT_ADJUSTMENT_SLIDE_Y)
     {
-      if (info->current.y != intersection.y)
-        info->current.y = intersection.y;
-      else if (info->current.height != intersection.height)
-        info->current.y -= info->current.height - intersection.height;
+      int current_y2;
+      int work_area_monitor_y2;
+
+      current_y2 = info->current.y + info->current.height;
+      work_area_monitor_y2 = (info->work_area_monitor.y +
+                              info->work_area_monitor.height);
+
+      if (current_y2 > work_area_monitor_y2)
+        {
+          info->current.y = MAX (info->work_area_monitor.y,
+                                 info->current.y - (current_y2 -
+                                                    work_area_monitor_y2));
+        }
+      else
+        {
+          info->current.y = info->work_area_monitor.y;
+        }
+
     }
 
   meta_rectangle_intersect (&info->current, &info->work_area_monitor,
