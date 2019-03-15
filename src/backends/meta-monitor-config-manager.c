@@ -904,6 +904,21 @@ meta_monitor_config_manager_create_suggested (MetaMonitorConfigManager *config_m
       region = g_list_prepend (region, &logical_monitor_config->layout);
     }
 
+  for (l = region; region->next && l; l = l->next)
+    {
+      MetaRectangle *rect = l->data;
+
+      if (!meta_rectangle_is_adjacent_to_any_in_region (region, rect))
+        {
+          g_warning ("Suggested monitor config has monitors with no neighbors, "
+                     "rejecting");
+          g_list_free (region);
+          g_list_free_full (logical_monitor_configs,
+                            (GDestroyNotify) meta_logical_monitor_config_free);
+          return NULL;
+        }
+    }
+
   g_list_free (region);
 
   if (!logical_monitor_configs)
