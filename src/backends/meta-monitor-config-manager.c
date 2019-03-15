@@ -1540,7 +1540,7 @@ meta_verify_logical_monitor_config (MetaLogicalMonitorConfig    *logical_monitor
 }
 
 static gboolean
-has_adjecent_neighbour (MetaMonitorsConfig       *config,
+has_adjacent_neighbour (MetaMonitorsConfig       *config,
                         MetaLogicalMonitorConfig *logical_monitor_config)
 {
   GList *l;
@@ -1559,7 +1559,7 @@ has_adjecent_neighbour (MetaMonitorsConfig       *config,
       if (logical_monitor_config == other_logical_monitor_config)
         continue;
 
-      if (meta_rectangle_is_adjecent_to (&logical_monitor_config->layout,
+      if (meta_rectangle_is_adjacent_to (&logical_monitor_config->layout,
                                          &other_logical_monitor_config->layout))
         return TRUE;
     }
@@ -1665,10 +1665,10 @@ meta_verify_monitors_config (MetaMonitorsConfig *config,
           has_primary = TRUE;
         }
 
-      if (!has_adjecent_neighbour (config, logical_monitor_config))
+      if (!has_adjacent_neighbour (config, logical_monitor_config))
         {
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                       "Logical monitors not adjecent");
+                       "Logical monitors not adjacent");
           return FALSE;
         }
 

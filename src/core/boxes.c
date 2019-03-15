@@ -2026,7 +2026,7 @@ meta_rectangle_find_nonintersected_monitor_edges (
 }
 
 gboolean
-meta_rectangle_is_adjecent_to (MetaRectangle *rect,
+meta_rectangle_is_adjacent_to (MetaRectangle *rect,
                                MetaRectangle *other)
 {
   int rect_x1 = rect->x;
