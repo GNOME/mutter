@@ -13,12 +13,15 @@ clutter_c_args = [
 ]
 
 clutter_debug_c_args = []
-if buildtype.startswith('debug')
-  clutter_debug_c_args += '-DG_DISABLE_CAST_CHECKS'
-  if buildtype == 'debug'
-    clutter_debug_c_args += '-DCLUTTER_ENABLE_DEBUG'
-  endif
-elif buildtype == 'release'
+if get_option('debug')
+  clutter_debug_c_args += [
+    '-DG_DISABLE_CAST_CHECKS',
+    '-DCLUTTER_ENABLE_DEBUG'
+  ]
+endif
+
+buildtype = get_option('buildtype')
+if buildtype == 'release'
   clutter_debug_c_args += [
     '-DG_DISABLE_ASSERT',
     '-DG_DISABLE_CHECKS',
