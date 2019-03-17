@@ -93,16 +93,19 @@ if have_gles2
 endif
 
 cogl_debug_c_args = []
-if buildtype.startswith('debug')
+if get_option('debug')
   cogl_debug_c_args += [
     '-DCOGL_GL_DEBUG',
     '-DCOGL_OBJECT_DEBUG',
-    '-DCOGL_ENABLE_DEBUG',
+    '-DCOGL_ENABLE_DEBUG'
   ]
-elif buildtype == 'release'
+endif
+
+buildtype = get_option('buildtype')
+if buildtype == 'release'
   cogl_debug_c_args += [
     '-DG_DISABLE_CHECKS',
-    '-DG_DISABLE_CAST_CHECKS',
+    '-DG_DISABLE_CAST_CHECKS'
   ]
 endif
 
