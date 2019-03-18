@@ -454,6 +454,7 @@ startup_sequence_timeout (void *data)
                   meta_startup_sequence_get_id (sequence));
 
       meta_startup_sequence_complete (sequence);
+      meta_startup_notification_remove_sequence (sn, sequence);
     }
 
   g_slist_free (ctod.list);
