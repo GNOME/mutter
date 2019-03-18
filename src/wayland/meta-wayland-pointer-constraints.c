@@ -862,6 +862,18 @@ init_pointer_constraint (struct wl_resource                      *resource,
       return;
     }
 
+  switch (lifetime)
+    {
+    case ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_ONESHOT:
+    case ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT:
+      break;
+
+    default:
+      wl_resource_post_error (resource,
+                              WL_DISPLAY_ERROR_INVALID_OBJECT,
+                              "Invalid constraint lifetime");
+    }
+
   constraint = meta_wayland_pointer_constraint_new (surface, seat,
                                                     region,
                                                     lifetime,
