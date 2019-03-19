@@ -120,7 +120,7 @@ static CoglDriverDescription _cogl_drivers[] =
   {
     COGL_DRIVER_GLES2,
     "gles2",
-    COGL_RENDERER_CONSTRAINT_SUPPORTS_COGL_GLES2,
+    0,
     { COGL_PRIVATE_FEATURE_ANY_GL,
       COGL_PRIVATE_FEATURE_GL_EMBEDDED,
       COGL_PRIVATE_FEATURE_GL_PROGRAMMABLE,
@@ -415,11 +415,6 @@ satisfy_constraints (CoglDriverDescription *description,
   for (l = state->constraints; l; l = l->next)
     {
       CoglRendererConstraint constraint = GPOINTER_TO_UINT (l->data);
-
-      /* Most of the constraints only affect the winsys selection so
-       * we'll filter them out */
-      if (!(constraint & COGL_RENDERER_DRIVER_CONSTRAINTS))
-        continue;
 
       /* If the driver doesn't satisfy any constraint then continue
        * to the next driver description */
