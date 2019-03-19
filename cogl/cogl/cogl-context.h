@@ -202,8 +202,6 @@ cogl_is_context (void *object);
  * @COGL_FEATURE_ID_BUFFER_AGE: Available if the age of #CoglOnscreen back
  *    buffers are tracked and so cogl_onscreen_get_buffer_age() can be
  *    expected to return age values other than 0.
- * @COGL_FEATURE_ID_GLES2_CONTEXT: Whether creating new GLES2 contexts is
- *    suported.
  * @COGL_FEATURE_ID_DEPTH_TEXTURE: Whether #CoglFramebuffer support rendering
  *     the depth buffer to a texture.
  * @COGL_FEATURE_ID_PRESENTATION_TIME: Whether frame presentation
@@ -227,7 +225,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE,
   COGL_FEATURE_ID_MIRRORED_REPEAT,
   COGL_FEATURE_ID_SWAP_BUFFERS_EVENT,
-  COGL_FEATURE_ID_GLES2_CONTEXT,
   COGL_FEATURE_ID_DEPTH_TEXTURE,
   COGL_FEATURE_ID_PRESENTATION_TIME,
   COGL_FEATURE_ID_FENCE,
