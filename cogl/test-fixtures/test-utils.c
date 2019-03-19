@@ -42,12 +42,6 @@ check_flags (TestFlags flags,
       return FALSE;
     }
 
-  if (flags & TEST_REQUIREMENT_GLES2_CONTEXT &&
-      !cogl_has_feature (test_ctx, COGL_FEATURE_ID_GLES2_CONTEXT))
-    {
-      return FALSE;
-    }
-
   if (flags & TEST_REQUIREMENT_MAP_WRITE &&
       !cogl_has_feature (test_ctx, COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE))
     {
