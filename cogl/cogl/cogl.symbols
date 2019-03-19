@@ -341,15 +341,6 @@ cogl_get_static_identity_quaternion
 cogl_get_static_zero_quaternion
 cogl_get_viewport
 
-#ifdef COGL_HAS_GTYPE_SUPPORT
-cogl_gles2_context_get_gtype
-#endif
-cogl_gles2_context_get_vtable
-cogl_gles2_context_new
-cogl_gles2_get_current_vtable
-cogl_gles2_texture_get_handle
-cogl_gles2_texture_2d_new_from_handle
-
 #ifdef COGL_HAS_GLIB_SUPPORT
 cogl_glib_renderer_source_new
 cogl_glib_source_new
@@ -388,7 +379,6 @@ cogl_is_bitmap
 cogl_is_buffer
 cogl_is_context
 cogl_is_frame_info
-cogl_is_gles2_context
 cogl_is_index_buffer
 #if 0
 /* not implemented! */
@@ -700,7 +690,6 @@ cogl_polygon
 cogl_pop_draw_buffer
 #endif
 cogl_pop_framebuffer
-cogl_pop_gles2_context
 cogl_pop_matrix
 cogl_pop_source
 
@@ -762,7 +751,6 @@ cogl_push_draw_buffer
 #endif
 
 cogl_push_framebuffer
-cogl_push_gles2_context
 cogl_push_matrix
 cogl_push_source
 
