@@ -231,8 +231,6 @@ struct _CoglContext
   CoglIndices      *rectangle_short_indices;
   int               rectangle_short_indices_len;
 
-  gboolean          in_begin_gl_block;
-
   CoglPipeline     *texture_download_pipeline;
   CoglPipeline     *blit_texture_pipeline;
 
