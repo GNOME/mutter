@@ -379,8 +379,6 @@ cogl_context_new (CoglDisplay *display,
   context->current_path = NULL;
   context->stencil_pipeline = cogl_pipeline_new (context);
 
-  context->in_begin_gl_block = FALSE;
-
   context->quad_buffer_indices_byte = NULL;
   context->quad_buffer_indices = NULL;
   context->quad_buffer_indices_len = 0;
