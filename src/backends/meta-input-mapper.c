@@ -20,6 +20,10 @@
 
 #include "config.h"
 
+#ifdef HAVE_LIBGUDEV
+#include <gudev/gudev.h>
+#endif
+
 #include "meta-input-mapper-private.h"
 #include "meta-monitor-manager-private.h"
 #include "meta-logical-monitor.h"
@@ -39,6 +43,9 @@ struct _MetaInputMapper
   ClutterDeviceManager *input_device_manager;
   GHashTable *input_devices; /* ClutterInputDevice -> MetaMapperInputInfo */
   GHashTable *output_devices; /* MetaLogicalMonitor -> MetaMapperOutputInfo */
+#ifdef HAVE_LIBGUDEV
+  GUdevClient *udev_client;
+#endif
 };
 
 typedef enum
@@ -271,6 +278,33 @@ match_edid (MetaMapperInputInfo  *input,
 }
 
 static gboolean
+input_device_get_physical_size (MetaInputMapper    *mapper,
+                                ClutterInputDevice *device,
+                                double             *width,
+                                double             *height)
+{
+#ifdef HAVE_LIBGUDEV
+  g_autoptr (GUdevDevice) udev_device = NULL;
+  const char *node;
+
+  node = clutter_input_device_get_device_node (device);
+  udev_device = g_udev_client_query_by_device_file (mapper->udev_client, node);
+
+  if (udev_device &&
+      g_udev_device_has_property (udev_device, "ID_INPUT_WIDTH_MM"))
+    {
+      *width = g_udev_device_get_property_as_double (udev_device,
+                                                     "ID_INPUT_WIDTH_MM");
+      *height = g_udev_device_get_property_as_double (udev_device,
+                                                      "ID_INPUT_HEIGHT_MM");
+      return TRUE;
+    }
+#endif
+
+  return FALSE;
+}
+
+static gboolean
 find_size_match (MetaMapperInputInfo  *input,
                  GList                *monitors,
                  MetaMonitor         **matched_monitor)
@@ -282,7 +316,8 @@ find_size_match (MetaMapperInputInfo  *input,
 
   min_w_diff = min_h_diff = MAX_SIZE_MATCH_DIFF;
 
-  if (!clutter_input_device_get_physical_size (input->device, &i_width, &i_height))
+  if (!input_device_get_physical_size (input->mapper, input->device,
+                                       &i_width, &i_height))
     return FALSE;
 
   for (l = monitors; l; l = l->next)
@@ -520,6 +555,9 @@ meta_input_mapper_finalize (GObject *object)
 
   g_hash_table_unref (mapper->input_devices);
   g_hash_table_unref (mapper->output_devices);
+#ifdef HAVE_LIBGUDEV
+  g_clear_object (&mapper->udev_client);
+#endif
 
   G_OBJECT_CLASS (meta_input_mapper_parent_class)->finalize (object);
 }
@@ -527,10 +565,17 @@ meta_input_mapper_finalize (GObject *object)
 static void
 meta_input_mapper_constructed (GObject *object)
 {
+#ifdef HAVE_LIBGUDEV
+  const char *udev_subsystems[] = { "input", NULL };
+#endif
   MetaInputMapper *mapper = META_INPUT_MAPPER (object);
   MetaBackend *backend;
 
   G_OBJECT_CLASS (meta_input_mapper_parent_class)->constructed (object);
+
+#ifdef HAVE_LIBGUDEV
+  mapper->udev_client = g_udev_client_new (udev_subsystems);
+#endif
 
   mapper->input_device_manager = clutter_device_manager_get_default ();
   g_signal_connect (mapper->input_device_manager, "device-removed",
