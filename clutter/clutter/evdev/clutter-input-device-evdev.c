@@ -677,7 +677,7 @@ stop_toggle_slowkeys (ClutterInputDeviceEvdev *device)
 }
 
 static void
-handle_togglekeys_press (ClutterEvent            *event,
+handle_enablekeys_press (ClutterEvent            *event,
                          ClutterInputDeviceEvdev *device)
 {
   if (event->key.keyval == XKB_KEY_Shift_L || event->key.keyval == XKB_KEY_Shift_R)
@@ -699,7 +699,7 @@ handle_togglekeys_press (ClutterEvent            *event,
 }
 
 static void
-handle_togglekeys_release (ClutterEvent            *event,
+handle_enablekeys_release (ClutterEvent            *event,
                            ClutterInputDeviceEvdev *device)
 {
   if (event->key.keyval == XKB_KEY_Shift_L || event->key.keyval == XKB_KEY_Shift_R)
@@ -1136,6 +1136,11 @@ clutter_input_device_evdev_process_kbd_a11y_event (ClutterEvent               *e
   if (!device_evdev->a11y_flags & CLUTTER_A11Y_KEYBOARD_ENABLED)
     goto emit_event;
 
+  if (event->type == CLUTTER_KEY_PRESS)
+    handle_enablekeys_press (event, device_evdev);
+  else
+    handle_enablekeys_release (event, device_evdev);
+
   if (device_evdev->a11y_flags & CLUTTER_A11Y_MOUSE_KEYS_ENABLED)
     {
       if (event->type == CLUTTER_KEY_PRESS &&
@@ -1144,14 +1149,6 @@ clutter_input_device_evdev_process_kbd_a11y_event (ClutterEvent               *e
       if (event->type == CLUTTER_KEY_RELEASE &&
           handle_mousekeys_release (event, device_evdev))
         return; /* swallow event */
-    }
-
-  if (device_evdev->a11y_flags & CLUTTER_A11Y_TOGGLE_KEYS_ENABLED)
-    {
-      if (event->type == CLUTTER_KEY_PRESS)
-        handle_togglekeys_press (event, device_evdev);
-      else
-        handle_togglekeys_release (event, device_evdev);
     }
 
   if ((device_evdev->a11y_flags & CLUTTER_A11Y_BOUNCE_KEYS_ENABLED) &&
