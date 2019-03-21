@@ -415,6 +415,7 @@ paint_frame_time_chart (ClutterStageWindow *stage_window,
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  ClutterActor *actor = CLUTTER_ACTOR (stage_cogl->wrapper);
   static CoglPipeline *threshold_pipeline = NULL;
   static CoglPipeline *paint_time_pipeline = NULL;
   static GArray *frame_times = NULL;
