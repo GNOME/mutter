@@ -223,4 +223,14 @@ typedef enum
 META_EXPORT
 MetaLocaleDirection meta_get_locale_direction (void);
 
+META_EXPORT
+void meta_add_clutter_debug_flags (ClutterDebugFlag     debug_flags,
+                                   ClutterDrawDebugFlag draw_flags,
+                                   ClutterPickDebugFlag pick_flags);
+
+META_EXPORT
+void meta_remove_clutter_debug_flags (ClutterDebugFlag     debug_flags,
+                                      ClutterDrawDebugFlag draw_flags,
+                                      ClutterPickDebugFlag pick_flags);
+
 #endif /* META_UTIL_H */

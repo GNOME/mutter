@@ -2605,6 +2605,36 @@ clutter_check_windowing_backend (const char *backend_type)
   return FALSE;
 }
 
+/**
+ * clutter_add_debug_flags: (skip)
+ *
+ * Adds the debug flags passed to the list of debug flags.
+ */
+void
+clutter_add_debug_flags (ClutterDebugFlag     debug_flags,
+                         ClutterDrawDebugFlag draw_flags,
+                         ClutterPickDebugFlag pick_flags)
+{
+  clutter_debug_flags |= debug_flags;
+  clutter_paint_debug_flags |= draw_flags;
+  clutter_pick_debug_flags |= pick_flags;
+}
+
+/**
+ * clutter_remove_debug_flags: (skip)
+ *
+ * Removes the debug flags passed from the list of debug flags.
+ */
+void
+clutter_remove_debug_flags (ClutterDebugFlag     debug_flags,
+                            ClutterDrawDebugFlag draw_flags,
+                            ClutterPickDebugFlag pick_flags)
+{
+  clutter_debug_flags &= ~debug_flags;
+  clutter_paint_debug_flags &= ~draw_flags;
+  clutter_pick_debug_flags &= ~pick_flags;
+}
+
 void
 _clutter_set_sync_to_vblank (gboolean sync_to_vblank)
 {
