@@ -405,6 +405,90 @@ paint_damage_region (ClutterStageWindow    *stage_window,
   cogl_framebuffer_pop_matrix (framebuffer);
 }
 
+#define CHART_COLUMN_WIDTH 6 //px
+#define THRESHOLD_LINE_HEIGHT 2 //px
+
+static void
+paint_frame_time_chart (ClutterStageWindow *stage_window,
+                        ClutterStageView   *view)
+{
+  CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  static CoglPipeline *threshold_pipeline = NULL;
+  static CoglPipeline *paint_time_pipeline = NULL;
+  static GArray *frame_times = NULL;
+  CoglMatrix modelview;
+  double frame_time;
+  float green_line_y;
+  int width, height;
+  int n_points;
+  int i;
+
+  if (G_UNLIKELY (paint_time_pipeline == NULL))
+    {
+      paint_time_pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_color4ub (paint_time_pipeline, 0x00, 0x00, 0x60, 0xa0);
+    }
+
+  if (G_UNLIKELY (threshold_pipeline == NULL))
+    {
+      threshold_pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_color4ub (threshold_pipeline, 0x40,  0x00, 0x00, 0x80);
+    }
+
+  cogl_framebuffer_push_matrix (framebuffer);
+  cogl_matrix_init_identity (&modelview);
+  _clutter_actor_apply_modelview_transform (actor, &modelview);
+  cogl_framebuffer_set_modelview_matrix (framebuffer, &modelview);
+
+  width = cogl_framebuffer_get_width (framebuffer);
+  height = cogl_framebuffer_get_height (framebuffer);
+
+  /* Frame time */
+  n_points = width / CHART_COLUMN_WIDTH;
+
+  if (G_UNLIKELY (frame_times == NULL))
+    frame_times = g_array_sized_new (FALSE, TRUE, sizeof (double), n_points);
+
+  frame_time = _clutter_stage_get_previous_frame_time (stage_cogl->wrapper);
+  g_array_append_val (frame_times, frame_time);
+
+  if (frame_times->len > n_points)
+    g_array_remove_range (frame_times, 0, frame_times->len - n_points);
+
+  /* Chart */
+  for (i = 0; i < MIN (frame_times->len, n_points); i++)
+    {
+      int element = frame_times->len - i - 1;
+      double refresh_rate_ms = 1000.0 / stage_cogl->refresh_rate;
+      double refresh_rate_height = height * 0.1;
+      double frame_time_entry = g_array_index (frame_times, double, element);
+      double bar_height =
+        frame_time_entry / refresh_rate_ms * refresh_rate_height;
+      double x_1 = width - (i + 1) * CHART_COLUMN_WIDTH;
+      double x_2 = width - i * CHART_COLUMN_WIDTH;
+
+      cogl_framebuffer_draw_rectangle (framebuffer,
+                                       paint_time_pipeline,
+                                       x_1,
+                                       height - bar_height,
+                                       x_2,
+                                       height);
+    }
+
+  /* Green line (16.667ms) */
+  green_line_y = height * 0.9;
+  cogl_framebuffer_draw_rectangle (framebuffer,
+                                   threshold_pipeline,
+                                   0.0f,
+                                   green_line_y,
+                                   width,
+                                   green_line_y + THRESHOLD_LINE_HEIGHT);
+
+  cogl_framebuffer_pop_matrix (framebuffer);
+}
+
 static gboolean
 swap_framebuffer (ClutterStageWindow    *stage_window,
                   ClutterStageView      *view,
@@ -426,6 +510,9 @@ swap_framebuffer (ClutterStageWindow    *stage_window,
 
   if (G_UNLIKELY ((clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)))
     paint_damage_region (stage_window, view, swap_region);
+
+  if (G_UNLIKELY ((clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_FRAME_TIME)))
+    paint_frame_time_chart (stage_window, view);
 
   if (cogl_is_onscreen (framebuffer))
     {
@@ -572,6 +659,7 @@ is_buffer_age_enabled (void)
   /* Buffer age is disabled when running with CLUTTER_PAINT=damage-region,
    * to ensure the red damage represents the currently damaged area */
   return !(clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION) &&
+         !(clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_FRAME_TIME) &&
          cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
 }
 
