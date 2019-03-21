@@ -133,9 +133,6 @@ struct _ClutterStagePrivate
 
   gint sync_delay;
 
-  GTimer *fps_timer;
-  gint32 timer_n_frames;
-
   ClutterIDPool *pick_id_pool;
 
 #ifdef CLUTTER_ENABLE_DEBUG
@@ -148,6 +145,9 @@ struct _ClutterStagePrivate
   GDestroyNotify paint_notify;
 
   int update_freeze_count;
+
+  double last_layout_time;
+  double last_paint_time;
 
   guint relayout_pending       : 1;
   guint redraw_pending         : 1;
@@ -1074,10 +1074,14 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
   /* avoid reentrancy */
   if (!CLUTTER_ACTOR_IN_RELAYOUT (stage))
     {
+      int64_t start, end;
+
       priv->relayout_pending = FALSE;
       priv->stage_was_relayout = TRUE;
 
       CLUTTER_NOTE (ACTOR, "Recomputing layout");
+
+      start = g_get_monotonic_time ();
 
       CLUTTER_SET_PRIVATE_FLAGS (stage, CLUTTER_IN_RELAYOUT);
 
@@ -1099,6 +1103,11 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
                               &box, CLUTTER_ALLOCATION_NONE);
 
       CLUTTER_UNSET_PRIVATE_FLAGS (stage, CLUTTER_IN_RELAYOUT);
+
+      end = g_get_monotonic_time ();
+      priv->last_layout_time = (end - start) / 1000.0;
+
+      CLUTTER_NOTE (FRAME_TIME, "LAYOUT: %lf", priv->last_layout_time);
     }
 }
 
@@ -1107,6 +1116,8 @@ clutter_stage_do_redraw (ClutterStage *stage)
 {
   ClutterActor *actor = CLUTTER_ACTOR (stage);
   ClutterStagePrivate *priv = stage->priv;
+  int64_t start;
+  int64_t end;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return;
@@ -1118,28 +1129,14 @@ clutter_stage_do_redraw (ClutterStage *stage)
                 _clutter_actor_get_debug_name (actor),
                 stage);
 
-  if (CLUTTER_HAS_DEBUG (FRAME_TIME))
-    {
-      if (priv->fps_timer == NULL)
-        priv->fps_timer = g_timer_new ();
-    }
+  start = g_get_monotonic_time ();
 
   _clutter_stage_window_redraw (priv->impl);
 
-  if (CLUTTER_HAS_DEBUG (FRAME_TIME))
-    {
-      priv->timer_n_frames += 1;
+  end = g_get_monotonic_time ();
 
-      if (g_timer_elapsed (priv->fps_timer, NULL) >= 1.0)
-        {
-          g_print ("*** FPS for %s: %i ***\n",
-                   _clutter_actor_get_debug_name (actor),
-                   priv->timer_n_frames);
-
-          priv->timer_n_frames = 0;
-          g_timer_start (priv->fps_timer);
-        }
-    }
+  priv->last_paint_time = (end - start) / 1000.0;
+  CLUTTER_NOTE (FRAME_TIME, "PAINT: %lf", priv->last_paint_time);
 
   CLUTTER_NOTE (PAINT, "Redraw finished for stage '%s'[%p]",
                 _clutter_actor_get_debug_name (actor),
@@ -1885,9 +1882,6 @@ clutter_stage_finalize (GObject *object)
   g_array_free (priv->paint_volume_stack, TRUE);
 
   _clutter_id_pool_free (priv->pick_id_pool);
-
-  if (priv->fps_timer != NULL)
-    g_timer_destroy (priv->fps_timer);
 
   if (priv->paint_notify != NULL)
     priv->paint_notify (priv->paint_data);
