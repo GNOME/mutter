@@ -146,6 +146,8 @@ struct _ClutterStagePrivate
 
   int update_freeze_count;
 
+  double last_frame_time;
+
   guint relayout_pending       : 1;
   guint redraw_pending         : 1;
   guint is_fullscreen          : 1;
@@ -1123,7 +1125,8 @@ clutter_stage_do_redraw (ClutterStage *stage)
 
   end = g_get_monotonic_time ();
 
-  CLUTTER_NOTE (FRAME_TIME, "%lf", (end - start) / 1000.0);
+  priv->last_frame_time = (end - start) / 1000.0;
+  CLUTTER_NOTE (FRAME_TIME, "%lf", priv->last_frame_time);
 
   CLUTTER_NOTE (PAINT, "Redraw finished for stage '%s'[%p]",
                 _clutter_actor_get_debug_name (actor),
@@ -5077,4 +5080,10 @@ _clutter_stage_get_max_view_scale_factor_for_rect (ClutterStage *stage,
 
   *view_scale = scale;
   return TRUE;
+}
+
+double
+_clutter_stage_get_previous_frame_time (ClutterStage *stage)
+{
+  return stage->priv->last_frame_time;
 }
