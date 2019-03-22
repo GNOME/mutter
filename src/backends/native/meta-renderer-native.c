@@ -1576,7 +1576,7 @@ retry_page_flips (gpointer user_data)
           g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BUSY))
         {
           retry_page_flip_data->retry_time_us +=
-            G_USEC_PER_SEC / crtc->current_mode->refresh_rate;
+            (uint64_t) (G_USEC_PER_SEC / crtc->current_mode->refresh_rate);
           l = l_next;
           continue;
         }
