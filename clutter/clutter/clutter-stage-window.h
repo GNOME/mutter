@@ -100,6 +100,7 @@ void              _clutter_stage_window_hide                    (ClutterStageWin
 void              _clutter_stage_window_resize                  (ClutterStageWindow *window,
                                                                  gint                width,
                                                                  gint                height);
+CLUTTER_EXPORT
 void              _clutter_stage_window_get_geometry            (ClutterStageWindow *window,
                                                                  cairo_rectangle_int_t *geometry);
 void              _clutter_stage_window_schedule_update         (ClutterStageWindow *window,

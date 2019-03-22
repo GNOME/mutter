@@ -46,6 +46,8 @@
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
+#include "backends/x11/meta-event-x11.h"
+#include "backends/x11/meta-stage-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
 #include "clutter/clutter.h"
 #include "clutter/x11/clutter-x11.h"
@@ -386,7 +388,7 @@ handle_host_xevent (MetaBackend *backend,
   if (!bypass_clutter)
     {
       handle_input_event (x11, event);
-      clutter_x11_handle_event (event);
+      meta_x11_handle_event (event);
     }
 
   XFreeEventData (priv->xdisplay, &event->xcookie);
@@ -805,7 +807,7 @@ Window
 meta_backend_x11_get_xwindow (MetaBackendX11 *x11)
 {
   ClutterActor *stage = meta_backend_get_stage (META_BACKEND (x11));
-  return clutter_x11_get_stage_window (CLUTTER_STAGE (stage));
+  return meta_x11_get_stage_window (CLUTTER_STAGE (stage));
 }
 
 void

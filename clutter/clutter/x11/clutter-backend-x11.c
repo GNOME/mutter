@@ -34,9 +34,7 @@
 #include <errno.h>
 
 #include "clutter-backend-x11.h"
-#include "clutter-device-manager-xi2.h"
 #include "clutter-settings-x11.h"
-#include "clutter-stage-x11.h"
 #include "clutter-x11.h"
 
 #include "xsettings/xsettings-common.h"
@@ -228,56 +226,6 @@ clutter_backend_x11_xsettings_notify (const char       *name,
   g_object_thaw_notify (G_OBJECT (settings));
 }
 
-static void
-clutter_backend_x11_create_device_manager (ClutterBackendX11 *backend_x11)
-{
-  ClutterBackend *backend;
-
-  if (clutter_enable_xinput)
-    {
-      int event_base, first_event, first_error;
-
-      if (XQueryExtension (backend_x11->xdpy, "XInputExtension",
-                           &event_base,
-                           &first_event,
-                           &first_error))
-        {
-          int major = 2;
-          int minor = 3;
-
-          if (XIQueryVersion (backend_x11->xdpy, &major, &minor) != BadRequest)
-            {
-              CLUTTER_NOTE (BACKEND, "Creating XI2 device manager");
-              backend_x11->device_manager =
-                g_object_new (CLUTTER_TYPE_DEVICE_MANAGER_XI2,
-                              "backend", backend_x11,
-                              "opcode", event_base,
-                              NULL);
-            }
-        }
-    }
-
-  if (backend_x11->device_manager == NULL)
-    {
-      g_critical ("XI2 extension is missing.");
-    }
-
-  backend = CLUTTER_BACKEND (backend_x11);
-  backend->device_manager = backend_x11->device_manager;
-}
-
-static void
-clutter_backend_x11_create_keymap (ClutterBackendX11 *backend_x11)
-{
-  if (backend_x11->keymap == NULL)
-    {
-      backend_x11->keymap =
-        g_object_new (CLUTTER_TYPE_KEYMAP_X11,
-                      "backend", backend_x11,
-                      NULL);
-    }
-}
-
 static gboolean
 clutter_backend_x11_pre_parse (ClutterBackend  *backend,
                                GError         **error)
@@ -426,21 +374,6 @@ clutter_backend_x11_post_parse (ClutterBackend  *backend,
   return TRUE;
 }
 
-void
-_clutter_backend_x11_events_init (ClutterBackend *backend)
-{
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (backend);
-
-  CLUTTER_NOTE (EVENT, "initialising the event loop");
-
-  clutter_backend_x11_create_device_manager (backend_x11);
-
-  /* register keymap; unless we create a generic Keymap object, I'm
-   * afraid this will have to stay
-   */
-  clutter_backend_x11_create_keymap (backend_x11);
-}
-
 static const GOptionEntry entries[] =
 {
   {
@@ -562,7 +495,6 @@ clutter_backend_x11_translate_event (ClutterBackend *backend,
 {
   ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (backend);
   XEvent *xevent = native;
-  const GList *l;
 
   /* X11 filter functions have a higher priority */
   if (backend_x11->event_filters != NULL)
@@ -596,20 +528,6 @@ clutter_backend_x11_translate_event (ClutterBackend *backend,
    * actually reach Clutter's event queue
    */
   update_last_event_time (backend_x11, xevent);
-
-  if (clutter_keymap_x11_handle_event (backend_x11->keymap,
-                                       native))
-    return TRUE;
-
-  for (l = clutter_backend_get_stage_windows (backend); l; l = l->next)
-    {
-      if (clutter_stage_x11_translate_event (l->data, native, event))
-        return TRUE;
-    }
-
-  if (clutter_device_manager_xi2_translate_event (CLUTTER_DEVICE_MANAGER_XI2 (backend_x11->device_manager),
-                                                  native, event))
-    return TRUE;
 
   return FALSE;
 }
@@ -731,45 +649,6 @@ clutter_backend_x11_get_display (ClutterBackend  *backend,
   return display;
 }
 
-static ClutterStageWindow *
-clutter_backend_x11_create_stage (ClutterBackend  *backend,
-				  ClutterStage    *wrapper,
-				  GError         **error)
-{
-  ClutterStageWindow *stage;
-
-  stage = g_object_new (CLUTTER_TYPE_STAGE_X11,
-			"backend", backend,
-			"wrapper", wrapper,
-			NULL);
-
-  CLUTTER_NOTE (BACKEND, "X11 stage created (display:%p, screen:%d, root:%u)",
-                CLUTTER_BACKEND_X11 (backend)->xdpy,
-                CLUTTER_BACKEND_X11 (backend)->xscreen_num,
-                (unsigned int) CLUTTER_BACKEND_X11 (backend)->xwin_root);
-
-  return stage;
-}
-
-static PangoDirection
-clutter_backend_x11_get_keymap_direction (ClutterBackend *backend)
-{
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (backend);
-
-  if (G_UNLIKELY (backend_x11->keymap == NULL))
-    return PANGO_DIRECTION_NEUTRAL;
-
-  return _clutter_keymap_x11_get_direction (backend_x11->keymap);
-}
-
-static ClutterKeymap *
-clutter_backend_x11_get_keymap (ClutterBackend *backend)
-{
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (backend);
-
-  return CLUTTER_KEYMAP (backend_x11->keymap);
-}
-
 static void
 clutter_backend_x11_class_init (ClutterBackendX11Class *klass)
 {
@@ -778,8 +657,6 @@ clutter_backend_x11_class_init (ClutterBackendX11Class *klass)
 
   gobject_class->dispose = clutter_backend_x11_dispose;
   gobject_class->finalize = clutter_backend_x11_finalize;
-
-  backend_class->create_stage = clutter_backend_x11_create_stage;
 
   backend_class->pre_parse = clutter_backend_x11_pre_parse;
   backend_class->post_parse = clutter_backend_x11_post_parse;
@@ -790,9 +667,6 @@ clutter_backend_x11_class_init (ClutterBackendX11Class *klass)
 
   backend_class->get_renderer = clutter_backend_x11_get_renderer;
   backend_class->get_display = clutter_backend_x11_get_display;
-
-  backend_class->get_keymap_direction = clutter_backend_x11_get_keymap_direction;
-  backend_class->get_keymap = clutter_backend_x11_get_keymap;
 }
 
 static void
