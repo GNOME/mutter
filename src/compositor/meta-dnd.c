@@ -27,6 +27,7 @@
 #include "core/display-private.h"
 #include "backends/meta-dnd-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-stage-x11.h"
 #include "meta/meta-dnd.h"
 #include "x11/meta-x11-display-private.h"
 
@@ -184,7 +185,7 @@ meta_dnd_handle_xdnd_event (MetaBackend       *backend,
   output_window = meta_compositor_x11_get_output_xwindow (compositor_x11);
   stage = meta_compositor_get_stage (compositor);
   if (xev->xany.window != output_window &&
-      xev->xany.window != clutter_x11_get_stage_window (stage))
+      xev->xany.window != meta_x11_get_stage_window (stage))
     return FALSE;
 
   if (xev->xclient.message_type == XInternAtom (xdisplay, "XdndPosition", TRUE))

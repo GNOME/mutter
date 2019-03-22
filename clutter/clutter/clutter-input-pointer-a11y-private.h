@@ -27,14 +27,19 @@
 
 G_BEGIN_DECLS
 
+CLUTTER_EXPORT
 void _clutter_input_pointer_a11y_add_device      (ClutterInputDevice   *device);
+CLUTTER_EXPORT
 void _clutter_input_pointer_a11y_remove_device   (ClutterInputDevice   *device);
+CLUTTER_EXPORT
 void _clutter_input_pointer_a11y_on_motion_event (ClutterInputDevice   *device,
                                                   float                 x,
                                                   float                 y);
+CLUTTER_EXPORT
 void _clutter_input_pointer_a11y_on_button_event (ClutterInputDevice   *device,
                                                   int                   button,
                                                   gboolean              pressed);
+CLUTTER_EXPORT
 gboolean _clutter_is_input_pointer_a11y_enabled  (ClutterInputDevice     *device);
 
 G_END_DECLS
