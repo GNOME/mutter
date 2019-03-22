@@ -1576,7 +1576,7 @@ retry_page_flips (gpointer user_data)
           g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BUSY))
         {
           retry_page_flip_data->retry_time_us +=
-            G_USEC_PER_SEC / crtc->current_mode->refresh_rate;
+            (uint64_t) (G_USEC_PER_SEC / crtc->current_mode->refresh_rate);
           l = l_next;
           continue;
         }
@@ -1660,7 +1660,7 @@ schedule_retry_page_flip (MetaOnscreenNative *onscreen_native,
 
   now_us = g_get_monotonic_time ();
   retry_time_us =
-    now_us + (G_USEC_PER_SEC / crtc->current_mode->refresh_rate);
+    now_us + (uint64_t) (G_USEC_PER_SEC / crtc->current_mode->refresh_rate);
 
   retry_page_flip_data = g_new0 (RetryPageFlipData, 1);
   retry_page_flip_data->crtc = crtc;
