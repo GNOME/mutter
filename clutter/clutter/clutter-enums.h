@@ -444,6 +444,88 @@ typedef enum
 } ClutterKeyboardA11yFlags;
 
 /**
+ * ClutterPointerA11yFlags:
+ * @CLUTTER_A11Y_POINTER_ENABLED:
+ * @CLUTTER_A11Y_SECONDARY_CLICK_ENABLED:
+ * @CLUTTER_A11Y_DWELL_ENABLED:
+ *
+ * Pointer accessibility features applied to a ClutterInputDevice pointer.
+ *
+ */
+typedef enum {
+  CLUTTER_A11Y_SECONDARY_CLICK_ENABLED   = 1 << 0,
+  CLUTTER_A11Y_DWELL_ENABLED             = 1 << 1,
+} ClutterPointerA11yFlags;
+
+/**
+ * ClutterPointerA11yDwellClickType:
+ * @CLUTTER_A11Y_DWELL_CLICK_TYPE_NONE: Internal use only
+ * @CLUTTER_A11Y_DWELL_CLICK_TYPE_PRIMARY:
+ * @CLUTTER_A11Y_DWELL_CLICK_TYPE_SECONDARY:
+ * @CLUTTER_A11Y_DWELL_CLICK_TYPE_MIDDLE:
+ * @CLUTTER_A11Y_DWELL_CLICK_TYPE_DOUBLE:
+ * @CLUTTER_A11Y_DWELL_CLICK_TYPE_DRAG:
+ *
+ * Dwell click types.
+ *
+ */
+typedef enum {
+  CLUTTER_A11Y_DWELL_CLICK_TYPE_NONE,
+  CLUTTER_A11Y_DWELL_CLICK_TYPE_PRIMARY,
+  CLUTTER_A11Y_DWELL_CLICK_TYPE_SECONDARY,
+  CLUTTER_A11Y_DWELL_CLICK_TYPE_MIDDLE,
+  CLUTTER_A11Y_DWELL_CLICK_TYPE_DOUBLE,
+  CLUTTER_A11Y_DWELL_CLICK_TYPE_DRAG,
+} ClutterPointerA11yDwellClickType;
+
+/**
+ * ClutterPointerA11yDwellDirection:
+ * @CLUTTER_A11Y_DWELL_DIRECTION_NONE:
+ * @CLUTTER_A11Y_DWELL_DIRECTION_LEFT:
+ * @CLUTTER_A11Y_DWELL_DIRECTION_RIGHT:
+ * @CLUTTER_A11Y_DWELL_DIRECTION_UP:
+ * @CLUTTER_A11Y_DWELL_DIRECTION_DOWN:
+ *
+ * Dwell gesture directions.
+ *
+ */
+typedef enum {
+  CLUTTER_A11Y_DWELL_DIRECTION_NONE,
+  CLUTTER_A11Y_DWELL_DIRECTION_LEFT,
+  CLUTTER_A11Y_DWELL_DIRECTION_RIGHT,
+  CLUTTER_A11Y_DWELL_DIRECTION_UP,
+  CLUTTER_A11Y_DWELL_DIRECTION_DOWN,
+} ClutterPointerA11yDwellDirection;
+
+/**
+ * ClutterPointerA11yDwellMode:
+ * @CLUTTER_A11Y_DWELL_MODE_WINDOW:
+ * @CLUTTER_A11Y_DWELL_MODE_GESTURE:
+ *
+ * Dwell mode.
+ *
+ */
+typedef enum {
+  CLUTTER_A11Y_DWELL_MODE_WINDOW,
+  CLUTTER_A11Y_DWELL_MODE_GESTURE,
+} ClutterPointerA11yDwellMode;
+
+/**
+ * ClutterPointerA11yTimeoutType:
+ * @CLUTTER_A11Y_TIMEOUT_TYPE_SECONDARY_CLICK:
+ * @CLUTTER_A11Y_TIMEOUT_TYPE_DWELL:
+ * @CLUTTER_A11Y_TIMEOUT_TYPE_GESTURE:
+ *
+ * Pointer accessibility timeout type.
+ *
+ */
+typedef enum {
+  CLUTTER_A11Y_TIMEOUT_TYPE_SECONDARY_CLICK,
+  CLUTTER_A11Y_TIMEOUT_TYPE_DWELL,
+  CLUTTER_A11Y_TIMEOUT_TYPE_GESTURE,
+} ClutterPointerA11yTimeoutType;
+
+/**
  * ClutterActorFlags:
  * @CLUTTER_ACTOR_MAPPED: the actor will be painted (is visible, and inside
  *   a toplevel, and all parents visible)
