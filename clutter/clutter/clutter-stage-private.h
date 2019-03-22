@@ -40,8 +40,10 @@ void                _clutter_stage_paint_view            (ClutterStage          
                                                           ClutterStageView            *view,
                                                           const cairo_rectangle_int_t *clip);
 
+CLUTTER_EXPORT
 void                _clutter_stage_set_window            (ClutterStage          *stage,
                                                           ClutterStageWindow    *stage_window);
+CLUTTER_EXPORT
 ClutterStageWindow *_clutter_stage_get_window            (ClutterStage          *stage);
 void                _clutter_stage_get_projection_matrix (ClutterStage          *stage,
                                                           CoglMatrix            *projection);
@@ -63,6 +65,7 @@ void                _clutter_stage_maybe_relayout        (ClutterActor          
 gboolean            _clutter_stage_needs_update          (ClutterStage          *stage);
 gboolean            _clutter_stage_do_update             (ClutterStage          *stage);
 
+CLUTTER_EXPORT
 void     _clutter_stage_queue_event                       (ClutterStage *stage,
                                                            ClutterEvent *event,
                                                            gboolean      copy_event);
@@ -115,9 +118,13 @@ ClutterActor *  _clutter_stage_get_touch_drag_actor    (ClutterStage         *st
 void            _clutter_stage_remove_touch_drag_actor (ClutterStage         *stage,
                                                         ClutterEventSequence *sequence);
 
+CLUTTER_EXPORT
 ClutterStageState       _clutter_stage_get_state        (ClutterStage      *stage);
+CLUTTER_EXPORT
 gboolean                _clutter_stage_is_activated     (ClutterStage      *stage);
+CLUTTER_EXPORT
 gboolean                _clutter_stage_is_fullscreen    (ClutterStage      *stage);
+CLUTTER_EXPORT
 gboolean                _clutter_stage_update_state     (ClutterStage      *stage,
                                                          ClutterStageState  unset_state,
                                                          ClutterStageState  set_state);

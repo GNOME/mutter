@@ -1,7 +1,4 @@
-/* Clutter.
- * An OpenGL based 'interactive canvas' library.
- *
- * Copyright (C) 2006, 2007, 2008  OpenedHand Ltd
+/* Copyright (C) 2006, 2007, 2008  OpenedHand Ltd
  * Copyright (C) 2009, 2010  Intel Corp.
  *
  * This library is free software; you can redistribute it and/or
@@ -24,21 +21,14 @@
  *      Emmanuele Bassi <ebassi@linux.intel.com>
  */
 
-#include "clutter-build-config.h"
+#include "config.h"
 
-#include "clutter-backend-x11.h"
-#include "clutter-x11.h"
-
-#include "clutter-backend-private.h"
-#include "clutter-debug.h"
-#include "clutter-event-private.h"
-#include "clutter-main.h"
-#include "clutter-private.h"
-#include "clutter-stage-private.h"
-
+#include <clutter/clutter-mutter.h>
+#include <clutter/x11/clutter-x11.h>
+#include <glib.h>
 #include <string.h>
 
-#include <glib.h>
+#include "backends/x11/meta-event-x11.h"
 
 #if 0
 /* XEMBED protocol support for toolkit embedding */
@@ -63,30 +53,30 @@
 static Window ParentEmbedderWin = None;
 #endif
 
-ClutterEventX11 *
-_clutter_event_x11_new (void)
+MetaEventX11 *
+meta_event_x11_new (void)
 {
-  return g_slice_new0 (ClutterEventX11);
+  return g_slice_new0 (MetaEventX11);
 }
 
-ClutterEventX11 *
-_clutter_event_x11_copy (ClutterEventX11 *event_x11)
+MetaEventX11 *
+meta_event_x11_copy (MetaEventX11 *event_x11)
 {
   if (event_x11 != NULL)
-    return g_slice_dup (ClutterEventX11, event_x11);
+    return g_slice_dup (MetaEventX11, event_x11);
 
   return NULL;
 }
 
 void
-_clutter_event_x11_free (ClutterEventX11 *event_x11)
+meta_event_x11_free (MetaEventX11 *event_x11)
 {
   if (event_x11 != NULL)
-    g_slice_free (ClutterEventX11, event_x11);
+    g_slice_free (MetaEventX11, event_x11);
 }
 
 /**
- * clutter_x11_handle_event:
+ * meta_x11_handle_event:
  * @xevent: pointer to XEvent structure
  *
  * This function processes a single X event; it can be used to hook
@@ -104,7 +94,7 @@ _clutter_event_x11_free (ClutterEventX11 *event_x11)
  * Since: 0.8
  */
 ClutterX11FilterReturn
-clutter_x11_handle_event (XEvent *xevent)
+meta_x11_handle_event (XEvent *xevent)
 {
   ClutterX11FilterReturn result;
   ClutterBackend *backend;
@@ -115,12 +105,12 @@ clutter_x11_handle_event (XEvent *xevent)
   gboolean allocated_event;
 
   /* The return values here are someone approximate; we return
-   * CLUTTER_X11_FILTER_REMOVE if a clutter event is
+   * META_X11_FILTER_REMOVE if a clutter event is
    * generated for the event. This mostly, but not entirely,
    * corresponds to whether other event processing should be
    * excluded. As long as the stage window is not shared with another
    * toolkit it should be safe, and never return
-   * %CLUTTER_X11_FILTER_REMOVE when more processing is needed.
+   * %META_X11_FILTER_REMOVE when more processing is needed.
    */
 
   result = CLUTTER_X11_FILTER_CONTINUE;
@@ -173,40 +163,18 @@ out:
   return result;
 }
 
-/**
- * clutter_x11_get_current_event_time: (skip)
- *
- * Retrieves the timestamp of the last X11 event processed by
- * Clutter. This might be different from the timestamp returned
- * by clutter_get_current_event_time(), as Clutter may synthesize
- * or throttle events.
- *
- * Return value: a timestamp, in milliseconds
- *
- * Since: 1.0
- */
 Time
-clutter_x11_get_current_event_time (void)
+meta_x11_get_current_event_time (void)
 {
   ClutterBackend *backend = clutter_get_default_backend ();
 
   return CLUTTER_BACKEND_X11 (backend)->last_event_time;
 }
 
-/**
- * clutter_x11_event_get_key_group:
- * @event: a #ClutterEvent of type %CLUTTER_KEY_PRESS or %CLUTTER_KEY_RELEASE
- *
- * Retrieves the group for the modifiers set in @event
- *
- * Return value: the group id
- *
- * Since: 1.4
- */
 gint
-clutter_x11_event_get_key_group (const ClutterEvent *event)
+meta_x11_event_get_key_group (const ClutterEvent *event)
 {
-  ClutterEventX11 *event_x11;
+  MetaEventX11 *event_x11;
 
   g_return_val_if_fail (event != NULL, 0);
   g_return_val_if_fail (event->type == CLUTTER_KEY_PRESS ||
@@ -219,18 +187,8 @@ clutter_x11_event_get_key_group (const ClutterEvent *event)
   return event_x11->key_group;
 }
 
-/**
- * clutter_x11_event_sequence_get_touch_detail:
- * @sequence: a #ClutterEventSequence
- *
- * Retrieves the touch detail froma #ClutterEventSequence.
- *
- * Return value: the touch detail
- *
- * Since: 1.12
- */
 guint
-clutter_x11_event_sequence_get_touch_detail (const ClutterEventSequence *sequence)
+meta_x11_event_sequence_get_touch_detail (const ClutterEventSequence *sequence)
 {
   g_return_val_if_fail (sequence != NULL, 0);
 

@@ -29,6 +29,8 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-renderer.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
+#include "backends/x11/meta-device-manager-x11.h"
+#include "backends/x11/meta-keymap-x11.h"
 #include "backends/x11/meta-stage-x11-nested.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter.h"
@@ -38,6 +40,8 @@
 struct _MetaClutterBackendX11
 {
   ClutterBackendX11 parent;
+  MetaKeymapX11 *keymap;
+  MetaDeviceManagerX11 *device_manager;
 };
 
 G_DEFINE_TYPE (MetaClutterBackendX11, meta_clutter_backend_x11,
@@ -64,7 +68,7 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *backend,
   if (meta_is_wayland_compositor ())
     stage_type = META_TYPE_STAGE_X11_NESTED;
   else
-    stage_type  = CLUTTER_TYPE_STAGE_X11;
+    stage_type  = META_TYPE_STAGE_X11;
 
   stage = g_object_new (stage_type,
 			"backend", backend,
@@ -81,6 +85,94 @@ meta_clutter_backend_x11_bell_notify (ClutterBackend  *backend)
   meta_bell_notify (display, NULL);
 }
 
+static ClutterDeviceManager *
+meta_clutter_backend_x11_get_device_manager (ClutterBackend *backend)
+{
+  MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
+
+  return CLUTTER_DEVICE_MANAGER (backend_x11->device_manager);
+}
+
+static PangoDirection
+meta_clutter_backend_x11_get_keymap_direction (ClutterBackend *backend)
+{
+  ClutterKeymap *keymap = clutter_backend_get_keymap (backend);
+
+  if (G_UNLIKELY (keymap == NULL))
+    return PANGO_DIRECTION_NEUTRAL;
+
+  return meta_keymap_x11_get_direction (META_KEYMAP_X11 (keymap));
+}
+
+static ClutterKeymap *
+meta_clutter_backend_x11_get_keymap (ClutterBackend *backend)
+{
+  MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
+
+  return CLUTTER_KEYMAP (backend_x11->keymap);
+}
+
+static gboolean
+meta_clutter_backend_x11_translate_event (ClutterBackend *backend,
+                                          gpointer        native,
+                                          ClutterEvent   *event)
+{
+  MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
+  const GList *l;
+
+  if (CLUTTER_BACKEND_CLASS (meta_clutter_backend_x11_parent_class)->translate_event (backend, native, event))
+    return TRUE;
+
+  if (meta_keymap_x11_handle_event (backend_x11->keymap, native))
+    return TRUE;
+
+  for (l = clutter_backend_get_stage_windows (backend); l; l = l->next)
+    {
+      if (meta_stage_x11_translate_event (l->data, native, event))
+        return TRUE;
+    }
+
+  if (meta_device_manager_x11_translate_event (META_DEVICE_MANAGER_X11 (backend_x11->device_manager),
+                                               native, event))
+    return TRUE;
+
+  return FALSE;
+}
+
+static void
+meta_clutter_backend_x11_init_events (ClutterBackend *backend)
+{
+  MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
+  int event_base, first_event, first_error;
+
+  if (XQueryExtension (clutter_x11_get_default_display (),
+                       "XInputExtension",
+                       &event_base,
+                       &first_event,
+                       &first_error))
+    {
+      int major = 2;
+      int minor = 3;
+
+      if (XIQueryVersion (clutter_x11_get_default_display (),
+                          &major, &minor) != BadRequest)
+        {
+          backend_x11->device_manager =
+            g_object_new (META_TYPE_DEVICE_MANAGER_X11,
+                          "backend", backend_x11,
+                          "opcode", event_base,
+                          NULL);
+        }
+    }
+
+  if (!backend_x11->device_manager)
+    g_error ("No XInput 2.3 support");
+
+  backend_x11->keymap = g_object_new (META_TYPE_KEYMAP_X11,
+                                      "backend", backend_x11,
+                                      NULL);
+}
+
 static void
 meta_clutter_backend_x11_init (MetaClutterBackendX11 *clutter_backend_x11)
 {
@@ -94,4 +186,9 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
   clutter_backend_class->get_renderer = meta_clutter_backend_x11_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_x11_create_stage;
   clutter_backend_class->bell_notify = meta_clutter_backend_x11_bell_notify;
+  clutter_backend_class->get_device_manager = meta_clutter_backend_x11_get_device_manager;
+  clutter_backend_class->get_keymap_direction = meta_clutter_backend_x11_get_keymap_direction;
+  clutter_backend_class->get_keymap = meta_clutter_backend_x11_get_keymap;
+  clutter_backend_class->translate_event = meta_clutter_backend_x11_translate_event;
+  clutter_backend_class->init_events = meta_clutter_backend_x11_init_events;
 }

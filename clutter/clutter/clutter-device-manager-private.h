@@ -174,11 +174,14 @@ struct _ClutterInputDeviceClass
 };
 
 /* device manager */
+CLUTTER_EXPORT
 void            _clutter_device_manager_add_device              (ClutterDeviceManager *device_manager,
                                                                  ClutterInputDevice   *device);
+CLUTTER_EXPORT
 void            _clutter_device_manager_remove_device           (ClutterDeviceManager *device_manager,
                                                                  ClutterInputDevice   *device);
 void            _clutter_device_manager_update_devices          (ClutterDeviceManager *device_manager);
+CLUTTER_EXPORT
 void            _clutter_device_manager_select_stage_events     (ClutterDeviceManager *device_manager,
                                                                  ClutterStage         *stage);
 ClutterBackend *_clutter_device_manager_get_backend             (ClutterDeviceManager *device_manager);
@@ -188,23 +191,31 @@ void            _clutter_device_manager_compress_motion         (ClutterDeviceMa
                                                                  const ClutterEvent   *to_discard);
 
 /* input device */
+CLUTTER_EXPORT
 gboolean        _clutter_input_device_has_sequence              (ClutterInputDevice   *device,
                                                                  ClutterEventSequence *sequence);
+CLUTTER_EXPORT
 void            _clutter_input_device_add_event_sequence        (ClutterInputDevice   *device,
                                                                  ClutterEvent         *event);
+CLUTTER_EXPORT
 void            _clutter_input_device_remove_event_sequence     (ClutterInputDevice   *device,
                                                                  ClutterEvent         *event);
+CLUTTER_EXPORT
 void            _clutter_input_device_set_coords                (ClutterInputDevice   *device,
                                                                  ClutterEventSequence *sequence,
                                                                  gfloat                x,
                                                                  gfloat                y,
                                                                  ClutterStage         *stage);
+CLUTTER_EXPORT
 void            _clutter_input_device_set_state                 (ClutterInputDevice   *device,
                                                                  ClutterModifierType   state);
+CLUTTER_EXPORT
 void            _clutter_input_device_set_time                  (ClutterInputDevice   *device,
                                                                  guint32               time_);
+CLUTTER_EXPORT
 void            _clutter_input_device_set_stage                 (ClutterInputDevice   *device,
                                                                  ClutterStage         *stage);
+CLUTTER_EXPORT
 ClutterStage *  _clutter_input_device_get_stage                 (ClutterInputDevice   *device);
 void            _clutter_input_device_set_actor                 (ClutterInputDevice   *device,
                                                                  ClutterEventSequence *sequence,
@@ -213,44 +224,57 @@ void            _clutter_input_device_set_actor                 (ClutterInputDev
 ClutterActor *  _clutter_input_device_update                    (ClutterInputDevice   *device,
                                                                  ClutterEventSequence *sequence,
                                                                  gboolean              emit_crossing);
+CLUTTER_EXPORT
 void            _clutter_input_device_set_n_keys                (ClutterInputDevice   *device,
                                                                  guint                 n_keys);
+CLUTTER_EXPORT
 guint           _clutter_input_device_add_axis                  (ClutterInputDevice   *device,
                                                                  ClutterInputAxis      axis,
                                                                  gdouble               min_value,
                                                                  gdouble               max_value,
                                                                  gdouble               resolution);
+CLUTTER_EXPORT
 void            _clutter_input_device_reset_axes                (ClutterInputDevice   *device);
 
+CLUTTER_EXPORT
 void            _clutter_input_device_set_associated_device     (ClutterInputDevice   *device,
                                                                  ClutterInputDevice   *associated);
+CLUTTER_EXPORT
 void            _clutter_input_device_add_slave                 (ClutterInputDevice   *master,
                                                                  ClutterInputDevice   *slave);
+CLUTTER_EXPORT
 void            _clutter_input_device_remove_slave              (ClutterInputDevice   *master,
                                                                  ClutterInputDevice   *slave);
 
+CLUTTER_EXPORT
 gboolean        _clutter_input_device_translate_axis            (ClutterInputDevice   *device,
                                                                  guint                 index_,
                                                                  gdouble               value,
                                                                  gdouble              *axis_value);
 
+CLUTTER_EXPORT
 void            _clutter_input_device_add_scroll_info           (ClutterInputDevice   *device,
                                                                  guint                 index_,
                                                                  ClutterScrollDirection direction,
                                                                  gdouble               increment);
+CLUTTER_EXPORT
 void            _clutter_input_device_reset_scroll_info         (ClutterInputDevice   *device);
+CLUTTER_EXPORT
 gboolean        _clutter_input_device_get_scroll_delta          (ClutterInputDevice   *device,
                                                                  guint                 index_,
                                                                  gdouble               value,
                                                                  ClutterScrollDirection *direction_p,
                                                                  gdouble                *delta_p);
 
+CLUTTER_EXPORT
 ClutterInputDeviceTool * clutter_input_device_lookup_tool       (ClutterInputDevice         *device,
                                                                  guint64                     serial,
                                                                  ClutterInputDeviceToolType  type);
+CLUTTER_EXPORT
 void            clutter_input_device_add_tool                   (ClutterInputDevice     *device,
                                                                  ClutterInputDeviceTool *tool);
 
+CLUTTER_EXPORT
 void            clutter_input_device_update_from_tool           (ClutterInputDevice     *device,
                                                                  ClutterInputDeviceTool *tool);
 

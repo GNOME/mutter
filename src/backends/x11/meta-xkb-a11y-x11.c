@@ -1,5 +1,4 @@
 /*
- *
  * Copyright © 2001 Ximian, Inc.
  * Copyright (C) 2007 William Jon McCann <mccann@jhu.edu>
  * Copyright (C) 2017 Red Hat
@@ -21,11 +20,15 @@
  *
  */
 
-#include "clutter-device-manager-private.h"
-#include "clutter-xkb-a11y-x11.h"
+#include "config.h"
 
 #include <X11/XKBlib.h>
 #include <X11/extensions/XKBstr.h>
+#include <clutter/x11/clutter-x11.h>
+
+#include "backends/x11/meta-xkb-a11y-x11.h"
+#include "core/display-private.h"
+#include "meta/meta-x11-errors.h"
 
 #define DEFAULT_XKB_SET_CONTROLS_MASK XkbSlowKeysMask         | \
                                       XkbBounceKeysMask       | \
@@ -40,17 +43,17 @@
 static int _xkb_event_base;
 
 static XkbDescRec *
-get_xkb_desc_rec (ClutterBackendX11 *backend_x11)
+get_xkb_desc_rec (Display *xdisplay)
 {
   XkbDescRec *desc;
   Status      status = Success;
 
   clutter_x11_trap_x_errors ();
-  desc = XkbGetMap (backend_x11->xdpy, XkbAllMapComponentsMask, XkbUseCoreKbd);
+  desc = XkbGetMap (xdisplay, XkbAllMapComponentsMask, XkbUseCoreKbd);
   if (desc != NULL)
     {
       desc->ctrls = NULL;
-      status = XkbGetControls (backend_x11->xdpy, XkbAllControlsMask, desc);
+      status = XkbGetControls (xdisplay, XkbAllControlsMask, desc);
     }
   clutter_x11_untrap_x_errors ();
 
@@ -62,25 +65,24 @@ get_xkb_desc_rec (ClutterBackendX11 *backend_x11)
 }
 
 static void
-set_xkb_desc_rec (ClutterBackendX11 *backend_x11,
-                  XkbDescRec        *desc)
+set_xkb_desc_rec (Display    *xdisplay,
+                  XkbDescRec *desc)
 {
   clutter_x11_trap_x_errors ();
-  XkbSetControls (backend_x11->xdpy, DEFAULT_XKB_SET_CONTROLS_MASK, desc);
-  XSync (backend_x11->xdpy, FALSE);
+  XkbSetControls (xdisplay, DEFAULT_XKB_SET_CONTROLS_MASK, desc);
+  XSync (xdisplay, FALSE);
   clutter_x11_untrap_x_errors ();
 }
 
 static void
 check_settings_changed (ClutterDeviceManager *device_manager)
 {
-  ClutterBackendX11 *backend_x11;
+  Display *xdisplay = clutter_x11_get_default_display ();
   ClutterKbdA11ySettings kbd_a11y_settings;
   ClutterKeyboardA11yFlags what_changed = 0;
   XkbDescRec *desc;
 
-  backend_x11 = CLUTTER_BACKEND_X11 (clutter_get_default_backend ());
-  desc = get_xkb_desc_rec (backend_x11);
+  desc = get_xkb_desc_rec (xdisplay);
   if (!desc)
     return;
 
@@ -145,14 +147,14 @@ xkb_a11y_event_filter (XEvent       *xevent,
 }
 
 static gboolean
-is_xkb_available (ClutterBackendX11 *backend_x11)
+is_xkb_available (Display *xdisplay)
 {
   gint opcode, error_base, event_base, major, minor;
 
   if (_xkb_event_base)
     return TRUE;
 
-  if (!XkbQueryExtension (backend_x11->xdpy,
+  if (!XkbQueryExtension (xdisplay,
                           &opcode,
                           &event_base,
                           &error_base,
@@ -160,7 +162,7 @@ is_xkb_available (ClutterBackendX11 *backend_x11)
                           &minor))
     return FALSE;
 
-  if (!XkbUseExtension (backend_x11->xdpy, &major, &minor))
+  if (!XkbUseExtension (xdisplay, &major, &minor))
     return FALSE;
 
   _xkb_event_base = event_base;
@@ -192,15 +194,14 @@ set_xkb_ctrl (XkbDescRec               *desc,
 }
 
 void
-clutter_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
-                                                    ClutterKbdA11ySettings *kbd_a11y_settings)
+meta_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
+                                                 ClutterKbdA11ySettings *kbd_a11y_settings)
 {
-  ClutterBackendX11 *backend_x11;
-  XkbDescRec      *desc;
-  gboolean         enable_accessX;
+  Display *xdisplay = clutter_x11_get_default_display ();
+  XkbDescRec *desc;
+  gboolean enable_accessX;
 
-  backend_x11 = CLUTTER_BACKEND_X11 (clutter_get_default_backend ());
-  desc = get_xkb_desc_rec (backend_x11);
+  desc = get_xkb_desc_rec (xdisplay);
   if (!desc)
     return;
 
@@ -302,25 +303,22 @@ clutter_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *devi
     set_value_mask (kbd_a11y_settings->controls & CLUTTER_A11Y_TOGGLE_KEYS_ENABLED,
                     desc->ctrls->ax_options, XkbAccessXFeedbackMask | XkbAX_IndicatorFBMask);
 
-  set_xkb_desc_rec (backend_x11, desc);
+  set_xkb_desc_rec (xdisplay, desc);
   XkbFreeKeyboard (desc, XkbAllComponentsMask, TRUE);
 }
 
 gboolean
-clutter_device_manager_x11_a11y_init (ClutterDeviceManager *device_manager)
+meta_device_manager_x11_a11y_init (ClutterDeviceManager *device_manager)
 {
-  ClutterBackendX11 *backend_x11;
+  Display *xdisplay = clutter_x11_get_default_display ();
   guint event_mask;
 
-  backend_x11 =
-    CLUTTER_BACKEND_X11 (_clutter_device_manager_get_backend (device_manager));
-
-  if (!is_xkb_available (backend_x11))
+  if (!is_xkb_available (xdisplay))
     return FALSE;
 
   event_mask = XkbControlsNotifyMask | XkbAccessXNotifyMask;
 
-  XkbSelectEvents (backend_x11->xdpy, XkbUseCoreKbd, event_mask, event_mask);
+  XkbSelectEvents (xdisplay, XkbUseCoreKbd, event_mask, event_mask);
 
   clutter_x11_add_filter (xkb_a11y_event_filter, device_manager);
 

@@ -255,7 +255,7 @@ clutter_device_manager_get_default (void)
 {
   ClutterBackend *backend = clutter_get_default_backend ();
 
-  return backend->device_manager;
+  return CLUTTER_BACKEND_GET_CLASS (backend)->get_device_manager (backend);
 }
 
 /**

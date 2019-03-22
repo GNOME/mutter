@@ -59,6 +59,8 @@
 
 #include "backends/meta-dnd-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-event-x11.h"
+#include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
 #include "compositor/meta-sync-ring.h"
@@ -234,7 +236,7 @@ meta_set_stage_input_region (MetaDisplay  *display,
     {
       MetaCompositor *compositor = display->compositor;
       Display *xdpy = meta_x11_display_get_xdisplay (display->x11_display);
-      Window xstage = clutter_x11_get_stage_window (CLUTTER_STAGE (compositor->stage));
+      Window xstage = meta_x11_get_stage_window (CLUTTER_STAGE (compositor->stage));
 
       XFixesSetWindowShapeRegion (xdpy, xstage, ShapeInput, 0, 0, region);
 
@@ -274,7 +276,7 @@ meta_focus_stage_window (MetaDisplay *display,
   if (!stage)
     return;
 
-  window = clutter_x11_get_stage_window (stage);
+  window = meta_x11_get_stage_window (stage);
 
   if (window == None)
     return;
@@ -297,7 +299,7 @@ meta_stage_is_focused (MetaDisplay *display)
   if (!stage)
     return FALSE;
 
-  window = clutter_x11_get_stage_window (stage);
+  window = meta_x11_get_stage_window (stage);
 
   if (window == None)
     return FALSE;
@@ -801,7 +803,7 @@ meta_compositor_process_event (MetaCompositor *compositor,
   /* Clutter needs to know about MapNotify events otherwise it will
      think the stage is invisible */
   if (!meta_is_wayland_compositor () && event->type == MapNotify)
-    clutter_x11_handle_event (event);
+    meta_x11_handle_event (event);
 
   /* The above handling is basically just "observing" the events, so we return
    * FALSE to indicate that the event should not be filtered out; if we have

@@ -529,14 +529,6 @@ clutter_backend_real_init_events (ClutterBackend *backend)
   if (input_backend != NULL)
     input_backend = g_intern_string (input_backend);
 
-#ifdef CLUTTER_INPUT_X11
-  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
-      (input_backend == NULL || input_backend == I_(CLUTTER_INPUT_X11)))
-    {
-      _clutter_backend_x11_events_init (backend);
-    }
-  else
-#endif
 #ifdef CLUTTER_INPUT_EVDEV
   /* Evdev can be used regardless of the windowing system */
   if ((input_backend != NULL && strcmp (input_backend, CLUTTER_INPUT_EVDEV) == 0)
