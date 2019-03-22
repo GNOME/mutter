@@ -134,6 +134,10 @@ void            _clutter_stage_presented                (ClutterStage      *stag
 
 GList *         _clutter_stage_peek_stage_views         (ClutterStage *stage);
 
+void            clutter_stage_get_frame_times           (ClutterStage *stage,
+                                                         double       *paint_time,
+                                                         double       *layout_time);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */
