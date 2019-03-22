@@ -185,7 +185,9 @@ typedef struct
 gboolean _clutter_threads_dispatch      (gpointer data);
 void     _clutter_threads_dispatch_free (gpointer data);
 
+CLUTTER_EXPORT
 void                    _clutter_threads_acquire_lock                   (void);
+CLUTTER_EXPORT
 void                    _clutter_threads_release_lock                   (void);
 
 ClutterMainContext *    _clutter_context_get_default                    (void);
@@ -294,6 +296,7 @@ gboolean        _clutter_util_matrix_decompose  (const ClutterMatrix *src,
                                                  ClutterVertex       *translate_p,
                                                  ClutterVertex4      *perspective_p);
 
+CLUTTER_EXPORT
 PangoDirection _clutter_pango_unichar_direction (gunichar ch);
 
 PangoDirection _clutter_pango_find_base_dir     (const gchar *text,
