@@ -26,10 +26,15 @@
 #define __CLUTTER_H_INSIDE__
 
 #include "clutter-backend.h"
+#include "clutter-device-manager-private.h"
+#include "clutter-event-private.h"
+#include "clutter-input-pointer-a11y-private.h"
 #include "clutter-macros.h"
+#include "clutter-private.h"
+#include "clutter-stage-private.h"
 #include "clutter-stage-view.h"
 #include "cogl/clutter-stage-cogl.h"
-#include "x11/clutter-stage-x11.h"
+#include "clutter/x11/clutter-backend-x11.h"
 
 CLUTTER_EXPORT
 void clutter_set_custom_backend_func (ClutterBackend *(* func) (void));
