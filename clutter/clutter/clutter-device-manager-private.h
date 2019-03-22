@@ -167,10 +167,6 @@ struct _ClutterInputDeviceClass
   gboolean (* is_grouped) (ClutterInputDevice *device,
                            ClutterInputDevice *other_device);
 
-  gboolean (* get_physical_size) (ClutterInputDevice *device,
-                                  gdouble            *width,
-                                  gdouble            *height);
-
   /* Keyboard accessbility */
   void (* process_kbd_a11y_event) (ClutterEvent               *event,
                                    ClutterInputDevice         *device,
