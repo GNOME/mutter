@@ -405,6 +405,157 @@ paint_damage_region (ClutterStageWindow    *stage_window,
   cogl_framebuffer_pop_matrix (framebuffer);
 }
 
+#define CHART_COLUMN_WIDTH 6 //px
+#define THRESHOLD_LINE_HEIGHT 2 //px
+#define MAX_FRAME_TIME_INFO_ENTRIES 1000
+
+typedef struct
+{
+  double layout_time;
+  double paint_time;
+} FrameTimeInfo;
+
+static void
+paint_frame_time_chart (ClutterStageWindow *stage_window,
+                        ClutterStageView   *view)
+{
+  CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  ClutterActor *actor = CLUTTER_ACTOR (stage_cogl->wrapper);
+  cairo_rectangle_int_t layout;
+  static CoglPipeline *threshold_pipeline = NULL;
+  static CoglPipeline *paint_time_pipeline = NULL;
+  static CoglPipeline *layout_time_pipeline = NULL;
+  CoglMatrix modelview;
+  double refresh_rate_bar_height;
+  double ms_per_frame;
+  float green_line_y;
+  int sync_delay;
+  int n_points;
+  int i;
+
+  if (G_UNLIKELY (paint_time_pipeline == NULL))
+    {
+      paint_time_pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_color4ub (paint_time_pipeline, 0x00, 0x00, 0x60, 0xa0);
+    }
+
+  if (G_UNLIKELY (layout_time_pipeline == NULL))
+    {
+      layout_time_pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_color4ub (layout_time_pipeline, 0x00, 0x60, 0x00, 0xa0);
+    }
+
+  if (G_UNLIKELY (threshold_pipeline == NULL))
+    {
+      threshold_pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_color4ub (threshold_pipeline, 0x40,  0x00, 0x00, 0x80);
+    }
+
+  cogl_framebuffer_push_matrix (framebuffer);
+  cogl_matrix_init_identity (&modelview);
+  _clutter_actor_apply_modelview_transform (actor, &modelview);
+  cogl_framebuffer_set_modelview_matrix (framebuffer, &modelview);
+
+  clutter_stage_view_get_layout (view, &layout);
+  g_message ("  Onscreen: %p", framebuffer);
+  g_message ("  View layout: %dx%d", layout.width, layout.height);
+
+  n_points = layout.width / CHART_COLUMN_WIDTH;
+  g_message ("  n_points: %d", n_points);
+
+  /* Chart */
+  sync_delay = clutter_stage_get_sync_delay (stage_cogl->wrapper);
+  ms_per_frame = 1000.0 / stage_cogl->refresh_rate - sync_delay;
+  refresh_rate_bar_height = layout.height * 0.1;
+
+  for (i = 0; i < MIN (stage_cogl->frame_times->len, n_points); i++)
+    {
+      int element = stage_cogl->frame_times->len - i - 1;
+      FrameTimeInfo *info = &g_array_index (stage_cogl->frame_times, FrameTimeInfo, element);
+      double x_1 = layout.width - (i + 1) * CHART_COLUMN_WIDTH;
+      double x_2 = layout.width - i * CHART_COLUMN_WIDTH;
+      double layout_bar_height;
+      double paint_bar_height;
+
+      /* Layout time section */
+      layout_bar_height =
+        info->layout_time / ms_per_frame * refresh_rate_bar_height;
+      cogl_framebuffer_draw_rectangle (framebuffer,
+                                       layout_time_pipeline,
+                                       x_1,
+                                       layout.height - layout_bar_height,
+                                       x_2,
+                                       layout.height);
+
+      /* Paint time section */
+      paint_bar_height =
+        info->paint_time / ms_per_frame * refresh_rate_bar_height;
+      cogl_framebuffer_draw_rectangle (framebuffer,
+                                       paint_time_pipeline,
+                                       x_1,
+                                       layout.height - paint_bar_height - layout_bar_height,
+                                       x_2,
+                                       layout.height - layout_bar_height);
+    }
+
+  /* Green line (16.667ms) */
+  green_line_y = layout.height * 0.9;
+  cogl_framebuffer_draw_rectangle (framebuffer,
+                                   threshold_pipeline,
+                                   0.0f,
+                                   green_line_y,
+                                   layout.width,
+                                   green_line_y + THRESHOLD_LINE_HEIGHT);
+
+  cogl_framebuffer_pop_matrix (framebuffer);
+}
+
+static inline void
+append_frame_time_info (ClutterStageCogl *stage_cogl)
+{
+  FrameTimeInfo previous_frame_info;
+
+  if (G_LIKELY (!(clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_FRAME_TIME)))
+    return;
+
+  if (G_UNLIKELY (stage_cogl->frame_times == NULL))
+    stage_cogl->frame_times = g_array_sized_new (FALSE, TRUE,
+                                                 sizeof (FrameTimeInfo),
+                                                 MAX_FRAME_TIME_INFO_ENTRIES);
+
+  clutter_stage_get_frame_times (stage_cogl->wrapper,
+                                 &previous_frame_info.paint_time,
+                                 &previous_frame_info.layout_time);
+
+  g_array_append_val (stage_cogl->frame_times, previous_frame_info);
+
+  if (stage_cogl->frame_times->len > MAX_FRAME_TIME_INFO_ENTRIES)
+    g_array_remove_range (stage_cogl->frame_times, 0,
+                          stage_cogl->frame_times->len - MAX_FRAME_TIME_INFO_ENTRIES);
+
+}
+
+static inline void
+maybe_paint_frame_times (ClutterStageWindow *stage_window,
+                         ClutterStageView   *view)
+{
+  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+
+  if (G_UNLIKELY ((clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_FRAME_TIME)))
+    {
+      paint_frame_time_chart (stage_window, view);
+      stage_cogl->painting_frame_chart = TRUE;
+    }
+  else if (stage_cogl->painting_frame_chart)
+    {
+      g_array_free (stage_cogl->frame_times, TRUE);
+      stage_cogl->frame_times = NULL;
+      stage_cogl->painting_frame_chart = FALSE;
+    }
+}
+
 static gboolean
 swap_framebuffer (ClutterStageWindow    *stage_window,
                   ClutterStageView      *view,
@@ -426,6 +577,8 @@ swap_framebuffer (ClutterStageWindow    *stage_window,
 
   if (G_UNLIKELY ((clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)))
     paint_damage_region (stage_window, view, swap_region);
+
+  maybe_paint_frame_times (stage_window, view);
 
   if (cogl_is_onscreen (framebuffer))
     {
@@ -572,6 +725,7 @@ is_buffer_age_enabled (void)
   /* Buffer age is disabled when running with CLUTTER_PAINT=damage-region,
    * to ensure the red damage represents the currently damaged area */
   return !(clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION) &&
+         !(clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_FRAME_TIME) &&
          cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
 }
 
@@ -930,6 +1084,8 @@ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
   gboolean swap_event = FALSE;
   GList *l;
+
+  append_frame_time_info (stage_cogl);
 
   for (l = _clutter_stage_window_get_views (stage_window); l; l = l->next)
     {

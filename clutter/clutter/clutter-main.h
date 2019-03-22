@@ -74,6 +74,7 @@ typedef enum
   CLUTTER_DEBUG_CONTINUOUS_REDRAW       = 1 << 6,
   CLUTTER_DEBUG_PAINT_DEFORM_TILES      = 1 << 7,
   CLUTTER_DEBUG_PAINT_DAMAGE_REGION     = 1 << 8,
+  CLUTTER_DEBUG_PAINT_FRAME_TIME        = 1 << 9,
 } ClutterDrawDebugFlag;
 
 /**
