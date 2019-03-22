@@ -39,7 +39,7 @@ static ClutterStageWindowInterface *clutter_stage_window_parent_iface = NULL;
 
 struct _MetaStageX11Nested
 {
-  ClutterStageX11 parent;
+  MetaStageX11 parent;
 
   CoglPipeline *pipeline;
 };
@@ -48,11 +48,11 @@ static void
 clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaStageX11Nested, meta_stage_x11_nested,
-                         CLUTTER_TYPE_STAGE_X11,
+                         META_TYPE_STAGE_X11,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_STAGE_WINDOW,
                                                 clutter_stage_window_iface_init))
 
-typedef struct _ClutterStageX11View
+typedef struct _MetaStageX11View
 {
   CoglTexture *texture;
   ClutterStageViewCogl *view;
@@ -108,7 +108,7 @@ draw_crtc (MetaMonitor         *monitor,
            GError             **error)
 {
   DrawCrtcData *data = user_data;
-  ClutterStageX11 *stage_x11 = CLUTTER_STAGE_X11 (data->stage_nested);
+  MetaStageX11 *stage_x11 = META_STAGE_X11 (data->stage_nested);
   CoglFramebuffer *onscreen = COGL_FRAMEBUFFER (stage_x11->onscreen);
   CoglTexture *texture = data->texture;
   MetaLogicalMonitor *logical_monitor = data->logical_monitor;
@@ -247,7 +247,7 @@ static void
 meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window)
 {
   MetaStageX11Nested *stage_nested = META_STAGE_X11_NESTED (stage_window);
-  ClutterStageX11 *stage_x11 = CLUTTER_STAGE_X11 (stage_window);
+  MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
   MetaBackend *backend = meta_get_backend ();
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
