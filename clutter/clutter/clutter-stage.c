@@ -5099,3 +5099,12 @@ _clutter_stage_get_max_view_scale_factor_for_rect (ClutterStage *stage,
   *view_scale = scale;
   return TRUE;
 }
+
+void
+clutter_stage_get_frame_times (ClutterStage *stage,
+                               double       *paint_time,
+                               double       *layout_time)
+{
+  *paint_time = stage->priv->last_paint_time;
+  *layout_time = stage->priv->last_layout_time;
+}
