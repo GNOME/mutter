@@ -30,7 +30,6 @@
 #include "clutter-x11.h"
 
 #include "clutter-backend-private.h"
-#include "clutter-keymap-x11.h"
 
 #include "xsettings/xsettings-client.h"
 
@@ -45,7 +44,6 @@ G_BEGIN_DECLS
 
 typedef struct _ClutterBackendX11       ClutterBackendX11;
 typedef struct _ClutterBackendX11Class  ClutterBackendX11Class;
-typedef struct _ClutterEventX11         ClutterEventX11;
 typedef struct _ClutterX11EventFilter   ClutterX11EventFilter;
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBackendX11, g_object_unref)
@@ -55,16 +53,6 @@ struct _ClutterX11EventFilter
   ClutterX11FilterFunc func;
   gpointer             data;
 
-};
-
-struct _ClutterEventX11
-{
-  /* additional fields for Key events */
-  gint key_group;
-
-  guint key_is_modifier : 1;
-  guint num_lock_set    : 1;
-  guint caps_lock_set   : 1;
 };
 
 struct _ClutterBackendX11
@@ -105,8 +93,6 @@ struct _ClutterBackendX11
 
   XSettingsClient *xsettings;
   Window xsettings_xwin;
-
-  ClutterKeymapX11 *keymap;
 };
 
 struct _ClutterBackendX11Class
@@ -119,16 +105,11 @@ GType clutter_backend_x11_get_type (void) G_GNUC_CONST;
 
 ClutterBackend *clutter_backend_x11_new (void);
 
-void            _clutter_backend_x11_events_init        (ClutterBackend *backend);
-
 /* Private to glx/eglx backends */
+CLUTTER_EXPORT
 XVisualInfo *   _clutter_backend_x11_get_visual_info (ClutterBackendX11 *backend_x11);
 
 void            _clutter_x11_select_events (Window xwin);
-
-ClutterEventX11 *       _clutter_event_x11_new          (void);
-ClutterEventX11 *       _clutter_event_x11_copy         (ClutterEventX11 *event_x11);
-void                    _clutter_event_x11_free         (ClutterEventX11 *event_x11);
 
 gboolean        _clutter_x11_input_device_translate_screen_coord (ClutterInputDevice *device,
                                                                   gint                stage_root_x,
