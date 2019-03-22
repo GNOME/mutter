@@ -180,56 +180,6 @@ clutter_input_device_xi2_is_mode_switch_button (ClutterInputDevice *device,
   return button_group == (int) group;
 }
 
-static gboolean
-clutter_input_device_xi2_get_physical_size (ClutterInputDevice *device,
-                                            gdouble            *width,
-                                            gdouble            *height)
-{
-  Display *xdisplay;
-  XIDeviceInfo *dev_info;
-  gdouble w = 0, h = 0;
-  int i, n_info, device_id;
-
-  xdisplay = clutter_x11_get_default_display ();
-  device_id = clutter_input_device_get_device_id (device);
-
-  clutter_x11_trap_x_errors ();
-  dev_info = XIQueryDevice (xdisplay, device_id, &n_info);
-  if (clutter_x11_untrap_x_errors ())
-    return FALSE;
-
-  if (!dev_info)
-    return FALSE;
-
-  for (i = 0; i < dev_info->num_classes; i++)
-    {
-      XIValuatorClassInfo *valuator;
-      gdouble *value;
-
-      if (dev_info->classes[i]->type != XIValuatorClass)
-        continue;
-
-      valuator = (XIValuatorClassInfo *) dev_info->classes[i];
-
-      if (valuator->label == XInternAtom (xdisplay, "Abs X", True) ||
-          valuator->label == XInternAtom (xdisplay, "Abs MT Position X", True))
-        value = &w;
-      else if (valuator->label == XInternAtom (xdisplay, "Abs Y", True) ||
-               valuator->label == XInternAtom (xdisplay, "Abs MT Position Y", True))
-        value = &h;
-      else
-        continue;
-
-      *value = (valuator->max -  valuator->min) * 1000 / valuator->resolution;
-    }
-
-  XIFreeDeviceInfo (dev_info);
-  *width = w;
-  *height = h;
-
-  return (w > 0 && h > 0);
-}
-
 static void
 clutter_input_device_xi2_class_init (ClutterInputDeviceXI2Class *klass)
 {
@@ -243,7 +193,6 @@ clutter_input_device_xi2_class_init (ClutterInputDeviceXI2Class *klass)
   device_class->is_grouped = clutter_input_device_xi2_is_grouped;
   device_class->get_group_n_modes = clutter_input_device_xi2_get_group_n_modes;
   device_class->is_mode_switch_button = clutter_input_device_xi2_is_mode_switch_button;
-  device_class->get_physical_size = clutter_input_device_xi2_get_physical_size;
 }
 
 static void
