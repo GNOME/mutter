@@ -1114,7 +1114,6 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
 static void
 clutter_stage_do_redraw (ClutterStage *stage)
 {
-  ClutterActor *actor = CLUTTER_ACTOR (stage);
   ClutterStagePrivate *priv = stage->priv;
   int64_t start;
   int64_t end;
@@ -1126,7 +1125,7 @@ clutter_stage_do_redraw (ClutterStage *stage)
     return;
 
   CLUTTER_NOTE (PAINT, "Redraw started for stage '%s'[%p]",
-                _clutter_actor_get_debug_name (actor),
+                _clutter_actor_get_debug_name (CLUTTER_ACTOR (stage)),
                 stage);
 
   start = g_get_monotonic_time ();
@@ -1139,7 +1138,7 @@ clutter_stage_do_redraw (ClutterStage *stage)
   CLUTTER_NOTE (FRAME_TIME, "PAINT: %lf", priv->last_paint_time);
 
   CLUTTER_NOTE (PAINT, "Redraw finished for stage '%s'[%p]",
-                _clutter_actor_get_debug_name (actor),
+                _clutter_actor_get_debug_name (CLUTTER_ACTOR (stage)),
                 stage);
 }
 
