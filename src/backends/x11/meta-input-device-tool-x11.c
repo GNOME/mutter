@@ -1,8 +1,4 @@
 /*
- * Clutter.
- *
- * An OpenGL based 'interactive canvas' library.
- *
  * Copyright © 2016 Red Hat
  *
  * This library is free software; you can redistribute it and/or
@@ -21,28 +17,28 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#include "clutter-build-config.h"
+#include "config.h"
 
-#include "clutter-input-device-tool-xi2.h"
+#include "meta-input-device-tool-x11.h"
 
-G_DEFINE_TYPE (ClutterInputDeviceToolXI2, clutter_input_device_tool_xi2,
+G_DEFINE_TYPE (MetaInputDeviceToolX11, meta_input_device_tool_x11,
                CLUTTER_TYPE_INPUT_DEVICE_TOOL)
 
 static void
-clutter_input_device_tool_xi2_class_init (ClutterInputDeviceToolXI2Class *klass)
+meta_input_device_tool_x11_class_init (MetaInputDeviceToolX11Class *klass)
 {
 }
 
 static void
-clutter_input_device_tool_xi2_init (ClutterInputDeviceToolXI2 *tool)
+meta_input_device_tool_x11_init (MetaInputDeviceToolX11 *tool)
 {
 }
 
 ClutterInputDeviceTool *
-clutter_input_device_tool_xi2_new (guint                        serial,
-                                   ClutterInputDeviceToolType   type)
+meta_input_device_tool_x11_new (guint                      serial,
+                                ClutterInputDeviceToolType type)
 {
-  return g_object_new (CLUTTER_TYPE_INPUT_DEVICE_TOOL_XI2,
+  return g_object_new (META_TYPE_INPUT_DEVICE_TOOL_X11,
                        "type", type,
                        "serial", serial,
                        NULL);
