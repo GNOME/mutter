@@ -1,8 +1,4 @@
 /*
- * Clutter.
- *
- * An OpenGL based 'interactive canvas' library.
- *
  * Copyright (C) 2016  Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
@@ -21,15 +17,15 @@
  * Author: Jonas Ådahl <jadahl@gmail.com>
  */
 
-#ifndef __CLUTTER_VIRTUAL_INPUT_DEVICE_X11_H__
-#define __CLUTTER_VIRTUAL_INPUT_DEVICE_X11_H__
+#ifndef META_VIRTUAL_INPUT_DEVICE_X11_H
+#define META_VIRTUAL_INPUT_DEVICE_X11_H
 
-#include "clutter-virtual-input-device.h"
+#include <clutter/clutter.h>
 
-#define CLUTTER_TYPE_VIRTUAL_INPUT_DEVICE_X11 (clutter_virtual_input_device_x11_get_type ())
-G_DECLARE_FINAL_TYPE (ClutterVirtualInputDeviceX11,
-                      clutter_virtual_input_device_x11,
-                      CLUTTER, VIRTUAL_INPUT_DEVICE_X11,
+#define META_TYPE_VIRTUAL_INPUT_DEVICE_X11 (meta_virtual_input_device_x11_get_type ())
+G_DECLARE_FINAL_TYPE (MetaVirtualInputDeviceX11,
+                      meta_virtual_input_device_x11,
+                      META, VIRTUAL_INPUT_DEVICE_X11,
                       ClutterVirtualInputDevice)
 
-#endif /* __CLUTTER_VIRTUAL_INPUT_DEVICE_X11_H__ */
+#endif /* META_VIRTUAL_INPUT_DEVICE_X11_H */
