@@ -134,6 +134,7 @@ void                    _clutter_backend_copy_event_data                (Clutter
                                                                          ClutterEvent           *dest);
 void                    _clutter_backend_free_event_data                (ClutterBackend         *backend,
                                                                          ClutterEvent           *event);
+CLUTTER_EXPORT
 gboolean                _clutter_backend_translate_event                (ClutterBackend         *backend,
                                                                          gpointer                native,
                                                                          ClutterEvent           *event);
