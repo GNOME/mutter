@@ -2226,7 +2226,7 @@ meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
 
   g_return_if_fail (!meta_is_wayland_compositor ());
 
-  stage_xwindow = clutter_x11_get_stage_window (stage);
+  stage_xwindow = meta_x11_get_stage_window (stage);
   XFixesSetWindowShapeRegion (xdisplay, stage_xwindow,
                               ShapeInput, 0, 0, region);
 

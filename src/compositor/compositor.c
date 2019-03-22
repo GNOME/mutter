@@ -57,6 +57,9 @@
 #include <X11/extensions/Xcomposite.h>
 
 #include "backends/meta-dnd-private.h"
+#include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-event-x11.h"
+#include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "compositor/meta-window-actor-x11.h"
 #include "compositor/meta-window-actor-wayland.h"
@@ -289,7 +292,7 @@ meta_focus_stage_window (MetaDisplay *display,
   if (!stage)
     return;
 
-  window = clutter_x11_get_stage_window (stage);
+  window = meta_x11_get_stage_window (stage);
 
   if (window == None)
     return;
@@ -312,7 +315,7 @@ meta_stage_is_focused (MetaDisplay *display)
   if (!stage)
     return FALSE;
 
-  window = clutter_x11_get_stage_window (stage);
+  window = meta_x11_get_stage_window (stage);
 
   if (window == None)
     return FALSE;

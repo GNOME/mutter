@@ -94,7 +94,7 @@ meta_compositor_x11_process_xevent (MetaCompositorX11 *compositor_x11,
    * stage is invisible
    */
   if (xevent->type == MapNotify)
-    clutter_x11_handle_event (xevent);
+    meta_x11_handle_event (xevent);
 }
 
 static void

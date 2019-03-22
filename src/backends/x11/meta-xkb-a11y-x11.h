@@ -21,19 +21,17 @@
  *
  */
 
-#ifndef CLUTTER_XKB_A11Y_X11_H
-#define CLUTTER_XKB_A11Y_X11_H
+#ifndef META_XKB_A11Y_X11_H
+#define META_XKB_A11Y_X11_H
 
-#include "clutter-device-manager-private.h"
-#include "clutter-backend-x11.h"
-
+#include <clutter/clutter.h>
 #include <X11/Xlib.h>
 
 void
-clutter_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
-                                                    ClutterKbdA11ySettings *kbd_a11y_settings);
+meta_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
+                                                 ClutterKbdA11ySettings *kbd_a11y_settings);
 
 gboolean
-clutter_device_manager_x11_a11y_init               (ClutterDeviceManager *device_manager);
+meta_device_manager_x11_a11y_init               (ClutterDeviceManager *device_manager);
 
-#endif /* CLUTTER_XKB_A11Y_X11_H */
+#endif /* META_XKB_A11Y_X11_H */
