@@ -475,7 +475,7 @@ meta_backend_real_post_init (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterDeviceManager *device_manager = clutter_device_manager_get_default ();
 
-  priv->stage = meta_stage_new ();
+  priv->stage = meta_stage_new (backend);
   clutter_actor_realize (priv->stage);
   META_BACKEND_GET_CLASS (backend)->select_stage_events (backend);
 
