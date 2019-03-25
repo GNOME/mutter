@@ -195,6 +195,9 @@ typedef struct _MetaOnscreenNative
   GList *pending_page_flip_retries;
   GSource *retry_page_flips_source;
 
+  GClosure *power_save_page_flip_closure;
+  guint power_save_page_flip_source_id;
+
   MetaRendererView *view;
   int total_pending_flips;
 } MetaOnscreenNative;
@@ -1532,6 +1535,33 @@ is_timestamp_earlier_than (uint64_t ts1,
     return ts2 - ts1 < UINT64_MAX / 2;
 }
 
+static gboolean
+dummy_power_save_page_flip_cb (gpointer user_data)
+{
+  MetaOnscreenNative *onscreen_native = user_data;
+
+  g_clear_pointer (&onscreen_native->power_save_page_flip_closure,
+                   g_closure_unref);
+  onscreen_native->power_save_page_flip_source_id = 0;
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+queue_dummy_power_save_page_flip (MetaOnscreenNative *onscreen_native,
+                                  GClosure           *flip_closure)
+{
+  const unsigned int timeout_ms = 100;
+
+  g_return_if_fail (!onscreen_native->power_save_page_flip_source_id);
+
+  onscreen_native->power_save_page_flip_source_id =
+    g_timeout_add (timeout_ms, dummy_power_save_page_flip_cb,
+                   onscreen_native);
+
+  onscreen_native->power_save_page_flip_closure = g_closure_ref (flip_closure);
+}
+
 typedef struct _RetryPageFlipData
 {
   MetaCrtc *crtc;
@@ -1754,12 +1784,8 @@ meta_onscreen_native_flip_crtc (CoglOnscreen  *onscreen,
   uint32_t fb_id;
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
-  if (!meta_gpu_kms_is_crtc_active (gpu_kms, crtc))
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Tried to flip inactive CRTC");
-      return FALSE;
-    }
+
+  g_assert (meta_gpu_kms_is_crtc_active (gpu_kms, crtc));
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
@@ -2000,7 +2026,11 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaRendererView *view = onscreen_native->view;
+  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
+  MetaMonitorManager *monitor_manager =
+    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
   GClosure *flip_closure;
+  MetaPowerSave power_save_mode;
   MetaLogicalMonitor *logical_monitor;
 
   /*
@@ -2018,23 +2048,28 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
                                  (GClosureNotify) flip_closure_destroyed);
   g_closure_set_marshal (flip_closure, meta_marshal_VOID__OBJECT_OBJECT_INT64);
 
-  /* Either flip the CRTC's of the monitor info, if we are drawing just part
-   * of the stage, or all of the CRTC's if we are drawing the whole stage.
-   */
-  FlipCrtcData data = {
-    .onscreen = onscreen,
-    .flip_closure = flip_closure,
-  };
-  logical_monitor = meta_renderer_view_get_logical_monitor (view);
-  meta_logical_monitor_foreach_crtc (logical_monitor, flip_crtc, &data);
+  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
+  if (power_save_mode == META_POWER_SAVE_ON)
+    {
+      FlipCrtcData data = {
+        .onscreen = onscreen,
+        .flip_closure = flip_closure,
+      };
+      logical_monitor = meta_renderer_view_get_logical_monitor (view);
+      meta_logical_monitor_foreach_crtc (logical_monitor, flip_crtc, &data);
 
-  /*
-   * If we didn't queue a page flip, but instead directly changed the mode due
-   * to the driver not supporting mode setting, wes must swap the buffers
-   * directly as we won't get a page flip callback.
-   */
-  if (!data.did_flip && data.did_mode_set)
-    meta_onscreen_native_swap_drm_fb (onscreen);
+      /*
+       * If we didn't queue a page flip, but instead directly changed the mode
+       * due to the driver not supporting mode setting, wes must swap the
+       * buffers directly as we won't get a page flip callback.
+       */
+      if (!data.did_flip && data.did_mode_set)
+        meta_onscreen_native_swap_drm_fb (onscreen);
+    }
+  else
+    {
+      queue_dummy_power_save_page_flip (onscreen_native, flip_closure);
+    }
 
   onscreen_native->pending_queue_swap_notify = TRUE;
 
@@ -2407,11 +2442,14 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
+  MetaMonitorManager *monitor_manager =
+    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   CoglFrameInfo *frame_info;
   gboolean egl_context_changed = FALSE;
+  MetaPowerSave power_save_mode;
 
   /*
    * Wait for the flip callback before continuing, as we might have started the
@@ -2453,7 +2491,10 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
 
   /* If this is the first framebuffer to be presented then we now setup the
    * crtc modes, else we flip from the previous buffer */
-  if (onscreen_native->pending_set_crtc)
+
+  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
+  if (onscreen_native->pending_set_crtc &&
+      power_save_mode == META_POWER_SAVE_ON)
     {
       meta_onscreen_native_set_crtc_modes (onscreen);
       onscreen_native->pending_set_crtc = FALSE;
@@ -2996,6 +3037,13 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
     return;
 
   onscreen_native = onscreen_egl->platform;
+
+  if (onscreen_native->power_save_page_flip_closure)
+    {
+      g_clear_pointer (&onscreen_native->power_save_page_flip_closure,
+                       g_closure_unref);
+      g_source_remove (onscreen_native->power_save_page_flip_source_id);
+    }
 
   g_list_free_full (onscreen_native->pending_page_flip_retries,
                     (GDestroyNotify) retry_page_flip_data_free);
