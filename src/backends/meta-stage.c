@@ -181,6 +181,15 @@ meta_stage_deactivate (ClutterStage *actor)
 }
 
 static void
+on_power_save_changed (MetaMonitorManager *monitor_manager,
+                       MetaStage          *stage)
+{
+  if (meta_monitor_manager_get_power_save_mode (monitor_manager) ==
+      META_POWER_SAVE_ON)
+    clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
+}
+
+static void
 meta_stage_class_init (MetaStageClass *klass)
 {
   ClutterStageClass *stage_class = (ClutterStageClass *) klass;
@@ -209,11 +218,21 @@ meta_stage_init (MetaStage *stage)
 }
 
 ClutterActor *
-meta_stage_new (void)
+meta_stage_new (MetaBackend *backend)
 {
-  return g_object_new (META_TYPE_STAGE,
-                       "cursor-visible", FALSE,
-                       NULL);
+  MetaStage *stage;
+  MetaMonitorManager *monitor_manager;
+
+  stage = g_object_new (META_TYPE_STAGE,
+                        "cursor-visible", FALSE,
+                        NULL);
+
+  monitor_manager = meta_backend_get_monitor_manager (backend);
+  g_signal_connect (monitor_manager, "power-save-mode-changed",
+                    G_CALLBACK (on_power_save_changed),
+                    stage);
+
+  return CLUTTER_ACTOR (stage);
 }
 
 static void
