@@ -1541,14 +1541,39 @@ retry_page_flip_data_free (RetryPageFlipData *retry_page_flip_data)
   g_free (retry_page_flip_data);
 }
 
+static void
+retry_page_flip_data_fake_flipped (RetryPageFlipData  *retry_page_flip_data,
+                                   MetaOnscreenNative *onscreen_native)
+{
+  MetaCrtc *crtc = retry_page_flip_data->crtc;
+  MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+
+  if (gpu_kms != onscreen_native->render_gpu)
+    {
+      MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
+
+      secondary_gpu_state =
+        meta_onscreen_native_get_secondary_gpu_state (onscreen_native,
+                                                      gpu_kms);
+      secondary_gpu_state->pending_flips--;
+    }
+
+  onscreen_native->total_pending_flips--;
+}
+
 static gboolean
 retry_page_flips (gpointer user_data)
 {
   MetaOnscreenNative *onscreen_native = user_data;
+  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
+  MetaMonitorManager *monitor_manager =
+    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
   uint64_t now_us;
+  MetaPowerSave power_save_mode;
   GList *l;
 
   now_us = g_source_get_time (onscreen_native->retry_page_flips_source);
+  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
 
   l = onscreen_native->pending_page_flip_retries;
   while (l)
@@ -1559,6 +1584,19 @@ retry_page_flips (gpointer user_data)
       GList *l_next = l->next;
       g_autoptr (GError) error = NULL;
       gboolean did_flip;
+
+      if (power_save_mode != META_POWER_SAVE_ON)
+        {
+          onscreen_native->pending_page_flip_retries =
+            g_list_remove_link (onscreen_native->pending_page_flip_retries, l);
+
+          retry_page_flip_data_fake_flipped (retry_page_flip_data,
+                                             onscreen_native);
+          retry_page_flip_data_free (retry_page_flip_data);
+
+          l = l_next;
+          continue;
+        }
 
       if (is_timestamp_earlier_than (now_us,
                                      retry_page_flip_data->retry_time_us))
@@ -1591,17 +1629,8 @@ retry_page_flips (gpointer user_data)
                                 G_IO_ERROR_PERMISSION_DENIED))
             g_critical ("Failed to page flip: %s", error->message);
 
-          if (gpu_kms != onscreen_native->render_gpu)
-            {
-              MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
-
-              secondary_gpu_state =
-                meta_onscreen_native_get_secondary_gpu_state (onscreen_native,
-                                                              gpu_kms);
-              secondary_gpu_state->pending_flips--;
-            }
-
-          onscreen_native->total_pending_flips--;
+          retry_page_flip_data_fake_flipped (retry_page_flip_data,
+                                             onscreen_native);
         }
 
       retry_page_flip_data_free (retry_page_flip_data);
