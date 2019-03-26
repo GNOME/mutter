@@ -249,19 +249,16 @@ zxdg_toplevel_v6_show_window_menu (struct wl_client   *client,
   MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
   MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
   MetaWindow *window;
-  int monitor_scale;
+  float pos_x, pos_y;
 
   window = surface->window;
   if (!window)
     return;
 
-  if (!meta_wayland_seat_get_grab_info (seat, surface, serial, FALSE, NULL, NULL))
+  if (!meta_wayland_seat_get_grab_info (seat, surface, serial, FALSE, &pos_x, &pos_y))
     return;
 
-  monitor_scale = window->monitor->scale;
-  meta_window_show_menu (window, META_WINDOW_MENU_WM,
-                         window->buffer_rect.x + (x * monitor_scale),
-                         window->buffer_rect.y + (y * monitor_scale));
+  meta_window_show_menu (window, META_WINDOW_MENU_WM, pos_x, pos_y);
 }
 
 static void
