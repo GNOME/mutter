@@ -79,9 +79,14 @@ struct _ClutterKeymapX11
   GHashTable *reserved_keycodes;
   GQueue *available_keycodes;
 
+  guint keymap_serial;
+
   guint caps_lock_state : 1;
   guint num_lock_state  : 1;
   guint has_direction   : 1;
+
+  guint use_xkb : 1;
+  guint have_xkb_autorepeat : 1;
 };
 
 struct _ClutterKeymapX11Class
@@ -179,7 +184,7 @@ get_xkb (ClutterKeymapX11 *keymap_x11)
 
       update_modmap (backend_x11->xdpy, keymap_x11);
     }
-  else if (keymap_x11->xkb_map_serial != backend_x11->keymap_serial)
+  else if (keymap_x11->xkb_map_serial != keymap_x11->keymap_serial)
     {
       int flags = XkbKeySymsMask
                 | XkbKeyTypesMask
@@ -195,7 +200,7 @@ get_xkb (ClutterKeymapX11 *keymap_x11)
 
       update_modmap (backend_x11->xdpy, keymap_x11);
 
-      keymap_x11->xkb_map_serial = backend_x11->keymap_serial;
+      keymap_x11->xkb_map_serial = keymap_x11->keymap_serial;
     }
 
   if (keymap_x11->num_lock_mask == 0)
@@ -375,7 +380,7 @@ clutter_keymap_x11_constructed (GObject *gobject)
         {
           Bool detectable_autorepeat_supported;
 
-          backend_x11->use_xkb = TRUE;
+          keymap_x11->use_xkb = TRUE;
 
           XkbSelectEvents (backend_x11->xdpy,
                            XkbUseCoreKbd,
@@ -392,11 +397,7 @@ clutter_keymap_x11_constructed (GObject *gobject)
                                       True,
                                       &detectable_autorepeat_supported);
 
-          backend_x11->have_xkb_autorepeat = detectable_autorepeat_supported;
-
-          CLUTTER_NOTE (BACKEND, "Detectable autorepeat: %s",
-                        backend_x11->have_xkb_autorepeat ? "supported"
-                                                         : "not supported");
+          keymap_x11->have_xkb_autorepeat = detectable_autorepeat_supported;
         }
     }
 }
@@ -452,7 +453,7 @@ clutter_keymap_x11_replace_keycode (ClutterKeymapX11 *keymap_x11,
                                     KeyCode           keycode,
                                     KeySym            keysym)
 {
-  if (CLUTTER_BACKEND_X11 (keymap_x11->backend)->use_xkb)
+  if (keymap_x11->use_xkb)
     {
       Display *dpy = clutter_x11_get_default_display ();
       XkbDescPtr xkb = get_xkb (keymap_x11);
@@ -574,12 +575,10 @@ clutter_keymap_x11_translate_event (ClutterEventTranslator *translator,
                                     ClutterEvent           *event)
 {
   ClutterKeymapX11 *keymap_x11 = CLUTTER_KEYMAP_X11 (translator);
-  ClutterBackendX11 *backend_x11;
   ClutterTranslateReturn retval;
   XEvent *xevent;
 
-  backend_x11 = CLUTTER_BACKEND_X11 (keymap_x11->backend);
-  if (!backend_x11->use_xkb)
+  if (!keymap_x11->use_xkb)
     return CLUTTER_TRANSLATE_CONTINUE;
 
   xevent = native;
@@ -604,13 +603,19 @@ clutter_keymap_x11_translate_event (ClutterEventTranslator *translator,
         case XkbMapNotify:
           CLUTTER_NOTE (EVENT, "Updating keyboard mapping");
           XkbRefreshKeyboardMapping (&xkb_event->map);
-          backend_x11->keymap_serial += 1;
+          keymap_x11->keymap_serial += 1;
           retval = CLUTTER_TRANSLATE_REMOVE;
           break;
 
         default:
           break;
         }
+    }
+  else if (xevent->type == MappingNotify)
+    {
+      XRefreshKeyboardMapping (&xevent->xmapping);
+      keymap_x11->keymap_serial += 1;
+      retval = CLUTTER_TRANSLATE_REMOVE;
     }
 
   return retval;
@@ -658,16 +663,13 @@ _clutter_keymap_x11_translate_key_state (ClutterKeymapX11    *keymap,
                                          ClutterModifierType *modifier_state_p,
                                          ClutterModifierType *mods_p)
 {
-  ClutterBackendX11 *backend_x11;
   ClutterModifierType unconsumed_modifiers = 0;
   ClutterModifierType modifier_state = *modifier_state_p;
   gint retval;
 
   g_return_val_if_fail (CLUTTER_IS_KEYMAP_X11 (keymap), 0);
 
-  backend_x11 = CLUTTER_BACKEND_X11 (keymap->backend);
-
-  if (backend_x11->use_xkb)
+  if (keymap->use_xkb)
     {
       XkbDescRec *xkb = get_xkb (keymap);
       KeySym tmp_keysym;
@@ -703,7 +705,7 @@ _clutter_keymap_x11_get_is_modifier (ClutterKeymapX11 *keymap,
   if (keycode < keymap->min_keycode || keycode > keymap->max_keycode)
     return FALSE;
 
-  if (CLUTTER_BACKEND_X11 (keymap->backend)->use_xkb)
+  if (keymap->use_xkb)
     {
       XkbDescRec *xkb = get_xkb (keymap);
 
@@ -719,7 +721,7 @@ _clutter_keymap_x11_get_direction (ClutterKeymapX11 *keymap)
 {
   g_return_val_if_fail (CLUTTER_IS_KEYMAP_X11 (keymap), PANGO_DIRECTION_NEUTRAL);
 
-  if (CLUTTER_BACKEND_X11 (keymap->backend)->use_xkb)
+  if (keymap->use_xkb)
     {
       if (!keymap->has_direction)
         {
@@ -742,7 +744,7 @@ clutter_keymap_x11_get_entries_for_keyval (ClutterKeymapX11  *keymap_x11,
                                            ClutterKeymapKey **keys,
                                            gint              *n_keys)
 {
-  if (CLUTTER_BACKEND_X11 (keymap_x11->backend)->use_xkb)
+  if (keymap_x11->use_xkb)
     {
       XkbDescRec *xkb = get_xkb (keymap_x11);
       GArray *retval;
@@ -822,7 +824,7 @@ clutter_keymap_x11_get_entries_for_keyval (ClutterKeymapX11  *keymap_x11,
 static guint
 clutter_keymap_x11_get_available_keycode (ClutterKeymapX11 *keymap_x11)
 {
-  if (CLUTTER_BACKEND_X11 (keymap_x11->backend)->use_xkb)
+  if (keymap_x11->use_xkb)
     {
       clutter_keymap_x11_refresh_reserved_keycodes (keymap_x11);
 
@@ -890,7 +892,6 @@ clutter_keymap_x11_latch_modifiers (ClutterKeymapX11 *keymap_x11,
                                     uint32_t          level,
                                     gboolean          enable)
 {
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (keymap_x11->backend);
   uint32_t modifiers[] = {
     0,
     ShiftMask,
@@ -899,7 +900,7 @@ clutter_keymap_x11_latch_modifiers (ClutterKeymapX11 *keymap_x11,
   };
   uint32_t value = 0;
 
-  if (!backend_x11->use_xkb)
+  if (!keymap_x11->use_xkb)
     return;
 
   level = CLAMP (level, 0, G_N_ELEMENTS (modifiers) - 1);

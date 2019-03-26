@@ -106,9 +106,6 @@ struct _ClutterBackendX11
   Window xsettings_xwin;
 
   ClutterKeymapX11 *keymap;
-  gboolean use_xkb;
-  gboolean have_xkb_autorepeat;
-  guint keymap_serial;
 };
 
 struct _ClutterBackendX11Class
