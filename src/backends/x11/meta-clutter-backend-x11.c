@@ -58,7 +58,6 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *backend,
                                        ClutterStage    *wrapper,
                                        GError         **error)
 {
-  ClutterEventTranslator *translator;
   ClutterStageWindow *stage;
   GType stage_type;
 
@@ -71,11 +70,6 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *backend,
 			"backend", backend,
 			"wrapper", wrapper,
 			NULL);
-
-  /* the X11 stage does event translation */
-  translator = CLUTTER_EVENT_TRANSLATOR (stage);
-  _clutter_backend_add_event_translator (backend, translator);
-
   return stage;
 }
 

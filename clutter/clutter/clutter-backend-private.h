@@ -27,8 +27,6 @@
 #include <clutter/clutter-keymap.h>
 #include <clutter/clutter-stage-window.h>
 
-#include "clutter-event-translator.h"
-
 #define CLUTTER_BACKEND_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BACKEND, ClutterBackendClass))
 #define CLUTTER_IS_BACKEND_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_BACKEND))
 #define CLUTTER_BACKEND_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_BACKEND, ClutterBackendClass))
@@ -58,7 +56,7 @@ struct _ClutterBackend
   gfloat units_per_em;
   gint32 units_serial;
 
-  GList *event_translators;
+  GList *stage_windows;
 
   ClutterInputMethod *input_method;
 
@@ -140,13 +138,6 @@ gboolean                _clutter_backend_translate_event                (Clutter
                                                                          gpointer                native,
                                                                          ClutterEvent           *event);
 
-CLUTTER_EXPORT
-void                    _clutter_backend_add_event_translator           (ClutterBackend         *backend,
-                                                                         ClutterEventTranslator *translator);
-
-void                    _clutter_backend_remove_event_translator        (ClutterBackend         *backend,
-                                                                         ClutterEventTranslator *translator);
-
 ClutterFeatureFlags     _clutter_backend_get_features                   (ClutterBackend         *backend);
 
 gfloat                  _clutter_backend_get_units_per_em               (ClutterBackend         *backend,
@@ -159,6 +150,9 @@ CLUTTER_EXPORT
 void                    _clutter_backend_reset_cogl_framebuffer         (ClutterBackend         *backend);
 
 void                    clutter_set_allowed_drivers                     (const char             *drivers);
+
+CLUTTER_EXPORT
+const GList *           clutter_backend_get_stage_windows               (ClutterBackend         *backend);
 
 G_END_DECLS
 

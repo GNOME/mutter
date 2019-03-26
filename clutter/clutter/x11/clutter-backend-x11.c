@@ -232,7 +232,6 @@ clutter_backend_x11_xsettings_notify (const char       *name,
 static void
 clutter_backend_x11_create_device_manager (ClutterBackendX11 *backend_x11)
 {
-  ClutterEventTranslator *translator;
   ClutterBackend *backend;
 
   if (clutter_enable_xinput)
@@ -266,9 +265,6 @@ clutter_backend_x11_create_device_manager (ClutterBackendX11 *backend_x11)
 
   backend = CLUTTER_BACKEND (backend_x11);
   backend->device_manager = backend_x11->device_manager;
-
-  translator = CLUTTER_EVENT_TRANSLATOR (backend_x11->device_manager);
-  _clutter_backend_add_event_translator (backend, translator);
 }
 
 static void
@@ -276,17 +272,10 @@ clutter_backend_x11_create_keymap (ClutterBackendX11 *backend_x11)
 {
   if (backend_x11->keymap == NULL)
     {
-      ClutterEventTranslator *translator;
-      ClutterBackend *backend;
-
       backend_x11->keymap =
         g_object_new (CLUTTER_TYPE_KEYMAP_X11,
                       "backend", backend_x11,
                       NULL);
-
-      backend = CLUTTER_BACKEND (backend_x11);
-      translator = CLUTTER_EVENT_TRANSLATOR (backend_x11->keymap);
-      _clutter_backend_add_event_translator (backend, translator);
     }
 }
 
@@ -597,8 +586,8 @@ clutter_backend_x11_translate_event (ClutterBackend *backend,
                                      ClutterEvent   *event)
 {
   ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (backend);
-  ClutterBackendClass *parent_class;
   XEvent *xevent = native;
+  const GList *l;
 
   /* X11 filter functions have a higher priority */
   if (backend_x11->event_filters != NULL)
@@ -633,11 +622,21 @@ clutter_backend_x11_translate_event (ClutterBackend *backend,
    */
   update_last_event_time (backend_x11, xevent);
 
-  /* chain up to the parent implementation, which will handle
-   * event translators
-   */
-  parent_class = CLUTTER_BACKEND_CLASS (clutter_backend_x11_parent_class);
-  return parent_class->translate_event (backend, native, event);
+  if (clutter_keymap_x11_handle_event (backend_x11->keymap,
+                                       native))
+    return TRUE;
+
+  for (l = clutter_backend_get_stage_windows (backend); l; l = l->next)
+    {
+      if (clutter_stage_x11_translate_event (l->data, native, event))
+        return TRUE;
+    }
+
+  if (clutter_device_manager_xi2_translate_event (CLUTTER_DEVICE_MANAGER_XI2 (backend_x11->device_manager),
+                                                  native, event))
+    return TRUE;
+
+  return FALSE;
 }
 
 static CoglRenderer *
@@ -762,17 +761,12 @@ clutter_backend_x11_create_stage (ClutterBackend  *backend,
 				  ClutterStage    *wrapper,
 				  GError         **error)
 {
-  ClutterEventTranslator *translator;
   ClutterStageWindow *stage;
 
   stage = g_object_new (CLUTTER_TYPE_STAGE_X11,
 			"backend", backend,
 			"wrapper", wrapper,
 			NULL);
-
-  /* the X11 stage does event translation */
-  translator = CLUTTER_EVENT_TRANSLATOR (stage);
-  _clutter_backend_add_event_translator (backend, translator);
 
   CLUTTER_NOTE (BACKEND, "X11 stage created (display:%p, screen:%d, root:%u)",
                 CLUTTER_BACKEND_X11 (backend)->xdpy,

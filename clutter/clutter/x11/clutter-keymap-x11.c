@@ -27,7 +27,6 @@
 #include "clutter-backend-x11.h"
 
 #include "clutter-debug.h"
-#include "clutter-event-translator.h"
 #include "clutter-private.h"
 
 #include <X11/Xatom.h>
@@ -105,14 +104,9 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST] = { NULL, };
 
-static void clutter_event_translator_iface_init (ClutterEventTranslatorIface *iface);
-
 #define clutter_keymap_x11_get_type     _clutter_keymap_x11_get_type
 
-G_DEFINE_TYPE_WITH_CODE (ClutterKeymapX11, clutter_keymap_x11,
-                         CLUTTER_TYPE_KEYMAP,
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_EVENT_TRANSLATOR,
-                                                clutter_event_translator_iface_init));
+G_DEFINE_TYPE (ClutterKeymapX11, clutter_keymap_x11, CLUTTER_TYPE_KEYMAP)
 
 /* code adapted from gdk/x11/gdkkeys-x11.c - update_modmap */
 static void
@@ -495,12 +489,10 @@ static void
 clutter_keymap_x11_finalize (GObject *gobject)
 {
   ClutterKeymapX11 *keymap;
-  ClutterEventTranslator *translator;
   GHashTableIter iter;
   gpointer key, value;
 
   keymap = CLUTTER_KEYMAP_X11 (gobject);
-  translator = CLUTTER_EVENT_TRANSLATOR (keymap);
 
   clutter_keymap_x11_refresh_reserved_keycodes (keymap);
   g_hash_table_iter_init (&iter, keymap->reserved_keycodes);
@@ -512,8 +504,6 @@ clutter_keymap_x11_finalize (GObject *gobject)
 
   g_hash_table_destroy (keymap->reserved_keycodes);
   g_queue_free (keymap->available_keycodes);
-
-  _clutter_backend_remove_event_translator (keymap->backend, translator);
 
   if (keymap->xkb_desc != NULL)
     XkbFreeKeyboard (keymap->xkb_desc, XkbAllComponentsMask, True);
@@ -569,21 +559,16 @@ clutter_keymap_x11_init (ClutterKeymapX11 *keymap)
   keymap->available_keycodes = g_queue_new ();
 }
 
-static ClutterTranslateReturn
-clutter_keymap_x11_translate_event (ClutterEventTranslator *translator,
-                                    gpointer                native,
-                                    ClutterEvent           *event)
+gboolean
+clutter_keymap_x11_handle_event (ClutterKeymapX11 *keymap_x11,
+                                 XEvent           *xevent)
 {
-  ClutterKeymapX11 *keymap_x11 = CLUTTER_KEYMAP_X11 (translator);
-  ClutterTranslateReturn retval;
-  XEvent *xevent;
+  gboolean retval;
 
   if (!keymap_x11->use_xkb)
-    return CLUTTER_TRANSLATE_CONTINUE;
+    return FALSE;
 
-  xevent = native;
-
-  retval = CLUTTER_TRANSLATE_CONTINUE;
+  retval = FALSE;
 
   if (xevent->type == keymap_x11->xkb_event_base)
     {
@@ -596,7 +581,7 @@ clutter_keymap_x11_translate_event (ClutterEventTranslator *translator,
           keymap_x11->current_group = XkbStateGroup (&xkb_event->state);
           update_direction (keymap_x11, keymap_x11->current_group);
           update_locked_mods (keymap_x11, xkb_event->state.locked_mods);
-          retval = CLUTTER_TRANSLATE_REMOVE;
+          retval = TRUE;
           break;
 
         case XkbNewKeyboardNotify:
@@ -604,7 +589,7 @@ clutter_keymap_x11_translate_event (ClutterEventTranslator *translator,
           CLUTTER_NOTE (EVENT, "Updating keyboard mapping");
           XkbRefreshKeyboardMapping (&xkb_event->map);
           keymap_x11->keymap_serial += 1;
-          retval = CLUTTER_TRANSLATE_REMOVE;
+          retval = TRUE;
           break;
 
         default:
@@ -615,16 +600,10 @@ clutter_keymap_x11_translate_event (ClutterEventTranslator *translator,
     {
       XRefreshKeyboardMapping (&xevent->xmapping);
       keymap_x11->keymap_serial += 1;
-      retval = CLUTTER_TRANSLATE_REMOVE;
+      retval = TRUE;
     }
 
   return retval;
-}
-
-static void
-clutter_event_translator_iface_init (ClutterEventTranslatorIface *iface)
-{
-  iface->translate_event = clutter_keymap_x11_translate_event;
 }
 
 gint

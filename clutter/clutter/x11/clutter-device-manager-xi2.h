@@ -68,6 +68,10 @@ struct _ClutterDeviceManagerXI2Class
 
 GType _clutter_device_manager_xi2_get_type (void) G_GNUC_CONST;
 
+gboolean clutter_device_manager_xi2_translate_event (ClutterDeviceManagerXI2 *manager_xi2,
+                                                     XEvent                  *xevent,
+                                                     ClutterEvent            *event);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_DEVICE_MANAGER_XI2_H__ */

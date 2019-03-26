@@ -63,6 +63,10 @@ gboolean clutter_keymap_x11_reserve_keycode (ClutterKeymapX11 *keymap_x11,
                                              guint            *keycode_out);
 void     clutter_keymap_x11_release_keycode_if_needed (ClutterKeymapX11 *keymap_x11,
                                                        guint             keycode);
+
+gboolean clutter_keymap_x11_handle_event (ClutterKeymapX11 *keymap,
+                                          XEvent           *xevent);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_KEYMAP_X11_H__ */

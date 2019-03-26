@@ -81,6 +81,8 @@ struct _ClutterBackendX11
 
   Window   xwin_root;
 
+  GList *stages;
+
   /* event source */
   GSource *event_source;
   GSList  *event_filters;
