@@ -819,37 +819,24 @@ _clutter_backend_copy_event_data (ClutterBackend     *backend,
                                   const ClutterEvent *src,
                                   ClutterEvent       *dest)
 {
-  ClutterEventExtenderInterface *iface;
-  ClutterBackendClass *klass;
+  ClutterDeviceManagerClass *device_manager_class;
+  ClutterDeviceManager *device_manager;
 
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
-  if (CLUTTER_IS_EVENT_EXTENDER (backend->device_manager))
-    {
-      iface = CLUTTER_EVENT_EXTENDER_GET_IFACE (backend->device_manager);
-      iface->copy_event_data (CLUTTER_EVENT_EXTENDER (backend->device_manager),
-                              src, dest);
-    }
-  else if (klass->copy_event_data != NULL)
-    klass->copy_event_data (backend, src, dest);
+  device_manager = clutter_device_manager_get_default ();
+  device_manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
+  device_manager_class->copy_event_data (device_manager, src, dest);
 }
 
 void
 _clutter_backend_free_event_data (ClutterBackend *backend,
                                   ClutterEvent   *event)
 {
-  ClutterEventExtenderInterface *iface;
-  ClutterBackendClass *klass;
+  ClutterDeviceManagerClass *device_manager_class;
+  ClutterDeviceManager *device_manager;
 
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
-
-  if (CLUTTER_IS_EVENT_EXTENDER (backend->device_manager))
-    {
-      iface = CLUTTER_EVENT_EXTENDER_GET_IFACE (backend->device_manager);
-      iface->free_event_data (CLUTTER_EVENT_EXTENDER (backend->device_manager),
-                              event);
-    }
-  else if (klass->free_event_data != NULL)
-    klass->free_event_data (backend, event);
+  device_manager = clutter_device_manager_get_default ();
+  device_manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
+  device_manager_class->free_event_data (device_manager, event);
 }
 
 /**
