@@ -95,18 +95,14 @@ enum
 
 static Atom clutter_input_axis_atoms[N_AXIS_ATOMS] = { 0, };
 
-static void clutter_event_extender_iface_init   (ClutterEventExtenderInterface *iface);
-
 #define clutter_device_manager_xi2_get_type     _clutter_device_manager_xi2_get_type
 
-G_DEFINE_TYPE_WITH_CODE (ClutterDeviceManagerXI2,
-                         clutter_device_manager_xi2,
-                         CLUTTER_TYPE_DEVICE_MANAGER,
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_EVENT_EXTENDER,
-                                                clutter_event_extender_iface_init))
+G_DEFINE_TYPE (ClutterDeviceManagerXI2,
+               clutter_device_manager_xi2,
+               CLUTTER_TYPE_DEVICE_MANAGER)
 
 static void
-clutter_device_manager_x11_copy_event_data (ClutterEventExtender *event_extender,
+clutter_device_manager_xi2_copy_event_data (ClutterDeviceManager *device_manager,
                                             const ClutterEvent   *src,
                                             ClutterEvent         *dest)
 {
@@ -118,7 +114,7 @@ clutter_device_manager_x11_copy_event_data (ClutterEventExtender *event_extender
 }
 
 static void
-clutter_device_manager_x11_free_event_data (ClutterEventExtender *event_extender,
+clutter_device_manager_xi2_free_event_data (ClutterDeviceManager *device_manager,
                                             ClutterEvent         *event)
 {
   gpointer event_x11;
@@ -126,13 +122,6 @@ clutter_device_manager_x11_free_event_data (ClutterEventExtender *event_extender
   event_x11 = _clutter_event_get_platform_data (event);
   if (event_x11 != NULL)
     _clutter_event_x11_free (event_x11);
-}
-
-static void
-clutter_event_extender_iface_init (ClutterEventExtenderInterface *iface)
-{
-  iface->copy_event_data = clutter_device_manager_x11_copy_event_data;
-  iface->free_event_data = clutter_device_manager_x11_free_event_data;
 }
 
 static void
@@ -2144,6 +2133,8 @@ clutter_device_manager_xi2_class_init (ClutterDeviceManagerXI2Class *klass)
   manager_class->create_virtual_device = clutter_device_manager_xi2_create_virtual_device;
   manager_class->get_supported_virtual_device_types = clutter_device_manager_xi2_get_supported_virtual_device_types;
   manager_class->apply_kbd_a11y_settings = clutter_device_manager_x11_apply_kbd_a11y_settings;
+  manager_class->copy_event_data = clutter_device_manager_xi2_copy_event_data;
+  manager_class->free_event_data = clutter_device_manager_xi2_free_event_data;
 }
 
 static void
