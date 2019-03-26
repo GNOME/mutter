@@ -91,12 +91,6 @@ struct _ClutterBackendClass
                                                 GError         **error);
   ClutterDeviceManager *(* get_device_manager) (ClutterBackend  *backend);
 
-  void                  (* copy_event_data)    (ClutterBackend     *backend,
-                                                const ClutterEvent *src,
-                                                ClutterEvent       *dest);
-  void                  (* free_event_data)    (ClutterBackend     *backend,
-                                                ClutterEvent       *event);
-
   gboolean              (* translate_event)    (ClutterBackend     *backend,
                                                 gpointer            native,
                                                 ClutterEvent       *event);
