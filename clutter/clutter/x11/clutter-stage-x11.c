@@ -38,7 +38,6 @@
 #include "clutter-debug.h"
 #include "clutter-device-manager-private.h"
 #include "clutter-enum-types.h"
-#include "clutter-event-translator.h"
 #include "clutter-event-private.h"
 #include "clutter-feature.h"
 #include "clutter-main.h"
@@ -53,8 +52,6 @@ static ClutterStageWindowInterface *clutter_stage_window_parent_iface = NULL;
 
 static void
 clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
-static void
-clutter_event_translator_iface_init (ClutterEventTranslatorIface *iface);
 
 static ClutterStageCogl *clutter_x11_get_stage_window_from_window (Window win);
 
@@ -66,9 +63,7 @@ G_DEFINE_TYPE_WITH_CODE (ClutterStageX11,
                          clutter_stage_x11,
                          CLUTTER_TYPE_STAGE_COGL,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_STAGE_WINDOW,
-                                                clutter_stage_window_iface_init)
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_EVENT_TRANSLATOR,
-                                                clutter_event_translator_iface_init));
+                                                clutter_stage_window_iface_init));
 
 #define _NET_WM_STATE_REMOVE        0    /* remove/unset property */
 #define _NET_WM_STATE_ADD           1    /* add/set property */
@@ -937,23 +932,11 @@ clutter_stage_x11_finalize (GObject *gobject)
 }
 
 static void
-clutter_stage_x11_dispose (GObject *gobject)
-{
-  ClutterEventTranslator *translator = CLUTTER_EVENT_TRANSLATOR (gobject);
-  ClutterBackend *backend = CLUTTER_STAGE_COGL (gobject)->backend;
-
-  _clutter_backend_remove_event_translator (backend, translator);
-
-  G_OBJECT_CLASS (clutter_stage_x11_parent_class)->dispose (gobject);
-}
-
-static void
 clutter_stage_x11_class_init (ClutterStageX11Class *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->finalize = clutter_stage_x11_finalize;
-  gobject_class->dispose = clutter_stage_x11_dispose;
 }
 
 static void
@@ -1065,25 +1048,22 @@ clipped_redraws_cool_off_cb (void *data)
   return G_SOURCE_REMOVE;
 }
 
-static ClutterTranslateReturn
-clutter_stage_x11_translate_event (ClutterEventTranslator *translator,
-                                   gpointer                native,
-                                   ClutterEvent           *event)
+gboolean
+clutter_stage_x11_translate_event (ClutterStageX11 *stage_x11,
+                                   XEvent          *xevent,
+                                   ClutterEvent    *event)
 {
-  ClutterStageX11 *stage_x11;
   ClutterStageCogl *stage_cogl;
-  ClutterTranslateReturn res = CLUTTER_TRANSLATE_CONTINUE;
+  gboolean res = FALSE;
   ClutterBackendX11 *backend_x11;
   Window stage_xwindow;
-  XEvent *xevent = native;
   ClutterStage *stage;
 
   stage_cogl = clutter_x11_get_stage_window_from_window (xevent->xany.window);
   if (stage_cogl == NULL)
-    return CLUTTER_TRANSLATE_CONTINUE;
+    return FALSE;
 
   stage = stage_cogl->wrapper;
-  stage_x11 = CLUTTER_STAGE_X11 (stage_cogl);
   backend_x11 = CLUTTER_BACKEND_X11 (stage_cogl->backend);
   stage_xwindow = stage_x11->xwin;
 
@@ -1298,7 +1278,7 @@ clutter_stage_x11_translate_event (ClutterEventTranslator *translator,
                     (unsigned int) stage_xwindow);
       event->any.type = CLUTTER_DESTROY_NOTIFY;
       event->any.stage = stage;
-      res = CLUTTER_TRANSLATE_QUEUE;
+      res = TRUE;
       break;
 
     case ClientMessage:
@@ -1310,22 +1290,16 @@ clutter_stage_x11_translate_event (ClutterEventTranslator *translator,
         {
           event->any.type = CLUTTER_DELETE;
           event->any.stage = stage;
-          res = CLUTTER_TRANSLATE_QUEUE;
+          res = TRUE;
         }
       break;
 
     default:
-      res = CLUTTER_TRANSLATE_CONTINUE;
+      res = FALSE;
       break;
     }
 
   return res;
-}
-
-static void
-clutter_event_translator_iface_init (ClutterEventTranslatorIface *iface)
-{
-  iface->translate_event = clutter_stage_x11_translate_event;
 }
 
 /**

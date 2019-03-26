@@ -93,6 +93,10 @@ void  _clutter_stage_x11_events_device_changed (ClutterStageX11 *stage_x11,
 void            _clutter_stage_x11_set_user_time                (ClutterStageX11 *stage_x11,
                                                                  guint32          user_time);
 
+gboolean clutter_stage_x11_translate_event (ClutterStageX11 *stage_x11,
+                                            XEvent          *xevent,
+                                            ClutterEvent    *event);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_H__ */
