@@ -258,7 +258,7 @@ zxdg_toplevel_v6_show_window_menu (struct wl_client   *client,
   if (!meta_wayland_seat_get_grab_info (seat, surface, serial, FALSE, NULL, NULL))
     return;
 
-  monitor_scale = window->monitor->scale;
+  monitor_scale = meta_window_wayland_get_geometry_scale (window);
   meta_window_show_menu (window, META_WINDOW_MENU_WM,
                          window->buffer_rect.x + (x * monitor_scale),
                          window->buffer_rect.y + (y * monitor_scale));
