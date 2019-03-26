@@ -191,7 +191,6 @@ clutter_private_headers = [
   'clutter-device-manager-private.h',
   'clutter-easing.h',
   'clutter-effect-private.h',
-  'clutter-event-translator.h',
   'clutter-event-private.h',
   'clutter-flatten-effect.h',
   'clutter-gesture-action-private.h',
@@ -215,7 +214,6 @@ clutter_private_headers = [
 
 clutter_nonintrospected_sources = [
   'clutter-easing.c',
-  'clutter-event-translator.c',
   'clutter-id-pool.c',
 ]
 

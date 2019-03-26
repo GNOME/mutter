@@ -104,10 +104,12 @@ clutter_backend_dispose (GObject *gobject)
   /* clear the events still in the queue of the main context */
   _clutter_clear_events_queue ();
 
-  /* remove all event translators */
-  g_clear_pointer (&backend->event_translators, g_list_free);
-
   g_clear_pointer (&backend->dummy_onscreen, cogl_object_unref);
+  if (backend->stage_window)
+    {
+      g_object_remove_weak_pointer (G_OBJECT (backend->stage_window),
+                                    (gpointer *) &backend->stage_window);
+    }
 
   G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
 }
@@ -586,34 +588,6 @@ clutter_backend_real_get_keymap (ClutterBackend *backend)
   return backend->keymap;
 }
 
-static gboolean
-clutter_backend_real_translate_event (ClutterBackend *backend,
-                                      gpointer        native,
-                                      ClutterEvent   *event)
-{
-  GList *l;
-
-  for (l = backend->event_translators;
-       l != NULL;
-       l = l->next)
-    {
-      ClutterEventTranslator *translator = l->data;
-      ClutterTranslateReturn retval;
-
-      retval = _clutter_event_translator_translate_event (translator,
-                                                          native,
-                                                          event);
-
-      if (retval == CLUTTER_TRANSLATE_QUEUE)
-        return TRUE;
-
-      if (retval == CLUTTER_TRANSLATE_REMOVE)
-        return FALSE;
-    }
-
-  return FALSE;
-}
-
 static void
 clutter_backend_class_init (ClutterBackendClass *klass)
 {
@@ -681,7 +655,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
 
   klass->init_events = clutter_backend_real_init_events;
   klass->get_device_manager = clutter_backend_real_get_device_manager;
-  klass->translate_event = clutter_backend_real_translate_event;
   klass->create_context = clutter_backend_real_create_context;
   klass->get_features = clutter_backend_real_get_features;
   klass->get_keymap = clutter_backend_real_get_keymap;
@@ -760,6 +733,10 @@ _clutter_backend_create_stage (ClutterBackend  *backend,
     return NULL;
 
   g_assert (CLUTTER_IS_STAGE_WINDOW (stage_window));
+
+  backend->stage_window = stage_window;
+  g_object_add_weak_pointer (G_OBJECT (backend->stage_window),
+                             (gpointer *) &backend->stage_window);
 
   return stage_window;
 }
@@ -1021,28 +998,6 @@ _clutter_backend_translate_event (ClutterBackend *backend,
                                                                event);
 }
 
-void
-_clutter_backend_add_event_translator (ClutterBackend         *backend,
-                                       ClutterEventTranslator *translator)
-{
-  if (g_list_find (backend->event_translators, translator) != NULL)
-    return;
-
-  backend->event_translators =
-    g_list_prepend (backend->event_translators, translator);
-}
-
-void
-_clutter_backend_remove_event_translator (ClutterBackend         *backend,
-                                          ClutterEventTranslator *translator)
-{
-  if (g_list_find (backend->event_translators, translator) == NULL)
-    return;
-
-  backend->event_translators =
-    g_list_remove (backend->event_translators, translator);
-}
-
 /**
  * clutter_backend_get_cogl_context: (skip)
  * @backend: a #ClutterBackend
@@ -1189,4 +1144,10 @@ ClutterKeymap *
 clutter_backend_get_keymap (ClutterBackend *backend)
 {
   return CLUTTER_BACKEND_GET_CLASS (backend)->get_keymap (backend);
+}
+
+ClutterStageWindow *
+clutter_backend_get_stage_window (ClutterBackend *backend)
+{
+  return backend->stage_window;
 }
