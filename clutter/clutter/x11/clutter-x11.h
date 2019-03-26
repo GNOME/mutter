@@ -129,9 +129,6 @@ CLUTTER_EXPORT
 ClutterStage *clutter_x11_get_stage_from_window (Window win);
 
 CLUTTER_EXPORT
-gboolean clutter_x11_has_xinput (void);
-
-CLUTTER_EXPORT
 gboolean clutter_x11_has_composite_extension (void);
 
 CLUTTER_EXPORT

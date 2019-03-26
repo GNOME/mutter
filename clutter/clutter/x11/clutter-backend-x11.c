@@ -250,7 +250,6 @@ clutter_backend_x11_create_device_manager (ClutterBackendX11 *backend_x11)
           if (XIQueryVersion (backend_x11->xdpy, &major, &minor) != BadRequest)
             {
               CLUTTER_NOTE (BACKEND, "Creating XI2 device manager");
-              backend_x11->has_xinput = TRUE;
               backend_x11->device_manager =
                 g_object_new (CLUTTER_TYPE_DEVICE_MANAGER_XI2,
                               "backend", backend_x11,
@@ -265,7 +264,6 @@ clutter_backend_x11_create_device_manager (ClutterBackendX11 *backend_x11)
   if (backend_x11->device_manager == NULL)
     {
       g_critical ("XI2 extension is missing.");
-      backend_x11->has_xinput = FALSE;
       backend_x11->xi_minor = -1;
     }
 
@@ -1145,36 +1143,6 @@ clutter_x11_remove_filter (ClutterX11FilterFunc func,
           return;
         }
     }
-}
-
-/**
- * clutter_x11_has_xinput:
- *
- * Gets whether Clutter has XInput support.
- *
- * Return value: %TRUE if Clutter was compiled with XInput support
- *   and XInput support is available at run time.
- *
- * Since: 0.8
- */
-gboolean
-clutter_x11_has_xinput (void)
-{
- ClutterBackend *backend = clutter_get_default_backend ();
-
-  if (backend == NULL)
-    {
-      g_critical ("The Clutter backend has not been initialised");
-      return FALSE;
-    }
-
-  if (!CLUTTER_IS_BACKEND_X11 (backend))
-    {
-      g_critical ("The Clutter backend is not a X11 backend.");
-      return FALSE;
-    }
-
-  return CLUTTER_BACKEND_X11 (backend)->has_xinput;
 }
 
 /**
