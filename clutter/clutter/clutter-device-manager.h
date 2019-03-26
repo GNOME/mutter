@@ -33,16 +33,12 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_DEVICE_MANAGER             (clutter_device_manager_get_type ())
-#define CLUTTER_DEVICE_MANAGER(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_DEVICE_MANAGER, ClutterDeviceManager))
-#define CLUTTER_IS_DEVICE_MANAGER(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_DEVICE_MANAGER))
-#define CLUTTER_DEVICE_MANAGER_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_DEVICE_MANAGER, ClutterDeviceManagerClass))
-#define CLUTTER_IS_DEVICE_MANAGER_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_DEVICE_MANAGER))
-#define CLUTTER_DEVICE_MANAGER_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_DEVICE_MANAGER, ClutterDeviceManagerClass))
+#define CLUTTER_TYPE_DEVICE_MANAGER (clutter_device_manager_get_type ())
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterDeviceManager, clutter_device_manager,
+                          CLUTTER, DEVICE_MANAGER, GObject)
 
-typedef struct _ClutterDeviceManager            ClutterDeviceManager;
 typedef struct _ClutterDeviceManagerPrivate     ClutterDeviceManagerPrivate;
-typedef struct _ClutterDeviceManagerClass       ClutterDeviceManagerClass;
 
 /**
  * ClutterVirtualDeviceType:
@@ -72,21 +68,6 @@ typedef struct _ClutterKbdA11ySettings
   gint mousekeys_max_speed;
   gint mousekeys_accel_time;
 } ClutterKbdA11ySettings;
-
-/**
- * ClutterDeviceManager:
- *
- * The #ClutterDeviceManager structure contains only private data
- *
- * Since: 1.2
- */
-struct _ClutterDeviceManager
-{
-  /*< private >*/
-  GObject parent_instance;
-
-  ClutterDeviceManagerPrivate *priv;
-};
 
 /**
  * ClutterDeviceManagerClass:
@@ -124,9 +105,6 @@ struct _ClutterDeviceManagerClass
   /* padding */
   gpointer _padding[6];
 };
-
-CLUTTER_EXPORT
-GType clutter_device_manager_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterDeviceManager *clutter_device_manager_get_default     (void);
