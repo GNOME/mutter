@@ -38,7 +38,6 @@
 #include "clutter-debug.h"
 #include "clutter-device-manager-private.h"
 #include "clutter-event-private.h"
-#include "clutter-event-translator.h"
 #include "clutter-stage-private.h"
 #include "clutter-private.h"
 #include "clutter-xkb-a11y-x11.h"
@@ -97,7 +96,6 @@ enum
 
 static Atom clutter_input_axis_atoms[N_AXIS_ATOMS] = { 0, };
 
-static void clutter_event_translator_iface_init (ClutterEventTranslatorIface *iface);
 static void clutter_event_extender_iface_init   (ClutterEventExtenderInterface *iface);
 
 #define clutter_device_manager_xi2_get_type     _clutter_device_manager_xi2_get_type
@@ -105,8 +103,6 @@ static void clutter_event_extender_iface_init   (ClutterEventExtenderInterface *
 G_DEFINE_TYPE_WITH_CODE (ClutterDeviceManagerXI2,
                          clutter_device_manager_xi2,
                          CLUTTER_TYPE_DEVICE_MANAGER,
-                         G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_EVENT_TRANSLATOR,
-                                                clutter_event_translator_iface_init)
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_EVENT_EXTENDER,
                                                 clutter_event_extender_iface_init))
 
@@ -855,8 +851,8 @@ clutter_device_manager_xi2_select_events (ClutterDeviceManager *manager,
 }
 
 static ClutterStage *
-get_event_stage (ClutterEventTranslator *translator,
-                 XIEvent                *xi_event)
+get_event_stage (ClutterDeviceManagerXI2 *manager_xi2,
+                 XIEvent                 *xi_event)
 {
   Window xwindow = None;
 
@@ -1324,51 +1320,47 @@ handle_raw_event (ClutterDeviceManagerXI2 *manager_xi2,
     }
 }
 
-static ClutterTranslateReturn
-clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
-                                            gpointer                native,
-                                            ClutterEvent           *event)
+gboolean
+clutter_device_manager_xi2_translate_event (ClutterDeviceManagerXI2 *manager_xi2,
+                                            XEvent                  *xevent,
+                                            ClutterEvent            *event)
 {
-  ClutterDeviceManagerXI2 *manager_xi2 = CLUTTER_DEVICE_MANAGER_XI2 (translator);
-  ClutterTranslateReturn retval = CLUTTER_TRANSLATE_CONTINUE;
+  gboolean retval = FALSE;
   ClutterBackendX11 *backend_x11;
   ClutterStageX11 *stage_x11 = NULL;
   ClutterStage *stage = NULL;
   ClutterInputDevice *device, *source_device;
   XGenericEventCookie *cookie;
   XIEvent *xi_event;
-  XEvent *xevent;
 
   backend_x11 = CLUTTER_BACKEND_X11 (clutter_get_default_backend ());
-
-  xevent = native;
 
   cookie = &xevent->xcookie;
 
   if (cookie->type != GenericEvent ||
       cookie->extension != manager_xi2->opcode)
-    return CLUTTER_TRANSLATE_CONTINUE;
+    return FALSE;
 
   xi_event = (XIEvent *) cookie->data;
 
   if (!xi_event)
-    return CLUTTER_TRANSLATE_REMOVE;
+    return FALSE;
 
   if (cookie->evtype == XI_RawMotion ||
       cookie->evtype == XI_RawButtonPress ||
       cookie->evtype == XI_RawButtonRelease)
     {
       handle_raw_event (manager_xi2, xevent);
-      return CLUTTER_TRANSLATE_REMOVE;
+      return FALSE;
     }
 
   if (!(xi_event->evtype == XI_HierarchyChanged ||
         xi_event->evtype == XI_DeviceChanged ||
         xi_event->evtype == XI_PropertyEvent))
     {
-      stage = get_event_stage (translator, xi_event);
+      stage = get_event_stage (manager_xi2, xi_event);
       if (stage == NULL || CLUTTER_ACTOR_IN_DESTRUCTION (stage))
-        return CLUTTER_TRANSLATE_CONTINUE;
+        return FALSE;
       else
         stage_x11 = CLUTTER_STAGE_X11 (_clutter_stage_get_window (stage));
     }
@@ -1383,7 +1375,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
 
         translate_hierarchy_event (backend_x11, manager_xi2, xev);
       }
-      retval = CLUTTER_TRANSLATE_REMOVE;
+      retval = FALSE;
       break;
 
     case XI_DeviceChanged:
@@ -1406,7 +1398,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
         if (source_device)
           _clutter_input_device_reset_scroll_info (source_device);
       }
-      retval = CLUTTER_TRANSLATE_REMOVE;
+      retval = FALSE;
       break;
 
     case XI_KeyPress:
@@ -1488,7 +1480,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
         if (xi_event->evtype == XI_KeyPress)
           _clutter_stage_x11_set_user_time (stage_x11, event->key.time);
 
-        retval = CLUTTER_TRANSLATE_QUEUE;
+        retval = TRUE;
       }
       break;
 
@@ -1520,11 +1512,11 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
 
             if (xev->detail >= 4 && xev->detail <= 7)
               {
-                retval = CLUTTER_TRANSLATE_REMOVE;
+                retval = FALSE;
 
                 if (xi_event->evtype == XI_ButtonPress &&
                     translate_pad_event (event, xev, source_device))
-                  retval = CLUTTER_TRANSLATE_QUEUE;
+                  retval = TRUE;
 
                 break;
               }
@@ -1564,7 +1556,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
                           event->any.time,
                           event->pad_button.button);
 
-            retval = CLUTTER_TRANSLATE_QUEUE;
+            retval = TRUE;
             break;
           }
 
@@ -1576,7 +1568,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
           case 7:
             /* we only generate Scroll events on ButtonPress */
             if (xi_event->evtype == XI_ButtonRelease)
-              return CLUTTER_TRANSLATE_REMOVE;
+              return FALSE;
 
             event->scroll.type = event->type = CLUTTER_SCROLL;
 
@@ -1682,7 +1674,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
         if (xi_event->evtype == XI_ButtonPress)
           _clutter_stage_x11_set_user_time (stage_x11, event->button.time);
 
-        retval = CLUTTER_TRANSLATE_QUEUE;
+        retval = TRUE;
       }
       break;
 
@@ -1701,7 +1693,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
             event->any.stage = stage;
 
             if (translate_pad_event (event, xev, source_device))
-              retval = CLUTTER_TRANSLATE_QUEUE;
+              retval = TRUE;
             break;
           }
 
@@ -1739,7 +1731,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
                           event->scroll.y,
                           delta_x, delta_y);
 
-            retval = CLUTTER_TRANSLATE_QUEUE;
+            retval = TRUE;
             break;
           }
 
@@ -1778,7 +1770,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
                       event->motion.y,
                       event->motion.axes != NULL ? "yes" : "no");
 
-        retval = CLUTTER_TRANSLATE_QUEUE;
+        retval = TRUE;
       }
       break;
 
@@ -1844,7 +1836,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
                       event->touch.y,
                       event->touch.axes != NULL ? "yes" : "no");
 
-        retval = CLUTTER_TRANSLATE_QUEUE;
+        retval = TRUE;
       }
       break;
 
@@ -1890,7 +1882,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
                       event->touch.y,
                       event->touch.axes != NULL ? "yes" : "no");
 
-        retval = CLUTTER_TRANSLATE_QUEUE;
+        retval = TRUE;
       }
       break;
 
@@ -1926,7 +1918,7 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
                               "Discarding Leave for ButtonRelease "
                               "event off-stage");
 
-                retval = CLUTTER_TRANSLATE_REMOVE;
+                retval = FALSE;
                 break;
               }
 
@@ -1947,27 +1939,21 @@ clutter_device_manager_xi2_translate_event (ClutterEventTranslator *translator,
         clutter_event_set_device (event, device);
         clutter_event_set_source_device (event, source_device);
 
-        retval = CLUTTER_TRANSLATE_QUEUE;
+        retval = TRUE;
       }
       break;
 
     case XI_FocusIn:
     case XI_FocusOut:
-      retval = CLUTTER_TRANSLATE_CONTINUE;
+      retval = FALSE;
       break;
     case XI_PropertyEvent:
       handle_property_event (manager_xi2, xi_event);
-      retval = CLUTTER_TRANSLATE_CONTINUE;
+      retval = FALSE;
       break;
     }
 
   return retval;
-}
-
-static void
-clutter_event_translator_iface_init (ClutterEventTranslatorIface *iface)
-{
-  iface->translate_event = clutter_device_manager_xi2_translate_event;
 }
 
 static void
