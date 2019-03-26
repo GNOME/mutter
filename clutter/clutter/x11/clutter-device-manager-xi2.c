@@ -1130,13 +1130,9 @@ clutter_device_manager_xi2_select_stage_events (ClutterDeviceManager *manager,
   XISetMask (mask, XI_Enter);
   XISetMask (mask, XI_Leave);
 
-  /* enable touch event support if we're running on XInput 2.2 */
-  if (backend_x11->xi_minor >= 2)
-    {
-      XISetMask (mask, XI_TouchBegin);
-      XISetMask (mask, XI_TouchUpdate);
-      XISetMask (mask, XI_TouchEnd);
-    }
+  XISetMask (mask, XI_TouchBegin);
+  XISetMask (mask, XI_TouchUpdate);
+  XISetMask (mask, XI_TouchEnd);
 
   xi_event_mask.deviceid = XIAllMasterDevices;
   xi_event_mask.mask = mask;

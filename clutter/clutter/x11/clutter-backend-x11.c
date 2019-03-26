@@ -255,8 +255,6 @@ clutter_backend_x11_create_device_manager (ClutterBackendX11 *backend_x11)
                               "backend", backend_x11,
                               "opcode", event_base,
                               NULL);
-
-              backend_x11->xi_minor = minor;
             }
         }
     }
@@ -264,7 +262,6 @@ clutter_backend_x11_create_device_manager (ClutterBackendX11 *backend_x11)
   if (backend_x11->device_manager == NULL)
     {
       g_critical ("XI2 extension is missing.");
-      backend_x11->xi_minor = -1;
     }
 
   backend = CLUTTER_BACKEND (backend_x11);
