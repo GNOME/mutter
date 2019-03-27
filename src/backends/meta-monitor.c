@@ -730,8 +730,11 @@ meta_monitor_normal_get_suggested_position (MetaMonitor *monitor,
   if (output_info->suggested_x < 0 && output_info->suggested_y < 0)
     return FALSE;
 
-  *x = output_info->suggested_x;
-  *y = output_info->suggested_y;
+  if (x)
+    *x = output_info->suggested_x;
+
+  if (y)
+    *y = output_info->suggested_y;
 
   return TRUE;
 }
