@@ -4722,6 +4722,14 @@ clutter_stage_set_sync_delay (ClutterStage *stage,
   stage->priv->sync_delay = sync_delay;
 }
 
+int
+clutter_stage_get_sync_delay (ClutterStage *stage)
+{
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), -1);
+
+  return stage->priv->sync_delay;
+}
+
 /**
  * clutter_stage_skip_sync_delay:
  * @stage: a #ClutterStage
