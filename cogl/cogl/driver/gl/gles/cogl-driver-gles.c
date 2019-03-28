@@ -346,9 +346,6 @@ _cogl_driver_update_features (CoglContext *context,
       COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_DEPTH_TEXTURE, TRUE);
     }
 
-  flags |= COGL_FEATURE_TEXTURE_NPOT;
-  COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_TEXTURE_NPOT, TRUE);
-
   if (context->glMapBuffer)
     {
       /* The GL_OES_mapbuffer extension doesn't support mapping for
