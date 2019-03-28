@@ -333,12 +333,6 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
  *     %COGL_INDICES_TYPE_UNSIGNED_INT is supported in
  *     cogl_vertex_buffer_indices_new().
  * @COGL_FEATURE_DEPTH_RANGE: cogl_material_set_depth_range() support
- * @COGL_FEATURE_TEXTURE_NPOT_BASIC: The hardware supports non power
- *     of two textures, but you also need to check the
- *     %COGL_FEATURE_TEXTURE_NPOT_MIPMAP and %COGL_FEATURE_TEXTURE_NPOT_REPEAT
- *     features to know if the hardware supports npot texture mipmaps
- *     or repeat modes other than
- *     %COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE respectively.
  * @COGL_FEATURE_POINT_SPRITE: Whether
  *     cogl_material_set_layer_point_sprite_coords_enabled() is supported.
  * @COGL_FEATURE_MAP_BUFFER_FOR_READ: Whether cogl_buffer_map() is
@@ -367,7 +361,6 @@ typedef enum
   COGL_FEATURE_PBOS		      = (1 << 12),
   COGL_FEATURE_UNSIGNED_INT_INDICES   = (1 << 13),
   COGL_FEATURE_DEPTH_RANGE            = (1 << 14),
-  COGL_FEATURE_TEXTURE_NPOT_BASIC     = (1 << 15),
   COGL_FEATURE_POINT_SPRITE           = (1 << 18),
   COGL_FEATURE_MAP_BUFFER_FOR_READ    = (1 << 21),
   COGL_FEATURE_MAP_BUFFER_FOR_WRITE   = (1 << 22),

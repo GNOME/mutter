@@ -82,24 +82,18 @@ cogl_texture_new_with_size (unsigned int width,
 
   _COGL_GET_CONTEXT (ctx, NULL);
 
-  if ((_cogl_util_is_pot (width) && _cogl_util_is_pot (height)) ||
-      (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC)))
+  /* First try creating a fast-path non-sliced texture */
+  tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
+
+  _cogl_texture_set_internal_format (tex, internal_format);
+
+  if (!cogl_texture_allocate (tex, &skip_error))
     {
-      /* First try creating a fast-path non-sliced texture */
-      tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
-
-      _cogl_texture_set_internal_format (tex, internal_format);
-
-      if (!cogl_texture_allocate (tex, &skip_error))
-        {
-          cogl_error_free (skip_error);
-          skip_error = NULL;
-          cogl_object_unref (tex);
-          tex = NULL;
-        }
+      cogl_error_free (skip_error);
+      skip_error = NULL;
+      cogl_object_unref (tex);
+      tex = NULL;
     }
-  else
-    tex = NULL;
 
   if (!tex)
     {
@@ -209,7 +203,6 @@ _cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
                                gboolean can_convert_in_place,
                                CoglError **error)
 {
-  CoglContext *ctx = _cogl_bitmap_get_context (bitmap);
   CoglTexture *tex;
   CoglError *internal_error = NULL;
 
@@ -233,25 +226,18 @@ _cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
     }
 
   /* If that doesn't work try a fast path 2D texture */
-  if ((_cogl_util_is_pot (bitmap->width) &&
-       _cogl_util_is_pot (bitmap->height)) ||
-      (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC)))
+  tex = COGL_TEXTURE (_cogl_texture_2d_new_from_bitmap (bitmap,
+                                                        can_convert_in_place));
+
+  _cogl_texture_set_internal_format (tex, internal_format);
+
+  if (!cogl_texture_allocate (tex, &internal_error))
     {
-      tex = COGL_TEXTURE (_cogl_texture_2d_new_from_bitmap (bitmap,
-                                                            can_convert_in_place));
-
-      _cogl_texture_set_internal_format (tex, internal_format);
-
-      if (!cogl_texture_allocate (tex, &internal_error))
-        {
-          cogl_error_free (internal_error);
-          internal_error = NULL;
-          cogl_object_unref (tex);
-          tex = NULL;
-        }
+      cogl_error_free (internal_error);
+      internal_error = NULL;
+      cogl_object_unref (tex);
+      tex = NULL;
     }
-  else
-    tex = NULL;
 
   if (!tex)
     {

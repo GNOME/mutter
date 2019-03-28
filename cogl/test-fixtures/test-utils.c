@@ -361,24 +361,17 @@ test_utils_texture_new_with_size (CoglContext *ctx,
   CoglTexture *tex;
   CoglError *skip_error = NULL;
 
-  if ((test_utils_is_pot (width) && test_utils_is_pot (height)) ||
-      (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC)))
+  /* First try creating a fast-path non-sliced texture */
+  tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
+
+  cogl_texture_set_components (tex, components);
+
+  if (!cogl_texture_allocate (tex, &skip_error))
     {
-      /* First try creating a fast-path non-sliced texture */
-      tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx,
-                                                         width, height));
-
-      cogl_texture_set_components (tex, components);
-
-      if (!cogl_texture_allocate (tex, &skip_error))
-        {
-          cogl_error_free (skip_error);
-          cogl_object_unref (tex);
-          tex = NULL;
-        }
+      cogl_error_free (skip_error);
+      cogl_object_unref (tex);
+      tex = NULL;
     }
-  else
-    tex = NULL;
 
   if (!tex)
     {
@@ -439,30 +432,23 @@ test_utils_texture_new_from_bitmap (CoglBitmap *bitmap,
     }
 
   /* If that doesn't work try a fast path 2D texture */
-  if ((test_utils_is_pot (cogl_bitmap_get_width (bitmap)) &&
-       test_utils_is_pot (cogl_bitmap_get_height (bitmap))) ||
-      (cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC)))
+  tex = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
+
+  cogl_texture_set_premultiplied (tex, premultiplied);
+
+  if (cogl_error_matches (internal_error,
+                          COGL_SYSTEM_ERROR,
+                          COGL_SYSTEM_ERROR_NO_MEMORY))
     {
-      tex = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
-
-      cogl_texture_set_premultiplied (tex, premultiplied);
-
-      if (cogl_error_matches (internal_error,
-                              COGL_SYSTEM_ERROR,
-                              COGL_SYSTEM_ERROR_NO_MEMORY))
-        {
-          g_assert_not_reached ();
-          return NULL;
-        }
-
-      if (!tex)
-        {
-          cogl_error_free (internal_error);
-          internal_error = NULL;
-        }
+      g_assert_not_reached ();
+      return NULL;
     }
-  else
-    tex = NULL;
+
+  if (!tex)
+    {
+      cogl_error_free (internal_error);
+      internal_error = NULL;
+    }
 
   if (!tex)
     {
