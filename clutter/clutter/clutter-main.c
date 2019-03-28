@@ -1279,8 +1279,8 @@ clutter_get_option_group (void)
   context = _clutter_context_get_default ();
 
   group = g_option_group_new ("clutter",
-                              _("Clutter Options"),
-                              _("Show Clutter Options"),
+                              "Clutter Options",
+                              "Show Clutter Options",
                               NULL,
                               NULL);
 
