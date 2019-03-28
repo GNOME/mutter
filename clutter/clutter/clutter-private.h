@@ -85,7 +85,6 @@ typedef struct _ClutterVertex4          ClutterVertex4;
 /* keep this for source compatibility with clutter */
 #define P_(String) (String)
 #define N_(String) (String)
-#define _(String) (String)
 
 /* This is a replacement for the nearbyint function which always rounds to the
  * nearest integer. nearbyint is apparently a C99 function so it might not
