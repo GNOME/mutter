@@ -409,12 +409,10 @@ _cogl_driver_update_features (CoglContext *ctx,
 
   flags |= COGL_FEATURE_TEXTURE_NPOT
     | COGL_FEATURE_TEXTURE_NPOT_BASIC
-    | COGL_FEATURE_TEXTURE_NPOT_MIPMAP
-    | COGL_FEATURE_TEXTURE_NPOT_REPEAT;
+    | COGL_FEATURE_TEXTURE_NPOT_MIPMAP;
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_NPOT, TRUE);
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC, TRUE);
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP, TRUE);
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT, TRUE);
 
   if (_cogl_check_extension ("GL_MESA_pack_invert", gl_extensions))
     COGL_FLAGS_SET (private_features,
