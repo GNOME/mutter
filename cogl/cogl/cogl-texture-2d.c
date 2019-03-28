@@ -635,7 +635,10 @@ _cogl_texture_2d_is_get_data_supported (CoglTexture *tex)
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
   CoglContext *ctx = tex->context;
 
-  return ctx->driver_vtable->texture_2d_is_get_data_supported (tex_2d);
+  if (ctx->driver_vtable->texture_2d_is_get_data_supported)
+    return ctx->driver_vtable->texture_2d_is_get_data_supported (tex_2d);
+  else
+    return FALSE;
 }
 
 static gboolean
