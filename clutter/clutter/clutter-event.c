@@ -1021,6 +1021,9 @@ clutter_event_get_event_sequence (const ClutterEvent *event)
       event->type == CLUTTER_TOUCH_END ||
       event->type == CLUTTER_TOUCH_CANCEL)
     return event->touch.sequence;
+  else if (event->type == CLUTTER_ENTER ||
+           event->type == CLUTTER_LEAVE)
+    return event->crossing.sequence;
 
   return NULL;
 }

@@ -834,6 +834,7 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
           event->crossing.x = device->current_x;
           event->crossing.y = device->current_y;
           event->crossing.related = actor;
+          event->crossing.sequence = sequence;
           clutter_event_set_device (event, device);
 
           /* we need to make sure that this event is processed
@@ -870,6 +871,7 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
           event->crossing.y = device->current_y;
           event->crossing.source = actor;
           event->crossing.related = old_actor;
+          event->crossing.sequence = sequence;
           clutter_event_set_device (event, device);
 
           /* see above */
