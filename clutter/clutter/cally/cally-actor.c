@@ -737,11 +737,7 @@ cally_actor_grab_focus (AtkComponent    *component)
  *
  * This gets the top level origin, it is, the position of the stage in
  * the global screen. You can see it as the absolute display position
- * of the stage.
- *
- * FIXME: only the case with x11 is implemented, other backends are
- * required
- *
+ * of the stage. This is 0,0 for a compositor.
  */
 void
 _cally_actor_get_top_level_origin (ClutterActor *actor,
@@ -749,54 +745,11 @@ _cally_actor_get_top_level_origin (ClutterActor *actor,
                                    gint         *yp)
 {
   /* default values */
-  gint x = 0;
-  gint y = 0;
-
-#ifdef CLUTTER_WINDOWING_X11
-  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
-    {
-      ClutterActor *stage      = NULL;
-      Display *display    = NULL;
-      Window root_window;
-      Window stage_window;
-      Window child;
-      gint return_val = 0;
-
-      stage = clutter_actor_get_stage (actor);
-
-      /* FIXME: what happens if you use another display with
-         clutter_backend_x11_set_display ?*/
-      display = clutter_x11_get_default_display ();
-      root_window = clutter_x11_get_root_window ();
-      stage_window = clutter_x11_get_stage_window (CLUTTER_STAGE (stage));
-
-      return_val = XTranslateCoordinates (display, stage_window, root_window,
-                                          0, 0, &x, &y,
-                                          &child);
-
-      if (!return_val)
-        g_warning ("[x11] We were not able to get proper absolute "
-                   "position of the stage");
-    }
-  else
-#endif
-    {
-      static gboolean yet_warned = FALSE;
-
-      if (!yet_warned)
-        {
-          yet_warned = TRUE;
-
-          g_warning ("The current Clutter backend does not support using "
-                     "atk_component_get_extents() with ATK_XY_SCREEN.");
-        }
-    }
-
   if (xp)
-    *xp = x;
+    *xp = 0;
 
   if (yp)
-    *yp = y;
+    *yp = 0;
 }
 
 /* AtkAction implementation */
