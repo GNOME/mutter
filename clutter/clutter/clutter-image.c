@@ -256,7 +256,7 @@ clutter_image_set_data (ClutterImage     *image,
     {
       g_set_error_literal (error, CLUTTER_IMAGE_ERROR,
                            CLUTTER_IMAGE_ERROR_INVALID_DATA,
-                           _("Unable to load image data"));
+                           "Unable to load image data");
       return FALSE;
     }
 
@@ -325,7 +325,7 @@ clutter_image_set_bytes (ClutterImage     *image,
     {
       g_set_error_literal (error, CLUTTER_IMAGE_ERROR,
                            CLUTTER_IMAGE_ERROR_INVALID_DATA,
-                           _("Unable to load image data"));
+                           "Unable to load image data");
       return FALSE;
     }
 
@@ -419,7 +419,7 @@ clutter_image_set_area (ClutterImage                 *image,
     {
       g_set_error_literal (error, CLUTTER_IMAGE_ERROR,
                            CLUTTER_IMAGE_ERROR_INVALID_DATA,
-                           _("Unable to load image data"));
+                           "Unable to load image data");
       return FALSE;
     }
 

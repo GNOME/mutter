@@ -394,7 +394,7 @@ clutter_backend_real_create_context (ClutterBackend  *backend,
       else
         g_set_error_literal (error, CLUTTER_INIT_ERROR,
                              CLUTTER_INIT_ERROR_BACKEND,
-                            _("Unable to initialize the Clutter backend: no available drivers found."));
+                             "Unable to initialize the Clutter backend: no available drivers found.");
 
       return FALSE;
     }

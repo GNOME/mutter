@@ -1567,7 +1567,7 @@ clutter_texture_set_from_data (ClutterTexture     *texture,
 
       g_set_error (&inner_error, CLUTTER_TEXTURE_ERROR,
                    CLUTTER_TEXTURE_ERROR_BAD_FORMAT,
-                   _("Failed to load the image data"));
+                   "Failed to load the image data");
 
       g_signal_emit (texture, texture_signals[LOAD_FINISHED], 0, inner_error);
 
@@ -1726,7 +1726,7 @@ clutter_texture_set_from_yuv_data (ClutterTexture     *texture,
     {
       g_set_error (error, CLUTTER_TEXTURE_ERROR,
                    CLUTTER_TEXTURE_ERROR_NO_YUV,
-                   _("YUV textures are not supported"));
+                   "YUV textures are not supported");
       return FALSE;
     }
 
@@ -1735,7 +1735,7 @@ clutter_texture_set_from_yuv_data (ClutterTexture     *texture,
     {
       g_set_error (error, CLUTTER_TEXTURE_ERROR,
 		   CLUTTER_TEXTURE_ERROR_BAD_FORMAT,
-		   _("YUV2 textures are not supported"));
+		   "YUV2 textures are not supported");
       return FALSE;
     }
 
@@ -1962,7 +1962,7 @@ clutter_texture_async_load (ClutterTexture *self,
     {
       g_set_error (error, CLUTTER_TEXTURE_ERROR,
 		   CLUTTER_TEXTURE_ERROR_BAD_FORMAT,
-                   _("Failed to load the image data"));
+                   "Failed to load the image data");
       return FALSE;
     }
   else
@@ -2059,7 +2059,7 @@ clutter_texture_set_from_file (ClutterTexture *texture,
     {
       g_set_error (&internal_error, CLUTTER_TEXTURE_ERROR,
                    CLUTTER_TEXTURE_ERROR_BAD_FORMAT,
-		   _("Failed to load the image data"));
+		   "Failed to load the image data");
     }
 
   if (internal_error != NULL)
@@ -2361,7 +2361,7 @@ clutter_texture_set_area_from_rgb_data (ClutterTexture     *texture,
     {
       g_set_error (error, CLUTTER_TEXTURE_ERROR,
 		   CLUTTER_TEXTURE_ERROR_BAD_FORMAT,
-		   _("Failed to load the image data"));
+		   "Failed to load the image data");
       return FALSE;
     }
 
