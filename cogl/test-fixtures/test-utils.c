@@ -362,8 +362,7 @@ test_utils_texture_new_with_size (CoglContext *ctx,
   CoglError *skip_error = NULL;
 
   if ((test_utils_is_pot (width) && test_utils_is_pot (height)) ||
-      (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC) &&
-       cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP)))
+      (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC)))
     {
       /* First try creating a fast-path non-sliced texture */
       tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx,
@@ -442,8 +441,7 @@ test_utils_texture_new_from_bitmap (CoglBitmap *bitmap,
   /* If that doesn't work try a fast path 2D texture */
   if ((test_utils_is_pot (cogl_bitmap_get_width (bitmap)) &&
        test_utils_is_pot (cogl_bitmap_get_height (bitmap))) ||
-      (cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC) &&
-       cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP)))
+      (cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC)))
     {
       tex = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
 

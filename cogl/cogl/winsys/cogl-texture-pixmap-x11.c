@@ -583,8 +583,7 @@ create_fallback_texture (CoglContext *ctx,
   CoglError *skip_error = NULL;
 
   if ((_cogl_util_is_pot (width) && _cogl_util_is_pot (height)) ||
-      (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC) &&
-       cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP)))
+      (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC)))
     {
       /* First try creating a fast-path non-sliced texture */
       tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx,
