@@ -351,15 +351,12 @@ _cogl_driver_update_features (CoglContext *context,
 
   flags |= (COGL_FEATURE_TEXTURE_NPOT |
             COGL_FEATURE_TEXTURE_NPOT_BASIC |
-            COGL_FEATURE_TEXTURE_NPOT_MIPMAP |
-            COGL_FEATURE_TEXTURE_NPOT_REPEAT);
+            COGL_FEATURE_TEXTURE_NPOT_MIPMAP);
   COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_TEXTURE_NPOT, TRUE);
   COGL_FLAGS_SET (context->features,
                   COGL_FEATURE_ID_TEXTURE_NPOT_BASIC, TRUE);
   COGL_FLAGS_SET (context->features,
                   COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP, TRUE);
-  COGL_FLAGS_SET (context->features,
-                  COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT, TRUE);
 
   if (context->glMapBuffer)
     {

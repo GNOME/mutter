@@ -505,14 +505,7 @@ _cogl_texture_2d_is_sliced (CoglTexture *tex)
 static gboolean
 _cogl_texture_2d_can_hardware_repeat (CoglTexture *tex)
 {
-  CoglContext *ctx = tex->context;
-
-  if (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT) ||
-      (_cogl_util_is_pot (tex->width) &&
-       _cogl_util_is_pot (tex->height)))
-    return TRUE;
-  else
-    return FALSE;
+  return TRUE;
 }
 
 static void

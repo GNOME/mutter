@@ -182,9 +182,6 @@ cogl_is_context (void *object);
  *     %COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE respectively.
  * @COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP: Mipmapping is supported in
  *     conjuntion with non power of two textures.
- * @COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT: Repeat modes other than
- *     %COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE are supported by the
- *     hardware.
  * @COGL_FEATURE_ID_TEXTURE_NPOT: Non power of two textures are supported
  *    by the hardware. This is a equivalent to the
  *    %COGL_FEATURE_ID_TEXTURE_NPOT_BASIC, %COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP
@@ -236,7 +233,6 @@ typedef enum _CoglFeatureID
 {
   COGL_FEATURE_ID_TEXTURE_NPOT_BASIC = 1,
   COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP,
-  COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT,
   COGL_FEATURE_ID_TEXTURE_NPOT,
   COGL_FEATURE_ID_TEXTURE_RECTANGLE,
   COGL_FEATURE_ID_OFFSCREEN,
