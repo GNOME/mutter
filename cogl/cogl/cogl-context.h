@@ -174,10 +174,6 @@ cogl_is_context (void *object);
  * experimental since it's only useable with experimental API... */
 /**
  * CoglFeatureID:
- * @COGL_FEATURE_ID_TEXTURE_NPOT: Non power of two textures are supported
- *    by the hardware. This is a equivalent to the
- *    %COGL_FEATURE_ID_TEXTURE_NPOT_BASIC, %COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP
- *    and %COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT features combined.
  * @COGL_FEATURE_ID_TEXTURE_RECTANGLE: Support for rectangular
  *    textures with non-normalized texture coordinates.
  * @COGL_FEATURE_ID_TEXTURE_RG: Support for
@@ -223,8 +219,7 @@ cogl_is_context (void *object);
  */
 typedef enum _CoglFeatureID
 {
-  COGL_FEATURE_ID_TEXTURE_NPOT = 1,
-  COGL_FEATURE_ID_TEXTURE_RECTANGLE,
+  COGL_FEATURE_ID_TEXTURE_RECTANGLE = 1,
   COGL_FEATURE_ID_OFFSCREEN,
   COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE,
   COGL_FEATURE_ID_ONSCREEN_MULTIPLE,

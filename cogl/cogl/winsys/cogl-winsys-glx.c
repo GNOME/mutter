@@ -2545,10 +2545,7 @@ should_use_rectangle (CoglContext *context)
              the env var is set to 'allow' or not set and NPOTs textures
              are not available */
 
-          context->rectangle_state =
-            cogl_has_feature (context, COGL_FEATURE_ID_TEXTURE_NPOT) ?
-            COGL_WINSYS_RECTANGLE_STATE_DISABLE :
-            COGL_WINSYS_RECTANGLE_STATE_ENABLE;
+          context->rectangle_state = COGL_WINSYS_RECTANGLE_STATE_DISABLE;
 
           if ((rect_env = g_getenv ("COGL_PIXMAP_TEXTURE_RECTANGLE")) ||
               /* For compatibility, we'll also look at the old Clutter

@@ -585,65 +585,6 @@ _cogl_rect_slices_for_size (int     size_to_fill,
   return n_spans;
 }
 
-static int
-_cogl_pot_slices_for_size (int    size_to_fill,
-                           int    max_span_size,
-                           int    max_waste,
-                           GArray *out_spans)
-{
-  int      n_spans = 0;
-  CoglSpan span;
-
-  /* Init first slice span */
-  span.start = 0;
-  span.size = max_span_size;
-  span.waste = 0;
-
-  /* Fix invalid max_waste */
-  if (max_waste < 0)
-    max_waste = 0;
-
-  while (TRUE)
-    {
-      /* Is the whole area covered? */
-      if (size_to_fill > span.size)
-        {
-          /* Not yet - add a span of this size */
-          if (out_spans)
-            g_array_append_val (out_spans, span);
-
-          span.start   += span.size;
-          size_to_fill -= span.size;
-          n_spans++;
-        }
-      else if (span.size - size_to_fill <= max_waste)
-        {
-          /* Yes and waste is small enough */
-          /* Pick the next power of two up from size_to_fill. This can
-             sometimes be less than the span.size that would be chosen
-             otherwise */
-          span.size = _cogl_util_next_p2 (size_to_fill);
-          span.waste = span.size - size_to_fill;
-          if (out_spans)
-            g_array_append_val (out_spans, span);
-
-          return ++n_spans;
-        }
-      else
-        {
-          /* Yes but waste is too large */
-          while (span.size - size_to_fill > max_waste)
-            {
-              span.size /= 2;
-              g_assert (span.size > 0);
-            }
-        }
-    }
-
-  /* Can't get here */
-  return 0;
-}
-
 static void
 _cogl_texture_2d_sliced_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
                                                            GLenum wrap_mode_s,
@@ -700,18 +641,9 @@ setup_spans (CoglContext *ctx,
   int   (*slices_for_size) (int, int, int, GArray*);
 
   /* Initialize size of largest slice according to supported features */
-  if (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT))
-    {
-      max_width = width;
-      max_height = height;
-      slices_for_size = _cogl_rect_slices_for_size;
-    }
-  else
-    {
-      max_width = _cogl_util_next_p2 (width);
-      max_height = _cogl_util_next_p2 (height);
-      slices_for_size = _cogl_pot_slices_for_size;
-    }
+  max_width = width;
+  max_height = height;
+  slices_for_size = _cogl_rect_slices_for_size;
 
   /* Negative number means no slicing forced by the user */
   if (max_waste <= -1)

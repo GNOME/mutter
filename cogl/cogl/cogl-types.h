@@ -316,10 +316,6 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
 /**
  * CoglFeatureFlags:
  * @COGL_FEATURE_TEXTURE_RECTANGLE: ARB_texture_rectangle support
- * @COGL_FEATURE_TEXTURE_NPOT: Non power of two textures are supported
- *    by the hardware. This is a equivalent to the
- *    %COGL_FEATURE_TEXTURE_NPOT_BASIC, %COGL_FEATURE_TEXTURE_NPOT_MIPMAP
- *    and %COGL_FEATURE_TEXTURE_NPOT_REPEAT features combined.
  * @COGL_FEATURE_TEXTURE_YUV: ycbcr conversion support
  * @COGL_FEATURE_TEXTURE_READ_PIXELS: glReadPixels() support
  * @COGL_FEATURE_OFFSCREEN: FBO support
@@ -349,7 +345,6 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
 typedef enum
 {
   COGL_FEATURE_TEXTURE_RECTANGLE      = (1 << 1),
-  COGL_FEATURE_TEXTURE_NPOT           = (1 << 2),
   COGL_FEATURE_TEXTURE_YUV            = (1 << 3),
   COGL_FEATURE_TEXTURE_READ_PIXELS    = (1 << 4),
   COGL_FEATURE_OFFSCREEN              = (1 << 6),
@@ -541,9 +536,7 @@ cogl_blend_string_error_quark (void);
  *
  * <itemizedlist>
  *  <listitem><para>You've tried to use a feature that is not
- *   advertised by cogl_has_feature(). This could happen if you create
- *   a 2d texture with a non-power-of-two size when
- *   %COGL_FEATURE_ID_TEXTURE_NPOT is not advertised.</para></listitem>
+ *   advertised by cogl_has_feature().</para></listitem>
  *  <listitem><para>The GPU can not handle the configuration you have
  *   requested. An example might be if you try to use too many texture
  *   layers in a single #CoglPipeline</para></listitem>

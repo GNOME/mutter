@@ -67,11 +67,6 @@ meta_create_texture_pipeline (CoglTexture *src_texture)
   return pipeline;
 }
 
-static gboolean is_pot(int x)
-{
-  return x > 0 && (x & (x - 1)) == 0;
-}
-
 /**
  * meta_create_texture:
  * @width: width of the texture to create
@@ -107,16 +102,6 @@ meta_create_texture (int                   width,
   CoglTexture *texture;
 
   gboolean should_use_rectangle = FALSE;
-
-  if (!(is_pot (width) && is_pot (height)) &&
-      !cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT))
-    {
-      if (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_RECTANGLE))
-        should_use_rectangle = TRUE;
-      else
-        g_error ("Cannot create texture. Support for GL_ARB_texture_non_power_of_two or "
-                 "ARB_texture_rectangle is required");
-    }
 
   if (should_use_rectangle)
     texture = COGL_TEXTURE (cogl_texture_rectangle_new_with_size (ctx, width, height));

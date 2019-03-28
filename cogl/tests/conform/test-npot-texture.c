@@ -106,10 +106,8 @@ make_texture (void)
         g_print ("Texture is not sliced\n");
     }
 
-  /* The texture should be sliced unless NPOTs are supported */
-  g_assert (cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_NPOT)
-            ? !cogl_texture_is_sliced (tex)
-            : cogl_texture_is_sliced (tex));
+  /* The texture should be sliced unless NPOTs are supported, which they are */
+  g_assert (!cogl_texture_is_sliced (tex));
 
   return tex;
 }
@@ -147,14 +145,6 @@ paint (void)
 void
 test_npot_texture (void)
 {
-  if (cogl_test_verbose ())
-    {
-      if (cogl_has_feature (test_ctx, COGL_FEATURE_ID_TEXTURE_NPOT))
-        g_print ("NPOT textures are supported\n");
-      else
-        g_print ("NPOT textures are not supported\n");
-    }
-
   cogl_framebuffer_orthographic (test_fb,
                                  0, 0,
                                  cogl_framebuffer_get_width (test_fb),

@@ -407,9 +407,6 @@ _cogl_driver_update_features (CoglContext *ctx,
                                      gl_minor,
                                      gl_extensions);
 
-  flags |= COGL_FEATURE_TEXTURE_NPOT;
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_NPOT, TRUE);
-
   if (_cogl_check_extension ("GL_MESA_pack_invert", gl_extensions))
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_MESA_PACK_INVERT, TRUE);
