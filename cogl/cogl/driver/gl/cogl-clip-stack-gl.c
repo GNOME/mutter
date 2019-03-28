@@ -51,151 +51,6 @@
 #endif
 
 static void
-project_vertex (const CoglMatrix *modelview_projection,
-		float *vertex)
-{
-  int i;
-
-  cogl_matrix_transform_point (modelview_projection,
-                               &vertex[0], &vertex[1],
-                               &vertex[2], &vertex[3]);
-
-  /* Convert from homogenized coordinates */
-  for (i = 0; i < 4; i++)
-    vertex[i] /= vertex[3];
-}
-
-static void
-set_clip_plane (CoglFramebuffer *framebuffer,
-                int plane_num,
-		const float *vertex_a,
-		const float *vertex_b)
-{
-  CoglContext *ctx = framebuffer->context;
-  float planef[4];
-  double planed[4];
-  float angle;
-  CoglMatrixStack *modelview_stack =
-    _cogl_framebuffer_get_modelview_stack (framebuffer);
-  CoglMatrixStack *projection_stack =
-    _cogl_framebuffer_get_projection_stack (framebuffer);
-  CoglMatrix inverse_projection;
-
-  cogl_matrix_stack_get_inverse (projection_stack, &inverse_projection);
-
-  /* Calculate the angle between the axes and the line crossing the
-     two points */
-  angle = atan2f (vertex_b[1] - vertex_a[1],
-                  vertex_b[0] - vertex_a[0]) * (180.0/G_PI);
-
-  cogl_matrix_stack_push (modelview_stack);
-
-  /* Load the inverse of the projection matrix so we can specify the plane
-   * in screen coordinates */
-  cogl_matrix_stack_set (modelview_stack, &inverse_projection);
-
-  /* Rotate about point a */
-  cogl_matrix_stack_translate (modelview_stack,
-                               vertex_a[0], vertex_a[1], vertex_a[2]);
-  /* Rotate the plane by the calculated angle so that it will connect
-     the two points */
-  cogl_matrix_stack_rotate (modelview_stack, angle, 0.0f, 0.0f, 1.0f);
-  cogl_matrix_stack_translate (modelview_stack,
-                               -vertex_a[0], -vertex_a[1], -vertex_a[2]);
-
-  /* Clip planes can only be used when a fixed function backend is in
-     use so we know we can directly push this matrix to the builtin
-     state */
-  _cogl_matrix_entry_flush_to_gl_builtins (ctx,
-                                           modelview_stack->last_entry,
-                                           COGL_MATRIX_MODELVIEW,
-                                           framebuffer,
-                                           FALSE /* don't disable flip */);
-
-  planef[0] = 0;
-  planef[1] = -1.0;
-  planef[2] = 0;
-  planef[3] = vertex_a[1];
-
-  switch (ctx->driver)
-    {
-    default:
-      g_assert_not_reached ();
-      break;
-
-    case COGL_DRIVER_GL:
-    case COGL_DRIVER_GL3:
-      planed[0] = planef[0];
-      planed[1] = planef[1];
-      planed[2] = planef[2];
-      planed[3] = planef[3];
-      GE( ctx, glClipPlane (plane_num, planed) );
-      break;
-    }
-
-  cogl_matrix_stack_pop (modelview_stack);
-}
-
-static void
-set_clip_planes (CoglFramebuffer *framebuffer,
-                 CoglMatrixEntry *modelview_entry,
-                 float x_1,
-                 float y_1,
-                 float x_2,
-                 float y_2)
-{
-  CoglMatrix modelview_matrix;
-  CoglMatrixStack *projection_stack =
-    _cogl_framebuffer_get_projection_stack (framebuffer);
-  CoglMatrix projection_matrix;
-  CoglMatrix modelview_projection;
-  float signed_area;
-
-  float vertex_tl[4] = { x_1, y_1, 0, 1.0 };
-  float vertex_tr[4] = { x_2, y_1, 0, 1.0 };
-  float vertex_bl[4] = { x_1, y_2, 0, 1.0 };
-  float vertex_br[4] = { x_2, y_2, 0, 1.0 };
-
-  cogl_matrix_stack_get (projection_stack, &projection_matrix);
-  cogl_matrix_entry_get (modelview_entry, &modelview_matrix);
-
-  cogl_matrix_multiply (&modelview_projection,
-                        &projection_matrix,
-                        &modelview_matrix);
-
-  project_vertex (&modelview_projection, vertex_tl);
-  project_vertex (&modelview_projection, vertex_tr);
-  project_vertex (&modelview_projection, vertex_bl);
-  project_vertex (&modelview_projection, vertex_br);
-
-  /* Calculate the signed area of the polygon formed by the four
-     vertices so that we can know its orientation */
-  signed_area = (vertex_tl[0] * (vertex_tr[1] - vertex_bl[1])
-                 + vertex_tr[0] * (vertex_br[1] - vertex_tl[1])
-                 + vertex_br[0] * (vertex_bl[1] - vertex_tr[1])
-                 + vertex_bl[0] * (vertex_tl[1] - vertex_br[1]));
-
-  /* Set the clip planes to form lines between all of the vertices
-     using the same orientation as we calculated */
-  if (signed_area > 0.0f)
-    {
-      /* counter-clockwise */
-      set_clip_plane (framebuffer, GL_CLIP_PLANE0, vertex_tl, vertex_bl);
-      set_clip_plane (framebuffer, GL_CLIP_PLANE1, vertex_bl, vertex_br);
-      set_clip_plane (framebuffer, GL_CLIP_PLANE2, vertex_br, vertex_tr);
-      set_clip_plane (framebuffer, GL_CLIP_PLANE3, vertex_tr, vertex_tl);
-    }
-  else
-    {
-      /* clockwise */
-      set_clip_plane (framebuffer, GL_CLIP_PLANE0, vertex_tl, vertex_tr);
-      set_clip_plane (framebuffer, GL_CLIP_PLANE1, vertex_tr, vertex_br);
-      set_clip_plane (framebuffer, GL_CLIP_PLANE2, vertex_br, vertex_bl);
-      set_clip_plane (framebuffer, GL_CLIP_PLANE3, vertex_bl, vertex_tl);
-    }
-}
-
-static void
 add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
                             CoglMatrixEntry *modelview_entry,
                             float x_1,
@@ -398,31 +253,11 @@ add_stencil_clip_primitive (CoglFramebuffer *framebuffer,
                                primitive);
 }
 
-static void
-enable_clip_planes (CoglContext *ctx)
-{
-  GE( ctx, glEnable (GL_CLIP_PLANE0) );
-  GE( ctx, glEnable (GL_CLIP_PLANE1) );
-  GE( ctx, glEnable (GL_CLIP_PLANE2) );
-  GE( ctx, glEnable (GL_CLIP_PLANE3) );
-}
-
-static void
-disable_clip_planes (CoglContext *ctx)
-{
-  GE( ctx, glDisable (GL_CLIP_PLANE3) );
-  GE( ctx, glDisable (GL_CLIP_PLANE2) );
-  GE( ctx, glDisable (GL_CLIP_PLANE1) );
-  GE( ctx, glDisable (GL_CLIP_PLANE0) );
-}
-
 void
 _cogl_clip_stack_gl_flush (CoglClipStack *stack,
                            CoglFramebuffer *framebuffer)
 {
   CoglContext *ctx = framebuffer->context;
-  int has_clip_planes;
-  gboolean using_clip_planes = FALSE;
   gboolean using_stencil_buffer = FALSE;
   int scissor_x0;
   int scissor_y0;
@@ -444,11 +279,6 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
   ctx->current_clip_stack_valid = TRUE;
   ctx->current_clip_stack = _cogl_clip_stack_ref (stack);
 
-  has_clip_planes =
-    _cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_FOUR_CLIP_PLANES);
-
-  if (has_clip_planes)
-    disable_clip_planes (ctx);
   GE( ctx, glDisable (GL_STENCIL_TEST) );
 
   /* If the stack is empty then there's nothing else to do
@@ -539,36 +369,16 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
                  rectangle was entirely described by its scissor bounds */
               if (!rect->can_be_scissor)
                 {
-                  /* If we support clip planes and we haven't already used
-                     them then use that instead */
-                  if (has_clip_planes)
-                    {
-                      COGL_NOTE (CLIPPING,
-                                 "Adding clip planes clip for rectangle");
+                  COGL_NOTE (CLIPPING, "Adding stencil clip for rectangle");
 
-                      set_clip_planes (framebuffer,
-                                       rect->matrix_entry,
-                                       rect->x0,
-                                       rect->y0,
-                                       rect->x1,
-                                       rect->y1);
-                      using_clip_planes = TRUE;
-                      /* We can't use clip planes a second time */
-                      has_clip_planes = FALSE;
-                    }
-                  else
-                    {
-                      COGL_NOTE (CLIPPING, "Adding stencil clip for rectangle");
-
-                      add_stencil_clip_rectangle (framebuffer,
-                                                  rect->matrix_entry,
-                                                  rect->x0,
-                                                  rect->y0,
-                                                  rect->x1,
-                                                  rect->y1,
-                                                  !using_stencil_buffer);
-                      using_stencil_buffer = TRUE;
-                    }
+                  add_stencil_clip_rectangle (framebuffer,
+                                              rect->matrix_entry,
+                                              rect->x0,
+                                              rect->y0,
+                                              rect->x1,
+                                              rect->y1,
+                                              !using_stencil_buffer);
+                  using_stencil_buffer = TRUE;
                 }
               break;
             }
@@ -579,11 +389,6 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
            * box */
         }
     }
-
-  /* Enabling clip planes is delayed to now so that they won't affect
-     setting up the stencil buffer */
-  if (using_clip_planes)
-    enable_clip_planes (ctx);
 
   ctx->current_clip_stack_uses_stencil = using_stencil_buffer;
 }

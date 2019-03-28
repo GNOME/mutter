@@ -479,18 +479,11 @@ _cogl_driver_update_features (CoglContext *ctx,
 
   if (ctx->driver == COGL_DRIVER_GL)
     {
-      int max_clip_planes = 0;
-
       /* Features which are not available in GL 3 */
       COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_GL_FIXED, TRUE);
       COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEST, TRUE);
       COGL_FLAGS_SET (private_features,
                       COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
-
-      GE( ctx, glGetIntegerv (GL_MAX_CLIP_PLANES, &max_clip_planes) );
-      if (max_clip_planes >= 4)
-        COGL_FLAGS_SET (private_features,
-                        COGL_PRIVATE_FEATURE_FOUR_CLIP_PLANES, TRUE);
     }
 
   COGL_FLAGS_SET (private_features,
