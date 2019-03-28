@@ -174,12 +174,6 @@ cogl_is_context (void *object);
  * experimental since it's only useable with experimental API... */
 /**
  * CoglFeatureID:
- * @COGL_FEATURE_ID_TEXTURE_NPOT_BASIC: The hardware supports non power
- *     of two textures, but you also need to check the
- *     %COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP and %COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT
- *     features to know if the hardware supports npot texture mipmaps
- *     or repeat modes other than
- *     %COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE respectively.
  * @COGL_FEATURE_ID_TEXTURE_NPOT: Non power of two textures are supported
  *    by the hardware. This is a equivalent to the
  *    %COGL_FEATURE_ID_TEXTURE_NPOT_BASIC, %COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP
@@ -229,8 +223,7 @@ cogl_is_context (void *object);
  */
 typedef enum _CoglFeatureID
 {
-  COGL_FEATURE_ID_TEXTURE_NPOT_BASIC = 1,
-  COGL_FEATURE_ID_TEXTURE_NPOT,
+  COGL_FEATURE_ID_TEXTURE_NPOT = 1,
   COGL_FEATURE_ID_TEXTURE_RECTANGLE,
   COGL_FEATURE_ID_OFFSCREEN,
   COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE,

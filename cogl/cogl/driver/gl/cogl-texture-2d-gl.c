@@ -83,13 +83,6 @@ _cogl_texture_2d_gl_can_create (CoglContext *ctx,
   GLenum gl_format;
   GLenum gl_type;
 
-  /* If NPOT textures aren't supported then the size must be a power
-     of two */
-  if (!cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC) &&
-      (!_cogl_util_is_pot (width) ||
-       !_cogl_util_is_pot (height)))
-    return FALSE;
-
   ctx->driver_vtable->pixel_format_to_gl (ctx,
                                           internal_format,
                                           &gl_intformat,
