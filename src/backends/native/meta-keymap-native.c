@@ -19,46 +19,46 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#include "clutter-build-config.h"
+#include "config.h"
 
-#include "clutter-device-manager-evdev.h"
-#include "clutter-keymap-evdev.h"
+#include "backends/native/meta-device-manager-native.h"
+#include "backends/native/meta-keymap-native.h"
 
 static const char *option_xkb_layout = "us";
 static const char *option_xkb_variant = "";
 static const char *option_xkb_options = "";
 
-typedef struct _ClutterKeymapEvdev ClutterKeymapEvdev;
+typedef struct _MetaKeymapNative MetaKeymapNative;
 
-struct _ClutterKeymapEvdev
+struct _MetaKeymapNative
 {
   ClutterKeymap parent_instance;
 
   struct xkb_keymap *keymap;
 };
 
-G_DEFINE_TYPE (ClutterKeymapEvdev, clutter_keymap_evdev,
+G_DEFINE_TYPE (MetaKeymapNative, meta_keymap_native,
                CLUTTER_TYPE_KEYMAP)
 
 static void
-clutter_keymap_evdev_finalize (GObject *object)
+meta_keymap_native_finalize (GObject *object)
 {
-  ClutterKeymapEvdev *keymap = CLUTTER_KEYMAP_EVDEV (object);
+  MetaKeymapNative *keymap = META_KEYMAP_NATIVE (object);
 
   xkb_keymap_unref (keymap->keymap);
 
-  G_OBJECT_CLASS (clutter_keymap_evdev_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_keymap_native_parent_class)->finalize (object);
 }
 
 static gboolean
-clutter_keymap_evdev_get_num_lock_state (ClutterKeymap *keymap)
+meta_keymap_native_get_num_lock_state (ClutterKeymap *keymap)
 {
-  ClutterDeviceManagerEvdev *device_manager;
+  MetaDeviceManagerNative *device_manager;
   struct xkb_state *xkb_state;
 
   device_manager =
-    CLUTTER_DEVICE_MANAGER_EVDEV (clutter_device_manager_get_default ());
-  xkb_state = _clutter_device_manager_evdev_get_xkb_state (device_manager);
+    META_DEVICE_MANAGER_NATIVE (clutter_device_manager_get_default ());
+  xkb_state = meta_device_manager_native_get_xkb_state (device_manager);
 
   return xkb_state_mod_name_is_active (xkb_state,
                                        XKB_MOD_NAME_NUM,
@@ -67,14 +67,14 @@ clutter_keymap_evdev_get_num_lock_state (ClutterKeymap *keymap)
 }
 
 static gboolean
-clutter_keymap_evdev_get_caps_lock_state (ClutterKeymap *keymap)
+meta_keymap_native_get_caps_lock_state (ClutterKeymap *keymap)
 {
-  ClutterDeviceManagerEvdev *device_manager;
+  MetaDeviceManagerNative *device_manager;
   struct xkb_state *xkb_state;
 
   device_manager =
-    CLUTTER_DEVICE_MANAGER_EVDEV (clutter_device_manager_get_default ());
-  xkb_state = _clutter_device_manager_evdev_get_xkb_state (device_manager);
+    META_DEVICE_MANAGER_NATIVE (clutter_device_manager_get_default ());
+  xkb_state = meta_device_manager_native_get_xkb_state (device_manager);
 
   return xkb_state_mod_name_is_active (xkb_state,
                                        XKB_MOD_NAME_CAPS,
@@ -83,19 +83,19 @@ clutter_keymap_evdev_get_caps_lock_state (ClutterKeymap *keymap)
 }
 
 static void
-clutter_keymap_evdev_class_init (ClutterKeymapEvdevClass *klass)
+meta_keymap_native_class_init (MetaKeymapNativeClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   ClutterKeymapClass *keymap_class = CLUTTER_KEYMAP_CLASS (klass);
 
-  object_class->finalize = clutter_keymap_evdev_finalize;
+  object_class->finalize = meta_keymap_native_finalize;
 
-  keymap_class->get_num_lock_state = clutter_keymap_evdev_get_num_lock_state;
-  keymap_class->get_caps_lock_state = clutter_keymap_evdev_get_caps_lock_state;
+  keymap_class->get_num_lock_state = meta_keymap_native_get_num_lock_state;
+  keymap_class->get_caps_lock_state = meta_keymap_native_get_caps_lock_state;
 }
 
 static void
-clutter_keymap_evdev_init (ClutterKeymapEvdev *keymap)
+meta_keymap_native_init (MetaKeymapNative *keymap)
 {
   struct xkb_context *ctx;
   struct xkb_rule_names names;
@@ -113,8 +113,8 @@ clutter_keymap_evdev_init (ClutterKeymapEvdev *keymap)
 }
 
 void
-clutter_keymap_evdev_set_keyboard_map (ClutterKeymapEvdev *keymap,
-                                       struct xkb_keymap  *xkb_keymap)
+meta_keymap_native_set_keyboard_map (MetaKeymapNative  *keymap,
+                                     struct xkb_keymap *xkb_keymap)
 {
   if (keymap->keymap)
     xkb_keymap_unref (keymap->keymap);
@@ -122,7 +122,7 @@ clutter_keymap_evdev_set_keyboard_map (ClutterKeymapEvdev *keymap,
 }
 
 struct xkb_keymap *
-clutter_keymap_evdev_get_keyboard_map (ClutterKeymapEvdev *keymap)
+meta_keymap_native_get_keyboard_map (MetaKeymapNative *keymap)
 {
   return keymap->keymap;
 }

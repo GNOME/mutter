@@ -38,8 +38,9 @@
 #include "wayland/meta-wayland-tablet.h"
 
 #ifdef HAVE_NATIVE_BACKEND
+#include <libinput.h>
 #include "backends/native/meta-backend-native.h"
-#include "clutter/evdev/clutter-evdev.h"
+#include "backends/native/meta-input-device-native.h"
 #endif
 
 #include "tablet-unstable-v2-server-protocol.h"
@@ -69,7 +70,7 @@ group_rings_strips (MetaWaylandTabletPad *pad)
   struct libinput_device *libinput_device = NULL;
 
   if (META_IS_BACKEND_NATIVE (backend))
-    libinput_device = clutter_evdev_input_device_get_libinput_device (pad->device);
+    libinput_device = meta_input_device_native_get_libinput_device (pad->device);
 #endif
 
   for (n_group = 0, g = pad->groups; g; g = g->next)
@@ -153,7 +154,7 @@ meta_wayland_tablet_pad_new (ClutterInputDevice    *device,
     {
       struct libinput_device *libinput_device;
 
-      libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+      libinput_device = meta_input_device_native_get_libinput_device (device);
       pad->n_buttons = libinput_device_tablet_pad_get_num_buttons (libinput_device);
     }
 #endif
