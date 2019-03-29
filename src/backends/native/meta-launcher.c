@@ -19,6 +19,8 @@
 
 #include "config.h"
 
+#include <sys/sysmacros.h>
+
 #include "backends/native/meta-launcher.h"
 
 #include <gio/gunixfdlist.h>
@@ -37,9 +39,9 @@
 #include "backends/native/dbus-utils.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-cursor-renderer-native.h"
+#include "backends/native/meta-device-manager-native.h"
 #include "backends/native/meta-renderer-native.h"
 #include "clutter/clutter.h"
-#include "clutter/evdev/clutter-evdev.h"
 
 #include "meta-dbus-login1.h"
 
@@ -522,11 +524,11 @@ meta_launcher_new (GError **error)
   self->sysfs_fds = g_hash_table_new (NULL, NULL);
   self->session_active = TRUE;
 
-  clutter_evdev_set_seat_id (self->seat_id);
+  meta_device_manager_native_set_seat_id (self->seat_id);
 
-  clutter_evdev_set_device_callbacks (on_evdev_device_open,
-                                      on_evdev_device_close,
-                                      self);
+  meta_device_manager_native_set_device_callbacks (on_evdev_device_open,
+                                                   on_evdev_device_close,
+                                                   self);
 
   g_signal_connect (self->session_proxy, "notify::active", G_CALLBACK (on_active_changed), self);
 

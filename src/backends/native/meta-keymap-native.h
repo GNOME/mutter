@@ -19,14 +19,14 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#include "clutter-xkb-utils.h"
-#include "clutter-keymap.h"
+#include <clutter/clutter.h>
+#include "backends/native/meta-xkb-utils.h"
 
-#define CLUTTER_TYPE_KEYMAP_EVDEV (clutter_keymap_evdev_get_type ())
-G_DECLARE_FINAL_TYPE (ClutterKeymapEvdev, clutter_keymap_evdev,
-                      CLUTTER, KEYMAP_EVDEV,
+#define META_TYPE_KEYMAP_NATIVE (meta_keymap_native_get_type ())
+G_DECLARE_FINAL_TYPE (MetaKeymapNative, meta_keymap_native,
+                      META, KEYMAP_NATIVE,
                       ClutterKeymap)
 
-void                clutter_keymap_evdev_set_keyboard_map (ClutterKeymapEvdev *keymap,
-                                                           struct xkb_keymap  *xkb_keymap);
-struct xkb_keymap * clutter_keymap_evdev_get_keyboard_map (ClutterKeymapEvdev *keymap);
+void                meta_keymap_native_set_keyboard_map (MetaKeymapNative  *keymap,
+                                                         struct xkb_keymap *xkb_keymap);
+struct xkb_keymap * meta_keymap_native_get_keyboard_map (MetaKeymapNative *keymap);

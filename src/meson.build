@@ -124,6 +124,8 @@ if have_native_backend
     gudev_dep,
     libgbm_dep,
     logind_provider_dep,
+    libudev_dep,
+    xkbcommon_dep,
   ]
 endif
 
@@ -578,10 +580,20 @@ if have_native_backend
     'backends/native/meta-crtc-kms.h',
     'backends/native/meta-cursor-renderer-native.c',
     'backends/native/meta-cursor-renderer-native.h',
+    'backends/native/meta-device-manager-native.c',
+    'backends/native/meta-device-manager-native.h',
+    'backends/native/meta-event-native.c',
+    'backends/native/meta-event-native.h',
     'backends/native/meta-gpu-kms.c',
     'backends/native/meta-gpu-kms.h',
+    'backends/native/meta-input-device-native.c',
+    'backends/native/meta-input-device-native.h',
+    'backends/native/meta-input-device-tool-native.c',
+    'backends/native/meta-input-device-tool-native.h',
     'backends/native/meta-input-settings-native.c',
     'backends/native/meta-input-settings-native.h',
+    'backends/native/meta-keymap-native.c',
+    'backends/native/meta-keymap-native.h',
     'backends/native/meta-launcher.c',
     'backends/native/meta-launcher.h',
     'backends/native/meta-monitor-manager-kms.c',
@@ -592,8 +604,14 @@ if have_native_backend
     'backends/native/meta-renderer-native-gles3.c',
     'backends/native/meta-renderer-native-gles3.h',
     'backends/native/meta-renderer-native.h',
+    'backends/native/meta-seat-native.c',
+    'backends/native/meta-seat-native.h',
     'backends/native/meta-stage-native.c',
     'backends/native/meta-stage-native.h',
+    'backends/native/meta-virtual-input-device-native.c',
+    'backends/native/meta-virtual-input-device-native.h',
+    'backends/native/meta-xkb-utils.c',
+    'backends/native/meta-xkb-utils.h',
   ]
 endif
 

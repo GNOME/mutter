@@ -48,12 +48,13 @@
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-cursor-renderer-native.h"
+#include "backends/native/meta-device-manager-native.h"
+#include "backends/native/meta-event-native.h"
 #include "backends/native/meta-input-settings-native.h"
 #include "backends/native/meta-launcher.h"
 #include "backends/native/meta-monitor-manager-kms.h"
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-stage-native.h"
-#include "clutter/evdev/clutter-evdev.h"
 #include "core/meta-border.h"
 #include "meta/main.h"
 
@@ -334,10 +335,10 @@ meta_backend_native_post_init (MetaBackend *backend)
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
 
-  clutter_evdev_set_pointer_constrain_callback (manager, pointer_constrain_callback,
-                                                NULL, NULL);
-  clutter_evdev_set_relative_motion_filter (manager, relative_motion_filter,
-                                            meta_backend_get_monitor_manager (backend));
+  meta_device_manager_native_set_pointer_constrain_callback (manager, pointer_constrain_callback,
+                                                             NULL, NULL);
+  meta_device_manager_native_set_relative_motion_filter (manager, relative_motion_filter,
+                                                         meta_backend_get_monitor_manager (backend));
 }
 
 static MetaMonitorManager *
@@ -391,7 +392,7 @@ meta_backend_native_warp_pointer (MetaBackend *backend,
   guint32 time_ = 0;
 
   /* Warp the input device pointer state. */
-  clutter_evdev_warp_pointer (device, time_, x, y);
+  meta_device_manager_native_warp_pointer (device, time_, x, y);
 
   /* Warp displayed pointer cursor. */
   meta_cursor_tracker_update_position (cursor_tracker, x, y);
@@ -430,7 +431,7 @@ meta_backend_native_set_keymap (MetaBackend *backend,
   keymap = xkb_keymap_new_from_names (context, &names, XKB_KEYMAP_COMPILE_NO_FLAGS);
   xkb_context_unref (context);
 
-  clutter_evdev_set_keyboard_map (manager, keymap);
+  meta_device_manager_native_set_keyboard_map (manager, keymap);
 
   meta_backend_notify_keymap_changed (backend);
 
@@ -441,7 +442,7 @@ static struct xkb_keymap *
 meta_backend_native_get_keymap (MetaBackend *backend)
 {
   ClutterDeviceManager *manager = clutter_device_manager_get_default ();
-  return clutter_evdev_get_keyboard_map (manager);
+  return meta_device_manager_native_get_keyboard_map (manager);
 }
 
 static xkb_layout_index_t
@@ -449,7 +450,7 @@ meta_backend_native_get_keymap_layout_group (MetaBackend *backend)
 {
   ClutterDeviceManager *manager = clutter_device_manager_get_default ();
 
-  return clutter_evdev_get_keyboard_layout_index (manager);
+  return meta_device_manager_native_get_keyboard_layout_index (manager);
 }
 
 static void
@@ -463,7 +464,7 @@ meta_backend_native_lock_layout_group (MetaBackend *backend,
   if (old_idx == idx)
     return;
 
-  clutter_evdev_set_keyboard_layout_index (manager, idx);
+  meta_device_manager_native_set_keyboard_layout_index (manager, idx);
   meta_backend_notify_keymap_layout_group_changed (backend, idx);
 }
 
@@ -472,7 +473,7 @@ meta_backend_native_set_numlock (MetaBackend *backend,
                                  gboolean     numlock_state)
 {
   ClutterDeviceManager *manager = clutter_device_manager_get_default ();
-  clutter_evdev_set_keyboard_numlock (manager, numlock_state);
+  meta_device_manager_native_set_keyboard_numlock (manager, numlock_state);
 }
 
 static gboolean
@@ -483,9 +484,9 @@ meta_backend_native_get_relative_motion_deltas (MetaBackend *backend,
                                                 double       *dx_unaccel,
                                                 double       *dy_unaccel)
 {
-  return clutter_evdev_event_get_relative_motion (event,
-                                                  dx, dy,
-                                                  dx_unaccel, dy_unaccel);
+  return meta_event_native_get_relative_motion (event,
+                                                dx, dy,
+                                                dx_unaccel, dy_unaccel);
 }
 
 static void
@@ -639,7 +640,7 @@ meta_backend_native_pause (MetaBackendNative *native)
   MetaMonitorManagerKms *monitor_manager_kms =
     META_MONITOR_MANAGER_KMS (monitor_manager);
 
-  clutter_evdev_release_devices ();
+  meta_device_manager_native_release_devices ();
   clutter_stage_freeze_updates (stage);
 
   meta_monitor_manager_kms_pause (monitor_manager_kms);
@@ -657,7 +658,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
 
   meta_monitor_manager_kms_resume (monitor_manager_kms);
 
-  clutter_evdev_reclaim_devices ();
+  meta_device_manager_native_reclaim_devices ();
   clutter_stage_thaw_updates (stage);
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
