@@ -69,7 +69,6 @@ struct _ClutterStageX11
 
   ClutterStageX11State wm_state;
 
-  guint is_foreign_xwin       : 1;
   guint is_cursor_visible     : 1;
   guint viewport_initialized  : 1;
   guint accept_focus          : 1;
