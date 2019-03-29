@@ -1,8 +1,4 @@
 /*
- * Clutter.
- *
- * An OpenGL based 'interactive canvas' library.
- *
  * Copyright (C) 2010  Intel Corp.
  * Copyright (C) 2014  Jonas Ådahl
  *
@@ -23,7 +19,7 @@
  * Author: Jonas Ådahl <jadahl@gmail.com>
  */
 
-#include "clutter-build-config.h"
+#include "config.h"
 
 #include <math.h>
 #include <float.h>
@@ -35,28 +31,18 @@
 #include <string.h>
 #include <unistd.h>
 
+#include <clutter/clutter-mutter.h>
 #include <glib.h>
 #include <libinput.h>
 
-#include "clutter-backend.h"
-#include "clutter-debug.h"
-#include "clutter-device-manager.h"
-#include "clutter-device-manager-private.h"
-#include "clutter-event-private.h"
-#include "clutter-input-device-evdev.h"
-#include "clutter-keymap-evdev.h"
-#include "clutter-seat-evdev.h"
-#include "clutter-virtual-input-device-evdev.h"
-#include "clutter-main.h"
-#include "clutter-private.h"
-#include "clutter-stage-manager.h"
-#include "clutter-xkb-utils.h"
-#include "clutter-backend-private.h"
-#include "clutter-evdev.h"
-#include "clutter-stage-private.h"
-#include "clutter-input-device-tool-evdev.h"
-
-#include "clutter-device-manager-evdev.h"
+#include "backends/native/meta-device-manager-native.h"
+#include "backends/native/meta-event-native.h"
+#include "backends/native/meta-input-device-native.h"
+#include "backends/native/meta-input-device-tool-native.h"
+#include "backends/native/meta-keymap-native.h"
+#include "backends/native/meta-seat-native.h"
+#include "backends/native/meta-virtual-input-device-native.h"
+#include "backends/native/meta-xkb-utils.h"
 
 /*
  * Clutter makes the assumption that two core devices have ID's 2 and 3 (core
@@ -68,36 +54,36 @@
  */
 #define INITIAL_DEVICE_ID 2
 
-typedef struct _ClutterEventFilter ClutterEventFilter;
+typedef struct _MetaEventFilter MetaEventFilter;
 
-struct _ClutterEventFilter
+struct _MetaEventFilter
 {
-  ClutterEvdevFilterFunc func;
+  MetaEvdevFilterFunc func;
   gpointer data;
   GDestroyNotify destroy_notify;
 };
 
-typedef struct _ClutterEventSource  ClutterEventSource;
+typedef struct _MetaEventSource  MetaEventSource;
 
-struct _ClutterDeviceManagerEvdevPrivate
+struct _MetaDeviceManagerNativePrivate
 {
   struct libinput *libinput;
 
   ClutterStage *stage;
   gboolean released;
 
-  ClutterEventSource *event_source;
+  MetaEventSource *event_source;
 
   GSList *devices;
   GSList *seats;
 
-  ClutterSeatEvdev *main_seat;
+  MetaSeatNative *main_seat;
 
-  ClutterPointerConstrainCallback constrain_callback;
-  gpointer                        constrain_data;
-  GDestroyNotify                  constrain_data_notify;
+  MetaPointerConstrainCallback constrain_callback;
+  gpointer constrain_data;
+  GDestroyNotify constrain_data_notify;
 
-  ClutterRelativeMotionFilter relative_motion_filter;
+  MetaRelativeMotionFilter relative_motion_filter;
   gpointer relative_motion_filter_user_data;
 
   ClutterStageManager *stage_manager;
@@ -110,15 +96,15 @@ struct _ClutterDeviceManagerEvdevPrivate
   GList *free_device_ids;
 };
 
-G_DEFINE_TYPE_WITH_CODE (ClutterDeviceManagerEvdev,
-                         clutter_device_manager_evdev,
+G_DEFINE_TYPE_WITH_CODE (MetaDeviceManagerNative,
+                         meta_device_manager_native,
                          CLUTTER_TYPE_DEVICE_MANAGER,
-                         G_ADD_PRIVATE (ClutterDeviceManagerEvdev))
+                         G_ADD_PRIVATE (MetaDeviceManagerNative))
 
-static ClutterOpenDeviceCallback  device_open_callback;
-static ClutterCloseDeviceCallback device_close_callback;
-static gpointer                   device_callback_data;
-static gchar *                    evdev_seat_id;
+static MetaOpenDeviceCallback  device_open_callback;
+static MetaCloseDeviceCallback device_close_callback;
+static gpointer                device_callback_data;
+static gchar *                 evdev_seat_id;
 
 #ifdef CLUTTER_ENABLE_DEBUG
 static const char *device_type_str[] = {
@@ -137,53 +123,53 @@ static const char *device_type_str[] = {
 #endif /* CLUTTER_ENABLE_DEBUG */
 
 /*
- * ClutterEventSource management
+ * MetaEventSource management
  *
  * The device manager is responsible for managing the GSource when devices
  * appear and disappear from the system.
  */
 
 static void
-clutter_device_manager_evdev_copy_event_data (ClutterDeviceManager *device_manager,
-                                              const ClutterEvent   *src,
-                                              ClutterEvent         *dest)
+meta_device_manager_native_copy_event_data (ClutterDeviceManager *device_manager,
+                                            const ClutterEvent   *src,
+                                            ClutterEvent         *dest)
 {
-  ClutterEventEvdev *event_evdev;
+  MetaEventNative *event_evdev;
 
   event_evdev = _clutter_event_get_platform_data (src);
   if (event_evdev != NULL)
-    _clutter_event_set_platform_data (dest, _clutter_event_evdev_copy (event_evdev));
+    _clutter_event_set_platform_data (dest, meta_event_native_copy (event_evdev));
 }
 
 static void
-clutter_device_manager_evdev_free_event_data (ClutterDeviceManager *device_manager,
-                                              ClutterEvent         *event)
+meta_device_manager_native_free_event_data (ClutterDeviceManager *device_manager,
+                                            ClutterEvent         *event)
 {
-  ClutterEventEvdev *event_evdev;
+  MetaEventNative *event_evdev;
 
   event_evdev = _clutter_event_get_platform_data (event);
   if (event_evdev != NULL)
-    _clutter_event_evdev_free (event_evdev);
+    meta_event_native_free (event_evdev);
 }
 
 /*
- * ClutterEventSource for reading input devices
+ * MetaEventSource for reading input devices
  */
 
-struct _ClutterEventSource
+struct _MetaEventSource
 {
   GSource source;
 
-  ClutterDeviceManagerEvdev *manager_evdev;
+  MetaDeviceManagerNative *manager_evdev;
   GPollFD event_poll_fd;
 };
 
 static void
-process_events (ClutterDeviceManagerEvdev *manager_evdev);
+process_events (MetaDeviceManagerNative *manager_evdev);
 
 static gboolean
-clutter_event_prepare (GSource *source,
-                       gint    *timeout)
+meta_event_prepare (GSource *source,
+                    gint    *timeout)
 {
   gboolean retval;
 
@@ -198,9 +184,9 @@ clutter_event_prepare (GSource *source,
 }
 
 static gboolean
-clutter_event_check (GSource *source)
+meta_event_check (GSource *source)
 {
-  ClutterEventSource *event_source = (ClutterEventSource *) source;
+  MetaEventSource *event_source = (MetaEventSource *) source;
   gboolean retval;
 
   _clutter_threads_acquire_lock ();
@@ -220,13 +206,13 @@ queue_event (ClutterEvent *event)
 }
 
 void
-_clutter_device_manager_evdev_constrain_pointer (ClutterDeviceManagerEvdev *manager_evdev,
-                                                 ClutterInputDevice        *core_pointer,
-                                                 uint64_t                   time_us,
-                                                 float                      x,
-                                                 float                      y,
-                                                 float                     *new_x,
-                                                 float                     *new_y)
+meta_device_manager_native_constrain_pointer (MetaDeviceManagerNative *manager_evdev,
+                                              ClutterInputDevice      *core_pointer,
+                                              uint64_t                 time_us,
+                                              float                    x,
+                                              float                    y,
+                                              float                   *new_x,
+                                              float                   *new_y)
 {
   if (manager_evdev->priv->constrain_callback)
     {
@@ -248,14 +234,14 @@ _clutter_device_manager_evdev_constrain_pointer (ClutterDeviceManagerEvdev *mana
 }
 
 void
-_clutter_device_manager_evdev_filter_relative_motion (ClutterDeviceManagerEvdev *manager_evdev,
-                                                      ClutterInputDevice        *device,
-                                                      float                      x,
-                                                      float                      y,
-                                                      float                     *dx,
-                                                      float                     *dy)
+meta_device_manager_native_filter_relative_motion (MetaDeviceManagerNative *manager_evdev,
+                                                   ClutterInputDevice      *device,
+                                                   float                    x,
+                                                   float                    y,
+                                                   float                   *dx,
+                                                   float                   *dy)
 {
-  ClutterDeviceManagerEvdevPrivate *priv = manager_evdev->priv;
+  MetaDeviceManagerNativePrivate *priv = manager_evdev->priv;
 
   if (!priv->relative_motion_filter)
     return;
@@ -272,16 +258,16 @@ new_absolute_motion_event (ClutterInputDevice *input_device,
                            gdouble            *axes)
 {
   gfloat stage_width, stage_height;
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterInputDeviceEvdev *device_evdev;
-  ClutterSeatEvdev *seat;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaInputDeviceNative *device_evdev;
+  MetaSeatNative *seat;
   ClutterStage *stage;
   ClutterEvent *event = NULL;
 
   stage = _clutter_input_device_get_stage (input_device);
-  device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (input_device);
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (input_device->device_manager);
-  seat = _clutter_input_device_evdev_get_seat (device_evdev);
+  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (input_device->device_manager);
+  seat = meta_input_device_native_get_seat (device_evdev);
 
   stage_width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
   stage_height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
@@ -304,15 +290,15 @@ new_absolute_motion_event (ClutterInputDevice *input_device,
       y = CLAMP (y, 0.f, stage_height - 1);
     }
 
-  _clutter_evdev_event_set_time_usec (event, time_us);
+  meta_event_native_set_time_usec (event, time_us);
   event->motion.time = us2ms (time_us);
   event->motion.stage = stage;
-  _clutter_xkb_translate_state (event, seat->xkb, seat->button_state);
+  meta_xkb_translate_state (event, seat->xkb, seat->button_state);
   event->motion.x = x;
   event->motion.y = y;
-  clutter_input_device_evdev_translate_coordinates (input_device, stage,
-                                                    &event->motion.x,
-                                                    &event->motion.y);
+  meta_input_device_native_translate_coordinates (input_device, stage,
+                                                  &event->motion.x,
+                                                  &event->motion.y);
   event->motion.axes = axes;
   clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);
@@ -357,17 +343,17 @@ notify_relative_tool_motion (ClutterInputDevice *input_device,
                              gfloat              dy,
                              gdouble            *axes)
 {
-  ClutterInputDeviceEvdev *device_evdev;
+  MetaInputDeviceNative *device_evdev;
   ClutterEvent *event;
-  ClutterSeatEvdev *seat;
+  MetaSeatNative *seat;
   gfloat x, y;
 
-  device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (input_device);
-  seat = _clutter_input_device_evdev_get_seat (device_evdev);
+  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
+  seat = meta_input_device_native_get_seat (device_evdev);
   x = input_device->current_x + dx;
   y = input_device->current_y + dy;
 
-  _clutter_device_manager_evdev_filter_relative_motion (seat->manager_evdev,
+  meta_device_manager_native_filter_relative_motion (seat->manager_evdev,
                                                         input_device,
                                                         seat->pointer_x,
                                                         seat->pointer_y,
@@ -375,7 +361,7 @@ notify_relative_tool_motion (ClutterInputDevice *input_device,
                                                         &dy);
 
   event = new_absolute_motion_event (input_device, time_us, x, y, axes);
-  _clutter_evdev_event_set_relative_motion (event, dx, dy, 0, 0);
+  meta_event_native_set_relative_motion (event, dx, dy, 0, 0);
 
   queue_event (event);
 }
@@ -390,8 +376,8 @@ notify_pinch_gesture_event (ClutterInputDevice          *input_device,
                             gdouble                      scale,
                             guint                        n_fingers)
 {
-  ClutterInputDeviceEvdev *device_evdev;
-  ClutterSeatEvdev *seat;
+  MetaInputDeviceNative *device_evdev;
+  MetaSeatNative *seat;
   ClutterStage *stage;
   ClutterEvent *event = NULL;
   ClutterPoint pos;
@@ -402,14 +388,14 @@ notify_pinch_gesture_event (ClutterInputDevice          *input_device,
   if (stage == NULL)
     return;
 
-  device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (input_device);
-  seat = _clutter_input_device_evdev_get_seat (device_evdev);
+  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
+  seat = meta_input_device_native_get_seat (device_evdev);
 
   event = clutter_event_new (CLUTTER_TOUCHPAD_PINCH);
 
   clutter_input_device_get_coords (seat->core_pointer, NULL, &pos);
 
-  _clutter_evdev_event_set_time_usec (event, time_us);
+  meta_event_native_set_time_usec (event, time_us);
   event->touchpad_pinch.phase = phase;
   event->touchpad_pinch.time = us2ms (time_us);
   event->touchpad_pinch.stage = CLUTTER_STAGE (stage);
@@ -421,7 +407,7 @@ notify_pinch_gesture_event (ClutterInputDevice          *input_device,
   event->touchpad_pinch.scale = scale;
   event->touchpad_pinch.n_fingers = n_fingers;
 
-  _clutter_xkb_translate_state (event, seat->xkb, seat->button_state);
+  meta_xkb_translate_state (event, seat->xkb, seat->button_state);
 
   clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);
@@ -437,8 +423,8 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
                             gdouble                      dx,
                             gdouble                      dy)
 {
-  ClutterInputDeviceEvdev *device_evdev;
-  ClutterSeatEvdev *seat;
+  MetaInputDeviceNative *device_evdev;
+  MetaSeatNative *seat;
   ClutterStage *stage;
   ClutterEvent *event = NULL;
   ClutterPoint pos;
@@ -449,12 +435,12 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
   if (stage == NULL)
     return;
 
-  device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (input_device);
-  seat = _clutter_input_device_evdev_get_seat (device_evdev);
+  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
+  seat = meta_input_device_native_get_seat (device_evdev);
 
   event = clutter_event_new (CLUTTER_TOUCHPAD_SWIPE);
 
-  _clutter_evdev_event_set_time_usec (event, time_us);
+  meta_event_native_set_time_usec (event, time_us);
   event->touchpad_swipe.phase = phase;
   event->touchpad_swipe.time = us2ms (time_us);
   event->touchpad_swipe.stage = CLUTTER_STAGE (stage);
@@ -466,7 +452,7 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
   event->touchpad_swipe.dy = dy;
   event->touchpad_swipe.n_fingers = n_fingers;
 
-  _clutter_xkb_translate_state (event, seat->xkb, seat->button_state);
+  meta_xkb_translate_state (event, seat->xkb, seat->button_state);
 
   clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);
@@ -479,8 +465,8 @@ notify_proximity (ClutterInputDevice *input_device,
                   guint64             time_us,
                   gboolean            in)
 {
-  ClutterInputDeviceEvdev *device_evdev;
-  ClutterSeatEvdev *seat;
+  MetaInputDeviceNative *device_evdev;
+  MetaSeatNative *seat;
   ClutterStage *stage;
   ClutterEvent *event = NULL;
 
@@ -490,15 +476,15 @@ notify_proximity (ClutterInputDevice *input_device,
   if (stage == NULL)
     return;
 
-  device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (input_device);
-  seat = _clutter_input_device_evdev_get_seat (device_evdev);
+  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
+  seat = meta_input_device_native_get_seat (device_evdev);
 
   if (in)
     event = clutter_event_new (CLUTTER_PROXIMITY_IN);
   else
     event = clutter_event_new (CLUTTER_PROXIMITY_OUT);
 
-  _clutter_evdev_event_set_time_usec (event, time_us);
+  meta_event_native_set_time_usec (event, time_us);
 
   event->proximity.time = us2ms (time_us);
   event->proximity.stage = CLUTTER_STAGE (stage);
@@ -519,8 +505,8 @@ notify_pad_button (ClutterInputDevice *input_device,
                    guint32             mode,
                    guint32             pressed)
 {
-  ClutterInputDeviceEvdev *device_evdev;
-  ClutterSeatEvdev *seat;
+  MetaInputDeviceNative *device_evdev;
+  MetaSeatNative *seat;
   ClutterStage *stage;
   ClutterEvent *event;
 
@@ -535,10 +521,10 @@ notify_pad_button (ClutterInputDevice *input_device,
   else
     event = clutter_event_new (CLUTTER_PAD_BUTTON_RELEASE);
 
-  device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (input_device);
-  seat = _clutter_input_device_evdev_get_seat (device_evdev);
+  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
+  seat = meta_input_device_native_get_seat (device_evdev);
 
-  _clutter_evdev_event_set_time_usec (event, time_us);
+  meta_event_native_set_time_usec (event, time_us);
   event->pad_button.stage = stage;
   event->pad_button.button = button;
   event->pad_button.group = mode_group;
@@ -561,9 +547,9 @@ notify_pad_strip (ClutterInputDevice *input_device,
                   guint32             mode,
                   gdouble             value)
 {
-  ClutterInputDeviceEvdev *device_evdev;
+  MetaInputDeviceNative *device_evdev;
   ClutterInputDevicePadSource source;
-  ClutterSeatEvdev *seat;
+  MetaSeatNative *seat;
   ClutterStage *stage;
   ClutterEvent *event;
 
@@ -578,11 +564,11 @@ notify_pad_strip (ClutterInputDevice *input_device,
   else
     source = CLUTTER_INPUT_DEVICE_PAD_SOURCE_UNKNOWN;
 
-  device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (input_device);
-  seat = _clutter_input_device_evdev_get_seat (device_evdev);
+  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
+  seat = meta_input_device_native_get_seat (device_evdev);
 
   event = clutter_event_new (CLUTTER_PAD_STRIP);
-  _clutter_evdev_event_set_time_usec (event, time_us);
+  meta_event_native_set_time_usec (event, time_us);
   event->pad_strip.strip_source = source;
   event->pad_strip.stage = stage;
   event->pad_strip.strip_number = strip_number;
@@ -607,9 +593,9 @@ notify_pad_ring (ClutterInputDevice *input_device,
                  guint32             mode,
                  gdouble             angle)
 {
-  ClutterInputDeviceEvdev *device_evdev;
+  MetaInputDeviceNative *device_evdev;
   ClutterInputDevicePadSource source;
-  ClutterSeatEvdev *seat;
+  MetaSeatNative *seat;
   ClutterStage *stage;
   ClutterEvent *event;
 
@@ -624,11 +610,11 @@ notify_pad_ring (ClutterInputDevice *input_device,
   else
     source = CLUTTER_INPUT_DEVICE_PAD_SOURCE_UNKNOWN;
 
-  device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (input_device);
-  seat = _clutter_input_device_evdev_get_seat (device_evdev);
+  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
+  seat = meta_input_device_native_get_seat (device_evdev);
 
   event = clutter_event_new (CLUTTER_PAD_RING);
-  _clutter_evdev_event_set_time_usec (event, time_us);
+  meta_event_native_set_time_usec (event, time_us);
   event->pad_ring.ring_source = source;
   event->pad_ring.stage = stage;
   event->pad_ring.ring_number = ring_number;
@@ -645,21 +631,21 @@ notify_pad_ring (ClutterInputDevice *input_device,
 }
 
 static void
-dispatch_libinput (ClutterDeviceManagerEvdev *manager_evdev)
+dispatch_libinput (MetaDeviceManagerNative *manager_evdev)
 {
-  ClutterDeviceManagerEvdevPrivate *priv = manager_evdev->priv;
+  MetaDeviceManagerNativePrivate *priv = manager_evdev->priv;
 
   libinput_dispatch (priv->libinput);
   process_events (manager_evdev);
 }
 
 static gboolean
-clutter_event_dispatch (GSource     *g_source,
-                        GSourceFunc  callback,
-                        gpointer     user_data)
+meta_event_dispatch (GSource     *g_source,
+                     GSourceFunc  callback,
+                     gpointer     user_data)
 {
-  ClutterEventSource *source = (ClutterEventSource *) g_source;
-  ClutterDeviceManagerEvdev *manager_evdev;
+  MetaEventSource *source = (MetaEventSource *) g_source;
+  MetaDeviceManagerNative *manager_evdev;
   ClutterEvent *event;
 
   _clutter_threads_acquire_lock ();
@@ -681,10 +667,10 @@ clutter_event_dispatch (GSource     *g_source,
       ClutterModifierType event_state;
       ClutterInputDevice *input_device =
         clutter_event_get_source_device (event);
-      ClutterInputDeviceEvdev *device_evdev =
-        CLUTTER_INPUT_DEVICE_EVDEV (input_device);
-      ClutterSeatEvdev *seat =
-        _clutter_input_device_evdev_get_seat (device_evdev);
+      MetaInputDeviceNative *device_evdev =
+        META_INPUT_DEVICE_NATIVE (input_device);
+      MetaSeatNative *seat =
+        meta_input_device_native_get_seat (device_evdev);
 
       /* Drop events if we don't have any stage to forward them to */
       if (!_clutter_input_device_get_stage (input_device))
@@ -706,22 +692,22 @@ out:
   return TRUE;
 }
 static GSourceFuncs event_funcs = {
-  clutter_event_prepare,
-  clutter_event_check,
-  clutter_event_dispatch,
+  meta_event_prepare,
+  meta_event_check,
+  meta_event_dispatch,
   NULL
 };
 
-static ClutterEventSource *
-clutter_event_source_new (ClutterDeviceManagerEvdev *manager_evdev)
+static MetaEventSource *
+meta_event_source_new (MetaDeviceManagerNative *manager_evdev)
 {
-  ClutterDeviceManagerEvdevPrivate *priv = manager_evdev->priv;
+  MetaDeviceManagerNativePrivate *priv = manager_evdev->priv;
   GSource *source;
-  ClutterEventSource *event_source;
+  MetaEventSource *event_source;
   gint fd;
 
-  source = g_source_new (&event_funcs, sizeof (ClutterEventSource));
-  event_source = (ClutterEventSource *) source;
+  source = g_source_new (&event_funcs, sizeof (MetaEventSource));
+  event_source = (MetaEventSource *) source;
 
   /* setup the source */
   event_source->manager_evdev = manager_evdev;
@@ -740,11 +726,9 @@ clutter_event_source_new (ClutterDeviceManagerEvdev *manager_evdev)
 }
 
 static void
-clutter_event_source_free (ClutterEventSource *source)
+meta_event_source_free (MetaEventSource *source)
 {
   GSource *g_source = (GSource *) source;
-
-  CLUTTER_NOTE (EVENT, "Removing GSource for evdev device manager");
 
   /* ignore the return value of close, it's not like we can do something
    * about it */
@@ -755,14 +739,14 @@ clutter_event_source_free (ClutterEventSource *source)
 }
 
 static void
-evdev_add_device (ClutterDeviceManagerEvdev *manager_evdev,
-                  struct libinput_device    *libinput_device)
+evdev_add_device (MetaDeviceManagerNative *manager_evdev,
+                  struct libinput_device  *libinput_device)
 {
   ClutterDeviceManager *manager = (ClutterDeviceManager *) manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv = manager_evdev->priv;
+  MetaDeviceManagerNativePrivate *priv = manager_evdev->priv;
   ClutterInputDeviceType type;
   struct libinput_seat *libinput_seat;
-  ClutterSeatEvdev *seat;
+  MetaSeatNative *seat;
   ClutterInputDevice *device;
 
   libinput_seat = libinput_device_get_seat (libinput_device);
@@ -776,21 +760,21 @@ evdev_add_device (ClutterDeviceManagerEvdev *manager_evdev,
         seat = priv->main_seat;
       else
         {
-          seat = clutter_seat_evdev_new (manager_evdev);
+          seat = meta_seat_native_new (manager_evdev);
           priv->seats = g_slist_append (priv->seats, seat);
         }
 
-      clutter_seat_evdev_set_libinput_seat (seat, libinput_seat);
+      meta_seat_native_set_libinput_seat (seat, libinput_seat);
     }
 
-  device = _clutter_input_device_evdev_new (manager, seat, libinput_device);
+  device = meta_input_device_native_new (manager, seat, libinput_device);
   _clutter_input_device_set_stage (device, manager_evdev->priv->stage);
 
   _clutter_device_manager_add_device (manager, device);
 
   /* Clutter assumes that device types are exclusive in the
    * ClutterInputDevice API */
-  type = _clutter_input_device_evdev_determine_type (libinput_device);
+  type = meta_input_device_native_determine_type (libinput_device);
 
   if (type == CLUTTER_KEYBOARD_DEVICE)
     {
@@ -802,15 +786,11 @@ evdev_add_device (ClutterDeviceManagerEvdev *manager_evdev,
       _clutter_input_device_set_associated_device (device, seat->core_pointer);
       _clutter_input_device_add_slave (seat->core_pointer, device);
     }
-
-  CLUTTER_NOTE (EVENT, "Added physical device '%s', type %s",
-                clutter_input_device_get_device_name (device),
-                device_type_str[type]);
 }
 
 static void
-evdev_remove_device (ClutterDeviceManagerEvdev *manager_evdev,
-                     ClutterInputDeviceEvdev   *device_evdev)
+evdev_remove_device (MetaDeviceManagerNative *manager_evdev,
+                     MetaInputDeviceNative   *device_evdev)
 {
   ClutterDeviceManager *manager = CLUTTER_DEVICE_MANAGER (manager_evdev);
   ClutterInputDevice *input_device = CLUTTER_INPUT_DEVICE (device_evdev);
@@ -823,35 +803,35 @@ evdev_remove_device (ClutterDeviceManagerEvdev *manager_evdev,
  */
 
 static void
-clutter_device_manager_evdev_add_device (ClutterDeviceManager *manager,
-                                         ClutterInputDevice   *device)
+meta_device_manager_native_add_device (ClutterDeviceManager *manager,
+                                       ClutterInputDevice   *device)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv;
-  ClutterInputDeviceEvdev *device_evdev;
-  ClutterSeatEvdev *seat;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaDeviceManagerNativePrivate *priv;
+  MetaInputDeviceNative *device_evdev;
+  MetaSeatNative *seat;
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (manager);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (manager);
   priv = manager_evdev->priv;
-  device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (device);
-  seat = _clutter_input_device_evdev_get_seat (device_evdev);
+  device_evdev = META_INPUT_DEVICE_NATIVE (device);
+  seat = meta_input_device_native_get_seat (device_evdev);
 
   seat->devices = g_slist_prepend (seat->devices, device);
   priv->devices = g_slist_prepend (priv->devices, device);
 }
 
 static void
-clutter_device_manager_evdev_remove_device (ClutterDeviceManager *manager,
-                                            ClutterInputDevice   *device)
+meta_device_manager_native_remove_device (ClutterDeviceManager *manager,
+                                          ClutterInputDevice   *device)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv;
-  ClutterInputDeviceEvdev *device_evdev;
-  ClutterSeatEvdev *seat;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaDeviceManagerNativePrivate *priv;
+  MetaInputDeviceNative *device_evdev;
+  MetaSeatNative *seat;
 
-  device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (device);
-  seat = _clutter_input_device_evdev_get_seat (device_evdev);
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (manager);
+  device_evdev = META_INPUT_DEVICE_NATIVE (device);
+  seat = meta_input_device_native_get_seat (device_evdev);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (manager);
   priv = manager_evdev->priv;
 
   /* Remove the device */
@@ -859,25 +839,25 @@ clutter_device_manager_evdev_remove_device (ClutterDeviceManager *manager,
   priv->devices = g_slist_remove (priv->devices, device);
 
   if (seat->repeat_timer && seat->repeat_device == device)
-    clutter_seat_evdev_clear_repeat_timer (seat);
+    meta_seat_native_clear_repeat_timer (seat);
 
   g_object_unref (device);
 }
 
 static const GSList *
-clutter_device_manager_evdev_get_devices (ClutterDeviceManager *manager)
+meta_device_manager_native_get_devices (ClutterDeviceManager *manager)
 {
-  return CLUTTER_DEVICE_MANAGER_EVDEV (manager)->priv->devices;
+  return META_DEVICE_MANAGER_NATIVE (manager)->priv->devices;
 }
 
 static ClutterInputDevice *
-clutter_device_manager_evdev_get_core_device (ClutterDeviceManager   *manager,
-                                              ClutterInputDeviceType  type)
+meta_device_manager_native_get_core_device (ClutterDeviceManager   *manager,
+                                            ClutterInputDeviceType  type)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaDeviceManagerNativePrivate *priv;
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (manager);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (manager);
   priv = manager_evdev->priv;
 
   switch (type)
@@ -897,20 +877,20 @@ clutter_device_manager_evdev_get_core_device (ClutterDeviceManager   *manager,
 }
 
 static ClutterInputDevice *
-clutter_device_manager_evdev_get_device (ClutterDeviceManager *manager,
-                                         gint                  id)
+meta_device_manager_native_get_device (ClutterDeviceManager *manager,
+                                       gint                  id)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaDeviceManagerNativePrivate *priv;
   GSList *l;
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (manager);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (manager);
   priv = manager_evdev->priv;
 
   for (l = priv->seats; l; l = l->next)
     {
-      ClutterSeatEvdev *seat = l->data;
-      ClutterInputDevice *device = clutter_seat_evdev_get_device (seat, id);
+      MetaSeatNative *seat = l->data;
+      ClutterInputDevice *device = meta_seat_native_get_device (seat, id);
 
       if (device)
         return device;
@@ -932,8 +912,8 @@ flush_event_queue (void)
 }
 
 static gboolean
-process_base_event (ClutterDeviceManagerEvdev *manager_evdev,
-                    struct libinput_event *event)
+process_base_event (MetaDeviceManagerNative *manager_evdev,
+                    struct libinput_event   *event)
 {
   ClutterInputDevice *device;
   struct libinput_device *libinput_device;
@@ -957,7 +937,7 @@ process_base_event (ClutterDeviceManagerEvdev *manager_evdev,
 
       device = libinput_device_get_user_data (libinput_device);
       evdev_remove_device (manager_evdev,
-                           CLUTTER_INPUT_DEVICE_EVDEV (device));
+                           META_INPUT_DEVICE_NATIVE (device));
       break;
 
     default:
@@ -1015,7 +995,7 @@ static void
 input_device_update_tool (ClutterInputDevice          *input_device,
                           struct libinput_tablet_tool *libinput_tool)
 {
-  ClutterInputDeviceEvdev *evdev_device = CLUTTER_INPUT_DEVICE_EVDEV (input_device);
+  MetaInputDeviceNative *evdev_device = META_INPUT_DEVICE_NATIVE (input_device);
   ClutterInputDeviceTool *tool = NULL;
   ClutterInputDeviceToolType tool_type;
   guint64 tool_serial;
@@ -1029,8 +1009,8 @@ input_device_update_tool (ClutterInputDevice          *input_device,
 
       if (!tool)
         {
-          tool = clutter_input_device_tool_evdev_new (libinput_tool,
-                                                      tool_serial, tool_type);
+          tool = meta_input_device_tool_native_new (libinput_tool,
+                                                    tool_serial, tool_type);
           clutter_input_device_add_tool (input_device, tool);
         }
     }
@@ -1067,7 +1047,7 @@ translate_tablet_axes (struct libinput_event_tablet_tool *tablet_event,
   if (libinput_tablet_tool_has_pressure (libinput_tool))
     {
       value = libinput_event_tablet_tool_get_pressure (tablet_event);
-      value = clutter_input_device_tool_evdev_translate_pressure (tool, value);
+      value = meta_input_device_tool_native_translate_pressure (tool, value);
       g_array_append_val (axes, value);
     }
 
@@ -1106,16 +1086,16 @@ translate_tablet_axes (struct libinput_event_tablet_tool *tablet_event,
     return (gdouble *) g_array_free (axes, FALSE);
 }
 
-static ClutterSeatEvdev *
+static MetaSeatNative *
 seat_from_device (ClutterInputDevice *device)
 {
-  ClutterInputDeviceEvdev *device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (device);
+  MetaInputDeviceNative *device_evdev = META_INPUT_DEVICE_NATIVE (device);
 
-  return _clutter_input_device_evdev_get_seat (device_evdev);
+  return meta_input_device_native_get_seat (device_evdev);
 }
 
 static void
-notify_continuous_axis (ClutterSeatEvdev              *seat,
+notify_continuous_axis (MetaSeatNative                *seat,
                         ClutterInputDevice            *device,
                         uint64_t                       time_us,
                         ClutterScrollSource            scroll_source,
@@ -1143,13 +1123,13 @@ notify_continuous_axis (ClutterSeatEvdev              *seat,
         finish_flags |= CLUTTER_SCROLL_FINISHED_VERTICAL;
     }
 
-  clutter_seat_evdev_notify_scroll_continuous (seat, device, time_us,
-                                               dx, dy,
-                                               scroll_source, finish_flags);
+  meta_seat_native_notify_scroll_continuous (seat, device, time_us,
+                                             dx, dy,
+                                             scroll_source, finish_flags);
 }
 
 static void
-notify_discrete_axis (ClutterSeatEvdev              *seat,
+notify_discrete_axis (MetaSeatNative                *seat,
                       ClutterInputDevice            *device,
                       uint64_t                       time_us,
                       ClutterScrollSource            scroll_source,
@@ -1170,15 +1150,15 @@ notify_discrete_axis (ClutterSeatEvdev              *seat,
           axis_event, LIBINPUT_POINTER_AXIS_SCROLL_VERTICAL);
     }
 
-  clutter_seat_evdev_notify_discrete_scroll (seat, device,
-                                             time_us,
-                                             discrete_dx, discrete_dy,
-                                             scroll_source);
+  meta_seat_native_notify_discrete_scroll (seat, device,
+                                           time_us,
+                                           discrete_dx, discrete_dy,
+                                           scroll_source);
 }
 
 static void
-process_tablet_axis (ClutterDeviceManagerEvdev *manager_evdev,
-                     struct libinput_event     *event)
+process_tablet_axis (MetaDeviceManagerNative *manager_evdev,
+                     struct libinput_event   *event)
 {
   struct libinput_device *libinput_device = libinput_event_get_device (event);
   guint64 time;
@@ -1188,10 +1168,10 @@ process_tablet_axis (ClutterDeviceManagerEvdev *manager_evdev,
   ClutterInputDevice *device;
   struct libinput_event_tablet_tool *tablet_event =
     libinput_event_get_tablet_tool_event (event);
-  ClutterInputDeviceEvdev *evdev_device;
+  MetaInputDeviceNative *evdev_device;
 
   device = libinput_device_get_user_data (libinput_device);
-  evdev_device = CLUTTER_INPUT_DEVICE_EVDEV (device);
+  evdev_device = META_INPUT_DEVICE_NATIVE (device);
 
   stage = _clutter_input_device_get_stage (device);
   if (!stage)
@@ -1224,13 +1204,13 @@ process_tablet_axis (ClutterDeviceManagerEvdev *manager_evdev,
 }
 
 static gboolean
-process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
-                      struct libinput_event *event)
+process_device_event (MetaDeviceManagerNative *manager_evdev,
+                      struct libinput_event   *event)
 {
   gboolean handled = TRUE;
   struct libinput_device *libinput_device = libinput_event_get_device(event);
   ClutterInputDevice *device;
-  ClutterInputDeviceEvdev *device_evdev;
+  MetaInputDeviceNative *device_evdev;
 
   switch (libinput_event_get_type (event))
     {
@@ -1256,9 +1236,9 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
 	     seat_key_count != 0))
           break;
 
-        clutter_seat_evdev_notify_key (seat_from_device (device),
-                                       device,
-                                       time_us, key, key_state, TRUE);
+        meta_seat_native_notify_key (seat_from_device (device),
+                                     device,
+                                     time_us, key, key_state, TRUE);
 
         break;
       }
@@ -1280,11 +1260,11 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
         dx_unaccel = libinput_event_pointer_get_dx_unaccelerated (pointer_event);
         dy_unaccel = libinput_event_pointer_get_dy_unaccelerated (pointer_event);
 
-        clutter_seat_evdev_notify_relative_motion (seat_from_device (device),
-                                                   device,
-                                                   time_us,
-                                                   dx, dy,
-                                                   dx_unaccel, dy_unaccel);
+        meta_seat_native_notify_relative_motion (seat_from_device (device),
+                                                 device,
+                                                 time_us,
+                                                 dx, dy,
+                                                 dx_unaccel, dy_unaccel);
 
         break;
       }
@@ -1312,11 +1292,11 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
         y = libinput_event_pointer_get_absolute_y_transformed (motion_event,
                                                                stage_height);
 
-        clutter_seat_evdev_notify_absolute_motion (seat_from_device (device),
-                                                   device,
-                                                   time_us,
-                                                   x, y,
-                                                   NULL);
+        meta_seat_native_notify_absolute_motion (seat_from_device (device),
+                                                 device,
+                                                 time_us,
+                                                 x, y,
+                                                 NULL);
 
         break;
       }
@@ -1343,8 +1323,8 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
              seat_button_count != 0))
           break;
 
-        clutter_seat_evdev_notify_button (seat_from_device (device), device,
-                                          time_us, button, button_state);
+        meta_seat_native_notify_button (seat_from_device (device), device,
+                                        time_us, button, button_state);
         break;
       }
 
@@ -1354,11 +1334,11 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
         enum libinput_pointer_axis_source source;
         struct libinput_event_pointer *axis_event =
           libinput_event_get_pointer_event (event);
-        ClutterSeatEvdev *seat;
+        MetaSeatNative *seat;
         ClutterScrollSource scroll_source;
 
         device = libinput_device_get_user_data (libinput_device);
-        seat = _clutter_input_device_evdev_get_seat (CLUTTER_INPUT_DEVICE_EVDEV (device));
+        seat = meta_input_device_native_get_seat (META_INPUT_DEVICE_NATIVE (device));
 
         time_us = libinput_event_pointer_get_time_usec (axis_event);
         source = libinput_event_pointer_get_axis_source (axis_event);
@@ -1391,15 +1371,15 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
         guint64 time_us;
         double x, y;
         gfloat stage_width, stage_height;
-        ClutterSeatEvdev *seat;
+        MetaSeatNative *seat;
         ClutterStage *stage;
-        ClutterTouchState *touch_state;
+        MetaTouchState *touch_state;
         struct libinput_event_touch *touch_event =
           libinput_event_get_touch_event (event);
 
         device = libinput_device_get_user_data (libinput_device);
-        device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (device);
-        seat = _clutter_input_device_evdev_get_seat (device_evdev);
+        device_evdev = META_INPUT_DEVICE_NATIVE (device);
+        seat = meta_input_device_native_get_seat (device_evdev);
 
         stage = _clutter_input_device_get_stage (device);
         if (stage == NULL)
@@ -1416,17 +1396,17 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
                                                     stage_height);
 
         touch_state =
-          clutter_input_device_evdev_acquire_touch_state (device_evdev,
-                                                          device_slot);
+          meta_input_device_native_acquire_touch_state (device_evdev,
+                                                        device_slot);
         touch_state->coords.x = x;
         touch_state->coords.y = y;
 
-        clutter_seat_evdev_notify_touch_event (seat, device,
-                                               CLUTTER_TOUCH_BEGIN,
-                                               time_us,
-                                               touch_state->seat_slot,
-                                               touch_state->coords.x,
-                                               touch_state->coords.y);
+        meta_seat_native_notify_touch_event (seat, device,
+                                             CLUTTER_TOUCH_BEGIN,
+                                             time_us,
+                                             touch_state->seat_slot,
+                                             touch_state->coords.x,
+                                             touch_state->coords.y);
         break;
       }
 
@@ -1434,30 +1414,30 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
       {
         int device_slot;
         guint64 time_us;
-        ClutterSeatEvdev *seat;
-        ClutterTouchState *touch_state;
+        MetaSeatNative *seat;
+        MetaTouchState *touch_state;
         struct libinput_event_touch *touch_event =
           libinput_event_get_touch_event (event);
 
         device = libinput_device_get_user_data (libinput_device);
-        device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (device);
-        seat = _clutter_input_device_evdev_get_seat (device_evdev);
+        device_evdev = META_INPUT_DEVICE_NATIVE (device);
+        seat = meta_input_device_native_get_seat (device_evdev);
 
         device_slot = libinput_event_touch_get_slot (touch_event);
         time_us = libinput_event_touch_get_time_usec (touch_event);
         touch_state =
-          clutter_input_device_evdev_lookup_touch_state (device_evdev,
-                                                         device_slot);
+          meta_input_device_native_lookup_touch_state (device_evdev,
+                                                       device_slot);
         if (!touch_state)
           break;
 
-        clutter_seat_evdev_notify_touch_event (seat, device,
-                                               CLUTTER_TOUCH_END, time_us,
-                                               touch_state->seat_slot,
-                                               touch_state->coords.x,
-                                               touch_state->coords.y);
-        clutter_input_device_evdev_release_touch_state (device_evdev,
-                                                        touch_state);
+        meta_seat_native_notify_touch_event (seat, device,
+                                             CLUTTER_TOUCH_END, time_us,
+                                             touch_state->seat_slot,
+                                             touch_state->coords.x,
+                                             touch_state->coords.y);
+        meta_input_device_native_release_touch_state (device_evdev,
+                                                      touch_state);
         break;
       }
 
@@ -1467,15 +1447,15 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
         guint64 time_us;
         double x, y;
         gfloat stage_width, stage_height;
-        ClutterSeatEvdev *seat;
+        MetaSeatNative *seat;
         ClutterStage *stage;
-        ClutterTouchState *touch_state;
+        MetaTouchState *touch_state;
         struct libinput_event_touch *touch_event =
           libinput_event_get_touch_event (event);
 
         device = libinput_device_get_user_data (libinput_device);
-        device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (device);
-        seat = _clutter_input_device_evdev_get_seat (device_evdev);
+        device_evdev = META_INPUT_DEVICE_NATIVE (device);
+        seat = meta_input_device_native_get_seat (device_evdev);
 
         stage = _clutter_input_device_get_stage (device);
         if (stage == NULL)
@@ -1492,20 +1472,20 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
                                                     stage_height);
 
         touch_state =
-          clutter_input_device_evdev_lookup_touch_state (device_evdev,
-                                                         device_slot);
+          meta_input_device_native_lookup_touch_state (device_evdev,
+                                                       device_slot);
         if (!touch_state)
           break;
 
         touch_state->coords.x = x;
         touch_state->coords.y = y;
 
-        clutter_seat_evdev_notify_touch_event (seat, device,
-                                               CLUTTER_TOUCH_UPDATE,
-                                               time_us,
-                                               touch_state->seat_slot,
-                                               touch_state->coords.x,
-                                               touch_state->coords.y);
+        meta_seat_native_notify_touch_event (seat, device,
+                                             CLUTTER_TOUCH_UPDATE,
+                                             time_us,
+                                             touch_state->seat_slot,
+                                             touch_state->coords.x,
+                                             touch_state->coords.y);
         break;
       }
     case LIBINPUT_EVENT_TOUCH_CANCEL:
@@ -1515,10 +1495,10 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
           libinput_event_get_touch_event (event);
 
         device = libinput_device_get_user_data (libinput_device);
-        device_evdev = CLUTTER_INPUT_DEVICE_EVDEV (device);
+        device_evdev = META_INPUT_DEVICE_NATIVE (device);
         time_us = libinput_event_touch_get_time_usec (touch_event);
 
-        clutter_input_device_evdev_release_touch_slots (device_evdev, time_us);
+        meta_input_device_native_release_touch_slots (device_evdev, time_us);
 
         break;
       }
@@ -1648,8 +1628,8 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
         button_state = libinput_event_tablet_tool_get_button_state (tablet_event) ==
                        LIBINPUT_BUTTON_STATE_PRESSED;
 
-        clutter_seat_evdev_notify_button (seat_from_device (device), device,
-                                          time_us, tablet_button, button_state);
+        meta_seat_native_notify_button (seat_from_device (device), device,
+                                        time_us, tablet_button, button_state);
         break;
       }
     case LIBINPUT_EVENT_TABLET_TOOL_TIP:
@@ -1670,8 +1650,8 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
         if (button_state)
           process_tablet_axis (manager_evdev, event);
 
-        clutter_seat_evdev_notify_button (seat_from_device (device), device,
-                                          time_us, BTN_TOUCH, button_state);
+        meta_seat_native_notify_button (seat_from_device (device), device,
+                                        time_us, BTN_TOUCH, button_state);
         if (!button_state)
           process_tablet_axis (manager_evdev, event);
         break;
@@ -1749,11 +1729,11 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
 }
 
 static gboolean
-filter_event (ClutterDeviceManagerEvdev *manager_evdev,
-              struct libinput_event     *event)
+filter_event (MetaDeviceManagerNative *manager_evdev,
+              struct libinput_event   *event)
 {
   gboolean retval = CLUTTER_EVENT_PROPAGATE;
-  ClutterEventFilter *filter;
+  MetaEventFilter *filter;
   GSList *tmp_list;
 
   tmp_list = manager_evdev->priv->event_filters;
@@ -1772,8 +1752,8 @@ filter_event (ClutterDeviceManagerEvdev *manager_evdev,
 }
 
 static void
-process_event (ClutterDeviceManagerEvdev *manager_evdev,
-               struct libinput_event *event)
+process_event (MetaDeviceManagerNative *manager_evdev,
+               struct libinput_event   *event)
 {
   gboolean retval;
 
@@ -1789,9 +1769,9 @@ process_event (ClutterDeviceManagerEvdev *manager_evdev,
 }
 
 static void
-process_events (ClutterDeviceManagerEvdev *manager_evdev)
+process_events (MetaDeviceManagerNative *manager_evdev)
 {
-  ClutterDeviceManagerEvdevPrivate *priv = manager_evdev->priv;
+  MetaDeviceManagerNativePrivate *priv = manager_evdev->priv;
   struct libinput_event *event;
 
   while ((event = libinput_get_event (priv->libinput)))
@@ -1848,14 +1828,14 @@ static const struct libinput_interface libinput_interface = {
 };
 
 static ClutterVirtualInputDevice *
-clutter_device_manager_evdev_create_virtual_device (ClutterDeviceManager  *manager,
-                                                    ClutterInputDeviceType device_type)
+meta_device_manager_native_create_virtual_device (ClutterDeviceManager  *manager,
+                                                  ClutterInputDeviceType device_type)
 {
-  ClutterDeviceManagerEvdev *manager_evdev =
-    CLUTTER_DEVICE_MANAGER_EVDEV (manager);
-  ClutterDeviceManagerEvdevPrivate *priv = manager_evdev->priv;
+  MetaDeviceManagerNative *manager_evdev =
+    META_DEVICE_MANAGER_NATIVE (manager);
+  MetaDeviceManagerNativePrivate *priv = manager_evdev->priv;
 
-  return g_object_new (CLUTTER_TYPE_VIRTUAL_INPUT_DEVICE_EVDEV,
+  return g_object_new (META_TYPE_VIRTUAL_INPUT_DEVICE_NATIVE,
                        "device-manager", manager,
                        "seat", priv->main_seat,
                        "device-type", device_type,
@@ -1863,7 +1843,7 @@ clutter_device_manager_evdev_create_virtual_device (ClutterDeviceManager  *manag
 }
 
 static ClutterVirtualDeviceType
-clutter_device_manager_evdev_get_supported_virtual_device_types (ClutterDeviceManager *device_manager)
+meta_device_manager_native_get_supported_virtual_device_types (ClutterDeviceManager *device_manager)
 {
   return (CLUTTER_VIRTUAL_DEVICE_TYPE_KEYBOARD |
           CLUTTER_VIRTUAL_DEVICE_TYPE_POINTER |
@@ -1871,40 +1851,40 @@ clutter_device_manager_evdev_get_supported_virtual_device_types (ClutterDeviceMa
 }
 
 static void
-clutter_device_manager_evdev_compress_motion (ClutterDeviceManager *device_manger,
-                                              ClutterEvent         *event,
-                                              const ClutterEvent   *to_discard)
+meta_device_manager_native_compress_motion (ClutterDeviceManager *device_manger,
+                                            ClutterEvent         *event,
+                                            const ClutterEvent   *to_discard)
 {
   double dx, dy;
   double dx_unaccel, dy_unaccel;
   double dst_dx = 0.0, dst_dy = 0.0;
   double dst_dx_unaccel = 0.0, dst_dy_unaccel = 0.0;
 
-  if (!clutter_evdev_event_get_relative_motion (to_discard,
-                                                &dx, &dy,
-                                                &dx_unaccel, &dy_unaccel))
+  if (!meta_event_native_get_relative_motion (to_discard,
+                                              &dx, &dy,
+                                              &dx_unaccel, &dy_unaccel))
     return;
 
-  clutter_evdev_event_get_relative_motion (event,
-                                           &dst_dx, &dst_dy,
-                                           &dst_dx_unaccel, &dst_dy_unaccel);
-  _clutter_evdev_event_set_relative_motion (event,
-                                            dx + dst_dx,
-                                            dy + dst_dy,
-                                            dx_unaccel + dst_dx_unaccel,
-                                            dy_unaccel + dst_dy_unaccel);
+  meta_event_native_get_relative_motion (event,
+                                         &dst_dx, &dst_dy,
+                                         &dst_dx_unaccel, &dst_dy_unaccel);
+  meta_event_native_set_relative_motion (event,
+                                         dx + dst_dx,
+                                         dy + dst_dy,
+                                         dx_unaccel + dst_dx_unaccel,
+                                         dy_unaccel + dst_dy_unaccel);
 }
 
 static void
-clutter_device_manager_evdev_apply_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
-                                                      ClutterKbdA11ySettings *settings)
+meta_device_manager_native_apply_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
+                                                    ClutterKbdA11ySettings *settings)
 {
   ClutterInputDevice *device;
 
-  device = clutter_device_manager_evdev_get_core_device (device_manager, CLUTTER_KEYBOARD_DEVICE);
+  device = meta_device_manager_native_get_core_device (device_manager, CLUTTER_KEYBOARD_DEVICE);
   if (device)
-    clutter_input_device_evdev_apply_kbd_a11y_settings (CLUTTER_INPUT_DEVICE_EVDEV (device),
-                                                        settings);
+    meta_input_device_native_apply_kbd_a11y_settings (META_INPUT_DEVICE_NATIVE (device),
+                                                      settings);
 }
 
 /*
@@ -1912,11 +1892,11 @@ clutter_device_manager_evdev_apply_kbd_a11y_settings (ClutterDeviceManager   *de
  */
 
 static void
-clutter_device_manager_evdev_constructed (GObject *gobject)
+meta_device_manager_native_constructed (GObject *gobject)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv;
-  ClutterEventSource *source;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaDeviceManagerNativePrivate *priv;
+  MetaEventSource *source;
   struct udev *udev;
 
   udev = udev_new ();
@@ -1926,7 +1906,7 @@ clutter_device_manager_evdev_constructed (GObject *gobject)
       return;
     }
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (gobject);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (gobject);
   priv = manager_evdev->priv;
 
   priv->libinput = libinput_udev_create_context (&libinput_interface,
@@ -1949,22 +1929,22 @@ clutter_device_manager_evdev_constructed (GObject *gobject)
 
   udev_unref (udev);
 
-  priv->main_seat = clutter_seat_evdev_new (manager_evdev);
+  priv->main_seat = meta_seat_native_new (manager_evdev);
   priv->seats = g_slist_append (priv->seats, priv->main_seat);
 
   dispatch_libinput (manager_evdev);
 
-  source = clutter_event_source_new (manager_evdev);
+  source = meta_event_source_new (manager_evdev);
   priv->event_source = source;
 }
 
 static void
-clutter_device_manager_evdev_dispose (GObject *object)
+meta_device_manager_native_dispose (GObject *object)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaDeviceManagerNativePrivate *priv;
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (object);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (object);
   priv = manager_evdev->priv;
 
   if (priv->stage_added_handler)
@@ -1987,23 +1967,23 @@ clutter_device_manager_evdev_dispose (GObject *object)
       priv->stage_manager = NULL;
     }
 
-  G_OBJECT_CLASS (clutter_device_manager_evdev_parent_class)->dispose (object);
+  G_OBJECT_CLASS (meta_device_manager_native_parent_class)->dispose (object);
 }
 
 static void
-clutter_device_manager_evdev_finalize (GObject *object)
+meta_device_manager_native_finalize (GObject *object)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaDeviceManagerNativePrivate *priv;
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (object);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (object);
   priv = manager_evdev->priv;
 
-  g_slist_free_full (priv->seats, (GDestroyNotify) clutter_seat_evdev_free);
+  g_slist_free_full (priv->seats, (GDestroyNotify) meta_seat_native_free);
   g_slist_free (priv->devices);
 
   if (priv->event_source != NULL)
-    clutter_event_source_free (priv->event_source);
+    meta_event_source_free (priv->event_source);
 
   if (priv->constrain_data_notify != NULL)
     priv->constrain_data_notify (priv->constrain_data);
@@ -2013,39 +1993,39 @@ clutter_device_manager_evdev_finalize (GObject *object)
 
   g_list_free (priv->free_device_ids);
 
-  G_OBJECT_CLASS (clutter_device_manager_evdev_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_device_manager_native_parent_class)->finalize (object);
 }
 
 static void
-clutter_device_manager_evdev_class_init (ClutterDeviceManagerEvdevClass *klass)
+meta_device_manager_native_class_init (MetaDeviceManagerNativeClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   ClutterDeviceManagerClass *manager_class;
 
-  gobject_class->constructed = clutter_device_manager_evdev_constructed;
-  gobject_class->finalize = clutter_device_manager_evdev_finalize;
-  gobject_class->dispose = clutter_device_manager_evdev_dispose;
+  gobject_class->constructed = meta_device_manager_native_constructed;
+  gobject_class->finalize = meta_device_manager_native_finalize;
+  gobject_class->dispose = meta_device_manager_native_dispose;
 
   manager_class = CLUTTER_DEVICE_MANAGER_CLASS (klass);
-  manager_class->add_device = clutter_device_manager_evdev_add_device;
-  manager_class->remove_device = clutter_device_manager_evdev_remove_device;
-  manager_class->get_devices = clutter_device_manager_evdev_get_devices;
-  manager_class->get_core_device = clutter_device_manager_evdev_get_core_device;
-  manager_class->get_device = clutter_device_manager_evdev_get_device;
-  manager_class->create_virtual_device = clutter_device_manager_evdev_create_virtual_device;
-  manager_class->get_supported_virtual_device_types = clutter_device_manager_evdev_get_supported_virtual_device_types;
-  manager_class->compress_motion = clutter_device_manager_evdev_compress_motion;
-  manager_class->apply_kbd_a11y_settings = clutter_device_manager_evdev_apply_kbd_a11y_settings;
-  manager_class->copy_event_data = clutter_device_manager_evdev_copy_event_data;
-  manager_class->free_event_data = clutter_device_manager_evdev_free_event_data;
+  manager_class->add_device = meta_device_manager_native_add_device;
+  manager_class->remove_device = meta_device_manager_native_remove_device;
+  manager_class->get_devices = meta_device_manager_native_get_devices;
+  manager_class->get_core_device = meta_device_manager_native_get_core_device;
+  manager_class->get_device = meta_device_manager_native_get_device;
+  manager_class->create_virtual_device = meta_device_manager_native_create_virtual_device;
+  manager_class->get_supported_virtual_device_types = meta_device_manager_native_get_supported_virtual_device_types;
+  manager_class->compress_motion = meta_device_manager_native_compress_motion;
+  manager_class->apply_kbd_a11y_settings = meta_device_manager_native_apply_kbd_a11y_settings;
+  manager_class->copy_event_data = meta_device_manager_native_copy_event_data;
+  manager_class->free_event_data = meta_device_manager_native_free_event_data;
 }
 
 static void
-clutter_device_manager_evdev_stage_added_cb (ClutterStageManager *manager,
-                                             ClutterStage *stage,
-                                             ClutterDeviceManagerEvdev *self)
+meta_device_manager_native_stage_added_cb (ClutterStageManager     *manager,
+                                           ClutterStage            *stage,
+                                           MetaDeviceManagerNative *self)
 {
-  ClutterDeviceManagerEvdevPrivate *priv = self->priv;
+  MetaDeviceManagerNativePrivate *priv = self->priv;
   GSList *l;
 
   /* NB: Currently we can only associate a single stage with all evdev
@@ -2060,9 +2040,9 @@ clutter_device_manager_evdev_stage_added_cb (ClutterStageManager *manager,
   /* Set the stage of any devices that don't already have a stage */
   for (l = priv->seats; l; l = l->next)
     {
-      ClutterSeatEvdev *seat = l->data;
+      MetaSeatNative *seat = l->data;
 
-      clutter_seat_evdev_set_stage (seat, stage);
+      meta_seat_native_set_stage (seat, stage);
     }
 
   /* We only want to do this once so we can catch the default
@@ -2074,29 +2054,29 @@ clutter_device_manager_evdev_stage_added_cb (ClutterStageManager *manager,
 }
 
 static void
-clutter_device_manager_evdev_stage_removed_cb (ClutterStageManager *manager,
-                                               ClutterStage *stage,
-                                               ClutterDeviceManagerEvdev *self)
+meta_device_manager_native_stage_removed_cb (ClutterStageManager     *manager,
+                                             ClutterStage            *stage,
+                                             MetaDeviceManagerNative *self)
 {
-  ClutterDeviceManagerEvdevPrivate *priv = self->priv;
+  MetaDeviceManagerNativePrivate *priv = self->priv;
   GSList *l;
 
   /* Remove the stage of any input devices that were pointing to this
      stage so we don't send events to invalid stages */
   for (l = priv->seats; l; l = l->next)
     {
-      ClutterSeatEvdev *seat = l->data;
+      MetaSeatNative *seat = l->data;
 
-      clutter_seat_evdev_set_stage (seat, NULL);
+      meta_seat_native_set_stage (seat, NULL);
     }
 }
 
 static void
-clutter_device_manager_evdev_init (ClutterDeviceManagerEvdev *self)
+meta_device_manager_native_init (MetaDeviceManagerNative *self)
 {
-  ClutterDeviceManagerEvdevPrivate *priv;
+  MetaDeviceManagerNativePrivate *priv;
 
-  priv = self->priv = clutter_device_manager_evdev_get_instance_private (self);
+  priv = self->priv = meta_device_manager_native_get_instance_private (self);
 
   priv->stage_manager = clutter_stage_manager_get_default ();
   g_object_ref (priv->stage_manager);
@@ -2111,38 +2091,21 @@ clutter_device_manager_evdev_init (ClutterDeviceManagerEvdev *self)
   priv->stage_added_handler =
     g_signal_connect (priv->stage_manager,
                       "stage-added",
-                      G_CALLBACK (clutter_device_manager_evdev_stage_added_cb),
+                      G_CALLBACK (meta_device_manager_native_stage_added_cb),
                       self);
   priv->stage_removed_handler =
     g_signal_connect (priv->stage_manager,
                       "stage-removed",
-                      G_CALLBACK (clutter_device_manager_evdev_stage_removed_cb),
+                      G_CALLBACK (meta_device_manager_native_stage_removed_cb),
                       self);
 
   priv->device_id_next = INITIAL_DEVICE_ID;
 }
 
-void
-_clutter_events_evdev_init (ClutterBackend *backend)
-{
-  CLUTTER_NOTE (EVENT, "Initializing evdev backend");
-
-  backend->keymap = g_object_new (CLUTTER_TYPE_KEYMAP_EVDEV, NULL);
-  backend->device_manager = g_object_new (CLUTTER_TYPE_DEVICE_MANAGER_EVDEV,
-                                          "backend", backend,
-                                          NULL);
-}
-
-void
-_clutter_events_evdev_uninit (ClutterBackend *backend)
-{
-  CLUTTER_NOTE (EVENT, "Uninitializing evdev backend");
-}
-
 gint
-_clutter_device_manager_evdev_acquire_device_id (ClutterDeviceManagerEvdev *manager_evdev)
+meta_device_manager_native_acquire_device_id (MetaDeviceManagerNative *manager_evdev)
 {
-  ClutterDeviceManagerEvdevPrivate *priv = manager_evdev->priv;
+  MetaDeviceManagerNativePrivate *priv = manager_evdev->priv;
   GList *first;
   gint next_id;
 
@@ -2165,7 +2128,7 @@ _clutter_device_manager_evdev_acquire_device_id (ClutterDeviceManagerEvdev *mana
 }
 
 void
-_clutter_device_manager_evdev_dispatch (ClutterDeviceManagerEvdev *manager_evdev)
+meta_device_manager_native_dispatch (MetaDeviceManagerNative *manager_evdev)
 {
   dispatch_libinput (manager_evdev);
 }
@@ -2178,10 +2141,10 @@ compare_ids (gconstpointer a,
 }
 
 void
-_clutter_device_manager_evdev_release_device_id (ClutterDeviceManagerEvdev *manager_evdev,
-                                                 ClutterInputDevice        *device)
+meta_device_manager_native_release_device_id (MetaDeviceManagerNative *manager_evdev,
+                                              ClutterInputDevice      *device)
 {
-  ClutterDeviceManagerEvdevPrivate *priv = manager_evdev->priv;
+  MetaDeviceManagerNativePrivate *priv = manager_evdev->priv;
   gint device_id;
 
   device_id = clutter_input_device_get_device_id (device);
@@ -2191,20 +2154,20 @@ _clutter_device_manager_evdev_release_device_id (ClutterDeviceManagerEvdev *mana
 }
 
 ClutterStage *
-_clutter_device_manager_evdev_get_stage (ClutterDeviceManagerEvdev *manager_evdev)
+meta_device_manager_native_get_stage (MetaDeviceManagerNative *manager_evdev)
 {
-  ClutterDeviceManagerEvdevPrivate *priv = manager_evdev->priv;
+  MetaDeviceManagerNativePrivate *priv = manager_evdev->priv;
 
   return priv->stage;
 }
 
 /**
- * clutter_evdev_release_devices:
+ * meta_device_manager_native_release_devices:
  *
  * Releases all the evdev devices that Clutter is currently managing. This api
  * is typically used when switching away from the Clutter application when
  * switching tty. The devices can be reclaimed later with a call to
- * clutter_evdev_reclaim_devices().
+ * meta_device_manager_native_reclaim_devices().
  *
  * This function should only be called after clutter has been initialized.
  *
@@ -2212,11 +2175,11 @@ _clutter_device_manager_evdev_get_stage (ClutterDeviceManagerEvdev *manager_evde
  * Stability: unstable
  */
 void
-clutter_evdev_release_devices (void)
+meta_device_manager_native_release_devices (void)
 {
   ClutterDeviceManager *manager = clutter_device_manager_get_default ();
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaDeviceManagerNativePrivate *priv;
 
   if (!manager)
     {
@@ -2225,9 +2188,9 @@ clutter_evdev_release_devices (void)
       return;
     }
 
-  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER_EVDEV (manager));
+  g_return_if_fail (META_IS_DEVICE_MANAGER_NATIVE (manager));
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (manager);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (manager);
   priv = manager_evdev->priv;
 
   if (priv->released)
@@ -2245,18 +2208,18 @@ clutter_evdev_release_devices (void)
 }
 
 static void
-clutter_evdev_update_xkb_state (ClutterDeviceManagerEvdev *manager_evdev)
+update_xkb_state (MetaDeviceManagerNative *manager_evdev)
 {
-  ClutterDeviceManagerEvdevPrivate *priv;
+  MetaDeviceManagerNativePrivate *priv;
   GSList *iter;
-  ClutterSeatEvdev *seat;
+  MetaSeatNative *seat;
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
   struct xkb_keymap *xkb_keymap;
   ClutterKeymap *keymap;
 
   keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
-  xkb_keymap = clutter_keymap_evdev_get_keyboard_map (CLUTTER_KEYMAP_EVDEV (keymap));
+  xkb_keymap = meta_keymap_native_get_keyboard_map (META_KEYMAP_NATIVE (keymap));
 
   priv = manager_evdev->priv;
 
@@ -2281,12 +2244,12 @@ clutter_evdev_update_xkb_state (ClutterDeviceManagerEvdev *manager_evdev)
       seat->num_lock_led = xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_NUM);
       seat->scroll_lock_led = xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_SCROLL);
 
-      clutter_seat_evdev_sync_leds (seat);
+      meta_seat_native_sync_leds (seat);
     }
 }
 
 /**
- * clutter_evdev_reclaim_devices:
+ * meta_device_manager_native_reclaim_devices:
  *
  * This causes Clutter to re-probe for evdev devices. This is must only be
  * called after a corresponding call to clutter_evdev_release_devices()
@@ -2300,12 +2263,12 @@ clutter_evdev_update_xkb_state (ClutterDeviceManagerEvdev *manager_evdev)
  * Stability: unstable
  */
 void
-clutter_evdev_reclaim_devices (void)
+meta_device_manager_native_reclaim_devices (void)
 {
   ClutterDeviceManager *manager = clutter_device_manager_get_default ();
-  ClutterDeviceManagerEvdev *manager_evdev =
-    CLUTTER_DEVICE_MANAGER_EVDEV (manager);
-  ClutterDeviceManagerEvdevPrivate *priv = manager_evdev->priv;
+  MetaDeviceManagerNative *manager_evdev =
+    META_DEVICE_MANAGER_NATIVE (manager);
+  MetaDeviceManagerNativePrivate *priv = manager_evdev->priv;
 
   if (!priv->released)
     {
@@ -2315,14 +2278,14 @@ clutter_evdev_reclaim_devices (void)
     }
 
   libinput_resume (priv->libinput);
-  clutter_evdev_update_xkb_state (manager_evdev);
+  update_xkb_state (manager_evdev);
   process_events (manager_evdev);
 
   priv->released = FALSE;
 }
 
 /**
- * clutter_evdev_set_device_callbacks: (skip)
+ * meta_device_manager_native_set_device_callbacks: (skip)
  * @open_callback: the user replacement for open()
  * @close_callback: the user replacement for close()
  * @user_data: user data for @callback
@@ -2340,9 +2303,9 @@ clutter_evdev_reclaim_devices (void)
  * Stability: unstable
  */
 void
-clutter_evdev_set_device_callbacks (ClutterOpenDeviceCallback  open_callback,
-                                    ClutterCloseDeviceCallback close_callback,
-                                    gpointer                   user_data)
+meta_device_manager_native_set_device_callbacks (MetaOpenDeviceCallback  open_callback,
+                                                 MetaCloseDeviceCallback close_callback,
+                                                 gpointer                user_data)
 {
   device_open_callback = open_callback;
   device_close_callback = close_callback;
@@ -2350,7 +2313,7 @@ clutter_evdev_set_device_callbacks (ClutterOpenDeviceCallback  open_callback,
 }
 
 /**
- * clutter_evdev_set_keyboard_map: (skip)
+ * meta_device_manager_native_set_keyboard_map: (skip)
  * @evdev: the #ClutterDeviceManager created by the evdev backend
  * @keymap: the new keymap
  *
@@ -2363,24 +2326,24 @@ clutter_evdev_set_device_callbacks (ClutterOpenDeviceCallback  open_callback,
  * Stability: unstable
  */
 void
-clutter_evdev_set_keyboard_map (ClutterDeviceManager *evdev,
-				struct xkb_keymap    *xkb_keymap)
+meta_device_manager_native_set_keyboard_map (ClutterDeviceManager *evdev,
+                                             struct xkb_keymap    *xkb_keymap)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
+  MetaDeviceManagerNative *manager_evdev;
   ClutterKeymap *keymap;
 
-  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER_EVDEV (evdev));
+  g_return_if_fail (META_IS_DEVICE_MANAGER_NATIVE (evdev));
 
   keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
-  clutter_keymap_evdev_set_keyboard_map (CLUTTER_KEYMAP_EVDEV (keymap),
-                                         xkb_keymap);
+  meta_keymap_native_set_keyboard_map (META_KEYMAP_NATIVE (keymap),
+                                       xkb_keymap);
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (evdev);
-  clutter_evdev_update_xkb_state (manager_evdev);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (evdev);
+  update_xkb_state (manager_evdev);
 }
 
 /**
- * clutter_evdev_get_keyboard_map: (skip)
+ * meta_device_manager_native_get_keyboard_map: (skip)
  * @evdev: the #ClutterDeviceManager created by the evdev backend
  *
  * Retrieves the #xkb_keymap in use by the evdev backend.
@@ -2391,19 +2354,19 @@ clutter_evdev_set_keyboard_map (ClutterDeviceManager *evdev,
  * Stability: unstable
  */
 struct xkb_keymap *
-clutter_evdev_get_keyboard_map (ClutterDeviceManager *evdev)
+meta_device_manager_native_get_keyboard_map (ClutterDeviceManager *evdev)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
+  MetaDeviceManagerNative *manager_evdev;
 
-  g_return_val_if_fail (CLUTTER_IS_DEVICE_MANAGER_EVDEV (evdev), NULL);
+  g_return_val_if_fail (META_IS_DEVICE_MANAGER_NATIVE (evdev), NULL);
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (evdev);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (evdev);
 
   return xkb_state_get_keymap (manager_evdev->priv->main_seat->xkb);
 }
 
 /**
- * clutter_evdev_set_keyboard_layout_index: (skip)
+ * meta_device_manager_set_keyboard_layout_index: (skip)
  * @evdev: the #ClutterDeviceManager created by the evdev backend
  * @idx: the xkb layout index to set
  *
@@ -2413,19 +2376,19 @@ clutter_evdev_get_keyboard_map (ClutterDeviceManager *evdev)
  * Stability: unstable
  */
 void
-clutter_evdev_set_keyboard_layout_index (ClutterDeviceManager *evdev,
-                                         xkb_layout_index_t    idx)
+meta_device_manager_native_set_keyboard_layout_index (ClutterDeviceManager *evdev,
+                                                      xkb_layout_index_t    idx)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
+  MetaDeviceManagerNative *manager_evdev;
   xkb_mod_mask_t depressed_mods;
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
   struct xkb_state *state;
   GSList *l;
 
-  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER_EVDEV (evdev));
+  g_return_if_fail (META_IS_DEVICE_MANAGER_NATIVE (evdev));
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (evdev);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (evdev);
   state = manager_evdev->priv->main_seat->xkb;
 
   depressed_mods = xkb_state_serialize_mods (state, XKB_STATE_MODS_DEPRESSED);
@@ -2435,7 +2398,7 @@ clutter_evdev_set_keyboard_layout_index (ClutterDeviceManager *evdev,
   xkb_state_update_mask (state, depressed_mods, latched_mods, locked_mods, 0, 0, idx);
   for (l = manager_evdev->priv->seats; l; l = l->next)
     {
-      ClutterSeatEvdev *seat = l->data;
+      MetaSeatNative *seat = l->data;
 
       seat->layout_idx = idx;
     }
@@ -2445,16 +2408,16 @@ clutter_evdev_set_keyboard_layout_index (ClutterDeviceManager *evdev,
  * clutter_evdev_get_keyboard_layout_index: (skip)
  */
 xkb_layout_index_t
-clutter_evdev_get_keyboard_layout_index (ClutterDeviceManager *evdev)
+meta_device_manager_native_get_keyboard_layout_index (ClutterDeviceManager *evdev)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
+  MetaDeviceManagerNative *manager_evdev;
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (evdev);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (evdev);
   return manager_evdev->priv->main_seat->layout_idx;
 }
 
 /**
- * clutter_evdev_set_keyboard_numlock: (skip)
+ * meta_device_manager_native_set_keyboard_numlock: (skip)
  * @evdev: the #ClutterDeviceManager created by the evdev backend
  * @numlock_set: TRUE to set NumLock ON, FALSE otherwise.
  *
@@ -2463,29 +2426,29 @@ clutter_evdev_get_keyboard_layout_index (ClutterDeviceManager *evdev)
  * Stability: unstable
  */
 void
-clutter_evdev_set_keyboard_numlock (ClutterDeviceManager *evdev,
-                                    gboolean              numlock_state)
+meta_device_manager_native_set_keyboard_numlock (ClutterDeviceManager *evdev,
+                                                 gboolean              numlock_state)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaDeviceManagerNativePrivate *priv;
   GSList *iter;
   xkb_mod_mask_t numlock;
   struct xkb_keymap *xkb_keymap;
   ClutterKeymap *keymap;
 
-  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER_EVDEV (evdev));
+  g_return_if_fail (META_IS_DEVICE_MANAGER_NATIVE (evdev));
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (evdev);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (evdev);
   priv = manager_evdev->priv;
 
   keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
-  xkb_keymap = clutter_keymap_evdev_get_keyboard_map (CLUTTER_KEYMAP_EVDEV (keymap));
+  xkb_keymap = meta_keymap_native_get_keyboard_map (META_KEYMAP_NATIVE (keymap));
 
   numlock = (1 << xkb_keymap_mod_get_index (xkb_keymap, "Mod2"));
 
   for (iter = priv->seats; iter; iter = iter->next)
     {
-      ClutterSeatEvdev *seat = iter->data;
+      MetaSeatNative *seat = iter->data;
       xkb_mod_mask_t depressed_mods;
       xkb_mod_mask_t latched_mods;
       xkb_mod_mask_t locked_mods;
@@ -2508,13 +2471,13 @@ clutter_evdev_set_keyboard_numlock (ClutterDeviceManager *evdev,
                              0, 0,
                              group_mods);
 
-      clutter_seat_evdev_sync_leds (seat);
+      meta_seat_native_sync_leds (seat);
     }
 }
 
 
 /**
- * clutter_evdev_set_pointer_constrain_callback:
+ * meta_device_manager_native_set_pointer_constrain_callback:
  * @evdev: the #ClutterDeviceManager created by the evdev backend
  * @callback: the callback
  * @user_data: data to pass to the callback
@@ -2528,17 +2491,17 @@ clutter_evdev_set_keyboard_numlock (ClutterDeviceManager *evdev,
  * Stability: unstable
  */
 void
-clutter_evdev_set_pointer_constrain_callback (ClutterDeviceManager            *evdev,
-					      ClutterPointerConstrainCallback  callback,
-					      gpointer                         user_data,
-					      GDestroyNotify                   user_data_notify)
+meta_device_manager_native_set_pointer_constrain_callback (ClutterDeviceManager         *evdev,
+                                                           MetaPointerConstrainCallback  callback,
+                                                           gpointer                      user_data,
+                                                           GDestroyNotify                user_data_notify)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaDeviceManagerNativePrivate *priv;
 
-  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER_EVDEV (evdev));
+  g_return_if_fail (META_IS_DEVICE_MANAGER_NATIVE (evdev));
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (evdev);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (evdev);
   priv = manager_evdev->priv;
 
   if (priv->constrain_data_notify)
@@ -2550,16 +2513,16 @@ clutter_evdev_set_pointer_constrain_callback (ClutterDeviceManager            *e
 }
 
 void
-clutter_evdev_set_relative_motion_filter (ClutterDeviceManager       *evdev,
-                                          ClutterRelativeMotionFilter filter,
-                                          gpointer                    user_data)
+meta_device_manager_native_set_relative_motion_filter (ClutterDeviceManager     *evdev,
+                                                       MetaRelativeMotionFilter  filter,
+                                                       gpointer                  user_data)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterDeviceManagerEvdevPrivate *priv;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaDeviceManagerNativePrivate *priv;
 
-  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER_EVDEV (evdev));
+  g_return_if_fail (META_IS_DEVICE_MANAGER_NATIVE (evdev));
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (evdev);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (evdev);
   priv = manager_evdev->priv;
 
   priv->relative_motion_filter = filter;
@@ -2567,7 +2530,7 @@ clutter_evdev_set_relative_motion_filter (ClutterDeviceManager       *evdev,
 }
 
 /**
- * clutter_evdev_set_keyboard_repeat:
+ * meta_device_manager_native_set_keyboard_repeat:
  * @evdev: the #ClutterDeviceManager created by the evdev backend
  * @repeat: whether to enable or disable keyboard repeat events
  * @delay: the delay in ms between the hardware key press event and
@@ -2582,17 +2545,17 @@ clutter_evdev_set_relative_motion_filter (ClutterDeviceManager       *evdev,
  * Stability: unstable
  */
 void
-clutter_evdev_set_keyboard_repeat (ClutterDeviceManager *evdev,
-                                   gboolean              repeat,
-                                   guint32               delay,
-                                   guint32               interval)
+meta_device_manager_native_set_keyboard_repeat (ClutterDeviceManager *evdev,
+                                                gboolean              repeat,
+                                                guint32               delay,
+                                                guint32               interval)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
-  ClutterSeatEvdev *seat;
+  MetaDeviceManagerNative *manager_evdev;
+  MetaSeatNative *seat;
 
-  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER_EVDEV (evdev));
+  g_return_if_fail (META_IS_DEVICE_MANAGER_NATIVE (evdev));
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (evdev);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (evdev);
   seat = manager_evdev->priv->main_seat;
 
   seat->repeat = repeat;
@@ -2601,7 +2564,7 @@ clutter_evdev_set_keyboard_repeat (ClutterDeviceManager *evdev,
 }
 
 /**
- * clutter_evdev_add_filter: (skip)
+ * meta_device_manager_native_add_filter: (skip)
  * @func: (closure data): a filter function
  * @data: (allow-none): user data to be passed to the filter function, or %NULL
  * @destroy_notify: (allow-none): function to call on @data when the filter is removed, or %NULL
@@ -2612,27 +2575,27 @@ clutter_evdev_set_keyboard_repeat (ClutterDeviceManager *evdev,
  * Stability: unstable
  */
 void
-clutter_evdev_add_filter (ClutterEvdevFilterFunc func,
-                          gpointer               data,
-                          GDestroyNotify         destroy_notify)
+meta_device_manager_native_add_filter (MetaEvdevFilterFunc func,
+                                       gpointer            data,
+                                       GDestroyNotify      destroy_notify)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
+  MetaDeviceManagerNative *manager_evdev;
   ClutterDeviceManager *manager;
-  ClutterEventFilter *filter;
+  MetaEventFilter *filter;
 
   g_return_if_fail (func != NULL);
 
   manager = clutter_device_manager_get_default ();
 
-  if (!CLUTTER_IS_DEVICE_MANAGER_EVDEV (manager))
+  if (!META_IS_DEVICE_MANAGER_NATIVE (manager))
     {
       g_critical ("The Clutter input backend is not a evdev backend");
       return;
     }
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (manager);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (manager);
 
-  filter = g_new0 (ClutterEventFilter, 1);
+  filter = g_new0 (MetaEventFilter, 1);
   filter->func = func;
   filter->data = data;
   filter->destroy_notify = destroy_notify;
@@ -2642,7 +2605,7 @@ clutter_evdev_add_filter (ClutterEvdevFilterFunc func,
 }
 
 /**
- * clutter_evdev_remove_filter: (skip)
+ * meta_device_manager_native_remove_filter: (skip)
  * @func: a filter function
  * @data: (allow-none): user data to be passed to the filter function, or %NULL
  *
@@ -2652,25 +2615,25 @@ clutter_evdev_add_filter (ClutterEvdevFilterFunc func,
  * Stability: unstable
  */
 void
-clutter_evdev_remove_filter (ClutterEvdevFilterFunc func,
-                             gpointer               data)
+meta_device_manager_native_remove_filter (MetaEvdevFilterFunc func,
+                                          gpointer            data)
 {
-  ClutterDeviceManagerEvdev *manager_evdev;
+  MetaDeviceManagerNative *manager_evdev;
   ClutterDeviceManager *manager;
-  ClutterEventFilter *filter;
+  MetaEventFilter *filter;
   GSList *tmp_list;
 
   g_return_if_fail (func != NULL);
 
   manager = clutter_device_manager_get_default ();
 
-  if (!CLUTTER_IS_DEVICE_MANAGER_EVDEV (manager))
+  if (!META_IS_DEVICE_MANAGER_NATIVE (manager))
     {
       g_critical ("The Clutter input backend is not a evdev backend");
       return;
     }
 
-  manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (manager);
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (manager);
   tmp_list = manager_evdev->priv->event_filters;
 
   while (tmp_list)
@@ -2692,7 +2655,7 @@ clutter_evdev_remove_filter (ClutterEvdevFilterFunc func,
 }
 
 /**
- * clutter_evdev_warp_pointer:
+ * meta_device_manager_native_warp_pointer:
  * @pointer_device: the pointer device to warp
  * @time: the timestamp for the warp event
  * @x: the new X position of the pointer
@@ -2710,16 +2673,16 @@ clutter_evdev_remove_filter (ClutterEvdevFilterFunc func,
  * Stability: unstable
  */
 void
-clutter_evdev_warp_pointer (ClutterInputDevice   *pointer_device,
-                            guint32               time_,
-                            int                   x,
-                            int                   y)
+meta_device_manager_native_warp_pointer (ClutterInputDevice   *pointer_device,
+                                         guint32               time_,
+                                         int                   x,
+                                         int                   y)
 {
   notify_absolute_motion (pointer_device, ms2us(time_), x, y, NULL);
 }
 
 /**
- * clutter_evdev_set_seat_id:
+ * meta_device_manager_native_set_seat_id:
  * @seat_id: The seat ID
  *
  * Sets the seat to assign to the libinput context.
@@ -2727,14 +2690,14 @@ clutter_evdev_warp_pointer (ClutterInputDevice   *pointer_device,
  * For reliable effects, this function must be called before clutter_init().
  */
 void
-clutter_evdev_set_seat_id (const gchar *seat_id)
+meta_device_manager_native_set_seat_id (const gchar *seat_id)
 {
   g_free (evdev_seat_id);
   evdev_seat_id = g_strdup (seat_id);
 }
 
 struct xkb_state *
-_clutter_device_manager_evdev_get_xkb_state (ClutterDeviceManagerEvdev *manager_evdev)
+meta_device_manager_native_get_xkb_state (MetaDeviceManagerNative *manager_evdev)
 {
   return manager_evdev->priv->main_seat->xkb;
 }

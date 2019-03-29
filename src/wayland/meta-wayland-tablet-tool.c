@@ -28,7 +28,6 @@
 #include <glib.h>
 #include <wayland-server.h>
 
-#include "clutter/evdev/clutter-evdev.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-tablet-cursor-surface.h"
 #include "compositor/meta-surface-actor-wayland.h"
@@ -39,8 +38,8 @@
 
 #ifdef HAVE_NATIVE_BACKEND
 #include <linux/input-event-codes.h>
-
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-event-native.h"
 #endif
 
 #include "tablet-unstable-v2-server-protocol.h"
@@ -713,7 +712,7 @@ broadcast_button (MetaWaylandTabletTool *tool,
   MetaBackend *backend = meta_get_backend ();
   if (META_IS_BACKEND_NATIVE (backend))
     {
-      button = clutter_evdev_event_get_event_code (event);
+      button = meta_event_native_get_event_code (event);
     }
   else
 #endif

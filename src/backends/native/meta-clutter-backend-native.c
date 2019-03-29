@@ -44,6 +44,8 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-renderer.h"
+#include "backends/native/meta-device-manager-native.h"
+#include "backends/native/meta-keymap-native.h"
 #include "backends/native/meta-stage-native.h"
 #include "clutter/clutter.h"
 #include "core/bell.h"
@@ -54,6 +56,8 @@ struct _MetaClutterBackendNative
   ClutterBackendEglNative parent;
 
   MetaStageNative *stage_native;
+  MetaKeymapNative *keymap;
+  MetaDeviceManagerNative *device_manager;
 };
 
 G_DEFINE_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
@@ -103,6 +107,33 @@ meta_clutter_backend_native_bell_notify (ClutterBackend  *backend)
   meta_bell_notify (display, NULL);
 }
 
+static ClutterDeviceManager *
+meta_clutter_backend_native_get_device_manager (ClutterBackend *backend)
+{
+  MetaClutterBackendNative *backend_native = META_CLUTTER_BACKEND_NATIVE (backend);
+
+  return CLUTTER_DEVICE_MANAGER (backend_native->device_manager);
+}
+
+static ClutterKeymap *
+meta_clutter_backend_native_get_keymap (ClutterBackend *backend)
+{
+  MetaClutterBackendNative *backend_native = META_CLUTTER_BACKEND_NATIVE (backend);
+
+  return CLUTTER_KEYMAP (backend_native->keymap);
+}
+
+static void
+meta_clutter_backend_native_init_events (ClutterBackend *backend)
+{
+  MetaClutterBackendNative *backend_native = META_CLUTTER_BACKEND_NATIVE (backend);
+
+  backend_native->keymap = g_object_new (META_TYPE_KEYMAP_NATIVE, NULL);
+  backend_native->device_manager = g_object_new (META_TYPE_DEVICE_MANAGER_NATIVE,
+                                                 "backend", backend,
+                                                 NULL);
+}
+
 static void
 meta_clutter_backend_native_init (MetaClutterBackendNative *clutter_backend_nativen)
 {
@@ -116,4 +147,7 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
   clutter_backend_class->get_renderer = meta_clutter_backend_native_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;
   clutter_backend_class->bell_notify = meta_clutter_backend_native_bell_notify;
+  clutter_backend_class->get_device_manager = meta_clutter_backend_native_get_device_manager;
+  clutter_backend_class->get_keymap = meta_clutter_backend_native_get_keymap;
+  clutter_backend_class->init_events = meta_clutter_backend_native_init_events;
 }

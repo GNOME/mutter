@@ -28,8 +28,9 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-input-device-native.h"
+#include "backends/native/meta-input-device-tool-native.h"
 #include "backends/native/meta-input-settings-native.h"
-#include "clutter/evdev/clutter-evdev.h"
 
 G_DEFINE_TYPE (MetaInputSettingsNative, meta_input_settings_native, META_TYPE_INPUT_SETTINGS)
 
@@ -56,7 +57,7 @@ meta_input_settings_native_set_send_events (MetaInputSettings        *settings,
       g_assert_not_reached ();
     }
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
   if (!libinput_device)
     return;
   libinput_device_config_send_events_set_mode (libinput_device, libinput_mode);
@@ -81,7 +82,7 @@ meta_input_settings_native_set_speed (MetaInputSettings  *settings,
 {
   struct libinput_device *libinput_device;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
   if (!libinput_device)
     return;
   libinput_device_config_accel_set_speed (libinput_device,
@@ -95,7 +96,7 @@ meta_input_settings_native_set_left_handed (MetaInputSettings  *settings,
 {
   struct libinput_device *libinput_device;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
   if (!libinput_device)
     return;
 
@@ -110,7 +111,7 @@ meta_input_settings_native_set_tap_enabled (MetaInputSettings  *settings,
 {
   struct libinput_device *libinput_device;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
   if (!libinput_device)
     return;
 
@@ -128,7 +129,7 @@ meta_input_settings_native_set_tap_and_drag_enabled (MetaInputSettings  *setting
 {
   struct libinput_device *libinput_device;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
   if (!libinput_device)
     return;
 
@@ -146,7 +147,7 @@ meta_input_settings_native_set_disable_while_typing (MetaInputSettings  *setting
 {
   struct libinput_device *libinput_device;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
 
   if (!libinput_device)
     return;
@@ -165,7 +166,7 @@ meta_input_settings_native_set_invert_scroll (MetaInputSettings  *settings,
 {
   struct libinput_device *libinput_device;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
   if (!libinput_device)
     return;
 
@@ -200,7 +201,7 @@ meta_input_settings_native_set_edge_scroll (MetaInputSettings            *settin
   struct libinput_device *libinput_device;
   enum libinput_config_scroll_method current, method;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
 
   method = edge_scrolling_enabled ? LIBINPUT_CONFIG_SCROLL_EDGE : LIBINPUT_CONFIG_SCROLL_NO_SCROLL;
   current = libinput_device_config_scroll_get_method (libinput_device);
@@ -217,7 +218,7 @@ meta_input_settings_native_set_two_finger_scroll (MetaInputSettings            *
   struct libinput_device *libinput_device;
   enum libinput_config_scroll_method current, method;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
 
   method = two_finger_scroll_enabled ? LIBINPUT_CONFIG_SCROLL_2FG : LIBINPUT_CONFIG_SCROLL_NO_SCROLL;
   current = libinput_device_config_scroll_get_method (libinput_device);
@@ -232,7 +233,7 @@ meta_input_settings_native_has_two_finger_scroll (MetaInputSettings  *settings,
 {
   struct libinput_device *libinput_device;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
   if (!libinput_device)
     return FALSE;
 
@@ -248,7 +249,7 @@ meta_input_settings_native_set_scroll_button (MetaInputSettings  *settings,
   enum libinput_config_scroll_method method;
   guint evcode;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
   if (!libinput_device)
     return;
 
@@ -282,7 +283,7 @@ meta_input_settings_native_set_click_method (MetaInputSettings           *settin
   enum libinput_config_click_method click_method = 0;
   struct libinput_device *libinput_device;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
   if (!libinput_device)
     return;
 
@@ -316,7 +317,7 @@ meta_input_settings_native_set_keyboard_repeat (MetaInputSettings *settings,
 {
   ClutterDeviceManager *manager = clutter_device_manager_get_default ();
 
-  clutter_evdev_set_keyboard_repeat (manager, enabled, delay, interval);
+  meta_device_manager_native_set_keyboard_repeat (manager, enabled, delay, interval);
 }
 
 static void
@@ -327,7 +328,7 @@ set_device_accel_profile (ClutterInputDevice         *device,
   enum libinput_config_accel_profile libinput_profile;
   uint32_t profiles;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
 
   switch (profile)
     {
@@ -363,7 +364,7 @@ has_udev_property (ClutterInputDevice *device,
   struct udev_device *udev_device;
   struct udev_device *parent_udev_device;
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
   if (!libinput_device)
     return FALSE;
 
@@ -500,7 +501,7 @@ meta_input_settings_native_set_tablet_area (MetaInputSettings  *settings,
   gfloat matrix[6] = { scale_x, 0., offset_x,
                        0., scale_y, offset_y };
 
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
+  libinput_device = meta_input_device_native_get_libinput_device (device);
   if (!libinput_device ||
       !libinput_device_config_calibration_has_matrix (libinput_device))
     return;
@@ -521,7 +522,7 @@ meta_input_settings_native_set_stylus_pressure (MetaInputSettings      *settings
   pressure_curve[2] = (gdouble) curve[2] / 100;
   pressure_curve[3] = (gdouble) curve[3] / 100;
 
-  clutter_evdev_input_device_tool_set_pressure_curve (tool, pressure_curve);
+  meta_input_device_tool_native_set_pressure_curve (tool, pressure_curve);
 }
 
 static guint
@@ -551,12 +552,12 @@ meta_input_settings_native_set_stylus_button_map (MetaInputSettings          *se
                                                   GDesktopStylusButtonAction  secondary,
                                                   GDesktopStylusButtonAction  tertiary)
 {
-  clutter_evdev_input_device_tool_set_button_code (tool, CLUTTER_BUTTON_MIDDLE,
-                                                   action_to_evcode (primary));
-  clutter_evdev_input_device_tool_set_button_code (tool, CLUTTER_BUTTON_SECONDARY,
-                                                   action_to_evcode (secondary));
-  clutter_evdev_input_device_tool_set_button_code (tool, 8, /* Back */
-                                                   action_to_evcode (tertiary));
+  meta_input_device_tool_native_set_button_code (tool, CLUTTER_BUTTON_MIDDLE,
+                                                 action_to_evcode (primary));
+  meta_input_device_tool_native_set_button_code (tool, CLUTTER_BUTTON_SECONDARY,
+                                                 action_to_evcode (secondary));
+  meta_input_device_tool_native_set_button_code (tool, 8, /* Back */
+                                                 action_to_evcode (tertiary));
 }
 
 static void

@@ -34,7 +34,8 @@
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
-#include "clutter/evdev/clutter-evdev.h"
+#include "backends/native/meta-event-native.h"
+#include "backends/native/meta-input-device-native.h"
 #endif
 
 #include "tablet-unstable-v2-server-protocol.h"
@@ -131,7 +132,7 @@ meta_wayland_tablet_pad_group_has_button (MetaWaylandTabletPadGroup *group,
       struct libinput_tablet_pad_mode_group *mode_group;
       guint n_group;
 
-      libinput_device = clutter_evdev_input_device_get_libinput_device (group->pad->device);
+      libinput_device = meta_input_device_native_get_libinput_device (group->pad->device);
       n_group = g_list_index (group->pad->groups, group);
       mode_group = libinput_device_tablet_pad_get_mode_group (libinput_device, n_group);
 
