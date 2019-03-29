@@ -1,8 +1,4 @@
 /*
- * Clutter.
- *
- * An OpenGL based 'interactive canvas' library.
- *
  * Copyright © 2009, 2010, 2011  Intel Corp.
  *
  * This library is free software; you can redistribute it and/or
@@ -21,47 +17,46 @@
  * Author: Carlos Garnacho <carlosg@gnome.org>
  */
 
-#include "clutter-build-config.h"
+#include "config.h"
 
-#include "clutter-input-device-tool-evdev.h"
-#include "clutter-evdev.h"
+#include "backends/native/meta-input-device-tool-native.h"
 
-G_DEFINE_TYPE (ClutterInputDeviceToolEvdev, clutter_input_device_tool_evdev,
+G_DEFINE_TYPE (MetaInputDeviceToolNative, meta_input_device_tool_native,
                CLUTTER_TYPE_INPUT_DEVICE_TOOL)
 
 static void
-clutter_input_device_tool_evdev_finalize (GObject *object)
+meta_input_device_tool_native_finalize (GObject *object)
 {
-  ClutterInputDeviceToolEvdev *tool = CLUTTER_INPUT_DEVICE_TOOL_EVDEV (object);
+  MetaInputDeviceToolNative *tool = META_INPUT_DEVICE_TOOL_NATIVE (object);
 
   g_hash_table_unref (tool->button_map);
   libinput_tablet_tool_unref (tool->tool);
 
-  G_OBJECT_CLASS (clutter_input_device_tool_evdev_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_input_device_tool_native_parent_class)->finalize (object);
 }
 
 static void
-clutter_input_device_tool_evdev_class_init (ClutterInputDeviceToolEvdevClass *klass)
+meta_input_device_tool_native_class_init (MetaInputDeviceToolNativeClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->finalize = clutter_input_device_tool_evdev_finalize;
+  object_class->finalize = meta_input_device_tool_native_finalize;
 }
 
 static void
-clutter_input_device_tool_evdev_init (ClutterInputDeviceToolEvdev *tool)
+meta_input_device_tool_native_init (MetaInputDeviceToolNative *tool)
 {
   tool->button_map = g_hash_table_new (NULL, NULL);
 }
 
 ClutterInputDeviceTool *
-clutter_input_device_tool_evdev_new (struct libinput_tablet_tool *tool,
-                                     guint64                      serial,
-                                     ClutterInputDeviceToolType   type)
+meta_input_device_tool_native_new (struct libinput_tablet_tool *tool,
+                                   guint64                      serial,
+                                   ClutterInputDeviceToolType   type)
 {
-  ClutterInputDeviceToolEvdev *evdev_tool;
+  MetaInputDeviceToolNative *evdev_tool;
 
-  evdev_tool = g_object_new (CLUTTER_TYPE_INPUT_DEVICE_TOOL_EVDEV,
+  evdev_tool = g_object_new (META_TYPE_INPUT_DEVICE_TOOL_NATIVE,
                              "type", type,
                              "serial", serial,
                              "id", libinput_tablet_tool_get_tool_id (tool),
@@ -73,18 +68,18 @@ clutter_input_device_tool_evdev_new (struct libinput_tablet_tool *tool,
 }
 
 void
-clutter_evdev_input_device_tool_set_pressure_curve (ClutterInputDeviceTool *tool,
-                                                    gdouble                 curve[4])
+meta_input_device_tool_native_set_pressure_curve (ClutterInputDeviceTool *tool,
+                                                  gdouble                 curve[4])
 {
-  ClutterInputDeviceToolEvdev *evdev_tool;
+  MetaInputDeviceToolNative *evdev_tool;
 
-  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE_TOOL_EVDEV (tool));
+  g_return_if_fail (META_IS_INPUT_DEVICE_TOOL_NATIVE (tool));
   g_return_if_fail (curve[0] >= 0 && curve[0] <= 1 &&
                     curve[1] >= 0 && curve[1] <= 1 &&
                     curve[2] >= 0 && curve[2] <= 1 &&
                     curve[3] >= 0 && curve[3] <= 1);
 
-  evdev_tool = CLUTTER_INPUT_DEVICE_TOOL_EVDEV (tool);
+  evdev_tool = META_INPUT_DEVICE_TOOL_NATIVE (tool);
   evdev_tool->pressure_curve[0] = curve[0];
   evdev_tool->pressure_curve[1] = curve[1];
   evdev_tool->pressure_curve[2] = curve[2];
@@ -92,15 +87,15 @@ clutter_evdev_input_device_tool_set_pressure_curve (ClutterInputDeviceTool *tool
 }
 
 void
-clutter_evdev_input_device_tool_set_button_code (ClutterInputDeviceTool *tool,
-                                                 guint                   button,
-                                                 guint                   evcode)
+meta_input_device_tool_native_set_button_code (ClutterInputDeviceTool *tool,
+                                               guint                   button,
+                                               guint                   evcode)
 {
-  ClutterInputDeviceToolEvdev *evdev_tool;
+  MetaInputDeviceToolNative *evdev_tool;
 
-  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE_TOOL_EVDEV (tool));
+  g_return_if_fail (META_IS_INPUT_DEVICE_TOOL_NATIVE (tool));
 
-  evdev_tool = CLUTTER_INPUT_DEVICE_TOOL_EVDEV (tool);
+  evdev_tool = META_INPUT_DEVICE_TOOL_NATIVE (tool);
 
   if (evcode == 0)
     {
@@ -135,14 +130,14 @@ calculate_bezier_position (gdouble pos,
 }
 
 gdouble
-clutter_input_device_tool_evdev_translate_pressure (ClutterInputDeviceTool *tool,
-                                                    gdouble                 pressure)
+meta_input_device_tool_native_translate_pressure (ClutterInputDeviceTool *tool,
+                                                  gdouble                 pressure)
 {
-  ClutterInputDeviceToolEvdev *evdev_tool;
+  MetaInputDeviceToolNative *evdev_tool;
 
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE_TOOL (tool), pressure);
+  g_return_val_if_fail (META_IS_INPUT_DEVICE_TOOL_NATIVE (tool), pressure);
 
-  evdev_tool = CLUTTER_INPUT_DEVICE_TOOL_EVDEV (tool);
+  evdev_tool = META_INPUT_DEVICE_TOOL_NATIVE (tool);
 
   return calculate_bezier_position (CLAMP (pressure, 0, 1),
                                     evdev_tool->pressure_curve[0],
@@ -152,14 +147,14 @@ clutter_input_device_tool_evdev_translate_pressure (ClutterInputDeviceTool *tool
 }
 
 guint
-clutter_input_device_tool_evdev_get_button_code (ClutterInputDeviceTool *tool,
-                                                 guint                   button)
+meta_input_device_tool_native_get_button_code (ClutterInputDeviceTool *tool,
+                                               guint                   button)
 {
-  ClutterInputDeviceToolEvdev *evdev_tool;
+  MetaInputDeviceToolNative *evdev_tool;
 
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE_TOOL (tool), 0);
+  g_return_val_if_fail (META_IS_INPUT_DEVICE_TOOL_NATIVE (tool), 0);
 
-  evdev_tool = CLUTTER_INPUT_DEVICE_TOOL_EVDEV (tool);
+  evdev_tool = META_INPUT_DEVICE_TOOL_NATIVE (tool);
 
   return GPOINTER_TO_UINT (g_hash_table_lookup (evdev_tool->button_map,
                                                 GUINT_TO_POINTER (button)));
