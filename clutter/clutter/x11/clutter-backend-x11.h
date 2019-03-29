@@ -106,9 +106,6 @@ GType clutter_backend_x11_get_type (void) G_GNUC_CONST;
 ClutterBackend *clutter_backend_x11_new (void);
 
 /* Private to glx/eglx backends */
-CLUTTER_EXPORT
-XVisualInfo *   _clutter_backend_x11_get_visual_info (ClutterBackendX11 *backend_x11);
-
 void            _clutter_x11_select_events (Window xwin);
 
 G_END_DECLS
