@@ -40,10 +40,6 @@
 /* This is a Cogl based backend */
 #include "cogl/clutter-stage-cogl.h"
 
-#ifdef HAVE_EVDEV
-#include "evdev/clutter-device-manager-evdev.h"
-#endif
-
 #include "clutter-debug.h"
 #include "clutter-private.h"
 #include "clutter-main.h"

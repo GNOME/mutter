@@ -172,6 +172,7 @@ void clutter_virtual_input_device_notify_touch_up (ClutterVirtualInputDevice *vi
 CLUTTER_EXPORT
 ClutterDeviceManager * clutter_virtual_input_device_get_manager (ClutterVirtualInputDevice *virtual_device);
 
+CLUTTER_EXPORT
 int clutter_virtual_input_device_get_device_type (ClutterVirtualInputDevice *virtual_device);
 
 #endif /* __CLUTTER_VIRTUAL_INPUT_DEVICE_H__ */
