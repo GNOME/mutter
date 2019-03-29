@@ -71,15 +71,15 @@ G_DEFINE_TYPE_WITH_CODE (MetaStageX11,
 
 static void
 meta_stage_x11_fix_window_size (MetaStageX11 *stage_x11,
-                                gint          new_width,
-                                gint          new_height)
+                                int           new_width,
+                                int           new_height)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_x11);
 
   if (stage_x11->xwin != None)
     {
       Display *xdisplay = clutter_x11_get_default_display ();
-      guint min_width, min_height;
+      uint32_t min_width, min_height;
       XSizeHints *size_hints;
 
       size_hints = XAllocSizeHints();
@@ -134,8 +134,8 @@ meta_stage_x11_get_geometry (ClutterStageWindow    *stage_window,
 
 static void
 meta_stage_x11_resize (ClutterStageWindow *stage_window,
-                       gint                width,
-                       gint                height)
+                       int                 width,
+                       int                 height)
 {
   MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
 
@@ -355,7 +355,7 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
   ClutterBackend *backend = CLUTTER_BACKEND (stage_cogl->backend);
   Display *xdisplay = clutter_x11_get_default_display ();
   ClutterDeviceManager *device_manager;
-  gfloat width, height;
+  float width, height;
   GError *error = NULL;
 
   clutter_actor_get_size (CLUTTER_ACTOR (stage_cogl->wrapper), &width, &height);
@@ -456,7 +456,7 @@ meta_stage_x11_set_cursor_visible (ClutterStageWindow *stage_window,
 
 static void
 meta_stage_x11_set_title (ClutterStageWindow *stage_window,
-                          const gchar        *title)
+                          const char         *title)
 {
   MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
 
@@ -950,7 +950,7 @@ meta_x11_get_stage_from_window (Window win)
 
 void
 meta_stage_x11_set_user_time (MetaStageX11 *stage_x11,
-                              guint32       user_time)
+                              uint32_t      user_time)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_x11);
   ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (stage_cogl->backend);

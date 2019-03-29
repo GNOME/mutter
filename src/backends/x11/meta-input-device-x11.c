@@ -29,10 +29,10 @@ struct _MetaInputDeviceX11
 {
   ClutterInputDevice device;
 
-  gint device_id;
+  int32_t device_id;
   ClutterInputDeviceTool *current_tool;
 
-  guint inhibit_pointer_query_timer;
+  int inhibit_pointer_query_timer;
   gboolean query_status;
   float current_x;
   float current_y;
@@ -67,7 +67,7 @@ meta_input_device_x11_constructed (GObject *object)
 #ifdef HAVE_LIBWACOM
   if (clutter_input_device_get_device_type (CLUTTER_INPUT_DEVICE (object)) == CLUTTER_PAD_DEVICE)
     {
-      device_xi2->group_modes = g_array_new (FALSE, TRUE, sizeof (guint));
+      device_xi2->group_modes = g_array_new (FALSE, TRUE, sizeof (uint32_t));
       g_array_set_size (device_xi2->group_modes,
                         clutter_input_device_get_n_mode_groups (CLUTTER_INPUT_DEVICE (object)));
     }
@@ -76,8 +76,8 @@ meta_input_device_x11_constructed (GObject *object)
 
 static gboolean
 meta_input_device_x11_keycode_to_evdev (ClutterInputDevice *device,
-                                        guint               hardware_keycode,
-                                        guint              *evdev_keycode)
+                                        uint32_t            hardware_keycode,
+                                        uint32_t           *evdev_keycode)
 {
   /* When using evdev under X11 the hardware keycodes are the evdev
      keycodes plus 8. I haven't been able to find any documentation to
@@ -114,9 +114,9 @@ meta_input_device_x11_finalize (GObject *object)
   G_OBJECT_CLASS (meta_input_device_x11_parent_class)->finalize (object);
 }
 
-static gint
+static int
 meta_input_device_x11_get_group_n_modes (ClutterInputDevice *device,
-                                         gint                group)
+                                         int                 group)
 {
 #ifdef HAVE_LIBWACOM
   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (device);
@@ -146,7 +146,7 @@ meta_input_device_x11_get_group_n_modes (ClutterInputDevice *device,
 #ifdef HAVE_LIBWACOM
 static int
 meta_input_device_x11_get_button_group (ClutterInputDevice *device,
-                                        guint               button)
+                                        uint32_t            button)
 {
   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (device);
 
@@ -165,8 +165,8 @@ meta_input_device_x11_get_button_group (ClutterInputDevice *device,
 
 static gboolean
 meta_input_device_x11_is_mode_switch_button (ClutterInputDevice *device,
-                                             guint               group,
-                                             guint               button)
+                                             uint32_t            group,
+                                             uint32_t            button)
 {
   int button_group = -1;
 
@@ -223,17 +223,17 @@ meta_input_device_x11_translate_state (ClutterEvent    *event,
                                        XIButtonState   *buttons_state,
                                        XIGroupState    *group_state)
 {
-  guint button = 0;
-  guint base = 0;
-  guint latched = 0;
-  guint locked = 0;
-  guint effective;
+  uint32_t button = 0;
+  uint32_t base = 0;
+  uint32_t latched = 0;
+  uint32_t locked = 0;
+  uint32_t effective;
 
   if (modifiers_state)
     {
-      base = (guint) modifiers_state->base;
-      latched = (guint) modifiers_state->latched;
-      locked = (guint) modifiers_state->locked;
+      base = (uint32_t) modifiers_state->base;
+      latched = (uint32_t) modifiers_state->latched;
+      locked = (uint32_t) modifiers_state->locked;
     }
 
   if (buttons_state)
@@ -371,27 +371,27 @@ meta_input_device_x11_ensure_wacom_info (ClutterInputDevice  *device,
                                                      WFALLBACK_NONE, NULL);
 }
 
-guint
+uint32_t
 meta_input_device_x11_get_pad_group_mode (ClutterInputDevice *device,
-                                          guint               group)
+                                          uint32_t            group)
 {
   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (device);
 
   if (group >= device_xi2->group_modes->len)
     return 0;
 
-  return g_array_index (device_xi2->group_modes, guint, group);
+  return g_array_index (device_xi2->group_modes, uint32_t, group);
 }
 
 void
 meta_input_device_x11_update_pad_state (ClutterInputDevice *device,
-                                        guint               button,
-                                        guint               state,
-                                        guint              *group,
-                                        guint              *mode)
+                                        uint32_t            button,
+                                        uint32_t            state,
+                                        uint32_t           *group,
+                                        uint32_t           *mode)
 {
   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (device);
-  guint button_group, *group_mode;
+  uint32_t button_group, *group_mode;
   gboolean is_mode_switch = FALSE;
 
   button_group = meta_input_device_x11_get_button_group (device, button);
@@ -403,11 +403,11 @@ meta_input_device_x11_update_pad_state (ClutterInputDevice *device,
   if (button_group >= device_xi2->group_modes->len)
     return;
 
-  group_mode = &g_array_index (device_xi2->group_modes, guint, button_group);
+  group_mode = &g_array_index (device_xi2->group_modes, uint32_t, button_group);
 
   if (is_mode_switch && state)
     {
-      guint next, n_modes;
+      uint32_t next, n_modes;
 
       n_modes = clutter_input_device_get_group_n_modes (device, button_group);
       next = (*group_mode + 1) % n_modes;
