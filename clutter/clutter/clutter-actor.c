@@ -3917,7 +3917,7 @@ clutter_actor_paint (ClutterActor *self)
 
   if (priv->has_clip)
     {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
+      CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
       cogl_framebuffer_push_rectangle_clip (fb,
                                             priv->clip.origin.x,
                                             priv->clip.origin.y,
@@ -3927,7 +3927,7 @@ clutter_actor_paint (ClutterActor *self)
     }
   else if (priv->clip_to_allocation)
     {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
+      CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
       gfloat width, height;
 
       width  = priv->allocation.x2 - priv->allocation.x1;
@@ -4015,7 +4015,7 @@ clutter_actor_paint (ClutterActor *self)
 done:
   if (clip_set)
     {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
+      CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
 
       cogl_framebuffer_pop_clip (fb);
     }
