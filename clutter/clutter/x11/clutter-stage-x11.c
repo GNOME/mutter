@@ -144,7 +144,7 @@ clutter_stage_x11_fix_window_size (ClutterStageX11 *stage_x11,
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_x11);
   ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (stage_cogl->backend);
 
-  if (stage_x11->xwin != None && !stage_x11->is_foreign_xwin)
+  if (stage_x11->xwin != None)
     {
       guint min_width, min_height;
       XSizeHints *size_hints;
@@ -246,18 +246,6 @@ clutter_stage_x11_resize (ClutterStageWindow *stage_window,
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_x11);
   ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (stage_cogl->backend);
 
-  if (stage_x11->is_foreign_xwin)
-    {
-      /* If this is a foreign window we won't get a ConfigureNotify,
-       * so we need to manually set the size and queue a relayout on the
-       * stage here (as is normally done in response to ConfigureNotify).
-       */
-      stage_x11->xwin_width = width;
-      stage_x11->xwin_height = height;
-      clutter_actor_queue_relayout (CLUTTER_ACTOR (stage_cogl->wrapper));
-      return;
-    }
-
   /* If we're going fullscreen, don't mess with the size */
   if (stage_x11->fullscreening)
     return;
@@ -314,7 +302,7 @@ set_wm_pid (ClutterStageX11 *stage_x11)
   ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (stage_cogl->backend);
   long pid;
 
-  if (stage_x11->xwin == None || stage_x11->is_foreign_xwin)
+  if (stage_x11->xwin == None)
     return;
 
   /* this will take care of WM_CLIENT_MACHINE and WM_LOCALE_NAME */
@@ -338,7 +326,7 @@ set_wm_title (ClutterStageX11 *stage_x11)
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_x11);
   ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (stage_cogl->backend);
 
-  if (stage_x11->xwin == None || stage_x11->is_foreign_xwin)
+  if (stage_x11->xwin == None)
     return;
 
   if (stage_x11->title == NULL)
@@ -435,24 +423,6 @@ clutter_stage_x11_unrealize (ClutterStageWindow *stage_window)
   g_list_free (stage_x11->legacy_views);
   g_clear_object (&stage_x11->legacy_view);
   g_clear_pointer (&stage_x11->onscreen, cogl_object_unref);
-}
-
-static void
-_clutter_stage_x11_update_foreign_event_mask (CoglOnscreen *onscreen,
-                                              guint32 event_mask,
-                                              void *user_data)
-{
-  ClutterStageX11 *stage_x11 = user_data;
-  ClutterStageCogl *stage_cogl = user_data;
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (stage_cogl->backend);
-  XSetWindowAttributes attrs;
-
-  attrs.event_mask = event_mask | CLUTTER_STAGE_X11_EVENT_MASK;
-
-  XChangeWindowAttributes (backend_x11->xdpy,
-                           stage_x11->xwin,
-                           CWEventMask,
-                           &attrs);
 }
 
 static void
@@ -644,15 +614,6 @@ clutter_stage_x11_realize (ClutterStageWindow *stage_window)
   stage_x11->xwin_width = width;
   stage_x11->xwin_height = height;
 
-  if (stage_x11->xwin != None)
-    {
-      cogl_x11_onscreen_set_foreign_window_xid (stage_x11->onscreen,
-                                                stage_x11->xwin,
-                                                _clutter_stage_x11_update_foreign_event_mask,
-                                                stage_x11);
-
-    }
-
   if (!cogl_framebuffer_allocate (stage_x11->onscreen, &error))
     {
       g_warning ("Failed to allocate stage: %s", error->message);
@@ -664,8 +625,7 @@ clutter_stage_x11_realize (ClutterStageWindow *stage_window)
   if (!(clutter_stage_window_parent_iface->realize (stage_window)))
     return FALSE;
 
-  if (stage_x11->xwin == None)
-    stage_x11->xwin = cogl_x11_onscreen_get_window_xid (stage_x11->onscreen);
+  stage_x11->xwin = cogl_x11_onscreen_get_window_xid (stage_x11->onscreen);
 
   if (clutter_stages_by_xid == NULL)
     clutter_stages_by_xid = g_hash_table_new (NULL, NULL);
@@ -771,9 +731,6 @@ update_wm_hints (ClutterStageX11 *stage_x11)
   if (stage_x11->wm_state & STAGE_X11_WITHDRAWN)
     return;
 
-  if (stage_x11->is_foreign_xwin)
-    return;
-
   wm_hints.flags = StateHint | InputHint;
   wm_hints.initial_state = NormalState;
   wm_hints.input = stage_x11->accept_focus ? True : False;
@@ -820,7 +777,7 @@ clutter_stage_x11_show (ClutterStageWindow *stage_window,
 
   if (stage_x11->xwin != None)
     {
-      if (do_raise && !stage_x11->is_foreign_xwin)
+      if (do_raise)
         {
           CLUTTER_NOTE (BACKEND, "Raising stage[%lu]",
                         (unsigned long) stage_x11->xwin);
@@ -846,8 +803,7 @@ clutter_stage_x11_show (ClutterStageWindow *stage_window,
 
       clutter_actor_map (CLUTTER_ACTOR (stage_cogl->wrapper));
 
-      if (!stage_x11->is_foreign_xwin)
-        XMapWindow (backend_x11->xdpy, stage_x11->xwin);
+      XMapWindow (backend_x11->xdpy, stage_x11->xwin);
     }
 }
 
@@ -867,8 +823,7 @@ clutter_stage_x11_hide (ClutterStageWindow *stage_window)
 
       clutter_actor_unmap (CLUTTER_ACTOR (stage_cogl->wrapper));
 
-      if (!stage_x11->is_foreign_xwin)
-        XWithdrawWindow (backend_x11->xdpy, stage_x11->xwin, 0);
+      XWithdrawWindow (backend_x11->xdpy, stage_x11->xwin, 0);
     }
 }
 
@@ -948,7 +903,6 @@ clutter_stage_x11_init (ClutterStageX11 *stage)
 
   stage->wm_state = STAGE_X11_WITHDRAWN;
 
-  stage->is_foreign_xwin = FALSE;
   stage->fullscreening = FALSE;
   stage->is_cursor_visible = TRUE;
   stage->accept_focus = TRUE;
@@ -1070,7 +1024,6 @@ clutter_stage_x11_translate_event (ClutterStageX11 *stage_x11,
   switch (xevent->type)
     {
     case ConfigureNotify:
-      if (!stage_x11->is_foreign_xwin)
         {
           gboolean size_changed = FALSE;
           int stage_width;
@@ -1179,8 +1132,7 @@ clutter_stage_x11_translate_event (ClutterStageX11 *stage_x11,
 
     case PropertyNotify:
       if (xevent->xproperty.atom == backend_x11->atom_NET_WM_STATE &&
-          xevent->xproperty.window == stage_xwindow &&
-          !stage_x11->is_foreign_xwin)
+          xevent->xproperty.window == stage_xwindow)
         {
           Atom     type;
           gint     format;
@@ -1357,152 +1309,6 @@ clutter_x11_get_stage_from_window (Window win)
     return stage_cogl->wrapper;
 
   return NULL;
-}
-
-typedef struct {
-  ClutterStageX11 *stage_x11;
-  cairo_rectangle_int_t geom;
-  Window xwindow;
-  guint destroy_old_xwindow : 1;
-} ForeignWindowData;
-
-static void
-set_foreign_window_callback (ClutterActor *actor,
-                             void         *data)
-{
-  ForeignWindowData *fwd = data;
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (fwd->stage_x11);
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (stage_cogl->backend);
-
-  CLUTTER_NOTE (BACKEND, "Setting foreign window (0x%x)",
-                (unsigned int) fwd->xwindow);
-
-  if (fwd->destroy_old_xwindow && fwd->stage_x11->xwin != None)
-    {
-      CLUTTER_NOTE (BACKEND, "Destroying previous window (0x%x)",
-                    (unsigned int) fwd->xwindow);
-      XDestroyWindow (backend_x11->xdpy, fwd->stage_x11->xwin);
-    }
-
-  fwd->stage_x11->xwin = fwd->xwindow;
-  fwd->stage_x11->is_foreign_xwin = TRUE;
-
-  fwd->stage_x11->xwin_width = fwd->geom.width;
-  fwd->stage_x11->xwin_height = fwd->geom.height;
-
-  clutter_actor_set_size (actor, fwd->geom.width, fwd->geom.height);
-
-  if (clutter_stages_by_xid == NULL)
-    clutter_stages_by_xid = g_hash_table_new (NULL, NULL);
-
-  g_hash_table_insert (clutter_stages_by_xid,
-                       GINT_TO_POINTER (fwd->stage_x11->xwin),
-                       fwd->stage_x11);
-}
-
-/**
- * clutter_x11_set_stage_foreign:
- * @stage: a #ClutterStage
- * @xwindow: an existing X Window id
- *
- * Target the #ClutterStage to use an existing external X Window
- *
- * Return value: %TRUE if foreign window is valid
- *
- * Since: 0.4
- */
-gboolean
-clutter_x11_set_stage_foreign (ClutterStage *stage,
-                               Window        xwindow)
-{
-  ClutterBackendX11 *backend_x11;
-  ClutterStageX11 *stage_x11;
-  ClutterStageCogl *stage_cogl;
-  ClutterStageWindow *impl;
-  ClutterActor *actor;
-  gint x, y;
-  guint width, height, border, depth;
-  Window root_return;
-  Status status;
-  ForeignWindowData fwd;
-  XVisualInfo *xvisinfo;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-  g_return_val_if_fail (!CLUTTER_ACTOR_IN_DESTRUCTION (stage), FALSE);
-  g_return_val_if_fail (xwindow != None, FALSE);
-
-  impl = _clutter_stage_get_window (stage);
-  stage_x11 = CLUTTER_STAGE_X11 (impl);
-  stage_cogl = CLUTTER_STAGE_COGL (impl);
-  backend_x11 = CLUTTER_BACKEND_X11 (stage_cogl->backend);
-
-  xvisinfo = _clutter_backend_x11_get_visual_info (backend_x11);
-  g_return_val_if_fail (xvisinfo != NULL, FALSE);
-
-  clutter_x11_trap_x_errors ();
-
-  status = XGetGeometry (backend_x11->xdpy, xwindow,
-                         &root_return,
-                         &x, &y,
-                         &width, &height,
-                         &border,
-                         &depth);
-
-  if (clutter_x11_untrap_x_errors () || !status)
-    {
-      g_critical ("Unable to retrieve the geometry of the foreign window: "
-                  "XGetGeometry() failed (status code: %d)", status);
-      return FALSE;
-    }
-
-  if (width == 0 || height == 0)
-    {
-      g_warning ("The size of the foreign window is 0x0");
-      return FALSE;
-    }
-
-  if (depth != xvisinfo->depth)
-    {
-      g_warning ("The depth of the visual of the foreign window is %d, but "
-                 "Clutter has been initialized to require a visual depth "
-                 "of %d",
-                 depth,
-                 xvisinfo->depth);
-      return FALSE;
-    }
-
-  fwd.stage_x11 = stage_x11;
-  fwd.xwindow = xwindow;
-
-  /* destroy the old Window, if we have one and it's ours */
-  if (stage_x11->xwin != None && !stage_x11->is_foreign_xwin)
-    fwd.destroy_old_xwindow = TRUE;
-  else
-    fwd.destroy_old_xwindow = FALSE;
-
-  fwd.geom.x = x;
-  fwd.geom.y = y;
-  fwd.geom.width = width;
-  fwd.geom.height = height;
-
-  actor = CLUTTER_ACTOR (stage);
-
-  _clutter_actor_rerealize (actor,
-                            set_foreign_window_callback,
-                            &fwd);
-
-  /* Queue a relayout - so the stage will be allocated the new
-   * window size.
-   *
-   * Note also that when the stage gets allocated the new
-   * window size that will result in the stage's
-   * priv->viewport being changed, which will in turn result
-   * in the Cogl viewport changing when _clutter_do_redraw
-   * calls _clutter_stage_maybe_setup_viewport().
-   */
-  clutter_actor_queue_relayout (actor);
-
-  return TRUE;
 }
 
 void
