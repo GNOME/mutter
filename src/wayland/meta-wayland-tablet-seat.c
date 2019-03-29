@@ -34,7 +34,6 @@
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
-#include "clutter/evdev/clutter-evdev.h"
 #endif
 
 #include "tablet-unstable-v2-server-protocol.h"
