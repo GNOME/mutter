@@ -121,11 +121,6 @@ CLUTTER_EXPORT
 ClutterX11FilterReturn clutter_x11_handle_event (XEvent *xevent);
 
 CLUTTER_EXPORT
-void     clutter_x11_disable_event_retrieval (void);
-CLUTTER_EXPORT
-gboolean clutter_x11_has_event_retrieval (void);
-
-CLUTTER_EXPORT
 ClutterStage *clutter_x11_get_stage_from_window (Window win);
 
 CLUTTER_EXPORT
