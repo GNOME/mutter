@@ -111,13 +111,6 @@ XVisualInfo *   _clutter_backend_x11_get_visual_info (ClutterBackendX11 *backend
 
 void            _clutter_x11_select_events (Window xwin);
 
-gboolean        _clutter_x11_input_device_translate_screen_coord (ClutterInputDevice *device,
-                                                                  gint                stage_root_x,
-                                                                  gint                stage_root_y,
-                                                                  guint               index_,
-                                                                  gdouble             value,
-                                                                  gdouble            *axis_value);
-
 G_END_DECLS
 
 #endif /* __CLUTTER_BACKEND_X11_H__ */
