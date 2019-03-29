@@ -757,11 +757,10 @@ do_paint (MetaShapedTexture *stex,
       else
         {
           /* 3) blended_tex_region is NULL. Do a full paint. */
-          paint_clipped_rectangle (stex,
-                                   fb,
-                                   blended_pipeline,
-                                   &tex_rect,
-                                   &alloc);
+          cogl_framebuffer_draw_rectangle (fb, blended_pipeline,
+                                           0, 0,
+                                           alloc.x2 - alloc.x1,
+                                           alloc.y2 - alloc.y1);
         }
     }
 
