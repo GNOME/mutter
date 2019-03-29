@@ -100,8 +100,6 @@ int      clutter_x11_get_default_screen  (void);
 CLUTTER_EXPORT
 Window   clutter_x11_get_root_window     (void);
 CLUTTER_EXPORT
-XVisualInfo *clutter_x11_get_visual_info (void);
-CLUTTER_EXPORT
 void     clutter_x11_set_display         (Display * xdpy);
 
 CLUTTER_EXPORT
