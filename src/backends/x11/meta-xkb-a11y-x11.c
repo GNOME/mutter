@@ -149,7 +149,7 @@ xkb_a11y_event_filter (XEvent       *xevent,
 static gboolean
 is_xkb_available (Display *xdisplay)
 {
-  gint opcode, error_base, event_base, major, minor;
+  int opcode, error_base, event_base, major, minor;
 
   if (_xkb_event_base)
     return TRUE;
@@ -245,8 +245,8 @@ meta_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_
   if (set_xkb_ctrl (desc, kbd_a11y_settings->controls,
                     CLUTTER_A11Y_MOUSE_KEYS_ENABLED, XkbMouseKeysMask | XkbMouseKeysAccelMask))
     {
-      gint mk_max_speed;
-      gint mk_accel_time;
+      int mk_max_speed;
+      int mk_accel_time;
 
       desc->ctrls->mk_interval     = 100;     /* msec between mousekey events */
       desc->ctrls->mk_curve        = 50;

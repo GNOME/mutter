@@ -29,7 +29,7 @@ struct _MetaInputDeviceX11
 {
   ClutterInputDevice device;
 
-  gint device_id;
+  int32_t device_id;
   ClutterInputDeviceTool *current_tool;
 
 #ifdef HAVE_LIBWACOM
@@ -62,7 +62,7 @@ meta_input_device_x11_constructed (GObject *gobject)
 #ifdef HAVE_LIBWACOM
   if (clutter_input_device_get_device_type (CLUTTER_INPUT_DEVICE (gobject)) == CLUTTER_PAD_DEVICE)
     {
-      device_xi2->group_modes = g_array_new (FALSE, TRUE, sizeof (guint));
+      device_xi2->group_modes = g_array_new (FALSE, TRUE, sizeof (uint32_t));
       g_array_set_size (device_xi2->group_modes,
                         clutter_input_device_get_n_mode_groups (CLUTTER_INPUT_DEVICE (gobject)));
     }
@@ -71,8 +71,8 @@ meta_input_device_x11_constructed (GObject *gobject)
 
 static gboolean
 meta_input_device_x11_keycode_to_evdev (ClutterInputDevice *device,
-                                        guint               hardware_keycode,
-                                        guint              *evdev_keycode)
+                                        uint32_t            hardware_keycode,
+                                        uint32_t           *evdev_keycode)
 {
   /* When using evdev under X11 the hardware keycodes are the evdev
      keycodes plus 8. I haven't been able to find any documentation to
@@ -106,9 +106,9 @@ meta_input_device_x11_finalize (GObject *object)
   G_OBJECT_CLASS (meta_input_device_x11_parent_class)->finalize (object);
 }
 
-static gint
+static int
 meta_input_device_x11_get_group_n_modes (ClutterInputDevice *device,
-                                         gint                group)
+                                         int                 group)
 {
 #ifdef HAVE_LIBWACOM
   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (device);

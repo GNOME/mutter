@@ -127,8 +127,8 @@ update_state (MetaStageX11      *stage_x11,
 
 static void
 meta_stage_x11_fix_window_size (MetaStageX11 *stage_x11,
-                                gint          new_width,
-                                gint          new_height)
+                                int           new_width,
+                                int           new_height)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_x11);
 
@@ -230,8 +230,8 @@ meta_stage_x11_get_geometry (ClutterStageWindow    *stage_window,
 
 static void
 meta_stage_x11_resize (ClutterStageWindow *stage_window,
-                       gint                width,
-                       gint                height)
+                       int                 width,
+                       int                 height)
 {
   MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
 
@@ -660,7 +660,7 @@ meta_stage_x11_set_cursor_visible (ClutterStageWindow *stage_window,
 
 static void
 meta_stage_x11_set_title (ClutterStageWindow *stage_window,
-                          const gchar        *title)
+                          const char         *title)
 {
   MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
 
@@ -1075,7 +1075,7 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
         {
           Display *xdisplay = clutter_x11_get_default_display ();
           Atom     type;
-          gint     format;
+          int      format;
           gulong   n_items, bytes_after;
           guchar  *data = NULL;
           gboolean fullscreen_set = FALSE;
