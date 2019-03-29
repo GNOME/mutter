@@ -63,17 +63,6 @@
 static Window ParentEmbedderWin = None;
 #endif
 
-typedef struct _ClutterEventSource      ClutterEventSource;
-
-struct _ClutterEventSource
-{
-  GSource source;
-
-  ClutterBackendX11 *backend;
-
-  GPollFD event_poll_fd;
-};
-
 ClutterEventX11 *
 _clutter_event_x11_new (void)
 {
@@ -96,49 +85,6 @@ _clutter_event_x11_free (ClutterEventX11 *event_x11)
     g_slice_free (ClutterEventX11, event_x11);
 }
 
-static gboolean clutter_event_prepare  (GSource     *source,
-                                        gint        *timeout);
-static gboolean clutter_event_check    (GSource     *source);
-static gboolean clutter_event_dispatch (GSource     *source,
-                                        GSourceFunc  callback,
-                                        gpointer     user_data);
-
-static GSourceFuncs event_funcs = {
-  clutter_event_prepare,
-  clutter_event_check,
-  clutter_event_dispatch,
-  NULL
-};
-
-GSource *
-_clutter_x11_event_source_new (ClutterBackendX11 *backend_x11)
-{
-  ClutterEventSource *event_source;
-  int connection_number;
-  GSource *source;
-  gchar *name;
-
-  connection_number = ConnectionNumber (backend_x11->xdpy);
-  CLUTTER_NOTE (EVENT, "Connection number: %d", connection_number);
-
-  source = g_source_new (&event_funcs, sizeof (ClutterEventSource));
-  event_source = (ClutterEventSource *) source;
-
-  name = g_strdup_printf ("Clutter X11 Event (connection: %d)",
-                          connection_number);
-  g_source_set_name (source, name);
-  g_free (name);
-
-  event_source->backend = backend_x11;
-  event_source->event_poll_fd.fd = connection_number;
-  event_source->event_poll_fd.events = G_IO_IN;
-
-  g_source_add_poll (source, &event_source->event_poll_fd);
-  g_source_set_can_recurse (source, TRUE);
-
-  return source;
-}
-
 /**
  * clutter_x11_handle_event:
  * @xevent: pointer to XEvent structure
@@ -146,9 +92,6 @@ _clutter_x11_event_source_new (ClutterBackendX11 *backend_x11)
  * This function processes a single X event; it can be used to hook
  * into external X11 event processing (for example, a GDK filter
  * function).
- *
- * If clutter_x11_disable_event_retrieval() has been called, you must
- * let this function process events to update Clutter's internal state.
  *
  * Return value: #ClutterX11FilterReturn. %CLUTTER_X11_FILTER_REMOVE
  *  indicates that Clutter has internally handled the event and the
@@ -228,95 +171,6 @@ out:
   _clutter_threads_release_lock ();
 
   return result;
-}
-
-static gboolean
-clutter_event_prepare (GSource *source,
-                       gint    *timeout)
-{
-  ClutterBackendX11 *backend = ((ClutterEventSource *) source)->backend;
-  gboolean retval;
-
-  _clutter_threads_acquire_lock ();
-
-  *timeout = -1;
-  retval = (clutter_events_pending () || XPending (backend->xdpy));
-
-  _clutter_threads_release_lock ();
-
-  return retval;
-}
-
-static gboolean
-clutter_event_check (GSource *source)
-{
-  ClutterEventSource *event_source = (ClutterEventSource *) source;
-  ClutterBackendX11 *backend = event_source->backend;
-  gboolean retval;
-
-  _clutter_threads_acquire_lock ();
-
-  if (event_source->event_poll_fd.revents & G_IO_IN)
-    retval = (clutter_events_pending () || XPending (backend->xdpy));
-  else
-    retval = FALSE;
-
-  _clutter_threads_release_lock ();
-
-  return retval;
-}
-
-static void
-events_queue (ClutterBackendX11 *backend_x11)
-{
-  ClutterBackend *backend = CLUTTER_BACKEND (backend_x11);
-  Display *xdisplay = backend_x11->xdpy;
-  ClutterEvent *event;
-  XEvent xevent;
-
-  while (!clutter_events_pending () && XPending (xdisplay))
-    {
-      XNextEvent (xdisplay, &xevent);
-
-      event = clutter_event_new (CLUTTER_NOTHING);
-
-      XGetEventData (xdisplay, &xevent.xcookie);
-
-      if (_clutter_backend_translate_event (backend, &xevent, event))
-        _clutter_event_push (event, FALSE);
-      else
-        clutter_event_free (event);
-
-      XFreeEventData (xdisplay, &xevent.xcookie);
-    }
-}
-
-static gboolean
-clutter_event_dispatch (GSource     *source,
-                        GSourceFunc  callback,
-                        gpointer     user_data)
-{
-  ClutterBackendX11 *backend = ((ClutterEventSource *) source)->backend;
-  ClutterEvent *event;
-
-  _clutter_threads_acquire_lock ();
-
-  /*  Grab the event(s), translate and figure out double click.
-   *  The push onto queue (stack) if valid.
-  */
-  events_queue (backend);
-
-  /* Pop an event off the queue if any */
-  event = clutter_event_get ();
-  if (event != NULL)
-    {
-      /* forward the event into clutter for emission etc. */
-      _clutter_stage_queue_event (event->any.stage, event, FALSE);
-    }
-
-  _clutter_threads_release_lock ();
-
-  return TRUE;
 }
 
 /**

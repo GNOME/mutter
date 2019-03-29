@@ -101,7 +101,6 @@ static const gchar *atom_names[] = {
 #define N_ATOM_NAMES G_N_ELEMENTS (atom_names)
 
 /* various flags corresponding to pre init setup calls */
-static gboolean _no_xevent_retrieval = FALSE;
 static gboolean clutter_enable_xinput = TRUE;
 static gboolean clutter_enable_argb = FALSE;
 static gboolean clutter_enable_stereo = FALSE;
@@ -433,30 +432,6 @@ _clutter_backend_x11_events_init (ClutterBackend *backend)
   ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (backend);
 
   CLUTTER_NOTE (EVENT, "initialising the event loop");
-
-  /* the event source is optional */
-  if (!_no_xevent_retrieval)
-    {
-      GSource *source;
-
-      source = _clutter_x11_event_source_new (backend_x11);
-
-      /* default priority for events
-       *
-       * XXX - at some point we'll have a common EventSource API that
-       * is created by the backend, and this code will most likely go
-       * into the default implementation of ClutterBackend
-       */
-      g_source_set_priority (source, CLUTTER_PRIORITY_EVENTS);
-
-      /* attach the source to the default context, and transfer the
-       * ownership to the GMainContext itself
-       */
-      g_source_attach (source, NULL);
-      g_source_unref (source);
-
-      backend_x11->event_source = source;
-    }
 
   clutter_backend_x11_create_device_manager (backend_x11);
 
@@ -926,58 +901,6 @@ clutter_x11_set_display (Display *xdpy)
     }
 
   _foreign_dpy= xdpy;
-}
-
-/**
- * clutter_x11_disable_event_retrieval:
- *
- * Disables the internal polling of X11 events in the main loop.
- *
- * Libraries or applications calling this function will be responsible of
- * polling all X11 events.
- *
- * You also must call clutter_x11_handle_event() to let Clutter process
- * events and maintain its internal state.
- *
- * This function can only be called before calling clutter_init().
- *
- * Even with event handling disabled, Clutter will still select
- * all the events required to maintain its internal state on the stage
- * Window; compositors using Clutter and input regions to pass events
- * through to application windows should not rely on an empty input
- * region, and should instead clear it themselves explicitly using the
- * XFixes extension.
- *
- * This function should not be normally used by applications.
- *
- * Since: 0.8
- */
-void
-clutter_x11_disable_event_retrieval (void)
-{
-  if (_clutter_context_is_initialized ())
-    {
-      g_warning ("%s() can only be used before calling clutter_init()",
-                 G_STRFUNC);
-      return;
-    }
-
-  _no_xevent_retrieval = TRUE;
-}
-
-/**
- * clutter_x11_has_event_retrieval:
- *
- * Queries the X11 backend to check if event collection has been disabled.
- *
- * Return value: TRUE if event retrival has been disabled. FALSE otherwise.
- *
- * Since: 0.8
- */
-gboolean
-clutter_x11_has_event_retrieval (void)
-{
-  return !_no_xevent_retrieval;
 }
 
 /**

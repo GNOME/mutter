@@ -791,9 +791,6 @@ meta_backend_x11_init (MetaBackendX11 *x11)
    * to hopefully call it before any other use of XLib.
    */
   XInitThreads();
-
-  /* We do X11 event retrieval ourselves */
-  clutter_x11_disable_event_retrieval ();
 }
 
 Display *
