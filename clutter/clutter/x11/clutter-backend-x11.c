@@ -1080,36 +1080,3 @@ clutter_x11_get_use_stereo_stage (void)
   return clutter_enable_stereo;
 }
 
-XVisualInfo *
-_clutter_backend_x11_get_visual_info (ClutterBackendX11 *backend_x11)
-{
-  return cogl_clutter_winsys_xlib_get_visual_info ();
-}
-
-/**
- * clutter_x11_get_visual_info: (skip)
- *
- * Retrieves the `XVisualInfo` used by the Clutter X11 backend.
- *
- * Return value: (transfer full): a `XVisualInfo`, or `None`.
- *   The returned value should be freed using `XFree()` when done
- *
- * Since: 1.2
- */
-XVisualInfo *
-clutter_x11_get_visual_info (void)
-{
-  ClutterBackendX11 *backend_x11;
-  ClutterBackend *backend;
-
-  backend = clutter_get_default_backend ();
-  if (!CLUTTER_IS_BACKEND_X11 (backend))
-    {
-      g_critical ("The Clutter backend is not a X11 backend.");
-      return NULL;
-    }
-
-  backend_x11 = CLUTTER_BACKEND_X11 (backend);
-
-  return _clutter_backend_x11_get_visual_info (backend_x11);
-}
