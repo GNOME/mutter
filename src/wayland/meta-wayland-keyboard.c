@@ -56,12 +56,12 @@
 #include <unistd.h>
 
 #include "backends/meta-backend-private.h"
-#include "clutter/evdev/clutter-evdev.h"
 #include "core/display-private.h"
 #include "wayland/meta-wayland-private.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-event-native.h"
 #endif
 
 #define GSD_KEYBOARD_SCHEMA "org.gnome.settings-daemon.peripherals.keyboard"
@@ -531,7 +531,7 @@ default_grab_key (MetaWaylandKeyboardGrab *grab,
 
 #ifdef HAVE_NATIVE_BACKEND
   if (META_IS_BACKEND_NATIVE (backend))
-    code = clutter_evdev_event_get_event_code (event);
+    code = meta_event_native_get_event_code (event);
   if (code == 0)
 #endif
     code = evdev_code (&event->key);

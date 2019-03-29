@@ -51,7 +51,6 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-cursor.h"
 #include "clutter/clutter.h"
-#include "clutter/evdev/clutter-evdev.h"
 #include "cogl/cogl-wayland-server.h"
 #include "cogl/cogl.h"
 #include "compositor/meta-surface-actor-wayland.h"
@@ -67,6 +66,7 @@
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-event-native.h"
 #endif
 
 #include "relative-pointer-unstable-v1-server-protocol.h"
@@ -302,7 +302,7 @@ meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
     return;
 
 #ifdef HAVE_NATIVE_BACKEND
-  time_us = clutter_evdev_event_get_time_usec (event);
+  time_us = meta_event_native_get_time_usec (event);
   if (time_us == 0)
 #endif
     time_us = clutter_event_get_time (event) * 1000ULL;
@@ -376,7 +376,7 @@ meta_wayland_pointer_send_button (MetaWaylandPointer *pointer,
 #ifdef HAVE_NATIVE_BACKEND
       MetaBackend *backend = meta_get_backend ();
       if (META_IS_BACKEND_NATIVE (backend))
-        button = clutter_evdev_event_get_event_code (event);
+        button = meta_event_native_get_event_code (event);
       else
 #endif
         {
