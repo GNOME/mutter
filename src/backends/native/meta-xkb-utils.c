@@ -1,8 +1,4 @@
 /*
- * Clutter.
- *
- * An OpenGL based 'interactive canvas' library.
- *
  * Copyright (C) 2010  Intel Corporation.
  *
  * This library is free software; you can redistribute it and/or
@@ -23,11 +19,12 @@
  *  Damien Lespiau <damien.lespiau@intel.com>
  */
 
-#include "clutter-build-config.h"
+#include "config.h"
 
-#include "clutter-keysyms.h"
-#include "clutter-event-private.h"
-#include "clutter-xkb-utils.h"
+#include <clutter/clutter-keysyms.h>
+#include <clutter/clutter-mutter.h>
+
+#include "backends/native/meta-xkb-utils.h"
 
 /*
  * _clutter_event_new_from_evdev: Create a new Clutter ClutterKeyEvent
@@ -44,14 +41,14 @@
  * Return value: the new #ClutterEvent
  */
 ClutterEvent *
-_clutter_key_event_new_from_evdev (ClutterInputDevice *device,
-				   ClutterInputDevice *core_device,
-                                   ClutterStage       *stage,
-                                   struct xkb_state   *xkb_state,
-				   uint32_t            button_state,
-                                   uint32_t            _time,
-                                   xkb_keycode_t       key,
-                                   uint32_t            state)
+meta_key_event_new_from_evdev (ClutterInputDevice *device,
+                               ClutterInputDevice *core_device,
+                               ClutterStage       *stage,
+                               struct xkb_state   *xkb_state,
+                               uint32_t            button_state,
+                               uint32_t            _time,
+                               xkb_keycode_t       key,
+                               uint32_t            state)
 {
   ClutterEvent *event;
   xkb_keysym_t sym;
@@ -78,7 +75,7 @@ _clutter_key_event_new_from_evdev (ClutterInputDevice *device,
 
   event->key.stage = stage;
   event->key.time = _time;
-  _clutter_xkb_translate_state (event, xkb_state, button_state);
+  meta_xkb_translate_state (event, xkb_state, button_state);
   event->key.hardware_keycode = key;
   event->key.keyval = sym;
   clutter_event_set_device (event, core_device);
@@ -102,9 +99,9 @@ _clutter_key_event_new_from_evdev (ClutterInputDevice *device,
 }
 
 void
-_clutter_xkb_translate_state (ClutterEvent     *event,
-			      struct xkb_state *state,
-			      uint32_t          button_state)
+meta_xkb_translate_state (ClutterEvent     *event,
+                          struct xkb_state *state,
+                          uint32_t          button_state)
 {
   _clutter_event_set_state_full (event,
 				 button_state,
