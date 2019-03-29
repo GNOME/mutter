@@ -156,7 +156,7 @@ translate_device_classes (Display             *xdisplay,
                           XIAnyClassInfo     **classes,
                           guint                n_classes)
 {
-  gint i;
+  int i;
 
   for (i = 0; i < n_classes; i++)
     {
@@ -167,7 +167,7 @@ translate_device_classes (Display             *xdisplay,
         case XIKeyClass:
           {
             XIKeyClassInfo *key_info = (XIKeyClassInfo *) class_info;
-            gint j;
+            int j;
 
             _clutter_input_device_set_n_keys (device,
                                               key_info->num_keycodes);
@@ -246,7 +246,7 @@ static gboolean
 is_touchpad_device (XIDeviceInfo *info)
 {
   gulong nitems, bytes_after;
-  guint32 *data = NULL;
+  uint32_t *data = NULL;
   int rc, format;
   Atom type;
   Atom prop;
@@ -274,11 +274,11 @@ is_touchpad_device (XIDeviceInfo *info)
 
 static gboolean
 get_device_ids (XIDeviceInfo  *info,
-                gchar        **vendor_id,
-                gchar        **product_id)
+                char         **vendor_id,
+                char         **product_id)
 {
   gulong nitems, bytes_after;
-  guint32 *data = NULL;
+  uint32_t *data = NULL;
   int rc, format;
   Atom type;
 
@@ -306,14 +306,14 @@ get_device_ids (XIDeviceInfo  *info,
   return TRUE;
 }
 
-static gchar *
+static char *
 get_device_node_path (XIDeviceInfo *info)
 {
   gulong nitems, bytes_after;
   guchar *data;
   int rc, format;
   Atom prop, type;
-  gchar *node_path;
+  char *node_path;
 
   prop = XInternAtom (clutter_x11_get_default_display (), "Device Node", False);
   if (prop == None)
@@ -346,7 +346,7 @@ get_pad_features (XIDeviceInfo *info,
                   guint        *n_rings,
                   guint        *n_strips)
 {
-  gint i, rings = 0, strips = 0;
+  int i, rings = 0, strips = 0;
 
   for (i = PAD_AXIS_FIRST; i < info->num_classes; i++)
     {
@@ -378,7 +378,7 @@ guess_source_from_wacom_type (XIDeviceInfo            *info,
                               ClutterInputDeviceType  *source_out)
 {
   gulong nitems, bytes_after;
-  guint32 *data = NULL;
+  uint32_t *data = NULL;
   int rc, format;
   Atom type;
   Atom prop;
@@ -459,7 +459,7 @@ create_device (MetaDeviceManagerX11 *manager_xi2,
   ClutterInputMode mode;
   gboolean is_enabled;
   guint num_touches = 0, num_rings = 0, num_strips = 0;
-  gchar *vendor_id = NULL, *product_id = NULL, *node_path = NULL;
+  char *vendor_id = NULL, *product_id = NULL, *node_path = NULL;
 
   if (info->use == XIMasterKeyboard || info->use == XISlaveKeyboard)
     {
@@ -478,7 +478,7 @@ create_device (MetaDeviceManagerX11 *manager_xi2,
     }
   else if (!guess_source_from_wacom_type (info, &source))
     {
-      gchar *name;
+      char *name;
 
       name = g_ascii_strdown (info->name, -1);
 
@@ -570,7 +570,7 @@ pad_passive_button_grab (ClutterInputDevice *device)
 {
   XIGrabModifiers xi_grab_mods = { XIAnyModifier, };
   XIEventMask xi_event_mask;
-  gint device_id, rc;
+  int device_id, rc;
 
   device_id = clutter_input_device_get_device_id (device);
 
@@ -669,7 +669,7 @@ add_device (MetaDeviceManagerX11 *manager_xi2,
 
 static void
 remove_device (MetaDeviceManagerX11 *manager_xi2,
-               gint                  device_id)
+               int                   device_id)
 {
   ClutterInputDevice *device;
 
@@ -947,7 +947,7 @@ translate_pad_axis (ClutterInputDevice *device,
                     gdouble            *value)
 {
   double *values;
-  gint i;
+  int i;
 
   values = valuators->values;
 
