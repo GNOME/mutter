@@ -36,14 +36,14 @@ typedef struct _ClutterKeymapKey        ClutterKeymapKey;
 
 struct _ClutterKeymapKey
 {
-  guint keycode;
-  guint group;
-  guint level;
+  uint32_t keycode;
+  uint32_t group;
+  uint32_t level;
 };
 
 struct _DirectionCacheEntry
 {
-  guint serial;
+  uint32_t serial;
   Atom group_atom;
   PangoDirection direction;
 };
@@ -67,23 +67,23 @@ struct _MetaKeymapX11
 
   XkbDescPtr xkb_desc;
   int xkb_event_base;
-  guint xkb_map_serial;
+  uint32_t xkb_map_serial;
   Atom current_group_atom;
-  guint current_cache_serial;
+  uint32_t current_cache_serial;
   DirectionCacheEntry group_direction_cache[4];
   int current_group;
 
   GHashTable *reserved_keycodes;
   GQueue *available_keycodes;
 
-  guint keymap_serial;
+  uint32_t keymap_serial;
 
-  guint caps_lock_state : 1;
-  guint num_lock_state  : 1;
-  guint has_direction   : 1;
+  uint32_t caps_lock_state : 1;
+  uint32_t num_lock_state  : 1;
+  uint32_t has_direction   : 1;
 
-  guint use_xkb : 1;
-  guint have_xkb_autorepeat : 1;
+  uint32_t use_xkb : 1;
+  uint32_t have_xkb_autorepeat : 1;
 };
 
 enum
@@ -105,7 +105,7 @@ update_modmap (Display       *display,
                MetaKeymapX11 *keymap_x11)
 {
   static struct {
-    const gchar *name;
+    const char *name;
     Atom atom;
     ClutterModifierType mask;
   } vmods[] = {
@@ -201,7 +201,7 @@ get_xkb (MetaKeymapX11 *keymap_x11)
 
 static void
 update_locked_mods (MetaKeymapX11 *keymap_x11,
-                    gint           locked_mods)
+                    int            locked_mods)
 {
   gboolean old_caps_lock_state, old_num_lock_state;
 
@@ -344,8 +344,8 @@ meta_keymap_x11_constructed (GObject *object)
 {
   MetaKeymapX11 *keymap_x11 = META_KEYMAP_X11 (object);
   Display *xdisplay = clutter_x11_get_default_display ();
-  gint xkb_major = XkbMajorVersion;
-  gint xkb_minor = XkbMinorVersion;
+  int xkb_major = XkbMajorVersion;
+  int xkb_minor = XkbMinorVersion;
 
   g_assert (keymap_x11->backend != NULL);
 
@@ -414,9 +414,9 @@ meta_keymap_x11_refresh_reserved_keycodes (MetaKeymapX11 *keymap_x11)
   g_hash_table_iter_init (&iter, keymap_x11->reserved_keycodes);
   while (g_hash_table_iter_next (&iter, &key, &value))
     {
-      guint reserved_keycode = GPOINTER_TO_UINT (key);
-      guint reserved_keysym = GPOINTER_TO_UINT (value);
-      guint actual_keysym = XkbKeycodeToKeysym (dpy, reserved_keycode, 0, 0);
+      uint32_t reserved_keycode = GPOINTER_TO_UINT (key);
+      uint32_t reserved_keysym = GPOINTER_TO_UINT (value);
+      uint32_t actual_keysym = XkbKeycodeToKeysym (dpy, reserved_keycode, 0, 0);
 
       /* If an available keycode is no longer mapped to the stored keysym, then
        * the keycode should not be considered available anymore and should be
@@ -486,7 +486,7 @@ meta_keymap_x11_finalize (GObject *object)
   g_hash_table_iter_init (&iter, keymap->reserved_keycodes);
   while (g_hash_table_iter_next (&iter, &key, &value))
     {
-      guint keycode = GPOINTER_TO_UINT (key);
+      uint32_t keycode = GPOINTER_TO_UINT (key);
       meta_keymap_x11_replace_keycode (keymap, keycode, NoSymbol);
     }
 
@@ -594,7 +594,7 @@ meta_keymap_x11_handle_event (MetaKeymapX11 *keymap_x11,
   return retval;
 }
 
-gint
+int
 meta_keymap_x11_get_key_group (MetaKeymapX11       *keymap,
                                ClutterModifierType  state)
 {
@@ -610,9 +610,9 @@ G_GNUC_BEGIN_IGNORE_DEPRECATIONS
  */
 static int
 translate_keysym (MetaKeymapX11 *keymap,
-                  guint          hardware_keycode)
+                  uint32_t       hardware_keycode)
 {
-  gint retval;
+  int retval;
 
   retval = XKeycodeToKeysym (clutter_x11_get_default_display (),
                              hardware_keycode, 0);
@@ -621,15 +621,15 @@ translate_keysym (MetaKeymapX11 *keymap,
 
 G_GNUC_END_IGNORE_DEPRECATIONS
 
-gint
+int
 meta_keymap_x11_translate_key_state (MetaKeymapX11       *keymap,
-                                     guint                hardware_keycode,
+                                     uint32_t             hardware_keycode,
                                      ClutterModifierType *modifier_state_p,
                                      ClutterModifierType *mods_p)
 {
   ClutterModifierType unconsumed_modifiers = 0;
   ClutterModifierType modifier_state = *modifier_state_p;
-  gint retval;
+  int retval;
 
   g_return_val_if_fail (META_IS_KEYMAP_X11 (keymap), 0);
 
@@ -662,7 +662,7 @@ meta_keymap_x11_translate_key_state (MetaKeymapX11       *keymap,
 
 gboolean
 meta_keymap_x11_get_is_modifier (MetaKeymapX11 *keymap,
-                                 gint           keycode)
+                                 int            keycode)
 {
   g_return_val_if_fail (META_IS_KEYMAP_X11 (keymap), FALSE);
 
@@ -704,26 +704,26 @@ meta_keymap_x11_get_direction (MetaKeymapX11 *keymap)
 
 static gboolean
 meta_keymap_x11_get_entries_for_keyval (MetaKeymapX11     *keymap_x11,
-                                        guint              keyval,
+                                        uint32_t           keyval,
                                         ClutterKeymapKey **keys,
-                                        gint              *n_keys)
+                                        int               *n_keys)
 {
   if (keymap_x11->use_xkb)
     {
       XkbDescRec *xkb = get_xkb (keymap_x11);
       GArray *retval;
-      gint keycode;
+      int keycode;
 
       keycode = keymap_x11->min_keycode;
       retval = g_array_new (FALSE, FALSE, sizeof (ClutterKeymapKey));
 
       while (keycode <= keymap_x11->max_keycode)
         {
-          gint max_shift_levels = XkbKeyGroupsWidth (xkb, keycode);
-          gint group = 0;
-          gint level = 0;
-          gint total_syms = XkbKeyNumSyms (xkb, keycode);
-          gint i = 0;
+          int max_shift_levels = XkbKeyGroupsWidth (xkb, keycode);
+          int group = 0;
+          int level = 0;
+          int total_syms = XkbKeyNumSyms (xkb, keycode);
+          int i = 0;
           KeySym *entry;
 
           /* entry is an array with all syms for group 0, all
@@ -785,7 +785,7 @@ meta_keymap_x11_get_entries_for_keyval (MetaKeymapX11     *keymap_x11,
     }
 }
 
-static guint
+static uint32_t
 meta_keymap_x11_get_available_keycode (MetaKeymapX11 *keymap_x11)
 {
   if (keymap_x11->use_xkb)
@@ -796,7 +796,7 @@ meta_keymap_x11_get_available_keycode (MetaKeymapX11 *keymap_x11)
         {
           Display *dpy = clutter_x11_get_default_display ();
           XkbDescPtr xkb = get_xkb (keymap_x11);
-          guint i;
+          uint32_t i;
 
           for (i = xkb->max_key_code; i >= xkb->min_key_code; --i)
             {
@@ -813,8 +813,8 @@ meta_keymap_x11_get_available_keycode (MetaKeymapX11 *keymap_x11)
 
 gboolean
 meta_keymap_x11_reserve_keycode (MetaKeymapX11 *keymap_x11,
-                                 guint          keyval,
-                                 guint         *keycode_out)
+                                 uint32_t       keyval,
+                                 uint32_t      *keycode_out)
 {
   g_return_val_if_fail (META_IS_KEYMAP_X11 (keymap_x11), FALSE);
   g_return_val_if_fail (keyval != 0, FALSE);
@@ -842,7 +842,7 @@ meta_keymap_x11_reserve_keycode (MetaKeymapX11 *keymap_x11,
 
 void
 meta_keymap_x11_release_keycode_if_needed (MetaKeymapX11 *keymap_x11,
-                                           guint          keycode)
+                                           uint32_t       keycode)
 {
   g_return_if_fail (META_IS_KEYMAP_X11 (keymap_x11));
 
@@ -896,12 +896,12 @@ meta_keymap_x11_get_current_group (MetaKeymapX11 *keymap_x11)
 
 gboolean
 meta_keymap_x11_keycode_for_keyval (MetaKeymapX11 *keymap_x11,
-                                    guint          keyval,
-                                    guint         *keycode_out,
-                                    guint         *level_out)
+                                    uint32_t       keyval,
+                                    uint32_t      *keycode_out,
+                                    uint32_t      *level_out)
 {
   ClutterKeymapKey *keys;
-  gint i, n_keys, group;
+  int i, n_keys, group;
   gboolean found = FALSE;
 
   g_return_val_if_fail (keycode_out != NULL, FALSE);
@@ -930,8 +930,8 @@ meta_keymap_x11_keycode_for_keyval (MetaKeymapX11 *keymap_x11,
       g_hash_table_iter_init (&iter, keymap_x11->reserved_keycodes);
       while (!found && g_hash_table_iter_next (&iter, &key, &value))
         {
-          guint reserved_keycode = GPOINTER_TO_UINT (key);
-          guint reserved_keysym = GPOINTER_TO_UINT (value);
+          uint32_t reserved_keycode = GPOINTER_TO_UINT (key);
+          uint32_t reserved_keysym = GPOINTER_TO_UINT (value);
 
           if (keyval == reserved_keysym)
             {

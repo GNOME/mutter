@@ -161,9 +161,9 @@ static void
 translate_device_classes (Display             *xdisplay,
                           ClutterInputDevice  *device,
                           XIAnyClassInfo     **classes,
-                          guint                n_classes)
+                          int                  n_classes)
 {
-  gint i;
+  int i;
 
   for (i = 0; i < n_classes; i++)
     {
@@ -174,7 +174,7 @@ translate_device_classes (Display             *xdisplay,
         case XIKeyClass:
           {
             XIKeyClassInfo *key_info = (XIKeyClassInfo *) class_info;
-            gint j;
+            int j;
 
             _clutter_input_device_set_n_keys (device,
                                               key_info->num_keycodes);
@@ -225,11 +225,11 @@ translate_device_classes (Display             *xdisplay,
 
 static gboolean
 is_touch_device (XIAnyClassInfo         **classes,
-                 guint                    n_classes,
+                 int                      n_classes,
                  ClutterInputDeviceType  *device_type,
-                 guint                   *n_touch_points)
+                 uint32_t                *n_touch_points)
 {
-  guint i;
+  int i;
 
   for (i = 0; i < n_classes; i++)
     {
@@ -260,7 +260,7 @@ static gboolean
 is_touchpad_device (XIDeviceInfo *info)
 {
   gulong nitems, bytes_after;
-  guint32 *data = NULL;
+  uint32_t *data = NULL;
   int rc, format;
   Atom type;
   Atom prop;
@@ -288,11 +288,11 @@ is_touchpad_device (XIDeviceInfo *info)
 
 static gboolean
 get_device_ids (XIDeviceInfo  *info,
-                gchar        **vendor_id,
-                gchar        **product_id)
+                char         **vendor_id,
+                char         **product_id)
 {
   gulong nitems, bytes_after;
-  guint32 *data = NULL;
+  uint32_t *data = NULL;
   int rc, format;
   Atom type;
 
@@ -320,14 +320,14 @@ get_device_ids (XIDeviceInfo  *info,
   return TRUE;
 }
 
-static gchar *
+static char *
 get_device_node_path (XIDeviceInfo *info)
 {
   gulong nitems, bytes_after;
   guchar *data;
   int rc, format;
   Atom prop, type;
-  gchar *node_path;
+  char *node_path;
 
   prop = XInternAtom (clutter_x11_get_default_display (), "Device Node", False);
   if (prop == None)
@@ -357,10 +357,10 @@ get_device_node_path (XIDeviceInfo *info)
 
 static void
 get_pad_features (XIDeviceInfo *info,
-                  guint        *n_rings,
-                  guint        *n_strips)
+                  uint32_t     *n_rings,
+                  uint32_t     *n_strips)
 {
-  gint i, rings = 0, strips = 0;
+  int i, rings = 0, strips = 0;
 
   for (i = PAD_AXIS_FIRST; i < info->num_classes; i++)
     {
@@ -392,7 +392,7 @@ guess_source_from_wacom_type (XIDeviceInfo            *info,
                               ClutterInputDeviceType  *source_out)
 {
   gulong nitems, bytes_after;
-  guint32 *data = NULL;
+  uint32_t *data = NULL;
   int rc, format;
   Atom type;
   Atom prop;
@@ -449,7 +449,7 @@ guess_source_from_wacom_type (XIDeviceInfo            *info,
     }
   else if (device_type == types[WACOM_TYPE_TOUCH])
     {
-        guint num_touches = 0;
+        uint32_t num_touches = 0;
 
         if (!is_touch_device (info->classes, info->num_classes,
                               source_out, &num_touches))
@@ -472,8 +472,8 @@ create_device (MetaDeviceManagerX11 *manager_xi2,
   ClutterInputDevice *retval;
   ClutterInputMode mode;
   gboolean is_enabled;
-  guint num_touches = 0, num_rings = 0, num_strips = 0;
-  gchar *vendor_id = NULL, *product_id = NULL, *node_path = NULL;
+  uint32_t num_touches = 0, num_rings = 0, num_strips = 0;
+  char *vendor_id = NULL, *product_id = NULL, *node_path = NULL;
 
   if (info->use == XIMasterKeyboard || info->use == XISlaveKeyboard)
     {
@@ -492,7 +492,7 @@ create_device (MetaDeviceManagerX11 *manager_xi2,
     }
   else if (!guess_source_from_wacom_type (info, &source))
     {
-      gchar *name;
+      char *name;
 
       name = g_ascii_strdown (info->name, -1);
 
@@ -589,7 +589,7 @@ pad_passive_button_grab (ClutterInputDevice *device)
 {
   XIGrabModifiers xi_grab_mods = { XIAnyModifier, };
   XIEventMask xi_event_mask;
-  gint device_id, rc;
+  int device_id, rc;
 
   device_id = clutter_input_device_get_device_id (device);
 
@@ -688,7 +688,7 @@ add_device (MetaDeviceManagerX11 *manager_xi2,
 
 static void
 remove_device (MetaDeviceManagerX11 *manager_xi2,
-               gint                  device_id)
+               int                   device_id)
 {
   ClutterInputDevice *device;
 
@@ -923,24 +923,24 @@ print_keysym (uint32_t symbol,
   return 1;
 }
 
-static gdouble *
+static double *
 translate_axes (ClutterInputDevice *device,
-                gdouble             x,
-                gdouble             y,
+                double              x,
+                double              y,
                 XIValuatorState    *valuators)
 {
-  guint n_axes = clutter_input_device_get_n_axes (device);
-  guint i;
-  gdouble *retval;
+  uint32_t n_axes = clutter_input_device_get_n_axes (device);
+  uint32_t i;
+  double *retval;
   double *values;
 
-  retval = g_new0 (gdouble, n_axes);
+  retval = g_new0 (double, n_axes);
   values = valuators->values;
 
   for (i = 0; i < valuators->mask_len * 8; i++)
     {
       ClutterInputAxis axis;
-      gdouble val;
+      double val;
 
       if (!XIMaskIsSet (valuators->mask, i))
         continue;
@@ -971,18 +971,18 @@ static gboolean
 translate_pad_axis (ClutterInputDevice *device,
                     XIValuatorState    *valuators,
                     ClutterEventType   *evtype,
-                    guint              *number,
-                    gdouble            *value)
+                    uint32_t           *number,
+                    double             *value)
 {
   double *values;
-  gint i;
+  int i;
 
   values = valuators->values;
 
   for (i = PAD_AXIS_FIRST; i < valuators->mask_len * 8; i++)
     {
-      gdouble val;
-      guint axis_number = 0;
+      double val;
+      uint32_t axis_number = 0;
 
       if (!XIMaskIsSet (valuators->mask, i))
         continue;
@@ -1017,15 +1017,15 @@ translate_pad_axis (ClutterInputDevice *device,
 
 static void
 translate_coords (MetaStageX11 *stage_x11,
-                  gdouble       event_x,
-                  gdouble       event_y,
-                  gfloat       *x_out,
-                  gfloat       *y_out)
+                  double        event_x,
+                  double        event_y,
+                  float        *x_out,
+                  float        *y_out)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_x11);
   ClutterActor *stage = CLUTTER_ACTOR (stage_cogl->wrapper);
-  gfloat stage_width;
-  gfloat stage_height;
+  float stage_width;
+  float stage_height;
 
   clutter_actor_get_size (stage, &stage_width, &stage_height);
 
@@ -1033,14 +1033,14 @@ translate_coords (MetaStageX11 *stage_x11,
   *y_out = CLAMP (event_y, 0, stage_height);
 }
 
-static gdouble
+static double
 scroll_valuators_changed (ClutterInputDevice *device,
                           XIValuatorState    *valuators,
-                          gdouble            *dx_p,
-                          gdouble            *dy_p)
+                          double             *dx_p,
+                          double             *dy_p)
 {
   gboolean retval = FALSE;
-  guint n_axes, n_val, i;
+  uint32_t n_axes, n_val, i;
   double *values;
 
   n_axes = clutter_input_device_get_n_axes (device);
@@ -1053,7 +1053,7 @@ scroll_valuators_changed (ClutterInputDevice *device,
   for (i = 0; i < MIN (valuators->mask_len * 8, n_axes); i++)
     {
       ClutterScrollDirection direction;
-      gdouble delta;
+      double delta;
 
       if (!XIMaskIsSet (valuators->mask, i))
         continue;
@@ -1114,12 +1114,12 @@ meta_device_manager_x11_select_stage_events (ClutterDeviceManager *manager,
   g_free (mask);
 }
 
-static guint
+static uint
 device_get_tool_serial (ClutterInputDevice *device)
 {
   gulong nitems, bytes_after;
-  guint32 *data = NULL;
-  guint serial_id = 0;
+  uint32_t *data = NULL;
+  int serial_id = 0;
   int rc, format;
   Atom type;
   Atom prop;
@@ -1160,7 +1160,7 @@ handle_property_event (MetaDeviceManagerX11 *manager_xi2,
     {
       ClutterInputDeviceTool *tool = NULL;
       ClutterInputDeviceToolType type;
-      guint serial_id;
+      int serial_id;
 
       serial_id = device_get_tool_serial (device);
 
@@ -1189,8 +1189,8 @@ translate_pad_event (ClutterEvent       *event,
                      XIDeviceEvent      *xev,
                      ClutterInputDevice *device)
 {
-  gdouble value;
-  guint number, mode = 0;
+  double value;
+  uint32_t number, mode = 0;
 
   if (!translate_pad_axis (device, &xev->valuators,
                            &event->any.type,
@@ -1642,7 +1642,7 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
     case XI_Motion:
       {
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
-        gdouble delta_x, delta_y;
+        double delta_x, delta_y;
 
         source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
                                              GINT_TO_POINTER (xev->sourceid));
