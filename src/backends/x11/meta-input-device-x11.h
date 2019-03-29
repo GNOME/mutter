@@ -53,14 +53,14 @@ ClutterInputDeviceTool * meta_input_device_x11_get_current_tool (ClutterInputDev
 void meta_input_device_x11_ensure_wacom_info (ClutterInputDevice  *device,
                                               WacomDeviceDatabase *wacom_db);
 
-guint meta_input_device_x11_get_pad_group_mode (ClutterInputDevice *device,
-                                                guint               group);
+uint32_t meta_input_device_x11_get_pad_group_mode (ClutterInputDevice *device,
+                                                   uint32_t            group);
 
 void meta_input_device_x11_update_pad_state (ClutterInputDevice *device,
-                                             guint               button,
-                                             guint               state,
-                                             guint              *group,
-                                             guint              *mode);
+                                             uint32_t            button,
+                                             uint32_t            state,
+                                             uint32_t           *group,
+                                             uint32_t           *mode);
 
 #endif
 
