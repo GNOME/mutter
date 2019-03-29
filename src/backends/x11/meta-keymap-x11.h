@@ -30,14 +30,14 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE (MetaKeymapX11, meta_keymap_x11,
                       META, KEYMAP_X11, ClutterKeymap)
 
-gint     meta_keymap_x11_get_key_group       (MetaKeymapX11       *keymap,
+int      meta_keymap_x11_get_key_group       (MetaKeymapX11       *keymap,
                                               ClutterModifierType  state);
-gint     meta_keymap_x11_translate_key_state (MetaKeymapX11       *keymap,
+int      meta_keymap_x11_translate_key_state (MetaKeymapX11       *keymap,
                                               guint                hardware_keycode,
                                               ClutterModifierType *modifier_state_p,
                                               ClutterModifierType *mods_p);
 gboolean meta_keymap_x11_get_is_modifier     (MetaKeymapX11       *keymap,
-                                              gint                 keycode);
+                                              int                  keycode);
 
 PangoDirection meta_keymap_x11_get_direction (MetaKeymapX11       *keymap);
 
