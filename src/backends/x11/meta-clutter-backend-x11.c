@@ -31,7 +31,7 @@
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-device-manager-x11.h"
 #include "backends/x11/meta-keymap-x11.h"
-#include "backends/x11/meta-stage-x11-nested.h"
+#include "backends/x11/nested/meta-stage-x11-nested.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/clutter.h"
 #include "core/bell.h"
