@@ -27,11 +27,13 @@
 #include <string.h>
 
 #include "compositor/meta-surface-actor-wayland.h"
-#include "clutter/evdev/clutter-evdev.h"
 #include "wayland/meta-wayland-private.h"
 
 #ifdef HAVE_NATIVE_BACKEND
+#include <libinput.h>
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-device-manager-native.h"
+#include "backends/native/meta-event-native.h"
 #endif
 
 G_DEFINE_TYPE (MetaWaylandTouch, meta_wayland_touch,
@@ -186,7 +188,7 @@ touch_get_info (MetaWaylandTouch     *touch,
   if (!touch_info && create)
     {
       touch_info = g_new0 (MetaWaylandTouchInfo, 1);
-      touch_info->slot = clutter_evdev_event_sequence_get_slot (sequence);
+      touch_info->slot = meta_event_native_sequence_get_slot (sequence);
       g_hash_table_insert (touch->touches, sequence, touch_info);
     }
 
@@ -412,7 +414,7 @@ check_send_frame_event (MetaWaylandTouch   *touch,
   if (META_IS_BACKEND_NATIVE (backend))
     {
       sequence = clutter_event_get_event_sequence (event);
-      slot = clutter_evdev_event_sequence_get_slot (sequence);
+      slot = meta_event_native_sequence_get_slot (sequence);
       touch->frame_slots &= ~(1 << slot);
 
       if (touch->frame_slots == 0)
@@ -568,7 +570,7 @@ meta_wayland_touch_enable (MetaWaylandTouch *touch)
 #ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_get_backend ();
   if (META_IS_BACKEND_NATIVE (backend))
-    clutter_evdev_add_filter (evdev_filter_func, touch, NULL);
+    meta_device_manager_native_add_filter (evdev_filter_func, touch, NULL);
 #endif
 }
 
@@ -578,7 +580,7 @@ meta_wayland_touch_disable (MetaWaylandTouch *touch)
 #ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_get_backend ();
   if (META_IS_BACKEND_NATIVE (backend))
-    clutter_evdev_remove_filter (evdev_filter_func, touch);
+    meta_device_manager_native_remove_filter (evdev_filter_func, touch);
 #endif
 
   meta_wayland_touch_cancel (touch);
