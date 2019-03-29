@@ -1703,6 +1703,9 @@ retry_page_flips (gpointer user_data)
     }
   else
     {
+      MetaBackend *backend = backend_from_renderer_native (renderer_native);
+
+      meta_backend_thaw_updates (backend);
       g_clear_pointer (&onscreen_native->retry_page_flips_source,
                        g_source_unref);
       return G_SOURCE_REMOVE;
@@ -1743,6 +1746,8 @@ schedule_retry_page_flip (MetaOnscreenNative *onscreen_native,
 
   if (!onscreen_native->retry_page_flips_source)
     {
+      MetaBackend *backend =
+        backend_from_renderer_native (onscreen_native->renderer_native);
       GSource *source;
 
       source = g_source_new (&retry_page_flips_source_funcs, sizeof (GSource));
@@ -1751,6 +1756,7 @@ schedule_retry_page_flip (MetaOnscreenNative *onscreen_native,
       g_source_attach (source, NULL);
 
       onscreen_native->retry_page_flips_source = source;
+      meta_backend_freeze_updates (backend);
     }
   else
     {
@@ -3048,8 +3054,15 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
 
   g_list_free_full (onscreen_native->pending_page_flip_retries,
                     (GDestroyNotify) retry_page_flip_data_free);
-  g_clear_pointer (&onscreen_native->retry_page_flips_source,
-                   g_source_destroy);
+  if (onscreen_native->retry_page_flips_source)
+    {
+      MetaBackend *backend =
+        backend_from_renderer_native (onscreen_native->renderer_native);
+
+      meta_backend_thaw_updates (backend);
+      g_clear_pointer (&onscreen_native->retry_page_flips_source,
+                       g_source_destroy);
+    }
 
   if (onscreen_egl->egl_surface != EGL_NO_SURFACE)
     {
