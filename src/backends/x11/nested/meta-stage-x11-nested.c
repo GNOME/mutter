@@ -24,7 +24,7 @@
 
 #include "config.h"
 
-#include "backends/x11/meta-stage-x11-nested.h"
+#include "backends/x11/nested/meta-stage-x11-nested.h"
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"
