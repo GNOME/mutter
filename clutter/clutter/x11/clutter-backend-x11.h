@@ -82,7 +82,6 @@ struct _ClutterBackendX11
   Window   xwin_root;
 
   /* event source */
-  GSource *event_source;
   GSList  *event_filters;
 
   /* props */
@@ -118,8 +117,6 @@ GType clutter_backend_x11_get_type (void) G_GNUC_CONST;
 ClutterBackend *clutter_backend_x11_new (void);
 
 void            _clutter_backend_x11_events_init        (ClutterBackend *backend);
-
-GSource *       _clutter_x11_event_source_new   (ClutterBackendX11 *backend_x11);
 
 /* Private to glx/eglx backends */
 XVisualInfo *   _clutter_backend_x11_get_visual_info (ClutterBackendX11 *backend_x11);
