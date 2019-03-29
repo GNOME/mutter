@@ -1214,6 +1214,9 @@ meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture *stex,
 void
 meta_shaped_texture_reset_viewport_src_rect (MetaShapedTexture *stex)
 {
+  if (!stex->has_viewport_src_rect)
+    return;
+
   stex->has_viewport_src_rect = FALSE;
   invalidate_size (stex);
 }
@@ -1237,6 +1240,9 @@ meta_shaped_texture_set_viewport_dst_size (MetaShapedTexture *stex,
 void
 meta_shaped_texture_reset_viewport_dst_size (MetaShapedTexture *stex)
 {
+  if (!stex->has_viewport_dst_size)
+    return;
+
   stex->has_viewport_dst_size = FALSE;
   invalidate_size (stex);
 }
