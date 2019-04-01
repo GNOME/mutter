@@ -166,17 +166,19 @@ meta_wayland_text_input_focus_defer_done (ClutterInputFocus *focus)
 
 static void
 meta_wayland_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
-                                                  guint              cursor,
+                                                  gint               offset,
                                                   guint              len)
 {
   MetaWaylandTextInput *text_input;
   struct wl_resource *resource;
+  guint before_length = offset <= 0 ? -offset : offset;
+  guint after_length = len >= before_length ? (len - before_length) : len + before_length;
 
   text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
 
   wl_resource_for_each (resource, &text_input->focus_resource_list)
     {
-      zwp_text_input_v3_send_delete_surrounding_text (resource, cursor, len);
+      zwp_text_input_v3_send_delete_surrounding_text (resource, before_length, after_length);
     }
 
   meta_wayland_text_input_focus_defer_done (focus);
