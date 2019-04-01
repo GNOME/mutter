@@ -23,9 +23,30 @@ function commit_message_has_url() {
   return $?
 }
 
+function commit_message_subject_is_compliant() {
+  commit=$1
+  commit_message_subject=$(git show -s --format='format:%s' $commit)
+
+  if echo "$commit_message_subject" | grep -qe "\(^meta-\|^Meta\)"; then
+    echo " - message subject should not be prefixed with 'meta-' or 'Meta'"
+    return 1
+  fi
+
+  return 0
+}
+
 for commit in $commits; do
+  commit_short=$(echo $commit | cut -c -8)
+
   if ! commit_message_has_url $commit; then
-    echo "Missing merge request or issue URL on commit $(echo $commit | cut -c -8)"
+    echo "Missing merge request or issue URL on commit $commit_short"
+    exit 1
+  fi
+
+  errors=$(commit_message_subject_is_compliant $commit)
+  if [ $? != 0 ]; then
+    echo "Commit message for $commit_short is not compliant:"
+    echo "$errors"
     exit 1
   fi
 done
