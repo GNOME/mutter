@@ -258,6 +258,15 @@ cogl_pixel_format_from_drm_format (uint32_t               drm_format,
                                    CoglPixelFormat       *out_format,
                                    CoglTextureComponents *out_components);
 
+static MetaBackend *
+backend_from_renderer_native (MetaRendererNative *renderer_native)
+{
+  MetaMonitorManager *monitor_manager =
+    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
+
+  return meta_monitor_manager_get_backend (monitor_manager);
+}
+
 static void
 meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data)
 {
@@ -3363,9 +3372,7 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
 static CoglContext *
 cogl_context_from_renderer_native (MetaRendererNative *renderer_native)
 {
-  MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (renderer_native->monitor_manager_kms);
-  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
+  MetaBackend *backend = backend_from_renderer_native (renderer_native);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
 
   return clutter_backend_get_cogl_context (clutter_backend);
