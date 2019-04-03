@@ -718,7 +718,6 @@ create_monitor_config_for_monitors (MetaMonitorConfigManager *config_manager,
   g_autolist (MetaLogicalMonitorConfig) logical_monitor_configs = NULL;
   MetaMonitor *primary_monitor;
   MetaLogicalMonitorLayoutMode layout_mode;
-  MetaLogicalMonitorConfig *primary_logical_monitor_config;
   float scale;
   GList *l;
   int x, y;
@@ -727,38 +726,21 @@ create_monitor_config_for_monitors (MetaMonitorConfigManager *config_manager,
   if (!primary_monitor)
     return NULL;
 
+  x = y = 0;
   layout_mode = meta_monitor_manager_get_default_layout_mode (monitor_manager);
-
-  switch (disposition)
-    {
-    case MONITOR_DISPOSITION_LINEAR:
-      x = y = 0;
-      break;
-    case MONITOR_DISPOSITION_SUGGESTED:
-      g_assert (meta_monitor_get_suggested_position (primary_monitor, &x, &y));
-      break;
-    }
-
-  scale = compute_scale_for_monitor (monitor_manager, primary_monitor, NULL);
-  primary_logical_monitor_config =
-    create_preferred_logical_monitor_config (primary_monitor,
-                                             x, y, scale,
-                                             layout_mode);
-  primary_logical_monitor_config->is_primary = TRUE;
-  logical_monitor_configs = g_list_append (NULL,
-                                           primary_logical_monitor_config);
 
   if (!(match_rule & MONITOR_MATCH_PRIMARY))
     monitors = find_monitors (monitor_manager, match_rule);
 
-  x = primary_logical_monitor_config->layout.width;
+  /* Ensure the primary monitor is the first of the monitors list */
+  if (!monitors || monitors->data != primary_monitor)
+    monitors = g_list_prepend (g_list_remove (monitors, primary_monitor),
+                               primary_monitor);
+
   for (l = monitors; l; l = l->next)
     {
       MetaMonitor *monitor = l->data;
       MetaLogicalMonitorConfig *logical_monitor_config;
-
-      if (monitor == primary_monitor)
-        continue;
 
       switch (disposition)
         {
@@ -775,6 +757,7 @@ create_monitor_config_for_monitors (MetaMonitorConfigManager *config_manager,
         create_preferred_logical_monitor_config (monitor,
                                                  x, y, scale,
                                                  layout_mode);
+      logical_monitor_config->is_primary = (monitor == primary_monitor);
       logical_monitor_configs = g_list_append (logical_monitor_configs,
                                                logical_monitor_config);
 
