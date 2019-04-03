@@ -4136,8 +4136,8 @@ on_gpu_added (MetaMonitorManager *monitor_manager,
 }
 
 static MetaGpuKms *
-choose_primary_gpu (MetaMonitorManager *manager,
-                    MetaRendererNative *renderer_native)
+choose_primary_gpu_unchecked (MetaMonitorManager *manager,
+                              MetaRendererNative *renderer_native)
 {
   GList *gpus = meta_monitor_manager_get_gpus (manager);
   GList *l;
@@ -4184,6 +4184,26 @@ choose_primary_gpu (MetaMonitorManager *manager,
 
   g_assert_not_reached ();
   return NULL;
+}
+
+static MetaGpuKms *
+choose_primary_gpu (MetaMonitorManager *manager,
+                    MetaRendererNative *renderer_native)
+{
+  MetaGpuKms *gpu_kms;
+  MetaRendererNativeGpuData *renderer_gpu_data;
+
+  gpu_kms = choose_primary_gpu_unchecked (manager, renderer_native);
+  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
+                                                         gpu_kms);
+  if (renderer_gpu_data->egl_display == EGL_NO_DISPLAY)
+    {
+      g_debug ("The GPU %s chosen as primary is not supported by EGL.",
+               meta_gpu_kms_get_file_path (gpu_kms));
+      return NULL;
+    }
+
+  return gpu_kms;
 }
 
 static gboolean
