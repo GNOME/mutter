@@ -1332,6 +1332,163 @@ meta_test_monitor_suggested_config (void)
 }
 
 static void
+meta_test_monitor_suggested_config_overlapping (void)
+{
+  MonitorTestCase test_case = {
+    .setup = {
+      .modes = {
+        {
+          .width = 800,
+          .height = 600,
+          .refresh_rate = 60.0
+        },
+        {
+          .width = 1024,
+          .height = 768,
+          .refresh_rate = 60.0
+        }
+      },
+      .n_modes = 2,
+      .outputs = {
+        {
+          .crtc = 0,
+          .modes = { 0 },
+          .n_modes = 1,
+          .preferred_mode = 0,
+          .possible_crtcs = { 0 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+          .hotplug_mode = TRUE,
+          .suggested_x = 800,
+          .suggested_y = 600,
+        },
+        {
+          .crtc = 1,
+          .modes = { 1 },
+          .n_modes = 1,
+          .preferred_mode = 1,
+          .possible_crtcs = { 1 },
+          .n_possible_crtcs = 1,
+          .width_mm = 220,
+          .height_mm = 124,
+          .hotplug_mode = TRUE,
+          .suggested_x = 0,
+          .suggested_y = 0,
+        }
+      },
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .current_mode = -1
+        },
+        {
+          .current_mode = -1
+        }
+      },
+      .n_crtcs = 2
+    },
+
+    .expect = {
+      .monitors = {
+        {
+          .outputs = { 0 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 800,
+              .height = 600,
+              .refresh_rate = 60.0,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = 0
+                }
+              }
+            }
+          },
+          .n_modes = 1,
+          .current_mode = 0,
+          .width_mm = 222,
+          .height_mm = 125
+        },
+        {
+          .outputs = { 1 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 1024,
+              .height = 768,
+              .refresh_rate = 60.0,
+              .crtc_modes = {
+                {
+                  .output = 1,
+                  .crtc_mode = 1
+                }
+              }
+            }
+          },
+          .n_modes = 1,
+          .current_mode = 0,
+          .width_mm = 220,
+          .height_mm = 124
+        }
+      },
+      .n_monitors = 2,
+      /*
+       * Logical monitors expectations altered to correspond to the
+       * "suggested_x/y" defined above.
+       */
+      .logical_monitors = {
+        {
+          .monitors = { 0 },
+          .n_monitors = 1,
+          .layout = { .x = 1024, .y = 0, .width = 800, .height = 600 },
+          .scale = 1
+        },
+        {
+          .monitors = { 1 },
+          .n_monitors = 1,
+          .layout = { .x = 0, .y = 0, .width = 1024, .height = 768 },
+          .scale = 1
+        }
+      },
+      .n_logical_monitors = 2,
+      .primary_logical_monitor = 1,
+      .n_outputs = 2,
+      .crtcs = {
+        {
+          .x = 1024,
+          .y = 0,
+          .current_mode = 0,
+        },
+        {
+          .x = 0,
+          .y = 0,
+          .current_mode = 1,
+        }
+      },
+      .n_crtcs = 2,
+      .n_tiled_monitors = 0,
+      .screen_width = 1024 + 800,
+      .screen_height = MAX (768, 600)
+    }
+  };
+  MetaMonitorTestSetup *test_setup;
+
+  test_setup = create_monitor_test_setup (&test_case.setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+
+  g_test_expect_message (G_LOG_DOMAIN, G_LOG_LEVEL_WARNING,
+                         "Suggested monitor config has overlapping region, "
+                         "rejecting");
+  emulate_hotplug (test_setup);
+  g_test_assert_expected_messages ();
+
+  check_monitor_configuration (&test_case.expect);
+}
+
+static void
 meta_test_monitor_limited_crtcs (void)
 {
   MonitorTestCase test_case = {
@@ -6375,6 +6532,8 @@ init_monitor_tests (void)
                     meta_test_monitor_hidpi_linear_config);
   add_monitor_test ("/backends/monitor/suggested-config",
                     meta_test_monitor_suggested_config);
+  add_monitor_test ("/backends/monitor/suggested-config-overlapping",
+                    meta_test_monitor_suggested_config_overlapping);
   add_monitor_test ("/backends/monitor/limited-crtcs",
                     meta_test_monitor_limited_crtcs);
   add_monitor_test ("/backends/monitor/lid-switch-config",
