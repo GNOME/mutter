@@ -157,7 +157,7 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
   return FALSE;
 }
 
-static void
+void
 shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
                                   CoglPixelFormat       *format_out,
                                   CoglTextureComponents *components_out)

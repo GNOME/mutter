@@ -354,6 +354,10 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
       MetaGpuKms *gpu_kms;
       int kms_fd;
       float crtc_cursor_x, crtc_cursor_y;
+      cairo_rectangle_int_t cursor_rect;
+      MetaMonitorTransform inverted_transform;
+      CoglTexture *texture;
+      int tex_width, tex_height;
 
       set_crtc_cursor (data->in_cursor_renderer_native,
                        crtc,
@@ -361,14 +365,39 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
 
       gpu_kms = META_GPU_KMS (meta_monitor_get_gpu (monitor));
       kms_fd = meta_gpu_kms_get_fd (gpu_kms);
+
       crtc_cursor_x = (data->in_local_cursor_rect.origin.x -
                        scaled_crtc_rect.origin.x) * scale;
       crtc_cursor_y = (data->in_local_cursor_rect.origin.y -
                        scaled_crtc_rect.origin.y) * scale;
+
+      texture = meta_cursor_sprite_get_cogl_texture (data->in_cursor_sprite);
+      tex_width = cogl_texture_get_width (texture);
+      tex_height = cogl_texture_get_height (texture);
+
+      cursor_rect = (cairo_rectangle_int_t) {
+        .x = floorf (crtc_cursor_x),
+        .y = floorf (crtc_cursor_y),
+        .width = tex_width,
+        .height = tex_height
+      };
+
+      inverted_transform = meta_monitor_transform_invert (transform);
+      meta_rectangle_transform (&cursor_rect,
+                                inverted_transform,
+                                monitor_crtc_mode->crtc_mode->width,
+                                monitor_crtc_mode->crtc_mode->height,
+                                &cursor_rect);
+
+      if (cursor_rect.width < 0)
+        cursor_rect.x += cursor_rect.width;
+      if (cursor_rect.height < 0)
+        cursor_rect.y += cursor_rect.height;
+
       drmModeMoveCursor (kms_fd,
                          crtc->crtc_id,
-                         floorf (crtc_cursor_x),
-                         floorf (crtc_cursor_y));
+                         cursor_rect.x,
+                         cursor_rect.y);
 
       data->out_painted = data->out_painted || TRUE;
     }
@@ -472,56 +501,6 @@ has_valid_cursor_sprite_gbm_bo (MetaCursorSprite *cursor_sprite,
   return FALSE;
 }
 
-static gboolean
-cursor_over_transformed_logical_monitor (MetaCursorRenderer *renderer,
-                                         MetaCursorSprite   *cursor_sprite)
-{
-  MetaCursorRendererNative *cursor_renderer_native =
-    META_CURSOR_RENDERER_NATIVE (renderer);
-  MetaCursorRendererNativePrivate *priv =
-    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
-  MetaMonitorManager *monitor_manager = priv->monitor_manager;
-  GList *logical_monitors;
-  GList *l;
-  ClutterRect cursor_rect;
-
-  cursor_rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
-
-  logical_monitors =
-    meta_monitor_manager_get_logical_monitors (monitor_manager);
-  for (l = logical_monitors; l; l = l->next)
-    {
-      MetaLogicalMonitor *logical_monitor = l->data;
-      MetaRectangle logical_monitor_layout;
-      ClutterRect logical_monitor_rect;
-      MetaMonitorTransform transform;
-      GList *monitors, *l_mon;
-
-      logical_monitor_layout =
-        meta_logical_monitor_get_layout (logical_monitor);
-      logical_monitor_rect =
-        meta_rectangle_to_clutter_rect (&logical_monitor_layout);
-
-      if (!clutter_rect_intersection (&cursor_rect, &logical_monitor_rect,
-                                      NULL))
-        continue;
-
-      monitors = meta_logical_monitor_get_monitors (logical_monitor);
-      for (l_mon = monitors; l_mon; l_mon = l_mon->next)
-        {
-          MetaMonitor *monitor = l_mon->data;
-
-          transform = meta_logical_monitor_get_transform (logical_monitor);
-          /* Get transform corrected for LCD panel-orientation. */
-          transform = meta_monitor_logical_to_crtc_transform (monitor, transform);
-          if (transform != META_MONITOR_TRANSFORM_NORMAL)
-            return TRUE;
-        }
-    }
-
-  return FALSE;
-}
-
 static float
 calculate_cursor_crtc_sprite_scale (MetaCursorSprite   *cursor_sprite,
                                     MetaLogicalMonitor *logical_monitor)
@@ -530,9 +509,25 @@ calculate_cursor_crtc_sprite_scale (MetaCursorSprite   *cursor_sprite,
           meta_cursor_sprite_get_texture_scale (cursor_sprite));
 }
 
+static MetaMonitorTransform
+calculate_cursor_crtc_sprite_transform (MetaCursorSprite   *cursor_sprite,
+                                        MetaLogicalMonitor *logical_monitor)
+{
+  MetaMonitorTransform monitor_transform = meta_logical_monitor_get_transform (logical_monitor);
+  MetaMonitorTransform cursor_transform = META_MONITOR_TRANSFORM_NORMAL;
+  MetaMonitorTransform new_transform;
+
+  new_transform = (monitor_transform + cursor_transform) %
+                   META_MONITOR_TRANSFORM_FLIPPED;
+  if (meta_monitor_transform_is_flipped (monitor_transform))
+    new_transform += META_MONITOR_TRANSFORM_FLIPPED;
+
+  return new_transform;
+}
+
 static gboolean
-can_draw_cursor_unscaled (MetaCursorRenderer *renderer,
-                          MetaCursorSprite   *cursor_sprite)
+cursor_over_differently_scaled_or_transformed_logical_monitors (MetaCursorRenderer   *renderer,
+                                                                MetaCursorSprite     *cursor_sprite)
 {
   MetaCursorRendererNative *cursor_renderer_native =
     META_CURSOR_RENDERER_NATIVE (renderer);
@@ -542,10 +537,13 @@ can_draw_cursor_unscaled (MetaCursorRenderer *renderer,
   ClutterRect cursor_rect;
   GList *logical_monitors;
   GList *l;
-  gboolean has_visible_crtc_sprite = FALSE;
+  float scale = 1.0;
+  gboolean has_scale = FALSE;
+  MetaMonitorTransform transform = META_MONITOR_TRANSFORM_NORMAL;
+  gboolean has_transform = FALSE;
 
   if (!meta_is_stage_views_scaled ())
-   return meta_cursor_sprite_get_texture_scale (cursor_sprite) == 1.0;
+   return FALSE;
 
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
@@ -560,20 +558,30 @@ can_draw_cursor_unscaled (MetaCursorRenderer *renderer,
       MetaLogicalMonitor *logical_monitor = l->data;
       ClutterRect logical_monitor_rect =
         meta_rectangle_to_clutter_rect (&logical_monitor->rect);
+      float new_scale;
+      MetaMonitorTransform new_transform;
 
       if (!clutter_rect_intersection (&cursor_rect,
                                       &logical_monitor_rect,
                                       NULL))
         continue;
 
-      if (calculate_cursor_crtc_sprite_scale (cursor_sprite,
-                                              logical_monitor) != 1.0)
-        return FALSE;
+      new_scale = calculate_cursor_crtc_sprite_scale (cursor_sprite, logical_monitor);
+      new_transform = calculate_cursor_crtc_sprite_transform (cursor_sprite, logical_monitor);
 
-      has_visible_crtc_sprite = TRUE;
+      if (has_scale && scale != new_scale)
+        return TRUE;
+
+      if (has_transform && transform != new_transform)
+        return TRUE;
+
+      scale = new_scale;
+      has_scale = TRUE;
+      transform = new_transform;
+      has_transform = TRUE;
     }
 
-  return has_visible_crtc_sprite;
+  return FALSE;
 }
 
 static gboolean
@@ -608,14 +616,11 @@ should_have_hw_cursor (MetaCursorRenderer *renderer,
         return FALSE;
     }
 
-  if (cursor_over_transformed_logical_monitor (renderer, cursor_sprite))
-    return FALSE;
-
   texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
   if (!texture)
     return FALSE;
 
-  if (!can_draw_cursor_unscaled (renderer, cursor_sprite))
+  if (cursor_over_differently_scaled_or_transformed_logical_monitors (renderer, cursor_sprite))
     return FALSE;
 
   return TRUE;
@@ -950,6 +955,198 @@ is_cursor_hw_state_valid (MetaCursorSprite *cursor_sprite,
 }
 
 #ifdef HAVE_WAYLAND
+static gboolean
+use_offscreen_painted_cursor_sprite (MetaCursorRenderer   *renderer,
+                                     MetaCursorSprite     *cursor_sprite,
+                                     float                *scale_out,
+                                     MetaMonitorTransform *transform_out)
+{
+  MetaCursorRendererNative *cursor_renderer_native =
+    META_CURSOR_RENDERER_NATIVE (renderer);
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
+  MetaMonitorManager *monitor_manager = priv->monitor_manager;
+  ClutterRect cursor_rect;
+  GList *logical_monitors;
+  GList *l;
+  float scale = 1.0;
+  MetaMonitorTransform transform = META_MONITOR_TRANSFORM_NORMAL;
+
+  if (!meta_is_stage_views_scaled ())
+   return FALSE;
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+
+  if (!logical_monitors)
+    return FALSE;
+
+  cursor_rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
+
+  for (l = logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+      ClutterRect logical_monitor_rect =
+        meta_rectangle_to_clutter_rect (&logical_monitor->rect);
+
+      if (clutter_rect_intersection (&cursor_rect,
+                                     &logical_monitor_rect,
+                                    NULL))
+        {
+          scale = calculate_cursor_crtc_sprite_scale (cursor_sprite, logical_monitor);
+          transform = calculate_cursor_crtc_sprite_transform (cursor_sprite, logical_monitor);
+          break;
+        }
+    }
+
+  if (scale_out)
+    *scale_out = scale;
+  if (transform_out)
+    *transform_out = transform;
+
+  return (scale != 1.0 || transform != META_MONITOR_TRANSFORM_NORMAL);
+}
+
+static gboolean
+repaint_pointer_offscreen (uint8_t                 *input_data,
+                           float                    scale_factor,
+                           MetaMonitorTransform     transform,
+                           CoglPixelFormat          format,
+                           int                      rowstride,
+                           uint                     width,
+                           uint                     height,
+                           uint8_t                 *output_data)
+{
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglTexture *raw_texture, *final_texture;
+  CoglBitmap *bitmap;
+  GError *error = NULL;
+  CoglFramebuffer *fb;
+  CoglMatrix projection_matrix;
+  CoglColor clear_color;
+  CoglPipeline *pipeline;
+  CoglMatrix pipeline_matrix;
+
+  if (!input_data || !output_data)
+    return FALSE;
+
+  bitmap = cogl_bitmap_new_for_data (cogl_context,
+                                     width, height,
+                                     format,
+                                     rowstride,
+                                     input_data);
+
+  raw_texture = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
+  cogl_texture_set_components (raw_texture, COGL_TEXTURE_COMPONENTS_RGBA);
+  if (!cogl_texture_allocate (raw_texture, &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (raw_texture);
+
+      return FALSE;
+    }
+  cogl_object_unref (bitmap);
+
+  // setup framebuffer
+  final_texture =
+    COGL_TEXTURE (cogl_texture_2d_new_with_size (cogl_context,
+                                                 width,
+                                                 height));
+  if (!cogl_texture_allocate (COGL_TEXTURE (final_texture), &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (final_texture);
+      return FALSE;
+    }
+
+  fb =
+    COGL_FRAMEBUFFER (cogl_offscreen_new_with_texture (COGL_TEXTURE (final_texture)));
+  cogl_object_unref (final_texture);
+  if (!cogl_framebuffer_allocate (fb, &error))
+    {
+      g_error_free (error);
+      cogl_object_unref (fb);
+      return FALSE;
+    }
+
+  cogl_framebuffer_push_matrix (fb);
+  cogl_matrix_init_identity (&projection_matrix);
+  cogl_matrix_scale (&projection_matrix,
+                     1.0 / (width / 2.0),
+                     -1.0 / (height / 2.0), 0);
+  cogl_matrix_translate (&projection_matrix,
+                         -(width / 2.0),
+                         -(height / 2.0), 0);
+
+  cogl_framebuffer_set_projection_matrix (fb, &projection_matrix);
+  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  cogl_framebuffer_clear (fb, COGL_BUFFER_BIT_COLOR, &clear_color);
+
+
+  // setup pipeline
+  pipeline = cogl_pipeline_new (cogl_context);
+  cogl_pipeline_set_layer_wrap_mode_s (pipeline, 0,
+                                       COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+  cogl_pipeline_set_layer_wrap_mode_t (pipeline, 0,
+                                       COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+
+  cogl_matrix_init_identity (&pipeline_matrix);
+  cogl_matrix_scale (&pipeline_matrix, 1 / scale_factor, 1 / scale_factor, 1);
+  if (transform != META_MONITOR_TRANSFORM_NORMAL)
+    {
+      CoglEuler euler;
+
+      cogl_matrix_translate (&pipeline_matrix, 0.5, 0.5, 0.0);
+      switch (transform)
+        {
+        case META_MONITOR_TRANSFORM_90:
+          cogl_euler_init (&euler, 0.0, 0.0, 90.0);
+          break;
+        case META_MONITOR_TRANSFORM_180:
+          cogl_euler_init (&euler, 0.0, 0.0, 180.0);
+          break;
+        case META_MONITOR_TRANSFORM_270:
+          cogl_euler_init (&euler, 0.0, 0.0, 270.0);
+          break;
+        case META_MONITOR_TRANSFORM_FLIPPED:
+          cogl_euler_init (&euler, 180.0, 0.0, 0.0);
+          break;
+        case META_MONITOR_TRANSFORM_FLIPPED_90:
+          cogl_euler_init (&euler, 0.0, 180.0, 90.0);
+          break;
+        case META_MONITOR_TRANSFORM_FLIPPED_180:
+          cogl_euler_init (&euler, 180.0, 0.0, 180.0);
+          break;
+        case META_MONITOR_TRANSFORM_FLIPPED_270:
+          cogl_euler_init (&euler, 0.0, 180.0, 270.0);
+          break;
+        case META_MONITOR_TRANSFORM_NORMAL:
+          g_assert_not_reached ();
+        }
+      cogl_matrix_rotate_euler (&pipeline_matrix, &euler);
+      cogl_matrix_translate (&pipeline_matrix, -0.5, -0.5, 0.0);
+    }
+  cogl_pipeline_set_layer_matrix (pipeline, 0, &pipeline_matrix);
+
+  cogl_pipeline_set_layer_texture (pipeline, 0, raw_texture);
+
+  // draw and upload
+  cogl_framebuffer_draw_rectangle (fb, pipeline,
+                                   0, 0,
+                                   width, height);
+
+
+
+  cogl_framebuffer_read_pixels (fb,
+                                0, 0,
+                                width, height,
+                                format,
+                                output_data);
+  return TRUE;
+}
+
 static void
 realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
                                               MetaGpuKms              *gpu_kms,
@@ -958,7 +1155,6 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
   MetaCursorRendererNative *native = META_CURSOR_RENDERER_NATIVE (renderer);
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_wayland);
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
-  uint32_t gbm_format;
   uint64_t cursor_width, cursor_height;
   CoglTexture *texture;
   uint width, height;
@@ -991,40 +1187,74 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
     {
       int rowstride = wl_shm_buffer_get_stride (shm_buffer);
       uint8_t *buffer_data;
+      float scale_factor;
+      MetaMonitorTransform transform;
 
       wl_shm_buffer_begin_access (shm_buffer);
-
-      switch (wl_shm_buffer_get_format (shm_buffer))
-        {
-#if G_BYTE_ORDER == G_BIG_ENDIAN
-        case WL_SHM_FORMAT_ARGB8888:
-          gbm_format = GBM_FORMAT_ARGB8888;
-          break;
-        case WL_SHM_FORMAT_XRGB8888:
-          gbm_format = GBM_FORMAT_XRGB8888;
-          break;
-#else
-        case WL_SHM_FORMAT_ARGB8888:
-          gbm_format = GBM_FORMAT_ARGB8888;
-          break;
-        case WL_SHM_FORMAT_XRGB8888:
-          gbm_format = GBM_FORMAT_XRGB8888;
-          break;
-#endif
-        default:
-          g_warn_if_reached ();
-          gbm_format = GBM_FORMAT_ARGB8888;
-        }
-
       buffer_data = wl_shm_buffer_get_data (shm_buffer);
-      load_cursor_sprite_gbm_buffer_for_gpu (native,
-                                             gpu_kms,
-                                             cursor_sprite,
-                                             buffer_data,
-                                             width, height, rowstride,
-                                             gbm_format);
 
-      wl_shm_buffer_end_access (shm_buffer);
+      if (use_offscreen_painted_cursor_sprite (renderer,
+                                               cursor_sprite,
+                                               &scale_factor,
+                                               &transform))
+        {
+          uint shm_width, shm_height;
+          CoglTextureComponents components;
+          CoglPixelFormat format;
+          uint8_t *buffer_data_offscreen;
+
+          shm_width = wl_shm_buffer_get_width (shm_buffer);
+          shm_height = wl_shm_buffer_get_height (shm_buffer);
+          shm_buffer_get_cogl_pixel_format (shm_buffer, &format, &components);
+          wl_shm_buffer_end_access (shm_buffer);
+
+          buffer_data_offscreen = malloc (rowstride * width * height);
+
+          if (repaint_pointer_offscreen (buffer_data,
+                                         scale_factor,
+                                         transform,
+                                         format,
+                                         rowstride,
+                                         shm_width,
+                                         shm_height,
+                                         buffer_data_offscreen))
+            {
+              load_cursor_sprite_gbm_buffer_for_gpu (native,
+                                                     gpu_kms,
+                                                     cursor_sprite,
+                                                     buffer_data_offscreen,
+                                                     shm_width, shm_height,
+                                                     rowstride,
+                                                     GBM_FORMAT_ARGB8888);
+            }
+        }
+      else
+        {
+          uint32_t gbm_format;
+
+          switch (wl_shm_buffer_get_format (shm_buffer))
+            {
+            case WL_SHM_FORMAT_ARGB8888:
+              gbm_format = GBM_FORMAT_ARGB8888;
+              break;
+            case WL_SHM_FORMAT_XRGB8888:
+              gbm_format = GBM_FORMAT_XRGB8888;
+              break;
+            default:
+              g_warn_if_reached ();
+              gbm_format = GBM_FORMAT_ARGB8888;
+            }
+          wl_shm_buffer_end_access (shm_buffer);
+
+          load_cursor_sprite_gbm_buffer_for_gpu (native,
+                                                 gpu_kms,
+                                                 cursor_sprite,
+                                                 buffer_data,
+                                                 width, height,
+                                                 rowstride,
+                                                 gbm_format);
+
+        }
     }
   else
     {
@@ -1071,6 +1301,8 @@ realize_cursor_sprite_from_xcursor_for_gpu (MetaCursorRenderer      *renderer,
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_xcursor);
   XcursorImage *xc_image;
+  float scale_factor;
+  MetaMonitorTransform transform;
 
   cursor_renderer_gpu_data =
     meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
@@ -1082,14 +1314,54 @@ realize_cursor_sprite_from_xcursor_for_gpu (MetaCursorRenderer      *renderer,
 
   xc_image = meta_cursor_sprite_xcursor_get_current_image (sprite_xcursor);
 
-  load_cursor_sprite_gbm_buffer_for_gpu (native,
-                                         gpu_kms,
-                                         cursor_sprite,
-                                         (uint8_t *) xc_image->pixels,
-                                         xc_image->width,
-                                         xc_image->height,
-                                         xc_image->width * 4,
-                                         GBM_FORMAT_ARGB8888);
+  if (use_offscreen_painted_cursor_sprite (renderer,
+                                           cursor_sprite,
+                                           &scale_factor,
+                                           &transform))
+    {
+      uint8_t *buffer_data_offscreen;
+      CoglPixelFormat format;
+      int rowstride;
+
+      rowstride = xc_image->width * 4;
+      buffer_data_offscreen = malloc (rowstride * xc_image->width * xc_image->height);
+
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+      format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
+#elif G_BYTE_ORDER == G_LITTLE_ENDIAN
+      format = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
+#endif
+
+      if (repaint_pointer_offscreen ((uint8_t *) xc_image->pixels,
+                                     scale_factor,
+                                     transform,
+                                     format,
+                                     rowstride,
+                                     xc_image->width,
+                                     xc_image->height,
+                                     buffer_data_offscreen))
+        {
+          load_cursor_sprite_gbm_buffer_for_gpu (native,
+                                                 gpu_kms,
+                                                 cursor_sprite,
+                                                 buffer_data_offscreen,
+                                                 xc_image->width,
+                                                 xc_image->height,
+                                                 rowstride,
+                                                 GBM_FORMAT_ARGB8888);
+        }
+    }
+  else
+    {
+      load_cursor_sprite_gbm_buffer_for_gpu (native,
+                                             gpu_kms,
+                                             cursor_sprite,
+                                             (uint8_t *) xc_image->pixels,
+                                             xc_image->width,
+                                             xc_image->height,
+                                             xc_image->width * 4,
+                                             GBM_FORMAT_ARGB8888);
+    }
 }
 
 static void
