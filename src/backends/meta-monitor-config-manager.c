@@ -588,7 +588,8 @@ monitor_matches_rule (MetaMonitor        *monitor,
 
 static GList *
 find_monitors (MetaMonitorManager *monitor_manager,
-               MonitorMatchRule    match_rule)
+               MonitorMatchRule    match_rule,
+               MetaMonitor        *not_this_one)
 {
   GList *result = NULL;
   GList *monitors, *l;
@@ -597,6 +598,9 @@ find_monitors (MetaMonitorManager *monitor_manager,
   for (l = g_list_last (monitors); l; l = l->prev)
     {
       MetaMonitor *monitor = l->data;
+
+      if (not_this_one && monitor == not_this_one)
+        continue;
 
       if (monitor_matches_rule (monitor, monitor_manager, match_rule))
         result = g_list_prepend (result, monitor);
@@ -614,7 +618,7 @@ find_monitor_with_highest_preferred_resolution (MetaMonitorManager *monitor_mana
   int largest_area = 0;
   MetaMonitor *largest_monitor = NULL;
 
-  monitors = find_monitors (monitor_manager, match_rule);
+  monitors = find_monitors (monitor_manager, match_rule, NULL);
   for (l = monitors; l; l = l->next)
     {
       MetaMonitor *monitor = l->data;
@@ -850,8 +854,6 @@ create_monitors_config (MetaMonitorConfigManager *config_manager,
   g_autolist (MetaLogicalMonitorConfig) logical_monitor_configs = NULL;
   MetaMonitor *primary_monitor;
   MetaLogicalMonitorLayoutMode layout_mode;
-  MetaLogicalMonitorConfig *primary_logical_monitor_config;
-  gboolean has_suggested_position;
   float scale;
   GList *l;
   int x, y;
@@ -861,41 +863,22 @@ create_monitors_config (MetaMonitorConfigManager *config_manager,
   if (!primary_monitor)
     return NULL;
 
+  x = y = 0;
   layout_mode = meta_monitor_manager_get_default_layout_mode (monitor_manager);
 
-  switch (positioning)
-    {
-    case MONITOR_POSITIONING_LINEAR:
-      x = y = 0;
-      break;
-    case MONITOR_POSITIONING_SUGGESTED:
-      has_suggested_position =
-        meta_monitor_get_suggested_position (primary_monitor, &x, &y);
-      g_assert (has_suggested_position);
-      break;
-    }
-
-  scale = compute_scale_for_monitor (monitor_manager, primary_monitor, NULL);
-  primary_logical_monitor_config =
-    create_preferred_logical_monitor_config (monitor_manager,
-                                             primary_monitor,
-                                             x, y, scale,
-                                             layout_mode);
-  primary_logical_monitor_config->is_primary = TRUE;
-  logical_monitor_configs = g_list_append (NULL,
-                                           primary_logical_monitor_config);
-
   if (!(match_rule & MONITOR_MATCH_PRIMARY))
-    monitors = find_monitors (monitor_manager, match_rule);
+    monitors = find_monitors (monitor_manager, match_rule, primary_monitor);
 
-  x = primary_logical_monitor_config->layout.width;
+  /* The primary monitor needs to be at the head of the list for the
+   * linear positioning to be correct.
+   */
+  monitors = g_list_prepend (monitors, primary_monitor);
+
   for (l = monitors; l; l = l->next)
     {
       MetaMonitor *monitor = l->data;
       MetaLogicalMonitorConfig *logical_monitor_config;
-
-      if (monitor == primary_monitor)
-        continue;
+      gboolean has_suggested_position;
 
       switch (positioning)
         {
@@ -915,6 +898,7 @@ create_monitors_config (MetaMonitorConfigManager *config_manager,
                                                  monitor,
                                                  x, y, scale,
                                                  layout_mode);
+      logical_monitor_config->is_primary = (monitor == primary_monitor);
       logical_monitor_configs = g_list_append (logical_monitor_configs,
                                                logical_monitor_config);
 
