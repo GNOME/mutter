@@ -3798,19 +3798,6 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
   int kms_fd;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  if (!meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
-                                "EGL_MESA_platform_gbm",
-                                NULL) &&
-      !meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
-                                "EGL_KHR_platform_gbm",
-                                NULL))
-    {
-      g_set_error (error, G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "Missing extension for GBM renderer: EGL_KHR_platform_gbm");
-      return NULL;
-    }
-
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
   gbm_device = gbm_create_device (kms_fd);
@@ -3822,25 +3809,40 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
       return NULL;
     }
 
-  egl_display = meta_egl_get_platform_display (egl,
-                                               EGL_PLATFORM_GBM_KHR,
-                                               gbm_device, NULL, error);
-  if (egl_display == EGL_NO_DISPLAY)
-    {
-      gbm_device_destroy (gbm_device);
-      return NULL;
-    }
-
-  if (!meta_egl_initialize (egl, egl_display, error))
-    return NULL;
-
   renderer_gpu_data = meta_create_renderer_native_gpu_data (gpu_kms);
   renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->gbm.device = gbm_device;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
-  renderer_gpu_data->egl_display = egl_display;
+  renderer_gpu_data->egl_display = EGL_NO_DISPLAY;
 
+  if (!meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
+                                "EGL_MESA_platform_gbm",
+                                NULL) &&
+      !meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
+                                "EGL_KHR_platform_gbm",
+                                NULL))
+    {
+      g_debug ("GPU %s: Missing extension for GBM renderer: EGL_KHR_platform_gbm",
+               meta_gpu_kms_get_file_path (gpu_kms));
+      goto gpu_init_failed;
+    }
+
+  egl_display = meta_egl_get_platform_display (egl,
+                                               EGL_PLATFORM_GBM_KHR,
+                                               gbm_device, NULL, error);
+  if (egl_display == EGL_NO_DISPLAY)
+    goto gpu_init_failed;
+
+  if (!meta_egl_initialize (egl, egl_display, error))
+    goto gpu_init_failed;
+
+  renderer_gpu_data->egl_display = egl_display;
   init_secondary_gpu_data (renderer_gpu_data);
+
+  return renderer_gpu_data;
+
+gpu_init_failed:
+  init_secondary_gpu_data_cpu (renderer_gpu_data);
 
   return renderer_gpu_data;
 }
