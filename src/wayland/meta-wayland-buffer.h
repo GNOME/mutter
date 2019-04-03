@@ -89,5 +89,8 @@ gboolean                meta_wayland_buffer_is_y_inverted       (MetaWaylandBuff
 void                    meta_wayland_buffer_process_damage      (MetaWaylandBuffer     *buffer,
                                                                  CoglTexture           *texture,
                                                                  cairo_region_t        *region);
+void                    shm_buffer_get_cogl_pixel_format        (struct wl_shm_buffer  *shm_buffer,
+                                                                 CoglPixelFormat       *format_out,
+                                                                 CoglTextureComponents *components_out);
 
 #endif /* META_WAYLAND_BUFFER_H */
