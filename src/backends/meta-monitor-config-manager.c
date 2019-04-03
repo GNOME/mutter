@@ -1534,8 +1534,8 @@ meta_monitors_config_new (MetaMonitorManager           *monitor_manager,
       MetaMonitor *monitor = l->data;
       MetaMonitorSpec *monitor_spec;
 
-      if (is_lid_closed (monitor_manager) &&
-          meta_monitor_is_laptop_panel (monitor))
+      if (!monitor_matches_rule (monitor, monitor_manager,
+                                 MONITOR_MATCH_VISIBLE))
         continue;
 
       monitor_spec = meta_monitor_get_spec (monitor);
