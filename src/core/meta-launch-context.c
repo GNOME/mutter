@@ -132,7 +132,7 @@ meta_launch_context_get_startup_notify_id (GAppLaunchContext *launch_context,
   if (context->workspace)
     workspace_idx = meta_workspace_index (context->workspace);
 
-  if (meta_is_wayland_compositor () == FALSE)
+  if (!meta_is_wayland_compositor ())
     {
       /* If there is a X11 display, we prefer going entirely through
        * libsn, as SnMonitor expects to keep a view of the full lifetime
