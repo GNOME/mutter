@@ -584,6 +584,7 @@ typedef struct _GetSupportedKmsFormatsData
 
 static void
 get_supported_kms_formats_crtc_func (MetaLogicalMonitor *logical_monitor,
+                                     MetaOutput         *output,
                                      MetaCrtc           *crtc,
                                      gpointer            user_data)
 {
@@ -1827,6 +1828,7 @@ typedef struct _SetCrtcFbData
 
 static void
 set_crtc_fb_cb (MetaLogicalMonitor *logical_monitor,
+                MetaOutput         *output,
                 MetaCrtc           *crtc,
                 gpointer            user_data)
 {
@@ -1937,6 +1939,7 @@ typedef struct _FlipCrtcData
 
 static void
 flip_crtc (MetaLogicalMonitor *logical_monitor,
+           MetaOutput         *output,
            MetaCrtc           *crtc,
            gpointer            user_data)
 {
