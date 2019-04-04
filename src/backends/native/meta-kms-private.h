@@ -36,14 +36,17 @@ void meta_kms_queue_callback (MetaKms         *kms,
                               gpointer         user_data,
                               GDestroyNotify   user_data_destroy);
 
+int meta_kms_flush_callbacks (MetaKms *kms);
+
 gboolean meta_kms_run_impl_task_sync (MetaKms              *kms,
                                       MetaKmsImplTaskFunc   func,
                                       gpointer              user_data,
                                       GError              **error);
 
-GSource * meta_kms_add_source_in_impl (MetaKms     *kms,
-                                       GSourceFunc  func,
-                                       gpointer     user_data);
+GSource * meta_kms_add_source_in_impl (MetaKms        *kms,
+                                       GSourceFunc     func,
+                                       gpointer        user_data,
+                                       GDestroyNotify  user_data_destroy);
 
 GSource * meta_kms_register_fd_in_impl (MetaKms             *kms,
                                         int                  fd,
