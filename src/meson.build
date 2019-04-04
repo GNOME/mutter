@@ -586,10 +586,15 @@ if have_native_backend
     'backends/native/meta-kms-impl-simple.h',
     'backends/native/meta-kms-impl.c',
     'backends/native/meta-kms-impl.h',
+    'backends/native/meta-kms-page-flip.c',
+    'backends/native/meta-kms-page-flip-private.h',
     'backends/native/meta-kms-plane.c',
     'backends/native/meta-kms-plane.h',
     'backends/native/meta-kms-private.h',
     'backends/native/meta-kms-types.h',
+    'backends/native/meta-kms-update-private.h',
+    'backends/native/meta-kms-update.c',
+    'backends/native/meta-kms-update.h',
     'backends/native/meta-kms-utils.c',
     'backends/native/meta-kms-utils.h',
     'backends/native/meta-kms.c',
@@ -759,14 +764,6 @@ if have_wayland
 endif
 
 subdir('meta')
-
-mutter_marshal = gnome.genmarshal('meta-marshal',
-  sources: ['meta-marshal.list'],
-  prefix: 'meta_marshal',
-  extra_args: ['--quiet'],
-  internal: true,
-)
-mutter_built_sources += mutter_marshal
 
 mutter_built_sources += mutter_enum_types
 mutter_built_sources += mutter_version
