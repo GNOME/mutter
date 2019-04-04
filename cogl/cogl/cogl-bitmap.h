@@ -43,6 +43,7 @@ typedef struct _CoglBitmap CoglBitmap;
 #include <cogl/cogl-buffer.h>
 #include <cogl/cogl-context.h>
 #include <cogl/cogl-pixel-buffer.h>
+#include <cogl/cogl-pixel-format.h>
 
 #include <glib-object.h>
 
