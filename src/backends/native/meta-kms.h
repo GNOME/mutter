@@ -28,6 +28,15 @@
 #define META_TYPE_KMS (meta_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKms, meta_kms, META, KMS, GObject)
 
+MetaKmsUpdate * meta_kms_ensure_pending_update (MetaKms *kms);
+
+MetaKmsUpdate * meta_kms_get_pending_update (MetaKms *kms);
+
+gboolean meta_kms_post_pending_update_sync (MetaKms  *kms,
+                                            GError  **error);
+
+void meta_kms_discard_pending_page_flips (MetaKms *kms);
+
 MetaBackend * meta_kms_get_backend (MetaKms *kms);
 
 MetaKmsDevice * meta_kms_create_device (MetaKms            *kms,

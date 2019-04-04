@@ -104,6 +104,35 @@ meta_kms_device_get_primary_plane_for (MetaKmsDevice *device,
   return NULL;
 }
 
+static gboolean
+dispatch_in_impl (MetaKmsImpl  *impl,
+                  gpointer      user_data,
+                  GError      **error)
+{
+  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (user_data);
+
+  return meta_kms_impl_device_dispatch (impl_device, error);
+}
+
+int
+meta_kms_device_dispatch_sync (MetaKmsDevice  *device,
+                               GError        **error)
+{
+  int callback_count;
+
+  callback_count = meta_kms_flush_callbacks (device->kms);
+  if (callback_count > 0)
+    return TRUE;
+
+  if (!meta_kms_run_impl_task_sync (device->kms,
+                                    dispatch_in_impl,
+                                    device->impl_device,
+                                    error))
+    return -1;
+
+  return meta_kms_flush_callbacks (device->kms);
+}
+
 typedef struct _CreateImplDeviceData
 {
   MetaKmsDevice *device;
