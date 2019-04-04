@@ -64,6 +64,7 @@
 #include <cogl/cogl-matrix.h>
 #include <cogl/cogl-matrix-stack.h>
 #include <cogl/cogl-offscreen.h>
+#include <cogl/cogl-pixel-format.h>
 #include <cogl/cogl-primitives.h>
 #include <cogl/cogl-texture.h>
 #include <cogl/cogl-types.h>
