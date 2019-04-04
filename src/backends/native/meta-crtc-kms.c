@@ -25,9 +25,12 @@
 #include "backends/native/meta-crtc-kms.h"
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-gpu-kms.h"
+#include "backends/native/meta-output-kms.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-plane.h"
+#include "backends/native/meta-kms-update.h"
 
 #define ALL_TRANSFORMS_MASK ((1 << META_MONITOR_N_TRANSFORMS) - 1)
 
@@ -35,11 +38,10 @@ typedef struct _MetaCrtcKms
 {
   MetaKmsCrtc *kms_crtc;
 
-  uint32_t rotation_prop_id;
-  uint32_t rotation_map[META_MONITOR_N_TRANSFORMS];
-
   MetaKmsPlane *primary_plane;
 } MetaCrtcKms;
+
+static GQuark kms_crtc_crtc_kms_quark;
 
 gboolean
 meta_crtc_kms_is_transform_handled (MetaCrtc             *crtc,
@@ -55,15 +57,11 @@ meta_crtc_kms_is_transform_handled (MetaCrtc             *crtc,
 }
 
 void
-meta_crtc_kms_apply_transform (MetaCrtc *crtc)
+meta_crtc_kms_apply_transform (MetaCrtc               *crtc,
+                               MetaKmsPlaneAssignment *kms_plane_assignment)
 {
   MetaCrtcKms *crtc_kms = crtc->driver_private;
-  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
-  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
-  int kms_fd;
   MetaMonitorTransform hw_transform;
-
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
   hw_transform = crtc->transform;
   if (!meta_crtc_kms_is_transform_handled (crtc, hw_transform))
@@ -71,44 +69,111 @@ meta_crtc_kms_apply_transform (MetaCrtc *crtc)
   if (!meta_crtc_kms_is_transform_handled (crtc, hw_transform))
     return;
 
-  if (drmModeObjectSetProperty (kms_fd,
-                                meta_kms_plane_get_id (crtc_kms->primary_plane),
-                                DRM_MODE_OBJECT_PLANE,
-                                crtc_kms->rotation_prop_id,
-                                crtc_kms->rotation_map[hw_transform]) != 0)
-    g_warning ("Failed to apply DRM plane transform %d: %m", hw_transform);
+  meta_kms_plane_update_set_rotation (crtc_kms->primary_plane,
+                                      kms_plane_assignment,
+                                      hw_transform);
 }
 
-static int
-find_property_index (MetaGpu                    *gpu,
-                     drmModeObjectPropertiesPtr  props,
-                     const char                 *prop_name,
-                     drmModePropertyPtr         *out_prop)
+void
+meta_crtc_kms_assign_primary_plane (MetaCrtc      *crtc,
+                                    uint32_t       fb_id,
+                                    MetaKmsUpdate *kms_update)
 {
-  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
-  int kms_fd;
-  unsigned int i;
+  MetaRectangle logical_monitor_rect;
+  int x, y;
+  MetaFixed16Rectangle src_rect;
+  MetaFixed16Rectangle dst_rect;
+  MetaKmsCrtc *kms_crtc;
+  MetaKmsDevice *kms_device;
+  MetaKmsPlane *primary_kms_plane;
+  MetaKmsPlaneAssignment *plane_assignment;
 
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
+  logical_monitor_rect =
+    meta_logical_monitor_get_layout (crtc->logical_monitor);
+  x = crtc->rect.x - logical_monitor_rect.x;
+  y = crtc->rect.y - logical_monitor_rect.y;
+  src_rect = (MetaFixed16Rectangle) {
+    .x = meta_fixed_16_from_int (x),
+    .y = meta_fixed_16_from_int (y),
+    .width = meta_fixed_16_from_int (crtc->rect.width),
+    .height = meta_fixed_16_from_int (crtc->rect.height),
+  };
+  dst_rect = (MetaFixed16Rectangle) {
+    .x = meta_fixed_16_from_int (0),
+    .y = meta_fixed_16_from_int (0),
+    .width = meta_fixed_16_from_int (crtc->rect.width),
+    .height = meta_fixed_16_from_int (crtc->rect.height),
+  };
 
-  for (i = 0; i < props->count_props; i++)
+  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
+  primary_kms_plane = meta_kms_device_get_primary_plane_for (kms_device,
+                                                             kms_crtc);
+  plane_assignment = meta_kms_update_assign_plane (kms_update,
+                                                   kms_crtc,
+                                                   primary_kms_plane,
+                                                   fb_id,
+                                                   src_rect,
+                                                   dst_rect);
+  meta_crtc_kms_apply_transform (crtc, plane_assignment);
+}
+
+static GList *
+generate_crtc_connector_list (MetaGpu  *gpu,
+                              MetaCrtc *crtc)
+{
+  GList *connectors = NULL;
+  GList *l;
+
+  for (l = meta_gpu_get_outputs (gpu); l; l = l->next)
     {
-      drmModePropertyPtr prop;
+      MetaOutput *output = l->data;
+      MetaCrtc *assigned_crtc;
 
-      prop = drmModeGetProperty (kms_fd, props->props[i]);
-      if (!prop)
-        continue;
-
-      if (strcmp (prop->name, prop_name) == 0)
+      assigned_crtc = meta_output_get_assigned_crtc (output);
+      if (assigned_crtc == crtc)
         {
-          *out_prop = prop;
-          return i;
-        }
+          MetaKmsConnector *kms_connector =
+            meta_output_kms_get_kms_connector (output);
 
-      drmModeFreeProperty (prop);
+          connectors = g_list_prepend (connectors, kms_connector);
+        }
     }
 
-  return -1;
+  return connectors;
+}
+
+void
+meta_crtc_kms_set_mode (MetaCrtc      *crtc,
+                        MetaKmsUpdate *kms_update)
+{
+  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
+  GList *connectors;
+  drmModeModeInfo *mode;
+
+  connectors = generate_crtc_connector_list (gpu, crtc);
+
+  if (connectors)
+    mode = crtc->current_mode->driver_private;
+  else
+    mode = NULL;
+
+  meta_kms_update_mode_set (kms_update,
+                            meta_crtc_kms_get_kms_crtc (crtc),
+                            g_steal_pointer (&connectors),
+                            mode);
+}
+
+void
+meta_crtc_kms_page_flip (MetaCrtc                      *crtc,
+                         const MetaKmsPageFlipFeedback *page_flip_feedback,
+                         gpointer                       user_data,
+                         MetaKmsUpdate                 *kms_update)
+{
+  meta_kms_update_page_flip (kms_update,
+                             meta_crtc_kms_get_kms_crtc (crtc),
+                             page_flip_feedback,
+                             user_data);
 }
 
 MetaKmsCrtc *
@@ -176,62 +241,10 @@ meta_crtc_kms_supports_format (MetaCrtc *crtc,
                                              drm_format);
 }
 
-static void
-parse_transforms (MetaCrtc          *crtc,
-                  drmModePropertyPtr prop)
+MetaCrtc *
+meta_crtc_kms_from_kms_crtc (MetaKmsCrtc *kms_crtc)
 {
-  MetaCrtcKms *crtc_kms = crtc->driver_private;
-  int i;
-
-  for (i = 0; i < prop->count_enums; i++)
-    {
-      int transform = -1;
-
-      if (strcmp (prop->enums[i].name, "rotate-0") == 0)
-        transform = META_MONITOR_TRANSFORM_NORMAL;
-      else if (strcmp (prop->enums[i].name, "rotate-90") == 0)
-        transform = META_MONITOR_TRANSFORM_90;
-      else if (strcmp (prop->enums[i].name, "rotate-180") == 0)
-        transform = META_MONITOR_TRANSFORM_180;
-      else if (strcmp (prop->enums[i].name, "rotate-270") == 0)
-        transform = META_MONITOR_TRANSFORM_270;
-
-      if (transform != -1)
-        crtc_kms->rotation_map[transform] = 1 << prop->enums[i].value;
-    }
-}
-
-static void
-init_crtc_rotations (MetaCrtc *crtc,
-                     MetaGpu  *gpu)
-{
-  MetaCrtcKms *crtc_kms = crtc->driver_private;
-  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
-  int kms_fd;
-  uint32_t primary_plane_id;
-  drmModePlane *drm_plane;
-  drmModeObjectPropertiesPtr props;
-  drmModePropertyPtr prop;
-  int rotation_idx;
-
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-  primary_plane_id = meta_kms_plane_get_id (crtc_kms->primary_plane);
-  drm_plane = drmModeGetPlane (kms_fd, primary_plane_id);
-  props = drmModeObjectGetProperties (kms_fd,
-                                      primary_plane_id,
-                                      DRM_MODE_OBJECT_PLANE);
-
-  rotation_idx = find_property_index (gpu, props,
-                                      "rotation", &prop);
-  if (rotation_idx >= 0)
-    {
-      crtc_kms->rotation_prop_id = props->props[rotation_idx];
-      parse_transforms (crtc, prop);
-      drmModeFreeProperty (prop);
-    }
-
-  drmModeFreeObjectProperties (props);
-  drmModeFreePlane (drm_plane);
+  return g_object_get_qdata (G_OBJECT (kms_crtc), kms_crtc_crtc_kms_quark);
 }
 
 static void
@@ -287,7 +300,13 @@ meta_create_kms_crtc (MetaGpuKms  *gpu_kms,
   crtc->driver_private = crtc_kms;
   crtc->driver_notify = (GDestroyNotify) meta_crtc_destroy_notify;
 
-  init_crtc_rotations (crtc, gpu);
+  if (!kms_crtc_crtc_kms_quark)
+    {
+      kms_crtc_crtc_kms_quark =
+        g_quark_from_static_string ("meta-kms-crtc-crtc-kms-quark");
+    }
+
+  g_object_set_qdata (G_OBJECT (kms_crtc), kms_crtc_crtc_kms_quark, crtc);
 
   return crtc;
 }

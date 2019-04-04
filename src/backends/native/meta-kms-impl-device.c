@@ -21,6 +21,7 @@
 
 #include "backends/native/meta-kms-impl-device.h"
 
+#include <errno.h>
 #include <xf86drm.h>
 
 #include "backends/native/meta-kms-connector-private.h"
@@ -28,8 +29,10 @@
 #include "backends/native/meta-kms-crtc-private.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-impl.h"
+#include "backends/native/meta-kms-page-flip-private.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-private.h"
+#include "backends/native/meta-kms-update.h"
 
 struct _MetaKmsImplDevice
 {
@@ -39,6 +42,7 @@ struct _MetaKmsImplDevice
   MetaKmsImpl *impl;
 
   int fd;
+  GSource *fd_source;
 
   GList *crtcs;
   GList *connectors;
@@ -69,6 +73,77 @@ GList *
 meta_kms_impl_device_get_planes (MetaKmsImplDevice *impl_device)
 {
   return impl_device->planes;
+}
+
+static void
+page_flip_handler (int           fd,
+                   unsigned int  sequence,
+                   unsigned int  sec,
+                   unsigned int  usec,
+                   void         *user_data)
+{
+  MetaKmsPageFlipData *page_flip_data = user_data;
+  MetaKmsImpl *impl;
+
+  meta_kms_page_flip_data_set_timings_in_impl (page_flip_data,
+                                               sequence, sec, usec);
+
+  impl = meta_kms_page_flip_data_get_kms_impl (page_flip_data);
+  meta_kms_impl_handle_page_flip_callback (impl, page_flip_data);
+}
+
+gboolean
+meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
+                               GError            **error)
+{
+  drmEventContext drm_event_context;
+
+  meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl_device->impl));
+
+  drm_event_context = (drmEventContext) { 0 };
+  drm_event_context.version = 2;
+  drm_event_context.page_flip_handler = page_flip_handler;
+
+  while (TRUE)
+    {
+      if (drmHandleEvent (impl_device->fd, &drm_event_context) != 0)
+        {
+          struct pollfd pfd;
+          int ret;
+
+          if (errno != EAGAIN)
+            {
+              g_set_error_literal (error, G_IO_ERROR,
+                                   g_io_error_from_errno (errno),
+                                   strerror (errno));
+              return FALSE;
+            }
+
+          pfd.fd = impl_device->fd;
+          pfd.events = POLL_IN | POLL_ERR;
+          do
+            {
+              ret = poll (&pfd, 1, -1);
+            }
+          while (ret == -1 && errno == EINTR);
+        }
+      else
+        {
+          break;
+        }
+    }
+
+  return TRUE;
+}
+
+static gboolean
+kms_event_dispatch_in_impl (MetaKmsImpl  *impl,
+                            gpointer      user_data,
+                            GError      **error)
+{
+  MetaKmsImplDevice *impl_device = user_data;
+
+  return meta_kms_impl_device_dispatch (impl_device, error);
 }
 
 drmModePropertyPtr
@@ -236,10 +311,11 @@ meta_kms_impl_device_new (MetaKmsDevice *device,
                           MetaKmsImpl   *impl,
                           int            fd)
 {
+  MetaKms *kms = meta_kms_impl_get_kms (impl);
   MetaKmsImplDevice *impl_device;
   drmModeRes *drm_resources;
 
-  meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
+  meta_assert_in_kms_impl (kms);
 
   impl_device = g_object_new (META_TYPE_KMS_IMPL_DEVICE, NULL);
   impl_device->device = device;
@@ -255,6 +331,11 @@ meta_kms_impl_device_new (MetaKmsDevice *device,
   init_planes (impl_device);
 
   drmModeFreeResources (drm_resources);
+
+  impl_device->fd_source =
+    meta_kms_register_fd_in_impl (kms, fd,
+                                  kms_event_dispatch_in_impl,
+                                  impl_device);
 
   return impl_device;
 }
@@ -280,6 +361,7 @@ meta_kms_impl_device_close (MetaKmsImplDevice *impl_device)
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl_device->impl));
 
+  g_clear_pointer (&impl_device->fd_source, g_source_destroy);
   fd = impl_device->fd;
   impl_device->fd = -1;
 

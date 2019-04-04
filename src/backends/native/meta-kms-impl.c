@@ -43,6 +43,28 @@ meta_kms_impl_get_kms (MetaKmsImpl *impl)
   return priv->kms;
 }
 
+gboolean
+meta_kms_impl_process_update (MetaKmsImpl    *impl,
+                              MetaKmsUpdate  *update,
+                              GError        **error)
+{
+  return META_KMS_IMPL_GET_CLASS (impl)->process_update (impl, update, error);
+}
+
+void
+meta_kms_impl_handle_page_flip_callback (MetaKmsImpl         *impl,
+                                         MetaKmsPageFlipData *page_flip_data)
+{
+  META_KMS_IMPL_GET_CLASS (impl)->handle_page_flip_callback (impl,
+                                                             page_flip_data);
+}
+
+void
+meta_kms_impl_discard_pending_page_flips (MetaKmsImpl *impl)
+{
+  META_KMS_IMPL_GET_CLASS (impl)->discard_pending_page_flips (impl);
+}
+
 static void
 meta_kms_impl_set_property (GObject      *object,
                             guint         prop_id,
