@@ -2251,7 +2251,10 @@ clutter_text_press (ClutterActor *actor,
   priv->in_select_drag = TRUE;
 
   if (type == CLUTTER_BUTTON_PRESS)
-    clutter_grab_pointer (actor);
+    {
+      clutter_input_device_grab (clutter_event_get_device (event),
+                                 actor);
+    }
   else
     {
       clutter_input_device_sequence_grab (clutter_event_get_device (event),
@@ -2309,7 +2312,7 @@ clutter_text_release (ClutterActor *actor,
         {
           if (!priv->in_select_touch)
             {
-              clutter_ungrab_pointer ();
+              clutter_input_device_ungrab (clutter_event_get_device (event));
               priv->in_select_drag = FALSE;
 
               return CLUTTER_EVENT_STOP;
