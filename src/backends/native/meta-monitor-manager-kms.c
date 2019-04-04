@@ -54,6 +54,8 @@
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-gpu-kms.h"
+#include "backends/native/meta-kms-update.h"
+#include "backends/native/meta-kms.h"
 #include "backends/native/meta-launcher.h"
 #include "backends/native/meta-output-kms.h"
 #include "backends/native/meta-renderer-native.h"
@@ -115,6 +117,11 @@ static void
 meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
                                               MetaPowerSave       mode)
 {
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsUpdate *kms_update;
+  g_autoptr (GError) error = NULL;
   uint64_t state;
   GList *l;
 
@@ -135,12 +142,16 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
     return;
   }
 
-  for (l = meta_backend_get_gpus (manager->backend); l; l = l->next)
+  kms_update = meta_kms_ensure_pending_update (kms);
+  for (l = meta_backend_get_gpus (backend); l; l = l->next)
     {
       MetaGpuKms *gpu_kms = l->data;
 
-      meta_gpu_kms_set_power_save_mode (gpu_kms, state);
+      meta_gpu_kms_set_power_save_mode (gpu_kms, state, kms_update);
     }
+
+  if (!meta_kms_post_pending_update_sync (kms, &error))
+    g_warning ("Failed to DPMS: %s", error->message);
 }
 
 static void
@@ -214,8 +225,6 @@ apply_crtc_assignments (MetaMonitorManager *manager,
               meta_output_assign_crtc (output, crtc);
             }
         }
-
-      meta_crtc_kms_apply_transform (crtc);
     }
   /* Disable CRTCs not mentioned in the list (they have is_dirty == FALSE,
      because they weren't seen in the first loop) */
@@ -253,8 +262,6 @@ apply_crtc_assignments (MetaMonitorManager *manager,
       output->is_primary = output_info->is_primary;
       output->is_presentation = output_info->is_presentation;
       output->is_underscanning = output_info->is_underscanning;
-
-      meta_output_kms_set_underscan (output);
     }
 
   /* Disable outputs not mentioned in the list */
