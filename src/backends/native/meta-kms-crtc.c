@@ -24,6 +24,7 @@
 
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl-device.h"
+#include "backends/native/meta-kms-update-private.h"
 
 struct _MetaKmsCrtc
 {

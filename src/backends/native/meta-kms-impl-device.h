@@ -26,6 +26,7 @@
 
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-types.h"
+#include "backends/native/meta-kms-update.h"
 
 #define META_TYPE_KMS_IMPL_DEVICE (meta_kms_impl_device_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKmsImplDevice, meta_kms_impl_device,
@@ -39,6 +40,9 @@ GList * meta_kms_impl_device_copy_connectors (MetaKmsImplDevice *impl_device);
 GList * meta_kms_impl_device_copy_crtcs (MetaKmsImplDevice *impl_device);
 
 GList * meta_kms_impl_device_copy_planes (MetaKmsImplDevice *impl_device);
+
+gboolean meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
+                                        GError            **error);
 
 drmModePropertyPtr meta_kms_impl_device_find_property (MetaKmsImplDevice       *impl_device,
                                                        drmModeObjectProperties *props,
