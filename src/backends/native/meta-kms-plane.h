@@ -43,6 +43,8 @@ MetaKmsPlane * meta_kms_plane_new (MetaKmsPlaneType         type,
                                    drmModePlane            *drm_plane,
                                    drmModeObjectProperties *drm_plane_props);
 
+MetaKmsDevice * meta_kms_plane_get_device (MetaKmsPlane *plane);
+
 uint32_t meta_kms_plane_get_id (MetaKmsPlane *plane);
 
 MetaKmsPlaneType meta_kms_plane_get_plane_type (MetaKmsPlane *plane);
@@ -60,5 +62,9 @@ gboolean meta_kms_plane_is_format_supported (MetaKmsPlane *plane,
 
 gboolean meta_kms_plane_is_usable_with (MetaKmsPlane *plane,
                                         MetaKmsCrtc  *crtc);
+
+void meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
+                                         MetaKmsPlaneAssignment *plane_assignment,
+                                         MetaMonitorTransform    transform);
 
 #endif /* META_KMS_PLANE_H */
