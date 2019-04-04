@@ -29,6 +29,7 @@
 #endif
 
 #include <clutter/clutter-types.h>
+#include <clutter/clutter-seat.h>
 
 G_BEGIN_DECLS
 
@@ -171,6 +172,8 @@ void                      clutter_input_device_set_mapping_mode (ClutterInputDev
 CLUTTER_EXPORT
 gboolean                  clutter_input_device_is_grouped       (ClutterInputDevice *device,
                                                                  ClutterInputDevice *other_device);
+CLUTTER_EXPORT
+ClutterSeat *             clutter_input_device_get_seat         (ClutterInputDevice *device);
 
 G_END_DECLS
 

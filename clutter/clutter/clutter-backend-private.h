@@ -25,6 +25,7 @@
 #include <clutter/clutter-backend.h>
 #include <clutter/clutter-device-manager.h>
 #include <clutter/clutter-keymap.h>
+#include <clutter/clutter-seat.h>
 #include <clutter/clutter-stage-window.h>
 
 #define CLUTTER_BACKEND_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BACKEND, ClutterBackendClass))
@@ -100,6 +101,8 @@ struct _ClutterBackendClass
   void                  (* bell_notify)          (ClutterBackend   *backend);
 
   ClutterKeymap *       (* get_keymap)           (ClutterBackend   *backend);
+
+  ClutterSeat *         (* get_default_seat)   (ClutterBackend *backend);
 
   /* signals */
   void (* resolution_changed) (ClutterBackend *backend);
