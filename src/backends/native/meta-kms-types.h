@@ -20,6 +20,8 @@
 #ifndef META_KMS_IMPL_TYPES_H
 #define META_KMS_IMPL_TYPES_H
 
+#include <stdint.h>
+
 typedef struct _MetaKms MetaKms;
 typedef struct _MetaKmsDevice MetaKmsDevice;
 
@@ -27,8 +29,25 @@ typedef struct _MetaKmsPlane MetaKmsPlane;
 typedef struct _MetaKmsCrtc MetaKmsCrtc;
 typedef struct _MetaKmsConnector MetaKmsConnector;
 
+typedef struct _MetaKmsUpdate MetaKmsUpdate;
+typedef struct _MetaKmsPlaneAssignment MetaKmsPlaneAssignment;
+typedef struct _MetaKmsModeSet MetaKmsModeSet;
+
+typedef struct _MetaKmsPageFlipFeedback MetaKmsPageFlipFeedback;
+
 typedef struct _MetaKmsImpl MetaKmsImpl;
 typedef struct _MetaKmsImplDevice MetaKmsImplDevice;
+
+/* 16:16 fixed point */
+typedef int32_t MetaFixed16;
+
+typedef struct _MetaFixed16Rectangle
+{
+  MetaFixed16 x;
+  MetaFixed16 y;
+  MetaFixed16 width;
+  MetaFixed16 height;
+} MetaFixed16Rectangle;
 
 typedef enum _MetaKmsDeviceFlag
 {

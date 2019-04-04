@@ -26,6 +26,7 @@
 
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl-device.h"
+#include "backends/native/meta-kms-update-private.h"
 
 struct _MetaKmsConnector
 {
@@ -39,6 +40,10 @@ struct _MetaKmsConnector
 
   MetaKmsConnectorState *current_state;
 
+  uint32_t dpms_prop_id;
+  uint32_t underscan_prop_id;
+  uint32_t underscan_hborder_prop_id;
+  uint32_t underscan_vborder_prop_id;
   uint32_t edid_blob_id;
   uint32_t tile_blob_id;
 };
@@ -49,6 +54,47 @@ MetaKmsDevice *
 meta_kms_connector_get_device (MetaKmsConnector *connector)
 {
   return connector->device;
+}
+
+void
+meta_kms_connector_update_set_dpms_state (MetaKmsConnector *connector,
+                                          MetaKmsUpdate    *update,
+                                          uint64_t          state)
+{
+  meta_kms_update_set_connector_property (update,
+                                          connector,
+                                          connector->dpms_prop_id,
+                                          state);
+}
+
+void
+meta_kms_connector_set_underscanning (MetaKmsConnector *connector,
+                                      MetaKmsUpdate    *update,
+                                      uint64_t          hborder,
+                                      uint64_t          vborder)
+{
+  meta_kms_update_set_connector_property (update,
+                                          connector,
+                                          connector->underscan_prop_id,
+                                          1);
+  meta_kms_update_set_connector_property (update,
+                                          connector,
+                                          connector->underscan_hborder_prop_id,
+                                          hborder);
+  meta_kms_update_set_connector_property (update,
+                                          connector,
+                                          connector->underscan_vborder_prop_id,
+                                          vborder);
+}
+
+void
+meta_kms_connector_unset_underscanning (MetaKmsConnector *connector,
+                                        MetaKmsUpdate    *update)
+{
+  meta_kms_update_set_connector_property (update,
+                                          connector,
+                                          connector->underscan_prop_id,
+                                          0);
 }
 
 MetaConnectorType
@@ -90,6 +136,12 @@ const MetaKmsConnectorState *
 meta_kms_connector_get_current_state (MetaKmsConnector *connector)
 {
   return connector->current_state;
+}
+
+gboolean
+meta_kms_connector_is_underscanning_supported (MetaKmsConnector *connector)
+{
+  return connector->underscan_prop_id != 0;
 }
 
 static void
@@ -410,8 +462,20 @@ find_property_ids (MetaKmsConnector  *connector,
       if (!prop)
         continue;
 
-      if ((prop->flags & DRM_MODE_PROP_BLOB) &&
-          strcmp (prop->name, "EDID") == 0)
+      if ((prop->flags & DRM_MODE_PROP_ENUM) &&
+          strcmp (prop->name, "DPMS") == 0)
+        connector->dpms_prop_id = prop->prop_id;
+      else if ((prop->flags & DRM_MODE_PROP_ENUM) &&
+               strcmp (prop->name, "underscan") == 0)
+        connector->underscan_prop_id = prop->prop_id;
+      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
+               strcmp (prop->name, "underscan hborder") == 0)
+        connector->underscan_hborder_prop_id = prop->prop_id;
+      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
+               strcmp (prop->name, "underscan vborder") == 0)
+        connector->underscan_vborder_prop_id = prop->prop_id;
+      else if ((prop->flags & DRM_MODE_PROP_BLOB) &&
+               strcmp (prop->name, "EDID") == 0)
         connector->edid_blob_id = drm_connector->prop_values[i];
       else if ((prop->flags & DRM_MODE_PROP_BLOB) &&
                strcmp (prop->name, "TILE") == 0)
