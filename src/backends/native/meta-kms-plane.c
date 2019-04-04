@@ -27,6 +27,7 @@
 #include "backends/meta-monitor-transform.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-impl-device.h"
+#include "backends/native/meta-kms-update-private.h"
 
 struct _MetaKmsPlane
 {
@@ -53,6 +54,12 @@ struct _MetaKmsPlane
 
 G_DEFINE_TYPE (MetaKmsPlane, meta_kms_plane, G_TYPE_OBJECT)
 
+MetaKmsDevice *
+meta_kms_plane_get_device (MetaKmsPlane *plane)
+{
+  return plane->device;
+}
+
 uint32_t
 meta_kms_plane_get_id (MetaKmsPlane *plane)
 {
@@ -63,6 +70,18 @@ MetaKmsPlaneType
 meta_kms_plane_get_plane_type (MetaKmsPlane *plane)
 {
   return plane->type;
+}
+
+void
+meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
+                                    MetaKmsPlaneAssignment *plane_assignment,
+                                    MetaMonitorTransform    transform)
+{
+  g_return_if_fail (meta_kms_plane_is_transform_handled (plane, transform));
+
+  meta_kms_plane_assignment_set_plane_property (plane_assignment,
+                                                plane->rotation_prop_id,
+                                                plane->rotation_map[transform]);
 }
 
 gboolean

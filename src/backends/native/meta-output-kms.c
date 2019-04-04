@@ -42,67 +42,42 @@ typedef struct _MetaOutputKms
   MetaOutput parent;
 
   MetaKmsConnector *kms_connector;
-
-  drmModeConnector *connector;
-
-  uint32_t dpms_prop_id;
-
-  uint32_t underscan_prop_id;
-  uint32_t underscan_hborder_prop_id;
-  uint32_t underscan_vborder_prop_id;
 } MetaOutputKms;
 
-void
-meta_output_kms_set_underscan (MetaOutput *output)
+MetaKmsConnector *
+meta_output_kms_get_kms_connector (MetaOutput *output)
 {
   MetaOutputKms *output_kms = output->driver_private;
-  MetaGpu *gpu = meta_output_get_gpu (output);
-  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
-  MetaCrtc *crtc;
-  int kms_fd;
-  uint32_t connector_id;
 
-  if (!output_kms->underscan_prop_id)
+  return output_kms->kms_connector;
+}
+
+void
+meta_output_kms_set_underscan (MetaOutput    *output,
+                               MetaKmsUpdate *kms_update)
+{
+  MetaOutputKms *output_kms = output->driver_private;
+
+  if (!output->supports_underscanning)
     return;
 
-  crtc = meta_output_get_assigned_crtc (output);
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-  connector_id = output_kms->connector->connector_id;
-
-  if (output->is_underscanning && crtc && crtc->current_mode)
+  if (output->is_underscanning)
     {
-      drmModeObjectSetProperty (kms_fd, connector_id,
-                                DRM_MODE_OBJECT_CONNECTOR,
-                                output_kms->underscan_prop_id,
-                                (uint64_t) 1);
+      MetaCrtc *crtc;
+      uint64_t hborder, vborder;
 
-      if (output_kms->underscan_hborder_prop_id)
-        {
-          uint64_t value;
-
-          value = MIN (128, crtc->current_mode->width * 0.05);
-          drmModeObjectSetProperty (kms_fd, connector_id,
-                                    DRM_MODE_OBJECT_CONNECTOR,
-                                    output_kms->underscan_hborder_prop_id,
-                                    value);
-        }
-      if (output_kms->underscan_vborder_prop_id)
-        {
-          uint64_t value;
-
-          value = MIN (128, crtc->current_mode->height * 0.05);
-          drmModeObjectSetProperty (kms_fd, connector_id,
-                                    DRM_MODE_OBJECT_CONNECTOR,
-                                    output_kms->underscan_vborder_prop_id,
-                                    value);
-        }
+      crtc = meta_output_get_assigned_crtc (output);
+      hborder = MIN (128, (uint64_t) round (crtc->current_mode->width * 0.05));
+      vborder = MIN (128, (uint64_t) round (crtc->current_mode->height * 0.05));
+      meta_kms_connector_set_underscanning (output_kms->kms_connector,
+                                            kms_update,
+                                            hborder,
+                                            vborder);
     }
   else
     {
-      drmModeObjectSetProperty (kms_fd, connector_id,
-                                DRM_MODE_OBJECT_CONNECTOR,
-                                output_kms->underscan_prop_id,
-                                (uint64_t) 0);
+      meta_kms_connector_unset_underscanning (output_kms->kms_connector,
+                                              kms_update);
     }
 }
 
@@ -115,24 +90,15 @@ meta_output_kms_get_connector_id (MetaOutput *output)
 }
 
 void
-meta_output_kms_set_power_save_mode (MetaOutput *output,
-                                     uint64_t    state)
+meta_output_kms_set_power_save_mode (MetaOutput    *output,
+                                     uint64_t       dpms_state,
+                                     MetaKmsUpdate *kms_update)
 {
   MetaOutputKms *output_kms = output->driver_private;
-  MetaGpu *gpu = meta_output_get_gpu (output);
-  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
 
-  if (output_kms->dpms_prop_id != 0)
-    {
-      int fd;
-
-      fd = meta_gpu_kms_get_fd (gpu_kms);
-      if (drmModeObjectSetProperty (fd, output_kms->connector->connector_id,
-                                    DRM_MODE_OBJECT_CONNECTOR,
-                                    output_kms->dpms_prop_id, state) < 0)
-        g_warning ("Failed to set power save mode for output %s: %s",
-                   output->name, strerror (errno));
-    }
+  meta_kms_connector_update_set_dpms_state (output_kms->kms_connector,
+                                            kms_update,
+                                            dpms_state);
 }
 
 gboolean
@@ -160,40 +126,6 @@ meta_output_kms_read_edid (MetaOutput *output)
     return NULL;
 
   return g_bytes_new_from_bytes (edid_data, 0, g_bytes_get_size (edid_data));
-}
-
-static void
-find_connector_properties (MetaGpuKms       *gpu_kms,
-                           MetaOutput       *output,
-                           drmModeConnector *connector)
-{
-  MetaOutputKms *output_kms = output->driver_private;
-  int fd;
-  int i;
-
-  fd = meta_gpu_kms_get_fd (gpu_kms);
-
-  for (i = 0; i < connector->count_props; i++)
-    {
-      drmModePropertyPtr prop = drmModeGetProperty (fd, connector->props[i]);
-      if (!prop)
-        continue;
-
-      if ((prop->flags & DRM_MODE_PROP_ENUM) &&
-          strcmp (prop->name, "DPMS") == 0)
-        output_kms->dpms_prop_id = prop->prop_id;
-      else if ((prop->flags & DRM_MODE_PROP_ENUM) &&
-               strcmp (prop->name, "underscan") == 0)
-        output_kms->underscan_prop_id = prop->prop_id;
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "underscan hborder") == 0)
-        output_kms->underscan_hborder_prop_id = prop->prop_id;
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "underscan vborder") == 0)
-        output_kms->underscan_vborder_prop_id = prop->prop_id;
-
-      drmModeFreeProperty (prop);
-    }
 }
 
 static void
@@ -344,7 +276,6 @@ init_output_modes (MetaOutput  *output,
 MetaOutput *
 meta_create_kms_output (MetaGpuKms        *gpu_kms,
                         MetaKmsConnector  *kms_connector,
-                        drmModeConnector  *connector,
                         MetaOutput        *old_output,
                         GError           **error)
 {
@@ -372,8 +303,6 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   output->winsys_id = ((uint64_t) gpu_id << 32) | connector_id;
 
   output_kms->kms_connector = kms_connector;
-
-  find_connector_properties (gpu_kms, output, connector);
 
   connector_state = meta_kms_connector_get_current_state (kms_connector);
 
@@ -443,7 +372,8 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   output->suggested_x = connector_state->suggested_x;
   output->suggested_y = connector_state->suggested_y;
   output->hotplug_mode_update = connector_state->hotplug_mode_update;
-  output->supports_underscanning = output_kms->underscan_prop_id != 0;
+  output->supports_underscanning =
+    meta_kms_connector_is_underscanning_supported (kms_connector);
 
   meta_output_parse_edid (output, connector_state->edid_data);
 
