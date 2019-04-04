@@ -62,11 +62,12 @@
 #include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-gpu-kms.h"
+#include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms-utils.h"
-#include "backends/native/meta-monitor-manager-kms.h"
+#include "backends/native/meta-kms.h"
+#include "backends/native/meta-output-kms.h"
 #include "backends/native/meta-renderer-native-gles3.h"
 #include "backends/native/meta-renderer-native.h"
-#include "meta-marshal.h"
 #include "cogl/cogl.h"
 #include "core/boxes-private.h"
 
@@ -182,16 +183,12 @@ typedef struct _MetaOnscreenNative
   } egl;
 #endif
 
-  gboolean pending_queue_swap_notify;
   gboolean pending_swap_notify;
 
   gboolean pending_set_crtc;
 
   int64_t pending_queue_swap_notify_frame_count;
   int64_t pending_swap_notify_frame_count;
-
-  GList *pending_page_flip_retries;
-  GSource *retry_page_flips_source;
 
   MetaRendererView *view;
   int total_pending_flips;
@@ -215,7 +212,7 @@ struct _MetaRendererNative
   int64_t frame_counter;
   gboolean pending_unset_disabled_crtcs;
 
-  GList *power_save_page_flip_closures;
+  GList *power_save_page_flip_onscreens;
   guint power_save_page_flip_source_id;
 };
 
@@ -1292,11 +1289,9 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
 }
 
 static void
-on_crtc_flipped (GClosure         *closure,
-                 MetaGpuKms       *gpu_kms,
-                 MetaCrtc         *crtc,
-                 int64_t           page_flip_time_ns,
-                 MetaRendererView *view)
+notify_view_crtc_presented (MetaRendererView *view,
+                            MetaKmsCrtc      *kms_crtc,
+                            int64_t           time_ns)
 {
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
   CoglFramebuffer *framebuffer =
@@ -1307,24 +1302,28 @@ on_crtc_flipped (GClosure         *closure,
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   CoglFrameInfo *frame_info;
+  MetaCrtc *crtc;
   float refresh_rate;
-
-  frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
-  refresh_rate = crtc && crtc->current_mode ?
-                 crtc->current_mode->refresh_rate :
-                 0.0f;
+  MetaGpuKms *gpu_kms;
 
   /* Only keep the frame info for the fastest CRTC in use, which may not be
    * the first one to complete a flip. By only telling the compositor about the
    * fastest monitor(s) we direct it to produce new frames fast enough to
    * satisfy all monitors.
    */
+  frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
+
+  crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
+  refresh_rate = crtc && crtc->current_mode ?
+                 crtc->current_mode->refresh_rate :
+                 0.0f;
   if (refresh_rate >= frame_info->refresh_rate)
     {
-      frame_info->presentation_time = page_flip_time_ns;
+      frame_info->presentation_time = time_ns;
       frame_info->refresh_rate = refresh_rate;
     }
 
+  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   if (gpu_kms != render_gpu)
     {
       MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
@@ -1337,8 +1336,6 @@ on_crtc_flipped (GClosure         *closure,
   if (onscreen_native->total_pending_flips == 0)
     {
       MetaRendererNativeGpuData *renderer_gpu_data;
-
-      onscreen_native->pending_queue_swap_notify = FALSE;
 
       meta_onscreen_native_queue_swap_notify (onscreen);
 
@@ -1358,6 +1355,92 @@ on_crtc_flipped (GClosure         *closure,
     }
 }
 
+static int64_t
+timeval_to_nanoseconds (const struct timeval *tv)
+{
+  int64_t usec = ((int64_t) tv->tv_sec) * G_USEC_PER_SEC + tv->tv_usec;
+  int64_t nsec = usec * 1000;
+
+  return nsec;
+}
+
+static void
+page_flip_feedback_flipped (MetaKmsCrtc  *kms_crtc,
+                            unsigned int  sequence,
+                            unsigned int  tv_sec,
+                            unsigned int  tv_usec,
+                            gpointer      user_data)
+{
+  MetaRendererView *view = user_data;
+  struct timeval page_flip_time;
+
+  page_flip_time = (struct timeval) {
+    .tv_sec = tv_sec,
+    .tv_usec = tv_usec,
+  };
+
+  notify_view_crtc_presented (view, kms_crtc,
+                              timeval_to_nanoseconds (&page_flip_time));
+
+  g_object_unref (view);
+}
+
+static void
+page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
+                                      gpointer     user_data)
+{
+  MetaRendererView *view = user_data;
+  MetaCrtc *crtc;
+  MetaGpuKms *gpu_kms;
+  int64_t now_ns;
+
+  /*
+   * We ended up not page flipping, thus we don't have a presentation time to
+   * use. Lets use the next best thing: the current time.
+   */
+
+  crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
+  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+  now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
+
+  notify_view_crtc_presented (view, kms_crtc, now_ns);
+
+  g_object_unref (view);
+}
+
+static void
+page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
+                              gpointer      user_data,
+                              const GError *error)
+{
+  MetaRendererView *view = user_data;
+  MetaCrtc *crtc;
+  MetaGpuKms *gpu_kms;
+  int64_t now_ns;
+
+  /*
+   * Page flipping failed, but we want to fail gracefully, so to avoid freezing
+   * the frame clack, pretend we flipped.
+   */
+
+  if (error)
+    g_warning ("Page flip discarded: %s", error->message);
+
+  crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
+  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+  now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
+
+  notify_view_crtc_presented (view, kms_crtc, now_ns);
+
+  g_object_unref (view);
+}
+
+static const MetaKmsPageFlipFeedback page_flip_feedback = {
+  .flipped = page_flip_feedback_flipped,
+  .mode_set_fallback = page_flip_feedback_mode_set_fallback,
+  .discarded = page_flip_feedback_discarded,
+};
+
 static void
 free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
                         MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
@@ -1375,72 +1458,28 @@ free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
     }
 }
 
-static void
-flip_closure_destroyed (MetaRendererView *view)
-{
-  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (view);
-  CoglFramebuffer *framebuffer =
-    clutter_stage_view_get_onscreen (stage_view);
-  CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-  CoglOnscreenEGL *onscreen_egl =  onscreen->winsys;
-  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-  MetaGpuKms *render_gpu = onscreen_native->render_gpu;
-  MetaRendererNativeGpuData *renderer_gpu_data;
-
-  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                         render_gpu);
-  switch (renderer_gpu_data->mode)
-    {
-    case META_RENDERER_NATIVE_MODE_GBM:
-      g_clear_object (&onscreen_native->gbm.next_fb);
-
-      g_hash_table_foreach (onscreen_native->secondary_gpu_states,
-                            (GHFunc) free_next_secondary_bo,
-                            NULL);
-
-      break;
 #ifdef HAVE_EGL_DEVICE
-    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      break;
-#endif
-    }
-
-  if (onscreen_native->pending_queue_swap_notify)
-    {
-      meta_onscreen_native_queue_swap_notify (onscreen);
-      onscreen_native->pending_queue_swap_notify = FALSE;
-    }
-
-  g_object_unref (view);
-}
-
-#ifdef HAVE_EGL_DEVICE
-static gboolean
-flip_egl_stream (MetaOnscreenNative *onscreen_native,
-                 GClosure           *flip_closure)
+static int
+custom_egl_stream_page_flip (gpointer custom_page_flip_data,
+                             gpointer user_data)
 {
+  MetaOnscreenNative *onscreen_native = custom_page_flip_data;
+  MetaRendererView *view = user_data;
+  MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
   MetaRendererNativeGpuData *renderer_gpu_data;
   EGLDisplay *egl_display;
-  MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
-  MetaGpuKmsFlipClosureContainer *closure_container;
   EGLAttrib *acquire_attribs;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
+
+  acquire_attribs = (EGLAttrib[]) {
+    EGL_DRM_FLIP_EVENT_DATA_NV,
+    (EGLAttrib) view,
+    EGL_NONE
+  };
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
                                        onscreen_native->render_gpu);
-
-  closure_container =
-    meta_gpu_kms_wrap_flip_closure (onscreen_native->render_gpu,
-                                    NULL,
-                                    flip_closure);
-
-  acquire_attribs = (EGLAttrib[]) {
-    EGL_DRM_FLIP_EVENT_DATA_NV,
-    (EGLAttrib) closure_container,
-    EGL_NONE
-  };
 
   egl_display = renderer_gpu_data->egl_display;
   if (!meta_egl_stream_consumer_acquire_attrib (egl,
@@ -1449,28 +1488,21 @@ flip_egl_stream (MetaOnscreenNative *onscreen_native,
                                                 acquire_attribs,
                                                 &error))
     {
-      if (error->domain != META_EGL_ERROR ||
-          error->code != EGL_RESOURCE_BUSY_EXT)
-        {
-          g_warning ("Failed to flip EGL stream: %s", error->message);
-        }
-      g_error_free (error);
-      meta_gpu_kms_flip_closure_container_free (closure_container);
-      return FALSE;
+      if (g_error_matches (error, META_EGL_ERROR, EGL_RESOURCE_BUSY_EXT))
+        return -EBUSY;
+      else
+        return -EINVAL;
     }
 
-  return TRUE;
+  return 0;
 }
 #endif /* HAVE_EGL_DEVICE */
 
-static gboolean
-is_timestamp_earlier_than (uint64_t ts1,
-                           uint64_t ts2)
+static void
+dummy_power_save_page_flip (CoglOnscreen *onscreen)
 {
-  if (ts1 == ts2)
-    return FALSE;
-  else
-    return ts2 - ts1 < UINT64_MAX / 2;
+  meta_onscreen_native_swap_drm_fb (onscreen);
+  meta_onscreen_native_queue_swap_notify (onscreen);
 }
 
 static gboolean
@@ -1478,18 +1510,22 @@ dummy_power_save_page_flip_cb (gpointer user_data)
 {
   MetaRendererNative *renderer_native = user_data;
 
-  g_list_free_full (renderer_native->power_save_page_flip_closures,
-                    (GDestroyNotify) g_closure_unref);
-  renderer_native->power_save_page_flip_closures = NULL;
+  g_list_foreach (renderer_native->power_save_page_flip_onscreens,
+                  (GFunc) dummy_power_save_page_flip, NULL);
+  g_list_free_full (renderer_native->power_save_page_flip_onscreens,
+                    (GDestroyNotify) cogl_object_unref);
+  renderer_native->power_save_page_flip_onscreens = NULL;
   renderer_native->power_save_page_flip_source_id = 0;
 
   return G_SOURCE_REMOVE;
 }
 
 static void
-queue_dummy_power_save_page_flip (MetaRendererNative *renderer_native,
-                                  GClosure           *flip_closure)
+queue_dummy_power_save_page_flip (CoglOnscreen *onscreen)
 {
+  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   const unsigned int timeout_ms = 100;
 
   if (!renderer_native->power_save_page_flip_source_id)
@@ -1500,225 +1536,16 @@ queue_dummy_power_save_page_flip (MetaRendererNative *renderer_native,
                        renderer_native);
     }
 
-  renderer_native->power_save_page_flip_closures =
-    g_list_prepend (renderer_native->power_save_page_flip_closures,
-                    g_closure_ref (flip_closure));
-}
-
-typedef struct _RetryPageFlipData
-{
-  MetaCrtc *crtc;
-  uint32_t fb_id;
-  GClosure *flip_closure;
-  uint64_t retry_time_us;
-} RetryPageFlipData;
-
-static void
-retry_page_flip_data_free (RetryPageFlipData *retry_page_flip_data)
-{
-  g_closure_unref (retry_page_flip_data->flip_closure);
-  g_free (retry_page_flip_data);
+  renderer_native->power_save_page_flip_onscreens =
+    g_list_prepend (renderer_native->power_save_page_flip_onscreens,
+                    cogl_object_ref (onscreen));
 }
 
 static void
-retry_page_flip_data_fake_flipped (RetryPageFlipData  *retry_page_flip_data,
-                                   MetaOnscreenNative *onscreen_native)
-{
-  MetaCrtc *crtc = retry_page_flip_data->crtc;
-  MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
-
-  if (gpu_kms != onscreen_native->render_gpu)
-    {
-      MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
-
-      secondary_gpu_state =
-        meta_onscreen_native_get_secondary_gpu_state (onscreen_native,
-                                                      gpu_kms);
-      secondary_gpu_state->pending_flips--;
-    }
-
-  onscreen_native->total_pending_flips--;
-}
-
-static gboolean
-retry_page_flips (gpointer user_data)
-{
-  MetaOnscreenNative *onscreen_native = user_data;
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (renderer_native->backend);
-  uint64_t now_us;
-  MetaPowerSave power_save_mode;
-  GList *l;
-
-  now_us = g_source_get_time (onscreen_native->retry_page_flips_source);
-  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
-
-  l = onscreen_native->pending_page_flip_retries;
-  while (l)
-    {
-      RetryPageFlipData *retry_page_flip_data = l->data;
-      MetaCrtc *crtc = retry_page_flip_data->crtc;
-      MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
-      GList *l_next = l->next;
-      g_autoptr (GError) error = NULL;
-      gboolean did_flip;
-
-      if (power_save_mode != META_POWER_SAVE_ON)
-        {
-          onscreen_native->pending_page_flip_retries =
-            g_list_remove_link (onscreen_native->pending_page_flip_retries, l);
-
-          retry_page_flip_data_fake_flipped (retry_page_flip_data,
-                                             onscreen_native);
-          retry_page_flip_data_free (retry_page_flip_data);
-
-          l = l_next;
-          continue;
-        }
-
-      if (is_timestamp_earlier_than (now_us,
-                                     retry_page_flip_data->retry_time_us))
-        {
-          l = l_next;
-          continue;
-        }
-
-      did_flip = meta_gpu_kms_flip_crtc (gpu_kms,
-                                         crtc,
-                                         retry_page_flip_data->fb_id,
-                                         retry_page_flip_data->flip_closure,
-                                         &error);
-      if (!did_flip &&
-          g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BUSY))
-        {
-          retry_page_flip_data->retry_time_us +=
-            (uint64_t) (G_USEC_PER_SEC / crtc->current_mode->refresh_rate);
-          l = l_next;
-          continue;
-        }
-
-      onscreen_native->pending_page_flip_retries =
-        g_list_remove_link (onscreen_native->pending_page_flip_retries, l);
-
-      if (!did_flip)
-        {
-          if (!g_error_matches (error,
-                                G_IO_ERROR,
-                                G_IO_ERROR_PERMISSION_DENIED))
-            g_critical ("Failed to page flip: %s", error->message);
-
-          retry_page_flip_data_fake_flipped (retry_page_flip_data,
-                                             onscreen_native);
-        }
-
-      retry_page_flip_data_free (retry_page_flip_data);
-
-      l = l_next;
-    }
-
-  if (onscreen_native->pending_page_flip_retries)
-    {
-      GList *l;
-      uint64_t earliest_retry_time_us = 0;
-
-      for (l = onscreen_native->pending_page_flip_retries; l; l = l->next)
-        {
-          RetryPageFlipData *retry_page_flip_data = l->data;
-
-          if (l == onscreen_native->pending_page_flip_retries ||
-              is_timestamp_earlier_than (retry_page_flip_data->retry_time_us,
-                                         earliest_retry_time_us))
-            earliest_retry_time_us = retry_page_flip_data->retry_time_us;
-        }
-
-      g_source_set_ready_time (onscreen_native->retry_page_flips_source,
-                               earliest_retry_time_us);
-      return G_SOURCE_CONTINUE;
-    }
-  else
-    {
-      meta_backend_thaw_updates (renderer_native->backend);
-      g_clear_pointer (&onscreen_native->retry_page_flips_source,
-                       g_source_unref);
-      return G_SOURCE_REMOVE;
-    }
-}
-
-static gboolean
-retry_page_flips_source_dispatch (GSource     *source,
-                                  GSourceFunc  callback,
-                                  gpointer     user_data)
-{
-  return callback (user_data);
-}
-
-static GSourceFuncs retry_page_flips_source_funcs = {
-  .dispatch = retry_page_flips_source_dispatch,
-};
-
-static void
-schedule_retry_page_flip (MetaOnscreenNative *onscreen_native,
-                          MetaCrtc           *crtc,
-                          uint32_t            fb_id,
-                          GClosure           *flip_closure)
-{
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-  RetryPageFlipData *retry_page_flip_data;
-  uint64_t now_us;
-  uint64_t retry_time_us;
-
-  now_us = g_get_monotonic_time ();
-  retry_time_us =
-    now_us + (uint64_t) (G_USEC_PER_SEC / crtc->current_mode->refresh_rate);
-
-  retry_page_flip_data = g_new0 (RetryPageFlipData, 1);
-  retry_page_flip_data->crtc = crtc;
-  retry_page_flip_data->fb_id = fb_id;
-  retry_page_flip_data->flip_closure = g_closure_ref (flip_closure);
-  retry_page_flip_data->retry_time_us = retry_time_us;
-
-  if (!onscreen_native->retry_page_flips_source)
-    {
-      GSource *source;
-
-      source = g_source_new (&retry_page_flips_source_funcs, sizeof (GSource));
-      g_source_set_callback (source, retry_page_flips, onscreen_native, NULL);
-      g_source_set_ready_time (source, retry_time_us);
-      g_source_attach (source, NULL);
-
-      onscreen_native->retry_page_flips_source = source;
-      meta_backend_freeze_updates (renderer_native->backend);
-    }
-  else
-    {
-      GList *l;
-
-      for (l = onscreen_native->pending_page_flip_retries; l; l = l->next)
-        {
-          RetryPageFlipData *pending_retry_page_flip_data = l->data;
-          uint64_t pending_retry_time_us =
-            pending_retry_page_flip_data->retry_time_us;
-
-          if (is_timestamp_earlier_than (retry_time_us, pending_retry_time_us))
-            {
-              g_source_set_ready_time (onscreen_native->retry_page_flips_source,
-                                       retry_time_us);
-              break;
-            }
-        }
-    }
-
-  onscreen_native->pending_page_flip_retries =
-    g_list_append (onscreen_native->pending_page_flip_retries,
-                   retry_page_flip_data);
-}
-
-static gboolean
-meta_onscreen_native_flip_crtc (CoglOnscreen  *onscreen,
-                                GClosure      *flip_closure,
-                                MetaCrtc      *crtc,
-                                GError       **error)
+meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
+                                MetaRendererView *view,
+                                MetaCrtc         *crtc,
+                                MetaKmsUpdate    *kms_update)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -1748,25 +1575,11 @@ meta_onscreen_native_flip_crtc (CoglOnscreen  *onscreen,
           fb_id = meta_drm_buffer_get_fb_id (secondary_gpu_state->gbm.next_fb);
         }
 
-      if (!meta_gpu_kms_flip_crtc (gpu_kms,
-                                   crtc,
-                                   fb_id,
-                                   flip_closure,
-                                   error))
-        {
-          if (g_error_matches (*error,
-                               G_IO_ERROR,
-                               G_IO_ERROR_BUSY))
-            {
-              g_clear_error (error);
-              schedule_retry_page_flip (onscreen_native, crtc,
-                                        fb_id, flip_closure);
-            }
-          else
-            {
-              return FALSE;
-            }
-        }
+      meta_crtc_kms_assign_primary_plane (crtc, fb_id, kms_update);
+      meta_crtc_kms_page_flip (crtc,
+                               &page_flip_feedback,
+                               g_object_ref (view),
+                               kms_update);
 
       onscreen_native->total_pending_flips++;
       if (secondary_gpu_state)
@@ -1775,166 +1588,78 @@ meta_onscreen_native_flip_crtc (CoglOnscreen  *onscreen,
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      if (flip_egl_stream (onscreen_native,
-                           flip_closure))
-        onscreen_native->total_pending_flips++;
+      meta_kms_update_custom_page_flip (kms_update,
+                                        meta_crtc_kms_get_kms_crtc (crtc),
+                                        &page_flip_feedback,
+                                        g_object_ref (view),
+                                        custom_egl_stream_page_flip,
+                                        onscreen_native);
+      onscreen_native->total_pending_flips++;
       break;
 #endif
     }
-
-  return TRUE;
 }
 
-static void
-set_crtc_fb (CoglOnscreen       *onscreen,
-             MetaLogicalMonitor *logical_monitor,
-             MetaCrtc           *crtc,
-             uint32_t            render_fb_id)
+typedef struct _SetCrtcModeData
 {
-  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
-  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaGpuKms *render_gpu = onscreen_native->render_gpu;
-  MetaGpuKms *gpu_kms;
-  int x, y;
-  uint32_t fb_id;
-
-  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
-  if (gpu_kms == render_gpu)
-    {
-      fb_id = render_fb_id;
-    }
-  else
-    {
-      MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
-
-      secondary_gpu_state = get_secondary_gpu_state (onscreen, gpu_kms);
-      if (!secondary_gpu_state)
-        return;
-
-      fb_id = meta_drm_buffer_get_fb_id (secondary_gpu_state->gbm.next_fb);
-    }
-
-  x = crtc->rect.x - logical_monitor->rect.x;
-  y = crtc->rect.y - logical_monitor->rect.y;
-
-  meta_gpu_kms_apply_crtc_mode (gpu_kms, crtc, x, y, fb_id);
-}
-
-typedef struct _SetCrtcFbData
-{
-  CoglOnscreen *onscreen;
-  uint32_t fb_id;
-} SetCrtcFbData;
-
-static void
-set_crtc_fb_cb (MetaLogicalMonitor *logical_monitor,
-                MetaOutput         *output,
-                MetaCrtc           *crtc,
-                gpointer            user_data)
-{
-  SetCrtcFbData *data = user_data;
-  CoglOnscreen *onscreen = data->onscreen;
-
-  set_crtc_fb (onscreen, logical_monitor, crtc, data->fb_id);
-}
-
-static void
-meta_onscreen_native_set_crtc_modes (CoglOnscreen *onscreen)
-{
-  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
-  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-  MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaRendererNativeGpuData *renderer_gpu_data;
-  MetaRendererView *view = onscreen_native->view;
-  uint32_t fb_id = 0;
-  MetaLogicalMonitor *logical_monitor;
+  MetaOnscreenNative *onscreen_native;
+  MetaKmsUpdate *kms_update;
+} SetCrtcModeData;
 
-  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                         render_gpu);
-  switch (renderer_gpu_data->mode)
+static void
+set_crtc_mode (MetaLogicalMonitor *logical_monitor,
+               MetaOutput         *output,
+               MetaCrtc           *crtc,
+               gpointer            user_data)
+{
+  SetCrtcModeData *data = user_data;
+
+  switch (data->renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      fb_id = meta_drm_buffer_get_fb_id (onscreen_native->gbm.next_fb);
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      fb_id = onscreen_native->egl.dumb_fb.fb_id;
-      break;
+      {
+        uint32_t fb_id;
+
+        fb_id = data->onscreen_native->egl.dumb_fb.fb_id;
+        meta_crtc_kms_assign_primary_plane (crtc, fb_id, data->kms_update);
+        break;
+      }
 #endif
     }
 
-  g_assert (fb_id != 0);
-
-  logical_monitor = meta_renderer_view_get_logical_monitor (view);
-  if (logical_monitor)
-    {
-      SetCrtcFbData data = {
-        .onscreen = onscreen,
-        .fb_id = fb_id
-      };
-
-      meta_logical_monitor_foreach_crtc (logical_monitor,
-                                         set_crtc_fb_cb,
-                                         &data);
-    }
-  else
-    {
-      GList *l;
-
-      for (l = meta_gpu_get_crtcs (META_GPU (render_gpu)); l; l = l->next)
-        {
-          MetaCrtc *crtc = l->data;
-
-          meta_gpu_kms_apply_crtc_mode (render_gpu,
-                                        crtc,
-                                        crtc->rect.x, crtc->rect.y,
-                                        fb_id);
-        }
-    }
+  meta_crtc_kms_set_mode (crtc, data->kms_update);
+  meta_output_kms_set_underscan (output, data->kms_update);
 }
 
-static gboolean
-crtc_mode_set_fallback (CoglOnscreen       *onscreen,
-                        MetaLogicalMonitor *logical_monitor,
-                        MetaCrtc           *crtc)
+static void
+meta_onscreen_native_set_crtc_modes (CoglOnscreen              *onscreen,
+                                     MetaRendererNativeGpuData *renderer_gpu_data,
+                                     MetaKmsUpdate             *kms_update)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaGpuKms *render_gpu = onscreen_native->render_gpu;
-  MetaRendererNative *renderer_native;
-  MetaRendererNativeGpuData *renderer_gpu_data;
-  uint32_t fb_id;
-  static gboolean warned_once = FALSE;
+  MetaRendererView *view = onscreen_native->view;
+  MetaLogicalMonitor *logical_monitor;
+  SetCrtcModeData data;
 
-  if (!warned_once)
-    {
-      g_warning ("Page flipping not supported by driver, "
-                 "relying on the clock from now on");
-      warned_once = TRUE;
-    }
-
-  renderer_native = meta_renderer_native_from_gpu (render_gpu);
-  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                         render_gpu);
-  if (renderer_gpu_data->mode != META_RENDERER_NATIVE_MODE_GBM)
-    {
-      g_warning ("Mode set fallback not handled for EGLStreams");
-      return FALSE;
-    }
-
-  fb_id = meta_drm_buffer_get_fb_id (onscreen_native->gbm.next_fb);
-  set_crtc_fb (onscreen, logical_monitor, crtc, fb_id);
-  return TRUE;
+  logical_monitor = meta_renderer_view_get_logical_monitor (view);
+  data = (SetCrtcModeData) {
+    .renderer_gpu_data = renderer_gpu_data,
+    .onscreen_native = onscreen_native,
+    .kms_update = kms_update,
+  };
+  meta_logical_monitor_foreach_crtc (logical_monitor, set_crtc_mode, &data);
 }
 
 typedef struct _FlipCrtcData
 {
+  MetaRendererView *view;
   CoglOnscreen *onscreen;
-  GClosure *flip_closure;
-
-  gboolean did_flip;
-  gboolean did_mode_set;
+  MetaKmsUpdate *kms_update;
 } FlipCrtcData;
 
 static void
@@ -1944,32 +1669,16 @@ flip_crtc (MetaLogicalMonitor *logical_monitor,
            gpointer            user_data)
 {
   FlipCrtcData *data = user_data;
-  GError *error = NULL;
 
-  if (!meta_onscreen_native_flip_crtc (data->onscreen,
-                                       data->flip_closure,
-                                       crtc,
-                                       &error))
-    {
-      if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT))
-        {
-          if (crtc_mode_set_fallback (data->onscreen, logical_monitor, crtc))
-            data->did_mode_set = TRUE;
-        }
-      else if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
-        {
-          g_warning ("Failed to flip onscreen: %s", error->message);
-        }
-      g_error_free (error);
-    }
-  else
-    {
-      data->did_flip = TRUE;
-    }
+  meta_onscreen_native_flip_crtc (data->onscreen,
+                                  data->view,
+                                  crtc,
+                                  data->kms_update);
 }
 
 static void
-meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
+meta_onscreen_native_flip_crtcs (CoglOnscreen  *onscreen,
+                                 MetaKmsUpdate *kms_update)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -1977,51 +1686,24 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (renderer_native->backend);
-  GClosure *flip_closure;
   MetaPowerSave power_save_mode;
   MetaLogicalMonitor *logical_monitor;
-
-  /*
-   * Create a closure that either will be invoked or destructed.
-   * Invoking the closure represents a completed flip. If the closure
-   * is destructed before being invoked, the framebuffer references will be
-   * cleaned up accordingly.
-   *
-   * Each successful flip will each own one reference to the closure, thus keep
-   * it alive until either invoked or destructed. If flipping failed, the
-   * closure will be destructed before this function goes out of scope.
-   */
-  flip_closure = g_cclosure_new (G_CALLBACK (on_crtc_flipped),
-                                 g_object_ref (view),
-                                 (GClosureNotify) flip_closure_destroyed);
-  g_closure_set_marshal (flip_closure, meta_marshal_VOID__OBJECT_OBJECT_INT64);
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
   if (power_save_mode == META_POWER_SAVE_ON)
     {
       FlipCrtcData data = {
         .onscreen = onscreen,
-        .flip_closure = flip_closure,
+        .view = view,
+        .kms_update = kms_update,
       };
       logical_monitor = meta_renderer_view_get_logical_monitor (view);
       meta_logical_monitor_foreach_crtc (logical_monitor, flip_crtc, &data);
-
-      /*
-       * If we didn't queue a page flip, but instead directly changed the mode
-       * due to the driver not supporting mode setting, we must swap the
-       * buffers directly as we won't get a page flip callback.
-       */
-      if (!data.did_flip && data.did_mode_set)
-        meta_onscreen_native_swap_drm_fb (onscreen);
     }
   else
     {
-      queue_dummy_power_save_page_flip (renderer_native, flip_closure);
+      queue_dummy_power_save_page_flip (onscreen);
     }
-
-  onscreen_native->pending_queue_swap_notify = TRUE;
-
-  g_closure_unref (flip_closure);
 }
 
 static void
@@ -2031,6 +1713,7 @@ wait_for_pending_flips (CoglOnscreen *onscreen)
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
   GHashTableIter iter;
+  GError *error = NULL;
 
   g_hash_table_iter_init (&iter, onscreen_native->secondary_gpu_states);
   while (g_hash_table_iter_next (&iter,
@@ -2038,11 +1721,26 @@ wait_for_pending_flips (CoglOnscreen *onscreen)
                                  (gpointer *) &secondary_gpu_state))
     {
       while (secondary_gpu_state->pending_flips)
-        meta_gpu_kms_wait_for_flip (secondary_gpu_state->gpu_kms, NULL);
+        {
+          if (meta_gpu_kms_wait_for_flip (secondary_gpu_state->gpu_kms, &error))
+            {
+              g_warning ("Failed to wait for flip on secondary GPU: %s",
+                         error->message);
+              g_clear_error (&error);
+              break;
+            }
+        }
     }
 
   while (onscreen_native->total_pending_flips)
-    meta_gpu_kms_wait_for_flip (onscreen_native->render_gpu, NULL);
+    {
+      if (!meta_gpu_kms_wait_for_flip (onscreen_native->render_gpu, &error))
+        {
+          g_warning ("Failed to wait for flip: %s", error->message);
+          g_clear_error (&error);
+          break;
+        }
+    }
 }
 
 static void
@@ -2311,16 +2009,22 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
+  MetaBackend *backend = renderer_native->backend;
   MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (renderer_native->backend);
+    meta_backend_get_monitor_manager (backend);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   CoglFrameInfo *frame_info;
   gboolean egl_context_changed = FALSE;
+  MetaKmsUpdate *kms_update;
   MetaPowerSave power_save_mode;
   g_autoptr (GError) error = NULL;
   MetaDrmBufferGbm *buffer_gbm;
+
+  kms_update = meta_kms_ensure_pending_update (kms);
 
   /*
    * Wait for the flip callback before continuing, as we might have started the
@@ -2373,12 +2077,14 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   if (onscreen_native->pending_set_crtc &&
       power_save_mode == META_POWER_SAVE_ON)
     {
-      meta_onscreen_native_set_crtc_modes (onscreen);
+      meta_onscreen_native_set_crtc_modes (onscreen,
+                                           renderer_gpu_data,
+                                           kms_update);
       onscreen_native->pending_set_crtc = FALSE;
     }
 
   onscreen_native->pending_queue_swap_notify_frame_count = renderer_native->frame_counter;
-  meta_onscreen_native_flip_crtcs (onscreen);
+  meta_onscreen_native_flip_crtcs (onscreen, kms_update);
 
   /*
    * If we changed EGL context, cogl will have the wrong idea about what is
@@ -2388,6 +2094,12 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
    */
   if (egl_context_changed)
     _cogl_winsys_egl_ensure_current (cogl_display);
+
+  if (!meta_kms_post_pending_update_sync (kms, &error))
+    {
+      g_warning ("Failed to post KMS update: %s", error->message);
+      g_error_free (error);
+    }
 }
 
 static gboolean
@@ -2917,15 +2629,6 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
   onscreen_native = onscreen_egl->platform;
   renderer_native = onscreen_native->renderer_native;
 
-  g_list_free_full (onscreen_native->pending_page_flip_retries,
-                    (GDestroyNotify) retry_page_flip_data_free);
-  if (onscreen_native->retry_page_flips_source)
-    {
-      meta_backend_thaw_updates (renderer_native->backend);
-      g_clear_pointer (&onscreen_native->retry_page_flips_source,
-                       g_source_destroy);
-    }
-
   if (onscreen_egl->egl_surface != EGL_NO_SURFACE)
     {
       MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
@@ -3387,6 +3090,12 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
 void
 meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
 {
+  MetaBackend *backend = renderer_native->backend;
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsUpdate *kms_update = NULL;
+  GError *error = NULL;
+
   renderer_native->frame_counter++;
 
   if (renderer_native->pending_unset_disabled_crtcs)
@@ -3396,7 +3105,6 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
       for (l = meta_backend_get_gpus (renderer_native->backend); l; l = l->next)
         {
           MetaGpu *gpu = l->data;
-          MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
           GList *k;
 
           for (k = meta_gpu_get_crtcs (gpu); k; k = k->next)
@@ -3406,11 +3114,21 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
               if (crtc->current_mode)
                 continue;
 
-              meta_gpu_kms_apply_crtc_mode (gpu_kms, crtc, 0, 0, 0);
+              kms_update = meta_kms_ensure_pending_update (kms);
+              meta_crtc_kms_set_mode (crtc, kms_update);
             }
         }
 
       renderer_native->pending_unset_disabled_crtcs = FALSE;
+    }
+
+  if (kms_update)
+    {
+      if (!meta_kms_post_pending_update_sync (kms, &error))
+        {
+          g_warning ("Failed to post KMS update: %s", error->message);
+          g_error_free (error);
+        }
     }
 }
 
@@ -4007,6 +3725,22 @@ on_gpu_added (MetaBackendNative  *backend_native,
   _cogl_winsys_egl_ensure_current (cogl_display);
 }
 
+static void
+on_power_save_mode_changed (MetaMonitorManager *monitor_manager,
+                            MetaRendererNative *renderer_native)
+{
+  MetaBackendNative *backend_native =
+    META_BACKEND_NATIVE (renderer_native->backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaPowerSave power_save_mode;
+
+  power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
+  if (power_save_mode == META_POWER_SAVE_ON)
+    meta_renderer_native_queue_modes_reset (renderer_native);
+  else
+    meta_kms_discard_pending_page_flips (kms);
+}
+
 static MetaGpuKms *
 choose_primary_gpu_unchecked (MetaBackend        *backend,
                               MetaRendererNative *renderer_native)
@@ -4119,10 +3853,10 @@ meta_renderer_native_finalize (GObject *object)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (object);
 
-  if (renderer_native->power_save_page_flip_closures)
+  if (renderer_native->power_save_page_flip_onscreens)
     {
-      g_list_free_full (renderer_native->power_save_page_flip_closures,
-                        (GDestroyNotify) g_closure_unref);
+      g_list_free_full (renderer_native->power_save_page_flip_onscreens,
+                        (GDestroyNotify) cogl_object_unref);
       g_source_remove (renderer_native->power_save_page_flip_source_id);
     }
 
@@ -4138,6 +3872,8 @@ meta_renderer_native_constructed (GObject *object)
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (object);
   MetaBackend *backend = renderer_native->backend;
   MetaSettings *settings = meta_backend_get_settings (backend);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
 
   if (meta_settings_is_experimental_feature_enabled (
         settings, META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS))
@@ -4145,6 +3881,8 @@ meta_renderer_native_constructed (GObject *object)
 
   g_signal_connect (backend, "gpu-added",
                     G_CALLBACK (on_gpu_added), renderer_native);
+  g_signal_connect (monitor_manager, "power-save-mode-changed",
+                    G_CALLBACK (on_power_save_mode_changed), renderer_native);
 
   G_OBJECT_CLASS (meta_renderer_native_parent_class)->constructed (object);
 }
