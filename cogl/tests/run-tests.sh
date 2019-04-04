@@ -14,7 +14,7 @@ shift
 TEST_BINARY=$1
 shift
 
-UNIT_TESTS_FILE=$1
+UNIT_TESTS=$1
 shift
 
 . "$ENVIRONMENT_CONFIG"
@@ -103,12 +103,16 @@ fi
 echo ""
 echo ""
 
-if [ ! -f "$UNIT_TESTS_FILE" ]; then
-  echo Missing unit-tests file
+if [ -z "$UNIT_TESTS" ]; then
+  echo Missing unit-tests file or names
   exit 1
 fi
 
-for test in $(cat "$UNIT_TESTS_FILE")
+if [ -f "$UNIT_TESTS" ]; then
+  UNIT_TESTS="$(cat $UNIT_TESTS)"
+fi
+
+for test in $UNIT_TESTS
 do
   export COGL_DEBUG=
 
