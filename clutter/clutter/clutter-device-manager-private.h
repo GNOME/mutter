@@ -98,6 +98,7 @@ struct _ClutterInputDevice
   gchar *device_name;
 
   ClutterDeviceManager *device_manager;
+  ClutterSeat *seat;
 
   ClutterBackend *backend;
 
