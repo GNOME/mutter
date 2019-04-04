@@ -284,6 +284,17 @@ _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format);
 #define COGL_PIXEL_FORMAT_CAN_HAVE_PREMULT(format) \
   (((format) & COGL_A_BIT) && (format) != COGL_PIXEL_FORMAT_A_8)
 
+/**
+ * cogl_pixel_format_to_string:
+ * @format: a #CoglPixelFormat
+ *
+ * Returns a string representation of @format, useful for debugging purposes.
+ *
+ * Returns: (transfer none): A string representation of @format.
+ */
+const char *
+cogl_pixel_format_to_string (CoglPixelFormat format);
+
 G_END_DECLS
 
 #endif /* __COGL_PIXEL_FORMAT_H__ */
