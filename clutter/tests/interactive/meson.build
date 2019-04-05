@@ -1,7 +1,5 @@
-clutter_tests_interactive_srcdir = join_paths(clutter_srcdir, 'tests/interactive')
-
+clutter_tests_interactive_srcdir = meson.current_source_dir()
 clutter_tests_interactive_includepath = include_directories('.')
-#clutter_tests_interactive_builddir = join_paths(clutter_builddir, 'tests/interactive')
 
 clutter_tests_interactive_c_args = [
   '-DTESTS_DATADIR="@0@"'.format(clutter_tests_interactive_srcdir),
