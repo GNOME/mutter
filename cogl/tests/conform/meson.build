@@ -124,6 +124,7 @@ foreach test_target: cogl_conformance_tests
   test_name = '-'.join(name_parts)
   test(test_name, cogl_run_tests,
     suite: ['cogl', 'cogl/conform'],
+    env: ['RUN_TESTS_QUIET=1'],
     args: [
       cogl_config_env,
       libmutter_cogl_test_conformance,
