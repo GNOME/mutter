@@ -27,8 +27,8 @@ if have_installed_tests
 endif
 
 test_env = environment()
-test_env.set('G_TEST_SRCDIR', join_paths(top_srcdir, 'src'))
-test_env.set('G_TEST_BUILDDIR', builddir)
+test_env.set('G_TEST_SRCDIR', join_paths(meson.source_root(), 'src'))
+test_env.set('G_TEST_BUILDDIR', meson.build_root())
 test_env.set('MUTTER_TEST_PLUGIN_PATH', '@0@'.format(default_plugin.full_path()))
 
 test_client = executable('mutter-test-client',

@@ -70,9 +70,6 @@ pcdir = join_paths(libdir, 'pkgconfig')
 gettext_package = meson.project_name()
 localedir = join_paths(datadir, 'locale')
 
-top_srcdir = meson.current_source_dir()
-builddir = meson.current_build_dir()
-
 libmutter_name = 'mutter-' + libmutter_api_version
 
 mutter_installed_tests_datadir = join_paths(
