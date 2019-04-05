@@ -24,19 +24,27 @@ libmutter_cogl_test_unit = executable('test-unit',
 )
 
 find_unit_tests = find_program('meson/find-unit-tests.sh')
-cogl_unit_unit_tests = custom_target('cogl-tests-unit-unit-tests',
-  output: 'unit-tests',
-  input: libmutter_cogl,
-  command: [find_unit_tests, '@INPUT@', '@OUTPUT@'],
-  install: false,
-)
+cogl_unit_tests = run_command(
+  find_unit_tests, libmutter_cogl.full_path(), '/dev/stdout',
+  check: true,
+).stdout().strip().split('\n')
 
-test('unit', cogl_run_tests,
-  suite: ['cogl'],
-  args: [
-    cogl_config_env,
-    libmutter_cogl_test_unit,
-    cogl_unit_unit_tests
-  ],
-  is_parallel: false,
-)
+foreach test_target: cogl_unit_tests
+  name_parts = []
+  foreach part: test_target.split('_')
+    if part != 'unit' and part != 'test'
+      name_parts += [part]
+    endif
+  endforeach
+
+  test_name = '-'.join(name_parts)
+  test(test_name, cogl_run_tests,
+    suite: ['cogl', 'cogl/unit'],
+    args: [
+      cogl_config_env,
+      libmutter_cogl_test_unit,
+      test_target
+    ],
+    is_parallel: false,
+  )
+endforeach
