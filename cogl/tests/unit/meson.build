@@ -32,6 +32,7 @@ foreach test_target: cogl_unit_tests
   test_name = '-'.join(test_target.split('_'))
   test(test_name, cogl_run_tests,
     suite: ['cogl', 'cogl/unit'],
+    env: ['RUN_TESTS_QUIET=1'],
     args: [
       cogl_config_env,
       libmutter_cogl_test_unit,
