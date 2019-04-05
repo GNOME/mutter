@@ -1,5 +1,5 @@
-clutter_tests_conform_srcdir = join_paths(clutter_srcdir, 'tests/conform')
-clutter_tests_conform_builddir = join_paths(clutter_builddir, 'tests/conform')
+clutter_tests_conform_srcdir = meson.current_source_dir()
+clutter_tests_conform_builddir = meson.current_build_dir()
 
 clutter_tests_conform_c_args = [
   '-DG_LOG_DOMAIN="Clutter-Conform"',
