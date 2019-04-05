@@ -1,7 +1,5 @@
 clutter_includesubdir = join_paths(pkgname, 'clutter')
 clutter_includedir = join_paths(includedir, clutter_includesubdir)
-clutter_srcdir = join_paths(top_srcdir, 'clutter')
-clutter_builddir = join_paths(builddir, 'clutter')
 
 clutter_includepath = include_directories('.', 'clutter')
 clutter_includes = [clutter_includepath, cogl_includepath]
