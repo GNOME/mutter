@@ -626,7 +626,7 @@ if have_native_backend
       '--interface-prefix', 'org.freedesktop.login1',
       '--c-namespace', 'Login1',
       '--generate-c-code', 'meta-dbus-login1',
-      '--output-directory', join_paths(builddir, 'src'),
+      '--output-directory', meson.current_build_dir(),
       '--c-generate-autocleanup', 'all',
       '@INPUT@',
     ]
