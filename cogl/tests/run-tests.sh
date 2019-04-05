@@ -32,13 +32,15 @@ EXIT=0
 MISSING_FEATURE="WARNING: Missing required feature";
 KNOWN_FAILURE="WARNING: Test is known to fail";
 
-echo "Key:"
-echo "ok = Test passed"
-echo "n/a = Driver is missing a feature required for the test"
-echo "FAIL = Unexpected failure"
-echo "FIXME = Test failed, but it was an expected failure"
-echo "PASS! = Unexpected pass"
-echo ""
+if [ -z "$RUN_TESTS_QUIET" ]; then
+  echo "Key:"
+  echo "ok = Test passed"
+  echo "n/a = Driver is missing a feature required for the test"
+  echo "FAIL = Unexpected failure"
+  echo "FIXME = Test failed, but it was an expected failure"
+  echo "PASS! = Unexpected pass"
+  echo ""
+fi
 
 get_status()
 {
@@ -88,6 +90,11 @@ run_test()
   fi
 }
 
+if [ -z "$UNIT_TESTS" ]; then
+  echo Missing unit-tests file or names
+  exit 1
+fi
+
 TITLE_FORMAT="%35s"
 printf "$TITLE_FORMAT" "Test"
 
@@ -101,15 +108,13 @@ if test "$HAVE_GLES2" -eq 1; then
 fi
 
 echo ""
-echo ""
-
-if [ -z "$UNIT_TESTS" ]; then
-  echo Missing unit-tests file or names
-  exit 1
-fi
 
 if [ -f "$UNIT_TESTS" ]; then
   UNIT_TESTS="$(cat $UNIT_TESTS)"
+fi
+
+if [ -z "$RUN_TESTS_QUIET" ] || [ "$(echo "$UNIT_TESTS" | wc -w )" -gt 1 ]; then
+  echo ""
 fi
 
 for test in $UNIT_TESTS
