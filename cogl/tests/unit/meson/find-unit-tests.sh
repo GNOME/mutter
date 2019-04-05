@@ -1,6 +1,9 @@
 #!/bin/sh
 
-inputfile="$1"
+inputdir="$1"
 outputfile="$2"
 
-nm "$inputfile" | grep '[DR] _\?unit_test_'|sed 's/.\+ [DR] _\?//' > "$outputfile"
+echo > "$outputfile"
+
+grep -h -r --include \*.c UNIT_TEST "$inputdir" | \
+    sed -n -e 's/^UNIT_TEST *( *\([a-zA-Z0-9_]\{1,\}\).*/\1/p' > "$outputfile"

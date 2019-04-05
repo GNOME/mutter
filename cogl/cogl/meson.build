@@ -461,16 +461,24 @@ cogl_headers_all = [
 ]
 
 cogl_test_deps = []
+cogl_unit_tests_map_data = configuration_data()
 
 if have_cogl_tests
   cogl_test_deps += [libmutter_cogl_test_fixtures_dep]
+
+  cogl_unit_tests_map_data.set('unit_tests_symbols', 'test_*; unit_test_*;')
 endif
 
+libmutter_cogl_map = configure_file(
+  input: 'libmutter-cogl.map.in',
+  output: 'libmutter-cogl.map',
+  configuration: cogl_unit_tests_map_data,
+  install: false,
+)
+
 libmutter_cogl_name = 'mutter-cogl-' + libmutter_api_version
-libmutter_cogl_map = 'libmutter-cogl.map'
 libmutter_cogl_link_args = [
-  '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(),
-      libmutter_cogl_map),
+  '-Wl,--version-script,@0@'.format(libmutter_cogl_map),
 ]
 libmutter_cogl = shared_library(libmutter_cogl_name,
   sources: [cogl_sources, cogl_headers_all],
