@@ -29,8 +29,6 @@ global:
   _cogl_texture_can_hardware_repeat;
   _cogl_pipeline_prune_to_n_layers;
   _cogl_primitive_draw;
-  #test_;
-  #unit_test_;
   _cogl_winsys_glx_get_vtable;
   _cogl_winsys_egl_xlib_get_vtable;
   _cogl_winsys_egl_get_vtable;
@@ -48,6 +46,7 @@ global:
   _cogl_pixel_format_get_bytes_per_pixel*;
   _cogl_system_error_quark;
   _cogl_util_next_p2;
+  @unit_tests_symbols@
 local:
   *;
 };
