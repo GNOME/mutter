@@ -70,12 +70,7 @@ test-mutter:
     MALLOC_CHECK_: "3"
     NO_AT_BRIDGE: "1"
   script:
-    - dconf update
-    - mkdir -m 700 $XDG_RUNTIME_DIR
-    - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
-    - >
-      dbus-run-session -- xvfb-run -s '+iglx -noreset'
-      meson test -C build --no-rebuild -t 10 --verbose --no-stdsplit --print-errorlogs --wrap catchsegv
+    - bash -x ./.gitlab-ci/run-tests.sh
   artifacts:
     expire_in: 1 day
     paths:
@@ -83,6 +78,14 @@ test-mutter:
   only:
     - merge_requests
     - /^.*$/
+  artifacts:
+    reports:
+      junit: "build/${CI_JOB_NAME}-report.xml"
+    name: "mutter-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
+    when: always
+    paths:
+      - "build/meson-logs"
+      - "build/${CI_JOB_NAME}-report.xml"
 
 test-mutter-coverage:
   stage: coverage
