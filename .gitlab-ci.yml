@@ -36,11 +36,15 @@ test-mutter:
     XDG_RUNTIME_DIR: "$CI_PROJECT_DIR/runtime-dir"
     GSETTINGS_SCHEMA_DIR: "$CI_PROJECT_DIR/build/data"
   script:
-    - mkdir -m 700 $XDG_RUNTIME_DIR
-    - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
-    - >
-      dbus-run-session -- xvfb-run -s '+iglx -noreset'
-      meson test -C build --no-rebuild -t 10 --verbose --no-stdsplit --wrap catchsegv
+    - bash -x ./.gitlab-ci/run-tests.sh
   only:
     - merge_requests
     - /^.*$/
+  artifacts:
+    reports:
+      junit: "build/${CI_JOB_NAME}-report.xml"
+    name: "mutter-${CI_JOB_NAME}-${CI_COMMIT_REF_NAME}"
+    when: always
+    paths:
+      - "build/meson-logs"
+      - "build/${CI_JOB_NAME}-report.xml"
