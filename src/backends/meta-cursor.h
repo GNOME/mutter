@@ -22,6 +22,7 @@
 #ifndef META_CURSOR_H
 #define META_CURSOR_H
 
+#include "backends/meta-backend-types.h"
 #include "meta/common.h"
 #include "meta/boxes.h"
 
@@ -57,6 +58,9 @@ void meta_cursor_sprite_set_texture (MetaCursorSprite *sprite,
 void meta_cursor_sprite_set_texture_scale (MetaCursorSprite *sprite,
                                            float             scale);
 
+void meta_cursor_sprite_set_texture_transform (MetaCursorSprite     *sprite,
+                                               MetaMonitorTransform  transform);
+
 CoglTexture *meta_cursor_sprite_get_cogl_texture (MetaCursorSprite *sprite);
 
 void meta_cursor_sprite_get_hotspot (MetaCursorSprite *sprite,
@@ -64,6 +68,8 @@ void meta_cursor_sprite_get_hotspot (MetaCursorSprite *sprite,
                                      int              *hot_y);
 
 float meta_cursor_sprite_get_texture_scale (MetaCursorSprite *sprite);
+
+MetaMonitorTransform meta_cursor_sprite_get_texture_transform (MetaCursorSprite *sprite);
 
 gboolean meta_cursor_sprite_is_animated (MetaCursorSprite *sprite);
 
