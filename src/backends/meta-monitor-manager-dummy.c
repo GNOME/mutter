@@ -145,14 +145,6 @@ append_monitor (MetaMonitorManager *manager,
   const char *mode_specs_str;
   GList *l;
 
-  for (i = 0; i < G_N_ELEMENTS (default_specs); i++)
-    {
-      CrtcModeSpec *spec;
-
-      spec = g_memdup (&default_specs[i], sizeof (CrtcModeSpec));
-      mode_specs = g_list_prepend (mode_specs, spec);
-    }
-
   mode_specs_str = getenv ("MUTTER_DEBUG_DUMMY_MONITORS_SPECS");
   if (mode_specs_str && *mode_specs_str != '\0')
     {
@@ -179,6 +171,16 @@ append_monitor (MetaMonitorManager *manager,
               spec->refresh_rate = refresh_rate;
               mode_specs = g_list_prepend (mode_specs, spec);
             }
+        }
+    }
+  else
+    {
+      for (i = 0; i < G_N_ELEMENTS (default_specs); i++)
+        {
+          CrtcModeSpec *spec;
+
+          spec = g_memdup (&default_specs[i], sizeof (CrtcModeSpec));
+          mode_specs = g_list_prepend (mode_specs, spec);
         }
     }
 
