@@ -241,8 +241,13 @@ clutter_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *devi
     }
 
   /* mouse keys */
-  if (set_xkb_ctrl (desc, kbd_a11y_settings->controls,
-                    CLUTTER_A11Y_MOUSE_KEYS_ENABLED, XkbMouseKeysMask | XkbMouseKeysAccelMask))
+  if (clutter_keymap_get_num_lock_state (CLUTTER_KEYMAP (backend_x11->keymap)))
+    {
+      /* Disable mousekeys when NumLock is ON */
+      desc->ctrls->enabled_ctrls &= ~(XkbMouseKeysMask | XkbMouseKeysAccelMask);
+    }
+  else if (set_xkb_ctrl (desc, kbd_a11y_settings->controls,
+                         CLUTTER_A11Y_MOUSE_KEYS_ENABLED, XkbMouseKeysMask | XkbMouseKeysAccelMask))
     {
       gint mk_max_speed;
       gint mk_accel_time;
