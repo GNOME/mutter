@@ -151,6 +151,9 @@ append_monitor (MetaMonitorManager *manager,
   mode_specs_str = getenv ("MUTTER_DEBUG_DUMMY_MONITORS_SPECS");
   if (mode_specs_str && *mode_specs_str != '\0')
     {
+      g_list_free_full (mode_specs, g_free);
+      mode_specs = NULL;
+
       g_auto (GStrv) specs = g_strsplit (mode_specs_str, ":", -1);
       for (i = 0; specs[i]; ++i)
         {
