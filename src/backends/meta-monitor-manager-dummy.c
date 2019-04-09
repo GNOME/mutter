@@ -140,7 +140,7 @@ append_monitor (MetaMonitorManager *manager,
   const char *mode_specs_str;
   GList *l;
 
-  mode_specs_str = getenv ("MUTTER_DEBUG_DUMMY_MONITORS_SPECS");
+  mode_specs_str = getenv ("MUTTER_DEBUG_DUMMY_MODE_SPECS");
   if (mode_specs_str && *mode_specs_str != '\0')
     {
       g_auto (GStrv) specs = g_strsplit (mode_specs_str, ":", -1);
@@ -394,10 +394,11 @@ meta_monitor_manager_dummy_read_current (MetaMonitorManager *manager)
    * Specifies the number of dummy monitors to include in the stage. Every
    * monitor is 1024x786 pixels and they are placed on a horizontal row.
    *
-   * MUTTER_DEBUG_DUMMY_MONITORS_SPECS
+   * MUTTER_DEBUG_DUMMY_MODE_SPECS
    *
-   * A colon separated list of monitor specifications that can be used to
-   * configure the monitor via dbus API.
+   * A colon separated list of mode specifications that can be used to
+   * configure the monitor via dbus API. Setting this environment variable
+   * overrides the default set of modes available.
    * Format should be WWxHH:WWxHH@RR
    *
    * MUTTER_DEBUG_DUMMY_MONITOR_SCALES
