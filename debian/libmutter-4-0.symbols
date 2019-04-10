@@ -419,7 +419,7 @@ libmutter-4.so.0 libmutter-4-0 #MINVER#
  meta_rectangle_get_type@Base 3.28.2
  meta_rectangle_horiz_overlap@Base 3.28.2
  meta_rectangle_intersect@Base 3.28.2
- meta_rectangle_is_adjecent_to@Base 3.28.2
+ meta_rectangle_is_adjacent_to@Base 3.32.0+git20190410
  meta_rectangle_overlap@Base 3.28.2
  meta_rectangle_overlaps_with_region@Base 3.28.2
  meta_rectangle_resize_with_gravity@Base 3.28.2
@@ -1513,7 +1513,6 @@ libmutter-clutter-4.so.0 libmutter-4-0 #MINVER#
  clutter_input_device_get_n_mode_groups@Base 3.29.4
  clutter_input_device_get_n_rings@Base 3.29.4
  clutter_input_device_get_n_strips@Base 3.29.4
- clutter_input_device_get_physical_size@Base 3.31.90
  clutter_input_device_get_pointer_actor@Base 3.29.4
  clutter_input_device_get_pointer_stage@Base 3.29.4
  clutter_input_device_get_product_id@Base 3.29.4
