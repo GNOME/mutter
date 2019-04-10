@@ -3,7 +3,9 @@ Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
 Uploaders: @GNOME_TEAM@
-Build-Depends: debhelper (>= 11),
+Build-Depends: debhelper-compat (= 12),
+               dh-sequence-gir,
+               dh-sequence-gnome,
                at-spi2-core <!nocheck>,
                dbus <!nocheck>,
                dmz-cursor-theme <!nocheck>,
