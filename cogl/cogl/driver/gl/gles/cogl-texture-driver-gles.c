@@ -590,15 +590,6 @@ _cogl_texture_driver_size_supported (CoglContext *ctx,
   return width <= max_size && height <= max_size;
 }
 
-static void
-_cogl_texture_driver_try_setting_gl_border_color
-                                            (CoglContext *ctx,
-                                             GLuint gl_target,
-                                             const GLfloat *transparent_color)
-{
-  /* FAIL! */
-}
-
 static gboolean
 _cogl_texture_driver_allows_foreign_gl_target (CoglContext *ctx,
                                                GLenum gl_target)
@@ -636,7 +627,6 @@ _cogl_texture_driver_gles =
     _cogl_texture_driver_gl_get_tex_image,
     _cogl_texture_driver_size_supported,
     _cogl_texture_driver_size_supported_3d,
-    _cogl_texture_driver_try_setting_gl_border_color,
     _cogl_texture_driver_allows_foreign_gl_target,
     _cogl_texture_driver_find_best_gl_get_data_format
   };

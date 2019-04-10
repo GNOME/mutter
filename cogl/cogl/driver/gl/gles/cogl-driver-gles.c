@@ -429,6 +429,12 @@ _cogl_driver_update_features (CoglContext *context,
   return TRUE;
 }
 
+static gboolean
+_cogl_driver_texture_2d_is_get_data_supported (CoglTexture2D *tex_2d)
+{
+  return FALSE;
+}
+
 const CoglDriverVtable
 _cogl_driver_gles =
   {
@@ -453,7 +459,7 @@ _cogl_driver_gles =
     _cogl_texture_2d_gl_get_gl_handle,
     _cogl_texture_2d_gl_generate_mipmap,
     _cogl_texture_2d_gl_copy_from_bitmap,
-    NULL, /* texture_2d_is_get_data_supported */
+    _cogl_driver_texture_2d_is_get_data_supported,
     NULL, /* texture_2d_get_data */
     _cogl_gl_flush_attributes_state,
     _cogl_clip_stack_gl_flush,

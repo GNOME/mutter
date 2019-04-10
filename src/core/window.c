@@ -1424,6 +1424,9 @@ meta_window_unmanage (MetaWindow  *window,
   meta_verbose ("Unmanaging %s\n", window->desc);
   window->unmanaging = TRUE;
 
+  if (window->unmanage_idle_id)
+    g_source_remove (window->unmanage_idle_id);
+
 #ifdef HAVE_WAYLAND
   /* This needs to happen for both Wayland and XWayland clients,
    * so it can't be in MetaWindowWayland. */
@@ -1593,6 +1596,32 @@ meta_window_unmanage (MetaWindow  *window,
   g_signal_emit (window, window_signals[UNMANAGED], 0);
 
   g_object_unref (window);
+}
+
+static gboolean
+unmanage_window_idle_callback (gpointer user_data)
+{
+  MetaWindow *window = META_WINDOW (user_data);
+  uint32_t timestamp;
+
+  window->unmanage_idle_id = 0;
+
+  timestamp = meta_display_get_current_time_roundtrip (window->display);
+  meta_window_unmanage (window, timestamp);
+
+  return G_SOURCE_REMOVE;
+}
+
+void
+meta_window_unmanage_on_idle (MetaWindow *window)
+{
+  if (window->unmanage_idle_id)
+    return;
+
+  window->unmanage_idle_id = g_idle_add_full (G_PRIORITY_HIGH_IDLE,
+                                              unmanage_window_idle_callback,
+                                              window,
+                                              NULL);
 }
 
 static void
@@ -3781,6 +3810,9 @@ static gboolean
 maybe_move_attached_window (MetaWindow *window,
                             void       *data)
 {
+  if (window->hidden)
+    return FALSE;
+
   if (meta_window_is_attached_dialog (window) ||
       meta_window_get_placement_rule (window))
     meta_window_reposition (window);

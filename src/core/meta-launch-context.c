@@ -142,8 +142,8 @@ meta_launch_context_get_startup_notify_id (GAppLaunchContext *launch_context,
       startup_id =
         meta_x11_startup_notification_launch (display->x11_display,
                                               info,
-                                              workspace_idx,
-                                              context->timestamp);
+                                              context->timestamp,
+                                              workspace_idx);
     }
 
   if (!startup_id)

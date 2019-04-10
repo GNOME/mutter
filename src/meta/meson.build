@@ -48,7 +48,7 @@ if have_x11
 endif
 
 install_headers(mutter_public_headers,
-  subdir: mutter_includedir
+  subdir: mutter_includesubdir
 )
 
 mutter_public_header_files = files(mutter_public_headers)

@@ -70,8 +70,8 @@ if have_introspection
   )
 endif
 
-cogl_pango_includedir = join_paths(cogl_includedir, 'cogl-pango')
-install_headers(cogl_pango_public_headers, subdir: cogl_pango_includedir)
+cogl_pango_includesubdir = join_paths(cogl_includesubdir, 'cogl-pango')
+install_headers(cogl_pango_public_headers, subdir: cogl_pango_includesubdir)
 
 pkg.generate(libmutter_cogl_pango,
   name: 'CoglPango',

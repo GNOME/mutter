@@ -121,6 +121,50 @@ meta_monitor_manager_xrandr_read_edid (MetaMonitorManager *manager,
   return meta_output_xrandr_read_edid (output);
 }
 
+static MetaPowerSave
+x11_dpms_state_to_power_save (CARD16 dpms_state)
+{
+  switch (dpms_state)
+    {
+    case DPMSModeOn:
+      return META_POWER_SAVE_ON;
+    case DPMSModeStandby:
+      return META_POWER_SAVE_STANDBY;
+    case DPMSModeSuspend:
+      return META_POWER_SAVE_SUSPEND;
+    case DPMSModeOff:
+      return META_POWER_SAVE_OFF;
+    default:
+      return META_POWER_SAVE_UNSUPPORTED;
+    }
+}
+
+static void
+meta_monitor_manager_xrandr_read_current_state (MetaMonitorManager *manager)
+{
+  MetaMonitorManagerXrandr *manager_xrandr =
+    META_MONITOR_MANAGER_XRANDR (manager);
+  MetaMonitorManagerClass *parent_class =
+    META_MONITOR_MANAGER_CLASS (meta_monitor_manager_xrandr_parent_class);
+  Display *xdisplay = meta_monitor_manager_xrandr_get_xdisplay (manager_xrandr);
+  BOOL dpms_capable, dpms_enabled;
+  CARD16 dpms_state;
+  MetaPowerSave power_save_mode;
+
+  dpms_capable = DPMSCapable (xdisplay);
+
+  if (dpms_capable &&
+      DPMSInfo (xdisplay, &dpms_state, &dpms_enabled) &&
+      dpms_enabled)
+    power_save_mode = x11_dpms_state_to_power_save (dpms_state);
+  else
+    power_save_mode = META_POWER_SAVE_UNSUPPORTED;
+
+  meta_monitor_manager_power_save_mode_changed (manager, power_save_mode);
+
+  parent_class->read_current_state (manager);
+}
+
 static void
 meta_monitor_manager_xrandr_set_power_save_mode (MetaMonitorManager *manager,
 						 MetaPowerSave       mode)
@@ -929,11 +973,11 @@ ensure_supported_monitor_scales (MetaMonitorManager *manager)
 }
 
 static float *
-meta_monitor_manager_xrandr_calculate_supported_scales (MetaMonitorManager          *manager,
-                                                        MetaLogicalMonitorLayoutMode layout_mode,
-                                                        MetaMonitor                 *monitor,
-                                                        MetaMonitorMode             *monitor_mode,
-                                                        int                         *n_supported_scales)
+meta_monitor_manager_xrandr_calculate_supported_scales (MetaMonitorManager           *manager,
+                                                        MetaLogicalMonitorLayoutMode  layout_mode,
+                                                        MetaMonitor                  *monitor,
+                                                        MetaMonitorMode              *monitor_mode,
+                                                        int                          *n_supported_scales)
 {
   MetaMonitorManagerXrandr *manager_xrandr =
     META_MONITOR_MANAGER_XRANDR (manager);
@@ -1046,6 +1090,7 @@ meta_monitor_manager_xrandr_class_init (MetaMonitorManagerXrandrClass *klass)
   object_class->constructed = meta_monitor_manager_xrandr_constructed;
 
   manager_class->read_edid = meta_monitor_manager_xrandr_read_edid;
+  manager_class->read_current_state = meta_monitor_manager_xrandr_read_current_state;
   manager_class->ensure_initial_config = meta_monitor_manager_xrandr_ensure_initial_config;
   manager_class->apply_monitors_config = meta_monitor_manager_xrandr_apply_monitors_config;
   manager_class->set_power_save_mode = meta_monitor_manager_xrandr_set_power_save_mode;

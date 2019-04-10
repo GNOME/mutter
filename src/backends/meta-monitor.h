@@ -74,12 +74,12 @@ struct _MetaMonitorClass
   MetaOutput * (* get_main_output) (MetaMonitor *monitor);
   void (* derive_layout) (MetaMonitor   *monitor,
                           MetaRectangle *layout);
-  void (* calculate_crtc_pos) (MetaMonitor         *monitor,
-                               MetaMonitorMode     *monitor_mode,
-                               MetaOutput          *output,
-                               MetaMonitorTransform crtc_transform,
-                               int                 *out_x,
-                               int                 *out_y);
+  void (* calculate_crtc_pos) (MetaMonitor          *monitor,
+                               MetaMonitorMode      *monitor_mode,
+                               MetaOutput           *output,
+                               MetaMonitorTransform  crtc_transform,
+                               int                  *out_x,
+                               int                  *out_y);
   gboolean (* get_suggested_position) (MetaMonitor *monitor,
                                        int         *width,
                                        int         *height);
@@ -214,22 +214,22 @@ META_EXPORT_TEST
 GList * meta_monitor_get_modes (MetaMonitor *monitor);
 
 META_EXPORT_TEST
-void meta_monitor_calculate_crtc_pos (MetaMonitor         *monitor,
-                                      MetaMonitorMode     *monitor_mode,
-                                      MetaOutput          *output,
-                                      MetaMonitorTransform crtc_transform,
-                                      int                 *out_x,
-                                      int                 *out_y);
+void meta_monitor_calculate_crtc_pos (MetaMonitor          *monitor,
+                                      MetaMonitorMode      *monitor_mode,
+                                      MetaOutput           *output,
+                                      MetaMonitorTransform  crtc_transform,
+                                      int                  *out_x,
+                                      int                  *out_y);
 
 META_EXPORT_TEST
 float meta_monitor_calculate_mode_scale (MetaMonitor     *monitor,
                                          MetaMonitorMode *monitor_mode);
 
 META_EXPORT_TEST
-float * meta_monitor_calculate_supported_scales (MetaMonitor                *monitor,
-                                                 MetaMonitorMode            *monitor_mode,
-                                                 MetaMonitorScalesConstraint constraints,
-                                                 int                        *n_supported_scales);
+float * meta_monitor_calculate_supported_scales (MetaMonitor                 *monitor,
+                                                 MetaMonitorMode             *monitor_mode,
+                                                 MetaMonitorScalesConstraint  constraints,
+                                                 int                         *n_supported_scales);
 
 META_EXPORT_TEST
 const char * meta_monitor_mode_get_id (MetaMonitorMode *monitor_mode);
@@ -249,18 +249,18 @@ META_EXPORT_TEST
 MetaCrtcModeFlag meta_monitor_mode_get_flags (MetaMonitorMode *monitor_mode);
 
 META_EXPORT_TEST
-gboolean meta_monitor_mode_foreach_crtc (MetaMonitor        *monitor,
-                                         MetaMonitorMode    *mode,
-                                         MetaMonitorModeFunc func,
-                                         gpointer            user_data,
-                                         GError            **error);
+gboolean meta_monitor_mode_foreach_crtc (MetaMonitor          *monitor,
+                                         MetaMonitorMode      *mode,
+                                         MetaMonitorModeFunc   func,
+                                         gpointer              user_data,
+                                         GError              **error);
 
 META_EXPORT_TEST
-gboolean meta_monitor_mode_foreach_output (MetaMonitor        *monitor,
-                                           MetaMonitorMode    *mode,
-                                           MetaMonitorModeFunc func,
-                                           gpointer            user_data,
-                                           GError            **error);
+gboolean meta_monitor_mode_foreach_output (MetaMonitor          *monitor,
+                                           MetaMonitorMode      *mode,
+                                           MetaMonitorModeFunc   func,
+                                           gpointer              user_data,
+                                           GError              **error);
 
 META_EXPORT_TEST
 gboolean meta_monitor_mode_should_be_advertised (MetaMonitorMode *monitor_mode);

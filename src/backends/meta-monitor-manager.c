@@ -95,7 +95,13 @@ static gfloat transform_matrices[][6] = {
 
 static int signals[SIGNALS_LAST];
 
-G_DEFINE_TYPE (MetaMonitorManager, meta_monitor_manager, G_TYPE_OBJECT)
+typedef struct _MetaMonitorManagerPrivate
+{
+  MetaPowerSave power_save_mode;
+} MetaMonitorManagerPrivate;
+
+G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitorManager, meta_monitor_manager,
+                            G_TYPE_OBJECT)
 
 static void initialize_dbus_interface (MetaMonitorManager *manager);
 static void monitor_manager_setup_dbus_config_handlers (MetaMonitorManager *manager);
@@ -106,6 +112,9 @@ meta_monitor_manager_is_config_complete (MetaMonitorManager *manager,
 
 static MetaMonitor *
 meta_monitor_manager_get_active_monitor (MetaMonitorManager *manager);
+
+static void
+meta_monitor_manager_real_read_current_state (MetaMonitorManager *manager);
 
 MetaBackend *
 meta_monitor_manager_get_backend (MetaMonitorManager *manager)
@@ -329,11 +338,24 @@ meta_monitor_manager_rebuild_logical_monitors_derived (MetaMonitorManager *manag
                                                     primary_logical_monitor);
 }
 
+void
+meta_monitor_manager_power_save_mode_changed (MetaMonitorManager *manager,
+                                              MetaPowerSave       mode)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+
+  priv->power_save_mode = mode;
+  g_signal_emit (manager, signals[POWER_SAVE_MODE_CHANGED], 0);
+}
+
 static void
 power_save_mode_changed (MetaMonitorManager *manager,
                          GParamSpec         *pspec,
                          gpointer            user_data)
 {
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
   MetaMonitorManagerClass *klass;
   int mode = meta_dbus_display_config_get_power_save_mode (manager->display_config);
 
@@ -341,7 +363,7 @@ power_save_mode_changed (MetaMonitorManager *manager,
     return;
 
   /* If DPMS is unsupported, force the property back. */
-  if (manager->power_save_mode == META_POWER_SAVE_UNSUPPORTED)
+  if (priv->power_save_mode == META_POWER_SAVE_UNSUPPORTED)
     {
       meta_dbus_display_config_set_power_save_mode (manager->display_config, META_POWER_SAVE_UNSUPPORTED);
       return;
@@ -351,9 +373,7 @@ power_save_mode_changed (MetaMonitorManager *manager,
   if (klass->set_power_save_mode)
     klass->set_power_save_mode (manager, mode);
 
-  manager->power_save_mode = mode;
-
-  g_signal_emit (manager, signals[POWER_SAVE_MODE_CHANGED], 0);
+  meta_monitor_manager_power_save_mode_changed (manager, mode);
 }
 
 void
@@ -400,11 +420,11 @@ meta_monitor_manager_calculate_monitor_mode_scale (MetaMonitorManager *manager,
 }
 
 float *
-meta_monitor_manager_calculate_supported_scales (MetaMonitorManager          *manager,
-                                                 MetaLogicalMonitorLayoutMode layout_mode,
-                                                 MetaMonitor                 *monitor,
-                                                 MetaMonitorMode             *monitor_mode,
-                                                 int                         *n_supported_scales)
+meta_monitor_manager_calculate_supported_scales (MetaMonitorManager           *manager,
+                                                 MetaLogicalMonitorLayoutMode  layout_mode,
+                                                 MetaMonitor                  *monitor,
+                                                 MetaMonitorMode              *monitor_mode,
+                                                 int                          *n_supported_scales)
 {
   MetaMonitorManagerClass *manager_class =
     META_MONITOR_MANAGER_GET_CLASS (manager);
@@ -855,6 +875,7 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
   object_class->set_property = meta_monitor_manager_set_property;
 
   klass->read_edid = meta_monitor_manager_real_read_edid;
+  klass->read_current_state = meta_monitor_manager_real_read_current_state;
 
   signals[MONITORS_CHANGED] =
     g_signal_new ("monitors-changed",
@@ -2684,6 +2705,15 @@ meta_monitor_manager_get_screen_size (MetaMonitorManager *manager,
   *height = manager->screen_height;
 }
 
+MetaPowerSave
+meta_monitor_manager_get_power_save_mode (MetaMonitorManager *manager)
+{
+  MetaMonitorManagerPrivate *priv =
+    meta_monitor_manager_get_instance_private (manager);
+
+  return priv->power_save_mode;
+}
+
 static void
 rebuild_monitors (MetaMonitorManager *manager)
 {
@@ -2760,8 +2790,8 @@ meta_monitor_manager_is_transform_handled (MetaMonitorManager  *manager,
   return manager_class->is_transform_handled (manager, crtc, transform);
 }
 
-void
-meta_monitor_manager_read_current_state (MetaMonitorManager *manager)
+static void
+meta_monitor_manager_real_read_current_state (MetaMonitorManager *manager)
 {
   GList *l;
 
@@ -2780,6 +2810,15 @@ meta_monitor_manager_read_current_state (MetaMonitorManager *manager)
     }
 
   rebuild_monitors (manager);
+}
+
+void
+meta_monitor_manager_read_current_state (MetaMonitorManager *manager)
+{
+  MetaMonitorManagerClass *manager_class =
+    META_MONITOR_MANAGER_GET_CLASS (manager);
+
+  manager_class->read_current_state (manager);
 }
 
 static void

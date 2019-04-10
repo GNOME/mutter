@@ -171,10 +171,6 @@ void                      clutter_input_device_set_mapping_mode (ClutterInputDev
 CLUTTER_EXPORT
 gboolean                  clutter_input_device_is_grouped       (ClutterInputDevice *device,
                                                                  ClutterInputDevice *other_device);
-CLUTTER_EXPORT
-gboolean                  clutter_input_device_get_physical_size (ClutterInputDevice *device,
-								  gdouble            *width,
-								  gdouble            *height);
 
 G_END_DECLS
 

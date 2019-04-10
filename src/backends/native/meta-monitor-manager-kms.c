@@ -109,6 +109,21 @@ meta_monitor_manager_kms_read_edid (MetaMonitorManager *manager,
 }
 
 static void
+meta_monitor_manager_kms_read_current_state (MetaMonitorManager *manager)
+{
+  MetaMonitorManagerClass *parent_class =
+    META_MONITOR_MANAGER_CLASS (meta_monitor_manager_kms_parent_class);
+  MetaPowerSave power_save_mode;
+
+  power_save_mode = meta_monitor_manager_get_power_save_mode (manager);
+  if (power_save_mode != META_POWER_SAVE_ON)
+    meta_monitor_manager_power_save_mode_changed (manager,
+                                                  META_POWER_SAVE_ON);
+
+  parent_class->read_current_state (manager);
+}
+
+static void
 meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
                                               MetaPowerSave       mode)
 {
@@ -512,11 +527,11 @@ meta_monitor_manager_kms_calculate_monitor_mode_scale (MetaMonitorManager *manag
 }
 
 static float *
-meta_monitor_manager_kms_calculate_supported_scales (MetaMonitorManager          *manager,
-                                                     MetaLogicalMonitorLayoutMode layout_mode,
-                                                     MetaMonitor                 *monitor,
-                                                     MetaMonitorMode             *monitor_mode,
-                                                     int                         *n_supported_scales)
+meta_monitor_manager_kms_calculate_supported_scales (MetaMonitorManager           *manager,
+                                                     MetaLogicalMonitorLayoutMode  layout_mode,
+                                                     MetaMonitor                  *monitor,
+                                                     MetaMonitorMode              *monitor_mode,
+                                                     int                          *n_supported_scales)
 {
   MetaMonitorScalesConstraint constraints =
     META_MONITOR_SCALES_CONSTRAINT_NONE;
@@ -755,6 +770,7 @@ meta_monitor_manager_kms_class_init (MetaMonitorManagerKmsClass *klass)
   object_class->dispose = meta_monitor_manager_kms_dispose;
 
   manager_class->read_edid = meta_monitor_manager_kms_read_edid;
+  manager_class->read_current_state = meta_monitor_manager_kms_read_current_state;
   manager_class->ensure_initial_config = meta_monitor_manager_kms_ensure_initial_config;
   manager_class->apply_monitors_config = meta_monitor_manager_kms_apply_monitors_config;
   manager_class->set_power_save_mode = meta_monitor_manager_kms_set_power_save_mode;

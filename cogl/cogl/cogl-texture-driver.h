@@ -172,15 +172,6 @@ struct _CoglTextureDriver
                          int depth);
 
   /*
-   * This driver abstraction is needed because GLES doesn't support setting
-   * a texture border color.
-   */
-  void
-  (* try_setting_gl_border_color) (CoglContext *ctx,
-                                   GLuint gl_target,
-                                   const GLfloat *transparent_color);
-
-  /*
    * It may depend on the driver as to what texture targets may be used when
    * creating a foreign texture. E.g. OpenGL supports ARB_texture_rectangle
    * but GLES doesn't

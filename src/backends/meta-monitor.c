@@ -615,12 +615,12 @@ meta_monitor_normal_get_suggested_position (MetaMonitor *monitor,
 }
 
 static void
-meta_monitor_normal_calculate_crtc_pos (MetaMonitor         *monitor,
-                                        MetaMonitorMode     *monitor_mode,
-                                        MetaOutput          *output,
-                                        MetaMonitorTransform crtc_transform,
-                                        int                 *out_x,
-                                        int                 *out_y)
+meta_monitor_normal_calculate_crtc_pos (MetaMonitor          *monitor,
+                                        MetaMonitorMode      *monitor_mode,
+                                        MetaOutput           *output,
+                                        MetaMonitorTransform  crtc_transform,
+                                        int                  *out_x,
+                                        int                  *out_y)
 {
   *out_x = 0;
   *out_y = 0;
@@ -1267,12 +1267,12 @@ meta_monitor_tiled_get_suggested_position (MetaMonitor *monitor,
 }
 
 static void
-meta_monitor_tiled_calculate_crtc_pos (MetaMonitor         *monitor,
-                                       MetaMonitorMode     *monitor_mode,
-                                       MetaOutput          *output,
-                                       MetaMonitorTransform crtc_transform,
-                                       int                 *out_x,
-                                       int                 *out_y)
+meta_monitor_tiled_calculate_crtc_pos (MetaMonitor          *monitor,
+                                       MetaMonitorMode      *monitor_mode,
+                                       MetaOutput           *output,
+                                       MetaMonitorTransform  crtc_transform,
+                                       int                  *out_x,
+                                       int                  *out_y)
 {
   MetaMonitorModeTiled *mode_tiled = (MetaMonitorModeTiled *) monitor_mode;
 
@@ -1461,12 +1461,12 @@ meta_monitor_get_modes (MetaMonitor *monitor)
 }
 
 void
-meta_monitor_calculate_crtc_pos (MetaMonitor         *monitor,
-                                 MetaMonitorMode     *monitor_mode,
-                                 MetaOutput          *output,
-                                 MetaMonitorTransform crtc_transform,
-                                 int                 *out_x,
-                                 int                 *out_y)
+meta_monitor_calculate_crtc_pos (MetaMonitor          *monitor,
+                                 MetaMonitorMode      *monitor_mode,
+                                 MetaOutput           *output,
+                                 MetaMonitorTransform  crtc_transform,
+                                 int                  *out_x,
+                                 int                  *out_y)
 {
   META_MONITOR_GET_CLASS (monitor)->calculate_crtc_pos (monitor,
                                                         monitor_mode,
@@ -1587,7 +1587,6 @@ get_closest_scale_factor_for_resolution (float width,
   float scaled_w;
   float best_scale;
   int base_scaled_w;
-  gboolean limit_exceeded;
   gboolean found_one;
 
   best_scale = 0;
@@ -1604,7 +1603,6 @@ get_closest_scale_factor_for_resolution (float width,
 
   i = 0;
   found_one = FALSE;
-  limit_exceeded = FALSE;
   base_scaled_w = floorf (scaled_w);
 
   do
@@ -1637,17 +1635,17 @@ get_closest_scale_factor_for_resolution (float width,
 
       i++;
     }
-  while (!found_one && !limit_exceeded);
+  while (!found_one);
 
 out:
   return best_scale;
 }
 
 float *
-meta_monitor_calculate_supported_scales (MetaMonitor                *monitor,
-                                         MetaMonitorMode            *monitor_mode,
-                                         MetaMonitorScalesConstraint constraints,
-                                         int                        *n_supported_scales)
+meta_monitor_calculate_supported_scales (MetaMonitor                 *monitor,
+                                         MetaMonitorMode             *monitor_mode,
+                                         MetaMonitorScalesConstraint  constraints,
+                                         int                         *n_supported_scales)
 {
   unsigned int i, j;
   int width, height;
@@ -1727,11 +1725,11 @@ meta_monitor_mode_get_flags (MetaMonitorMode *monitor_mode)
 }
 
 gboolean
-meta_monitor_mode_foreach_crtc (MetaMonitor        *monitor,
-                                MetaMonitorMode    *mode,
-                                MetaMonitorModeFunc func,
-                                gpointer            user_data,
-                                GError            **error)
+meta_monitor_mode_foreach_crtc (MetaMonitor          *monitor,
+                                MetaMonitorMode      *mode,
+                                MetaMonitorModeFunc   func,
+                                gpointer              user_data,
+                                GError              **error)
 {
   MetaMonitorPrivate *monitor_priv =
     meta_monitor_get_instance_private (monitor);
@@ -1753,11 +1751,11 @@ meta_monitor_mode_foreach_crtc (MetaMonitor        *monitor,
 }
 
 gboolean
-meta_monitor_mode_foreach_output (MetaMonitor        *monitor,
-                                  MetaMonitorMode    *mode,
-                                  MetaMonitorModeFunc func,
-                                  gpointer            user_data,
-                                  GError            **error)
+meta_monitor_mode_foreach_output (MetaMonitor          *monitor,
+                                  MetaMonitorMode      *mode,
+                                  MetaMonitorModeFunc   func,
+                                  gpointer              user_data,
+                                  GError              **error)
 {
   MetaMonitorPrivate *monitor_priv =
     meta_monitor_get_instance_private (monitor);
