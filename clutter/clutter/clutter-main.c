@@ -2794,7 +2794,12 @@ clutter_input_device_ungrab (ClutterInputDevice *device)
                                         G_CALLBACK (on_grab_actor_destroy),
                                         device);
 
+  if (clutter_input_device_get_actor (device, NULL) != *grab_actor)
+    _clutter_input_device_set_actor (device, NULL, *grab_actor, FALSE);
+
   *grab_actor = NULL;
+
+  _clutter_input_device_update (device, NULL, TRUE);
 }
 
 /**
