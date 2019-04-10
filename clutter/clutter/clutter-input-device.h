@@ -65,6 +65,8 @@ CLUTTER_EXPORT
 ClutterActor *          clutter_input_device_get_actor         (ClutterInputDevice   *device,
                                                                 ClutterEventSequence *sequence);
 CLUTTER_EXPORT
+GList *                 clutter_input_device_get_touch_sequences (ClutterInputDevice  *device);
+CLUTTER_EXPORT
 ClutterStage *          clutter_input_device_get_pointer_stage  (ClutterInputDevice  *device);
 CLUTTER_EXPORT
 const gchar *           clutter_input_device_get_device_name    (ClutterInputDevice  *device);

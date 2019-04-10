@@ -716,6 +716,27 @@ clutter_input_device_get_actor (ClutterInputDevice   *device,
   return info->actor;
 }
 
+/**
+ * clutter_input_device_get_touch_sequences:
+ * @device: a #ClutterInputDevice
+ *
+ * Retrieves the current modifiers state of the device, as seen
+ * by the last event Clutter processed.
+ *
+ * Return value: (transfer container) (element-type Clutter.EventSequence): a
+ *   list of #ClutterInputDevice, or %NULL. The contents of the list are
+ *   owned by the device. Use g_list_free() when done
+ *
+ * Since: 1.16
+ */
+GList *
+clutter_input_device_get_touch_sequences (ClutterInputDevice *device)
+{
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
+
+  return g_hash_table_get_keys (device->touch_sequences_info);
+}
+
 static void
 _clutter_input_device_associate_actor (ClutterInputDevice   *device,
                                        ClutterEventSequence *sequence,
