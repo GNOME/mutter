@@ -1,7 +1,16 @@
 mutter (3.32.0+git20190410-1) UNRELEASED; urgency=medium
 
   * New upstream snapshot up to commit
-    b2d0184c6efa164ad5dd7a2ca8b10cf13acf5b4c.
+    b2d0184c6efa164ad5dd7a2ca8b10cf13acf5b4c. Fixes Launchpad bugs:
+    + GNOME Shell task bar menus not updated with external monitor primary and
+      laptop screen fractionally scaled (LP: #1803319)
+    + (In Xorg sessions only) apps launched from gnome shell do not get input
+      focus (LP: #1817924)
+    + Touch input is offset with two screens (even appearing on the wrong
+      screen) in Xorg sessions (LP: #1821933)
+    + gnome-shell crashed with SIGABRT. Assertion failure in
+      meta_gpu_kms_flip_crtc: "monitor_manager->power_save_mode ==
+      META_POWER_SAVE_ON" (LP: #1820331)
 
  -- Iain Lane <laney@debian.org>  Wed, 10 Apr 2019 15:14:19 +0100
 
