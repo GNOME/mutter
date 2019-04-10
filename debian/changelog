@@ -11,8 +11,18 @@ mutter (3.32.0+git20190410-1) UNRELEASED; urgency=medium
     + gnome-shell crashed with SIGABRT. Assertion failure in
       meta_gpu_kms_flip_crtc: "monitor_manager->power_save_mode ==
       META_POWER_SAVE_ON" (LP: #1820331)
+  * debian/patches/various: Drop upstream cherry-picks. We had cherry-picked
+    the stable branch into Debian patches in the previous upload, but that
+    would get out of hand if we carried on. Instead we are using a tarball
+    snapshot. So drop the cherry-picks.
+  * Update symbols. A typo was fixed in a public symbol. This is an ABI break,
+    but upstream didn't consider this worthy of a SONAME change. A codesearch
+    / github / web search doesn't reveal any external users either, so we will
+    eat this to avoid another transition.
+  * Use debhelper-compat 12 and BD on dh-sequence-{gnome,gir}. We were missing
+    a direct BD on the providers. Thanks, Lintian.
 
- -- Iain Lane <laney@debian.org>  Wed, 10 Apr 2019 15:14:19 +0100
+ -- Iain Lane <laney@debian.org>  Wed, 10 Apr 2019 15:59:06 +0100
 
 mutter (3.32.0-1) experimental; urgency=medium
 
