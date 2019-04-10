@@ -676,7 +676,7 @@ stop_toggle_slowkeys (ClutterInputDeviceEvdev *device)
 }
 
 static void
-handle_togglekeys_press (ClutterEvent            *event,
+handle_enablekeys_press (ClutterEvent            *event,
                          ClutterInputDeviceEvdev *device)
 {
   if (event->key.keyval == XKB_KEY_Shift_L || event->key.keyval == XKB_KEY_Shift_R)
@@ -698,7 +698,7 @@ handle_togglekeys_press (ClutterEvent            *event,
 }
 
 static void
-handle_togglekeys_release (ClutterEvent            *event,
+handle_enablekeys_release (ClutterEvent            *event,
                            ClutterInputDeviceEvdev *device)
 {
   if (event->key.keyval == XKB_KEY_Shift_L || event->key.keyval == XKB_KEY_Shift_R)
@@ -1132,8 +1132,13 @@ clutter_input_device_evdev_process_kbd_a11y_event (ClutterEvent               *e
   if (event->key.flags & CLUTTER_EVENT_FLAG_INPUT_METHOD)
     goto emit_event;
 
-  if (!device_evdev->a11y_flags & CLUTTER_A11Y_KEYBOARD_ENABLED)
+  if (!(device_evdev->a11y_flags & CLUTTER_A11Y_KEYBOARD_ENABLED))
     goto emit_event;
+
+  if (event->type == CLUTTER_KEY_PRESS)
+    handle_enablekeys_press (event, device_evdev);
+  else
+    handle_enablekeys_release (event, device_evdev);
 
   if (device_evdev->a11y_flags & CLUTTER_A11Y_MOUSE_KEYS_ENABLED)
     {
@@ -1143,14 +1148,6 @@ clutter_input_device_evdev_process_kbd_a11y_event (ClutterEvent               *e
       if (event->type == CLUTTER_KEY_RELEASE &&
           handle_mousekeys_release (event, device_evdev))
         return; /* swallow event */
-    }
-
-  if (device_evdev->a11y_flags & CLUTTER_A11Y_TOGGLE_KEYS_ENABLED)
-    {
-      if (event->type == CLUTTER_KEY_PRESS)
-        handle_togglekeys_press (event, device_evdev);
-      else
-        handle_togglekeys_release (event, device_evdev);
     }
 
   if ((device_evdev->a11y_flags & CLUTTER_A11Y_BOUNCE_KEYS_ENABLED) &&
@@ -1266,18 +1263,6 @@ clutter_input_device_evdev_release_touch_state (ClutterInputDeviceEvdev *device,
                        GINT_TO_POINTER (touch_state->device_slot));
 }
 
-static gboolean
-clutter_input_device_evdev_get_physical_size (ClutterInputDevice *device,
-                                              gdouble            *width,
-                                              gdouble            *height)
-{
-  struct libinput_device *libinput_device;
-
-  libinput_device = clutter_evdev_input_device_get_libinput_device (device);
-
-  return libinput_device_get_size (libinput_device, width, height) == 0;
-}
-
 static void
 clutter_input_device_evdev_class_init (ClutterInputDeviceEvdevClass *klass)
 {
@@ -1293,7 +1278,6 @@ clutter_input_device_evdev_class_init (ClutterInputDeviceEvdevClass *klass)
   klass->get_group_n_modes = clutter_input_device_evdev_get_group_n_modes;
   klass->is_grouped = clutter_input_device_evdev_is_grouped;
   klass->process_kbd_a11y_event = clutter_input_device_evdev_process_kbd_a11y_event;
-  klass->get_physical_size = clutter_input_device_evdev_get_physical_size;
 
   obj_props[PROP_DEVICE_MATRIX] =
     g_param_spec_boxed ("device-matrix",

@@ -142,6 +142,12 @@ typedef struct _MetaPlacementRule
   int height;
 } MetaPlacementRule;
 
+typedef enum _MetaPlacementState
+{
+  META_PLACEMENT_STATE_UNCONSTRAINED,
+  META_PLACEMENT_STATE_CONSTRAINED,
+} MetaPlacementState;
+
 typedef enum
 {
   META_EDGE_CONSTRAINT_NONE    = 0,
@@ -524,9 +530,11 @@ struct _MetaWindow
   guint bypass_compositor;
 
   MetaPlacementRule *placement_rule;
-  gboolean placement_rule_constrained;
+  MetaPlacementState placement_state;
   int constrained_placement_rule_offset_x;
   int constrained_placement_rule_offset_y;
+
+  guint unmanage_idle_id;
 };
 
 struct _MetaWindowClass
@@ -610,6 +618,7 @@ MetaWindow * _meta_window_shared_new       (MetaDisplay         *display,
 
 void        meta_window_unmanage           (MetaWindow  *window,
                                             guint32      timestamp);
+void        meta_window_unmanage_on_idle   (MetaWindow *window);
 void        meta_window_queue              (MetaWindow  *window,
                                             guint queuebits);
 void        meta_window_tile               (MetaWindow        *window,

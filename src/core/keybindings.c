@@ -1654,7 +1654,7 @@ meta_display_ungrab_accelerator (MetaDisplay *display,
   MetaKeyBindingManager *keys = &display->key_binding_manager;
   MetaKeyBinding *binding;
   MetaKeyGrab *grab;
-  char *key;
+  g_autofree char *key = NULL;
   MetaResolvedKeyCombo resolved_combo = { NULL, 0 };
 
   g_return_val_if_fail (action != META_KEYBINDING_ACTION_NONE, FALSE);
@@ -1683,7 +1683,6 @@ meta_display_ungrab_accelerator (MetaDisplay *display,
     }
 
   g_hash_table_remove (external_grabs, key);
-  g_free (key);
   resolved_key_combo_reset (&resolved_combo);
 
   return TRUE;

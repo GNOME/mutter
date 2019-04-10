@@ -468,7 +468,7 @@ merge_spanning_rects_in_region (GList *region)
               delete_me = other;
             }
           /* If b contains a, just remove a */
-          else if (meta_rectangle_contains_rect (a, b))
+          else if (meta_rectangle_contains_rect (b, a))
             {
               delete_me = compare;
             }
@@ -2026,7 +2026,7 @@ meta_rectangle_find_nonintersected_monitor_edges (
 }
 
 gboolean
-meta_rectangle_is_adjecent_to (MetaRectangle *rect,
+meta_rectangle_is_adjacent_to (MetaRectangle *rect,
                                MetaRectangle *other)
 {
   int rect_x1 = rect->x;

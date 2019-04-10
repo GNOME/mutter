@@ -475,7 +475,7 @@ meta_backend_real_post_init (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterDeviceManager *device_manager = clutter_device_manager_get_default ();
 
-  priv->stage = meta_stage_new ();
+  priv->stage = meta_stage_new (backend);
   clutter_actor_realize (priv->stage);
   META_BACKEND_GET_CLASS (backend)->select_stage_events (backend);
 
@@ -1077,6 +1077,24 @@ meta_backend_get_stage (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   return priv->stage;
+}
+
+void
+meta_backend_freeze_updates (MetaBackend *backend)
+{
+  ClutterStage *stage;
+
+  stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  clutter_stage_freeze_updates (stage);
+}
+
+void
+meta_backend_thaw_updates (MetaBackend *backend)
+{
+  ClutterStage *stage;
+
+  stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  clutter_stage_thaw_updates (stage);
 }
 
 static gboolean

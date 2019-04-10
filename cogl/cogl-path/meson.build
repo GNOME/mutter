@@ -1,3 +1,4 @@
+cogl_path_includesubdir = join_paths(cogl_includesubdir, 'cogl-path')
 cogl_path_includedir = join_paths(cogl_includedir, 'cogl-path')
 
 cogl_path_public_headers = [
@@ -76,7 +77,7 @@ libmutter_cogl_path_dep = declare_dependency(
 )
 
 install_headers(cogl_path_public_headers,
-  subdir: cogl_path_includedir)
+  subdir: cogl_path_includesubdir)
 
 pkg.generate(libmutter_cogl_path,
   name: 'CoglPath',

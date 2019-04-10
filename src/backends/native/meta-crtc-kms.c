@@ -41,9 +41,6 @@
 typedef struct _MetaCrtcKms
 {
   unsigned int index;
-  uint32_t underscan_prop_id;
-  uint32_t underscan_hborder_prop_id;
-  uint32_t underscan_vborder_prop_id;
   uint32_t primary_plane_id;
   uint32_t rotation_prop_id;
   uint32_t rotation_map[ALL_TRANSFORMS];
@@ -134,54 +131,6 @@ meta_crtc_kms_apply_transform (MetaCrtc *crtc)
        * fallbacks in this case.
        */
       crtc_kms->all_hw_transforms &= ~(1 << hw_transform);
-    }
-}
-
-void
-meta_crtc_kms_set_underscan (MetaCrtc *crtc,
-                             gboolean  is_underscanning)
-{
-  MetaCrtcKms *crtc_kms = crtc->driver_private;
-  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
-  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
-  int kms_fd;
-
-  if (!crtc_kms->underscan_prop_id)
-    return;
-
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-
-  if (is_underscanning)
-    {
-      drmModeObjectSetProperty (kms_fd, crtc->crtc_id,
-                                DRM_MODE_OBJECT_CRTC,
-                                crtc_kms->underscan_prop_id, (uint64_t) 1);
-
-      if (crtc_kms->underscan_hborder_prop_id)
-        {
-          uint64_t value;
-
-          value = crtc->current_mode->width * 0.05;
-          drmModeObjectSetProperty (kms_fd, crtc->crtc_id,
-                                    DRM_MODE_OBJECT_CRTC,
-                                    crtc_kms->underscan_hborder_prop_id, value);
-        }
-      if (crtc_kms->underscan_vborder_prop_id)
-        {
-          uint64_t value;
-
-          value = crtc->current_mode->height * 0.05;
-          drmModeObjectSetProperty (kms_fd, crtc->crtc_id,
-                                    DRM_MODE_OBJECT_CRTC,
-                                    crtc_kms->underscan_vborder_prop_id, value);
-        }
-
-    }
-  else
-    {
-      drmModeObjectSetProperty (kms_fd, crtc->crtc_id,
-                                DRM_MODE_OBJECT_CRTC,
-                                crtc_kms->underscan_prop_id, (uint64_t) 0);
     }
 }
 
@@ -534,43 +483,6 @@ init_crtc_rotations (MetaCrtc *crtc,
 }
 
 static void
-find_crtc_properties (MetaCrtc   *crtc,
-                      MetaGpuKms *gpu_kms)
-{
-  MetaCrtcKms *crtc_kms = crtc->driver_private;
-  int kms_fd;
-  drmModeObjectPropertiesPtr props;
-  unsigned int i;
-
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-  props = drmModeObjectGetProperties (kms_fd, crtc->crtc_id,
-                                      DRM_MODE_OBJECT_CRTC);
-  if (!props)
-    return;
-
-  for (i = 0; i < props->count_props; i++)
-    {
-      drmModePropertyPtr prop = drmModeGetProperty (kms_fd, props->props[i]);
-      if (!prop)
-        continue;
-
-      if ((prop->flags & DRM_MODE_PROP_ENUM) &&
-          strcmp (prop->name, "underscan") == 0)
-        crtc_kms->underscan_prop_id = prop->prop_id;
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "underscan hborder") == 0)
-        crtc_kms->underscan_hborder_prop_id = prop->prop_id;
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "underscan vborder") == 0)
-        crtc_kms->underscan_vborder_prop_id = prop->prop_id;
-
-      drmModeFreeProperty (prop);
-    }
-
-  drmModeFreeObjectProperties (props);
-}
-
-static void
 meta_crtc_destroy_notify (MetaCrtc *crtc)
 {
   MetaCrtcKms *crtc_kms = crtc->driver_private;
@@ -628,7 +540,6 @@ meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
   crtc->driver_private = crtc_kms;
   crtc->driver_notify = (GDestroyNotify) meta_crtc_destroy_notify;
 
-  find_crtc_properties (crtc, gpu_kms);
   init_crtc_rotations (crtc, gpu);
 
   return crtc;

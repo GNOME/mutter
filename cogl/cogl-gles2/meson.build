@@ -27,9 +27,9 @@ libmutter_cogl_gles2 = shared_library('mutter-cogl-gles2-' + libmutter_api_versi
   install: true,
 )
 
-cogl_gles2_includedir = join_paths(cogl_includedir, 'cogl-gles2/GLES2')
+cogl_gles2_includesubdir = join_paths(cogl_includesubdir, 'cogl-gles2/GLES2')
 install_headers(cogl_gles2_public_headers,
-  subdir: cogl_gles2_includedir)
+  subdir: cogl_gles2_includesubdir)
 
 pkg.generate(libmutter_cogl_gles2,
   name: 'CoglGles2',

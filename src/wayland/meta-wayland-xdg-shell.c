@@ -264,7 +264,7 @@ xdg_toplevel_show_window_menu (struct wl_client   *client,
   if (!meta_wayland_seat_get_grab_info (seat, surface, serial, FALSE, NULL, NULL))
     return;
 
-  monitor_scale = window->monitor->scale;
+  monitor_scale = meta_window_wayland_get_geometry_scale (window);
   meta_window_show_menu (window, META_WINDOW_MENU_WM,
                          window->buffer_rect.x + (x * monitor_scale),
                          window->buffer_rect.y + (y * monitor_scale));
@@ -922,6 +922,22 @@ scale_placement_rule (MetaPlacementRule  *placement_rule,
 }
 
 static void
+meta_wayland_xdg_popup_place (MetaWaylandXdgPopup *xdg_popup,
+                              MetaPlacementRule   *placement_rule)
+{
+  MetaWaylandSurfaceRole *surface_role = META_WAYLAND_SURFACE_ROLE (xdg_popup);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaPlacementRule scaled_placement_rule;
+
+  scaled_placement_rule = *placement_rule;
+  scale_placement_rule (&scaled_placement_rule, surface);
+
+  meta_window_place_with_placement_rule (surface->window,
+                                         &scaled_placement_rule);
+}
+
+static void
 finish_popup_setup (MetaWaylandXdgPopup *xdg_popup)
 {
   MetaWaylandXdgSurface *xdg_surface = META_WAYLAND_XDG_SURFACE (xdg_popup);
@@ -933,7 +949,6 @@ finish_popup_setup (MetaWaylandXdgPopup *xdg_popup)
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWaylandSurface *parent_surface;
-  MetaPlacementRule scaled_placement_rule;
   MetaWaylandSeat *seat;
   uint32_t serial;
   MetaDisplay *display = meta_get_display ();
@@ -981,9 +996,7 @@ finish_popup_setup (MetaWaylandXdgPopup *xdg_popup)
   window = meta_window_wayland_new (display, surface);
   meta_wayland_shell_surface_set_window (shell_surface, window);
 
-  scaled_placement_rule = xdg_popup->setup.placement_rule;
-  scale_placement_rule (&scaled_placement_rule, surface);
-  meta_window_place_with_placement_rule (window, &scaled_placement_rule);
+  meta_wayland_xdg_popup_place (xdg_popup, &xdg_popup->setup.placement_rule);
 
   if (seat)
     {

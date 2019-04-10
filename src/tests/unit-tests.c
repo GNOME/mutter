@@ -185,10 +185,10 @@ meta_test_util_later_schedule_from_later (void)
 }
 
 static void
-meta_test_adjecent_to (void)
+meta_test_adjacent_to (void)
 {
   MetaRectangle base = { .x = 10, .y = 10, .width = 10, .height = 10 };
-  MetaRectangle adjecent[] = {
+  MetaRectangle adjacent[] = {
     { .x = 20, .y = 10, .width = 10, .height = 10 },
     { .x = 0, .y = 10, .width = 10, .height = 10 },
     { .x = 0, .y = 1, .width = 10, .height = 10 },
@@ -196,7 +196,7 @@ meta_test_adjecent_to (void)
     { .x = 10, .y = 20, .width = 10, .height = 10 },
     { .x = 10, .y = 0, .width = 10, .height = 10 },
   };
-  MetaRectangle not_adjecent[] = {
+  MetaRectangle not_adjacent[] = {
     { .x = 0, .y = 0, .width = 10, .height = 10 },
     { .x = 20, .y = 20, .width = 10, .height = 10 },
     { .x = 21, .y = 10, .width = 10, .height = 10 },
@@ -207,11 +207,11 @@ meta_test_adjecent_to (void)
   };
   unsigned int i;
 
-  for (i = 0; i < G_N_ELEMENTS (adjecent); i++)
-    g_assert (meta_rectangle_is_adjecent_to (&base, &adjecent[i]));
+  for (i = 0; i < G_N_ELEMENTS (adjacent); i++)
+    g_assert (meta_rectangle_is_adjacent_to (&base, &adjacent[i]));
 
-  for (i = 0; i < G_N_ELEMENTS (not_adjecent); i++)
-    g_assert (!meta_rectangle_is_adjecent_to (&base, &not_adjecent[i]));
+  for (i = 0; i < G_N_ELEMENTS (not_adjacent); i++)
+    g_assert (!meta_rectangle_is_adjacent_to (&base, &not_adjacent[i]));
 }
 
 static gboolean
@@ -245,7 +245,7 @@ init_tests (int argc, char **argv)
   g_test_add_func ("/util/meta-later/schedule-from-later",
                    meta_test_util_later_schedule_from_later);
 
-  g_test_add_func ("/core/boxes/adjecent-to", meta_test_adjecent_to);
+  g_test_add_func ("/core/boxes/adjacent-to", meta_test_adjacent_to);
 
   init_monitor_store_tests ();
   init_monitor_config_migration_tests ();

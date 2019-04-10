@@ -23,12 +23,13 @@
 #include "backends/meta-cursor.h"
 #include "meta/boxes.h"
 #include "meta/meta-stage.h"
+#include "meta/types.h"
 
 G_BEGIN_DECLS
 
 typedef struct _MetaOverlay    MetaOverlay;
 
-ClutterActor     *meta_stage_new                     (void);
+ClutterActor     *meta_stage_new                     (MetaBackend *backend);
 
 MetaOverlay      *meta_stage_create_cursor_overlay   (MetaStage   *stage);
 void              meta_stage_remove_cursor_overlay   (MetaStage   *stage,
