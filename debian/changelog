@@ -1,3 +1,10 @@
+mutter (3.32.0+git20190410-1) UNRELEASED; urgency=medium
+
+  * New upstream snapshot up to commit
+    b2d0184c6efa164ad5dd7a2ca8b10cf13acf5b4c.
+
+ -- Iain Lane <laney@debian.org>  Wed, 10 Apr 2019 15:14:19 +0100
+
 mutter (3.32.0-1) experimental; urgency=medium
 
   * New upstream release
