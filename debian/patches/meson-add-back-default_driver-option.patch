@@ -29,10 +29,10 @@ index 56946b2..ae53310 100644
 +
  #define COGL_CONFIG_H_INCLUDED 1
 diff --git a/cogl/meson.build b/cogl/meson.build
-index d76b865..a6c22ff 100644
+index 356d596..2ab83bd 100644
 --- a/cogl/meson.build
 +++ b/cogl/meson.build
-@@ -9,6 +9,10 @@ cdata.set('HAVE_COGL_GL', have_gl)
+@@ -10,6 +10,10 @@ cdata.set('HAVE_COGL_GL', have_gl)
  cdata.set('HAVE_COGL_GLES2', have_gles2)
  cdata.set('ENABLE_UNIT_TESTS', have_cogl_tests)
  
@@ -44,7 +44,7 @@ index d76b865..a6c22ff 100644
    input: 'cogl-config.h.meson',
    output: 'cogl-config.h',
 diff --git a/meson.build b/meson.build
-index dc210e6..cafbde4 100644
+index 6ce9e59..bebe8eb 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -210,6 +210,8 @@ if have_wayland_eglstream

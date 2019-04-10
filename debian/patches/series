@@ -1,15 +1,3 @@
-prefs-Change-default-of-show-fallback-app-menu.patch
-keybindings-Fix-theoretical-memory-leak-while-ungrabbing.patch
-meta-monitor-Remove-useless-variable.patch
-cogl-Remove-unused-CoglTextureDriver-try_setting_gl_borde.patch
-cogl-Introspect-CoglTexture2D-Sliced.patch
-shadow-factory-Update-shadow-of-attached-modals.patch
-monitor-Fix-indentation-style-on-calculate_supported_scal.patch
-monitor-Fix-indentation-style-on-calculate_crtc_pos-and-f.patch
-monitor-Fix-indentation-style-on-foreach-functions.patch
-bell-Always-flash-window-instead-of-frame.patch
-frame-Remove-flashing-support.patch
-boxes-Actually-check-for-rectangle-containment.patch
 theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 meson-add-back-default_driver-option.patch
