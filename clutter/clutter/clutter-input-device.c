@@ -1115,6 +1115,70 @@ _clutter_input_device_update (ClutterInputDevice   *device,
 }
 
 /**
+ * clutter_input_device_set_focus:
+ * @device: a #ClutterInputDevice
+ * @sequence: (allow-none): a #ClutterEventSequence
+ * @focus: Whether to repick or leave the current actor
+ *
+ * Updates the cursor actor of @device or the touch sequence @sequence.
+ * Triggers a repick and always emits a CLUTTER_ENTER event if @focus
+ * is %TRUE, sets the cursor actor to NULL and emits a CLUTTER_LEAVE
+ * event if @focus is %FALSE.
+ */
+void
+clutter_input_device_set_focus (ClutterInputDevice   *device,
+                                ClutterEventSequence *sequence,
+                                gboolean              focus)
+{
+  ClutterActor *cursor_actor;
+  ClutterEvent *event;
+  ClutterInputDeviceType device_type;
+
+  device_type = clutter_input_device_get_device_type (device);
+  if (device_type != CLUTTER_POINTER_DEVICE &&
+      device_type != CLUTTER_TABLET_DEVICE &&
+      device_type != CLUTTER_PEN_DEVICE &&
+      device_type != CLUTTER_ERASER_DEVICE &&
+      device_type != CLUTTER_CURSOR_DEVICE)
+    return;
+
+  if (device->stage == NULL)
+    return;
+
+  if (!clutter_stage_get_motion_events_enabled (device->stage))
+    return;
+
+  if (focus)
+    {
+      cursor_actor = _clutter_input_device_update (device, sequence, FALSE);
+      if (cursor_actor == NULL)
+        return;
+
+      event = clutter_event_new (CLUTTER_ENTER);
+    }
+  else
+    {
+      cursor_actor = clutter_input_device_get_actor (device, sequence);
+      _clutter_input_device_set_actor (device, sequence, NULL, FALSE);
+
+      event = clutter_event_new (CLUTTER_LEAVE);
+    }
+
+  event->crossing.time = device->current_time;
+  event->crossing.flags = 0;
+  event->crossing.stage = device->stage;
+  event->crossing.x = device->current_x;
+  event->crossing.y = device->current_y;
+  event->crossing.source = cursor_actor;
+  event->crossing.related = NULL;
+  event->crossing.sequence = sequence;
+  clutter_event_set_device (event, device);
+
+  clutter_do_event (event);
+  clutter_event_free (event);
+}
+
+/**
  * clutter_input_device_get_pointer_stage:
  * @device: a #ClutterInputDevice of type %CLUTTER_POINTER_DEVICE
  *

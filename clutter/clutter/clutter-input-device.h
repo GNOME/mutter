@@ -75,6 +75,10 @@ ClutterInputMode        clutter_input_device_get_device_mode    (ClutterInputDev
 CLUTTER_EXPORT
 gboolean                clutter_input_device_get_has_cursor     (ClutterInputDevice  *device);
 CLUTTER_EXPORT
+void                    clutter_input_device_set_focus         (ClutterInputDevice   *device,
+                                                                ClutterEventSequence *sequence,
+                                                                gboolean              focus);
+CLUTTER_EXPORT
 void                    clutter_input_device_set_enabled        (ClutterInputDevice  *device,
                                                                  gboolean             enabled);
 CLUTTER_EXPORT
