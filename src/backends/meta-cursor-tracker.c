@@ -418,6 +418,12 @@ meta_cursor_tracker_get_pointer (MetaCursorTracker   *tracker,
     get_pointer_position_gdk (x, y, (int*)mods);
 }
 
+gboolean
+meta_cursor_tracker_get_pointer_visible (MetaCursorTracker *tracker)
+{
+  return tracker->is_showing;
+}
+
 void
 meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
                                          gboolean           visible)

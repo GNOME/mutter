@@ -56,6 +56,9 @@ void           meta_cursor_tracker_get_pointer (MetaCursorTracker   *tracker,
                                                 ClutterModifierType *mods);
 
 META_EXPORT
+gboolean       meta_cursor_tracker_get_pointer_visible (MetaCursorTracker *tracker);
+
+META_EXPORT
 void           meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
                                                         gboolean           visible);
 
