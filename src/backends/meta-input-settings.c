@@ -74,6 +74,7 @@ struct _MetaInputSettingsPrivate
   GSettings *mouse_settings;
   GSettings *touchpad_settings;
   GSettings *trackball_settings;
+  GSettings *pointingstick_settings;
   GSettings *keyboard_settings;
   GSettings *gsd_settings;
   GSettings *a11y_settings;
@@ -159,6 +160,7 @@ meta_input_settings_dispose (GObject *object)
   g_clear_object (&priv->mouse_settings);
   g_clear_object (&priv->touchpad_settings);
   g_clear_object (&priv->trackball_settings);
+  g_clear_object (&priv->pointingstick_settings);
   g_clear_object (&priv->keyboard_settings);
   g_clear_object (&priv->gsd_settings);
   g_clear_object (&priv->a11y_settings);
@@ -362,6 +364,11 @@ do_update_pointer_accel_profile (MetaInputSettings          *input_settings,
                                                    profile);
   else if (settings == priv->trackball_settings)
     input_settings_class->set_trackball_accel_profile (input_settings,
+                                                       device,
+                                                       profile);
+
+  else if (settings == priv->pointingstick_settings)
+    input_settings_class->set_pointingstick_accel_profile (input_settings,
                                                        device,
                                                        profile);
 }
@@ -1144,6 +1151,11 @@ meta_input_settings_changed_cb (GSettings  *settings,
       else if (strcmp (key, "accel-profile") == 0)
         update_pointer_accel_profile (input_settings, settings, NULL);
     }
+  else if (settings == priv->pointingstick_settings)
+    {
+      if (strcmp (key, "accel-profile") == 0)
+        update_pointer_accel_profile (input_settings, settings, NULL);
+    }
   else if (settings == priv->keyboard_settings)
     {
       if (strcmp (key, "repeat") == 0 ||
@@ -1555,6 +1567,10 @@ apply_device_settings (MetaInputSettings  *input_settings,
   update_pointer_accel_profile (input_settings,
                                 priv->trackball_settings,
                                 device);
+  update_pointer_accel_profile (input_settings,
+                                priv->pointingstick_settings,
+                                device);
+
   load_keyboard_a11y_settings (input_settings, device);
 }
 
@@ -1844,6 +1860,10 @@ meta_input_settings_init (MetaInputSettings *settings)
 
   priv->trackball_settings = g_settings_new ("org.gnome.desktop.peripherals.trackball");
   g_signal_connect (priv->trackball_settings, "changed",
+                    G_CALLBACK (meta_input_settings_changed_cb), settings);
+
+  priv->pointingstick_settings = g_settings_new ("org.gnome.desktop.peripherals.pointingstick");
+  g_signal_connect (priv->pointingstick_settings, "changed",
                     G_CALLBACK (meta_input_settings_changed_cb), settings);
 
   priv->keyboard_settings = g_settings_new ("org.gnome.desktop.peripherals.keyboard");
