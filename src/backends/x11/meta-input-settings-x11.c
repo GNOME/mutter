@@ -516,6 +516,13 @@ meta_input_settings_x11_is_trackball_device (MetaInputSettings  *settings,
   return has_udev_property (settings, device, "ID_INPUT_TRACKBALL");
 }
 
+static gboolean
+meta_input_settings_x11_is_pointingstick_device (MetaInputSettings  *settings,
+                                                ClutterInputDevice *device)
+{
+  return has_udev_property (settings, device, "ID_INPUT_POINTINGSTICK");
+}
+
 static void
 set_device_accel_profile (ClutterInputDevice         *device,
                           GDesktopPointerAccelProfile profile)
@@ -577,6 +584,17 @@ meta_input_settings_x11_set_trackball_accel_profile (MetaInputSettings          
                                                      GDesktopPointerAccelProfile profile)
 {
   if (!meta_input_settings_x11_is_trackball_device (settings, device))
+    return;
+
+  set_device_accel_profile (device, profile);
+}
+
+static void
+meta_input_settings_x11_set_pointingstick_accel_profile (MetaInputSettings          *settings,
+                                                     ClutterInputDevice         *device,
+                                                     GDesktopPointerAccelProfile profile)
+{
+  if (!meta_input_settings_x11_is_pointingstick_device (settings, device))
     return;
 
   set_device_accel_profile (device, profile);
@@ -857,12 +875,14 @@ meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
 
   input_settings_class->set_mouse_accel_profile = meta_input_settings_x11_set_mouse_accel_profile;
   input_settings_class->set_trackball_accel_profile = meta_input_settings_x11_set_trackball_accel_profile;
+  input_settings_class->set_pointingstick_accel_profile = meta_input_settings_x11_set_pointingstick_accel_profile;
 
   input_settings_class->set_stylus_pressure = meta_input_settings_x11_set_stylus_pressure;
   input_settings_class->set_stylus_button_map = meta_input_settings_x11_set_stylus_button_map;
 
   input_settings_class->has_two_finger_scroll = meta_input_settings_x11_has_two_finger_scroll;
   input_settings_class->is_trackball_device = meta_input_settings_x11_is_trackball_device;
+  input_settings_class->is_pointingstick_device = meta_input_settings_x11_is_pointingstick_device;
 }
 
 static void
