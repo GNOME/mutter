@@ -44,6 +44,7 @@
 
 #include "backends/meta-dnd-private.h"
 #include "backends/meta-idle-monitor-private.h"
+#include "backends/meta-session.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
@@ -713,6 +714,7 @@ meta_backend_x11_initable_init (GInitable    *initable,
                                 GError      **error)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (initable);
+  MetaBackend *backend = META_BACKEND (x11);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
   Display *xdisplay;
   const char *xdisplay_name;
@@ -738,6 +740,12 @@ meta_backend_x11_initable_init (GInitable    *initable,
   clutter_x11_set_display (xdisplay);
 
   init_xkb_state (x11);
+
+  if (!meta_backend_init_session (backend, cancellable, error))
+    {
+      g_warning ("Failed to initialize logind session: %s", (*error)->message);
+      g_clear_error (error);
+    }
 
   return initable_parent_iface->init (initable, cancellable, error);
 }
