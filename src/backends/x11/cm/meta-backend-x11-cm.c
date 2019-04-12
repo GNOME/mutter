@@ -395,6 +395,21 @@ meta_backend_x11_cm_translate_crossing_event (MetaBackendX11 *x11,
     }
 }
 
+static void
+on_is_session_active_changed (MetaSession *session,
+                              MetaBackend *backend)
+{
+  gboolean is_session_active;
+
+  is_session_active = meta_session_is_active (session);
+  if (is_session_active)
+    {
+      ClutterActor *stage = meta_backend_get_stage (backend);
+
+      clutter_actor_queue_redraw (stage);
+    }
+}
+
 static gboolean
 meta_backend_x11_cm_initable_init (GInitable    *initable,
                                    GCancellable *cancellable,
@@ -406,6 +421,13 @@ meta_backend_x11_cm_initable_init (GInitable    *initable,
     {
       g_warning ("Failed to initialize logind session: %s", (*error)->message);
       g_clear_error (error);
+    }
+  else
+    {
+      g_signal_connect (meta_backend_get_session (backend),
+                        "is-active-changed",
+                        G_CALLBACK (on_is_session_active_changed),
+                        backend);
     }
 
   return initable_parent_iface->init (initable, cancellable, error);
