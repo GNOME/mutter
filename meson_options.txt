@@ -63,6 +63,12 @@ option('wayland_eglstream',
   description: 'Enable Wayland EGLStream support client support'
 )
 
+option('logind',
+  type: 'boolean',
+  value: true,
+  description: 'Enable logind session management support'
+)
+
 option('udev',
   type: 'boolean',
   value: true,

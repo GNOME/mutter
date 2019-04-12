@@ -107,6 +107,12 @@ struct _MetaBackendClass
 
 void meta_init_backend (GType backend_gtype);
 
+gboolean meta_backend_init_session (MetaBackend   *backend,
+                                    GCancellable  *cancellable,
+                                    GError       **error);
+
+MetaSession * meta_backend_get_session (MetaBackend *backend);
+
 ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
 
 MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend *backend,

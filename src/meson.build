@@ -222,6 +222,8 @@ mutter_sources = [
   'backends/meta-renderer-view.h',
   'backends/meta-screen-cast-window.c',
   'backends/meta-screen-cast-window.h',
+  'backends/meta-session.c',
+  'backends/meta-session.h',
   'backends/meta-settings.c',
   'backends/meta-settings-private.h',
   'backends/meta-stage.c',

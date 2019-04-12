@@ -27,6 +27,7 @@
 #include <xkbcommon/xkbcommon-x11.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-session.h"
 #include "backends/x11/meta-cursor-renderer-x11.h"
 #include "backends/x11/meta-input-settings-x11.h"
 #include "backends/x11/meta-monitor-manager-xrandr.h"
@@ -42,7 +43,15 @@ struct _MetaBackendX11Cm
   int locked_group;
 };
 
-G_DEFINE_TYPE (MetaBackendX11Cm, meta_backend_x11_cm, META_TYPE_BACKEND_X11)
+static GInitableIface *initable_parent_iface;
+
+static void
+initable_iface_init (GInitableIface *initable_iface);
+
+G_DEFINE_TYPE_WITH_CODE (MetaBackendX11Cm, meta_backend_x11_cm,
+                         META_TYPE_BACKEND_X11,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                initable_iface_init));
 
 static void
 apply_keymap (MetaBackendX11 *x11);
@@ -384,6 +393,30 @@ meta_backend_x11_cm_translate_crossing_event (MetaBackendX11 *x11,
       enter_event->event_x = enter_event->root_x;
       enter_event->event_y = enter_event->root_y;
     }
+}
+
+static gboolean
+meta_backend_x11_cm_initable_init (GInitable    *initable,
+                                   GCancellable *cancellable,
+                                   GError      **error)
+{
+  MetaBackend *backend = META_BACKEND (initable);
+
+  if (!meta_backend_init_session (backend, cancellable, error))
+    {
+      g_warning ("Failed to initialize logind session: %s", (*error)->message);
+      g_clear_error (error);
+    }
+
+  return initable_parent_iface->init (initable, cancellable, error);
+}
+
+static void
+initable_iface_init (GInitableIface *initable_iface)
+{
+  initable_parent_iface = g_type_interface_peek_parent (initable_iface);
+
+  initable_iface->init = meta_backend_x11_cm_initable_init;
 }
 
 static void
