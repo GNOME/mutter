@@ -112,8 +112,8 @@ handle_capture (MetaDBusSysprofCapturer *capturer,
           return TRUE;
         }
 
-      cogl_set_tracing_enabled_on_thread (g_main_context_default (),
-                                          capture_pipe[1]);
+      cogl_set_tracing_enabled_on_thread_with_fd (g_main_context_default (),
+                                                  capture_pipe[1]);
 
       fd_list = g_unix_fd_list_new ();
       fd_index = g_unix_fd_list_append (fd_list, capture_pipe[0], &error);
@@ -128,7 +128,12 @@ handle_capture (MetaDBusSysprofCapturer *capturer,
     }
   else if (self->capture_timeout_id == 0)
     {
-      cogl_set_tracing_enabled_on_thread (g_main_context_default (), -1);
+      g_autofree char *output_filename = NULL;
+
+      g_variant_lookup (parameters, "output-filename", "s", &output_filename);
+
+      cogl_set_tracing_enabled_on_thread (g_main_context_default (),
+                                          output_filename);
 
       self->capture_timeout_id =
         g_timeout_add_seconds (timeout, on_capture_timeout_cb, self);
