@@ -178,6 +178,8 @@ mutter_sources = [
   'backends/meta-cursor-sprite-xcursor.h',
   'backends/meta-cursor-tracker.c',
   'backends/meta-cursor-tracker-private.h',
+  'backends/meta-dbus-utils.c',
+  'backends/meta-dbus-utils.h',
   'backends/meta-display-config-shared.h',
   'backends/meta-dnd-private.h',
   'backends/meta-gpu.c',
@@ -548,8 +550,6 @@ endif
 
 if have_native_backend
   mutter_sources += [
-    'backends/native/dbus-utils.c',
-    'backends/native/dbus-utils.h',
     'backends/native/meta-backend-native.c',
     'backends/native/meta-backend-native.h',
     'backends/native/meta-backend-native-private.h',

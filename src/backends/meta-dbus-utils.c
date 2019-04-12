@@ -1,5 +1,3 @@
-/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
-
 /*
  * Copyright (C) 2014 Red Hat
  *
@@ -24,7 +22,7 @@
 
 #include "config.h"
 
-#include "backends/native/dbus-utils.h"
+#include "backends/meta-dbus-utils.h"
 
 #include <glib.h>
 
@@ -32,20 +30,21 @@
  * which follows the same escaping convention as systemd.
  */
 static inline gboolean
-_esc_ident_bad (gchar c, gboolean is_first)
+esc_ident_bad (char     c,
+               gboolean is_first)
 {
   return ((c < 'a' || c > 'z') &&
           (c < 'A' || c > 'Z') &&
           (c < '0' || c > '9' || is_first));
 }
 
-static gchar *
-escape_dbus_component (const gchar *name)
+static char *
+escape_dbus_component (const char *name)
 {
   gboolean bad = FALSE;
   size_t len = 0;
   GString *op;
-  const gchar *ptr, *first_ok;
+  const char *ptr, *first_ok;
 
   g_return_val_if_fail (name != NULL, NULL);
 
@@ -55,7 +54,7 @@ escape_dbus_component (const gchar *name)
 
   for (ptr = name; *ptr; ptr++)
     {
-      if (_esc_ident_bad (*ptr, ptr == name))
+      if (esc_ident_bad (*ptr, ptr == name))
         {
           bad = TRUE;
           len += 3;
@@ -74,7 +73,7 @@ escape_dbus_component (const gchar *name)
   op = g_string_sized_new (len);
   for (ptr = name; *ptr; ptr++)
     {
-      if (_esc_ident_bad (*ptr, ptr == name))
+      if (esc_ident_bad (*ptr, ptr == name))
         {
           /* copy preceding safe characters if any */
           if (first_ok < ptr)
@@ -96,11 +95,14 @@ escape_dbus_component (const gchar *name)
 }
 
 char *
-get_escaped_dbus_path (const char *prefix,
-                       const char *component)
+meta_get_escaped_dbus_path (const char *prefix,
+                            const char *component)
 {
-  char *escaped_component = escape_dbus_component (component);
-  char *path = g_strconcat (prefix, "/", escaped_component, NULL);
+  char *escaped_component;
+  char *path;
+
+  escaped_component = escape_dbus_component (component);
+  path = g_strconcat (prefix, "/", escaped_component, NULL);
 
   g_free (escaped_component);
   return path;
