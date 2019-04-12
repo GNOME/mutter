@@ -35,7 +35,7 @@ def setup_logging(enable_debug):
     log.setLevel(log_level)
 
 
-def start_profiler(seconds):
+def start_profiler(seconds, filename):
     """
     Calls the D-Bus method for profiling with the passed number
     of seconds. The result is printed for debugging purposes but
@@ -53,6 +53,7 @@ def start_profiler(seconds):
         None)
 
     params = GLib.Variant('(a{sv})', ({
+        'output-filename': GLib.Variant('s', filename),
         'timeout': GLib.Variant('u', seconds),
     }, ))
     log.debug('Sending parameters: {}'.format(params))
@@ -73,6 +74,8 @@ def main():
         description='Capture Mutter profiling data with Sysprof')
     parser.add_argument('seconds', type=int,
         help='Timeout (in seconds) to capture data')
+    parser.add_argument('-o', '--output', type=str,
+        help='Output file name')
     parser.add_argument('-d', '--debug', action='store_true',
         help='Show debug messages')
 
