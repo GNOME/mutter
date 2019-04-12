@@ -633,8 +633,6 @@ clutter_stage_do_paint_view (ClutterStage                *stage,
   float viewport[4];
   cairo_rectangle_int_t geom;
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterStageDoPaintView);
-
   _clutter_stage_window_get_geometry (priv->impl, &geom);
 
   viewport[0] = priv->viewport[0];
@@ -688,14 +686,12 @@ _clutter_stage_paint_view (ClutterStage                *stage,
 {
   ClutterStagePrivate *priv = stage->priv;
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterStagePaintView);
-
   if (!priv->impl)
     return;
 
-  clutter_stage_do_paint_view (stage, view, clip);
+  COGL_TRACE_BEGIN_SCOPED (ClutterStagePaintView, "Paint (view)");
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterStagePaintViewAfterPaint);
+  clutter_stage_do_paint_view (stage, view, clip);
   g_signal_emit (stage, stage_signals[AFTER_PAINT], 0);
 }
 
@@ -708,8 +704,6 @@ clutter_stage_paint (ClutterActor *self)
 {
   ClutterActorIter iter;
   ClutterActor *child;
-
-  COGL_TRACE_BEGIN_SCOPED (ClutterStagePaint);
 
   clutter_actor_iter_init (&iter, self);
   while (clutter_actor_iter_next (&iter, &child))
@@ -1234,11 +1228,17 @@ _clutter_stage_do_update (ClutterStage *stage)
   if (!CLUTTER_ACTOR_IS_REALIZED (stage))
     return FALSE;
 
+  COGL_TRACE_BEGIN_SCOPED (ClutterStageDoUpdate, "Update");
+
   /* NB: We need to ensure we have an up to date layout *before* we
    * check or clear the pending redraws flag since a relayout may
    * queue a redraw.
    */
+  COGL_TRACE_BEGIN (ClutterStageRelayout, "Layout");
+
   _clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
+
+  COGL_TRACE_END (ClutterStageRelayout);
 
   if (!priv->redraw_pending)
     return FALSE;
@@ -1246,9 +1246,12 @@ _clutter_stage_do_update (ClutterStage *stage)
   if (stage_was_relayout)
     pointers = _clutter_stage_check_updated_pointers (stage);
 
-  clutter_stage_maybe_finish_queue_redraws (stage);
+  COGL_TRACE_BEGIN (ClutterStagePaint, "Paint");
 
+  clutter_stage_maybe_finish_queue_redraws (stage);
   clutter_stage_do_redraw (stage);
+
+  COGL_TRACE_END (ClutterStagePaint);
 
   /* reset the guard, so that new redraws are possible */
   priv->redraw_pending = FALSE;
@@ -1263,11 +1266,15 @@ _clutter_stage_do_update (ClutterStage *stage)
     }
 #endif /* CLUTTER_ENABLE_DEBUG */
 
+  COGL_TRACE_BEGIN (ClutterStagePick, "Pick");
+
   while (pointers)
     {
       _clutter_input_device_update (pointers->data, NULL, TRUE);
       pointers = g_slist_delete_link (pointers, pointers);
     }
+
+  COGL_TRACE_END (ClutterStagePick);
 
   return TRUE;
 }
@@ -2954,7 +2961,7 @@ clutter_stage_read_pixels (ClutterStage *stage,
   float pixel_height;
   uint8_t *pixels;
 
-  COGL_TRACE_BEGIN_SCOPED (ClutterStageReadPixels);
+  COGL_TRACE_BEGIN_SCOPED (ClutterStageReadPixels, "Read Pixels");
 
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
 
