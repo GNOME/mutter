@@ -23,6 +23,8 @@
 
 typedef struct _MetaMonitorManager MetaMonitorManager;
 
+typedef struct _MetaSession MetaSession;
+
 typedef struct _MetaMonitorConfigManager MetaMonitorConfigManager;
 typedef struct _MetaMonitorConfigStore MetaMonitorConfigStore;
 typedef struct _MetaMonitorsConfig MetaMonitorsConfig;
