@@ -82,7 +82,7 @@
 #include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
 #include "ui/ui.h"
-#include "x11/session.h"
+#include "x11/meta-x11-session.h"
 
 #ifdef HAVE_WAYLAND
 #include "backends/x11/nested/meta-backend-x11-nested.h"
@@ -652,7 +652,7 @@ meta_register_with_session (void)
        * use the same client id. */
       g_unsetenv ("DESKTOP_AUTOSTART_ID");
 
-      meta_session_init (opt_client_id, opt_save_file);
+      meta_x11_session_init (opt_client_id, opt_save_file);
     }
   /* Free memory possibly allocated by the argument parsing which are
    * no longer needed.
