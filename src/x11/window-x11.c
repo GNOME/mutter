@@ -46,7 +46,7 @@
 #include "meta/meta-x11-errors.h"
 #include "meta/prefs.h"
 #include "x11/meta-x11-display-private.h"
-#include "x11/session.h"
+#include "x11/meta-x11-session.h"
 #include "x11/window-props.h"
 #include "x11/xprops.h"
 

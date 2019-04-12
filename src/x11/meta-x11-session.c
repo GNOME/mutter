@@ -23,7 +23,7 @@
 
 #include "config.h"
 
-#include "x11/session.h"
+#include "x11/meta-x11-session.h"
 
 #include <sys/wait.h>
 #include <time.h>
@@ -35,8 +35,8 @@
 
 #ifndef HAVE_SM
 void
-meta_session_init (const char *client_id,
-                   const char *save_file)
+meta_x11_session_init (const char *client_id,
+                       const char *save_file)
 {
   meta_topic (META_DEBUG_SM, "Compiled without session management support\n");
 }
@@ -224,8 +224,8 @@ static ClientState current_state = STATE_DISCONNECTED;
 static gboolean interaction_allowed = FALSE;
 
 void
-meta_session_init (const char *previous_client_id,
-                   const char *previous_save_file)
+meta_x11_session_init (const char *previous_client_id,
+                       const char *previous_save_file)
 {
   /* Some code here from twm */
   char buf[256];

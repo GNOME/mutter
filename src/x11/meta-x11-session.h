@@ -1,7 +1,7 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
 /**
- * \file session.h   Session management
+ * \file meta-x11-session.h   Session management
  *
  * Maps windows to information about their placing and state on startup.
  * This is window matching, which we have a policy of leaving in general
@@ -26,8 +26,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_SESSION_H
-#define META_SESSION_H
+#ifndef META_X11_SESSION_H
+#define META_X11_SESSION_H
 
 #include "core/window-private.h"
 
@@ -76,14 +76,7 @@ struct _MetaWindowSessionInfo
 const MetaWindowSessionInfo* meta_window_lookup_saved_state  (MetaWindow                  *window);
 void                         meta_window_release_saved_state (const MetaWindowSessionInfo *info);
 
-void meta_session_init (const char *client_id,
-                        const char *save_file);
+void meta_x11_session_init (const char *client_id,
+                            const char *save_file);
 
-
-void meta_session_shutdown (void);
-
-#endif
-
-
-
-
+#endif /* META_X11_SESSION_H */
