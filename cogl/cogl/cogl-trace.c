@@ -29,23 +29,48 @@
 
 #define COGL_TRACE_OUTPUT_FILE "cogl-trace-sp-capture.syscap"
 
+typedef struct
+{
+  int   fd;
+  char *filename;
+} TraceData;
+
+static void
+trace_data_free (gpointer user_data)
+{
+  TraceData *data = user_data;
+
+  data->fd = -1;
+  g_clear_pointer (&data->filename, g_free);
+  g_free (data);
+}
+
 __thread CoglTraceThreadContext *cogl_trace_thread_context;
 CoglTraceContext *cogl_trace_context;
 GMutex cogl_trace_mutex;
 
 static CoglTraceContext *
-cogl_trace_context_new (int fd)
+cogl_trace_context_new (int          fd,
+                        const gchar *filename)
 {
   CoglTraceContext *context;
   SpCaptureWriter *writer;
 
-  g_debug ("Initializing trace context with fd=%d", fd);
-
-  if (fd == -1)
-    writer = sp_capture_writer_new (COGL_TRACE_OUTPUT_FILE,
-                                    4096 * 4);
+  if (fd != -1)
+    {
+      g_debug ("Initializing trace context with fd=%d", fd);
+      writer = sp_capture_writer_new_from_fd (fd, 4096 * 4);
+    }
+  else if (filename != NULL)
+    {
+      g_debug ("Initializing trace context with filename='%s'", filename);
+      writer = sp_capture_writer_new (filename, 4096 * 4);
+    }
   else
-    writer = sp_capture_writer_new_from_fd (fd, 4096 * 4);
+    {
+      g_debug ("Initializing trace context with default dilename");
+      writer = sp_capture_writer_new (COGL_TRACE_OUTPUT_FILE, 4096 * 4);
+    }
 
   context = g_new0 (CoglTraceContext, 1);
   context->writer = writer;
@@ -60,13 +85,13 @@ cogl_trace_context_free (CoglTraceContext *trace_context)
 }
 
 static void
-ensure_trace_context (int fd)
+ensure_trace_context (TraceData *data)
 {
   static GMutex mutex;
 
   g_mutex_lock (&mutex);
   if (!cogl_trace_context)
-    cogl_trace_context = cogl_trace_context_new (fd);
+    cogl_trace_context = cogl_trace_context_new (data->fd, data->filename);
   g_mutex_unlock (&mutex);
 }
 
@@ -95,10 +120,10 @@ cogl_trace_thread_context_new (void)
 static gboolean
 enable_tracing_idle_callback (gpointer user_data)
 {
-  int fd = GPOINTER_TO_INT (user_data);
+  TraceData *data = user_data;
 
   ensure_sigpipe_ignored ();
-  ensure_trace_context (fd);
+  ensure_trace_context (data);
 
   if (cogl_trace_thread_context)
     {
@@ -144,18 +169,41 @@ disable_tracing_idle_callback (gpointer user_data)
   return G_SOURCE_REMOVE;
 }
 
-void
-cogl_set_tracing_enabled_on_thread (GMainContext *main_context,
-                                    int           fd)
+static void
+set_tracing_enabled_on_thread (GMainContext *main_context,
+                               int           fd,
+                               const char   *filename)
 {
+  TraceData *data;
   GSource *source;
+
+  data = g_new0 (TraceData, 1);
+  data->fd = fd;
+  data->filename = filename ? strdup (filename) : NULL;
 
   source = g_idle_source_new ();
 
-  g_source_set_callback (source, enable_tracing_idle_callback, GINT_TO_POINTER (fd), NULL);
+  g_source_set_callback (source,
+                         enable_tracing_idle_callback,
+                         data,
+                         trace_data_free);
 
   g_source_attach (source, main_context);
   g_source_unref (source);
+}
+
+void
+cogl_set_tracing_enabled_on_thread_with_fd (GMainContext *main_context,
+                                            int           fd)
+{
+  set_tracing_enabled_on_thread (main_context, fd, NULL);
+}
+
+void
+cogl_set_tracing_enabled_on_thread (GMainContext *main_context,
+                                    const char   *filename)
+{
+  set_tracing_enabled_on_thread (main_context, -1, filename);
 }
 
 void
@@ -177,8 +225,15 @@ cogl_set_tracing_disabled_on_thread (GMainContext *main_context)
 #include <stdio.h>
 
 void
-cogl_set_tracing_enabled_on_thread (void *data,
-                                    int   fd)
+cogl_set_tracing_enabled_on_thread_with_fd (void *data,
+                                            int   fd)
+{
+  fprintf (stderr, "Tracing not enabled");
+}
+
+void
+cogl_set_tracing_enabled_on_thread (void       *data,
+                                    const char *filename)
 {
   fprintf (stderr, "Tracing not enabled");
 }
