@@ -172,17 +172,28 @@ if have_libgudev
   gudev_dep = dependency('gudev-1.0', version: gudev_req)
 endif
 
+have_logind = get_option('logind')
+if have_logind
+  libsystemd_dep = dependency('libsystemd', required: false)
+  libelogind_dep = dependency('libelogind', required: false)
+
+  if libsystemd_dep.found()
+    logind_provider_dep = libsystemd_dep
+  elif libelogind_dep.found()
+    logind_provider_dep = dependency('libelogind')
+  else
+    error('No logind provider found')
+  endif
+endif
+
 have_native_backend = get_option('native_backend')
 if have_native_backend
   libdrm_dep = dependency('libdrm')
   libgbm_dep = dependency('gbm', version: gbm_req)
   libinput_dep = dependency('libinput', version: libinput_req)
 
-  libsystemd_dep = dependency('libsystemd', required: false)
-  if libsystemd_dep.found()
-    logind_provider_dep = libsystemd_dep
-  else
-    logind_provider_dep = dependency('libelogind')
+  if not have_logind
+    error('The native backend requires logind to be enabled')
   endif
 
   if not have_egl
@@ -336,6 +347,7 @@ cdata.set('HAVE_LIBWACOM', have_libwacom)
 cdata.set('HAVE_SM', have_sm)
 cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
+cdata.set('HAVE_LOGIND', have_logind)
 
 xkb_base = xkeyboard_config_dep.get_pkgconfig_variable('xkb_base')
 cdata.set_quoted('XKB_BASE', xkb_base)

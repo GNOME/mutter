@@ -58,6 +58,7 @@
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-dummy.h"
+#include "backends/meta-session.h"
 #include "backends/meta-settings-private.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-backend-x11.h"
@@ -110,6 +111,7 @@ meta_get_backend (void)
 
 struct _MetaBackendPrivate
 {
+  MetaSession *session;
   MetaMonitorManager *monitor_manager;
   MetaOrientationManager *orientation_manager;
   MetaCursorTracker *cursor_tracker;
@@ -192,6 +194,7 @@ meta_backend_finalize (GObject *object)
   g_hash_table_destroy (priv->device_monitors);
 
   g_clear_object (&priv->settings);
+  g_clear_object (&priv->session);
 
   G_OBJECT_CLASS (meta_backend_parent_class)->finalize (object);
 }
@@ -805,6 +808,30 @@ system_bus_gotten_cb (GObject      *object,
                                         prepare_for_sleep_cb,
                                         NULL,
                                         NULL);
+}
+
+gboolean
+meta_backend_init_session (MetaBackend   *backend,
+                           GCancellable  *cancellable,
+                           GError       **error)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  MetaSession *session;
+
+  session = g_initable_new (META_TYPE_SESSION, cancellable, error, NULL);
+  if (!session)
+    return FALSE;
+
+  priv->session = session;
+  return TRUE;
+}
+
+MetaSession *
+meta_backend_get_session (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->session;
 }
 
 static gboolean

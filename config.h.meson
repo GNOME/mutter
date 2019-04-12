@@ -28,6 +28,9 @@
 /* Defined if EGLStream support is enabled */
 #mesondefine HAVE_WAYLAND_EGLSTREAM
 
+/* Defined if logind support is enabled */
+#mesondefine HAVE_LOGIND
+
 /* Building with gudev for device type detection */
 #mesondefine HAVE_LIBGUDEV
 
