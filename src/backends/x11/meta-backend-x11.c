@@ -690,6 +690,21 @@ meta_backend_x11_get_xkb_event_base (MetaBackendX11 *x11)
 }
 
 static void
+on_is_session_active_changed (MetaSession    *session,
+                              MetaBackendX11 *x11)
+{
+  gboolean is_session_active;
+
+  is_session_active = meta_session_is_active (session);
+  if (is_session_active)
+    {
+      ClutterActor *stage = meta_backend_get_stage (META_BACKEND (x11));
+
+      clutter_actor_queue_redraw (stage);
+    }
+}
+
+static void
 init_xkb_state (MetaBackendX11 *x11)
 {
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
@@ -745,6 +760,13 @@ meta_backend_x11_initable_init (GInitable    *initable,
     {
       g_warning ("Failed to initialize logind session: %s", (*error)->message);
       g_clear_error (error);
+    }
+  else
+    {
+      g_signal_connect (meta_backend_get_session (backend),
+                        "is-active-changed",
+                        G_CALLBACK (on_is_session_active_changed),
+                        x11);
     }
 
   return initable_parent_iface->init (initable, cancellable, error);
