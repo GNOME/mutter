@@ -936,6 +936,9 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
 
   if (do_swap_buffer)
     {
+      COGL_TRACE_BEGIN_SCOPED (ClutterStageCoglRedrawViewSwapFramebuffer,
+                               "Paint (swap framebuffer)");
+
       if (clutter_stage_view_get_onscreen (view) !=
           clutter_stage_view_get_framebuffer (view))
         {
@@ -960,7 +963,7 @@ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
   gboolean swap_event = FALSE;
   GList *l;
 
-  COGL_TRACE_BEGIN (ClutterStageCoglRedraw);
+  COGL_TRACE_BEGIN (ClutterStageCoglRedraw, "Paint (Cogl Redraw)");
 
   for (l = _clutter_stage_window_get_views (stage_window); l; l = l->next)
     {
