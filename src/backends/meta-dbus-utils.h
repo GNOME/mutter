@@ -1,5 +1,3 @@
-/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
-
 /*
  * Copyright (C) 2014 Red Hat
  *
@@ -22,11 +20,11 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef DBUS_UTILS_H
-#define DBUS_UTILS_H
+#ifndef META_DBUS_UTILS_H
+#define META_DBUS_UTILS_H
 
 char *
-get_escaped_dbus_path (const char *prefix,
-                       const char *component);
+meta_get_escaped_dbus_path (const char *prefix,
+                            const char *component);
 
-#endif /* DBUS_UTILS_H */
+#endif /* META_DBUS_UTILS_H */

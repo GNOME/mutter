@@ -34,7 +34,7 @@
 #include <gudev/gudev.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/native/dbus-utils.h"
+#include "backends/meta-dbus-utils.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-renderer-native.h"
@@ -237,7 +237,8 @@ get_session_proxy (GCancellable *cancellable,
       return NULL;
     }
 
-  proxy_path = get_escaped_dbus_path ("/org/freedesktop/login1/session", session_id);
+  proxy_path = meta_get_escaped_dbus_path ("/org/freedesktop/login1/session",
+                                           session_id);
 
   session_proxy = login1_session_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                                          G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
