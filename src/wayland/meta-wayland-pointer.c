@@ -49,7 +49,6 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-tracker-private.h"
-#include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-cursor.h"
 #include "clutter/clutter.h"
 #include "clutter/evdev/clutter-evdev.h"
