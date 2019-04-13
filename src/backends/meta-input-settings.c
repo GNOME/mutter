@@ -366,11 +366,10 @@ do_update_pointer_accel_profile (MetaInputSettings          *input_settings,
     input_settings_class->set_trackball_accel_profile (input_settings,
                                                        device,
                                                        profile);
-
   else if (settings == priv->pointingstick_settings)
     input_settings_class->set_pointingstick_accel_profile (input_settings,
-                                                       device,
-                                                       profile);
+                                                           device,
+                                                           profile);
 }
 
 static void
@@ -756,6 +755,45 @@ update_trackball_scroll_button (MetaInputSettings  *input_settings,
 
           if (input_settings_class->is_trackball_device (input_settings, device))
             input_settings_class->set_scroll_button (input_settings, device, button);
+
+          devices = devices->next;
+        }
+    }
+}
+
+static void
+update_pointingstick_scroll_method (MetaInputSettings  *input_settings,
+                                    GSettings          *settings,
+                                    ClutterInputDevice *device)
+{
+  MetaInputSettingsClass *input_settings_class;
+  MetaInputSettingsPrivate *priv;
+  GDesktopDeviceScrollMethod method;
+
+  method = g_settings_get_enum (settings, "scroll-method");
+
+  priv = meta_input_settings_get_instance_private (input_settings);
+  input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
+
+  if (device && !input_settings_class->is_pointingstick_device (input_settings, device))
+    return;
+
+  if (device)
+    {
+      input_settings_class->set_pointingstick_scroll_method (input_settings, device, method);
+    }
+  else if (!device)
+    {
+      const GSList *devices;
+
+      devices = clutter_device_manager_peek_devices (priv->device_manager);
+
+      while (devices)
+        {
+          device = devices->data;
+
+          if (input_settings_class->is_pointingstick_device (input_settings, device))
+            input_settings_class->set_pointingstick_scroll_method (input_settings, device, method);
 
           devices = devices->next;
         }
@@ -1153,6 +1191,8 @@ meta_input_settings_changed_cb (GSettings  *settings,
     }
   else if (settings == priv->pointingstick_settings)
     {
+      if (strcmp (key, "scroll-method") == 0)
+        update_pointingstick_scroll_method (input_settings, settings, NULL);
       if (strcmp (key, "accel-profile") == 0)
         update_pointer_accel_profile (input_settings, settings, NULL);
     }
@@ -1567,6 +1607,10 @@ apply_device_settings (MetaInputSettings  *input_settings,
   update_pointer_accel_profile (input_settings,
                                 priv->trackball_settings,
                                 device);
+
+  update_pointingstick_scroll_method (input_settings,
+                                      priv->pointingstick_settings,
+                                      device);
   update_pointer_accel_profile (input_settings,
                                 priv->pointingstick_settings,
                                 device);
