@@ -142,10 +142,6 @@ struct _ClutterMainContext
   /* default FPS; this is only used if we cannot sync to vblank */
   guint frame_rate;
 
-  /* actors with a grab on all devices */
-  ClutterActor *pointer_grab_actor;
-  ClutterActor *keyboard_grab_actor;
-
   /* stack of actors with shaders during paint */
   GSList *shaders;
 

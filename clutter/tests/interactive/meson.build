@@ -25,7 +25,6 @@ clutter_tests_interactive_test_sources = [
   'test-actors.c',
   'test-shader-effects.c',
   'test-script.c',
-  'test-grab.c',
   'test-cogl-shader-glsl.c',
   'test-state.c',
   'test-fbo.c',
