@@ -123,7 +123,9 @@ grab_pointer_cb (ClutterActor    *actor,
                  ClutterEvent    *event,
                  gpointer         data)
 {
-  clutter_grab_pointer (actor);
+  ClutterInputDevice *device = clutter_event_get_device (event);
+
+  clutter_input_device_grab (device, actor);
   return FALSE;
 }
 
@@ -132,7 +134,9 @@ red_release_cb (ClutterActor    *actor,
                 ClutterEvent    *event,
                 gpointer         data)
 {
-  clutter_ungrab_pointer ();
+  ClutterInputDevice *device = clutter_event_get_device (event);
+
+  clutter_input_device_ungrab (device);
   return FALSE;
 }
 
@@ -169,14 +173,17 @@ toggle_grab_pointer_cb (ClutterActor    *actor,
                         ClutterEvent    *event,
                         gpointer         data)
 {
+  ClutterInputDevice *device = clutter_event_get_device (event);
+
   /* we only deal with the event if the source is ourself */
   if (event->button.source == actor)
     {
-      if (clutter_get_pointer_grab () != NULL)
-        clutter_ungrab_pointer ();
+      if (clutter_input_device_get_grabbed_actor (device) != NULL)
+        clutter_input_device_ungrab (device);
       else
-        clutter_grab_pointer (actor);
+        clutter_input_device_grab (device, actor);
     }
+
   return FALSE;
 }
 
@@ -185,10 +192,15 @@ cyan_press_cb (ClutterActor    *actor,
                ClutterEvent    *event,
                gpointer         data)
 {
-  if (clutter_get_keyboard_grab () != NULL)
-    clutter_ungrab_keyboard ();
+  ClutterDeviceManager *dm = clutter_device_manager_get_default ();
+  ClutterInputDevice *device =
+    clutter_device_manager_get_core_device (dm, CLUTTER_KEYBOARD_DEVICE);
+
+  if (clutter_input_device_get_grabbed_actor (device) != NULL)
+    clutter_input_device_ungrab (device);
   else
-    clutter_grab_keyboard (actor);
+    clutter_input_device_grab (device, actor);
+
   return FALSE;
 }
 
