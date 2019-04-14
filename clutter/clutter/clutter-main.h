@@ -147,19 +147,6 @@ CLUTTER_EXPORT
 void                    clutter_threads_remove_repaint_func     (guint          handle_id);
 
 CLUTTER_EXPORT
-void                    clutter_grab_pointer                    (ClutterActor  *actor);
-CLUTTER_EXPORT
-void                    clutter_ungrab_pointer                  (void);
-CLUTTER_EXPORT
-ClutterActor *          clutter_get_pointer_grab                (void);
-CLUTTER_EXPORT
-void                    clutter_grab_keyboard                   (ClutterActor  *actor);
-CLUTTER_EXPORT
-void                    clutter_ungrab_keyboard                 (void);
-CLUTTER_EXPORT
-ClutterActor *          clutter_get_keyboard_grab               (void);
-
-CLUTTER_EXPORT
 PangoFontMap *          clutter_get_font_map                    (void);
 
 CLUTTER_EXPORT
