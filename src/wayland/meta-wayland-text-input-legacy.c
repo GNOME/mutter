@@ -292,6 +292,7 @@ text_input_enable (struct wl_client   *client,
   ClutterInputFocus *focus = text_input->input_focus;
   ClutterInputMethod *input_method;
   gboolean show_preedit;
+  gboolean enable_panel = FALSE;
 
   if (serial != text_input->focus_serial)
     return;
@@ -299,17 +300,19 @@ text_input_enable (struct wl_client   *client,
   if (!clutter_input_focus_is_focused (focus))
     {
       input_method = clutter_backend_get_input_method (clutter_get_default_backend ());
-      if (input_method)
-        clutter_input_method_focus_in (input_method, focus);
-      else
+      if (!input_method)
         return;
+
+      clutter_input_method_focus_in (input_method, focus);
     }
+  else
+    enable_panel = (flags & GTK_TEXT_INPUT_ENABLE_FLAGS_TOGGLE_INPUT_PANEL) != 0;
 
   show_preedit = (flags & GTK_TEXT_INPUT_ENABLE_FLAGS_CAN_SHOW_PREEDIT) != 0;
   clutter_input_focus_set_can_show_preedit (focus, show_preedit);
 
-  if (flags & GTK_TEXT_INPUT_ENABLE_FLAGS_TOGGLE_INPUT_PANEL)
-    clutter_input_focus_set_input_panel_state (focus, CLUTTER_INPUT_PANEL_STATE_TOGGLE);
+  if (enable_panel)
+    clutter_input_focus_set_input_panel_state (focus, CLUTTER_INPUT_PANEL_STATE_ON);
 }
 
 static void
