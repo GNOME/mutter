@@ -1214,15 +1214,15 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
   MetaWindow *focus_window = NULL;
   MetaBackend *backend = meta_get_backend ();
   MetaStage *stage = META_STAGE (meta_backend_get_stage (backend));
-  gboolean is_focus_xwindow = FALSE;
+  gboolean is_no_focus_xwindow = FALSE;
 
   if (display->x11_display)
-    meta_x11_display_xwindow_is_a_no_focus_window (display->x11_display,
-                                                   display->x11_display->focus_xwindow);
+    is_no_focus_xwindow = meta_x11_display_xwindow_is_a_no_focus_window (display->x11_display,
+                                                                         display->x11_display->focus_xwindow);
 
   if (!meta_display_windows_are_interactable (display))
     focus_window = NULL;
-  else if (is_focus_xwindow)
+  else if (is_no_focus_xwindow)
     focus_window = NULL;
   else if (display->focus_window && display->focus_window->surface)
     focus_window = display->focus_window;
