@@ -1,3 +1,13 @@
+mutter (3.32.0+git20190410-2) experimental; urgency=medium
+
+  [ Gunnar Hjalmarsson ]
+  * Add gnome-control-center-data to Build-Depends. This package provides
+    gnome-keybindings.{its,loc}. These are needed if the translation template
+    is regenerated at build-time to translate the key bindings defined in
+    data/50-*.xml. (LP: #1823722)
+
+ -- Iain Lane <laney@debian.org>  Sun, 14 Apr 2019 11:11:22 +0100
+
 mutter (3.32.0+git20190410-1) experimental; urgency=medium
 
   * New upstream snapshot up to commit
