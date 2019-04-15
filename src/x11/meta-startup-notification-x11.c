@@ -151,7 +151,7 @@ meta_startup_sequence_x11_new (SnStartupSequence *seq)
 {
   gint64 timestamp;
 
-  timestamp = sn_startup_sequence_get_timestamp (seq) * 1000;
+  timestamp = sn_startup_sequence_get_timestamp (seq);
   return g_object_new (META_TYPE_STARTUP_SEQUENCE_X11,
                        "id", sn_startup_sequence_get_id (seq),
                        "icon-name", sn_startup_sequence_get_icon_name (seq),
