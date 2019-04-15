@@ -1653,7 +1653,9 @@ retry_page_flips (gpointer user_data)
                                          crtc,
                                          retry_page_flip_data->fb_id,
                                          retry_page_flip_data->flip_closure,
-                                         &error);
+                                         &error,
+                                         NULL,
+                                         0);
       if (!did_flip &&
           g_error_matches (error, G_IO_ERROR, G_IO_ERROR_BUSY))
         {
@@ -1786,7 +1788,9 @@ static gboolean
 meta_onscreen_native_flip_crtc (CoglOnscreen  *onscreen,
                                 GClosure      *flip_closure,
                                 MetaCrtc      *crtc,
-                                GError       **error)
+                                GError       **error,
+                                const int     *damage_rects,
+				int            count_damage_rects)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -1820,7 +1824,9 @@ meta_onscreen_native_flip_crtc (CoglOnscreen  *onscreen,
                                    crtc,
                                    fb_id,
                                    flip_closure,
-                                   error))
+                                   error,
+                                   damage_rects,
+                                   count_damage_rects))
         {
           if (g_error_matches (*error,
                                G_IO_ERROR,
@@ -2002,6 +2008,9 @@ typedef struct _FlipCrtcData
 
   gboolean did_flip;
   gboolean did_mode_set;
+
+  const int * damage_rects;
+  int count_damage_rects;
 } FlipCrtcData;
 
 static void
@@ -2015,7 +2024,9 @@ flip_crtc (MetaLogicalMonitor *logical_monitor,
   if (!meta_onscreen_native_flip_crtc (data->onscreen,
                                        data->flip_closure,
                                        crtc,
-                                       &error))
+                                       &error,
+                                       data->damage_rects,
+                                       data->count_damage_rects))
     {
       if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_INVALID_ARGUMENT))
         {
@@ -2035,7 +2046,9 @@ flip_crtc (MetaLogicalMonitor *logical_monitor,
 }
 
 static void
-meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
+meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen,
+                                 const int *rectangles,
+                                 int n_rectangles)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -2068,6 +2081,8 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen *onscreen)
       FlipCrtcData data = {
         .onscreen = onscreen,
         .flip_closure = flip_closure,
+        .damage_rects = rectangles,
+        .count_damage_rects = n_rectangles,
       };
       logical_monitor = meta_renderer_view_get_logical_monitor (view);
       meta_logical_monitor_foreach_crtc (logical_monitor, flip_crtc, &data);
@@ -2515,7 +2530,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
     }
 
   onscreen_native->pending_queue_swap_notify_frame_count = renderer_native->frame_counter;
-  meta_onscreen_native_flip_crtcs (onscreen);
+  meta_onscreen_native_flip_crtcs (onscreen, rectangles, n_rectangles);
 
   /*
    * If we changed EGL context, cogl will have the wrong idea about what is

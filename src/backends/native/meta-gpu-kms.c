@@ -264,7 +264,9 @@ meta_gpu_kms_flip_crtc (MetaGpuKms  *gpu_kms,
                         MetaCrtc    *crtc,
                         uint32_t     fb_id,
                         GClosure    *flip_closure,
-                        GError     **error)
+                        GError     **error,
+                        const int   *damage_rects,
+                        int          count_damage_rects)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
@@ -294,8 +296,8 @@ meta_gpu_kms_flip_crtc (MetaGpuKms  *gpu_kms,
                                  crtc,
                                  fb_id,
                                  closure_container,
-                                 NULL,
-                                 0);
+                                 damage_rects,
+                                 count_damage_rects);
     }
   else
     {
