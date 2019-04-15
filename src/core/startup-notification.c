@@ -106,12 +106,26 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaStartupSequence,
 
 static void meta_startup_notification_ensure_timeout  (MetaStartupNotification *sn);
 
+static gboolean
+meta_startup_notification_has_pending_sequences (MetaStartupNotification *sn)
+{
+  GSList *l;
+
+  for (l = sn->startup_sequences; l; l = l->next)
+    {
+      if (!meta_startup_sequence_get_completed (l->data))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 static void
 meta_startup_notification_update_feedback (MetaStartupNotification *sn)
 {
   MetaDisplay *display = sn->display;
 
-  if (sn->startup_sequences != NULL)
+  if (meta_startup_notification_has_pending_sequences (sn))
     {
       meta_topic (META_DEBUG_STARTUP,
                   "Setting busy cursor\n");
