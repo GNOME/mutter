@@ -133,7 +133,8 @@ ensure_cursor_gpu_state (MetaCursorNativePrivate *cursor_priv,
                          MetaGpuKms              *gpu_kms);
 
 static MetaCursorNativePrivate *
-ensure_cursor_priv (MetaCursorSprite *cursor_sprite);
+ensure_cursor_priv (MetaCursorRenderer *renderer,
+                    MetaCursorSprite   *cursor_sprite);
 
 static MetaCursorNativePrivate *
 get_cursor_priv (MetaCursorSprite *cursor_sprite);
@@ -194,15 +195,16 @@ get_active_cursor_sprite_gbm_bo (MetaCursorNativeGpuState *cursor_gpu_state)
 }
 
 static void
-set_pending_cursor_sprite_gbm_bo (MetaCursorSprite *cursor_sprite,
-                                  MetaGpuKms       *gpu_kms,
-                                  struct gbm_bo    *bo)
+set_pending_cursor_sprite_gbm_bo (MetaCursorRenderer *renderer,
+                                  MetaCursorSprite   *cursor_sprite,
+                                  MetaGpuKms         *gpu_kms,
+                                  struct gbm_bo      *bo)
 {
   MetaCursorNativePrivate *cursor_priv;
   MetaCursorNativeGpuState *cursor_gpu_state;
   guint pending_bo;
 
-  cursor_priv = ensure_cursor_priv (cursor_sprite);
+  cursor_priv = ensure_cursor_priv (renderer, cursor_sprite);
   cursor_gpu_state = ensure_cursor_gpu_state (cursor_priv, gpu_kms);
 
   pending_bo = get_pending_cursor_sprite_gbm_bo_index (cursor_gpu_state);
@@ -801,7 +803,7 @@ ensure_cursor_gpu_state (MetaCursorNativePrivate *cursor_priv,
 }
 
 static void
-on_cursor_sprite_texture_changed (MetaCursorSprite *cursor_sprite)
+invalidate_cursor_gbm_bo_states (MetaCursorSprite *cursor_sprite)
 {
   MetaCursorNativePrivate *cursor_priv = get_cursor_priv (cursor_sprite);
   GHashTableIter iter;
@@ -819,6 +821,18 @@ on_cursor_sprite_texture_changed (MetaCursorSprite *cursor_sprite)
 }
 
 static void
+on_cursor_sprite_texture_changed (MetaCursorSprite *cursor_sprite)
+{
+  invalidate_cursor_gbm_bo_states (cursor_sprite);
+}
+
+static void
+on_cursor_sprite_monitor_changed (MetaCursorSprite *cursor_sprite)
+{
+  invalidate_cursor_gbm_bo_states (cursor_sprite);
+}
+
+static void
 cursor_priv_free (MetaCursorNativePrivate *cursor_priv)
 {
   g_hash_table_destroy (cursor_priv->gpu_states);
@@ -831,8 +845,14 @@ get_cursor_priv (MetaCursorSprite *cursor_sprite)
 }
 
 static MetaCursorNativePrivate *
-ensure_cursor_priv (MetaCursorSprite *cursor_sprite)
+ensure_cursor_priv (MetaCursorRenderer *renderer,
+                    MetaCursorSprite   *cursor_sprite)
 {
+  MetaCursorRendererNative *cursor_renderer_native =
+    META_CURSOR_RENDERER_NATIVE (renderer);
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
+  MetaMonitorManager *monitor_manager = priv->monitor_manager;
   MetaCursorNativePrivate *cursor_priv;
 
   cursor_priv = get_cursor_priv (cursor_sprite);
@@ -852,6 +872,11 @@ ensure_cursor_priv (MetaCursorSprite *cursor_sprite)
 
   g_signal_connect (cursor_sprite, "texture-changed",
                     G_CALLBACK (on_cursor_sprite_texture_changed), NULL);
+  g_signal_connect_object (monitor_manager,
+                           "monitors-changed-internal",
+                           G_CALLBACK (on_cursor_sprite_monitor_changed),
+                           cursor_sprite,
+                           G_CONNECT_SWAPPED);
 
   return cursor_priv;
 }
@@ -912,7 +937,7 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
           return;
         }
 
-      set_pending_cursor_sprite_gbm_bo (cursor_sprite, gpu_kms, bo);
+      set_pending_cursor_sprite_gbm_bo (META_CURSOR_RENDERER (native), cursor_sprite, gpu_kms, bo);
     }
   else
     {
@@ -1209,7 +1234,7 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
           return;
         }
 
-      set_pending_cursor_sprite_gbm_bo (cursor_sprite, gpu_kms, bo);
+      set_pending_cursor_sprite_gbm_bo (renderer, cursor_sprite, gpu_kms, bo);
     }
 }
 #endif
