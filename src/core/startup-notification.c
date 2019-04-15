@@ -61,12 +61,19 @@ enum
 
 enum
 {
+  SEQ_COMPLETE,
+  N_SEQ_SIGNALS
+};
+
+enum
+{
   CHANGED,
   N_SIGNALS
 };
 
 static guint sn_signals[N_SIGNALS];
 static GParamSpec *sn_props[N_PROPS];
+static guint seq_signals[N_SEQ_SIGNALS];
 static GParamSpec *seq_props[N_SEQ_PROPS];
 
 typedef struct
@@ -253,6 +260,14 @@ meta_startup_sequence_class_init (MetaStartupSequenceClass *klass)
   object_class->set_property = meta_startup_sequence_set_property;
   object_class->get_property = meta_startup_sequence_get_property;
 
+  seq_signals[SEQ_COMPLETE] =
+    g_signal_new ("complete",
+                  META_TYPE_STARTUP_SEQUENCE,
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (MetaStartupSequenceClass, complete),
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
   seq_props[PROP_SEQ_ID] =
     g_param_spec_string ("id",
                          "ID",
@@ -331,7 +346,6 @@ meta_startup_sequence_get_timestamp (MetaStartupSequence *seq)
 void
 meta_startup_sequence_complete (MetaStartupSequence *seq)
 {
-  MetaStartupSequenceClass *klass;
   MetaStartupSequencePrivate *priv;
 
   g_return_if_fail (META_IS_STARTUP_SEQUENCE (seq));
@@ -341,10 +355,7 @@ meta_startup_sequence_complete (MetaStartupSequence *seq)
     return;
 
   priv->completed = TRUE;
-  klass = META_STARTUP_SEQUENCE_GET_CLASS (seq);
-
-  if (klass->complete)
-    klass->complete (seq);
+  g_signal_emit (seq, seq_signals[SEQ_COMPLETE], 0);
 }
 
 gboolean
