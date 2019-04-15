@@ -624,13 +624,13 @@ meta_xdg_output_manager_get_xdg_output (struct wl_client   *client,
                                             wl_resource_get_version (resource),
                                             id);
 
-  wl_resource_set_implementation (xdg_output_resource,
-                                  &meta_xdg_output_interface,
-                                  NULL, meta_xdg_output_destructor);
-
   wayland_output = wl_resource_get_user_data (output);
   if (!wayland_output)
     return;
+
+  wl_resource_set_implementation (xdg_output_resource,
+                                  &meta_xdg_output_interface,
+                                  wayland_output, meta_xdg_output_destructor);
 
   wayland_output->xdg_output_resources =
     g_list_prepend (wayland_output->xdg_output_resources, xdg_output_resource);
