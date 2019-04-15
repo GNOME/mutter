@@ -37,7 +37,7 @@
  * OpenOffice or whatever seems to stop launching - people
  * might decide they need to launch it again.
  */
-#define STARTUP_TIMEOUT 15000000
+#define STARTUP_TIMEOUT 15000
 
 enum
 {
@@ -440,7 +440,7 @@ startup_sequence_timeout (void *data)
   GSList *l;
 
   ctod.list = NULL;
-  ctod.now = g_get_monotonic_time ();
+  ctod.now = g_get_monotonic_time () / 1000;
   g_slist_foreach (sn->startup_sequences,
                    collect_timed_out_foreach,
                    &ctod);
