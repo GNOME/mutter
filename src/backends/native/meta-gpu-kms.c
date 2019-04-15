@@ -77,6 +77,8 @@ struct _MetaGpuKms
   gboolean resources_init_failed_before;
 
   MetaGpuKmsFlag flags;
+
+  gboolean atomic_modeset;
 };
 
 G_DEFINE_TYPE (MetaGpuKms, meta_gpu_kms, META_TYPE_GPU)
@@ -286,11 +288,24 @@ meta_gpu_kms_flip_crtc (MetaGpuKms  *gpu_kms,
                                                       crtc,
                                                       flip_closure);
 
-  ret = drmModePageFlip (kms_fd,
-                         crtc->crtc_id,
-                         fb_id,
-                         DRM_MODE_PAGE_FLIP_EVENT,
-                         closure_container);
+  if (gpu_kms->atomic_modeset)
+    {
+      ret = meta_crtc_page_flip (kms_fd,
+                                 crtc,
+                                 fb_id,
+                                 closure_container,
+                                 NULL,
+                                 0);
+    }
+  else
+    {
+      ret = drmModePageFlip (kms_fd,
+                             crtc->crtc_id,
+                             fb_id,
+                             DRM_MODE_PAGE_FLIP_EVENT,
+                             closure_container);
+    }
+
   if (ret != 0)
     {
       meta_gpu_kms_flip_closure_container_free (closure_container);
@@ -442,6 +457,12 @@ gboolean
 meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms)
 {
   return !!(gpu_kms->flags & META_GPU_KMS_FLAG_PLATFORM_DEVICE);
+}
+
+gboolean
+meta_gpu_kms_is_atomic_modeset (MetaGpuKms *gpu_kms)
+{
+  return gpu_kms->atomic_modeset;
 }
 
 static void
@@ -892,6 +913,7 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
   MetaKmsSource *kms_source;
   MetaGpuKms *gpu_kms;
   int kms_fd;
+  int ret;
 
   kms_fd = meta_launcher_open_restricted (launcher, kms_file_path, error);
   if (kms_fd == -1)
@@ -906,6 +928,9 @@ meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
   gpu_kms->file_path = g_strdup (kms_file_path);
 
   drmSetClientCap (gpu_kms->fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
+
+  ret = drmSetClientCap (gpu_kms->fd, DRM_CLIENT_CAP_ATOMIC, 1);
+  gpu_kms->atomic_modeset = (ret == 0);
 
   meta_gpu_kms_read_current (META_GPU (gpu_kms), NULL);
 

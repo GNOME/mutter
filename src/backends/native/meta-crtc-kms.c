@@ -46,6 +46,18 @@ typedef struct _MetaCrtcKms
   uint32_t rotation_map[ALL_TRANSFORMS];
   uint32_t all_hw_transforms;
 
+  uint32_t plane_fb_prop_id;
+  uint32_t plane_crtc_prop_id;
+  uint32_t src_x_prop_id;
+  uint32_t src_y_prop_id;
+  uint32_t src_w_prop_id;
+  uint32_t src_h_prop_id;
+  uint32_t crtc_x_prop_id;
+  uint32_t crtc_y_prop_id;
+  uint32_t crtc_w_prop_id;
+  uint32_t crtc_h_prop_id;
+  uint32_t fb_damage_clips_prop_id;
+
   /*
    * primary plane's supported formats and maybe modifiers
    * key: GUINT_TO_POINTER (format)
@@ -399,8 +411,8 @@ is_primary_plane (MetaGpu                   *gpu,
 }
 
 static void
-init_crtc_rotations (MetaCrtc *crtc,
-                     MetaGpu  *gpu)
+init_crtc_primary_plane_properties (MetaCrtc *crtc,
+                                    MetaGpu  *gpu)
 {
   MetaCrtcKms *crtc_kms = crtc->driver_private;
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
@@ -460,6 +472,82 @@ init_crtc_rotations (MetaCrtc *crtc,
                                           drm_plane->formats,
                                           drm_plane->count_formats);
                 }
+
+              if (meta_gpu_kms_is_atomic_modeset(gpu_kms))
+                {
+                  int idx;
+
+                  idx = find_property_index (gpu, props, "FB_ID", &prop);
+                  if (idx >= 0)
+                    {
+                      crtc_kms->plane_fb_prop_id = props->props[idx];
+                      drmModeFreeProperty (prop);
+                    }
+                  idx = find_property_index (gpu, props, "CRTC_ID", &prop);
+                  if (idx >= 0)
+                    {
+                      crtc_kms->plane_crtc_prop_id = props->props[idx];
+                      drmModeFreeProperty (prop);
+                    }
+                  idx = find_property_index (gpu, props, "SRC_X", &prop);
+                  if (idx >= 0)
+                    {
+                      crtc_kms->src_x_prop_id = props->props[idx];
+                      drmModeFreeProperty (prop);
+                    }
+                  idx = find_property_index (gpu, props, "SRC_Y", &prop);
+                  if (idx >= 0)
+                    {
+                      crtc_kms->src_y_prop_id = props->props[idx];
+                      drmModeFreeProperty (prop);
+                    }
+                  idx = find_property_index (gpu, props, "SRC_W", &prop);
+                  if (idx >= 0)
+                    {
+                      crtc_kms->src_w_prop_id = props->props[idx];
+                      drmModeFreeProperty (prop);
+                    }
+                  idx = find_property_index (gpu, props, "SRC_H", &prop);
+                  if (idx >= 0)
+                    {
+                      crtc_kms->src_h_prop_id = props->props[idx];
+                      drmModeFreeProperty (prop);
+                    }
+                  idx = find_property_index (gpu, props, "CRTC_X", &prop);
+                  if (idx >= 0)
+                    {
+                      crtc_kms->crtc_x_prop_id = props->props[idx];
+                      drmModeFreeProperty (prop);
+                    }
+                  idx = find_property_index (gpu, props, "CRTC_Y", &prop);
+                  if (idx >= 0)
+                    {
+                      crtc_kms->crtc_y_prop_id = props->props[idx];
+                      drmModeFreeProperty (prop);
+                    }
+                  idx = find_property_index (gpu, props, "CRTC_W", &prop);
+                  if (idx >= 0)
+                    {
+                      crtc_kms->crtc_w_prop_id = props->props[idx];
+                      drmModeFreeProperty (prop);
+                    }
+                  idx = find_property_index (gpu, props, "CRTC_H", &prop);
+                  if (idx >= 0)
+                    {
+                      crtc_kms->crtc_h_prop_id = props->props[idx];
+                      drmModeFreeProperty (prop);
+                    }
+                  idx = find_property_index (gpu, props, "FB_DAMAGE_CLIPS", &prop);
+                  if (idx >= 0)
+                    {
+                      crtc_kms->fb_damage_clips_prop_id = props->props[idx];
+                      drmModeFreeProperty (prop);
+                    }
+                  else
+		   {
+                     crtc_kms->fb_damage_clips_prop_id = -1;
+		   }
+                }
             }
 
           if (props)
@@ -480,6 +568,68 @@ init_crtc_rotations (MetaCrtc *crtc,
                               drm_default_formats,
                               G_N_ELEMENTS (drm_default_formats));
     }
+}
+
+int
+meta_crtc_page_flip (int kms_fd,
+                     MetaCrtc *crtc,
+                     uint32_t fb_id,
+                     void *user_data,
+                     const int *damage_rects,
+                     int count_damage_rects)
+{
+  drmModeAtomicReq *req;
+  MetaCrtcKms *crtc_kms = crtc->driver_private;
+  int ret;
+
+  req = drmModeAtomicAlloc();
+
+  drmModeAtomicAddProperty(req, crtc_kms->primary_plane_id,
+                           crtc_kms->plane_fb_prop_id, fb_id);
+  drmModeAtomicAddProperty(req, crtc_kms->primary_plane_id,
+                           crtc_kms->plane_crtc_prop_id, crtc->crtc_id);
+
+  drmModeAtomicAddProperty(req, crtc_kms->primary_plane_id,
+                           crtc_kms->src_x_prop_id, 0);
+  drmModeAtomicAddProperty(req, crtc_kms->primary_plane_id,
+                           crtc_kms->src_y_prop_id, 0);
+  drmModeAtomicAddProperty(req, crtc_kms->primary_plane_id,
+                           crtc_kms->src_w_prop_id, crtc->rect.width << 16);
+  drmModeAtomicAddProperty(req, crtc_kms->primary_plane_id,
+                           crtc_kms->src_h_prop_id, crtc->rect.height << 16);
+
+  drmModeAtomicAddProperty(req, crtc_kms->primary_plane_id,
+                           crtc_kms->crtc_x_prop_id, 0);
+  drmModeAtomicAddProperty(req, crtc_kms->primary_plane_id,
+                           crtc_kms->crtc_y_prop_id, 0);
+  drmModeAtomicAddProperty(req, crtc_kms->primary_plane_id,
+                           crtc_kms->crtc_w_prop_id, crtc->rect.width);
+  drmModeAtomicAddProperty(req, crtc_kms->primary_plane_id,
+                           crtc_kms->crtc_h_prop_id, crtc->rect.height);
+
+  if (crtc_kms->fb_damage_clips_prop_id > 0 && damage_rects)
+    {
+      unsigned int blob_id;
+
+      ret = drmModeCreatePropertyBlob(kms_fd,
+                                      damage_rects,
+                                      count_damage_rects * sizeof (int) * 4,
+                                      &blob_id);
+      if (ret == 0)
+        {
+          ret = drmModeAtomicAddProperty(req, crtc_kms->primary_plane_id,
+                                         crtc_kms->fb_damage_clips_prop_id,
+                                         blob_id);
+          if (ret <= 0)
+            drmModeDestroyPropertyBlob(kms_fd, blob_id);
+        }
+    }
+
+  ret = drmModeAtomicCommit(kms_fd, req, DRM_MODE_PAGE_FLIP_EVENT, user_data);
+
+  drmModeAtomicFree(req);
+
+  return ret;
 }
 
 static void
@@ -540,7 +690,7 @@ meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
   crtc->driver_private = crtc_kms;
   crtc->driver_notify = (GDestroyNotify) meta_crtc_destroy_notify;
 
-  init_crtc_rotations (crtc, gpu);
+  init_crtc_primary_plane_properties (crtc, gpu);
 
   return crtc;
 }

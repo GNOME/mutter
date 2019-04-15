@@ -108,4 +108,6 @@ MetaGpuKmsFlipClosureContainer * meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu
 
 void meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container);
 
+gboolean meta_gpu_kms_is_atomic_modeset (MetaGpuKms *gpu_kms);
+
 #endif /* META_GPU_KMS_H */
