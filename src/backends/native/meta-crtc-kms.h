@@ -54,6 +54,14 @@ gboolean
 meta_crtc_kms_supports_format (MetaCrtc *crtc,
                                uint32_t  drm_format);
 
+int
+meta_crtc_page_flip (int kms_fd,
+                     MetaCrtc *crtc,
+                     uint32_t fb_id,
+                     void *user_data,
+                     const int *damage_rects,
+                     int count_damage_rects);
+
 MetaCrtc * meta_create_kms_crtc (MetaGpuKms   *gpu_kms,
                                  drmModeCrtc  *drm_crtc,
                                  unsigned int  crtc_index);
