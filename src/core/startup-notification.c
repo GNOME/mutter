@@ -424,12 +424,21 @@ meta_startup_sequence_get_wmclass (MetaStartupSequence *seq)
   return priv->wmclass;
 }
 
+static void
+on_sequence_completed (MetaStartupSequence     *seq,
+                       MetaStartupNotification *sn)
+{
+  g_signal_emit (sn, sn_signals[CHANGED], 0, seq);
+}
+
 void
 meta_startup_notification_add_sequence (MetaStartupNotification *sn,
                                         MetaStartupSequence     *seq)
 {
   sn->startup_sequences = g_slist_prepend (sn->startup_sequences,
                                            g_object_ref (seq));
+  g_signal_connect (seq, "complete",
+                    G_CALLBACK (on_sequence_completed), sn);
 
   meta_startup_notification_ensure_timeout (sn);
   meta_startup_notification_update_feedback (sn);
@@ -518,6 +527,8 @@ meta_startup_notification_remove_sequence (MetaStartupNotification *sn,
 {
   sn->startup_sequences = g_slist_remove (sn->startup_sequences, seq);
   meta_startup_notification_update_feedback (sn);
+
+  g_signal_handlers_disconnect_by_func (seq, on_sequence_completed, sn);
 
   if (sn->startup_sequences == NULL &&
       sn->startup_sequence_timeout != 0)
