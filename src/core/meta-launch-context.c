@@ -120,6 +120,18 @@ meta_launch_context_constructed (GObject *object)
 }
 
 static gchar *
+create_startup_notification_id (uint32_t timestamp)
+{
+  gchar *uuid, *id;
+
+  uuid = g_uuid_string_random ();
+  id = g_strdup_printf ("%s_TIME%u", uuid, timestamp);
+  g_free (uuid);
+
+  return id;
+}
+
+static gchar *
 meta_launch_context_get_startup_notify_id (GAppLaunchContext *launch_context,
                                            GAppInfo          *info,
                                            GList             *files)
@@ -137,7 +149,7 @@ meta_launch_context_get_startup_notify_id (GAppLaunchContext *launch_context,
       MetaStartupNotification *sn;
       MetaStartupSequence *seq;
 
-      startup_id = g_uuid_string_random ();
+      startup_id = create_startup_notification_id (context->timestamp);
 
       /* Fallback through inserting our own startup sequence, this
        * will be enough for wayland clients.
