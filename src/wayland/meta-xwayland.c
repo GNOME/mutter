@@ -648,6 +648,20 @@ xwayland_surface_get_toplevel (MetaWaylandSurfaceRole *surface_role)
 }
 
 static void
+xwayland_surface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
+{
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (actor_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandActorSurfaceClass *actor_surface_class =
+    META_WAYLAND_ACTOR_SURFACE_CLASS (meta_wayland_surface_role_xwayland_parent_class);
+
+  if (surface->window)
+    actor_surface_class->sync_actor_state (actor_surface);
+}
+
+static void
 meta_wayland_surface_role_xwayland_init (MetaWaylandSurfaceRoleXWayland *role)
 {
 }
@@ -657,10 +671,14 @@ meta_wayland_surface_role_xwayland_class_init (MetaWaylandSurfaceRoleXWaylandCla
 {
   MetaWaylandSurfaceRoleClass *surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (klass);
+  MetaWaylandActorSurfaceClass *actor_surface_class =
+    META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
 
   surface_role_class->assigned = xwayland_surface_assigned;
   surface_role_class->commit = xwayland_surface_commit;
   surface_role_class->get_toplevel = xwayland_surface_get_toplevel;
+
+  actor_surface_class->sync_actor_state = xwayland_surface_sync_actor_state;
 
   xwayland_surface_signals[XWAYLAND_SURFACE_WINDOW_ASSOCIATED] =
     g_signal_new ("window-associated",
