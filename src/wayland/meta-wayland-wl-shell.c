@@ -700,6 +700,15 @@ meta_wayland_wl_shell_surface_popup_get_surface (MetaWaylandPopupSurface *popup_
 }
 
 static void
+meta_wayland_wl_shell_surface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
+{
+  MetaWaylandActorSurfaceClass *parent_actor_surface_class =
+    META_WAYLAND_ACTOR_SURFACE_CLASS (meta_wayland_wl_shell_surface_parent_class);
+
+  parent_actor_surface_class->sync_actor_state (actor_surface);
+}
+
+static void
 popup_surface_iface_init (MetaWaylandPopupSurfaceInterface *iface)
 {
   iface->done = meta_wayland_wl_shell_surface_popup_done;
@@ -732,6 +741,7 @@ meta_wayland_wl_shell_surface_class_init (MetaWaylandWlShellSurfaceClass *klass)
   GObjectClass *object_class;
   MetaWaylandSurfaceRoleClass *surface_role_class;
   MetaWaylandShellSurfaceClass *shell_surface_class;
+  MetaWaylandActorSurfaceClass *actor_surface_class;
 
   object_class = G_OBJECT_CLASS (klass);
   object_class->finalize = wl_shell_surface_role_finalize;
@@ -745,6 +755,10 @@ meta_wayland_wl_shell_surface_class_init (MetaWaylandWlShellSurfaceClass *klass)
   shell_surface_class->managed = wl_shell_surface_role_managed;
   shell_surface_class->ping = wl_shell_surface_role_ping;
   shell_surface_class->close = wl_shell_surface_role_close;
+
+  actor_surface_class = META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
+  actor_surface_class->sync_actor_state =
+    meta_wayland_wl_shell_surface_sync_actor_state;
 }
 
 void
