@@ -225,12 +225,6 @@ if have_pango_ft2
   pangoft2_dep = dependency('pangoft2')
 endif
 
-have_startup_notification = get_option('startup_notification')
-if have_startup_notification
-  libstartup_notification_dep = dependency('libstartup-notification-1.0',
-                                           version: libstartup_notification_req)
-endif
-
 have_remote_desktop = get_option('remote_desktop')
 if have_remote_desktop
   libpipewire_dep = dependency('libpipewire-0.2', version: libpipewire_req)
@@ -334,7 +328,6 @@ cdata.set('HAVE_WAYLAND_EGLSTREAM', have_wayland_eglstream)
 cdata.set('HAVE_LIBGUDEV', have_libgudev)
 cdata.set('HAVE_LIBWACOM', have_libwacom)
 cdata.set('HAVE_SM', have_sm)
-cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
 
 xkb_base = xkeyboard_config_dep.get_pkgconfig_variable('xkb_base')
@@ -399,7 +392,6 @@ output = [
   '        gudev.................... ' + have_libgudev.to_string(),
   '        Wacom.................... ' + have_libwacom.to_string(),
   '        SM....................... ' + have_sm.to_string(),
-  '        Startup notification..... ' + have_startup_notification.to_string(),
   '        Introspection............ ' + have_introspection.to_string(),
   '',
   '    Tests:',
