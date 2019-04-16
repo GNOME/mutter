@@ -746,6 +746,8 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
         }
     }
 
+  stage_cogl->using_clipped_redraw = FALSE;
+
   cogl_push_framebuffer (fb);
   if (use_clipped_redraw && clip_region_empty)
     {
@@ -786,8 +788,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
 
       paint_stage (stage_cogl, view, &paint_rect);
       cogl_framebuffer_pop_clip (fb);
-
-      stage_cogl->using_clipped_redraw = FALSE;
     }
   else
     {
