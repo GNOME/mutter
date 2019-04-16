@@ -1373,9 +1373,12 @@ _clutter_stage_has_full_redraw_queued (ClutterStage *stage)
  * paint every pixel in the stage. This function would then return the
  * bounds of that clip. An application can use this information to
  * avoid some extra work if it knows that some regions of the stage
- * aren't going to be painted. This should only be called while the
- * stage is being painted. If there is no current redraw clip then
- * this function will set @clip to the full extents of the stage.
+ * aren't going to be painted.
+ *
+ * This function will only set @clip to the current redraw clip if it's
+ * called while the stage is being painted, otherwise or if there is no
+ * clip used for painting, this function will set @clip to the full
+ * extents of the stage.
  *
  * Since: 1.8
  */
@@ -1390,11 +1393,10 @@ clutter_stage_get_redraw_clip_bounds (ClutterStage          *stage,
 
   priv = stage->priv;
 
-  if (!_clutter_stage_window_get_redraw_clip_bounds (priv->impl, clip))
-    {
-      /* Set clip to the full extents of the stage */
-      _clutter_stage_window_get_geometry (priv->impl, clip);
-    }
+  if (_clutter_stage_window_current_redraw_clipped (priv->impl))
+    _clutter_stage_window_get_redraw_clip_bounds (priv->impl, clip);
+  else
+    _clutter_stage_window_get_geometry (priv->impl, clip);
 }
 
 static void
