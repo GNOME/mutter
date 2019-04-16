@@ -59,6 +59,7 @@ struct _ClutterStageWindowInterface
                                                  cairo_rectangle_int_t *stage_rectangle);
   gboolean          (* has_redraw_clips)        (ClutterStageWindow    *stage_window);
   gboolean          (* ignoring_redraw_clips)   (ClutterStageWindow    *stage_window);
+  gboolean          (* current_redraw_clipped)  (ClutterStageWindow    *stage_window);
   gboolean          (* get_redraw_clip_bounds)  (ClutterStageWindow    *stage_window,
                                                  cairo_rectangle_int_t *clip);
 
@@ -111,6 +112,7 @@ void              _clutter_stage_window_add_redraw_clip         (ClutterStageWin
                                                                  cairo_rectangle_int_t *stage_clip);
 gboolean          _clutter_stage_window_has_redraw_clips        (ClutterStageWindow    *window);
 gboolean          _clutter_stage_window_ignoring_redraw_clips   (ClutterStageWindow    *window);
+gboolean          _clutter_stage_window_current_redraw_clipped  (ClutterStageWindow    *window);
 gboolean          _clutter_stage_window_get_redraw_clip_bounds  (ClutterStageWindow    *window,
                                                                  cairo_rectangle_int_t *clip);
 

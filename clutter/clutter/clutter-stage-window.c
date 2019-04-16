@@ -254,6 +254,20 @@ _clutter_stage_window_ignoring_redraw_clips (ClutterStageWindow *window)
 }
 
 gboolean
+_clutter_stage_window_current_redraw_clipped (ClutterStageWindow *window)
+{
+  ClutterStageWindowInterface *iface;
+
+  g_return_val_if_fail (CLUTTER_IS_STAGE_WINDOW (window), FALSE);
+
+  iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
+  if (iface->current_redraw_clipped != NULL)
+    return iface->current_redraw_clipped (window);
+
+  return FALSE;
+}
+
+gboolean
 _clutter_stage_window_get_redraw_clip_bounds (ClutterStageWindow    *window,
                                               cairo_rectangle_int_t *stage_clip)
 {
