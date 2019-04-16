@@ -125,26 +125,11 @@ meta_launch_context_get_startup_notify_id (GAppLaunchContext *launch_context,
                                            GList             *files)
 {
   MetaLaunchContext *context = META_LAUNCH_CONTEXT (launch_context);
-  MetaDisplay *display = context->display;
   int workspace_idx = -1;
   char *startup_id = NULL;
 
   if (context->workspace)
     workspace_idx = meta_workspace_index (context->workspace);
-
-  if (display->x11_display)
-    {
-      /* If there is a X11 display, we prefer going entirely through
-       * libsn, as SnMonitor expects to keep a view of the full lifetime
-       * of the startup sequence. We can't avoid it when launching and
-       * expect that a "remove" message from a X11 client will be handled.
-       */
-      startup_id =
-        meta_x11_startup_notification_launch (display->x11_display,
-                                              info,
-                                              context->timestamp,
-                                              workspace_idx);
-    }
 
   if (!startup_id)
     {
