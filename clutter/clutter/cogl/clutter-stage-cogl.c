@@ -325,15 +325,23 @@ clutter_stage_cogl_add_redraw_clip (ClutterStageWindow    *stage_window,
 }
 
 static gboolean
+clutter_stage_cogl_current_redraw_clipped (ClutterStageWindow *stage_window)
+{
+  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+
+  return stage_cogl->using_clipped_redraw;
+}
+
+static gboolean
 clutter_stage_cogl_get_redraw_clip_bounds (ClutterStageWindow    *stage_window,
                                            cairo_rectangle_int_t *stage_clip)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
 
-  if (stage_cogl->using_clipped_redraw)
+  if (stage_cogl->initialized_redraw_clip &&
+      stage_cogl->bounding_redraw_clip.width == 0)
     {
       *stage_clip = stage_cogl->bounding_redraw_clip;
-
       return TRUE;
     }
 
@@ -1020,6 +1028,7 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
   iface->add_redraw_clip = clutter_stage_cogl_add_redraw_clip;
   iface->has_redraw_clips = clutter_stage_cogl_has_redraw_clips;
   iface->ignoring_redraw_clips = clutter_stage_cogl_ignoring_redraw_clips;
+  iface->current_redraw_clipped = clutter_stage_cogl_current_redraw_clipped;
   iface->get_redraw_clip_bounds = clutter_stage_cogl_get_redraw_clip_bounds;
   iface->redraw = clutter_stage_cogl_redraw;
   iface->get_dirty_pixel = clutter_stage_cogl_get_dirty_pixel;
