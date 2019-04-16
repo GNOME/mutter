@@ -810,6 +810,15 @@ meta_wayland_zxdg_toplevel_v6_shell_client_destroyed (MetaWaylandZxdgSurfaceV6 *
 }
 
 static void
+meta_wayland_zxdg_toplevel_v6_sync_actor_state (MetaWaylandActorSurface *actor_surface)
+{
+  MetaWaylandActorSurfaceClass *parent_actor_surface_class =
+    META_WAYLAND_ACTOR_SURFACE_CLASS (meta_wayland_zxdg_toplevel_v6_parent_class);
+
+  parent_actor_surface_class->sync_actor_state (actor_surface);
+}
+
+static void
 meta_wayland_zxdg_toplevel_v6_finalize (GObject *object)
 {
   MetaWaylandZxdgToplevelV6 *xdg_toplevel =
@@ -832,6 +841,7 @@ meta_wayland_zxdg_toplevel_v6_class_init (MetaWaylandZxdgToplevelV6Class *klass)
   MetaWaylandSurfaceRoleClass *surface_role_class;
   MetaWaylandShellSurfaceClass *shell_surface_class;
   MetaWaylandZxdgSurfaceV6Class *xdg_surface_class;
+  MetaWaylandActorSurfaceClass *actor_surface_class;
 
   object_class = G_OBJECT_CLASS (klass);
   object_class->finalize = meta_wayland_zxdg_toplevel_v6_finalize;
@@ -848,6 +858,10 @@ meta_wayland_zxdg_toplevel_v6_class_init (MetaWaylandZxdgToplevelV6Class *klass)
   xdg_surface_class = META_WAYLAND_ZXDG_SURFACE_V6_CLASS (klass);
   xdg_surface_class->shell_client_destroyed =
     meta_wayland_zxdg_toplevel_v6_shell_client_destroyed;
+
+  actor_surface_class = META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
+  actor_surface_class->sync_actor_state =
+    meta_wayland_zxdg_toplevel_v6_sync_actor_state;
 }
 
 static void
@@ -1127,6 +1141,15 @@ meta_wayland_zxdg_popup_v6_get_surface (MetaWaylandPopupSurface *popup_surface)
 }
 
 static void
+meta_wayland_zxdg_popup_v6_sync_actor_state (MetaWaylandActorSurface *actor_surface)
+{
+  MetaWaylandActorSurfaceClass *parent_actor_surface_class =
+    META_WAYLAND_ACTOR_SURFACE_CLASS (meta_wayland_zxdg_popup_v6_parent_class);
+
+  parent_actor_surface_class->sync_actor_state (actor_surface);
+}
+
+static void
 popup_surface_iface_init (MetaWaylandPopupSurfaceInterface *iface)
 {
   iface->done = meta_wayland_zxdg_popup_v6_done;
@@ -1156,6 +1179,7 @@ meta_wayland_zxdg_popup_v6_class_init (MetaWaylandZxdgPopupV6Class *klass)
   MetaWaylandSurfaceRoleClass *surface_role_class;
   MetaWaylandShellSurfaceClass *shell_surface_class;
   MetaWaylandZxdgSurfaceV6Class *xdg_surface_class;
+  MetaWaylandActorSurfaceClass *actor_surface_class;
 
   object_class = G_OBJECT_CLASS (klass);
   object_class->finalize = meta_wayland_zxdg_popup_v6_role_finalize;
@@ -1171,6 +1195,10 @@ meta_wayland_zxdg_popup_v6_class_init (MetaWaylandZxdgPopupV6Class *klass)
   xdg_surface_class = META_WAYLAND_ZXDG_SURFACE_V6_CLASS (klass);
   xdg_surface_class->shell_client_destroyed =
     meta_wayland_zxdg_popup_v6_shell_client_destroyed;
+
+  actor_surface_class = META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
+  actor_surface_class->sync_actor_state =
+    meta_wayland_zxdg_popup_v6_sync_actor_state;
 }
 
 static struct wl_resource *
@@ -1507,6 +1535,15 @@ meta_wayland_zxdg_surface_v6_get_property (GObject      *object,
 }
 
 static void
+meta_wayland_zxdg_surface_v6_sync_actor_state (MetaWaylandActorSurface *actor_surface)
+{
+  MetaWaylandActorSurfaceClass *parent_actor_surface_class =
+    META_WAYLAND_ACTOR_SURFACE_CLASS (meta_wayland_zxdg_surface_v6_parent_class);
+
+  parent_actor_surface_class->sync_actor_state (actor_surface);
+}
+
+static void
 meta_wayland_zxdg_surface_v6_init (MetaWaylandZxdgSurfaceV6 *xdg_surface)
 {
 }
@@ -1517,6 +1554,7 @@ meta_wayland_zxdg_surface_v6_class_init (MetaWaylandZxdgSurfaceV6Class *klass)
   GObjectClass *object_class;
   MetaWaylandSurfaceRoleClass *surface_role_class;
   MetaWaylandShellSurfaceClass *shell_surface_class;
+  MetaWaylandActorSurfaceClass *actor_surface_class;
   GParamSpec *pspec;
 
   object_class = G_OBJECT_CLASS (klass);
@@ -1530,6 +1568,10 @@ meta_wayland_zxdg_surface_v6_class_init (MetaWaylandZxdgSurfaceV6Class *klass)
 
   shell_surface_class = META_WAYLAND_SHELL_SURFACE_CLASS (klass);
   shell_surface_class->ping = meta_wayland_zxdg_surface_v6_ping;
+
+  actor_surface_class = META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
+  actor_surface_class->sync_actor_state =
+    meta_wayland_zxdg_surface_v6_sync_actor_state;
 
   klass->shell_client_destroyed =
     meta_wayland_zxdg_surface_v6_real_shell_client_destroyed;
