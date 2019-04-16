@@ -55,12 +55,6 @@ if have_libgudev
   ]
 endif
 
-if have_startup_notification
-  mutter_pkg_private_deps += [
-    libstartup_notification_dep,
-  ]
-endif
-
 if have_libwacom
   mutter_pkg_private_deps += [
     libwacom_dep,
