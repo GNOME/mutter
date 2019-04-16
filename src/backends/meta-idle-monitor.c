@@ -316,6 +316,13 @@ idle_monitor_dispatch_timeout (GSource     *source,
                                gpointer     user_data)
 {
   MetaIdleMonitorWatch *watch = (MetaIdleMonitorWatch *) user_data;
+  int64_t now;
+  int64_t ready_time;
+
+  now = g_source_get_time (source);
+  ready_time = g_source_get_ready_time (source);
+  if (ready_time > now)
+    return G_SOURCE_CONTINUE;
 
   _meta_idle_monitor_watch_fire (watch);
   g_source_set_ready_time (watch->timeout_source, -1);
