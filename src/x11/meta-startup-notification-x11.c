@@ -26,266 +26,301 @@
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
 
-#ifdef HAVE_STARTUP_NOTIFICATION
+#define MAX_MESSAGE_LENGTH 4096
+#define CLIENT_MESSAGE_DATA_LENGTH 20
 
 enum
 {
-  PROP_SEQ_X11_0,
-  PROP_SEQ_X11_SEQ,
-  N_SEQ_X11_PROPS
-};
-
-struct _MetaStartupSequenceX11
-{
-  MetaStartupSequence parent_instance;
-  SnStartupSequence *seq;
+  MESSAGE_TYPE_NEW,
+  MESSAGE_TYPE_REMOVE,
 };
 
 struct _MetaX11StartupNotification
 {
-  SnDisplay *sn_display;
-  SnMonitorContext *sn_context;
+  Atom atom_net_startup_info_begin;
+  Atom atom_net_startup_info;
+  GHashTable *messages;
+  MetaX11Display *x11_display;
 };
 
-static GParamSpec *seq_x11_props[N_SEQ_X11_PROPS];
-
-G_DEFINE_TYPE (MetaStartupSequenceX11,
-               meta_startup_sequence_x11,
-               META_TYPE_STARTUP_SEQUENCE)
-
-static void
-meta_startup_sequence_x11_complete (MetaStartupSequence *seq)
+typedef struct
 {
-  MetaStartupSequenceX11 *seq_x11;
+  Window xwindow;
+  GString *data;
+} StartupMessage;
 
-  seq_x11 = META_STARTUP_SEQUENCE_X11 (seq);
-  sn_startup_sequence_complete (seq_x11->seq);
+
+static StartupMessage *
+startup_message_new (Window window)
+{
+  StartupMessage *message;
+
+  message = g_new0 (StartupMessage, 1);
+  message->xwindow = window;
+  message->data = g_string_new (NULL);
+
+  return message;
 }
 
 static void
-meta_startup_sequence_x11_finalize (GObject *object)
+startup_message_free (StartupMessage *message)
 {
-  MetaStartupSequenceX11 *seq_x11;
-
-  seq_x11 = META_STARTUP_SEQUENCE_X11 (object);
-  sn_startup_sequence_unref (seq_x11->seq);
-
-  G_OBJECT_CLASS (meta_startup_sequence_x11_parent_class)->finalize (object);
+  g_string_free (message->data, TRUE);
+  g_free (message);
 }
 
 static void
-meta_startup_sequence_x11_set_property (GObject      *object,
-                                        guint         prop_id,
-                                        const GValue *value,
-                                        GParamSpec   *pspec)
+skip_whitespace (const gchar **str)
 {
-  MetaStartupSequenceX11 *seq_x11;
+  while ((*str)[0] == ' ')
+    (*str)++;
+}
 
-  seq_x11 = META_STARTUP_SEQUENCE_X11 (object);
+static gchar *
+parse_key (const gchar **str)
+{
+  const gchar *start = *str;
 
-  switch (prop_id)
+  while (*str[0] != '\0' && *str[0] != '=')
+    (*str)++;
+
+  if (start == *str)
+    return NULL;
+
+  return g_strndup (start, *str - start);
+}
+
+static gchar *
+parse_value (const gchar **str)
+{
+  const gchar *end;
+  gboolean escaped = FALSE, quoted = FALSE;
+  GString *value;
+
+  end = *str;
+  value = g_string_new (NULL);
+
+  while (end[0] != '\0')
     {
-    case PROP_SEQ_X11_SEQ:
-      seq_x11->seq = g_value_get_pointer (value);
-      sn_startup_sequence_ref (seq_x11->seq);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
+      if (escaped)
+        {
+          g_string_append_c (value, end[0]);
+          escaped = FALSE;
+        }
+      else
+        {
+          if (!quoted && end[0] == ' ')
+            break;
+          else if (end[0] == '"')
+            quoted = !quoted;
+          else if (end[0] == '\\')
+            escaped = TRUE;
+          else
+            g_string_append_c (value, end[0]);
+        }
 
-static void
-meta_startup_sequence_x11_get_property (GObject    *object,
-                                        guint       prop_id,
-                                        GValue     *value,
-                                        GParamSpec *pspec)
-{
-  MetaStartupSequenceX11 *seq_x11;
-
-  seq_x11 = META_STARTUP_SEQUENCE_X11 (object);
-
-  switch (prop_id)
-    {
-    case PROP_SEQ_X11_SEQ:
-      g_value_set_pointer (value, seq_x11->seq);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-meta_startup_sequence_x11_init (MetaStartupSequenceX11 *seq)
-{
-}
-
-static void
-meta_startup_sequence_x11_class_init (MetaStartupSequenceX11Class *klass)
-{
-  MetaStartupSequenceClass *seq_class;
-  GObjectClass *object_class;
-
-  seq_class = META_STARTUP_SEQUENCE_CLASS (klass);
-  seq_class->complete = meta_startup_sequence_x11_complete;
-
-  object_class = G_OBJECT_CLASS (klass);
-  object_class->finalize = meta_startup_sequence_x11_finalize;
-  object_class->set_property = meta_startup_sequence_x11_set_property;
-  object_class->get_property = meta_startup_sequence_x11_get_property;
-
-  seq_x11_props[PROP_SEQ_X11_SEQ] =
-    g_param_spec_pointer ("seq",
-                          "Sequence",
-                          "Sequence",
-                          G_PARAM_READWRITE |
-                          G_PARAM_CONSTRUCT_ONLY);
-
-  g_object_class_install_properties (object_class, N_SEQ_X11_PROPS,
-                                     seq_x11_props);
-}
-
-static MetaStartupSequence *
-meta_startup_sequence_x11_new (SnStartupSequence *seq)
-{
-  gint64 timestamp;
-
-  timestamp = sn_startup_sequence_get_timestamp (seq) * 1000;
-  return g_object_new (META_TYPE_STARTUP_SEQUENCE_X11,
-                       "id", sn_startup_sequence_get_id (seq),
-                       "icon-name", sn_startup_sequence_get_icon_name (seq),
-                       "application-id", sn_startup_sequence_get_application_id (seq),
-                       "wmclass", sn_startup_sequence_get_wmclass (seq),
-                       "name", sn_startup_sequence_get_name (seq),
-                       "workspace", sn_startup_sequence_get_workspace (seq),
-                       "timestamp", timestamp,
-                       "seq", seq,
-                       NULL);
-}
-
-static void
-sn_error_trap_push (SnDisplay *sn_display,
-                    Display   *xdisplay)
-{
-  MetaDisplay *display;
-
-  display = meta_display_for_x_display (xdisplay);
-  if (display != NULL)
-    meta_x11_error_trap_push (display->x11_display);
-}
-
-static void
-sn_error_trap_pop (SnDisplay *sn_display,
-                   Display   *xdisplay)
-{
-  MetaDisplay *display;
-
-  display = meta_display_for_x_display (xdisplay);
-  if (display != NULL)
-    meta_x11_error_trap_pop (display->x11_display);
-}
-
-static void
-meta_startup_notification_sn_event (SnMonitorEvent *event,
-                                    void           *user_data)
-{
-  MetaX11Display *x11_display = user_data;
-  MetaStartupNotification *sn = x11_display->display->startup_notification;
-  MetaStartupSequence *seq;
-  SnStartupSequence *sequence;
-
-  sequence = sn_monitor_event_get_startup_sequence (event);
-
-  sn_startup_sequence_ref (sequence);
-
-  switch (sn_monitor_event_get_type (event))
-    {
-    case SN_MONITOR_EVENT_INITIATED:
-      {
-        const char *wmclass;
-
-        wmclass = sn_startup_sequence_get_wmclass (sequence);
-
-        meta_topic (META_DEBUG_STARTUP,
-                    "Received startup initiated for %s wmclass %s\n",
-                    sn_startup_sequence_get_id (sequence),
-                    wmclass ? wmclass : "(unset)");
-
-        seq = meta_startup_sequence_x11_new (sequence);
-        meta_startup_notification_add_sequence (sn, seq);
-        g_object_unref (seq);
-      }
-      break;
-
-    case SN_MONITOR_EVENT_COMPLETED:
-      {
-        meta_topic (META_DEBUG_STARTUP,
-                    "Received startup completed for %s\n",
-                    sn_startup_sequence_get_id (sequence));
-
-        seq = meta_startup_notification_lookup_sequence (sn, sn_startup_sequence_get_id (sequence));
-        if (seq)
-          {
-            meta_startup_sequence_complete (seq);
-            meta_startup_notification_remove_sequence (sn, seq);
-          }
-      }
-      break;
-
-    case SN_MONITOR_EVENT_CHANGED:
-      meta_topic (META_DEBUG_STARTUP,
-                  "Received startup changed for %s\n",
-                  sn_startup_sequence_get_id (sequence));
-      break;
-
-    case SN_MONITOR_EVENT_CANCELED:
-      meta_topic (META_DEBUG_STARTUP,
-                  "Received startup canceled for %s\n",
-                  sn_startup_sequence_get_id (sequence));
-      break;
+      end++;
     }
 
-  sn_startup_sequence_unref (sequence);
+  *str = end;
+
+  if (value->len == 0)
+    {
+      g_string_free (value, TRUE);
+      return NULL;
+    }
+
+  return g_string_free (value, FALSE);
 }
-#endif
+
+static gboolean
+startup_message_parse (StartupMessage  *message,
+                       int             *type,
+                       gchar          **id,
+                       GHashTable     **data)
+{
+  const gchar *str = message->data->str;
+
+  if (strncmp (str, "new:", 4) == 0)
+    {
+      *type = MESSAGE_TYPE_NEW;
+      str += 4;
+    }
+  else if (strncmp (str, "remove:", 7) == 0)
+    {
+      *type = MESSAGE_TYPE_REMOVE;
+      str += 7;
+    }
+  else
+    {
+      return FALSE;
+    }
+
+  *data = g_hash_table_new_full (g_str_hash,
+                                 g_str_equal,
+                                 g_free,
+                                 g_free);
+  while (str[0])
+    {
+      gchar *key, *value;
+
+      skip_whitespace (&str);
+      key = parse_key (&str);
+      if (!key)
+        break;
+
+      str++;
+      value = parse_value (&str);
+
+      if (!value)
+        {
+          g_free (key);
+          break;
+        }
+
+      g_hash_table_insert (*data, key, value);
+    }
+
+  *id = g_strdup (g_hash_table_lookup (*data, "ID"));
+
+  return TRUE;
+}
+
+static gboolean
+startup_message_add_data (StartupMessage *message,
+                          const gchar    *data)
+{
+  int len;
+
+  len = strnlen (data, CLIENT_MESSAGE_DATA_LENGTH);
+  g_string_append_len (message->data, data, len);
+
+  return (message->data->len > MAX_MESSAGE_LENGTH ||
+          len < CLIENT_MESSAGE_DATA_LENGTH);
+}
 
 void
 meta_x11_startup_notification_init (MetaX11Display *x11_display)
 {
-#ifdef HAVE_STARTUP_NOTIFICATION
   MetaX11StartupNotification *x11_sn;
 
   x11_sn = g_new0 (MetaX11StartupNotification, 1);
-  x11_sn->sn_display = sn_display_new (x11_display->xdisplay,
-                                            sn_error_trap_push,
-                                            sn_error_trap_pop);
-  x11_sn->sn_context =
-    sn_monitor_context_new (x11_sn->sn_display,
-                            meta_x11_display_get_screen_number (x11_display),
-                            meta_startup_notification_sn_event,
-                            x11_display,
-                            NULL);
-
+  x11_sn->atom_net_startup_info_begin = XInternAtom (x11_display->xdisplay,
+                                                     "_NET_STARTUP_INFO_BEGIN",
+                                                     False);
+  x11_sn->atom_net_startup_info = XInternAtom (x11_display->xdisplay,
+                                               "_NET_STARTUP_INFO",
+                                               False);
+  x11_sn->messages = g_hash_table_new_full (NULL, NULL, NULL,
+                                            (GDestroyNotify) startup_message_free);
+  x11_sn->x11_display = x11_display;
   x11_display->startup_notification = x11_sn;
-#endif
 }
 
 void
 meta_x11_startup_notification_release (MetaX11Display *x11_display)
 {
-#ifdef HAVE_STARTUP_NOTIFICATION
   MetaX11StartupNotification *x11_sn = x11_display->startup_notification;
 
   x11_display->startup_notification = NULL;
 
   if (x11_sn)
     {
-      sn_monitor_context_unref (x11_sn->sn_context);
-      sn_display_unref (x11_sn->sn_display);
+      g_hash_table_unref (x11_sn->messages);
       g_free (x11_sn);
     }
-#endif
+}
+
+static void
+handle_message (MetaX11StartupNotification *x11_sn,
+                StartupMessage             *message)
+{
+  MetaStartupNotification *sn = x11_sn->x11_display->display->startup_notification;
+  MetaStartupSequence *seq;
+  GHashTable *data;
+  char *id;
+  int type;
+
+  if (message->data->len <= MAX_MESSAGE_LENGTH &&
+      g_utf8_validate (message->data->str, -1, NULL) &&
+      startup_message_parse (message, &type, &id, &data))
+    {
+      if (type == MESSAGE_TYPE_NEW)
+        {
+          uint64_t timestamp = 0;
+          int workspace = -1;
+
+          if (g_hash_table_contains (data, "DESKTOP"))
+            workspace = atoi (g_hash_table_lookup (data, "DESKTOP"));
+          if (g_hash_table_contains (data, "TIMESTAMP"))
+            timestamp = g_ascii_strtoull (g_hash_table_lookup (data, "TIMESTAMP"), NULL, 10);
+
+          seq = g_object_new (META_TYPE_STARTUP_SEQUENCE,
+                              "id", id,
+                              "icon-name", g_hash_table_lookup (data, "ICON_NAME"),
+                              "application-id", g_hash_table_lookup (data, "APPLICATION_ID"),
+                              "wmclass", g_hash_table_lookup (data, "WMCLASS"),
+                              "name", g_hash_table_lookup (data, "NAME"),
+                              "workspace", workspace,
+                              "timestamp", timestamp,
+                              NULL);
+
+          meta_topic (META_DEBUG_STARTUP,
+                      "Received startup initiated for %s wmclass %s\n",
+                      id, (gchar*) g_hash_table_lookup (data, "WMCLASS"));
+
+          meta_startup_notification_add_sequence (sn, seq);
+          g_object_unref (seq);
+        }
+      else if (type == MESSAGE_TYPE_REMOVE)
+        {
+          meta_topic (META_DEBUG_STARTUP,
+                      "Received startup completed for %s\n", id);
+          seq = meta_startup_notification_lookup_sequence (sn, id);
+
+          if (seq)
+            {
+              meta_startup_sequence_complete (seq);
+              meta_startup_notification_remove_sequence (sn, seq);
+            }
+        }
+
+      g_hash_table_unref (data);
+      g_free (id);
+    }
+
+  g_hash_table_remove (x11_sn->messages, GINT_TO_POINTER (message->xwindow));
+}
+
+static gboolean
+handle_startup_notification_event (MetaX11StartupNotification *x11_sn,
+                                   XClientMessageEvent        *client_event)
+{
+  StartupMessage *message;
+
+  if (client_event->message_type == x11_sn->atom_net_startup_info_begin)
+    {
+      message = startup_message_new (client_event->window);
+      g_hash_table_insert (x11_sn->messages,
+                           GINT_TO_POINTER (client_event->window),
+                           message);
+      if (startup_message_add_data (message, client_event->data.b))
+        handle_message (x11_sn, message);
+      return TRUE;
+    }
+  else if (client_event->message_type == x11_sn->atom_net_startup_info)
+    {
+      message = g_hash_table_lookup (x11_sn->messages,
+                                     GINT_TO_POINTER (client_event->window));
+      if (message)
+        {
+          if (startup_message_add_data (message, client_event->data.b))
+            handle_message (x11_sn, message);
+          return TRUE;
+        }
+    }
+
+  return FALSE;
 }
 
 gboolean
@@ -297,74 +332,8 @@ meta_x11_startup_notification_handle_xevent (MetaX11Display *x11_display,
   if (!x11_sn)
     return FALSE;
 
-  return sn_display_process_event (x11_sn->sn_display, xevent);
-}
+  if (xevent->xany.type != ClientMessage)
+    return FALSE;
 
-typedef void (* SetAppIdFunc) (SnLauncherContext *context,
-                               const char        *app_id);
-
-gchar *
-meta_x11_startup_notification_launch (MetaX11Display *x11_display,
-                                      GAppInfo       *app_info,
-                                      uint32_t        timestamp,
-                                      int             workspace)
-{
-  gchar *startup_id = NULL;
-#ifdef HAVE_STARTUP_NOTIFICATION
-  MetaX11StartupNotification *x11_sn = x11_display->startup_notification;
-  SnLauncherContext *sn_launcher;
-  int screen;
-
-  screen = meta_x11_display_get_screen_number (x11_display);
-  sn_launcher = sn_launcher_context_new (x11_sn->sn_display, screen);
-
-  sn_launcher_context_set_name (sn_launcher, g_app_info_get_name (app_info));
-  sn_launcher_context_set_workspace (sn_launcher, workspace);
-  sn_launcher_context_set_binary_name (sn_launcher,
-                                       g_app_info_get_executable (app_info));
-
-  if (G_IS_DESKTOP_APP_INFO (app_info))
-    {
-      const char *application_id;
-      SetAppIdFunc func = NULL;
-      GModule *self;
-
-      application_id =
-        g_desktop_app_info_get_filename (G_DESKTOP_APP_INFO (app_info));
-      self = g_module_open (NULL, G_MODULE_BIND_MASK);
-
-      /* This here is a terrible workaround to bypass a libsn bug that is not
-       * likely to get fixed at this point.
-       * sn_launcher_context_set_application_id is correctly defined in the
-       * sn-launcher.h file, but it's mistakenly called
-       * sn_launcher_set_application_id in the C file.
-       *
-       * We look up the symbol instead, but still prefer the correctly named
-       * function, if one were ever to be added.
-       */
-      if (!g_module_symbol (self, "sn_launcher_context_set_application_id",
-                            (gpointer *) &func))
-        {
-          g_module_symbol (self, "sn_launcher_set_application_id",
-                           (gpointer *) &func);
-        }
-
-      if (func)
-        func (sn_launcher, application_id);
-
-      g_module_close (self);
-    }
-
-  sn_launcher_context_initiate (sn_launcher,
-                                g_get_prgname (),
-                                g_app_info_get_name (app_info),
-                                timestamp);
-
-  startup_id = g_strdup (sn_launcher_context_get_startup_id (sn_launcher));
-
-  /* Fire and forget, we have a SnMonitor in addition */
-  sn_launcher_context_unref (sn_launcher);
-#endif /* HAVE_STARTUP_NOTIFICATION */
-
-  return startup_id;
+  return handle_startup_notification_event (x11_sn, &xevent->xclient);
 }
