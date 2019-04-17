@@ -1,3 +1,33 @@
+3.32.1
+======
+* Fix fallback app menu on wayland [Florian; #493]
+* Fix elogind support [Tom; !491]
+* Fix startup notifications not timing out [Carlos; #501]
+* Fix keyboard accessibility toggle from keys
+  [Olivier, Carlos; !501, #529, !531]
+* Fix touchscreen input on rotated displays [Carlos; #514]
+* Work around hangul text input bug [Carlos; #1365]
+* Fix blurry wallpaper scaling [Daniel; !505]
+* Fix placement of window menu when using fractional scaling [Jan; #527]
+* Fix repaint issues of offscreen effects on secondary monitors [Daniel; !511]
+* Fix windows not getting focus after launch [Daniel; #505]
+* Properly advertise support for 'underscan' property [Jonas; !507]
+* Improve power-saving handling [Jonas; !506]
+* Fix moving windows by super+touch [Jonas D.; !495]
+* Misc. bug fixes and cleanups [Benjamin, Florian, Adam, Marco, Pablo,
+  Erik, Jonas, Heiher, Pekka, Daniel, Olivier, Carlos; !478, !475, !480,
+  !482, #490, !488, #491, #480, !477, !496, !492, !485, !515, !519, !521,
+  !216, !538, #541, #523]
+
+Contributors:
+  Jonas Ådahl, Pablo Barciela, Benjamin Berg, Tom Briden, Jonas Dreßler,
+  Olivier Fourdan, Carlos Garnacho, Jan Alexander Steffens (heftig), Heiher,
+  Adam Jackson, Erik Kurzinger, Florian Müllner, Pekka Paalanen,
+  Marco Trevisan (Treviño), Daniel van Vugt
+
+Translators:
+  Khaled Hosny [ar], Goran Vidović [hr], Daniel Mustieles [es]
+
 3.32.0
 ======
 * Fix deadlock when cancelling a theme sound [Andrea; !474]
