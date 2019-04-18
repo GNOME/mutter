@@ -1284,7 +1284,7 @@ is_dangerous_key (guint32 key)
 static gboolean
 is_keyboard_forbidden (struct libinput_device *libinput_device)
 {
-  gchar *authorized;
+  const gchar *authorized;
   struct udev_device *udev_device;
 
   udev_device = libinput_device_get_udev_device (libinput_device);
