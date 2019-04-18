@@ -456,13 +456,6 @@ _cogl_driver_update_features (CoglContext *ctx,
                       COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
     }
 
-  if (_cogl_check_extension ("GL_ARB_texture_rectangle", gl_extensions))
-    {
-      flags |= COGL_FEATURE_TEXTURE_RECTANGLE;
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_TEXTURE_RECTANGLE, TRUE);
-    }
-
   if (ctx->glEGLImageTargetTexture2D)
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE, TRUE);
