@@ -115,13 +115,24 @@ meta_wayland_tablet_tool_set_cursor_surface (MetaWaylandTabletTool *tool,
     return;
 
   if (tool->cursor_surface)
-    wl_list_remove (&tool->cursor_surface_destroy_listener.link);
+    {
+      MetaWaylandCursorSurface *cursor_surface;
+
+      cursor_surface = META_WAYLAND_CURSOR_SURFACE (tool->cursor_surface->role);
+      meta_wayland_cursor_surface_set_renderer (cursor_surface, NULL);
+
+      meta_wayland_surface_update_outputs (tool->cursor_surface);
+      wl_list_remove (&tool->cursor_surface_destroy_listener.link);
+    }
 
   tool->cursor_surface = surface;
 
   if (tool->cursor_surface)
-    wl_resource_add_destroy_listener (tool->cursor_surface->resource,
-                                      &tool->cursor_surface_destroy_listener);
+    {
+      meta_wayland_surface_update_outputs (tool->cursor_surface);
+      wl_resource_add_destroy_listener (tool->cursor_surface->resource,
+                                        &tool->cursor_surface_destroy_listener);
+    }
 
   meta_wayland_tablet_tool_update_cursor_surface (tool);
 }
