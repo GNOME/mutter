@@ -315,7 +315,6 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
 
 /**
  * CoglFeatureFlags:
- * @COGL_FEATURE_TEXTURE_RECTANGLE: ARB_texture_rectangle support
  * @COGL_FEATURE_TEXTURE_YUV: ycbcr conversion support
  * @COGL_FEATURE_TEXTURE_READ_PIXELS: glReadPixels() support
  * @COGL_FEATURE_OFFSCREEN: FBO support
@@ -344,7 +343,6 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
  */
 typedef enum
 {
-  COGL_FEATURE_TEXTURE_RECTANGLE      = (1 << 1),
   COGL_FEATURE_TEXTURE_YUV            = (1 << 3),
   COGL_FEATURE_TEXTURE_READ_PIXELS    = (1 << 4),
   COGL_FEATURE_OFFSCREEN              = (1 << 6),
