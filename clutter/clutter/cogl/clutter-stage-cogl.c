@@ -273,7 +273,7 @@ clutter_stage_cogl_ignoring_redraw_clips (ClutterStageWindow *stage_window)
 }
 
 /* A redraw clip represents (in stage coordinates) the bounding box of
- * something that needs to be redraw. Typically they are added to the
+ * something that needs to be redrawn. Typically they are added to the
  * StageWindow as a result of clutter_actor_queue_clipped_redraw() by
  * actors such as ClutterGLXTexturePixmap. All redraw clips are
  * discarded after the next paint.
