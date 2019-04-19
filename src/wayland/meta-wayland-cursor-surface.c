@@ -92,6 +92,8 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
     {
       meta_cursor_sprite_set_texture_scale (cursor_sprite,
                                             1.0 / surface->scale);
+      meta_cursor_sprite_set_texture_transform (cursor_sprite,
+                                                surface->buffer_transform);
     }
   meta_wayland_surface_update_outputs (surface);
 }
