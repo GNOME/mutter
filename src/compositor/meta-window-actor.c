@@ -1842,13 +1842,11 @@ meta_window_actor_get_frame_bounds (MetaScreenCastWindow *screen_cast_window,
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (window_actor);
   MetaWindow *window;
-  MetaShapedTexture *stex;
   MetaRectangle buffer_rect;
   MetaRectangle frame_rect;
   double scale;
 
-  stex = meta_surface_actor_get_texture (priv->surface);
-  scale = meta_shaped_texture_get_scale (stex);
+  scale = meta_surface_actor_get_geometry_scale (priv->surface);
 
   window = priv->window;
   meta_window_get_buffer_rect (window, &buffer_rect);
@@ -1911,12 +1909,10 @@ meta_window_actor_transform_cursor_position (MetaScreenCastWindow *screen_cast_w
       meta_cursor_sprite_get_cogl_texture (cursor_sprite) &&
       out_cursor_scale)
     {
-      MetaShapedTexture *stex;
       double texture_scale;
       float cursor_texture_scale;
 
-      stex = meta_surface_actor_get_texture (priv->surface);
-      texture_scale = meta_shaped_texture_get_scale (stex);
+      texture_scale = meta_surface_actor_get_geometry_scale (priv->surface);
       cursor_texture_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
 
       *out_cursor_scale = texture_scale / cursor_texture_scale;

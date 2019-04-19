@@ -1572,14 +1572,11 @@ meta_wayland_surface_get_relative_coordinates (MetaWaylandSurface *surface,
     {
       MetaSurfaceActor *surface_actor =
         meta_wayland_surface_get_actor (surface);
-      MetaShapedTexture *stex =
-        meta_surface_actor_get_texture (surface_actor);
       ClutterActor *actor = CLUTTER_ACTOR (surface_actor);
-      double scale = meta_shaped_texture_get_scale (stex);
 
       clutter_actor_transform_stage_point (actor, abs_x, abs_y, sx, sy);
-      *sx /= surface->scale * scale;
-      *sy /= surface->scale * scale;
+      *sx /= surface->scale;
+      *sy /= surface->scale;
     }
 }
 

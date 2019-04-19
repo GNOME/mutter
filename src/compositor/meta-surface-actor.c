@@ -22,11 +22,14 @@
 #include "clutter/clutter.h"
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-shaped-texture-private.h"
+#include "compositor/region-utils.h"
 #include "meta/meta-shaped-texture.h"
 
 typedef struct _MetaSurfaceActorPrivate
 {
   MetaShapedTexture *texture;
+
+  double geometry_scale;
 
   cairo_region_t *input_region;
 
@@ -108,6 +111,21 @@ set_clip_region (MetaSurfaceActor *surface_actor,
   g_clear_pointer (&priv->clip_region, cairo_region_destroy);
   if (clip_region)
     priv->clip_region = cairo_region_copy (clip_region);
+}
+
+static void
+meta_surface_actor_apply_transform (ClutterActor *actor,
+                                    CoglMatrix   *matrix)
+{
+  ClutterActorClass *parent_class =
+    CLUTTER_ACTOR_CLASS (meta_surface_actor_parent_class);
+  MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (actor);
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+
+  parent_class->apply_transform (actor, matrix);
+
+  cogl_matrix_scale (matrix, priv->geometry_scale, priv->geometry_scale, 1);
 }
 
 static void
@@ -211,6 +229,7 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
 
   object_class->dispose = meta_surface_actor_dispose;
+  actor_class->apply_transform = meta_surface_actor_apply_transform;
   actor_class->paint = meta_surface_actor_paint;
   actor_class->pick = meta_surface_actor_pick;
   actor_class->get_paint_volume = meta_surface_actor_get_paint_volume;
@@ -288,6 +307,7 @@ meta_surface_actor_init (MetaSurfaceActor *self)
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
 
+  priv->geometry_scale = 1.0;
   priv->texture = META_SHAPED_TEXTURE (meta_shaped_texture_new ());
   g_signal_connect_object (priv->texture, "size-changed",
                            G_CALLBACK (texture_size_changed), self, 0);
@@ -301,6 +321,11 @@ meta_surface_actor_get_image (MetaSurfaceActor      *self,
 {
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
+
+  meta_rectangle_scale_double (clip,
+                               1.0 / priv->geometry_scale,
+                               META_ROUNDING_STRATEGY_GROW,
+                               clip);
 
   return meta_shaped_texture_get_image (priv->texture, clip);
 }
@@ -374,6 +399,21 @@ meta_surface_actor_is_obscured (MetaSurfaceActor *self)
     return FALSE;
 }
 
+static cairo_region_t *
+apply_scale_to_region (MetaSurfaceActor *surface_actor,
+                       cairo_region_t   *region)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+
+  if (!region)
+    return NULL;
+
+  return meta_region_scale_double (region,
+                                   1.0 / priv->geometry_scale,
+                                   META_ROUNDING_STRATEGY_SHRINK);
+}
+
 void
 meta_surface_actor_set_input_region (MetaSurfaceActor *self,
                                      cairo_region_t   *region)
@@ -384,10 +424,7 @@ meta_surface_actor_set_input_region (MetaSurfaceActor *self,
   if (priv->input_region)
     cairo_region_destroy (priv->input_region);
 
-  if (region)
-    priv->input_region = cairo_region_reference (region);
-  else
-    priv->input_region = NULL;
+  priv->input_region = apply_scale_to_region (self, region);
 }
 
 void
@@ -396,8 +433,12 @@ meta_surface_actor_set_opaque_region (MetaSurfaceActor *self,
 {
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
+  cairo_region_t *scaled_region;
 
-  meta_shaped_texture_set_opaque_region (priv->texture, region);
+  scaled_region = apply_scale_to_region (self, region);
+  meta_shaped_texture_set_opaque_region (priv->texture, scaled_region);
+
+  g_clear_pointer (&scaled_region, cairo_region_destroy);
 }
 
 cairo_region_t *
@@ -567,8 +608,13 @@ meta_surface_actor_set_viewport_src_rect (MetaSurfaceActor  *self,
 {
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
+  ClutterRect scaled_rect = *src_rect;
 
-  meta_shaped_texture_set_viewport_src_rect (priv->texture, src_rect);
+  clutter_rect_scale (&scaled_rect,
+                      1.0 / priv->geometry_scale,
+                      1.0 / priv->geometry_scale);
+
+  meta_shaped_texture_set_viewport_src_rect (priv->texture, &scaled_rect);
 }
 
 void
@@ -589,8 +635,8 @@ meta_surface_actor_set_viewport_dst_size (MetaSurfaceActor *self,
     meta_surface_actor_get_instance_private (self);
 
   meta_shaped_texture_set_viewport_dst_size (priv->texture,
-                                             dst_width,
-                                             dst_height);
+                                             dst_width / priv->geometry_scale,
+                                             dst_height / priv->geometry_scale);
 }
 
 void
@@ -600,4 +646,45 @@ meta_surface_actor_reset_viewport_dst_size (MetaSurfaceActor *self)
     meta_surface_actor_get_instance_private (self);
 
   meta_shaped_texture_reset_viewport_dst_size (priv->texture);
+}
+
+double
+meta_surface_actor_get_geometry_scale (MetaSurfaceActor *surface_actor)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+
+  return priv->geometry_scale;
+}
+
+void
+meta_surface_actor_set_geometry_scale (MetaSurfaceActor *surface_actor,
+                                       double            geometry_scale)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (surface_actor);
+  ClutterActor *actor = CLUTTER_ACTOR (surface_actor);
+  CoglMatrix child_transform;
+
+  if (priv->geometry_scale == geometry_scale)
+    return;
+
+  priv->geometry_scale = geometry_scale;
+
+  if (geometry_scale != 1.0)
+    {
+      cogl_matrix_init_identity (&child_transform);
+      cogl_matrix_scale (&child_transform,
+                         1.0 / geometry_scale,
+                         1.0 / geometry_scale,
+                         1.0);
+
+      clutter_actor_set_child_transform (actor, &child_transform);
+    }
+  else
+    {
+      clutter_actor_set_child_transform (actor, NULL);
+    }
+
+  clutter_actor_queue_relayout (actor);
 }

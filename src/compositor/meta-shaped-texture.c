@@ -38,7 +38,6 @@
 #include "compositor/clutter-utils.h"
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-texture-tower.h"
-#include "compositor/region-utils.h"
 #include "core/boxes-private.h"
 #include "meta/meta-shaped-texture.h"
 
@@ -105,8 +104,6 @@ struct _MetaShapedTexture
   guint remipmap_timeout_id;
   gint64 earliest_remipmap;
 
-  double scale;
-
   guint create_mipmaps : 1;
 };
 
@@ -140,7 +137,6 @@ meta_shaped_texture_init (MetaShapedTexture *stex)
 {
   stex->paint_tower = meta_texture_tower_new ();
 
-  stex->scale = 1.0;
   stex->texture = NULL;
   stex->mask_texture = NULL;
   stex->create_mipmaps = TRUE;
@@ -156,13 +152,13 @@ update_size (MetaShapedTexture *stex)
 
   if (stex->has_viewport_dst_size)
     {
-      dst_width = ceil (stex->viewport_dst_width / stex->scale);
-      dst_height = ceil (stex->viewport_dst_height / stex->scale);
+      dst_width = ceil (stex->viewport_dst_width);
+      dst_height = ceil (stex->viewport_dst_height);
     }
   else if (stex->has_viewport_src_rect)
     {
-      dst_width = ceil (stex->viewport_src_rect.size.width / stex->scale);
-      dst_height = ceil (stex->viewport_src_rect.size.height / stex->scale);
+      dst_width = ceil (stex->viewport_src_rect.size.width);
+      dst_height = ceil (stex->viewport_src_rect.size.height);
     }
   else
     {
@@ -313,25 +309,20 @@ get_base_pipeline (MetaShapedTexture *stex,
 
   if (stex->has_viewport_src_rect)
     {
+      double scale_x, scale_y;
+
       if (meta_monitor_transform_is_rotated (stex->transform))
         {
-          cogl_matrix_scale (&matrix,
-                             stex->viewport_src_rect.size.width /
-                             (stex->tex_height * stex->scale),
-                             stex->viewport_src_rect.size.height /
-                             (stex->tex_width * stex->scale),
-                             1);
+          scale_x = stex->viewport_src_rect.size.width / (double) stex->tex_height;
+          scale_y = stex->viewport_src_rect.size.height / (double) stex->tex_width;
         }
       else
         {
-          cogl_matrix_scale (&matrix,
-                             stex->viewport_src_rect.size.width /
-                             (stex->tex_width * stex->scale),
-                             stex->viewport_src_rect.size.height /
-                             (stex->tex_height * stex->scale),
-                             1);
+          scale_x = stex->viewport_src_rect.size.width / (double) stex->tex_width;
+          scale_y = stex->viewport_src_rect.size.height / (double) stex->tex_height;
         }
 
+      cogl_matrix_scale (&matrix, scale_x, scale_y, 1);
       cogl_matrix_translate (&matrix,
                              stex->viewport_src_rect.origin.x /
                              stex->viewport_src_rect.size.width,
@@ -547,10 +538,7 @@ do_paint_content (MetaShapedTexture *stex,
 
   if (stex->opaque_region && opacity == 255)
     {
-      opaque_tex_region =
-        meta_region_scale_double (stex->opaque_region,
-                                  1.0 / stex->scale,
-                                  META_ROUNDING_STRATEGY_SHRINK);
+      opaque_tex_region = cairo_region_reference (stex->opaque_region);
       use_opaque_region = TRUE;
     }
   else
@@ -769,10 +757,10 @@ meta_shaped_texture_get_preferred_size (ClutterContent *content,
   ensure_size_valid (stex);
 
   if (width)
-    *width = stex->dst_width * stex->scale;
+    *width = stex->dst_width;
 
   if (height)
-    *height = stex->dst_height * stex->scale;
+    *height = stex->dst_height;
 
   return TRUE;
 }
@@ -852,17 +840,12 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
     .height = height
   };
 
-  meta_rectangle_scale_double (clip,
-                               stex->scale,
-                               META_ROUNDING_STRATEGY_GROW,
-                               clip);
-
   inverted_transform = meta_monitor_transform_invert (stex->transform);
   ensure_size_valid (stex);
   meta_rectangle_transform (clip,
                             inverted_transform,
-                            stex->dst_width * stex->scale,
-                            stex->dst_height * stex->scale,
+                            stex->dst_width,
+                            stex->dst_height,
                             clip);
 
   if (stex->has_viewport_src_rect || stex->has_viewport_dst_size)
@@ -883,8 +866,8 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
           viewport = (ClutterRect) {
             .origin.x = 0,
             .origin.y = 0,
-            .size.width = stex->tex_width * stex->scale,
-            .size.height = stex->tex_height * stex->scale
+            .size.width = stex->tex_width,
+            .size.height = stex->tex_height
           };
         }
 
@@ -895,8 +878,8 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
         }
       else
         {
-          dst_width = (float) stex->tex_width * stex->scale;
-          dst_height = (float) stex->tex_height * stex->scale;
+          dst_width = (float) stex->tex_width;
+          dst_height = (float) stex->tex_height;
         }
 
       inverted_viewport = (ClutterRect) {
@@ -1250,10 +1233,7 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
       cairo_rectangle_int_t dst_rect;
 
       transformed_clip = alloca (sizeof (cairo_rectangle_int_t));
-
-      meta_rectangle_scale_double (clip, 1.0 / stex->scale,
-                                   META_ROUNDING_STRATEGY_GROW,
-                                   transformed_clip);
+      *transformed_clip = *clip;
 
       dst_rect = (cairo_rectangle_int_t) {
         .width = stex->dst_width,
@@ -1342,26 +1322,4 @@ ClutterActor *
 meta_shaped_texture_new (void)
 {
   return g_object_new (META_TYPE_SHAPED_TEXTURE, NULL);
-}
-
-void
-meta_shaped_texture_set_scale (MetaShapedTexture *stex,
-                               double             scale)
-{
-  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
-
-  if (scale == stex->scale)
-    return;
-
-  stex->scale = scale;
-
-  invalidate_size (stex);
-}
-
-double
-meta_shaped_texture_get_scale (MetaShapedTexture *stex)
-{
-  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 1.0);
-
-  return stex->scale;
 }

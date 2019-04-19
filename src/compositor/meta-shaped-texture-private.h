@@ -50,10 +50,6 @@ void meta_shaped_texture_set_viewport_dst_size (MetaShapedTexture *stex,
                                                 int                dst_width,
                                                 int                dst_height);
 void meta_shaped_texture_reset_viewport_dst_size (MetaShapedTexture *stex);
-void meta_shaped_texture_set_scale (MetaShapedTexture *stex,
-                                    double             scale);
-double meta_shaped_texture_get_scale (MetaShapedTexture *stex);
-
 gboolean meta_shaped_texture_update_area (MetaShapedTexture     *stex,
                                           int                    x,
                                           int                    y,

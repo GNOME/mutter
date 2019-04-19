@@ -72,6 +72,9 @@ void meta_surface_actor_set_viewport_dst_size (MetaSurfaceActor  *self,
                                                int                dst_width,
                                                int                dst_height);
 void meta_surface_actor_reset_viewport_dst_size (MetaSurfaceActor *self);
+double meta_surface_actor_get_geometry_scale (MetaSurfaceActor *surface_actor);
+void meta_surface_actor_set_geometry_scale (MetaSurfaceActor *surface_actor,
+                                            double            geometry_scale);
 G_END_DECLS
 
 #endif /* META_SURFACE_ACTOR_PRIVATE_H */
