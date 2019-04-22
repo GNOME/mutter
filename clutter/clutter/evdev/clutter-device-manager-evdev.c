@@ -69,7 +69,6 @@
  */
 #define INITIAL_DEVICE_ID 2
 
-/* Keep this list ordered. */
 static const guint32 dangerous_keys[] = {
   29,    /* KEY_LEFTCTRL */
   56,    /* KEY_LEFTALT */
@@ -90,8 +89,6 @@ static const guint32 dangerous_keys[] = {
   125,   /* KEY_LEFTMETA */
   126,   /* KEY_RIGHTMETA */
 };
-
-static const gint dangerous_keys_size = G_N_ELEMENTS (dangerous_keys);
 
 typedef struct _ClutterEventFilter ClutterEventFilter;
 
@@ -135,6 +132,7 @@ struct _ClutterDeviceManagerEvdevPrivate
   GList *free_device_ids;
 
   GSettings *privacy_settings;
+  GHashTable *dangerous_keys_hashset;
   gboolean keyboard_security;
 };
 
@@ -1263,25 +1261,6 @@ process_tablet_axis (ClutterDeviceManagerEvdev *manager_evdev,
 }
 
 static gboolean
-is_dangerous_key (guint32 key)
-{
-  int middle;
-  int first = 0;
-  int last = dangerous_keys_size - 1;
-  while (first <= last)
-    {
-      middle = (first + last) / 2;
-      if (dangerous_keys[middle] < key)
-        first = middle + 1;
-      else if (dangerous_keys[middle] == key)
-        return TRUE;
-      else
-        last = middle - 1;
-    }
-  return FALSE;
-}
-
-static gboolean
 is_keyboard_forbidden (struct libinput_device *libinput_device)
 {
   const gchar *authorized;
@@ -1328,7 +1307,8 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
             (key_state == LIBINPUT_KEY_STATE_RELEASED && seat_key_count != 0))
             break;
 
-        if (manager_evdev->priv->keyboard_security && is_dangerous_key (key) &&
+        if (manager_evdev->priv->keyboard_security &&
+            g_hash_table_contains (manager_evdev->priv->dangerous_keys_hashset, GINT_TO_POINTER (key)) &&
             is_keyboard_forbidden (libinput_device))
           {
             g_warning ("Woah, how dare you press this key!?");
@@ -2191,6 +2171,7 @@ static void
 clutter_device_manager_evdev_init (ClutterDeviceManagerEvdev *self)
 {
   ClutterDeviceManagerEvdevPrivate *priv;
+  gint dangerous_keys_size;
 
   priv = self->priv = clutter_device_manager_evdev_get_instance_private (self);
 
@@ -2216,6 +2197,13 @@ clutter_device_manager_evdev_init (ClutterDeviceManagerEvdev *self)
                       self);
 
   priv->device_id_next = INITIAL_DEVICE_ID;
+
+  priv->dangerous_keys_hashset = g_hash_table_new (g_direct_hash, g_direct_equal);
+  dangerous_keys_size = G_N_ELEMENTS (dangerous_keys);
+  for (int i = 0; i < dangerous_keys_size; i++)
+    {
+      g_hash_table_add (priv->dangerous_keys_hashset, GINT_TO_POINTER (dangerous_keys[i]));
+    }
 
   priv->privacy_settings = g_settings_new ("org.gnome.desktop.privacy");
   priv->keyboard_security = g_settings_get_boolean (priv->privacy_settings,
