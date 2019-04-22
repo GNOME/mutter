@@ -44,3 +44,18 @@ test-mutter:
   only:
     - merge_requests
     - /^.*$/
+
+can-build-gnome-shell:
+  image: registry.gitlab.gnome.org/gnome/gnome-shell/master:v1
+  stage: test
+  dependencies:
+    - build-mutter
+  before_script:
+    - meson install --no-rebuild -C build
+  script:
+    - .gitlab-ci/checkout-gnome-shell.sh
+    - meson gnome-shell gnome-shell/build
+    - ninja -C gnome-shell/build install
+  only:
+    - merge_requests
+    - /^.*$/
