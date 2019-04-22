@@ -1,10 +1,10 @@
-mutter (3.32.1-1) UNRELEASED; urgency=medium
+mutter (3.32.1-1) experimental; urgency=medium
 
   * New upstream release
   * debian/patches: disable mousekeys with Numlock ON to match the
     documentation (cherry picked from the 3.32 branch)
 
- -- Laurent Bigonville <bigon@debian.org>  Mon, 22 Apr 2019 21:38:00 +0200
+ -- Laurent Bigonville <bigon@debian.org>  Mon, 22 Apr 2019 21:57:33 +0200
 
 mutter (3.32.0+git20190410-2) experimental; urgency=medium
 
