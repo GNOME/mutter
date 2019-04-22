@@ -1,3 +1,9 @@
+mutter (3.32.1-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Laurent Bigonville <bigon@debian.org>  Mon, 22 Apr 2019 21:15:07 +0200
+
 mutter (3.32.0+git20190410-2) experimental; urgency=medium
 
   [ Gunnar Hjalmarsson ]
