@@ -3787,16 +3787,13 @@ gpu_kms_is_hardware_rendering (MetaRendererNative *renderer_native,
   return data->secondary.is_hardware_rendering;
 }
 
-static MetaRendererNativeGpuData *
-create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
-                              MetaGpuKms          *gpu_kms,
-                              GError             **error)
+static EGLDisplay
+init_gbm_egl_display (MetaRendererNative  *renderer_native,
+                      struct gbm_device   *gbm_device,
+                      GError             **error)
 {
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
-  struct gbm_device *gbm_device;
   EGLDisplay egl_display;
-  int kms_fd;
-  MetaRendererNativeGpuData *renderer_gpu_data;
 
   if (!meta_egl_has_extensions (egl, EGL_NO_DISPLAY, NULL,
                                 "EGL_MESA_platform_gbm",
@@ -3808,8 +3805,30 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "Missing extension for GBM renderer: EGL_KHR_platform_gbm");
-      return NULL;
+      return EGL_NO_DISPLAY;
     }
+
+  egl_display = meta_egl_get_platform_display (egl,
+                                               EGL_PLATFORM_GBM_KHR,
+                                               gbm_device, NULL, error);
+  if (egl_display == EGL_NO_DISPLAY)
+    return EGL_NO_DISPLAY;
+
+  if (!meta_egl_initialize (egl, egl_display, error))
+    return EGL_NO_DISPLAY;
+
+  return egl_display;
+}
+
+static MetaRendererNativeGpuData *
+create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
+                              MetaGpuKms          *gpu_kms,
+                              GError             **error)
+{
+  struct gbm_device *gbm_device;
+  int kms_fd;
+  MetaRendererNativeGpuData *renderer_gpu_data;
+  g_autoptr (GError) local_error = NULL;
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
@@ -3822,26 +3841,25 @@ create_renderer_gpu_data_gbm (MetaRendererNative  *renderer_native,
       return NULL;
     }
 
-  egl_display = meta_egl_get_platform_display (egl,
-                                               EGL_PLATFORM_GBM_KHR,
-                                               gbm_device, NULL, error);
-  if (egl_display == EGL_NO_DISPLAY)
-    {
-      gbm_device_destroy (gbm_device);
-      return NULL;
-    }
-
-  if (!meta_egl_initialize (egl, egl_display, error))
-    return NULL;
-
   renderer_gpu_data = meta_create_renderer_native_gpu_data (gpu_kms);
   renderer_gpu_data->renderer_native = renderer_native;
   renderer_gpu_data->gbm.device = gbm_device;
   renderer_gpu_data->mode = META_RENDERER_NATIVE_MODE_GBM;
-  renderer_gpu_data->egl_display = egl_display;
+
+  renderer_gpu_data->egl_display = init_gbm_egl_display (renderer_native,
+                                                         gbm_device,
+                                                         &local_error);
+  if (renderer_gpu_data->egl_display == EGL_NO_DISPLAY)
+    {
+      g_debug ("GBM EGL init for %s failed: %s",
+               meta_gpu_kms_get_file_path (gpu_kms),
+               local_error->message);
+
+      init_secondary_gpu_data_cpu (renderer_gpu_data);
+      return renderer_gpu_data;
+    }
 
   init_secondary_gpu_data (renderer_gpu_data);
-
   return renderer_gpu_data;
 }
 
@@ -4134,8 +4152,8 @@ on_gpu_added (MetaMonitorManager *monitor_manager,
 }
 
 static MetaGpuKms *
-choose_primary_gpu (MetaMonitorManager *manager,
-                    MetaRendererNative *renderer_native)
+choose_primary_gpu_unchecked (MetaMonitorManager *manager,
+                              MetaRendererNative *renderer_native)
 {
   GList *gpus = meta_monitor_manager_get_gpus (manager);
   GList *l;
@@ -4184,6 +4202,28 @@ choose_primary_gpu (MetaMonitorManager *manager,
   return NULL;
 }
 
+static MetaGpuKms *
+choose_primary_gpu (MetaMonitorManager  *manager,
+                    MetaRendererNative  *renderer_native,
+                    GError             **error)
+{
+  MetaGpuKms *gpu_kms;
+  MetaRendererNativeGpuData *renderer_gpu_data;
+
+  gpu_kms = choose_primary_gpu_unchecked (manager, renderer_native);
+  renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
+                                                         gpu_kms);
+  if (renderer_gpu_data->egl_display == EGL_NO_DISPLAY)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "The GPU %s chosen as primary is not supported by EGL.",
+                   meta_gpu_kms_get_file_path (gpu_kms));
+      return NULL;
+    }
+
+  return gpu_kms;
+}
+
 static gboolean
 meta_renderer_native_initable_init (GInitable     *initable,
                                     GCancellable  *cancellable,
@@ -4207,7 +4247,10 @@ meta_renderer_native_initable_init (GInitable     *initable,
     }
 
   renderer_native->primary_gpu_kms = choose_primary_gpu (monitor_manager,
-                                                         renderer_native);
+                                                         renderer_native,
+                                                         error);
+  if (!renderer_native->primary_gpu_kms)
+    return FALSE;
 
   return TRUE;
 }

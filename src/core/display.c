@@ -2236,7 +2236,7 @@ meta_display_get_tab_list (MetaDisplay   *display,
         MetaWindow *l_window = w->data;
 
         if (l_window->wm_state_demands_attention &&
-            l_window->workspace != workspace &&
+            !meta_window_located_on_workspace (l_window, workspace) &&
             IN_TAB_CHAIN (l_window, type))
           tab_list = g_list_prepend (tab_list, l_window);
       }

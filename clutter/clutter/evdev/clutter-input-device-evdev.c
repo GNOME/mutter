@@ -1132,13 +1132,13 @@ clutter_input_device_evdev_process_kbd_a11y_event (ClutterEvent               *e
   if (event->key.flags & CLUTTER_EVENT_FLAG_INPUT_METHOD)
     goto emit_event;
 
-  if (!(device_evdev->a11y_flags & CLUTTER_A11Y_KEYBOARD_ENABLED))
-    goto emit_event;
-
-  if (event->type == CLUTTER_KEY_PRESS)
-    handle_enablekeys_press (event, device_evdev);
-  else
-    handle_enablekeys_release (event, device_evdev);
+  if (device_evdev->a11y_flags & CLUTTER_A11Y_KEYBOARD_ENABLED)
+    {
+      if (event->type == CLUTTER_KEY_PRESS)
+        handle_enablekeys_press (event, device_evdev);
+      else
+        handle_enablekeys_release (event, device_evdev);
+    }
 
   if (device_evdev->a11y_flags & CLUTTER_A11Y_MOUSE_KEYS_ENABLED)
     {
