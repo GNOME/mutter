@@ -37,7 +37,7 @@
  * OpenOffice or whatever seems to stop launching - people
  * might decide they need to launch it again.
  */
-#define STARTUP_TIMEOUT 15000000
+#define STARTUP_TIMEOUT_MS 15000
 
 enum
 {
@@ -61,12 +61,19 @@ enum
 
 enum
 {
+  SEQ_COMPLETE,
+  N_SEQ_SIGNALS
+};
+
+enum
+{
   CHANGED,
   N_SIGNALS
 };
 
 static guint sn_signals[N_SIGNALS];
 static GParamSpec *sn_props[N_PROPS];
+static guint seq_signals[N_SEQ_SIGNALS];
 static GParamSpec *seq_props[N_SEQ_PROPS];
 
 typedef struct
@@ -106,12 +113,26 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaStartupSequence,
 
 static void meta_startup_notification_ensure_timeout  (MetaStartupNotification *sn);
 
+static gboolean
+meta_startup_notification_has_pending_sequences (MetaStartupNotification *sn)
+{
+  GSList *l;
+
+  for (l = sn->startup_sequences; l; l = l->next)
+    {
+      if (!meta_startup_sequence_get_completed (l->data))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 static void
 meta_startup_notification_update_feedback (MetaStartupNotification *sn)
 {
   MetaDisplay *display = sn->display;
 
-  if (sn->startup_sequences != NULL)
+  if (meta_startup_notification_has_pending_sequences (sn))
     {
       meta_topic (META_DEBUG_STARTUP,
                   "Setting busy cursor\n");
@@ -239,6 +260,14 @@ meta_startup_sequence_class_init (MetaStartupSequenceClass *klass)
   object_class->set_property = meta_startup_sequence_set_property;
   object_class->get_property = meta_startup_sequence_get_property;
 
+  seq_signals[SEQ_COMPLETE] =
+    g_signal_new ("complete",
+                  META_TYPE_STARTUP_SEQUENCE,
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (MetaStartupSequenceClass, complete),
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
   seq_props[PROP_SEQ_ID] =
     g_param_spec_string ("id",
                          "ID",
@@ -317,7 +346,6 @@ meta_startup_sequence_get_timestamp (MetaStartupSequence *seq)
 void
 meta_startup_sequence_complete (MetaStartupSequence *seq)
 {
-  MetaStartupSequenceClass *klass;
   MetaStartupSequencePrivate *priv;
 
   g_return_if_fail (META_IS_STARTUP_SEQUENCE (seq));
@@ -327,10 +355,7 @@ meta_startup_sequence_complete (MetaStartupSequence *seq)
     return;
 
   priv->completed = TRUE;
-  klass = META_STARTUP_SEQUENCE_GET_CLASS (seq);
-
-  if (klass->complete)
-    klass->complete (seq);
+  g_signal_emit (seq, seq_signals[SEQ_COMPLETE], 0);
 }
 
 gboolean
@@ -399,12 +424,22 @@ meta_startup_sequence_get_wmclass (MetaStartupSequence *seq)
   return priv->wmclass;
 }
 
+static void
+on_sequence_completed (MetaStartupSequence     *seq,
+                       MetaStartupNotification *sn)
+{
+  meta_startup_notification_update_feedback (sn);
+  g_signal_emit (sn, sn_signals[CHANGED], 0, seq);
+}
+
 void
 meta_startup_notification_add_sequence (MetaStartupNotification *sn,
                                         MetaStartupSequence     *seq)
 {
   sn->startup_sequences = g_slist_prepend (sn->startup_sequences,
                                            g_object_ref (seq));
+  g_signal_connect (seq, "complete",
+                    G_CALLBACK (on_sequence_completed), sn);
 
   meta_startup_notification_ensure_timeout (sn);
   meta_startup_notification_update_feedback (sn);
@@ -425,10 +460,10 @@ collect_timed_out_foreach (void *element,
 
   meta_topic (META_DEBUG_STARTUP,
               "Sequence used %" G_GINT64_FORMAT " ms vs. %d max: %s\n",
-              elapsed, STARTUP_TIMEOUT,
+              elapsed, STARTUP_TIMEOUT_MS,
               meta_startup_sequence_get_id (sequence));
 
-  if (elapsed > STARTUP_TIMEOUT)
+  if (elapsed > STARTUP_TIMEOUT_MS)
     ctod->list = g_slist_prepend (ctod->list, sequence);
 }
 
@@ -440,7 +475,7 @@ startup_sequence_timeout (void *data)
   GSList *l;
 
   ctod.list = NULL;
-  ctod.now = g_get_monotonic_time ();
+  ctod.now = g_get_monotonic_time () / 1000;
   g_slist_foreach (sn->startup_sequences,
                    collect_timed_out_foreach,
                    &ctod);
@@ -493,6 +528,8 @@ meta_startup_notification_remove_sequence (MetaStartupNotification *sn,
 {
   sn->startup_sequences = g_slist_remove (sn->startup_sequences, seq);
   meta_startup_notification_update_feedback (sn);
+
+  g_signal_handlers_disconnect_by_func (seq, on_sequence_completed, sn);
 
   if (sn->startup_sequences == NULL &&
       sn->startup_sequence_timeout != 0)
