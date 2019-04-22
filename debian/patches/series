@@ -2,3 +2,5 @@ theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 meson-add-back-default_driver-option.patch
 debian/synaptics-support.patch
+clutter-evdev-disable-mousekeys-with-Numlock-ON.patch
+clutter-x11-disable-mousekeys-with-Numlock-ON.patch
