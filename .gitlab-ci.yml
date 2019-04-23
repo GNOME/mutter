@@ -17,7 +17,7 @@ check-commit-log:
 build-mutter:
   stage: build
   script:
-    - meson . build -Dbuildtype=debugoptimized -Degl_device=true -Dwayland_eglstream=true --werror
+    - meson . build -Dbuildtype=debugoptimized -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
     - ninja -C build
     - ninja -C build install
   artifacts:
@@ -54,7 +54,7 @@ can-build-gnome-shell:
     - meson install --no-rebuild -C build
   script:
     - .gitlab-ci/checkout-gnome-shell.sh
-    - meson gnome-shell gnome-shell/build
+    - meson gnome-shell gnome-shell/build --prefix /usr
     - ninja -C gnome-shell/build install
   only:
     - merge_requests
