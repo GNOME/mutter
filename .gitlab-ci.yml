@@ -7,6 +7,8 @@ stages:
 
 check-commit-log:
   stage: review
+  variables:
+    GIT_DEPTH: "100"
   script:
     - ./.gitlab-ci/check-commit-log.sh
   only:
