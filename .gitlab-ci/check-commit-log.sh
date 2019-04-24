@@ -12,7 +12,7 @@ branch_point=$(git merge-base HEAD FETCH_HEAD)
 commits=$(git log --format='format:%H' $branch_point..$CI_COMMIT_SHA)
 
 if [ -z "$commits" ]; then
-  echo Commit range empty
+  echo "Commit range empty ($branch_point..$CI_COMMIT_SHA)"
   exit 1
 fi
 
