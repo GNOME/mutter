@@ -1267,7 +1267,7 @@ is_keyboard_forbidden (struct libinput_device *libinput_device)
   struct udev_device *udev_device;
 
   udev_device = libinput_device_get_udev_device (libinput_device);
-  authorized = udev_device_get_property_value (udev_device, "GNOME_KB_AUTHORIZED");
+  authorized = udev_device_get_property_value (udev_device, "GNOME_AUTHORIZED");
 
   /* If the authorized property is not available, dangerous keys should be
    * blocked for this device.
@@ -1311,7 +1311,7 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
             g_hash_table_contains (manager_evdev->priv->dangerous_keys_hashset, GINT_TO_POINTER (key)) &&
             is_keyboard_forbidden (libinput_device))
           {
-            g_warning ("Woah, how dare you press this key!?");
+            g_debug ("Key press has been dropped because the device is not authorized");
             break;
           }
 
@@ -2164,7 +2164,7 @@ settings_changed (GSettings           *settings,
     return;
 
   priv->keyboard_security = g_settings_get_boolean (settings, "keyboard-protection");
-  g_warning ("USB Keyboard protection is now %i", priv->keyboard_security);
+  g_debug ("USB Keyboard protection is now: %i", priv->keyboard_security);
 }
 
 static void
