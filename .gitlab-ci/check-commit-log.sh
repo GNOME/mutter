@@ -7,12 +7,12 @@ fi
 
 git fetch $CI_MERGE_REQUEST_PROJECT_URL.git $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
 
-branch_point=$(git merge-base HEAD FETCH_HEAD)
+branch_point=$(git merge-base HEAD $CI_MERGE_REQUEST_TARGET_BRANCH_NAME)
 
 commits=$(git log --format='format:%H' $branch_point..$CI_COMMIT_SHA)
 
 if [ -z "$commits" ]; then
-  echo Commit range empty
+  echo "Commit range empty ($branch_point..$CI_COMMIT_SHA)"
   exit 1
 fi
 
