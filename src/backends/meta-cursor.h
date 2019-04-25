@@ -58,8 +58,18 @@ void meta_cursor_sprite_set_texture (MetaCursorSprite *sprite,
 void meta_cursor_sprite_set_texture_scale (MetaCursorSprite *sprite,
                                            float             scale);
 
+void meta_cursor_sprite_set_optimized_relative_scale (MetaCursorSprite *sprite,
+                                                      float             scale);
+
+void meta_cursor_sprite_reset_optimized_relative_scale (MetaCursorSprite *sprite);
+
 void meta_cursor_sprite_set_texture_transform (MetaCursorSprite     *sprite,
                                                MetaMonitorTransform  transform);
+
+void meta_cursor_sprite_set_optimized_relative_transform (MetaCursorSprite     *sprite,
+                                                          MetaMonitorTransform  transform);
+
+void meta_cursor_sprite_reset_optimized_relative_transform (MetaCursorSprite *sprite);
 
 CoglTexture *meta_cursor_sprite_get_cogl_texture (MetaCursorSprite *sprite);
 
@@ -69,7 +79,11 @@ void meta_cursor_sprite_get_hotspot (MetaCursorSprite *sprite,
 
 float meta_cursor_sprite_get_texture_scale (MetaCursorSprite *sprite);
 
+float meta_cursor_sprite_get_optimized_relative_scale (MetaCursorSprite *sprite);
+
 MetaMonitorTransform meta_cursor_sprite_get_texture_transform (MetaCursorSprite *sprite);
+
+MetaMonitorTransform meta_cursor_sprite_get_optimized_relative_transform (MetaCursorSprite *sprite);
 
 gboolean meta_cursor_sprite_is_animated (MetaCursorSprite *sprite);
 
