@@ -43,7 +43,9 @@ typedef struct _MetaCursorSpritePrivate
 
   CoglTexture2D *texture;
   float texture_scale;
+  float optimized_relative_scale;
   MetaMonitorTransform texture_transform;
+  MetaMonitorTransform optimized_relative_transform;
   int hot_x, hot_y;
 } MetaCursorSpritePrivate;
 
@@ -112,6 +114,25 @@ meta_cursor_sprite_set_texture_scale (MetaCursorSprite *sprite,
 }
 
 void
+meta_cursor_sprite_set_optimized_relative_scale (MetaCursorSprite *sprite,
+                                                 float             scale)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  priv->optimized_relative_scale = scale;
+}
+
+void
+meta_cursor_sprite_reset_optimized_relative_scale (MetaCursorSprite *sprite)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  priv->optimized_relative_scale = 1.0f;
+}
+
+void
 meta_cursor_sprite_set_texture_transform (MetaCursorSprite     *sprite,
                                           MetaMonitorTransform  transform)
 {
@@ -119,6 +140,25 @@ meta_cursor_sprite_set_texture_transform (MetaCursorSprite     *sprite,
     meta_cursor_sprite_get_instance_private (sprite);
 
   priv->texture_transform = transform;
+}
+
+void
+meta_cursor_sprite_set_optimized_relative_transform (MetaCursorSprite     *sprite,
+                                                     MetaMonitorTransform  transform)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  priv->optimized_relative_transform = transform;
+}
+
+void
+meta_cursor_sprite_reset_optimized_relative_transform (MetaCursorSprite     *sprite)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  priv->optimized_relative_transform = META_MONITOR_TRANSFORM_NORMAL;
 }
 
 CoglTexture *
@@ -151,6 +191,15 @@ meta_cursor_sprite_get_texture_scale (MetaCursorSprite *sprite)
   return priv->texture_scale;
 }
 
+float
+meta_cursor_sprite_get_optimized_relative_scale (MetaCursorSprite *sprite)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  return priv->optimized_relative_scale;
+}
+
 MetaMonitorTransform
 meta_cursor_sprite_get_texture_transform (MetaCursorSprite *sprite)
 {
@@ -158,6 +207,15 @@ meta_cursor_sprite_get_texture_transform (MetaCursorSprite *sprite)
     meta_cursor_sprite_get_instance_private (sprite);
 
   return priv->texture_transform;
+}
+
+MetaMonitorTransform
+meta_cursor_sprite_get_optimized_relative_transform (MetaCursorSprite *sprite)
+{
+  MetaCursorSpritePrivate *priv =
+    meta_cursor_sprite_get_instance_private (sprite);
+
+  return priv->optimized_relative_transform;
 }
 
 void
@@ -184,7 +242,9 @@ meta_cursor_sprite_init (MetaCursorSprite *sprite)
     meta_cursor_sprite_get_instance_private (sprite);
 
   priv->texture_scale = 1.0f;
+  priv->optimized_relative_scale = 1.0f;
   priv->texture_transform = META_MONITOR_TRANSFORM_NORMAL;
+  priv->optimized_relative_transform = META_MONITOR_TRANSFORM_NORMAL;
 }
 
 static void
