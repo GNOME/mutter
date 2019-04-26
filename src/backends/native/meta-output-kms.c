@@ -69,6 +69,11 @@ meta_output_kms_set_underscan (MetaOutput    *output,
       crtc = meta_output_get_assigned_crtc (output);
       hborder = MIN (128, (uint64_t) round (crtc->current_mode->width * 0.05));
       vborder = MIN (128, (uint64_t) round (crtc->current_mode->height * 0.05));
+
+      g_debug ("Setting underscan of connector %s to %lu x %lu",
+               meta_kms_connector_get_name (output_kms->kms_connector),
+               hborder, vborder);
+
       meta_kms_connector_set_underscanning (output_kms->kms_connector,
                                             kms_update,
                                             hborder,
@@ -76,6 +81,9 @@ meta_output_kms_set_underscan (MetaOutput    *output,
     }
   else
     {
+      g_debug ("Unsetting underscan of connector %s",
+               meta_kms_connector_get_name (output_kms->kms_connector));
+
       meta_kms_connector_unset_underscanning (output_kms->kms_connector,
                                               kms_update);
     }
@@ -95,6 +103,10 @@ meta_output_kms_set_power_save_mode (MetaOutput    *output,
                                      MetaKmsUpdate *kms_update)
 {
   MetaOutputKms *output_kms = output->driver_private;
+
+  g_debug ("Setting DPMS state of connector %s to %lu",
+           meta_kms_connector_get_name (output_kms->kms_connector),
+           dpms_state);
 
   meta_kms_connector_update_set_dpms_state (output_kms->kms_connector,
                                             kms_update,
