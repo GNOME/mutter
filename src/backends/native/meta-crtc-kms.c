@@ -154,9 +154,17 @@ meta_crtc_kms_set_mode (MetaCrtc      *crtc,
   connectors = generate_crtc_connector_list (gpu, crtc);
 
   if (connectors)
-    mode = crtc->current_mode->driver_private;
+    {
+      mode = crtc->current_mode->driver_private;
+
+      g_debug ("Setting CRTC (%ld) mode to %s", crtc->crtc_id, mode->name);
+    }
   else
-    mode = NULL;
+    {
+      mode = NULL;
+
+      g_debug ("Unsetting CRTC (%ld) mode", crtc->crtc_id);
+    }
 
   meta_kms_update_mode_set (kms_update,
                             meta_crtc_kms_get_kms_crtc (crtc),
