@@ -1216,7 +1216,7 @@ load_keyboard_a11y_settings (MetaInputSettings  *input_settings,
                              ClutterInputDevice *device)
 {
   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
-  ClutterKbdA11ySettings kbd_a11y_settings;
+  ClutterKbdA11ySettings *kbd_a11y_settings;
   ClutterInputDevice *core_keyboard;
   guint i;
 
@@ -1224,27 +1224,29 @@ load_keyboard_a11y_settings (MetaInputSettings  *input_settings,
   if (device && device != core_keyboard)
     return;
 
-  kbd_a11y_settings.controls = 0;
+  kbd_a11y_settings = g_new0 (ClutterKbdA11ySettings, 1);
   for (i = 0; i < G_N_ELEMENTS (settings_flags_pair); i++)
     {
       if (g_settings_get_boolean (priv->a11y_settings, settings_flags_pair[i].name))
-        kbd_a11y_settings.controls |= settings_flags_pair[i].flag;
+        kbd_a11y_settings->controls |= settings_flags_pair[i].flag;
     }
 
-  kbd_a11y_settings.timeout_delay = g_settings_get_int (priv->a11y_settings,
-                                                        "disable-timeout");
-  kbd_a11y_settings.slowkeys_delay = g_settings_get_int (priv->a11y_settings,
-                                                         "slowkeys-delay");
-  kbd_a11y_settings.debounce_delay = g_settings_get_int (priv->a11y_settings,
-                                                         "bouncekeys-delay");
-  kbd_a11y_settings.mousekeys_init_delay = g_settings_get_int (priv->a11y_settings,
-                                                               "mousekeys-init-delay");
-  kbd_a11y_settings.mousekeys_max_speed = g_settings_get_int (priv->a11y_settings,
-                                                              "mousekeys-max-speed");
-  kbd_a11y_settings.mousekeys_accel_time = g_settings_get_int (priv->a11y_settings,
-                                                               "mousekeys-accel-time");
+  kbd_a11y_settings->timeout_delay = g_settings_get_int (priv->a11y_settings,
+                                                         "disable-timeout");
+  kbd_a11y_settings->slowkeys_delay = g_settings_get_int (priv->a11y_settings,
+                                                          "slowkeys-delay");
+  kbd_a11y_settings->debounce_delay = g_settings_get_int (priv->a11y_settings,
+                                                          "bouncekeys-delay");
+  kbd_a11y_settings->mousekeys_init_delay = g_settings_get_int (priv->a11y_settings,
+                                                                "mousekeys-init-delay");
+  kbd_a11y_settings->mousekeys_max_speed = g_settings_get_int (priv->a11y_settings,
+                                                               "mousekeys-max-speed");
+  kbd_a11y_settings->mousekeys_accel_time = g_settings_get_int (priv->a11y_settings,
+                                                                "mousekeys-accel-time");
 
-  clutter_device_manager_set_kbd_a11y_settings (priv->device_manager, &kbd_a11y_settings);
+  clutter_device_manager_set_kbd_a11y_settings (priv->device_manager, kbd_a11y_settings);
+
+  g_free (kbd_a11y_settings);
 }
 
 static void
