@@ -383,6 +383,68 @@ meta_monitor_manager_kms_get_crtc_gamma (MetaMonitorManager  *manager,
   drmModeFreeCrtc (kms_crtc);
 }
 
+static char *
+generate_gamma_ramp_string (size_t          size,
+                            unsigned short *red,
+                            unsigned short *green,
+                            unsigned short *blue)
+{
+  GString *string;
+  int color;
+
+  string = g_string_new ("[");
+  for (color = 0; color < 3; color++)
+    {
+      unsigned short **color_ptr;
+      char color_char;
+      size_t i;
+
+      switch (color)
+        {
+        case 0:
+          color_ptr = &red;
+          color_char = 'r';
+          break;
+        case 1:
+          color_ptr = &green;
+          color_char = 'g';
+          break;
+        case 2:
+          color_ptr = &blue;
+          color_char = 'b';
+          break;
+        }
+
+      g_string_append_printf (string, " %c: ", color_char);
+      for (i = 0; i < MIN (4, size); i++)
+        {
+          int j;
+
+          if (size > 4)
+            {
+              if (i == 2)
+                g_string_append (string, ",...");
+
+              if (i >= 2)
+                j = i + (size - 4);
+              else
+                j = i;
+            }
+          else
+            {
+              j = i;
+            }
+          g_string_append_printf (string, "%s%hu",
+                                  j == 0 ? "" : ",",
+                                  (*color_ptr)[i]);
+        }
+    }
+
+  g_string_append (string, " ]");
+
+  return g_string_free (string, FALSE);
+}
+
 static void
 meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
                                          MetaCrtc           *crtc,
@@ -393,8 +455,18 @@ meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
 {
   MetaGpu *gpu = meta_crtc_get_gpu (crtc);
   int kms_fd = meta_gpu_kms_get_fd (META_GPU_KMS (gpu));
+  g_autofree char *gamma_ramp_string = NULL;
+  int ret;
 
-  drmModeCrtcSetGamma (kms_fd, crtc->crtc_id, size, red, green, blue);
+  gamma_ramp_string = generate_gamma_ramp_string (size, red, green, blue);
+  g_debug ("Setting CRTC (%ld) gamma to %s", crtc->crtc_id, gamma_ramp_string);
+
+  ret = drmModeCrtcSetGamma (kms_fd, crtc->crtc_id, size, red, green, blue);
+  if (ret != 0)
+    {
+      g_warning ("Failed to set CRTC (%ld) Gamma: %s",
+                 crtc->crtc_id, g_strerror (-ret));
+    }
 }
 
 static void
