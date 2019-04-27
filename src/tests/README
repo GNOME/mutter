@@ -29,10 +29,9 @@ The tests are installed according to:
 
 https://wiki.gnome.org/Initiatives/GnomeGoals/InstalledTests
 
-if --enable-installed-tests is passed to configure. You can run them
-uninstalled with:
+if -Dtests=true is passed to `meson configure`. You can run them uninstalled with:
 
- cd src && make run-tests
+ ninja test
 
 Command reference
 =================
