@@ -135,6 +135,9 @@ meta_switch_workspace_completed (MetaCompositor *compositor)
 void
 meta_compositor_destroy (MetaCompositor *compositor)
 {
+  g_signal_handlers_disconnect_by_data (compositor->stage, compositor);
+  compositor->stage = NULL;
+
   clutter_threads_remove_repaint_func (compositor->pre_paint_func_id);
   clutter_threads_remove_repaint_func (compositor->post_paint_func_id);
 
