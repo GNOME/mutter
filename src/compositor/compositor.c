@@ -91,6 +91,10 @@ on_presented (ClutterStage     *stage,
               ClutterFrameInfo *frame_info,
               MetaCompositor   *compositor);
 
+static void
+on_top_window_actor_destroyed (MetaWindowActor *window_actor,
+                               MetaCompositor  *compositor);
+
 static gboolean
 is_modal (MetaDisplay *display)
 {
@@ -132,6 +136,19 @@ meta_compositor_destroy (MetaCompositor *compositor)
 {
   clutter_threads_remove_repaint_func (compositor->pre_paint_func_id);
   clutter_threads_remove_repaint_func (compositor->post_paint_func_id);
+
+  if (compositor->top_window_actor)
+    {
+      g_signal_handlers_disconnect_by_func (compositor->top_window_actor,
+                                            on_top_window_actor_destroyed,
+                                            compositor);
+      compositor->top_window_actor = NULL;
+    }
+
+  g_clear_pointer (&compositor->window_group, clutter_actor_destroy);
+  g_clear_pointer (&compositor->top_window_group, clutter_actor_destroy);
+  g_clear_pointer (&compositor->feedback_group, clutter_actor_destroy);
+  g_clear_pointer (&compositor->windows, g_list_free);
 
   if (compositor->have_x11_sync_object)
     meta_sync_ring_destroy ();
