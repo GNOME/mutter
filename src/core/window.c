@@ -1427,6 +1427,8 @@ meta_window_unmanage (MetaWindow  *window,
   if (window->unmanage_idle_id)
     g_source_remove (window->unmanage_idle_id);
 
+  meta_window_free_delete_dialog (window);
+
 #ifdef HAVE_WAYLAND
   /* This needs to happen for both Wayland and XWayland clients,
    * so it can't be in MetaWindowWayland. */
@@ -1549,7 +1551,6 @@ meta_window_unmanage (MetaWindow  *window,
   meta_window_unqueue (window, META_QUEUE_CALC_SHOWING |
                                META_QUEUE_MOVE_RESIZE |
                                META_QUEUE_UPDATE_ICON);
-  meta_window_free_delete_dialog (window);
 
   set_workspace_state (window, FALSE, NULL);
 
