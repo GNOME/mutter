@@ -146,6 +146,9 @@ meta_compositor_destroy (MetaCompositor *compositor)
   g_list_free_full (compositor->windows, (GDestroyNotify) clutter_actor_destroy);
   compositor->windows = NULL;
 
+  g_signal_handlers_disconnect_by_data (compositor->stage, compositor);
+  compositor->stage = NULL;
+
   g_clear_pointer (&compositor->window_group, clutter_actor_destroy);
   g_clear_pointer (&compositor->top_window_group, clutter_actor_destroy);
   g_clear_pointer (&compositor->feedback_group, clutter_actor_destroy);
