@@ -146,6 +146,10 @@ meta_compositor_destroy (MetaCompositor *compositor)
   g_list_free_full (compositor->windows, (GDestroyNotify) clutter_actor_destroy);
   compositor->windows = NULL;
 
+  g_clear_pointer (&compositor->window_group, clutter_actor_destroy);
+  g_clear_pointer (&compositor->top_window_group, clutter_actor_destroy);
+  g_clear_pointer (&compositor->feedback_group, clutter_actor_destroy);
+
   if (compositor->have_x11_sync_object)
     meta_sync_ring_destroy ();
 }
