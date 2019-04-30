@@ -807,6 +807,9 @@ struct _ClutterActorPrivate
   gpointer create_child_data;
   GDestroyNotify create_child_notify;
 
+  guint resolution_changed_id;
+  guint font_changed_id;
+
   /* bitfields: KEEP AT THE END */
 
   /* fixed position and sizes */
@@ -5983,6 +5986,7 @@ clutter_actor_dispose (GObject *object)
 {
   ClutterActor *self = CLUTTER_ACTOR (object);
   ClutterActorPrivate *priv = self->priv;
+  ClutterBackend *backend = clutter_get_default_backend ();
 
   CLUTTER_NOTE (MISC, "Dispose actor (name='%s', ref_count:%d) of type '%s'",
 		_clutter_actor_get_debug_name (self),
@@ -6017,6 +6021,18 @@ clutter_actor_dispose (GObject *object)
       /* can't be mapped or realized with no parent */
       g_assert (!CLUTTER_ACTOR_IS_MAPPED (self));
       g_assert (!CLUTTER_ACTOR_IS_REALIZED (self));
+    }
+
+  if (priv->resolution_changed_id)
+    {
+      g_signal_handler_disconnect (backend, priv->resolution_changed_id);
+      priv->resolution_changed_id = 0;
+    }
+
+  if (priv->font_changed_id)
+    {
+      g_signal_handler_disconnect (backend, priv->font_changed_id);
+      priv->font_changed_id = 0;
     }
 
   g_clear_object (&priv->pango_context);
@@ -15884,10 +15900,12 @@ clutter_actor_get_pango_context (ClutterActor *self)
     {
       priv->pango_context = clutter_actor_create_pango_context (self);
 
-      g_signal_connect_object (backend, "resolution-changed",
-                               G_CALLBACK (update_pango_context), priv->pango_context, 0);
-      g_signal_connect_object (backend, "font-changed",
-                               G_CALLBACK (update_pango_context), priv->pango_context, 0);
+      priv->resolution_changed_id =
+        g_signal_connect_object (backend, "resolution-changed",
+                                 G_CALLBACK (update_pango_context), priv->pango_context, 0);
+      priv->font_changed_id =
+        g_signal_connect_object (backend, "font-changed",
+                                 G_CALLBACK (update_pango_context), priv->pango_context, 0);
     }
   else
     update_pango_context (backend, priv->pango_context);
