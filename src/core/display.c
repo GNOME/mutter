@@ -975,8 +975,7 @@ meta_display_close (MetaDisplay *display,
   /* Stop caring about events */
   meta_display_free_events (display);
 
-  if (display->compositor)
-    meta_compositor_destroy (display->compositor);
+  g_clear_pointer (&display->compositor, meta_compositor_destroy);
 
   meta_display_shutdown_x11 (display);
 
