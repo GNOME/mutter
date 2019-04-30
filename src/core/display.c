@@ -950,8 +950,7 @@ meta_display_close (MetaDisplay *display,
   g_hash_table_destroy (display->wayland_windows);
   g_hash_table_destroy (display->stamps);
 
-  if (display->compositor)
-    meta_compositor_destroy (display->compositor);
+  g_clear_pointer (&display->compositor, meta_compositor_destroy);
 
   if (display->x11_display)
     {
