@@ -4,6 +4,7 @@
  * A Low Level GPU Graphics and Utilities API
  *
  * Copyright (C) 2007,2008,2009 Intel Corporation.
+ * Copyright (C) 2019 DisplayLink (UK) Ltd.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -374,9 +375,8 @@ _cogl_push_framebuffers (CoglFramebuffer *draw_buffer,
  * @width: Width of region to copy
  * @height: Height of region to copy
  *
- * This blits a region of the color buffer of the current draw buffer
- * to the current read buffer. The draw and read buffers can be set up
- * using _cogl_push_framebuffers(). This function should only be
+ * This blits a region of the color buffer of the source buffer
+ * to the destination buffer. This function should only be
  * called if the COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT feature is
  * advertised. The two buffers must both be offscreen and have the
  * same format.
