@@ -4,3 +4,4 @@ meson-add-back-default_driver-option.patch
 debian/synaptics-support.patch
 clutter-evdev-disable-mousekeys-with-Numlock-ON.patch
 clutter-x11-disable-mousekeys-with-Numlock-ON.patch
+input-settings-Use-0-initialized-struct-for-kbd-a11y.patch

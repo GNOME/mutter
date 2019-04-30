@@ -1,0 +1,31 @@
+From: Olivier Fourdan <ofourdan@redhat.com>
+Date: Fri, 26 Apr 2019 08:49:22 +0000
+Subject: input-settings: Use 0 initialized struct for kbd a11y
+
+Make sure our keyboard accessibility settings structure is all zero
+initialized, to avoid potential padding issues on some platform when
+comparing settings.
+
+Reported by Daniel van Vugt on IRC.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/552
+
+Origin: upstream, commit:9a795d3d0f5a8568e6f17e274d3f7f0374bd1fc9
+Applied-Upstream: 3.32.2
+---
+ src/backends/meta-input-settings.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/backends/meta-input-settings.c b/src/backends/meta-input-settings.c
+index 7b8df56..b7aec8d 100644
+--- a/src/backends/meta-input-settings.c
++++ b/src/backends/meta-input-settings.c
+@@ -1216,7 +1216,7 @@ load_keyboard_a11y_settings (MetaInputSettings  *input_settings,
+                              ClutterInputDevice *device)
+ {
+   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
+-  ClutterKbdA11ySettings kbd_a11y_settings;
++  ClutterKbdA11ySettings kbd_a11y_settings = { 0 };
+   ClutterInputDevice *core_keyboard;
+   guint i;
+ 
