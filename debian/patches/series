@@ -1,7 +1,9 @@
+clutter-evdev-disable-mousekeys-with-Numlock-ON.patch
+clutter-x11-disable-mousekeys-with-Numlock-ON.patch
+input-settings-Use-0-initialized-struct-for-kbd-a11y.patch
+compositor-Destroy-window-actors-list-on-destruction.patch
+compositor-Disconnect-from-stage-signals-on-destruction.patch
 theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 meson-add-back-default_driver-option.patch
 debian/synaptics-support.patch
-clutter-evdev-disable-mousekeys-with-Numlock-ON.patch
-clutter-x11-disable-mousekeys-with-Numlock-ON.patch
-input-settings-Use-0-initialized-struct-for-kbd-a11y.patch

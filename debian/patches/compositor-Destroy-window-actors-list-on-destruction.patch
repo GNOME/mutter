@@ -1,0 +1,64 @@
+From: =?utf-8?b?Ik1hcmNvIFRyZXZpc2FuIChUcmV2acOxbyki?= <mail@3v1n0.net>
+Date: Mon, 29 Apr 2019 19:57:03 +0000
+Subject: compositor: Destroy window actors list on destruction
+
+When the compositor is destroyed we should cleanup the list of window actors we
+created and destroy them.
+Since all the actors are added to the window_group or top_window_group we can
+just destroy these containers (together with the feedback_group), and simply
+free the windows list.
+
+This is particularly needed under X11 because before we destroy the display, we
+might do some cleanups as detaching the surface pixmaps and freeing the damages
+and if this happens at later point (for example when triggered by garbage
+collector in gnome-shell), we might crash because the x11 dpy reference is
+already gone.
+
+Destroying the window actors instead, ensures we avoid any further call to X11
+related functions and that we release the actors XServer resources.
+
+Fixes https://gitlab.gnome.org/GNOME/mutter/issues/576
+
+Origin: upstream, commit:3495a438107e7988bd1a5a089c66fa795a3d5981
+Applied-Upstream: 3.32.2
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/gnome-shell/+bug/1813716
+
+---
+ src/compositor/compositor.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/src/compositor/compositor.c b/src/compositor/compositor.c
+index 0854a19..f47889f 100644
+--- a/src/compositor/compositor.c
++++ b/src/compositor/compositor.c
+@@ -92,6 +92,10 @@ on_presented (ClutterStage     *stage,
+               ClutterFrameInfo *frame_info,
+               MetaCompositor   *compositor);
+ 
++static void
++on_top_window_actor_destroyed (MetaWindowActor *window_actor,
++                               MetaCompositor  *compositor);
++
+ static gboolean
+ is_modal (MetaDisplay *display)
+ {
+@@ -134,6 +138,19 @@ meta_compositor_destroy (MetaCompositor *compositor)
+   clutter_threads_remove_repaint_func (compositor->pre_paint_func_id);
+   clutter_threads_remove_repaint_func (compositor->post_paint_func_id);
+ 
++  if (compositor->top_window_actor)
++    {
++      g_signal_handlers_disconnect_by_func (compositor->top_window_actor,
++                                            on_top_window_actor_destroyed,
++                                            compositor);
++      compositor->top_window_actor = NULL;
++    }
++
++  g_clear_pointer (&compositor->window_group, clutter_actor_destroy);
++  g_clear_pointer (&compositor->top_window_group, clutter_actor_destroy);
++  g_clear_pointer (&compositor->feedback_group, clutter_actor_destroy);
++  g_clear_pointer (&compositor->windows, g_list_free);
++
+   if (compositor->have_x11_sync_object)
+     meta_sync_ring_destroy ();
+ }
