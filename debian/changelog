@@ -1,3 +1,15 @@
+mutter (3.32.1-2) UNRELEASED; urgency=medium
+
+  * Cherry-pick patches from upstream gnome-3-32 branch:
+    - compositor-Destroy-window-actors-list-on-destruction.patch,
+      compositor-Disconnect-from-stage-signals-on-destruction.patch: Fix crash
+      when exiting. (LP: #1813716)
+    - 0-initialize a struct we'll be memcmp()ing.
+  * Reorder patch series so upstream patches come first (no conflicts, no
+    refreshing required).
+
+ -- Iain Lane <laney@debian.org>  Wed, 01 May 2019 09:32:54 +0100
+
 mutter (3.32.1-1) experimental; urgency=medium
 
   * New upstream release
