@@ -506,10 +506,8 @@ meta_compositor_manage (MetaCompositor *compositor)
 
   compositor->stage = meta_backend_get_stage (backend);
 
-  compositor->stage_presented_id =
-    g_signal_connect (compositor->stage, "presented",
-                      G_CALLBACK (on_presented),
-                                                     compositor);
+  g_signal_connect_object (compositor->stage, "presented",
+                           G_CALLBACK (on_presented), compositor, 0);
 
   /* We use connect_after() here to accomodate code in GNOME Shell that,
    * when benchmarking drawing performance, connects to ::after-paint
@@ -519,9 +517,9 @@ meta_compositor_manage (MetaCompositor *compositor)
    * connections to ::after-paint, connect() vs. connect_after() doesn't
    * matter.
    */
-  compositor->stage_after_paint_id =
-    g_signal_connect_after (compositor->stage, "after-paint",
-                            G_CALLBACK (after_stage_paint), compositor);
+  g_signal_connect_object (compositor->stage, "after-paint",
+                           G_CALLBACK (after_stage_paint), compositor,
+                           G_CONNECT_AFTER);
 
   clutter_stage_set_sync_delay (CLUTTER_STAGE (compositor->stage), META_SYNC_DELAY);
 
@@ -1105,9 +1103,9 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
   compositor->top_window_actor = get_top_visible_window_actor (compositor);
 
   if (compositor->top_window_actor)
-    g_signal_connect (compositor->top_window_actor, "destroy",
-                      G_CALLBACK (on_top_window_actor_destroyed),
-                      compositor);
+    g_signal_connect_object (compositor->top_window_actor, "destroy",
+                             G_CALLBACK (on_top_window_actor_destroyed),
+                             compositor, 0);
 }
 
 void
@@ -1295,10 +1293,10 @@ meta_compositor_init (MetaCompositor *compositor)
 
   compositor->context = clutter_backend->cogl_context;
 
-  g_signal_connect (meta_shadow_factory_get_default (),
-                    "changed",
-                    G_CALLBACK (on_shadow_factory_changed),
-                    compositor);
+  g_signal_connect_object (meta_shadow_factory_get_default (),
+                           "changed",
+                           G_CALLBACK (on_shadow_factory_changed),
+                           compositor, 0);
 
   compositor->pre_paint_func_id =
     clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_PRE_PAINT,
@@ -1317,30 +1315,12 @@ meta_compositor_dispose (GObject *gobject)
 {
   MetaCompositor *compositor = META_COMPOSITOR (gobject);
 
-  if (compositor->stage)
-    {
-      g_signal_handler_disconnect (compositor->stage,
-                                   compositor->stage_after_paint_id);
-      g_signal_handler_disconnect (compositor->stage,
-                                   compositor->stage_presented_id);
-
-      compositor->stage_after_paint_id = 0;
-      compositor->stage_presented_id = 0;
-      compositor->stage = NULL;
-    }
+  compositor->stage = NULL;
 
   g_clear_handle_id (&compositor->pre_paint_func_id,
                      clutter_threads_remove_repaint_func);
   g_clear_handle_id (&compositor->post_paint_func_id,
                      clutter_threads_remove_repaint_func);
-
-  if (compositor->top_window_actor)
-    {
-      g_signal_handlers_disconnect_by_func (compositor->top_window_actor,
-                                            on_top_window_actor_destroyed,
-                                            compositor);
-      compositor->top_window_actor = NULL;
-    }
 
   g_clear_pointer (&compositor->window_group, clutter_actor_destroy);
   g_clear_pointer (&compositor->top_window_group, clutter_actor_destroy);
