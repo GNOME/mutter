@@ -1,4 +1,4 @@
-mutter (3.32.1-2) UNRELEASED; urgency=medium
+mutter (3.32.1-2) experimental; urgency=medium
 
   * Cherry-pick patches from upstream gnome-3-32 branch:
     - compositor-Destroy-window-actors-list-on-destruction.patch,
@@ -8,7 +8,7 @@ mutter (3.32.1-2) UNRELEASED; urgency=medium
   * Reorder patch series so upstream patches come first (no conflicts, no
     refreshing required).
 
- -- Iain Lane <laney@debian.org>  Wed, 01 May 2019 09:32:54 +0100
+ -- Iain Lane <laney@debian.org>  Wed, 01 May 2019 09:34:30 +0100
 
 mutter (3.32.1-1) experimental; urgency=medium
 
