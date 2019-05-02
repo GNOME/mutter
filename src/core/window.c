@@ -3744,7 +3744,8 @@ meta_window_activate_full (MetaWindow     *window,
               "Focusing window %s due to activation\n",
               window->desc);
 
-  if (meta_window_located_on_workspace (window, workspace))
+  if (meta_window_located_on_workspace (window, workspace) ||
+      !window->workspace)
     meta_window_focus (window, timestamp);
   else
     meta_workspace_activate_with_focus (window->workspace, window, timestamp);
