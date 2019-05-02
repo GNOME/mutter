@@ -529,7 +529,11 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
                 meta_workspace_index (workspace));
 
   if (workspace->manager->active_workspace == workspace)
-    return;
+    {
+      // if (focus_this)
+        // meta_window_activate (focus_this, timestamp);
+      return;
+    }
 
   /* Free any cached pointers to the workspaces's edges from
    * a current resize or move operation */
