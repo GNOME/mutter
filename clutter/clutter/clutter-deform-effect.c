@@ -172,7 +172,6 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect)
   ClutterDeformEffectPrivate *priv = self->priv;
   CoglHandle material;
   CoglPipeline *pipeline;
-  CoglDepthState depth_state;
   CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
 
   if (priv->is_dirty)
@@ -279,11 +278,6 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect)
   material = clutter_offscreen_effect_get_target (effect);
   pipeline = COGL_PIPELINE (material);
 
-  /* enable depth testing */
-  cogl_depth_state_init (&depth_state);
-  cogl_depth_state_set_test_enabled (&depth_state, TRUE);
-  cogl_pipeline_set_depth_state (pipeline, &depth_state, NULL);
-
   /* enable backface culling if we have a back material */
   if (priv->back_pipeline != NULL)
     cogl_pipeline_set_cull_face_mode (pipeline,
@@ -301,7 +295,6 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect)
       /* We probably shouldn't be modifying the user's material so
          instead we make a temporary copy */
       back_pipeline = cogl_pipeline_copy (priv->back_pipeline);
-      cogl_pipeline_set_depth_state (back_pipeline, &depth_state, NULL);
       cogl_pipeline_set_cull_face_mode (back_pipeline,
                                         COGL_PIPELINE_CULL_FACE_MODE_FRONT);
 
