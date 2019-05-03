@@ -355,6 +355,10 @@ on_captured_event (ClutterActor       *stage,
 
   switch (clutter_event_type (event))
     {
+    case CLUTTER_TOUCH_CANCEL:
+      clutter_click_action_release (action);
+      break;
+
     case CLUTTER_TOUCH_END:
       has_button = FALSE;
     case CLUTTER_BUTTON_RELEASE:
