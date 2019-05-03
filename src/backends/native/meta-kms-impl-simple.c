@@ -285,6 +285,35 @@ process_mode_set (MetaKmsImpl     *impl,
 }
 
 static gboolean
+process_crtc_gamma (MetaKmsImpl       *impl,
+                    MetaKmsCrtcGamma  *gamma,
+                    GError           **error)
+{
+  MetaKmsCrtc *crtc = gamma->crtc;
+  MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
+  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  int fd;
+  int ret;
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+  ret = drmModeCrtcSetGamma (fd, meta_kms_crtc_get_id (crtc),
+                             gamma->size,
+                             gamma->red,
+                             gamma->green,
+                             gamma->blue);
+  if (ret != 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
+                   "drmModeCrtcSetGamma on CRTC %u failed: %s",
+                   meta_kms_crtc_get_id (crtc),
+                   g_strerror (-ret));
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 is_timestamp_earlier_than (uint64_t ts1,
                            uint64_t ts2)
 {
@@ -705,6 +734,14 @@ meta_kms_impl_simple_process_update (MetaKmsImpl    *impl,
       MetaKmsModeSet *mode_set = l->data;
 
       if (!process_mode_set (impl, update, mode_set, error))
+        goto discard_page_flips;
+    }
+
+  for (l = meta_kms_update_get_crtc_gammas (update); l; l = l->next)
+    {
+      MetaKmsCrtcGamma *gamma = l->data;
+
+      if (!process_crtc_gamma (impl, gamma, error))
         goto discard_page_flips;
     }
 

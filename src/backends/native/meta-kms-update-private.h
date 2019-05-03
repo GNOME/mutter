@@ -59,6 +59,15 @@ typedef struct _MetaKmsConnectorProperty
   uint64_t value;
 } MetaKmsConnectorProperty;
 
+typedef struct _MetaKmsCrtcGamma
+{
+  MetaKmsCrtc *crtc;
+  int size;
+  uint16_t *red;
+  uint16_t *green;
+  uint16_t *blue;
+} MetaKmsCrtcGamma;
+
 typedef struct _MetaKmsPageFlip
 {
   MetaKmsCrtc *crtc;
@@ -77,6 +86,13 @@ void meta_kms_update_set_connector_property (MetaKmsUpdate    *update,
                                              uint32_t          prop_id,
                                              uint64_t          value);
 
+void meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
+                                     MetaKmsCrtc    *crtc,
+                                     int             size,
+                                     const uint16_t *red,
+                                     const uint16_t *green,
+                                     const uint16_t *blue);
+
 void meta_kms_plane_assignment_set_plane_property (MetaKmsPlaneAssignment *plane_assignment,
                                                    uint32_t                prop_id,
                                                    uint64_t                value);
@@ -88,6 +104,8 @@ GList * meta_kms_update_get_mode_sets (MetaKmsUpdate *update);
 GList * meta_kms_update_get_page_flips (MetaKmsUpdate *update);
 
 GList * meta_kms_update_get_connector_properties (MetaKmsUpdate *update);
+
+GList * meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update);
 
 gboolean meta_kms_update_has_mode_set (MetaKmsUpdate *update);
 
