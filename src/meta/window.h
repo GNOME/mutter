@@ -450,4 +450,7 @@ uint64_t meta_window_get_id (MetaWindow *window);
 META_EXPORT
 MetaWindowClientType meta_window_get_client_type (MetaWindow *window);
 
+META_EXPORT
+gboolean meta_window_get_close_dialog_visible (MetaWindow *window);
+
 #endif
