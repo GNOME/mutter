@@ -36,12 +36,27 @@ typedef struct _MetaKmsCrtcState
   uint32_t common_possible_crtcs;
   uint32_t common_possible_clones;
   uint32_t encoder_device_idxs;
+
+  struct {
+    uint16_t *red;
+    uint16_t *green;
+    uint16_t *blue;
+
+    int size;
+  } gamma;
 } MetaKmsCrtcState;
 
 #define META_TYPE_KMS_CRTC (meta_kms_crtc_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKmsCrtc, meta_kms_crtc,
                       META, KMS_CRTC,
                       GObject)
+
+void meta_kms_crtc_set_gamma (MetaKmsCrtc    *crtc,
+                              MetaKmsUpdate  *update,
+                              int             size,
+                              const uint16_t *red,
+                              const uint16_t *green,
+                              const uint16_t *blue);
 
 MetaKmsDevice * meta_kms_crtc_get_device (MetaKmsCrtc *crtc);
 
