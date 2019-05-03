@@ -34,6 +34,7 @@ struct _MetaKmsUpdate
   GList *plane_assignments;
   GList *page_flips;
   GList *connector_properties;
+  GList *crtc_gammas;
 };
 
 static MetaKmsProperty *
@@ -142,6 +143,39 @@ meta_kms_update_set_connector_property (MetaKmsUpdate    *update,
                                                  prop);
 }
 
+static void
+meta_kms_crtc_gamma_free (MetaKmsCrtcGamma *gamma)
+{
+  g_free (gamma->red);
+  g_free (gamma->green);
+  g_free (gamma->blue);
+  g_free (gamma);
+}
+
+void
+meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
+                                MetaKmsCrtc    *crtc,
+                                int             size,
+                                const uint16_t *red,
+                                const uint16_t *green,
+                                const uint16_t *blue)
+{
+  MetaKmsCrtcGamma *gamma;
+
+  g_assert (!meta_kms_update_is_sealed (update));
+
+  gamma = g_new0 (MetaKmsCrtcGamma, 1);
+  *gamma = (MetaKmsCrtcGamma) {
+    .crtc = crtc,
+    .size = size,
+    .red = g_memdup (red, size * sizeof *red),
+    .green = g_memdup (green, size * sizeof *green),
+    .blue = g_memdup (blue, size * sizeof *blue),
+  };
+
+  update->crtc_gammas = g_list_prepend (update->crtc_gammas, gamma);
+}
+
 void
 meta_kms_update_page_flip (MetaKmsUpdate                 *update,
                            MetaKmsCrtc                   *crtc,
@@ -225,6 +259,12 @@ meta_kms_update_get_connector_properties (MetaKmsUpdate *update)
   return update->connector_properties;
 }
 
+GList *
+meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update)
+{
+  return update->crtc_gammas;
+}
+
 gboolean
 meta_kms_update_has_mode_set (MetaKmsUpdate *update)
 {
@@ -258,6 +298,7 @@ meta_kms_update_free (MetaKmsUpdate *update)
                     (GDestroyNotify) meta_kms_mode_set_free);
   g_list_free_full (update->page_flips, g_free);
   g_list_free_full (update->connector_properties, g_free);
+  g_list_free_full (update->crtc_gammas, (GDestroyNotify) meta_kms_crtc_gamma_free);
 
   g_free (update);
 }
