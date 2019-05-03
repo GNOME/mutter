@@ -381,7 +381,7 @@ guess_candidates (MetaInputMapper     *mapper,
       info->candidates[META_MATCH_SIZE] = matched_monitor;
     }
 
-  if (input->builtin)
+  if (input->builtin || best == N_OUTPUT_MATCHES)
     {
       best = MIN (best, META_MATCH_IS_BUILTIN);
       find_builtin_output (mapper, &info->candidates[META_MATCH_IS_BUILTIN]);
