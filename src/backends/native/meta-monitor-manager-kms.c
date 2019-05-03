@@ -367,20 +367,16 @@ meta_monitor_manager_kms_get_crtc_gamma (MetaMonitorManager  *manager,
                                          unsigned short     **green,
                                          unsigned short     **blue)
 {
-  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
-  int kms_fd = meta_gpu_kms_get_fd (META_GPU_KMS (gpu));
-  drmModeCrtc *kms_crtc;
+  MetaKmsCrtc *kms_crtc;
+  const MetaKmsCrtcState *crtc_state;
 
-  kms_crtc = drmModeGetCrtc (kms_fd, crtc->crtc_id);
+  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+  crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
 
-  *size = kms_crtc->gamma_size;
-  *red = g_new (unsigned short, *size);
-  *green = g_new (unsigned short, *size);
-  *blue = g_new (unsigned short, *size);
-
-  drmModeCrtcGetGamma (kms_fd, crtc->crtc_id, *size, *red, *green, *blue);
-
-  drmModeFreeCrtc (kms_crtc);
+  *size = crtc_state->gamma.size;
+  *red = g_memdup (crtc_state->gamma.red, *size * sizeof **red);
+  *green = g_memdup (crtc_state->gamma.green, *size * sizeof **green);
+  *blue = g_memdup (crtc_state->gamma.blue, *size * sizeof **blue);
 }
 
 static char *
@@ -453,20 +449,25 @@ meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
                                          unsigned short     *green,
                                          unsigned short     *blue)
 {
-  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
-  int kms_fd = meta_gpu_kms_get_fd (META_GPU_KMS (gpu));
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsCrtc *kms_crtc;
   g_autofree char *gamma_ramp_string = NULL;
-  int ret;
+  MetaKmsUpdate *kms_update;
+  g_autoptr (GError) error = NULL;
 
   gamma_ramp_string = generate_gamma_ramp_string (size, red, green, blue);
   g_debug ("Setting CRTC (%ld) gamma to %s", crtc->crtc_id, gamma_ramp_string);
 
-  ret = drmModeCrtcSetGamma (kms_fd, crtc->crtc_id, size, red, green, blue);
-  if (ret != 0)
-    {
-      g_warning ("Failed to set CRTC (%ld) Gamma: %s",
-                 crtc->crtc_id, g_strerror (-ret));
-    }
+  kms_update = meta_kms_ensure_pending_update (kms);
+
+  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+  meta_kms_crtc_set_gamma (kms_crtc, kms_update,
+                           size, red, green, blue);
+
+  if (!meta_kms_post_pending_update_sync (kms, &error))
+    g_warning ("Failed to CRTC gamma: %s", error->message);
 }
 
 static void
