@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-03-28 12:21+0000\n"
-"PO-Revision-Date: 2019-03-01 12:17+0100\n"
+"POT-Creation-Date: 2019-05-03 10:54+0000\n"
+"PO-Revision-Date: 2019-05-03 14:28+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: es <gnome-es-list@gnome.org>\n"
 "Language: es\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 3.31.90\n"
+"X-Generator: Gtranslator 3.32.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -534,7 +534,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2424
+#: src/backends/meta-input-settings.c:2426
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Cambiar modo (grupo %d)"
@@ -542,34 +542,34 @@ msgstr "Cambiar modo (grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2447
+#: src/backends/meta-input-settings.c:2449
 msgid "Switch monitor"
 msgstr "Cambiar monitor"
 
-#: src/backends/meta-input-settings.c:2449
+#: src/backends/meta-input-settings.c:2451
 msgid "Show on-screen help"
 msgstr "Mostrar la ayuda en pantalla"
 
-#: src/backends/meta-monitor-manager.c:955
+#: src/backends/meta-monitor-manager.c:976
 msgid "Built-in display"
 msgstr "Pantalla integrada"
 
-#: src/backends/meta-monitor-manager.c:987
+#: src/backends/meta-monitor-manager.c:1008
 msgid "Unknown"
 msgstr "Desconocida"
 
-#: src/backends/meta-monitor-manager.c:989
+#: src/backends/meta-monitor-manager.c:1010
 msgid "Unknown Display"
 msgstr "Pantalla desconocida"
 
-#: src/backends/meta-monitor-manager.c:997
+#: src/backends/meta-monitor-manager.c:1018
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor-manager.c:1005
+#: src/backends/meta-monitor-manager.c:1026
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -579,7 +579,7 @@ msgstr "%s %s"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:482
+#: src/compositor/compositor.c:508
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -699,7 +699,7 @@ msgstr "Mutter fue compilado sin soporte para modo prolijo\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Cambiar modo: modo %d"
 
-#: src/x11/meta-x11-display.c:666
+#: src/x11/meta-x11-display.c:669
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -708,19 +708,24 @@ msgstr ""
 "La pantalla «%s» ya tiene un gestor de ventanas; pruebe a usar la opción «--"
 "replace» para reemplazar el gestor de ventanas activo."
 
-#: src/x11/meta-x11-display.c:1008
+#: src/x11/meta-x11-display.c:1011
 msgid "Failed to initialize GDK\n"
 msgstr "Falló al inicializar GDK\n"
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1035
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Ocurrió un error al abrir la pantalla de X Window System «%s»\n"
 
-#: src/x11/meta-x11-display.c:1113
+#: src/x11/meta-x11-display.c:1116
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "La ventana %d en la pantalla «%s» no es válida\n"
+
+#: src/x11/meta-x11-selection-input-stream.c:445
+#, c-format
+msgid "Format %s not supported"
+msgstr "Formato %s no soportado"
 
 #: src/x11/session.c:1821
 msgid ""
