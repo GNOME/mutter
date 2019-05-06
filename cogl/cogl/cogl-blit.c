@@ -158,7 +158,7 @@ _cogl_blit_framebuffer_begin (CoglBlitData *data)
      supported. */
   if ((_cogl_texture_get_format (data->src_tex) & COGL_PREMULT_BIT) !=
       (_cogl_texture_get_format (data->dst_tex) & COGL_PREMULT_BIT) ||
-      !_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT))
+      !_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER))
     return FALSE;
 
   dst_offscreen = _cogl_offscreen_new_with_texture_full
