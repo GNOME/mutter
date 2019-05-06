@@ -378,7 +378,11 @@ _cogl_push_framebuffers (CoglFramebuffer *draw_buffer,
  * This blits a region of the color buffer of the source buffer
  * to the destination buffer. This function should only be
  * called if the COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT feature is
- * advertised. The two buffers must both be offscreen.
+ * advertised.
+ *
+ * The source and destination rectangles are defined in offscreen
+ * framebuffer orientation. When copying between an offscreen and
+ * onscreen framebuffers, the image is y-flipped accordingly.
  *
  * The two buffers must have the same value types (e.g. floating-point,
  * unsigned int, signed int, or fixed-point), but color formats do not
@@ -392,14 +396,6 @@ _cogl_push_framebuffers (CoglFramebuffer *draw_buffer,
  * like a particularly useful feature. If the application wanted to
  * scale the results it may make more sense to draw a primitive
  * instead.
- *
- * We can only really support blitting between two offscreen buffers
- * for this function on GLES2.0. This is because we effectively render
- * upside down to offscreen buffers to maintain Cogl's representation
- * of the texture coordinate system where 0,0 is the top left of the
- * texture. If we were to blit from an offscreen to an onscreen buffer
- * then we would need to mirror the blit along the x-axis but the GLES
- * extension does not support this.
  *
  * The GL function is documented to be affected by the scissor. This
  * function therefore ensure that an empty clip stack is flushed
