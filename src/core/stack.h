@@ -51,6 +51,8 @@
  */
 struct _MetaStack
 {
+  GObject parent;
+
   /** The MetaDisplay containing this stack. */
   MetaDisplay *display;
 
@@ -121,6 +123,9 @@ struct _MetaStack
   unsigned int need_constrain : 1;
 };
 
+#define META_TYPE_STACK (meta_stack_get_type ())
+G_DECLARE_FINAL_TYPE (MetaStack, meta_stack, META, STACK, GObject)
+
 /**
  * meta_stack_new:
  * @display: The MetaDisplay which will be the parent of this stack.
@@ -130,14 +135,6 @@ struct _MetaStack
  * Returns: The new stack.
  */
 MetaStack *meta_stack_new       (MetaDisplay    *display);
-
-/**
- * meta_stack_free:
- * @stack: The stack to destroy.
- *
- * Destroys and frees a MetaStack.
- */
-void       meta_stack_free      (MetaStack      *stack);
 
 /**
  * meta_stack_add:
