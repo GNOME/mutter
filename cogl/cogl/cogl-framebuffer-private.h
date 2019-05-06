@@ -377,7 +377,7 @@ _cogl_push_framebuffers (CoglFramebuffer *draw_buffer,
  *
  * This blits a region of the color buffer of the source buffer
  * to the destination buffer. This function should only be
- * called if the COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT feature is
+ * called if the COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER feature is
  * advertised.
  *
  * The source and destination rectangles are defined in offscreen
