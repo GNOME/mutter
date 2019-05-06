@@ -1352,15 +1352,12 @@ _cogl_blit_framebuffer (CoglFramebuffer *src,
                         int height)
 {
   CoglContext *ctx = src->context;
+  int src_x1, src_y1, src_x2, src_y2;
+  int dst_x1, dst_y1, dst_x2, dst_y2;
 
   g_return_if_fail (_cogl_has_private_feature
                     (ctx, COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT));
 
-  /* We can only support blitting between offscreen buffers because
-     otherwise we would need to mirror the image and GLES2.0 doesn't
-     support this */
-  g_return_if_fail (cogl_is_offscreen (src));
-  g_return_if_fail (cogl_is_offscreen (dest));
   /* The buffers must use the same premult convention */
   g_return_if_fail ((src->internal_format & COGL_PREMULT_BIT) ==
                     (dest->internal_format & COGL_PREMULT_BIT));
@@ -1384,10 +1381,41 @@ _cogl_blit_framebuffer (CoglFramebuffer *src,
    * as changed */
   ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_CLIP;
 
-  ctx->glBlitFramebuffer (src_x, src_y,
-                          src_x + width, src_y + height,
-                          dst_x, dst_y,
-                          dst_x + width, dst_y + height,
+  /* Offscreens we do the normal way, onscreens need an y-flip. Even if
+   * we consider offscreens to be rendered upside-down, the offscreen
+   * orientation is in this function's API. */
+  if (cogl_is_offscreen (src))
+    {
+      src_x1 = src_x;
+      src_y1 = src_y;
+      src_x2 = src_x + width;
+      src_y2 = src_y + height;
+    }
+  else
+    {
+      src_x1 = src_x;
+      src_y1 = cogl_framebuffer_get_height (src) - src_y;
+      src_x2 = src_x + width;
+      src_y2 = src_y1 - height;
+    }
+
+  if (cogl_is_offscreen (dest))
+    {
+      dst_x1 = dst_x;
+      dst_y1 = dst_y;
+      dst_x2 = dst_x + width;
+      dst_y2 = dst_y + height;
+    }
+  else
+    {
+      dst_x1 = dst_x;
+      dst_y1 = cogl_framebuffer_get_height (dest) - dst_y;
+      dst_x2 = dst_x + width;
+      dst_y2 = dst_y1 - height;
+    }
+
+  ctx->glBlitFramebuffer (src_x1, src_y1, src_x2, src_y2,
+                          dst_x1, dst_y1, dst_x2, dst_y2,
                           GL_COLOR_BUFFER_BIT,
                           GL_NEAREST);
 }
