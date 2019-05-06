@@ -923,7 +923,7 @@ meta_display_close (MetaDisplay *display,
 
   g_clear_object (&display->gesture_tracker);
 
-  g_clear_pointer (&display->stack, meta_stack_free);
+  g_clear_object (&display->stack);
   g_clear_pointer (&display->stack_tracker,
                    meta_stack_tracker_free);
 
