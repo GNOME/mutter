@@ -4,6 +4,7 @@
  * A Low Level GPU Graphics and Utilities API
  *
  * Copyright (C) 2011 Intel Corporation.
+ * Copyright (C) 2019 DisplayLink (UK) Ltd.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -152,10 +153,11 @@ _cogl_blit_framebuffer_begin (CoglBlitData *data)
   CoglFramebuffer *dst_fb, *src_fb;
   GError *ignore_error = NULL;
 
-  /* We can only blit between FBOs if both textures are the same
-     format and the blit framebuffer extension is supported */
-  if ((_cogl_texture_get_format (data->src_tex) & ~COGL_A_BIT) !=
-      (_cogl_texture_get_format (data->dst_tex) & ~COGL_A_BIT) ||
+  /* We can only blit between FBOs if both textures have the same
+     premult convention and the blit framebuffer extension is
+     supported. */
+  if ((_cogl_texture_get_format (data->src_tex) & COGL_PREMULT_BIT) !=
+      (_cogl_texture_get_format (data->dst_tex) & COGL_PREMULT_BIT) ||
       !_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT))
     return FALSE;
 
