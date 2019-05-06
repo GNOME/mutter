@@ -110,13 +110,24 @@ static void
 meta_launch_context_constructed (GObject *object)
 {
   MetaLaunchContext *context = META_LAUNCH_CONTEXT (object);
+  const char *x11_display, *wayland_display;
 
   G_OBJECT_CLASS (meta_launch_context_parent_class)->constructed (object);
 
-  g_app_launch_context_setenv (G_APP_LAUNCH_CONTEXT (context),
-                               "DISPLAY", getenv ("DISPLAY"));
-  g_app_launch_context_setenv (G_APP_LAUNCH_CONTEXT (context),
-                               "WAYLAND_DISPLAY", getenv ("WAYLAND_DISPLAY"));
+  x11_display = getenv ("DISPLAY");
+  wayland_display = getenv ("WAYLAND_DISPLAY");
+
+  if (x11_display)
+    {
+      g_app_launch_context_setenv (G_APP_LAUNCH_CONTEXT (context),
+                                   "DISPLAY", x11_display);
+    }
+
+  if (wayland_display)
+    {
+      g_app_launch_context_setenv (G_APP_LAUNCH_CONTEXT (context),
+                                   "WAYLAND_DISPLAY", wayland_display);
+    }
 }
 
 static gchar *
