@@ -4,6 +4,7 @@
  * A Low Level GPU Graphics and Utilities API
  *
  * Copyright (C) 2007,2008,2009,2012 Intel Corporation.
+ * Copyright (C) 2019 DisplayLink (UK) Ltd.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -1363,8 +1364,9 @@ _cogl_blit_framebuffer (CoglFramebuffer *src,
      support this */
   _COGL_RETURN_IF_FAIL (cogl_is_offscreen (src));
   _COGL_RETURN_IF_FAIL (cogl_is_offscreen (dest));
-  /* The buffers must be the same format */
-  _COGL_RETURN_IF_FAIL (src->internal_format == dest->internal_format);
+  /* The buffers must use the same premult convention */
+  _COGL_RETURN_IF_FAIL ((src->internal_format & COGL_PREMULT_BIT) ==
+                        (dest->internal_format & COGL_PREMULT_BIT));
 
   /* Make sure the current framebuffers are bound. We explicitly avoid
      flushing the clip state so we can bind our own empty state */
