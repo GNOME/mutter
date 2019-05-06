@@ -63,40 +63,138 @@ static void stack_do_resort           (MetaStack *stack);
 
 static void stack_ensure_sorted (MetaStack *stack);
 
-MetaStack *
-meta_stack_new (MetaDisplay *display)
+enum
 {
-  MetaStack *stack;
+  PROP_DISPLAY = 1,
+  N_PROPS
+};
 
-  stack = g_new (MetaStack, 1);
+enum
+{
+  CHANGED,
+  WINDOW_ADDED,
+  WINDOW_REMOVED,
+  N_SIGNALS
+};
 
-  stack->display = display;
+static GParamSpec *pspecs[N_PROPS] = { 0 };
+static guint signals[N_SIGNALS] = { 0 };
+
+G_DEFINE_TYPE (MetaStack, meta_stack, G_TYPE_OBJECT)
+
+static void
+meta_stack_init (MetaStack *stack)
+{
   stack->xwindows = g_array_new (FALSE, FALSE, sizeof (Window));
-
-  stack->sorted = NULL;
-  stack->added = NULL;
-  stack->removed = NULL;
-
-  stack->freeze_count = 0;
-  stack->n_positions = 0;
-
-  stack->need_resort = FALSE;
-  stack->need_relayer = FALSE;
-  stack->need_constrain = FALSE;
-
-  return stack;
 }
 
-void
-meta_stack_free (MetaStack *stack)
+static void
+meta_stack_finalize (GObject *object)
 {
+  MetaStack *stack = META_STACK (object);
+
   g_array_free (stack->xwindows, TRUE);
 
   g_list_free (stack->sorted);
   g_list_free (stack->added);
   g_list_free (stack->removed);
 
-  g_free (stack);
+  G_OBJECT_CLASS (meta_stack_parent_class)->finalize (object);
+}
+
+static void
+meta_stack_set_property (GObject      *object,
+                         guint         prop_id,
+                         const GValue *value,
+                         GParamSpec   *pspec)
+{
+  MetaStack *stack = META_STACK (object);
+
+  switch (prop_id)
+    {
+    case PROP_DISPLAY:
+      stack->display = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
+meta_stack_get_property (GObject    *object,
+                         guint       prop_id,
+                         GValue     *value,
+                         GParamSpec *pspec)
+{
+  MetaStack *stack = META_STACK (object);
+
+  switch (prop_id)
+    {
+    case PROP_DISPLAY:
+      g_value_set_object (value, stack->display);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
+meta_stack_class_init (MetaStackClass *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->set_property = meta_stack_set_property;
+  object_class->get_property = meta_stack_get_property;
+  object_class->finalize = meta_stack_finalize;
+
+  signals[CHANGED] =
+    g_signal_new ("changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+  signals[WINDOW_ADDED] =
+    g_signal_new ("window-added",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1, META_TYPE_WINDOW);
+  signals[WINDOW_REMOVED] =
+    g_signal_new ("window-removed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1, META_TYPE_WINDOW);
+
+  pspecs[PROP_DISPLAY] =
+    g_param_spec_object ("display",
+                         "Display",
+                         "Display",
+                         META_TYPE_DISPLAY,
+                         G_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+
+  g_object_class_install_properties (object_class, N_PROPS, pspecs);
+}
+
+MetaStack *
+meta_stack_new (MetaDisplay *display)
+{
+  return g_object_new (META_TYPE_STACK,
+                       "display", display,
+                       NULL);
+}
+
+static void
+meta_stack_changed (MetaStack *stack)
+{
+  /* Bail out if frozen */
+  if (stack->freeze_count > 0)
+    return;
+
+  stack_ensure_sorted (stack);
+  g_signal_emit (stack, signals[CHANGED], 0);
 }
 
 void
@@ -113,6 +211,7 @@ meta_stack_add (MetaStack  *stack,
     meta_bug ("Window %s had stack position already\n", window->desc);
 
   stack->added = g_list_prepend (stack->added, window);
+  g_signal_emit (stack, signals[WINDOW_ADDED], 0, window);
 
   window->stack_position = stack->n_positions;
   stack->n_positions += 1;
@@ -121,6 +220,7 @@ meta_stack_add (MetaStack  *stack,
               window->desc, window->stack_position);
 
   stack_sync_to_xserver (stack);
+  meta_stack_changed (stack);
   meta_stack_update_window_tile_matches (stack, workspace_manager->active_workspace);
 }
 
@@ -144,6 +244,8 @@ meta_stack_remove (MetaStack  *stack,
   stack->added = g_list_remove (stack->added, window);
   stack->sorted = g_list_remove (stack->sorted, window);
 
+  g_signal_emit (stack, signals[WINDOW_REMOVED], 0, window);
+
   /* stack->removed is only used to update stack->xwindows */
   if (window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     {
@@ -159,6 +261,7 @@ meta_stack_remove (MetaStack  *stack,
     }
 
   stack_sync_to_xserver (stack);
+  meta_stack_changed (stack);
   meta_stack_update_window_tile_matches (stack, workspace_manager->active_workspace);
 }
 
@@ -170,6 +273,7 @@ meta_stack_update_layer (MetaStack  *stack,
   stack->need_relayer = TRUE;
 
   stack_sync_to_xserver (stack);
+  meta_stack_changed (stack);
   meta_stack_update_window_tile_matches (stack, workspace_manager->active_workspace);
 }
 
@@ -181,6 +285,7 @@ meta_stack_update_transient (MetaStack  *stack,
   stack->need_constrain = TRUE;
 
   stack_sync_to_xserver (stack);
+  meta_stack_changed (stack);
   meta_stack_update_window_tile_matches (stack, workspace_manager->active_workspace);
 }
 
@@ -211,6 +316,7 @@ meta_stack_raise (MetaStack  *stack,
   meta_window_set_stack_position_no_sync (window, max_stack_position);
 
   stack_sync_to_xserver (stack);
+  meta_stack_changed (stack);
   meta_stack_update_window_tile_matches (stack, workspace_manager->active_workspace);
 }
 
@@ -240,6 +346,7 @@ meta_stack_lower (MetaStack  *stack,
   meta_window_set_stack_position_no_sync (window, min_stack_position);
 
   stack_sync_to_xserver (stack);
+  meta_stack_changed (stack);
   meta_stack_update_window_tile_matches (stack, workspace_manager->active_workspace);
 }
 
@@ -256,6 +363,7 @@ meta_stack_thaw (MetaStack *stack)
 
   stack->freeze_count -= 1;
   stack_sync_to_xserver (stack);
+  meta_stack_changed (stack);
   meta_stack_update_window_tile_matches (stack, NULL);
 }
 
@@ -1416,6 +1524,7 @@ meta_stack_set_positions (MetaStack *stack,
               "Reset the stack positions of (nearly) all windows\n");
 
   stack_sync_to_xserver (stack);
+  meta_stack_changed (stack);
   meta_stack_update_window_tile_matches (stack, NULL);
 }
 
@@ -1481,6 +1590,7 @@ meta_window_set_stack_position (MetaWindow *window,
 
   meta_window_set_stack_position_no_sync (window, position);
   stack_sync_to_xserver (window->display->stack);
+  meta_stack_changed (window->display->stack);
   meta_stack_update_window_tile_matches (window->display->stack,
                                          workspace_manager->active_workspace);
 }
