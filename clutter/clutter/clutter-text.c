@@ -3,7 +3,9 @@
  *
  * An OpenGL based 'interactive canvas' library.
  *
+ * Copyright (C) 2000  Red Hat Software
  * Copyright (C) 2008  Intel Corporation.
+ * Copyright (C) 2008  Jürg Billeter <j@bitron.ch>
  *
  * Authored By: Øyvind Kolås <pippin@o-hand.com>
  *              Emmanuele Bassi <ebassi@linux.intel.com>
@@ -40,6 +42,7 @@
 
 #include "clutter-build-config.h"
 
+#include <fribidi.h>
 #include <string.h>
 #include <math.h>
 
@@ -700,6 +703,48 @@ clutter_text_ensure_effective_attributes (ClutterText *self)
     }
 }
 
+static PangoDirection
+unichar_direction (gunichar ch)
+{
+  FriBidiCharType fribidi_ch_type;
+
+  G_STATIC_ASSERT (sizeof (FriBidiChar) == sizeof (gunichar));
+
+  fribidi_ch_type = fribidi_get_bidi_type (ch);
+
+  if (!FRIBIDI_IS_STRONG (fribidi_ch_type))
+    return PANGO_DIRECTION_NEUTRAL;
+  else if (FRIBIDI_IS_RTL (fribidi_ch_type))
+    return PANGO_DIRECTION_RTL;
+  else
+    return PANGO_DIRECTION_LTR;
+}
+
+static PangoDirection
+find_base_dir (const char *text,
+               int         length)
+{
+  PangoDirection dir = PANGO_DIRECTION_NEUTRAL;
+  const char *p;
+
+  g_return_val_if_fail (text != NULL || length == 0, PANGO_DIRECTION_NEUTRAL);
+
+  p = text;
+  while ((length < 0 || p < text + length) && *p)
+    {
+      gunichar wc = g_utf8_get_char (p);
+
+      dir = unichar_direction (wc);
+
+      if (dir != PANGO_DIRECTION_NEUTRAL)
+	break;
+
+      p = g_utf8_next_char (p);
+    }
+
+  return dir;
+}
+
 static PangoLayout *
 clutter_text_create_layout_no_cache (ClutterText       *text,
 				     gint               width,
@@ -751,7 +796,7 @@ clutter_text_create_layout_no_cache (ClutterText       *text,
       if (priv->password_char != 0)
         pango_dir = PANGO_DIRECTION_NEUTRAL;
       else
-        pango_dir = pango_find_base_dir (contents, contents_len);
+        pango_dir = find_base_dir (contents, contents_len);
 
       if (pango_dir == PANGO_DIRECTION_NEUTRAL)
         {
