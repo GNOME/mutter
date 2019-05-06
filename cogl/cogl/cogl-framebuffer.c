@@ -1356,7 +1356,7 @@ _cogl_blit_framebuffer (CoglFramebuffer *src,
   int dst_x1, dst_y1, dst_x2, dst_y2;
 
   g_return_if_fail (_cogl_has_private_feature
-                    (ctx, COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT));
+                    (ctx, COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER));
 
   /* The buffers must use the same premult convention */
   g_return_if_fail ((src->internal_format & COGL_PREMULT_BIT) ==
