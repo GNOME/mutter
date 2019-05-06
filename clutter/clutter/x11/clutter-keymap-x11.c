@@ -3,6 +3,7 @@
  *
  * An OpenGL based 'interactive canvas' library.
  *
+ * Copyright (C) 2008  Jürg Billeter <j@bitron.ch>
  * Copyright (C) 2010  Intel Corp.
  *
  * This library is free software; you can redistribute it and/or
@@ -30,6 +31,7 @@
 #include "clutter-event-translator.h"
 #include "clutter-private.h"
 
+#include <fribidi.h>
 #include <X11/Xatom.h>
 #include <X11/XKBlib.h>
 
@@ -250,20 +252,15 @@ get_direction (XkbDescPtr xkb,
     {
       int level = 0;
       KeySym sym = XkbKeySymEntry (xkb, code, level, group);
-      PangoDirection dir = pango_unichar_direction (clutter_keysym_to_unicode (sym));
+      FriBidiCharType fribidi_ch_type;
 
-      switch (dir)
+      fribidi_ch_type = fribidi_get_bidi_type (clutter_keysym_to_unicode (sym));
+      if (FRIBIDI_IS_STRONG (fribidi_ch_type))
         {
-        case PANGO_DIRECTION_RTL:
-          rtl_minus_ltr++;
-          break;
-
-        case PANGO_DIRECTION_LTR:
-          rtl_minus_ltr--;
-          break;
-
-        default:
-          break;
+          if (FRIBIDI_IS_RTL (fribidi_ch_type))
+            rtl_minus_ltr++;
+          else
+            rtl_minus_ltr--;
         }
     }
 
