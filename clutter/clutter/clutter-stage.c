@@ -1588,8 +1588,8 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
 
 static ClutterStageView *
 get_view_at (ClutterStage *stage,
-             int           x,
-             int           y)
+             float         x,
+             float         y)
 {
   ClutterStagePrivate *priv = stage->priv;
   GList *l;
