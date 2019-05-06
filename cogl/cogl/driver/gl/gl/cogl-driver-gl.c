@@ -422,7 +422,7 @@ _cogl_driver_update_features (CoglContext *ctx,
 
   if (ctx->glBlitFramebuffer)
     COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT, TRUE);
+                    COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER, TRUE);
 
   if (ctx->glRenderbufferStorageMultisampleIMG)
     {
