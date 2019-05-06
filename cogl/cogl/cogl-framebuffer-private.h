@@ -378,8 +378,12 @@ _cogl_push_framebuffers (CoglFramebuffer *draw_buffer,
  * This blits a region of the color buffer of the source buffer
  * to the destination buffer. This function should only be
  * called if the COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT feature is
- * advertised. The two buffers must both be offscreen and have the
- * same format.
+ * advertised. The two buffers must both be offscreen.
+ *
+ * The two buffers must have the same value types (e.g. floating-point,
+ * unsigned int, signed int, or fixed-point), but color formats do not
+ * need to match. This limitation comes from OpenGL ES 3.0 definition
+ * of glBlitFramebuffer.
  *
  * Note that this function differs a lot from the glBlitFramebuffer
  * function provided by the GL_EXT_framebuffer_blit extension. Notably
