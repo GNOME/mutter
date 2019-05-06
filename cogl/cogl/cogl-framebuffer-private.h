@@ -384,8 +384,7 @@ _cogl_push_framebuffers (CoglFramebuffer *draw_buffer,
  * Note that this function differs a lot from the glBlitFramebuffer
  * function provided by the GL_EXT_framebuffer_blit extension. Notably
  * it doesn't support having different sizes for the source and
- * destination rectangle. This isn't supported by the corresponding
- * GL_ANGLE_framebuffer_blit extension on GLES2.0 and it doesn't seem
+ * destination rectangle. This doesn't seem
  * like a particularly useful feature. If the application wanted to
  * scale the results it may make more sense to draw a primitive
  * instead.
