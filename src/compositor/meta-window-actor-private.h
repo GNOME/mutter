@@ -28,6 +28,14 @@ struct _MetaWindowActorClass
   void (*queue_destroy) (MetaWindowActor *actor);
 };
 
+typedef enum
+{
+  META_WINDOW_ACTOR_CHANGE_SIZE = 1,
+  META_WINDOW_ACTOR_CHANGE_POSITION = 2
+} MetaWindowActorChange;
+
+typedef unsigned int MetaWindowActorChanges;
+
 void meta_window_actor_queue_destroy   (MetaWindowActor *self);
 
 void meta_window_actor_show (MetaWindowActor *self,
@@ -59,8 +67,10 @@ void     meta_window_actor_set_unredirected    (MetaWindowActor *self,
                                                 gboolean         unredirected);
 
 gboolean meta_window_actor_effect_in_progress  (MetaWindowActor *self);
-void     meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
-                                                gboolean         did_placement);
+
+MetaWindowActorChanges meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
+                                                              gboolean         did_placement);
+
 void     meta_window_actor_update_shape        (MetaWindowActor *self);
 void     meta_window_actor_update_opacity      (MetaWindowActor *self);
 void     meta_window_actor_mapped              (MetaWindowActor *self);
