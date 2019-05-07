@@ -108,6 +108,8 @@ meta_x11_display_dispose (GObject *object)
 
   meta_x11_selection_shutdown (x11_display);
 
+  g_clear_object (&x11_display->x11_stack);
+
   if (x11_display->ui)
     {
       meta_ui_free (x11_display->ui);
@@ -1270,6 +1272,7 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   set_desktop_geometry_hint (x11_display);
 
   x11_display->ui = meta_ui_new (x11_display);
+  x11_display->x11_stack = meta_x11_stack_new (x11_display);
 
   x11_display->keys_grabbed = FALSE;
   meta_x11_display_grab_keys (x11_display);
