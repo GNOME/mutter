@@ -134,6 +134,9 @@ void            _clutter_stage_presented                (ClutterStage      *stag
 
 GList *         _clutter_stage_peek_stage_views         (ClutterStage *stage);
 
+void            _clutter_stage_queue_actor_relayout     (ClutterStage *stage,
+                                                         ClutterActor *actor);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */
