@@ -120,6 +120,8 @@ struct _ClutterStagePrivate
 
   ClutterPlane current_clip_planes[4];
 
+  GHashTable *pending_relayouts;
+  unsigned int pending_relayouts_version;
   GList *pending_queue_redraws;
 
   gint sync_delay;
@@ -146,7 +148,6 @@ struct _ClutterStagePrivate
 
   int update_freeze_count;
 
-  guint relayout_pending       : 1;
   guint redraw_pending         : 1;
   guint is_cursor_visible      : 1;
   guint throttle_motion_events : 1;
@@ -1287,7 +1288,26 @@ _clutter_stage_needs_update (ClutterStage *stage)
 
   priv = stage->priv;
 
-  return priv->relayout_pending || priv->redraw_pending;
+  return priv->redraw_pending || g_hash_table_size (priv->pending_relayouts) > 0;
+}
+
+void
+clutter_stage_queue_actor_relayout (ClutterStage *stage,
+                                    ClutterActor *actor)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  if (g_hash_table_contains (priv->pending_relayouts, stage))
+    return;
+
+  if (g_hash_table_size (priv->pending_relayouts) == 0)
+    _clutter_stage_schedule_update (stage);
+
+  if (actor == (ClutterActor *) stage)
+    g_hash_table_remove_all (priv->pending_relayouts);
+
+  g_hash_table_add (priv->pending_relayouts, g_object_ref (actor));
+  priv->pending_relayouts_version++;
 }
 
 void
@@ -1295,41 +1315,58 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
 {
   ClutterStage *stage = CLUTTER_STAGE (actor);
   ClutterStagePrivate *priv = stage->priv;
-  gfloat natural_width, natural_height;
-  ClutterActorBox box = { 0, };
+  GHashTableIter iter;
+  gpointer key;
+  int count = 0;
 
-  if (!priv->relayout_pending)
+  /* No work to do? Avoid the extraneous debug log messages too. */
+  if (g_hash_table_size (priv->pending_relayouts) == 0)
     return;
 
-  /* avoid reentrancy */
-  if (!CLUTTER_ACTOR_IN_RELAYOUT (stage))
+  CLUTTER_NOTE (ACTOR, ">>> Recomputing layout");
+
+  g_hash_table_iter_init (&iter, priv->pending_relayouts);
+  while (g_hash_table_iter_next (&iter, &key, NULL))
     {
-      priv->relayout_pending = FALSE;
-      priv->stage_was_relayout = TRUE;
+      g_autoptr (ClutterActor) queued_actor = key;
+      unsigned int old_version;
 
-      CLUTTER_NOTE (ACTOR, "Recomputing layout");
+      g_hash_table_iter_steal (&iter);
+      priv->pending_relayouts_version++;
 
-      CLUTTER_SET_PRIVATE_FLAGS (stage, CLUTTER_IN_RELAYOUT);
+      if (CLUTTER_ACTOR_IN_RELAYOUT (queued_actor))  /* avoid reentrancy */
+        continue;
 
-      natural_width = natural_height = 0;
-      clutter_actor_get_preferred_size (CLUTTER_ACTOR (stage),
-                                        NULL, NULL,
-                                        &natural_width, &natural_height);
+      /* An actor may have been destroyed or hidden between queuing and now */
+      if (clutter_actor_get_stage (queued_actor) != actor)
+        continue;
 
-      box.x1 = 0;
-      box.y1 = 0;
-      box.x2 = natural_width;
-      box.y2 = natural_height;
+      if (queued_actor == actor)
+        CLUTTER_NOTE (ACTOR, "    Deep relayout of stage %s",
+                      _clutter_actor_get_debug_name (queued_actor));
+      else
+        CLUTTER_NOTE (ACTOR, "    Shallow relayout of actor %s",
+                      _clutter_actor_get_debug_name (queued_actor));
 
-      CLUTTER_NOTE (ACTOR, "Allocating (0, 0 - %d, %d) for the stage",
-                    (int) natural_width,
-                    (int) natural_height);
+      CLUTTER_SET_PRIVATE_FLAGS (queued_actor, CLUTTER_IN_RELAYOUT);
 
-      clutter_actor_allocate (CLUTTER_ACTOR (stage),
-                              &box, CLUTTER_ALLOCATION_NONE);
+      old_version = priv->pending_relayouts_version;
+      clutter_actor_allocate_preferred_size (queued_actor,
+                                             CLUTTER_ALLOCATION_NONE);
 
-      CLUTTER_UNSET_PRIVATE_FLAGS (stage, CLUTTER_IN_RELAYOUT);
+      CLUTTER_UNSET_PRIVATE_FLAGS (queued_actor, CLUTTER_IN_RELAYOUT);
+
+      count++;
+
+      /* Prevent using an iterator that's been invalidated */
+      if (old_version != priv->pending_relayouts_version)
+        g_hash_table_iter_init (&iter, priv->pending_relayouts);
     }
+
+  CLUTTER_NOTE (ACTOR, "<<< Completed recomputing layout of %d subtrees", count);
+
+  if (count)
+    priv->stage_was_relayout = TRUE;
 }
 
 static void
@@ -1511,14 +1548,9 @@ static void
 clutter_stage_real_queue_relayout (ClutterActor *self)
 {
   ClutterStage *stage = CLUTTER_STAGE (self);
-  ClutterStagePrivate *priv = stage->priv;
   ClutterActorClass *parent_class;
 
-  if (!priv->relayout_pending)
-    {
-      _clutter_stage_schedule_update (stage);
-      priv->relayout_pending = TRUE;
-    }
+  clutter_stage_queue_actor_relayout (stage, self);
 
   /* chain up */
   parent_class = CLUTTER_ACTOR_CLASS (clutter_stage_parent_class);
@@ -1912,6 +1944,8 @@ clutter_stage_dispose (GObject *object)
                     (GDestroyNotify) free_queue_redraw_entry);
   priv->pending_queue_redraws = NULL;
 
+  g_clear_pointer (&priv->pending_relayouts, g_hash_table_destroy);
+
   /* this will release the reference on the stage */
   stage_manager = clutter_stage_manager_get_default ();
   _clutter_stage_manager_remove_stage (stage_manager, stage);
@@ -2271,7 +2305,11 @@ clutter_stage_init (ClutterStage *self)
   clutter_actor_set_background_color (CLUTTER_ACTOR (self),
                                       &default_stage_color);
 
-  priv->relayout_pending = TRUE;
+  priv->pending_relayouts = g_hash_table_new_full (NULL,
+                                                   NULL,
+                                                   g_object_unref,
+                                                   NULL);
+  clutter_stage_queue_actor_relayout (self, CLUTTER_ACTOR (self));
 
   clutter_actor_set_reactive (CLUTTER_ACTOR (self), TRUE);
   clutter_stage_set_title (self, g_get_prgname ());
@@ -3346,10 +3384,9 @@ clutter_stage_ensure_redraw (ClutterStage *stage)
 
   priv = stage->priv;
 
-  if (!priv->relayout_pending && !priv->redraw_pending)
+  if (!_clutter_stage_needs_update (stage))
     _clutter_stage_schedule_update (stage);
 
-  priv->relayout_pending = TRUE;
   priv->redraw_pending = TRUE;
 
   master_clock = _clutter_master_clock_get_default ();
