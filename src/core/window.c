@@ -692,7 +692,7 @@ meta_window_class_init (MetaWindowClass *klass)
    * MetaWindow::size-changed:
    * @window: a #MetaWindow
    *
-   * This is emitted when the position of a window might
+   * This is emitted when the size of a window might
    * have changed. Specifically, this is emitted when the
    * size of the toplevel window has changed, or when the
    * size of the client window has changed.
