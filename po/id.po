@@ -6,12 +6,13 @@
 # Ahmad Riza H Nst  <rizahnst@eriagempita.co.id>, 2006.
 # Dirgita <dirgitadevina@yahoo.co.id>, 2011, 2012, 2014.
 # Andika Triwidada <andika@gmail.com>, 2011-2015.
+# Kukuh Syafaat <kukuhsyafaat@gnome.org>, 2017, 2018, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-02-04 17:52+0000\n"
-"PO-Revision-Date: 2019-02-06 21:17+0700\n"
+"POT-Creation-Date: 2019-05-06 16:50+0000\n"
+"PO-Revision-Date: 2019-05-07 14:13+0700\n"
 "Last-Translator: Kukuh Syafaat <kukuhsyafaat@gnome.org>\n"
 "Language-Team: Indonesian <gnome-l10n-id@googlegroups.com>\n"
 "Language: id\n"
@@ -526,7 +527,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2423
+#: src/backends/meta-input-settings.c:2426
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Tukar Mode: (Grup %d)"
@@ -534,34 +535,34 @@ msgstr "Tukar Mode: (Grup %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2446
+#: src/backends/meta-input-settings.c:2449
 msgid "Switch monitor"
 msgstr "Berpindah monitor"
 
-#: src/backends/meta-input-settings.c:2448
+#: src/backends/meta-input-settings.c:2451
 msgid "Show on-screen help"
 msgstr "Tampilkan bantuan pada layar"
 
-#: src/backends/meta-monitor-manager.c:954
+#: src/backends/meta-monitor-manager.c:976
 msgid "Built-in display"
 msgstr "Tampilan bawaan"
 
-#: src/backends/meta-monitor-manager.c:986
+#: src/backends/meta-monitor-manager.c:1008
 msgid "Unknown"
 msgstr "Tak Dikenal"
 
-#: src/backends/meta-monitor-manager.c:988
+#: src/backends/meta-monitor-manager.c:1010
 msgid "Unknown Display"
 msgstr "Tampilan Tak Dikenal"
 
-#: src/backends/meta-monitor-manager.c:996
+#: src/backends/meta-monitor-manager.c:1018
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor-manager.c:1004
+#: src/backends/meta-monitor-manager.c:1026
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -571,14 +572,14 @@ msgstr "%s %s"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:482
+#: src/compositor/compositor.c:508
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr ""
 "Manajer komposit lain telah berjalan pada layar %i pada tampilan \"%s\"."
 
-#: src/core/bell.c:252
+#: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Bel peristiwa"
 
@@ -627,27 +628,27 @@ msgid "Run with X11 backend"
 msgstr "Jalankan dengan backend X11"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:150
+#: src/core/meta-close-dialog-default.c:151
 #, c-format
 msgid "“%s” is not responding."
 msgstr "\"%s\" tak merespon."
 
-#: src/core/meta-close-dialog-default.c:152
+#: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
 msgstr "Aplikasi tak merespon."
 
-#: src/core/meta-close-dialog-default.c:157
+#: src/core/meta-close-dialog-default.c:158
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
 msgstr ""
 "Anda bisa memilih untuk menunggu sebentar atau memaksa aplikasi keluar."
 
-#: src/core/meta-close-dialog-default.c:164
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Force Quit"
 msgstr "_Matikan Paksa"
 
-#: src/core/meta-close-dialog-default.c:164
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Wait"
 msgstr "_Tunggu"
 
@@ -689,7 +690,7 @@ msgstr "Muter dikompilasi tanpa dukungan mode riuh\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Tukar Mode: Mode %d"
 
-#: src/x11/meta-x11-display.c:666
+#: src/x11/meta-x11-display.c:669
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -698,19 +699,24 @@ msgstr ""
 "Tampilan \"%s\" sudah memiliki manajer jendela; cobalah gunakan pilihan --"
 "replace untuk mengganti manajer jendela saat ini."
 
-#: src/x11/meta-x11-display.c:1008
+#: src/x11/meta-x11-display.c:1011
 msgid "Failed to initialize GDK\n"
 msgstr "Gagal menginisialisasi GDK\n"
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1035
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Gagal membuka tampilan X Window System \"%s\"\n"
 
-#: src/x11/meta-x11-display.c:1115
+#: src/x11/meta-x11-display.c:1116
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Layar %d pada tampilan \"%s\" tidak valid\n"
+
+#: src/x11/meta-x11-selection-input-stream.c:445
+#, c-format
+msgid "Format %s not supported"
+msgstr "Format %s tidak didukung"
 
 #: src/x11/session.c:1821
 msgid ""
@@ -720,7 +726,7 @@ msgstr ""
 "Jendela ini tidak mendukung \"menyimpan setelan aktif saat ini\" dan mesti "
 "dijalankan ulang secara manual kala berikut Anda log masuk."
 
-#: src/x11/window-props.c:568
+#: src/x11/window-props.c:569
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (pada %s)"
