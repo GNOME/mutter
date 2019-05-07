@@ -392,6 +392,8 @@ mutter_sources = [
   'x11/meta-x11-selection-input-stream-private.h',
   'x11/meta-x11-selection-output-stream.c',
   'x11/meta-x11-selection-output-stream-private.h',
+  'x11/meta-x11-stack.c',
+  'x11/meta-x11-stack-private.h',
   'x11/mutter-Xatomtype.h',
   'x11/session.c',
   'x11/session.h',
