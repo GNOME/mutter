@@ -1120,13 +1120,14 @@ meta_window_actor_queue_destroy (MetaWindowActor *self)
     clutter_actor_destroy (CLUTTER_ACTOR (self));
 }
 
-void
+MetaWindowActorChanges
 meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
                                        gboolean         did_placement)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
   MetaRectangle window_rect;
+  MetaWindowActorChanges changes = 0;
 
   meta_window_get_buffer_rect (priv->window, &window_rect);
 
@@ -1144,15 +1145,49 @@ meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
    * updates.
    */
   if (is_frozen (self) && !did_placement)
-    return;
+    return 0;
 
   if (meta_window_actor_effect_in_progress (self))
-    return;
+    return 0;
 
-  clutter_actor_set_position (CLUTTER_ACTOR (self),
-                              window_rect.x, window_rect.y);
-  clutter_actor_set_size (CLUTTER_ACTOR (self),
-                          window_rect.width, window_rect.height);
+  if (!clutter_actor_has_allocation (CLUTTER_ACTOR (self)))
+    {
+      /* Assume the worst case. Even if not true it's better than forcing a
+       * relayout just to get an allocation.
+       */
+      changes |= META_WINDOW_ACTOR_CHANGE_POSITION |
+                 META_WINDOW_ACTOR_CHANGE_SIZE;
+    }
+  else
+    {
+      ClutterActorBox box;
+      gfloat old_x, old_y, old_width, old_height;
+
+      clutter_actor_get_allocation_box (CLUTTER_ACTOR (self), &box);
+
+      old_x = box.x1;
+      old_y = box.y1;
+      old_width = box.x2 - box.x1;
+      old_height = box.y2 - box.y1;
+
+      if (old_x != window_rect.x || old_y != window_rect.y)
+        changes |= META_WINDOW_ACTOR_CHANGE_POSITION;
+
+      if (old_width != window_rect.width || old_height != window_rect.height)
+        changes |= META_WINDOW_ACTOR_CHANGE_SIZE;
+    }
+
+  if (changes & META_WINDOW_ACTOR_CHANGE_POSITION)
+    clutter_actor_set_position (CLUTTER_ACTOR (self),
+                                window_rect.x,
+                                window_rect.y);
+
+  if (changes & META_WINDOW_ACTOR_CHANGE_SIZE)
+    clutter_actor_set_size (CLUTTER_ACTOR (self),
+                            window_rect.width,
+                            window_rect.height);
+
+  return changes;
 }
 
 void
