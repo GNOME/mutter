@@ -56,34 +56,8 @@ struct _MetaStack
   /** The MetaDisplay containing this stack. */
   MetaDisplay *display;
 
-  /**
-   * A sequence of all the Windows (X handles, not MetaWindows) of the windows
-   * we manage, sorted in order.  Suitable to be passed into _NET_CLIENT_LIST.
-   */
-  GArray *xwindows;
-
   /** The MetaWindows of the windows we manage, sorted in order. */
   GList *sorted;
-
-  /**
-   * MetaWindows waiting to be added to the "sorted" and "windows" list, after
-   * being added by meta_stack_add() and before being assimilated by
-   * stack_ensure_sorted().
-   *
-   * The order of the elements in this list is not important; what is important
-   * is the stack_position element of each window.
-   */
-  GList *added;
-
-  /**
-   * Windows (X handles, not MetaWindows) waiting to be removed from the
-   * "windows" list, after being removed by meta_stack_remove() and before
-   * being assimilated by stack_ensure_sorted().  (We already removed them
-   * from the "sorted" list.)
-   *
-   * The order of the elements in this list is not important.
-   */
-  GList *removed;
 
   /**
    * If this is zero, the local stack oughtn't to be brought up to date with
