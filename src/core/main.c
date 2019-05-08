@@ -553,8 +553,6 @@ meta_init (void)
                 g_strerror (errno));
 #endif
 
-  g_unix_signal_add (SIGTERM, on_sigterm, NULL);
-
   if (g_getenv ("MUTTER_VERBOSE"))
     meta_set_verbose (TRUE);
   if (g_getenv ("MUTTER_DEBUG"))
@@ -574,6 +572,8 @@ meta_init (void)
   if (compositor_type == META_COMPOSITOR_TYPE_WAYLAND)
     meta_set_is_wayland_compositor (TRUE);
 #endif
+
+  g_unix_signal_add (SIGTERM, on_sigterm, NULL);
 
   if (g_get_home_dir ())
     if (chdir (g_get_home_dir ()) < 0)
