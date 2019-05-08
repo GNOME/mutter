@@ -480,8 +480,9 @@ on_monitors_changed (MetaMonitorManager *manager,
   priv->cached_current_logical_monitor = NULL;
 }
 
-static void
-meta_backend_x11_post_init (MetaBackend *backend)
+static gboolean
+meta_backend_x11_post_init (MetaBackend  *backend,
+                            GError      **error)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
@@ -529,11 +530,14 @@ meta_backend_x11_post_init (MetaBackend *backend)
     meta_fatal ("X server doesn't have the XKB extension, version %d.%d or newer\n",
                 XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION);
 
-  META_BACKEND_CLASS (meta_backend_x11_parent_class)->post_init (backend);
+  if (!META_BACKEND_CLASS (meta_backend_x11_parent_class)->post_init (backend, error))
+    return FALSE;
 
   monitor_manager = meta_backend_get_monitor_manager (backend);
   g_signal_connect (monitor_manager, "monitors-changed-internal",
                     G_CALLBACK (on_monitors_changed), backend);
+
+  return TRUE;
 }
 
 static ClutterBackend *

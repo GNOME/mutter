@@ -327,17 +327,20 @@ meta_backend_native_create_clutter_backend (MetaBackend *backend)
   return g_object_new (META_TYPE_CLUTTER_BACKEND_NATIVE, NULL);
 }
 
-static void
-meta_backend_native_post_init (MetaBackend *backend)
+static gboolean
+meta_backend_native_post_init (MetaBackend  *backend,
+                               GError      **error)
 {
   ClutterDeviceManager *manager = clutter_device_manager_get_default ();
 
-  META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
+  if (!META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend, error))
+    return FALSE;
 
   clutter_evdev_set_pointer_constrain_callback (manager, pointer_constrain_callback,
                                                 NULL, NULL);
   clutter_evdev_set_relative_motion_filter (manager, relative_motion_filter,
                                             meta_backend_get_monitor_manager (backend));
+  return TRUE;
 }
 
 static MetaMonitorManager *

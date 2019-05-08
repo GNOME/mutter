@@ -76,19 +76,22 @@ on_device_added (ClutterDeviceManager *device_manager,
     apply_keymap (x11);
 }
 
-static void
-meta_backend_x11_cm_post_init (MetaBackend *backend)
+static gboolean
+meta_backend_x11_cm_post_init (MetaBackend  *backend,
+                               GError      **error)
 {
   MetaBackendClass *parent_backend_class =
     META_BACKEND_CLASS (meta_backend_x11_cm_parent_class);
 
-  parent_backend_class->post_init (backend);
+  if (!parent_backend_class->post_init (backend, error))
+    return FALSE;
 
   g_signal_connect_object (clutter_device_manager_get_default (),
                            "device-added",
                            G_CALLBACK (on_device_added), backend, 0);
 
   take_touch_grab (backend);
+  return TRUE;
 }
 
 static MetaRenderer *
