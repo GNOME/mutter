@@ -591,6 +591,8 @@ meta_init (void)
 
   meta_clutter_init ();
 
+  meta_backend_post_init (meta_get_backend ());
+
 #ifdef HAVE_WAYLAND
   /* Bring up Wayland. This also launches Xwayland and sets DISPLAY as well... */
   if (meta_is_wayland_compositor ())

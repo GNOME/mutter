@@ -55,7 +55,8 @@ struct _MetaBackendClass
 
   ClutterBackend * (* create_clutter_backend) (MetaBackend *backend);
 
-  void (* post_init) (MetaBackend *backend);
+  gboolean (* post_init) (MetaBackend  *backend,
+                          GError      **error);
 
   MetaMonitorManager * (* create_monitor_manager) (MetaBackend *backend,
                                                    GError     **error);
@@ -106,6 +107,8 @@ struct _MetaBackendClass
 };
 
 void meta_init_backend (GType backend_gtype);
+
+void meta_backend_post_init (MetaBackend *backend);
 
 ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
 

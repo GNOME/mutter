@@ -469,8 +469,9 @@ meta_backend_create_input_settings (MetaBackend *backend)
   return META_BACKEND_GET_CLASS (backend)->create_input_settings (backend);
 }
 
-static void
-meta_backend_real_post_init (MetaBackend *backend)
+static gboolean
+meta_backend_real_post_init (MetaBackend  *backend,
+                             GError      **error)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterDeviceManager *device_manager = clutter_device_manager_get_default ();
@@ -514,6 +515,8 @@ meta_backend_real_post_init (MetaBackend *backend)
       reset_pointer_position (backend);
       priv->is_pointer_position_initialized = TRUE;
     }
+
+  return TRUE;
 }
 
 static MetaCursorRenderer *
@@ -815,11 +818,11 @@ meta_backend_initable_init (GInitable     *initable,
   MetaBackend *backend = META_BACKEND (initable);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
-  priv->settings = meta_settings_new (backend);
-
 #ifdef HAVE_EGL
   priv->egl = g_object_new (META_TYPE_EGL, NULL);
 #endif
+
+  priv->settings = meta_settings_new (backend);
 
   priv->orientation_manager = g_object_new (META_TYPE_ORIENTATION_MANAGER, NULL);
 
@@ -856,12 +859,17 @@ meta_backend_init (MetaBackend *backend)
   _backend = backend;
 }
 
-static void
+void
 meta_backend_post_init (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  GError *error = NULL;
 
-  META_BACKEND_GET_CLASS (backend)->post_init (backend);
+  if (!META_BACKEND_GET_CLASS (backend)->post_init (backend, &error))
+    {
+      g_warning ("Failed to initialize backend: %s", error->message);
+      meta_exit (META_EXIT_ERROR);
+    }
 
   meta_settings_post_init (priv->settings);
 }
@@ -1309,8 +1317,6 @@ meta_clutter_init (void)
   source = g_source_new (&event_funcs, sizeof (GSource));
   g_source_attach (source, NULL);
   g_source_unref (source);
-
-  meta_backend_post_init (_backend);
 }
 
 /**
