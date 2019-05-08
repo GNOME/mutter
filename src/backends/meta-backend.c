@@ -153,8 +153,9 @@ struct _MetaBackendPrivate
 };
 typedef struct _MetaBackendPrivate MetaBackendPrivate;
 
-static void
-initable_iface_init (GInitableIface *initable_iface);
+static void initable_iface_init (GInitableIface *initable_iface);
+static void meta_backend_maybe_watch_upower (MetaBackend *backend);
+static void meta_backend_connect_to_system_bus (MetaBackend *backend);
 
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaBackend, meta_backend, G_TYPE_OBJECT,
                                   G_ADD_PRIVATE (MetaBackend)
@@ -469,12 +470,35 @@ meta_backend_create_input_settings (MetaBackend *backend)
   return META_BACKEND_GET_CLASS (backend)->create_input_settings (backend);
 }
 
+static MetaMonitorManager *
+meta_backend_create_monitor_manager (MetaBackend *backend,
+                                     GError     **error)
+{
+  if (g_getenv ("META_DUMMY_MONITORS"))
+    return g_object_new (META_TYPE_MONITOR_MANAGER_DUMMY, NULL);
+
+  return META_BACKEND_GET_CLASS (backend)->create_monitor_manager (backend,
+                                                                   error);
+}
+
 static gboolean
 meta_backend_real_post_init (MetaBackend  *backend,
                              GError      **error)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterDeviceManager *device_manager = clutter_device_manager_get_default ();
+
+  meta_backend_maybe_watch_upower (backend);
+
+  priv->settings = meta_settings_new (backend);
+
+  priv->orientation_manager = g_object_new (META_TYPE_ORIENTATION_MANAGER, NULL);
+
+  priv->monitor_manager = meta_backend_create_monitor_manager (backend, error);
+  if (!priv->monitor_manager)
+    return FALSE;
+
+  meta_backend_connect_to_system_bus (backend);
 
   priv->stage = meta_stage_new (backend);
   clutter_actor_realize (priv->stage);
@@ -679,23 +703,21 @@ upower_vanished (GDBusConnection *connection,
 }
 
 static void
-meta_backend_constructed (GObject *object)
+meta_backend_maybe_watch_upower (MetaBackend *backend)
 {
-  MetaBackend *backend = META_BACKEND (object);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  MetaBackendClass *backend_class =
-   META_BACKEND_GET_CLASS (backend);
+  MetaBackendClass *backend_class = META_BACKEND_GET_CLASS (backend);
 
-  if (backend_class->is_lid_closed != meta_backend_real_is_lid_closed)
-    return;
-
-  priv->upower_watch_id = g_bus_watch_name (G_BUS_TYPE_SYSTEM,
-                                            "org.freedesktop.UPower",
-                                            G_BUS_NAME_WATCHER_FLAGS_NONE,
-                                            upower_appeared,
-                                            upower_vanished,
-                                            backend,
-                                            NULL);
+  if (backend_class->is_lid_closed == meta_backend_real_is_lid_closed)
+    {
+      priv->upower_watch_id = g_bus_watch_name (G_BUS_TYPE_SYSTEM,
+                                                "org.freedesktop.UPower",
+                                                G_BUS_NAME_WATCHER_FLAGS_NONE,
+                                                upower_appeared,
+                                                upower_vanished,
+                                                backend,
+                                                NULL);
+    }
 }
 
 static void
@@ -705,7 +727,6 @@ meta_backend_class_init (MetaBackendClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_backend_finalize;
-  object_class->constructed = meta_backend_constructed;
 
   klass->post_init = meta_backend_real_post_init;
   klass->create_cursor_renderer = meta_backend_real_create_cursor_renderer;
@@ -746,17 +767,6 @@ meta_backend_class_init (MetaBackendClass *klass)
 
   mutter_stage_views = g_getenv ("MUTTER_STAGE_VIEWS");
   stage_views_disabled = g_strcmp0 (mutter_stage_views, "0") == 0;
-}
-
-static MetaMonitorManager *
-meta_backend_create_monitor_manager (MetaBackend *backend,
-                                     GError     **error)
-{
-  if (g_getenv ("META_DUMMY_MONITORS"))
-    return g_object_new (META_TYPE_MONITOR_MANAGER_DUMMY, NULL);
-
-  return META_BACKEND_GET_CLASS (backend)->create_monitor_manager (backend,
-                                                                   error);
 }
 
 static MetaRenderer *
@@ -810,6 +820,17 @@ system_bus_gotten_cb (GObject      *object,
                                         NULL);
 }
 
+static void
+meta_backend_connect_to_system_bus (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  g_bus_get (G_BUS_TYPE_SYSTEM,
+             priv->cancellable,
+             system_bus_gotten_cb,
+             backend);
+}
+
 static gboolean
 meta_backend_initable_init (GInitable     *initable,
                             GCancellable  *cancellable,
@@ -822,14 +843,6 @@ meta_backend_initable_init (GInitable     *initable,
   priv->egl = g_object_new (META_TYPE_EGL, NULL);
 #endif
 
-  priv->settings = meta_settings_new (backend);
-
-  priv->orientation_manager = g_object_new (META_TYPE_ORIENTATION_MANAGER, NULL);
-
-  priv->monitor_manager = meta_backend_create_monitor_manager (backend, error);
-  if (!priv->monitor_manager)
-    return FALSE;
-
   priv->renderer = meta_backend_create_renderer (backend, error);
   if (!priv->renderer)
     return FALSE;
@@ -837,12 +850,7 @@ meta_backend_initable_init (GInitable     *initable,
   priv->cursor_tracker = g_object_new (META_TYPE_CURSOR_TRACKER, NULL);
 
   priv->dnd = g_object_new (META_TYPE_DND, NULL);
-
   priv->cancellable = g_cancellable_new ();
-  g_bus_get (G_BUS_TYPE_SYSTEM,
-             priv->cancellable,
-             system_bus_gotten_cb,
-             backend);
 
   return TRUE;
 }
