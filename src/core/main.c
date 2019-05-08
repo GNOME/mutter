@@ -544,8 +544,6 @@ meta_init (void)
                 g_strerror (errno));
 #endif
 
-  g_unix_signal_add (SIGTERM, on_sigterm, NULL);
-
   if (g_getenv ("MUTTER_VERBOSE"))
     meta_set_verbose (TRUE);
   if (g_getenv ("MUTTER_DEBUG"))
@@ -592,6 +590,8 @@ meta_init (void)
   meta_clutter_init ();
 
   meta_backend_post_init (meta_get_backend ());
+
+  g_unix_signal_add (SIGTERM, on_sigterm, NULL);
 
 #ifdef HAVE_WAYLAND
   /* Bring up Wayland. This also launches Xwayland and sets DISPLAY as well... */
