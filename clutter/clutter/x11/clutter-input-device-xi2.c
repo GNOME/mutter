@@ -290,7 +290,7 @@ ClutterInputDeviceTool *
 clutter_input_device_xi2_get_current_tool (ClutterInputDevice *device)
 {
   ClutterInputDeviceXI2 *device_xi2 = CLUTTER_INPUT_DEVICE_XI2 (device);
-  return device_xi2->current_tool;
+  return device_xi2 ? device_xi2->current_tool : NULL;
 }
 
 #ifdef HAVE_LIBWACOM
