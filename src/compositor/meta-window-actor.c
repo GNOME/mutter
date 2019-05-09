@@ -870,10 +870,12 @@ meta_window_actor_get_surface (MetaWindowActor *self)
 gboolean
 meta_window_actor_is_destroyed (MetaWindowActor *self)
 {
+  if (! self)
+    return TRUE;
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
-  return priv->disposed || priv->needs_destroy;
+  return !priv || priv->disposed || priv->needs_destroy;
 }
 
 void
