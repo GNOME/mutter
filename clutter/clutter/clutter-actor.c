@@ -1772,6 +1772,15 @@ clutter_actor_unmap (ClutterActor *self)
 }
 
 static void
+clutter_actor_queue_shallow_relayout (ClutterActor *self)
+{
+  ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+
+  if (stage != NULL)
+    clutter_stage_queue_actor_relayout (CLUTTER_STAGE (stage), self);
+}
+
+static void
 clutter_actor_real_show (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
@@ -1803,6 +1812,11 @@ clutter_actor_real_show (ClutterActor *self)
       priv->needs_allocation     = FALSE;
 
       clutter_actor_queue_relayout (self);
+    }
+  else  /* but still don't leave the actor un-allocated before showing it */
+    {
+      clutter_actor_queue_shallow_relayout (self);
+      clutter_actor_queue_redraw (self);
     }
 }
 
@@ -2879,9 +2893,23 @@ clutter_actor_real_queue_relayout (ClutterActor *self)
   memset (priv->height_requests, 0,
           N_CACHED_SIZE_REQUESTS * sizeof (SizeRequest));
 
-  /* We need to go all the way up the hierarchy */
+  /* We may need to go all the way up the hierarchy */
   if (priv->parent != NULL)
-    _clutter_actor_queue_only_relayout (priv->parent);
+    {
+      if (priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)
+        {
+          clutter_actor_queue_shallow_relayout (self);
+
+          /* The above might have invalidated the parent's paint volume if self
+           * has moved or resized. DnD seems to require this...
+           */
+          priv->parent->priv->needs_paint_volume_update = TRUE;
+        }
+      else
+        {
+          _clutter_actor_queue_only_relayout (priv->parent);
+        }
+    }
 }
 
 /**
