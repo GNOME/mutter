@@ -169,6 +169,13 @@ meta_window_actor_real_set_surface_actor (MetaWindowActor  *actor,
 }
 
 static void
+meta_window_actor_queue_relayout (ClutterActor *actor)
+{
+  meta_cullable_invalidate (META_CULLABLE (actor));
+  CLUTTER_ACTOR_CLASS (meta_window_actor_parent_class)->queue_relayout (actor);
+}
+
+static void
 meta_window_actor_class_init (MetaWindowActorClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -182,6 +189,7 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
 
   actor_class->paint = meta_window_actor_paint;
   actor_class->get_paint_volume = meta_window_actor_get_paint_volume;
+  actor_class->queue_relayout = meta_window_actor_queue_relayout;
 
   klass->set_surface_actor = meta_window_actor_real_set_surface_actor;
 
@@ -1687,6 +1695,7 @@ meta_window_actor_update_opaque_region (MetaWindowActor *self)
 
   meta_surface_actor_set_opaque_region (priv->surface, opaque_region);
   cairo_region_destroy (opaque_region);
+  meta_cullable_invalidate (META_CULLABLE (self));
 }
 
 static void

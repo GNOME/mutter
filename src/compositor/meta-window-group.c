@@ -23,6 +23,7 @@ struct _MetaWindowGroup
   ClutterActor parent;
 
   MetaDisplay *display;
+  guint need_culling : 1;
 };
 
 static void cullable_iface_init (MetaCullableInterface *iface);
@@ -41,7 +42,10 @@ meta_window_group_cull_out (MetaCullable   *cullable,
 static void
 meta_window_group_reset_culling (MetaCullable *cullable)
 {
+  MetaWindowGroup *window_group = META_WINDOW_GROUP (cullable);
+
   meta_cullable_reset_culling_children (cullable);
+  window_group->need_culling = TRUE;
 }
 
 static void
@@ -100,33 +104,35 @@ meta_window_group_paint (ClutterActor *actor)
       paint_y_origin = 0;
     }
 
-  visible_rect.x = visible_rect.y = 0;
-  visible_rect.width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
-  visible_rect.height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
+  if (window_group->need_culling)
+    {
+      visible_rect.x = visible_rect.y = 0;
+      visible_rect.width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
+      visible_rect.height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
 
-  unobscured_region = cairo_region_create_rectangle (&visible_rect);
+      unobscured_region = cairo_region_create_rectangle (&visible_rect);
 
-  /* Get the clipped redraw bounds from Clutter so that we can avoid
-   * painting shadows on windows that don't need to be painted in this
-   * frame. In the case of a multihead setup with mismatched monitor
-   * sizes, we could intersect this with an accurate union of the
-   * monitors to avoid painting shadows that are visible only in the
-   * holes. */
-  clutter_stage_get_redraw_clip_bounds (CLUTTER_STAGE (stage),
-                                        &clip_rect);
+      /* Get the clipped redraw bounds from Clutter so that we can avoid
+       * painting shadows on windows that don't need to be painted in this
+       * frame. In the case of a multihead setup with mismatched monitor
+       * sizes, we could intersect this with an accurate union of the
+       * monitors to avoid painting shadows that are visible only in the
+       * holes. */
+      clutter_stage_get_redraw_clip_bounds (CLUTTER_STAGE (stage),
+                                            &clip_rect);
 
-  clip_region = cairo_region_create_rectangle (&clip_rect);
+      clip_region = cairo_region_create_rectangle (&clip_rect);
 
-  cairo_region_translate (clip_region, -paint_x_origin, -paint_y_origin);
+      cairo_region_translate (clip_region, -paint_x_origin, -paint_y_origin);
 
-  meta_cullable_cull_out (META_CULLABLE (window_group), unobscured_region, clip_region);
+      meta_cullable_cull_out (META_CULLABLE (window_group), unobscured_region, clip_region);
 
-  cairo_region_destroy (unobscured_region);
-  cairo_region_destroy (clip_region);
+      cairo_region_destroy (unobscured_region);
+      cairo_region_destroy (clip_region);
+      window_group->need_culling = FALSE;
+    }
 
   CLUTTER_ACTOR_CLASS (meta_window_group_parent_class)->paint (actor);
-
-  meta_cullable_reset_culling (META_CULLABLE (window_group));
 }
 
 /* Adapted from clutter_actor_update_default_paint_volume() */
@@ -186,6 +192,15 @@ meta_window_group_get_preferred_height (ClutterActor *actor,
 }
 
 static void
+meta_window_group_queue_relayout (ClutterActor *actor)
+{
+  MetaWindowGroup *window_group = META_WINDOW_GROUP (actor);
+
+  meta_cullable_reset_culling (META_CULLABLE (window_group));
+  CLUTTER_ACTOR_CLASS (meta_window_group_parent_class)->queue_relayout (actor);
+}
+
+static void
 meta_window_group_class_init (MetaWindowGroupClass *klass)
 {
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
@@ -194,11 +209,13 @@ meta_window_group_class_init (MetaWindowGroupClass *klass)
   actor_class->get_paint_volume = meta_window_group_get_paint_volume;
   actor_class->get_preferred_width = meta_window_group_get_preferred_width;
   actor_class->get_preferred_height = meta_window_group_get_preferred_height;
+  actor_class->queue_relayout = meta_window_group_queue_relayout;
 }
 
 static void
 meta_window_group_init (MetaWindowGroup *window_group)
 {
+  window_group->need_culling = TRUE;
 }
 
 ClutterActor *

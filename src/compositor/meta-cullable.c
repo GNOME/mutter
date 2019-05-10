@@ -200,3 +200,25 @@ meta_cullable_reset_culling (MetaCullable *cullable)
 {
   META_CULLABLE_GET_IFACE (cullable)->reset_culling (cullable);
 }
+
+/**
+ * meta_cullable_invalidate:
+ * @cullable: The #MetaCullable
+ *
+ * Invalidates the culling information.
+ **/
+void
+meta_cullable_invalidate (MetaCullable *cullable)
+{
+  ClutterActor *actor = CLUTTER_ACTOR (cullable);
+  MetaCullable *topmost_cullable = NULL;
+
+  while (actor && META_IS_CULLABLE (actor))
+    {
+      topmost_cullable = META_CULLABLE (actor);
+      actor = clutter_actor_get_parent (actor);
+    }
+
+  if (topmost_cullable)
+    meta_cullable_reset_culling (topmost_cullable);
+}
