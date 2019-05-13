@@ -95,6 +95,12 @@ G_DEFINE_TYPE (MetaWaylandDataSourceWayland, meta_wayland_data_source_wayland,
 G_DEFINE_TYPE (MetaWaylandDataSourcePrimary, meta_wayland_data_source_primary,
                META_TYPE_WAYLAND_DATA_SOURCE_WAYLAND);
 
+static void set_selection_source   (MetaWaylandDataDevice *data_device,
+                                    MetaSelectionType      selection_type,
+                                    MetaSelectionSource   *selection_source);
+static void unset_selection_source (MetaWaylandDataDevice *data_device,
+                                    MetaSelectionType      selection_type);
+
 static MetaWaylandDataSource *
 meta_wayland_data_source_wayland_new (struct wl_resource *resource);
 static MetaWaylandDataSource *
@@ -567,12 +573,14 @@ destroy_data_offer (struct wl_resource *resource)
 
       if (offer == meta_wayland_data_source_get_current_offer (offer->source))
         {
-          if (seat && seat->data_device.dnd_data_source == offer->source &&
+          if (seat->data_device.dnd_data_source == offer->source &&
               wl_resource_get_version (offer->resource) <
               WL_DATA_OFFER_ACTION_SINCE_VERSION)
             meta_wayland_data_source_notify_finish (offer->source);
           else
             {
+              if (seat->data_device.dnd_data_source == offer->source)
+                unset_selection_source (&seat->data_device, META_SELECTION_DND);
               meta_wayland_data_source_cancel (offer->source);
               meta_wayland_data_source_set_current_offer (offer->source, NULL);
             }
@@ -1038,7 +1046,6 @@ drag_grab_button (MetaWaylandPointerGrab *grab,
         {
           /* Detach the data source from the grab, it's meant to live longer */
           meta_wayland_drag_grab_set_source (drag_grab, NULL);
-          meta_wayland_data_source_set_seat (source, NULL);
 
           meta_wayland_surface_drag_dest_drop (drag_grab->drag_focus);
           meta_wayland_data_source_notify_drop_performed (source);
