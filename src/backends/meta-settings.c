@@ -404,7 +404,7 @@ meta_settings_get_xwayland_grab_patterns (MetaSettings  *settings,
 }
 
 gboolean
- meta_settings_are_xwayland_grabs_allowed (MetaSettings *settings)
+meta_settings_are_xwayland_grabs_allowed (MetaSettings *settings)
 {
   return (settings->xwayland_allow_grabs);
 }
