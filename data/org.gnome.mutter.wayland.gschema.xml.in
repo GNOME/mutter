@@ -59,19 +59,6 @@
   <schema id="org.gnome.mutter.wayland" path="/org/gnome/mutter/wayland/"
           gettext-domain="@GETTEXT_DOMAIN@">
 
-    <key name="xwayland-allow-grabs" type="b">
-      <default>false</default>
-      <summary>Allow grabs with Xwayland</summary>
-      <description>
-        Allow keyboard grabs issued by X11 applications running in Xwayland
-        to be taken into account.
-
-        For a X11 grab to be taken into account under Wayland, the client must
-        also either send a specific X11 ClientMessage to the root window or be
-        among the applications white-listed in key “xwayland-grab-access-rules”.
-      </description>
-    </key>
-
     <key name="xwayland-grab-lock-focus" type="b">
       <default>false</default>
       <summary>Allow X11 grabs to lock keyboard focus with Xwayland</summary>
@@ -86,8 +73,8 @@
         This option is seldom used and has no effect on regular X11 windows
         which can receive keyboard focus under normal circumstances.
 
-        This option has no effect if “xwayland-allow-grabs” is not enabled
-        or if the X11 client is not allowed to issue grabs.
+        This option has no effect on X11 clients which are not allowed to
+        issue grabs.
       </description>
     </key>
 

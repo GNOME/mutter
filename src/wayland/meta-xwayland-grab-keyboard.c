@@ -193,8 +193,6 @@ meta_xwayland_grab_is_granted (MetaWindow *window)
 
   backend = meta_get_backend ();
   settings = meta_backend_get_settings (backend);
-  if (!meta_settings_are_xwayland_grabs_allowed (settings))
-    return FALSE;
 
   /* Check whether the window is blacklisted */
   meta_settings_get_xwayland_grab_patterns (settings, &whitelist, &blacklist);

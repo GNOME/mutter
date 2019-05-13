@@ -65,7 +65,6 @@ struct _MetaSettings
   MetaExperimentalFeature experimental_features;
   gboolean experimental_features_overridden;
 
-  gboolean xwayland_allow_grabs;
   gboolean xwayland_grab_lock_focus;
   GPtrArray *xwayland_grab_whitelist_patterns;
   GPtrArray *xwayland_grab_blacklist_patterns;
@@ -372,14 +371,6 @@ update_xwayland_grab_access_rules (MetaSettings *settings)
 }
 
 static void
-update_xwayland_allow_grabs (MetaSettings *settings)
-{
-  settings->xwayland_allow_grabs =
-    g_settings_get_boolean (settings->wayland_settings,
-                            "xwayland-allow-grabs");
-}
-
-static void
 update_xwayland_grab_lock_focus (MetaSettings *settings)
 {
   settings->xwayland_grab_lock_focus =
@@ -393,11 +384,7 @@ wayland_settings_changed (GSettings    *wayland_settings,
                           MetaSettings *settings)
 {
 
-  if (g_str_equal (key, "xwayland-allow-grabs"))
-    {
-      update_xwayland_allow_grabs (settings);
-    }
-  else if (g_str_equal (key, "xwayland-grab-lock-focus"))
+  if (g_str_equal (key, "xwayland-grab-lock-focus"))
     {
       update_xwayland_grab_lock_focus (settings);
     }
@@ -414,12 +401,6 @@ meta_settings_get_xwayland_grab_patterns (MetaSettings  *settings,
 {
   *whitelist_patterns = settings->xwayland_grab_whitelist_patterns;
   *blacklist_patterns = settings->xwayland_grab_blacklist_patterns;
-}
-
-gboolean
-meta_settings_are_xwayland_grabs_allowed (MetaSettings *settings)
-{
-  return (settings->xwayland_allow_grabs);
 }
 
 gboolean
@@ -480,7 +461,6 @@ meta_settings_init (MetaSettings *settings)
   update_global_scaling_factor (settings);
   update_experimental_features (settings);
   update_xwayland_grab_access_rules (settings);
-  update_xwayland_allow_grabs (settings);
   update_xwayland_grab_lock_focus (settings);
 }
 
