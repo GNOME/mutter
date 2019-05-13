@@ -249,7 +249,7 @@ source_new_cb (GObject      *object,
   MetaSelection *selection = data->selection;
   MetaSelectionType selection_type = data->selection_type;
   MetaX11Display *x11_display = data->x11_display;
-  GError *error = NULL;
+  g_autoptr (GError) error = NULL;
 
   source = meta_selection_source_x11_new_finish (res, &error);
   if (source)
@@ -257,7 +257,7 @@ source_new_cb (GObject      *object,
       meta_selection_set_owner (selection, selection_type, source);
       g_set_object (&x11_display->selection.owners[selection_type], source);
     }
-  else
+  else if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
     {
       g_warning ("Could not create selection source for X11: %s",
                  error->message);
