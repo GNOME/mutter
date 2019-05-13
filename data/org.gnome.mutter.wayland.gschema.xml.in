@@ -72,6 +72,25 @@
       </description>
     </key>
 
+    <key name="xwayland-grab-lock-focus" type="b">
+      <default>false</default>
+      <summary>Allow X11 grabs to lock keyboard focus with Xwayland</summary>
+      <description>
+        Allow all keyboard events to be routed to X11 “override redirect”
+        windows with a grab when running in Xwayland.
+
+        This option is to support X11 clients which map an “override redirect”
+        window (which do not receive keyboard focus) and issue a keyboard
+        grab to force all keyboard events to that window.
+
+        This option is seldom used and has no effect on regular X11 windows
+        which can receive keyboard focus under normal circumstances.
+
+        This option has no effect if “xwayland-allow-grabs” is not enabled
+        or if the X11 client is not allowed to issue grabs.
+      </description>
+    </key>
+
     <key name="xwayland-grab-access-rules" type="as">
       <default>[]</default>
       <summary>Xwayland applications allowed to issue keyboard grabs</summary>
