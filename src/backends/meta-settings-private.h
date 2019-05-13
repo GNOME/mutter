@@ -68,4 +68,6 @@ void meta_settings_get_xwayland_grab_patterns (MetaSettings  *settings,
 
 gboolean meta_settings_are_xwayland_grabs_allowed (MetaSettings *settings);
 
+gboolean meta_settings_should_xwayland_grab_lock_focus (MetaSettings *settings);
+
 #endif /* META_SETTINGS_PRIVATE_H */
