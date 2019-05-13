@@ -214,6 +214,22 @@ meta_xwayland_grab_is_granted (MetaWindow *window)
   return FALSE;
 }
 
+static gboolean
+meta_xwayland_grab_should_lock_focus (MetaWindow *window)
+{
+  MetaBackend *backend;
+  MetaSettings *settings;
+
+  /* Lock focus applies to O-R windows which never receive keyboard focus otherwise */
+  if (!window->override_redirect)
+    return FALSE;
+
+  backend = meta_get_backend ();
+  settings = meta_backend_get_settings (backend);
+
+  return meta_settings_should_xwayland_grab_lock_focus (settings);
+}
+
 static void
 meta_xwayland_keyboard_grab_activate (MetaXwaylandKeyboardActiveGrab *active_grab)
 {
@@ -225,8 +241,8 @@ meta_xwayland_keyboard_grab_activate (MetaXwaylandKeyboardActiveGrab *active_gra
     {
       meta_verbose ("XWayland window %s has a grab granted", window->desc);
       meta_wayland_surface_inhibit_shortcuts (surface, seat);
-      /* Use a grab for O-R windows which never receive keyboard focus otherwise */
-      if (window->override_redirect)
+
+      if (meta_xwayland_grab_should_lock_focus (window))
         meta_wayland_keyboard_start_grab (seat->keyboard, &active_grab->keyboard_grab);
     }
   if (active_grab->window_associate_handler)
