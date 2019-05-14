@@ -173,12 +173,9 @@ _cogl_texture_create_loader (void)
   return g_slice_new0 (CoglTextureLoader);
 }
 
-void
-_cogl_texture_free (CoglTexture *texture)
+void _cogl_texture_free (CoglTexture *texture)
 {
   _cogl_texture_free_loader (texture);
-
-  g_free (texture);
 }
 
 gboolean
