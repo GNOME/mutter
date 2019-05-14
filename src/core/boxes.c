@@ -50,17 +50,8 @@ meta_rectangle_free (MetaRectangle *rect)
   g_slice_free (MetaRectangle, rect);
 }
 
-GType
-meta_rectangle_get_type (void)
-{
-  static GType type_id = 0;
-
-  if (!type_id)
-    type_id = g_boxed_type_register_static (g_intern_static_string ("MetaRectangle"),
-					    (GBoxedCopyFunc) meta_rectangle_copy,
-					    (GBoxedFreeFunc) meta_rectangle_free);
-  return type_id;
-}
+G_DEFINE_BOXED_TYPE (MetaRectangle, meta_rectangle,
+                     meta_rectangle_copy, meta_rectangle_free);
 
 char*
 meta_rectangle_to_string (const MetaRectangle *rect,
