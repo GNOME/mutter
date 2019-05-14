@@ -97,7 +97,7 @@ _cogl_onscreen_init_from_template (CoglOnscreen *onscreen,
 CoglOnscreen *
 _cogl_onscreen_new (void)
 {
-  CoglOnscreen *onscreen = g_new0 (CoglOnscreen, 1);
+  CoglOnscreen *onscreen = g_slice_new0 (CoglOnscreen);
 
   _COGL_GET_CONTEXT (ctx, NULL);
 
@@ -134,7 +134,7 @@ cogl_onscreen_new (CoglContext *ctx, int width, int height)
      is not premultiplied in case it is being used for some special
      purpose. */
 
-  onscreen = g_new0 (CoglOnscreen, 1);
+  onscreen = g_slice_new0 (CoglOnscreen);
   _cogl_framebuffer_init (COGL_FRAMEBUFFER (onscreen),
                           ctx,
                           COGL_FRAMEBUFFER_TYPE_ONSCREEN,
@@ -170,7 +170,7 @@ _cogl_onscreen_free (CoglOnscreen *onscreen)
   /* Chain up to parent */
   _cogl_framebuffer_free (framebuffer);
 
-  g_free (onscreen);
+  g_slice_free (CoglOnscreen, onscreen);
 }
 
 static void
