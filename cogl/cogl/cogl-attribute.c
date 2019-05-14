@@ -122,7 +122,7 @@ CoglAttributeNameState *
 _cogl_attribute_register_attribute_name (CoglContext *context,
                                          const char *name)
 {
-  CoglAttributeNameState *name_state = g_new (CoglAttributeNameState, 1);
+  CoglAttributeNameState *name_state = g_slice_new (CoglAttributeNameState);
   int name_index = context->n_attribute_names++;
   char *name_copy = g_strdup (name);
 
@@ -162,8 +162,14 @@ _cogl_attribute_register_attribute_name (CoglContext *context,
   return name_state;
 
 error:
-  g_free (name_state);
+  _cogl_attribute_name_state_free (name_state);
   return NULL;
+}
+
+void
+_cogl_attribute_name_state_free (CoglAttributeNameState *name_state)
+{
+  g_slice_free (CoglAttributeNameState, name_state);
 }
 
 static gboolean

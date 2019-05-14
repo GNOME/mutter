@@ -113,6 +113,9 @@ CoglAttributeNameState *
 _cogl_attribute_register_attribute_name (CoglContext *context,
                                          const char *name);
 
+void
+_cogl_attribute_name_state_free (CoglAttributeNameState *name_state);
+
 CoglAttribute *
 _cogl_attribute_immutable_ref (CoglAttribute *attribute);
 
