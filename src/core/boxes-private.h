@@ -134,6 +134,9 @@ void     meta_rectangle_expand_to_avoiding_struts (
 META_EXPORT_TEST
 void     meta_rectangle_free_list_and_elements (GList *filled_list);
 
+META_EXPORT_TEST
+void     meta_edge_free (MetaEdge *edge);
+
 /* Free the list created by
  *   meta_rectangle_find_onscreen_edges ()
  * or
