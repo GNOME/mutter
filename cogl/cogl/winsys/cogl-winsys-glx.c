@@ -2627,26 +2627,16 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
       return FALSE;
     }
 
-  glx_tex_pixmap = g_new0 (CoglTexturePixmapGLX, 1);
-
-  glx_tex_pixmap->glx_pixmap = None;
-  glx_tex_pixmap->can_mipmap = FALSE;
-  glx_tex_pixmap->has_mipmap_space = FALSE;
-
-  glx_tex_pixmap->left.glx_tex = NULL;
-  glx_tex_pixmap->right.glx_tex = NULL;
+  glx_tex_pixmap = g_slice_new0 (CoglTexturePixmapGLX);
 
   glx_tex_pixmap->left.bind_tex_image_queued = TRUE;
   glx_tex_pixmap->right.bind_tex_image_queued = TRUE;
-  glx_tex_pixmap->left.pixmap_bound = FALSE;
-  glx_tex_pixmap->right.pixmap_bound = FALSE;
 
   tex_pixmap->winsys = glx_tex_pixmap;
 
   if (!try_create_glx_pixmap (ctx, tex_pixmap, FALSE))
     {
-      tex_pixmap->winsys = NULL;
-      g_free (glx_tex_pixmap);
+      g_slice_free (CoglTexturePixmapGLX, glx_tex_pixmap);
       return FALSE;
     }
 
@@ -2721,7 +2711,7 @@ _cogl_winsys_texture_pixmap_x11_free (CoglTexturePixmapX11 *tex_pixmap)
     cogl_object_unref (glx_tex_pixmap->right.glx_tex);
 
   tex_pixmap->winsys = NULL;
-  g_free (glx_tex_pixmap);
+  g_slice_free (CoglTexturePixmapGLX, glx_tex_pixmap);
 }
 
 static gboolean
