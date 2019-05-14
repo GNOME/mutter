@@ -156,7 +156,7 @@ clutter_seat_evdev_new (ClutterDeviceManagerEvdev *manager_evdev)
   ClutterKeymap *keymap;
   struct xkb_keymap *xkb_keymap;
 
-  seat = g_new0 (ClutterSeatEvdev, 1);
+  seat = g_slice_new0 (ClutterSeatEvdev);
   if (!seat)
     return NULL;
 
@@ -862,7 +862,7 @@ clutter_seat_evdev_free (ClutterSeatEvdev *seat)
   if (seat->libinput_seat)
     libinput_seat_unref (seat->libinput_seat);
 
-  g_free (seat);
+  g_slice_free (ClutterSeatEvdev, seat);
 }
 
 ClutterInputDevice *
