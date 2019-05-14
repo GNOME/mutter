@@ -81,6 +81,8 @@ _cogl_texture_2d_free (CoglTexture2D *tex_2d)
 
   /* Chain up */
   _cogl_texture_free (COGL_TEXTURE (tex_2d));
+
+  g_slice_free (CoglTexture2D, tex_2d);
 }
 
 void
@@ -99,7 +101,7 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
                               CoglPixelFormat internal_format,
                               CoglTextureLoader *loader)
 {
-  CoglTexture2D *tex_2d = g_new (CoglTexture2D, 1);
+  CoglTexture2D *tex_2d = g_slice_new0 (CoglTexture2D);
   CoglTexture *tex = COGL_TEXTURE (tex_2d);
 
   _cogl_texture_init (tex, ctx, width, height, internal_format, loader,

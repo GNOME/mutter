@@ -844,6 +844,8 @@ _cogl_texture_2d_sliced_free (CoglTexture2DSliced *tex_2ds)
 
   /* Chain up */
   _cogl_texture_free (COGL_TEXTURE (tex_2ds));
+
+  g_slice_free (CoglTexture2DSliced, tex_2ds);
 }
 
 static CoglTexture2DSliced *
@@ -854,7 +856,7 @@ _cogl_texture_2d_sliced_create_base (CoglContext *ctx,
                                      CoglPixelFormat internal_format,
                                      CoglTextureLoader *loader)
 {
-  CoglTexture2DSliced *tex_2ds = g_new0 (CoglTexture2DSliced, 1);
+  CoglTexture2DSliced *tex_2ds = g_slice_new0 (CoglTexture2DSliced);
 
   _cogl_texture_init (COGL_TEXTURE (tex_2ds), ctx, width, height,
                       internal_format, loader,
