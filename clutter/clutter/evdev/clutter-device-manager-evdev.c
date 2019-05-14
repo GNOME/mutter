@@ -2641,7 +2641,7 @@ clutter_evdev_add_filter (ClutterEvdevFilterFunc func,
 
   manager_evdev = CLUTTER_DEVICE_MANAGER_EVDEV (manager);
 
-  filter = g_new0 (ClutterEventFilter, 1);
+  filter = g_slice_new0 (ClutterEventFilter);
   filter->func = func;
   filter->data = data;
   filter->destroy_notify = destroy_notify;
@@ -2690,7 +2690,7 @@ clutter_evdev_remove_filter (ClutterEvdevFilterFunc func,
         {
           if (filter->destroy_notify)
             filter->destroy_notify (filter->data);
-          g_free (filter);
+          g_slice_free (ClutterEventFilter, filter);
           manager_evdev->priv->event_filters =
             g_slist_delete_link (manager_evdev->priv->event_filters, tmp_list);
           return;
