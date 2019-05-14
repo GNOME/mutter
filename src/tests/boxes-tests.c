@@ -53,7 +53,7 @@ static MetaRectangle*
 new_meta_rect (int x, int y, int width, int height)
 {
   MetaRectangle* temporary;
-  temporary = g_new (MetaRectangle, 1);
+  temporary = g_slice_new (MetaRectangle);
   temporary->x = x;
   temporary->y = y;
   temporary->width  = width;
@@ -484,7 +484,7 @@ test_merge_regions (void)
                 }
 
               /* Okay, we can free it now */
-              g_free (delete_me->data);
+              meta_rectangle_free (delete_me->data);
               region = g_list_delete_link (region, delete_me);
             }
 
@@ -1012,8 +1012,8 @@ test_find_onscreen_edges (void)
   tmp = g_list_prepend (tmp, new_screen_edge (1600,    0, 0, 1200, right));
   tmp = g_list_prepend (tmp, new_screen_edge (   0,    0, 0, 1200, left));
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 
   /*************************************************/
   /* Make sure test region 1 has the correct edges */
@@ -1027,8 +1027,8 @@ test_find_onscreen_edges (void)
   tmp = g_list_prepend (tmp, new_screen_edge ( 400, 1160, 0,   40, right));
   tmp = g_list_prepend (tmp, new_screen_edge (   0,   20, 0, 1180, left));
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 
   /*************************************************/
   /* Make sure test region 2 has the correct edges */
@@ -1048,8 +1048,8 @@ test_find_onscreen_edges (void)
   tmp = g_list_prepend (tmp, new_screen_edge ( 450, 1150, 0,   50, left));
   tmp = g_list_prepend (tmp, new_screen_edge (   0,   20, 0, 1180, left));
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 
   /*************************************************/
   /* Make sure test region 3 has the correct edges */
@@ -1083,8 +1083,8 @@ test_find_onscreen_edges (void)
 #endif
 
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 
   /*************************************************/
   /* Make sure test region 4 has the correct edges */
@@ -1096,8 +1096,8 @@ test_find_onscreen_edges (void)
   tmp = g_list_prepend (tmp, new_screen_edge (1600,   20, 0, 1180, right));
   tmp = g_list_prepend (tmp, new_screen_edge ( 800,   20, 0, 1180, left));
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 
   /*************************************************/
   /* Make sure test region 5 has the correct edges */
@@ -1105,8 +1105,8 @@ test_find_onscreen_edges (void)
   edges = get_screen_edges (5);
   tmp = NULL;
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 
   /*************************************************/
   /* Make sure test region 6 has the correct edges */
@@ -1118,8 +1118,8 @@ test_find_onscreen_edges (void)
   tmp = g_list_prepend (tmp, new_screen_edge (1600,   40, 0,  1160, right));
   tmp = g_list_prepend (tmp, new_screen_edge (   0,   40, 0,  1160, left));
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 }
 
 static void
@@ -1139,8 +1139,8 @@ test_find_nonintersected_monitor_edges (void)
   edges = get_monitor_edges (0, 0);
   tmp = NULL;
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 
   /*************************************************************************/
   /* Make sure test monitor set 2 for with region 1 has the correct edges */
@@ -1150,8 +1150,8 @@ test_find_nonintersected_monitor_edges (void)
   tmp = g_list_prepend (tmp, new_monitor_edge (   0,  600, 1600, 0, bottom));
   tmp = g_list_prepend (tmp, new_monitor_edge (   0,  600, 1600, 0, top));
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 
   /*************************************************************************/
   /* Make sure test monitor set 1 for with region 2 has the correct edges */
@@ -1169,8 +1169,8 @@ test_find_nonintersected_monitor_edges (void)
          big_buffer1, big_buffer2);
 #endif
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 
   /*************************************************************************/
   /* Make sure test monitor set 3 for with region 3 has the correct edges */
@@ -1184,8 +1184,8 @@ test_find_nonintersected_monitor_edges (void)
   tmp = g_list_prepend (tmp, new_monitor_edge ( 800,  675, 0,  425, right));
   tmp = g_list_prepend (tmp, new_monitor_edge ( 800,  675, 0,  525, left));
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 
   /*************************************************************************/
   /* Make sure test monitor set 3 for with region 4 has the correct edges */
@@ -1196,8 +1196,8 @@ test_find_nonintersected_monitor_edges (void)
   tmp = g_list_prepend (tmp, new_monitor_edge ( 800,  600,  800, 0, top));
   tmp = g_list_prepend (tmp, new_monitor_edge ( 800,  600,  0, 600, right));
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 
   /*************************************************************************/
   /* Make sure test monitor set 3 for with region 5has the correct edges */
@@ -1205,8 +1205,8 @@ test_find_nonintersected_monitor_edges (void)
   edges = get_monitor_edges (3, 5);
   tmp = NULL;
   verify_edge_lists_are_equal (edges, tmp);
-  meta_rectangle_free_list_and_elements (tmp);
-  meta_rectangle_free_list_and_elements (edges);
+  meta_edge_free_list_and_elements (tmp);
+  meta_edge_free_list_and_elements (edges);
 }
 
 static void

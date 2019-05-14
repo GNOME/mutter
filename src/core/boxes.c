@@ -38,21 +38,16 @@
 
 #include "meta/util.h"
 
-/* It would make sense to use GSlice here, but until we clean up the
- * rest of this file and the internal API to use these functions, we
- * leave it using g_malloc()/g_free() for consistency.
- */
-
 MetaRectangle *
 meta_rectangle_copy (const MetaRectangle *rect)
 {
-  return g_memdup (rect, sizeof (MetaRectangle));
+  return g_slice_dup (MetaRectangle, rect);
 }
 
 void
 meta_rectangle_free (MetaRectangle *rect)
 {
-  g_free (rect);
+  g_slice_free (MetaRectangle, rect);
 }
 
 GType
@@ -527,7 +522,7 @@ merge_spanning_rects_in_region (GList *region)
                 }
 
               /* Okay, we can free it now */
-              g_free (delete_me->data);
+              meta_rectangle_free (delete_me->data);
               region = g_list_delete_link (region, delete_me);
             }
 
@@ -649,7 +644,7 @@ meta_rectangle_get_minimal_spanning_set_for_region (
    *         splitting
    */
 
-  temp_rect = g_new (MetaRectangle, 1);
+  temp_rect = g_slice_new (MetaRectangle);
   *temp_rect = *basic_rect;
   ret = g_list_prepend (NULL, temp_rect);
 
@@ -674,7 +669,7 @@ meta_rectangle_get_minimal_spanning_set_for_region (
               /* If there is area in rect left of strut */
               if (BOX_LEFT (*rect) < BOX_LEFT (*strut_rect))
                 {
-                  temp_rect = g_new (MetaRectangle, 1);
+                  temp_rect = g_slice_new (MetaRectangle);
                   *temp_rect = *rect;
                   temp_rect->width = BOX_LEFT (*strut_rect) - BOX_LEFT (*rect);
                   ret = g_list_prepend (ret, temp_rect);
@@ -683,7 +678,7 @@ meta_rectangle_get_minimal_spanning_set_for_region (
               if (BOX_RIGHT (*rect) > BOX_RIGHT (*strut_rect))
                 {
                   int new_x;
-                  temp_rect = g_new (MetaRectangle, 1);
+                  temp_rect = g_slice_new (MetaRectangle);
                   *temp_rect = *rect;
                   new_x = BOX_RIGHT (*strut_rect);
                   temp_rect->width = BOX_RIGHT(*rect) - new_x;
@@ -693,7 +688,7 @@ meta_rectangle_get_minimal_spanning_set_for_region (
               /* If there is area in rect above strut */
               if (BOX_TOP (*rect) < BOX_TOP (*strut_rect))
                 {
-                  temp_rect = g_new (MetaRectangle, 1);
+                  temp_rect = g_slice_new (MetaRectangle);
                   *temp_rect = *rect;
                   temp_rect->height = BOX_TOP (*strut_rect) - BOX_TOP (*rect);
                   ret = g_list_prepend (ret, temp_rect);
@@ -702,14 +697,14 @@ meta_rectangle_get_minimal_spanning_set_for_region (
               if (BOX_BOTTOM (*rect) > BOX_BOTTOM (*strut_rect))
                 {
                   int new_y;
-                  temp_rect = g_new (MetaRectangle, 1);
+                  temp_rect = g_slice_new (MetaRectangle);
                   *temp_rect = *rect;
                   new_y = BOX_BOTTOM (*strut_rect);
                   temp_rect->height = BOX_BOTTOM (*rect) - new_y;
                   temp_rect->y = new_y;
                   ret = g_list_prepend (ret, temp_rect);
                 }
-              g_free (rect);
+              meta_rectangle_free (rect);
             }
           rect_iter = rect_iter->next;
         }
@@ -850,6 +845,12 @@ meta_rectangle_expand_to_avoiding_struts (MetaRectangle       *rect,
 
 void
 meta_rectangle_free_list_and_elements (GList *filled_list)
+{
+  g_list_free_full (filled_list, (GDestroyNotify) meta_rectangle_free);
+}
+
+void
+meta_edge_free_list_and_elements (GList *filled_list)
 {
   g_list_free_full (filled_list, g_free);
 }
@@ -1258,14 +1259,14 @@ get_rect_minus_overlap (const GList   *rect_in_list,
 
   if (BOX_LEFT (*rect) < BOX_LEFT (*overlap))
     {
-      temp = g_new (MetaRectangle, 1);
+      temp = g_slice_new (MetaRectangle);
       *temp = *rect;
       temp->width = BOX_LEFT (*overlap) - BOX_LEFT (*rect);
       ret = g_list_prepend (ret, temp);
     }
   if (BOX_RIGHT (*rect) > BOX_RIGHT (*overlap))
     {
-      temp = g_new (MetaRectangle, 1);
+      temp = g_slice_new (MetaRectangle);
       *temp = *rect;
       temp->x = BOX_RIGHT (*overlap);
       temp->width = BOX_RIGHT (*rect) - BOX_RIGHT (*overlap);
@@ -1273,7 +1274,7 @@ get_rect_minus_overlap (const GList   *rect_in_list,
     }
   if (BOX_TOP (*rect) < BOX_TOP (*overlap))
     {
-      temp = g_new (MetaRectangle, 1);
+      temp = g_slice_new (MetaRectangle);
       temp->x      = overlap->x;
       temp->width  = overlap->width;
       temp->y      = BOX_TOP (*rect);
@@ -1282,7 +1283,7 @@ get_rect_minus_overlap (const GList   *rect_in_list,
     }
   if (BOX_BOTTOM (*rect) > BOX_BOTTOM (*overlap))
     {
-      temp = g_new (MetaRectangle, 1);
+      temp = g_slice_new (MetaRectangle);
       temp->x      = overlap->x;
       temp->width  = overlap->width;
       temp->y      = BOX_BOTTOM (*overlap);
@@ -1323,7 +1324,7 @@ replace_rect_with_list (GList *old_element,
     }
 
   /* Free the old_element and return the appropriate "next" point */
-  g_free (old_element->data);
+  meta_rectangle_free (old_element->data);
   g_list_free_1 (old_element);
   return ret;
 }
@@ -1346,12 +1347,11 @@ get_disjoint_strut_rect_list_in_region (const GSList        *old_struts,
   while (old_struts)
     {
       MetaRectangle *cur = &((MetaStrut*)old_struts->data)->rect;
-      MetaRectangle *copy = g_new (MetaRectangle, 1);
-      *copy = *cur;
+      MetaRectangle *copy = meta_rectangle_copy (cur);
       if (meta_rectangle_intersect (copy, region, copy))
         strut_rects = g_list_prepend (strut_rects, copy);
       else
-        g_free (copy);
+        meta_rectangle_free (copy);
 
       old_struts = old_struts->next;
     }
@@ -1381,7 +1381,7 @@ get_disjoint_strut_rect_list_in_region (const GSList        *old_struts,
               GList *comp_leftover = get_rect_minus_overlap (compare, &overlap);
 
               /* Add the intersection region to cur_leftover */
-              MetaRectangle *overlap_allocated = g_new (MetaRectangle, 1);
+              MetaRectangle *overlap_allocated = g_slice_new (MetaRectangle);
               *overlap_allocated = overlap;
               cur_leftover = g_list_prepend (cur_leftover, overlap_allocated);
 
