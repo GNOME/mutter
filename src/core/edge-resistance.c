@@ -1032,7 +1032,7 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
       if (WINDOW_EDGES_RELEVANT (cur_window, display))
         {
           MetaRectangle *new_rect;
-          new_rect = g_new (MetaRectangle, 1);
+          new_rect = g_slice_new (MetaRectangle);
           meta_window_get_frame_rect (cur_window, new_rect);
           obscuring_windows = g_slist_prepend (obscuring_windows, new_rect);
           window_stacking =
@@ -1157,7 +1157,7 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
   g_list_free (stacked_windows);
   /* Free the memory used by the obscuring windows/docks lists */
   g_slist_free (window_stacking);
-  g_slist_free_full (obscuring_windows, g_free);
+  g_slist_free_full (obscuring_windows, (GDestroyNotify) meta_rectangle_free);
 
   /* Sort the list.  FIXME: Should I bother with this sorting?  I just
    * sort again later in cache_edges() anyway...

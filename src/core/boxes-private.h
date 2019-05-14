@@ -130,13 +130,17 @@ void     meta_rectangle_expand_to_avoiding_struts (
 
 /* Free the list created by
  *   meta_rectangle_get_minimal_spanning_set_for_region()
- * or
+ */
+META_EXPORT_TEST
+void     meta_rectangle_free_list_and_elements (GList *filled_list);
+
+/* Free the list created by
  *   meta_rectangle_find_onscreen_edges ()
  * or
  *   meta_rectangle_find_nonintersected_monitor_edges()
  */
 META_EXPORT_TEST
-void     meta_rectangle_free_list_and_elements (GList *filled_list);
+void     meta_edge_free_list_and_elements (GList *filled_list);
 
 /* could_fit_in_region determines whether one of the spanning_rects is
  * big enough to contain rect.  contained_in_region checks whether one

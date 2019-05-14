@@ -338,8 +338,8 @@ meta_workspace_remove (MetaWorkspace *workspace)
     {
       workspace_free_all_struts (workspace);
       meta_rectangle_free_list_and_elements (workspace->screen_region);
-      meta_rectangle_free_list_and_elements (workspace->screen_edges);
-      meta_rectangle_free_list_and_elements (workspace->monitor_edges);
+      meta_edge_free_list_and_elements (workspace->screen_edges);
+      meta_edge_free_list_and_elements (workspace->monitor_edges);
     }
 
   g_object_unref (workspace);
@@ -739,8 +739,8 @@ meta_workspace_invalidate_work_area (MetaWorkspace *workspace)
   workspace_free_all_struts (workspace);
 
   meta_rectangle_free_list_and_elements (workspace->screen_region);
-  meta_rectangle_free_list_and_elements (workspace->screen_edges);
-  meta_rectangle_free_list_and_elements (workspace->monitor_edges);
+  meta_edge_free_list_and_elements (workspace->screen_edges);
+  meta_edge_free_list_and_elements (workspace->monitor_edges);
   workspace->screen_region = NULL;
   workspace->screen_edges = NULL;
   workspace->monitor_edges = NULL;
@@ -942,7 +942,7 @@ ensure_work_areas_validated (MetaWorkspace *workspace)
   if (workspace->screen_region == NULL)
     {
       MetaRectangle *nonempty_region;
-      nonempty_region = g_new (MetaRectangle, 1);
+      nonempty_region = g_slice_new (MetaRectangle);
       *nonempty_region = workspace->work_area_screen;
       workspace->screen_region = g_list_prepend (NULL, nonempty_region);
     }
