@@ -217,7 +217,8 @@ cogl_context_new (CoglDisplay *display,
     }
 
   context->attribute_name_states_hash =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
+                           (GDestroyNotify) _cogl_attribute_name_state_free);
   context->attribute_name_index_map = NULL;
   context->n_attribute_names = 0;
 
