@@ -289,14 +289,15 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
                               CoglTexturePixmapStereoMode stereo_mode,
                               CoglError **error)
 {
-  CoglTexturePixmapX11 *tex_pixmap = g_slice_new0 (CoglTexturePixmapX11);
+  CoglTexturePixmapX11 *tex_pixmap;
   Display *display = cogl_xlib_renderer_get_display (ctxt->display->renderer);
   Window pixmap_root_window;
   int pixmap_x, pixmap_y;
+  unsigned int depth;
   unsigned int pixmap_width, pixmap_height;
   unsigned int pixmap_border_width;
   CoglPixelFormat internal_format;
-  CoglTexture *tex = COGL_TEXTURE (tex_pixmap);
+  CoglTexture *tex;
   XWindowAttributes window_attributes;
   int damage_base;
   const CoglWinsysVtable *winsys;
@@ -304,9 +305,8 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
   if (!XGetGeometry (display, pixmap, &pixmap_root_window,
                      &pixmap_x, &pixmap_y,
                      &pixmap_width, &pixmap_height,
-                     &pixmap_border_width, &tex_pixmap->depth))
+                     &pixmap_border_width, &depth))
     {
-      g_slice_free (CoglTexturePixmapX11, tex_pixmap);
       _cogl_set_error (error,
                    COGL_TEXTURE_PIXMAP_X11_ERROR,
                    COGL_TEXTURE_PIXMAP_X11_ERROR_X11,
@@ -314,9 +314,23 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
       return NULL;
     }
 
+  /* We need a visual to use for shared memory images so we'll query
+     it from the pixmap's root window */
+  if (!XGetWindowAttributes (display, pixmap_root_window, &window_attributes))
+    {
+      _cogl_set_error (error,
+                   COGL_TEXTURE_PIXMAP_X11_ERROR,
+                   COGL_TEXTURE_PIXMAP_X11_ERROR_X11,
+                   "Unable to query root window attributes");
+      return NULL;
+    }
+
+  tex_pixmap = g_slice_new0 (CoglTexturePixmapX11);
+  tex = COGL_TEXTURE (tex_pixmap);
+
   /* Note: the detailed pixel layout doesn't matter here, we are just
    * interested in RGB vs RGBA... */
-  internal_format = (tex_pixmap->depth >= 32
+  internal_format = (depth >= 32
                      ? COGL_PIXEL_FORMAT_RGBA_8888_PRE
                      : COGL_PIXEL_FORMAT_RGB_888);
 
@@ -325,21 +339,10 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
                       NULL, /* no loader */
                       &cogl_texture_pixmap_x11_vtable);
 
+  tex_pixmap->depth = depth;
   tex_pixmap->pixmap = pixmap;
   tex_pixmap->stereo_mode = stereo_mode;
   tex_pixmap->shm_info.shmid = -1;
-
-  /* We need a visual to use for shared memory images so we'll query
-     it from the pixmap's root window */
-  if (!XGetWindowAttributes (display, pixmap_root_window, &window_attributes))
-    {
-      g_slice_free (CoglTexturePixmapX11, tex_pixmap);
-      _cogl_set_error (error,
-                   COGL_TEXTURE_PIXMAP_X11_ERROR,
-                   COGL_TEXTURE_PIXMAP_X11_ERROR_X11,
-                   "Unable to query root window attributes");
-      return NULL;
-    }
 
   tex_pixmap->visual = window_attributes.visual;
 
