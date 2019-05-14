@@ -1102,7 +1102,7 @@ clutter_x11_add_filter (ClutterX11FilterFunc func,
 
   backend_x11 = CLUTTER_BACKEND_X11 (backend);
 
-  filter = g_new0 (ClutterX11EventFilter, 1);
+  filter = g_slice_new0 (ClutterX11EventFilter);
   filter->func = func;
   filter->data = data;
 
@@ -1160,7 +1160,7 @@ clutter_x11_remove_filter (ClutterX11FilterFunc func,
             g_slist_remove_link (backend_x11->event_filters, this);
 
           g_slist_free_1 (this);
-          g_free (filter);
+          g_slice_free (ClutterX11EventFilter, filter);
 
           return;
         }
