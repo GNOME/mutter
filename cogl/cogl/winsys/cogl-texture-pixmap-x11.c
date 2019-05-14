@@ -289,7 +289,7 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
                               CoglTexturePixmapStereoMode stereo_mode,
                               CoglError **error)
 {
-  CoglTexturePixmapX11 *tex_pixmap = g_new (CoglTexturePixmapX11, 1);
+  CoglTexturePixmapX11 *tex_pixmap = g_slice_new (CoglTexturePixmapX11);
   Display *display = cogl_xlib_renderer_get_display (ctxt->display->renderer);
   Window pixmap_root_window;
   int pixmap_x, pixmap_y;
@@ -306,7 +306,7 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
                      &pixmap_width, &pixmap_height,
                      &pixmap_border_width, &tex_pixmap->depth))
     {
-      g_free (tex_pixmap);
+      g_slice_free (CoglTexturePixmapX11, tex_pixmap);
       _cogl_set_error (error,
                    COGL_TEXTURE_PIXMAP_X11_ERROR,
                    COGL_TEXTURE_PIXMAP_X11_ERROR_X11,
@@ -338,7 +338,7 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
      it from the pixmap's root window */
   if (!XGetWindowAttributes (display, pixmap_root_window, &window_attributes))
     {
-      g_free (tex_pixmap);
+      g_slice_free (CoglTexturePixmapX11, tex_pixmap);
       _cogl_set_error (error,
                    COGL_TEXTURE_PIXMAP_X11_ERROR,
                    COGL_TEXTURE_PIXMAP_X11_ERROR_X11,
@@ -420,7 +420,7 @@ cogl_texture_pixmap_x11_new_right (CoglTexturePixmapX11 *tfp_left)
 
   g_return_val_if_fail (tfp_left->stereo_mode == COGL_TEXTURE_PIXMAP_LEFT, NULL);
 
-  tfp_right = g_new0 (CoglTexturePixmapX11, 1);
+  tfp_right = g_slice_new0 (CoglTexturePixmapX11);
   tfp_right->stereo_mode = COGL_TEXTURE_PIXMAP_RIGHT;
   tfp_right->left = cogl_object_ref (tfp_left);
 
@@ -1046,6 +1046,8 @@ _cogl_texture_pixmap_x11_free (CoglTexturePixmapX11 *tex_pixmap)
       /* Chain up */
       _cogl_texture_free (COGL_TEXTURE (tex_pixmap));
 
+      g_slice_free (CoglTexturePixmapX11, tex_pixmap);
+
       return;
     }
 
@@ -1075,6 +1077,8 @@ _cogl_texture_pixmap_x11_free (CoglTexturePixmapX11 *tex_pixmap)
 
   /* Chain up */
   _cogl_texture_free (COGL_TEXTURE (tex_pixmap));
+
+  g_slice_free (CoglTexturePixmapX11, tex_pixmap);
 }
 
 static const CoglTextureVtable
