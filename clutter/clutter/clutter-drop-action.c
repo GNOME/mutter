@@ -109,7 +109,7 @@ drop_target_free (gpointer _data)
 
   g_signal_handler_disconnect (data->stage, data->capture_id);
   g_hash_table_destroy (data->actions);
-  g_free (data);
+  g_slice_free (DropTarget, data);
 }
 
 static gboolean
@@ -268,7 +268,7 @@ drop_action_register (ClutterDropAction *self)
   data = g_object_get_data (G_OBJECT (priv->stage), "__clutter_drop_targets");
   if (data == NULL)
     {
-      data = g_new0 (DropTarget, 1);
+      data = g_slice_new0 (DropTarget);
 
       data->stage = priv->stage;
       data->actions = g_hash_table_new (NULL, NULL);
