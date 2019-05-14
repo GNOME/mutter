@@ -779,7 +779,7 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
       return FALSE;
     }
 
-  egl_tex_pixmap = g_new0 (CoglTexturePixmapEGL, 1);
+  egl_tex_pixmap = g_slice_new0 (CoglTexturePixmapEGL);
 
   egl_tex_pixmap->image =
     _cogl_egl_create_image (ctx,
@@ -830,7 +830,7 @@ _cogl_winsys_texture_pixmap_x11_free (CoglTexturePixmapX11 *tex_pixmap)
     _cogl_egl_destroy_image (ctx, egl_tex_pixmap->image);
 
   tex_pixmap->winsys = NULL;
-  g_free (egl_tex_pixmap);
+  g_slice_free (CoglTexturePixmapEGL, egl_tex_pixmap);
 }
 
 static gboolean
