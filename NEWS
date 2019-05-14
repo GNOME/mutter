@@ -1,3 +1,30 @@
+3.28.4
+======
+* Don't expose resolutions that are below the minimum [Andrea; #793223]
+* Fix lock up with some DRI drivers [Alex; #127]
+* Improve grab-device clock updates on X11 [Jeff; !174]
+* Prevent clients from modifying the shared keymap [Jonas; #784206]
+* Fix screen rotation regression [Jonas; #216]
+* Fix non-lowercase letters on virtual key devices [Carlos; gnome-shell#135]
+* Send correct button codes from virtual evdev devices [Jonas; !190]
+* Avoid crash when a cursor is not found [Sebastian; #254]
+* Improve EGLstream support [Miguel; #2, #782575]
+* Handle requests to unmanaged windows gracefully [Jonas; #240]
+* Improve support for proprietary Nvidia driver [Jonas; #790316]
+* Fix handling of non-UTF8 encodings [Florian; !227]
+* Consider remapped keys when guessing keycode from keysym [Andrea; #443]
+* Fix support of extended characters in on-screen keyboard [Andrea; #109]
+* Various crash fixes [Jonas, Olivier, Florian, Marco; #70, #189, #15,
+  #130, #255, #194, #336, #576]
+* Misc. bug fixes [Iain, Jonas, Sam, Carlos, Florian, Olivier, Marco; #223,
+  #192, #788834, #782344, !130, #134, #221, #306, #279, #331, !557]
+
+Contributors:
+  Jonas Ådahl, Andrea Azzarone, Olivier Fourdan, Carlos Garnacho,
+  Sebastian Keller, Iain Lane, Alex Villacís Lasso, Florian Müllner,
+  Bastien Nocera, Aaron Plattner, Jeff Smith, Sam Spilsbury,
+  Marco Trevisan (Treviño), Miguel A. Vico, Daniel van Vugt
+
 3.28.3
 ======
 * Handle touch events on server-side titlebars [Carlos; #770185]
