@@ -727,7 +727,8 @@ meta_display_cleanup_edges (MetaDisplay *display)
 
   /* We first need to clean out any window edges */
   edges_to_be_freed = g_hash_table_new_full (g_direct_hash, g_direct_equal,
-                                             g_free, NULL);
+                                             (GDestroyNotify) meta_edge_free,
+                                             NULL);
   for (i = 0; i < 4; i++)
     {
       GArray *tmp = NULL;
@@ -770,7 +771,8 @@ meta_display_cleanup_edges (MetaDisplay *display)
         }
     }
 
-  /* Now free all the window edges (the key destroy function is g_free) */
+  /* Now free all the window edges (the key destroy function is
+     meta_edge_free) */
   g_hash_table_destroy (edges_to_be_freed);
 
   /* Now free the arrays and data */
@@ -1088,7 +1090,7 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
           /* Left side of this window is resistance for the right edge of
            * the window being moved.
            */
-          new_edge = g_new (MetaEdge, 1);
+          new_edge = g_slice_new (MetaEdge);
           new_edge->rect = reduced;
           new_edge->rect.width = 0;
           new_edge->side_type = META_SIDE_RIGHT;
@@ -1098,7 +1100,7 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
           /* Right side of this window is resistance for the left edge of
            * the window being moved.
            */
-          new_edge = g_new (MetaEdge, 1);
+          new_edge = g_slice_new (MetaEdge);
           new_edge->rect = reduced;
           new_edge->rect.x += new_edge->rect.width;
           new_edge->rect.width = 0;
@@ -1109,7 +1111,7 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
           /* Top side of this window is resistance for the bottom edge of
            * the window being moved.
            */
-          new_edge = g_new (MetaEdge, 1);
+          new_edge = g_slice_new (MetaEdge);
           new_edge->rect = reduced;
           new_edge->rect.height = 0;
           new_edge->side_type = META_SIDE_BOTTOM;
@@ -1119,7 +1121,7 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
           /* Top side of this window is resistance for the bottom edge of
            * the window being moved.
            */
-          new_edge = g_new (MetaEdge, 1);
+          new_edge = g_slice_new (MetaEdge);
           new_edge->rect = reduced;
           new_edge->rect.y += new_edge->rect.height;
           new_edge->rect.height = 0;

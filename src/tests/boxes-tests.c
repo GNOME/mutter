@@ -77,7 +77,7 @@ static MetaEdge*
 new_screen_edge (int x, int y, int width, int height, int side_type)
 {
   MetaEdge* temporary;
-  temporary = g_new (MetaEdge, 1);
+  temporary = g_slice_new (MetaEdge);
   temporary->rect.x = x;
   temporary->rect.y = y;
   temporary->rect.width  = width;
@@ -92,7 +92,7 @@ static MetaEdge*
 new_monitor_edge (int x, int y, int width, int height, int side_type)
 {
   MetaEdge* temporary;
-  temporary = g_new (MetaEdge, 1);
+  temporary = g_slice_new (MetaEdge);
   temporary->rect.x = x;
   temporary->rect.y = y;
   temporary->rect.width  = width;
