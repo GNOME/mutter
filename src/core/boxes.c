@@ -840,10 +840,15 @@ meta_rectangle_free_list_and_elements (GList *filled_list)
   g_list_free_full (filled_list, (GDestroyNotify) meta_rectangle_free);
 }
 
+void meta_edge_free (MetaEdge *edge)
+{
+  g_slice_free (MetaEdge, edge);
+}
+
 void
 meta_edge_free_list_and_elements (GList *filled_list)
 {
-  g_list_free_full (filled_list, g_free);
+  g_list_free_full (filled_list, (GDestroyNotify) meta_edge_free);
 }
 
 gboolean
@@ -1577,7 +1582,7 @@ add_edges (GList               *cur_edges,
 
   for (i=0; i<4; i++)
     {
-      temp_edge = g_new (MetaEdge, 1);
+      temp_edge = g_slice_new (MetaEdge);
       temp_edge->rect = *rect;
       switch (i)
         {
@@ -1627,7 +1632,7 @@ split_edge (GList *cur_list,
       g_assert (meta_rectangle_vert_overlap (&old_edge->rect, &remove->rect));
       if (BOX_TOP (old_edge->rect)  < BOX_TOP (remove->rect))
         {
-          temp_edge = g_new (MetaEdge, 1);
+          temp_edge = g_slice_new (MetaEdge);
           *temp_edge = *old_edge;
           temp_edge->rect.height = BOX_TOP (remove->rect)
                                  - BOX_TOP (old_edge->rect);
@@ -1635,7 +1640,7 @@ split_edge (GList *cur_list,
         }
       if (BOX_BOTTOM (old_edge->rect) > BOX_BOTTOM (remove->rect))
         {
-          temp_edge = g_new (MetaEdge, 1);
+          temp_edge = g_slice_new (MetaEdge);
           *temp_edge = *old_edge;
           temp_edge->rect.y      = BOX_BOTTOM (remove->rect);
           temp_edge->rect.height = BOX_BOTTOM (old_edge->rect)
@@ -1648,7 +1653,7 @@ split_edge (GList *cur_list,
       g_assert (meta_rectangle_horiz_overlap (&old_edge->rect, &remove->rect));
       if (BOX_LEFT (old_edge->rect)  < BOX_LEFT (remove->rect))
         {
-          temp_edge = g_new (MetaEdge, 1);
+          temp_edge = g_slice_new (MetaEdge);
           *temp_edge = *old_edge;
           temp_edge->rect.width = BOX_LEFT (remove->rect)
                                 - BOX_LEFT (old_edge->rect);
@@ -1656,7 +1661,7 @@ split_edge (GList *cur_list,
         }
       if (BOX_RIGHT (old_edge->rect) > BOX_RIGHT (remove->rect))
         {
-          temp_edge = g_new (MetaEdge, 1);
+          temp_edge = g_slice_new (MetaEdge);
           *temp_edge = *old_edge;
           temp_edge->rect.x     = BOX_RIGHT (remove->rect);
           temp_edge->rect.width = BOX_RIGHT (old_edge->rect)
@@ -1710,7 +1715,7 @@ fix_up_edges (MetaRectangle *rect,         MetaEdge *edge,
 
               /* Delete the old one */
               tmp = tmp->next;
-              g_free (cur);
+              meta_edge_free (cur);
               *strut_edges = g_list_delete_link (*strut_edges, delete_me);
             }
           else
@@ -1773,7 +1778,7 @@ meta_rectangle_remove_intersections_with_boxes_from_edges (
                   edges = split_edge (edges, edge, &overlap);
 
                   /* Now free the edge... */
-                  g_free (edge);
+                  meta_edge_free (edge);
                   edges = g_list_delete_link (edges, delete_me);
                 }
             }
@@ -1848,7 +1853,7 @@ meta_rectangle_find_onscreen_edges (const MetaRectangle *basic_rect,
               /* Delete the old edge */
               GList *delete_me = edge_iter;
               edge_iter = edge_iter->next;
-              g_free (cur_edge);
+              meta_edge_free (cur_edge);
               ret = g_list_delete_link (ret, delete_me);
 
               /* Add the new split parts of the edge */
@@ -1941,7 +1946,7 @@ meta_rectangle_find_nonintersected_monitor_edges (
                    * a right edge for the monitor on the left.  Just fill
                    * up the edges and stick 'em on the list.
                    */
-                  MetaEdge *new_edge  = g_new (MetaEdge, 1);
+                  MetaEdge *new_edge  = g_slice_new (MetaEdge);
 
                   new_edge->rect = meta_rect (x, y, width, height);
                   new_edge->side_type = side_type;
@@ -1984,7 +1989,7 @@ meta_rectangle_find_nonintersected_monitor_edges (
                    * a bottom edge for the monitor on the top.  Just fill
                    * up the edges and stick 'em on the list.
                    */
-                  MetaEdge *new_edge = g_new (MetaEdge, 1);
+                  MetaEdge *new_edge = g_slice_new (MetaEdge);
 
                   new_edge->rect = meta_rect (x, y, width, height);
                   new_edge->side_type = side_type;
