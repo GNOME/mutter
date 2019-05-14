@@ -1,3 +1,14 @@
+3.32.2
+======
+* Disable mouse keys with Numlock on [Olivier; #530]
+* Fix crash when restarting on X11 [Marco; #576]
+* Fix mapping of touchscreens that don't report dimensions [Carlos; #581]
+* Fix spurious idle signals that prevent session unblank [Jonas; !543]
+* Misc. bug fixes and cleanups [Olivier, Marco, Carlos; !552, !557, #586]
+
+Contributors:
+  Jonas Ådahl, Olivier Fourdan, Carlos Garnacho, Marco Trevisan (Treviño)
+
 3.32.1
 ======
 * Fix fallback app menu on wayland [Florian; #493]
