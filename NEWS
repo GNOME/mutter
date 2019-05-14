@@ -1,3 +1,28 @@
+3.33.1
+======
+* Remove unused APIs and outdated driver support
+  [Adam; !481, !468, !489, !487, !546]
+* Enable EGL_IMG_context_priority [Adam; !454]
+* Disable mouse keys with Numlock on [Olivier; #530]
+* Fix crash when restarting on X11 [Marco; #576]
+* Implement clipboard manager [Carlos; !320]
+* Fix spurious idle signals that prevent session unblank [Jonas Å.; !543]
+* Fix mapping of touchscreens that don't report dimensions [Carlos; #581]
+* Fix propagating fractional scaling factor [Robert; !537]
+* Add experimental RT scheduling support [Carlos; !460]
+* Misc. bug fixes and cleanups [Robert, Carlos, Olivier, Ray, Marco, Jonas D.,
+  Georges, Daniel V., Daniel M; !467, !504, !551, !552, #575, #556, !557, !442,
+  !562, !535, !548, #586, !567, !396, !422, !507]
+
+Contributors:
+  Jonas Ådahl, Piotr Drąg, Jonas Dreßler, Olivier Fourdan, Carlos Garnacho,
+  Adam Jackson, Robert Mader, Daniel García Moreno, Florian Müllner,
+  Georges Basile Stavracas Neto, Ray Strode, Marco Trevisan (Treviño),
+  Daniel van Vugt
+
+Translators:
+  Daniel Mustieles [es], Fabio Tomat [fur], Kukuh Syafaat [id]
+
 3.32.1
 ======
 * Fix fallback app menu on wayland [Florian; #493]
