@@ -620,7 +620,7 @@ _cogl_offscreen_new_with_texture_full (CoglTexture *texture,
 
   _COGL_RETURN_VAL_IF_FAIL (cogl_is_texture (texture), NULL);
 
-  offscreen = g_new0 (CoglOffscreen, 1);
+  offscreen = g_slice_new0 (CoglOffscreen);
   offscreen->texture = cogl_object_ref (texture);
   offscreen->texture_level = level;
   offscreen->create_flags = create_flags;
@@ -691,7 +691,7 @@ _cogl_offscreen_free (CoglOffscreen *offscreen)
   if (offscreen->depth_texture != NULL)
     cogl_object_unref (offscreen->depth_texture);
 
-  g_free (offscreen);
+  g_slice_free (CoglOffscreen, offscreen);
 }
 
 gboolean
