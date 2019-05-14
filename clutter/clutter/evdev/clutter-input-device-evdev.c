@@ -249,7 +249,7 @@ clutter_input_device_evdev_free_pending_slow_key (gpointer data)
   clutter_event_free (slow_keys_event->event);
   if (slow_keys_event->timer)
     g_source_remove (slow_keys_event->timer);
-  g_free (slow_keys_event);
+  g_slice_free (SlowKeysEventPending, slow_keys_event);
 }
 
 static void
@@ -315,7 +315,7 @@ start_slow_keys (ClutterEvent               *event,
   if (key_event->flags & CLUTTER_EVENT_FLAG_REPEATED)
     return;
 
-  slow_keys_event = g_new0 (SlowKeysEventPending, 1);
+  slow_keys_event = g_slice_new0 (SlowKeysEventPending);
   slow_keys_event->device = device;
   slow_keys_event->event = clutter_event_copy (event);
   slow_keys_event->emit_event_func = emit_event_func;
