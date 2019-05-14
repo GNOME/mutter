@@ -289,7 +289,7 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
                               CoglTexturePixmapStereoMode stereo_mode,
                               CoglError **error)
 {
-  CoglTexturePixmapX11 *tex_pixmap = g_slice_new (CoglTexturePixmapX11);
+  CoglTexturePixmapX11 *tex_pixmap = g_slice_new0 (CoglTexturePixmapX11);
   Display *display = cogl_xlib_renderer_get_display (ctxt->display->renderer);
   Window pixmap_root_window;
   int pixmap_x, pixmap_y;
@@ -327,12 +327,7 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
 
   tex_pixmap->pixmap = pixmap;
   tex_pixmap->stereo_mode = stereo_mode;
-  tex_pixmap->left = NULL;
-  tex_pixmap->image = NULL;
   tex_pixmap->shm_info.shmid = -1;
-  tex_pixmap->tex = NULL;
-  tex_pixmap->damage_owned = FALSE;
-  tex_pixmap->damage = 0;
 
   /* We need a visual to use for shared memory images so we'll query
      it from the pixmap's root window */
@@ -376,11 +371,6 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
       tex_pixmap->use_winsys_texture =
         winsys->texture_pixmap_x11_create (tex_pixmap);
     }
-  else
-    tex_pixmap->use_winsys_texture = FALSE;
-
-  if (!tex_pixmap->use_winsys_texture)
-    tex_pixmap->winsys = NULL;
 
   _cogl_texture_set_allocated (tex, internal_format,
                                pixmap_width, pixmap_height);
