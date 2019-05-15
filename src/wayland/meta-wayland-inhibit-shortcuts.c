@@ -63,7 +63,7 @@ zwp_keyboard_shortcuts_inhibit_destructor (struct wl_resource *resource)
       meta_wayland_surface_restore_shortcuts (shortcut_inhibit->surface,
                                               shortcut_inhibit->seat);
     }
-  g_free (shortcut_inhibit);
+  g_slice_free (MetaWaylandKeyboardShotscutsInhibit, shortcut_inhibit);
 }
 
 static void
@@ -125,7 +125,7 @@ zwp_keyboard_shortcuts_inhibit_manager_inhibit_shortcuts (struct wl_client   *cl
                           META_ZWP_KEYBOARD_SHORTCUTS_INHIBIT_V1_VERSION,
                           id);
 
-  shortcut_inhibit = g_new0 (MetaWaylandKeyboardShotscutsInhibit, 1);
+  shortcut_inhibit = g_slice_new0 (MetaWaylandKeyboardShotscutsInhibit);
   shortcut_inhibit->surface = surface;
   shortcut_inhibit->seat = seat;
   shortcut_inhibit->resource = keyboard_shortcuts_inhibit_resource;
