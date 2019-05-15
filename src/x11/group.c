@@ -48,7 +48,7 @@ meta_group_new (MetaX11Display *x11_display,
 
   g_assert (N_INITIAL_PROPS == (int) G_N_ELEMENTS (initial_props));
 
-  group = g_new0 (MetaGroup, 1);
+  group = g_slice_new0 (MetaGroup);
 
   group->x11_display = x11_display;
   group->windows = NULL;
@@ -121,7 +121,7 @@ meta_group_unref (MetaGroup *group)
       g_free (group->wm_client_machine);
       g_free (group->startup_id);
 
-      g_free (group);
+      g_slice_free (MetaGroup, group);
     }
 }
 
