@@ -174,7 +174,7 @@ surface_constraint_data_new (MetaWaylandSurface *surface)
 {
   MetaWaylandSurfacePointerConstraintsData *data;
 
-  data = g_new0 (MetaWaylandSurfacePointerConstraintsData, 1);
+  data = g_slice_new0 (MetaWaylandSurfacePointerConstraintsData);
 
   data->surface = surface;
 
@@ -218,7 +218,7 @@ surface_constraint_data_free (MetaWaylandSurfacePointerConstraintsData *data)
 
   g_list_free_full (data->pointer_constraints,
                     (GDestroyNotify) meta_wayland_pointer_constraint_destroy);
-  g_free (data);
+  g_slice_free (MetaWaylandSurfacePointerConstraintsData, data);
 }
 
 static void
