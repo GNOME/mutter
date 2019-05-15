@@ -92,7 +92,7 @@ touch_surface_free (gpointer data)
   move_resources (&touch->resource_list,
                   &touch_surface->resource_list);
   wl_list_remove (&touch_surface->surface_destroy_listener.link);
-  g_free (touch_surface);
+  g_slice_free (MetaWaylandTouchSurface, touch_surface);
 }
 
 static MetaWaylandTouchSurface *
@@ -156,7 +156,7 @@ touch_surface_get (MetaWaylandTouch   *touch,
     return touch_surface_increment_touch (touch_surface);
 
   /* Create a new one for this surface */
-  touch_surface = g_new0 (MetaWaylandTouchSurface, 1);
+  touch_surface = g_slice_new0 (MetaWaylandTouchSurface);
   touch_surface->touch = touch;
   touch_surface->surface = surface;
   touch_surface->touch_count = 1;
