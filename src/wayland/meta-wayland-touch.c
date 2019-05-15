@@ -185,7 +185,7 @@ touch_get_info (MetaWaylandTouch     *touch,
 
   if (!touch_info && create)
     {
-      touch_info = g_new0 (MetaWaylandTouchInfo, 1);
+      touch_info = g_slice_new0 (MetaWaylandTouchInfo);
       touch_info->slot = clutter_evdev_event_sequence_get_slot (sequence);
       g_hash_table_insert (touch->touches, sequence, touch_info);
     }
@@ -478,7 +478,7 @@ static void
 touch_info_free (MetaWaylandTouchInfo *touch_info)
 {
   touch_surface_decrement_touch (touch_info->touch_surface);
-  g_free (touch_info);
+  g_slice_free (MetaWaylandTouchInfo, touch_info);
 }
 #endif /* HAVE_NATIVE_BACKEND */
 
