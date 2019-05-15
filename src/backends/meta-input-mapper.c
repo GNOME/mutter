@@ -132,7 +132,7 @@ mapper_output_info_new (MetaLogicalMonitor *logical_monitor)
 {
   MetaMapperOutputInfo *info;
 
-  info = g_new0 (MetaMapperOutputInfo, 1);
+  info = g_slice_new0 (MetaMapperOutputInfo);
   info->logical_monitor = logical_monitor;
 
   return info;
@@ -141,7 +141,7 @@ mapper_output_info_new (MetaLogicalMonitor *logical_monitor)
 static void
 mapper_output_info_free (MetaMapperOutputInfo *info)
 {
-  g_free (info);
+  g_slice_free (MetaMapperOutputInfo, info);
 }
 
 static MetaInputCapabilityFlags
