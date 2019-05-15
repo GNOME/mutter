@@ -256,7 +256,7 @@ meta_x11_startup_notification_init (MetaX11Display *x11_display)
 #ifdef HAVE_STARTUP_NOTIFICATION
   MetaX11StartupNotification *x11_sn;
 
-  x11_sn = g_new0 (MetaX11StartupNotification, 1);
+  x11_sn = g_slice_new0 (MetaX11StartupNotification);
   x11_sn->sn_display = sn_display_new (x11_display->xdisplay,
                                             sn_error_trap_push,
                                             sn_error_trap_pop);
@@ -283,7 +283,7 @@ meta_x11_startup_notification_release (MetaX11Display *x11_display)
     {
       sn_monitor_context_unref (x11_sn->sn_context);
       sn_display_unref (x11_sn->sn_display);
-      g_free (x11_sn);
+      g_slice_free (MetaX11StartupNotification, x11_sn);
     }
 #endif
 }
