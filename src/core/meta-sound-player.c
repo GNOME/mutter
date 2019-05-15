@@ -66,7 +66,7 @@ meta_play_request_new (MetaSoundPlayer *player,
 {
   MetaPlayRequest *req;
 
-  req = g_new0 (MetaPlayRequest, 1);
+  req = g_slice_new0 (MetaPlayRequest);
   req->props = props;
   req->player = player;
   g_set_object (&req->cancellable, cancellable);
@@ -79,7 +79,7 @@ meta_play_request_free (MetaPlayRequest *req)
 {
   g_clear_object (&req->cancellable);
   ca_proplist_destroy (req->props);
-  g_free (req);
+  g_slice_free (MetaPlayRequest, req);
 }
 
 static void
