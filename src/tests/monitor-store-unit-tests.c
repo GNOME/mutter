@@ -106,7 +106,7 @@ create_config_key_from_expect (MonitorStoreTestConfiguration *expect_config)
   monitor_specs = g_list_sort (monitor_specs,
                                (GCompareFunc) meta_monitor_spec_compare);
 
-  config_key = g_new0 (MetaMonitorsConfigKey, 1);
+  config_key = g_slice_new0 (MetaMonitorsConfigKey);
   *config_key = (MetaMonitorsConfigKey) {
     .monitor_specs = monitor_specs
   };
