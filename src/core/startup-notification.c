@@ -575,8 +575,7 @@ meta_startup_notification_finalize (GObject *object)
   if (sn->startup_sequence_timeout)
     g_source_remove (sn->startup_sequence_timeout);
 
-  g_slist_foreach (sn->startup_sequences, (GFunc) g_object_unref, NULL);
-  g_slist_free (sn->startup_sequences);
+  g_slist_free_full (sn->startup_sequences, g_object_unref);
   sn->startup_sequences = NULL;
 
   G_OBJECT_CLASS (meta_startup_notification_parent_class)->finalize (object);

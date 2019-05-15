@@ -295,8 +295,7 @@ clutter_path_clear (ClutterPath *path)
 {
   ClutterPathPrivate *priv = path->priv;
 
-  g_slist_foreach (priv->nodes, (GFunc) clutter_path_node_full_free, NULL);
-  g_slist_free (priv->nodes);
+  g_slist_free_full (priv->nodes, (GDestroyNotify) clutter_path_node_full_free);
 
   priv->nodes = priv->nodes_tail = NULL;
   priv->nodes_dirty = TRUE;
@@ -659,8 +658,7 @@ clutter_path_parse_description (const gchar  *p,
   return TRUE;
 
  fail:
-  g_slist_foreach (nodes, (GFunc) clutter_path_node_full_free, NULL);
-  g_slist_free (nodes);
+  g_slist_free_full (nodes, (GDestroyNotify) clutter_path_node_full_free);
   return FALSE;
 }
 

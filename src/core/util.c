@@ -249,10 +249,7 @@ utf8_fputs (const char *str,
 void
 meta_free_gslist_and_elements (GSList *list_to_deep_free)
 {
-  g_slist_foreach (list_to_deep_free,
-                   (void (*)(gpointer,gpointer))&g_free, /* ew, for ugly */
-                   NULL);
-  g_slist_free (list_to_deep_free);
+  g_slist_free_full (list_to_deep_free, g_free);
 }
 
 #ifdef WITH_VERBOSE_MODE

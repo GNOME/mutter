@@ -843,8 +843,7 @@ clutter_script_unmerge_objects (ClutterScript *script,
   for (l = data.ids; l != NULL; l = l->next)
     g_hash_table_remove (priv->objects, l->data);
 
-  g_slist_foreach (data.ids, (GFunc) g_free, NULL);
-  g_slist_free (data.ids);
+  g_slist_free_full (data.ids, g_free);
 
   clutter_script_ensure_objects (script);
 }

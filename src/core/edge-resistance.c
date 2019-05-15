@@ -1157,13 +1157,7 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
   g_list_free (stacked_windows);
   /* Free the memory used by the obscuring windows/docks lists */
   g_slist_free (window_stacking);
-  /* FIXME: Shouldn't there be a helper function to make this one line of code
-   * to free a list instead of four ugly ones?
-   */
-  g_slist_foreach (obscuring_windows,
-                   (void (*)(gpointer,gpointer))&g_free, /* ew, for ugly */
-                   NULL);
-  g_slist_free (obscuring_windows);
+  g_slist_free_full (obscuring_windows, g_free);
 
   /* Sort the list.  FIXME: Should I bother with this sorting?  I just
    * sort again later in cache_edges() anyway...

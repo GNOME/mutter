@@ -412,8 +412,7 @@ master_clock_advance_timelines (ClutterMasterClockDefault *master_clock)
   for (l = timelines; l != NULL; l = l->next)
     _clutter_timeline_do_tick (l->data, master_clock->cur_tick / 1000);
 
-  g_slist_foreach (timelines, (GFunc) g_object_unref, NULL);
-  g_slist_free (timelines);
+  g_slist_free_full (timelines, g_object_unref);
 
 #ifdef CLUTTER_ENABLE_DEBUG
   if (_clutter_diagnostic_enabled ())
@@ -574,8 +573,7 @@ clutter_clock_dispatch (GSource     *source,
 
   master_clock_reschedule_stage_updates (master_clock, stages);
 
-  g_slist_foreach (stages, (GFunc) g_object_unref, NULL);
-  g_slist_free (stages);
+  g_slist_free_full (stages, g_object_unref);
 
   master_clock->prev_tick = master_clock->cur_tick;
 

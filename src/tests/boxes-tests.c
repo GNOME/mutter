@@ -221,13 +221,7 @@ test_basic_fitting (void)
 static void
 free_strut_list (GSList *struts)
 {
-  GSList *tmp = struts;
-  while (tmp)
-    {
-      g_free (tmp->data);
-      tmp = tmp->next;
-    }
-  g_slist_free (struts);
+  g_slist_free_full (struts, g_free);
 }
 
 static GSList*

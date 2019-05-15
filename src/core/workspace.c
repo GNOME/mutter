@@ -52,8 +52,6 @@ void meta_workspace_queue_calc_showing   (MetaWorkspace *workspace);
 static void focus_ancestor_or_top_window (MetaWorkspace *workspace,
                                           MetaWindow    *not_this_one,
                                           guint32        timestamp);
-static void free_this                    (gpointer candidate,
-                                          gpointer dummy);
 
 G_DEFINE_TYPE (MetaWorkspace, meta_workspace, G_TYPE_OBJECT);
 
@@ -265,13 +263,6 @@ meta_workspace_new (MetaWorkspaceManager *workspace_manager)
   return workspace;
 }
 
-/* Foreach function for workspace_free_struts() */
-static void
-free_this (gpointer candidate, gpointer dummy)
-{
-  g_free (candidate);
-}
-
 /**
  * workspace_free_all_struts:
  * @workspace: The workspace.
@@ -284,8 +275,7 @@ workspace_free_all_struts (MetaWorkspace *workspace)
   if (workspace->all_struts == NULL)
     return;
 
-  g_slist_foreach (workspace->all_struts, free_this, NULL);
-  g_slist_free (workspace->all_struts);
+  g_slist_free_full (workspace->all_struts, g_free);
   workspace->all_struts = NULL;
 }
 
@@ -301,8 +291,7 @@ workspace_free_builtin_struts (MetaWorkspace *workspace)
   if (workspace->builtin_struts == NULL)
     return;
 
-  g_slist_foreach (workspace->builtin_struts, free_this, NULL);
-  g_slist_free (workspace->builtin_struts);
+  g_slist_free_full (workspace->builtin_struts, g_free);
   workspace->builtin_struts = NULL;
 }
 

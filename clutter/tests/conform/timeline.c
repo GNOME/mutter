@@ -38,8 +38,7 @@ timeline_data_init (TimelineData *data, int timeline_num)
 static void
 timeline_data_destroy (TimelineData *data)
 {
-  g_slist_foreach (data->markers_hit, (GFunc) g_free, NULL);
-  g_slist_free (data->markers_hit);
+  g_slist_free_full (data->markers_hit, g_free);
 }
 
 static void
