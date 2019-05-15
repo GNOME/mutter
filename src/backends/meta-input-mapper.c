@@ -113,7 +113,7 @@ mapper_input_info_new (ClutterInputDevice *device,
 {
   MetaMapperInputInfo *info;
 
-  info = g_new0 (MetaMapperInputInfo, 1);
+  info = g_slice_new0 (MetaMapperInputInfo);
   info->mapper = mapper;
   info->device = device;
   info->builtin = builtin;
@@ -124,7 +124,7 @@ mapper_input_info_new (ClutterInputDevice *device,
 static void
 mapper_input_info_free (MetaMapperInputInfo *info)
 {
-  g_free (info);
+  g_slice_free (MetaMapperInputInfo, info);
 }
 
 static MetaMapperOutputInfo *
