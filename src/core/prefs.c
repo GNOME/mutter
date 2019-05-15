@@ -1670,7 +1670,7 @@ meta_key_pref_free (MetaKeyPref *pref)
   g_free (pref->name);
   g_object_unref (pref->settings);
 
-  g_free (pref);
+  g_slice_free (MetaKeyPref, pref);
 }
 
 
@@ -1682,7 +1682,7 @@ init_bindings (void)
   key_bindings = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
                                         (GDestroyNotify)meta_key_pref_free);
 
-  pref = g_new0 (MetaKeyPref, 1);
+  pref = g_slice_new0 (MetaKeyPref);
   pref->name = g_strdup ("overlay-key");
   pref->action = META_KEYBINDING_ACTION_OVERLAY_KEY;
   pref->combos = g_slist_prepend (pref->combos, &overlay_key_combo);
@@ -1888,7 +1888,7 @@ meta_prefs_add_keybinding (const char           *name,
       return FALSE;
     }
 
-  pref = g_new0 (MetaKeyPref, 1);
+  pref = g_slice_new0 (MetaKeyPref);
   pref->name = g_strdup (name);
   pref->settings = g_object_ref (settings);
   pref->action = action;
