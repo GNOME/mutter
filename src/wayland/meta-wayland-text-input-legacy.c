@@ -510,7 +510,7 @@ meta_wayland_gtk_text_input_new (MetaWaylandSeat *seat)
 {
   MetaWaylandGtkTextInput *text_input;
 
-  text_input = g_new0 (MetaWaylandGtkTextInput, 1);
+  text_input = g_slice_new0 (MetaWaylandGtkTextInput);
   text_input->input_focus = meta_wayland_text_input_focus_new (text_input);
   text_input->seat = seat;
 
@@ -526,7 +526,7 @@ meta_wayland_gtk_text_input_destroy (MetaWaylandGtkTextInput *text_input)
 {
   meta_wayland_gtk_text_input_set_focus (text_input, NULL);
   g_object_unref (text_input->input_focus);
-  g_free (text_input);
+  g_slice_free (MetaWaylandGtkTextInput, text_input);
 }
 
 static void
