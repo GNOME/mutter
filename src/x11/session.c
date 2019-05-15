@@ -1692,7 +1692,7 @@ session_info_free (MetaWindowSessionInfo *info)
 
   g_slist_free (info->workspace_indices);
 
-  g_free (info);
+  g_slice_free (MetaWindowSessionInfo, info);
 }
 
 static MetaWindowSessionInfo*
@@ -1700,7 +1700,7 @@ session_info_new (void)
 {
   MetaWindowSessionInfo *info;
 
-  info = g_new0 (MetaWindowSessionInfo, 1);
+  info = g_slice_new0 (MetaWindowSessionInfo);
 
   info->type = META_WINDOW_NORMAL;
   info->gravity = NorthWestGravity;
