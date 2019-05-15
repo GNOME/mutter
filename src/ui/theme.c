@@ -40,7 +40,7 @@ meta_frame_layout_new  (void)
 {
   MetaFrameLayout *layout;
 
-  layout = g_new0 (MetaFrameLayout, 1);
+  layout = g_slice_new0 (MetaFrameLayout);
 
   /* Spacing as hardcoded in GTK+:
    * https://git.gnome.org/browse/gtk+/tree/gtk/gtkheaderbar.c?h=gtk-3-14#n53
@@ -59,7 +59,7 @@ meta_frame_layout_free (MetaFrameLayout *layout)
   g_return_if_fail (layout != NULL);
 
   DEBUG_FILL_STRUCT (layout);
-  g_free (layout);
+  g_slice_free (MetaFrameLayout, layout);
 }
 
 static void
