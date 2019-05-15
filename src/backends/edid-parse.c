@@ -519,7 +519,7 @@ decode_check_sum (const uchar *edid,
 MonitorInfo *
 decode_edid (const uchar *edid)
 {
-  MonitorInfo *info = g_new0 (MonitorInfo, 1);
+  g_autoptr (MonitorInfo) info = g_slice_new0 (MonitorInfo);
 
   decode_check_sum (edid, info);
 
@@ -532,11 +532,14 @@ decode_edid (const uchar *edid)
       && decode_standard_timings (edid, info)
       && decode_descriptors (edid, info))
     {
-      return info;
+      return g_steal_pointer(&info);
     }
-  else
-    {
-      g_free (info);
-      return NULL;
-    }
+
+  return NULL;
+}
+
+void
+monitor_info_free (MonitorInfo *info)
+{
+  g_slice_free (MonitorInfo, info);
 }

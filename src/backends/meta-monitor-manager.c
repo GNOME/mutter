@@ -2969,7 +2969,7 @@ void
 meta_output_parse_edid (MetaOutput *output,
                         GBytes     *edid)
 {
-  MonitorInfo *parsed_edid;
+  g_autoptr (MonitorInfo) parsed_edid = NULL;
   gsize len;
 
   if (!edid)
@@ -2998,8 +2998,6 @@ meta_output_parse_edid (MetaOutput *output,
           g_clear_pointer (&output->serial, g_free);
           output->serial = g_strdup_printf ("0x%08x", parsed_edid->serial_number);
         }
-
-      g_free (parsed_edid);
     }
 
  out:
