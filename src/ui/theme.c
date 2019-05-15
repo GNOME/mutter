@@ -31,8 +31,6 @@
 #include "meta/prefs.h"
 #include "ui/frames.h"
 
-#define DEBUG_FILL_STRUCT(s) memset ((s), 0xef, sizeof (*(s)))
-
 static void scale_border (GtkBorder *border, double factor);
 
 static MetaFrameLayout *
@@ -58,7 +56,6 @@ meta_frame_layout_free (MetaFrameLayout *layout)
 {
   g_return_if_fail (layout != NULL);
 
-  DEBUG_FILL_STRUCT (layout);
   g_free (layout);
 }
 
@@ -967,7 +964,6 @@ meta_theme_free (MetaTheme *theme)
     if (theme->layouts[i])
       meta_frame_layout_free (theme->layouts[i]);
 
-  DEBUG_FILL_STRUCT (theme);
   g_free (theme);
 }
 
