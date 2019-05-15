@@ -190,4 +190,8 @@ struct MonitorInfo
 
 MonitorInfo *decode_edid (const uchar *data);
 
+void monitor_info_free (MonitorInfo *info);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MonitorInfo, monitor_info_free);
+
 #endif
