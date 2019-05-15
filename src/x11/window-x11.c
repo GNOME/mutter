@@ -1559,7 +1559,7 @@ meta_window_x11_update_struts (MetaWindow *window)
   changed = (old_iter != NULL || new_iter != NULL);
 
   /* Update appropriately */
-  meta_free_gslist_and_elements (old_struts);
+  g_slist_free_full (old_struts, g_free);
   window->struts = new_struts;
   return changed;
 }
