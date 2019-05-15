@@ -65,7 +65,7 @@ surface_inhibit_shortcuts_data_free (InhibitShortcutsData *data)
 {
   if (data->dialog)
     surface_inhibit_shortcuts_data_destroy_dialog (data);
-  g_free (data);
+  g_slice_free (InhibitShortcutsData, data);
 }
 
 static void
@@ -116,7 +116,7 @@ meta_wayland_surface_ensure_inhibit_shortcuts_dialog (MetaWaylandSurface *surfac
   if (data)
     return data;
 
-  data = g_new0 (InhibitShortcutsData, 1);
+  data = g_slice_new0 (InhibitShortcutsData);
   surface_inhibit_shortcuts_data_set (surface, data);
   g_signal_connect (surface, "destroy",
                     G_CALLBACK (on_surface_destroyed),
