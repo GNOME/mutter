@@ -1695,7 +1695,7 @@ current_tool_info_new (MetaInputSettings      *input_settings,
 {
   CurrentToolInfo *info;
 
-  info = g_new0 (CurrentToolInfo, 1);
+  info = g_slice_new0 (CurrentToolInfo);
   info->input_settings = input_settings;
   info->device = device;
   info->tool = tool;
@@ -1711,7 +1711,7 @@ static void
 current_tool_info_free (CurrentToolInfo *info)
 {
   g_signal_handler_disconnect (info->settings, info->changed_id);
-  g_free (info);
+  g_slice_free (CurrentToolInfo, info);
 }
 
 static void
