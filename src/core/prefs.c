@@ -805,7 +805,7 @@ meta_prefs_add_listener (MetaPrefsChangedFunc func,
 {
   MetaPrefsListener *l;
 
-  l = g_new (MetaPrefsListener, 1);
+  l = g_slice_new (MetaPrefsListener);
   l->func = func;
   l->data = user_data;
 
@@ -832,7 +832,7 @@ meta_prefs_remove_listener (MetaPrefsChangedFunc func,
       if (l->func == func &&
           l->data == user_data)
         {
-          g_free (l);
+          g_slice_free (MetaPrefsListener, l);
           listeners = g_list_delete_link (listeners, tmp);
 
           return;
