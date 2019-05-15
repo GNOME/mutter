@@ -150,9 +150,6 @@ META_EXPORT
 char* meta_g_utf8_strndup (const gchar *src, gsize n);
 
 META_EXPORT
-void  meta_free_gslist_and_elements (GSList *list_to_deep_free);
-
-META_EXPORT
 GPid meta_show_dialog (const char *type,
                        const char *message,
                        const char *timeout,
