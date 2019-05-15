@@ -823,6 +823,7 @@ static void
 cursor_priv_free (MetaCursorNativePrivate *cursor_priv)
 {
   g_hash_table_destroy (cursor_priv->gpu_states);
+  g_slice_free (MetaCursorNativePrivate, cursor_priv);
 }
 
 static MetaCursorNativePrivate *
@@ -840,7 +841,7 @@ ensure_cursor_priv (MetaCursorSprite *cursor_sprite)
   if (cursor_priv)
     return cursor_priv;
 
-  cursor_priv = g_new0 (MetaCursorNativePrivate, 1);
+  cursor_priv = g_slice_new0 (MetaCursorNativePrivate);
   cursor_priv->gpu_states =
     g_hash_table_new_full (g_direct_hash,
                            g_direct_equal,
