@@ -780,7 +780,7 @@ cursor_gpu_state_free (MetaCursorNativeGpuState *cursor_gpu_state)
 
   for (i = 0; i < HW_CURSOR_BUFFER_COUNT; i++)
     g_clear_pointer (&cursor_gpu_state->bos[i], gbm_bo_destroy);
-  g_free (cursor_gpu_state);
+  g_slice_free (MetaCursorNativeGpuState, cursor_gpu_state);
 }
 
 static MetaCursorNativeGpuState *
@@ -800,7 +800,7 @@ ensure_cursor_gpu_state (MetaCursorNativePrivate *cursor_priv,
   if (cursor_gpu_state)
     return cursor_gpu_state;
 
-  cursor_gpu_state = g_new0 (MetaCursorNativeGpuState, 1);
+  cursor_gpu_state = g_slice_new0 (MetaCursorNativeGpuState);
   cursor_gpu_state->gpu = META_GPU (gpu_kms);
   g_hash_table_insert (cursor_priv->gpu_states, gpu_kms, cursor_gpu_state);
 
