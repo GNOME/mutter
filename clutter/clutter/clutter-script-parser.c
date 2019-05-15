@@ -2021,8 +2021,7 @@ add_children (ClutterScript *script,
       clutter_container_add_actor (container, CLUTTER_ACTOR (object));
     }
 
-  g_list_foreach (oinfo->children, (GFunc) g_free, NULL);
-  g_list_free (oinfo->children);
+  g_list_free_full (oinfo->children, g_free);
 
   oinfo->children = unresolved;
 }

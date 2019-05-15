@@ -851,10 +851,7 @@ meta_rectangle_expand_to_avoiding_struts (MetaRectangle       *rect,
 void
 meta_rectangle_free_list_and_elements (GList *filled_list)
 {
-  g_list_foreach (filled_list,
-                  (void (*)(gpointer,gpointer))&g_free, /* ew, for ugly */
-                  NULL);
-  g_list_free (filled_list);
+  g_list_free_full (filled_list, g_free);
 }
 
 gboolean

@@ -456,11 +456,7 @@ _cogl_pipeline_free (CoglPipeline *pipeline)
     g_slice_free (CoglPipelineBigState, pipeline->big_state);
 
   if (pipeline->differences & COGL_PIPELINE_STATE_LAYERS)
-    {
-      g_list_foreach (pipeline->layer_differences,
-                      (GFunc)cogl_object_unref, NULL);
-      g_list_free (pipeline->layer_differences);
-    }
+    g_list_free_full (pipeline->layer_differences, cogl_object_unref);
 
   if (pipeline->differences & COGL_PIPELINE_STATE_VERTEX_SNIPPETS)
     _cogl_pipeline_snippet_list_free (&pipeline->big_state->vertex_snippets);
@@ -937,12 +933,7 @@ _cogl_pipeline_copy_differences (CoglPipeline *dest,
 
       if (dest->differences & COGL_PIPELINE_STATE_LAYERS &&
           dest->layer_differences)
-        {
-          g_list_foreach (dest->layer_differences,
-                          (GFunc)cogl_object_unref,
-                          NULL);
-          g_list_free (dest->layer_differences);
-        }
+        g_list_free_full (dest->layer_differences, cogl_object_unref);
 
       for (l = src->layer_differences; l; l = l->next)
         {

@@ -114,8 +114,7 @@ test_destroy_destroy (ClutterActor *self)
       test->tex = NULL;
     }
 
-  g_list_foreach (test->children, (GFunc) clutter_actor_destroy, NULL);
-  g_list_free (test->children);
+  g_list_free_full (test->children, (GDestroyNotify) clutter_actor_destroy);
   test->children = NULL;
 
   if (CLUTTER_ACTOR_CLASS (test_destroy_parent_class)->destroy)

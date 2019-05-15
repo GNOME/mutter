@@ -577,8 +577,7 @@ _clutter_meta_group_clear_metas (ClutterMetaGroup *group)
 {
   g_list_foreach (group->meta, (GFunc) _clutter_actor_meta_set_actor, NULL);
 
-  g_list_foreach (group->meta, (GFunc) g_object_unref, NULL);
-  g_list_free (group->meta);
+  g_list_free_full (group->meta, g_object_unref);
   group->meta = NULL;
 }
 
