@@ -66,7 +66,7 @@ static MetaStrut*
 new_meta_strut (int x, int y, int width, int height, int side)
 {
   MetaStrut* temporary;
-  temporary = g_new (MetaStrut, 1);
+  temporary = g_slice_new (MetaStrut);
   temporary->rect = meta_rect(x, y, width, height);
   temporary->side = side;
 
@@ -221,7 +221,7 @@ test_basic_fitting (void)
 static void
 free_strut_list (GSList *struts)
 {
-  g_slist_free_full (struts, g_free);
+  g_slist_free_full (struts, (GDestroyNotify) meta_strut_free);
 }
 
 static GSList*

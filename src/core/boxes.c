@@ -851,6 +851,12 @@ meta_edge_free_list_and_elements (GList *filled_list)
   g_list_free_full (filled_list, (GDestroyNotify) meta_edge_free);
 }
 
+void
+meta_strut_free (MetaStrut *strut)
+{
+  g_slice_free (MetaStrut, strut);
+}
+
 gboolean
 meta_rectangle_could_fit_in_region (const GList         *spanning_rects,
                                     const MetaRectangle *rect)
