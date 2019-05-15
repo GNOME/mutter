@@ -113,7 +113,7 @@ meta_wayland_xdg_exported_destroy (MetaWaylandXdgExported *exported)
   g_hash_table_remove (foreign->exported_surfaces, exported->handle);
 
   g_free (exported->handle);
-  g_free (exported);
+  g_slice_free (MetaWaylandXdgExported, exported);
 }
 
 static void
@@ -165,7 +165,7 @@ xdg_exporter_export (struct wl_client   *client,
       return;
     }
 
-  exported = g_new0 (MetaWaylandXdgExported, 1);
+  exported = g_slice_new0 (MetaWaylandXdgExported);
   exported->foreign = foreign;
   exported->surface = surface;
   exported->resource = xdg_exported_resource;
@@ -336,7 +336,7 @@ meta_wayland_xdg_imported_destroy (MetaWaylandXdgImported *imported)
 
   wl_resource_set_user_data (imported->resource, NULL);
 
-  g_free (imported);
+  g_slice_free (MetaWaylandXdgImported, imported);
 }
 
 static void
@@ -386,7 +386,7 @@ xdg_importer_import (struct wl_client   *client,
       return;
     }
 
-  imported = g_new0 (MetaWaylandXdgImported, 1);
+  imported = g_slice_new0 (MetaWaylandXdgImported);
   imported->foreign = foreign;
   imported->exported = exported;
   imported->resource = xdg_imported_resource;
