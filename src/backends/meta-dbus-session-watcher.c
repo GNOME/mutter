@@ -88,7 +88,7 @@ meta_dbus_session_client_destroy (MetaDbusSessionClient *client)
     g_bus_unwatch_name (client->name_watcher_id);
 
   g_free (client->dbus_name);
-  g_free (client);
+  g_slice_free (MetaDbusSessionClient, client);
 }
 
 static void
@@ -123,7 +123,7 @@ meta_dbus_session_client_new (MetaDbusSessionWatcher *session_watcher,
     g_dbus_interface_skeleton_get_connection (interface_skeleton);
   MetaDbusSessionClient *client;
 
-  client = g_new0 (MetaDbusSessionClient, 1);
+  client = g_slice_new0 (MetaDbusSessionClient);
   client->session_watcher = session_watcher;
   client->session = session;
   client->dbus_name = g_strdup (dbus_name);
