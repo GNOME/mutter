@@ -240,7 +240,7 @@ meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
 {
   MetaGpuKmsFlipClosureContainer *closure_container;
 
-  closure_container = g_new0 (MetaGpuKmsFlipClosureContainer, 1);
+  closure_container = g_slice_new0 (MetaGpuKmsFlipClosureContainer);
   *closure_container = (MetaGpuKmsFlipClosureContainer) {
     .flip_closure = g_closure_ref (flip_closure),
     .gpu_kms = gpu_kms,
@@ -254,7 +254,7 @@ void
 meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container)
 {
   g_closure_unref (closure_container->flip_closure);
-  g_free (closure_container);
+  g_slice_free (MetaGpuKmsFlipClosureContainer, closure_container);
 }
 
 gboolean
