@@ -612,7 +612,7 @@ meta_wayland_text_input_new (MetaWaylandSeat *seat)
 {
   MetaWaylandTextInput *text_input;
 
-  text_input = g_new0 (MetaWaylandTextInput, 1);
+  text_input = g_slice_new0 (MetaWaylandTextInput);
   text_input->input_focus = meta_wayland_text_input_focus_new (text_input);
   text_input->seat = seat;
 
@@ -631,7 +631,7 @@ meta_wayland_text_input_destroy (MetaWaylandTextInput *text_input)
   meta_wayland_text_input_set_focus (text_input, NULL);
   g_object_unref (text_input->input_focus);
   g_hash_table_destroy (text_input->resource_serials);
-  g_free (text_input);
+  g_slice_free (MetaWaylandTextInput, text_input);
 }
 
 static void
