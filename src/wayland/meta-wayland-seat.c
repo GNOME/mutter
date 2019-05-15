@@ -209,7 +209,7 @@ static MetaWaylandSeat *
 meta_wayland_seat_new (MetaWaylandCompositor *compositor,
                        struct wl_display     *display)
 {
-  MetaWaylandSeat *seat = g_new0 (MetaWaylandSeat, 1);
+  MetaWaylandSeat *seat = g_slice_new0 (MetaWaylandSeat);
   ClutterDeviceManager *device_manager;
 
   wl_list_init (&seat->base_resource_list);
