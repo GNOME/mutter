@@ -2031,7 +2031,7 @@ xdg_positioner_destructor (struct wl_resource *resource)
 {
   MetaWaylandXdgPositioner *positioner = wl_resource_get_user_data (resource);
 
-  g_free (positioner);
+  g_slice_free (MetaWaylandXdgPositioner, positioner);
 }
 
 static void
@@ -2055,7 +2055,7 @@ xdg_wm_base_create_positioner (struct wl_client   *client,
   MetaWaylandXdgPositioner *positioner;
   struct wl_resource *positioner_resource;
 
-  positioner = g_new0 (MetaWaylandXdgPositioner, 1);
+  positioner = g_slice_new0 (MetaWaylandXdgPositioner);
   positioner_resource = wl_resource_create (client,
                                             &xdg_positioner_interface,
                                             wl_resource_get_version (resource),
