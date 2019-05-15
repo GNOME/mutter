@@ -1911,6 +1911,12 @@ get_x11_display_logical_monitor_data (MetaLogicalMonitor *logical_monitor)
                              quark_x11_display_logical_monitor_data);
 }
 
+static inline void
+x11_display_logical_monitor_data_free (MetaX11DisplayLogicalMonitorData *data)
+{
+  g_slice_free (MetaX11DisplayLogicalMonitorData, data);
+}
+
 static MetaX11DisplayLogicalMonitorData *
 ensure_x11_display_logical_monitor_data (MetaLogicalMonitor *logical_monitor)
 {
@@ -1920,11 +1926,12 @@ ensure_x11_display_logical_monitor_data (MetaLogicalMonitor *logical_monitor)
   if (data)
     return data;
 
-  data = g_new0 (MetaX11DisplayLogicalMonitorData, 1);
+  data = g_slice_new0 (MetaX11DisplayLogicalMonitorData);
   g_object_set_qdata_full (G_OBJECT (logical_monitor),
                            quark_x11_display_logical_monitor_data,
                            data,
-                           g_free);
+                           (GDestroyNotify)
+                           x11_display_logical_monitor_data_free);
 
   return data;
 }
