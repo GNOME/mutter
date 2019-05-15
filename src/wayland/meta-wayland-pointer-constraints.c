@@ -691,7 +691,7 @@ pending_constraint_state_container_free (MetaWaylandPendingConstraintStateContai
 {
   g_list_free_full (container->pending_constraint_states,
                     (GDestroyNotify) pending_constraint_state_free);
-  g_free (container);
+  g_slice_free (MetaWaylandPendingConstraintStateContainer, container);
 }
 
 static MetaWaylandPendingConstraintStateContainer *
@@ -702,7 +702,7 @@ ensure_pending_constraint_state_container (MetaWaylandPendingState *pending)
   container = get_pending_constraint_state_container (pending);
   if (!container)
     {
-      container = g_new0 (MetaWaylandPendingConstraintStateContainer, 1);
+      container = g_slice_new0 (MetaWaylandPendingConstraintStateContainer);
       g_object_set_qdata_full (G_OBJECT (pending),
                                quark_pending_constraint_state,
                                container,
@@ -774,7 +774,7 @@ ensure_pending_constraint_state (MetaWaylandPointerConstraint *constraint)
   constraint_pending = get_pending_constraint_state (constraint);
   if (!constraint_pending)
     {
-      constraint_pending = g_new0 (MetaWaylandPendingConstraintState, 1);
+      constraint_pending = g_slice_new0 (MetaWaylandPendingConstraintState);
       constraint_pending->constraint = constraint;
       constraint_pending->applied_handler_id =
         g_signal_connect (pending, "applied",
