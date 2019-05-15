@@ -195,7 +195,7 @@ key_handler_free (MetaKeyHandler *handler)
   g_free (handler->name);
   if (handler->user_data_free_func && handler->user_data)
     handler->user_data_free_func (handler->user_data);
-  g_free (handler);
+  g_slice_free (MetaKeyHandler, handler);
 }
 
 typedef struct _MetaKeyGrab MetaKeyGrab;
@@ -954,7 +954,7 @@ add_keybinding_internal (MetaDisplay          *display,
   if (!meta_prefs_add_keybinding (name, settings, action, flags))
     return FALSE;
 
-  handler = g_new0 (MetaKeyHandler, 1);
+  handler = g_slice_new0 (MetaKeyHandler);
   handler->name = g_strdup (name);
   handler->func = func;
   handler->default_func = func;
@@ -4399,19 +4399,19 @@ meta_display_init_keys (MetaDisplay *display)
   key_handlers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free,
                                         (GDestroyNotify) key_handler_free);
 
-  handler = g_new0 (MetaKeyHandler, 1);
+  handler = g_slice_new0 (MetaKeyHandler);
   handler->name = g_strdup ("overlay-key");
   handler->flags = META_KEY_BINDING_BUILTIN;
 
   g_hash_table_insert (key_handlers, g_strdup ("overlay-key"), handler);
 
-  handler = g_new0 (MetaKeyHandler, 1);
+  handler = g_slice_new0 (MetaKeyHandler);
   handler->name = g_strdup ("iso-next-group");
   handler->flags = META_KEY_BINDING_BUILTIN;
 
   g_hash_table_insert (key_handlers, g_strdup ("iso-next-group"), handler);
 
-  handler = g_new0 (MetaKeyHandler, 1);
+  handler = g_slice_new0 (MetaKeyHandler);
   handler->name = g_strdup ("external-grab");
   handler->func = handle_external_grab;
   handler->default_func = handle_external_grab;
