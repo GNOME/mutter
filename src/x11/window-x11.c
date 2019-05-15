@@ -1440,7 +1440,7 @@ meta_window_x11_update_struts (MetaWindow *window)
               strut_begin = struts[4+(i*2)];
               strut_end   = struts[4+(i*2)+1];
 
-              temp = g_new0 (MetaStrut, 1);
+              temp = g_slice_new0 (MetaStrut);
               temp->side = 1 << i; /* See MetaSide def.  Matches nicely, eh? */
               meta_display_get_size (window->display,
                                      &temp->rect.width, &temp->rect.height);
@@ -1504,7 +1504,7 @@ meta_window_x11_update_struts (MetaWindow *window)
               if (thickness == 0)
                 continue;
 
-              temp = g_new0 (MetaStrut, 1);
+              temp = g_slice_new0 (MetaStrut);
               temp->side = 1 << i;
               meta_display_get_size (window->display,
                                      &temp->rect.width, &temp->rect.height);
@@ -1559,7 +1559,7 @@ meta_window_x11_update_struts (MetaWindow *window)
   changed = (old_iter != NULL || new_iter != NULL);
 
   /* Update appropriately */
-  g_slist_free_full (old_struts, g_free);
+  g_slist_free_full (old_struts, (GDestroyNotify) meta_strut_free);
   window->struts = new_struts;
   return changed;
 }

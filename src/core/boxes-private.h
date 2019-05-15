@@ -145,6 +145,9 @@ void     meta_edge_free (MetaEdge *edge);
 META_EXPORT_TEST
 void     meta_edge_free_list_and_elements (GList *filled_list);
 
+META_EXPORT_TEST
+void     meta_strut_free (MetaStrut *strut);
+
 /* could_fit_in_region determines whether one of the spanning_rects is
  * big enough to contain rect.  contained_in_region checks whether one
  * actually contains it.

@@ -764,7 +764,7 @@ meta_workspace_invalidate_work_area (MetaWorkspace *workspace)
 static MetaStrut *
 copy_strut(MetaStrut *original)
 {
-  return g_memdup(original, sizeof(MetaStrut));
+  return g_slice_dup (MetaStrut, original);
 }
 
 static GSList *
