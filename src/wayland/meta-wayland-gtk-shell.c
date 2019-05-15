@@ -66,7 +66,7 @@ gtk_surface_destructor (struct wl_resource *resource)
                                    gtk_surface->configure_handler_id);
     }
 
-  g_free (gtk_surface);
+  g_slice_free (MetaWaylandGtkSurface, gtk_surface);
 }
 
 static void
@@ -334,7 +334,7 @@ gtk_shell_get_gtk_surface (struct wl_client   *client,
       return;
     }
 
-  gtk_surface = g_new0 (MetaWaylandGtkSurface, 1);
+  gtk_surface = g_slice_new0 (MetaWaylandGtkSurface);
   gtk_surface->surface = surface;
   gtk_surface->resource = wl_resource_create (client,
                                               &gtk_surface1_interface,
