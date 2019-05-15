@@ -437,7 +437,7 @@ meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_m
   monitor_specs = g_list_sort (monitor_specs,
                                (GCompareFunc) meta_monitor_spec_compare);
 
-  config_key = g_new0 (MetaMonitorsConfigKey, 1);
+  config_key = g_slice_new0 (MetaMonitorsConfigKey);
   *config_key = (MetaMonitorsConfigKey) {
     .monitor_specs = monitor_specs
   };
@@ -1249,7 +1249,7 @@ meta_monitors_config_key_new (GList *logical_monitor_configs,
   monitor_specs = g_list_sort (monitor_specs,
                                (GCompareFunc) meta_monitor_spec_compare);
 
-  config_key = g_new0 (MetaMonitorsConfigKey, 1);
+  config_key = g_slice_new0 (MetaMonitorsConfigKey);
   *config_key = (MetaMonitorsConfigKey) {
     .monitor_specs = monitor_specs
   };
@@ -1262,7 +1262,7 @@ meta_monitors_config_key_free (MetaMonitorsConfigKey *config_key)
 {
   g_list_free_full (config_key->monitor_specs,
                     (GDestroyNotify) meta_monitor_spec_free);
-  g_free (config_key);
+  g_slice_free (MetaMonitorsConfigKey, config_key);
 }
 
 unsigned int
