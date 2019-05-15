@@ -1582,7 +1582,7 @@ static void
 retry_page_flip_data_free (RetryPageFlipData *retry_page_flip_data)
 {
   g_closure_unref (retry_page_flip_data->flip_closure);
-  g_free (retry_page_flip_data);
+  g_slice_free (RetryPageFlipData, retry_page_flip_data);
 }
 
 static void
@@ -1738,7 +1738,7 @@ schedule_retry_page_flip (MetaOnscreenNative *onscreen_native,
   retry_time_us =
     now_us + (uint64_t) (G_USEC_PER_SEC / crtc->current_mode->refresh_rate);
 
-  retry_page_flip_data = g_new0 (RetryPageFlipData, 1);
+  retry_page_flip_data = g_slice_new0 (RetryPageFlipData);
   retry_page_flip_data->crtc = crtc;
   retry_page_flip_data->fb_id = fb_id;
   retry_page_flip_data->flip_closure = g_closure_ref (flip_closure);
