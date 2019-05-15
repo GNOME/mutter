@@ -114,11 +114,12 @@ test_destroy_destroy (ClutterActor *self)
       test->tex = NULL;
     }
 
-  g_list_free_full (test->children, (GDestroyNotify) clutter_actor_destroy);
-  test->children = NULL;
+  g_assert_nonnull (test->children);
 
   if (CLUTTER_ACTOR_CLASS (test_destroy_parent_class)->destroy)
     CLUTTER_ACTOR_CLASS (test_destroy_parent_class)->destroy (self);
+
+  g_assert_null (test->children);
 }
 
 static void
