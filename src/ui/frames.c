@@ -503,7 +503,7 @@ meta_frames_manage_window (MetaFrames *frames,
 
   g_assert (window);
 
-  frame = g_new (MetaUIFrame, 1);
+  frame = g_slice_new (MetaUIFrame);
 
   frame->frames = frames;
   frame->window = window;
@@ -553,7 +553,7 @@ meta_ui_frame_unmanage (MetaUIFrame *frame)
 
   g_free (frame->title);
 
-  g_free (frame);
+  g_slice_free (MetaUIFrame, frame);
 }
 
 void
