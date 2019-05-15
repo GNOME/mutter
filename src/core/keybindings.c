@@ -210,7 +210,7 @@ static void
 meta_key_grab_free (MetaKeyGrab *grab)
 {
   g_free (grab->name);
-  g_free (grab);
+  g_slice_free (MetaKeyGrab, grab);
 }
 
 static guint32
@@ -1626,7 +1626,7 @@ meta_display_grab_accelerator (MetaDisplay         *display,
 
   meta_change_keygrab (keys, display->x11_display->xroot, TRUE, &resolved_combo);
 
-  grab = g_new0 (MetaKeyGrab, 1);
+  grab = g_slice_new0 (MetaKeyGrab);
   grab->action = next_dynamic_keybinding_action ();
   grab->name = meta_external_binding_name_for_action (grab->action);
   grab->combo = combo;
