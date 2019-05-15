@@ -521,7 +521,7 @@ add_constraint (Constraint **constraints,
     }
 
   /* if not, add the constraint */
-  c = g_new (Constraint, 1);
+  c = g_slice_new (Constraint);
   c->above = above;
   c->below = below;
   c->next = constraints[below->stack_position];
@@ -677,7 +677,7 @@ free_constraints (Constraint **constraints,
 
           g_slist_free (c->next_nodes);
 
-          g_free (c);
+          g_slice_free (Constraint, c);
 
           c = next;
         }
