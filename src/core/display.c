@@ -504,7 +504,7 @@ ping_data_free (MetaPingData *ping_data)
   if (ping_data->ping_timeout_id != 0)
     g_source_remove (ping_data->ping_timeout_id);
 
-  g_free (ping_data);
+  g_slice_free (MetaPingData, ping_data);
 }
 
 void
@@ -2005,7 +2005,7 @@ meta_display_ping_window (MetaWindow *window,
   if (!meta_window_can_ping (window))
     return;
 
-  ping_data = g_new (MetaPingData, 1);
+  ping_data = g_slice_new (MetaPingData);
   ping_data->window = window;
   ping_data->serial = serial;
   ping_data->ping_timeout_id = g_timeout_add (PING_TIMEOUT_DELAY,
