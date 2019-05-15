@@ -145,6 +145,12 @@ cally_util_get_toolkit_version (void)
   return MUTTER_VERSION;
 }
 
+static inline void
+key_event_info_free (CallyKeyEventInfo *event_info)
+{
+  g_slice_free (CallyKeyEventInfo, event_info);
+}
+
 static guint
 cally_util_add_key_event_listener (AtkKeySnoopFunc  listener,
                                    gpointer         data)
@@ -154,12 +160,14 @@ cally_util_add_key_event_listener (AtkKeySnoopFunc  listener,
 
   if (!key_listener_list)
   {
-    key_listener_list = g_hash_table_new_full (NULL, NULL, NULL, g_free);
+    key_listener_list =
+      g_hash_table_new_full (NULL, NULL, NULL,
+                             (GDestroyNotify) key_event_info_free);
 
     cally_util_simulate_snooper_install ();
   }
 
-  event_info = g_new (CallyKeyEventInfo, 1);
+  event_info = g_slice_new (CallyKeyEventInfo);
   event_info->listener = listener;
   event_info->func_data = data;
 
