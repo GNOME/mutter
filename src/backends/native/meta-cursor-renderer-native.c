@@ -145,16 +145,22 @@ meta_cursor_renderer_native_gpu_data_from_gpu (MetaGpuKms *gpu_kms)
                              quark_cursor_renderer_native_gpu_data);
 }
 
+static void inline
+cursor_renderer_gpu_data_free (MetaCursorRendererNativeGpuData *gpu_kms)
+{
+  g_slice_free (MetaCursorRendererNativeGpuData, gpu_kms);
+}
+
 static MetaCursorRendererNativeGpuData *
 meta_create_cursor_renderer_native_gpu_data (MetaGpuKms *gpu_kms)
 {
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
 
-  cursor_renderer_gpu_data = g_new0 (MetaCursorRendererNativeGpuData, 1);
+  cursor_renderer_gpu_data = g_slice_new0 (MetaCursorRendererNativeGpuData);
   g_object_set_qdata_full (G_OBJECT (gpu_kms),
                            quark_cursor_renderer_native_gpu_data,
                            cursor_renderer_gpu_data,
-                           g_free);
+                           (GDestroyNotify) cursor_renderer_gpu_data_free);
 
   return cursor_renderer_gpu_data;
 }
