@@ -128,7 +128,7 @@ zwp_xwayland_keyboard_grab_destructor (struct wl_resource *resource)
   active_grab = wl_resource_get_user_data (resource);
   meta_xwayland_keyboard_grab_end (active_grab);
 
-  g_free (active_grab);
+  g_slice_free (MetaXwaylandKeyboardActiveGrab, active_grab);
 }
 
 static void
@@ -262,7 +262,7 @@ zwp_xwayland_keyboard_grab_manager_grab (struct wl_client   *client,
                                       wl_resource_get_version (resource),
                                       id);
 
-  active_grab = g_new0 (MetaXwaylandKeyboardActiveGrab, 1);
+  active_grab = g_slice_new0 (MetaXwaylandKeyboardActiveGrab);
   active_grab->surface = surface;
   active_grab->resource = grab_resource;
   active_grab->seat = seat;
