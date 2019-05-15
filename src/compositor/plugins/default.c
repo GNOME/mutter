@@ -515,7 +515,7 @@ on_minimize_effect_complete (ClutterTimeline *timeline, EffectCompleteData *data
   /* Now notify the manager that we are done with this effect */
   meta_plugin_minimize_completed (plugin, window_actor);
 
-  g_free (data);
+  g_slice_free (EffectCompleteData, data);
 }
 
 /*
@@ -541,7 +541,7 @@ minimize (MetaPlugin *plugin, MetaWindowActor *window_actor)
 
   if (type == META_WINDOW_NORMAL)
     {
-      EffectCompleteData *data = g_new0 (EffectCompleteData, 1);
+      EffectCompleteData *data = g_slice_new0 (EffectCompleteData);
       ActorPrivate *apriv = get_actor_private (window_actor);
 
       apriv->tml_minimize = actor_animate (actor,
@@ -578,7 +578,7 @@ on_map_effect_complete (ClutterTimeline *timeline, EffectCompleteData *data)
   /* Now notify the manager that we are done with this effect */
   meta_plugin_map_completed (plugin, window_actor);
 
-  g_free (data);
+  g_slice_free (EffectCompleteData, data);
 }
 
 /*
@@ -596,7 +596,7 @@ map (MetaPlugin *plugin, MetaWindowActor *window_actor)
 
   if (type == META_WINDOW_NORMAL)
     {
-      EffectCompleteData *data = g_new0 (EffectCompleteData, 1);
+      EffectCompleteData *data = g_slice_new0 (EffectCompleteData);
       ActorPrivate *apriv = get_actor_private (window_actor);
 
       clutter_actor_set_pivot_point (actor, 0.5, 0.5);
@@ -651,7 +651,7 @@ destroy (MetaPlugin *plugin, MetaWindowActor *window_actor)
 
   if (type == META_WINDOW_NORMAL)
     {
-      EffectCompleteData *data = g_new0 (EffectCompleteData, 1);
+      EffectCompleteData *data = g_slice_new0 (EffectCompleteData);
       ActorPrivate *apriv = get_actor_private (window_actor);
 
       apriv->tml_destroy = actor_animate (actor,
