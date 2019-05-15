@@ -89,8 +89,8 @@ clutter_stage_manager_dispose (GObject *gobject)
 
   stage_manager = CLUTTER_STAGE_MANAGER (gobject);
 
-  g_slist_foreach (stage_manager->stages, (GFunc) clutter_actor_destroy, NULL);
-  g_slist_free (stage_manager->stages);
+  g_slist_free_full (stage_manager->stages,
+                     (GDestroyNotify) clutter_actor_destroy);
   stage_manager->stages = NULL;
 
   G_OBJECT_CLASS (clutter_stage_manager_parent_class)->dispose (gobject);

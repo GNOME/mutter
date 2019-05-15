@@ -59,10 +59,8 @@ _cogl_program_free (CoglProgram *program)
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  /* Unref all of the attached shaders */
-  g_slist_foreach (program->attached_shaders, (GFunc) cogl_handle_unref, NULL);
-  /* Destroy the list */
-  g_slist_free (program->attached_shaders);
+  /* Unref all of the attached shaders and destroy the list */
+  g_slist_free_full (program->attached_shaders, cogl_handle_unref);
 
   for (i = 0; i < program->custom_uniforms->len; i++)
     {

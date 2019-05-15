@@ -194,10 +194,8 @@ _cogl_renderer_free (CoglRenderer *renderer)
   if (renderer->libgl_module)
     g_module_close (renderer->libgl_module);
 
-  g_slist_foreach (renderer->event_filters,
-                   (GFunc) native_filter_closure_free,
-                   NULL);
-  g_slist_free (renderer->event_filters);
+  g_slist_free_full (renderer->event_filters,
+                     (GDestroyNotify) native_filter_closure_free);
 
   g_array_free (renderer->poll_fds, TRUE);
 
