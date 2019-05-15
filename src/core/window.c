@@ -1525,7 +1525,7 @@ meta_window_unmanage (MetaWindow  *window,
 
   if (window->struts)
     {
-      g_slist_free_full (window->struts, g_free);
+      g_slist_free_full (window->struts, (GDestroyNotify) meta_strut_free);
       window->struts = NULL;
 
       meta_topic (META_DEBUG_WORKAREA,
