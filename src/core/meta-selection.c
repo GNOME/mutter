@@ -159,7 +159,7 @@ transfer_request_new (GOutputStream     *ostream,
 {
   TransferRequest *request;
 
-  request = g_new0 (TransferRequest, 1);
+  request = g_slice_new0 (TransferRequest);
   request->ostream = g_object_ref (ostream);
   request->selection_type = selection_type;
   request->len = len;
@@ -171,7 +171,7 @@ transfer_request_free (TransferRequest *request)
 {
   g_clear_object (&request->istream);
   g_clear_object (&request->ostream);
-  g_free (request);
+  g_slice_free (TransferRequest, request);
 }
 
 static void
