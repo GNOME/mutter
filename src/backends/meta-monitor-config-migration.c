@@ -929,7 +929,7 @@ ensure_logical_monitor (GList           **logical_monitor_configs,
         return logical_monitor_config;
     }
 
-  new_logical_monitor_config = g_new0 (MetaLogicalMonitorConfig, 1);
+  new_logical_monitor_config = g_slice_new0 (MetaLogicalMonitorConfig);
   *new_logical_monitor_config = (MetaLogicalMonitorConfig) {
     .layout = *layout,
     .is_primary = output_config->is_primary,

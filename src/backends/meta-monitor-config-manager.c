@@ -628,7 +628,7 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
 
   monitor_config = create_monitor_config (monitor, mode);
 
-  logical_monitor_config = g_new0 (MetaLogicalMonitorConfig, 1);
+  logical_monitor_config = g_slice_new0 (MetaLogicalMonitorConfig);
   *logical_monitor_config = (MetaLogicalMonitorConfig) {
     .layout = (MetaRectangle) {
       .x = x,
@@ -993,7 +993,7 @@ create_for_switch_config_all_mirror (MetaMonitorConfigManager *config_manager)
       monitor_configs = g_list_prepend (monitor_configs, create_monitor_config (monitor, mode));
     }
 
-  logical_monitor_config = g_new0 (MetaLogicalMonitorConfig, 1);
+  logical_monitor_config = g_slice_new0 (MetaLogicalMonitorConfig);
   *logical_monitor_config = (MetaLogicalMonitorConfig) {
     .layout = (MetaRectangle) {
       .x = 0,
@@ -1211,7 +1211,7 @@ meta_logical_monitor_config_free (MetaLogicalMonitorConfig *logical_monitor_conf
 {
   g_list_free_full (logical_monitor_config->monitor_configs,
                     (GDestroyNotify) meta_monitor_config_free);
-  g_free (logical_monitor_config);
+  g_slice_free (MetaLogicalMonitorConfig, logical_monitor_config);
 }
 
 static MetaMonitorsConfigKey *
