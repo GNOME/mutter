@@ -1728,7 +1728,7 @@ init_bindings (void)
   pref->combos = g_slist_prepend (pref->combos, &overlay_key_combo);
   pref->builtin = 1;
 
-  g_hash_table_insert (key_bindings, g_strdup ("overlay-key"), pref);
+  g_hash_table_insert (key_bindings, g_strdup (pref->name), pref);
 
   pref = g_new0 (MetaKeyPref, 1);
   pref->name = g_strdup ("locate-pointer-key");
@@ -1736,7 +1736,7 @@ init_bindings (void)
   pref->combos = g_slist_prepend (pref->combos, &locate_pointer_key_combo);
   pref->builtin = 1;
 
-  g_hash_table_insert (key_bindings, g_strdup ("locate-pointer-key"), pref);
+  g_hash_table_insert (key_bindings, g_strdup (pref->name), pref);
 }
 
 static gboolean
