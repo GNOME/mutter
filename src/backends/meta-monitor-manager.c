@@ -1947,7 +1947,7 @@ create_logical_monitor_config_from_variant (MetaMonitorManager          *manager
                                     scale, transform, layout_mode, error))
     goto err;
 
-  logical_monitor_config = g_new0 (MetaLogicalMonitorConfig, 1);
+  logical_monitor_config = g_slice_new0 (MetaLogicalMonitorConfig);
   *logical_monitor_config = (MetaLogicalMonitorConfig) {
     .layout = {
       .x = x,
