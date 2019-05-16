@@ -4455,26 +4455,26 @@ meta_display_init_keys (MetaDisplay *display)
   handler->name = g_strdup ("overlay-key");
   handler->flags = META_KEY_BINDING_BUILTIN;
 
-  g_hash_table_insert (key_handlers, g_strdup ("overlay-key"), handler);
+  g_hash_table_insert (key_handlers, g_strdup (handler->name), handler);
 
   handler = g_new0 (MetaKeyHandler, 1);
   handler->name = g_strdup ("locate-pointer-key");
   handler->flags = META_KEY_BINDING_BUILTIN;
 
-  g_hash_table_insert (key_handlers, g_strdup ("locate-pointer-key"), handler);
+  g_hash_table_insert (key_handlers, g_strdup (handler->name), handler);
 
   handler = g_new0 (MetaKeyHandler, 1);
   handler->name = g_strdup ("iso-next-group");
   handler->flags = META_KEY_BINDING_BUILTIN;
 
-  g_hash_table_insert (key_handlers, g_strdup ("iso-next-group"), handler);
+  g_hash_table_insert (key_handlers, g_strdup (handler->name), handler);
 
   handler = g_new0 (MetaKeyHandler, 1);
   handler->name = g_strdup ("external-grab");
   handler->func = handle_external_grab;
   handler->default_func = handle_external_grab;
 
-  g_hash_table_insert (key_handlers, g_strdup ("external-grab"), handler);
+  g_hash_table_insert (key_handlers, g_strdup (handler->name), handler);
 
   external_grabs = g_hash_table_new_full (g_str_hash, g_str_equal,
                                           NULL,
