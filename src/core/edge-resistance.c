@@ -799,7 +799,7 @@ meta_display_cleanup_edges (MetaDisplay *display)
       edge_data->bottom_data.timeout_id != 0)
     g_source_remove (edge_data->bottom_data.timeout_id);
 
-  g_free (display->grab_edge_resistance_data);
+  g_slice_free (MetaEdgeResistanceData, display->grab_edge_resistance_data);
   display->grab_edge_resistance_data = NULL;
 }
 
@@ -898,7 +898,7 @@ cache_edges (MetaDisplay *display,
    * 2nd: Allocate the edges
    */
   g_assert (display->grab_edge_resistance_data == NULL);
-  display->grab_edge_resistance_data = g_new0 (MetaEdgeResistanceData, 1);
+  display->grab_edge_resistance_data = g_slice_new0 (MetaEdgeResistanceData);
   edge_data = display->grab_edge_resistance_data;
   edge_data->left_edges   = g_array_sized_new (FALSE,
                                                FALSE,
