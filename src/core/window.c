@@ -8240,6 +8240,12 @@ window_focus_on_pointer_rest_callback (gpointer data)
  */
 #define FOCUS_TIMEOUT_DELAY 25
 
+static inline void
+meta_focus_data_free (MetaFocusData *focus_data)
+{
+  g_slice_free (MetaFocusData, focus_data);
+}
+
 static void
 queue_focus_callback (MetaDisplay *display,
                       MetaWindow  *window,
@@ -8248,7 +8254,7 @@ queue_focus_callback (MetaDisplay *display,
 {
   MetaFocusData *focus_data;
 
-  focus_data = g_new (MetaFocusData, 1);
+  focus_data = g_slice_new (MetaFocusData);
   focus_data->window = window;
   focus_data->pointer_x = pointer_x;
   focus_data->pointer_y = pointer_y;
@@ -8261,7 +8267,7 @@ queue_focus_callback (MetaDisplay *display,
                         FOCUS_TIMEOUT_DELAY,
                         window_focus_on_pointer_rest_callback,
                         focus_data,
-                        g_free);
+                        (GDestroyNotify) meta_focus_data_free);
   g_source_set_name_by_id (display->focus_timeout_id,
                            "[mutter] window_focus_on_pointer_rest_callback");
 }
