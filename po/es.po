@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-05-03 10:54+0000\n"
-"PO-Revision-Date: 2019-05-03 14:28+0200\n"
+"POT-Creation-Date: 2019-05-15 13:19+0000\n"
+"PO-Revision-Date: 2019-05-16 12:38+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: es <gnome-es-list@gnome.org>\n"
 "Language: es\n"
@@ -397,6 +397,16 @@ msgid "Enable experimental features"
 msgstr "Activar las características experimentales"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
+#| msgid ""
+#| "To enable experimental features, add the feature keyword to the list. "
+#| "Whether the feature requires restarting the compositor depends on the "
+#| "given feature. Any experimental feature is not required to still be "
+#| "available, or configurable. Don’t expect adding anything in this setting "
+#| "to be future proof. Currently possible keywords: • “scale-monitor-"
+#| "framebuffer” — makes mutter default to layout logical monitors in a "
+#| "logical pixel coordinate space, while scaling monitor framebuffers "
+#| "instead of window content, to manage HiDPI monitors. Does not require a "
+#| "restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -405,7 +415,9 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart."
+"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
+"mutter request a low priority real-time scheduling. The executable or user "
+"must have CAP_SYS_NICE. Requires a restart."
 msgstr ""
 "Para activar las características experimentales, añada la palabra clave de "
 "la característica a la lista. Depende de la característica que se deba "
@@ -416,21 +428,23 @@ msgstr ""
 "manera predeterminada de disponer monitores lógicos en un espacio lógico de "
 "coordenadas de píxeles, al escalar framebuffers de monitores framebuffers en "
 "lugar del contenido de ventana, para administrar monitores HiDPI. No "
-"requiere un reinicio."
+"requiere un reinicio. • “rt-scheduler” — hace que mutter pida una "
+"planificación en tiempo real con prioridad baja. El ejecutable o el usuario "
+"deben tener CAP_SYS_NICE. Requiere reniciar."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "Select window from tab popup"
 msgstr "Seleccionar ventana de la pestaña emergente"
 
-#: data/org.gnome.mutter.gschema.xml.in:146
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Cancel tab popup"
 msgstr "Cancelar pestaña emergente"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Switch monitor configurations"
 msgstr "Cambiar la configuración del monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:156
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rota la configuración del monitor empotrado"
 
