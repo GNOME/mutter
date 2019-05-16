@@ -258,7 +258,7 @@ handle_start_element (GMarkupParseContext  *context,
         if (g_str_equal (element_name, "logicalmonitor"))
           {
             parser->current_logical_monitor_config =
-              g_new0 (MetaLogicalMonitorConfig, 1);
+              g_slice_new0 (MetaLogicalMonitorConfig);
 
             parser->state = STATE_LOGICAL_MONITOR;
           }
