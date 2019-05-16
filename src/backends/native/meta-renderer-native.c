@@ -701,7 +701,7 @@ init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_nat
       return FALSE;
     }
 
-  secondary_gpu_state = g_new0 (MetaOnscreenNativeSecondaryGpuState, 1);
+  secondary_gpu_state = g_slice_new0 (MetaOnscreenNativeSecondaryGpuState);
 
   secondary_gpu_state->gpu_kms = gpu_kms;
   secondary_gpu_state->renderer_gpu_data = renderer_gpu_data;
@@ -745,7 +745,7 @@ secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_sta
         release_dumb_fb (dumb_fb, gpu_kms);
     }
 
-  g_free (secondary_gpu_state);
+  g_slice_free (MetaOnscreenNativeSecondaryGpuState, secondary_gpu_state);
 }
 
 static uint32_t
@@ -844,7 +844,7 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
            drm_format,
            width, height);
 
-  secondary_gpu_state = g_new0 (MetaOnscreenNativeSecondaryGpuState, 1);
+  secondary_gpu_state = g_slice_new0 (MetaOnscreenNativeSecondaryGpuState);
   secondary_gpu_state->renderer_gpu_data = renderer_gpu_data;
   secondary_gpu_state->gpu_kms = gpu_kms;
   secondary_gpu_state->egl_surface = EGL_NO_SURFACE;
