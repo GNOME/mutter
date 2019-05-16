@@ -815,8 +815,8 @@ void
 meta_window_place_with_placement_rule (MetaWindow        *window,
                                        MetaPlacementRule *placement_rule)
 {
-  g_clear_pointer (&window->placement_rule, g_free);
-  window->placement_rule = g_new0 (MetaPlacementRule, 1);
+  meta_placement_rule_free (window->placement_rule);
+  window->placement_rule = g_slice_new0 (MetaPlacementRule);
   *window->placement_rule = *placement_rule;
 
   window->unconstrained_rect.width = placement_rule->width;
