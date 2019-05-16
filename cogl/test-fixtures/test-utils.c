@@ -187,9 +187,6 @@ test_utils_fini (void)
 {
   if (test_fb)
     cogl_object_unref (test_fb);
-
-  if (test_ctx)
-    cogl_object_unref (test_ctx);
 }
 
 static gboolean
