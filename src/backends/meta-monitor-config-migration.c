@@ -685,7 +685,7 @@ create_monitor_config (MetaOutputKey    *output_key,
       return NULL;
     }
 
-  monitor_spec = g_new0 (MetaMonitorSpec, 1);
+  monitor_spec = g_slice_new0 (MetaMonitorSpec);
   *monitor_spec = (MetaMonitorSpec) {
     .connector = output_key->connector,
     .vendor = output_key->vendor,
@@ -1071,7 +1071,7 @@ find_disabled_monitor_specs (MetaLegacyMonitorsConfig *legacy_config)
       if (output_config->enabled)
         continue;
 
-      monitor_spec = g_new0 (MetaMonitorSpec, 1);
+      monitor_spec = g_slice_new0 (MetaMonitorSpec);
       *monitor_spec = (MetaMonitorSpec) {
         .connector = output_key->connector,
         .vendor = output_key->vendor,

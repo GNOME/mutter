@@ -90,7 +90,7 @@ create_config_key_from_expect (MonitorStoreTestConfiguration *expect_config)
           MonitorTestCaseMonitor *test_monitor =
             &expect_config->logical_monitors[i].monitors[j];
 
-          monitor_spec = g_new0 (MetaMonitorSpec, 1);
+          monitor_spec = g_slice_new0 (MetaMonitorSpec);
 
           monitor_spec->connector = g_strdup (test_monitor->connector);
           monitor_spec->vendor = g_strdup (test_monitor->vendor);
