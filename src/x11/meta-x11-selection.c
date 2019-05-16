@@ -263,7 +263,7 @@ source_new_cb (GObject      *object,
                  error->message);
     }
 
-  g_free (data);
+  g_slice_free (SourceNewData, data);
 }
 
 static gboolean
@@ -301,7 +301,7 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
     {
       SourceNewData *data;
 
-      data = g_new (SourceNewData, 1);
+      data = g_slice_new (SourceNewData);
       data->x11_display = x11_display;
       data->selection = selection;
       data->selection_type = selection_type;
