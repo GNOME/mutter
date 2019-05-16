@@ -725,7 +725,7 @@ meta_display_open (void)
   display->grab_tile_mode = META_TILE_NONE;
   display->grab_tile_monitor_number = -1;
 
-  display->grab_edge_resistance_data = NULL;
+  meta_display_cleanup_edges (display);
 
   meta_display_init_keys (display);
 
