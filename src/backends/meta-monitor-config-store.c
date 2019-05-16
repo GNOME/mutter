@@ -374,7 +374,7 @@ handle_start_element (GMarkupParseContext  *context,
           }
         else if (g_str_equal (element_name, "mode"))
           {
-            parser->current_monitor_mode_spec = g_new0 (MetaMonitorModeSpec, 1);
+            parser->current_monitor_mode_spec = g_slice_new0 (MetaMonitorModeSpec);
 
             parser->state = STATE_MONITOR_MODE;
           }
@@ -1111,7 +1111,8 @@ read_config_file (MetaMonitorConfigStore  *config_store,
                         (GDestroyNotify) meta_logical_monitor_config_free);
       g_clear_pointer (&parser.current_monitor_spec,
                        meta_monitor_spec_free);
-      g_free (parser.current_monitor_mode_spec);
+      g_clear_pointer (&parser.current_monitor_mode_spec,
+                       meta_monitor_mode_spec_free);
       g_clear_pointer (&parser.current_monitor_config,
                       meta_monitor_config_free);
       g_clear_pointer (&parser.current_logical_monitor_config,

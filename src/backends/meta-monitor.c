@@ -491,6 +491,12 @@ meta_monitor_create_spec (MetaMonitor  *monitor,
   };
 }
 
+void
+meta_monitor_mode_spec_free (MetaMonitorModeSpec *mode_spec)
+{
+  g_slice_free (MetaMonitorModeSpec, mode_spec);
+}
+
 static void
 meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
 {

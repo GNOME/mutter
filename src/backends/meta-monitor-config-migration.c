@@ -672,7 +672,7 @@ create_monitor_config (MetaOutputKey    *output_key,
   MetaMonitorSpec *monitor_spec;
   MetaMonitorConfig *monitor_config;
 
-  mode_spec = g_new0 (MetaMonitorModeSpec, 1);
+  mode_spec = g_slice_new0 (MetaMonitorModeSpec);
   *mode_spec = (MetaMonitorModeSpec) {
     .width = mode_width,
     .height = mode_height,
@@ -681,7 +681,7 @@ create_monitor_config (MetaOutputKey    *output_key,
 
   if (!meta_verify_monitor_mode_spec (mode_spec, error))
     {
-      g_free (mode_spec);
+      meta_monitor_mode_spec_free (mode_spec);
       return NULL;
     }
 
