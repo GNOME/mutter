@@ -1767,7 +1767,7 @@ create_monitor_config_from_variant (MetaMonitorManager *manager,
   monitor_mode_spec = g_slice_new0 (MetaMonitorModeSpec);
   *monitor_mode_spec = *meta_monitor_mode_get_spec (monitor_mode);
 
-  monitor_config = g_new0 (MetaMonitorConfig, 1);
+  monitor_config = g_slice_new0 (MetaMonitorConfig);
   *monitor_config = (MetaMonitorConfig) {
     .monitor_spec = monitor_spec,
     .mode_spec = monitor_mode_spec,

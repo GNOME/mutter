@@ -693,7 +693,7 @@ create_monitor_config (MetaOutputKey    *output_key,
     .serial = output_key->serial
   };
 
-  monitor_config = g_new0 (MetaMonitorConfig, 1);
+  monitor_config = g_slice_new0 (MetaMonitorConfig);
   *monitor_config = (MetaMonitorConfig) {
     .monitor_spec = monitor_spec,
     .mode_spec = mode_spec,
