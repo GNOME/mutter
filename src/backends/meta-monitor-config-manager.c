@@ -580,7 +580,7 @@ create_monitor_config (MetaMonitor     *monitor,
   monitor_spec = meta_monitor_get_spec (monitor);
   mode_spec = meta_monitor_mode_get_spec (mode);
 
-  monitor_config = g_new0 (MetaMonitorConfig, 1);
+  monitor_config = g_slice_new0 (MetaMonitorConfig);
   *monitor_config = (MetaMonitorConfig) {
     .monitor_spec = meta_monitor_spec_clone (monitor_spec),
     .mode_spec = g_slice_dup (MetaMonitorModeSpec, mode_spec),
@@ -861,7 +861,7 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
 
   current_monitor_config = current_logical_monitor_config->monitor_configs->data;
 
-  monitor_config = g_new0 (MetaMonitorConfig, 1);
+  monitor_config = g_slice_new0 (MetaMonitorConfig);
   *monitor_config = (MetaMonitorConfig) {
     .monitor_spec = meta_monitor_spec_clone (current_monitor_config->monitor_spec),
     .mode_spec = g_slice_dup (MetaMonitorModeSpec, current_monitor_config->mode_spec),
@@ -1203,7 +1203,7 @@ meta_monitor_config_free (MetaMonitorConfig *monitor_config)
 {
   meta_monitor_spec_free (monitor_config->monitor_spec);
   meta_monitor_mode_spec_free (monitor_config->mode_spec);
-  g_free (monitor_config);
+  g_slice_free (MetaMonitorConfig, monitor_config);
 }
 
 void
