@@ -44,7 +44,7 @@ test-mutter:
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
     - >
       dbus-run-session -- xvfb-run -s '+iglx -noreset'
-      meson test -C build --no-rebuild -t 10 --verbose --no-stdsplit --wrap catchsegv
+      meson test -C build --no-rebuild -t 10 --verbose --no-stdsplit --print-errorlogs --wrap catchsegv
   only:
     - merge_requests
     - /^.*$/
