@@ -36,6 +36,7 @@ test-mutter:
     XDG_RUNTIME_DIR: "$CI_PROJECT_DIR/runtime-dir"
     GSETTINGS_SCHEMA_DIR: "$CI_PROJECT_DIR/build/data"
     MALLOC_CHECK_: "3"
+    G_SLICE: "always-malloc"
   script:
     - mkdir -m 700 $XDG_RUNTIME_DIR
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
