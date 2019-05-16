@@ -48,7 +48,7 @@ meta_window_ensure_frame (MetaWindow *window)
 
   x11_display = window->display->x11_display;
 
-  frame = g_new (MetaFrame, 1);
+  frame = g_slice_new (MetaFrame);
 
   frame->window = window;
   frame->xwindow = None;
@@ -224,7 +224,7 @@ meta_window_destroy_frame (MetaWindow *window)
   /* Move keybindings to window instead of frame */
   meta_window_grab_keys (window);
 
-  g_free (frame);
+  g_slice_free (MetaFrame, frame);
 
   /* Put our state back where it should be */
   meta_window_queue (window, META_QUEUE_CALC_SHOWING);
