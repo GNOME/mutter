@@ -97,7 +97,7 @@ workspace_logical_monitor_data_free (MetaWorkspaceLogicalMonitorData *data)
 {
   g_clear_pointer (&data->logical_monitor_region,
                    meta_rectangle_free_list_and_elements);
-  g_free (data);
+  g_slice_free (MetaWorkspaceLogicalMonitorData, data);
 }
 
 static MetaWorkspaceLogicalMonitorData *
@@ -119,7 +119,7 @@ meta_workspace_ensure_logical_monitor_data (MetaWorkspace      *workspace,
                                (GDestroyNotify) workspace_logical_monitor_data_free);
     }
 
-  data = g_new0 (MetaWorkspaceLogicalMonitorData, 1);
+  data = g_slice_new0 (MetaWorkspaceLogicalMonitorData);
   g_hash_table_insert (workspace->logical_monitor_data, logical_monitor, data);
 
   return data;
