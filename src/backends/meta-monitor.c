@@ -109,7 +109,7 @@ meta_monitor_spec_clone (MetaMonitorSpec *monitor_spec)
 {
   MetaMonitorSpec *new_monitor_spec;
 
-  new_monitor_spec = g_new0 (MetaMonitorSpec, 1);
+  new_monitor_spec = g_slice_new0 (MetaMonitorSpec);
   *new_monitor_spec = (MetaMonitorSpec) {
     .connector = g_strdup (monitor_spec->connector),
     .vendor = g_strdup (monitor_spec->vendor),
@@ -158,7 +158,7 @@ meta_monitor_spec_free (MetaMonitorSpec *monitor_spec)
   g_free (monitor_spec->vendor);
   g_free (monitor_spec->product);
   g_free (monitor_spec->serial);
-  g_free (monitor_spec);
+  g_slice_free (MetaMonitorSpec, monitor_spec);
 }
 
 static void
@@ -168,7 +168,7 @@ meta_monitor_generate_spec (MetaMonitor *monitor)
   MetaOutput *output = meta_monitor_get_main_output (monitor);
   MetaMonitorSpec *monitor_spec;
 
-  monitor_spec = g_new0 (MetaMonitorSpec, 1);
+  monitor_spec = g_slice_new0 (MetaMonitorSpec);
   *monitor_spec = (MetaMonitorSpec) {
     .connector = g_strdup (output->name),
     .vendor = g_strdup (output->vendor),

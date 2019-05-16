@@ -368,7 +368,7 @@ handle_start_element (GMarkupParseContext  *context,
       {
         if (g_str_equal (element_name, "monitorspec"))
           {
-            parser->current_monitor_spec = g_new0 (MetaMonitorSpec, 1);
+            parser->current_monitor_spec = g_slice_new0 (MetaMonitorSpec);
             parser->monitor_spec_parent_state = STATE_MONITOR;
             parser->state = STATE_MONITOR_SPEC;
           }
@@ -484,7 +484,7 @@ handle_start_element (GMarkupParseContext  *context,
             return;
           }
 
-        parser->current_monitor_spec = g_new0 (MetaMonitorSpec, 1);
+        parser->current_monitor_spec = g_slice_new0 (MetaMonitorSpec);
         parser->monitor_spec_parent_state = STATE_DISABLED;
         parser->state = STATE_MONITOR_SPEC;
 
