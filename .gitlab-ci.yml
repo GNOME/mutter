@@ -35,6 +35,7 @@ test-mutter:
   variables:
     XDG_RUNTIME_DIR: "$CI_PROJECT_DIR/runtime-dir"
     GSETTINGS_SCHEMA_DIR: "$CI_PROJECT_DIR/build/data"
+    G_SLICE: "always-malloc"
     MALLOC_CHECK_: "3"
     NO_AT_BRIDGE: "1"
     MALLOC_PERTURB_: "123"
