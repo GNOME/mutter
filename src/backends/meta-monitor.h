@@ -238,6 +238,9 @@ META_EXPORT_TEST
 MetaMonitorModeSpec * meta_monitor_mode_get_spec (MetaMonitorMode *monitor_mode);
 
 META_EXPORT_TEST
+void meta_monitor_mode_spec_free (MetaMonitorModeSpec *mode_spec);
+
+META_EXPORT_TEST
 void meta_monitor_mode_get_resolution (MetaMonitorMode *monitor_mode,
                                        int             *width,
                                        int             *height);
