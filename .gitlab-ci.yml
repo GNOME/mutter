@@ -44,6 +44,7 @@ test-mutter:
       env MALLOC_PERTURB_="$((RANDOM % 256 + 1))"
       dbus-run-session -- xvfb-run -s '+iglx -noreset'
       meson test -C build --no-rebuild -t 10 --verbose --no-stdsplit --wrap catchsegv
+                          --print-errorlogs
   only:
     - merge_requests
     - /^.*$/
