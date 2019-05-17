@@ -823,6 +823,7 @@ static void
 cursor_priv_free (MetaCursorNativePrivate *cursor_priv)
 {
   g_hash_table_destroy (cursor_priv->gpu_states);
+  g_free (cursor_priv);
 }
 
 static MetaCursorNativePrivate *
