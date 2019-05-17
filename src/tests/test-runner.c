@@ -385,6 +385,9 @@ test_case_do (TestCase *test,
                            argc == 3 ? argv[2] : NULL,
                            NULL))
         return FALSE;
+
+      if (!test_client_wait (client, error))
+        return FALSE;
     }
   else if (strcmp (argv[0], "set_parent") == 0 ||
            strcmp (argv[0], "set_parent_exported") == 0)
