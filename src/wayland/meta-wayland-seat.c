@@ -266,7 +266,7 @@ meta_wayland_seat_free (MetaWaylandSeat *seat)
   meta_wayland_gtk_text_input_destroy (seat->gtk_text_input);
   meta_wayland_text_input_destroy (seat->text_input);
 
-  g_slice_free (MetaWaylandSeat, seat);
+  g_free (seat);
 }
 
 static gboolean
