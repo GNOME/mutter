@@ -40,6 +40,8 @@ run_tests (gpointer data)
   MetaSettings *settings = meta_backend_get_settings (backend);
   gboolean ret;
 
+  g_test_log_set_fatal_handler (NULL, NULL);
+
   meta_settings_override_experimental_features (settings);
 
   meta_settings_enable_experimental_feature (
@@ -51,6 +53,21 @@ run_tests (gpointer data)
   meta_quit (ret != 0);
 
   return FALSE;
+}
+
+static gboolean
+ignore_frame_counter_warning (const gchar *log_domain,
+                              GLogLevelFlags log_level,
+                              const gchar *message,
+                              gpointer user_data)
+{
+  if (log_level & G_LOG_LEVEL_WARNING &&
+      g_strcmp0 (log_domain, "mutter") == 0 &&
+      g_str_has_suffix (message, "Frame has assigned frame counter but no " \
+                                 "frame drawn time"))
+      return FALSE;
+
+  return TRUE;
 }
 
 static void
@@ -192,6 +209,8 @@ main (int argc, char *argv[])
 
   meta_init ();
   meta_register_with_session ();
+
+  g_test_log_set_fatal_handler (ignore_frame_counter_warning, NULL);
 
   g_idle_add (run_tests, NULL);
 
