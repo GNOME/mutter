@@ -9,6 +9,7 @@ mutter_plugin_api_version = '3'
 libmutter_api_version = '4'
 
 # generic version requirements
+fribidi_req = '>= 1.0.0'
 glib_req = '>= 2.53.2'
 gi_req = '>= 0.9.5'
 gtk3_req = '>= 3.19.8'
@@ -86,6 +87,7 @@ pango_dep = dependency('pango', version: pango_req)
 cairo_dep = dependency('cairo', version: cairo_req)
 cairo_gobject_dep = dependency('cairo-gobject', version: cairo_req)
 pangocairo_dep = dependency('pangocairo', version: pangocairo_req)
+fribidi_dep = dependency('fribidi', version: fribidi_req)
 gsettings_desktop_schemas_dep = dependency('gsettings-desktop-schemas',
                                            version: gsettings_desktop_schemas_req)
 glib_dep = dependency('glib-2.0', version: glib_req)

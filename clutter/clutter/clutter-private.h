@@ -303,6 +303,11 @@ gboolean        _clutter_util_matrix_decompose  (const ClutterMatrix *src,
                                                  ClutterVertex       *translate_p,
                                                  ClutterVertex4      *perspective_p);
 
+PangoDirection _clutter_pango_unichar_direction (gunichar ch);
+
+PangoDirection _clutter_pango_find_base_dir     (const gchar *text,
+                                                 gint         length);
+
 typedef struct _ClutterPlane
 {
   float v0[3];

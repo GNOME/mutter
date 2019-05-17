@@ -751,7 +751,7 @@ clutter_text_create_layout_no_cache (ClutterText       *text,
       if (priv->password_char != 0)
         pango_dir = PANGO_DIRECTION_NEUTRAL;
       else
-        pango_dir = pango_find_base_dir (contents, contents_len);
+        pango_dir = _clutter_pango_find_base_dir (contents, contents_len);
 
       if (pango_dir == PANGO_DIRECTION_NEUTRAL)
         {
