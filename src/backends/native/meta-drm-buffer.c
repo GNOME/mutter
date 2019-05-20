@@ -80,12 +80,10 @@ meta_drm_buffer_acquire_swapped_buffer (MetaDrmBuffer  *buffer,
   int i;
   int kms_fd;
 
-  g_return_val_if_fail (META_IS_DRM_BUFFER (buffer), FALSE);
-  g_return_val_if_fail (buffer->type == META_DRM_BUFFER_TYPE_GBM, FALSE);
-  g_return_val_if_fail (buffer->gbm.bo == NULL, FALSE);
-  g_return_val_if_fail (buffer->gbm.surface != NULL, FALSE);
-  g_return_val_if_fail (buffer->gbm.gpu_kms != NULL, FALSE);
-  g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
+  g_assert (buffer->type == META_DRM_BUFFER_TYPE_GBM);
+  g_assert (!buffer->gbm.bo);
+  g_assert (buffer->gbm.surface);
+  g_assert (buffer->gbm.gpu_kms);
 
   kms_fd = meta_gpu_kms_get_fd (buffer->gbm.gpu_kms);
 
@@ -238,9 +236,6 @@ meta_drm_buffer_new_from_gbm (MetaGpuKms          *gpu_kms,
 {
   MetaDrmBuffer *buffer;
 
-  g_return_val_if_fail (META_IS_GPU_KMS (gpu_kms), NULL);
-  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
-
   buffer = g_object_new (META_TYPE_DRM_BUFFER, NULL);
   buffer->type = META_DRM_BUFFER_TYPE_GBM;
   buffer->gbm.gpu_kms = gpu_kms;
@@ -272,15 +267,12 @@ meta_drm_buffer_new_from_dumb (uint32_t dumb_fb_id)
 uint32_t
 meta_drm_buffer_get_fb_id (const MetaDrmBuffer *buffer)
 {
-  g_return_val_if_fail (buffer != NULL, INVALID_FB_ID);
-
   return buffer->fb_id;
 }
 
 struct gbm_bo *
 meta_drm_buffer_get_bo (const MetaDrmBuffer *buffer)
 {
-  g_return_val_if_fail (buffer, NULL);
   g_return_val_if_fail (buffer->type == META_DRM_BUFFER_TYPE_GBM, NULL);
 
   return buffer->gbm.bo;
