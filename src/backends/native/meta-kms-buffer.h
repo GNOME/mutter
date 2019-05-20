@@ -22,10 +22,10 @@
 #ifndef META_KMS_BUFFER_H
 #define META_KMS_BUFFER_H
 
+#include "backends/native/meta-gpu-kms.h"
+
 #include <gbm.h>
 #include <glib-object.h>
-
-#include "backends/native/meta-gpu-kms.h"
 
 #define META_TYPE_KMS_BUFFER (meta_kms_buffer_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKmsBuffer,

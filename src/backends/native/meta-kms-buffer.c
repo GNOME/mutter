@@ -22,14 +22,14 @@
  * Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
  */
 
-#include "backends/native/meta-kms-buffer.h"
-
 #include "config.h"
 
-#include <xf86drm.h>
-#include <xf86drmMode.h>
+#include "backends/native/meta-kms-buffer.h"
+
 #include <drm_fourcc.h>
 #include <errno.h>
+#include <xf86drm.h>
+#include <xf86drmMode.h>
 
 #define INVALID_FB_ID 0U
 
