@@ -19,27 +19,47 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
  *
- * Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
  */
 
 #include "config.h"
 
-#include "backends/native/meta-drm-buffer.h"
+#include "backends/native/meta-drm-buffer-dumb.h"
 
-G_DEFINE_ABSTRACT_TYPE (MetaDrmBuffer, meta_drm_buffer, G_TYPE_OBJECT)
-
-uint32_t
-meta_drm_buffer_get_fb_id (MetaDrmBuffer *buffer)
+struct _MetaDrmBufferDumb
 {
-  return META_DRM_BUFFER_GET_CLASS (buffer)->get_fb_id (buffer);
+  MetaDrmBuffer parent;
+
+  uint32_t fb_id;
+};
+
+G_DEFINE_TYPE (MetaDrmBufferDumb, meta_drm_buffer_dumb, META_TYPE_DRM_BUFFER)
+
+MetaDrmBufferDumb *
+meta_drm_buffer_dumb_new (uint32_t dumb_fb_id)
+{
+  MetaDrmBufferDumb *buffer_dumb;
+
+  buffer_dumb = g_object_new (META_TYPE_DRM_BUFFER_DUMB, NULL);
+  buffer_dumb->fb_id = dumb_fb_id;
+
+  return buffer_dumb;
+}
+
+static uint32_t
+meta_drm_buffer_dumb_get_fb_id (MetaDrmBuffer *buffer)
+{
+  return META_DRM_BUFFER_DUMB (buffer)->fb_id;
 }
 
 static void
-meta_drm_buffer_init (MetaDrmBuffer *buffer)
+meta_drm_buffer_dumb_init (MetaDrmBufferDumb *buffer_dumb)
 {
 }
 
 static void
-meta_drm_buffer_class_init (MetaDrmBufferClass *klass)
+meta_drm_buffer_dumb_class_init (MetaDrmBufferDumbClass *klass)
 {
+  MetaDrmBufferClass *buffer_class = META_DRM_BUFFER_CLASS (klass);
+
+  buffer_class->get_fb_id = meta_drm_buffer_dumb_get_fb_id;
 }
