@@ -78,7 +78,7 @@ meta_drm_buffer_acquire_swapped_buffer (MetaDrmBuffer  *buffer,
   uint32_t width, height, format;
   struct gbm_bo *bo;
   int i;
-  int drm_fd;
+  int kms_fd;
 
   g_return_val_if_fail (META_IS_DRM_BUFFER (buffer), FALSE);
   g_return_val_if_fail (buffer->type == META_DRM_BUFFER_TYPE_GBM, FALSE);
@@ -87,8 +87,7 @@ meta_drm_buffer_acquire_swapped_buffer (MetaDrmBuffer  *buffer,
   g_return_val_if_fail (buffer->gbm.gpu_kms != NULL, FALSE);
   g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
 
-  drm_fd = meta_gpu_kms_get_fd (buffer->gbm.gpu_kms);
-  g_return_val_if_fail (drm_fd >= 0, FALSE);
+  kms_fd = meta_gpu_kms_get_fd (buffer->gbm.gpu_kms);
 
   bo = gbm_surface_lock_front_buffer (buffer->gbm.surface);
   if (!bo)
@@ -125,7 +124,7 @@ meta_drm_buffer_acquire_swapped_buffer (MetaDrmBuffer  *buffer,
 
   if (use_modifiers && modifiers[0] != DRM_FORMAT_MOD_INVALID)
     {
-      if (drmModeAddFB2WithModifiers (drm_fd,
+      if (drmModeAddFB2WithModifiers (kms_fd,
                                       width,
                                       height,
                                       format,
@@ -145,7 +144,7 @@ meta_drm_buffer_acquire_swapped_buffer (MetaDrmBuffer  *buffer,
           return FALSE;
         }
     }
-  else if (drmModeAddFB2 (drm_fd,
+  else if (drmModeAddFB2 (kms_fd,
                           width,
                           height,
                           format,
@@ -166,7 +165,7 @@ meta_drm_buffer_acquire_swapped_buffer (MetaDrmBuffer  *buffer,
           return FALSE;
         }
 
-      if (drmModeAddFB (drm_fd,
+      if (drmModeAddFB (kms_fd,
                         width,
                         height,
                         24,
@@ -205,8 +204,10 @@ meta_drm_buffer_finalize (GObject *object)
       if (buffer->gbm.gpu_kms != NULL &&
           buffer->gbm.fb_id != INVALID_FB_ID)
         {
-          int drm_fd = meta_gpu_kms_get_fd (buffer->gbm.gpu_kms);
-          drmModeRmFB (drm_fd, buffer->fb_id);
+          int kms_fd;
+
+          kms_fd = meta_gpu_kms_get_fd (buffer->gbm.gpu_kms);
+          drmModeRmFB (kms_fd, buffer->fb_id);
           buffer->fb_id = INVALID_FB_ID;
         }
 
