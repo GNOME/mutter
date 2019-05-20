@@ -19,32 +19,31 @@
  * Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
  */
 
-#ifndef META_KMS_BUFFER_H
-#define META_KMS_BUFFER_H
+#ifndef META_DRM_BUFFER_H
+#define META_DRM_BUFFER_H
 
 #include "backends/native/meta-gpu-kms.h"
 
 #include <gbm.h>
 #include <glib-object.h>
 
-#define META_TYPE_KMS_BUFFER (meta_kms_buffer_get_type ())
-G_DECLARE_FINAL_TYPE (MetaKmsBuffer,
-                      meta_kms_buffer,
-                      META,
-                      KMS_BUFFER,
+#define META_TYPE_DRM_BUFFER (meta_drm_buffer_get_type ())
+G_DECLARE_FINAL_TYPE (MetaDrmBuffer,
+                      meta_drm_buffer,
+                      META, DRM_BUFFER,
                       GObject)
 
-MetaKmsBuffer *
-meta_kms_buffer_new_from_gbm (MetaGpuKms          *gpu_kms,
+MetaDrmBuffer *
+meta_drm_buffer_new_from_gbm (MetaGpuKms          *gpu_kms,
                               struct gbm_surface  *gbm_surface,
                               gboolean             use_modifiers,
                               GError             **error);
 
-MetaKmsBuffer *
-meta_kms_buffer_new_from_dumb (uint32_t dumb_fb_id);
+MetaDrmBuffer *
+meta_drm_buffer_new_from_dumb (uint32_t dumb_fb_id);
 
-uint32_t meta_kms_buffer_get_fb_id (const MetaKmsBuffer *kms_buffer);
+uint32_t meta_drm_buffer_get_fb_id (const MetaDrmBuffer *buffer);
 
-struct gbm_bo *meta_kms_buffer_get_bo (const MetaKmsBuffer *kms_buffer);
+struct gbm_bo *meta_drm_buffer_get_bo (const MetaDrmBuffer *buffer);
 
-#endif /* META_KMS_BUFFER_H */
+#endif /* META_DRM_BUFFER_H */

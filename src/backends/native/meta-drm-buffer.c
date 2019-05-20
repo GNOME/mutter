@@ -24,7 +24,7 @@
 
 #include "config.h"
 
-#include "backends/native/meta-kms-buffer.h"
+#include "backends/native/meta-drm-buffer.h"
 
 #include <drm_fourcc.h>
 #include <errno.h>
@@ -33,17 +33,17 @@
 
 #define INVALID_FB_ID 0U
 
-typedef enum _MetaKmsBufferType
+typedef enum _MetaDrmBufferType
 {
-  META_KMS_BUFFER_TYPE_GBM,
-  META_KMS_BUFFER_TYPE_WRAPPED_DUMB
-} MetaKmsBufferType;
+  META_DRM_BUFFER_TYPE_GBM,
+  META_DRM_BUFFER_TYPE_WRAPPED_DUMB
+} MetaDrmBufferType;
 
-struct _MetaKmsBuffer
+struct _MetaDrmBuffer
 {
   GObject parent;
 
-  MetaKmsBufferType type;
+  MetaDrmBufferType type;
 
   union
   {
@@ -64,10 +64,10 @@ struct _MetaKmsBuffer
   };
 };
 
-G_DEFINE_TYPE (MetaKmsBuffer, meta_kms_buffer, G_TYPE_OBJECT)
+G_DEFINE_TYPE (MetaDrmBuffer, meta_drm_buffer, G_TYPE_OBJECT)
 
 static gboolean
-meta_kms_buffer_acquire_swapped_buffer (MetaKmsBuffer  *kms_buffer,
+meta_drm_buffer_acquire_swapped_buffer (MetaDrmBuffer  *buffer,
                                         gboolean        use_modifiers,
                                         GError        **error)
 {
@@ -80,17 +80,17 @@ meta_kms_buffer_acquire_swapped_buffer (MetaKmsBuffer  *kms_buffer,
   int i;
   int drm_fd;
 
-  g_return_val_if_fail (META_IS_KMS_BUFFER (kms_buffer), FALSE);
-  g_return_val_if_fail (kms_buffer->type == META_KMS_BUFFER_TYPE_GBM, FALSE);
-  g_return_val_if_fail (kms_buffer->gbm.bo == NULL, FALSE);
-  g_return_val_if_fail (kms_buffer->gbm.surface != NULL, FALSE);
-  g_return_val_if_fail (kms_buffer->gbm.gpu_kms != NULL, FALSE);
+  g_return_val_if_fail (META_IS_DRM_BUFFER (buffer), FALSE);
+  g_return_val_if_fail (buffer->type == META_DRM_BUFFER_TYPE_GBM, FALSE);
+  g_return_val_if_fail (buffer->gbm.bo == NULL, FALSE);
+  g_return_val_if_fail (buffer->gbm.surface != NULL, FALSE);
+  g_return_val_if_fail (buffer->gbm.gpu_kms != NULL, FALSE);
   g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
 
-  drm_fd = meta_gpu_kms_get_fd (kms_buffer->gbm.gpu_kms);
+  drm_fd = meta_gpu_kms_get_fd (buffer->gbm.gpu_kms);
   g_return_val_if_fail (drm_fd >= 0, FALSE);
 
-  bo = gbm_surface_lock_front_buffer (kms_buffer->gbm.surface);
+  bo = gbm_surface_lock_front_buffer (buffer->gbm.surface);
   if (!bo)
     {
       g_set_error (error,
@@ -133,7 +133,7 @@ meta_kms_buffer_acquire_swapped_buffer (MetaKmsBuffer  *kms_buffer,
                                       strides,
                                       offsets,
                                       modifiers,
-                                      &kms_buffer->fb_id,
+                                      &buffer->fb_id,
                                       DRM_MODE_FB_MODIFIERS))
         {
           g_set_error (error,
@@ -141,7 +141,7 @@ meta_kms_buffer_acquire_swapped_buffer (MetaKmsBuffer  *kms_buffer,
                        g_io_error_from_errno (errno),
                        "drmModeAddFB2WithModifiers failed: %s",
                        g_strerror (errno));
-          gbm_surface_release_buffer (kms_buffer->gbm.surface, bo);
+          gbm_surface_release_buffer (buffer->gbm.surface, bo);
           return FALSE;
         }
     }
@@ -152,7 +152,7 @@ meta_kms_buffer_acquire_swapped_buffer (MetaKmsBuffer  *kms_buffer,
                           handles,
                           strides,
                           offsets,
-                          &kms_buffer->fb_id,
+                          &buffer->fb_id,
                           0))
     {
       if (format != DRM_FORMAT_XRGB8888)
@@ -162,7 +162,7 @@ meta_kms_buffer_acquire_swapped_buffer (MetaKmsBuffer  *kms_buffer,
                        G_IO_ERROR_FAILED,
                        "drmModeAddFB does not support format 0x%x",
                        format);
-          gbm_surface_release_buffer (kms_buffer->gbm.surface, bo);
+          gbm_surface_release_buffer (buffer->gbm.surface, bo);
           return FALSE;
         }
 
@@ -173,115 +173,114 @@ meta_kms_buffer_acquire_swapped_buffer (MetaKmsBuffer  *kms_buffer,
                         32,
                         strides[0],
                         handles[0],
-                        &kms_buffer->fb_id))
+                        &buffer->fb_id))
         {
           g_set_error (error,
                        G_IO_ERROR,
                        g_io_error_from_errno (errno),
                        "drmModeAddFB failed: %s",
                        g_strerror (errno));
-          gbm_surface_release_buffer (kms_buffer->gbm.surface, bo);
+          gbm_surface_release_buffer (buffer->gbm.surface, bo);
           return FALSE;
         }
     }
 
-  kms_buffer->gbm.bo = bo;
+  buffer->gbm.bo = bo;
 
   return TRUE;
 }
 
 static void
-meta_kms_buffer_init (MetaKmsBuffer *kms_buffer)
+meta_drm_buffer_init (MetaDrmBuffer *buffer)
 {
 }
 
 static void
-meta_kms_buffer_finalize (GObject *object)
+meta_drm_buffer_finalize (GObject *object)
 {
-  MetaKmsBuffer *kms_buffer = META_KMS_BUFFER (object);
+  MetaDrmBuffer *buffer = META_DRM_BUFFER (object);
 
-  if (kms_buffer->type == META_KMS_BUFFER_TYPE_GBM)
+  if (buffer->type == META_DRM_BUFFER_TYPE_GBM)
     {
-      if (kms_buffer->gbm.gpu_kms != NULL &&
-          kms_buffer->gbm.fb_id != INVALID_FB_ID)
+      if (buffer->gbm.gpu_kms != NULL &&
+          buffer->gbm.fb_id != INVALID_FB_ID)
         {
-          int drm_fd = meta_gpu_kms_get_fd (kms_buffer->gbm.gpu_kms);
-
-          drmModeRmFB (drm_fd, kms_buffer->fb_id);
-          kms_buffer->fb_id = INVALID_FB_ID;
+          int drm_fd = meta_gpu_kms_get_fd (buffer->gbm.gpu_kms);
+          drmModeRmFB (drm_fd, buffer->fb_id);
+          buffer->fb_id = INVALID_FB_ID;
         }
 
-      if (kms_buffer->gbm.surface &&
-          kms_buffer->gbm.bo)
+      if (buffer->gbm.surface &&
+          buffer->gbm.bo)
         {
-          gbm_surface_release_buffer (kms_buffer->gbm.surface,
-                                      kms_buffer->gbm.bo);
+          gbm_surface_release_buffer (buffer->gbm.surface,
+                                      buffer->gbm.bo);
         }
     }
 
-  G_OBJECT_CLASS (meta_kms_buffer_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_drm_buffer_parent_class)->finalize (object);
 }
 
 static void
-meta_kms_buffer_class_init (MetaKmsBufferClass *klass)
+meta_drm_buffer_class_init (MetaDrmBufferClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->finalize = meta_kms_buffer_finalize;
+  object_class->finalize = meta_drm_buffer_finalize;
 }
 
-MetaKmsBuffer *
-meta_kms_buffer_new_from_gbm (MetaGpuKms          *gpu_kms,
+MetaDrmBuffer *
+meta_drm_buffer_new_from_gbm (MetaGpuKms          *gpu_kms,
                               struct gbm_surface  *gbm_surface,
                               gboolean             use_modifiers,
                               GError             **error)
 {
-  MetaKmsBuffer *kms_buffer;
+  MetaDrmBuffer *buffer;
 
   g_return_val_if_fail (META_IS_GPU_KMS (gpu_kms), NULL);
   g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
-  kms_buffer = g_object_new (META_TYPE_KMS_BUFFER, NULL);
-  kms_buffer->type = META_KMS_BUFFER_TYPE_GBM;
-  kms_buffer->gbm.gpu_kms = gpu_kms;
-  kms_buffer->gbm.surface = gbm_surface;
+  buffer = g_object_new (META_TYPE_DRM_BUFFER, NULL);
+  buffer->type = META_DRM_BUFFER_TYPE_GBM;
+  buffer->gbm.gpu_kms = gpu_kms;
+  buffer->gbm.surface = gbm_surface;
 
-  if (!meta_kms_buffer_acquire_swapped_buffer (kms_buffer,
+  if (!meta_drm_buffer_acquire_swapped_buffer (buffer,
                                                use_modifiers,
                                                error))
     {
-      g_object_unref (kms_buffer);
+      g_object_unref (buffer);
       return NULL;
     }
 
-  return kms_buffer;
+  return buffer;
 }
 
-MetaKmsBuffer *
-meta_kms_buffer_new_from_dumb (uint32_t dumb_fb_id)
+MetaDrmBuffer *
+meta_drm_buffer_new_from_dumb (uint32_t dumb_fb_id)
 {
-  MetaKmsBuffer *kms_buffer;
+  MetaDrmBuffer *buffer;
 
-  kms_buffer = g_object_new (META_TYPE_KMS_BUFFER, NULL);
-  kms_buffer->type = META_KMS_BUFFER_TYPE_WRAPPED_DUMB;
-  kms_buffer->wrapped_dumb.fb_id = dumb_fb_id;
+  buffer = g_object_new (META_TYPE_DRM_BUFFER, NULL);
+  buffer->type = META_DRM_BUFFER_TYPE_WRAPPED_DUMB;
+  buffer->wrapped_dumb.fb_id = dumb_fb_id;
 
-  return kms_buffer;
+  return buffer;
 }
 
 uint32_t
-meta_kms_buffer_get_fb_id (const MetaKmsBuffer *kms_buffer)
+meta_drm_buffer_get_fb_id (const MetaDrmBuffer *buffer)
 {
-  g_return_val_if_fail (kms_buffer != NULL, INVALID_FB_ID);
+  g_return_val_if_fail (buffer != NULL, INVALID_FB_ID);
 
-  return kms_buffer->fb_id;
+  return buffer->fb_id;
 }
 
 struct gbm_bo *
-meta_kms_buffer_get_bo (const MetaKmsBuffer *kms_buffer)
+meta_drm_buffer_get_bo (const MetaDrmBuffer *buffer)
 {
-  g_return_val_if_fail (kms_buffer != NULL, NULL);
-  g_return_val_if_fail (kms_buffer->type == META_KMS_BUFFER_TYPE_GBM, NULL);
+  g_return_val_if_fail (buffer, NULL);
+  g_return_val_if_fail (buffer->type == META_DRM_BUFFER_TYPE_GBM, NULL);
 
-  return kms_buffer->gbm.bo;
+  return buffer->gbm.bo;
 }
