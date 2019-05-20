@@ -855,6 +855,14 @@ emulate_pointer_motion (ClutterInputDeviceEvdev *device,
   clutter_virtual_input_device_notify_relative_motion (device->mousekeys_virtual_device,
                                                        time_us, dx_motion, dy_motion);
 }
+static gboolean
+is_numlock_active (ClutterInputDeviceEvdev *device)
+{
+  ClutterSeatEvdev *seat = device->seat;
+  return xkb_state_mod_name_is_active (seat->xkb,
+                                       "Mod2",
+                                       XKB_STATE_MODS_LOCKED);
+}
 
 static void
 enable_mousekeys (ClutterInputDeviceEvdev *device)
@@ -1013,6 +1021,10 @@ handle_mousekeys_press (ClutterEvent            *event,
   if (!(event->key.flags & CLUTTER_EVENT_FLAG_SYNTHETIC))
     stop_mousekeys_move (device);
 
+  /* Do not handle mousekeys if NumLock is ON */
+  if (is_numlock_active (device))
+    return FALSE;
+
   /* Button selection */
   switch (event->key.keyval)
     {
@@ -1084,6 +1096,10 @@ static gboolean
 handle_mousekeys_release (ClutterEvent            *event,
                           ClutterInputDeviceEvdev *device)
 {
+  /* Do not handle mousekeys if NumLock is ON */
+  if (is_numlock_active (device))
+    return FALSE;
+
   switch (event->key.keyval)
     {
     case XKB_KEY_KP_0:
