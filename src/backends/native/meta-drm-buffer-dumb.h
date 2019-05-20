@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Canonical Ltd.
+ * Copyright (C) 2019 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,33 +17,19 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
  *
- * Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
  */
 
-#ifndef META_DRM_BUFFER_H
-#define META_DRM_BUFFER_H
+#ifndef META_DRM_BUFFER_DUMB_H
+#define META_DRM_BUFFER_DUMB_H
 
-#include <glib-object.h>
-#include <stdint.h>
+#include "backends/native/meta-drm-buffer.h"
 
-#define INVALID_FB_ID 0U
+#define META_TYPE_DRM_BUFFER_DUMB (meta_drm_buffer_dumb_get_type ())
+G_DECLARE_FINAL_TYPE (MetaDrmBufferDumb,
+                      meta_drm_buffer_dumb,
+                      META, DRM_BUFFER_DUMB,
+                      MetaDrmBuffer)
 
-#define META_TYPE_DRM_BUFFER (meta_drm_buffer_get_type ())
-G_DECLARE_DERIVABLE_TYPE (MetaDrmBuffer,
-                          meta_drm_buffer,
-                          META, DRM_BUFFER,
-                          GObject)
+MetaDrmBufferDumb * meta_drm_buffer_dumb_new (uint32_t dumb_fb_id);
 
-struct _MetaDrmBufferClass
-{
-  GObjectClass parent_class;
-
-  uint32_t (* get_fb_id) (MetaDrmBuffer *buffer);
-};
-
-MetaDrmBuffer *
-meta_drm_buffer_new_from_dumb (uint32_t dumb_fb_id);
-
-uint32_t meta_drm_buffer_get_fb_id (MetaDrmBuffer *buffer);
-
-#endif /* META_DRM_BUFFER_H */
+#endif /* META_DRM_BUFFER_DUMB_H */

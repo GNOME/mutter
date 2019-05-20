@@ -1,8 +1,6 @@
 /*
- * Copyright (C) 2011 Intel Corporation.
- * Copyright (C) 2016 Red Hat
- * Copyright (C) 2018 DisplayLink (UK) Ltd.
  * Copyright (C) 2018 Canonical Ltd.
+ * Copyright (C) 2019 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,27 +17,27 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
  *
- * Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
  */
 
-#include "config.h"
+#ifndef META_DRM_BUFFER_GBM_H
+#define META_DRM_BUFFER_GBM_H
+
+#include <gbm.h>
 
 #include "backends/native/meta-drm-buffer.h"
+#include "backends/native/meta-gpu-kms.h"
 
-G_DEFINE_ABSTRACT_TYPE (MetaDrmBuffer, meta_drm_buffer, G_TYPE_OBJECT)
+#define META_TYPE_DRM_BUFFER_GBM (meta_drm_buffer_gbm_get_type ())
+G_DECLARE_FINAL_TYPE (MetaDrmBufferGbm,
+                      meta_drm_buffer_gbm,
+                      META, DRM_BUFFER_GBM,
+                      MetaDrmBuffer)
 
-uint32_t
-meta_drm_buffer_get_fb_id (MetaDrmBuffer *buffer)
-{
-  return META_DRM_BUFFER_GET_CLASS (buffer)->get_fb_id (buffer);
-}
+MetaDrmBufferGbm * meta_drm_buffer_gbm_new (MetaGpuKms          *gpu_kms,
+                                            struct gbm_surface  *gbm_surface,
+                                            gboolean             use_modifiers,
+                                            GError             **error);
 
-static void
-meta_drm_buffer_init (MetaDrmBuffer *buffer)
-{
-}
+struct gbm_bo * meta_drm_buffer_gbm_get_bo (MetaDrmBufferGbm *buffer_gbm);
 
-static void
-meta_drm_buffer_class_init (MetaDrmBufferClass *klass)
-{
-}
+#endif /* META_DRM_BUFFER_GBM_H */
