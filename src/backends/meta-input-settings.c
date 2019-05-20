@@ -1216,7 +1216,7 @@ load_keyboard_a11y_settings (MetaInputSettings  *input_settings,
                              ClutterInputDevice *device)
 {
   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
-  ClutterKbdA11ySettings kbd_a11y_settings;
+  ClutterKbdA11ySettings kbd_a11y_settings = { 0 };
   ClutterInputDevice *core_keyboard;
   guint i;
 
