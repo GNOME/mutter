@@ -22,28 +22,25 @@
 #ifndef META_DRM_BUFFER_H
 #define META_DRM_BUFFER_H
 
-#include "backends/native/meta-gpu-kms.h"
-
-#include <gbm.h>
 #include <glib-object.h>
+#include <stdint.h>
 
 #define META_TYPE_DRM_BUFFER (meta_drm_buffer_get_type ())
-G_DECLARE_FINAL_TYPE (MetaDrmBuffer,
-                      meta_drm_buffer,
-                      META, DRM_BUFFER,
-                      GObject)
+G_DECLARE_DERIVABLE_TYPE (MetaDrmBuffer,
+                          meta_drm_buffer,
+                          META, DRM_BUFFER,
+                          GObject)
 
-MetaDrmBuffer *
-meta_drm_buffer_new_from_gbm (MetaGpuKms          *gpu_kms,
-                              struct gbm_surface  *gbm_surface,
-                              gboolean             use_modifiers,
-                              GError             **error);
+struct _MetaDrmBufferClass
+{
+  GObjectClass parent_class;
+
+  uint32_t (* get_fb_id) (MetaDrmBuffer *buffer);
+};
 
 MetaDrmBuffer *
 meta_drm_buffer_new_from_dumb (uint32_t dumb_fb_id);
 
-uint32_t meta_drm_buffer_get_fb_id (const MetaDrmBuffer *buffer);
-
-struct gbm_bo *meta_drm_buffer_get_bo (const MetaDrmBuffer *buffer);
+uint32_t meta_drm_buffer_get_fb_id (MetaDrmBuffer *buffer);
 
 #endif /* META_DRM_BUFFER_H */
