@@ -891,24 +891,14 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
    */
   if (use_clipped_redraw)
     {
-      if (use_clipped_redraw && clip_region_empty)
+      if (clip_region_empty)
         {
           do_swap_buffer = FALSE;
         }
-      else if (use_clipped_redraw)
+      else
         {
           swap_region = fb_clip_region;
           g_assert (swap_region.width > 0);
-          do_swap_buffer = TRUE;
-        }
-      else
-        {
-          swap_region = (cairo_rectangle_int_t) {
-            .x = 0,
-            .y = 0,
-            .width = view_rect.width * fb_scale,
-            .height = view_rect.height * fb_scale,
-          };
           do_swap_buffer = TRUE;
         }
     }
