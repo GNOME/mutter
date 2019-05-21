@@ -14,12 +14,6 @@ cogl_config_h = configure_file(
   output: 'cogl-config.h',
   configuration: cdata)
 
-# TODO: Remove this when autotools support is removed
-cogl_mutter_config_h = configure_file(
-  input: 'cogl-config.h.meson',
-  output: 'cogl-mutter-config.h',
-  configuration: cdata)
-
 cogl_pkg_deps = [
   glib_dep,
   gobject_dep,

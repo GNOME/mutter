@@ -31,7 +31,7 @@
 #ifndef __COGL_MUTTER_H___
 #define __COGL_MUTTER_H___
 
-#include "cogl-mutter-config.h"
+#include "cogl-config.h"
 #include "cogl-defines.h"
 
 #include <cogl/cogl-texture.h>
