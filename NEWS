@@ -1,3 +1,18 @@
+3.33.2
+======
+* Fix rendering lag on Xorg [Daniel; !520, !281]
+* Misc. bug fixes and cleanups [Carlos, Marco, Jonas D., Florian, Niels,
+  Daniel, Benjamin, Jonas Å., Ignacio, Vasilis; #598, !576, !547, !578,
+  !583, !582, !469, !524, !119, !571, !584, !585, !586, #425]
+
+Contributors:
+  Jonas Ådahl, Benjamin Berg, Jonas Dreßler, Carlos Garnacho, Niels De Graef,
+  Vasilis Liaskovitis, Florian Müllner, Ignacio Casal Quinteiro,
+  Marco Trevisan (Treviño), Daniel van Vugt
+
+Translators:
+  Daniel Mustieles [es]
+
 3.33.1
 ======
 * Remove unused APIs and outdated driver support
