@@ -65,19 +65,11 @@
 #endif
 
 #define GSD_KEYBOARD_SCHEMA "org.gnome.settings-daemon.peripherals.keyboard"
-typedef enum
-{
-  GSD_KEYBOARD_NUM_LOCK_STATE_UNKNOWN,
-  GSD_KEYBOARD_NUM_LOCK_STATE_ON,
-  GSD_KEYBOARD_NUM_LOCK_STATE_OFF
-} GsdKeyboardNumLockState;
 
 G_DEFINE_TYPE (MetaWaylandKeyboard, meta_wayland_keyboard,
                META_TYPE_WAYLAND_INPUT_DEVICE)
 
 static void meta_wayland_keyboard_update_xkb_state (MetaWaylandKeyboard *keyboard);
-static void meta_wayland_keyboard_set_numlock (MetaWaylandKeyboard *keyboard,
-                                               gboolean             numlock_state);
 static void notify_modifiers (MetaWaylandKeyboard *keyboard);
 static guint evdev_code (const ClutterKeyEvent *event);
 
@@ -405,110 +397,6 @@ notify_modifiers (MetaWaylandKeyboard *keyboard)
 }
 
 static void
-numlock_set_xkb_state (MetaWaylandKeyboard    *keyboard,
-                       GsdKeyboardNumLockState state)
-{
-  MetaBackend *backend = meta_get_backend ();
-  gboolean numlock_state;
-
-  if (state != GSD_KEYBOARD_NUM_LOCK_STATE_ON &&
-      state != GSD_KEYBOARD_NUM_LOCK_STATE_OFF)
-    return;
-
-  numlock_state = (state == GSD_KEYBOARD_NUM_LOCK_STATE_ON);
-  meta_verbose ("set numlock state %s\n", (numlock_state ? "ON" : "OFF"));
-  meta_backend_set_numlock (backend, numlock_state);
-  meta_wayland_keyboard_set_numlock (keyboard, numlock_state);
-}
-
-static void
-maybe_restore_numlock_state (MetaWaylandKeyboard *keyboard)
-{
-  gboolean remember_numlock;
-
-  if (!keyboard->gsd_settings)
-    return;
-
-  /* We are cheating for now, we use g-s-d settings... */
-  remember_numlock = g_settings_get_boolean (keyboard->gsd_settings,
-                                             "remember-numlock-state");
-
-  if (remember_numlock)
-    {
-      GsdKeyboardNumLockState state;
-
-      state = g_settings_get_enum (keyboard->gsd_settings, "numlock-state");
-      numlock_set_xkb_state (keyboard, state);
-    }
-}
-
-static void
-maybe_save_numlock_state (MetaWaylandKeyboard *keyboard)
-{
-#ifdef HAVE_NATIVE_BACKEND
-  MetaWaylandXkbInfo *xkb_info = &keyboard->xkb_info;
-  GsdKeyboardNumLockState numlock_state;
-  int numlock_active;
-
-  if (!META_IS_BACKEND_NATIVE (meta_get_backend ()))
-    return;
-
-  if (!xkb_info->state)
-    return;
-
-  if (!keyboard->gsd_settings)
-    return;
-
-  if (!g_settings_get_boolean (keyboard->gsd_settings, "remember-numlock-state"))
-    return;
-
-  numlock_active = xkb_state_mod_name_is_active(xkb_info->state,
-                                                "Mod2",
-                                                XKB_STATE_MODS_LOCKED);
-  switch (numlock_active)
-    {
-    case -1:
-      numlock_state = GSD_KEYBOARD_NUM_LOCK_STATE_UNKNOWN;
-      break;
-    case 0:
-      numlock_state = GSD_KEYBOARD_NUM_LOCK_STATE_OFF;
-      break;
-    default:
-      numlock_state = GSD_KEYBOARD_NUM_LOCK_STATE_ON;
-      break;
-    }
-  g_settings_set_enum (keyboard->gsd_settings, "numlock-state", numlock_state);
-#endif
-}
-
-static void
-meta_wayland_keyboard_set_numlock (MetaWaylandKeyboard *keyboard,
-                                   gboolean     numlock_state)
-{
-  MetaWaylandXkbInfo *xkb_info = &keyboard->xkb_info;
-  xkb_mod_mask_t latched, locked, group, depressed;
-  xkb_mod_mask_t numlock;
-
-  meta_verbose ("backend numlock state %s\n", (numlock_state ? "ON" : "OFF"));
-
-  latched = xkb_state_serialize_mods (xkb_info->state, XKB_STATE_MODS_LATCHED);
-  locked = xkb_state_serialize_mods (xkb_info->state, XKB_STATE_MODS_LOCKED);
-  group = xkb_state_serialize_layout (xkb_info->state, XKB_STATE_LAYOUT_EFFECTIVE);
-  depressed = xkb_state_serialize_mods(xkb_info->state, XKB_STATE_DEPRESSED);
-  numlock = (1 <<  xkb_keymap_mod_get_index(xkb_info->keymap, "Mod2"));
-
-  if (numlock_state == TRUE)
-    locked |= numlock;
-  else
-    locked &= ~numlock;
-
-  xkb_state_update_mask (xkb_info->state, depressed, latched, locked, 0, 0, group);
-  kbd_a11y_apply_mask (keyboard);
-
-  notify_modifiers (keyboard);
-}
-
-static void
 meta_wayland_keyboard_update_xkb_state (MetaWaylandKeyboard *keyboard)
 {
   MetaWaylandXkbInfo *xkb_info = &keyboard->xkb_info;
@@ -616,16 +504,6 @@ notify_key_repeat (MetaWaylandKeyboard *keyboard)
 }
 
 static void
-remember_numlock_state_changed (GSettings  *settings,
-                                const char *key,
-                                gpointer    data)
-{
-  MetaWaylandKeyboard *keyboard = data;
-
-  maybe_save_numlock_state (keyboard);
-}
-
-static void
 settings_changed (GSettings           *settings,
                   const char          *key,
                   gpointer             data)
@@ -678,23 +556,10 @@ void
 meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard)
 {
   MetaBackend *backend = meta_get_backend ();
-  GSettingsSchema *schema;
 
   keyboard->settings = g_settings_new ("org.gnome.desktop.peripherals.keyboard");
   g_signal_connect (keyboard->settings, "changed",
                     G_CALLBACK (settings_changed), keyboard);
-
-  /* We are cheating for now, we use g-s-d settings... Check if available */
-  schema = g_settings_schema_source_lookup (g_settings_schema_source_get_default (),
-                                            GSD_KEYBOARD_SCHEMA,
-                                            TRUE);
-  if (schema)
-    {
-      keyboard->gsd_settings = g_settings_new_full (schema, NULL, NULL);
-      g_settings_schema_unref (schema);
-      g_signal_connect (keyboard->gsd_settings, "changed::remember-numlock-state",
-                        G_CALLBACK (remember_numlock_state_changed), keyboard);
-    }
 
   g_signal_connect (backend, "keymap-changed",
                     G_CALLBACK (on_keymap_changed), keyboard);
@@ -705,8 +570,6 @@ meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard)
                     G_CALLBACK (on_kbd_a11y_mask_changed), keyboard);
 
   meta_wayland_keyboard_take_keymap (keyboard, meta_backend_get_keymap (backend));
-
-  maybe_restore_numlock_state (keyboard);
 }
 
 static void
@@ -735,8 +598,6 @@ meta_wayland_keyboard_disable (MetaWaylandKeyboard *keyboard)
   wl_list_init (&keyboard->focus_resource_list);
 
   g_clear_object (&keyboard->settings);
-  if (keyboard->gsd_settings)
-    g_object_unref (keyboard->gsd_settings);
 }
 
 static guint
@@ -802,8 +663,6 @@ meta_wayland_keyboard_handle_event (MetaWaylandKeyboard *keyboard,
 
   if (keyboard->mods_changed != 0)
     {
-      if (keyboard->mods_changed & XKB_STATE_MODS_LOCKED)
-        maybe_save_numlock_state (keyboard);
       notify_modifiers (keyboard);
       keyboard->mods_changed = 0;
     }
