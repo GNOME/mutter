@@ -670,6 +670,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerKms *monitor_manager_kms =
     META_MONITOR_MANAGER_KMS (monitor_manager);
+  MetaInputSettings *input_settings;
   MetaIdleMonitor *idle_monitor;
 
   meta_monitor_manager_kms_resume (monitor_manager_kms);
@@ -681,4 +682,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
 
   idle_monitor = meta_backend_get_idle_monitor (backend, 0);
   meta_idle_monitor_reset_idletime (idle_monitor);
+
+  input_settings = meta_backend_get_input_settings (backend);
+  meta_input_settings_maybe_restore_numlock_state (input_settings);
 }

@@ -144,4 +144,7 @@ WacomDevice * meta_input_settings_get_tablet_wacom_device (MetaInputSettings *se
                                                            ClutterInputDevice *device);
 #endif
 
+void meta_input_settings_maybe_save_numlock_state    (MetaInputSettings *input_settings);
+void meta_input_settings_maybe_restore_numlock_state (MetaInputSettings *input_settings);
+
 #endif /* META_INPUT_SETTINGS_PRIVATE_H */

@@ -133,6 +133,7 @@ struct _MetaBackendPrivate
   gboolean is_pointer_position_initialized;
 
   guint device_update_idle_id;
+  guint keymap_state_changed_id;
 
   GHashTable *device_monitors;
 
@@ -166,6 +167,14 @@ meta_backend_finalize (GObject *object)
 {
   MetaBackend *backend = META_BACKEND (object);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  if (priv->keymap_state_changed_id)
+    {
+      ClutterKeymap *keymap;
+
+      keymap = clutter_backend_get_keymap (priv->clutter_backend);
+      g_signal_handler_disconnect (keymap, priv->keymap_state_changed_id);
+    }
 
   g_clear_object (&priv->monitor_manager);
   g_clear_object (&priv->orientation_manager);
@@ -474,6 +483,7 @@ meta_backend_real_post_init (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterDeviceManager *device_manager = clutter_device_manager_get_default ();
+  ClutterKeymap *keymap = clutter_backend_get_keymap (priv->clutter_backend);
 
   priv->stage = meta_stage_new (backend);
   clutter_actor_realize (priv->stage);
@@ -499,6 +509,12 @@ meta_backend_real_post_init (MetaBackend *backend)
   set_initial_pointer_visibility (backend, device_manager);
 
   priv->input_settings = meta_backend_create_input_settings (backend);
+
+  priv->keymap_state_changed_id =
+    g_signal_connect_swapped (keymap, "state-changed",
+                              G_CALLBACK (meta_input_settings_maybe_save_numlock_state),
+                              priv->input_settings);
+  meta_input_settings_maybe_restore_numlock_state (priv->input_settings);
 
 #ifdef HAVE_REMOTE_DESKTOP
   priv->remote_access_controller =
