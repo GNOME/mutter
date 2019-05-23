@@ -1150,6 +1150,8 @@ meta_input_settings_changed_cb (GSettings  *settings,
           strcmp (key, "repeat-interval") == 0 ||
           strcmp (key, "delay") == 0)
         update_keyboard_repeat (input_settings);
+      else if (strcmp (key, "remember-numlock-state") == 0)
+        meta_input_settings_maybe_save_numlock_state (input_settings);
     }
 }
 
@@ -2505,4 +2507,40 @@ meta_input_settings_get_pad_action_label (MetaInputSettings  *input_settings,
     }
 
   return NULL;
+}
+
+void
+meta_input_settings_maybe_save_numlock_state (MetaInputSettings *input_settings)
+{
+  MetaInputSettingsPrivate *priv;
+  ClutterKeymap *keymap;
+  gboolean numlock_state;
+
+  priv = meta_input_settings_get_instance_private (input_settings);
+
+  if (!g_settings_get_boolean (priv->keyboard_settings, "remember-numlock-state"))
+    return;
+
+  keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
+  numlock_state = clutter_keymap_get_num_lock_state (keymap);
+
+  if (numlock_state == g_settings_get_boolean (priv->keyboard_settings, "numlock-state"))
+    return;
+
+  g_settings_set_boolean (priv->keyboard_settings, "numlock-state", numlock_state);
+}
+
+void
+meta_input_settings_maybe_restore_numlock_state (MetaInputSettings *input_settings)
+{
+  MetaInputSettingsPrivate *priv;
+  gboolean numlock_state;
+
+  priv = meta_input_settings_get_instance_private (input_settings);
+
+  if (!g_settings_get_boolean (priv->keyboard_settings, "remember-numlock-state"))
+    return;
+
+  numlock_state = g_settings_get_boolean (priv->keyboard_settings, "numlock-state");
+  meta_backend_set_numlock (meta_get_backend (), numlock_state);
 }
