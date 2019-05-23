@@ -249,7 +249,7 @@ meta_wayland_egl_stream_create_texture (MetaWaylandEglStream *stream,
       return NULL;
     }
 
-  stream->texture = cogl_multi_plane_texture_new_single_plane (format, texture_2d);
+  stream->texture = cogl_multi_plane_texture_new_single_plane (COGL_PIXEL_FORMAT_ANY, texture_2d);
   stream->is_y_inverted = !!y_inverted;
 
   return stream->texture;
