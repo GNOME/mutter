@@ -21,7 +21,7 @@
 
 #include "cogl-object-private.h"
 #include "cogl-gtype-private.h"
-#include "cogl-pixel_format-conversion.h"
+#include "cogl-pixel-format-conversion.h"
 #include "cogl-snippet.h"
 #include "cogl-pipeline-layer-state.h"
 #include "cogl-pipeline-state.h"
