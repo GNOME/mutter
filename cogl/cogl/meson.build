@@ -254,7 +254,7 @@ cogl_sources = [
   'cogl-clip-stack.c',
   'cogl-color-private.h',
   'cogl-color.c',
-  'cogl-colorspace-conversion.c',
+  'cogl-pixel-format-conversion.c',
   'cogl-feature-private.c',
   'cogl-feature-private.h',
   'cogl-buffer-private.h',
