@@ -266,6 +266,8 @@ experimental_features_handler (GVariant *features_variant,
         features |= META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
       else if (g_str_equal (feature, "rt-scheduler"))
         features |= META_EXPERIMENTAL_FEATURE_RT_SCHEDULER;
+      else if (g_str_equal (feature, "autostart-xwayland"))
+        features |= META_EXPERIMENTAL_FEATURE_AUTOSTART_XWAYLAND;
       else
         g_info ("Unknown experimental feature '%s'\n", feature);
     }

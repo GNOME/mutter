@@ -760,7 +760,7 @@ meta_display_open (void)
   display->selection = meta_selection_new (display);
   meta_clipboard_manager_init (display);
 
-  if (meta_should_autostart_x11_display ())
+  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_MANDATORY)
     {
       if (!meta_display_init_x11 (display, &error))
         g_error ("Failed to start Xwayland: %s", error->message);
