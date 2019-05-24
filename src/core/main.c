@@ -717,15 +717,27 @@ prefs_changed_callback (MetaPreference pref,
     }
 }
 
-gboolean
-meta_should_autostart_x11_display (void)
+MetaDisplayPolicy
+meta_get_x11_display_policy (void)
 {
   MetaBackend *backend = meta_get_backend ();
-  gboolean wants_x11 = TRUE;
+
+  if (META_IS_BACKEND_X11_CM (backend))
+    return META_DISPLAY_POLICY_MANDATORY;
 
 #ifdef HAVE_WAYLAND
-  wants_x11 = !opt_no_x11;
+  if (meta_is_wayland_compositor ())
+    {
+      MetaSettings *settings = meta_backend_get_settings (backend);
+
+      if (opt_no_x11)
+        return META_DISPLAY_POLICY_DISABLED;
+
+      if (meta_settings_is_experimental_feature_enabled (settings,
+                                                         META_EXPERIMENTAL_FEATURE_AUTOSTART_XWAYLAND))
+        return META_DISPLAY_POLICY_ON_DEMAND;
+    }
 #endif
 
-  return META_IS_BACKEND_X11_CM (backend) || wants_x11;
+  return META_DISPLAY_POLICY_MANDATORY;
 }
