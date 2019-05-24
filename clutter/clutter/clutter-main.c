@@ -58,6 +58,7 @@
 #include "clutter-device-manager-private.h"
 #include "clutter-event-private.h"
 #include "clutter-feature.h"
+#include "clutter-input-pointer-a11y-private.h"
 #include "clutter-main.h"
 #include "clutter-master-clock.h"
 #include "clutter-mutter.h"
@@ -2261,6 +2262,21 @@ _clutter_process_event_details (ClutterActor        *stage,
         break;
 
       case CLUTTER_MOTION:
+#ifdef CLUTTER_WINDOWING_X11
+        if (!clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
+          {
+            if (_clutter_is_input_pointer_a11y_enabled (device))
+              {
+                ClutterInputDevice *core_pointer;
+                gfloat x, y;
+
+                clutter_event_get_coords (event, &x, &y);
+                core_pointer = clutter_device_manager_get_core_device (device->device_manager,
+                                                                       CLUTTER_POINTER_DEVICE);
+                _clutter_input_pointer_a11y_on_motion_event (core_pointer, x, y);
+              }
+          }
+#endif /* CLUTTER_WINDOWING_X11 */
         /* only the stage gets motion events if they are enabled */
         if (!clutter_stage_get_motion_events_enabled (CLUTTER_STAGE (stage)) &&
             event->any.source == NULL)
@@ -2299,6 +2315,22 @@ _clutter_process_event_details (ClutterActor        *stage,
       /* fallthrough from motion */
       case CLUTTER_BUTTON_PRESS:
       case CLUTTER_BUTTON_RELEASE:
+#ifdef CLUTTER_WINDOWING_X11
+        if (!clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
+          {
+            if (_clutter_is_input_pointer_a11y_enabled (device) && (event->type != CLUTTER_MOTION))
+              {
+                ClutterInputDevice *core_pointer;
+
+                core_pointer = clutter_device_manager_get_core_device (device->device_manager,
+                                                                       CLUTTER_POINTER_DEVICE);
+
+                _clutter_input_pointer_a11y_on_button_event (core_pointer,
+                                                             event->button.button,
+                                                             event->type == CLUTTER_BUTTON_PRESS);
+              }
+          }
+#endif /* CLUTTER_WINDOWING_X11 */
       case CLUTTER_SCROLL:
       case CLUTTER_TOUCHPAD_PINCH:
       case CLUTTER_TOUCHPAD_SWIPE:
