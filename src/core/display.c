@@ -51,6 +51,7 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "clutter/x11/clutter-x11.h"
+#include "compositor/compositor-private.h"
 #include "core/bell.h"
 #include "core/boxes-private.h"
 #include "core/display-private.h"
@@ -645,12 +646,15 @@ meta_display_init_x11 (MetaDisplay  *display,
 
   display->x11_display = x11_display;
   g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
-  meta_x11_display_create_guard_window (x11_display);
 
-  if (!display->display_opening)
-    meta_display_manage_all_windows (display);
+  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
+    {
+      meta_x11_display_create_guard_window (x11_display);
+      if (!display->display_opening)
+        meta_display_manage_all_windows (display);
 
-  meta_compositor_redirect_x11_windows (display->compositor);
+      meta_compositor_redirect_x11_windows (display->compositor);
+    }
 
   return TRUE;
 }
