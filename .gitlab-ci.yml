@@ -38,6 +38,7 @@ test-mutter:
     MALLOC_CHECK_: "3"
     NO_AT_BRIDGE: "1"
   script:
+    - dconf update
     - mkdir -m 700 $XDG_RUNTIME_DIR
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
     - >
