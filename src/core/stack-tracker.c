@@ -508,6 +508,42 @@ query_xserver_stack (MetaDisplay      *display,
   XFree (children);
 }
 
+static void
+drop_x11_windows (MetaDisplay      *display,
+                  MetaStackTracker *tracker)
+{
+  GArray *new_stack;
+  GList *l;
+  int i;
+
+  tracker->xserver_serial = 0;
+
+  new_stack = g_array_new (FALSE, FALSE, sizeof (guint64));
+
+  for (i = 0; i < tracker->verified_stack->len; i++)
+    {
+      guint64 window = g_array_index (tracker->verified_stack, guint64, i);
+
+      if (!META_STACK_ID_IS_X11 (window))
+        g_array_append_val (new_stack, window);
+    }
+
+  g_array_unref (tracker->verified_stack);
+  tracker->verified_stack = new_stack;
+  l = tracker->unverified_predictions->head;
+
+  while (l)
+    {
+      MetaStackOp *op = l->data;
+      GList *next = l->next;
+
+      if (META_STACK_ID_IS_X11 (op->any.window))
+        g_queue_remove (tracker->unverified_predictions, op);
+
+      l = next;
+    }
+}
+
 MetaStackTracker *
 meta_stack_tracker_new (MetaDisplay *display)
 {
@@ -522,6 +558,10 @@ meta_stack_tracker_new (MetaDisplay *display)
   g_signal_connect (display,
                     "x11-display-opened",
                     G_CALLBACK (query_xserver_stack),
+                    tracker);
+  g_signal_connect (display,
+                    "x11-display-closing",
+                    G_CALLBACK (drop_x11_windows),
                     tracker);
 
   meta_stack_tracker_dump (tracker);
@@ -545,6 +585,9 @@ meta_stack_tracker_free (MetaStackTracker *tracker)
 
   g_signal_handlers_disconnect_by_func (tracker->display,
                                         (gpointer)query_xserver_stack,
+                                        tracker);
+  g_signal_handlers_disconnect_by_func (tracker->display,
+                                        drop_x11_windows,
                                         tracker);
 
   g_free (tracker);
