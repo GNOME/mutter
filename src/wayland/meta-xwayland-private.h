@@ -25,14 +25,14 @@
 #include "wayland/meta-wayland-private.h"
 
 gboolean
-meta_xwayland_start (MetaXWaylandManager *manager,
-                     struct wl_display   *display);
+meta_xwayland_init (MetaXWaylandManager *manager,
+		    struct wl_display   *display);
 
 void
 meta_xwayland_complete_init (MetaDisplay *display);
 
 void
-meta_xwayland_stop (MetaXWaylandManager *manager);
+meta_xwayland_shutdown (MetaXWaylandManager *manager);
 
 /* wl_data_device/X11 selection interoperation */
 void     meta_xwayland_init_dnd         (void);
