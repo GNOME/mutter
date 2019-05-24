@@ -37,12 +37,12 @@ test-mutter:
     GSETTINGS_SCHEMA_DIR: "$CI_PROJECT_DIR/build/data"
     MALLOC_CHECK_: "3"
     NO_AT_BRIDGE: "1"
+    MALLOC_PERTURB_: "123"
   script:
     - dconf update
     - mkdir -m 700 $XDG_RUNTIME_DIR
     - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
     - >
-      env MALLOC_PERTURB_="$((RANDOM % 256 + 1))"
       dbus-run-session -- xvfb-run -s '+iglx -noreset'
       meson test -C build --no-rebuild -t 10 --verbose --no-stdsplit --wrap catchsegv
   only:
