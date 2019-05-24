@@ -3812,13 +3812,13 @@ maybe_move_attached_window (MetaWindow *window,
                             void       *data)
 {
   if (window->hidden)
-    return FALSE;
+    return G_SOURCE_CONTINUE;
 
   if (meta_window_is_attached_dialog (window) ||
       meta_window_get_placement_rule (window))
     meta_window_reposition (window);
 
-  return FALSE;
+  return G_SOURCE_CONTINUE;
 }
 
 /**
