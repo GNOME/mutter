@@ -22,6 +22,7 @@
 #include "src/backends/meta-profiler.h"
 
 #include <glib-unix.h>
+#include <glib/gi18n.h>
 #include <gio/gunixfdlist.h>
 
 #include "cogl/cogl-trace.h"
@@ -56,6 +57,7 @@ handle_start (MetaDBusSysprof3Profiler *dbus_profiler,
   GMainContext *main_context = g_main_context_default ();
   GDBusMessage *message;
   GUnixFDList *fd_list;
+  const char *group_name;
   int position;
   int fd = -1;
 
@@ -75,10 +77,21 @@ handle_start (MetaDBusSysprof3Profiler *dbus_profiler,
   if (fd_list)
     fd = g_unix_fd_list_get (fd_list, position, NULL);
 
+  /* Translators: this string will appear in Sysprof */
+  group_name = _("Compositor");
+
   if (fd != -1)
-    cogl_set_tracing_enabled_on_thread_with_fd (main_context, fd);
+    {
+      cogl_set_tracing_enabled_on_thread_with_fd (main_context,
+                                                  group_name,
+                                                  fd);
+    }
   else
-    cogl_set_tracing_enabled_on_thread (main_context, "mutter-profile.syscap");
+    {
+      cogl_set_tracing_enabled_on_thread (main_context,
+                                          group_name,
+                                          "mutter-profile.syscap");
+    }
 
   profiler->running = TRUE;
 

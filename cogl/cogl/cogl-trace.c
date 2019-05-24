@@ -34,6 +34,7 @@ typedef struct
 {
   int   fd;
   char *filename;
+  char *group;
 } TraceData;
 
 static void
@@ -42,6 +43,7 @@ trace_data_free (gpointer user_data)
   TraceData *data = user_data;
 
   data->fd = -1;
+  g_clear_pointer (&data->group, g_free);
   g_clear_pointer (&data->filename, g_free);
   g_free (data);
 }
@@ -103,7 +105,7 @@ ensure_sigpipe_ignored (void)
 }
 
 static CoglTraceThreadContext *
-cogl_trace_thread_context_new (void)
+cogl_trace_thread_context_new (const char *group)
 {
   CoglTraceThreadContext *thread_context;
   pid_t tid;
@@ -113,7 +115,8 @@ cogl_trace_thread_context_new (void)
   thread_context = g_new0 (CoglTraceThreadContext, 1);
   thread_context->cpu_id = -1;
   thread_context->pid = getpid ();
-  thread_context->group = g_strdup_printf ("t:%d", tid);
+  thread_context->group =
+    group ? g_strdup (group) : g_strdup_printf ("t:%d", tid);
 
   return thread_context;
 }
@@ -132,7 +135,7 @@ enable_tracing_idle_callback (gpointer user_data)
       return G_SOURCE_REMOVE;
     }
 
-  cogl_trace_thread_context = cogl_trace_thread_context_new ();
+  cogl_trace_thread_context = cogl_trace_thread_context_new (data->group);
 
   return G_SOURCE_REMOVE;
 }
@@ -171,6 +174,7 @@ disable_tracing_idle_callback (gpointer user_data)
 
 static void
 set_tracing_enabled_on_thread (GMainContext *main_context,
+                               const char   *group,
                                int           fd,
                                const char   *filename)
 {
@@ -179,6 +183,7 @@ set_tracing_enabled_on_thread (GMainContext *main_context,
 
   data = g_new0 (TraceData, 1);
   data->fd = fd;
+  data->group = group ? strdup (group) : NULL;
   data->filename = filename ? strdup (filename) : NULL;
 
   source = g_idle_source_new ();
@@ -194,16 +199,18 @@ set_tracing_enabled_on_thread (GMainContext *main_context,
 
 void
 cogl_set_tracing_enabled_on_thread_with_fd (GMainContext *main_context,
+                                            const char   *group,
                                             int           fd)
 {
-  set_tracing_enabled_on_thread (main_context, fd, NULL);
+  set_tracing_enabled_on_thread (main_context, group, fd, NULL);
 }
 
 void
 cogl_set_tracing_enabled_on_thread (GMainContext *main_context,
+                                    const char   *group,
                                     const char   *filename)
 {
-  set_tracing_enabled_on_thread (main_context, -1, filename);
+  set_tracing_enabled_on_thread (main_context, group, -1, filename);
 }
 
 void
@@ -225,14 +232,16 @@ cogl_set_tracing_disabled_on_thread (GMainContext *main_context)
 #include <stdio.h>
 
 void
-cogl_set_tracing_enabled_on_thread_with_fd (void *data,
-                                            int   fd)
+cogl_set_tracing_enabled_on_thread_with_fd (void       *data,
+                                            const char *group,
+                                            int         fd)
 {
   fprintf (stderr, "Tracing not enabled");
 }
 
 void
 cogl_set_tracing_enabled_on_thread (void       *data,
+                                    const char *group,
                                     const char *filename)
 {
   fprintf (stderr, "Tracing not enabled");
