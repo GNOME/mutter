@@ -71,4 +71,6 @@ MetaCloseDialog * meta_compositor_create_close_dialog (MetaCompositor *composito
 MetaInhibitShortcutsDialog * meta_compositor_create_inhibit_shortcuts_dialog (MetaCompositor *compositor,
                                                                               MetaWindow     *window);
 
+void meta_compositor_redirect_x11_windows (MetaCompositor *compositor);
+
 #endif /* META_COMPOSITOR_PRIVATE_H */
