@@ -176,16 +176,6 @@ meta_x11_display_dispose (GObject *object)
     {
       MetaStackTracker *stack_tracker = x11_display->display->stack_tracker;
 
-      if (stack_tracker)
-        {
-          unsigned long serial;
-
-          serial = XNextRequest (x11_display->xdisplay);
-          meta_stack_tracker_record_remove (stack_tracker,
-                                            x11_display->guard_window,
-                                            serial);
-        }
-
       XUnmapWindow (x11_display->xdisplay, x11_display->guard_window);
       XDestroyWindow (x11_display->xdisplay, x11_display->guard_window);
 
