@@ -58,6 +58,7 @@
 #include "clutter-device-manager-private.h"
 #include "clutter-event-private.h"
 #include "clutter-feature.h"
+#include "clutter-input-pointer-a11y-private.h"
 #include "clutter-main.h"
 #include "clutter-master-clock.h"
 #include "clutter-mutter.h"
@@ -2261,6 +2262,17 @@ _clutter_process_event_details (ClutterActor        *stage,
         break;
 
       case CLUTTER_MOTION:
+        if (_clutter_is_input_pointer_a11y_enabled (device))
+          {
+            ClutterInputDevice *core_pointer;
+            gfloat x, y;
+
+            clutter_event_get_coords (event, &x, &y);
+            core_pointer = clutter_device_manager_get_core_device (device->device_manager,
+                                                                   CLUTTER_POINTER_DEVICE);
+            _clutter_input_pointer_a11y_on_motion_event (core_pointer, x, y);
+          }
+
         /* only the stage gets motion events if they are enabled */
         if (!clutter_stage_get_motion_events_enabled (CLUTTER_STAGE (stage)) &&
             event->any.source == NULL)
