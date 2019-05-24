@@ -538,6 +538,30 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager)
   return TRUE;
 }
 
+static void
+window_unmanaged_cb (MetaWindow          *window,
+                     MetaXWaylandManager *manager)
+{
+  manager->x11_windows = g_list_remove (manager->x11_windows, window);
+  g_signal_handlers_disconnect_by_func (window,
+                                        window_unmanaged_cb,
+                                        manager);
+}
+
+static void
+window_created_cb (MetaDisplay         *display,
+                   MetaWindow          *window,
+                   MetaXWaylandManager *manager)
+{
+  if (window->xwindow &&
+      meta_window_get_client_pid (window) != getpid ())
+    {
+      manager->x11_windows = g_list_prepend (manager->x11_windows, window);
+      g_signal_connect (window, "unmanaged",
+                        G_CALLBACK (window_unmanaged_cb), manager);
+    }
+}
+
 gboolean
 meta_xwayland_init (MetaXWaylandManager *manager,
                     struct wl_display   *wl_display)
@@ -562,6 +586,9 @@ on_x11_display_closing (MetaDisplay *display)
 void
 meta_xwayland_complete_init (MetaDisplay *display)
 {
+  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaXWaylandManager *manager = &compositor->xwayland_manager;
+
   /* We install an X IO error handler in addition to the child watch,
      because after Xlib connects our child watch may not be called soon
      enough, and therefore we won't crash when X exits (and most important
@@ -572,12 +599,19 @@ meta_xwayland_complete_init (MetaDisplay *display)
   g_signal_connect (display, "x11-display-closing",
                     G_CALLBACK (on_x11_display_closing), NULL);
   meta_xwayland_init_dnd ();
+
+  g_signal_connect (meta_get_display (), "window-created",
+                    G_CALLBACK (window_created_cb), manager);
 }
 
 void
 meta_xwayland_shutdown (MetaXWaylandManager *manager)
 {
   char path[256];
+
+  g_signal_handlers_disconnect_by_func (meta_get_display (),
+                                        window_created_cb,
+                                        manager);
 
   g_cancellable_cancel (manager->xserver_died_cancellable);
   g_clear_object (&manager->proc);
