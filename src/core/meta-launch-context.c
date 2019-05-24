@@ -114,7 +114,7 @@ meta_launch_context_constructed (GObject *object)
 
   G_OBJECT_CLASS (meta_launch_context_parent_class)->constructed (object);
 
-  x11_display = getenv ("DISPLAY");
+  x11_display = meta_x11_get_display_name ();
   wayland_display = getenv ("WAYLAND_DISPLAY");
 
   if (x11_display)
