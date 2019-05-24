@@ -547,7 +547,7 @@ on_displayfd_ready (int          fd,
 }
 
 static gboolean
-meta_xwayland_init_xserver (MetaXWaylandManager *manager)
+meta_xwayland_start_xserver (MetaXWaylandManager *manager)
 {
   int xwayland_client_fd[2];
   int displayfd[2];
@@ -621,8 +621,8 @@ meta_xwayland_init_xserver (MetaXWaylandManager *manager)
 }
 
 gboolean
-meta_xwayland_start (MetaXWaylandManager *manager,
-                     struct wl_display   *wl_display)
+meta_xwayland_init (MetaXWaylandManager *manager,
+                    struct wl_display   *wl_display)
 {
   if (!choose_xdisplay (manager))
     return FALSE;
@@ -631,7 +631,7 @@ meta_xwayland_start (MetaXWaylandManager *manager,
     return FALSE;
 
   manager->wayland_display = wl_display;
-  return meta_xwayland_init_xserver (manager);
+  return meta_xwayland_start_xserver (manager);
 }
 
 static void
@@ -657,7 +657,7 @@ meta_xwayland_complete_init (MetaDisplay *display)
 }
 
 void
-meta_xwayland_stop (MetaXWaylandManager *manager)
+meta_xwayland_shutdown (MetaXWaylandManager *manager)
 {
   char path[256];
 
