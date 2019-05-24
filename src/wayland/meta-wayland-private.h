@@ -58,6 +58,8 @@ typedef struct
   GSubprocess *proc;
   GMainLoop *init_loop;
 
+  GList *x11_windows;
+
   MetaXWaylandDnd *dnd;
 } MetaXWaylandManager;
 
