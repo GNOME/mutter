@@ -60,6 +60,7 @@
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-drm-buffer-dumb.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
+#include "backends/native/meta-drm-buffer-import.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-kms-update.h"
@@ -95,6 +96,8 @@ static GParamSpec *obj_props[PROP_LAST];
 
 typedef enum _MetaSharedFramebufferCopyMode
 {
+  /* Zero-copy: primary GPU exports, secondary GPU imports as KMS FB */
+  META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO,
   /* the secondary GPU will make the copy */
   META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU,
   /*
@@ -150,6 +153,16 @@ typedef struct _MetaDumbBuffer
   int dmabuf_fd;
 } MetaDumbBuffer;
 
+typedef enum _MetaSharedFramebufferImportStatus
+{
+  /* Not tried importing yet. */
+  META_SHARED_FRAMEBUFFER_IMPORT_STATUS_NONE,
+  /* Tried before and failed. */
+  META_SHARED_FRAMEBUFFER_IMPORT_STATUS_FAILED,
+  /* Tried before and succeeded. */
+  META_SHARED_FRAMEBUFFER_IMPORT_STATUS_OK
+} MetaSharedFramebufferImportStatus;
+
 typedef struct _MetaOnscreenNativeSecondaryGpuState
 {
   MetaGpuKms *gpu_kms;
@@ -172,6 +185,7 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
 
   gboolean noted_primary_gpu_copy_ok;
   gboolean noted_primary_gpu_copy_failed;
+  MetaSharedFramebufferImportStatus import_status;
 } MetaOnscreenNativeSecondaryGpuState;
 
 typedef struct _MetaOnscreenNative
@@ -867,6 +881,13 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
         }
     }
 
+  /*
+   * This function initializes everything needed for
+   * META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO as well.
+   */
+  secondary_gpu_state->import_status =
+    META_SHARED_FRAMEBUFFER_IMPORT_STATUS_NONE;
+
   g_hash_table_insert (onscreen_native->secondary_gpu_states,
                        gpu_kms, secondary_gpu_state);
 
@@ -894,6 +915,13 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
                                                    error))
         return FALSE;
       break;
+    case META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO:
+      /*
+       * Initialize also the primary copy mode, so that if zero-copy
+       * path fails, which is quite likely, we can simply continue
+       * with the primary copy path on the very first frame.
+       */
+      G_GNUC_FALLTHROUGH;
     case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
       if (!init_secondary_gpu_state_cpu_copy_mode (renderer_native,
                                                    onscreen,
@@ -1741,6 +1769,73 @@ wait_for_pending_flips (CoglOnscreen *onscreen)
     }
 }
 
+static gboolean
+import_shared_framebuffer (CoglOnscreen                        *onscreen,
+                           MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
+{
+  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+  MetaDrmBufferGbm *buffer_gbm;
+  MetaDrmBufferImport *buffer_import;
+  g_autoptr (GError) error = NULL;
+
+  buffer_gbm = META_DRM_BUFFER_GBM (onscreen_native->gbm.next_fb);
+
+  buffer_import = meta_drm_buffer_import_new (secondary_gpu_state->gpu_kms,
+                                              buffer_gbm,
+                                              &error);
+  if (!buffer_import)
+    {
+      g_debug ("Zero-copy disabled for %s, meta_drm_buffer_import_new failed: %s",
+               meta_gpu_kms_get_file_path (secondary_gpu_state->gpu_kms),
+               error->message);
+
+      g_warn_if_fail (secondary_gpu_state->import_status ==
+                      META_SHARED_FRAMEBUFFER_IMPORT_STATUS_NONE);
+
+      /*
+       * Fall back. If META_SHARED_FRAMEBUFFER_IMPORT_STATUS_NONE is
+       * in effect, we have COPY_MODE_PRIMARY prepared already, so we
+       * simply retry with that path. Import status cannot be FAILED,
+       * because we should not retry if failed once.
+       *
+       * If import status is OK, that is unexpected and we do not
+       * have the fallback path prepared which means this output cannot
+       * work anymore.
+       */
+      secondary_gpu_state->renderer_gpu_data->secondary.copy_mode =
+        META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
+
+      secondary_gpu_state->import_status =
+        META_SHARED_FRAMEBUFFER_IMPORT_STATUS_FAILED;
+      return FALSE;
+    }
+
+  /*
+   * next_fb may already contain a fallback buffer, so clear it only
+   * when we are sure to succeed.
+   */
+  g_clear_object (&secondary_gpu_state->gbm.next_fb);
+  secondary_gpu_state->gbm.next_fb = META_DRM_BUFFER (buffer_import);
+
+  if (secondary_gpu_state->import_status ==
+      META_SHARED_FRAMEBUFFER_IMPORT_STATUS_NONE)
+    {
+      /*
+       * Clean up the cpu-copy part of
+       * init_secondary_gpu_state_cpu_copy_mode ()
+       */
+      secondary_gpu_release_dumb (secondary_gpu_state);
+
+      g_debug ("Using zero-copy for %s succeeded once.",
+               meta_gpu_kms_get_file_path (secondary_gpu_state->gpu_kms));
+    }
+
+  secondary_gpu_state->import_status =
+    META_SHARED_FRAMEBUFFER_IMPORT_STATUS_OK;
+  return TRUE;
+}
+
 static void
 copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
                              MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
@@ -2083,6 +2178,13 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen *onscreen)
         case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
           /* Done after eglSwapBuffers. */
           break;
+        case META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO:
+          /* Done after eglSwapBuffers. */
+          if (secondary_gpu_state->import_status ==
+              META_SHARED_FRAMEBUFFER_IMPORT_STATUS_OK)
+            break;
+          /* prepare fallback */
+          G_GNUC_FALLTHROUGH;
         case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
           if (!copy_shared_framebuffer_primary_gpu (onscreen,
                                                     secondary_gpu_state))
@@ -2132,8 +2234,14 @@ update_secondary_gpu_state_post_swap_buffers (CoglOnscreen *onscreen,
       renderer_gpu_data =
         meta_renderer_native_get_gpu_data (renderer_native,
                                            secondary_gpu_state->gpu_kms);
+retry:
       switch (renderer_gpu_data->secondary.copy_mode)
         {
+        case META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO:
+          if (!import_shared_framebuffer (onscreen,
+                                          secondary_gpu_state))
+            goto retry;
+          break;
         case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
           copy_shared_framebuffer_gpu (onscreen,
                                        secondary_gpu_state,
@@ -3571,7 +3679,10 @@ static void
 init_secondary_gpu_data_cpu (MetaRendererNativeGpuData *renderer_gpu_data)
 {
   renderer_gpu_data->secondary.is_hardware_rendering = FALSE;
-  renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
+
+  /* First try ZERO, it automatically falls back to PRIMARY as needed */
+  renderer_gpu_data->secondary.copy_mode =
+    META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO;
 }
 
 static void

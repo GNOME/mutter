@@ -609,6 +609,8 @@ if have_native_backend
     'backends/native/meta-drm-buffer-dumb.h',
     'backends/native/meta-drm-buffer-gbm.c',
     'backends/native/meta-drm-buffer-gbm.h',
+    'backends/native/meta-drm-buffer-import.c',
+    'backends/native/meta-drm-buffer-import.h',
     'backends/native/meta-drm-buffer.c',
     'backends/native/meta-drm-buffer.h',
     'backends/native/meta-event-native.c',
