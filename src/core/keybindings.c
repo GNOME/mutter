@@ -1171,9 +1171,6 @@ meta_change_button_grab (MetaKeyBindingManager *keys,
                          int                     button,
                          int                     modmask)
 {
-  if (meta_is_wayland_compositor ())
-    return;
-
   MetaBackendX11 *backend = META_BACKEND_X11 (keys->backend);
   Display *xdisplay = meta_backend_x11_get_xdisplay (backend);
 
@@ -1300,12 +1297,8 @@ meta_display_grab_focus_window_button (MetaDisplay *display,
       return;
     }
 
-  /* FIXME If we ignored errors here instead of spewing, we could
-   * put one big error trap around the loop and avoid a bunch of
-   * XSync()
-   */
-
-  meta_change_buttons_grab (keys, window->xwindow, TRUE, TRUE, XIAnyModifier);
+  if (window->xwindow && !meta_is_wayland_compositor ())
+    meta_change_buttons_grab (keys, window->xwindow, TRUE, TRUE, XIAnyModifier);
   window->have_focus_click_grab = TRUE;
 }
 
@@ -1320,7 +1313,8 @@ meta_display_ungrab_focus_window_button (MetaDisplay *display,
   if (!window->have_focus_click_grab)
     return;
 
-  meta_change_buttons_grab (keys, window->xwindow, FALSE, FALSE, XIAnyModifier);
+  if (window->xwindow && !meta_is_wayland_compositor ())
+    meta_change_buttons_grab (keys, window->xwindow, FALSE, FALSE, XIAnyModifier);
   window->have_focus_click_grab = FALSE;
 }
 
@@ -1348,7 +1342,8 @@ prefs_changed_callback (MetaPreference pref,
         for (l = windows; l; l = l->next)
           {
             MetaWindow *w = l->data;
-            meta_display_ungrab_window_buttons (display, w->xwindow);
+            if (!meta_is_wayland_compositor ())
+              meta_display_ungrab_window_buttons (display, w->xwindow);
           }
 
         update_window_grab_modifiers (keys);
@@ -1356,7 +1351,7 @@ prefs_changed_callback (MetaPreference pref,
         for (l = windows; l; l = l->next)
           {
             MetaWindow *w = l->data;
-            if (w->type != META_WINDOW_DOCK)
+            if (!meta_is_wayland_compositor () && w->type != META_WINDOW_DOCK)
               meta_display_grab_window_buttons (display, w->xwindow);
           }
 
