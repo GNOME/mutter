@@ -1335,21 +1335,12 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
 
       switch (wl_shm_buffer_get_format (shm_buffer))
         {
-#if G_BYTE_ORDER == G_BIG_ENDIAN
         case WL_SHM_FORMAT_ARGB8888:
           gbm_format = GBM_FORMAT_ARGB8888;
           break;
         case WL_SHM_FORMAT_XRGB8888:
           gbm_format = GBM_FORMAT_XRGB8888;
           break;
-#else
-        case WL_SHM_FORMAT_ARGB8888:
-          gbm_format = GBM_FORMAT_ARGB8888;
-          break;
-        case WL_SHM_FORMAT_XRGB8888:
-          gbm_format = GBM_FORMAT_XRGB8888;
-          break;
-#endif
         default:
           g_warn_if_reached ();
           gbm_format = GBM_FORMAT_ARGB8888;
