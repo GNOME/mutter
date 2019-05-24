@@ -506,16 +506,9 @@ meta_xwayland_init_xserver (MetaXWaylandManager *manager)
 
   g_subprocess_launcher_setenv (launcher, "WAYLAND_SOCKET", "3", TRUE);
 
-  /* Use the -terminate parameter to ensure that Xwayland exits cleanly
-   * after the last client disconnects. Fortunately that includes the window
-   * manager so it won't exit prematurely either. This ensures that Xwayland
-   * won't try to reconnect and crash, leaving uninteresting core dumps. We do
-   * want core dumps from Xwayland but only if a real bug occurs...
-   */
   manager->proc = g_subprocess_launcher_spawn (launcher, &error,
                                                XWAYLAND_PATH, manager->display_name,
                                                "-rootless",
-                                               "-terminate",
                                                "-accessx",
                                                "-core",
                                                "-listen", "4",
