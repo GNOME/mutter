@@ -553,6 +553,9 @@ static void
 on_x11_display_closing (MetaDisplay *display)
 {
   meta_xwayland_shutdown_dnd ();
+  g_signal_handlers_disconnect_by_func (display,
+                                        on_x11_display_closing,
+                                        NULL);
 }
 
 /* To be called right after connecting */
