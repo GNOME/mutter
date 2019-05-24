@@ -513,7 +513,7 @@ drop_x11_windows (MetaDisplay      *display,
                   MetaStackTracker *tracker)
 {
   GArray *new_stack;
-  GList *l = NULL;
+  GList *l;
   int i;
 
   tracker->xserver_serial = 0;
@@ -531,10 +531,7 @@ drop_x11_windows (MetaDisplay      *display,
   g_array_unref (tracker->verified_stack);
   tracker->verified_stack = new_stack;
 
-  if (tracker->unverified_predictions)
-    l = tracker->unverified_predictions->head;
-
-  while (l)
+  for (l = tracker->unverified_predictions->head; l; l = l->next)
     {
       MetaStackOp *op = l->data;
       GList *next = l->next;

@@ -33,6 +33,7 @@
 #include <sys/un.h>
 
 #include "compositor/meta-surface-actor-wayland.h"
+#include "core/main-private.h"
 #include "meta/main.h"
 #include "wayland/meta-wayland-actor-surface.h"
 
@@ -61,6 +62,8 @@ G_DEFINE_TYPE (MetaWaylandSurfaceRoleXWayland,
                META_TYPE_WAYLAND_ACTOR_SURFACE)
 
 static int display_number_override = -1;
+
+static void meta_xwayland_stop_xserver (MetaXWaylandManager *manager);
 
 void
 meta_xwayland_associate_window_with_surface (MetaWindow          *window,
@@ -352,24 +355,33 @@ xserver_died (GObject      *source,
       g_warning ("Failed to finish waiting for Xwayland: %s", error->message);
     }
   else if (!g_subprocess_get_successful (proc))
-    g_warning ("X Wayland crashed; exiting");
-  else
-    {
-      /* For now we simply abort if we see the server exit.
-       *
-       * In the future X will only be loaded lazily for legacy X support
-       * but for now it's a hard requirement. */
-      g_warning ("Spurious exit of X Wayland server");
-    }
+    g_warning ("X Wayland process exited");
 
-  meta_exit (META_EXIT_ERROR);
+  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_MANDATORY)
+    {
+      meta_exit (META_EXIT_ERROR);
+    }
+  else if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
+    {
+      MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+      MetaDisplay *display = meta_get_display ();
+
+      if (display->x11_display)
+        meta_display_shutdown_x11 (display);
+
+      if (!meta_xwayland_init (&compositor->xwayland_manager,
+                               compositor->wayland_display))
+        g_warning ("Failed to init X sockets");
+    }
 }
 
 static int
 x_io_error (Display *display)
 {
   g_warning ("Connection to xwayland lost");
-  meta_exit (META_EXIT_ERROR);
+
+  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_MANDATORY)
+    meta_exit (META_EXIT_ERROR);
 
   return 0;
 }
@@ -438,6 +450,29 @@ choose_xdisplay (MetaXWaylandManager *manager)
   return TRUE;
 }
 
+static gboolean
+reopen_display_sockets (MetaXWaylandManager *manager)
+{
+  gboolean fatal;
+
+  manager->abstract_fd = bind_to_abstract_socket (manager->display_index,
+                                                  &fatal);
+  if (manager->abstract_fd < 0)
+    {
+      g_warning ("Failed to bind abstract socket");
+      return FALSE;
+    }
+
+  manager->unix_fd = bind_to_unix_socket (manager->display_index);
+  if (manager->unix_fd < 0)
+    {
+      close (manager->abstract_fd);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 static void
 xserver_finished_init (MetaXWaylandManager *manager)
 {
@@ -455,12 +490,16 @@ on_displayfd_ready (int          fd,
                     gpointer     user_data)
 {
   MetaXWaylandManager *manager = user_data;
+  MetaDisplay *display = meta_get_display ();
 
   /* The server writes its display name to the displayfd
    * socket when it's ready. We don't care about the data
    * in the socket, just that it wrote something, since
    * that means it's ready. */
   xserver_finished_init (manager);
+
+  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
+    meta_display_init_x11 (display, NULL);
 
   return G_SOURCE_REMOVE;
 }
@@ -538,6 +577,31 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager)
   return TRUE;
 }
 
+static gboolean
+xdisplay_connection_activity_cb (gint         fd,
+                                 GIOCondition cond,
+                                 gpointer     user_data)
+{
+  MetaXWaylandManager *manager = user_data;
+
+  if (!meta_xwayland_start_xserver (manager))
+    g_critical ("Could not start Xserver");
+
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean
+shutdown_xwayland_cb (gpointer data)
+{
+  MetaXWaylandManager *manager = data;
+
+  g_debug ("Shutting down Xwayland");
+  manager->xserver_grace_period_id = 0;
+  meta_display_shutdown_x11 (meta_get_display ());
+  meta_xwayland_stop_xserver (manager);
+  return G_SOURCE_REMOVE;
+}
+
 static void
 window_unmanaged_cb (MetaWindow          *window,
                      MetaXWaylandManager *manager)
@@ -546,6 +610,12 @@ window_unmanaged_cb (MetaWindow          *window,
   g_signal_handlers_disconnect_by_func (window,
                                         window_unmanaged_cb,
                                         manager);
+  if (!manager->x11_windows)
+    {
+      g_debug ("All X11 windows gone, setting shutdown timeout");
+      manager->xserver_grace_period_id =
+        g_timeout_add_seconds (10, shutdown_xwayland_cb, manager);
+    }
 }
 
 static void
@@ -559,18 +629,57 @@ window_created_cb (MetaDisplay         *display,
       manager->x11_windows = g_list_prepend (manager->x11_windows, window);
       g_signal_connect (window, "unmanaged",
                         G_CALLBACK (window_unmanaged_cb), manager);
+      if (manager->xserver_grace_period_id)
+        {
+          g_source_remove (manager->xserver_grace_period_id);
+          manager->xserver_grace_period_id = 0;
+        }
     }
+}
+
+static void
+meta_xwayland_stop_xserver (MetaXWaylandManager *manager)
+{
+  g_subprocess_send_signal (manager->proc, SIGTERM);
+  g_signal_handlers_disconnect_by_func (meta_get_display (),
+                                        window_created_cb,
+                                        manager);
+  g_clear_object (&manager->xserver_died_cancellable);
+  g_clear_object (&manager->proc);
 }
 
 gboolean
 meta_xwayland_init (MetaXWaylandManager *manager,
                     struct wl_display   *wl_display)
 {
-  if (!choose_xdisplay (manager))
-    return FALSE;
+  MetaDisplayPolicy policy;
+
+  if (!manager->display_name)
+    {
+      if (!choose_xdisplay (manager))
+        return FALSE;
+    }
+  else
+    {
+      if (!reopen_display_sockets (manager))
+        return FALSE;
+    }
 
   manager->wayland_display = wl_display;
-  return meta_xwayland_start_xserver (manager);
+  policy = meta_get_x11_display_policy ();
+
+  if (policy == META_DISPLAY_POLICY_MANDATORY)
+    {
+      return meta_xwayland_start_xserver (manager);
+    }
+  else if (policy == META_DISPLAY_POLICY_ON_DEMAND)
+    {
+      g_unix_fd_add (manager->abstract_fd, G_IO_IN,
+                     xdisplay_connection_activity_cb, manager);
+      return TRUE;
+    }
+
+  return FALSE;
 }
 
 static void
@@ -609,13 +718,7 @@ meta_xwayland_shutdown (MetaXWaylandManager *manager)
 {
   char path[256];
 
-  g_signal_handlers_disconnect_by_func (meta_get_display (),
-                                        window_created_cb,
-                                        manager);
-
   g_cancellable_cancel (manager->xserver_died_cancellable);
-  g_clear_object (&manager->proc);
-  g_clear_object (&manager->xserver_died_cancellable);
 
   snprintf (path, sizeof path, "/tmp/.X11-unix/X%d", manager->display_index);
   unlink (path);
