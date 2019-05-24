@@ -515,6 +515,15 @@ redirect_windows (MetaX11Display *x11_display)
 }
 
 void
+meta_compositor_redirect_x11_windows (MetaCompositor *compositor)
+{
+  MetaDisplay *display = compositor->display;
+
+  if (display->x11_display)
+    redirect_windows (display->x11_display);
+}
+
+void
 meta_compositor_manage (MetaCompositor *compositor)
 {
   MetaDisplay *display = compositor->display;

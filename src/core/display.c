@@ -650,6 +650,8 @@ meta_display_init_x11 (MetaDisplay  *display,
   if (!display->display_opening)
     meta_display_manage_all_windows (display);
 
+  meta_compositor_redirect_x11_windows (display->compositor);
+
   return TRUE;
 }
 
