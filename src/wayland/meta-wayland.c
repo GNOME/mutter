@@ -415,7 +415,7 @@ meta_wayland_init (void)
 
   if (meta_should_autostart_x11_display ())
     {
-      if (!meta_xwayland_start (&compositor->xwayland_manager, compositor->wayland_display))
+      if (!meta_xwayland_init (&compositor->xwayland_manager, compositor->wayland_display))
         g_error ("Failed to start X Wayland");
     }
 
@@ -463,7 +463,7 @@ meta_wayland_finalize (void)
 
   compositor = meta_wayland_compositor_get_default ();
 
-  meta_xwayland_stop (&compositor->xwayland_manager);
+  meta_xwayland_shutdown (&compositor->xwayland_manager);
   g_clear_pointer (&compositor->display_name, g_free);
 }
 
