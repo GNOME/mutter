@@ -2464,7 +2464,8 @@ meta_display_manage_all_windows (MetaDisplay *display)
 
   for (i = 0; i < n_children; ++i)
     {
-      g_assert (META_STACK_ID_IS_X11 (children[i]));
+      if (!META_STACK_ID_IS_X11 (children[i]))
+        continue;
       meta_window_x11_new (display, children[i], TRUE,
                            META_COMP_EFFECT_NONE);
     }
