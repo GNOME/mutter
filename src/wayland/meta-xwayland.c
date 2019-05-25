@@ -381,6 +381,32 @@ meta_xwayland_override_display_number (int number)
 }
 
 static gboolean
+open_display_sockets (MetaXWaylandManager *manager,
+                      int                  display_index,
+                      gboolean            *fatal)
+{
+  int abstract_fd, unix_fd;
+
+  abstract_fd = bind_to_abstract_socket (display_index,
+                                         fatal);
+  if (abstract_fd < 0)
+    return FALSE;
+
+  unix_fd = bind_to_unix_socket (display_index);
+  if (unix_fd < 0)
+    {
+      *fatal = FALSE;
+      close (abstract_fd);
+      return FALSE;
+    }
+
+  manager->abstract_fd = abstract_fd;
+  manager->unix_fd = unix_fd;
+
+  return TRUE;
+}
+
+static gboolean
 choose_xdisplay (MetaXWaylandManager *manager)
 {
   int display = 0;
@@ -401,8 +427,7 @@ choose_xdisplay (MetaXWaylandManager *manager)
           return FALSE;
         }
 
-      manager->abstract_fd = bind_to_abstract_socket (display, &fatal);
-      if (manager->abstract_fd < 0)
+      if (!open_display_sockets (manager, display, &fatal))
         {
           unlink (lock_file);
 
@@ -413,18 +438,9 @@ choose_xdisplay (MetaXWaylandManager *manager)
             }
           else
             {
-              g_warning ("Failed to bind abstract socket");
+              g_warning ("Failed to bind X11 socket");
               return FALSE;
             }
-        }
-
-      manager->unix_fd = bind_to_unix_socket (display);
-      if (manager->unix_fd < 0)
-        {
-          unlink (lock_file);
-          close (manager->abstract_fd);
-          display++;
-          continue;
         }
 
       break;
