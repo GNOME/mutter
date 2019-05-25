@@ -648,7 +648,7 @@ meta_display_init_x11 (MetaDisplay  *display,
   meta_x11_display_create_guard_window (x11_display);
 
   if (!display->display_opening)
-    meta_display_manage_all_windows (display);
+    meta_display_manage_all_xwindows (display);
 
   return TRUE;
 }
@@ -799,7 +799,7 @@ meta_display_open (void)
    * we start out with no windows.
    */
   if (!meta_is_wayland_compositor ())
-    meta_display_manage_all_windows (display);
+    meta_display_manage_all_xwindows (display);
 
   if (old_active_xwindow != None)
     {
@@ -2450,7 +2450,7 @@ meta_resize_gravity_from_grab_op (MetaGrabOp op)
 }
 
 void
-meta_display_manage_all_windows (MetaDisplay *display)
+meta_display_manage_all_xwindows (MetaDisplay *display)
 {
   guint64 *_children;
   guint64 *children;
@@ -2464,7 +2464,8 @@ meta_display_manage_all_windows (MetaDisplay *display)
 
   for (i = 0; i < n_children; ++i)
     {
-      g_assert (META_STACK_ID_IS_X11 (children[i]));
+      if (!META_STACK_ID_IS_X11 (children[i]))
+        continue;
       meta_window_x11_new (display, children[i], TRUE,
                            META_COMP_EFFECT_NONE);
     }
