@@ -600,8 +600,6 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
 
   grid = g_new (int, grid_area);
 
-  current_row = -1;
-  current_col = -1;
   i = 0;
 
   switch (workspace_manager->starting_corner)
