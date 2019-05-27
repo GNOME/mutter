@@ -1837,9 +1837,6 @@ meta_display_end_grab_op (MetaDisplay *display,
 
   g_assert (grab_window != NULL);
 
-  g_signal_emit (display, display_signals[GRAB_OP_END], 0,
-                 display, grab_window, grab_op);
-
   /* We need to reset this early, since the
    * meta_window_grab_op_ended callback relies on this being
    * up to date. */
@@ -1891,6 +1888,9 @@ meta_display_end_grab_op (MetaDisplay *display,
 
   if (meta_is_wayland_compositor ())
     meta_display_sync_wayland_input_focus (display);
+
+  g_signal_emit (display, display_signals[GRAB_OP_END], 0,
+                 display, grab_window, grab_op);
 }
 
 /**
