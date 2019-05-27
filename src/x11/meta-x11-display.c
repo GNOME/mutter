@@ -490,6 +490,13 @@ init_x11_bell (MetaX11Display *x11_display)
                                    &mask);
         }
     }
+
+  /* We are playing sounds using libcanberra support, we handle the
+   * bell whether its an audible bell or a visible bell */
+  XkbChangeEnabledControls (x11_display->xdisplay,
+                            XkbUseCoreKbd,
+                            XkbAudibleBellMask,
+                            0);
 }
 
 /*
@@ -505,32 +512,6 @@ shutdown_x11_bell (MetaX11Display *x11_display)
                             XkbUseCoreKbd,
                             XkbAudibleBellMask,
                             XkbAudibleBellMask);
-}
-
-/*
- * Turns the bell to audible or visual. This tells X what to do, but
- * not Mutter; you will need to set the "visual bell" pref for that.
- */
-static void
-set_x11_bell_is_audible (MetaX11Display *x11_display,
-                         gboolean is_audible)
-{
-  /* When we are playing sounds using libcanberra support, we handle the
-   * bell whether its an audible bell or a visible bell */
-  gboolean enable_system_bell = FALSE;
-
-  XkbChangeEnabledControls (x11_display->xdisplay,
-                            XkbUseCoreKbd,
-                            XkbAudibleBellMask,
-                            enable_system_bell ? XkbAudibleBellMask : 0);
-}
-
-static void
-on_is_audible_changed (MetaBell       *bell,
-                       gboolean        is_audible,
-                       MetaX11Display *x11_display)
-{
-  set_x11_bell_is_audible (x11_display, is_audible);
 }
 
 static void
@@ -1350,12 +1331,6 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
                            x11_display, 0);
 
   init_x11_bell (x11_display);
-
-  g_signal_connect_object (display->bell, "is-audible-changed",
-                           G_CALLBACK (on_is_audible_changed),
-                           x11_display, 0);
-
-  set_x11_bell_is_audible (x11_display, meta_prefs_bell_is_audible ());
 
   meta_x11_startup_notification_init (x11_display);
   meta_x11_selection_init (x11_display);
