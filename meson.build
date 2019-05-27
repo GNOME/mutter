@@ -344,6 +344,10 @@ cdata.set('HAVE_SM', have_sm)
 cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
 
+if have_native_backend
+  cdata.set_quoted('HAVE_LIBDRM', libdrm_dep.found())
+endif
+
 xkb_base = xkeyboard_config_dep.get_pkgconfig_variable('xkb_base')
 cdata.set_quoted('XKB_BASE', xkb_base)
 

@@ -38,6 +38,10 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#ifdef HAVE_LIBDRM
+#include <drm_fourcc.h>
+#endif
+
 #include <cogl/cogl-defines.h>
 
 #include <glib.h>
@@ -58,6 +62,9 @@ G_BEGIN_DECLS
  *
  * Other examples of factors that can influence the layout in memory are the
  * system's endianness.
+ *
+ * This file also contains methods to map Linux DRM 4CC codes to
+ * CoglPixelFormats.
  */
 
 #define COGL_A_BIT              (1 << 4)
@@ -294,6 +301,33 @@ _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format);
  */
 const char *
 cogl_pixel_format_to_string (CoglPixelFormat format);
+
+#ifdef HAVE_LIBDRM
+
+/* added in libdrm 2.4.95 */
+#ifndef DRM_FORMAT_INVALID
+#define DRM_FORMAT_INVALID 0
+#endif
+
+/**
+ * cogl_pixel_format_from_drm_format:
+ * @drm_format: The DRM 4CC code (as specified in drm_fourcc.h)
+ * @out_format: (optional): The corresponding #CoglPixelFormat (if successful)
+ * @out_components: (optional): The corresponding #CoglPixelFormat (if sucessful)
+ *
+ * Does an internal lookup to find a #CoglPixelFormat that matches the given
+ * DRM 4CC code. If no such format could be found, this function will return
+ * %FALSE and @out_format will be untouched.
+ *
+ * Returns: %TRUE if a #CoglPixelFormat corresponding to the 4CC code exists,
+ * %FALSE otherwise.
+ */
+gboolean
+cogl_pixel_format_from_drm_format (uint32_t               drm_format,
+                                   CoglPixelFormat       *out_format,
+                                   CoglTextureComponents *out_components);
+
+#endif
 
 G_END_DECLS
 
