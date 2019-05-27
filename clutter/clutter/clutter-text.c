@@ -1975,6 +1975,7 @@ selection_paint (ClutterText     *self,
   else
     {
       /* Paint selection background first */
+      CoglPipeline *color_pipeline = cogl_pipeline_copy (default_color_pipeline);
       PangoLayout *layout = clutter_text_get_layout (self);
       CoglPath *selection_path = cogl_path_new ();
       CoglColor cogl_color = { 0, };
@@ -1987,11 +1988,19 @@ selection_paint (ClutterText     *self,
       else
         color = &priv->text_color;
 
+      cogl_color_init_from_4ub (&cogl_color,
+                                color->red,
+                                color->green,
+                                color->blue,
+                                paint_opacity * color->alpha / 255);
+      cogl_color_premultiply (&cogl_color);
+      cogl_pipeline_set_color (color_pipeline, &cogl_color);
+
       clutter_text_foreach_selection_rectangle_prescaled (self,
                                                           add_selection_rectangle_to_path,
                                                           selection_path);
 
-      cogl_path_fill (selection_path);
+      cogl_framebuffer_fill_path (fb, color_pipeline, selection_path);
 
       /* Paint selected text */
       cogl_framebuffer_push_path_clip (fb, selection_path);
