@@ -353,7 +353,7 @@ find_builtin_output (MetaInputMapper  *mapper,
   return panel != NULL;
 }
 
-static gboolean
+static void
 guess_candidates (MetaInputMapper     *mapper,
                   MetaMapperInputInfo *input,
                   DeviceCandidates    *info)
@@ -387,15 +387,7 @@ guess_candidates (MetaInputMapper     *mapper,
       find_builtin_output (mapper, &info->candidates[META_MATCH_IS_BUILTIN]);
     }
 
-  if (best < N_OUTPUT_MATCHES)
-    {
-      info->best = best;
-      return TRUE;
-    }
-  else
-    {
-      return FALSE;
-    }
+  info->best = best;
 }
 
 static void
@@ -408,8 +400,7 @@ mapping_helper_add (MappingHelper       *helper,
 
   info.input = input;
 
-  if (!guess_candidates (mapper, input, &info))
-    return;
+  guess_candidates (mapper, input, &info);
 
   for (i = 0; i < helper->device_maps->len; i++)
     {
