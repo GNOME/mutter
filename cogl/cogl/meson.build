@@ -12,6 +12,9 @@ cdata.set('COGL_HAS_X11', have_x11)
 cdata.set('COGL_HAS_X11_SUPPORT', have_x11)
 cdata.set('COGL_HAS_XLIB', have_x11)
 cdata.set('COGL_HAS_XLIB_SUPPORT', have_x11)
+if have_native_backend
+  cdata.set('COGL_HAS_LIBDRM', libdrm_dep.found())
+endif
 
 cogl_defines_h = configure_file(
   input: 'cogl-defines.h.meson',

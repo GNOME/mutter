@@ -73,11 +73,6 @@
 #define EGL_DRM_MASTER_FD_EXT 0x333C
 #endif
 
-/* added in libdrm 2.4.95 */
-#ifndef DRM_FORMAT_INVALID
-#define DRM_FORMAT_INVALID 0
-#endif
-
 enum
 {
   PROP_0,
@@ -251,11 +246,6 @@ free_current_secondary_bo (MetaGpuKms                          *gpu_kms,
 static void
 free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
                         MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state);
-
-static gboolean
-cogl_pixel_format_from_drm_format (uint32_t               drm_format,
-                                   CoglPixelFormat       *out_format,
-                                   CoglTextureComponents *out_components);
 
 static MetaBackend *
 backend_from_renderer_native (MetaRendererNative *renderer_native)
@@ -2124,65 +2114,6 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
       g_error_free (error);
       return;
     }
-}
-
-typedef struct _PixelFormatMap {
-  uint32_t drm_format;
-  CoglPixelFormat cogl_format;
-  CoglTextureComponents cogl_components;
-} PixelFormatMap;
-
-static const PixelFormatMap pixel_format_map[] = {
-/* DRM formats are defined as little-endian, not machine endian. */
-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
-  { DRM_FORMAT_RGB565,   COGL_PIXEL_FORMAT_RGB_565,       COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_ABGR8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_XBGR8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_ARGB8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_XRGB8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_BGRA8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_BGRX8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_RGBA8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_RGBX8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-#elif G_BYTE_ORDER == G_BIG_ENDIAN
-  /* DRM_FORMAT_RGB565 cannot be expressed. */
-  { DRM_FORMAT_ABGR8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_XBGR8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_ARGB8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_XRGB8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_BGRA8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_BGRX8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_RGBA8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_RGBX8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-#else
-#error "unexpected G_BYTE_ORDER"
-#endif
-};
-
-static gboolean
-cogl_pixel_format_from_drm_format (uint32_t               drm_format,
-                                   CoglPixelFormat       *out_format,
-                                   CoglTextureComponents *out_components)
-{
-  const size_t n = G_N_ELEMENTS (pixel_format_map);
-  size_t i;
-
-  for (i = 0; i < n; i++)
-    {
-      if (pixel_format_map[i].drm_format == drm_format)
-        break;
-    }
-
-  if (i == n)
-    return FALSE;
-
-  if (out_format)
-    *out_format = pixel_format_map[i].cogl_format;
-
-  if (out_components)
-    *out_components = pixel_format_map[i].cogl_components;
-
-  return TRUE;
 }
 
 static void
