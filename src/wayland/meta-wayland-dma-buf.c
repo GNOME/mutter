@@ -43,10 +43,6 @@
 
 #include "linux-dmabuf-unstable-v1-server-protocol.h"
 
-#ifndef DRM_FORMAT_MOD_INVALID
-#define DRM_FORMAT_MOD_INVALID ((1ULL << 56) - 1)
-#endif
-
 #define META_WAYLAND_DMA_BUF_MAX_FDS 4
 
 struct _MetaWaylandDmaBufBuffer
@@ -84,28 +80,15 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   if (buffer->dma_buf.texture)
     return TRUE;
 
-  switch (dma_buf->drm_format)
+  /*
+   * NOTE: The cogl_format here is only used for texture color channel
+   * swizzling as compared to COGL_PIXEL_FORMAT_ARGB. It is *not* used
+   * for accessing the buffer memory. EGL will access the buffer
+   * memory according to the DRM fourcc code. Cogl will not mmap
+   * and access the buffer memory at all.
+   */
+  if (!cogl_pixel_format_from_drm_format (dma_buf->drm_format, &cogl_format, NULL))
     {
-    /*
-     * NOTE: The cogl_format here is only used for texture color channel
-     * swizzling as compared to COGL_PIXEL_FORMAT_ARGB. It is *not* used
-     * for accessing the buffer memory. EGL will access the buffer
-     * memory according to the DRM fourcc code. Cogl will not mmap
-     * and access the buffer memory at all.
-     */
-    case DRM_FORMAT_XRGB8888:
-      cogl_format = COGL_PIXEL_FORMAT_RGB_888;
-      break;
-    case DRM_FORMAT_ARGB8888:
-      cogl_format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
-      break;
-    case DRM_FORMAT_ARGB2101010:
-      cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
-      break;
-    case DRM_FORMAT_RGB565:
-      cogl_format = COGL_PIXEL_FORMAT_RGB_565;
-      break;
-    default:
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
                    "Unsupported buffer format %d", dma_buf->drm_format);
