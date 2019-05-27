@@ -431,12 +431,10 @@ meta_end_modal_for_plugin (MetaCompositor *compositor,
 {
   MetaDisplay *display = compositor->display;
   MetaBackend *backend = meta_get_backend ();
+  MetaWindow *grab_window = display->grab_window;
+  MetaGrabOp grab_op = display->grab_op;
 
   g_return_if_fail (is_modal (display));
-
-  g_signal_emit_by_name (display, "grab-op-end",
-                         meta_plugin_get_display (plugin),
-                         display->grab_window, display->grab_op);
 
   display->grab_op = META_GRAB_OP_NONE;
   display->event_route = META_EVENT_ROUTE_NORMAL;
@@ -454,6 +452,10 @@ meta_end_modal_for_plugin (MetaCompositor *compositor,
       meta_display_sync_wayland_input_focus (display);
     }
 #endif
+
+  g_signal_emit_by_name (display, "grab-op-end",
+                         meta_plugin_get_display (plugin),
+                         grab_window, grab_op);
 }
 
 static void
