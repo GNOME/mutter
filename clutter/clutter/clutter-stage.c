@@ -187,6 +187,7 @@ enum
   ACTIVATE,
   DEACTIVATE,
   DELETE_EVENT,
+  GL_VIDEO_MEMORY_PURGED,
   AFTER_PAINT,
   PAINT_VIEW,
   PRESENTED,
@@ -2128,6 +2129,22 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   _clutter_marshal_BOOLEAN__BOXED,
                   G_TYPE_BOOLEAN, 1,
                   CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+
+  /**
+   * ClutterStage::gl-video-memory-purged: (skip)
+   * @stage: the stage that received the event
+   *
+   * Signals that the underlying GL driver has had its texture memory purged
+   * so anything presently held in texture memory is now invalidated, and
+   * likely corrupt. It needs redrawing.
+   */
+  stage_signals[GL_VIDEO_MEMORY_PURGED] =
+    g_signal_new (I_("gl-video-memory-purged"),
+                  G_TYPE_FROM_CLASS (gobject_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 
   /**
    * ClutterStage::after-paint:
