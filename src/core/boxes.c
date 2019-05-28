@@ -2132,8 +2132,8 @@ meta_rectangle_from_clutter_rect (ClutterRect          *rect,
         *dest = (MetaRectangle) {
           .x = ceilf (rect->origin.x),
           .y = ceilf (rect->origin.y),
-          .width = floorf (rect->origin.x + rect->size.width) - dest->x,
-          .height = floorf (rect->origin.y + rect->size.height) - dest->x,
+          .width = floorf (rect->size.width),
+          .height = floorf (rect->size.height),
         };
       }
       break;
