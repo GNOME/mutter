@@ -322,6 +322,7 @@ get_base_pipeline (MetaShapedTexture *stex,
 {
   CoglPipeline *pipeline;
   CoglMatrix matrix;
+  guint n_planes;
   guint i = 0;
 
   if (stex->base_pipeline)
@@ -329,7 +330,8 @@ get_base_pipeline (MetaShapedTexture *stex,
 
   pipeline = cogl_pipeline_new (ctx);
 
-  for (i = 0; i < cogl_multi_plane_texture_get_n_planes (stex->texture); i++)
+  n_planes = cogl_multi_plane_texture_get_n_planes (stex->texture);
+  for (i = 0; i < n_planes; i++)
     {
       cogl_pipeline_set_layer_wrap_mode_s (pipeline, i,
                                            COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
@@ -415,12 +417,12 @@ get_base_pipeline (MetaShapedTexture *stex,
                              0);
     }
 
-  cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
-  cogl_pipeline_set_layer_matrix (pipeline, 1, &matrix);
+  for (i = 0; i < n_planes + 1; i++)
+    cogl_pipeline_set_layer_matrix (pipeline, i, &matrix);
 
   if (stex->snippet)
     {
-      for (i = 0; i < cogl_multi_plane_texture_get_n_planes (stex->texture); i++)
+      for (i = 0; i < n_planes; i++)
         cogl_pipeline_add_layer_snippet (pipeline, i, stex->snippet);
     }
 

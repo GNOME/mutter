@@ -58,7 +58,6 @@ struct _MetaWaylandDmaBufBuffer
   uint32_t drm_format;
   bool is_y_inverted;
 
-  guint n_planes;
   uint64_t drm_modifier[META_WAYLAND_DMA_BUF_MAX_FDS];
   int fds[META_WAYLAND_DMA_BUF_MAX_FDS];
   int offsets[META_WAYLAND_DMA_BUF_MAX_FDS];
@@ -123,6 +122,8 @@ static EGLImageKHR
 create_egl_image_from_dmabuf (MetaEgl                 *egl,
                               EGLDisplay               egl_display,
                               MetaWaylandDmaBufBuffer *dma_buf,
+                              int32_t                  width,
+                              int32_t                  height,
                               uint32_t                 drm_format,
                               GError                 **error)
 {
@@ -130,9 +131,9 @@ create_egl_image_from_dmabuf (MetaEgl                 *egl,
   int attr_idx = 0;
 
   attribs[attr_idx++] = EGL_WIDTH;
-  attribs[attr_idx++] = dma_buf->width;
+  attribs[attr_idx++] = width;
   attribs[attr_idx++] = EGL_HEIGHT;
-  attribs[attr_idx++] = dma_buf->height;
+  attribs[attr_idx++] = height;
   attribs[attr_idx++] = EGL_LINUX_DRM_FOURCC_EXT;
   attribs[attr_idx++] = drm_format;
 
@@ -217,28 +218,19 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
     return TRUE;
 
   cogl_format = drm_buffer_get_cogl_pixel_format (dma_buf);
+  g_warning ("Dmabuf: Got cogl format %s", cogl_pixel_format_to_string (cogl_format));
   if (G_UNLIKELY (cogl_format == COGL_PIXEL_FORMAT_ANY))
     {
-      g_set_error (error, G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                    "Unsupported buffer format %d", dma_buf->drm_format);
       return FALSE;
     }
-  g_warning ("Dmabuf: Got cogl format %s", cogl_pixel_format_to_string (cogl_format));
 
   n_planes = cogl_pixel_format_get_n_planes (cogl_format);
-  /* If this isn't correct, then something went very wrong, so bail out */
-  g_warning ("n_planes == %d <-> dma_buf planes = %d", n_planes, dma_buf->n_planes);
-  /* FIXME uncomment */
-  /* g_return_val_if_fail (n_planes == dma_buf->n_planes, FALSE); */
-
-  /*XXX probeersel*/
-  /* cogl_format = COGL_PIXEL_FORMAT_NV12; */
-
   planes = g_ptr_array_new_full (n_planes, cogl_object_unref);
 
   /* Each EGLImage is a plane in the final CoglMultiPlaneTexture */
-  for (i = 0; i < dma_buf->n_planes; i++)
+  for (i = 0; i < n_planes; i++)
     {
       EGLImageKHR egl_img;
       CoglTexture2D *plane;
@@ -246,6 +238,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
       egl_img = create_egl_image_from_dmabuf (egl,
                                               egl_display,
                                               dma_buf,
+                                              dma_buf->width, dma_buf->height,
                                               dma_buf->drm_format,
                                               error);
       if (G_UNLIKELY (egl_img == EGL_NO_IMAGE_KHR))
@@ -268,7 +261,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
 
   buffer->dma_buf.texture = cogl_multi_plane_texture_new (cogl_format,
                                                   (CoglTexture **) g_ptr_array_free (planes, FALSE),
-                                                  dma_buf->n_planes);
+                                                  n_planes);
   buffer->is_y_inverted = dma_buf->is_y_inverted;
 
   return TRUE;
@@ -309,8 +302,6 @@ buffer_params_add (struct wl_client   *client,
   drm_modifier = ((uint64_t) drm_modifier_hi) << 32;
   drm_modifier |= ((uint64_t) drm_modifier_lo) & 0xffffffff;
 
-  g_warning ("buffer_params_add %d", plane_idx);
-
   dma_buf = wl_resource_get_user_data (resource);
   if (G_UNLIKELY (!dma_buf))
     {
@@ -338,17 +329,16 @@ buffer_params_add (struct wl_client   *client,
       return;
     }
 
-  /* if (G_UNLIKELY (dma_buf->drm_modifier[plane_idx] != DRM_FORMAT_MOD_INVALID && */
-  /*     dma_buf->drm_modifier != drm_modifier)) */
-  /*   { */
-  /*     wl_resource_post_error (resource, */
-  /*                             ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_INVALID_WL_BUFFER, */
-  /*                             "mismatching modifier between planes"); */
-  /*     return; */
-  /*   } */
+  if (G_UNLIKELY (dma_buf->drm_modifier[plane_idx] != DRM_FORMAT_MOD_INVALID &&
+      dma_buf->drm_modifier != drm_modifier))
+    {
+      wl_resource_post_error (resource,
+                              ZWP_LINUX_BUFFER_PARAMS_V1_ERROR_INVALID_WL_BUFFER,
+                              "mismatching modifier between planes");
+      return;
+    }
 
 
-  dma_buf->n_planes = plane_idx + 1;
   dma_buf->fds[plane_idx] = fd;
   dma_buf->drm_modifier[plane_idx] = drm_modifier;
   dma_buf->offsets[plane_idx] = offset;
