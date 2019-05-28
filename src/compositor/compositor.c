@@ -1265,6 +1265,7 @@ meta_post_paint_func (gpointer data)
 
     case COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET:
       g_signal_emit_by_name (compositor->display, "gl-video-memory-purged");
+      g_signal_emit_by_name (compositor->stage , "gl-video-memory-purged");
       clutter_actor_queue_redraw (CLUTTER_ACTOR (compositor->stage));
       break;
 
