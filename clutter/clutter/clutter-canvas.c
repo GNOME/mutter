@@ -76,6 +76,8 @@ struct _ClutterCanvasPrivate
   gboolean dirty;
 
   CoglBitmap *buffer;
+
+  ClutterStage *stage;
 };
 
 enum
@@ -335,6 +337,7 @@ clutter_canvas_paint_content (ClutterContent   *content,
   ClutterCanvas *self = CLUTTER_CANVAS (content);
   ClutterCanvasPrivate *priv = self->priv;
   ClutterPaintNode *node;
+  ClutterActor *stage;
 
   if (priv->buffer == NULL)
     return;
@@ -356,6 +359,17 @@ clutter_canvas_paint_content (ClutterContent   *content,
   clutter_paint_node_unref (node);
 
   priv->dirty = FALSE;
+
+  stage = clutter_actor_get_stage (actor);
+  if (stage != (ClutterActor *) priv->stage)
+    {
+      priv->stage = CLUTTER_STAGE (stage);
+
+      g_signal_connect_object (stage, "gl-video-memory-purged",
+                               G_CALLBACK (clutter_content_invalidate),
+                               self,
+                               G_CONNECT_SWAPPED);
+    }
 }
 
 static void
