@@ -76,6 +76,8 @@ struct _ClutterCanvasPrivate
   gboolean dirty;
 
   CoglBitmap *buffer;
+
+  ClutterStage *stage;
 };
 
 enum
@@ -127,6 +129,14 @@ clutter_cairo_context_draw_marshaller (GClosure     *closure,
                                            marshal_data);
 
   cairo_restore (cr);
+}
+
+static void
+clutter_canvas_dispose (GObject *gobject)
+{
+  ClutterCanvasPrivate *priv = CLUTTER_CANVAS (gobject)->priv;
+
+  g_clear_object (&priv->stage);
 }
 
 static void
@@ -312,6 +322,7 @@ clutter_canvas_class_init (ClutterCanvasClass *klass)
 
   gobject_class->set_property = clutter_canvas_set_property;
   gobject_class->get_property = clutter_canvas_get_property;
+  gobject_class->dispose = clutter_canvas_dispose;
   gobject_class->finalize = clutter_canvas_finalize;
 
   g_object_class_install_properties (gobject_class, LAST_PROP, obj_props);
@@ -328,6 +339,12 @@ clutter_canvas_init (ClutterCanvas *self)
 }
 
 static void
+clutter_canvas_video_memory_purged (ClutterCanvas *self)
+{
+  clutter_content_invalidate (CLUTTER_CONTENT (self));
+}
+
+static void
 clutter_canvas_paint_content (ClutterContent   *content,
                               ClutterActor     *actor,
                               ClutterPaintNode *root)
@@ -335,6 +352,7 @@ clutter_canvas_paint_content (ClutterContent   *content,
   ClutterCanvas *self = CLUTTER_CANVAS (content);
   ClutterCanvasPrivate *priv = self->priv;
   ClutterPaintNode *node;
+  ClutterActor *stage;
 
   if (priv->buffer == NULL)
     return;
@@ -356,6 +374,17 @@ clutter_canvas_paint_content (ClutterContent   *content,
   clutter_paint_node_unref (node);
 
   priv->dirty = FALSE;
+
+  stage = clutter_actor_get_stage (actor);
+  if (stage != (ClutterActor *) priv->stage)
+    {
+      g_set_object (&priv->stage, CLUTTER_STAGE (stage));
+
+      g_signal_connect_object (stage, "gl-video-memory-purged",
+                               G_CALLBACK (clutter_canvas_video_memory_purged),
+                               self,
+                               G_CONNECT_SWAPPED);
+    }
 }
 
 static void
