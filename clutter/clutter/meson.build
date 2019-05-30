@@ -504,7 +504,12 @@ libmutter_clutter_dep = declare_dependency(
 )
 
 if have_introspection
-  clutter_introspection_args = introspection_args + clutter_c_args
+  clutter_introspection_args = introspection_args + [
+    '-DCLUTTER_SYSCONFDIR="@0@"'.format(join_paths(prefix, sysconfdir)),
+    '-DCLUTTER_COMPILATION=1',
+    '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
+    '-DG_LOG_DOMAIN="Clutter"'
+  ]
 
   libmutter_clutter_gir = gnome.generate_gir(libmutter_clutter,
     sources: [
