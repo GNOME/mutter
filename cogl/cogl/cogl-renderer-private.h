@@ -71,7 +71,6 @@ struct _CoglRenderer
   Display *foreign_xdpy;
   gboolean xlib_enable_event_retrieval;
   gboolean xlib_want_reset_on_video_memory_purge;
-  gboolean xlib_enable_threaded_swap_wait;
 #endif
 
   CoglDriver driver;
