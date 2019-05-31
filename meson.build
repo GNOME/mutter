@@ -351,7 +351,7 @@ cdata.set('HAVE_LIBWACOM', have_libwacom)
 cdata.set('HAVE_SM', have_sm)
 cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
-cdata.set('HAVE_TRACING', have_profiler)
+cdata.set('HAVE_PROFILER', have_profiler)
 
 xkb_base = xkeyboard_config_dep.get_pkgconfig_variable('xkb_base')
 cdata.set_quoted('XKB_BASE', xkb_base)
