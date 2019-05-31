@@ -50,7 +50,7 @@
 #mesondefine HAVE_STARTUP_NOTIFICATION
 
 /* Building with Sysprof profiling suport */
-#mesondefine HAVE_TRACING
+#mesondefine HAVE_PROFILER
 
 /* Path to Xwayland executable */
 #mesondefine XWAYLAND_PATH
