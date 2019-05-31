@@ -785,12 +785,6 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
 static void
 meta_backend_x11_init (MetaBackendX11 *x11)
 {
-  /* XInitThreads() is needed to use the "threaded swap wait" functionality
-   * in Cogl - see meta_renderer_x11_create_cogl_renderer(). We call it here
-   * to hopefully call it before any other use of XLib.
-   */
-  XInitThreads();
-
   /* We do X11 event retrieval ourselves */
   clutter_x11_disable_event_retrieval ();
 }
