@@ -107,7 +107,7 @@ meta_surface_actor_wayland_get_window (MetaSurfaceActor *actor)
   if (!surface)
     return NULL;
 
-  return surface->window;
+  return meta_wayland_surface_get_toplevel_window (surface);
 }
 
 static void
