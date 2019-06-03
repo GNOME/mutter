@@ -32,6 +32,7 @@
 #include "backends/meta-logical-monitor.h"
 #include "cogl/cogl-wayland-server.h"
 #include "compositor/meta-shaped-texture-private.h"
+#include "compositor/meta-window-actor-private.h"
 #include "compositor/region-utils.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
@@ -99,15 +100,20 @@ meta_surface_actor_wayland_add_frame_callbacks (MetaSurfaceActorWayland *self,
 }
 
 static MetaWindow *
+window_from_actor (ClutterActor *actor)
+{
+  if (META_IS_SURFACE_ACTOR (actor))
+    return window_from_actor (clutter_actor_get_parent (actor));
+  else if (META_IS_WINDOW_ACTOR (actor))
+    return meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor));
+  else
+    return NULL;
+}
+
+static MetaWindow *
 meta_surface_actor_wayland_get_window (MetaSurfaceActor *actor)
 {
-  MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
-  MetaWaylandSurface *surface = meta_surface_actor_wayland_get_surface (self);
-
-  if (!surface)
-    return NULL;
-
-  return surface->window;
+  return window_from_actor (CLUTTER_ACTOR (actor));
 }
 
 static void
