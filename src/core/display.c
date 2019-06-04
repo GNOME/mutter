@@ -920,10 +920,6 @@ meta_display_close (MetaDisplay *display,
 
   g_clear_object (&display->gesture_tracker);
 
-  g_clear_pointer (&display->stack, meta_stack_free);
-  g_clear_pointer (&display->stack_tracker,
-                   meta_stack_tracker_free);
-
   if (display->focus_timeout_id)
     g_source_remove (display->focus_timeout_id);
   display->focus_timeout_id = 0;
@@ -940,12 +936,6 @@ meta_display_close (MetaDisplay *display,
   /* Stop caring about events */
   meta_display_free_events (display);
 
-  /* Must be after all calls to meta_window_unmanage() since they
-   * unregister windows
-   */
-  g_hash_table_destroy (display->wayland_windows);
-  g_hash_table_destroy (display->stamps);
-
   if (display->compositor)
     meta_compositor_destroy (display->compositor);
 
@@ -955,6 +945,16 @@ meta_display_close (MetaDisplay *display,
       g_object_run_dispose (G_OBJECT (display->x11_display));
       g_clear_object (&display->x11_display);
     }
+
+  /* Must be after all calls to meta_window_unmanage() since they
+   * unregister windows
+   */
+  g_hash_table_destroy (display->wayland_windows);
+  g_hash_table_destroy (display->stamps);
+
+  g_clear_pointer (&display->stack, meta_stack_free);
+  g_clear_pointer (&display->stack_tracker,
+                   meta_stack_tracker_free);
 
   meta_display_shutdown_keys (display);
 
