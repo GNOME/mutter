@@ -99,7 +99,6 @@ static void
 meta_x11_display_unmanage_windows (MetaX11Display *x11_display)
 {
   GList *windows, *l;
-  MetaWindow *window;
 
   if (!x11_display->xids)
     return;
@@ -109,9 +108,17 @@ meta_x11_display_unmanage_windows (MetaX11Display *x11_display)
 
   for (l = windows; l; l = l->next)
     {
-      window = l->data;
-      if (!window->unmanaging)
-        meta_window_unmanage (window, META_CURRENT_TIME);
+      if (META_IS_WINDOW (l->data))
+        {
+          MetaWindow *window = l->data;
+
+          if (!window->unmanaging)
+            meta_window_unmanage (window, META_CURRENT_TIME);
+        }
+      else if (META_IS_BARRIER (l->data))
+        meta_barrier_destroy (META_BARRIER (l->data));
+      else
+        g_assert_not_reached ();
     }
   g_list_free_full (windows, g_object_unref);
 }
