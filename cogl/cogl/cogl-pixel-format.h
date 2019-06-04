@@ -397,6 +397,10 @@ cogl_pixel_format_get_bits_per_pixel (CoglPixelFormat format, guint *bpp_out);
 const char *
 cogl_pixel_format_to_string (CoglPixelFormat format);
 
+void
+cogl_pixel_format_get_cogl_components (CoglPixelFormat        format,
+                                       guint *components_out);
+
 G_END_DECLS
 
 #endif /* __COGL_PIXEL_FORMAT_H__ */

@@ -35,6 +35,7 @@
 #include <stdlib.h>
 
 #include "cogl-pixel-format.h"
+#include "cogl-texture.h"
 
 /* An entry to map CoglPixelFormats to their respective properties */
 typedef struct _CoglPixelFormatInfo
@@ -747,4 +748,33 @@ cogl_pixel_format_to_string (CoglPixelFormat format)
     }
 
   g_assert_not_reached ();
+}
+
+void
+cogl_pixel_format_get_cogl_components (CoglPixelFormat  format,
+                                       guint           *components_out)
+{
+  switch (format)
+    {
+    case COGL_PIXEL_FORMAT_NV12:
+      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_RG;
+      break;
+    case COGL_PIXEL_FORMAT_NV21:
+      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_RG;
+      break;
+    case COGL_PIXEL_FORMAT_YUV422:
+      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_A;
+      break;
+    case COGL_PIXEL_FORMAT_YUV444:
+      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_A;
+      break;
+    default:
+      components_out[0] = COGL_TEXTURE_COMPONENTS_RGBA;
+    }
 }

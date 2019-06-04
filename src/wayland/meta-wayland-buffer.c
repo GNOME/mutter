@@ -330,6 +330,7 @@ egl_image_buffer_attach (MetaWaylandBuffer      *buffer,
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
   int format, width, height, y_inverted;
   CoglPixelFormat cogl_format;
+  CoglTextureComponents components[3];
   guint i, n_planes;
   GPtrArray *planes;
 
@@ -387,6 +388,7 @@ egl_image_buffer_attach (MetaWaylandBuffer      *buffer,
     }
 
   n_planes = cogl_pixel_format_get_n_planes (cogl_format);
+  cogl_pixel_format_get_cogl_components (cogl_format, components);
   planes = g_ptr_array_new_full (n_planes, cogl_object_unref);
 
   /* Each EGLImage is a plane in the final texture */
@@ -414,6 +416,7 @@ egl_image_buffer_attach (MetaWaylandBuffer      *buffer,
       texture_2d = cogl_egl_texture_2d_new_from_image (cogl_context,
                                                     width, height,
                                                     cogl_format,
+                                                    components[i],
                                                     egl_img,
                                                     error);
 

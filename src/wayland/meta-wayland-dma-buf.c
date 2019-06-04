@@ -211,6 +211,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
   MetaWaylandDmaBufBuffer *dma_buf = buffer->dma_buf.dma_buf;
   CoglPixelFormat cogl_format;
+  CoglTextureComponents components[3];
   GPtrArray *planes;
   guint i = 0, n_planes = 1;
 
@@ -227,6 +228,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
     }
 
   n_planes = cogl_pixel_format_get_n_planes (cogl_format);
+  cogl_pixel_format_get_cogl_components (cogl_format, components);
   planes = g_ptr_array_new_full (n_planes, cogl_object_unref);
 
   /* Each EGLImage is a plane in the final CoglMultiPlaneTexture */
@@ -248,6 +250,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
                                                   dma_buf->width,
                                                   dma_buf->height,
                                                   cogl_format,
+                                                  components[i],
                                                   egl_img,
                                                   error);
 
