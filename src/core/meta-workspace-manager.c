@@ -50,6 +50,9 @@ enum
 {
   PROP_0,
 
+  PROP_LAYOUT_COLUMNS,
+  PROP_LAYOUT_ROWS,
+
   PROP_N_WORKSPACES
 };
 
@@ -68,6 +71,12 @@ meta_workspace_manager_get_property (GObject    *object,
 
   switch (prop_id)
     {
+    case PROP_LAYOUT_COLUMNS:
+      g_value_set_int (value, workspace_manager->columns_of_workspaces);
+      break;
+    case PROP_LAYOUT_ROWS:
+      g_value_set_int (value, workspace_manager->rows_of_workspaces);
+      break;
     case PROP_N_WORKSPACES:
       g_value_set_int (value, meta_workspace_manager_get_n_workspaces (workspace_manager));
       break;
@@ -153,6 +162,22 @@ meta_workspace_manager_class_init (MetaWorkspaceManagerClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  g_object_class_install_property (object_class,
+                                   PROP_LAYOUT_COLUMNS,
+                                   g_param_spec_int ("layout-columns",
+                                                     "Layout columns",
+                                                     "Number of columns in layout",
+                                                     -1, G_MAXINT, 1,
+                                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class,
+                                   PROP_LAYOUT_ROWS,
+                                   g_param_spec_int ("layout-rows",
+                                                     "Layout rows",
+                                                     "Number of rows in layout",
+                                                     -1, G_MAXINT, -1,
+                                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (object_class,
                                    PROP_N_WORKSPACES,
@@ -474,6 +499,8 @@ meta_workspace_manager_update_workspace_layout (MetaWorkspaceManager *workspace_
                 workspace_manager->columns_of_workspaces,
                 workspace_manager->vertical_workspaces,
                 workspace_manager->starting_corner);
+  g_object_notify (G_OBJECT (workspace_manager), "layout-columns");
+  g_object_notify (G_OBJECT (workspace_manager), "layout-rows");
 }
 
 /**
