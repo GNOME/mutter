@@ -82,7 +82,8 @@ mutter_installed_tests_libexecdir = join_paths(
 
 m_dep = cc.find_library('m', required: true)
 x11_dep = dependency('x11')
-graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
+graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req,
+                          fallback: ['graphene', 'graphene_dep'])
 gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
 gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0')
 pango_dep = dependency('pango', version: pango_req)
