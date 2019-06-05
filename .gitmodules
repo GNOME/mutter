@@ -1,0 +1,3 @@
+[submodule "subprojects/graphene"]
+	path = subprojects/graphene
+	url = https://github.com/ebassi/graphene.git
