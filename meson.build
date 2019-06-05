@@ -82,7 +82,8 @@ mutter_installed_tests_libexecdir = join_paths(
 
 m_dep = cc.find_library('m', required: true)
 x11_dep = dependency('x11')
-graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req)
+graphene_dep = dependency('graphene-gobject-1.0', version: graphene_req,
+                          fallback: ['graphene', 'graphene_dep'])
 gtk3_dep = dependency('gtk+-3.0', version: gtk3_req)
 gdk_pixbuf_dep = dependency('gdk-pixbuf-2.0')
 pango_dep = dependency('pango', version: pango_req)
@@ -245,6 +246,12 @@ if have_introspection
     '--quiet',
     '-U_GNU_SOURCE',
   ]
+endif
+
+if graphene_dep.type_name() == 'internal'
+  graphene_gir_inc = subproject('graphene').get_variable('graphene_gir').get(0)
+else
+  graphene_gir_inc = 'Graphene-1.0'
 endif
 
 have_tests = get_option('tests')
