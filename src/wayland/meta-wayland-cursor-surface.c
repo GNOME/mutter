@@ -170,8 +170,9 @@ meta_wayland_cursor_surface_commit (MetaWaylandSurfaceRole  *surface_role,
   wl_list_init (&pending->frame_callback_list);
 
   if (pending->newly_attached &&
-      (!cairo_region_is_empty (pending->surface_damage) ||
-       !cairo_region_is_empty (pending->buffer_damage)))
+      ((!cairo_region_is_empty (pending->surface_damage) ||
+        !cairo_region_is_empty (pending->buffer_damage)) ||
+       !priv->buffer))
     update_cursor_sprite_texture (META_WAYLAND_CURSOR_SURFACE (surface_role));
 }
 
