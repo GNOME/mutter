@@ -73,7 +73,7 @@ cogl_trace_context_new (int         fd,
     }
   else
     {
-      g_debug ("Initializing trace context with default dilename");
+      g_debug ("Initializing trace context with default filename");
       writer = sysprof_capture_writer_new (COGL_TRACE_OUTPUT_FILE, BUFFER_LENGTH);
     }
 
