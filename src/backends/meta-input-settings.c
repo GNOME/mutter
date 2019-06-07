@@ -302,9 +302,30 @@ update_touchpad_left_handed (MetaInputSettings  *input_settings,
     }
   else
     {
-      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
-                                 input_settings_class->set_left_handed,
-                                 enabled);
+      GSList *devices, *l;
+
+      devices = meta_input_settings_get_devices (input_settings,
+                                                 CLUTTER_TOUCHPAD_DEVICE);
+
+      for (l = devices; l; l = l->next)
+        {
+#ifdef HAVE_LIBWACOM
+          WacomDevice *wacom_device;
+
+          wacom_device = meta_input_settings_get_tablet_wacom_device (input_settings,
+                                                                      device);
+          /* "Touchpads" with a wacom description will be rotated along their tablets */
+          if (wacom_device &&
+              (libwacom_get_integration_flags (wacom_device) != WACOM_DEVICE_INTEGRATED_NONE))
+            continue;
+#endif
+
+          settings_device_set_bool_setting (input_settings, d->data,
+                                            input_settings_class->set_left_handed,
+                                            enabled);
+        }
+
+      g_slist_free (devices);
     }
 }
 
@@ -1068,7 +1089,11 @@ update_tablet_left_handed (MetaInputSettings  *input_settings,
                            ClutterInputDevice *device)
 {
   MetaInputSettingsClass *input_settings_class;
+  MetaInputSettingsPrivate *priv;
+  const GSList *devices, *l;
   gboolean enabled;
+
+  priv = meta_input_settings_get_instance_private (input_settings);
 
   if (clutter_input_device_get_device_type (device) != CLUTTER_TABLET_DEVICE &&
       clutter_input_device_get_device_type (device) != CLUTTER_PEN_DEVICE &&
@@ -1091,10 +1116,18 @@ update_tablet_left_handed (MetaInputSettings  *input_settings,
 
   input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
   enabled = g_settings_get_boolean (settings, "left-handed");
+  devices = clutter_device_manager_peek_devices (priv->device_manager);
 
-  settings_device_set_bool_setting (input_settings, device,
-                                    input_settings_class->set_left_handed,
-                                    enabled);
+  for (l = devices; l; l = l->next)
+    {
+      if (l->data != device &&
+          !clutter_input_device_is_grouped (device, l->data))
+        continue;
+
+      settings_device_set_bool_setting (input_settings, l->data,
+                                        input_settings_class->set_left_handed,
+                                        enabled);
+    }
 }
 
 static void
