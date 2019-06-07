@@ -737,6 +737,10 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
               g_clear_pointer (&snippet, cogl_object_unref);
             }
         }
+      else
+        {
+          cogl_clear_object (&surface->texture);
+        }
 
       /* If the newly attached buffer is going to be accessed directly without
        * making a copy, such as an EGL buffer, mark it as in-use don't release
