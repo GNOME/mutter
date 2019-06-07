@@ -547,6 +547,8 @@ if have_wayland
     'wayland/meta-wayland-xdg-foreign.h',
     'wayland/meta-wayland-xdg-shell.c',
     'wayland/meta-wayland-xdg-shell.h',
+    'wayland/meta-wayland-idle-inhibit.c',
+    'wayland/meta-wayland-idle-inhibit.h',
     'wayland/meta-window-wayland.c',
     'wayland/meta-window-wayland.h',
     'wayland/meta-window-xwayland.c',
@@ -710,6 +712,7 @@ if have_wayland
     ['xdg-shell', 'unstable', 'v6', ],
     ['xdg-shell', 'stable', ],
     ['xwayland-keyboard-grab', 'unstable', 'v1', ],
+    ['idle-inhibit', 'unstable', 'v1', ],
   ]
   if have_wayland_eglstream
     wayland_eglstream_protocols_dir = wayland_eglstream_protocols_dep.get_pkgconfig_variable('pkgdatadir')

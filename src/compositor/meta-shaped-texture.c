@@ -77,6 +77,7 @@ static void cullable_iface_init (MetaCullableInterface *iface);
 enum
 {
   SIZE_CHANGED,
+  OBSCURED_CHANGED,
 
   LAST_SIGNAL,
 };
@@ -98,6 +99,7 @@ struct _MetaShapedTexture
   CoglPipeline *unblended_pipeline;
 
   gboolean is_y_inverted;
+  gboolean is_obscured;
 
   /* The region containing only fully opaque pixels */
   cairo_region_t *opaque_region;
@@ -148,6 +150,13 @@ meta_shaped_texture_class_init (MetaShapedTextureClass *klass)
                                         0,
                                         NULL, NULL, NULL,
                                         G_TYPE_NONE, 0);
+
+  signals[OBSCURED_CHANGED] = g_signal_new ("obscured-changed",
+                                            G_TYPE_FROM_CLASS (gobject_class),
+                                            G_SIGNAL_RUN_LAST,
+                                            0,
+                                            NULL, NULL, NULL,
+                                            G_TYPE_NONE, 0);
 }
 
 static void
@@ -166,6 +175,7 @@ meta_shaped_texture_init (MetaShapedTexture *stex)
   stex->create_mipmaps = TRUE;
   stex->is_y_inverted = TRUE;
   stex->transform = META_MONITOR_TRANSFORM_NORMAL;
+  stex->is_obscured = FALSE;
 
   g_signal_connect (stex,
                     "notify::scale-x",
@@ -254,6 +264,7 @@ set_unobscured_region (MetaShapedTexture *stex,
   if (unobscured_region)
     {
       int width, height;
+      gboolean is_obscured;
 
       ensure_size_valid (stex);
       width = stex->dst_width;
@@ -262,6 +273,11 @@ set_unobscured_region (MetaShapedTexture *stex,
       cairo_rectangle_int_t bounds = { 0, 0, width, height };
       stex->unobscured_region = cairo_region_copy (unobscured_region);
       cairo_region_intersect_rectangle (stex->unobscured_region, &bounds);
+      is_obscured = cairo_region_is_empty (stex->unobscured_region);
+      if (stex->is_obscured != is_obscured) {
+	stex->is_obscured = is_obscured;
+        g_signal_emit (stex, signals[OBSCURED_CHANGED], 0);
+      }
     }
 }
 
