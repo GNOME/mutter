@@ -2,7 +2,7 @@
 #include <clutter/clutter.h>
 #include <string.h>
 
-gboolean IsFullScreen = FALSE, IsMotion = TRUE;
+gboolean IsMotion = TRUE;
 
 int
 test_events_main (int argc, char *argv[]);
@@ -112,28 +112,6 @@ stage_state_cb (ClutterStage    *stage,
   gchar *detail = (gchar*)data;
 
   printf("[stage signal] %s\n", detail);
-}
-
-static gboolean
-blue_button_cb (ClutterActor *actor,
-		ClutterEvent *event,
-		gpointer      data)
-{
-  ClutterActor *stage;
-
-  stage = clutter_actor_get_stage (actor);
-
-  if (IsFullScreen)
-    IsFullScreen = FALSE;
-  else
-    IsFullScreen = TRUE;
-
-  clutter_stage_set_fullscreen (CLUTTER_STAGE (stage), IsFullScreen);
-
-  g_print ("*** Fullscreen %s ***\n",
-           IsFullScreen ? "enabled" : "disabled");
-
-  return FALSE;
 }
 
 static gboolean
@@ -429,10 +407,6 @@ test_events_main (int argc, char *argv[])
   clutter_actor_set_name (stage, "Stage");
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
   g_signal_connect (stage, "event", G_CALLBACK (input_cb), (char *) "stage");
-  g_signal_connect (stage, "fullscreen", 
-		    G_CALLBACK (stage_state_cb), (char *) "fullscreen");
-  g_signal_connect (stage, "unfullscreen", 
-		    G_CALLBACK (stage_state_cb), (char *) "unfullscreen");
   g_signal_connect (stage, "activate", 
 		    G_CALLBACK (stage_state_cb), (char *) "activate");
   g_signal_connect (stage, "deactivate", 
@@ -467,19 +441,6 @@ test_events_main (int argc, char *argv[])
   g_signal_connect (actor, "key-focus-in", G_CALLBACK (key_focus_in_cb),
 		    focus_box);
   g_signal_connect (actor, "captured-event", G_CALLBACK (capture_cb), NULL);
-
-  actor = clutter_rectangle_new_with_color (CLUTTER_COLOR_Blue);
-  clutter_actor_set_name (actor, "Blue Box");
-  clutter_actor_set_size (actor, 100, 100);
-  clutter_actor_set_position (actor, 400, 100);
-  clutter_actor_set_reactive (actor, TRUE);
-  clutter_container_add (CLUTTER_CONTAINER(stage), actor, NULL);
-  g_signal_connect (actor, "event", G_CALLBACK (input_cb), (char *) "blue box");
-  g_signal_connect (actor, "key-focus-in", G_CALLBACK (key_focus_in_cb),
-		    focus_box);
-  /* Fullscreen */
-  g_signal_connect (actor, "button-press-event",
-                    G_CALLBACK (blue_button_cb), NULL);
 
   /* non reactive */
   actor = clutter_rectangle_new_with_color (CLUTTER_COLOR_Black);
