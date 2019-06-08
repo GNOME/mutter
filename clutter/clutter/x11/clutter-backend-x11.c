@@ -563,8 +563,7 @@ clutter_backend_x11_dispose (GObject *gobject)
 static ClutterFeatureFlags
 clutter_backend_x11_get_features (ClutterBackend *backend)
 {
-  ClutterFeatureFlags flags = CLUTTER_FEATURE_STAGE_USER_RESIZE
-                            | CLUTTER_FEATURE_STAGE_CURSOR;
+  ClutterFeatureFlags flags = CLUTTER_FEATURE_STAGE_CURSOR;
 
   flags |= CLUTTER_BACKEND_CLASS (clutter_backend_x11_parent_class)->get_features (backend);
 

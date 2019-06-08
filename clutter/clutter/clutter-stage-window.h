@@ -34,8 +34,6 @@ struct _ClutterStageWindowInterface
                                                  gboolean            is_fullscreen);
   void              (* set_cursor_visible)      (ClutterStageWindow *stage_window,
                                                  gboolean            cursor_visible);
-  void              (* set_user_resizable)      (ClutterStageWindow *stage_window,
-                                                 gboolean            is_resizable);
 
   gboolean          (* realize)                 (ClutterStageWindow *stage_window);
   void              (* unrealize)               (ClutterStageWindow *stage_window);
@@ -87,8 +85,6 @@ void              _clutter_stage_window_set_fullscreen     (ClutterStageWindow *
                                                             gboolean            is_fullscreen);
 void              _clutter_stage_window_set_cursor_visible (ClutterStageWindow *window,
                                                             gboolean            is_visible);
-void              _clutter_stage_window_set_user_resizable (ClutterStageWindow *window,
-                                                            gboolean            is_resizable);
 
 gboolean          _clutter_stage_window_realize                 (ClutterStageWindow *window);
 void              _clutter_stage_window_unrealize               (ClutterStageWindow *window);

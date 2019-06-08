@@ -181,11 +181,6 @@ void            clutter_stage_set_title                         (ClutterStage   
                                                                  const gchar           *title);
 CLUTTER_EXPORT
 const gchar *   clutter_stage_get_title                         (ClutterStage          *stage);
-CLUTTER_EXPORT
-void            clutter_stage_set_user_resizable                (ClutterStage          *stage,
-						                 gboolean               resizable);
-CLUTTER_EXPORT
-gboolean        clutter_stage_get_user_resizable                (ClutterStage          *stage);
 
 CLUTTER_EXPORT
 void            clutter_stage_set_minimum_size                  (ClutterStage          *stage,
