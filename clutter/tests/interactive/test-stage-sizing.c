@@ -16,14 +16,6 @@ fullscreen_clicked_cb (ClutterStage *stage)
 }
 
 static gboolean
-resize_clicked_cb (ClutterStage *stage)
-{
-  clutter_stage_set_user_resizable (stage,
-                                    !clutter_stage_get_user_resizable (stage));
-  return CLUTTER_EVENT_STOP;
-}
-
-static gboolean
 shrink_clicked_cb (ClutterActor *stage)
 {
   gfloat width, height;
@@ -86,19 +78,6 @@ test_stage_sizing_main (int argc, char *argv[])
                             G_CALLBACK (fullscreen_clicked_cb),
                             stage);
   label = clutter_text_new_with_text ("Sans 16", "Toggle fullscreen");
-  clutter_actor_set_margin (label, &margin);
-  clutter_actor_add_child (rect, label);
-  clutter_actor_add_child (box, rect);
-
-  rect = clutter_actor_new ();
-  clutter_actor_set_layout_manager (rect,
-                                    clutter_bin_layout_new (CLUTTER_BIN_ALIGNMENT_CENTER,
-                                                            CLUTTER_BIN_ALIGNMENT_CENTER));
-  clutter_actor_set_background_color (rect, CLUTTER_COLOR_Chameleon);
-  clutter_actor_set_reactive (rect, TRUE);
-  g_signal_connect_swapped (rect, "button-press-event",
-                            G_CALLBACK (resize_clicked_cb), stage);
-  label = clutter_text_new_with_text ("Sans 16", "Toggle resizable");
   clutter_actor_set_margin (label, &margin);
   clutter_actor_add_child (rect, label);
   clutter_actor_add_child (box, rect);

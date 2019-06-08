@@ -214,7 +214,6 @@ meta_stage_class_init (MetaStageClass *klass)
 static void
 meta_stage_init (MetaStage *stage)
 {
-  clutter_stage_set_user_resizable (CLUTTER_STAGE (stage), FALSE);
 }
 
 ClutterActor *

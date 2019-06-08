@@ -995,7 +995,6 @@ typedef enum
  * @CLUTTER_FEATURE_TEXTURE_YUV: Set if YUV based textures supported.
  * @CLUTTER_FEATURE_TEXTURE_READ_PIXELS: Set if texture pixels can be read.
  * @CLUTTER_FEATURE_STAGE_STATIC: Set if stage size if fixed (i.e framebuffer)
- * @CLUTTER_FEATURE_STAGE_USER_RESIZE: Set if stage is able to be user resized.
  * @CLUTTER_FEATURE_STAGE_CURSOR: Set if stage has a graphical cursor.
  * @CLUTTER_FEATURE_SHADERS_GLSL: Set if the backend supports GLSL shaders.
  * @CLUTTER_FEATURE_OFFSCREEN: Set if the backend supports offscreen rendering.
@@ -1013,7 +1012,6 @@ typedef enum
   CLUTTER_FEATURE_TEXTURE_YUV            = (1 << 4),
   CLUTTER_FEATURE_TEXTURE_READ_PIXELS    = (1 << 5),
   CLUTTER_FEATURE_STAGE_STATIC           = (1 << 6),
-  CLUTTER_FEATURE_STAGE_USER_RESIZE      = (1 << 7),
   CLUTTER_FEATURE_STAGE_CURSOR           = (1 << 8),
   CLUTTER_FEATURE_SHADERS_GLSL           = (1 << 9),
   CLUTTER_FEATURE_OFFSCREEN              = (1 << 10),

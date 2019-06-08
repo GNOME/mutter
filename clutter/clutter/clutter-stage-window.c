@@ -82,14 +82,6 @@ _clutter_stage_window_set_cursor_visible (ClutterStageWindow *window,
     iface->set_cursor_visible (window, is_visible);
 }
 
-void
-_clutter_stage_window_set_user_resizable (ClutterStageWindow *window,
-                                          gboolean            is_resizable)
-{
-  CLUTTER_STAGE_WINDOW_GET_IFACE (window)->set_user_resizable (window,
-                                                               is_resizable);
-}
-
 gboolean
 _clutter_stage_window_realize (ClutterStageWindow *window)
 {
