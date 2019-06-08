@@ -30,8 +30,6 @@ struct _ClutterStageWindowInterface
 
   void              (* set_title)               (ClutterStageWindow *stage_window,
                                                  const gchar        *title);
-  void              (* set_fullscreen)          (ClutterStageWindow *stage_window,
-                                                 gboolean            is_fullscreen);
   void              (* set_cursor_visible)      (ClutterStageWindow *stage_window,
                                                  gboolean            cursor_visible);
 
@@ -81,8 +79,6 @@ ClutterActor *    _clutter_stage_window_get_wrapper        (ClutterStageWindow *
 
 void              _clutter_stage_window_set_title          (ClutterStageWindow *window,
                                                             const gchar        *title);
-void              _clutter_stage_window_set_fullscreen     (ClutterStageWindow *window,
-                                                            gboolean            is_fullscreen);
 void              _clutter_stage_window_set_cursor_visible (ClutterStageWindow *window,
                                                             gboolean            is_visible);
 
