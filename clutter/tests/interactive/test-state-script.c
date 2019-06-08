@@ -28,7 +28,6 @@ test_state_script_main (int argc, char *argv[])
 
   stage = clutter_stage_new ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "State Script");
-  clutter_stage_set_user_resizable (CLUTTER_STAGE (stage), TRUE);
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
   clutter_actor_show (stage);
 

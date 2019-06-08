@@ -153,9 +153,6 @@ clutter_stage_x11_fix_window_size (ClutterStageX11 *stage_x11,
     {
       guint min_width, min_height;
       XSizeHints *size_hints;
-      gboolean resize;
-
-      resize = clutter_stage_get_user_resizable (stage_cogl->wrapper);
 
       size_hints = XAllocSizeHints();
 
@@ -175,20 +172,11 @@ clutter_stage_x11_fix_window_size (ClutterStageX11 *stage_x11,
          restrictions on the window size */
       if (!stage_x11->fullscreening)
         {
-          if (resize)
-            {
-              size_hints->min_width = min_width;
-              size_hints->min_height = min_height;
-              size_hints->flags = PMinSize;
-            }
-          else
-            {
-              size_hints->min_width = new_width;
-              size_hints->min_height = new_height;
-              size_hints->max_width = new_width;
-              size_hints->max_height = new_height;
-              size_hints->flags = PMinSize | PMaxSize;
-            }
+          size_hints->min_width = new_width;
+          size_hints->min_height = new_height;
+          size_hints->max_width = new_width;
+          size_hints->max_height = new_height;
+          size_hints->flags = PMinSize | PMaxSize;
         }
 
       XSetWMNormalHints (backend_x11->xdpy, stage_x11->xwin, size_hints);
@@ -755,17 +743,6 @@ clutter_stage_x11_set_title (ClutterStageWindow *stage_window,
   set_wm_title (stage_x11);
 }
 
-static void
-clutter_stage_x11_set_user_resizable (ClutterStageWindow *stage_window,
-                                      gboolean            is_resizable)
-{
-  ClutterStageX11 *stage_x11 = CLUTTER_STAGE_X11 (stage_window);
-
-  clutter_stage_x11_fix_window_size (stage_x11,
-                                     stage_x11->xwin_width,
-                                     stage_x11->xwin_height);
-}
-
 static inline void
 update_wm_hints (ClutterStageX11 *stage_x11)
 {
@@ -981,7 +958,6 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
   iface->set_title = clutter_stage_x11_set_title;
   iface->set_fullscreen = clutter_stage_x11_set_fullscreen;
   iface->set_cursor_visible = clutter_stage_x11_set_cursor_visible;
-  iface->set_user_resizable = clutter_stage_x11_set_user_resizable;
   iface->set_accept_focus = clutter_stage_x11_set_accept_focus;
   iface->show = clutter_stage_x11_show;
   iface->hide = clutter_stage_x11_hide;

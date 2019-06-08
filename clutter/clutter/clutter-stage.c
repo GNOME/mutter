@@ -154,7 +154,6 @@ struct _ClutterStagePrivate
   guint redraw_pending         : 1;
   guint is_fullscreen          : 1;
   guint is_cursor_visible      : 1;
-  guint is_user_resizable      : 1;
   guint use_fog                : 1;
   guint throttle_motion_events : 1;
   guint use_alpha              : 1;
@@ -175,7 +174,6 @@ enum
   PROP_CURSOR_VISIBLE,
   PROP_PERSPECTIVE,
   PROP_TITLE,
-  PROP_USER_RESIZABLE,
   PROP_USE_FOG,
   PROP_FOG,
   PROP_USE_ALPHA,
@@ -1738,10 +1736,6 @@ clutter_stage_set_property (GObject      *object,
       clutter_stage_set_title (stage, g_value_get_string (value));
       break;
 
-    case PROP_USER_RESIZABLE:
-      clutter_stage_set_user_resizable (stage, g_value_get_boolean (value));
-      break;
-
     case PROP_USE_FOG:
       clutter_stage_set_use_fog (stage, g_value_get_boolean (value));
       break;
@@ -1810,10 +1804,6 @@ clutter_stage_get_property (GObject    *gobject,
 
     case PROP_TITLE:
       g_value_set_string (value, priv->title);
-      break;
-
-    case PROP_USER_RESIZABLE:
-      g_value_set_boolean (value, priv->is_user_resizable);
       break;
 
     case PROP_USE_FOG:
@@ -1987,21 +1977,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
                                 CLUTTER_PARAM_READWRITE);
   g_object_class_install_property (gobject_class,
                                    PROP_CURSOR_VISIBLE,
-                                   pspec);
-  /**
-   * ClutterStage:user-resizable:
-   *
-   * Whether the stage is resizable via user interaction.
-   *
-   * Since: 0.4
-   */
-  pspec = g_param_spec_boolean ("user-resizable",
-                                P_("User Resizable"),
-                                P_("Whether the stage is able to be resized via user interaction"),
-                                FALSE,
-                                CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class,
-                                   PROP_USER_RESIZABLE,
                                    pspec);
   /**
    * ClutterStage:color:
@@ -2335,7 +2310,6 @@ clutter_stage_init (ClutterStage *self)
   priv->event_queue = g_queue_new ();
 
   priv->is_fullscreen = FALSE;
-  priv->is_user_resizable = FALSE;
   priv->is_cursor_visible = TRUE;
   priv->use_fog = FALSE;
   priv->throttle_motion_events = TRUE;
@@ -2803,62 +2777,6 @@ clutter_stage_get_fullscreen (ClutterStage *stage)
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
 
   return stage->priv->is_fullscreen;
-}
-
-/**
- * clutter_stage_set_user_resizable:
- * @stage: a #ClutterStage
- * @resizable: whether the stage should be user resizable.
- *
- * Sets if the stage is resizable by user interaction (e.g. via
- * window manager controls)
- *
- * Since: 0.4
- */
-void
-clutter_stage_set_user_resizable (ClutterStage *stage,
-                                  gboolean      resizable)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  priv = stage->priv;
-
-  if (clutter_feature_available (CLUTTER_FEATURE_STAGE_USER_RESIZE)
-      && priv->is_user_resizable != resizable)
-    {
-      ClutterStageWindow *impl = CLUTTER_STAGE_WINDOW (priv->impl);
-      ClutterStageWindowInterface *iface;
-
-      iface = CLUTTER_STAGE_WINDOW_GET_IFACE (impl);
-      if (iface->set_user_resizable)
-        {
-          priv->is_user_resizable = resizable;
-
-          iface->set_user_resizable (impl, resizable);
-
-          g_object_notify (G_OBJECT (stage), "user-resizable");
-        }
-    }
-}
-
-/**
- * clutter_stage_get_user_resizable:
- * @stage: a #ClutterStage
- *
- * Retrieves the value set with clutter_stage_set_user_resizable().
- *
- * Return value: %TRUE if the stage is resizable by the user.
- *
- * Since: 0.4
- */
-gboolean
-clutter_stage_get_user_resizable (ClutterStage *stage)
-{
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-
-  return stage->priv->is_user_resizable;
 }
 
 /**
