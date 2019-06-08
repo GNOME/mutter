@@ -168,7 +168,6 @@ enum
   PROP_0,
 
   PROP_COLOR,
-  PROP_OFFSCREEN,
   PROP_CURSOR_VISIBLE,
   PROP_PERSPECTIVE,
   PROP_TITLE,
@@ -1675,11 +1674,6 @@ clutter_stage_set_property (GObject      *object,
                                           clutter_value_get_color (value));
       break;
 
-    case PROP_OFFSCREEN:
-      if (g_value_get_boolean (value))
-        g_warning ("Offscreen stages are currently not supported\n");
-      break;
-
     case PROP_CURSOR_VISIBLE:
       if (g_value_get_boolean (value))
         clutter_stage_show_cursor (stage);
@@ -1743,10 +1737,6 @@ clutter_stage_get_property (GObject    *gobject,
                                             &bg_color);
         clutter_value_set_color (value, &bg_color);
       }
-      break;
-
-    case PROP_OFFSCREEN:
-      g_value_set_boolean (value, FALSE);
       break;
 
     case PROP_CURSOR_VISIBLE:
@@ -1884,21 +1874,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
   actor_class->queue_redraw = clutter_stage_real_queue_redraw;
   actor_class->apply_transform = clutter_stage_real_apply_transform;
 
-  /**
-   * ClutterStage:offscreen:
-   *
-   * Whether the stage should be rendered in an offscreen buffer.
-   *
-   * Deprecated: 1.10: This property does not do anything.
-   */
-  pspec = g_param_spec_boolean ("offscreen",
-                                P_("Offscreen"),
-                                P_("Whether the main stage should be rendered offscreen"),
-                                FALSE,
-                                CLUTTER_PARAM_READWRITE | G_PARAM_DEPRECATED);
-  g_object_class_install_property (gobject_class,
-                                   PROP_OFFSCREEN,
-                                   pspec);
   /**
    * ClutterStage:cursor-visible:
    *
