@@ -974,7 +974,6 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
 
 /**
  * ClutterStageState:
- * @CLUTTER_STAGE_STATE_OFFSCREEN: Offscreen mask (deprecated)
  * @CLUTTER_STAGE_STATE_ACTIVATED: Activated mask
  *
  * Stage state masks, used by the #ClutterEvent of type %CLUTTER_STAGE_STATE.
@@ -983,7 +982,6 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
  */
 typedef enum
 {
-  CLUTTER_STAGE_STATE_OFFSCREEN        = (1 << 2),
   CLUTTER_STAGE_STATE_ACTIVATED        = (1 << 3)
 } ClutterStageState;
 
