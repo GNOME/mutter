@@ -63,16 +63,6 @@ _clutter_stage_window_set_title (ClutterStageWindow *window,
 }
 
 void
-_clutter_stage_window_set_fullscreen (ClutterStageWindow *window,
-                                      gboolean            is_fullscreen)
-{
-  ClutterStageWindowInterface *iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
-
-  if (iface->set_fullscreen)
-    iface->set_fullscreen (window, is_fullscreen);
-}
-
-void
 _clutter_stage_window_set_cursor_visible (ClutterStageWindow *window,
                                           gboolean            is_visible)
 {

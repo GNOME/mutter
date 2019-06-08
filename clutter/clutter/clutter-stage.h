@@ -61,8 +61,6 @@ struct _ClutterStage
 };
 /**
  * ClutterStageClass:
- * @fullscreen: handler for the #ClutterStage::fullscreen signal
- * @unfullscreen: handler for the #ClutterStage::unfullscreen signal
  * @activate: handler for the #ClutterStage::activate signal
  * @deactivate: handler for the #ClutterStage::deactivate signal
  * @delete_event: handler for the #ClutterStage::delete-event signal
@@ -79,8 +77,6 @@ struct _ClutterStageClass
 
   /*< public >*/
   /* signals */
-  void (* fullscreen)   (ClutterStage *stage);
-  void (* unfullscreen) (ClutterStage *stage);
   void (* activate)     (ClutterStage *stage);
   void (* deactivate)   (ClutterStage *stage);
 
@@ -167,11 +163,6 @@ void            clutter_stage_set_perspective                   (ClutterStage   
 CLUTTER_EXPORT
 void            clutter_stage_get_perspective                   (ClutterStage          *stage,
 			                                         ClutterPerspective    *perspective);
-CLUTTER_EXPORT
-void            clutter_stage_set_fullscreen                    (ClutterStage          *stage,
-                                                                 gboolean               fullscreen);
-CLUTTER_EXPORT
-gboolean        clutter_stage_get_fullscreen                    (ClutterStage          *stage);
 CLUTTER_EXPORT
 void            clutter_stage_show_cursor                       (ClutterStage          *stage);
 CLUTTER_EXPORT

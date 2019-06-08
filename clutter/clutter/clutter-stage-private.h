@@ -117,7 +117,6 @@ void            _clutter_stage_remove_touch_drag_actor (ClutterStage         *st
 
 ClutterStageState       _clutter_stage_get_state        (ClutterStage      *stage);
 gboolean                _clutter_stage_is_activated     (ClutterStage      *stage);
-gboolean                _clutter_stage_is_fullscreen    (ClutterStage      *stage);
 gboolean                _clutter_stage_update_state     (ClutterStage      *stage,
                                                          ClutterStageState  unset_state,
                                                          ClutterStageState  set_state);

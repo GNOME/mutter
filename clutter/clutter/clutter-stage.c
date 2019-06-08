@@ -152,7 +152,6 @@ struct _ClutterStagePrivate
 
   guint relayout_pending       : 1;
   guint redraw_pending         : 1;
-  guint is_fullscreen          : 1;
   guint is_cursor_visible      : 1;
   guint use_fog                : 1;
   guint throttle_motion_events : 1;
@@ -169,7 +168,6 @@ enum
   PROP_0,
 
   PROP_COLOR,
-  PROP_FULLSCREEN_SET,
   PROP_OFFSCREEN,
   PROP_CURSOR_VISIBLE,
   PROP_PERSPECTIVE,
@@ -184,8 +182,6 @@ enum
 
 enum
 {
-  FULLSCREEN,
-  UNFULLSCREEN,
   ACTIVATE,
   DEACTIVATE,
   DELETE_EVENT,
@@ -402,40 +398,37 @@ clutter_stage_allocate (ClutterActor           *self,
                                     flags | CLUTTER_DELEGATE_LAYOUT);
 
       /* Ensure the window is sized correctly */
-      if (!priv->is_fullscreen)
+      if (priv->min_size_changed)
         {
-          if (priv->min_size_changed)
-            {
-              gfloat min_width, min_height;
-              gboolean min_width_set, min_height_set;
+          gfloat min_width, min_height;
+          gboolean min_width_set, min_height_set;
 
-              g_object_get (G_OBJECT (self),
-                            "min-width", &min_width,
-                            "min-width-set", &min_width_set,
-                            "min-height", &min_height,
-                            "min-height-set", &min_height_set,
-                            NULL);
+          g_object_get (G_OBJECT (self),
+                        "min-width", &min_width,
+                        "min-width-set", &min_width_set,
+                        "min-height", &min_height,
+                        "min-height-set", &min_height_set,
+                        NULL);
 
-              if (!min_width_set)
-                min_width = 1;
-              if (!min_height_set)
-                min_height = 1;
+          if (!min_width_set)
+            min_width = 1;
+          if (!min_height_set)
+            min_height = 1;
 
-              if (width < min_width)
-                width = min_width;
-              if (height < min_height)
-                height = min_height;
+          if (width < min_width)
+            width = min_width;
+          if (height < min_height)
+            height = min_height;
 
-              priv->min_size_changed = FALSE;
-            }
+          priv->min_size_changed = FALSE;
+        }
 
-          if (window_size.width != CLUTTER_NEARBYINT (width) ||
-              window_size.height != CLUTTER_NEARBYINT (height))
-            {
-              _clutter_stage_window_resize (priv->impl,
-                                            CLUTTER_NEARBYINT (width),
-                                            CLUTTER_NEARBYINT (height));
-            }
+      if (window_size.width != CLUTTER_NEARBYINT (width) ||
+          window_size.height != CLUTTER_NEARBYINT (height))
+        {
+          _clutter_stage_window_resize (priv->impl,
+                                        CLUTTER_NEARBYINT (width),
+                                        CLUTTER_NEARBYINT (height));
         }
     }
   else
@@ -843,40 +836,6 @@ static void
 clutter_stage_real_deactivate (ClutterStage *stage)
 {
   clutter_stage_emit_key_focus_event (stage, FALSE);
-}
-
-static void
-clutter_stage_real_fullscreen (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv = stage->priv;
-  cairo_rectangle_int_t geom;
-  ClutterActorBox box;
-
-  /* we need to force an allocation here because the size
-   * of the stage might have been changed by the backend
-   *
-   * this is a really bad solution to the issues caused by
-   * the fact that fullscreening the stage on the X11 backends
-   * is really an asynchronous operation
-   */
-  _clutter_stage_window_get_geometry (priv->impl, &geom);
-
-  box.x1 = 0;
-  box.y1 = 0;
-  box.x2 = geom.width;
-  box.y2 = geom.height;
-
-  /* we need to blow the caching on the Stage size, given that
-   * we're about to force an allocation, because if anything
-   * ends up querying the size of the stage during the allocate()
-   * call, like constraints or signal handlers, we'll get into an
-   * inconsistent state: the stage will report the old cached size,
-   * but the allocation will be updated anyway.
-   */
-  clutter_actor_set_size (CLUTTER_ACTOR (stage), -1.0, -1.0);
-  clutter_actor_allocate (CLUTTER_ACTOR (stage),
-                          &box,
-                          CLUTTER_ALLOCATION_NONE);
 }
 
 void
@@ -1790,10 +1749,6 @@ clutter_stage_get_property (GObject    *gobject,
       g_value_set_boolean (value, FALSE);
       break;
 
-    case PROP_FULLSCREEN_SET:
-      g_value_set_boolean (value, priv->is_fullscreen);
-      break;
-
     case PROP_CURSOR_VISIBLE:
       g_value_set_boolean (value, priv->is_cursor_visible);
       break;
@@ -1929,27 +1884,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
   actor_class->queue_redraw = clutter_stage_real_queue_redraw;
   actor_class->apply_transform = clutter_stage_real_apply_transform;
 
-  /**
-   * ClutterStage:fullscreen:
-   *
-   * Whether the stage should be fullscreen or not.
-   *
-   * This property is set by calling clutter_stage_set_fullscreen()
-   * but since the actual implementation is delegated to the backend
-   * you should connect to the notify::fullscreen-set signal in order
-   * to get notification if the fullscreen state has been successfully
-   * achieved.
-   *
-   * Since: 1.0
-   */
-  pspec = g_param_spec_boolean ("fullscreen-set",
-                                P_("Fullscreen Set"),
-                                P_("Whether the main stage is fullscreen"),
-                                FALSE,
-                                CLUTTER_PARAM_READABLE);
-  g_object_class_install_property (gobject_class,
-                                   PROP_FULLSCREEN_SET,
-                                   pspec);
   /**
    * ClutterStage:offscreen:
    *
@@ -2126,39 +2060,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
   g_object_class_install_property (gobject_class, PROP_ACCEPT_FOCUS, pspec);
 
   /**
-   * ClutterStage::fullscreen:
-   * @stage: the stage which was fullscreened
-   *
-   * The ::fullscreen signal is emitted when the stage is made fullscreen.
-   *
-   * Since: 0.6
-   */
-  stage_signals[FULLSCREEN] =
-    g_signal_new (I_("fullscreen"),
-		  G_TYPE_FROM_CLASS (gobject_class),
-		  G_SIGNAL_RUN_FIRST,
-		  G_STRUCT_OFFSET (ClutterStageClass, fullscreen),
-		  NULL, NULL,
-		  _clutter_marshal_VOID__VOID,
-		  G_TYPE_NONE, 0);
-  /**
-   * ClutterStage::unfullscreen:
-   * @stage: the stage which has left a fullscreen state.
-   *
-   * The ::unfullscreen signal is emitted when the stage leaves a fullscreen
-   * state.
-   *
-   * Since: 0.6
-   */
-  stage_signals[UNFULLSCREEN] =
-    g_signal_new (I_("unfullscreen"),
-		  G_TYPE_FROM_CLASS (gobject_class),
-		  G_SIGNAL_RUN_LAST,
-		  G_STRUCT_OFFSET (ClutterStageClass, unfullscreen),
-		  NULL, NULL,
-		  _clutter_marshal_VOID__VOID,
-		  G_TYPE_NONE, 0);
-  /**
    * ClutterStage::activate:
    * @stage: the stage which was activated
    *
@@ -2258,7 +2159,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_TYPE_NONE, 2,
                   G_TYPE_INT, G_TYPE_POINTER);
 
-  klass->fullscreen = clutter_stage_real_fullscreen;
   klass->activate = clutter_stage_real_activate;
   klass->deactivate = clutter_stage_real_deactivate;
   klass->delete_event = clutter_stage_real_delete_event;
@@ -2309,7 +2209,6 @@ clutter_stage_init (ClutterStage *self)
 
   priv->event_queue = g_queue_new ();
 
-  priv->is_fullscreen = FALSE;
   priv->is_cursor_visible = TRUE;
   priv->use_fog = FALSE;
   priv->throttle_motion_events = TRUE;
@@ -2706,80 +2605,6 @@ _clutter_stage_get_viewport (ClutterStage *stage,
 }
 
 /**
- * clutter_stage_set_fullscreen:
- * @stage: a #ClutterStage
- * @fullscreen: %TRUE to to set the stage fullscreen
- *
- * Asks to place the stage window in the fullscreen or unfullscreen
- * states.
- *
- ( Note that you shouldn't assume the window is definitely full screen
- * afterward, because other entities (e.g. the user or window manager)
- * could unfullscreen it again, and not all window managers honor
- * requests to fullscreen windows.
- *
- * If you want to receive notification of the fullscreen state you
- * should either use the #ClutterStage::fullscreen and
- * #ClutterStage::unfullscreen signals, or use the notify signal
- * for the #ClutterStage:fullscreen-set property
- *
- * Since: 1.0
- */
-void
-clutter_stage_set_fullscreen (ClutterStage *stage,
-                              gboolean      fullscreen)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  priv = stage->priv;
-
-  if (priv->is_fullscreen != fullscreen)
-    {
-      ClutterStageWindow *impl = CLUTTER_STAGE_WINDOW (priv->impl);
-      ClutterStageWindowInterface *iface;
-
-      iface = CLUTTER_STAGE_WINDOW_GET_IFACE (impl);
-
-      /* Only set if backend implements.
-       *
-       * Also see clutter_stage_event() for setting priv->is_fullscreen
-       * on state change event.
-       */
-      if (iface->set_fullscreen)
-	iface->set_fullscreen (impl, fullscreen);
-    }
-
-  /* If the backend did fullscreen the stage window then we need to resize
-   * the stage and update its viewport so we queue a relayout.  Note: if the
-   * fullscreen request is handled asynchronously we can't rely on this
-   * queue_relayout to update the viewport, but for example the X backend
-   * will recieve a ConfigureNotify after a successful resize which is how
-   * we ensure the viewport is updated on X.
-   */
-  clutter_actor_queue_relayout (CLUTTER_ACTOR (stage));
-}
-
-/**
- * clutter_stage_get_fullscreen:
- * @stage: a #ClutterStage
- *
- * Retrieves whether the stage is full screen or not
- *
- * Return value: %TRUE if the stage is full screen
- *
- * Since: 1.0
- */
-gboolean
-clutter_stage_get_fullscreen (ClutterStage *stage)
-{
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-
-  return stage->priv->is_fullscreen;
-}
-
-/**
  * clutter_stage_show_cursor:
  * @stage: a #ClutterStage
  *
@@ -2990,12 +2815,8 @@ gboolean
 clutter_stage_event (ClutterStage *stage,
                      ClutterEvent *event)
 {
-  ClutterStagePrivate *priv;
-
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
-
-  priv = stage->priv;
 
   if (event->type == CLUTTER_DELETE)
     {
@@ -3015,24 +2836,6 @@ clutter_stage_event (ClutterStage *stage,
   /* emit raw event */
   if (clutter_actor_event (CLUTTER_ACTOR (stage), event, FALSE))
     return TRUE;
-
-  if (event->stage_state.changed_mask & CLUTTER_STAGE_STATE_FULLSCREEN)
-    {
-      if (event->stage_state.new_state & CLUTTER_STAGE_STATE_FULLSCREEN)
-	{
-	  priv->is_fullscreen = TRUE;
-	  g_signal_emit (stage, stage_signals[FULLSCREEN], 0);
-
-          g_object_notify (G_OBJECT (stage), "fullscreen-set");
-	}
-      else
-	{
-	  priv->is_fullscreen = FALSE;
-	  g_signal_emit (stage, stage_signals[UNFULLSCREEN], 0);
-
-          g_object_notify (G_OBJECT (stage), "fullscreen-set");
-	}
-    }
 
   if (event->stage_state.changed_mask & CLUTTER_STAGE_STATE_ACTIVATED)
     {
@@ -3888,8 +3691,6 @@ clutter_stage_get_use_alpha (ClutterStage *stage)
  * If the current size of @stage is smaller than the minimum size, the
  * @stage will be resized to the new @width and @height
  *
- * This function has no effect if @stage is fullscreen
- *
  * Since: 1.2
  */
 void
@@ -4574,20 +4375,6 @@ gboolean
 _clutter_stage_is_activated (ClutterStage *stage)
 {
   return (stage->priv->current_state & CLUTTER_STAGE_STATE_ACTIVATED) != 0;
-}
-
-/*< private >
- * _clutter_stage_is_fullscreen:
- * @stage: a #ClutterStage
- *
- * Checks whether the @stage state includes %CLUTTER_STAGE_STATE_FULLSCREEN.
- *
- * Return value: %TRUE if the @stage is fullscreen
- */
-gboolean
-_clutter_stage_is_fullscreen (ClutterStage *stage)
-{
-  return (stage->priv->current_state & CLUTTER_STAGE_STATE_FULLSCREEN) != 0;
 }
 
 /*< private >

@@ -218,10 +218,6 @@ test_grab_main (int argc, char *argv[])
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
   g_signal_connect (stage, "event",
                     G_CALLBACK (debug_event_cb), (char *) "stage");
-  g_signal_connect (stage, "fullscreen", 
-		    G_CALLBACK (stage_state_cb), (char *) "fullscreen");
-  g_signal_connect (stage, "unfullscreen", 
-		    G_CALLBACK (stage_state_cb), (char *) "unfullscreen");
   g_signal_connect (stage, "activate", 
 		    G_CALLBACK (stage_state_cb), (char *) "activate");
   g_signal_connect (stage, "deactivate", 
