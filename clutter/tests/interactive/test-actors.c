@@ -199,7 +199,6 @@ test_actors_main (int argc, char *argv[])
   g_signal_connect (oh->stage, "destroy", G_CALLBACK (stop_and_quit), oh);
 
   clutter_stage_set_title (CLUTTER_STAGE (oh->stage), "Actors");
-  clutter_stage_set_user_resizable (CLUTTER_STAGE (oh->stage), TRUE);
 
   /* Create a timeline to manage animation */
   oh->timeline = clutter_timeline_new (6000);
