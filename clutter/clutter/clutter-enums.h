@@ -974,7 +974,6 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
 
 /**
  * ClutterStageState:
- * @CLUTTER_STAGE_STATE_FULLSCREEN: Fullscreen mask
  * @CLUTTER_STAGE_STATE_OFFSCREEN: Offscreen mask (deprecated)
  * @CLUTTER_STAGE_STATE_ACTIVATED: Activated mask
  *
@@ -984,7 +983,6 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
  */
 typedef enum
 {
-  CLUTTER_STAGE_STATE_FULLSCREEN       = (1 << 1),
   CLUTTER_STAGE_STATE_OFFSCREEN        = (1 << 2),
   CLUTTER_STAGE_STATE_ACTIVATED        = (1 << 3)
 } ClutterStageState;

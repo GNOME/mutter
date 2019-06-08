@@ -89,7 +89,6 @@ struct _ClutterBackendX11
   Atom atom_NET_WM_PID;
   Atom atom_NET_WM_PING;
   Atom atom_NET_WM_STATE;
-  Atom atom_NET_WM_STATE_FULLSCREEN;
   Atom atom_NET_WM_USER_TIME;
   Atom atom_WM_PROTOCOLS;
   Atom atom_WM_DELETE_WINDOW;
