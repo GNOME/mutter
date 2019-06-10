@@ -45,101 +45,6 @@
 #error "Somehow included OpenGL headers when we shouldn't have"
 #endif
 
-static EGLImageKHR
-create_egl_image (MetaEgl       *egl,
-                  EGLDisplay     egl_display,
-                  EGLContext     egl_context,
-                  unsigned int   width,
-                  unsigned int   height,
-                  uint32_t       n_planes,
-                  uint32_t      *strides,
-                  uint32_t      *offsets,
-                  uint64_t      *modifiers,
-                  uint32_t       format,
-                  int            fd,
-                  GError       **error)
-{
-  EGLint attribs[37];
-  int atti = 0;
-  gboolean has_modifier;
-
-  /* This requires the Mesa commit in
-   * Mesa 10.3 (08264e5dad4df448e7718e782ad9077902089a07) or
-   * Mesa 10.2.7 (55d28925e6109a4afd61f109e845a8a51bd17652).
-   * Otherwise Mesa closes the fd behind our back and re-importing
-   * will fail.
-   * https://bugs.freedesktop.org/show_bug.cgi?id=76188
-   */
-
-  attribs[atti++] = EGL_WIDTH;
-  attribs[atti++] = width;
-  attribs[atti++] = EGL_HEIGHT;
-  attribs[atti++] = height;
-  attribs[atti++] = EGL_LINUX_DRM_FOURCC_EXT;
-  attribs[atti++] = format;
-
-  has_modifier = (modifiers[0] != DRM_FORMAT_MOD_INVALID &&
-                  modifiers[0] != DRM_FORMAT_MOD_LINEAR);
-
-  if (n_planes > 0)
-    {
-      attribs[atti++] = EGL_DMA_BUF_PLANE0_FD_EXT;
-      attribs[atti++] = fd;
-      attribs[atti++] = EGL_DMA_BUF_PLANE0_OFFSET_EXT;
-      attribs[atti++] = offsets[0];
-      attribs[atti++] = EGL_DMA_BUF_PLANE0_PITCH_EXT;
-      attribs[atti++] = strides[0];
-      if (has_modifier)
-        {
-          attribs[atti++] = EGL_DMA_BUF_PLANE0_MODIFIER_LO_EXT;
-          attribs[atti++] = modifiers[0] & 0xFFFFFFFF;
-          attribs[atti++] = EGL_DMA_BUF_PLANE0_MODIFIER_HI_EXT;
-          attribs[atti++] = modifiers[0] >> 32;
-        }
-    }
-
-  if (n_planes > 1)
-    {
-      attribs[atti++] = EGL_DMA_BUF_PLANE1_FD_EXT;
-      attribs[atti++] = fd;
-      attribs[atti++] = EGL_DMA_BUF_PLANE1_OFFSET_EXT;
-      attribs[atti++] = offsets[1];
-      attribs[atti++] = EGL_DMA_BUF_PLANE1_PITCH_EXT;
-      attribs[atti++] = strides[1];
-      if (has_modifier)
-        {
-          attribs[atti++] = EGL_DMA_BUF_PLANE1_MODIFIER_LO_EXT;
-          attribs[atti++] = modifiers[1] & 0xFFFFFFFF;
-          attribs[atti++] = EGL_DMA_BUF_PLANE1_MODIFIER_HI_EXT;
-          attribs[atti++] = modifiers[1] >> 32;
-        }
-    }
-
-  if (n_planes > 2)
-    {
-      attribs[atti++] = EGL_DMA_BUF_PLANE2_FD_EXT;
-      attribs[atti++] = fd;
-      attribs[atti++] = EGL_DMA_BUF_PLANE2_OFFSET_EXT;
-      attribs[atti++] = offsets[2];
-      attribs[atti++] = EGL_DMA_BUF_PLANE2_PITCH_EXT;
-      attribs[atti++] = strides[2];
-      if (has_modifier)
-        {
-          attribs[atti++] = EGL_DMA_BUF_PLANE2_MODIFIER_LO_EXT;
-          attribs[atti++] = modifiers[2] & 0xFFFFFFFF;
-          attribs[atti++] = EGL_DMA_BUF_PLANE2_MODIFIER_HI_EXT;
-          attribs[atti++] = modifiers[2] >> 32;
-        }
-    }
-
-  attribs[atti++] = EGL_NONE;
-
-  return meta_egl_create_image (egl, egl_display, EGL_NO_CONTEXT,
-                                EGL_LINUX_DMA_BUF_EXT, NULL,
-                                attribs,
-                                error);
-}
-
 static void
 paint_egl_image (MetaGles3   *gles3,
                  EGLImageKHR  egl_image,
@@ -195,8 +100,10 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
   uint32_t strides[4] = { 0 };
   uint32_t offsets[4] = { 0 };
   uint64_t modifiers[4] = { 0 };
+  int fds[4] = { -1, -1, -1, -1 };
   uint32_t format;
   EGLImageKHR egl_image;
+  gboolean use_modifiers;
 
   shared_bo_fd = gbm_bo_get_fd (shared_bo);
   if (shared_bo_fd < 0)
@@ -216,17 +123,27 @@ meta_renderer_native_gles3_blit_shared_bo (MetaEgl        *egl,
       strides[i] = gbm_bo_get_stride_for_plane (shared_bo, i);
       offsets[i] = gbm_bo_get_offset (shared_bo, i);
       modifiers[i] = gbm_bo_get_modifier (shared_bo);
+      fds[i] = shared_bo_fd;
     }
 
-  egl_image = create_egl_image (egl,
-                                egl_display,
-                                egl_context,
-                                width, height,
-                                n_planes,
-                                strides, offsets,
-                                modifiers, format,
-                                shared_bo_fd,
-                                error);
+  /* Workaround for https://gitlab.gnome.org/GNOME/mutter/issues/18 */
+  if (modifiers[0] == DRM_FORMAT_MOD_LINEAR ||
+      modifiers[0] == DRM_FORMAT_MOD_INVALID)
+    use_modifiers = FALSE;
+  else
+    use_modifiers = TRUE;
+
+  egl_image = meta_egl_create_dmabuf_image (egl,
+                                            egl_display,
+                                            width,
+                                            height,
+                                            format,
+                                            n_planes,
+                                            fds,
+                                            strides,
+                                            offsets,
+                                            use_modifiers ? modifiers : NULL,
+                                            error);
   close (shared_bo_fd);
 
   if (!egl_image)
