@@ -117,10 +117,10 @@ clutter_input_device_xi2_finalize (GObject *object)
 
   if (device_xi2->group_modes)
     g_array_unref (device_xi2->group_modes);
-#endif
 
   if (device_xi2->inhibit_pointer_query_timer)
     g_source_remove (device_xi2->inhibit_pointer_query_timer);
+#endif
 
   G_OBJECT_CLASS (clutter_input_device_xi2_parent_class)->finalize (object);
 }
