@@ -1,7 +1,8 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
 /*
- * Copyright (C) 2016 Red Hat Inc.
+ * Copyright (C) 2016, 2017 Red Hat Inc.
+ * Copyright (C) 2018, 2019 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -572,6 +573,97 @@ meta_egl_destroy_image (MetaEgl    *egl,
     }
 
   return TRUE;
+}
+
+EGLImageKHR
+meta_egl_create_dmabuf_image (MetaEgl         *egl,
+                              EGLDisplay       egl_display,
+                              unsigned int     width,
+                              unsigned int     height,
+                              uint32_t         drm_format,
+                              uint32_t         n_planes,
+                              const int       *fds,
+                              const uint32_t  *strides,
+                              const uint32_t  *offsets,
+                              const uint64_t  *modifiers,
+                              GError         **error)
+{
+  EGLint attribs[37];
+  int atti = 0;
+
+  /* This requires the Mesa commit in
+   * Mesa 10.3 (08264e5dad4df448e7718e782ad9077902089a07) or
+   * Mesa 10.2.7 (55d28925e6109a4afd61f109e845a8a51bd17652).
+   * Otherwise Mesa closes the fd behind our back and re-importing
+   * will fail.
+   * https://bugs.freedesktop.org/show_bug.cgi?id=76188
+   */
+
+  attribs[atti++] = EGL_WIDTH;
+  attribs[atti++] = width;
+  attribs[atti++] = EGL_HEIGHT;
+  attribs[atti++] = height;
+  attribs[atti++] = EGL_LINUX_DRM_FOURCC_EXT;
+  attribs[atti++] = drm_format;
+
+  if (n_planes > 0)
+    {
+      attribs[atti++] = EGL_DMA_BUF_PLANE0_FD_EXT;
+      attribs[atti++] = fds[0];
+      attribs[atti++] = EGL_DMA_BUF_PLANE0_OFFSET_EXT;
+      attribs[atti++] = offsets[0];
+      attribs[atti++] = EGL_DMA_BUF_PLANE0_PITCH_EXT;
+      attribs[atti++] = strides[0];
+      if (modifiers)
+        {
+          attribs[atti++] = EGL_DMA_BUF_PLANE0_MODIFIER_LO_EXT;
+          attribs[atti++] = modifiers[0] & 0xFFFFFFFF;
+          attribs[atti++] = EGL_DMA_BUF_PLANE0_MODIFIER_HI_EXT;
+          attribs[atti++] = modifiers[0] >> 32;
+        }
+    }
+
+  if (n_planes > 1)
+    {
+      attribs[atti++] = EGL_DMA_BUF_PLANE1_FD_EXT;
+      attribs[atti++] = fds[1];
+      attribs[atti++] = EGL_DMA_BUF_PLANE1_OFFSET_EXT;
+      attribs[atti++] = offsets[1];
+      attribs[atti++] = EGL_DMA_BUF_PLANE1_PITCH_EXT;
+      attribs[atti++] = strides[1];
+      if (modifiers)
+        {
+          attribs[atti++] = EGL_DMA_BUF_PLANE1_MODIFIER_LO_EXT;
+          attribs[atti++] = modifiers[1] & 0xFFFFFFFF;
+          attribs[atti++] = EGL_DMA_BUF_PLANE1_MODIFIER_HI_EXT;
+          attribs[atti++] = modifiers[1] >> 32;
+        }
+    }
+
+  if (n_planes > 2)
+    {
+      attribs[atti++] = EGL_DMA_BUF_PLANE2_FD_EXT;
+      attribs[atti++] = fds[2];
+      attribs[atti++] = EGL_DMA_BUF_PLANE2_OFFSET_EXT;
+      attribs[atti++] = offsets[2];
+      attribs[atti++] = EGL_DMA_BUF_PLANE2_PITCH_EXT;
+      attribs[atti++] = strides[2];
+      if (modifiers)
+        {
+          attribs[atti++] = EGL_DMA_BUF_PLANE2_MODIFIER_LO_EXT;
+          attribs[atti++] = modifiers[2] & 0xFFFFFFFF;
+          attribs[atti++] = EGL_DMA_BUF_PLANE2_MODIFIER_HI_EXT;
+          attribs[atti++] = modifiers[2] >> 32;
+        }
+    }
+
+  attribs[atti++] = EGL_NONE;
+  g_assert (atti <= G_N_ELEMENTS (attribs));
+
+  return meta_egl_create_image (egl, egl_display, EGL_NO_CONTEXT,
+                                EGL_LINUX_DMA_BUF_EXT, NULL,
+                                attribs,
+                                error);
 }
 
 gboolean

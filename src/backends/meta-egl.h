@@ -100,6 +100,18 @@ gboolean meta_egl_destroy_image (MetaEgl    *egl,
                                  EGLImageKHR image,
                                  GError    **error);
 
+EGLImageKHR meta_egl_create_dmabuf_image (MetaEgl         *egl,
+                                          EGLDisplay       egl_display,
+                                          unsigned int     width,
+                                          unsigned int     height,
+                                          uint32_t         drm_format,
+                                          uint32_t         n_planes,
+                                          const int       *fds,
+                                          const uint32_t  *strides,
+                                          const uint32_t  *offsets,
+                                          const uint64_t  *modifiers,
+                                          GError         **error);
+
 EGLSurface meta_egl_create_window_surface (MetaEgl            *egl,
                                            EGLDisplay          display,
                                            EGLConfig           config,
