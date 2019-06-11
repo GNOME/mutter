@@ -70,6 +70,7 @@
 #include "backends/native/meta-renderer-native.h"
 #include "cogl/cogl.h"
 #include "cogl/cogl-framebuffer.h"
+#include "cogl/cogl-trace.h"
 #include "core/boxes-private.h"
 
 #ifndef EGL_DRM_MASTER_FD_EXT
@@ -1773,6 +1774,9 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
   MetaDrmBufferGbm *buffer_gbm;
   struct gbm_bo *bo;
 
+  COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferSecondaryGpu,
+                           "FB Copy (secondary GPU)");
+
   if (!meta_egl_make_current (egl,
                               renderer_gpu_data->egl_display,
                               secondary_gpu_state->egl_surface,
@@ -1866,6 +1870,9 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   CoglTexture2D *cogl_tex;
   CoglOffscreen *cogl_fbo;
   int ret;
+
+  COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferPrimaryGpu,
+                           "FB Copy (primary GPU)");
 
   primary_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                         renderer_native->primary_gpu_kms);
@@ -2029,6 +2036,9 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   CoglPixelFormat cogl_format;
   gboolean ret;
   MetaDrmBufferDumb *buffer_dumb;
+
+  COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferCpu,
+                           "FB Copy (CPU)");
 
   dumb_fb = secondary_gpu_get_next_dumb_buffer (secondary_gpu_state);
 
