@@ -65,21 +65,16 @@ G_PASTE (_cogl_unpack_a_8_, component_size) (const uint8_t *src,
 }
 
 inline static void
-G_PASTE (_cogl_unpack_g_8_, component_size) (const uint8_t *src,
+G_PASTE (_cogl_unpack_r_8_, component_size) (const uint8_t *src,
                                              component_type *dst,
                                              int width)
 {
-  /* FIXME: I'm not sure if this is right. It looks like Nvidia and
-     Mesa handle luminance textures differently. Maybe we should
-     consider just removing luminance textures for Cogl 2.0 because
-     they have been removed in GL 3.0 */
   while (width-- > 0)
     {
-      component_type v = UNPACK_BYTE (src[0]);
-      dst[0] = v;
-      dst[1] = v;
-      dst[2] = v;
-      dst[3] = UNPACK_BYTE (255);
+      dst[0] = UNPACK_BYTE (*src);
+      dst[1] = 0;
+      dst[2] = 0;
+      dst[3] = 0;
       dst += 4;
       src++;
     }
@@ -341,8 +336,8 @@ G_PASTE (_cogl_unpack_, component_size) (CoglPixelFormat format,
     case COGL_PIXEL_FORMAT_A_8:
       G_PASTE (_cogl_unpack_a_8_, component_size) (src, dst, width);
       break;
-    case COGL_PIXEL_FORMAT_G_8:
-      G_PASTE (_cogl_unpack_g_8_, component_size) (src, dst, width);
+    case COGL_PIXEL_FORMAT_R_8:
+      G_PASTE (_cogl_unpack_r_8_, component_size) (src, dst, width);
       break;
     case COGL_PIXEL_FORMAT_RG_88:
       G_PASTE (_cogl_unpack_rg_88_, component_size) (src, dst, width);
@@ -433,18 +428,13 @@ G_PASTE (_cogl_pack_a_8_, component_size) (const component_type *src,
 }
 
 inline static void
-G_PASTE (_cogl_pack_g_8_, component_size) (const component_type *src,
+G_PASTE (_cogl_pack_r_8_, component_size) (const component_type *src,
                                            uint8_t *dst,
                                            int width)
 {
-  /* FIXME: I'm not sure if this is right. It looks like Nvidia and
-     Mesa handle luminance textures differently. Maybe we should
-     consider just removing luminance textures for Cogl 2.0 because
-     they have been removed in GL 3.0 */
   while (width-- > 0)
     {
-      component_type v = (src[0] + src[1] + src[2]) / 3;
-      *dst = PACK_BYTE (v);
+      *dst = PACK_BYTE (src[0]);
       src += 4;
       dst++;
     }
@@ -702,8 +692,8 @@ G_PASTE (_cogl_pack_, component_size) (CoglPixelFormat format,
     case COGL_PIXEL_FORMAT_A_8:
       G_PASTE (_cogl_pack_a_8_, component_size) (src, dst, width);
       break;
-    case COGL_PIXEL_FORMAT_G_8:
-      G_PASTE (_cogl_pack_g_8_, component_size) (src, dst, width);
+    case COGL_PIXEL_FORMAT_R_8:
+      G_PASTE (_cogl_pack_r_8_, component_size) (src, dst, width);
       break;
     case COGL_PIXEL_FORMAT_RG_88:
       G_PASTE (_cogl_pack_rg_88_, component_size) (src, dst, width);
