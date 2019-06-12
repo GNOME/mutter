@@ -150,6 +150,7 @@ void                      clutter_input_device_evdev_release_touch_state (Clutte
 void                      clutter_input_device_evdev_release_touch_slots (ClutterInputDeviceEvdev *device_evdev,
                                                                           uint64_t                 time_us);
 
+void                      clutter_evdev_a11y_maybe_notify_toggle_keys  (ClutterInputDeviceEvdev *);
 
 G_END_DECLS
 
