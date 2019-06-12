@@ -3342,6 +3342,7 @@ create_renderer_gpu_data_egl_device (MetaRendererNative  *renderer_native,
                    G_IO_ERROR_FAILED,
                    "Missing EGL extensions required for EGLDevice renderer: %s",
                    missing_extensions_str);
+      meta_egl_terminate (egl, egl_display, NULL);
       g_free (missing_extensions_str);
       g_free (missing_extensions);
       return NULL;
