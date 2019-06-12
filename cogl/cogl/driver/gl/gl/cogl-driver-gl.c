@@ -111,20 +111,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
   switch (format)
     {
     case COGL_PIXEL_FORMAT_A_8:
-      /* If the driver doesn't natively support alpha textures then we
-       * will use a red component texture with a swizzle to implement
-       * the texture */
-      if (_cogl_has_private_feature
-          (context, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES) == 0)
-        {
-          glintformat = GL_RED;
-          glformat = GL_RED;
-        }
-      else
-        {
-          glintformat = GL_ALPHA;
-          glformat = GL_ALPHA;
-        }
+      glintformat = GL_RED;
+      glformat = GL_RED;
       gltype = GL_UNSIGNED_BYTE;
       break;
     case COGL_PIXEL_FORMAT_G_8:
@@ -268,7 +256,37 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       break;
 
     case COGL_PIXEL_FORMAT_ANY:
+    /* No support for YUV or multi-plane formats */
     case COGL_PIXEL_FORMAT_YUV:
+    case COGL_PIXEL_FORMAT_YUYV:
+    case COGL_PIXEL_FORMAT_YVYU:
+    case COGL_PIXEL_FORMAT_UYVY:
+    case COGL_PIXEL_FORMAT_VYUY:
+    case COGL_PIXEL_FORMAT_AYUV:
+    case COGL_PIXEL_FORMAT_XRGB8888_A8:
+    case COGL_PIXEL_FORMAT_XBGR8888_A8:
+    case COGL_PIXEL_FORMAT_RGBX8888_A8:
+    case COGL_PIXEL_FORMAT_BGRX8888_A8:
+    case COGL_PIXEL_FORMAT_RGB888_A8:
+    case COGL_PIXEL_FORMAT_BGR888_A8:
+    case COGL_PIXEL_FORMAT_RGB565_A8:
+    case COGL_PIXEL_FORMAT_BGR565_A8:
+    case COGL_PIXEL_FORMAT_NV12:
+    case COGL_PIXEL_FORMAT_NV21:
+    case COGL_PIXEL_FORMAT_NV16:
+    case COGL_PIXEL_FORMAT_NV61:
+    case COGL_PIXEL_FORMAT_NV24:
+    case COGL_PIXEL_FORMAT_NV42:
+    case COGL_PIXEL_FORMAT_YUV410:
+    case COGL_PIXEL_FORMAT_YVU410:
+    case COGL_PIXEL_FORMAT_YUV411:
+    case COGL_PIXEL_FORMAT_YVU411:
+    case COGL_PIXEL_FORMAT_YUV420:
+    case COGL_PIXEL_FORMAT_YVU420:
+    case COGL_PIXEL_FORMAT_YUV422:
+    case COGL_PIXEL_FORMAT_YVU422:
+    case COGL_PIXEL_FORMAT_YUV444:
+    case COGL_PIXEL_FORMAT_YVU444:
       g_assert_not_reached ();
       break;
     }

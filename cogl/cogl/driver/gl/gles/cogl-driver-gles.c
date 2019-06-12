@@ -83,8 +83,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
   switch (format)
     {
     case COGL_PIXEL_FORMAT_A_8:
-      glintformat = GL_ALPHA;
-      glformat = GL_ALPHA;
+      glintformat = GL_RED;
+      glformat = GL_RED;
       gltype = GL_UNSIGNED_BYTE;
       break;
     case COGL_PIXEL_FORMAT_G_8:
