@@ -348,8 +348,15 @@ meta_surface_actor_x11_dispose (GObject *object)
 {
   MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (object);
 
-  detach_pixmap (self);
-  free_damage (self);
+  if (self->display->x11_display != NULL)
+    {
+      detach_pixmap (self);
+      free_damage (self);
+    }
+  else
+    {
+      g_warning ("MetaSurfaceActorX11 %p outlived the X11 display connection and can't be cleanly disposed. This is most likely a leak in your shell code, outside of mutter.", self);
+    }
 
   G_OBJECT_CLASS (meta_surface_actor_x11_parent_class)->dispose (object);
 }
