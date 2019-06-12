@@ -111,20 +111,8 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
   switch (format)
     {
     case COGL_PIXEL_FORMAT_A_8:
-      /* If the driver doesn't natively support alpha textures then we
-       * will use a red component texture with a swizzle to implement
-       * the texture */
-      if (_cogl_has_private_feature
-          (context, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES) == 0)
-        {
-          glintformat = GL_RED;
-          glformat = GL_RED;
-        }
-      else
-        {
-          glintformat = GL_ALPHA;
-          glformat = GL_ALPHA;
-        }
+      glintformat = GL_RED;
+      glformat = GL_RED;
       gltype = GL_UNSIGNED_BYTE;
       break;
     case COGL_PIXEL_FORMAT_G_8:

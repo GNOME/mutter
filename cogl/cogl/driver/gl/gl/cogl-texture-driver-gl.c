@@ -98,11 +98,8 @@ _cogl_texture_driver_gen (CoglContext *ctx,
       g_assert_not_reached();
     }
 
-  /* If the driver doesn't support alpha textures directly then we'll
-   * fake them by setting the swizzle parameters */
-  if (internal_format == COGL_PIXEL_FORMAT_A_8 &&
-      !_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES) &&
-      _cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE))
+  /* GL_ALPHA is deprecated; instead, use GL_RED with a swizzle mask */
+  if (internal_format == COGL_PIXEL_FORMAT_A_8)
     {
       static const GLint red_swizzle[] = { GL_ZERO, GL_ZERO, GL_ZERO, GL_RED };
 
