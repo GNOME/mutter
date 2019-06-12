@@ -135,12 +135,7 @@ void
 test_write_texture_formats (void)
 {
   test_write_byte (test_ctx, COGL_PIXEL_FORMAT_A_8, 0x34, 0x00000034);
-#if 0
-  /* I'm not sure what's the right value to put here because Nvidia
-     and Mesa seem to behave differently so one of them must be
-     wrong. */
-  test_write_byte (test_ctx, COGL_PIXEL_FORMAT_G_8, 0x34, 0x340000ff);
-#endif
+  test_write_byte (test_ctx, COGL_PIXEL_FORMAT_R_8, 0x34, 0x34000000);
 
   /* We should always be able to read from an RG buffer regardless of
    * whether RG textures are supported because Cogl will do the
