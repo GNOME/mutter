@@ -83,8 +83,8 @@ static const CoglPixelFormatInfo format_info_table[] = {
     .aligned = -1
   },
   {
-    .cogl_format = COGL_PIXEL_FORMAT_G_8,
-    .format_str = "G_8",
+    .cogl_format = COGL_PIXEL_FORMAT_R_8,
+    .format_str = "R_8",
     .bpp = 1,
     .aligned = 1
   },

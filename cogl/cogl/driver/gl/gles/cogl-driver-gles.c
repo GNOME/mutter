@@ -86,9 +86,9 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       glformat = GL_ALPHA;
       gltype = GL_UNSIGNED_BYTE;
       break;
-    case COGL_PIXEL_FORMAT_G_8:
-      glintformat = GL_LUMINANCE;
-      glformat = GL_LUMINANCE;
+    case COGL_PIXEL_FORMAT_R_8:
+      glintformat = GL_RED;
+      glformat = GL_RED;
       gltype = GL_UNSIGNED_BYTE;
       break;
 

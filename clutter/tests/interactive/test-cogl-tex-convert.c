@@ -173,7 +173,7 @@ test_coglbox_init (TestCoglbox *self)
   priv->cogl_tex_id[3] =
     cogl_texture_new_from_file (file,
                                 COGL_TEXTURE_NONE,
-				COGL_PIXEL_FORMAT_G_8,
+				COGL_PIXEL_FORMAT_R_8,
                                 NULL);
 
   g_free (file);
