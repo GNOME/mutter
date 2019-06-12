@@ -1246,6 +1246,13 @@ clutter_input_device_evdev_apply_kbd_a11y_settings (ClutterInputDeviceEvdev *dev
   device->a11y_flags = settings->controls;
 }
 
+void
+clutter_evdev_a11y_maybe_notify_toggle_keys (ClutterInputDeviceEvdev *device)
+{
+  if (device->a11y_flags & CLUTTER_A11Y_TOGGLE_KEYS_ENABLED)
+    clutter_input_device_evdev_bell_notify ();
+}
+
 static void
 release_device_touch_slot (gpointer value)
 {
