@@ -326,6 +326,7 @@ clutter_seat_evdev_notify_key (ClutterSeatEvdev   *seat,
       backend = clutter_get_default_backend ();
       g_signal_emit_by_name (clutter_backend_get_keymap (backend), "state-changed");
       clutter_seat_evdev_sync_leds (seat);
+      clutter_evdev_a11y_maybe_notify_toggle_keys (CLUTTER_INPUT_DEVICE_EVDEV (seat->core_keyboard));
     }
 
   if (state == 0 ||             /* key release */
