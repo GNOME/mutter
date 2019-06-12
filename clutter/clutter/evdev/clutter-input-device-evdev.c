@@ -1225,7 +1225,7 @@ clutter_input_device_evdev_apply_kbd_a11y_settings (ClutterInputDeviceEvdev *dev
       update_internal_xkb_state (device, 0, 0);
     }
 
-  if (changed_flags & (CLUTTER_A11Y_KEYBOARD_ENABLED | CLUTTER_A11Y_TOGGLE_KEYS_ENABLED))
+  if (changed_flags & (CLUTTER_A11Y_KEYBOARD_ENABLED))
     {
       device->toggle_slowkeys_timer = 0;
       device->shift_count = 0;
@@ -1244,6 +1244,17 @@ clutter_input_device_evdev_apply_kbd_a11y_settings (ClutterInputDeviceEvdev *dev
 
   /* Keep our own copy of keyboard a11y features flags to see what changes */
   device->a11y_flags = settings->controls;
+}
+
+void
+clutter_evdev_a11y_notify_toggle_keys (ClutterInputDeviceEvdev *device)
+{
+  /* The core device may not be added yet */
+  if (device == NULL)
+    return;
+
+  if (device->a11y_flags & CLUTTER_A11Y_TOGGLE_KEYS_ENABLED)
+    clutter_input_device_evdev_bell_notify ();
 }
 
 static void
