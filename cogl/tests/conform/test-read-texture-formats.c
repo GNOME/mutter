@@ -173,12 +173,7 @@ test_read_texture_formats (void)
 
   test_read_byte (tex_2d, COGL_PIXEL_FORMAT_A_8, 0x78);
 
-#if 0
-  /* I'm not sure what's the right value to put here because Nvidia
-     and Mesa seem to behave differently so one of them must be
-     wrong. */
-  test_read_byte (tex_2d, COGL_PIXEL_FORMAT_G_8, 0x9c);
-#endif
+  test_read_byte (tex_2d, COGL_PIXEL_FORMAT_R_8, 0x12);
 
   /* We should always be able to read into an RG buffer regardless of
    * whether RG textures are supported because Cogl will do the

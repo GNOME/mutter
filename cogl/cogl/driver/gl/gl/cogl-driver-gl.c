@@ -59,18 +59,11 @@ _cogl_driver_pixel_format_from_gl_internal (CoglContext *context,
     {
     case GL_ALPHA: case GL_ALPHA4: case GL_ALPHA8:
     case GL_ALPHA12: case GL_ALPHA16:
-      /* Cogl only supports one single-component texture so if we have
-       * ended up with a red texture then it is probably being used as
-       * a component-alpha texture */
-    case GL_RED:
-
       *out_format = COGL_PIXEL_FORMAT_A_8;
       return TRUE;
 
-    case GL_LUMINANCE: case GL_LUMINANCE4: case GL_LUMINANCE8:
-    case GL_LUMINANCE12: case GL_LUMINANCE16:
-
-      *out_format = COGL_PIXEL_FORMAT_G_8;
+    case GL_RED:
+      *out_format = COGL_PIXEL_FORMAT_R_8;
       return TRUE;
 
     case GL_RG:
@@ -127,9 +120,9 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
         }
       gltype = GL_UNSIGNED_BYTE;
       break;
-    case COGL_PIXEL_FORMAT_G_8:
-      glintformat = GL_LUMINANCE;
-      glformat = GL_LUMINANCE;
+    case COGL_PIXEL_FORMAT_R_8:
+      glintformat = GL_RED;
+      glformat = GL_RED;
       gltype = GL_UNSIGNED_BYTE;
       break;
 

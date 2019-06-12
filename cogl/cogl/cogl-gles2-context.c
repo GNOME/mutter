@@ -298,8 +298,8 @@ copy_flipped_texture (CoglGLES2Context *gles2_ctx,
       internal_format = COGL_PIXEL_FORMAT_A_8;
       break;
 
-    case GL_LUMINANCE:
-      internal_format = COGL_PIXEL_FORMAT_G_8;
+    case GL_RED:
+      internal_format = COGL_PIXEL_FORMAT_R_8;
       break;
 
     default:
