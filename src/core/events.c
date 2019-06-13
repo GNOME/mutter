@@ -27,7 +27,7 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/x11/meta-backend-x11.h"
-#include "compositor/meta-surface-actor.h"
+#include "compositor/meta-window-actor-private.h"
 #include "core/display-private.h"
 #include "core/window-private.h"
 #include "meta/meta-backend.h"
@@ -68,14 +68,16 @@ get_window_for_event (MetaDisplay        *display,
     case META_EVENT_ROUTE_NORMAL:
       {
         ClutterActor *source;
+        MetaWindowActor *window_actor;
 
         /* Always use the key focused window for key events. */
         if (IS_KEY_EVENT (event))
             return stage_has_key_focus () ? display->focus_window : NULL;
 
         source = clutter_event_get_source (event);
-        if (META_IS_SURFACE_ACTOR (source))
-          return meta_surface_actor_get_window (META_SURFACE_ACTOR (source));
+        window_actor = meta_window_actor_from_actor (source);
+        if (window_actor)
+          return meta_window_actor_get_meta_window (window_actor);
         else
           return NULL;
       }
