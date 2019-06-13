@@ -3561,7 +3561,8 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
       meta_window_move_resize_internal (window,
                                         (META_MOVE_RESIZE_MOVE_ACTION |
                                          META_MOVE_RESIZE_RESIZE_ACTION |
-                                         META_MOVE_RESIZE_STATE_CHANGED),
+                                         META_MOVE_RESIZE_STATE_CHANGED |
+                                         META_MOVE_RESIZE_UNFULLSCREEN),
                                         NorthWestGravity,
                                         target_rect);
 
