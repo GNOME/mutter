@@ -343,6 +343,7 @@ meta_surface_actor_is_argb32 (MetaSurfaceActor *self)
     case COGL_TEXTURE_COMPONENTS_A:
     case COGL_TEXTURE_COMPONENTS_RGBA:
       return TRUE;
+    case COGL_TEXTURE_COMPONENTS_R:
     case COGL_TEXTURE_COMPONENTS_RG:
     case COGL_TEXTURE_COMPONENTS_RGB:
     case COGL_TEXTURE_COMPONENTS_DEPTH:
