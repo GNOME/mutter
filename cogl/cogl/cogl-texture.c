@@ -1103,6 +1103,11 @@ _cogl_texture_set_internal_format (CoglTexture *texture,
       texture->components = COGL_TEXTURE_COMPONENTS_A;
       return;
     }
+  else if (internal_format == COGL_PIXEL_FORMAT_R_8)
+    {
+      texture->components = COGL_TEXTURE_COMPONENTS_R;
+      return;
+    }
   else if (internal_format == COGL_PIXEL_FORMAT_RG_88)
     {
       texture->components = COGL_TEXTURE_COMPONENTS_RG;
@@ -1149,6 +1154,8 @@ _cogl_texture_determine_internal_format (CoglTexture *texture,
         }
     case COGL_TEXTURE_COMPONENTS_A:
       return COGL_PIXEL_FORMAT_A_8;
+    case COGL_TEXTURE_COMPONENTS_R:
+      return COGL_PIXEL_FORMAT_R_8;
     case COGL_TEXTURE_COMPONENTS_RG:
       return COGL_PIXEL_FORMAT_RG_88;
     case COGL_TEXTURE_COMPONENTS_RGB:
