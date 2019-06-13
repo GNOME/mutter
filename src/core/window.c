@@ -3210,6 +3210,12 @@ meta_window_tile (MetaWindow   *window,
     meta_frame_queue_draw (window->frame);
 }
 
+MetaTileMode
+meta_window_get_tile_mode (MetaWindow *window)
+{
+  return window->tile_mode;
+}
+
 void
 meta_window_restore_tile (MetaWindow   *window,
                           MetaTileMode  mode,
