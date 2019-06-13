@@ -224,6 +224,13 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
       configured_width = 0;
       configured_height = 0;
     }
+  else if (flags & META_MOVE_RESIZE_UNFULLSCREEN &&
+           !meta_window_get_maximized (window) &&
+           meta_window_get_tile_mode (window) == META_TILE_NONE)
+    {
+      configured_width = 0;
+      configured_height = 0;
+    }
   else
     {
       configured_width = constrained_rect.width / geometry_scale;
