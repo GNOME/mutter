@@ -86,5 +86,6 @@ void meta_window_actor_assign_surface_actor (MetaWindowActor  *self,
                                              MetaSurfaceActor *surface_actor);
 
 MetaWindowActor *meta_window_actor_from_window (MetaWindow *window);
+MetaWindowActor *meta_window_actor_from_actor (ClutterActor *actor);
 
 #endif /* META_WINDOW_ACTOR_PRIVATE_H */

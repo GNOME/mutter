@@ -2035,3 +2035,17 @@ screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
   iface->capture_into = meta_window_actor_capture_into;
   iface->has_damage = meta_window_actor_has_damage;
 }
+
+MetaWindowActor*
+meta_window_actor_from_actor (ClutterActor *actor)
+{
+  while (actor != NULL)
+    {
+      if (META_IS_WINDOW_ACTOR (actor))
+        return META_WINDOW_ACTOR (actor);
+
+      actor = clutter_actor_get_parent (actor);
+    }
+
+  return NULL;
+}
