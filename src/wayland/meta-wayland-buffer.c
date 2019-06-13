@@ -186,37 +186,37 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
 #endif
     case WL_SHM_FORMAT_NV12:
       format = COGL_PIXEL_FORMAT_NV12;
-      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
       components_out[1] = COGL_TEXTURE_COMPONENTS_RG;
       break;
     case WL_SHM_FORMAT_NV21:
       format = COGL_PIXEL_FORMAT_NV21;
-      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
       components_out[1] = COGL_TEXTURE_COMPONENTS_RG;
       break;
     case WL_SHM_FORMAT_YUV422:
       format = COGL_PIXEL_FORMAT_YUV422;
-      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
-      components_out[1] = COGL_TEXTURE_COMPONENTS_A;
-      components_out[2] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_R;
       break;
     case WL_SHM_FORMAT_YVU422:
       format = COGL_PIXEL_FORMAT_YVU422;
-      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
-      components_out[1] = COGL_TEXTURE_COMPONENTS_A;
-      components_out[2] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_R;
       break;
     case WL_SHM_FORMAT_YUV444:
       format = COGL_PIXEL_FORMAT_YUV444;
-      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
-      components_out[1] = COGL_TEXTURE_COMPONENTS_A;
-      components_out[2] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_R;
       break;
     case WL_SHM_FORMAT_YVU444:
       format = COGL_PIXEL_FORMAT_YVU444;
-      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
-      components_out[1] = COGL_TEXTURE_COMPONENTS_A;
-      components_out[2] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_R;
       break;
 
     default:

@@ -744,22 +744,22 @@ cogl_pixel_format_get_cogl_components (CoglPixelFormat  format,
   switch (format)
     {
     case COGL_PIXEL_FORMAT_NV12:
-      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
       components_out[1] = COGL_TEXTURE_COMPONENTS_RG;
       break;
     case COGL_PIXEL_FORMAT_NV21:
-      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
       components_out[1] = COGL_TEXTURE_COMPONENTS_RG;
       break;
     case COGL_PIXEL_FORMAT_YUV422:
-      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
-      components_out[1] = COGL_TEXTURE_COMPONENTS_A;
-      components_out[2] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_R;
       break;
     case COGL_PIXEL_FORMAT_YUV444:
-      components_out[0] = COGL_TEXTURE_COMPONENTS_A;
-      components_out[1] = COGL_TEXTURE_COMPONENTS_A;
-      components_out[2] = COGL_TEXTURE_COMPONENTS_A;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_R;
       break;
     default:
       components_out[0] = COGL_TEXTURE_COMPONENTS_RGBA;
