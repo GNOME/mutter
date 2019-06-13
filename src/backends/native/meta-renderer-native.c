@@ -3948,6 +3948,10 @@ meta_renderer_native_create_renderer_gpu_data (MetaRendererNative  *renderer_nat
     return renderer_gpu_data;
 #endif
 
+  /* NOTE: Since EGLDevice and GBM are mutually exclusive we must ensure that
+   * all egl resources associated with the former are torn down. Otherwise,
+   * [at least] Mesa + amdgpu, will not work correctly, if at all.
+   */
   renderer_gpu_data = create_renderer_gpu_data_gbm (renderer_native,
                                                     gpu_kms,
                                                     &gbm_error);
