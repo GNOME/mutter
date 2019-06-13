@@ -845,7 +845,7 @@ meta_compositor_filter_keybinding (MetaCompositor *compositor,
 
 void
 meta_compositor_show_window (MetaCompositor *compositor,
-			     MetaWindow	    *window,
+                             MetaWindow     *window,
                              MetaCompEffect  effect)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
@@ -1033,7 +1033,7 @@ on_top_window_actor_destroyed (MetaWindowActor *window_actor,
 
 void
 meta_compositor_sync_stack (MetaCompositor  *compositor,
-			    GList	    *stack)
+                            GList           *stack)
 {
   MetaWindowActor* top_window_actor;
   GList *old_stack;
@@ -1139,8 +1139,8 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
 
 void
 meta_compositor_sync_window_geometry (MetaCompositor *compositor,
-				      MetaWindow *window,
-                                      gboolean did_placement)
+                                      MetaWindow     *window,
+                                      gboolean        did_placement)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
   meta_window_actor_sync_actor_geometry (window_actor, did_placement);
@@ -1540,7 +1540,7 @@ void
 meta_compositor_show_window_menu_for_rect (MetaCompositor     *compositor,
                                            MetaWindow         *window,
                                            MetaWindowMenuType  menu,
-					   MetaRectangle      *rect)
+                                           MetaRectangle      *rect)
 {
   meta_plugin_manager_show_window_menu_for_rect (compositor->plugin_mgr, window, menu, rect);
 }
