@@ -217,9 +217,10 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
    * coordinate space so that we can have a scale independent size to pass
    * to the Wayland surface. */
   geometry_scale = meta_window_wayland_get_geometry_scale (window);
-  if (flags & META_MOVE_RESIZE_UNMAXIMIZE)
+
+  if (flags & META_MOVE_RESIZE_UNMAXIMIZE &&
+      !meta_window_is_fullscreen (window))
     {
-      /* On un-maximize, let the client decide on its size */
       configured_width = 0;
       configured_height = 0;
     }
