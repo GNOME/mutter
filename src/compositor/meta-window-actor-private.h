@@ -75,5 +75,6 @@ void meta_window_actor_effect_completed (MetaWindowActor  *actor,
 MetaSurfaceActor *meta_window_actor_get_surface (MetaWindowActor *self);
 void meta_window_actor_update_surface (MetaWindowActor *self);
 MetaWindowActor *meta_window_actor_from_window (MetaWindow *window);
+MetaWindowActor *meta_window_actor_from_actor (ClutterActor *actor);
 
 #endif /* META_WINDOW_ACTOR_PRIVATE_H */
