@@ -626,6 +626,7 @@ void        meta_window_queue              (MetaWindow  *window,
                                             guint queuebits);
 void        meta_window_tile               (MetaWindow        *window,
                                             MetaTileMode       mode);
+MetaTileMode meta_window_get_tile_mode     (MetaWindow        *window);
 void        meta_window_restore_tile       (MetaWindow        *window,
                                             MetaTileMode       mode,
                                             int                width,
