@@ -1035,6 +1035,7 @@ void
 meta_compositor_sync_stack (MetaCompositor  *compositor,
 			    GList	    *stack)
 {
+  MetaWindowActor* top_window_actor;
   GList *old_stack;
 
   /* This is painful because hidden windows that we are in the process
@@ -1118,12 +1119,17 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
 
   sync_actor_stacking (compositor);
 
+  top_window_actor = get_top_visible_window_actor (compositor);
+
+  if (compositor->top_window_actor == top_window_actor)
+    return;
+
   if (compositor->top_window_actor)
     g_signal_handlers_disconnect_by_func (compositor->top_window_actor,
                                           on_top_window_actor_destroyed,
                                           compositor);
 
-  compositor->top_window_actor = get_top_visible_window_actor (compositor);
+  compositor->top_window_actor = top_window_actor;
 
   if (compositor->top_window_actor)
     g_signal_connect (compositor->top_window_actor, "destroy",
