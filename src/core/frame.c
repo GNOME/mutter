@@ -190,9 +190,14 @@ meta_window_destroy_frame (MetaWindow *window)
                   "Incrementing unmaps_pending on %s for reparent back to root\n", window->desc);
       window->unmaps_pending += 1;
     }
-  meta_stack_tracker_record_add (window->display->stack_tracker,
-                                 window->xwindow,
-                                 XNextRequest (x11_display->xdisplay));
+
+  if (!x11_display->closing)
+    {
+      meta_stack_tracker_record_add (window->display->stack_tracker,
+                                     window->xwindow,
+                                     XNextRequest (x11_display->xdisplay));
+    }
+
   XReparentWindow (x11_display->xdisplay,
                    window->xwindow,
                    x11_display->xroot,
