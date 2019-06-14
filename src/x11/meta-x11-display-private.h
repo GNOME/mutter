@@ -144,6 +144,8 @@ struct _MetaX11Display
 
   guint keys_grabbed : 1;
 
+  guint closing : 1;
+
   /* we use property updates as sentinels for certain window focus events
    * to avoid some race conditions on EnterNotify events
    */
