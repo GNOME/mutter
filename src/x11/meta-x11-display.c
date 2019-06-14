@@ -134,10 +134,10 @@ meta_x11_display_dispose (GObject *object)
 
   meta_x11_display_ungrab_keys (x11_display);
 
+  g_clear_object (&x11_display->x11_stack);
+
   meta_x11_selection_shutdown (x11_display);
   meta_x11_display_unmanage_windows (x11_display);
-
-  g_clear_object (&x11_display->x11_stack);
 
   if (x11_display->ui)
     {
