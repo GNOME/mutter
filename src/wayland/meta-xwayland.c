@@ -334,6 +334,20 @@ x_io_error (Display *display)
   return 0;
 }
 
+#ifdef HAVE_XSETIOERROREXITHANDLER
+static void
+x_io_error_exit (Display        *display,
+                 MetaX11Display *x11_display)
+{
+  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaXWaylandManager *manager = &compositor->xwayland_manager;
+
+  g_warning ("Xwayland just died, attempting to recover");
+  manager->xserver_grace_period_id =
+    g_idle_add (shutdown_xwayland_cb, manager);
+}
+#endif
+
 void
 meta_xwayland_override_display_number (int number)
 {
@@ -795,6 +809,9 @@ meta_xwayland_complete_init (MetaDisplay *display,
      we won't reset the tty).
   */
   XSetIOErrorHandler (x_io_error);
+#ifdef HAVE_XSETIOERROREXITHANDLER
+  XSetIOErrorExitHandler (xdisplay, x_io_error_exit, display);
+#endif
 
   g_signal_connect (display, "x11-display-closing",
                     G_CALLBACK (on_x11_display_closing), NULL);

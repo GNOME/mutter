@@ -71,6 +71,9 @@
 /* Whether Xwayland has -initfd option */
 #mesondefine HAVE_XWAYLAND_INITFD
 
+/* Whether libX11 has XSetIOErrorExitHandler */
+#mesondefine HAVE_XSETIOERROREXITHANDLER
+
 /* Whether the mkostemp function exists */
 #mesondefine HAVE_MKOSTEMP
 

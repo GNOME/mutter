@@ -424,6 +424,13 @@ if have_wayland
   endif
 endif
 
+have_xsetioerrorexithandler = false
+if cc.has_function('XSetIOErrorExitHandler', dependencies: x11_dep,
+                   prefix: '''#include <X11/Xlib.h>''')
+  have_xsetioerrorexithandler = true
+  cdata.set('HAVE_XSETIOERROREXITHANDLER', 1)
+endif
+
 optional_functions = [
   'mkostemp',
   'posix_fallocate',
@@ -495,6 +502,7 @@ output = [
   '        Introspection............ ' + have_introspection.to_string(),
   '        Profiler................. ' + have_profiler.to_string(),
   '        Xwayland initfd.......... ' + have_xwayland_initfd.to_string(),
+  '        Safe X11 I/O errors...... ' + have_xsetioerrorexithandler.to_string(),
   '',
   '    Tests:',
   '',
