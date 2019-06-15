@@ -279,8 +279,6 @@ set_clip_region (MetaShapedTexture *stex,
 static void
 meta_shaped_texture_reset_pipelines (MetaShapedTexture *stex)
 {
-  g_warning ("resetting pipelines!");
-
   cogl_clear_object (&stex->pixel_format_conversion);
 
   cogl_clear_object (&stex->base_pipeline);

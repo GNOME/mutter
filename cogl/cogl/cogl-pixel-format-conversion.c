@@ -26,17 +26,31 @@
 #include "cogl-pipeline-layer-state.h"
 #include "cogl-pipeline-state.h"
 
-#define _COGL_YUV_TO_RGBA(res, y, u, v)                     \
-    res ".r = " y " + 1.59765625 * " v ";\n"                \
-    res ".g = " y " - 0.390625 * " u " - 0.8125 * " v ";\n" \
-    res ".b = " y " + 2.015625 * " u ";\n"                  \
+#define _COGL_YUV_TO_RGBA(res, y, u, v)                           \
+    "vec4 " res ";\n"                                             \
+    res ".r = (" y ") + 1.59765625 * (" v ");\n"                  \
+    res ".g = (" y ") - 0.390625 * (" u ") - 0.8125 * (" v ");\n" \
+    res ".b = (" y ") + 2.015625 * (" u ");\n"                    \
     res ".a = 1.0;\n"
 
-static const gchar nv12_to_rgba_shader[] =
+/* Shader for a single YUV plane */
+static const gchar yuv_to_rgba_shader[] =
     "vec4\n"
-    "cogl_nv12_to_rgba (vec2 UV)\n"
+    "cogl_yuv_to_rgba (vec2 UV)\n"
     "{\n"
-    "  vec4 color;\n"
+    "  vec4 orig_color = texture2D(cogl_sampler0, UV);\n"
+    "  float y = 1.16438356 * (orig_color.r - 0.0625);\n"
+    "  float u = orig_color.g - 0.5;\n"
+    "  float v = orig_color.b - 0.5;\n"
+       _COGL_YUV_TO_RGBA ("color", "y", "u", "v")
+    "  return color;\n"
+    "}\n";
+
+/* Shader for 1 Y-plane and 1 UV-plane */
+static const gchar y_uv_to_rgba_shader[] =
+    "vec4\n"
+    "cogl_y_uv_to_rgba (vec2 UV)\n"
+    "{\n"
     "  float y = 1.1640625 * (texture2D (cogl_sampler0, UV).x - 0.0625);\n"
     "  vec2 uv = texture2D (cogl_sampler1, UV).rg;\n"
     "  uv -= 0.5;\n"
@@ -46,11 +60,11 @@ static const gchar nv12_to_rgba_shader[] =
     "  return color;\n"
     "}\n";
 
-static const gchar yuv_to_rgba_shader[] =
+/* Shader for 1 Y-plane, 1 U-plane and 1 V-plane */
+static const gchar y_u_v_to_rgba_shader[] =
     "vec4\n"
-    "cogl_yuv_to_rgba (vec2 UV)\n"
+    "cogl_y_u_v_to_rgba (vec2 UV)\n"
     "{\n"
-    "  vec4 color;\n"
     "  float y = 1.16438356 * (texture2D(cogl_sampler0, UV).x - 0.0625);\n"
     "  float u = texture2D(cogl_sampler1, UV).x - 0.5;\n"
     "  float v = texture2D(cogl_sampler2, UV).x - 0.5;\n"
@@ -99,14 +113,19 @@ get_cogl_snippets (CoglPixelFormat format,
 
   switch (format)
     {
-    case COGL_PIXEL_FORMAT_YUV444:
+    case COGL_PIXEL_FORMAT_AYUV:
       global_hook = yuv_to_rgba_shader;
-      layer_hook =  "cogl_layer = cogl_yuv_to_rgba(cogl_tex_coord0_in.st);\n";
+      layer_hook = "cogl_layer = cogl_yuv_to_rgba(cogl_tex_coord0_in.st);\n";
       break;
     case COGL_PIXEL_FORMAT_NV12:
       /* XXX are we using Y_UV or Y_xUxV? Maybe check for RG support? */
-      global_hook = nv12_to_rgba_shader;
-      layer_hook =  "cogl_layer = cogl_nv12_to_rgba(cogl_tex_coord0_in.st);\n";
+      global_hook = y_uv_to_rgba_shader;
+      layer_hook = "cogl_layer = cogl_y_uv_to_rgba(cogl_tex_coord0_in.st);\n";
+      break;
+    case COGL_PIXEL_FORMAT_YUV444:
+    case COGL_PIXEL_FORMAT_YUV422:
+      global_hook = y_u_v_to_rgba_shader;
+      layer_hook = "cogl_layer = cogl_y_u_v_to_rgba(cogl_tex_coord0_in.st);\n";
       break;
     default:
       *vertex_snippet_out = NULL;

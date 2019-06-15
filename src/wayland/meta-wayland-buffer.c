@@ -178,6 +178,7 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
 #elif G_BYTE_ORDER == G_LITTLE_ENDIAN
     case WL_SHM_FORMAT_ARGB8888:
       format = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_RGBA;
       break;
     case WL_SHM_FORMAT_XRGB8888:
       format = COGL_PIXEL_FORMAT_BGRA_8888;
@@ -243,11 +244,11 @@ shm_buffer_attach (MetaWaylandBuffer      *buffer,
   CoglPixelFormat format;
   CoglTextureComponents components[3];
   guint i, n_planes;
-  uint8_t h_factors[3], v_factors[3];
+  uint8_t h_factors[3], v_factors[3], bpp[3];
   CoglPixelFormat subformats[3];
   gsize plane_offset = 0;
   guint8 *data;
-  GPtrArray *bitmaps;
+  GPtrArray *planes;
 
   /* Query the necessary parameters */
   shm_buffer = wl_shm_buffer_get (buffer->resource);
@@ -258,8 +259,7 @@ shm_buffer_attach (MetaWaylandBuffer      *buffer,
   n_planes = cogl_pixel_format_get_n_planes (format);
   cogl_pixel_format_get_subsampling_factors (format, h_factors, v_factors);
   cogl_pixel_format_get_subformats (format, subformats);
-
-  g_warning ("Got SHM buffer, format %s", cogl_pixel_format_to_string (format));
+  cogl_pixel_format_get_bytes_per_pixel_ (format, bpp);
 
   if (*texture &&
       cogl_multi_plane_texture_get_width (*texture) == width &&
@@ -278,41 +278,81 @@ shm_buffer_attach (MetaWaylandBuffer      *buffer,
   wl_shm_buffer_begin_access (shm_buffer);
   data = wl_shm_buffer_get_data (shm_buffer);
 
-  bitmaps = g_ptr_array_new_full (n_planes, cogl_object_unref);
+  planes = g_ptr_array_new_full (n_planes, cogl_object_unref);
   for (i = 0; i < n_planes; i++)
     {
-      CoglBitmap *bitmap;
+      int plane_stride;
+      CoglBitmap *plane_bitmap;
+      CoglTexture *plane_texture;
 
-      /* Calculate the plane start in the buffer (consider subsampling) */
-      if (i > 0)
-        plane_offset += (stride / h_factors[i-1]) * (height / v_factors[i-1]);
+      /* Adjust the stride: map to the amount of pixels and calculate how many
+       * bytes that takes in the current plane */
+      plane_stride = (stride / bpp[0]) * bpp[i] / h_factors[i];
 
-      g_warning ("Creating plane %u, h_factor = %u, v_factor = %u, plane_offset = %lu",
-                 i, h_factors[i], v_factors[i], plane_offset);
+      /* Define the bitmap that of this plane */
+      plane_bitmap = cogl_bitmap_new_for_data (cogl_context,
+                                               width / h_factors[i],
+                                               height / v_factors[i],
+                                               subformats[i],
+                                               plane_stride,
+                                               data + plane_offset);
+      g_assert (plane_bitmap);
 
-      bitmap = cogl_bitmap_new_for_data (cogl_context,
-                                         width / h_factors[i],
-                                         height / v_factors[i],
-                                         subformats[i],
-                                         stride / h_factors[i],
-                                         data + plane_offset);
-      g_assert (bitmap);
+      /* Create a texture out of it so we can upload it to the GPU */
+      plane_texture = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (plane_bitmap));
 
-      g_ptr_array_add (bitmaps, bitmap);
+      /* Separately set the components (necessary for e.g. XRGB, NV12) */
+      cogl_texture_set_components (plane_texture, components[i]);
+
+      if (!cogl_texture_allocate (plane_texture, error))
+        {
+          CoglTexture2DSliced *texture_sliced;
+
+          cogl_clear_object (&plane_texture);
+
+          /* If it didn't work due to an NPOT size, try again with an atlas texture */
+          if (!g_error_matches (*error, COGL_TEXTURE_ERROR, COGL_TEXTURE_ERROR_SIZE))
+            {
+              cogl_object_unref (plane_bitmap);
+              goto failure;
+            }
+
+          g_clear_error (error);
+
+          texture_sliced =
+            cogl_texture_2d_sliced_new_from_bitmap (plane_bitmap,
+                                                    COGL_TEXTURE_MAX_WASTE);
+          plane_texture = COGL_TEXTURE (texture_sliced);
+
+          cogl_texture_set_components (plane_texture, components[i]);
+
+          if (!cogl_texture_allocate (plane_texture, error))
+            {
+              cogl_clear_object (&plane_texture);
+              goto failure;
+            }
+        }
+
+      g_ptr_array_add (planes, plane_texture);
+
+      /* Calculate the next plane start in the buffer (consider subsampling) */
+      plane_offset += plane_stride * (height / v_factors[i]);
     }
 
-  *texture = cogl_multi_plane_texture_new_from_bitmaps (format,
-                                          (CoglBitmap **) g_ptr_array_free (bitmaps, FALSE),
-                                          n_planes, error);
+  *texture = cogl_multi_plane_texture_new (format,
+                                          (CoglTexture **) g_ptr_array_free (planes, FALSE),
+                                          n_planes);
 
   wl_shm_buffer_end_access (shm_buffer);
 
   *changed_texture = TRUE;
   buffer->is_y_inverted = TRUE;
 
-  g_warning ("Got the following multiplane texture:\n%s", cogl_multi_plane_texture_to_string (*texture));
-
   return TRUE;
+
+failure:
+  *texture = NULL;
+  return FALSE;
 }
 
 static gboolean
@@ -578,6 +618,8 @@ process_shm_buffer_damage (MetaWaylandBuffer      *buffer,
   stride = wl_shm_buffer_get_stride (shm_buffer);
   height = wl_shm_buffer_get_height (shm_buffer);
   shm_buffer_get_cogl_pixel_format (shm_buffer, &format, components);
+
+  /* Fetch some properties from the pixel format */
   cogl_pixel_format_get_subformats (format, subformats);
   cogl_pixel_format_get_subsampling_factors (format, h_factors, v_factors);
   cogl_pixel_format_get_bytes_per_pixel_ (format, bpp);
@@ -587,16 +629,15 @@ process_shm_buffer_damage (MetaWaylandBuffer      *buffer,
   for (i = 0; i < n_planes; i++)
     {
       CoglTexture *plane;
+      int plane_stride;
 
       plane = cogl_multi_plane_texture_get_plane (texture, i);
-
-      /* Calculate the plane start in the buffer (consider subsampling) */
-      if (i > 0)
-        plane_offset += (stride / h_factors[i-1]) * (height / v_factors[i-1]);
+      plane_stride = (stride / bpp[0]) * bpp[i] / h_factors[i];
 
       for (j = 0; j < n_rectangles; j++)
         {
           cairo_rectangle_int_t rect;
+          gsize rect_offset;
 
           cairo_region_get_rectangle (region, j, &rect);
 
@@ -604,12 +645,16 @@ process_shm_buffer_damage (MetaWaylandBuffer      *buffer,
           if (rect.height == 0 || rect.width == 0)
             continue;
 
+          rect_offset = plane_offset
+              + rect.y * plane_stride / v_factors[i] /* Find the right row */
+              + rect.x * bpp[i] / h_factors[i];      /* and the right column */
+
           if (!_cogl_texture_set_region (plane,
                                          rect.width / h_factors[i],
                                          rect.height / v_factors[i],
                                          subformats[i],
-                                         stride,
-                                         data + plane_offset + rect.x * bpp[i] + rect.y * stride,
+                                         plane_stride,
+                                         data + rect_offset,
                                          rect.x, rect.y,
                                          0,
                                          error))
@@ -618,6 +663,9 @@ process_shm_buffer_damage (MetaWaylandBuffer      *buffer,
               goto out;
             }
         }
+
+      /* Calculate the next plane start in the buffer (consider subsampling) */
+      plane_offset += plane_stride * (height / v_factors[i]);
     }
 
 out:

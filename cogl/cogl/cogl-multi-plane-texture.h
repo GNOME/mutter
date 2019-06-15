@@ -101,24 +101,6 @@ CoglMultiPlaneTexture * cogl_multi_plane_texture_new_single_plane (CoglPixelForm
                                                                    CoglTexture *plane);
 
 /**
- * cogl_multi_plane_texture_new_from_bitmaps:
- * @format: The format of the new #CoglMultiPlaneTexture
- * @bitmaps: (transfer full): The planes of the texture, each as a #CoglBitmap
- * @n_planes: the number of planes the texture contains
- * @error: (out): Will be set if an error occurred
- *
- * Creates a #CoglMultiPlaneTexture from the given bitmaps and makes sure the
- * planes are uploaded to the GPU.
- *
- * Returns: (transfer full): A new #CoglMultiPlaneTexture. Use
- * cogl_object_unref() when you're done with it.
- */
-CoglMultiPlaneTexture *
-cogl_multi_plane_texture_new_from_bitmaps (CoglPixelFormat format,
-                                           CoglBitmap **bitmaps, guint n_planes,
-                                           GError **error);
-
-/**
  * cogl_multi_plane_texture_get_format:
  * @self: a #CoglMultiPlaneTexture
  *

@@ -625,16 +625,9 @@ dma_buf_bind (struct wl_client *client,
   send_modifiers (resource, DRM_FORMAT_XRGB8888);
   send_modifiers (resource, DRM_FORMAT_ARGB2101010);
   send_modifiers (resource, DRM_FORMAT_RGB565);
+  send_modifiers (resource, DRM_FORMAT_AYUV);
   send_modifiers (resource, DRM_FORMAT_NV12);
-  send_modifiers (resource, DRM_FORMAT_YUV410);
-  send_modifiers (resource, DRM_FORMAT_YVU410);
-  send_modifiers (resource, DRM_FORMAT_YUV411);
-  send_modifiers (resource, DRM_FORMAT_YVU420);
-  send_modifiers (resource, DRM_FORMAT_YVU420);
   send_modifiers (resource, DRM_FORMAT_YUV422);
-  send_modifiers (resource, DRM_FORMAT_YVU422);
-  send_modifiers (resource, DRM_FORMAT_YUV444);
-  send_modifiers (resource, DRM_FORMAT_YVU444);
 }
 
 gboolean

@@ -98,8 +98,6 @@ _cogl_texture_driver_gen (CoglContext *ctx,
       g_assert_not_reached();
     }
 
-  g_warning ("_cogl_texture_driver_gen %s", cogl_pixel_format_to_string (internal_format));
-
   /* If the driver doesn't support alpha textures directly then we'll
    * fake them by setting the swizzle parameters */
   if (internal_format == COGL_PIXEL_FORMAT_A_8 &&
