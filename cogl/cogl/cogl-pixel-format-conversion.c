@@ -32,9 +32,9 @@
     res ".b = " y " + 2.015625 * " u ";\n"                  \
     res ".a = 1.0;\n"
 
-static const gchar nv12_to_rgba_shader[] =
+static const gchar y_uv_to_rgba_shader[] =
     "vec4\n"
-    "cogl_nv12_to_rgba (vec2 UV)\n"
+    "cogl_y_uv_to_rgba (vec2 UV)\n"
     "{\n"
     "  vec4 color;\n"
     "  float y = 1.1640625 * (texture2D (cogl_sampler0, UV).x - 0.0625);\n"
@@ -100,13 +100,14 @@ get_cogl_snippets (CoglPixelFormat format,
   switch (format)
     {
     case COGL_PIXEL_FORMAT_YUV444:
+    case COGL_PIXEL_FORMAT_YUV422:
       global_hook = yuv_to_rgba_shader;
       layer_hook =  "cogl_layer = cogl_yuv_to_rgba(cogl_tex_coord0_in.st);\n";
       break;
     case COGL_PIXEL_FORMAT_NV12:
       /* XXX are we using Y_UV or Y_xUxV? Maybe check for RG support? */
-      global_hook = nv12_to_rgba_shader;
-      layer_hook =  "cogl_layer = cogl_nv12_to_rgba(cogl_tex_coord0_in.st);\n";
+      global_hook = y_uv_to_rgba_shader;
+      layer_hook =  "cogl_layer = cogl_y_uv_to_rgba(cogl_tex_coord0_in.st);\n";
       break;
     default:
       *vertex_snippet_out = NULL;
