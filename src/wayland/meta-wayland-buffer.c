@@ -178,6 +178,7 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
 #elif G_BYTE_ORDER == G_LITTLE_ENDIAN
     case WL_SHM_FORMAT_ARGB8888:
       format = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
+      components_out[0] = COGL_TEXTURE_COMPONENTS_RGBA;
       break;
     case WL_SHM_FORMAT_XRGB8888:
       format = COGL_PIXEL_FORMAT_BGRA_8888;
@@ -247,7 +248,7 @@ shm_buffer_attach (MetaWaylandBuffer      *buffer,
   CoglPixelFormat subformats[3];
   gsize plane_offset = 0;
   guint8 *data;
-  GPtrArray *bitmaps;
+  GPtrArray *planes;
 
   /* Query the necessary parameters */
   shm_buffer = wl_shm_buffer_get (buffer->resource);
@@ -278,10 +279,11 @@ shm_buffer_attach (MetaWaylandBuffer      *buffer,
   wl_shm_buffer_begin_access (shm_buffer);
   data = wl_shm_buffer_get_data (shm_buffer);
 
-  bitmaps = g_ptr_array_new_full (n_planes, cogl_object_unref);
+  planes = g_ptr_array_new_full (n_planes, cogl_object_unref);
   for (i = 0; i < n_planes; i++)
     {
-      CoglBitmap *bitmap;
+      CoglBitmap *plane_bitmap;
+      CoglTexture *plane_texture;
 
       /* Calculate the plane start in the buffer (consider subsampling) */
       if (i > 0)
@@ -290,20 +292,56 @@ shm_buffer_attach (MetaWaylandBuffer      *buffer,
       g_warning ("Creating plane %u, h_factor = %u, v_factor = %u, plane_offset = %lu",
                  i, h_factors[i], v_factors[i], plane_offset);
 
-      bitmap = cogl_bitmap_new_for_data (cogl_context,
-                                         width / h_factors[i],
-                                         height / v_factors[i],
-                                         subformats[i],
-                                         stride / h_factors[i],
-                                         data + plane_offset);
-      g_assert (bitmap);
+      /* Define the bitmap that only pertains to this plane */
+      plane_bitmap = cogl_bitmap_new_for_data (cogl_context,
+                                               width / h_factors[i],
+                                               height / v_factors[i],
+                                               subformats[i],
+                                               stride / h_factors[i],
+                                               data + plane_offset);
+      g_assert (plane_bitmap);
 
-      g_ptr_array_add (bitmaps, bitmap);
+      /* Then create a texture out of it so we can upload it to the GPU */
+      plane_texture = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (plane_bitmap));
+
+      /* Separately set the components (e.g. for XRGB, or NV12) */
+      cogl_texture_set_components (plane_texture, components[i]);
+
+      if (!cogl_texture_allocate (plane_texture, error))
+        {
+          CoglTexture2DSliced *texture_sliced;
+
+          cogl_clear_object (&plane_texture);
+
+          /* If it didn't work due to an NPOT size, try again with an atlas texture */
+          if (!g_error_matches (*error, COGL_TEXTURE_ERROR, COGL_TEXTURE_ERROR_SIZE))
+            {
+              cogl_object_unref (plane_bitmap);
+              goto failure;
+            }
+
+          g_clear_error (error);
+
+          texture_sliced =
+            cogl_texture_2d_sliced_new_from_bitmap (plane_bitmap,
+                                                    COGL_TEXTURE_MAX_WASTE);
+          plane_texture = COGL_TEXTURE (texture_sliced);
+
+          cogl_texture_set_components (plane_texture, components[i]);
+
+          if (!cogl_texture_allocate (plane_texture, error))
+            {
+              cogl_clear_object (&plane_texture);
+              goto failure;
+            }
+        }
+
+      g_ptr_array_add (planes, plane_texture);
     }
 
-  *texture = cogl_multi_plane_texture_new_from_bitmaps (format,
-                                          (CoglBitmap **) g_ptr_array_free (bitmaps, FALSE),
-                                          n_planes, error);
+  *texture = cogl_multi_plane_texture_new (format,
+                                          (CoglTexture **) g_ptr_array_free (planes, FALSE),
+                                          n_planes);
 
   wl_shm_buffer_end_access (shm_buffer);
 
@@ -313,6 +351,10 @@ shm_buffer_attach (MetaWaylandBuffer      *buffer,
   g_warning ("Got the following multiplane texture:\n%s", cogl_multi_plane_texture_to_string (*texture));
 
   return TRUE;
+
+failure:
+  *texture = NULL;
+  return FALSE;
 }
 
 static gboolean

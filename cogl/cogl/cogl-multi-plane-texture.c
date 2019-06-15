@@ -127,58 +127,6 @@ cogl_multi_plane_texture_new_single_plane (CoglPixelFormat format,
   return self;
 }
 
-CoglMultiPlaneTexture *
-cogl_multi_plane_texture_new_from_bitmaps (CoglPixelFormat format,
-                                           CoglBitmap **bitmaps, guint n_planes,
-                                           GError **error)
-{
-  guint i = 0;
-  CoglMultiPlaneTexture *self = g_slice_new0 (CoglMultiPlaneTexture);
-
-  _cogl_multi_plane_texture_object_new (self);
-
-  self->format = format;
-  self->n_planes = n_planes;
-  self->planes = g_malloc (sizeof (CoglTexture *) * n_planes);
-
-  for (i = 0; i < n_planes; i++)
-    {
-      CoglTexture *plane;
-
-      plane = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmaps[i]));
-
-      if (!cogl_texture_allocate (plane, error))
-        {
-          g_clear_pointer (&plane, cogl_object_unref);
-
-          /* There's a chance we failed due to the buffer being NPOT size.
-           * If so, try again with CoglTexture2DSliced (which does support this) */
-          if (g_error_matches (*error,
-                               COGL_TEXTURE_ERROR,
-                               COGL_TEXTURE_ERROR_SIZE))
-            {
-              CoglTexture2DSliced *plane_sliced;
-
-              g_clear_error (error);
-
-              plane_sliced =
-                cogl_texture_2d_sliced_new_from_bitmap (bitmaps[i],
-                                                        COGL_TEXTURE_MAX_WASTE);
-              plane = COGL_TEXTURE (plane_sliced);
-
-              if (!cogl_texture_allocate (plane, error))
-                cogl_clear_object (&plane);
-            }
-        }
-
-      cogl_object_unref (bitmaps[i]);
-      self->planes[i] = plane;
-    }
-
-
-  return self;
-}
-
 gchar *
 cogl_multi_plane_texture_to_string (CoglMultiPlaneTexture *self)
 {
