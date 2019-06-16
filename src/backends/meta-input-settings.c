@@ -428,13 +428,15 @@ update_middle_emulation (MetaInputSettings  *input_settings,
   GSettings *settings;
   ConfigBoolFunc func;
   const gchar *key = "emulate-middle";
+  MetaInputSettingsPrivate *priv =
+    meta_input_settings_get_instance_private (input_settings);
 
   if (settings == priv->mouse_settings)
     func = META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_mouse_middle_emulation;
   else if (settings == priv->touchpad_settings)
     func = META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_touchpad_middle_emulation;
   else if (settings == priv->trackball_settings)
-    func = META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_trackpad_middle_emulation;
+    func = META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_trackball_middle_emulation;
   else
     return;
 
