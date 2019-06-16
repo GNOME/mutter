@@ -496,7 +496,7 @@ has_udev_property (MetaInputSettings  *settings,
 
   if (!warned_once)
     {
-      g_warning ("Failed to set acceleration profile: no udev support");
+      g_warning ("Failed to query property: no udev support");
       warned_once = TRUE;
     }
 
