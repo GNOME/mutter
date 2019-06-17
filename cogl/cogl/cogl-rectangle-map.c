@@ -360,7 +360,7 @@ _cogl_rectangle_map_add (CoglRectangleMap *map,
 
   /* Zero-sized rectangles break the algorithm for removing rectangles
      so we'll disallow them */
-  _COGL_RETURN_VAL_IF_FAIL (width > 0 && height > 0, FALSE);
+  g_return_val_if_fail (width > 0 && height > 0, FALSE);
 
   /* Start with the root node */
   g_array_set_size (stack, 0);

@@ -402,7 +402,7 @@ cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
-  _COGL_RETURN_VAL_IF_FAIL  (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN, 0);
+  g_return_val_if_fail  (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN, 0);
 
   winsys = _cogl_framebuffer_get_winsys (framebuffer);
 
@@ -440,7 +440,7 @@ cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen)
       const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
 
       /* This should only be called for x11 onscreens */
-      _COGL_RETURN_VAL_IF_FAIL (winsys->onscreen_x11_get_window_xid != NULL, 0);
+      g_return_val_if_fail (winsys->onscreen_x11_get_window_xid != NULL, 0);
 
       return winsys->onscreen_x11_get_window_xid (onscreen);
     }

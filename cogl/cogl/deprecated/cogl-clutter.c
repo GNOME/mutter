@@ -102,10 +102,10 @@ cogl_clutter_winsys_xlib_get_visual_info (void)
 
   _COGL_GET_CONTEXT (ctx, NULL);
 
-  _COGL_RETURN_VAL_IF_FAIL (ctx->display != NULL, NULL);
+  g_return_val_if_fail (ctx->display != NULL, NULL);
 
   renderer = cogl_display_get_renderer (ctx->display);
-  _COGL_RETURN_VAL_IF_FAIL (renderer != NULL, NULL);
+  g_return_val_if_fail (renderer != NULL, NULL);
 
   return cogl_xlib_renderer_get_visual_info (renderer);
 }

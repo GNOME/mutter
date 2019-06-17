@@ -694,7 +694,7 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
 
   /* We can't atlas zero-sized textures because it breaks the atlas
    * data structure */
-  _COGL_RETURN_VAL_IF_FAIL (width > 0 && height > 0, NULL);
+  g_return_val_if_fail (width > 0 && height > 0, NULL);
 
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZED;
@@ -831,7 +831,7 @@ allocate_from_bitmap (CoglAtlasTexture *atlas_tex,
   CoglPixelFormat internal_format;
   CoglBitmap *upload_bmp;
 
-  _COGL_RETURN_VAL_IF_FAIL (atlas_tex->atlas == NULL, FALSE);
+  g_return_val_if_fail (atlas_tex->atlas == NULL, FALSE);
 
   internal_format = _cogl_texture_determine_internal_format (tex, bmp_format);
 
@@ -885,7 +885,7 @@ _cogl_atlas_texture_allocate (CoglTexture *tex,
   CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
   CoglTextureLoader *loader = tex->loader;
 
-  _COGL_RETURN_VAL_IF_FAIL (loader, FALSE);
+  g_return_val_if_fail (loader, FALSE);
 
   switch (loader->src_type)
     {
@@ -906,7 +906,7 @@ _cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp,
 {
   CoglTextureLoader *loader;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_bitmap (bmp), NULL);
+  g_return_val_if_fail (cogl_is_bitmap (bmp), NULL);
 
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
@@ -938,8 +938,8 @@ cogl_atlas_texture_new_from_data (CoglContext *ctx,
   CoglBitmap *bmp;
   CoglAtlasTexture *atlas_tex;
 
-  _COGL_RETURN_VAL_IF_FAIL (format != COGL_PIXEL_FORMAT_ANY, NULL);
-  _COGL_RETURN_VAL_IF_FAIL (data != NULL, NULL);
+  g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, NULL);
+  g_return_val_if_fail (data != NULL, NULL);
 
   /* Rowstride from width if not given */
   if (rowstride == 0)
@@ -974,7 +974,7 @@ cogl_atlas_texture_new_from_file (CoglContext *ctx,
   CoglBitmap *bmp;
   CoglAtlasTexture *atlas_tex = NULL;
 
-  _COGL_RETURN_VAL_IF_FAIL (error == NULL || *error == NULL, NULL);
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
   bmp = cogl_bitmap_new_from_file (filename, error);
   if (bmp == NULL)

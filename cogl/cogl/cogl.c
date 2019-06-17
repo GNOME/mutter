@@ -617,7 +617,7 @@ cogl_get_source (void)
 
   _COGL_GET_CONTEXT (ctx, NULL);
 
-  _COGL_RETURN_VAL_IF_FAIL (ctx->source_stack, NULL);
+  g_return_val_if_fail (ctx->source_stack, NULL);
 
   top = ctx->source_stack->data;
   return top->pipeline;
@@ -630,7 +630,7 @@ _cogl_get_enable_legacy_state (void)
 
   _COGL_GET_CONTEXT (ctx, FALSE);
 
-  _COGL_RETURN_VAL_IF_FAIL (ctx->source_stack, FALSE);
+  g_return_val_if_fail (ctx->source_stack, FALSE);
 
   top = ctx->source_stack->data;
   return top->enable_legacy;

@@ -195,10 +195,10 @@ cogl_sub_texture_new (CoglContext *ctx,
   next_height = cogl_texture_get_height (next_texture);
 
   /* The region must specify a non-zero subset of the full texture */
-  _COGL_RETURN_VAL_IF_FAIL (sub_x >= 0 && sub_y >= 0, NULL);
-  _COGL_RETURN_VAL_IF_FAIL (sub_width > 0 && sub_height > 0, NULL);
-  _COGL_RETURN_VAL_IF_FAIL (sub_x + sub_width <= next_width, NULL);
-  _COGL_RETURN_VAL_IF_FAIL (sub_y + sub_height <= next_height, NULL);
+  g_return_val_if_fail (sub_x >= 0 && sub_y >= 0, NULL);
+  g_return_val_if_fail (sub_width > 0 && sub_height > 0, NULL);
+  g_return_val_if_fail (sub_x + sub_width <= next_width, NULL);
+  g_return_val_if_fail (sub_y + sub_height <= next_height, NULL);
 
   sub_tex = g_new (CoglSubTexture, 1);
 
@@ -373,12 +373,12 @@ _cogl_sub_texture_set_region (CoglTexture *tex,
       int full_width = cogl_texture_get_width (sub_tex->full_texture);
       int full_height = cogl_texture_get_width (sub_tex->full_texture);
 
-      _COGL_RETURN_VAL_IF_FAIL (sub_tex->sub_x == 0 &&
-                                cogl_texture_get_width (tex) == full_width,
-                                FALSE);
-      _COGL_RETURN_VAL_IF_FAIL (sub_tex->sub_y == 0 &&
-                                cogl_texture_get_height (tex) == full_height,
-                                FALSE);
+      g_return_val_if_fail (sub_tex->sub_x == 0 &&
+                            cogl_texture_get_width (tex) == full_width,
+                            FALSE);
+      g_return_val_if_fail (sub_tex->sub_y == 0 &&
+                            cogl_texture_get_height (tex) == full_height,
+                            FALSE);
     }
 
   return _cogl_texture_set_region_from_bitmap (sub_tex->full_texture,

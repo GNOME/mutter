@@ -120,15 +120,15 @@ cogl_indices_get_buffer (CoglIndices *indices)
 CoglIndicesType
 cogl_indices_get_type (CoglIndices *indices)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_indices (indices),
-                            COGL_INDICES_TYPE_UNSIGNED_BYTE);
+  g_return_val_if_fail (cogl_is_indices (indices),
+                        COGL_INDICES_TYPE_UNSIGNED_BYTE);
   return indices->type;
 }
 
 size_t
 cogl_indices_get_offset (CoglIndices *indices)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_indices (indices), 0);
+  g_return_val_if_fail (cogl_is_indices (indices), 0);
 
   return indices->offset;
 }
@@ -167,7 +167,7 @@ _cogl_indices_free (CoglIndices *indices)
 CoglIndices *
 _cogl_indices_immutable_ref (CoglIndices *indices)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_indices (indices), NULL);
+  g_return_val_if_fail (cogl_is_indices (indices), NULL);
 
   indices->immutable_ref++;
   _cogl_buffer_immutable_ref (COGL_BUFFER (indices->buffer));

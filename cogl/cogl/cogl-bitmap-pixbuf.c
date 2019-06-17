@@ -45,7 +45,7 @@ _cogl_bitmap_get_size_from_file (const char *filename,
                                  int        *width,
                                  int        *height)
 {
-  _COGL_RETURN_VAL_IF_FAIL (filename != NULL, FALSE);
+  g_return_val_if_fail (filename != NULL, FALSE);
 
   if (gdk_pixbuf_get_file_info (filename, width, height) != NULL)
     return TRUE;

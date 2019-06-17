@@ -359,7 +359,7 @@ try_create_context (CoglDisplay *display,
   const char *error_message;
   int i = 0;
 
-  _COGL_RETURN_VAL_IF_FAIL (egl_display->egl_context == NULL, TRUE);
+  g_return_val_if_fail (egl_display->egl_context == NULL, TRUE);
 
   if (renderer->driver == COGL_DRIVER_GL ||
       renderer->driver == COGL_DRIVER_GL3)
@@ -486,7 +486,7 @@ _cogl_winsys_display_setup (CoglDisplay *display,
   CoglRenderer *renderer = display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
 
-  _COGL_RETURN_VAL_IF_FAIL (display->winsys == NULL, FALSE);
+  g_return_val_if_fail (display->winsys == NULL, FALSE);
 
   egl_display = g_slice_new0 (CoglDisplayEGL);
   display->winsys = egl_display;
@@ -528,7 +528,7 @@ _cogl_winsys_context_init (CoglContext *context, CoglError **error)
 
   context->winsys = g_new0 (CoglContextEGL, 1);
 
-  _COGL_RETURN_VAL_IF_FAIL (egl_display->egl_context, FALSE);
+  g_return_val_if_fail (egl_display->egl_context, FALSE);
 
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
 
@@ -647,7 +647,7 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
   EGLint config_count = 0;
   EGLBoolean status;
 
-  _COGL_RETURN_VAL_IF_FAIL (egl_display->egl_context, FALSE);
+  g_return_val_if_fail (egl_display->egl_context, FALSE);
 
   egl_attributes_from_framebuffer_config (display,
                                           &framebuffer->config,
@@ -1034,7 +1034,7 @@ _cogl_egl_create_image (CoglContext *ctx,
   CoglRendererEGL *egl_renderer = ctx->display->renderer->winsys;
   EGLContext egl_ctx;
 
-  _COGL_RETURN_VAL_IF_FAIL (egl_renderer->pf_eglCreateImage, EGL_NO_IMAGE_KHR);
+  g_return_val_if_fail (egl_renderer->pf_eglCreateImage, EGL_NO_IMAGE_KHR);
 
   /* The EGL_KHR_image_pixmap spec explicitly states that EGL_NO_CONTEXT must
    * always be used in conjunction with the EGL_NATIVE_PIXMAP_KHR target */
@@ -1080,7 +1080,7 @@ _cogl_egl_query_wayland_buffer (CoglContext *ctx,
 {
   CoglRendererEGL *egl_renderer = ctx->display->renderer->winsys;
 
-  _COGL_RETURN_VAL_IF_FAIL (egl_renderer->pf_eglQueryWaylandBuffer, FALSE);
+  g_return_val_if_fail (egl_renderer->pf_eglQueryWaylandBuffer, FALSE);
 
   return egl_renderer->pf_eglQueryWaylandBuffer (egl_renderer->edpy,
                                                  buffer,

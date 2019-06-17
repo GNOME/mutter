@@ -891,7 +891,7 @@ _cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
 {
   CoglTextureLoader *loader;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_bitmap (bmp), NULL);
+  g_return_val_if_fail (cogl_is_bitmap (bmp), NULL);
 
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
@@ -932,16 +932,16 @@ _cogl_texture_2d_sliced_new_from_foreign (CoglContext *ctx,
    */
 
   /* This should only be called when the texture target is 2D. */
-  _COGL_RETURN_VAL_IF_FAIL (gl_target == GL_TEXTURE_2D, NULL);
+  g_return_val_if_fail (gl_target == GL_TEXTURE_2D, NULL);
 
   /* Assert it is a valid GL texture object */
-  _COGL_RETURN_VAL_IF_FAIL (ctx->glIsTexture (gl_handle), FALSE);
+  g_return_val_if_fail (ctx->glIsTexture (gl_handle), FALSE);
 
   /* Validate width and height */
-  _COGL_RETURN_VAL_IF_FAIL (width > 0 && height > 0, NULL);
+  g_return_val_if_fail (width > 0 && height > 0, NULL);
 
   /* Validate pot waste */
-  _COGL_RETURN_VAL_IF_FAIL (x_pot_waste >= 0 && x_pot_waste < width &&
+  g_return_val_if_fail (x_pot_waste >= 0 && x_pot_waste < width &&
                             y_pot_waste >= 0 && y_pot_waste < height,
                             NULL);
 
@@ -972,8 +972,8 @@ cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
   CoglBitmap *bmp;
   CoglTexture2DSliced *tex_2ds;
 
-  _COGL_RETURN_VAL_IF_FAIL (format != COGL_PIXEL_FORMAT_ANY, NULL);
-  _COGL_RETURN_VAL_IF_FAIL (data != NULL, NULL);
+  g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, NULL);
+  g_return_val_if_fail (data != NULL, NULL);
 
   /* Rowstride from width if not given */
   if (rowstride == 0)
@@ -1009,7 +1009,7 @@ cogl_texture_2d_sliced_new_from_file (CoglContext *ctx,
   CoglBitmap *bmp;
   CoglTexture2DSliced *tex_2ds = NULL;
 
-  _COGL_RETURN_VAL_IF_FAIL (error == NULL || *error == NULL, NULL);
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
   bmp = _cogl_bitmap_from_file (ctx, filename, error);
   if (bmp == NULL)
@@ -1063,7 +1063,7 @@ allocate_from_bitmap (CoglTexture2DSliced *tex_2ds,
   CoglPixelFormat internal_format;
   CoglBitmap *upload_bmp;
 
-  _COGL_RETURN_VAL_IF_FAIL (tex_2ds->slice_textures == NULL, FALSE);
+  g_return_val_if_fail (tex_2ds->slice_textures == NULL, FALSE);
 
   internal_format =
     _cogl_texture_determine_internal_format (tex,
@@ -1175,7 +1175,7 @@ _cogl_texture_2d_sliced_allocate (CoglTexture *tex,
   CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
   CoglTextureLoader *loader = tex->loader;
 
-  _COGL_RETURN_VAL_IF_FAIL (loader, FALSE);
+  g_return_val_if_fail (loader, FALSE);
 
   switch (loader->src_type)
     {
