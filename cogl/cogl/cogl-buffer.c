@@ -167,8 +167,8 @@ _cogl_buffer_initialize (CoglBuffer *buffer,
 void
 _cogl_buffer_fini (CoglBuffer *buffer)
 {
-  _COGL_RETURN_IF_FAIL (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED));
-  _COGL_RETURN_IF_FAIL (buffer->immutable_ref == 0);
+  g_return_if_fail (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED));
+  g_return_if_fail (buffer->immutable_ref == 0);
 
   if (buffer->flags & COGL_BUFFER_FLAG_BUFFER_OBJECT)
     buffer->context->driver_vtable->buffer_destroy (buffer);
@@ -328,7 +328,7 @@ _cogl_buffer_unmap_for_fill_or_fallback (CoglBuffer *buffer)
 {
   CoglContext *ctx = buffer->context;
 
-  _COGL_RETURN_IF_FAIL (ctx->buffer_map_fallback_in_use);
+  g_return_if_fail (ctx->buffer_map_fallback_in_use);
 
   ctx->buffer_map_fallback_in_use = FALSE;
 
@@ -401,8 +401,8 @@ _cogl_buffer_immutable_ref (CoglBuffer *buffer)
 void
 _cogl_buffer_immutable_unref (CoglBuffer *buffer)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_buffer (buffer));
-  _COGL_RETURN_IF_FAIL (buffer->immutable_ref > 0);
+  g_return_if_fail (cogl_is_buffer (buffer));
+  g_return_if_fail (buffer->immutable_ref > 0);
 
   buffer->immutable_ref--;
 }

@@ -1192,7 +1192,7 @@ void
 cogl_texture_set_components (CoglTexture *texture,
                              CoglTextureComponents components)
 {
-  _COGL_RETURN_IF_FAIL (!texture->allocated);
+  g_return_if_fail (!texture->allocated);
 
   if (texture->components == components)
     return;
@@ -1210,7 +1210,7 @@ void
 cogl_texture_set_premultiplied (CoglTexture *texture,
                                 gboolean premultiplied)
 {
-  _COGL_RETURN_IF_FAIL (!texture->allocated);
+  g_return_if_fail (!texture->allocated);
 
   premultiplied = !!premultiplied;
 

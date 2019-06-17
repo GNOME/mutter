@@ -1337,7 +1337,7 @@ _cogl_texture_2d_sliced_gl_flush_legacy_texobj_filters (CoglTexture *tex,
   CoglTexture2D *slice_tex;
   int i;
 
-  _COGL_RETURN_IF_FAIL (tex_2ds->slice_textures != NULL);
+  g_return_if_fail (tex_2ds->slice_textures != NULL);
 
   /* Apply new filters to every slice. The slice texture itself should
      cache the value and avoid resubmitting the same filter value to
@@ -1357,7 +1357,7 @@ _cogl_texture_2d_sliced_pre_paint (CoglTexture *tex,
   CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
   int i;
 
-  _COGL_RETURN_IF_FAIL (tex_2ds->slice_textures != NULL);
+  g_return_if_fail (tex_2ds->slice_textures != NULL);
 
   /* Pass the pre-paint on to every slice */
   for (i = 0; i < tex_2ds->slice_textures->len; i++)
@@ -1374,7 +1374,7 @@ _cogl_texture_2d_sliced_ensure_non_quad_rendering (CoglTexture *tex)
   CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
   int i;
 
-  _COGL_RETURN_IF_FAIL (tex_2ds->slice_textures != NULL);
+  g_return_if_fail (tex_2ds->slice_textures != NULL);
 
   /* Pass the call on to every slice */
   for (i = 0; i < tex_2ds->slice_textures->len; i++)

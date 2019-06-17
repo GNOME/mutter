@@ -1923,7 +1923,7 @@ cogl_pop_gles2_context (CoglContext *ctx)
   CoglGLES2Context *gles2_ctx;
   const CoglWinsysVtable *winsys = ctx->display->renderer->winsys_vtable;
 
-  _COGL_RETURN_IF_FAIL (ctx->gles2_context_stack.length > 0);
+  g_return_if_fail (ctx->gles2_context_stack.length > 0);
 
   g_queue_pop_tail (&ctx->gles2_context_stack);
 

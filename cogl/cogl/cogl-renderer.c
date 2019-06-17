@@ -228,10 +228,10 @@ void
 cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
                                         Display *xdisplay)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_renderer (renderer));
+  g_return_if_fail (cogl_is_renderer (renderer));
 
   /* NB: Renderers are considered immutable once connected */
-  _COGL_RETURN_IF_FAIL (!renderer->connected);
+  g_return_if_fail (!renderer->connected);
 
   renderer->foreign_xdpy = xdisplay;
 
@@ -252,9 +252,9 @@ void
 cogl_xlib_renderer_set_event_retrieval_enabled (CoglRenderer *renderer,
                                                 gboolean enable)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_renderer (renderer));
+  g_return_if_fail (cogl_is_renderer (renderer));
   /* NB: Renderers are considered immutable once connected */
-  _COGL_RETURN_IF_FAIL (!renderer->connected);
+  g_return_if_fail (!renderer->connected);
 
   renderer->xlib_enable_event_retrieval = enable;
 }
@@ -263,8 +263,8 @@ void
 cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
                                                         gboolean enable)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_renderer (renderer));
-  _COGL_RETURN_IF_FAIL (!renderer->connected);
+  g_return_if_fail (cogl_is_renderer (renderer));
+  g_return_if_fail (!renderer->connected);
 
   renderer->xlib_want_reset_on_video_memory_purge = enable;
 }
@@ -273,9 +273,9 @@ void
 cogl_xlib_renderer_set_threaded_swap_wait_enabled (CoglRenderer *renderer,
 						   gboolean enable)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_renderer (renderer));
+  g_return_if_fail (cogl_is_renderer (renderer));
   /* NB: Renderers are considered immutable once connected */
-  _COGL_RETURN_IF_FAIL (!renderer->connected);
+  g_return_if_fail (!renderer->connected);
 
   renderer->xlib_enable_threaded_swap_wait = enable;
 }
@@ -751,7 +751,7 @@ void
 cogl_renderer_set_winsys_id (CoglRenderer *renderer,
                              CoglWinsysID winsys_id)
 {
-  _COGL_RETURN_IF_FAIL (!renderer->connected);
+  g_return_if_fail (!renderer->connected);
 
   renderer->winsys_id_override = winsys_id;
 }
@@ -810,7 +810,7 @@ void
 cogl_renderer_set_driver (CoglRenderer *renderer,
                           CoglDriver driver)
 {
-  _COGL_RETURN_IF_FAIL (!renderer->connected);
+  g_return_if_fail (!renderer->connected);
   renderer->driver_override = driver;
 }
 
@@ -829,8 +829,8 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
 {
   GList *l;
 
-  _COGL_RETURN_IF_FAIL (renderer->connected);
-  _COGL_RETURN_IF_FAIL (callback != NULL);
+  g_return_if_fail (renderer->connected);
+  g_return_if_fail (callback != NULL);
 
   for (l = renderer->outputs; l; l = l->next)
     callback (l->data, user_data);

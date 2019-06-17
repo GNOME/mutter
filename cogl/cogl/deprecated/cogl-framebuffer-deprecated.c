@@ -114,8 +114,8 @@ _cogl_set_framebuffers_real (CoglFramebuffer *draw_buffer,
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  _COGL_RETURN_IF_FAIL (ctx != NULL);
-  _COGL_RETURN_IF_FAIL (draw_buffer && read_buffer ?
+  g_return_if_fail (ctx != NULL);
+  g_return_if_fail (draw_buffer && read_buffer ?
                     draw_buffer->context == read_buffer->context : TRUE);
 
   entry = ctx->framebuffer_stack->data;
@@ -146,8 +146,8 @@ _cogl_set_framebuffers (CoglFramebuffer *draw_buffer,
   CoglFramebuffer *current_draw_buffer;
   CoglFramebuffer *current_read_buffer;
 
-  _COGL_RETURN_IF_FAIL (cogl_is_framebuffer (draw_buffer));
-  _COGL_RETURN_IF_FAIL (cogl_is_framebuffer (read_buffer));
+  g_return_if_fail (cogl_is_framebuffer (draw_buffer));
+  g_return_if_fail (cogl_is_framebuffer (read_buffer));
 
   current_draw_buffer = cogl_get_draw_framebuffer ();
   current_read_buffer = _cogl_get_read_framebuffer ();
@@ -213,14 +213,14 @@ _cogl_push_framebuffers (CoglFramebuffer *draw_buffer,
   CoglContext *ctx;
   CoglFramebuffer *old_draw_buffer, *old_read_buffer;
 
-  _COGL_RETURN_IF_FAIL (cogl_is_framebuffer (draw_buffer));
-  _COGL_RETURN_IF_FAIL (cogl_is_framebuffer (read_buffer));
+  g_return_if_fail (cogl_is_framebuffer (draw_buffer));
+  g_return_if_fail (cogl_is_framebuffer (read_buffer));
 
   ctx = draw_buffer->context;
-  _COGL_RETURN_IF_FAIL (ctx != NULL);
-  _COGL_RETURN_IF_FAIL (draw_buffer->context == read_buffer->context);
+  g_return_if_fail (ctx != NULL);
+  g_return_if_fail (draw_buffer->context == read_buffer->context);
 
-  _COGL_RETURN_IF_FAIL (ctx->framebuffer_stack != NULL);
+  g_return_if_fail (ctx->framebuffer_stack != NULL);
 
   /* Copy the top of the stack so that when we call cogl_set_framebuffer
      it will still know what the old framebuffer was */

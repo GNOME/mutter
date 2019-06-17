@@ -108,7 +108,7 @@ cogl_program_attach_shader (CoglHandle program_handle,
   shader = shader_handle;
 
   if (shader->language == COGL_SHADER_LANGUAGE_GLSL)
-    _COGL_RETURN_IF_FAIL (_cogl_program_get_language (program) ==
+    g_return_if_fail (_cogl_program_get_language (program) ==
                       COGL_SHADER_LANGUAGE_GLSL);
 
   program->attached_shaders
@@ -131,7 +131,7 @@ cogl_program_use (CoglHandle handle)
 {
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  _COGL_RETURN_IF_FAIL (handle == COGL_INVALID_HANDLE ||
+  g_return_if_fail (handle == COGL_INVALID_HANDLE ||
                     cogl_is_program (handle));
 
   if (ctx->current_program == 0 && handle != 0)

@@ -414,7 +414,7 @@ cogl_primitive_set_attributes (CoglPrimitive *primitive,
 {
   int i;
 
-  _COGL_RETURN_IF_FAIL (cogl_is_primitive (primitive));
+  g_return_if_fail (cogl_is_primitive (primitive));
 
   if (G_UNLIKELY (primitive->immutable_ref))
     {
@@ -427,7 +427,7 @@ cogl_primitive_set_attributes (CoglPrimitive *primitive,
    * attribute thats actually in the new list too. */
   for (i = 0; i < n_attributes; i++)
     {
-      _COGL_RETURN_IF_FAIL (cogl_is_attribute (attributes[i]));
+      g_return_if_fail (cogl_is_attribute (attributes[i]));
       cogl_object_ref (attributes[i]);
     }
 
@@ -472,7 +472,7 @@ void
 cogl_primitive_set_first_vertex (CoglPrimitive *primitive,
                                  int first_vertex)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_primitive (primitive));
+  g_return_if_fail (cogl_is_primitive (primitive));
 
   if (G_UNLIKELY (primitive->immutable_ref))
     {
@@ -495,7 +495,7 @@ void
 cogl_primitive_set_n_vertices (CoglPrimitive *primitive,
                                int n_vertices)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_primitive (primitive));
+  g_return_if_fail (cogl_is_primitive (primitive));
 
   primitive->n_vertices = n_vertices;
 }
@@ -512,7 +512,7 @@ void
 cogl_primitive_set_mode (CoglPrimitive *primitive,
                          CoglVerticesMode mode)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_primitive (primitive));
+  g_return_if_fail (cogl_is_primitive (primitive));
 
   if (G_UNLIKELY (primitive->immutable_ref))
     {
@@ -528,7 +528,7 @@ cogl_primitive_set_indices (CoglPrimitive *primitive,
                             CoglIndices *indices,
                             int n_indices)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_primitive (primitive));
+  g_return_if_fail (cogl_is_primitive (primitive));
 
   if (G_UNLIKELY (primitive->immutable_ref))
     {
@@ -586,8 +586,8 @@ _cogl_primitive_immutable_unref (CoglPrimitive *primitive)
 {
   int i;
 
-  _COGL_RETURN_IF_FAIL (cogl_is_primitive (primitive));
-  _COGL_RETURN_IF_FAIL (primitive->immutable_ref > 0);
+  g_return_if_fail (cogl_is_primitive (primitive));
+  g_return_if_fail (primitive->immutable_ref > 0);
 
   primitive->immutable_ref--;
 
