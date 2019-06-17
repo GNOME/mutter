@@ -208,6 +208,7 @@ clutter_private_headers = [
   'clutter-stage-manager-private.h',
   'clutter-stage-private.h',
   'clutter-stage-view.h',
+  'clutter-stage-view-private.h',
   'clutter-stage-window.h',
 ]
 
