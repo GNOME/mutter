@@ -75,6 +75,7 @@ clutter_headers = [
   'clutter-snap-constraint.h',
   'clutter-stage.h',
   'clutter-stage-manager.h',
+  'clutter-stage-view.h',
   'clutter-tap-action.h',
   'clutter-test-utils.h',
   'clutter-texture.h',
@@ -164,6 +165,7 @@ clutter_sources = [
   'clutter-snap-constraint.c',
   'clutter-stage.c',
   'clutter-stage-manager.c',
+  'clutter-stage-view.c',
   'clutter-stage-window.c',
   'clutter-tap-action.c',
   'clutter-test-utils.c',
@@ -207,7 +209,6 @@ clutter_private_headers = [
   'clutter-settings-private.h',
   'clutter-stage-manager-private.h',
   'clutter-stage-private.h',
-  'clutter-stage-view.h',
   'clutter-stage-view-private.h',
   'clutter-stage-window.h',
 ]
@@ -216,7 +217,6 @@ clutter_nonintrospected_sources = [
   'clutter-easing.c',
   'clutter-event-translator.c',
   'clutter-id-pool.c',
-  'clutter-stage-view.c',
 ]
 
 clutter_deprecated_headers = [
