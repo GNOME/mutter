@@ -683,6 +683,11 @@ _clutter_stage_paint_view (ClutterStage                *stage,
   COGL_TRACE_BEGIN_SCOPED (ClutterStagePaintView, "Paint (view)");
 
   clutter_stage_do_paint_view (stage, view, clip);
+}
+
+void
+_clutter_stage_emit_after_paint (ClutterStage *stage)
+{
   g_signal_emit (stage, stage_signals[AFTER_PAINT], 0);
 }
 
