@@ -159,10 +159,10 @@ replace_token (char *string,
 
   /* NOTE: this assumes token and replacement are the same length */
 
-  while ((token_pos = _cogl_util_memmem (last_pos,
-                                         end - last_pos,
-                                         token,
-                                         token_length)))
+  while ((token_pos = memmem (last_pos,
+                              end - last_pos,
+                              token,
+                              token_length)))
     {
       /* Make sure this isn't in the middle of some longer token */
       if ((token_pos <= string ||
@@ -908,10 +908,10 @@ gl_get_shader_source_wrapper (GLuint shader,
 
       /* Strip out the wrapper snippet we added when the source was
        * specified */
-      wrapper_start = _cogl_util_memmem (source,
-                                         copy_length,
-                                         wrapper_marker,
-                                         sizeof (wrapper_marker) - 1);
+      wrapper_start = memmem (source,
+                              copy_length,
+                              wrapper_marker,
+                              sizeof (wrapper_marker) - 1);
       if (wrapper_start)
         {
           length = wrapper_start - source;
