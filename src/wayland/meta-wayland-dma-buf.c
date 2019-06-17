@@ -59,8 +59,8 @@ struct _MetaWaylandDmaBufBuffer
   uint64_t drm_modifier;
   bool is_y_inverted;
   int fds[META_WAYLAND_DMA_BUF_MAX_FDS];
-  int offsets[META_WAYLAND_DMA_BUF_MAX_FDS];
-  unsigned int strides[META_WAYLAND_DMA_BUF_MAX_FDS];
+  uint32_t offsets[META_WAYLAND_DMA_BUF_MAX_FDS];
+  uint32_t strides[META_WAYLAND_DMA_BUF_MAX_FDS];
 };
 
 G_DEFINE_TYPE (MetaWaylandDmaBufBuffer, meta_wayland_dma_buf_buffer, G_TYPE_OBJECT);
