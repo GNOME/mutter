@@ -62,6 +62,14 @@ clutter_stage_view_get_layout (ClutterStageView      *view,
   *rect = priv->layout;
 }
 
+/**
+ * clutter_stage_view_get_framebuffer:
+ * @view: a #ClutterStageView
+ *
+ * Retrieves the framebuffer of @view that will be drawn to.
+ *
+ * Returns: (transfer none): a #CoglFramebuffer
+ */
 CoglFramebuffer *
 clutter_stage_view_get_framebuffer (ClutterStageView *view)
 {
@@ -74,6 +82,14 @@ clutter_stage_view_get_framebuffer (ClutterStageView *view)
     return priv->framebuffer;
 }
 
+/**
+ * clutter_stage_view_get_onscreen:
+ * @view: a #ClutterStageView
+ *
+ * Retrieves the onscreen framebuffer of @view if available.
+ *
+ * Returns: (transfer none): a #CoglFramebuffer
+ */
 CoglFramebuffer *
 clutter_stage_view_get_onscreen (ClutterStageView *view)
 {
