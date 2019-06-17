@@ -467,7 +467,7 @@ _cogl_winsys_display_destroy (CoglDisplay *display)
   CoglRendererEGL *egl_renderer = display->renderer->winsys;
   CoglDisplayEGL *egl_display = display->winsys;
 
-  _COGL_RETURN_IF_FAIL (egl_display != NULL);
+  g_return_if_fail (egl_display != NULL);
 
   cleanup_context (display);
 
@@ -627,7 +627,7 @@ _cogl_winsys_destroy_gles2_context (CoglGLES2Context *gles2_ctx)
   CoglRendererEGL *egl_renderer = renderer->winsys;
   EGLContext egl_context = gles2_ctx->winsys;
 
-  _COGL_RETURN_IF_FAIL (egl_display->current_context != egl_context);
+  g_return_if_fail (egl_display->current_context != egl_context);
 
   eglDestroyContext (egl_renderer->edpy, egl_context);
 }
@@ -1065,7 +1065,7 @@ _cogl_egl_destroy_image (CoglContext *ctx,
 {
   CoglRendererEGL *egl_renderer = ctx->display->renderer->winsys;
 
-  _COGL_RETURN_IF_FAIL (egl_renderer->pf_eglDestroyImage);
+  g_return_if_fail (egl_renderer->pf_eglDestroyImage);
 
   egl_renderer->pf_eglDestroyImage (egl_renderer->edpy, image);
 }

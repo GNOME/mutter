@@ -105,7 +105,7 @@ void
 _cogl_propagate_error (CoglError **dest,
                        CoglError *src)
 {
-  _COGL_RETURN_IF_FAIL (src != NULL);
+  g_return_if_fail (src != NULL);
 
   if (dest == NULL)
     {

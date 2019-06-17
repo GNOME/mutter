@@ -396,10 +396,10 @@ cogl_matrix_stack_pop (CoglMatrixStack *stack)
   CoglMatrixEntry *old_top;
   CoglMatrixEntry *new_top;
 
-  _COGL_RETURN_IF_FAIL (stack != NULL);
+  g_return_if_fail (stack != NULL);
 
   old_top = stack->last_entry;
-  _COGL_RETURN_IF_FAIL (old_top != NULL);
+  g_return_if_fail (old_top != NULL);
 
   /* To pop we are moving the top of the stack to the old top's parent
    * node. The stack always needs to have a reference to the top entry

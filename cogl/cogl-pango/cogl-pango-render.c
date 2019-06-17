@@ -153,7 +153,7 @@ cogl_pango_renderer_draw_glyph (CoglPangoRenderer        *priv,
 {
   CoglPangoRendererSliceCbData data;
 
-  _COGL_RETURN_IF_FAIL (priv->display_list != NULL);
+  g_return_if_fail (priv->display_list != NULL);
 
   data.display_list = priv->display_list;
   data.x1 = x1;
@@ -577,7 +577,7 @@ cogl_pango_renderer_set_dirty_glyph (PangoFont *font,
   /* Glyphs that don't take up any space will end up without a
      texture. These should never become dirty so they shouldn't end up
      here */
-  _COGL_RETURN_IF_FAIL (value->texture != NULL);
+  g_return_if_fail (value->texture != NULL);
 
   if (_cogl_texture_get_format (value->texture) == COGL_PIXEL_FORMAT_A_8)
     {
@@ -705,7 +705,7 @@ cogl_pango_ensure_glyph_cache_for_layout (PangoLayout *layout)
   context = pango_layout_get_context (layout);
   priv = cogl_pango_get_renderer_from_context (context);
 
-  _COGL_RETURN_IF_FAIL (PANGO_IS_LAYOUT (layout));
+  g_return_if_fail (PANGO_IS_LAYOUT (layout));
 
   if ((iter = pango_layout_get_iter (layout)) == NULL)
     return;
@@ -759,7 +759,7 @@ cogl_pango_renderer_draw_box (PangoRenderer *renderer,
 {
   CoglPangoRenderer *priv = COGL_PANGO_RENDERER (renderer);
 
-  _COGL_RETURN_IF_FAIL (priv->display_list != NULL);
+  g_return_if_fail (priv->display_list != NULL);
 
   _cogl_pango_display_list_add_rectangle (priv->display_list,
                                           x,
@@ -803,7 +803,7 @@ cogl_pango_renderer_draw_rectangle (PangoRenderer   *renderer,
   CoglPangoRenderer *priv = COGL_PANGO_RENDERER (renderer);
   float x1, x2, y1, y2;
 
-  _COGL_RETURN_IF_FAIL (priv->display_list != NULL);
+  g_return_if_fail (priv->display_list != NULL);
 
   cogl_pango_renderer_set_color_for_part (renderer, part);
 
@@ -830,7 +830,7 @@ cogl_pango_renderer_draw_trapezoid (PangoRenderer   *renderer,
 {
   CoglPangoRenderer *priv = COGL_PANGO_RENDERER (renderer);
 
-  _COGL_RETURN_IF_FAIL (priv->display_list != NULL);
+  g_return_if_fail (priv->display_list != NULL);
 
   cogl_pango_renderer_set_color_for_part (renderer, part);
 

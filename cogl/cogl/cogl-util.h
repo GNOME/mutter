@@ -124,7 +124,6 @@ _cogl_util_fls (unsigned int n)
 
 #define _cogl_util_popcountl __builtin_popcountl
 
-#define _COGL_RETURN_IF_FAIL(EXPR) g_return_if_fail(EXPR)
 #define _COGL_RETURN_VAL_IF_FAIL(EXPR, VAL) g_return_val_if_fail(EXPR, VAL)
 
 /* Match a CoglPixelFormat according to channel masks, color depth,

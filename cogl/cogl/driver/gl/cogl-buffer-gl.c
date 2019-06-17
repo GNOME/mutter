@@ -418,10 +418,10 @@ _cogl_buffer_gl_unbind (CoglBuffer *buffer)
 {
   CoglContext *ctx = buffer->context;
 
-  _COGL_RETURN_IF_FAIL (buffer != NULL);
+  g_return_if_fail (buffer != NULL);
 
   /* the unbind should pair up with a previous bind */
-  _COGL_RETURN_IF_FAIL (ctx->current_buffer[buffer->last_target] == buffer);
+  g_return_if_fail (ctx->current_buffer[buffer->last_target] == buffer);
 
   if (buffer->flags & COGL_BUFFER_FLAG_BUFFER_OBJECT)
     {

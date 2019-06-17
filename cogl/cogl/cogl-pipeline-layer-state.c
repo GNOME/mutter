@@ -313,7 +313,7 @@ cogl_pipeline_set_layer_wrap_mode_s (CoglPipeline *pipeline,
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  _COGL_RETURN_IF_FAIL (cogl_is_pipeline (pipeline));
+  g_return_if_fail (cogl_is_pipeline (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -355,7 +355,7 @@ cogl_pipeline_set_layer_wrap_mode_t (CoglPipeline *pipeline,
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  _COGL_RETURN_IF_FAIL (cogl_is_pipeline (pipeline));
+  g_return_if_fail (cogl_is_pipeline (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -409,7 +409,7 @@ cogl_pipeline_set_layer_wrap_mode_p (CoglPipeline *pipeline,
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  _COGL_RETURN_IF_FAIL (cogl_is_pipeline (pipeline));
+  g_return_if_fail (cogl_is_pipeline (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -451,7 +451,7 @@ cogl_pipeline_set_layer_wrap_mode (CoglPipeline *pipeline,
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  _COGL_RETURN_IF_FAIL (cogl_is_pipeline (pipeline));
+  g_return_if_fail (cogl_is_pipeline (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -799,9 +799,9 @@ cogl_pipeline_add_layer_snippet (CoglPipeline *pipeline,
                                  int layer_index,
                                  CoglSnippet *snippet)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_pipeline (pipeline));
-  _COGL_RETURN_IF_FAIL (cogl_is_snippet (snippet));
-  _COGL_RETURN_IF_FAIL (snippet->hook >= COGL_SNIPPET_FIRST_LAYER_HOOK);
+  g_return_if_fail (cogl_is_pipeline (pipeline));
+  g_return_if_fail (cogl_is_snippet (snippet));
+  g_return_if_fail (snippet->hook >= COGL_SNIPPET_FIRST_LAYER_HOOK);
 
   if (snippet->hook < COGL_SNIPPET_FIRST_LAYER_FRAGMENT_HOOK)
     _cogl_pipeline_layer_add_vertex_snippet (pipeline,
@@ -1140,7 +1140,7 @@ cogl_pipeline_set_layer_combine_constant (CoglPipeline *pipeline,
   CoglPipelineLayer     *new;
   float                  color_as_floats[4];
 
-  _COGL_RETURN_IF_FAIL (cogl_is_pipeline (pipeline));
+  g_return_if_fail (cogl_is_pipeline (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -1223,7 +1223,7 @@ _cogl_pipeline_get_layer_combine_constant (CoglPipeline *pipeline,
   CoglPipelineLayer *layer;
   CoglPipelineLayer *authority;
 
-  _COGL_RETURN_IF_FAIL (cogl_is_pipeline (pipeline));
+  g_return_if_fail (cogl_is_pipeline (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -1268,7 +1268,7 @@ cogl_pipeline_set_layer_matrix (CoglPipeline *pipeline,
   CoglPipelineLayer     *authority;
   CoglPipelineLayer     *new;
 
-  _COGL_RETURN_IF_FAIL (cogl_is_pipeline (pipeline));
+  g_return_if_fail (cogl_is_pipeline (pipeline));
 
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
@@ -1374,7 +1374,7 @@ _cogl_pipeline_get_layer_filters (CoglPipeline *pipeline,
   CoglPipelineLayer *layer;
   CoglPipelineLayer *authority;
 
-  _COGL_RETURN_IF_FAIL (cogl_is_pipeline (pipeline));
+  g_return_if_fail (cogl_is_pipeline (pipeline));
 
   layer = _cogl_pipeline_get_layer (pipeline, layer_index);
 
@@ -1451,9 +1451,9 @@ cogl_pipeline_set_layer_filters (CoglPipeline      *pipeline,
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  _COGL_RETURN_IF_FAIL (cogl_is_pipeline (pipeline));
+  g_return_if_fail (cogl_is_pipeline (pipeline));
 
-  _COGL_RETURN_IF_FAIL (mag_filter == COGL_PIPELINE_FILTER_NEAREST ||
+  g_return_if_fail (mag_filter == COGL_PIPELINE_FILTER_NEAREST ||
                         mag_filter == COGL_PIPELINE_FILTER_LINEAR);
 
   /* Note: this will ensure that the layer exists, creating one if it

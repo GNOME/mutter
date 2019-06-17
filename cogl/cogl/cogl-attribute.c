@@ -490,7 +490,7 @@ void
 cogl_attribute_set_normalized (CoglAttribute *attribute,
                                       gboolean normalized)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_attribute (attribute));
+  g_return_if_fail (cogl_is_attribute (attribute));
 
   if (G_UNLIKELY (attribute->immutable_ref))
     warn_about_midscene_changes ();
@@ -511,8 +511,8 @@ void
 cogl_attribute_set_buffer (CoglAttribute *attribute,
                            CoglAttributeBuffer *attribute_buffer)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_attribute (attribute));
-  _COGL_RETURN_IF_FAIL (attribute->is_buffered);
+  g_return_if_fail (cogl_is_attribute (attribute));
+  g_return_if_fail (attribute->is_buffered);
 
   if (G_UNLIKELY (attribute->immutable_ref))
     warn_about_midscene_changes ();
@@ -540,8 +540,8 @@ _cogl_attribute_immutable_unref (CoglAttribute *attribute)
 {
   CoglBuffer *buffer = COGL_BUFFER (attribute->d.buffered.attribute_buffer);
 
-  _COGL_RETURN_IF_FAIL (cogl_is_attribute (attribute));
-  _COGL_RETURN_IF_FAIL (attribute->immutable_ref > 0);
+  g_return_if_fail (cogl_is_attribute (attribute));
+  g_return_if_fail (attribute->immutable_ref > 0);
 
   attribute->immutable_ref--;
   _cogl_buffer_immutable_unref (buffer);

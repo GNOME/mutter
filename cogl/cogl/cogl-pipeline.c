@@ -276,7 +276,7 @@ _cogl_pipeline_promote_weak_ancestors (CoglPipeline *strong)
 {
   CoglNode *n;
 
-  _COGL_RETURN_IF_FAIL (!strong->is_weak);
+  g_return_if_fail (!strong->is_weak);
 
   /* If the parent of strong is weak, then we want to promote it by
      taking a reference on strong's grandparent. We don't need to take
@@ -298,7 +298,7 @@ _cogl_pipeline_revert_weak_ancestors (CoglPipeline *strong)
 {
   CoglNode *n;
 
-  _COGL_RETURN_IF_FAIL (!strong->is_weak);
+  g_return_if_fail (!strong->is_weak);
 
   /* This reverts the effect of calling
      _cogl_pipeline_promote_weak_ancestors */
@@ -579,7 +579,7 @@ _cogl_pipeline_foreach_layer_internal (CoglPipeline *pipeline,
 
   for (i = 0, cont = TRUE; i < n_layers && cont == TRUE; i++)
     {
-      _COGL_RETURN_IF_FAIL (authority->layers_cache_dirty == FALSE);
+      g_return_if_fail (authority->layers_cache_dirty == FALSE);
       cont = callback (authority->layers_cache[i], user_data);
     }
 }
@@ -1077,7 +1077,7 @@ _cogl_pipeline_init_multi_property_sparse_state (CoglPipeline *pipeline,
 {
   CoglPipeline *authority;
 
-  _COGL_RETURN_IF_FAIL (change & COGL_PIPELINE_STATE_ALL_SPARSE);
+  g_return_if_fail (change & COGL_PIPELINE_STATE_ALL_SPARSE);
 
   if (!(change & COGL_PIPELINE_STATE_MULTI_PROPERTY))
     return;
@@ -1420,7 +1420,7 @@ _cogl_pipeline_add_layer_difference (CoglPipeline *pipeline,
                                      CoglPipelineLayer *layer,
                                      gboolean inc_n_layers)
 {
-  _COGL_RETURN_IF_FAIL (layer->owner == NULL);
+  g_return_if_fail (layer->owner == NULL);
 
   layer->owner = pipeline;
   cogl_object_ref (layer);
@@ -1816,7 +1816,7 @@ _cogl_pipeline_prune_empty_layer_difference (CoglPipeline *layers_authority,
   CoglPipelineLayerInfo layer_info;
   CoglPipeline *old_layers_authority;
 
-  _COGL_RETURN_IF_FAIL (link != NULL);
+  g_return_if_fail (link != NULL);
 
   /* If the layer's parent doesn't have an owner then we can simply
    * take ownership ourselves and drop our reference on the empty
@@ -2423,7 +2423,7 @@ cogl_pipeline_remove_layer (CoglPipeline *pipeline, int layer_index)
   CoglPipelineLayerInfo layer_info;
   int                   i;
 
-  _COGL_RETURN_IF_FAIL (cogl_is_pipeline (pipeline));
+  g_return_if_fail (cogl_is_pipeline (pipeline));
 
   authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_LAYERS);
