@@ -830,7 +830,7 @@ update_winsys_features (CoglContext *context, CoglError **error)
   CoglGLXDisplay *glx_display = context->display->winsys;
   CoglGLXRenderer *glx_renderer = context->display->renderer->winsys;
 
-  _COGL_RETURN_VAL_IF_FAIL (glx_display->glx_context, FALSE);
+  g_return_val_if_fail (glx_display->glx_context, FALSE);
 
   if (!_cogl_context_update_features (context, error))
     return FALSE;
@@ -1137,7 +1137,7 @@ create_context (CoglDisplay *display, CoglError **error)
   GLXDrawable dummy_drawable;
   CoglXlibTrapState old_state;
 
-  _COGL_RETURN_VAL_IF_FAIL (glx_display->glx_context == NULL, TRUE);
+  g_return_val_if_fail (glx_display->glx_context == NULL, TRUE);
 
   glx_display->found_fbconfig =
     find_fbconfig (display, &display->onscreen_template->config, &config,
@@ -1303,7 +1303,7 @@ _cogl_winsys_display_setup (CoglDisplay *display,
   CoglGLXDisplay *glx_display;
   int i;
 
-  _COGL_RETURN_VAL_IF_FAIL (display->winsys == NULL, FALSE);
+  g_return_val_if_fail (display->winsys == NULL, FALSE);
 
   glx_display = g_slice_new0 (CoglGLXDisplay);
   display->winsys = glx_display;
@@ -1358,7 +1358,7 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
   GLXFBConfig fbconfig;
   CoglError *fbconfig_error = NULL;
 
-  _COGL_RETURN_VAL_IF_FAIL (glx_display->glx_context, FALSE);
+  g_return_val_if_fail (glx_display->glx_context, FALSE);
 
   if (!find_fbconfig (display, &framebuffer->config,
                       &fbconfig,

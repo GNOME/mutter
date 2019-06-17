@@ -164,8 +164,8 @@ cogl_euler_equal (const void *v1, const void *v2)
   const CoglEuler *a = v1;
   const CoglEuler *b = v2;
 
-  _COGL_RETURN_VAL_IF_FAIL (v1 != NULL, FALSE);
-  _COGL_RETURN_VAL_IF_FAIL (v2 != NULL, FALSE);
+  g_return_val_if_fail (v1 != NULL, FALSE);
+  g_return_val_if_fail (v2 != NULL, FALSE);
 
   if (v1 == v2)
     return TRUE;
