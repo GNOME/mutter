@@ -524,13 +524,13 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
   CoglTexture2D *tex_2d;
   CoglPixelFormat internal_format = COGL_PIXEL_FORMAT_ANY;
 
-  _COGL_RETURN_VAL_IF_FAIL (_cogl_context_get_winsys (ctx)->constraints &
-                            COGL_RENDERER_CONSTRAINT_USES_EGL,
-                            NULL);
+  g_return_val_if_fail (_cogl_context_get_winsys (ctx)->constraints &
+                        COGL_RENDERER_CONSTRAINT_USES_EGL,
+                        NULL);
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_has_feature (ctx,
-                                              COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL),
-                            NULL);
+  g_return_val_if_fail (cogl_has_feature (ctx,
+                                          COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL),
+                        NULL);
 
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL;
@@ -557,7 +557,7 @@ _cogl_texture_2d_gl_allocate (CoglTexture *tex,
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);
   CoglTextureLoader *loader = tex->loader;
 
-  _COGL_RETURN_VAL_IF_FAIL (loader, FALSE);
+  g_return_val_if_fail (loader, FALSE);
 
   switch (loader->src_type)
     {
@@ -659,10 +659,10 @@ cogl_texture_2d_gl_new_from_foreign (CoglContext *ctx,
    */
 
   /* Assert it is a valid GL texture object */
-  _COGL_RETURN_VAL_IF_FAIL (ctx->glIsTexture (gl_handle), FALSE);
+  g_return_val_if_fail (ctx->glIsTexture (gl_handle), FALSE);
 
   /* Validate width and height */
-  _COGL_RETURN_VAL_IF_FAIL (width > 0 && height > 0, NULL);
+  g_return_val_if_fail (width > 0 && height > 0, NULL);
 
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_GL_FOREIGN;

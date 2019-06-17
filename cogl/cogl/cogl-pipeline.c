@@ -474,7 +474,7 @@ _cogl_pipeline_free (CoglPipeline *pipeline)
 gboolean
 _cogl_pipeline_get_real_blend_enabled (CoglPipeline *pipeline)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
 
   return pipeline->real_blend_enable;
 }
@@ -2401,7 +2401,7 @@ _cogl_pipeline_get_fog_enabled (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
 
   authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_FOG);
@@ -2411,7 +2411,7 @@ _cogl_pipeline_get_fog_enabled (CoglPipeline *pipeline)
 unsigned long
 _cogl_pipeline_get_age (CoglPipeline *pipeline)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), 0);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), 0);
 
   return pipeline->age;
 }
@@ -2486,7 +2486,7 @@ prepend_layer_to_list_cb (CoglPipelineLayer *layer,
 const GList *
 _cogl_pipeline_get_layers (CoglPipeline *pipeline)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), NULL);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), NULL);
 
   if (!pipeline->deprecated_get_layers_list_dirty)
     g_list_free (pipeline->deprecated_get_layers_list);
@@ -2509,7 +2509,7 @@ cogl_pipeline_get_n_layers (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), 0);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), 0);
 
   authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_LAYERS);

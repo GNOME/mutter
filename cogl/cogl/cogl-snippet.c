@@ -64,7 +64,7 @@ cogl_snippet_new (CoglSnippetHook hook,
 CoglSnippetHook
 cogl_snippet_get_hook (CoglSnippet *snippet)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_snippet (snippet), 0);
+  g_return_val_if_fail (cogl_is_snippet (snippet), 0);
 
   return snippet->hook;
 }
@@ -100,7 +100,7 @@ cogl_snippet_set_declarations (CoglSnippet *snippet,
 const char *
 cogl_snippet_get_declarations (CoglSnippet *snippet)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_snippet (snippet), NULL);
+  g_return_val_if_fail (cogl_is_snippet (snippet), NULL);
 
   return snippet->declarations;
 }
@@ -121,7 +121,7 @@ cogl_snippet_set_pre (CoglSnippet *snippet,
 const char *
 cogl_snippet_get_pre (CoglSnippet *snippet)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_snippet (snippet), NULL);
+  g_return_val_if_fail (cogl_is_snippet (snippet), NULL);
 
   return snippet->pre;
 }
@@ -142,7 +142,7 @@ cogl_snippet_set_replace (CoglSnippet *snippet,
 const char *
 cogl_snippet_get_replace (CoglSnippet *snippet)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_snippet (snippet), NULL);
+  g_return_val_if_fail (cogl_is_snippet (snippet), NULL);
 
   return snippet->replace;
 }
@@ -163,7 +163,7 @@ cogl_snippet_set_post (CoglSnippet *snippet,
 const char *
 cogl_snippet_get_post (CoglSnippet *snippet)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_snippet (snippet), NULL);
+  g_return_val_if_fail (cogl_is_snippet (snippet), NULL);
 
   return snippet->post;
 }

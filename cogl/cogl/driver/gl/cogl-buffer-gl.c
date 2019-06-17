@@ -178,14 +178,14 @@ _cogl_buffer_bind_no_create (CoglBuffer *buffer,
 {
   CoglContext *ctx = buffer->context;
 
-  _COGL_RETURN_VAL_IF_FAIL (buffer != NULL, NULL);
+  g_return_val_if_fail (buffer != NULL, NULL);
 
   /* Don't allow binding the buffer to multiple targets at the same time */
-  _COGL_RETURN_VAL_IF_FAIL (ctx->current_buffer[buffer->last_target] != buffer,
+  g_return_val_if_fail (ctx->current_buffer[buffer->last_target] != buffer,
                             NULL);
 
   /* Don't allow nesting binds to the same target */
-  _COGL_RETURN_VAL_IF_FAIL (ctx->current_buffer[target] == NULL, NULL);
+  g_return_val_if_fail (ctx->current_buffer[target] == NULL, NULL);
 
   buffer->last_target = target;
   ctx->current_buffer[target] = buffer;
@@ -290,7 +290,7 @@ _cogl_buffer_gl_map_range (CoglBuffer *buffer,
           return NULL;
         }
 
-      _COGL_RETURN_VAL_IF_FAIL (data != NULL, NULL);
+      g_return_val_if_fail (data != NULL, NULL);
     }
   else
     {
@@ -319,7 +319,7 @@ _cogl_buffer_gl_map_range (CoglBuffer *buffer,
           return NULL;
         }
 
-      _COGL_RETURN_VAL_IF_FAIL (data != NULL, NULL);
+      g_return_val_if_fail (data != NULL, NULL);
 
       data += offset;
     }

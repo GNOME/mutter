@@ -1786,7 +1786,7 @@ cogl_push_gles2_context (CoglContext *ctx,
   const CoglWinsysVtable *winsys = ctx->display->renderer->winsys_vtable;
   CoglError *internal_error = NULL;
 
-  _COGL_RETURN_VAL_IF_FAIL (gles2_ctx != NULL, FALSE);
+  g_return_val_if_fail (gles2_ctx != NULL, FALSE);
 
   /* The read/write buffers are properties of the gles2 context and we
    * don't currently track the read/write buffers as part of the stack

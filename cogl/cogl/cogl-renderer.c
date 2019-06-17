@@ -243,7 +243,7 @@ cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
 Display *
 cogl_xlib_renderer_get_foreign_display (CoglRenderer *renderer)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_renderer (renderer), NULL);
+  g_return_val_if_fail (cogl_is_renderer (renderer), NULL);
 
   return renderer->foreign_xdpy;
 }
@@ -759,7 +759,7 @@ cogl_renderer_set_winsys_id (CoglRenderer *renderer,
 CoglWinsysID
 cogl_renderer_get_winsys_id (CoglRenderer *renderer)
 {
-  _COGL_RETURN_VAL_IF_FAIL (renderer->connected, 0);
+  g_return_val_if_fail (renderer->connected, 0);
 
   return renderer->winsys_vtable->id;
 }
@@ -817,7 +817,7 @@ cogl_renderer_set_driver (CoglRenderer *renderer,
 CoglDriver
 cogl_renderer_get_driver (CoglRenderer *renderer)
 {
-  _COGL_RETURN_VAL_IF_FAIL (renderer->connected, 0);
+  g_return_val_if_fail (renderer->connected, 0);
 
   return renderer->driver;
 }

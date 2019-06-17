@@ -162,7 +162,7 @@ cogl2_path_set_fill_rule (CoglPath *path,
 CoglPathFillRule
 cogl2_path_get_fill_rule (CoglPath *path)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_path (path), COGL_PATH_FILL_RULE_NON_ZERO);
+  g_return_val_if_fail (cogl_is_path (path), COGL_PATH_FILL_RULE_NON_ZERO);
 
   return path->data->fill_rule;
 }
@@ -932,7 +932,7 @@ cogl_path_copy (CoglPath *old_path)
 {
   CoglPath *new_path;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_path (old_path), NULL);
+  g_return_val_if_fail (cogl_is_path (old_path), NULL);
 
   new_path = g_slice_new (CoglPath);
   new_path->data = old_path->data;
