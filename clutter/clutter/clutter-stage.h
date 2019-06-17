@@ -30,6 +30,7 @@
 
 #include <clutter/clutter-types.h>
 #include <clutter/clutter-group.h>
+#include <clutter/clutter-stage-view.h>
 
 G_BEGIN_DECLS
 
@@ -260,6 +261,10 @@ gboolean clutter_stage_capture (ClutterStage          *stage,
                                 cairo_rectangle_int_t *rect,
                                 ClutterCapture       **captures,
                                 int                   *n_captures);
+CLUTTER_EXPORT
+ClutterStageView * clutter_stage_get_view_at (ClutterStage *stage,
+                                              float         x,
+                                              float         y);
 
 G_END_DECLS
 
