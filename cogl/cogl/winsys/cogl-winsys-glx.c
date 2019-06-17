@@ -1268,7 +1268,7 @@ _cogl_winsys_display_destroy (CoglDisplay *display)
     _cogl_xlib_renderer_get_data (display->renderer);
   CoglGLXRenderer *glx_renderer = display->renderer->winsys;
 
-  _COGL_RETURN_IF_FAIL (glx_display != NULL);
+  g_return_if_fail (glx_display != NULL);
 
   if (glx_display->glx_context)
     {

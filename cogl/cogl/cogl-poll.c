@@ -95,7 +95,7 @@ cogl_poll_renderer_dispatch (CoglRenderer *renderer,
 {
   GList *l, *next;
 
-  _COGL_RETURN_IF_FAIL (cogl_is_renderer (renderer));
+  g_return_if_fail (cogl_is_renderer (renderer));
 
   _cogl_closure_list_invoke_no_args (&renderer->idle_closures);
 

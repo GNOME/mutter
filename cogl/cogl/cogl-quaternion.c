@@ -447,7 +447,7 @@ cogl_quaternion_multiply (CoglQuaternion *result,
   float y = a->y;
   float z = a->z;
 
-  _COGL_RETURN_IF_FAIL (b != result);
+  g_return_if_fail (b != result);
 
   result->w = w * b->w - x * b->x - y * b->y - z * b->z;
 
@@ -504,7 +504,7 @@ cogl_quaternion_slerp (CoglQuaternion *result,
   float fa;
   float fb;
 
-  _COGL_RETURN_IF_FAIL (t >=0 && t <= 1.0f);
+  g_return_if_fail (t >=0 && t <= 1.0f);
 
   if (t == 0)
     {
@@ -591,7 +591,7 @@ cogl_quaternion_nlerp (CoglQuaternion *result,
   float fa;
   float fb;
 
-  _COGL_RETURN_IF_FAIL (t >=0 && t <= 1.0f);
+  g_return_if_fail (t >=0 && t <= 1.0f);
 
   if (t == 0)
     {

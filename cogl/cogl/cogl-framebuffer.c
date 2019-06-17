@@ -445,11 +445,11 @@ ensure_size_initialized (CoglFramebuffer *framebuffer)
     {
       /* Currently we assume the size is always initialized for
        * onscreen framebuffers. */
-      _COGL_RETURN_IF_FAIL (cogl_is_offscreen (framebuffer));
+      g_return_if_fail (cogl_is_offscreen (framebuffer));
 
       /* We also assume the size would have been initialized if the
        * framebuffer were allocated. */
-      _COGL_RETURN_IF_FAIL (!framebuffer->allocated);
+      g_return_if_fail (!framebuffer->allocated);
 
       cogl_framebuffer_allocate (framebuffer, NULL);
     }
@@ -493,7 +493,7 @@ cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
 {
   CoglContext *context = framebuffer->context;
 
-  _COGL_RETURN_IF_FAIL (width > 0 && height > 0);
+  g_return_if_fail (width > 0 && height > 0);
 
   if (framebuffer->viewport_x == x &&
       framebuffer->viewport_y == y &&
@@ -1069,7 +1069,7 @@ void
 cogl_framebuffer_set_depth_texture_enabled (CoglFramebuffer *framebuffer,
                                             gboolean enabled)
 {
-  _COGL_RETURN_IF_FAIL (!framebuffer->allocated);
+  g_return_if_fail (!framebuffer->allocated);
 
   framebuffer->config.depth_texture_enabled = enabled;
 }
@@ -1104,7 +1104,7 @@ void
 cogl_framebuffer_set_samples_per_pixel (CoglFramebuffer *framebuffer,
                                         int samples_per_pixel)
 {
-  _COGL_RETURN_IF_FAIL (!framebuffer->allocated);
+  g_return_if_fail (!framebuffer->allocated);
 
   framebuffer->config.samples_per_pixel = samples_per_pixel;
 }
@@ -1355,16 +1355,16 @@ _cogl_blit_framebuffer (CoglFramebuffer *src,
 {
   CoglContext *ctx = src->context;
 
-  _COGL_RETURN_IF_FAIL (_cogl_has_private_feature
+  g_return_if_fail (_cogl_has_private_feature
                         (ctx, COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT));
 
   /* We can only support blitting between offscreen buffers because
      otherwise we would need to mirror the image and GLES2.0 doesn't
      support this */
-  _COGL_RETURN_IF_FAIL (cogl_is_offscreen (src));
-  _COGL_RETURN_IF_FAIL (cogl_is_offscreen (dest));
+  g_return_if_fail (cogl_is_offscreen (src));
+  g_return_if_fail (cogl_is_offscreen (dest));
   /* The buffers must be the same format */
-  _COGL_RETURN_IF_FAIL (src->internal_format == dest->internal_format);
+  g_return_if_fail (src->internal_format == dest->internal_format);
 
   /* Make sure the current framebuffers are bound. We explicitly avoid
      flushing the clip state so we can bind our own empty state */
@@ -1399,7 +1399,7 @@ cogl_framebuffer_discard_buffers (CoglFramebuffer *framebuffer,
 {
   CoglContext *ctx = framebuffer->context;
 
-  _COGL_RETURN_IF_FAIL (buffers & COGL_BUFFER_BIT_COLOR);
+  g_return_if_fail (buffers & COGL_BUFFER_BIT_COLOR);
 
   ctx->driver_vtable->framebuffer_discard_buffers (framebuffer, buffers);
 }

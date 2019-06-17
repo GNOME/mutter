@@ -149,7 +149,7 @@ void
 cogl_indices_set_offset (CoglIndices *indices,
                          size_t offset)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_indices (indices));
+  g_return_if_fail (cogl_is_indices (indices));
 
   if (G_UNLIKELY (indices->immutable_ref))
     warn_about_midscene_changes ();
@@ -177,8 +177,8 @@ _cogl_indices_immutable_ref (CoglIndices *indices)
 void
 _cogl_indices_immutable_unref (CoglIndices *indices)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_indices (indices));
-  _COGL_RETURN_IF_FAIL (indices->immutable_ref > 0);
+  g_return_if_fail (cogl_is_indices (indices));
+  g_return_if_fail (indices->immutable_ref > 0);
 
   indices->immutable_ref--;
   _cogl_buffer_immutable_unref (COGL_BUFFER (indices->buffer));

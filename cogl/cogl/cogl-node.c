@@ -84,7 +84,7 @@ _cogl_pipeline_node_unparent_real (CoglNode *node)
   if (parent == NULL)
     return;
 
-  _COGL_RETURN_IF_FAIL (!_cogl_list_empty (&parent->children));
+  g_return_if_fail (!_cogl_list_empty (&parent->children));
 
   _cogl_list_remove (&node->link);
 
