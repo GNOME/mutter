@@ -18,6 +18,7 @@
 #include "clutter-build-config.h"
 
 #include "clutter/clutter-stage-view.h"
+#include "clutter/clutter-stage-view-private.h"
 
 #include <cairo-gobject.h>
 #include <math.h>
