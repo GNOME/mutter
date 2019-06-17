@@ -1277,7 +1277,7 @@ meta_renderer_native_egl_context_created (CoglDisplay *cogl_display,
                                       cogl_display_egl->dummy_surface,
                                       cogl_display_egl->egl_context))
     {
-      _cogl_set_error (error, COGL_WINSYS_ERROR,
+      g_set_error (error, COGL_WINSYS_ERROR,
                    COGL_WINSYS_ERROR_CREATE_CONTEXT,
                    "Failed to make context current");
       return FALSE;
