@@ -133,9 +133,9 @@ _cogl_bitmap_copy_subregion (CoglBitmap *src,
   gboolean succeeded = FALSE;
 
   /* Intended only for fast copies when format is equal! */
-  _COGL_RETURN_VAL_IF_FAIL ((src->format & ~COGL_PREMULT_BIT) ==
-                            (dst->format & ~COGL_PREMULT_BIT),
-                            FALSE);
+  g_return_val_if_fail ((src->format & ~COGL_PREMULT_BIT) ==
+                        (dst->format & ~COGL_PREMULT_BIT),
+                        FALSE);
 
   bpp = _cogl_pixel_format_get_bytes_per_pixel (src->format);
 
@@ -265,8 +265,8 @@ cogl_bitmap_new_from_file (const char *filename,
 {
   _COGL_GET_CONTEXT (ctx, NULL);
 
-  _COGL_RETURN_VAL_IF_FAIL (filename != NULL, NULL);
-  _COGL_RETURN_VAL_IF_FAIL (error == NULL || *error == NULL, NULL);
+  g_return_val_if_fail (filename != NULL, NULL);
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
   return _cogl_bitmap_from_file (ctx, filename, error);
 }
@@ -281,7 +281,7 @@ cogl_bitmap_new_from_buffer (CoglBuffer *buffer,
 {
   CoglBitmap *bmp;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_buffer (buffer), NULL);
+  g_return_val_if_fail (cogl_is_buffer (buffer), NULL);
 
   bmp = cogl_bitmap_new_for_data (buffer->context,
                                   width, height,
@@ -306,7 +306,7 @@ cogl_bitmap_new_with_size (CoglContext *context,
   unsigned int rowstride;
 
   /* creating a buffer to store "any" format does not make sense */
-  _COGL_RETURN_VAL_IF_FAIL (format != COGL_PIXEL_FORMAT_ANY, NULL);
+  g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, NULL);
 
   /* for now we fallback to cogl_pixel_buffer_new, later, we could ask
    * libdrm a tiled buffer for instance */
@@ -317,7 +317,7 @@ cogl_bitmap_new_with_size (CoglContext *context,
                            height * rowstride,
                            NULL); /* data */
 
-  _COGL_RETURN_VAL_IF_FAIL (pixel_buffer != NULL, NULL);
+  g_return_val_if_fail (pixel_buffer != NULL, NULL);
 
   bitmap = cogl_bitmap_new_from_buffer (COGL_BUFFER (pixel_buffer),
                                         format,
@@ -450,7 +450,7 @@ _cogl_bitmap_gl_bind (CoglBitmap *bitmap,
   if (bitmap->shared_bmp)
     return _cogl_bitmap_gl_bind (bitmap->shared_bmp, access, hints, error);
 
-  _COGL_RETURN_VAL_IF_FAIL (!bitmap->bound, NULL);
+  g_return_val_if_fail (!bitmap->bound, NULL);
 
   /* If the bitmap wasn't created from a buffer then the
      implementation of bind is the same as map */

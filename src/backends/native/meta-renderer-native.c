@@ -2810,7 +2810,7 @@ meta_renderer_native_init_onscreen (CoglOnscreen *onscreen,
   CoglOnscreenEGL *onscreen_egl;
   MetaOnscreenNative *onscreen_native;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_display_egl->egl_context, FALSE);
+  g_return_val_if_fail (cogl_display_egl->egl_context, FALSE);
 
   onscreen->winsys = g_slice_new0 (CoglOnscreenEGL);
   onscreen_egl = onscreen->winsys;

@@ -46,7 +46,7 @@ cogl_object_ref (void *object)
 {
   CoglObject *obj = object;
 
-  _COGL_RETURN_VAL_IF_FAIL (object != NULL, NULL);
+  g_return_val_if_fail (object != NULL, NULL);
 
   obj->ref_count++;
   return object;

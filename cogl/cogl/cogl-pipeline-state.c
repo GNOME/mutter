@@ -55,7 +55,7 @@ _cogl_pipeline_get_user_program (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), NULL);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), NULL);
 
   authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_USER_SHADER);
@@ -452,7 +452,7 @@ _cogl_pipeline_get_blend_enabled (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
 
   authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_BLEND_ENABLE);
@@ -660,7 +660,7 @@ cogl_pipeline_get_shininess (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), 0);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), 0);
 
   authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_LIGHTING);
@@ -830,7 +830,7 @@ cogl_pipeline_get_alpha_test_function (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), 0);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), 0);
 
   authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_ALPHA_FUNC);
@@ -843,7 +843,7 @@ cogl_pipeline_get_alpha_test_reference (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), 0.0f);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), 0.0f);
 
   authority =
     _cogl_pipeline_get_authority (pipeline,
@@ -958,7 +958,7 @@ cogl_pipeline_set_blend (CoglPipeline *pipeline,
 
   _COGL_GET_CONTEXT (ctx, FALSE);
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
 
   count =
     _cogl_blend_string_compile (blend_description,
@@ -1071,7 +1071,7 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), COGL_INVALID_HANDLE);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), COGL_INVALID_HANDLE);
 
   authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_USER_SHADER);
@@ -1152,8 +1152,8 @@ cogl_pipeline_set_depth_state (CoglPipeline *pipeline,
 
   _COGL_GET_CONTEXT (ctx, FALSE);
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), FALSE);
-  _COGL_RETURN_VAL_IF_FAIL (depth_state->magic == COGL_DEPTH_STATE_MAGIC, FALSE);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (depth_state->magic == COGL_DEPTH_STATE_MAGIC, FALSE);
 
   authority = _cogl_pipeline_get_authority (pipeline, state);
 
@@ -1294,7 +1294,7 @@ cogl_pipeline_get_cull_face_mode (CoglPipeline *pipeline)
   CoglPipelineState state = COGL_PIPELINE_STATE_CULL_FACE;
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline),
+  g_return_val_if_fail (cogl_is_pipeline (pipeline),
                             COGL_PIPELINE_CULL_FACE_MODE_NONE);
 
   authority = _cogl_pipeline_get_authority (pipeline, state);
@@ -1308,7 +1308,7 @@ cogl_pipeline_get_front_face_winding (CoglPipeline *pipeline)
   CoglPipelineState state = COGL_PIPELINE_STATE_CULL_FACE;
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline),
+  g_return_val_if_fail (cogl_is_pipeline (pipeline),
                             COGL_PIPELINE_CULL_FACE_MODE_NONE);
 
   authority = _cogl_pipeline_get_authority (pipeline, state);
@@ -1321,7 +1321,7 @@ cogl_pipeline_get_point_size (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
 
   authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_POINT_SIZE);
@@ -1395,7 +1395,7 @@ cogl_pipeline_set_per_vertex_point_size (CoglPipeline *pipeline,
   CoglPipeline *authority;
 
   _COGL_GET_CONTEXT (ctx, FALSE);
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
 
   authority = _cogl_pipeline_get_authority (pipeline, state);
 
@@ -1434,7 +1434,7 @@ cogl_pipeline_get_per_vertex_point_size (CoglPipeline *pipeline)
 {
   CoglPipeline *authority;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_pipeline (pipeline), FALSE);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
 
   authority =
     _cogl_pipeline_get_authority (pipeline,

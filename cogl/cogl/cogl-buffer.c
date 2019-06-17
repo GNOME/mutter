@@ -225,7 +225,7 @@ _cogl_buffer_map (CoglBuffer *buffer,
                   CoglBufferMapHint hints,
                   CoglError **error)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_buffer (buffer), NULL);
+  g_return_val_if_fail (cogl_is_buffer (buffer), NULL);
 
   return cogl_buffer_map_range (buffer, 0, buffer->size, access, hints, error);
 }
@@ -252,8 +252,8 @@ cogl_buffer_map_range (CoglBuffer *buffer,
                        CoglBufferMapHint hints,
                        CoglError **error)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_buffer (buffer), NULL);
-  _COGL_RETURN_VAL_IF_FAIL (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED), NULL);
+  g_return_val_if_fail (cogl_is_buffer (buffer), NULL);
+  g_return_val_if_fail (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED), NULL);
 
   if (G_UNLIKELY (buffer->immutable_ref))
     warn_about_midscene_changes ();
@@ -295,7 +295,7 @@ _cogl_buffer_map_range_for_fill_or_fallback (CoglBuffer *buffer,
   void *ret;
   CoglError *ignore_error = NULL;
 
-  _COGL_RETURN_VAL_IF_FAIL (!ctx->buffer_map_fallback_in_use, NULL);
+  g_return_val_if_fail (!ctx->buffer_map_fallback_in_use, NULL);
 
   ctx->buffer_map_fallback_in_use = TRUE;
 
@@ -366,8 +366,8 @@ _cogl_buffer_set_data (CoglBuffer *buffer,
                        size_t size,
                        CoglError **error)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_buffer (buffer), FALSE);
-  _COGL_RETURN_VAL_IF_FAIL ((offset + size) <= buffer->size, FALSE);
+  g_return_val_if_fail (cogl_is_buffer (buffer), FALSE);
+  g_return_val_if_fail ((offset + size) <= buffer->size, FALSE);
 
   if (G_UNLIKELY (buffer->immutable_ref))
     warn_about_midscene_changes ();
@@ -392,7 +392,7 @@ cogl_buffer_set_data (CoglBuffer *buffer,
 CoglBuffer *
 _cogl_buffer_immutable_ref (CoglBuffer *buffer)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_buffer (buffer), NULL);
+  g_return_val_if_fail (cogl_is_buffer (buffer), NULL);
 
   buffer->immutable_ref++;
   return buffer;

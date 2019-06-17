@@ -618,7 +618,7 @@ _cogl_offscreen_new_with_texture_full (CoglTexture *texture,
   CoglFramebuffer *fb;
   CoglOffscreen *ret;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_texture (texture), NULL);
+  g_return_val_if_fail (cogl_is_texture (texture), NULL);
 
   offscreen = g_new0 (CoglOffscreen, 1);
   offscreen->texture = cogl_object_ref (texture);
@@ -1087,7 +1087,7 @@ cogl_framebuffer_get_depth_texture (CoglFramebuffer *framebuffer)
   if (!cogl_framebuffer_allocate (framebuffer, NULL))
     return NULL;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_offscreen (framebuffer), NULL);
+  g_return_val_if_fail (cogl_is_offscreen (framebuffer), NULL);
   return COGL_OFFSCREEN(framebuffer)->depth_texture;
 }
 
@@ -1158,7 +1158,7 @@ cogl_framebuffer_resolve_samples_region (CoglFramebuffer *framebuffer,
 CoglContext *
 cogl_framebuffer_get_context (CoglFramebuffer *framebuffer)
 {
-  _COGL_RETURN_VAL_IF_FAIL (framebuffer != NULL, NULL);
+  g_return_val_if_fail (framebuffer != NULL, NULL);
 
   return framebuffer->context;
 }
@@ -1254,8 +1254,8 @@ _cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
   int width;
   int height;
 
-  _COGL_RETURN_VAL_IF_FAIL (source & COGL_READ_PIXELS_COLOR_BUFFER, FALSE);
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_framebuffer (framebuffer), FALSE);
+  g_return_val_if_fail (source & COGL_READ_PIXELS_COLOR_BUFFER, FALSE);
+  g_return_val_if_fail (cogl_is_framebuffer (framebuffer), FALSE);
 
   if (!cogl_framebuffer_allocate (framebuffer, error))
     return FALSE;
