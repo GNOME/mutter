@@ -163,8 +163,6 @@ _cogl_util_pixel_format_from_masks (unsigned long r_mask,
 #define _COGL_STATIC_ASSERT(EXPRESSION, MESSAGE) \
   _Static_assert (EXPRESSION, MESSAGE);
 
-#define _cogl_util_memmem memmem
-
 static inline void
 _cogl_util_scissor_intersect (int rect_x0,
                               int rect_y0,

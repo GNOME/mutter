@@ -272,6 +272,7 @@ endif
 required_functions = [
   'ffs',
   'clz',
+  'memmem',
 ]
 foreach function : required_functions
   if not cc.has_function(function)
