@@ -18,6 +18,10 @@
 #ifndef __CLUTTER_STAGE_VIEW_H__
 #define __CLUTTER_STAGE_VIEW_H__
 
+#if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
+#error "Only <clutter/clutter.h> can be included directly."
+#endif
+
 #include <cairo.h>
 #include <glib-object.h>
 #include <cogl/cogl.h>
