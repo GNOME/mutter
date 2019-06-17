@@ -173,7 +173,7 @@ _cogl_pipeline_layer_copy_differences (CoglPipelineLayer *dest,
 
   while (differences)
     {
-      int index = _cogl_util_ffs (differences) - 1;
+      int index = ffs (differences) - 1;
 
       differences &= ~(1 << index);
 

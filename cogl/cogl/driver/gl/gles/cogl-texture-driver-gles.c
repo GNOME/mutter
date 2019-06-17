@@ -163,7 +163,7 @@ prepare_bitmap_alignment_for_upload (CoglContext *ctx,
     return cogl_object_ref (src_bmp);
 
   /* Work out the alignment of the source rowstride */
-  alignment = 1 << (_cogl_util_ffs (src_rowstride) - 1);
+  alignment = 1 << (ffs (src_rowstride) - 1);
   alignment = MIN (alignment, 8);
 
   /* If the aligned data equals the rowstride then we can upload from

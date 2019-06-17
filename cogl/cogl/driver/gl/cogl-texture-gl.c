@@ -40,7 +40,7 @@
 static inline int
 calculate_alignment (int rowstride)
 {
-  int alignment = 1 << (_cogl_util_ffs (rowstride) - 1);
+  int alignment = 1 << (ffs (rowstride) - 1);
 
   return MIN (alignment, 8);
 }

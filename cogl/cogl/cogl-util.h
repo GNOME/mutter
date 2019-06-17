@@ -114,7 +114,6 @@ unsigned int
 _cogl_util_one_at_a_time_mix (unsigned int hash);
 
 
-#define _cogl_util_ffs ffs
 #define _cogl_util_ffsl __builtin_ffsl
 
 static inline unsigned int
