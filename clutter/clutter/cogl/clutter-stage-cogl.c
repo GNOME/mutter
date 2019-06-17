@@ -983,6 +983,8 @@ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
         clutter_stage_cogl_redraw_view (stage_window, view) || swap_event;
     }
 
+  _clutter_stage_emit_after_paint (stage_cogl->wrapper);
+
   _clutter_stage_window_finish_frame (stage_window);
 
   if (swap_event)
