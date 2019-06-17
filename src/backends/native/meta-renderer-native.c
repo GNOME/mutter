@@ -2910,6 +2910,8 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = framebuffer->context;
+  CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
+  CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
   CoglRenderer *cogl_renderer = cogl_context->display->renderer;
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
@@ -2921,6 +2923,17 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
     return;
 
   onscreen_native = onscreen_egl->platform;
+
+  if (onscreen_egl->egl_surface != EGL_NO_SURFACE &&
+      (cogl_display_egl->current_draw_surface == onscreen_egl->egl_surface ||
+       cogl_display_egl->current_read_surface == onscreen_egl->egl_surface))
+    {
+      if (!_cogl_winsys_egl_make_current (cogl_display,
+                                          cogl_display_egl->dummy_surface,
+                                          cogl_display_egl->dummy_surface,
+                                          cogl_display_egl->egl_context))
+        g_warning ("Failed to clear current context");
+    }
 
   g_list_free_full (onscreen_native->pending_page_flip_retries,
                     (GDestroyNotify) retry_page_flip_data_free);
