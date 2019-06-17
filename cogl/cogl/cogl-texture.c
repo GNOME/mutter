@@ -365,12 +365,10 @@ _cogl_texture_set_region_from_bitmap (CoglTexture *texture,
                                       int level,
                                       CoglError **error)
 {
-  _COGL_RETURN_VAL_IF_FAIL ((cogl_bitmap_get_width (bmp) - src_x)
-                            >= width, FALSE);
-  _COGL_RETURN_VAL_IF_FAIL ((cogl_bitmap_get_height (bmp) - src_y)
-                            >= height, FALSE);
-  _COGL_RETURN_VAL_IF_FAIL (width > 0, FALSE);
-  _COGL_RETURN_VAL_IF_FAIL (height > 0, FALSE);
+  g_return_val_if_fail (cogl_bitmap_get_width (bmp) - src_x >= width, FALSE);
+  g_return_val_if_fail (cogl_bitmap_get_height (bmp) - src_y >= height, FALSE);
+  g_return_val_if_fail (width > 0, FALSE);
+  g_return_val_if_fail (height > 0, FALSE);
 
   /* Assert that the storage for this texture has been allocated */
   if (!cogl_texture_allocate (texture, error))
@@ -433,7 +431,7 @@ _cogl_texture_set_region (CoglTexture *texture,
   CoglBitmap *source_bmp;
   gboolean ret;
 
-  _COGL_RETURN_VAL_IF_FAIL (format != COGL_PIXEL_FORMAT_ANY, FALSE);
+  g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, FALSE);
 
   /* Rowstride from width if none specified */
   if (rowstride == 0)

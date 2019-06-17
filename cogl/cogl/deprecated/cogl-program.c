@@ -193,10 +193,10 @@ cogl_program_modify_uniform (CoglProgram *program,
 {
   CoglProgramUniform *uniform;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_program (program), NULL);
-  _COGL_RETURN_VAL_IF_FAIL (uniform_no >= 0 &&
-                            uniform_no < program->custom_uniforms->len,
-                            NULL);
+  g_return_val_if_fail (cogl_is_program (program), NULL);
+  g_return_val_if_fail (uniform_no >= 0 &&
+                        uniform_no < program->custom_uniforms->len,
+                        NULL);
 
   uniform = &g_array_index (program->custom_uniforms,
                             CoglProgramUniform, uniform_no);

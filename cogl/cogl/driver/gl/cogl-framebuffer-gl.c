@@ -529,7 +529,7 @@ try_creating_renderbuffers (CoglContext *ctx,
         format = GL_DEPTH_STENCIL;
       else
         {
-          _COGL_RETURN_VAL_IF_FAIL (
+          g_return_val_if_fail (
             _cogl_has_private_feature (ctx,
               COGL_PRIVATE_FEATURE_OES_PACKED_DEPTH_STENCIL),
             NULL);
@@ -779,9 +779,9 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
   int level_width;
   int level_height;
 
-  _COGL_RETURN_VAL_IF_FAIL (offscreen->texture_level <
-                            _cogl_texture_get_n_levels (offscreen->texture),
-                            FALSE);
+  g_return_val_if_fail (offscreen->texture_level <
+                        _cogl_texture_get_n_levels (offscreen->texture),
+                        FALSE);
 
   _cogl_texture_get_level_size (offscreen->texture,
                                 offscreen->texture_level,

@@ -305,8 +305,8 @@ cogl_color_equal (const void *v1, const void *v2)
 {
   const uint32_t *c1 = v1, *c2 = v2;
 
-  _COGL_RETURN_VAL_IF_FAIL (v1 != NULL, FALSE);
-  _COGL_RETURN_VAL_IF_FAIL (v2 != NULL, FALSE);
+  g_return_val_if_fail (v1 != NULL, FALSE);
+  g_return_val_if_fail (v2 != NULL, FALSE);
 
   /* XXX: We don't compare the padding */
   return *c1 == *c2 ? TRUE : FALSE;

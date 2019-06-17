@@ -384,8 +384,8 @@ _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
   width = cogl_bitmap_get_width (src_bmp);
   height = cogl_bitmap_get_height (src_bmp);
 
-  _COGL_RETURN_VAL_IF_FAIL (width == cogl_bitmap_get_width (dst_bmp), FALSE);
-  _COGL_RETURN_VAL_IF_FAIL (height == cogl_bitmap_get_height (dst_bmp), FALSE);
+  g_return_val_if_fail (width == cogl_bitmap_get_width (dst_bmp), FALSE);
+  g_return_val_if_fail (height == cogl_bitmap_get_height (dst_bmp), FALSE);
 
   need_premult
     = ((src_format & COGL_PREMULT_BIT) != (dst_format & COGL_PREMULT_BIT) &&
@@ -553,7 +553,7 @@ _cogl_bitmap_convert_for_upload (CoglBitmap *src_bmp,
   CoglPixelFormat src_format = cogl_bitmap_get_format (src_bmp);
   CoglBitmap *dst_bmp;
 
-  _COGL_RETURN_VAL_IF_FAIL (internal_format != COGL_PIXEL_FORMAT_ANY, NULL);
+  g_return_val_if_fail (internal_format != COGL_PIXEL_FORMAT_ANY, NULL);
 
   /* OpenGL supports specifying a different format for the internal
      format when uploading texture data. We should use this to convert

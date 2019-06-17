@@ -148,7 +148,7 @@ _cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp,
 {
   CoglTextureLoader *loader;
 
-  _COGL_RETURN_VAL_IF_FAIL (bmp != NULL, NULL);
+  g_return_val_if_fail (bmp != NULL, NULL);
 
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
@@ -177,7 +177,7 @@ cogl_texture_2d_new_from_file (CoglContext *ctx,
   CoglBitmap *bmp;
   CoglTexture2D *tex_2d = NULL;
 
-  _COGL_RETURN_VAL_IF_FAIL (error == NULL || *error == NULL, NULL);
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
   bmp = _cogl_bitmap_from_file (ctx, filename, error);
   if (bmp == NULL)
@@ -203,8 +203,8 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
   CoglBitmap *bmp;
   CoglTexture2D *tex_2d;
 
-  _COGL_RETURN_VAL_IF_FAIL (format != COGL_PIXEL_FORMAT_ANY, NULL);
-  _COGL_RETURN_VAL_IF_FAIL (data != NULL, NULL);
+  g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, NULL);
+  g_return_val_if_fail (data != NULL, NULL);
 
   /* Rowstride from width if not given */
   if (rowstride == 0)
@@ -246,14 +246,14 @@ cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
   CoglTextureLoader *loader;
   CoglTexture2D *tex;
 
-  _COGL_RETURN_VAL_IF_FAIL (_cogl_context_get_winsys (ctx)->constraints &
-                            COGL_RENDERER_CONSTRAINT_USES_EGL,
-                            NULL);
+  g_return_val_if_fail (_cogl_context_get_winsys (ctx)->constraints &
+                        COGL_RENDERER_CONSTRAINT_USES_EGL,
+                        NULL);
 
-  _COGL_RETURN_VAL_IF_FAIL (_cogl_has_private_feature
-                            (ctx,
-                             COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE),
-                            NULL);
+  g_return_val_if_fail (_cogl_has_private_feature
+                        (ctx,
+                        COGL_PRIVATE_FEATURE_TEXTURE_2D_FROM_EGL_IMAGE),
+                        NULL);
 
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE;
