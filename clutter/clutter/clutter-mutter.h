@@ -44,11 +44,6 @@ void clutter_stage_capture_into (ClutterStage          *stage,
                                  uint8_t               *data);
 
 CLUTTER_EXPORT
-ClutterStageView * clutter_stage_get_view_at (ClutterStage *stage,
-                                              float         x,
-                                              float         y);
-
-CLUTTER_EXPORT
 void clutter_stage_freeze_updates (ClutterStage *stage);
 
 CLUTTER_EXPORT
