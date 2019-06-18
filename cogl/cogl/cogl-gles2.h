@@ -189,7 +189,7 @@ typedef enum /*< prefix=COGL_GLES2_CONTEXT_ERROR >*/
 /**
  * cogl_gles2_context_new:
  * @ctx: A #CoglContext
- * @error: A pointer to a #CoglError for returning exceptions
+ * @error: A pointer to a #GError for returning exceptions
  *
  * Allocates a new OpenGLES 2.0 context that can be used to render to
  * #CoglOffscreen framebuffers (Rendering to #CoglOnscreen
@@ -216,7 +216,7 @@ typedef enum /*< prefix=COGL_GLES2_CONTEXT_ERROR >*/
  * Stability: unstable
  */
 CoglGLES2Context *
-cogl_gles2_context_new (CoglContext *ctx, CoglError **error);
+cogl_gles2_context_new (CoglContext *ctx, GError **error);
 
 /**
  * cogl_gles2_context_get_vtable:
@@ -248,7 +248,7 @@ cogl_gles2_context_get_vtable (CoglGLES2Context *gles2_ctx);
  * @write_buffer: A #CoglFramebuffer to access for drawing operations
  *                such as glDrawArrays. (must be a #CoglOffscreen
  *               framebuffer currently)
- * @error: A pointer to a #CoglError for returning exceptions
+ * @error: A pointer to a #GError for returning exceptions
  *
  * Pushes the given @gles2_ctx onto a stack associated with @ctx so
  * that the OpenGLES 2.0 api can be used instead of the Cogl
@@ -272,7 +272,7 @@ cogl_push_gles2_context (CoglContext *ctx,
                          CoglGLES2Context *gles2_ctx,
                          CoglFramebuffer *read_buffer,
                          CoglFramebuffer *write_buffer,
-                         CoglError **error);
+                         GError **error);
 
 /**
  * cogl_pop_gles2_context:

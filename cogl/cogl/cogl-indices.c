@@ -91,7 +91,7 @@ cogl_indices_new (CoglContext *context,
   CoglIndexBuffer *index_buffer = cogl_index_buffer_new (context, buffer_bytes);
   CoglBuffer *buffer = COGL_BUFFER (index_buffer);
   CoglIndices *indices;
-  CoglError *ignore_error = NULL;
+  GError *ignore_error = NULL;
 
   _cogl_buffer_set_data (buffer,
                          0,
@@ -100,7 +100,7 @@ cogl_indices_new (CoglContext *context,
                          &ignore_error);
   if (ignore_error)
     {
-      cogl_error_free (ignore_error);
+      g_error_free (ignore_error);
       cogl_object_unref (index_buffer);
       return NULL;
     }

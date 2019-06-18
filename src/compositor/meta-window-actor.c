@@ -1506,7 +1506,7 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
   int stride;
   cairo_t *cr;
   cairo_surface_t *surface;
-  CoglError *error = NULL;
+  GError *error = NULL;
 
   stex = meta_surface_actor_get_texture (priv->surface);
   g_return_if_fail (stex);
@@ -1566,7 +1566,7 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
   if (error)
     {
       g_warning ("Failed to allocate mask texture: %s", error->message);
-      cogl_error_free (error);
+      g_error_free (error);
     }
 
   meta_shaped_texture_set_mask_texture (stex, mask_texture);

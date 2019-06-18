@@ -44,7 +44,7 @@ _cogl_framebuffer_nop_flush_state (CoglFramebuffer *draw_buffer,
 
 gboolean
 _cogl_offscreen_nop_allocate (CoglOffscreen *offscreen,
-                              CoglError **error)
+                              GError **error)
 {
   return TRUE;
 }
@@ -113,7 +113,7 @@ _cogl_framebuffer_nop_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                                int y,
                                                CoglReadPixelsFlags source,
                                                CoglBitmap *bitmap,
-                                               CoglError **error)
+                                               GError **error)
 {
   return TRUE;
 }
