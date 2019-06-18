@@ -209,14 +209,16 @@ make_actor (GType shader_type)
 }
 
 static guint32
-get_pixel (int x, int y)
+get_pixel (CoglFramebuffer *fb,
+           int              x,
+           int              y)
 {
   guint8 data[4];
 
-  cogl_read_pixels (x, y, 1, 1,
-                    COGL_READ_PIXELS_COLOR_BUFFER,
-                    COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                    data);
+  cogl_framebuffer_read_pixels (fb,
+                                x, y, 1, 1,
+                                COGL_PIXEL_FORMAT_RGBA_8888_PRE,
+                                data);
 
   return (((guint32) data[0] << 16) |
           ((guint32) data[1] << 8) |
@@ -224,19 +226,21 @@ get_pixel (int x, int y)
 }
 
 static void
-paint_cb (ClutterStage *stage,
-          gpointer      data)
+view_painted_cb (ClutterStage     *stage,
+                 ClutterStageView *view,
+                 gpointer          data)
 {
+  CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
   gboolean *was_painted = data;
 
   /* old shader effect */
-  g_assert_cmpint (get_pixel (0, 25), ==, 0xff0000);
+  g_assert_cmpint (get_pixel (fb, 0, 25), ==, 0xff0000);
   /* new shader effect */
-  g_assert_cmpint (get_pixel (100, 25), ==, 0x00ffff);
+  g_assert_cmpint (get_pixel (fb, 100, 25), ==, 0x00ffff);
   /* another new shader effect */
-  g_assert_cmpint (get_pixel (200, 25), ==, 0xff00ff);
+  g_assert_cmpint (get_pixel (fb, 200, 25), ==, 0xff00ff);
   /* new shader effect */
-  g_assert_cmpint (get_pixel (300, 25), ==, 0x00ffff);
+  g_assert_cmpint (get_pixel (fb, 300, 25), ==, 0x00ffff);
 
   *was_painted = TRUE;
 }
@@ -271,9 +275,9 @@ actor_shader_effect (void)
   clutter_actor_show (stage);
 
   was_painted = FALSE;
-  g_signal_connect (stage, "after-paint",
-                    G_CALLBACK (paint_cb),
-                    &was_painted);
+  g_signal_connect_after (stage, "paint-view",
+                          G_CALLBACK (view_painted_cb),
+                          &was_painted);
 
   while (!was_painted)
     g_main_context_iteration (NULL, FALSE);
