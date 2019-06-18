@@ -149,6 +149,8 @@ struct _ClutterStagePrivate
   gpointer paint_data;
   GDestroyNotify paint_notify;
 
+  cairo_rectangle_int_t view_clip;
+
   int update_freeze_count;
 
   guint relayout_pending       : 1;
@@ -186,6 +188,7 @@ enum
   DEACTIVATE,
   DELETE_EVENT,
   AFTER_PAINT,
+  PAINT_VIEW,
   PRESENTED,
 
   LAST_SIGNAL
@@ -682,7 +685,15 @@ _clutter_stage_paint_view (ClutterStage                *stage,
 
   COGL_TRACE_BEGIN_SCOPED (ClutterStagePaintView, "Paint (view)");
 
-  clutter_stage_do_paint_view (stage, view, clip);
+  priv->view_clip = *clip;
+
+  if (g_signal_has_handler_pending (stage, stage_signals[PAINT_VIEW],
+                                    0, TRUE))
+    g_signal_emit (stage, stage_signals[PAINT_VIEW], 0, view);
+  else
+    CLUTTER_STAGE_GET_CLASS (stage)->paint_view (stage, view);
+
+  priv->view_clip = (cairo_rectangle_int_t) { 0 };
 }
 
 void
@@ -1852,6 +1863,16 @@ clutter_stage_finalize (GObject *object)
 }
 
 static void
+clutter_stage_real_paint_view (ClutterStage     *stage,
+                               ClutterStageView *view)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  const cairo_rectangle_int_t *clip = &priv->view_clip;
+
+  clutter_stage_do_paint_view (stage, view, clip);
+}
+
+static void
 clutter_stage_class_init (ClutterStageClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -1879,6 +1900,8 @@ clutter_stage_class_init (ClutterStageClass *klass)
   actor_class->queue_relayout = clutter_stage_real_queue_relayout;
   actor_class->queue_redraw = clutter_stage_real_queue_redraw;
   actor_class->apply_transform = clutter_stage_real_apply_transform;
+
+  klass->paint_view = clutter_stage_real_paint_view;
 
   /**
    * ClutterStage:cursor-visible:
@@ -2122,6 +2145,24 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   0, /* no corresponding vfunc */
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  /**
+   * ClutterStage::view-painted:
+   * @stage: the stage that received the event
+   * @view: a #ClutterStageView
+   *
+   * Signals that the #ClutterStageView was painted. At this point, it is
+   * not yet presented on the screen.
+   */
+  stage_signals[PAINT_VIEW] =
+    g_signal_new (I_("paint-view"),
+                  G_TYPE_FROM_CLASS (gobject_class),
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (ClutterStageClass, paint_view),
+                  NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT,
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_STAGE_VIEW);
 
   /**
    * ClutterStage::presented: (skip)
