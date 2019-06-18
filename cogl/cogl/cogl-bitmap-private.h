@@ -70,7 +70,7 @@ struct _CoglBitmap
  * @width: width of the bitmap in pixels
  * @height: height of the bitmap in pixels
  * @format: the format of the pixels the array will store
- * @error: A #CoglError for catching exceptional errors or %NULL
+ * @error: A #GError for catching exceptional errors or %NULL
  *
  * This is equivalent to cogl_bitmap_new_with_size() except that it
  * allocated the buffer using g_malloc() instead of creating a
@@ -87,7 +87,7 @@ _cogl_bitmap_new_with_malloc_buffer (CoglContext *context,
                                      unsigned int width,
                                      unsigned int height,
                                      CoglPixelFormat format,
-                                     CoglError **error);
+                                     GError **error);
 
 /* The idea of this function is that it will create a bitmap that
    shares the actual data with another bitmap. This is needed for the
@@ -103,53 +103,53 @@ _cogl_bitmap_new_shared (CoglBitmap      *shared_bmp,
 
 CoglBitmap *
 _cogl_bitmap_convert (CoglBitmap *bmp,
-		      CoglPixelFormat dst_format,
-                      CoglError **error);
+                      CoglPixelFormat dst_format,
+                      GError **error);
 
 CoglBitmap *
 _cogl_bitmap_convert_for_upload (CoglBitmap *src_bmp,
                                  CoglPixelFormat internal_format,
                                  gboolean can_convert_in_place,
-                                 CoglError **error);
+                                 GError **error);
 
 gboolean
 _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
                                   CoglBitmap *dst_bmp,
-                                  CoglError **error);
+                                  GError **error);
 
 CoglBitmap *
 _cogl_bitmap_from_file (CoglContext *ctx,
                         const char *filename,
-			CoglError **error);
+                        GError **error);
 
 gboolean
 _cogl_bitmap_unpremult (CoglBitmap *dst_bmp,
-                        CoglError **error);
+                        GError **error);
 
 gboolean
 _cogl_bitmap_premult (CoglBitmap *dst_bmp,
-                      CoglError **error);
+                      GError **error);
 
 gboolean
 _cogl_bitmap_convert_premult_status (CoglBitmap *bmp,
                                      CoglPixelFormat dst_format,
-                                     CoglError **error);
+                                     GError **error);
 
 gboolean
 _cogl_bitmap_copy_subregion (CoglBitmap *src,
-			     CoglBitmap *dst,
-			     int src_x,
-			     int src_y,
-			     int dst_x,
-			     int dst_y,
-			     int width,
-			     int height,
-                             CoglError **error);
+                             CoglBitmap *dst,
+                             int src_x,
+                             int src_y,
+                             int dst_x,
+                             int dst_y,
+                             int width,
+                             int height,
+                             GError **error);
 
 /* Creates a deep copy of the source bitmap */
 CoglBitmap *
 _cogl_bitmap_copy (CoglBitmap *src_bmp,
-                   CoglError **error);
+                   GError **error);
 
 gboolean
 _cogl_bitmap_get_size_from_file (const char *filename,
@@ -172,7 +172,7 @@ uint8_t *
 _cogl_bitmap_map (CoglBitmap *bitmap,
                   CoglBufferAccess access,
                   CoglBufferMapHint hints,
-                  CoglError **error);
+                  GError **error);
 
 void
 _cogl_bitmap_unmap (CoglBitmap *bitmap);
@@ -190,7 +190,7 @@ uint8_t *
 _cogl_bitmap_gl_bind (CoglBitmap *bitmap,
                       CoglBufferAccess access,
                       CoglBufferMapHint hints,
-                      CoglError **error);
+                      GError **error);
 
 void
 _cogl_bitmap_gl_unbind (CoglBitmap *bitmap);

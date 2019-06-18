@@ -100,10 +100,10 @@ meta_create_texture (int                   width,
       /* To find out if we need to slice the texture, we have to go ahead and force storage
        * to be allocated
        */
-      CoglError *catch_error = NULL;
+      GError *catch_error = NULL;
       if (!cogl_texture_allocate (texture, &catch_error))
         {
-          cogl_error_free (catch_error);
+          g_error_free (catch_error);
           cogl_object_unref (texture);
           texture = COGL_TEXTURE (cogl_texture_2d_sliced_new_with_size (ctx, width, height, COGL_TEXTURE_MAX_WASTE));
           cogl_texture_set_components (texture, components);

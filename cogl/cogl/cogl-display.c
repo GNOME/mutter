@@ -87,7 +87,7 @@ cogl_display_new (CoglRenderer *renderer,
                   CoglOnscreenTemplate *onscreen_template)
 {
   CoglDisplay *display = g_slice_new0 (CoglDisplay);
-  CoglError *error = NULL;
+  GError *error = NULL;
 
   _cogl_init ();
 
@@ -137,7 +137,7 @@ cogl_display_set_onscreen_template (CoglDisplay *display,
 
 gboolean
 cogl_display_setup (CoglDisplay *display,
-                    CoglError **error)
+                    GError **error)
 {
   const CoglWinsysVtable *winsys;
 

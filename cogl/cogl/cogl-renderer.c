@@ -44,7 +44,6 @@
 #include "cogl-renderer-private.h"
 #include "cogl-display-private.h"
 #include "cogl-config-private.h"
-#include "cogl-error-private.h"
 #include "cogl-gtype-private.h"
 
 #include "driver/gl/cogl-util-gl-private.h"
@@ -284,7 +283,7 @@ cogl_xlib_renderer_set_threaded_swap_wait_enabled (CoglRenderer *renderer,
 gboolean
 cogl_renderer_check_onscreen_template (CoglRenderer *renderer,
                                        CoglOnscreenTemplate *onscreen_template,
-                                       CoglError **error)
+                                       GError              **error)
 {
   CoglDisplay *display;
 
@@ -432,7 +431,7 @@ satisfy_constraints (CoglDriverDescription *description,
 
 static gboolean
 _cogl_renderer_choose_driver (CoglRenderer *renderer,
-                              CoglError **error)
+                              GError      **error)
 {
   const char *driver_name = g_getenv ("COGL_DRIVER");
   CoglDriver driver_override = COGL_DRIVER_ANY;
@@ -457,11 +456,10 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
       if (driver_override != COGL_DRIVER_ANY &&
           renderer->driver_override != driver_override)
         {
-          _cogl_set_error (error,
-                           COGL_RENDERER_ERROR,
-                           COGL_RENDERER_ERROR_BAD_CONSTRAINT,
-                           "Application driver selection conflicts with driver "
-                           "specified in configuration");
+          g_set_error (error, COGL_RENDERER_ERROR,
+                       COGL_RENDERER_ERROR_BAD_CONSTRAINT,
+                       "Application driver selection conflicts with driver "
+                       "specified in configuration");
           return FALSE;
         }
 
@@ -487,11 +485,10 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
 
   if (invalid_override)
     {
-      _cogl_set_error (error,
-                       COGL_RENDERER_ERROR,
-                       COGL_RENDERER_ERROR_BAD_CONSTRAINT,
-                       "Driver \"%s\" is not available",
-                       invalid_override);
+      g_set_error (error, COGL_RENDERER_ERROR,
+                   COGL_RENDERER_ERROR_BAD_CONSTRAINT,
+                   "Driver \"%s\" is not available",
+                   invalid_override);
       return FALSE;
     }
 
@@ -504,10 +501,9 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
 
   if (!state.driver_description)
     {
-      _cogl_set_error (error,
-                       COGL_RENDERER_ERROR,
-                       COGL_RENDERER_ERROR_BAD_CONSTRAINT,
-                       "No suitable driver found");
+      g_set_error (error, COGL_RENDERER_ERROR,
+                   COGL_RENDERER_ERROR_BAD_CONSTRAINT,
+                   "No suitable driver found");
       return FALSE;
     }
 
@@ -530,7 +526,7 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
 
       if (renderer->libgl_module == NULL)
         {
-          _cogl_set_error (error, COGL_DRIVER_ERROR,
+          g_set_error (error, COGL_DRIVER_ERROR,
                        COGL_DRIVER_ERROR_FAILED_TO_LOAD_LIBRARY,
                        "Failed to dynamically open the GL library \"%s\"",
                        libgl_name);
@@ -554,10 +550,10 @@ cogl_renderer_set_custom_winsys (CoglRenderer                *renderer,
 
 static gboolean
 connect_custom_winsys (CoglRenderer *renderer,
-                       CoglError   **error)
+                       GError      **error)
 {
   const CoglWinsysVtable *winsys;
-  CoglError *tmp_error = NULL;
+  GError *tmp_error = NULL;
   GString *error_message;
 
   winsys = renderer->custom_winsys_vtable_getter (renderer);
@@ -568,7 +564,7 @@ connect_custom_winsys (CoglRenderer *renderer,
     {
       g_string_append_c (error_message, '\n');
       g_string_append (error_message, tmp_error->message);
-      cogl_error_free (tmp_error);
+      g_error_free (tmp_error);
     }
   else
     {
@@ -578,16 +574,14 @@ connect_custom_winsys (CoglRenderer *renderer,
     }
 
   renderer->winsys_vtable = NULL;
-  _cogl_set_error (error, COGL_WINSYS_ERROR,
-                   COGL_WINSYS_ERROR_INIT,
-                   "Failed to connected to any renderer: %s",
-                   error_message->str);
+  g_set_error (error, COGL_WINSYS_ERROR, COGL_WINSYS_ERROR_INIT,
+               "Failed to connected to any renderer: %s", error_message->str);
   g_string_free (error_message, TRUE);
   return FALSE;
 }
 
 gboolean
-cogl_renderer_connect (CoglRenderer *renderer, CoglError **error)
+cogl_renderer_connect (CoglRenderer *renderer, GError **error)
 {
   int i;
   GString *error_message;
@@ -609,7 +603,7 @@ cogl_renderer_connect (CoglRenderer *renderer, CoglError **error)
   for (i = 0; i < G_N_ELEMENTS (_cogl_winsys_vtable_getters); i++)
     {
       const CoglWinsysVtable *winsys = _cogl_winsys_vtable_getters[i]();
-      CoglError *tmp_error = NULL;
+      GError *tmp_error = NULL;
       GList *l;
       gboolean skip_due_to_constraints = FALSE;
 
@@ -652,7 +646,7 @@ cogl_renderer_connect (CoglRenderer *renderer, CoglError **error)
         {
           g_string_append_c (error_message, '\n');
           g_string_append (error_message, tmp_error->message);
-          cogl_error_free (tmp_error);
+          g_error_free (tmp_error);
         }
       else
         {
@@ -666,15 +660,14 @@ cogl_renderer_connect (CoglRenderer *renderer, CoglError **error)
     {
       if (constraints_failed)
         {
-          _cogl_set_error (error, COGL_RENDERER_ERROR,
+          g_set_error (error, COGL_RENDERER_ERROR,
                        COGL_RENDERER_ERROR_BAD_CONSTRAINT,
                        "Failed to connected to any renderer due to constraints");
           return FALSE;
         }
 
       renderer->winsys_vtable = NULL;
-      _cogl_set_error (error, COGL_WINSYS_ERROR,
-                   COGL_WINSYS_ERROR_INIT,
+      g_set_error (error, COGL_WINSYS_ERROR, COGL_WINSYS_ERROR_INIT,
                    "Failed to connected to any renderer: %s",
                    error_message->str);
       g_string_free (error_message, TRUE);

@@ -80,7 +80,7 @@ _cogl_winsys_renderer_disconnect (CoglRenderer *renderer)
 
 static gboolean
 _cogl_winsys_renderer_connect (CoglRenderer *renderer,
-                               CoglError **error)
+                               GError **error)
 {
   renderer->winsys = &_cogl_winsys_stub_dummy_ptr;
   return TRUE;
@@ -94,14 +94,14 @@ _cogl_winsys_display_destroy (CoglDisplay *display)
 
 static gboolean
 _cogl_winsys_display_setup (CoglDisplay *display,
-                            CoglError **error)
+                            GError **error)
 {
   display->winsys = &_cogl_winsys_stub_dummy_ptr;
   return TRUE;
 }
 
 static gboolean
-_cogl_winsys_context_init (CoglContext *context, CoglError **error)
+_cogl_winsys_context_init (CoglContext *context, GError **error)
 {
   context->winsys = &_cogl_winsys_stub_dummy_ptr;
 
@@ -121,7 +121,7 @@ _cogl_winsys_context_deinit (CoglContext *context)
 
 static gboolean
 _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
-                            CoglError **error)
+                            GError **error)
 {
   return TRUE;
 }

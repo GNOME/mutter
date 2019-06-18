@@ -58,11 +58,11 @@ struct _CoglDriverVtable
 
   gboolean
   (* update_features) (CoglContext *context,
-                       CoglError **error);
+                       GError **error);
 
   gboolean
   (* offscreen_allocate) (CoglOffscreen *offscreen,
-                          CoglError **error);
+                          GError **error);
 
   void
   (* offscreen_free) (CoglOffscreen *offscreen);
@@ -118,7 +118,7 @@ struct _CoglDriverVtable
                                            int y,
                                            CoglReadPixelsFlags source,
                                            CoglBitmap *bitmap,
-                                           CoglError **error);
+                                           GError **error);
 
   /* Destroys any driver specific resources associated with the given
    * 2D texture. */
@@ -146,7 +146,7 @@ struct _CoglDriverVtable
    * to the configured size and format of the texture */
   gboolean
   (* texture_2d_allocate) (CoglTexture *tex,
-                           CoglError **error);
+                           GError **error);
 
   /* Initialize the specified region of storage of the given texture
    * with the contents of the specified framebuffer region
@@ -190,7 +190,7 @@ struct _CoglDriverVtable
                                    int dst_x,
                                    int dst_y,
                                    int level,
-                                   CoglError **error);
+                                   GError **error);
 
   gboolean
   (* texture_2d_is_get_data_supported) (CoglTexture2D *tex_2d);
@@ -239,7 +239,7 @@ struct _CoglDriverVtable
                         size_t size,
                         CoglBufferAccess access,
                         CoglBufferMapHint hints,
-                        CoglError **error);
+                        GError **error);
 
   /* Unmaps a buffer */
   void
@@ -252,7 +252,7 @@ struct _CoglDriverVtable
                        unsigned int offset,
                        const void *data,
                        unsigned int size,
-                       CoglError **error);
+                       GError **error);
 };
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())

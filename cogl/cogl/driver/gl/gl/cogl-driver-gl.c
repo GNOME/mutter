@@ -36,7 +36,6 @@
 #include "cogl-context-private.h"
 #include "cogl-feature-private.h"
 #include "cogl-renderer-private.h"
-#include "cogl-error-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-framebuffer-gl-private.h"
 #include "driver/gl/cogl-texture-2d-gl-private.h"
@@ -304,13 +303,13 @@ _cogl_get_gl_version (CoglContext *ctx,
 static gboolean
 check_gl_version (CoglContext *ctx,
                   char **gl_extensions,
-                  CoglError **error)
+                  GError     **error)
 {
   int major, minor;
 
   if (!_cogl_get_gl_version (ctx, &major, &minor))
     {
-      _cogl_set_error (error,
+      g_set_error (error,
                    COGL_DRIVER_ERROR,
                    COGL_DRIVER_ERROR_UNKNOWN_VERSION,
                    "The OpenGL version could not be determined");
@@ -320,10 +319,10 @@ check_gl_version (CoglContext *ctx,
   /* We require GLSL 1.20, which is implied by OpenGL 2.1. */
   if (!COGL_CHECK_GL_VERSION (major, minor, 2, 1))
     {
-      _cogl_set_error (error,
-                       COGL_DRIVER_ERROR,
-                       COGL_DRIVER_ERROR_INVALID_VERSION,
-                       "OpenGL 2.1 or better is required");
+      g_set_error (error,
+                   COGL_DRIVER_ERROR,
+                   COGL_DRIVER_ERROR_INVALID_VERSION,
+                   "OpenGL 2.1 or better is required");
       return FALSE;
     }
 
@@ -332,7 +331,7 @@ check_gl_version (CoglContext *ctx,
 
 static gboolean
 _cogl_driver_update_features (CoglContext *ctx,
-                              CoglError **error)
+                              GError     **error)
 {
   CoglFeatureFlags flags = 0;
   unsigned long private_features
@@ -527,11 +526,11 @@ _cogl_driver_update_features (CoglContext *ctx,
   if (!COGL_FLAGS_GET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES) &&
       !COGL_FLAGS_GET (private_features, COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE))
     {
-      _cogl_set_error (error,
-                       COGL_DRIVER_ERROR,
-                       COGL_DRIVER_ERROR_NO_SUITABLE_DRIVER_FOUND,
-                       "The GL_ARB_texture_swizzle extension is required "
-                       "to use the GL3 driver");
+      g_set_error (error,
+                   COGL_DRIVER_ERROR,
+                   COGL_DRIVER_ERROR_NO_SUITABLE_DRIVER_FOUND,
+                   "The GL_ARB_texture_swizzle extension is required "
+                   "to use the GL3 driver");
       return FALSE;
     }
 
