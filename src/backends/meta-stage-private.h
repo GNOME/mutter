@@ -27,7 +27,19 @@
 
 G_BEGIN_DECLS
 
+typedef struct _MetaStageWatch MetaStageWatch;
 typedef struct _MetaOverlay    MetaOverlay;
+
+typedef void (*MetaStageWatchFunc) (MetaStage        *stage,
+                                    ClutterStageView *view,
+                                    gpointer          user_data);
+typedef enum
+{
+  META_WATCH_MODE_BEFORE_PAINT,
+  META_WATCH_MODE_AFTER_ACTOR_PAINT,
+  META_WATCH_MODE_AFTER_OVERLAY_PAINT,
+  META_WATCH_MODE_AFTER_PAINT,
+} MetaWatchMode;
 
 ClutterActor     *meta_stage_new                     (MetaBackend *backend);
 
@@ -42,6 +54,15 @@ void              meta_stage_update_cursor_overlay   (MetaStage   *stage,
 
 void meta_stage_set_active (MetaStage *stage,
                             gboolean   is_active);
+
+MetaStageWatch * meta_stage_watch_view (MetaStage          *stage,
+                                        ClutterStageView   *view,
+                                        MetaWatchMode       watch_mode,
+                                        MetaStageWatchFunc  callback,
+                                        gpointer            user_data);
+
+void meta_stage_remove_watch (MetaStage      *stage,
+                              MetaStageWatch *watch);
 
 G_END_DECLS
 
