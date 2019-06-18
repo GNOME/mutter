@@ -30,7 +30,6 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "clutter/clutter.h"
 #include "clutter/wayland/clutter-wayland-compositor.h"
-#include "clutter/wayland/clutter-wayland-surface.h"
 #include "cogl/cogl-wayland-server.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-surface-actor.h"

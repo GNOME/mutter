@@ -30,7 +30,6 @@
 
 #include "clutter/clutter.h"
 #include "clutter/wayland/clutter-wayland-compositor.h"
-#include "clutter/wayland/clutter-wayland-surface.h"
 #include "core/main-private.h"
 #include "wayland/meta-wayland-data-device.h"
 #include "wayland/meta-wayland-dma-buf.h"
