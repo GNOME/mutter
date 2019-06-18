@@ -84,9 +84,12 @@ struct _ClutterStageClass
   gboolean (* delete_event) (ClutterStage *stage,
                              ClutterEvent *event);
 
+  void (* paint_view) (ClutterStage     *stage,
+                       ClutterStageView *view);
+
   /*< private >*/
   /* padding for future expansion */
-  gpointer _padding_dummy[31];
+  gpointer _padding_dummy[30];
 };
 
 /**
