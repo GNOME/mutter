@@ -113,7 +113,7 @@ test_case_new (void)
 }
 
 static gboolean
-test_case_before_redraw (gpointer data)
+test_case_loop_quit (gpointer data)
 {
   TestCase *test = data;
 
@@ -144,7 +144,7 @@ test_case_wait (TestCase *test,
    * waiting until after *all* frame processing.
    */
   meta_later_add (META_LATER_BEFORE_REDRAW,
-                  test_case_before_redraw,
+                  test_case_loop_quit,
                   test,
                   NULL);
   g_main_loop_run (test->loop);
@@ -154,6 +154,17 @@ test_case_wait (TestCase *test,
    * received back any X events we generated.
    */
   async_waiter_set_and_wait (test->waiter);
+  return TRUE;
+}
+
+static gboolean
+test_case_sleep (TestCase  *test,
+                 guint32    interval,
+                 GError   **error)
+{
+  g_timeout_add_full (G_PRIORITY_LOW, interval, test_case_loop_quit, test, NULL);
+  g_main_loop_run (test->loop);
+
   return TRUE;
 }
 
@@ -517,6 +528,20 @@ test_case_do (TestCase *test,
         BAD_COMMAND("usage: %s", argv[0]);
 
       if (!test_case_wait (test, error))
+        return FALSE;
+    }
+  else if (strcmp (argv[0], "sleep") == 0)
+    {
+      guint64 interval;
+
+      if (argc != 2)
+        BAD_COMMAND("usage: %s <milliseconds>", argv[0]);
+
+      if (!g_ascii_string_to_unsigned (argv[1], 10, 0, G_MAXUINT32,
+                                       &interval, error))
+        return FALSE;
+
+      if (!test_case_sleep (test, (guint32) interval, error))
         return FALSE;
     }
   else if (strcmp (argv[0], "assert_stacking") == 0)
