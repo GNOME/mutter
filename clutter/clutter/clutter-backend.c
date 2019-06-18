@@ -1111,7 +1111,7 @@ _clutter_backend_reset_cogl_framebuffer (ClutterBackend *backend)
 {
   if (backend->dummy_onscreen == COGL_INVALID_HANDLE)
     {
-      CoglError *internal_error = NULL;
+      GError *internal_error = NULL;
 
       backend->dummy_onscreen = cogl_onscreen_new (backend->cogl_context, 1, 1);
 
@@ -1119,7 +1119,7 @@ _clutter_backend_reset_cogl_framebuffer (ClutterBackend *backend)
                                       &internal_error))
         {
           g_critical ("Unable to create dummy onscreen: %s", internal_error->message);
-          cogl_error_free (internal_error);
+          g_error_free (internal_error);
           return;
         }
     }

@@ -34,7 +34,6 @@
 
 #include "cogl-types.h"
 #include "cogl-context-private.h"
-#include "cogl-error-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 
 #ifdef COGL_GL_DEBUG
@@ -96,7 +95,7 @@ _cogl_gl_util_clear_gl_errors (CoglContext *ctx)
 }
 
 gboolean
-_cogl_gl_util_catch_out_of_memory (CoglContext *ctx, CoglError **error)
+_cogl_gl_util_catch_out_of_memory (CoglContext *ctx, GError **error)
 {
   GLenum gl_error;
   gboolean out_of_memory = FALSE;
@@ -118,9 +117,9 @@ _cogl_gl_util_catch_out_of_memory (CoglContext *ctx, CoglError **error)
 
   if (out_of_memory)
     {
-      _cogl_set_error (error, COGL_SYSTEM_ERROR,
-                       COGL_SYSTEM_ERROR_NO_MEMORY,
-                       "Out of memory");
+      g_set_error_literal (error, COGL_SYSTEM_ERROR,
+                           COGL_SYSTEM_ERROR_NO_MEMORY,
+                           "Out of memory");
       return TRUE;
     }
 
