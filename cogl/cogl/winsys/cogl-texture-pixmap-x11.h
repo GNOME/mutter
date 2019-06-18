@@ -86,7 +86,7 @@ typedef enum
 /**
  * COGL_TEXTURE_PIXMAP_X11_ERROR:
  *
- * #CoglError domain for texture-pixmap-x11 errors.
+ * #GError domain for texture-pixmap-x11 errors.
  *
  * Since: 1.10
  */
@@ -114,7 +114,7 @@ uint32_t cogl_texture_pixmap_x11_error_quark (void);
  * @pixmap: A X11 pixmap ID
  * @automatic_updates: Whether to automatically copy the contents of
  * the pixmap to the texture.
- * @error: A #CoglError for exceptions
+ * @error: A #GError for exceptions
  *
  * Creates a texture that contains the contents of @pixmap. If
  * @automatic_updates is %TRUE then Cogl will attempt to listen for
@@ -130,7 +130,7 @@ CoglTexturePixmapX11 *
 cogl_texture_pixmap_x11_new (CoglContext *context,
                              uint32_t pixmap,
                              gboolean automatic_updates,
-                             CoglError **error);
+                             GError **error);
 
 /**
  * cogl_texture_pixmap_x11_new_left:
@@ -138,7 +138,7 @@ cogl_texture_pixmap_x11_new (CoglContext *context,
  * @pixmap: A X11 pixmap ID
  * @automatic_updates: Whether to automatically copy the contents of
  * the pixmap to the texture.
- * @error: A #CoglError for exceptions
+ * @error: A #GError for exceptions
  *
  * Creates one of a pair of textures to contain the contents of @pixmap,
  * which has stereo content. (Different images for the right and left eyes.)
@@ -169,7 +169,7 @@ CoglTexturePixmapX11 *
 cogl_texture_pixmap_x11_new_left (CoglContext *context,
                                   uint32_t pixmap,
                                   gboolean automatic_updates,
-                                  CoglError **error);
+                                  GError **error);
 
 /**
  * cogl_texture_pixmap_x11_new_right:

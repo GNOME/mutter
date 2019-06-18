@@ -113,7 +113,7 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
  * cogl_texture_2d_new_from_file: (skip)
  * @ctx: A #CoglContext
  * @filename: the file to load
- * @error: A #CoglError to catch exceptional errors or %NULL
+ * @error: A #GError to catch exceptional errors or %NULL
  *
  * Creates a low-level #CoglTexture2D texture from an image file.
  *
@@ -136,7 +136,7 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
 CoglTexture2D *
 cogl_texture_2d_new_from_file (CoglContext *ctx,
                                const char *filename,
-                               CoglError **error);
+                               GError **error);
 
 /**
  * cogl_texture_2d_new_from_data: (skip)
@@ -148,7 +148,7 @@ cogl_texture_2d_new_from_file (CoglContext *ctx,
  *    scanlines in @data. A value of 0 will make Cogl automatically
  *    calculate @rowstride from @width and @format.
  * @data: pointer the memory region where the source buffer resides
- * @error: A #CoglError for exceptions
+ * @error: A #GError for exceptions
  *
  * Creates a low-level #CoglTexture2D texture based on data residing
  * in memory.
@@ -178,7 +178,7 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
                                CoglPixelFormat format,
                                int rowstride,
                                const uint8_t *data,
-                               CoglError **error);
+                               GError **error);
 
 /**
  * cogl_texture_2d_new_from_bitmap:
@@ -219,7 +219,7 @@ cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
                                     int height,
                                     CoglPixelFormat format,
                                     EGLImageKHR image,
-                                    CoglError **error);
+                                    GError **error);
 
 typedef gboolean (*CoglTexture2DEGLImageExternalAlloc) (CoglTexture2D *tex_2d,
                                                         gpointer user_data,
@@ -235,7 +235,7 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
                                              CoglTexture2DEGLImageExternalAlloc alloc,
                                              gpointer user_data,
                                              GDestroyNotify destroy,
-                                             CoglError **error);
+                                             GError **error);
 
 void
 cogl_texture_2d_egl_image_external_bind (CoglTexture2D *tex_2d);

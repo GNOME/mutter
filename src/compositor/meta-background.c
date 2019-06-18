@@ -539,7 +539,7 @@ ensure_color_texture (MetaBackground *self)
     {
       ClutterBackend *backend = clutter_get_default_backend ();
       CoglContext *ctx = clutter_backend_get_cogl_context (backend);
-      CoglError *error = NULL;
+      GError *error = NULL;
       uint8_t pixels[6];
       int width, height;
 
@@ -585,7 +585,7 @@ ensure_color_texture (MetaBackground *self)
       if (error != NULL)
         {
           meta_warning ("Failed to allocate color texture: %s\n", error->message);
-          cogl_error_free (error);
+          g_error_free (error);
         }
     }
 }
@@ -652,7 +652,7 @@ ensure_wallpaper_texture (MetaBackground *self,
       int height = cogl_texture_get_height (texture);
       CoglOffscreen *offscreen;
       CoglFramebuffer *fbo;
-      CoglError *catch_error = NULL;
+      GError *catch_error = NULL;
       CoglPipeline *pipeline;
 
       self->wallpaper_texture = meta_create_texture (width, height,
@@ -667,7 +667,7 @@ ensure_wallpaper_texture (MetaBackground *self,
            * than the maximum texture size; we treat it as permanent until the
            * background is changed again.
            */
-          cogl_error_free (catch_error);
+          g_error_free (catch_error);
 
           cogl_object_unref (self->wallpaper_texture);
           self->wallpaper_texture = NULL;
@@ -771,7 +771,7 @@ meta_background_get_texture (MetaBackground         *self,
 
   if (monitor->dirty)
     {
-      CoglError *catch_error = NULL;
+      GError *catch_error = NULL;
       gboolean bare_region_visible = FALSE;
 
       if (self->style != G_DESKTOP_BACKGROUND_STYLE_WALLPAPER)
@@ -804,7 +804,7 @@ meta_background_get_texture (MetaBackground         *self,
           cogl_object_unref (monitor->fbo);
           monitor->fbo = NULL;
 
-          cogl_error_free (catch_error);
+          g_error_free (catch_error);
           return NULL;
         }
 

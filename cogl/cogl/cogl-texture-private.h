@@ -75,7 +75,7 @@ struct _CoglTextureVtable
   gboolean is_primitive;
 
   gboolean (* allocate) (CoglTexture *tex,
-                         CoglError **error);
+                         GError **error);
 
   /* This should update the specified sub region of the texture with a
      sub region of the given bitmap. The bitmap is not converted
@@ -91,7 +91,7 @@ struct _CoglTextureVtable
                            int dst_height,
                            int level,
                            CoglBitmap *bitmap,
-                           CoglError **error);
+                           GError **error);
 
   gboolean (* is_get_data_supported) (CoglTexture *texture);
 
@@ -362,7 +362,7 @@ _cogl_texture_set_region (CoglTexture *texture,
                           int dst_x,
                           int dst_y,
                           int level,
-                          CoglError **error);
+                          GError **error);
 
 gboolean
 _cogl_texture_set_region_from_bitmap (CoglTexture *texture,
@@ -374,7 +374,7 @@ _cogl_texture_set_region_from_bitmap (CoglTexture *texture,
                                       int dst_x,
                                       int dst_y,
                                       int level,
-                                      CoglError **error);
+                                      GError **error);
 
 gboolean
 _cogl_texture_needs_premult_conversion (CoglPixelFormat src_format,

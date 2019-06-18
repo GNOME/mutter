@@ -90,7 +90,7 @@ GType cogl_offscreen_get_gtype (void);
  * message. If you need to be able to catch such exceptions at runtime
  * then you can explicitly allocate your framebuffer when you have
  * finished configuring it by calling cogl_framebuffer_allocate() and
- * passing in a #CoglError argument to catch any exceptions.
+ * passing in a #GError argument to catch any exceptions.
  *
  * Return value: (transfer full): a newly instantiated #CoglOffscreen
  *   framebuffer.

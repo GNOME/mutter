@@ -200,7 +200,7 @@ cogl_material_set_alpha_test_function (CoglMaterial         *material,
 gboolean
 cogl_material_set_blend (CoglMaterial *material,
                          const char   *blend_string,
-                         CoglError   **error)
+                         GError **error)
 {
   return cogl_pipeline_set_blend (COGL_PIPELINE (material),
                                   blend_string,
@@ -260,7 +260,7 @@ gboolean
 cogl_material_set_layer_combine (CoglMaterial *material,
 				 int           layer_index,
 				 const char   *blend_string,
-                                 CoglError   **error)
+                                 GError **error)
 {
   return cogl_pipeline_set_layer_combine (COGL_PIPELINE (material),
                                           layer_index,
@@ -339,7 +339,7 @@ gboolean
 cogl_material_set_layer_point_sprite_coords_enabled (CoglMaterial *material,
                                                      int           layer_index,
                                                      gboolean      enable,
-                                                     CoglError   **error)
+                                                     GError      **error)
 {
   CoglPipeline *pipeline = COGL_PIPELINE (material);
   return cogl_pipeline_set_layer_point_sprite_coords_enabled (pipeline,
@@ -447,7 +447,7 @@ cogl_material_foreach_layer (CoglMaterial *material,
 gboolean
 cogl_material_set_depth_state (CoglMaterial *material,
                                const CoglDepthState *state,
-                               CoglError **error)
+                               GError **error)
 {
   return cogl_pipeline_set_depth_state (COGL_PIPELINE (material),
                                         state, error);

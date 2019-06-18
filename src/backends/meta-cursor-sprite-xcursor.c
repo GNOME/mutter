@@ -123,7 +123,7 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
   ClutterBackend *clutter_backend;
   CoglContext *cogl_context;
   CoglTexture2D *texture;
-  CoglError *error = NULL;
+  GError *error = NULL;
 
   g_assert (!meta_cursor_sprite_get_cogl_texture (sprite));
 
@@ -149,7 +149,7 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
   if (!texture)
     {
       g_warning ("Failed to allocate cursor texture: %s\n", error->message);
-      cogl_error_free (error);
+      g_error_free (error);
     }
 
   meta_cursor_sprite_set_texture (sprite,
