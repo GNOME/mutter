@@ -72,6 +72,8 @@ META_EXPORT_TEST
 const char             *meta_wayland_get_wayland_display_name   (MetaWaylandCompositor *compositor);
 META_EXPORT_TEST
 const char             *meta_wayland_get_xwayland_display_name  (MetaWaylandCompositor *compositor);
+META_EXPORT_TEST
+const char             *meta_wayland_get_xwayland_auth_filename (MetaWaylandCompositor *compositor);
 
 META_EXPORT_TEST
 void                    meta_wayland_compositor_restore_shortcuts      (MetaWaylandCompositor *compositor,

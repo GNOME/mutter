@@ -437,8 +437,10 @@ meta_wayland_init (void)
       compositor->display_name = g_strdup (display_name);
     }
 
-  if (meta_should_autostart_x11_display ())
+  if (meta_should_autostart_x11_display ()) {
     set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
+    set_gnome_env ("XAUTHORITY", meta_wayland_get_xwayland_auth_filename (compositor));
+  }
 
   set_gnome_env ("WAYLAND_DISPLAY", meta_wayland_get_wayland_display_name (compositor));
 }
@@ -453,6 +455,12 @@ const char *
 meta_wayland_get_xwayland_display_name (MetaWaylandCompositor *compositor)
 {
   return compositor->xwayland_manager.display_name;
+}
+
+const char *
+meta_wayland_get_xwayland_auth_filename (MetaWaylandCompositor *compositor)
+{
+  return compositor->xwayland_manager.auth_filename;
 }
 
 void
