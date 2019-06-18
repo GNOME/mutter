@@ -101,6 +101,7 @@ if have_x11
     x11_xcb_dep,
     xcb_randr_dep,
     xcb_res_dep,
+    xau_dep,
   ]
 
   if have_sm
