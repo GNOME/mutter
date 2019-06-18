@@ -42,7 +42,6 @@
 #include "cogl-renderer-private.h"
 #include "cogl-onscreen-template-private.h"
 #include "cogl-gles2-context-private.h"
-#include "cogl-error-private.h"
 #include "cogl-egl.h"
 #include "cogl-private.h"
 #include "winsys/cogl-winsys-egl-private.h"
@@ -201,7 +200,7 @@ check_egl_extensions (CoglRenderer *renderer)
 
 gboolean
 _cogl_winsys_egl_renderer_connect_common (CoglRenderer *renderer,
-                                          CoglError **error)
+                                          GError      **error)
 {
   CoglRendererEGL *egl_renderer = renderer->winsys;
 
@@ -209,7 +208,7 @@ _cogl_winsys_egl_renderer_connect_common (CoglRenderer *renderer,
                       &egl_renderer->egl_version_major,
                       &egl_renderer->egl_version_minor))
     {
-      _cogl_set_error (error, COGL_WINSYS_ERROR,
+      g_set_error (error, COGL_WINSYS_ERROR,
                    COGL_WINSYS_ERROR_INIT,
                    "Couldn't initialize EGL");
       return FALSE;
@@ -222,7 +221,7 @@ _cogl_winsys_egl_renderer_connect_common (CoglRenderer *renderer,
 
 static gboolean
 _cogl_winsys_renderer_connect (CoglRenderer *renderer,
-                               CoglError **error)
+                               GError      **error)
 {
   /* This function must be overridden by a platform winsys */
   g_assert_not_reached ();
@@ -346,7 +345,7 @@ cleanup_context (CoglDisplay *display)
 
 static gboolean
 try_create_context (CoglDisplay *display,
-                    CoglError **error)
+                    GError     **error)
 {
   CoglRenderer *renderer = display->renderer;
   CoglDisplayEGL *egl_display = display->winsys;
@@ -376,9 +375,9 @@ try_create_context (CoglDisplay *display,
                                                      &config,
                                                      &config_error))
     {
-      _cogl_set_error (error, COGL_WINSYS_ERROR,
-                       COGL_WINSYS_ERROR_CREATE_CONTEXT,
-                       "Couldn't choose config: %s", config_error->message);
+      g_set_error (error, COGL_WINSYS_ERROR,
+                   COGL_WINSYS_ERROR_CREATE_CONTEXT,
+                   "Couldn't choose config: %s", config_error->message);
       g_error_free (config_error);
       goto err;
     }
@@ -451,7 +450,7 @@ try_create_context (CoglDisplay *display,
   return TRUE;
 
 fail:
-  _cogl_set_error (error, COGL_WINSYS_ERROR,
+  g_set_error (error, COGL_WINSYS_ERROR,
                COGL_WINSYS_ERROR_CREATE_CONTEXT,
                "%s", error_message);
 
@@ -480,7 +479,7 @@ _cogl_winsys_display_destroy (CoglDisplay *display)
 
 static gboolean
 _cogl_winsys_display_setup (CoglDisplay *display,
-                            CoglError **error)
+                            GError     **error)
 {
   CoglDisplayEGL *egl_display;
   CoglRenderer *renderer = display->renderer;
@@ -520,7 +519,7 @@ error:
 }
 
 static gboolean
-_cogl_winsys_context_init (CoglContext *context, CoglError **error)
+_cogl_winsys_context_init (CoglContext *context, GError **error)
 {
   CoglRenderer *renderer = context->display->renderer;
   CoglDisplayEGL *egl_display = context->display->winsys;
@@ -591,7 +590,7 @@ typedef struct _CoglGLES2ContextEGL
 } CoglGLES2ContextEGL;
 
 static void *
-_cogl_winsys_context_create_gles2_context (CoglContext *ctx, CoglError **error)
+_cogl_winsys_context_create_gles2_context (CoglContext *ctx, GError **error)
 {
   CoglRendererEGL *egl_renderer = ctx->display->renderer->winsys;
   CoglDisplayEGL *egl_display = ctx->display->winsys;
@@ -608,7 +607,7 @@ _cogl_winsys_context_create_gles2_context (CoglContext *ctx, CoglError **error)
                                   attribs);
   if (egl_context == EGL_NO_CONTEXT)
     {
-      _cogl_set_error (error, COGL_WINSYS_ERROR,
+      g_set_error (error, COGL_WINSYS_ERROR,
                    COGL_WINSYS_ERROR_CREATE_GLES2_CONTEXT,
                    "%s", get_error_string ());
       return NULL;
@@ -634,7 +633,7 @@ _cogl_winsys_destroy_gles2_context (CoglGLES2Context *gles2_ctx)
 
 static gboolean
 _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
-                            CoglError **error)
+                            GError      **error)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = framebuffer->context;
@@ -659,7 +658,7 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
                             &config_count);
   if (status != EGL_TRUE || config_count == 0)
     {
-      _cogl_set_error (error, COGL_WINSYS_ERROR,
+      g_set_error (error, COGL_WINSYS_ERROR,
                    COGL_WINSYS_ERROR_CREATE_ONSCREEN,
                    "Failed to find a suitable EGL configuration");
       return FALSE;
@@ -890,7 +889,7 @@ _cogl_winsys_save_context (CoglContext *ctx)
 }
 
 static gboolean
-_cogl_winsys_set_gles2_context (CoglGLES2Context *gles2_ctx, CoglError **error)
+_cogl_winsys_set_gles2_context (CoglGLES2Context *gles2_ctx, GError **error)
 {
   CoglContext *ctx = gles2_ctx->context;
   CoglDisplayEGL *egl_display = ctx->display->winsys;
@@ -909,7 +908,7 @@ _cogl_winsys_set_gles2_context (CoglGLES2Context *gles2_ctx, CoglError **error)
 
   if (!status)
     {
-      _cogl_set_error (error,
+      g_set_error (error,
                    COGL_WINSYS_ERROR,
                    COGL_WINSYS_ERROR_MAKE_CURRENT,
                    "Failed to make gles2 context current");

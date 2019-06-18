@@ -33,7 +33,6 @@
 #include <string.h>
 
 #include "cogl-context-private.h"
-#include "cogl-error-private.h"
 #include "cogl-feature-private.h"
 #include "cogl-renderer-private.h"
 #include "cogl-private.h"
@@ -239,7 +238,7 @@ _cogl_get_gl_version (CoglContext *ctx,
 
 static gboolean
 _cogl_driver_update_features (CoglContext *context,
-                              CoglError **error)
+                              GError     **error)
 {
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
@@ -290,7 +289,7 @@ _cogl_driver_update_features (CoglContext *context,
 
   if (!COGL_CHECK_GL_VERSION (gl_major, gl_minor, 2, 0))
     {
-      _cogl_set_error (error,
+      g_set_error (error,
                        COGL_DRIVER_ERROR,
                        COGL_DRIVER_ERROR_INVALID_VERSION,
                        "OpenGL ES 2.0 or better is required");

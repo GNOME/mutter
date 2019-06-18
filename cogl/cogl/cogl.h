@@ -55,8 +55,6 @@
 #include <cogl/cogl-defines.h>
 #include <cogl/cogl-macros.h>
 
-#include <cogl/cogl-error.h>
-
 #include <cogl/cogl-object.h>
 #include <cogl/cogl1-context.h>
 #include <cogl/cogl-bitmap.h>
