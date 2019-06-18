@@ -117,7 +117,7 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
  * cogl_atlas_texture_new_from_file:
  * @ctx: A #CoglContext
  * @filename: the file to load
- * @error: A #CoglError to catch exceptional errors or %NULL
+ * @error: A #GError to catch exceptional errors or %NULL
  *
  * Creates a #CoglAtlasTexture from an image file. A #CoglAtlasTexture
  * represents a sub-region within one of Cogl's shared texture
@@ -149,7 +149,7 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
 CoglAtlasTexture *
 cogl_atlas_texture_new_from_file (CoglContext *ctx,
                                   const char *filename,
-                                  CoglError **error);
+                                  GError **error);
 
 /**
  * cogl_atlas_texture_new_from_data:
@@ -161,7 +161,7 @@ cogl_atlas_texture_new_from_file (CoglContext *ctx,
  *    row in @data. A value of 0 will make Cogl automatically
  *    calculate @rowstride from @width and @format.
  * @data: pointer to the memory region where the source buffer resides
- * @error: A #CoglError to catch exceptional errors or %NULL
+ * @error: A #GError to catch exceptional errors or %NULL
  *
  * Creates a new #CoglAtlasTexture texture based on data residing in
  * memory. A #CoglAtlasTexture represents a sub-region within one of
@@ -198,7 +198,7 @@ cogl_atlas_texture_new_from_data (CoglContext *ctx,
                                   CoglPixelFormat format,
                                   int rowstride,
                                   const uint8_t *data,
-                                  CoglError **error);
+                                  GError **error);
 
 /**
  * cogl_atlas_texture_new_from_bitmap:
