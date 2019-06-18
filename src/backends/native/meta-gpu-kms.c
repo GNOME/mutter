@@ -877,6 +877,22 @@ meta_gpu_kms_can_have_outputs (MetaGpuKms *gpu_kms)
   return gpu_kms->n_connectors > 0;
 }
 
+gboolean
+meta_gpu_kms_does_have_outputs (MetaGpuKms *gpu_kms)
+{
+  unsigned int i;
+
+  for (i = 0; i < gpu_kms->n_connectors; i++)
+    {
+      drmModeConnector *connector = gpu_kms->connectors[i];
+
+      if (connector && connector->connection == DRM_MODE_CONNECTED)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 MetaGpuKms *
 meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
                   const char             *kms_file_path,

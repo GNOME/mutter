@@ -709,6 +709,9 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
   const char *subsystems[2] = { "drm", NULL };
   GList *l;
   gboolean can_have_outputs;
+  gboolean some_cant_have_outputs;
+  gboolean does_have_outputs;
+  unsigned int ngpus;
 
   manager_kms->udev = g_udev_client_new (subsystems);
 
@@ -720,20 +723,37 @@ meta_monitor_manager_kms_initable_init (GInitable    *initable,
     }
 
   can_have_outputs = FALSE;
+  some_cant_have_outputs = FALSE;
+  does_have_outputs = FALSE;
+  ngpus = 0;
+
   for (l = meta_monitor_manager_get_gpus (manager); l; l = l->next)
     {
       MetaGpuKms *gpu_kms = l->data;
 
       if (meta_gpu_kms_can_have_outputs (gpu_kms))
-        {
-          can_have_outputs = TRUE;
-          break;
-        }
+        can_have_outputs = TRUE;
+      else
+        some_cant_have_outputs = TRUE;
+
+      if (meta_gpu_kms_does_have_outputs (gpu_kms))
+        does_have_outputs = TRUE;
+
+      ngpus++;
     }
+
   if (!can_have_outputs)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
                    "No GPUs with outputs found");
+      return FALSE;
+    }
+  else if (ngpus >= 2 && !does_have_outputs && some_cant_have_outputs)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "Multiple GPUs but no monitors detected. Since at least "
+                   "one of the GPUs reports no connectors, it looks like "
+                   "Xorg is required to properly support this system.");
       return FALSE;
     }
 
