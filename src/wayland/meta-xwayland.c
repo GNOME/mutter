@@ -31,6 +31,9 @@
 #include <glib.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <sys/random.h>
+#include <unistd.h>
+#include <X11/Xauth.h>
 
 #include "compositor/meta-surface-actor-wayland.h"
 #include "meta/main.h"
@@ -438,6 +441,73 @@ choose_xdisplay (MetaXWaylandManager *manager)
   return TRUE;
 }
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (FILE, fclose)
+
+static gboolean
+prepare_auth_file (MetaXWaylandManager *manager)
+{
+  Xauth auth_entry = { 0 };
+  g_autoptr (FILE) fp = NULL;
+  char hostname[HOST_NAME_MAX + 1];
+  char auth_data[16];
+  int fd;
+
+  manager->auth_file = g_build_filename (g_get_user_runtime_dir (), ".mutter-Xwaylandauth.XXXXXX", NULL);
+
+  if (gethostname (hostname, HOST_NAME_MAX) < 0)
+    g_strlcpy (hostname, "localhost", HOST_NAME_MAX);
+
+  if (getrandom (auth_data, sizeof (auth_data), 0) != sizeof (auth_data))
+    {
+      g_warning ("Failed to get random data: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  auth_entry.family = FamilyLocal;
+  auth_entry.address = hostname;
+  auth_entry.address_length = strlen (auth_entry.address);
+  auth_entry.name = (char *) "MIT-MAGIC-COOKIE-1";
+  auth_entry.name_length = strlen (auth_entry.name);
+  auth_entry.data = auth_data;
+  auth_entry.data_length = sizeof (auth_data);
+
+  fd = g_mkstemp (manager->auth_file);
+  if (fd < 0)
+    {
+      g_warning ("Failed to open Xauthority file: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  fp = fdopen (fd, "w+");
+  if (!fp)
+    {
+      g_warning ("Failed to open Xauthority stream: %s", g_strerror (errno));
+      close (fd);
+      return FALSE;
+    }
+
+  if (!XauWriteAuth (fp, &auth_entry))
+    {
+      g_warning ("Error writing to Xauthority file: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  auth_entry.family = FamilyWild;
+  if (!XauWriteAuth (fp, &auth_entry))
+    {
+      g_warning ("Error writing to Xauthority file: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  if (fflush (fp) == EOF)
+    {
+      g_warning ("Error writing to Xauthority file: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 static void
 xserver_finished_init (MetaXWaylandManager *manager)
 {
@@ -512,6 +582,7 @@ meta_xwayland_init_xserver (MetaXWaylandManager *manager)
                                                "-noreset",
                                                "-accessx",
                                                "-core",
+                                               "-auth", manager->auth_file,
                                                "-listen", "4",
                                                "-listen", "5",
                                                "-displayfd", "6",
@@ -543,6 +614,9 @@ meta_xwayland_start (MetaXWaylandManager *manager,
                      struct wl_display   *wl_display)
 {
   if (!choose_xdisplay (manager))
+    return FALSE;
+
+  if (!prepare_auth_file (manager))
     return FALSE;
 
   manager->wayland_display = wl_display;
@@ -584,6 +658,11 @@ meta_xwayland_stop (MetaXWaylandManager *manager)
   unlink (path);
 
   g_clear_pointer (&manager->display_name, g_free);
+  if (manager->auth_file)
+    {
+      unlink (manager->auth_file);
+      g_clear_pointer (&manager->auth_file, g_free);
+    }
   if (manager->lock_file)
     {
       unlink (manager->lock_file);
