@@ -47,7 +47,6 @@
 #include "cogl1-context.h"
 #include "cogl-gpu-info-private.h"
 #include "cogl-config-private.h"
-#include "cogl-error-private.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
@@ -123,7 +122,7 @@ _cogl_context_get_winsys (CoglContext *context)
  */
 CoglContext *
 cogl_context_new (CoglDisplay *display,
-                  CoglError **error)
+                  GError     **error)
 {
   CoglContext *context;
   uint8_t white_pixel[] = { 0xff, 0xff, 0xff, 0xff };
@@ -528,7 +527,7 @@ _cogl_context_free (CoglContext *context)
 CoglContext *
 _cogl_context_get_default (void)
 {
-  CoglError *error = NULL;
+  GError *error = NULL;
   /* Create if doesn't exist yet */
   if (_cogl_context == NULL)
     {
@@ -537,7 +536,7 @@ _cogl_context_get_default (void)
         {
           g_warning ("Failed to create default context: %s",
                      error->message);
-          cogl_error_free (error);
+          g_error_free (error);
         }
     }
 
@@ -558,7 +557,7 @@ cogl_context_get_renderer (CoglContext *context)
 
 gboolean
 _cogl_context_update_features (CoglContext *context,
-                               CoglError **error)
+                               GError     **error)
 {
   return context->driver_vtable->update_features (context, error);
 }

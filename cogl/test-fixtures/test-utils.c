@@ -106,7 +106,7 @@ test_utils_init (TestFlags requirement_flags,
                  TestFlags known_failure_flags)
 {
   static int counter = 0;
-  CoglError *error = NULL;
+  GError *error = NULL;
   CoglOnscreen *onscreen = NULL;
   CoglDisplay *display;
   CoglRenderer *renderer;
@@ -347,7 +347,7 @@ test_utils_texture_new_with_size (CoglContext *ctx,
                                   CoglTextureComponents components)
 {
   CoglTexture *tex;
-  CoglError *skip_error = NULL;
+  GError *skip_error = NULL;
 
   /* First try creating a fast-path non-sliced texture */
   tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
@@ -356,7 +356,7 @@ test_utils_texture_new_with_size (CoglContext *ctx,
 
   if (!cogl_texture_allocate (tex, &skip_error))
     {
-      cogl_error_free (skip_error);
+      g_error_free (skip_error);
       cogl_object_unref (tex);
       tex = NULL;
     }
@@ -402,7 +402,7 @@ test_utils_texture_new_from_bitmap (CoglBitmap *bitmap,
 {
   CoglAtlasTexture *atlas_tex;
   CoglTexture *tex;
-  CoglError *internal_error = NULL;
+  GError *internal_error = NULL;
 
   if (!flags)
     {
@@ -414,17 +414,17 @@ test_utils_texture_new_from_bitmap (CoglBitmap *bitmap,
       if (cogl_texture_allocate (COGL_TEXTURE (atlas_tex), &internal_error))
         return COGL_TEXTURE (atlas_tex);
 
-      cogl_error_free (internal_error);
       cogl_object_unref (atlas_tex);
-      internal_error = NULL;
     }
+
+  g_clear_error (&internal_error);
 
   /* If that doesn't work try a fast path 2D texture */
   tex = COGL_TEXTURE (cogl_texture_2d_new_from_bitmap (bitmap));
 
   cogl_texture_set_premultiplied (tex, premultiplied);
 
-  if (cogl_error_matches (internal_error,
+  if (g_error_matches (internal_error,
                           COGL_SYSTEM_ERROR,
                           COGL_SYSTEM_ERROR_NO_MEMORY))
     {
@@ -432,11 +432,7 @@ test_utils_texture_new_from_bitmap (CoglBitmap *bitmap,
       return NULL;
     }
 
-  if (!tex)
-    {
-      cogl_error_free (internal_error);
-      internal_error = NULL;
-    }
+  g_clear_error (&internal_error);
 
   if (!tex)
     {

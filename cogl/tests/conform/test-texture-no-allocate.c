@@ -44,7 +44,7 @@ test_texture_no_allocate (void)
    * crash */
 
   if (texture == NULL)
-    cogl_error_free (error);
+    g_error_free (error);
   else
     cogl_object_unref (texture);
 

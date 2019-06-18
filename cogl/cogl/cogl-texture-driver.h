@@ -84,7 +84,7 @@ struct _CoglTextureDriver
                               CoglBitmap *source_bmp,
                               GLuint source_gl_format,
                               GLuint source_gl_type,
-                              CoglError **error);
+                              GError     **error);
 
   /*
    * Replaces the contents of the GL texture with the entire bitmap. On
@@ -101,7 +101,7 @@ struct _CoglTextureDriver
                     GLint internal_gl_format,
                     GLuint source_gl_format,
                     GLuint source_gl_type,
-                    CoglError **error);
+                    GError    **error);
 
   /*
    * This sets up the glPixelStore state for an download to a destination with

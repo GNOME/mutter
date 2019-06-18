@@ -104,7 +104,7 @@ GType cogl_context_get_gtype (void);
 /**
  * cogl_context_new: (constructor)
  * @display: (allow-none): A #CoglDisplay pointer
- * @error: A CoglError return location.
+ * @error: A GError return location.
  *
  * Creates a new #CoglContext which acts as an application sandbox
  * for any state objects that are allocated.
@@ -115,7 +115,7 @@ GType cogl_context_get_gtype (void);
  */
 CoglContext *
 cogl_context_new (CoglDisplay *display,
-                  CoglError **error);
+                  GError **error);
 
 /**
  * cogl_context_get_display:

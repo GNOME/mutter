@@ -37,7 +37,6 @@
 #include "cogl-buffer-private.h"
 #include "cogl-pixel-buffer.h"
 #include "cogl-context-private.h"
-#include "cogl-error-private.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-buffer-gl-private.h"
 
@@ -66,7 +65,7 @@ _cogl_bitmap_free (CoglBitmap *bmp)
 gboolean
 _cogl_bitmap_convert_premult_status (CoglBitmap *bmp,
                                      CoglPixelFormat dst_format,
-                                     CoglError **error)
+                                     GError        **error)
 {
   /* Do we need to unpremultiply? */
   if ((bmp->format & COGL_PREMULT_BIT) > 0 &&
@@ -86,7 +85,7 @@ _cogl_bitmap_convert_premult_status (CoglBitmap *bmp,
 
 CoglBitmap *
 _cogl_bitmap_copy (CoglBitmap *src_bmp,
-                   CoglError **error)
+                   GError    **error)
 {
   CoglBitmap *dst_bmp;
   CoglPixelFormat src_format = cogl_bitmap_get_format (src_bmp);
@@ -124,7 +123,7 @@ _cogl_bitmap_copy_subregion (CoglBitmap *src,
 			     int dst_y,
 			     int width,
 			     int height,
-                             CoglError **error)
+                             GError **error)
 {
   uint8_t *srcdata;
   uint8_t *dstdata;
@@ -209,7 +208,7 @@ _cogl_bitmap_new_with_malloc_buffer (CoglContext *context,
                                      unsigned int width,
                                      unsigned int height,
                                      CoglPixelFormat format,
-                                     CoglError **error)
+                                     GError **error)
 {
   static CoglUserDataKey bitmap_free_key;
   int bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
@@ -219,10 +218,9 @@ _cogl_bitmap_new_with_malloc_buffer (CoglContext *context,
 
   if (!data)
     {
-      _cogl_set_error (error,
-                       COGL_SYSTEM_ERROR,
-                       COGL_SYSTEM_ERROR_NO_MEMORY,
-                       "Failed to allocate memory for bitmap");
+      g_set_error_literal (error, COGL_SYSTEM_ERROR,
+                           COGL_SYSTEM_ERROR_NO_MEMORY,
+                           "Failed to allocate memory for bitmap");
       return NULL;
     }
 
@@ -261,7 +259,7 @@ _cogl_bitmap_new_shared (CoglBitmap              *shared_bmp,
 
 CoglBitmap *
 cogl_bitmap_new_from_file (const char *filename,
-                           CoglError **error)
+                           GError    **error)
 {
   _COGL_GET_CONTEXT (ctx, NULL);
 
@@ -380,7 +378,7 @@ uint8_t *
 _cogl_bitmap_map (CoglBitmap *bitmap,
                   CoglBufferAccess access,
                   CoglBufferMapHint hints,
-                  CoglError **error)
+                  GError          **error)
 {
   /* Divert to another bitmap if this data is shared */
   if (bitmap->shared_bmp)
@@ -437,10 +435,10 @@ uint8_t *
 _cogl_bitmap_gl_bind (CoglBitmap *bitmap,
                       CoglBufferAccess access,
                       CoglBufferMapHint hints,
-                      CoglError **error)
+                      GError          **error)
 {
   uint8_t *ptr;
-  CoglError *internal_error = NULL;
+  GError *internal_error = NULL;
 
   g_return_val_if_fail (access & (COGL_BUFFER_ACCESS_READ |
                                   COGL_BUFFER_ACCESS_WRITE),
@@ -482,7 +480,7 @@ _cogl_bitmap_gl_bind (CoglBitmap *bitmap,
    * if an exception was thrown */
   if (internal_error)
     {
-      _cogl_propagate_error (error, internal_error);
+      g_propagate_error (error, internal_error);
       return NULL;
     }
 
