@@ -343,14 +343,8 @@ if have_native_backend
 endif
 
 if have_wayland
-  clutter_wayland_nonintrospected_sources = [
-    'wayland/clutter-wayland-surface.c',
-  ]
-  clutter_backend_nonintrospected_sources += clutter_wayland_nonintrospected_sources
-
   clutter_wayland_private_headers = [
     'wayland/clutter-wayland-compositor.h',
-    'wayland/clutter-wayland-surface.h',
   ]
   clutter_backend_private_headers += clutter_wayland_private_headers
 endif
