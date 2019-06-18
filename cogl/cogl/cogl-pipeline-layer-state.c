@@ -41,7 +41,6 @@
 #include "cogl-snippet-private.h"
 #include "cogl-texture-private.h"
 #include "cogl-pipeline-layer-state-private.h"
-#include "cogl-error-private.h"
 
 #include "string.h"
 #if 0
@@ -602,7 +601,7 @@ gboolean
 cogl_pipeline_set_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
                                                      int layer_index,
                                                      gboolean enable,
-                                                     CoglError **error)
+                                                     GError **error)
 {
   CoglPipelineLayerState       change =
     COGL_PIPELINE_LAYER_STATE_POINT_SPRITE_COORDS;
@@ -620,11 +619,11 @@ cogl_pipeline_set_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
     {
       if (error)
         {
-          _cogl_set_error (error,
-                           COGL_SYSTEM_ERROR,
-                           COGL_SYSTEM_ERROR_UNSUPPORTED,
-                           "Point sprite texture coordinates are enabled for "
-                           "a layer but the GL driver does not support it.");
+          g_set_error_literal (error,
+                               COGL_SYSTEM_ERROR,
+                               COGL_SYSTEM_ERROR_UNSUPPORTED,
+                               "Point sprite texture coordinates are enabled for "
+                               "a layer but the GL driver does not support it.");
         }
       else
         {
@@ -1029,7 +1028,7 @@ gboolean
 cogl_pipeline_set_layer_combine (CoglPipeline *pipeline,
 				 int layer_index,
 				 const char *combine_description,
-                                 CoglError **error)
+                                 GError      **error)
 {
   CoglPipelineLayerState state = COGL_PIPELINE_LAYER_STATE_COMBINE;
   CoglPipelineLayer *authority;

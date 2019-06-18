@@ -112,7 +112,7 @@ test_utils_texture_new_with_size (CoglContext *ctx,
  * @rowstride: the memory offset in bytes between the starts of
  *    scanlines in @data
  * @data: pointer the memory region where the source buffer resides
- * @error: A #CoglError to catch exceptional errors or %NULL
+ * @error: A #GError to catch exceptional errors or %NULL
  *
  * Creates a new #CoglTexture based on data residing in memory.
  *

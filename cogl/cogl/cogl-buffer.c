@@ -88,7 +88,7 @@ malloc_map_range (CoglBuffer *buffer,
                   size_t size,
                   CoglBufferAccess access,
                   CoglBufferMapHint hints,
-                  CoglError **error)
+                  GError          **error)
 {
   buffer->flags |= COGL_BUFFER_FLAG_MAPPED;
   return buffer->data + offset;
@@ -105,7 +105,7 @@ malloc_set_data (CoglBuffer *buffer,
                  unsigned int offset,
                  const void *data,
                  unsigned int size,
-                 CoglError **error)
+                 GError     **error)
 {
   memcpy (buffer->data + offset, data, size);
   return TRUE;
@@ -223,7 +223,7 @@ void *
 _cogl_buffer_map (CoglBuffer *buffer,
                   CoglBufferAccess access,
                   CoglBufferMapHint hints,
-                  CoglError **error)
+                  GError          **error)
 {
   g_return_val_if_fail (cogl_is_buffer (buffer), NULL);
 
@@ -235,12 +235,11 @@ cogl_buffer_map (CoglBuffer *buffer,
                  CoglBufferAccess access,
                  CoglBufferMapHint hints)
 {
-  CoglError *ignore_error = NULL;
+  GError *ignore_error = NULL;
   void *ptr =
     cogl_buffer_map_range (buffer, 0, buffer->size, access, hints,
                            &ignore_error);
-  if (!ptr)
-    cogl_error_free (ignore_error);
+  g_clear_error (&ignore_error);
   return ptr;
 }
 
@@ -250,7 +249,7 @@ cogl_buffer_map_range (CoglBuffer *buffer,
                        size_t size,
                        CoglBufferAccess access,
                        CoglBufferMapHint hints,
-                       CoglError **error)
+                       GError          **error)
 {
   g_return_val_if_fail (cogl_is_buffer (buffer), NULL);
   g_return_val_if_fail (!(buffer->flags & COGL_BUFFER_FLAG_MAPPED), NULL);
@@ -293,7 +292,7 @@ _cogl_buffer_map_range_for_fill_or_fallback (CoglBuffer *buffer,
 {
   CoglContext *ctx = buffer->context;
   void *ret;
-  CoglError *ignore_error = NULL;
+  GError *ignore_error = NULL;
 
   g_return_val_if_fail (!ctx->buffer_map_fallback_in_use, NULL);
 
@@ -309,7 +308,7 @@ _cogl_buffer_map_range_for_fill_or_fallback (CoglBuffer *buffer,
   if (ret)
     return ret;
 
-  cogl_error_free (ignore_error);
+  g_error_free (ignore_error);
 
   /* If the map fails then we'll use a temporary buffer to fill
      the data and then upload it using cogl_buffer_set_data when
@@ -364,7 +363,7 @@ _cogl_buffer_set_data (CoglBuffer *buffer,
                        size_t offset,
                        const void *data,
                        size_t size,
-                       CoglError **error)
+                       GError    **error)
 {
   g_return_val_if_fail (cogl_is_buffer (buffer), FALSE);
   g_return_val_if_fail ((offset + size) <= buffer->size, FALSE);
@@ -381,11 +380,10 @@ cogl_buffer_set_data (CoglBuffer *buffer,
                       const void *data,
                       size_t size)
 {
-  CoglError *ignore_error = NULL;
+  GError *ignore_error = NULL;
   gboolean status =
     _cogl_buffer_set_data (buffer, offset, data, size, &ignore_error);
-  if (!status)
-    cogl_error_free (ignore_error);
+  g_clear_error (&ignore_error);
   return status;
 }
 

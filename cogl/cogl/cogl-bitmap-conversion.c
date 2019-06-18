@@ -361,7 +361,7 @@ _cogl_bitmap_needs_short_temp_buffer (CoglPixelFormat format)
 gboolean
 _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
                                   CoglBitmap *dst_bmp,
-                                  CoglError **error)
+                                  GError    **error)
 {
   uint8_t *src_data;
   uint8_t *dst_data;
@@ -488,7 +488,7 @@ _cogl_bitmap_convert_into_bitmap (CoglBitmap *src_bmp,
 CoglBitmap *
 _cogl_bitmap_convert (CoglBitmap *src_bmp,
                       CoglPixelFormat dst_format,
-                      CoglError **error)
+                      GError        **error)
 {
   CoglBitmap *dst_bmp;
   int width, height;
@@ -547,7 +547,7 @@ CoglBitmap *
 _cogl_bitmap_convert_for_upload (CoglBitmap *src_bmp,
                                  CoglPixelFormat internal_format,
                                  gboolean can_convert_in_place,
-                                 CoglError **error)
+                                 GError        **error)
 {
   CoglContext *ctx = _cogl_bitmap_get_context (src_bmp);
   CoglPixelFormat src_format = cogl_bitmap_get_format (src_bmp);
@@ -616,7 +616,7 @@ _cogl_bitmap_convert_for_upload (CoglBitmap *src_bmp,
 
 gboolean
 _cogl_bitmap_unpremult (CoglBitmap *bmp,
-                        CoglError **error)
+                        GError    **error)
 {
   uint8_t *p, *data;
   uint16_t *tmp_row;
@@ -684,7 +684,7 @@ _cogl_bitmap_unpremult (CoglBitmap *bmp,
 
 gboolean
 _cogl_bitmap_premult (CoglBitmap *bmp,
-                      CoglError **error)
+                      GError    **error)
 {
   uint8_t *p, *data;
   uint16_t *tmp_row;

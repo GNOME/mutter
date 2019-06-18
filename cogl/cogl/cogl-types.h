@@ -323,7 +323,7 @@ typedef enum
 /**
  * COGL_BLEND_STRING_ERROR:
  *
- * #CoglError domain for blend string parser errors
+ * #GError domain for blend string parser errors
  *
  * Since: 1.0
  */

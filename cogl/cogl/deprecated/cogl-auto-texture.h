@@ -70,7 +70,7 @@ cogl_texture_new_with_size (unsigned int width,
  *    have non-premultiplied source data and are going to adjust the blend
  *    mode (see cogl_material_set_blend()) or use the data for something
  *    other than straight blending.
- * @error: return location for a #CoglError or %NULL
+ * @error: return location for a #GError or %NULL
  *
  * Creates a #CoglTexture from an image file.
  *
@@ -86,7 +86,7 @@ CoglTexture *
 cogl_texture_new_from_file (const char       *filename,
                             CoglTextureFlags   flags,
                             CoglPixelFormat    internal_format,
-                            CoglError           **error);
+                            GError           **error);
 
 /**
  * cogl_texture_new_from_data:

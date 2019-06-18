@@ -156,7 +156,7 @@ file_loaded (GObject      *source_object,
 {
   MetaBackgroundImage *image = META_BACKGROUND_IMAGE (source_object);
   GError *error = NULL;
-  CoglError *catch_error = NULL;
+  GError *catch_error = NULL;
   GTask *task;
   CoglTexture *texture;
   GdkPixbuf *pixbuf, *rotated;
@@ -201,7 +201,7 @@ file_loaded (GObject      *source_object,
                               &catch_error))
     {
       g_warning ("Failed to create texture for background");
-      cogl_error_free (catch_error);
+      g_error_free (catch_error);
       cogl_object_unref (texture);
     }
 

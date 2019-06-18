@@ -47,7 +47,6 @@
 #include "cogl-object.h"
 #include "cogl-bitmap-private.h"
 #include "cogl-atlas-texture-private.h"
-#include "cogl-error-private.h"
 #include "cogl-sub-texture.h"
 #include "cogl-texture-2d-gl.h"
 
@@ -58,7 +57,7 @@ _cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
                                CoglTextureFlags flags,
                                CoglPixelFormat internal_format,
                                gboolean can_convert_in_place,
-                               CoglError **error);
+                               GError        **error);
 
 static void
 set_auto_mipmap_cb (CoglTexture *sub_texture,
@@ -77,7 +76,7 @@ cogl_texture_new_with_size (unsigned int width,
 			    CoglPixelFormat internal_format)
 {
   CoglTexture *tex;
-  CoglError *skip_error = NULL;
+  GError *skip_error = NULL;
 
   _COGL_GET_CONTEXT (ctx, NULL);
 
@@ -88,7 +87,7 @@ cogl_texture_new_with_size (unsigned int width,
 
   if (!cogl_texture_allocate (tex, &skip_error))
     {
-      cogl_error_free (skip_error);
+      g_error_free (skip_error);
       skip_error = NULL;
       cogl_object_unref (tex);
       tex = NULL;
@@ -111,7 +110,7 @@ cogl_texture_new_with_size (unsigned int width,
    * semantics and return NULL if allocation fails... */
   if (!cogl_texture_allocate (tex, &skip_error))
     {
-      cogl_error_free (skip_error);
+      g_error_free (skip_error);
       cogl_object_unref (tex);
       return NULL;
     }
@@ -139,7 +138,7 @@ _cogl_texture_new_from_data (CoglContext *ctx,
                              CoglPixelFormat internal_format,
                              int rowstride,
                              const uint8_t *data,
-                             CoglError **error)
+                             GError         **error)
 {
   CoglBitmap *bmp;
   CoglTexture *tex;
@@ -178,7 +177,7 @@ cogl_texture_new_from_data (int width,
                             int rowstride,
                             const uint8_t *data)
 {
-  CoglError *ignore_error = NULL;
+  GError *ignore_error = NULL;
   CoglTexture *tex;
 
   _COGL_GET_CONTEXT (ctx, NULL);
@@ -191,7 +190,7 @@ cogl_texture_new_from_data (int width,
                                      data,
                                      &ignore_error);
   if (!tex)
-    cogl_error_free (ignore_error);
+    g_error_free (ignore_error);
   return tex;
 }
 
@@ -200,10 +199,10 @@ _cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
                                CoglTextureFlags flags,
                                CoglPixelFormat internal_format,
                                gboolean can_convert_in_place,
-                               CoglError **error)
+                               GError         **error)
 {
   CoglTexture *tex;
-  CoglError *internal_error = NULL;
+  GError *internal_error = NULL;
 
   if (!flags &&
       !COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_ATLAS))
@@ -219,7 +218,7 @@ _cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
       if (cogl_texture_allocate (COGL_TEXTURE (atlas_tex), &internal_error))
         return COGL_TEXTURE (atlas_tex);
 
-      cogl_error_free (internal_error);
+      g_error_free (internal_error);
       internal_error = NULL;
       cogl_object_unref (atlas_tex);
     }
@@ -232,7 +231,7 @@ _cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
 
   if (!cogl_texture_allocate (tex, &internal_error))
     {
-      cogl_error_free (internal_error);
+      g_error_free (internal_error);
       internal_error = NULL;
       cogl_object_unref (tex);
       tex = NULL;
@@ -274,7 +273,7 @@ cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
                               CoglTextureFlags flags,
                               CoglPixelFormat internal_format)
 {
-  CoglError *ignore_error = NULL;
+  GError *ignore_error = NULL;
   CoglTexture *tex =
     _cogl_texture_new_from_bitmap (bitmap,
                                    flags,
@@ -282,7 +281,7 @@ cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
                                    FALSE, /* can't convert in-place */
                                    &ignore_error);
   if (!tex)
-    cogl_error_free (ignore_error);
+    g_error_free (ignore_error);
   return tex;
 }
 
@@ -290,7 +289,7 @@ CoglTexture *
 cogl_texture_new_from_file (const char        *filename,
                             CoglTextureFlags   flags,
                             CoglPixelFormat    internal_format,
-                            CoglError           **error)
+                            GError           **error)
 {
   CoglBitmap *bmp;
   CoglTexture *texture = NULL;
