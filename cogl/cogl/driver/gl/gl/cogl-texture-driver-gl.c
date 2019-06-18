@@ -44,7 +44,6 @@
 #include "cogl-context-private.h"
 #include "cogl-object-private.h"
 #include "cogl-primitives.h"
-#include "cogl-error-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
@@ -191,7 +190,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
                                              CoglBitmap  *source_bmp,
 				             GLuint source_gl_format,
 				             GLuint source_gl_type,
-                                             CoglError **error)
+                                             GError **error)
 {
   GLenum gl_target;
   GLuint gl_handle;
@@ -199,7 +198,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
   int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
   gboolean status = TRUE;
-  CoglError *internal_error = NULL;
+  GError *internal_error = NULL;
   int level_width;
   int level_height;
 
@@ -212,7 +211,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
    * problems... */
   if (internal_error)
     {
-      _cogl_propagate_error (error, internal_error);
+      g_propagate_error (error, internal_error);
       return FALSE;
     }
 
@@ -299,13 +298,13 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
                                    GLint internal_gl_format,
                                    GLuint source_gl_format,
                                    GLuint source_gl_type,
-                                   CoglError **error)
+                                   GError **error)
 {
   uint8_t *data;
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
   int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
   gboolean status = TRUE;
-  CoglError *internal_error = NULL;
+  GError *internal_error = NULL;
 
   data = _cogl_bitmap_gl_bind (source_bmp,
                                COGL_BUFFER_ACCESS_READ,
@@ -317,7 +316,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
    * problems... */
   if (internal_error)
     {
-      _cogl_propagate_error (error, internal_error);
+      g_propagate_error (error, internal_error);
       return FALSE;
     }
 

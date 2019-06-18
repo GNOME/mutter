@@ -497,7 +497,7 @@ _cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                            int y,
                                            CoglReadPixelsFlags source,
                                            CoglBitmap *bitmap,
-                                           CoglError **error);
+                                           GError **error);
 
 /*
  * _cogl_framebuffer_get_stencil_bits:

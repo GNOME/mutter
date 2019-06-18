@@ -133,7 +133,7 @@ gboolean
 _cogl_blend_string_compile (const char *string,
                             CoglBlendStringContext context,
                             CoglBlendStringStatement *statements,
-                            CoglError **error);
+                            GError **error);
 
 void
 _cogl_blend_string_split_rgba_statement (CoglBlendStringStatement *statement,

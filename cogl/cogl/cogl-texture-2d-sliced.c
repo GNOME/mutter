@@ -50,7 +50,6 @@
 #include "cogl-spans.h"
 #include "cogl-journal-private.h"
 #include "cogl-primitive-texture.h"
-#include "cogl-error-private.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
@@ -191,7 +190,7 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
                                    int src_y,
                                    int dst_x,
                                    int dst_y,
-                                   CoglError **error)
+                                   GError **error)
 {
   gboolean need_x, need_y;
   CoglContext *ctx = COGL_TEXTURE (tex_2ds)->context;
@@ -342,7 +341,7 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
 static gboolean
 _cogl_texture_2d_sliced_upload_bitmap (CoglTexture2DSliced *tex_2ds,
                                        CoglBitmap *bmp,
-                                       CoglError **error)
+                                       GError **error)
 {
   CoglSpan *x_span;
   CoglSpan *y_span;
@@ -438,7 +437,7 @@ _cogl_texture_2d_sliced_upload_subregion (CoglTexture2DSliced *tex_2ds,
                                           int width,
                                           int height,
                                           CoglBitmap *source_bmp,
-                                          CoglError **error)
+                                          GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2ds);
   CoglSpan *x_span;
@@ -631,7 +630,7 @@ setup_spans (CoglContext *ctx,
              int height,
              int max_waste,
              CoglPixelFormat internal_format,
-             CoglError **error)
+             GError **error)
 {
   int max_width;
   int max_height;
@@ -656,13 +655,11 @@ setup_spans (CoglContext *ctx,
                                                       max_height,
                                                       internal_format))
         {
-          _cogl_set_error (error,
-                           COGL_TEXTURE_ERROR,
-                           COGL_TEXTURE_ERROR_SIZE,
-                           "Sliced texture size of %d x %d not possible "
-                           "with max waste set to -1",
-                           width,
-                           height);
+          g_set_error (error, COGL_TEXTURE_ERROR, COGL_TEXTURE_ERROR_SIZE,
+                       "Sliced texture size of %d x %d not possible "
+                       "with max waste set to -1",
+                       width,
+                       height);
           return FALSE;
         }
 
@@ -706,10 +703,8 @@ setup_spans (CoglContext *ctx,
             {
               /* Maybe it would be ok to just g_warn_if_reached() for this
                * codepath */
-              _cogl_set_error (error,
-                               COGL_TEXTURE_ERROR,
-                               COGL_TEXTURE_ERROR_SIZE,
-                               "No suitable slice geometry found");
+              g_set_error (error, COGL_TEXTURE_ERROR, COGL_TEXTURE_ERROR_SIZE,
+                           "No suitable slice geometry found");
               free_spans (tex_2ds);
               return FALSE;
             }
@@ -772,7 +767,7 @@ allocate_slices (CoglTexture2DSliced *tex_2ds,
                  int height,
                  int max_waste,
                  CoglPixelFormat internal_format,
-                 CoglError **error)
+                 GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2ds);
   CoglContext *ctx = tex->context;
@@ -967,7 +962,7 @@ cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
                                       CoglPixelFormat format,
                                       int rowstride,
                                       const uint8_t *data,
-                                      CoglError **error)
+                                      GError **error)
 {
   CoglBitmap *bmp;
   CoglTexture2DSliced *tex_2ds;
@@ -1004,7 +999,7 @@ CoglTexture2DSliced *
 cogl_texture_2d_sliced_new_from_file (CoglContext *ctx,
                                       const char *filename,
                                       int max_waste,
-                                      CoglError **error)
+                                      GError **error)
 {
   CoglBitmap *bmp;
   CoglTexture2DSliced *tex_2ds = NULL;
@@ -1027,7 +1022,7 @@ cogl_texture_2d_sliced_new_from_file (CoglContext *ctx,
 static gboolean
 allocate_with_size (CoglTexture2DSliced *tex_2ds,
                     CoglTextureLoader *loader,
-                    CoglError **error)
+                    GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2ds);
   CoglPixelFormat internal_format =
@@ -1053,7 +1048,7 @@ allocate_with_size (CoglTexture2DSliced *tex_2ds,
 static gboolean
 allocate_from_bitmap (CoglTexture2DSliced *tex_2ds,
                       CoglTextureLoader *loader,
-                      CoglError **error)
+                      GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2ds);
   CoglBitmap *bmp = loader->src.bitmap.bitmap;
@@ -1106,7 +1101,7 @@ allocate_from_bitmap (CoglTexture2DSliced *tex_2ds,
 static gboolean
 allocate_from_gl_foreign (CoglTexture2DSliced *tex_2ds,
                           CoglTextureLoader *loader,
-                          CoglError **error)
+                          GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (tex_2ds);
   CoglContext *ctx = tex->context;
@@ -1170,7 +1165,7 @@ allocate_from_gl_foreign (CoglTexture2DSliced *tex_2ds,
 
 static gboolean
 _cogl_texture_2d_sliced_allocate (CoglTexture *tex,
-                                  CoglError **error)
+                                  GError **error)
 {
   CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
   CoglTextureLoader *loader = tex->loader;
@@ -1395,7 +1390,7 @@ _cogl_texture_2d_sliced_set_region (CoglTexture *tex,
                                     int dst_height,
                                     int level,
                                     CoglBitmap *bmp,
-                                    CoglError **error)
+                                    GError **error)
 {
   CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
   CoglBitmap *upload_bmp;

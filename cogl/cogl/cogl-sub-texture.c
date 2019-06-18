@@ -233,7 +233,7 @@ cogl_sub_texture_new (CoglContext *ctx,
 
 static gboolean
 _cogl_sub_texture_allocate (CoglTexture *tex,
-                            CoglError **error)
+                            GError **error)
 {
   CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
   gboolean status = cogl_texture_allocate (sub_tex->full_texture, error);
@@ -364,7 +364,7 @@ _cogl_sub_texture_set_region (CoglTexture *tex,
                               int dst_height,
                               int level,
                               CoglBitmap *bmp,
-                              CoglError **error)
+                              GError **error)
 {
   CoglSubTexture  *sub_tex = COGL_SUB_TEXTURE (tex);
 

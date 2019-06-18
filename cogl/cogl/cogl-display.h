@@ -158,7 +158,7 @@ cogl_display_set_onscreen_template (CoglDisplay *display,
 /**
  * cogl_display_setup:
  * @display: a #CoglDisplay
- * @error: return location for a #CoglError
+ * @error: return location for a #GError
  *
  * Explicitly sets up the given @display object. Use of this api is
  * optional since Cogl will internally setup the display if not done
@@ -188,7 +188,7 @@ cogl_display_set_onscreen_template (CoglDisplay *display,
  */
 gboolean
 cogl_display_setup (CoglDisplay *display,
-                    CoglError **error);
+                    GError **error);
 
 /**
  * cogl_is_display:

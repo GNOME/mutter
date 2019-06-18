@@ -42,7 +42,6 @@
 #include "cogl-object-private.h"
 #include "cogl-journal-private.h"
 #include "cogl-framebuffer-private.h"
-#include "cogl-error-private.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-texture-2d-gl-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
@@ -135,7 +134,7 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
 
 static gboolean
 _cogl_texture_2d_allocate (CoglTexture *tex,
-                           CoglError **error)
+                           GError **error)
 {
   CoglContext *ctx = tex->context;
 
@@ -172,7 +171,7 @@ cogl_texture_2d_new_from_bitmap (CoglBitmap *bmp)
 CoglTexture2D *
 cogl_texture_2d_new_from_file (CoglContext *ctx,
                                const char *filename,
-                               CoglError **error)
+                               GError **error)
 {
   CoglBitmap *bmp;
   CoglTexture2D *tex_2d = NULL;
@@ -198,7 +197,7 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
                                CoglPixelFormat format,
                                int rowstride,
                                const uint8_t *data,
-                               CoglError **error)
+                               GError **error)
 {
   CoglBitmap *bmp;
   CoglTexture2D *tex_2d;
@@ -241,7 +240,7 @@ cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
                                     int height,
                                     CoglPixelFormat format,
                                     EGLImageKHR image,
-                                    CoglError **error)
+                                    GError **error)
 {
   CoglTextureLoader *loader;
   CoglTexture2D *tex;
@@ -421,7 +420,7 @@ _cogl_texture_2d_set_region (CoglTexture *tex,
                              int height,
                              int level,
                              CoglBitmap *bmp,
-                             CoglError **error)
+                             GError **error)
 {
   CoglContext *ctx = tex->context;
   CoglTexture2D *tex_2d = COGL_TEXTURE_2D (tex);

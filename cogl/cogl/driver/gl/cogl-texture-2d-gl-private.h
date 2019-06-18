@@ -52,13 +52,13 @@ _cogl_texture_2d_gl_init (CoglTexture2D *tex_2d);
 
 gboolean
 _cogl_texture_2d_gl_allocate (CoglTexture *tex,
-                              CoglError **error);
+                              GError **error);
 
 CoglTexture2D *
 _cogl_texture_2d_gl_new_from_bitmap (CoglBitmap *bmp,
                                      CoglPixelFormat internal_format,
                                      gboolean can_convert_in_place,
-                                     CoglError **error);
+                                     GError **error);
 
 #if defined (COGL_HAS_EGL_SUPPORT) && defined (EGL_KHR_image_base)
 CoglTexture2D *
@@ -67,7 +67,7 @@ _cogl_egl_texture_2d_gl_new_from_image (CoglContext *ctx,
                                         int height,
                                         CoglPixelFormat format,
                                         EGLImageKHR image,
-                                        CoglError **error);
+                                        GError **error);
 #endif
 
 void
@@ -108,7 +108,7 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
                                       int dst_x,
                                       int dst_y,
                                       int level,
-                                      CoglError **error);
+                                      GError **error);
 
 gboolean
 _cogl_texture_2d_gl_is_get_data_supported (CoglTexture2D *tex_2d);

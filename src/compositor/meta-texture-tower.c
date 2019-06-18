@@ -373,7 +373,7 @@ texture_tower_revalidate (MetaTextureTower *tower,
   int dest_texture_height = cogl_texture_get_height (dest_texture);
   Box *invalid = &tower->invalid[level];
   CoglFramebuffer *fb;
-  CoglError *catch_error = NULL;
+  GError *catch_error = NULL;
   CoglPipeline *pipeline;
 
   if (tower->fbos[level] == NULL)
@@ -383,7 +383,7 @@ texture_tower_revalidate (MetaTextureTower *tower,
 
   if (!cogl_framebuffer_allocate (fb, &catch_error))
     {
-      cogl_error_free (catch_error);
+      g_error_free (catch_error);
       return;
     }
 

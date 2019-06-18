@@ -217,7 +217,7 @@ cogl_pango_glyph_cache_add_to_global_atlas (CoglPangoGlyphCache *cache,
                                             CoglPangoGlyphCacheValue *value)
 {
   CoglAtlasTexture *texture;
-  CoglError *ignore_error = NULL;
+  GError *ignore_error = NULL;
 
   if (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_SHARED_ATLAS))
     return FALSE;
@@ -232,7 +232,7 @@ cogl_pango_glyph_cache_add_to_global_atlas (CoglPangoGlyphCache *cache,
                                               value->draw_height);
   if (!cogl_texture_allocate (COGL_TEXTURE (texture), &ignore_error))
     {
-      cogl_error_free (ignore_error);
+      g_error_free (ignore_error);
       return FALSE;
     }
 

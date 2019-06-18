@@ -33,7 +33,6 @@
 
 #include "cogl-context-private.h"
 #include "cogl-framebuffer-private.h"
-#include "cogl-error-private.h"
 #include "cogl-texture-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-framebuffer-gl-private.h"
@@ -770,7 +769,7 @@ _cogl_framebuffer_try_creating_gl_fbo (CoglContext *ctx,
 
 gboolean
 _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
-                             CoglError **error)
+                             GError **error)
 {
   CoglFramebuffer *fb = COGL_FRAMEBUFFER (offscreen);
   CoglContext *ctx = fb->context;
@@ -919,9 +918,9 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
     }
   else
     {
-      _cogl_set_error (error, COGL_FRAMEBUFFER_ERROR,
-                       COGL_FRAMEBUFFER_ERROR_ALLOCATE,
-                       "Failed to create an OpenGL framebuffer object");
+      g_set_error (error, COGL_FRAMEBUFFER_ERROR,
+                   COGL_FRAMEBUFFER_ERROR_ALLOCATE,
+                   "Failed to create an OpenGL framebuffer object");
       return FALSE;
     }
 }
@@ -1216,7 +1215,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                               int y,
                                               CoglReadPixelsFlags source,
                                               CoglBitmap *bitmap,
-                                              CoglError **error)
+                                              GError **error)
 {
   CoglContext *ctx = framebuffer->context;
   int framebuffer_height = cogl_framebuffer_get_height (framebuffer);
@@ -1340,7 +1339,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
       int bpp, rowstride;
       gboolean succeeded = FALSE;
       uint8_t *pixels;
-      CoglError *internal_error = NULL;
+      GError *internal_error = NULL;
 
       rowstride = cogl_bitmap_get_rowstride (bitmap);
 
@@ -1378,7 +1377,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
       if (internal_error)
         {
           cogl_object_unref (shared_bmp);
-          _cogl_propagate_error (error, internal_error);
+          g_propagate_error (error, internal_error);
           goto EXIT;
         }
 

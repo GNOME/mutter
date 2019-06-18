@@ -132,7 +132,7 @@ cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
  *             are allowed along the right and bottom textures before
  *             they must be sliced to reduce the amount of waste. A
  *             negative can be passed to disable slicing.
- * @error: A #CoglError to catch exceptional errors or %NULL
+ * @error: A #GError to catch exceptional errors or %NULL
  *
  * Creates a #CoglTexture2DSliced from an image file.
  *
@@ -170,7 +170,7 @@ CoglTexture2DSliced *
 cogl_texture_2d_sliced_new_from_file (CoglContext *ctx,
                                       const char *filename,
                                       int max_waste,
-                                      CoglError **error);
+                                      GError **error);
 
 /**
  * cogl_texture_2d_sliced_new_from_data: (skip)
@@ -186,7 +186,7 @@ cogl_texture_2d_sliced_new_from_file (CoglContext *ctx,
  *    row in @data. A value of 0 will make Cogl automatically
  *    calculate @rowstride from @width and @format.
  * @data: pointer the memory region where the source buffer resides
- * @error: A #CoglError to catch exceptional errors or %NULL
+ * @error: A #GError to catch exceptional errors or %NULL
  *
  * Creates a new #CoglTexture2DSliced texture based on data residing
  * in memory.
@@ -235,7 +235,7 @@ cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
                                       CoglPixelFormat format,
                                       int rowstride,
                                       const uint8_t *data,
-                                      CoglError **error);
+                                      GError **error);
 
 /**
  * cogl_texture_2d_sliced_new_from_bitmap:

@@ -44,7 +44,6 @@
 #include "cogl-context-private.h"
 #include "cogl-object-private.h"
 #include "cogl-primitives.h"
-#include "cogl-error-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
@@ -150,7 +149,7 @@ _cogl_texture_driver_prep_gl_for_pixels_download (CoglContext *ctx,
 static CoglBitmap *
 prepare_bitmap_alignment_for_upload (CoglContext *ctx,
                                      CoglBitmap *src_bmp,
-                                     CoglError **error)
+                                     GError **error)
 {
   CoglPixelFormat format = cogl_bitmap_get_format (src_bmp);
   int bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
@@ -190,7 +189,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
                                              CoglBitmap *source_bmp,
 				             GLuint source_gl_format,
 				             GLuint source_gl_type,
-                                             CoglError **error)
+                                             GError **error)
 {
   GLenum gl_target;
   GLuint gl_handle;
@@ -200,7 +199,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
   CoglBitmap *slice_bmp;
   int rowstride;
   gboolean status = TRUE;
-  CoglError *internal_error = NULL;
+  GError *internal_error = NULL;
   int level_width;
   int level_height;
 
@@ -254,7 +253,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
    * problems... */
   if (internal_error)
     {
-      _cogl_propagate_error (error, internal_error);
+      g_propagate_error (error, internal_error);
       cogl_object_unref (slice_bmp);
       return FALSE;
     }
@@ -335,7 +334,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
                                    GLint internal_gl_format,
                                    GLuint source_gl_format,
                                    GLuint source_gl_type,
-                                   CoglError **error)
+                                   GError **error)
 {
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
   int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
@@ -344,7 +343,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
   int bmp_height = cogl_bitmap_get_height (source_bmp);
   CoglBitmap *bmp;
   uint8_t *data;
-  CoglError *internal_error = NULL;
+  GError *internal_error = NULL;
   gboolean status = TRUE;
 
   bmp = prepare_bitmap_alignment_for_upload (ctx, source_bmp, error);
@@ -369,7 +368,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
   if (internal_error)
     {
       cogl_object_unref (bmp);
-      _cogl_propagate_error (error, internal_error);
+      g_propagate_error (error, internal_error);
       return FALSE;
     }
 
