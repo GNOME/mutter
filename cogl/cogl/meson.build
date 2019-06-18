@@ -131,7 +131,6 @@ cogl_nonintrospected_headers = [
   'cogl-macros.h',
   'cogl-fence.h',
   'cogl-version.h',
-  'cogl-error.h',
   'cogl-gtype-private.h',
   'cogl-glib-source.h',
 ]
@@ -365,8 +364,6 @@ cogl_sources = [
   'cogl-magazine.c',
   'cogl-gles2-context-private.h',
   'cogl-gles2-context.c',
-  'cogl-error-private.h',
-  'cogl-error.c',
   'cogl-closure-list-private.h',
   'cogl-closure-list.c',
   'cogl-fence.c',
