@@ -37,7 +37,6 @@ global:
   _cogl_onscreen_notify_frame_sync;
   _cogl_winsys_egl_renderer_connect_common;
   _cogl_winsys_error_quark;
-  _cogl_set_error;
   _cogl_poll_renderer_add_fd;
   _cogl_poll_renderer_add_idle;
   _cogl_framebuffer_winsys_update_size;

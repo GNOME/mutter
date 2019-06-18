@@ -40,7 +40,6 @@
 #include "cogl-depth-state-private.h"
 #include "cogl-pipeline-state-private.h"
 #include "cogl-snippet-private.h"
-#include "cogl-error-private.h"
 
 #include <test-fixtures/test-unit.h>
 
@@ -946,7 +945,7 @@ setup_blend_state (CoglBlendStringStatement *statement,
 gboolean
 cogl_pipeline_set_blend (CoglPipeline *pipeline,
                          const char *blend_description,
-                         CoglError **error)
+                         GError      **error)
 {
   CoglPipelineState state = COGL_PIPELINE_STATE_BLEND;
   CoglPipeline *authority;
@@ -1144,7 +1143,7 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
 gboolean
 cogl_pipeline_set_depth_state (CoglPipeline *pipeline,
                                const CoglDepthState *depth_state,
-                               CoglError **error)
+                               GError              **error)
 {
   CoglPipelineState state = COGL_PIPELINE_STATE_DEPTH;
   CoglPipeline *authority;
@@ -1389,7 +1388,7 @@ cogl_pipeline_set_point_size (CoglPipeline *pipeline,
 gboolean
 cogl_pipeline_set_per_vertex_point_size (CoglPipeline *pipeline,
                                          gboolean enable,
-                                         CoglError **error)
+                                         GError **error)
 {
   CoglPipelineState state = COGL_PIPELINE_STATE_PER_VERTEX_POINT_SIZE;
   CoglPipeline *authority;
@@ -1406,10 +1405,10 @@ cogl_pipeline_set_per_vertex_point_size (CoglPipeline *pipeline,
 
   if (enable && !cogl_has_feature (ctx, COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE))
     {
-      _cogl_set_error (error,
-                       COGL_SYSTEM_ERROR,
-                       COGL_SYSTEM_ERROR_UNSUPPORTED,
-                       "Per-vertex point size is not supported");
+      g_set_error_literal (error,
+                           COGL_SYSTEM_ERROR,
+                           COGL_SYSTEM_ERROR_UNSUPPORTED,
+                           "Per-vertex point size is not supported");
 
       return FALSE;
     }

@@ -650,12 +650,12 @@ CoglOffscreen *
 cogl_offscreen_new_to_texture (CoglTexture *texture)
 {
   CoglOffscreen *ret = _cogl_offscreen_new_with_texture_full (texture, 0, 0);
-  CoglError *error = NULL;
+  GError *error = NULL;
 
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (ret), &error))
     {
       cogl_object_unref (ret);
-      cogl_error_free (error);
+      g_error_free (error);
       ret = NULL;
     }
 
@@ -696,7 +696,7 @@ _cogl_offscreen_free (CoglOffscreen *offscreen)
 
 gboolean
 cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
-                           CoglError **error)
+                           GError **error)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
@@ -709,10 +709,10 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
     {
       if (framebuffer->config.depth_texture_enabled)
         {
-          _cogl_set_error (error, COGL_FRAMEBUFFER_ERROR,
-                           COGL_FRAMEBUFFER_ERROR_ALLOCATE,
-                           "Can't allocate onscreen framebuffer with a "
-                           "texture based depth buffer");
+          g_set_error_literal (error, COGL_FRAMEBUFFER_ERROR,
+                               COGL_FRAMEBUFFER_ERROR_ALLOCATE,
+                               "Can't allocate onscreen framebuffer with a "
+                               "texture based depth buffer");
           return FALSE;
         }
 
@@ -732,9 +732,9 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
 
       if (!cogl_has_feature (ctx, COGL_FEATURE_ID_OFFSCREEN))
         {
-          _cogl_set_error (error, COGL_SYSTEM_ERROR,
-                           COGL_SYSTEM_ERROR_UNSUPPORTED,
-                           "Offscreen framebuffers not supported by system");
+          g_set_error_literal (error, COGL_SYSTEM_ERROR,
+                               COGL_SYSTEM_ERROR_UNSUPPORTED,
+                               "Offscreen framebuffers not supported by system");
           return FALSE;
         }
 
@@ -745,10 +745,9 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
        * determine whether a texture needs slicing... */
       if (cogl_texture_is_sliced (offscreen->texture))
         {
-          _cogl_set_error (error, COGL_SYSTEM_ERROR,
-                           COGL_SYSTEM_ERROR_UNSUPPORTED,
-                           "Can't create offscreen framebuffer from "
-                           "sliced texture");
+          g_set_error (error, COGL_SYSTEM_ERROR, COGL_SYSTEM_ERROR_UNSUPPORTED,
+                       "Can't create offscreen framebuffer from "
+                       "sliced texture");
           return FALSE;
         }
 
@@ -1212,7 +1211,7 @@ _cogl_framebuffer_try_fast_read_pixel (CoglFramebuffer *framebuffer,
       y < framebuffer->clear_clip_y1)
     {
       uint8_t *pixel;
-      CoglError *ignore_error = NULL;
+      GError *ignore_error = NULL;
 
       /* we currently only care about cases where the premultiplied or
        * unpremultipled colors are equivalent... */
@@ -1225,7 +1224,7 @@ _cogl_framebuffer_try_fast_read_pixel (CoglFramebuffer *framebuffer,
                                 &ignore_error);
       if (pixel == NULL)
         {
-          cogl_error_free (ignore_error);
+          g_error_free (ignore_error);
           return FALSE;
         }
 
@@ -1248,7 +1247,7 @@ _cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                            int y,
                                            CoglReadPixelsFlags source,
                                            CoglBitmap *bitmap,
-                                           CoglError **error)
+                                           GError            **error)
 {
   CoglContext *ctx;
   int width;
@@ -1299,13 +1298,12 @@ cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                           CoglReadPixelsFlags source,
                                           CoglBitmap *bitmap)
 {
-  CoglError *ignore_error = NULL;
+  GError *ignore_error = NULL;
   gboolean status =
     _cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
                                                x, y, source, bitmap,
                                                &ignore_error);
-  if (!status)
-    cogl_error_free (ignore_error);
+  g_clear_error (&ignore_error);
   return status;
 }
 

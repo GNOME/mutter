@@ -55,7 +55,7 @@ typedef struct _CoglXlibRenderer
 } CoglXlibRenderer;
 
 gboolean
-_cogl_xlib_renderer_connect (CoglRenderer *renderer, CoglError **error);
+_cogl_xlib_renderer_connect (CoglRenderer *renderer, GError **error);
 
 void
 _cogl_xlib_renderer_disconnect (CoglRenderer *renderer);

@@ -36,7 +36,6 @@
 
 #include <cogl/cogl-texture.h>
 #include <cogl/cogl-meta-texture.h>
-#include <cogl/cogl-error-private.h>
 #include <cogl/cogl-frame-info-private.h>
 #include <cogl/cogl-renderer-private.h>
 #if defined (COGL_HAS_EGL_SUPPORT)

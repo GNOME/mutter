@@ -135,7 +135,7 @@ convert_bind_target_to_gl_target (CoglBufferBindTarget target)
 
 static gboolean
 recreate_store (CoglBuffer *buffer,
-                CoglError **error)
+                GError    **error)
 {
   CoglContext *ctx = buffer->context;
   GLenum gl_target;
@@ -206,7 +206,7 @@ _cogl_buffer_gl_map_range (CoglBuffer *buffer,
                            size_t size,
                            CoglBufferAccess access,
                            CoglBufferMapHint hints,
-                           CoglError **error)
+                           GError **error)
 {
   uint8_t *data;
   CoglBufferBindTarget target;
@@ -218,10 +218,10 @@ _cogl_buffer_gl_map_range (CoglBuffer *buffer,
       ((access & COGL_BUFFER_ACCESS_WRITE) &&
        !cogl_has_feature (ctx, COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE)))
     {
-      _cogl_set_error (error,
-                       COGL_SYSTEM_ERROR,
-                       COGL_SYSTEM_ERROR_UNSUPPORTED,
-                       "Tried to map a buffer with unsupported access mode");
+      g_set_error_literal (error,
+                           COGL_SYSTEM_ERROR,
+                           COGL_SYSTEM_ERROR_UNSUPPORTED,
+                           "Tried to map a buffer with unsupported access mode");
       return NULL;
     }
 
@@ -351,13 +351,13 @@ _cogl_buffer_gl_set_data (CoglBuffer *buffer,
                           unsigned int offset,
                           const void *data,
                           unsigned int size,
-                          CoglError **error)
+                          GError     **error)
 {
   CoglBufferBindTarget target;
   GLenum gl_target;
   CoglContext *ctx = buffer->context;
   gboolean status = TRUE;
-  CoglError *internal_error = NULL;
+  GError *internal_error = NULL;
 
   target = buffer->last_target;
 
@@ -369,7 +369,7 @@ _cogl_buffer_gl_set_data (CoglBuffer *buffer,
    */
   if (internal_error)
     {
-      _cogl_propagate_error (error, internal_error);
+      g_propagate_error (error, internal_error);
       return FALSE;
     }
 
@@ -391,7 +391,7 @@ _cogl_buffer_gl_set_data (CoglBuffer *buffer,
 void *
 _cogl_buffer_gl_bind (CoglBuffer *buffer,
                       CoglBufferBindTarget target,
-                      CoglError **error)
+                      GError             **error)
 {
   void *ret;
 
