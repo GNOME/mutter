@@ -438,7 +438,10 @@ meta_wayland_init (void)
     }
 
   if (meta_should_autostart_x11_display ())
-    set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
+    {
+      set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
+      set_gnome_env ("XAUTHORITY", compositor->xwayland_manager.auth_filename);
+    }
 
   set_gnome_env ("WAYLAND_DISPLAY", meta_wayland_get_wayland_display_name (compositor));
 }

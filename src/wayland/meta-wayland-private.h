@@ -52,6 +52,7 @@ typedef struct
   struct wl_client *client;
   struct wl_resource *xserver_resource;
   char *display_name;
+  char *auth_filename;
 
   GCancellable *xserver_died_cancellable;
   GSubprocess *proc;
