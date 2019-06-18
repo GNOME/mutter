@@ -37,7 +37,6 @@
 #include <string.h>
 
 #include "cogl-private.h"
-#include "cogl-error-private.h"
 #include "cogl-context-private.h"
 #include "cogl-attribute.h"
 #include "cogl-attribute-private.h"
