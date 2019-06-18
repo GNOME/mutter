@@ -81,7 +81,7 @@ GType cogl_texture_get_gtype (void);
 /**
  * COGL_TEXTURE_ERROR:
  *
- * #CoglError domain for texture errors.
+ * #GError domain for texture errors.
  *
  * Since: 1.8
  * Stability: Unstable
@@ -387,7 +387,7 @@ cogl_texture_set_region (CoglTexture *texture,
  * @data: the source data, pointing to the first top-left pixel to set
  * @level: The mipmap level to update (Normally 0 for the largest,
  *         base texture)
- * @error: A #CoglError to return exceptional errors
+ * @error: A #GError to return exceptional errors
  *
  * Sets all the pixels for a given mipmap @level by copying the pixel
  * data pointed to by the @data argument into the given @texture.
@@ -436,7 +436,7 @@ cogl_texture_set_data (CoglTexture *texture,
                        int rowstride,
                        const uint8_t *data,
                        int level,
-                       CoglError **error);
+                       GError        **error);
 
 /**
  * cogl_texture_set_region_from_bitmap:
@@ -476,7 +476,7 @@ cogl_texture_set_region_from_bitmap (CoglTexture *texture,
 /**
  * cogl_texture_allocate:
  * @texture: A #CoglTexture
- * @error: A #CoglError to return exceptional errors or %NULL
+ * @error: A #GError to return exceptional errors or %NULL
  *
  * Explicitly allocates the storage for the given @texture which
  * allows you to be sure that there is enough memory for the
@@ -493,7 +493,7 @@ cogl_texture_set_region_from_bitmap (CoglTexture *texture,
  */
 gboolean
 cogl_texture_allocate (CoglTexture *texture,
-                       CoglError **error);
+                       GError     **error);
 
 /**
  * cogl_texture_is_get_data_supported: (skip)

@@ -70,7 +70,7 @@ GType cogl_bitmap_get_gtype (void);
 /**
  * cogl_bitmap_new_from_file:
  * @filename: the file to load.
- * @error: a #CoglError or %NULL.
+ * @error: a #GError or %NULL.
  *
  * Loads an image file from disk. This function can be safely called from
  * within a thread.
@@ -82,7 +82,7 @@ GType cogl_bitmap_get_gtype (void);
  */
 CoglBitmap *
 cogl_bitmap_new_from_file (const char *filename,
-                           CoglError **error);
+                           GError **error);
 
 /**
  * cogl_bitmap_new_from_buffer: (skip)
@@ -269,7 +269,7 @@ cogl_is_bitmap (void *object);
 /**
  * COGL_BITMAP_ERROR:
  *
- * #CoglError domain for bitmap errors.
+ * #GError domain for bitmap errors.
  *
  * Since: 1.4
  */

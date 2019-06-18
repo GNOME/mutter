@@ -390,7 +390,7 @@ cogl_pipeline_get_alpha_test_reference (CoglPipeline *pipeline);
  * @pipeline: A #CoglPipeline object
  * @blend_string: A <link linkend="cogl-Blend-Strings">Cogl blend string</link>
  *   describing the desired blend function.
- * @error: return location for a #CoglError that may report lack of driver
+ * @error: return location for a #GError that may report lack of driver
  *   support if you give separate blend string statements for the alpha
  *   channel and RGB channels since some drivers, or backends such as
  *   GLES 1.1, don't support this feature. May be %NULL, in which case a
@@ -470,7 +470,7 @@ cogl_pipeline_get_alpha_test_reference (CoglPipeline *pipeline);
 gboolean
 cogl_pipeline_set_blend (CoglPipeline *pipeline,
                          const char   *blend_string,
-                         CoglError      **error);
+                         GError      **error);
 
 /**
  * cogl_pipeline_set_blend_constant:
@@ -531,7 +531,7 @@ cogl_pipeline_get_point_size (CoglPipeline *pipeline);
  * cogl_pipeline_set_per_vertex_point_size:
  * @pipeline: a #CoglPipeline pointer
  * @enable: whether to enable per-vertex point size
- * @error: a location to store a #CoglError if the change failed
+ * @error: a location to store a #GError if the change failed
  *
  * Sets whether to use a per-vertex point size or to use the value set
  * by cogl_pipeline_set_point_size(). If per-vertex point size is
@@ -547,7 +547,7 @@ cogl_pipeline_get_point_size (CoglPipeline *pipeline);
  * Note that enabling this will only work if the
  * %COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE feature is available. If
  * this is not available then the function will return %FALSE and set
- * a #CoglError.
+ * a #GError.
  *
  * Since: 2.0
  * Stability: Unstable
@@ -556,7 +556,7 @@ cogl_pipeline_get_point_size (CoglPipeline *pipeline);
 gboolean
 cogl_pipeline_set_per_vertex_point_size (CoglPipeline *pipeline,
                                          gboolean enable,
-                                         CoglError **error);
+                                         GError      **error);
 
 /**
  * cogl_pipeline_get_per_vertex_point_size:
@@ -637,7 +637,7 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
  * cogl_pipeline_set_depth_state: (skip)
  * @pipeline: A #CoglPipeline object
  * @state: A #CoglDepthState struct
- * @error: A #CoglError to report failures to setup the given @state.
+ * @error: A #GError to report failures to setup the given @state.
  *
  * This commits all the depth state configured in @state struct to the
  * given @pipeline. The configuration values are copied into the
@@ -656,7 +656,7 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
 gboolean
 cogl_pipeline_set_depth_state (CoglPipeline *pipeline,
                                const CoglDepthState *state,
-                               CoglError **error);
+                               GError      **error);
 
 /**
  * cogl_pipeline_get_depth_state: (skip)

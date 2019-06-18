@@ -106,7 +106,7 @@ GType cogl_framebuffer_get_gtype (void);
 /**
  * cogl_framebuffer_allocate:
  * @framebuffer: A #CoglFramebuffer
- * @error: A pointer to a #CoglError for returning exceptions.
+ * @error: A pointer to a #GError for returning exceptions.
  *
  * Explicitly allocates a configured #CoglFramebuffer allowing developers to
  * check and handle any errors that might arise from an unsupported
@@ -125,7 +125,7 @@ GType cogl_framebuffer_get_gtype (void);
  */
 gboolean
 cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
-                           CoglError **error);
+                           GError         **error);
 
 /**
  * cogl_framebuffer_get_width:

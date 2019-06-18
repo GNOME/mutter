@@ -83,7 +83,7 @@ void
 _cogl_gl_util_clear_gl_errors (CoglContext *ctx);
 
 gboolean
-_cogl_gl_util_catch_out_of_memory (CoglContext *ctx, CoglError **error);
+_cogl_gl_util_catch_out_of_memory (CoglContext *ctx, GError **error);
 
 /* Parses a GL version number stored in a string. @version_string must
  * point to the beginning of the version number (ie, it can't point to
