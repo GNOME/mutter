@@ -35,202 +35,627 @@
 #include <stdlib.h>
 
 #include "cogl-pixel-format.h"
+#include "cogl-texture.h"
 
 /* An entry to map CoglPixelFormats to their respective properties */
 typedef struct _CoglPixelFormatInfo
 {
   CoglPixelFormat cogl_format;
   const char *format_str;
-  int bpp;                         /* Bytes per pixel                 */
-  int aligned;                     /* Aligned components? (-1 if n/a) */
+  int aligned;                               /* Is aligned? (bool; -1 if n/a) */
+  uint8_t n_planes;
+
+  /* Per plane-information */
+  uint8_t bpp[COGL_PIXEL_FORMAT_MAX_PLANES];        /* Bytes per pixel        */
+  uint8_t hsub[COGL_PIXEL_FORMAT_MAX_PLANES];       /* horizontal subsampling */
+  uint8_t vsub[COGL_PIXEL_FORMAT_MAX_PLANES];       /* vertical subsampling   */
+  CoglPixelFormat subformats[COGL_PIXEL_FORMAT_MAX_PLANES]; /* how to upload to GL    */
 } CoglPixelFormatInfo;
 
 static const CoglPixelFormatInfo format_info_table[] = {
   {
     .cogl_format = COGL_PIXEL_FORMAT_ANY,
     .format_str = "ANY",
-    .bpp = 0,
-    .aligned = -1
+    .n_planes = 1,
+    .aligned = -1,
+    .bpp = { 0 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_ANY }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_A_8,
     .format_str = "A_8",
-    .bpp = 1,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 1 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_A_8 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_RGB_565,
     .format_str = "RGB_565",
-    .bpp = 2,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 2 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGB_565 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_RGBA_4444,
     .format_str = "RGBA_4444",
-    .bpp = 2,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 2 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGBA_4444 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_RGBA_5551,
     .format_str = "RGBA_5551",
-    .bpp = 2,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 2 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGBA_5551 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_YUV,
     .format_str = "YUV",
-    .bpp = 0,
-    .aligned = -1
+    .n_planes = 1,
+    .aligned = -1,
+    .bpp = { 0 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_YUV }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_R_8,
     .format_str = "R_8",
-    .bpp = 1,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 1 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_RG_88,
     .format_str = "RG_88",
-    .bpp = 2,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 2 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RG_88 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_RGB_888,
     .format_str = "RGB_888",
-    .bpp = 3,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 3 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGB_888 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_BGR_888,
     .format_str = "BGR_888",
-    .bpp = 3,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 3 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_BGR_888 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_RGBA_8888,
     .format_str = "RGBA_8888",
-    .bpp = 4,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGBA_8888 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_BGRA_8888,
     .format_str = "BGRA_8888",
-    .bpp = 4,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_BGRA_8888 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_ARGB_8888,
     .format_str = "ARGB_8888",
-    .bpp = 4,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_ARGB_8888 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_ABGR_8888,
     .format_str = "ABGR_8888",
-    .bpp = 4,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_ABGR_8888 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_RGBA_1010102,
     .format_str = "RGBA_1010102",
-    .bpp = 4,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGBA_1010102 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_BGRA_1010102,
     .format_str = "BGRA_1010102",
-    .bpp = 4,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_BGRA_1010102 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010,
     .format_str = "ARGB_2101010",
-    .bpp = 4,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_ARGB_2101010 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_ABGR_2101010,
     .format_str = "ABGR_2101010",
-    .bpp = 4,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_ABGR_2101010 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_RGBA_8888_PRE,
     .format_str = "RGBA_8888_PRE",
-    .bpp = 4,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGBA_8888_PRE }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_BGRA_8888_PRE,
     .format_str = "BGRA_8888_PRE",
-    .bpp = 4,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_BGRA_8888_PRE }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_ARGB_8888_PRE,
     .format_str = "ARGB_8888_PRE",
-    .bpp = 4,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_ARGB_8888_PRE }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_ABGR_8888_PRE,
     .format_str = "ABGR_8888_PRE",
-    .bpp = 4,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_ABGR_8888_PRE }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_RGBA_4444_PRE,
     .format_str = "RGBA_4444_PRE",
-    .bpp = 2,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 2 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGBA_4444_PRE }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_RGBA_5551_PRE,
     .format_str = "RGBA_5551_PRE",
-    .bpp = 2,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 2 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGBA_5551_PRE }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_RGBA_1010102_PRE,
     .format_str = "RGBA_1010102_PRE",
-    .bpp = 4,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGBA_1010102_PRE }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_BGRA_1010102_PRE,
     .format_str = "BGRA_1010102_PRE",
-    .bpp = 4,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_BGRA_1010102_PRE }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE,
     .format_str = "ARGB_2101010_PRE",
-    .bpp = 4,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_ARGB_2101010_PRE }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_ABGR_2101010_PRE,
     .format_str = "ABGR_2101010_PRE",
-    .bpp = 4,
-    .aligned = 0
+    .n_planes = 1,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_ABGR_2101010_PRE }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_DEPTH_16,
     .format_str = "DEPTH_16",
-    .bpp = 2,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 2 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_DEPTH_16 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_DEPTH_32,
     .format_str = "DEPTH_32",
-    .bpp = 4,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_DEPTH_32 }
   },
   {
     .cogl_format = COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8,
     .format_str = "DEPTH_24_STENCIL_8",
-    .bpp = 4,
-    .aligned = 1
+    .n_planes = 1,
+    .aligned = 1,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8 }
+  },
+  /* Packed YUV */
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_YUYV,
+    .format_str = "YUYV",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_YUYV, COGL_PIXEL_FORMAT_YUYV }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_YVYU,
+    .format_str = "YVYU",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_YVYU, COGL_PIXEL_FORMAT_YVYU }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_UYVY,
+    .format_str = "UYVY",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_UYVY, COGL_PIXEL_FORMAT_UYVY }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_VYUY,
+    .format_str = "VYUY",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_VYUY, COGL_PIXEL_FORMAT_VYUY }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_AYUV,
+    .format_str = "AYUV",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 4 },
+    .hsub = { 1, 0, 0, 0 },
+    .vsub = { 1, 0, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_AYUV, COGL_PIXEL_FORMAT_AYUV }
+  },
+  /* 2 plane RGB + A */
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_XRGB8888_A8,
+    .format_str = "XRGB8888_A8",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 4, 1 },
+    .hsub = { 1, 1, 0, 0 },
+    .vsub = { 1, 1, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_ARGB_8888, COGL_PIXEL_FORMAT_A_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_XBGR8888_A8,
+    .format_str = "XBGR8888_A8",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 4, 1 },
+    .hsub = { 1, 1, 0, 0 },
+    .vsub = { 1, 1, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_ABGR_8888, COGL_PIXEL_FORMAT_A_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_RGBX8888_A8,
+    .format_str = "RGBX8888_A8",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 4, 1 },
+    .hsub = { 1, 1, 0, 0 },
+    .vsub = { 1, 1, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGBA_8888, COGL_PIXEL_FORMAT_A_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_BGRX8888_A8,
+    .format_str = "BGRX8888_A8",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 4, 1 },
+    .hsub = { 1, 1, 0, 0 },
+    .vsub = { 1, 1, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_BGRA_8888, COGL_PIXEL_FORMAT_A_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_RGB888_A8,
+    .format_str = "RGB888_A8",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 3, 1 },
+    .hsub = { 1, 1, 0, 0 },
+    .vsub = { 1, 1, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGB_888, COGL_PIXEL_FORMAT_A_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_BGR888_A8,
+    .format_str = "BGR888_A8",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 3, 1 },
+    .hsub = { 1, 1, 0, 0 },
+    .vsub = { 1, 1, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_BGR_888, COGL_PIXEL_FORMAT_A_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_RGB565_A8,
+    .format_str = "RGB565_A8",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 2, 1 },
+    .hsub = { 1, 1, 0, 0 },
+    .vsub = { 1, 1, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGB_565, COGL_PIXEL_FORMAT_A_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_BGR565_A8,
+    .format_str = "BGR565_A8",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 2, 1 },
+    .hsub = { 1, 1, 0, 0 },
+    .vsub = { 1, 1, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_RGB_565, COGL_PIXEL_FORMAT_A_8 }
+  },
+  /* 2 plane YUV */
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_NV12,
+    .format_str = "NV12",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 1, 2 },
+    .hsub = { 1, 2, 0, 0 },
+    .vsub = { 1, 2, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_RG_88 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_NV21,
+    .format_str = "NV21",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 1, 2 },
+    .hsub = { 1, 2, 0, 0 },
+    .vsub = { 1, 2, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_RG_88 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_NV16,
+    .format_str = "NV16",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 1, 2 },
+    .hsub = { 1, 2, 0, 0 },
+    .vsub = { 1, 1, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_RG_88 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_NV61,
+    .format_str = "NV61",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 1, 2 },
+    .hsub = { 1, 2, 0, 0 },
+    .vsub = { 1, 1, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_RG_88 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_NV24,
+    .format_str = "NV24",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 1, 2 },
+    .hsub = { 1, 1, 0, 0 },
+    .vsub = { 1, 1, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_RG_88 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_NV42,
+    .format_str = "NV42",
+    .n_planes = 2,
+    .aligned = 0,
+    .bpp = { 1, 2 },
+    .hsub = { 1, 1, 0, 0 },
+    .vsub = { 1, 1, 0, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_RG_88 }
+  },
+  /* 3 plane YUV */
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_YUV410,
+    .format_str = "YUV410",
+    .n_planes = 3,
+    .aligned = 0,
+    .bpp = { 1, 1, 1 },
+    .hsub = { 1, 4, 4, 0 },
+    .vsub = { 1, 4, 4, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_YVU410,
+    .format_str = "YVU410",
+    .n_planes = 3,
+    .aligned = 0,
+    .bpp = { 1, 1, 1 },
+    .hsub = { 1, 4, 4, 0 },
+    .vsub = { 1, 4, 4, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_YUV411,
+    .format_str = "YUV411",
+    .n_planes = 3,
+    .aligned = 0,
+    .bpp = { 1, 1, 1 },
+    .hsub = { 1, 4, 4, 0 },
+    .vsub = { 1, 1, 1, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_YVU411,
+    .format_str = "YVU411",
+    .n_planes = 3,
+    .aligned = 0,
+    .bpp = { 1, 1, 1 },
+    .hsub = { 1, 4, 4, 0 },
+    .vsub = { 1, 1, 1, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_YUV420,
+    .format_str = "YUV420",
+    .n_planes = 3,
+    .aligned = 0,
+    .bpp = { 1, 1, 1 },
+    .hsub = { 1, 2, 2, 0 },
+    .vsub = { 1, 2, 2, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_YVU420,
+    .format_str = "YVU420",
+    .n_planes = 3,
+    .aligned = 0,
+    .bpp = { 1, 1, 1 },
+    .hsub = { 1, 2, 2, 0 },
+    .vsub = { 1, 2, 2, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_YUV422,
+    .format_str = "YUV422",
+    .n_planes = 3,
+    .aligned = 0,
+    .bpp = { 1, 1, 1 },
+    .hsub = { 1, 2, 2, 0 },
+    .vsub = { 1, 1, 1, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_YVU422,
+    .format_str = "YVU422",
+    .n_planes = 3,
+    .aligned = 0,
+    .bpp = { 1, 1, 1 },
+    .hsub = { 1, 2, 2, 0 },
+    .vsub = { 1, 1, 1, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_YUV444,
+    .format_str = "YUV444",
+    .n_planes = 3,
+    .aligned = 0,
+    .bpp = { 1, 1, 1 },
+    .hsub = { 1, 1, 1, 0 },
+    .vsub = { 1, 1, 1, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 }
+  },
+  {
+    .cogl_format = COGL_PIXEL_FORMAT_YVU444,
+    .format_str = "YVU444",
+    .n_planes = 3,
+    .aligned = 0,
+    .bpp = { 1, 1, 1 },
+    .hsub = { 1, 1, 1, 0 },
+    .vsub = { 1, 1, 1, 0 },
+    .subformats = { COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8, COGL_PIXEL_FORMAT_R_8 }
   },
 };
 
@@ -254,7 +679,8 @@ static const CoglPixelFormatInfo format_info_table[] = {
  * 13    = 4 bpp, not aligned (e.g. 2101010)
  * 14-15 = undefined
  */
-int
+/* FIXME: this needs to be changed in all places this is called */
+uint8_t
 _cogl_pixel_format_get_bytes_per_pixel (CoglPixelFormat format)
 {
   size_t i;
@@ -262,7 +688,26 @@ _cogl_pixel_format_get_bytes_per_pixel (CoglPixelFormat format)
   for (i = 0; i < G_N_ELEMENTS (format_info_table); i++)
     {
       if (format_info_table[i].cogl_format == format)
-        return format_info_table[i].bpp;
+        return format_info_table[i].bpp[0];
+    }
+
+  g_assert_not_reached ();
+}
+
+/* FIXME: this needs to be merged with get_bytes_per_pixel */
+void
+cogl_pixel_format_get_bytes_per_pixel_ (CoglPixelFormat format, uint8_t *bpp_out)
+{
+  size_t i, j;
+
+  for (i = 0; i < G_N_ELEMENTS (format_info_table); i++)
+    {
+      if (format_info_table[i].cogl_format != format)
+        continue;
+
+      for (j = 0; j < format_info_table[i].n_planes; j++)
+        bpp_out[j] = format_info_table[i].bpp[j];
+      return;
     }
 
   g_assert_not_reached ();
@@ -295,6 +740,44 @@ _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format)
   return aligned;
 }
 
+uint8_t
+cogl_pixel_format_get_n_planes (CoglPixelFormat format)
+{
+  size_t i;
+
+  for (i = 0; i < G_N_ELEMENTS (format_info_table); i++)
+    {
+      if (format_info_table[i].cogl_format == format)
+        return format_info_table[i].n_planes;
+    }
+
+  g_assert_not_reached ();
+}
+
+void
+cogl_pixel_format_get_subsampling_factors (CoglPixelFormat format,
+                                           uint8_t *horizontal_factors,
+                                           uint8_t *vertical_factors)
+{
+  size_t i, j;
+
+  for (i = 0; i < G_N_ELEMENTS (format_info_table); i++)
+    {
+      if (format_info_table[i].cogl_format != format)
+        continue;
+
+      for (j = 0; j < format_info_table[i].n_planes; j++)
+        {
+          horizontal_factors[j] = format_info_table[i].hsub[j];
+          vertical_factors[j] = format_info_table[i].vsub[j];
+        }
+
+      return;
+    }
+
+  g_assert_not_reached ();
+}
+
 const char *
 cogl_pixel_format_to_string (CoglPixelFormat format)
 {
@@ -307,4 +790,52 @@ cogl_pixel_format_to_string (CoglPixelFormat format)
     }
 
   g_assert_not_reached ();
+}
+
+void
+cogl_pixel_format_get_subformats (CoglPixelFormat  format,
+                                  CoglPixelFormat *formats_out)
+{
+  size_t i, j;
+
+  for (i = 0; i < G_N_ELEMENTS (format_info_table); i++)
+    {
+      if (format_info_table[i].cogl_format != format)
+        continue;
+
+      for (j = 0; j < format_info_table[i].n_planes; j++)
+        formats_out[j] = format_info_table[i].subformats[j];
+      return;
+    }
+
+  g_assert_not_reached ();
+}
+
+void
+cogl_pixel_format_get_cogl_components (CoglPixelFormat  format,
+                                       guint           *components_out)
+{
+  switch (format)
+    {
+    case COGL_PIXEL_FORMAT_NV12:
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_RG;
+      break;
+    case COGL_PIXEL_FORMAT_NV21:
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_RG;
+      break;
+    case COGL_PIXEL_FORMAT_YUV422:
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_R;
+      break;
+    case COGL_PIXEL_FORMAT_YUV444:
+      components_out[0] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[1] = COGL_TEXTURE_COMPONENTS_R;
+      components_out[2] = COGL_TEXTURE_COMPONENTS_R;
+      break;
+    default:
+      components_out[0] = COGL_TEXTURE_COMPONENTS_RGBA;
+    }
 }
