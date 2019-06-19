@@ -257,6 +257,9 @@ cogl_pixel_format_from_drm_format (uint32_t               drm_format,
                                    CoglTextureComponents *out_components);
 
 static void
+meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native);
+
+static void
 meta_renderer_native_gpu_data_free (MetaRendererNativeGpuData *renderer_gpu_data)
 {
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
@@ -3113,8 +3116,14 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
 static void
 meta_renderer_native_rebuild_views (MetaRenderer *renderer)
 {
+  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  MetaBackendNative *backend_native =
+    META_BACKEND_NATIVE (renderer_native->backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaRendererClass *parent_renderer_class =
     META_RENDERER_CLASS (meta_renderer_native_parent_class);
+
+  meta_kms_discard_pending_page_flips (kms);
 
   parent_renderer_class->rebuild_views (renderer);
 
