@@ -152,7 +152,7 @@ prepare_bitmap_alignment_for_upload (CoglContext *ctx,
                                      GError **error)
 {
   CoglPixelFormat format = cogl_bitmap_get_format (src_bmp);
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+  int bpp = cogl_pixel_format_get_bytes_per_pixel_simple (format);
   int src_rowstride = cogl_bitmap_get_rowstride (src_bmp);
   int width = cogl_bitmap_get_width (src_bmp);
   int alignment = 1;
@@ -195,7 +195,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
   GLuint gl_handle;
   uint8_t *data;
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
+  int bpp = cogl_pixel_format_get_bytes_per_pixel_simple (source_format);
   CoglBitmap *slice_bmp;
   int rowstride;
   gboolean status = TRUE;
@@ -337,7 +337,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
                                    GError **error)
 {
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
+  int bpp = cogl_pixel_format_get_bytes_per_pixel_simple (source_format);
   int rowstride;
   int bmp_width = cogl_bitmap_get_width (source_bmp);
   int bmp_height = cogl_bitmap_get_height (source_bmp);

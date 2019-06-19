@@ -730,7 +730,7 @@ _cogl_texture_pixmap_x11_update_image_texture (CoglTexturePixmapX11 *tex_pixmap)
                                         image->bits_per_pixel,
                                         image->byte_order == LSBFirst);
 
-  bpp = _cogl_pixel_format_get_bytes_per_pixel (image_format);
+  bpp = cogl_pixel_format_get_bytes_per_pixel_simple (image_format);
   offset = image->bytes_per_line * src_y + bpp * src_x;
 
   _cogl_texture_set_region (tex_pixmap->tex,
