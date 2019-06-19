@@ -2743,7 +2743,7 @@ meta_renderer_native_supports_mirroring (MetaRendererNative *renderer_native)
   return TRUE;
 }
 
-void
+static void
 meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_native);
@@ -3108,6 +3108,17 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                                  cogl_display_egl->egl_context);
 
   return view;
+}
+
+static void
+meta_renderer_native_rebuild_views (MetaRenderer *renderer)
+{
+  MetaRendererClass *parent_renderer_class =
+    META_RENDERER_CLASS (meta_renderer_native_parent_class);
+
+  parent_renderer_class->rebuild_views (renderer);
+
+  meta_renderer_native_queue_modes_reset (META_RENDERER_NATIVE (renderer));
 }
 
 void
@@ -3934,6 +3945,7 @@ meta_renderer_native_class_init (MetaRendererNativeClass *klass)
 
   renderer_class->create_cogl_renderer = meta_renderer_native_create_cogl_renderer;
   renderer_class->create_view = meta_renderer_native_create_view;
+  renderer_class->rebuild_views = meta_renderer_native_rebuild_views;
 
   obj_props[PROP_BACKEND] =
     g_param_spec_object ("backend",
