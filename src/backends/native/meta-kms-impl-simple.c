@@ -62,6 +62,68 @@ G_DEFINE_TYPE (MetaKmsImplSimple, meta_kms_impl_simple,
 static void
 flush_postponed_page_flip_datas (MetaKmsImplSimple *impl_simple);
 
+static char *
+generate_gamma_ramp_string (size_t          size,
+                            unsigned short *red,
+                            unsigned short *green,
+                            unsigned short *blue)
+{
+  GString *string;
+  int color;
+
+  string = g_string_new ("[");
+  for (color = 0; color < 3; color++)
+    {
+      unsigned short **color_ptr;
+      char color_char;
+      size_t i;
+
+      switch (color)
+        {
+        case 0:
+          color_ptr = &red;
+          color_char = 'r';
+          break;
+        case 1:
+          color_ptr = &green;
+          color_char = 'g';
+          break;
+        case 2:
+          color_ptr = &blue;
+          color_char = 'b';
+          break;
+        }
+
+      g_string_append_printf (string, " %c: ", color_char);
+      for (i = 0; i < MIN (4, size); i++)
+        {
+          int j;
+
+          if (size > 4)
+            {
+              if (i == 2)
+                g_string_append (string, ",...");
+
+              if (i >= 2)
+                j = i + (size - 4);
+              else
+                j = i;
+            }
+          else
+            {
+              j = i;
+            }
+          g_string_append_printf (string, "%s%hu",
+                                  j == 0 ? "" : ",",
+                                  (*color_ptr)[i]);
+        }
+    }
+
+  g_string_append (string, " ]");
+
+  return g_string_free (string, FALSE);
+}
+
 MetaKmsImplSimple *
 meta_kms_impl_simple_new (MetaKms  *kms,
                           GError  **error)
@@ -97,6 +159,46 @@ process_connector_property (MetaKmsImpl               *impl,
                    meta_kms_connector_get_id (connector),
                    connector_property->prop_id,
                    g_strerror (-ret));
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
+process_crtc_gamma (MetaKmsImpl       *impl,
+                    MetaKmsUpdate     *update,
+                    MetaKmsCrtcGamma  *crtc_gamma,
+                    GError           **error)
+{
+  MetaKmsCrtc *crtc = crtc_gamma->crtc;
+  MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
+  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  g_autofree char *gamma_ramp_string = NULL;
+  uint32_t crtc_id;
+  int fd;
+  int ret;
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+  crtc_id = meta_kms_crtc_get_id (crtc);
+
+  gamma_ramp_string = generate_gamma_ramp_string (crtc_gamma->size,
+                                                  crtc_gamma->red,
+                                                  crtc_gamma->green,
+                                                  crtc_gamma->blue);
+  g_debug ("Setting CRTC (%u) gamma to %s", crtc_id, gamma_ramp_string);
+
+  ret = drmModeCrtcSetGamma (fd,
+                             crtc_id,
+                             crtc_gamma->size,
+                             crtc_gamma->red,
+                             crtc_gamma->green,
+                             crtc_gamma->blue);
+  if (ret != 0)
+    {
+      g_warning ("Failed to set CRTC (%u) Gamma: %s",
+                 meta_kms_crtc_get_id (crtc),
+                 g_strerror (-ret));
       return FALSE;
     }
 
@@ -697,6 +799,14 @@ meta_kms_impl_simple_process_update (MetaKmsImpl    *impl,
       MetaKmsConnectorProperty *connector_property = l->data;
 
       if (!process_connector_property (impl, update, connector_property, error))
+        goto discard_page_flips;
+    }
+
+  for (l = meta_kms_update_get_crtc_gammas (update); l; l = l->next)
+    {
+      MetaKmsCrtcGamma *crtc_gamma = l->data;
+
+      if (!process_crtc_gamma (impl, update, crtc_gamma, error))
         goto discard_page_flips;
     }
 

@@ -36,6 +36,13 @@ typedef struct _MetaKmsCrtcState
   uint32_t common_possible_crtcs;
   uint32_t common_possible_clones;
   uint32_t encoder_device_idxs;
+
+  struct {
+    unsigned int size;
+    unsigned short *red;
+    unsigned short *green;
+    unsigned short *blue;
+  } gamma;
 } MetaKmsCrtcState;
 
 #define META_TYPE_KMS_CRTC (meta_kms_crtc_get_type ())
@@ -50,5 +57,11 @@ const MetaKmsCrtcState * meta_kms_crtc_get_current_state (MetaKmsCrtc *crtc);
 uint32_t meta_kms_crtc_get_id (MetaKmsCrtc *crtc);
 
 int meta_kms_crtc_get_idx (MetaKmsCrtc *crtc);
+
+void meta_kms_crtc_get_gamma (MetaKmsCrtc     *crtc,
+                              gsize           *size,
+                              unsigned short **red,
+                              unsigned short **green,
+                              unsigned short **blue);
 
 #endif /* META_KMS_CRTC_H */

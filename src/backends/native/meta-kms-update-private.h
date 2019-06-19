@@ -67,6 +67,15 @@ typedef struct _MetaKmsPageFlip
   gpointer custom_page_flip_user_data;
 } MetaKmsPageFlip;
 
+typedef struct _MetaKmsCrtcGamma
+{
+  MetaKmsCrtc *crtc;
+  gsize size;
+  unsigned short *red;
+  unsigned short *green;
+  unsigned short *blue;
+} MetaKmsCrtcGamma;
+
 void meta_kms_update_set_connector_property (MetaKmsUpdate    *update,
                                              MetaKmsConnector *connector,
                                              uint32_t          prop_id,
@@ -83,6 +92,8 @@ GList * meta_kms_update_get_mode_sets (MetaKmsUpdate *update);
 GList * meta_kms_update_get_page_flips (MetaKmsUpdate *update);
 
 GList * meta_kms_update_get_connector_properties (MetaKmsUpdate *update);
+
+GList * meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update);
 
 gboolean meta_kms_update_has_mode_set (MetaKmsUpdate *update);
 

@@ -69,6 +69,10 @@ meta_kms_crtc_read_state (MetaKmsCrtc       *crtc,
                           MetaKmsImplDevice *impl_device,
                           drmModeCrtc       *drm_crtc)
 {
+  g_clear_pointer (&crtc->current_state.gamma.red, g_free);
+  g_clear_pointer (&crtc->current_state.gamma.green, g_free);
+  g_clear_pointer (&crtc->current_state.gamma.blue, g_free);
+
   crtc->current_state = (MetaKmsCrtcState) {
     .rect = {
       .x = drm_crtc->x,
@@ -78,7 +82,20 @@ meta_kms_crtc_read_state (MetaKmsCrtc       *crtc,
     },
     .is_drm_mode_valid = drm_crtc->mode_valid,
     .drm_mode = drm_crtc->mode,
+    .gamma = {
+      .size = drm_crtc->gamma_size,
+      .red = g_new0 (unsigned short, drm_crtc->gamma_size),
+      .green = g_new0 (unsigned short, drm_crtc->gamma_size),
+      .blue = g_new0 (unsigned short, drm_crtc->gamma_size),
+    },
   };
+
+  drmModeCrtcGetGamma (meta_kms_impl_device_get_fd (impl_device),
+                       crtc->id,
+                       drm_crtc->gamma_size,
+                       crtc->current_state.gamma.red,
+                       crtc->current_state.gamma.green,
+                       crtc->current_state.gamma.blue);
 }
 
 void
@@ -117,4 +134,27 @@ meta_kms_crtc_init (MetaKmsCrtc *crtc)
 static void
 meta_kms_crtc_class_init (MetaKmsCrtcClass *klass)
 {
+}
+
+void
+meta_kms_crtc_get_gamma (MetaKmsCrtc     *crtc,
+                         gsize           *size,
+                         unsigned short **red,
+                         unsigned short **green,
+                         unsigned short **blue)
+{
+  unsigned int n_gamma_values = crtc->current_state.gamma.size;
+  unsigned int i;
+
+  *size = n_gamma_values;
+  *red = g_new0 (unsigned short, n_gamma_values);
+  *green = g_new0 (unsigned short, n_gamma_values);
+  *blue = g_new0 (unsigned short, n_gamma_values);
+
+  for (i = 0; i < n_gamma_values; i++)
+    {
+      *red[i] = crtc->current_state.gamma.red[i];
+      *green[i] = crtc->current_state.gamma.green[i];
+      *blue[i] = crtc->current_state.gamma.blue[i];
+    }
 }

@@ -32,6 +32,7 @@ struct _MetaKmsUpdate
   GList *plane_assignments;
   GList *page_flips;
   GList *connector_properties;
+  GList *crtc_gammas;
 };
 
 static MetaKmsProperty *
@@ -71,6 +72,30 @@ meta_kms_mode_set_free (MetaKmsModeSet *mode_set)
   g_free (mode_set);
 }
 
+static void
+meta_kms_crtc_gamma_free (MetaKmsCrtcGamma *crtc_gamma)
+{
+  g_free (crtc_gamma->red);
+  g_free (crtc_gamma->green);
+  g_free (crtc_gamma->blue);
+  g_free (crtc_gamma);
+}
+
+static unsigned short *
+copy_unsigned_short_array (unsigned short *values,
+                           gsize           n_values)
+{
+  unsigned short *copy;
+
+  if (!values)
+    return NULL;
+
+  copy = g_new (unsigned short, n_values);
+  memcpy (copy, values, sizeof (unsigned short) * n_values);
+
+  return copy;
+}
+
 MetaKmsPlaneAssignment *
 meta_kms_update_assign_plane (MetaKmsUpdate        *update,
                               MetaKmsCrtc          *crtc,
@@ -94,6 +119,28 @@ meta_kms_update_assign_plane (MetaKmsUpdate        *update,
                                               plane_assignment);
 
   return plane_assignment;
+}
+
+void
+meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
+                                MetaKmsCrtc    *crtc,
+                                gsize           size,
+                                unsigned short *red,
+                                unsigned short *green,
+                                unsigned short *blue)
+{
+  MetaKmsCrtcGamma *crtc_gamma;
+
+  crtc_gamma = g_new0 (MetaKmsCrtcGamma, 1);
+  *crtc_gamma = (MetaKmsCrtcGamma) {
+    .crtc = crtc,
+    .size = size,
+    .red = copy_unsigned_short_array (red, size),
+    .green = copy_unsigned_short_array (green, size),
+    .blue = copy_unsigned_short_array (blue, size),
+  };
+
+  update->crtc_gammas = g_list_prepend (update->crtc_gammas, crtc_gamma);
 }
 
 void
@@ -210,6 +257,12 @@ meta_kms_update_get_connector_properties (MetaKmsUpdate *update)
   return update->connector_properties;
 }
 
+GList *
+meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update)
+{
+  return update->crtc_gammas;
+}
+
 gboolean
 meta_kms_update_has_mode_set (MetaKmsUpdate *update)
 {
@@ -231,6 +284,8 @@ meta_kms_update_free (MetaKmsUpdate *update)
                     (GDestroyNotify) meta_kms_mode_set_free);
   g_list_free_full (update->page_flips, g_free);
   g_list_free_full (update->connector_properties, g_free);
+  g_list_free_full (update->crtc_gammas,
+                    (GDestroyNotify) meta_kms_crtc_gamma_free);
 
   g_free (update);
 }

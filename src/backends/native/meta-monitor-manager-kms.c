@@ -367,82 +367,8 @@ meta_monitor_manager_kms_get_crtc_gamma (MetaMonitorManager  *manager,
                                          unsigned short     **green,
                                          unsigned short     **blue)
 {
-  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
-  int kms_fd = meta_gpu_kms_get_fd (META_GPU_KMS (gpu));
-  drmModeCrtc *kms_crtc;
-
-  kms_crtc = drmModeGetCrtc (kms_fd, crtc->crtc_id);
-
-  *size = kms_crtc->gamma_size;
-  *red = g_new (unsigned short, *size);
-  *green = g_new (unsigned short, *size);
-  *blue = g_new (unsigned short, *size);
-
-  drmModeCrtcGetGamma (kms_fd, crtc->crtc_id, *size, *red, *green, *blue);
-
-  drmModeFreeCrtc (kms_crtc);
-}
-
-static char *
-generate_gamma_ramp_string (size_t          size,
-                            unsigned short *red,
-                            unsigned short *green,
-                            unsigned short *blue)
-{
-  GString *string;
-  int color;
-
-  string = g_string_new ("[");
-  for (color = 0; color < 3; color++)
-    {
-      unsigned short **color_ptr;
-      char color_char;
-      size_t i;
-
-      switch (color)
-        {
-        case 0:
-          color_ptr = &red;
-          color_char = 'r';
-          break;
-        case 1:
-          color_ptr = &green;
-          color_char = 'g';
-          break;
-        case 2:
-          color_ptr = &blue;
-          color_char = 'b';
-          break;
-        }
-
-      g_string_append_printf (string, " %c: ", color_char);
-      for (i = 0; i < MIN (4, size); i++)
-        {
-          int j;
-
-          if (size > 4)
-            {
-              if (i == 2)
-                g_string_append (string, ",...");
-
-              if (i >= 2)
-                j = i + (size - 4);
-              else
-                j = i;
-            }
-          else
-            {
-              j = i;
-            }
-          g_string_append_printf (string, "%s%hu",
-                                  j == 0 ? "" : ",",
-                                  (*color_ptr)[i]);
-        }
-    }
-
-  g_string_append (string, " ]");
-
-  return g_string_free (string, FALSE);
+  meta_kms_crtc_get_gamma (meta_crtc_kms_get_kms_crtc (crtc),
+                           size, red, green, blue);
 }
 
 static void
@@ -453,20 +379,19 @@ meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
                                          unsigned short     *green,
                                          unsigned short     *blue)
 {
-  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
-  int kms_fd = meta_gpu_kms_get_fd (META_GPU_KMS (gpu));
-  g_autofree char *gamma_ramp_string = NULL;
-  int ret;
+  MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
+  MetaKmsUpdate *kms_update;
+  g_autoptr (GError) error = NULL;
 
-  gamma_ramp_string = generate_gamma_ramp_string (size, red, green, blue);
-  g_debug ("Setting CRTC (%ld) gamma to %s", crtc->crtc_id, gamma_ramp_string);
+  kms_update = meta_kms_ensure_pending_update (kms);
+  meta_kms_update_set_crtc_gamma (kms_update,
+                                  meta_crtc_kms_get_kms_crtc (crtc),
+                                  size, red, green, blue);
 
-  ret = drmModeCrtcSetGamma (kms_fd, crtc->crtc_id, size, red, green, blue);
-  if (ret != 0)
-    {
-      g_warning ("Failed to set CRTC (%ld) Gamma: %s",
-                 crtc->crtc_id, g_strerror (-ret));
-    }
+  if (!meta_kms_post_pending_update_sync (kms, &error))
+    g_warning ("Failed to set CRTC gamma: %s", error->message);
 }
 
 static void
