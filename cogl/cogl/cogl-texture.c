@@ -430,10 +430,14 @@ _cogl_texture_set_region (CoglTexture *texture,
   gboolean ret;
 
   g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, FALSE);
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, FALSE);
 
   /* Rowstride from width if none specified */
   if (rowstride == 0)
-    rowstride = _cogl_pixel_format_get_bytes_per_pixel (format) * width;
+    {
+      uint8_t bpp = cogl_pixel_format_get_bytes_per_pixel_simple (format);
+      rowstride = bpp * width;
+    }
 
   /* Init source bitmap */
   source_bmp = cogl_bitmap_new_for_data (ctx,
@@ -471,7 +475,7 @@ cogl_texture_set_region (CoglTexture *texture,
 {
   GError *ignore_error = NULL;
   const uint8_t *first_pixel;
-  int bytes_per_pixel = _cogl_pixel_format_get_bytes_per_pixel (format);
+  int bytes_per_pixel = cogl_pixel_format_get_bytes_per_pixel_simple (format);
   gboolean status;
 
   /* Rowstride from width if none specified */
@@ -609,7 +613,7 @@ get_texture_bits_via_copy (CoglTexture *texture,
   full_tex_width = cogl_texture_get_width (texture);
   full_tex_height = cogl_texture_get_height (texture);
 
-  bpp = _cogl_pixel_format_get_bytes_per_pixel (dst_format);
+  bpp = cogl_pixel_format_get_bytes_per_pixel_simple (dst_format);
 
   full_rowstride = bpp * full_tex_width;
   full_bits = g_malloc (full_rowstride * full_tex_height);
@@ -658,7 +662,7 @@ texture_get_cb (CoglTexture *subtexture,
   CoglTextureGetData *tg_data = user_data;
   CoglTexture *meta_texture = tg_data->meta_texture;
   CoglPixelFormat closest_format = cogl_bitmap_get_format (tg_data->target_bmp);
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (closest_format);
+  int bpp = cogl_pixel_format_get_bytes_per_pixel_simple (closest_format);
   unsigned int rowstride = cogl_bitmap_get_rowstride (tg_data->target_bmp);
   int subtexture_width = cogl_texture_get_width (subtexture);
   int subtexture_height = cogl_texture_get_height (subtexture);
@@ -748,7 +752,7 @@ cogl_texture_get_data (CoglTexture *texture,
   tex_height = cogl_texture_get_height (texture);
 
   /* Rowstride from texture width if none specified */
-  bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+  bpp = cogl_pixel_format_get_bytes_per_pixel_simple (format);
   if (rowstride == 0)
     rowstride = tex_width * bpp;
 

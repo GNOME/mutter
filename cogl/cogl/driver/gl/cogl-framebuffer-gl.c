@@ -1303,7 +1303,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
       if (!tmp_bmp)
         goto EXIT;
 
-      bpp = _cogl_pixel_format_get_bytes_per_pixel (read_format);
+      bpp = cogl_pixel_format_get_bytes_per_pixel_simple (read_format);
       rowstride = cogl_bitmap_get_rowstride (tmp_bmp);
 
       ctx->texture_driver->prep_gl_for_pixels_download (ctx,
@@ -1360,7 +1360,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
       else
         shared_bmp = cogl_object_ref (bitmap);
 
-      bpp = _cogl_pixel_format_get_bytes_per_pixel (bmp_format);
+      bpp = cogl_pixel_format_get_bytes_per_pixel_simple (bmp_format);
 
       ctx->texture_driver->prep_gl_for_pixels_download (ctx,
                                                         rowstride,
