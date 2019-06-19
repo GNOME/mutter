@@ -91,6 +91,12 @@ meta_renderer_create_view (MetaRenderer       *renderer,
 void
 meta_renderer_rebuild_views (MetaRenderer *renderer)
 {
+  return META_RENDERER_GET_CLASS (renderer)->rebuild_views (renderer);
+}
+
+static void
+meta_renderer_real_rebuild_views (MetaRenderer *renderer)
+{
   MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -181,4 +187,6 @@ meta_renderer_class_init (MetaRendererClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_renderer_finalize;
+
+  klass->rebuild_views = meta_renderer_real_rebuild_views;
 }
