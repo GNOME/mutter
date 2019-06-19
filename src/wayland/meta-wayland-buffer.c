@@ -489,7 +489,7 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
       cairo_rectangle_int_t rect;
 
       shm_buffer_get_cogl_pixel_format (shm_buffer, &format, NULL);
-      bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+      bpp = cogl_pixel_format_get_bytes_per_pixel_simple (format);
       cairo_region_get_rectangle (region, i, &rect);
 
       if (!_cogl_texture_set_region (texture,

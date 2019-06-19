@@ -1315,7 +1315,7 @@ cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
                               CoglPixelFormat format,
                               uint8_t *pixels)
 {
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+  int bpp = cogl_pixel_format_get_bytes_per_pixel_simple (format);
   CoglBitmap *bitmap;
   gboolean ret;
 

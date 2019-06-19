@@ -193,7 +193,7 @@ _cogl_atlas_get_initial_size (CoglPixelFormat format,
      initial minimum size. If the format is only 1 byte per pixel we
      can use 1024x1024, otherwise we'll assume it will take 4 bytes
      per pixel and use 512x512. */
-  if (_cogl_pixel_format_get_bytes_per_pixel (format) == 1)
+  if (cogl_pixel_format_get_bytes_per_pixel_simple (format) == 1)
     size = 1024;
   else
     size = 512;
@@ -291,7 +291,9 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
     {
       uint8_t *clear_data;
       CoglBitmap *clear_bmp;
-      int bpp = _cogl_pixel_format_get_bytes_per_pixel (atlas->texture_format);
+      int bpp;
+
+      bpp = cogl_pixel_format_get_bytes_per_pixel_simple (atlas->texture_format);
 
       /* Create a buffer of zeroes to initially clear the texture */
       clear_data = g_malloc0 (width * height * bpp);

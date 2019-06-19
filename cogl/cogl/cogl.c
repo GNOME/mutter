@@ -330,7 +330,7 @@ cogl_read_pixels (int x,
                   CoglPixelFormat format,
                   uint8_t *pixels)
 {
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+  int bpp = cogl_pixel_format_get_bytes_per_pixel_simple (format);
   CoglBitmap *bitmap;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
