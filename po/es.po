@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-06-07 19:32+0000\n"
-"PO-Revision-Date: 2019-06-11 12:54+0200\n"
+"POT-Creation-Date: 2019-06-13 16:48+0000\n"
+"PO-Revision-Date: 2019-06-19 09:53+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
 "Language-Team: es <gnome-es-list@gnome.org>\n"
 "Language: es\n"
@@ -499,13 +499,11 @@ msgid "Re-enable shortcuts"
 msgstr "Volver a activar los atajos"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:64
-#| msgid "Allow grabs with Xwayland"
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr ""
 "Permitir capturas con X11 para bloquear el foco del teclado con Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
-#, fuzzy
 #| msgid ""
 #| "Allow keyboard grabs issued by X11 applications running in Xwayland to be "
 #| "taken into account. For a X11 grab to be taken into account under "
@@ -523,8 +521,13 @@ msgid ""
 "specific X11 ClientMessage to the root window or be among the applications "
 "white-listed in key “xwayland-grab-access-rules”."
 msgstr ""
-"Permitir que las pulsaciones del teclado emitidas por aplicaciones X11 "
-"ejecutándose en XWayland se tengan en cuenta. Para que una pulsación X11 se "
+"Permitir que los eventos del teclado se dirijan a ventanas X11 “override "
+"redirect” con una pulsación cuando se ejecutan en Xwayland. Esta opción es "
+"para soportar clientes X11 que mapean una ventana “override redirect” (que "
+"no recibe el foco del teclado) y recoge una pulsación del teclado para "
+"forzar todos los eventos del teclado en esa ventana. Esta opción se usa "
+"raramente y no tiene efecto en ventanas X11 normales que pueden recibir el "
+"foco del teclado en circunstancias normales. Para que una pulsación X11 se "
 "tenga en cuenta en Wayland el cliente debe o bien enviar un ClientMessage "
 "específico de X11 a la ventana raíz o estar en la lista blanca de "
 "aplicaciones en la clave “xwayland-grab-access-rules”."
@@ -604,7 +607,6 @@ msgstr "%s %s"
 
 #. Translators: this string will appear in Sysprof
 #: src/backends/meta-profiler.c:82
-#| msgid "Compositing Manager"
 msgid "Compositor"
 msgstr "Compositor"
 
