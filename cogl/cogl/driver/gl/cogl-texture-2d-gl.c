@@ -250,7 +250,7 @@ allocate_from_bitmap (CoglTexture2D *tex_2d,
       if (data)
         {
           memcpy (tex_2d->first_pixel.data, data,
-                  _cogl_pixel_format_get_bytes_per_pixel (format));
+                  cogl_pixel_format_get_bytes_per_pixel_simple (format));
           _cogl_bitmap_unmap (upload_bmp);
         }
       else
@@ -259,7 +259,7 @@ allocate_from_bitmap (CoglTexture2D *tex_2d,
                      "glGenerateMipmap fallback");
           g_error_free (ignore);
           memset (tex_2d->first_pixel.data, 0,
-                  _cogl_pixel_format_get_bytes_per_pixel (format));
+                  cogl_pixel_format_get_bytes_per_pixel_simple (format));
         }
     }
 
@@ -789,7 +789,7 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
       uint8_t *data =
         _cogl_bitmap_map (upload_bmp, COGL_BUFFER_ACCESS_READ, 0, &ignore);
       CoglPixelFormat bpp =
-        _cogl_pixel_format_get_bytes_per_pixel (upload_format);
+        cogl_pixel_format_get_bytes_per_pixel_simple (upload_format);
 
       tex_2d->first_pixel.gl_format = gl_format;
       tex_2d->first_pixel.gl_type = gl_type;
@@ -852,7 +852,7 @@ _cogl_texture_2d_gl_get_data (CoglTexture2D *tex_2d,
   GLenum gl_format;
   GLenum gl_type;
 
-  bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+  bpp = cogl_pixel_format_get_bytes_per_pixel_simple (format);
 
   ctx->driver_vtable->pixel_format_to_gl (ctx,
                                           format,

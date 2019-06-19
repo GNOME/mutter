@@ -163,7 +163,7 @@ _cogl_texture_2d_sliced_allocate_waste_buffer (CoglTexture2DSliced *tex_2ds,
                                 tex_2ds->slice_y_spans->len - 1);
   if (last_x_span->waste > 0 || last_y_span->waste > 0)
     {
-      int bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+      int bpp = cogl_pixel_format_get_bytes_per_pixel_simple (format);
       CoglSpan  *first_x_span
         = &g_array_index (tex_2ds->slice_x_spans, CoglSpan, 0);
       CoglSpan  *first_y_span
@@ -209,7 +209,7 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
     {
       int bmp_rowstride = cogl_bitmap_get_rowstride (source_bmp);
       CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
-      int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
+      int bpp = cogl_pixel_format_get_bytes_per_pixel_simple (source_format);
       uint8_t *bmp_data;
       const uint8_t *src;
       uint8_t *dst;
@@ -972,7 +972,7 @@ cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
 
   /* Rowstride from width if not given */
   if (rowstride == 0)
-    rowstride = width * _cogl_pixel_format_get_bytes_per_pixel (format);
+    rowstride = width * cogl_pixel_format_get_bytes_per_pixel_simple (format);
 
   /* Wrap the data into a bitmap */
   bmp = cogl_bitmap_new_for_data (ctx,
