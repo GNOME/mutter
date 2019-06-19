@@ -3061,6 +3061,24 @@ destroy_egl_surface (CoglOnscreen *onscreen)
 }
 
 static void
+discard_onscreen_page_flip_retries (MetaOnscreenNative *onscreen_native)
+{
+  g_list_free_full (onscreen_native->pending_page_flip_retries,
+                    (GDestroyNotify) retry_page_flip_data_free);
+  onscreen_native->pending_page_flip_retries = NULL;
+
+  if (onscreen_native->retry_page_flips_source)
+    {
+      MetaBackend *backend =
+        backend_from_renderer_native (onscreen_native->renderer_native);
+
+      meta_backend_thaw_updates (backend);
+      g_clear_pointer (&onscreen_native->retry_page_flips_source,
+                       g_source_destroy);
+    }
+}
+
+static void
 meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -3090,17 +3108,7 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
         g_warning ("Failed to clear current context");
     }
 
-  g_list_free_full (onscreen_native->pending_page_flip_retries,
-                    (GDestroyNotify) retry_page_flip_data_free);
-  if (onscreen_native->retry_page_flips_source)
-    {
-      MetaBackend *backend =
-        backend_from_renderer_native (onscreen_native->renderer_native);
-
-      meta_backend_thaw_updates (backend);
-      g_clear_pointer (&onscreen_native->retry_page_flips_source,
-                       g_source_destroy);
-    }
+  discard_onscreen_page_flip_retries (onscreen_native);
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
@@ -3556,10 +3564,30 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
 }
 
 static void
+discard_page_flip_retries (MetaRenderer *renderer)
+{
+  GList *l;
+
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+    {
+      ClutterStageView *stage_view = l->data;
+      CoglFramebuffer *framebuffer =
+        clutter_stage_view_get_onscreen (stage_view);
+      CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+      CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+      MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+
+      discard_onscreen_page_flip_retries (onscreen_native);
+    }
+}
+
+static void
 meta_renderer_native_rebuild_views (MetaRenderer *renderer)
 {
   MetaRendererClass *parent_renderer_class =
     META_RENDERER_CLASS (meta_renderer_native_parent_class);
+
+  discard_page_flip_retries (renderer);
 
   parent_renderer_class->rebuild_views (renderer);
 
