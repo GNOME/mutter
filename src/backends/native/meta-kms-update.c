@@ -27,6 +27,8 @@
 
 struct _MetaKmsUpdate
 {
+  gboolean is_sealed;
+
   MetaPowerSave power_save;
   GList *mode_sets;
   GList *plane_assignments;
@@ -81,8 +83,11 @@ meta_kms_update_assign_plane (MetaKmsUpdate        *update,
 {
   MetaKmsPlaneAssignment *plane_assignment;
 
+  g_assert (!meta_kms_update_is_sealed (update));
+
   plane_assignment = g_new0 (MetaKmsPlaneAssignment, 1);
   *plane_assignment = (MetaKmsPlaneAssignment) {
+    .update = update,
     .crtc = crtc,
     .plane = plane,
     .fb_id = fb_id,
@@ -104,6 +109,8 @@ meta_kms_update_mode_set (MetaKmsUpdate   *update,
 {
   MetaKmsModeSet *mode_set;
 
+  g_assert (!meta_kms_update_is_sealed (update));
+
   mode_set = g_new0 (MetaKmsModeSet, 1);
   *mode_set = (MetaKmsModeSet) {
     .crtc = crtc,
@@ -121,6 +128,8 @@ meta_kms_update_set_connector_property (MetaKmsUpdate    *update,
                                         uint64_t          value)
 {
   MetaKmsConnectorProperty *prop;
+
+  g_assert (!meta_kms_update_is_sealed (update));
 
   prop = g_new0 (MetaKmsConnectorProperty, 1);
   *prop = (MetaKmsConnectorProperty) {
@@ -140,6 +149,8 @@ meta_kms_update_page_flip (MetaKmsUpdate                 *update,
                            gpointer                       user_data)
 {
   MetaKmsPageFlip *page_flip;
+
+  g_assert (!meta_kms_update_is_sealed (update));
 
   page_flip = g_new0 (MetaKmsPageFlip, 1);
   *page_flip = (MetaKmsPageFlip) {
@@ -161,6 +172,8 @@ meta_kms_update_custom_page_flip (MetaKmsUpdate                 *update,
 {
   MetaKmsPageFlip *page_flip;
 
+  g_assert (!meta_kms_update_is_sealed (update));
+
   page_flip = g_new0 (MetaKmsPageFlip, 1);
   *page_flip = (MetaKmsPageFlip) {
     .crtc = crtc,
@@ -179,6 +192,8 @@ meta_kms_plane_assignment_set_plane_property (MetaKmsPlaneAssignment *plane_assi
                                               uint64_t                value)
 {
   MetaKmsProperty *plane_prop;
+
+  g_assert (!meta_kms_update_is_sealed (plane_assignment->update));
 
   plane_prop = meta_kms_property_new (prop_id, value);
 
@@ -214,6 +229,18 @@ gboolean
 meta_kms_update_has_mode_set (MetaKmsUpdate *update)
 {
   return !!update->mode_sets;
+}
+
+void
+meta_kms_update_seal (MetaKmsUpdate *update)
+{
+  update->is_sealed = TRUE;
+}
+
+gboolean
+meta_kms_update_is_sealed (MetaKmsUpdate *update)
+{
+  return update->is_sealed;
 }
 
 MetaKmsUpdate *

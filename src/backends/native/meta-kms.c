@@ -202,6 +202,8 @@ meta_kms_post_update_sync (MetaKms        *kms,
                            MetaKmsUpdate  *update,
                            GError        **error)
 {
+  meta_kms_update_seal (update);
+
   return meta_kms_run_impl_task_sync (kms,
                                       meta_kms_update_process_in_impl,
                                       update,
