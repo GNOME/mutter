@@ -3113,8 +3113,13 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
 static void
 meta_renderer_native_rebuild_views (MetaRenderer *renderer)
 {
+  MetaBackendNative *backend_native =
+    META_BACKEND_NATIVE (renderer_native->backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaRendererClass *parent_renderer_class =
     META_RENDERER_CLASS (meta_renderer_native_parent_class);
+
+  meta_kms_discard_pending_page_flips (kms);
 
   parent_renderer_class->rebuild_views (renderer);
 
