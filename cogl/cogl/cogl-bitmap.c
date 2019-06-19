@@ -136,7 +136,7 @@ _cogl_bitmap_copy_subregion (CoglBitmap *src,
                         (dst->format & ~COGL_PREMULT_BIT),
                         FALSE);
 
-  bpp = _cogl_pixel_format_get_bytes_per_pixel (src->format);
+  bpp = cogl_pixel_format_get_bytes_per_pixel_simple (src->format);
 
   if ((srcdata = _cogl_bitmap_map (src, COGL_BUFFER_ACCESS_READ, 0, error)))
     {
@@ -186,7 +186,7 @@ cogl_bitmap_new_for_data (CoglContext *context,
 
   /* Rowstride from width if not given */
   if (rowstride == 0)
-    rowstride = width * _cogl_pixel_format_get_bytes_per_pixel (format);
+    rowstride = width * cogl_pixel_format_get_bytes_per_pixel_simple (format);
 
   bmp = g_slice_new (CoglBitmap);
   bmp->context = context;
@@ -211,7 +211,7 @@ _cogl_bitmap_new_with_malloc_buffer (CoglContext *context,
                                      GError **error)
 {
   static CoglUserDataKey bitmap_free_key;
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+  int bpp = cogl_pixel_format_get_bytes_per_pixel_simple (format);
   int rowstride = ((width * bpp) + 3) & ~3;
   uint8_t *data = g_try_malloc (rowstride * height);
   CoglBitmap *bitmap;
@@ -308,7 +308,7 @@ cogl_bitmap_new_with_size (CoglContext *context,
 
   /* for now we fallback to cogl_pixel_buffer_new, later, we could ask
    * libdrm a tiled buffer for instance */
-  rowstride = width * _cogl_pixel_format_get_bytes_per_pixel (format);
+  rowstride = width * cogl_pixel_format_get_bytes_per_pixel_simple (format);
 
   pixel_buffer =
     cogl_pixel_buffer_new (context,

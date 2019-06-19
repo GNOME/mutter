@@ -196,7 +196,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
   GLuint gl_handle;
   uint8_t *data;
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
+  int bpp = cogl_pixel_format_get_bytes_per_pixel_simple (source_format);
   gboolean status = TRUE;
   GError *internal_error = NULL;
   int level_width;
@@ -302,7 +302,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
 {
   uint8_t *data;
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
+  int bpp = cogl_pixel_format_get_bytes_per_pixel_simple (source_format);
   gboolean status = TRUE;
   GError *internal_error = NULL;
 
