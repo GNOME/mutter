@@ -42,10 +42,10 @@ typedef struct _MetaWaylandDmaBufBuffer MetaWaylandDmaBufBuffer;
 gboolean meta_wayland_dma_buf_init (MetaWaylandCompositor *compositor);
 
 gboolean
-meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
-                                    CoglTexture       **texture,
-                                    gboolean           *changed_texture,
-                                    GError            **error);
+meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer      *buffer,
+                                    CoglMultiPlaneTexture **texture,
+                                    gboolean                *changed_texture,
+                                    GError                 **error);
 
 MetaWaylandDmaBufBuffer *
 meta_wayland_dma_buf_from_buffer (MetaWaylandBuffer *buffer);
