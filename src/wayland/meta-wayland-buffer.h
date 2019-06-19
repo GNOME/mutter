@@ -56,19 +56,19 @@ struct _MetaWaylandBuffer
   MetaWaylandBufferType type;
 
   struct {
-    CoglTexture *texture;
+    CoglMultiPlaneTexture *texture;
   } egl_image;
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
   struct {
     MetaWaylandEglStream *stream;
-    CoglTexture *texture;
+    CoglMultiPlaneTexture *texture;
   } egl_stream;
 #endif
 
   struct {
     MetaWaylandDmaBufBuffer *dma_buf;
-    CoglTexture *texture;
+    CoglMultiPlaneTexture *texture;
   } dma_buf;
 };
 
@@ -80,14 +80,14 @@ MetaWaylandBuffer *     meta_wayland_buffer_from_resource       (struct wl_resou
 struct wl_resource *    meta_wayland_buffer_get_resource        (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_is_realized         (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_realize             (MetaWaylandBuffer     *buffer);
-gboolean                meta_wayland_buffer_attach              (MetaWaylandBuffer     *buffer,
-                                                                 CoglTexture          **texture,
-                                                                 gboolean              *changed_texture,
-                                                                 GError               **error);
+gboolean                meta_wayland_buffer_attach              (MetaWaylandBuffer      *buffer,
+                                                                 CoglMultiPlaneTexture **texture,
+                                                                 gboolean               *changed_texture,
+                                                                 GError                **error);
 CoglSnippet *           meta_wayland_buffer_create_snippet      (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_is_y_inverted       (MetaWaylandBuffer     *buffer);
 void                    meta_wayland_buffer_process_damage      (MetaWaylandBuffer     *buffer,
-                                                                 CoglTexture           *texture,
+                                                                 CoglMultiPlaneTexture *texture,
                                                                  cairo_region_t        *region);
 
 #endif /* META_WAYLAND_BUFFER_H */
