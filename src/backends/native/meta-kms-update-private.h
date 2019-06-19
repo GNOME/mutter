@@ -34,6 +34,7 @@ typedef struct _MetaKmsProperty
 
 typedef struct _MetaKmsPlaneAssignment
 {
+  MetaKmsUpdate *update;
   MetaKmsCrtc *crtc;
   MetaKmsPlane *plane;
   uint32_t fb_id;
@@ -66,6 +67,10 @@ typedef struct _MetaKmsPageFlip
   MetaKmsCustomPageFlipFunc custom_page_flip_func;
   gpointer custom_page_flip_user_data;
 } MetaKmsPageFlip;
+
+void meta_kms_update_seal (MetaKmsUpdate *update);
+
+gboolean meta_kms_update_is_sealed (MetaKmsUpdate *update);
 
 void meta_kms_update_set_connector_property (MetaKmsUpdate    *update,
                                              MetaKmsConnector *connector,
