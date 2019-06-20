@@ -1,3 +1,38 @@
+3.33.3
+======
+* Prepare for running Xwayland on demand [Carlos; !420]
+* Fix text selection color rendering [Florian; #494]
+* Fix black shadows when using fractional scaling [Robert; #609]
+* Honor startup sequence workspace on wayland [Carlos; gnome-shell#674]
+* Only emit 'grab-op-end` signal after dropping grabs [Marco; !596]
+* Add a Sysprof-based profiler [Jonas, Georges; !197, !603]
+* Relax "xwayland-allow-grabs" setting [Olivier; #597]
+* Implement locate-pointer accessibility feature [Olivier; !453]
+* Implement mouse accessibility [Olivier; !512]
+* Consolidate frame throttling [Daniel, Georges; !363]
+* Fix setting blank cursor under wayland [Jonas; #630]
+* Pixel-align OpenGL cursors [Jonas; !610]
+* Handle returning from fullscreen/maximization better [Jonas; !621]
+* Improve screencast support on multi-monitor systems [Georges; !623]
+* Fix running X11 applications with sudo under wayland [Hans; #643]
+* Implement toggle-keys notification [Olivier; #637]
+* Add initial KMS transactional support [Jonas; !525]
+* Improve finding new focus window when the old one is closed [Marco; #308]
+* Misc. bug fixes and cleanups [Jonas, Carlos, Marco, Florian, Pekka, Robert,
+  Douglas, Georges, Daniel, Emil, Niels, Hans, Olivier, Ting-Wei, Corentin;
+  !591, #398, !592, !581, !597, !598, !593, !497, #591, !545, gtk#1675, !601,
+  #568, !564, !605, !609, !115, !214, !611, !617, !616, !619, !624, !622, !627,
+  !628, !629, !632, !633, !631, !636, !639, !638, !634, !640, !529, !644, !590]
+
+Contributors:
+  Jonas Ådahl, Piotr Drąg, Olivier Fourdan, Carlos Garnacho, Hans de Goede,
+  Niels De Graef, Ting-Wei Lan, Robert Mader, Florian Müllner,
+  Georges Basile Stavracas Neto, Corentin Noël, Pekka Paalanen, Douglas R. Reno,
+  Marco Trevisan (Treviño), Emil Velikov, Daniel van Vugt
+
+Translators:
+  Balázs Úr [hu], Daniel Mustieles [es], Nathan Follens [nl], Goran Vidović [hr]
+
 3.33.2
 ======
 * Fix rendering lag on Xorg [Daniel; !520, !281]
