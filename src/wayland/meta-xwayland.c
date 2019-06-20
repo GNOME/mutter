@@ -31,7 +31,11 @@
 #include <glib.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#if defined(HAVE_SYS_RANDOM)
 #include <sys/random.h>
+#elif defined(HAVE_LINUX_RANDOM)
+#include <linux/random.h>
+#endif
 #include <unistd.h>
 #include <X11/Xauth.h>
 
