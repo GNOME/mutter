@@ -364,6 +364,15 @@ if have_wayland
     xwayland_path = find_program('Xwayland').path()
   endif
   cdata.set_quoted('XWAYLAND_PATH', xwayland_path)
+
+  # For Xwayland authority file generation.
+  if cc.has_header_symbol('sys/random.h', 'getrandom')
+    cdata.set('HAVE_SYS_RANDOM', 1)
+  elif cc.has_header_symbol('linux/random.h', 'getrandom')
+    cdata.set('HAVE_LINUX_RANDOM', 1)
+  else
+    error('Required function getrandom not found')
+  endif
 endif
 
 xwayland_grab_default_access_rules = get_option('xwayland_grab_default_access_rules')

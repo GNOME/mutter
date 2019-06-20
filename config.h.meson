@@ -61,5 +61,6 @@
 /* XKB base prefix */
 #mesondefine XKB_BASE
 
-/* Default rules for allowing Xwayland grabs */
-#mesondefine XWAYLAND_GRAB_DEFAULT_ACCESS_RULES
+/* Either <sys/random.h> or <linux/random.h> */
+#mesondefine HAVE_SYS_RANDOM
+#mesondefine HAVE_LINUX_RANDOM
