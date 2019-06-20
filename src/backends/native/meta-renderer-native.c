@@ -770,7 +770,7 @@ pick_secondary_gpu_framebuffer_format_for_cpu (CoglOnscreen *onscreen,
       /* The rest are other fairly commonly used formats in OpenGL. */
       DRM_FORMAT_XRGB8888,
     };
-  g_autoptr (GArray) formats;
+  g_autoptr (GArray) formats = NULL;
   size_t k;
   unsigned int i;
   uint32_t drm_format;
