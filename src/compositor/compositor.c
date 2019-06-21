@@ -548,8 +548,6 @@ meta_compositor_manage (MetaCompositor *compositor)
     g_signal_connect_after (compositor->stage, "after-paint",
                             G_CALLBACK (after_stage_paint), compositor);
 
-  clutter_stage_set_sync_delay (CLUTTER_STAGE (compositor->stage), META_SYNC_DELAY);
-
   compositor->window_group = meta_window_group_new (display);
   compositor->top_window_group = meta_window_group_new (display);
   compositor->feedback_group = meta_window_group_new (display);
