@@ -2204,6 +2204,7 @@ clutter_stage_init (ClutterStage *self)
   ClutterStageWindow *impl;
   ClutterBackend *backend;
   GError *error;
+  const char *sync_delay_str;
 
   /* a stage is a top-level object */
   CLUTTER_SET_PRIVATE_FLAGS (self, CLUTTER_IS_TOPLEVEL);
@@ -2239,7 +2240,12 @@ clutter_stage_init (ClutterStage *self)
   priv->use_fog = FALSE;
   priv->throttle_motion_events = TRUE;
   priv->min_size_changed = FALSE;
-  priv->sync_delay = -1;
+
+  sync_delay_str = g_getenv ("CLUTTER_SYNC_DELAY");
+  if (sync_delay_str != NULL)
+    priv->sync_delay = g_ascii_strtoll (sync_delay_str, NULL, 10);
+  else
+    priv->sync_delay = 2;
 
   /* XXX - we need to keep the invariant that calling
    * clutter_set_motion_event_enabled() before the stage creation

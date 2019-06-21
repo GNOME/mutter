@@ -46,9 +46,6 @@ struct _MetaCompositor
   gboolean have_x11_sync_object;
 };
 
-/* Wait 2ms after vblank before starting to draw next frame */
-#define META_SYNC_DELAY 2
-
 void meta_switch_workspace_completed (MetaCompositor *compositor);
 
 gboolean meta_begin_modal_for_plugin (MetaCompositor   *compositor,
