@@ -134,6 +134,7 @@ do_send_frame_timings (MetaWindowActorX11 *actor_x11,
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   MetaDisplay *display = meta_window_get_display (window);
   Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
+  ClutterActor *stage = clutter_actor_get_stage (CLUTTER_ACTOR (actor_x11));
 
   XClientMessageEvent ev = { 0, };
 
@@ -158,7 +159,9 @@ do_send_frame_timings (MetaWindowActorX11 *actor_x11,
     }
 
   ev.data.l[3] = refresh_interval;
-  ev.data.l[4] = 1000 * META_SYNC_DELAY;
+
+  if (stage != NULL)
+    ev.data.l[4] = 1000 * clutter_stage_get_sync_delay (CLUTTER_STAGE (stage));
 
   meta_x11_error_trap_push (display->x11_display);
   XSendEvent (xdisplay, ev.window, False, 0, (XEvent *) &ev);
