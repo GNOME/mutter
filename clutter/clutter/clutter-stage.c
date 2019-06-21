@@ -4481,6 +4481,23 @@ clutter_stage_set_sync_delay (ClutterStage *stage,
 }
 
 /**
+ * clutter_stage_get_sync_delay:
+ * @stage: a #ClutterStage
+ *
+ * Retrieve the current value of sync_delay (as set and documented in
+ * clutter_stage_set_sync_delay()) being used on @stage.
+ *
+ * Return value: The sync_delay in milliseconds.
+ */
+gint
+clutter_stage_get_sync_delay (ClutterStage *stage)
+{
+  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), 0);
+
+  return stage->priv->sync_delay;
+}
+
+/**
  * clutter_stage_skip_sync_delay:
  * @stage: a #ClutterStage
  *
