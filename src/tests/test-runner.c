@@ -124,6 +124,24 @@ test_case_loop_quit (gpointer data)
 }
 
 static gboolean
+test_case_dispatch (TestCase *test,
+                    GError  **error)
+{
+  /* Wait until we've done any outstanding queued up work.
+   * Though we add this as BEFORE_REDRAW, the iteration that runs the
+   * BEFORE_REDRAW idles will proceed on and do the redraw, so we're
+   * waiting until after *all* frame processing.
+   */
+  meta_later_add (META_LATER_BEFORE_REDRAW,
+                  test_case_loop_quit,
+                  test,
+                  NULL);
+  g_main_loop_run (test->loop);
+
+  return TRUE;
+}
+
+static gboolean
 test_case_wait (TestCase *test,
                 GError  **error)
 {
@@ -139,16 +157,8 @@ test_case_wait (TestCase *test,
     if (!test_client_wait (value, error))
       return FALSE;
 
-  /* Then wait until we've done any outstanding queued up work.
-   * Though we add this as BEFORE_REDRAW, the iteration that runs the
-   * BEFORE_REDRAW idles will proceed on and do the redraw, so we're
-   * waiting until after *all* frame processing.
-   */
-  meta_later_add (META_LATER_BEFORE_REDRAW,
-                  test_case_loop_quit,
-                  test,
-                  NULL);
-  g_main_loop_run (test->loop);
+  /* Then wait until we've done any outstanding queued up work. */
+  test_case_dispatch (test, error);
 
   /* Then set an XSync counter ourselves and and wait until
    * we receive the resulting event - this makes sure that we've
@@ -592,6 +602,14 @@ test_case_do (TestCase *test,
         BAD_COMMAND("usage: %s", argv[0]);
 
       if (!test_case_wait (test, error))
+        return FALSE;
+    }
+  else if (strcmp (argv[0], "dispatch") == 0)
+    {
+      if (argc != 1)
+        BAD_COMMAND("usage: %s", argv[0]);
+
+      if (!test_case_dispatch (test, error))
         return FALSE;
     }
   else if (strcmp (argv[0], "sleep") == 0)
