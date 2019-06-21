@@ -248,6 +248,8 @@ CLUTTER_EXPORT
 void            clutter_stage_set_sync_delay                    (ClutterStage          *stage,
                                                                  gint                   sync_delay);
 CLUTTER_EXPORT
+gint            clutter_stage_get_sync_delay                    (ClutterStage          *stage);
+CLUTTER_EXPORT
 void            clutter_stage_skip_sync_delay                   (ClutterStage          *stage);
 #endif
 
