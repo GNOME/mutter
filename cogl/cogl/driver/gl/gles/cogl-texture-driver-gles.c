@@ -96,6 +96,16 @@ _cogl_texture_driver_gen (CoglContext *ctx,
       g_assert_not_reached();
     }
 
+  /* GL-ES doesn't have GL_RED, so swizzle the alpha into a red component */
+  if (internal_format == COGL_PIXEL_FORMAT_R_8)
+    {
+      static const GLint alpha_swizzle[] = { GL_ALPHA, GL_ZERO, GL_ZERO, GL_ZERO };
+
+      GE( ctx, glTexParameteriv (gl_target,
+                                 GL_TEXTURE_SWIZZLE_RGBA,
+                                 alpha_swizzle) );
+    }
+
   return tex;
 }
 

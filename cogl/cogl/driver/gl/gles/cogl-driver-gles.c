@@ -86,9 +86,11 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       glformat = GL_ALPHA;
       gltype = GL_UNSIGNED_BYTE;
       break;
+
+    /* GLES doesn't have GL_RED, so use GL_ALPHA and use a swizzle later */
     case COGL_PIXEL_FORMAT_R_8:
-      glintformat = GL_RED;
-      glformat = GL_RED;
+      glintformat = GL_ALPHA;
+      glformat = GL_ALPHA;
       gltype = GL_UNSIGNED_BYTE;
       break;
 
