@@ -31,7 +31,6 @@
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-screen-cast-session.h"
 #include "backends/meta-remote-access-controller-private.h"
-#include "backends/native/meta-backend-native.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "cogl/cogl.h"
 #include "meta/meta-backend.h"
