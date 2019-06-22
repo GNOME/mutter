@@ -28,6 +28,20 @@ build-mutter:
     - merge_requests
     - /^.*$/
 
+build-nonative:
+  stage: build
+  script:
+    - meson . build -Dbuildtype=debugoptimized -Dnative_backend=false --werror --prefix /usr
+    - ninja -C build
+    - ninja -C build install
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build
+  only:
+    - merge_requests
+    - /^.*$/
+
 test-mutter:
   stage: test
   dependencies:
