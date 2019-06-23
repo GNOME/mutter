@@ -452,16 +452,12 @@ prepare_auth_file (MetaXWaylandManager *manager)
 {
   Xauth auth_entry = { 0 };
   g_autoptr (FILE) fp = NULL;
-  char hostname[HOST_NAME_MAX + 1];
   char auth_data[16];
   int fd;
 
   manager->auth_file = g_build_filename (g_get_user_runtime_dir (),
                                          ".mutter-Xwaylandauth.XXXXXX",
                                          NULL);
-
-  if (gethostname (hostname, HOST_NAME_MAX) < 0)
-    g_strlcpy (hostname, "localhost", HOST_NAME_MAX);
 
   if (getrandom (auth_data, sizeof (auth_data), 0) != sizeof (auth_data))
     {
@@ -470,7 +466,7 @@ prepare_auth_file (MetaXWaylandManager *manager)
     }
 
   auth_entry.family = FamilyLocal;
-  auth_entry.address = hostname;
+  auth_entry.address = (char *) g_get_host_name ();
   auth_entry.address_length = strlen (auth_entry.address);
   auth_entry.name = (char *) "MIT-MAGIC-COOKIE-1";
   auth_entry.name_length = strlen (auth_entry.name);
