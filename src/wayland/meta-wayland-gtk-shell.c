@@ -172,7 +172,8 @@ gtk_surface_request_focus (struct wl_client   *client,
 
   if (sequence)
     {
-      uint32_t timestamp, workspace_idx;
+      uint32_t timestamp;
+      int32_t workspace_idx;
 
       workspace_idx = meta_startup_sequence_get_workspace (sequence);
       timestamp = meta_startup_sequence_get_timestamp (sequence);
