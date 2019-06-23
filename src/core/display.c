@@ -28,8 +28,6 @@
  * The display is represented as a #MetaDisplay struct.
  */
 
-#define _XOPEN_SOURCE 600 /* for gethostname() */
-
 #include "config.h"
 
 #include <stdlib.h>
