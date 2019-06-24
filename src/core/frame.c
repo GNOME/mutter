@@ -107,6 +107,7 @@ meta_window_ensure_frame (MetaWindow *window)
                    frame->xwindow,
                    frame->child_x,
                    frame->child_y);
+  window->reparents_pending += 1;
   /* FIXME handle this error */
   meta_x11_error_trap_pop (x11_display);
 
@@ -206,6 +207,7 @@ meta_window_destroy_frame (MetaWindow *window)
                         */
                        window->frame->rect.x + borders.invisible.left,
                        window->frame->rect.y + borders.invisible.top);
+      window->reparents_pending += 1;
     }
 
   meta_x11_error_trap_pop (x11_display);
