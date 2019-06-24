@@ -201,7 +201,7 @@ process_mode_set (MetaKmsImpl     *impl,
                   GError         **error)
 {
   MetaKmsImplSimple *impl_simple = META_KMS_IMPL_SIMPLE (impl);
-  MetaKmsCrtc *crtc = mode_set->crtc;;
+  MetaKmsCrtc *crtc = mode_set->crtc;
   MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
   MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
   g_autofree uint32_t *connectors = NULL;
