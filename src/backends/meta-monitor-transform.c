@@ -53,3 +53,30 @@ meta_monitor_transform_transform (MetaMonitorTransform transform,
 
   return new_transform;
 }
+
+/**
+ * meta_monitor_transform_relative_transform:
+ * @transform: The transform to start from
+ * @other: The transform to go to
+ *
+ * Return value: a transform to get from @transform to @other
+ */
+MetaMonitorTransform
+meta_monitor_transform_relative_transform (MetaMonitorTransform transform,
+                                           MetaMonitorTransform other)
+{
+  MetaMonitorTransform relative_transform;
+
+  relative_transform = ((other % META_MONITOR_TRANSFORM_FLIPPED -
+                         transform % META_MONITOR_TRANSFORM_FLIPPED) %
+                        META_MONITOR_TRANSFORM_FLIPPED);
+
+  if (meta_monitor_transform_is_flipped (transform) !=
+      meta_monitor_transform_is_flipped (other))
+    {
+      relative_transform = (meta_monitor_transform_invert (relative_transform) +
+                            META_MONITOR_TRANSFORM_FLIPPED);
+    }
+
+  return relative_transform;
+}

@@ -58,4 +58,7 @@ META_EXPORT_TEST
 MetaMonitorTransform meta_monitor_transform_transform (MetaMonitorTransform transform,
                                                        MetaMonitorTransform other);
 
+MetaMonitorTransform meta_monitor_transform_relative_transform (MetaMonitorTransform transform,
+                                                                MetaMonitorTransform other);
+
 #endif /* META_MONITOR_TRANSFORM_H */
