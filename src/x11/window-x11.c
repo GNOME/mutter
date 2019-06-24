@@ -888,7 +888,7 @@ meta_window_x11_focus (MetaWindow *window,
                * the window responds to WM_TAKE_FOCUS, but if we're unmanaging
                * the current focus window we *need* to move the focus away, so
                * we focus the no focus window before sending WM_TAKE_FOCUS,
-               * and eventually the default focus windwo excluding this one,
+               * and eventually the default focus window excluding this one,
                * if meanwhile we don't get any focus request.
                */
               if (window->display->focus_window != NULL &&
