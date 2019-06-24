@@ -89,7 +89,7 @@ meta_window_ensure_frame (MetaWindow *window)
   meta_x11_display_register_x_window (x11_display, &frame->xwindow, window);
 
   meta_x11_error_trap_push (x11_display);
-  if (window->mapped)
+  if (window->mapped || window->unmaps_pending > 0)
     {
       window->mapped = FALSE; /* the reparent will unmap the window,
                                * we don't want to take that as a withdraw
@@ -180,7 +180,7 @@ meta_window_destroy_frame (MetaWindow *window)
    * thus the error trap.
    */
   meta_x11_error_trap_push (x11_display);
-  if (window->mapped)
+  if (window->mapped || window->unmaps_pending > 0)
     {
       window->mapped = FALSE; /* Keep track of unmapping it, so we
                                * can identify a withdraw initiated
