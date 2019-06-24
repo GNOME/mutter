@@ -39,3 +39,21 @@ meta_monitor_transform_invert (MetaMonitorTransform transform)
   g_assert_not_reached ();
   return 0;
 }
+
+MetaMonitorTransform
+meta_monitor_transform_relative_transform (MetaMonitorTransform transform_a,
+                                           MetaMonitorTransform transform_b)
+{
+  MetaMonitorTransform relative_transform;
+
+  relative_transform = (transform_a + transform_b) % META_MONITOR_TRANSFORM_FLIPPED;
+  if ((meta_monitor_transform_is_flipped (transform_a) &&
+       !meta_monitor_transform_is_flipped (transform_b)) ||
+      (!meta_monitor_transform_is_flipped (transform_a) &&
+       meta_monitor_transform_is_flipped (transform_b)))
+    {
+      relative_transform += META_MONITOR_TRANSFORM_FLIPPED;
+    }
+
+  return relative_transform;
+}
