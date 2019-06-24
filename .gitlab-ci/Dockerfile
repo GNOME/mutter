@@ -4,6 +4,7 @@ RUN dnf -y update && dnf -y upgrade && \
     dnf install -y 'dnf-command(builddep)' && \
     dnf install -y 'dnf-command(copr)' && \
     dnf copr enable -y fmuellner/gnome-shell-ci && \
+    dnf copr enable -y hergertme/sysprof-3 && \
 
     dnf builddep -y mutter && \
 
@@ -15,7 +16,7 @@ RUN dnf -y update && dnf -y upgrade && \
 
     # Unpackaged versions
     dnf install -y https://copr-be.cloud.fedoraproject.org/results/jadahl/mutter-ci/fedora-29-x86_64/00834984-gsettings-desktop-schemas/gsettings-desktop-schemas-3.30.1-1.20181206git918efdd69be53.fc29.x86_64.rpm https://copr-be.cloud.fedoraproject.org/results/jadahl/mutter-ci/fedora-29-x86_64/00834984-gsettings-desktop-schemas/gsettings-desktop-schemas-devel-3.30.1-1.20181206git918efdd69be53.fc29.x86_64.rpm && \
-    dnf install -y https://copr-be.cloud.fedoraproject.org/results/hergertme/sysprof-3/fedora-30-x86_64/00917385-sysprof/libsysprof-ui-3.33.2-1.fc30.x86_64.rpm https://copr-be.cloud.fedoraproject.org/results/hergertme/sysprof-3/fedora-30-x86_64/00917385-sysprof/sysprof-cli-3.33.2-1.fc30.x86_64.rpm https://copr-be.cloud.fedoraproject.org/results/hergertme/sysprof-3/fedora-30-x86_64/00917385-sysprof/sysprof-3.33.2-1.fc30.x86_64.rpm https://copr-be.cloud.fedoraproject.org/results/hergertme/sysprof-3/fedora-30-x86_64/00917385-sysprof/sysprof-devel-3.33.2-1.fc30.x86_64.rpm && \
+    dnf install -y sysprof-devel && \
 
     dnf install -y intltool redhat-rpm-config make && \
 
