@@ -93,6 +93,7 @@ cogl_headers = [
   'cogl-texture.h',
   'cogl-texture-2d.h',
   'cogl-texture-2d-sliced.h',
+  'cogl-texture-components.h',
   'cogl-types.h',
   'cogl.h',
 ]
