@@ -28,7 +28,7 @@ build-mutter:
     - merge_requests
     - /^.*$/
 
-build-nonative:
+build-without-native-backend:
   stage: build
   script:
     - meson . build -Dbuildtype=debugoptimized -Dnative_backend=false -Dudev=false --werror --prefix /usr
