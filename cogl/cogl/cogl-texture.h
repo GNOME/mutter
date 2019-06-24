@@ -123,29 +123,6 @@ gboolean
 cogl_is_texture (void *object);
 
 /**
- * CoglTextureComponents:
- * @COGL_TEXTURE_COMPONENTS_A: Only the alpha component
- * @COGL_TEXTURE_COMPONENTS_RG: Red and green components. Note that
- *   this can only be used if the %COGL_FEATURE_ID_TEXTURE_RG feature
- *   is advertised.
- * @COGL_TEXTURE_COMPONENTS_RGB: Red, green and blue components
- * @COGL_TEXTURE_COMPONENTS_RGBA: Red, green, blue and alpha components
- * @COGL_TEXTURE_COMPONENTS_DEPTH: Only a depth component
- *
- * See cogl_texture_set_components().
- *
- * Since: 1.18
- */
-typedef enum _CoglTextureComponents
-{
-  COGL_TEXTURE_COMPONENTS_A = 1,
-  COGL_TEXTURE_COMPONENTS_RG,
-  COGL_TEXTURE_COMPONENTS_RGB,
-  COGL_TEXTURE_COMPONENTS_RGBA,
-  COGL_TEXTURE_COMPONENTS_DEPTH
-} CoglTextureComponents;
-
-/**
  * cogl_texture_set_components:
  * @texture: a #CoglTexture pointer.
  *

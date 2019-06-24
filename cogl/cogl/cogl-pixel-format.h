@@ -39,6 +39,7 @@
 #include <stddef.h>
 
 #include <cogl/cogl-defines.h>
+#include <cogl/cogl-texture-components.h>
 
 #include <glib.h>
 #include <glib-object.h>
