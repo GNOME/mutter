@@ -325,6 +325,7 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
 {
   MetaDefaultPlugin *self = META_DEFAULT_PLUGIN (plugin);
   MetaDisplay *display = meta_plugin_get_display (plugin);
+  ClutterActor *window_group;
 
   int i, n;
   GRand *rand = g_rand_new_with_seed (123456);
@@ -368,6 +369,9 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
 
       clutter_actor_add_child (self->priv->background_group, background_actor);
     }
+
+  window_group = meta_get_window_group_for_display (display);
+  clutter_actor_queue_relayout (window_group);
 
   g_rand_free (rand);
 }
