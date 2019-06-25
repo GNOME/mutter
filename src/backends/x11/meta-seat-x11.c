@@ -2188,8 +2188,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
             event->crossing.time = xev->time;
             translate_coords (stage_x11, xev->event_x, xev->event_y, &event->crossing.x, &event->crossing.y);
-
-            _clutter_input_device_set_stage (device, stage);
           }
         else
           {
@@ -2209,8 +2207,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
             event->crossing.time = xev->time;
             translate_coords (stage_x11, xev->event_x, xev->event_y, &event->crossing.x, &event->crossing.y);
-
-            _clutter_input_device_set_stage (device, NULL);
           }
 
         _clutter_input_device_reset_scroll_info (source_device);
