@@ -41,6 +41,7 @@
 #include "stack.h"
 #include <meta/compositor.h>
 #include <meta/meta-enum-types.h>
+#include "compositor-private.h"
 #include "core.h"
 #include "meta-cursor-tracker-private.h"
 #include "boxes-private.h"
@@ -843,6 +844,8 @@ meta_screen_free (MetaScreen *screen,
   meta_compositor_unmanage (screen->display->compositor);
 
   meta_display_unmanage_windows_for_screen (display, screen, timestamp);
+
+  meta_compositor_unmanage_window_actors (display->compositor);
 
   meta_prefs_remove_listener (prefs_changed_callback, screen);
 
