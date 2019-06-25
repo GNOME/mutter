@@ -840,9 +840,9 @@ meta_screen_free (MetaScreen *screen,
 
   screen->closing += 1;
 
-  meta_compositor_unmanage (screen->display->compositor);
-
   meta_display_unmanage_windows_for_screen (display, screen, timestamp);
+
+  meta_compositor_unmanage (display->compositor);
 
   meta_prefs_remove_listener (prefs_changed_callback, screen);
 
