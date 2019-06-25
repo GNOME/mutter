@@ -836,6 +836,7 @@ meta_screen_free (MetaScreen *screen,
                   guint32     timestamp)
 {
   MetaDisplay *display;
+  GList *l;
 
   display = screen->display;
 
@@ -876,6 +877,16 @@ meta_screen_free (MetaScreen *screen,
     g_source_remove (screen->tile_preview_timeout_id);
 
   g_free (screen->screen_name);
+
+  screen->active_workspace = NULL;
+
+  for (l = screen->workspaces; l;)
+    {
+      MetaWorkspace *workspace = l->data;
+      l = l->next;
+
+      meta_workspace_remove (workspace);
+    }
 
   g_object_unref (screen);
 }
