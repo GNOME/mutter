@@ -1,3 +1,18 @@
+mutter (3.32.2+git20190626-1) UNRELEASED; urgency=medium
+
+  * New upstream snapshot release:
+    - Don't crash when try to focus unfocusable windows (LP: #1791574)
+    - Valgrind use-after-free warning fixes in the native backend
+    - renderer/native: add missing eglTerminate in EGLDevice error path
+    - Fix Alt+F2 -> restart to work again in X11
+    - window: Emit an error and return when trying to activate an unmanaged
+      (LP: #1827401)
+    - Setting cursor to "none" doesn't hide it under Wayland
+    - Fix broken selected text in entries
+    - Tests memory fixes
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 26 Jun 2019 19:34:11 +0200
+
 mutter (3.32.2-1) experimental; urgency=medium
 
   * New upstream release
