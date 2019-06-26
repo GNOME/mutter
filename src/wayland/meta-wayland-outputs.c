@@ -574,6 +574,7 @@ send_xdg_output_events (struct wl_resource *resource,
   MetaRectangle old_layout;
   MetaLogicalMonitor *old_logical_monitor;
   gboolean need_done;
+  int version = wl_resource_get_version (resource);
 
   need_done = FALSE;
   old_logical_monitor = wayland_output->logical_monitor;
@@ -598,6 +599,20 @@ send_xdg_output_events (struct wl_resource *resource,
                                         new_layout.width,
                                         new_layout.height);
       need_done = TRUE;
+    }
+
+  if (need_all_events && version >= ZXDG_OUTPUT_V1_NAME_SINCE_VERSION)
+    {
+      MetaMonitor *monitor = pick_main_monitor (logical_monitor);
+      const char* name = meta_monitor_get_connector (monitor);
+      zxdg_output_v1_send_name (resource, name);
+    }
+
+  if (need_all_events && version >= ZXDG_OUTPUT_V1_DESCRIPTION_SINCE_VERSION)
+    {
+      MetaMonitor *monitor = pick_main_monitor (logical_monitor);
+      const char* description = meta_monitor_get_display_name (monitor);
+      zxdg_output_v1_send_description (resource, description);
     }
 
   if (need_all_events)
