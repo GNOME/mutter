@@ -75,6 +75,8 @@ typedef struct _MetaMonitorPrivate
    * the primary one).
    */
   uint64_t winsys_id;
+
+  gchar *display_name;
 } MetaMonitorPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaMonitor, meta_monitor, G_TYPE_OBJECT)
@@ -179,6 +181,102 @@ meta_monitor_generate_spec (MetaMonitor *monitor)
   };
 
   priv->spec = monitor_spec;
+}
+
+static const double known_diagonals[] = {
+    12.1,
+    13.3,
+    15.6
+};
+
+static char *
+diagonal_to_str (double d)
+{
+  unsigned int i;
+
+  for (i = 0; i < G_N_ELEMENTS (known_diagonals); i++)
+    {
+      double delta;
+
+      delta = fabs(known_diagonals[i] - d);
+      if (delta < 0.1)
+        return g_strdup_printf ("%0.1lf\"", known_diagonals[i]);
+    }
+
+  return g_strdup_printf ("%d\"", (int) (d + 0.5));
+}
+
+static char *
+meta_monitor_make_display_name (MetaMonitorManager *manager,
+                                MetaMonitor        *monitor)
+{
+  g_autofree char *inches = NULL;
+  g_autofree char *vendor_name = NULL;
+  const char *vendor = NULL;
+  const char *product_name = NULL;
+  int width_mm;
+  int height_mm;
+
+  meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
+
+  if (meta_monitor_is_laptop_panel (monitor))
+      return g_strdup (_("Built-in display"));
+
+  if (width_mm > 0 && height_mm > 0)
+    {
+      if (!meta_monitor_has_aspect_as_size (monitor))
+        {
+          double d = sqrt (width_mm * width_mm +
+                           height_mm * height_mm);
+          inches = diagonal_to_str (d / 25.4);
+        }
+      else
+        {
+          product_name = meta_monitor_get_product (monitor);
+        }
+    }
+
+  vendor = meta_monitor_get_vendor (monitor);
+
+  if (g_strcmp0 (vendor, "unknown") != 0)
+    {
+      if (!manager->pnp_ids)
+        manager->pnp_ids = gnome_pnp_ids_new ();
+
+      vendor_name = gnome_pnp_ids_get_pnp_id (manager->pnp_ids,
+                                              vendor);
+
+      if (!vendor_name)
+        vendor_name = g_strdup (vendor);
+    }
+  else
+    {
+      if (inches != NULL)
+        vendor_name = g_strdup (_("Unknown"));
+      else
+        vendor_name = g_strdup (_("Unknown Display"));
+    }
+
+  if (inches != NULL)
+    {
+       /**/
+      return g_strdup_printf (C_("This is a monitor vendor name, followed by a "
+                                 "size in inches, like 'Dell 15\"'",
+                                 "%s %s"),
+                              vendor_name, inches);
+    }
+  else if (product_name != NULL)
+    {
+      return g_strdup_printf (C_("This is a monitor vendor name followed by "
+                                 "product/model name where size in inches "
+                                 "could not be calculated, e.g. Dell U2414H",
+                                 "%s %s"),
+                              vendor_name, product_name);
+    }
+  else
+    {
+      return g_strdup (vendor_name);
+    }
 }
 
 MetaGpu *
@@ -410,6 +508,7 @@ meta_monitor_finalize (GObject *object)
   g_hash_table_destroy (priv->mode_ids);
   g_list_free_full (priv->modes, (GDestroyNotify) meta_monitor_mode_free);
   meta_monitor_spec_free (priv->spec);
+  g_free (priv->display_name);
 
   G_OBJECT_CLASS (meta_monitor_parent_class)->finalize (object);
 }
@@ -570,6 +669,9 @@ meta_monitor_normal_new (MetaGpu            *gpu,
   meta_monitor_generate_spec (monitor);
 
   meta_monitor_normal_generate_modes (monitor_normal);
+
+  monitor_priv->display_name = meta_monitor_make_display_name (monitor_manager,
+                                                               monitor);
 
   return monitor_normal;
 }
@@ -1209,6 +1311,9 @@ meta_monitor_tiled_new (MetaGpu            *gpu,
 
   meta_monitor_tiled_generate_modes (monitor_tiled);
 
+  monitor_priv->display_name = meta_monitor_make_display_name (monitor_manager,
+                                                               monitor);
+
   return monitor_tiled;
 }
 
@@ -1765,4 +1870,13 @@ meta_monitor_mode_foreach_output (MetaMonitor          *monitor,
     }
 
   return TRUE;
+}
+
+const char *
+meta_monitor_get_display_name (MetaMonitor *monitor)
+{
+  MetaMonitorPrivate *monitor_priv =
+    meta_monitor_get_instance_private (monitor);
+
+  return monitor_priv->display_name;
 }

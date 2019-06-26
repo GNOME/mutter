@@ -281,4 +281,7 @@ int meta_monitor_spec_compare (MetaMonitorSpec *monitor_spec_a,
 META_EXPORT_TEST
 void meta_monitor_spec_free (MetaMonitorSpec *monitor_id);
 
+META_EXPORT_TEST
+const char * meta_monitor_get_display_name (MetaMonitor *monitor);
+
 #endif /* META_MONITOR_H */
