@@ -385,4 +385,7 @@ void meta_monitor_manager_clear_crtc (MetaCrtc *crtc);
 
 gboolean meta_monitor_has_aspect_as_size (MetaMonitor *monitor);
 
+char * meta_monitor_manager_get_vendor_name (MetaMonitorManager *manager,
+                                             const char         *vendor);
+
 #endif /* META_MONITOR_MANAGER_PRIVATE_H */
