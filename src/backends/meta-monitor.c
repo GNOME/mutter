@@ -551,8 +551,9 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
 }
 
 MetaMonitorNormal *
-meta_monitor_normal_new (MetaGpu    *gpu,
-                         MetaOutput *output)
+meta_monitor_normal_new (MetaGpu            *gpu,
+                         MetaMonitorManager *monitor_manager,
+                         MetaOutput         *output)
 {
   MetaMonitorNormal *monitor_normal;
   MetaMonitor *monitor;

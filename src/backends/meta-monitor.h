@@ -101,8 +101,9 @@ MetaMonitorTiled * meta_monitor_tiled_new (MetaGpu            *gpu,
                                            MetaOutput         *output);
 
 META_EXPORT_TEST
-MetaMonitorNormal * meta_monitor_normal_new (MetaGpu    *gpu,
-                                             MetaOutput *output);
+MetaMonitorNormal * meta_monitor_normal_new (MetaGpu            *gpu,
+                                             MetaMonitorManager *monitor_manager,
+                                             MetaOutput         *output);
 
 META_EXPORT_TEST
 MetaMonitorSpec * meta_monitor_get_spec (MetaMonitor *monitor);
