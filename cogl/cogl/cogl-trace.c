@@ -18,9 +18,9 @@
 
 #include "cogl-config.h"
 
-#ifdef HAVE_TRACING
-
 #include "cogl/cogl-trace.h"
+
+#ifdef HAVE_TRACING
 
 #include <sysprof-capture.h>
 #include <syscall.h>
