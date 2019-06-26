@@ -196,6 +196,74 @@ process_line (const char *line)
                                              NULL))
         g_print ("Fail to export handle for window id %s", argv[2]);
     }
+  else if (strcmp (argv[0], "accept_focus") == 0)
+    {
+      if (argc != 3)
+        {
+          g_print ("usage: %s <window-id> [true|false]", argv[0]);
+          goto out;
+        }
+
+      GtkWidget *window = lookup_window (argv[1]);
+      if (!window)
+        {
+          g_print ("unknown window %s", argv[1]);
+          goto out;
+        }
+
+      gboolean enabled = g_ascii_strcasecmp (argv[2], "true") == 0;
+      gtk_window_set_accept_focus (GTK_WINDOW (window), enabled);
+    }
+  else if (strcmp (argv[0], "can_take_focus") == 0)
+    {
+      if (argc != 3)
+        {
+          g_print ("usage: %s <window-id> [true|false]", argv[0]);
+          goto out;
+        }
+
+      GtkWidget *window = lookup_window (argv[1]);
+      if (!window)
+        {
+          g_print ("unknown window %s", argv[1]);
+          goto out;
+        }
+
+      if (wayland)
+        {
+          g_print ("%s not supported under wayland", argv[0]);
+          goto out;
+        }
+
+      GdkDisplay *display = gdk_display_get_default ();
+      GdkWindow *gdkwindow = gtk_widget_get_window (window);
+      Display *xdisplay = gdk_x11_display_get_xdisplay (display);
+      Window xwindow = GDK_WINDOW_XID (gdkwindow);
+      Atom wm_take_focus = gdk_x11_get_xatom_by_name_for_display (display, "WM_TAKE_FOCUS");
+      gboolean add = g_ascii_strcasecmp(argv[2], "true") == 0;
+      Atom *protocols = NULL;
+      Atom *new_protocols;
+      int n_protocols = 0;
+      int i, n = 0;
+
+      gdk_display_sync (display);
+      XGetWMProtocols (xdisplay, xwindow, &protocols, &n_protocols);
+      new_protocols = g_new0 (Atom, n_protocols + (add ? 1 : 0));
+
+      for (i = 0; i < n_protocols; ++i)
+        {
+          if (protocols[i] != wm_take_focus)
+            new_protocols[n++] = protocols[i];
+        }
+
+      if (add)
+        new_protocols[n++] = wm_take_focus;
+
+      XSetWMProtocols (xdisplay, xwindow, new_protocols, n);
+
+      XFree (new_protocols);
+      XFree (protocols);
+    }
   else if (strcmp (argv[0], "show") == 0)
     {
       if (argc != 2)

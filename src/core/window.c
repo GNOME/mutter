@@ -3683,6 +3683,13 @@ meta_window_activate_full (MetaWindow     *window,
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
   gboolean allow_workspace_switch;
+
+  if (window->unmanaging)
+    {
+      g_warning ("Trying to activate unmanaged window '%s'", window->desc);
+      return;
+    }
+
   meta_topic (META_DEBUG_FOCUS,
               "_NET_ACTIVE_WINDOW message sent for %s at time %u "
               "by client type %u.\n",
@@ -8562,6 +8569,8 @@ meta_window_shortcuts_inhibited (MetaWindow         *window,
 gboolean
 meta_window_is_focusable (MetaWindow *window)
 {
+  g_return_val_if_fail (!window->unmanaging, FALSE);
+
   return META_WINDOW_GET_CLASS (window)->is_focusable (window);
 }
 
