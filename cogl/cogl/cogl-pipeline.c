@@ -455,9 +455,6 @@ _cogl_pipeline_free (CoglPipeline *pipeline)
       _cogl_bitmask_destroy (&uniforms_state->changed_mask);
     }
 
-  if (pipeline->differences & COGL_PIPELINE_STATE_NEEDS_BIG_STATE)
-    g_slice_free (CoglPipelineBigState, pipeline->big_state);
-
   if (pipeline->differences & COGL_PIPELINE_STATE_LAYERS)
     {
       g_list_foreach (pipeline->layer_differences,
@@ -470,6 +467,9 @@ _cogl_pipeline_free (CoglPipeline *pipeline)
 
   if (pipeline->differences & COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS)
     _cogl_pipeline_snippet_list_free (&pipeline->big_state->fragment_snippets);
+
+  if (pipeline->differences & COGL_PIPELINE_STATE_NEEDS_BIG_STATE)
+    g_slice_free (CoglPipelineBigState, pipeline->big_state);
 
   g_list_free (pipeline->deprecated_get_layers_list);
 

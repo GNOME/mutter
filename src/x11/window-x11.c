@@ -50,6 +50,8 @@
 #include "x11/window-props.h"
 #include "x11/xprops.h"
 
+#define TAKE_FOCUS_FALLBACK_DELAY_MS 250
+
 enum _MetaGtkEdgeConstraints
 {
   META_GTK_EDGE_CONSTRAINT_TOP_TILED = 1 << 0,
@@ -776,6 +778,64 @@ request_take_focus (MetaWindow *window,
   send_icccm_message (window, display->x11_display->atom_WM_TAKE_FOCUS, timestamp);
 }
 
+typedef struct
+{
+  MetaWindow *window;
+  guint32 timestamp;
+  guint timeout_id;
+  gulong unmanaged_id;
+  gulong focused_changed_id;
+} MetaWindowX11DelayedFocusData;
+
+static void
+meta_window_x11_delayed_focus_data_free (MetaWindowX11DelayedFocusData *data)
+{
+  g_signal_handler_disconnect (data->window, data->unmanaged_id);
+  g_signal_handler_disconnect (data->window->display, data->focused_changed_id);
+
+  g_clear_handle_id (&data->timeout_id, g_source_remove);
+  g_free (data);
+}
+
+static gboolean
+focus_window_delayed_timeout (gpointer user_data)
+{
+  MetaWindowX11DelayedFocusData *data = user_data;
+  MetaWindow *window = data->window;
+  guint32 timestamp = data->timestamp;
+
+  data->timeout_id = 0;
+  meta_window_x11_delayed_focus_data_free (data);
+
+  meta_window_focus (window, timestamp);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+meta_window_x11_maybe_focus_delayed (MetaWindow *window,
+                                     guint32     timestamp)
+{
+  MetaWindowX11DelayedFocusData *data;
+
+  data = g_new0 (MetaWindowX11DelayedFocusData, 1);
+  data->window = window;
+  data->timestamp = timestamp;
+
+  data->unmanaged_id =
+    g_signal_connect_swapped (window, "unmanaged",
+                              G_CALLBACK (meta_window_x11_delayed_focus_data_free),
+                              data);
+
+  data->focused_changed_id =
+    g_signal_connect_swapped (window->display, "notify::focus-window",
+                              G_CALLBACK (meta_window_x11_delayed_focus_data_free),
+                              data);
+
+  data->timeout_id = g_timeout_add (TAKE_FOCUS_FALLBACK_DELAY_MS,
+                                    focus_window_delayed_timeout, data);
+}
+
 static void
 meta_window_x11_focus (MetaWindow *window,
                        guint32     timestamp)
@@ -827,13 +887,43 @@ meta_window_x11_focus (MetaWindow *window,
                * Normally, we want to just leave the focus undisturbed until
                * the window responds to WM_TAKE_FOCUS, but if we're unmanaging
                * the current focus window we *need* to move the focus away, so
-               * we focus the no_focus_window now (and set
-               * display->focus_window to that) before sending WM_TAKE_FOCUS.
+               * we focus the no focus window before sending WM_TAKE_FOCUS,
+               * and eventually the default focus windwo excluding this one,
+               * if meanwhile we don't get any focus request.
                */
               if (window->display->focus_window != NULL &&
                   window->display->focus_window->unmanaging)
-                meta_x11_display_focus_the_no_focus_window (window->display->x11_display,
-                                                            timestamp);
+                {
+                  MetaWindow *focus_window = window;
+                  MetaX11Display *x11_display = window->display->x11_display;
+                  MetaWorkspace *workspace = window->workspace;
+                  MetaStack *stack = workspace->display->stack;
+
+                  while (TRUE)
+                    {
+                      focus_window = meta_stack_get_default_focus_window (stack,
+                                                                          workspace,
+                                                                          focus_window);
+                      if (!focus_window)
+                        break;
+
+                      if (focus_window->unmanaging)
+                        continue;
+
+                      if (focus_window->input)
+                        break;
+
+                      if (focus_window->shaded && focus_window->frame)
+                        break;
+                    }
+
+                  meta_x11_display_focus_the_no_focus_window (x11_display,
+                                                              timestamp);
+
+                  if (focus_window)
+                    meta_window_x11_maybe_focus_delayed (focus_window,
+                                                         timestamp);
+                }
             }
 
           request_take_focus (window, timestamp);

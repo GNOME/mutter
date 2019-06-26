@@ -1504,7 +1504,6 @@ cogl_framebuffer_push_path_clip (CoglFramebuffer *framebuffer,
       COGL_FRAMEBUFFER_STATE_CLIP;
 }
 
-/* XXX: deprecated */
 void
 cogl_clip_push_from_path (CoglPath *path)
 {
@@ -1575,7 +1574,6 @@ _cogl_path_build_stroke_attribute_buffer (CoglPath *path)
   data->stroke_n_attributes = n_attributes;
 }
 
-/* XXX: deprecated */
 void
 cogl_framebuffer_fill_path (CoglFramebuffer *framebuffer,
                             CoglPipeline *pipeline,
@@ -1588,7 +1586,6 @@ cogl_framebuffer_fill_path (CoglFramebuffer *framebuffer,
   _cogl_path_fill_nodes (path, framebuffer, pipeline, 0 /* flags */);
 }
 
-/* XXX: deprecated */
 void
 cogl_framebuffer_stroke_path (CoglFramebuffer *framebuffer,
                               CoglPipeline *pipeline,
