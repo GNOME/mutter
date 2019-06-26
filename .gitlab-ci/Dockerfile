@@ -1,3 +1,10 @@
+# Rebuild and push with
+#
+#     cd .gitlab-ci/
+#     docker build -t registry.gitlab.gnome.org/gnome/mutter/master:v2 .
+#     docker push registry.gitlab.gnome.org/gnome/mutter/master:v2
+#
+
 FROM fedora:30
 
 RUN dnf -y update && dnf -y upgrade && \
