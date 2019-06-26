@@ -214,7 +214,8 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
   if (min_render_time_allowed > max_render_time_allowed)
     min_render_time_allowed = max_render_time_allowed;
 
-  next_presentation_time = stage_cogl->last_presentation_time + refresh_interval;
+  next_presentation_time = stage_cogl->last_presentation_time +
+                           (stage_cogl->pending_swaps + 1) * refresh_interval;
 
   /* Get next_presentation_time closer to its final value, to reduce
    * the number of while iterations below.
@@ -242,9 +243,6 @@ static gint64
 clutter_stage_cogl_get_update_time (ClutterStageWindow *stage_window)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-
-  if (stage_cogl->pending_swaps)
-    return -1; /* in the future, indefinite */
 
   return stage_cogl->update_time;
 }
