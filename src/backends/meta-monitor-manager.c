@@ -3189,3 +3189,23 @@ meta_monitor_manager_get_config_manager (MetaMonitorManager *manager)
 {
   return manager->config_manager;
 }
+
+/**
+ * meta_monitor_manager_get_vendor_name_from_pnp_id:
+ * @manager: A #MetaMonitorManager object
+ * @pnp_id:  the PNP ID of the monitor
+ *
+ * Find the full vendor name from the given monitor PNP ID.
+ *
+ * Returns: (transfer full): A string containing the vendor name,
+ *                            or NULL when not found.
+ */
+char*
+meta_monitor_manager_get_vendor_name_from_pnp_id (MetaMonitorManager *manager,
+                                                  const char         *pnp_id)
+{
+  if (!manager->pnp_ids)
+    manager->pnp_ids = gnome_pnp_ids_new ();
+
+  return gnome_pnp_ids_get_pnp_id (manager->pnp_ids, pnp_id);
+}

@@ -62,4 +62,8 @@ MetaMonitorSwitchConfigType meta_monitor_manager_get_switch_config (MetaMonitorM
 META_EXPORT
 gint meta_monitor_manager_get_display_configuration_timeout (void);
 
+META_EXPORT
+char* meta_monitor_manager_get_vendor_name_from_pnp_id (MetaMonitorManager *manager,
+                                                        const char         *pnp_id);
+
 #endif /* META_MONITOR_MANAGER_H */
