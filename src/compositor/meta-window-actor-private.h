@@ -17,9 +17,6 @@ struct _MetaWindowActorClass
                           ClutterFrameInfo *frame_info,
                           int64_t           presentation_time);
 
-  void (*set_surface_actor) (MetaWindowActor  *actor,
-                             MetaSurfaceActor *surface);
-
   void (*queue_frame_drawn) (MetaWindowActor *actor,
                              gboolean         skip_sync_delay);
 
