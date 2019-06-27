@@ -39,16 +39,6 @@ meta_window_actor_wayland_frame_complete (MetaWindowActor  *actor,
 }
 
 static void
-meta_window_actor_wayland_set_surface_actor (MetaWindowActor  *actor,
-                                             MetaSurfaceActor *surface)
-{
-  MetaWindowActorClass *parent_class =
-    META_WINDOW_ACTOR_CLASS (meta_window_actor_wayland_parent_class);
-
-  parent_class->set_surface_actor (actor, surface);
-}
-
-static void
 meta_window_actor_wayland_queue_frame_drawn (MetaWindowActor *actor,
                                              gboolean         skip_sync_delay)
 {
@@ -75,7 +65,6 @@ meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
   MetaWindowActorClass *window_actor_class = META_WINDOW_ACTOR_CLASS (klass);
 
   window_actor_class->frame_complete = meta_window_actor_wayland_frame_complete;
-  window_actor_class->set_surface_actor = meta_window_actor_wayland_set_surface_actor;
   window_actor_class->queue_frame_drawn = meta_window_actor_wayland_queue_frame_drawn;
   window_actor_class->pre_paint = meta_window_actor_wayland_pre_paint;
   window_actor_class->post_paint = meta_window_actor_wayland_post_paint;
