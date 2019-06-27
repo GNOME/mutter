@@ -377,6 +377,7 @@ set_surface (MetaWindowActor  *self,
     {
       g_signal_handler_disconnect (priv->surface, priv->size_changed_id);
       clutter_actor_remove_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->surface));
+      meta_surface_actor_release_resources (priv->surface);
       g_object_unref (priv->surface);
     }
 
