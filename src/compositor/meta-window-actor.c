@@ -457,7 +457,10 @@ meta_window_actor_dispose (GObject *object)
   MetaCompositor *compositor = priv->compositor;
 
   if (priv->disposed)
-    return;
+    {
+      G_OBJECT_CLASS (meta_window_actor_parent_class)->dispose (object);
+      return;
+    }
 
   priv->disposed = TRUE;
 
