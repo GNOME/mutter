@@ -17,8 +17,8 @@ struct _MetaWindowActorClass
                           ClutterFrameInfo *frame_info,
                           int64_t           presentation_time);
 
-  void (*set_surface_actor) (MetaWindowActor  *actor,
-                             MetaSurfaceActor *surface);
+  void (*assign_surface_actor) (MetaWindowActor  *actor,
+                                MetaSurfaceActor *surface_actor);
 
   void (*queue_frame_drawn) (MetaWindowActor *actor,
                              gboolean         skip_sync_delay);
@@ -73,7 +73,10 @@ void meta_window_actor_effect_completed (MetaWindowActor  *actor,
                                          MetaPluginEffect  event);
 
 MetaSurfaceActor *meta_window_actor_get_surface (MetaWindowActor *self);
-void meta_window_actor_update_surface (MetaWindowActor *self);
+
+void meta_window_actor_assign_surface_actor (MetaWindowActor  *self,
+                                             MetaSurfaceActor *surface_actor);
+
 MetaWindowActor *meta_window_actor_from_window (MetaWindow *window);
 
 #endif /* META_WINDOW_ACTOR_PRIVATE_H */

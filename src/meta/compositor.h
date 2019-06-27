@@ -83,10 +83,6 @@ void meta_compositor_window_opacity_changed (MetaCompositor *compositor,
                                              MetaWindow     *window);
 
 META_EXPORT
-void meta_compositor_window_surface_changed (MetaCompositor *compositor,
-                                             MetaWindow     *window);
-
-META_EXPORT
 gboolean meta_compositor_process_event (MetaCompositor *compositor,
                                         XEvent         *event,
                                         MetaWindow     *window);
