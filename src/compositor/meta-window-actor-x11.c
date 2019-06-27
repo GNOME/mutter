@@ -20,10 +20,13 @@
  *     Georges Basile Stavracas Neto <gbsneto@gnome.org>
  */
 
+#include "config.h"
+
+#include "compositor/meta-window-actor-x11.h"
+
 #include "backends/meta-logical-monitor.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-surface-actor.h"
-#include "compositor/meta-window-actor-x11.h"
 #include "core/window-private.h"
 #include "meta/compositor.h"
 #include "meta/meta-window-actor.h"
