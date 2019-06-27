@@ -2633,8 +2633,6 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
   CoglContext *cogl_context = framebuffer->context;
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
-  CoglRenderer *cogl_renderer = cogl_context->display->renderer;
-  CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native;
   MetaRendererNative *renderer_native;
@@ -2680,6 +2678,9 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
+      CoglRenderer *cogl_renderer = cogl_context->display->renderer;
+      CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
+
       release_dumb_fb (&onscreen_native->egl.dumb_fb,
                        onscreen_native->render_gpu);
 
