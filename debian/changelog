@@ -1,4 +1,4 @@
-mutter (3.32.2+git20190626-1) UNRELEASED; urgency=medium
+mutter (3.32.2+git20190626-1) experimental; urgency=medium
 
   * New upstream snapshot release:
     - Don't crash when try to focus unfocusable windows (LP: #1791574)
@@ -11,7 +11,7 @@ mutter (3.32.2+git20190626-1) UNRELEASED; urgency=medium
     - Fix broken selected text in entries
     - Tests memory fixes
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Wed, 26 Jun 2019 19:34:11 +0200
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 27 Jun 2019 13:02:32 +0100
 
 mutter (3.32.2-1) experimental; urgency=medium
 
