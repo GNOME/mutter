@@ -2633,8 +2633,6 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
   CoglContext *cogl_context = framebuffer->context;
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglDisplayEGL *cogl_display_egl = cogl_display->winsys;
-  CoglRenderer *cogl_renderer = cogl_context->display->renderer;
-  CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native;
   MetaRendererNative *renderer_native;
@@ -2688,6 +2686,8 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
       if (onscreen_native->egl.stream != EGL_NO_STREAM_KHR)
         {
           MetaEgl *egl = meta_onscreen_native_get_egl (onscreen_native);
+          CoglRenderer *cogl_renderer = cogl_context->display->renderer;
+          CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
 
           meta_egl_destroy_stream (egl,
                                    cogl_renderer_egl->edpy,
