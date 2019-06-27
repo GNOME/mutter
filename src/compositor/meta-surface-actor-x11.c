@@ -71,10 +71,12 @@ static void
 free_damage (MetaSurfaceActorX11 *self)
 {
   MetaDisplay *display = self->display;
-  Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
+  Display *xdisplay;
 
   if (self->damage == None)
     return;
+
+  xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
 
   meta_x11_error_trap_push (display->x11_display);
   XDamageDestroy (xdisplay, self->damage);
@@ -86,11 +88,13 @@ static void
 detach_pixmap (MetaSurfaceActorX11 *self)
 {
   MetaDisplay *display = self->display;
-  Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
   MetaShapedTexture *stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
+  Display *xdisplay;
 
   if (self->pixmap == None)
     return;
+
+  xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
 
   /* Get rid of all references to the pixmap before freeing it; it's unclear whether
    * you are supposed to be able to free a GLXPixmap after freeing the underlying
@@ -344,12 +348,18 @@ meta_surface_actor_x11_is_unredirected (MetaSurfaceActor *actor)
 }
 
 static void
-meta_surface_actor_x11_dispose (GObject *object)
+meta_surface_actor_x11_release (MetaSurfaceActor *actor)
 {
-  MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (object);
+  MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
 
   detach_pixmap (self);
   free_damage (self);
+}
+
+static void
+meta_surface_actor_x11_dispose (GObject *object)
+{
+  meta_surface_actor_release (META_SURFACE_ACTOR (object));
 
   G_OBJECT_CLASS (meta_surface_actor_x11_parent_class)->dispose (object);
 }
@@ -378,6 +388,8 @@ meta_surface_actor_x11_class_init (MetaSurfaceActorX11Class *klass)
   surface_actor_class->is_unredirected = meta_surface_actor_x11_is_unredirected;
 
   surface_actor_class->get_window = meta_surface_actor_x11_get_window;
+
+  surface_actor_class->release = meta_surface_actor_x11_release;
 }
 
 static void
@@ -403,8 +415,7 @@ window_decorated_notify (MetaWindow *window,
 {
   MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (user_data);
 
-  detach_pixmap (self);
-  free_damage (self);
+  meta_surface_actor_release (META_SURFACE_ACTOR (self));
   create_damage (self);
 }
 

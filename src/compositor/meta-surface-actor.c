@@ -461,3 +461,12 @@ meta_surface_actor_reset_viewport_dst_size (MetaSurfaceActor *self)
 
   meta_shaped_texture_reset_viewport_dst_size (priv->texture);
 }
+
+void
+meta_surface_actor_release (MetaSurfaceActor *self)
+{
+  MetaSurfaceActorClass *klass = META_SURFACE_ACTOR_GET_CLASS (self);
+
+  if (klass->release)
+    return klass->release (self);
+}
