@@ -40,6 +40,7 @@
 #include <X11/Xauth.h>
 
 #include "compositor/meta-surface-actor-wayland.h"
+#include "compositor/meta-window-actor-private.h"
 #include "meta/main.h"
 #include "wayland/meta-wayland-actor-surface.h"
 
@@ -74,6 +75,7 @@ meta_xwayland_associate_window_with_surface (MetaWindow          *window,
                                              MetaWaylandSurface  *surface)
 {
   MetaDisplay *display = window->display;
+  MetaWindowActor *window_actor;
 
   /* If the window has an existing surface, like if we're
    * undecorating or decorating the window, then we need
@@ -102,7 +104,14 @@ meta_xwayland_associate_window_with_surface (MetaWindow          *window,
                  xwayland_surface_signals[XWAYLAND_SURFACE_WINDOW_ASSOCIATED],
                  0);
 
-  meta_compositor_window_surface_changed (display->compositor, window);
+  window_actor = meta_window_actor_from_window (window);
+  if (window_actor)
+    {
+      MetaSurfaceActor *surface_actor;
+
+      surface_actor = meta_wayland_surface_get_actor (surface);
+      meta_window_actor_assign_surface_actor (window_actor, surface_actor);
+    }
 
   /* Now that we have a surface check if it should have focus. */
   meta_display_sync_wayland_input_focus (display);
