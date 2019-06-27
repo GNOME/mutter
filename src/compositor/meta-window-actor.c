@@ -52,8 +52,6 @@ typedef enum
 
 typedef struct _MetaWindowActorPrivate
 {
-  ClutterActor           parent;
-
   MetaWindow *window;
   MetaCompositor *compositor;
 
