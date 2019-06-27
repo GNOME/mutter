@@ -160,13 +160,6 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindowActor, meta_window_actor, CLUTTER_TY
                                   G_IMPLEMENT_INTERFACE (META_TYPE_SCREEN_CAST_WINDOW, screen_cast_window_iface_init));
 
 static void
-meta_window_actor_real_set_surface_actor (MetaWindowActor  *actor,
-                                          MetaSurfaceActor *surface)
-{
-  set_surface (actor, surface);
-}
-
-static void
 meta_window_actor_class_init (MetaWindowActorClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -180,8 +173,6 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
 
   actor_class->paint = meta_window_actor_paint;
   actor_class->get_paint_volume = meta_window_actor_get_paint_volume;
-
-  klass->set_surface_actor = meta_window_actor_real_set_surface_actor;
 
   /**
    * MetaWindowActor::first-frame:
