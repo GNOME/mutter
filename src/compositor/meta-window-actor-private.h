@@ -70,7 +70,10 @@ void meta_window_actor_effect_completed (MetaWindowActor  *actor,
                                          MetaPluginEffect  event);
 
 MetaSurfaceActor *meta_window_actor_get_surface (MetaWindowActor *self);
-void meta_window_actor_update_surface (MetaWindowActor *self);
+
+void meta_window_actor_assign_surface_actor (MetaWindowActor  *self,
+                                             MetaSurfaceActor *surface_actor);
+
 MetaWindowActor *meta_window_actor_from_window (MetaWindow *window);
 
 #endif /* META_WINDOW_ACTOR_PRIVATE_H */

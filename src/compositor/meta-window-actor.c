@@ -141,8 +141,6 @@ static void meta_window_actor_paint (ClutterActor *actor);
 
 static gboolean meta_window_actor_get_paint_volume (ClutterActor       *actor,
                                                     ClutterPaintVolume *volume);
-static void set_surface (MetaWindowActor  *actor,
-                         MetaSurfaceActor *surface);
 
 static gboolean meta_window_actor_has_shadow (MetaWindowActor *self);
 
@@ -355,57 +353,48 @@ meta_window_actor_thaw (MetaWindowActor *self)
   meta_window_actor_handle_updates (self);
 }
 
-static void
-set_surface (MetaWindowActor  *self,
-             MetaSurfaceActor *surface)
+void
+meta_window_actor_assign_surface_actor (MetaWindowActor  *self,
+                                        MetaSurfaceActor *surface_actor)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
-  if (priv->surface)
-    {
-      g_signal_handler_disconnect (priv->surface, priv->size_changed_id);
-      clutter_actor_remove_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->surface));
-      g_object_unref (priv->surface);
-    }
+  g_assert (!priv->surface);
 
-  priv->surface = surface;
+  priv->surface = g_object_ref_sink (surface_actor);
+  priv->size_changed_id = g_signal_connect (priv->surface, "size-changed",
+                                            G_CALLBACK (surface_size_changed),
+                                            self);
+  clutter_actor_add_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->surface));
 
-  if (priv->surface)
-    {
-      g_object_ref_sink (priv->surface);
-      priv->size_changed_id = g_signal_connect (priv->surface, "size-changed",
-                                                G_CALLBACK (surface_size_changed), self);
-      clutter_actor_add_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->surface));
+  meta_window_actor_update_shape (self);
 
-      meta_window_actor_update_shape (self);
-
-      if (is_frozen (self))
-        meta_surface_actor_set_frozen (priv->surface, TRUE);
-      else
-        meta_window_actor_sync_thawed_state (self);
-    }
+  if (is_frozen (self))
+    meta_surface_actor_set_frozen (priv->surface, TRUE);
+  else
+    meta_window_actor_sync_thawed_state (self);
 }
 
-void
-meta_window_actor_update_surface (MetaWindowActor *self)
+static void
+init_surface_actor (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
   MetaWindow *window = priv->window;
   MetaSurfaceActor *surface_actor;
 
-#ifdef HAVE_WAYLAND
-  if (window->surface)
-    surface_actor = meta_wayland_surface_get_actor (window->surface);
-  else
-#endif
   if (!meta_is_wayland_compositor ())
     surface_actor = meta_surface_actor_x11_new (window);
+#ifdef HAVE_WAYLAND
+  else if (window->surface)
+    surface_actor = meta_wayland_surface_get_actor (window->surface);
+#endif
   else
     surface_actor = NULL;
 
-  set_surface (self, surface_actor);
+  if (surface_actor)
+    meta_window_actor_assign_surface_actor (self, surface_actor);
 }
 
 static void
@@ -418,7 +407,7 @@ meta_window_actor_constructed (GObject *object)
 
   priv->compositor = window->display->compositor;
 
-  meta_window_actor_update_surface (self);
+  init_surface_actor (self);
 
   meta_window_actor_update_opacity (self);
 
@@ -464,7 +453,13 @@ meta_window_actor_dispose (GObject *object)
 
   g_clear_object (&priv->window);
 
-  set_surface (self, NULL);
+  if (priv->surface)
+    {
+      g_signal_handler_disconnect (priv->surface, priv->size_changed_id);
+      clutter_actor_remove_child (CLUTTER_ACTOR (self),
+                                  CLUTTER_ACTOR (priv->surface));
+      g_clear_object (&priv->surface);
+    }
 
   G_OBJECT_CLASS (meta_window_actor_parent_class)->dispose (object);
 }
