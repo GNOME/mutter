@@ -22,6 +22,7 @@
 
 #include "backends/native/meta-kms-plane.h"
 
+#include <drm/drm_fourcc.h>
 #include <stdio.h>
 
 #include "backends/meta-monitor-transform.h"
@@ -294,8 +295,38 @@ parse_formats (MetaKmsPlane      *plane,
 }
 
 static void
+set_formats_from_array (MetaKmsPlane   *plane,
+                        const uint32_t *formats,
+                        size_t          n_formats)
+{
+  size_t i;
+
+  for (i = 0; i < n_formats; i++)
+    {
+      g_hash_table_insert (plane->formats_modifiers,
+                           GUINT_TO_POINTER (formats[i]), NULL);
+    }
+}
+
+/*
+ * In case the DRM driver does not expose a format list for the
+ * primary plane (does not support universal planes nor
+ * IN_FORMATS property), hardcode something that is probably supported.
+ */
+static const uint32_t drm_default_formats[] =
+  {
+    /* The format everything should always support by convention */
+    DRM_FORMAT_XRGB8888,
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+    /* OpenGL GL_RGBA, GL_UNSIGNED_BYTE format, hopefully supported */
+    DRM_FORMAT_XBGR8888
+#endif
+  };
+
+static void
 init_formats (MetaKmsPlane            *plane,
               MetaKmsImplDevice       *impl_device,
+              drmModePlane            *drm_plane,
               drmModeObjectProperties *drm_plane_props)
 {
   drmModePropertyPtr prop;
@@ -317,6 +348,21 @@ init_formats (MetaKmsPlane            *plane,
       parse_formats (plane, impl_device, blob_id);
       drmModeFreeProperty (prop);
     }
+
+  if (g_hash_table_size (plane->formats_modifiers) == 0)
+    {
+      set_formats_from_array (plane,
+                              drm_plane->formats,
+                              drm_plane->count_formats);
+    }
+
+  /* final formats fallback to something hardcoded */
+  if (g_hash_table_size (plane->formats_modifiers) == 0)
+    {
+      set_formats_from_array (plane,
+                              drm_default_formats,
+                              G_N_ELEMENTS (drm_default_formats));
+    }
 }
 
 MetaKmsPlane *
@@ -334,7 +380,7 @@ meta_kms_plane_new (MetaKmsPlaneType         type,
   plane->device = meta_kms_impl_device_get_device (impl_device);
 
   init_rotations (plane, impl_device, drm_plane_props);
-  init_formats (plane, impl_device, drm_plane_props);
+  init_formats (plane, impl_device, drm_plane, drm_plane_props);
 
   return plane;
 }
