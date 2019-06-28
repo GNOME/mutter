@@ -432,6 +432,7 @@ meta_surface_actor_x11_new (MetaWindow *window)
 {
   MetaSurfaceActorX11 *self = g_object_new (META_TYPE_SURFACE_ACTOR_X11, NULL);
   MetaDisplay *display = meta_window_get_display (window);
+  ClutterActor *actor;
 
   g_assert (!meta_is_wayland_compositor ());
 
@@ -444,6 +445,10 @@ meta_surface_actor_x11_new (MetaWindow *window)
   create_damage (self);
   g_signal_connect_object (self->window, "notify::decorated",
                            G_CALLBACK (window_decorated_notify), self, 0);
+
+  actor = CLUTTER_ACTOR (meta_window_get_compositor_private (window));
+  g_signal_connect_object (actor, "destroy", G_CALLBACK (clutter_actor_destroy),
+                           self, G_CONNECT_SWAPPED);
 
   self->unredirected = FALSE;
   sync_unredirected (self);
