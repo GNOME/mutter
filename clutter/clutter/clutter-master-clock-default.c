@@ -274,27 +274,6 @@ master_clock_next_frame_delay (ClutterMasterClockDefault *master_clock)
   return master_clock_get_swap_wait_time (master_clock);
 }
 
-static void
-master_clock_process_events (ClutterMasterClockDefault *master_clock,
-                             GSList                    *stages)
-{
-  GSList *l;
-#ifdef CLUTTER_ENABLE_DEBUG
-  gint64 start = g_get_monotonic_time ();
-#endif
-
-  /* Process queued events */
-  for (l = stages; l != NULL; l = l->next)
-    _clutter_stage_process_queued_events (l->data);
-
-#ifdef CLUTTER_ENABLE_DEBUG
-  if (_clutter_diagnostic_enabled ())
-    clutter_warn_if_over_budget (master_clock, start, "Event processing");
-
-  master_clock->remaining_budget -= (g_get_monotonic_time () - start);
-#endif
-}
-
 /*
  * master_clock_advance_timelines:
  * @master_clock: a #ClutterMasterClock
@@ -478,9 +457,10 @@ clutter_clock_dispatch (GSource     *source,
 
   /* 1. process all the events; each stage goes through its events queue
    *    and processes each event according to its type, then emits the
-   *    various signals that are associated with the event
+   *    various signals that are associated with the event. This happens
+   *    in advance in ClutterStage so that clients might be able to render
+   *    a new frame before we get here and composite them.
    */
-  master_clock_process_events (master_clock, stages);
 
   /* 2. advance the timelines */
   master_clock_advance_timelines (master_clock);
