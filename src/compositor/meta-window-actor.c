@@ -471,6 +471,9 @@ meta_window_actor_constructed (GObject *object)
 
   priv->compositor = window->display->compositor;
 
+  /* Hang our compositor window state off the MetaWindow for fast retrieval */
+  meta_window_set_compositor_private (window, object);
+
   meta_window_actor_update_surface (self);
 
   meta_window_actor_update_opacity (self);
@@ -1447,9 +1450,6 @@ meta_window_actor_new (MetaWindow *window)
     meta_window_actor_queue_frame_drawn (self, FALSE);
 
   meta_window_actor_sync_actor_geometry (self, priv->window->placed);
-
-  /* Hang our compositor window state off the MetaWindow for fast retrieval */
-  meta_window_set_compositor_private (window, G_OBJECT (self));
 
   if (window->layer == META_LAYER_OVERRIDE_REDIRECT)
     window_group = compositor->top_window_group;
