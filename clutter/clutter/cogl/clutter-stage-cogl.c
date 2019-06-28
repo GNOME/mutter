@@ -1077,6 +1077,7 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
   iface->resize = clutter_stage_cogl_resize;
   iface->show = clutter_stage_cogl_show;
   iface->hide = clutter_stage_cogl_hide;
+  iface->get_refresh_interval = clutter_stage_cogl_get_refresh_interval;
   iface->schedule_update = clutter_stage_cogl_schedule_update;
   iface->get_update_time = clutter_stage_cogl_get_update_time;
   iface->clear_update_time = clutter_stage_cogl_clear_update_time;
