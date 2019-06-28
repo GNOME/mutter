@@ -122,6 +122,8 @@ struct _ClutterStagePrivate
   ClutterActor *key_focused_actor;
 
   GQueue *event_queue;
+  guint event_timeout_source;
+  int64_t last_event_timeout_time;
 
   ClutterStageHint stage_hints;
 
@@ -857,32 +859,50 @@ clutter_stage_real_deactivate (ClutterStage *stage)
   clutter_stage_emit_key_focus_event (stage, FALSE);
 }
 
+static int64_t
+_clutter_stage_get_refresh_interval (ClutterStage *stage)
+{
+  ClutterStageWindow *stage_window;
+
+  if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
+    return 0;
+
+  stage_window = _clutter_stage_get_window (stage);
+  if (stage_window == NULL)
+    return 0;
+
+  return _clutter_stage_window_get_refresh_interval (stage_window);
+}
+
+static gboolean
+_clutter_stage_flush_events (gpointer user_data)
+{
+  ClutterStage *stage = CLUTTER_STAGE (user_data);
+  ClutterStagePrivate *priv = stage->priv;
+
+  priv->event_timeout_source = 0;
+  priv->last_event_timeout_time = g_get_monotonic_time ();
+  _clutter_stage_process_queued_events (stage);
+
+  return G_SOURCE_REMOVE;
+}
+
 void
 _clutter_stage_queue_event (ClutterStage *stage,
                             ClutterEvent *event,
                             gboolean      copy_event)
 {
   ClutterStagePrivate *priv;
-  gboolean first_event;
   ClutterInputDevice *device;
 
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
 
   priv = stage->priv;
 
-  first_event = priv->event_queue->length == 0;
-
   if (copy_event)
     event = clutter_event_copy (event);
 
   g_queue_push_tail (priv->event_queue, event);
-
-  if (first_event)
-    {
-      ClutterMasterClock *master_clock = _clutter_master_clock_get_default ();
-      _clutter_master_clock_start_running (master_clock);
-      _clutter_stage_schedule_update (stage);
-    }
 
   /* if needed, update the state of the input device of the event.
    * we do it here to avoid calling the same code from every backend
@@ -903,6 +923,21 @@ _clutter_stage_queue_event (ClutterStage *stage,
       _clutter_input_device_set_coords (device, sequence, event_x, event_y, stage);
       _clutter_input_device_set_state (device, event_state);
       _clutter_input_device_set_time (device, event_time);
+    }
+
+  if (!priv->event_timeout_source)
+    {
+      int64_t now = g_get_monotonic_time ();
+      int64_t refresh_interval = _clutter_stage_get_refresh_interval (stage);
+      int64_t flush_time = priv->last_event_timeout_time + refresh_interval;
+      guint timeout_ms = (flush_time > now) ? (flush_time - now) / 1000 : 0;
+
+      priv->event_timeout_source =
+        g_timeout_add_full (CLUTTER_PRIORITY_REDRAW - 1,
+                            timeout_ms,
+                            _clutter_stage_flush_events,
+                            stage,
+                            NULL);
     }
 }
 
@@ -1846,6 +1881,9 @@ clutter_stage_finalize (GObject *object)
 {
   ClutterStage *stage = CLUTTER_STAGE (object);
   ClutterStagePrivate *priv = stage->priv;
+
+  if (priv->event_timeout_source)
+    g_source_remove (priv->event_timeout_source);
 
   g_queue_foreach (priv->event_queue, (GFunc) clutter_event_free, NULL);
   g_queue_free (priv->event_queue);
