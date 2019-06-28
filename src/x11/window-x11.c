@@ -55,6 +55,8 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/x11/meta-backend-x11.h"
 
+#define TAKE_FOCUS_FALLBACK_DELAY_MS 250
+
 G_DEFINE_TYPE_WITH_PRIVATE (MetaWindowX11, meta_window_x11, META_TYPE_WINDOW)
 
 static void
