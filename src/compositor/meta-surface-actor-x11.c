@@ -32,6 +32,7 @@
 #include "cogl/winsys/cogl-texture-pixmap-x11.h"
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-shaped-texture-private.h"
+#include "compositor/meta-window-actor-private.h"
 #include "core/window-private.h"
 #include "meta/meta-x11-errors.h"
 #include "x11/meta-x11-display-private.h"
@@ -348,12 +349,18 @@ meta_surface_actor_x11_is_unredirected (MetaSurfaceActor *actor)
 }
 
 static void
+release_x11_resources (MetaSurfaceActorX11 *self)
+{
+  detach_pixmap (self);
+  free_damage (self);
+}
+
+static void
 meta_surface_actor_x11_dispose (GObject *object)
 {
   MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (object);
 
-  detach_pixmap (self);
-  free_damage (self);
+  release_x11_resources (self);
 
   G_OBJECT_CLASS (meta_surface_actor_x11_parent_class)->dispose (object);
 }
@@ -407,8 +414,7 @@ window_decorated_notify (MetaWindow *window,
 {
   MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (user_data);
 
-  detach_pixmap (self);
-  free_damage (self);
+  release_x11_resources (self);
   create_damage (self);
 }
 
@@ -444,6 +450,10 @@ meta_surface_actor_x11_new (MetaWindow *window)
   create_damage (self);
   g_signal_connect_object (self->window, "notify::decorated",
                            G_CALLBACK (window_decorated_notify), self, 0);
+
+  g_signal_connect_object (meta_window_actor_from_window (window), "destroy",
+                           G_CALLBACK (release_x11_resources), self,
+                           G_CONNECT_SWAPPED);
 
   self->unredirected = FALSE;
   sync_unredirected (self);
