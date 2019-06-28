@@ -69,10 +69,12 @@ free_damage (MetaSurfaceActorX11 *self)
 {
   MetaSurfaceActorX11Private *priv = meta_surface_actor_x11_get_instance_private (self);
   MetaDisplay *display = priv->display;
-  Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
+  Display *xdisplay;
 
   if (priv->damage == None)
     return;
+
+  xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
 
   meta_x11_error_trap_push (display->x11_display);
   XDamageDestroy (xdisplay, priv->damage);
@@ -85,11 +87,13 @@ detach_pixmap (MetaSurfaceActorX11 *self)
 {
   MetaSurfaceActorX11Private *priv = meta_surface_actor_x11_get_instance_private (self);
   MetaDisplay *display = priv->display;
-  Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
   MetaShapedTexture *stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
+  Display *xdisplay;
 
   if (priv->pixmap == None)
     return;
+
+  xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
 
   /* Get rid of all references to the pixmap before freeing it; it's unclear whether
    * you are supposed to be able to free a GLXPixmap after freeing the underlying
