@@ -161,14 +161,34 @@ clutter_stage_cogl_realize (ClutterStageWindow *stage_window)
   return TRUE;
 }
 
+static float
+clutter_stage_cogl_get_refresh_rate (ClutterStageWindow *stage_window)
+{
+  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  float refresh_rate;
+
+  refresh_rate = stage_cogl->refresh_rate;
+  if (refresh_rate <= 0.0)
+    refresh_rate = clutter_get_default_frame_rate ();
+
+  return refresh_rate;
+}
+
+static int64_t
+clutter_stage_cogl_get_refresh_interval (ClutterStageWindow *stage_window)
+{
+  float refresh_rate = clutter_stage_cogl_get_refresh_rate (stage_window);
+
+  return (int64_t) (0.5 + G_USEC_PER_SEC / refresh_rate);
+}
+
 static void
 clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
                                     gint                sync_delay)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
   gint64 now;
-  float refresh_rate;
-  gint64 refresh_interval;
+  int64_t refresh_interval;
   int64_t min_render_time_allowed;
   int64_t max_render_time_allowed;
   int64_t next_presentation_time;
@@ -186,11 +206,8 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
       return;
     }
 
-  refresh_rate = stage_cogl->refresh_rate;
-  if (refresh_rate <= 0.0)
-    refresh_rate = clutter_get_default_frame_rate ();
+  refresh_interval = clutter_stage_cogl_get_refresh_interval (stage_window);
 
-  refresh_interval = (gint64) (0.5 + G_USEC_PER_SEC / refresh_rate);
   if (refresh_interval == 0)
     {
       stage_cogl->update_time = now;
@@ -205,7 +222,7 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
     {
       g_warning ("Unsupported monitor refresh rate detected. "
                  "(Refresh rate: %.3f, refresh interval: %ld)",
-                 refresh_rate,
+                 clutter_stage_cogl_get_refresh_rate (stage_window),
                  refresh_interval);
       stage_cogl->update_time = now;
       return;
