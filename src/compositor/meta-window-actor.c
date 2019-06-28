@@ -417,7 +417,7 @@ meta_window_actor_update_surface (MetaWindowActor *self)
   else
     surface_actor = NULL;
 
-  set_surface (self, surface_actor);
+  META_WINDOW_ACTOR_GET_CLASS (self)->set_surface_actor (self, surface_actor);
 }
 
 static void
@@ -476,7 +476,7 @@ meta_window_actor_dispose (GObject *object)
 
   g_clear_object (&priv->window);
 
-  set_surface (self, NULL);
+  META_WINDOW_ACTOR_GET_CLASS (self)->set_surface_actor (self, NULL);
 
   G_OBJECT_CLASS (meta_window_actor_parent_class)->dispose (object);
 }
