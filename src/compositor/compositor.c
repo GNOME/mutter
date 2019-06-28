@@ -149,10 +149,10 @@ meta_compositor_destroy (MetaCompositor *compositor)
 
   if (compositor->top_window_actor)
     {
-      g_signal_handlers_disconnect_by_func (compositor->top_window_actor,
-                                            on_top_window_actor_destroyed,
-                                            compositor);
+      g_signal_handler_disconnect (compositor->top_window_actor,
+                                   compositor->top_window_actor_destroy_id);
       compositor->top_window_actor = NULL;
+      compositor->top_window_actor_destroy_id = 0;
     }
 
   g_clear_pointer (&compositor->window_group, clutter_actor_destroy);
@@ -1025,6 +1025,7 @@ on_top_window_actor_destroyed (MetaWindowActor *window_actor,
                                MetaCompositor  *compositor)
 {
   compositor->top_window_actor = NULL;
+  compositor->top_window_actor_destroy_id = 0;
   compositor->windows = g_list_remove (compositor->windows, window_actor);
 
   meta_stack_tracker_queue_sync_stack (compositor->display->stack_tracker);
@@ -1124,16 +1125,19 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
     return;
 
   if (compositor->top_window_actor)
-    g_signal_handlers_disconnect_by_func (compositor->top_window_actor,
-                                          on_top_window_actor_destroyed,
-                                          compositor);
+    {
+      g_signal_handler_disconnect (compositor->top_window_actor,
+                                   compositor->top_window_actor_destroy_id);
+      compositor->top_window_actor_destroy_id = 0;
+    }
 
   compositor->top_window_actor = top_window_actor;
 
   if (compositor->top_window_actor)
-    g_signal_connect (compositor->top_window_actor, "destroy",
-                      G_CALLBACK (on_top_window_actor_destroyed),
-                      compositor);
+    compositor->top_window_actor_destroy_id =
+      g_signal_connect (compositor->top_window_actor, "destroy",
+                        G_CALLBACK (on_top_window_actor_destroyed),
+                        compositor);
 }
 
 void

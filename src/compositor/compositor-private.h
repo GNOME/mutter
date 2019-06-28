@@ -33,6 +33,7 @@ struct _MetaCompositor
   CoglContext           *context;
 
   MetaWindowActor       *top_window_actor;
+  gulong                 top_window_actor_destroy_id;
 
   /* Used for unredirecting fullscreen windows */
   guint                  disable_unredirect_count;
