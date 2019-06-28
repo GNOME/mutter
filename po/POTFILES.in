@@ -8,6 +8,7 @@ data/mutter.desktop.in
 data/org.gnome.mutter.gschema.xml.in
 data/org.gnome.mutter.wayland.gschema.xml.in
 src/backends/meta-input-settings.c
+src/backends/meta-monitor.c
 src/backends/meta-monitor-manager.c
 src/backends/meta-profiler.c
 src/compositor/compositor.c
