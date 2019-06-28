@@ -22,7 +22,7 @@
 
 #include "backends/native/meta-kms-plane.h"
 
-#include <drm/drm_fourcc.h>
+#include <drm_fourcc.h>
 #include <stdio.h>
 
 #include "backends/meta-monitor-transform.h"
