@@ -43,18 +43,21 @@ meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_su
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
   MetaRectangle geometry;
-  GList *l;
+  GNode *n;
 
   geometry = (MetaRectangle) {
     .width = meta_wayland_surface_get_width (surface),
     .height = meta_wayland_surface_get_height (surface),
   };
 
-  for (l = surface->subsurfaces; l; l = l->next)
+  for (n = g_node_first_child (surface->subsurface_branch_node); n; n = g_node_next_sibling (n))
     {
-      MetaWaylandSurface *subsurface_surface = l->data;
+      MetaWaylandSurface *subsurface_surface = n->data;
       MetaWaylandSubsurface *subsurface =
         META_WAYLAND_SUBSURFACE (subsurface_surface->role);
+
+      if (G_NODE_IS_LEAF (n))
+        continue;
 
       meta_wayland_subsurface_union_geometry (subsurface,
                                               0, 0,
