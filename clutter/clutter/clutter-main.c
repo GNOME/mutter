@@ -2680,57 +2680,6 @@ clutter_input_device_get_grabbed_actor (ClutterInputDevice *device)
 }
 
 /**
- * clutter_grab_pointer_for_device:
- * @actor: a #ClutterActor
- * @id_: a device id, or -1
- *
- * Grabs all the pointer events coming from the device @id for @actor.
- *
- * If @id is -1 then this function is equivalent to clutter_grab_pointer().
- *
- * Since: 0.8
- *
- * Deprecated: 1.10: Use clutter_input_device_grab() instead.
- */
-void
-clutter_grab_pointer_for_device (ClutterActor *actor,
-                                 gint          id_)
-{
-  ClutterDeviceManager *manager;
-  ClutterInputDevice *dev;
-
-  g_return_if_fail (actor == NULL || CLUTTER_IS_ACTOR (actor));
-
-  /* essentially a global grab */
-  if (id_ == -1)
-    {
-      if (actor == NULL)
-        clutter_ungrab_pointer ();
-      else
-        clutter_grab_pointer (actor);
-
-      return;
-    }
-
-  manager = clutter_device_manager_get_default ();
-  if (manager == NULL)
-    return;
-
-  dev = clutter_device_manager_get_device (manager, id_);
-  if (dev == NULL)
-    return;
-
-  if (dev->device_type != CLUTTER_POINTER_DEVICE)
-    return;
-
-  if (actor == NULL)
-    clutter_input_device_ungrab (dev);
-  else
-    clutter_input_device_grab (dev, actor);
-}
-
-
-/**
  * clutter_ungrab_pointer:
  *
  * Removes an existing grab of the pointer.
@@ -2742,32 +2691,6 @@ clutter_ungrab_pointer (void)
 {
   clutter_grab_pointer (NULL);
 }
-
-/**
- * clutter_ungrab_pointer_for_device:
- * @id_: a device id
- *
- * Removes an existing grab of the pointer events for device @id_.
- *
- * Since: 0.8
- *
- * Deprecated: 1.10: Use clutter_input_device_ungrab() instead.
- */
-void
-clutter_ungrab_pointer_for_device (gint id_)
-{
-  ClutterDeviceManager *manager;
-  ClutterInputDevice *device;
-
-  manager = clutter_device_manager_get_default ();
-  if (manager == NULL)
-    return;
-
-  device = clutter_device_manager_get_device (manager, id_);
-  if (device != NULL)
-    clutter_input_device_ungrab (device);
-}
-
 
 /**
  * clutter_get_pointer_grab:
@@ -2866,40 +2789,6 @@ clutter_get_keyboard_grab (void)
   context = _clutter_context_get_default ();
 
   return context->keyboard_grab_actor;
-}
-
-/**
- * clutter_get_input_device_for_id:
- * @id_: the unique id for a device
- *
- * Retrieves the #ClutterInputDevice from its @id_. This is a convenience
- * wrapper for clutter_device_manager_get_device() and it is functionally
- * equivalent to:
- *
- * |[
- *   ClutterDeviceManager *manager;
- *   ClutterInputDevice *device;
- *
- *   manager = clutter_device_manager_get_default ();
- *   device = clutter_device_manager_get_device (manager, id);
- * ]|
- *
- * Return value: (transfer none): a #ClutterInputDevice, or %NULL
- *
- * Since: 0.8
- *
- * Deprecated: 1.10: Use clutter_device_manager_get_device() instead.
- */
-ClutterInputDevice *
-clutter_get_input_device_for_id (gint id_)
-{
-  ClutterDeviceManager *manager;
-
-  manager = clutter_device_manager_get_default ();
-  if (manager == NULL)
-    return NULL;
-
-  return clutter_device_manager_get_device (manager, id_);
 }
 
 /**
