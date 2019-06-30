@@ -145,7 +145,8 @@ struct _MetaWaylandSurface
   cairo_region_t *opaque_region;
   int scale;
   int32_t offset_x, offset_y;
-  GList *subsurfaces;
+  GNode *subsurface_branch_node;
+  GNode *subsurface_leaf_node;
   GHashTable *outputs_to_destroy_notify_id;
   MetaMonitorTransform buffer_transform;
 
@@ -327,5 +328,7 @@ void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSur
 
 int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
+
+void meta_wayland_surface_ensure_subsurface_nodes (MetaWaylandSurface *surface);
 
 #endif
