@@ -383,28 +383,6 @@ clutter_config_read (void)
   g_free (config_path);
 }
 
-/**
- * clutter_get_show_fps:
- *
- * Returns whether Clutter should print out the frames per second on the
- * console. You can enable this setting either using the
- * <literal>CLUTTER_SHOW_FPS</literal> environment variable or passing
- * the <literal>--clutter-show-fps</literal> command line argument. *
- *
- * Return value: %TRUE if Clutter should show the FPS.
- *
- * Since: 0.4
- *
- * Deprecated: 1.10: This function does not do anything. Use the environment
- *   variable or the configuration file to determine whether Clutter should
- *   print out the FPS counter on the console.
- */
-gboolean
-clutter_get_show_fps (void)
-{
-  return FALSE;
-}
-
 gboolean
 _clutter_context_get_show_fps (void)
 {
