@@ -3018,28 +3018,6 @@ clutter_get_keyboard_grab (void)
 }
 
 /**
- * clutter_clear_glyph_cache:
- *
- * Clears the internal cache of glyphs used by the Pango
- * renderer. This will free up some memory and GL texture
- * resources. The cache will be automatically refilled as more text is
- * drawn.
- *
- * Since: 0.8
- *
- * Deprecated: 1.10: Use clutter_get_font_map() and
- *   cogl_pango_font_map_clear_glyph_cache() instead.
- */
-void
-clutter_clear_glyph_cache (void)
-{
-  CoglPangoFontMap *font_map;
-
-  font_map = clutter_context_get_pango_fontmap ();
-  cogl_pango_font_map_clear_glyph_cache (font_map);
-}
-
-/**
  * clutter_set_font_flags:
  * @flags: The new flags
  *
