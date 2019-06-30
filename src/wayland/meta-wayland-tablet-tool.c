@@ -989,14 +989,19 @@ static gboolean
 tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
                               MetaWaylandSurface    *surface)
 {
-  GList *l;
+  GNode *n;
 
   if (tool->focus_surface == surface)
     return TRUE;
 
-  for (l = surface->subsurfaces; l; l = l->next)
+  for (n = g_node_first_child (surface->subsurface_branch_node);
+       n;
+       n = g_node_next_sibling (n))
     {
-      MetaWaylandSurface *subsurface = l->data;
+      MetaWaylandSurface *subsurface = n->data;
+
+      if (G_NODE_IS_LEAF (n))
+        continue;
 
       if (tablet_tool_can_grab_surface (tool, subsurface))
         return TRUE;

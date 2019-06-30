@@ -20,16 +20,104 @@
  *     Georges Basile Stavracas Neto <gbsneto@gnome.org>
  */
 
-#include "compositor/meta-surface-actor.h"
+#include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-wayland.h"
 #include "meta/meta-window-actor.h"
+#include "wayland/meta-wayland-surface.h"
 
 struct _MetaWindowActorWayland
 {
   MetaWindowActor parent;
+  gboolean surface_tree_valid;
 };
 
 G_DEFINE_TYPE (MetaWindowActorWayland, meta_window_actor_wayland, META_TYPE_WINDOW_ACTOR)
+
+static gboolean
+remove_surface_actor_from_children (GNode    *node,
+                                    gpointer  data)
+{
+  MetaWaylandSurface *surface = node->data;
+  MetaSurfaceActor *surface_actor = meta_wayland_surface_get_actor (surface);
+  MetaWindowActor *window_actor = data;
+
+  clutter_actor_remove_child (CLUTTER_ACTOR (window_actor),
+                              CLUTTER_ACTOR (surface_actor));
+
+  return FALSE;
+}
+
+static gboolean
+add_surface_actor_to_children (GNode    *node,
+                               gpointer  data)
+{
+  MetaWaylandSurface *surface = node->data;
+  MetaSurfaceActor *surface_actor = meta_wayland_surface_get_actor (surface);
+  MetaWindowActor *window_actor = data;
+
+  clutter_actor_add_child (CLUTTER_ACTOR (window_actor),
+                           CLUTTER_ACTOR (surface_actor));
+
+  return FALSE;
+}
+
+static void
+ensure_surface_tree (MetaWindowActor *actor)
+{
+  MetaWindowActorWayland *self = META_WINDOW_ACTOR_WAYLAND (actor);
+  MetaSurfaceActor *surface_actor =
+    meta_window_actor_get_surface (actor);
+  MetaWaylandSurface *surface = meta_surface_actor_wayland_get_surface (
+    META_SURFACE_ACTOR_WAYLAND (surface_actor));
+  GNode *root_node = surface->subsurface_branch_node;
+
+  if (self->surface_tree_valid)
+    return;
+
+  g_node_traverse (root_node,
+                   G_IN_ORDER,
+                   G_TRAVERSE_LEAVES,
+                   -1,
+                   remove_surface_actor_from_children,
+                   actor);
+
+  g_node_traverse (root_node,
+                   G_IN_ORDER,
+                   G_TRAVERSE_LEAVES,
+                   -1,
+                   add_surface_actor_to_children,
+                   actor);
+
+  self->surface_tree_valid = TRUE;
+}
+
+void
+meta_window_actor_wayland_queue_surface_tree_rebuild (MetaWindowActorWayland *actor)
+{
+  actor->surface_tree_valid = FALSE;
+}
+
+MetaWindowActorWayland *
+meta_window_actor_wayland_from_surface (MetaWaylandSurface *surface)
+{
+  if (surface->window)
+    {
+      MetaWindowActor *window_actor =
+        meta_window_actor_from_window (surface->window);
+
+      g_return_val_if_fail (META_IS_WINDOW_ACTOR_WAYLAND (window_actor), NULL);
+
+      return META_WINDOW_ACTOR_WAYLAND (window_actor);
+    }
+  else if (surface->sub.parent)
+    {
+      return meta_window_actor_wayland_from_surface (surface->sub.parent);
+    }
+  else
+    {
+      return NULL;
+    }
+}
 
 static void
 meta_window_actor_wayland_frame_complete (MetaWindowActor  *actor,
@@ -47,6 +135,7 @@ meta_window_actor_wayland_queue_frame_drawn (MetaWindowActor *actor,
 static void
 meta_window_actor_wayland_pre_paint (MetaWindowActor *actor)
 {
+  ensure_surface_tree (actor);
 }
 
 static void
@@ -74,4 +163,5 @@ meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
 static void
 meta_window_actor_wayland_init (MetaWindowActorWayland *self)
 {
+  self->surface_tree_valid = TRUE;
 }
