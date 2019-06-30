@@ -205,6 +205,7 @@ meta_surface_actor_dispose (GObject *object)
 
   set_unobscured_region (self, NULL);
   set_clip_region (self, NULL);
+  priv->texture = NULL;
 
   G_OBJECT_CLASS (meta_surface_actor_parent_class)->dispose (object);
 }
