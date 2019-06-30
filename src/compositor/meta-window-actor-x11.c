@@ -338,6 +338,9 @@ meta_window_actor_x11_assign_surface_actor (MetaWindowActor  *actor,
 
   parent_class->assign_surface_actor (actor, surface_actor);
 
+  clutter_actor_add_child (CLUTTER_ACTOR (actor),
+                           CLUTTER_ACTOR (surface_actor));
+
   actor_x11->repaint_scheduled_id =
     g_signal_connect (surface_actor, "repaint-scheduled",
                       G_CALLBACK (surface_repaint_scheduled),
