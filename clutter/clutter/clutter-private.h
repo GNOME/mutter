@@ -146,9 +146,6 @@ struct _ClutterMainContext
   ClutterActor *pointer_grab_actor;
   ClutterActor *keyboard_grab_actor;
 
-  /* stack of actors with shaders during paint */
-  GSList *shaders;
-
   /* fb bit masks for col<->id mapping in picking */
   gint fb_r_mask;
   gint fb_g_mask;
@@ -198,9 +195,6 @@ void                    _clutter_context_lock                           (void);
 void                    _clutter_context_unlock                         (void);
 gboolean                _clutter_context_is_initialized                 (void);
 ClutterPickMode         _clutter_context_get_pick_mode                  (void);
-void                    _clutter_context_push_shader_stack              (ClutterActor *actor);
-ClutterActor *          _clutter_context_pop_shader_stack               (ClutterActor *actor);
-ClutterActor *          _clutter_context_peek_shader_stack              (void);
 gboolean                _clutter_context_get_motion_events_enabled      (void);
 gboolean                _clutter_context_get_show_fps                   (void);
 
