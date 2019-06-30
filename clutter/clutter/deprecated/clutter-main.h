@@ -31,15 +31,6 @@
 
 G_BEGIN_DECLS
 
-CLUTTER_DEPRECATED
-void                    clutter_threads_init                    (void);
-
-CLUTTER_DEPRECATED
-void                    clutter_threads_enter                   (void);
-
-CLUTTER_DEPRECATED
-void                    clutter_threads_leave                   (void);
-
 CLUTTER_DEPRECATED_FOR(clutter_device_manager_get_device)
 ClutterInputDevice *    clutter_get_input_device_for_id         (gint id_);
 

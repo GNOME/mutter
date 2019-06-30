@@ -682,69 +682,6 @@ clutter_main (void)
   clutter_main_loop_level--;
 }
 
-/**
- * clutter_threads_init:
- *
- * Initialises the Clutter threading mechanism, so that Clutter API can be
- * called by multiple threads, using clutter_threads_enter() and
- * clutter_threads_leave() to mark the critical sections.
- *
- * You must call g_thread_init() before this function.
- *
- * This function must be called before clutter_init().
- *
- * It is safe to call this function multiple times.
- *
- * Since: 0.4
- *
- * Deprecated: 1.10: This function does not do anything. Threading support
- *   is initialized when Clutter is initialized.
- */
-void
-clutter_threads_init (void)
-{
-}
-
-/**
- * clutter_threads_set_lock_functions: (skip)
- * @enter_fn: function called when aquiring the Clutter main lock
- * @leave_fn: function called when releasing the Clutter main lock
- *
- * Allows the application to replace the standard method that
- * Clutter uses to protect its data structures. Normally, Clutter
- * creates a single #GMutex that is locked by clutter_threads_enter(),
- * and released by clutter_threads_leave(); using this function an
- * application provides, instead, a function @enter_fn that is
- * called by clutter_threads_enter() and a function @leave_fn that is
- * called by clutter_threads_leave().
- *
- * The functions must provide at least same locking functionality
- * as the default implementation, but can also do extra application
- * specific processing.
- *
- * As an example, consider an application that has its own recursive
- * lock that when held, holds the Clutter lock as well. When Clutter
- * unlocks the Clutter lock when entering a recursive main loop, the
- * application must temporarily release its lock as well.
- *
- * Most threaded Clutter apps won't need to use this method.
- *
- * This method must be called before clutter_init(), and cannot
- * be called multiple times.
- *
- * Since: 0.4
- */
-void
-clutter_threads_set_lock_functions (GCallback enter_fn,
-                                    GCallback leave_fn)
-{
-  g_return_if_fail (clutter_threads_lock == NULL &&
-                    clutter_threads_unlock == NULL);
-
-  clutter_threads_lock = enter_fn;
-  clutter_threads_unlock = leave_fn;
-}
-
 gboolean
 _clutter_threads_dispatch (gpointer data)
 {
@@ -801,16 +738,10 @@ _clutter_threads_dispatch_free (gpointer data)
  *    SafeClosure *closure = data;
  *    gboolean res = FALSE;
  *
- *    // mark the critical section //
- *
- *    clutter_threads_enter();
- *
  *    // the callback does not need to acquire the Clutter
  *     / lock itself, as it is held by the this proxy handler
  *     //
  *    res = closure->callback (closure->data);
- *
- *    clutter_threads_leave();
  *
  *    return res;
  * }
@@ -1001,45 +932,6 @@ _clutter_threads_release_lock (void)
   if (clutter_threads_unlock != NULL)
     (* clutter_threads_unlock) ();
 }
-
-/**
- * clutter_threads_enter:
- *
- * Locks the Clutter thread lock.
- *
- * Since: 0.4
- *
- * Deprecated: 1.12: This function should not be used by application
- *   code; marking critical sections is not portable on various
- *   platforms. Instead of acquiring the Clutter lock, schedule UI
- *   updates from the main loop using clutter_threads_add_idle() or
- *   clutter_threads_add_timeout().
- */
-void
-clutter_threads_enter (void)
-{
-  _clutter_threads_acquire_lock ();
-}
-
-/**
- * clutter_threads_leave:
- *
- * Unlocks the Clutter thread lock.
- *
- * Since: 0.4
- *
- * Deprecated: 1.12: This function should not be used by application
- *   code; marking critical sections is not portable on various
- *   platforms. Instead of acquiring the Clutter lock, schedule UI
- *   updates from the main loop using clutter_threads_add_idle() or
- *   clutter_threads_add_timeout().
- */
-void
-clutter_threads_leave (void)
-{
-  _clutter_threads_release_lock ();
-}
-
 
 /**
  * clutter_get_debug_enabled:
