@@ -472,67 +472,6 @@ clutter_redraw (ClutterStage *stage)
   clutter_stage_ensure_redraw (stage);
 }
 
-/**
- * clutter_set_motion_events_enabled:
- * @enable: %TRUE to enable per-actor motion events
- *
- * Sets whether per-actor motion events should be enabled or not on
- * all #ClutterStage<!-- -->s managed by Clutter.
- *
- * If @enable is %FALSE the following events will not work:
- *
- *  - ClutterActor::motion-event, except on the #ClutterStage
- *  - ClutterActor::enter-event
- *  - ClutterActor::leave-event
- *
- * Since: 0.6
- *
- * Deprecated: 1.8: Use clutter_stage_set_motion_events_enabled() instead.
- */
-void
-clutter_set_motion_events_enabled (gboolean enable)
-{
-  ClutterStageManager *stage_manager;
-  ClutterMainContext *context;
-  const GSList *l;
-
-  enable = !!enable;
-
-  context = _clutter_context_get_default ();
-  if (context->motion_events_per_actor == enable)
-    return;
-
-  /* store the flag for later query and for newly created stages */
-  context->motion_events_per_actor = enable;
-
-  /* propagate the change to all stages */
-  stage_manager = clutter_stage_manager_get_default ();
-
-  for (l = clutter_stage_manager_peek_stages (stage_manager);
-       l != NULL;
-       l = l->next)
-    {
-      clutter_stage_set_motion_events_enabled (l->data, enable);
-    }
-}
-
-/**
- * clutter_get_motion_events_enabled:
- *
- * Gets whether the per-actor motion events are enabled.
- *
- * Return value: %TRUE if the motion events are enabled
- *
- * Since: 0.6
- *
- * Deprecated: 1.8: Use clutter_stage_get_motion_events_enabled() instead.
- */
-gboolean
-clutter_get_motion_events_enabled (void)
-{
-  return _clutter_context_get_motion_events_enabled ();
-}
-
 void
 _clutter_id_to_color (guint         id_,
                       ClutterColor *col)
@@ -1205,7 +1144,6 @@ clutter_context_get_default_unlocked (void)
       ctx->settings = clutter_settings_get_default ();
       _clutter_settings_set_backend (ctx->settings, ctx->backend);
 
-      ctx->motion_events_per_actor = TRUE;
       ctx->last_repaint_id = 1;
     }
 
@@ -3575,14 +3513,6 @@ _clutter_context_get_pick_mode (void)
   ClutterMainContext *context = _clutter_context_get_default ();
 
   return context->pick_mode;
-}
-
-gboolean
-_clutter_context_get_motion_events_enabled (void)
-{
-  ClutterMainContext *context = _clutter_context_get_default ();
-
-  return context->motion_events_per_actor;
 }
 
 /**

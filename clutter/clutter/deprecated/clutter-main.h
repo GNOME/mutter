@@ -40,12 +40,6 @@ void                    clutter_threads_enter                   (void);
 CLUTTER_DEPRECATED
 void                    clutter_threads_leave                   (void);
 
-CLUTTER_DEPRECATED_FOR(clutter_stage_set_motion_events_enabled)
-void                    clutter_set_motion_events_enabled       (gboolean          enable);
-
-CLUTTER_DEPRECATED_FOR(clutter_stage_get_motion_events_enabled)
-gboolean                clutter_get_motion_events_enabled       (void);
-
 CLUTTER_DEPRECATED_FOR(clutter_stage_ensure_redraw)
 void                    clutter_redraw                          (ClutterStage     *stage);
 
