@@ -31,16 +31,6 @@
 
 G_BEGIN_DECLS
 
-CLUTTER_DEPRECATED_FOR(clutter_device_manager_get_device)
-ClutterInputDevice *    clutter_get_input_device_for_id         (gint id_);
-
-CLUTTER_DEPRECATED_FOR(clutter_input_device_grab)
-void                    clutter_grab_pointer_for_device         (ClutterActor     *actor,
-                                                                 gint              id_);
-
-CLUTTER_DEPRECATED_FOR(clutter_input_device_ungrab)
-void                    clutter_ungrab_pointer_for_device       (gint              id_);
-
 CLUTTER_DEPRECATED
 void                    clutter_set_default_frame_rate          (guint             frames_per_sec);
 
