@@ -85,8 +85,6 @@ G_LOCK_DEFINE_STATIC (ClutterCntx);
 
 /* main lock and locking/unlocking functions */
 static GMutex clutter_threads_mutex;
-static GCallback clutter_threads_lock        = NULL;
-static GCallback clutter_threads_unlock      = NULL;
 
 /* command line options */
 static gboolean clutter_is_initialized       = FALSE;
@@ -146,38 +144,10 @@ static const GDebugKey clutter_paint_debug_keys[] = {
   { "damage-region", CLUTTER_DEBUG_PAINT_DAMAGE_REGION },
 };
 
-static void
-clutter_threads_impl_lock (void)
-{
-  g_mutex_lock (&clutter_threads_mutex);
-}
-
-static void
-clutter_threads_impl_unlock (void)
-{
-  /* we need to trylock here, in case the lock hasn't been acquired; on
-   * various systems trying to release a mutex that hasn't been acquired
-   * will cause a run-time error. trylock() will either fail, in which
-   * case we can release the lock we own; or it will succeeds, in which
-   * case we need to release the lock we just acquired. so we ignore the
-   * returned value.
-   *
-   * see: https://bugs.gnome.org/679439
-   */
-  g_mutex_trylock (&clutter_threads_mutex);
-  g_mutex_unlock (&clutter_threads_mutex);
-}
-
 static inline void
 clutter_threads_init_default (void)
 {
   g_mutex_init (&clutter_threads_mutex);
-
-  if (clutter_threads_lock == NULL)
-    clutter_threads_lock = clutter_threads_impl_lock;
-
-  if (clutter_threads_unlock == NULL)
-    clutter_threads_unlock = clutter_threads_impl_unlock;
 }
 
 #define ENVIRONMENT_GROUP       "Environment"
@@ -922,15 +892,23 @@ clutter_threads_add_timeout (guint       interval,
 void
 _clutter_threads_acquire_lock (void)
 {
-  if (clutter_threads_lock != NULL)
-    (* clutter_threads_lock) ();
+  g_mutex_lock (&clutter_threads_mutex);
 }
 
 void
 _clutter_threads_release_lock (void)
 {
-  if (clutter_threads_unlock != NULL)
-    (* clutter_threads_unlock) ();
+  /* we need to trylock here, in case the lock hasn't been acquired; on
+   * various systems trying to release a mutex that hasn't been acquired
+   * will cause a run-time error. trylock() will either fail, in which
+   * case we can release the lock we own; or it will succeeds, in which
+   * case we need to release the lock we just acquired. so we ignore the
+   * returned value.
+   *
+   * see: https://bugs.gnome.org/679439
+   */
+  g_mutex_trylock (&clutter_threads_mutex);
+  g_mutex_unlock (&clutter_threads_mutex);
 }
 
 void
