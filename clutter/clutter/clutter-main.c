@@ -933,21 +933,6 @@ _clutter_threads_release_lock (void)
     (* clutter_threads_unlock) ();
 }
 
-/**
- * clutter_get_debug_enabled:
- *
- * Check if Clutter has debugging enabled.
- *
- * Return value: %FALSE
- *
- * Deprecated: 1.10: This function does not do anything.
- */
-gboolean
-clutter_get_debug_enabled (void)
-{
-  return FALSE;
-}
-
 void
 _clutter_context_lock (void)
 {
@@ -1013,36 +998,6 @@ _clutter_context_get_default (void)
   _clutter_context_unlock ();
 
   return retval;
-}
-
-/**
- * clutter_get_timestamp:
- *
- * Returns the approximate number of microseconds passed since Clutter was
- * intialised.
- *
- * This function shdould not be used by application code.
- *
- * The output of this function depends on whether Clutter was configured to
- * enable its debugging code paths, so it's less useful than intended.
- *
- * Since Clutter 1.10, this function is an alias to g_get_monotonic_time()
- * if Clutter was configured to enable the debugging code paths.
- *
- * Return value: Number of microseconds since clutter_init() was called, or
- *   zero if Clutter was not configured with debugging code paths.
- *
- * Deprecated: 1.10: Use #GTimer or g_get_monotonic_time() for a proper
- *   timing source
- */
-gulong
-clutter_get_timestamp (void)
-{
-#ifdef CLUTTER_ENABLE_DEBUG
-  return (gulong) g_get_monotonic_time ();
-#else
-  return 0L;
-#endif
 }
 
 static gboolean
@@ -2445,24 +2400,6 @@ clutter_get_default_frame_rate (void)
   context = _clutter_context_get_default ();
 
   return context->frame_rate;
-}
-
-/**
- * clutter_set_default_frame_rate:
- * @frames_per_sec: the new default frame rate
- *
- * Sets the default frame rate. This frame rate will be used to limit
- * the number of frames drawn if Clutter is not able to synchronize
- * with the vertical refresh rate of the display. When synchronization
- * is possible, this value is ignored.
- *
- * Since: 0.6
- *
- * Deprecated: 1.10: This function does not do anything any more.
- */
-void
-clutter_set_default_frame_rate (guint frames_per_sec)
-{
 }
 
 static void

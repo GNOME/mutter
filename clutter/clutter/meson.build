@@ -234,7 +234,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-container.h',
   'deprecated/clutter-group.h',
   'deprecated/clutter-keysyms.h',
-  'deprecated/clutter-main.h',
   'deprecated/clutter-rectangle.h',
   'deprecated/clutter-stage-manager.h',
   'deprecated/clutter-stage.h',
