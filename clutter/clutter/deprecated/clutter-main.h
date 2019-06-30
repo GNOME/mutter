@@ -43,9 +43,6 @@ void                    clutter_threads_leave                   (void);
 CLUTTER_DEPRECATED_FOR(clutter_stage_ensure_redraw)
 void                    clutter_redraw                          (ClutterStage     *stage);
 
-CLUTTER_DEPRECATED_FOR(cogl_pango_font_map_clear_glyph_cache)
-void                    clutter_clear_glyph_cache               (void);
-
 CLUTTER_DEPRECATED_FOR(clutter_backend_set_font_options)
 void                    clutter_set_font_flags                  (ClutterFontFlags  flags);
 
