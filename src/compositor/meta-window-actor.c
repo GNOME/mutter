@@ -377,7 +377,6 @@ meta_window_actor_real_assign_surface_actor (MetaWindowActor  *self,
   priv->size_changed_id = g_signal_connect (priv->surface, "size-changed",
                                             G_CALLBACK (surface_size_changed),
                                             self);
-  clutter_actor_add_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->surface));
 
   meta_window_actor_update_shape (self);
 
