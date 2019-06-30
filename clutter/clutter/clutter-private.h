@@ -170,7 +170,6 @@ struct _ClutterMainContext
 
   /* boolean flags */
   guint is_initialized          : 1;
-  guint motion_events_per_actor : 1;
   guint defer_display_setup     : 1;
   guint options_parsed          : 1;
   guint show_fps                : 1;
@@ -195,7 +194,6 @@ void                    _clutter_context_lock                           (void);
 void                    _clutter_context_unlock                         (void);
 gboolean                _clutter_context_is_initialized                 (void);
 ClutterPickMode         _clutter_context_get_pick_mode                  (void);
-gboolean                _clutter_context_get_motion_events_enabled      (void);
 gboolean                _clutter_context_get_show_fps                   (void);
 
 gboolean      _clutter_feature_init (GError **error);

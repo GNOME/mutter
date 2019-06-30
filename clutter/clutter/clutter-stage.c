@@ -2240,14 +2240,7 @@ clutter_stage_init (ClutterStage *self)
   priv->throttle_motion_events = TRUE;
   priv->min_size_changed = FALSE;
   priv->sync_delay = -1;
-
-  /* XXX - we need to keep the invariant that calling
-   * clutter_set_motion_event_enabled() before the stage creation
-   * will cause motion event delivery to be disabled on any newly
-   * created stage. this can go away when we break API and remove
-   * deprecated functions.
-   */
-  priv->motion_events_enabled = _clutter_context_get_motion_events_enabled ();
+  priv->motion_events_enabled = TRUE;
 
   clutter_actor_set_background_color (CLUTTER_ACTOR (self),
                                       &default_stage_color);
