@@ -453,25 +453,6 @@ clutter_disable_accessibility (void)
   clutter_enable_accessibility = FALSE;
 }
 
-/**
- * clutter_redraw:
- *
- * Forces a redraw of the entire stage. Applications should never use this
- * function, but queue a redraw using clutter_actor_queue_redraw().
- *
- * This function should only be used by libraries integrating Clutter from
- * within another toolkit.
- *
- * Deprecated: 1.10: Use clutter_stage_ensure_redraw() instead.
- */
-void
-clutter_redraw (ClutterStage *stage)
-{
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  clutter_stage_ensure_redraw (stage);
-}
-
 void
 _clutter_id_to_color (guint         id_,
                       ClutterColor *col)
