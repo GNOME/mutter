@@ -26,6 +26,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "compositor/meta-surface-actor-wayland.h"
+#include "compositor/meta-window-actor-wayland.h"
 #include "compositor/region-utils.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-window-wayland.h"
@@ -76,18 +77,15 @@ meta_wayland_actor_surface_assigned (MetaWaylandSurfaceRole *surface_role)
     meta_wayland_actor_surface_get_instance_private (META_WAYLAND_ACTOR_SURFACE (surface_role));
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
-  GList *l;
+  MetaWindowActorWayland *window_actor;
 
   meta_surface_actor_wayland_add_frame_callbacks (META_SURFACE_ACTOR_WAYLAND (priv->actor),
                                                   &surface->pending_frame_callback_list);
   wl_list_init (&surface->pending_frame_callback_list);
 
-  for (l = surface->subsurfaces; l; l = l->next)
-    {
-      ClutterActor *subsurface_actor =
-        CLUTTER_ACTOR (meta_wayland_surface_get_actor (l->data));
-      clutter_actor_add_child (CLUTTER_ACTOR (priv->actor), subsurface_actor);
-    }
+  window_actor = meta_window_actor_wayland_from_surface (surface);
+  if (window_actor)
+    meta_window_actor_wayland_queue_surface_tree_rebuild (window_actor);
 }
 
 void
@@ -155,7 +153,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
   MetaSurfaceActor *surface_actor;
   MetaShapedTexture *stex;
   double actor_scale;
-  GList *l;
+  GNode *n;
   cairo_rectangle_int_t surface_rect;
   int geometry_scale;
 
@@ -228,12 +226,18 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
       meta_surface_actor_reset_viewport_dst_size (surface_actor);
     }
 
-  for (l = surface->subsurfaces; l; l = l->next)
+  for (n = g_node_first_child (surface->subsurface_branch_node);
+       n;
+       n = g_node_next_sibling (n))
     {
-      MetaWaylandSurface *subsurface_surface = l->data;
-      MetaWaylandActorSurface *subsurface_actor_surface =
-        META_WAYLAND_ACTOR_SURFACE (subsurface_surface->role);
+      MetaWaylandSurface *subsurface_surface = n->data;
+      MetaWaylandActorSurface *subsurface_actor_surface;
 
+      if (G_NODE_IS_LEAF (n))
+        continue;
+
+      subsurface_actor_surface =
+        META_WAYLAND_ACTOR_SURFACE (subsurface_surface->role);
       meta_wayland_actor_surface_sync_actor_state (subsurface_actor_surface);
     }
 }
