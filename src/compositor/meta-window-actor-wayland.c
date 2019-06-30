@@ -20,9 +20,10 @@
  *     Georges Basile Stavracas Neto <gbsneto@gnome.org>
  */
 
-#include "compositor/meta-surface-actor.h"
+#include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-wayland.h"
 #include "meta/meta-window-actor.h"
+#include "wayland/meta-wayland-surface.h"
 
 struct _MetaWindowActorWayland
 {
@@ -57,6 +58,86 @@ meta_window_actor_wayland_post_paint (MetaWindowActor *actor)
 static void
 meta_window_actor_wayland_queue_destroy (MetaWindowActor *actor)
 {
+}
+
+static gboolean
+remove_surface_actor_from_children (GNode    *node,
+                                    gpointer  data)
+{
+  MetaWaylandSurface *surface;
+  MetaSurfaceActor *surface_actor;
+  MetaWindowActor *window_actor;
+
+  surface = node->data;
+  surface_actor = meta_wayland_surface_get_actor (surface);
+  window_actor = data;
+
+  clutter_actor_remove_child (CLUTTER_ACTOR (window_actor),
+                              CLUTTER_ACTOR (surface_actor));
+
+  return FALSE;
+}
+
+static gboolean
+add_surface_actor_to_children (GNode    *node,
+                               gpointer  data)
+{
+  MetaWaylandSurface *surface;
+  MetaSurfaceActor *surface_actor;
+  MetaWindowActor *window_actor;
+
+  surface = node->data;
+  surface_actor = meta_wayland_surface_get_actor (surface);
+  window_actor = data;
+
+  clutter_actor_add_child (CLUTTER_ACTOR (window_actor),
+                           CLUTTER_ACTOR (surface_actor));
+
+  return FALSE;
+}
+
+void
+meta_window_actor_wayland_rebuild_surface_tree (MetaWindowActor *actor)
+{
+  MetaSurfaceActor *surface_actor;
+  MetaWaylandSurface *surface;
+  GNode *root_node;
+
+  surface_actor = meta_window_actor_get_surface (actor);
+  surface = meta_surface_actor_wayland_get_surface (
+    META_SURFACE_ACTOR_WAYLAND (surface_actor));
+
+  meta_wayland_surface_ensure_subsurface_node (surface);
+  root_node = surface->subsurface_node;
+
+  g_node_traverse (root_node,
+                   G_IN_ORDER,
+                   G_TRAVERSE_LEAVES,
+                   -1,
+                   remove_surface_actor_from_children,
+                   actor);
+
+  g_node_traverse (root_node,
+                   G_IN_ORDER,
+                   G_TRAVERSE_LEAVES,
+                   -1,
+                   add_surface_actor_to_children,
+                   actor);
+}
+
+MetaWindowActor *
+meta_window_actor_wayland_from_surface (MetaWaylandSurface *surface)
+{
+  if (!surface)
+    return NULL;
+
+  if (surface->window)
+    return meta_window_actor_from_window (surface->window);
+
+  if (surface->sub.parent)
+    return meta_window_actor_wayland_from_surface (surface->sub.parent);
+
+  return NULL;
 }
 
 static void
