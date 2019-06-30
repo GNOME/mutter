@@ -1194,16 +1194,19 @@ static gboolean
 pointer_can_grab_surface (MetaWaylandPointer *pointer,
                           MetaWaylandSurface *surface)
 {
-  GList *l;
+  GNode *n;
 
   if (pointer->focus_surface == surface)
     return TRUE;
 
-  for (l = surface->subsurfaces; l; l = l->next)
+  for (n = g_node_first_child (surface->subsurface_branch_node); n; n = g_node_next_sibling (n))
     {
-      MetaWaylandSurface *subsurface = l->data;
+      MetaWaylandSurface *subsurface_surface = n->data;
 
-      if (pointer_can_grab_surface (pointer, subsurface))
+      if (subsurface_surface == surface)
+        continue;
+
+      if (pointer_can_grab_surface (pointer, subsurface_surface))
         return TRUE;
     }
 

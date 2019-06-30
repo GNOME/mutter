@@ -646,11 +646,17 @@ meta_wayland_surface_is_effectively_synchronized (MetaWaylandSurface *surface)
 }
 
 static void
-parent_surface_state_applied (gpointer data,
-                              gpointer user_data)
+parent_surface_state_applied (GNode    *subsurface_node,
+                              gpointer  surface)
 {
-  MetaWaylandSurface *surface = data;
-  MetaWaylandSubsurface *subsurface = META_WAYLAND_SUBSURFACE (surface->role);
+  MetaWaylandSurface *subsurface_surface;
+  MetaWaylandSubsurface *subsurface;
+
+  subsurface_surface = subsurface_node->data;
+  if (subsurface_surface == surface)
+    return;
+
+  subsurface = META_WAYLAND_SUBSURFACE (subsurface_surface->role);
 
   meta_wayland_subsurface_parent_state_applied (subsurface);
 }
@@ -836,7 +842,10 @@ cleanup:
 
   pending_state_reset (pending);
 
-  g_list_foreach (surface->subsurfaces, parent_surface_state_applied, NULL);
+  g_node_children_foreach (surface->subsurface_branch_node,
+                           G_TRAVERSE_ALL,
+                           parent_surface_state_applied,
+                           surface);
 }
 
 static void
@@ -1254,13 +1263,21 @@ meta_wayland_surface_update_outputs (MetaWaylandSurface *surface)
 static void
 meta_wayland_surface_update_outputs_recursively (MetaWaylandSurface *surface)
 {
-  GList *l;
+  GNode *n;
 
   meta_wayland_surface_update_outputs (surface);
 
-  for (l = surface->subsurfaces; l != NULL; l = l->next)
-    meta_wayland_surface_update_outputs_recursively (l->data);
+  for (n = g_node_first_child (surface->subsurface_branch_node); n; n = g_node_next_sibling (n))
+    {
+      MetaWaylandSurface *subsurface_surface = n->data;
+
+      if (subsurface_surface == surface)
+        continue;
+
+      meta_wayland_surface_update_outputs_recursively (subsurface_surface);
+    }
 }
+
 
 void
 meta_wayland_surface_set_window (MetaWaylandSurface *surface,
@@ -1304,6 +1321,13 @@ meta_wayland_surface_set_window (MetaWaylandSurface *surface,
                                G_CALLBACK (window_actor_effects_completed),
                                surface, 0);
     }
+}
+
+static void
+unlink_note (GNode    *node,
+             gpointer  data)
+{
+  g_node_unlink (node);
 }
 
 static void
@@ -1354,6 +1378,15 @@ wl_surface_destructor (struct wl_resource *resource)
 
   if (surface->wl_subsurface)
     wl_resource_destroy (surface->wl_subsurface);
+
+  if (surface->subsurface_branch_node)
+    {
+      g_node_children_foreach (surface->subsurface_branch_node,
+                               G_TRAVERSE_NON_LEAVES,
+                               unlink_note,
+                               NULL);
+      g_clear_pointer (&surface->subsurface_branch_node, g_node_destroy);
+    }
 
   g_hash_table_destroy (surface->shortcut_inhibited_seats);
 
@@ -1614,6 +1647,9 @@ static void
 meta_wayland_surface_init (MetaWaylandSurface *surface)
 {
   surface->pending = g_object_new (META_TYPE_WAYLAND_PENDING_STATE, NULL);
+  surface->subsurface_branch_node = g_node_new (surface);
+  surface->subsurface_leaf_node =
+    g_node_prepend_data (surface->subsurface_branch_node, surface);
 
   g_signal_connect (surface, "geometry-changed",
                     G_CALLBACK (meta_wayland_surface_update_outputs_recursively),
