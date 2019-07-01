@@ -57,8 +57,9 @@ void meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device);
 
 int meta_kms_impl_device_close (MetaKmsImplDevice *impl_device);
 
-MetaKmsImplDevice * meta_kms_impl_device_new (MetaKmsDevice *device,
-                                              MetaKmsImpl   *kms_impl,
-                                              int            fd);
+MetaKmsImplDevice * meta_kms_impl_device_new (MetaKmsDevice  *device,
+                                              MetaKmsImpl    *kms_impl,
+                                              int             fd,
+                                              GError        **error);
 
 #endif /* META_KMS_IMPL_DEVICE_H */

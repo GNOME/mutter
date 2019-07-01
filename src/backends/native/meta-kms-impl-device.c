@@ -307,24 +307,40 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
 }
 
 MetaKmsImplDevice *
-meta_kms_impl_device_new (MetaKmsDevice *device,
-                          MetaKmsImpl   *impl,
-                          int            fd)
+meta_kms_impl_device_new (MetaKmsDevice  *device,
+                          MetaKmsImpl    *impl,
+                          int             fd,
+                          GError        **error)
 {
   MetaKms *kms = meta_kms_impl_get_kms (impl);
   MetaKmsImplDevice *impl_device;
+  int ret;
   drmModeRes *drm_resources;
 
   meta_assert_in_kms_impl (kms);
+
+  ret = drmSetClientCap (fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
+  if (ret != 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
+                   "Failed to activate universal planes: %s",
+                   g_strerror (-ret));
+      return NULL;
+    }
+
+  drm_resources = drmModeGetResources (fd);
+  if (!drm_resources)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to activate universal planes: %s",
+                   g_strerror (errno));
+      return NULL;
+    }
 
   impl_device = g_object_new (META_TYPE_KMS_IMPL_DEVICE, NULL);
   impl_device->device = device;
   impl_device->impl = impl;
   impl_device->fd = fd;
-
-  drmSetClientCap (fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
-
-  drm_resources = drmModeGetResources (fd);
 
   init_crtcs (impl_device, drm_resources);
   init_connectors (impl_device, drm_resources);
