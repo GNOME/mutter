@@ -328,12 +328,19 @@ meta_kms_impl_device_new (MetaKmsDevice  *device,
       return NULL;
     }
 
+  drm_resources = drmModeGetResources (fd);
+  if (!drm_resources)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to activate universal planes: %s",
+                   g_strerror (errno));
+      return NULL;
+    }
+
   impl_device = g_object_new (META_TYPE_KMS_IMPL_DEVICE, NULL);
   impl_device->device = device;
   impl_device->impl = impl;
   impl_device->fd = fd;
-
-  drm_resources = drmModeGetResources (fd);
 
   init_crtcs (impl_device, drm_resources);
   init_connectors (impl_device, drm_resources);
