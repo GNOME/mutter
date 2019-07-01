@@ -865,9 +865,6 @@ meta_window_x11_focus (MetaWindow *window,
                       if (!focus_window)
                         break;
 
-                      if (focus_window->unmanaging)
-                        continue;
-
                       if (focus_window->input)
                         break;
 
