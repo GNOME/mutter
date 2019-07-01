@@ -156,7 +156,9 @@ create_impl_device_in_impl (MetaKmsImpl  *impl,
   CreateImplDeviceData *data = user_data;
   MetaKmsImplDevice *impl_device;
 
-  impl_device = meta_kms_impl_device_new (data->device, impl, data->fd);
+  impl_device = meta_kms_impl_device_new (data->device, impl, data->fd, error);
+  if (!impl_device)
+    return FALSE;
 
   data->out_impl_device = impl_device;
   data->out_crtcs = meta_kms_impl_device_copy_crtcs (impl_device);
