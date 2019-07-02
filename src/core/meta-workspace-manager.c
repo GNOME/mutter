@@ -177,7 +177,7 @@ meta_workspace_manager_class_init (MetaWorkspaceManagerClass *klass)
                                                      "Layout rows",
                                                      "Number of rows in layout",
                                                      -1, G_MAXINT, -1,
-                                                     G_PARAM_READABLE));
+                                                     G_PARAM_READABLE | G_PARAM_STATIC_STRINGS));
 
   g_object_class_install_property (object_class,
                                    PROP_N_WORKSPACES,
