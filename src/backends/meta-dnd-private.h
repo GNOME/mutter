@@ -30,6 +30,8 @@ gboolean meta_dnd_handle_xdnd_event (MetaBackend    *backend,
                                      Display        *xdisplay,
                                      XEvent         *xev);
 
+void meta_dnd_init_xdnd (MetaX11Display *x11_display);
+
 #ifdef HAVE_WAYLAND
 void meta_dnd_wayland_handle_begin_modal (MetaCompositor *compositor);
 void meta_dnd_wayland_handle_end_modal   (MetaCompositor *compositor);
