@@ -50,7 +50,7 @@
 #include "x11/window-props.h"
 #include "x11/xprops.h"
 
-#define TAKE_FOCUS_FALLBACK_DELAY_MS 250
+#define TAKE_FOCUS_FALLBACK_DELAY_MS 150
 
 enum _MetaGtkEdgeConstraints
 {
@@ -814,7 +814,8 @@ focus_window_delayed_timeout (gpointer user_data)
 
 static void
 meta_window_x11_maybe_focus_delayed (MetaWindow *window,
-                                     guint32     timestamp)
+                                     guint32     timestamp,
+                                     guint       interval)
 {
   MetaWindowX11DelayedFocusData *data;
 
@@ -832,8 +833,49 @@ meta_window_x11_maybe_focus_delayed (MetaWindow *window,
                               G_CALLBACK (meta_window_x11_delayed_focus_data_free),
                               data);
 
-  data->timeout_id = g_timeout_add (TAKE_FOCUS_FALLBACK_DELAY_MS,
-                                    focus_window_delayed_timeout, data);
+  data->timeout_id = g_timeout_add (interval, focus_window_delayed_timeout,
+                                    data);
+}
+
+static void
+maybe_focus_default_window (MetaWorkspace *workspace,
+                            MetaWindow    *not_this_one,
+                            guint32        timestamp)
+{
+  MetaStack *stack = workspace->display->stack;
+  g_autoptr (GList) focusable_windows =
+    meta_stack_list_focusable_windows (stack, workspace);
+  GList *l;
+  guint i;
+
+   /* Go through all the focusable windows and try to focus them
+    * in order, waiting for a proportional delay. The first one
+    * that replies to the call (in case of take focus windows)
+    * changing the focused window, will stop the others' delayed
+    * requests.
+    */
+  for (l = g_list_last (focusable_windows), i = 1; l; l = l->prev)
+    {
+      MetaWindow *focus_window = l->data;
+      guint interval;
+
+      if (focus_window == not_this_one)
+        continue;
+
+      interval = TAKE_FOCUS_FALLBACK_DELAY_MS * i++;
+
+      meta_topic (META_DEBUG_FOCUS,
+                  "Requesting %ums delayed focus to %s\n",
+                  interval, focus_window->desc);
+
+      meta_window_x11_maybe_focus_delayed (focus_window, timestamp, interval);
+
+      if (focus_window->input)
+        break;
+
+      if (focus_window->shaded && focus_window->frame)
+        break;
+    }
 }
 
 static void
@@ -894,30 +936,9 @@ meta_window_x11_focus (MetaWindow *window,
               if (window->display->focus_window != NULL &&
                   window->display->focus_window->unmanaging)
                 {
-                  MetaWindow *focus_window = window;
-                  MetaWorkspace *workspace = window->workspace;
-                  MetaStack *stack = workspace->display->stack;
-
-                  while (TRUE)
-                    {
-                      focus_window = meta_stack_get_default_focus_window (stack,
-                                                                          workspace,
-                                                                          focus_window);
-                      if (!focus_window)
-                        break;
-
-                      if (meta_window_is_focusable (focus_window))
-                        break;
-
-                      if (focus_window->shaded && focus_window->frame)
-                        break;
-                    }
-
                   meta_display_unset_input_focus (window->display, timestamp);
-
-                  if (focus_window)
-                    meta_window_x11_maybe_focus_delayed (focus_window,
-                                                         timestamp);
+                  maybe_focus_default_window (window->workspace, window,
+                                              timestamp);
                 }
             }
 
