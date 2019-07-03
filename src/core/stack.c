@@ -1060,7 +1060,7 @@ window_contains_point (MetaWindow *window,
 static MetaWindow*
 get_default_focus_window (MetaStack     *stack,
                           MetaWorkspace *workspace,
-                          MetaWindow    *not_this_one,
+                          GList         *not_these_ones,
                           gboolean       must_be_at_point,
                           int            root_x,
                           int            root_y)
@@ -1081,7 +1081,7 @@ get_default_focus_window (MetaStack     *stack,
       if (!window)
         continue;
 
-      if (window == not_this_one)
+      if (g_list_find (not_these_ones, window))
         continue;
 
       if (window->unmaps_pending > 0)
@@ -1115,7 +1115,8 @@ meta_stack_get_default_focus_window_at_point (MetaStack     *stack,
                                               int            root_x,
                                               int            root_y)
 {
-  return get_default_focus_window (stack, workspace, not_this_one,
+  return get_default_focus_window (stack, workspace,
+                                   &(GList) { .data = not_this_one },
                                    TRUE, root_x, root_y);
 }
 
@@ -1124,8 +1125,18 @@ meta_stack_get_default_focus_window (MetaStack     *stack,
                                      MetaWorkspace *workspace,
                                      MetaWindow    *not_this_one)
 {
-  return get_default_focus_window (stack, workspace, not_this_one,
+  return get_default_focus_window (stack, workspace,
+                                   &(GList) { .data = not_this_one },
                                    FALSE, 0, 0);
+}
+
+MetaWindow*
+meta_stack_get_default_focus_window_filtered (MetaStack     *stack,
+                                              MetaWorkspace *workspace,
+                                              GList         *not_these_ones)
+{
+  return get_default_focus_window (stack, workspace, not_these_ones, FALSE,
+                                   0, 0);
 }
 
 GList*

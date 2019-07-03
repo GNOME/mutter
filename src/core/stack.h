@@ -281,6 +281,30 @@ MetaWindow* meta_stack_get_default_focus_window          (MetaStack     *stack,
                                                           MetaWindow    *not_this_one);
 
 /**
+ * meta_stack_get_default_focus_window_filtered:
+ * @stack: The stack to search.
+ * @workspace: %NULL to search all workspaces; otherwise only windows
+ *             from that workspace will be returned.
+ * @not_these_ones: Windows to ignore because they're being unfocussed or
+ *                  going away.
+ *
+ * Find the topmost, focusable, mapped, window in a stack. If you supply
+ * a windows list as @not_these_ones, we won't return any of these
+ * (presumably because they're going to be going away). But if you do supply
+ * @not_these_ones and we find a parent of one of them, we'll return that;
+ * and if a window in @not_these_ones is in a group, we'll return the top
+ * window of that group.
+ *
+ * Also, we are prejudiced against dock windows.  Every kind of window, even
+ * the desktop, will be returned in preference to a dock window.
+ *
+ * Returns: The window matching all these constraints or %NULL if none does.
+ */
+MetaWindow* meta_stack_get_default_focus_window_filtered (MetaStack     *stack,
+                                                          MetaWorkspace *workspace,
+                                                          GList         *not_these_ones);
+
+/**
  * meta_stack_get_default_focus_window_at_point:
  * @stack: The stack to search.
  * @workspace: %NULL to search all workspaces; otherwise only windows
