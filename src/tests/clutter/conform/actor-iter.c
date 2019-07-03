@@ -1,6 +1,8 @@
 #include <glib.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 static void
 actor_iter_traverse_children (void)
 {
