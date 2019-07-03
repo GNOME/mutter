@@ -26,6 +26,7 @@
 #include "compositor/compositor-private.h"
 #include "core/display-private.h"
 #include "backends/meta-dnd-private.h"
+#include "backends/x11/meta-backend-x11.h"
 #include "meta/meta-dnd.h"
 #include "x11/meta-x11-display-private.h"
 
@@ -107,6 +108,35 @@ meta_dnd_class_init (MetaDndClass *klass)
 static void
 meta_dnd_init (MetaDnd *dnd)
 {
+}
+
+void
+meta_dnd_init_xdnd (MetaX11Display *x11_display)
+{
+  MetaBackend *backend = meta_get_backend ();
+  Display *xdisplay = x11_display->xdisplay;
+  Window window, overlay_window;
+  long xdnd_version = 5;
+
+  overlay_window = meta_get_overlay_window (x11_display->display);
+  window = meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend));
+
+  XChangeProperty (xdisplay, window,
+                   XInternAtom (xdisplay, "XdndAware", TRUE), XA_ATOM,
+                   32, PropModeReplace,
+                   (const unsigned char *) &xdnd_version, 1);
+
+  XChangeProperty (xdisplay, overlay_window,
+                   XInternAtom (xdisplay, "XdndProxy", TRUE), XA_WINDOW,
+                   32, PropModeReplace, (const unsigned char *) &window, 1);
+
+  /*
+   * XdndProxy is additionally set on the proxy window as verification that the
+   * XdndProxy property on the target window isn't a left-over
+   */
+  XChangeProperty (xdisplay, window,
+                   XInternAtom (xdisplay, "XdndProxy", TRUE), XA_WINDOW,
+                   32, PropModeReplace, (const unsigned char *) &window, 1);
 }
 
 static void
