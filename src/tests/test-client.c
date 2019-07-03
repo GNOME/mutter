@@ -31,6 +31,7 @@ static gboolean wayland;
 GHashTable *windows;
 GQuark event_source_quark;
 GQuark event_handlers_quark;
+GQuark can_take_focus_quark;
 
 typedef void (*XEventHandler) (GtkWidget *window, XEvent *event);
 
@@ -61,6 +62,7 @@ lookup_window (const char *window_id)
 
 typedef struct {
   GSource base;
+  GSource **self_ref;
   GPollFD event_poll_fd;
   Display *xdisplay;
 } XClientEventSource;
@@ -118,10 +120,19 @@ x_event_source_dispatch (GSource     *source,
   return TRUE;
 }
 
+static void
+x_event_source_finalize (GSource *source)
+{
+  XClientEventSource *x_source = (XClientEventSource *) source;
+
+  *x_source->self_ref = NULL;
+}
+
 static GSourceFuncs x_event_funcs = {
   x_event_source_prepare,
   x_event_source_check,
   x_event_source_dispatch,
+  x_event_source_finalize,
 };
 
 static GSource*
@@ -136,6 +147,7 @@ ensure_xsource_handler (GdkDisplay *gdkdisplay)
 
   source = g_source_new (&x_event_funcs, sizeof (XClientEventSource));
   x_source = (XClientEventSource *) source;
+  x_source->self_ref = &source;
   x_source->xdisplay = xdisplay;
   x_source->event_poll_fd.fd = ConnectionNumber (xdisplay);
   x_source->event_poll_fd.events = G_IO_IN;
@@ -162,6 +174,15 @@ window_has_x11_event_handler (GtkWidget     *window,
 }
 
 static void
+unref_and_maybe_destroy_gsource (GSource *source)
+{
+  g_source_unref (source);
+
+  if (source->ref_count == 1)
+    g_source_destroy (source);
+}
+
+static void
 window_add_x11_event_handler (GtkWidget     *window,
                               XEventHandler  handler)
 {
@@ -173,7 +194,7 @@ window_add_x11_event_handler (GtkWidget     *window,
 
   source = ensure_xsource_handler (gtk_widget_get_display (window));
   g_object_set_qdata_full (G_OBJECT (window), event_source_quark, source,
-                           (GDestroyNotify) g_source_unref);
+                           (GDestroyNotify) unref_and_maybe_destroy_gsource);
 
   handlers = g_list_append (handlers, handler);
   g_object_set_qdata (G_OBJECT (window), event_handlers_quark, handlers);
@@ -192,6 +213,31 @@ window_remove_x11_event_handler (GtkWidget     *window,
 
   handlers = g_list_remove (handlers, handler);
   g_object_set_qdata (G_OBJECT (window), event_handlers_quark, handlers);
+}
+
+static void
+handle_take_focus (GtkWidget *window,
+                   XEvent    *xevent)
+{
+  GdkWindow *gdkwindow = gtk_widget_get_window (window);
+  GdkDisplay *display = gtk_widget_get_display (window);
+  Atom wm_protocols =
+    gdk_x11_get_xatom_by_name_for_display (display, "WM_PROTOCOLS");
+  Atom wm_take_focus =
+    gdk_x11_get_xatom_by_name_for_display (display, "WM_TAKE_FOCUS");
+
+  if (xevent->xany.type != ClientMessage ||
+      xevent->xany.window != GDK_WINDOW_XID (gdkwindow))
+    return;
+
+  if (xevent->xclient.message_type == wm_protocols &&
+      (Atom) xevent->xclient.data.l[0] == wm_take_focus)
+    {
+      XSetInputFocus (xevent->xany.display,
+                      GDK_WINDOW_XID (gdkwindow),
+                      RevertToParent,
+                      xevent->xclient.data.l[1]);
+    }
 }
 
 static void
@@ -261,6 +307,9 @@ process_line (const char *line)
       gchar *title = g_strdup_printf ("test/%s/%s", client_id, argv[1]);
       gtk_window_set_title (GTK_WINDOW (window), title);
       g_free (title);
+
+      g_object_set_qdata (G_OBJECT (window), can_take_focus_quark,
+                          GUINT_TO_POINTER (TRUE));
 
       gtk_widget_realize (window);
 
@@ -348,6 +397,14 @@ process_line (const char *line)
           goto out;
         }
 
+      if (!wayland &&
+          window_has_x11_event_handler (window, handle_take_focus))
+        {
+          g_print ("Impossible to use %s for windows accepting take focus",
+                   argv[1]);
+          goto out;
+        }
+
       gboolean enabled = g_ascii_strcasecmp (argv[2], "true") == 0;
       gtk_window_set_accept_focus (GTK_WINDOW (window), enabled);
     }
@@ -369,6 +426,13 @@ process_line (const char *line)
       if (wayland)
         {
           g_print ("%s not supported under wayland", argv[0]);
+          goto out;
+        }
+
+      if (window_has_x11_event_handler (window, handle_take_focus))
+        {
+          g_print ("Impossible to change %s for windows accepting take focus",
+                   argv[1]);
           goto out;
         }
 
@@ -397,9 +461,50 @@ process_line (const char *line)
         new_protocols[n++] = wm_take_focus;
 
       XSetWMProtocols (xdisplay, xwindow, new_protocols, n);
+      g_object_set_qdata (G_OBJECT (window), can_take_focus_quark,
+                          GUINT_TO_POINTER (add));
 
       XFree (new_protocols);
       XFree (protocols);
+    }
+  else if (strcmp (argv[0], "accept_take_focus") == 0)
+    {
+      if (argc != 3)
+        {
+          g_print ("usage: %s <window-id> [true|false]", argv[0]);
+          goto out;
+        }
+
+      GtkWidget *window = lookup_window (argv[1]);
+      if (!window)
+        {
+          g_print ("unknown window %s", argv[1]);
+          goto out;
+        }
+
+      if (wayland)
+        {
+          g_print ("%s not supported under wayland", argv[0]);
+          goto out;
+        }
+
+      if (gtk_window_get_accept_focus (GTK_WINDOW (window)))
+        {
+          g_print ("%s not supported for input windows", argv[0]);
+          goto out;
+        }
+
+      if (!g_object_get_qdata (G_OBJECT (window), can_take_focus_quark))
+        {
+          g_print ("%s not supported for windows with no WM_TAKE_FOCUS set",
+                   argv[0]);
+          goto out;
+        }
+
+      if (g_ascii_strcasecmp (argv[2], "true") == 0)
+        window_add_x11_event_handler (window, handle_take_focus);
+      else
+        window_remove_x11_event_handler (window, handle_take_focus);
     }
   else if (strcmp (argv[0], "show") == 0)
     {
@@ -651,6 +756,7 @@ main(int argc, char **argv)
                                    g_free, NULL);
   event_source_quark = g_quark_from_static_string ("event-source");
   event_handlers_quark = g_quark_from_static_string ("event-handlers");
+  can_take_focus_quark = g_quark_from_static_string ("can-take-focus");
 
   GInputStream *raw_in = g_unix_input_stream_new (0, FALSE);
   GDataInputStream *in = g_data_input_stream_new (raw_in);
