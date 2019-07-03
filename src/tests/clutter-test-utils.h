@@ -19,16 +19,22 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config.h"
+
 #ifndef __CLUTTER_TEST_UTILS_H__
 #define __CLUTTER_TEST_UTILS_H__
 
-#if !defined(__CLUTTER_H_INSIDE__) && !defined(CLUTTER_COMPILATION)
-#error "Only <clutter/clutter.h> can be included directly."
-#endif
+#define __CLUTTER_H_INSIDE__
 
 #include <clutter/clutter-types.h>
 #include <clutter/clutter-actor.h>
 #include <clutter/clutter-color.h>
+
+#include <meta/main.h>
+#include <core/main-private.h>
+#include <backends/x11/nested/meta-backend-x11-nested.h>
+#include <wayland/meta-wayland.h>
+#include <wayland/meta-xwayland.h>
 
 G_BEGIN_DECLS
 
@@ -79,6 +85,13 @@ G_BEGIN_DECLS
 int \
 main (int argc, char *argv[]) \
 { \
+  meta_wayland_override_display_name ("mutter-test-display");\
+  meta_xwayland_override_display_number (512);\
+  meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,\
+                                          META_TYPE_BACKEND_X11_NESTED);\
+\
+  meta_init ();\
+\
   clutter_test_init (&argc, &argv); \
 \
   { \

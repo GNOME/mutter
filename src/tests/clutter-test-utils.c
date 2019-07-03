@@ -1,17 +1,8 @@
-#include "clutter-build-config.h"
-
 #include "clutter-test-utils.h"
 
 #include <stdlib.h>
 #include <glib-object.h>
-
-#include "clutter-actor.h"
-#include "clutter-color.h"
-#include "clutter-event.h"
-#include "clutter-keysyms.h"
-#include "clutter-main.h"
-#include "clutter-private.h"
-#include "clutter-stage.h"
+#include <clutter/clutter.h>
 
 typedef struct {
   ClutterActor *stage;
@@ -65,7 +56,7 @@ clutter_test_init (int    *argc,
   /* we explicitly disable the synchronisation to the vertical refresh
    * rate, and run the master clock using a 60 fps timer instead.
    */
-  _clutter_set_sync_to_vblank (FALSE);
+  //_clutter_set_sync_to_vblank (FALSE);
 
   /* perform the actual initialization */
   g_assert (clutter_init (NULL, NULL) == CLUTTER_INIT_SUCCESS);
