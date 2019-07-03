@@ -906,7 +906,7 @@ meta_window_x11_focus (MetaWindow *window,
                       if (!focus_window)
                         break;
 
-                      if (focus_window->input)
+                      if (meta_window_is_focusable (focus_window))
                         break;
 
                       if (focus_window->shaded && focus_window->frame)
