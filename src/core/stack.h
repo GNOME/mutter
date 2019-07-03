@@ -323,6 +323,20 @@ GList*      meta_stack_list_windows (MetaStack *stack,
                                      MetaWorkspace *workspace);
 
 /**
+ * meta_stack_list_focusable_windows:
+ * @stack: The stack to examine.
+ * @workspace: If not %NULL, only windows on this workspace will be
+ *             returned; otherwise all windows in the stack will be
+ *             returned.
+ *
+ * Finds all the focusable windows in the stack, in order.
+ *
+ * Returns: A list of windows, in stacking order, honouring layers.
+ */
+GList*      meta_stack_list_focusable_windows (MetaStack     *stack,
+                                               MetaWorkspace *workspace);
+
+/**
  * meta_stack_windows_cmp:
  * @stack: A stack containing both window_a and window_b
  * @window_a: A window
