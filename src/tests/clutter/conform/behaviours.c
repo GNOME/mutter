@@ -1,6 +1,8 @@
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 static void
 behaviour_opacity (void)
 {
@@ -64,6 +66,12 @@ int
 main (int argc, char *argv[])
 {
   int i;
+
+  meta_wayland_override_display_name ("mutter-test-display");
+  meta_xwayland_override_display_number (512);
+  meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
+                                          META_TYPE_BACKEND_X11_NESTED);
+  meta_init ();
 
   clutter_test_init (&argc, &argv);
 
