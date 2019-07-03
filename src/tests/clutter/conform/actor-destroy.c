@@ -1,6 +1,8 @@
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define TEST_TYPE_DESTROY               (test_destroy_get_type ())
 #define TEST_DESTROY(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), TEST_TYPE_DESTROY, TestDestroy))
 #define TEST_IS_DESTROY(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TEST_TYPE_DESTROY))

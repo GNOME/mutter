@@ -2,6 +2,8 @@
 
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define TYPE_KEY_GROUP                  (key_group_get_type ())
 #define KEY_GROUP(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), TYPE_KEY_GROUP, KeyGroup))
 #define IS_KEY_GROUP(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), TYPE_KEY_GROUP))
