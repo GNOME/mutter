@@ -8342,7 +8342,7 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
   event_mods = clutter_event_get_state (event);
   unmodified = (event_mods & grab_mods) == 0;
   source = clutter_event_get_source_device (event);
-  is_window_button_grab_allowed =
+  is_window_button_grab_allowed = !display->focus_window ||
     !meta_window_shortcuts_inhibited (display->focus_window, source);
   is_window_grab = (is_window_button_grab_allowed &&
                     ((event_mods & grab_mods) == grab_mods));
