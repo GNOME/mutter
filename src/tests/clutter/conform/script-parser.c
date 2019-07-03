@@ -4,6 +4,8 @@
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define TEST_TYPE_GROUP                 (test_group_get_type ())
 #define TEST_TYPE_GROUP_META            (test_group_meta_get_type ())
 
