@@ -103,7 +103,6 @@
 #include "clutter-stage-manager.h"
 #include "clutter-stage-view.h"
 #include "clutter-tap-action.h"
-#include "clutter-test-utils.h"
 #include "clutter-texture.h"
 #include "clutter-text.h"
 #include "clutter-timeline.h"
