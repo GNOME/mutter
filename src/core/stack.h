@@ -338,6 +338,21 @@ MetaWindow* meta_stack_get_default_focus_window_at_point (MetaStack     *stack,
                                                           int            root_y);
 
 /**
+ * meta_stack_get_default_focus_candidates:
+ * @stack: The stack to examine.
+ * @workspace: If not %NULL, only windows on this workspace will be
+ *             returned; otherwise all windows in the stack will be
+ *             returned.
+ *
+ * Returns all the focus candidate windows in the stack, in order.
+ *
+ * Returns: (transfer container) (element-type Meta.Window):
+ *     A #GList of #MetaWindow, in stacking order, honouring layers.
+ */
+GList *     meta_stack_get_default_focus_candidates (MetaStack     *stack,
+                                                     MetaWorkspace *workspace);
+
+/**
  * meta_stack_list_windows:
  * @stack: The stack to examine.
  * @workspace: If not %NULL, only windows on this workspace will be
