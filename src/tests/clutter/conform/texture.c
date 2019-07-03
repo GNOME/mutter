@@ -2,6 +2,8 @@
 #include <clutter/clutter.h>
 #include <string.h>
 
+#include "tests/clutter-test-utils.h"
+
 static CoglHandle
 make_texture (void)
 {

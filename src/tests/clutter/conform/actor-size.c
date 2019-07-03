@@ -3,6 +3,8 @@
 
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define TEST_TYPE_ACTOR         (test_actor_get_type ())
 
 typedef struct _TestActor               TestActor;

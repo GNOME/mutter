@@ -1,5 +1,7 @@
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 static void
 color_hls_roundtrip (void)
 {
