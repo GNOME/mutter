@@ -59,6 +59,7 @@ foreach test : clutter_conform_tests
   test_executable = executable('@0@'.format(test),
     sources: [
       '@0@.c'.format(test),
+      clutter_test_utils,
     ],
     include_directories: clutter_includes,
     c_args: clutter_tests_conform_c_args,
@@ -66,7 +67,8 @@ foreach test : clutter_conform_tests
     dependencies: [
       clutter_deps,
       libmutter_clutter_dep,
-      libmutter_cogl_path_dep
+      libmutter_cogl_path_dep,
+      libmutter_dep
     ],
     install: false,
   )

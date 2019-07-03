@@ -4,6 +4,8 @@
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 static void
 actor_initial_state (void)
 {
