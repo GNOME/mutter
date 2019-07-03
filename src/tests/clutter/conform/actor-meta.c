@@ -3,6 +3,8 @@
 
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 static void
 actor_meta_clear (void)
 {

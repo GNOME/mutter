@@ -1,6 +1,8 @@
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 typedef struct _FooActor      FooActor;
 typedef struct _FooActorClass FooActorClass;
 
