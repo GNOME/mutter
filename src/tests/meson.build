@@ -114,6 +114,7 @@ stacking_tests = [
   'closed-transient-no-input-no-take-focus-parent',
   'closed-transient-no-input-no-take-focus-parents',
   'closed-transient-no-input-parent',
+  'closed-transient-no-input-parents',
   'closed-transient-no-input-parent-delayed-focus-default-cancelled',
   'minimized',
   'mixed-windows',
