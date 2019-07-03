@@ -1,6 +1,8 @@
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 static void
 group_depth_sorting (void)
 {

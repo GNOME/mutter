@@ -1,17 +1,8 @@
-#include "clutter-build-config.h"
-
 #include "clutter-test-utils.h"
 
 #include <stdlib.h>
 #include <glib-object.h>
-
-#include "clutter-actor.h"
-#include "clutter-color.h"
-#include "clutter-event.h"
-#include "clutter-keysyms.h"
-#include "clutter-main.h"
-#include "clutter-private.h"
-#include "clutter-stage.h"
+#include <clutter/clutter.h>
 
 typedef struct {
   ClutterActor *stage;
