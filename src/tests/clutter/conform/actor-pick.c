@@ -1,6 +1,8 @@
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define STAGE_WIDTH  640
 #define STAGE_HEIGHT 480
 #define ACTORS_X 12

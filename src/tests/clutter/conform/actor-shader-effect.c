@@ -2,6 +2,8 @@
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 /****************************************************************
  Old style shader effect
  This uses clutter_shader_effect_set_source

@@ -1,6 +1,8 @@
 #include <clutter/clutter.h>
 #include <stdlib.h>
 
+#include "tests/clutter-test-utils.h"
+
 static void
 opacity_label (void)
 {
