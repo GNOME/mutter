@@ -48,6 +48,7 @@
 #include <X11/extensions/Xrandr.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-dnd-private.h"
 #include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-settings-private.h"
@@ -1341,6 +1342,9 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
 
   meta_x11_startup_notification_init (x11_display);
   meta_x11_selection_init (x11_display);
+
+  if (!meta_is_wayland_compositor ())
+    meta_dnd_init_xdnd (x11_display);
 
   return x11_display;
 }
