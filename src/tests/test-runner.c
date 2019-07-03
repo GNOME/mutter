@@ -497,6 +497,25 @@ test_case_do (TestCase *test,
                            NULL))
         return FALSE;
     }
+  else if (strcmp (argv[0], "accept_take_focus") == 0)
+    {
+      if (argc != 3 ||
+          (g_ascii_strcasecmp (argv[2], "true") != 0 &&
+           g_ascii_strcasecmp (argv[2], "false") != 0))
+        BAD_COMMAND("usage: %s <client-id>/<window-id> [true|false]",
+                    argv[0]);
+
+      TestClient *client;
+      const char *window_id;
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      if (!test_client_do (client, error,
+                           argv[0], window_id,
+                           argv[2],
+                           NULL))
+        return FALSE;
+    }
   else if (strcmp (argv[0], "show") == 0)
     {
       if (argc != 2)
