@@ -894,23 +894,27 @@ meta_window_x11_focus (MetaWindow *window,
               if (window->display->focus_window != NULL &&
                   window->display->focus_window->unmanaging)
                 {
-                  MetaWindow *focus_window = window;
+                  MetaWindow *focus_window;
                   MetaWorkspace *workspace = window->workspace;
                   MetaStack *stack = workspace->display->stack;
+                  g_autoptr (GList) filter = g_list_prepend (NULL, window);
 
                   while (TRUE)
                     {
-                      focus_window = meta_stack_get_default_focus_window (stack,
-                                                                          workspace,
-                                                                          focus_window);
+                      focus_window =
+                        meta_stack_get_default_focus_window_filtered (stack,
+                                                                      workspace,
+                                                                      filter);
                       if (!focus_window)
                         break;
 
-                      if (meta_window_is_focusable (focus_window))
+                      if (focus_window->input)
                         break;
 
                       if (focus_window->shaded && focus_window->frame)
                         break;
+
+                      filter = g_list_prepend (filter, focus_window);
                     }
 
                   meta_display_unset_input_focus (window->display, timestamp);
