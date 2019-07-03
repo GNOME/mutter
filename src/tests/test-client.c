@@ -29,6 +29,10 @@
 const char *client_id = "0";
 static gboolean wayland;
 GHashTable *windows;
+GQuark event_source_quark;
+GQuark event_handlers_quark;
+
+typedef void (*XEventHandler) (GtkWidget *window, XEvent *event);
 
 static void read_next_line (GDataInputStream *in);
 
@@ -53,6 +57,141 @@ lookup_window (const char *window_id)
     g_print ("Window %s doesn't exist", window_id);
 
   return window;
+}
+
+typedef struct {
+  GSource base;
+  GPollFD event_poll_fd;
+  Display *xdisplay;
+} XClientEventSource;
+
+static gboolean
+x_event_source_prepare (GSource *source,
+                        int     *timeout)
+{
+  XClientEventSource *x_source = (XClientEventSource *) source;
+
+  *timeout = -1;
+
+  return XPending (x_source->xdisplay);
+}
+
+static gboolean
+x_event_source_check (GSource *source)
+{
+  XClientEventSource *x_source = (XClientEventSource *) source;
+
+  return XPending (x_source->xdisplay);
+}
+
+static gboolean
+x_event_source_dispatch (GSource     *source,
+                         GSourceFunc  callback,
+                         gpointer     user_data)
+{
+  XClientEventSource *x_source = (XClientEventSource *) source;
+
+  while (XPending (x_source->xdisplay))
+    {
+      GHashTableIter iter;
+      XEvent event;
+      gpointer value;
+
+      XNextEvent (x_source->xdisplay, &event);
+
+      g_hash_table_iter_init (&iter, windows);
+      while (g_hash_table_iter_next (&iter, NULL, &value))
+        {
+          GList *l;
+          GtkWidget *window = value;
+          GList *handlers =
+            g_object_get_qdata (G_OBJECT (window), event_handlers_quark);
+
+          for (l = handlers; l; l = l->next)
+            {
+              XEventHandler handler = l->data;
+              handler (window, &event);
+            }
+        }
+    }
+
+  return TRUE;
+}
+
+static GSourceFuncs x_event_funcs = {
+  x_event_source_prepare,
+  x_event_source_check,
+  x_event_source_dispatch,
+};
+
+static GSource*
+ensure_xsource_handler (GdkDisplay *gdkdisplay)
+{
+  static GSource *source = NULL;
+  Display *xdisplay = GDK_DISPLAY_XDISPLAY (gdkdisplay);
+  XClientEventSource *x_source;
+
+  if (source)
+    return g_source_ref (source);
+
+  source = g_source_new (&x_event_funcs, sizeof (XClientEventSource));
+  x_source = (XClientEventSource *) source;
+  x_source->xdisplay = xdisplay;
+  x_source->event_poll_fd.fd = ConnectionNumber (xdisplay);
+  x_source->event_poll_fd.events = G_IO_IN;
+  g_source_add_poll (source, &x_source->event_poll_fd);
+
+  g_source_set_priority (source, GDK_PRIORITY_EVENTS - 1);
+  g_source_set_can_recurse (source, TRUE);
+  g_source_attach (source, NULL);
+
+  return source;
+}
+
+static gboolean
+window_has_x11_event_handler (GtkWidget     *window,
+                              XEventHandler  handler)
+{
+  GList *handlers =
+    g_object_get_qdata (G_OBJECT (window), event_handlers_quark);
+
+  g_return_val_if_fail (handler, FALSE);
+  g_return_val_if_fail (!wayland, FALSE);
+
+  return g_list_find (handlers, handler) != NULL;
+}
+
+static void
+window_add_x11_event_handler (GtkWidget     *window,
+                              XEventHandler  handler)
+{
+  GSource *source;
+  GList *handlers =
+    g_object_get_qdata (G_OBJECT (window), event_handlers_quark);
+
+  g_return_if_fail (!window_has_x11_event_handler (window, handler));
+
+  source = ensure_xsource_handler (gtk_widget_get_display (window));
+  g_object_set_qdata_full (G_OBJECT (window), event_source_quark, source,
+                           (GDestroyNotify) g_source_unref);
+
+  handlers = g_list_append (handlers, handler);
+  g_object_set_qdata (G_OBJECT (window), event_handlers_quark, handlers);
+}
+
+static void
+window_remove_x11_event_handler (GtkWidget     *window,
+                                 XEventHandler  handler)
+{
+  GList *handlers =
+    g_object_get_qdata (G_OBJECT (window), event_handlers_quark);
+
+  g_return_if_fail (window_has_x11_event_handler (window, handler));
+
+  g_object_set_qdata (G_OBJECT (window), event_source_quark, NULL);
+
+  handlers = g_list_remove (handlers, handler);
+  g_object_set_qdata (G_OBJECT (window), event_handlers_quark, handlers);
 }
 
 static void
@@ -510,6 +649,8 @@ main(int argc, char **argv)
 
   windows = g_hash_table_new_full (g_str_hash, g_str_equal,
                                    g_free, NULL);
+  event_source_quark = g_quark_from_static_string ("event-source");
+  event_handlers_quark = g_quark_from_static_string ("event-handlers");
 
   GInputStream *raw_in = g_unix_input_stream_new (0, FALSE);
   GDataInputStream *in = g_data_input_stream_new (raw_in);
