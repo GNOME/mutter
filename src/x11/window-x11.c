@@ -50,7 +50,7 @@
 #include "x11/window-props.h"
 #include "x11/xprops.h"
 
-#define TAKE_FOCUS_FALLBACK_DELAY_MS 250
+#define TAKE_FOCUS_FALLBACK_DELAY_MS 150
 
 enum _MetaGtkEdgeConstraints
 {
@@ -781,6 +781,7 @@ request_take_focus (MetaWindow *window,
 typedef struct
 {
   MetaWindow *window;
+  GQueue *pending_focus_candidates;
   guint32 timestamp;
   guint timeout_id;
   gulong unmanaged_id;
@@ -788,13 +789,50 @@ typedef struct
 } MetaWindowX11DelayedFocusData;
 
 static void
+disconnect_pending_focus_window_signals (MetaWindow *window,
+                                         GQueue     *focus_candidates)
+{
+  g_signal_handlers_disconnect_by_func (window, g_queue_remove,
+                                        focus_candidates);
+}
+
+static void
 meta_window_x11_delayed_focus_data_free (MetaWindowX11DelayedFocusData *data)
 {
   g_signal_handler_disconnect (data->window, data->unmanaged_id);
   g_signal_handler_disconnect (data->window->display, data->focused_changed_id);
 
+  if (data->pending_focus_candidates)
+    {
+      g_queue_foreach (data->pending_focus_candidates,
+                       (GFunc) disconnect_pending_focus_window_signals,
+                       data->pending_focus_candidates);
+      g_queue_free (data->pending_focus_candidates);
+    }
+
   g_clear_handle_id (&data->timeout_id, g_source_remove);
   g_free (data);
+}
+
+static void meta_window_x11_maybe_focus_delayed (MetaWindow *window,
+                                                 GQueue     *focus_candidates,
+                                                 guint32     timestamp);
+
+static void
+focus_candidates_maybe_take_and_focus_next (GQueue  **focus_candidates_ptr,
+                                            guint32   timestamp)
+{
+  MetaWindow *focus_window;
+  GQueue *focus_candidates;
+
+  if (!*focus_candidates_ptr || g_queue_is_empty (*focus_candidates_ptr))
+    return;
+
+  focus_candidates = g_steal_pointer (focus_candidates_ptr);
+  focus_window = g_queue_pop_head (focus_candidates);
+
+  disconnect_pending_focus_window_signals (focus_window, focus_candidates);
+  meta_window_x11_maybe_focus_delayed (focus_window, focus_candidates, timestamp);
 }
 
 static gboolean
@@ -803,6 +841,9 @@ focus_window_delayed_timeout (gpointer user_data)
   MetaWindowX11DelayedFocusData *data = user_data;
   MetaWindow *window = data->window;
   guint32 timestamp = data->timestamp;
+
+  focus_candidates_maybe_take_and_focus_next (&data->pending_focus_candidates,
+                                              timestamp);
 
   data->timeout_id = 0;
   meta_window_x11_delayed_focus_data_free (data);
@@ -814,6 +855,7 @@ focus_window_delayed_timeout (gpointer user_data)
 
 static void
 meta_window_x11_maybe_focus_delayed (MetaWindow *window,
+                                     GQueue     *focus_candidates,
                                      guint32     timestamp)
 {
   MetaWindowX11DelayedFocusData *data;
@@ -821,6 +863,10 @@ meta_window_x11_maybe_focus_delayed (MetaWindow *window,
   data = g_new0 (MetaWindowX11DelayedFocusData, 1);
   data->window = window;
   data->timestamp = timestamp;
+  data->pending_focus_candidates = focus_candidates;
+
+  meta_topic (META_DEBUG_FOCUS,
+              "Requesting delayed focus to %s\n", window->desc);
 
   data->unmanaged_id =
     g_signal_connect_swapped (window, "unmanaged",
@@ -834,6 +880,47 @@ meta_window_x11_maybe_focus_delayed (MetaWindow *window,
 
   data->timeout_id = g_timeout_add (TAKE_FOCUS_FALLBACK_DELAY_MS,
                                     focus_window_delayed_timeout, data);
+}
+
+static void
+maybe_focus_default_window (MetaWorkspace *workspace,
+                            MetaWindow    *not_this_one,
+                            guint32        timestamp)
+{
+  MetaStack *stack = workspace->display->stack;
+  g_autoptr (GList) focusable_windows = NULL;
+  g_autoptr (GQueue) focus_candidates = NULL;
+  GList *l;
+
+   /* Go through all the focusable windows and try to focus them
+    * in order, waiting for a delay. The first one that replies to
+    * the request (in case of take focus windows) changing the display
+    * focused window, will stop the chained requests.
+    */
+  focusable_windows =
+    meta_stack_get_default_focus_candidates (stack, workspace);
+  focus_candidates = g_queue_new ();
+
+  for (l = g_list_last (focusable_windows); l; l = l->prev)
+    {
+      MetaWindow *focus_window = l->data;
+
+      if (focus_window == not_this_one)
+        continue;
+
+      g_queue_push_tail (focus_candidates, focus_window);
+      g_signal_connect_swapped (focus_window, "unmanaged",
+                                G_CALLBACK (g_queue_remove),
+                                focus_candidates);
+
+      if (focus_window->input)
+        break;
+
+      if (focus_window->shaded && focus_window->frame)
+        break;
+    }
+
+  focus_candidates_maybe_take_and_focus_next (&focus_candidates, timestamp);
 }
 
 static void
@@ -894,30 +981,9 @@ meta_window_x11_focus (MetaWindow *window,
               if (window->display->focus_window != NULL &&
                   window->display->focus_window->unmanaging)
                 {
-                  MetaWindow *focus_window = window;
-                  MetaWorkspace *workspace = window->workspace;
-                  MetaStack *stack = workspace->display->stack;
-
-                  while (TRUE)
-                    {
-                      focus_window = meta_stack_get_default_focus_window (stack,
-                                                                          workspace,
-                                                                          focus_window);
-                      if (!focus_window)
-                        break;
-
-                      if (meta_window_is_focusable (focus_window))
-                        break;
-
-                      if (focus_window->shaded && focus_window->frame)
-                        break;
-                    }
-
                   meta_display_unset_input_focus (window->display, timestamp);
-
-                  if (focus_window)
-                    meta_window_x11_maybe_focus_delayed (focus_window,
-                                                         timestamp);
+                  maybe_focus_default_window (window->workspace, window,
+                                              timestamp);
                 }
             }
 
