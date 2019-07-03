@@ -204,6 +204,7 @@ guint           _clutter_pixel_to_id            (guchar        pixel[4]);
 void            _clutter_id_to_color            (guint         id,
                                                  ClutterColor *col);
 
+CLUTTER_EXPORT
 void            _clutter_set_sync_to_vblank     (gboolean      sync_to_vblank);
 
 /* use this function as the accumulator if you have a signal with
