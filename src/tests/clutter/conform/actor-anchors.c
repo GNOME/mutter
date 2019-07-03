@@ -4,6 +4,8 @@
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define NOTIFY_ANCHOR_X                  (1 << 0)
 #define NOTIFY_ANCHOR_Y                  (1 << 1)
 #define NOTIFY_ANCHOR_GRAVITY            (1 << 2)

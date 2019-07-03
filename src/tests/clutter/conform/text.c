@@ -2,6 +2,8 @@
 #include <clutter/clutter.h>
 #include <string.h>
 
+#include "tests/clutter-test-utils.h"
+
 typedef struct {
   gunichar   unichar;
   const char bytes[6];
