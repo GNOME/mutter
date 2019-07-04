@@ -545,7 +545,9 @@ void meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_m
     }
 
     meta_display_queue_workarea_recalc (workspace_manager->display);
-    g_signal_emit (workspace_manager, workspace_manager_signals[WORKSPACES_REORDERED], 0, index, new_index);
+    g_signal_emit (workspace_manager,
+                   workspace_manager_signals[WORKSPACES_REORDERED], 0,
+                   index, new_index);
 }
 
 void
