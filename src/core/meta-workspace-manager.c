@@ -150,6 +150,13 @@ meta_workspace_manager_class_init (MetaWorkspaceManagerClass *klass)
                   G_TYPE_INT,
                   META_TYPE_MOTION_DIRECTION);
 
+  /**
+   * Emitted when calling meta_workspace_manager_reorder_workspace.
+   * 
+   * This signal is emitted when a workspace has been reordered to
+   * a different index. Note that other workspaces can change
+   * their index too when reordering happens.
+   */
   workspace_manager_signals[WORKSPACES_REORDERED] =
     g_signal_new ("workspaces-reordered",
                   G_TYPE_FROM_CLASS (klass),
@@ -495,7 +502,7 @@ meta_workspace_manager_update_num_workspaces (MetaWorkspaceManager *workspace_ma
  * If the workspace's index is the same as @new_index or the workspace
  * will not be found in the list, this function will return.
  * 
- * Calling this function will also emit the "workspace-reordered" signal.
+ * Calling this function will also emit the "workspaces-reordered" signal.
  */
 void 
 meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_manager,
