@@ -41,6 +41,7 @@ enum
   WORKSPACE_ADDED,
   WORKSPACE_REMOVED,
   WORKSPACE_SWITCHED,
+  WORKSPACES_REORDERED,
   ACTIVE_WORKSPACE_CHANGED,
   SHOWING_DESKTOP_CHANGED,
   LAST_SIGNAL
@@ -148,6 +149,21 @@ meta_workspace_manager_class_init (MetaWorkspaceManagerClass *klass)
                   G_TYPE_INT,
                   G_TYPE_INT,
                   META_TYPE_MOTION_DIRECTION);
+
+  /**
+   * Emitted when calling meta_workspace_manager_reorder_workspace.
+   * 
+   * This signal is emitted when a workspace has been reordered to
+   * a different index. Note that other workspaces can change
+   * their index too when reordering happens.
+   */
+  workspace_manager_signals[WORKSPACES_REORDERED] =
+    g_signal_new ("workspaces-reordered",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 
   workspace_manager_signals[ACTIVE_WORKSPACE_CHANGED] =
     g_signal_new ("active-workspace-changed",
@@ -473,6 +489,74 @@ meta_workspace_manager_update_num_workspaces (MetaWorkspaceManager *workspace_ma
                    0, i);
 
   g_object_notify (G_OBJECT (workspace_manager), "n-workspaces");
+}
+
+/**
+ * meta_workspace_manager_reorder_workspace:
+ * @workspace_manager: a #MetaWorkspaceManager
+ * @workspace: a #MetaWorkspace to reorder
+ * @new_index: the new index of the passed workspace
+ *
+ * Reorder a workspace to a new index. If the workspace is currently active
+ * the "active-workspace-changed" signal will be emited.
+ * If the workspace's index is the same as @new_index or the workspace
+ * will not be found in the list, this function will return.
+ * 
+ * Calling this function will also emit the "workspaces-reordered" signal.
+ */
+void 
+meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_manager,
+                                          MetaWorkspace        *workspace,
+                                          int                   new_index)
+{
+  GList *l;
+  GList *from, *to;
+  int index;
+  int active_index, new_active_index;
+
+  g_return_if_fail (META_IS_WORKSPACE_MANAGER (workspace_manager));
+  g_return_if_fail (new_index >= 0 &&
+                    new_index < g_list_length (workspace_manager->workspaces));
+
+  l = g_list_find (workspace_manager->workspaces, workspace);
+  g_return_if_fail (l);
+
+  index = meta_workspace_index (workspace);
+
+  if (new_index == index)
+    return;
+
+  active_index = 
+    meta_workspace_manager_get_active_workspace_index (workspace_manager);
+
+  workspace_manager->workspaces =
+    g_list_remove_link (workspace_manager->workspaces, l);
+
+  workspace_manager->workspaces =
+    g_list_insert (workspace_manager->workspaces, l->data, new_index);
+
+  g_list_free (l);
+
+  new_active_index =
+    meta_workspace_manager_get_active_workspace_index (workspace_manager);
+
+  if (active_index != new_active_index)
+    g_signal_emit (workspace_manager,
+                   workspace_manager_signals[ACTIVE_WORKSPACE_CHANGED],
+                   0, NULL);
+
+  from = g_list_nth (workspace_manager->workspaces, MIN (new_index, index));
+  to = g_list_nth (workspace_manager->workspaces, MAX (new_index, index));
+  for (l = from; l != to->next; l = l->next)
+    {
+      MetaWorkspace *w = l->data;
+
+      meta_workspace_index_changed (w);
+    }
+
+  meta_display_queue_workarea_recalc (workspace_manager->display);
+  g_signal_emit (workspace_manager,
+                 workspace_manager_signals[WORKSPACES_REORDERED], 0, NULL);
 }
 
 void

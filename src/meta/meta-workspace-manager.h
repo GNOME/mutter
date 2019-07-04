@@ -58,6 +58,11 @@ MetaWorkspace *meta_workspace_manager_append_new_workspace (MetaWorkspaceManager
                                                             guint32               timestamp);
 
 META_EXPORT
+void meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_manager,
+                                               MetaWorkspace        *workspace,
+                                               int                   new_index);
+
+META_EXPORT
 int meta_workspace_manager_get_active_workspace_index (MetaWorkspaceManager *workspace_manager);
 
 META_EXPORT
