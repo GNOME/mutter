@@ -1580,17 +1580,13 @@ handle_other_xevent (MetaX11Display *x11_display,
 
                   workspace = meta_workspace_manager_get_workspace_by_index (workspace_manager, space);
 
-                  /* Handle clients using the older version of the spec... */
-                  if (time == 0 && workspace)
-                    {
-                      meta_warning ("Received a NET_CURRENT_DESKTOP message "
-                                    "from a broken (outdated) client who sent "
-                                    "a 0 timestamp\n");
-                      time = meta_x11_display_get_current_time_roundtrip (x11_display);
-                    }
+                  if (workspace) {
+                    /* Handle clients using the older version of the spec... */
+                    if (time == 0)
+                        time = meta_x11_display_get_current_time_roundtrip (x11_display);
 
-                  if (workspace)
                     meta_workspace_activate (workspace, time);
+                  }
                   else
                     meta_verbose ("Don't know about workspace %d\n", space);
                 }
