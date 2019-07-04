@@ -41,7 +41,7 @@ enum
   WORKSPACE_ADDED,
   WORKSPACE_REMOVED,
   WORKSPACE_SWITCHED,
-  WORKSPACE_REORDERED,
+  WORKSPACES_REORDERED,
   ACTIVE_WORKSPACE_CHANGED,
   SHOWING_DESKTOP_CHANGED,
   LAST_SIGNAL
@@ -150,9 +150,9 @@ meta_workspace_manager_class_init (MetaWorkspaceManagerClass *klass)
                   G_TYPE_INT,
                   META_TYPE_MOTION_DIRECTION);
 
-  workspace_manager_signals[WORKSPACE_REORDERED] =
-    g_signal_new("workspace-reordered",
-                  G_TYPE_FROM_CLASS(klass),
+  workspace_manager_signals[WORKSPACES_REORDERED] =
+    g_signal_new ("workspaces-reordered",
+                  G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
@@ -545,7 +545,7 @@ void meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_m
     }
 
     meta_display_queue_workarea_recalc (workspace_manager->display);
-    g_signal_emit (workspace_manager, workspace_manager_signals[WORKSPACE_REORDERED], 0, index, new_index);
+    g_signal_emit (workspace_manager, workspace_manager_signals[WORKSPACES_REORDERED], 0, index, new_index);
 }
 
 void
