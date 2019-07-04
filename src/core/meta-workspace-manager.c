@@ -542,6 +542,12 @@ void meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_m
     {
       MetaWorkspace *w = g_list_nth_data (workspace_manager->workspaces, from);
       meta_workspace_index_changed (w);
+  l = g_list_nth (workspace_manager->workspaces, from);
+  for (; l; l = l->next)
+    {
+      MetaWorkspace *w = l->data;
+
+      meta_workspace_index_changed (w);
     }
 
     meta_display_queue_workarea_recalc (workspace_manager->display);
