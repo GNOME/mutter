@@ -969,7 +969,7 @@ stack_ensure_sorted (MetaStack *stack)
   stack_do_resort (stack);
 }
 
-MetaWindow*
+MetaWindow *
 meta_stack_get_top (MetaStack *stack)
 {
   stack_ensure_sorted (stack);
@@ -980,7 +980,7 @@ meta_stack_get_top (MetaStack *stack)
     return NULL;
 }
 
-MetaWindow*
+MetaWindow *
 meta_stack_get_bottom (MetaStack  *stack)
 {
   GList *link;
@@ -994,10 +994,10 @@ meta_stack_get_bottom (MetaStack  *stack)
     return NULL;
 }
 
-MetaWindow*
-meta_stack_get_above (MetaStack      *stack,
-                      MetaWindow     *window,
-                      gboolean        only_within_layer)
+MetaWindow *
+meta_stack_get_above (MetaStack  *stack,
+                      MetaWindow *window,
+                      gboolean    only_within_layer)
 {
   GList *link;
   MetaWindow *above;
@@ -1019,10 +1019,10 @@ meta_stack_get_above (MetaStack      *stack,
     return above;
 }
 
-MetaWindow*
-meta_stack_get_below (MetaStack      *stack,
-                      MetaWindow     *window,
-                      gboolean        only_within_layer)
+MetaWindow *
+meta_stack_get_below (MetaStack  *stack,
+                      MetaWindow *window,
+                      gboolean    only_within_layer)
 {
   GList *link;
   MetaWindow *below;
@@ -1078,7 +1078,7 @@ window_can_get_default_focus (MetaWindow *window)
   return TRUE;
 }
 
-static MetaWindow*
+static MetaWindow *
 get_default_focus_window (MetaStack     *stack,
                           MetaWorkspace *workspace,
                           MetaWindow    *not_this_one,
@@ -1117,7 +1117,7 @@ get_default_focus_window (MetaStack     *stack,
   return NULL;
 }
 
-MetaWindow*
+MetaWindow *
 meta_stack_get_default_focus_window_at_point (MetaStack     *stack,
                                               MetaWorkspace *workspace,
                                               MetaWindow    *not_this_one,
@@ -1128,7 +1128,7 @@ meta_stack_get_default_focus_window_at_point (MetaStack     *stack,
                                    TRUE, root_x, root_y);
 }
 
-MetaWindow*
+MetaWindow *
 meta_stack_get_default_focus_window (MetaStack     *stack,
                                      MetaWorkspace *workspace,
                                      MetaWindow    *not_this_one)
@@ -1137,7 +1137,7 @@ meta_stack_get_default_focus_window (MetaStack     *stack,
                                    FALSE, 0, 0);
 }
 
-GList*
+GList *
 meta_stack_list_windows (MetaStack     *stack,
                          MetaWorkspace *workspace)
 {
@@ -1221,7 +1221,7 @@ compare_just_window_stack_position (void *a,
     return 0; /* not reached */
 }
 
-GList*
+GList *
 meta_stack_get_positions (MetaStack *stack)
 {
   GList *tmp;
