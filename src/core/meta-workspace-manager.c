@@ -520,7 +520,8 @@ meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_manage
   g_return_if_fail (l);
 
   index = meta_workspace_index (workspace);
-  g_return_if_fail (index < g_list_length (workspace_manager->workspaces));
+  g_return_if_fail (new_index >= 0 &&
+                    new_index < g_list_length (workspace_manager->workspaces));
 
   if (new_index == index)
     return;
@@ -545,13 +546,15 @@ meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_manage
   workspace_manager->workspaces =
     g_list_insert (workspace_manager->workspaces, l->data, new_index);
 
+  g_list_free (l);
+
   new_active_index =
     meta_workspace_manager_get_active_workspace_index (workspace_manager);
 
   if (active_index != new_active_index)
     g_signal_emit (workspace_manager,
-                  workspace_manager_signals[ACTIVE_WORKSPACE_CHANGED],
-                  0, NULL);
+                   workspace_manager_signals[ACTIVE_WORKSPACE_CHANGED],
+                   0, NULL);
 
   for (; from <= to; from++)
     {
@@ -561,7 +564,7 @@ meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_manage
 
   meta_display_queue_workarea_recalc (workspace_manager->display);
   g_signal_emit (workspace_manager,
-                workspace_manager_signals[WORKSPACES_REORDERED], 0, NULL);
+                 workspace_manager_signals[WORKSPACES_REORDERED], 0, NULL);
 }
 
 void
