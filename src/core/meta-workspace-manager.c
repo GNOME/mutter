@@ -510,8 +510,8 @@ meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_manage
                                           int                   new_index)
 {
   GList *l;
+  GList *from, *to;
   int index;
-  int from, to;
   int active_index, new_active_index;
 
   g_return_if_fail (META_IS_WORKSPACE_MANAGER (workspace_manager));
@@ -526,16 +526,8 @@ meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_manage
   if (new_index == index)
     return;
 
-  if (new_index < index)
-    {
-      from = new_index;
-      to = index;
-    }
-  else
-    {
-      from = index;
-      to = new_index;
-    }
+  from = g_list_nth (workspace_manager->workspaces, MIN (new_index, index));
+  to = g_list_nth (workspace_manager->workspaces, MAX (new_index, index));
 
   active_index = 
     meta_workspace_manager_get_active_workspace_index (workspace_manager);
@@ -556,9 +548,10 @@ meta_workspace_manager_reorder_workspace (MetaWorkspaceManager *workspace_manage
                    workspace_manager_signals[ACTIVE_WORKSPACE_CHANGED],
                    0, NULL);
 
-  for (; from <= to; from++)
+  for (l = from; l != to->next; l = l->next)
     {
-      MetaWorkspace *w = g_list_nth_data (workspace_manager->workspaces, from);
+      MetaWorkspace *w = l->data;
+
       meta_workspace_index_changed (w);
     }
 
