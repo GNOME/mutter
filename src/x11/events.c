@@ -1580,13 +1580,14 @@ handle_other_xevent (MetaX11Display *x11_display,
 
                   workspace = meta_workspace_manager_get_workspace_by_index (workspace_manager, space);
 
-                  if (workspace) {
-                    /* Handle clients using the older version of the spec... */
-                    if (time == 0)
+                  if (workspace)
+                    {
+                      /* Handle clients using the older version of the spec... */
+                      if (time == 0)
                         time = meta_x11_display_get_current_time_roundtrip (x11_display);
 
-                    meta_workspace_activate (workspace, time);
-                  }
+                      meta_workspace_activate (workspace, time);
+                    }
                   else
                     meta_verbose ("Don't know about workspace %d\n", space);
                 }
