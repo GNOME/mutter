@@ -31,17 +31,10 @@
 
 G_BEGIN_DECLS
 
-#define META_TYPE_WINDOW_WAYLAND            (meta_window_wayland_get_type())
-#define META_WINDOW_WAYLAND(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_WINDOW_WAYLAND, MetaWindowWayland))
-#define META_WINDOW_WAYLAND_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_WINDOW_WAYLAND, MetaWindowWaylandClass))
-#define META_IS_WINDOW_WAYLAND(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_WINDOW_WAYLAND))
-#define META_IS_WINDOW_WAYLAND_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_WINDOW_WAYLAND))
-#define META_WINDOW_WAYLAND_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_WINDOW_WAYLAND, MetaWindowWaylandClass))
-
-GType meta_window_wayland_get_type (void);
-
-typedef struct _MetaWindowWayland      MetaWindowWayland;
-typedef struct _MetaWindowWaylandClass MetaWindowWaylandClass;
+#define META_TYPE_WINDOW_WAYLAND (meta_window_wayland_get_type())
+G_DECLARE_FINAL_TYPE (MetaWindowWayland, meta_window_wayland,
+                      META, WINDOW_WAYLAND,
+                      MetaWindow)
 
 MetaWindow * meta_window_wayland_new       (MetaDisplay        *display,
                                             MetaWaylandSurface *surface);
