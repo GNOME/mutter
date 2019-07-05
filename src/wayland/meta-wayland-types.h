@@ -51,10 +51,11 @@ typedef struct _MetaWaylandBuffer MetaWaylandBuffer;
 typedef struct _MetaWaylandRegion MetaWaylandRegion;
 
 typedef struct _MetaWaylandSurface MetaWaylandSurface;
+typedef struct _MetaWaylandSurfaceState MetaWaylandSurfaceState;
 
 typedef struct _MetaWaylandOutput MetaWaylandOutput;
 
-typedef struct _MetaWaylandSerial MetaWaylandSerial;
+typedef struct _MetaWaylandWindowConfiguration MetaWaylandWindowConfiguration;
 
 typedef struct _MetaWaylandPointerClient MetaWaylandPointerClient;
 
