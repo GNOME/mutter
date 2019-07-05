@@ -426,6 +426,7 @@ meta_wayland_surface_state_set_default (MetaWaylandSurfaceState *state)
   wl_list_init (&state->frame_callback_list);
 
   state->has_new_geometry = FALSE;
+  state->has_acked_configure_serial = FALSE;
   state->has_new_min_size = FALSE;
   state->has_new_max_size = FALSE;
 
@@ -509,6 +510,12 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
     {
       to->new_geometry = from->new_geometry;
       to->has_new_geometry = TRUE;
+    }
+
+  if (from->has_acked_configure_serial)
+    {
+      to->acked_configure_serial = from->acked_configure_serial;
+      to->has_acked_configure_serial = TRUE;
     }
 
   if (from->has_new_min_size)
@@ -1501,22 +1508,15 @@ meta_wayland_shell_init (MetaWaylandCompositor *compositor)
 }
 
 void
-meta_wayland_surface_configure_notify (MetaWaylandSurface *surface,
-                                       int                 new_x,
-                                       int                 new_y,
-                                       int                 new_width,
-                                       int                 new_height,
-                                       MetaWaylandSerial  *sent_serial)
+meta_wayland_surface_configure_notify (MetaWaylandSurface             *surface,
+                                       MetaWaylandWindowConfiguration *configuration)
 {
   MetaWaylandShellSurface *shell_surface =
     META_WAYLAND_SHELL_SURFACE (surface->role);
 
   g_signal_emit (surface, surface_signals[SURFACE_CONFIGURE], 0);
 
-  meta_wayland_shell_surface_configure (shell_surface,
-                                        new_x, new_y,
-                                        new_width, new_height,
-                                        sent_serial);
+  meta_wayland_shell_surface_configure (shell_surface, configuration);
 }
 
 void

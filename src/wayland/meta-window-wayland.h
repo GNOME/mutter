@@ -39,11 +39,10 @@ G_DECLARE_FINAL_TYPE (MetaWindowWayland, meta_window_wayland,
 MetaWindow * meta_window_wayland_new       (MetaDisplay        *display,
                                             MetaWaylandSurface *surface);
 
-void meta_window_wayland_finish_move_resize (MetaWindow        *window,
-                                             MetaWaylandSerial *acked_configure_serial,
-                                             MetaRectangle      new_geom,
-                                             int                dx,
-                                             int                dy);
+void meta_window_wayland_finish_move_resize (MetaWindow              *window,
+                                             MetaRectangle            new_geom,
+                                             MetaWaylandSurfaceState *pending);
+
 int meta_window_wayland_get_geometry_scale (MetaWindow *window);
 
 void meta_window_wayland_place_relative_to (MetaWindow *window,
@@ -70,7 +69,5 @@ void meta_window_wayland_get_min_size (MetaWindow *window,
 void meta_window_wayland_get_max_size (MetaWindow *window,
                                        int        *width,
                                        int        *height);
-
-gboolean meta_window_wayland_has_pending_move_resize (MetaWindow *window);
 
 #endif

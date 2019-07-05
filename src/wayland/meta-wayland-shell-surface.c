@@ -100,22 +100,13 @@ meta_wayland_shell_surface_set_window (MetaWaylandShellSurface *shell_surface,
 }
 
 void
-meta_wayland_shell_surface_configure (MetaWaylandShellSurface *shell_surface,
-                                      int                      new_x,
-                                      int                      new_y,
-                                      int                      new_width,
-                                      int                      new_height,
-                                      MetaWaylandSerial       *sent_serial)
+meta_wayland_shell_surface_configure (MetaWaylandShellSurface        *shell_surface,
+                                      MetaWaylandWindowConfiguration *configuration)
 {
   MetaWaylandShellSurfaceClass *shell_surface_class =
     META_WAYLAND_SHELL_SURFACE_GET_CLASS (shell_surface);
 
-  shell_surface_class->configure (shell_surface,
-                                  new_x,
-                                  new_y,
-                                  new_width,
-                                  new_height,
-                                  sent_serial);
+  shell_surface_class->configure (shell_surface, configuration);
 }
 
 void

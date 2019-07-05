@@ -32,6 +32,7 @@
 #include "wayland/meta-wayland-shell-surface.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-wayland-versions.h"
+#include "wayland/meta-wayland-window-configuration.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-window-wayland.h"
 
@@ -65,6 +66,8 @@ struct _MetaWaylandWlShellSurface
 
   int x;
   int y;
+
+  uint32_t emulated_ack_configure_serial;
 };
 
 static void
@@ -613,9 +616,11 @@ wl_shell_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
       meta_wayland_shell_surface_calculate_geometry (shell_surface, &geom);
     }
 
-  meta_window_wayland_finish_move_resize (window,
-                                          NULL,
-                                          geom, pending->dx, pending->dy);
+  pending->has_acked_configure_serial = TRUE;
+  pending->acked_configure_serial =
+    wl_shell_surface->emulated_ack_configure_serial;
+
+  meta_window_wayland_finish_move_resize (window, geom, pending);
 }
 
 static MetaWaylandSurface *
@@ -632,12 +637,8 @@ wl_shell_surface_role_get_toplevel (MetaWaylandSurfaceRole *surface_role)
 }
 
 static void
-wl_shell_surface_role_configure (MetaWaylandShellSurface *shell_surface,
-                                 int                      new_x,
-                                 int                      new_y,
-                                 int                      new_width,
-                                 int                      new_height,
-                                 MetaWaylandSerial       *sent_serial)
+wl_shell_surface_role_configure (MetaWaylandShellSurface        *shell_surface,
+                                 MetaWaylandWindowConfiguration *configuration)
 {
   MetaWaylandWlShellSurface *wl_shell_surface =
     META_WAYLAND_WL_SHELL_SURFACE (shell_surface);
@@ -647,7 +648,9 @@ wl_shell_surface_role_configure (MetaWaylandShellSurface *shell_surface,
 
   wl_shell_surface_send_configure (wl_shell_surface->resource,
                                    0,
-                                   new_width, new_height);
+                                   configuration->width, configuration->height);
+
+  wl_shell_surface->emulated_ack_configure_serial = configuration->serial;
 }
 
 static void

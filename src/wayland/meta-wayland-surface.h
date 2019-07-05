@@ -64,11 +64,6 @@ struct _MetaWaylandSurfaceRoleClass
   gboolean (*should_cache_state) (MetaWaylandSurfaceRole *surface_role);
 };
 
-struct _MetaWaylandSerial {
-  gboolean set;
-  uint32_t value;
-};
-
 struct _MetaWaylandSurfaceState
 {
   GObject parent;
@@ -97,6 +92,9 @@ struct _MetaWaylandSurfaceState
 
   MetaRectangle new_geometry;
   gboolean has_new_geometry;
+
+  gboolean has_acked_configure_serial;
+  uint32_t acked_configure_serial;
 
   /* pending min/max size in window geometry coordinates */
   gboolean has_new_min_size;
@@ -254,12 +252,8 @@ void                meta_wayland_surface_unref_buffer_use_count (MetaWaylandSurf
 void                meta_wayland_surface_set_window (MetaWaylandSurface *surface,
                                                      MetaWindow         *window);
 
-void                meta_wayland_surface_configure_notify (MetaWaylandSurface *surface,
-                                                           int                 new_x,
-                                                           int                 new_y,
-                                                           int                 width,
-                                                           int                 height,
-                                                           MetaWaylandSerial  *sent_serial);
+void                meta_wayland_surface_configure_notify (MetaWaylandSurface             *surface,
+                                                           MetaWaylandWindowConfiguration *configuration);
 
 void                meta_wayland_surface_ping (MetaWaylandSurface *surface,
                                                guint32             serial);
