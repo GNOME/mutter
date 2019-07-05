@@ -1584,14 +1584,14 @@ handle_other_xevent (MetaX11Display *x11_display,
                     {
                       /* Handle clients using the older version of the spec... */
                       if (time == 0)
-                        {
-                          time = meta_x11_display_get_current_time_roundtrip (x11_display);
-                        }
+                        time = meta_x11_display_get_current_time_roundtrip (x11_display);
 
                       meta_workspace_activate (workspace, time);
                     }
                   else
-                    meta_verbose ("Don't know about workspace %d\n", space);
+                    {
+                      meta_verbose ("Don't know about workspace %d\n", space);
+                    }
                 }
               else if (event->xclient.message_type ==
                        x11_display->atom__NET_NUMBER_OF_DESKTOPS)
