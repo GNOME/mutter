@@ -573,6 +573,7 @@ wl_shell_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWindow *window = surface->window;
+  cairo_region_t *input_region;
   MetaRectangle geom = { 0 };
 
   surface_role_class =
@@ -601,7 +602,17 @@ wl_shell_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
   if (!pending->newly_attached)
     return;
 
-  meta_wayland_shell_surface_calculate_geometry (shell_surface, &geom);
+  input_region = meta_wayland_surface_calculate_input_region (surface);
+  if (!cairo_region_is_empty (input_region))
+    {
+      cairo_region_get_extents (input_region, &geom);
+      cairo_region_destroy (input_region);
+    }
+  else
+    {
+      meta_wayland_shell_surface_calculate_geometry (shell_surface, &geom);
+    }
+
   meta_window_wayland_finish_move_resize (window,
                                           NULL,
                                           geom, pending->dx, pending->dy);
