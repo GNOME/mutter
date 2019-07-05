@@ -169,6 +169,9 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
   } cpu;
 
   int pending_flips;
+
+  gboolean noted_primary_gpu_copy_ok;
+  gboolean noted_primary_gpu_copy_failed;
 } MetaOnscreenNativeSecondaryGpuState;
 
 typedef struct _MetaOnscreenNative
@@ -2097,9 +2100,22 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen *onscreen)
           if (!copy_shared_framebuffer_primary_gpu (onscreen,
                                                     secondary_gpu_state))
             {
+              if (!secondary_gpu_state->noted_primary_gpu_copy_failed)
+                {
+                  g_debug ("Using primary GPU to copy for %s failed once.",
+                           meta_gpu_kms_get_file_path (secondary_gpu_state->gpu_kms));
+                  secondary_gpu_state->noted_primary_gpu_copy_failed = TRUE;
+                }
+
               copy_shared_framebuffer_cpu (onscreen,
                                            secondary_gpu_state,
                                            renderer_gpu_data);
+            }
+          else if (!secondary_gpu_state->noted_primary_gpu_copy_ok)
+            {
+              g_debug ("Using primary GPU to copy for %s succeeded once.",
+                       meta_gpu_kms_get_file_path (secondary_gpu_state->gpu_kms));
+              secondary_gpu_state->noted_primary_gpu_copy_ok = TRUE;
             }
           break;
         }
