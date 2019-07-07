@@ -39,6 +39,13 @@
 #define PANGO_ENABLE_BACKEND 1
 #endif
 
+#ifndef PANGO_UNKNOWN_GLYPH_WIDTH
+#define PANGO_UNKNOWN_GLYPH_WIDTH 10
+#endif
+#ifndef PANGO_UNKNOWN_GLYPH_HEIGHT
+#define PANGO_UNKNOWN_GLYPH_HEIGHT 14
+#endif
+
 #include <pango/pango-fontmap.h>
 #include <pango/pangocairo.h>
 #include <pango/pango-renderer.h>
