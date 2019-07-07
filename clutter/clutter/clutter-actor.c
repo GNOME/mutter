@@ -10107,6 +10107,9 @@ clutter_actor_allocate (ClutterActor           *self,
       return;
     }
 
+  if (!clutter_actor_is_visible (self))
+    return;
+
   priv = self->priv;
 
   old_allocation = priv->allocation;
