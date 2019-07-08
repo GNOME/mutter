@@ -94,6 +94,6 @@ clutter_deps = [
 
 subdir('clutter')
 
-if have_clutter_tests
-  subdir('tests')
-endif
+#if have_clutter_tests
+#  subdir('tests')
+#endif
