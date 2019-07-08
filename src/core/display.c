@@ -2621,8 +2621,10 @@ meta_display_accelerator_activate (MetaDisplay     *display,
                                    guint            action,
                                    ClutterKeyEvent *event)
 {
-  g_signal_emit (display, display_signals[ACCELERATOR_ACTIVATED],
-                 0, action, event->device, event->time);
+  g_signal_emit (display, display_signals[ACCELERATOR_ACTIVATED], 0,
+                 action,
+                 clutter_event_get_source_device ((ClutterEvent *) event),
+                 event->time);
 }
 
 gboolean
