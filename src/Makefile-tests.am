@@ -15,10 +15,10 @@ dist_stacking_DATA =						\
 	$(srcdir)/tests/stacking/basic-x11.metatest 	\
 	$(srcdir)/tests/stacking/basic-wayland.metatest	\
 	$(srcdir)/tests/stacking/closed-transient.metatest	\
-	$(srcdir)/closed-transient-no-input-no-take-focus-parent.metatest	\
-	$(srcdir)/closed-transient-no-input-no-take-focus-parents.metatest	\
-	$(srcdir)/closed-transient-no-input-parent.metatest	\
-	$(srcdir)/stacking/closed-transient-no-input-parent-delayed-focus-default-cancelled.metatest	\
+	$(srcdir)/tests/stacking/closed-transient-no-input-no-take-focus-parent.metatest	\
+	$(srcdir)/tests/stacking/closed-transient-no-input-no-take-focus-parents.metatest	\
+	$(srcdir)/tests/stacking/closed-transient-no-input-parent.metatest	\
+	$(srcdir)/tests/stacking/closed-transient-no-input-parent-delayed-focus-default-cancelled.metatest	\
 	$(srcdir)/tests/stacking/minimized.metatest 	\
 	$(srcdir)/tests/stacking/mixed-windows.metatest     \
 	$(srcdir)/tests/stacking/set-parent.metatest	\
