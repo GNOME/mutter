@@ -257,7 +257,7 @@ meta_display_class_init (MetaDisplayClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 3, G_TYPE_UINT, G_TYPE_UINT, G_TYPE_UINT);
+                  G_TYPE_NONE, 3, G_TYPE_UINT, CLUTTER_TYPE_INPUT_DEVICE, G_TYPE_UINT);
 
   /**
    * MetaDisplay::modifiers-accelerator-activated:
@@ -2622,9 +2622,7 @@ meta_display_accelerator_activate (MetaDisplay     *display,
                                    ClutterKeyEvent *event)
 {
   g_signal_emit (display, display_signals[ACCELERATOR_ACTIVATED],
-                 0, action,
-                 clutter_input_device_get_device_id (event->device),
-                 event->time);
+                 0, action, event->device, event->time);
 }
 
 gboolean
