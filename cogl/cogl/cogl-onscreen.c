@@ -93,10 +93,12 @@ _cogl_onscreen_init_from_template (CoglOnscreen *onscreen,
 CoglOnscreen *
 _cogl_onscreen_new (void)
 {
-  CoglOnscreen *onscreen = g_new0 (CoglOnscreen, 1);
+  g_autofree CoglOnscreen *onscreen_ptr = g_new0 (CoglOnscreen, 1);
+  CoglOnscreen *onscreen;
 
   _COGL_GET_CONTEXT (ctx, NULL);
 
+  onscreen = g_steal_pointer (&onscreen_ptr);
   _cogl_framebuffer_init (COGL_FRAMEBUFFER (onscreen),
                           ctx,
                           COGL_FRAMEBUFFER_TYPE_ONSCREEN,
