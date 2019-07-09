@@ -307,6 +307,8 @@ meta_finalize (void)
   if (meta_is_wayland_compositor ())
     meta_wayland_finalize ();
 #endif
+
+  g_object_unref (meta_get_backend ());
 }
 
 static gboolean
