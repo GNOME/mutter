@@ -171,8 +171,8 @@ meta_wayland_shell_surface_surface_commit (MetaWaylandSurfaceRole  *surface_role
   scale = meta_wayland_actor_surface_calculate_scale (actor_surface);
   texture = meta_wayland_surface_get_texture (surface);
 
-  window->buffer_rect.width = cogl_texture_get_width (texture) * scale;
-  window->buffer_rect.height = cogl_texture_get_height (texture) * scale;
+  window->buffer_rect.width = meta_wayland_surface_get_width (surface);
+  window->buffer_rect.height = meta_wayland_surface_get_height (surface);
 }
 
 static void
