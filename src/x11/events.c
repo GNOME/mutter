@@ -1729,8 +1729,12 @@ process_selection_event (MetaX11Display *x11_display,
 
   handled |= meta_x11_selection_handle_event (x11_display, event);
 
-  for (l = x11_display->selection.input_streams; l && !handled; l = l->next)
-    handled |= meta_x11_selection_input_stream_xevent (l->data, event);
+  for (l = x11_display->selection.input_streams; l && !handled;)
+    {
+      GList *next = l->next;
+      handled |= meta_x11_selection_input_stream_xevent (l->data, event);
+      l = next;
+    }
 
   for (l = x11_display->selection.output_streams; l && !handled; l = l->next)
     handled |= meta_x11_selection_output_stream_xevent (l->data, event);
