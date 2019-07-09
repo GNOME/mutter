@@ -150,6 +150,7 @@ async_waiter_destroy (AsyncWaiter *waiter)
   XSyncDestroyAlarm (xdisplay, waiter->alarm);
   XSyncDestroyCounter (xdisplay, waiter->counter);
   g_main_loop_unref (waiter->loop);
+  g_free (waiter);
 }
 
 static int
