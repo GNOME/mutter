@@ -709,8 +709,6 @@ _cogl_winsys_egl_context_created (CoglDisplay *display,
         }
     }
 
-  xlib_renderer->xvisinfo = xvisinfo;
-
   if (!_cogl_winsys_egl_make_current (display,
                                       egl_display->dummy_surface,
                                       egl_display->dummy_surface,
@@ -720,8 +718,12 @@ _cogl_winsys_egl_context_created (CoglDisplay *display,
         error_message = "Unable to eglMakeCurrent with no surface";
       else
         error_message = "Unable to eglMakeCurrent with dummy surface";
+
+      XFree (xvisinfo);
       goto fail;
     }
+
+  xlib_renderer->xvisinfo = xvisinfo;
 
   return TRUE;
 
@@ -753,6 +755,9 @@ _cogl_winsys_egl_cleanup_context (CoglDisplay *display)
       XDestroyWindow (xlib_renderer->xdpy, xlib_display->dummy_xwin);
       xlib_display->dummy_xwin = None;
     }
+
+  if (egl_display->current_context == egl_display->egl_context)
+    g_clear_pointer (&xlib_renderer->xvisinfo, XFree);
 }
 
 #ifdef EGL_KHR_image_pixmap
