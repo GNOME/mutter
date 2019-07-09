@@ -153,8 +153,7 @@ meta_wayland_shell_surface_surface_commit (MetaWaylandSurfaceRole  *surface_role
   MetaWaylandSurfaceRoleClass *surface_role_class;
   MetaWindow *window;
   MetaWaylandBuffer *buffer;
-  CoglTexture *texture;
-  double scale;
+  double geometry_scale;
 
   surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_shell_surface_parent_class);
@@ -168,11 +167,12 @@ meta_wayland_shell_surface_surface_commit (MetaWaylandSurfaceRole  *surface_role
   if (!window)
     return;
 
-  scale = meta_wayland_actor_surface_calculate_scale (actor_surface);
-  texture = meta_wayland_surface_get_texture (surface);
+  geometry_scale = meta_wayland_actor_surface_get_geometry_scale (actor_surface);
 
-  window->buffer_rect.width = cogl_texture_get_width (texture) * scale;
-  window->buffer_rect.height = cogl_texture_get_height (texture) * scale;
+  window->buffer_rect.width =
+    meta_wayland_surface_get_width (surface) * geometry_scale;
+  window->buffer_rect.height =
+    meta_wayland_surface_get_height (surface) * geometry_scale;
 }
 
 static void
