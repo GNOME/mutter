@@ -164,6 +164,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
 
   /* Wayland surface coordinate space -> stage coordinate space */
   geometry_scale = meta_wayland_actor_surface_get_geometry_scale (actor_surface);
+  clutter_actor_set_scale (CLUTTER_ACTOR (surface_actor), geometry_scale, geometry_scale);
 
   surface_rect = (cairo_rectangle_int_t) {
     .width = meta_wayland_surface_get_width (surface) * geometry_scale,
