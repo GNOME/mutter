@@ -331,3 +331,17 @@ clutter_device_manager_x11_a11y_init (ClutterDeviceManager *device_manager)
 
   return TRUE;
 }
+
+void
+clutter_device_manager_x11_a11y_stop (ClutterDeviceManager *device_manager)
+{
+  ClutterBackendX11 *backend_x11;
+
+  backend_x11 =
+    CLUTTER_BACKEND_X11 (_clutter_device_manager_get_backend (device_manager));
+
+  if (!is_xkb_available (backend_x11))
+    return;
+
+  clutter_x11_remove_filter (xkb_a11y_event_filter, device_manager);
+}
