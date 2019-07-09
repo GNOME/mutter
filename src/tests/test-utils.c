@@ -378,7 +378,7 @@ test_client_new (const char          *id,
                  MetaWindowClientType type,
                  GError             **error)
 {
-  TestClient *client = g_new0 (TestClient, 1);
+  TestClient *client;
   GSubprocessLauncher *launcher;
   GSubprocess *subprocess;
   MetaWaylandCompositor *compositor;
@@ -413,6 +413,7 @@ test_client_new (const char          *id,
   if (!subprocess)
     return NULL;
 
+  client = g_new0 (TestClient, 1);
   client->type = type;
   client->id = g_strdup (id);
   client->cancellable = g_cancellable_new ();
