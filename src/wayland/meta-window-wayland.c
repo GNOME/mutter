@@ -730,7 +730,7 @@ meta_window_wayland_move_resize (MetaWindow        *window,
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
   int geometry_scale;
   int gravity;
-  MetaRectangle rect;
+  MetaRectangle rect = {0};
   MetaMoveResizeFlags flags;
   gboolean pending_ack_configure;
 
