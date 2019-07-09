@@ -36,4 +36,7 @@ clutter_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *devi
 gboolean
 clutter_device_manager_x11_a11y_init               (ClutterDeviceManager *device_manager);
 
+void
+clutter_device_manager_x11_a11y_stop               (ClutterDeviceManager *device_manager);
+
 #endif /* CLUTTER_XKB_A11Y_X11_H */
