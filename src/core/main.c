@@ -297,6 +297,7 @@ meta_select_display (char *display_arg)
 static void
 meta_finalize (void)
 {
+  MetaBackend *backend = meta_get_backend ();
   MetaDisplay *display = meta_get_display ();
 
   if (display)
@@ -307,6 +308,9 @@ meta_finalize (void)
   if (meta_is_wayland_compositor ())
     meta_wayland_finalize ();
 #endif
+
+  if (backend)
+    meta_backend_destroy (backend);
 }
 
 static gboolean
