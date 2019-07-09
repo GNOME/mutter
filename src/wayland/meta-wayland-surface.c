@@ -1584,8 +1584,6 @@ meta_wayland_surface_get_relative_coordinates (MetaWaylandSurface *surface,
         CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface));
 
       clutter_actor_transform_stage_point (actor, abs_x, abs_y, sx, sy);
-      *sx /= surface->scale;
-      *sy /= surface->scale;
     }
 }
 
