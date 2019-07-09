@@ -191,6 +191,7 @@ meta_backend_dispose (GObject *object)
   g_list_free_full (priv->gpus, g_object_unref);
   priv->gpus = NULL;
 
+  g_clear_object (&priv->renderer);
   g_clear_object (&priv->monitor_manager);
   g_clear_object (&priv->orientation_manager);
   g_clear_object (&priv->input_settings);
@@ -222,6 +223,8 @@ meta_backend_dispose (GObject *object)
   g_clear_pointer (&priv->device_monitors, g_hash_table_unref);
 
   g_clear_object (&priv->settings);
+
+  g_clear_object (&priv->clutter_backend);
 
 #ifdef HAVE_PROFILER
   g_clear_object (&priv->profiler);
