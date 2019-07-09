@@ -110,6 +110,8 @@ clutter_backend_dispose (GObject *gobject)
   g_clear_pointer (&backend->event_translators, g_list_free);
 
   g_clear_pointer (&backend->dummy_onscreen, cogl_object_unref);
+  g_clear_pointer (&backend->cogl_context, cogl_object_unref);
+  g_clear_pointer (&backend->cogl_display, cogl_object_unref);
 
   clutter_backend_set_font_options (backend, NULL);
 
