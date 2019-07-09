@@ -89,7 +89,7 @@ create_offscreen (CoglContext *cogl_context,
                   int          width,
                   int          height)
 {
-  CoglTexture2D *texture_2d;
+  g_autoptr (CoglTexture2D) texture_2d = NULL;
   CoglOffscreen *offscreen;
   GError *error = NULL;
 
@@ -111,9 +111,9 @@ meta_renderer_x11_nested_resize_legacy_view (MetaRendererX11Nested *renderer_x11
   MetaBackend *backend = meta_get_backend ();
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  g_autoptr (CoglOffscreen) fake_onscreen = NULL;
   MetaRendererView *legacy_view;
   cairo_rectangle_int_t view_layout;
-  CoglOffscreen *fake_onscreen;
 
   legacy_view = get_legacy_view (renderer);
 
@@ -145,8 +145,8 @@ meta_renderer_x11_nested_ensure_legacy_view (MetaRendererX11Nested *renderer_x11
   MetaBackend *backend = meta_get_backend ();
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  g_autoptr (CoglOffscreen) fake_onscreen = NULL;
   cairo_rectangle_int_t view_layout;
-  CoglOffscreen *fake_onscreen;
   MetaRendererView *legacy_view;
 
   if (get_legacy_view (renderer))
@@ -179,11 +179,11 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
     meta_backend_get_monitor_manager (backend);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
+  g_autoptr (CoglOffscreen) fake_onscreen = NULL;
+  g_autoptr (CoglOffscreen) offscreen = NULL;
   MetaMonitorTransform view_transform;
   float view_scale;
   int width, height;
-  CoglOffscreen *fake_onscreen;
-  CoglOffscreen *offscreen;
 
   view_transform = calculate_view_transform (monitor_manager, logical_monitor);
 
@@ -209,8 +209,6 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
 
   if (view_transform != META_MONITOR_TRANSFORM_NORMAL)
     offscreen = create_offscreen (cogl_context, width, height);
-  else
-    offscreen = NULL;
 
   return g_object_new (META_TYPE_RENDERER_VIEW,
                        "layout", &logical_monitor->rect,
