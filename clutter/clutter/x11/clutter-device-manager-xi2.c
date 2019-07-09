@@ -2165,10 +2165,24 @@ clutter_device_manager_xi2_constructed (GObject *gobject)
 
   XSync (backend_x11->xdpy, False);
 
-  clutter_device_manager_x11_a11y_init (manager);
+  manager_xi2->have_a11y = clutter_device_manager_x11_a11y_init (manager);
 
   if (G_OBJECT_CLASS (clutter_device_manager_xi2_parent_class)->constructed)
     G_OBJECT_CLASS (clutter_device_manager_xi2_parent_class)->constructed (gobject);
+}
+
+static void
+clutter_device_manager_xi2_dispose (GObject *object)
+{
+  ClutterDeviceManager *manager = CLUTTER_DEVICE_MANAGER (object);
+
+  if (manager_xi2->have_a11y)
+    {
+      clutter_device_manager_x11_a11y_stop (manager);
+      manager_xi2->have_a11y = FALSE;
+    }
+
+  G_OBJECT_CLASS (clutter_device_manager_xi2_parent_class)->dispose (object);
 }
 
 static void
@@ -2225,6 +2239,7 @@ clutter_device_manager_xi2_class_init (ClutterDeviceManagerXI2Class *klass)
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->constructed = clutter_device_manager_xi2_constructed;
   gobject_class->set_property = clutter_device_manager_xi2_set_property;
+  gobject_class->dispose = clutter_device_manager_xi2_dispose;
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
   

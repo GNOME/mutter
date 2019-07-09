@@ -54,6 +54,8 @@ struct _ClutterDeviceManagerXI2
   GList *master_devices;
   GList *slave_devices;
 
+  gboolean have_a11y;
+
   int opcode;
 
 #ifdef HAVE_LIBWACOM
