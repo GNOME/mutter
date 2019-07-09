@@ -41,7 +41,7 @@ static MetaGroup*
 meta_group_new (MetaX11Display *x11_display,
                 Window          group_leader)
 {
-  MetaGroup *group;
+  g_autofree MetaGroup *group = NULL;
 #define N_INITIAL_PROPS 3
   Atom initial_props[N_INITIAL_PROPS];
   int i;
@@ -91,7 +91,7 @@ meta_group_new (MetaX11Display *x11_display,
               "Created new group with leader 0x%lx\n",
               group->group_leader);
 
-  return group;
+  return g_steal_pointer (&group);
 }
 
 static void
