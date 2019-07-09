@@ -78,6 +78,7 @@ cogl_deprecated_nonintrospected_headers = [
 
 cogl_headers = [
   'cogl1-context.h',
+  'cogl-autocleanups.h',
   'cogl-bitmap.h',
   'cogl-color.h',
   'cogl-framebuffer.h',
