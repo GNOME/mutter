@@ -135,7 +135,34 @@ typedef struct
 {
   ClutterActor *actor;
   MetaPlugin *plugin;
+  gulong destroy_id;
 } EffectCompleteData;
+
+static void
+effect_complete_data_free (EffectCompleteData *data)
+{
+  g_signal_handler_disconnect (data->actor, data->destroy_id);
+
+  g_free (data);
+}
+
+static EffectCompleteData *
+effect_complete_data_new (ClutterActor *actor,
+                          MetaPlugin   *plugin)
+{
+  EffectCompleteData *data = g_new (EffectCompleteData, 1);
+
+  g_assert (CLUTTER_IS_ACTOR (actor));
+
+  data->actor = actor;
+  data->plugin = plugin;
+
+  data->destroy_id =
+    g_signal_connect_swapped (actor, "destroy",
+                              G_CALLBACK (effect_complete_data_free), data);
+
+  return data;
+}
 
 
 typedef struct _DisplayTilePreview
@@ -512,10 +539,10 @@ on_minimize_effect_complete (ClutterTimeline *timeline, EffectCompleteData *data
    * at the start of the effect */
   clutter_actor_set_scale (data->actor, 1.0, 1.0);
 
+  effect_complete_data_free (data);
+
   /* Now notify the manager that we are done with this effect */
   meta_plugin_minimize_completed (plugin, window_actor);
-
-  g_free (data);
 }
 
 /*
@@ -541,7 +568,7 @@ minimize (MetaPlugin *plugin, MetaWindowActor *window_actor)
 
   if (type == META_WINDOW_NORMAL)
     {
-      EffectCompleteData *data = g_new0 (EffectCompleteData, 1);
+      EffectCompleteData *data = effect_complete_data_new (actor, plugin);
       ActorPrivate *apriv = get_actor_private (window_actor);
 
       apriv->tml_minimize = actor_animate (actor,
@@ -552,8 +579,6 @@ minimize (MetaPlugin *plugin, MetaWindowActor *window_actor)
                                            "x", (double)icon_geometry.x,
                                            "y", (double)icon_geometry.y,
                                            NULL);
-      data->plugin = plugin;
-      data->actor = actor;
       g_signal_connect (apriv->tml_minimize, "completed",
                         G_CALLBACK (on_minimize_effect_complete),
                         data);
@@ -575,10 +600,10 @@ on_map_effect_complete (ClutterTimeline *timeline, EffectCompleteData *data)
 
   apriv->tml_map = NULL;
 
+  effect_complete_data_free (data);
+
   /* Now notify the manager that we are done with this effect */
   meta_plugin_map_completed (plugin, window_actor);
-
-  g_free (data);
 }
 
 /*
@@ -596,7 +621,7 @@ map (MetaPlugin *plugin, MetaWindowActor *window_actor)
 
   if (type == META_WINDOW_NORMAL)
     {
-      EffectCompleteData *data = g_new0 (EffectCompleteData, 1);
+      EffectCompleteData *data = effect_complete_data_new (actor, plugin);
       ActorPrivate *apriv = get_actor_private (window_actor);
 
       clutter_actor_set_pivot_point (actor, 0.5, 0.5);
@@ -611,8 +636,6 @@ map (MetaPlugin *plugin, MetaWindowActor *window_actor)
                                       "scale-x", 1.0,
                                       "scale-y", 1.0,
                                       NULL);
-      data->actor = actor;
-      data->plugin = plugin;
       g_signal_connect (apriv->tml_map, "completed",
                         G_CALLBACK (on_map_effect_complete),
                         data);
@@ -634,6 +657,8 @@ on_destroy_effect_complete (ClutterTimeline *timeline, EffectCompleteData *data)
 
   apriv->tml_destroy = NULL;
 
+  effect_complete_data_free (data);
+
   meta_plugin_destroy_completed (plugin, window_actor);
 }
 
@@ -651,7 +676,7 @@ destroy (MetaPlugin *plugin, MetaWindowActor *window_actor)
 
   if (type == META_WINDOW_NORMAL)
     {
-      EffectCompleteData *data = g_new0 (EffectCompleteData, 1);
+      EffectCompleteData *data = effect_complete_data_new (actor, plugin);
       ActorPrivate *apriv = get_actor_private (window_actor);
 
       apriv->tml_destroy = actor_animate (actor,
@@ -661,8 +686,6 @@ destroy (MetaPlugin *plugin, MetaWindowActor *window_actor)
                                           "scale-x", 0.8,
                                           "scale-y", 0.8,
                                           NULL);
-      data->plugin = plugin;
-      data->actor = actor;
       g_signal_connect (apriv->tml_destroy, "completed",
                         G_CALLBACK (on_destroy_effect_complete),
                         data);
