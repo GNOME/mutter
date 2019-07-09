@@ -96,7 +96,7 @@ enum
 
 static guint signals[N_SIGNALS];
 
-static MetaBackend *_backend;
+static MetaBackend *_backend = NULL;
 
 static gboolean stage_views_disabled = FALSE;
 
@@ -914,7 +914,10 @@ initable_iface_init (GInitableIface *initable_iface)
 static void
 meta_backend_init (MetaBackend *backend)
 {
+  g_assert (!_backend);
+
   _backend = backend;
+  g_object_add_weak_pointer (G_OBJECT (backend), (gpointer) &_backend);
 }
 
 static void
