@@ -171,7 +171,7 @@ xdnd_send_enter (MetaXWaylandDnd *dnd,
       /* We have more than 3 mimetypes, we must set up
        * the mimetype list as a XdndTypeList property.
        */
-      Atom *atomlist;
+      g_autofree Atom *atomlist = NULL;
       gint i = 0;
 
       xev.xclient.data.l[1] |= 1;
