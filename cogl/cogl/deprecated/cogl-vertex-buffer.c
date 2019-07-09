@@ -615,11 +615,10 @@ set_attribute_enable (CoglHandle handle,
 		      gboolean state)
 {
   CoglVertexBuffer *buffer;
-  char *cogl_attribute_name = canonize_attribute_name (attribute_name);
+  g_autofree char *cogl_attribute_name =
+    canonize_attribute_name (attribute_name);
   GQuark name_quark = g_quark_from_string (cogl_attribute_name);
   GList *tmp;
-
-  g_free (cogl_attribute_name);
 
   if (!cogl_is_vertex_buffer (handle))
     return;
