@@ -435,6 +435,9 @@ _cogl_context_free (CoglContext *context)
 
   _cogl_free_framebuffer_stack (context->framebuffer_stack);
 
+  while (context->source_stack)
+    cogl_pop_source ();
+
   if (context->current_path)
     cogl_handle_unref (context->current_path);
 
