@@ -74,7 +74,7 @@ PangoFontMap *
 cogl_pango_font_map_new (void)
 {
   PangoFontMap *fm = pango_cairo_font_map_new ();
-  CoglPangoFontMapPriv *priv = g_new0 (CoglPangoFontMapPriv, 1);
+  g_autofree CoglPangoFontMapPriv *priv = g_new0 (CoglPangoFontMapPriv, 1);
 
   _COGL_GET_CONTEXT (context, NULL);
 
@@ -85,7 +85,7 @@ cogl_pango_font_map_new (void)
    * for now. */
   g_object_set_qdata_full (G_OBJECT (fm),
                            cogl_pango_font_map_get_priv_key (),
-                           priv,
+                           g_steal_pointer (&priv),
                            free_priv);
 
   return fm;
