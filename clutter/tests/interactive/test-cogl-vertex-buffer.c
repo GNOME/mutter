@@ -385,6 +385,7 @@ test_cogl_vertex_buffer_main (int argc, char *argv[])
 
   cogl_handle_unref (state.buffer);
   cogl_handle_unref (state.indices);
+  g_free (state.static_indices);
 
   return 0;
 }
