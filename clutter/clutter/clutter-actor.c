@@ -14814,7 +14814,7 @@ clutter_actor_parse_custom_node (ClutterScriptable *scriptable,
       if (margin)
         {
           g_value_init (value, CLUTTER_TYPE_MARGIN);
-          g_value_set_boxed (value, margin);
+          g_value_take_boxed (value, margin);
           retval = TRUE;
         }
     }
