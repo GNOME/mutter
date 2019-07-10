@@ -189,6 +189,8 @@ meta_backend_finalize (GObject *object)
 
   g_list_free_full (priv->gpus, g_object_unref);
 
+  g_clear_object (&priv->cursor_tracker);
+  g_clear_object (&priv->dnd);
   g_clear_object (&priv->renderer);
   g_clear_object (&priv->monitor_manager);
   g_clear_object (&priv->orientation_manager);
@@ -220,6 +222,10 @@ meta_backend_finalize (GObject *object)
 
 #ifdef HAVE_PROFILER
   g_clear_object (&priv->profiler);
+#endif
+
+#ifdef HAVE_EGL
+  g_clear_object (&priv->egl);
 #endif
 
   G_OBJECT_CLASS (meta_backend_parent_class)->finalize (object);
