@@ -10,7 +10,7 @@ group_depth_sorting (void)
   GList *children;
 
   group = clutter_group_new ();
-  g = CLUTTER_GROUP (group);
+  g = CLUTTER_GROUP (g_object_ref_sink (group));
 
   child = clutter_rectangle_new ();
   clutter_actor_set_size (child, 20, 20);
@@ -53,6 +53,7 @@ group_depth_sorting (void)
   g_assert_cmpstr (clutter_actor_get_name (test), ==, "plus-ten");
 
   clutter_actor_destroy (group);
+  g_object_unref (group);
 }
 
 CLUTTER_TEST_SUITE (
