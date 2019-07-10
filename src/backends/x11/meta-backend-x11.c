@@ -767,6 +767,8 @@ meta_backend_x11_finalize (GObject *object)
       priv->user_active_alarm = None;
     }
 
+  g_clear_pointer (&priv->keymap, xkb_keymap_unref);
+
   G_OBJECT_CLASS (meta_backend_x11_parent_class)->finalize (object);
 }
 
