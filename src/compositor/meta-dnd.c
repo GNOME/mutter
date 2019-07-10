@@ -118,7 +118,7 @@ meta_dnd_init_xdnd (MetaX11Display *x11_display)
   Window xwindow, overlay_xwindow;
   long xdnd_version = 5;
 
-  overlay_xwindow = meta_get_overlay_window (x11_display->display);
+  overlay_xwindow = x11_display->composite_overlay_window;
   xwindow = meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend));
 
   XChangeProperty (xdisplay, xwindow,
