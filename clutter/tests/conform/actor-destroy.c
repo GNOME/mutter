@@ -120,6 +120,9 @@ test_destroy_destroy (ClutterActor *self)
     CLUTTER_ACTOR_CLASS (test_destroy_parent_class)->destroy (self);
 
   g_assert_null (test->children);
+
+  CLUTTER_ACTOR_GET_CLASS (self)->destroy =
+    CLUTTER_ACTOR_CLASS (test_destroy_parent_class)->destroy;
 }
 
 static void
@@ -166,12 +169,13 @@ static void
 actor_destruction (void)
 {
   ClutterActor *test = g_object_new (TEST_TYPE_DESTROY, NULL);
+  gpointer test_ptr = test;
   ClutterActor *child = clutter_rectangle_new ();
   gboolean destroy_called = FALSE;
 
   g_object_ref_sink (test);
 
-  g_object_add_weak_pointer (G_OBJECT (test), (gpointer *) &test);
+  g_object_add_weak_pointer (G_OBJECT (test), &test_ptr);
   g_object_add_weak_pointer (G_OBJECT (child), (gpointer *) &child);
 
   if (g_test_verbose ())
@@ -187,7 +191,9 @@ actor_destruction (void)
   clutter_actor_destroy (test);
   g_assert (destroy_called);
   g_assert_null (child);
-  g_assert_null (test);
+  g_assert_null (test_ptr);
+
+  g_object_unref (test);
 }
 
 CLUTTER_TEST_SUITE (

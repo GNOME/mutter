@@ -4,10 +4,11 @@ static void
 actor_add_child (void)
 {
   ClutterActor *actor = clutter_actor_new ();
+  gpointer actor_ptr = actor;
   ClutterActor *iter;
 
   g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  g_object_add_weak_pointer (G_OBJECT (actor), &actor_ptr);
 
   clutter_actor_add_child (actor, g_object_new (CLUTTER_TYPE_ACTOR,
                                                 "name", "foo",
@@ -44,17 +45,19 @@ actor_add_child (void)
   g_assert (clutter_actor_get_previous_sibling (iter) == NULL);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_object_unref (actor);
+  g_assert_null (actor_ptr);
 }
 
 static void
 actor_insert_child (void)
 {
   ClutterActor *actor = clutter_actor_new ();
+  gpointer actor_ptr = actor;
   ClutterActor *iter;
 
   g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  g_object_add_weak_pointer (G_OBJECT (actor), &actor_ptr);
 
   clutter_actor_insert_child_at_index (actor,
                                        g_object_new (CLUTTER_TYPE_ACTOR,
@@ -131,17 +134,19 @@ actor_insert_child (void)
   g_assert (clutter_actor_get_last_child (actor) == iter);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_object_unref (actor);
+  g_assert_null (actor_ptr);
 }
 
 static void
 actor_remove_child (void)
 {
   ClutterActor *actor = clutter_actor_new ();
+  gpointer actor_ptr = actor;
   ClutterActor *iter;
 
   g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  g_object_add_weak_pointer (G_OBJECT (actor), &actor_ptr);
 
   clutter_actor_add_child (actor, g_object_new (CLUTTER_TYPE_ACTOR,
                                                 "name", "foo",
@@ -175,18 +180,20 @@ actor_remove_child (void)
   g_assert (clutter_actor_get_last_child (actor) == NULL);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_object_unref (actor);
+  g_assert_null (actor_ptr);
 }
 
 static void
 actor_raise_child (void)
 {
   ClutterActor *actor = clutter_actor_new ();
+  gpointer actor_ptr = actor;
   ClutterActor *iter;
   gboolean show_on_set_parent;
 
   g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  g_object_add_weak_pointer (G_OBJECT (actor), &actor_ptr);
 
   clutter_actor_add_child (actor, g_object_new (CLUTTER_TYPE_ACTOR,
                                                 "name", "foo",
@@ -240,7 +247,8 @@ actor_raise_child (void)
   g_assert (!show_on_set_parent);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_object_unref (actor);
+  g_assert_null (actor_ptr);
   g_assert (iter == NULL);
 }
 
@@ -248,11 +256,12 @@ static void
 actor_lower_child (void)
 {
   ClutterActor *actor = clutter_actor_new ();
+  gpointer actor_ptr = actor;
   ClutterActor *iter;
   gboolean show_on_set_parent;
 
   g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  g_object_add_weak_pointer (G_OBJECT (actor), &actor_ptr);
 
   clutter_actor_add_child (actor, g_object_new (CLUTTER_TYPE_ACTOR,
                                                 "name", "foo",
@@ -305,17 +314,19 @@ actor_lower_child (void)
   g_assert (!show_on_set_parent);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_object_unref (actor);
+  g_assert_null (actor_ptr);
 }
 
 static void
 actor_replace_child (void)
 {
   ClutterActor *actor = clutter_actor_new ();
+  gpointer actor_ptr = actor;
   ClutterActor *iter;
 
   g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  g_object_add_weak_pointer (G_OBJECT (actor), &actor_ptr);
 
   clutter_actor_add_child (actor, g_object_new (CLUTTER_TYPE_ACTOR,
                                                 "name", "foo",
@@ -366,16 +377,18 @@ actor_replace_child (void)
   g_assert_cmpstr (clutter_actor_get_name (iter), ==, "baz");
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_object_unref (actor);
+  g_assert_null (actor_ptr);
 }
 
 static void
 actor_remove_all (void)
 {
   ClutterActor *actor = clutter_actor_new ();
+  gpointer actor_ptr = actor;
 
   g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  g_object_add_weak_pointer (G_OBJECT (actor), &actor_ptr);
 
   clutter_actor_add_child (actor, g_object_new (CLUTTER_TYPE_ACTOR,
                                                 "name", "foo",
@@ -394,7 +407,8 @@ actor_remove_all (void)
   g_assert_cmpint (clutter_actor_get_n_children (actor), ==, 0);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_object_unref (actor);
+  g_assert_null (actor_ptr);
 }
 
 static void
@@ -433,10 +447,11 @@ static void
 actor_container_signals (void)
 {
   ClutterActor *actor = clutter_actor_new ();
+  gpointer actor_ptr = actor;
   int add_count, remove_count;
 
   g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  g_object_add_weak_pointer (G_OBJECT (actor), &actor_ptr);
 
   add_count = remove_count = 0;
   g_signal_connect (actor,
@@ -468,7 +483,8 @@ actor_container_signals (void)
                                         &remove_count);
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_object_unref (actor);
+  g_assert_null (actor_ptr);
 }
 
 static void
