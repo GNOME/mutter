@@ -208,6 +208,13 @@ cogl_framebuffer_cancel_fence_callback (CoglFramebuffer *framebuffer,
 #endif
     }
 
+  if (context->fences_poll_source && _cogl_list_empty (&context->fences))
+    {
+      _cogl_poll_renderer_remove_source (context->display->renderer,
+                                         context->fences_poll_source);
+      context->fences_poll_source = NULL;
+    }
+
   g_slice_free (CoglFenceClosure, fence);
 }
 

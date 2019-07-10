@@ -529,6 +529,10 @@ _cogl_context_free (CoglContext *context)
 
   g_byte_array_free (context->buffer_map_fallback_array, TRUE);
 
+  if (context->fences_poll_source)
+    _cogl_poll_renderer_remove_source (context->display->renderer,
+                                       context->fences_poll_source);
+
   cogl_object_unref (context->display);
 
   g_free (context);
