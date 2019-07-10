@@ -1343,9 +1343,6 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   meta_x11_startup_notification_init (x11_display);
   meta_x11_selection_init (x11_display);
 
-  if (!meta_is_wayland_compositor ())
-    meta_dnd_init_xdnd (x11_display);
-
   return x11_display;
 }
 

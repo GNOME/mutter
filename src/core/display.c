@@ -793,11 +793,15 @@ meta_display_open (void)
   g_signal_connect (display->gesture_tracker, "state-changed",
                     G_CALLBACK (gesture_tracker_state_changed), display);
 
-  /* We know that if mutter is running as a Wayland compositor,
-   * we start out with no windows.
-   */
   if (!meta_is_wayland_compositor ())
-    meta_display_manage_all_windows (display);
+    {
+      meta_dnd_init_xdnd (display->x11_display);
+
+      /* We know that if mutter is running as a Wayland compositor,
+       * we start out with no windows.
+       */
+      meta_display_manage_all_windows (display);
+    }
 
   if (old_active_xwindow != None)
     {
