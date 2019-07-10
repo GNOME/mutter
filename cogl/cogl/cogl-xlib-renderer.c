@@ -552,6 +552,12 @@ _cogl_xlib_renderer_disconnect (CoglRenderer *renderer)
   g_list_free_full (renderer->outputs, (GDestroyNotify)cogl_object_unref);
   renderer->outputs = NULL;
 
+  if (renderer->xlib_enable_event_retrieval && xlib_renderer->xdpy)
+    {
+      _cogl_poll_renderer_remove_fd (renderer,
+                                     ConnectionNumber (xlib_renderer->xdpy));
+    }
+
   if (!renderer->foreign_xdpy && xlib_renderer->xdpy)
     XCloseDisplay (xlib_renderer->xdpy);
 
