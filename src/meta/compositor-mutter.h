@@ -36,9 +36,6 @@ META_EXPORT
 ClutterActor *meta_get_stage_for_display            (MetaDisplay *display);
 
 META_EXPORT
-Window        meta_get_overlay_window               (MetaDisplay *display);
-
-META_EXPORT
 GList        *meta_get_window_actors                (MetaDisplay *display);
 
 META_EXPORT
