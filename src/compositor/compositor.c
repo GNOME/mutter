@@ -1328,18 +1328,6 @@ meta_compositor_new (MetaDisplay *display)
 }
 
 /**
- * meta_get_overlay_window: (skip)
- * @display: a #MetaDisplay
- *
- */
-Window
-meta_get_overlay_window (MetaDisplay *display)
-{
-  MetaCompositor *compositor = get_compositor_for_display (display);
-  return compositor->output;
-}
-
-/**
  * meta_disable_unredirect_for_display:
  * @display: a #MetaDisplay
  *
