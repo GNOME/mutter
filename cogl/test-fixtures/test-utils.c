@@ -162,6 +162,7 @@ test_utils_init (TestFlags requirement_flags,
                                                           FB_WIDTH, FB_HEIGHT);
       offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (tex));
       test_fb = COGL_FRAMEBUFFER (offscreen);
+      cogl_object_unref (tex);
     }
 
   if (!cogl_framebuffer_allocate (test_fb, &error))
