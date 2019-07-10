@@ -102,6 +102,26 @@ meta_workspace_manager_set_property (GObject      *object,
 }
 
 static void
+meta_workspace_manager_dispose (GObject *object)
+{
+  MetaWorkspaceManager *workspace_manager = META_WORKSPACE_MANAGER (object);
+  GList *l;
+
+  workspace_manager->active_workspace = NULL;
+
+  for (l = workspace_manager->workspaces; l;)
+    {
+      GList *next = l->next;
+      MetaWorkspace *workspace = l->data;
+
+      meta_workspace_remove (workspace);
+      l = next;
+    }
+
+  G_OBJECT_CLASS (meta_workspace_manager_parent_class)->dispose (object);
+}
+
+static void
 meta_workspace_manager_finalize (GObject *object)
 {
   MetaWorkspaceManager *workspace_manager = META_WORKSPACE_MANAGER (object);
@@ -119,6 +139,7 @@ meta_workspace_manager_class_init (MetaWorkspaceManagerClass *klass)
   object_class->get_property = meta_workspace_manager_get_property;
   object_class->set_property = meta_workspace_manager_set_property;
 
+  object_class->dispose = meta_workspace_manager_dispose;
   object_class->finalize = meta_workspace_manager_finalize;
 
   workspace_manager_signals[WORKSPACE_ADDED] =
