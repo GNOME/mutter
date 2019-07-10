@@ -124,6 +124,7 @@ meta_surface_actor_dispose (GObject *object)
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
 
+  g_clear_pointer (&priv->pending_damage, cairo_region_destroy);
   g_clear_pointer (&priv->input_region, cairo_region_destroy);
 
   G_OBJECT_CLASS (meta_surface_actor_parent_class)->dispose (object);
