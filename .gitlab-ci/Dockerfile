@@ -29,6 +29,9 @@ RUN dnf -y update && dnf -y upgrade && \
 
     dnf install -y intltool redhat-rpm-config make && \
 
+    # For building with Address sanitizer support
+    dnf install -y libasan libasan-static llvm && \
+
     # GNOME Shell
     dnf builddep -y gnome-shell --setopt=install_weak_deps=False && \
     dnf remove -y gnome-bluetooth-libs-devel dbus-glib-devel upower-devel python3-devel && \
