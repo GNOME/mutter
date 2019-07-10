@@ -514,6 +514,13 @@ _cogl_context_free (CoglContext *context)
 
   _cogl_destroy_texture_units ();
 
+  if (context->codegen_header_buffer)
+    g_string_free (context->codegen_header_buffer, TRUE);
+  if (context->codegen_source_buffer)
+    g_string_free (context->codegen_source_buffer, TRUE);
+  if (context->codegen_boilerplate_buffer)
+    g_string_free (context->codegen_boilerplate_buffer, TRUE);
+
   g_ptr_array_free (context->uniform_names, TRUE);
   g_hash_table_destroy (context->uniform_name_hash);
 
