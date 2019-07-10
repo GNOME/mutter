@@ -7,12 +7,13 @@ static void
 actor_meta_clear (void)
 {
   ClutterActor *actor, *stage;
+  gpointer actor_ptr;
 
   stage = clutter_test_get_stage ();
 
   actor = clutter_actor_new ();
   g_object_ref_sink (actor);
-  g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
+  g_object_add_weak_pointer (G_OBJECT (actor), &actor_ptr);
 
   clutter_actor_add_action (actor, clutter_click_action_new ());
   clutter_actor_add_constraint (actor, clutter_bind_constraint_new (stage, CLUTTER_BIND_ALL, 0));
@@ -32,7 +33,8 @@ actor_meta_clear (void)
   g_assert (!clutter_actor_has_effects (actor));
 
   clutter_actor_destroy (actor);
-  g_assert (actor == NULL);
+  g_object_unref (actor);
+  g_assert_null (actor_ptr);
 }
 
 CLUTTER_TEST_SUITE (
