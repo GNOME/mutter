@@ -661,10 +661,12 @@ static void
 ensure_legacy_view (ClutterStageWindow *stage_window)
 {
   ClutterStageX11 *stage_x11 = CLUTTER_STAGE_X11 (stage_window);
+  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_x11);
   cairo_rectangle_int_t view_layout;
   CoglFramebuffer *framebuffer;
 
-  if (stage_x11->legacy_view)
+  if (stage_x11->legacy_view ||
+      !clutter_actor_is_realized (CLUTTER_ACTOR (stage_cogl->wrapper)))
     return;
 
   _clutter_stage_window_get_geometry (stage_window, &view_layout);
