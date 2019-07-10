@@ -153,7 +153,7 @@ verify_results (Data *data,
 static void
 verify_redraw (Data *data, int expected_paint_count)
 {
-  GMainLoop *main_loop = g_main_loop_new (NULL, TRUE);
+  g_autoptr (GMainLoop) main_loop = g_main_loop_new (NULL, TRUE);
   guint paint_handler;
 
   paint_handler = g_signal_connect_data (data->stage,
@@ -342,6 +342,8 @@ actor_offscreen_redirect (void)
 
   while (!data.was_painted)
     g_main_context_iteration (NULL, FALSE);
+
+  clutter_actor_destroy (data.parent_container);
 }
 
 CLUTTER_TEST_SUITE (
