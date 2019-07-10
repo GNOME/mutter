@@ -447,6 +447,8 @@ UNIT_TEST (check_gl_blend_enable,
   /* After setting a blend string that effectively disables blending
    * then blending should be disabled */
   g_assert_cmpint (test_ctx->gl_blend_enable_cache, ==, 0);
+
+  cogl_object_unref (pipeline);
 }
 
 static void
