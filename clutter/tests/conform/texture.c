@@ -5,7 +5,7 @@
 static CoglHandle
 make_texture (void)
 {
-  guint32 *data = g_malloc (100 * 100 * 4);
+  g_autofree guint32 *data = g_malloc (100 * 100 * 4);
   int x;
   int y;
 
@@ -31,9 +31,10 @@ texture_pick_with_alpha (void)
 {
   ClutterTexture *tex = CLUTTER_TEXTURE (clutter_texture_new ());
   ClutterStage *stage = CLUTTER_STAGE (clutter_test_get_stage ());
+  g_autoptr (CoglHandle) cogl_texture = make_texture ();
   ClutterActor *actor;
 
-  clutter_texture_set_cogl_texture (tex, make_texture ());
+  clutter_texture_set_cogl_texture (tex, cogl_texture);
 
   clutter_actor_add_child (CLUTTER_ACTOR (stage), CLUTTER_ACTOR (tex));
 
