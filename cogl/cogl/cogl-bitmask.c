@@ -486,4 +486,7 @@ UNIT_TEST (check_bitmask_api,
 
   for (i = 0; i < 1024; i++)
     g_assert_cmpint (_cogl_bitmask_get (&bitmask, i), ==, (i < 500));
+
+  _cogl_bitmask_destroy (&other_bitmask);
+  _cogl_bitmask_destroy (&bitmask);
 }
