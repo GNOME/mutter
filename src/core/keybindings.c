@@ -1384,11 +1384,18 @@ void
 meta_display_shutdown_keys (MetaDisplay *display)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
+  int i;
 
   meta_prefs_remove_listener (prefs_changed_callback, display);
 
   g_hash_table_destroy (keys->key_bindings_index);
   g_hash_table_destroy (keys->key_bindings);
+
+  for (i = 0; i < keys->n_iso_next_group_combos; ++i)
+    resolved_key_combo_reset (&keys->iso_next_group_combo[i]);
+
+  resolved_key_combo_reset (&keys->overlay_resolved_key_combo);
+  resolved_key_combo_reset (&keys->locate_pointer_resolved_key_combo);
 
   clear_active_keyboard_layouts (keys);
 }
