@@ -440,17 +440,17 @@ static void
 meta_settings_init (MetaSettings *settings)
 {
   settings->interface_settings = g_settings_new ("org.gnome.desktop.interface");
-  g_signal_connect (settings->interface_settings, "changed",
-                    G_CALLBACK (interface_settings_changed),
-                    settings);
+  g_signal_connect_object (settings->interface_settings, "changed",
+                           G_CALLBACK (interface_settings_changed),
+                           settings, 0);
   settings->mutter_settings = g_settings_new ("org.gnome.mutter");
-  g_signal_connect (settings->mutter_settings, "changed",
-                    G_CALLBACK (mutter_settings_changed),
-                    settings);
+  g_signal_connect_object (settings->mutter_settings, "changed",
+                           G_CALLBACK (mutter_settings_changed),
+                           settings, 0);
   settings->wayland_settings = g_settings_new ("org.gnome.mutter.wayland");
-  g_signal_connect (settings->wayland_settings, "changed",
-                    G_CALLBACK (wayland_settings_changed),
-                    settings);
+  g_signal_connect_object (settings->wayland_settings, "changed",
+                           G_CALLBACK (wayland_settings_changed),
+                           settings, 0);
 
   /* Chain up inter-dependent settings. */
   g_signal_connect (settings, "global-scaling-factor-changed",
