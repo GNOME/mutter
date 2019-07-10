@@ -2250,7 +2250,7 @@ _clutter_script_construct_object (ClutterScript *script,
           g_value_unset (&param->value);
         }
 
-      g_array_free (param_values, FALSE);
+      g_array_free (param_values, TRUE);
       g_array_free (params, TRUE);
    }
 
