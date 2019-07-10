@@ -42,6 +42,7 @@
 
 #include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-dnd-private.h"
 #include "backends/meta-idle-monitor-dbus.h"
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-logical-monitor.h"
@@ -793,11 +794,15 @@ meta_display_open (void)
   g_signal_connect (display->gesture_tracker, "state-changed",
                     G_CALLBACK (gesture_tracker_state_changed), display);
 
-  /* We know that if mutter is running as a Wayland compositor,
-   * we start out with no windows.
-   */
   if (!meta_is_wayland_compositor ())
-    meta_display_manage_all_windows (display);
+    {
+      meta_dnd_init_xdnd (display->x11_display);
+
+      /* We know that if mutter is running as a Wayland compositor,
+       * we start out with no windows.
+       */
+      meta_display_manage_all_windows (display);
+    }
 
   if (old_active_xwindow != None)
     {
