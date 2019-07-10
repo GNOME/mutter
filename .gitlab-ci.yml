@@ -42,6 +42,22 @@ build-without-native-backend:
     - merge_requests
     - /^.*$/
 
+build-with-address-sanitizer:
+  stage: build
+  before_script:
+    - dnf install -y libasan libasan-static
+  script:
+    - meson . build -Db_sanitize=address -Dintrospection=false -Dbuildtype=debugoptimized -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
+    - ninja -C build
+    - ninja -C build install
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build
+  only:
+    - merge_requests
+    - /^.*$/
+
 test-mutter:
   stage: test
   dependencies:
@@ -60,6 +76,34 @@ test-mutter:
     - >
       dbus-run-session -- xvfb-run -s '+iglx -noreset'
       meson test -C build --no-rebuild -t 10 --verbose --no-stdsplit --print-errorlogs --wrap catchsegv
+  only:
+    - merge_requests
+    - /^.*$/
+
+test-with-address-sanitizer:
+  stage: test
+  dependencies:
+    - build-with-address-sanitizer
+  variables:
+    XDG_RUNTIME_DIR: "$CI_PROJECT_DIR/runtime-dir"
+    GSETTINGS_SCHEMA_DIR: "$CI_PROJECT_DIR/build/data"
+    G_SLICE: "always-malloc"
+    NO_AT_BRIDGE: "1"
+    ASAN_OPTIONS: "abort_on_error=true"
+    LSAN_OPTIONS: "suppressions=$CI_PROJECT_DIR/data/LSAN-leaks-suppress.txt"
+  before_script:
+    - dnf install -y libasan
+  script:
+    - dconf update
+    - mkdir -m 700 $XDG_RUNTIME_DIR
+    - glib-compile-schemas $GSETTINGS_SCHEMA_DIR
+    - >
+      dbus-run-session -- xvfb-run -s '+iglx -noreset'
+      meson test -C build --suite=clutter --no-rebuild -t 10 --verbose --no-stdsplit --print-errorlogs
+    - >
+      env LSAN_OPTIONS=$LSAN_OPTIONS:exitcode=0
+      dbus-run-session -- xvfb-run -s '+iglx -noreset'
+      meson test -C build --no-suite=clutter --no-rebuild -t 10 --verbose --no-stdsplit --print-errorlogs
   only:
     - merge_requests
     - /^.*$/
