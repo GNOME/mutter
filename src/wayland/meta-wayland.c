@@ -471,6 +471,8 @@ meta_wayland_finalize (void)
 
   compositor = meta_wayland_compositor_get_default ();
 
+  meta_wayland_seat_free (compositor->seat);
+
   meta_xwayland_stop (&compositor->xwayland_manager);
   g_clear_pointer (&compositor->display_name, g_free);
 }
