@@ -47,6 +47,9 @@ COGL_GTYPE_DEFINE_CLASS (OnscreenTemplate, onscreen_template);
 static void
 _cogl_onscreen_template_free (CoglOnscreenTemplate *onscreen_template)
 {
+  if (onscreen_template->config.swap_chain)
+    cogl_object_unref (onscreen_template->config.swap_chain);
+
   g_slice_free (CoglOnscreenTemplate, onscreen_template);
 }
 
