@@ -6,6 +6,8 @@ rectangle_set_size (void)
 {
   ClutterActor *rect = clutter_rectangle_new ();
 
+  g_object_ref_sink (rect);
+
   /* initial positioning */
   g_assert_cmpint (clutter_actor_get_x (rect), ==, 0);
   g_assert_cmpint (clutter_actor_get_y (rect), ==, 0);
@@ -22,12 +24,16 @@ rectangle_set_size (void)
   g_assert_cmpint (clutter_actor_get_height (rect), ==, 100);
 
   clutter_actor_destroy (rect);
+  g_object_unref (rect);
 }
 
 static void
 rectangle_set_color (void)
 {
   ClutterActor *rect = clutter_rectangle_new ();
+
+  g_object_ref_sink (rect);
+
   ClutterColor white = { 255, 255, 255, 255 };
   ClutterColor black = {   0,   0,   0, 255 };
   ClutterColor check = { 0, };
@@ -43,6 +49,7 @@ rectangle_set_color (void)
   g_assert_cmpint (clutter_actor_get_opacity (rect), ==, white.alpha);
 
   clutter_actor_destroy (rect);
+  g_object_unref (rect);
 }
 
 CLUTTER_TEST_SUITE (
