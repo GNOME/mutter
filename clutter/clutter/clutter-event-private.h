@@ -17,6 +17,8 @@ gboolean        _clutter_event_process_filters          (ClutterEvent       *eve
 void            _clutter_clear_events_queue             (void);
 void            _clutter_clear_events_queue_for_stage   (ClutterStage       *stage);
 
+void            _clutter_clear_allocated_events         (void);
+
 void            _clutter_event_set_platform_data        (ClutterEvent       *event,
                                                          gpointer            data);
 gpointer        _clutter_event_get_platform_data        (const ClutterEvent *event);
