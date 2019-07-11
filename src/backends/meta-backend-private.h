@@ -188,4 +188,6 @@ void meta_backend_add_gpu (MetaBackend *backend,
 META_EXPORT_TEST
 GList * meta_backend_get_gpus (MetaBackend *backend);
 
+void meta_backend_destroy (MetaBackend *backend);
+
 #endif /* META_BACKEND_PRIVATE_H */
