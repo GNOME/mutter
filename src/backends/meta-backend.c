@@ -173,6 +173,13 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaBackend, meta_backend, G_TYPE_OBJECT,
                                   G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                          initable_iface_init));
 
+void
+meta_backend_destroy (MetaBackend *backend)
+{
+  g_object_run_dispose (G_OBJECT (backend));
+  g_object_unref (backend);
+}
+
 static void
 meta_backend_finalize (GObject *object)
 {

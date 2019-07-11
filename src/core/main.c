@@ -308,7 +308,7 @@ meta_finalize (void)
     meta_wayland_finalize ();
 #endif
 
-  g_object_unref (meta_get_backend ());
+  meta_backend_destroy (meta_get_backend ());
 }
 
 static gboolean
