@@ -1476,9 +1476,16 @@ clutter_event_free (ClutterEvent *event)
           break;
         }
 
-      g_hash_table_remove (all_events, event);
+      if (G_LIKELY (all_events))
+        g_hash_table_remove (all_events, event);
       g_slice_free (ClutterEventPrivate, (ClutterEventPrivate *) event);
     }
+}
+
+void
+_clutter_clear_allocated_events (void)
+{
+  g_clear_pointer (&all_events, g_hash_table_destroy);
 }
 
 /**
