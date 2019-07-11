@@ -112,6 +112,8 @@ clutter_device_manager_set_property (GObject      *gobject,
     {
     case PROP_BACKEND:
       priv->backend = g_value_get_object (value);
+      g_object_add_weak_pointer (G_OBJECT (priv->backend),
+                                 (gpointer *) &priv->backend);
       break;
 
     default:
@@ -139,6 +141,18 @@ clutter_device_manager_get_property (GObject    *gobject,
 }
 
 static void
+clutter_device_manager_finalize (GObject *object)
+{
+  ClutterDeviceManager *manager = CLUTTER_DEVICE_MANAGER (object);
+
+  if (manager->priv->backend)
+    g_object_remove_weak_pointer (G_OBJECT (manager->priv->backend),
+                                  (gpointer *) &manager->priv->backend);
+
+  G_OBJECT_CLASS (clutter_device_manager_parent_class)->finalize (object);
+}
+
+static void
 clutter_device_manager_class_init (ClutterDeviceManagerClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
@@ -149,6 +163,8 @@ clutter_device_manager_class_init (ClutterDeviceManagerClass *klass)
                          P_("The ClutterBackend of the device manager"),
                          CLUTTER_TYPE_BACKEND,
                          CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+
+  gobject_class->finalize = clutter_device_manager_finalize;
 
   gobject_class->set_property = clutter_device_manager_set_property;
   gobject_class->get_property = clutter_device_manager_get_property;
