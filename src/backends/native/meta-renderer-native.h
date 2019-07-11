@@ -53,20 +53,6 @@ struct gbm_device * meta_gbm_device_from_gpu (MetaGpuKms *gpu_kms);
 
 gboolean meta_renderer_native_supports_mirroring (MetaRendererNative *renderer_native);
 
-void meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native);
-
-gboolean meta_renderer_native_set_legacy_view_size (MetaRendererNative *renderer_native,
-                                                    MetaRendererView   *view,
-                                                    int                 width,
-                                                    int                 height,
-                                                    GError            **error);
-
-void meta_renderer_native_set_ignore_crtc (MetaRendererNative *renderer_native,
-                                           uint32_t            id,
-                                           gboolean            ignore);
-
-MetaRendererView * meta_renderer_native_create_legacy_view (MetaRendererNative *renderer_native);
-
 void meta_renderer_native_finish_frame (MetaRendererNative *renderer_native);
 
 int64_t meta_renderer_native_get_frame_counter (MetaRendererNative *renderer_native);
