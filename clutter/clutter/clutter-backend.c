@@ -835,10 +835,9 @@ _clutter_backend_get_units_per_em (ClutterBackend       *backend,
   return backend->units_per_em;
 }
 
-void
-_clutter_backend_copy_event_data (ClutterBackend     *backend,
-                                  const ClutterEvent *src,
-                                  ClutterEvent       *dest)
+gpointer
+_clutter_backend_copy_event_data (ClutterBackend *backend,
+                                  gpointer        data)
 {
   ClutterEventExtenderInterface *iface;
   ClutterBackendClass *klass;
@@ -847,16 +846,18 @@ _clutter_backend_copy_event_data (ClutterBackend     *backend,
   if (CLUTTER_IS_EVENT_EXTENDER (backend->device_manager))
     {
       iface = CLUTTER_EVENT_EXTENDER_GET_IFACE (backend->device_manager);
-      iface->copy_event_data (CLUTTER_EVENT_EXTENDER (backend->device_manager),
-                              src, dest);
+      return iface->copy_event_data (CLUTTER_EVENT_EXTENDER (backend->device_manager),
+                                     data);
     }
   else if (klass->copy_event_data != NULL)
-    klass->copy_event_data (backend, src, dest);
+    return klass->copy_event_data (backend, data);
+
+  return NULL;
 }
 
 void
 _clutter_backend_free_event_data (ClutterBackend *backend,
-                                  ClutterEvent   *event)
+                                  gpointer        data)
 {
   ClutterEventExtenderInterface *iface;
   ClutterBackendClass *klass;
@@ -867,10 +868,10 @@ _clutter_backend_free_event_data (ClutterBackend *backend,
     {
       iface = CLUTTER_EVENT_EXTENDER_GET_IFACE (backend->device_manager);
       iface->free_event_data (CLUTTER_EVENT_EXTENDER (backend->device_manager),
-                              event);
+                              data);
     }
   else if (klass->free_event_data != NULL)
-    klass->free_event_data (backend, event);
+    klass->free_event_data (backend, data);
 }
 
 /**
