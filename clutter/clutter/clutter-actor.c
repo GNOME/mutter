@@ -587,7 +587,7 @@
  *
  * Since: 0.2
  *
- * Deprecated: 1.24: Use clutter_actor_is_visible() or the #ClutterActor:visible
+ * Deprecated: 1.24: Use clutter_actor_is_visible_to_parent() or the #ClutterActor:visible
  *   property instead of this macro.
  */
 
@@ -1811,6 +1811,51 @@ clutter_actor_show (ClutterActor *self)
 }
 
 /**
+ * clutter_actor_is_visible_to_parent:
+ * @self: a #ClutterActor
+ *
+ * Checks whether an actor is marked as visible.
+ *
+ * See also %CLUTTER_ACTOR_IS_VISIBLE and #ClutterActor:visible.
+ *
+ * Returns: %TRUE if the actor visible
+ */
+gboolean
+clutter_actor_is_visible_to_parent (ClutterActor *self)
+{
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
+
+  return !!(self->flags & CLUTTER_ACTOR_VISIBLE);
+}
+
+/**
+ * clutter_actor_is_visible_to_stage:
+ * @self: a #ClutterActor
+ *
+ * Checks whether an actor is truly visible to painting and the user.
+ *
+ * Returns: %TRUE if the actor user-visible
+ */
+gboolean
+clutter_actor_is_visible_to_stage (ClutterActor *self)
+{
+  ClutterActor *actor;
+
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
+
+  actor = self;
+  while (actor != NULL && !CLUTTER_ACTOR_IS_TOPLEVEL (actor))
+    {
+      if (!(actor->flags & CLUTTER_ACTOR_VISIBLE))
+        return FALSE;
+
+      actor = actor->priv->parent;
+    }
+
+  return TRUE;
+}
+
+/**
  * clutter_actor_is_visible:
  * @self: a #ClutterActor
  *
@@ -1821,13 +1866,15 @@ clutter_actor_show (ClutterActor *self)
  * Returns: %TRUE if the actor visible
  *
  * Since: 1.24
+ *
+ * Deprecated: N.NN: Directly replaced by clutter_actor_is_visible_to_parent()
+ *                   for greater clarity. But see also
+ *                   clutter_actor_is_visible_to_stage().
  */
 gboolean
 clutter_actor_is_visible (ClutterActor *self)
 {
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
-
-  return CLUTTER_ACTOR_IS_VISIBLE (self);
+  return clutter_actor_is_visible_to_parent (self);
 }
 
 /**
