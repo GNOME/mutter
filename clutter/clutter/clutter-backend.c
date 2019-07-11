@@ -105,6 +105,7 @@ clutter_backend_dispose (GObject *gobject)
 
   /* clear the events still in the queue of the main context */
   _clutter_clear_events_queue ();
+  _clutter_clear_allocated_events ();
 
   /* remove all event translators */
   g_clear_pointer (&backend->event_translators, g_list_free);
