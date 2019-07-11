@@ -138,6 +138,12 @@ clutter_device_manager_get_property (GObject    *gobject,
     }
 }
 
+void
+_clutter_device_manager_destroy (ClutterDeviceManager *manager)
+{
+  g_object_run_dispose (G_OBJECT (manager));
+}
+
 static void
 clutter_device_manager_class_init (ClutterDeviceManagerClass *klass)
 {
