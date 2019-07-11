@@ -1,3 +1,14 @@
+mutter (3.32.2+git20190711-1) UNRELEASED; urgency=medium
+
+  * New upstream snapshot up to commit ccab0f470
+    - Fix No-input WM_TAKE_FOCUS dialogs causing GNOME Shell to hang
+      and ensure we always have a window focused if we have a valid
+      focus canididate (LP: #1834583)
+    - Don't crash on shell close / reload under X11 when releasing
+      surface actor display resources (LP: #1826918)
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 11 Jul 2019 19:58:35 +0200
+
 mutter (3.32.2+git20190626-1) experimental; urgency=medium
 
   * New upstream snapshot release:
