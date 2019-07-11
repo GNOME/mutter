@@ -1482,6 +1482,12 @@ clutter_event_free (ClutterEvent *event)
     }
 }
 
+void
+_clutter_clear_allocated_events (void)
+{
+  g_clear_pointer (&all_events, g_hash_table_destroy);
+}
+
 /**
  * clutter_event_get:
  *
