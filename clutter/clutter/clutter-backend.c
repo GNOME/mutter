@@ -109,22 +109,16 @@ clutter_backend_dispose (GObject *gobject)
   /* remove all event translators */
   g_clear_pointer (&backend->event_translators, g_list_free);
 
+  g_clear_pointer (&backend->cogl_source, g_source_destroy);
+
   g_clear_pointer (&backend->dummy_onscreen, cogl_object_unref);
   g_clear_pointer (&backend->cogl_context, cogl_object_unref);
   g_clear_pointer (&backend->cogl_display, cogl_object_unref);
 
-  G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
-}
-
-static void
-clutter_backend_finalize (GObject *gobject)
-{
-  ClutterBackend *backend = CLUTTER_BACKEND (gobject);
-
-  g_source_destroy (backend->cogl_source);
+  g_clear_object (&backend->keymap);
   g_clear_object (&backend->input_method);
 
-  G_OBJECT_CLASS (clutter_backend_parent_class)->finalize (gobject);
+  G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
 }
 
 static gfloat
@@ -621,7 +615,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->dispose = clutter_backend_dispose;
-  gobject_class->finalize = clutter_backend_finalize;
 
   /**
    * ClutterBackend::resolution-changed:
