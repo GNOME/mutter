@@ -147,25 +147,24 @@ static const char *device_type_str[] = {
  * appear and disappear from the system.
  */
 
-static void
+static gpointer
 clutter_device_manager_evdev_copy_event_data (ClutterEventExtender *event_extender,
-                                              const ClutterEvent   *src,
-                                              ClutterEvent         *dest)
+                                              gpointer              data)
 {
-  ClutterEventEvdev *event_evdev;
+  ClutterEventEvdev *event_evdev = data;
 
-  event_evdev = _clutter_event_get_platform_data (src);
   if (event_evdev != NULL)
-    _clutter_event_set_platform_data (dest, _clutter_event_evdev_copy (event_evdev));
+    return _clutter_event_evdev_copy (event_evdev);
+
+  return NULL;
 }
 
 static void
 clutter_device_manager_evdev_free_event_data (ClutterEventExtender *event_extender,
-                                              ClutterEvent         *event)
+                                              gpointer              data)
 {
-  ClutterEventEvdev *event_evdev;
+  ClutterEventEvdev *event_evdev = data;
 
-  event_evdev = _clutter_event_get_platform_data (event);
   if (event_evdev != NULL)
     _clutter_event_evdev_free (event_evdev);
 }
