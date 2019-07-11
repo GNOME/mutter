@@ -53,8 +53,6 @@ struct _ClutterBackend
 
   cairo_font_options_t *font_options;
 
-  gchar *font_name;
-
   gfloat units_per_em;
   gint32 units_serial;
 
