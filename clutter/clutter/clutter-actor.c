@@ -10153,7 +10153,7 @@ clutter_actor_allocate (ClutterActor           *self,
       return;
     }
 
-  if (!clutter_actor_is_visible (self))
+  if (!clutter_actor_is_visible_to_stage (self))
     return;
 
   priv = self->priv;
