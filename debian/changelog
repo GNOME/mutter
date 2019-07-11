@@ -6,8 +6,10 @@ mutter (3.32.2+git20190711-1) UNRELEASED; urgency=medium
       focus canididate (LP: #1834583)
     - Don't crash on shell close / reload under X11 when releasing
       surface actor display resources (LP: #1826918)
+  * d/p/debian/Revert-meson-Bump-meson-requirement-to-0.50.0.patch:
+    - Revert dependency on meson 0.50.0
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 11 Jul 2019 19:58:35 +0200
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 11 Jul 2019 20:20:24 +0200
 
 mutter (3.32.2+git20190626-1) experimental; urgency=medium
 
