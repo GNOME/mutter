@@ -101,6 +101,8 @@ clutter_backend_dispose (GObject *gobject)
 {
   ClutterBackend *backend = CLUTTER_BACKEND (gobject);
 
+  clutter_backend_set_font_options (backend, NULL);
+
   /* clear the events still in the queue of the main context */
   _clutter_clear_events_queue ();
 
@@ -108,6 +110,8 @@ clutter_backend_dispose (GObject *gobject)
   g_clear_pointer (&backend->event_translators, g_list_free);
 
   g_clear_pointer (&backend->dummy_onscreen, cogl_object_unref);
+
+  clutter_backend_set_font_options (backend, NULL);
 
   G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
 }
@@ -118,8 +122,6 @@ clutter_backend_finalize (GObject *gobject)
   ClutterBackend *backend = CLUTTER_BACKEND (gobject);
 
   g_source_destroy (backend->cogl_source);
-
-  clutter_backend_set_font_options (backend, NULL);
   g_clear_object (&backend->input_method);
 
   G_OBJECT_CLASS (clutter_backend_parent_class)->finalize (gobject);
