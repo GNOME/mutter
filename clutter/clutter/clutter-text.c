@@ -1780,6 +1780,8 @@ clutter_text_dispose (GObject *gobject)
 
   if (priv->settings_changed_id)
     {
+      g_object_remove_weak_pointer (G_OBJECT (clutter_get_default_backend ()),
+                                    (gpointer *) &priv->settings_changed_id);
       g_signal_handler_disconnect (clutter_get_default_backend (),
                                    priv->settings_changed_id);
       priv->settings_changed_id = 0;
@@ -4622,6 +4624,8 @@ clutter_text_init (ClutterText *self)
                               "settings-changed",
                               G_CALLBACK (clutter_text_settings_changed_cb),
                               self);
+  g_object_add_weak_pointer (G_OBJECT (clutter_get_default_backend ()),
+                             (gpointer *) &priv->settings_changed_id);
 
   priv->direction_changed_id =
     g_signal_connect (self, "notify::text-direction",
