@@ -2,3 +2,4 @@ theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 meson-add-back-default_driver-option.patch
 debian/synaptics-support.patch
+debian/Revert-meson-Bump-meson-requirement-to-0.50.0.patch
