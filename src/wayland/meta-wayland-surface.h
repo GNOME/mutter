@@ -54,10 +54,10 @@ struct _MetaWaylandSurfaceRoleClass
   GObjectClass parent_class;
 
   void (*assigned) (MetaWaylandSurfaceRole *surface_role);
-  void (*pre_commit) (MetaWaylandSurfaceRole  *surface_role,
-                      MetaWaylandSurfaceState *pending);
-  void (*commit) (MetaWaylandSurfaceRole  *surface_role,
-                  MetaWaylandSurfaceState *pending);
+  void (*pre_apply_state) (MetaWaylandSurfaceRole  *surface_role,
+                           MetaWaylandSurfaceState *pending);
+  void (*apply_state) (MetaWaylandSurfaceRole  *surface_role,
+                       MetaWaylandSurfaceState *pending);
   gboolean (*is_on_logical_monitor) (MetaWaylandSurfaceRole *surface_role,
                                      MetaLogicalMonitor     *logical_monitor);
   MetaWaylandSurface * (*get_toplevel) (MetaWaylandSurfaceRole *surface_role);
