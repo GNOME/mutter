@@ -110,25 +110,20 @@ G_DEFINE_TYPE_WITH_CODE (ClutterDeviceManagerXI2,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_EVENT_EXTENDER,
                                                 clutter_event_extender_iface_init))
 
-static void
+static gpointer
 clutter_device_manager_x11_copy_event_data (ClutterEventExtender *event_extender,
-                                            const ClutterEvent   *src,
-                                            ClutterEvent         *dest)
+                                            gpointer              event_x11)
 {
-  gpointer event_x11;
-
-  event_x11 = _clutter_event_get_platform_data (src);
   if (event_x11 != NULL)
-    _clutter_event_set_platform_data (dest, _clutter_event_x11_copy (event_x11));
+    return _clutter_event_x11_copy (event_x11);
+
+  return NULL;
 }
 
 static void
 clutter_device_manager_x11_free_event_data (ClutterEventExtender *event_extender,
-                                            ClutterEvent         *event)
+                                            gpointer              event_x11)
 {
-  gpointer event_x11;
-
-  event_x11 = _clutter_event_get_platform_data (event);
   if (event_x11 != NULL)
     _clutter_event_x11_free (event_x11);
 }
