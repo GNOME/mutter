@@ -102,7 +102,18 @@ is_event_allocated (const ClutterEvent *event)
   if (all_events == NULL)
     return FALSE;
 
-  return g_hash_table_lookup (all_events, event) != NULL;
+  return g_hash_table_contains (all_events, event);
+}
+
+static void
+clutter_event_private_data_free (ClutterEvent *event)
+{
+  ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
+
+  _clutter_backend_free_event_data (clutter_get_default_backend (), event);
+
+  g_clear_object (&real_event->device);
+  g_clear_object (&real_event->source_device);
 }
 
 /*
@@ -1331,9 +1342,14 @@ clutter_event_new (ClutterEventType type)
   new_event->type = new_event->any.type = type;
 
   if (G_UNLIKELY (all_events == NULL))
-    all_events = g_hash_table_new (NULL, NULL);
+    {
+      all_events =
+        g_hash_table_new_full (NULL, NULL,
+                               (GDestroyNotify) clutter_event_private_data_free,
+                               NULL);
+    }
 
-  g_hash_table_replace (all_events, priv, GUINT_TO_POINTER (1));
+  g_hash_table_add (all_events, priv);
 
   return new_event;
 }
@@ -1434,16 +1450,6 @@ clutter_event_free (ClutterEvent *event)
 {
   if (G_LIKELY (event != NULL))
     {
-      _clutter_backend_free_event_data (clutter_get_default_backend (), event);
-
-      if (is_event_allocated (event))
-        {
-          ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
-
-          g_clear_object (&real_event->device);
-          g_clear_object (&real_event->source_device);
-        }
-
       switch (event->type)
         {
         case CLUTTER_BUTTON_PRESS:
