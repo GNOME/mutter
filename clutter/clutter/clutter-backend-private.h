@@ -91,11 +91,10 @@ struct _ClutterBackendClass
                                                 GError         **error);
   ClutterDeviceManager *(* get_device_manager) (ClutterBackend  *backend);
 
-  void                  (* copy_event_data)    (ClutterBackend     *backend,
-                                                const ClutterEvent *src,
-                                                ClutterEvent       *dest);
-  void                  (* free_event_data)    (ClutterBackend     *backend,
-                                                ClutterEvent       *event);
+  gpointer              (* copy_event_data)    (ClutterBackend *backend,
+                                                gpointer        data);
+  void                  (* free_event_data)    (ClutterBackend *backend,
+                                                gpointer        data);
 
   gboolean              (* translate_event)    (ClutterBackend     *backend,
                                                 gpointer            native,
@@ -129,11 +128,10 @@ gboolean                _clutter_backend_post_parse                     (Clutter
                                                                          GError                **error);
 
 void                    _clutter_backend_init_events                    (ClutterBackend         *backend);
-void                    _clutter_backend_copy_event_data                (ClutterBackend         *backend,
-                                                                         const ClutterEvent     *src,
-                                                                         ClutterEvent           *dest);
+gpointer                _clutter_backend_copy_event_data                (ClutterBackend         *backend,
+                                                                         const gpointer          data);
 void                    _clutter_backend_free_event_data                (ClutterBackend         *backend,
-                                                                         ClutterEvent           *event);
+                                                                         gpointer                data);
 gboolean                _clutter_backend_translate_event                (ClutterBackend         *backend,
                                                                          gpointer                native,
                                                                          ClutterEvent           *event);
