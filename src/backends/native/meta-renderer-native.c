@@ -258,6 +258,9 @@ cogl_pixel_format_from_drm_format (uint32_t               drm_format,
                                    CoglPixelFormat       *out_format,
                                    CoglTextureComponents *out_components);
 
+static void
+meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native);
+
 static MetaBackend *
 backend_from_renderer_native (MetaRendererNative *renderer_native)
 {
@@ -3058,6 +3061,24 @@ destroy_egl_surface (CoglOnscreen *onscreen)
 }
 
 static void
+discard_onscreen_page_flip_retries (MetaOnscreenNative *onscreen_native)
+{
+  g_list_free_full (onscreen_native->pending_page_flip_retries,
+                    (GDestroyNotify) retry_page_flip_data_free);
+  onscreen_native->pending_page_flip_retries = NULL;
+
+  if (onscreen_native->retry_page_flips_source)
+    {
+      MetaBackend *backend =
+        backend_from_renderer_native (onscreen_native->renderer_native);
+
+      meta_backend_thaw_updates (backend);
+      g_clear_pointer (&onscreen_native->retry_page_flips_source,
+                       g_source_destroy);
+    }
+}
+
+static void
 meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
@@ -3087,17 +3108,7 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
         g_warning ("Failed to clear current context");
     }
 
-  g_list_free_full (onscreen_native->pending_page_flip_retries,
-                    (GDestroyNotify) retry_page_flip_data_free);
-  if (onscreen_native->retry_page_flips_source)
-    {
-      MetaBackend *backend =
-        backend_from_renderer_native (onscreen_native->renderer_native);
-
-      meta_backend_thaw_updates (backend);
-      g_clear_pointer (&onscreen_native->retry_page_flips_source,
-                       g_source_destroy);
-    }
+  discard_onscreen_page_flip_retries (onscreen_native);
 
   renderer_gpu_data =
     meta_renderer_native_get_gpu_data (onscreen_native->renderer_native,
@@ -3186,7 +3197,7 @@ meta_renderer_native_supports_mirroring (MetaRendererNative *renderer_native)
   return TRUE;
 }
 
-void
+static void
 meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_native);
@@ -3550,6 +3561,37 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                                  cogl_display_egl->egl_context);
 
   return view;
+}
+
+static void
+discard_page_flip_retries (MetaRenderer *renderer)
+{
+  GList *l;
+
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+    {
+      ClutterStageView *stage_view = l->data;
+      CoglFramebuffer *framebuffer =
+        clutter_stage_view_get_onscreen (stage_view);
+      CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+      CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+      MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+
+      discard_onscreen_page_flip_retries (onscreen_native);
+    }
+}
+
+static void
+meta_renderer_native_rebuild_views (MetaRenderer *renderer)
+{
+  MetaRendererClass *parent_renderer_class =
+    META_RENDERER_CLASS (meta_renderer_native_parent_class);
+
+  discard_page_flip_retries (renderer);
+
+  parent_renderer_class->rebuild_views (renderer);
+
+  meta_renderer_native_queue_modes_reset (META_RENDERER_NATIVE (renderer));
 }
 
 void
@@ -4350,6 +4392,7 @@ meta_renderer_native_class_init (MetaRendererNativeClass *klass)
 
   renderer_class->create_cogl_renderer = meta_renderer_native_create_cogl_renderer;
   renderer_class->create_view = meta_renderer_native_create_view;
+  renderer_class->rebuild_views = meta_renderer_native_rebuild_views;
 
   obj_props[PROP_MONITOR_MANAGER] =
     g_param_spec_object ("monitor-manager",

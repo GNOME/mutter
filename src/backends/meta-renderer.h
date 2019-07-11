@@ -43,6 +43,7 @@ struct _MetaRendererClass
   CoglRenderer * (* create_cogl_renderer) (MetaRenderer *renderer);
   MetaRendererView * (* create_view) (MetaRenderer       *renderer,
                                       MetaLogicalMonitor *logical_monitor);
+  void (* rebuild_views) (MetaRenderer *renderer);
 };
 
 CoglRenderer * meta_renderer_create_cogl_renderer (MetaRenderer *renderer);
