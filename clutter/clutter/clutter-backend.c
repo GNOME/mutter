@@ -117,6 +117,9 @@ clutter_backend_dispose (GObject *gobject)
   g_clear_object (&backend->keymap);
   g_clear_object (&backend->input_method);
 
+  _clutter_device_manager_destroy (backend->device_manager);
+  g_clear_object (&backend->device_manager);
+
   G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
 }
 
