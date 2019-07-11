@@ -129,8 +129,8 @@ meta_wayland_cursor_surface_assigned (MetaWaylandSurfaceRole *surface_role)
 }
 
 static void
-meta_wayland_cursor_surface_pre_commit (MetaWaylandSurfaceRole  *surface_role,
-                                        MetaWaylandSurfaceState *pending)
+meta_wayland_cursor_surface_pre_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                             MetaWaylandSurfaceState *pending)
 {
   MetaWaylandCursorSurface *cursor_surface =
     META_WAYLAND_CURSOR_SURFACE (surface_role);
@@ -147,8 +147,8 @@ meta_wayland_cursor_surface_pre_commit (MetaWaylandSurfaceRole  *surface_role,
 }
 
 static void
-meta_wayland_cursor_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                                    MetaWaylandSurfaceState *pending)
+meta_wayland_cursor_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                         MetaWaylandSurfaceState *pending)
 {
   MetaWaylandCursorSurface *cursor_surface =
     META_WAYLAND_CURSOR_SURFACE (surface_role);
@@ -277,8 +277,9 @@ meta_wayland_cursor_surface_class_init (MetaWaylandCursorSurfaceClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   surface_role_class->assigned = meta_wayland_cursor_surface_assigned;
-  surface_role_class->pre_commit = meta_wayland_cursor_surface_pre_commit;
-  surface_role_class->commit = meta_wayland_cursor_surface_commit;
+  surface_role_class->pre_apply_state =
+    meta_wayland_cursor_surface_pre_apply_state;
+  surface_role_class->apply_state = meta_wayland_cursor_surface_apply_state;
   surface_role_class->is_on_logical_monitor =
     meta_wayland_cursor_surface_is_on_logical_monitor;
 

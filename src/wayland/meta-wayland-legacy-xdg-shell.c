@@ -646,8 +646,8 @@ is_new_size_hints_valid (MetaWindow              *window,
 }
 
 static void
-meta_wayland_zxdg_toplevel_v6_commit (MetaWaylandSurfaceRole  *surface_role,
-                                      MetaWaylandSurfaceState *pending)
+meta_wayland_zxdg_toplevel_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                           MetaWaylandSurfaceState *pending)
 {
   MetaWaylandZxdgToplevelV6 *xdg_toplevel =
     META_WAYLAND_ZXDG_TOPLEVEL_V6 (surface_role);
@@ -673,7 +673,7 @@ meta_wayland_zxdg_toplevel_v6_commit (MetaWaylandSurfaceRole  *surface_role,
 
   surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_zxdg_toplevel_v6_parent_class);
-  surface_role_class->commit (surface_role, pending);
+  surface_role_class->apply_state (surface_role, pending);
 
   if (!xdg_surface_priv->configure_sent)
     {
@@ -828,7 +828,7 @@ meta_wayland_zxdg_toplevel_v6_class_init (MetaWaylandZxdgToplevelV6Class *klass)
   object_class->finalize = meta_wayland_zxdg_toplevel_v6_finalize;
 
   surface_role_class = META_WAYLAND_SURFACE_ROLE_CLASS (klass);
-  surface_role_class->commit = meta_wayland_zxdg_toplevel_v6_commit;
+  surface_role_class->apply_state = meta_wayland_zxdg_toplevel_v6_apply_state;
   surface_role_class->get_toplevel = meta_wayland_zxdg_toplevel_v6_get_toplevel;
 
   shell_surface_class = META_WAYLAND_SHELL_SURFACE_CLASS (klass);
@@ -955,8 +955,8 @@ finish_popup_setup (MetaWaylandZxdgPopupV6 *xdg_popup)
 }
 
 static void
-meta_wayland_zxdg_popup_v6_commit (MetaWaylandSurfaceRole  *surface_role,
-                                   MetaWaylandSurfaceState *pending)
+meta_wayland_zxdg_popup_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                        MetaWaylandSurfaceState *pending)
 {
   MetaWaylandZxdgPopupV6 *xdg_popup = META_WAYLAND_ZXDG_POPUP_V6 (surface_role);
   MetaWaylandZxdgSurfaceV6 *xdg_surface =
@@ -970,7 +970,7 @@ meta_wayland_zxdg_popup_v6_commit (MetaWaylandSurfaceRole  *surface_role,
 
   surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_zxdg_popup_v6_parent_class);
-  surface_role_class->commit (surface_role, pending);
+  surface_role_class->apply_state (surface_role, pending);
 
   /* If the window disappeared the surface is not coming back. */
   if (!surface->window)
@@ -1155,7 +1155,7 @@ meta_wayland_zxdg_popup_v6_class_init (MetaWaylandZxdgPopupV6Class *klass)
   object_class->finalize = meta_wayland_zxdg_popup_v6_role_finalize;
 
   surface_role_class = META_WAYLAND_SURFACE_ROLE_CLASS (klass);
-  surface_role_class->commit = meta_wayland_zxdg_popup_v6_commit;
+  surface_role_class->apply_state = meta_wayland_zxdg_popup_v6_apply_state;
   surface_role_class->get_toplevel = meta_wayland_zxdg_popup_v6_get_toplevel;
 
   shell_surface_class = META_WAYLAND_SHELL_SURFACE_CLASS (klass);
@@ -1317,8 +1317,8 @@ meta_wayland_zxdg_surface_v6_finalize (GObject *object)
 }
 
 static void
-meta_wayland_zxdg_surface_v6_commit (MetaWaylandSurfaceRole  *surface_role,
-                                     MetaWaylandSurfaceState *pending)
+meta_wayland_zxdg_surface_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                          MetaWaylandSurfaceState *pending)
 {
   MetaWaylandZxdgSurfaceV6 *xdg_surface =
     META_WAYLAND_ZXDG_SURFACE_V6 (surface_role);
@@ -1333,7 +1333,7 @@ meta_wayland_zxdg_surface_v6_commit (MetaWaylandSurfaceRole  *surface_role,
 
   surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_zxdg_surface_v6_parent_class);
-  surface_role_class->commit (surface_role, pending);
+  surface_role_class->apply_state (surface_role, pending);
 
   /* Ignore commits when unassigned. */
   if (!priv->resource)
@@ -1516,7 +1516,7 @@ meta_wayland_zxdg_surface_v6_class_init (MetaWaylandZxdgSurfaceV6Class *klass)
   object_class->get_property = meta_wayland_zxdg_surface_v6_get_property;
 
   surface_role_class = META_WAYLAND_SURFACE_ROLE_CLASS (klass);
-  surface_role_class->commit = meta_wayland_zxdg_surface_v6_commit;
+  surface_role_class->apply_state = meta_wayland_zxdg_surface_v6_apply_state;
   surface_role_class->assigned = meta_wayland_zxdg_surface_v6_assigned;
 
   shell_surface_class = META_WAYLAND_SHELL_SURFACE_CLASS (klass);

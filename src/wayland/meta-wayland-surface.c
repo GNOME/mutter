@@ -106,12 +106,12 @@ static void
 meta_wayland_surface_role_assigned (MetaWaylandSurfaceRole *surface_role);
 
 static void
-meta_wayland_surface_role_pre_commit (MetaWaylandSurfaceRole  *surface_role,
-                                      MetaWaylandSurfaceState *pending);
+meta_wayland_surface_role_pre_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                           MetaWaylandSurfaceState *pending);
 
 static void
-meta_wayland_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
-                                  MetaWaylandSurfaceState *pending);
+meta_wayland_surface_role_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                       MetaWaylandSurfaceState *pending);
 
 static gboolean
 meta_wayland_surface_role_is_on_logical_monitor (MetaWaylandSurfaceRole *surface_role,
@@ -633,7 +633,7 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
 
   if (surface->role)
     {
-      meta_wayland_surface_role_pre_commit (surface->role, state);
+      meta_wayland_surface_role_pre_apply_state (surface->role, state);
     }
   else
     {
@@ -769,7 +769,7 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
 
   if (surface->role)
     {
-      meta_wayland_surface_role_commit (surface->role, state);
+      meta_wayland_surface_role_apply_state (surface->role, state);
       g_assert (wl_list_empty (&state->frame_callback_list));
     }
   else
@@ -1816,22 +1816,22 @@ meta_wayland_surface_role_assigned (MetaWaylandSurfaceRole *surface_role)
 }
 
 static void
-meta_wayland_surface_role_pre_commit (MetaWaylandSurfaceRole  *surface_role,
-                                      MetaWaylandSurfaceState *pending)
+meta_wayland_surface_role_pre_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                           MetaWaylandSurfaceState *pending)
 {
   MetaWaylandSurfaceRoleClass *klass;
 
   klass = META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface_role);
-  if (klass->pre_commit)
-    klass->pre_commit (surface_role, pending);
+  if (klass->pre_apply_state)
+    klass->pre_apply_state (surface_role, pending);
 }
 
 static void
-meta_wayland_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
-                                  MetaWaylandSurfaceState *pending)
+meta_wayland_surface_role_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                       MetaWaylandSurfaceState *pending)
 {
-  META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface_role)->commit (surface_role,
-                                                              pending);
+  META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface_role)->apply_state (surface_role,
+                                                                   pending);
 }
 
 static gboolean

@@ -565,8 +565,8 @@ bind_wl_shell (struct wl_client *client,
 }
 
 static void
-wl_shell_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
-                              MetaWaylandSurfaceState *pending)
+wl_shell_surface_role_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                   MetaWaylandSurfaceState *pending)
 {
   MetaWaylandWlShellSurface *wl_shell_surface =
     META_WAYLAND_WL_SHELL_SURFACE (surface_role);
@@ -581,7 +581,7 @@ wl_shell_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
 
   surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_wl_shell_surface_parent_class);
-  surface_role_class->commit (surface_role, pending);
+  surface_role_class->apply_state (surface_role, pending);
 
   /* For wl_shell, it's equivalent to an unmap. Semantics
    * are poorly defined, so we can choose some that are
@@ -749,7 +749,7 @@ meta_wayland_wl_shell_surface_class_init (MetaWaylandWlShellSurfaceClass *klass)
   object_class->finalize = wl_shell_surface_role_finalize;
 
   surface_role_class = META_WAYLAND_SURFACE_ROLE_CLASS (klass);
-  surface_role_class->commit = wl_shell_surface_role_commit;
+  surface_role_class->apply_state = wl_shell_surface_role_apply_state;
   surface_role_class->get_toplevel = wl_shell_surface_role_get_toplevel;
 
   shell_surface_class = META_WAYLAND_SHELL_SURFACE_CLASS (klass);

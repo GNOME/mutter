@@ -139,8 +139,8 @@ meta_wayland_shell_surface_managed (MetaWaylandShellSurface *shell_surface,
 }
 
 static void
-meta_wayland_shell_surface_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                                           MetaWaylandSurfaceState *pending)
+meta_wayland_shell_surface_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                                MetaWaylandSurfaceState *pending)
 {
   MetaWaylandActorSurface *actor_surface =
     META_WAYLAND_ACTOR_SURFACE (surface_role);
@@ -153,7 +153,7 @@ meta_wayland_shell_surface_surface_commit (MetaWaylandSurfaceRole  *surface_role
 
   surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_shell_surface_parent_class);
-  surface_role_class->commit (surface_role, pending);
+  surface_role_class->apply_state (surface_role, pending);
 
   buffer = surface->buffer_ref.buffer;
   if (!buffer)
@@ -250,7 +250,8 @@ meta_wayland_shell_surface_class_init (MetaWaylandShellSurfaceClass *klass)
 
   object_class->finalize = meta_wayland_shell_surface_finalize;
 
-  surface_role_class->commit = meta_wayland_shell_surface_surface_commit;
+  surface_role_class->apply_state =
+    meta_wayland_shell_surface_surface_apply_state;
 
   actor_surface_class->get_geometry_scale =
     meta_wayland_shell_surface_get_geometry_scale;

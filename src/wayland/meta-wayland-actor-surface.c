@@ -239,8 +239,8 @@ meta_wayland_actor_surface_sync_actor_state (MetaWaylandActorSurface *actor_surf
 }
 
 static void
-meta_wayland_actor_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                                   MetaWaylandSurfaceState *pending)
+meta_wayland_actor_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                        MetaWaylandSurfaceState *pending)
 {
   MetaWaylandActorSurface *actor_surface =
     META_WAYLAND_ACTOR_SURFACE (surface_role);
@@ -325,7 +325,7 @@ meta_wayland_actor_surface_class_init (MetaWaylandActorSurfaceClass *klass)
   object_class->dispose = meta_wayland_actor_surface_dispose;
 
   surface_role_class->assigned = meta_wayland_actor_surface_assigned;
-  surface_role_class->commit = meta_wayland_actor_surface_commit;
+  surface_role_class->apply_state = meta_wayland_actor_surface_apply_state;
   surface_role_class->is_on_logical_monitor =
     meta_wayland_actor_surface_is_on_logical_monitor;
 

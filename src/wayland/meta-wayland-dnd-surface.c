@@ -46,8 +46,8 @@ dnd_surface_assigned (MetaWaylandSurfaceRole *surface_role)
 }
 
 static void
-dnd_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                    MetaWaylandSurfaceState *pending)
+dnd_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                         MetaWaylandSurfaceState *pending)
 {
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
@@ -61,7 +61,7 @@ dnd_surface_commit (MetaWaylandSurfaceRole  *surface_role,
   surface_role_dnd->pending_offset_x = pending->dx;
   surface_role_dnd->pending_offset_y = pending->dy;
 
-  surface_role_class->commit (surface_role, pending);
+  surface_role_class->apply_state (surface_role, pending);
 }
 
 static MetaLogicalMonitor *
@@ -149,7 +149,7 @@ meta_wayland_surface_role_dnd_class_init (MetaWaylandSurfaceRoleDNDClass *klass)
     META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
 
   surface_role_class->assigned = dnd_surface_assigned;
-  surface_role_class->commit = dnd_surface_commit;
+  surface_role_class->apply_state = dnd_surface_apply_state;
 
   actor_surface_class->get_geometry_scale = dnd_subsurface_get_geometry_scale;
   actor_surface_class->sync_actor_state = dnd_subsurface_sync_actor_state;
