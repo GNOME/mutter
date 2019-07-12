@@ -274,6 +274,12 @@ void meta_rectangle_transform (const MetaRectangle  *rect,
                                int                   height,
                                MetaRectangle        *dest);
 
+void meta_clutter_rect_transform (const ClutterRect    *rect,
+                                  MetaMonitorTransform  transform,
+                                  float                 width,
+                                  float                 height,
+                                  ClutterRect          *dest);
+
 void meta_rectangle_from_clutter_rect (ClutterRect          *rect,
                                        MetaRoundingStrategy  rounding_strategy,
                                        MetaRectangle        *dest);
