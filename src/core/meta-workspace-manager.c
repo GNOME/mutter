@@ -150,9 +150,8 @@ meta_workspace_manager_class_init (MetaWorkspaceManagerClass *klass)
                   G_TYPE_INT,
                   META_TYPE_MOTION_DIRECTION);
 
-  /**
-   * Emitted when calling meta_workspace_manager_reorder_workspace.
-   * 
+  /* Emitted when calling meta_workspace_manager_reorder_workspace.
+   *
    * This signal is emitted when a workspace has been reordered to
    * a different index. Note that other workspaces can change
    * their index too when reordering happens.
