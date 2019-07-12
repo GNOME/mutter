@@ -140,17 +140,10 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
   MetaSurfaceActor *surface_actor;
   MetaShapedTexture *stex;
   GList *l;
-  int geometry_scale;
 
   surface_actor = priv->actor;
   stex = meta_surface_actor_get_texture (surface_actor);
   meta_shaped_texture_set_buffer_scale (stex, surface->scale);
-
-  /* Wayland surface coordinate space -> stage coordinate space */
-  geometry_scale = meta_wayland_actor_surface_get_geometry_scale (actor_surface);
-  clutter_actor_set_scale (CLUTTER_ACTOR (surface_actor),
-                           geometry_scale,
-                           geometry_scale);
 
   meta_surface_actor_set_input_region (surface_actor, surface->input_region);
   meta_surface_actor_set_opaque_region (surface_actor, surface->opaque_region);
