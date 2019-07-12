@@ -160,13 +160,12 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
 
   if (surface->input_region)
     {
-      cairo_region_t *scaled_input_region;
+      cairo_region_t *input_region;
 
-      scaled_input_region = meta_region_scale (surface->input_region,
-                                               geometry_scale);
-      cairo_region_intersect_rectangle (scaled_input_region, &surface_rect);
-      meta_surface_actor_set_input_region (surface_actor, scaled_input_region);
-      cairo_region_destroy (scaled_input_region);
+      input_region = cairo_region_copy (surface->input_region);
+      cairo_region_intersect_rectangle (input_region, &surface_rect);
+      meta_surface_actor_set_input_region (surface_actor, input_region);
+      cairo_region_destroy (input_region);
     }
   else
     {
@@ -175,15 +174,13 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
 
   if (surface->opaque_region)
     {
-      cairo_region_t *scaled_opaque_region;
+      cairo_region_t *opaque_region;
 
       /* Wayland surface coordinate space -> stage coordinate space */
-      scaled_opaque_region = meta_region_scale (surface->opaque_region,
-                                                geometry_scale);
-      cairo_region_intersect_rectangle (scaled_opaque_region, &surface_rect);
-      meta_surface_actor_set_opaque_region (surface_actor,
-                                            scaled_opaque_region);
-      cairo_region_destroy (scaled_opaque_region);
+      opaque_region = cairo_region_copy (surface->opaque_region);
+      cairo_region_intersect_rectangle (opaque_region, &surface_rect);
+      meta_surface_actor_set_opaque_region (surface_actor, opaque_region);
+      cairo_region_destroy (opaque_region);
     }
   else
     {
