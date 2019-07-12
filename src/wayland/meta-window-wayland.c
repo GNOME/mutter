@@ -33,6 +33,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "compositor/meta-surface-actor-wayland.h"
+#include "compositor/meta-window-actor-private.h"
 #include "core/boxes-private.h"
 #include "core/stack-tracker.h"
 #include "core/window-private.h"
@@ -68,6 +69,19 @@ struct _MetaWindowWaylandClass
 };
 
 G_DEFINE_TYPE (MetaWindowWayland, meta_window_wayland, META_TYPE_WINDOW)
+
+static void
+set_geometry_scale_for_window (MetaWindowWayland *wl_window,
+                               int                geometry_scale)
+{
+  MetaWindowActor *window_actor;
+
+  wl_window->geometry_scale = geometry_scale;
+
+  window_actor = meta_window_actor_from_window (META_WINDOW (wl_window));
+  if (window_actor)
+    meta_window_actor_set_geometry_scale (window_actor, geometry_scale);
+}
 
 static int
 get_window_geometry_scale_for_logical_monitor (MetaLogicalMonitor *logical_monitor)
@@ -526,8 +540,7 @@ meta_window_wayland_main_monitor_changed (MetaWindow               *window,
       meta_wayland_actor_surface_sync_actor_state (actor_surface);
     }
 
-  wl_window->geometry_scale = geometry_scale;
-
+  set_geometry_scale_for_window (wl_window, geometry_scale);
   meta_window_emit_size_changed (window);
 }
 
@@ -663,6 +676,8 @@ meta_window_wayland_new (MetaDisplay        *display,
                          MetaWaylandSurface *surface)
 {
   XWindowAttributes attrs = { 0 };
+  MetaWindowWayland *wl_window;
+  MetaWindow *window;
 
   /*
    * Set attributes used by _meta_window_shared_new, don't bother trying to fake
@@ -677,13 +692,18 @@ meta_window_wayland_new (MetaDisplay        *display,
   attrs.map_state = IsUnmapped;
   attrs.override_redirect = False;
 
-  return _meta_window_shared_new (display,
-                                  META_WINDOW_CLIENT_TYPE_WAYLAND,
-                                  surface,
-                                  None,
-                                  WithdrawnState,
-                                  META_COMP_EFFECT_CREATE,
-                                  &attrs);
+  window = _meta_window_shared_new (display,
+                                    META_WINDOW_CLIENT_TYPE_WAYLAND,
+                                    surface,
+                                    None,
+                                    WithdrawnState,
+                                    META_COMP_EFFECT_CREATE,
+                                    &attrs);
+
+  wl_window = META_WINDOW_WAYLAND (window);
+  set_geometry_scale_for_window (wl_window, wl_window->geometry_scale);
+
+  return window;
 }
 
 static gboolean
