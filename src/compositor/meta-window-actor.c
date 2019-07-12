@@ -81,6 +81,8 @@ typedef struct _MetaWindowActorPrivate
 
   MetaShadowMode    shadow_mode;
 
+  int geometry_scale;
+
   guint             size_changed_id;
 
   /*
@@ -252,6 +254,10 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
 static void
 meta_window_actor_init (MetaWindowActor *self)
 {
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (self);
+
+  priv->geometry_scale = 1;
 }
 
 static void
@@ -1861,6 +1867,33 @@ MetaWindowActor *
 meta_window_actor_from_window (MetaWindow *window)
 {
   return META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+}
+
+void
+meta_window_actor_set_geometry_scale (MetaWindowActor *window_actor,
+                                      int              geometry_scale)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+  CoglMatrix child_transform;
+
+  if (priv->geometry_scale == geometry_scale)
+    return;
+
+  priv->geometry_scale = geometry_scale;
+
+  cogl_matrix_init_identity (&child_transform);
+  cogl_matrix_scale (&child_transform, (double) geometry_scale, (double) geometry_scale, 1);
+  clutter_actor_set_child_transform (CLUTTER_ACTOR (window_actor), &child_transform);
+}
+
+int
+meta_window_actor_get_geometry_scale (MetaWindowActor *window_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  return priv->geometry_scale;
 }
 
 static void
