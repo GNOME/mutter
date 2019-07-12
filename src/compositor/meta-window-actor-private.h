@@ -87,4 +87,9 @@ void meta_window_actor_assign_surface_actor (MetaWindowActor  *self,
 
 MetaWindowActor *meta_window_actor_from_window (MetaWindow *window);
 
+void meta_window_actor_set_geometry_scale (MetaWindowActor *window_actor,
+                                           int              geometry_scale);
+
+int meta_window_actor_get_geometry_scale (MetaWindowActor *window_actor);
+
 #endif /* META_WINDOW_ACTOR_PRIVATE_H */

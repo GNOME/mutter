@@ -81,6 +81,8 @@ typedef struct _MetaWindowActorPrivate
 
   MetaShadowMode    shadow_mode;
 
+  int geometry_scale;
+
   guint             size_changed_id;
 
   /*
@@ -161,6 +163,21 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindowActor, meta_window_actor, CLUTTER_TY
                                   G_IMPLEMENT_INTERFACE (META_TYPE_SCREEN_CAST_WINDOW, screen_cast_window_iface_init));
 
 static void
+meta_window_actor_apply_transform (ClutterActor *actor,
+                                   CoglMatrix   *transform)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (actor);
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+  ClutterActorClass *parent_class =
+    CLUTTER_ACTOR_CLASS (meta_window_actor_parent_class);
+
+  parent_class->apply_transform (actor, transform);
+
+  cogl_matrix_scale (transform, priv->geometry_scale, priv->geometry_scale, 0);
+}
+
+static void
 meta_window_actor_class_init (MetaWindowActorClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -172,6 +189,7 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
   object_class->get_property = meta_window_actor_get_property;
   object_class->constructed  = meta_window_actor_constructed;
 
+  actor_class->apply_transform = meta_window_actor_apply_transform;
   actor_class->paint = meta_window_actor_paint;
   actor_class->get_paint_volume = meta_window_actor_get_paint_volume;
 
@@ -252,6 +270,10 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
 static void
 meta_window_actor_init (MetaWindowActor *self)
 {
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (self);
+
+  priv->geometry_scale = 1;
 }
 
 static void
@@ -1861,6 +1883,29 @@ MetaWindowActor *
 meta_window_actor_from_window (MetaWindow *window)
 {
   return META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+}
+
+void
+meta_window_actor_set_geometry_scale (MetaWindowActor *window_actor,
+                                      int              geometry_scale)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  if (priv->geometry_scale == geometry_scale)
+    return;
+
+  priv->geometry_scale = geometry_scale;
+  clutter_actor_queue_relayout (CLUTTER_ACTOR (window_actor));
+}
+
+int
+meta_window_actor_get_geometry_scale (MetaWindowActor *window_actor)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (window_actor);
+
+  return priv->geometry_scale;
 }
 
 static void
