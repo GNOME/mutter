@@ -22,6 +22,7 @@
 #include "clutter/clutter.h"
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-shaped-texture-private.h"
+#include "compositor/meta-window-actor-private.h"
 #include "compositor/region-utils.h"
 #include "meta/meta-shaped-texture.h"
 
@@ -75,7 +76,6 @@ effective_unobscured_region (MetaSurfaceActor *surface_actor)
 
   return priv->unobscured_region;
 }
-
 
 static void
 set_unobscured_region (MetaSurfaceActor *surface_actor,
@@ -246,18 +246,21 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
 
   if (opacity == 0xff)
     {
+      MetaWindowActor *window_actor;
       cairo_region_t *scaled_opaque_region;
       cairo_region_t *opaque_region;
-      double geometry_scale;
+      int geometry_scale = 1;
 
       opaque_region = meta_shaped_texture_get_opaque_region (priv->texture);
 
       if (!opaque_region)
         return;
 
-      clutter_actor_get_scale (CLUTTER_ACTOR (surface_actor),
-                               &geometry_scale,
-                               NULL);
+      window_actor =
+        meta_window_actor_from_actor (CLUTTER_ACTOR (surface_actor));
+      if (window_actor)
+        geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
+
       scaled_opaque_region = meta_region_scale (opaque_region, geometry_scale);
 
       if (unobscured_region)
