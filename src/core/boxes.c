@@ -2121,6 +2121,105 @@ meta_rectangle_transform (const MetaRectangle  *rect,
 }
 
 void
+meta_clutter_rect_transform (const ClutterRect    *rect,
+                             MetaMonitorTransform  transform,
+                             float                 width,
+                             float                 height,
+                             ClutterRect          *dest)
+{
+  switch (transform)
+    {
+    case META_MONITOR_TRANSFORM_NORMAL:
+      *dest = *rect;
+      break;
+    case META_MONITOR_TRANSFORM_90:
+      *dest = (ClutterRect) {
+        .origin = {
+          .x = width - (rect->origin.y + rect->size.height),
+          .y = rect->origin.x
+        },
+        .size = {
+          .width = rect->size.height,
+          .height = rect->size.width
+        }
+      };
+      break;
+    case META_MONITOR_TRANSFORM_180:
+      *dest = (ClutterRect) {
+        .origin = {
+          .x = width - (rect->origin.x + rect->size.width),
+          .y = height - (rect->origin.y + rect->size.height),
+        },
+        .size = {
+          .width = rect->size.width,
+          .height = rect->size.height,
+        }
+      };
+      break;
+    case META_MONITOR_TRANSFORM_270:
+      *dest = (ClutterRect) {
+        .origin = {
+          .x = rect->origin.y,
+          .y = height - (rect->origin.x + rect->size.width),
+        },
+        .size = {
+          .width = rect->size.height,
+          .height = rect->size.width,
+        }
+      };
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED:
+      *dest = (ClutterRect) {
+        .origin = {
+          .x = width - (rect->origin.x + rect->size.width),
+          .y = rect->origin.y,
+        },
+        .size = {
+          .width = rect->size.width,
+          .height = rect->size.height,
+        }
+      };
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+      *dest = (ClutterRect) {
+        .origin = {
+          .x = width - (rect->origin.y + rect->size.height),
+          .y = height - (rect->origin.x + rect->size.width),
+        },
+        .size = {
+          .width = rect->size.height,
+          .height = rect->size.width,
+        }
+      };
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+      *dest = (ClutterRect) {
+        .origin = {
+          .x = rect->origin.x,
+          .y = height - (rect->origin.y + rect->size.height),
+        },
+        .size = {
+          .width = rect->size.width,
+          .height = rect->size.height,
+        }
+      };
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      *dest = (ClutterRect) {
+        .origin = {
+          .x = rect->origin.y,
+          .y = rect->origin.x,
+        },
+        .size = {
+          .width = rect->size.height,
+          .height = rect->size.width,
+        }
+      };
+      break;
+    }
+}
+
+void
 meta_rectangle_from_clutter_rect (ClutterRect          *rect,
                                   MetaRoundingStrategy  rounding_strategy,
                                   MetaRectangle        *dest)
