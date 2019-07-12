@@ -1,4 +1,4 @@
-mutter (3.32.2+git20190711-1) UNRELEASED; urgency=medium
+mutter (3.32.2+git20190711-1) experimental; urgency=medium
 
   * New upstream snapshot up to commit ccab0f470
     - Fix No-input WM_TAKE_FOCUS dialogs causing GNOME Shell to hang
@@ -9,7 +9,7 @@ mutter (3.32.2+git20190711-1) UNRELEASED; urgency=medium
   * d/p/debian/Revert-meson-Bump-meson-requirement-to-0.50.0.patch:
     - Revert dependency on meson 0.50.0
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 11 Jul 2019 20:20:24 +0200
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Fri, 12 Jul 2019 14:11:53 +0100
 
 mutter (3.32.2+git20190626-1) experimental; urgency=medium
 
