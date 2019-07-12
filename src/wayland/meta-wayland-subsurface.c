@@ -56,7 +56,6 @@ sync_actor_subsurface_state (MetaWaylandSurface *surface)
 {
   ClutterActor *actor = CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface));
   MetaWindow *toplevel_window;
-  int geometry_scale;
   int x, y;
 
   toplevel_window = meta_wayland_surface_get_toplevel_window (surface);
@@ -66,9 +65,8 @@ sync_actor_subsurface_state (MetaWaylandSurface *surface)
   if (toplevel_window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     return;
 
-  geometry_scale = meta_window_wayland_get_geometry_scale (toplevel_window);
-  x = (surface->offset_x + surface->sub.x) * geometry_scale;
-  y = (surface->offset_y + surface->sub.y) * geometry_scale;
+  x = surface->offset_x + surface->sub.x;
+  y = surface->offset_y + surface->sub.y;
 
   clutter_actor_set_position (actor, x, y);
 
