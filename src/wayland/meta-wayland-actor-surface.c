@@ -140,7 +140,6 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
   MetaSurfaceActor *surface_actor;
   MetaShapedTexture *stex;
   GList *l;
-  cairo_rectangle_int_t surface_rect;
   int geometry_scale;
 
   surface_actor = priv->actor;
@@ -153,43 +152,8 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
                            geometry_scale,
                            geometry_scale);
 
-  surface_rect = (cairo_rectangle_int_t) {
-    .width = meta_wayland_surface_get_width (surface) * geometry_scale,
-    .height = meta_wayland_surface_get_height (surface) * geometry_scale,
-  };
-
-  if (surface->input_region)
-    {
-      cairo_region_t *scaled_input_region;
-
-      scaled_input_region = meta_region_scale (surface->input_region,
-                                               geometry_scale);
-      cairo_region_intersect_rectangle (scaled_input_region, &surface_rect);
-      meta_surface_actor_set_input_region (surface_actor, scaled_input_region);
-      cairo_region_destroy (scaled_input_region);
-    }
-  else
-    {
-      meta_surface_actor_set_input_region (surface_actor, NULL);
-    }
-
-  if (surface->opaque_region)
-    {
-      cairo_region_t *scaled_opaque_region;
-
-      /* Wayland surface coordinate space -> stage coordinate space */
-      scaled_opaque_region = meta_region_scale (surface->opaque_region,
-                                                geometry_scale);
-      cairo_region_intersect_rectangle (scaled_opaque_region, &surface_rect);
-      meta_surface_actor_set_opaque_region (surface_actor,
-                                            scaled_opaque_region);
-      cairo_region_destroy (scaled_opaque_region);
-    }
-  else
-    {
-      meta_surface_actor_set_opaque_region (surface_actor, NULL);
-    }
-
+  meta_surface_actor_set_input_region (surface_actor, surface->input_region);
+  meta_surface_actor_set_opaque_region (surface_actor, surface->opaque_region);
   meta_surface_actor_set_transform (surface_actor, surface->buffer_transform);
 
   if (surface->viewport.has_src_rect)
