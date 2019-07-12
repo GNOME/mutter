@@ -22,6 +22,7 @@
 #include "clutter/clutter.h"
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-shaped-texture-private.h"
+#include "compositor/region-utils.h"
 #include "meta/meta-shaped-texture.h"
 
 typedef struct _MetaSurfaceActorPrivate
@@ -245,17 +246,26 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
 
   if (opacity == 0xff)
     {
+      cairo_region_t *scaled_opaque_region;
       cairo_region_t *opaque_region;
+      double geometry_scale;
 
       opaque_region = meta_shaped_texture_get_opaque_region (priv->texture);
 
-      if (opaque_region)
-        {
-          if (unobscured_region)
-            cairo_region_subtract (unobscured_region, opaque_region);
-          if (clip_region)
-            cairo_region_subtract (clip_region, opaque_region);
-        }
+      if (!opaque_region)
+        return;
+
+      clutter_actor_get_scale (CLUTTER_ACTOR (surface_actor),
+                               &geometry_scale,
+                               NULL);
+      scaled_opaque_region = meta_region_scale (opaque_region, geometry_scale);
+
+      if (unobscured_region)
+        cairo_region_subtract (unobscured_region, scaled_opaque_region);
+      if (clip_region)
+        cairo_region_subtract (clip_region, scaled_opaque_region);
+
+      cairo_region_destroy (scaled_opaque_region);
     }
 }
 
