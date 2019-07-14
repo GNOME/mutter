@@ -158,6 +158,8 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
   GList *l;
   cairo_rectangle_int_t surface_rect;
   int geometry_scale;
+  float actor_pos_x;
+  float actor_pos_y;
 
   surface_actor = priv->actor;
   stex = meta_surface_actor_get_texture (surface_actor);
@@ -172,6 +174,15 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
     .width = meta_wayland_surface_get_width (surface) * geometry_scale,
     .height = meta_wayland_surface_get_height (surface) * geometry_scale,
   };
+
+  clutter_actor_get_position (CLUTTER_ACTOR (surface_actor),
+                              &actor_pos_x,
+                              &actor_pos_y);
+  clutter_actor_set_position (CLUTTER_ACTOR (surface_actor),
+                              actor_pos_x + surface->offset_x / actor_scale,
+                              actor_pos_y + surface->offset_y / actor_scale);
+  surface->offset_x = 0;
+  surface->offset_y = 0;
 
   if (surface->input_region)
     {
