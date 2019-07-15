@@ -113,18 +113,25 @@ meta_wayland_actor_surface_get_geometry_scale (MetaWaylandActorSurface *actor_su
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWindow *toplevel_window;
 
-  toplevel_window = meta_wayland_surface_get_toplevel_window (surface);
   if (meta_is_stage_views_scaled ())
     {
       return 1;
     }
   else
     {
-      if (!toplevel_window ||
-          toplevel_window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-        return 1;
+      toplevel_window = meta_wayland_surface_get_toplevel_window (surface);
+      if (!toplevel_window)
+        {
+          return surface->scale;
+        }
+      else if (toplevel_window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+        {
+          return 1;
+        }
       else
-        return meta_window_wayland_get_geometry_scale (toplevel_window);
+        {
+          return meta_window_wayland_get_geometry_scale (toplevel_window);
+        }
     }
 }
 
