@@ -4462,7 +4462,7 @@ meta_display_init_keys (MetaDisplay *display)
 
   handler = g_new0 (MetaKeyHandler, 1);
   handler->name = g_strdup ("locate-pointer-key");
-  handler->flags = META_KEY_BINDING_BUILTIN;
+  handler->flags = META_KEY_BINDING_BUILTIN | META_KEY_BINDING_NO_AUTO_GRAB;
 
   g_hash_table_insert (key_handlers, g_strdup (handler->name), handler);
 
