@@ -182,9 +182,6 @@ static gboolean process_keyboard_resize_grab (MetaDisplay     *display,
                                               MetaWindow      *window,
                                               ClutterKeyEvent *event);
 
-static void grab_key_bindings           (MetaDisplay *display);
-static void ungrab_key_bindings         (MetaDisplay *display);
-
 static void maybe_update_locate_pointer_key_binding (MetaDisplay *display,
                                                      gboolean     grab);
 
