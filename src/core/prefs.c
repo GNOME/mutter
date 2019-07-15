@@ -60,6 +60,7 @@
 
 #define KEY_OVERLAY_KEY "overlay-key"
 #define KEY_WORKSPACES_ONLY_ON_PRIMARY "workspaces-only-on-primary"
+#define KEY_LOCATE_POINTER "locate-pointer"
 
 /* These are the different schemas we are keeping
  * a GSettings instance for */
@@ -100,6 +101,7 @@ static gboolean bell_is_visible = FALSE;
 static gboolean bell_is_audible = TRUE;
 static gboolean gnome_accessibility = FALSE;
 static gboolean gnome_animations = TRUE;
+static gboolean locate_pointer_is_enabled = FALSE;
 static char *cursor_theme = NULL;
 /* cursor_size will, when running as an X11 compositing window manager, be the
  * actual cursor size, multiplied with the global window scaling factor. On
@@ -147,6 +149,7 @@ static gboolean mouse_button_mods_handler (GVariant*, gpointer*, gpointer);
 static gboolean button_layout_handler (GVariant*, gpointer*, gpointer);
 static gboolean overlay_key_handler (GVariant*, gpointer*, gpointer);
 static gboolean locate_pointer_key_handler (GVariant*, gpointer*, gpointer);
+
 static gboolean iso_next_group_handler (GVariant*, gpointer*, gpointer);
 
 static void     init_bindings             (void);
@@ -383,6 +386,13 @@ static MetaBoolPreference preferences_bool[] =
         META_PREF_AUTO_MAXIMIZE,
       },
       &auto_maximize,
+    },
+    {
+      { KEY_LOCATE_POINTER,
+        SCHEMA_INTERFACE,
+        META_PREF_LOCATE_POINTER,
+      },
+      &locate_pointer_is_enabled,
     },
     { { NULL, 0, 0 }, NULL },
   };
@@ -959,6 +969,8 @@ meta_prefs_init (void)
   g_signal_connect (settings, "changed::" KEY_GNOME_CURSOR_THEME,
                     G_CALLBACK (settings_changed), NULL);
   g_signal_connect (settings, "changed::" KEY_GNOME_CURSOR_SIZE,
+                    G_CALLBACK (settings_changed), NULL);
+  g_signal_connect (settings, "changed::" KEY_LOCATE_POINTER,
                     G_CALLBACK (settings_changed), NULL);
   g_hash_table_insert (settings_schemas, g_strdup (SCHEMA_INTERFACE), settings);
 
@@ -1680,6 +1692,9 @@ meta_preference_to_string (MetaPreference pref)
 
     case META_PREF_AUTO_MAXIMIZE:
       return "AUTO_MAXIMIZE";
+
+    case META_PREF_LOCATE_POINTER:
+      return "LOCATE_POINTER";
     }
 
   return "(unknown)";
@@ -2018,6 +2033,12 @@ void
 meta_prefs_get_locate_pointer_binding (MetaKeyCombo *combo)
 {
   *combo = locate_pointer_key_combo;
+}
+
+gboolean
+meta_prefs_is_locate_pointer_enabled (void)
+{
+  return locate_pointer_is_enabled;
 }
 
 const char *
