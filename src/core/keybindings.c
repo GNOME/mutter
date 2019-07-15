@@ -526,8 +526,8 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
 
 static void
 devirtualize_modifiers (MetaKeyBindingManager *keys,
-                        MetaVirtualModifier     modifiers,
-                        unsigned int           *mask)
+                        MetaVirtualModifier    modifiers,
+                        unsigned int          *mask)
 {
   *mask = 0;
 
@@ -1471,9 +1471,9 @@ change_keygrab_foreach (gpointer key,
 
 static void
 change_binding_keygrabs (MetaKeyBindingManager *keys,
-                         Window                  xwindow,
-                         gboolean                only_per_window,
-                         gboolean                grab)
+                         Window                 xwindow,
+                         gboolean               only_per_window,
+                         gboolean               grab)
 {
   ChangeKeygrabData data;
 
