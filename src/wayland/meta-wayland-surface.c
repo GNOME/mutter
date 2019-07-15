@@ -1919,3 +1919,10 @@ meta_wayland_surface_get_height (MetaWaylandSurface *surface)
       return height / surface->scale;
     }
 }
+
+void
+meta_wayland_surface_clear_offset (MetaWaylandSurface *surface)
+{
+  surface->offset_x = 0;
+  surface->offset_y = 0;
+}
