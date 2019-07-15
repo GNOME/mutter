@@ -157,7 +157,8 @@ G_DEFINE_TYPE_WITH_PRIVATE (ClutterGestureAction, clutter_gesture_action, CLUTTE
 static GesturePoint *
 gesture_register_point (ClutterGestureAction *action, ClutterEvent *event)
 {
-  ClutterGestureActionPrivate *priv = action->priv;
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (action);
   GesturePoint *point = NULL;
 
   if (priv->points->len >= MAX_GESTURE_POINTS)
@@ -190,7 +191,8 @@ gesture_find_point (ClutterGestureAction *action,
                     ClutterEvent *event,
                     gint *position)
 {
-  ClutterGestureActionPrivate *priv = action->priv;
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (action);
   GesturePoint *point = NULL;
   ClutterEventType type = clutter_event_type (event);
   ClutterInputDevice *device = clutter_event_get_device (event);
@@ -220,9 +222,10 @@ gesture_find_point (ClutterGestureAction *action,
 static void
 gesture_unregister_point (ClutterGestureAction *action, gint position)
 {
-  ClutterGestureActionPrivate *priv = action->priv;
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (action);
 
-  if (action->priv->points->len == 0)
+  if (priv->points->len == 0)
     return;
 
   g_array_remove_index (priv->points, position);
@@ -303,7 +306,8 @@ gesture_point_unset (GesturePoint *point)
 static void
 cancel_gesture (ClutterGestureAction *action)
 {
-  ClutterGestureActionPrivate *priv = action->priv;
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (action);
   ClutterActor *actor;
 
   priv->in_gesture = FALSE;
@@ -313,14 +317,15 @@ cancel_gesture (ClutterGestureAction *action)
   actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
   g_signal_emit (action, gesture_signals[GESTURE_CANCEL], 0, actor);
 
-  g_array_set_size (action->priv->points, 0);
+  g_array_set_size (priv->points, 0);
 }
 
 static gboolean
 begin_gesture (ClutterGestureAction *action,
                ClutterActor         *actor)
 {
-  ClutterGestureActionPrivate *priv = action->priv;
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (action);
   gboolean return_value;
 
   priv->in_gesture = TRUE;
@@ -353,7 +358,8 @@ stage_captured_event_cb (ClutterActor         *stage,
                          ClutterEvent         *event,
                          ClutterGestureAction *action)
 {
-  ClutterGestureActionPrivate *priv = action->priv;
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (action);
   ClutterActor *actor;
   gint position;
   float threshold_x, threshold_y;
@@ -488,7 +494,8 @@ actor_captured_event_cb (ClutterActor *actor,
                          ClutterEvent *event,
                          ClutterGestureAction *action)
 {
-  ClutterGestureActionPrivate *priv = action->priv;
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (action);
   GesturePoint *point G_GNUC_UNUSED;
 
   if ((clutter_event_type (event) != CLUTTER_BUTTON_PRESS) &&
@@ -522,7 +529,8 @@ static void
 clutter_gesture_action_set_actor (ClutterActorMeta *meta,
                                   ClutterActor     *actor)
 {
-  ClutterGestureActionPrivate *priv = CLUTTER_GESTURE_ACTION (meta)->priv;
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (CLUTTER_GESTURE_ACTION (meta));
   ClutterActorMetaClass *meta_class =
     CLUTTER_ACTOR_META_CLASS (clutter_gesture_action_parent_class);
 
@@ -563,7 +571,8 @@ clutter_gesture_action_set_enabled (ClutterActorMeta *meta,
   ClutterActorMetaClass *meta_class =
     CLUTTER_ACTOR_META_CLASS (clutter_gesture_action_parent_class);
   ClutterGestureAction *gesture_action = CLUTTER_GESTURE_ACTION (meta);
-  ClutterGestureActionPrivate *priv = gesture_action->priv;
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (gesture_action);
 
   if (!is_enabled && priv->in_gesture)
     cancel_gesture (gesture_action);
@@ -585,6 +594,8 @@ clutter_gesture_action_set_property (GObject      *gobject,
                                      GParamSpec   *pspec)
 {
   ClutterGestureAction *self = CLUTTER_GESTURE_ACTION (gobject);
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (self);
 
   switch (prop_id)
     {
@@ -597,11 +608,15 @@ clutter_gesture_action_set_property (GObject      *gobject,
       break;
 
     case PROP_THRESHOLD_TRIGGER_DISTANCE_X:
-      clutter_gesture_action_set_threshold_trigger_distance (self, g_value_get_float (value), self->priv->distance_y);
+      clutter_gesture_action_set_threshold_trigger_distance (self,
+                                                             g_value_get_float (value),
+                                                             priv->distance_y);
       break;
 
     case PROP_THRESHOLD_TRIGGER_DISTANCE_Y:
-      clutter_gesture_action_set_threshold_trigger_distance (self, self->priv->distance_x, g_value_get_float (value));
+      clutter_gesture_action_set_threshold_trigger_distance (self,
+                                                             priv->distance_x,
+                                                             g_value_get_float (value));
       break;
 
     default:
@@ -616,28 +631,29 @@ clutter_gesture_action_get_property (GObject    *gobject,
                                      GValue     *value,
                                      GParamSpec *pspec)
 {
-  ClutterGestureAction *self = CLUTTER_GESTURE_ACTION (gobject);
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (CLUTTER_GESTURE_ACTION (gobject));
 
   switch (prop_id)
     {
     case PROP_N_TOUCH_POINTS:
-      g_value_set_int (value, self->priv->requested_nb_points);
+      g_value_set_int (value, priv->requested_nb_points);
       break;
 
     case PROP_THRESHOLD_TRIGGER_EDGE:
-      g_value_set_enum (value, self->priv->edge);
+      g_value_set_enum (value, priv->edge);
       break;
 
     case PROP_THRESHOLD_TRIGGER_DISTANCE_X:
-      if (self->priv->distance_x > 0.0)
-        g_value_set_float (value, self->priv->distance_x);
+      if (priv->distance_x > 0.0)
+        g_value_set_float (value, priv->distance_x);
       else
         g_value_set_float (value, gesture_get_default_threshold ());
       break;
 
     case PROP_THRESHOLD_TRIGGER_DISTANCE_Y:
-      if (self->priv->distance_y > 0.0)
-        g_value_set_float (value, self->priv->distance_y);
+      if (priv->distance_y > 0.0)
+        g_value_set_float (value, priv->distance_y);
       else
         g_value_set_float (value, gesture_get_default_threshold ());
       break;
@@ -651,7 +667,8 @@ clutter_gesture_action_get_property (GObject    *gobject,
 static void
 clutter_gesture_action_finalize (GObject *gobject)
 {
-  ClutterGestureActionPrivate *priv = CLUTTER_GESTURE_ACTION (gobject)->priv;
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (CLUTTER_GESTURE_ACTION (gobject));
 
   g_array_unref (priv->points);
 
@@ -843,13 +860,14 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
 static void
 clutter_gesture_action_init (ClutterGestureAction *self)
 {
-  self->priv = clutter_gesture_action_get_instance_private (self);
+  ClutterGestureActionPrivate *priv =
+    clutter_gesture_action_get_instance_private (self);
 
-  self->priv->points = g_array_sized_new (FALSE, TRUE, sizeof (GesturePoint), 3);
-  g_array_set_clear_func (self->priv->points, (GDestroyNotify) gesture_point_unset);
+  priv->points = g_array_sized_new (FALSE, TRUE, sizeof (GesturePoint), 3);
+  g_array_set_clear_func (priv->points, (GDestroyNotify) gesture_point_unset);
 
-  self->priv->requested_nb_points = 1;
-  self->priv->edge = CLUTTER_GESTURE_TRIGGER_EDGE_NONE;
+  priv->requested_nb_points = 1;
+  priv->edge = CLUTTER_GESTURE_TRIGGER_EDGE_NONE;
 }
 
 /**
@@ -888,16 +906,21 @@ clutter_gesture_action_get_press_coords (ClutterGestureAction *action,
                                          gfloat               *press_x,
                                          gfloat               *press_y)
 {
+  ClutterGestureActionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
-  g_return_if_fail (action->priv->points->len > point);
+
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  g_return_if_fail (priv->points->len > point);
 
   if (press_x)
-    *press_x = g_array_index (action->priv->points,
+    *press_x = g_array_index (priv->points,
                               GesturePoint,
                               point).press_x;
 
   if (press_y)
-    *press_y = g_array_index (action->priv->points,
+    *press_y = g_array_index (priv->points,
                               GesturePoint,
                               point).press_y;
 }
@@ -923,16 +946,21 @@ clutter_gesture_action_get_motion_coords (ClutterGestureAction *action,
                                           gfloat               *motion_x,
                                           gfloat               *motion_y)
 {
+  ClutterGestureActionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
-  g_return_if_fail (action->priv->points->len > point);
+
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  g_return_if_fail (priv->points->len > point);
 
   if (motion_x)
-    *motion_x = g_array_index (action->priv->points,
+    *motion_x = g_array_index (priv->points,
                                GesturePoint,
                                point).last_motion_x;
 
   if (motion_y)
-    *motion_y = g_array_index (action->priv->points,
+    *motion_y = g_array_index (priv->points,
                                GesturePoint,
                                point).last_motion_y;
 }
@@ -960,15 +988,19 @@ clutter_gesture_action_get_motion_delta (ClutterGestureAction *action,
                                          gfloat               *delta_x,
                                          gfloat               *delta_y)
 {
+  ClutterGestureActionPrivate *priv;
   gfloat d_x, d_y;
 
   g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action), 0);
-  g_return_val_if_fail (action->priv->points->len > point, 0);
 
-  d_x = g_array_index (action->priv->points,
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  g_return_val_if_fail (priv->points->len > point, 0);
+
+  d_x = g_array_index (priv->points,
                        GesturePoint,
                        point).last_delta_x;
-  d_y = g_array_index (action->priv->points,
+  d_y = g_array_index (priv->points,
                        GesturePoint,
                        point).last_delta_y;
 
@@ -1002,16 +1034,21 @@ clutter_gesture_action_get_release_coords (ClutterGestureAction *action,
                                            gfloat               *release_x,
                                            gfloat               *release_y)
 {
+  ClutterGestureActionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
-  g_return_if_fail (action->priv->points->len > point);
+
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  g_return_if_fail (priv->points->len > point);
 
   if (release_x)
-    *release_x = g_array_index (action->priv->points,
+    *release_x = g_array_index (priv->points,
                                 GesturePoint,
                                 point).release_x;
 
   if (release_y)
-    *release_y = g_array_index (action->priv->points,
+    *release_y = g_array_index (priv->points,
                                 GesturePoint,
                                 point).release_y;
 }
@@ -1037,16 +1074,20 @@ clutter_gesture_action_get_velocity (ClutterGestureAction *action,
                                      gfloat               *velocity_x,
                                      gfloat               *velocity_y)
 {
+  ClutterGestureActionPrivate *priv;
   gfloat d_x, d_y, distance, velocity;
   gint64 d_t;
 
   g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action), 0);
-  g_return_val_if_fail (action->priv->points->len > point, 0);
+
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  g_return_val_if_fail (priv->points->len > point, 0);
 
   distance = clutter_gesture_action_get_motion_delta (action, point,
                                                       &d_x, &d_y);
 
-  d_t = g_array_index (action->priv->points,
+  d_t = g_array_index (priv->points,
                        GesturePoint,
                        point).last_delta_time;
 
@@ -1073,9 +1114,13 @@ clutter_gesture_action_get_velocity (ClutterGestureAction *action,
 gint
 clutter_gesture_action_get_n_touch_points (ClutterGestureAction *action)
 {
+  ClutterGestureActionPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action), 0);
 
-  return action->priv->requested_nb_points;
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  return priv->requested_nb_points;
 }
 
 /**
@@ -1096,7 +1141,7 @@ clutter_gesture_action_set_n_touch_points (ClutterGestureAction *action,
   g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
   g_return_if_fail (nb_points >= 1);
 
-  priv = action->priv;
+  priv = clutter_gesture_action_get_instance_private (action);
 
   if (priv->requested_nb_points == nb_points)
     return;
@@ -1150,9 +1195,13 @@ clutter_gesture_action_set_n_touch_points (ClutterGestureAction *action,
 guint
 clutter_gesture_action_get_n_current_points (ClutterGestureAction *action)
 {
+  ClutterGestureActionPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action), 0);
 
-  return action->priv->points->len;
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  return priv->points->len;
 }
 
 /**
@@ -1170,10 +1219,15 @@ ClutterEventSequence *
 clutter_gesture_action_get_sequence (ClutterGestureAction *action,
                                      guint                 point)
 {
-  g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action), NULL);
-  g_return_val_if_fail (action->priv->points->len > point, NULL);
+  ClutterGestureActionPrivate *priv;
 
-  return g_array_index (action->priv->points, GesturePoint, point).sequence;
+  g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action), NULL);
+
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  g_return_val_if_fail (priv->points->len > point, NULL);
+
+  return g_array_index (priv->points, GesturePoint, point).sequence;
 }
 
 /**
@@ -1192,10 +1246,15 @@ ClutterInputDevice *
 clutter_gesture_action_get_device (ClutterGestureAction *action,
                                    guint                 point)
 {
-  g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action), NULL);
-  g_return_val_if_fail (action->priv->points->len > point, NULL);
+  ClutterGestureActionPrivate *priv;
 
-  return g_array_index (action->priv->points, GesturePoint, point).device;
+  g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action), NULL);
+
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  g_return_val_if_fail (priv->points->len > point, NULL);
+
+  return g_array_index (priv->points, GesturePoint, point).device;
 }
 
 /**
@@ -1215,11 +1274,15 @@ clutter_gesture_action_get_last_event (ClutterGestureAction *action,
                                        guint                 point)
 {
   GesturePoint *gesture_point;
+  ClutterGestureActionPrivate *priv;
 
   g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action), NULL);
-  g_return_val_if_fail (action->priv->points->len > point, NULL);
 
-  gesture_point = &g_array_index (action->priv->points, GesturePoint, point);
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  g_return_val_if_fail (priv->points->len > point, NULL);
+
+  gesture_point = &g_array_index (priv->points, GesturePoint, point);
 
   return gesture_point->last_event;
 }
@@ -1256,12 +1319,16 @@ void
 clutter_gesture_action_set_threshold_trigger_edge (ClutterGestureAction      *action,
                                                    ClutterGestureTriggerEdge  edge)
 {
+  ClutterGestureActionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
 
-  if (action->priv->edge == edge)
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  if (priv->edge == edge)
     return;
 
-  action->priv->edge = edge;
+  priv->edge = edge;
 
   g_object_notify_by_pspec (G_OBJECT (action), gesture_props[PROP_THRESHOLD_TRIGGER_EDGE]);
 }
@@ -1280,10 +1347,14 @@ clutter_gesture_action_set_threshold_trigger_edge (ClutterGestureAction      *ac
 ClutterGestureTriggerEdge
 clutter_gesture_action_get_threshold_trigger_edge (ClutterGestureAction *action)
 {
+  ClutterGestureActionPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_GESTURE_ACTION (action),
                         CLUTTER_GESTURE_TRIGGER_EDGE_NONE);
 
-  return action->priv->edge;
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  return priv->edge;
 }
 
 /**
@@ -1323,17 +1394,21 @@ clutter_gesture_action_set_threshold_trigger_distance (ClutterGestureAction     
                                                        float                      x,
                                                        float                      y)
 {
+  ClutterGestureActionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
 
-  if (fabsf (x - action->priv->distance_x) > FLOAT_EPSILON)
+  priv = clutter_gesture_action_get_instance_private (action);
+
+  if (fabsf (x - priv->distance_x) > FLOAT_EPSILON)
     {
-      action->priv->distance_x = x;
+      priv->distance_x = x;
       g_object_notify_by_pspec (G_OBJECT (action), gesture_props[PROP_THRESHOLD_TRIGGER_DISTANCE_X]);
     }
 
-  if (fabsf (y - action->priv->distance_y) > FLOAT_EPSILON)
+  if (fabsf (y - priv->distance_y) > FLOAT_EPSILON)
     {
-      action->priv->distance_y = y;
+      priv->distance_y = y;
       g_object_notify_by_pspec (G_OBJECT (action), gesture_props[PROP_THRESHOLD_TRIGGER_DISTANCE_Y]);
     }
 }
@@ -1354,19 +1429,23 @@ clutter_gesture_action_get_threshold_trigger_distance (ClutterGestureAction *act
                                                        float                *x,
                                                        float                *y)
 {
+  ClutterGestureActionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_GESTURE_ACTION (action));
+
+  priv = clutter_gesture_action_get_instance_private (action);
 
   if (x != NULL)
     {
-      if (action->priv->distance_x > 0.0)
-        *x = action->priv->distance_x;
+      if (priv->distance_x > 0.0)
+        *x = priv->distance_x;
       else
         *x = gesture_get_default_threshold ();
     }
   if (y != NULL)
     {
-      if (action->priv->distance_y > 0.0)
-        *y = action->priv->distance_y;
+      if (priv->distance_y > 0.0)
+        *y = priv->distance_y;
       else
         *y = gesture_get_default_threshold ();
     }

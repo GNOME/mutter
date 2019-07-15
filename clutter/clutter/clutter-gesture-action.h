@@ -34,32 +34,13 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_GESTURE_ACTION               (clutter_gesture_action_get_type ())
-#define CLUTTER_GESTURE_ACTION(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_GESTURE_ACTION, ClutterGestureAction))
-#define CLUTTER_IS_GESTURE_ACTION(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_GESTURE_ACTION))
-#define CLUTTER_GESTURE_ACTION_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_GESTURE_ACTION, ClutterGestureActionClass))
-#define CLUTTER_IS_GESTURE_ACTION_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_GESTURE_ACTION))
-#define CLUTTER_GESTURE_ACTION_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_GESTURE_ACTION, ClutterGestureActionClass))
+#define CLUTTER_TYPE_GESTURE_ACTION (clutter_gesture_action_get_type ())
 
-typedef struct _ClutterGestureAction              ClutterGestureAction;
-typedef struct _ClutterGestureActionPrivate       ClutterGestureActionPrivate;
-typedef struct _ClutterGestureActionClass         ClutterGestureActionClass;
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterGestureAction, clutter_gesture_action,
+                          CLUTTER, GESTURE_ACTION, ClutterAction);
 
-/**
- * ClutterGestureAction:
- *
- * The #ClutterGestureAction structure contains
- * only private data and should be accessed using the provided API
- *
- * Since: 1.8
- */
-struct _ClutterGestureAction
-{
-  /*< private >*/
-  ClutterAction parent_instance;
-
-  ClutterGestureActionPrivate *priv;
-};
+typedef struct _ClutterGestureActionPrivate ClutterGestureActionPrivate;
 
 /**
  * ClutterGestureActionClass:
@@ -100,9 +81,6 @@ struct _ClutterGestureActionClass
   void (* _clutter_gesture_action5) (void);
   void (* _clutter_gesture_action6) (void);
 };
-
-CLUTTER_EXPORT
-GType clutter_gesture_action_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterAction *        clutter_gesture_action_new                      (void);

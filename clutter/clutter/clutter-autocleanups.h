@@ -30,7 +30,6 @@
 
 #ifndef __GI_SCANNER__
 
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterAction, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterActor, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterAlignConstraint, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBackend, g_object_unref)
@@ -42,7 +41,6 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBoxLayout, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBrightnessContrastEffect, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterCanvas, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterChildMeta, g_object_unref)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterClickAction, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterClone, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterColorizeEffect, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterConstraint, g_object_unref)
@@ -52,7 +50,6 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterDesaturateEffect, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterEffect, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterFixedLayout, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterFlowLayout, g_object_unref)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterGestureAction, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterGridLayout, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterImage, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterInputDevice, g_object_unref)
