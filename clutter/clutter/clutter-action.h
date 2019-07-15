@@ -33,28 +33,11 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_ACTION             (clutter_action_get_type ())
-#define CLUTTER_ACTION(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_ACTION, ClutterAction))
-#define CLUTTER_IS_ACTION(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_ACTION))
-#define CLUTTER_ACTION_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_ACTION, ClutterActionClass))
-#define CLUTTER_IS_ACTION_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_ACTION))
-#define CLUTTER_ACTION_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_ACTION, ClutterActionClass))
+#define CLUTTER_TYPE_ACTION (clutter_action_get_type ())
 
-typedef struct _ClutterActionClass      ClutterActionClass;
-
-/**
- * ClutterAction:
- *
- * The #ClutterAction structure contains only private data and
- * should be accessed using the provided API.
- *
- * Since: 1.4
- */
-struct _ClutterAction
-{
-  /*< private >*/
-  ClutterActorMeta parent_instance;
-};
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterAction, clutter_action,
+                          CLUTTER, ACTION, ClutterActorMeta);
 
 /**
  * ClutterActionClass:
@@ -77,9 +60,6 @@ struct _ClutterActionClass
   void (* _clutter_action7) (void);
   void (* _clutter_action8) (void);
 };
-
-CLUTTER_EXPORT
-GType clutter_action_get_type (void) G_GNUC_CONST;
 
 /* ClutterActor API */
 CLUTTER_EXPORT

@@ -34,32 +34,13 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_DRAG_ACTION                (clutter_drag_action_get_type ())
-#define CLUTTER_DRAG_ACTION(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_DRAG_ACTION, ClutterDragAction))
-#define CLUTTER_IS_DRAG_ACTION(obj)             (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_DRAG_ACTION))
-#define CLUTTER_DRAG_ACTION_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_DRAG_ACTION, ClutterDragActionClass))
-#define CLUTTER_IS_DRAG_ACTION_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_DRAG_ACTION))
-#define CLUTTER_DRAG_ACTION_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_DRAG_ACTION, ClutterDragActionClass))
+#define CLUTTER_TYPE_DRAG_ACTION (clutter_drag_action_get_type ())
 
-typedef struct _ClutterDragAction               ClutterDragAction;
-typedef struct _ClutterDragActionPrivate        ClutterDragActionPrivate;
-typedef struct _ClutterDragActionClass          ClutterDragActionClass;
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterDragAction, clutter_drag_action,
+                          CLUTTER, DRAG_ACTION, ClutterAction);
 
-/**
- * ClutterDragAction:
- *
- * The #ClutterDragAction structure contains only
- * private data and should be accessed using the provided API
- *
- * Since: 1.4
- */
-struct _ClutterDragAction
-{
-  /*< private >*/
-  ClutterAction parent_instance;
-
-  ClutterDragActionPrivate *priv;
-};
+typedef struct _ClutterDragActionPrivate ClutterDragActionPrivate;
 
 /**
  * ClutterDragActionClass:
@@ -104,9 +85,6 @@ struct _ClutterDragActionClass
   void (* _clutter_drag_action3) (void);
   void (* _clutter_drag_action4) (void);
 };
-
-CLUTTER_EXPORT
-GType clutter_drag_action_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterAction * clutter_drag_action_new                   (void);

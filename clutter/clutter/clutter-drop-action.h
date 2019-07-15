@@ -33,32 +33,13 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_DROP_ACTION                (clutter_drop_action_get_type ())
-#define CLUTTER_DROP_ACTION(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_DROP_ACTION, ClutterDropAction))
-#define CLUTTER_IS_DROP_ACTION(obj)             (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_DROP_ACTION))
-#define CLUTTER_DROP_ACTION_CLASS(klass)        (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_DROP_ACTION, ClutterDropActionClass))
-#define CLUTTER_IS_DROP_ACTION_CLASS(klass)     (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_DROP_ACTION))
-#define CLUTTER_DROP_ACTION_GET_CLASS(obj)      (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_DROP_ACTION, ClutterDropActionClass))
+#define CLUTTER_TYPE_DROP_ACTION (clutter_drop_action_get_type ())
 
-typedef struct _ClutterDropAction               ClutterDropAction;
-typedef struct _ClutterDropActionPrivate        ClutterDropActionPrivate;
-typedef struct _ClutterDropActionClass          ClutterDropActionClass;
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterDropAction, clutter_drop_action,
+                          CLUTTER, DROP_ACTION, ClutterAction);
 
-/**
- * ClutterDropAction:
- *
- * The #ClutterDropAction structure contains only
- * private data and should be accessed using the provided API.
- *
- * Since: 1.8
- */
-struct _ClutterDropAction
-{
-  /*< private >*/
-  ClutterAction parent_instance;
-
-  ClutterDropActionPrivate *priv;
-};
+typedef struct _ClutterDropActionPrivate ClutterDropActionPrivate;
 
 /**
  * ClutterDropActionClass:
@@ -103,9 +84,6 @@ struct _ClutterDropActionClass
   void (*_clutter_drop_action7) (void);
   void (*_clutter_drop_action8) (void);
 };
-
-CLUTTER_EXPORT
-GType clutter_drop_action_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 ClutterAction *         clutter_drop_action_new         (void);
