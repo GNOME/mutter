@@ -182,9 +182,6 @@ static gboolean process_keyboard_resize_grab (MetaDisplay     *display,
                                               MetaWindow      *window,
                                               ClutterKeyEvent *event);
 
-static void grab_key_bindings           (MetaDisplay *display);
-static void ungrab_key_bindings         (MetaDisplay *display);
-
 static GHashTable *key_handlers;
 static GHashTable *external_grabs;
 
