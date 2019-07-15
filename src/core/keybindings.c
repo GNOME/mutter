@@ -1345,6 +1345,10 @@ prefs_changed_callback (MetaPreference pref,
 
   switch (pref)
     {
+    case META_PREF_LOCATE_POINTER:
+      ungrab_key_bindings (display);
+      grab_key_bindings (display);
+      break;
     case META_PREF_KEYBINDINGS:
       ungrab_key_bindings (display);
       rebuild_key_binding_table (keys);
@@ -1469,7 +1473,14 @@ change_keygrab_foreach (gpointer key,
   if (binding->resolved_combo.len == 0)
     return;
 
-  meta_change_keygrab (data->keys, data->xwindow, data->grab, &binding->resolved_combo);
+  /* Special case for locate-pointer, grab the key only if the feature is enabled */
+  if (resolved_key_combo_intersect (&binding->resolved_combo,
+                                    &data->keys->locate_pointer_resolved_key_combo))
+    meta_change_keygrab (data->keys, data->xwindow,
+                         (!!data->grab & !!meta_prefs_is_locate_pointer_enabled()),
+                         &binding->resolved_combo);
+  else
+    meta_change_keygrab (data->keys, data->xwindow, data->grab, &binding->resolved_combo);
 }
 
 static void
@@ -1498,10 +1509,6 @@ meta_x11_display_change_keygrabs (MetaX11Display *x11_display,
   if (keys->overlay_resolved_key_combo.len != 0)
     meta_change_keygrab (keys, x11_display->xroot,
                          grab, &keys->overlay_resolved_key_combo);
-
-  if (keys->locate_pointer_resolved_key_combo.len != 0)
-    meta_change_keygrab (keys, x11_display->xroot,
-                         grab, &keys->locate_pointer_resolved_key_combo);
 
   for (i = 0; i < keys->n_iso_next_group_combos; i++)
     meta_change_keygrab (keys, x11_display->xroot,
