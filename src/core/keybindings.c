@@ -59,6 +59,7 @@
 #define SCHEMA_COMMON_KEYBINDINGS "org.gnome.desktop.wm.keybindings"
 #define SCHEMA_MUTTER_KEYBINDINGS "org.gnome.mutter.keybindings"
 #define SCHEMA_MUTTER_WAYLAND_KEYBINDINGS "org.gnome.mutter.wayland.keybindings"
+#define SCHEMA_GNOME_DESKTOP_INTERFACE "org.gnome.desktop.interface"
 
 #define META_KEY_BINDING_PRIMARY_LAYOUT 0
 #define META_KEY_BINDING_SECONDARY_LAYOUT 1
@@ -70,6 +71,8 @@ static gboolean add_builtin_keybinding (MetaDisplay          *display,
                                         MetaKeyBindingAction  action,
                                         MetaKeyHandlerFunc    handler,
                                         int                   handler_arg);
+
+static void maybe_change_locate_pointer_keygrabs (MetaDisplay *display);
 
 static void
 resolved_key_combo_reset (MetaResolvedKeyCombo *resolved_combo)
@@ -1345,6 +1348,9 @@ prefs_changed_callback (MetaPreference pref,
 
   switch (pref)
     {
+    case META_PREF_LOCATE_POINTER:
+      maybe_change_locate_pointer_keygrabs (display);
+      break;
     case META_PREF_KEYBINDINGS:
       ungrab_key_bindings (display);
       rebuild_key_binding_table (keys);
@@ -1462,6 +1468,7 @@ change_keygrab_foreach (gpointer key,
   ChangeKeygrabData *data = user_data;
   MetaKeyBinding *binding = value;
   gboolean binding_is_per_window = (binding->flags & META_KEY_BINDING_PER_WINDOW) != 0;
+  gboolean grab = data->grab;
 
   if (data->only_per_window != binding_is_per_window)
     return;
@@ -1469,7 +1476,13 @@ change_keygrab_foreach (gpointer key,
   if (binding->resolved_combo.len == 0)
     return;
 
-  meta_change_keygrab (data->keys, data->xwindow, data->grab, &binding->resolved_combo);
+  /* Special case for locate-pointer, grab the key only if the feature is enabled */
+  if (grab &&
+      resolved_key_combo_intersect (&binding->resolved_combo,
+                                    &data->keys->locate_pointer_resolved_key_combo))
+    grab = meta_prefs_is_locate_pointer_enabled();
+
+  meta_change_keygrab (data->keys, data->xwindow, grab, &binding->resolved_combo);
 }
 
 static void
@@ -1489,6 +1502,20 @@ change_binding_keygrabs (MetaKeyBindingManager *keys,
 }
 
 static void
+maybe_change_locate_pointer_keygrabs (MetaDisplay *display)
+{
+  MetaKeyBindingManager *keys = &display->key_binding_manager;
+
+  if (display->x11_display == NULL)
+    return;
+
+  if (keys->locate_pointer_resolved_key_combo.len != 0)
+    meta_change_keygrab (keys, display->x11_display->xroot,
+                         meta_prefs_is_locate_pointer_enabled(),
+                         &keys->locate_pointer_resolved_key_combo);
+}
+
+static void
 meta_x11_display_change_keygrabs (MetaX11Display *x11_display,
                                   gboolean        grab)
 {
@@ -1498,10 +1525,6 @@ meta_x11_display_change_keygrabs (MetaX11Display *x11_display,
   if (keys->overlay_resolved_key_combo.len != 0)
     meta_change_keygrab (keys, x11_display->xroot,
                          grab, &keys->overlay_resolved_key_combo);
-
-  if (keys->locate_pointer_resolved_key_combo.len != 0)
-    meta_change_keygrab (keys, x11_display->xroot,
-                         grab, &keys->locate_pointer_resolved_key_combo);
 
   for (i = 0; i < keys->n_iso_next_group_combos; i++)
     meta_change_keygrab (keys, x11_display->xroot,
