@@ -81,28 +81,32 @@ static void
 on_actor_destroy (ClutterActor     *actor,
                   ClutterActorMeta *meta)
 {
-  meta->priv->actor = NULL;
+  ClutterActorMetaPrivate *priv = clutter_actor_meta_get_instance_private (meta);
+
+  priv->actor = NULL;
 }
 
 static void
 clutter_actor_meta_real_set_actor (ClutterActorMeta *meta,
                                    ClutterActor     *actor)
 {
-  if (meta->priv->actor == actor)
+  ClutterActorMetaPrivate *priv = clutter_actor_meta_get_instance_private (meta);
+
+  if (priv->actor == actor)
     return;
 
-  if (meta->priv->destroy_id != 0)
+  if (priv->destroy_id != 0)
     {
-      g_signal_handler_disconnect (meta->priv->actor, meta->priv->destroy_id);
-      meta->priv->destroy_id = 0;
+      g_signal_handler_disconnect (priv->actor, priv->destroy_id);
+      priv->destroy_id = 0;
     }
 
-  meta->priv->actor = actor;
+  priv->actor = actor;
 
-  if (meta->priv->actor != NULL)
-    meta->priv->destroy_id = g_signal_connect (meta->priv->actor, "destroy",
-                                               G_CALLBACK (on_actor_destroy),
-                                               meta);
+  if (priv->actor != NULL)
+    priv->destroy_id = g_signal_connect (priv->actor, "destroy",
+                                         G_CALLBACK (on_actor_destroy),
+                                         meta);
 }
 
 static void
@@ -136,19 +140,20 @@ clutter_actor_meta_get_property (GObject    *gobject,
                                  GParamSpec *pspec)
 {
   ClutterActorMeta *meta = CLUTTER_ACTOR_META (gobject);
+  ClutterActorMetaPrivate *priv = clutter_actor_meta_get_instance_private (meta);
 
   switch (prop_id)
     {
     case PROP_ACTOR:
-      g_value_set_object (value, meta->priv->actor);
+      g_value_set_object (value, priv->actor);
       break;
 
     case PROP_NAME:
-      g_value_set_string (value, meta->priv->name);
+      g_value_set_string (value, priv->name);
       break;
 
     case PROP_ENABLED:
-      g_value_set_boolean (value, meta->priv->is_enabled);
+      g_value_set_boolean (value, priv->is_enabled);
       break;
 
     default:
@@ -160,7 +165,7 @@ clutter_actor_meta_get_property (GObject    *gobject,
 static void
 clutter_actor_meta_finalize (GObject *gobject)
 {
-  ClutterActorMetaPrivate *priv = CLUTTER_ACTOR_META (gobject)->priv;
+  ClutterActorMetaPrivate *priv = clutter_actor_meta_get_instance_private (CLUTTER_ACTOR_META (gobject));
 
   if (priv->destroy_id != 0 && priv->actor != NULL)
     g_signal_handler_disconnect (priv->actor, priv->destroy_id);
@@ -230,9 +235,10 @@ clutter_actor_meta_class_init (ClutterActorMetaClass *klass)
 void
 clutter_actor_meta_init (ClutterActorMeta *self)
 {
-  self->priv = clutter_actor_meta_get_instance_private (self);
-  self->priv->is_enabled = TRUE;
-  self->priv->priority = CLUTTER_ACTOR_META_PRIORITY_DEFAULT;
+  ClutterActorMetaPrivate *priv = clutter_actor_meta_get_instance_private (self);
+
+  priv->is_enabled = TRUE;
+  priv->priority = CLUTTER_ACTOR_META_PRIORITY_DEFAULT;
 }
 
 /**
@@ -250,13 +256,17 @@ void
 clutter_actor_meta_set_name (ClutterActorMeta *meta,
                              const gchar      *name)
 {
+  ClutterActorMetaPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_ACTOR_META (meta));
 
-  if (g_strcmp0 (meta->priv->name, name) == 0)
+  priv = clutter_actor_meta_get_instance_private (meta);
+
+  if (g_strcmp0 (priv->name, name) == 0)
     return;
 
-  g_free (meta->priv->name);
-  meta->priv->name = g_strdup (name);
+  g_free (priv->name);
+  priv->name = g_strdup (name);
 
   g_object_notify_by_pspec (G_OBJECT (meta), obj_props[PROP_NAME]);
 }
@@ -277,9 +287,13 @@ clutter_actor_meta_set_name (ClutterActorMeta *meta,
 const gchar *
 clutter_actor_meta_get_name (ClutterActorMeta *meta)
 {
+  ClutterActorMetaPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_ACTOR_META (meta), NULL);
 
-  return meta->priv->name;
+  priv = clutter_actor_meta_get_instance_private (meta);
+
+  return priv->name;
 }
 
 /**
@@ -295,14 +309,16 @@ void
 clutter_actor_meta_set_enabled (ClutterActorMeta *meta,
                                 gboolean          is_enabled)
 {
+  ClutterActorMetaPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_ACTOR_META (meta));
 
-  is_enabled = !!is_enabled;
+  priv = clutter_actor_meta_get_instance_private (meta);
 
-  if (meta->priv->is_enabled == is_enabled)
+  if (priv->is_enabled == is_enabled)
     return;
 
-  meta->priv->is_enabled = is_enabled;
+  priv->is_enabled = is_enabled;
 
   g_object_notify_by_pspec (G_OBJECT (meta), obj_props[PROP_ENABLED]);
 }
@@ -320,9 +336,13 @@ clutter_actor_meta_set_enabled (ClutterActorMeta *meta,
 gboolean
 clutter_actor_meta_get_enabled (ClutterActorMeta *meta)
 {
+  ClutterActorMetaPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_ACTOR_META (meta), FALSE);
 
-  return meta->priv->is_enabled;
+  priv = clutter_actor_meta_get_instance_private (meta);
+
+  return priv->is_enabled;
 }
 
 /*
@@ -358,16 +378,24 @@ _clutter_actor_meta_set_actor (ClutterActorMeta *meta,
 ClutterActor *
 clutter_actor_meta_get_actor (ClutterActorMeta *meta)
 {
+  ClutterActorMetaPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_ACTOR_META (meta), NULL);
 
-  return meta->priv->actor;
+  priv = clutter_actor_meta_get_instance_private (meta);
+
+  return priv->actor;
 }
 
 void
 _clutter_actor_meta_set_priority (ClutterActorMeta *meta,
                                   gint priority)
 {
+  ClutterActorMetaPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_ACTOR_META (meta));
+
+  priv = clutter_actor_meta_get_instance_private (meta);
 
   /* This property shouldn't be modified after the actor meta is in
      use because ClutterMetaGroup doesn't resort the list when it
@@ -375,23 +403,28 @@ _clutter_actor_meta_set_priority (ClutterActorMeta *meta,
      the priority a construct-only property or listen for
      notifications on the property from the ClutterMetaGroup and
      resort. */
-  g_return_if_fail (meta->priv->actor == NULL);
+  g_return_if_fail (priv->actor == NULL);
 
-  meta->priv->priority = priority;
+  priv->priority = priority;
 }
 
 gint
 _clutter_actor_meta_get_priority (ClutterActorMeta *meta)
 {
+  ClutterActorMetaPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_ACTOR_META (meta), 0);
 
-  return meta->priv->priority;
+  priv = clutter_actor_meta_get_instance_private (meta);
+
+  return priv->priority;
 }
 
 gboolean
 _clutter_actor_meta_is_internal (ClutterActorMeta *meta)
 {
-  gint priority = meta->priv->priority;
+  ClutterActorMetaPrivate *priv = clutter_actor_meta_get_instance_private (meta);
+  gint priority = priv->priority;
 
   return (priority <= CLUTTER_ACTOR_META_PRIORITY_INTERNAL_LOW ||
           priority >= CLUTTER_ACTOR_META_PRIORITY_INTERNAL_HIGH);
@@ -438,19 +471,20 @@ void
 _clutter_meta_group_add_meta (ClutterMetaGroup *group,
                               ClutterActorMeta *meta)
 {
+  ClutterActorMetaPrivate *priv = clutter_actor_meta_get_instance_private (meta);
   GList *prev = NULL, *l;
 
-  if (meta->priv->actor != NULL)
+  if (priv->actor != NULL)
     {
       g_warning ("The meta of type '%s' with name '%s' is "
                  "already attached to actor '%s'",
                  G_OBJECT_TYPE_NAME (meta),
-                 meta->priv->name != NULL
-                   ? meta->priv->name
+                 priv->name != NULL
+                   ? priv->name
                    : "<unknown>",
-                 clutter_actor_get_name (meta->priv->actor) != NULL
-                   ? clutter_actor_get_name (meta->priv->actor)
-                   : G_OBJECT_TYPE_NAME (meta->priv->actor));
+                 clutter_actor_get_name (priv->actor) != NULL
+                   ? clutter_actor_get_name (priv->actor)
+                   : G_OBJECT_TYPE_NAME (priv->actor));
       return;
     }
 
@@ -486,13 +520,15 @@ void
 _clutter_meta_group_remove_meta (ClutterMetaGroup *group,
                                  ClutterActorMeta *meta)
 {
-  if (meta->priv->actor != group->actor)
+  ClutterActorMetaPrivate *priv = clutter_actor_meta_get_instance_private (meta);
+
+  if (priv->actor != group->actor)
     {
       g_warning ("The meta of type '%s' with name '%s' is not "
                  "attached to the actor '%s'",
                  G_OBJECT_TYPE_NAME (meta),
-                 meta->priv->name != NULL
-                   ? meta->priv->name
+                 priv->name != NULL
+                   ? priv->name
                    : "<unknown>",
                  clutter_actor_get_name (group->actor) != NULL
                    ? clutter_actor_get_name (group->actor)
@@ -635,8 +671,9 @@ _clutter_meta_group_get_meta (ClutterMetaGroup *group,
   for (l = group->meta; l != NULL; l = l->next)
     {
       ClutterActorMeta *meta = l->data;
+      ClutterActorMetaPrivate *priv = clutter_actor_meta_get_instance_private (meta);
 
-      if (g_strcmp0 (meta->priv->name, name) == 0)
+      if (g_strcmp0 (priv->name, name) == 0)
         return meta;
     }
 
@@ -656,6 +693,8 @@ _clutter_meta_group_get_meta (ClutterMetaGroup *group,
 const gchar *
 _clutter_actor_meta_get_debug_name (ClutterActorMeta *meta)
 {
-  return meta->priv->name != NULL ? meta->priv->name
+  ClutterActorMetaPrivate *priv = clutter_actor_meta_get_instance_private (meta);
+
+  return priv->name != NULL ? priv->name
                                   : G_OBJECT_TYPE_NAME (meta);
 }

@@ -32,7 +32,6 @@
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterAction, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterActor, g_object_unref)
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterActorMeta, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterAlignConstraint, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBackend, g_object_unref)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBindConstraint, g_object_unref)
