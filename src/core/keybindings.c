@@ -182,6 +182,9 @@ static gboolean process_keyboard_resize_grab (MetaDisplay     *display,
                                               MetaWindow      *window,
                                               ClutterKeyEvent *event);
 
+static void maybe_update_locate_pointer_keygrab (MetaDisplay *display,
+                                                 gboolean     grab);
+
 static GHashTable *key_handlers;
 static GHashTable *external_grabs;
 
@@ -1342,6 +1345,10 @@ prefs_changed_callback (MetaPreference pref,
 
   switch (pref)
     {
+    case META_PREF_LOCATE_POINTER:
+      maybe_update_locate_pointer_keygrab (display,
+                                           meta_prefs_is_locate_pointer_enabled());
+      break;
     case META_PREF_KEYBINDINGS:
       ungrab_key_bindings (display);
       rebuild_key_binding_table (keys);
@@ -1490,6 +1497,18 @@ change_binding_keygrabs (MetaKeyBindingManager *keys,
 }
 
 static void
+meta_x11_display_maybe_update_locate_pointer_keygrab (MetaX11Display *x11_display,
+                                                      gboolean        grab)
+{
+  MetaKeyBindingManager *keys = &x11_display->display->key_binding_manager;
+
+  if (keys->locate_pointer_resolved_key_combo.len != 0)
+    meta_change_keygrab (keys, x11_display->xroot,
+                         (!!grab & !!meta_prefs_is_locate_pointer_enabled()),
+                         &keys->locate_pointer_resolved_key_combo);
+}
+
+static void
 meta_x11_display_change_keygrabs (MetaX11Display *x11_display,
                                   gboolean        grab)
 {
@@ -1500,9 +1519,7 @@ meta_x11_display_change_keygrabs (MetaX11Display *x11_display,
     meta_change_keygrab (keys, x11_display->xroot,
                          grab, &keys->overlay_resolved_key_combo);
 
-  if (keys->locate_pointer_resolved_key_combo.len != 0)
-    meta_change_keygrab (keys, x11_display->xroot,
-                         grab, &keys->locate_pointer_resolved_key_combo);
+  meta_x11_display_maybe_update_locate_pointer_keygrab (x11_display, grab);
 
   for (i = 0; i < keys->n_iso_next_group_combos; i++)
     meta_change_keygrab (keys, x11_display->xroot,
@@ -1532,6 +1549,17 @@ meta_x11_display_ungrab_keys (MetaX11Display *x11_display)
   meta_x11_display_change_keygrabs (x11_display, FALSE);
 
   x11_display->keys_grabbed = FALSE;
+}
+
+static void
+maybe_update_locate_pointer_keygrab (MetaDisplay *display,
+                                     gboolean     grab)
+{
+  if (!display->x11_display)
+    return;
+
+  meta_x11_display_maybe_update_locate_pointer_keygrab (display->x11_display,
+                                                        grab);
 }
 
 static void
