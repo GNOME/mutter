@@ -529,8 +529,8 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
 
 static void
 devirtualize_modifiers (MetaKeyBindingManager *keys,
-                        MetaVirtualModifier     modifiers,
-                        unsigned int           *mask)
+                        MetaVirtualModifier    modifiers,
+                        unsigned int          *mask)
 {
   *mask = 0;
 
