@@ -54,6 +54,35 @@ dnd_surface_commit (MetaWaylandSurfaceRole  *surface_role,
 }
 
 static void
+dnd_subsurface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
+{
+  MetaSurfaceActor *surface_actor =
+    meta_wayland_actor_surface_get_actor (actor_surface);
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (actor_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandActorSurfaceClass *actor_surface_class =
+    META_WAYLAND_ACTOR_SURFACE_CLASS (meta_wayland_surface_role_dnd_parent_class);
+  float actor_scale;
+  float actor_pos_x;
+  float actor_pos_y;
+
+  actor_scale = meta_wayland_actor_surface_calculate_scale (actor_surface);
+
+  clutter_actor_get_position (CLUTTER_ACTOR (surface_actor),
+                              &actor_pos_x,
+                              &actor_pos_y);
+  clutter_actor_set_position (CLUTTER_ACTOR (surface_actor),
+                              actor_pos_x + surface->offset_x / actor_scale,
+                              actor_pos_y + surface->offset_y / actor_scale);
+
+  meta_wayland_surface_clear_offset (surface);
+
+  actor_surface_class->sync_actor_state (actor_surface);
+}
+
+static void
 meta_wayland_surface_role_dnd_init (MetaWaylandSurfaceRoleDND *role)
 {
 }
@@ -63,7 +92,11 @@ meta_wayland_surface_role_dnd_class_init (MetaWaylandSurfaceRoleDNDClass *klass)
 {
   MetaWaylandSurfaceRoleClass *surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (klass);
+  MetaWaylandActorSurfaceClass *actor_surface_class =
+    META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
 
   surface_role_class->assigned = dnd_surface_assigned;
   surface_role_class->commit = dnd_surface_commit;
+
+  actor_surface_class->sync_actor_state = dnd_subsurface_sync_actor_state;
 }
