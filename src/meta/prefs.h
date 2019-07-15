@@ -436,6 +436,7 @@ typedef enum _MetaKeyBindingAction
  * @META_KEY_BINDING_BUILTIN: built-in
  * @META_KEY_BINDING_IS_REVERSED: is reversed
  * @META_KEY_BINDING_NON_MASKABLE: always active
+ * @META_KEY_BINDING_NO_AUTO_GRAB: not grabbed automatically
  */
 typedef enum
 {
@@ -445,6 +446,7 @@ typedef enum
   META_KEY_BINDING_IS_REVERSED  = 1 << 2,
   META_KEY_BINDING_NON_MASKABLE = 1 << 3,
   META_KEY_BINDING_IGNORE_AUTOREPEAT = 1 << 4,
+  META_KEY_BINDING_NO_AUTO_GRAB = 1 << 5,
 } MetaKeyBindingFlags;
 
 /**
