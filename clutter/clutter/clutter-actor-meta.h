@@ -33,31 +33,13 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_ACTOR_META                 (clutter_actor_meta_get_type ())
-#define CLUTTER_ACTOR_META(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_ACTOR_META, ClutterActorMeta))
-#define CLUTTER_IS_ACTOR_META(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_ACTOR_META))
-#define CLUTTER_ACTOR_META_CLASS(klass)         (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_ACTOR_META, ClutterActorMetaClass))
-#define CLUTTER_IS_ACTOR_META_CLASS(klass)      (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_ACTOR_META))
-#define CLUTTER_ACTOR_META_GET_CLASS(obj)       (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_ACTOR_META, ClutterActorMetaClass))
+#define CLUTTER_TYPE_ACTOR_META (clutter_actor_meta_get_type ())
 
-typedef struct _ClutterActorMetaPrivate         ClutterActorMetaPrivate;
-typedef struct _ClutterActorMetaClass           ClutterActorMetaClass;
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterActorMeta, clutter_actor_meta,
+                          CLUTTER, ACTOR_META, GInitiallyUnowned);
 
-/**
- * ClutterActorMeta:
- *
- * The #ClutterActorMeta structure contains only
- * private data and should be accessed using the provided API
- *
- * Since: 1.4
- */
-struct _ClutterActorMeta
-{
-  /*< private >*/
-  GInitiallyUnowned parent_instance;
-
-  ClutterActorMetaPrivate *priv;
-};
+typedef struct _ClutterActorMetaPrivate ClutterActorMetaPrivate;
 
 /**
  * ClutterActorMetaClass:
@@ -98,9 +80,6 @@ struct _ClutterActorMetaClass
   void (* _clutter_meta5) (void);
   void (* _clutter_meta6) (void);
 };
-
-CLUTTER_EXPORT
-GType clutter_actor_meta_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
 void            clutter_actor_meta_set_name     (ClutterActorMeta *meta,
