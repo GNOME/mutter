@@ -508,6 +508,7 @@ allocate_custom_egl_image_external (CoglTexture2D *tex_2d,
 
   tex_2d->internal_format = internal_format;
   tex_2d->gl_target = GL_TEXTURE_EXTERNAL_OES;
+  tex_2d->is_get_data_supported = FALSE;
 
   return TRUE;
 }
@@ -834,10 +835,7 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
 gboolean
 _cogl_texture_2d_gl_is_get_data_supported (CoglTexture2D *tex_2d)
 {
-  if (tex_2d->gl_target == GL_TEXTURE_EXTERNAL_OES)
-    return FALSE;
-  else
-    return TRUE;
+  return tex_2d->is_get_data_supported;
 }
 
 void
