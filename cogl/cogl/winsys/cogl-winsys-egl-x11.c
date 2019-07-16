@@ -765,6 +765,7 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
   CoglTexturePixmapEGL *egl_tex_pixmap;
   EGLint attribs[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
   CoglPixelFormat texture_format;
+  CoglEglImageTextureFlag flags;
   CoglRendererEGL *egl_renderer;
 
   egl_renderer = ctx->display->renderer->winsys;
@@ -795,12 +796,14 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
                     COGL_PIXEL_FORMAT_RGBA_8888_PRE :
                     COGL_PIXEL_FORMAT_RGB_888);
 
+  flags = COGL_EGL_IMAGE_TEXTURE_FLAG_NONE;
   egl_tex_pixmap->texture = COGL_TEXTURE (
     cogl_egl_texture_2d_new_from_image (ctx,
                                         tex->width,
                                         tex->height,
                                         texture_format,
                                         egl_tex_pixmap->image,
+                                        flags,
                                         NULL));
 
   tex_pixmap->winsys = egl_tex_pixmap;
