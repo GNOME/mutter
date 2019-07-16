@@ -60,6 +60,12 @@ G_BEGIN_DECLS
 typedef struct _CoglTexture2D CoglTexture2D;
 #define COGL_TEXTURE_2D(X) ((CoglTexture2D *)X)
 
+typedef enum _CoglEglImageFlags
+{
+  COGL_EGL_IMAGE_FLAG_NONE = 0,
+  COGL_EGL_IMAGE_FLAG_NO_GET_DATA = 1 << 0,
+} CoglEglImageFlags;
+
 /**
  * cogl_texture_2d_get_gtype:
  *
@@ -219,6 +225,7 @@ cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
                                     int height,
                                     CoglPixelFormat format,
                                     EGLImageKHR image,
+                                    CoglEglImageFlags flags,
                                     GError **error);
 
 typedef gboolean (*CoglTexture2DEGLImageExternalAlloc) (CoglTexture2D *tex_2d,
