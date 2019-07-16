@@ -320,6 +320,8 @@ allocate_from_egl_image (CoglTexture2D *tex_2d,
     }
 
   tex_2d->internal_format = internal_format;
+  tex_2d->is_get_data_supported =
+    !(loader->src.egl_image.flags & COGL_EGL_IMAGE_TEXTURE_FLAG_PAINT_ONLY);
 
   _cogl_texture_set_allocated (tex,
                                internal_format,
