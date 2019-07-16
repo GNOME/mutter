@@ -987,9 +987,15 @@ meta_window_x11_focus (MetaWindow *window,
               if (window->display->focus_window != NULL &&
                   window->display->focus_window->unmanaging)
                 {
+                  MetaWorkspace *workspace = window->workspace;
+
                   meta_display_unset_input_focus (window->display, timestamp);
-                  maybe_focus_default_window (window->workspace, window,
-                                              timestamp);
+
+                  if (!workspace)
+                    workspace =
+                      window->display->workspace_manager->active_workspace;
+
+                  maybe_focus_default_window (workspace, window, timestamp);
                 }
             }
 
