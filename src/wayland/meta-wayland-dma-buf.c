@@ -135,7 +135,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   if (egl_image == EGL_NO_IMAGE_KHR)
     return FALSE;
 
-  flags = COGL_EGL_IMAGE_FLAG_NONE;
+  flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
   texture = cogl_egl_texture_2d_new_from_image (cogl_context,
                                                 dma_buf->width,
                                                 dma_buf->height,
