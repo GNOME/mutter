@@ -106,6 +106,7 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
 
   tex_2d->mipmaps_dirty = TRUE;
   tex_2d->auto_mipmap = TRUE;
+  tex_2d->is_get_data_supported = TRUE;
 
   tex_2d->gl_target = GL_TEXTURE_2D;
 
