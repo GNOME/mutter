@@ -834,14 +834,20 @@ meta_window_x11_maybe_focus_delayed (MetaWindow *window,
 }
 
 static void
-maybe_focus_default_window (MetaWorkspace *workspace,
-                            MetaWindow    *not_this_one,
-                            guint32        timestamp)
+maybe_focus_default_window (MetaScreen *screen,
+                            MetaWindow *not_this_one,
+                            guint32     timestamp)
 {
-  MetaStack *stack = workspace->screen->stack;
+  MetaWorkspace *workspace;
+  MetaStack *stack = screen->stack;
   g_autoptr (GList) focusable_windows = NULL;
   g_autoptr (GQueue) focus_candidates = NULL;
   GList *l;
+
+  if (not_this_one && not_this_one->workspace)
+    workspace = not_this_one->workspace;
+  else
+    workspace = screen->active_workspace;
 
    /* Go through all the focusable windows and try to focus them
     * in order, waiting for a delay. The first one that replies to
@@ -936,7 +942,7 @@ meta_window_x11_focus (MetaWindow *window,
                   meta_display_focus_the_no_focus_window (window->display,
                                                           window->screen,
                                                           timestamp);
-                  maybe_focus_default_window (window->workspace, window,
+                  maybe_focus_default_window (window->screen, window,
                                               timestamp);
                 }
             }
