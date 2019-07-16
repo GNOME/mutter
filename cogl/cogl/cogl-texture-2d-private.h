@@ -47,6 +47,7 @@ struct _CoglTexture2D
   gboolean auto_mipmap;
   gboolean mipmaps_dirty;
   gboolean is_foreign;
+  gboolean is_get_data_supported;
 
   /* TODO: factor out these OpenGL specific members into some form
    * of driver private state. */
