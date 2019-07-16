@@ -801,6 +801,7 @@ _cogl_winsys_texture_pixmap_x11_create (CoglTexturePixmapX11 *tex_pixmap)
                                         tex->height,
                                         texture_format,
                                         egl_tex_pixmap->image,
+                                        COGL_EGL_IMAGE_FLAG_NONE,
                                         NULL));
 
   tex_pixmap->winsys = egl_tex_pixmap;
