@@ -50,9 +50,6 @@
 #define META_IS_DEFAULT_PLUGIN_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_DEFAULT_PLUGIN))
 #define META_DEFAULT_PLUGIN_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_DEFAULT_PLUGIN, MetaDefaultPluginClass))
 
-#define META_DEFAULT_PLUGIN_GET_PRIVATE(obj) \
-(G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_DEFAULT_PLUGIN, MetaDefaultPluginPrivate))
-
 typedef struct _MetaDefaultPlugin        MetaDefaultPlugin;
 typedef struct _MetaDefaultPluginClass   MetaDefaultPluginClass;
 typedef struct _MetaDefaultPluginPrivate MetaDefaultPluginPrivate;
@@ -218,7 +215,7 @@ meta_default_plugin_init (MetaDefaultPlugin *self)
 {
   MetaDefaultPluginPrivate *priv;
 
-  self->priv = priv = META_DEFAULT_PLUGIN_GET_PRIVATE (self);
+  self->priv = priv = meta_default_plugin_get_instance_private (self);
 
   priv->info.name        = "Default Effects";
   priv->info.version     = "0.1";
