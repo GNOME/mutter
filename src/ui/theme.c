@@ -566,7 +566,7 @@ meta_frame_layout_calc_geometry (MetaFrameLayout        *layout,
 
         }
       else
-        g_memmove (&(rect->clickable), &(rect->visible), sizeof(rect->clickable));
+        memmove (&(rect->clickable), &(rect->visible), sizeof(rect->clickable));
 
       x = rect->visible.x - layout->button_margin.left * scale;
 
@@ -613,7 +613,7 @@ meta_frame_layout_calc_geometry (MetaFrameLayout        *layout,
           rect->clickable.height = button_height + button_y;
         }
       else
-        g_memmove (&(rect->clickable), &(rect->visible), sizeof(rect->clickable));
+        memmove (&(rect->clickable), &(rect->visible), sizeof(rect->clickable));
 
       x = rect->visible.x + rect->visible.width + layout->button_margin.right * scale;
       if (i < n_left - 1)
