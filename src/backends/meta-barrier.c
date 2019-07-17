@@ -302,7 +302,7 @@ meta_barrier_destroy (MetaBarrier *barrier)
 static void
 meta_barrier_init (MetaBarrier *barrier)
 {
-  barrier->priv = G_TYPE_INSTANCE_GET_PRIVATE (barrier, META_TYPE_BARRIER, MetaBarrierPrivate);
+  barrier->priv = meta_barrier_get_instance_private (barrier);
 }
 
 void
