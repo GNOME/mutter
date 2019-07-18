@@ -1,4 +1,5 @@
 window-x11-Focus-a-window-in-the-active-workspace-as-take.patch
+metatest-Dispatch-the-destruction-instead-of-sleeping-aft.patch
 theme-use-gtk_render_icon_suface-to-paint-button-icon.patch
 theme-load-icons-as-Gtk-does-with-fallback-and-RTL-suppor.patch
 meson-add-back-default_driver-option.patch
