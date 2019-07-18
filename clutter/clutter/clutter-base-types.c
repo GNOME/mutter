@@ -570,6 +570,68 @@ G_DEFINE_BOXED_TYPE_WITH_CODE (ClutterPoint, clutter_point,
                                clutter_point_free,
                                CLUTTER_REGISTER_INTERVAL_PROGRESS (clutter_point_progress))
 
+static int
+clutter_point_compare_line (const ClutterPoint *p,
+                            const ClutterPoint *a,
+                            const ClutterPoint *b)
+{
+  float x1 = b->x - a->x;
+  float y1 = b->y - a->y;
+  float x2 = p->x - a->x;
+  float y2 = p->y - a->y;
+  float cross_z = x1 * y2 - y1 * x2;
+
+  if (cross_z > 0.f)
+    return 1;
+  else if (cross_z < 0.f)
+    return -1;
+  else
+    return 0;
+}
+
+/**
+ * clutter_point_inside_quadrilateral:
+ * @point: a #ClutterPoint to test
+ * @vertices: array of vertices of the quadrilateral, in clockwise order,
+ *            from top-left to bottom-left
+ *
+ * Determines whether a point is inside the convex quadrilateral provided,
+ * and not on any of its edges or vertices.
+ *
+ * Returns: %TRUE if @point is inside the quadrilateral
+ */
+gboolean
+clutter_point_inside_quadrilateral (const ClutterPoint *point,
+                                    const ClutterPoint *vertices)
+{
+  unsigned int i;
+  int first_side;
+
+  first_side = 0;
+
+  for (i = 0; i < 4; i++)
+    {
+      int side;
+
+      side = clutter_point_compare_line (point,
+                                         &vertices[i],
+                                         &vertices[(i + 1) % 4]);
+
+      if (side)
+        {
+          if (first_side == 0)
+            first_side = side;
+          else if (side != first_side)
+            return FALSE;
+        }
+    }
+
+  if (first_side == 0)
+    return FALSE;
+
+  return TRUE;
+}
+
 
 
 /*
