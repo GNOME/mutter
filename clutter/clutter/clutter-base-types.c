@@ -570,6 +570,119 @@ G_DEFINE_BOXED_TYPE_WITH_CODE (ClutterPoint, clutter_point,
                                clutter_point_free,
                                CLUTTER_REGISTER_INTERVAL_PROGRESS (clutter_point_progress))
 
+static int
+clutter_point_compare_line (const ClutterPoint *p,
+                            const ClutterPoint *a,
+                            const ClutterPoint *b)
+{
+  /*
+   * Given two vectors ab and ap:
+   *   ab = (x1, y1, 0)
+   *   ap = (x2, y2, 0)
+   * their cross product is a vector:
+   *   ab x ap = (0, 0, x1 * y2 - y1 * x2)
+   */
+  float x1 = b->x - a->x;
+  float y1 = b->y - a->y;
+  float x2 = p->x - a->x;
+  float y2 = p->y - a->y;
+  float cross_z = x1 * y2 - y1 * x2;
+
+  /*
+   * The cross product is also proportional to the sine of the angle between
+   * the vectors, so its sign tells us the sign of the angle between the two
+   * vectors. That is whether p is left of or right of line ab.
+   */
+  if (cross_z > 0.f)
+    return +1;
+  else if (cross_z < 0.f)
+    return -1;
+  else
+    return 0;
+}
+
+static int
+clutter_point_compare_polygon (const ClutterPoint *point,
+                               const ClutterPoint *vertices,
+                               unsigned int        nvertices)
+{
+  unsigned int i;
+  int first_side = 0;
+  gboolean on_an_edge = FALSE;
+
+  g_return_val_if_fail (nvertices >= 3, +1);
+
+  for (i = 0; i < nvertices; i++)
+    {
+      int side = clutter_point_compare_line (point,
+                                             &vertices[i],
+                                             &vertices[(i + 1) % nvertices]);
+
+      if (side)
+        {
+          if (!first_side)
+            first_side = side;
+          else if (side != first_side)
+            return +1;  /* outside */
+        }
+      else
+        {
+          on_an_edge = TRUE;
+        }
+    }
+
+  if (first_side)
+    {
+      return on_an_edge ? 0 : -1;  /* on an edge or completely inside */
+    }
+  else
+    {
+      /* The point was neither inside nor outside any edges so we have an empty
+       * polygon. Therefore if the vertices match the point we'll at least call
+       * that touching. Otherwise the point is outside.
+       */
+      return point->x == vertices[0].x && point->y == vertices[0].y ? 0 : +1;
+    }
+}
+
+/**
+ * clutter_point_inside_polygon:
+ * @point: a #ClutterPoint to test
+ * @vertices: array of vertices of the polygon
+ * @nvertices: number of vertices in array @vertices
+ *
+ * Determines whether a point is inside the convex polygon provided, and not
+ * on any of its edges or vertices.
+ *
+ * Return value: true if @point is inside the polygon
+ */
+gboolean
+clutter_point_inside_polygon (const ClutterPoint *point,
+                              const ClutterPoint *vertices,
+                              unsigned int        nvertices)
+{
+  return clutter_point_compare_polygon (point, vertices, nvertices) < 0;
+}
+
+/**
+ * clutter_point_touches_polygon:
+ * @point: a #ClutterPoint to test
+ * @vertices: array of vertices of the polygon
+ * @nvertices: number of vertices in array @vertices
+ *
+ * Determines whether a point is on the convex polygon provided, including
+ * on any of its edges or vertices.
+ *
+ * Return value: true if @point is on the polygon
+ */
+gboolean
+clutter_point_touches_polygon (const ClutterPoint *point,
+                               const ClutterPoint *vertices,
+                               unsigned int        nvertices)
+{
+  return clutter_point_compare_polygon (point, vertices, nvertices) <= 0;
+}
+
 
 
 /*
