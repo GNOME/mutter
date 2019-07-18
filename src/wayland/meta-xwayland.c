@@ -476,6 +476,7 @@ choose_xdisplay (MetaXWaylandManager *manager)
       if (!open_display_sockets (manager, display, &fatal))
         {
           unlink (lock_file);
+          g_clear_pointer (&lock_file, g_free);
 
           if (!fatal)
             {
