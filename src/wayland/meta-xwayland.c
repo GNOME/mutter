@@ -421,6 +421,7 @@ choose_xdisplay (MetaXWaylandManager *manager)
       if (manager->abstract_fd < 0)
         {
           unlink (lock_file);
+          g_clear_pointer (&lock_file, g_free);
 
           if (!fatal)
             {
@@ -438,6 +439,7 @@ choose_xdisplay (MetaXWaylandManager *manager)
       if (manager->unix_fd < 0)
         {
           unlink (lock_file);
+          g_clear_pointer (&lock_file, g_free);
           close (manager->abstract_fd);
           display++;
           continue;
