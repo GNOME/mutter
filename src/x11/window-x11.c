@@ -852,7 +852,6 @@ maybe_focus_default_window (MetaDisplay *display,
 {
   MetaWorkspace *workspace;
   MetaStack *stack = display->stack;
-  MetaStack *stack = workspace->display->stack;
   g_autoptr (GList) focusable_windows = NULL;
   g_autoptr (GQueue) focus_candidates = NULL;
   GList *l;
