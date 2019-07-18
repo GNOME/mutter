@@ -200,6 +200,9 @@ float                   clutter_point_distance  (const ClutterPoint *a,
                                                  const ClutterPoint *b,
                                                  float              *x_distance,
                                                  float              *y_distance);
+CLUTTER_EXPORT
+gboolean clutter_point_inside_quadrilateral     (const ClutterPoint *point,
+                                                 const ClutterPoint *vertices);
 
 /**
  * ClutterSize:
