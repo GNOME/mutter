@@ -33,6 +33,7 @@ clutter_conform_tests_general_tests = [
   'interval',
   'script-parser',
   'units',
+  'point',
 ]
 
 clutter_conform_tests_deprecated_tests = [
