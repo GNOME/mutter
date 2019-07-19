@@ -150,6 +150,7 @@ enum
   SHOWING_DESKTOP_CHANGED,
   RESTACKED,
   WORKAREAS_CHANGED,
+  INIT_XSERVER,
   LAST_SIGNAL
 };
 
@@ -479,6 +480,13 @@ meta_display_class_init (MetaDisplayClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  display_signals[INIT_XSERVER] =
+    g_signal_new ("init-xserver",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1, G_TYPE_INT);
 
   g_object_class_install_property (object_class,
                                    PROP_FOCUS_WINDOW,

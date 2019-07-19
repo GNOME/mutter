@@ -590,6 +590,9 @@ on_displayfd_ready (int          fd,
    * that means it's ready. */
   xserver_finished_init (manager);
 
+  g_signal_emit_by_name (display, "init-xserver",
+                         manager->private_connection.display_index);
+
   if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
     meta_display_init_x11 (display, NULL);
 
