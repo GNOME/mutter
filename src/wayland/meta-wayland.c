@@ -446,7 +446,7 @@ meta_wayland_init (void)
 
   if (meta_get_x11_display_policy () != META_DISPLAY_POLICY_DISABLED)
     {
-      set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
+      set_gnome_env ("DISPLAY", compositor->xwayland_manager.public_connection.name);
       set_gnome_env ("XAUTHORITY", meta_wayland_get_xwayland_auth_file (compositor));
     }
 
@@ -462,7 +462,7 @@ meta_wayland_get_wayland_display_name (MetaWaylandCompositor *compositor)
 const char *
 meta_wayland_get_xwayland_display_name (MetaWaylandCompositor *compositor)
 {
-  return compositor->xwayland_manager.display_name;
+  return compositor->xwayland_manager.private_connection.name;
 }
 
 void

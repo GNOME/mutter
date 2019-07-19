@@ -67,3 +67,6 @@
 /* Either <sys/random.h> or <linux/random.h> */
 #mesondefine HAVE_SYS_RANDOM
 #mesondefine HAVE_LINUX_RANDOM
+
+/* Whether Xwayland has -initfd option */
+#mesondefine HAVE_XWAYLAND_INITFD

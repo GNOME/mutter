@@ -377,6 +377,7 @@ if cc.has_header_symbol('sys/prctl.h', 'prctl')
   cdata.set('HAVE_SYS_PRCTL', 1)
 endif
 
+have_xwayland_initfd = false
 if have_wayland
   xwayland_path = get_option('xwayland_path')
   if xwayland_path == ''
@@ -391,6 +392,19 @@ if have_wayland
     cdata.set('HAVE_LINUX_RANDOM', 1)
   else
     error('Required function getrandom not found')
+  endif
+
+  # For Xwayland -initfd usage
+  use_initfd = get_option('xwayland_initfd')
+  if use_initfd.auto()
+    xwayland_options = run_command(xwayland_path, '-help')
+    have_xwayland_initfd = xwayland_options.stderr().contains('-initfd')
+  else
+    have_xwayland_initfd = use_initfd.enabled()
+  endif
+
+  if (have_xwayland_initfd)
+    cdata.set('HAVE_XWAYLAND_INITFD', 1)
   endif
 endif
 
@@ -450,6 +464,7 @@ output = [
   '        Startup notification..... ' + have_startup_notification.to_string(),
   '        Introspection............ ' + have_introspection.to_string(),
   '        Profiler................. ' + have_profiler.to_string(),
+  '        Xwayland initfd.......... ' + have_xwayland_initfd.to_string(),
   '',
   '    Tests:',
   '',
