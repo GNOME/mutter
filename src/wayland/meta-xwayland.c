@@ -423,6 +423,8 @@ meta_xwayland_override_display_number (int number)
 static gboolean
 open_display_sockets (MetaXWaylandManager *manager,
                       int                  display_index,
+                      int                 *abstract_fd_out,
+                      int                 *unix_fd_out,
                       gboolean            *fatal)
 {
   int abstract_fd, unix_fd;
@@ -440,14 +442,15 @@ open_display_sockets (MetaXWaylandManager *manager,
       return FALSE;
     }
 
-  manager->abstract_fd = abstract_fd;
-  manager->unix_fd = unix_fd;
+  *abstract_fd_out = abstract_fd;
+  *unix_fd_out = unix_fd;
 
   return TRUE;
 }
 
 static gboolean
-choose_xdisplay (MetaXWaylandManager *manager)
+choose_xdisplay (MetaXWaylandManager    *manager,
+                 MetaXWaylandConnection *connection)
 {
   int display = 0;
   char *lock_file = NULL;
@@ -467,7 +470,10 @@ choose_xdisplay (MetaXWaylandManager *manager)
           return FALSE;
         }
 
-      if (!open_display_sockets (manager, display, &fatal))
+      if (!open_display_sockets (manager, display,
+                                 &connection->abstract_fd,
+                                 &connection->unix_fd,
+                                 &fatal))
         {
           unlink (lock_file);
 
@@ -487,9 +493,9 @@ choose_xdisplay (MetaXWaylandManager *manager)
     }
   while (1);
 
-  manager->display_index = display;
-  manager->display_name = g_strdup_printf (":%d", manager->display_index);
-  manager->lock_file = lock_file;
+  connection->display_index = display;
+  connection->name = g_strdup_printf (":%d", connection->display_index);
+  connection->lock_file = lock_file;
 
   return TRUE;
 }
@@ -625,14 +631,15 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager)
   launcher = g_subprocess_launcher_new (flags);
 
   g_subprocess_launcher_take_fd (launcher, xwayland_client_fd[1], 3);
-  g_subprocess_launcher_take_fd (launcher, manager->abstract_fd, 4);
-  g_subprocess_launcher_take_fd (launcher, manager->unix_fd, 5);
+  g_subprocess_launcher_take_fd (launcher, manager->public_connection.abstract_fd, 4);
+  g_subprocess_launcher_take_fd (launcher, manager->public_connection.unix_fd, 5);
   g_subprocess_launcher_take_fd (launcher, displayfd[1], 6);
+  g_subprocess_launcher_take_fd (launcher, manager->private_connection.abstract_fd, 7);
 
   g_subprocess_launcher_setenv (launcher, "WAYLAND_SOCKET", "3", TRUE);
 
   manager->proc = g_subprocess_launcher_spawn (launcher, &error,
-                                               XWAYLAND_PATH, manager->display_name,
+                                               XWAYLAND_PATH, manager->public_connection.name,
                                                "-rootless",
                                                "-noreset",
                                                "-accessx",
@@ -641,6 +648,7 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager)
                                                "-listen", "4",
                                                "-listen", "5",
                                                "-displayfd", "6",
+                                               "-initfd", "7",
                                                NULL);
   if (!manager->proc)
     {
@@ -731,14 +739,27 @@ meta_xwayland_init (MetaXWaylandManager *manager,
   MetaDisplayPolicy policy;
   gboolean fatal;
 
-  if (!manager->display_name)
+  if (!manager->public_connection.name)
     {
-      if (!choose_xdisplay (manager))
+      if (!choose_xdisplay (manager, &manager->public_connection))
+        return FALSE;
+      if (!choose_xdisplay (manager, &manager->private_connection))
         return FALSE;
     }
   else
     {
-      if (!open_display_sockets (manager, manager->display_index, &fatal))
+      if (!open_display_sockets (manager,
+                                 manager->public_connection.display_index,
+                                 &manager->public_connection.abstract_fd,
+                                 &manager->public_connection.unix_fd,
+                                 &fatal))
+        return FALSE;
+
+      if (!open_display_sockets (manager,
+                                 manager->private_connection.display_index,
+                                 &manager->private_connection.abstract_fd,
+                                 &manager->private_connection.unix_fd,
+                                 &fatal))
         return FALSE;
     }
 
@@ -754,7 +775,7 @@ meta_xwayland_init (MetaXWaylandManager *manager,
     }
   else if (policy == META_DISPLAY_POLICY_ON_DEMAND)
     {
-      g_unix_fd_add (manager->abstract_fd, G_IO_IN,
+      g_unix_fd_add (manager->public_connection.abstract_fd, G_IO_IN,
                      xdisplay_connection_activity_cb, manager);
       return TRUE;
     }
@@ -800,19 +821,28 @@ meta_xwayland_shutdown (MetaXWaylandManager *manager)
 
   g_cancellable_cancel (manager->xserver_died_cancellable);
 
-  snprintf (path, sizeof path, "/tmp/.X11-unix/X%d", manager->display_index);
+  snprintf (path, sizeof path, "/tmp/.X11-unix/X%d", manager->public_connection.display_index);
   unlink (path);
 
-  g_clear_pointer (&manager->display_name, g_free);
+  snprintf (path, sizeof path, "/tmp/.X11-unix/X%d", manager->private_connection.display_index);
+  unlink (path);
+
+  g_clear_pointer (&manager->public_connection.name, g_free);
+  g_clear_pointer (&manager->private_connection.name, g_free);
+  if (manager->public_connection.lock_file)
+    {
+      unlink (manager->public_connection.lock_file);
+      g_clear_pointer (&manager->public_connection.lock_file, g_free);
+    }
+  if (manager->private_connection.lock_file)
+    {
+      unlink (manager->private_connection.lock_file);
+      g_clear_pointer (&manager->private_connection.lock_file, g_free);
+    }
   if (manager->auth_file)
     {
       unlink (manager->auth_file);
       g_clear_pointer (&manager->auth_file, g_free);
-    }
-  if (manager->lock_file)
-    {
-      unlink (manager->lock_file);
-      g_clear_pointer (&manager->lock_file, g_free);
     }
 }
 
