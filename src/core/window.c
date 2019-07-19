@@ -7101,9 +7101,9 @@ meta_window_set_user_time (MetaWindow *window,
       if (meta_prefs_get_focus_new_windows () == G_DESKTOP_FOCUS_NEW_WINDOWS_STRICT &&
           window_is_terminal (window))
         window->display->allow_terminal_deactivation = FALSE;
-    }
 
-  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_USER_TIME]);
+      g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_USER_TIME]);
+    }
 }
 
 /**
