@@ -157,6 +157,7 @@ enum
   RESTACKED,
   WORKAREAS_CHANGED,
   CLOSING,
+  INIT_XSERVER,
   LAST_SIGNAL
 };
 
@@ -501,6 +502,14 @@ meta_display_class_init (MetaDisplayClass *klass)
                   0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
+  display_signals[INIT_XSERVER] =
+    g_signal_new ("init-xserver",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, g_signal_accumulator_first_wins,
+                  NULL, NULL,
+                  G_TYPE_BOOLEAN, 1, G_TYPE_TASK);
+
   g_object_class_install_property (object_class,
                                    PROP_FOCUS_WINDOW,
                                    g_param_spec_object ("focus-window",
@@ -722,15 +731,27 @@ on_xserver_started (MetaXWaylandManager *manager,
                     gpointer             user_data)
 {
   g_autoptr (GTask) task = user_data;
+  MetaDisplay *display = g_task_get_source_object (task);
   GError *error = NULL;
-  gboolean retval;
+  gboolean retval = FALSE;
 
-  retval = meta_xwayland_start_xserver_finish (manager, result, &error);
+  if (!meta_xwayland_start_xserver_finish (manager, result, &error))
+    {
+      if (error)
+        g_task_return_error (task, error);
+      else
+        g_task_return_boolean (task, FALSE);
 
-  if (error)
-    g_task_return_error (task, error);
-  else
-    g_task_return_boolean (task, retval);
+      return;
+    }
+
+  g_signal_emit (display, display_signals[INIT_XSERVER], 0, task, &retval);
+
+  if (!retval)
+    {
+      /* No handlers for this signal, proceed right away */
+      g_task_return_boolean (task, TRUE);
+    }
 }
 
 void
