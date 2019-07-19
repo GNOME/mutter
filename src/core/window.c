@@ -1275,8 +1275,7 @@ _meta_window_shared_new (MetaDisplay         *display,
                                window->transient_for->on_all_workspaces_requested,
                                window->transient_for->workspace);
         }
-
-      if (window->on_all_workspaces)
+      else if (window->on_all_workspaces)
         {
           meta_topic (META_DEBUG_PLACEMENT,
                       "Putting window %s on all workspaces\n",
