@@ -8267,7 +8267,9 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
   MetaDisplay *display = window->display;
   gboolean unmodified;
   gboolean is_window_grab;
+  gboolean is_window_button_grab_allowed;
   ClutterModifierType grab_mods, event_mods;
+  ClutterInputDevice *source;
   gfloat x, y;
   guint button;
 
@@ -8339,7 +8341,11 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
   grab_mods = meta_display_get_window_grab_modifiers (display);
   event_mods = clutter_event_get_state (event);
   unmodified = (event_mods & grab_mods) == 0;
-  is_window_grab = (event_mods & grab_mods) == grab_mods;
+  source = clutter_event_get_source_device (event);
+  is_window_button_grab_allowed = !display->focus_window ||
+    !meta_window_shortcuts_inhibited (display->focus_window, source);
+  is_window_grab = (is_window_button_grab_allowed &&
+                    ((event_mods & grab_mods) == grab_mods));
 
   clutter_event_get_coords (event, &x, &y);
 

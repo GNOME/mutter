@@ -1134,8 +1134,12 @@ meta_compositor_sync_window_geometry (MetaCompositor *compositor,
                                       gboolean        did_placement)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
-  meta_window_actor_sync_actor_geometry (window_actor, did_placement);
-  meta_plugin_manager_event_size_changed (compositor->plugin_mgr, window_actor);
+  MetaWindowActorChanges changes;
+
+  changes = meta_window_actor_sync_actor_geometry (window_actor, did_placement);
+
+  if (changes & META_WINDOW_ACTOR_CHANGE_SIZE)
+    meta_plugin_manager_event_size_changed (compositor->plugin_mgr, window_actor);
 }
 
 static void
@@ -1321,18 +1325,6 @@ meta_compositor_new (MetaDisplay *display)
                                            compositor,
                                            NULL);
   return compositor;
-}
-
-/**
- * meta_get_overlay_window: (skip)
- * @display: a #MetaDisplay
- *
- */
-Window
-meta_get_overlay_window (MetaDisplay *display)
-{
-  MetaCompositor *compositor = get_compositor_for_display (display);
-  return compositor->output;
 }
 
 /**

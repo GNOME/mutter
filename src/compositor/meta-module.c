@@ -41,9 +41,6 @@ struct _MetaModulePrivate
   GType         plugin_type;
 };
 
-#define META_MODULE_GET_PRIVATE(obj) \
-(G_TYPE_INSTANCE_GET_PRIVATE ((obj), META_TYPE_MODULE, MetaModulePrivate))
-
 G_DEFINE_TYPE_WITH_PRIVATE (MetaModule, meta_module, G_TYPE_TYPE_MODULE);
 
 static gboolean
@@ -192,7 +189,7 @@ meta_module_class_init (MetaModuleClass *klass)
 static void
 meta_module_init (MetaModule *self)
 {
-  self->priv = META_MODULE_GET_PRIVATE (self);
+  self->priv = meta_module_get_instance_private (self);
 }
 
 GType

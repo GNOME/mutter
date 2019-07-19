@@ -182,6 +182,7 @@ typedef struct _CoglTextureLoader
       int width;
       int height;
       CoglPixelFormat format;
+      CoglEglImageFlags flags;
     } egl_image;
 #endif
 #if defined (COGL_HAS_EGL_SUPPORT)

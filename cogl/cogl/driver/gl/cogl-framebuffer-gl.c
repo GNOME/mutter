@@ -385,12 +385,9 @@ _cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
       else
         {
           /* NB: Currently we only take advantage of binding separate
-           * read/write buffers for offscreen framebuffer blit
-           * purposes.  */
+           * read/write buffers for framebuffer blit purposes. */
           g_return_if_fail (_cogl_has_private_feature
-                                (ctx, COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT));
-          g_return_if_fail (draw_buffer->type == COGL_FRAMEBUFFER_TYPE_OFFSCREEN);
-          g_return_if_fail (read_buffer->type == COGL_FRAMEBUFFER_TYPE_OFFSCREEN);
+                            (ctx, COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER));
 
           _cogl_framebuffer_gl_bind (draw_buffer, GL_DRAW_FRAMEBUFFER);
           _cogl_framebuffer_gl_bind (read_buffer, GL_READ_FRAMEBUFFER);

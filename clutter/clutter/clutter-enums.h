@@ -278,24 +278,6 @@ typedef enum
 } ClutterAnimationMode;
 
 /**
- * ClutterFontFlags:
- * @CLUTTER_FONT_MIPMAPPING: Set to use mipmaps for the glyph cache textures.
- * @CLUTTER_FONT_HINTING: Set to enable hinting on the glyphs.
- *
- * Runtime flags to change the font quality. To be used with
- * clutter_set_font_flags().
- *
- * Since: 1.0
- *
- * Deprecated: 1.22: Use #cairo_font_options_t instead
- */
-typedef enum /*< prefix=CLUTTER_FONT >*/
-{
-  CLUTTER_FONT_MIPMAPPING = (1 << 0),
-  CLUTTER_FONT_HINTING    = (1 << 1)
-} ClutterFontFlags;
-
-/**
  * ClutterTextDirection:
  * @CLUTTER_TEXT_DIRECTION_DEFAULT: Use the default setting, as returned
  *   by clutter_get_default_text_direction()

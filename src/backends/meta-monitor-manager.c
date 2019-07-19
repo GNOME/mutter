@@ -345,6 +345,9 @@ meta_monitor_manager_power_save_mode_changed (MetaMonitorManager *manager,
   MetaMonitorManagerPrivate *priv =
     meta_monitor_manager_get_instance_private (manager);
 
+  if (priv->power_save_mode == mode)
+    return;
+
   priv->power_save_mode = mode;
   g_signal_emit (manager, signals[POWER_SAVE_MODE_CHANGED], 0);
 }

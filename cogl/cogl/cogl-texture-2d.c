@@ -106,6 +106,7 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
 
   tex_2d->mipmaps_dirty = TRUE;
   tex_2d->auto_mipmap = TRUE;
+  tex_2d->is_get_data_supported = TRUE;
 
   tex_2d->gl_target = GL_TEXTURE_2D;
 
@@ -240,6 +241,7 @@ cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
                                     int height,
                                     CoglPixelFormat format,
                                     EGLImageKHR image,
+                                    CoglEglImageFlags flags,
                                     GError **error)
 {
   CoglTextureLoader *loader;
@@ -260,6 +262,7 @@ cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
   loader->src.egl_image.width = width;
   loader->src.egl_image.height = height;
   loader->src.egl_image.format = format;
+  loader->src.egl_image.flags = flags;
 
   tex = _cogl_texture_2d_create_base (ctx, width, height, format, loader);
 

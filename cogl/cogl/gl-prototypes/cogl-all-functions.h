@@ -4,6 +4,7 @@
  * A Low Level GPU Graphics and Utilities API
  *
  * Copyright (C) 2009, 2011 Intel Corporation.
+ * Copyright (C) 2019 DisplayLink (UK) Ltd.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -111,8 +112,8 @@ COGL_EXT_END ()
 
 
 COGL_EXT_BEGIN (offscreen_blit, 3, 0,
-                0, /* not in either GLES */
-                "EXT\0ANGLE\0",
+                COGL_EXT_IN_GLES3,
+                "EXT\0NV\0",
                 "framebuffer_blit\0")
 COGL_EXT_FUNCTION (void, glBlitFramebuffer,
                    (GLint                 srcX0,
