@@ -48,11 +48,18 @@ typedef struct
   char *lock_file;
   int abstract_fd;
   int unix_fd;
+  char *name;
+} MetaXWaylandConnection;
+
+typedef struct
+{
+  MetaXWaylandConnection private_connection;
+  MetaXWaylandConnection public_connection;
+
   guint xserver_grace_period_id;
   struct wl_display *wayland_display;
   struct wl_client *client;
   struct wl_resource *xserver_resource;
-  char *display_name;
   char *auth_file;
 
   GCancellable *xserver_died_cancellable;
