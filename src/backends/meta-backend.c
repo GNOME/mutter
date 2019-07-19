@@ -246,8 +246,8 @@ reset_pointer_position (MetaBackend *backend)
   /* Move the pointer out of the way to avoid hovering over reactive
    * elements (e.g. users list at login) causing undesired behaviour. */
   meta_backend_warp_pointer (backend,
-                             primary->rect.x + primary->rect.width * 0.9,
-                             primary->rect.y + primary->rect.height * 0.9);
+                             primary->rect.x + primary->rect.width / 2,
+                             primary->rect.y + primary->rect.height * 0.8);
 }
 
 void
