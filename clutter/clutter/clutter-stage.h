@@ -236,6 +236,8 @@ CLUTTER_EXPORT
 void            clutter_stage_get_redraw_clip_bounds            (ClutterStage          *stage,
                                                                  cairo_rectangle_int_t *clip);
 CLUTTER_EXPORT
+cairo_region_t * clutter_stage_get_redraw_clip                  (ClutterStage          *stage);
+CLUTTER_EXPORT
 void            clutter_stage_ensure_viewport                   (ClutterStage          *stage);
 CLUTTER_EXPORT
 void            clutter_stage_ensure_redraw                     (ClutterStage          *stage);
