@@ -62,7 +62,7 @@ struct _ClutterStageCogl
 
   gint last_sync_delay;
 
-  cairo_rectangle_int_t bounding_redraw_clip;
+  cairo_region_t *redraw_clip;
 
   guint initialized_redraw_clip : 1;
 
