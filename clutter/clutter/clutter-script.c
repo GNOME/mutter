@@ -263,8 +263,6 @@ enum
 
 static GParamSpec *obj_props[PROP_LAST];
 
-#define CLUTTER_SCRIPT_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), CLUTTER_TYPE_SCRIPT, ClutterScriptPrivate))
-
 struct _ClutterScriptPrivate
 {
   GHashTable *objects;
@@ -377,7 +375,7 @@ object_info_free (gpointer data)
 static void
 clutter_script_finalize (GObject *gobject)
 {
-  ClutterScriptPrivate *priv = CLUTTER_SCRIPT_GET_PRIVATE (gobject);
+  ClutterScriptPrivate *priv = CLUTTER_SCRIPT (gobject)->priv;
 
   g_object_unref (priv->parser);
   g_hash_table_destroy (priv->objects);
