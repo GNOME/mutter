@@ -56,7 +56,7 @@ meta_window_group_paint (ClutterActor *actor)
 {
   cairo_region_t *clip_region;
   cairo_region_t *unobscured_region;
-  cairo_rectangle_int_t visible_rect, clip_rect;
+  cairo_rectangle_int_t visible_rect;
   int paint_x_origin, paint_y_origin;
   int screen_width, screen_height;
 
@@ -112,10 +112,7 @@ meta_window_group_paint (ClutterActor *actor)
    * sizes, we could intersect this with an accurate union of the
    * monitors to avoid painting shadows that are visible only in the
    * holes. */
-  clutter_stage_get_redraw_clip_bounds (CLUTTER_STAGE (stage),
-                                        &clip_rect);
-
-  clip_region = cairo_region_create_rectangle (&clip_rect);
+  clip_region = clutter_stage_get_redraw_clip (CLUTTER_STAGE (stage));
 
   cairo_region_translate (clip_region, -paint_x_origin, -paint_y_origin);
 
