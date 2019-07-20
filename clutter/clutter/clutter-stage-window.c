@@ -235,19 +235,35 @@ _clutter_stage_window_ignoring_redraw_clips (ClutterStageWindow *window)
   return TRUE;
 }
 
-gboolean
-_clutter_stage_window_get_redraw_clip_bounds (ClutterStageWindow    *window,
-                                              cairo_rectangle_int_t *stage_clip)
+cairo_region_t *
+_clutter_stage_window_get_redraw_clip (ClutterStageWindow *window)
 {
   ClutterStageWindowInterface *iface;
 
   g_return_val_if_fail (CLUTTER_IS_STAGE_WINDOW (window), FALSE);
 
   iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
-  if (iface->get_redraw_clip_bounds != NULL)
-    return iface->get_redraw_clip_bounds (window, stage_clip);
+  if (iface->get_redraw_clip != NULL)
+    return iface->get_redraw_clip (window);
 
-  return FALSE;
+  return NULL;
+}
+
+gboolean
+_clutter_stage_window_get_redraw_clip_bounds (ClutterStageWindow    *window,
+                                              cairo_rectangle_int_t *stage_clip)
+{
+  cairo_region_t *redraw_clip;
+
+  g_return_val_if_fail (CLUTTER_IS_STAGE_WINDOW (window), FALSE);
+
+  redraw_clip = _clutter_stage_window_get_redraw_clip (window);
+  if (!redraw_clip)
+    return FALSE;
+
+  cairo_region_get_extents (redraw_clip, stage_clip);
+  cairo_region_destroy (redraw_clip);
+  return TRUE;
 }
 
 void
