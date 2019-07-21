@@ -14,7 +14,7 @@ G_BEGIN_DECLS
 
 #define TEST_COGLBOX(obj) \
   (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
-  TEST_TYPE_COGLBOX, TestCoglboxClass))
+  TEST_TYPE_COGLBOX, TestCoglbox))
 
 #define TEST_COGLBOX_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), \
