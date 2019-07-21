@@ -1087,10 +1087,10 @@ read_config_file (MetaMonitorConfigStore  *config_store,
                   MetaMonitorsConfigFlag   extra_config_flags,
                   GError                 **error)
 {
-  char *buffer;
+  g_autoptr (GMarkupParseContext) parse_context = NULL;
+  g_autofree char *buffer = NULL;
   gsize size;
   ConfigParser parser;
-  GMarkupParseContext *parse_context;
 
   if (!g_file_load_contents (file, NULL, &buffer, &size, NULL, error))
     return FALSE;
@@ -1118,9 +1118,6 @@ read_config_file (MetaMonitorConfigStore  *config_store,
                        meta_logical_monitor_config_free);
       return FALSE;
     }
-
-  g_markup_parse_context_free (parse_context);
-  g_free (buffer);
 
   return TRUE;
 }
