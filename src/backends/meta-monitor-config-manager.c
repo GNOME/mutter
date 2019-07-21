@@ -1604,9 +1604,9 @@ meta_verify_monitors_config (MetaMonitorsConfig *config,
                              MetaMonitorManager *monitor_manager,
                              GError            **error)
 {
+  g_autoptr (GList) region = NULL;
   int min_x, min_y;
   gboolean has_primary;
-  GList *region;
   GList *l;
   gboolean global_scale_required;
 
@@ -1623,7 +1623,6 @@ meta_verify_monitors_config (MetaMonitorsConfig *config,
 
   min_x = INT_MAX;
   min_y = INT_MAX;
-  region = NULL;
   has_primary = FALSE;
   for (l = config->logical_monitor_configs; l; l = l->next)
     {
@@ -1647,7 +1646,6 @@ meta_verify_monitors_config (MetaMonitorsConfig *config,
       if (meta_rectangle_overlaps_with_region (region,
                                                &logical_monitor_config->layout))
         {
-          g_list_free (region);
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                        "Logical monitors overlap");
           return FALSE;
@@ -1655,7 +1653,6 @@ meta_verify_monitors_config (MetaMonitorsConfig *config,
 
       if (has_primary && logical_monitor_config->is_primary)
         {
-          g_list_free (region);
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
                        "Config contains multiple primary logical monitors");
           return FALSE;
@@ -1677,8 +1674,6 @@ meta_verify_monitors_config (MetaMonitorsConfig *config,
 
       region = g_list_prepend (region, &logical_monitor_config->layout);
     }
-
-  g_list_free (region);
 
   for (l = config->disabled_monitor_specs; l; l = l->next)
     {
