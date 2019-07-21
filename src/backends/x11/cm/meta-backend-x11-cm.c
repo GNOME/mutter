@@ -403,10 +403,25 @@ meta_backend_x11_cm_init (MetaBackendX11Cm *backend_x11_cm)
 }
 
 static void
+meta_backend_x11_cm_finalize (GObject *object)
+{
+  MetaBackendX11Cm *x11_cm = META_BACKEND_X11_CM (object);
+
+  g_free (x11_cm->keymap_layouts);
+  g_free (x11_cm->keymap_variants);
+  g_free (x11_cm->keymap_options);
+
+  G_OBJECT_CLASS (meta_backend_x11_cm_parent_class)->finalize (object);
+}
+
+static void
 meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
   MetaBackendX11Class *backend_x11_class = META_BACKEND_X11_CLASS (klass);
+
+  object_class->finalize = meta_backend_x11_cm_finalize;
 
   backend_class->post_init = meta_backend_x11_cm_post_init;
   backend_class->create_renderer = meta_backend_x11_cm_create_renderer;
