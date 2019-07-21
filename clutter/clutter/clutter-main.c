@@ -3000,10 +3000,8 @@ _clutter_clear_events_queue (void)
 
   if (context->events_queue != NULL)
     {
-      g_queue_foreach (context->events_queue,
-                       (GFunc) clutter_event_free,
-                       NULL);
-      g_queue_free (context->events_queue);
+      g_queue_free_full (context->events_queue,
+                         (GDestroyNotify) clutter_event_free);
       context->events_queue = NULL;
     }
 }
