@@ -393,26 +393,19 @@ valid_buffer_age (ClutterStageViewCogl *view_cogl,
 }
 
 static void
-paint_damage_region (ClutterStageWindow    *stage_window,
-                     ClutterStageView      *view,
-                     cairo_rectangle_int_t *swap_region)
+paint_damage_region (ClutterStageWindow *stage_window,
+                     ClutterStageView   *view,
+                     cairo_region_t     *swap_region)
 {
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   static CoglPipeline *overlay_blue = NULL;
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
   ClutterActor *actor = CLUTTER_ACTOR (stage_cogl->wrapper);
-  float x_1 = swap_region->x;
-  float x_2 = swap_region->x + swap_region->width;
-  float y_1 = swap_region->y;
-  float y_2 = swap_region->y + swap_region->height;
   CoglMatrix modelview;
-
-  if (G_UNLIKELY (overlay_blue == NULL))
-    {
-      overlay_blue = cogl_pipeline_new (ctx);
-      cogl_pipeline_set_color4ub (overlay_blue, 0x00, 0x00, 0x33, 0x33);
-    }
+  cairo_rectangle_int_t *rects;
+  float x_1, x_2, y_1, y_2;
+  int n_rects, i;
 
   cogl_framebuffer_push_matrix (framebuffer);
   cogl_matrix_init_identity (&modelview);
@@ -420,15 +413,31 @@ paint_damage_region (ClutterStageWindow    *stage_window,
   cogl_framebuffer_set_modelview_matrix (framebuffer, &modelview);
 
   /* Blue for the swap region */
-  cogl_framebuffer_draw_rectangle (framebuffer, overlay_blue, x_1, y_1, x_2, y_2);
+  if (G_UNLIKELY (overlay_blue == NULL))
+    {
+      overlay_blue = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_color4ub (overlay_blue, 0x00, 0x00, 0x33, 0x33);
+    }
+
+  n_rects = cairo_region_num_rectangles (swap_region);
+  rects = g_malloc (sizeof(cairo_rectangle_int_t) * n_rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      cairo_region_get_rectangle (swap_region, i, &rects[i]);
+      x_1 = rects[i].x;
+      x_2 = rects[i].x + rects[i].width;
+      y_1 = rects[i].y;
+      y_2 = rects[i].y + rects[i].height;
+
+      cogl_framebuffer_draw_rectangle (framebuffer, overlay_blue, x_1, y_1, x_2, y_2);
+    }
+  g_free (rects);
 
   /* Red for the clip */
   if (stage_cogl->initialized_redraw_clip &&
       stage_cogl->redraw_clip)
     {
       static CoglPipeline *overlay_red = NULL;
-      cairo_rectangle_int_t *rects;
-      int n_rects, i;
 
       if (G_UNLIKELY (overlay_red == NULL))
         {
@@ -455,23 +464,17 @@ paint_damage_region (ClutterStageWindow    *stage_window,
 }
 
 static gboolean
-swap_framebuffer (ClutterStageWindow    *stage_window,
-                  ClutterStageView      *view,
-                  cairo_rectangle_int_t *swap_region,
-                  gboolean               swap_with_damage)
+swap_framebuffer (ClutterStageWindow *stage_window,
+                  ClutterStageView   *view,
+                  cairo_region_t     *swap_region,
+                  gboolean            swap_with_damage)
 {
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
-  int damage[4], ndamage;
+  int ndamage;
+  int *damage;
 
-  damage[0] = swap_region->x;
-  damage[1] = swap_region->y;
-  damage[2] = swap_region->width;
-  damage[3] = swap_region->height;
-
-  if (swap_region->width != 0)
-    ndamage = 1;
-  else
-    ndamage = 0;
+  ndamage = cairo_region_num_rectangles (swap_region);
+  damage = (int*) swap_region;
 
   if (G_UNLIKELY ((clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)))
     paint_damage_region (stage_window, view, swap_region);
@@ -481,18 +484,16 @@ swap_framebuffer (ClutterStageWindow    *stage_window,
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
 
       /* push on the screen */
-      if (ndamage == 1 && !swap_with_damage)
+      if (ndamage >= 1 && !swap_with_damage)
         {
           CLUTTER_NOTE (BACKEND,
-                        "cogl_onscreen_swap_region (onscreen: %p, "
-                        "x: %d, y: %d, "
-                        "width: %d, height: %d)",
-                        onscreen,
-                        damage[0], damage[1], damage[2], damage[3]);
+                        "cogl_onscreen_swap_region (onscreen: %p)",
+                        onscreen);
 
           cogl_onscreen_swap_region (onscreen,
                                      damage, ndamage);
 
+          cairo_region_destroy (swap_region);
           return FALSE;
         }
       else
@@ -503,6 +504,7 @@ swap_framebuffer (ClutterStageWindow    *stage_window,
           cogl_onscreen_swap_buffers_with_damage (onscreen,
                                                   damage, ndamage);
 
+          cairo_region_destroy (swap_region);
           return TRUE;
         }
     }
@@ -512,6 +514,7 @@ swap_framebuffer (ClutterStageWindow    *stage_window,
                     framebuffer);
       cogl_framebuffer_finish (framebuffer);
 
+      cairo_region_destroy (swap_region);
       return FALSE;
     }
 }
@@ -564,40 +567,55 @@ fill_current_damage_history_rectangle (ClutterStageView            *view,
   cairo_region_destroy (damage);
 }
 
-static void
-transform_swap_region_to_onscreen (ClutterStageView      *view,
-                                   cairo_rectangle_int_t *swap_region)
+static cairo_region_t *
+transform_swap_region_to_onscreen (ClutterStageView *view,
+                                   cairo_region_t   *swap_region)
 {
   CoglFramebuffer *framebuffer;
   cairo_rectangle_int_t layout;
-  gfloat x1, y1, x2, y2;
   gint width, height;
+  int n_rects, i;
+  cairo_rectangle_int_t *rects;
+  cairo_region_t *transformed_region;
 
   framebuffer = clutter_stage_view_get_onscreen (view);
   clutter_stage_view_get_layout (view, &layout);
 
-  x1 = (float) swap_region->x / layout.width;
-  y1 = (float) swap_region->y / layout.height;
-  x2 = (float) (swap_region->x + swap_region->width) / layout.width;
-  y2 = (float) (swap_region->y + swap_region->height) / layout.height;
-
-  clutter_stage_view_transform_to_onscreen (view, &x1, &y1);
-  clutter_stage_view_transform_to_onscreen (view, &x2, &y2);
-
   width = cogl_framebuffer_get_width (framebuffer);
   height = cogl_framebuffer_get_height (framebuffer);
 
-  x1 = floor (x1 * width);
-  y1 = floor (height - (y1 * height));
-  x2 = ceil (x2 * width);
-  y2 = ceil (height - (y2 * height));
+  n_rects = cairo_region_num_rectangles (swap_region);
+  rects = g_new0 (cairo_rectangle_int_t, n_rects);
+  for (i = 0; i < n_rects; i++)
+    {
+      gfloat x1, y1, x2, y2;
 
-  *swap_region = (cairo_rectangle_int_t) {
-    .x = x1,
-    .y = y1,
-    .width = x2 - x1,
-    .height = y2 - y1
-  };
+      cairo_region_get_rectangle (swap_region, i, &rects[i]);
+
+      x1 = (float) rects[i].x / layout.width;
+      y1 = (float) rects[i].y / layout.height;
+      x2 = (float) (rects[i].x + rects[i].width) / layout.width;
+      y2 = (float) (rects[i].y + rects[i].height) / layout.height;
+
+      clutter_stage_view_transform_to_onscreen (view, &x1, &y1);
+      clutter_stage_view_transform_to_onscreen (view, &x2, &y2);
+
+      x1 = floor (x1 * width);
+      y1 = floor (height - (y1 * height));
+      x2 = ceil (x2 * width);
+      y2 = ceil (height - (y2 * height));
+
+      rects[i].x = x1;
+      rects[i].x = y1;
+      rects[i].x = x2 - x1;
+      rects[i].x = y2 - y1;
+    }
+
+  transformed_region = cairo_region_create_rectangles (rects, n_rects);
+
+  g_free (rects);
+
+  return transformed_region;
 }
 
 static void
@@ -663,7 +681,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   ClutterActor *wrapper;
   cairo_region_t *redraw_clip;
   cairo_region_t *fb_clip_region;
-  cairo_rectangle_int_t swap_region;
+  cairo_region_t *swap_region;
   cairo_rectangle_int_t clip_rect;
   cairo_rectangle_int_t redraw_rect;
   gboolean clip_region_empty;
@@ -998,14 +1016,13 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
         }
       else
         {
-          cairo_region_get_extents (fb_clip_region, &swap_region);
-          g_assert (swap_region.width > 0);
+          swap_region = cairo_region_copy (fb_clip_region);
           do_swap_buffer = TRUE;
         }
     }
   else
     {
-      swap_region = (cairo_rectangle_int_t) { 0 };
+      swap_region = cairo_region_create();
       do_swap_buffer = TRUE;
     }
 
@@ -1022,12 +1039,17 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
       if (clutter_stage_view_get_onscreen (view) !=
           clutter_stage_view_get_framebuffer (view))
         {
-          transform_swap_region_to_onscreen (view, &swap_region);
+          cairo_region_t *transformed_swap_region;
+
+          transformed_swap_region =
+            transform_swap_region_to_onscreen (view, swap_region);
+          cairo_region_destroy (swap_region);
+          swap_region = transformed_swap_region;
         }
 
       return swap_framebuffer (stage_window,
                                view,
-                               &swap_region,
+                               swap_region,
                                swap_with_damage);
     }
   else
