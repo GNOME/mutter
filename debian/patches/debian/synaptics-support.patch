@@ -17,10 +17,10 @@ Last-Update: 2018-03-16
  2 files changed, 148 insertions(+), 17 deletions(-)
 
 diff --git a/clutter/clutter/x11/clutter-device-manager-xi2.c b/clutter/clutter/x11/clutter-device-manager-xi2.c
-index 87da4b0..6626b7b 100644
+index 6d63ed9..a5d6762 100644
 --- a/clutter/clutter/x11/clutter-device-manager-xi2.c
 +++ b/clutter/clutter/x11/clutter-device-manager-xi2.c
-@@ -282,8 +282,9 @@ is_touch_device (XIAnyClassInfo         **classes,
+@@ -283,8 +283,9 @@ is_touch_device (XIAnyClassInfo         **classes,
  }
  
  static gboolean
@@ -32,7 +32,7 @@ index 87da4b0..6626b7b 100644
  {
    gulong nitems, bytes_after;
    guint32 *data = NULL;
-@@ -291,7 +292,7 @@ is_touchpad_device (ClutterBackendX11 *backend_x11,
+@@ -292,7 +293,7 @@ is_touchpad_device (ClutterBackendX11 *backend_x11,
    Atom type;
    Atom prop;
  
@@ -41,7 +41,7 @@ index 87da4b0..6626b7b 100644
    if (prop == None)
      return FALSE;
  
-@@ -312,6 +313,14 @@ is_touchpad_device (ClutterBackendX11 *backend_x11,
+@@ -313,6 +314,14 @@ is_touchpad_device (ClutterBackendX11 *backend_x11,
    return TRUE;
  }
  

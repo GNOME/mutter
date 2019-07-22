@@ -15,10 +15,10 @@ Forwarded: yes, https://gitlab.gnome.org/GNOME/mutter/merge_requests/62
  1 file changed, 4 insertions(+), 14 deletions(-)
 
 diff --git a/src/ui/theme.c b/src/ui/theme.c
-index b7618d9..6cd185a 100644
+index 9b8ddff..2e1f145 100644
 --- a/src/ui/theme.c
 +++ b/src/ui/theme.c
-@@ -875,21 +875,11 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
+@@ -872,21 +872,11 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
  
            if (surface)
              {
