@@ -47,6 +47,7 @@ override_dh_auto_configure:
 		-Dgles2=true \
 		-Dgles2_libname=libGLESv2.so.2 \
 		-Dinstalled_tests=false \
+		-Dprofiler=false \
 		$(CONFFLAGS)
 
 # Use meson test directly as it allows us to use the timeout multiplier
