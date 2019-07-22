@@ -35,8 +35,12 @@ mutter (3.33.4-1) UNRELEASED; urgency=medium
     + Restore DRM format fallbacks
     + Try to use primary GPU for copy instead of glReadPixels
     + Unset pointer focus when the cursor is hidden
+  * debian/control: Update dependencies per meson.build
+  * debian/rules: Disable profiler.
+    We need to split sysprof into a library before we can enable this, so
+    that all users don't get headers / the profiler application installed
 
- -- Iain Lane <laney@debian.org>  Mon, 22 Jul 2019 19:11:44 +0100
+ -- Iain Lane <laney@debian.org>  Mon, 22 Jul 2019 20:48:07 +0100
 
 mutter (3.32.2+git20190711-2) experimental; urgency=medium
 
