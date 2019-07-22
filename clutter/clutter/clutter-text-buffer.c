@@ -171,7 +171,7 @@ clutter_text_buffer_normal_insert_text (ClutterTextBuffer *buffer,
 
   /* Actual text insertion */
   at = g_utf8_offset_to_pointer (pv->normal_text, position) - pv->normal_text;
-  g_memmove (pv->normal_text + at + n_bytes, pv->normal_text + at, pv->normal_text_bytes - at);
+  memmove (pv->normal_text + at + n_bytes, pv->normal_text + at, pv->normal_text_bytes - at);
   memcpy (pv->normal_text + at, chars, n_bytes);
 
   /* Book keeping */
@@ -201,7 +201,7 @@ clutter_text_buffer_normal_delete_text (ClutterTextBuffer *buffer,
       start = g_utf8_offset_to_pointer (pv->normal_text, position) - pv->normal_text;
       end = g_utf8_offset_to_pointer (pv->normal_text, position + n_chars) - pv->normal_text;
 
-      g_memmove (pv->normal_text + start, pv->normal_text + end, pv->normal_text_bytes + 1 - end);
+      memmove (pv->normal_text + start, pv->normal_text + end, pv->normal_text_bytes + 1 - end);
       pv->normal_text_chars -= n_chars;
       pv->normal_text_bytes -= (end - start);
 

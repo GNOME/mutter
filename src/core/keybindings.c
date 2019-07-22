@@ -182,8 +182,8 @@ static gboolean process_keyboard_resize_grab (MetaDisplay     *display,
                                               MetaWindow      *window,
                                               ClutterKeyEvent *event);
 
-static void grab_key_bindings           (MetaDisplay *display);
-static void ungrab_key_bindings         (MetaDisplay *display);
+static void maybe_update_locate_pointer_keygrab (MetaDisplay *display,
+                                                 gboolean     grab);
 
 static GHashTable *key_handlers;
 static GHashTable *external_grabs;
@@ -529,8 +529,8 @@ reload_iso_next_group_combos (MetaKeyBindingManager *keys)
 
 static void
 devirtualize_modifiers (MetaKeyBindingManager *keys,
-                        MetaVirtualModifier     modifiers,
-                        unsigned int           *mask)
+                        MetaVirtualModifier    modifiers,
+                        unsigned int          *mask)
 {
   *mask = 0;
 
@@ -1345,6 +1345,10 @@ prefs_changed_callback (MetaPreference pref,
 
   switch (pref)
     {
+    case META_PREF_LOCATE_POINTER:
+      maybe_update_locate_pointer_keygrab (display,
+                                           meta_prefs_is_locate_pointer_enabled());
+      break;
     case META_PREF_KEYBINDINGS:
       ungrab_key_bindings (display);
       rebuild_key_binding_table (keys);
@@ -1466,6 +1470,12 @@ change_keygrab_foreach (gpointer key,
   if (data->only_per_window != binding_is_per_window)
     return;
 
+  /* Ignore the key bindings marked as META_KEY_BINDING_NO_AUTO_GRAB,
+   * those are handled separately
+   */
+  if (binding->flags & META_KEY_BINDING_NO_AUTO_GRAB)
+    return;
+
   if (binding->resolved_combo.len == 0)
     return;
 
@@ -1474,9 +1484,9 @@ change_keygrab_foreach (gpointer key,
 
 static void
 change_binding_keygrabs (MetaKeyBindingManager *keys,
-                         Window                  xwindow,
-                         gboolean                only_per_window,
-                         gboolean                grab)
+                         Window                 xwindow,
+                         gboolean               only_per_window,
+                         gboolean               grab)
 {
   ChangeKeygrabData data;
 
@@ -1486,6 +1496,21 @@ change_binding_keygrabs (MetaKeyBindingManager *keys,
   data.grab = grab;
 
   g_hash_table_foreach (keys->key_bindings, change_keygrab_foreach, &data);
+}
+
+static void
+maybe_update_locate_pointer_keygrab (MetaDisplay *display,
+                                     gboolean     grab)
+{
+  MetaKeyBindingManager *keys = &display->key_binding_manager;
+
+  if (!display->x11_display)
+    return;
+
+  if (keys->locate_pointer_resolved_key_combo.len != 0)
+    meta_change_keygrab (keys, display->x11_display->xroot,
+                         (!!grab & !!meta_prefs_is_locate_pointer_enabled()),
+                         &keys->locate_pointer_resolved_key_combo);
 }
 
 static void
@@ -1499,9 +1524,7 @@ meta_x11_display_change_keygrabs (MetaX11Display *x11_display,
     meta_change_keygrab (keys, x11_display->xroot,
                          grab, &keys->overlay_resolved_key_combo);
 
-  if (keys->locate_pointer_resolved_key_combo.len != 0)
-    meta_change_keygrab (keys, x11_display->xroot,
-                         grab, &keys->locate_pointer_resolved_key_combo);
+  maybe_update_locate_pointer_keygrab (x11_display->display, grab);
 
   for (i = 0; i < keys->n_iso_next_group_combos; i++)
     meta_change_keygrab (keys, x11_display->xroot,
@@ -4453,13 +4476,13 @@ meta_display_init_keys (MetaDisplay *display)
 
   handler = g_new0 (MetaKeyHandler, 1);
   handler->name = g_strdup ("overlay-key");
-  handler->flags = META_KEY_BINDING_BUILTIN;
+  handler->flags = META_KEY_BINDING_BUILTIN | META_KEY_BINDING_NO_AUTO_GRAB;
 
   g_hash_table_insert (key_handlers, g_strdup (handler->name), handler);
 
   handler = g_new0 (MetaKeyHandler, 1);
   handler->name = g_strdup ("locate-pointer-key");
-  handler->flags = META_KEY_BINDING_BUILTIN;
+  handler->flags = META_KEY_BINDING_BUILTIN | META_KEY_BINDING_NO_AUTO_GRAB;
 
   g_hash_table_insert (key_handlers, g_strdup (handler->name), handler);
 

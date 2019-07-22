@@ -79,6 +79,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   uint64_t modifiers[META_WAYLAND_DMA_BUF_MAX_FDS];
   CoglPixelFormat cogl_format;
   EGLImageKHR egl_image;
+  CoglEglImageFlags flags;
   CoglTexture2D *texture;
 
   if (buffer->dma_buf.texture)
@@ -134,11 +135,13 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   if (egl_image == EGL_NO_IMAGE_KHR)
     return FALSE;
 
+  flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
   texture = cogl_egl_texture_2d_new_from_image (cogl_context,
                                                 dma_buf->width,
                                                 dma_buf->height,
                                                 cogl_format,
                                                 egl_image,
+                                                flags,
                                                 error);
 
   meta_egl_destroy_image (egl, egl_display, egl_image, NULL);

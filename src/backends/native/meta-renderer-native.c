@@ -1870,6 +1870,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   uint32_t offsets[1];
   uint64_t modifiers[1];
   CoglPixelFormat cogl_format;
+  CoglEglImageFlags flags;
   CoglTexture2D *cogl_tex;
   CoglOffscreen *cogl_fbo;
   int ret;
@@ -1919,11 +1920,13 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
       return FALSE;
     }
 
+  flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
   cogl_tex = cogl_egl_texture_2d_new_from_image (cogl_context,
                                                  dumb_fb->width,
                                                  dumb_fb->height,
                                                  cogl_format,
                                                  egl_image,
+                                                 flags,
                                                  &error);
 
   meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
