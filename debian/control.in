@@ -14,13 +14,13 @@ Build-Depends: debhelper-compat (= 12),
                gnome-settings-daemon-common <!nocheck>,
                gnome-settings-daemon-dev,
                gobject-introspection (>= 1.41.3),
-               gsettings-desktop-schemas-dev (>= 3.31.0),
+               gsettings-desktop-schemas-dev (>= 3.33.0),
                gtk-doc-tools (>= 1.15),
                libcairo2-dev (>= 1.10.0),
                libcanberra-gtk3-dev,
                libdrm-dev (>= 2.4.83) [linux-any],
                libegl1-mesa-dev (>= 17) [linux-any],
-               libfribidi-dev (>= 3.33.0),
+               libfribidi-dev (>= 1.0.0),
                libgbm-dev (>= 10.3) [linux-any],
                libgirepository1.0-dev (>= 0.9.12),
                libgl1-mesa-dev (>= 7.1~rc3-1~),
@@ -76,7 +76,7 @@ Vcs-Browser: https://salsa.debian.org/gnome-team/mutter
 Package: mutter
 Architecture: any
 Depends: gnome-settings-daemon-common,
-         gsettings-desktop-schemas (>= 3.31.0),
+         gsettings-desktop-schemas (>= 3.33.0),
          mutter-common (>= ${source:Version}),
          zenity,
          ${misc:Depends},
@@ -120,7 +120,7 @@ Section: libs
 Architecture: any
 Multi-Arch: same
 Pre-Depends: ${misc:Pre-Depends}
-Depends: gsettings-desktop-schemas (>= 3.15.92),
+Depends: gsettings-desktop-schemas (>= 3.33.0),
          mutter-common (>= ${source:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
@@ -143,7 +143,7 @@ Section: libdevel
 Architecture: any
 Multi-Arch: same
 Depends: gir1.2-mutter-4 (= ${binary:Version}),
-         gsettings-desktop-schemas-dev,
+         gsettings-desktop-schemas-dev (>= 3.33.0),
          libatk1.0-dev,
          libcairo2-dev,
          libdrm-dev,
