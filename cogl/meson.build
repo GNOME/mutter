@@ -1,24 +1,18 @@
 cogl_includesubdir = join_paths(pkgname, 'cogl')
 cogl_includedir = join_paths(includedir, cogl_includesubdir)
-cogl_srcdir = join_paths(top_srcdir, 'cogl')
-cogl_builddir = join_paths(builddir, 'cogl')
+cogl_srcdir = meson.current_source_dir()
 
 cogl_includepath = include_directories('.', 'cogl')
 
 cdata = configuration_data()
 cdata.set('HAVE_COGL_GL', have_gl)
 cdata.set('HAVE_COGL_GLES2', have_gles2)
+cdata.set('HAVE_TRACING', have_profiler)
 cdata.set('ENABLE_UNIT_TESTS', have_cogl_tests)
 
 cogl_config_h = configure_file(
   input: 'cogl-config.h.meson',
   output: 'cogl-config.h',
-  configuration: cdata)
-
-# TODO: Remove this when autotools support is removed
-cogl_mutter_config_h = configure_file(
-  input: 'cogl-config.h.meson',
-  output: 'cogl-mutter-config.h',
   configuration: cdata)
 
 cogl_pkg_deps = [
@@ -32,6 +26,12 @@ cogl_pkg_private_deps = [
   gdk_pixbuf_dep,
   #uprof_dep,
 ]
+
+if have_profiler
+  cogl_pkg_private_deps += [
+    sysprof_dep,
+  ]
+endif
 
 if have_wayland
   cogl_pkg_deps += [
@@ -94,19 +94,21 @@ if have_gles2
 endif
 
 cogl_debug_c_args = []
-if buildtype.startswith('debug')
+buildtype = get_option('buildtype')
+if get_option('debug')
   cogl_debug_c_args += [
     '-DCOGL_GL_DEBUG',
     '-DCOGL_OBJECT_DEBUG',
     '-DCOGL_ENABLE_DEBUG',
+    '-fno-omit-frame-pointer'
   ]
-elif buildtype == 'release'
+elif buildtype != 'plain'
   cogl_debug_c_args += [
     '-DG_DISABLE_CHECKS',
-    '-DG_DISABLE_CAST_CHECKS',
+    '-DG_DISABLE_CAST_CHECKS'
   ]
 endif
-
+supported_cogl_debug_c_args = cc.get_supported_arguments(cogl_debug_c_args)
 cogl_c_args += cogl_debug_c_args
 
 if have_cogl_tests

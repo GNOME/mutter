@@ -55,17 +55,8 @@ meta_rectangle_free (MetaRectangle *rect)
   g_free (rect);
 }
 
-GType
-meta_rectangle_get_type (void)
-{
-  static GType type_id = 0;
-
-  if (!type_id)
-    type_id = g_boxed_type_register_static (g_intern_static_string ("MetaRectangle"),
-					    (GBoxedCopyFunc) meta_rectangle_copy,
-					    (GBoxedFreeFunc) meta_rectangle_free);
-  return type_id;
-}
+G_DEFINE_BOXED_TYPE (MetaRectangle, meta_rectangle,
+                     meta_rectangle_copy, meta_rectangle_free);
 
 char*
 meta_rectangle_to_string (const MetaRectangle *rect,
@@ -851,10 +842,7 @@ meta_rectangle_expand_to_avoiding_struts (MetaRectangle       *rect,
 void
 meta_rectangle_free_list_and_elements (GList *filled_list)
 {
-  g_list_foreach (filled_list,
-                  (void (*)(gpointer,gpointer))&g_free, /* ew, for ugly */
-                  NULL);
-  g_list_free (filled_list);
+  g_list_free_full (filled_list, g_free);
 }
 
 gboolean
@@ -2054,25 +2042,11 @@ meta_rectangle_scale_double (const MetaRectangle  *rect,
                              MetaRoundingStrategy  rounding_strategy,
                              MetaRectangle        *dest)
 {
-  switch (rounding_strategy)
-    {
-    case META_ROUNDING_STRATEGY_SHRINK:
-      *dest = (MetaRectangle) {
-        .x = (int) ceil (rect->x * scale),
-        .y = (int) ceil (rect->y * scale),
-        .width = (int) floor (rect->width * scale),
-        .height = (int) floor (rect->height * scale),
-      };
-      break;
-    case META_ROUNDING_STRATEGY_GROW:
-      *dest = (MetaRectangle) {
-        .x = (int) floor (rect->x * scale),
-        .y = (int) floor (rect->y * scale),
-        .width = (int) ceil (rect->width * scale),
-        .height = (int) ceil (rect->height * scale),
-      };
-      break;
-    }
+  ClutterRect tmp = CLUTTER_RECT_INIT (rect->x, rect->y,
+                                       rect->width, rect->height);
+
+  clutter_rect_scale (&tmp, scale, scale);
+  meta_rectangle_from_clutter_rect (&tmp, rounding_strategy, dest);
 }
 
 void
@@ -2085,12 +2059,7 @@ meta_rectangle_transform (const MetaRectangle  *rect,
   switch (transform)
     {
     case META_MONITOR_TRANSFORM_NORMAL:
-      *dest = (MetaRectangle) {
-        .x = rect->x,
-        .y = rect->y,
-        .width = rect->width,
-        .height = rect->height,
-      };
+      *dest = *rect;
       break;
     case META_MONITOR_TRANSFORM_90:
       *dest = (MetaRectangle) {
@@ -2163,8 +2132,8 @@ meta_rectangle_from_clutter_rect (ClutterRect          *rect,
         *dest = (MetaRectangle) {
           .x = ceilf (rect->origin.x),
           .y = ceilf (rect->origin.y),
-          .width = floorf (rect->origin.x + rect->size.width) - dest->x,
-          .height = floorf (rect->origin.y + rect->size.height) - dest->x,
+          .width = floorf (rect->size.width),
+          .height = floorf (rect->size.height),
         };
       }
       break;

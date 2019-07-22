@@ -104,7 +104,6 @@ struct _MetaWaylandKeyboard
   MetaWaylandKeyboardGrab default_grab;
 
   GSettings *settings;
-  GSettings *gsd_settings;
 };
 
 void meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard);

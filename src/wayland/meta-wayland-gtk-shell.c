@@ -173,12 +173,16 @@ gtk_surface_request_focus (struct wl_client   *client,
   if (sequence)
     {
       uint32_t timestamp;
+      int32_t workspace_idx;
 
+      workspace_idx = meta_startup_sequence_get_workspace (sequence);
       timestamp = meta_startup_sequence_get_timestamp (sequence);
 
       meta_startup_sequence_complete (sequence);
       meta_startup_notification_remove_sequence (display->startup_notification,
                                                  sequence);
+      if (workspace_idx >= 0)
+        meta_window_change_workspace_by_index (window, workspace_idx, TRUE);
 
       meta_window_activate_full (window, timestamp,
                                  META_CLIENT_TYPE_APPLICATION, NULL);

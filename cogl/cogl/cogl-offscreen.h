@@ -75,8 +75,8 @@ GType cogl_offscreen_get_gtype (void);
  * destroy the offscreen buffer before you can use the @texture again.
  *
  * <note>This api only works with low-level #CoglTexture types such as
- * #CoglTexture2D, #CoglTexture3D and #CoglTextureRectangle, and not
- * with meta-texture types such as #CoglTexture2DSliced.</note>
+ * #CoglTexture2D and not with meta-texture types such as
+ * #CoglTexture2DSliced.</note>
  *
  * The storage for the framebuffer is actually allocated lazily
  * so this function will never return %NULL to indicate a runtime
@@ -90,7 +90,7 @@ GType cogl_offscreen_get_gtype (void);
  * message. If you need to be able to catch such exceptions at runtime
  * then you can explicitly allocate your framebuffer when you have
  * finished configuring it by calling cogl_framebuffer_allocate() and
- * passing in a #CoglError argument to catch any exceptions.
+ * passing in a #GError argument to catch any exceptions.
  *
  * Return value: (transfer full): a newly instantiated #CoglOffscreen
  *   framebuffer.
@@ -110,8 +110,8 @@ cogl_offscreen_new_with_texture (CoglTexture *texture);
  * you can use the @texture again.
  *
  * <note>This only works with low-level #CoglTexture types such as
- * #CoglTexture2D, #CoglTexture3D and #CoglTextureRectangle, and not
- * with meta-texture types such as #CoglTexture2DSliced.</note>
+ * #CoglTexture2D and not with meta-texture types such as
+ * #CoglTexture2DSliced.</note>
  *
  * Return value: (transfer full): a newly instantiated #CoglOffscreen
  *   framebuffer or %NULL if it wasn't possible to create the

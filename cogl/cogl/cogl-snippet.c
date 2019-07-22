@@ -64,7 +64,7 @@ cogl_snippet_new (CoglSnippetHook hook,
 CoglSnippetHook
 cogl_snippet_get_hook (CoglSnippet *snippet)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_snippet (snippet), 0);
+  g_return_val_if_fail (cogl_is_snippet (snippet), 0);
 
   return snippet->hook;
 }
@@ -88,7 +88,7 @@ void
 cogl_snippet_set_declarations (CoglSnippet *snippet,
                                const char *declarations)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_snippet (snippet));
+  g_return_if_fail (cogl_is_snippet (snippet));
 
   if (!_cogl_snippet_modify (snippet))
     return;
@@ -100,7 +100,7 @@ cogl_snippet_set_declarations (CoglSnippet *snippet,
 const char *
 cogl_snippet_get_declarations (CoglSnippet *snippet)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_snippet (snippet), NULL);
+  g_return_val_if_fail (cogl_is_snippet (snippet), NULL);
 
   return snippet->declarations;
 }
@@ -109,7 +109,7 @@ void
 cogl_snippet_set_pre (CoglSnippet *snippet,
                       const char *pre)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_snippet (snippet));
+  g_return_if_fail (cogl_is_snippet (snippet));
 
   if (!_cogl_snippet_modify (snippet))
     return;
@@ -121,7 +121,7 @@ cogl_snippet_set_pre (CoglSnippet *snippet,
 const char *
 cogl_snippet_get_pre (CoglSnippet *snippet)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_snippet (snippet), NULL);
+  g_return_val_if_fail (cogl_is_snippet (snippet), NULL);
 
   return snippet->pre;
 }
@@ -130,7 +130,7 @@ void
 cogl_snippet_set_replace (CoglSnippet *snippet,
                           const char *replace)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_snippet (snippet));
+  g_return_if_fail (cogl_is_snippet (snippet));
 
   if (!_cogl_snippet_modify (snippet))
     return;
@@ -142,7 +142,7 @@ cogl_snippet_set_replace (CoglSnippet *snippet,
 const char *
 cogl_snippet_get_replace (CoglSnippet *snippet)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_snippet (snippet), NULL);
+  g_return_val_if_fail (cogl_is_snippet (snippet), NULL);
 
   return snippet->replace;
 }
@@ -151,7 +151,7 @@ void
 cogl_snippet_set_post (CoglSnippet *snippet,
                        const char *post)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_snippet (snippet));
+  g_return_if_fail (cogl_is_snippet (snippet));
 
   if (!_cogl_snippet_modify (snippet))
     return;
@@ -163,7 +163,7 @@ cogl_snippet_set_post (CoglSnippet *snippet,
 const char *
 cogl_snippet_get_post (CoglSnippet *snippet)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_snippet (snippet), NULL);
+  g_return_val_if_fail (cogl_is_snippet (snippet), NULL);
 
   return snippet->post;
 }

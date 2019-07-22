@@ -81,9 +81,10 @@ typedef enum
   META_MOVE_RESIZE_WAYLAND_RESIZE = 1 << 4,
   META_MOVE_RESIZE_STATE_CHANGED = 1 << 5,
   META_MOVE_RESIZE_UNMAXIMIZE = 1 << 6,
-  META_MOVE_RESIZE_FORCE_MOVE = 1 << 7,
-  META_MOVE_RESIZE_WAYLAND_STATE_CHANGED = 1 << 8,
-  META_MOVE_RESIZE_FORCE_UPDATE_MONITOR = 1 << 9,
+  META_MOVE_RESIZE_UNFULLSCREEN = 1 << 7,
+  META_MOVE_RESIZE_FORCE_MOVE = 1 << 8,
+  META_MOVE_RESIZE_WAYLAND_STATE_CHANGED = 1 << 9,
+  META_MOVE_RESIZE_FORCE_UPDATE_MONITOR = 1 << 10,
 } MetaMoveResizeFlags;
 
 typedef enum
@@ -581,6 +582,9 @@ struct _MetaWindowClass
   gboolean (*is_stackable)        (MetaWindow *window);
   gboolean (*can_ping)            (MetaWindow *window);
   gboolean (*are_updates_frozen)  (MetaWindow *window);
+
+  void (* map)   (MetaWindow *window);
+  void (* unmap) (MetaWindow *window);
 };
 
 /* These differ from window->has_foo_func in that they consider
@@ -623,6 +627,7 @@ void        meta_window_queue              (MetaWindow  *window,
                                             guint queuebits);
 void        meta_window_tile               (MetaWindow        *window,
                                             MetaTileMode       mode);
+MetaTileMode meta_window_get_tile_mode     (MetaWindow        *window);
 void        meta_window_restore_tile       (MetaWindow        *window,
                                             MetaTileMode       mode,
                                             int                width,

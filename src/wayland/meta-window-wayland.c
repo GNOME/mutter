@@ -142,10 +142,12 @@ meta_window_wayland_focus (MetaWindow *window,
                            guint32     timestamp)
 {
   if (meta_window_is_focusable (window))
-    meta_x11_display_set_input_focus_window (window->display->x11_display,
-                                             window,
-                                             FALSE,
-                                             timestamp);
+    {
+      meta_display_set_input_focus (window->display,
+                                    window,
+                                    FALSE,
+                                    timestamp);
+    }
 }
 
 static void
@@ -215,9 +217,17 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
    * coordinate space so that we can have a scale independent size to pass
    * to the Wayland surface. */
   geometry_scale = meta_window_wayland_get_geometry_scale (window);
-  if (flags & META_MOVE_RESIZE_UNMAXIMIZE)
+
+  if (flags & META_MOVE_RESIZE_UNMAXIMIZE &&
+      !meta_window_is_fullscreen (window))
     {
-      /* On un-maximize, let the client decide on its size */
+      configured_width = 0;
+      configured_height = 0;
+    }
+  else if (flags & META_MOVE_RESIZE_UNFULLSCREEN &&
+           !meta_window_get_maximized (window) &&
+           meta_window_get_tile_mode (window) == META_TILE_NONE)
+    {
       configured_width = 0;
       configured_height = 0;
     }
@@ -612,6 +622,16 @@ meta_window_wayland_are_updates_frozen (MetaWindow *window)
 }
 
 static void
+meta_window_wayland_map (MetaWindow *window)
+{
+}
+
+static void
+meta_window_wayland_unmap (MetaWindow *window)
+{
+}
+
+static void
 meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
 {
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
@@ -634,6 +654,8 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->is_stackable = meta_window_wayland_is_stackable;
   window_class->can_ping = meta_window_wayland_can_ping;
   window_class->are_updates_frozen = meta_window_wayland_are_updates_frozen;
+  window_class->map = meta_window_wayland_map;
+  window_class->unmap = meta_window_wayland_unmap;
 }
 
 MetaWindow *
@@ -641,7 +663,6 @@ meta_window_wayland_new (MetaDisplay        *display,
                          MetaWaylandSurface *surface)
 {
   XWindowAttributes attrs = { 0 };
-  MetaWindow *window;
 
   /*
    * Set attributes used by _meta_window_shared_new, don't bother trying to fake
@@ -656,26 +677,13 @@ meta_window_wayland_new (MetaDisplay        *display,
   attrs.map_state = IsUnmapped;
   attrs.override_redirect = False;
 
-  /* XXX: Note: In the Wayland case we currently still trap X errors while
-   * creating a MetaWindow because we will still be making various redundant
-   * X requests (passing a window xid of None) until we thoroughly audit all
-   * the code to make sure it knows about non X based clients...
-   */
-  meta_x11_error_trap_push (display->x11_display); /* Push a trap over all of window
-                                                * creation, to reduce XSync() calls
-                                                */
-
-  window = _meta_window_shared_new (display,
-                                    META_WINDOW_CLIENT_TYPE_WAYLAND,
-                                    surface,
-                                    None,
-                                    WithdrawnState,
-                                    META_COMP_EFFECT_CREATE,
-                                    &attrs);
-
-  meta_x11_error_trap_pop (display->x11_display); /* pop the XSync()-reducing trap */
-
-  return window;
+  return _meta_window_shared_new (display,
+                                  META_WINDOW_CLIENT_TYPE_WAYLAND,
+                                  surface,
+                                  None,
+                                  WithdrawnState,
+                                  META_COMP_EFFECT_CREATE,
+                                  &attrs);
 }
 
 static gboolean

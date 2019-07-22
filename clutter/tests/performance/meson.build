@@ -1,5 +1,5 @@
 clutter_tests_performance_c_args = [
-  '-DTESTS_DATA_DIR="@0@"'.format(join_paths(clutter_srcdir, 'tests/interactive')),
+  '-DTESTS_DATA_DIR="@0@"'.format(clutter_tests_interactive_srcdir),
   '-DG_DISABLE_SINGLE_INCLUDES',
   '-DGLIB_DISABLE_DEPRECATION_WARNINGS',
   '-DCOGL_DISABLE_DEPRECATION_WARNINGS',

@@ -807,6 +807,9 @@ struct _ClutterActorPrivate
   gpointer create_child_data;
   GDestroyNotify create_child_notify;
 
+  guint resolution_changed_id;
+  guint font_changed_id;
+
   /* bitfields: KEEP AT THE END */
 
   /* fixed position and sizes */
@@ -5983,6 +5986,7 @@ clutter_actor_dispose (GObject *object)
 {
   ClutterActor *self = CLUTTER_ACTOR (object);
   ClutterActorPrivate *priv = self->priv;
+  ClutterBackend *backend = clutter_get_default_backend ();
 
   CLUTTER_NOTE (MISC, "Dispose actor (name='%s', ref_count:%d) of type '%s'",
 		_clutter_actor_get_debug_name (self),
@@ -6017,6 +6021,18 @@ clutter_actor_dispose (GObject *object)
       /* can't be mapped or realized with no parent */
       g_assert (!CLUTTER_ACTOR_IS_MAPPED (self));
       g_assert (!CLUTTER_ACTOR_IS_REALIZED (self));
+    }
+
+  if (priv->resolution_changed_id)
+    {
+      g_signal_handler_disconnect (backend, priv->resolution_changed_id);
+      priv->resolution_changed_id = 0;
+    }
+
+  if (priv->font_changed_id)
+    {
+      g_signal_handler_disconnect (backend, priv->font_changed_id);
+      priv->font_changed_id = 0;
     }
 
   g_clear_object (&priv->pango_context);
@@ -8833,9 +8849,9 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
    *
    * later during _clutter_stage_do_update(), once relayouting is done
    * and the scenegraph has been updated we will call:
-   * _clutter_stage_finish_queue_redraws().
+   * clutter_stage_maybe_finish_queue_redraws().
    *
-   * _clutter_stage_finish_queue_redraws() will call
+   * clutter_stage_maybe_finish_queue_redraws() will call
    * _clutter_actor_finish_queue_redraw() for each listed actor.
    *
    * Note: actors *are* allowed to queue further redraws during this
@@ -10090,6 +10106,9 @@ clutter_actor_allocate (ClutterActor           *self,
                  self, _clutter_actor_get_debug_name (self));
       return;
     }
+
+  if (!clutter_actor_is_visible (self))
+    return;
 
   priv = self->priv;
 
@@ -15884,10 +15903,12 @@ clutter_actor_get_pango_context (ClutterActor *self)
     {
       priv->pango_context = clutter_actor_create_pango_context (self);
 
-      g_signal_connect_object (backend, "resolution-changed",
-                               G_CALLBACK (update_pango_context), priv->pango_context, 0);
-      g_signal_connect_object (backend, "font-changed",
-                               G_CALLBACK (update_pango_context), priv->pango_context, 0);
+      priv->resolution_changed_id =
+        g_signal_connect_object (backend, "resolution-changed",
+                                 G_CALLBACK (update_pango_context), priv->pango_context, 0);
+      priv->font_changed_id =
+        g_signal_connect_object (backend, "font-changed",
+                                 G_CALLBACK (update_pango_context), priv->pango_context, 0);
     }
   else
     update_pango_context (backend, priv->pango_context);
@@ -17533,7 +17554,7 @@ _clutter_actor_get_paint_volume_real (ClutterActor *self,
                l != NULL && l->data != priv->current_effect;
                l = l->next)
             {
-              if (!_clutter_effect_get_paint_volume (l->data, pv))
+              if (!_clutter_effect_modify_paint_volume (l->data, pv))
                 {
                   clutter_paint_volume_free (pv);
                   CLUTTER_NOTE (CLIPPING, "Bail from get_paint_volume (%s): "
@@ -17551,7 +17572,7 @@ _clutter_actor_get_paint_volume_real (ClutterActor *self,
           /* otherwise, get the cumulative volume */
           effects = _clutter_meta_group_peek_metas (priv->effects);
           for (l = effects; l != NULL; l = l->next)
-            if (!_clutter_effect_get_paint_volume (l->data, pv))
+            if (!_clutter_effect_modify_paint_volume (l->data, pv))
               {
                 clutter_paint_volume_free (pv);
                 CLUTTER_NOTE (CLIPPING, "Bail from get_paint_volume (%s): "

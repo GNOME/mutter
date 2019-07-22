@@ -345,6 +345,9 @@ meta_monitor_manager_power_save_mode_changed (MetaMonitorManager *manager,
   MetaMonitorManagerPrivate *priv =
     meta_monitor_manager_get_instance_private (manager);
 
+  if (priv->power_save_mode == mode)
+    return;
+
   priv->power_save_mode = mode;
   g_signal_emit (manager, signals[POWER_SAVE_MODE_CHANGED], 0);
 }
@@ -511,9 +514,11 @@ meta_monitor_manager_apply_monitors_config (MetaMonitorManager      *manager,
 gboolean
 meta_monitor_manager_has_hotplug_mode_update (MetaMonitorManager *manager)
 {
+  GList *gpus;
   GList *l;
 
-  for (l = manager->gpus; l; l = l->next)
+  gpus = meta_backend_get_gpus (manager->backend);
+  for (l = gpus; l; l = l->next)
     {
       MetaGpu *gpu = l->data;
 
@@ -794,7 +799,6 @@ meta_monitor_manager_finalize (GObject *object)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (object);
 
-  g_list_free_full (manager->gpus, g_object_unref);
   g_list_free_full (manager->logical_monitors, g_object_unref);
 
   g_signal_handler_disconnect (manager->backend,
@@ -920,29 +924,6 @@ meta_monitor_manager_class_init (MetaMonitorManagerClass *klass)
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 }
 
-static const double known_diagonals[] = {
-    12.1,
-    13.3,
-    15.6
-};
-
-static char *
-diagonal_to_str (double d)
-{
-  unsigned int i;
-
-  for (i = 0; i < G_N_ELEMENTS (known_diagonals); i++)
-    {
-      double delta;
-
-      delta = fabs(known_diagonals[i] - d);
-      if (delta < 0.1)
-        return g_strdup_printf ("%0.1lf\"", known_diagonals[i]);
-    }
-
-  return g_strdup_printf ("%d\"", (int) (d + 0.5));
-}
-
 gboolean
 meta_monitor_has_aspect_as_size (MetaMonitor *monitor)
 {
@@ -957,79 +938,6 @@ meta_monitor_has_aspect_as_size (MetaMonitor *monitor)
      (width_mm == 160 && height_mm == 100) ||
      (width_mm == 16 && height_mm == 9) ||
      (width_mm == 16 && height_mm == 10);
-}
-
-static char *
-make_display_name (MetaMonitorManager *manager,
-                   MetaMonitor        *monitor)
-{
-  g_autofree char *inches = NULL;
-  g_autofree char *vendor_name = NULL;
-  const char *vendor = NULL;
-  const char *product_name = NULL;
-  int width_mm;
-  int height_mm;
-
-  meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
-
-  if (meta_monitor_is_laptop_panel (monitor))
-      return g_strdup (_("Built-in display"));
-
-  if (width_mm > 0 && height_mm > 0)
-    {
-      if (!meta_monitor_has_aspect_as_size (monitor))
-        {
-          double d = sqrt (width_mm * width_mm +
-                           height_mm * height_mm);
-          inches = diagonal_to_str (d / 25.4);
-        }
-      else
-        {
-          product_name = meta_monitor_get_product (monitor);
-        }
-    }
-
-  vendor = meta_monitor_get_vendor (monitor);
-
-  if (g_strcmp0 (vendor, "unknown") != 0)
-    {
-      if (!manager->pnp_ids)
-        manager->pnp_ids = gnome_pnp_ids_new ();
-
-      vendor_name = gnome_pnp_ids_get_pnp_id (manager->pnp_ids,
-                                              vendor);
-
-      if (!vendor_name)
-        vendor_name = g_strdup (vendor);
-    }
-  else
-    {
-      if (inches != NULL)
-        vendor_name = g_strdup (_("Unknown"));
-      else
-        vendor_name = g_strdup (_("Unknown Display"));
-    }
-
-  if (inches != NULL)
-    {
-       /**/
-      return g_strdup_printf (C_("This is a monitor vendor name, followed by a "
-                                 "size in inches, like 'Dell 15\"'",
-                                 "%s %s"),
-                              vendor_name, inches);
-    }
-  else if (product_name != NULL)
-    {
-      return g_strdup_printf (C_("This is a monitor vendor name followed by "
-                                 "product/model name where size in inches "
-                                 "could not be calculated, e.g. Dell U2414H",
-                                 "%s %s"),
-                              vendor_name, product_name);
-    }
-  else
-    {
-      return g_strdup (vendor_name);
-    }
 }
 
 static const char *
@@ -1063,10 +971,12 @@ static GList *
 combine_gpu_lists (MetaMonitorManager    *manager,
                    GList              * (*list_getter) (MetaGpu *gpu))
 {
+  GList *gpus;
   GList *list = NULL;
   GList *l;
 
-  for (l = manager->gpus; l; l = l->next)
+  gpus = meta_backend_get_gpus (manager->backend);
+  for (l = gpus; l; l = l->next)
     {
       MetaGpu *gpu = l->data;
 
@@ -1380,7 +1290,7 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
       GVariantBuilder monitor_properties_builder;
       GList *k;
       gboolean is_builtin;
-      char *display_name;
+      const char *display_name;
 
       current_mode = meta_monitor_get_current_mode (monitor);
       preferred_mode = meta_monitor_get_preferred_mode (monitor);
@@ -1469,10 +1379,10 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
                              "is-builtin",
                              g_variant_new_boolean (is_builtin));
 
-      display_name = make_display_name (manager, monitor);
+      display_name = meta_monitor_get_display_name (monitor);
       g_variant_builder_add (&monitor_properties_builder, "{sv}",
                              "display-name",
-                             g_variant_new_take_string (display_name));
+                             g_variant_new_string (display_name));
 
       g_variant_builder_add (&monitors_builder, MONITOR_FORMAT,
                              monitor_spec->connector,
@@ -2676,26 +2586,6 @@ meta_monitor_manager_get_monitors (MetaMonitorManager *manager)
   return manager->monitors;
 }
 
-/**
- * meta_monitor_manager_add_gpu:
- * @manager: A #MetaMonitorManager object
- *
- * Should only be called by subclasses. Adds a #MetaGpu to the internal list of
- * GPU's.
- */
-void
-meta_monitor_manager_add_gpu (MetaMonitorManager *manager,
-                              MetaGpu            *gpu)
-{
-  manager->gpus = g_list_append (manager->gpus, gpu);
-}
-
-GList *
-meta_monitor_manager_get_gpus (MetaMonitorManager *manager)
-{
-  return manager->gpus;
-}
-
 void
 meta_monitor_manager_get_screen_size (MetaMonitorManager *manager,
                                       int                *width,
@@ -2717,6 +2607,7 @@ meta_monitor_manager_get_power_save_mode (MetaMonitorManager *manager)
 static void
 rebuild_monitors (MetaMonitorManager *manager)
 {
+  GList *gpus;
   GList *l;
 
   if (manager->monitors)
@@ -2725,7 +2616,8 @@ rebuild_monitors (MetaMonitorManager *manager)
       manager->monitors = NULL;
     }
 
-  for (l = manager->gpus; l; l = l->next)
+  gpus = meta_backend_get_gpus (manager->backend);
+  for (l = gpus; l; l = l->next)
     {
       MetaGpu *gpu = l->data;
       GList *k;
@@ -2740,7 +2632,7 @@ rebuild_monitors (MetaMonitorManager *manager)
                 {
                   MetaMonitorTiled *monitor_tiled;
 
-                  monitor_tiled = meta_monitor_tiled_new (gpu, output);
+                  monitor_tiled = meta_monitor_tiled_new (gpu, manager, output);
                   manager->monitors = g_list_append (manager->monitors,
                                                      monitor_tiled);
                 }
@@ -2749,7 +2641,7 @@ rebuild_monitors (MetaMonitorManager *manager)
             {
               MetaMonitorNormal *monitor_normal;
 
-              monitor_normal = meta_monitor_normal_new (gpu, output);
+              monitor_normal = meta_monitor_normal_new (gpu, manager, output);
               manager->monitors = g_list_append (manager->monitors,
                                                  monitor_normal);
             }
@@ -2797,7 +2689,7 @@ meta_monitor_manager_real_read_current_state (MetaMonitorManager *manager)
 
   manager->serial++;
 
-  for (l = manager->gpus; l; l = l->next)
+  for (l = meta_backend_get_gpus (manager->backend); l; l = l->next)
     {
       MetaGpu *gpu = l->data;
       GError *error = NULL;
@@ -3203,4 +3095,24 @@ MetaMonitorConfigManager *
 meta_monitor_manager_get_config_manager (MetaMonitorManager *manager)
 {
   return manager->config_manager;
+}
+
+/**
+ * meta_monitor_manager_get_vendor_name:
+ * @manager: A #MetaMonitorManager object
+ * @vendor:  the PNP ID of the monitor
+ *
+ * Find the full vendor name from the given monitor PNP ID.
+ *
+ * Returns: (transfer full): A string containing the vendor name,
+ *                           or NULL when not found.
+ */
+char *
+meta_monitor_manager_get_vendor_name (MetaMonitorManager *manager,
+                                      const char         *vendor)
+{
+  if (!manager->pnp_ids)
+    manager->pnp_ids = gnome_pnp_ids_new ();
+
+  return gnome_pnp_ids_get_pnp_id (manager->pnp_ids, vendor);
 }

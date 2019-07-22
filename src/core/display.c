@@ -28,8 +28,6 @@
  * The display is represented as a #MetaDisplay struct.
  */
 
-#define _XOPEN_SOURCE 600 /* for gethostname() */
-
 #include "config.h"
 
 #include <stdlib.h>
@@ -49,6 +47,7 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "clutter/x11/clutter-x11.h"
 #include "core/bell.h"
 #include "core/boxes-private.h"
@@ -57,6 +56,7 @@
 #include "core/frame.h"
 #include "core/keybindings-private.h"
 #include "core/main-private.h"
+#include "core/meta-clipboard-manager.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/util-private.h"
 #include "core/window-private.h"
@@ -257,7 +257,7 @@ meta_display_class_init (MetaDisplayClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 3, G_TYPE_UINT, G_TYPE_UINT, G_TYPE_UINT);
+                  G_TYPE_NONE, 3, G_TYPE_UINT, CLUTTER_TYPE_INPUT_DEVICE, G_TYPE_UINT);
 
   /**
    * MetaDisplay::modifiers-accelerator-activated:
@@ -629,6 +629,39 @@ on_ui_scaling_factor_changed (MetaSettings *settings,
   meta_display_reload_cursor (display);
 }
 
+gboolean
+meta_display_init_x11 (MetaDisplay  *display,
+                       GError      **error)
+{
+  MetaX11Display *x11_display;
+
+  g_assert (display->x11_display == NULL);
+
+  x11_display = meta_x11_display_new (display, error);
+  if (!x11_display)
+    return FALSE;
+
+  display->x11_display = x11_display;
+  g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
+  meta_x11_display_create_guard_window (x11_display);
+
+  if (!display->display_opening)
+    meta_display_manage_all_windows (display);
+
+  return TRUE;
+}
+
+void
+meta_display_shutdown_x11 (MetaDisplay *display)
+{
+  if (!display->x11_display)
+    return;
+
+  g_signal_emit (display, display_signals[X11_DISPLAY_CLOSING], 0);
+  g_object_run_dispose (G_OBJECT (display->x11_display));
+  g_clear_object (&display->x11_display);
+}
+
 /**
  * meta_display_open:
  *
@@ -644,7 +677,6 @@ meta_display_open (void)
 {
   GError *error = NULL;
   MetaDisplay *display;
-  MetaX11Display *x11_display;
   int i;
   guint32 timestamp;
   Window old_active_xwindow = None;
@@ -682,7 +714,6 @@ meta_display_open (void)
     }
 
   display->current_time = META_CURRENT_TIME;
-  display->sentinel_counter = 0;
 
   display->grab_resize_timeout_id = 0;
   display->grab_have_keyboard = FALSE;
@@ -692,7 +723,7 @@ meta_display_open (void)
   display->grab_tile_mode = META_TILE_NONE;
   display->grab_tile_monitor_number = -1;
 
-  display->grab_edge_resistance_data = NULL;
+  meta_display_cleanup_edges (display);
 
   meta_display_init_keys (display);
 
@@ -724,12 +755,13 @@ meta_display_open (void)
 
   display->bell = meta_bell_new (display);
 
+  display->selection = meta_selection_new (display);
+  meta_clipboard_manager_init (display);
+
   if (meta_should_autostart_x11_display ())
     {
-      x11_display = meta_x11_display_new (display, &error);
-      g_assert (x11_display != NULL); /* Required, for now */
-      display->x11_display = x11_display;
-      g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
+      if (!meta_display_init_x11 (display, &error))
+        g_error ("Failed to start Xwayland: %s", error->message);
 
       timestamp = display->x11_display->timestamp;
     }
@@ -775,10 +807,12 @@ meta_display_open (void)
       if (old_active_window)
         meta_window_focus (old_active_window, timestamp);
       else
-        meta_x11_display_focus_the_no_focus_window (display->x11_display, timestamp);
+        meta_display_unset_input_focus (display, timestamp);
     }
-  else if (display->x11_display)
-    meta_x11_display_focus_the_no_focus_window (display->x11_display, timestamp);
+  else
+    {
+      meta_display_unset_input_focus (display, timestamp);
+    }
 
   meta_idle_monitor_init_dbus ();
 
@@ -939,12 +973,11 @@ meta_display_close (MetaDisplay *display,
   if (display->compositor)
     meta_compositor_destroy (display->compositor);
 
-  if (display->x11_display)
-    {
-      g_signal_emit (display, display_signals[X11_DISPLAY_CLOSING], 0);
-      g_object_run_dispose (G_OBJECT (display->x11_display));
-      g_clear_object (&display->x11_display);
-    }
+  meta_display_shutdown_x11 (display);
+
+  g_clear_object (&display->stack);
+  g_clear_pointer (&display->stack_tracker,
+                   meta_stack_tracker_free);
 
   /* Must be after all calls to meta_window_unmanage() since they
    * unregister windows
@@ -952,16 +985,14 @@ meta_display_close (MetaDisplay *display,
   g_hash_table_destroy (display->wayland_windows);
   g_hash_table_destroy (display->stamps);
 
-  g_clear_pointer (&display->stack, meta_stack_free);
-  g_clear_pointer (&display->stack_tracker,
-                   meta_stack_tracker_free);
-
   meta_display_shutdown_keys (display);
 
   g_clear_object (&display->bell);
   g_clear_object (&display->startup_notification);
   g_clear_object (&display->workspace_manager);
   g_clear_object (&display->sound_player);
+
+  meta_clipboard_manager_shutdown (display);
 
   g_object_unref (display);
   the_display = NULL;
@@ -1208,15 +1239,15 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
   MetaWindow *focus_window = NULL;
   MetaBackend *backend = meta_get_backend ();
   MetaStage *stage = META_STAGE (meta_backend_get_stage (backend));
-  gboolean is_focus_xwindow = FALSE;
+  gboolean is_no_focus_xwindow = FALSE;
 
   if (display->x11_display)
-    meta_x11_display_xwindow_is_a_no_focus_window (display->x11_display,
-                                                   display->x11_display->focus_xwindow);
+    is_no_focus_xwindow = meta_x11_display_xwindow_is_a_no_focus_window (display->x11_display,
+                                                                         display->x11_display->focus_xwindow);
 
   if (!meta_display_windows_are_interactable (display))
     focus_window = NULL;
-  else if (is_focus_xwindow)
+  else if (is_no_focus_xwindow)
     focus_window = NULL;
   else if (display->focus_window && display->focus_window->surface)
     focus_window = display->focus_window;
@@ -1232,16 +1263,9 @@ meta_display_sync_wayland_input_focus (MetaDisplay *display)
 
 void
 meta_display_update_focus_window (MetaDisplay *display,
-                                  MetaWindow  *window,
-                                  Window       xwindow,
-                                  gulong       serial,
-                                  gboolean     focused_by_us)
+                                  MetaWindow  *window)
 {
-  display->x11_display->focus_serial = serial;
-  display->focused_by_us = focused_by_us;
-
-  if (display->x11_display->focus_xwindow == xwindow &&
-      display->focus_window == window)
+  if (display->focus_window == window)
     return;
 
   if (display->focus_window)
@@ -1258,28 +1282,25 @@ meta_display_update_focus_window (MetaDisplay *display,
        */
       previous = display->focus_window;
       display->focus_window = NULL;
-      display->x11_display->focus_xwindow = None;
 
       meta_window_set_focused_internal (previous, FALSE);
     }
 
   display->focus_window = window;
-  display->x11_display->focus_xwindow = xwindow;
 
   if (display->focus_window)
     {
-      meta_topic (META_DEBUG_FOCUS, "* Focus --> %s with serial %lu\n",
-                  display->focus_window->desc, serial);
+      meta_topic (META_DEBUG_FOCUS, "* Focus --> %s\n",
+                  display->focus_window->desc);
       meta_window_set_focused_internal (display->focus_window, TRUE);
     }
   else
-    meta_topic (META_DEBUG_FOCUS, "* Focus --> NULL with serial %lu\n", serial);
+    meta_topic (META_DEBUG_FOCUS, "* Focus --> NULL\n");
 
   if (meta_is_wayland_compositor ())
     meta_display_sync_wayland_input_focus (display);
 
   g_object_notify (G_OBJECT (display), "focus-window");
-  meta_x11_display_update_active_window_hint (display->x11_display);
 }
 
 gboolean
@@ -1309,6 +1330,51 @@ meta_display_timestamp_too_old (MetaDisplay *display,
     }
 
   return FALSE;
+}
+
+void
+meta_display_set_input_focus (MetaDisplay *display,
+                              MetaWindow  *window,
+                              gboolean     focus_frame,
+                              guint32      timestamp)
+{
+  if (meta_display_timestamp_too_old (display, &timestamp))
+    return;
+
+  if (display->x11_display)
+    {
+      MetaX11Display *x11_display = display->x11_display;
+      Window xwindow;
+      gulong serial;
+
+      meta_x11_error_trap_push (x11_display);
+
+      if (window)
+        xwindow = focus_frame ? window->frame->xwindow : window->xwindow;
+      else
+        xwindow = x11_display->no_focus_window;
+
+      meta_x11_display_set_input_focus (x11_display, xwindow, timestamp);
+      serial = XNextRequest (x11_display->xdisplay);
+
+      meta_x11_display_update_focus_window (x11_display, xwindow, serial, TRUE);
+
+      meta_x11_error_trap_pop (display->x11_display);
+    }
+
+  meta_display_update_focus_window (display, window);
+
+  display->last_focus_time = timestamp;
+
+  if (window == NULL || window != display->autoraise_window)
+    meta_display_remove_autoraise_callback (display);
+}
+
+void
+meta_display_unset_input_focus (MetaDisplay *display,
+                                guint32      timestamp)
+{
+  meta_display_set_input_focus (display, NULL, FALSE, timestamp);
 }
 
 void
@@ -1672,14 +1738,17 @@ meta_display_begin_grab_op (MetaDisplay *display,
   if (pointer_already_grabbed)
     display->grab_have_pointer = TRUE;
 
-  /* Since grab operations often happen as a result of implicit
-   * pointer operations on the display X11 connection, we need
-   * to ungrab here to ensure that the backend's X11 can take
-   * the device grab. */
-  XIUngrabDevice (display->x11_display->xdisplay,
-                  META_VIRTUAL_CORE_POINTER_ID,
-                  timestamp);
-  XSync (display->x11_display->xdisplay, False);
+  if (META_IS_BACKEND_X11 (meta_get_backend ()) && display->x11_display)
+    {
+      /* Since grab operations often happen as a result of implicit
+       * pointer operations on the display X11 connection, we need
+       * to ungrab here to ensure that the backend's X11 can take
+       * the device grab. */
+      XIUngrabDevice (display->x11_display->xdisplay,
+                      META_VIRTUAL_CORE_POINTER_ID,
+                      timestamp);
+      XSync (display->x11_display->xdisplay, False);
+    }
 
   if (meta_backend_grab_device (backend, META_VIRTUAL_CORE_POINTER_ID, timestamp))
     display->grab_have_pointer = TRUE;
@@ -1766,9 +1835,6 @@ meta_display_end_grab_op (MetaDisplay *display,
 
   g_assert (grab_window != NULL);
 
-  g_signal_emit (display, display_signals[GRAB_OP_END], 0,
-                 display, grab_window, grab_op);
-
   /* We need to reset this early, since the
    * meta_window_grab_op_ended callback relies on this being
    * up to date. */
@@ -1820,6 +1886,9 @@ meta_display_end_grab_op (MetaDisplay *display,
 
   if (meta_is_wayland_compositor ())
     meta_display_sync_wayland_input_focus (display);
+
+  g_signal_emit (display, display_signals[GRAB_OP_END], 0,
+                 display, grab_window, grab_op);
 }
 
 /**
@@ -2485,37 +2554,6 @@ prefs_changed_callback (MetaPreference pref,
 }
 
 void
-meta_display_increment_focus_sentinel (MetaDisplay *display)
-{
-  unsigned long data[1];
-
-  data[0] = meta_display_get_current_time (display);
-
-  XChangeProperty (display->x11_display->xdisplay,
-                   display->x11_display->xroot,
-                   display->x11_display->atom__MUTTER_SENTINEL,
-                   XA_CARDINAL,
-                   32, PropModeReplace, (guchar*) data, 1);
-
-  display->sentinel_counter += 1;
-}
-
-void
-meta_display_decrement_focus_sentinel (MetaDisplay *display)
-{
-  display->sentinel_counter -= 1;
-
-  if (display->sentinel_counter < 0)
-    display->sentinel_counter = 0;
-}
-
-gboolean
-meta_display_focus_sentinel_clear (MetaDisplay *display)
-{
-  return (display->sentinel_counter == 0);
-}
-
-void
 meta_display_sanity_check_timestamps (MetaDisplay *display,
                                       guint32      timestamp)
 {
@@ -2583,9 +2621,9 @@ meta_display_accelerator_activate (MetaDisplay     *display,
                                    guint            action,
                                    ClutterKeyEvent *event)
 {
-  g_signal_emit (display, display_signals[ACCELERATOR_ACTIVATED],
-                 0, action,
-                 clutter_input_device_get_device_id (event->device),
+  g_signal_emit (display, display_signals[ACCELERATOR_ACTIVATED], 0,
+                 action,
+                 clutter_event_get_source_device ((ClutterEvent *) event),
                  event->time);
 }
 
@@ -2620,13 +2658,14 @@ meta_display_supports_extended_barriers (MetaDisplay *display)
     return TRUE;
 #endif
 
-  if (META_IS_BACKEND_X11 (meta_get_backend ()))
+  if (META_IS_BACKEND_X11_CM (meta_get_backend ()))
     {
-      return (META_X11_DISPLAY_HAS_XINPUT_23 (display->x11_display) &&
-              !meta_is_wayland_compositor());
+      if (meta_is_wayland_compositor())
+        return FALSE;
+
+      return META_X11_DISPLAY_HAS_XINPUT_23 (display->x11_display);
     }
 
-  g_assert_not_reached ();
   return FALSE;
 }
 
@@ -3681,4 +3720,16 @@ MetaSoundPlayer *
 meta_display_get_sound_player (MetaDisplay *display)
 {
   return display->sound_player;
+}
+
+/**
+ * meta_display_get_selection:
+ * @display: a #MetaDisplay
+ *
+ * Returns: (transfer none): The selection manager of the display
+ */
+MetaSelection *
+meta_display_get_selection (MetaDisplay *display)
+{
+  return display->selection;
 }

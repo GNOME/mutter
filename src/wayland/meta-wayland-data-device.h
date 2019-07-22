@@ -27,6 +27,7 @@
 #include <wayland-server.h>
 
 #include "clutter/clutter.h"
+#include "meta/meta-selection-source.h"
 #include "wayland/meta-wayland-types.h"
 
 typedef struct _MetaWaylandDragGrab MetaWaylandDragGrab;
@@ -69,6 +70,10 @@ struct _MetaWaylandDataDevice
   struct wl_signal selection_ownership_signal;
   struct wl_signal dnd_ownership_signal;
   struct wl_signal primary_ownership_signal;
+
+  guint selection_owner_signal_id;
+
+  MetaSelectionSource *owners[META_N_SELECTION_TYPES];
 };
 
 void meta_wayland_data_device_manager_init (MetaWaylandCompositor *compositor);

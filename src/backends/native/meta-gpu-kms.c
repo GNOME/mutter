@@ -37,174 +37,40 @@
 #include "backends/meta-output.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-kms-connector.h"
+#include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-update.h"
+#include "backends/native/meta-kms-utils.h"
+#include "backends/native/meta-kms.h"
 #include "backends/native/meta-launcher.h"
 #include "backends/native/meta-output-kms.h"
 
 #include "meta-default-modes.h"
 
-typedef struct _MetaKmsSource
-{
-  GSource source;
-
-  gpointer fd_tag;
-  MetaGpuKms *gpu_kms;
-} MetaKmsSource;
-
-typedef struct _MetaGpuKmsFlipClosureContainer
-{
-  GClosure *flip_closure;
-  MetaGpuKms *gpu_kms;
-  MetaCrtc *crtc;
-} MetaGpuKmsFlipClosureContainer;
-
 struct _MetaGpuKms
 {
   MetaGpu parent;
 
+  MetaKmsDevice *kms_device;
+
   uint32_t id;
   int fd;
-  char *file_path;
-  GSource *source;
 
   clockid_t clock_id;
 
-  drmModeConnector **connectors;
-  unsigned int n_connectors;
-
-  int max_buffer_width;
-  int max_buffer_height;
-
   gboolean resources_init_failed_before;
-
-  MetaGpuKmsFlag flags;
 };
 
 G_DEFINE_TYPE (MetaGpuKms, meta_gpu_kms, META_TYPE_GPU)
-
-static gboolean
-kms_event_check (GSource *source)
-{
-  MetaKmsSource *kms_source = (MetaKmsSource *) source;
-
-  return g_source_query_unix_fd (source, kms_source->fd_tag) & G_IO_IN;
-}
-
-static gboolean
-kms_event_dispatch (GSource     *source,
-                    GSourceFunc  callback,
-                    gpointer     user_data)
-{
-  MetaKmsSource *kms_source = (MetaKmsSource *) source;
-
-  meta_gpu_kms_wait_for_flip (kms_source->gpu_kms, NULL);
-
-  return G_SOURCE_CONTINUE;
-}
-
-static GSourceFuncs kms_event_funcs = {
-  NULL,
-  kms_event_check,
-  kms_event_dispatch
-};
-
-static void
-get_crtc_drm_connectors (MetaGpu       *gpu,
-                         MetaCrtc      *crtc,
-                         uint32_t     **connectors,
-                         unsigned int  *n_connectors)
-{
-  GArray *connectors_array = g_array_new (FALSE, FALSE, sizeof (uint32_t));
-  GList *l;
-
-  for (l = meta_gpu_get_outputs (gpu); l; l = l->next)
-    {
-      MetaOutput *output = l->data;
-      MetaCrtc *assigned_crtc;
-
-      assigned_crtc = meta_output_get_assigned_crtc (output);
-      if (assigned_crtc == crtc)
-        {
-          uint32_t connector_id;
-
-          connector_id = meta_output_kms_get_connector_id (output);
-          g_array_append_val (connectors_array, connector_id);
-        }
-    }
-
-  *n_connectors = connectors_array->len;
-  *connectors = (uint32_t *) g_array_free (connectors_array, FALSE);
-}
-
-gboolean
-meta_gpu_kms_apply_crtc_mode (MetaGpuKms *gpu_kms,
-                              MetaCrtc   *crtc,
-                              int         x,
-                              int         y,
-                              uint32_t    fb_id)
-{
-  MetaGpu *gpu = meta_crtc_get_gpu (crtc);
-  int kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-  uint32_t *connectors;
-  unsigned int n_connectors;
-  drmModeModeInfo *mode;
-
-  get_crtc_drm_connectors (gpu, crtc, &connectors, &n_connectors);
-
-  if (connectors)
-    mode = crtc->current_mode->driver_private;
-  else
-    mode = NULL;
-
-  if (drmModeSetCrtc (kms_fd,
-                      crtc->crtc_id,
-                      fb_id,
-                      x, y,
-                      connectors, n_connectors,
-                      mode) != 0)
-    {
-      if (mode)
-        g_warning ("Failed to set CRTC mode %s: %m", crtc->current_mode->name);
-      else
-        g_warning ("Failed to disable CRTC");
-      g_free (connectors);
-      return FALSE;
-    }
-
-  g_free (connectors);
-
-  return TRUE;
-}
-
-static void
-invoke_flip_closure (GClosure   *flip_closure,
-                     MetaGpuKms *gpu_kms,
-                     MetaCrtc   *crtc,
-                     int64_t     page_flip_time_ns)
-{
-  GValue params[] = {
-    G_VALUE_INIT,
-    G_VALUE_INIT,
-    G_VALUE_INIT,
-    G_VALUE_INIT,
-  };
-
-  g_value_init (&params[0], G_TYPE_POINTER);
-  g_value_set_pointer (&params[0], flip_closure);
-  g_value_init (&params[1], G_TYPE_OBJECT);
-  g_value_set_object (&params[1], gpu_kms);
-  g_value_init (&params[2], G_TYPE_OBJECT);
-  g_value_set_object (&params[2], crtc);
-  g_value_init (&params[3], G_TYPE_INT64);
-  g_value_set_int64 (&params[3], page_flip_time_ns);
-  g_closure_invoke (flip_closure, NULL, 4, params, NULL);
-}
 
 gboolean
 meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
                              MetaCrtc   *crtc)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
-  MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
   GList *l;
   gboolean connected_crtc_found;
 
@@ -233,76 +99,6 @@ meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,
   return TRUE;
 }
 
-MetaGpuKmsFlipClosureContainer *
-meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu_kms,
-                                MetaCrtc   *crtc,
-                                GClosure   *flip_closure)
-{
-  MetaGpuKmsFlipClosureContainer *closure_container;
-
-  closure_container = g_new0 (MetaGpuKmsFlipClosureContainer, 1);
-  *closure_container = (MetaGpuKmsFlipClosureContainer) {
-    .flip_closure = g_closure_ref (flip_closure),
-    .gpu_kms = gpu_kms,
-    .crtc = crtc
-  };
-
-  return closure_container;
-}
-
-void
-meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container)
-{
-  g_closure_unref (closure_container->flip_closure);
-  g_free (closure_container);
-}
-
-gboolean
-meta_gpu_kms_flip_crtc (MetaGpuKms  *gpu_kms,
-                        MetaCrtc    *crtc,
-                        uint32_t     fb_id,
-                        GClosure    *flip_closure,
-                        GError     **error)
-{
-  MetaGpu *gpu = META_GPU (gpu_kms);
-  MetaMonitorManager *monitor_manager = meta_gpu_get_monitor_manager (gpu);
-  MetaGpuKmsFlipClosureContainer *closure_container;
-  int kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-  uint32_t *connectors;
-  unsigned int n_connectors;
-  int ret = -1;
-
-  g_assert (meta_crtc_get_gpu (crtc) == gpu);
-  g_assert (meta_monitor_manager_get_power_save_mode (monitor_manager) ==
-            META_POWER_SAVE_ON);
-
-  get_crtc_drm_connectors (gpu, crtc, &connectors, &n_connectors);
-  g_assert (n_connectors > 0);
-  g_free (connectors);
-
-  g_assert (fb_id != 0);
-
-  closure_container = meta_gpu_kms_wrap_flip_closure (gpu_kms,
-                                                      crtc,
-                                                      flip_closure);
-
-  ret = drmModePageFlip (kms_fd,
-                         crtc->crtc_id,
-                         fb_id,
-                         DRM_MODE_PAGE_FLIP_EVENT,
-                         closure_container);
-  if (ret != 0)
-    {
-      meta_gpu_kms_flip_closure_container_free (closure_container);
-      g_set_error (error, G_IO_ERROR,
-                   g_io_error_from_errno (-ret),
-                   "drmModePageFlip failed: %s", g_strerror (-ret));
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
 static int64_t
 timespec_to_nanoseconds (const struct timespec *ts)
 {
@@ -311,82 +107,20 @@ timespec_to_nanoseconds (const struct timespec *ts)
   return ((int64_t) ts->tv_sec) * one_billion + ts->tv_nsec;
 }
 
-static int64_t
-timeval_to_nanoseconds (const struct timeval *tv)
-{
-  int64_t usec = ((int64_t) tv->tv_sec) * G_USEC_PER_SEC + tv->tv_usec;
-  int64_t nsec = usec * 1000;
-
-  return nsec;
-}
-
-static void
-page_flip_handler (int           fd,
-                   unsigned int  frame,
-                   unsigned int  sec,
-                   unsigned int  usec,
-                   void         *user_data)
-{
-  MetaGpuKmsFlipClosureContainer *closure_container = user_data;
-  GClosure *flip_closure = closure_container->flip_closure;
-  MetaGpuKms *gpu_kms = closure_container->gpu_kms;
-  struct timeval page_flip_time = {sec, usec};
-
-  invoke_flip_closure (flip_closure,
-                       gpu_kms,
-                       closure_container->crtc,
-                       timeval_to_nanoseconds (&page_flip_time));
-  meta_gpu_kms_flip_closure_container_free (closure_container);
-}
-
 gboolean
 meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
                             GError    **error)
 {
-  drmEventContext evctx;
-
-  memset (&evctx, 0, sizeof evctx);
-  evctx.version = 2;
-  evctx.page_flip_handler = page_flip_handler;
-
-  while (TRUE)
-    {
-      if (drmHandleEvent (gpu_kms->fd, &evctx) != 0)
-        {
-          struct pollfd pfd;
-          int ret;
-
-          if (errno != EAGAIN)
-            {
-              g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                                   strerror (errno));
-              return FALSE;
-            }
-
-          pfd.fd = gpu_kms->fd;
-          pfd.events = POLL_IN | POLL_ERR;
-          do
-            {
-              ret = poll (&pfd, 1, -1);
-            }
-          while (ret == -1 && errno == EINTR);
-        }
-      else
-        {
-          break;
-        }
-    }
+  if (meta_kms_device_dispatch_sync (gpu_kms->kms_device, error) < 0)
+    return FALSE;
 
   return TRUE;
 }
 
-void
-meta_gpu_kms_get_max_buffer_size (MetaGpuKms *gpu_kms,
-                                  int        *max_width,
-                                  int        *max_height)
+MetaKmsDevice *
+meta_gpu_kms_get_kms_device (MetaGpuKms *gpu_kms)
 {
-  *max_width = gpu_kms->max_buffer_width;
-  *max_height = gpu_kms->max_buffer_height;
+  return gpu_kms->kms_device;
 }
 
 int
@@ -404,7 +138,7 @@ meta_gpu_kms_get_id (MetaGpuKms *gpu_kms)
 const char *
 meta_gpu_kms_get_file_path (MetaGpuKms *gpu_kms)
 {
-  return gpu_kms->file_path;
+  return meta_kms_device_get_path (gpu_kms->kms_device);
 }
 
 int64_t
@@ -419,8 +153,9 @@ meta_gpu_kms_get_current_time_ns (MetaGpuKms *gpu_kms)
 }
 
 void
-meta_gpu_kms_set_power_save_mode (MetaGpuKms *gpu_kms,
-                                  uint64_t    state)
+meta_gpu_kms_set_power_save_mode (MetaGpuKms    *gpu_kms,
+                                  uint64_t       state,
+                                  MetaKmsUpdate *kms_update)
 {
   GList *l;
 
@@ -428,31 +163,26 @@ meta_gpu_kms_set_power_save_mode (MetaGpuKms *gpu_kms,
     {
       MetaOutput *output = l->data;
 
-      meta_output_kms_set_power_save_mode (output, state);
+      meta_output_kms_set_power_save_mode (output, state, kms_update);
     }
 }
 
 gboolean
 meta_gpu_kms_is_boot_vga (MetaGpuKms *gpu_kms)
 {
-  return !!(gpu_kms->flags & META_GPU_KMS_FLAG_BOOT_VGA);
+  MetaKmsDeviceFlag flags;
+
+  flags = meta_kms_device_get_flags (gpu_kms->kms_device);
+  return !!(flags & META_KMS_DEVICE_FLAG_BOOT_VGA);
 }
 
 gboolean
 meta_gpu_kms_is_platform_device (MetaGpuKms *gpu_kms)
 {
-  return !!(gpu_kms->flags & META_GPU_KMS_FLAG_PLATFORM_DEVICE);
-}
+  MetaKmsDeviceFlag flags;
 
-static void
-free_resources (MetaGpuKms *gpu_kms)
-{
-  unsigned i;
-
-  for (i = 0; i < gpu_kms->n_connectors; i++)
-    drmModeFreeConnector (gpu_kms->connectors[i]);
-
-  g_free (gpu_kms->connectors);
+  flags = meta_kms_device_get_flags (gpu_kms->kms_device);
+  return !!(flags & META_KMS_DEVICE_FLAG_PLATFORM_DEVICE);
 }
 
 static int
@@ -530,24 +260,6 @@ meta_gpu_kms_get_mode_from_drm_mode (MetaGpuKms            *gpu_kms,
   return NULL;
 }
 
-float
-meta_calculate_drm_mode_refresh_rate (const drmModeModeInfo *mode)
-{
-  float refresh = 0.0;
-
-  if (mode->htotal > 0 && mode->vtotal > 0)
-    {
-      /* Calculate refresh rate in milliHz first for extra precision. */
-      refresh = (mode->clock * 1000000LL) / mode->htotal;
-      refresh += (mode->vtotal / 2);
-      refresh /= mode->vtotal;
-      if (mode->vscan > 1)
-        refresh /= mode->vscan;
-      refresh /= 1000.0;
-    }
-  return refresh;
-}
-
 static MetaCrtcMode *
 create_mode (const drmModeModeInfo *drm_mode,
              long                   mode_id)
@@ -568,8 +280,8 @@ create_mode (const drmModeModeInfo *drm_mode,
 }
 
 static MetaOutput *
-find_output_by_connector_id (GList *outputs,
-                             glong  id)
+find_output_by_connector_id (GList    *outputs,
+                             uint32_t  connector_id)
 {
   GList *l;
 
@@ -577,7 +289,7 @@ find_output_by_connector_id (GList *outputs,
     {
       MetaOutput *output = l->data;
 
-      if (meta_output_kms_get_connector_id (output) == id)
+      if (meta_output_kms_get_connector_id (output) == connector_id)
         return output;
     }
 
@@ -615,51 +327,32 @@ setup_output_clones (MetaGpu *gpu)
 }
 
 static void
-init_connectors (MetaGpuKms *gpu_kms,
-                 drmModeRes *resources)
-{
-  unsigned int i;
-
-  gpu_kms->n_connectors = resources->count_connectors;
-  gpu_kms->connectors = g_new (drmModeConnector *, gpu_kms->n_connectors);
-  for (i = 0; i < gpu_kms->n_connectors; i++)
-    {
-      drmModeConnector *drm_connector;
-
-      drm_connector = drmModeGetConnector (gpu_kms->fd,
-                                           resources->connectors[i]);
-      gpu_kms->connectors[i] = drm_connector;
-    }
-}
-
-static void
-init_modes (MetaGpuKms *gpu_kms,
-            drmModeRes *resources)
+init_modes (MetaGpuKms *gpu_kms)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   GHashTable *modes_table;
+  GList *l;
   GList *modes;
   GHashTableIter iter;
   drmModeModeInfo *drm_mode;
-  unsigned int i;
+  int i;
   long mode_id;
 
   /*
    * Gather all modes on all connected connectors.
    */
   modes_table = g_hash_table_new (drm_mode_hash, (GEqualFunc) meta_drm_mode_equal);
-  for (i = 0; i < gpu_kms->n_connectors; i++)
+  for (l = meta_kms_device_get_connectors (gpu_kms->kms_device); l; l = l->next)
     {
-      drmModeConnector *drm_connector;
+      MetaKmsConnector *kms_connector = l->data;
+      const MetaKmsConnectorState *state;
 
-      drm_connector = gpu_kms->connectors[i];
-      if (drm_connector && drm_connector->connection == DRM_MODE_CONNECTED)
-        {
-          unsigned int j;
+      state = meta_kms_connector_get_current_state (kms_connector);
+      if (!state)
+        continue;
 
-          for (j = 0; j < (unsigned int) drm_connector->count_modes; j++)
-            g_hash_table_add (modes_table, &drm_connector->modes[j]);
-        }
+      for (i = 0; i < state->n_modes; i++)
+        g_hash_table_add (modes_table, &state->modes[i]);
     }
 
   modes = NULL;
@@ -702,26 +395,21 @@ init_modes (MetaGpuKms *gpu_kms,
 }
 
 static void
-init_crtcs (MetaGpuKms       *gpu_kms,
-            MetaKmsResources *resources)
+init_crtcs (MetaGpuKms *gpu_kms)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
+  MetaKmsDevice *kms_device = gpu_kms->kms_device;
+  GList *l;
   GList *crtcs;
-  unsigned int i;
 
   crtcs = NULL;
 
-  for (i = 0; i < (unsigned int) resources->resources->count_crtcs; i++)
+  for (l = meta_kms_device_get_crtcs (kms_device); l; l = l->next)
     {
-      drmModeCrtc *drm_crtc;
+      MetaKmsCrtc *kms_crtc = l->data;
       MetaCrtc *crtc;
 
-      drm_crtc = drmModeGetCrtc (gpu_kms->fd,
-                                 resources->resources->crtcs[i]);
-
-      crtc = meta_create_kms_crtc (gpu_kms, drm_crtc, i);
-
-      drmModeFreeCrtc (drm_crtc);
+      crtc = meta_create_kms_crtc (gpu_kms, kms_crtc);
 
       crtcs = g_list_append (crtcs, crtc);
     }
@@ -741,44 +429,44 @@ init_frame_clock (MetaGpuKms *gpu_kms)
 }
 
 static void
-init_outputs (MetaGpuKms       *gpu_kms,
-              MetaKmsResources *resources)
+init_outputs (MetaGpuKms *gpu_kms)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   GList *old_outputs;
   GList *outputs;
-  unsigned int i;
+  GList *l;
 
   old_outputs = meta_gpu_get_outputs (gpu);
 
   outputs = NULL;
 
-  for (i = 0; i < gpu_kms->n_connectors; i++)
+  for (l = meta_kms_device_get_connectors (gpu_kms->kms_device); l; l = l->next)
     {
-      drmModeConnector *connector;
+      MetaKmsConnector *kms_connector = l->data;
+      const MetaKmsConnectorState *connector_state;
+      MetaOutput *output;
+      MetaOutput *old_output;
+      GError *error = NULL;
 
-      connector = gpu_kms->connectors[i];
+      connector_state = meta_kms_connector_get_current_state (kms_connector);
+      if (!connector_state)
+        continue;
 
-      if (connector && connector->connection == DRM_MODE_CONNECTED)
+      old_output =
+        find_output_by_connector_id (old_outputs,
+                                     meta_kms_connector_get_id (kms_connector));
+      output = meta_create_kms_output (gpu_kms,
+                                       kms_connector,
+                                       old_output,
+                                       &error);
+      if (!output)
         {
-          MetaOutput *output;
-          MetaOutput *old_output;
-          GError *error = NULL;
-
-          old_output = find_output_by_connector_id (old_outputs,
-                                                    connector->connector_id);
-          output = meta_create_kms_output (gpu_kms, connector, resources,
-                                           old_output,
-                                           &error);
-          if (!output)
-            {
-              g_warning ("Failed to create KMS output: %s", error->message);
-              g_error_free (error);
-            }
-          else
-            {
-              outputs = g_list_prepend (outputs, output);
-            }
+          g_warning ("Failed to create KMS output: %s", error->message);
+          g_error_free (error);
+        }
+      else
+        {
+          outputs = g_list_prepend (outputs, output);
         }
     }
 
@@ -791,82 +479,20 @@ init_outputs (MetaGpuKms       *gpu_kms,
 }
 
 static gboolean
-meta_kms_resources_init (MetaKmsResources  *resources,
-                         int                fd,
-                         GError           **error)
-
-{
-  drmModeRes *drm_resources;
-  unsigned int i;
-
-  drm_resources = drmModeGetResources (fd);
-
-  if (!drm_resources)
-    {
-      g_set_error (error,
-                   G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "Calling drmModeGetResources() failed");
-      return FALSE;
-    }
-
-  resources->resources = drm_resources;
-
-  resources->n_encoders = (unsigned int) drm_resources->count_encoders;
-  resources->encoders = g_new (drmModeEncoder *, resources->n_encoders);
-  for (i = 0; i < resources->n_encoders; i++)
-    resources->encoders[i] = drmModeGetEncoder (fd, drm_resources->encoders[i]);
-
-  return TRUE;
-}
-
-static void
-meta_kms_resources_release (MetaKmsResources *resources)
-{
-  unsigned int i;
-
-  for (i = 0; i < resources->n_encoders; i++)
-    drmModeFreeEncoder (resources->encoders[i]);
-  g_free (resources->encoders);
-
-  g_clear_pointer (&resources->resources, drmModeFreeResources);
-}
-
-static gboolean
 meta_gpu_kms_read_current (MetaGpu  *gpu,
                            GError  **error)
 {
   MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
-  MetaKmsResources resources;
-  g_autoptr (GError) local_error = NULL;
-
-  if (!meta_kms_resources_init (&resources, gpu_kms->fd, &local_error))
-    {
-      if (!gpu_kms->resources_init_failed_before)
-        {
-          g_warning ("meta_kms_resources_init failed: %s, assuming we have no outputs",
-                     local_error->message);
-          gpu_kms->resources_init_failed_before = TRUE;
-        }
-      return TRUE;
-    }
-
-  gpu_kms->max_buffer_width = resources.resources->max_width;
-  gpu_kms->max_buffer_height = resources.resources->max_height;
 
   /* Note: we must not free the public structures (output, crtc, monitor
      mode and monitor info) here, they must be kept alive until the API
      users are done with them after we emit monitors-changed, and thus
      are freed by the platform-independent layer. */
-  free_resources (gpu_kms);
 
-  init_connectors (gpu_kms, resources.resources);
-  init_modes (gpu_kms, resources.resources);
-  init_crtcs (gpu_kms, &resources);
-  init_outputs (gpu_kms, &resources);
+  init_modes (gpu_kms);
+  init_crtcs (gpu_kms);
+  init_outputs (gpu_kms);
   init_frame_clock (gpu_kms);
-
-  meta_kms_resources_release (&resources);
 
   return TRUE;
 }
@@ -874,73 +500,40 @@ meta_gpu_kms_read_current (MetaGpu  *gpu,
 gboolean
 meta_gpu_kms_can_have_outputs (MetaGpuKms *gpu_kms)
 {
-  return gpu_kms->n_connectors > 0;
+  GList *l;
+  int n_connected_connectors = 0;
+
+  for (l = meta_kms_device_get_connectors (gpu_kms->kms_device); l; l = l->next)
+    {
+      MetaKmsConnector *kms_connector = l->data;
+
+      if (meta_kms_connector_get_current_state (kms_connector))
+        n_connected_connectors++;
+    }
+
+  return n_connected_connectors > 0;
 }
 
 MetaGpuKms *
-meta_gpu_kms_new (MetaMonitorManagerKms  *monitor_manager_kms,
-                  const char             *kms_file_path,
-                  MetaGpuKmsFlag          flags,
-                  GError                **error)
+meta_gpu_kms_new (MetaBackendNative  *backend_native,
+                  MetaKmsDevice      *kms_device,
+                  GError            **error)
 {
-  MetaMonitorManager *monitor_manager =
-    META_MONITOR_MANAGER (monitor_manager_kms);
-  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
-  MetaLauncher *launcher =
-    meta_backend_native_get_launcher (META_BACKEND_NATIVE (backend));
-  GSource *source;
-  MetaKmsSource *kms_source;
   MetaGpuKms *gpu_kms;
   int kms_fd;
 
-  kms_fd = meta_launcher_open_restricted (launcher, kms_file_path, error);
-  if (kms_fd == -1)
-    return NULL;
+  kms_fd = meta_kms_device_leak_fd (kms_device);
 
   gpu_kms = g_object_new (META_TYPE_GPU_KMS,
-                          "monitor-manager", monitor_manager_kms,
+                          "backend", backend_native,
                           NULL);
 
-  gpu_kms->flags = flags;
+  gpu_kms->kms_device = kms_device;
   gpu_kms->fd = kms_fd;
-  gpu_kms->file_path = g_strdup (kms_file_path);
-
-  drmSetClientCap (gpu_kms->fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
 
   meta_gpu_kms_read_current (META_GPU (gpu_kms), NULL);
 
-  source = g_source_new (&kms_event_funcs, sizeof (MetaKmsSource));
-  kms_source = (MetaKmsSource *) source;
-  kms_source->fd_tag = g_source_add_unix_fd (source,
-                                             gpu_kms->fd,
-                                             G_IO_IN | G_IO_ERR);
-  kms_source->gpu_kms = gpu_kms;
-
-  gpu_kms->source = source;
-  g_source_attach (gpu_kms->source, NULL);
-
   return gpu_kms;
-}
-
-static void
-meta_gpu_kms_finalize (GObject *object)
-{
-  MetaGpuKms *gpu_kms = META_GPU_KMS (object);
-  MetaMonitorManager *monitor_manager =
-    meta_gpu_get_monitor_manager (META_GPU (gpu_kms));
-  MetaBackend *backend = meta_monitor_manager_get_backend (monitor_manager);
-  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-  MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
-
-  if (gpu_kms->fd != -1)
-    meta_launcher_close_restricted (launcher, gpu_kms->fd);
-  g_clear_pointer (&gpu_kms->file_path, g_free);
-
-  g_source_destroy (gpu_kms->source);
-
-  free_resources (gpu_kms);
-
-  G_OBJECT_CLASS (meta_gpu_kms_parent_class)->finalize (object);
 }
 
 static void
@@ -955,10 +548,7 @@ meta_gpu_kms_init (MetaGpuKms *gpu_kms)
 static void
 meta_gpu_kms_class_init (MetaGpuKmsClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaGpuClass *gpu_class = META_GPU_CLASS (klass);
-
-  object_class->finalize = meta_gpu_kms_finalize;
 
   gpu_class->read_current = meta_gpu_kms_read_current;
 }

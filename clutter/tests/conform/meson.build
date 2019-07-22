@@ -1,6 +1,3 @@
-clutter_tests_conform_srcdir = join_paths(clutter_srcdir, 'tests/conform')
-clutter_tests_conform_builddir = join_paths(clutter_builddir, 'tests/conform')
-
 clutter_tests_conform_c_args = [
   '-DG_LOG_DOMAIN="Clutter-Conform"',
   '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
@@ -52,8 +49,8 @@ clutter_conform_tests += clutter_conform_tests_general_tests
 clutter_conform_tests += clutter_conform_tests_deprecated_tests
 
 test_env = environment()
-test_env.set('G_TEST_SRCDIR', clutter_tests_conform_srcdir)
-test_env.set('G_TEST_BUILDDIR', clutter_tests_conform_builddir)
+test_env.set('G_TEST_SRCDIR', meson.current_source_dir())
+test_env.set('G_TEST_BUILDDIR', meson.current_build_dir())
 test_env.set('G_ENABLE_DIAGNOSTIC', '0')
 test_env.set('CLUTTER_ENABLE_DIAGNOSTIC', '0')
 test_env.set('CLUTTER_SCALE', '1')
@@ -74,7 +71,8 @@ foreach test : clutter_conform_tests
     install: false,
   )
 
-  test('clutter/conform/@0@'.format(test), test_executable,
+  test(test, test_executable,
+    suite: ['clutter', 'clutter/conform'],
     env: test_env
   )
 endforeach

@@ -38,8 +38,11 @@
 #include "core/workspace-private.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-x11-errors.h"
-#include "x11/meta-x11-display-private.h"
 #include "x11/meta-startup-notification-x11.h"
+#include "x11/meta-x11-display-private.h"
+#include "x11/meta-x11-selection-private.h"
+#include "x11/meta-x11-selection-input-stream-private.h"
+#include "x11/meta-x11-selection-output-stream-private.h"
 #include "x11/window-x11.h"
 #include "x11/xprops.h"
 
@@ -800,14 +803,15 @@ handle_window_focus_event (MetaX11Display *x11_display,
    * multiple focus events with the same serial.
    */
   if (x11_display->server_focus_serial > x11_display->focus_serial ||
-      (!display->focused_by_us &&
+      (!x11_display->focused_by_us &&
        x11_display->server_focus_serial == x11_display->focus_serial))
     {
-      meta_display_update_focus_window (display,
-                                        focus_window,
-                                        focus_window ? focus_window->xwindow : None,
-                                        x11_display->server_focus_serial,
-                                        FALSE);
+      meta_display_update_focus_window (display, focus_window);
+      meta_x11_display_update_focus_window (x11_display,
+                                            focus_window ?
+                                            focus_window->xwindow : None,
+                                            x11_display->server_focus_serial,
+                                            FALSE);
       return TRUE;
     }
   else
@@ -879,7 +883,7 @@ handle_input_xevent (MetaX11Display *x11_display,
           enter_event->mode != XINotifyGrab &&
           enter_event->mode != XINotifyUngrab &&
           enter_event->detail != XINotifyInferior &&
-          meta_display_focus_sentinel_clear (display))
+          meta_x11_display_focus_sentinel_clear (x11_display))
         {
           meta_window_handle_enter (window,
                                     enter_event->time,
@@ -1522,7 +1526,7 @@ handle_other_xevent (MetaX11Display *x11_display,
             if (event->xproperty.atom ==
                 x11_display->atom__MUTTER_SENTINEL)
               {
-                meta_display_decrement_focus_sentinel (display);
+                meta_x11_display_decrement_focus_sentinel (x11_display);
               }
           }
       }
@@ -1717,6 +1721,24 @@ window_has_xwindow (MetaWindow *window,
   return FALSE;
 }
 
+static gboolean
+process_selection_event (MetaX11Display *x11_display,
+                         XEvent         *event)
+{
+  gboolean handled = FALSE;
+  GList *l;
+
+  handled |= meta_x11_selection_handle_event (x11_display, event);
+
+  for (l = x11_display->selection.input_streams; l && !handled; l = l->next)
+    handled |= meta_x11_selection_input_stream_xevent (l->data, event);
+
+  for (l = x11_display->selection.output_streams; l && !handled; l = l->next)
+    handled |= meta_x11_selection_output_stream_xevent (l->data, event);
+
+  return handled;
+}
+
 /**
  * meta_display_handle_xevent:
  * @display: The MetaDisplay that events are coming from
@@ -1753,19 +1775,25 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
 
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor () &&
-      meta_xwayland_selection_handle_event (event))
+      meta_xwayland_dnd_handle_event (event))
     {
       bypass_gtk = bypass_compositor = TRUE;
       goto out;
     }
 #endif
 
+  if (process_selection_event (x11_display, event))
+    {
+      bypass_gtk = bypass_compositor = TRUE;
+      goto out;
+    }
+
   display->current_time = event_get_time (x11_display, event);
 
   if (META_IS_BACKEND_X11 (backend))
     meta_backend_x11_handle_event (META_BACKEND_X11 (backend), event);
 
-  if (display->focused_by_us &&
+  if (x11_display->focused_by_us &&
       event->xany.serial > x11_display->focus_serial &&
       display->focus_window &&
       !window_has_xwindow (display->focus_window, x11_display->server_focus_window))
@@ -1774,10 +1802,11 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
                   display->focus_window->desc);
       meta_display_update_focus_window (display,
                                         meta_x11_display_lookup_x_window (x11_display,
-                                                                          x11_display->server_focus_window),
-                                        x11_display->server_focus_window,
-                                        x11_display->server_focus_serial,
-                                        FALSE);
+                                                                          x11_display->server_focus_window));
+      meta_x11_display_update_focus_window (x11_display,
+                                            x11_display->server_focus_window,
+                                            x11_display->server_focus_serial,
+                                            FALSE);
     }
 
   if (event->xany.window == x11_display->xroot)

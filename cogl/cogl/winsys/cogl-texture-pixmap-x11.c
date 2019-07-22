@@ -44,13 +44,11 @@
 #include "cogl-texture-driver.h"
 #include "cogl-texture-2d-private.h"
 #include "cogl-texture-2d-sliced.h"
-#include "cogl-texture-rectangle-private.h"
 #include "cogl-context-private.h"
 #include "cogl-display-private.h"
 #include "cogl-renderer-private.h"
 #include "cogl-object-private.h"
 #include "cogl-xlib.h"
-#include "cogl-error-private.h"
 #include "cogl-private.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
@@ -288,7 +286,7 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
                               uint32_t pixmap,
                               gboolean automatic_updates,
                               CoglTexturePixmapStereoMode stereo_mode,
-                              CoglError **error)
+                              GError **error)
 {
   CoglTexturePixmapX11 *tex_pixmap = g_new (CoglTexturePixmapX11, 1);
   Display *display = cogl_xlib_renderer_get_display (ctxt->display->renderer);
@@ -308,10 +306,10 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
                      &pixmap_border_width, &tex_pixmap->depth))
     {
       g_free (tex_pixmap);
-      _cogl_set_error (error,
-                   COGL_TEXTURE_PIXMAP_X11_ERROR,
-                   COGL_TEXTURE_PIXMAP_X11_ERROR_X11,
-                   "Unable to query pixmap size");
+      g_set_error_literal (error,
+                           COGL_TEXTURE_PIXMAP_X11_ERROR,
+                           COGL_TEXTURE_PIXMAP_X11_ERROR_X11,
+                           "Unable to query pixmap size");
       return NULL;
     }
 
@@ -340,10 +338,10 @@ _cogl_texture_pixmap_x11_new (CoglContext *ctxt,
   if (!XGetWindowAttributes (display, pixmap_root_window, &window_attributes))
     {
       g_free (tex_pixmap);
-      _cogl_set_error (error,
-                   COGL_TEXTURE_PIXMAP_X11_ERROR,
-                   COGL_TEXTURE_PIXMAP_X11_ERROR_X11,
-                   "Unable to query root window attributes");
+      g_set_error_literal (error,
+                           COGL_TEXTURE_PIXMAP_X11_ERROR,
+                           COGL_TEXTURE_PIXMAP_X11_ERROR_X11,
+                           "Unable to query root window attributes");
       return NULL;
     }
 
@@ -393,7 +391,7 @@ CoglTexturePixmapX11 *
 cogl_texture_pixmap_x11_new (CoglContext *ctxt,
                              uint32_t pixmap,
                              gboolean automatic_updates,
-                             CoglError **error)
+                             GError **error)
 
 {
   return _cogl_texture_pixmap_x11_new (ctxt, pixmap,
@@ -405,7 +403,7 @@ CoglTexturePixmapX11 *
 cogl_texture_pixmap_x11_new_left (CoglContext *ctxt,
                                   uint32_t pixmap,
                                   gboolean automatic_updates,
-                                  CoglError **error)
+                                  GError **error)
 {
   return _cogl_texture_pixmap_x11_new (ctxt, pixmap,
                                        automatic_updates, COGL_TEXTURE_PIXMAP_LEFT,
@@ -444,7 +442,7 @@ cogl_texture_pixmap_x11_new_right (CoglTexturePixmapX11 *tfp_left)
 
 static gboolean
 _cogl_texture_pixmap_x11_allocate (CoglTexture *tex,
-                                   CoglError **error)
+                                   GError **error)
 {
   return TRUE;
 }
@@ -580,31 +578,23 @@ create_fallback_texture (CoglContext *ctx,
                          CoglPixelFormat internal_format)
 {
   CoglTexture *tex;
-  CoglError *skip_error = NULL;
+  GError *skip_error = NULL;
 
-  if ((_cogl_util_is_pot (width) && _cogl_util_is_pot (height)) ||
-      (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC) &&
-       cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP)))
+  /* First try creating a fast-path non-sliced texture */
+  tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
+
+  _cogl_texture_set_internal_format (tex, internal_format);
+
+  /* TODO: instead of allocating storage here it would be better
+   * if we had some api that let us just check that the size is
+   * supported by the hardware so storage could be allocated
+   * lazily when uploading data. */
+  if (!cogl_texture_allocate (tex, &skip_error))
     {
-      /* First try creating a fast-path non-sliced texture */
-      tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx,
-                                                         width, height));
-
-      _cogl_texture_set_internal_format (tex, internal_format);
-
-      /* TODO: instead of allocating storage here it would be better
-       * if we had some api that let us just check that the size is
-       * supported by the hardware so storage could be allocated
-       * lazily when uploading data. */
-      if (!cogl_texture_allocate (tex, &skip_error))
-        {
-          cogl_error_free (skip_error);
-          cogl_object_unref (tex);
-          tex = NULL;
-        }
+      g_error_free (skip_error);
+      cogl_object_unref (tex);
+      tex = NULL;
     }
-  else
-    tex = NULL;
 
   if (!tex)
     {
@@ -633,7 +623,7 @@ _cogl_texture_pixmap_x11_update_image_texture (CoglTexturePixmapX11 *tex_pixmap)
   int x, y, width, height;
   int bpp;
   int offset;
-  CoglError *ignore = NULL;
+  GError *ignore = NULL;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
@@ -855,14 +845,15 @@ _cogl_texture_pixmap_x11_set_region (CoglTexture *tex,
                                      int dst_height,
                                      int level,
                                      CoglBitmap *bmp,
-                                     CoglError **error)
+                                     GError **error)
 {
   /* This doesn't make much sense for texture from pixmap so it's not
      supported */
-  _cogl_set_error (error,
-                   COGL_SYSTEM_ERROR,
-                   COGL_SYSTEM_ERROR_UNSUPPORTED,
-                   "Explicitly setting a region of a TFP texture unsupported");
+  g_set_error_literal (error,
+                       COGL_SYSTEM_ERROR,
+                       COGL_SYSTEM_ERROR_UNSUPPORTED,
+                       "Explicitly setting a region of a TFP texture "
+                       "unsupported");
   return FALSE;
 }
 
@@ -879,33 +870,6 @@ _cogl_texture_pixmap_x11_get_data (CoglTexture *tex,
   return cogl_texture_get_data (child_tex, format, rowstride, data);
 }
 
-typedef struct _NormalizeCoordsWrapperData
-{
-  int width;
-  int height;
-  CoglMetaTextureCallback callback;
-  void *user_data;
-} NormalizeCoordsWrapperData;
-
-static void
-normalize_coords_wrapper_cb (CoglTexture *child_texture,
-                             const float *child_texture_coords,
-                             const float *meta_coords,
-                             void *user_data)
-{
-  NormalizeCoordsWrapperData *data = user_data;
-  float normalized_coords[4];
-
-  normalized_coords[0] = meta_coords[0] / data->width;
-  normalized_coords[1] = meta_coords[1] / data->height;
-  normalized_coords[2] = meta_coords[2] / data->width;
-  normalized_coords[3] = meta_coords[3] / data->height;
-
-  data->callback (child_texture,
-                  child_texture_coords, normalized_coords,
-                  data->user_data);
-}
-
 static void
 _cogl_texture_pixmap_x11_foreach_sub_texture_in_region
                                   (CoglTexture              *tex,
@@ -920,47 +884,15 @@ _cogl_texture_pixmap_x11_foreach_sub_texture_in_region
   CoglTexture *child_tex = _cogl_texture_pixmap_x11_get_texture (tex_pixmap);
 
   /* Forward on to the child texture */
-
-  /* tfp textures may be implemented in terms of a
-   * CoglTextureRectangle texture which uses un-normalized texture
-   * coordinates but we want to consistently deal with normalized
-   * texture coordinates with CoglTexturePixmapX11... */
-  if (cogl_is_texture_rectangle (child_tex))
-    {
-      NormalizeCoordsWrapperData data;
-      int width = tex->width;
-      int height = tex->height;
-
-      virtual_tx_1 *= width;
-      virtual_ty_1 *= height;
-      virtual_tx_2 *= width;
-      virtual_ty_2 *= height;
-
-      data.width = width;
-      data.height = height;
-      data.callback = callback;
-      data.user_data = user_data;
-
-      cogl_meta_texture_foreach_in_region (COGL_META_TEXTURE (child_tex),
-                                           virtual_tx_1,
-                                           virtual_ty_1,
-                                           virtual_tx_2,
-                                           virtual_ty_2,
-                                           COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                           COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                           normalize_coords_wrapper_cb,
-                                           &data);
-    }
-  else
-    cogl_meta_texture_foreach_in_region (COGL_META_TEXTURE (child_tex),
-                                         virtual_tx_1,
-                                         virtual_ty_1,
-                                         virtual_tx_2,
-                                         virtual_ty_2,
-                                         COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                         COGL_PIPELINE_WRAP_MODE_REPEAT,
-                                         callback,
-                                         user_data);
+  cogl_meta_texture_foreach_in_region (COGL_META_TEXTURE (child_tex),
+                                       virtual_tx_1,
+                                       virtual_ty_1,
+                                       virtual_tx_2,
+                                       virtual_ty_2,
+                                       COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                       COGL_PIPELINE_WRAP_MODE_REPEAT,
+                                       callback,
+                                       user_data);
 }
 
 static int
@@ -1100,18 +1032,6 @@ _cogl_texture_pixmap_x11_get_gl_format (CoglTexture *tex)
   return _cogl_texture_gl_get_format (child_tex);
 }
 
-static CoglTextureType
-_cogl_texture_pixmap_x11_get_type (CoglTexture *tex)
-{
-  CoglTexturePixmapX11 *tex_pixmap = COGL_TEXTURE_PIXMAP_X11 (tex);
-  CoglTexture *child_tex;
-
-  child_tex = _cogl_texture_pixmap_x11_get_texture (tex_pixmap);
-
-  /* Forward on to the child texture */
-  return _cogl_texture_get_type (child_tex);
-}
-
 static void
 _cogl_texture_pixmap_x11_free (CoglTexturePixmapX11 *tex_pixmap)
 {
@@ -1178,7 +1098,6 @@ cogl_texture_pixmap_x11_vtable =
     _cogl_texture_pixmap_x11_gl_flush_legacy_texobj_wrap_modes,
     _cogl_texture_pixmap_x11_get_format,
     _cogl_texture_pixmap_x11_get_gl_format,
-    _cogl_texture_pixmap_x11_get_type,
     NULL, /* is_foreign */
     NULL /* set_auto_mipmap */
   };

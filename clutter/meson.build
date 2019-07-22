@@ -1,7 +1,5 @@
 clutter_includesubdir = join_paths(pkgname, 'clutter')
 clutter_includedir = join_paths(includedir, clutter_includesubdir)
-clutter_srcdir = join_paths(top_srcdir, 'clutter')
-clutter_builddir = join_paths(builddir, 'clutter')
 
 clutter_includepath = include_directories('.', 'clutter')
 clutter_includes = [clutter_includepath, cogl_includepath]
@@ -14,19 +12,19 @@ clutter_c_args = [
 ]
 
 clutter_debug_c_args = []
-if buildtype.startswith('debug')
-  clutter_debug_c_args += '-DG_DISABLE_CAST_CHECKS'
-  if buildtype == 'debug'
-    clutter_debug_c_args += '-DCLUTTER_ENABLE_DEBUG'
-  endif
-elif buildtype == 'release'
+if get_option('debug')
+  clutter_debug_c_args += [
+    '-DCLUTTER_ENABLE_DEBUG',
+    '-fno-omit-frame-pointer'
+  ]
+elif buildtype != 'plain'
   clutter_debug_c_args += [
     '-DG_DISABLE_ASSERT',
     '-DG_DISABLE_CHECKS',
     '-DG_DISABLE_CAST_CHECKS',
   ]
 endif
-
+supported_clutter_debug_c_args = cc.get_supported_arguments(clutter_debug_c_args)
 clutter_c_args += clutter_debug_c_args
 
 clutter_pkg_deps = [
@@ -40,6 +38,7 @@ clutter_pkg_deps = [
 ]
 
 clutter_pkg_private_deps = [
+  fribidi_dep,
   gdk_pixbuf_dep,
   gthread_dep,
   gmodule_no_export_dep,

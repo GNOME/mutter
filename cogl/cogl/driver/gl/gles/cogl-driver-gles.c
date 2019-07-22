@@ -238,7 +238,7 @@ _cogl_get_gl_version (CoglContext *ctx,
 
 static gboolean
 _cogl_driver_update_features (CoglContext *context,
-                              CoglError **error)
+                              GError **error)
 {
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
@@ -287,20 +287,25 @@ _cogl_driver_update_features (CoglContext *context,
       gl_minor = 1;
     }
 
+  if (!COGL_CHECK_GL_VERSION (gl_major, gl_minor, 2, 0))
+    {
+      g_set_error (error,
+                       COGL_DRIVER_ERROR,
+                       COGL_DRIVER_ERROR_INVALID_VERSION,
+                       "OpenGL ES 2.0 or better is required");
+      return FALSE;
+    }
+
   _cogl_feature_check_ext_functions (context,
                                      gl_major,
                                      gl_minor,
                                      gl_extensions);
 
-  flags |= COGL_FEATURE_SHADERS_GLSL | COGL_FEATURE_OFFSCREEN;
+  flags |= COGL_FEATURE_OFFSCREEN;
   /* Note GLES 2 core doesn't support mipmaps for npot textures or
    * repeat modes other than CLAMP_TO_EDGE. */
-  flags |= COGL_FEATURE_TEXTURE_NPOT_BASIC;
   flags |= COGL_FEATURE_DEPTH_RANGE;
-  COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_GLSL, TRUE);
   COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_OFFSCREEN, TRUE);
-  COGL_FLAGS_SET (context->features,
-                  COGL_FEATURE_ID_TEXTURE_NPOT_BASIC, TRUE);
   COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_DEPTH_RANGE, TRUE);
   COGL_FLAGS_SET (context->features,
                   COGL_FEATURE_ID_MIRRORED_REPEAT, TRUE);
@@ -314,7 +319,6 @@ _cogl_driver_update_features (CoglContext *context,
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ANY_GL, TRUE);
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
 
-  /* Both GLES 1.1 and GLES 2.0 support point sprites in core */
   flags |= COGL_FEATURE_POINT_SPRITE;
   COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_POINT_SPRITE, TRUE);
 
@@ -326,7 +330,7 @@ _cogl_driver_update_features (CoglContext *context,
 
   if (context->glBlitFramebuffer)
     COGL_FLAGS_SET (private_features,
-                    COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT, TRUE);
+                    COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER, TRUE);
 
   if (_cogl_check_extension ("GL_OES_element_index_uint", gl_extensions))
     {
@@ -339,37 +343,6 @@ _cogl_driver_update_features (CoglContext *context,
     {
       flags |= COGL_FEATURE_DEPTH_TEXTURE;
       COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_DEPTH_TEXTURE, TRUE);
-    }
-
-  if (_cogl_check_extension ("GL_OES_texture_npot", gl_extensions))
-    {
-      flags |= (COGL_FEATURE_TEXTURE_NPOT |
-                COGL_FEATURE_TEXTURE_NPOT_BASIC |
-                COGL_FEATURE_TEXTURE_NPOT_MIPMAP |
-                COGL_FEATURE_TEXTURE_NPOT_REPEAT);
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_TEXTURE_NPOT, TRUE);
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_TEXTURE_NPOT_BASIC, TRUE);
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP, TRUE);
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT, TRUE);
-    }
-  else if (_cogl_check_extension ("GL_IMG_texture_npot", gl_extensions))
-    {
-      flags |= (COGL_FEATURE_TEXTURE_NPOT_BASIC |
-                COGL_FEATURE_TEXTURE_NPOT_MIPMAP);
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_TEXTURE_NPOT_BASIC, TRUE);
-      COGL_FLAGS_SET (context->features,
-                      COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP, TRUE);
-    }
-
-  if (context->glTexImage3D)
-    {
-      flags |= COGL_FEATURE_TEXTURE_3D;
-      COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_TEXTURE_3D, TRUE);
     }
 
   if (context->glMapBuffer)

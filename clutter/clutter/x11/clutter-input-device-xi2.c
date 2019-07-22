@@ -46,6 +46,11 @@ struct _ClutterInputDeviceXI2
   gint device_id;
   ClutterInputDeviceTool *current_tool;
 
+  guint inhibit_pointer_query_timer;
+  gboolean query_status;
+  float current_x;
+  float current_y;
+
 #ifdef HAVE_LIBWACOM
   WacomDevice *wacom_device;
   GArray *group_modes;
@@ -112,6 +117,9 @@ clutter_input_device_xi2_finalize (GObject *object)
 
   if (device_xi2->group_modes)
     g_array_unref (device_xi2->group_modes);
+
+  if (device_xi2->inhibit_pointer_query_timer)
+    g_source_remove (device_xi2->inhibit_pointer_query_timer);
 #endif
 
   G_OBJECT_CLASS (clutter_input_device_xi2_parent_class)->finalize (object);
@@ -291,6 +299,75 @@ clutter_input_device_xi2_get_current_tool (ClutterInputDevice *device)
 {
   ClutterInputDeviceXI2 *device_xi2 = CLUTTER_INPUT_DEVICE_XI2 (device);
   return device_xi2->current_tool;
+}
+
+static gboolean
+clutter_input_device_xi2_query_pointer_location (ClutterInputDeviceXI2 *device_xi2)
+{
+  Window xroot_window, xchild_window;
+  double xroot_x, xroot_y, xwin_x, xwin_y;
+  XIButtonState button_state;
+  XIModifierState mod_state;
+  XIGroupState group_state;
+  int result;
+
+  clutter_x11_trap_x_errors ();
+  result = XIQueryPointer (clutter_x11_get_default_display (),
+                           device_xi2->device_id,
+                           clutter_x11_get_root_window (),
+                           &xroot_window,
+                           &xchild_window,
+                           &xroot_x, &xroot_y,
+                           &xwin_x, &xwin_y,
+                           &button_state,
+                           &mod_state,
+                           &group_state);
+  clutter_x11_untrap_x_errors ();
+
+  if (!result)
+    return FALSE;
+
+  device_xi2->current_x = (float) xroot_x;
+  device_xi2->current_y = (float) xroot_y;
+
+  return TRUE;
+}
+
+static gboolean
+clear_inhibit_pointer_query_cb (gpointer data)
+{
+  ClutterInputDeviceXI2 *device_xi2 = CLUTTER_INPUT_DEVICE_XI2 (data);
+
+  device_xi2->inhibit_pointer_query_timer = 0;
+
+  return G_SOURCE_REMOVE;
+}
+
+gboolean
+clutter_input_device_xi2_get_pointer_location (ClutterInputDevice *device,
+                                               float              *x,
+                                               float              *y)
+
+{
+  ClutterInputDeviceXI2 *device_xi2 = CLUTTER_INPUT_DEVICE_XI2 (device);
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE_XI2 (device_xi2), FALSE);
+  g_return_val_if_fail (device->device_type == CLUTTER_POINTER_DEVICE, FALSE);
+
+  /* Throttle XServer queries and roundtrips using an idle timeout */
+  if (device_xi2->inhibit_pointer_query_timer == 0)
+    {
+      device_xi2->query_status =
+        clutter_input_device_xi2_query_pointer_location (device_xi2);
+      device_xi2->inhibit_pointer_query_timer =
+        clutter_threads_add_idle (clear_inhibit_pointer_query_cb, device_xi2);
+    }
+
+  *x = device_xi2->current_x;
+  *y = device_xi2->current_y;
+
+  return device_xi2->query_status;
 }
 
 #ifdef HAVE_LIBWACOM

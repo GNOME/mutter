@@ -19,11 +19,6 @@
 #include "compositor/meta-cullable.h"
 #include "meta/meta-background-group.h"
 
-struct _MetaBackgroundGroup
-{
-  ClutterActor parent;
-};
-
 static void cullable_iface_init (MetaCullableInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (MetaBackgroundGroup, meta_background_group, CLUTTER_TYPE_ACTOR,

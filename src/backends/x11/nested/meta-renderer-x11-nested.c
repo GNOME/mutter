@@ -203,7 +203,7 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
       height = logical_monitor->rect.height;
     }
   width = roundf (width * view_scale);
-  height = roundf (width * view_scale);
+  height = roundf (height * view_scale);
 
   fake_onscreen = create_offscreen (cogl_context, width, height);
 

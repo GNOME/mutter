@@ -1,7 +1,5 @@
-clutter_tests_interactive_srcdir = join_paths(clutter_srcdir, 'tests/interactive')
-
+clutter_tests_interactive_srcdir = meson.current_source_dir()
 clutter_tests_interactive_includepath = include_directories('.')
-#clutter_tests_interactive_builddir = join_paths(clutter_builddir, 'tests/interactive')
 
 clutter_tests_interactive_c_args = [
   '-DTESTS_DATADIR="@0@"'.format(clutter_tests_interactive_srcdir),
@@ -31,7 +29,6 @@ clutter_tests_interactive_test_sources = [
   'test-fbo.c',
   'test-cogl-tex-tile.c',
   'test-cogl-tex-convert.c',
-  'test-cogl-tex-foreign.c',
   'test-cogl-offscreen.c',
   'test-cogl-tex-polygon.c',
   'test-cogl-multitexture.c',

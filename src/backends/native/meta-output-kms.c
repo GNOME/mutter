@@ -29,6 +29,8 @@
 #include <string.h>
 
 #include "backends/meta-crtc.h"
+#include "backends/native/meta-kms-connector.h"
+#include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-crtc-kms.h"
 
 #include "meta-default-modes.h"
@@ -39,85 +41,51 @@ typedef struct _MetaOutputKms
 {
   MetaOutput parent;
 
-  drmModeConnector *connector;
-
-  unsigned int n_encoders;
-  drmModeEncoderPtr *encoders;
-  drmModeEncoderPtr current_encoder;
-
-  /*
-   * Bitmasks of encoder position in the resources array (used during clone
-   * setup).
-   */
-  uint32_t encoder_mask;
-  uint32_t enc_clone_mask;
-
-  uint32_t dpms_prop_id;
-  uint32_t edid_blob_id;
-  uint32_t tile_blob_id;
-
-  uint32_t underscan_prop_id;
-  uint32_t underscan_hborder_prop_id;
-  uint32_t underscan_vborder_prop_id;
-
-  int suggested_x;
-  int suggested_y;
-  uint32_t hotplug_mode_update;
-
-  gboolean has_scaling;
+  MetaKmsConnector *kms_connector;
 } MetaOutputKms;
 
-void
-meta_output_kms_set_underscan (MetaOutput *output)
+MetaKmsConnector *
+meta_output_kms_get_kms_connector (MetaOutput *output)
 {
   MetaOutputKms *output_kms = output->driver_private;
-  MetaGpu *gpu = meta_output_get_gpu (output);
-  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
-  MetaCrtc *crtc;
-  int kms_fd;
-  uint32_t connector_id;
 
-  if (!output_kms->underscan_prop_id)
+  return output_kms->kms_connector;
+}
+
+void
+meta_output_kms_set_underscan (MetaOutput    *output,
+                               MetaKmsUpdate *kms_update)
+{
+  MetaOutputKms *output_kms = output->driver_private;
+
+  if (!output->supports_underscanning)
     return;
 
-  crtc = meta_output_get_assigned_crtc (output);
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-  connector_id = output_kms->connector->connector_id;
-
-  if (output->is_underscanning && crtc && crtc->current_mode)
+  if (output->is_underscanning)
     {
-      drmModeObjectSetProperty (kms_fd, connector_id,
-                                DRM_MODE_OBJECT_CONNECTOR,
-                                output_kms->underscan_prop_id,
-                                (uint64_t) 1);
+      MetaCrtc *crtc;
+      uint64_t hborder, vborder;
 
-      if (output_kms->underscan_hborder_prop_id)
-        {
-          uint64_t value;
+      crtc = meta_output_get_assigned_crtc (output);
+      hborder = MIN (128, (uint64_t) round (crtc->current_mode->width * 0.05));
+      vborder = MIN (128, (uint64_t) round (crtc->current_mode->height * 0.05));
 
-          value = MIN (128, crtc->current_mode->width * 0.05);
-          drmModeObjectSetProperty (kms_fd, connector_id,
-                                    DRM_MODE_OBJECT_CONNECTOR,
-                                    output_kms->underscan_hborder_prop_id,
-                                    value);
-        }
-      if (output_kms->underscan_vborder_prop_id)
-        {
-          uint64_t value;
+      g_debug ("Setting underscan of connector %s to %lu x %lu",
+               meta_kms_connector_get_name (output_kms->kms_connector),
+               hborder, vborder);
 
-          value = MIN (128, crtc->current_mode->height * 0.05);
-          drmModeObjectSetProperty (kms_fd, connector_id,
-                                    DRM_MODE_OBJECT_CONNECTOR,
-                                    output_kms->underscan_vborder_prop_id,
-                                    value);
-        }
+      meta_kms_connector_set_underscanning (output_kms->kms_connector,
+                                            kms_update,
+                                            hborder,
+                                            vborder);
     }
   else
     {
-      drmModeObjectSetProperty (kms_fd, connector_id,
-                                DRM_MODE_OBJECT_CONNECTOR,
-                                output_kms->underscan_prop_id,
-                                (uint64_t) 0);
+      g_debug ("Unsetting underscan of connector %s",
+               meta_kms_connector_get_name (output_kms->kms_connector));
+
+      meta_kms_connector_unset_underscanning (output_kms->kms_connector,
+                                              kms_update);
     }
 }
 
@@ -126,28 +94,23 @@ meta_output_kms_get_connector_id (MetaOutput *output)
 {
   MetaOutputKms *output_kms = output->driver_private;
 
-  return output_kms->connector->connector_id;
+  return meta_kms_connector_get_id (output_kms->kms_connector);
 }
 
 void
-meta_output_kms_set_power_save_mode (MetaOutput *output,
-                                     uint64_t    state)
+meta_output_kms_set_power_save_mode (MetaOutput    *output,
+                                     uint64_t       dpms_state,
+                                     MetaKmsUpdate *kms_update)
 {
   MetaOutputKms *output_kms = output->driver_private;
-  MetaGpu *gpu = meta_output_get_gpu (output);
-  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
 
-  if (output_kms->dpms_prop_id != 0)
-    {
-      int fd;
+  g_debug ("Setting DPMS state of connector %s to %lu",
+           meta_kms_connector_get_name (output_kms->kms_connector),
+           dpms_state);
 
-      fd = meta_gpu_kms_get_fd (gpu_kms);
-      if (drmModeObjectSetProperty (fd, output_kms->connector->connector_id,
-                                    DRM_MODE_OBJECT_CONNECTOR,
-                                    output_kms->dpms_prop_id, state) < 0)
-        g_warning ("Failed to set power save mode for output %s: %s",
-                   output->name, strerror (errno));
-    }
+  meta_kms_connector_update_set_dpms_state (output_kms->kms_connector,
+                                            kms_update,
+                                            dpms_state);
 }
 
 gboolean
@@ -157,265 +120,32 @@ meta_output_kms_can_clone (MetaOutput *output,
   MetaOutputKms *output_kms = output->driver_private;
   MetaOutputKms *other_output_kms = other_output->driver_private;
 
-  if (output_kms->enc_clone_mask == 0 ||
-      other_output_kms->enc_clone_mask == 0)
-    return FALSE;
-
-  if (output_kms->encoder_mask != other_output_kms->enc_clone_mask)
-    return FALSE;
-
-  return TRUE;
-}
-
-static drmModePropertyBlobPtr
-read_edid_blob (MetaGpuKms *gpu_kms,
-                uint32_t    edid_blob_id,
-                GError    **error)
-{
-  int fd;
-  drmModePropertyBlobPtr edid_blob = NULL;
-
-  fd = meta_gpu_kms_get_fd (gpu_kms);
-  edid_blob = drmModeGetPropertyBlob (fd, edid_blob_id);
-  if (!edid_blob)
-    {
-      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
-                   "%s", strerror (errno));
-      return NULL;
-    }
-
-  return edid_blob;
-}
-
-static GBytes *
-read_output_edid (MetaGpuKms *gpu_kms,
-                  MetaOutput *output,
-                  GError    **error)
-{
-  MetaOutputKms *output_kms = output->driver_private;
-  drmModePropertyBlobPtr edid_blob;
-
-  g_assert (output_kms->edid_blob_id != 0);
-
-  edid_blob = read_edid_blob (gpu_kms, output_kms->edid_blob_id, error);
-  if (!edid_blob)
-    return NULL;
-
-  if (edid_blob->length == 0)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED, "EDID blob was empty");
-      drmModeFreePropertyBlob (edid_blob);
-      return NULL;
-    }
-
-  return g_bytes_new_with_free_func (edid_blob->data, edid_blob->length,
-                                     (GDestroyNotify) drmModeFreePropertyBlob,
-                                     edid_blob);
-}
-
-static gboolean
-output_get_tile_info (MetaGpuKms *gpu_kms,
-                      MetaOutput *output)
-{
-  MetaOutputKms *output_kms = output->driver_private;
-  int fd;
-  drmModePropertyBlobPtr tile_blob = NULL;
-
-  if (output_kms->tile_blob_id == 0)
-    return FALSE;
-
-  fd = meta_gpu_kms_get_fd (gpu_kms);
-  tile_blob = drmModeGetPropertyBlob (fd, output_kms->tile_blob_id);
-  if (!tile_blob)
-    {
-      g_warning ("Failed to read TILE of output %s: %s",
-                 output->name, strerror (errno));
-      return FALSE;
-    }
-
-  if (tile_blob->length > 0)
-    {
-      int ret;
-
-      ret = sscanf ((char *)tile_blob->data, "%d:%d:%d:%d:%d:%d:%d:%d",
-                    &output->tile_info.group_id,
-                    &output->tile_info.flags,
-                    &output->tile_info.max_h_tiles,
-                    &output->tile_info.max_v_tiles,
-                    &output->tile_info.loc_h_tile,
-                    &output->tile_info.loc_v_tile,
-                    &output->tile_info.tile_w,
-                    &output->tile_info.tile_h);
-      drmModeFreePropertyBlob (tile_blob);
-
-      if (ret != 8)
-        {
-          g_warning ("Couldn't understand output tile property blob");
-          return FALSE;
-        }
-      return TRUE;
-    }
-  else
-    {
-      drmModeFreePropertyBlob (tile_blob);
-      return FALSE;
-    }
+  return meta_kms_connector_can_clone (output_kms->kms_connector,
+                                       other_output_kms->kms_connector);
 }
 
 GBytes *
 meta_output_kms_read_edid (MetaOutput *output)
 {
   MetaOutputKms *output_kms = output->driver_private;
-  MetaGpu *gpu = meta_output_get_gpu (output);
-  MetaGpuKms *gpu_kms = META_GPU_KMS (gpu);
-  GError *error = NULL;
-  GBytes *edid;
+  const MetaKmsConnectorState *connector_state;
+  GBytes *edid_data;
 
-  if (output_kms->edid_blob_id == 0)
+  connector_state =
+    meta_kms_connector_get_current_state (output_kms->kms_connector);
+  edid_data = connector_state->edid_data;
+  if (!edid_data)
     return NULL;
 
-  edid = read_output_edid (gpu_kms, output, &error);
-  if (!edid)
-    {
-      g_warning ("Failed to read EDID from '%s': %s",
-                 output->name, error->message);
-      g_error_free (error);
-      return NULL;
-    }
-
-  return edid;
-}
-
-static void
-handle_panel_orientation (MetaOutput        *output,
-                          drmModePropertyPtr prop,
-                          int                orientation)
-{
-  const char *name = prop->enums[orientation].name;
-
-  if (strcmp (name, "Upside Down") == 0)
-    {
-      output->panel_orientation_transform = META_MONITOR_TRANSFORM_180;
-    }
-  else if (strcmp (name, "Left Side Up") == 0)
-    {
-      /* Left side up, rotate 90 degrees counter clockwise to correct */
-      output->panel_orientation_transform = META_MONITOR_TRANSFORM_90;
-    }
-  else if (strcmp (name, "Right Side Up") == 0)
-    {
-      /* Right side up, rotate 270 degrees counter clockwise to correct */
-      output->panel_orientation_transform = META_MONITOR_TRANSFORM_270;
-    }
-  else
-    {
-      output->panel_orientation_transform = META_MONITOR_TRANSFORM_NORMAL;
-    }
-}
-
-static void
-find_connector_properties (MetaGpuKms    *gpu_kms,
-                           MetaOutput    *output)
-{
-  MetaOutputKms *output_kms = output->driver_private;
-  drmModeConnector *connector = output_kms->connector;
-  int fd;
-  int i;
-
-  fd = meta_gpu_kms_get_fd (gpu_kms);
-
-  output_kms->hotplug_mode_update = 0;
-  output_kms->suggested_x = -1;
-  output_kms->suggested_y = -1;
-
-  for (i = 0; i < connector->count_props; i++)
-    {
-      drmModePropertyPtr prop = drmModeGetProperty (fd, connector->props[i]);
-      if (!prop)
-        continue;
-
-      if ((prop->flags & DRM_MODE_PROP_ENUM) &&
-          strcmp (prop->name, "DPMS") == 0)
-        output_kms->dpms_prop_id = prop->prop_id;
-      else if ((prop->flags & DRM_MODE_PROP_BLOB) &&
-               strcmp (prop->name, "EDID") == 0)
-        output_kms->edid_blob_id = connector->prop_values[i];
-      else if ((prop->flags & DRM_MODE_PROP_BLOB) &&
-               strcmp (prop->name, "TILE") == 0)
-        output_kms->tile_blob_id = connector->prop_values[i];
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "suggested X") == 0)
-        output_kms->suggested_x = connector->prop_values[i];
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "suggested Y") == 0)
-        output_kms->suggested_y = connector->prop_values[i];
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "hotplug_mode_update") == 0)
-        output_kms->hotplug_mode_update = connector->prop_values[i];
-      else if (strcmp (prop->name, "scaling mode") == 0)
-        output_kms->has_scaling = TRUE;
-      else if ((prop->flags & DRM_MODE_PROP_ENUM) &&
-               strcmp (prop->name, "panel orientation") == 0)
-        handle_panel_orientation (output, prop,
-                                  output_kms->connector->prop_values[i]);
-      else if ((prop->flags & DRM_MODE_PROP_ENUM) &&
-               strcmp (prop->name, "underscan") == 0)
-        output_kms->underscan_prop_id = prop->prop_id;
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "underscan hborder") == 0)
-        output_kms->underscan_hborder_prop_id = prop->prop_id;
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "underscan vborder") == 0)
-        output_kms->underscan_vborder_prop_id = prop->prop_id;
-
-      drmModeFreeProperty (prop);
-    }
-}
-
-static char *
-make_output_name (drmModeConnector *connector)
-{
-  static const char * const connector_type_names[] = {
-    "None",
-    "VGA",
-    "DVI-I",
-    "DVI-D",
-    "DVI-A",
-    "Composite",
-    "SVIDEO",
-    "LVDS",
-    "Component",
-    "DIN",
-    "DP",
-    "HDMI",
-    "HDMI-B",
-    "TV",
-    "eDP",
-    "Virtual",
-    "DSI",
-  };
-
-  if (connector->connector_type < G_N_ELEMENTS (connector_type_names))
-    return g_strdup_printf ("%s-%d",
-                            connector_type_names[connector->connector_type],
-                            connector->connector_type_id);
-  else
-    return g_strdup_printf ("Unknown%d-%d",
-                            connector->connector_type,
-                            connector->connector_type_id);
+  return g_bytes_new_from_bytes (edid_data, 0, g_bytes_get_size (edid_data));
 }
 
 static void
 meta_output_destroy_notify (MetaOutput *output)
 {
   MetaOutputKms *output_kms;
-  unsigned i;
 
   output_kms = output->driver_private;
-
-  for (i = 0; i < output_kms->n_encoders; i++)
-    drmModeFreeEncoder (output_kms->encoders[i]);
-  g_free (output_kms->encoders);
 
   g_slice_free (MetaOutputKms, output_kms);
 }
@@ -511,20 +241,24 @@ init_output_modes (MetaOutput  *output,
                    GError     **error)
 {
   MetaOutputKms *output_kms = output->driver_private;
-  unsigned int i;
+  const MetaKmsConnectorState *connector_state;
+  int i;
+
+  connector_state =
+    meta_kms_connector_get_current_state (output_kms->kms_connector);
 
   output->preferred_mode = NULL;
-  output->n_modes = output_kms->connector->count_modes;
+
+  output->n_modes = connector_state->n_modes;
   output->modes = g_new0 (MetaCrtcMode *, output->n_modes);
-  for (i = 0; i < output->n_modes; i++)
+  for (i = 0; i < connector_state->n_modes; i++)
     {
-      drmModeModeInfo *drm_mode;
+      drmModeModeInfo *drm_mode = &connector_state->modes[i];
       MetaCrtcMode *crtc_mode;
 
-      drm_mode = &output_kms->connector->modes[i];
       crtc_mode = meta_gpu_kms_get_mode_from_drm_mode (gpu_kms, drm_mode);
       output->modes[i] = crtc_mode;
-      if (output_kms->connector->modes[i].type & DRM_MODE_TYPE_PREFERRED)
+      if (drm_mode->type & DRM_MODE_TYPE_PREFERRED)
         output->preferred_mode = output->modes[i];
     }
 
@@ -532,7 +266,7 @@ init_output_modes (MetaOutput  *output,
   /* Presume that if the output supports scaling, then we have
    * a panel fitter capable of adjusting any mode to suit.
    */
-  if (output_kms->has_scaling)
+  if (connector_state->has_scaling)
     add_common_modes (output, gpu_kms);
 
   if (!output->modes)
@@ -553,21 +287,19 @@ init_output_modes (MetaOutput  *output,
 
 MetaOutput *
 meta_create_kms_output (MetaGpuKms        *gpu_kms,
-                        drmModeConnector  *connector,
-                        MetaKmsResources  *resources,
+                        MetaKmsConnector  *kms_connector,
                         MetaOutput        *old_output,
                         GError           **error)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   MetaOutput *output;
   MetaOutputKms *output_kms;
+  const MetaKmsConnectorState *connector_state;
+  MetaMonitorTransform panel_orientation_transform;
+  uint32_t connector_id;
   GArray *crtcs;
-  GBytes *edid;
   GList *l;
-  unsigned int i;
-  unsigned int crtc_mask;
-  int fd;
-  uint32_t id;
+  uint32_t gpu_id;
 
   output = g_object_new (META_TYPE_OUTPUT, NULL);
 
@@ -576,46 +308,26 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   output->driver_notify = (GDestroyNotify) meta_output_destroy_notify;
 
   output->gpu = gpu;
-  output->name = make_output_name (connector);
+  output->name = g_strdup (meta_kms_connector_get_name (kms_connector));
 
-  id = meta_gpu_kms_get_id (gpu_kms);
-  output->winsys_id = ((uint64_t) id << 32) | connector->connector_id;
+  gpu_id = meta_gpu_kms_get_id (gpu_kms);
+  connector_id = meta_kms_connector_get_id (kms_connector);
+  output->winsys_id = ((uint64_t) gpu_id << 32) | connector_id;
 
-  switch (connector->subpixel)
+  output_kms->kms_connector = kms_connector;
+
+  connector_state = meta_kms_connector_get_current_state (kms_connector);
+
+  panel_orientation_transform = connector_state->panel_orientation_transform;
+  if (meta_monitor_transform_is_rotated (panel_orientation_transform))
     {
-    case DRM_MODE_SUBPIXEL_NONE:
-      output->subpixel_order = COGL_SUBPIXEL_ORDER_NONE;
-      break;
-    case DRM_MODE_SUBPIXEL_HORIZONTAL_RGB:
-      output->subpixel_order = COGL_SUBPIXEL_ORDER_HORIZONTAL_RGB;
-      break;
-    case DRM_MODE_SUBPIXEL_HORIZONTAL_BGR:
-      output->subpixel_order = COGL_SUBPIXEL_ORDER_HORIZONTAL_BGR;
-      break;
-    case DRM_MODE_SUBPIXEL_VERTICAL_RGB:
-      output->subpixel_order = COGL_SUBPIXEL_ORDER_VERTICAL_RGB;
-      break;
-    case DRM_MODE_SUBPIXEL_VERTICAL_BGR:
-      output->subpixel_order = COGL_SUBPIXEL_ORDER_VERTICAL_BGR;
-      break;
-    case DRM_MODE_SUBPIXEL_UNKNOWN:
-    default:
-      output->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
-      break;
-    }
-
-  output_kms->connector = connector;
-  find_connector_properties (gpu_kms, output);
-
-  if (meta_monitor_transform_is_rotated (output->panel_orientation_transform))
-    {
-      output->width_mm = connector->mmHeight;
-      output->height_mm = connector->mmWidth;
+      output->width_mm = connector_state->height_mm;
+      output->height_mm = connector_state->width_mm;
     }
   else
     {
-      output->width_mm = connector->mmWidth;
-      output->height_mm = connector->mmHeight;
+      output->width_mm = connector_state->width_mm;
+      output->height_mm = connector_state->height_mm;
     }
 
   if (!init_output_modes (output, gpu_kms, error))
@@ -624,51 +336,29 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
       return NULL;
     }
 
-  output_kms->n_encoders = connector->count_encoders;
-  output_kms->encoders = g_new0 (drmModeEncoderPtr, output_kms->n_encoders);
+  crtcs = g_array_new (FALSE, FALSE, sizeof (MetaCrtc *));
 
-  fd = meta_gpu_kms_get_fd (gpu_kms);
-
-  crtc_mask = ~(unsigned int) 0;
-  for (i = 0; i < output_kms->n_encoders; i++)
+  for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
     {
-      output_kms->encoders[i] = drmModeGetEncoder (fd, connector->encoders[i]);
-      if (!output_kms->encoders[i])
-        continue;
+      MetaCrtc *crtc = l->data;
+      MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+      uint32_t crtc_idx;
 
-      /* We only list CRTCs as supported if they are supported by all encoders
-         for this connectors.
-
-         This is what xf86-video-modesetting does (see drmmode_output_init())
-         */
-      crtc_mask &= output_kms->encoders[i]->possible_crtcs;
-
-      if (output_kms->encoders[i]->encoder_id == connector->encoder_id)
-        output_kms->current_encoder = output_kms->encoders[i];
-    }
-
-  crtcs = g_array_new (FALSE, FALSE, sizeof (MetaCrtc*));
-
-  for (l = meta_gpu_get_crtcs (gpu), i = 0; l; l = l->next, i++)
-    {
-      if (crtc_mask & (1 << i))
-        {
-          MetaCrtc *crtc = l->data;
-
-          g_array_append_val (crtcs, crtc);
-        }
+      crtc_idx = meta_kms_crtc_get_idx (kms_crtc);
+      if (connector_state->common_possible_crtcs & (1 << crtc_idx))
+        g_array_append_val (crtcs, crtc);
     }
 
   output->n_possible_crtcs = crtcs->len;
-  output->possible_crtcs = (void*)g_array_free (crtcs, FALSE);
+  output->possible_crtcs = (MetaCrtc **) g_array_free (crtcs, FALSE);
 
-  if (output_kms->current_encoder && output_kms->current_encoder->crtc_id != 0)
+  if (connector_state->current_crtc_id)
     {
       for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
         {
           MetaCrtc *crtc = l->data;
 
-          if (crtc->crtc_id == output_kms->current_encoder->crtc_id)
+          if (crtc->crtc_id == connector_state->current_crtc_id)
             {
               meta_output_assign_crtc (output, crtc);
               break;
@@ -691,35 +381,17 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
       output->is_presentation = FALSE;
     }
 
-  output->suggested_x = output_kms->suggested_x;
-  output->suggested_y = output_kms->suggested_y;
-  output->hotplug_mode_update = output_kms->hotplug_mode_update;
-  output->supports_underscanning = output_kms->underscan_prop_id != 0;
+  output->suggested_x = connector_state->suggested_x;
+  output->suggested_y = connector_state->suggested_y;
+  output->hotplug_mode_update = connector_state->hotplug_mode_update;
+  output->supports_underscanning =
+    meta_kms_connector_is_underscanning_supported (kms_connector);
 
-  if (output_kms->edid_blob_id != 0)
-    {
-      GError *error = NULL;
+  meta_output_parse_edid (output, connector_state->edid_data);
 
-      edid = read_output_edid (gpu_kms, output, &error);
-      if (!edid)
-        {
-          g_warning ("Failed to read EDID blob from %s: %s",
-                     output->name, error->message);
-          g_error_free (error);
-        }
-    }
-  else
-    {
-      edid = NULL;
-    }
+  output->connector_type = meta_kms_connector_get_connector_type (kms_connector);
 
-  meta_output_parse_edid (output, edid);
-  g_bytes_unref (edid);
-
-  /* MetaConnectorType matches DRM's connector types */
-  output->connector_type = (MetaConnectorType) connector->connector_type;
-
-  output_get_tile_info (gpu_kms, output);
+  output->tile_info = connector_state->tile_info;
 
   /* FIXME: backlight is a very driver specific thing unfortunately,
      every DDX does its own thing, and the dumb KMS API does not include it.
@@ -733,29 +405,6 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   output->backlight_min = 0;
   output->backlight_max = 0;
   output->backlight = -1;
-
-  output_kms->enc_clone_mask = 0xff;
-  output_kms->encoder_mask = 0;
-
-  for (i = 0; i < output_kms->n_encoders; i++)
-    {
-      drmModeEncoder *output_encoder = output_kms->encoders[i];
-      unsigned int j;
-
-      for (j = 0; j < resources->n_encoders; j++)
-        {
-          drmModeEncoder *encoder = resources->encoders[j];
-
-          if (output_encoder && encoder &&
-              output_encoder->encoder_id == encoder->encoder_id)
-            {
-              output_kms->encoder_mask |= (1 << j);
-              break;
-            }
-        }
-
-      output_kms->enc_clone_mask &= output_encoder->possible_clones;
-    }
 
   return output;
 }

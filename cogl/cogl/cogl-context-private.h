@@ -50,8 +50,6 @@
 #include "cogl-texture-driver.h"
 #include "cogl-pipeline-cache.h"
 #include "cogl-texture-2d.h"
-#include "cogl-texture-3d.h"
-#include "cogl-texture-rectangle.h"
 #include "cogl-sampler-cache-private.h"
 #include "cogl-gpu-info-private.h"
 #include "cogl-gl-header.h"
@@ -102,9 +100,6 @@ struct _CoglContext
   CoglFeatureFlags feature_flags; /* legacy/deprecated feature flags */
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)];
-
-  gboolean needs_viewport_scissor_workaround;
-  CoglFramebuffer *viewport_scissor_workaround_framebuffer;
 
   CoglPipeline *default_pipeline;
   CoglPipelineLayer *default_layer_0;
@@ -169,8 +164,6 @@ struct _CoglContext
 
   /* Textures */
   CoglTexture2D *default_gl_texture_2d_tex;
-  CoglTexture3D *default_gl_texture_3d_tex;
-  CoglTextureRectangle *default_gl_texture_rect_tex;
 
   /* Central list of all framebuffers so all journals can be flushed
    * at any time. */
@@ -269,7 +262,6 @@ struct _CoglContext
   GLuint                  current_gl_program;
 
   gboolean current_gl_dither_enabled;
-  CoglColorMask current_gl_color_mask;
   GLenum current_gl_draw_buffer;
 
   /* Clipping */
@@ -300,8 +292,6 @@ struct _CoglContext
   GByteArray       *buffer_map_fallback_array;
   gboolean          buffer_map_fallback_in_use;
   size_t            buffer_map_fallback_offset;
-
-  CoglWinsysRectangleState rectangle_state;
 
   CoglSamplerCache *sampler_cache;
 
@@ -373,7 +363,7 @@ _cogl_context_get_winsys (CoglContext *context);
  * return FALSE and set @error */
 gboolean
 _cogl_context_update_features (CoglContext *context,
-                               CoglError **error);
+                               GError **error);
 
 /* Obtains the context and returns retval if NULL */
 #define _COGL_GET_CONTEXT(ctxvar, retval) \

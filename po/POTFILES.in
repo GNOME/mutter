@@ -8,7 +8,9 @@ data/mutter.desktop.in
 data/org.gnome.mutter.gschema.xml.in
 data/org.gnome.mutter.wayland.gschema.xml.in
 src/backends/meta-input-settings.c
+src/backends/meta-monitor.c
 src/backends/meta-monitor-manager.c
+src/backends/meta-profiler.c
 src/compositor/compositor.c
 src/compositor/meta-background.c
 src/core/bell.c
@@ -26,6 +28,7 @@ src/ui/theme.c
 src/wayland/meta-wayland-tablet-pad.c
 src/x11/meta-x11-display.c
 src/x11/meta-x11-errors.c
+src/x11/meta-x11-selection-input-stream.c
 src/x11/session.c
 src/x11/window-props.c
 src/x11/xprops.c

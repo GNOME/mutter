@@ -27,8 +27,8 @@ if have_installed_tests
 endif
 
 test_env = environment()
-test_env.set('G_TEST_SRCDIR', join_paths(top_srcdir, 'src'))
-test_env.set('G_TEST_BUILDDIR', builddir)
+test_env.set('G_TEST_SRCDIR', join_paths(meson.source_root(), 'src'))
+test_env.set('G_TEST_BUILDDIR', meson.build_root())
 test_env.set('MUTTER_TEST_PLUGIN_PATH', '@0@'.format(default_plugin.full_path()))
 
 test_client = executable('mutter-test-client',
@@ -67,6 +67,8 @@ unit_tests = executable('mutter-test-unit-tests',
     'boxes-tests.h',
     'meta-backend-test.c',
     'meta-backend-test.h',
+    'meta-gpu-test.c',
+    'meta-gpu-test.h',
     'meta-monitor-manager-test.c',
     'meta-monitor-manager-test.h',
     'monitor-config-migration-unit-tests.c',
@@ -90,6 +92,8 @@ headless_start_test = executable('mutter-headless-start-test',
     'headless-start-test.c',
     'meta-backend-test.c',
     'meta-backend-test.h',
+    'meta-gpu-test.c',
+    'meta-gpu-test.h',
     'meta-monitor-manager-test.c',
     'meta-monitor-manager-test.h',
     'test-utils.c',
@@ -102,38 +106,46 @@ headless_start_test = executable('mutter-headless-start-test',
   install_dir: mutter_installed_tests_libexecdir,
 )
 
-stacking_tests = files([
-  'stacking/basic-x11.metatest',
-  'stacking/basic-wayland.metatest',
-  'stacking/closed-transient-no-input-no-take-focus-parent.metatest',
-  'stacking/closed-transient-no-input-no-take-focus-parents.metatest',
-  'stacking/closed-transient-no-input-parent.metatest',
-  'stacking/closed-transient-no-input-parent-delayed-focus-default-cancelled.metatest',
-  'stacking/closed-transient-no-input-parents.metatest',
-  'stacking/closed-transient-no-input-parents-queued-default-focus-destroyed.metatest',
-  'stacking/closed-transient-only-take-focus-parents.metatest',
-  'stacking/minimized.metatest',
-  'stacking/mixed-windows.metatest',
-  'stacking/set-parent.metatest',
-  'stacking/override-redirect.metatest',
-])
+stacking_tests = [
+  'basic-x11',
+  'basic-wayland',
+  'client-side-decorated',
+  'closed-transient',
+  'closed-transient-no-input-no-take-focus-parent',
+  'closed-transient-no-input-no-take-focus-parents',
+  'closed-transient-no-input-parent',
+  'closed-transient-no-input-parent-delayed-focus-default-cancelled',
+  'closed-transient-no-input-parents',
+  'closed-transient-no-input-parents-queued-default-focus-destroyed',
+  'closed-transient-only-take-focus-parents',
+  'minimized',
+  'mixed-windows',
+  'set-parent',
+  'override-redirect',
+  'set-parent-exported',
+]
 
-test('mutter/stacking', test_runner,
+foreach stacking_test: stacking_tests
+  test(stacking_test, test_runner,
+    suite: ['core', 'mutter/stacking'],
+    env: test_env,
+    args: [
+      files(join_paths('stacking', stacking_test + '.metatest')),
+    ],
+    is_parallel: false,
+    timeout: 60,
+  )
+endforeach
+
+test('normal', unit_tests,
+  suite: ['core', 'mutter/unit'],
   env: test_env,
-  args: [
-    stacking_tests,
-  ],
   is_parallel: false,
   timeout: 60,
 )
 
-test('mutter/unit', unit_tests,
-  env: test_env,
-  is_parallel: false,
-  timeout: 60,
-)
-
-test('mutter/unit/headless-start', headless_start_test,
+test('headless-start', headless_start_test,
+  suite: ['core', 'mutter/unit'],
   env: test_env,
   is_parallel: false,
   timeout: 60,

@@ -31,7 +31,6 @@
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-surface-actor-x11.h"
 #include "compositor/meta-surface-actor.h"
-#include "compositor/meta-texture-rectangle.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/region-utils.h"
 #include "meta/meta-enum-types.h"
@@ -138,12 +137,13 @@ static void meta_window_actor_get_property (GObject      *object,
                                             GValue       *value,
                                             GParamSpec   *pspec);
 
+static void meta_window_actor_real_assign_surface_actor (MetaWindowActor  *self,
+                                                         MetaSurfaceActor *surface_actor);
+
 static void meta_window_actor_paint (ClutterActor *actor);
 
 static gboolean meta_window_actor_get_paint_volume (ClutterActor       *actor,
                                                     ClutterPaintVolume *volume);
-static void set_surface (MetaWindowActor  *actor,
-                         MetaSurfaceActor *surface);
 
 static gboolean meta_window_actor_has_shadow (MetaWindowActor *self);
 
@@ -161,13 +161,6 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaWindowActor, meta_window_actor, CLUTTER_TY
                                   G_IMPLEMENT_INTERFACE (META_TYPE_SCREEN_CAST_WINDOW, screen_cast_window_iface_init));
 
 static void
-meta_window_actor_real_set_surface_actor (MetaWindowActor  *actor,
-                                          MetaSurfaceActor *surface)
-{
-  set_surface (actor, surface);
-}
-
-static void
 meta_window_actor_class_init (MetaWindowActorClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -182,7 +175,7 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
   actor_class->paint = meta_window_actor_paint;
   actor_class->get_paint_volume = meta_window_actor_get_paint_volume;
 
-  klass->set_surface_actor = meta_window_actor_real_set_surface_actor;
+  klass->assign_surface_actor = meta_window_actor_real_assign_surface_actor;
 
   /**
    * MetaWindowActor::first-frame:
@@ -366,56 +359,55 @@ meta_window_actor_thaw (MetaWindowActor *self)
 }
 
 static void
-set_surface (MetaWindowActor  *self,
-             MetaSurfaceActor *surface)
+meta_window_actor_real_assign_surface_actor (MetaWindowActor  *self,
+                                             MetaSurfaceActor *surface_actor)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
-  if (priv->surface)
-    {
-      g_signal_handler_disconnect (priv->surface, priv->size_changed_id);
-      clutter_actor_remove_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->surface));
-      g_object_unref (priv->surface);
-    }
+  g_assert (!priv->surface);
 
-  priv->surface = surface;
+  priv->surface = g_object_ref_sink (surface_actor);
+  priv->size_changed_id = g_signal_connect (priv->surface, "size-changed",
+                                            G_CALLBACK (surface_size_changed),
+                                            self);
+  clutter_actor_add_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->surface));
 
-  if (priv->surface)
-    {
-      g_object_ref_sink (priv->surface);
-      priv->size_changed_id = g_signal_connect (priv->surface, "size-changed",
-                                                G_CALLBACK (surface_size_changed), self);
-      clutter_actor_add_child (CLUTTER_ACTOR (self), CLUTTER_ACTOR (priv->surface));
+  meta_window_actor_update_shape (self);
 
-      meta_window_actor_update_shape (self);
-
-      if (is_frozen (self))
-        meta_surface_actor_set_frozen (priv->surface, TRUE);
-      else
-        meta_window_actor_sync_thawed_state (self);
-    }
+  if (is_frozen (self))
+    meta_surface_actor_set_frozen (priv->surface, TRUE);
+  else
+    meta_window_actor_sync_thawed_state (self);
 }
 
 void
-meta_window_actor_update_surface (MetaWindowActor *self)
+meta_window_actor_assign_surface_actor (MetaWindowActor  *self,
+                                        MetaSurfaceActor *surface_actor)
+{
+  META_WINDOW_ACTOR_GET_CLASS (self)->assign_surface_actor (self,
+                                                            surface_actor);
+}
+
+static void
+init_surface_actor (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
   MetaWindow *window = priv->window;
   MetaSurfaceActor *surface_actor;
 
-#ifdef HAVE_WAYLAND
-  if (window->surface)
-    surface_actor = meta_wayland_surface_get_actor (window->surface);
-  else
-#endif
   if (!meta_is_wayland_compositor ())
     surface_actor = meta_surface_actor_x11_new (window);
+#ifdef HAVE_WAYLAND
+  else if (window->surface)
+    surface_actor = meta_wayland_surface_get_actor (window->surface);
+#endif
   else
     surface_actor = NULL;
 
-  META_WINDOW_ACTOR_GET_CLASS (self)->set_surface_actor (self, surface_actor);
+  if (surface_actor)
+    meta_window_actor_assign_surface_actor (self, surface_actor);
 }
 
 static void
@@ -431,7 +423,7 @@ meta_window_actor_constructed (GObject *object)
   /* Hang our compositor window state off the MetaWindow for fast retrieval */
   meta_window_set_compositor_private (window, object);
 
-  meta_window_actor_update_surface (self);
+  init_surface_actor (self);
 
   meta_window_actor_update_opacity (self);
 
@@ -458,7 +450,10 @@ meta_window_actor_dispose (GObject *object)
   MetaCompositor *compositor = priv->compositor;
 
   if (priv->disposed)
-    return;
+    {
+      G_OBJECT_CLASS (meta_window_actor_parent_class)->dispose (object);
+      return;
+    }
 
   priv->disposed = TRUE;
 
@@ -474,7 +469,13 @@ meta_window_actor_dispose (GObject *object)
 
   g_clear_object (&priv->window);
 
-  META_WINDOW_ACTOR_GET_CLASS (self)->set_surface_actor (self, NULL);
+  if (priv->surface)
+    {
+      g_signal_handler_disconnect (priv->surface, priv->size_changed_id);
+      clutter_actor_remove_child (CLUTTER_ACTOR (self),
+                                  CLUTTER_ACTOR (priv->surface));
+      g_clear_object (&priv->surface);
+    }
 
   G_OBJECT_CLASS (meta_window_actor_parent_class)->dispose (object);
 }
@@ -1119,13 +1120,15 @@ meta_window_actor_queue_destroy (MetaWindowActor *self)
     clutter_actor_destroy (CLUTTER_ACTOR (self));
 }
 
-void
+MetaWindowActorChanges
 meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
                                        gboolean         did_placement)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
   MetaRectangle window_rect;
+  ClutterActor *actor = CLUTTER_ACTOR (self);
+  MetaWindowActorChanges changes = 0;
 
   meta_window_get_buffer_rect (priv->window, &window_rect);
 
@@ -1143,15 +1146,42 @@ meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
    * updates.
    */
   if (is_frozen (self) && !did_placement)
-    return;
+    return META_WINDOW_ACTOR_CHANGE_POSITION | META_WINDOW_ACTOR_CHANGE_SIZE;
 
   if (meta_window_actor_effect_in_progress (self))
-    return;
+    return META_WINDOW_ACTOR_CHANGE_POSITION | META_WINDOW_ACTOR_CHANGE_SIZE;
 
-  clutter_actor_set_position (CLUTTER_ACTOR (self),
-                              window_rect.x, window_rect.y);
-  clutter_actor_set_size (CLUTTER_ACTOR (self),
-                          window_rect.width, window_rect.height);
+  if (clutter_actor_has_allocation (actor))
+    {
+      ClutterActorBox box;
+      float old_x, old_y;
+      float old_width, old_height;
+
+      clutter_actor_get_allocation_box (actor, &box);
+
+      old_x = box.x1;
+      old_y = box.y1;
+      old_width = box.x2 - box.x1;
+      old_height = box.y2 - box.y1;
+
+      if (old_x != window_rect.x || old_y != window_rect.y)
+        changes |= META_WINDOW_ACTOR_CHANGE_POSITION;
+
+      if (old_width != window_rect.width || old_height != window_rect.height)
+        changes |= META_WINDOW_ACTOR_CHANGE_SIZE;
+    }
+  else
+    {
+      changes = META_WINDOW_ACTOR_CHANGE_POSITION | META_WINDOW_ACTOR_CHANGE_SIZE;
+    }
+
+  if (changes & META_WINDOW_ACTOR_CHANGE_POSITION)
+    clutter_actor_set_position (actor, window_rect.x, window_rect.y);
+
+  if (changes & META_WINDOW_ACTOR_CHANGE_SIZE)
+    clutter_actor_set_size (actor, window_rect.width, window_rect.height);
+
+  return changes;
 }
 
 void
@@ -1505,6 +1535,7 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
   int stride;
   cairo_t *cr;
   cairo_surface_t *surface;
+  GError *error = NULL;
 
   stex = meta_surface_actor_get_texture (priv->surface);
   g_return_if_fail (stex);
@@ -1557,31 +1588,14 @@ build_and_scan_frame_mask (MetaWindowActor       *self,
   cairo_destroy (cr);
   cairo_surface_destroy (surface);
 
-  if (meta_texture_rectangle_check (paint_tex))
-    {
-      mask_texture = COGL_TEXTURE (cogl_texture_rectangle_new_with_size (ctx, tex_width, tex_height));
-      cogl_texture_set_components (mask_texture, COGL_TEXTURE_COMPONENTS_A);
-      cogl_texture_set_region (mask_texture,
-                               0, 0, /* src_x/y */
-                               0, 0, /* dst_x/y */
-                               tex_width, tex_height, /* dst_width/height */
-                               tex_width, tex_height, /* width/height */
-                               COGL_PIXEL_FORMAT_A_8,
-                               stride, mask_data);
-    }
-  else
-    {
-      CoglError *error = NULL;
+  mask_texture = COGL_TEXTURE (cogl_texture_2d_new_from_data (ctx, tex_width, tex_height,
+                                                              COGL_PIXEL_FORMAT_A_8,
+                                                              stride, mask_data, &error));
 
-      mask_texture = COGL_TEXTURE (cogl_texture_2d_new_from_data (ctx, tex_width, tex_height,
-                                                                  COGL_PIXEL_FORMAT_A_8,
-                                                                  stride, mask_data, &error));
-
-      if (error)
-        {
-          g_warning ("Failed to allocate mask texture: %s", error->message);
-          cogl_error_free (error);
-        }
+  if (error)
+    {
+      g_warning ("Failed to allocate mask texture: %s", error->message);
+      g_error_free (error);
     }
 
   meta_shaped_texture_set_mask_texture (stex, mask_texture);
@@ -2020,4 +2034,22 @@ screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
   iface->transform_cursor_position = meta_window_actor_transform_cursor_position;
   iface->capture_into = meta_window_actor_capture_into;
   iface->has_damage = meta_window_actor_has_damage;
+}
+
+MetaWindowActor *
+meta_window_actor_from_actor (ClutterActor *actor)
+{
+  if (!META_IS_SURFACE_ACTOR (actor))
+    return NULL;
+
+  do
+    {
+      actor = clutter_actor_get_parent (actor);
+
+      if (META_IS_WINDOW_ACTOR (actor))
+        return META_WINDOW_ACTOR (actor);
+    }
+  while (actor != NULL);
+
+  return NULL;
 }

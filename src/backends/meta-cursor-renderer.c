@@ -30,6 +30,7 @@
 
 #include "backends/meta-stage-private.h"
 #include "clutter/clutter.h"
+#include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
 #include "meta/meta-backend.h"
 #include "meta/util.h"
@@ -83,6 +84,33 @@ meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
 }
 
 static void
+align_cursor_position (MetaCursorRenderer *renderer,
+                       ClutterRect        *rect)
+{
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+  MetaBackend *backend = meta_get_backend ();
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  ClutterStageView *view;
+  cairo_rectangle_int_t view_layout;
+  float view_scale;
+
+  view = clutter_stage_get_view_at (CLUTTER_STAGE (stage),
+                                    priv->current_x,
+                                    priv->current_y);
+  if (!view)
+    return;
+
+  clutter_stage_view_get_layout (view, &view_layout);
+  view_scale = clutter_stage_view_get_scale (view);
+
+  clutter_rect_offset (rect, -view_layout.x, -view_layout.y);
+  rect->origin.x = floorf (rect->origin.x * view_scale) / view_scale;
+  rect->origin.y = floorf (rect->origin.y * view_scale) / view_scale;
+  clutter_rect_offset (rect, view_layout.x, view_layout.y);
+}
+
+static void
 queue_redraw (MetaCursorRenderer *renderer,
               MetaCursorSprite   *cursor_sprite)
 {
@@ -92,12 +120,15 @@ queue_redraw (MetaCursorRenderer *renderer,
   CoglTexture *texture;
   ClutterRect rect = CLUTTER_RECT_INIT_ZERO;
 
-  if (cursor_sprite)
-    rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
-
   /* During early initialization, we can have no stage */
   if (!stage)
     return;
+
+  if (cursor_sprite)
+    {
+      rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
+      align_cursor_position (renderer, &rect);
+    }
 
   if (!priv->stage_overlay)
     priv->stage_overlay = meta_stage_create_cursor_overlay (META_STAGE (stage));

@@ -35,6 +35,7 @@
 #include <math.h>
 
 #include <cogl/cogl-defines.h>
+#include <cogl/cogl-pixel-format.h>
 #include "cogl-types.h"
 
 #include <stdio.h>
@@ -113,7 +114,6 @@ unsigned int
 _cogl_util_one_at_a_time_mix (unsigned int hash);
 
 
-#define _cogl_util_ffs ffs
 #define _cogl_util_ffsl __builtin_ffsl
 
 static inline unsigned int
@@ -123,9 +123,6 @@ _cogl_util_fls (unsigned int n)
 }
 
 #define _cogl_util_popcountl __builtin_popcountl
-
-#define _COGL_RETURN_IF_FAIL(EXPR) g_return_if_fail(EXPR)
-#define _COGL_RETURN_VAL_IF_FAIL(EXPR, VAL) g_return_val_if_fail(EXPR, VAL)
 
 /* Match a CoglPixelFormat according to channel masks, color depth,
  * bits per pixel and byte order. These information are provided by
@@ -141,14 +138,6 @@ _cogl_util_pixel_format_from_masks (unsigned long r_mask,
                                     int depth, int bpp,
                                     int byte_order);
 
-/* Since we can't rely on _Static_assert always being available for
- * all compilers we have limited static assert that can be used in
- * C code but not in headers.
- */
-#define _COGL_TYPEDEF_ASSERT(EXPRESSION) \
-  typedef struct { char Compile_Time_Assertion[(EXPRESSION) ? 1 : -1]; } \
-  G_PASTE (_GStaticAssert_, __LINE__)
-
 /* _COGL_STATIC_ASSERT:
  * @expression: An expression to assert evaluates to true at compile
  *              time.
@@ -161,8 +150,6 @@ _cogl_util_pixel_format_from_masks (unsigned long r_mask,
  */
 #define _COGL_STATIC_ASSERT(EXPRESSION, MESSAGE) \
   _Static_assert (EXPRESSION, MESSAGE);
-
-#define _cogl_util_memmem memmem
 
 static inline void
 _cogl_util_scissor_intersect (int rect_x0,

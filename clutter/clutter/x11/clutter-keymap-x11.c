@@ -250,7 +250,8 @@ get_direction (XkbDescPtr xkb,
     {
       int level = 0;
       KeySym sym = XkbKeySymEntry (xkb, code, level, group);
-      PangoDirection dir = pango_unichar_direction (clutter_keysym_to_unicode (sym));
+      PangoDirection dir =
+        _clutter_pango_unichar_direction (clutter_keysym_to_unicode (sym));
 
       switch (dir)
         {

@@ -27,13 +27,13 @@ struct _MetaCompositor
   guint           server_time_is_monotonic_time : 1;
 
   ClutterActor          *stage, *window_group, *top_window_group, *feedback_group;
-  ClutterActor          *background_actor;
   GList                 *windows;
   Window                 output;
 
   CoglContext           *context;
 
   MetaWindowActor       *top_window_actor;
+  gulong                 top_window_actor_destroy_id;
 
   /* Used for unredirecting fullscreen windows */
   guint                  disable_unredirect_count;
@@ -71,5 +71,7 @@ MetaCloseDialog * meta_compositor_create_close_dialog (MetaCompositor *composito
 
 MetaInhibitShortcutsDialog * meta_compositor_create_inhibit_shortcuts_dialog (MetaCompositor *compositor,
                                                                               MetaWindow     *window);
+
+void meta_compositor_locate_pointer (MetaCompositor *compositor);
 
 #endif /* META_COMPOSITOR_PRIVATE_H */

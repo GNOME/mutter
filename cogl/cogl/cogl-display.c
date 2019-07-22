@@ -87,7 +87,7 @@ cogl_display_new (CoglRenderer *renderer,
                   CoglOnscreenTemplate *onscreen_template)
 {
   CoglDisplay *display = g_slice_new0 (CoglDisplay);
-  CoglError *error = NULL;
+  GError *error = NULL;
 
   _cogl_init ();
 
@@ -119,7 +119,7 @@ void
 cogl_display_set_onscreen_template (CoglDisplay *display,
                                     CoglOnscreenTemplate *onscreen_template)
 {
-  _COGL_RETURN_IF_FAIL (display->setup == FALSE);
+  g_return_if_fail (display->setup == FALSE);
 
   if (onscreen_template)
     cogl_object_ref (onscreen_template);
@@ -137,7 +137,7 @@ cogl_display_set_onscreen_template (CoglDisplay *display,
 
 gboolean
 cogl_display_setup (CoglDisplay *display,
-                    CoglError **error)
+                    GError **error)
 {
   const CoglWinsysVtable *winsys;
 
@@ -158,7 +158,7 @@ void
 cogl_wayland_display_set_compositor_display (CoglDisplay *display,
                                              struct wl_display *wayland_display)
 {
-  _COGL_RETURN_IF_FAIL (display->setup == FALSE);
+  g_return_if_fail (display->setup == FALSE);
 
   display->wayland_compositor_display = wayland_display;
 }

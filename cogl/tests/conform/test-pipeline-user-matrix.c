@@ -55,7 +55,7 @@ paint (TestState *state)
   CoglTexture *tex0, *tex1;
   CoglPipeline *pipeline;
   CoglMatrix matrix;
-  CoglError *error = NULL;
+  GError *error = NULL;
 
   cogl_framebuffer_orthographic (test_fb,
                                  0, 0,

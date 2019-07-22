@@ -34,7 +34,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#define _XOPEN_SOURCE 500 /* for gethostname() */
+#define _XOPEN_SOURCE 600 /* for gethostname() */
 
 #include "config.h"
 

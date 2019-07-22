@@ -101,6 +101,7 @@ if have_x11
     x11_xcb_dep,
     xcb_randr_dep,
     xcb_res_dep,
+    xau_dep,
   ]
 
   if have_sm
@@ -291,8 +292,6 @@ mutter_sources = [
   'compositor/meta-surface-actor-x11.h',
   'compositor/meta-sync-ring.c',
   'compositor/meta-sync-ring.h',
-  'compositor/meta-texture-rectangle.c',
-  'compositor/meta-texture-rectangle.h',
   'compositor/meta-texture-tower.c',
   'compositor/meta-texture-tower.h',
   'compositor/meta-window-actor.c',
@@ -331,6 +330,8 @@ mutter_sources = [
   'core/meta-accel-parse.h',
   'core/meta-border.c',
   'core/meta-border.h',
+  'core/meta-clipboard-manager.c',
+  'core/meta-clipboard-manager.h',
   'core/meta-close-dialog.c',
   'core/meta-close-dialog-default.c',
   'core/meta-close-dialog-default-private.h',
@@ -342,6 +343,9 @@ mutter_sources = [
   'core/meta-inhibit-shortcuts-dialog-default.c',
   'core/meta-inhibit-shortcuts-dialog-default-private.h',
   'core/meta-launch-context.c',
+  'core/meta-selection.c',
+  'core/meta-selection-source.c',
+  'core/meta-selection-source-memory.c',
   'core/meta-sound-player.c',
   'core/meta-workspace-manager.c',
   'core/meta-workspace-manager-private.h',
@@ -376,11 +380,21 @@ mutter_sources = [
   'x11/group-props.h',
   'x11/iconcache.c',
   'x11/iconcache.h',
+  'x11/meta-selection-source-x11.c',
+  'x11/meta-selection-source-x11-private.h',
   'x11/meta-startup-notification-x11.c',
   'x11/meta-startup-notification-x11.h',
   'x11/meta-x11-display.c',
   'x11/meta-x11-display-private.h',
   'x11/meta-x11-errors.c',
+  'x11/meta-x11-selection.c',
+  'x11/meta-x11-selection-private.h',
+  'x11/meta-x11-selection-input-stream.c',
+  'x11/meta-x11-selection-input-stream-private.h',
+  'x11/meta-x11-selection-output-stream.c',
+  'x11/meta-x11-selection-output-stream-private.h',
+  'x11/meta-x11-stack.c',
+  'x11/meta-x11-stack-private.h',
   'x11/mutter-Xatomtype.h',
   'x11/session.c',
   'x11/session.h',
@@ -446,6 +460,8 @@ if have_wayland
     'wayland/meta-pointer-confinement-wayland.h',
     'wayland/meta-pointer-lock-wayland.c',
     'wayland/meta-pointer-lock-wayland.h',
+    'wayland/meta-selection-source-wayland.c',
+    'wayland/meta-selection-source-wayland-private.h',
     'wayland/meta-wayland-actor-surface.c',
     'wayland/meta-wayland-actor-surface.h',
     'wayland/meta-wayland-buffer.c',
@@ -541,8 +557,8 @@ if have_wayland
     'wayland/meta-xwayland-grab-keyboard.h',
     'wayland/meta-xwayland.h',
     'wayland/meta-xwayland-private.h',
-    'wayland/meta-xwayland-selection.c',
-    'wayland/meta-xwayland-selection-private.h',
+    'wayland/meta-xwayland-dnd.c',
+    'wayland/meta-xwayland-dnd-private.h',
   ]
 endif
 
@@ -553,6 +569,7 @@ if have_native_backend
     'backends/native/meta-backend-native.c',
     'backends/native/meta-backend-native.h',
     'backends/native/meta-backend-native-private.h',
+    'backends/native/meta-backend-native-types.h',
     'backends/native/meta-barrier-native.c',
     'backends/native/meta-barrier-native.h',
     'backends/native/meta-clutter-backend-native.c',
@@ -561,6 +578,12 @@ if have_native_backend
     'backends/native/meta-crtc-kms.h',
     'backends/native/meta-cursor-renderer-native.c',
     'backends/native/meta-cursor-renderer-native.h',
+    'backends/native/meta-drm-buffer-dumb.c',
+    'backends/native/meta-drm-buffer-dumb.h',
+    'backends/native/meta-drm-buffer-gbm.c',
+    'backends/native/meta-drm-buffer-gbm.h',
+    'backends/native/meta-drm-buffer.c',
+    'backends/native/meta-drm-buffer.h',
     'backends/native/meta-gpu-kms.c',
     'backends/native/meta-gpu-kms.h',
     'backends/native/meta-input-settings-native.c',
@@ -572,11 +595,41 @@ if have_native_backend
     'backends/native/meta-output-kms.c',
     'backends/native/meta-output-kms.h',
     'backends/native/meta-renderer-native.c',
+    'backends/native/meta-kms-connector-private.h',
+    'backends/native/meta-kms-connector.c',
+    'backends/native/meta-kms-connector.h',
+    'backends/native/meta-kms-crtc-private.h',
+    'backends/native/meta-kms-crtc.c',
+    'backends/native/meta-kms-crtc.h',
+    'backends/native/meta-kms-device-private.h',
+    'backends/native/meta-kms-device.c',
+    'backends/native/meta-kms-device.h',
+    'backends/native/meta-kms-impl-device.c',
+    'backends/native/meta-kms-impl-device.h',
+    'backends/native/meta-kms-impl-simple.c',
+    'backends/native/meta-kms-impl-simple.h',
+    'backends/native/meta-kms-impl.c',
+    'backends/native/meta-kms-impl.h',
+    'backends/native/meta-kms-page-flip.c',
+    'backends/native/meta-kms-page-flip-private.h',
+    'backends/native/meta-kms-plane.c',
+    'backends/native/meta-kms-plane.h',
+    'backends/native/meta-kms-private.h',
+    'backends/native/meta-kms-types.h',
+    'backends/native/meta-kms-update-private.h',
+    'backends/native/meta-kms-update.c',
+    'backends/native/meta-kms-update.h',
+    'backends/native/meta-kms-utils.c',
+    'backends/native/meta-kms-utils.h',
+    'backends/native/meta-kms.c',
+    'backends/native/meta-kms.h',
     'backends/native/meta-renderer-native-gles3.c',
     'backends/native/meta-renderer-native-gles3.h',
     'backends/native/meta-renderer-native.h',
     'backends/native/meta-stage-native.c',
     'backends/native/meta-stage-native.h',
+    'backends/native/meta-udev.c',
+    'backends/native/meta-udev.h',
   ]
 endif
 
@@ -604,6 +657,23 @@ dbus_idle_monitor_built_sources = gnome.gdbus_codegen('meta-dbus-idle-monitor',
   )
 mutter_built_sources += dbus_idle_monitor_built_sources
 
+if have_profiler
+  mutter_sources += [
+    'backends/meta-profiler.c',
+    'backends/meta-profiler.h',
+  ]
+
+  dbus_interfaces_dir = join_paths(datadir, 'dbus-1', 'interfaces')
+  sysprof3_dbus_file = join_paths(dbus_interfaces_dir, 'org.gnome.Sysprof3.Profiler.xml')
+
+  dbus_sysprof3_profiler_built_sources = gnome.gdbus_codegen('meta-dbus-sysprof3-profiler',
+      sysprof3_dbus_file,
+      interface_prefix: 'org.gnome.',
+      namespace: 'MetaDBus',
+    )
+  mutter_built_sources += dbus_sysprof3_profiler_built_sources
+endif
+
 if have_native_backend
   cvt = find_program('cvt')
 
@@ -626,7 +696,7 @@ if have_native_backend
       '--interface-prefix', 'org.freedesktop.login1',
       '--c-namespace', 'Login1',
       '--generate-c-code', 'meta-dbus-login1',
-      '--output-directory', join_paths(builddir, 'src'),
+      '--output-directory', meson.current_build_dir(),
       '--c-generate-autocleanup', 'all',
       '@INPUT@',
     ]
@@ -735,14 +805,6 @@ if have_wayland
 endif
 
 subdir('meta')
-
-mutter_marshal = gnome.genmarshal('meta-marshal',
-  sources: ['meta-marshal.list'],
-  prefix: 'meta_marshal',
-  extra_args: ['--quiet'],
-  internal: true,
-)
-mutter_built_sources += mutter_marshal
 
 mutter_built_sources += mutter_enum_types
 mutter_built_sources += mutter_version
@@ -862,6 +924,6 @@ pkg.generate(libmutter,
 
 subdir('compositor/plugins')
 
-if have_tests 
+if have_core_tests
   subdir('tests')
 endif

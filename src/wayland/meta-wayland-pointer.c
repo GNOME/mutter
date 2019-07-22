@@ -49,7 +49,6 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-tracker-private.h"
-#include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-cursor.h"
 #include "clutter/clutter.h"
 #include "clutter/evdev/clutter-evdev.h"
@@ -226,6 +225,14 @@ static void
 sync_focus_surface (MetaWaylandPointer *pointer)
 {
   MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+
+  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker))
+    {
+      meta_wayland_pointer_set_focus (pointer, NULL);
+      return;
+    }
 
   switch (display->event_route)
     {
@@ -473,6 +480,13 @@ meta_wayland_pointer_on_cursor_changed (MetaCursorTracker *cursor_tracker,
     meta_wayland_surface_update_outputs (pointer->cursor_surface);
 }
 
+static void
+meta_wayland_pointer_on_cursor_visibility_changed (MetaCursorTracker  *cursor_tracker,
+                                                   MetaWaylandPointer *pointer)
+{
+  sync_focus_surface (pointer);
+}
+
 void
 meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
 {
@@ -493,6 +507,11 @@ meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
                     "cursor-changed",
                     G_CALLBACK (meta_wayland_pointer_on_cursor_changed),
                     pointer);
+
+  g_signal_connect (cursor_tracker,
+                    "visibility-changed",
+                    G_CALLBACK (meta_wayland_pointer_on_cursor_visibility_changed),
+                    pointer);
 }
 
 void
@@ -503,6 +522,10 @@ meta_wayland_pointer_disable (MetaWaylandPointer *pointer)
 
   g_signal_handlers_disconnect_by_func (cursor_tracker,
                                         (gpointer) meta_wayland_pointer_on_cursor_changed,
+                                        pointer);
+
+  g_signal_handlers_disconnect_by_func (cursor_tracker,
+                                        meta_wayland_pointer_on_cursor_visibility_changed,
                                         pointer);
 
   if (pointer->cursor_surface && pointer->cursor_surface_destroy_id)

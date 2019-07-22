@@ -38,7 +38,6 @@
 #include <cogl/cogl-types.h>
 #include <cogl/cogl-matrix.h>
 #include <cogl/cogl-depth-state.h>
-#include <cogl/cogl-error.h>
 #include <cogl/cogl-macros.h>
 #include <cogl/cogl-object.h>
 
@@ -560,7 +559,7 @@ cogl_material_set_alpha_test_function (CoglMaterial         *material,
  * @material: A #CoglMaterial object
  * @blend_string: A <link linkend="cogl-Blend-Strings">Cogl blend string</link>
  *   describing the desired blend function.
- * @error: return location for a #CoglError that may report lack of driver
+ * @error: return location for a #GError that may report lack of driver
  *   support if you give separate blend string statements for the alpha
  *   channel and RGB channels since some drivers, or backends such as
  *   GLES 1.1, don't support this feature. May be %NULL, in which case a
@@ -644,7 +643,7 @@ COGL_DEPRECATED_FOR (cogl_pipeline_set_blend)
 gboolean
 cogl_material_set_blend (CoglMaterial *material,
                          const char   *blend_string,
-                         CoglError   **error);
+                         GError      **error);
 
 /**
  * cogl_material_set_blend_constant:
@@ -756,10 +755,6 @@ cogl_material_get_user_program (CoglMaterial *material);
  * meantime we hope this will handle most practical GLSL and ARBfp
  * requirements.
  *
- * Also remember you need to check for either the
- * %COGL_FEATURE_SHADERS_GLSL or %COGL_FEATURE_SHADERS_ARBFP before
- * using the cogl_program or cogl_shader API.
- *
  * Since: 1.4
  * Deprecated: 1.16: Use #CoglSnippet api instead instead
  */
@@ -814,7 +809,7 @@ cogl_material_remove_layer (CoglMaterial *material,
  * @layer_index: Specifies the layer you want define a combine function for
  * @blend_string: A <link linkend="cogl-Blend-Strings">Cogl blend string</link>
  *    describing the desired texture combine function.
- * @error: A #CoglError that may report parse errors or lack of GPU/driver
+ * @error: A #GError that may report parse errors or lack of GPU/driver
  *   support. May be %NULL, in which case a warning will be printed out if an
  *   error is encountered.
  *
@@ -906,7 +901,7 @@ gboolean
 cogl_material_set_layer_combine (CoglMaterial *material,
 				 int           layer_index,
 				 const char   *blend_string,
-                                 CoglError   **error);
+                                 GError      **error);
 
 /**
  * cogl_material_set_layer_combine_constant:
@@ -1087,7 +1082,7 @@ cogl_material_set_layer_filters (CoglMaterial      *material,
  * @material: a #CoglHandle to a material.
  * @layer_index: the layer number to change.
  * @enable: whether to enable point sprite coord generation.
- * @error: A return location for a CoglError, or NULL to ignore errors.
+ * @error: A return location for a GError, or NULL to ignore errors.
  *
  * When rendering points, if @enable is %TRUE then the texture
  * coordinates for this layer will be replaced with coordinates that
@@ -1110,7 +1105,7 @@ gboolean
 cogl_material_set_layer_point_sprite_coords_enabled (CoglMaterial *material,
                                                      int           layer_index,
                                                      gboolean      enable,
-                                                     CoglError   **error);
+                                                     GError      **error);
 
 /**
  * cogl_material_get_layer_point_sprite_coords_enabled:
@@ -1314,7 +1309,7 @@ cogl_material_layer_get_wrap_mode_p (CoglMaterialLayer *layer);
  * cogl_material_set_depth_state: (skip)
  * @material: A #CoglMaterial object
  * @state: A #CoglDepthState struct
- * @error: A #CoglError to report failures to setup the given @state.
+ * @error: A #GError to report failures to setup the given @state.
  *
  * This commits all the depth state configured in @state struct to the
  * given @material. The configuration values are copied into the
@@ -1335,7 +1330,7 @@ COGL_DEPRECATED_FOR (cogl_pipeline_set_depth_state)
 gboolean
 cogl_material_set_depth_state (CoglMaterial *material,
                                const CoglDepthState *state,
-                               CoglError **error);
+                               GError **error);
 
 /**
  * cogl_material_get_depth_state: (skip)

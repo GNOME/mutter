@@ -96,12 +96,14 @@ G_DECLARE_FINAL_TYPE (MetaMonitorTiled, meta_monitor_tiled,
                       MetaMonitor)
 
 META_EXPORT_TEST
-MetaMonitorTiled * meta_monitor_tiled_new (MetaGpu    *gpu,
-                                           MetaOutput *output);
+MetaMonitorTiled * meta_monitor_tiled_new (MetaGpu            *gpu,
+                                           MetaMonitorManager *monitor_manager,
+                                           MetaOutput         *output);
 
 META_EXPORT_TEST
-MetaMonitorNormal * meta_monitor_normal_new (MetaGpu    *gpu,
-                                             MetaOutput *output);
+MetaMonitorNormal * meta_monitor_normal_new (MetaGpu            *gpu,
+                                             MetaMonitorManager *monitor_manager,
+                                             MetaOutput         *output);
 
 META_EXPORT_TEST
 MetaMonitorSpec * meta_monitor_get_spec (MetaMonitor *monitor);
@@ -278,5 +280,7 @@ int meta_monitor_spec_compare (MetaMonitorSpec *monitor_spec_a,
 
 META_EXPORT_TEST
 void meta_monitor_spec_free (MetaMonitorSpec *monitor_id);
+
+const char * meta_monitor_get_display_name (MetaMonitor *monitor);
 
 #endif /* META_MONITOR_H */

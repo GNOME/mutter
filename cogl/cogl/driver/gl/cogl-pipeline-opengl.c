@@ -581,23 +581,6 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
       flush_depth_state (ctx, depth_state);
     }
 
-  if (pipelines_difference & COGL_PIPELINE_STATE_LOGIC_OPS)
-    {
-      CoglPipeline *authority =
-        _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_LOGIC_OPS);
-      CoglPipelineLogicOpsState *logic_ops_state = &authority->big_state->logic_ops_state;
-      CoglColorMask color_mask = logic_ops_state->color_mask;
-
-      if (ctx->current_draw_buffer)
-        color_mask &= ctx->current_draw_buffer->color_mask;
-
-      GE (ctx, glColorMask (!!(color_mask & COGL_COLOR_MASK_RED),
-                            !!(color_mask & COGL_COLOR_MASK_GREEN),
-                            !!(color_mask & COGL_COLOR_MASK_BLUE),
-                            !!(color_mask & COGL_COLOR_MASK_ALPHA)));
-      ctx->current_gl_color_mask = color_mask;
-    }
-
   if (pipelines_difference & COGL_PIPELINE_STATE_CULL_FACE)
     {
       CoglPipeline *authority =
@@ -690,22 +673,13 @@ get_max_activateable_texture_units (void)
 #ifdef HAVE_COGL_GL
       if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_GL_EMBEDDED))
         {
-          /* GL_MAX_TEXTURE_COORDS is provided for both GLSL and ARBfp. It
-             defines the number of texture coordinates that can be
-             uploaded (but doesn't necessarily relate to how many texture
-             images can be sampled) */
-          if (cogl_has_feature (ctx, COGL_FEATURE_ID_GLSL))
-            /* Previously this code subtracted the value by one but there
-               was no explanation for why it did this and it doesn't seem
-               to make sense so it has been removed */
-            GE (ctx, glGetIntegerv (GL_MAX_TEXTURE_COORDS,
-                                    values + n_values++));
+          /* GL_MAX_TEXTURE_COORDS defines the number of texture coordinates
+           * that can be uploaded (but doesn't necessarily relate to how many
+           * texture images can be sampled) */
+          GE (ctx, glGetIntegerv (GL_MAX_TEXTURE_COORDS, values + n_values++));
 
-          /* GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS is defined for GLSL but
-             not ARBfp */
-          if (cogl_has_feature (ctx, COGL_FEATURE_ID_GLSL))
-            GE (ctx, glGetIntegerv (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
-                                    values + n_values++));
+          GE (ctx, glGetIntegerv (GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+                                  values + n_values++));
         }
 #endif /* HAVE_COGL_GL */
 
@@ -790,18 +764,7 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
       GLenum gl_target;
 
       if (texture == NULL)
-        switch (_cogl_pipeline_layer_get_texture_type (layer))
-          {
-          case COGL_TEXTURE_TYPE_2D:
-            texture = COGL_TEXTURE (ctx->default_gl_texture_2d_tex);
-            break;
-          case COGL_TEXTURE_TYPE_3D:
-            texture = COGL_TEXTURE (ctx->default_gl_texture_3d_tex);
-            break;
-          case COGL_TEXTURE_TYPE_RECTANGLE:
-            texture = COGL_TEXTURE (ctx->default_gl_texture_rect_tex);
-            break;
-          }
+        texture = COGL_TEXTURE (ctx->default_gl_texture_2d_tex);
 
       cogl_texture_get_gl_texture (texture,
                                    &gl_texture,

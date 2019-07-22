@@ -239,6 +239,16 @@ struct _MetaPluginClass
    */
   MetaInhibitShortcutsDialog * (* create_inhibit_shortcuts_dialog) (MetaPlugin *plugin,
                                                                     MetaWindow *window);
+
+  /**
+   * MetaPluginClass::locate_pointer:
+   *
+   * Virtual function called when the user triggered the "locate-pointer"
+   * mechanism.
+   * The common way to implement this function is to show some animation
+   * on screen to draw user attention on the pointer location.
+   */
+  void (*locate_pointer) (MetaPlugin      *plugin);
 };
 
 /**

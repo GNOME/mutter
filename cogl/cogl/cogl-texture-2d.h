@@ -55,15 +55,16 @@ G_BEGIN_DECLS
  * made up of multiple 2D textures, or atlas textures where Cogl must
  * internally modify user texture coordinates before they can be used
  * by the GPU.
- *
- * You should be aware that many GPUs only support power of two sizes
- * for #CoglTexture2D textures. You can check support for non power of
- * two textures by checking for the %COGL_FEATURE_ID_TEXTURE_NPOT feature
- * via cogl_has_feature().
  */
 
 typedef struct _CoglTexture2D CoglTexture2D;
 #define COGL_TEXTURE_2D(X) ((CoglTexture2D *)X)
+
+typedef enum _CoglEglImageFlags
+{
+  COGL_EGL_IMAGE_FLAG_NONE = 0,
+  COGL_EGL_IMAGE_FLAG_NO_GET_DATA = 1 << 0,
+} CoglEglImageFlags;
 
 /**
  * cogl_texture_2d_get_gtype:
@@ -105,11 +106,6 @@ cogl_is_texture_2d (void *object);
  * using cogl_texture_set_components() and
  * cogl_texture_set_premultiplied().
  *
- * <note>Many GPUs only support power of two sizes for #CoglTexture2D
- * textures. You can check support for non power of two textures by
- * checking for the %COGL_FEATURE_ID_TEXTURE_NPOT feature via
- * cogl_has_feature().</note>
- *
  * Returns: (transfer full): A new #CoglTexture2D object with no storage yet allocated.
  *
  * Since: 2.0
@@ -123,7 +119,7 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
  * cogl_texture_2d_new_from_file: (skip)
  * @ctx: A #CoglContext
  * @filename: the file to load
- * @error: A #CoglError to catch exceptional errors or %NULL
+ * @error: A #GError to catch exceptional errors or %NULL
  *
  * Creates a low-level #CoglTexture2D texture from an image file.
  *
@@ -138,11 +134,6 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
  * using cogl_texture_set_components() and
  * cogl_texture_set_premultiplied().
  *
- * <note>Many GPUs only support power of two sizes for #CoglTexture2D
- * textures. You can check support for non power of two textures by
- * checking for the %COGL_FEATURE_ID_TEXTURE_NPOT feature via
- * cogl_has_feature().</note>
- *
  * Return value: (transfer full): A newly created #CoglTexture2D or %NULL on failure
  *               and @error will be updated.
  *
@@ -151,7 +142,7 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
 CoglTexture2D *
 cogl_texture_2d_new_from_file (CoglContext *ctx,
                                const char *filename,
-                               CoglError **error);
+                               GError **error);
 
 /**
  * cogl_texture_2d_new_from_data: (skip)
@@ -163,7 +154,7 @@ cogl_texture_2d_new_from_file (CoglContext *ctx,
  *    scanlines in @data. A value of 0 will make Cogl automatically
  *    calculate @rowstride from @width and @format.
  * @data: pointer the memory region where the source buffer resides
- * @error: A #CoglError for exceptions
+ * @error: A #GError for exceptions
  *
  * Creates a low-level #CoglTexture2D texture based on data residing
  * in memory.
@@ -179,11 +170,6 @@ cogl_texture_2d_new_from_file (CoglContext *ctx,
  * cogl_texture_2d_new_with_size() and then upload data using
  * cogl_texture_set_data()</note>
  *
- * <note>Many GPUs only support power of two sizes for #CoglTexture2D
- * textures. You can check support for non power of two textures by
- * checking for the %COGL_FEATURE_ID_TEXTURE_NPOT feature via
- * cogl_has_feature().</note>
- *
  * Returns: (transfer full): A newly allocated #CoglTexture2D, or if
  *          the size is not supported (because it is too large or a
  *          non-power-of-two size that the hardware doesn't support)
@@ -198,7 +184,7 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
                                CoglPixelFormat format,
                                int rowstride,
                                const uint8_t *data,
-                               CoglError **error);
+                               GError **error);
 
 /**
  * cogl_texture_2d_new_from_bitmap:
@@ -217,11 +203,6 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
  * for example you can influence the internal format of the texture
  * using cogl_texture_set_components() and
  * cogl_texture_set_premultiplied().
- *
- * <note>Many GPUs only support power of two sizes for #CoglTexture2D
- * textures. You can check support for non power of two textures by
- * checking for the %COGL_FEATURE_ID_TEXTURE_NPOT feature via
- * cogl_has_feature().</note>
  *
  * Returns: (transfer full): A newly allocated #CoglTexture2D
  *
@@ -244,7 +225,8 @@ cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
                                     int height,
                                     CoglPixelFormat format,
                                     EGLImageKHR image,
-                                    CoglError **error);
+                                    CoglEglImageFlags flags,
+                                    GError **error);
 
 typedef gboolean (*CoglTexture2DEGLImageExternalAlloc) (CoglTexture2D *tex_2d,
                                                         gpointer user_data,
@@ -260,7 +242,7 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
                                              CoglTexture2DEGLImageExternalAlloc alloc,
                                              gpointer user_data,
                                              GDestroyNotify destroy,
-                                             CoglError **error);
+                                             GError **error);
 
 void
 cogl_texture_2d_egl_image_external_bind (CoglTexture2D *tex_2d);

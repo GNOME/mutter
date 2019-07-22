@@ -4,6 +4,7 @@
  * A Low Level GPU Graphics and Utilities API
  *
  * Copyright (C) 2007,2008,2009 Intel Corporation.
+ * Copyright (C) 2019 DisplayLink (UK) Ltd.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -83,11 +84,10 @@ typedef enum _CoglFramebufferStateIndex
   COGL_FRAMEBUFFER_STATE_INDEX_DITHER             = 3,
   COGL_FRAMEBUFFER_STATE_INDEX_MODELVIEW          = 4,
   COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION         = 5,
-  COGL_FRAMEBUFFER_STATE_INDEX_COLOR_MASK         = 6,
-  COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING = 7,
-  COGL_FRAMEBUFFER_STATE_INDEX_DEPTH_WRITE        = 8,
-  COGL_FRAMEBUFFER_STATE_INDEX_STEREO_MODE        = 9,
-  COGL_FRAMEBUFFER_STATE_INDEX_MAX                = 10
+  COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING = 6,
+  COGL_FRAMEBUFFER_STATE_INDEX_DEPTH_WRITE        = 7,
+  COGL_FRAMEBUFFER_STATE_INDEX_STEREO_MODE        = 8,
+  COGL_FRAMEBUFFER_STATE_INDEX_MAX                = 9
 } CoglFramebufferStateIndex;
 
 typedef enum _CoglFramebufferState
@@ -98,10 +98,9 @@ typedef enum _CoglFramebufferState
   COGL_FRAMEBUFFER_STATE_DITHER             = 1<<3,
   COGL_FRAMEBUFFER_STATE_MODELVIEW          = 1<<4,
   COGL_FRAMEBUFFER_STATE_PROJECTION         = 1<<5,
-  COGL_FRAMEBUFFER_STATE_COLOR_MASK         = 1<<6,
-  COGL_FRAMEBUFFER_STATE_FRONT_FACE_WINDING = 1<<7,
-  COGL_FRAMEBUFFER_STATE_DEPTH_WRITE        = 1<<8,
-  COGL_FRAMEBUFFER_STATE_STEREO_MODE        = 1<<9
+  COGL_FRAMEBUFFER_STATE_FRONT_FACE_WINDING = 1<<6,
+  COGL_FRAMEBUFFER_STATE_DEPTH_WRITE        = 1<<7,
+  COGL_FRAMEBUFFER_STATE_STEREO_MODE        = 1<<8
 } CoglFramebufferState;
 
 #define COGL_FRAMEBUFFER_STATE_ALL ((1<<COGL_FRAMEBUFFER_STATE_INDEX_MAX) - 1)
@@ -155,7 +154,6 @@ struct _CoglFramebuffer
 
   gboolean            dither_enabled;
   gboolean            depth_writing_enabled;
-  CoglColorMask       color_mask;
   CoglStereoMode      stereo_mode;
 
   /* We journal the textured rectangles we want to submit to OpenGL so
@@ -366,63 +364,6 @@ void
 _cogl_push_framebuffers (CoglFramebuffer *draw_buffer,
                          CoglFramebuffer *read_buffer);
 
-/*
- * _cogl_blit_framebuffer:
- * @src: The source #CoglFramebuffer
- * @dest: The destination #CoglFramebuffer
- * @src_x: Source x position
- * @src_y: Source y position
- * @dst_x: Destination x position
- * @dst_y: Destination y position
- * @width: Width of region to copy
- * @height: Height of region to copy
- *
- * This blits a region of the color buffer of the current draw buffer
- * to the current read buffer. The draw and read buffers can be set up
- * using _cogl_push_framebuffers(). This function should only be
- * called if the COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT feature is
- * advertised. The two buffers must both be offscreen and have the
- * same format.
- *
- * Note that this function differs a lot from the glBlitFramebuffer
- * function provided by the GL_EXT_framebuffer_blit extension. Notably
- * it doesn't support having different sizes for the source and
- * destination rectangle. This isn't supported by the corresponding
- * GL_ANGLE_framebuffer_blit extension on GLES2.0 and it doesn't seem
- * like a particularly useful feature. If the application wanted to
- * scale the results it may make more sense to draw a primitive
- * instead.
- *
- * We can only really support blitting between two offscreen buffers
- * for this function on GLES2.0. This is because we effectively render
- * upside down to offscreen buffers to maintain Cogl's representation
- * of the texture coordinate system where 0,0 is the top left of the
- * texture. If we were to blit from an offscreen to an onscreen buffer
- * then we would need to mirror the blit along the x-axis but the GLES
- * extension does not support this.
- *
- * The GL function is documented to be affected by the scissor. This
- * function therefore ensure that an empty clip stack is flushed
- * before performing the blit which means the scissor is effectively
- * ignored.
- *
- * The function also doesn't support specifying the buffers to copy
- * and instead only the color buffer is copied. When copying the depth
- * or stencil buffers the extension on GLES2.0 only supports copying
- * the full buffer which would be awkward to document with this
- * API. If we wanted to support that feature it may be better to have
- * a separate function to copy the entire buffer for a given mask.
- */
-void
-_cogl_blit_framebuffer (CoglFramebuffer *src,
-                        CoglFramebuffer *dest,
-                        int src_x,
-                        int src_y,
-                        int dst_x,
-                        int dst_y,
-                        int width,
-                        int height);
-
 void
 _cogl_framebuffer_push_projection (CoglFramebuffer *framebuffer);
 
@@ -500,7 +441,7 @@ _cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                            int y,
                                            CoglReadPixelsFlags source,
                                            CoglBitmap *bitmap,
-                                           CoglError **error);
+                                           GError **error);
 
 /*
  * _cogl_framebuffer_get_stencil_bits:

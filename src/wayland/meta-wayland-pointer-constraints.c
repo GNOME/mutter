@@ -30,7 +30,6 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-pointer-constraint.h"
-#include "backends/native/meta-backend-native.h"
 #include "core/frame.h"
 #include "core/window-private.h"
 #include "meta/meta-backend.h"
@@ -44,6 +43,10 @@
 #include "wayland/meta-xwayland.h"
 
 #include "pointer-constraints-unstable-v1-server-protocol.h"
+
+#ifdef HAVE_NATIVE_BACKEND
+#include "backends/native/meta-backend-native.h"
+#endif
 
 static GQuark quark_pending_constraint_state = 0;
 static GQuark quark_surface_pointer_constraints_data = 0;
@@ -859,6 +862,19 @@ init_pointer_constraint (struct wl_resource                      *resource,
   if (cr == NULL)
     {
       wl_client_post_no_memory (client);
+      return;
+    }
+
+  switch (lifetime)
+    {
+    case ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_ONESHOT:
+    case ZWP_POINTER_CONSTRAINTS_V1_LIFETIME_PERSISTENT:
+      break;
+
+    default:
+      wl_resource_post_error (resource,
+                              WL_DISPLAY_ERROR_INVALID_OBJECT,
+                              "Invalid constraint lifetime");
       return;
     }
 

@@ -346,15 +346,12 @@ object_info_free (gpointer data)
       g_free (oinfo->class_name);
       g_free (oinfo->type_func);
 
-      g_list_foreach (oinfo->properties, (GFunc) property_info_free, NULL);
-      g_list_free (oinfo->properties);
+      g_list_free_full (oinfo->properties, property_info_free);
 
-      g_list_foreach (oinfo->signals, (GFunc) signal_info_free, NULL);
-      g_list_free (oinfo->signals);
+      g_list_free_full (oinfo->signals, signal_info_free);
 
       /* these are ids */
-      g_list_foreach (oinfo->children, (GFunc) g_free, NULL);
-      g_list_free (oinfo->children);
+      g_list_free_full (oinfo->children, g_free);
 
       /* we unref top-level objects and leave the actors alone,
        * unless we are unmerging in which case we have to destroy
@@ -846,8 +843,7 @@ clutter_script_unmerge_objects (ClutterScript *script,
   for (l = data.ids; l != NULL; l = l->next)
     g_hash_table_remove (priv->objects, l->data);
 
-  g_slist_foreach (data.ids, (GFunc) g_free, NULL);
-  g_slist_free (data.ids);
+  g_slist_free_full (data.ids, g_free);
 
   clutter_script_ensure_objects (script);
 }

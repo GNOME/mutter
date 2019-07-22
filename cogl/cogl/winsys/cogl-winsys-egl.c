@@ -42,7 +42,6 @@
 #include "cogl-renderer-private.h"
 #include "cogl-onscreen-template-private.h"
 #include "cogl-gles2-context-private.h"
-#include "cogl-error-private.h"
 #include "cogl-egl.h"
 #include "cogl-private.h"
 #include "winsys/cogl-winsys-egl-private.h"
@@ -71,6 +70,12 @@
 #define EGL_CONTEXT_OPENGL_COMPATIBILITY_PROFILE_BIT_KHR 0x00000002
 #endif
 
+#ifndef EGL_IMG_context_priority
+#define EGL_CONTEXT_PRIORITY_LEVEL_IMG          0x3100
+#define EGL_CONTEXT_PRIORITY_HIGH_IMG           0x3101
+#define EGL_CONTEXT_PRIORITY_MEDIUM_IMG         0x3102
+#define EGL_CONTEXT_PRIORITY_LOW_IMG            0x3103
+#endif
 
 #define MAX_EGL_CONFIG_ATTRIBS 30
 
@@ -195,7 +200,7 @@ check_egl_extensions (CoglRenderer *renderer)
 
 gboolean
 _cogl_winsys_egl_renderer_connect_common (CoglRenderer *renderer,
-                                          CoglError **error)
+                                          GError **error)
 {
   CoglRendererEGL *egl_renderer = renderer->winsys;
 
@@ -203,7 +208,7 @@ _cogl_winsys_egl_renderer_connect_common (CoglRenderer *renderer,
                       &egl_renderer->egl_version_major,
                       &egl_renderer->egl_version_minor))
     {
-      _cogl_set_error (error, COGL_WINSYS_ERROR,
+      g_set_error (error, COGL_WINSYS_ERROR,
                    COGL_WINSYS_ERROR_INIT,
                    "Couldn't initialize EGL");
       return FALSE;
@@ -216,7 +221,7 @@ _cogl_winsys_egl_renderer_connect_common (CoglRenderer *renderer,
 
 static gboolean
 _cogl_winsys_renderer_connect (CoglRenderer *renderer,
-                               CoglError **error)
+                               GError **error)
 {
   /* This function must be overridden by a platform winsys */
   g_assert_not_reached ();
@@ -340,19 +345,20 @@ cleanup_context (CoglDisplay *display)
 
 static gboolean
 try_create_context (CoglDisplay *display,
-                    CoglError **error)
+                    GError **error)
 {
   CoglRenderer *renderer = display->renderer;
   CoglDisplayEGL *egl_display = display->winsys;
   CoglRendererEGL *egl_renderer = renderer->winsys;
   EGLDisplay edpy;
   EGLConfig config;
-  EGLint attribs[9];
+  EGLint attribs[11];
   EGLint cfg_attribs[MAX_EGL_CONFIG_ATTRIBS];
   GError *config_error = NULL;
   const char *error_message;
+  int i = 0;
 
-  _COGL_RETURN_VAL_IF_FAIL (egl_display->egl_context == NULL, TRUE);
+  g_return_val_if_fail (egl_display->egl_context == NULL, TRUE);
 
   if (renderer->driver == COGL_DRIVER_GL ||
       renderer->driver == COGL_DRIVER_GL3)
@@ -369,9 +375,9 @@ try_create_context (CoglDisplay *display,
                                                      &config,
                                                      &config_error))
     {
-      _cogl_set_error (error, COGL_WINSYS_ERROR,
-                       COGL_WINSYS_ERROR_CREATE_CONTEXT,
-                       "Couldn't choose config: %s", config_error->message);
+      g_set_error (error, COGL_WINSYS_ERROR,
+                   COGL_WINSYS_ERROR_CREATE_CONTEXT,
+                   "Couldn't choose config: %s", config_error->message);
       g_error_free (config_error);
       goto err;
     }
@@ -388,24 +394,29 @@ try_create_context (CoglDisplay *display,
         }
 
       /* Try to get a core profile 3.1 context with no deprecated features */
-      attribs[0] = EGL_CONTEXT_MAJOR_VERSION_KHR;
-      attribs[1] = 3;
-      attribs[2] = EGL_CONTEXT_MINOR_VERSION_KHR;
-      attribs[3] = 1;
-      attribs[4] = EGL_CONTEXT_FLAGS_KHR;
-      attribs[5] = EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR;
-      attribs[6] = EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR;
-      attribs[7] = EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR;
-      attribs[8] = EGL_NONE;
+      attribs[i++] = EGL_CONTEXT_MAJOR_VERSION_KHR;
+      attribs[i++] = 3;
+      attribs[i++] = EGL_CONTEXT_MINOR_VERSION_KHR;
+      attribs[i++] = 1;
+      attribs[i++] = EGL_CONTEXT_FLAGS_KHR;
+      attribs[i++] = EGL_CONTEXT_OPENGL_FORWARD_COMPATIBLE_BIT_KHR;
+      attribs[i++] = EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR;
+      attribs[i++] = EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR;
     }
   else if (display->renderer->driver == COGL_DRIVER_GLES2)
     {
-      attribs[0] = EGL_CONTEXT_CLIENT_VERSION;
-      attribs[1] = 2;
-      attribs[2] = EGL_NONE;
+      attribs[i++] = EGL_CONTEXT_CLIENT_VERSION;
+      attribs[i++] = 2;
     }
-  else
-    attribs[0] = EGL_NONE;
+
+  if (egl_renderer->private_features &
+      COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY)
+    {
+      attribs[i++] = EGL_CONTEXT_PRIORITY_LEVEL_IMG;
+      attribs[i++] = EGL_CONTEXT_PRIORITY_HIGH_IMG;
+    }
+
+  attribs[i++] = EGL_NONE;
 
   egl_display->egl_context = eglCreateContext (edpy,
                                                config,
@@ -418,6 +429,20 @@ try_create_context (CoglDisplay *display,
       goto fail;
     }
 
+  if (egl_renderer->private_features &
+      COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY)
+    {
+      EGLint value = EGL_CONTEXT_PRIORITY_MEDIUM_IMG;
+
+      eglQueryContext (egl_renderer->edpy,
+                       egl_display->egl_context,
+                       EGL_CONTEXT_PRIORITY_LEVEL_IMG,
+                       &value);
+
+      if (value != EGL_CONTEXT_PRIORITY_HIGH_IMG)
+        g_warning ("Failed to obtain high priority context");
+    }
+
   if (egl_renderer->platform_vtable->context_created &&
       !egl_renderer->platform_vtable->context_created (display, error))
     return FALSE;
@@ -425,7 +450,7 @@ try_create_context (CoglDisplay *display,
   return TRUE;
 
 fail:
-  _cogl_set_error (error, COGL_WINSYS_ERROR,
+  g_set_error (error, COGL_WINSYS_ERROR,
                COGL_WINSYS_ERROR_CREATE_CONTEXT,
                "%s", error_message);
 
@@ -441,7 +466,7 @@ _cogl_winsys_display_destroy (CoglDisplay *display)
   CoglRendererEGL *egl_renderer = display->renderer->winsys;
   CoglDisplayEGL *egl_display = display->winsys;
 
-  _COGL_RETURN_IF_FAIL (egl_display != NULL);
+  g_return_if_fail (egl_display != NULL);
 
   cleanup_context (display);
 
@@ -454,13 +479,13 @@ _cogl_winsys_display_destroy (CoglDisplay *display)
 
 static gboolean
 _cogl_winsys_display_setup (CoglDisplay *display,
-                            CoglError **error)
+                            GError **error)
 {
   CoglDisplayEGL *egl_display;
   CoglRenderer *renderer = display->renderer;
   CoglRendererEGL *egl_renderer = renderer->winsys;
 
-  _COGL_RETURN_VAL_IF_FAIL (display->winsys == NULL, FALSE);
+  g_return_val_if_fail (display->winsys == NULL, FALSE);
 
   egl_display = g_slice_new0 (CoglDisplayEGL);
   display->winsys = egl_display;
@@ -494,7 +519,7 @@ error:
 }
 
 static gboolean
-_cogl_winsys_context_init (CoglContext *context, CoglError **error)
+_cogl_winsys_context_init (CoglContext *context, GError **error)
 {
   CoglRenderer *renderer = context->display->renderer;
   CoglDisplayEGL *egl_display = context->display->winsys;
@@ -502,7 +527,7 @@ _cogl_winsys_context_init (CoglContext *context, CoglError **error)
 
   context->winsys = g_new0 (CoglContextEGL, 1);
 
-  _COGL_RETURN_VAL_IF_FAIL (egl_display->egl_context, FALSE);
+  g_return_val_if_fail (egl_display->egl_context, FALSE);
 
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
 
@@ -565,7 +590,7 @@ typedef struct _CoglGLES2ContextEGL
 } CoglGLES2ContextEGL;
 
 static void *
-_cogl_winsys_context_create_gles2_context (CoglContext *ctx, CoglError **error)
+_cogl_winsys_context_create_gles2_context (CoglContext *ctx, GError **error)
 {
   CoglRendererEGL *egl_renderer = ctx->display->renderer->winsys;
   CoglDisplayEGL *egl_display = ctx->display->winsys;
@@ -582,7 +607,7 @@ _cogl_winsys_context_create_gles2_context (CoglContext *ctx, CoglError **error)
                                   attribs);
   if (egl_context == EGL_NO_CONTEXT)
     {
-      _cogl_set_error (error, COGL_WINSYS_ERROR,
+      g_set_error (error, COGL_WINSYS_ERROR,
                    COGL_WINSYS_ERROR_CREATE_GLES2_CONTEXT,
                    "%s", get_error_string ());
       return NULL;
@@ -601,14 +626,14 @@ _cogl_winsys_destroy_gles2_context (CoglGLES2Context *gles2_ctx)
   CoglRendererEGL *egl_renderer = renderer->winsys;
   EGLContext egl_context = gles2_ctx->winsys;
 
-  _COGL_RETURN_IF_FAIL (egl_display->current_context != egl_context);
+  g_return_if_fail (egl_display->current_context != egl_context);
 
   eglDestroyContext (egl_renderer->edpy, egl_context);
 }
 
 static gboolean
 _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
-                            CoglError **error)
+                            GError **error)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *context = framebuffer->context;
@@ -621,7 +646,7 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
   EGLint config_count = 0;
   EGLBoolean status;
 
-  _COGL_RETURN_VAL_IF_FAIL (egl_display->egl_context, FALSE);
+  g_return_val_if_fail (egl_display->egl_context, FALSE);
 
   egl_attributes_from_framebuffer_config (display,
                                           &framebuffer->config,
@@ -633,7 +658,7 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
                             &config_count);
   if (status != EGL_TRUE || config_count == 0)
     {
-      _cogl_set_error (error, COGL_WINSYS_ERROR,
+      g_set_error (error, COGL_WINSYS_ERROR,
                    COGL_WINSYS_ERROR_CREATE_ONSCREEN,
                    "Failed to find a suitable EGL configuration");
       return FALSE;
@@ -864,7 +889,7 @@ _cogl_winsys_save_context (CoglContext *ctx)
 }
 
 static gboolean
-_cogl_winsys_set_gles2_context (CoglGLES2Context *gles2_ctx, CoglError **error)
+_cogl_winsys_set_gles2_context (CoglGLES2Context *gles2_ctx, GError **error)
 {
   CoglContext *ctx = gles2_ctx->context;
   CoglDisplayEGL *egl_display = ctx->display->winsys;
@@ -883,7 +908,7 @@ _cogl_winsys_set_gles2_context (CoglGLES2Context *gles2_ctx, CoglError **error)
 
   if (!status)
     {
-      _cogl_set_error (error,
+      g_set_error (error,
                    COGL_WINSYS_ERROR,
                    COGL_WINSYS_ERROR_MAKE_CURRENT,
                    "Failed to make gles2 context current");
@@ -1008,7 +1033,7 @@ _cogl_egl_create_image (CoglContext *ctx,
   CoglRendererEGL *egl_renderer = ctx->display->renderer->winsys;
   EGLContext egl_ctx;
 
-  _COGL_RETURN_VAL_IF_FAIL (egl_renderer->pf_eglCreateImage, EGL_NO_IMAGE_KHR);
+  g_return_val_if_fail (egl_renderer->pf_eglCreateImage, EGL_NO_IMAGE_KHR);
 
   /* The EGL_KHR_image_pixmap spec explicitly states that EGL_NO_CONTEXT must
    * always be used in conjunction with the EGL_NATIVE_PIXMAP_KHR target */
@@ -1039,7 +1064,7 @@ _cogl_egl_destroy_image (CoglContext *ctx,
 {
   CoglRendererEGL *egl_renderer = ctx->display->renderer->winsys;
 
-  _COGL_RETURN_IF_FAIL (egl_renderer->pf_eglDestroyImage);
+  g_return_if_fail (egl_renderer->pf_eglDestroyImage);
 
   egl_renderer->pf_eglDestroyImage (egl_renderer->edpy, image);
 }
@@ -1054,7 +1079,7 @@ _cogl_egl_query_wayland_buffer (CoglContext *ctx,
 {
   CoglRendererEGL *egl_renderer = ctx->display->renderer->winsys;
 
-  _COGL_RETURN_VAL_IF_FAIL (egl_renderer->pf_eglQueryWaylandBuffer, FALSE);
+  g_return_val_if_fail (egl_renderer->pf_eglQueryWaylandBuffer, FALSE);
 
   return egl_renderer->pf_eglQueryWaylandBuffer (egl_renderer->edpy,
                                                  buffer,

@@ -278,24 +278,6 @@ typedef enum
 } ClutterAnimationMode;
 
 /**
- * ClutterFontFlags:
- * @CLUTTER_FONT_MIPMAPPING: Set to use mipmaps for the glyph cache textures.
- * @CLUTTER_FONT_HINTING: Set to enable hinting on the glyphs.
- *
- * Runtime flags to change the font quality. To be used with
- * clutter_set_font_flags().
- *
- * Since: 1.0
- *
- * Deprecated: 1.22: Use #cairo_font_options_t instead
- */
-typedef enum /*< prefix=CLUTTER_FONT >*/
-{
-  CLUTTER_FONT_MIPMAPPING = (1 << 0),
-  CLUTTER_FONT_HINTING    = (1 << 1)
-} ClutterFontFlags;
-
-/**
  * ClutterTextDirection:
  * @CLUTTER_TEXT_DIRECTION_DEFAULT: Use the default setting, as returned
  *   by clutter_get_default_text_direction()
@@ -442,6 +424,88 @@ typedef enum
   CLUTTER_A11Y_STICKY_KEYS_BEEP          = 1 << 12,
   CLUTTER_A11Y_FEATURE_STATE_CHANGE_BEEP = 1 << 13,
 } ClutterKeyboardA11yFlags;
+
+/**
+ * ClutterPointerA11yFlags:
+ * @CLUTTER_A11Y_POINTER_ENABLED:
+ * @CLUTTER_A11Y_SECONDARY_CLICK_ENABLED:
+ * @CLUTTER_A11Y_DWELL_ENABLED:
+ *
+ * Pointer accessibility features applied to a ClutterInputDevice pointer.
+ *
+ */
+typedef enum {
+  CLUTTER_A11Y_SECONDARY_CLICK_ENABLED   = 1 << 0,
+  CLUTTER_A11Y_DWELL_ENABLED             = 1 << 1,
+} ClutterPointerA11yFlags;
+
+/**
+ * ClutterPointerA11yDwellClickType:
+ * @CLUTTER_A11Y_DWELL_CLICK_TYPE_NONE: Internal use only
+ * @CLUTTER_A11Y_DWELL_CLICK_TYPE_PRIMARY:
+ * @CLUTTER_A11Y_DWELL_CLICK_TYPE_SECONDARY:
+ * @CLUTTER_A11Y_DWELL_CLICK_TYPE_MIDDLE:
+ * @CLUTTER_A11Y_DWELL_CLICK_TYPE_DOUBLE:
+ * @CLUTTER_A11Y_DWELL_CLICK_TYPE_DRAG:
+ *
+ * Dwell click types.
+ *
+ */
+typedef enum {
+  CLUTTER_A11Y_DWELL_CLICK_TYPE_NONE,
+  CLUTTER_A11Y_DWELL_CLICK_TYPE_PRIMARY,
+  CLUTTER_A11Y_DWELL_CLICK_TYPE_SECONDARY,
+  CLUTTER_A11Y_DWELL_CLICK_TYPE_MIDDLE,
+  CLUTTER_A11Y_DWELL_CLICK_TYPE_DOUBLE,
+  CLUTTER_A11Y_DWELL_CLICK_TYPE_DRAG,
+} ClutterPointerA11yDwellClickType;
+
+/**
+ * ClutterPointerA11yDwellDirection:
+ * @CLUTTER_A11Y_DWELL_DIRECTION_NONE:
+ * @CLUTTER_A11Y_DWELL_DIRECTION_LEFT:
+ * @CLUTTER_A11Y_DWELL_DIRECTION_RIGHT:
+ * @CLUTTER_A11Y_DWELL_DIRECTION_UP:
+ * @CLUTTER_A11Y_DWELL_DIRECTION_DOWN:
+ *
+ * Dwell gesture directions.
+ *
+ */
+typedef enum {
+  CLUTTER_A11Y_DWELL_DIRECTION_NONE,
+  CLUTTER_A11Y_DWELL_DIRECTION_LEFT,
+  CLUTTER_A11Y_DWELL_DIRECTION_RIGHT,
+  CLUTTER_A11Y_DWELL_DIRECTION_UP,
+  CLUTTER_A11Y_DWELL_DIRECTION_DOWN,
+} ClutterPointerA11yDwellDirection;
+
+/**
+ * ClutterPointerA11yDwellMode:
+ * @CLUTTER_A11Y_DWELL_MODE_WINDOW:
+ * @CLUTTER_A11Y_DWELL_MODE_GESTURE:
+ *
+ * Dwell mode.
+ *
+ */
+typedef enum {
+  CLUTTER_A11Y_DWELL_MODE_WINDOW,
+  CLUTTER_A11Y_DWELL_MODE_GESTURE,
+} ClutterPointerA11yDwellMode;
+
+/**
+ * ClutterPointerA11yTimeoutType:
+ * @CLUTTER_A11Y_TIMEOUT_TYPE_SECONDARY_CLICK:
+ * @CLUTTER_A11Y_TIMEOUT_TYPE_DWELL:
+ * @CLUTTER_A11Y_TIMEOUT_TYPE_GESTURE:
+ *
+ * Pointer accessibility timeout type.
+ *
+ */
+typedef enum {
+  CLUTTER_A11Y_TIMEOUT_TYPE_SECONDARY_CLICK,
+  CLUTTER_A11Y_TIMEOUT_TYPE_DWELL,
+  CLUTTER_A11Y_TIMEOUT_TYPE_GESTURE,
+} ClutterPointerA11yTimeoutType;
 
 /**
  * ClutterActorFlags:
@@ -892,8 +956,6 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
 
 /**
  * ClutterStageState:
- * @CLUTTER_STAGE_STATE_FULLSCREEN: Fullscreen mask
- * @CLUTTER_STAGE_STATE_OFFSCREEN: Offscreen mask (deprecated)
  * @CLUTTER_STAGE_STATE_ACTIVATED: Activated mask
  *
  * Stage state masks, used by the #ClutterEvent of type %CLUTTER_STAGE_STATE.
@@ -902,19 +964,15 @@ typedef enum /*< prefix=CLUTTER_SCROLL >*/
  */
 typedef enum
 {
-  CLUTTER_STAGE_STATE_FULLSCREEN       = (1 << 1),
-  CLUTTER_STAGE_STATE_OFFSCREEN        = (1 << 2),
   CLUTTER_STAGE_STATE_ACTIVATED        = (1 << 3)
 } ClutterStageState;
 
 /**
  * ClutterFeatureFlags:
- * @CLUTTER_FEATURE_TEXTURE_NPOT: Set if NPOTS textures supported.
  * @CLUTTER_FEATURE_SWAP_THROTTLE: Set if backend throttles buffer swaps.
  * @CLUTTER_FEATURE_TEXTURE_YUV: Set if YUV based textures supported.
  * @CLUTTER_FEATURE_TEXTURE_READ_PIXELS: Set if texture pixels can be read.
  * @CLUTTER_FEATURE_STAGE_STATIC: Set if stage size if fixed (i.e framebuffer)
- * @CLUTTER_FEATURE_STAGE_USER_RESIZE: Set if stage is able to be user resized.
  * @CLUTTER_FEATURE_STAGE_CURSOR: Set if stage has a graphical cursor.
  * @CLUTTER_FEATURE_SHADERS_GLSL: Set if the backend supports GLSL shaders.
  * @CLUTTER_FEATURE_OFFSCREEN: Set if the backend supports offscreen rendering.
@@ -928,12 +986,10 @@ typedef enum
  */
 typedef enum
 {
-  CLUTTER_FEATURE_TEXTURE_NPOT           = (1 << 2),
   CLUTTER_FEATURE_SWAP_THROTTLE          = (1 << 3),
   CLUTTER_FEATURE_TEXTURE_YUV            = (1 << 4),
   CLUTTER_FEATURE_TEXTURE_READ_PIXELS    = (1 << 5),
   CLUTTER_FEATURE_STAGE_STATIC           = (1 << 6),
-  CLUTTER_FEATURE_STAGE_USER_RESIZE      = (1 << 7),
   CLUTTER_FEATURE_STAGE_CURSOR           = (1 << 8),
   CLUTTER_FEATURE_SHADERS_GLSL           = (1 << 9),
   CLUTTER_FEATURE_OFFSCREEN              = (1 << 10),

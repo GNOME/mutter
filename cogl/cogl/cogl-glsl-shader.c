@@ -100,21 +100,12 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
   strings[count] = version_string;
   lengths[count++] = -1;
 
-  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_GL_EMBEDDED) &&
-      cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_3D))
-    {
-      static const char texture_3d_extension[] =
-        "#extension GL_OES_texture_3D : enable\n";
-      strings[count] = texture_3d_extension;
-      lengths[count++] = sizeof (texture_3d_extension) - 1;
-    }
-
   if (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL))
     {
-      static const char texture_3d_extension[] =
+      static const char image_external_extension[] =
         "#extension GL_OES_EGL_image_external : require\n";
-      strings[count] = texture_3d_extension;
-      lengths[count++] = sizeof (texture_3d_extension) - 1;
+      strings[count] = image_external_extension;
+      lengths[count++] = sizeof (image_external_extension) - 1;
     }
 
   if (shader_gl_type == GL_VERTEX_SHADER)

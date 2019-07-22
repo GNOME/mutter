@@ -692,7 +692,7 @@ meta_window_class_init (MetaWindowClass *klass)
    * MetaWindow::size-changed:
    * @window: a #MetaWindow
    *
-   * This is emitted when the position of a window might
+   * This is emitted when the size of a window might
    * have changed. Specifically, this is emitted when the
    * size of the toplevel window has changed, or when the
    * size of the client window has changed.
@@ -809,17 +809,10 @@ sync_client_window_mapped (MetaWindow *window)
 
   window->mapped = should_be_mapped;
 
-  meta_x11_error_trap_push (window->display->x11_display);
-  if (should_be_mapped)
-    {
-      XMapWindow (window->display->x11_display->xdisplay, window->xwindow);
-    }
+  if (window->mapped)
+    META_WINDOW_GET_CLASS (window)->map (window);
   else
-    {
-      XUnmapWindow (window->display->x11_display->xdisplay, window->xwindow);
-      window->unmaps_pending ++;
-    }
-  meta_x11_error_trap_pop (window->display->x11_display);
+    META_WINDOW_GET_CLASS (window)->unmap (window);
 }
 
 static gboolean
@@ -1427,6 +1420,8 @@ meta_window_unmanage (MetaWindow  *window,
   if (window->unmanage_idle_id)
     g_source_remove (window->unmanage_idle_id);
 
+  meta_window_free_delete_dialog (window);
+
 #ifdef HAVE_WAYLAND
   /* This needs to happen for both Wayland and XWayland clients,
    * so it can't be in MetaWindowWayland. */
@@ -1523,7 +1518,7 @@ meta_window_unmanage (MetaWindow  *window,
 
   if (window->struts)
     {
-      meta_free_gslist_and_elements (window->struts);
+      g_slist_free_full (window->struts, g_free);
       window->struts = NULL;
 
       meta_topic (META_DEBUG_WORKAREA,
@@ -1549,7 +1544,6 @@ meta_window_unmanage (MetaWindow  *window,
   meta_window_unqueue (window, META_QUEUE_CALC_SHOWING |
                                META_QUEUE_MOVE_RESIZE |
                                META_QUEUE_UPDATE_ICON);
-  meta_window_free_delete_dialog (window);
 
   set_workspace_state (window, FALSE, NULL);
 
@@ -1938,9 +1932,10 @@ idle_calc_showing (gpointer data)
       while (tmp != NULL)
         {
           MetaWindow *window = tmp->data;
+          MetaDisplay *display = window->display;
 
-          if (!window->display->mouse_mode)
-            meta_display_increment_focus_sentinel (window->display);
+          if (display->x11_display && !display->mouse_mode)
+            meta_x11_display_increment_focus_sentinel (display->x11_display);
 
           tmp = tmp->next;
         }
@@ -2410,6 +2405,7 @@ meta_window_show (MetaWindow *window)
   gboolean needs_stacking_adjustment;
   MetaWindow *focus_window;
   gboolean notify_demands_attention = FALSE;
+  MetaDisplay *display = window->display;
 
   meta_topic (META_DEBUG_WINDOW_STATE,
               "Showing window %s, shaded: %d iconic: %d placed: %d\n",
@@ -2576,7 +2572,7 @@ meta_window_show (MetaWindow *window)
 
           meta_window_focus (window, timestamp);
         }
-      else
+      else if (display->x11_display)
         {
           /* Prevent EnterNotify events in sloppy/mouse focus from
            * erroneously focusing the window that had been denied
@@ -2584,7 +2580,7 @@ meta_window_show (MetaWindow *window)
            * ideas for a better way to accomplish the same thing, but
            * they're more involved so do it this way for now.
            */
-          meta_display_increment_focus_sentinel (window->display);
+          meta_x11_display_increment_focus_sentinel (display->x11_display);
         }
     }
 
@@ -3214,6 +3210,12 @@ meta_window_tile (MetaWindow   *window,
     meta_frame_queue_draw (window->frame);
 }
 
+MetaTileMode
+meta_window_get_tile_mode (MetaWindow *window)
+{
+  return window->tile_mode;
+}
+
 void
 meta_window_restore_tile (MetaWindow   *window,
                           MetaTileMode  mode,
@@ -3559,7 +3561,8 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
       meta_window_move_resize_internal (window,
                                         (META_MOVE_RESIZE_MOVE_ACTION |
                                          META_MOVE_RESIZE_RESIZE_ACTION |
-                                         META_MOVE_RESIZE_STATE_CHANGED),
+                                         META_MOVE_RESIZE_STATE_CHANGED |
+                                         META_MOVE_RESIZE_UNFULLSCREEN),
                                         NorthWestGravity,
                                         target_rect);
 
@@ -3818,13 +3821,13 @@ maybe_move_attached_window (MetaWindow *window,
                             void       *data)
 {
   if (window->hidden)
-    return FALSE;
+    return G_SOURCE_CONTINUE;
 
   if (meta_window_is_attached_dialog (window) ||
       meta_window_get_placement_rule (window))
     meta_window_reposition (window);
 
-  return FALSE;
+  return G_SOURCE_CONTINUE;
 }
 
 /**
@@ -5384,50 +5387,6 @@ redraw_icon (MetaWindow *window)
     meta_frame_queue_draw (window->frame);
 }
 
-static cairo_surface_t *
-load_default_window_icon (int size)
-{
-  GtkIconTheme *theme = gtk_icon_theme_get_default ();
-  g_autoptr (GdkPixbuf) pixbuf = NULL;
-  const char *icon_name;
-
-  if (gtk_icon_theme_has_icon (theme, META_DEFAULT_ICON_NAME))
-    icon_name = META_DEFAULT_ICON_NAME;
-  else
-    icon_name = "image-missing";
-
-  pixbuf = gtk_icon_theme_load_icon (theme, icon_name, size, 0, NULL);
-  return gdk_cairo_surface_create_from_pixbuf (pixbuf, 1, NULL);
-}
-
-static cairo_surface_t *
-get_default_window_icon (void)
-{
-  static cairo_surface_t *default_icon = NULL;
-
-  if (default_icon == NULL)
-    {
-      default_icon = load_default_window_icon (META_ICON_WIDTH);
-      g_assert (default_icon);
-    }
-
-  return cairo_surface_reference (default_icon);
-}
-
-static cairo_surface_t *
-get_default_mini_icon (void)
-{
-  static cairo_surface_t *default_icon = NULL;
-
-  if (default_icon == NULL)
-    {
-      default_icon = load_default_window_icon (META_MINI_ICON_WIDTH);
-      g_assert (default_icon);
-    }
-
-  return cairo_surface_reference (default_icon);
-}
-
 static void
 meta_window_update_icon_now (MetaWindow *window,
                              gboolean    force)
@@ -5444,17 +5403,11 @@ meta_window_update_icon_now (MetaWindow *window,
     {
       if (window->icon)
         cairo_surface_destroy (window->icon);
-      if (icon)
-        window->icon = icon;
-      else
-        window->icon = get_default_window_icon ();
+      window->icon = icon;
 
       if (window->mini_icon)
         cairo_surface_destroy (window->mini_icon);
-      if (mini_icon)
-        window->mini_icon = mini_icon;
-      else
-        window->mini_icon = get_default_mini_icon ();
+      window->mini_icon = mini_icon;
 
       g_object_freeze_notify (G_OBJECT (window));
       g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_ICON]);
@@ -5463,9 +5416,6 @@ meta_window_update_icon_now (MetaWindow *window,
 
       redraw_icon (window);
     }
-
-  g_assert (window->icon);
-  g_assert (window->mini_icon);
 }
 
 static gboolean
@@ -8152,8 +8102,7 @@ mouse_mode_focus (MetaWindow  *window,
                       "Unsetting focus from %s due to mouse entering "
                       "the DESKTOP window\n",
                       display->focus_window->desc);
-          meta_x11_display_focus_the_no_focus_window (display->x11_display,
-                                                      timestamp);
+          meta_display_unset_input_focus (display, timestamp);
         }
     }
 }
@@ -8318,7 +8267,9 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
   MetaDisplay *display = window->display;
   gboolean unmodified;
   gboolean is_window_grab;
+  gboolean is_window_button_grab_allowed;
   ClutterModifierType grab_mods, event_mods;
+  ClutterInputDevice *source;
   gfloat x, y;
   guint button;
 
@@ -8390,7 +8341,11 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
   grab_mods = meta_display_get_window_grab_modifiers (display);
   event_mods = clutter_event_get_state (event);
   unmodified = (event_mods & grab_mods) == 0;
-  is_window_grab = (event_mods & grab_mods) == grab_mods;
+  source = clutter_event_get_source_device (event);
+  is_window_button_grab_allowed = !display->focus_window ||
+    !meta_window_shortcuts_inhibited (display->focus_window, source);
+  is_window_grab = (is_window_button_grab_allowed &&
+                    ((event_mods & grab_mods) == grab_mods));
 
   clutter_event_get_coords (event, &x, &y);
 

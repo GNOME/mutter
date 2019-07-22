@@ -40,6 +40,7 @@ void                _clutter_stage_paint_view            (ClutterStage          
                                                           ClutterStageView            *view,
                                                           const cairo_rectangle_int_t *clip);
 
+void                _clutter_stage_emit_after_paint      (ClutterStage          *stage);
 void                _clutter_stage_set_window            (ClutterStage          *stage,
                                                           ClutterStageWindow    *stage_window);
 ClutterStageWindow *_clutter_stage_get_window            (ClutterStage          *stage);
@@ -117,7 +118,6 @@ void            _clutter_stage_remove_touch_drag_actor (ClutterStage         *st
 
 ClutterStageState       _clutter_stage_get_state        (ClutterStage      *stage);
 gboolean                _clutter_stage_is_activated     (ClutterStage      *stage);
-gboolean                _clutter_stage_is_fullscreen    (ClutterStage      *stage);
 gboolean                _clutter_stage_update_state     (ClutterStage      *stage,
                                                          ClutterStageState  unset_state,
                                                          ClutterStageState  set_state);

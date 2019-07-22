@@ -89,7 +89,6 @@ static const gchar *atom_names[] = {
   "_NET_WM_PID",
   "_NET_WM_PING",
   "_NET_WM_STATE",
-  "_NET_WM_STATE_FULLSCREEN",
   "_NET_WM_USER_TIME",
   "WM_PROTOCOLS",
   "WM_DELETE_WINDOW",
@@ -441,14 +440,13 @@ clutter_backend_x11_post_parse (ClutterBackend  *backend,
   backend_x11->atom_NET_WM_PID = atoms[0];
   backend_x11->atom_NET_WM_PING = atoms[1];
   backend_x11->atom_NET_WM_STATE = atoms[2];
-  backend_x11->atom_NET_WM_STATE_FULLSCREEN = atoms[3];
-  backend_x11->atom_NET_WM_USER_TIME = atoms[4];
-  backend_x11->atom_WM_PROTOCOLS = atoms[5];
-  backend_x11->atom_WM_DELETE_WINDOW = atoms[6];
-  backend_x11->atom_XEMBED = atoms[7];
-  backend_x11->atom_XEMBED_INFO = atoms[8];
-  backend_x11->atom_NET_WM_NAME = atoms[9];
-  backend_x11->atom_UTF8_STRING = atoms[10];
+  backend_x11->atom_NET_WM_USER_TIME = atoms[3];
+  backend_x11->atom_WM_PROTOCOLS = atoms[4];
+  backend_x11->atom_WM_DELETE_WINDOW = atoms[5];
+  backend_x11->atom_XEMBED = atoms[6];
+  backend_x11->atom_XEMBED_INFO = atoms[7];
+  backend_x11->atom_NET_WM_NAME = atoms[8];
+  backend_x11->atom_UTF8_STRING = atoms[9];
 
   g_free (clutter_display_name);
 
@@ -563,8 +561,7 @@ clutter_backend_x11_dispose (GObject *gobject)
 static ClutterFeatureFlags
 clutter_backend_x11_get_features (ClutterBackend *backend)
 {
-  ClutterFeatureFlags flags = CLUTTER_FEATURE_STAGE_USER_RESIZE
-                            | CLUTTER_FEATURE_STAGE_CURSOR;
+  ClutterFeatureFlags flags = CLUTTER_FEATURE_STAGE_CURSOR;
 
   flags |= CLUTTER_BACKEND_CLASS (clutter_backend_x11_parent_class)->get_features (backend);
 

@@ -25,7 +25,6 @@
 #include <math.h>
 #include <string.h>
 
-#include "compositor/meta-texture-rectangle.h"
 #include "compositor/meta-texture-tower.h"
 
 #ifndef M_LOG2E
@@ -346,34 +345,15 @@ get_paint_level (int width, int height)
     return (int)(0.5 + lambda);
 }
 
-static gboolean
-is_power_of_two (int x)
-{
-  return (x & (x - 1)) == 0;
-}
-
 static void
 texture_tower_create_texture (MetaTextureTower *tower,
                               int               level,
                               int               width,
                               int               height)
 {
-  if ((!is_power_of_two (width) || !is_power_of_two (height)) &&
-      meta_texture_rectangle_check (tower->textures[level - 1]))
-    {
-      ClutterBackend *backend = clutter_get_default_backend ();
-      CoglContext *context = clutter_backend_get_cogl_context (backend);
-      CoglTextureRectangle *texture_rectangle;
-
-      texture_rectangle = cogl_texture_rectangle_new_with_size (context, width, height);
-      tower->textures[level] = COGL_TEXTURE (texture_rectangle);
-    }
-  else
-    {
-      tower->textures[level] = cogl_texture_new_with_size (width, height,
-                                                           COGL_TEXTURE_NO_AUTO_MIPMAP,
-                                                           TEXTURE_FORMAT);
-    }
+  tower->textures[level] = cogl_texture_new_with_size (width, height,
+                                                       COGL_TEXTURE_NO_AUTO_MIPMAP,
+                                                       TEXTURE_FORMAT);
 
   tower->invalid[level].x1 = 0;
   tower->invalid[level].y1 = 0;
@@ -393,7 +373,7 @@ texture_tower_revalidate (MetaTextureTower *tower,
   int dest_texture_height = cogl_texture_get_height (dest_texture);
   Box *invalid = &tower->invalid[level];
   CoglFramebuffer *fb;
-  CoglError *catch_error = NULL;
+  GError *catch_error = NULL;
   CoglPipeline *pipeline;
 
   if (tower->fbos[level] == NULL)
@@ -403,7 +383,7 @@ texture_tower_revalidate (MetaTextureTower *tower,
 
   if (!cogl_framebuffer_allocate (fb, &catch_error))
     {
-      cogl_error_free (catch_error);
+      g_error_free (catch_error);
       return;
     }
 

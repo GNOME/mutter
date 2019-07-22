@@ -107,6 +107,9 @@ clutter_input_device_dispose (GObject *gobject)
       device->associated = NULL;
     }
 
+  if (device->accessibility_virtual_device)
+    g_clear_object (&device->accessibility_virtual_device);
+
   g_clear_pointer (&device->axes, g_array_unref);
   g_clear_pointer (&device->keys, g_array_unref);
   g_clear_pointer (&device->scroll_info, g_array_unref);
@@ -834,6 +837,7 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
           event->crossing.x = device->current_x;
           event->crossing.y = device->current_y;
           event->crossing.related = actor;
+          event->crossing.sequence = sequence;
           clutter_event_set_device (event, device);
 
           /* we need to make sure that this event is processed
@@ -870,6 +874,7 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
           event->crossing.y = device->current_y;
           event->crossing.source = actor;
           event->crossing.related = old_actor;
+          event->crossing.sequence = sequence;
           clutter_event_set_device (event, device);
 
           /* see above */
@@ -1034,9 +1039,10 @@ _clutter_input_device_update (ClutterInputDevice   *device,
   ClutterActor *new_cursor_actor;
   ClutterActor *old_cursor_actor;
   ClutterPoint point = { -1, -1 };
+  ClutterInputDeviceType device_type = device->device_type;
 
-  if (device->device_type == CLUTTER_KEYBOARD_DEVICE)
-    return NULL;
+  g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
+            device_type != CLUTTER_PAD_DEVICE);
 
   stage = device->stage;
   if (G_UNLIKELY (stage == NULL))

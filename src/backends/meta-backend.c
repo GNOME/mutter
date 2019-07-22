@@ -66,6 +66,10 @@
 #include "meta/meta-backend.h"
 #include "meta/util.h"
 
+#ifdef HAVE_PROFILER
+#include "backends/meta-profiler.h"
+#endif
+
 #ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-remote-access-controller-private.h"
@@ -85,6 +89,7 @@ enum
   KEYMAP_LAYOUT_GROUP_CHANGED,
   LAST_DEVICE_CHANGED,
   LID_IS_CLOSED_CHANGED,
+  GPU_ADDED,
 
   N_SIGNALS
 };
@@ -127,12 +132,19 @@ struct _MetaBackendPrivate
   MetaRemoteDesktop *remote_desktop;
 #endif
 
+#ifdef HAVE_PROFILER
+  MetaProfiler *profiler;
+#endif
+
   ClutterBackend *clutter_backend;
   ClutterActor *stage;
+
+  GList *gpus;
 
   gboolean is_pointer_position_initialized;
 
   guint device_update_idle_id;
+  guint keymap_state_changed_id;
 
   GHashTable *device_monitors;
 
@@ -167,6 +179,16 @@ meta_backend_finalize (GObject *object)
   MetaBackend *backend = META_BACKEND (object);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
+  if (priv->keymap_state_changed_id)
+    {
+      ClutterKeymap *keymap;
+
+      keymap = clutter_backend_get_keymap (priv->clutter_backend);
+      g_signal_handler_disconnect (keymap, priv->keymap_state_changed_id);
+    }
+
+  g_list_free_full (priv->gpus, g_object_unref);
+
   g_clear_object (&priv->monitor_manager);
   g_clear_object (&priv->orientation_manager);
   g_clear_object (&priv->input_settings);
@@ -192,6 +214,10 @@ meta_backend_finalize (GObject *object)
   g_hash_table_destroy (priv->device_monitors);
 
   g_clear_object (&priv->settings);
+
+#ifdef HAVE_PROFILER
+  g_clear_object (&priv->profiler);
+#endif
 
   G_OBJECT_CLASS (meta_backend_parent_class)->finalize (object);
 }
@@ -474,6 +500,7 @@ meta_backend_real_post_init (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterDeviceManager *device_manager = clutter_device_manager_get_default ();
+  ClutterKeymap *keymap = clutter_backend_get_keymap (priv->clutter_backend);
 
   priv->stage = meta_stage_new (backend);
   clutter_actor_realize (priv->stage);
@@ -499,6 +526,15 @@ meta_backend_real_post_init (MetaBackend *backend)
   set_initial_pointer_visibility (backend, device_manager);
 
   priv->input_settings = meta_backend_create_input_settings (backend);
+
+  if (priv->input_settings)
+    {
+      priv->keymap_state_changed_id =
+        g_signal_connect_swapped (keymap, "state-changed",
+                                  G_CALLBACK (meta_input_settings_maybe_save_numlock_state),
+                                  priv->input_settings);
+      meta_input_settings_maybe_restore_numlock_state (priv->input_settings);
+    }
 
 #ifdef HAVE_REMOTE_DESKTOP
   priv->remote_access_controller =
@@ -740,6 +776,18 @@ meta_backend_class_init (MetaBackendClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1, G_TYPE_BOOLEAN);
+  /**
+   * MetaBackend::gpu-added: (skip)
+   * @backend: the #MetaBackend
+   * @gpu: the #MetaGpu
+   */
+  signals[GPU_ADDED] =
+    g_signal_new ("gpu-added",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1, META_TYPE_GPU);
 
   mutter_stage_views = g_getenv ("MUTTER_STAGE_VIEWS");
   stage_views_disabled = g_strcmp0 (mutter_stage_views, "0") == 0;
@@ -840,6 +888,10 @@ meta_backend_initable_init (GInitable     *initable,
              priv->cancellable,
              system_bus_gotten_cb,
              backend);
+
+#ifdef HAVE_PROFILER
+  priv->profiler = meta_profiler_new ();
+#endif
 
   return TRUE;
 }
@@ -1382,4 +1434,23 @@ meta_backend_notify_keymap_layout_group_changed (MetaBackend *backend,
 {
   g_signal_emit (backend, signals[KEYMAP_LAYOUT_GROUP_CHANGED], 0,
                  locked_group);
+}
+
+void
+meta_backend_add_gpu (MetaBackend *backend,
+                      MetaGpu     *gpu)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  priv->gpus = g_list_append (priv->gpus, gpu);
+
+  g_signal_emit (backend, signals[GPU_ADDED], 0, gpu);
+}
+
+GList *
+meta_backend_get_gpus (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->gpus;
 }

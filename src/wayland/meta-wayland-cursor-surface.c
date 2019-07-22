@@ -189,6 +189,9 @@ meta_wayland_cursor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *role,
   ClutterPoint point;
   ClutterRect logical_monitor_rect;
 
+  if (!priv->cursor_renderer)
+    return FALSE;
+
   logical_monitor_rect =
     meta_rectangle_to_clutter_rect (&logical_monitor->rect);
 

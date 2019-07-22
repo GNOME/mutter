@@ -84,7 +84,7 @@ struct _CoglTextureDriver
                               CoglBitmap *source_bmp,
                               GLuint source_gl_format,
                               GLuint source_gl_type,
-                              CoglError **error);
+                              GError **error);
 
   /*
    * Replaces the contents of the GL texture with the entire bitmap. On
@@ -101,27 +101,7 @@ struct _CoglTextureDriver
                     GLint internal_gl_format,
                     GLuint source_gl_format,
                     GLuint source_gl_type,
-                    CoglError **error);
-
-  /*
-   * Replaces the contents of the GL texture with the entire bitmap. The
-   * width of the texture is inferred from the bitmap. The height and
-   * depth of the texture is given directly. The 'image_height' (which
-   * is the number of rows between images) is inferred by dividing the
-   * height of the bitmap by the depth.
-   */
-  gboolean
-  (* upload_to_gl_3d) (CoglContext *ctx,
-                       GLenum gl_target,
-                       GLuint gl_handle,
-                       gboolean is_foreign,
-                       GLint height,
-                       GLint depth,
-                       CoglBitmap *source_bmp,
-                       GLint internal_gl_format,
-                       GLuint source_gl_format,
-                       GLuint source_gl_type,
-                       CoglError **error);
+                    GError **error);
 
   /*
    * This sets up the glPixelStore state for an download to a destination with
@@ -161,15 +141,6 @@ struct _CoglTextureDriver
                       GLenum gl_type,
                       int width,
                       int height);
-
-  gboolean
-  (* size_supported_3d) (CoglContext *ctx,
-                         GLenum gl_target,
-                         GLenum gl_format,
-                         GLenum gl_type,
-                         int width,
-                         int height,
-                         int depth);
 
   /*
    * It may depend on the driver as to what texture targets may be used when

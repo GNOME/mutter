@@ -31,8 +31,6 @@
 #include "meta/prefs.h"
 #include "ui/frames.h"
 
-#define DEBUG_FILL_STRUCT(s) memset ((s), 0xef, sizeof (*(s)))
-
 static void scale_border (GtkBorder *border, double factor);
 
 static MetaFrameLayout *
@@ -58,7 +56,6 @@ meta_frame_layout_free (MetaFrameLayout *layout)
 {
   g_return_if_fail (layout != NULL);
 
-  DEBUG_FILL_STRUCT (layout);
   g_free (layout);
 }
 
@@ -569,7 +566,7 @@ meta_frame_layout_calc_geometry (MetaFrameLayout        *layout,
 
         }
       else
-        g_memmove (&(rect->clickable), &(rect->visible), sizeof(rect->clickable));
+        memmove (&(rect->clickable), &(rect->visible), sizeof (rect->clickable));
 
       x = rect->visible.x - layout->button_margin.left * scale;
 
@@ -616,7 +613,7 @@ meta_frame_layout_calc_geometry (MetaFrameLayout        *layout,
           rect->clickable.height = button_height + button_y;
         }
       else
-        g_memmove (&(rect->clickable), &(rect->visible), sizeof(rect->clickable));
+        memmove (&(rect->clickable), &(rect->visible), sizeof (rect->clickable));
 
       x = rect->visible.x + rect->visible.width + layout->button_margin.right * scale;
       if (i < n_left - 1)
@@ -967,7 +964,6 @@ meta_theme_free (MetaTheme *theme)
     if (theme->layouts[i])
       meta_frame_layout_free (theme->layouts[i]);
 
-  DEBUG_FILL_STRUCT (theme);
   g_free (theme);
 }
 

@@ -40,8 +40,6 @@
 #include "cogl-journal-private.h"
 #include "cogl-texture-private.h"
 #include "cogl-texture-2d-private.h"
-#include "cogl-texture-3d-private.h"
-#include "cogl-texture-rectangle-private.h"
 #include "cogl-pipeline-private.h"
 #include "cogl-framebuffer-private.h"
 #include "cogl-onscreen-private.h"
@@ -49,7 +47,6 @@
 #include "cogl1-context.h"
 #include "cogl-gpu-info-private.h"
 #include "cogl-config-private.h"
-#include "cogl-error-private.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
@@ -106,30 +103,6 @@ _cogl_init_feature_overrides (CoglContext *ctx)
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_PBOS)))
     COGL_FLAGS_SET (ctx->private_features, COGL_PRIVATE_FEATURE_PBOS, FALSE);
-
-  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_GLSL)))
-    {
-      ctx->feature_flags &= ~COGL_FEATURE_SHADERS_GLSL;
-      COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_GLSL, FALSE);
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE,
-                      FALSE);
-    }
-
-  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_NPOT_TEXTURES)))
-    {
-      ctx->feature_flags &= ~(COGL_FEATURE_TEXTURE_NPOT |
-                              COGL_FEATURE_TEXTURE_NPOT_BASIC |
-                              COGL_FEATURE_TEXTURE_NPOT_MIPMAP |
-                              COGL_FEATURE_TEXTURE_NPOT_REPEAT);
-      COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_TEXTURE_NPOT, FALSE);
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_TEXTURE_NPOT_BASIC, FALSE);
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP, FALSE);
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT, FALSE);
-    }
 }
 
 const CoglWinsysVtable *
@@ -149,14 +122,12 @@ _cogl_context_get_winsys (CoglContext *context)
  */
 CoglContext *
 cogl_context_new (CoglDisplay *display,
-                  CoglError **error)
+                  GError **error)
 {
   CoglContext *context;
   uint8_t white_pixel[] = { 0xff, 0xff, 0xff, 0xff };
-  CoglBitmap *white_pixel_bitmap;
   const CoglWinsysVtable *winsys;
   int i;
-  CoglError *internal_error = NULL;
 
   _cogl_init ();
 
@@ -197,9 +168,6 @@ cogl_context_new (CoglDisplay *display,
   memset (context->features, 0, sizeof (context->features));
   context->feature_flags = 0;
   memset (context->private_features, 0, sizeof (context->private_features));
-
-  context->rectangle_state = COGL_WINSYS_RECTANGLE_STATE_UNKNOWN;
-
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
 
   if (!display)
@@ -265,22 +233,6 @@ cogl_context_new (CoglDisplay *display,
   /* Initialise the driver specific state */
   _cogl_init_feature_overrides (context);
 
-  /* XXX: ONGOING BUG: Intel viewport scissor
-   *
-   * Intel gen6 drivers don't currently correctly handle offset
-   * viewports, since primitives aren't clipped within the bounds of
-   * the viewport.  To workaround this we push our own clip for the
-   * viewport that will use scissoring to ensure we clip as expected.
-   *
-   * TODO: file a bug upstream!
-   */
-  if (context->gpu.driver_package == COGL_GPU_INFO_DRIVER_PACKAGE_MESA &&
-      context->gpu.architecture == COGL_GPU_INFO_ARCHITECTURE_SANDYBRIDGE &&
-      !getenv ("COGL_DISABLE_INTEL_VIEWPORT_SCISSORT_WORKAROUND"))
-    context->needs_viewport_scissor_workaround = TRUE;
-  else
-    context->needs_viewport_scissor_workaround = FALSE;
-
   context->sampler_cache = _cogl_sampler_cache_new (context);
 
   _cogl_pipeline_init_default_pipeline ();
@@ -323,8 +275,6 @@ cogl_context_new (CoglDisplay *display,
   context->legacy_state_set = 0;
 
   context->default_gl_texture_2d_tex = NULL;
-  context->default_gl_texture_3d_tex = NULL;
-  context->default_gl_texture_rect_tex = NULL;
 
   context->framebuffers = NULL;
   context->current_draw_buffer = NULL;
@@ -366,7 +316,6 @@ cogl_context_new (CoglDisplay *display,
   context->current_gl_program = 0;
 
   context->current_gl_dither_enabled = TRUE;
-  context->current_gl_color_mask = COGL_COLOR_MASK_ALL;
 
   context->gl_blend_enable_cache = FALSE;
 
@@ -453,41 +402,6 @@ cogl_context_new (CoglDisplay *display,
                                    white_pixel,
                                    NULL); /* abort on error */
 
-  /* If 3D or rectangle textures aren't supported then these will
-   * return errors that we can simply ignore. */
-  internal_error = NULL;
-  context->default_gl_texture_3d_tex =
-    cogl_texture_3d_new_from_data (context,
-                                   1, 1, 1, /* width, height, depth */
-                                   COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                                   0, /* rowstride */
-                                   0, /* image stride */
-                                   white_pixel,
-                                   &internal_error);
-  if (internal_error)
-    cogl_error_free (internal_error);
-
-  /* TODO: add cogl_texture_rectangle_new_from_data() */
-  white_pixel_bitmap =
-    cogl_bitmap_new_for_data (context,
-                              1, 1, /* width/height */
-                              COGL_PIXEL_FORMAT_RGBA_8888_PRE,
-                              4, /* rowstride */
-                              white_pixel);
-
-  internal_error = NULL;
-  context->default_gl_texture_rect_tex =
-    cogl_texture_rectangle_new_from_bitmap (white_pixel_bitmap);
-
-  /* XXX: we need to allocate the texture now because the white_pixel
-   * data is on the stack */
-  cogl_texture_allocate (COGL_TEXTURE (context->default_gl_texture_rect_tex),
-                         &internal_error);
-  if (internal_error)
-    cogl_error_free (internal_error);
-
-  cogl_object_unref (white_pixel_bitmap);
-
   cogl_push_source (context->opaque_color_pipeline);
 
   context->atlases = NULL;
@@ -526,10 +440,6 @@ _cogl_context_free (CoglContext *context)
 
   if (context->default_gl_texture_2d_tex)
     cogl_object_unref (context->default_gl_texture_2d_tex);
-  if (context->default_gl_texture_3d_tex)
-    cogl_object_unref (context->default_gl_texture_3d_tex);
-  if (context->default_gl_texture_rect_tex)
-    cogl_object_unref (context->default_gl_texture_rect_tex);
 
   if (context->opaque_color_pipeline)
     cogl_object_unref (context->opaque_color_pipeline);
@@ -617,7 +527,7 @@ _cogl_context_free (CoglContext *context)
 CoglContext *
 _cogl_context_get_default (void)
 {
-  CoglError *error = NULL;
+  GError *error = NULL;
   /* Create if doesn't exist yet */
   if (_cogl_context == NULL)
     {
@@ -626,7 +536,7 @@ _cogl_context_get_default (void)
         {
           g_warning ("Failed to create default context: %s",
                      error->message);
-          cogl_error_free (error);
+          g_error_free (error);
         }
     }
 
@@ -647,7 +557,7 @@ cogl_context_get_renderer (CoglContext *context)
 
 gboolean
 _cogl_context_update_features (CoglContext *context,
-                               CoglError **error)
+                               GError **error)
 {
   return context->driver_vtable->update_features (context, error);
 }

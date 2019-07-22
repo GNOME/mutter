@@ -51,37 +51,13 @@
  */
 struct _MetaStack
 {
+  GObject parent;
+
   /** The MetaDisplay containing this stack. */
   MetaDisplay *display;
 
-  /**
-   * A sequence of all the Windows (X handles, not MetaWindows) of the windows
-   * we manage, sorted in order.  Suitable to be passed into _NET_CLIENT_LIST.
-   */
-  GArray *xwindows;
-
   /** The MetaWindows of the windows we manage, sorted in order. */
   GList *sorted;
-
-  /**
-   * MetaWindows waiting to be added to the "sorted" and "windows" list, after
-   * being added by meta_stack_add() and before being assimilated by
-   * stack_ensure_sorted().
-   *
-   * The order of the elements in this list is not important; what is important
-   * is the stack_position element of each window.
-   */
-  GList *added;
-
-  /**
-   * Windows (X handles, not MetaWindows) waiting to be removed from the
-   * "windows" list, after being removed by meta_stack_remove() and before
-   * being assimilated by stack_ensure_sorted().  (We already removed them
-   * from the "sorted" list.)
-   *
-   * The order of the elements in this list is not important.
-   */
-  GList *removed;
 
   /**
    * If this is zero, the local stack oughtn't to be brought up to date with
@@ -121,6 +97,9 @@ struct _MetaStack
   unsigned int need_constrain : 1;
 };
 
+#define META_TYPE_STACK (meta_stack_get_type ())
+G_DECLARE_FINAL_TYPE (MetaStack, meta_stack, META, STACK, GObject)
+
 /**
  * meta_stack_new:
  * @display: The MetaDisplay which will be the parent of this stack.
@@ -129,15 +108,7 @@ struct _MetaStack
  *
  * Returns: The new stack.
  */
-MetaStack *meta_stack_new       (MetaDisplay    *display);
-
-/**
- * meta_stack_free:
- * @stack: The stack to destroy.
- *
- * Destroys and frees a MetaStack.
- */
-void       meta_stack_free      (MetaStack      *stack);
+MetaStack * meta_stack_new (MetaDisplay *display);
 
 /**
  * meta_stack_add:
@@ -147,8 +118,8 @@ void       meta_stack_free      (MetaStack      *stack);
  * Adds a window to the local stack.  It is a fatal error to call this
  * function on a window which already exists on the stack of any screen.
  */
-void       meta_stack_add       (MetaStack      *stack,
-                                 MetaWindow     *window);
+void       meta_stack_add (MetaStack  *stack,
+                           MetaWindow *window);
 
 /**
  * meta_stack_remove:
@@ -158,8 +129,8 @@ void       meta_stack_add       (MetaStack      *stack,
  * Removes a window from the local stack.  It is a fatal error to call this
  * function on a window which exists on the stack of any screen.
  */
-void       meta_stack_remove    (MetaStack      *stack,
-                                 MetaWindow     *window);
+void       meta_stack_remove (MetaStack  *stack,
+                              MetaWindow *window);
 /**
  * meta_stack_update_layer:
  * @stack: The stack to recalculate
@@ -169,8 +140,8 @@ void       meta_stack_remove    (MetaStack      *stack,
  * and moves them about accordingly.
  *
  */
-void       meta_stack_update_layer    (MetaStack      *stack,
-                                       MetaWindow     *window);
+void       meta_stack_update_layer (MetaStack  *stack,
+                                    MetaWindow *window);
 
 /**
  * meta_stack_update_transient:
@@ -182,8 +153,8 @@ void       meta_stack_update_layer    (MetaStack      *stack,
  *
  * FIXME: What's with the dummy parameter?
  */
-void       meta_stack_update_transient (MetaStack     *stack,
-                                        MetaWindow    *window);
+void       meta_stack_update_transient (MetaStack  *stack,
+                                        MetaWindow *window);
 
 /**
  * meta_stack_raise:
@@ -193,8 +164,8 @@ void       meta_stack_update_transient (MetaStack     *stack,
  *
  * Move a window to the top of its layer.
  */
-void       meta_stack_raise     (MetaStack      *stack,
-                                 MetaWindow     *window);
+void       meta_stack_raise (MetaStack  *stack,
+                             MetaWindow *window);
 /**
  * meta_stack_lower:
  * @stack: The stack to modify.
@@ -202,8 +173,8 @@ void       meta_stack_raise     (MetaStack      *stack,
  *
  * Move a window to the bottom of its layer.
  */
-void       meta_stack_lower     (MetaStack      *stack,
-                                 MetaWindow     *window);
+void       meta_stack_lower (MetaStack  *stack,
+                             MetaWindow *window);
 
 /**
  * meta_stack_freeze:
@@ -216,7 +187,7 @@ void       meta_stack_lower     (MetaStack      *stack,
  * (Calls to meta_stack_freeze() nest, so that multiple calls to
  * meta_stack_freeze will require multiple calls to meta_stack_thaw().)
  */
-void       meta_stack_freeze    (MetaStack      *stack);
+void       meta_stack_freeze (MetaStack *stack);
 
 /**
  * meta_stack_thaw:
@@ -226,7 +197,7 @@ void       meta_stack_freeze    (MetaStack      *stack);
  * necessary during the freeze.  It is an error to call this function if
  * the stack has not been frozen.
  */
-void       meta_stack_thaw      (MetaStack      *stack);
+void        meta_stack_thaw (MetaStack *stack);
 
 /**
  * meta_stack_get_top:
@@ -237,7 +208,7 @@ void       meta_stack_thaw      (MetaStack      *stack);
  * Returns: The top window on the stack, or %NULL in the vanishingly unlikely
  *          event that you have no windows on your screen whatsoever.
  */
-MetaWindow* meta_stack_get_top    (MetaStack  *stack);
+MetaWindow * meta_stack_get_top (MetaStack  *stack);
 
 /**
  * meta_stack_get_bottom:
@@ -247,7 +218,7 @@ MetaWindow* meta_stack_get_top    (MetaStack  *stack);
  * always the desktop, this isn't the most useful of functions, and nobody
  * actually calls it.  We should probably get rid of it.
  */
-MetaWindow* meta_stack_get_bottom (MetaStack  *stack);
+MetaWindow * meta_stack_get_bottom (MetaStack  *stack);
 
 /**
  * meta_stack_get_above:
@@ -263,7 +234,7 @@ MetaWindow* meta_stack_get_bottom (MetaStack  *stack);
  * Returns: %NULL if there is no such window;
  *          the window above @window otherwise.
  */
-MetaWindow* meta_stack_get_above  (MetaStack  *stack,
+MetaWindow * meta_stack_get_above (MetaStack  *stack,
                                    MetaWindow *window,
                                    gboolean    only_within_layer);
 
@@ -282,7 +253,7 @@ MetaWindow* meta_stack_get_above  (MetaStack  *stack,
  * Returns: %NULL if there is no such window;
  *          the window below @window otherwise.
  */
-MetaWindow* meta_stack_get_below  (MetaStack  *stack,
+MetaWindow * meta_stack_get_below (MetaStack  *stack,
                                    MetaWindow *window,
                                    gboolean    only_within_layer);
 
@@ -305,9 +276,9 @@ MetaWindow* meta_stack_get_below  (MetaStack  *stack,
  *
  * Returns: The window matching all these constraints or %NULL if none does.
   */
-MetaWindow* meta_stack_get_default_focus_window          (MetaStack     *stack,
-                                                          MetaWorkspace *workspace,
-                                                          MetaWindow    *not_this_one);
+MetaWindow * meta_stack_get_default_focus_window (MetaStack     *stack,
+                                                  MetaWorkspace *workspace,
+                                                  MetaWindow    *not_this_one);
 
 /**
  * meta_stack_get_default_focus_window_at_point:
@@ -331,11 +302,11 @@ MetaWindow* meta_stack_get_default_focus_window          (MetaStack     *stack,
  *
  * Returns: The window matching all these constraints or %NULL if none does.
  */
-MetaWindow* meta_stack_get_default_focus_window_at_point (MetaStack     *stack,
-                                                          MetaWorkspace *workspace,
-                                                          MetaWindow    *not_this_one,
-                                                          int            root_x,
-                                                          int            root_y);
+MetaWindow * meta_stack_get_default_focus_window_at_point (MetaStack     *stack,
+                                                           MetaWorkspace *workspace,
+                                                           MetaWindow    *not_this_one,
+                                                           int            root_x,
+                                                           int            root_y);
 
 /**
  * meta_stack_get_default_focus_candidates:
@@ -349,8 +320,8 @@ MetaWindow* meta_stack_get_default_focus_window_at_point (MetaStack     *stack,
  * Returns: (transfer container) (element-type Meta.Window):
  *     A #GList of #MetaWindow, in stacking order, honouring layers.
  */
-GList *     meta_stack_get_default_focus_candidates (MetaStack     *stack,
-                                                     MetaWorkspace *workspace);
+GList * meta_stack_get_default_focus_candidates (MetaStack     *stack,
+                                                 MetaWorkspace *workspace);
 
 /**
  * meta_stack_list_windows:
@@ -361,10 +332,11 @@ GList *     meta_stack_get_default_focus_candidates (MetaStack     *stack,
  *
  * Finds all the windows in the stack, in order.
  *
- * Returns: A list of windows, in stacking order, honouring layers.
+ * Returns: (transfer container) (element-type Meta.Window):
+ *     A list of windows, in stacking order, honouring layers.
  */
-GList*      meta_stack_list_windows (MetaStack *stack,
-                                     MetaWorkspace *workspace);
+GList * meta_stack_list_windows (MetaStack     *stack,
+                                 MetaWorkspace *workspace);
 
 /**
  * meta_stack_windows_cmp:
@@ -385,9 +357,9 @@ GList*      meta_stack_list_windows (MetaStack *stack,
  * \return -1 if window_a is below window_b, honouring layers; 1 if it's
  *         above it; 0 if you passed in the same window twice!
  */
-int         meta_stack_windows_cmp  (MetaStack  *stack,
-                                     MetaWindow *window_a,
-                                     MetaWindow *window_b);
+int meta_stack_windows_cmp (MetaStack  *stack,
+                            MetaWindow *window_a,
+                            MetaWindow *window_b);
 
 /**
  * meta_window_set_stack_position:
@@ -409,12 +381,13 @@ void meta_window_set_stack_position (MetaWindow *window,
  *
  * Returns the current stack state, allowing rudimentary transactions.
  *
- * Returns: An opaque GList representing the current stack sort order;
+ * Returns: (transfer container) (element-type Meta.Window):
+ *          An opaque #GList representing the current stack sort order;
  *          it is the caller's responsibility to free it.
  *          Pass this to meta_stack_set_positions() later if you want to restore
  *          the state to where it was when you called this function.
  */
-GList* meta_stack_get_positions (MetaStack *stack);
+GList * meta_stack_get_positions (MetaStack *stack);
 
 /**
  * meta_stack_set_positions:
@@ -425,8 +398,8 @@ GList* meta_stack_get_positions (MetaStack *stack);
  * meta_stack_get_positions().
  *
  */
-void   meta_stack_set_positions (MetaStack *stack,
-                                 GList     *windows);
+void meta_stack_set_positions (MetaStack *stack,
+                               GList     *windows);
 
 void meta_stack_update_window_tile_matches (MetaStack     *stack,
                                             MetaWorkspace *workspace);

@@ -60,6 +60,7 @@
 
 #define KEY_OVERLAY_KEY "overlay-key"
 #define KEY_WORKSPACES_ONLY_ON_PRIMARY "workspaces-only-on-primary"
+#define KEY_LOCATE_POINTER "locate-pointer"
 
 /* These are the different schemas we are keeping
  * a GSettings instance for */
@@ -81,6 +82,7 @@ static gboolean use_system_font = FALSE;
 static PangoFontDescription *titlebar_font = NULL;
 static MetaVirtualModifier mouse_button_mods = Mod1Mask;
 static MetaKeyCombo overlay_key_combo = { 0, 0, 0 };
+static MetaKeyCombo locate_pointer_key_combo = { 0, 0, 0 };
 static GDesktopFocusMode focus_mode = G_DESKTOP_FOCUS_MODE_CLICK;
 static GDesktopFocusNewWindows focus_new_windows = G_DESKTOP_FOCUS_NEW_WINDOWS_SMART;
 static gboolean raise_on_click = TRUE;
@@ -99,6 +101,7 @@ static gboolean bell_is_visible = FALSE;
 static gboolean bell_is_audible = TRUE;
 static gboolean gnome_accessibility = FALSE;
 static gboolean gnome_animations = TRUE;
+static gboolean locate_pointer_is_enabled = FALSE;
 static char *cursor_theme = NULL;
 /* cursor_size will, when running as an X11 compositing window manager, be the
  * actual cursor size, multiplied with the global window scaling factor. On
@@ -145,6 +148,8 @@ static gboolean titlebar_handler (GVariant*, gpointer*, gpointer);
 static gboolean mouse_button_mods_handler (GVariant*, gpointer*, gpointer);
 static gboolean button_layout_handler (GVariant*, gpointer*, gpointer);
 static gboolean overlay_key_handler (GVariant*, gpointer*, gpointer);
+static gboolean locate_pointer_key_handler (GVariant*, gpointer*, gpointer);
+
 static gboolean iso_next_group_handler (GVariant*, gpointer*, gpointer);
 
 static void     init_bindings             (void);
@@ -382,6 +387,13 @@ static MetaBoolPreference preferences_bool[] =
       },
       &auto_maximize,
     },
+    {
+      { KEY_LOCATE_POINTER,
+        SCHEMA_INTERFACE,
+        META_PREF_LOCATE_POINTER,
+      },
+      &locate_pointer_is_enabled,
+    },
     { { NULL, 0, 0 }, NULL },
   };
 
@@ -425,6 +437,14 @@ static MetaStringPreference preferences_string[] =
         META_PREF_KEYBINDINGS,
       },
       overlay_key_handler,
+      NULL,
+    },
+    {
+      { "locate-pointer-key",
+        SCHEMA_MUTTER,
+        META_PREF_KEYBINDINGS,
+      },
+      locate_pointer_key_handler,
       NULL,
     },
     { { NULL, 0, 0 }, NULL },
@@ -949,6 +969,8 @@ meta_prefs_init (void)
   g_signal_connect (settings, "changed::" KEY_GNOME_CURSOR_THEME,
                     G_CALLBACK (settings_changed), NULL);
   g_signal_connect (settings, "changed::" KEY_GNOME_CURSOR_SIZE,
+                    G_CALLBACK (settings_changed), NULL);
+  g_signal_connect (settings, "changed::" KEY_LOCATE_POINTER,
                     G_CALLBACK (settings_changed), NULL);
   g_hash_table_insert (settings_schemas, g_strdup (SCHEMA_INTERFACE), settings);
 
@@ -1476,6 +1498,36 @@ overlay_key_handler (GVariant *value,
 }
 
 static gboolean
+locate_pointer_key_handler (GVariant *value,
+                            gpointer *result,
+                            gpointer  data)
+{
+  MetaKeyCombo combo;
+  const gchar *string_value;
+
+  *result = NULL; /* ignored */
+  string_value = g_variant_get_string (value, NULL);
+
+  if (!string_value || !meta_parse_accelerator (string_value, &combo))
+    {
+      meta_topic (META_DEBUG_KEYBINDINGS,
+                  "Failed to parse value for locate-pointer-key\n");
+      return FALSE;
+    }
+
+  combo.modifiers = 0;
+
+  if (locate_pointer_key_combo.keysym != combo.keysym ||
+      locate_pointer_key_combo.keycode != combo.keycode)
+    {
+      locate_pointer_key_combo = combo;
+      queue_changed (META_PREF_KEYBINDINGS);
+    }
+
+  return TRUE;
+}
+
+static gboolean
 iso_next_group_handler (GVariant *value,
                         gpointer *result,
                         gpointer  data)
@@ -1640,6 +1692,9 @@ meta_preference_to_string (MetaPreference pref)
 
     case META_PREF_AUTO_MAXIMIZE:
       return "AUTO_MAXIMIZE";
+
+    case META_PREF_LOCATE_POINTER:
+      return "LOCATE_POINTER";
     }
 
   return "(unknown)";
@@ -1688,7 +1743,15 @@ init_bindings (void)
   pref->combos = g_slist_prepend (pref->combos, &overlay_key_combo);
   pref->builtin = 1;
 
-  g_hash_table_insert (key_bindings, g_strdup ("overlay-key"), pref);
+  g_hash_table_insert (key_bindings, g_strdup (pref->name), pref);
+
+  pref = g_new0 (MetaKeyPref, 1);
+  pref->name = g_strdup ("locate-pointer-key");
+  pref->action = META_KEYBINDING_ACTION_LOCATE_POINTER_KEY;
+  pref->combos = g_slist_prepend (pref->combos, &locate_pointer_key_combo);
+  pref->builtin = 1;
+
+  g_hash_table_insert (key_bindings, g_strdup (pref->name), pref);
 }
 
 static gboolean
@@ -1964,6 +2027,18 @@ void
 meta_prefs_get_overlay_binding (MetaKeyCombo *combo)
 {
   *combo = overlay_key_combo;
+}
+
+void
+meta_prefs_get_locate_pointer_binding (MetaKeyCombo *combo)
+{
+  *combo = locate_pointer_key_combo;
+}
+
+gboolean
+meta_prefs_is_locate_pointer_enabled (void)
+{
+  return locate_pointer_is_enabled;
 }
 
 const char *

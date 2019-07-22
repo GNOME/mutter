@@ -30,12 +30,8 @@ struct _ClutterStageWindowInterface
 
   void              (* set_title)               (ClutterStageWindow *stage_window,
                                                  const gchar        *title);
-  void              (* set_fullscreen)          (ClutterStageWindow *stage_window,
-                                                 gboolean            is_fullscreen);
   void              (* set_cursor_visible)      (ClutterStageWindow *stage_window,
                                                  gboolean            cursor_visible);
-  void              (* set_user_resizable)      (ClutterStageWindow *stage_window,
-                                                 gboolean            is_resizable);
 
   gboolean          (* realize)                 (ClutterStageWindow *stage_window);
   void              (* unrealize)               (ClutterStageWindow *stage_window);
@@ -83,12 +79,8 @@ ClutterActor *    _clutter_stage_window_get_wrapper        (ClutterStageWindow *
 
 void              _clutter_stage_window_set_title          (ClutterStageWindow *window,
                                                             const gchar        *title);
-void              _clutter_stage_window_set_fullscreen     (ClutterStageWindow *window,
-                                                            gboolean            is_fullscreen);
 void              _clutter_stage_window_set_cursor_visible (ClutterStageWindow *window,
                                                             gboolean            is_visible);
-void              _clutter_stage_window_set_user_resizable (ClutterStageWindow *window,
-                                                            gboolean            is_resizable);
 
 gboolean          _clutter_stage_window_realize                 (ClutterStageWindow *window);
 void              _clutter_stage_window_unrealize               (ClutterStageWindow *window);

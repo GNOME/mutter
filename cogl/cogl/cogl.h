@@ -55,8 +55,6 @@
 #include <cogl/cogl-defines.h>
 #include <cogl/cogl-macros.h>
 
-#include <cogl/cogl-error.h>
-
 #include <cogl/cogl-object.h>
 #include <cogl/cogl1-context.h>
 #include <cogl/cogl-bitmap.h>
@@ -64,6 +62,7 @@
 #include <cogl/cogl-matrix.h>
 #include <cogl/cogl-matrix-stack.h>
 #include <cogl/cogl-offscreen.h>
+#include <cogl/cogl-pixel-format.h>
 #include <cogl/cogl-primitives.h>
 #include <cogl/cogl-texture.h>
 #include <cogl/cogl-types.h>
@@ -105,8 +104,6 @@
 #include <cogl/cogl-quaternion.h>
 #include <cogl/cogl-texture-2d.h>
 #include <cogl/cogl-texture-2d-gl.h>
-#include <cogl/cogl-texture-rectangle.h>
-#include <cogl/cogl-texture-3d.h>
 #include <cogl/cogl-texture-2d-sliced.h>
 #include <cogl/cogl-sub-texture.h>
 #include <cogl/cogl-atlas-texture.h>

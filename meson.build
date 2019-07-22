@@ -1,5 +1,5 @@
 project('mutter', 'c',
-  version: '3.32.2',
+  version: '3.33.4',
   meson_version: '>= 0.50.0',
   license: 'GPLv2+'
 )
@@ -9,6 +9,7 @@ mutter_plugin_api_version = '3'
 libmutter_api_version = '4'
 
 # generic version requirements
+fribidi_req = '>= 1.0.0'
 glib_req = '>= 2.53.2'
 gi_req = '>= 0.9.5'
 gtk3_req = '>= 3.19.8'
@@ -17,7 +18,7 @@ uprof_req = '>= 0.3'
 pango_req = '>= 1.2.0'
 cairo_req = '>= 1.10.0'
 pangocairo_req = '>= 1.20'
-gsettings_desktop_schemas_req = '>= 3.31.0'
+gsettings_desktop_schemas_req = '>= 3.33.0'
 json_glib_req = '>= 0.12.0'
 upower_glib_req = '>= 0.99.0'
 xcomposite_req = '>= 0.4'
@@ -70,9 +71,6 @@ pcdir = join_paths(libdir, 'pkgconfig')
 gettext_package = meson.project_name()
 localedir = join_paths(datadir, 'locale')
 
-top_srcdir = meson.current_source_dir()
-builddir = meson.current_build_dir()
-
 libmutter_name = 'mutter-' + libmutter_api_version
 
 mutter_installed_tests_datadir = join_paths(
@@ -89,6 +87,7 @@ pango_dep = dependency('pango', version: pango_req)
 cairo_dep = dependency('cairo', version: cairo_req)
 cairo_gobject_dep = dependency('cairo-gobject', version: cairo_req)
 pangocairo_dep = dependency('pangocairo', version: pangocairo_req)
+fribidi_dep = dependency('fribidi', version: fribidi_req)
 gsettings_desktop_schemas_dep = dependency('gsettings-desktop-schemas',
                                            version: gsettings_desktop_schemas_req)
 glib_dep = dependency('glib-2.0', version: glib_req)
@@ -117,6 +116,7 @@ xrandr_dep = dependency('xrandr', version: xrandr_req)
 xcb_randr_dep = dependency('xcb-randr')
 xcb_res_dep = dependency('xcb-res')
 xinerama_dep = dependency('xinerama')
+xau_dep = dependency('xau')
 ice_dep = dependency('ice')
 atk_dep = dependency('atk', version: atk_req)
 libcanberra_dep = dependency('libcanberra', version: libcanberra_req)
@@ -246,20 +246,34 @@ if have_introspection
   ]
 endif
 
-have_cogl_tests = get_option('cogl_tests')
-have_clutter_tests = get_option('clutter_tests')
-have_installed_tests = get_option('installed_tests')
-
 have_tests = get_option('tests')
+have_core_tests = false
+have_cogl_tests = false
+have_clutter_tests = false
+have_installed_tests = false
+
 if have_tests
-  if not have_wayland
-    error('Tests require Wayland to be enabled')
+  have_core_tests = get_option('core_tests')
+  if have_core_tests
+    if not have_wayland
+      error('Tests require Wayland to be enabled')
+    endif
   endif
+
+  have_cogl_tests = get_option('cogl_tests')
+  have_clutter_tests = get_option('clutter_tests')
+  have_installed_tests = get_option('installed_tests')
+endif
+
+have_profiler = get_option('profiler')
+if have_profiler
+  sysprof_dep = dependency('sysprof-capture-3')
 endif
 
 required_functions = [
   'ffs',
   'clz',
+  'memmem',
 ]
 foreach function : required_functions
   if not cc.has_function(function)
@@ -269,54 +283,57 @@ endforeach
 
 add_project_arguments('-D_GNU_SOURCE', language: 'c')
 
-all_warnings = [
-  '-fno-strict-aliasing',
-  '-Wpointer-arith',
-  '-Wmissing-declarations',
-  '-Wimplicit-function-declaration',
-  '-Wformat=2',
-  '-Wformat-nonliteral',
-  '-Wformat-security',
-  '-Wstrict-prototypes',
-  '-Wmissing-prototypes',
-  '-Wnested-externs',
-  '-Wold-style-definition',
-  '-Wundef',
-  '-Wunused',
-  '-Wcast-align',
-  '-Wmissing-noreturn',
-  '-Wmissing-format-attribute',
-  '-Wmissing-include-dirs',
-  '-Wlogical-op',
-  '-Wignored-qualifiers',
-  '-Werror=redundant-decls',
-  '-Werror=implicit',
-  '-Werror=nonnull',
-  '-Werror=init-self',
-  '-Werror=main',
-  '-Werror=missing-braces',
-  '-Werror=sequence-point',
-  '-Werror=return-type',
-  '-Werror=trigraphs',
-  '-Werror=array-bounds',
-  '-Werror=write-strings',
-  '-Werror=address',
-  '-Werror=int-to-pointer-cast',
-  '-Werror=pointer-to-int-cast',
-  '-Werror=empty-body',
-  '-Werror=write-strings',
-]
-
-supported_warnings = cc.get_supported_arguments(all_warnings)
-
-add_project_arguments(supported_warnings, language: 'c')
-
-debug_c_args = []
 buildtype = get_option('buildtype')
-if buildtype.startswith('debug')
-  debug_c_args += '-DG_ENABLE_DEBUG'
+if buildtype != 'plain'
+  all_warnings = [
+    '-fno-strict-aliasing',
+    '-Wpointer-arith',
+    '-Wmissing-declarations',
+    '-Wimplicit-function-declaration',
+    '-Wformat=2',
+    '-Wformat-nonliteral',
+    '-Wformat-security',
+    '-Wstrict-prototypes',
+    '-Wmissing-prototypes',
+    '-Wnested-externs',
+    '-Wold-style-definition',
+    '-Wundef',
+    '-Wunused',
+    '-Wcast-align',
+    '-Wmissing-noreturn',
+    '-Wmissing-format-attribute',
+    '-Wmissing-include-dirs',
+    '-Wlogical-op',
+    '-Wignored-qualifiers',
+    '-Werror=redundant-decls',
+    '-Werror=implicit',
+    '-Werror=nonnull',
+    '-Werror=init-self',
+    '-Werror=main',
+    '-Werror=missing-braces',
+    '-Werror=sequence-point',
+    '-Werror=return-type',
+    '-Werror=trigraphs',
+    '-Werror=array-bounds',
+    '-Werror=write-strings',
+    '-Werror=address',
+    '-Werror=int-to-pointer-cast',
+    '-Werror=pointer-to-int-cast',
+    '-Werror=empty-body',
+    '-Werror=write-strings',
+  ]
+  supported_warnings = cc.get_supported_arguments(all_warnings)
+  add_project_arguments(supported_warnings, language: 'c')
 endif
-add_project_arguments(debug_c_args, language: 'c')
+
+if get_option('debug')
+  debug_c_args = [
+    '-DG_ENABLE_DEBUG',
+    '-fno-omit-frame-pointer'
+  ]
+  supported_debug_c_args = cc.get_supported_arguments(debug_c_args)
+  add_project_arguments(supported_debug_c_args, language: 'c')
+endif
 
 cc.compiles('void main (void) { __builtin_ffsl (0); __builtin_popcountl (0); }')
 
@@ -336,6 +353,7 @@ cdata.set('HAVE_LIBWACOM', have_libwacom)
 cdata.set('HAVE_SM', have_sm)
 cdata.set('HAVE_STARTUP_NOTIFICATION', have_startup_notification)
 cdata.set('HAVE_INTROSPECTION', have_introspection)
+cdata.set('HAVE_PROFILER', have_profiler)
 
 xkb_base = xkeyboard_config_dep.get_pkgconfig_variable('xkb_base')
 cdata.set_quoted('XKB_BASE', xkb_base)
@@ -346,6 +364,15 @@ if have_wayland
     xwayland_path = find_program('Xwayland').path()
   endif
   cdata.set_quoted('XWAYLAND_PATH', xwayland_path)
+
+  # For Xwayland authority file generation.
+  if cc.has_header_symbol('sys/random.h', 'getrandom')
+    cdata.set('HAVE_SYS_RANDOM', 1)
+  elif cc.has_header_symbol('linux/random.h', 'getrandom')
+    cdata.set('HAVE_LINUX_RANDOM', 1)
+  else
+    error('Required function getrandom not found')
+  endif
 endif
 
 xwayland_grab_default_access_rules = get_option('xwayland_grab_default_access_rules')
@@ -401,10 +428,12 @@ output = [
   '        SM....................... ' + have_sm.to_string(),
   '        Startup notification..... ' + have_startup_notification.to_string(),
   '        Introspection............ ' + have_introspection.to_string(),
+  '        Profiler................. ' + have_profiler.to_string(),
   '',
   '    Tests:',
   '',
   '        Enabled.................. ' + have_tests.to_string(),
+  '        Core tests............... ' + have_core_tests.to_string(),
   '        Cogl tests............... ' + have_cogl_tests.to_string(),
   '        Clutter tests............ ' + have_clutter_tests.to_string(),
   '        Installed tests.......... ' + have_installed_tests.to_string(),

@@ -48,6 +48,7 @@
 #include <X11/extensions/Xrandr.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-dnd-private.h"
 #include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-settings-private.h"
@@ -61,6 +62,7 @@
 
 #include "x11/events.h"
 #include "x11/group-props.h"
+#include "x11/meta-x11-selection-private.h"
 #include "x11/window-props.h"
 #include "x11/xprops.h"
 
@@ -95,6 +97,34 @@ static void prefs_changed_callback (MetaPreference pref,
                                     void          *data);
 
 static void
+meta_x11_display_unmanage_windows (MetaX11Display *x11_display)
+{
+  GList *windows, *l;
+
+  if (!x11_display->xids)
+    return;
+
+  windows = g_hash_table_get_values (x11_display->xids);
+  g_list_foreach (windows, (GFunc) g_object_ref, NULL);
+
+  for (l = windows; l; l = l->next)
+    {
+      if (META_IS_WINDOW (l->data))
+        {
+          MetaWindow *window = l->data;
+
+          if (!window->unmanaging)
+            meta_window_unmanage (window, META_CURRENT_TIME);
+        }
+      else if (META_IS_BARRIER (l->data))
+        meta_barrier_destroy (META_BARRIER (l->data));
+      else
+        g_assert_not_reached ();
+    }
+  g_list_free_full (windows, g_object_unref);
+}
+
+static void
 meta_x11_display_dispose (GObject *object)
 {
   MetaX11Display *x11_display = META_X11_DISPLAY (object);
@@ -104,6 +134,11 @@ meta_x11_display_dispose (GObject *object)
   meta_prefs_remove_listener (prefs_changed_callback, x11_display);
 
   meta_x11_display_ungrab_keys (x11_display);
+
+  meta_x11_selection_shutdown (x11_display);
+  meta_x11_display_unmanage_windows (x11_display);
+
+  g_clear_object (&x11_display->x11_stack);
 
   if (x11_display->ui)
     {
@@ -463,6 +498,13 @@ init_x11_bell (MetaX11Display *x11_display)
                                    &mask);
         }
     }
+
+  /* We are playing sounds using libcanberra support, we handle the
+   * bell whether its an audible bell or a visible bell */
+  XkbChangeEnabledControls (x11_display->xdisplay,
+                            XkbUseCoreKbd,
+                            XkbAudibleBellMask,
+                            0);
 }
 
 /*
@@ -478,32 +520,6 @@ shutdown_x11_bell (MetaX11Display *x11_display)
                             XkbUseCoreKbd,
                             XkbAudibleBellMask,
                             XkbAudibleBellMask);
-}
-
-/*
- * Turns the bell to audible or visual. This tells X what to do, but
- * not Mutter; you will need to set the "visual bell" pref for that.
- */
-static void
-set_x11_bell_is_audible (MetaX11Display *x11_display,
-                         gboolean is_audible)
-{
-  /* When we are playing sounds using libcanberra support, we handle the
-   * bell whether its an audible bell or a visible bell */
-  gboolean enable_system_bell = FALSE;
-
-  XkbChangeEnabledControls (x11_display->xdisplay,
-                            XkbUseCoreKbd,
-                            XkbAudibleBellMask,
-                            enable_system_bell ? XkbAudibleBellMask : 0);
-}
-
-static void
-on_is_audible_changed (MetaBell       *bell,
-                       gboolean        is_audible,
-                       MetaX11Display *x11_display)
-{
-  set_x11_bell_is_audible (x11_display, is_audible);
 }
 
 static void
@@ -1083,6 +1099,9 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   };
   Atom atoms[G_N_ELEMENTS(atom_names)];
 
+  if (!meta_x11_init_gdk_display (error))
+    return NULL;
+
   g_assert (prepared_gdk_display);
   gdk_display = g_steal_pointer (&prepared_gdk_display);
 
@@ -1267,6 +1286,7 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   set_desktop_geometry_hint (x11_display);
 
   x11_display->ui = meta_ui_new (x11_display);
+  x11_display->x11_stack = meta_x11_stack_new (x11_display);
 
   x11_display->keys_grabbed = FALSE;
   meta_x11_display_grab_keys (x11_display);
@@ -1320,13 +1340,11 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
 
   init_x11_bell (x11_display);
 
-  g_signal_connect_object (display->bell, "is-audible-changed",
-                           G_CALLBACK (on_is_audible_changed),
-                           x11_display, 0);
-
-  set_x11_bell_is_audible (x11_display, meta_prefs_bell_is_audible ());
-
   meta_x11_startup_notification_init (x11_display);
+  meta_x11_selection_init (x11_display);
+
+  if (!meta_is_wayland_compositor ())
+    meta_dnd_init_xdnd (x11_display);
 
   return x11_display;
 }
@@ -1815,17 +1833,27 @@ meta_x11_display_update_active_window_hint (MetaX11Display *x11_display)
   meta_x11_error_trap_pop (x11_display);
 }
 
-static void
-request_xserver_input_focus_change (MetaX11Display *x11_display,
-                                    MetaWindow     *meta_window,
-                                    Window          xwindow,
-                                    guint32         timestamp)
+void
+meta_x11_display_update_focus_window (MetaX11Display *x11_display,
+                                      Window          xwindow,
+                                      gulong          serial,
+                                      gboolean        focused_by_us)
 {
-  gulong serial;
+  x11_display->focus_serial = serial;
+  x11_display->focused_by_us = !!focused_by_us;
 
-  if (meta_display_timestamp_too_old (x11_display->display, &timestamp))
+  if (x11_display->focus_xwindow == xwindow)
     return;
 
+  x11_display->focus_xwindow = xwindow;
+  meta_x11_display_update_active_window_hint (x11_display);
+}
+
+void
+meta_x11_display_set_input_focus (MetaX11Display *x11_display,
+                                  Window          xwindow,
+                                  guint32         timestamp)
+{
   meta_x11_error_trap_push (x11_display);
 
   /* In order for mutter to know that the focus request succeeded, we track
@@ -1837,8 +1865,6 @@ request_xserver_input_focus_change (MetaX11Display *x11_display,
    * process at the same time.
    */
   XGrabServer (x11_display->xdisplay);
-
-  serial = XNextRequest (x11_display->xdisplay);
 
   XSetInputFocus (x11_display->xdisplay,
                   xwindow,
@@ -1853,30 +1879,7 @@ request_xserver_input_focus_change (MetaX11Display *x11_display,
   XUngrabServer (x11_display->xdisplay);
   XFlush (x11_display->xdisplay);
 
-  meta_display_update_focus_window (x11_display->display,
-                                    meta_window,
-                                    xwindow,
-                                    serial,
-                                    TRUE);
-
   meta_x11_error_trap_pop (x11_display);
-
-  x11_display->display->last_focus_time = timestamp;
-
-  if (meta_window == NULL || meta_window != x11_display->display->autoraise_window)
-    meta_display_remove_autoraise_callback (x11_display->display);
-}
-
-void
-meta_x11_display_set_input_focus_window (MetaX11Display *x11_display,
-                                         MetaWindow     *window,
-                                         gboolean        focus_frame,
-                                         guint32         timestamp)
-{
-  request_xserver_input_focus_change (x11_display,
-                                      window,
-                                      focus_frame ? window->frame->xwindow : window->xwindow,
-                                      timestamp);
 }
 
 void
@@ -1884,20 +1887,12 @@ meta_x11_display_set_input_focus_xwindow (MetaX11Display *x11_display,
                                           Window          window,
                                           guint32         timestamp)
 {
-  request_xserver_input_focus_change (x11_display,
-                                      NULL,
-                                      window,
-                                      timestamp);
-}
+  gulong serial;
 
-void
-meta_x11_display_focus_the_no_focus_window (MetaX11Display *x11_display,
-                                            guint32         timestamp)
-{
-  request_xserver_input_focus_change (x11_display,
-                                      NULL,
-                                      x11_display->no_focus_window,
-                                      timestamp);
+  meta_display_unset_input_focus (x11_display->display, timestamp);
+  serial = XNextRequest (x11_display->xdisplay);
+  meta_x11_display_set_input_focus (x11_display, window, timestamp);
+  meta_x11_display_update_focus_window (x11_display, window, serial, TRUE);
 }
 
 static MetaX11DisplayLogicalMonitorData *
@@ -2172,4 +2167,35 @@ prefs_changed_callback (MetaPreference pref,
     {
       set_workspace_names (x11_display);
     }
+}
+
+void
+meta_x11_display_increment_focus_sentinel (MetaX11Display *x11_display)
+{
+  unsigned long data[1];
+
+  data[0] = meta_display_get_current_time (x11_display->display);
+
+  XChangeProperty (x11_display->xdisplay,
+                   x11_display->xroot,
+                   x11_display->atom__MUTTER_SENTINEL,
+                   XA_CARDINAL,
+                   32, PropModeReplace, (guchar*) data, 1);
+
+  x11_display->sentinel_counter += 1;
+}
+
+void
+meta_x11_display_decrement_focus_sentinel (MetaX11Display *x11_display)
+{
+  x11_display->sentinel_counter -= 1;
+
+  if (x11_display->sentinel_counter < 0)
+    x11_display->sentinel_counter = 0;
+}
+
+gboolean
+meta_x11_display_focus_sentinel_clear (MetaX11Display *x11_display)
+{
+  return (x11_display->sentinel_counter == 0);
 }
