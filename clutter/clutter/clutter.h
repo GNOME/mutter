@@ -56,8 +56,6 @@
 #include "clutter-content.h"
 #include "clutter-deform-effect.h"
 #include "clutter-desaturate-effect.h"
-#include "clutter-drag-action.h"
-#include "clutter-drop-action.h"
 #include "clutter-effect.h"
 #include "clutter-enums.h"
 #include "clutter-enum-types.h"
