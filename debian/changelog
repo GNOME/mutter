@@ -39,8 +39,12 @@ mutter (3.33.4-1) UNRELEASED; urgency=medium
   * debian/rules: Disable profiler.
     We need to split sysprof into a library before we can enable this, so
     that all users don't get headers / the profiler application installed
+  * Drop patches applied upstream
+    - window-x11-Focus-a-window-in-the-active-workspace-as-take.patch
+    - metatest-Dispatch-the-destruction-instead-of-sleeping-aft.patch
+    - debian/Revert-meson-Bump-meson-requirement-to-0.50.0.patch
 
- -- Iain Lane <laney@debian.org>  Mon, 22 Jul 2019 20:48:07 +0100
+ -- Iain Lane <laney@debian.org>  Mon, 22 Jul 2019 21:12:50 +0100
 
 mutter (3.32.2+git20190711-2) experimental; urgency=medium
 
