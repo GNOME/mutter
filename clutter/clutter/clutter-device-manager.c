@@ -47,6 +47,7 @@
 #include "clutter-stage-private.h"
 #include "clutter-virtual-input-device.h"
 #include "clutter-input-device-tool.h"
+#include "clutter-input-pointer-a11y-private.h"
 
 struct _ClutterDeviceManagerPrivate
 {
@@ -55,6 +56,8 @@ struct _ClutterDeviceManagerPrivate
 
   /* Keyboard a11y */
   ClutterKbdA11ySettings kbd_a11y_settings;
+  /* Pointer a11y */
+  ClutterPointerA11ySettings pointer_a11y_settings;
 };
 
 enum
@@ -75,6 +78,9 @@ enum
   TOOL_CHANGED,
   KBD_A11Y_MASK_CHANGED,
   KBD_A11Y_FLAGS_CHANGED,
+  PTR_A11Y_DWELL_CLICK_TYPE_CHANGED,
+  PTR_A11Y_TIMEOUT_STARTED,
+  PTR_A11Y_TIMEOUT_STOPPED,
 
   LAST_SIGNAL
 };
@@ -239,6 +245,67 @@ clutter_device_manager_class_init (ClutterDeviceManagerClass *klass)
                   G_TYPE_NONE, 2,
                   G_TYPE_UINT,
                   G_TYPE_UINT);
+
+  /**
+   * ClutterDeviceManager::ptr-a11y-dwell-click-type-changed:
+   * @manager: the #ClutterDeviceManager that emitted the signal
+   * @click_type: the new #ClutterPointerA11yDwellClickType mode
+   *
+   * The ::ptr-a11y-dwell-click-type-changed signal is emitted each time
+   * the ClutterPointerA11yDwellClickType mode is changed as the result
+   * of pointer accessibility operations.
+   */
+  manager_signals[PTR_A11Y_DWELL_CLICK_TYPE_CHANGED] =
+    g_signal_new (I_("ptr-a11y-dwell-click-type-changed"),
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__FLAGS,
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_POINTER_A11Y_DWELL_CLICK_TYPE);
+
+  /**
+   * ClutterDeviceManager::ptr-a11y-timeout-started:
+   * @manager: the #ClutterDeviceManager that emitted the signal
+   * @device: the core pointer #ClutterInputDevice
+   * @timeout_type: the type of timeout #ClutterPointerA11yTimeoutType
+   * @delay: the delay in ms before secondary-click is triggered.
+   *
+   * The ::ptr-a11y-timeout-started signal is emitted when a
+   * pointer accessibility timeout delay is started, so that upper
+   * layers can notify the user with some visual feedback.
+   */
+  manager_signals[PTR_A11Y_TIMEOUT_STARTED] =
+    g_signal_new (I_("ptr-a11y-timeout-started"),
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_FLAGS_UINT,
+                  G_TYPE_NONE, 3,
+                  CLUTTER_TYPE_INPUT_DEVICE,
+                  CLUTTER_TYPE_POINTER_A11Y_TIMEOUT_TYPE,
+                  G_TYPE_UINT);
+
+  /**
+   * ClutterDeviceManager::ptr-a11y-timeout-stopped:
+   * @manager: the #ClutterDeviceManager that emitted the signal
+   * @device: the core pointer #ClutterInputDevice
+   * @timeout_type: the type of timeout #ClutterPointerA11yTimeoutType
+   *
+   * The ::ptr-a11y-timeout-stopped signal is emitted when a running
+   * pointer accessibility timeout delay is stopped, either because
+   * it's triggered at the end of the delay or cancelled, so that
+   * upper layers can notify the user with some visual feedback.
+   */
+  manager_signals[PTR_A11Y_TIMEOUT_STOPPED] =
+    g_signal_new (I_("ptr-a11y-timeout-stopped"),
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  _clutter_marshal_VOID__OBJECT_FLAGS,
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_INPUT_DEVICE,
+                  CLUTTER_TYPE_POINTER_A11Y_TIMEOUT_TYPE);
 }
 
 static void
@@ -578,4 +645,89 @@ clutter_device_manager_get_kbd_a11y_settings (ClutterDeviceManager   *device_man
   g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
 
   *settings = device_manager->priv->kbd_a11y_settings;
+}
+
+static gboolean
+are_pointer_a11y_settings_equal (ClutterPointerA11ySettings *a,
+                                 ClutterPointerA11ySettings *b)
+{
+  return (memcmp (a, b, sizeof (ClutterPointerA11ySettings)) == 0);
+}
+
+static void
+clutter_device_manager_enable_pointer_a11y (ClutterDeviceManager *device_manager)
+{
+  ClutterInputDevice *core_pointer;
+
+  core_pointer = clutter_device_manager_get_core_device (device_manager,
+                                                         CLUTTER_POINTER_DEVICE);
+
+  _clutter_input_pointer_a11y_add_device (core_pointer);
+}
+
+static void
+clutter_device_manager_disable_pointer_a11y (ClutterDeviceManager *device_manager)
+{
+  ClutterInputDevice *core_pointer;
+
+  core_pointer = clutter_device_manager_get_core_device (device_manager,
+                                                         CLUTTER_POINTER_DEVICE);
+
+  _clutter_input_pointer_a11y_remove_device (core_pointer);
+}
+
+/**
+ * clutter_device_manager_set_pointer_a11y_settings:
+ * @device_manager: a #ClutterDeviceManager
+ * @settings: a pointer to a #ClutterPointerA11ySettings
+ *
+ * Sets the pointer accessibility settings
+ **/
+void
+clutter_device_manager_set_pointer_a11y_settings (ClutterDeviceManager       *device_manager,
+                                                  ClutterPointerA11ySettings *settings)
+{
+  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
+
+  if (are_pointer_a11y_settings_equal (&device_manager->priv->pointer_a11y_settings, settings))
+    return;
+
+  if (device_manager->priv->pointer_a11y_settings.controls == 0 && settings->controls != 0)
+    clutter_device_manager_enable_pointer_a11y (device_manager);
+  else if (device_manager->priv->pointer_a11y_settings.controls != 0 && settings->controls == 0)
+    clutter_device_manager_disable_pointer_a11y (device_manager);
+
+  device_manager->priv->pointer_a11y_settings = *settings;
+}
+
+/**
+ * clutter_device_manager_get_pointer_a11y_settings:
+ * @device_manager: a #ClutterDeviceManager
+ * @settings: a pointer to a #ClutterPointerA11ySettings
+ *
+ * Gets the current pointer accessibility settings
+ **/
+void
+clutter_device_manager_get_pointer_a11y_settings (ClutterDeviceManager       *device_manager,
+                                                  ClutterPointerA11ySettings *settings)
+{
+  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
+
+  *settings = device_manager->priv->pointer_a11y_settings;
+}
+
+/**
+ * clutter_device_manager_set_pointer_a11y_dwell_click_type:
+ * @device_manager: a #ClutterDeviceManager
+ * @click_type: type of click as #ClutterPointerA11yDwellClickType
+ *
+ * Sets the dwell click type
+ **/
+void
+clutter_device_manager_set_pointer_a11y_dwell_click_type (ClutterDeviceManager             *device_manager,
+                                                          ClutterPointerA11yDwellClickType  click_type)
+{
+  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
+
+  device_manager->priv->pointer_a11y_settings.dwell_click_type = click_type;
 }

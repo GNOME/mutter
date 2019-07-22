@@ -33,7 +33,6 @@ typedef enum _TestFlags
   TEST_KNOWN_FAILURE = 1<<0,
   TEST_REQUIREMENT_GL = 1<<1,
   TEST_REQUIREMENT_NPOT = 1<<2,
-  TEST_REQUIREMENT_TEXTURE_3D = 1<<3,
   TEST_REQUIREMENT_TEXTURE_RECTANGLE = 1<<4,
   TEST_REQUIREMENT_TEXTURE_RG = 1<<5,
   TEST_REQUIREMENT_POINT_SPRITE = 1<<6,
@@ -113,7 +112,7 @@ test_utils_texture_new_with_size (CoglContext *ctx,
  * @rowstride: the memory offset in bytes between the starts of
  *    scanlines in @data
  * @data: pointer the memory region where the source buffer resides
- * @error: A #CoglError to catch exceptional errors or %NULL
+ * @error: A #GError to catch exceptional errors or %NULL
  *
  * Creates a new #CoglTexture based on data residing in memory.
  *

@@ -60,7 +60,7 @@ struct _ClutterEffect
  * ClutterEffectClass:
  * @pre_paint: virtual function
  * @post_paint: virtual function
- * @get_paint_volume: virtual function
+ * @modify_paint_volume: virtual function
  * @paint: virtual function
  * @pick: virtual function
  *
@@ -74,16 +74,16 @@ struct _ClutterEffectClass
   ClutterActorMetaClass parent_class;
 
   /*< public >*/
-  gboolean (* pre_paint)        (ClutterEffect           *effect);
-  void     (* post_paint)       (ClutterEffect           *effect);
+  gboolean (* pre_paint)           (ClutterEffect           *effect);
+  void     (* post_paint)          (ClutterEffect           *effect);
 
-  gboolean (* get_paint_volume) (ClutterEffect           *effect,
-                                 ClutterPaintVolume      *volume);
+  gboolean (* modify_paint_volume) (ClutterEffect           *effect,
+                                    ClutterPaintVolume      *volume);
 
-  void     (* paint)            (ClutterEffect           *effect,
-                                 ClutterEffectPaintFlags  flags);
-  void     (* pick)             (ClutterEffect           *effect,
-                                 ClutterEffectPaintFlags  flags);
+  void     (* paint)               (ClutterEffect           *effect,
+                                    ClutterEffectPaintFlags  flags);
+  void     (* pick)                (ClutterEffect           *effect,
+                                    ClutterEffectPaintFlags  flags);
 
   /*< private >*/
   void (* _clutter_effect4) (void);

@@ -253,15 +253,8 @@ meta_wayland_actor_surface_commit (MetaWaylandSurfaceRole  *surface_role,
 {
   MetaWaylandActorSurface *actor_surface =
     META_WAYLAND_ACTOR_SURFACE (surface_role);
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
-  MetaWaylandSurface *toplevel_surface;
 
   meta_wayland_actor_surface_queue_frame_callbacks (actor_surface, pending);
-
-  toplevel_surface = meta_wayland_surface_get_toplevel (surface);
-  if (!toplevel_surface || !toplevel_surface->window)
-    return;
 
   meta_wayland_actor_surface_sync_actor_state (actor_surface);
 }

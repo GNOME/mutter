@@ -121,8 +121,6 @@ struct _MetaMonitorManager
   int screen_width;
   int screen_height;
 
-  GList *gpus;
-
   GList *monitors;
 
   GList *logical_monitors;
@@ -248,6 +246,7 @@ struct _MetaMonitorManagerClass
   MetaLogicalMonitorLayoutMode (*get_default_layout_mode) (MetaMonitorManager *);
 };
 
+META_EXPORT_TEST
 MetaBackend *       meta_monitor_manager_get_backend (MetaMonitorManager *manager);
 
 void                meta_monitor_manager_setup (MetaMonitorManager *manager);
@@ -294,12 +293,6 @@ MetaMonitor *       meta_monitor_manager_get_monitor_from_connector (MetaMonitor
 
 META_EXPORT_TEST
 GList *             meta_monitor_manager_get_monitors      (MetaMonitorManager *manager);
-
-META_EXPORT_TEST
-void                meta_monitor_manager_add_gpu (MetaMonitorManager *manager,
-                                                  MetaGpu            *gpu);
-META_EXPORT_TEST
-GList *             meta_monitor_manager_get_gpus (MetaMonitorManager *manager);
 
 void                meta_monitor_manager_get_screen_size   (MetaMonitorManager *manager,
                                                             int                *width,
@@ -391,5 +384,8 @@ void meta_monitor_manager_clear_mode (MetaCrtcMode *mode);
 void meta_monitor_manager_clear_crtc (MetaCrtc *crtc);
 
 gboolean meta_monitor_has_aspect_as_size (MetaMonitor *monitor);
+
+char * meta_monitor_manager_get_vendor_name (MetaMonitorManager *manager,
+                                             const char         *vendor);
 
 #endif /* META_MONITOR_MANAGER_PRIVATE_H */

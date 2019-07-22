@@ -30,7 +30,6 @@
 
 #include "clutter/clutter.h"
 #include "clutter/wayland/clutter-wayland-compositor.h"
-#include "clutter/wayland/clutter-wayland-surface.h"
 #include "core/main-private.h"
 #include "wayland/meta-wayland-data-device.h"
 #include "wayland/meta-wayland-dma-buf.h"
@@ -362,6 +361,12 @@ meta_wayland_override_display_name (const char *display_name)
   _display_name_override = g_strdup (display_name);
 }
 
+static const char *
+meta_wayland_get_xwayland_auth_file (MetaWaylandCompositor *compositor)
+{
+  return compositor->xwayland_manager.auth_file;
+}
+
 void
 meta_wayland_init (void)
 {
@@ -439,7 +444,10 @@ meta_wayland_init (void)
     }
 
   if (meta_should_autostart_x11_display ())
-    set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
+    {
+      set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
+      set_gnome_env ("XAUTHORITY", meta_wayland_get_xwayland_auth_file (compositor));
+    }
 
   set_gnome_env ("WAYLAND_DISPLAY", meta_wayland_get_wayland_display_name (compositor));
 }

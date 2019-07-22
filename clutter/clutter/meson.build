@@ -75,6 +75,7 @@ clutter_headers = [
   'clutter-snap-constraint.h',
   'clutter-stage.h',
   'clutter-stage-manager.h',
+  'clutter-stage-view.h',
   'clutter-tap-action.h',
   'clutter-test-utils.h',
   'clutter-texture.h',
@@ -133,6 +134,7 @@ clutter_sources = [
   'clutter-input-device-tool.c',
   'clutter-input-focus.c',
   'clutter-input-method.c',
+  'clutter-input-pointer-a11y.c',
   'clutter-virtual-input-device.c',
   'clutter-interval.c',
   'clutter-keyframe-transition.c',
@@ -163,6 +165,7 @@ clutter_sources = [
   'clutter-snap-constraint.c',
   'clutter-stage.c',
   'clutter-stage-manager.c',
+  'clutter-stage-view.c',
   'clutter-stage-window.c',
   'clutter-tap-action.c',
   'clutter-test-utils.c',
@@ -195,6 +198,7 @@ clutter_private_headers = [
   'clutter-id-pool.h',
   'clutter-input-focus-private.h',
   'clutter-input-method-private.h',
+  'clutter-input-pointer-a11y-private.h',
   'clutter-master-clock.h',
   'clutter-master-clock-default.h',
   'clutter-offscreen-effect-private.h',
@@ -205,7 +209,7 @@ clutter_private_headers = [
   'clutter-settings-private.h',
   'clutter-stage-manager-private.h',
   'clutter-stage-private.h',
-  'clutter-stage-view.h',
+  'clutter-stage-view-private.h',
   'clutter-stage-window.h',
 ]
 
@@ -213,7 +217,6 @@ clutter_nonintrospected_sources = [
   'clutter-easing.c',
   'clutter-event-translator.c',
   'clutter-id-pool.c',
-  'clutter-stage-view.c',
 ]
 
 clutter_deprecated_headers = [
@@ -231,7 +234,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-container.h',
   'deprecated/clutter-group.h',
   'deprecated/clutter-keysyms.h',
-  'deprecated/clutter-main.h',
   'deprecated/clutter-rectangle.h',
   'deprecated/clutter-stage-manager.h',
   'deprecated/clutter-stage.h',
@@ -341,14 +343,8 @@ if have_native_backend
 endif
 
 if have_wayland
-  clutter_wayland_nonintrospected_sources = [
-    'wayland/clutter-wayland-surface.c',
-  ]
-  clutter_backend_nonintrospected_sources += clutter_wayland_nonintrospected_sources
-
   clutter_wayland_private_headers = [
     'wayland/clutter-wayland-compositor.h',
-    'wayland/clutter-wayland-surface.h',
   ]
   clutter_backend_private_headers += clutter_wayland_private_headers
 endif
@@ -504,7 +500,12 @@ libmutter_clutter_dep = declare_dependency(
 )
 
 if have_introspection
-  clutter_introspection_args = introspection_args + clutter_c_args
+  clutter_introspection_args = introspection_args + [
+    '-DCLUTTER_SYSCONFDIR="@0@"'.format(join_paths(prefix, sysconfdir)),
+    '-DCLUTTER_COMPILATION=1',
+    '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
+    '-DG_LOG_DOMAIN="Clutter"'
+  ]
 
   libmutter_clutter_gir = gnome.generate_gir(libmutter_clutter,
     sources: [

@@ -1044,10 +1044,8 @@ _cally_actor_clean_action_list (CallyActor *cally_actor)
 
   if (priv->action_list)
     {
-      g_list_foreach (priv->action_list,
-                      (GFunc) _cally_actor_destroy_action_info,
-                      NULL);
-      g_list_free (priv->action_list);
+      g_list_free_full (priv->action_list,
+                        (GDestroyNotify) _cally_actor_destroy_action_info);
       priv->action_list = NULL;
     }
 }

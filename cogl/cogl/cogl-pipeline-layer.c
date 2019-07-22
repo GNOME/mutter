@@ -173,7 +173,7 @@ _cogl_pipeline_layer_copy_differences (CoglPipelineLayer *dest,
 
   while (differences)
     {
-      int index = _cogl_util_ffs (differences) - 1;
+      int index = ffs (differences) - 1;
 
       differences &= ~(1 << index);
 
@@ -185,10 +185,6 @@ _cogl_pipeline_layer_copy_differences (CoglPipelineLayer *dest,
         case COGL_PIPELINE_LAYER_STATE_COUNT:
         case COGL_PIPELINE_LAYER_STATE_UNIT_INDEX:
           g_warn_if_reached ();
-          break;
-
-        case COGL_PIPELINE_LAYER_STATE_TEXTURE_TYPE_INDEX:
-          dest->texture_type = src->texture_type;
           break;
 
         case COGL_PIPELINE_LAYER_STATE_TEXTURE_DATA_INDEX:
@@ -272,7 +268,6 @@ _cogl_pipeline_layer_init_multi_property_sparse_state (
     /* XXX: avoid using a default: label so we get a warning if we
      * don't explicitly handle a newly defined state-group here. */
     case COGL_PIPELINE_LAYER_STATE_UNIT:
-    case COGL_PIPELINE_LAYER_STATE_TEXTURE_TYPE:
     case COGL_PIPELINE_LAYER_STATE_TEXTURE_DATA:
     case COGL_PIPELINE_LAYER_STATE_POINT_SPRITE_COORDS:
     case COGL_PIPELINE_LAYER_STATE_USER_MATRIX:
@@ -356,7 +351,7 @@ _cogl_pipeline_layer_pre_change_notify (CoglPipeline *required_owner,
     goto init_layer_state;
 
   /* We only allow a NULL required_owner for new layers */
-  _COGL_RETURN_VAL_IF_FAIL (required_owner != NULL, layer);
+  g_return_val_if_fail (required_owner != NULL, layer);
 
   /* Chain up:
    * A modification of a layer is indirectly also a modification of
@@ -662,16 +657,6 @@ _cogl_pipeline_layer_equal (CoglPipelineLayer *layer0,
                                             layers_difference,
                                             authorities1);
 
-  if (layers_difference & COGL_PIPELINE_LAYER_STATE_TEXTURE_TYPE)
-    {
-      CoglPipelineLayerStateIndex state_index =
-        COGL_PIPELINE_LAYER_STATE_TEXTURE_TYPE_INDEX;
-      if (!_cogl_pipeline_layer_texture_type_equal (authorities0[state_index],
-                                                    authorities1[state_index],
-                                                    flags))
-        return FALSE;
-    }
-
   if (layers_difference & COGL_PIPELINE_LAYER_STATE_TEXTURE_DATA)
     {
       CoglPipelineLayerStateIndex state_index =
@@ -767,7 +752,6 @@ _cogl_pipeline_init_default_layers (void)
   layer->unit_index = 0;
 
   layer->texture = NULL;
-  layer->texture_type = COGL_TEXTURE_TYPE_2D;
 
   layer->sampler_cache_entry =
     _cogl_sampler_cache_get_default_entry (ctx->sampler_cache);

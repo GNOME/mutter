@@ -62,19 +62,19 @@ typedef struct _CoglWinsysEGLVtable
 {
   gboolean
   (* display_setup) (CoglDisplay *display,
-                     CoglError **error);
+                     GError **error);
   void
   (* display_destroy) (CoglDisplay *display);
 
   gboolean
   (* context_created) (CoglDisplay *display,
-                       CoglError **error);
+                       GError **error);
 
   void
   (* cleanup_context) (CoglDisplay *display);
 
   gboolean
-  (* context_init) (CoglContext *context, CoglError **error);
+  (* context_init) (CoglContext *context, GError **error);
 
   void
   (* context_deinit) (CoglContext *context);
@@ -82,7 +82,7 @@ typedef struct _CoglWinsysEGLVtable
   gboolean
   (* onscreen_init) (CoglOnscreen *onscreen,
                      EGLConfig config,
-                     CoglError **error);
+                     GError **error);
   void
   (* onscreen_deinit) (CoglOnscreen *onscreen);
 
@@ -94,7 +94,7 @@ typedef struct _CoglWinsysEGLVtable
   (* choose_config) (CoglDisplay *display,
                      EGLint *attributes,
                      EGLConfig *out_config,
-                     CoglError **error);
+                     GError **error);
 } CoglWinsysEGLVtable;
 
 typedef enum _CoglEGLWinsysFeature
@@ -105,7 +105,8 @@ typedef enum _CoglEGLWinsysFeature
   COGL_EGL_WINSYS_FEATURE_CREATE_CONTEXT                =1L<<3,
   COGL_EGL_WINSYS_FEATURE_BUFFER_AGE                    =1L<<4,
   COGL_EGL_WINSYS_FEATURE_FENCE_SYNC                    =1L<<5,
-  COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT           =1L<<6
+  COGL_EGL_WINSYS_FEATURE_SURFACELESS_CONTEXT           =1L<<6,
+  COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY              =1L<<7,
 } CoglEGLWinsysFeature;
 
 typedef struct _CoglRendererEGL
@@ -206,6 +207,6 @@ _cogl_egl_query_wayland_buffer (CoglContext *ctx,
 
 gboolean
 _cogl_winsys_egl_renderer_connect_common (CoglRenderer *renderer,
-                                          CoglError **error);
+                                          GError **error);
 
 #endif /* __COGL_WINSYS_EGL_PRIVATE_H */

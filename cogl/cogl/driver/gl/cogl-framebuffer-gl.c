@@ -33,7 +33,6 @@
 
 #include "cogl-context-private.h"
 #include "cogl-framebuffer-private.h"
-#include "cogl-error-private.h"
 #include "cogl-texture-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-framebuffer-gl-private.h"
@@ -193,20 +192,6 @@ _cogl_framebuffer_gl_flush_projection_state (CoglFramebuffer *framebuffer)
     _cogl_framebuffer_get_projection_entry (framebuffer);
   _cogl_context_set_current_projection_entry (framebuffer->context,
                                              projection_entry);
-}
-
-static void
-_cogl_framebuffer_gl_flush_color_mask_state (CoglFramebuffer *framebuffer)
-{
-  CoglContext *context = framebuffer->context;
-
-  /* The color mask state is really owned by a CoglPipeline so to
-   * ensure the color mask is updated the next time we draw something
-   * we need to make sure the logic ops for the pipeline are
-   * re-flushed... */
-  context->current_pipeline_changes_since_flush |=
-    COGL_PIPELINE_STATE_LOGIC_OPS;
-  context->current_pipeline_age--;
 }
 
 static void
@@ -400,12 +385,9 @@ _cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
       else
         {
           /* NB: Currently we only take advantage of binding separate
-           * read/write buffers for offscreen framebuffer blit
-           * purposes.  */
-          _COGL_RETURN_IF_FAIL (_cogl_has_private_feature
-                                (ctx, COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT));
-          _COGL_RETURN_IF_FAIL (draw_buffer->type == COGL_FRAMEBUFFER_TYPE_OFFSCREEN);
-          _COGL_RETURN_IF_FAIL (read_buffer->type == COGL_FRAMEBUFFER_TYPE_OFFSCREEN);
+           * read/write buffers for framebuffer blit purposes. */
+          g_return_if_fail (_cogl_has_private_feature
+                            (ctx, COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER));
 
           _cogl_framebuffer_gl_bind (draw_buffer, GL_DRAW_FRAMEBUFFER);
           _cogl_framebuffer_gl_bind (read_buffer, GL_READ_FRAMEBUFFER);
@@ -436,9 +418,6 @@ _cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION:
           _cogl_framebuffer_gl_flush_projection_state (draw_buffer);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_COLOR_MASK:
-          _cogl_framebuffer_gl_flush_color_mask_state (draw_buffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
           _cogl_framebuffer_gl_flush_front_face_winding_state (draw_buffer);
@@ -546,7 +525,7 @@ try_creating_renderbuffers (CoglContext *ctx,
         format = GL_DEPTH_STENCIL;
       else
         {
-          _COGL_RETURN_VAL_IF_FAIL (
+          g_return_val_if_fail (
             _cogl_has_private_feature (ctx,
               COGL_PRIVATE_FEATURE_OES_PACKED_DEPTH_STENCIL),
             NULL);
@@ -787,7 +766,7 @@ _cogl_framebuffer_try_creating_gl_fbo (CoglContext *ctx,
 
 gboolean
 _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
-                             CoglError **error)
+                             GError **error)
 {
   CoglFramebuffer *fb = COGL_FRAMEBUFFER (offscreen);
   CoglContext *ctx = fb->context;
@@ -796,9 +775,9 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
   int level_width;
   int level_height;
 
-  _COGL_RETURN_VAL_IF_FAIL (offscreen->texture_level <
-                            _cogl_texture_get_n_levels (offscreen->texture),
-                            FALSE);
+  g_return_val_if_fail (offscreen->texture_level <
+                        _cogl_texture_get_n_levels (offscreen->texture),
+                        FALSE);
 
   _cogl_texture_get_level_size (offscreen->texture,
                                 offscreen->texture_level,
@@ -936,9 +915,9 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
     }
   else
     {
-      _cogl_set_error (error, COGL_FRAMEBUFFER_ERROR,
-                       COGL_FRAMEBUFFER_ERROR_ALLOCATE,
-                       "Failed to create an OpenGL framebuffer object");
+      g_set_error (error, COGL_FRAMEBUFFER_ERROR,
+                   COGL_FRAMEBUFFER_ERROR_ALLOCATE,
+                   "Failed to create an OpenGL framebuffer object");
       return FALSE;
     }
 }
@@ -968,20 +947,6 @@ _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
     {
       GE( ctx, glClearColor (red, green, blue, alpha) );
       gl_buffers |= GL_COLOR_BUFFER_BIT;
-
-      if (ctx->current_gl_color_mask != framebuffer->color_mask)
-        {
-          CoglColorMask color_mask = framebuffer->color_mask;
-          GE( ctx, glColorMask (!!(color_mask & COGL_COLOR_MASK_RED),
-                                !!(color_mask & COGL_COLOR_MASK_GREEN),
-                                !!(color_mask & COGL_COLOR_MASK_BLUE),
-                                !!(color_mask & COGL_COLOR_MASK_ALPHA)));
-          ctx->current_gl_color_mask = color_mask;
-          /* Make sure the ColorMask is updated when the next primitive is drawn */
-          ctx->current_pipeline_changes_since_flush |=
-            COGL_PIPELINE_STATE_LOGIC_OPS;
-          ctx->current_pipeline_age--;
-        }
     }
 
   if (buffers & COGL_BUFFER_BIT_DEPTH)
@@ -1247,7 +1212,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                               int y,
                                               CoglReadPixelsFlags source,
                                               CoglBitmap *bitmap,
-                                              CoglError **error)
+                                              GError **error)
 {
   CoglContext *ctx = framebuffer->context;
   int framebuffer_height = cogl_framebuffer_get_height (framebuffer);
@@ -1371,7 +1336,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
       int bpp, rowstride;
       gboolean succeeded = FALSE;
       uint8_t *pixels;
-      CoglError *internal_error = NULL;
+      GError *internal_error = NULL;
 
       rowstride = cogl_bitmap_get_rowstride (bitmap);
 
@@ -1409,7 +1374,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
       if (internal_error)
         {
           cogl_object_unref (shared_bmp);
-          _cogl_propagate_error (error, internal_error);
+          g_propagate_error (error, internal_error);
           goto EXIT;
         }
 

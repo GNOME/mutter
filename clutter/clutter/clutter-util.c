@@ -32,6 +32,7 @@
 
 #include "clutter-build-config.h"
 
+#include <fribidi.h>
 #include <math.h>
 
 #include "clutter-debug.h"
@@ -105,8 +106,9 @@ _clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
     }
 }
 
-void _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
-                                        ClutterRect                 *dest)
+void
+_clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
+                                   ClutterRect                 *dest)
 {
   *dest = (ClutterRect) {
     .origin = {
@@ -120,8 +122,9 @@ void _clutter_util_rect_from_rectangle (const cairo_rectangle_int_t *src,
   };
 }
 
-void _clutter_util_rectangle_int_extents (const  ClutterRect    *src,
-                                          cairo_rectangle_int_t *dest)
+void
+_clutter_util_rectangle_int_extents (const  ClutterRect    *src,
+                                     cairo_rectangle_int_t *dest)
 {
   ClutterRect tmp = *src;
 
@@ -135,10 +138,11 @@ void _clutter_util_rectangle_int_extents (const  ClutterRect    *src,
   };
 }
 
-void _clutter_util_rectangle_offset (const cairo_rectangle_int_t *src,
-                                     int                          x,
-                                     int                          y,
-                                     cairo_rectangle_int_t       *dest)
+void
+_clutter_util_rectangle_offset (const cairo_rectangle_int_t *src,
+                                int                          x,
+                                int                          y,
+                                cairo_rectangle_int_t       *dest)
 {
   *dest = *src;
 
@@ -695,4 +699,46 @@ clutter_interval_register_progress_func (GType               value_type,
     }
 
   G_UNLOCK (progress_funcs);
+}
+
+PangoDirection
+_clutter_pango_unichar_direction (gunichar ch)
+{
+  FriBidiCharType fribidi_ch_type;
+
+  G_STATIC_ASSERT (sizeof (FriBidiChar) == sizeof (gunichar));
+
+  fribidi_ch_type = fribidi_get_bidi_type (ch);
+
+  if (!FRIBIDI_IS_STRONG (fribidi_ch_type))
+    return PANGO_DIRECTION_NEUTRAL;
+  else if (FRIBIDI_IS_RTL (fribidi_ch_type))
+    return PANGO_DIRECTION_RTL;
+  else
+    return PANGO_DIRECTION_LTR;
+}
+
+PangoDirection
+_clutter_pango_find_base_dir (const gchar *text,
+                              gint         length)
+{
+  PangoDirection dir = PANGO_DIRECTION_NEUTRAL;
+  const gchar *p;
+
+  g_return_val_if_fail (text != NULL || length == 0, PANGO_DIRECTION_NEUTRAL);
+
+  p = text;
+  while ((length < 0 || p < text + length) && *p)
+    {
+      gunichar wc = g_utf8_get_char (p);
+
+      dir = _clutter_pango_unichar_direction (wc);
+
+      if (dir != PANGO_DIRECTION_NEUTRAL)
+        break;
+
+      p = g_utf8_next_char (p);
+    }
+
+  return dir;
 }

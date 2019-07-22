@@ -28,6 +28,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/x11/meta-cursor-renderer-x11.h"
+#include "backends/x11/meta-gpu-xrandr.h"
 #include "backends/x11/meta-input-settings-x11.h"
 #include "backends/x11/meta-monitor-manager-xrandr.h"
 #include "backends/x11/cm/meta-renderer-x11-cm.h"
@@ -389,6 +390,16 @@ meta_backend_x11_cm_translate_crossing_event (MetaBackendX11 *x11,
 static void
 meta_backend_x11_cm_init (MetaBackendX11Cm *backend_x11_cm)
 {
+  MetaGpuXrandr *gpu_xrandr;
+
+  /*
+   * The X server deals with multiple GPUs for us, so we just see what the X
+   * server gives us as one single GPU, even though it may actually be backed
+   * by multiple.
+   */
+  gpu_xrandr = meta_gpu_xrandr_new (META_BACKEND_X11 (backend_x11_cm));
+  meta_backend_add_gpu (META_BACKEND (backend_x11_cm),
+                        META_GPU (gpu_xrandr));
 }
 
 static void

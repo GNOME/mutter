@@ -289,6 +289,7 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
   int format, width, height, y_inverted;
   CoglPixelFormat cogl_format;
   EGLImageKHR egl_image;
+  CoglEglImageFlags flags;
   CoglTexture2D *texture_2d;
 
   if (buffer->egl_image.texture)
@@ -343,10 +344,12 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
   if (egl_image == EGL_NO_IMAGE_KHR)
     return FALSE;
 
+  flags = COGL_EGL_IMAGE_FLAG_NONE;
   texture_2d = cogl_egl_texture_2d_new_from_image (cogl_context,
                                                    width, height,
                                                    cogl_format,
                                                    egl_image,
+                                                   flags,
                                                    error);
 
   meta_egl_destroy_image (egl, egl_display, egl_image, NULL);

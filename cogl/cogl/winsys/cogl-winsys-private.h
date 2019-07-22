@@ -64,13 +64,6 @@ typedef enum /*< prefix=COGL_WINSYS_ERROR >*/
   COGL_WINSYS_ERROR_CREATE_GLES2_CONTEXT,
 } CoglWinsysError;
 
-typedef enum
-{
-  COGL_WINSYS_RECTANGLE_STATE_UNKNOWN,
-  COGL_WINSYS_RECTANGLE_STATE_DISABLE,
-  COGL_WINSYS_RECTANGLE_STATE_ENABLE
-} CoglWinsysRectangleState;
-
 typedef struct _CoglWinsysVtable
 {
   CoglWinsysID id;
@@ -86,7 +79,7 @@ typedef struct _CoglWinsysVtable
                                 gboolean in_core);
 
   gboolean
-  (*renderer_connect) (CoglRenderer *renderer, CoglError **error);
+  (*renderer_connect) (CoglRenderer *renderer, GError **error);
 
   void
   (*renderer_disconnect) (CoglRenderer *renderer);
@@ -95,22 +88,22 @@ typedef struct _CoglWinsysVtable
   (*renderer_outputs_changed) (CoglRenderer *renderer);
 
   gboolean
-  (*display_setup) (CoglDisplay *display, CoglError **error);
+  (*display_setup) (CoglDisplay *display, GError **error);
 
   void
   (*display_destroy) (CoglDisplay *display);
 
   gboolean
-  (*context_init) (CoglContext *context, CoglError **error);
+  (*context_init) (CoglContext *context, GError **error);
 
   void
   (*context_deinit) (CoglContext *context);
 
   void *
-  (*context_create_gles2_context) (CoglContext *ctx, CoglError **error);
+  (*context_create_gles2_context) (CoglContext *ctx, GError **error);
 
   gboolean
-  (*onscreen_init) (CoglOnscreen *onscreen, CoglError **error);
+  (*onscreen_init) (CoglOnscreen *onscreen, GError **error);
 
   void
   (*onscreen_deinit) (CoglOnscreen *onscreen);
@@ -169,7 +162,7 @@ typedef struct _CoglWinsysVtable
   (*save_context) (CoglContext *ctx);
 
   gboolean
-  (*set_gles2_context) (CoglGLES2Context *gles2_ctx, CoglError **error);
+  (*set_gles2_context) (CoglGLES2Context *gles2_ctx, GError **error);
 
   void
   (*restore_context) (CoglContext *ctx);

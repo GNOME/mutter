@@ -264,6 +264,8 @@ experimental_features_handler (GVariant *features_variant,
         features |= META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER;
       else if (g_str_equal (feature, "kms-modifiers"))
         features |= META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
+      else if (g_str_equal (feature, "rt-scheduler"))
+        features |= META_EXPERIMENTAL_FEATURE_RT_SCHEDULER;
       else
         g_info ("Unknown experimental feature '%s'\n", feature);
     }
@@ -402,7 +404,7 @@ meta_settings_get_xwayland_grab_patterns (MetaSettings  *settings,
 }
 
 gboolean
- meta_settings_are_xwayland_grabs_allowed (MetaSettings *settings)
+meta_settings_are_xwayland_grabs_allowed (MetaSettings *settings)
 {
   return (settings->xwayland_allow_grabs);
 }

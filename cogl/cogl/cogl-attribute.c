@@ -309,7 +309,7 @@ _cogl_attribute_new_const (CoglContext *context,
       /* FIXME: Up until GL[ES] 3 only square matrices were supported
        * and we don't currently expose non-square matrices in Cogl.
        */
-      _COGL_RETURN_VAL_IF_FAIL (n_columns == n_components, NULL);
+      g_return_val_if_fail (n_columns == n_components, NULL);
       _cogl_boxed_value_set_matrix (&attribute->d.constant.boxed,
                                     n_columns,
                                     1,
@@ -469,7 +469,7 @@ cogl_attribute_new_const_4x4fv (CoglContext *context,
 gboolean
 cogl_attribute_get_normalized (CoglAttribute *attribute)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_attribute (attribute), FALSE);
+  g_return_val_if_fail (cogl_is_attribute (attribute), FALSE);
 
   return attribute->normalized;
 }
@@ -490,7 +490,7 @@ void
 cogl_attribute_set_normalized (CoglAttribute *attribute,
                                       gboolean normalized)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_attribute (attribute));
+  g_return_if_fail (cogl_is_attribute (attribute));
 
   if (G_UNLIKELY (attribute->immutable_ref))
     warn_about_midscene_changes ();
@@ -501,8 +501,8 @@ cogl_attribute_set_normalized (CoglAttribute *attribute,
 CoglAttributeBuffer *
 cogl_attribute_get_buffer (CoglAttribute *attribute)
 {
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_attribute (attribute), NULL);
-  _COGL_RETURN_VAL_IF_FAIL (attribute->is_buffered, NULL);
+  g_return_val_if_fail (cogl_is_attribute (attribute), NULL);
+  g_return_val_if_fail (attribute->is_buffered, NULL);
 
   return attribute->d.buffered.attribute_buffer;
 }
@@ -511,8 +511,8 @@ void
 cogl_attribute_set_buffer (CoglAttribute *attribute,
                            CoglAttributeBuffer *attribute_buffer)
 {
-  _COGL_RETURN_IF_FAIL (cogl_is_attribute (attribute));
-  _COGL_RETURN_IF_FAIL (attribute->is_buffered);
+  g_return_if_fail (cogl_is_attribute (attribute));
+  g_return_if_fail (attribute->is_buffered);
 
   if (G_UNLIKELY (attribute->immutable_ref))
     warn_about_midscene_changes ();
@@ -528,7 +528,7 @@ _cogl_attribute_immutable_ref (CoglAttribute *attribute)
 {
   CoglBuffer *buffer = COGL_BUFFER (attribute->d.buffered.attribute_buffer);
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_attribute (attribute), NULL);
+  g_return_val_if_fail (cogl_is_attribute (attribute), NULL);
 
   attribute->immutable_ref++;
   _cogl_buffer_immutable_ref (buffer);
@@ -540,8 +540,8 @@ _cogl_attribute_immutable_unref (CoglAttribute *attribute)
 {
   CoglBuffer *buffer = COGL_BUFFER (attribute->d.buffered.attribute_buffer);
 
-  _COGL_RETURN_IF_FAIL (cogl_is_attribute (attribute));
-  _COGL_RETURN_IF_FAIL (attribute->immutable_ref > 0);
+  g_return_if_fail (cogl_is_attribute (attribute));
+  g_return_if_fail (attribute->immutable_ref > 0);
 
   attribute->immutable_ref--;
   _cogl_buffer_immutable_unref (buffer);

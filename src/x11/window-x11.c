@@ -886,14 +886,20 @@ meta_window_x11_maybe_focus_delayed (MetaWindow *window,
 }
 
 static void
-maybe_focus_default_window (MetaWorkspace *workspace,
-                            MetaWindow    *not_this_one,
-                            guint32        timestamp)
+maybe_focus_default_window (MetaDisplay *display,
+                            MetaWindow  *not_this_one,
+                            guint32      timestamp)
 {
-  MetaStack *stack = workspace->display->stack;
+  MetaWorkspace *workspace;
+  MetaStack *stack = display->stack;
   g_autoptr (GList) focusable_windows = NULL;
   g_autoptr (GQueue) focus_candidates = NULL;
   GList *l;
+
+  if (not_this_one && not_this_one->workspace)
+    workspace = not_this_one->workspace;
+  else
+    workspace = display->workspace_manager->active_workspace;
 
    /* Go through all the focusable windows and try to focus them
     * in order, waiting for a delay. The first one that replies to
@@ -947,10 +953,10 @@ meta_window_x11_focus (MetaWindow *window,
     {
       meta_topic (META_DEBUG_FOCUS,
                   "Focusing frame of %s\n", window->desc);
-      meta_x11_display_set_input_focus_window (window->display->x11_display,
-                                               window,
-                                               TRUE,
-                                               timestamp);
+      meta_display_set_input_focus (window->display,
+                                    window,
+                                    TRUE,
+                                    timestamp);
     }
   else
     {
@@ -959,10 +965,10 @@ meta_window_x11_focus (MetaWindow *window,
           meta_topic (META_DEBUG_FOCUS,
                       "Setting input focus on %s since input = true\n",
                       window->desc);
-          meta_x11_display_set_input_focus_window (window->display->x11_display,
-                                                   window,
-                                                   FALSE,
-                                                   timestamp);
+          meta_display_set_input_focus (window->display,
+                                        window,
+                                        FALSE,
+                                        timestamp);
         }
 
       if (priv->wm_take_focus)
@@ -981,17 +987,14 @@ meta_window_x11_focus (MetaWindow *window,
                * the window responds to WM_TAKE_FOCUS, but if we're unmanaging
                * the current focus window we *need* to move the focus away, so
                * we focus the no focus window before sending WM_TAKE_FOCUS,
-               * and eventually the default focus windwo excluding this one,
+               * and eventually the default focus window excluding this one,
                * if meanwhile we don't get any focus request.
                */
               if (window->display->focus_window != NULL &&
                   window->display->focus_window->unmanaging)
                 {
-                  MetaX11Display *x11_display = window->display->x11_display;
-
-                  meta_x11_display_focus_the_no_focus_window (x11_display,
-                                                              timestamp);
-                  maybe_focus_default_window (window->workspace, window,
+                  meta_display_unset_input_focus (window->display, timestamp);
+                  maybe_focus_default_window (window->display, window,
                                               timestamp);
                 }
             }
@@ -1719,7 +1722,7 @@ meta_window_x11_update_struts (MetaWindow *window)
   changed = (old_iter != NULL || new_iter != NULL);
 
   /* Update appropriately */
-  meta_free_gslist_and_elements (old_struts);
+  g_slist_free_full (old_struts, g_free);
   window->struts = new_struts;
   return changed;
 }
@@ -1867,6 +1870,27 @@ meta_window_x11_are_updates_frozen (MetaWindow *window)
 }
 
 static void
+meta_window_x11_map (MetaWindow *window)
+{
+  MetaX11Display *x11_display = window->display->x11_display;
+
+  meta_x11_error_trap_push (x11_display);
+  XMapWindow (x11_display->xdisplay, window->xwindow);
+  meta_x11_error_trap_pop (x11_display);
+}
+
+static void
+meta_window_x11_unmap (MetaWindow *window)
+{
+  MetaX11Display *x11_display = window->display->x11_display;
+
+  meta_x11_error_trap_push (x11_display);
+  XUnmapWindow (x11_display->xdisplay, window->xwindow);
+  meta_x11_error_trap_pop (x11_display);
+  window->unmaps_pending ++;
+}
+
+static void
 meta_window_x11_class_init (MetaWindowX11Class *klass)
 {
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
@@ -1893,6 +1917,8 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->is_stackable = meta_window_x11_is_stackable;
   window_class->can_ping = meta_window_x11_can_ping;
   window_class->are_updates_frozen = meta_window_x11_are_updates_frozen;
+  window_class->map = meta_window_x11_map;
+  window_class->unmap = meta_window_x11_unmap;
 }
 
 void

@@ -483,8 +483,8 @@ _cogl_pango_display_list_node_free (CoglPangoDisplayListNode *node)
 void
 _cogl_pango_display_list_clear (CoglPangoDisplayList *dl)
 {
-  g_slist_foreach (dl->nodes, (GFunc) _cogl_pango_display_list_node_free, NULL);
-  g_slist_free (dl->nodes);
+  g_slist_free_full (dl->nodes, (GDestroyNotify)
+                     _cogl_pango_display_list_node_free);
   dl->nodes = NULL;
   dl->last_node = NULL;
 }

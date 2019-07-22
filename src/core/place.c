@@ -622,12 +622,9 @@ meta_window_process_placement (MetaWindow        *window,
   window_height = placement_rule->height;
   meta_window_get_frame_rect (parent, &parent_rect);
 
-  anchor_rect = (MetaRectangle) {
-    .x = parent_rect.x + placement_rule->anchor_rect.x,
-    .y = parent_rect.y + placement_rule->anchor_rect.y,
-    .width = placement_rule->anchor_rect.width,
-    .height = placement_rule->anchor_rect.height,
-  };
+  anchor_rect = placement_rule->anchor_rect;
+  anchor_rect.x += parent_rect.x;
+  anchor_rect.y += parent_rect.y;
 
   /* Place at anchor point. */
   if (placement_rule->anchor & META_PLACEMENT_ANCHOR_LEFT)

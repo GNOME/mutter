@@ -33,7 +33,7 @@
 #include "wayland/meta-wayland-versions.h"
 #include "wayland/meta-wayland.h"
 
-typedef struct _MetaXWaylandSelection MetaXWaylandSelection;
+typedef struct _MetaXWaylandDnd MetaXWaylandDnd;
 
 typedef struct
 {
@@ -48,15 +48,17 @@ typedef struct
   char *lock_file;
   int abstract_fd;
   int unix_fd;
+  struct wl_display *wayland_display;
   struct wl_client *client;
   struct wl_resource *xserver_resource;
   char *display_name;
+  char *auth_file;
 
   GCancellable *xserver_died_cancellable;
   GSubprocess *proc;
   GMainLoop *init_loop;
 
-  MetaXWaylandSelection *selection_data;
+  MetaXWaylandDnd *dnd;
 } MetaXWaylandManager;
 
 struct _MetaWaylandCompositor

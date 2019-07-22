@@ -30,6 +30,8 @@
 #include "meta/meta-monitor-manager.h"
 #include "meta/util.h"
 
+#define N_WATCH_MODES 4
+
 enum
 {
   ACTORS_PAINTED,
@@ -38,6 +40,13 @@ enum
 };
 
 static guint signals[N_SIGNALS];
+
+struct _MetaStageWatch
+{
+  ClutterStageView *view;
+  MetaStageWatchFunc callback;
+  gpointer user_data;
+};
 
 struct _MetaOverlay
 {
@@ -54,6 +63,9 @@ struct _MetaOverlay
 struct _MetaStage
 {
   ClutterStage parent;
+
+  GPtrArray *watchers[N_WATCH_MODES];
+  ClutterStageView *current_view;
 
   GList *overlays;
   gboolean is_active;
@@ -135,6 +147,7 @@ meta_stage_finalize (GObject *object)
 {
   MetaStage *stage = META_STAGE (object);
   GList *l;
+  int i;
 
   l = stage->overlays;
   while (l)
@@ -143,7 +156,31 @@ meta_stage_finalize (GObject *object)
       l = g_list_delete_link (l, l);
     }
 
+  for (i = 0; i < N_WATCH_MODES; i++)
+    g_clear_pointer (&stage->watchers[i], g_ptr_array_unref);
+
   G_OBJECT_CLASS (meta_stage_parent_class)->finalize (object);
+}
+
+static void
+notify_watchers_for_mode (MetaStage           *stage,
+                          ClutterStageView    *view,
+                          MetaStageWatchPhase  watch_phase)
+{
+  GPtrArray *watchers;
+  int i;
+
+  watchers = stage->watchers[watch_phase];
+
+  for (i = 0; i < watchers->len; i++)
+    {
+      MetaStageWatch *watch = g_ptr_array_index (watchers, i);
+
+      if (watch->view && view != watch->view)
+        continue;
+
+      watch->callback (stage, view, watch->user_data);
+    }
 }
 
 static void
@@ -154,10 +191,30 @@ meta_stage_paint (ClutterActor *actor)
 
   CLUTTER_ACTOR_CLASS (meta_stage_parent_class)->paint (actor);
 
+  notify_watchers_for_mode (stage, stage->current_view,
+                            META_STAGE_WATCH_AFTER_ACTOR_PAINT);
+
   g_signal_emit (stage, signals[ACTORS_PAINTED], 0);
 
   for (l = stage->overlays; l; l = l->next)
     meta_overlay_paint (l->data);
+
+  notify_watchers_for_mode (stage, stage->current_view,
+                            META_STAGE_WATCH_AFTER_OVERLAY_PAINT);
+}
+
+static void
+meta_stage_paint_view (ClutterStage     *stage,
+                       ClutterStageView *view)
+{
+  MetaStage *meta_stage = META_STAGE (stage);
+
+  notify_watchers_for_mode (meta_stage, view, META_STAGE_WATCH_BEFORE_PAINT);
+
+  meta_stage->current_view = view;
+  CLUTTER_STAGE_CLASS (meta_stage_parent_class)->paint_view (stage, view);
+
+  notify_watchers_for_mode (meta_stage, view, META_STAGE_WATCH_AFTER_PAINT);
 }
 
 static void
@@ -202,6 +259,7 @@ meta_stage_class_init (MetaStageClass *klass)
 
   stage_class->activate = meta_stage_activate;
   stage_class->deactivate = meta_stage_deactivate;
+  stage_class->paint_view = meta_stage_paint_view;
 
   signals[ACTORS_PAINTED] = g_signal_new ("actors-painted",
                                           G_TYPE_FROM_CLASS (klass),
@@ -214,7 +272,10 @@ meta_stage_class_init (MetaStageClass *klass)
 static void
 meta_stage_init (MetaStage *stage)
 {
-  clutter_stage_set_user_resizable (CLUTTER_STAGE (stage), FALSE);
+  int i;
+
+  for (i = 0; i < N_WATCH_MODES; i++)
+    stage->watchers[i] = g_ptr_array_new_with_free_func (g_free);
 }
 
 ClutterActor *
@@ -345,4 +406,45 @@ meta_stage_set_active (MetaStage *stage,
    * See http://bugzilla.gnome.org/746670
    */
   clutter_stage_event (CLUTTER_STAGE (stage), &event);
+}
+
+MetaStageWatch *
+meta_stage_watch_view (MetaStage           *stage,
+                       ClutterStageView    *view,
+                       MetaStageWatchPhase  watch_phase,
+                       MetaStageWatchFunc   callback,
+                       gpointer             user_data)
+{
+  MetaStageWatch *watch;
+  GPtrArray *watchers;
+
+  watch = g_new0 (MetaStageWatch, 1);
+  watch->view = view;
+  watch->callback = callback;
+  watch->user_data = user_data;
+
+  watchers = stage->watchers[watch_phase];
+  g_ptr_array_add (watchers, watch);
+
+  return watch;
+}
+
+void
+meta_stage_remove_watch (MetaStage      *stage,
+                         MetaStageWatch *watch)
+{
+  GPtrArray *watchers;
+  gboolean removed = FALSE;
+  int i;
+
+  for (i = 0; i < N_WATCH_MODES; i++)
+    {
+      watchers = stage->watchers[i];
+      removed = g_ptr_array_remove_fast (watchers, watch);
+
+      if (removed)
+        break;
+    }
+
+  g_assert (removed);
 }

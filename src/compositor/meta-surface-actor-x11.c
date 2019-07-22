@@ -118,7 +118,7 @@ set_pixmap (MetaSurfaceActorX11 *self,
 {
   CoglContext *ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
   MetaShapedTexture *stex = meta_surface_actor_get_texture (META_SURFACE_ACTOR (self));
-  CoglError *error = NULL;
+  GError *error = NULL;
   CoglTexture *texture;
 
   g_assert (self->pixmap == None);
@@ -129,7 +129,7 @@ set_pixmap (MetaSurfaceActorX11 *self,
   if (error != NULL)
     {
       g_warning ("Failed to allocate stex texture: %s", error->message);
-      cogl_error_free (error);
+      g_error_free (error);
     }
   else if (G_UNLIKELY (!cogl_texture_pixmap_x11_is_using_tfp_extension (COGL_TEXTURE_PIXMAP_X11 (texture))))
     g_warning ("NOTE: Not using GLX TFP!\n");

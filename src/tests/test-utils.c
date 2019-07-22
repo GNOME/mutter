@@ -70,7 +70,7 @@ ensure_test_client_path (int    argc,
   if (!g_file_test (test_client_path,
                     G_FILE_TEST_EXISTS | G_FILE_TEST_IS_EXECUTABLE))
     {
-      g_autofree char *basename;
+      g_autofree char *basename = NULL;
       g_autofree char *dirname = NULL;
 
       basename = g_path_get_basename (argv[0]);

@@ -6,20 +6,20 @@
 # Gabor Sari <saga at externet dot hu>, 2003.
 # Laszlo Dvornik <dvornik at gnome dot hu>, 2004.
 # Gabor Kelemen <kelemeng at gnome dot hu>, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013.
-# Balázs Úr <urbalazs at gmail dot com>, 2013, 2014, 2015, 2016, 2017, 2018, 2019.
+# Balázs Úr <ur.balazs at fsf dot hu>, 2013, 2014, 2015, 2016, 2017, 2018, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-02-04 17:52+0000\n"
-"PO-Revision-Date: 2019-02-05 21:06+0100\n"
-"Last-Translator: Balázs Úr <urbalazs@gmail.com>\n"
+"POT-Creation-Date: 2019-05-31 18:48+0000\n"
+"PO-Revision-Date: 2019-06-01 17:46+0200\n"
+"Last-Translator: Balázs Úr <ur.balazs at fsf dot hu>\n"
 "Language-Team: Hungarian <gnome-hu-list at gnome dot org>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 1.2\n"
+"X-Generator: Lokalize 18.12.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -395,7 +395,9 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart."
+"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
+"mutter request a low priority real-time scheduling. The executable or user "
+"must have CAP_SYS_NICE. Requires a restart."
 msgstr ""
 "A kísérleti funkciók engedélyezéséhez adja hozzá a funkció kulcsszavát a "
 "listához. A funkció a betűszedő újraindítását igényelheti az adott "
@@ -406,21 +408,23 @@ msgstr ""
 "teszi a mutter programot a logikai monitorok elrendezéséhez egy logikai "
 "képpontkoordináta-térben, miközben átméretezi a monitor keretpufferét az "
 "ablaktartalom helyett azért, hogy kezelje a HiDPI monitorokat. Nem igényel "
-"újraindítást."
+"újraindítást. • „rt-scheduler” — alacsony prioritású, valós idejű ütemezésre "
+"kéri a mutter programot. A programnak vagy a felhasználónak CAP_SYS_NICE "
+"értékkel kell rendelkeznie. Újraindítást igényel."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:145
 msgid "Select window from tab popup"
 msgstr "Ablakok kiválasztása tab billentyűre felugró ablakból"
 
-#: data/org.gnome.mutter.gschema.xml.in:146
+#: data/org.gnome.mutter.gschema.xml.in:150
 msgid "Cancel tab popup"
 msgstr "Tab felugró kikapcsolása"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Switch monitor configurations"
 msgstr "Monitorkonfiguráció átváltása"
 
-#: data/org.gnome.mutter.gschema.xml.in:156
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid "Rotates the built-in monitor configuration"
 msgstr "Cserélgeti a beépített monitorkonfigurációkat"
 
@@ -525,7 +529,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2423
+#: src/backends/meta-input-settings.c:2426
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Módkapcsoló (%d. csoport)"
@@ -533,34 +537,34 @@ msgstr "Módkapcsoló (%d. csoport)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2446
+#: src/backends/meta-input-settings.c:2449
 msgid "Switch monitor"
 msgstr "Monitorváltás"
 
-#: src/backends/meta-input-settings.c:2448
+#: src/backends/meta-input-settings.c:2451
 msgid "Show on-screen help"
 msgstr "Képernyősúgó megjelenítése"
 
-#: src/backends/meta-monitor-manager.c:954
+#: src/backends/meta-monitor-manager.c:976
 msgid "Built-in display"
 msgstr "Beépített kijelző"
 
-#: src/backends/meta-monitor-manager.c:986
+#: src/backends/meta-monitor-manager.c:1008
 msgid "Unknown"
 msgstr "Ismeretlen"
 
-#: src/backends/meta-monitor-manager.c:988
+#: src/backends/meta-monitor-manager.c:1010
 msgid "Unknown Display"
 msgstr "Ismeretlen kijelző"
 
-#: src/backends/meta-monitor-manager.c:996
+#: src/backends/meta-monitor-manager.c:1018
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor-manager.c:1004
+#: src/backends/meta-monitor-manager.c:1026
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -568,9 +572,14 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
+#. Translators: this string will appear in Sysprof
+#: src/backends/meta-profiler.c:82
+msgid "Compositor"
+msgstr "Betűszedő"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:482
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -578,7 +587,7 @@ msgstr ""
 "Már fut egy másik kompozitálás-kezelő a(z) %i. képernyőn a(z) „%s” "
 "megjelenítőn."
 
-#: src/core/bell.c:252
+#: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Csengetés esemény"
 
@@ -628,16 +637,16 @@ msgid "Run with X11 backend"
 msgstr "Futtatás X11 háttérprogrammal"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:150
+#: src/core/meta-close-dialog-default.c:151
 #, c-format
 msgid "“%s” is not responding."
 msgstr "„%s” nem válaszol."
 
-#: src/core/meta-close-dialog-default.c:152
+#: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
 msgstr "Az alkalmazás nem válaszol."
 
-#: src/core/meta-close-dialog-default.c:157
+#: src/core/meta-close-dialog-default.c:158
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -645,11 +654,11 @@ msgstr ""
 "Várhat egy kicsit a folytatódására, vagy kikényszerítheti az alkalmazás "
 "teljes kilépését."
 
-#: src/core/meta-close-dialog-default.c:164
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Force Quit"
 msgstr "_Erőltetett kilépés"
 
-#: src/core/meta-close-dialog-default.c:164
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Wait"
 msgstr "Vá_rakozás"
 
@@ -690,7 +699,7 @@ msgstr "A Mutter ablakkezelőt a részletes mód támogatása nélkül fordítot
 msgid "Mode Switch: Mode %d"
 msgstr "Módkapcsoló: %d. mód"
 
-#: src/x11/meta-x11-display.c:666
+#: src/x11/meta-x11-display.c:674
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -699,19 +708,24 @@ msgstr ""
 "A(z) „%s” kijelző már rendelkezik ablakkezelővel; próbálja a --replace "
 "kapcsolóval helyettesíteni a jelenlegi ablakkezelőt."
 
-#: src/x11/meta-x11-display.c:1008
+#: src/x11/meta-x11-display.c:1016
 msgid "Failed to initialize GDK\n"
 msgstr "A GDK előkészítése meghiúsult\n"
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1040
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Nem sikerült megnyitni a(z) „%s” X Window rendszer képernyőt\n"
 
-#: src/x11/meta-x11-display.c:1115
+#: src/x11/meta-x11-display.c:1124
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "A(z) %d. képernyő a(z) „%s” megjelenítőn érvénytelen\n"
+
+#: src/x11/meta-x11-selection-input-stream.c:445
+#, c-format
+msgid "Format %s not supported"
+msgstr "A(z) %s formátum nem támogatott"
 
 #: src/x11/session.c:1821
 msgid ""
@@ -721,8 +735,7 @@ msgstr ""
 "Az alábbi ablakok nem támogatják az „aktuális beállítások mentését”, emiatt "
 "ezeket a legközelebbi bejelentkezéskor manuálisan újra kell indítania."
 
-#: src/x11/window-props.c:568
+#: src/x11/window-props.c:569
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (ezen: %s)"
-

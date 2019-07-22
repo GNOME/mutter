@@ -104,7 +104,7 @@ GType cogl_context_get_gtype (void);
 /**
  * cogl_context_new: (constructor)
  * @display: (allow-none): A #CoglDisplay pointer
- * @error: A CoglError return location.
+ * @error: A GError return location.
  *
  * Creates a new #CoglContext which acts as an application sandbox
  * for any state objects that are allocated.
@@ -115,7 +115,7 @@ GType cogl_context_get_gtype (void);
  */
 CoglContext *
 cogl_context_new (CoglDisplay *display,
-                  CoglError **error);
+                  GError **error);
 
 /**
  * cogl_context_get_display:
@@ -174,33 +174,14 @@ cogl_is_context (void *object);
  * experimental since it's only useable with experimental API... */
 /**
  * CoglFeatureID:
- * @COGL_FEATURE_ID_TEXTURE_NPOT_BASIC: The hardware supports non power
- *     of two textures, but you also need to check the
- *     %COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP and %COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT
- *     features to know if the hardware supports npot texture mipmaps
- *     or repeat modes other than
- *     %COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE respectively.
- * @COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP: Mipmapping is supported in
- *     conjuntion with non power of two textures.
- * @COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT: Repeat modes other than
- *     %COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE are supported by the
- *     hardware.
- * @COGL_FEATURE_ID_TEXTURE_NPOT: Non power of two textures are supported
- *    by the hardware. This is a equivalent to the
- *    %COGL_FEATURE_ID_TEXTURE_NPOT_BASIC, %COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP
- *    and %COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT features combined.
- * @COGL_FEATURE_ID_TEXTURE_RECTANGLE: Support for rectangular
- *    textures with non-normalized texture coordinates.
  * @COGL_FEATURE_ID_TEXTURE_RG: Support for
  *    %COGL_TEXTURE_COMPONENTS_RG as the internal components of a
  *    texture.
- * @COGL_FEATURE_ID_TEXTURE_3D: 3D texture support
  * @COGL_FEATURE_ID_OFFSCREEN: Offscreen rendering support
  * @COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE: Multisample support for
  *    offscreen framebuffers
  * @COGL_FEATURE_ID_ONSCREEN_MULTIPLE: Multiple onscreen framebuffers
  *    supported.
- * @COGL_FEATURE_ID_GLSL: GLSL support
  * @COGL_FEATURE_ID_UNSIGNED_INT_INDICES: Set if
  *     %COGL_INDICES_TYPE_UNSIGNED_INT is supported in
  *     cogl_indices_new().
@@ -236,13 +217,6 @@ cogl_is_context (void *object);
  */
 typedef enum _CoglFeatureID
 {
-  COGL_FEATURE_ID_TEXTURE_NPOT_BASIC = 1,
-  COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP,
-  COGL_FEATURE_ID_TEXTURE_NPOT_REPEAT,
-  COGL_FEATURE_ID_TEXTURE_NPOT,
-  COGL_FEATURE_ID_TEXTURE_RECTANGLE,
-  COGL_FEATURE_ID_TEXTURE_3D,
-  COGL_FEATURE_ID_GLSL,
   COGL_FEATURE_ID_OFFSCREEN,
   COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE,
   COGL_FEATURE_ID_ONSCREEN_MULTIPLE,

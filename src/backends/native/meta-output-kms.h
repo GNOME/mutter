@@ -25,22 +25,26 @@
 
 #include "backends/meta-output.h"
 #include "backends/native/meta-gpu-kms.h"
+#include "backends/native/meta-kms-types.h"
 
-void meta_output_kms_set_underscan (MetaOutput *output);
+void meta_output_kms_set_power_save_mode (MetaOutput    *output,
+                                          uint64_t       dpms_state,
+                                          MetaKmsUpdate *kms_update);
 
-void meta_output_kms_set_power_save_mode (MetaOutput *output,
-                                          uint64_t    state);
+void meta_output_kms_set_underscan (MetaOutput    *output,
+                                    MetaKmsUpdate *kms_update);
 
 gboolean meta_output_kms_can_clone (MetaOutput *output,
                                     MetaOutput *other_output);
+
+MetaKmsConnector * meta_output_kms_get_kms_connector (MetaOutput *output);
 
 uint32_t meta_output_kms_get_connector_id (MetaOutput *output);
 
 GBytes * meta_output_kms_read_edid (MetaOutput *output);
 
 MetaOutput * meta_create_kms_output (MetaGpuKms        *gpu_kms,
-                                     drmModeConnector  *connector,
-                                     MetaKmsResources  *resources,
+                                     MetaKmsConnector  *kms_connector,
                                      MetaOutput        *old_output,
                                      GError           **error);
 

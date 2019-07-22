@@ -4,6 +4,7 @@
  * A Low Level GPU Graphics and Utilities API
  *
  * Copyright (C) 2007,2008,2009,2012 Intel Corporation.
+ * Copyright (C) 2019 DisplayLink (UK) Ltd.
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -50,7 +51,6 @@
 #include "cogl1-context.h"
 #include "cogl-private.h"
 #include "cogl-primitives-private.h"
-#include "cogl-error-private.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
 #include "winsys/cogl-winsys-private.h"
@@ -123,8 +123,6 @@ _cogl_framebuffer_init (CoglFramebuffer *framebuffer,
 
   framebuffer->dirty_bitmasks = TRUE;
 
-  framebuffer->color_mask = COGL_COLOR_MASK_ALL;
-
   framebuffer->samples_per_pixel = 0;
 
   framebuffer->clip_stack = NULL;
@@ -190,9 +188,6 @@ _cogl_framebuffer_free (CoglFramebuffer *framebuffer)
   framebuffer->projection_stack = NULL;
 
   cogl_object_unref (framebuffer->journal);
-
-  if (ctx->viewport_scissor_workaround_framebuffer == framebuffer)
-    ctx->viewport_scissor_workaround_framebuffer = NULL;
 
   ctx->framebuffers = g_list_remove (ctx->framebuffers, framebuffer);
 
@@ -260,13 +255,11 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
                           float blue,
                           float alpha)
 {
-  CoglContext *ctx = framebuffer->context;
   CoglClipStack *clip_stack = _cogl_framebuffer_get_clip_stack (framebuffer);
   int scissor_x0;
   int scissor_y0;
   int scissor_x1;
   int scissor_y1;
-  gboolean saved_viewport_scissor_workaround;
 
   if (!framebuffer->depth_buffer_clear_needed &&
       (buffers & COGL_BUFFER_BIT_DEPTH))
@@ -361,31 +354,6 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
-  /* XXX: ONGOING BUG: Intel viewport scissor
-   *
-   * The semantics of cogl_framebuffer_clear() are that it should not
-   * be affected by the current viewport and so if we are currently
-   * applying a workaround for viewport scissoring we need to
-   * temporarily disable the workaround before clearing so any
-   * special scissoring for the workaround will be removed first.
-   *
-   * Note: we only need to disable the workaround if the current
-   * viewport doesn't match the framebuffer's size since otherwise
-   * the workaround wont affect clearing anyway.
-   */
-  if (ctx->needs_viewport_scissor_workaround &&
-      (framebuffer->viewport_x != 0 ||
-       framebuffer->viewport_y != 0 ||
-       framebuffer->viewport_width != framebuffer->width ||
-       framebuffer->viewport_height != framebuffer->height))
-    {
-      saved_viewport_scissor_workaround = TRUE;
-      ctx->needs_viewport_scissor_workaround = FALSE;
-      ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_CLIP;
-    }
-  else
-    saved_viewport_scissor_workaround = FALSE;
-
   /* NB: _cogl_framebuffer_flush_state may disrupt various state (such
    * as the pipeline state) when flushing the clip stack, so should
    * always be done first when preparing to draw. */
@@ -394,16 +362,6 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
 
   _cogl_framebuffer_clear_without_flush4f (framebuffer, buffers,
                                            red, green, blue, alpha);
-
-  /* XXX: ONGOING BUG: Intel viewport scissor
-   *
-   * See comment about temporarily disabling this workaround above
-   */
-  if (saved_viewport_scissor_workaround)
-    {
-      ctx->needs_viewport_scissor_workaround = TRUE;
-      ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_CLIP;
-    }
 
   /* This is a debugging variable used to visually display the quad
    * batches from the journal. It is reset here to increase the
@@ -487,11 +445,11 @@ ensure_size_initialized (CoglFramebuffer *framebuffer)
     {
       /* Currently we assume the size is always initialized for
        * onscreen framebuffers. */
-      _COGL_RETURN_IF_FAIL (cogl_is_offscreen (framebuffer));
+      g_return_if_fail (cogl_is_offscreen (framebuffer));
 
       /* We also assume the size would have been initialized if the
        * framebuffer were allocated. */
-      _COGL_RETURN_IF_FAIL (!framebuffer->allocated);
+      g_return_if_fail (!framebuffer->allocated);
 
       cogl_framebuffer_allocate (framebuffer, NULL);
     }
@@ -535,7 +493,7 @@ cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
 {
   CoglContext *context = framebuffer->context;
 
-  _COGL_RETURN_IF_FAIL (width > 0 && height > 0);
+  g_return_if_fail (width > 0 && height > 0);
 
   if (framebuffer->viewport_x == x &&
       framebuffer->viewport_y == y &&
@@ -552,12 +510,7 @@ cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
   framebuffer->viewport_age++;
 
   if (context->current_draw_buffer == framebuffer)
-    {
-      context->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_VIEWPORT;
-
-      if (context->needs_viewport_scissor_workaround)
-        context->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_CLIP;
-    }
+    context->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_VIEWPORT;
 }
 
 float
@@ -665,7 +618,7 @@ _cogl_offscreen_new_with_texture_full (CoglTexture *texture,
   CoglFramebuffer *fb;
   CoglOffscreen *ret;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_texture (texture), NULL);
+  g_return_val_if_fail (cogl_is_texture (texture), NULL);
 
   offscreen = g_new0 (CoglOffscreen, 1);
   offscreen->texture = cogl_object_ref (texture);
@@ -697,12 +650,12 @@ CoglOffscreen *
 cogl_offscreen_new_to_texture (CoglTexture *texture)
 {
   CoglOffscreen *ret = _cogl_offscreen_new_with_texture_full (texture, 0, 0);
-  CoglError *error = NULL;
+  GError *error = NULL;
 
   if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (ret), &error))
     {
       cogl_object_unref (ret);
-      cogl_error_free (error);
+      g_error_free (error);
       ret = NULL;
     }
 
@@ -743,7 +696,7 @@ _cogl_offscreen_free (CoglOffscreen *offscreen)
 
 gboolean
 cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
-                           CoglError **error)
+                           GError **error)
 {
   CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
   const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
@@ -756,10 +709,10 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
     {
       if (framebuffer->config.depth_texture_enabled)
         {
-          _cogl_set_error (error, COGL_FRAMEBUFFER_ERROR,
-                           COGL_FRAMEBUFFER_ERROR_ALLOCATE,
-                           "Can't allocate onscreen framebuffer with a "
-                           "texture based depth buffer");
+          g_set_error_literal (error, COGL_FRAMEBUFFER_ERROR,
+                               COGL_FRAMEBUFFER_ERROR_ALLOCATE,
+                               "Can't allocate onscreen framebuffer with a "
+                               "texture based depth buffer");
           return FALSE;
         }
 
@@ -779,9 +732,9 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
 
       if (!cogl_has_feature (ctx, COGL_FEATURE_ID_OFFSCREEN))
         {
-          _cogl_set_error (error, COGL_SYSTEM_ERROR,
-                           COGL_SYSTEM_ERROR_UNSUPPORTED,
-                           "Offscreen framebuffers not supported by system");
+          g_set_error_literal (error, COGL_SYSTEM_ERROR,
+                               COGL_SYSTEM_ERROR_UNSUPPORTED,
+                               "Offscreen framebuffers not supported by system");
           return FALSE;
         }
 
@@ -792,10 +745,9 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
        * determine whether a texture needs slicing... */
       if (cogl_texture_is_sliced (offscreen->texture))
         {
-          _cogl_set_error (error, COGL_SYSTEM_ERROR,
-                           COGL_SYSTEM_ERROR_UNSUPPORTED,
-                           "Can't create offscreen framebuffer from "
-                           "sliced texture");
+          g_set_error (error, COGL_SYSTEM_ERROR, COGL_SYSTEM_ERROR_UNSUPPORTED,
+                       "Can't create offscreen framebuffer from "
+                       "sliced texture");
           return FALSE;
         }
 
@@ -831,27 +783,7 @@ _cogl_framebuffer_compare_viewport_state (CoglFramebuffer *a,
       /* NB: we render upside down to offscreen framebuffers and that
        * can affect how we setup the GL viewport... */
       a->type != b->type)
-    {
-      unsigned long differences = COGL_FRAMEBUFFER_STATE_VIEWPORT;
-      CoglContext *context = a->context;
-
-      /* XXX: ONGOING BUG: Intel viewport scissor
-       *
-       * Intel gen6 drivers don't currently correctly handle offset
-       * viewports, since primitives aren't clipped within the bounds of
-       * the viewport.  To workaround this we push our own clip for the
-       * viewport that will use scissoring to ensure we clip as expected.
-       *
-       * This workaround implies that a change in viewport state is
-       * effectively also a change in the clipping state.
-       *
-       * TODO: file a bug upstream!
-       */
-      if (G_UNLIKELY (context->needs_viewport_scissor_workaround))
-          differences |= COGL_FRAMEBUFFER_STATE_CLIP;
-
-      return differences;
-    }
+    return COGL_FRAMEBUFFER_STATE_VIEWPORT;
   else
     return 0;
 }
@@ -892,17 +824,6 @@ _cogl_framebuffer_compare_projection_state (CoglFramebuffer *a,
      set the current projection stack on the context to the
      framebuffer's stack. */
   return COGL_FRAMEBUFFER_STATE_PROJECTION;
-}
-
-static unsigned long
-_cogl_framebuffer_compare_color_mask_state (CoglFramebuffer *a,
-                                            CoglFramebuffer *b)
-{
-  if (cogl_framebuffer_get_color_mask (a) !=
-      cogl_framebuffer_get_color_mask (b))
-    return COGL_FRAMEBUFFER_STATE_COLOR_MASK;
-  else
-    return 0;
 }
 
 static unsigned long
@@ -970,10 +891,6 @@ _cogl_framebuffer_compare (CoglFramebuffer *a,
         case COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION:
           differences |=
             _cogl_framebuffer_compare_projection_state (a, b);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_COLOR_MASK:
-          differences |=
-            _cogl_framebuffer_compare_color_mask_state (a, b);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
           differences |=
@@ -1080,29 +997,6 @@ cogl_framebuffer_get_is_stereo (CoglFramebuffer *framebuffer)
   return framebuffer->config.stereo_enabled;
 }
 
-CoglColorMask
-cogl_framebuffer_get_color_mask (CoglFramebuffer *framebuffer)
-{
-  return framebuffer->color_mask;
-}
-
-void
-cogl_framebuffer_set_color_mask (CoglFramebuffer *framebuffer,
-                                 CoglColorMask color_mask)
-{
-  if (framebuffer->color_mask == color_mask)
-    return;
-
-  /* XXX: Currently color mask changes don't go through the journal */
-  _cogl_framebuffer_flush_journal (framebuffer);
-
-  framebuffer->color_mask = color_mask;
-
-  if (framebuffer->context->current_draw_buffer == framebuffer)
-    framebuffer->context->current_draw_buffer_changes |=
-      COGL_FRAMEBUFFER_STATE_COLOR_MASK;
-}
-
 CoglStereoMode
 cogl_framebuffer_get_stereo_mode (CoglFramebuffer *framebuffer)
 {
@@ -1174,7 +1068,7 @@ void
 cogl_framebuffer_set_depth_texture_enabled (CoglFramebuffer *framebuffer,
                                             gboolean enabled)
 {
-  _COGL_RETURN_IF_FAIL (!framebuffer->allocated);
+  g_return_if_fail (!framebuffer->allocated);
 
   framebuffer->config.depth_texture_enabled = enabled;
 }
@@ -1192,7 +1086,7 @@ cogl_framebuffer_get_depth_texture (CoglFramebuffer *framebuffer)
   if (!cogl_framebuffer_allocate (framebuffer, NULL))
     return NULL;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_offscreen (framebuffer), NULL);
+  g_return_val_if_fail (cogl_is_offscreen (framebuffer), NULL);
   return COGL_OFFSCREEN(framebuffer)->depth_texture;
 }
 
@@ -1209,7 +1103,7 @@ void
 cogl_framebuffer_set_samples_per_pixel (CoglFramebuffer *framebuffer,
                                         int samples_per_pixel)
 {
-  _COGL_RETURN_IF_FAIL (!framebuffer->allocated);
+  g_return_if_fail (!framebuffer->allocated);
 
   framebuffer->config.samples_per_pixel = samples_per_pixel;
 }
@@ -1263,7 +1157,7 @@ cogl_framebuffer_resolve_samples_region (CoglFramebuffer *framebuffer,
 CoglContext *
 cogl_framebuffer_get_context (CoglFramebuffer *framebuffer)
 {
-  _COGL_RETURN_VAL_IF_FAIL (framebuffer != NULL, NULL);
+  g_return_val_if_fail (framebuffer != NULL, NULL);
 
   return framebuffer->context;
 }
@@ -1317,7 +1211,7 @@ _cogl_framebuffer_try_fast_read_pixel (CoglFramebuffer *framebuffer,
       y < framebuffer->clear_clip_y1)
     {
       uint8_t *pixel;
-      CoglError *ignore_error = NULL;
+      GError *ignore_error = NULL;
 
       /* we currently only care about cases where the premultiplied or
        * unpremultipled colors are equivalent... */
@@ -1330,7 +1224,7 @@ _cogl_framebuffer_try_fast_read_pixel (CoglFramebuffer *framebuffer,
                                 &ignore_error);
       if (pixel == NULL)
         {
-          cogl_error_free (ignore_error);
+          g_error_free (ignore_error);
           return FALSE;
         }
 
@@ -1353,14 +1247,14 @@ _cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                            int y,
                                            CoglReadPixelsFlags source,
                                            CoglBitmap *bitmap,
-                                           CoglError **error)
+                                           GError **error)
 {
   CoglContext *ctx;
   int width;
   int height;
 
-  _COGL_RETURN_VAL_IF_FAIL (source & COGL_READ_PIXELS_COLOR_BUFFER, FALSE);
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_framebuffer (framebuffer), FALSE);
+  g_return_val_if_fail (source & COGL_READ_PIXELS_COLOR_BUFFER, FALSE);
+  g_return_val_if_fail (cogl_is_framebuffer (framebuffer), FALSE);
 
   if (!cogl_framebuffer_allocate (framebuffer, error))
     return FALSE;
@@ -1404,13 +1298,12 @@ cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                           CoglReadPixelsFlags source,
                                           CoglBitmap *bitmap)
 {
-  CoglError *ignore_error = NULL;
+  GError *ignore_error = NULL;
   gboolean status =
     _cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
                                                x, y, source, bitmap,
                                                &ignore_error);
-  if (!status)
-    cogl_error_free (ignore_error);
+  g_clear_error (&ignore_error);
   return status;
 }
 
@@ -1448,28 +1341,38 @@ cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
   return ret;
 }
 
-void
-_cogl_blit_framebuffer (CoglFramebuffer *src,
-                        CoglFramebuffer *dest,
-                        int src_x,
-                        int src_y,
-                        int dst_x,
-                        int dst_y,
-                        int width,
-                        int height)
+gboolean
+cogl_blit_framebuffer (CoglFramebuffer *src,
+                       CoglFramebuffer *dest,
+                       int src_x,
+                       int src_y,
+                       int dst_x,
+                       int dst_y,
+                       int width,
+                       int height,
+                       GError **error)
 {
   CoglContext *ctx = src->context;
+  int src_x1, src_y1, src_x2, src_y2;
+  int dst_x1, dst_y1, dst_x2, dst_y2;
 
-  _COGL_RETURN_IF_FAIL (_cogl_has_private_feature
-                        (ctx, COGL_PRIVATE_FEATURE_OFFSCREEN_BLIT));
+  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER))
+    {
+      g_set_error_literal (error, COGL_SYSTEM_ERROR,
+                           COGL_SYSTEM_ERROR_UNSUPPORTED,
+                           "Cogl BLIT_FRAMEBUFFER is not supported by the system.");
+      return FALSE;
+    }
 
-  /* We can only support blitting between offscreen buffers because
-     otherwise we would need to mirror the image and GLES2.0 doesn't
-     support this */
-  _COGL_RETURN_IF_FAIL (cogl_is_offscreen (src));
-  _COGL_RETURN_IF_FAIL (cogl_is_offscreen (dest));
-  /* The buffers must be the same format */
-  _COGL_RETURN_IF_FAIL (src->internal_format == dest->internal_format);
+  /* The buffers must use the same premult convention */
+  if ((src->internal_format & COGL_PREMULT_BIT) !=
+      (dest->internal_format & COGL_PREMULT_BIT))
+    {
+      g_set_error_literal (error, COGL_SYSTEM_ERROR,
+                           COGL_SYSTEM_ERROR_UNSUPPORTED,
+                           "cogl_blit_framebuffer premult mismatch.");
+      return FALSE;
+    }
 
   /* Make sure the current framebuffers are bound. We explicitly avoid
      flushing the clip state so we can bind our own empty state */
@@ -1490,12 +1393,45 @@ _cogl_blit_framebuffer (CoglFramebuffer *src,
    * as changed */
   ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_CLIP;
 
-  ctx->glBlitFramebuffer (src_x, src_y,
-                          src_x + width, src_y + height,
-                          dst_x, dst_y,
-                          dst_x + width, dst_y + height,
+  /* Offscreens we do the normal way, onscreens need an y-flip. Even if
+   * we consider offscreens to be rendered upside-down, the offscreen
+   * orientation is in this function's API. */
+  if (cogl_is_offscreen (src))
+    {
+      src_x1 = src_x;
+      src_y1 = src_y;
+      src_x2 = src_x + width;
+      src_y2 = src_y + height;
+    }
+  else
+    {
+      src_x1 = src_x;
+      src_y1 = cogl_framebuffer_get_height (src) - src_y;
+      src_x2 = src_x + width;
+      src_y2 = src_y1 - height;
+    }
+
+  if (cogl_is_offscreen (dest))
+    {
+      dst_x1 = dst_x;
+      dst_y1 = dst_y;
+      dst_x2 = dst_x + width;
+      dst_y2 = dst_y + height;
+    }
+  else
+    {
+      dst_x1 = dst_x;
+      dst_y1 = cogl_framebuffer_get_height (dest) - dst_y;
+      dst_x2 = dst_x + width;
+      dst_y2 = dst_y1 - height;
+    }
+
+  ctx->glBlitFramebuffer (src_x1, src_y1, src_x2, src_y2,
+                          dst_x1, dst_y1, dst_x2, dst_y2,
                           GL_COLOR_BUFFER_BIT,
                           GL_NEAREST);
+
+  return TRUE;
 }
 
 void
@@ -1504,7 +1440,7 @@ cogl_framebuffer_discard_buffers (CoglFramebuffer *framebuffer,
 {
   CoglContext *ctx = framebuffer->context;
 
-  _COGL_RETURN_IF_FAIL (buffers & COGL_BUFFER_BIT_COLOR);
+  g_return_if_fail (buffers & COGL_BUFFER_BIT_COLOR);
 
   ctx->driver_vtable->framebuffer_discard_buffers (framebuffer, buffers);
 }
@@ -2097,15 +2033,6 @@ get_wire_line_indices (CoglContext *ctx,
   return ret;
 }
 
-static gboolean
-remove_layer_cb (CoglPipeline *pipeline,
-                 int layer_index,
-                 void *user_data)
-{
-  cogl_pipeline_remove_layer (pipeline, layer_index);
-  return TRUE;
-}
-
 static void
 pipeline_destroyed_cb (CoglPipeline *weak_pipeline, void *user_data)
 {
@@ -2157,6 +2084,8 @@ draw_wireframe (CoglContext *ctx,
 
   if (!wire_pipeline)
     {
+      static CoglSnippet *snippet = NULL;
+
       wire_pipeline =
         _cogl_pipeline_weak_copy (pipeline, pipeline_destroyed_cb, NULL);
 
@@ -2168,29 +2097,20 @@ draw_wireframe (CoglContext *ctx,
        * vertex program and since we'd like to see the results of the
        * vertex program in the wireframe we just add a final clobber
        * of the wire color leaving the rest of the state untouched. */
-      if (cogl_has_feature (framebuffer->context, COGL_FEATURE_ID_GLSL))
-        {
-          static CoglSnippet *snippet = NULL;
 
-          /* The snippet is cached so that it will reuse the program
-           * from the pipeline cache if possible */
-          if (snippet == NULL)
-            {
-              snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
-                                          NULL,
-                                          NULL);
-              cogl_snippet_set_replace (snippet,
-                                        "cogl_color_out = "
-                                        "vec4 (0.0, 1.0, 0.0, 1.0);\n");
-            }
-
-          cogl_pipeline_add_snippet (wire_pipeline, snippet);
-        }
-      else
+      /* The snippet is cached so that it will reuse the program
+       * from the pipeline cache if possible */
+      if (snippet == NULL)
         {
-          cogl_pipeline_foreach_layer (wire_pipeline, remove_layer_cb, NULL);
-          cogl_pipeline_set_color4f (wire_pipeline, 0, 1, 0, 1);
+          snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT,
+                                      NULL,
+                                      NULL);
+          cogl_snippet_set_replace (snippet,
+                                    "cogl_color_out = "
+                                    "vec4 (0.0, 1.0, 0.0, 1.0);\n");
         }
+
+      cogl_pipeline_add_snippet (wire_pipeline, snippet);
     }
 
   /* temporarily disable the wireframe to avoid recursion! */

@@ -32,6 +32,7 @@
 #include "backends/meta-monitor.h"
 #include "backends/meta-screen-cast-monitor-stream.h"
 #include "backends/meta-screen-cast-session.h"
+#include "backends/meta-stage-private.h"
 #include "clutter/clutter.h"
 #include "clutter/clutter-mutter.h"
 #include "core/boxes-private.h"
@@ -42,8 +43,9 @@ struct _MetaScreenCastMonitorStreamSrc
 
   gboolean cursor_bitmap_invalid;
 
-  gulong actors_painted_handler_id;
-  gulong paint_handler_id;
+  MetaStageWatch *paint_watch;
+  MetaStageWatch *after_paint_watch;
+
   gulong cursor_moved_handler_id;
   gulong cursor_changed_handler_id;
 };
@@ -113,10 +115,11 @@ meta_screen_cast_monitor_stream_src_get_specs (MetaScreenCastStreamSrc *src,
 }
 
 static void
-stage_painted (ClutterActor                   *actor,
-               MetaScreenCastMonitorStreamSrc *monitor_src)
+stage_painted (MetaStage        *stage,
+               ClutterStageView *view,
+               gpointer          user_data)
 {
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (user_data);
 
   meta_screen_cast_stream_src_maybe_record_frame (src);
 }
@@ -245,12 +248,28 @@ meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
   MetaBackend *backend = get_backend (monitor_src);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+  MetaRendererView *view;
+  MetaMonitor *monitor;
+  MetaLogicalMonitor *logical_monitor;
+  MetaStage *meta_stage;
+  ClutterStageView *stage_view;
   ClutterStage *stage;
   MetaScreenCastStream *stream;
 
   stream = meta_screen_cast_stream_src_get_stream (src);
   stage = get_stage (monitor_src);
+  meta_stage = META_STAGE (stage);
+  monitor = get_monitor (monitor_src);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  view = meta_renderer_get_view_from_logical_monitor (renderer,
+                                                      logical_monitor);
+
+  if (view)
+    stage_view = CLUTTER_STAGE_VIEW (view);
+  else
+    stage_view = NULL;
 
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
@@ -265,17 +284,21 @@ meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
                                 monitor_src);
       /* Intentional fall-through */
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      monitor_src->actors_painted_handler_id =
-        g_signal_connect (stage, "actors-painted",
-                          G_CALLBACK (stage_painted),
-                          monitor_src);
+      monitor_src->paint_watch =
+        meta_stage_watch_view (meta_stage,
+                               stage_view,
+                               META_STAGE_WATCH_AFTER_ACTOR_PAINT,
+                               stage_painted,
+                               monitor_src);
       break;
     case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
       inhibit_hw_cursor (monitor_src);
-      monitor_src->paint_handler_id =
-        g_signal_connect_after (stage, "paint",
-                                G_CALLBACK (stage_painted),
-                                monitor_src);
+      monitor_src->after_paint_watch =
+        meta_stage_watch_view (meta_stage,
+                               stage_view,
+                               META_STAGE_WATCH_AFTER_PAINT,
+                               stage_painted,
+                               monitor_src);
       break;
     }
 
@@ -290,21 +313,21 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
   MetaBackend *backend = get_backend (monitor_src);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterStage *stage;
+  MetaStage *meta_stage;
 
   stage = get_stage (monitor_src);
+  meta_stage = META_STAGE (stage);
 
-  if (monitor_src->actors_painted_handler_id)
+  if (monitor_src->paint_watch)
     {
-      g_signal_handler_disconnect (stage,
-                                   monitor_src->actors_painted_handler_id);
-      monitor_src->actors_painted_handler_id = 0;
+      meta_stage_remove_watch (meta_stage, monitor_src->paint_watch);
+      monitor_src->paint_watch = NULL;
     }
 
-  if (monitor_src->paint_handler_id)
+  if (monitor_src->after_paint_watch)
     {
-      g_signal_handler_disconnect (stage,
-                                   monitor_src->paint_handler_id);
-      monitor_src->paint_handler_id = 0;
+      meta_stage_remove_watch (meta_stage, monitor_src->after_paint_watch);
+      monitor_src->after_paint_watch = NULL;
       uninhibit_hw_cursor (monitor_src);
     }
 

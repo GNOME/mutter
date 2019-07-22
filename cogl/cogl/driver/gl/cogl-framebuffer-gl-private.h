@@ -36,7 +36,7 @@
 
 gboolean
 _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
-                             CoglError **error);
+                             GError **error);
 
 void
 _cogl_offscreen_gl_free (CoglOffscreen *offscreen);
@@ -95,7 +95,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                               int y,
                                               CoglReadPixelsFlags source,
                                               CoglBitmap *bitmap,
-                                              CoglError **error);
+                                              GError **error);
 
 #endif /* __COGL_FRAMEBUFFER_GL_PRIVATE_H__ */
 

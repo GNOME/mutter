@@ -37,7 +37,6 @@
 #include <string.h>
 
 #include "cogl-private.h"
-#include "cogl-error-private.h"
 #include "cogl-context-private.h"
 #include "cogl-attribute.h"
 #include "cogl-attribute-private.h"
@@ -60,9 +59,9 @@ toggle_builtin_attribute_enabled_cb (int bit_num, void *user_data)
   ForeachChangedBitState *state = user_data;
   CoglContext *context = state->context;
 
-  _COGL_RETURN_VAL_IF_FAIL (_cogl_has_private_feature
-                            (context, COGL_PRIVATE_FEATURE_GL_FIXED),
-                            FALSE);
+  g_return_val_if_fail (_cogl_has_private_feature
+                        (context, COGL_PRIVATE_FEATURE_GL_FIXED),
+                        FALSE);
 
 #ifdef HAVE_COGL_GL
   {
@@ -99,9 +98,9 @@ toggle_texcood_attribute_enabled_cb (int bit_num, void *user_data)
   ForeachChangedBitState *state = user_data;
   CoglContext *context = state->context;
 
-  _COGL_RETURN_VAL_IF_FAIL (_cogl_has_private_feature
-                            (context, COGL_PRIVATE_FEATURE_GL_FIXED),
-                            FALSE);
+  g_return_val_if_fail (_cogl_has_private_feature
+                        (context, COGL_PRIVATE_FEATURE_GL_FIXED),
+                        FALSE);
 
 #ifdef HAVE_COGL_GL
   {

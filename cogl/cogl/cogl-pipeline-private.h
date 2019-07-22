@@ -87,7 +87,6 @@ typedef enum
   COGL_PIPELINE_STATE_NON_ZERO_POINT_SIZE_INDEX,
   COGL_PIPELINE_STATE_POINT_SIZE_INDEX,
   COGL_PIPELINE_STATE_PER_VERTEX_POINT_SIZE_INDEX,
-  COGL_PIPELINE_STATE_LOGIC_OPS_INDEX,
   COGL_PIPELINE_STATE_CULL_FACE_INDEX,
   COGL_PIPELINE_STATE_UNIFORMS_INDEX,
   COGL_PIPELINE_STATE_VERTEX_SNIPPETS_INDEX,
@@ -140,8 +139,6 @@ typedef enum _CoglPipelineState
     1L<<COGL_PIPELINE_STATE_POINT_SIZE_INDEX,
   COGL_PIPELINE_STATE_PER_VERTEX_POINT_SIZE =
     1L<<COGL_PIPELINE_STATE_PER_VERTEX_POINT_SIZE_INDEX,
-  COGL_PIPELINE_STATE_LOGIC_OPS =
-    1L<<COGL_PIPELINE_STATE_LOGIC_OPS_INDEX,
   COGL_PIPELINE_STATE_CULL_FACE =
     1L<<COGL_PIPELINE_STATE_CULL_FACE_INDEX,
   COGL_PIPELINE_STATE_UNIFORMS =
@@ -188,7 +185,6 @@ typedef enum _CoglPipelineState
    COGL_PIPELINE_STATE_NON_ZERO_POINT_SIZE | \
    COGL_PIPELINE_STATE_POINT_SIZE | \
    COGL_PIPELINE_STATE_PER_VERTEX_POINT_SIZE | \
-   COGL_PIPELINE_STATE_LOGIC_OPS | \
    COGL_PIPELINE_STATE_CULL_FACE | \
    COGL_PIPELINE_STATE_UNIFORMS | \
    COGL_PIPELINE_STATE_VERTEX_SNIPPETS | \
@@ -200,7 +196,6 @@ typedef enum _CoglPipelineState
    COGL_PIPELINE_STATE_BLEND | \
    COGL_PIPELINE_STATE_DEPTH | \
    COGL_PIPELINE_STATE_FOG | \
-   COGL_PIPELINE_STATE_LOGIC_OPS | \
    COGL_PIPELINE_STATE_CULL_FACE | \
    COGL_PIPELINE_STATE_UNIFORMS | \
    COGL_PIPELINE_STATE_VERTEX_SNIPPETS | \
@@ -267,11 +262,6 @@ typedef struct
 
 typedef struct
 {
-  CoglColorMask color_mask;
-} CoglPipelineLogicOpsState;
-
-typedef struct
-{
   CoglPipelineCullFaceMode mode;
   CoglWinding front_winding;
 } CoglPipelineCullFaceState;
@@ -301,7 +291,6 @@ typedef struct
   float point_size;
   unsigned int non_zero_point_size : 1;
   unsigned int per_vertex_point_size : 1;
-  CoglPipelineLogicOpsState logic_ops_state;
   CoglPipelineCullFaceState cull_face_state;
   CoglPipelineUniformsState uniforms_state;
   CoglPipelineSnippetList vertex_snippets;

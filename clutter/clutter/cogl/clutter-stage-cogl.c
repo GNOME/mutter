@@ -45,6 +45,9 @@
 #include "clutter-main.h"
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
+#include "clutter-stage-view-private.h"
+
+#include "cogl/cogl-trace.h"
 
 typedef struct _ClutterStageViewCoglPrivate
 {
@@ -76,6 +79,10 @@ enum
   PROP_BACKEND,
   PROP_LAST
 };
+
+static void
+clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
+                                    gint                sync_delay);
 
 static void
 clutter_stage_cogl_unrealize (ClutterStageWindow *stage_window)
@@ -122,6 +129,16 @@ _clutter_stage_cogl_presented (ClutterStageCogl *stage_cogl,
     }
 
   _clutter_stage_presented (stage_cogl->wrapper, frame_event, frame_info);
+
+  if (frame_event == COGL_FRAME_EVENT_COMPLETE &&
+      stage_cogl->update_time != -1)
+    {
+      ClutterStageWindow *stage_window = CLUTTER_STAGE_WINDOW (stage_cogl);
+
+      stage_cogl->update_time = -1;
+      clutter_stage_cogl_schedule_update (stage_window,
+                                          stage_cogl->last_sync_delay);
+    }
 }
 
 static gboolean
@@ -152,9 +169,14 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
   gint64 now;
   float refresh_rate;
   gint64 refresh_interval;
+  int64_t min_render_time_allowed;
+  int64_t max_render_time_allowed;
+  int64_t next_presentation_time;
 
   if (stage_cogl->update_time != -1)
     return;
+
+  stage_cogl->last_sync_delay = sync_delay;
 
   now = g_get_monotonic_time ();
 
@@ -164,30 +186,56 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
       return;
     }
 
-  /* We only extrapolate presentation times for 150ms  - this is somewhat
-   * arbitrary. The reasons it might not be accurate for larger times are
-   * that the refresh interval might be wrong or the vertical refresh
-   * might be downclocked if nothing is going on onscreen.
-   */
-  if (stage_cogl->last_presentation_time == 0||
-      stage_cogl->last_presentation_time < now - 150000)
+  refresh_rate = stage_cogl->refresh_rate;
+  if (refresh_rate <= 0.0)
+    refresh_rate = clutter_get_default_frame_rate ();
+
+  refresh_interval = (gint64) (0.5 + G_USEC_PER_SEC / refresh_rate);
+  if (refresh_interval == 0)
     {
       stage_cogl->update_time = now;
       return;
     }
 
-  refresh_rate = stage_cogl->refresh_rate;
-  if (refresh_rate == 0.0)
-    refresh_rate = 60.0;
+  min_render_time_allowed = refresh_interval / 2;
+  max_render_time_allowed = refresh_interval - 1000 * sync_delay;
 
-  refresh_interval = (gint64) (0.5 + 1000000 / refresh_rate);
-  if (refresh_interval == 0)
-    refresh_interval = 16667; /* 1/60th second */
+  /* Be robust in the case of incredibly bogus refresh rate */
+  if (max_render_time_allowed <= 0)
+    {
+      g_warning ("Unsupported monitor refresh rate detected. "
+                 "(Refresh rate: %.3f, refresh interval: %ld)",
+                 refresh_rate,
+                 refresh_interval);
+      stage_cogl->update_time = now;
+      return;
+    }
 
-  stage_cogl->update_time = stage_cogl->last_presentation_time + 1000 * sync_delay;
+  if (min_render_time_allowed > max_render_time_allowed)
+    min_render_time_allowed = max_render_time_allowed;
 
-  while (stage_cogl->update_time < now)
-    stage_cogl->update_time += refresh_interval;
+  next_presentation_time = stage_cogl->last_presentation_time + refresh_interval;
+
+  /* Get next_presentation_time closer to its final value, to reduce
+   * the number of while iterations below.
+   */
+  if (next_presentation_time < now)
+    {
+      int64_t last_virtual_presentation_time = now - now % refresh_interval;
+      int64_t hardware_clock_phase =
+        stage_cogl->last_presentation_time % refresh_interval;
+
+      next_presentation_time =
+        last_virtual_presentation_time + hardware_clock_phase;
+    }
+
+  while (next_presentation_time < now + min_render_time_allowed)
+    next_presentation_time += refresh_interval;
+
+  stage_cogl->update_time = next_presentation_time - max_render_time_allowed;
+
+  if (stage_cogl->update_time == stage_cogl->last_update_time)
+    stage_cogl->update_time = stage_cogl->last_update_time + refresh_interval;
 }
 
 static gint64
@@ -206,6 +254,7 @@ clutter_stage_cogl_clear_update_time (ClutterStageWindow *stage_window)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
 
+  stage_cogl->last_update_time = stage_cogl->update_time;
   stage_cogl->update_time = -1;
 }
 
@@ -273,7 +322,7 @@ clutter_stage_cogl_ignoring_redraw_clips (ClutterStageWindow *stage_window)
 }
 
 /* A redraw clip represents (in stage coordinates) the bounding box of
- * something that needs to be redraw. Typically they are added to the
+ * something that needs to be redrawn. Typically they are added to the
  * StageWindow as a result of clutter_actor_queue_clipped_redraw() by
  * actors such as ClutterGLXTexturePixmap. All redraw clips are
  * discarded after the next paint.
@@ -502,8 +551,8 @@ fill_current_damage_history_and_step (ClutterStageView *view)
   *current_fb_damage = (cairo_rectangle_int_t) {
     .x = 0,
     .y = 0,
-    .width = view_rect.width * fb_scale,
-    .height = view_rect.height * fb_scale
+    .width = ceilf (view_rect.width * fb_scale),
+    .height = ceilf (view_rect.height * fb_scale)
   };
   view_priv->damage_index++;
 }
@@ -878,24 +927,14 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
    */
   if (use_clipped_redraw)
     {
-      if (use_clipped_redraw && clip_region_empty)
+      if (clip_region_empty)
         {
           do_swap_buffer = FALSE;
         }
-      else if (use_clipped_redraw)
+      else
         {
           swap_region = fb_clip_region;
           g_assert (swap_region.width > 0);
-          do_swap_buffer = TRUE;
-        }
-      else
-        {
-          swap_region = (cairo_rectangle_int_t) {
-            .x = 0,
-            .y = 0,
-            .width = view_rect.width * fb_scale,
-            .height = view_rect.height * fb_scale,
-          };
           do_swap_buffer = TRUE;
         }
     }
@@ -907,6 +946,9 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
 
   if (do_swap_buffer)
     {
+      COGL_TRACE_BEGIN_SCOPED (ClutterStageCoglRedrawViewSwapFramebuffer,
+                               "Paint (swap framebuffer)");
+
       if (clutter_stage_view_get_onscreen (view) !=
           clutter_stage_view_get_framebuffer (view))
         {
@@ -931,6 +973,8 @@ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
   gboolean swap_event = FALSE;
   GList *l;
 
+  COGL_TRACE_BEGIN (ClutterStageCoglRedraw, "Paint (Cogl Redraw)");
+
   for (l = _clutter_stage_window_get_views (stage_window); l; l = l->next)
     {
       ClutterStageView *view = l->data;
@@ -938,6 +982,8 @@ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
       swap_event =
         clutter_stage_cogl_redraw_view (stage_window, view) || swap_event;
     }
+
+  _clutter_stage_emit_after_paint (stage_cogl->wrapper);
 
   _clutter_stage_window_finish_frame (stage_window);
 
@@ -954,6 +1000,8 @@ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
   stage_cogl->initialized_redraw_clip = FALSE;
 
   stage_cogl->frame_count++;
+
+  COGL_TRACE_END (ClutterStageCoglRedraw);
 }
 
 static void

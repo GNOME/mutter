@@ -178,8 +178,8 @@ clutter_blur_effect_paint_target (ClutterOffscreenEffect *effect)
 }
 
 static gboolean
-clutter_blur_effect_get_paint_volume (ClutterEffect      *effect,
-                                      ClutterPaintVolume *volume)
+clutter_blur_effect_modify_paint_volume (ClutterEffect      *effect,
+                                         ClutterPaintVolume *volume)
 {
   gfloat cur_width, cur_height;
   ClutterVertex origin;
@@ -223,7 +223,7 @@ clutter_blur_effect_class_init (ClutterBlurEffectClass *klass)
   gobject_class->dispose = clutter_blur_effect_dispose;
 
   effect_class->pre_paint = clutter_blur_effect_pre_paint;
-  effect_class->get_paint_volume = clutter_blur_effect_get_paint_volume;
+  effect_class->modify_paint_volume = clutter_blur_effect_modify_paint_volume;
 
   offscreen_class = CLUTTER_OFFSCREEN_EFFECT_CLASS (klass);
   offscreen_class->paint_target = clutter_blur_effect_paint_target;
@@ -249,9 +249,7 @@ clutter_blur_effect_init (ClutterBlurEffect *self)
       cogl_pipeline_add_layer_snippet (klass->base_pipeline, 0, snippet);
       cogl_object_unref (snippet);
 
-      cogl_pipeline_set_layer_null_texture (klass->base_pipeline,
-                                            0, /* layer number */
-                                            COGL_TEXTURE_TYPE_2D);
+      cogl_pipeline_set_layer_null_texture (klass->base_pipeline, 0);
     }
 
   self->pipeline = cogl_pipeline_copy (klass->base_pipeline);

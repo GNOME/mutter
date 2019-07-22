@@ -75,7 +75,7 @@ struct _CoglTextureVtable
   gboolean is_primitive;
 
   gboolean (* allocate) (CoglTexture *tex,
-                         CoglError **error);
+                         GError **error);
 
   /* This should update the specified sub region of the texture with a
      sub region of the given bitmap. The bitmap is not converted
@@ -91,7 +91,7 @@ struct _CoglTextureVtable
                            int dst_height,
                            int level,
                            CoglBitmap *bitmap,
-                           CoglError **error);
+                           GError **error);
 
   gboolean (* is_get_data_supported) (CoglTexture *texture);
 
@@ -146,8 +146,6 @@ struct _CoglTextureVtable
   CoglPixelFormat (* get_format) (CoglTexture *tex);
   GLenum (* get_gl_format) (CoglTexture *tex);
 
-  CoglTextureType (* get_type) (CoglTexture *tex);
-
   gboolean (* is_foreign) (CoglTexture *tex);
 
   /* Only needs to be implemented if is_primitive == TRUE */
@@ -184,6 +182,7 @@ typedef struct _CoglTextureLoader
       int width;
       int height;
       CoglPixelFormat format;
+      CoglEglImageFlags flags;
     } egl_image;
 #endif
 #if defined (COGL_HAS_EGL_SUPPORT)
@@ -354,18 +353,6 @@ _cogl_texture_spans_foreach_in_region (CoglSpan *x_spans,
                                        CoglMetaTextureCallback callback,
                                        void *user_data);
 
-/*
- * _cogl_texture_get_type:
- * @texture: a #CoglTexture pointer
- *
- * Retrieves the texture type of the underlying hardware texture that
- * this #CoglTexture will use.
- *
- * Return value: The type of the hardware texture.
- */
-CoglTextureType
-_cogl_texture_get_type (CoglTexture *texture);
-
 gboolean
 _cogl_texture_set_region (CoglTexture *texture,
                           int width,
@@ -376,7 +363,7 @@ _cogl_texture_set_region (CoglTexture *texture,
                           int dst_x,
                           int dst_y,
                           int level,
-                          CoglError **error);
+                          GError **error);
 
 gboolean
 _cogl_texture_set_region_from_bitmap (CoglTexture *texture,
@@ -388,7 +375,7 @@ _cogl_texture_set_region_from_bitmap (CoglTexture *texture,
                                       int dst_x,
                                       int dst_y,
                                       int level,
-                                      CoglError **error);
+                                      GError **error);
 
 gboolean
 _cogl_texture_needs_premult_conversion (CoglPixelFormat src_format,

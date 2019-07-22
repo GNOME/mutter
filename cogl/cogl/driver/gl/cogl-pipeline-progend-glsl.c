@@ -180,8 +180,8 @@ _cogl_pipeline_progend_glsl_get_attrib_location (CoglPipeline *pipeline,
 
   _COGL_GET_CONTEXT (ctx, -1);
 
-  _COGL_RETURN_VAL_IF_FAIL (program_state != NULL, -1);
-  _COGL_RETURN_VAL_IF_FAIL (program_state->program != 0, -1);
+  g_return_val_if_fail (program_state != NULL, -1);
+  g_return_val_if_fail (program_state->program != 0, -1);
 
   if (G_UNLIKELY (program_state->attribute_locations == NULL))
     program_state->attribute_locations =
@@ -204,7 +204,7 @@ _cogl_pipeline_progend_glsl_get_attrib_location (CoglPipeline *pipeline,
         g_array_index (ctx->attribute_name_index_map,
                        CoglAttributeNameState *, name_index);
 
-      _COGL_RETURN_VAL_IF_FAIL (name_state != NULL, 0);
+      g_return_val_if_fail (name_state != NULL, 0);
 
       GE_RET( locations[name_index],
               ctx, glGetAttribLocation (program_state->program,
@@ -643,9 +643,6 @@ _cogl_pipeline_progend_glsl_start (CoglPipeline *pipeline)
   CoglHandle user_program;
 
   _COGL_GET_CONTEXT (ctx, FALSE);
-
-  if (!cogl_has_feature (ctx, COGL_FEATURE_ID_GLSL))
-    return FALSE;
 
   user_program = cogl_pipeline_get_user_program (pipeline);
   if (user_program &&

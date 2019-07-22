@@ -20,10 +20,13 @@
  *     Georges Basile Stavracas Neto <gbsneto@gnome.org>
  */
 
+#include "config.h"
+
+#include "compositor/meta-window-actor-x11.h"
+
 #include "backends/meta-logical-monitor.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-surface-actor.h"
-#include "compositor/meta-window-actor-x11.h"
 #include "core/window-private.h"
 #include "meta/compositor.h"
 #include "meta/meta-window-actor.h"
@@ -326,32 +329,19 @@ meta_window_actor_x11_frame_complete (MetaWindowActor  *actor,
 }
 
 static void
-meta_window_actor_x11_set_surface_actor (MetaWindowActor  *actor,
-                                         MetaSurfaceActor *surface)
+meta_window_actor_x11_assign_surface_actor (MetaWindowActor  *actor,
+                                            MetaSurfaceActor *surface_actor)
 {
   MetaWindowActorClass *parent_class =
     META_WINDOW_ACTOR_CLASS (meta_window_actor_x11_parent_class);
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (actor);
-  MetaSurfaceActor *old_surface;
 
-  old_surface = meta_window_actor_get_surface (actor);
+  parent_class->assign_surface_actor (actor, surface_actor);
 
-  if (old_surface)
-    {
-      g_signal_handler_disconnect (old_surface,
-                                   actor_x11->repaint_scheduled_id);
-      actor_x11->repaint_scheduled_id = 0;
-    }
-
-  parent_class->set_surface_actor (actor, surface);
-
-  if (surface)
-    {
-      actor_x11->repaint_scheduled_id =
-        g_signal_connect (surface, "repaint-scheduled",
-                          G_CALLBACK (surface_repaint_scheduled),
-                          actor_x11);
-    }
+  actor_x11->repaint_scheduled_id =
+    g_signal_connect (surface_actor, "repaint-scheduled",
+                      G_CALLBACK (surface_repaint_scheduled),
+                      actor_x11);
 }
 
 static void
@@ -500,9 +490,18 @@ static void
 meta_window_actor_x11_dispose (GObject *object)
 {
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (object);
+  MetaSurfaceActor *surface_actor;
 
   if (actor_x11->send_frame_messages_timer != 0)
     remove_frame_messages_timer (actor_x11);
+
+  surface_actor = meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
+  if (surface_actor)
+    {
+      g_signal_handler_disconnect (surface_actor,
+                                   actor_x11->repaint_scheduled_id);
+      actor_x11->repaint_scheduled_id = 0;
+    }
 
   G_OBJECT_CLASS (meta_window_actor_x11_parent_class)->dispose (object);
 }
@@ -525,7 +524,7 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
   MetaWindowActorClass *window_actor_class = META_WINDOW_ACTOR_CLASS (klass);
 
   window_actor_class->frame_complete = meta_window_actor_x11_frame_complete;
-  window_actor_class->set_surface_actor = meta_window_actor_x11_set_surface_actor;
+  window_actor_class->assign_surface_actor = meta_window_actor_x11_assign_surface_actor;
   window_actor_class->queue_frame_drawn = meta_window_actor_x11_queue_frame_drawn;
   window_actor_class->pre_paint = meta_window_actor_x11_pre_paint;
   window_actor_class->post_paint = meta_window_actor_x11_post_paint;

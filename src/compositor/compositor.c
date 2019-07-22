@@ -149,10 +149,10 @@ meta_compositor_destroy (MetaCompositor *compositor)
 
   if (compositor->top_window_actor)
     {
-      g_signal_handlers_disconnect_by_func (compositor->top_window_actor,
-                                            on_top_window_actor_destroyed,
-                                            compositor);
+      g_signal_handler_disconnect (compositor->top_window_actor,
+                                   compositor->top_window_actor_destroy_id);
       compositor->top_window_actor = NULL;
+      compositor->top_window_actor_destroy_id = 0;
     }
 
   g_clear_pointer (&compositor->window_group, clutter_actor_destroy);
@@ -431,12 +431,10 @@ meta_end_modal_for_plugin (MetaCompositor *compositor,
 {
   MetaDisplay *display = compositor->display;
   MetaBackend *backend = meta_get_backend ();
+  MetaWindow *grab_window = display->grab_window;
+  MetaGrabOp grab_op = display->grab_op;
 
   g_return_if_fail (is_modal (display));
-
-  g_signal_emit_by_name (display, "grab-op-end",
-                         meta_plugin_get_display (plugin),
-                         display->grab_window, display->grab_op);
 
   display->grab_op = META_GRAB_OP_NONE;
   display->event_route = META_EVENT_ROUTE_NORMAL;
@@ -454,6 +452,10 @@ meta_end_modal_for_plugin (MetaCompositor *compositor,
       meta_display_sync_wayland_input_focus (display);
     }
 #endif
+
+  g_signal_emit_by_name (display, "grab-op-end",
+                         meta_plugin_get_display (plugin),
+                         grab_window, grab_op);
 }
 
 static void
@@ -692,10 +694,7 @@ meta_compositor_add_window (MetaCompositor    *compositor,
 {
   MetaWindowActor *window_actor;
   ClutterActor *window_group;
-  MetaDisplay *display = compositor->display;
   GType window_actor_type = G_TYPE_INVALID;
-
-  meta_x11_error_trap_push (display->x11_display);
 
   switch (window->client_type)
     {
@@ -724,8 +723,6 @@ meta_compositor_add_window (MetaCompositor    *compositor,
    */
   compositor->windows = g_list_append (compositor->windows, window_actor);
   sync_actor_stacking (compositor);
-
-  meta_x11_error_trap_pop (display->x11_display);
 }
 
 void
@@ -779,18 +776,6 @@ meta_compositor_window_opacity_changed (MetaCompositor *compositor,
     return;
 
   meta_window_actor_update_opacity (window_actor);
-}
-
-void
-meta_compositor_window_surface_changed (MetaCompositor *compositor,
-                                        MetaWindow     *window)
-{
-  MetaWindowActor *window_actor;
-  window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
-  if (!window_actor)
-    return;
-
-  meta_window_actor_update_surface (window_actor);
 }
 
 /**
@@ -847,7 +832,7 @@ meta_compositor_filter_keybinding (MetaCompositor *compositor,
 
 void
 meta_compositor_show_window (MetaCompositor *compositor,
-			     MetaWindow	    *window,
+                             MetaWindow     *window,
                              MetaCompEffect  effect)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
@@ -1028,6 +1013,7 @@ on_top_window_actor_destroyed (MetaWindowActor *window_actor,
                                MetaCompositor  *compositor)
 {
   compositor->top_window_actor = NULL;
+  compositor->top_window_actor_destroy_id = 0;
   compositor->windows = g_list_remove (compositor->windows, window_actor);
 
   meta_stack_tracker_queue_sync_stack (compositor->display->stack_tracker);
@@ -1035,8 +1021,9 @@ on_top_window_actor_destroyed (MetaWindowActor *window_actor,
 
 void
 meta_compositor_sync_stack (MetaCompositor  *compositor,
-			    GList	    *stack)
+                            GList           *stack)
 {
+  MetaWindowActor *top_window_actor;
   GList *old_stack;
 
   /* This is painful because hidden windows that we are in the process
@@ -1120,27 +1107,39 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
 
   sync_actor_stacking (compositor);
 
-  if (compositor->top_window_actor)
-    g_signal_handlers_disconnect_by_func (compositor->top_window_actor,
-                                          on_top_window_actor_destroyed,
-                                          compositor);
+  top_window_actor = get_top_visible_window_actor (compositor);
 
-  compositor->top_window_actor = get_top_visible_window_actor (compositor);
+  if (compositor->top_window_actor == top_window_actor)
+    return;
 
   if (compositor->top_window_actor)
-    g_signal_connect (compositor->top_window_actor, "destroy",
-                      G_CALLBACK (on_top_window_actor_destroyed),
-                      compositor);
+    {
+      g_signal_handler_disconnect (compositor->top_window_actor,
+                                   compositor->top_window_actor_destroy_id);
+      compositor->top_window_actor_destroy_id = 0;
+    }
+
+  compositor->top_window_actor = top_window_actor;
+
+  if (compositor->top_window_actor)
+    compositor->top_window_actor_destroy_id =
+      g_signal_connect (compositor->top_window_actor, "destroy",
+                        G_CALLBACK (on_top_window_actor_destroyed),
+                        compositor);
 }
 
 void
 meta_compositor_sync_window_geometry (MetaCompositor *compositor,
-				      MetaWindow *window,
-                                      gboolean did_placement)
+                                      MetaWindow     *window,
+                                      gboolean        did_placement)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
-  meta_window_actor_sync_actor_geometry (window_actor, did_placement);
-  meta_plugin_manager_event_size_changed (compositor->plugin_mgr, window_actor);
+  MetaWindowActorChanges changes;
+
+  changes = meta_window_actor_sync_actor_geometry (window_actor, did_placement);
+
+  if (changes & META_WINDOW_ACTOR_CHANGE_SIZE)
+    meta_plugin_manager_event_size_changed (compositor->plugin_mgr, window_actor);
 }
 
 static void
@@ -1326,18 +1325,6 @@ meta_compositor_new (MetaDisplay *display)
                                            compositor,
                                            NULL);
   return compositor;
-}
-
-/**
- * meta_get_overlay_window: (skip)
- * @display: a #MetaDisplay
- *
- */
-Window
-meta_get_overlay_window (MetaDisplay *display)
-{
-  MetaCompositor *compositor = get_compositor_for_display (display);
-  return compositor->output;
 }
 
 /**
@@ -1536,7 +1523,7 @@ void
 meta_compositor_show_window_menu_for_rect (MetaCompositor     *compositor,
                                            MetaWindow         *window,
                                            MetaWindowMenuType  menu,
-					   MetaRectangle      *rect)
+                                           MetaRectangle      *rect)
 {
   meta_plugin_manager_show_window_menu_for_rect (compositor->plugin_mgr, window, menu, rect);
 }
@@ -1555,4 +1542,10 @@ meta_compositor_create_inhibit_shortcuts_dialog (MetaCompositor *compositor,
 {
   return meta_plugin_manager_create_inhibit_shortcuts_dialog (compositor->plugin_mgr,
                                                               window);
+}
+
+void
+meta_compositor_locate_pointer (MetaCompositor *compositor)
+{
+  meta_plugin_manager_locate_pointer (compositor->plugin_mgr);
 }

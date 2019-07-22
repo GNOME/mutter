@@ -357,7 +357,6 @@ handle_host_xevent (MetaBackend *backend,
         {
           switch (xkb_ev->any.xkb_type)
             {
-            case XkbNewKeyboardNotify:
             case XkbMapNotify:
               keymap_changed (backend);
               break;
@@ -668,7 +667,13 @@ static void
 meta_backend_x11_set_numlock (MetaBackend *backend,
                               gboolean     numlock_state)
 {
-  /* TODO: Currently handled by gnome-settings-deamon */
+  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
+  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+  unsigned int num_mask;
+
+  num_mask = XkbKeysymToModifiers (priv->xdisplay, XK_Num_Lock);
+  XkbLockModifiers (priv->xdisplay, XkbUseCoreKbd, num_mask,
+                    numlock_state ? num_mask : 0);
 }
 
 void

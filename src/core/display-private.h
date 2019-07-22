@@ -43,6 +43,7 @@
 #include "meta/barrier.h"
 #include "meta/boxes.h"
 #include "meta/common.h"
+#include "meta/meta-selection.h"
 #include "meta/prefs.h"
 
 typedef struct _MetaBell       MetaBell;
@@ -139,14 +140,6 @@ struct _MetaDisplay
    */
   guint allow_terminal_deactivation : 1;
 
-  /* If true, server->focus_serial refers to us changing the focus; in
-   * this case, we can ignore focus events that have exactly focus_serial,
-   * since we take care to make another request immediately afterwards.
-   * But if focus is being changed by another client, we have to accept
-   * multiple events with the same serial.
-   */
-  guint focused_by_us : 1;
-
   /*< private-ish >*/
   GHashTable *stamps;
   GHashTable *wayland_windows;
@@ -202,10 +195,6 @@ struct _MetaDisplay
   MetaEdgeResistanceData *grab_edge_resistance_data;
   unsigned int grab_last_user_action_was_snap;
 
-  /* we use property updates as sentinels for certain window focus events
-   * to avoid some race conditions on EnterNotify events
-   */
-  int         sentinel_counter;
   int	      grab_resize_timeout_id;
 
   MetaKeyBindingManager key_binding_manager;
@@ -246,6 +235,11 @@ struct _MetaDisplay
   MetaWorkspaceManager *workspace_manager;
 
   MetaSoundPlayer *sound_player;
+
+  MetaSelectionSource *selection_source;
+  GBytes *saved_clipboard;
+  gchar *saved_clipboard_mimetype;
+  MetaSelection *selection;
 };
 
 struct _MetaDisplayClass
@@ -357,10 +351,6 @@ gboolean meta_grab_op_is_resizing (MetaGrabOp op);
 gboolean meta_grab_op_is_mouse    (MetaGrabOp op);
 gboolean meta_grab_op_is_keyboard (MetaGrabOp op);
 
-void meta_display_increment_focus_sentinel (MetaDisplay *display);
-void meta_display_decrement_focus_sentinel (MetaDisplay *display);
-gboolean meta_display_focus_sentinel_clear (MetaDisplay *display);
-
 void meta_display_queue_autoraise_callback  (MetaDisplay *display,
                                              MetaWindow  *window);
 void meta_display_remove_autoraise_callback (MetaDisplay *display);
@@ -373,10 +363,7 @@ gboolean meta_display_modifiers_accelerator_activate (MetaDisplay *display);
 
 void meta_display_sync_wayland_input_focus (MetaDisplay *display);
 void meta_display_update_focus_window (MetaDisplay *display,
-                                       MetaWindow  *window,
-                                       Window       xwindow,
-                                       gulong       serial,
-                                       gboolean     focused_by_us);
+                                       MetaWindow  *window);
 
 void meta_display_sanity_check_timestamps (MetaDisplay *display,
                                            guint32      timestamp);
@@ -439,5 +426,9 @@ MetaWindow *meta_display_get_pointer_window (MetaDisplay *display,
 MetaWindow *meta_display_get_window_from_id (MetaDisplay *display,
                                              uint64_t     window_id);
 uint64_t    meta_display_generate_window_id (MetaDisplay *display);
+
+gboolean meta_display_init_x11     (MetaDisplay  *display,
+                                    GError      **error);
+void     meta_display_shutdown_x11 (MetaDisplay  *display);
 
 #endif

@@ -49,6 +49,9 @@
 /* Building with startup notification support */
 #mesondefine HAVE_STARTUP_NOTIFICATION
 
+/* Building with Sysprof profiling suport */
+#mesondefine HAVE_PROFILER
+
 /* Path to Xwayland executable */
 #mesondefine XWAYLAND_PATH
 
@@ -58,5 +61,6 @@
 /* XKB base prefix */
 #mesondefine XKB_BASE
 
-/* Default rules for allowing Xwayland grabs */
-#mesondefine XWAYLAND_GRAB_DEFAULT_ACCESS_RULES
+/* Either <sys/random.h> or <linux/random.h> */
+#mesondefine HAVE_SYS_RANDOM
+#mesondefine HAVE_LINUX_RANDOM

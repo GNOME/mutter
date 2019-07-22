@@ -39,7 +39,6 @@
 #include "cogl-private.h"
 #include "cogl-texture-2d-nop-private.h"
 #include "cogl-texture-2d-private.h"
-#include "cogl-error-private.h"
 
 void
 _cogl_texture_2d_nop_free (CoglTexture2D *tex_2d)
@@ -62,7 +61,7 @@ _cogl_texture_2d_nop_init (CoglTexture2D *tex_2d)
 
 gboolean
 _cogl_texture_2d_nop_allocate (CoglTexture *tex,
-                               CoglError **error)
+                               GError **error)
 {
   return TRUE;
 }
@@ -116,7 +115,7 @@ _cogl_texture_2d_nop_copy_from_bitmap (CoglTexture2D *tex_2d,
                                        int dst_x,
                                        int dst_y,
                                        int level,
-                                       CoglError **error)
+                                       GError **error)
 {
   return TRUE;
 }

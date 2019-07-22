@@ -14,7 +14,7 @@ shift
 TEST_BINARY=$1
 shift
 
-UNIT_TESTS_FILE=$1
+UNIT_TESTS=$1
 shift
 
 . "$ENVIRONMENT_CONFIG"
@@ -32,13 +32,15 @@ EXIT=0
 MISSING_FEATURE="WARNING: Missing required feature";
 KNOWN_FAILURE="WARNING: Test is known to fail";
 
-echo "Key:"
-echo "ok = Test passed"
-echo "n/a = Driver is missing a feature required for the test"
-echo "FAIL = Unexpected failure"
-echo "FIXME = Test failed, but it was an expected failure"
-echo "PASS! = Unexpected pass"
-echo ""
+if [ -z "$RUN_TESTS_QUIET" ]; then
+  echo "Key:"
+  echo "ok = Test passed"
+  echo "n/a = Driver is missing a feature required for the test"
+  echo "FAIL = Unexpected failure"
+  echo "FIXME = Test failed, but it was an expected failure"
+  echo "PASS! = Unexpected pass"
+  echo ""
+fi
 
 get_status()
 {
@@ -88,28 +90,36 @@ run_test()
   fi
 }
 
+if [ -z "$UNIT_TESTS" ]; then
+  echo Missing unit-tests file or names
+  exit 1
+fi
+
 TITLE_FORMAT="%35s"
 printf "$TITLE_FORMAT" "Test"
 
 if test "$HAVE_GL" -eq 1; then
-  GL_FORMAT=" %6s %8s %7s %6s %6s"
-  printf "$GL_FORMAT" "GL+GLSL" "GL-NPT" "GL3"
+  GL_FORMAT=" %6s %8s %7s %6s"
+  printf "$GL_FORMAT" "GL+GLSL" "GL3"
 fi
 if test "$HAVE_GLES2" -eq 1; then
-  GLES2_FORMAT=" %6s %7s"
-  printf "$GLES2_FORMAT" "ES2" "ES2-NPT"
+  GLES2_FORMAT=" %6s"
+  printf "$GLES2_FORMAT" "ES2"
 fi
 
 echo ""
-echo ""
 
-if [ ! -f "$UNIT_TESTS_FILE" ]; then
-  echo Missing unit-tests file
-  exit 1
+if [ -f "$UNIT_TESTS" ]; then
+  UNIT_TESTS="$(cat $UNIT_TESTS)"
 fi
 
-for test in $(cat "$UNIT_TESTS_FILE")
+if [ -z "$RUN_TESTS_QUIET" ] || [ "$(echo "$UNIT_TESTS" | wc -w )" -gt 1 ]; then
+  echo ""
+fi
+
+for test in $UNIT_TESTS
 do
+  printf $TITLE_FORMAT "$test:"
   export COGL_DEBUG=
 
   if test "$HAVE_GL" -eq 1; then
@@ -124,10 +134,6 @@ do
     export COGL_DEBUG=disable-fixed,disable-arbfp
     run_test "$test" gl_glsl
 
-    export COGL_DRIVER=gl
-    export COGL_DEBUG=disable-npot-textures
-    run_test "$test" gl_npot
-
     export COGL_DRIVER=gl3
     export COGL_DEBUG=
     run_test "$test" gl3
@@ -137,23 +143,16 @@ do
     export COGL_DRIVER=gles2
     export COGL_DEBUG=
     run_test "$test" gles2
-
-    export COGL_DRIVER=gles2
-    export COGL_DEBUG=disable-npot-textures
-    run_test "$test" gles2_npot
   fi
 
-  printf $TITLE_FORMAT "$test:"
   if test "$HAVE_GL" -eq 1; then
     printf "$GL_FORMAT" \
       "$(get_status "$gl_glsl_result")" \
-      "$(get_status "$gl_npot_result")" \
       "$(get_status "$gl3_result")"
   fi
   if test "$HAVE_GLES2" -eq 1; then
     printf "$GLES2_FORMAT" \
-      "$(get_status "$gles2_result")" \
-      "$(get_status "$gles2_npot_result")"
+      "$(get_status "$gles2_result")"
   fi
   echo ""
 done

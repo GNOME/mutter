@@ -251,13 +251,15 @@ get_session_proxy (GCancellable *cancellable,
 }
 
 static Login1Seat *
-get_seat_proxy (GCancellable *cancellable,
+get_seat_proxy (gchar        *seat_id,
+                GCancellable *cancellable,
                 GError      **error)
 {
+  g_autofree char *seat_proxy_path = get_escaped_dbus_path ("/org/freedesktop/login1/seat", seat_id);
   Login1Seat *seat = login1_seat_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
                                                          G_DBUS_PROXY_FLAGS_DO_NOT_AUTO_START,
                                                          "org.freedesktop.login1",
-                                                         "/org/freedesktop/login1/seat/self",
+                                                         seat_proxy_path,
                                                          cancellable, error);
   if (!seat)
     g_prefix_error(error, "Could not get seat proxy: ");
@@ -511,7 +513,7 @@ meta_launcher_new (GError **error)
   if (!seat_id)
     goto fail;
 
-  seat_proxy = get_seat_proxy (NULL, error);
+  seat_proxy = get_seat_proxy (seat_id, NULL, error);
   if (!seat_proxy)
     goto fail;
 

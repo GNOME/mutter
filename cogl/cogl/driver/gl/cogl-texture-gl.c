@@ -32,7 +32,6 @@
 #include <strings.h>
 
 #include "cogl-context-private.h"
-#include "cogl-texture-3d-private.h"
 #include "cogl-util.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
@@ -41,7 +40,7 @@
 static inline int
 calculate_alignment (int rowstride)
 {
-  int alignment = 1 << (_cogl_util_ffs (rowstride) - 1);
+  int alignment = 1 << (ffs (rowstride) - 1);
 
   return MIN (alignment, 8);
 }

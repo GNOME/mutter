@@ -36,7 +36,6 @@
 #include "cogl-context-private.h"
 #include "cogl-feature-private.h"
 #include "cogl-renderer-private.h"
-#include "cogl-error-private.h"
 #include "cogl-framebuffer-nop-private.h"
 #include "cogl-texture-2d-nop-private.h"
 #include "cogl-attribute-nop-private.h"
@@ -44,7 +43,7 @@
 
 static gboolean
 _cogl_driver_update_features (CoglContext *ctx,
-                              CoglError **error)
+                              GError **error)
 {
   /* _cogl_gpu_info_init (ctx, &ctx->gpu); */
 

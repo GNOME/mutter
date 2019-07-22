@@ -1636,14 +1636,17 @@ clutter_script_translate_parameters (ClutterScript  *script,
                                      GObject        *object,
                                      const gchar    *name,
                                      GList          *properties,
-                                     GArray        **params)
+                                     GPtrArray     **param_names,
+                                     GArray        **param_values)
 {
   ClutterScriptable *scriptable = NULL;
   ClutterScriptableIface *iface = NULL;
   GList *l, *unparsed;
   gboolean parse_custom = FALSE;
 
-  *params = g_array_new (FALSE, FALSE, sizeof (GParameter));
+  *param_names = g_ptr_array_new_with_free_func (g_free);
+  *param_values = g_array_new (FALSE, FALSE, sizeof (GValue));
+  g_array_set_clear_func (*param_values, (GDestroyNotify) g_value_unset);
 
   if (CLUTTER_IS_SCRIPTABLE (object))
     {
@@ -1659,7 +1662,7 @@ clutter_script_translate_parameters (ClutterScript  *script,
   for (l = properties; l != NULL; l = l->next)
     {
       PropertyInfo *pinfo = l->data;
-      GParameter param = { NULL };
+      GValue value = G_VALUE_INIT;
       gboolean res = FALSE;
 
       if (pinfo->is_child || pinfo->is_layout)
@@ -1676,12 +1679,12 @@ clutter_script_translate_parameters (ClutterScript  *script,
                     pinfo->name);
 
       if (parse_custom)
-        res = iface->parse_custom_node (scriptable, script, &param.value,
+        res = iface->parse_custom_node (scriptable, script, &value,
                                         pinfo->name,
                                         pinfo->node);
 
       if (!res)
-        res = _clutter_script_parse_node (script, &param.value,
+        res = _clutter_script_parse_node (script, &value,
                                           pinfo->name,
                                           pinfo->node,
                                           pinfo->pspec);
@@ -1693,9 +1696,8 @@ clutter_script_translate_parameters (ClutterScript  *script,
           continue;
         }
 
-      param.name = g_strdup (pinfo->name);
-
-      g_array_append_val (*params, param);
+      g_ptr_array_add (*param_names, g_strdup (pinfo->name));
+      g_array_append_val (*param_values, value);
 
       property_info_free (pinfo);
     }
@@ -1710,7 +1712,8 @@ clutter_script_construct_parameters (ClutterScript  *script,
                                      GType           gtype,
                                      const gchar    *name,
                                      GList          *properties,
-                                     GArray        **construct_params)
+                                     GPtrArray     **construct_param_names,
+                                     GArray        **construct_param_values)
 {
   GObjectClass *klass;
   GList *l, *unparsed;
@@ -1718,14 +1721,17 @@ clutter_script_construct_parameters (ClutterScript  *script,
   klass = g_type_class_ref (gtype);
   g_assert (klass != NULL);
 
-  *construct_params = g_array_new (FALSE, FALSE, sizeof (GParameter));
+  *construct_param_names = g_ptr_array_new_with_free_func (g_free);
+  *construct_param_values = g_array_new (FALSE, FALSE, sizeof (GValue));
+  g_array_set_clear_func (*construct_param_values,
+                          (GDestroyNotify) g_value_unset);
 
   unparsed = NULL;
 
   for (l = properties; l != NULL; l = l->next)
     {
       PropertyInfo *pinfo = l->data;
-      GParameter param = { NULL };
+      GValue value = G_VALUE_INIT;
       GParamSpec *pspec = NULL;
 
       /* we allow custom property names for classes, so if we
@@ -1749,9 +1755,7 @@ clutter_script_construct_parameters (ClutterScript  *script,
           continue;
         }
 
-      param.name = g_strdup (pinfo->name);
-
-      if (!_clutter_script_parse_node (script, &param.value,
+      if (!_clutter_script_parse_node (script, &value,
                                        pinfo->name,
                                        pinfo->node,
                                        pinfo->pspec))
@@ -1760,7 +1764,8 @@ clutter_script_construct_parameters (ClutterScript  *script,
           continue;
         }
 
-      g_array_append_val (*construct_params, param);
+      g_ptr_array_add (*construct_param_names, g_strdup (pinfo->name));
+      g_array_append_val (*construct_param_values, value);
 
       property_info_free (pinfo);
     }
@@ -2021,8 +2026,7 @@ add_children (ClutterScript *script,
       clutter_container_add_actor (container, CLUTTER_ACTOR (object));
     }
 
-  g_list_foreach (oinfo->children, (GFunc) g_free, NULL);
-  g_list_free (oinfo->children);
+  g_list_free_full (oinfo->children, g_free);
 
   oinfo->children = unresolved;
 }
@@ -2088,7 +2092,8 @@ _clutter_script_apply_properties (ClutterScript *script,
   gboolean set_custom_property = FALSE;
   GObject *object = oinfo->object;
   GList *properties;
-  GArray *params;
+  g_autoptr (GPtrArray) param_names = NULL;
+  g_autoptr (GArray) param_values = NULL;
   guint i;
 
   if (!oinfo->has_unresolved)
@@ -2112,33 +2117,30 @@ _clutter_script_apply_properties (ClutterScript *script,
                                                            object,
                                                            oinfo->id,
                                                            properties,
-                                                           &params);
+                                                           &param_names,
+                                                           &param_values);
 
   /* consume all the properties we could translate in this pass */
-  for (i = 0; i < params->len; i++)
+  for (i = 0; i < param_names->len; i++)
     {
-      GParameter *param = &g_array_index (params, GParameter, i);
+      char *name = g_ptr_array_index (param_names, i);
+      GValue *value = &g_array_index (param_values, GValue, i);
 
       CLUTTER_NOTE (SCRIPT,
                     "Setting %s property '%s' (type:%s) to object '%s' (id:%s)",
                     set_custom_property ? "custom" : "regular",
-                    param->name,
-                    g_type_name (G_VALUE_TYPE (&param->value)),
+                    name,
+                    g_type_name (G_VALUE_TYPE (value)),
                     g_type_name (oinfo->gtype),
                     oinfo->id);
 
       if (set_custom_property)
         iface->set_custom_property (scriptable, script,
-                                    param->name,
-                                    &param->value);
+                                    name,
+                                    value);
       else
-        g_object_set_property (object, param->name, &param->value);
-
-      g_free ((gchar *) param->name);
-      g_value_unset (&param->value);
+        g_object_set_property (object, name, value);
     }
-
-  g_array_free (params, TRUE);
 
   _clutter_script_check_unresolved (script, oinfo);
 }
@@ -2147,8 +2149,8 @@ void
 _clutter_script_construct_object (ClutterScript *script,
                                   ObjectInfo    *oinfo)
 {
-  GArray *params = NULL;
-  guint i;
+  g_autoptr (GPtrArray) param_names = NULL;
+  g_autoptr (GArray) param_values = NULL;
 
   /* we have completely updated the object */
   if (oinfo->object != NULL)
@@ -2191,25 +2193,14 @@ _clutter_script_construct_object (ClutterScript *script,
                                              oinfo->gtype,
                                              oinfo->id,
                                              properties,
-                                             &params);
+                                             &param_names,
+                                             &param_values);
 
       default_stage = clutter_stage_manager_get_default_stage (manager);
       oinfo->object = G_OBJECT (default_stage);
-
-      for (i = 0; i < params->len; i++)
-        {
-          GParameter *param = &g_array_index (params, GParameter, i);
-
-          g_free ((gchar *) param->name);
-          g_value_unset (&param->value);
-        }
-
-      g_array_free (params, TRUE);
     }
   else
     {
-      g_autoptr (GPtrArray) param_names = NULL;
-      GArray *param_values;
       GList *properties = oinfo->properties;
 
       /* every other object: first, we get the construction parameters */
@@ -2218,22 +2209,11 @@ _clutter_script_construct_object (ClutterScript *script,
                                              oinfo->gtype,
                                              oinfo->id,
                                              properties,
-                                             &params);
-
-      /* Convert GParameter → (GStrv, GValue[]) */
-      param_names = g_ptr_array_sized_new (params->len);
-      param_values = g_array_sized_new (TRUE, FALSE, sizeof (GValue), params->len);
-      for (i = 0; i < params->len; i++)
-        {
-          GParameter *param = &g_array_index (params, GParameter, i);
-
-          g_ptr_array_add (param_names, (gchar *) param->name);
-          g_array_append_val (param_values, param->value);
-        }
-      g_ptr_array_add (param_names, NULL);
+                                             &param_names,
+                                             &param_values);
 
       oinfo->object = g_object_new_with_properties (oinfo->gtype,
-                                                    params->len,
+                                                    param_names->len,
                                                     (const gchar **) param_names->pdata,
                                                     (const GValue *) param_values->data);
 
@@ -2242,17 +2222,6 @@ _clutter_script_construct_object (ClutterScript *script,
        * else too or only by this ClutterScript object.
        */
       g_object_ref_sink (oinfo->object);
-
-      for (i = 0; i < params->len; i++)
-        {
-          GParameter *param = &g_array_index (params, GParameter, i);
-
-          g_free ((gchar *) param->name);
-          g_value_unset (&param->value);
-        }
-
-      g_array_free (param_values, FALSE);
-      g_array_free (params, TRUE);
    }
 
   g_assert (oinfo->object != NULL);

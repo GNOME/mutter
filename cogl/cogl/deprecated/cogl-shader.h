@@ -48,11 +48,6 @@ G_BEGIN_DECLS
  * Cogl allows accessing the GL programmable pipeline in order to create
  * vertex and fragment shaders.
  *
- * The shader source code can either be GLSL or ARBfp. If the source
- * code is ARBfp, it must begin with the string “!!ARBfp1.0”. The
- * application should check for the %COGL_FEATURE_SHADERS_GLSL or
- * %COGL_FEATURE_SHADERS_ARBFP features before using shaders.
- *
  * When using GLSL Cogl provides replacement names for most of the
  * builtin varyings and uniforms. It is recommended to use these names
  * wherever possible to increase portability between OpenGL 2.0 and

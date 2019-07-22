@@ -59,10 +59,8 @@ _cogl_program_free (CoglProgram *program)
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  /* Unref all of the attached shaders */
-  g_slist_foreach (program->attached_shaders, (GFunc) cogl_handle_unref, NULL);
-  /* Destroy the list */
-  g_slist_free (program->attached_shaders);
+  /* Unref all of the attached shaders and destroy the list */
+  g_slist_free_full (program->attached_shaders, cogl_handle_unref);
 
   for (i = 0; i < program->custom_uniforms->len; i++)
     {
@@ -110,7 +108,7 @@ cogl_program_attach_shader (CoglHandle program_handle,
   shader = shader_handle;
 
   if (shader->language == COGL_SHADER_LANGUAGE_GLSL)
-    _COGL_RETURN_IF_FAIL (_cogl_program_get_language (program) ==
+    g_return_if_fail (_cogl_program_get_language (program) ==
                       COGL_SHADER_LANGUAGE_GLSL);
 
   program->attached_shaders
@@ -133,7 +131,7 @@ cogl_program_use (CoglHandle handle)
 {
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  _COGL_RETURN_IF_FAIL (handle == COGL_INVALID_HANDLE ||
+  g_return_if_fail (handle == COGL_INVALID_HANDLE ||
                     cogl_is_program (handle));
 
   if (ctx->current_program == 0 && handle != 0)
@@ -195,10 +193,10 @@ cogl_program_modify_uniform (CoglProgram *program,
 {
   CoglProgramUniform *uniform;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_program (program), NULL);
-  _COGL_RETURN_VAL_IF_FAIL (uniform_no >= 0 &&
-                            uniform_no < program->custom_uniforms->len,
-                            NULL);
+  g_return_val_if_fail (cogl_is_program (program), NULL);
+  g_return_val_if_fail (uniform_no >= 0 &&
+                        uniform_no < program->custom_uniforms->len,
+                        NULL);
 
   uniform = &g_array_index (program->custom_uniforms,
                             CoglProgramUniform, uniform_no);

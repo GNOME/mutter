@@ -30,6 +30,7 @@
 
 #include <clutter/clutter-types.h>
 #include <clutter/clutter-group.h>
+#include <clutter/clutter-stage-view.h>
 
 G_BEGIN_DECLS
 
@@ -61,8 +62,6 @@ struct _ClutterStage
 };
 /**
  * ClutterStageClass:
- * @fullscreen: handler for the #ClutterStage::fullscreen signal
- * @unfullscreen: handler for the #ClutterStage::unfullscreen signal
  * @activate: handler for the #ClutterStage::activate signal
  * @deactivate: handler for the #ClutterStage::deactivate signal
  * @delete_event: handler for the #ClutterStage::delete-event signal
@@ -79,17 +78,18 @@ struct _ClutterStageClass
 
   /*< public >*/
   /* signals */
-  void (* fullscreen)   (ClutterStage *stage);
-  void (* unfullscreen) (ClutterStage *stage);
   void (* activate)     (ClutterStage *stage);
   void (* deactivate)   (ClutterStage *stage);
 
   gboolean (* delete_event) (ClutterStage *stage,
                              ClutterEvent *event);
 
+  void (* paint_view) (ClutterStage     *stage,
+                       ClutterStageView *view);
+
   /*< private >*/
   /* padding for future expansion */
-  gpointer _padding_dummy[31];
+  gpointer _padding_dummy[30];
 };
 
 /**
@@ -168,11 +168,6 @@ CLUTTER_EXPORT
 void            clutter_stage_get_perspective                   (ClutterStage          *stage,
 			                                         ClutterPerspective    *perspective);
 CLUTTER_EXPORT
-void            clutter_stage_set_fullscreen                    (ClutterStage          *stage,
-                                                                 gboolean               fullscreen);
-CLUTTER_EXPORT
-gboolean        clutter_stage_get_fullscreen                    (ClutterStage          *stage);
-CLUTTER_EXPORT
 void            clutter_stage_show_cursor                       (ClutterStage          *stage);
 CLUTTER_EXPORT
 void            clutter_stage_hide_cursor                       (ClutterStage          *stage);
@@ -181,11 +176,6 @@ void            clutter_stage_set_title                         (ClutterStage   
                                                                  const gchar           *title);
 CLUTTER_EXPORT
 const gchar *   clutter_stage_get_title                         (ClutterStage          *stage);
-CLUTTER_EXPORT
-void            clutter_stage_set_user_resizable                (ClutterStage          *stage,
-						                 gboolean               resizable);
-CLUTTER_EXPORT
-gboolean        clutter_stage_get_user_resizable                (ClutterStage          *stage);
 
 CLUTTER_EXPORT
 void            clutter_stage_set_minimum_size                  (ClutterStage          *stage,
@@ -274,6 +264,10 @@ gboolean clutter_stage_capture (ClutterStage          *stage,
                                 cairo_rectangle_int_t *rect,
                                 ClutterCapture       **captures,
                                 int                   *n_captures);
+CLUTTER_EXPORT
+ClutterStageView * clutter_stage_get_view_at (ClutterStage *stage,
+                                              float         x,
+                                              float         y);
 
 G_END_DECLS
 

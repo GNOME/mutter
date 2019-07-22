@@ -132,7 +132,6 @@ cogl_color_init_from_hsl
 cogl_color_init_from_4f
 cogl_color_init_from_4fv
 cogl_color_init_from_4ub
-cogl_color_mask_get_type
 cogl_color_new
 cogl_color_premultiply
 cogl_color_set_alpha
@@ -201,10 +200,6 @@ cogl_double_to_fixed
 
 cogl_end_gl
 
-cogl_error_copy
-cogl_error_free
-cogl_error_matches
-
 cogl_euler_copy
 cogl_euler_equal
 cogl_euler_free
@@ -254,7 +249,6 @@ cogl_framebuffer_frustum
 cogl_framebuffer_get_alpha_bits
 cogl_framebuffer_get_blue_bits
 cogl_framebuffer_get_color_format
-cogl_framebuffer_get_color_mask
 cogl_framebuffer_get_context
 cogl_framebuffer_get_depth_bits
 cogl_framebuffer_get_depth_texture
@@ -297,7 +291,6 @@ cogl_framebuffer_rotate_quaternion
 #endif
 
 cogl_framebuffer_scale
-cogl_framebuffer_set_color_mask
 cogl_framebuffer_set_depth_texture_enabled
 cogl_framebuffer_set_depth_write_enabled
 cogl_framebuffer_set_dither_enabled
@@ -413,7 +406,6 @@ cogl_is_texture_pixmap_x11
 #endif
 cogl_is_texture_rectangle
 cogl_is_texture_2d
-cogl_is_texture_3d
 
 cogl_material_alpha_func_get_type
 cogl_material_copy
@@ -620,7 +612,6 @@ cogl_pipeline_get_alpha_test_function
 cogl_pipeline_get_alpha_test_reference
 cogl_pipeline_get_ambient
 cogl_pipeline_get_color
-cogl_pipeline_get_color_mask
 cogl_pipeline_get_cull_face_mode
 cogl_pipeline_get_depth_state
 cogl_pipeline_get_diffuse
@@ -650,7 +641,6 @@ cogl_pipeline_set_ambient_and_diffuse
 cogl_pipeline_set_blend
 cogl_pipeline_set_blend_constant
 cogl_pipeline_set_color
-cogl_pipeline_set_color_mask
 cogl_pipeline_set_color4f
 cogl_pipeline_set_color4ub
 cogl_pipeline_set_cull_face_mode
@@ -914,7 +904,6 @@ cogl_texture_is_sliced
 cogl_texture_new_from_bitmap
 cogl_texture_new_from_data
 cogl_texture_new_from_file
-cogl_texture_new_from_foreign
 cogl_texture_new_from_sub_texture
 cogl_texture_new_with_size
 #ifdef COGL_HAS_X11
@@ -959,12 +948,6 @@ cogl_texture_2d_sliced_new_from_bitmap
 cogl_texture_2d_sliced_new_from_data
 cogl_texture_2d_sliced_new_from_file
 cogl_texture_2d_sliced_new_with_size
-#ifdef COGL_HAS_GTYPE_SUPPORT
-cogl_texture_3d_get_gtype
-#endif
-cogl_texture_3d_new_from_bitmap
-cogl_texture_3d_new_from_data
-cogl_texture_3d_new_with_size
 
 cogl_transform
 cogl_translate
@@ -1019,8 +1002,6 @@ cogl_wayland_onscreen_resize
 cogl_wayland_renderer_get_display
 cogl_wayland_renderer_set_event_dispatch_enabled
 cogl_wayland_renderer_set_foreign_display
-cogl_wayland_texture_set_region_from_shm_buffer
-cogl_wayland_texture_2d_new_from_buffer
 #endif
 
 cogl_winding_get_type

@@ -48,7 +48,6 @@
 #include "cogl-swap-chain-private.h"
 #include "cogl-texture-2d-gl.h"
 #include "cogl-texture-2d-private.h"
-#include "cogl-error-private.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-framebuffer-gl-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
@@ -159,10 +158,10 @@ replace_token (char *string,
 
   /* NOTE: this assumes token and replacement are the same length */
 
-  while ((token_pos = _cogl_util_memmem (last_pos,
-                                         end - last_pos,
-                                         token,
-                                         token_length)))
+  while ((token_pos = memmem (last_pos,
+                              end - last_pos,
+                              token,
+                              token_length)))
     {
       /* Make sure this isn't in the middle of some longer token */
       if ((token_pos <= string ||
@@ -908,10 +907,10 @@ gl_get_shader_source_wrapper (GLuint shader,
 
       /* Strip out the wrapper snippet we added when the source was
        * specified */
-      wrapper_start = _cogl_util_memmem (source,
-                                         copy_length,
-                                         wrapper_marker,
-                                         sizeof (wrapper_marker) - 1);
+      wrapper_start = memmem (source,
+                              copy_length,
+                              wrapper_marker,
+                              sizeof (wrapper_marker) - 1);
       if (wrapper_start)
         {
           length = wrapper_start - source;
@@ -1566,16 +1565,16 @@ free_texture_object_data (CoglGLES2TextureObjectData *data)
 }
 
 CoglGLES2Context *
-cogl_gles2_context_new (CoglContext *ctx, CoglError **error)
+cogl_gles2_context_new (CoglContext *ctx, GError **error)
 {
   CoglGLES2Context *gles2_ctx;
   const CoglWinsysVtable *winsys;
 
   if (!cogl_has_feature (ctx, COGL_FEATURE_ID_GLES2_CONTEXT))
     {
-      _cogl_set_error (error, COGL_GLES2_CONTEXT_ERROR,
-                   COGL_GLES2_CONTEXT_ERROR_UNSUPPORTED,
-                   "Backend doesn't support creating GLES2 contexts");
+      g_set_error_literal (error, COGL_GLES2_CONTEXT_ERROR,
+                           COGL_GLES2_CONTEXT_ERROR_UNSUPPORTED,
+                           "Backend doesn't support creating GLES2 contexts");
 
       return NULL;
     }
@@ -1693,11 +1692,11 @@ cogl_gles2_context_get_vtable (CoglGLES2Context *gles2_ctx)
 static CoglGLES2Offscreen *
 _cogl_gles2_offscreen_allocate (CoglOffscreen *offscreen,
                                 CoglGLES2Context *gles2_context,
-                                CoglError **error)
+                                GError **error)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
   const CoglWinsysVtable *winsys;
-  CoglError *internal_error = NULL;
+  GError *internal_error = NULL;
   CoglGLES2Offscreen *gles2_offscreen;
   int level_width;
   int level_height;
@@ -1722,10 +1721,10 @@ _cogl_gles2_offscreen_allocate (CoglOffscreen *offscreen,
     {
       winsys->restore_context (framebuffer->context);
 
-      cogl_error_free (internal_error);
-      _cogl_set_error (error, COGL_FRAMEBUFFER_ERROR,
-                   COGL_FRAMEBUFFER_ERROR_ALLOCATE,
-                   "Failed to bind gles2 context to create framebuffer");
+      g_error_free (internal_error);
+      g_set_error_literal (error, COGL_FRAMEBUFFER_ERROR,
+                           COGL_FRAMEBUFFER_ERROR_ALLOCATE,
+                           "Failed to bind gles2 context to create framebuffer");
       return NULL;
     }
 
@@ -1751,9 +1750,9 @@ _cogl_gles2_offscreen_allocate (CoglOffscreen *offscreen,
 
       g_slice_free (CoglGLES2Offscreen, gles2_offscreen);
 
-      _cogl_set_error (error, COGL_FRAMEBUFFER_ERROR,
-                   COGL_FRAMEBUFFER_ERROR_ALLOCATE,
-                   "Failed to create an OpenGL framebuffer object");
+      g_set_error_literal (error, COGL_FRAMEBUFFER_ERROR,
+                           COGL_FRAMEBUFFER_ERROR_ALLOCATE,
+                           "Failed to create an OpenGL framebuffer object");
       return NULL;
     }
 
@@ -1781,12 +1780,12 @@ cogl_push_gles2_context (CoglContext *ctx,
                          CoglGLES2Context *gles2_ctx,
                          CoglFramebuffer *read_buffer,
                          CoglFramebuffer *write_buffer,
-                         CoglError **error)
+                         GError **error)
 {
   const CoglWinsysVtable *winsys = ctx->display->renderer->winsys_vtable;
-  CoglError *internal_error = NULL;
+  GError *internal_error = NULL;
 
-  _COGL_RETURN_VAL_IF_FAIL (gles2_ctx != NULL, FALSE);
+  g_return_val_if_fail (gles2_ctx != NULL, FALSE);
 
   /* The read/write buffers are properties of the gles2 context and we
    * don't currently track the read/write buffers as part of the stack
@@ -1863,10 +1862,10 @@ cogl_push_gles2_context (CoglContext *ctx,
     {
       winsys->restore_context (ctx);
 
-      cogl_error_free (internal_error);
-      _cogl_set_error (error, COGL_GLES2_CONTEXT_ERROR,
-                   COGL_GLES2_CONTEXT_ERROR_DRIVER,
-                   "Driver failed to make GLES2 context current");
+      g_error_free (internal_error);
+      g_set_error_literal (error, COGL_GLES2_CONTEXT_ERROR,
+                           COGL_GLES2_CONTEXT_ERROR_DRIVER,
+                           "Driver failed to make GLES2 context current");
       return FALSE;
     }
 
@@ -1923,7 +1922,7 @@ cogl_pop_gles2_context (CoglContext *ctx)
   CoglGLES2Context *gles2_ctx;
   const CoglWinsysVtable *winsys = ctx->display->renderer->winsys_vtable;
 
-  _COGL_RETURN_IF_FAIL (ctx->gles2_context_stack.length > 0);
+  g_return_if_fail (ctx->gles2_context_stack.length > 0);
 
   g_queue_pop_tail (&ctx->gles2_context_stack);
 

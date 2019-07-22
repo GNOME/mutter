@@ -926,8 +926,8 @@ cogl_primitive_foreach_attribute (CoglPrimitive *primitive,
  * This drawing api doesn't support high-level meta texture types such
  * as #CoglTexture2DSliced so it is the user's responsibility to
  * ensure that only low-level textures that can be directly sampled by
- * a GPU such as #CoglTexture2D, #CoglTextureRectangle or #CoglTexture3D
- * are associated with layers of the given @pipeline.
+ * a GPU such as #CoglTexture2D are associated with layers of the given
+ * @pipeline.
  *
  * Stability: unstable
  * Since: 1.16

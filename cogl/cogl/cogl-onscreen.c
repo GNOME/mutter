@@ -165,7 +165,7 @@ _cogl_onscreen_free (CoglOnscreen *onscreen)
     framebuffer->context->window_buffer = NULL;
 
   winsys->onscreen_deinit (onscreen);
-  _COGL_RETURN_IF_FAIL (onscreen->winsys == NULL);
+  g_return_if_fail (onscreen->winsys == NULL);
 
   /* Chain up to parent */
   _cogl_framebuffer_free (framebuffer);
@@ -304,7 +304,7 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
   const CoglWinsysVtable *winsys;
   CoglFrameInfo *info;
 
-  _COGL_RETURN_IF_FAIL  (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN);
+  g_return_if_fail  (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN);
 
   info = _cogl_frame_info_new ();
   info->frame_counter = onscreen->frame_counter;
@@ -354,7 +354,7 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
   const CoglWinsysVtable *winsys;
   CoglFrameInfo *info;
 
-  _COGL_RETURN_IF_FAIL  (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN);
+  g_return_if_fail  (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN);
 
   info = _cogl_frame_info_new ();
   info->frame_counter = onscreen->frame_counter;
@@ -367,7 +367,7 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
 
   /* This should only be called if the winsys advertises
      COGL_WINSYS_FEATURE_SWAP_REGION */
-  _COGL_RETURN_IF_FAIL (winsys->onscreen_swap_region != NULL);
+  g_return_if_fail (winsys->onscreen_swap_region != NULL);
 
   winsys->onscreen_swap_region (COGL_ONSCREEN (framebuffer),
                                 rectangles,
@@ -402,7 +402,7 @@ cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen)
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   const CoglWinsysVtable *winsys;
 
-  _COGL_RETURN_VAL_IF_FAIL  (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN, 0);
+  g_return_val_if_fail  (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN, 0);
 
   winsys = _cogl_framebuffer_get_winsys (framebuffer);
 
@@ -421,7 +421,7 @@ cogl_x11_onscreen_set_foreign_window_xid (CoglOnscreen *onscreen,
 {
   /* We don't wan't applications to get away with being lazy here and not
    * passing an update callback... */
-  _COGL_RETURN_IF_FAIL (update);
+  g_return_if_fail (update);
 
   onscreen->foreign_xid = xid;
   onscreen->foreign_update_mask_callback = update;
@@ -440,7 +440,7 @@ cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen)
       const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
 
       /* This should only be called for x11 onscreens */
-      _COGL_RETURN_VAL_IF_FAIL (winsys->onscreen_x11_get_window_xid != NULL, 0);
+      g_return_val_if_fail (winsys->onscreen_x11_get_window_xid != NULL, 0);
 
       return winsys->onscreen_x11_get_window_xid (onscreen);
     }
@@ -480,7 +480,7 @@ void
 cogl_onscreen_remove_frame_callback (CoglOnscreen *onscreen,
                                      CoglFrameClosure *closure)
 {
-  _COGL_RETURN_IF_FAIL (closure);
+  g_return_if_fail (closure);
 
   _cogl_closure_disconnect (closure);
 }
@@ -552,7 +552,7 @@ cogl_onscreen_remove_swap_buffers_callback (CoglOnscreen *onscreen,
   CoglFrameClosure *closure = g_hash_table_lookup (ctx->swap_callback_closures,
                                                    GINT_TO_POINTER (id));
 
-  _COGL_RETURN_IF_FAIL (closure);
+  g_return_if_fail (closure);
 
   cogl_onscreen_remove_frame_callback (onscreen, closure);
 }
@@ -692,7 +692,7 @@ void
 cogl_onscreen_remove_dirty_callback (CoglOnscreen *onscreen,
                                      CoglOnscreenDirtyClosure *closure)
 {
-  _COGL_RETURN_IF_FAIL (closure);
+  g_return_if_fail (closure);
 
   _cogl_closure_disconnect (closure);
 }

@@ -69,6 +69,22 @@ typedef struct _ClutterTouchInfo
   gfloat current_y;
 } ClutterTouchInfo;
 
+typedef struct _ClutterPtrA11yData
+{
+  int n_btn_pressed;
+  float current_x;
+  float current_y;
+
+  float dwell_x;
+  float dwell_y;
+  gboolean dwell_drag_started;
+  gboolean dwell_gesture_started;
+  guint dwell_timer;
+
+  guint secondary_click_timer;
+  gboolean secondary_click_triggered;
+} ClutterPtrA11yData;
+
 struct _ClutterInputDevice
 {
   GObject parent_instance;
@@ -143,6 +159,10 @@ struct _ClutterInputDevice
 
   guint has_cursor : 1;
   guint is_enabled : 1;
+
+  /* Accessiblity */
+  ClutterVirtualInputDevice *accessibility_virtual_device;
+  ClutterPtrA11yData *ptr_a11y_data;
 };
 
 typedef void (*ClutterEmitInputDeviceEvent) (ClutterEvent       *event,

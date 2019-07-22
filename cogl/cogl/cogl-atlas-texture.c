@@ -47,7 +47,6 @@
 #include "cogl-atlas.h"
 #include "cogl1-context.h"
 #include "cogl-sub-texture.h"
-#include "cogl-error-private.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
@@ -453,7 +452,7 @@ _cogl_atlas_texture_set_region_with_border (CoglAtlasTexture *atlas_tex,
                                             int dst_width,
                                             int dst_height,
                                             CoglBitmap *bmp,
-                                            CoglError **error)
+                                            GError **error)
 {
   CoglAtlas *atlas = atlas_tex->atlas;
 
@@ -524,7 +523,7 @@ _cogl_atlas_texture_convert_bitmap_for_upload (CoglAtlasTexture *atlas_tex,
                                                CoglBitmap *bmp,
                                                CoglPixelFormat internal_format,
                                                gboolean can_convert_in_place,
-                                               CoglError **error)
+                                               GError **error)
 {
   CoglBitmap *upload_bmp;
   CoglBitmap *override_bmp;
@@ -574,7 +573,7 @@ _cogl_atlas_texture_set_region (CoglTexture *tex,
                                 int dst_height,
                                 int level,
                                 CoglBitmap *bmp,
-                                CoglError **error)
+                                GError **error)
 {
   CoglAtlasTexture  *atlas_tex = COGL_ATLAS_TEXTURE (tex);
 
@@ -694,7 +693,7 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
 
   /* We can't atlas zero-sized textures because it breaks the atlas
    * data structure */
-  _COGL_RETURN_VAL_IF_FAIL (width > 0 && height > 0, NULL);
+  g_return_val_if_fail (width > 0 && height > 0, NULL);
 
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZED;
@@ -711,7 +710,7 @@ allocate_space (CoglAtlasTexture *atlas_tex,
                 int width,
                 int height,
                 CoglPixelFormat internal_format,
-                CoglError **error)
+                GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (atlas_tex);
   CoglContext *ctx = tex->context;
@@ -723,10 +722,10 @@ allocate_space (CoglAtlasTexture *atlas_tex,
     {
       COGL_NOTE (ATLAS, "Texture can not be added because the "
                  "format is unsupported");
-      _cogl_set_error (error,
-                       COGL_TEXTURE_ERROR,
-                       COGL_TEXTURE_ERROR_FORMAT,
-                       "Texture format unsuitable for atlasing");
+      g_set_error_literal (error,
+                           COGL_TEXTURE_ERROR,
+                           COGL_TEXTURE_ERROR_FORMAT,
+                           "Texture format unsuitable for atlasing");
       return FALSE;
     }
 
@@ -734,11 +733,11 @@ allocate_space (CoglAtlasTexture *atlas_tex,
      and we shouldn't use the atlas */
   if (!cogl_has_feature (ctx, COGL_FEATURE_ID_OFFSCREEN))
     {
-      _cogl_set_error (error,
-                       COGL_SYSTEM_ERROR,
-                       COGL_SYSTEM_ERROR_UNSUPPORTED,
-                       "Atlasing disabled because migrations "
-                       "would be too slow");
+      g_set_error_literal (error,
+                           COGL_SYSTEM_ERROR,
+                           COGL_SYSTEM_ERROR_UNSUPPORTED,
+                           "Atlasing disabled because migrations "
+                           "would be too slow");
       return FALSE;
     }
 
@@ -777,10 +776,10 @@ allocate_space (CoglAtlasTexture *atlas_tex,
           /* Ok, this means we really can't add it to the atlas */
           cogl_object_unref (atlas);
 
-          _cogl_set_error (error,
-                           COGL_SYSTEM_ERROR,
-                           COGL_SYSTEM_ERROR_NO_MEMORY,
-                           "Not enough memory to atlas texture");
+          g_set_error_literal (error,
+                               COGL_SYSTEM_ERROR,
+                               COGL_SYSTEM_ERROR_NO_MEMORY,
+                               "Not enough memory to atlas texture");
           return FALSE;
         }
     }
@@ -795,7 +794,7 @@ allocate_space (CoglAtlasTexture *atlas_tex,
 static gboolean
 allocate_with_size (CoglAtlasTexture *atlas_tex,
                     CoglTextureLoader *loader,
-                    CoglError **error)
+                    GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (atlas_tex);
   CoglPixelFormat internal_format =
@@ -820,7 +819,7 @@ allocate_with_size (CoglAtlasTexture *atlas_tex,
 static gboolean
 allocate_from_bitmap (CoglAtlasTexture *atlas_tex,
                       CoglTextureLoader *loader,
-                      CoglError **error)
+                      GError **error)
 {
   CoglTexture *tex = COGL_TEXTURE (atlas_tex);
   CoglBitmap *bmp = loader->src.bitmap.bitmap;
@@ -831,7 +830,7 @@ allocate_from_bitmap (CoglAtlasTexture *atlas_tex,
   CoglPixelFormat internal_format;
   CoglBitmap *upload_bmp;
 
-  _COGL_RETURN_VAL_IF_FAIL (atlas_tex->atlas == NULL, FALSE);
+  g_return_val_if_fail (atlas_tex->atlas == NULL, FALSE);
 
   internal_format = _cogl_texture_determine_internal_format (tex, bmp_format);
 
@@ -880,12 +879,12 @@ allocate_from_bitmap (CoglAtlasTexture *atlas_tex,
 
 static gboolean
 _cogl_atlas_texture_allocate (CoglTexture *tex,
-                              CoglError **error)
+                              GError **error)
 {
   CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
   CoglTextureLoader *loader = tex->loader;
 
-  _COGL_RETURN_VAL_IF_FAIL (loader, FALSE);
+  g_return_val_if_fail (loader, FALSE);
 
   switch (loader->src_type)
     {
@@ -906,7 +905,7 @@ _cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp,
 {
   CoglTextureLoader *loader;
 
-  _COGL_RETURN_VAL_IF_FAIL (cogl_is_bitmap (bmp), NULL);
+  g_return_val_if_fail (cogl_is_bitmap (bmp), NULL);
 
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_BITMAP;
@@ -933,13 +932,13 @@ cogl_atlas_texture_new_from_data (CoglContext *ctx,
                                   CoglPixelFormat format,
                                   int rowstride,
                                   const uint8_t *data,
-                                  CoglError **error)
+                                  GError **error)
 {
   CoglBitmap *bmp;
   CoglAtlasTexture *atlas_tex;
 
-  _COGL_RETURN_VAL_IF_FAIL (format != COGL_PIXEL_FORMAT_ANY, NULL);
-  _COGL_RETURN_VAL_IF_FAIL (data != NULL, NULL);
+  g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, NULL);
+  g_return_val_if_fail (data != NULL, NULL);
 
   /* Rowstride from width if not given */
   if (rowstride == 0)
@@ -969,12 +968,12 @@ cogl_atlas_texture_new_from_data (CoglContext *ctx,
 CoglAtlasTexture *
 cogl_atlas_texture_new_from_file (CoglContext *ctx,
                                   const char *filename,
-                                  CoglError **error)
+                                  GError **error)
 {
   CoglBitmap *bmp;
   CoglAtlasTexture *atlas_tex = NULL;
 
-  _COGL_RETURN_VAL_IF_FAIL (error == NULL || *error == NULL, NULL);
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
   bmp = cogl_bitmap_new_from_file (filename, error);
   if (bmp == NULL)
@@ -1013,12 +1012,6 @@ _cogl_atlas_texture_remove_reorganize_callback (CoglContext *ctx,
     g_hook_destroy_link (&ctx->atlas_reorganize_callbacks, hook);
 }
 
-static CoglTextureType
-_cogl_atlas_texture_get_type (CoglTexture *tex)
-{
-  return COGL_TEXTURE_TYPE_2D;
-}
-
 static const CoglTextureVtable
 cogl_atlas_texture_vtable =
   {
@@ -1040,7 +1033,6 @@ cogl_atlas_texture_vtable =
     _cogl_atlas_texture_gl_flush_legacy_texobj_wrap_modes,
     _cogl_atlas_texture_get_format,
     _cogl_atlas_texture_get_gl_format,
-    _cogl_atlas_texture_get_type,
     NULL, /* is_foreign */
     NULL /* set_auto_mipmap */
   };

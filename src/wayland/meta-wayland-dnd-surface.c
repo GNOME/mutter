@@ -45,8 +45,12 @@ dnd_surface_commit (MetaWaylandSurfaceRole  *surface_role,
 {
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandSurfaceRoleClass *surface_role_class =
+    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_surface_role_dnd_parent_class);
 
   meta_wayland_surface_queue_pending_state_frame_callbacks (surface, pending);
+
+  surface_role_class->commit (surface_role, pending);
 }
 
 static void

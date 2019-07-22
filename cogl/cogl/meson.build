@@ -88,6 +88,7 @@ cogl_headers = [
   'cogl-pipeline.h',
   'cogl-pipeline-state.h',
   'cogl-pipeline-layer-state.h',
+  'cogl-pixel-format.h',
   'cogl-primitives.h',
   'cogl-texture.h',
   'cogl-texture-2d.h',
@@ -119,9 +120,7 @@ cogl_nonintrospected_headers = [
   'cogl-quaternion.h',
   'cogl-matrix-stack.h',
   'cogl-poll.h',
-  'cogl-texture-3d.h',
   'cogl-texture-2d-gl.h',
-  'cogl-texture-rectangle.h',
   'cogl-sub-texture.h',
   'cogl-atlas-texture.h',
   'cogl-meta-texture.h',
@@ -132,7 +131,6 @@ cogl_nonintrospected_headers = [
   'cogl-macros.h',
   'cogl-fence.h',
   'cogl-version.h',
-  'cogl-error.h',
   'cogl-gtype-private.h',
   'cogl-glib-source.h',
 ]
@@ -235,6 +233,7 @@ cogl_sources = [
   'cogl-display.c',
   'cogl-driver.h',
   'cogl.c',
+  'cogl-pixel-format.c',
   'cogl-object-private.h',
   'cogl-object.h',
   'cogl-object.c',
@@ -303,19 +302,17 @@ cogl_sources = [
   'cogl-blend-string.c',
   'cogl-blend-string.h',
   'cogl-debug.c',
+  'cogl-trace.c',
+  'cogl-trace.h',
   'cogl-sub-texture-private.h',
   'cogl-texture-private.h',
   'cogl-texture-2d-private.h',
   'cogl-texture-2d-sliced-private.h',
-  'cogl-texture-3d-private.h',
   'cogl-texture-driver.h',
   'cogl-sub-texture.c',
   'cogl-texture.c',
   'cogl-texture-2d.c',
   'cogl-texture-2d-sliced.c',
-  'cogl-texture-3d.c',
-  'cogl-texture-rectangle-private.h',
-  'cogl-texture-rectangle.c',
   'cogl-rectangle-map.h',
   'cogl-rectangle-map.c',
   'cogl-atlas.h',
@@ -367,8 +364,6 @@ cogl_sources = [
   'cogl-magazine.c',
   'cogl-gles2-context-private.h',
   'cogl-gles2-context.c',
-  'cogl-error-private.h',
-  'cogl-error.c',
   'cogl-closure-list-private.h',
   'cogl-closure-list.c',
   'cogl-fence.c',
@@ -461,16 +456,24 @@ cogl_headers_all = [
 ]
 
 cogl_test_deps = []
+cogl_unit_tests_map_data = configuration_data()
 
 if have_cogl_tests
   cogl_test_deps += [libmutter_cogl_test_fixtures_dep]
+
+  cogl_unit_tests_map_data.set('unit_tests_symbols', 'test_*; unit_test_*;')
 endif
 
+libmutter_cogl_map = configure_file(
+  input: 'libmutter-cogl.map.in',
+  output: 'libmutter-cogl.map',
+  configuration: cogl_unit_tests_map_data,
+  install: false,
+)
+
 libmutter_cogl_name = 'mutter-cogl-' + libmutter_api_version
-libmutter_cogl_map = 'libmutter-cogl.map'
 libmutter_cogl_link_args = [
-  '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(),
-      libmutter_cogl_map),
+  '-Wl,--version-script,@0@'.format(libmutter_cogl_map),
 ]
 libmutter_cogl = shared_library(libmutter_cogl_name,
   sources: [cogl_sources, cogl_headers_all],

@@ -52,8 +52,6 @@ void meta_workspace_queue_calc_showing   (MetaWorkspace *workspace);
 static void focus_ancestor_or_top_window (MetaWorkspace *workspace,
                                           MetaWindow    *not_this_one,
                                           guint32        timestamp);
-static void free_this                    (gpointer candidate,
-                                          gpointer dummy);
 
 G_DEFINE_TYPE (MetaWorkspace, meta_workspace, G_TYPE_OBJECT);
 
@@ -271,13 +269,6 @@ meta_workspace_new (MetaWorkspaceManager *workspace_manager)
   return workspace;
 }
 
-/* Foreach function for workspace_free_struts() */
-static void
-free_this (gpointer candidate, gpointer dummy)
-{
-  g_free (candidate);
-}
-
 /**
  * workspace_free_all_struts:
  * @workspace: The workspace.
@@ -290,8 +281,7 @@ workspace_free_all_struts (MetaWorkspace *workspace)
   if (workspace->all_struts == NULL)
     return;
 
-  g_slist_foreach (workspace->all_struts, free_this, NULL);
-  g_slist_free (workspace->all_struts);
+  g_slist_free_full (workspace->all_struts, g_free);
   workspace->all_struts = NULL;
 }
 
@@ -307,8 +297,7 @@ workspace_free_builtin_struts (MetaWorkspace *workspace)
   if (workspace->builtin_struts == NULL)
     return;
 
-  g_slist_foreach (workspace->builtin_struts, free_this, NULL);
-  g_slist_free (workspace->builtin_struts);
+  g_slist_free_full (workspace->builtin_struts, g_free);
   workspace->builtin_struts = NULL;
 }
 
@@ -535,7 +524,11 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
                 meta_workspace_index (workspace));
 
   if (workspace->manager->active_workspace == workspace)
-    return;
+    {
+      if (focus_this)
+        meta_window_activate (focus_this, timestamp);
+      return;
+    }
 
   /* Free any cached pointers to the workspaces's edges from
    * a current resize or move operation */
@@ -1321,8 +1314,7 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
           meta_topic (META_DEBUG_FOCUS,
                       "Setting focus to no_focus_window, since no valid "
                       "window to focus found.\n");
-          meta_x11_display_focus_the_no_focus_window (workspace->display->x11_display,
-                                                      timestamp);
+          meta_display_unset_input_focus (workspace->display, timestamp);
         }
     }
 }
@@ -1405,8 +1397,7 @@ focus_ancestor_or_top_window (MetaWorkspace *workspace,
   else
     {
       meta_topic (META_DEBUG_FOCUS, "No MRU window to focus found; focusing no_focus_window.\n");
-      meta_x11_display_focus_the_no_focus_window (workspace->display->x11_display,
-                                                  timestamp);
+      meta_display_unset_input_focus (workspace->display, timestamp);
     }
 }
 

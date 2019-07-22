@@ -282,6 +282,7 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect)
   /* enable depth testing */
   cogl_depth_state_init (&depth_state);
   cogl_depth_state_set_test_enabled (&depth_state, TRUE);
+  cogl_depth_state_set_test_function (&depth_state, COGL_DEPTH_TEST_FUNCTION_LEQUAL);
   cogl_pipeline_set_depth_state (pipeline, &depth_state, NULL);
 
   /* enable backface culling if we have a back material */

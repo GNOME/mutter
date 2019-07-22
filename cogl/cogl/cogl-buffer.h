@@ -40,7 +40,6 @@
 #define __COGL_BUFFER_H__
 
 #include <cogl/cogl-types.h>
-#include <cogl/cogl-error.h>
 
 G_BEGIN_DECLS
 
@@ -258,7 +257,7 @@ cogl_buffer_map (CoglBuffer *buffer,
  * @access: how the mapped buffer will be used by the application
  * @hints: A mask of #CoglBufferMapHint<!-- -->s that tell Cogl how
  *   the data will be modified once mapped.
- * @error: A #CoglError for catching exceptional errors
+ * @error: A #GError for catching exceptional errors
  *
  * Maps a sub-region of the buffer into the application's address space
  * for direct access.
@@ -288,7 +287,7 @@ cogl_buffer_map_range (CoglBuffer *buffer,
                        size_t size,
                        CoglBufferAccess access,
                        CoglBufferMapHint hints,
-                       CoglError **error);
+                       GError **error);
 
 /**
  * cogl_buffer_unmap:

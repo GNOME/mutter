@@ -176,6 +176,22 @@ meta_wayland_shell_surface_surface_commit (MetaWaylandSurfaceRole  *surface_role
 }
 
 static void
+meta_wayland_shell_surface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
+{
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (actor_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandActorSurfaceClass *actor_surface_class =
+    META_WAYLAND_ACTOR_SURFACE_CLASS (meta_wayland_shell_surface_parent_class);
+  MetaWaylandSurface *toplevel_surface;
+
+  toplevel_surface = meta_wayland_surface_get_toplevel (surface);
+  if (toplevel_surface && toplevel_surface->window)
+    actor_surface_class->sync_actor_state (actor_surface);
+}
+
+static void
 meta_wayland_shell_surface_init (MetaWaylandShellSurface *role)
 {
 }
@@ -185,6 +201,10 @@ meta_wayland_shell_surface_class_init (MetaWaylandShellSurfaceClass *klass)
 {
   MetaWaylandSurfaceRoleClass *surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (klass);
+  MetaWaylandActorSurfaceClass *actor_surface_class =
+    META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
 
   surface_role_class->commit = meta_wayland_shell_surface_surface_commit;
+  actor_surface_class->sync_actor_state =
+    meta_wayland_shell_surface_sync_actor_state;
 }

@@ -283,7 +283,7 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
                             int height)
 {
   CoglTexture2D *tex;
-  CoglError *ignore_error = NULL;
+  GError *ignore_error = NULL;
 
   _COGL_GET_CONTEXT (ctx, NULL);
 
@@ -309,7 +309,7 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
 
       if (!cogl_texture_allocate (COGL_TEXTURE (tex), &ignore_error))
         {
-          cogl_error_free (ignore_error);
+          g_error_free (ignore_error);
           cogl_object_unref (tex);
           tex = NULL;
         }
@@ -327,7 +327,7 @@ _cogl_atlas_create_texture (CoglAtlas *atlas,
 
       if (!cogl_texture_allocate (COGL_TEXTURE (tex), &ignore_error))
         {
-          cogl_error_free (ignore_error);
+          g_error_free (ignore_error);
           cogl_object_unref (tex);
           tex = NULL;
         }
@@ -560,31 +560,23 @@ create_migration_texture (CoglContext *ctx,
                           CoglPixelFormat internal_format)
 {
   CoglTexture *tex;
-  CoglError *skip_error = NULL;
+  GError *skip_error = NULL;
 
-  if ((_cogl_util_is_pot (width) && _cogl_util_is_pot (height)) ||
-      (cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_BASIC) &&
-       cogl_has_feature (ctx, COGL_FEATURE_ID_TEXTURE_NPOT_MIPMAP)))
+  /* First try creating a fast-path non-sliced texture */
+  tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx, width, height));
+
+  _cogl_texture_set_internal_format (tex, internal_format);
+
+  /* TODO: instead of allocating storage here it would be better
+   * if we had some api that let us just check that the size is
+   * supported by the hardware so storage could be allocated
+   * lazily when uploading data. */
+  if (!cogl_texture_allocate (tex, &skip_error))
     {
-      /* First try creating a fast-path non-sliced texture */
-      tex = COGL_TEXTURE (cogl_texture_2d_new_with_size (ctx,
-                                                         width, height));
-
-      _cogl_texture_set_internal_format (tex, internal_format);
-
-      /* TODO: instead of allocating storage here it would be better
-       * if we had some api that let us just check that the size is
-       * supported by the hardware so storage could be allocated
-       * lazily when uploading data. */
-      if (!cogl_texture_allocate (tex, &skip_error))
-        {
-          cogl_error_free (skip_error);
-          cogl_object_unref (tex);
-          tex = NULL;
-        }
+      g_error_free (skip_error);
+      cogl_object_unref (tex);
+      tex = NULL;
     }
-  else
-    tex = NULL;
 
   if (!tex)
     {
@@ -613,7 +605,7 @@ _cogl_atlas_copy_rectangle (CoglAtlas *atlas,
 {
   CoglTexture *tex;
   CoglBlitData blit_data;
-  CoglError *ignore_error = NULL;
+  GError *ignore_error = NULL;
 
   _COGL_GET_CONTEXT (ctx, NULL);
 
@@ -621,7 +613,7 @@ _cogl_atlas_copy_rectangle (CoglAtlas *atlas,
   tex = create_migration_texture (ctx, width, height, internal_format);
   if (!cogl_texture_allocate (tex, &ignore_error))
     {
-      cogl_error_free (ignore_error);
+      g_error_free (ignore_error);
       cogl_object_unref (tex);
       return NULL;
     }

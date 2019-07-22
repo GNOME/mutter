@@ -44,7 +44,6 @@
 #include "cogl-context-private.h"
 #include "cogl-object-private.h"
 #include "cogl-primitives.h"
-#include "cogl-error-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
@@ -150,7 +149,7 @@ _cogl_texture_driver_prep_gl_for_pixels_download (CoglContext *ctx,
 static CoglBitmap *
 prepare_bitmap_alignment_for_upload (CoglContext *ctx,
                                      CoglBitmap *src_bmp,
-                                     CoglError **error)
+                                     GError **error)
 {
   CoglPixelFormat format = cogl_bitmap_get_format (src_bmp);
   int bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
@@ -163,7 +162,7 @@ prepare_bitmap_alignment_for_upload (CoglContext *ctx,
     return cogl_object_ref (src_bmp);
 
   /* Work out the alignment of the source rowstride */
-  alignment = 1 << (_cogl_util_ffs (src_rowstride) - 1);
+  alignment = 1 << (ffs (src_rowstride) - 1);
   alignment = MIN (alignment, 8);
 
   /* If the aligned data equals the rowstride then we can upload from
@@ -190,7 +189,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
                                              CoglBitmap *source_bmp,
 				             GLuint source_gl_format,
 				             GLuint source_gl_type,
-                                             CoglError **error)
+                                             GError **error)
 {
   GLenum gl_target;
   GLuint gl_handle;
@@ -200,7 +199,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
   CoglBitmap *slice_bmp;
   int rowstride;
   gboolean status = TRUE;
-  CoglError *internal_error = NULL;
+  GError *internal_error = NULL;
   int level_width;
   int level_height;
 
@@ -254,7 +253,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
    * problems... */
   if (internal_error)
     {
-      _cogl_propagate_error (error, internal_error);
+      g_propagate_error (error, internal_error);
       cogl_object_unref (slice_bmp);
       return FALSE;
     }
@@ -335,7 +334,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
                                    GLint internal_gl_format,
                                    GLuint source_gl_format,
                                    GLuint source_gl_type,
-                                   CoglError **error)
+                                   GError **error)
 {
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
   int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
@@ -344,7 +343,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
   int bmp_height = cogl_bitmap_get_height (source_bmp);
   CoglBitmap *bmp;
   uint8_t *data;
-  CoglError *internal_error = NULL;
+  GError *internal_error = NULL;
   gboolean status = TRUE;
 
   bmp = prepare_bitmap_alignment_for_upload (ctx, source_bmp, error);
@@ -369,7 +368,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
   if (internal_error)
     {
       cogl_object_unref (bmp);
-      _cogl_propagate_error (error, internal_error);
+      g_propagate_error (error, internal_error);
       return FALSE;
     }
 
@@ -394,152 +393,6 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
   return status;
 }
 
-static gboolean
-_cogl_texture_driver_upload_to_gl_3d (CoglContext *ctx,
-                                      GLenum gl_target,
-                                      GLuint gl_handle,
-                                      gboolean is_foreign,
-                                      GLint height,
-                                      GLint depth,
-                                      CoglBitmap *source_bmp,
-                                      GLint internal_gl_format,
-                                      GLuint source_gl_format,
-                                      GLuint source_gl_type,
-                                      CoglError **error)
-{
-  CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
-  int rowstride = cogl_bitmap_get_rowstride (source_bmp);
-  int bmp_width = cogl_bitmap_get_width (source_bmp);
-  int bmp_height = cogl_bitmap_get_height (source_bmp);
-  uint8_t *data;
-
-  _cogl_bind_gl_texture_transient (gl_target, gl_handle, is_foreign);
-
-  /* If the rowstride or image height can't be specified with just
-     GL_ALIGNMENT alone then we need to copy the bitmap because there
-     is no GL_ROW_LENGTH */
-  if (rowstride / bpp != bmp_width ||
-      height != bmp_height / depth)
-    {
-      CoglBitmap *bmp;
-      int image_height = bmp_height / depth;
-      CoglPixelFormat source_bmp_format = cogl_bitmap_get_format (source_bmp);
-      int i;
-
-      _cogl_texture_driver_prep_gl_for_pixels_upload (ctx, bmp_width * bpp, bpp);
-
-      /* Initialize the texture with empty data and then upload each
-         image with a sub-region update */
-
-      /* Clear any GL errors */
-      _cogl_gl_util_clear_gl_errors (ctx);
-
-      ctx->glTexImage3D (gl_target,
-                         0, /* level */
-                         internal_gl_format,
-                         bmp_width,
-                         height,
-                         depth,
-                         0,
-                         source_gl_format,
-                         source_gl_type,
-                         NULL);
-
-      if (_cogl_gl_util_catch_out_of_memory (ctx, error))
-        return FALSE;
-
-      bmp = _cogl_bitmap_new_with_malloc_buffer (ctx,
-                                                 bmp_width,
-                                                 height,
-                                                 source_bmp_format,
-                                                 error);
-      if (!bmp)
-        return FALSE;
-
-      for (i = 0; i < depth; i++)
-        {
-          if (!_cogl_bitmap_copy_subregion (source_bmp,
-                                            bmp,
-                                            0, image_height * i,
-                                            0, 0,
-                                            bmp_width,
-                                            height,
-                                            error))
-            {
-              cogl_object_unref (bmp);
-              return FALSE;
-            }
-
-          data = _cogl_bitmap_gl_bind (bmp,
-                                       COGL_BUFFER_ACCESS_READ, 0, error);
-          if (!data)
-            {
-              cogl_object_unref (bmp);
-              return FALSE;
-            }
-
-          /* Clear any GL errors */
-          _cogl_gl_util_clear_gl_errors (ctx);
-
-          ctx->glTexSubImage3D (gl_target,
-                                0, /* level */
-                                0, /* xoffset */
-                                0, /* yoffset */
-                                i, /* zoffset */
-                                bmp_width, /* width */
-                                height, /* height */
-                                1, /* depth */
-                                source_gl_format,
-                                source_gl_type,
-                                data);
-
-          if (_cogl_gl_util_catch_out_of_memory (ctx, error))
-            {
-              cogl_object_unref (bmp);
-              _cogl_bitmap_gl_unbind (bmp);
-              return FALSE;
-            }
-
-          _cogl_bitmap_gl_unbind (bmp);
-        }
-
-      cogl_object_unref (bmp);
-    }
-  else
-    {
-      data = _cogl_bitmap_gl_bind (source_bmp, COGL_BUFFER_ACCESS_READ, 0, error);
-      if (!data)
-        return FALSE;
-
-      _cogl_texture_driver_prep_gl_for_pixels_upload (ctx, rowstride, bpp);
-
-      /* Clear any GL errors */
-      _cogl_gl_util_clear_gl_errors (ctx);
-
-      ctx->glTexImage3D (gl_target,
-                         0, /* level */
-                         internal_gl_format,
-                         bmp_width,
-                         height,
-                         depth,
-                         0,
-                         source_gl_format,
-                         source_gl_type,
-                         data);
-
-      if (_cogl_gl_util_catch_out_of_memory (ctx, error))
-        {
-          _cogl_bitmap_gl_unbind (source_bmp);
-          return FALSE;
-        }
-
-      _cogl_bitmap_gl_unbind (source_bmp);
-    }
-
-  return TRUE;
-}
-
 /* NB: GLES doesn't support glGetTexImage2D, so cogl-texture will instead
  * fallback to a generic render + readpixels approach to downloading
  * texture data. (See _cogl_texture_draw_and_read() ) */
@@ -551,25 +404,6 @@ _cogl_texture_driver_gl_get_tex_image (CoglContext *ctx,
                                        uint8_t *dest)
 {
   return FALSE;
-}
-
-static gboolean
-_cogl_texture_driver_size_supported_3d (CoglContext *ctx,
-                                        GLenum gl_target,
-                                        GLenum gl_format,
-                                        GLenum gl_type,
-                                        int width,
-                                        int height,
-                                        int depth)
-{
-  GLint max_size;
-
-  /* GLES doesn't support a proxy texture target so let's at least
-     check whether the size is greater than
-     GL_MAX_3D_TEXTURE_SIZE_OES */
-  GE( ctx, glGetIntegerv (GL_MAX_3D_TEXTURE_SIZE_OES, &max_size) );
-
-  return width <= max_size && height <= max_size && depth <= max_size;
 }
 
 static gboolean
@@ -622,11 +456,9 @@ _cogl_texture_driver_gles =
     _cogl_texture_driver_prep_gl_for_pixels_upload,
     _cogl_texture_driver_upload_subregion_to_gl,
     _cogl_texture_driver_upload_to_gl,
-    _cogl_texture_driver_upload_to_gl_3d,
     _cogl_texture_driver_prep_gl_for_pixels_download,
     _cogl_texture_driver_gl_get_tex_image,
     _cogl_texture_driver_size_supported,
-    _cogl_texture_driver_size_supported_3d,
     _cogl_texture_driver_allows_foreign_gl_target,
     _cogl_texture_driver_find_best_gl_get_data_format
   };

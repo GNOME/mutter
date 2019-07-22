@@ -111,10 +111,22 @@ option('clutter_tests',
   description: 'Enable clutter tests'
 )
 
+option('core_tests',
+  type: 'boolean',
+  value: true,
+  description: 'Enable mutter core tests'
+)
+
 option('tests',
   type: 'boolean',
   value: true,
-  description: 'Enable mutter tests'
+  description: 'Enable tests globally. Specific test suites can be controlled with core_tests, clutter_tests, and cogl_tests'
+)
+
+option('profiler',
+  type: 'boolean',
+  value: true,
+  description: 'Enable Sysprof tracing'
 )
 
 option('installed_tests',
