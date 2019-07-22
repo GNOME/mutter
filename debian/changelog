@@ -1,6 +1,40 @@
 mutter (3.33.4-1) UNRELEASED; urgency=medium
 
   * New upstream release
+    + Add API to reorder workspaces
+    + Add a Sysprof-based profiler
+    + Add initial KMS transactional support
+    + Add xdg-output v2 support
+    + Consolidate frame throttling
+    + Defer actor allocation till shown
+    + Discard page flip retries on hotplug
+    + Don't emit ::size-changed when only position changed
+    + Don't use grab modifiers when shortcuts are inhibited
+    + Expose workspace layout properties
+    + Fix background corruption on Nvidia after resuming from suspend (LP:
+      #1809407)
+    + Fix black shadows when using fractional scaling
+    + Fix modifier-drag on wayland subsurfaces
+    + Fix running X11 applications with sudo under wayland
+    + Fix setting blank cursor under wayland
+    + Fix stuttering due to unchanged power save mode notifications
+    + Fix text selection color rendering
+    + Handle returning from fullscreen/maximization better
+    + Honor startup sequence workspace on wayland
+    + Implement locate-pointer accessibility feature
+    + Implement mouse accessibility
+    + Implement toggle-keys notification
+    + Improve finding new focus window when the old one is closed
+    + Improve screencast support on multi-monitor systems
+    + Make picking a new focus window more reliable
+    + Only emit 'grab-op-end` signal after dropping grabs
+    + Only grab the locate-pointer key when necessary
+    + Pixel-align OpenGL cursors
+    + Prepare for running Xwayland on demand
+    + Relax "xwayland-allow-grabs" setting
+    + Restore DRM format fallbacks
+    + Try to use primary GPU for copy instead of glReadPixels
+    + Unset pointer focus when the cursor is hidden
 
  -- Iain Lane <laney@debian.org>  Mon, 22 Jul 2019 19:11:44 +0100
 
