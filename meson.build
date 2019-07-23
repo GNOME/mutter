@@ -6,7 +6,7 @@ project('mutter', 'c',
 
 mutter_plugin_api_version = '3'
 
-libmutter_api_version = '4'
+libmutter_api_version = '5'
 
 # generic version requirements
 fribidi_req = '>= 1.0.0'
