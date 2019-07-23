@@ -6,7 +6,12 @@ project('mutter', 'c',
 
 mutter_plugin_api_version = '3'
 
-libmutter_api_version = '4'
+split_version = meson.project_version().split('.')
+
+# Automatically increase API version each development cycle,
+# starting with 0 in 3.23.x
+api_version = (split_version[1].to_int() - 23) / 2
+libmutter_api_version = '@0@'.format(api_version)
 
 # generic version requirements
 fribidi_req = '>= 1.0.0'
