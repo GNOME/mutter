@@ -1094,11 +1094,11 @@ migrate_config (gpointer key,
   MetaMonitorConfigStore *config_store = user_data;
   MetaMonitorManager *monitor_manager =
     meta_monitor_config_store_get_monitor_manager (config_store);
+  g_autoptr (MetaMonitorsConfig) config = NULL;
   GList *logical_monitor_configs;
   MetaLogicalMonitorLayoutMode layout_mode;
   GError *error = NULL;
   GList *disabled_monitor_specs;
-  MetaMonitorsConfig *config;
 
   logical_monitor_configs = derive_logical_monitor_configs (legacy_config,
                                                             config_store,
@@ -1127,7 +1127,6 @@ migrate_config (gpointer key,
       config_name = generate_config_name (legacy_config);
       g_warning ("Ignoring invalid monitor configuration for %s: %s",
                  config_name, error->message);
-      g_object_unref (config);
       return;
     }
 
