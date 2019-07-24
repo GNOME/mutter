@@ -253,7 +253,7 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
     }
   else
     {
-      CoglOnscreenTemplate *tmpl;
+      g_autoptr (CoglOnscreenTemplate) tmpl = NULL;
       gboolean res;
 
       tmpl = cogl_onscreen_template_new (swap_chain);
@@ -270,10 +270,8 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
       if (!res)
         goto error;
 
-      backend->cogl_display = cogl_display_new (backend->cogl_renderer, tmpl);
-
       /* the display owns the template */
-      cogl_object_unref (tmpl);
+      backend->cogl_display = cogl_display_new (backend->cogl_renderer, tmpl);
     }
 
   if (backend->cogl_display == NULL)
