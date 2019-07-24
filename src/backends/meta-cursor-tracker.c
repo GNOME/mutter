@@ -39,6 +39,7 @@
 #include "backends/x11/cm/meta-cursor-sprite-xfixes.h"
 #include "cogl/cogl.h"
 #include "clutter/clutter.h"
+#include "meta-marshal.h"
 #include "meta/main.h"
 #include "meta/meta-x11-errors.h"
 #include "meta/util.h"
@@ -170,7 +171,8 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
                                         G_TYPE_FROM_CLASS (klass),
                                         G_SIGNAL_RUN_LAST,
                                         0,
-                                        NULL, NULL, NULL,
+                                        NULL, NULL,
+                                        meta_marshal_VOID__FLOAT_FLOAT,
                                         G_TYPE_NONE, 2,
                                         G_TYPE_FLOAT,
                                         G_TYPE_FLOAT);
