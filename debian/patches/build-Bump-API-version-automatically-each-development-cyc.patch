@@ -1,0 +1,38 @@
+From: =?utf-8?q?Florian_M=C3=BCllner?= <fmuellner@gnome.org>
+Date: Tue, 23 Jul 2019 20:26:14 +0200
+Subject: build: Bump API version automatically each development cycle
+
+Since the API version was added, we've bumped it at some point late-ish in
+the cycle when enough changes had accumulated (but way after the first ABI
+break). Automate that process by computing the API version automatically
+from the project version:
+With this commit, the new API version will be 5 for the remaining 3.33.x
+releases and all 3.34.x stable versions; 3.35.1 will then bump it to 6 and
+so forth.
+
+https://gitlab.gnome.org/GNOME/mutter/merge_requests/696
+
+Origin: upstream, commit:92868182c9b012523d1a159c98a2cfc8b7b9c8f0
+Applied-Upstream: 3.33.90
+---
+ meson.build | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/meson.build b/meson.build
+index 6b82756..7e774c4 100644
+--- a/meson.build
++++ b/meson.build
+@@ -6,7 +6,12 @@ project('mutter', 'c',
+ 
+ mutter_plugin_api_version = '3'
+ 
+-libmutter_api_version = '4'
++split_version = meson.project_version().split('.')
++
++# Automatically increase API version each development cycle,
++# starting with 0 in 3.23.x
++api_version = (split_version[1].to_int() - 23) / 2
++libmutter_api_version = '@0@'.format(api_version)
+ 
+ # generic version requirements
+ fribidi_req = '>= 1.0.0'
