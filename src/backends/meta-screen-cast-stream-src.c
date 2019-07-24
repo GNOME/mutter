@@ -825,6 +825,7 @@ create_pipewire_source (void)
 
   pw_loop_enter (pipewire_source->pipewire_loop);
   g_source_attach (&pipewire_source->base, NULL);
+  g_source_unref (&pipewire_source->base);
 
   return pipewire_source;
 }
