@@ -567,8 +567,7 @@ clutter_animation_class_init (ClutterAnimationClass *klass)
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterAnimationClass, started),
-                  NULL, NULL,
-                  _clutter_marshal_VOID__VOID,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
   /**
@@ -589,8 +588,7 @@ clutter_animation_class_init (ClutterAnimationClass *klass)
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterAnimationClass, completed),
-                  NULL, NULL,
-                  _clutter_marshal_VOID__VOID,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 }
 
