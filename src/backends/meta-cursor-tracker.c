@@ -183,8 +183,7 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
   signals[VISIBILITY_CHANGED] = g_signal_new ("visibility-changed",
                                               G_TYPE_FROM_CLASS (klass),
                                               G_SIGNAL_RUN_LAST,
-                                              0, NULL, NULL,
-                                              g_cclosure_marshal_VOID__VOID,
+                                              0, NULL, NULL, NULL,
                                               G_TYPE_NONE, 0);
 }
 
