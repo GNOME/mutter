@@ -4340,8 +4340,7 @@ clutter_text_class_init (ClutterTextClass *klass)
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterTextClass, text_changed),
-                  NULL, NULL,
-                  _clutter_marshal_VOID__VOID,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
   /**
@@ -4413,8 +4412,7 @@ clutter_text_class_init (ClutterTextClass *klass)
 		  G_TYPE_FROM_CLASS (gobject_class),
 		  G_SIGNAL_RUN_LAST | G_SIGNAL_DEPRECATED,
 		  G_STRUCT_OFFSET (ClutterTextClass, cursor_event),
-		  NULL, NULL,
-		  _clutter_marshal_VOID__BOXED,
+		  NULL, NULL, NULL,
 		  G_TYPE_NONE, 1,
 		  CLUTTER_TYPE_GEOMETRY | G_SIGNAL_TYPE_STATIC_SCOPE);
 
@@ -4432,8 +4430,7 @@ clutter_text_class_init (ClutterTextClass *klass)
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterTextClass, cursor_changed),
-                  NULL, NULL,
-                  _clutter_marshal_VOID__VOID,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
   /**
@@ -4451,8 +4448,7 @@ clutter_text_class_init (ClutterTextClass *klass)
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterTextClass, activate),
-                  NULL, NULL,
-                  _clutter_marshal_VOID__VOID,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
   binding_pool = clutter_binding_pool_get_for_class (klass);
