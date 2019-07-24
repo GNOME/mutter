@@ -455,7 +455,7 @@ x_event_source_new (MetaBackend *backend)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-  GSource *source;
+  g_autoptr (GSource) source = NULL;
   XEventSource *x_source;
 
   source = g_source_new (&x_event_funcs, sizeof (XEventSource));
@@ -466,6 +466,7 @@ x_event_source_new (MetaBackend *backend)
   g_source_add_poll (source, &x_source->event_poll_fd);
 
   g_source_attach (source, NULL);
+
   return source;
 }
 
