@@ -128,6 +128,9 @@ cally_stage_notify_key_focus_cb (ClutterStage *stage,
 
   key_focus = clutter_stage_get_key_focus (stage);
 
+  if (key_focus == CLUTTER_ACTOR (stage))
+    key_focus = NULL;
+
   if (key_focus != self->priv->key_focus)
     {
       AtkObject *old = NULL;
