@@ -57,6 +57,7 @@ struct _CallyStagePrivate
 {
   /* NULL means that the stage will receive the focus */
   ClutterActor *key_focus;
+  gulong key_focus_destroyed_id;
 
   gboolean active;
 };
@@ -69,13 +70,36 @@ G_DEFINE_TYPE_WITH_CODE (CallyStage,
                                                 cally_stage_window_interface_init));
 
 static void
+cally_stage_dispose (GObject *object)
+{
+  CallyStage *self = CALLY_STAGE (object);
+
+  if (self->priv->key_focus)
+    {
+      if (self->priv->key_focus_destroyed_id)
+        {
+          g_signal_handler_disconnect (self->priv->key_focus,
+                                       self->priv->key_focus_destroyed_id);
+          self->priv->key_focus_destroyed_id = 0;
+        }
+
+      self->priv->key_focus = NULL;
+    }
+
+  G_OBJECT_CLASS (cally_stage_parent_class)->dispose (object);
+}
+
+static void
 cally_stage_class_init (CallyStageClass *klass)
 {
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   AtkObjectClass *class = ATK_OBJECT_CLASS (klass);
 
   /* AtkObject */
   class->initialize = cally_stage_real_initialize;
   class->ref_state_set = cally_stage_ref_state_set;
+
+  gobject_class->dispose = cally_stage_dispose;
 }
 
 static void
@@ -135,14 +159,16 @@ cally_stage_notify_key_focus_cb (ClutterStage *stage,
     {
       AtkObject *old = NULL;
 
-      if (self->priv->key_focus != NULL)
+      if (self->priv->key_focus != NULL && self->priv->key_focus_destroyed_id)
         {
-          g_object_remove_weak_pointer (G_OBJECT (self->priv->key_focus),
-                                        (gpointer *) &self->priv->key_focus);
-          old = clutter_actor_get_accessible (self->priv->key_focus);
+          g_signal_handler_disconnect (self->priv->key_focus,
+                                       self->priv->key_focus_destroyed_id);
+          self->priv->key_focus_destroyed_id = 0;
         }
-      else
-        old = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
+
+      old = clutter_actor_get_accessible (self->priv->key_focus ?
+                                          self->priv->key_focus :
+                                          CLUTTER_ACTOR (stage));
 
       atk_object_notify_state_change (old,
                                       ATK_STATE_FOCUSED,
@@ -154,7 +180,7 @@ cally_stage_notify_key_focus_cb (ClutterStage *stage,
    */
   self->priv->key_focus = key_focus;
 
-  if (key_focus != NULL)
+  if (key_focus != NULL && !self->priv->key_focus_destroyed_id)
     {
       /* ensure that if the key focus goes away, the field inside
        * CallyStage is reset. see bug:
@@ -163,13 +189,14 @@ cally_stage_notify_key_focus_cb (ClutterStage *stage,
        *
        * we remove the weak pointer above.
        */
-      g_object_add_weak_pointer (G_OBJECT (self->priv->key_focus),
-                                 (gpointer *) &self->priv->key_focus);
-
-      new = clutter_actor_get_accessible (key_focus);
+      self->priv->key_focus_destroyed_id =
+        g_signal_connect_swapped (self->priv->key_focus, "destroy",
+                                  G_CALLBACK (g_nullify_pointer),
+                                  &self->priv->key_focus);
     }
-  else
-    new = clutter_actor_get_accessible (CLUTTER_ACTOR (stage));
+
+  new = clutter_actor_get_accessible (key_focus ?
+                                      key_focus : CLUTTER_ACTOR (stage));
 
   atk_object_notify_state_change (new,
                                   ATK_STATE_FOCUSED,
