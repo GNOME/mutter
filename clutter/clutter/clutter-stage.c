@@ -1827,6 +1827,8 @@ clutter_stage_dispose (GObject *object)
 
   clutter_actor_destroy_all_children (CLUTTER_ACTOR (object));
 
+  _clutter_master_clock_set_paused (_clutter_master_clock_get_default (), TRUE);
+
   g_list_free_full (priv->pending_queue_redraws,
                     (GDestroyNotify) free_queue_redraw_entry);
   priv->pending_queue_redraws = NULL;
