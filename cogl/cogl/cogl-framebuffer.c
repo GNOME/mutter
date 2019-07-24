@@ -189,6 +189,9 @@ _cogl_framebuffer_free (CoglFramebuffer *framebuffer)
 
   cogl_object_unref (framebuffer->journal);
 
+  if (framebuffer->config.swap_chain)
+    cogl_object_unref (framebuffer->config.swap_chain);
+
   ctx->framebuffers = g_list_remove (ctx->framebuffers, framebuffer);
 
   if (ctx->current_draw_buffer == framebuffer)
