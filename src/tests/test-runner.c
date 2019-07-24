@@ -667,6 +667,7 @@ test_case_destroy (TestCase *test,
                                      NULL, NULL);
 
   g_hash_table_destroy (test->clients);
+  g_main_loop_unref (test->loop);
   g_free (test);
 
   return TRUE;
