@@ -563,6 +563,9 @@ meta_monitor_add_mode (MetaMonitor     *monitor,
   priv->modes = g_list_append (priv->modes, monitor_mode);
   g_hash_table_replace (priv->mode_ids, monitor_mode->id, monitor_mode);
 
+  if (existing_mode)
+    meta_monitor_mode_free (existing_mode);
+
   return TRUE;
 }
 
