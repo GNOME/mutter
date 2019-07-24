@@ -207,6 +207,8 @@ gtk_surface_surface_destroyed (MetaWaylandGtkSurface *gtk_surface)
   wl_resource_set_implementation (gtk_surface->resource,
                                   NULL, NULL, NULL);
   gtk_surface->surface = NULL;
+
+  g_free (gtk_surface);
 }
 
 static void
