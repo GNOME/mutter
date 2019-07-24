@@ -657,6 +657,14 @@ dbus_idle_monitor_built_sources = gnome.gdbus_codegen('meta-dbus-idle-monitor',
   )
 mutter_built_sources += dbus_idle_monitor_built_sources
 
+mutter_marshal = gnome.genmarshal('meta-marshal',
+    sources: ['meta-marshal.list'],
+    prefix: 'meta_marshal',
+    internal: true,
+    valist_marshallers: true,
+  )
+mutter_built_sources += mutter_marshal
+
 if have_profiler
   mutter_sources += [
     'backends/meta-profiler.c',
