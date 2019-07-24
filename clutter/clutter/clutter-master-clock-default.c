@@ -518,7 +518,7 @@ clutter_master_clock_default_class_init (ClutterMasterClockDefaultClass *klass)
 static void
 clutter_master_clock_default_init (ClutterMasterClockDefault *self)
 {
-  GSource *source;
+  g_autoptr (GSource) source = NULL;
 
   source = clutter_clock_source_new (self);
   self->source = source;
@@ -596,6 +596,7 @@ clutter_master_clock_default_set_paused (ClutterMasterClock *clock,
     {
       master_clock->source = clutter_clock_source_new (master_clock);
       g_source_attach (master_clock->source, NULL);
+      g_source_unref (master_clock->source);
     }
 
   master_clock->paused = !!paused;
