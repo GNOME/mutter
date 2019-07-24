@@ -401,6 +401,7 @@ clutter_backend_real_create_context (ClutterBackend  *backend,
 
   backend->cogl_source = cogl_glib_source_new (backend->cogl_context, G_PRIORITY_DEFAULT);
   g_source_attach (backend->cogl_source, NULL);
+  g_source_unref (backend->cogl_source);
 
   return TRUE;
 }

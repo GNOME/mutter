@@ -726,7 +726,7 @@ static ClutterEventSource *
 clutter_event_source_new (ClutterDeviceManagerEvdev *manager_evdev)
 {
   ClutterDeviceManagerEvdevPrivate *priv = manager_evdev->priv;
-  GSource *source;
+  g_autoptr (GSource) source = NULL;
   ClutterEventSource *event_source;
   gint fd;
 
