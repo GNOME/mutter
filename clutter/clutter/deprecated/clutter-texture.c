@@ -1166,8 +1166,7 @@ clutter_texture_class_init (ClutterTextureClass *klass)
 		  G_TYPE_FROM_CLASS (gobject_class),
 		  G_SIGNAL_RUN_LAST,
 		  G_STRUCT_OFFSET (ClutterTextureClass, pixbuf_change),
-		  NULL, NULL,
-		  _clutter_marshal_VOID__VOID,
+		  NULL, NULL, NULL,
 		  G_TYPE_NONE,
 		  0);
   /**
@@ -1188,8 +1187,7 @@ clutter_texture_class_init (ClutterTextureClass *klass)
 		  G_TYPE_FROM_CLASS (gobject_class),
 		  G_SIGNAL_RUN_LAST,
 		  G_STRUCT_OFFSET (ClutterTextureClass, load_finished),
-		  NULL, NULL,
-		  _clutter_marshal_VOID__BOXED,
+		  NULL, NULL, NULL,
 		  G_TYPE_NONE,
 		  1,
                   G_TYPE_ERROR);

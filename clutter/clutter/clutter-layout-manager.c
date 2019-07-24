@@ -444,8 +444,7 @@ clutter_layout_manager_class_init (ClutterLayoutManagerClass *klass)
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterLayoutManagerClass,
                                    layout_changed),
-                  NULL, NULL,
-                  _clutter_marshal_VOID__VOID,
+                  NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 }
 
