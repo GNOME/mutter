@@ -291,6 +291,8 @@ _clutter_stage_manager_add_stage (ClutterStageManager *stage_manager,
       return;
     }
 
+  _clutter_master_clock_set_paused (_clutter_master_clock_get_default (), FALSE);
+
   g_object_ref_sink (stage);
 
   stage_manager->stages = g_slist_append (stage_manager->stages, stage);
@@ -317,4 +319,10 @@ _clutter_stage_manager_remove_stage (ClutterStageManager *stage_manager,
   g_signal_emit (stage_manager, manager_signals[STAGE_REMOVED], 0, stage);
 
   g_object_unref (stage);
+
+  if (!stage_manager->stages)
+    {
+      ClutterMasterClock *master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_set_paused (master_clock, TRUE);
+    }
 }
