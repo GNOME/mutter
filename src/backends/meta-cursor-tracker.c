@@ -167,15 +167,25 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
                                           NULL, NULL, NULL,
                                           G_TYPE_NONE, 0);
 
+  /**
+   * MetaCursorTracker::cursor-moved:
+   * @cursor: The #MetaCursorTracker
+   * @x: The new X coordinate of the cursor
+   * @y: The new Y coordinate of the cursor
+   *
+   * Notifies when the cursor has moved to a new location.
+   */
   signals[CURSOR_MOVED] = g_signal_new ("cursor-moved",
                                         G_TYPE_FROM_CLASS (klass),
                                         G_SIGNAL_RUN_LAST,
                                         0,
                                         NULL, NULL,
-                                        meta_marshal_VOID__FLOAT_FLOATv,
+                                        meta_marshal_VOID__FLOAT_FLOAT,
                                         G_TYPE_NONE, 2,
                                         G_TYPE_FLOAT,
                                         G_TYPE_FLOAT);
+  g_signal_set_va_marshaller (signals[CURSOR_MOVED],
+                              meta_marshal_VOID__FLOAT_FLOATv);
 
   signals[VISIBILITY_CHANGED] = g_signal_new ("visibility-changed",
                                               G_TYPE_FROM_CLASS (klass),
