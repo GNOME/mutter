@@ -682,6 +682,7 @@ create_monitor_config (MetaOutputKey    *output_key,
   if (!meta_verify_monitor_mode_spec (mode_spec, error))
     {
       g_free (mode_spec);
+      free_output_key (output_key);
       return NULL;
     }
 
