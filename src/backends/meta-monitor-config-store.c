@@ -1452,9 +1452,12 @@ void
 meta_monitor_config_store_remove (MetaMonitorConfigStore *config_store,
                                   MetaMonitorsConfig     *config)
 {
+  gboolean system_config;
+
+  system_config = is_system_config (config);
   g_hash_table_remove (config_store->configs, config->key);
 
-  if (!is_system_config (config))
+  if (!system_config)
     maybe_save_configs (config_store);
 }
 
