@@ -1296,8 +1296,7 @@ _meta_window_shared_new (MetaDisplay         *display,
                                window->transient_for->on_all_workspaces_requested,
                                window->transient_for->workspace);
         }
-
-      if (window->on_all_workspaces)
+      else if (window->on_all_workspaces)
         {
           meta_topic (META_DEBUG_PLACEMENT,
                       "Putting window %s on all workspaces\n",
@@ -7101,9 +7100,9 @@ meta_window_set_user_time (MetaWindow *window,
       if (meta_prefs_get_focus_new_windows () == G_DESKTOP_FOCUS_NEW_WINDOWS_STRICT &&
           window_is_terminal (window))
         window->display->allow_terminal_deactivation = FALSE;
-    }
 
-  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_USER_TIME]);
+      g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_USER_TIME]);
+    }
 }
 
 /**
