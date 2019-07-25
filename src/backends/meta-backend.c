@@ -195,6 +195,8 @@ meta_backend_dispose (GObject *object)
       priv->keymap_state_changed_id = 0;
     }
 
+  g_clear_pointer (&priv->stage, clutter_actor_destroy);
+
   g_list_free_full (priv->gpus, g_object_unref);
   priv->gpus = NULL;
 
