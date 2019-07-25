@@ -135,14 +135,35 @@ meta_switch_workspace_completed (MetaCompositor *compositor)
 void
 meta_compositor_destroy (MetaCompositor *compositor)
 {
-  g_signal_handler_disconnect (compositor->stage,
-                               compositor->stage_after_paint_id);
-  g_signal_handler_disconnect (compositor->stage,
-                               compositor->stage_presented_id);
+  int i;
+  ClutterActor **tracked_actor_ptrs[] = {
+    &compositor->stage,
+    &compositor->window_group,
+    &compositor->top_window_group,
+    &compositor->feedback_group
+  };
 
-  compositor->stage_after_paint_id = 0;
-  compositor->stage_presented_id = 0;
-  compositor->stage = NULL;
+  for (i = 0; i < G_N_ELEMENTS (tracked_actor_ptrs); ++i)
+    {
+      ClutterActor **actor_ptr = tracked_actor_ptrs[i];
+
+      if (*actor_ptr)
+        g_signal_handlers_disconnect_by_func (*actor_ptr,
+                                              g_nullify_pointer,
+                                              actor_ptr);
+    }
+
+  if (compositor->stage)
+    {
+      g_signal_handler_disconnect (compositor->stage,
+                                   compositor->stage_after_paint_id);
+      g_signal_handler_disconnect (compositor->stage,
+                                   compositor->stage_presented_id);
+
+      compositor->stage_after_paint_id = 0;
+      compositor->stage_presented_id = 0;
+      compositor->stage = NULL;
+    }
 
   clutter_threads_remove_repaint_func (compositor->pre_paint_func_id);
   clutter_threads_remove_repaint_func (compositor->post_paint_func_id);
@@ -560,6 +581,19 @@ meta_compositor_manage (MetaCompositor *compositor)
   clutter_actor_add_child (compositor->stage, compositor->window_group);
   clutter_actor_add_child (compositor->stage, compositor->top_window_group);
   clutter_actor_add_child (compositor->stage, compositor->feedback_group);
+
+  g_signal_connect_swapped (G_OBJECT (compositor->stage), "destroy",
+                            G_CALLBACK (g_nullify_pointer),
+                            &compositor->stage);
+  g_signal_connect_swapped (G_OBJECT (compositor->window_group), "destroy",
+                            G_CALLBACK (g_nullify_pointer),
+                            &compositor->window_group);
+  g_signal_connect_swapped (G_OBJECT (compositor->top_window_group), "destroy",
+                            G_CALLBACK (g_nullify_pointer),
+                            &compositor->top_window_group);
+  g_signal_connect_swapped (G_OBJECT (compositor->feedback_group), "destroy",
+                            G_CALLBACK (g_nullify_pointer),
+                            &compositor->feedback_group);
 
   if (meta_is_wayland_compositor ())
     {
