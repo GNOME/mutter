@@ -69,6 +69,10 @@ restart_check_ready (void)
           if (backend)
             meta_backend_destroy (backend);
         }
+      else
+        {
+          meta_display_show_restart_message (display, NULL);
+        }
     }
 }
 
