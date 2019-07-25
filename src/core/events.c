@@ -352,7 +352,21 @@ meta_display_handle_event (MetaDisplay        *display,
        */
       bypass_clutter = !IS_GESTURE_EVENT (event);
 
-      meta_window_handle_ungrabbed_event (window, event);
+      /* When double clicking to un-maximize an X11 window under Wayland,
+       * there is a race between X11 and Wayland protocols and the X11
+       * XConfigureWindow may be processed by Xwayland before the button
+       * press event is forwarded via the Wayland protocol.
+       * As a result, the second click may reach another X11 window placed
+       * immediately underneath in the X11 stack.
+       * The following is to make sure we do not forward the button press
+       * event to Wayland if it was handled by the frame UI.
+       * See: https://gitlab.gnome.org/GNOME/mutter/issues/88
+       */
+      if (meta_window_handle_ui_frame_event (window, event))
+        bypass_wayland = (event->type == CLUTTER_BUTTON_PRESS ||
+                          event->type == CLUTTER_TOUCH_BEGIN);
+      else
+        meta_window_handle_ungrabbed_event (window, event);
 
       /* This might start a grab op. If it does, then filter out the
        * event, and if it doesn't, replay the event to release our
