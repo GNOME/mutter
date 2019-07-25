@@ -467,6 +467,7 @@ meta_window_actor_dispose (GObject *object)
 
   compositor->windows = g_list_remove (compositor->windows, (gconstpointer) self);
 
+  meta_window_set_compositor_private (priv->window, NULL);
   g_clear_object (&priv->window);
 
   if (priv->surface)
