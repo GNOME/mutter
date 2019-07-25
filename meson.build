@@ -42,7 +42,7 @@ gudev_req = '>= 232'
 
 # wayland version requirements
 wayland_server_req = '>= 1.13.0'
-wayland_protocols_req = '>= 1.16'
+wayland_protocols_req = '>= 1.18'
 
 # native backend version requirements
 libinput_req = '>= 1.4'
