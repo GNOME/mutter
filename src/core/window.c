@@ -8266,9 +8266,6 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
   gfloat x, y;
   guint button;
 
-  if (meta_window_handle_ui_frame_event (window, event))
-    return;
-
   if (event->type != CLUTTER_BUTTON_PRESS &&
       event->type != CLUTTER_TOUCH_BEGIN)
     return;
