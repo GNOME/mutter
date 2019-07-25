@@ -59,7 +59,12 @@ static void
 restart_check_ready (void)
 {
   if (restart_helper_started && restart_message_shown)
-    meta_display_request_restart (meta_get_display ());
+    {
+      MetaDisplay *display = meta_get_display ();
+
+      if (!meta_display_request_restart (display))
+        meta_display_show_restart_message (display, NULL);
+    }
 }
 
 static void
