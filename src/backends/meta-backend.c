@@ -96,7 +96,7 @@ enum
 
 static guint signals[N_SIGNALS];
 
-static MetaBackend *_backend;
+static MetaBackend *_backend = NULL;
 
 static gboolean stage_views_disabled = FALSE;
 
@@ -218,6 +218,8 @@ meta_backend_finalize (GObject *object)
 #ifdef HAVE_PROFILER
   g_clear_object (&priv->profiler);
 #endif
+
+  _backend = NULL;
 
   G_OBJECT_CLASS (meta_backend_parent_class)->finalize (object);
 }
@@ -905,6 +907,8 @@ initable_iface_init (GInitableIface *initable_iface)
 static void
 meta_backend_init (MetaBackend *backend)
 {
+  g_assert (!_backend);
+
   _backend = backend;
 }
 
