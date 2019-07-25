@@ -861,7 +861,7 @@ meta_compositor_show_window (MetaCompositor *compositor,
 
   g_return_if_fail (window_actor);
 
- meta_window_actor_show (window_actor, effect);
+  meta_window_actor_show (window_actor, effect);
 }
 
 void
