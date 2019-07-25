@@ -35,6 +35,8 @@
 
 #include "xdg-output-unstable-v1-server-protocol.h"
 
+/* Wayland protocol headers list new additions, not deprecations */
+#define NO_XDG_OUTPUT_DONE_SINCE_VERSION 3
 
 enum
 {
@@ -382,7 +384,8 @@ wayland_output_update_for_output (MetaWaylandOutput  *wayland_output,
       for (iter = wayland_output->xdg_output_resources; iter; iter = iter->next)
         {
           struct wl_resource *xdg_output = iter->data;
-          zxdg_output_v1_send_done (xdg_output);
+          if (wl_resource_get_version (xdg_output) < NO_XDG_OUTPUT_DONE_SINCE_VERSION)
+            zxdg_output_v1_send_done (xdg_output);
         }
     }
   /* It's very important that we change the output pointer here, as
@@ -621,7 +624,7 @@ send_xdg_output_events (struct wl_resource *resource,
       zxdg_output_v1_send_description (resource, description);
     }
 
-  if (need_all_events)
+  if (need_all_events && version < NO_XDG_OUTPUT_DONE_SINCE_VERSION)
     {
       zxdg_output_v1_send_done (resource);
       need_done = FALSE;
