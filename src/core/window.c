@@ -8243,6 +8243,16 @@ meta_window_handle_leave (MetaWindow *window)
     meta_window_lower (window);
 }
 
+gboolean
+meta_window_handle_ui_frame_event (MetaWindow         *window,
+                                   const ClutterEvent *event)
+{
+  if (!window->frame)
+    return FALSE;
+
+  return meta_ui_frame_handle_event (window->frame->ui_frame, event);
+}
+
 void
 meta_window_handle_ungrabbed_event (MetaWindow         *window,
                                     const ClutterEvent *event)
@@ -8256,7 +8266,7 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
   gfloat x, y;
   guint button;
 
-  if (window->frame && meta_ui_frame_handle_event (window->frame->ui_frame, event))
+  if (meta_window_handle_ui_frame_event (window, event))
     return;
 
   if (event->type != CLUTTER_BUTTON_PRESS &&
