@@ -174,7 +174,7 @@ G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaBackend, meta_backend, G_TYPE_OBJECT,
                                                          initable_iface_init));
 
 static void
-meta_backend_finalize (GObject *object)
+meta_backend_dispose (GObject *object)
 {
   MetaBackend *backend = META_BACKEND (object);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
@@ -185,9 +185,11 @@ meta_backend_finalize (GObject *object)
 
       keymap = clutter_backend_get_keymap (priv->clutter_backend);
       g_signal_handler_disconnect (keymap, priv->keymap_state_changed_id);
+      priv->keymap_state_changed_id = 0;
     }
 
   g_list_free_full (priv->gpus, g_object_unref);
+  priv->gpus = NULL;
 
   g_clear_object (&priv->monitor_manager);
   g_clear_object (&priv->orientation_manager);
@@ -200,18 +202,24 @@ meta_backend_finalize (GObject *object)
 #endif
 
   if (priv->sleep_signal_id)
-    g_dbus_connection_signal_unsubscribe (priv->system_bus, priv->sleep_signal_id);
-  if (priv->upower_watch_id)
-    g_bus_unwatch_name (priv->upower_watch_id);
-  g_cancellable_cancel (priv->cancellable);
+    {
+      g_dbus_connection_signal_unsubscribe (priv->system_bus,
+                                            priv->sleep_signal_id);
+      priv->sleep_signal_id = 0;
+    }
+
+  g_clear_handle_id (&priv->upower_watch_id, g_bus_unwatch_name);
+
+  if (priv->cancellable)
+    g_cancellable_cancel (priv->cancellable);
+
   g_clear_object (&priv->cancellable);
   g_clear_object (&priv->system_bus);
   g_clear_object (&priv->upower_proxy);
 
-  if (priv->device_update_idle_id)
-    g_source_remove (priv->device_update_idle_id);
+  g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
 
-  g_hash_table_destroy (priv->device_monitors);
+  g_clear_pointer (&priv->device_monitors, g_hash_table_unref);
 
   g_clear_object (&priv->settings);
 
@@ -219,6 +227,12 @@ meta_backend_finalize (GObject *object)
   g_clear_object (&priv->profiler);
 #endif
 
+  G_OBJECT_CLASS (meta_backend_parent_class)->dispose (object);
+}
+
+static void
+meta_backend_finalize (GObject *object)
+{
   _backend = NULL;
 
   G_OBJECT_CLASS (meta_backend_parent_class)->finalize (object);
@@ -739,6 +753,7 @@ meta_backend_class_init (MetaBackendClass *klass)
   const gchar *mutter_stage_views;
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->dispose = meta_backend_dispose;
   object_class->finalize = meta_backend_finalize;
   object_class->constructed = meta_backend_constructed;
 
