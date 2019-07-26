@@ -146,7 +146,8 @@ process_damage (MetaCompositor     *compositor,
                 XDamageNotifyEvent *event,
                 MetaWindow         *window)
 {
-  MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+  MetaWindowActor *window_actor = meta_window_actor_from_window (window);
+
   meta_window_actor_process_x11_damage (window_actor, event);
 
   compositor->frame_has_updated_xsurfaces = TRUE;
@@ -659,7 +660,10 @@ set_unredirected_window (MetaCompositor *compositor,
 
   if (compositor->unredirected_window != NULL)
     {
-      MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (compositor->unredirected_window));
+      MetaWindowActor *window_actor;
+
+      window_actor =
+        meta_window_actor_from_window (compositor->unredirected_window);
       meta_window_actor_set_unredirected (window_actor, FALSE);
     }
 
@@ -668,7 +672,10 @@ set_unredirected_window (MetaCompositor *compositor,
 
   if (compositor->unredirected_window != NULL)
     {
-      MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (compositor->unredirected_window));
+      MetaWindowActor *window_actor;
+
+      window_actor =
+        meta_window_actor_from_window (compositor->unredirected_window);
       meta_window_actor_set_unredirected (window_actor, TRUE);
     }
 }
@@ -714,7 +721,7 @@ void
 meta_compositor_remove_window (MetaCompositor *compositor,
                                MetaWindow     *window)
 {
-  MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+  MetaWindowActor *window_actor = meta_window_actor_from_window (window);
 
   if (compositor->unredirected_window == window)
     set_unredirected_window (compositor, NULL);
@@ -726,7 +733,8 @@ void
 meta_compositor_sync_updates_frozen (MetaCompositor *compositor,
                                      MetaWindow     *window)
 {
-  MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+  MetaWindowActor *window_actor = meta_window_actor_from_window (window);
+
   meta_window_actor_sync_updates_frozen (window_actor);
 }
 
@@ -735,7 +743,8 @@ meta_compositor_queue_frame_drawn (MetaCompositor *compositor,
                                    MetaWindow     *window,
                                    gboolean        no_delay_frame)
 {
-  MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+  MetaWindowActor *window_actor = meta_window_actor_from_window (window);
+
   meta_window_actor_queue_frame_drawn (window_actor, no_delay_frame);
 }
 
@@ -744,7 +753,8 @@ meta_compositor_window_shape_changed (MetaCompositor *compositor,
                                       MetaWindow     *window)
 {
   MetaWindowActor *window_actor;
-  window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+
+  window_actor = meta_window_actor_from_window (window);
   if (!window_actor)
     return;
 
@@ -756,7 +766,8 @@ meta_compositor_window_opacity_changed (MetaCompositor *compositor,
                                         MetaWindow     *window)
 {
   MetaWindowActor *window_actor;
-  window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+
+  window_actor = meta_window_actor_from_window (window);
   if (!window_actor)
     return;
 
@@ -820,8 +831,9 @@ meta_compositor_show_window (MetaCompositor *compositor,
                              MetaWindow     *window,
                              MetaCompEffect  effect)
 {
-  MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
- meta_window_actor_show (window_actor, effect);
+  MetaWindowActor *window_actor = meta_window_actor_from_window (window);
+
+  meta_window_actor_show (window_actor, effect);
 }
 
 void
@@ -829,7 +841,8 @@ meta_compositor_hide_window (MetaCompositor *compositor,
                              MetaWindow     *window,
                              MetaCompEffect  effect)
 {
-  MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+  MetaWindowActor *window_actor = meta_window_actor_from_window (window);
+
   meta_window_actor_hide (window_actor, effect);
   meta_stack_tracker_queue_sync_stack (compositor->display->stack_tracker);
 }
@@ -841,7 +854,8 @@ meta_compositor_size_change_window (MetaCompositor    *compositor,
                                     MetaRectangle     *old_frame_rect,
                                     MetaRectangle     *old_buffer_rect)
 {
-  MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+  MetaWindowActor *window_actor = meta_window_actor_from_window (window);
+
   meta_window_actor_size_change (window_actor, which_change, old_frame_rect, old_buffer_rect);
 }
 
@@ -1048,7 +1062,7 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
       while (stack)
         {
           stack_window = stack->data;
-          stack_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (stack_window));
+          stack_actor = meta_window_actor_from_window (stack_window);
           if (!stack_actor)
             {
               meta_verbose ("Failed to find corresponding MetaWindowActor "
@@ -1114,7 +1128,7 @@ meta_compositor_sync_window_geometry (MetaCompositor *compositor,
                                       MetaWindow     *window,
                                       gboolean        did_placement)
 {
-  MetaWindowActor *window_actor = META_WINDOW_ACTOR (meta_window_get_compositor_private (window));
+  MetaWindowActor *window_actor = meta_window_actor_from_window (window);
   MetaWindowActorChanges changes;
 
   changes = meta_window_actor_sync_actor_geometry (window_actor, did_placement);
@@ -1443,7 +1457,7 @@ meta_compositor_flash_window (MetaCompositor *compositor,
                               MetaWindow     *window)
 {
   ClutterActor *window_actor =
-    CLUTTER_ACTOR (meta_window_get_compositor_private (window));
+    CLUTTER_ACTOR (meta_window_actor_from_window (window));
   ClutterActor *flash;
   ClutterTransition *transition;
 
