@@ -81,7 +81,8 @@ static void
 on_actor_destroy (ClutterActor     *actor,
                   ClutterActorMeta *meta)
 {
-  meta->priv->actor = NULL;
+  meta->priv->destroy_id = 0;
+  _clutter_actor_meta_set_actor (meta, NULL);
 }
 
 static void
