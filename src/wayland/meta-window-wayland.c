@@ -798,12 +798,14 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
                                         MetaWaylandSurfaceState *pending)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  MetaDisplay *display = window->display;
   int dx, dy;
   int geometry_scale;
   int gravity;
   MetaRectangle rect;
   MetaMoveResizeFlags flags;
   MetaWaylandWindowConfiguration *acked_configuration;
+  gboolean is_window_being_resized;
 
   /* new_geom is in the logical pixel coordinate space, but MetaWindow wants its
    * rects to represent what in turn will end up on the stage, i.e. we need to
@@ -830,7 +832,10 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   acked_configuration = acquire_acked_configuration (wl_window, pending);
 
   /* x/y are ignored when we're doing interactive resizing */
-  if (!meta_grab_op_is_resizing (window->display->grab_op))
+  is_window_being_resized = (meta_grab_op_is_resizing (display->grab_op) &&
+                             display->grab_window == window);
+
+  if (!is_window_being_resized)
     {
       if (acked_configuration)
         {
