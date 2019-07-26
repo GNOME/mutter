@@ -26,6 +26,7 @@
 #include "wayland/meta-wayland-xdg-shell.h"
 
 #include "backends/meta-logical-monitor.h"
+#include "core/boxes-private.h"
 #include "core/window-private.h"
 #include "wayland/meta-wayland-outputs.h"
 #include "wayland/meta-wayland-popup.h"
@@ -512,15 +513,21 @@ meta_wayland_xdg_popup_unmap (MetaWaylandXdgPopup *xdg_popup)
 }
 
 static void
+dismiss_popup (MetaWaylandXdgPopup *xdg_popup)
+{
+  if (xdg_popup->popup)
+    meta_wayland_popup_dismiss (xdg_popup->popup);
+  else
+    meta_wayland_xdg_popup_unmap (xdg_popup);
+}
+
+static void
 xdg_popup_destructor (struct wl_resource *resource)
 {
   MetaWaylandXdgPopup *xdg_popup =
     META_WAYLAND_XDG_POPUP (wl_resource_get_user_data (resource));
 
-  if (xdg_popup->popup)
-    meta_wayland_popup_dismiss (xdg_popup->popup);
-  else
-    meta_wayland_xdg_popup_unmap (xdg_popup);
+  dismiss_popup (xdg_popup);
 
   xdg_popup->resource = NULL;
 }
@@ -1031,6 +1038,9 @@ meta_wayland_xdg_popup_apply_state (MetaWaylandSurfaceRole  *surface_role,
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWindow *window;
+  MetaRectangle buffer_rect;
+  MetaWindow *parent_window;
+  MetaRectangle parent_buffer_rect;
 
   if (xdg_popup->setup.parent_surface)
     finish_popup_setup (xdg_popup);
@@ -1072,6 +1082,17 @@ meta_wayland_xdg_popup_apply_state (MetaWaylandSurfaceRole  *surface_role,
       window_geometry = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);
       meta_window_wayland_finish_move_resize (window, window_geometry, pending);
     }
+
+  parent_window = xdg_popup->parent_surface->window;
+  meta_window_get_buffer_rect (window, &buffer_rect);
+  meta_window_get_buffer_rect (parent_window, &parent_buffer_rect);
+  if (!meta_rectangle_overlap (&buffer_rect, &parent_buffer_rect) &&
+      !meta_rectangle_is_adjacent_to (&buffer_rect, &parent_buffer_rect))
+    {
+      g_warning ("Buggy client caused popup to be placed outside of "
+                 "parent window");
+      dismiss_popup (xdg_popup);
+    }
 }
 
 static MetaWaylandSurface *
@@ -1092,10 +1113,7 @@ meta_wayland_xdg_popup_reset (MetaWaylandXdgSurface *xdg_surface)
   MetaWaylandXdgSurfaceClass *xdg_surface_class =
     META_WAYLAND_XDG_SURFACE_CLASS (meta_wayland_xdg_popup_parent_class);
 
-  if (xdg_popup->popup)
-    meta_wayland_popup_dismiss (xdg_popup->popup);
-  else
-    meta_wayland_xdg_popup_unmap (xdg_popup);
+  dismiss_popup (xdg_popup);
 
   xdg_popup->dismissed_by_client = TRUE;
 

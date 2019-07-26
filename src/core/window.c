@@ -1600,32 +1600,6 @@ meta_window_unmanage (MetaWindow  *window,
   g_object_unref (window);
 }
 
-static gboolean
-unmanage_window_idle_callback (gpointer user_data)
-{
-  MetaWindow *window = META_WINDOW (user_data);
-  uint32_t timestamp;
-
-  window->unmanage_idle_id = 0;
-
-  timestamp = meta_display_get_current_time_roundtrip (window->display);
-  meta_window_unmanage (window, timestamp);
-
-  return G_SOURCE_REMOVE;
-}
-
-void
-meta_window_unmanage_on_idle (MetaWindow *window)
-{
-  if (window->unmanage_idle_id)
-    return;
-
-  window->unmanage_idle_id = g_idle_add_full (G_PRIORITY_HIGH_IDLE,
-                                              unmanage_window_idle_callback,
-                                              window,
-                                              NULL);
-}
-
 static void
 set_wm_state (MetaWindow *window)
 {
