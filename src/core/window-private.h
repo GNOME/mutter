@@ -85,6 +85,7 @@ typedef enum
   META_MOVE_RESIZE_FORCE_MOVE = 1 << 8,
   META_MOVE_RESIZE_WAYLAND_STATE_CHANGED = 1 << 9,
   META_MOVE_RESIZE_FORCE_UPDATE_MONITOR = 1 << 10,
+  META_MOVE_RESIZE_PLACEMENT_CHANGED = 1 << 11,
 } MetaMoveResizeFlags;
 
 typedef enum
@@ -141,12 +142,19 @@ typedef struct _MetaPlacementRule
   int offset_y;
   int width;
   int height;
+
+  gboolean is_reactive;
+
+  gboolean has_parent_position;
+  int parent_x;
+  int parent_y;
 } MetaPlacementRule;
 
 typedef enum _MetaPlacementState
 {
   META_PLACEMENT_STATE_UNCONSTRAINED,
   META_PLACEMENT_STATE_CONSTRAINED,
+  META_PLACEMENT_STATE_INVALIDATED,
 } MetaPlacementState;
 
 typedef enum
@@ -560,6 +568,7 @@ struct _MetaWindowClass
                                   int                        gravity,
                                   MetaRectangle              unconstrained_rect,
                                   MetaRectangle              constrained_rect,
+                                  MetaRectangle              intermediate_rect,
                                   MetaMoveResizeFlags        flags,
                                   MetaMoveResizeResultFlags *result);
   gboolean (*update_struts)      (MetaWindow *window);
@@ -836,4 +845,9 @@ void meta_window_force_restore_shortcuts (MetaWindow         *window,
 gboolean meta_window_shortcuts_inhibited (MetaWindow         *window,
                                           ClutterInputDevice *source);
 gboolean meta_window_is_stackable (MetaWindow *window);
+
+void meta_window_get_effective_parent_position (MetaWindow *window,
+                                                int        *out_x,
+                                                int        *out_y);
+
 #endif

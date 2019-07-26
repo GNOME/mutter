@@ -3972,6 +3972,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
   gboolean did_placement;
   MetaRectangle unconstrained_rect;
   MetaRectangle constrained_rect;
+  MetaRectangle intermediate_rect;
   MetaMoveResizeResultFlags result = 0;
   gboolean moved_or_resized = FALSE;
   MetaWindowUpdateMonitorFlags update_monitor_flags;
@@ -4026,6 +4027,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
     g_assert_not_reached ();
 
   constrained_rect = unconstrained_rect;
+  intermediate_rect = window->rect;
   if (flags & (META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION) &&
       !(flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE) &&
       window->monitor)
@@ -4037,7 +4039,8 @@ meta_window_move_resize_internal (MetaWindow          *window,
                              flags,
                              gravity,
                              &old_rect,
-                             &constrained_rect);
+                             &constrained_rect,
+                             &intermediate_rect);
     }
 
   /* If we did placement, then we need to save the position that the window
@@ -4051,7 +4054,12 @@ meta_window_move_resize_internal (MetaWindow          *window,
     }
 
   /* Do the protocol-specific move/resize logic */
-  META_WINDOW_GET_CLASS (window)->move_resize_internal (window, gravity, unconstrained_rect, constrained_rect, flags, &result);
+  META_WINDOW_GET_CLASS (window)->move_resize_internal (window,
+                                                        gravity,
+                                                        unconstrained_rect,
+                                                        constrained_rect,
+                                                        intermediate_rect,
+                                                        flags, &result);
 
   if (result & META_MOVE_RESIZE_RESULT_MOVED)
     {
@@ -8475,6 +8483,42 @@ void
 meta_window_emit_size_changed (MetaWindow *window)
 {
   g_signal_emit (window, window_signals[SIZE_CHANGED], 0);
+}
+
+void
+meta_window_get_effective_parent_position (MetaWindow *window,
+                                           int        *out_x,
+                                           int        *out_y)
+{
+  g_assert (window->placement_rule);
+
+  switch (window->placement_state)
+    {
+    case META_PLACEMENT_STATE_UNCONSTRAINED:
+    case META_PLACEMENT_STATE_INVALIDATED:
+      {
+        MetaPlacementRule *placement_rule = window->placement_rule;
+
+        if (placement_rule->has_parent_position)
+          {
+            *out_x = placement_rule->parent_x;
+            *out_y = placement_rule->parent_y;
+            break;
+          }
+      }
+      /* intentional fall-through */
+    case META_PLACEMENT_STATE_CONSTRAINED:
+      {
+        MetaWindow *parent;
+        MetaRectangle parent_rect;
+
+        parent = meta_window_get_transient_for (window);
+        meta_window_get_frame_rect (parent, &parent_rect);
+        *out_x = parent_rect.x;
+        *out_y = parent_rect.y;
+        break;
+      }
+    }
 }
 
 MetaPlacementRule *

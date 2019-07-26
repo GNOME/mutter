@@ -613,18 +613,18 @@ meta_window_process_placement (MetaWindow        *window,
                                int               *x,
                                int               *y)
 {
-  MetaWindow *parent = meta_window_get_transient_for (window);
-  MetaRectangle parent_rect;
   MetaRectangle anchor_rect;
   int window_width, window_height;
+  int parent_x, parent_y;
 
   window_width = placement_rule->width;
   window_height = placement_rule->height;
-  meta_window_get_frame_rect (parent, &parent_rect);
+
+  meta_window_get_effective_parent_position (window, &parent_x, &parent_y);
 
   anchor_rect = placement_rule->anchor_rect;
-  anchor_rect.x += parent_rect.x;
-  anchor_rect.y += parent_rect.y;
+  anchor_rect.x += parent_x;
+  anchor_rect.y += parent_y;
 
   /* Place at anchor point. */
   if (placement_rule->anchor & META_PLACEMENT_ANCHOR_LEFT)
