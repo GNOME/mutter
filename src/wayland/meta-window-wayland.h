@@ -56,6 +56,10 @@ void meta_window_place_with_placement_rule (MetaWindow        *window,
 void meta_window_update_placement_rule (MetaWindow        *window,
                                         MetaPlacementRule *placement_rule);
 
+MetaWaylandWindowConfiguration *
+  meta_window_wayland_peek_configuration (MetaWindowWayland *wl_window,
+                                          uint32_t           serial);
+
 void meta_window_wayland_set_min_size (MetaWindow *window,
                                        int         width,
                                        int         height);
