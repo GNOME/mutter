@@ -123,6 +123,7 @@ typedef struct
 {
   MetaRectangle        orig;
   MetaRectangle        current;
+  MetaRectangle        intermediate;
   ActionType           action_type;
   gboolean             is_user_action;
 
@@ -281,7 +282,8 @@ meta_window_constrain (MetaWindow          *window,
                        MetaMoveResizeFlags  flags,
                        int                  resize_gravity,
                        const MetaRectangle *orig,
-                       MetaRectangle       *new)
+                       MetaRectangle       *new,
+                       MetaRectangle       *intermediate)
 {
   ConstraintInfo info;
   ConstraintPriority priority = PRIORITY_MINIMUM;
@@ -318,6 +320,7 @@ meta_window_constrain (MetaWindow          *window,
 
   /* Make sure we use the constrained position */
   *new = info.current;
+  *intermediate = info.intermediate;
 
   /* We may need to update window->require_fully_onscreen,
    * window->require_on_single_monitor, and perhaps other quantities
@@ -342,6 +345,7 @@ setup_constraint_info (ConstraintInfo      *info,
 
   info->orig    = *orig;
   info->current = *new;
+  info->intermediate = *orig;
 
   if (info->current.width < 1)
     info->current.width = 1;
@@ -789,10 +793,10 @@ constrain_custom_rule (MetaWindow         *window,
   MetaPlacementRule *placement_rule;
   MetaRectangle intersection;
   gboolean constraint_satisfied;
+  MetaRectangle intermediate_rect;
   MetaRectangle adjusted_unconstrained;
   MetaPlacementRule current_rule;
-  MetaWindow *parent;
-  MetaRectangle parent_rect;
+  int parent_x, parent_y;
 
   if (priority > PRIORITY_CUSTOM_RULE)
     return TRUE;
@@ -801,21 +805,32 @@ constrain_custom_rule (MetaWindow         *window,
   if (!placement_rule)
     return TRUE;
 
-  adjusted_unconstrained = info->current;
+  current_rule = *placement_rule;
+  intermediate_rect = info->current;
 
-  parent = meta_window_get_transient_for (window);
-  meta_window_get_frame_rect (parent, &parent_rect);
+  meta_window_get_effective_parent_position (window, &parent_x, &parent_y);
 
   switch (window->placement_state)
     {
     case META_PLACEMENT_STATE_UNCONSTRAINED:
       break;
     case META_PLACEMENT_STATE_CONSTRAINED:
-      adjusted_unconstrained.x =
-        parent_rect.x + window->constrained_placement_rule_offset_x;
-      adjusted_unconstrained.y =
-        parent_rect.y + window->constrained_placement_rule_offset_y;
+    case META_PLACEMENT_STATE_INVALIDATED:
+      intermediate_rect.x =
+        parent_x + window->constrained_placement_rule_offset_x;
+      intermediate_rect.y =
+        parent_y + window->constrained_placement_rule_offset_y;
       break;
+    }
+
+  adjusted_unconstrained = intermediate_rect;
+
+  if (window->placement_state == META_PLACEMENT_STATE_INVALIDATED ||
+      current_rule.is_reactive)
+    {
+      meta_window_process_placement (window, placement_rule,
+                                     &adjusted_unconstrained.x,
+                                     &adjusted_unconstrained.y);
     }
 
   meta_rectangle_intersect (&adjusted_unconstrained, &info->work_area_monitor,
@@ -832,12 +847,17 @@ constrain_custom_rule (MetaWindow         *window,
 
   current_rule = *placement_rule;
 
+  info->current = adjusted_unconstrained;
+  info->intermediate = intermediate_rect;
+
   switch (window->placement_state)
     {
     case META_PLACEMENT_STATE_CONSTRAINED:
-      info->current = adjusted_unconstrained;
-      goto done;
+      if (!current_rule.is_reactive)
+        goto done;
+      break;
     case META_PLACEMENT_STATE_UNCONSTRAINED:
+    case META_PLACEMENT_STATE_INVALIDATED:
       break;
     }
 
@@ -935,9 +955,6 @@ constrain_custom_rule (MetaWindow         *window,
 
 done:
   window->placement_state = META_PLACEMENT_STATE_CONSTRAINED;
-
-  window->constrained_placement_rule_offset_x = info->current.x - parent_rect.x;
-  window->constrained_placement_rule_offset_y = info->current.y - parent_rect.y;
 
   return TRUE;
 }

@@ -207,6 +207,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                                           int                        gravity,
                                           MetaRectangle              unconstrained_rect,
                                           MetaRectangle              constrained_rect,
+                                          MetaRectangle              intermediate_rect,
                                           MetaMoveResizeFlags        flags,
                                           MetaMoveResizeResultFlags *result)
 {
@@ -869,6 +870,28 @@ meta_window_place_with_placement_rule (MetaWindow        *window,
   window->unconstrained_rect.width = placement_rule->width;
   window->unconstrained_rect.height = placement_rule->height;
   meta_window_force_placement (window, FALSE);
+}
+
+void
+meta_window_update_placement_rule (MetaWindow        *window,
+                                   MetaPlacementRule *placement_rule)
+{
+  g_clear_pointer (&window->placement_rule, g_free);
+  window->placement_rule = g_new0 (MetaPlacementRule, 1);
+  *window->placement_rule = *placement_rule;
+
+  window->unconstrained_rect.x = window->rect.x;
+  window->unconstrained_rect.y = window->rect.y;
+  window->unconstrained_rect.width = placement_rule->width;
+  window->unconstrained_rect.height = placement_rule->height;
+  window->placement_state = META_PLACEMENT_STATE_INVALIDATED;
+
+  meta_window_move_resize_internal (window,
+                                    (META_MOVE_RESIZE_MOVE_ACTION |
+                                     META_MOVE_RESIZE_PLACEMENT_CHANGED |
+                                     META_MOVE_RESIZE_RESIZE_ACTION),
+                                    NorthWestGravity,
+                                    window->unconstrained_rect);
 }
 
 void
