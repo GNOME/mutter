@@ -121,6 +121,9 @@ struct _ClutterStagePrivate
   gchar *title;
   ClutterActor *key_focused_actor;
 
+  gboolean emitting_focus_in;
+  gboolean emitting_focus_out;
+
   GQueue *event_queue;
 
   ClutterStageHint stage_hints;
@@ -2951,37 +2954,39 @@ clutter_stage_set_key_focus (ClutterStage *stage,
   if (actor == CLUTTER_ACTOR (stage))
     actor = NULL;
 
-  /* avoid emitting signals and notifications if we're setting the same
-   * actor as the key focus
-   */
   if (priv->key_focused_actor == actor)
     return;
 
+  if (priv->emitting_focus_out)
+      g_signal_stop_emission_by_name (priv->key_focused_actor, "key-focus-out");
+
+  if (priv->emitting_focus_in)
+      g_signal_stop_emission_by_name (priv->key_focused_actor, "key-focus-in");
+
+  priv->emitting_focus_in = FALSE;
+  priv->emitting_focus_out = TRUE;
+
   if (priv->key_focused_actor != NULL)
     {
-      ClutterActor *old_focused_actor;
-
-      old_focused_actor = priv->key_focused_actor;
-
-      /* set key_focused_actor to NULL before emitting the signal or someone
-       * might hide the previously focused actor in the signal handler and we'd
-       * get re-entrant call and get glib critical from g_object_weak_unref
-       */
       g_signal_handlers_disconnect_by_func (priv->key_focused_actor,
                                             G_CALLBACK (on_key_focus_destroy),
                                             stage);
-      priv->key_focused_actor = NULL;
+      g_signal_emit_by_name (priv->key_focused_actor, "key-focus-out");
 
-      g_signal_emit_by_name (old_focused_actor, "key-focus-out");
+      priv->key_focused_actor = NULL;
     }
   else
     g_signal_emit_by_name (stage, "key-focus-out");
 
-  /* Note, if someone changes key focus in focus-out signal handler we'd be
-   * overriding the latter call below moving the focus where it was originally
-   * intended. The order of events would be:
-   *   1st focus-out, 2nd focus-out (on stage), 2nd focus-in, 1st focus-in
-   */
+  priv->emitting_focus_out = FALSE;
+
+  /* If key focus was changed inside the signal handler of the key-focus-out
+   * signal, return here to avoid emitting key-focus-in on the old actor. */
+  if (priv->key_focused_actor != NULL)
+    return;
+
+  priv->emitting_focus_in = TRUE;
+
   if (actor != NULL)
     {
       priv->key_focused_actor = actor;
@@ -2993,6 +2998,13 @@ clutter_stage_set_key_focus (ClutterStage *stage,
     }
   else
     g_signal_emit_by_name (stage, "key-focus-in");
+
+  priv->emitting_focus_in = FALSE;
+
+  /* If key focus was changed inside the signal handler of the key-focus-in
+   * signal, return here to avoid emitting notify::key-focus on the old actor. */
+  if (priv->key_focused_actor != actor)
+    return;
 
   g_object_notify (G_OBJECT (stage), "key-focus");
 }
