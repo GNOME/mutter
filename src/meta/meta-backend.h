@@ -49,6 +49,11 @@ void meta_backend_lock_layout_group (MetaBackend *backend,
                                      guint        idx);
 
 META_EXPORT
+void meta_backend_warp_pointer (MetaBackend *backend,
+                                int          x,
+                                int          y);
+
+META_EXPORT
 void meta_backend_set_numlock (MetaBackend *backend,
                                gboolean     numlock_state);
 
