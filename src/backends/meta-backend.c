@@ -1060,7 +1060,14 @@ meta_backend_ungrab_device (MetaBackend *backend,
 }
 
 /**
- * meta_backend_warp_pointer: (skip)
+ * meta_backend_warp_pointer:
+ * @backend: A #MetaBackend
+ * @x: New x coordinate of the pointer as #int
+ * @y: New y coordinate of the pointer as #int
+ *
+ * Warps the core pointer to a desired position.
+ * This function is only introspected to allow for debugging
+ * and automated testing, never use it for other purposes.
  */
 void
 meta_backend_warp_pointer (MetaBackend *backend,
