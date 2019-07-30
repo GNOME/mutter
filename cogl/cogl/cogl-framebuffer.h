@@ -54,6 +54,7 @@ typedef struct _CoglFramebuffer CoglFramebuffer;
 #include <cogl/cogl-bitmap.h>
 #include <cogl/cogl-texture.h>
 #include <glib-object.h>
+#include <cairo.h>
 
 #include <graphene.h>
 
@@ -623,6 +624,10 @@ cogl_framebuffer_push_primitive_clip (CoglFramebuffer *framebuffer,
                                       float bounds_y1,
                                       float bounds_x2,
                                       float bounds_y2);
+
+void
+cogl_framebuffer_push_region_clip (CoglFramebuffer *framebuffer,
+                                   cairo_region_t  *region);
 
 /**
  * cogl_framebuffer_pop_clip:
