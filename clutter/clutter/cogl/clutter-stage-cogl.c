@@ -1142,9 +1142,17 @@ clutter_stage_cogl_get_dirty_pixel (ClutterStageWindow *stage_window,
       clutter_stage_view_get_layout (view, &view_layout);
 
       fb_damage = view_priv->damage_history[DAMAGE_HISTORY (view_priv->damage_index - 1)];
-      cairo_region_get_extents (fb_damage, &fb_damage_rect);
-      *x = fb_damage_rect.x / fb_scale;
-      *y = fb_damage_rect.y / fb_scale;
+      if (fb_damage)
+        {
+          cairo_region_get_extents (fb_damage, &fb_damage_rect);
+          *x = fb_damage_rect.x / fb_scale;
+          *y = fb_damage_rect.y / fb_scale;
+        }
+      else
+        {
+          *x = 0;
+          *y = 0;
+        }
     }
 }
 
