@@ -288,13 +288,13 @@ is_argb32 (MetaWindowActor *self)
 }
 
 static gboolean
-is_non_opaque (MetaWindowActor *self)
+is_opaque (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
   MetaWindow *window = priv->window;
 
-  return is_argb32 (self) || (window->opacity != 0xFF);
+  return !is_argb32 (self) && (window->opacity == 0xFF);
 }
 
 static gboolean
@@ -650,7 +650,7 @@ clip_shadow_under_window (MetaWindowActor *self)
   if (priv->window->frame)
     return TRUE;
 
-  return !is_non_opaque (self);
+  return is_opaque (self);
 }
 
 static void
@@ -791,7 +791,7 @@ meta_window_actor_has_shadow (MetaWindowActor *self)
    * Do not add shadows to non-opaque (ARGB32) windows, as we can't easily
    * generate shadows for them.
    */
-  if (is_non_opaque (self))
+  if (!is_opaque (self))
     return FALSE;
 
   /*
@@ -1376,7 +1376,7 @@ meta_window_actor_cull_out (MetaCullable   *cullable,
   meta_cullable_cull_out_children (cullable, unobscured_region, clip_region);
   meta_window_actor_set_clip_region_beneath (self, clip_region);
 
-  if (unobscured_region && !is_non_opaque (self))
+  if (unobscured_region && is_opaque (self))
     {
       cairo_region_t *region = meta_window_get_frame_bounds (priv->window);
 
