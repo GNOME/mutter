@@ -1,4 +1,4 @@
-mutter (3.33.4-1) UNRELEASED; urgency=medium
+mutter (3.33.4-1) experimental; urgency=medium
 
   * New upstream release
     + Add API to reorder workspaces
@@ -51,7 +51,7 @@ mutter (3.33.4-1) UNRELEASED; urgency=medium
   * Bump to libmutter-5 and update symbols
   * BD on a gnome-desktop that provides libgnome-desktop-3-18
 
- -- Iain Lane <laney@debian.org>  Tue, 30 Jul 2019 18:15:45 +0100
+ -- Iain Lane <laney@debian.org>  Tue, 30 Jul 2019 18:16:52 +0100
 
 mutter (3.32.2+git20190711-2) experimental; urgency=medium
 
