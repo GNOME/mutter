@@ -1762,6 +1762,19 @@ cogl_framebuffer_push_primitive_clip (CoglFramebuffer *framebuffer,
 }
 
 void
+cogl_framebuffer_push_region_clip (CoglFramebuffer *framebuffer,
+                                   cairo_region_t  *region)
+{
+  framebuffer->clip_stack =
+    cogl_clip_stack_push_region (framebuffer->clip_stack,
+                                 region);
+
+  if (framebuffer->context->current_draw_buffer == framebuffer)
+    framebuffer->context->current_draw_buffer_changes |=
+      COGL_FRAMEBUFFER_STATE_CLIP;
+}
+
+void
 cogl_framebuffer_pop_clip (CoglFramebuffer *framebuffer)
 {
   framebuffer->clip_stack = _cogl_clip_stack_pop (framebuffer->clip_stack);

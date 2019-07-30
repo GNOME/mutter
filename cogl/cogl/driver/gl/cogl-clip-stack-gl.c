@@ -115,6 +115,102 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
   GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP) );
 }
 
+static void
+add_stencil_clip_region (CoglFramebuffer *framebuffer,
+                         cairo_region_t  *region,
+                         gboolean         merge)
+{
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglMatrix matrix;
+  int num_rectangles = cairo_region_num_rectangles (region);
+  int i;
+
+  /* NB: This can be called while flushing the journal so we need
+   * to be very conservative with what state we change.
+   */
+  _cogl_context_set_current_projection_entry (ctx, &ctx->identity_entry);
+  _cogl_context_set_current_modelview_entry (ctx, &ctx->identity_entry);
+
+  /* The coordinates in the region are meant to be window coordinates,
+   * make a matrix that translates those across the viewport, and into
+   * the default [-1, -1, 1, 1] range.
+   */
+  cogl_matrix_init_identity (&matrix);
+  cogl_matrix_translate (&matrix, -1, 1, 0);
+  cogl_matrix_scale (&matrix,
+                     2.0 / framebuffer->viewport_width,
+                     - 2.0 / framebuffer->viewport_height,
+                     1);
+  cogl_matrix_translate (&matrix,
+                         - framebuffer->viewport_x,
+                         - framebuffer->viewport_y,
+                         0);
+
+  GE( ctx, glEnable (GL_STENCIL_TEST) );
+
+  GE( ctx, glColorMask (FALSE, FALSE, FALSE, FALSE) );
+  GE( ctx, glDepthMask (FALSE) );
+
+  if (merge)
+    {
+      GE( ctx, glStencilFunc (GL_ALWAYS, 0x1, 0x3) );
+      GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_INCR) );
+    }
+  else
+    {
+      /* Initially disallow everything */
+      GE( ctx, glClearStencil (0) );
+      GE( ctx, glClear (GL_STENCIL_BUFFER_BIT) );
+
+      /* Punch out holes to allow the rectangles */
+      GE( ctx, glStencilFunc (GL_ALWAYS, 0x1, 0x1) );
+      GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE) );
+    }
+
+  for (i = 0; i < num_rectangles; i++)
+    {
+      cairo_rectangle_int_t rect;
+      float tl[4], br[4];
+
+      cairo_region_get_rectangle (region, i, &rect);
+
+      tl[0] = rect.x;
+      tl[1] = rect.y;
+      tl[2] = 0.;
+      tl[3] = 1.;
+
+      br[0] = rect.x + rect.width;
+      br[1] = rect.y + rect.height;
+      br[2] = 0.;
+      br[3] = 1.;
+
+      cogl_matrix_transform_point (&matrix, &tl[0], &tl[1], &tl[2], &tl[3]);
+      cogl_matrix_transform_point (&matrix, &br[0], &br[1], &br[2], &br[3]);
+
+      _cogl_rectangle_immediate (framebuffer,
+                                 ctx->stencil_pipeline,
+                                 tl[0], tl[1], br[0], br[1]);
+    }
+
+  if (merge)
+    {
+      /* Subtract one from all pixels in the stencil buffer so that
+       * only pixels where both the original stencil buffer and the
+       * region are set will be valid
+       */
+      GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_DECR) );
+      _cogl_rectangle_immediate (framebuffer,
+                                 ctx->stencil_pipeline,
+                                 -1.0, -1.0, 1.0, 1.0);
+    }
+
+  /* Restore the stencil mode */
+  GE (ctx, glDepthMask (TRUE));
+  GE (ctx, glColorMask (TRUE, TRUE, TRUE, TRUE));
+  GE( ctx, glStencilFunc (GL_EQUAL, 0x1, 0x1) );
+  GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP) );
+}
+
 typedef void (*SilhouettePaintCallback) (CoglFramebuffer *framebuffer,
                                          CoglPipeline *pipeline,
                                          void *user_data);
@@ -378,6 +474,23 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
                                               rect->x1,
                                               rect->y1,
                                               !using_stencil_buffer);
+                  using_stencil_buffer = TRUE;
+                }
+              break;
+            }
+        case COGL_CLIP_STACK_REGION:
+            {
+              CoglClipStackRegion *region = (CoglClipStackRegion *) entry;
+
+              /* If nrectangles <= 1, it can be fully represented with the
+               * scissor clip.
+               */
+              if (cairo_region_num_rectangles (region->region) > 1)
+                {
+                  COGL_NOTE (CLIPPING, "Adding stencil clip for region");
+
+                  add_stencil_clip_region (framebuffer, region->region,
+                                           using_stencil_buffer);
                   using_stencil_buffer = TRUE;
                 }
               break;
