@@ -1388,6 +1388,7 @@ meta_window_actor_cull_out (MetaCullable   *cullable,
         {
           cairo_rectangle_int_t rect;
           meta_window_get_frame_rect (priv->window, &rect);
+          rect.x = rect.y = 0;
           cairo_region_subtract_rectangle (unobscured_region, &rect);
         }
     }
