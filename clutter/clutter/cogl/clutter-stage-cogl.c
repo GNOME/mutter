@@ -864,8 +864,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
         }
     }
 
-  cairo_region_get_extents (fb_clip_region, &clip_rect);
-
   cogl_push_framebuffer (fb);
   if (use_clipped_redraw && clip_region_empty)
     {
@@ -875,25 +873,34 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     {
       cairo_rectangle_int_t scissor_rect;
 
-      calculate_scissor_region (&clip_rect,
-                                subpixel_compensation,
-                                fb_width, fb_height,
-                                &scissor_rect);
-
-      CLUTTER_NOTE (CLIPPING,
-                    "Stage clip pushed: x=%d, y=%d, width=%d, height=%d\n",
-                    scissor_rect.x,
-                    scissor_rect.y,
-                    scissor_rect.width,
-                    scissor_rect.height);
-
       stage_cogl->using_clipped_redraw = TRUE;
 
-      cogl_framebuffer_push_scissor_clip (fb,
-                                          scissor_rect.x,
-                                          scissor_rect.y,
-                                          scissor_rect.width,
-                                          scissor_rect.height);
+      if (cairo_region_num_rectangles (fb_clip_region) == 1)
+        {
+          cairo_region_get_extents (fb_clip_region, &clip_rect);
+
+          calculate_scissor_region (&clip_rect,
+                                    subpixel_compensation,
+                                    fb_width, fb_height,
+                                    &scissor_rect);
+
+          CLUTTER_NOTE (CLIPPING,
+                        "Stage clip pushed: x=%d, y=%d, width=%d, height=%d\n",
+                        scissor_rect.x,
+                        scissor_rect.y,
+                        scissor_rect.width,
+                        scissor_rect.height);
+
+          cogl_framebuffer_push_scissor_clip (fb,
+                                              scissor_rect.x,
+                                              scissor_rect.y,
+                                              scissor_rect.width,
+                                              scissor_rect.height);
+        }
+      else
+        {
+          cogl_framebuffer_push_region_clip (fb, fb_clip_region);
+        }
 
       paint_stage (stage_cogl, view, fb_clip_region);
 
