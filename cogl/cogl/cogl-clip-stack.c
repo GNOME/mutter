@@ -297,6 +297,32 @@ _cogl_clip_stack_push_primitive (CoglClipStack *stack,
 }
 
 CoglClipStack *
+_cogl_clip_stack_push_region (CoglClipStack   *stack,
+                              CoglMatrixEntry *modelview_entry,
+                              cairo_region_t  *region)
+{
+  CoglClipStack *entry;
+  CoglClipStackRegion *entry_region;
+  cairo_rectangle_int_t bounds;
+
+  entry_region = _cogl_clip_stack_push_entry (stack,
+                                              sizeof (CoglClipStackRegion),
+                                              COGL_CLIP_STACK_REGION);
+  entry = (CoglClipStack *) entry_region;
+
+  cairo_region_get_extents (region, &bounds);
+  entry->bounds_x0 = bounds.x;
+  entry->bounds_x1 = bounds.x + bounds.width;
+  entry->bounds_y0 = bounds.y;
+  entry->bounds_y1 = bounds.y + bounds.height;
+
+  entry_region->matrix_entry = cogl_matrix_entry_ref (modelview_entry);
+  entry_region->region = cairo_region_reference (region);
+
+  return entry;
+}
+
+CoglClipStack *
 _cogl_clip_stack_ref (CoglClipStack *entry)
 {
   /* A NULL pointer is considered a valid stack so we should accept
@@ -335,6 +361,13 @@ _cogl_clip_stack_unref (CoglClipStack *entry)
             cogl_matrix_entry_unref (primitive_entry->matrix_entry);
             cogl_object_unref (primitive_entry->primitive);
             g_slice_free1 (sizeof (CoglClipStackPrimitive), entry);
+            break;
+          }
+        case COGL_CLIP_STACK_REGION:
+          {
+            CoglClipStackRegion *region = (CoglClipStackRegion *) entry;
+            cairo_region_destroy (region->region);
+            g_slice_free1 (sizeof (CoglClipStackRegion), entry);
             break;
           }
         default:

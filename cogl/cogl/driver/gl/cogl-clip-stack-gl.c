@@ -260,6 +260,59 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
   GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP) );
 }
 
+static void
+add_stencil_clip_region (CoglFramebuffer *framebuffer,
+                         CoglMatrixEntry *modelview_entry,
+                         cairo_region_t  *region)
+{
+  CoglMatrixStack *projection_stack =
+    _cogl_framebuffer_get_projection_stack (framebuffer);
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  int num_rectangles = cairo_region_num_rectangles (region);
+  int width, height, i;
+
+  /* NB: This can be called while flushing the journal so we need
+   * to be very conservative with what state we change.
+   */
+  _cogl_context_set_current_projection_entry (ctx, &ctx->identity_entry);
+  _cogl_context_set_current_modelview_entry (ctx, &ctx->identity_entry);
+
+  GE( ctx, glEnable (GL_STENCIL_TEST) );
+
+  /* Initially disallow everything */
+  GE( ctx, glClearStencil (0) );
+  GE( ctx, glClear (GL_STENCIL_BUFFER_BIT) );
+
+  /* Punch out a hole to allow the rectangles */
+  GE( ctx, glStencilFunc (GL_NEVER, 0x1, 0x1) );
+  GE( ctx, glStencilOp (GL_REPLACE, GL_REPLACE, GL_REPLACE) );
+
+  width = cogl_framebuffer_get_width (framebuffer);
+  height = cogl_framebuffer_get_height (framebuffer);
+
+  for (i = 0; i < num_rectangles; i++)
+    {
+      cairo_rectangle_int_t rect;
+      float x1, y1, x2, y2;
+
+      cairo_region_get_rectangle (region, i, &rect);
+
+      /* Transform coordinates to identity */
+      x1 = (rect.x * 2.0 / width) - 1;
+      y1 = 1 - (rect.y * 2.0 / height);
+      x2 = ((rect.x + rect.width) * 2.0 / width) -1;
+      y2 = 1 - ((rect.y + rect.height) * 2.0 / height);
+
+      _cogl_rectangle_immediate (framebuffer,
+                                 ctx->stencil_pipeline,
+				 x1, y1, x2, y2);
+    }
+
+  /* Restore the stencil mode */
+  GE( ctx, glStencilFunc (GL_EQUAL, 0x1, 0x1) );
+  GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP) );
+}
+
 typedef void (*SilhouettePaintCallback) (CoglFramebuffer *framebuffer,
                                          CoglPipeline *pipeline,
                                          void *user_data);
@@ -570,6 +623,16 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
                       using_stencil_buffer = TRUE;
                     }
                 }
+              break;
+            }
+        case COGL_CLIP_STACK_REGION:
+            {
+              CoglClipStackRegion *region = (CoglClipStackRegion *) entry;
+
+              COGL_NOTE (CLIPPING, "Adding stencil clip for region");
+
+              add_stencil_clip_region (framebuffer, region->matrix_entry, region->region);
+              using_stencil_buffer = TRUE;
               break;
             }
         case COGL_CLIP_STACK_WINDOW_RECT:
