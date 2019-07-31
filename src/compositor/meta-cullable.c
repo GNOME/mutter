@@ -100,9 +100,6 @@ meta_cullable_cull_out_children (MetaCullable   *cullable,
       if (needs_culling && clutter_actor_has_effects (child))
         needs_culling = FALSE;
 
-      if (needs_culling && !meta_actor_is_untransformed (child, NULL, NULL))
-        needs_culling = FALSE;
-
       if (needs_culling)
         {
           clutter_actor_get_position (child, &x, &y);
