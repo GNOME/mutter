@@ -297,6 +297,7 @@ standard_pict_format_for_depth (int depth)
       return PictStandardA1;
     case 24:
       return PictStandardRGB24;
+    case 16:
     case 32:
       return PictStandardARGB32;
     default:
