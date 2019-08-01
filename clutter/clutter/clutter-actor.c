@@ -8121,6 +8121,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  G_TYPE_BOOLEAN, 2,
                   CLUTTER_TYPE_ACTOR,
                   CLUTTER_TYPE_PAINT_VOLUME);
+  g_signal_set_va_marshaller (actor_signals[QUEUE_REDRAW],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_BOOLEAN__OBJECT_BOXEDv);
 
   /**
    * ClutterActor::queue-relayout:
@@ -8172,6 +8175,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  _clutter_marshal_BOOLEAN__BOXED,
 		  G_TYPE_BOOLEAN, 1,
 		  CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (actor_signals[EVENT],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_BOOLEAN__BOXEDv);
   /**
    * ClutterActor::button-press-event:
    * @actor: the actor which received the event
@@ -8194,6 +8200,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  _clutter_marshal_BOOLEAN__BOXED,
 		  G_TYPE_BOOLEAN, 1,
 		  CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (actor_signals[BUTTON_PRESS_EVENT],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_BOOLEAN__BOXEDv);
   /**
    * ClutterActor::button-release-event:
    * @actor: the actor which received the event
@@ -8216,6 +8225,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  _clutter_marshal_BOOLEAN__BOXED,
 		  G_TYPE_BOOLEAN, 1,
 		  CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (actor_signals[BUTTON_RELEASE_EVENT],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_BOOLEAN__BOXEDv);
   /**
    * ClutterActor::scroll-event:
    * @actor: the actor which received the event
@@ -8238,6 +8250,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  _clutter_marshal_BOOLEAN__BOXED,
 		  G_TYPE_BOOLEAN, 1,
 		  CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (actor_signals[SCROLL_EVENT],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_BOOLEAN__BOXEDv);
   /**
    * ClutterActor::key-press-event:
    * @actor: the actor which received the event
@@ -8260,6 +8275,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  _clutter_marshal_BOOLEAN__BOXED,
 		  G_TYPE_BOOLEAN, 1,
 		  CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (actor_signals[KEY_PRESS_EVENT],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_BOOLEAN__BOXEDv);
   /**
    * ClutterActor::key-release-event:
    * @actor: the actor which received the event
@@ -8283,6 +8301,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  _clutter_marshal_BOOLEAN__BOXED,
 		  G_TYPE_BOOLEAN, 1,
 		  CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (actor_signals[KEY_RELEASE_EVENT],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_BOOLEAN__BOXEDv);
   /**
    * ClutterActor::motion-event:
    * @actor: the actor which received the event
@@ -8305,6 +8326,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  _clutter_marshal_BOOLEAN__BOXED,
 		  G_TYPE_BOOLEAN, 1,
 		  CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (actor_signals[MOTION_EVENT],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_BOOLEAN__BOXEDv);
 
   /**
    * ClutterActor::key-focus-in:
@@ -8359,6 +8383,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  _clutter_marshal_BOOLEAN__BOXED,
 		  G_TYPE_BOOLEAN, 1,
 		  CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (actor_signals[ENTER_EVENT],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_BOOLEAN__BOXEDv);
 
   /**
    * ClutterActor::leave-event:
@@ -8381,6 +8408,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  _clutter_marshal_BOOLEAN__BOXED,
 		  G_TYPE_BOOLEAN, 1,
 		  CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (actor_signals[LEAVE_EVENT],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_BOOLEAN__BOXEDv);
 
   /**
    * ClutterActor::captured-event:
@@ -8409,6 +8439,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  _clutter_marshal_BOOLEAN__BOXED,
 		  G_TYPE_BOOLEAN, 1,
 		  CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (actor_signals[CAPTURED_EVENT],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_BOOLEAN__BOXEDv);
 
   /**
    * ClutterActor::paint:
@@ -8534,6 +8567,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
                   G_TYPE_NONE, 2,
                   CLUTTER_TYPE_ACTOR_BOX | G_SIGNAL_TYPE_STATIC_SCOPE,
                   CLUTTER_TYPE_ALLOCATION_FLAGS);
+  g_signal_set_va_marshaller (actor_signals[ALLOCATION_CHANGED],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_VOID__BOXED_FLAGSv);
 
   /**
    * ClutterActor::transitions-completed:
@@ -8577,6 +8613,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
                   G_TYPE_NONE, 2,
                   G_TYPE_STRING,
                   G_TYPE_BOOLEAN);
+  g_signal_set_va_marshaller (actor_signals[TRANSITION_STOPPED],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_VOID__STRING_BOOLEANv);
 
   /**
    * ClutterActor::touch-event:
@@ -8600,6 +8639,9 @@ clutter_actor_class_init (ClutterActorClass *klass)
 		  _clutter_marshal_BOOLEAN__BOXED,
 		  G_TYPE_BOOLEAN, 1,
 		  CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
+  g_signal_set_va_marshaller (actor_signals[TOUCH_EVENT],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_BOOLEAN__BOXEDv);
 }
 
 static void
