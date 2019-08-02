@@ -71,6 +71,7 @@ struct _MetaBackendNative
   MetaBarrierManagerNative *barrier_manager;
 
   guint udev_device_added_handler_id;
+  guint udev_device_removed_handler_id;
 };
 
 static GInitableIface *initable_parent_iface;
@@ -589,11 +590,45 @@ on_udev_device_added (MetaUdev          *udev,
 }
 
 static void
+on_udev_device_removed (MetaUdev          *udev,
+                        GUdevDevice       *device,
+                        MetaBackendNative *native)
+{
+  MetaBackend *backend = META_BACKEND (native);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  g_autoptr (GError) error = NULL;
+  const char *device_path;
+  GList *gpus, *l;
+
+  device_path = g_udev_device_get_device_file (device);
+
+  gpus = meta_backend_get_gpus (backend);;
+  for (l = gpus; l; l = l->next)
+    {
+      MetaGpuKms *gpu_kms = l->data;
+
+      if (!g_strcmp0 (device_path, meta_gpu_kms_get_file_path (gpu_kms)))
+        {
+          if (!meta_kms_update_states_sync (native->kms, &error))
+            g_warning ("Updating KMS state failed: %s", error->message);
+          meta_monitor_manager_read_current_state (monitor_manager);
+          meta_monitor_manager_on_hotplug (monitor_manager);
+          /* TODO: Actually remove the GPU from out list of GPUs */
+          return;
+        }
+    }
+}
+
+static void
 connect_udev_device_added_handler (MetaBackendNative *native)
 {
   native->udev_device_added_handler_id =
     g_signal_connect (native->udev, "device-added",
                       G_CALLBACK (on_udev_device_added), native);
+  native->udev_device_removed_handler_id =
+    g_signal_connect (native->udev, "device-removed",
+                      G_CALLBACK (on_udev_device_removed), native);
 }
 
 static void
@@ -602,6 +637,9 @@ disconnect_udev_device_added_handler (MetaBackendNative *native)
   g_signal_handler_disconnect (native->udev,
                                native->udev_device_added_handler_id);
   native->udev_device_added_handler_id = 0;
+  g_signal_handler_disconnect (native->udev,
+                               native->udev_device_removed_handler_id);
+  native->udev_device_removed_handler_id = 0;
 }
 
 static gboolean
