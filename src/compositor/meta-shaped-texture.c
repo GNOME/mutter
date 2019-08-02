@@ -1064,7 +1064,20 @@ meta_shaped_texture_update_area (MetaShapedTexture *stex,
       if (cairo_region_is_empty (unobscured_region))
         return FALSE;
 
-      intersection = cairo_region_copy (unobscured_region);
+      if (meta_is_stage_views_scaled ())
+        {
+          double tex_scale;
+
+          clutter_actor_get_scale (CLUTTER_ACTOR (stex), &tex_scale, NULL);
+          intersection =
+            meta_region_scale_double (unobscured_region,
+                                      1.0 / tex_scale,
+                                      META_ROUNDING_STRATEGY_SHRINK);
+        }
+      else
+        {
+          intersection = cairo_region_copy (unobscured_region);
+        }
       cairo_region_intersect_rectangle (intersection, &clip);
 
       if (!cairo_region_is_empty (intersection))
