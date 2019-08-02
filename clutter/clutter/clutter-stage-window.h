@@ -46,6 +46,8 @@ struct _ClutterStageWindowInterface
   void              (* get_geometry)            (ClutterStageWindow *stage_window,
                                                  cairo_rectangle_int_t *geometry);
 
+  int64_t           (* get_refresh_interval)    (ClutterStageWindow *stage_window);
+
   void              (* schedule_update)         (ClutterStageWindow *stage_window,
                                                  int                 sync_delay);
   gint64            (* get_update_time)         (ClutterStageWindow *stage_window);
@@ -94,6 +96,7 @@ void              _clutter_stage_window_resize                  (ClutterStageWin
                                                                  gint                height);
 void              _clutter_stage_window_get_geometry            (ClutterStageWindow *window,
                                                                  cairo_rectangle_int_t *geometry);
+int64_t           _clutter_stage_window_get_refresh_interval    (ClutterStageWindow *window);
 void              _clutter_stage_window_schedule_update         (ClutterStageWindow *window,
                                                                  int                 sync_delay);
 gint64            _clutter_stage_window_get_update_time         (ClutterStageWindow *window);

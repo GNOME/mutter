@@ -112,6 +112,12 @@ _clutter_stage_window_get_geometry (ClutterStageWindow    *window,
   CLUTTER_STAGE_WINDOW_GET_IFACE (window)->get_geometry (window, geometry);
 }
 
+int64_t
+_clutter_stage_window_get_refresh_interval (ClutterStageWindow *window)
+{
+  return CLUTTER_STAGE_WINDOW_GET_IFACE (window)->get_refresh_interval (window);
+}
+
 void
 _clutter_stage_window_schedule_update  (ClutterStageWindow *window,
                                         int                 sync_delay)
