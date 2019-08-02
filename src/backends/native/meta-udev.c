@@ -220,7 +220,7 @@ meta_udev_class_init (MetaUdevClass *klass)
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  g_cclosure_marshal_VOID__OBJECT,
                   G_TYPE_NONE, 1,
                   G_UDEV_TYPE_DEVICE);
 }
