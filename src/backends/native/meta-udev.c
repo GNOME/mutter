@@ -212,15 +212,13 @@ meta_udev_class_init (MetaUdevClass *klass)
     g_signal_new ("hotplug",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  0, NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
   signals[DEVICE_ADDED] =
     g_signal_new ("device-added",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
+                  0, NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   G_UDEV_TYPE_DEVICE);
 }
