@@ -872,6 +872,20 @@ _clutter_stage_queue_event (ClutterStage *stage,
 
   first_event = priv->event_queue->length == 0;
 
+  if (first_event)
+    {
+      gboolean compressible = event->type == CLUTTER_MOTION ||
+                              event->type == CLUTTER_TOUCH_UPDATE;
+
+      if (!compressible)
+        {
+          _clutter_process_event (event);
+          if (!copy_event)
+            clutter_event_free (event);
+          return;
+        }
+    }
+
   if (copy_event)
     event = clutter_event_copy (event);
 
