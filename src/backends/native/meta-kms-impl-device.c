@@ -209,6 +209,9 @@ init_connectors (MetaKmsImplDevice *impl_device,
 
       drm_connector = drmModeGetConnector (impl_device->fd,
                                            drm_resources->connectors[i]);
+      if (!drm_connector)
+        continue;
+
       connector = meta_kms_connector_new (impl_device, drm_connector,
                                           drm_resources);
       drmModeFreeConnector (drm_connector);
