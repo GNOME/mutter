@@ -120,8 +120,12 @@ meta_actor_is_untransformed (ClutterActor *actor,
 {
   gfloat widthf, heightf;
   ClutterVertex verts[4];
+  double scale;
 
+  clutter_actor_get_scale (actor, &scale, NULL);
   clutter_actor_get_size (actor, &widthf, &heightf);
+  widthf *= scale;
+  heightf *= scale;
   clutter_actor_get_abs_allocation_vertices (actor, verts);
 
   return meta_actor_vertices_are_untransformed (verts, widthf, heightf, x_origin, y_origin);
