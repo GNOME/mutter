@@ -132,6 +132,12 @@ meta_kms_crtc_update_state (MetaKmsCrtc *crtc)
   impl_device = meta_kms_device_get_impl_device (crtc->device);
   drm_crtc = drmModeGetCrtc (meta_kms_impl_device_get_fd (impl_device),
                              crtc->id);
+  if (!drm_crtc) {
+    crtc->current_state.rect = (MetaRectangle) { };
+    crtc->current_state.is_drm_mode_valid = FALSE;
+    return;
+  }
+
   meta_kms_crtc_read_state (crtc, impl_device, drm_crtc);
   drmModeFreeCrtc (drm_crtc);
 }
