@@ -35,6 +35,9 @@ MetaKmsUpdate * meta_kms_get_pending_update (MetaKms *kms);
 gboolean meta_kms_post_pending_update_sync (MetaKms  *kms,
                                             GError  **error);
 
+gboolean meta_kms_update_states_sync (MetaKms  *kms,
+                                      GError  **error);
+
 void meta_kms_discard_pending_page_flips (MetaKms *kms);
 
 MetaBackend * meta_kms_get_backend (MetaKms *kms);
