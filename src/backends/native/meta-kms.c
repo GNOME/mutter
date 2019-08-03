@@ -463,7 +463,7 @@ update_states_in_impl (MetaKmsImpl  *impl,
   return TRUE;
 }
 
-static gboolean
+gboolean
 meta_kms_update_states_sync (MetaKms  *kms,
                              GError  **error)
 {
