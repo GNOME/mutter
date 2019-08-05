@@ -1293,7 +1293,7 @@ _meta_window_shared_new (MetaDisplay         *display,
                       window->desc, window->transient_for->desc);
 
           set_workspace_state (window,
-                               window->transient_for->on_all_workspaces_requested,
+                               should_be_on_all_workspaces (window->transient_for),
                                window->transient_for->workspace);
         }
       else if (window->on_all_workspaces)
