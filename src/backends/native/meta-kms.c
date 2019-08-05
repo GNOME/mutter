@@ -149,6 +149,7 @@ struct _MetaKms
   MetaBackend *backend;
 
   guint hotplug_handler_id;
+  guint removed_handler_id;
 
   MetaKmsImpl *impl;
   gboolean in_impl_task;
@@ -474,13 +475,27 @@ meta_kms_update_states_sync (MetaKms  *kms,
 }
 
 static void
-on_udev_hotplug (MetaUdev *udev,
-                 MetaKms  *kms)
+handle_hotplug_event (MetaKms *kms)
 {
   g_autoptr (GError) error = NULL;
 
   if (!meta_kms_update_states_sync (kms, &error))
     g_warning ("Updating KMS state failed: %s", error->message);
+}
+
+static void
+on_udev_hotplug (MetaUdev *udev,
+                 MetaKms  *kms)
+{
+  handle_hotplug_event (kms);
+}
+
+static void
+on_udev_device_removed (MetaUdev    *udev,
+                        GUdevDevice *device,
+                        MetaKms     *kms)
+{
+  handle_hotplug_event (kms);
 }
 
 MetaBackend *
@@ -525,6 +540,9 @@ meta_kms_new (MetaBackend  *backend,
 
   kms->hotplug_handler_id =
     g_signal_connect (udev, "hotplug", G_CALLBACK (on_udev_hotplug), kms);
+  kms->removed_handler_id =
+    g_signal_connect (udev, "device-removed",
+                      G_CALLBACK (on_udev_device_removed), kms);
 
   return kms;
 }
@@ -547,6 +565,9 @@ meta_kms_finalize (GObject *object)
 
   if (kms->hotplug_handler_id)
     g_signal_handler_disconnect (udev, kms->hotplug_handler_id);
+
+  if (kms->removed_handler_id)
+    g_signal_handler_disconnect (udev, kms->removed_handler_id);
 
   G_OBJECT_CLASS (meta_kms_parent_class)->finalize (object);
 }
