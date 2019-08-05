@@ -1286,7 +1286,9 @@ _meta_window_shared_new (MetaDisplay         *display,
    */
   if (!window->override_redirect && window->workspace == NULL)
     {
-      if (window->transient_for != NULL)
+      if (window->transient_for != NULL &&
+          (window->transient_for->on_all_workspaces_requested ||
+           window->transient_for->workspace))
         {
           meta_topic (META_DEBUG_PLACEMENT,
                       "Putting window %s on same workspace as parent %s\n",
