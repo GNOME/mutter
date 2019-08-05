@@ -110,16 +110,15 @@ meta_kms_crtc_read_state (MetaKmsCrtc       *crtc,
                           MetaKmsImplDevice *impl_device,
                           drmModeCrtc       *drm_crtc)
 {
-  crtc->current_state = (MetaKmsCrtcState) {
-    .rect = {
-      .x = drm_crtc->x,
-      .y = drm_crtc->y,
-      .width = drm_crtc->width,
-      .height = drm_crtc->height,
-    },
-    .is_drm_mode_valid = drm_crtc->mode_valid,
-    .drm_mode = drm_crtc->mode,
+  crtc->current_state.rect = (MetaRectangle) {
+    .x = drm_crtc->x,
+    .y = drm_crtc->y,
+    .width = drm_crtc->width,
+    .height = drm_crtc->height,
   };
+
+  crtc->current_state.is_drm_mode_valid = drm_crtc->mode_valid;
+  crtc->current_state.drm_mode = drm_crtc->mode;
 
   read_gamma_state (crtc, impl_device, drm_crtc);
 }
