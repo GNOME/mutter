@@ -797,8 +797,11 @@ meta_xwayland_complete_init (MetaDisplay *display)
                     G_CALLBACK (on_x11_display_closing), NULL);
   meta_xwayland_init_dnd ();
 
-  g_signal_connect (meta_get_display (), "window-created",
-                    G_CALLBACK (window_created_cb), manager);
+  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
+    {
+      g_signal_connect (meta_get_display (), "window-created",
+                        G_CALLBACK (window_created_cb), manager);
+    }
 }
 
 void
