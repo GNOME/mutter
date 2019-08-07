@@ -95,22 +95,7 @@ _clutter_stage_cogl_presented (ClutterStageCogl *stage_cogl,
                                CoglFrameEvent    frame_event,
                                ClutterFrameInfo *frame_info)
 {
-
-  if (frame_event == COGL_FRAME_EVENT_SYNC)
-    {
-      /* Early versions of the swap_event implementation in Mesa
-       * deliver BufferSwapComplete event when not selected for,
-       * so if we get a swap event we aren't expecting, just ignore it.
-       *
-       * https://bugs.freedesktop.org/show_bug.cgi?id=27962
-       *
-       * FIXME: This issue can be hidden inside Cogl so we shouldn't
-       * need to care about this bug here.
-       */
-      if (stage_cogl->pending_swaps > 0)
-        stage_cogl->pending_swaps--;
-    }
-  else if (frame_event == COGL_FRAME_EVENT_COMPLETE)
+  if (frame_event == COGL_FRAME_EVENT_COMPLETE)
     {
       gint64 presentation_time_cogl = frame_info->presentation_time;
 
@@ -967,7 +952,6 @@ static void
 clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-  gboolean swap_event = FALSE;
   GList *l;
 
   COGL_TRACE_BEGIN (ClutterStageCoglRedraw, "Paint (Cogl Redraw)");
@@ -976,22 +960,12 @@ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
     {
       ClutterStageView *view = l->data;
 
-      swap_event =
-        clutter_stage_cogl_redraw_view (stage_window, view) || swap_event;
+      clutter_stage_cogl_redraw_view (stage_window, view);
     }
 
   _clutter_stage_emit_after_paint (stage_cogl->wrapper);
 
   _clutter_stage_window_finish_frame (stage_window);
-
-  if (swap_event)
-    {
-      /* If we have swap buffer events then cogl_onscreen_swap_buffers
-       * will return immediately and we need to track that there is a
-       * swap in progress... */
-      if (clutter_feature_available (CLUTTER_FEATURE_SWAP_EVENTS))
-        stage_cogl->pending_swaps++;
-    }
 
   /* reset the redraw clipping for the next paint... */
   stage_cogl->initialized_redraw_clip = FALSE;
