@@ -1570,7 +1570,7 @@ meta_window_grab_keys (MetaWindow  *window)
   MetaDisplay *display = window->display;
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
-  if (!meta_is_wayland_compositor ())
+  if (meta_is_wayland_compositor ())
     return;
   if (window->all_keys_grabbed)
     return;
