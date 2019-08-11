@@ -10,8 +10,8 @@
 msgid ""
 msgstr "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-07-18 13:55+0000\n"
-"PO-Revision-Date: 2019-07-21 10:00+0100\n"
+"POT-Creation-Date: 2019-08-06 00:49+0000\n"
+"PO-Revision-Date: 2019-08-11 10:00+0100\n"
 "Last-Translator: Asier Sarasua Garmendia <asier.sarasua@gmail.com>\n"
 "Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
@@ -369,30 +369,31 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart."
-msgstr "Eginbide esperimentalak gaitzeko, gehitu eginbidearen gako-hitza zerrendari. Eginbideak osatzailea berrabiaraztea behar duen edo ez, emandako eginbidearen araberakoa da. Ez da derrigorrezkoa edozein eginbide esperimental eskuragarri edo konfiguragarri egotea. Ez uste ezarpen honetan edozer gehitzeak etorkizuneko proba izango denik. Uneko gako erabilgarriak: • “scale-monitor-framebuffer” — honek mutterrek monitore logikoak espazioaren koordenatuko pixel logikoetan diseina dezan eragiten du, leihoaren edukiaren ordez monitorearen framebufferra eskalatuta, HiDPI monitoreak kudeatzeko. Ez du berrabiaraztea eskatzen. • “rt-scheduler” — muterrak lehentasun baxuko denbora errealeko programazioa eska dezan eragiten du. Exekutagarriak edo erabiltzaileak CAP_SYS_NICE izan behar du. Sistema berrabiarazi behar da. "
+"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
+"initializes Xwayland lazily if there are X11 clients. Requires restart."
+msgstr "Eginbide esperimentalak gaitzeko, gehitu eginbidearen gako-hitza zerrendari. Eginbideak konposatzailea berrabiaraztea behar duen edo ez, emandako eginbidearen araberakoa da. Ez da derrigorrezkoa edozein eginbide esperimental eskuragarri edo konfiguragarri egotea. Ez uste ezarpen honetan edozer gehitzeak etorkizuneko proba izango denik. Uneko gako erabilgarriak: • “scale-monitor-framebuffer” — honek mutterrek monitore logikoak espazioaren koordenatuko pixel logikoetan diseina dezan eragiten du, leihoaren edukiaren ordez monitorearen framebufferra eskalatuta, HiDPI monitoreak kudeatzeko. Ez du berrabiaraztea eskatzen. • “rt-scheduler” — muterrek lehentasun baxuko denbora errealeko programazioa eska dezan eragiten du. Exekutagarriak edo erabiltzaileak CAP_SYS_NICE izan behar du. Sistema berrabiarazi behar da. • “autostart-xwayland” — Xwayland modu alferrean hasieratzen du X11 bezeroak badaude. Sistema berrabiarazi behar da."
 
-#: data/org.gnome.mutter.gschema.xml.in:132
+#: data/org.gnome.mutter.gschema.xml.in:134
 msgid "Modifier to use to locate the pointer"
 msgstr "Erakuslea kokatzeko erabiliko den aldatzailea"
 
-#: data/org.gnome.mutter.gschema.xml.in:133
+#: data/org.gnome.mutter.gschema.xml.in:135
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Gako honek “kokatu erakuslea“ ekintza abiarazten du."
 
-#: data/org.gnome.mutter.gschema.xml.in:153
+#: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Select window from tab popup"
 msgstr "Hautatu leihoa laster-fitxatik"
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid "Cancel tab popup"
 msgstr "Utzi laster-fitxa"
 
-#: data/org.gnome.mutter.gschema.xml.in:163
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Switch monitor configurations"
 msgstr "Aldatu monitorearen konfigurazioak"
 
-#: data/org.gnome.mutter.gschema.xml.in:168
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Rotates the built-in monitor configuration"
 msgstr "Biratu barneko monitorearen konfigurazioa"
 
@@ -463,7 +464,7 @@ msgid ""
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
 "white-listed in key “xwayland-grab-access-rules”."
-msgstr ""
+msgstr "Onartu teklatu-gertaera guztiak X11 “override redirect” leihoetara bidera daitezen Xwayland-en exekutatzean. Aukera honek “override redirect” leiho bat (teklatu-fokua jasotzen ez duena) mapatzen duten eta teklatu-gertaera guztiak leiho horretara behartzen dituen teklatu-harrapatze bat bidaltzen duten X11 bezeroei euskarria emateko da. Aukera hori gutxitan erabiltzen da eta ez du eraginik X11 leiho arruntetan, horiek teklatuaren fokua modu normalean jasotzen baitute. X11 harrapatze bat Wayland pean kontuan har dadin, bezeroak ere X11 ClientMessage mezu espezifiko bat bidali behar dio erro-leihoari edo “xwayland-grab-access-rules” gakoaren zerrenda zurian dauden aplikazioen artean egon behar du."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -649,23 +650,23 @@ msgstr "Mutter modu xehatuaren euskarririk gabe konpilatu da\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Modu aldaketa: %d modua"
 
-#: src/x11/meta-x11-display.c:682
+#: src/x11/meta-x11-display.c:671
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr "“%s“ pantailak badu leiho-kudeatzailea; erabili --replace aukera uneko leiho-kudeatzailea ordezteko."
 
-#: src/x11/meta-x11-display.c:1024
+#: src/x11/meta-x11-display.c:1032
 msgid "Failed to initialize GDK\n"
 msgstr "Huts egin du GDK hasieratzeak\n"
 
-#: src/x11/meta-x11-display.c:1048
+#: src/x11/meta-x11-display.c:1056
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Huts egin du X Window sistemaren “%s“ pantaila irekitzean\n"
 
-#: src/x11/meta-x11-display.c:1132
+#: src/x11/meta-x11-display.c:1140
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "“%2$s“ bistaratzeko %1$d pantaila ez da baliozkoa\n"
@@ -685,5 +686,3 @@ msgstr "Leiho hauek ez dute onartzen “gorde uneko konfigurazioa“; eta eskuz 
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s)"
-
-
