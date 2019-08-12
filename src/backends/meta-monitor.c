@@ -34,8 +34,7 @@
 #define SCALE_FACTORS_STEPS (1.0 / (float) SCALE_FACTORS_PER_INTEGER)
 #define MINIMUM_SCALE_FACTOR 1.0f
 #define MAXIMUM_SCALE_FACTOR 4.0f
-#define MINIMUM_LOGICAL_WIDTH 800
-#define MINIMUM_LOGICAL_HEIGHT 480
+#define MINIMUM_LOGICAL_AREA (800 * 480)
 #define MAXIMUM_REFRESH_RATE_DIFF 0.001
 
 typedef struct _MetaMonitorMode
@@ -1661,8 +1660,7 @@ static gboolean
 is_logical_size_large_enough (int width,
                               int height)
 {
-  return width >= MINIMUM_LOGICAL_WIDTH &&
-         height >= MINIMUM_LOGICAL_HEIGHT;
+  return width * height >= MINIMUM_LOGICAL_AREA;
 }
 
 gboolean
