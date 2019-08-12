@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-02-04 17:52+0000\n"
-"PO-Revision-Date: 2019-02-13 16:01+0100\n"
+"POT-Creation-Date: 2019-07-18 13:55+0000\n"
+"PO-Revision-Date: 2019-08-05 13:25+0300\n"
 "Last-Translator: Florentina Mușat <florentina.musat.28 [at] gmail [dot] "
 "com>\n"
 "Language-Team: Gnome Romanian Translation Team <gnomero-list@lists."
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n==0 || (n!=1 && n%100>=1 && n"
 "%100<=19) ? 1 : 2);\n"
-"X-Generator: Poedit 2.2.1\n"
+"X-Generator: Poedit 2.2.3\n"
 "X-Project-Style: gnome\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
@@ -405,7 +405,9 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart."
+"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
+"mutter request a low priority real-time scheduling. The executable or user "
+"must have CAP_SYS_NICE. Requires a restart."
 msgstr ""
 "Pentru a activa funcționalitățile experimentale, adăugați cuvântul cheie al "
 "funcționalității la listă. Dacă funcționalitatea necesită sau nu repornirea "
@@ -416,21 +418,32 @@ msgstr ""
 "framebuffer” — face ca mutter să treacă implicit la aranjarea monitoarelor "
 "logice într-un spațiu logic de coordonate pixel, în timpul scalării de "
 "framebuffer-uri de monitor în locul conținutului ferestrei, pentru a "
-"gestiona monitoare HiDPI. Nu necesită o repornire."
+"gestiona monitoare HiDPI. Nu necesită o repornire. • „rt-scheduler” — face "
+"ca mutter să ceară o programare în timp real de prioritate scăzută. "
+"Executabilul sau utilizatorul trebuie să aibă CAP_SYS_NICE. Necesită o "
+"repornire."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:132
+msgid "Modifier to use to locate the pointer"
+msgstr "Modificator de utilizat pentru a localiza pointerul"
+
+#: data/org.gnome.mutter.gschema.xml.in:133
+msgid "This key will initiate the “locate pointer” action."
+msgstr "Această cheie va iniția acțiunea „localizează pointer”."
+
+#: data/org.gnome.mutter.gschema.xml.in:153
 msgid "Select window from tab popup"
 msgstr "Selectează fereastra din popup-ul tabului"
 
-#: data/org.gnome.mutter.gschema.xml.in:146
+#: data/org.gnome.mutter.gschema.xml.in:158
 msgid "Cancel tab popup"
 msgstr "Elimină popup-ul pentru tab"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:163
 msgid "Switch monitor configurations"
 msgstr "Comută configurațiile de monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:156
+#: data/org.gnome.mutter.gschema.xml.in:168
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rotește configurarea de monitor integrat"
 
@@ -487,28 +500,38 @@ msgid "Re-enable shortcuts"
 msgstr "Reactivează scurtăturile"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:64
-msgid "Allow grabs with Xwayland"
-msgstr "Permite capturi de tastatură cu Xwayland"
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr "Permite capturilor X11 să blocheze focusul tastaturii cu Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
 msgid ""
-"Allow keyboard grabs issued by X11 applications running in Xwayland to be "
-"taken into account. For a X11 grab to be taken into account under Wayland, "
-"the client must also either send a specific X11 ClientMessage to the root "
-"window or be among the applications white-listed in key “xwayland-grab-"
-"access-rules”."
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"white-listed in key “xwayland-grab-access-rules”."
 msgstr ""
-"Permite capturile de tastatură emise de aplicațiile X11 care rulează în "
-"Xwayland să fie luate în considerare. Pentru ca o captură X11 să fie luată "
-"în considerare în Wayland, clientul trebuie ori să trimită un mesaj specific "
-"ClientMessage X11 la fereastra root ori să se numere printre aplicațiile "
-"permise în cheia „xwayland-grab-access-rules”."
+"Permite ca toate evenimentele de tastatură să fie rutate la ferestrele de "
+"„redirecționare suprascriere” X11 cu o blocare când se rulează Xwayland. "
+"Această opțiune este pentru a suporta clienții X11 care mapează o fereastră "
+"de „redirecționare suprascriere” (care nu primesc focusul tastaturii) și "
+"furnizează o blocare de tastatură pentru a forța toate evenimentele de "
+"tastatură la acea fereastră. Această opțiune este utilizată rar și nu are "
+"niciun efect asupra ferestrelor X11 obișnuite care pot primi focusul "
+"tastaturii sub circumstanțe normale. Pentru ca o blocare X11 să fie luată în "
+"considerare sub Wayland, clientul trebuie de asemenea să trimită ori un "
+"ClientMessage X11 specific la fereastra root sau să fie printre aplicațiile "
+"din lista albă în cheia „xwayland-grab-access-rules”."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:77
+#: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Aplicațiile Xwayland sunt permise de a emite capturi de tastatură"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:78
+#: data/org.gnome.mutter.wayland.gschema.xml.in:85
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
@@ -536,7 +559,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2423
+#: src/backends/meta-input-settings.c:2531
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Comutator de mod (grupul %d)"
@@ -544,34 +567,34 @@ msgstr "Comutator de mod (grupul %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2446
+#: src/backends/meta-input-settings.c:2554
 msgid "Switch monitor"
 msgstr "Comută monitorul"
 
-#: src/backends/meta-input-settings.c:2448
+#: src/backends/meta-input-settings.c:2556
 msgid "Show on-screen help"
 msgstr "Arată ajutorul virtual"
 
-#: src/backends/meta-monitor-manager.c:954
+#: src/backends/meta-monitor.c:223
 msgid "Built-in display"
 msgstr "Afișaj integrat"
 
-#: src/backends/meta-monitor-manager.c:986
+#: src/backends/meta-monitor.c:252
 msgid "Unknown"
 msgstr "Necunoscut"
 
-#: src/backends/meta-monitor-manager.c:988
+#: src/backends/meta-monitor.c:254
 msgid "Unknown Display"
 msgstr "Afișaj necunoscut"
 
-#: src/backends/meta-monitor-manager.c:996
+#: src/backends/meta-monitor.c:262
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor-manager.c:1004
+#: src/backends/meta-monitor.c:270
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -579,9 +602,14 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
+#. Translators: this string will appear in Sysprof
+#: src/backends/meta-profiler.c:82
+msgid "Compositor"
+msgstr "Compunător"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:482
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -589,7 +617,7 @@ msgstr ""
 "Un alt administrator de ferestre de compunere rulează deja pe ecranul %i pe "
 "afișajul „%s”."
 
-#: src/core/bell.c:252
+#: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Eveniment sonor"
 
@@ -638,16 +666,16 @@ msgid "Run with X11 backend"
 msgstr "Rulează cu backend X11"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:150
+#: src/core/meta-close-dialog-default.c:151
 #, c-format
 msgid "“%s” is not responding."
 msgstr "„%s” nu răspunde."
 
-#: src/core/meta-close-dialog-default.c:152
+#: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
 msgstr "Aplicația nu răspunde."
 
-#: src/core/meta-close-dialog-default.c:157
+#: src/core/meta-close-dialog-default.c:158
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -655,11 +683,11 @@ msgstr ""
 "Puteți alege între a aștepta pentru câteva secunde ca aplicația să continue "
 "sau a forța terminarea aplicației."
 
-#: src/core/meta-close-dialog-default.c:164
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Force Quit"
 msgstr "_Forțează închiderea"
 
-#: src/core/meta-close-dialog-default.c:164
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Wait"
 msgstr "_Așteaptă"
 
@@ -687,7 +715,7 @@ msgstr "Afișează versiunea"
 msgid "Mutter plugin to use"
 msgstr "Modul Mutter de utilizat"
 
-#: src/core/prefs.c:1786
+#: src/core/prefs.c:1849
 #, c-format
 msgid "Workspace %d"
 msgstr "Spațiu de lucru %d"
@@ -701,7 +729,7 @@ msgstr "Mutter a fost compilat fără suport pentru modul detaliat\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Comutator de mod: modul %d"
 
-#: src/x11/meta-x11-display.c:666
+#: src/x11/meta-x11-display.c:682
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -711,19 +739,24 @@ msgstr ""
 "opțiunea --replace (înlocuiește) pentru a înlocui administratorul de "
 "ferestre curent."
 
-#: src/x11/meta-x11-display.c:1008
+#: src/x11/meta-x11-display.c:1024
 msgid "Failed to initialize GDK\n"
 msgstr "Nu s-a putut inițializa GDK\n"
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1048
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Nu s-a putut deschide afișajul sistemului de ferestre X „%s”\n"
 
-#: src/x11/meta-x11-display.c:1115
+#: src/x11/meta-x11-display.c:1132
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Ecranul %d de pe afișajul „%s” nu este valid\n"
+
+#: src/x11/meta-x11-selection-input-stream.c:445
+#, c-format
+msgid "Format %s not supported"
+msgstr "Formatul %s nu este suportat"
 
 #: src/x11/session.c:1821
 msgid ""
@@ -733,7 +766,7 @@ msgstr ""
 "Aceste ferestre nu suportă „salvează configurarea curentă” și vor trebui "
 "repornite manual următoarea dată când vă veți autentifica."
 
-#: src/x11/window-props.c:568
+#: src/x11/window-props.c:569
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (pe %s)"
@@ -1974,9 +2007,6 @@ msgstr "%s (pe %s)"
 
 #~ msgid "Commands to run in response to keybindings"
 #~ msgstr "Comanda care va fi rulată la o combinație de taste"
-
-#~ msgid "Compositing Manager"
-#~ msgstr "Manager de compoziție"
 
 #~ msgid "Control how new windows get focus"
 #~ msgstr "Controlează modul de activare a ferestrelor noi"

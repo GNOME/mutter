@@ -129,16 +129,18 @@ meta_x11_display_dispose (GObject *object)
 {
   MetaX11Display *x11_display = META_X11_DISPLAY (object);
 
+  x11_display->closing = TRUE;
+
   meta_x11_startup_notification_release (x11_display);
 
   meta_prefs_remove_listener (prefs_changed_callback, x11_display);
 
   meta_x11_display_ungrab_keys (x11_display);
 
+  g_clear_object (&x11_display->x11_stack);
+
   meta_x11_selection_shutdown (x11_display);
   meta_x11_display_unmanage_windows (x11_display);
-
-  g_clear_object (&x11_display->x11_stack);
 
   if (x11_display->ui)
     {
@@ -182,21 +184,8 @@ meta_x11_display_dispose (GObject *object)
 
   if (x11_display->guard_window != None)
     {
-      MetaStackTracker *stack_tracker = x11_display->display->stack_tracker;
-
-      if (stack_tracker)
-        {
-          unsigned long serial;
-
-          serial = XNextRequest (x11_display->xdisplay);
-          meta_stack_tracker_record_remove (stack_tracker,
-                                            x11_display->guard_window,
-                                            serial);
-        }
-
       XUnmapWindow (x11_display->xdisplay, x11_display->guard_window);
       XDestroyWindow (x11_display->xdisplay, x11_display->guard_window);
-
       x11_display->guard_window = None;
     }
 
@@ -988,6 +977,25 @@ meta_set_gnome_wm_keybindings (const char *wm_keybindings)
   gnome_wm_keybindings = wm_keybindings;
 }
 
+const gchar *
+meta_x11_get_display_name (void)
+{
+#ifdef HAVE_WAYLAND
+  if (meta_is_wayland_compositor ())
+    {
+      MetaWaylandCompositor *compositor;
+
+      compositor = meta_wayland_compositor_get_default ();
+
+      return meta_wayland_get_xwayland_display_name (compositor);
+    }
+  else
+#endif
+    {
+      return g_getenv ("DISPLAY");
+    }
+}
+
 gboolean
 meta_x11_init_gdk_display (GError **error)
 {
@@ -996,7 +1004,7 @@ meta_x11_init_gdk_display (GError **error)
   const char *gdk_gl_env = NULL;
   Display *xdisplay;
 
-  xdisplay_name = g_getenv ("DISPLAY");
+  xdisplay_name = meta_x11_get_display_name ();
   if (!xdisplay_name)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,

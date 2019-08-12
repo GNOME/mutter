@@ -1,3 +1,21 @@
+3.33.90
+=======
+* Fix visibility of clones with hidden source [Florian; #683]
+* Reduce freezes when opening some popup windows [Carlos; #556]
+* Be more thorough when excluding obscured areas from painting [Carlos; !698]
+* Make it possible to start Xwayland on demand [Carlos; !709]
+* clutter: Expose layout_manager to transitions [Florian; !716]
+* Misc. bug fixes and cleanups [Mark, Florian, Iain, Niels, Carlos, Ray; !671,
+  !691, !694, !696, !703, !707, !697, !710, !708, !714, #719, !721]
+
+Contributors:
+  Mark Blakeney, Carlos Garnacho, Niels De Graef, Iain Lane, Florian Müllner,
+  Ray Strode
+
+Translators:
+  Asier Sarasua Garmendia [eu], Rafael Fontenelle [pt_BR], Fabio Tomat [fur],
+  Florentina Mușat [ro]
+
 3.33.4
 ======
 * Discard page flip retries on hotplug [Jonas; !630]

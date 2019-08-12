@@ -4821,7 +4821,7 @@ buffer_notify_max_length (ClutterTextBuffer *buffer,
                           GParamSpec        *spec,
                           ClutterText       *self)
 {
-  g_object_notify (G_OBJECT (self), "max-length");
+  g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_MAX_LENGTH]);
 }
 
 static void
@@ -4920,9 +4920,9 @@ clutter_text_set_buffer (ClutterText       *self,
 
   obj = G_OBJECT (self);
   g_object_freeze_notify (obj);
-  g_object_notify (obj, "buffer");
-  g_object_notify (obj, "text");
-  g_object_notify (obj, "max-length");
+  g_object_notify_by_pspec (obj, obj_props[PROP_BUFFER]);
+  g_object_notify_by_pspec (obj, obj_props[PROP_TEXT]);
+  g_object_notify_by_pspec (obj, obj_props[PROP_MAX_LENGTH]);
   g_object_thaw_notify (obj);
 }
 

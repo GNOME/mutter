@@ -228,8 +228,8 @@ clutter_text_buffer_real_inserted_text (ClutterTextBuffer *buffer,
                                      const gchar    *chars,
                                      guint           n_chars)
 {
-  g_object_notify (G_OBJECT (buffer), "text");
-  g_object_notify (G_OBJECT (buffer), "length");
+  g_object_notify_by_pspec (G_OBJECT (buffer), obj_props[PROP_TEXT]);
+  g_object_notify_by_pspec (G_OBJECT (buffer), obj_props[PROP_LENGTH]);
 }
 
 static void
@@ -237,8 +237,8 @@ clutter_text_buffer_real_deleted_text (ClutterTextBuffer *buffer,
                                     guint           position,
                                     guint           n_chars)
 {
-  g_object_notify (G_OBJECT (buffer), "text");
-  g_object_notify (G_OBJECT (buffer), "length");
+  g_object_notify_by_pspec (G_OBJECT (buffer), obj_props[PROP_TEXT]);
+  g_object_notify_by_pspec (G_OBJECT (buffer), obj_props[PROP_LENGTH]);
 }
 
 /* --------------------------------------------------------------------------------
@@ -598,7 +598,7 @@ clutter_text_buffer_set_max_length (ClutterTextBuffer *buffer,
     clutter_text_buffer_delete_text (buffer, max_length, -1);
 
   buffer->priv->max_length = max_length;
-  g_object_notify (G_OBJECT (buffer), "max-length");
+  g_object_notify_by_pspec (G_OBJECT (buffer), obj_props[PROP_MAX_LENGTH]);
 }
 
 /**

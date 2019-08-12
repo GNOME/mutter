@@ -13,7 +13,7 @@ G_BEGIN_DECLS
 
 #define TEST_COGLBOX(obj) \
   (G_TYPE_CHECK_INSTANCE_CAST ((obj), \
-  TEST_TYPE_COGLBOX, TestCoglboxClass))
+  TEST_TYPE_COGLBOX, TestCoglbox))
 
 #define TEST_COGLBOX_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_CAST ((klass), \
@@ -77,7 +77,7 @@ struct _TestCoglboxPrivate
 G_DEFINE_TYPE_WITH_PRIVATE (TestCoglbox, test_coglbox, CLUTTER_TYPE_ACTOR);
 
 #define TEST_COGLBOX_GET_PRIVATE(obj) \
-(G_TYPE_INSTANCE_GET_PRIVATE ((obj), TEST_TYPE_COGLBOX, TestCoglboxPrivate))
+(test_coglbox_get_instance_private (TEST_COGLBOX ((obj))))
 
 /* Coglbox implementation
  *--------------------------------------------------*/
