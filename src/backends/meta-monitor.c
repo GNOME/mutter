@@ -39,6 +39,7 @@
 
 typedef struct _MetaMonitorMode
 {
+  MetaMonitor *monitor;
   char *id;
   MetaMonitorModeSpec spec;
   MetaMonitorCrtcMode *crtc_modes;
@@ -609,6 +610,7 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
       gboolean replace;
 
       mode = g_new0 (MetaMonitorMode, 1);
+      mode->monitor = monitor;
       mode->spec = meta_monitor_create_spec (monitor,
                                              crtc_mode->width,
                                              crtc_mode->height,
@@ -948,7 +950,7 @@ create_tiled_monitor_mode (MetaMonitorTiled *monitor_tiled,
   mode = g_new0 (MetaMonitorModeTiled, 1);
   mode->is_tiled = TRUE;
   meta_monitor_tiled_calculate_tiled_size (monitor, &width, &height);
-
+  mode->parent.monitor = monitor;
   mode->parent.spec =
     meta_monitor_create_spec (monitor, width, height, reference_crtc_mode);
   mode->parent.id = generate_mode_id (&mode->parent.spec);
@@ -1058,8 +1060,8 @@ create_untiled_monitor_mode (MetaMonitorTiled *monitor_tiled,
     return NULL;
 
   mode = g_new0 (MetaMonitorModeTiled, 1);
-
   mode->is_tiled = FALSE;
+  mode->parent.monitor = monitor;
   mode->parent.spec = meta_monitor_create_spec (monitor,
                                                 crtc_mode->width,
                                                 crtc_mode->height,
@@ -1666,7 +1668,14 @@ is_logical_size_large_enough (int width,
 gboolean
 meta_monitor_mode_should_be_advertised (MetaMonitorMode *monitor_mode)
 {
+  MetaMonitorMode *preferred_mode;
+
   g_return_val_if_fail (monitor_mode != NULL, FALSE);
+
+  preferred_mode = meta_monitor_get_preferred_mode (monitor_mode->monitor);
+  if (monitor_mode->spec.width == preferred_mode->spec.width &&
+      monitor_mode->spec.height == preferred_mode->spec.height)
+    return TRUE;
 
   return is_logical_size_large_enough (monitor_mode->spec.width,
                                        monitor_mode->spec.height);
