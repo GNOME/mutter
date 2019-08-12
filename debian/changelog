@@ -1,8 +1,15 @@
-mutter (3.33.4-2) UNRELEASED; urgency=medium
+mutter (3.33.90-1) UNRELEASED; urgency=medium
 
+  [ Marco Trevisan (Treviño) ]
+  * New upstream release
+    + Avoid repainting covered areas
+    + Start Xwayland on demand
+    + Expose layout manager properties to transitions
+
+  [ Simon McVittie ]
   * d/libmutter-5-0.bug-control: Include GL drivers in bug reports
 
- -- Simon McVittie <smcv@debian.org>  Sun, 04 Aug 2019 13:45:10 +0100
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Mon, 12 Aug 2019 19:09:46 +0200
 
 mutter (3.33.4-1) experimental; urgency=medium
 
