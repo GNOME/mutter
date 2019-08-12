@@ -1570,6 +1570,8 @@ meta_window_grab_keys (MetaWindow  *window)
   MetaDisplay *display = window->display;
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
+  if (meta_is_wayland_compositor ())
+    return;
   if (window->all_keys_grabbed)
     return;
 
@@ -1604,7 +1606,7 @@ meta_window_grab_keys (MetaWindow  *window)
 void
 meta_window_ungrab_keys (MetaWindow  *window)
 {
-  if (window->keys_grabbed)
+  if (!meta_is_wayland_compositor () && window->keys_grabbed)
     {
       MetaDisplay *display = window->display;
       MetaKeyBindingManager *keys = &display->key_binding_manager;
@@ -1663,7 +1665,11 @@ meta_display_grab_accelerator (MetaDisplay         *display,
       return META_KEYBINDING_ACTION_NONE;
     }
 
-  meta_change_keygrab (keys, display->x11_display->xroot, TRUE, &resolved_combo);
+  if (!meta_is_wayland_compositor ())
+    {
+      meta_change_keygrab (keys, display->x11_display->xroot,
+                           TRUE, &resolved_combo);
+    }
 
   grab = g_new0 (MetaKeyGrab, 1);
   grab->action = next_dynamic_keybinding_action ();
@@ -1709,8 +1715,11 @@ meta_display_ungrab_accelerator (MetaDisplay *display,
     {
       int i;
 
-      meta_change_keygrab (keys, display->x11_display->xroot,
-                           FALSE, &binding->resolved_combo);
+      if (!meta_is_wayland_compositor ())
+        {
+          meta_change_keygrab (keys, display->x11_display->xroot,
+                               FALSE, &binding->resolved_combo);
+        }
 
       for (i = 0; i < binding->resolved_combo.len; i++)
         {
@@ -1788,7 +1797,7 @@ meta_window_grab_all_keys (MetaWindow  *window,
                            guint32      timestamp)
 {
   Window grabwindow;
-  gboolean retval;
+  gboolean retval = TRUE;
 
   if (window->all_keys_grabbed)
     return FALSE;
@@ -1804,25 +1813,29 @@ meta_window_grab_all_keys (MetaWindow  *window,
               window->desc);
   meta_window_focus (window, timestamp);
 
-  grabwindow = meta_window_x11_get_toplevel_xwindow (window);
-
-  meta_topic (META_DEBUG_KEYBINDINGS,
-              "Grabbing all keys on window %s\n", window->desc);
-  retval = grab_keyboard (grabwindow, timestamp, XIGrabModeAsync);
-  if (retval)
+  if (!meta_is_wayland_compositor ())
     {
-      window->keys_grabbed = FALSE;
-      window->all_keys_grabbed = TRUE;
-      window->grab_on_frame = window->frame != NULL;
+      grabwindow = meta_window_x11_get_toplevel_xwindow (window);
+
+      meta_topic (META_DEBUG_KEYBINDINGS,
+                  "Grabbing all keys on window %s\n", window->desc);
+      retval = grab_keyboard (grabwindow, timestamp, XIGrabModeAsync);
+      if (retval)
+        {
+          window->keys_grabbed = FALSE;
+          window->all_keys_grabbed = TRUE;
+          window->grab_on_frame = window->frame != NULL;
+        }
     }
 
   return retval;
 }
 
 void
-meta_window_ungrab_all_keys (MetaWindow *window, guint32 timestamp)
+meta_window_ungrab_all_keys (MetaWindow *window,
+                             guint32     timestamp)
 {
-  if (window->all_keys_grabbed)
+  if (!meta_is_wayland_compositor () && window->all_keys_grabbed)
     {
       ungrab_keyboard (timestamp);
 

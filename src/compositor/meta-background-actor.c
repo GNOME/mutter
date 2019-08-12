@@ -179,6 +179,7 @@ struct _MetaBackgroundActor
   gboolean force_bilinear;
 
   cairo_region_t *clip_region;
+  cairo_region_t *unobscured_region;
 };
 
 static void cullable_iface_init (MetaCullableInterface *iface);
@@ -196,11 +197,21 @@ set_clip_region (MetaBackgroundActor *self,
 }
 
 static void
+set_unobscured_region (MetaBackgroundActor *self,
+                       cairo_region_t      *unobscured_region)
+{
+  g_clear_pointer (&self->unobscured_region, cairo_region_destroy);
+  if (unobscured_region)
+    self->unobscured_region = cairo_region_copy (unobscured_region);
+}
+
+static void
 meta_background_actor_dispose (GObject *object)
 {
   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (object);
 
   set_clip_region (self, NULL);
+  set_unobscured_region (self, NULL);
   meta_background_actor_set_background (self, NULL);
   if (self->pipeline)
     {
@@ -502,7 +513,8 @@ meta_background_actor_paint (ClutterActor *actor)
   ClutterActorBox actor_box;
   cairo_rectangle_int_t actor_pixel_rect;
   CoglFramebuffer *fb;
-  int i;
+  cairo_region_t *region;
+  int i, n_rects;
 
   if ((self->clip_region && cairo_region_is_empty (self->clip_region)))
     return;
@@ -524,27 +536,43 @@ meta_background_actor_paint (ClutterActor *actor)
 
   /* Now figure out what to actually paint.
    */
-  if (self->clip_region != NULL)
+  if (self->clip_region)
     {
-      int n_rects = cairo_region_num_rectangles (self->clip_region);
-      if (n_rects <= MAX_RECTS)
-        {
-           for (i = 0; i < n_rects; i++)
-             {
-               cairo_rectangle_int_t rect;
-               cairo_region_get_rectangle (self->clip_region, i, &rect);
-
-               if (!gdk_rectangle_intersect (&actor_pixel_rect, &rect, &rect))
-                 continue;
-
-               paint_clipped_rectangle (fb, self->pipeline, &rect, &self->texture_area);
-             }
-
-           return;
-        }
+      region = cairo_region_copy (self->clip_region);
+      cairo_region_intersect_rectangle (region, &actor_pixel_rect);
+    }
+  else
+    {
+      region = cairo_region_create_rectangle (&actor_pixel_rect);
     }
 
-  paint_clipped_rectangle (fb, self->pipeline, &actor_pixel_rect, &self->texture_area);
+  if (self->unobscured_region)
+    cairo_region_intersect (region, self->unobscured_region);
+
+  if (cairo_region_is_empty (region))
+    {
+      cairo_region_destroy (region);
+      return;
+    }
+
+  n_rects = cairo_region_num_rectangles (region);
+  if (n_rects <= MAX_RECTS)
+    {
+      for (i = 0; i < n_rects; i++)
+        {
+          cairo_rectangle_int_t rect;
+          cairo_region_get_rectangle (region, i, &rect);
+          paint_clipped_rectangle (fb, self->pipeline, &rect,
+                                   &self->texture_area);
+        }
+    }
+  else
+    {
+      cairo_rectangle_int_t rect;
+      cairo_region_get_extents (region, &rect);
+      paint_clipped_rectangle (fb, self->pipeline, &rect,
+                               &self->texture_area);
+    }
 }
 
 static void
@@ -798,6 +826,8 @@ meta_background_actor_cull_out (MetaCullable   *cullable,
                                 cairo_region_t *clip_region)
 {
   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (cullable);
+
+  set_unobscured_region (self, unobscured_region);
   set_clip_region (self, clip_region);
 }
 
@@ -805,6 +835,8 @@ static void
 meta_background_actor_reset_culling (MetaCullable *cullable)
 {
   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (cullable);
+
+  set_unobscured_region (self, NULL);
   set_clip_region (self, NULL);
 }
 

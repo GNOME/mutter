@@ -190,18 +190,24 @@ meta_window_destroy_frame (MetaWindow *window)
                   "Incrementing unmaps_pending on %s for reparent back to root\n", window->desc);
       window->unmaps_pending += 1;
     }
-  meta_stack_tracker_record_add (window->display->stack_tracker,
-                                 window->xwindow,
-                                 XNextRequest (x11_display->xdisplay));
-  XReparentWindow (x11_display->xdisplay,
-                   window->xwindow,
-                   x11_display->xroot,
-                   /* Using anything other than client root window coordinates
-                    * coordinates here means we'll need to ensure a configure
-                    * notify event is sent; see bug 399552.
-                    */
-                   window->frame->rect.x + borders.invisible.left,
-                   window->frame->rect.y + borders.invisible.top);
+
+  if (!x11_display->closing)
+    {
+      meta_stack_tracker_record_add (window->display->stack_tracker,
+                                     window->xwindow,
+                                     XNextRequest (x11_display->xdisplay));
+
+      XReparentWindow (x11_display->xdisplay,
+                       window->xwindow,
+                       x11_display->xroot,
+                       /* Using anything other than client root window coordinates
+                        * coordinates here means we'll need to ensure a configure
+                        * notify event is sent; see bug 399552.
+                        */
+                       window->frame->rect.x + borders.invisible.left,
+                       window->frame->rect.y + borders.invisible.top);
+    }
+
   meta_x11_error_trap_pop (x11_display);
 
   meta_ui_frame_unmanage (frame->ui_frame);

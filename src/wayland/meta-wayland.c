@@ -418,9 +418,9 @@ meta_wayland_init (void)
   meta_wayland_eglstream_controller_init (compositor);
 #endif
 
-  if (meta_should_autostart_x11_display ())
+  if (meta_get_x11_display_policy () != META_DISPLAY_POLICY_DISABLED)
     {
-      if (!meta_xwayland_start (&compositor->xwayland_manager, compositor->wayland_display))
+      if (!meta_xwayland_init (&compositor->xwayland_manager, compositor->wayland_display))
         g_error ("Failed to start X Wayland");
     }
 
@@ -443,7 +443,7 @@ meta_wayland_init (void)
       compositor->display_name = g_strdup (display_name);
     }
 
-  if (meta_should_autostart_x11_display ())
+  if (meta_get_x11_display_policy () != META_DISPLAY_POLICY_DISABLED)
     {
       set_gnome_env ("DISPLAY", meta_wayland_get_xwayland_display_name (compositor));
       set_gnome_env ("XAUTHORITY", meta_wayland_get_xwayland_auth_file (compositor));
@@ -471,7 +471,7 @@ meta_wayland_finalize (void)
 
   compositor = meta_wayland_compositor_get_default ();
 
-  meta_xwayland_stop (&compositor->xwayland_manager);
+  meta_xwayland_shutdown (&compositor->xwayland_manager);
   g_clear_pointer (&compositor->display_name, g_free);
 }
 

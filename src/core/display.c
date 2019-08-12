@@ -49,6 +49,7 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "clutter/x11/clutter-x11.h"
+#include "compositor/compositor-private.h"
 #include "core/bell.h"
 #include "core/boxes-private.h"
 #include "core/display-private.h"
@@ -643,10 +644,14 @@ meta_display_init_x11 (MetaDisplay  *display,
 
   display->x11_display = x11_display;
   g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
+
   meta_x11_display_create_guard_window (x11_display);
 
   if (!display->display_opening)
-    meta_display_manage_all_windows (display);
+    {
+      meta_display_manage_all_xwindows (display);
+      meta_compositor_redirect_x11_windows (display->compositor);
+    }
 
   return TRUE;
 }
@@ -758,7 +763,7 @@ meta_display_open (void)
   display->selection = meta_selection_new (display);
   meta_clipboard_manager_init (display);
 
-  if (meta_should_autostart_x11_display ())
+  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_MANDATORY)
     {
       if (!meta_display_init_x11 (display, &error))
         g_error ("Failed to start Xwayland: %s", error->message);
@@ -797,7 +802,7 @@ meta_display_open (void)
    * we start out with no windows.
    */
   if (!meta_is_wayland_compositor ())
-    meta_display_manage_all_windows (display);
+    meta_display_manage_all_xwindows (display);
 
   if (old_active_xwindow != None)
     {
@@ -1783,8 +1788,7 @@ meta_display_begin_grab_op (MetaDisplay *display,
   display->grab_anchor_root_y = root_y;
   display->grab_latest_motion_x = root_x;
   display->grab_latest_motion_y = root_y;
-  display->grab_last_moveresize_time.tv_sec = 0;
-  display->grab_last_moveresize_time.tv_usec = 0;
+  display->grab_last_moveresize_time = 0;
   display->grab_last_user_action_was_snap = FALSE;
   display->grab_frame_action = frame_action;
 
@@ -2448,7 +2452,7 @@ meta_resize_gravity_from_grab_op (MetaGrabOp op)
 }
 
 void
-meta_display_manage_all_windows (MetaDisplay *display)
+meta_display_manage_all_xwindows (MetaDisplay *display)
 {
   guint64 *_children;
   guint64 *children;
@@ -2462,7 +2466,8 @@ meta_display_manage_all_windows (MetaDisplay *display)
 
   for (i = 0; i < n_children; ++i)
     {
-      g_assert (META_STACK_ID_IS_X11 (children[i]));
+      if (!META_STACK_ID_IS_X11 (children[i]))
+        continue;
       meta_window_x11_new (display, children[i], TRUE,
                            META_COMP_EFFECT_NONE);
     }

@@ -48,6 +48,7 @@ typedef struct
   char *lock_file;
   int abstract_fd;
   int unix_fd;
+  guint xserver_grace_period_id;
   struct wl_display *wayland_display;
   struct wl_client *client;
   struct wl_resource *xserver_resource;
@@ -57,6 +58,8 @@ typedef struct
   GCancellable *xserver_died_cancellable;
   GSubprocess *proc;
   GMainLoop *init_loop;
+
+  GList *x11_windows;
 
   MetaXWaylandDnd *dnd;
 } MetaXWaylandManager;

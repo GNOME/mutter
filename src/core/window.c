@@ -1293,11 +1293,10 @@ _meta_window_shared_new (MetaDisplay         *display,
                       window->desc, window->transient_for->desc);
 
           set_workspace_state (window,
-                               window->transient_for->on_all_workspaces_requested,
+                               should_be_on_all_workspaces (window->transient_for),
                                window->transient_for->workspace);
         }
-
-      if (window->on_all_workspaces)
+      else if (window->on_all_workspaces)
         {
           meta_topic (META_DEBUG_PLACEMENT,
                       "Putting window %s on all workspaces\n",
@@ -5909,32 +5908,16 @@ meta_window_titlebar_is_onscreen (MetaWindow *window)
   return is_onscreen;
 }
 
-static double
-timeval_to_ms (const GTimeVal *timeval)
-{
-  return (timeval->tv_sec * G_USEC_PER_SEC + timeval->tv_usec) / 1000.0;
-}
-
-static double
-time_diff (const GTimeVal *first,
-	   const GTimeVal *second)
-{
-  double first_ms = timeval_to_ms (first);
-  double second_ms = timeval_to_ms (second);
-
-  return first_ms - second_ms;
-}
-
 static gboolean
 check_moveresize_frequency (MetaWindow *window,
 			    gdouble    *remaining)
 {
-  GTimeVal current_time;
+  int64_t current_time;
   const double max_resizes_per_second = 25.0;
   const double ms_between_resizes = 1000.0 / max_resizes_per_second;
   double elapsed;
 
-  g_get_current_time (&current_time);
+  current_time = g_get_real_time ();
 
   /* If we are throttling via _NET_WM_SYNC_REQUEST, we don't need
    * an artificial timeout-based throttled */
@@ -5942,7 +5925,7 @@ check_moveresize_frequency (MetaWindow *window,
       window->sync_request_alarm != None)
     return TRUE;
 
-  elapsed = time_diff (&current_time, &window->display->grab_last_moveresize_time);
+  elapsed = (current_time - window->display->grab_last_moveresize_time) / 1000;
 
   if (elapsed >= 0.0 && elapsed < ms_between_resizes)
     {
@@ -6359,7 +6342,7 @@ update_resize (MetaWindow *window,
 
   /* Store the latest resize time, if we actually resized. */
   if (window->rect.width != old.width || window->rect.height != old.height)
-    g_get_current_time (&window->display->grab_last_moveresize_time);
+    window->display->grab_last_moveresize_time = g_get_real_time ();
 }
 
 static void
@@ -7101,9 +7084,9 @@ meta_window_set_user_time (MetaWindow *window,
       if (meta_prefs_get_focus_new_windows () == G_DESKTOP_FOCUS_NEW_WINDOWS_STRICT &&
           window_is_terminal (window))
         window->display->allow_terminal_deactivation = FALSE;
-    }
 
-  g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_USER_TIME]);
+      g_object_notify_by_pspec (G_OBJECT (window), obj_props[PROP_USER_TIME]);
+    }
 }
 
 /**

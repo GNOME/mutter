@@ -288,13 +288,13 @@ is_argb32 (MetaWindowActor *self)
 }
 
 static gboolean
-is_non_opaque (MetaWindowActor *self)
+is_opaque (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
   MetaWindow *window = priv->window;
 
-  return is_argb32 (self) || (window->opacity != 0xFF);
+  return !is_argb32 (self) && (window->opacity == 0xFF);
 }
 
 static gboolean
@@ -647,7 +647,10 @@ clip_shadow_under_window (MetaWindowActor *self)
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
-  return is_non_opaque (self) && priv->window->frame;
+  if (priv->window->frame)
+    return TRUE;
+
+  return is_opaque (self);
 }
 
 static void
@@ -683,7 +686,8 @@ meta_window_actor_paint (ClutterActor *actor)
           meta_window_actor_get_shadow_bounds (self, appears_focused, &bounds);
           clip = cairo_region_create_rectangle (&bounds);
 
-          cairo_region_subtract (clip, frame_bounds);
+          if (frame_bounds)
+            cairo_region_subtract (clip, frame_bounds);
         }
 
       meta_shadow_paint (shadow,
@@ -787,7 +791,7 @@ meta_window_actor_has_shadow (MetaWindowActor *self)
    * Do not add shadows to non-opaque (ARGB32) windows, as we can't easily
    * generate shadows for them.
    */
-  if (is_non_opaque (self))
+  if (!is_opaque (self))
     return FALSE;
 
   /*
@@ -1351,7 +1355,8 @@ meta_window_actor_set_clip_region_beneath (MetaWindowActor *self,
           if (clip_shadow_under_window (self))
             {
               cairo_region_t *frame_bounds = meta_window_get_frame_bounds (priv->window);
-              cairo_region_subtract (priv->shadow_clip, frame_bounds);
+              if (frame_bounds)
+                cairo_region_subtract (priv->shadow_clip, frame_bounds);
             }
         }
       else
@@ -1365,9 +1370,28 @@ meta_window_actor_cull_out (MetaCullable   *cullable,
                             cairo_region_t *clip_region)
 {
   MetaWindowActor *self = META_WINDOW_ACTOR (cullable);
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (self);
 
   meta_cullable_cull_out_children (cullable, unobscured_region, clip_region);
   meta_window_actor_set_clip_region_beneath (self, clip_region);
+
+  if (unobscured_region && is_opaque (self))
+    {
+      cairo_region_t *region = meta_window_get_frame_bounds (priv->window);
+
+      if (region)
+        {
+          cairo_region_subtract (unobscured_region, region);
+        }
+      else
+        {
+          cairo_rectangle_int_t rect;
+          meta_window_get_frame_rect (priv->window, &rect);
+          rect.x = rect.y = 0;
+          cairo_region_subtract_rectangle (unobscured_region, &rect);
+        }
+    }
 }
 
 static void

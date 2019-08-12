@@ -433,7 +433,7 @@
  *
  * #ClutterActor allows accessing properties of #ClutterAction,
  * #ClutterEffect, and #ClutterConstraint instances associated to an actor
- * instance for animation purposes.
+ * instance for animation purposes, as well as its #ClutterLayoutManager.
  *
  * In order to access a specific #ClutterAction or a #ClutterConstraint
  * property it is necessary to set the #ClutterActorMeta:name property on the
@@ -456,6 +456,13 @@
  * using an explicit transition. The `rect` actor has a binding constraint
  * on the `origin` actor, and in its initial state is overlapping the actor
  * to which is bound to.
+ *
+ * As the actor has only one #ClutterLayoutManager, the syntax for accessing its
+ * properties is simpler:
+ *
+ * |[
+ *   @layout.<property-name>
+ * ]|
  *
  * |[<!-- language="C" -->
  * constraint = clutter_bind_constraint_new (origin, CLUTTER_BIND_X, 0.0);
@@ -14919,6 +14926,30 @@ clutter_scriptable_iface_init (ClutterScriptableIface *iface)
   iface->set_custom_property = clutter_actor_set_custom_property;
 }
 
+static gboolean
+get_layout_from_animation_property (ClutterActor  *actor,
+                                    const gchar   *name,
+                                    gchar        **name_p)
+{
+  g_auto (GStrv) tokens = NULL;
+
+  if (!g_str_has_prefix (name, "@layout"))
+    return FALSE;
+
+  tokens = g_strsplit (name, ".", -1);
+  if (tokens == NULL || g_strv_length (tokens) != 2)
+    {
+      CLUTTER_NOTE (ANIMATION, "Invalid property name '%s'",
+                    name + 1);
+      return FALSE;
+    }
+
+  if (name_p != NULL)
+    *name_p = g_strdup (tokens[1]);
+
+  return TRUE;
+}
+
 static ClutterActorMeta *
 get_meta_from_animation_property (ClutterActor  *actor,
                                   const gchar   *name,
@@ -14981,18 +15012,31 @@ static GParamSpec *
 clutter_actor_find_property (ClutterAnimatable *animatable,
                              const gchar       *property_name)
 {
+  ClutterActor *actor = CLUTTER_ACTOR (animatable);
   ClutterActorMeta *meta = NULL;
   GObjectClass *klass = NULL;
   GParamSpec *pspec = NULL;
   gchar *p_name = NULL;
+  gboolean use_layout;
 
-  meta = get_meta_from_animation_property (CLUTTER_ACTOR (animatable),
-                                           property_name,
-                                           &p_name);
+  use_layout = get_layout_from_animation_property (actor,
+                                                   property_name,
+                                                   &p_name);
+
+  if (!use_layout)
+    meta = get_meta_from_animation_property (actor,
+                                             property_name,
+                                             &p_name);
 
   if (meta != NULL)
     {
       klass = G_OBJECT_GET_CLASS (meta);
+
+      pspec = g_object_class_find_property (klass, p_name);
+    }
+  else if (use_layout)
+    {
+      klass = G_OBJECT_GET_CLASS (actor->priv->layout_manager);
 
       pspec = g_object_class_find_property (klass, p_name);
     }
@@ -15013,15 +15057,24 @@ clutter_actor_get_initial_state (ClutterAnimatable *animatable,
                                  const gchar       *property_name,
                                  GValue            *initial)
 {
+  ClutterActor *actor = CLUTTER_ACTOR (animatable);
   ClutterActorMeta *meta = NULL;
   gchar *p_name = NULL;
+  gboolean use_layout;
 
-  meta = get_meta_from_animation_property (CLUTTER_ACTOR (animatable),
-                                           property_name,
-                                           &p_name);
+  use_layout = get_layout_from_animation_property (actor,
+                                                   property_name,
+                                                   &p_name);
+
+  if (!use_layout)
+    meta = get_meta_from_animation_property (actor,
+                                             property_name,
+                                             &p_name);
 
   if (meta != NULL)
     g_object_get_property (G_OBJECT (meta), p_name, initial);
+  else if (use_layout)
+    g_object_get_property (G_OBJECT (actor->priv->layout_manager), p_name, initial);
   else
     g_object_get_property (G_OBJECT (animatable), property_name, initial);
 
@@ -15174,12 +15227,21 @@ clutter_actor_set_final_state (ClutterAnimatable *animatable,
   ClutterActor *actor = CLUTTER_ACTOR (animatable);
   ClutterActorMeta *meta = NULL;
   gchar *p_name = NULL;
+  gboolean use_layout;
 
-  meta = get_meta_from_animation_property (actor,
-                                           property_name,
-                                           &p_name);
+  use_layout = get_layout_from_animation_property (actor,
+                                                   property_name,
+                                                   &p_name);
+
+  if (!use_layout)
+    meta = get_meta_from_animation_property (actor,
+                                             property_name,
+                                             &p_name);
+
   if (meta != NULL)
     g_object_set_property (G_OBJECT (meta), p_name, final);
+  else if (use_layout)
+    g_object_set_property (G_OBJECT (actor->priv->layout_manager), p_name, final);
   else
     {
       GObjectClass *obj_class = G_OBJECT_GET_CLASS (animatable);

@@ -191,7 +191,7 @@ struct _MetaDisplay
   MetaRectangle grab_initial_window_pos;
   int         grab_initial_x, grab_initial_y;  /* These are only relevant for */
   gboolean    grab_threshold_movement_reached; /* raise_on_click == FALSE.    */
-  GTimeVal    grab_last_moveresize_time;
+  int64_t     grab_last_moveresize_time;
   MetaEdgeResistanceData *grab_edge_resistance_data;
   unsigned int grab_last_user_action_was_snap;
 
@@ -264,7 +264,7 @@ struct _MetaDisplayClass
 
 gboolean      meta_display_open                (void);
 
-void meta_display_manage_all_windows (MetaDisplay *display);
+void meta_display_manage_all_xwindows (MetaDisplay *display);
 void meta_display_unmanage_windows   (MetaDisplay *display,
                                       guint32      timestamp);
 

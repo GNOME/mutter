@@ -74,4 +74,6 @@ MetaInhibitShortcutsDialog * meta_compositor_create_inhibit_shortcuts_dialog (Me
 
 void meta_compositor_locate_pointer (MetaCompositor *compositor);
 
+void meta_compositor_redirect_x11_windows (MetaCompositor *compositor);
+
 #endif /* META_COMPOSITOR_PRIVATE_H */

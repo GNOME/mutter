@@ -179,8 +179,11 @@ enum
   PROP_USE_ALPHA,
   PROP_KEY_FOCUS,
   PROP_NO_CLEAR_HINT,
-  PROP_ACCEPT_FOCUS
+  PROP_ACCEPT_FOCUS,
+  PROP_LAST
 };
+
+static GParamSpec *obj_props[PROP_LAST] = { NULL, };
 
 enum
 {
@@ -839,7 +842,7 @@ clutter_stage_emit_key_focus_event (ClutterStage *stage,
   else
     g_signal_emit_by_name (priv->key_focused_actor, "key-focus-out");
 
-  g_object_notify (G_OBJECT (stage), "key-focus");
+  g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
 }
 
 static void
@@ -1877,7 +1880,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
-  GParamSpec *pspec;
 
   gobject_class->constructed = clutter_stage_constructed;
   gobject_class->set_property = clutter_stage_set_property;
@@ -1908,14 +1910,13 @@ clutter_stage_class_init (ClutterStageClass *klass)
    *
    * Whether the mouse pointer should be visible
    */
-  pspec = g_param_spec_boolean ("cursor-visible",
-                                P_("Cursor Visible"),
-                                P_("Whether the mouse pointer is visible on the main stage"),
-                                TRUE,
-                                CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class,
-                                   PROP_CURSOR_VISIBLE,
-                                   pspec);
+  obj_props[PROP_CURSOR_VISIBLE] =
+      g_param_spec_boolean ("cursor-visible",
+                            P_("Cursor Visible"),
+                            P_("Whether the mouse pointer is visible on the main stage"),
+                            TRUE,
+                            CLUTTER_PARAM_READWRITE);
+
   /**
    * ClutterStage:color:
    *
@@ -1924,13 +1925,13 @@ clutter_stage_class_init (ClutterStageClass *klass)
    * Deprecated: 1.10: Use the #ClutterActor:background-color property of
    *   #ClutterActor instead.
    */
-  pspec = clutter_param_spec_color ("color",
-                                    P_("Color"),
-                                    P_("The color of the stage"),
-                                    &default_stage_color,
-                                    CLUTTER_PARAM_READWRITE |
-                                    G_PARAM_DEPRECATED);
-  g_object_class_install_property (gobject_class, PROP_COLOR, pspec);
+  obj_props[PROP_COLOR] =
+      clutter_param_spec_color ("color",
+                                P_("Color"),
+                                P_("The color of the stage"),
+                                &default_stage_color,
+                                CLUTTER_PARAM_READWRITE |
+                                G_PARAM_DEPRECATED);
 
   /**
    * ClutterStage:perspective:
@@ -1940,14 +1941,12 @@ clutter_stage_class_init (ClutterStageClass *klass)
    *
    * Since: 0.8
    */
-  pspec = g_param_spec_boxed ("perspective",
-                              P_("Perspective"),
-                              P_("Perspective projection parameters"),
-                              CLUTTER_TYPE_PERSPECTIVE,
-                              CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class,
-                                   PROP_PERSPECTIVE,
-                                   pspec);
+  obj_props[PROP_PERSPECTIVE] =
+      g_param_spec_boxed ("perspective",
+                          P_("Perspective"),
+                          P_("Perspective projection parameters"),
+                          CLUTTER_TYPE_PERSPECTIVE,
+                          CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterStage:title:
@@ -1956,12 +1955,12 @@ clutter_stage_class_init (ClutterStageClass *klass)
    *
    * Since: 0.4
    */
-  pspec = g_param_spec_string ("title",
-                               P_("Title"),
-                               P_("Stage Title"),
-                               NULL,
-                               CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class, PROP_TITLE, pspec);
+  obj_props[PROP_TITLE] =
+      g_param_spec_string ("title",
+                           P_("Title"),
+                           P_("Stage Title"),
+                           NULL,
+                           CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterStage:use-fog:
@@ -1974,12 +1973,12 @@ clutter_stage_class_init (ClutterStageClass *klass)
    *
    * Deprecated: 1.10: This property does not do anything.
    */
-  pspec = g_param_spec_boolean ("use-fog",
-                                P_("Use Fog"),
-                                P_("Whether to enable depth cueing"),
-                                FALSE,
-                                CLUTTER_PARAM_READWRITE | G_PARAM_DEPRECATED);
-  g_object_class_install_property (gobject_class, PROP_USE_FOG, pspec);
+  obj_props[PROP_USE_FOG] =
+      g_param_spec_boolean ("use-fog",
+                            P_("Use Fog"),
+                            P_("Whether to enable depth cueing"),
+                            FALSE,
+                            CLUTTER_PARAM_READWRITE | G_PARAM_DEPRECATED);
 
   /**
    * ClutterStage:fog:
@@ -1991,12 +1990,12 @@ clutter_stage_class_init (ClutterStageClass *klass)
    *
    * Deprecated: 1.10: This property does not do anything.
    */
-  pspec = g_param_spec_boxed ("fog",
-                              P_("Fog"),
-                              P_("Settings for the depth cueing"),
-                              CLUTTER_TYPE_FOG,
-                              CLUTTER_PARAM_READWRITE | G_PARAM_DEPRECATED);
-  g_object_class_install_property (gobject_class, PROP_FOG, pspec);
+  obj_props[PROP_FOG] =
+      g_param_spec_boxed ("fog",
+                          P_("Fog"),
+                          P_("Settings for the depth cueing"),
+                          CLUTTER_TYPE_FOG,
+                          CLUTTER_PARAM_READWRITE | G_PARAM_DEPRECATED);
 
   /**
    * ClutterStage:use-alpha:
@@ -2008,12 +2007,12 @@ clutter_stage_class_init (ClutterStageClass *klass)
    *
    * Since: 1.2
    */
-  pspec = g_param_spec_boolean ("use-alpha",
-                                P_("Use Alpha"),
-                                P_("Whether to honour the alpha component of the stage color"),
-                                FALSE,
-                                CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class, PROP_USE_ALPHA, pspec);
+  obj_props[PROP_USE_ALPHA] =
+      g_param_spec_boolean ("use-alpha",
+                            P_("Use Alpha"),
+                            P_("Whether to honour the alpha component of the stage color"),
+                            FALSE,
+                            CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterStage:key-focus:
@@ -2025,12 +2024,12 @@ clutter_stage_class_init (ClutterStageClass *klass)
    *
    * Since: 1.2
    */
-  pspec = g_param_spec_object ("key-focus",
-                               P_("Key Focus"),
-                               P_("The currently key focused actor"),
-                               CLUTTER_TYPE_ACTOR,
-                               CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class, PROP_KEY_FOCUS, pspec);
+  obj_props[PROP_KEY_FOCUS] =
+      g_param_spec_object ("key-focus",
+                           P_("Key Focus"),
+                           P_("The currently key focused actor"),
+                           CLUTTER_TYPE_ACTOR,
+                           CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterStage:no-clear-hint:
@@ -2042,12 +2041,12 @@ clutter_stage_class_init (ClutterStageClass *klass)
    *
    * Since: 1.4
    */
-  pspec = g_param_spec_boolean ("no-clear-hint",
-                                P_("No Clear Hint"),
-                                P_("Whether the stage should clear its contents"),
-                                FALSE,
-                                CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class, PROP_NO_CLEAR_HINT, pspec);
+  obj_props[PROP_NO_CLEAR_HINT] =
+      g_param_spec_boolean ("no-clear-hint",
+                            P_("No Clear Hint"),
+                            P_("Whether the stage should clear its contents"),
+                            FALSE,
+                            CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterStage:accept-focus:
@@ -2056,12 +2055,14 @@ clutter_stage_class_init (ClutterStageClass *klass)
    *
    * Since: 1.6
    */
-  pspec = g_param_spec_boolean ("accept-focus",
-                                P_("Accept Focus"),
-                                P_("Whether the stage should accept focus on show"),
-                                TRUE,
-                                CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class, PROP_ACCEPT_FOCUS, pspec);
+  obj_props[PROP_ACCEPT_FOCUS] =
+      g_param_spec_boolean ("accept-focus",
+                            P_("Accept Focus"),
+                            P_("Whether the stage should accept focus on show"),
+                            TRUE,
+                            CLUTTER_PARAM_READWRITE);
+
+  g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 
   /**
    * ClutterStage::activate:
@@ -2359,7 +2360,7 @@ clutter_stage_set_color (ClutterStage       *stage,
 {
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), color);
 
-  g_object_notify (G_OBJECT (stage), "color");
+  g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_COLOR]);
 }
 
 /**
@@ -2649,7 +2650,8 @@ clutter_stage_show_cursor (ClutterStage *stage)
 
           iface->set_cursor_visible (impl, TRUE);
 
-          g_object_notify (G_OBJECT (stage), "cursor-visible");
+          g_object_notify_by_pspec (G_OBJECT (stage),
+                                    obj_props[PROP_CURSOR_VISIBLE]);
         }
     }
 }
@@ -2682,7 +2684,8 @@ clutter_stage_hide_cursor (ClutterStage *stage)
 
           iface->set_cursor_visible (impl, FALSE);
 
-          g_object_notify (G_OBJECT (stage), "cursor-visible");
+          g_object_notify_by_pspec (G_OBJECT (stage),
+                                    obj_props[PROP_CURSOR_VISIBLE]);
         }
     }
 }
@@ -2894,7 +2897,7 @@ clutter_stage_set_title (ClutterStage       *stage,
   if (CLUTTER_STAGE_WINDOW_GET_IFACE(impl)->set_title != NULL)
     CLUTTER_STAGE_WINDOW_GET_IFACE (impl)->set_title (impl, priv->title);
 
-  g_object_notify (G_OBJECT (stage), "title");
+  g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_TITLE]);
 }
 
 /**
@@ -2994,7 +2997,7 @@ clutter_stage_set_key_focus (ClutterStage *stage,
   else
     g_signal_emit_by_name (stage, "key-focus-in");
 
-  g_object_notify (G_OBJECT (stage), "key-focus");
+  g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
 }
 
 /**
@@ -3672,7 +3675,7 @@ clutter_stage_set_use_alpha (ClutterStage *stage,
 
       clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
 
-      g_object_notify (G_OBJECT (stage), "use-alpha");
+      g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_USE_ALPHA]);
     }
 }
 
@@ -3886,7 +3889,7 @@ clutter_stage_set_no_clear_hint (ClutterStage *stage,
 
   priv->stage_hints = new_hints;
 
-  g_object_notify (G_OBJECT (stage), "no-clear-hint");
+  g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_NO_CLEAR_HINT]);
 }
 
 /**
@@ -4128,7 +4131,7 @@ clutter_stage_set_accept_focus (ClutterStage *stage,
   if (priv->accept_focus != accept_focus)
     {
       _clutter_stage_window_set_accept_focus (priv->impl, accept_focus);
-      g_object_notify (G_OBJECT (stage), "accept-focus");
+      g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_ACCEPT_FOCUS]);
     }
 }
 
