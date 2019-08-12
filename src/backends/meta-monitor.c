@@ -1658,7 +1658,8 @@ meta_monitor_calculate_mode_scale (MetaMonitor     *monitor,
 }
 
 static gboolean
-is_logical_size_large_enough (gint width, gint height)
+is_logical_size_large_enough (int width,
+                              int height)
 {
   return width >= MINIMUM_LOGICAL_WIDTH &&
          height >= MINIMUM_LOGICAL_HEIGHT;
