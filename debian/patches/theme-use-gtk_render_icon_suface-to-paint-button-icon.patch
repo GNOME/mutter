@@ -1,0 +1,46 @@
+From: =?utf-8?b?Ik1hcmNvIFRyZXZpc2FuIChUcmV2acOxbyki?= <mail@3v1n0.net>
+Date: Fri, 30 Mar 2018 14:13:41 -0600
+Subject: theme: use gtk_render_icon_suface to paint button icon
+
+This will properly take care of the icon transformations
+and of the shadow.
+
+Fixes #100
+
+Bug: https://gitlab.gnome.org/GNOME/mutter/issues/100
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/mutter/+bug/1764558
+Forwarded: yes, https://gitlab.gnome.org/GNOME/mutter/merge_requests/62
+---
+ src/ui/theme.c | 18 ++++--------------
+ 1 file changed, 4 insertions(+), 14 deletions(-)
+
+diff --git a/src/ui/theme.c b/src/ui/theme.c
+index 9b8ddff..2e1f145 100644
+--- a/src/ui/theme.c
++++ b/src/ui/theme.c
+@@ -872,21 +872,11 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
+ 
+           if (surface)
+             {
+-              float width, height;
+-              int x, y;
+-
+-              width = cairo_image_surface_get_width (surface) / scale;
+-              height = cairo_image_surface_get_height (surface) / scale;
+-              x = button_rect.x + (button_rect.width - layout->icon_size) / 2;
+-              y = button_rect.y + (button_rect.height - layout->icon_size) / 2;
+-
+-              cairo_translate (cr, x, y);
+-              cairo_scale (cr,
+-                           layout->icon_size / width,
+-                           layout->icon_size / height);
+-              cairo_set_source_surface (cr, surface, 0, 0);
+-              cairo_paint (cr);
++              double x, y;
++              x = button_rect.x + (button_rect.width - layout->icon_size) / 2.0;
++              y = button_rect.y + (button_rect.height - layout->icon_size) / 2.0;
+ 
++              gtk_render_icon_surface (style, cr, surface, x, y);
+               cairo_surface_destroy (surface);
+             }
+         }

@@ -1,0 +1,2 @@
+# libmutter-cogl-gles2 doesn't use anything from libc6.so
+libmutter-5-0: library-not-linked-against-libc usr/lib/*/mutter-*/libmutter-cogl-gles2-*.so.*

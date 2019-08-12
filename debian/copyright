@@ -1,0 +1,431 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://download.gnome.org/sources/mutter/
+
+Files:
+ *
+Copyright:
+   Copyright © 2001-2008  Havoc Pennington, Red Hat, Inc., and others
+   Copyright © 2002       The Gnome Foundation
+   Copyright © 2007       The GNOME Project
+   Copyright © 2002       Ross Burton
+   Copyright © 2004-2006  Elijah Newren
+   Copyright © 2001       Dominik Vogt, Matthias Clasen, and fvwm2 team
+   Copyright © 2003-2004  Rob Adams
+   Copyright © 2002       Sun Microsystems, Inc.
+   Copyright © 1986-1998  The Open Group
+   Copyright © 1987       Digital Equipment Corporation
+   Copyright © 2001       Anders Carlsson
+   Copyright © 2008       Thomas Thurman
+   Copyright © 1995-2000  GTK+ Team
+   Copyright © 1988       Wyse Technology, Inc.,
+   Copyright © 2008       Iain Holmes
+   Copyright © 2000-2001  Eazel, Inc.
+   Copyright © 2001       Ximian, Inc.
+   Copyright © 2002       Gaute Lindkvist
+   Copyright © 2002       James M. Cape
+   Copyright © 2002       Garrett LeSage
+   Copyright © 2002       Tuomas Kuosmanen
+   Copyright © 2002       Jorn Baayen
+   Copyright © 1997-2000  Dan Pascu and Alfredo Kojima
+   Copyright © 1995-1997  Peter Mattis, Spencer Kimball and Josh MacDonald
+   Copyright © 1998       Tim Janik
+   Copyright © 1999-2017  Free Software Foundation, Inc.
+   Copyright © 1995-1997  Ulrich Drepper
+   Copyright © 1994       X Consortium
+   Copyright © 2004-2008  Rodney Dawes
+   Copyright © 2004       Scott James Remnant
+   Copyright © 2002       Simos Xenitellis
+   Copyright © 2003-2006  Miloslav Trmac
+   Copyright © 2008       GNOME i18n Project for Vietnamese
+   Copyright © 2003-2006  Sharif FarsiWeb, Inc.
+   Copyright © 2003       Åsmund Skjæveland.
+   Copyright © 2005-2011  Canonical Ltd. and Rosetta Contributors
+   Copyright © 2004-2006  Adam Weinberger and the GNOME Foundation
+   Copyright © 2004       Kakilik Project
+   Copyright ©            Croatiann team
+   Copyright © 2007-2008  OpenedHand
+   Copyright © 2008-2017  Intel Corporation
+   Copyright © 2008       Matthew Allum
+   Copyright © 2002       Kjartan Maraas
+   Copyright © 2002       Keld simonsen
+   Copyright © 2002       Ole Laursen
+   Copyright © 2004-2005  Martin Willemoes Hansen
+   Copyright © 2006       Lasse Bang Mikkelsen
+   Copyright © 2008       Kenneth Nielsen
+   Copyright © 2011       Joe Hansen
+   Copyright © 2007-2018  Ask Hjorth Larsen
+   Copyright © 2002       Simos Xenitellis
+   Copyright © 2001-2018  Red Hat Inc
+   Copyright © 2016       Hyungwon Hwang
+   Copyright © 2001-2008  Havoc Pennington
+   Copyright © 2009       Sander Dijkhuis
+   Copyright © 2005-2007  Olivier Fourdan
+   Copyright © 2013       Keith Packard
+   Copyright © 2014       Endless Mobile
+License: GPL-2+
+
+Files:
+ cogl/*
+ src/backends/edid-parse.c
+ src/backends/meta-egl-ext.h
+ src/backends/native/meta-renderer-native.c
+Copyright:
+ 1999-2005 Brian Paul
+ 2007-2014 Intel Corporation
+ 2007-2008 OpenedHand
+ 2008 Tungsten Graphics Inc
+ 2011-2012 Collabora Ltd
+ 2007-2016 Red Hat Inc
+License: Expat
+
+Files:
+ clutter/clutter/*
+ src/backends/edid.h
+ src/core/meta-fraction.c
+ src/wayland/meta-wayland-pointer-gesture-pinch.h
+ src/wayland/meta-wayland-pointer-gesture-swipe.h
+ src/wayland/meta-wayland-pointer-gestures.h
+ src/wayland/meta-wayland-pointer.h
+ src/wayland/meta-wayland-tablet-manager.h
+ src/wayland/meta-wayland-tablet-pad-group.h
+ src/wayland/meta-wayland-tablet-pad-ring.h
+ src/wayland/meta-wayland-tablet-pad-strip.h
+ src/wayland/meta-wayland-tablet-pad.h
+ src/wayland/meta-wayland-tablet-seat.h
+ src/wayland/meta-wayland-tablet-tool.h
+ src/wayland/meta-wayland-tablet.h
+ src/wayland/meta-wayland-touch.h
+Copyright:
+ 1999-2000 Erik Walthinsen
+ 2001-2003 Sun Microsystems Inc
+ 2006-2008 OpenedHand Ltd
+ 2007-2018 Red Hat, Inc
+ 2007-2015 Intel Corporation
+ 2008-2009 Igalia, S.L.
+ 2010-2012 Inclusive Design Research Centre, OCAD University
+ 2011 Robert Bosch Car Multimedia GmbH
+ 2012-2014 Collabora Ltd
+ 2012 Bastian Winkler
+ 2013-2015 Emmanuele Bassi
+ 2014 Jonas Ådahl
+License: LGPL-2+
+
+Files:
+ cogl/cogl/cogl-list.c
+ cogl/cogl/cogl-list.h
+ src/compositor/meta-sync-ring.c
+ src/wayland/meta-wayland-data-device.c
+ src/wayland/meta-wayland-data-device.h
+ src/wayland/meta-wayland-keyboard.c
+ src/wayland/meta-wayland-keyboard.h
+ src/wayland/meta-wayland-pointer.c
+ src/wayland/meta-wayland-popup.c
+ src/wayland/meta-wayland-popup.h
+ src/wayland/meta-xwayland-selection.c
+ src/wayland/protocol/gtk-text-input.xml
+ clutter/clutter/x11/xsettings/xsettings-client.c
+ clutter/clutter/x11/xsettings/xsettings-client.h
+ clutter/clutter/x11/xsettings/xsettings-common.c
+ clutter/clutter/x11/xsettings/xsettings-common.h
+Copyright:
+ 2001-2015 Red Hat Inc
+ 2008-2011 Kristian Høgsberg
+ 2011-2013 Intel Corporation
+ 2011 NVIDIA Corporation
+License: NTP-BSD-variant
+
+Files:
+ cogl/cogl/cogl-point-in-poly.c
+Copyright:
+ 1970-2003 Wm. Randolph Franklin
+ 2011 Intel Corporation
+License: WRF-BSD-variant
+
+Files:
+ cogl/cogl-path/tesselator/dict-list.h
+ cogl/cogl-path/tesselator/dict.c
+ cogl/cogl-path/tesselator/dict.h
+ cogl/cogl-path/tesselator/geom.c
+ cogl/cogl-path/tesselator/geom.h
+ cogl/cogl-path/tesselator/mesh.c
+ cogl/cogl-path/tesselator/mesh.h
+ cogl/cogl-path/tesselator/normal.c
+ cogl/cogl-path/tesselator/normal.h
+ cogl/cogl-path/tesselator/priorityq-heap.c
+ cogl/cogl-path/tesselator/priorityq-heap.h
+ cogl/cogl-path/tesselator/priorityq-sort.h
+ cogl/cogl-path/tesselator/priorityq.c
+ cogl/cogl-path/tesselator/priorityq.h
+ cogl/cogl-path/tesselator/render.c
+ cogl/cogl-path/tesselator/render.h
+ cogl/cogl-path/tesselator/sweep.c
+ cogl/cogl-path/tesselator/sweep.h
+ cogl/cogl-path/tesselator/tess.c
+ cogl/cogl-path/tesselator/tess.h
+ cogl/cogl-path/tesselator/tesselator.h
+ cogl/cogl-path/tesselator/tessmono.c
+ cogl/cogl-path/tesselator/tessmono.h
+Copyright:
+ 1991-2000 Silicon Graphics Inc
+ 2010 Intel Corporation
+License: SGI-B-2.0
+
+Files:
+ src/x11/mutter-Xatomtype.h
+Copyright:
+ 1987-1998 The Open Group
+ 1987 Digital Equipment Corporation
+License: DEC-BSD-variant and OpenGroup-BSD-variant
+
+Files:
+ src/x11/xprops.c
+Copyright:
+ 1987-1998 The Open Group
+ 1987 Digital Equipment Corporation
+ 1998 Wyse Technology Inc
+ 2001 Havoc Pennington
+ 2002 Red Hat Inc
+License: DEC-BSD-variant and OpenGroup-BSD-variant and GPL-2+
+
+Files:
+ clutter/tests/interactive/test-rotate-zoom.c
+ clutter/tests/interactive/test-touch-events.c
+Copyright:
+ 2012 Collabora Ltd
+ 2013 Intel Corporation
+License: LGPL-2.1
+
+Files:
+ clutter/clutter/x11/clutter-xkb-a11y-x11.c
+ clutter/clutter/x11/clutter-xkb-a11y-x11.h
+ clutter/tests/conform/events-touch.c
+Copyright:
+ 2001 Ximian, Inc
+ 2007 William Jon McCann
+ 2009-2017 Red Hat, Inc
+ 2012 Collabora Ltd
+License: GPL-2+
+
+Files:
+ m4/gettext.m4
+ m4/iconv.m4
+ m4/intlmacosx.m4
+ m4/introspection.m4
+ m4/lib*.m4
+ m4/lt*.m4
+ m4/nls.m4
+ m4/po.m4
+ m4/progtest.m4
+Copyright:
+ 1995-2016 Free Software Foundation, Inc.
+ 2009 Johan Dahlin
+License: FSF-unlimited
+ This file is free software; the Free Software Foundation
+ gives unlimited permission to copy and/or distribute it,
+ with or without modifications, as long as this notice is preserved.
+Comment:
+ Files not owned by the FSF say "the author(s)" instead of
+ "the Free Software Foundation".
+
+Files:
+ m4/pkg.m4
+Copyright:
+ 2004 Scott James Remnant
+ 2012-2015 Dan Nicholson
+License: GPL-2+ with Autoconf exception
+
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+Comment:
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in
+ /usr/share/common-licenses/GPL-2.
+
+License: GPL-2+ with Autoconf exception
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ As a special exception to the GNU General Public License, if you
+ distribute this file as part of a program that contains a
+ configuration script generated by Autoconf, you may include it under
+ the same distribution terms that you use for the rest of that
+ program.
+Comment:
+ On Debian systems, the complete text of the GNU General
+ Public License version 2 can be found in
+ /usr/share/common-licenses/GPL-2.
+
+License: LGPL-2+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later version.
+ .
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+Comment:
+ On Debian systems, the complete text of the GNU Library General
+ Public License version 2 can be found in
+ /usr/share/common-licenses/LGPL-2, and the complete text of the
+ GNU Lesser General Public License version 2.1 can be found in
+ /usr/share/common-licenses/LGPL-2.1.
+
+License: LGPL-2.1
+ This program is free software; you can redistribute it and/or modify it
+ under the terms and conditions of the GNU Lesser General Public License,
+ version 2.1, as published by the Free Software Foundation.
+ .
+ This program is distributed in the hope it will be useful, but WITHOUT ANY
+ WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for
+ more details.
+Comment:
+ On Debian systems, the complete text of the GNU Lesser General Public
+ License version 2.1 can be found in /usr/share/common-licenses/LGPL-2.1.
+
+License: Expat
+ Permission is hereby granted, free of charge, to any person
+ obtaining a copy of this software and associated documentation
+ files (the "Software"), to deal in the Software without
+ restriction, including without limitation the rights to use, copy,
+ modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+License: NTP-BSD-variant
+ Permission to use, copy, modify, distribute, and sell this software and its
+ documentation for any purpose is hereby granted without fee, provided that
+ the above copyright notice appear in all copies and that both that copyright
+ notice and this permission notice appear in supporting documentation, and
+ that the name of the copyright holders not be used in advertising or
+ publicity pertaining to distribution of the software without specific,
+ written prior permission.  The copyright holders make no representations
+ about the suitability of this software for any purpose.  It is provided "as
+ is" without express or implied warranty.
+ .
+ THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,
+ INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO
+ EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY SPECIAL, INDIRECT OR
+ CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,
+ DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+ TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
+ OF THIS SOFTWARE.
+
+License: WRF-BSD-variant
+ Permission is hereby granted, free of charge, to any person obtaining
+ a copy of this software and associated documentation files (the
+ "Software"), to deal in the Software without restriction, including
+ without limitation the rights to use, copy, modify, merge, publish,
+ distribute, sublicense, and/or sell copies of the Software, and to
+ permit persons to whom the Software is furnished to do so, subject to
+ the following conditions:
+ .
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimers.
+ 2. Redistributions in binary form must reproduce the above
+    copyright notice in the documentation and/or other materials
+    provided with the distribution.
+ 3. The name of W. Randolph Franklin may not be used to endorse or
+    promote products derived from this Software without specific
+    prior written permission.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+License: OpenGroup-BSD-variant
+ Permission to use, copy, modify, distribute, and sell this software and its
+ documentation for any purpose is hereby granted without fee, provided that
+ the above copyright notice appear in all copies and that both that
+ copyright notice and this permission notice appear in supporting
+ documentation.
+ .
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ OPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
+ AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ .
+ Except as contained in this notice, the name of The Open Group shall not be
+ used in advertising or otherwise to promote the sale, use or other dealings
+ in this Software without prior written authorization from The Open Group.
+
+License: DEC-BSD-variant
+ Permission to use, copy, modify, and distribute this software and its
+ documentation for any purpose and without fee is hereby granted,
+ provided that the above copyright notice appear in all copies and that
+ both that copyright notice and this permission notice appear in
+ supporting documentation, and that the name of Digital not be
+ used in advertising or publicity pertaining to distribution of the
+ software without specific, written prior permission.
+ .
+ DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+ ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
+ DIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR
+ ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+ WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+ ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+ SOFTWARE.
+
+License: SGI-B-2.0
+ Permission is hereby granted, free of charge, to any person obtaining a
+ copy of this software and associated documentation files (the "Software"),
+ to deal in the Software without restriction, including without limitation
+ the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ and/or sell copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice including the dates of first publication and
+ either this permission notice or a reference to
+ http://oss.sgi.com/projects/FreeB/
+ shall be included in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ SILICON GRAPHICS, INC. BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
+ OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+ .
+ Except as contained in this notice, the name of Silicon Graphics, Inc.
+ shall not be used in advertising or otherwise to promote the sale, use or
+ other dealings in this Software without prior written authorization from
+ Silicon Graphics, Inc.
