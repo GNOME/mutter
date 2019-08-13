@@ -699,7 +699,7 @@ meta_wayland_xdg_toplevel_commit (MetaWaylandSurfaceRole  *surface_role,
       return;
     }
 
-  if (!surface->buffer_ref.buffer && xdg_surface_priv->first_buffer_attached)
+  if (!surface->buffer_ref->buffer && xdg_surface_priv->first_buffer_attached)
     {
       MetaWaylandActorSurface *actor_surface =
         META_WAYLAND_ACTOR_SURFACE (xdg_toplevel);
@@ -1045,7 +1045,7 @@ meta_wayland_xdg_popup_commit (MetaWaylandSurfaceRole  *surface_role,
   if (xdg_popup->setup.parent_surface)
     finish_popup_setup (xdg_popup);
 
-  if (!surface->buffer_ref.buffer && xdg_surface_priv->first_buffer_attached)
+  if (!surface->buffer_ref->buffer && xdg_surface_priv->first_buffer_attached)
     {
       meta_wayland_xdg_surface_reset (xdg_surface);
       meta_wayland_surface_cache_pending_frame_callbacks (surface, pending);
@@ -1056,7 +1056,7 @@ meta_wayland_xdg_popup_commit (MetaWaylandSurfaceRole  *surface_role,
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_xdg_popup_parent_class);
   surface_role_class->commit (surface_role, pending);
 
-  if (xdg_popup->dismissed_by_client && surface->buffer_ref.buffer)
+  if (xdg_popup->dismissed_by_client && surface->buffer_ref->buffer)
     {
       wl_resource_post_error (xdg_popup->resource,
                               XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
@@ -1071,7 +1071,7 @@ meta_wayland_xdg_popup_commit (MetaWaylandSurfaceRole  *surface_role,
   if (!pending->newly_attached)
     return;
 
-  if (!surface->buffer_ref.buffer)
+  if (!surface->buffer_ref->buffer)
     return;
 
   window_geometry = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);
@@ -1455,7 +1455,7 @@ meta_wayland_xdg_surface_commit (MetaWaylandSurfaceRole  *surface_role,
   if (!window)
     return;
 
-  if (surface->buffer_ref.buffer)
+  if (surface->buffer_ref->buffer)
     priv->first_buffer_attached = TRUE;
   else
     return;
@@ -1499,7 +1499,7 @@ meta_wayland_xdg_surface_assigned (MetaWaylandSurfaceRole *surface_role)
   priv->configure_sent = FALSE;
   priv->first_buffer_attached = FALSE;
 
-  if (surface->buffer_ref.buffer)
+  if (surface->buffer_ref->buffer)
     {
       wl_resource_post_error (xdg_wm_base_resource,
                               XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,
@@ -2093,7 +2093,7 @@ xdg_wm_base_get_xdg_surface (struct wl_client   *client,
       return;
     }
 
-  if (surface->buffer_ref.buffer)
+  if (surface->buffer_ref->buffer)
     {
       wl_resource_post_error (resource,
                               XDG_WM_BASE_ERROR_INVALID_SURFACE_STATE,

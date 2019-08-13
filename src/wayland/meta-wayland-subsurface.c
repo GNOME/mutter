@@ -86,7 +86,7 @@ sync_actor_subsurface_state (MetaWaylandSurface *surface)
 
   clutter_actor_set_position (actor, x, y);
 
-  if (surface->buffer_ref.buffer)
+  if (surface->buffer_ref->buffer)
     clutter_actor_show (actor);
   else
     clutter_actor_hide (actor);
