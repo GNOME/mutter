@@ -48,6 +48,7 @@ struct _ClutterStageCogl
   gint64 last_presentation_time;
   gint64 update_time;
   int64_t last_update_time;
+  int64_t next_presentation_time;
 
   /* We only enable clipped redraws after 2 frames, since we've seen
    * a lot of drivers can struggle to get going and may output some

@@ -178,6 +178,22 @@ _clutter_stage_window_clear_update_time (ClutterStageWindow *window)
   iface->clear_update_time (window);
 }
 
+int64_t
+_clutter_stage_window_get_next_presentation_time (ClutterStageWindow *window)
+{
+  ClutterStageWindowInterface *iface;
+
+  g_return_val_if_fail (CLUTTER_IS_STAGE_WINDOW (window), 0);
+
+  iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
+
+  /* If not implemented then just revert to the old behaviour... */
+  if (iface->get_next_presentation_time == NULL)
+    return _clutter_stage_window_get_update_time (window);
+
+  return iface->get_next_presentation_time (window);
+}
+
 void
 _clutter_stage_window_set_accept_focus (ClutterStageWindow *window,
                                         gboolean            accept_focus)

@@ -3751,6 +3751,21 @@ _clutter_stage_clear_update_time (ClutterStage *stage)
     _clutter_stage_window_clear_update_time (stage_window);
 }
 
+int64_t
+_clutter_stage_get_next_presentation_time (ClutterStage *stage)
+{
+  ClutterStageWindow *stage_window;
+
+  if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
+    return 0;
+
+  stage_window = _clutter_stage_get_window (stage);
+  if (stage_window == NULL)
+    return 0;
+
+  return _clutter_stage_window_get_next_presentation_time (stage_window);
+}
+
 ClutterPaintVolume *
 _clutter_stage_paint_volume_stack_allocate (ClutterStage *stage)
 {

@@ -235,7 +235,12 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
   stage_cogl->update_time = next_presentation_time - max_render_time_allowed;
 
   if (stage_cogl->update_time == stage_cogl->last_update_time)
-    stage_cogl->update_time = stage_cogl->last_update_time + refresh_interval;
+    {
+      stage_cogl->update_time += refresh_interval;
+      next_presentation_time += refresh_interval;
+    }
+
+  stage_cogl->next_presentation_time = next_presentation_time;
 }
 
 static gint64
@@ -256,6 +261,29 @@ clutter_stage_cogl_clear_update_time (ClutterStageWindow *stage_window)
 
   stage_cogl->last_update_time = stage_cogl->update_time;
   stage_cogl->update_time = -1;
+  stage_cogl->next_presentation_time = -1;
+}
+
+static int64_t
+clutter_stage_cogl_get_next_presentation_time (ClutterStageWindow *stage_window)
+{
+  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  int64_t now = g_get_monotonic_time ();
+
+  if (stage_cogl->next_presentation_time > 0 &&
+      stage_cogl->next_presentation_time <= now)
+    {
+      CLUTTER_NOTE (BACKEND,
+                    "Missed some frames. Something blocked for over "
+                    "%" G_GINT64_FORMAT "ms.",
+                    (now - stage_cogl->next_presentation_time) / 1000);
+
+      stage_cogl->update_time = -1;
+      clutter_stage_cogl_schedule_update (stage_window,
+                                          stage_cogl->last_sync_delay);
+    }
+
+  return stage_cogl->next_presentation_time;
 }
 
 static ClutterActor *
@@ -1008,6 +1036,7 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
   iface->schedule_update = clutter_stage_cogl_schedule_update;
   iface->get_update_time = clutter_stage_cogl_get_update_time;
   iface->clear_update_time = clutter_stage_cogl_clear_update_time;
+  iface->get_next_presentation_time = clutter_stage_cogl_get_next_presentation_time;
   iface->redraw = clutter_stage_cogl_redraw;
 }
 
@@ -1053,6 +1082,7 @@ _clutter_stage_cogl_init (ClutterStageCogl *stage)
   stage->refresh_rate = 0.0;
 
   stage->update_time = -1;
+  stage->next_presentation_time = -1;
 }
 
 static void
