@@ -164,7 +164,7 @@ meta_wayland_shell_surface_surface_commit (MetaWaylandSurfaceRole  *surface_role
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_shell_surface_parent_class);
   surface_role_class->commit (surface_role, pending);
 
-  buffer = surface->buffer_ref.buffer;
+  buffer = surface->buffer_ref->buffer;
   if (!buffer)
     return;
 
