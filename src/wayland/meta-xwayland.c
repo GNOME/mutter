@@ -743,15 +743,15 @@ meta_xwayland_init (MetaXWaylandManager *manager,
     {
       if (!choose_xdisplay (manager))
         return FALSE;
+
+      if (!prepare_auth_file (manager))
+        return FALSE;
     }
   else
     {
       if (!open_display_sockets (manager, manager->display_index, &fatal))
         return FALSE;
     }
-
-  if (!prepare_auth_file (manager))
-    return FALSE;
 
   manager->wayland_display = wl_display;
   policy = meta_get_x11_display_policy ();
