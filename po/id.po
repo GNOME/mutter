@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-07-04 12:35+0000\n"
-"PO-Revision-Date: 2019-07-08 15:11+0700\n"
+"POT-Creation-Date: 2019-08-06 00:49+0000\n"
+"PO-Revision-Date: 2019-08-13 16:20+0700\n"
 "Last-Translator: Kukuh Syafaat <kukuhsyafaat@gnome.org>\n"
 "Language-Team: Indonesian <gnome-l10n-id@googlegroups.com>\n"
 "Language: id\n"
@@ -397,7 +397,8 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart."
+"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
+"initializes Xwayland lazily if there are X11 clients. Requires restart."
 msgstr ""
 "Untuk mengaktifkan fitur eksperimental, tambahkan kata kunci fitur ke dalam "
 "daftar. Apakah fitur memerlukan nyala ulang kompositor tergantung pada fitur "
@@ -409,29 +410,31 @@ msgstr ""
 "menskalakan framebuffer monitor alih-alih konten jendela, untuk mengelola "
 "monitor HiDPI. Tidak perlu nyala ulang. • \"rt-scheduler\" — membuat mutter "
 "meminta jadwal waktu sebenarnya prioritas rendah. Yang dapat dieksekusi atau "
-"pengguna harus memiliki CAP_SYS_NICE. Membutuhkan nyala ulang."
+"pengguna harus memiliki CAP_SYS_NICE. Membutuhkan nyala ulang. • “autostart-"
+"xwayland” — menginisialisasi Xwayland dengan malas jika ada klien X11. "
+"Membutuhkan nyala ulang."
 
-#: data/org.gnome.mutter.gschema.xml.in:132
+#: data/org.gnome.mutter.gschema.xml.in:134
 msgid "Modifier to use to locate the pointer"
 msgstr "Pengubah yang digunakan untuk menemukan penunjuk"
 
-#: data/org.gnome.mutter.gschema.xml.in:133
+#: data/org.gnome.mutter.gschema.xml.in:135
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Kunci ini akan memulai aksi \"penunjuk lokasi\"."
 
-#: data/org.gnome.mutter.gschema.xml.in:153
+#: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Select window from tab popup"
 msgstr "Pilih jendela dari popup tab"
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid "Cancel tab popup"
 msgstr "Batalkan popup tab"
 
-#: data/org.gnome.mutter.gschema.xml.in:163
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Switch monitor configurations"
 msgstr "Tukar konfigurasi monitor bawaan"
 
-#: data/org.gnome.mutter.gschema.xml.in:168
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Rotates the built-in monitor configuration"
 msgstr "Memutar konfigurasi monitor bawaan"
 
@@ -702,7 +705,7 @@ msgstr "Cetak versi"
 msgid "Mutter plugin to use"
 msgstr "Pengaya Mutter yang dipakai"
 
-#: src/core/prefs.c:1834
+#: src/core/prefs.c:1849
 #, c-format
 msgid "Workspace %d"
 msgstr "Area kerja %d"
@@ -716,7 +719,7 @@ msgstr "Muter dikompilasi tanpa dukungan mode riuh\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Tukar Mode: Mode %d"
 
-#: src/x11/meta-x11-display.c:682
+#: src/x11/meta-x11-display.c:671
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -725,16 +728,16 @@ msgstr ""
 "Tampilan \"%s\" sudah memiliki manajer jendela; cobalah gunakan pilihan --"
 "replace untuk mengganti manajer jendela saat ini."
 
-#: src/x11/meta-x11-display.c:1024
+#: src/x11/meta-x11-display.c:1032
 msgid "Failed to initialize GDK\n"
 msgstr "Gagal menginisialisasi GDK\n"
 
-#: src/x11/meta-x11-display.c:1048
+#: src/x11/meta-x11-display.c:1056
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Gagal membuka tampilan X Window System \"%s\"\n"
 
-#: src/x11/meta-x11-display.c:1132
+#: src/x11/meta-x11-display.c:1140
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Layar %d pada tampilan \"%s\" tidak valid\n"
