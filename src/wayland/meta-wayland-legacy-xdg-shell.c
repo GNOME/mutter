@@ -986,7 +986,7 @@ meta_wayland_zxdg_popup_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
   if (!pending->newly_attached)
     return;
 
-  if (!surface->buffer_ref.buffer)
+  if (!surface->buffer_ref->buffer)
     return;
 
   if (pending->has_acked_configure_serial)
@@ -1348,7 +1348,7 @@ meta_wayland_zxdg_surface_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
   if (!priv->resource)
     return;
 
-  if (surface->buffer_ref.buffer == NULL && priv->first_buffer_attached)
+  if (!surface->buffer_ref->buffer && priv->first_buffer_attached)
     {
       /* XDG surfaces can't commit NULL buffers */
       wl_resource_post_error (surface->resource,
@@ -1357,7 +1357,7 @@ meta_wayland_zxdg_surface_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
       return;
     }
 
-  if (surface->buffer_ref.buffer && !priv->configure_sent)
+  if (surface->buffer_ref->buffer && !priv->configure_sent)
     {
       wl_resource_post_error (surface->resource,
                               ZXDG_SURFACE_V6_ERROR_UNCONFIGURED_BUFFER,
@@ -1368,7 +1368,7 @@ meta_wayland_zxdg_surface_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
   if (!window)
     return;
 
-  if (surface->buffer_ref.buffer)
+  if (surface->buffer_ref->buffer)
     priv->first_buffer_attached = TRUE;
   else
     return;
@@ -1413,7 +1413,7 @@ meta_wayland_zxdg_surface_v6_assigned (MetaWaylandSurfaceRole *surface_role)
   priv->configure_sent = FALSE;
   priv->first_buffer_attached = FALSE;
 
-  if (surface->buffer_ref.buffer)
+  if (surface->buffer_ref->buffer)
     {
       wl_resource_post_error (xdg_shell_resource,
                               ZXDG_SHELL_V6_ERROR_INVALID_SURFACE_STATE,
@@ -1957,7 +1957,7 @@ zxdg_shell_v6_get_xdg_surface (struct wl_client   *client,
       return;
     }
 
-  if (surface->buffer_ref.buffer)
+  if (surface->buffer_ref->buffer)
     {
       wl_resource_post_error (resource,
                               ZXDG_SHELL_V6_ERROR_INVALID_SURFACE_STATE,

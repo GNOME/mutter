@@ -136,6 +136,12 @@ struct _MetaWaylandDragDestFuncs
                       MetaWaylandSurface    *surface);
 };
 
+typedef struct _MetaWaylandBufferRef
+{
+  MetaWaylandBuffer *buffer;
+  unsigned int use_count;
+} MetaWaylandBufferRef;
+
 struct _MetaWaylandSurface
 {
   GObject parent;
@@ -156,10 +162,7 @@ struct _MetaWaylandSurface
   CoglTexture *texture;
 
   /* Buffer reference state. */
-  struct {
-    MetaWaylandBuffer *buffer;
-    unsigned int use_count;
-  } buffer_ref;
+  MetaWaylandBufferRef *buffer_ref;
 
   /* Buffer renderer state. */
   gboolean buffer_held;
