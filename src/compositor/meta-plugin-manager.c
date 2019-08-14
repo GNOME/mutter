@@ -156,7 +156,7 @@ meta_plugin_manager_event_simple (MetaPluginManager *plugin_mgr,
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = plugin_mgr->compositor->display;
+  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
   gboolean retval = FALSE;
 
   if (display->display_opening)
@@ -225,7 +225,7 @@ meta_plugin_manager_event_size_change (MetaPluginManager *plugin_mgr,
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = plugin_mgr->compositor->display;
+  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
 
   if (display->display_opening)
     return FALSE;
@@ -254,7 +254,7 @@ meta_plugin_manager_switch_workspace (MetaPluginManager   *plugin_mgr,
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = plugin_mgr->compositor->display;
+  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
   gboolean retval = FALSE;
 
   if (display->display_opening)
@@ -312,7 +312,7 @@ meta_plugin_manager_show_tile_preview (MetaPluginManager *plugin_mgr,
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = plugin_mgr->compositor->display;
+  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
 
   if (display->display_opening)
     return FALSE;
@@ -331,7 +331,7 @@ meta_plugin_manager_hide_tile_preview (MetaPluginManager *plugin_mgr)
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = plugin_mgr->compositor->display;
+  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
 
   if (display->display_opening)
     return FALSE;
@@ -354,7 +354,7 @@ meta_plugin_manager_show_window_menu (MetaPluginManager  *plugin_mgr,
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = plugin_mgr->compositor->display;
+  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
 
   if (display->display_opening)
     return;
@@ -371,7 +371,7 @@ meta_plugin_manager_show_window_menu_for_rect (MetaPluginManager  *plugin_mgr,
 {
   MetaPlugin *plugin = plugin_mgr->plugin;
   MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
-  MetaDisplay *display = plugin_mgr->compositor->display;
+  MetaDisplay *display = meta_compositor_get_display (plugin_mgr->compositor);
 
   if (display->display_opening)
     return;
