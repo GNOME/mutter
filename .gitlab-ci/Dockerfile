@@ -13,6 +13,7 @@ RUN dnf -y update && dnf -y upgrade && \
     dnf copr enable -y fmuellner/gnome-shell-ci && \
     dnf copr enable -y jadahl/mutter-ci && \
     dnf copr enable -y hergertme/sysprof-3 && \
+    dnf -y update && dnf -y upgrade && \
 
     dnf builddep -y mutter && \
 
