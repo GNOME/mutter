@@ -326,6 +326,7 @@ if buildtype != 'plain'
     '-Werror=pointer-to-int-cast',
     '-Werror=empty-body',
     '-Werror=write-strings',
+    '-Wno-system-headers',
   ]
   supported_warnings = cc.get_supported_arguments(all_warnings)
   add_project_arguments(supported_warnings, language: 'c')
