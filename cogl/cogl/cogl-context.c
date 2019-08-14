@@ -435,6 +435,9 @@ _cogl_context_free (CoglContext *context)
 
   _cogl_free_framebuffer_stack (context->framebuffer_stack);
 
+  while (context->source_stack)
+    cogl_pop_source ();
+
   if (context->current_path)
     cogl_handle_unref (context->current_path);
 
@@ -511,6 +514,13 @@ _cogl_context_free (CoglContext *context)
 
   _cogl_destroy_texture_units ();
 
+  if (context->codegen_header_buffer)
+    g_string_free (context->codegen_header_buffer, TRUE);
+  if (context->codegen_source_buffer)
+    g_string_free (context->codegen_source_buffer, TRUE);
+  if (context->codegen_boilerplate_buffer)
+    g_string_free (context->codegen_boilerplate_buffer, TRUE);
+
   g_ptr_array_free (context->uniform_names, TRUE);
   g_hash_table_destroy (context->uniform_name_hash);
 
@@ -518,6 +528,10 @@ _cogl_context_free (CoglContext *context)
   g_array_free (context->attribute_name_index_map, TRUE);
 
   g_byte_array_free (context->buffer_map_fallback_array, TRUE);
+
+  if (context->fences_poll_source)
+    _cogl_poll_renderer_remove_source (context->display->renderer,
+                                       context->fences_poll_source);
 
   cogl_object_unref (context->display);
 

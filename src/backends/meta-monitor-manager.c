@@ -821,6 +821,9 @@ meta_monitor_manager_dispose (GObject *object)
   g_clear_object (&manager->display_config);
   g_clear_object (&manager->config_manager);
 
+  g_list_free_full (manager->monitors, g_object_unref);
+  manager->monitors = NULL;
+
   G_OBJECT_CLASS (meta_monitor_manager_parent_class)->dispose (object);
 }
 

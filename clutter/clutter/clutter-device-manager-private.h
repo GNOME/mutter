@@ -206,11 +206,10 @@ struct _ClutterEventExtenderInterface
 {
   GTypeInterface g_iface;
 
-  void (* copy_event_data) (ClutterEventExtender *event_extender,
-                            const ClutterEvent   *src,
-                            ClutterEvent         *dest);
+  gpointer (* copy_event_data) (ClutterEventExtender *event_extender,
+                                gpointer              data);
   void (* free_event_data) (ClutterEventExtender *event_extender,
-                            ClutterEvent         *event);
+                            gpointer              data);
 };
 
 GType           clutter_event_extender_get_type        (void) G_GNUC_CONST;
@@ -228,6 +227,7 @@ ClutterBackend *_clutter_device_manager_get_backend             (ClutterDeviceMa
 void            _clutter_device_manager_compress_motion         (ClutterDeviceManager *device_manger,
                                                                  ClutterEvent         *event,
                                                                  const ClutterEvent   *to_discard);
+void            _clutter_device_manager_destroy                 (ClutterDeviceManager *manager);
 
 /* input device */
 gboolean        _clutter_input_device_has_sequence              (ClutterInputDevice   *device,

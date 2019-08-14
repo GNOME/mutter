@@ -371,7 +371,7 @@ void
 meta_wayland_init (void)
 {
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
-  GSource *wayland_event_source;
+  g_autoptr (GSource) wayland_event_source = NULL;
 
   wayland_event_source = wayland_event_source_new (compositor->wayland_display);
 
@@ -471,6 +471,7 @@ meta_wayland_finalize (void)
 
   compositor = meta_wayland_compositor_get_default ();
 
+  meta_wayland_seat_free (compositor->seat);
   meta_xwayland_shutdown (&compositor->xwayland_manager);
   g_clear_pointer (&compositor->display_name, g_free);
 }

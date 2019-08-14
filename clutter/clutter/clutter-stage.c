@@ -1852,6 +1852,7 @@ clutter_stage_finalize (GObject *object)
 
   g_free (priv->title);
 
+  _clutter_stage_paint_volume_stack_free_all (stage);
   g_array_free (priv->paint_volume_stack, TRUE);
 
   _clutter_id_pool_free (priv->pick_id_pool);

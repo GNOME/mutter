@@ -101,29 +101,28 @@ clutter_backend_dispose (GObject *gobject)
 {
   ClutterBackend *backend = CLUTTER_BACKEND (gobject);
 
+  g_clear_pointer (&backend->font_options, cairo_font_options_destroy);
+
   /* clear the events still in the queue of the main context */
   _clutter_clear_events_queue ();
+  _clutter_clear_allocated_events ();
 
   /* remove all event translators */
   g_clear_pointer (&backend->event_translators, g_list_free);
 
+  g_clear_pointer (&backend->cogl_source, g_source_destroy);
+
   g_clear_pointer (&backend->dummy_onscreen, cogl_object_unref);
+  g_clear_pointer (&backend->cogl_context, cogl_object_unref);
+  g_clear_pointer (&backend->cogl_display, cogl_object_unref);
 
-  G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
-}
-
-static void
-clutter_backend_finalize (GObject *gobject)
-{
-  ClutterBackend *backend = CLUTTER_BACKEND (gobject);
-
-  g_source_destroy (backend->cogl_source);
-
-  g_free (backend->font_name);
-  clutter_backend_set_font_options (backend, NULL);
+  g_clear_object (&backend->keymap);
   g_clear_object (&backend->input_method);
 
-  G_OBJECT_CLASS (clutter_backend_parent_class)->finalize (gobject);
+  g_clear_pointer (&backend->device_manager,
+                   _clutter_device_manager_destroy);
+
+  G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
 }
 
 static gfloat
@@ -255,7 +254,7 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
     }
   else
     {
-      CoglOnscreenTemplate *tmpl;
+      g_autoptr (CoglOnscreenTemplate) tmpl = NULL;
       gboolean res;
 
       tmpl = cogl_onscreen_template_new (swap_chain);
@@ -272,10 +271,8 @@ clutter_backend_do_real_create_context (ClutterBackend  *backend,
       if (!res)
         goto error;
 
-      backend->cogl_display = cogl_display_new (backend->cogl_renderer, tmpl);
-
       /* the display owns the template */
-      cogl_object_unref (tmpl);
+      backend->cogl_display = cogl_display_new (backend->cogl_renderer, tmpl);
     }
 
   if (backend->cogl_display == NULL)
@@ -404,6 +401,7 @@ clutter_backend_real_create_context (ClutterBackend  *backend,
 
   backend->cogl_source = cogl_glib_source_new (backend->cogl_context, G_PRIORITY_DEFAULT);
   g_source_attach (backend->cogl_source, NULL);
+  g_source_unref (backend->cogl_source);
 
   return TRUE;
 }
@@ -620,7 +618,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->dispose = clutter_backend_dispose;
-  gobject_class->finalize = clutter_backend_finalize;
 
   /**
    * ClutterBackend::resolution-changed:
@@ -840,10 +837,9 @@ _clutter_backend_get_units_per_em (ClutterBackend       *backend,
   return backend->units_per_em;
 }
 
-void
-_clutter_backend_copy_event_data (ClutterBackend     *backend,
-                                  const ClutterEvent *src,
-                                  ClutterEvent       *dest)
+gpointer
+_clutter_backend_copy_event_data (ClutterBackend *backend,
+                                  gpointer        data)
 {
   ClutterEventExtenderInterface *iface;
   ClutterBackendClass *klass;
@@ -852,16 +848,18 @@ _clutter_backend_copy_event_data (ClutterBackend     *backend,
   if (CLUTTER_IS_EVENT_EXTENDER (backend->device_manager))
     {
       iface = CLUTTER_EVENT_EXTENDER_GET_IFACE (backend->device_manager);
-      iface->copy_event_data (CLUTTER_EVENT_EXTENDER (backend->device_manager),
-                              src, dest);
+      return iface->copy_event_data (CLUTTER_EVENT_EXTENDER (backend->device_manager),
+                                     data);
     }
   else if (klass->copy_event_data != NULL)
-    klass->copy_event_data (backend, src, dest);
+    return klass->copy_event_data (backend, data);
+
+  return NULL;
 }
 
 void
 _clutter_backend_free_event_data (ClutterBackend *backend,
-                                  ClutterEvent   *event)
+                                  gpointer        data)
 {
   ClutterEventExtenderInterface *iface;
   ClutterBackendClass *klass;
@@ -872,10 +870,10 @@ _clutter_backend_free_event_data (ClutterBackend *backend,
     {
       iface = CLUTTER_EVENT_EXTENDER_GET_IFACE (backend->device_manager);
       iface->free_event_data (CLUTTER_EVENT_EXTENDER (backend->device_manager),
-                              event);
+                              data);
     }
   else if (klass->free_event_data != NULL)
-    klass->free_event_data (backend, event);
+    klass->free_event_data (backend, data);
 }
 
 /**

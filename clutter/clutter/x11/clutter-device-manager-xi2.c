@@ -110,25 +110,20 @@ G_DEFINE_TYPE_WITH_CODE (ClutterDeviceManagerXI2,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_EVENT_EXTENDER,
                                                 clutter_event_extender_iface_init))
 
-static void
+static gpointer
 clutter_device_manager_x11_copy_event_data (ClutterEventExtender *event_extender,
-                                            const ClutterEvent   *src,
-                                            ClutterEvent         *dest)
+                                            gpointer              event_x11)
 {
-  gpointer event_x11;
-
-  event_x11 = _clutter_event_get_platform_data (src);
   if (event_x11 != NULL)
-    _clutter_event_set_platform_data (dest, _clutter_event_x11_copy (event_x11));
+    return _clutter_event_x11_copy (event_x11);
+
+  return NULL;
 }
 
 static void
 clutter_device_manager_x11_free_event_data (ClutterEventExtender *event_extender,
-                                            ClutterEvent         *event)
+                                            gpointer              event_x11)
 {
-  gpointer event_x11;
-
-  event_x11 = _clutter_event_get_platform_data (event);
   if (event_x11 != NULL)
     _clutter_event_x11_free (event_x11);
 }
@@ -2165,10 +2160,45 @@ clutter_device_manager_xi2_constructed (GObject *gobject)
 
   XSync (backend_x11->xdpy, False);
 
-  clutter_device_manager_x11_a11y_init (manager);
+  manager_xi2->have_a11y = clutter_device_manager_x11_a11y_init (manager);
 
   if (G_OBJECT_CLASS (clutter_device_manager_xi2_parent_class)->constructed)
     G_OBJECT_CLASS (clutter_device_manager_xi2_parent_class)->constructed (gobject);
+}
+
+
+static void
+clutter_device_manager_xi2_dispose (GObject *object)
+{
+  ClutterDeviceManager *manager = CLUTTER_DEVICE_MANAGER (object);
+  ClutterDeviceManagerXI2 *manager_xi2 = CLUTTER_DEVICE_MANAGER_XI2 (manager);
+
+  if (manager_xi2->have_a11y)
+    {
+      clutter_device_manager_x11_a11y_stop (manager);
+      manager_xi2->have_a11y = FALSE;
+    }
+
+  g_clear_pointer (&manager_xi2->master_devices, g_list_free);
+  g_clear_pointer (&manager_xi2->slave_devices, g_list_free);
+  g_clear_pointer (&manager_xi2->all_devices, g_slist_free);
+
+  G_OBJECT_CLASS (clutter_device_manager_xi2_parent_class)->dispose (object);
+}
+
+static void
+clutter_device_manager_xi2_finalize (GObject *object)
+{
+  ClutterDeviceManagerXI2 *manager_xi2 = CLUTTER_DEVICE_MANAGER_XI2 (object);
+
+  g_hash_table_destroy (manager_xi2->devices_by_id);
+  g_hash_table_destroy (manager_xi2->tools_by_serial);
+
+#ifdef HAVE_LIBWACOM
+  libwacom_database_destroy (manager_xi2->wacom_db);
+#endif
+
+  G_OBJECT_CLASS (clutter_device_manager_xi2_parent_class)->finalize (object);
 }
 
 static void
@@ -2225,6 +2255,8 @@ clutter_device_manager_xi2_class_init (ClutterDeviceManagerXI2Class *klass)
   gobject_class = G_OBJECT_CLASS (klass);
   gobject_class->constructed = clutter_device_manager_xi2_constructed;
   gobject_class->set_property = clutter_device_manager_xi2_set_property;
+  gobject_class->dispose = clutter_device_manager_xi2_dispose;
+  gobject_class->finalize = clutter_device_manager_xi2_finalize;
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
   

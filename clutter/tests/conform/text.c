@@ -83,6 +83,7 @@ text_set_empty (void)
   g_assert_cmpint (clutter_text_get_cursor_position (text), ==, -1);
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 }
 
 static void
@@ -105,6 +106,7 @@ text_set_text (void)
   */
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 }
 
 static void
@@ -133,6 +135,7 @@ text_append_some (void)
     }
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 }
 
 static void
@@ -167,6 +170,7 @@ text_prepend_some (void)
     }
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 }
 
 static void
@@ -194,6 +198,7 @@ text_insert (void)
     }
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 }
 
 static void
@@ -239,6 +244,7 @@ text_delete_chars (void)
     }
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 }
 
 static void
@@ -271,6 +277,7 @@ text_get_chars (void)
   g_free (chars);
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 }
 
 static void
@@ -303,6 +310,7 @@ text_delete_text (void)
     }
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 }
 
 static void
@@ -323,6 +331,7 @@ text_password_char (void)
   g_assert_cmpstr (clutter_text_get_text (text), ==, "hello");
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 }
 
 static ClutterEvent *
@@ -410,6 +419,7 @@ text_cursor (void)
     }
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 }
 
 static void
@@ -437,6 +447,7 @@ text_event (void)
     }
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 }
 
 static inline void
@@ -522,6 +533,7 @@ text_idempotent_use_markup (void)
                               bar_end_index);
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 
   /* case 2: use_markup -> text */
   if (g_test_verbose ())
@@ -530,6 +542,8 @@ text_idempotent_use_markup (void)
   text = g_object_new (CLUTTER_TYPE_TEXT,
                        "use-markup", TRUE, "text", contents,
                        NULL);
+
+  g_object_ref_sink (text);
 
   if (g_test_verbose ())
     g_print ("Contents: '%s' (expected: '%s')\n",
@@ -544,6 +558,7 @@ text_idempotent_use_markup (void)
                               bar_end_index);
 
   clutter_actor_destroy (CLUTTER_ACTOR (text));
+  g_object_unref (text);
 }
 
 CLUTTER_TEST_SUITE (

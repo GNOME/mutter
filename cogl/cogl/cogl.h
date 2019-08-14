@@ -150,6 +150,8 @@
 #include <cogl-path/cogl-path.h>
 #endif
 
+#include <cogl/cogl-autocleanups.h>
+
 /**
  * SECTION:cogl
  * @short_description: General purpose API

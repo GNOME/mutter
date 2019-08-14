@@ -315,7 +315,7 @@ script_layout_property (void)
   ClutterScript *script = clutter_script_new ();
   GObject *manager, *container, *actor1, *actor2;
   GError *error = NULL;
-  gchar *test_file;
+  g_autofree gchar *test_file = NULL;
   gboolean x_fill, expand;
   ClutterBoxAlignment y_align;
 

@@ -63,6 +63,8 @@ meta_crtc_mode_finalize (GObject *object)
   if (crtc_mode->driver_notify)
     crtc_mode->driver_notify (crtc_mode);
 
+  g_free (crtc_mode->name);
+
   G_OBJECT_CLASS (meta_crtc_mode_parent_class)->finalize (object);
 }
 

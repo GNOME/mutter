@@ -150,6 +150,7 @@ async_waiter_destroy (AsyncWaiter *waiter)
   XSyncDestroyAlarm (xdisplay, waiter->alarm);
   XSyncDestroyCounter (xdisplay, waiter->counter);
   g_main_loop_unref (waiter->loop);
+  g_free (waiter);
 }
 
 static int
@@ -377,7 +378,7 @@ test_client_new (const char          *id,
                  MetaWindowClientType type,
                  GError             **error)
 {
-  TestClient *client = g_new0 (TestClient, 1);
+  TestClient *client;
   GSubprocessLauncher *launcher;
   GSubprocess *subprocess;
   MetaWaylandCompositor *compositor;
@@ -412,6 +413,7 @@ test_client_new (const char          *id,
   if (!subprocess)
     return NULL;
 
+  client = g_new0 (TestClient, 1);
   client->type = type;
   client->id = g_strdup (id);
   client->cancellable = g_cancellable_new ();

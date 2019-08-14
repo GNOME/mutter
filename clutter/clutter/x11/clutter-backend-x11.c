@@ -267,10 +267,11 @@ clutter_backend_x11_create_device_manager (ClutterBackendX11 *backend_x11)
       g_critical ("XI2 extension is missing.");
       backend_x11->has_xinput = FALSE;
       backend_x11->xi_minor = -1;
+      return;
     }
 
   backend = CLUTTER_BACKEND (backend_x11);
-  backend->device_manager = backend_x11->device_manager;
+  backend->device_manager = g_object_ref (backend_x11->device_manager);
 
   translator = CLUTTER_EVENT_TRANSLATOR (backend_x11->device_manager);
   _clutter_backend_add_event_translator (backend, translator);
@@ -555,6 +556,11 @@ clutter_backend_x11_finalize (GObject *gobject)
 static void
 clutter_backend_x11_dispose (GObject *gobject)
 {
+  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (gobject);
+
+  g_clear_object (&backend_x11->device_manager);
+  g_clear_object (&backend_x11->keymap);
+
   G_OBJECT_CLASS (clutter_backend_x11_parent_class)->dispose (gobject);
 }
 

@@ -1246,15 +1246,16 @@ create_context (CoglDisplay *display, GError **error)
                                        dummy_drawable,
                                        glx_display->glx_context);
 
-  xlib_renderer->xvisinfo = xvisinfo;
-
   if (_cogl_xlib_renderer_untrap_errors (display->renderer, &old_state))
     {
       g_set_error_literal (error, COGL_WINSYS_ERROR,
                            COGL_WINSYS_ERROR_CREATE_CONTEXT,
                            "Unable to select the newly created GLX context");
+      XFree (xvisinfo);
       return FALSE;
     }
+
+  xlib_renderer->xvisinfo = xvisinfo;
 
   return TRUE;
 }
@@ -1290,6 +1291,8 @@ _cogl_winsys_display_destroy (CoglDisplay *display)
       XDestroyWindow (xlib_renderer->xdpy, glx_display->dummy_xwin);
       glx_display->dummy_xwin = None;
     }
+
+  g_clear_pointer (&xlib_renderer->xvisinfo, XFree);
 
   g_slice_free (CoglGLXDisplay, display->winsys);
   display->winsys = NULL;

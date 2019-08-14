@@ -455,7 +455,7 @@ x_event_source_new (MetaBackend *backend)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-  GSource *source;
+  g_autoptr (GSource) source = NULL;
   XEventSource *x_source;
 
   source = g_source_new (&x_event_funcs, sizeof (XEventSource));
@@ -466,6 +466,7 @@ x_event_source_new (MetaBackend *backend)
   g_source_add_poll (source, &x_source->event_poll_fd);
 
   g_source_attach (source, NULL);
+
   return source;
 }
 
@@ -756,7 +757,7 @@ initable_iface_init (GInitableIface *initable_iface)
 }
 
 static void
-meta_backend_x11_finalize (GObject *object)
+meta_backend_x11_dispose (GObject *object)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (object);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
@@ -767,7 +768,10 @@ meta_backend_x11_finalize (GObject *object)
       priv->user_active_alarm = None;
     }
 
-  G_OBJECT_CLASS (meta_backend_x11_parent_class)->finalize (object);
+  g_clear_pointer (&priv->source, g_source_destroy);
+  g_clear_pointer (&priv->keymap, xkb_keymap_unref);
+
+  G_OBJECT_CLASS (meta_backend_x11_parent_class)->dispose (object);
 }
 
 static void
@@ -776,7 +780,7 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->finalize = meta_backend_x11_finalize;
+  object_class->dispose = meta_backend_x11_dispose;
   backend_class->create_clutter_backend = meta_backend_x11_create_clutter_backend;
   backend_class->post_init = meta_backend_x11_post_init;
   backend_class->grab_device = meta_backend_x11_grab_device;

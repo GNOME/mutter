@@ -87,7 +87,7 @@ actor_preferred_size (void)
   gfloat nat_width, nat_height;
 
   test = g_object_new (TEST_TYPE_ACTOR, NULL);
-  self = (TestActor *) test;
+  self = (TestActor *) g_object_ref_sink (test);
 
   if (g_test_verbose ())
     g_print ("Preferred size\n");
@@ -136,6 +136,7 @@ actor_preferred_size (void)
   g_assert_cmpfloat (nat_height, ==, 100);
 
   clutter_actor_destroy (test);
+  g_object_unref (test);
 }
 
 static void

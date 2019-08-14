@@ -331,3 +331,9 @@ clutter_device_manager_x11_a11y_init (ClutterDeviceManager *device_manager)
 
   return TRUE;
 }
+
+void
+clutter_device_manager_x11_a11y_stop (ClutterDeviceManager *device_manager)
+{
+  clutter_x11_remove_filter (xkb_a11y_event_filter, device_manager);
+}
