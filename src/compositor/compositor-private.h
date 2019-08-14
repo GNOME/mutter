@@ -20,8 +20,8 @@ struct _MetaCompositor
   guint           pre_paint_func_id;
   guint           post_paint_func_id;
 
-  guint           stage_presented_id;
-  guint           stage_after_paint_id;
+  gulong          stage_presented_id;
+  gulong          stage_after_paint_id;
 
   gint64          server_time_query_time;
   gint64          server_time_offset;

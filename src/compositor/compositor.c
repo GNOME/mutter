@@ -1097,12 +1097,8 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
   if (compositor->top_window_actor == top_window_actor)
     return;
 
-  if (compositor->top_window_actor)
-    {
-      g_signal_handler_disconnect (compositor->top_window_actor,
-                                   compositor->top_window_actor_destroy_id);
-      compositor->top_window_actor_destroy_id = 0;
-    }
+  g_clear_signal_handler (&compositor->top_window_actor_destroy_id,
+                          compositor->top_window_actor);
 
   compositor->top_window_actor = top_window_actor;
 
@@ -1324,31 +1320,16 @@ meta_compositor_dispose (GObject *object)
 {
   MetaCompositor *compositor = META_COMPOSITOR (object);
 
-  if (compositor->stage)
-    {
-      g_signal_handler_disconnect (compositor->stage,
-                                   compositor->stage_after_paint_id);
-      g_signal_handler_disconnect (compositor->stage,
-                                   compositor->stage_presented_id);
-
-      compositor->stage_after_paint_id = 0;
-      compositor->stage_presented_id = 0;
-      compositor->stage = NULL;
-    }
+  g_clear_signal_handler (&compositor->stage_after_paint_id, compositor->stage);
+  g_clear_signal_handler (&compositor->stage_presented_id, compositor->stage);
 
   g_clear_handle_id (&compositor->pre_paint_func_id,
                      clutter_threads_remove_repaint_func);
   g_clear_handle_id (&compositor->post_paint_func_id,
                      clutter_threads_remove_repaint_func);
 
-  if (compositor->top_window_actor)
-    {
-      g_signal_handlers_disconnect_by_func (compositor->top_window_actor,
-                                            on_top_window_actor_destroyed,
-                                            compositor);
-      compositor->top_window_actor = NULL;
-      compositor->top_window_actor_destroy_id = 0;
-    }
+  g_clear_signal_handler (&compositor->top_window_actor_destroy_id,
+                          compositor->top_window_actor);
 
   g_clear_pointer (&compositor->window_group, clutter_actor_destroy);
   g_clear_pointer (&compositor->top_window_group, clutter_actor_destroy);
