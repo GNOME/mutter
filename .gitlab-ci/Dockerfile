@@ -1,7 +1,7 @@
 # Rebuild and push with
 #
 #     cd .gitlab-ci/
-#     docker build -t registry.gitlab.gnome.org/gnome/mutter/master:v2 .
+#     docker build --no-cache -t registry.gitlab.gnome.org/gnome/mutter/master:v2 .
 #     docker push registry.gitlab.gnome.org/gnome/mutter/master:v2
 #
 
