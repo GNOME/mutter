@@ -17,6 +17,13 @@
 struct _MetaCompositorClass
 {
   GObjectClass parent_class;
+
+  void (* manage) (MetaCompositor *compositor);
+  void (* unmanage) (MetaCompositor *compositor);
+  void (* pre_paint) (MetaCompositor *compositor);
+  void (* post_paint) (MetaCompositor *compositor);
+  void (* remove_window) (MetaCompositor *compositor,
+                          MetaWindow     *window);
 };
 
 void meta_compositor_remove_window_actor (MetaCompositor  *compositor,
@@ -50,9 +57,11 @@ void meta_compositor_locate_pointer (MetaCompositor *compositor);
 
 void meta_compositor_redirect_x11_windows (MetaCompositor *compositor);
 
+gboolean meta_compositor_is_unredirect_inhibited (MetaCompositor *compositor);
+
 MetaDisplay * meta_compositor_get_display (MetaCompositor *compositor);
 
-Window meta_compositor_get_output_xwindow (MetaCompositor *compositor);
+MetaWindowActor * meta_compositor_get_top_window_actor (MetaCompositor *compositor);
 
 ClutterStage * meta_compositor_get_stage (MetaCompositor *compositor);
 
