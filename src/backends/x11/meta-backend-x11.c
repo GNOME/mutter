@@ -335,13 +335,15 @@ handle_host_xevent (MetaBackend *backend,
     if (display)
       {
         MetaCompositor *compositor = display->compositor;
+        MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
         MetaPluginManager *plugin_mgr =
           meta_compositor_get_plugin_manager (compositor);
 
         if (meta_plugin_manager_xevent_filter (plugin_mgr, event))
           bypass_clutter = TRUE;
 
-        if (meta_dnd_handle_xdnd_event (backend, compositor, priv->xdisplay, event))
+        if (meta_dnd_handle_xdnd_event (backend, compositor_x11,
+                                        priv->xdisplay, event))
           bypass_clutter = TRUE;
       }
   }

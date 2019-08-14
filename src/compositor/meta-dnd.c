@@ -168,19 +168,20 @@ meta_dnd_notify_dnd_leave (MetaDnd *dnd)
  * http://www.freedesktop.org/wiki/Specifications/XDND
  */
 gboolean
-meta_dnd_handle_xdnd_event (MetaBackend    *backend,
-                            MetaCompositor *compositor,
-                            Display        *xdisplay,
-                            XEvent         *xev)
+meta_dnd_handle_xdnd_event (MetaBackend       *backend,
+                            MetaCompositorX11 *compositor_x11,
+                            Display           *xdisplay,
+                            XEvent            *xev)
 {
   MetaDnd *dnd = meta_backend_get_dnd (backend);
+  MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
   Window output_window;
   ClutterStage *stage;
 
   if (xev->xany.type != ClientMessage)
     return FALSE;
 
-  output_window = meta_compositor_get_output_xwindow (compositor);
+  output_window = meta_compositor_x11_get_output_xwindow (compositor_x11);
   stage = meta_compositor_get_stage (compositor);
   if (xev->xany.window != output_window &&
       xev->xany.window != clutter_x11_get_stage_window (stage))

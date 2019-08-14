@@ -31,6 +31,7 @@
 
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "compositor/meta-compositor-x11.h"
 #include "core/bell.h"
 #include "core/display-private.h"
 #include "core/meta-workspace-manager-private.h"
@@ -1862,14 +1863,18 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
     }
 
  out:
-  if (!bypass_compositor)
+  if (!bypass_compositor && META_IS_COMPOSITOR_X11 (display->compositor))
     {
-      MetaWindow *window = modified != None ?
-                           meta_x11_display_lookup_x_window (x11_display, modified) :
-                           NULL;
+      MetaCompositorX11 *compositor_x11 =
+        META_COMPOSITOR_X11 (display->compositor);
+      MetaWindow *window;
 
-      if (meta_compositor_process_event (display->compositor, event, window))
-        bypass_gtk = TRUE;
+      if (modified != None)
+        window = meta_x11_display_lookup_x_window (x11_display, modified);
+      else
+        window = NULL;
+
+      meta_compositor_x11_process_xevent (compositor_x11, event, window);
     }
 
   display->current_time = META_CURRENT_TIME;
