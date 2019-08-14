@@ -520,7 +520,7 @@ primary_offer_receive (struct wl_client *client, struct wl_resource *resource,
   gboolean found;
 
   mime_types = meta_selection_get_mimetypes (meta_display_get_selection (display),
-                                             META_SELECTION_CLIPBOARD);
+                                             META_SELECTION_PRIMARY);
   found = g_list_find_custom (mime_types, mime_type, (GCompareFunc) g_strcmp0) != NULL;
   g_list_free_full (mime_types, g_free);
 
