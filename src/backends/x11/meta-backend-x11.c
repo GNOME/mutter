@@ -335,7 +335,10 @@ handle_host_xevent (MetaBackend *backend,
     if (display)
       {
         MetaCompositor *compositor = display->compositor;
-        if (meta_plugin_manager_xevent_filter (compositor->plugin_mgr, event))
+        MetaPluginManager *plugin_mgr =
+          meta_compositor_get_plugin_manager (compositor);
+
+        if (meta_plugin_manager_xevent_filter (plugin_mgr, event))
           bypass_clutter = TRUE;
 
         if (meta_dnd_handle_xdnd_event (backend, compositor, priv->xdisplay, event))

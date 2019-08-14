@@ -199,8 +199,9 @@ MetaDisplay *
 meta_plugin_get_display (MetaPlugin *plugin)
 {
   MetaPluginPrivate *priv = meta_plugin_get_instance_private (plugin);
+  MetaDisplay *display = meta_compositor_get_display (priv->compositor);
 
-  return priv->compositor->display;
+  return display;
 }
 
 void

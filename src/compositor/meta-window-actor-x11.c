@@ -272,7 +272,7 @@ assign_frame_counter_to_frames (MetaWindowActorX11 *actor_x11)
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   MetaCompositor *compositor = window->display->compositor;
-  ClutterStage *stage = CLUTTER_STAGE (compositor->stage);
+  ClutterStage *stage = meta_compositor_get_stage (compositor);
   GList *l;
 
   /* If the window is obscured, then we're expecting to deal with sending
