@@ -271,6 +271,8 @@ mutter_sources = [
   'compositor/meta-background-group.c',
   'compositor/meta-background-image.c',
   'compositor/meta-background-private.h',
+  'compositor/meta-compositor-x11.c',
+  'compositor/meta-compositor-x11.h',
   'compositor/meta-cullable.c',
   'compositor/meta-cullable.h',
   'compositor/meta-dnd-actor.c',
@@ -454,6 +456,8 @@ if have_wayland
   mutter_sources += [
     'compositor/meta-surface-actor-wayland.c',
     'compositor/meta-surface-actor-wayland.h',
+    'compositor/meta-compositor-server.c',
+    'compositor/meta-compositor-server.h',
     'wayland/meta-cursor-sprite-wayland.c',
     'wayland/meta-cursor-sprite-wayland.h',
     'wayland/meta-pointer-confinement-wayland.c',
