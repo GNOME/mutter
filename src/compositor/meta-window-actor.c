@@ -465,7 +465,7 @@ meta_window_actor_dispose (GObject *object)
   g_clear_pointer (&priv->unfocused_shadow, meta_shadow_unref);
   g_clear_pointer (&priv->shadow_shape, meta_window_shape_unref);
 
-  compositor->windows = g_list_remove (compositor->windows, (gconstpointer) self);
+  meta_compositor_remove_window_actor (compositor, self);
 
   g_clear_object (&priv->window);
 
@@ -921,10 +921,12 @@ start_simple_effect (MetaWindowActor  *self,
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
   MetaCompositor *compositor = priv->compositor;
+  MetaPluginManager *plugin_mgr =
+    meta_compositor_get_plugin_manager (compositor);
   gint *counter = NULL;
   gboolean use_freeze_thaw = FALSE;
 
-  g_assert (compositor->plugin_mgr != NULL);
+  g_assert (plugin_mgr != NULL);
 
   switch (event)
   {
@@ -957,7 +959,7 @@ start_simple_effect (MetaWindowActor  *self,
 
   (*counter)++;
 
-  if (!meta_plugin_manager_event_simple (compositor->plugin_mgr, self, event))
+  if (!meta_plugin_manager_event_simple (plugin_mgr, self, event))
     {
       (*counter)--;
       if (use_freeze_thaw)
@@ -1216,7 +1218,7 @@ meta_window_actor_show (MetaWindowActor   *self,
       g_assert_not_reached();
     }
 
-  if (compositor->switch_workspace_in_progress ||
+  if (meta_compositor_is_switching_workspace (compositor) ||
       !start_simple_effect (self, event))
     {
       clutter_actor_show (CLUTTER_ACTOR (self));
@@ -1240,7 +1242,7 @@ meta_window_actor_hide (MetaWindowActor *self,
    * hold off on hiding the window, and do it after the workspace
    * switch completes
    */
-  if (compositor->switch_workspace_in_progress)
+  if (meta_compositor_is_switching_workspace (compositor))
     return;
 
   switch (effect)
@@ -1271,11 +1273,13 @@ meta_window_actor_size_change (MetaWindowActor    *self,
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
   MetaCompositor *compositor = priv->compositor;
+  MetaPluginManager *plugin_mgr =
+    meta_compositor_get_plugin_manager (compositor);
 
   priv->size_change_in_progress++;
   meta_window_actor_freeze (self);
 
-  if (!meta_plugin_manager_event_size_change (compositor->plugin_mgr, self,
+  if (!meta_plugin_manager_event_size_change (plugin_mgr, self,
                                               which_change, old_frame_rect, old_buffer_rect))
     {
       priv->size_change_in_progress--;
