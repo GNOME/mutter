@@ -30,7 +30,8 @@
 
 #define META_TYPE_COMPOSITOR (meta_compositor_get_type ())
 META_EXPORT
-G_DECLARE_FINAL_TYPE (MetaCompositor, meta_compositor, META, COMPOSITOR, GObject)
+G_DECLARE_DERIVABLE_TYPE (MetaCompositor, meta_compositor,
+                          META, COMPOSITOR, GObject)
 
 /**
  * MetaCompEffect:
