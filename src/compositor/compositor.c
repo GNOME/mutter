@@ -598,7 +598,7 @@ meta_compositor_manage (MetaCompositor *compositor)
   priv->stage_presented_id =
     g_signal_connect (priv->stage, "presented",
                       G_CALLBACK (on_presented),
-                                                     compositor);
+                      compositor);
 
   /* We use connect_after() here to accomodate code in GNOME Shell that,
    * when benchmarking drawing performance, connects to ::after-paint
