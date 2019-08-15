@@ -456,7 +456,7 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
 
   g_clear_pointer (&connector->current_state, meta_kms_connector_state_free);
 
-  if (drm_connector->connection != DRM_MODE_CONNECTED)
+  if (!drm_connector || drm_connector->connection != DRM_MODE_CONNECTED)
     return;
 
   state = meta_kms_connector_state_new ();
@@ -490,6 +490,8 @@ meta_kms_connector_update_state (MetaKmsConnector *connector,
   meta_kms_connector_read_state (connector, impl_device,
                                  drm_connector,
                                  drm_resources);
+  if (drm_connector)
+    drmModeFreeConnector (drm_connector);
 }
 
 static void

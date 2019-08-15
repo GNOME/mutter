@@ -33,10 +33,6 @@ typedef struct _MetaKmsCrtcState
   gboolean is_drm_mode_valid;
   drmModeModeInfo drm_mode;
 
-  uint32_t common_possible_crtcs;
-  uint32_t common_possible_clones;
-  uint32_t encoder_device_idxs;
-
   struct {
     uint16_t *red;
     uint16_t *green;

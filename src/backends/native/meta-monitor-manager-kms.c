@@ -76,6 +76,7 @@ struct _MetaMonitorManagerKms
   MetaMonitorManager parent_instance;
 
   guint hotplug_handler_id;
+  guint removed_handler_id;
 };
 
 struct _MetaMonitorManagerKmsClass
@@ -485,6 +486,14 @@ on_udev_hotplug (MetaUdev           *udev,
 }
 
 static void
+on_udev_device_removed (MetaUdev           *udev,
+                        GUdevDevice        *device,
+                        MetaMonitorManager *manager)
+{
+  handle_hotplug_event (manager);
+}
+
+static void
 meta_monitor_manager_kms_connect_hotplug_handler (MetaMonitorManagerKms *manager_kms)
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
@@ -494,6 +503,9 @@ meta_monitor_manager_kms_connect_hotplug_handler (MetaMonitorManagerKms *manager
   manager_kms->hotplug_handler_id =
     g_signal_connect_after (udev, "hotplug",
                             G_CALLBACK (on_udev_hotplug), manager);
+  manager_kms->removed_handler_id =
+    g_signal_connect_after (udev, "device-removed",
+                            G_CALLBACK (on_udev_device_removed), manager);
 }
 
 static void
@@ -505,6 +517,8 @@ meta_monitor_manager_kms_disconnect_hotplug_handler (MetaMonitorManagerKms *mana
 
   g_signal_handler_disconnect (udev, manager_kms->hotplug_handler_id);
   manager_kms->hotplug_handler_id = 0;
+  g_signal_handler_disconnect (udev, manager_kms->removed_handler_id);
+  manager_kms->removed_handler_id = 0;
 }
 
 void
