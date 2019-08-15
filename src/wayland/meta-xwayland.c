@@ -684,6 +684,16 @@ xdisplay_connection_activity_cb (gint         fd,
 }
 
 static void
+meta_xwayland_stop_xserver_timeout (MetaXWaylandManager *manager)
+{
+  if (manager->xserver_grace_period_id)
+    return;
+
+  manager->xserver_grace_period_id =
+    g_timeout_add_seconds (10, shutdown_xwayland_cb, manager);
+}
+
+static void
 window_unmanaged_cb (MetaWindow          *window,
                      MetaXWaylandManager *manager)
 {
@@ -694,8 +704,7 @@ window_unmanaged_cb (MetaWindow          *window,
   if (!manager->x11_windows)
     {
       meta_verbose ("All X11 windows gone, setting shutdown timeout");
-      manager->xserver_grace_period_id =
-        g_timeout_add_seconds (10, shutdown_xwayland_cb, manager);
+      meta_xwayland_stop_xserver_timeout (manager);
     }
 }
 
@@ -743,15 +752,15 @@ meta_xwayland_init (MetaXWaylandManager *manager,
     {
       if (!choose_xdisplay (manager))
         return FALSE;
+
+      if (!prepare_auth_file (manager))
+        return FALSE;
     }
   else
     {
       if (!open_display_sockets (manager, manager->display_index, &fatal))
         return FALSE;
     }
-
-  if (!prepare_auth_file (manager))
-    return FALSE;
 
   manager->wayland_display = wl_display;
   policy = meta_get_x11_display_policy ();
@@ -799,6 +808,7 @@ meta_xwayland_complete_init (MetaDisplay *display)
 
   if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
     {
+      meta_xwayland_stop_xserver_timeout (manager);
       g_signal_connect (meta_get_display (), "window-created",
                         G_CALLBACK (window_created_cb), manager);
     }
