@@ -1,7 +1,7 @@
 # Rebuild and push with
 #
 #     cd .gitlab-ci/
-#     docker build -t registry.gitlab.gnome.org/gnome/mutter/master:v2 .
+#     docker build --no-cache -t registry.gitlab.gnome.org/gnome/mutter/master:v2 .
 #     docker push registry.gitlab.gnome.org/gnome/mutter/master:v2
 #
 
@@ -13,6 +13,7 @@ RUN dnf -y update && dnf -y upgrade && \
     dnf copr enable -y fmuellner/gnome-shell-ci && \
     dnf copr enable -y jadahl/mutter-ci && \
     dnf copr enable -y hergertme/sysprof-3 && \
+    dnf -y update && dnf -y upgrade && \
 
     dnf builddep -y mutter && \
 
