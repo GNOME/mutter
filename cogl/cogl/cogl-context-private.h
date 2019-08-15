@@ -147,8 +147,6 @@ struct _CoglContext
   GArray           *texture_units;
   int               active_texture_unit;
 
-  CoglPipelineFogState legacy_fog_state;
-
   /* Pipelines */
   CoglPipeline     *opaque_color_pipeline; /* used for set_source_color */
   CoglPipeline     *blended_color_pipeline; /* used for set_source_color */
