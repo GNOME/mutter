@@ -74,8 +74,93 @@ static guint signals[N_SIGNALS] = { 0 };
 G_DEFINE_TYPE (MetaStack, meta_stack, G_TYPE_OBJECT)
 
 static void
+on_stack_changed (MetaStack *stack)
+{
+  MetaDisplay *display = stack->display;
+  GArray *all_root_children_stacked;
+  GList *l;
+  GArray *hidden_stack_ids;
+  GList *sorted;
+
+  meta_topic (META_DEBUG_STACK, "Syncing window stack to server\n");
+
+  all_root_children_stacked = g_array_new (FALSE, FALSE, sizeof (guint64));
+  hidden_stack_ids = g_array_new (FALSE, FALSE, sizeof (guint64));
+
+  meta_topic (META_DEBUG_STACK, "Bottom to top: ");
+  meta_push_no_msg_prefix ();
+
+  sorted = meta_stack_list_windows (stack, NULL);
+
+  for (l = sorted; l; l = l->next)
+    {
+      MetaWindow *w = l->data;
+      guint64 top_level_window;
+      guint64 stack_id;
+
+      if (w->unmanaging)
+        continue;
+
+      meta_topic (META_DEBUG_STACK, "%u:%d - %s ",
+		  w->layer, w->stack_position, w->desc);
+
+      if (w->frame)
+	top_level_window = w->frame->xwindow;
+      else
+	top_level_window = w->xwindow;
+
+      if (w->client_type == META_WINDOW_CLIENT_TYPE_X11)
+        stack_id = top_level_window;
+      else
+        stack_id = w->stamp;
+
+      /* We don't restack hidden windows along with the rest, though they are
+       * reflected in the _NET hints. Hidden windows all get pushed below
+       * the screens fullscreen guard_window. */
+      if (w->hidden)
+	{
+          g_array_append_val (hidden_stack_ids, stack_id);
+	  continue;
+	}
+
+      g_array_append_val (all_root_children_stacked, stack_id);
+    }
+
+  meta_topic (META_DEBUG_STACK, "\n");
+  meta_pop_no_msg_prefix ();
+
+  if (display->x11_display)
+    {
+      uint64_t guard_window_id;
+
+      /* The screen guard window sits above all hidden windows and acts as
+       * a barrier to input reaching these windows. */
+      guard_window_id = display->x11_display->guard_window;
+      g_array_append_val (hidden_stack_ids, guard_window_id);
+    }
+
+  /* Sync to server */
+
+  meta_topic (META_DEBUG_STACK, "Restacking %u windows\n",
+              all_root_children_stacked->len);
+
+  meta_stack_tracker_restack_managed (display->stack_tracker,
+                                      (guint64 *)all_root_children_stacked->data,
+                                      all_root_children_stacked->len);
+  meta_stack_tracker_restack_at_bottom (display->stack_tracker,
+                                        (guint64 *)hidden_stack_ids->data,
+                                        hidden_stack_ids->len);
+
+  g_array_free (hidden_stack_ids, TRUE);
+  g_array_free (all_root_children_stacked, TRUE);
+  g_list_free (sorted);
+}
+
+static void
 meta_stack_init (MetaStack *stack)
 {
+  g_signal_connect (stack, "changed",
+                    G_CALLBACK (on_stack_changed), NULL);
 }
 
 static void
@@ -132,6 +217,8 @@ meta_stack_class_init (MetaStackClass *klass)
   object_class->set_property = meta_stack_set_property;
   object_class->get_property = meta_stack_get_property;
   object_class->finalize = meta_stack_finalize;
+
+  klass->changed = meta_stack_changed;
 
   signals[CHANGED] =
     g_signal_new ("changed",
