@@ -924,8 +924,10 @@ meta_stack_tracker_sync_stack (MetaStackTracker *tracker)
       if (META_STACK_ID_IS_X11 (window))
         {
           MetaX11Display *x11_display = tracker->display->x11_display;
-          MetaWindow *meta_window =
-            meta_x11_display_lookup_x_window (x11_display, (Window)window);
+          MetaWindow *meta_window = NULL;
+
+          if (x11_display)
+            meta_window = meta_x11_display_lookup_x_window (x11_display, (Window) window);
 
           /* When mapping back from xwindow to MetaWindow we have to be a bit careful;
            * children of the root could include unmapped windows created by toolkits
@@ -1183,7 +1185,7 @@ meta_stack_tracker_restack_managed (MetaStackTracker *tracker,
     {
       MetaWindow *old_window = meta_display_lookup_stack_id (tracker->display, windows[old_pos]);
       if ((old_window && !old_window->override_redirect && !old_window->unmanaging) ||
-          windows[old_pos] == tracker->display->x11_display->guard_window)
+          meta_stack_tracker_is_guard_window (tracker, windows[old_pos]))
         break;
     }
   g_assert (old_pos >= 0);
@@ -1202,7 +1204,7 @@ meta_stack_tracker_restack_managed (MetaStackTracker *tracker,
 
   while (old_pos >= 0 && new_pos >= 0)
     {
-      if (windows[old_pos] == tracker->display->x11_display->guard_window)
+      if (meta_stack_tracker_is_guard_window (tracker, windows[old_pos]))
         break;
 
       if (windows[old_pos] == managed[new_pos])
