@@ -232,10 +232,7 @@ x11_stack_sync_to_xserver (MetaX11Stack *x11_stack)
   MetaX11Display *x11_display = x11_stack->x11_display;
   MetaStack *stack = x11_display->display->stack;
   GArray *x11_stacked;
-  GArray *all_root_children_stacked; /* wayland OR x11 */
   GList *tmp;
-  GArray *hidden_stack_ids;
-  uint64_t guard_window_id;
   GList *sorted;
 
   meta_topic (META_DEBUG_STACK, "Syncing window stack to server\n");
@@ -244,70 +241,15 @@ x11_stack_sync_to_xserver (MetaX11Stack *x11_stack)
    */
   x11_stacked = g_array_new (FALSE, FALSE, sizeof (Window));
 
-  all_root_children_stacked = g_array_new (FALSE, FALSE, sizeof (guint64));
-  hidden_stack_ids = g_array_new (FALSE, FALSE, sizeof (guint64));
-
-  meta_topic (META_DEBUG_STACK, "Bottom to top: ");
-  meta_push_no_msg_prefix ();
-
   sorted = meta_stack_list_windows (stack, NULL);
 
   for (tmp = sorted; tmp; tmp = tmp->next)
     {
       MetaWindow *w = tmp->data;
-      guint64 top_level_window;
-      guint64 stack_id;
-
-      if (w->unmanaging)
-        continue;
-
-      meta_topic (META_DEBUG_STACK, "%u:%d - %s ",
-		  w->layer, w->stack_position, w->desc);
 
       if (w->client_type == META_WINDOW_CLIENT_TYPE_X11)
         g_array_append_val (x11_stacked, w->xwindow);
-
-      if (w->frame)
-	top_level_window = w->frame->xwindow;
-      else
-	top_level_window = w->xwindow;
-
-      if (w->client_type == META_WINDOW_CLIENT_TYPE_X11)
-        stack_id = top_level_window;
-      else
-        stack_id = w->stamp;
-
-      /* We don't restack hidden windows along with the rest, though they are
-       * reflected in the _NET hints. Hidden windows all get pushed below
-       * the screens fullscreen guard_window. */
-      if (w->hidden)
-	{
-          g_array_append_val (hidden_stack_ids, stack_id);
-	  continue;
-	}
-
-      g_array_append_val (all_root_children_stacked, stack_id);
     }
-
-  meta_topic (META_DEBUG_STACK, "\n");
-  meta_pop_no_msg_prefix ();
-
-  /* The screen guard window sits above all hidden windows and acts as
-   * a barrier to input reaching these windows. */
-  guard_window_id = x11_stack->x11_display->guard_window;
-  g_array_append_val (hidden_stack_ids, guard_window_id);
-
-  /* Sync to server */
-
-  meta_topic (META_DEBUG_STACK, "Restacking %u windows\n",
-              all_root_children_stacked->len);
-
-  meta_stack_tracker_restack_managed (x11_display->display->stack_tracker,
-                                      (guint64 *)all_root_children_stacked->data,
-                                      all_root_children_stacked->len);
-  meta_stack_tracker_restack_at_bottom (x11_display->display->stack_tracker,
-                                        (guint64 *)hidden_stack_ids->data,
-                                        hidden_stack_ids->len);
 
   /* Sync _NET_CLIENT_LIST and _NET_CLIENT_LIST_STACKING */
 
@@ -327,8 +269,6 @@ x11_stack_sync_to_xserver (MetaX11Stack *x11_stack)
                    x11_stacked->len);
 
   g_array_free (x11_stacked, TRUE);
-  g_array_free (hidden_stack_ids, TRUE);
-  g_array_free (all_root_children_stacked, TRUE);
   g_list_free (sorted);
 }
 
