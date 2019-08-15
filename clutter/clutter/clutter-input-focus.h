@@ -41,7 +41,7 @@ struct _ClutterInputFocusClass
 
   void (* request_surrounding) (ClutterInputFocus *focus);
   void (* delete_surrounding)  (ClutterInputFocus *focus,
-                                guint              offset,
+                                int                offset,
                                 guint              len);
   void (* commit_text) (ClutterInputFocus *focus,
                         const gchar       *text);

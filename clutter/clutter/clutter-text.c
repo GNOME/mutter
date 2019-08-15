@@ -348,13 +348,23 @@ clutter_text_input_focus_request_surrounding (ClutterInputFocus *focus)
 
 static void
 clutter_text_input_focus_delete_surrounding (ClutterInputFocus *focus,
-                                             guint              offset,
+                                             int                offset,
                                              guint              len)
 {
   ClutterText *clutter_text = CLUTTER_TEXT_INPUT_FOCUS (focus)->text;
+  int cursor;
+  int start;
 
+  cursor = clutter_text_get_cursor_position (clutter_text);
+  start = cursor + offset;
+  if (start < 0)
+    {
+      g_warning ("The offset '%d' of deleting surrounding is larger than the cursor pos '%d'",
+                 offset, cursor);
+      return;
+    }
   if (clutter_text_get_editable (clutter_text))
-    clutter_text_delete_text (clutter_text, offset, len);
+    clutter_text_delete_text (clutter_text, start, len);
 }
 
 static void

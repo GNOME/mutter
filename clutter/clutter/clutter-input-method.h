@@ -68,7 +68,7 @@ void clutter_input_method_commit (ClutterInputMethod *im,
                                   const gchar        *text);
 CLUTTER_EXPORT
 void clutter_input_method_delete_surrounding (ClutterInputMethod *im,
-                                              guint               offset,
+                                              int                 offset,
                                               guint               len);
 CLUTTER_EXPORT
 void clutter_input_method_request_surrounding (ClutterInputMethod *im);

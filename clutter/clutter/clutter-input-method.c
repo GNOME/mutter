@@ -168,7 +168,7 @@ clutter_input_method_class_init (ClutterInputMethodClass *klass)
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
-                  G_TYPE_NONE, 2, G_TYPE_UINT, G_TYPE_UINT);
+                  G_TYPE_NONE, 2, G_TYPE_INT, G_TYPE_UINT);
   signals[REQUEST_SURROUNDING] =
     g_signal_new ("request-surrounding",
                   G_TYPE_FROM_CLASS (object_class),
@@ -292,7 +292,7 @@ clutter_input_method_commit (ClutterInputMethod *im,
 
 void
 clutter_input_method_delete_surrounding (ClutterInputMethod *im,
-                                         guint               offset,
+                                         int                 offset,
                                          guint               len)
 {
   ClutterInputMethodPrivate *priv;

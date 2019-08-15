@@ -217,7 +217,7 @@ clutter_input_focus_commit (ClutterInputFocus *focus,
 
 void
 clutter_input_focus_delete_surrounding (ClutterInputFocus *focus,
-                                        guint              offset,
+                                        int                offset,
                                         guint              len)
 {
   g_return_if_fail (CLUTTER_IS_INPUT_FOCUS (focus));
