@@ -262,8 +262,6 @@ cogl_context_new (CoglDisplay *display,
       GE (context, glActiveTexture (GL_TEXTURE1));
     }
 
-  context->legacy_fog_state.enabled = FALSE;
-
   context->opaque_color_pipeline = cogl_pipeline_new (context);
   context->blended_color_pipeline = cogl_pipeline_new (context);
   context->texture_pipeline = cogl_pipeline_new (context);
