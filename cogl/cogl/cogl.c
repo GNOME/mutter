@@ -280,37 +280,6 @@ cogl_get_bitmasks (int *red,
 }
 
 void
-cogl_set_fog (const CoglColor *fog_color,
-              CoglFogMode      mode,
-              float            density,
-              float            z_near,
-              float            z_far)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  if (ctx->legacy_fog_state.enabled == FALSE)
-    ctx->legacy_state_set++;
-
-  ctx->legacy_fog_state.enabled = TRUE;
-  ctx->legacy_fog_state.color = *fog_color;
-  ctx->legacy_fog_state.mode = mode;
-  ctx->legacy_fog_state.density = density;
-  ctx->legacy_fog_state.z_near = z_near;
-  ctx->legacy_fog_state.z_far = z_far;
-}
-
-void
-cogl_disable_fog (void)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  if (ctx->legacy_fog_state.enabled == TRUE)
-    ctx->legacy_state_set--;
-
-  ctx->legacy_fog_state.enabled = FALSE;
-}
-
-void
 cogl_flush (void)
 {
   GList *l;
