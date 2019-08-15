@@ -1426,10 +1426,16 @@ meta_display_lookup_stack_id (MetaDisplay *display,
                               guint64      stack_id)
 {
   if (META_STACK_ID_IS_X11 (stack_id))
-    return meta_x11_display_lookup_x_window (display->x11_display,
-                                             (Window)stack_id);
+    {
+      if (!display->x11_display)
+        return NULL;
+      return meta_x11_display_lookup_x_window (display->x11_display,
+                                               (Window)stack_id);
+    }
   else
-    return meta_display_lookup_stamp (display, stack_id);
+    {
+      return meta_display_lookup_stamp (display, stack_id);
+    }
 }
 
 /* We return a pointer into a ring of static buffers. This is to make
