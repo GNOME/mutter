@@ -28,12 +28,12 @@ typedef struct _MetaEventNative MetaEventNative;
 MetaEventNative * meta_event_native_copy (MetaEventNative *event_evdev);
 void              meta_event_native_free (MetaEventNative *event_evdev);
 
-guint32           meta_event_native_get_event_code (const ClutterEvent *event);
+uint32_t          meta_event_native_get_event_code (const ClutterEvent *event);
 void              meta_event_native_set_event_code (ClutterEvent *event,
-                                                    guint32       evcode);
-guint64           meta_event_native_get_time_usec  (const ClutterEvent *event);
+                                                    uint32_t      evcode);
+uint64_t          meta_event_native_get_time_usec  (const ClutterEvent *event);
 void              meta_event_native_set_time_usec  (ClutterEvent *event,
-                                                    guint64       time_usec);
+                                                    uint64_t      time_usec);
 void              meta_event_native_set_relative_motion (ClutterEvent *event,
                                                          double        dx,
                                                          double        dy,

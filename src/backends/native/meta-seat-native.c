@@ -348,7 +348,7 @@ meta_seat_native_notify_key (MetaSeatNative     *seat,
     case 1:
     case 2:
       {
-        guint32 interval;
+        uint32_t interval;
 
         meta_seat_native_clear_repeat_timer (seat);
         seat->repeat_device = g_object_ref (device);
@@ -374,10 +374,10 @@ meta_seat_native_notify_key (MetaSeatNative     *seat,
 static ClutterEvent *
 new_absolute_motion_event (MetaSeatNative     *seat,
                            ClutterInputDevice *input_device,
-                           guint64             time_us,
-                           gfloat              x,
-                           gfloat              y,
-                           gdouble            *axes)
+                           uint64_t            time_us,
+                           float               x,
+                           float               y,
+                           double             *axes)
 {
   ClutterStage *stage = _clutter_input_device_get_stage (input_device);
   ClutterEvent *event;
@@ -437,7 +437,7 @@ meta_seat_native_notify_relative_motion (MetaSeatNative     *seat,
                                          float               dx_unaccel,
                                          float               dy_unaccel)
 {
-  gfloat new_x, new_y;
+  float new_x, new_y;
   ClutterEvent *event;
 
   /* We can drop the event on the floor if no stage has been
@@ -489,8 +489,8 @@ meta_seat_native_notify_button (MetaSeatNative     *seat,
   MetaInputDeviceNative *device_evdev = (MetaInputDeviceNative *) input_device;
   ClutterStage *stage;
   ClutterEvent *event = NULL;
-  gint button_nr;
-  static gint maskmap[8] =
+  int button_nr;
+  static int maskmap[8] =
     {
       CLUTTER_BUTTON1_MASK, CLUTTER_BUTTON3_MASK, CLUTTER_BUTTON2_MASK,
       CLUTTER_BUTTON4_MASK, CLUTTER_BUTTON5_MASK, 0, 0, 0
@@ -589,7 +589,7 @@ meta_seat_native_notify_button (MetaSeatNative     *seat,
   if (device_evdev->last_tool)
     {
       /* Apply the button event code as per the tool mapping */
-      guint mapped_button;
+      uint32_t mapped_button;
 
       mapped_button = meta_input_device_tool_native_get_button_code (device_evdev->last_tool,
                                                                      button_nr);
@@ -616,9 +616,9 @@ meta_seat_native_notify_button (MetaSeatNative     *seat,
 
 static void
 notify_scroll (ClutterInputDevice       *input_device,
-               guint64                   time_us,
-               gdouble                   dx,
-               gdouble                   dy,
+               uint64_t                  time_us,
+               double                    dx,
+               double                    dy,
                ClutterScrollSource       scroll_source,
                ClutterScrollFinishFlags  flags,
                gboolean                  emulated)
@@ -627,7 +627,7 @@ notify_scroll (ClutterInputDevice       *input_device,
   MetaSeatNative *seat;
   ClutterStage *stage;
   ClutterEvent *event = NULL;
-  gdouble scroll_factor;
+  double scroll_factor;
 
   /* We can drop the event on the floor if no stage has been
    * associated with the device yet. */
@@ -870,7 +870,7 @@ meta_seat_native_free (MetaSeatNative *seat)
 
 ClutterInputDevice *
 meta_seat_native_get_device (MetaSeatNative *seat,
-                             gint            id)
+                             int             id)
 {
   ClutterInputDevice *device;
   GSList *l;
