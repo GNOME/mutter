@@ -76,22 +76,22 @@ void meta_device_manager_native_dispatch (MetaDeviceManagerNative *manager_evdev
 
 struct xkb_state * meta_device_manager_native_get_xkb_state (MetaDeviceManagerNative *manager_evdev);
 
-static inline guint64
-us (guint64 us)
+static inline uint64_t
+us (uint64_t us)
 {
   return us;
 }
 
-static inline guint64
-ms2us (guint64 ms)
+static inline uint64_t
+ms2us (uint64_t ms)
 {
   return us (ms * 1000);
 }
 
-static inline guint32
-us2ms (guint64 us)
+static inline uint32_t
+us2ms (uint64_t us)
 {
-  return (guint32) (us / 1000);
+  return (uint32_t) (us / 1000);
 }
 
 /**
@@ -136,7 +136,7 @@ void  meta_device_manager_native_reclaim_devices (void);
  * to be in the same position.
  */
 typedef void (* MetaPointerConstrainCallback) (ClutterInputDevice *device,
-                                               guint32             time,
+                                               uint32_t            time,
                                                float               prev_x,
                                                float               prev_y,
                                                float              *x,
@@ -174,8 +174,8 @@ void meta_device_manager_native_set_keyboard_numlock (ClutterDeviceManager *evde
 
 void meta_device_manager_native_set_keyboard_repeat (ClutterDeviceManager *evdev,
                                                      gboolean              repeat,
-                                                     guint32               delay,
-                                                     guint32               interval);
+                                                     uint32_t              delay,
+                                                     uint32_t              interval);
 
 typedef gboolean (* MetaEvdevFilterFunc) (struct libinput_event *event,
                                           gpointer               data);
@@ -187,7 +187,7 @@ void meta_device_manager_native_remove_filter (MetaEvdevFilterFunc    func,
                                                gpointer               data);
 
 void meta_device_manager_native_warp_pointer (ClutterInputDevice   *pointer_device,
-                                              guint32               time_,
+                                              uint32_t              time_,
                                               int                   x,
                                               int                   y);
 
