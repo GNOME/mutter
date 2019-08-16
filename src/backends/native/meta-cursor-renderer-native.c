@@ -398,7 +398,7 @@ update_hw_cursor (MetaCursorRendererNative *native,
   if (cursor_sprite)
     rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
   else
-    rect = (ClutterRect) { 0 };
+    rect = (ClutterRect) CLUTTER_RECT_INIT_ZERO;
 
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
