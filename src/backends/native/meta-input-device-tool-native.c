@@ -51,7 +51,7 @@ meta_input_device_tool_native_init (MetaInputDeviceToolNative *tool)
 
 ClutterInputDeviceTool *
 meta_input_device_tool_native_new (struct libinput_tablet_tool *tool,
-                                   guint64                      serial,
+                                   uint64_t                     serial,
                                    ClutterInputDeviceToolType   type)
 {
   MetaInputDeviceToolNative *evdev_tool;
@@ -69,7 +69,7 @@ meta_input_device_tool_native_new (struct libinput_tablet_tool *tool,
 
 void
 meta_input_device_tool_native_set_pressure_curve (ClutterInputDeviceTool *tool,
-                                                  gdouble                 curve[4])
+                                                  double                  curve[4])
 {
   MetaInputDeviceToolNative *evdev_tool;
 
@@ -88,8 +88,8 @@ meta_input_device_tool_native_set_pressure_curve (ClutterInputDeviceTool *tool,
 
 void
 meta_input_device_tool_native_set_button_code (ClutterInputDeviceTool *tool,
-                                               guint                   button,
-                                               guint                   evcode)
+                                               uint32_t                button,
+                                               uint32_t                evcode)
 {
   MetaInputDeviceToolNative *evdev_tool;
 
@@ -108,14 +108,14 @@ meta_input_device_tool_native_set_button_code (ClutterInputDeviceTool *tool,
     }
 }
 
-static gdouble
-calculate_bezier_position (gdouble pos,
-                           gdouble x1,
-                           gdouble y1,
-                           gdouble x2,
-                           gdouble y2)
+static double
+calculate_bezier_position (double pos,
+                           double x1,
+                           double y1,
+                           double x2,
+                           double y2)
 {
-  gdouble int1_y, int2_y;
+  double int1_y, int2_y;
 
   pos = CLAMP (pos, 0, 1);
 
@@ -129,9 +129,9 @@ calculate_bezier_position (gdouble pos,
   return (pos * (int2_y - int1_y)) + int1_y;
 }
 
-gdouble
+double
 meta_input_device_tool_native_translate_pressure (ClutterInputDeviceTool *tool,
-                                                  gdouble                 pressure)
+                                                  double                  pressure)
 {
   MetaInputDeviceToolNative *evdev_tool;
 
@@ -146,9 +146,9 @@ meta_input_device_tool_native_translate_pressure (ClutterInputDeviceTool *tool,
                                     evdev_tool->pressure_curve[3]);
 }
 
-guint
+uint32_t
 meta_input_device_tool_native_get_button_code (ClutterInputDeviceTool *tool,
-                                               guint                   button)
+                                               uint32_t                button)
 {
   MetaInputDeviceToolNative *evdev_tool;
 

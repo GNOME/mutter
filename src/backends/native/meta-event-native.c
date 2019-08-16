@@ -28,9 +28,9 @@ typedef struct _MetaEventNative MetaEventNative;
 
 struct _MetaEventNative
 {
-  guint32 evcode;
+  uint32_t evcode;
 
-  guint64 time_usec;
+  uint64_t time_usec;
 
   gboolean has_relative_motion;
   double dx;
@@ -77,7 +77,7 @@ meta_event_native_ensure_platform_data (ClutterEvent *event)
 
 void
 meta_event_native_set_event_code (ClutterEvent *event,
-                                  guint32       evcode)
+                                  uint32_t      evcode)
 {
   MetaEventNative *event_evdev;
 
@@ -87,7 +87,7 @@ meta_event_native_set_event_code (ClutterEvent *event,
 
 void
 meta_event_native_set_time_usec (ClutterEvent *event,
-                                 guint64       time_usec)
+                                 uint64_t      time_usec)
 {
   MetaEventNative *event_evdev;
 
@@ -121,7 +121,7 @@ meta_event_native_set_relative_motion (ClutterEvent *event,
  *
  * Returns: The event code.
  **/
-guint32
+uint32_t
 meta_event_native_get_event_code (const ClutterEvent *event)
 {
   MetaEventNative *event_evdev = _clutter_event_get_platform_data (event);
@@ -140,7 +140,7 @@ meta_event_native_get_event_code (const ClutterEvent *event)
  *
  * Returns: The time in microsecond granularity, or 0 if unavailable.
  */
-guint64
+uint64_t
 meta_event_native_get_time_usec (const ClutterEvent *event)
 {
   MetaEventNative *event_evdev = _clutter_event_get_platform_data (event);
