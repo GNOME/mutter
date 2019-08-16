@@ -179,6 +179,8 @@ struct _MetaX11Display
 
   MetaX11StartupNotification *startup_notification;
   MetaX11Stack *x11_stack;
+
+  XserverRegion empty_region;
 };
 
 MetaX11Display *meta_x11_display_new (MetaDisplay *display, GError **error);

@@ -63,4 +63,11 @@ META_EXPORT
 gboolean meta_x11_display_xwindow_is_a_no_focus_window (MetaX11Display *x11_display,
                                                         Window xwindow);
 
+META_EXPORT
+void     meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
+                                                  XserverRegion   region);
+
+META_EXPORT
+void     meta_x11_display_clear_stage_input_region (MetaX11Display *x11_display);
+
 #endif /* META_X11_DISPLAY_H */
