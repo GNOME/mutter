@@ -97,61 +97,6 @@ meta_compositor_x11_process_xevent (MetaCompositorX11 *compositor_x11,
     clutter_x11_handle_event (xevent);
 }
 
-void
-meta_set_stage_input_region (MetaDisplay  *display,
-                             XserverRegion region)
-{
-  MetaCompositor *compositor = display->compositor;
-  MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (display->compositor);
-  Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
-  ClutterStage *stage = meta_compositor_get_stage (compositor);
-  Window xstage;
-
-  /*
-   * As a wayland compositor we can simply ignore all this trickery
-   * for setting an input region on the stage for capturing events in
-   * clutter since all input comes to us first and we get to choose
-   * who else sees them.
-   */
-  if (meta_is_wayland_compositor ())
-    return;
-
-  xstage = clutter_x11_get_stage_window (stage);
-  XFixesSetWindowShapeRegion (xdisplay, xstage, ShapeInput, 0, 0, region);
-
-  /*
-   * It's generally a good heuristic that when a crossing event is generated
-   * because we reshape the overlay, we don't want it to affect
-   * focus-follows-mouse focus - it's not the user doing something, it's the
-   * environment changing under the user.
-   */
-  meta_display_add_ignored_crossing_serial (display, XNextRequest (xdisplay));
-  XFixesSetWindowShapeRegion (xdisplay, compositor_x11->output,
-                              ShapeInput, 0, 0, region);
-}
-
-void
-meta_empty_stage_input_region (MetaDisplay *display)
-{
-  /*
-   * Using a static region here is a bit hacky, but when running as X11
-   * compositing manager we only ever open a single XDisplay.
-   */
-  static XserverRegion region = None;
-
-  if (meta_is_wayland_compositor ())
-    return;
-
-  if (region == None)
-    {
-      Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
-
-      region = XFixesCreateRegion (xdisplay, NULL, 0);
-    }
-
-  meta_set_stage_input_region (display, region);
-}
-
 static void
 meta_compositor_x11_manage (MetaCompositor *compositor)
 {
@@ -167,7 +112,7 @@ meta_compositor_x11_manage (MetaCompositor *compositor)
 
   XReparentWindow (xdisplay, xwindow, compositor_x11->output, 0, 0);
 
-  meta_empty_stage_input_region (display);
+  meta_x11_display_clear_stage_input_region (display->x11_display);
 
   /*
    * Make sure there isn't any left-over output shape on the overlay window by

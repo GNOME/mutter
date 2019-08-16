@@ -23,9 +23,6 @@
 #ifndef MUTTER_H_
 #define MUTTER_H_
 
-#include <X11/Xlib.h>
-#include <X11/extensions/Xfixes.h>
-
 #include "clutter/clutter.h"
 #include "meta/compositor.h"
 #include "meta/meta-window-actor.h"
@@ -52,13 +49,6 @@ void meta_disable_unredirect_for_display (MetaDisplay *display);
 
 META_EXPORT
 void meta_enable_unredirect_for_display  (MetaDisplay *display);
-
-META_EXPORT
-void meta_set_stage_input_region   (MetaDisplay  *display,
-                                    XserverRegion region);
-
-META_EXPORT
-void meta_empty_stage_input_region (MetaDisplay  *display);
 
 META_EXPORT
 void meta_focus_stage_window       (MetaDisplay  *display,
