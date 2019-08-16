@@ -288,8 +288,6 @@ cogl_context_new (CoglDisplay *display,
   _cogl_list_init (&context->onscreen_events_queue);
   _cogl_list_init (&context->onscreen_dirty_queue);
 
-  g_queue_init (&context->gles2_context_stack);
-
   context->journal_flush_attributes_array =
     g_array_new (TRUE, FALSE, sizeof (CoglAttribute *));
   context->journal_clip_bounds = NULL;
@@ -348,8 +346,6 @@ cogl_context_new (CoglDisplay *display,
 
   context->current_path = NULL;
   context->stencil_pipeline = cogl_pipeline_new (context);
-
-  context->in_begin_gl_block = FALSE;
 
   context->quad_buffer_indices_byte = NULL;
   context->quad_buffer_indices = NULL;
@@ -453,8 +449,6 @@ _cogl_context_free (CoglContext *context)
 
   if (context->swap_callback_closures)
     g_hash_table_destroy (context->swap_callback_closures);
-
-  g_warn_if_fail (context->gles2_context_stack.length == 0);
 
   if (context->journal_flush_attributes_array)
     g_array_free (context->journal_flush_attributes_array, TRUE);

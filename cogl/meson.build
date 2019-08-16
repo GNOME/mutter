@@ -117,9 +117,6 @@ endif
 subdir('cogl')
 subdir('cogl-path')
 subdir('cogl-pango')
-if have_gles2
-  subdir('cogl-gles2')
-endif
 if have_cogl_tests
   subdir('tests')
 endif

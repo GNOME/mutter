@@ -76,7 +76,6 @@ typedef struct _CoglDriverDescription
 {
   CoglDriver id;
   const char *name;
-  CoglRendererConstraint constraints;
   /* It would be nice to make this a pointer and then use a compound
    * literal from C99 to initialise it but we probably can't get away
    * with using C99 here. Instead we'll just use a fixed-size array.
@@ -94,7 +93,6 @@ static CoglDriverDescription _cogl_drivers[] =
   {
     COGL_DRIVER_GL,
     "gl",
-    0,
     { COGL_PRIVATE_FEATURE_ANY_GL,
       COGL_PRIVATE_FEATURE_GL_FIXED,
       COGL_PRIVATE_FEATURE_GL_PROGRAMMABLE,
@@ -106,7 +104,6 @@ static CoglDriverDescription _cogl_drivers[] =
   {
     COGL_DRIVER_GL3,
     "gl3",
-    0,
     { COGL_PRIVATE_FEATURE_ANY_GL,
       COGL_PRIVATE_FEATURE_GL_PROGRAMMABLE,
       -1 },
@@ -119,7 +116,6 @@ static CoglDriverDescription _cogl_drivers[] =
   {
     COGL_DRIVER_GLES2,
     "gles2",
-    COGL_RENDERER_CONSTRAINT_SUPPORTS_COGL_GLES2,
     { COGL_PRIVATE_FEATURE_ANY_GL,
       COGL_PRIVATE_FEATURE_GL_EMBEDDED,
       COGL_PRIVATE_FEATURE_GL_PROGRAMMABLE,
@@ -132,7 +128,6 @@ static CoglDriverDescription _cogl_drivers[] =
   {
     COGL_DRIVER_NOP,
     "nop",
-    0, /* constraints satisfied */
     { -1 },
     &_cogl_driver_nop,
     NULL, /* texture driver */
@@ -398,31 +393,15 @@ driver_id_to_name (CoglDriver id)
 
 typedef struct _SatisfyConstraintsState
 {
-  GList *constraints;
   const CoglDriverDescription *driver_description;
 } SatisfyConstraintsState;
 
+/* XXX this is still uglier than it needs to be */
 static gboolean
 satisfy_constraints (CoglDriverDescription *description,
                      void *user_data)
 {
   SatisfyConstraintsState *state = user_data;
-  GList *l;
-
-  for (l = state->constraints; l; l = l->next)
-    {
-      CoglRendererConstraint constraint = GPOINTER_TO_UINT (l->data);
-
-      /* Most of the constraints only affect the winsys selection so
-       * we'll filter them out */
-      if (!(constraint & COGL_RENDERER_DRIVER_CONSTRAINTS))
-        continue;
-
-      /* If the driver doesn't satisfy any constraint then continue
-       * to the next driver description */
-      if (!(constraint & description->constraints))
-        return TRUE;
-    }
 
   state->driver_description = description;
 
@@ -493,7 +472,6 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
     }
 
   state.driver_description = NULL;
-  state.constraints = renderer->constraints;
 
   foreach_driver_description (driver_override,
                               satisfy_constraints,

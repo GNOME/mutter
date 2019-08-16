@@ -212,9 +212,6 @@ struct _CoglContext
   CoglList onscreen_dirty_queue;
   CoglClosure *onscreen_dispatch_idle;
 
-  CoglGLES2Context *current_gles2_context;
-  GQueue gles2_context_stack;
-
   /* This becomes TRUE the first time the context is bound to an
    * onscreen buffer. This is used by cogl-framebuffer-gl to determine
    * when to initialise the glDrawBuffer state */
@@ -233,8 +230,6 @@ struct _CoglContext
   CoglIndices      *rectangle_byte_indices;
   CoglIndices      *rectangle_short_indices;
   int               rectangle_short_indices_len;
-
-  gboolean          in_begin_gl_block;
 
   CoglPipeline     *texture_download_pipeline;
   CoglPipeline     *blit_texture_pipeline;
