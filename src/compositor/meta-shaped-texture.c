@@ -1019,6 +1019,60 @@ meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex)
   return stex->opaque_region;
 }
 
+static gboolean
+meta_shaped_texture_has_alpha (MetaShapedTexture *stex)
+{
+  CoglTexture *texture;
+
+  texture = stex->texture;
+  if (!texture)
+    return TRUE;
+
+  switch (cogl_texture_get_components (texture))
+    {
+    case COGL_TEXTURE_COMPONENTS_A:
+    case COGL_TEXTURE_COMPONENTS_RGBA:
+      return TRUE;
+    case COGL_TEXTURE_COMPONENTS_RG:
+    case COGL_TEXTURE_COMPONENTS_RGB:
+    case COGL_TEXTURE_COMPONENTS_DEPTH:
+      return FALSE;
+    }
+
+  g_warn_if_reached ();
+  return FALSE;
+}
+
+gboolean
+meta_shaped_texture_is_opaque (MetaShapedTexture *stex)
+{
+  CoglTexture *texture;
+  cairo_rectangle_int_t opaque_rect;
+
+  texture = stex->texture;
+  if (!texture)
+    return FALSE;
+
+  if (!meta_shaped_texture_has_alpha (stex))
+    return TRUE;
+
+  if (!stex->opaque_region)
+    return FALSE;
+
+  if (cairo_region_num_rectangles (stex->opaque_region) != 1)
+    return FALSE;
+
+  cairo_region_get_extents (stex->opaque_region, &opaque_rect);
+
+  ensure_size_valid (stex);
+
+  return meta_rectangle_equal (&opaque_rect,
+                               &(MetaRectangle) {
+                                .width = stex->dst_width,
+                                .height = stex->dst_height
+                               });
+}
+
 void
 meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
                                    MetaMonitorTransform  transform)
