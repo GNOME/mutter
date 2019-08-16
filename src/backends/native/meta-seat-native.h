@@ -65,19 +65,19 @@ struct _MetaSeatNative
 
   /* keyboard repeat */
   gboolean repeat;
-  guint32 repeat_delay;
-  guint32 repeat_interval;
-  guint32 repeat_key;
-  guint32 repeat_count;
-  guint32 repeat_timer;
+  uint32_t repeat_delay;
+  uint32_t repeat_interval;
+  uint32_t repeat_key;
+  uint32_t repeat_count;
+  uint32_t repeat_timer;
   ClutterInputDevice *repeat_device;
 
-  gfloat pointer_x;
-  gfloat pointer_y;
+  float pointer_x;
+  float pointer_y;
 
   /* Emulation of discrete scroll events out of smooth ones */
-  gfloat accum_scroll_dx;
-  gfloat accum_scroll_dy;
+  float accum_scroll_dx;
+  float accum_scroll_dy;
 };
 
 void meta_seat_native_notify_key (MetaSeatNative     *seat,
@@ -137,7 +137,7 @@ void meta_seat_native_set_libinput_seat (MetaSeatNative       *seat,
 void meta_seat_native_sync_leds (MetaSeatNative *seat);
 
 ClutterInputDevice * meta_seat_native_get_device (MetaSeatNative *seat,
-                                                  gint            id);
+                                                  int             id);
 
 MetaTouchState * meta_seat_native_acquire_touch_state (MetaSeatNative *seat,
                                                        int             device_slot);
@@ -146,7 +146,7 @@ void meta_seat_native_release_touch_state (MetaSeatNative *seat,
                                            MetaTouchState *touch_state);
 
 MetaTouchState * meta_seat_native_get_touch (MetaSeatNative *seat,
-                                             guint32         id);
+                                             uint32_t        id);
 
 void meta_seat_native_set_stage (MetaSeatNative *seat,
                                  ClutterStage   *stage);
