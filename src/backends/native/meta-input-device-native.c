@@ -130,8 +130,8 @@ meta_input_device_native_get_property (GObject    *object,
 
 static gboolean
 meta_input_device_native_keycode_to_evdev (ClutterInputDevice *device,
-                                           guint hardware_keycode,
-                                           guint *evdev_keycode)
+                                           uint32_t            hardware_keycode,
+                                           uint32_t           *evdev_keycode)
 {
   /* The hardware keycodes from the evdev backend are almost evdev
      keycodes: we use the evdev keycode file, but xkb rules have an
@@ -182,8 +182,8 @@ meta_input_device_native_update_from_tool (ClutterInputDevice     *device,
 
 static gboolean
 meta_input_device_native_is_mode_switch_button (ClutterInputDevice *device,
-                                                guint               group,
-                                                guint               button)
+                                                uint32_t            group,
+                                                uint32_t            button)
 {
   struct libinput_device *libinput_device;
   struct libinput_tablet_pad_mode_group *mode_group;
@@ -194,9 +194,9 @@ meta_input_device_native_is_mode_switch_button (ClutterInputDevice *device,
   return libinput_tablet_pad_mode_group_button_is_toggle (mode_group, button) != 0;
 }
 
-static gint
+static int
 meta_input_device_native_get_group_n_modes (ClutterInputDevice *device,
-                                            gint                group)
+                                            int                 group)
 {
   struct libinput_device *libinput_device;
   struct libinput_tablet_pad_mode_group *mode_group;
@@ -281,7 +281,7 @@ trigger_slow_keys (gpointer data)
   return G_SOURCE_REMOVE;
 }
 
-static gint
+static int
 find_pending_event_by_keycode (gconstpointer a,
                                gconstpointer b)
 {
@@ -708,7 +708,7 @@ handle_enablekeys_release (ClutterEvent          *event,
 }
 
 static int
-get_button_index (gint button)
+get_button_index (int button)
 {
   switch (button)
     {
@@ -730,7 +730,7 @@ static void
 emulate_button_press (MetaInputDeviceNative *device_evdev)
 {
   ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (device_evdev);
-  gint btn = device_evdev->mousekeys_btn;
+  int btn = device_evdev->mousekeys_btn;
 
   if (device_evdev->mousekeys_btn_states[get_button_index (btn)])
     return;
@@ -745,7 +745,7 @@ static void
 emulate_button_release (MetaInputDeviceNative *device_evdev)
 {
   ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (device_evdev);
-  gint btn = device_evdev->mousekeys_btn;
+  int btn = device_evdev->mousekeys_btn;
 
   if (device_evdev->mousekeys_btn_states[get_button_index (btn)] == CLUTTER_BUTTON_STATE_RELEASED)
     return;
@@ -775,18 +775,18 @@ update_mousekeys_params (MetaInputDeviceNative  *device,
   device->mousekeys_init_delay = MAX (0, settings->mousekeys_init_delay);
 
   device->mousekeys_curve_factor =
-    (((gdouble) device->mousekeys_max_speed) /
-      pow ((gdouble) device->mousekeys_accel_time, MOUSEKEYS_CURVE));
+    (((double) device->mousekeys_max_speed) /
+      pow ((double) device->mousekeys_accel_time, MOUSEKEYS_CURVE));
 }
 
-static gdouble
+static double
 mousekeys_get_speed_factor (MetaInputDeviceNative *device,
-                            gint64                 time_us)
+                            uint64_t               time_us)
 {
-  guint32 time;
-  gint64 delta_t;
-  gint64 init_time;
-  gdouble speed;
+  uint32_t time;
+  int64_t delta_t;
+  int64_t init_time;
+  double speed;
 
   time = us2ms (time_us);
 
@@ -821,27 +821,27 @@ mousekeys_get_speed_factor (MetaInputDeviceNative *device,
 
 static void
 emulate_pointer_motion (MetaInputDeviceNative *device_evdev,
-                        gint                   dx,
-                        gint                   dy)
+                        int                    dx,
+                        int                    dy)
 {
   ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (device_evdev);
-  gdouble dx_motion;
-  gdouble dy_motion;
-  gdouble speed;
-  gint64 time_us;
+  double dx_motion;
+  double dy_motion;
+  double speed;
+  int64_t time_us;
 
   time_us = g_get_monotonic_time ();
   speed = mousekeys_get_speed_factor (device_evdev, time_us);
 
   if (dx < 0)
-    dx_motion = floor (((gdouble) dx) * speed);
+    dx_motion = floor (((double) dx) * speed);
   else
-    dx_motion = ceil (((gdouble) dx) * speed);
+    dx_motion = ceil (((double) dx) * speed);
 
   if (dy < 0)
-    dy_motion = floor (((gdouble) dy) * speed);
+    dy_motion = floor (((double) dy) * speed);
   else
-    dy_motion = ceil (((gdouble) dy) * speed);
+    dy_motion = ceil (((double) dy) * speed);
 
   clutter_virtual_input_device_notify_relative_motion (device->accessibility_virtual_device,
                                                        time_us, dx_motion, dy_motion);
@@ -909,8 +909,8 @@ static gboolean
 trigger_mousekeys_move (gpointer data)
 {
   MetaInputDeviceNative *device = data;
-  gint dx = 0;
-  gint dy = 0;
+  int dx = 0;
+  int dy = 0;
 
   if (device->mousekeys_first_motion_time == 0)
     {
@@ -1340,10 +1340,10 @@ meta_input_device_native_new (ClutterDeviceManager   *manager,
   MetaInputDeviceNative *device;
   ClutterInputDeviceType type;
   MetaDeviceManagerNative *manager_evdev;
-  gchar *vendor, *product;
-  gint device_id, n_rings = 0, n_strips = 0, n_groups = 1;
-  gchar *node_path;
-  gdouble width, height;
+  char *vendor, *product;
+  int device_id, n_rings = 0, n_strips = 0, n_groups = 1;
+  char *node_path;
+  double width, height;
 
   type = meta_input_device_native_determine_type (libinput_device);
   vendor = g_strdup_printf ("%.4x", libinput_device_get_id_vendor (libinput_device));
@@ -1407,7 +1407,7 @@ meta_input_device_native_new_virtual (ClutterDeviceManager   *manager,
   MetaInputDeviceNative *device;
   MetaDeviceManagerNative *manager_evdev;
   const char *name;
-  gint device_id;
+  int device_id;
 
   switch (type)
     {
@@ -1505,12 +1505,12 @@ meta_input_device_native_get_libinput_device (ClutterInputDevice *device)
 void
 meta_input_device_native_translate_coordinates (ClutterInputDevice *device,
                                                 ClutterStage       *stage,
-                                                gfloat             *x,
-                                                gfloat             *y)
+                                                float              *x,
+                                                float              *y)
 {
   MetaInputDeviceNative *device_evdev = META_INPUT_DEVICE_NATIVE (device);
   double min_x = 0, min_y = 0, max_x = 1, max_y = 1;
-  gdouble stage_width, stage_height;
+  double stage_width, stage_height;
   double x_d, y_d;
 
   stage_width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
@@ -1522,7 +1522,7 @@ meta_input_device_native_translate_coordinates (ClutterInputDevice *device,
   if (device_evdev->output_ratio > 0 &&
       device_evdev->device_aspect_ratio > 0)
     {
-      gdouble ratio = device_evdev->device_aspect_ratio / device_evdev->output_ratio;
+      double ratio = device_evdev->device_aspect_ratio / device_evdev->output_ratio;
 
       if (ratio > 1)
         x_d *= ratio;
