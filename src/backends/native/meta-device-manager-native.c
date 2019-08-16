@@ -252,10 +252,10 @@ meta_device_manager_native_filter_relative_motion (MetaDeviceManagerNative *mana
 
 static ClutterEvent *
 new_absolute_motion_event (ClutterInputDevice *input_device,
-                           guint64             time_us,
-                           gfloat              x,
-                           gfloat              y,
-                           gdouble            *axes)
+                           uint64_t            time_us,
+                           float               x,
+                           float               y,
+                           double             *axes)
 {
   gfloat stage_width, stage_height;
   MetaDeviceManagerNative *manager_evdev;
@@ -324,10 +324,10 @@ new_absolute_motion_event (ClutterInputDevice *input_device,
 
 static void
 notify_absolute_motion (ClutterInputDevice *input_device,
-                        guint64             time_us,
-                        gfloat              x,
-                        gfloat              y,
-                        gdouble            *axes)
+                        uint64_t            time_us,
+                        float               x,
+                        float               y,
+                        double             *axes)
 {
   ClutterEvent *event;
 
@@ -338,10 +338,10 @@ notify_absolute_motion (ClutterInputDevice *input_device,
 
 static void
 notify_relative_tool_motion (ClutterInputDevice *input_device,
-                             guint64             time_us,
-                             gfloat              dx,
-                             gfloat              dy,
-                             gdouble            *axes)
+                             uint64_t            time_us,
+                             float               dx,
+                             float               dy,
+                             double             *axes)
 {
   MetaInputDeviceNative *device_evdev;
   ClutterEvent *event;
@@ -369,12 +369,12 @@ notify_relative_tool_motion (ClutterInputDevice *input_device,
 static void
 notify_pinch_gesture_event (ClutterInputDevice          *input_device,
                             ClutterTouchpadGesturePhase  phase,
-                            guint64                      time_us,
-                            gdouble                      dx,
-                            gdouble                      dy,
-                            gdouble                      angle_delta,
-                            gdouble                      scale,
-                            guint                        n_fingers)
+                            uint64_t                     time_us,
+                            double                       dx,
+                            double                       dy,
+                            double                       angle_delta,
+                            double                       scale,
+                            uint32_t                     n_fingers)
 {
   MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
@@ -418,10 +418,10 @@ notify_pinch_gesture_event (ClutterInputDevice          *input_device,
 static void
 notify_swipe_gesture_event (ClutterInputDevice          *input_device,
                             ClutterTouchpadGesturePhase  phase,
-                            guint64                      time_us,
-                            guint                        n_fingers,
-                            gdouble                      dx,
-                            gdouble                      dy)
+                            uint64_t                     time_us,
+                            uint32_t                     n_fingers,
+                            double                       dx,
+                            double                       dy)
 {
   MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
@@ -462,7 +462,7 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
 
 static void
 notify_proximity (ClutterInputDevice *input_device,
-                  guint64             time_us,
+                  uint64_t            time_us,
                   gboolean            in)
 {
   MetaInputDeviceNative *device_evdev;
@@ -499,11 +499,11 @@ notify_proximity (ClutterInputDevice *input_device,
 
 static void
 notify_pad_button (ClutterInputDevice *input_device,
-                   guint64             time_us,
-                   guint32             button,
-                   guint32             mode_group,
-                   guint32             mode,
-                   guint32             pressed)
+                   uint64_t            time_us,
+                   uint32_t            button,
+                   uint32_t            mode_group,
+                   uint32_t            mode,
+                   uint32_t            pressed)
 {
   MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
@@ -540,12 +540,12 @@ notify_pad_button (ClutterInputDevice *input_device,
 
 static void
 notify_pad_strip (ClutterInputDevice *input_device,
-                  guint64             time_us,
-                  guint32             strip_number,
-                  guint32             strip_source,
-                  guint32             mode_group,
-                  guint32             mode,
-                  gdouble             value)
+                  uint64_t            time_us,
+                  uint32_t            strip_number,
+                  uint32_t            strip_source,
+                  uint32_t            mode_group,
+                  uint32_t            mode,
+                  double              value)
 {
   MetaInputDeviceNative *device_evdev;
   ClutterInputDevicePadSource source;
@@ -586,12 +586,12 @@ notify_pad_strip (ClutterInputDevice *input_device,
 
 static void
 notify_pad_ring (ClutterInputDevice *input_device,
-                 guint64             time_us,
-                 guint32             ring_number,
-                 guint32             ring_source,
-                 guint32             mode_group,
-                 guint32             mode,
-                 gdouble             angle)
+                 uint64_t            time_us,
+                 uint32_t            ring_number,
+                 uint32_t            ring_source,
+                 uint32_t            mode_group,
+                 uint32_t            mode,
+                 double              angle)
 {
   MetaInputDeviceNative *device_evdev;
   ClutterInputDevicePadSource source;
@@ -998,7 +998,7 @@ input_device_update_tool (ClutterInputDevice          *input_device,
   MetaInputDeviceNative *evdev_device = META_INPUT_DEVICE_NATIVE (input_device);
   ClutterInputDeviceTool *tool = NULL;
   ClutterInputDeviceToolType tool_type;
-  guint64 tool_serial;
+  uint64_t tool_serial;
 
   if (libinput_tool)
     {
@@ -1161,9 +1161,9 @@ process_tablet_axis (MetaDeviceManagerNative *manager_evdev,
                      struct libinput_event   *event)
 {
   struct libinput_device *libinput_device = libinput_event_get_device (event);
-  guint64 time;
+  uint64_t time;
   double x, y, dx, dy, *axes;
-  gfloat stage_width, stage_height;
+  float stage_width, stage_height;
   ClutterStage *stage;
   ClutterInputDevice *device;
   struct libinput_event_tablet_tool *tablet_event =
@@ -1216,8 +1216,8 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
     {
     case LIBINPUT_EVENT_KEYBOARD_KEY:
       {
-        guint32 key, key_state, seat_key_count;
-        guint64 time_us;
+        uint32_t key, key_state, seat_key_count;
+        uint64_t time_us;
         struct libinput_event_keyboard *key_event =
           libinput_event_get_keyboard_event (event);
 
@@ -1271,9 +1271,9 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
 
     case LIBINPUT_EVENT_POINTER_MOTION_ABSOLUTE:
       {
-        guint64 time_us;
+        uint64_t time_us;
         double x, y;
-        gfloat stage_width, stage_height;
+        float stage_width, stage_height;
         ClutterStage *stage;
         struct libinput_event_pointer *motion_event =
           libinput_event_get_pointer_event (event);
@@ -1303,8 +1303,8 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
 
     case LIBINPUT_EVENT_POINTER_BUTTON:
       {
-        guint32 button, button_state, seat_button_count;
-        guint64 time_us;
+        uint32_t button, button_state, seat_button_count;
+        uint64_t time_us;
         struct libinput_event_pointer *button_event =
           libinput_event_get_pointer_event (event);
         device = libinput_device_get_user_data (libinput_device);
@@ -1330,7 +1330,7 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
 
     case LIBINPUT_EVENT_POINTER_AXIS:
       {
-        guint64 time_us;
+        uint64_t time_us;
         enum libinput_pointer_axis_source source;
         struct libinput_event_pointer *axis_event =
           libinput_event_get_pointer_event (event);
@@ -1368,9 +1368,9 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
     case LIBINPUT_EVENT_TOUCH_DOWN:
       {
         int device_slot;
-        guint64 time_us;
+        uint64_t time_us;
         double x, y;
-        gfloat stage_width, stage_height;
+        float stage_width, stage_height;
         MetaSeatNative *seat;
         ClutterStage *stage;
         MetaTouchState *touch_state;
@@ -1413,7 +1413,7 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
     case LIBINPUT_EVENT_TOUCH_UP:
       {
         int device_slot;
-        guint64 time_us;
+        uint64_t time_us;
         MetaSeatNative *seat;
         MetaTouchState *touch_state;
         struct libinput_event_touch *touch_event =
@@ -1444,9 +1444,9 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
     case LIBINPUT_EVENT_TOUCH_MOTION:
       {
         int device_slot;
-        guint64 time_us;
+        uint64_t time_us;
         double x, y;
-        gfloat stage_width, stage_height;
+        float stage_width, stage_height;
         MetaSeatNative *seat;
         ClutterStage *stage;
         MetaTouchState *touch_state;
@@ -1490,7 +1490,7 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
       }
     case LIBINPUT_EVENT_TOUCH_CANCEL:
       {
-        guint64 time_us;
+        uint64_t time_us;
         struct libinput_event_touch *touch_event =
           libinput_event_get_touch_event (event);
 
@@ -1508,8 +1508,8 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
         struct libinput_event_gesture *gesture_event =
           libinput_event_get_gesture_event (event);
         ClutterTouchpadGesturePhase phase;
-        guint n_fingers;
-        guint64 time_us;
+        uint32_t n_fingers;
+        uint64_t time_us;
 
         if (libinput_event_get_type (event) == LIBINPUT_EVENT_GESTURE_PINCH_BEGIN)
           phase = CLUTTER_TOUCHPAD_GESTURE_PHASE_BEGIN;
@@ -1528,8 +1528,8 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
         struct libinput_event_gesture *gesture_event =
           libinput_event_get_gesture_event (event);
         gdouble angle_delta, scale, dx, dy;
-        guint n_fingers;
-        guint64 time_us;
+        uint32_t n_fingers;
+        uint64_t time_us;
 
         n_fingers = libinput_event_gesture_get_finger_count (gesture_event);
         device = libinput_device_get_user_data (libinput_device);
@@ -1550,8 +1550,8 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
         struct libinput_event_gesture *gesture_event =
           libinput_event_get_gesture_event (event);
         ClutterTouchpadGesturePhase phase;
-        guint32 n_fingers;
-        guint64 time_us;
+        uint32_t n_fingers;
+        uint64_t time_us;
 
         device = libinput_device_get_user_data (libinput_device);
         time_us = libinput_event_gesture_get_time_usec (gesture_event);
@@ -1570,9 +1570,9 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
       {
         struct libinput_event_gesture *gesture_event =
           libinput_event_get_gesture_event (event);
-        guint32 n_fingers;
-        guint64 time_us;
-        gdouble dx, dy;
+        uint32_t n_fingers;
+        uint64_t time_us;
+        double dx, dy;
 
         device = libinput_device_get_user_data (libinput_device);
         time_us = libinput_event_gesture_get_time_usec (gesture_event);
@@ -1592,7 +1592,7 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
       }
     case LIBINPUT_EVENT_TABLET_TOOL_PROXIMITY:
       {
-        guint64 time;
+        uint64_t time;
         struct libinput_event_tablet_tool *tablet_event =
           libinput_event_get_tablet_tool_event (event);
         struct libinput_tablet_tool *libinput_tool = NULL;
@@ -1613,11 +1613,11 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
       }
     case LIBINPUT_EVENT_TABLET_TOOL_BUTTON:
       {
-        guint64 time_us;
-        guint32 button_state;
+        uint64_t time_us;
+        uint32_t button_state;
         struct libinput_event_tablet_tool *tablet_event =
           libinput_event_get_tablet_tool_event (event);
-        guint tablet_button;
+        uint32_t tablet_button;
 
         process_tablet_axis (manager_evdev, event);
 
@@ -1634,8 +1634,8 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
       }
     case LIBINPUT_EVENT_TABLET_TOOL_TIP:
       {
-        guint64 time_us;
-        guint32 button_state;
+        uint64_t time_us;
+        uint32_t button_state;
         struct libinput_event_tablet_tool *tablet_event =
           libinput_event_get_tablet_tool_event (event);
 
@@ -1658,8 +1658,8 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
       }
     case LIBINPUT_EVENT_TABLET_PAD_BUTTON:
       {
-        guint64 time;
-        guint32 button_state, button, group, mode;
+        uint64_t time;
+        uint32_t button_state, button, group, mode;
         struct libinput_tablet_pad_mode_group *mode_group;
         struct libinput_event_tablet_pad *pad_event =
           libinput_event_get_tablet_pad_event (event);
@@ -1679,12 +1679,12 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
       }
     case LIBINPUT_EVENT_TABLET_PAD_STRIP:
       {
-        guint64 time;
-        guint32 number, source, group, mode;
+        uint64_t time;
+        uint32_t number, source, group, mode;
         struct libinput_tablet_pad_mode_group *mode_group;
         struct libinput_event_tablet_pad *pad_event =
           libinput_event_get_tablet_pad_event (event);
-        gdouble value;
+        double value;
 
         device = libinput_device_get_user_data (libinput_device);
         time = libinput_event_tablet_pad_get_time_usec (pad_event);
@@ -1701,12 +1701,12 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
       }
     case LIBINPUT_EVENT_TABLET_PAD_RING:
       {
-        guint64 time;
-        guint32 number, source, group, mode;
+        uint64_t time;
+        uint32_t number, source, group, mode;
         struct libinput_tablet_pad_mode_group *mode_group;
         struct libinput_event_tablet_pad *pad_event =
           libinput_event_get_tablet_pad_event (event);
-        gdouble angle;
+        double angle;
 
         device = libinput_device_get_user_data (libinput_device);
         time = libinput_event_tablet_pad_get_time_usec (pad_event);
@@ -2547,8 +2547,8 @@ meta_device_manager_native_set_relative_motion_filter (ClutterDeviceManager     
 void
 meta_device_manager_native_set_keyboard_repeat (ClutterDeviceManager *evdev,
                                                 gboolean              repeat,
-                                                guint32               delay,
-                                                guint32               interval)
+                                                uint32_t              delay,
+                                                uint32_t              interval)
 {
   MetaDeviceManagerNative *manager_evdev;
   MetaSeatNative *seat;
@@ -2674,7 +2674,7 @@ meta_device_manager_native_remove_filter (MetaEvdevFilterFunc func,
  */
 void
 meta_device_manager_native_warp_pointer (ClutterInputDevice   *pointer_device,
-                                         guint32               time_,
+                                         uint32_t              time_,
                                          int                   x,
                                          int                   y)
 {
