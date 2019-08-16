@@ -500,11 +500,7 @@ meta_window_actor_x11_dispose (GObject *object)
 
   surface_actor = meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
   if (surface_actor)
-    {
-      g_signal_handler_disconnect (surface_actor,
-                                   actor_x11->repaint_scheduled_id);
-      actor_x11->repaint_scheduled_id = 0;
-    }
+    g_clear_signal_handler (&actor_x11->repaint_scheduled_id, surface_actor);
 
   G_OBJECT_CLASS (meta_window_actor_x11_parent_class)->dispose (object);
 }
