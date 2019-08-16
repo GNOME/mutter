@@ -55,7 +55,7 @@ struct _MetaInputDeviceToolNative
   ClutterInputDeviceTool parent_instance;
   struct libinput_tablet_tool *tool;
   GHashTable *button_map;
-  gdouble pressure_curve[4];
+  double pressure_curve[4];
 };
 
 struct _MetaInputDeviceToolNativeClass
@@ -66,19 +66,19 @@ struct _MetaInputDeviceToolNativeClass
 GType                    meta_input_device_tool_native_get_type (void) G_GNUC_CONST;
 
 ClutterInputDeviceTool * meta_input_device_tool_native_new      (struct libinput_tablet_tool *tool,
-                                                                 guint64                      serial,
+                                                                 uint64_t                     serial,
                                                                  ClutterInputDeviceToolType   type);
 
 gdouble                  meta_input_device_tool_native_translate_pressure (ClutterInputDeviceTool *tool,
-                                                                           gdouble                 pressure);
-guint                    meta_input_device_tool_native_get_button_code    (ClutterInputDeviceTool *tool,
-                                                                           guint                   button);
+                                                                           double                  pressure);
+uint32_t                 meta_input_device_tool_native_get_button_code    (ClutterInputDeviceTool *tool,
+                                                                           uint32_t                button);
 
 void                     meta_input_device_tool_native_set_pressure_curve (ClutterInputDeviceTool *tool,
-									     gdouble                 curve[4]);
+                                                                           double                  curve[4]);
 void                     meta_input_device_tool_native_set_button_code    (ClutterInputDeviceTool *tool,
-									   guint                   button,
-									   guint                   evcode);
+									   uint32_t                button,
+									   uint32_t                evcode);
 
 G_END_DECLS
 
