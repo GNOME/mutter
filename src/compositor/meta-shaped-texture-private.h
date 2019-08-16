@@ -41,6 +41,7 @@ void meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
                                             int                fallback_width,
                                             int                fallback_height);
 cairo_region_t * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex);
+gboolean meta_shaped_texture_is_opaque (MetaShapedTexture *stex);
 void meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
                                         MetaMonitorTransform  transform);
 void meta_shaped_texture_set_viewport_src_rect (MetaShapedTexture *stex,
