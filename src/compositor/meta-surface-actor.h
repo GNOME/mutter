@@ -26,11 +26,7 @@ struct _MetaSurfaceActorClass
                                   int x, int y, int width, int height);
   void     (* pre_paint)         (MetaSurfaceActor *actor);
   gboolean (* is_visible)        (MetaSurfaceActor *actor);
-
-  gboolean (* should_unredirect) (MetaSurfaceActor *actor);
-  void     (* set_unredirected)  (MetaSurfaceActor *actor,
-                                  gboolean          unredirected);
-  gboolean (* is_unredirected)   (MetaSurfaceActor *actor);
+  gboolean (* is_opaque)         (MetaSurfaceActor *actor);
 
   MetaWindow *(* get_window)      (MetaSurfaceActor *actor);
 };
@@ -52,16 +48,11 @@ cairo_region_t * meta_surface_actor_get_opaque_region (MetaSurfaceActor *self);
 void meta_surface_actor_process_damage (MetaSurfaceActor *actor,
                                         int x, int y, int width, int height);
 void meta_surface_actor_pre_paint (MetaSurfaceActor *actor);
-gboolean meta_surface_actor_is_argb32 (MetaSurfaceActor *actor);
 gboolean meta_surface_actor_is_visible (MetaSurfaceActor *actor);
+gboolean meta_surface_actor_is_opaque (MetaSurfaceActor *actor);
 
 void meta_surface_actor_set_frozen (MetaSurfaceActor *actor,
                                     gboolean          frozen);
-
-gboolean meta_surface_actor_should_unredirect (MetaSurfaceActor *actor);
-void meta_surface_actor_set_unredirected (MetaSurfaceActor *actor,
-                                          gboolean          unredirected);
-gboolean meta_surface_actor_is_unredirected (MetaSurfaceActor *actor);
 
 void meta_surface_actor_set_transform (MetaSurfaceActor     *self,
                                        MetaMonitorTransform  transform);
