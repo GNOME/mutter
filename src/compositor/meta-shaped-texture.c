@@ -1019,7 +1019,7 @@ meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex)
   return stex->opaque_region;
 }
 
-static gboolean
+gboolean
 meta_shaped_texture_has_alpha (MetaShapedTexture *stex)
 {
   CoglTexture *texture;
