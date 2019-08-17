@@ -29,6 +29,7 @@
 #include "backends/x11/meta-event-x11.h"
 #include "clutter/x11/clutter-x11.h"
 #include "compositor/meta-sync-ring.h"
+#include "compositor/meta-window-actor-x11.h"
 #include "core/display-private.h"
 #include "x11/meta-x11-display-private.h"
 
@@ -52,8 +53,9 @@ process_damage (MetaCompositorX11  *compositor_x11,
                 MetaWindow         *window)
 {
   MetaWindowActor *window_actor = meta_window_actor_from_window (window);
+  MetaWindowActorX11 *window_actor_x11 = META_WINDOW_ACTOR_X11 (window_actor);
 
-  meta_window_actor_process_x11_damage (window_actor, damage_xevent);
+  meta_window_actor_x11_process_damage (window_actor_x11, damage_xevent);
 
   compositor_x11->frame_has_updated_xsurfaces = TRUE;
 }
@@ -212,9 +214,11 @@ set_unredirected_window (MetaCompositorX11 *compositor_x11,
   if (prev_unredirected_window)
     {
       MetaWindowActor *window_actor;
+      MetaWindowActorX11 *window_actor_x11;
 
       window_actor = meta_window_actor_from_window (prev_unredirected_window);
-      meta_window_actor_set_unredirected (window_actor, FALSE);
+      window_actor_x11 = META_WINDOW_ACTOR_X11 (window_actor);
+      meta_window_actor_x11_set_unredirected (window_actor_x11, FALSE);
     }
 
   shape_cow_for_window (compositor_x11, window);
@@ -223,9 +227,11 @@ set_unredirected_window (MetaCompositorX11 *compositor_x11,
   if (window)
     {
       MetaWindowActor *window_actor;
+      MetaWindowActorX11 *window_actor_x11;
 
       window_actor = meta_window_actor_from_window (window);
-      meta_window_actor_set_unredirected (window_actor, TRUE);
+      window_actor_x11 = META_WINDOW_ACTOR_X11 (window_actor);
+      meta_window_actor_x11_set_unredirected (window_actor_x11, TRUE);
     }
 }
 
@@ -235,6 +241,7 @@ maybe_unredirect_top_window (MetaCompositorX11 *compositor_x11)
   MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
   MetaWindow *window_to_unredirect = NULL;
   MetaWindowActor *window_actor;
+  MetaWindowActorX11 *window_actor_x11;
 
   if (meta_compositor_is_unredirect_inhibited (compositor))
     goto out;
@@ -243,7 +250,8 @@ maybe_unredirect_top_window (MetaCompositorX11 *compositor_x11)
   if (!window_actor)
     goto out;
 
-  if (!meta_window_actor_should_unredirect (window_actor))
+  window_actor_x11 = META_WINDOW_ACTOR_X11 (window_actor);
+  if (!meta_window_actor_x11_should_unredirect (window_actor_x11))
     goto out;
 
   window_to_unredirect = meta_window_actor_get_meta_window (window_actor);
