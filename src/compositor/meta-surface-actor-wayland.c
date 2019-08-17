@@ -72,23 +72,11 @@ meta_surface_actor_wayland_is_visible (MetaSurfaceActor *actor)
 }
 
 static gboolean
-meta_surface_actor_wayland_should_unredirect (MetaSurfaceActor *actor)
+meta_surface_actor_wayland_is_opaque (MetaSurfaceActor *actor)
 {
-  return FALSE;
-}
+  MetaShapedTexture *stex = meta_surface_actor_get_texture (actor);
 
-static void
-meta_surface_actor_wayland_set_unredirected (MetaSurfaceActor *actor,
-                                             gboolean          unredirected)
-{
-  /* Do nothing. In the future, we'll use KMS to set this
-   * up as a hardware overlay or something. */
-}
-
-static gboolean
-meta_surface_actor_wayland_is_unredirected (MetaSurfaceActor *actor)
-{
-  return FALSE;
+  return meta_shaped_texture_is_opaque (stex);
 }
 
 void
@@ -162,10 +150,7 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
   surface_actor_class->process_damage = meta_surface_actor_wayland_process_damage;
   surface_actor_class->pre_paint = meta_surface_actor_wayland_pre_paint;
   surface_actor_class->is_visible = meta_surface_actor_wayland_is_visible;
-
-  surface_actor_class->should_unredirect = meta_surface_actor_wayland_should_unredirect;
-  surface_actor_class->set_unredirected = meta_surface_actor_wayland_set_unredirected;
-  surface_actor_class->is_unredirected = meta_surface_actor_wayland_is_unredirected;
+  surface_actor_class->is_opaque = meta_surface_actor_wayland_is_opaque;
 
   surface_actor_class->get_window = meta_surface_actor_wayland_get_window;
 

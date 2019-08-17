@@ -46,30 +46,17 @@ void meta_window_actor_size_change   (MetaWindowActor *self,
                                       MetaRectangle   *old_frame_rect,
                                       MetaRectangle   *old_buffer_rect);
 
-void meta_window_actor_process_x11_damage (MetaWindowActor    *self,
-                                           XDamageNotifyEvent *event);
-
 void meta_window_actor_pre_paint      (MetaWindowActor    *self);
 void meta_window_actor_post_paint     (MetaWindowActor    *self);
 void meta_window_actor_frame_complete (MetaWindowActor    *self,
                                        ClutterFrameInfo   *frame_info,
                                        gint64              presentation_time);
 
-void meta_window_actor_invalidate_shadow (MetaWindowActor *self);
-
-void meta_window_actor_get_shape_bounds (MetaWindowActor       *self,
-                                          cairo_rectangle_int_t *bounds);
-
-gboolean meta_window_actor_should_unredirect   (MetaWindowActor *self);
-void     meta_window_actor_set_unredirected    (MetaWindowActor *self,
-                                                gboolean         unredirected);
-
 gboolean meta_window_actor_effect_in_progress  (MetaWindowActor *self);
 
 MetaWindowActorChanges meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
                                                               gboolean         did_placement);
 
-void     meta_window_actor_update_shape        (MetaWindowActor *self);
 void     meta_window_actor_update_opacity      (MetaWindowActor *self);
 void     meta_window_actor_mapped              (MetaWindowActor *self);
 void     meta_window_actor_unmapped            (MetaWindowActor *self);
@@ -94,5 +81,9 @@ void meta_window_actor_set_geometry_scale (MetaWindowActor *window_actor,
 int meta_window_actor_get_geometry_scale (MetaWindowActor *window_actor);
 
 void meta_window_actor_notify_damaged (MetaWindowActor *window_actor);
+
+gboolean meta_window_actor_is_frozen (MetaWindowActor *self);
+
+gboolean meta_window_actor_is_opaque (MetaWindowActor *self);
 
 #endif /* META_WINDOW_ACTOR_PRIVATE_H */
