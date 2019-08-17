@@ -221,6 +221,12 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
                                         G_TYPE_NONE, 0);
 }
 
+gboolean
+meta_surface_actor_is_opaque (MetaSurfaceActor *self)
+{
+  return META_SURFACE_ACTOR_GET_CLASS (self)->is_opaque (self);
+}
+
 static void
 meta_surface_actor_cull_out (MetaCullable   *cullable,
                              cairo_region_t *unobscured_region,
@@ -482,38 +488,6 @@ meta_surface_actor_pre_paint (MetaSurfaceActor *self)
 }
 
 gboolean
-meta_surface_actor_is_argb32 (MetaSurfaceActor *self)
-{
-  MetaShapedTexture *stex = meta_surface_actor_get_texture (self);
-  CoglTexture *texture = meta_shaped_texture_get_texture (stex);
-
-  /* If we don't have a texture, like during initialization, assume
-   * that we're ARGB32.
-   *
-   * If we are unredirected and we have no texture assume that we are
-   * not ARGB32 otherwise we wouldn't be unredirected in the first
-   * place. This prevents us from continually redirecting and
-   * unredirecting on every paint.
-   */
-  if (!texture)
-    return !meta_surface_actor_is_unredirected (self);
-
-  switch (cogl_texture_get_components (texture))
-    {
-    case COGL_TEXTURE_COMPONENTS_A:
-    case COGL_TEXTURE_COMPONENTS_RGBA:
-      return TRUE;
-    case COGL_TEXTURE_COMPONENTS_RG:
-    case COGL_TEXTURE_COMPONENTS_RGB:
-    case COGL_TEXTURE_COMPONENTS_DEPTH:
-      return FALSE;
-    default:
-      g_assert_not_reached ();
-      return FALSE;
-    }
-}
-
-gboolean
 meta_surface_actor_is_visible (MetaSurfaceActor *self)
 {
   return META_SURFACE_ACTOR_GET_CLASS (self)->is_visible (self);
@@ -544,25 +518,6 @@ meta_surface_actor_set_frozen (MetaSurfaceActor *self,
         }
       g_clear_pointer (&priv->pending_damage, cairo_region_destroy);
     }
-}
-
-gboolean
-meta_surface_actor_should_unredirect (MetaSurfaceActor *self)
-{
-  return META_SURFACE_ACTOR_GET_CLASS (self)->should_unredirect (self);
-}
-
-void
-meta_surface_actor_set_unredirected (MetaSurfaceActor *self,
-                                     gboolean          unredirected)
-{
-  META_SURFACE_ACTOR_GET_CLASS (self)->set_unredirected (self, unredirected);
-}
-
-gboolean
-meta_surface_actor_is_unredirected (MetaSurfaceActor *self)
-{
-  return META_SURFACE_ACTOR_GET_CLASS (self)->is_unredirected (self);
 }
 
 MetaWindow *

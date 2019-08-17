@@ -249,33 +249,17 @@ static gboolean
 meta_surface_actor_x11_is_opaque (MetaSurfaceActor *actor)
 {
   MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
+  MetaShapedTexture *stex = meta_surface_actor_get_texture (actor);
 
-  /* If we're not ARGB32, then we're opaque. */
-  if (!meta_surface_actor_is_argb32 (actor))
+  if (meta_surface_actor_x11_is_unredirected (self))
     return TRUE;
 
-  cairo_region_t *opaque_region = meta_surface_actor_get_opaque_region (actor);
-
-  /* If we have no opaque region, then no pixels are opaque. */
-  if (!opaque_region)
-    return FALSE;
-
-  MetaWindow *window = self->window;
-  cairo_rectangle_int_t client_area;
-  meta_window_get_client_area_rect (window, &client_area);
-
-  /* Otherwise, check if our opaque region covers our entire surface. */
-  if (cairo_region_contains_rectangle (opaque_region, &client_area) == CAIRO_REGION_OVERLAP_IN)
-    return TRUE;
-
-  return FALSE;
+  return meta_shaped_texture_is_opaque (stex);
 }
 
-static gboolean
-meta_surface_actor_x11_should_unredirect (MetaSurfaceActor *actor)
+gboolean
+meta_surface_actor_x11_should_unredirect (MetaSurfaceActorX11 *self)
 {
-  MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
-
   MetaWindow *window = self->window;
 
   if (meta_window_requested_dont_bypass_compositor (window))
@@ -293,7 +277,7 @@ meta_surface_actor_x11_should_unredirect (MetaSurfaceActor *actor)
   if (meta_window_requested_bypass_compositor (window))
     return TRUE;
 
-  if (!meta_surface_actor_x11_is_opaque (actor))
+  if (!meta_surface_actor_x11_is_opaque (META_SURFACE_ACTOR (self)))
     return FALSE;
 
   if (meta_window_is_override_redirect (window))
@@ -327,12 +311,10 @@ sync_unredirected (MetaSurfaceActorX11 *self)
   meta_x11_error_trap_pop (display->x11_display);
 }
 
-static void
-meta_surface_actor_x11_set_unredirected (MetaSurfaceActor *actor,
-                                         gboolean          unredirected)
+void
+meta_surface_actor_x11_set_unredirected (MetaSurfaceActorX11 *self,
+                                         gboolean             unredirected)
 {
-  MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
-
   if (self->unredirected == unredirected)
     return;
 
@@ -340,11 +322,9 @@ meta_surface_actor_x11_set_unredirected (MetaSurfaceActor *actor,
   sync_unredirected (self);
 }
 
-static gboolean
-meta_surface_actor_x11_is_unredirected (MetaSurfaceActor *actor)
+gboolean
+meta_surface_actor_x11_is_unredirected (MetaSurfaceActorX11 *self)
 {
-  MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
-
   return self->unredirected;
 }
 
@@ -383,10 +363,7 @@ meta_surface_actor_x11_class_init (MetaSurfaceActorX11Class *klass)
   surface_actor_class->process_damage = meta_surface_actor_x11_process_damage;
   surface_actor_class->pre_paint = meta_surface_actor_x11_pre_paint;
   surface_actor_class->is_visible = meta_surface_actor_x11_is_visible;
-
-  surface_actor_class->should_unredirect = meta_surface_actor_x11_should_unredirect;
-  surface_actor_class->set_unredirected = meta_surface_actor_x11_set_unredirected;
-  surface_actor_class->is_unredirected = meta_surface_actor_x11_is_unredirected;
+  surface_actor_class->is_opaque = meta_surface_actor_x11_is_opaque;
 
   surface_actor_class->get_window = meta_surface_actor_x11_get_window;
 }
