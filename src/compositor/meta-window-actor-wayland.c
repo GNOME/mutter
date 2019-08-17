@@ -59,10 +59,36 @@ meta_window_actor_wayland_queue_destroy (MetaWindowActor *actor)
 {
 }
 
+static gboolean
+meta_window_actor_wayland_get_paint_volume (ClutterActor       *actor,
+                                            ClutterPaintVolume *volume)
+{
+  MetaSurfaceActor *surface;
+
+  surface = meta_window_actor_get_surface (META_WINDOW_ACTOR (actor));
+  if (surface)
+    {
+      ClutterActor *surface_actor = CLUTTER_ACTOR (surface);
+      const ClutterPaintVolume *child_volume;
+
+      child_volume = clutter_actor_get_transformed_paint_volume (surface_actor,
+                                                                 actor);
+      if (!child_volume)
+        return FALSE;
+
+      clutter_paint_volume_union (volume, child_volume);
+    }
+
+  return TRUE;
+}
+
 static void
 meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
 {
   MetaWindowActorClass *window_actor_class = META_WINDOW_ACTOR_CLASS (klass);
+  ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
+
+  actor_class->get_paint_volume = meta_window_actor_wayland_get_paint_volume;
 
   window_actor_class->frame_complete = meta_window_actor_wayland_frame_complete;
   window_actor_class->queue_frame_drawn = meta_window_actor_wayland_queue_frame_drawn;
