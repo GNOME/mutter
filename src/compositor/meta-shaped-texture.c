@@ -1020,6 +1020,30 @@ meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex)
 }
 
 gboolean
+meta_shaped_texture_has_alpha (MetaShapedTexture *stex)
+{
+  CoglTexture *texture;
+
+  texture = stex->texture;
+  if (!texture)
+    return TRUE;
+
+  switch (cogl_texture_get_components (texture))
+    {
+    case COGL_TEXTURE_COMPONENTS_A:
+    case COGL_TEXTURE_COMPONENTS_RGBA:
+      return TRUE;
+    case COGL_TEXTURE_COMPONENTS_RG:
+    case COGL_TEXTURE_COMPONENTS_RGB:
+    case COGL_TEXTURE_COMPONENTS_DEPTH:
+      return FALSE;
+    }
+
+  g_warn_if_reached ();
+  return FALSE;
+}
+
+gboolean
 meta_shaped_texture_is_opaque (MetaShapedTexture *stex)
 {
   CoglTexture *texture;
@@ -1029,16 +1053,8 @@ meta_shaped_texture_is_opaque (MetaShapedTexture *stex)
   if (!texture)
     return FALSE;
 
-  switch (cogl_texture_get_components (texture))
-    {
-    case COGL_TEXTURE_COMPONENTS_A:
-    case COGL_TEXTURE_COMPONENTS_RGBA:
-      break;
-    case COGL_TEXTURE_COMPONENTS_RG:
-    case COGL_TEXTURE_COMPONENTS_RGB:
-    case COGL_TEXTURE_COMPONENTS_DEPTH:
-      return FALSE;
-    }
+  if (!meta_shaped_texture_has_alpha (stex))
+    return TRUE;
 
   if (!stex->opaque_region)
     return FALSE;
