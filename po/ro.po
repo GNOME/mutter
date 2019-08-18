@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-07-18 13:55+0000\n"
-"PO-Revision-Date: 2019-08-05 13:25+0300\n"
+"POT-Creation-Date: 2019-08-06 00:49+0000\n"
+"PO-Revision-Date: 2019-08-18 14:25+0300\n"
 "Last-Translator: Florentina Mușat <florentina.musat.28 [at] gmail [dot] "
 "com>\n"
 "Language-Team: Gnome Romanian Translation Team <gnomero-list@lists."
@@ -407,7 +407,8 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart."
+"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
+"initializes Xwayland lazily if there are X11 clients. Requires restart."
 msgstr ""
 "Pentru a activa funcționalitățile experimentale, adăugați cuvântul cheie al "
 "funcționalității la listă. Dacă funcționalitatea necesită sau nu repornirea "
@@ -421,29 +422,30 @@ msgstr ""
 "gestiona monitoare HiDPI. Nu necesită o repornire. • „rt-scheduler” — face "
 "ca mutter să ceară o programare în timp real de prioritate scăzută. "
 "Executabilul sau utilizatorul trebuie să aibă CAP_SYS_NICE. Necesită o "
-"repornire."
+"repornire. • „autostart-xwayland” — inițializează Xwayland cu încetinitorul "
+"dacă există clienți X11. Necesită o repornire."
 
-#: data/org.gnome.mutter.gschema.xml.in:132
+#: data/org.gnome.mutter.gschema.xml.in:134
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificator de utilizat pentru a localiza pointerul"
 
-#: data/org.gnome.mutter.gschema.xml.in:133
+#: data/org.gnome.mutter.gschema.xml.in:135
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Această cheie va iniția acțiunea „localizează pointer”."
 
-#: data/org.gnome.mutter.gschema.xml.in:153
+#: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Select window from tab popup"
 msgstr "Selectează fereastra din popup-ul tabului"
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid "Cancel tab popup"
 msgstr "Elimină popup-ul pentru tab"
 
-#: data/org.gnome.mutter.gschema.xml.in:163
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Switch monitor configurations"
 msgstr "Comută configurațiile de monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:168
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rotește configurarea de monitor integrat"
 
@@ -729,7 +731,7 @@ msgstr "Mutter a fost compilat fără suport pentru modul detaliat\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Comutator de mod: modul %d"
 
-#: src/x11/meta-x11-display.c:682
+#: src/x11/meta-x11-display.c:671
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -739,16 +741,16 @@ msgstr ""
 "opțiunea --replace (înlocuiește) pentru a înlocui administratorul de "
 "ferestre curent."
 
-#: src/x11/meta-x11-display.c:1024
+#: src/x11/meta-x11-display.c:1032
 msgid "Failed to initialize GDK\n"
 msgstr "Nu s-a putut inițializa GDK\n"
 
-#: src/x11/meta-x11-display.c:1048
+#: src/x11/meta-x11-display.c:1056
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Nu s-a putut deschide afișajul sistemului de ferestre X „%s”\n"
 
-#: src/x11/meta-x11-display.c:1132
+#: src/x11/meta-x11-display.c:1140
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Ecranul %d de pe afișajul „%s” nu este valid\n"
