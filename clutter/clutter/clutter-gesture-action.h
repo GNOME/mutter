@@ -81,16 +81,26 @@ struct _ClutterGestureActionClass
   ClutterActionClass parent_class;
 
   /*< public >*/
+  gboolean (* gesture_prepare)  (ClutterGestureAction  *action,
+                                 ClutterActor          *actor,
+                                 gint                   point);
   gboolean (* gesture_begin)    (ClutterGestureAction  *action,
-                                 ClutterActor          *actor);
-  gboolean (* gesture_progress) (ClutterGestureAction  *action,
-                                 ClutterActor          *actor);
+                                 ClutterActor          *actor,
+                                 gint                   point);
+  void     (* gesture_progress) (ClutterGestureAction  *action,
+                                 ClutterActor          *actor,
+                                 gint                   point);
   void     (* gesture_end)      (ClutterGestureAction  *action,
-                                 ClutterActor          *actor);
+                                 ClutterActor          *actor,
+                                 gint                   point);
   void     (* gesture_cancel)   (ClutterGestureAction  *action,
                                  ClutterActor          *actor);
-  gboolean (* gesture_prepare)  (ClutterGestureAction  *action,
-                                 ClutterActor          *actor);
+  gboolean (* touch_added)      (ClutterGestureAction  *action,
+                                 ClutterActor          *actor,
+                                 gint                   point);
+  void     (* touch_removed)    (ClutterGestureAction  *action,
+                                 ClutterActor          *actor,
+                                 gint                   point);
 
   /*< private >*/
   void (* _clutter_gesture_action1) (void);
@@ -105,13 +115,29 @@ CLUTTER_EXPORT
 GType clutter_gesture_action_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
-ClutterAction *        clutter_gesture_action_new                      (void);
+ClutterAction *        clutter_gesture_action_new                  (void);
 
 CLUTTER_EXPORT
 gint                   clutter_gesture_action_get_n_touch_points   (ClutterGestureAction *action);
 CLUTTER_EXPORT
 void                   clutter_gesture_action_set_n_touch_points   (ClutterGestureAction *action,
                                                                     gint                  nb_points);
+CLUTTER_EXPORT
+gboolean               clutter_gesture_action_get_exact_n_required (ClutterGestureAction *action);
+CLUTTER_EXPORT
+void                   clutter_gesture_action_set_exact_n_required (ClutterGestureAction *action,
+                                                                    gint                  exact_n_required);
+CLUTTER_EXPORT
+guint                  clutter_gesture_action_get_max_replay_delay (ClutterGestureAction *action);
+CLUTTER_EXPORT
+void                   clutter_gesture_action_set_max_replay_delay (ClutterGestureAction *action,
+                                                                    guint                 delay);
+CLUTTER_EXPORT
+gboolean               clutter_gesture_action_get_replay_events    (ClutterGestureAction *action);
+CLUTTER_EXPORT
+void                   clutter_gesture_action_set_replay_events    (ClutterGestureAction *action,
+                                                                    gboolean              replay_events);
+
 CLUTTER_EXPORT
 void                   clutter_gesture_action_get_press_coords     (ClutterGestureAction *action,
                                                                     guint                 point,
@@ -154,25 +180,17 @@ const ClutterEvent *   clutter_gesture_action_get_last_event       (ClutterGestu
                                                                     guint                 point);
 
 CLUTTER_EXPORT
+void                   clutter_gesture_action_end                  (ClutterGestureAction *action);
+
+CLUTTER_EXPORT
 void                   clutter_gesture_action_cancel               (ClutterGestureAction *action);
 
 CLUTTER_EXPORT
-void                            clutter_gesture_action_set_threshold_trigger_edge       (ClutterGestureAction      *action,
-                                                                                         ClutterGestureTriggerEdge  edge);
-CLUTTER_DEPRECATED_FOR(clutter_gesture_action_get_threshold_trigger_edge)
-ClutterGestureTriggerEdge       clutter_gesture_action_get_threshold_trigger_egde       (ClutterGestureAction      *action);
-CLUTTER_EXPORT
-ClutterGestureTriggerEdge       clutter_gesture_action_get_threshold_trigger_edge       (ClutterGestureAction      *action);
+void                   clutter_gesture_action_reset                (ClutterGestureAction *action);
 
 CLUTTER_EXPORT
-void                            clutter_gesture_action_set_threshold_trigger_distance   (ClutterGestureAction      *action,
-                                                                                         float                      x,
-                                                                                         float                      y);
-
-CLUTTER_EXPORT
-void                            clutter_gesture_action_get_threshold_trigger_distance   (ClutterGestureAction *action,
-                                                                                         float                *x,
-                                                                                         float                *y);
+gboolean               clutter_gesture_action_eval_event           (ClutterGestureAction *action,
+                                                                    const ClutterEvent   *event);
 
 G_END_DECLS
 

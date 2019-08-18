@@ -33,7 +33,7 @@
 #ifndef __CLUTTER_SWIPE_ACTION_H__
 #define __CLUTTER_SWIPE_ACTION_H__
 
-#include <clutter/clutter-gesture-action.h>
+#include <clutter/clutter-trigger-action.h>
 
 G_BEGIN_DECLS
 
@@ -59,7 +59,7 @@ typedef struct _ClutterSwipeActionClass         ClutterSwipeActionClass;
 struct _ClutterSwipeAction
 {
   /*< private >*/
-  ClutterGestureAction parent_instance;
+  ClutterTriggerAction parent_instance;
 
   ClutterSwipeActionPrivate *priv;
 };
@@ -78,7 +78,7 @@ struct _ClutterSwipeAction
 struct _ClutterSwipeActionClass
 {
   /*< private >*/
-  ClutterGestureActionClass parent_class;
+  ClutterTriggerActionClass parent_class;
 
   /*< public >*/
   void (* swept)  (ClutterSwipeAction    *action,

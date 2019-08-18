@@ -38,10 +38,10 @@
 #include <math.h>
 
 #include "clutter-rotate-action.h"
+#include "clutter-gesture-action.h"
 
 #include "clutter-debug.h"
 #include "clutter-enum-types.h"
-#include "clutter-gesture-action-private.h"
 #include "clutter-marshal.h"
 #include "clutter-private.h"
 
@@ -77,7 +77,8 @@ clutter_rotate_action_real_rotate (ClutterRotateAction *action,
 
 static gboolean
 clutter_rotate_action_gesture_begin (ClutterGestureAction  *action,
-                                     ClutterActor          *actor)
+                                     ClutterActor          *actor,
+                                     gint                   point)
 {
   ClutterRotateActionPrivate *priv = CLUTTER_ROTATE_ACTION (action)->priv;
   gfloat p1[2], p2[2];
@@ -98,9 +99,10 @@ clutter_rotate_action_gesture_begin (ClutterGestureAction  *action,
   return TRUE;
 }
 
-static gboolean
+static void
 clutter_rotate_action_gesture_progress (ClutterGestureAction *action,
-                                        ClutterActor         *actor)
+                                        ClutterActor         *actor,
+                                        gint                  point)
 {
   ClutterRotateActionPrivate *priv = CLUTTER_ROTATE_ACTION (action)->priv;
   gfloat p1[2], p2[2];
@@ -155,8 +157,6 @@ clutter_rotate_action_gesture_progress (ClutterGestureAction *action,
                      actor, angle,
                      &retval);
     }
-
-  return TRUE;
 }
 
 static void
@@ -171,25 +171,12 @@ clutter_rotate_action_gesture_cancel (ClutterGestureAction *action,
 }
 
 static void
-clutter_rotate_action_constructed (GObject *gobject)
-{
-  ClutterGestureAction *gesture;
-
-  gesture = CLUTTER_GESTURE_ACTION (gobject);
-  clutter_gesture_action_set_threshold_trigger_edge (gesture, CLUTTER_GESTURE_TRIGGER_EDGE_NONE);
-}
-
-static void
 clutter_rotate_action_class_init (ClutterRotateActionClass *klass)
 {
   ClutterGestureActionClass *gesture_class =
     CLUTTER_GESTURE_ACTION_CLASS (klass);
-  GObjectClass *object_class =
-    G_OBJECT_CLASS (klass);
 
   klass->rotate = clutter_rotate_action_real_rotate;
-
-  object_class->constructed = clutter_rotate_action_constructed;
 
   gesture_class->gesture_begin = clutter_rotate_action_gesture_begin;
   gesture_class->gesture_progress = clutter_rotate_action_gesture_progress;

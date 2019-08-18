@@ -51,10 +51,10 @@
 #include <math.h>
 
 #include "clutter-zoom-action.h"
+#include "clutter-gesture-action.h"
 
 #include "clutter-debug.h"
 #include "clutter-enum-types.h"
-#include "clutter-gesture-action-private.h"
 #include "clutter-marshal.h"
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
@@ -156,7 +156,8 @@ capture_point_update_position (ClutterGestureAction *action,
 
 static gboolean
 clutter_zoom_action_gesture_begin (ClutterGestureAction *action,
-                                   ClutterActor         *actor)
+                                   ClutterActor         *actor,
+                                   gint                  point)
 {
   ClutterZoomActionPrivate *priv = ((ClutterZoomAction *) action)->priv;
   gfloat dx, dy;
@@ -191,9 +192,10 @@ clutter_zoom_action_gesture_begin (ClutterGestureAction *action,
   return TRUE;
 }
 
-static gboolean
+static void
 clutter_zoom_action_gesture_progress (ClutterGestureAction *action,
-                                      ClutterActor         *actor)
+                                      ClutterActor         *actor,
+                                      gint                  point)
 {
   ClutterZoomActionPrivate *priv = ((ClutterZoomAction *) action)->priv;
   gdouble distance, new_scale;
@@ -208,7 +210,7 @@ clutter_zoom_action_gesture_progress (ClutterGestureAction *action,
   distance = sqrt (dx * dx + dy * dy);
 
   if (distance == 0)
-    return TRUE;
+    return;
 
   priv->focal_point.x = (priv->points[0].update_x + priv->points[1].update_x) / 2;
   priv->focal_point.y = (priv->points[0].update_y + priv->points[1].update_y) / 2;
@@ -218,8 +220,6 @@ clutter_zoom_action_gesture_progress (ClutterGestureAction *action,
   g_signal_emit (action, zoom_signals[ZOOM], 0,
                  actor, &priv->focal_point, new_scale,
                  &retval);
-
-  return TRUE;
 }
 
 static void
@@ -325,22 +325,12 @@ clutter_zoom_action_dispose (GObject *gobject)
 }
 
 static void
-clutter_zoom_action_constructed (GObject *gobject)
-{
-  ClutterGestureAction *gesture;
-
-  gesture = CLUTTER_GESTURE_ACTION (gobject);
-  clutter_gesture_action_set_threshold_trigger_edge (gesture, CLUTTER_GESTURE_TRIGGER_EDGE_NONE);
-}
-
-static void
 clutter_zoom_action_class_init (ClutterZoomActionClass *klass)
 {
   ClutterGestureActionClass *gesture_class =
     CLUTTER_GESTURE_ACTION_CLASS (klass);
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  gobject_class->constructed = clutter_zoom_action_constructed;
   gobject_class->set_property = clutter_zoom_action_set_property;
   gobject_class->get_property = clutter_zoom_action_get_property;
   gobject_class->dispose = clutter_zoom_action_dispose;

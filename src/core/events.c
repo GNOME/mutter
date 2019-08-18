@@ -40,12 +40,8 @@
 #include "wayland/meta-wayland-private.h"
 #endif
 
-#define IS_GESTURE_EVENT(e) ((e)->type == CLUTTER_TOUCHPAD_SWIPE || \
-                             (e)->type == CLUTTER_TOUCHPAD_PINCH || \
-                             (e)->type == CLUTTER_TOUCH_BEGIN || \
-                             (e)->type == CLUTTER_TOUCH_UPDATE || \
-                             (e)->type == CLUTTER_TOUCH_END || \
-                             (e)->type == CLUTTER_TOUCH_CANCEL)
+#define TOUCHPAD_GESTURE_EVENT(e) ((e)->type == CLUTTER_TOUCHPAD_SWIPE || \
+                                   (e)->type == CLUTTER_TOUCHPAD_PINCH)
 
 #define IS_KEY_EVENT(e) ((e)->type == CLUTTER_KEY_PRESS || \
                          (e)->type == CLUTTER_KEY_RELEASE)
@@ -145,6 +141,7 @@ sequence_is_pointer_emulated (MetaDisplay        *display,
 
 #ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_get_backend ();
+  ClutterInputDevice *device = clutter_event_get_device (event);
 
   /* When using Clutter's native input backend there is no concept of
    * pointer emulating sequence, we still must make up our own to be
@@ -154,16 +151,9 @@ sequence_is_pointer_emulated (MetaDisplay        *display,
    * on screen gets the "pointer emulated" flag, and it won't get assigned
    * to another sequence until the next first touch on an idle touchscreen.
    */
-  if (META_IS_BACKEND_NATIVE (backend))
-    {
-      MetaGestureTracker *tracker;
-
-      tracker = meta_display_get_gesture_tracker (display);
-
-      if (event->type == CLUTTER_TOUCH_BEGIN &&
-          meta_gesture_tracker_get_n_current_touches (tracker) == 0)
-        return TRUE;
-    }
+  if (META_IS_BACKEND_NATIVE (backend) &&
+      clutter_input_device_get_n_sequences (device) == 1)
+    return TRUE;
 #endif /* HAVE_NATIVE_BACKEND */
 
   return FALSE;
@@ -341,16 +331,11 @@ meta_display_handle_event (MetaDisplay        *display,
     {
       /* Events that are likely to trigger compositor gestures should
        * be known to clutter so they can propagate along the hierarchy.
-       * Gesture-wise, there's two groups of events we should be getting
-       * here:
-       * - CLUTTER_TOUCH_* with a touch sequence that's not yet accepted
-       *   by the gesture tracker, these might trigger gesture actions
-       *   into recognition. Already accepted touch sequences are handled
-       *   directly by meta_gesture_tracker_handle_event().
-       * - CLUTTER_TOUCHPAD_* events over windows. These can likewise
-       *   trigger ::captured-event handlers along the way.
+       * So if we get a CLUTTER_TOUCHPAD_* event over a window, don't
+       * bypass Clutter to make sure the gestures captured-event handler
+       * can see the event and begin a gesture.
        */
-      bypass_clutter = !IS_GESTURE_EVENT (event);
+      bypass_clutter = !TOUCHPAD_GESTURE_EVENT (event);
 
       meta_window_handle_ungrabbed_event (window, event);
 

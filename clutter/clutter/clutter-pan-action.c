@@ -59,7 +59,7 @@
 
 #include "clutter-debug.h"
 #include "clutter-enum-types.h"
-#include "clutter-gesture-action-private.h"
+#include "clutter-trigger-action.h"
 #include "clutter-marshal.h"
 #include "clutter-private.h"
 #include <math.h>
@@ -136,7 +136,7 @@ enum
 
 static guint pan_signals[LAST_SIGNAL] = { 0, };
 
-G_DEFINE_TYPE_WITH_PRIVATE (ClutterPanAction, clutter_pan_action, CLUTTER_TYPE_GESTURE_ACTION)
+G_DEFINE_TYPE_WITH_PRIVATE (ClutterPanAction, clutter_pan_action, CLUTTER_TYPE_TRIGGER_ACTION)
 
 static void
 emit_pan (ClutterPanAction *self,
@@ -223,24 +223,15 @@ on_deceleration_new_frame (ClutterTimeline     *timeline,
 }
 
 static gboolean
-gesture_prepare (ClutterGestureAction  *gesture,
-                 ClutterActor          *actor)
+gesture_begin (ClutterGestureAction  *gesture,
+               ClutterActor          *actor,
+               gint                   point)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (gesture);
   ClutterPanActionPrivate *priv = self->priv;
 
   if (priv->state == PAN_STATE_INTERPOLATING && priv->deceleration_timeline)
     clutter_timeline_stop (priv->deceleration_timeline);
-
-  return TRUE;
-}
-
-static gboolean
-gesture_begin (ClutterGestureAction  *gesture,
-               ClutterActor          *actor)
-{
-  ClutterPanAction *self = CLUTTER_PAN_ACTION (gesture);
-  ClutterPanActionPrivate *priv = self->priv;
 
   priv->pin_state = SCROLL_PINNED_UNKNOWN;
   priv->state = PAN_STATE_PANNING;
@@ -250,15 +241,14 @@ gesture_begin (ClutterGestureAction  *gesture,
   return TRUE;
 }
 
-static gboolean
+static void
 gesture_progress (ClutterGestureAction *gesture,
-                  ClutterActor         *actor)
+                  ClutterActor         *actor,
+                  gint                  point)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (gesture);
 
   emit_pan (self, actor, FALSE);
-
-  return TRUE;
 }
 
 static void
@@ -273,7 +263,8 @@ gesture_cancel (ClutterGestureAction *gesture,
 
 static void
 gesture_end (ClutterGestureAction *gesture,
-             ClutterActor         *actor)
+             ClutterActor         *actor,
+             gint                  point)
 {
   ClutterPanAction *self = CLUTTER_PAN_ACTION (gesture);
   ClutterPanActionPrivate *priv = self->priv;
@@ -410,10 +401,8 @@ clutter_pan_action_get_property (GObject    *gobject,
 static void
 clutter_pan_action_constructed (GObject *gobject)
 {
-  ClutterGestureAction *gesture;
-
-  gesture = CLUTTER_GESTURE_ACTION (gobject);
-  clutter_gesture_action_set_threshold_trigger_edge (gesture, CLUTTER_GESTURE_TRIGGER_EDGE_AFTER);
+  clutter_trigger_action_set_trigger_edge (CLUTTER_TRIGGER_ACTION (gobject),
+                                           CLUTTER_TRIGGER_EDGE_AFTER);
 }
 
 static void
@@ -456,7 +445,6 @@ clutter_pan_action_class_init (ClutterPanActionClass *klass)
 
   klass->pan = clutter_pan_action_real_pan;
 
-  gesture_class->gesture_prepare = gesture_prepare;
   gesture_class->gesture_begin = gesture_begin;
   gesture_class->gesture_progress = gesture_progress;
   gesture_class->gesture_cancel = gesture_cancel;
