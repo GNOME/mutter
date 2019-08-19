@@ -3615,7 +3615,7 @@ meta_window_x11_recalc_window_type (MetaWindow *window)
 
   meta_verbose ("Calculated type %u for %s, old type %u\n",
                 type, window->desc, type);
-  meta_window_set_type (window, type);
+  meta_window_set_window_type (window, type);
 }
 
 /**
