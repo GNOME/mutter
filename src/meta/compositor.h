@@ -67,9 +67,6 @@ typedef enum
 } MetaSizeChange;
 
 META_EXPORT
-MetaCompositor *meta_compositor_new     (MetaDisplay    *display);
-
-META_EXPORT
 void            meta_compositor_destroy (MetaCompositor *compositor);
 
 META_EXPORT

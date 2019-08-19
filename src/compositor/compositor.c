@@ -58,7 +58,6 @@
 
 #include "backends/meta-dnd-private.h"
 #include "clutter/clutter-mutter.h"
-#include "compositor/meta-compositor-x11.h"
 #include "compositor/meta-window-actor-x11.h"
 #include "compositor/meta-window-actor-wayland.h"
 #include "compositor/meta-window-actor-private.h"
@@ -80,9 +79,19 @@
 #include "x11/meta-x11-display-private.h"
 
 #ifdef HAVE_WAYLAND
-#include "compositor/meta-compositor-server.h"
 #include "wayland/meta-wayland-private.h"
 #endif
+
+enum
+{
+  PROP_0,
+
+  PROP_DISPLAY,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS] = { NULL, };
 
 typedef struct _MetaCompositorPrivate
 {
@@ -1140,28 +1149,44 @@ on_shadow_factory_changed (MetaShadowFactory *factory,
     meta_window_actor_invalidate_shadow (l->data);
 }
 
-/**
- * meta_compositor_new: (skip)
- * @display:
- *
- */
-MetaCompositor *
-meta_compositor_new (MetaDisplay *display)
+static void
+meta_compositor_set_property (GObject      *object,
+                              guint         prop_id,
+                              const GValue *value,
+                              GParamSpec   *pspec)
 {
-  MetaCompositor *compositor;
-  MetaCompositorPrivate *priv;
+  MetaCompositor *compositor = META_COMPOSITOR (object);
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
 
-#ifdef HAVE_WAYLAND
-  if (meta_is_wayland_compositor ())
-    compositor = g_object_new (META_TYPE_COMPOSITOR_SERVER, NULL);
-  else
-#endif
-    compositor = g_object_new (META_TYPE_COMPOSITOR_X11, NULL);
+  switch (prop_id)
+    {
+    case PROP_DISPLAY:
+      priv->display = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
 
-  priv = meta_compositor_get_instance_private (compositor);
-  priv->display = display;
+static void
+meta_compositor_get_property (GObject    *object,
+                              guint       prop_id,
+                              GValue     *value,
+                              GParamSpec *pspec)
+{
+  MetaCompositor *compositor = META_COMPOSITOR (object);
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
 
-  return compositor;
+  switch (prop_id)
+    {
+    case PROP_DISPLAY:
+      g_value_set_object (value, priv->display);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
 }
 
 static void
@@ -1222,11 +1247,23 @@ meta_compositor_class_init (MetaCompositorClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->set_property = meta_compositor_set_property;
+  object_class->get_property = meta_compositor_get_property;
   object_class->dispose = meta_compositor_dispose;
 
   klass->remove_window = meta_compositor_real_remove_window;
   klass->pre_paint = meta_compositor_real_pre_paint;
   klass->post_paint = meta_compositor_real_post_paint;
+
+  obj_props[PROP_DISPLAY] =
+    g_param_spec_object ("display",
+                         "display",
+                         "MetaDisplay",
+                         META_TYPE_DISPLAY,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 /**
