@@ -29,14 +29,15 @@ meta_xwayland_init (MetaXWaylandManager *manager,
 		    struct wl_display   *display);
 
 void
-meta_xwayland_complete_init (MetaDisplay *display);
+meta_xwayland_complete_init (MetaDisplay *display,
+                             Display     *xdisplay);
 
 void
 meta_xwayland_shutdown (MetaXWaylandManager *manager);
 
 /* wl_data_device/X11 selection interoperation */
-void     meta_xwayland_init_dnd         (void);
-void     meta_xwayland_shutdown_dnd     (void);
+void     meta_xwayland_init_dnd         (Display *xdisplay);
+void     meta_xwayland_shutdown_dnd     (Display *xdisplay);
 gboolean meta_xwayland_dnd_handle_event (XEvent *xevent);
 
 const MetaWaylandDragDestFuncs * meta_xwayland_selection_get_drag_dest_funcs (void);

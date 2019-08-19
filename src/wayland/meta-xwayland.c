@@ -566,6 +566,23 @@ prepare_auth_file (MetaXWaylandManager *manager)
 }
 
 static void
+add_local_user_to_xhost (Display *xdisplay)
+{
+  XHostAddress host_entry;
+  XServerInterpretedAddress siaddr;
+
+  siaddr.type = (char *) "localuser";
+  siaddr.typelength = strlen (siaddr.type);
+  siaddr.value = (char *) g_get_user_name();
+  siaddr.valuelength = strlen (siaddr.value);
+
+  host_entry.family = FamilyServerInterpreted;
+  host_entry.address = (char *) &siaddr;
+
+  XAddHost (xdisplay, &host_entry);
+}
+
+static void
 xserver_finished_init (MetaXWaylandManager *manager)
 {
   /* At this point xwayland is all setup to start accepting
@@ -782,7 +799,9 @@ meta_xwayland_init (MetaXWaylandManager *manager,
 static void
 on_x11_display_closing (MetaDisplay *display)
 {
-  meta_xwayland_shutdown_dnd ();
+  Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
+
+  meta_xwayland_shutdown_dnd (xdisplay);
   g_signal_handlers_disconnect_by_func (display,
                                         on_x11_display_closing,
                                         NULL);
@@ -790,7 +809,8 @@ on_x11_display_closing (MetaDisplay *display)
 
 /* To be called right after connecting */
 void
-meta_xwayland_complete_init (MetaDisplay *display)
+meta_xwayland_complete_init (MetaDisplay *display,
+                             Display     *xdisplay)
 {
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   MetaXWaylandManager *manager = &compositor->xwayland_manager;
@@ -804,7 +824,8 @@ meta_xwayland_complete_init (MetaDisplay *display)
 
   g_signal_connect (display, "x11-display-closing",
                     G_CALLBACK (on_x11_display_closing), NULL);
-  meta_xwayland_init_dnd ();
+  meta_xwayland_init_dnd (xdisplay);
+  add_local_user_to_xhost (xdisplay);
 
   if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
     {
