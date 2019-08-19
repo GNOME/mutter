@@ -33,7 +33,7 @@ test_state_script_main (int argc, char *argv[])
 
   button = CLUTTER_ACTOR (clutter_script_get_object (script, "button"));
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), button);
-  clutter_actor_add_constraint (button, clutter_align_constraint_new (stage, CLUTTER_ALIGN_BOTH, 0.5));
+  clutter_actor_add_constraint (button, clutter_align_constraint_new (stage, CLUTTER_ALIGN_BOTH, CLUTTER_ALIGN_INSIDE, 0.5));
 
   clutter_script_connect_signals (script, NULL);
 

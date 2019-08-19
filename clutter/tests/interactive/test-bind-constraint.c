@@ -196,7 +196,7 @@ test_bind_constraint_main (int argc, char *argv[])
   clutter_actor_add_child (stage, rect);
 
   /* align the center rectangle to the center of the stage */
-  constraint = clutter_align_constraint_new (stage, CLUTTER_ALIGN_BOTH, 0.5);
+  constraint = clutter_align_constraint_new (stage, CLUTTER_ALIGN_BOTH, CLUTTER_ALIGN_INSIDE, 0.5);
   clutter_actor_add_constraint_with_name (rect, "align", constraint);
 
   /* this is the equivalent of the DesaturateEffect; we cannot animate

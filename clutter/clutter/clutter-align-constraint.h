@@ -54,6 +54,7 @@ GType clutter_align_constraint_get_type (void) G_GNUC_CONST;
 CLUTTER_EXPORT
 ClutterConstraint *clutter_align_constraint_new            (ClutterActor           *source,
                                                             ClutterAlignAxis        axis,
+                                                            ClutterAlignPosition    position,
                                                             gfloat                  factor);
 
 CLUTTER_EXPORT
@@ -66,6 +67,11 @@ void               clutter_align_constraint_set_align_axis (ClutterAlignConstrai
                                                             ClutterAlignAxis        axis);
 CLUTTER_EXPORT
 ClutterAlignAxis   clutter_align_constraint_get_align_axis (ClutterAlignConstraint *align);
+CLUTTER_EXPORT
+void               clutter_align_constraint_set_align_position (ClutterAlignConstraint *align,
+                                                                ClutterAlignPosition    position);
+CLUTTER_EXPORT
+ClutterAlignPosition clutter_align_constraint_get_align_position (ClutterAlignConstraint *align);
 CLUTTER_EXPORT
 void               clutter_align_constraint_set_factor     (ClutterAlignConstraint *align,
                                                             gfloat                  factor);
