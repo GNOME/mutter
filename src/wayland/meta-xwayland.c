@@ -782,7 +782,11 @@ meta_xwayland_init (MetaXWaylandManager *manager,
 static void
 on_x11_display_closing (MetaDisplay *display)
 {
-  meta_xwayland_shutdown_dnd ();
+  Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
+
+  if (xdisplay)
+    meta_xwayland_shutdown_dnd (xdisplay);
+
   g_signal_handlers_disconnect_by_func (display,
                                         on_x11_display_closing,
                                         NULL);
@@ -805,7 +809,7 @@ meta_xwayland_complete_init (MetaDisplay *display,
 
   g_signal_connect (display, "x11-display-closing",
                     G_CALLBACK (on_x11_display_closing), NULL);
-  meta_xwayland_init_dnd ();
+  meta_xwayland_init_dnd (xdisplay);
 
   if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
     {
