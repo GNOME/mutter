@@ -322,6 +322,14 @@ meta_compositor_x11_get_output_xwindow (MetaCompositorX11 *compositor_x11)
   return compositor_x11->output;
 }
 
+MetaCompositorX11 *
+meta_compositor_x11_new (MetaDisplay *display)
+{
+  return g_object_new (META_TYPE_COMPOSITOR_X11,
+                       "display", display,
+                       NULL);
+}
+
 static void
 meta_compositor_x11_dispose (GObject *object)
 {

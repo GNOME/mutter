@@ -39,6 +39,14 @@ meta_compositor_server_unmanage (MetaCompositor *compositor)
 {
 }
 
+MetaCompositorServer *
+meta_compositor_server_new (MetaDisplay *display)
+{
+  return g_object_new (META_TYPE_COMPOSITOR_SERVER,
+                       "display", display,
+                       NULL);
+}
+
 static void
 meta_compositor_server_init (MetaCompositorServer *compositor_server)
 {

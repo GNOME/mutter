@@ -27,4 +27,7 @@
 G_DECLARE_FINAL_TYPE (MetaCompositorServer, meta_compositor_server,
                       META, COMPOSITOR_SERVER, MetaCompositor)
 
+MetaCompositorServer *
+meta_compositor_server_new (MetaDisplay *display);
+
 #endif /* META_COMPOSITOR_SERVER_H */
