@@ -566,6 +566,23 @@ prepare_auth_file (MetaXWaylandManager *manager)
 }
 
 static void
+add_local_user_to_xhost (Display *xdisplay)
+{
+  XHostAddress host_entry;
+  XServerInterpretedAddress siaddr;
+
+  siaddr.type = (char *) "localuser";
+  siaddr.typelength = strlen (siaddr.type);
+  siaddr.value = (char *) g_get_user_name();
+  siaddr.valuelength = strlen (siaddr.value);
+
+  host_entry.family = FamilyServerInterpreted;
+  host_entry.address = (char *) &siaddr;
+
+  XAddHost (xdisplay, &host_entry);
+}
+
+static void
 xserver_finished_init (MetaXWaylandManager *manager)
 {
   /* At this point xwayland is all setup to start accepting
@@ -808,6 +825,7 @@ meta_xwayland_complete_init (MetaDisplay *display,
   g_signal_connect (display, "x11-display-closing",
                     G_CALLBACK (on_x11_display_closing), NULL);
   meta_xwayland_init_dnd (xdisplay);
+  add_local_user_to_xhost (xdisplay);
 
   if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
     {
