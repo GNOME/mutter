@@ -1119,13 +1119,12 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
 
   g_assert (prepared_gdk_display);
   gdk_display = g_steal_pointer (&prepared_gdk_display);
+  xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display);
 
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor ())
-    meta_xwayland_complete_init (display);
+    meta_xwayland_complete_init (display, xdisplay);
 #endif
-
-  xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display);
 
   if (meta_is_syncing ())
     XSynchronize (xdisplay, True);
