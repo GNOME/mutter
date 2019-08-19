@@ -790,7 +790,8 @@ on_x11_display_closing (MetaDisplay *display)
 
 /* To be called right after connecting */
 void
-meta_xwayland_complete_init (MetaDisplay *display)
+meta_xwayland_complete_init (MetaDisplay *display,
+                             Display     *xdisplay)
 {
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   MetaXWaylandManager *manager = &compositor->xwayland_manager;
