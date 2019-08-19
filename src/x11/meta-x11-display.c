@@ -131,6 +131,13 @@ meta_x11_display_dispose (GObject *object)
 
   x11_display->closing = TRUE;
 
+  if (x11_display->empty_region != None)
+    {
+      XFixesDestroyRegion (x11_display->xdisplay,
+                           x11_display->empty_region);
+      x11_display->empty_region = None;
+    }
+
   meta_x11_startup_notification_release (x11_display);
 
   meta_prefs_remove_listener (prefs_changed_callback, x11_display);
@@ -2206,4 +2213,45 @@ gboolean
 meta_x11_display_focus_sentinel_clear (MetaX11Display *x11_display)
 {
   return (x11_display->sentinel_counter == 0);
+}
+
+void
+meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
+                                         XserverRegion   region)
+{
+  Display *xdisplay = x11_display->xdisplay;
+  MetaBackend *backend = meta_get_backend ();
+  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+  Window stage_xwindow;
+
+  g_return_if_fail (!meta_is_wayland_compositor ());
+
+  stage_xwindow = clutter_x11_get_stage_window (stage);
+  XFixesSetWindowShapeRegion (xdisplay, stage_xwindow,
+                              ShapeInput, 0, 0, region);
+
+  /*
+   * It's generally a good heuristic that when a crossing event is generated
+   * because we reshape the overlay, we don't want it to affect
+   * focus-follows-mouse focus - it's not the user doing something, it's the
+   * environment changing under the user.
+   */
+  meta_display_add_ignored_crossing_serial (x11_display->display,
+                                            XNextRequest (xdisplay));
+  XFixesSetWindowShapeRegion (xdisplay,
+                              x11_display->composite_overlay_window,
+                              ShapeInput, 0, 0, region);
+}
+
+void
+meta_x11_display_clear_stage_input_region (MetaX11Display *x11_display)
+{
+  if (x11_display->empty_region == None)
+    {
+      x11_display->empty_region = XFixesCreateRegion (x11_display->xdisplay,
+                                                      NULL, 0);
+    }
+
+  meta_x11_display_set_stage_input_region (x11_display,
+                                           x11_display->empty_region);
 }

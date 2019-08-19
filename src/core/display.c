@@ -50,6 +50,7 @@
 #include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "clutter/x11/clutter-x11.h"
 #include "compositor/compositor-private.h"
+#include "compositor/meta-compositor-x11.h"
 #include "core/bell.h"
 #include "core/boxes-private.h"
 #include "core/display-private.h"
@@ -76,6 +77,7 @@
 #include "x11/xprops.h"
 
 #ifdef HAVE_WAYLAND
+#include "compositor/meta-compositor-server.h"
 #include "wayland/meta-xwayland-private.h"
 #include "wayland/meta-wayland-tablet-seat.h"
 #include "wayland/meta-wayland-tablet-pad.h"
@@ -538,6 +540,16 @@ meta_display_remove_pending_pings_for_window (MetaDisplay *display,
   g_slist_free (dead);
 }
 
+static MetaCompositor *
+create_compositor (MetaDisplay *display)
+{
+#ifdef HAVE_WAYLAND
+  if (meta_is_wayland_compositor ())
+    return META_COMPOSITOR (meta_compositor_server_new (display));
+  else
+#endif
+    return META_COMPOSITOR (meta_compositor_x11_new (display));
+}
 
 static void
 enable_compositor (MetaDisplay *display)
@@ -567,7 +579,7 @@ enable_compositor (MetaDisplay *display)
     }
 
   if (!display->compositor)
-      display->compositor = meta_compositor_new (display);
+    display->compositor = create_compositor (display);
 
   meta_compositor_manage (display->compositor);
 }

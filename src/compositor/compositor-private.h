@@ -11,46 +11,23 @@
 #include "meta/compositor.h"
 #include "meta/display.h"
 
-struct _MetaCompositor
-{
-  GObject         parent;
-
-  MetaDisplay    *display;
-
-  guint           pre_paint_func_id;
-  guint           post_paint_func_id;
-
-  gulong          stage_presented_id;
-  gulong          stage_after_paint_id;
-
-  gint64          server_time_query_time;
-  gint64          server_time_offset;
-
-  guint           server_time_is_monotonic_time : 1;
-
-  ClutterActor          *stage, *window_group, *top_window_group, *feedback_group;
-  GList                 *windows;
-  Window                 output;
-
-  CoglContext           *context;
-
-  MetaWindowActor       *top_window_actor;
-  gulong                 top_window_actor_destroy_id;
-
-  /* Used for unredirecting fullscreen windows */
-  guint                  disable_unredirect_count;
-  MetaWindow            *unredirected_window;
-
-  gint                   switch_workspace_in_progress;
-
-  MetaPluginManager *plugin_mgr;
-
-  gboolean frame_has_updated_xsurfaces;
-  gboolean have_x11_sync_object;
-};
-
 /* Wait 2ms after vblank before starting to draw next frame */
 #define META_SYNC_DELAY 2
+
+struct _MetaCompositorClass
+{
+  GObjectClass parent_class;
+
+  void (* manage) (MetaCompositor *compositor);
+  void (* unmanage) (MetaCompositor *compositor);
+  void (* pre_paint) (MetaCompositor *compositor);
+  void (* post_paint) (MetaCompositor *compositor);
+  void (* remove_window) (MetaCompositor *compositor,
+                          MetaWindow     *window);
+};
+
+void meta_compositor_remove_window_actor (MetaCompositor  *compositor,
+                                          MetaWindowActor *window_actor);
 
 void meta_switch_workspace_completed (MetaCompositor *compositor);
 
@@ -61,6 +38,8 @@ gboolean meta_begin_modal_for_plugin (MetaCompositor   *compositor,
 void     meta_end_modal_for_plugin   (MetaCompositor   *compositor,
                                       MetaPlugin       *plugin,
                                       guint32           timestamp);
+
+MetaPluginManager * meta_compositor_get_plugin_manager (MetaCompositor *compositor);
 
 gint64 meta_compositor_monotonic_time_to_server_time (MetaDisplay *display,
                                                       gint64       monotonic_time);
@@ -77,5 +56,15 @@ MetaInhibitShortcutsDialog * meta_compositor_create_inhibit_shortcuts_dialog (Me
 void meta_compositor_locate_pointer (MetaCompositor *compositor);
 
 void meta_compositor_redirect_x11_windows (MetaCompositor *compositor);
+
+gboolean meta_compositor_is_unredirect_inhibited (MetaCompositor *compositor);
+
+MetaDisplay * meta_compositor_get_display (MetaCompositor *compositor);
+
+MetaWindowActor * meta_compositor_get_top_window_actor (MetaCompositor *compositor);
+
+ClutterStage * meta_compositor_get_stage (MetaCompositor *compositor);
+
+gboolean meta_compositor_is_switching_workspace (MetaCompositor *compositor);
 
 #endif /* META_COMPOSITOR_PRIVATE_H */

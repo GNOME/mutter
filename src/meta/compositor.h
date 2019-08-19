@@ -21,7 +21,6 @@
 #define META_COMPOSITOR_H
 
 #include <glib.h>
-#include <X11/Xlib.h>
 
 #include <meta/types.h>
 #include <meta/boxes.h>
@@ -30,7 +29,8 @@
 
 #define META_TYPE_COMPOSITOR (meta_compositor_get_type ())
 META_EXPORT
-G_DECLARE_FINAL_TYPE (MetaCompositor, meta_compositor, META, COMPOSITOR, GObject)
+G_DECLARE_DERIVABLE_TYPE (MetaCompositor, meta_compositor,
+                          META, COMPOSITOR, GObject)
 
 /**
  * MetaCompEffect:
@@ -67,9 +67,6 @@ typedef enum
 } MetaSizeChange;
 
 META_EXPORT
-MetaCompositor *meta_compositor_new     (MetaDisplay    *display);
-
-META_EXPORT
 void            meta_compositor_destroy (MetaCompositor *compositor);
 
 META_EXPORT
@@ -85,11 +82,6 @@ void meta_compositor_window_shape_changed (MetaCompositor *compositor,
 META_EXPORT
 void meta_compositor_window_opacity_changed (MetaCompositor *compositor,
                                              MetaWindow     *window);
-
-META_EXPORT
-gboolean meta_compositor_process_event (MetaCompositor *compositor,
-                                        XEvent         *event,
-                                        MetaWindow     *window);
 
 META_EXPORT
 gboolean meta_compositor_filter_keybinding (MetaCompositor *compositor,

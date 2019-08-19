@@ -168,19 +168,23 @@ meta_dnd_notify_dnd_leave (MetaDnd *dnd)
  * http://www.freedesktop.org/wiki/Specifications/XDND
  */
 gboolean
-meta_dnd_handle_xdnd_event (MetaBackend    *backend,
-                            MetaCompositor *compositor,
-                            Display        *xdisplay,
-                            XEvent         *xev)
+meta_dnd_handle_xdnd_event (MetaBackend       *backend,
+                            MetaCompositorX11 *compositor_x11,
+                            Display           *xdisplay,
+                            XEvent            *xev)
 {
   MetaDnd *dnd = meta_backend_get_dnd (backend);
-  Window output_window = compositor->output;
+  MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
+  Window output_window;
+  ClutterStage *stage;
 
   if (xev->xany.type != ClientMessage)
     return FALSE;
 
+  output_window = meta_compositor_x11_get_output_xwindow (compositor_x11);
+  stage = meta_compositor_get_stage (compositor);
   if (xev->xany.window != output_window &&
-      xev->xany.window != clutter_x11_get_stage_window (CLUTTER_STAGE (compositor->stage)))
+      xev->xany.window != clutter_x11_get_stage_window (stage))
     return FALSE;
 
   if (xev->xclient.message_type == XInternAtom (xdisplay, "XdndPosition", TRUE))
@@ -285,20 +289,22 @@ meta_dnd_wayland_handle_begin_modal (MetaCompositor *compositor)
   if (priv->handler_id[0] == 0 &&
       meta_wayland_data_device_get_current_grab (&wl_compositor->seat->data_device) != NULL)
     {
+      ClutterStage *stage = meta_compositor_get_stage (compositor);
+
       priv->compositor = compositor;
       priv->wl_compositor = wl_compositor;
 
-      priv->handler_id[0] = g_signal_connect (compositor->stage,
+      priv->handler_id[0] = g_signal_connect (stage,
                                               "motion-event",
                                               G_CALLBACK (meta_dnd_wayland_on_motion_event),
                                               dnd);
 
-      priv->handler_id[1] = g_signal_connect (compositor->stage,
+      priv->handler_id[1] = g_signal_connect (stage,
                                               "button-release-event",
                                               G_CALLBACK (meta_dnd_wayland_on_button_released),
                                               dnd);
 
-      priv->handler_id[2] = g_signal_connect (compositor->stage,
+      priv->handler_id[2] = g_signal_connect (stage,
                                               "key-press-event",
                                               G_CALLBACK (meta_dnd_wayland_on_key_pressed),
                                               dnd);
@@ -312,6 +318,7 @@ meta_dnd_wayland_handle_end_modal (MetaCompositor *compositor)
 {
   MetaDnd *dnd = meta_backend_get_dnd (meta_get_backend ());
   MetaDndPrivate *priv = meta_dnd_get_instance_private (dnd);
+  ClutterStage *stage = meta_compositor_get_stage (compositor);
   unsigned int i;
 
   if (!priv->compositor)
@@ -319,7 +326,7 @@ meta_dnd_wayland_handle_end_modal (MetaCompositor *compositor)
 
   for (i = 0; i < G_N_ELEMENTS (priv->handler_id); i++)
     {
-      g_signal_handler_disconnect (priv->compositor->stage, priv->handler_id[i]);
+      g_signal_handler_disconnect (stage, priv->handler_id[i]);
       priv->handler_id[i] = 0;
     }
 

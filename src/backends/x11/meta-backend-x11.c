@@ -42,7 +42,6 @@
 #include <string.h>
 #include <xkbcommon/xkbcommon-x11.h>
 
-#include "backends/meta-dnd-private.h"
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
@@ -326,22 +325,20 @@ handle_host_xevent (MetaBackend *backend,
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
   gboolean bypass_clutter = FALSE;
+  MetaDisplay *display;
 
   XGetEventData (priv->xdisplay, &event->xcookie);
 
-  {
-    MetaDisplay *display = meta_get_display ();
+  display = meta_get_display ();
+  if (display)
+    {
+      MetaCompositor *compositor = display->compositor;
+      MetaPluginManager *plugin_mgr =
+        meta_compositor_get_plugin_manager (compositor);
 
-    if (display)
-      {
-        MetaCompositor *compositor = display->compositor;
-        if (meta_plugin_manager_xevent_filter (compositor->plugin_mgr, event))
-          bypass_clutter = TRUE;
-
-        if (meta_dnd_handle_xdnd_event (backend, compositor, priv->xdisplay, event))
-          bypass_clutter = TRUE;
-      }
-  }
+      if (meta_plugin_manager_xevent_filter (plugin_mgr, event))
+        bypass_clutter = TRUE;
+    }
 
   bypass_clutter = (meta_backend_x11_handle_host_xevent (x11, event) ||
                     bypass_clutter);

@@ -52,10 +52,11 @@ static void
 meta_feedback_actor_constructed (GObject *object)
 {
   MetaDisplay *display;
+  ClutterActor *feedback_group;
 
   display = meta_get_display ();
-  clutter_actor_add_child (display->compositor->feedback_group,
-                           CLUTTER_ACTOR (object));
+  feedback_group = meta_get_feedback_group_for_display (display);
+  clutter_actor_add_child (feedback_group, CLUTTER_ACTOR (object));
 }
 
 static void
