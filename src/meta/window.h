@@ -105,6 +105,9 @@ META_EXPORT
 GType meta_window_get_type (void);
 
 META_EXPORT
+void meta_window_set_type (MetaWindow *window, MetaWindowType type);
+
+META_EXPORT
 MetaFrame *meta_window_get_frame (MetaWindow *window);
 
 META_EXPORT
