@@ -112,7 +112,7 @@ gtk_surface_set_modal (struct wl_client   *client,
     return;
 
   gtk_surface->is_modal = TRUE;
-  meta_window_set_type (window, META_WINDOW_MODAL_DIALOG);
+  meta_window_set_window_type (window, META_WINDOW_MODAL_DIALOG);
 }
 
 static void
@@ -131,7 +131,7 @@ gtk_surface_unset_modal (struct wl_client   *client,
     return;
 
   gtk_surface->is_modal = FALSE;
-  meta_window_set_type (window, META_WINDOW_NORMAL);
+  meta_window_set_window_type (window, META_WINDOW_NORMAL);
 }
 
 static void
