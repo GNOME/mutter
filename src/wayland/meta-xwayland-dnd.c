@@ -896,11 +896,10 @@ meta_xwayland_dnd_handle_event (XEvent *xevent)
 }
 
 void
-meta_xwayland_init_dnd (void)
+meta_xwayland_init_dnd (Display *xdisplay)
 {
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   MetaXWaylandManager *manager = &compositor->xwayland_manager;
-  Display *xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
   MetaXWaylandDnd *dnd = manager->dnd;
   XSetWindowAttributes attributes;
   guint32 i, version = XDND_VERSION;
@@ -931,7 +930,7 @@ meta_xwayland_init_dnd (void)
 }
 
 void
-meta_xwayland_shutdown_dnd (void)
+meta_xwayland_shutdown_dnd (Display *xdisplay)
 {
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   MetaXWaylandManager *manager = &compositor->xwayland_manager;
@@ -939,8 +938,7 @@ meta_xwayland_shutdown_dnd (void)
 
   g_assert (dnd != NULL);
 
-  XDestroyWindow (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
-                  dnd->dnd_window);
+  XDestroyWindow (xdisplay, dnd->dnd_window);
   dnd->dnd_window = None;
 
   g_slice_free (MetaXWaylandDnd, dnd);
