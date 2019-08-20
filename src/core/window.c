@@ -1023,6 +1023,9 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->saved_rect = window->rect;
   window->unconstrained_rect = window->rect;
 
+  /* start without a fullscreen size override */
+  window->fullscreen_size_override = (MetaRectangle) {};
+
   window->depth = attrs->depth;
   window->xvisual = attrs->visual;
 

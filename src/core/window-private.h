@@ -492,6 +492,9 @@ struct _MetaWindow
    */
   MetaRectangle unconstrained_rect;
 
+  /* For meta_window_x11_xwayland_randr_fullscreen_workaround() */
+  MetaRectangle fullscreen_size_override;
+
   /* The rectangle of the "server-side" geometry of the buffer,
    * in root coordinates.
    *

@@ -2751,6 +2751,73 @@ free_output:
   return success;
 }
 
+/* Is this window likely to be the window of a (fullscreen) game? */
+static gboolean
+meta_window_x11_likely_is_game (MetaWindow *window)
+{
+  MetaX11Display *x11_display = window->display->x11_display;
+  XClassHint class_hint;
+  Status success;
+
+  /* most games / gaming libs set a full set of hints including setting
+   * _NET_WM_BYPASS_COMPOSITOR to _NET_WM_BYPASS_COMPOSITOR_HINT_ON, so
+   * we check this first
+   */
+  if (window->bypass_compositor == _NET_WM_BYPASS_COMPOSITOR_HINT_ON)
+    return TRUE;
+
+  /* Some other games / gaming libs (e.g. OGRE) set as little hints as possible,
+   * these do not even set the WM_CLASS hints, which is somewhat unusual.
+   */
+  meta_x11_error_trap_push (x11_display);
+  success = XGetClassHint (x11_display->xdisplay, window->xwindow, &class_hint);
+  meta_x11_error_trap_pop (x11_display);
+
+  if (success)
+    {
+      XFree (class_hint.res_name);
+      XFree (class_hint.res_class);
+    }
+
+  /* If the WM_CLASS hints were *not* set it may very well be a game. */
+  return !success;
+}
+
+/* This is a workaround for X11 games which use xrandr to change the resolution
+ * in combination with NET_WM_STATE_FULLSCREEN when going fullscreen.
+ *
+ * Newer versions of Xwayland support the xrandr part of this by supporting
+ * "fake" xrandr resolution changes in combination with using WPviewport to
+ * scale the app's window (at the fake resolution) to fill the entire monitor.
+ *
+ * Apps using xrandr in combination with NET_WM_STATE_FULLSCREEN expect the
+ * fullscreen window to have the size of the (fake) xrandr resolution since
+ * when running on regular Xorg the resolution will actually be changed and
+ * after that going fullscreen through NET_WM_STATE_FULLSCREEN will size
+ * the window to be equal to the new resolution.
+ *
+ * We need to emulate this behavior for these games to work correctly, so
+ * when Xwayland is used, we query the Window's monitor fake xrandr
+ * resolution and "fullscreen" to that size.
+ */
+static void
+meta_window_x11_xwayland_randr_fullscreen_workaround (MetaWindow *window)
+{
+  int width, height;
+
+  if (!meta_is_wayland_compositor ())
+    return;
+
+  if (!meta_window_x11_likely_is_game (window))
+    return;
+
+  if (!meta_window_x11_get_randr_monitor_resolution (window, &width, &height))
+    return;
+
+  window->fullscreen_size_override.width = width;
+  window->fullscreen_size_override.height = height;
+}
+
 gboolean
 meta_window_x11_client_message (MetaWindow *window,
                                 XEvent     *event)
@@ -2883,9 +2950,15 @@ meta_window_x11_client_message (MetaWindow *window,
           make_fullscreen = (action == _NET_WM_STATE_ADD ||
                              (action == _NET_WM_STATE_TOGGLE && !window->fullscreen));
           if (make_fullscreen && window->has_fullscreen_func)
-            meta_window_make_fullscreen (window);
+            {
+              meta_window_x11_xwayland_randr_fullscreen_workaround (window);
+              meta_window_make_fullscreen (window);
+            }
           else
-            meta_window_unmake_fullscreen (window);
+            {
+              window->fullscreen_size_override = (MetaRectangle) {};
+              meta_window_unmake_fullscreen (window);
+            }
         }
 
       if (first == x11_display->atom__NET_WM_STATE_MAXIMIZED_HORZ ||
