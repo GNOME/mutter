@@ -31,6 +31,7 @@
 #include <X11/Xlib-xcb.h>
 #include <X11/extensions/shape.h>
 #include <X11/extensions/Xcomposite.h>
+#include <X11/extensions/Xrandr.h>
 #include <xcb/res.h>
 
 #include "backends/meta-logical-monitor.h"
@@ -2677,6 +2678,77 @@ handle_net_restack_window (MetaDisplay *display,
 
       restack_window (window, sibling, event->xclient.data.l[2]);
     }
+}
+
+/* Get resolution from xrandr for window's monitor, also see comment below. */
+static gboolean
+meta_window_x11_get_randr_monitor_resolution (MetaWindow *window,
+                                              int        *width,
+                                              int        *height)
+{
+  MetaRectangle monitor_rect;
+  gboolean success = FALSE;
+  Display *xdisplay = window->display->x11_display->xdisplay;
+  XRRScreenResources *resources;
+  XRROutputInfo *output;
+  XRRCrtcInfo *crtc;
+  int i;
+
+  if (!window->monitor)
+    {
+      g_warning ("MetaWindow does not have a monitor");
+      return FALSE;
+    }
+
+  meta_display_get_monitor_geometry (window->display,
+                                     window->monitor->number,
+                                     &monitor_rect);
+
+  resources = XRRGetScreenResourcesCurrent (xdisplay,
+                                            DefaultRootWindow (xdisplay));
+  if (!resources)
+    {
+      g_warning ("XRRGetScreenResourcesCurrent failed");
+      return FALSE;
+    }
+
+  for (i = 0; !success && i < resources->noutput; i++)
+    {
+      output = XRRGetOutputInfo (xdisplay, resources, resources->outputs[i]);
+      if (!output)
+        {
+          g_warning ("XRRGetOutputInfo failed");
+          continue;
+        }
+
+      if (output->connection == RR_Disconnected || output->crtc == None)
+        goto free_output;
+
+      crtc = XRRGetCrtcInfo (xdisplay, resources, output->crtc);
+      if (!crtc)
+        {
+          g_warning ("XRRGetCrtcInfo failed");
+          goto free_output;
+        }
+
+      if (monitor_rect.x == crtc->x && monitor_rect.y == crtc->y)
+        {
+          *width  = crtc->width;
+          *height = crtc->height;
+          success = TRUE;
+        }
+
+      XRRFreeCrtcInfo (crtc);
+free_output:
+      XRRFreeOutputInfo (output);
+    }
+
+  XRRFreeScreenResources (resources);
+
+  if (!success)
+    g_warning ("Randr output matching window monitor not found");
+
+  return success;
 }
 
 gboolean
