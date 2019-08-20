@@ -875,15 +875,6 @@ _clutter_stage_queue_event (ClutterStage *stage,
   if (copy_event)
     event = clutter_event_copy (event);
 
-  g_queue_push_tail (priv->event_queue, event);
-
-  if (first_event)
-    {
-      ClutterMasterClock *master_clock = _clutter_master_clock_get_default ();
-      _clutter_master_clock_start_running (master_clock);
-      _clutter_stage_schedule_update (stage);
-    }
-
   /* if needed, update the state of the input device of the event.
    * we do it here to avoid calling the same code from every backend
    * event processing function
@@ -903,6 +894,28 @@ _clutter_stage_queue_event (ClutterStage *stage,
       _clutter_input_device_set_coords (device, sequence, event_x, event_y, stage);
       _clutter_input_device_set_state (device, event_state);
       _clutter_input_device_set_time (device, event_time);
+    }
+
+  if (first_event)
+    {
+      gboolean compressible = event->type == CLUTTER_MOTION ||
+                              event->type == CLUTTER_TOUCH_UPDATE;
+
+      if (!compressible)
+        {
+          _clutter_process_event (event);
+          clutter_event_free (event);
+          return;
+        }
+    }
+
+  g_queue_push_tail (priv->event_queue, event);
+
+  if (first_event)
+    {
+      ClutterMasterClock *master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_start_running (master_clock);
+      _clutter_stage_schedule_update (stage);
     }
 }
 

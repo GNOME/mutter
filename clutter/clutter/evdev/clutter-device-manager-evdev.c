@@ -701,14 +701,14 @@ clutter_event_dispatch (GSource     *g_source,
       if (!_clutter_input_device_get_stage (input_device))
         goto out;
 
-      /* forward the event into clutter for emission etc. */
-      _clutter_stage_queue_event (event->any.stage, event, FALSE);
-
-      /* update the device states *after* the event */
+      /* update the device states *before* the event */
       event_state = seat->button_state |
         xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_EFFECTIVE);
       _clutter_input_device_set_state (seat->core_pointer, event_state);
       _clutter_input_device_set_state (seat->core_keyboard, event_state);
+
+      /* forward the event into clutter for emission etc. */
+      _clutter_stage_queue_event (event->any.stage, event, FALSE);
     }
 
 out:
