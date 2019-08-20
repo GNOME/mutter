@@ -13,16 +13,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter.master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-06-13 16:48+0000\n"
-"PO-Revision-Date: 2019-06-19 09:53+0200\n"
+"POT-Creation-Date: 2019-08-06 00:49+0000\n"
+"PO-Revision-Date: 2019-08-20 12:23+0200\n"
 "Last-Translator: Daniel Mustieles <daniel.mustieles@gmail.com>\n"
-"Language-Team: es <gnome-es-list@gnome.org>\n"
-"Language: es\n"
+"Language-Team: Spanish - Spain <gnome-es-list@gnome.org>\n"
+"Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 3.32.0\n"
+"X-Generator: Gtranslator 3.32.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -397,6 +397,18 @@ msgid "Enable experimental features"
 msgstr "Activar las características experimentales"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
+#| msgid ""
+#| "To enable experimental features, add the feature keyword to the list. "
+#| "Whether the feature requires restarting the compositor depends on the "
+#| "given feature. Any experimental feature is not required to still be "
+#| "available, or configurable. Don’t expect adding anything in this setting "
+#| "to be future proof. Currently possible keywords: • “scale-monitor-"
+#| "framebuffer” — makes mutter default to layout logical monitors in a "
+#| "logical pixel coordinate space, while scaling monitor framebuffers "
+#| "instead of window content, to manage HiDPI monitors. Does not require a "
+#| "restart. • “rt-scheduler” — makes mutter request a low priority real-time "
+#| "scheduling. The executable or user must have CAP_SYS_NICE. Requires a "
+#| "restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -407,7 +419,8 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart."
+"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
+"initializes Xwayland lazily if there are X11 clients. Requires restart."
 msgstr ""
 "Para activar las características experimentales, añada la palabra clave de "
 "la característica a la lista. Depende de la característica que se deba "
@@ -420,29 +433,30 @@ msgstr ""
 "lugar del contenido de ventana, para administrar monitores HiDPI. No "
 "requiere un reinicio. • “rt-scheduler” — hace que mutter pida una "
 "planificación en tiempo real con prioridad baja. El ejecutable o el usuario "
-"deben tener CAP_SYS_NICE. Requiere reniciar."
+"deben tener CAP_SYS_NICE. Requiere reniciar. • “autostart-xwayland” — inicia "
+"Xwayland vagamente si hay clientes X11. Requiere reiniciar."
 
-#: data/org.gnome.mutter.gschema.xml.in:132
+#: data/org.gnome.mutter.gschema.xml.in:134
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificador que usar para encontrar el puntero"
 
-#: data/org.gnome.mutter.gschema.xml.in:133
+#: data/org.gnome.mutter.gschema.xml.in:135
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Esta tecla iniciará la acción de encontrar el puntero."
 
-#: data/org.gnome.mutter.gschema.xml.in:153
+#: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Select window from tab popup"
 msgstr "Seleccionar ventana de la pestaña emergente"
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid "Cancel tab popup"
 msgstr "Cancelar pestaña emergente"
 
-#: data/org.gnome.mutter.gschema.xml.in:163
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Switch monitor configurations"
 msgstr "Cambiar la configuración del monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:168
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rota la configuración del monitor empotrado"
 
@@ -504,12 +518,6 @@ msgstr ""
 "Permitir capturas con X11 para bloquear el foco del teclado con Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
-#| msgid ""
-#| "Allow keyboard grabs issued by X11 applications running in Xwayland to be "
-#| "taken into account. For a X11 grab to be taken into account under "
-#| "Wayland, the client must also either send a specific X11 ClientMessage to "
-#| "the root window or be among the applications white-listed in key "
-#| "“xwayland-grab-access-rules”."
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -562,7 +570,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2529
+#: src/backends/meta-input-settings.c:2531
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Cambiar modo (grupo %d)"
@@ -570,34 +578,34 @@ msgstr "Cambiar modo (grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2552
+#: src/backends/meta-input-settings.c:2554
 msgid "Switch monitor"
 msgstr "Cambiar monitor"
 
-#: src/backends/meta-input-settings.c:2554
+#: src/backends/meta-input-settings.c:2556
 msgid "Show on-screen help"
 msgstr "Mostrar la ayuda en pantalla"
 
-#: src/backends/meta-monitor-manager.c:976
+#: src/backends/meta-monitor.c:223
 msgid "Built-in display"
 msgstr "Pantalla integrada"
 
-#: src/backends/meta-monitor-manager.c:1008
+#: src/backends/meta-monitor.c:252
 msgid "Unknown"
 msgstr "Desconocida"
 
-#: src/backends/meta-monitor-manager.c:1010
+#: src/backends/meta-monitor.c:254
 msgid "Unknown Display"
 msgstr "Pantalla desconocida"
 
-#: src/backends/meta-monitor-manager.c:1018
+#: src/backends/meta-monitor.c:262
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor-manager.c:1026
+#: src/backends/meta-monitor.c:270
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -718,7 +726,7 @@ msgstr "Imprimir versión"
 msgid "Mutter plugin to use"
 msgstr "Complemento de mutter que usar"
 
-#: src/core/prefs.c:1834
+#: src/core/prefs.c:1849
 #, c-format
 msgid "Workspace %d"
 msgstr "Área de trabajo %d"
@@ -732,7 +740,7 @@ msgstr "Mutter fue compilado sin soporte para modo prolijo\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Cambiar modo: modo %d"
 
-#: src/x11/meta-x11-display.c:681
+#: src/x11/meta-x11-display.c:671
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -741,16 +749,16 @@ msgstr ""
 "La pantalla «%s» ya tiene un gestor de ventanas; pruebe a usar la opción «--"
 "replace» para reemplazar el gestor de ventanas activo."
 
-#: src/x11/meta-x11-display.c:1023
+#: src/x11/meta-x11-display.c:1032
 msgid "Failed to initialize GDK\n"
 msgstr "Falló al inicializar GDK\n"
 
-#: src/x11/meta-x11-display.c:1047
+#: src/x11/meta-x11-display.c:1056
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Ocurrió un error al abrir la pantalla de X Window System «%s»\n"
 
-#: src/x11/meta-x11-display.c:1131
+#: src/x11/meta-x11-display.c:1140
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "La ventana %d en la pantalla «%s» no es válida\n"
