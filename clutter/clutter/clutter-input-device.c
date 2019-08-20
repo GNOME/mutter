@@ -1926,6 +1926,157 @@ _clutter_input_device_reset_scroll_info (ClutterInputDevice *device)
 }
 
 static void
+on_grab_actor_destroy (ClutterActor       *actor,
+                       ClutterInputDevice *device)
+{
+  switch (device->device_type)
+    {
+    case CLUTTER_POINTER_DEVICE:
+    case CLUTTER_TABLET_DEVICE:
+      device->pointer_grab_actor = NULL;
+      break;
+
+    case CLUTTER_KEYBOARD_DEVICE:
+      device->keyboard_grab_actor = NULL;
+      break;
+
+    default:
+      g_assert_not_reached ();
+    }
+}
+
+/**
+ * clutter_input_device_grab:
+ * @device: a #ClutterInputDevice
+ * @actor: a #ClutterActor
+ *
+ * Acquires a grab on @actor for the given @device.
+ *
+ * Any event coming from @device will be delivered to @actor, bypassing
+ * the usual event delivery mechanism, until the grab is released by
+ * calling clutter_input_device_ungrab().
+ *
+ * The grab is client-side: even if the windowing system used by the Clutter
+ * backend has the concept of "device grabs", Clutter will not use them.
+ *
+ * Only #ClutterInputDevice of types %CLUTTER_POINTER_DEVICE,
+ * %CLUTTER_TABLET_DEVICE and %CLUTTER_KEYBOARD_DEVICE can hold a grab.
+ *
+ * Since: 1.10
+ */
+void
+clutter_input_device_grab (ClutterInputDevice *device,
+                           ClutterActor       *actor)
+{
+  ClutterActor **grab_actor;
+
+  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
+  g_return_if_fail (CLUTTER_IS_ACTOR (actor));
+
+  switch (device->device_type)
+    {
+    case CLUTTER_POINTER_DEVICE:
+    case CLUTTER_TABLET_DEVICE:
+      grab_actor = &device->pointer_grab_actor;
+      break;
+
+    case CLUTTER_KEYBOARD_DEVICE:
+      grab_actor = &device->keyboard_grab_actor;
+      break;
+
+    default:
+      g_critical ("Only pointer and keyboard devices can grab an actor");
+      return;
+    }
+
+  if (*grab_actor != NULL)
+    {
+      g_signal_handlers_disconnect_by_func (*grab_actor,
+                                            G_CALLBACK (on_grab_actor_destroy),
+                                            device);
+    }
+
+  *grab_actor = actor;
+
+  g_signal_connect (*grab_actor,
+                    "destroy",
+                    G_CALLBACK (on_grab_actor_destroy),
+                    device);
+}
+
+/**
+ * clutter_input_device_ungrab:
+ * @device: a #ClutterInputDevice
+ *
+ * Releases the grab on the @device, if one is in place.
+ *
+ * Since: 1.10
+ */
+void
+clutter_input_device_ungrab (ClutterInputDevice *device)
+{
+  ClutterActor **grab_actor;
+
+  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
+
+  switch (device->device_type)
+    {
+    case CLUTTER_POINTER_DEVICE:
+    case CLUTTER_TABLET_DEVICE:
+      grab_actor = &device->pointer_grab_actor;
+      break;
+
+    case CLUTTER_KEYBOARD_DEVICE:
+      grab_actor = &device->keyboard_grab_actor;
+      break;
+
+    default:
+      return;
+    }
+
+  if (*grab_actor == NULL)
+    return;
+
+  g_signal_handlers_disconnect_by_func (*grab_actor,
+                                        G_CALLBACK (on_grab_actor_destroy),
+                                        device);
+
+  *grab_actor = NULL;
+}
+
+/**
+ * clutter_input_device_get_grabbed_actor:
+ * @device: a #ClutterInputDevice
+ *
+ * Retrieves a pointer to the #ClutterActor currently grabbing all
+ * the events coming from @device.
+ *
+ * Return value: (transfer none): a #ClutterActor, or %NULL
+ *
+ * Since: 1.10
+ */
+ClutterActor *
+clutter_input_device_get_grabbed_actor (ClutterInputDevice *device)
+{
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
+
+  switch (device->device_type)
+    {
+    case CLUTTER_POINTER_DEVICE:
+    case CLUTTER_TABLET_DEVICE:
+      return device->pointer_grab_actor;
+
+    case CLUTTER_KEYBOARD_DEVICE:
+      return device->keyboard_grab_actor;
+
+    default:
+      g_critical ("Only pointer and keyboard devices can grab an actor");
+    }
+
+  return NULL;
+}
+
+static void
 on_grab_sequence_actor_destroy (ClutterActor       *actor,
                                 ClutterInputDevice *device)
 {
