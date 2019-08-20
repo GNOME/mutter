@@ -39,6 +39,7 @@
 #include "meta/meta-window-actor.h"
 #include "meta/meta-x11-errors.h"
 #include "meta/window.h"
+#include "x11/window-x11.h"
 #include "x11/meta-x11-display-private.h"
 
 enum
@@ -539,10 +540,16 @@ has_shadow (MetaWindowActorX11 *actor_x11)
 gboolean
 meta_window_actor_x11_should_unredirect (MetaWindowActorX11 *actor_x11)
 {
+  MetaWindow *window =
+    meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   MetaSurfaceActor *surface;
   MetaSurfaceActorX11 *surface_x11;
 
   if (meta_window_actor_is_destroyed (META_WINDOW_ACTOR (actor_x11)))
+    return FALSE;
+
+  if (!meta_window_x11_is_unredirectable (window_x11))
     return FALSE;
 
   surface = meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
