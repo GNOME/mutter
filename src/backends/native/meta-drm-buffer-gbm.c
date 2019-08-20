@@ -53,9 +53,10 @@ meta_drm_buffer_gbm_get_bo (MetaDrmBufferGbm *buffer_gbm)
 }
 
 static gboolean
-acquire_swapped_buffer (MetaDrmBufferGbm  *buffer_gbm,
-                        gboolean           use_modifiers,
-                        GError           **error)
+init_fb_id (MetaDrmBufferGbm  *buffer_gbm,
+            struct gbm_bo     *bo,
+            gboolean           use_modifiers,
+            GError           **error)
 {
   uint32_t handles[4] = {0, 0, 0, 0};
   uint32_t strides[4] = {0, 0, 0, 0};
@@ -63,20 +64,9 @@ acquire_swapped_buffer (MetaDrmBufferGbm  *buffer_gbm,
   uint64_t modifiers[4] = {0, 0, 0, 0};
   uint32_t width, height;
   uint32_t format;
-  struct gbm_bo *bo;
   int kms_fd;
 
   kms_fd = meta_gpu_kms_get_fd (buffer_gbm->gpu_kms);
-
-  bo = gbm_surface_lock_front_buffer (buffer_gbm->surface);
-  if (!bo)
-    {
-      g_set_error (error,
-                   G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "gbm_surface_lock_front_buffer failed");
-      return FALSE;
-    }
 
   if (gbm_bo_get_handle_for_plane (bo, 0).s32 == -1)
     {
@@ -120,7 +110,6 @@ acquire_swapped_buffer (MetaDrmBufferGbm  *buffer_gbm,
                        g_io_error_from_errno (errno),
                        "drmModeAddFB2WithModifiers failed: %s",
                        g_strerror (errno));
-          gbm_surface_release_buffer (buffer_gbm->surface, bo);
           return FALSE;
         }
     }
@@ -141,7 +130,6 @@ acquire_swapped_buffer (MetaDrmBufferGbm  *buffer_gbm,
                        G_IO_ERROR_FAILED,
                        "drmModeAddFB does not support format 0x%x",
                        format);
-          gbm_surface_release_buffer (buffer_gbm->surface, bo);
           return FALSE;
         }
 
@@ -159,21 +147,36 @@ acquire_swapped_buffer (MetaDrmBufferGbm  *buffer_gbm,
                        g_io_error_from_errno (errno),
                        "drmModeAddFB failed: %s",
                        g_strerror (errno));
-          gbm_surface_release_buffer (buffer_gbm->surface, bo);
           return FALSE;
         }
     }
 
-  buffer_gbm->bo = bo;
-
   return TRUE;
 }
 
+static gboolean
+acquire_swapped_buffer (MetaDrmBufferGbm  *buffer_gbm,
+                        gboolean           use_modifiers,
+                        GError           **error)
+{
+  buffer_gbm->bo = gbm_surface_lock_front_buffer (buffer_gbm->surface);
+  if (!buffer_gbm->bo)
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_FAILED,
+                   "gbm_surface_lock_front_buffer failed");
+      return FALSE;
+    }
+
+  return init_fb_id (buffer_gbm, buffer_gbm->bo, use_modifiers, error);
+}
+
 MetaDrmBufferGbm *
-meta_drm_buffer_gbm_new (MetaGpuKms          *gpu_kms,
-                         struct gbm_surface  *gbm_surface,
-                         gboolean             use_modifiers,
-                         GError             **error)
+meta_drm_buffer_gbm_new_acquire (MetaGpuKms          *gpu_kms,
+                                 struct gbm_surface  *gbm_surface,
+                                 gboolean             use_modifiers,
+                                 GError             **error)
 {
   MetaDrmBufferGbm *buffer_gbm;
 
@@ -186,6 +189,28 @@ meta_drm_buffer_gbm_new (MetaGpuKms          *gpu_kms,
       g_object_unref (buffer_gbm);
       return NULL;
     }
+
+  return buffer_gbm;
+}
+
+MetaDrmBufferGbm *
+meta_drm_buffer_gbm_new_take (MetaGpuKms     *gpu_kms,
+                              struct gbm_bo  *bo,
+                              gboolean        use_modifiers,
+                              GError        **error)
+{
+  MetaDrmBufferGbm *buffer_gbm;
+
+  buffer_gbm = g_object_new (META_TYPE_DRM_BUFFER_GBM, NULL);
+  buffer_gbm->gpu_kms = gpu_kms;
+
+  if (!init_fb_id (buffer_gbm, bo, use_modifiers, error))
+    {
+      g_object_unref (buffer_gbm);
+      return NULL;
+    }
+
+  buffer_gbm->bo = bo;
 
   return buffer_gbm;
 }
@@ -210,7 +235,12 @@ meta_drm_buffer_gbm_finalize (GObject *object)
     }
 
   if (buffer_gbm->bo)
-    gbm_surface_release_buffer (buffer_gbm->surface, buffer_gbm->bo);
+    {
+      if (buffer_gbm->surface)
+        gbm_surface_release_buffer (buffer_gbm->surface, buffer_gbm->bo);
+      else
+        gbm_bo_destroy (buffer_gbm->bo);
+    }
 
   G_OBJECT_CLASS (meta_drm_buffer_gbm_parent_class)->finalize (object);
 }

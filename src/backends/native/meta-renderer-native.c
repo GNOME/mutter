@@ -1826,14 +1826,15 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
     }
 
   g_clear_object (&secondary_gpu_state->gbm.next_fb);
-  buffer_gbm = meta_drm_buffer_gbm_new (secondary_gpu_state->gpu_kms,
-                                        secondary_gpu_state->gbm.surface,
-                                        renderer_native->use_modifiers,
-                                        &error);
+  buffer_gbm =
+    meta_drm_buffer_gbm_new_acquire (secondary_gpu_state->gpu_kms,
+                                     secondary_gpu_state->gbm.surface,
+                                     renderer_native->use_modifiers,
+                                     &error);
   secondary_gpu_state->gbm.next_fb = META_DRM_BUFFER (buffer_gbm);
   if (!secondary_gpu_state->gbm.next_fb)
     {
-      g_warning ("meta_drm_buffer_gbm_new failed: %s",
+      g_warning ("meta_drm_buffer_gbm_new_acquire failed: %s",
                  error->message);
       g_error_free (error);
       return;
@@ -2229,10 +2230,11 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
       g_warn_if_fail (onscreen_native->gbm.next_fb == NULL);
       g_clear_object (&onscreen_native->gbm.next_fb);
 
-      buffer_gbm = meta_drm_buffer_gbm_new (render_gpu,
-                                            onscreen_native->gbm.surface,
-                                            renderer_native->use_modifiers,
-                                            &error);
+      buffer_gbm =
+        meta_drm_buffer_gbm_new_acquire (render_gpu,
+                                         onscreen_native->gbm.surface,
+                                         renderer_native->use_modifiers,
+                                         &error);
       onscreen_native->gbm.next_fb = META_DRM_BUFFER (buffer_gbm);
       if (!onscreen_native->gbm.next_fb)
         {
