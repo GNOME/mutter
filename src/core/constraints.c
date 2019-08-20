@@ -431,6 +431,12 @@ setup_constraint_info (ConstraintInfo      *info,
                             &info->entire_monitor);
     }
 
+  if (window->fullscreen && window->fullscreen_size_override.width)
+    {
+      info->entire_monitor.width  = window->fullscreen_size_override.width;
+      info->entire_monitor.height = window->fullscreen_size_override.height;
+    }
+
   cur_workspace = window->display->workspace_manager->active_workspace;
   info->usable_screen_region   =
     meta_workspace_get_onscreen_region (cur_workspace);
