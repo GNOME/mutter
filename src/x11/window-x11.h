@@ -79,4 +79,6 @@ Window   meta_window_x11_get_toplevel_xwindow    (MetaWindow *window);
 
 MetaRectangle meta_window_x11_get_client_rect (MetaWindowX11 *window_x11);
 
+gboolean meta_window_x11_is_unredirectable (MetaWindowX11 *window_x11);
+
 #endif
