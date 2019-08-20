@@ -99,6 +99,8 @@ typedef enum
 #define META_IS_WINDOW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_WINDOW))
 #define META_WINDOW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_WINDOW, MetaWindowClass))
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaWindow, g_object_unref)
+
 typedef struct _MetaWindowClass   MetaWindowClass;
 
 META_EXPORT
