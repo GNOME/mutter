@@ -1,3 +1,24 @@
+3.33.91
+=======
+* Fix primary selection copy and paste between X11 and wayland [Hans; #702]
+* Improve monitor hotplug support [Hans; !713]
+* Remove a source of frame skips [Daniel; !719]
+* Fix windows being lowered after unmaximizing with double click [Olivier; #88]
+* Remove Clutter API for global grabs [Jonas D.; !536]
+* Improve processing of incompressible events [Daniel; !711]
+* Add xdg-output v3 support [Olivier; !704]
+* Misc. bug fixes and cleanups [Jonas Å., Marco, Carlos, Adam, Albert, Niels,
+  Olivier, Florian; !722, !385, !728, !726, !500, !731, !727, !700, !735, !738]
+
+Contributors:
+  Jonas Ådahl, Albert Vaca Cintora, Jonas Dreßler, Olivier Fourdan,
+  Carlos Garnacho, Hans de Goede, Niels De Graef, Adam Jackson, Florian Müllner,
+  Marco Trevisan (Treviño), Daniel van Vugt
+
+Translators:
+  Asier Sarasua Garmendia [eu], Kukuh Syafaat [id], Florentina Mușat [ro],
+  Aurimas Černius [lt], Daniel Mustieles [es]
+
 3.33.90
 =======
 * Fix visibility of clones with hidden source [Florian; #683]
