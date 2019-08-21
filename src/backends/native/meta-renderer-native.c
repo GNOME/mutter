@@ -1321,9 +1321,8 @@ notify_view_crtc_presented (MetaRendererView *view,
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
+  MetaCrtc *crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
   CoglFrameInfo *frame_info;
-  MetaCrtc *crtc;
-  float refresh_rate;
   MetaGpuKms *gpu_kms;
 
   /* Only keep the frame info for the fastest CRTC in use, which may not be
@@ -1332,15 +1331,18 @@ notify_view_crtc_presented (MetaRendererView *view,
    * satisfy all monitors.
    */
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
-
-  crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
-  refresh_rate = crtc && crtc->current_mode ?
-                 crtc->current_mode->refresh_rate :
-                 0.0f;
-  if (refresh_rate >= frame_info->refresh_rate)
+  if (frame_info)
     {
-      frame_info->presentation_time = time_ns;
-      frame_info->refresh_rate = refresh_rate;
+      float refresh_rate = 0.0f;
+
+      if (crtc && crtc->current_mode)
+        refresh_rate = crtc->current_mode->refresh_rate;
+
+      if (refresh_rate >= frame_info->refresh_rate)
+        {
+          frame_info->presentation_time = time_ns;
+          frame_info->refresh_rate = refresh_rate;
+        }
     }
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
