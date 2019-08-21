@@ -32,6 +32,8 @@ RUN dnf -y update && dnf -y upgrade && \
 
     # GNOME Shell
     dnf builddep -y gnome-shell --setopt=install_weak_deps=False && \
+    # New dep this cycle
+    dnf install -y 'pkgconfig(gnome-autoar-0)' && \
     dnf remove -y gnome-bluetooth-libs-devel dbus-glib-devel upower-devel python3-devel && \
     dnf remove -y --noautoremove mutter mutter-devel && \
 
