@@ -56,4 +56,10 @@ typedef enum _MetaKmsDeviceFlag
   META_KMS_DEVICE_FLAG_PLATFORM_DEVICE = 1 << 1,
 } MetaKmsDeviceFlag;
 
+typedef enum _MetaKmsUpdateStatesFlags
+{
+  META_KMS_UPDATE_STATES_FLAG_NONE = 0,
+  META_KMS_UPDATE_STATES_FLAG_HOTPLUG = 1 << 0,
+} MetaKmsUpdateStatesFlags;
+
 #endif /* META_KMS_IMPL_TYPES_H */

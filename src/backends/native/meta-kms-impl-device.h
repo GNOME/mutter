@@ -53,7 +53,8 @@ int meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device);
 
 int meta_kms_impl_device_leak_fd (MetaKmsImplDevice *impl_device);
 
-void meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device);
+void meta_kms_impl_device_update_states (MetaKmsImplDevice        *impl_device,
+                                         MetaKmsUpdateStatesFlags  flags);
 
 int meta_kms_impl_device_close (MetaKmsImplDevice *impl_device);
 

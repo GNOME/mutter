@@ -165,7 +165,8 @@ struct _MetaKms
 G_DEFINE_TYPE (MetaKms, meta_kms, G_TYPE_OBJECT)
 
 static void
-meta_kms_update_states_in_impl (MetaKms *kms);
+meta_kms_update_states_in_impl (MetaKms                  *kms,
+                                MetaKmsUpdateStatesFlags  flags);
 
 MetaKmsUpdate *
 meta_kms_ensure_pending_update (MetaKms *kms)
@@ -193,7 +194,8 @@ meta_kms_update_process_in_impl (MetaKmsImpl  *impl,
   ret = meta_kms_impl_process_update (impl, update, error);
 
   if (meta_kms_update_has_mode_set (update))
-    meta_kms_update_states_in_impl (meta_kms_impl_get_kms (impl));
+    meta_kms_update_states_in_impl (meta_kms_impl_get_kms (impl),
+                                    META_KMS_UPDATE_STATES_FLAG_NONE);
 
   return ret;
 }
@@ -437,7 +439,8 @@ meta_kms_in_impl_task (MetaKms *kms)
 }
 
 static void
-meta_kms_update_states_in_impl (MetaKms *kms)
+meta_kms_update_states_in_impl (MetaKms                  *kms,
+                                MetaKmsUpdateStatesFlags  flags)
 {
   GList *l;
 
@@ -448,7 +451,7 @@ meta_kms_update_states_in_impl (MetaKms *kms)
       MetaKmsDevice *device = l->data;
       MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
 
-      meta_kms_impl_device_update_states (impl_device);
+      meta_kms_impl_device_update_states (impl_device, flags);
     }
 }
 
@@ -457,20 +460,22 @@ update_states_in_impl (MetaKmsImpl  *impl,
                        gpointer      user_data,
                        GError      **error)
 {
-  MetaKms *kms = user_data;
+  MetaKms *kms = meta_kms_impl_get_kms (impl);;
+  MetaKmsUpdateStatesFlags flags = GPOINTER_TO_UINT (user_data);
 
-  meta_kms_update_states_in_impl (kms);
+  meta_kms_update_states_in_impl (kms, flags);
 
   return TRUE;
 }
 
 static gboolean
-meta_kms_update_states_sync (MetaKms  *kms,
-                             GError  **error)
+meta_kms_update_states_sync (MetaKms                   *kms,
+                             MetaKmsUpdateStatesFlags   flags,
+                             GError                   **error)
 {
   return meta_kms_run_impl_task_sync (kms,
                                       update_states_in_impl,
-                                      kms,
+                                      GUINT_TO_POINTER (flags),
                                       error);
 }
 
@@ -479,7 +484,9 @@ handle_hotplug_event (MetaKms *kms)
 {
   g_autoptr (GError) error = NULL;
 
-  if (!meta_kms_update_states_sync (kms, &error))
+  if (!meta_kms_update_states_sync (kms,
+                                    META_KMS_UPDATE_STATES_FLAG_HOTPLUG,
+                                    &error))
     g_warning ("Updating KMS state failed: %s", error->message);
 }
 

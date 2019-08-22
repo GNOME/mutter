@@ -36,6 +36,7 @@ struct _MetaKmsConnector
 
   uint32_t id;
   MetaConnectorType type;
+  uint32_t type_id;
   char *name;
 
   MetaKmsConnectorState *current_state;
@@ -562,6 +563,15 @@ make_connector_name (drmModeConnector *drm_connector)
                             drm_connector->connector_type_id);
 }
 
+gboolean
+meta_kms_connector_is_same_as (MetaKmsConnector *connector,
+                               drmModeConnector *drm_connector)
+{
+  return (connector->id == drm_connector->connector_id &&
+          connector->type == drm_connector->connector_type &&
+          connector->type_id == drm_connector->connector_type_id);
+}
+
 MetaKmsConnector *
 meta_kms_connector_new (MetaKmsImplDevice *impl_device,
                         drmModeConnector  *drm_connector,
@@ -573,6 +583,7 @@ meta_kms_connector_new (MetaKmsImplDevice *impl_device,
   connector->device = meta_kms_impl_device_get_device (impl_device);
   connector->id = drm_connector->connector_id;
   connector->type = (MetaConnectorType) drm_connector->connector_type;
+  connector->type_id = drm_connector->connector_type_id;
   connector->name = make_connector_name (drm_connector);
 
   find_property_ids (connector, impl_device, drm_connector);
