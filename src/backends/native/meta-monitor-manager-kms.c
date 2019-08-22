@@ -75,8 +75,7 @@ struct _MetaMonitorManagerKms
 {
   MetaMonitorManager parent_instance;
 
-  guint hotplug_handler_id;
-  guint removed_handler_id;
+  gulong kms_resources_changed_handler_id;
 };
 
 struct _MetaMonitorManagerKmsClass
@@ -479,16 +478,8 @@ handle_hotplug_event (MetaMonitorManager *manager)
 }
 
 static void
-on_udev_hotplug (MetaUdev           *udev,
-                 MetaMonitorManager *manager)
-{
-  handle_hotplug_event (manager);
-}
-
-static void
-on_udev_device_removed (MetaUdev           *udev,
-                        GUdevDevice        *device,
-                        MetaMonitorManager *manager)
+on_kms_resources_changed (MetaKms            *kms,
+                          MetaMonitorManager *manager)
 {
   handle_hotplug_event (manager);
 }
@@ -498,14 +489,12 @@ meta_monitor_manager_kms_connect_hotplug_handler (MetaMonitorManagerKms *manager
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-  MetaUdev *udev = meta_backend_native_get_udev (META_BACKEND_NATIVE (backend));
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
 
-  manager_kms->hotplug_handler_id =
-    g_signal_connect_after (udev, "hotplug",
-                            G_CALLBACK (on_udev_hotplug), manager);
-  manager_kms->removed_handler_id =
-    g_signal_connect_after (udev, "device-removed",
-                            G_CALLBACK (on_udev_device_removed), manager);
+  manager_kms->kms_resources_changed_handler_id =
+    g_signal_connect (kms, "resources-changed",
+                      G_CALLBACK (on_kms_resources_changed), manager);
 }
 
 static void
@@ -513,12 +502,10 @@ meta_monitor_manager_kms_disconnect_hotplug_handler (MetaMonitorManagerKms *mana
 {
   MetaMonitorManager *manager = META_MONITOR_MANAGER (manager_kms);
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
-  MetaUdev *udev = meta_backend_native_get_udev (META_BACKEND_NATIVE (backend));
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
 
-  g_signal_handler_disconnect (udev, manager_kms->hotplug_handler_id);
-  manager_kms->hotplug_handler_id = 0;
-  g_signal_handler_disconnect (udev, manager_kms->removed_handler_id);
-  manager_kms->removed_handler_id = 0;
+  g_clear_signal_handler (&manager_kms->kms_resources_changed_handler_id, kms);
 }
 
 void
