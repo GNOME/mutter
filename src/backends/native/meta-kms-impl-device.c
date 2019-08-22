@@ -123,7 +123,15 @@ meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
           pfd.events = POLL_IN | POLL_ERR;
           do
             {
-              ret = poll (&pfd, 1, -1);
+              ret = poll (&pfd, 1, 1000);
+
+              if (ret == 0)  /* This means timeout, but errno isn't set. */
+                {
+                  g_set_error_literal (error, G_IO_ERROR,
+                                       g_io_error_from_errno (ETIMEDOUT),
+                                       strerror (ETIMEDOUT));
+                  return FALSE;
+                }
             }
           while (ret == -1 && errno == EINTR);
         }
