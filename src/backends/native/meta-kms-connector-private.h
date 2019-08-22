@@ -29,4 +29,7 @@ MetaKmsConnector * meta_kms_connector_new (MetaKmsImplDevice *impl_device,
                                            drmModeConnector  *drm_connector,
                                            drmModeRes        *drm_resources);
 
+gboolean meta_kms_connector_is_same_as (MetaKmsConnector *connector,
+                                        drmModeConnector *drm_connector);
+
 #endif /* META_KMS_CONNECTOR_PRIVATE_H */
