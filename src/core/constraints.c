@@ -413,11 +413,7 @@ setup_constraint_info (ConstraintInfo      *info,
                                                  logical_monitor,
                                                  &info->work_area_monitor);
 
-  if (!window->fullscreen || !meta_window_has_fullscreen_monitors (window))
-    {
-      info->entire_monitor = logical_monitor->rect;
-    }
-  else
+  if (window->fullscreen && meta_window_has_fullscreen_monitors (window))
     {
       info->entire_monitor = window->fullscreen_monitors.top->rect;
       meta_rectangle_union (&info->entire_monitor,
@@ -429,6 +425,12 @@ setup_constraint_info (ConstraintInfo      *info,
       meta_rectangle_union (&info->entire_monitor,
                             &window->fullscreen_monitors.right->rect,
                             &info->entire_monitor);
+    }
+  else
+    {
+      info->entire_monitor = logical_monitor->rect;
+      if (window->fullscreen)
+        meta_window_adjust_fullscreen_monitor_rect (window, &info->entire_monitor);
     }
 
   cur_workspace = window->display->workspace_manager->active_workspace;
