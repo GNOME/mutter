@@ -289,6 +289,7 @@ clutter_device_manager_class_init (ClutterDeviceManagerClass *klass)
    * @manager: the #ClutterDeviceManager that emitted the signal
    * @device: the core pointer #ClutterInputDevice
    * @timeout_type: the type of timeout #ClutterPointerA11yTimeoutType
+   * @clicked: %TRUE if the timeout finished and triggered a click
    *
    * The ::ptr-a11y-timeout-stopped signal is emitted when a running
    * pointer accessibility timeout delay is stopped, either because
@@ -300,10 +301,11 @@ clutter_device_manager_class_init (ClutterDeviceManagerClass *klass)
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL,
-                  _clutter_marshal_VOID__OBJECT_FLAGS,
-                  G_TYPE_NONE, 2,
+                  _clutter_marshal_VOID__OBJECT_FLAGS_BOOLEAN,
+                  G_TYPE_NONE, 3,
                   CLUTTER_TYPE_INPUT_DEVICE,
-                  CLUTTER_TYPE_POINTER_A11Y_TIMEOUT_TYPE);
+                  CLUTTER_TYPE_POINTER_A11Y_TIMEOUT_TYPE,
+                  G_TYPE_BOOLEAN);
 }
 
 static void

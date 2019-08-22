@@ -171,7 +171,8 @@ trigger_secondary_click (gpointer data)
   g_signal_emit_by_name (device->device_manager,
                          "ptr-a11y-timeout-stopped",
                          device,
-                         CLUTTER_A11Y_TIMEOUT_TYPE_SECONDARY_CLICK);
+                         CLUTTER_A11Y_TIMEOUT_TYPE_SECONDARY_CLICK,
+                         TRUE);
 
   return G_SOURCE_REMOVE;
 }
@@ -202,7 +203,8 @@ stop_secondary_click_timeout (ClutterInputDevice *device)
       g_signal_emit_by_name (device->device_manager,
                              "ptr-a11y-timeout-stopped",
                              device,
-                             CLUTTER_A11Y_TIMEOUT_TYPE_SECONDARY_CLICK);
+                             CLUTTER_A11Y_TIMEOUT_TYPE_SECONDARY_CLICK,
+                             FALSE);
     }
   device->ptr_a11y_data->secondary_click_triggered = FALSE;
 }
@@ -438,7 +440,8 @@ trigger_dwell_gesture (gpointer data)
   g_signal_emit_by_name (device->device_manager,
                          "ptr-a11y-timeout-stopped",
                          device,
-                         CLUTTER_A11Y_TIMEOUT_TYPE_GESTURE);
+                         CLUTTER_A11Y_TIMEOUT_TYPE_GESTURE,
+                         TRUE);
 
   return G_SOURCE_REMOVE;
 }
@@ -469,7 +472,8 @@ trigger_dwell_click (gpointer data)
   g_signal_emit_by_name (device->device_manager,
                          "ptr-a11y-timeout-stopped",
                          device,
-                         CLUTTER_A11Y_TIMEOUT_TYPE_DWELL);
+                         CLUTTER_A11Y_TIMEOUT_TYPE_DWELL,
+                         TRUE);
 
   if (get_dwell_mode (device) == CLUTTER_A11Y_DWELL_MODE_GESTURE)
     {
@@ -514,7 +518,8 @@ stop_dwell_timeout (ClutterInputDevice *device)
       g_signal_emit_by_name (device->device_manager,
                              "ptr-a11y-timeout-stopped",
                              device,
-                             CLUTTER_A11Y_TIMEOUT_TYPE_DWELL);
+                             CLUTTER_A11Y_TIMEOUT_TYPE_DWELL,
+                             FALSE);
     }
 }
 
