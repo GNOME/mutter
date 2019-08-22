@@ -2211,6 +2211,10 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
+      /* Any frame not yet accepted by the kernel in next_fb is about to
+       * be destroyed, so make sure it's also not queued for a flip retry.
+       */
+      meta_kms_discard_pending_page_flips (kms);
       g_clear_object (&onscreen_native->gbm.next_fb);
 
       buffer_gbm = meta_drm_buffer_gbm_new (render_gpu,
