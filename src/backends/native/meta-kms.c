@@ -119,6 +119,15 @@
  *
  */
 
+enum
+{
+  RESOURCES_CHANGED,
+
+  N_SIGNALS
+};
+
+static int signals[N_SIGNALS];
+
 typedef struct _MetaKmsCallbackData
 {
   MetaKmsCallback callback;
@@ -503,6 +512,8 @@ handle_hotplug_event (MetaKms *kms)
                                     META_KMS_UPDATE_STATES_FLAG_HOTPLUG,
                                     &error))
     g_warning ("Updating KMS state failed: %s", error->message);
+
+  g_signal_emit (kms, signals[RESOURCES_CHANGED], 0);
 }
 
 static void
@@ -605,4 +616,12 @@ meta_kms_class_init (MetaKmsClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   object_class->finalize = meta_kms_finalize;
+
+  signals[RESOURCES_CHANGED] =
+    g_signal_new ("resources-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
