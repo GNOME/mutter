@@ -300,10 +300,11 @@ clutter_device_manager_class_init (ClutterDeviceManagerClass *klass)
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL,
-                  _clutter_marshal_VOID__OBJECT_FLAGS,
-                  G_TYPE_NONE, 2,
+                  _clutter_marshal_VOID__OBJECT_FLAGS_BOOLEAN,
+                  G_TYPE_NONE, 3,
                   CLUTTER_TYPE_INPUT_DEVICE,
-                  CLUTTER_TYPE_POINTER_A11Y_TIMEOUT_TYPE);
+                  CLUTTER_TYPE_POINTER_A11Y_TIMEOUT_TYPE,
+                  G_TYPE_BOOLEAN);
 }
 
 static void
