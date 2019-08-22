@@ -1726,7 +1726,7 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen  *onscreen,
     }
 }
 
-static void
+static gboolean
 wait_for_pending_flips (CoglOnscreen *onscreen)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
@@ -1758,9 +1758,11 @@ wait_for_pending_flips (CoglOnscreen *onscreen)
         {
           g_warning ("Failed to wait for flip: %s", error->message);
           g_clear_error (&error);
-          break;
+          return FALSE;
         }
     }
+
+  return TRUE;
 }
 
 static void
@@ -2192,7 +2194,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
    * Wait for the flip callback before continuing, as we might have started the
    * animation earlier due to the animation being driven by some other monitor.
    */
-  wait_for_pending_flips (onscreen);
+  if (!wait_for_pending_flips (onscreen))
+    onscreen_native->pending_set_crtc = TRUE;
 
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
   frame_info->global_frame_counter = renderer_native->frame_counter;
