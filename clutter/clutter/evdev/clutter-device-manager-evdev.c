@@ -37,6 +37,7 @@
 
 #include <glib.h>
 #include <libinput.h>
+#include <libudev.h>
 
 #include "clutter-backend.h"
 #include "clutter-debug.h"
@@ -67,6 +68,39 @@
  * assumptions by having the first device having ID 2 and following 3.
  */
 #define INITIAL_DEVICE_ID 2
+
+static const uint32_t untrusted_keys[] = {
+  KEY_LEFTCTRL,
+  KEY_LEFTALT,
+  KEY_F1,
+  KEY_F2,
+  KEY_F3,
+  KEY_F4,
+  KEY_F5,
+  KEY_F6,
+  KEY_F7,
+  KEY_F8,
+  KEY_F9,
+  KEY_F10,
+  KEY_F11,
+  KEY_F12,
+  KEY_F13,
+  KEY_F14,
+  KEY_F15,
+  KEY_F16,
+  KEY_F17,
+  KEY_F18,
+  KEY_F19,
+  KEY_F20,
+  KEY_F21,
+  KEY_F22,
+  KEY_F23,
+  KEY_F24,
+  KEY_RIGHTCTRL,
+  KEY_RIGHTALT,
+  KEY_LEFTMETA,
+  KEY_RIGHTMETA,
+};
 
 typedef struct _ClutterEventFilter ClutterEventFilter;
 
@@ -108,6 +142,10 @@ struct _ClutterDeviceManagerEvdevPrivate
 
   gint device_id_next;
   GList *free_device_ids;
+
+  GSettings *privacy_settings;
+  GHashTable *untrusted_keys_hashset;
+  gboolean keyboard_security;
 };
 
 static void clutter_device_manager_evdev_event_extender_init (ClutterEventExtenderInterface *iface);
@@ -1235,11 +1273,26 @@ process_tablet_axis (ClutterDeviceManagerEvdev *manager_evdev,
 }
 
 static gboolean
+is_keyboard_forbidden (struct libinput_device *libinput_device)
+{
+  const gchar *authorized;
+  struct udev_device *udev_device;
+
+  udev_device = libinput_device_get_udev_device (libinput_device);
+  authorized = udev_device_get_property_value (udev_device, "GNOME_AUTHORIZED");
+
+  /* If the authorized property is not available, untrusted keys should be
+   * blocked for this device.
+   * If we have the property and it is equal to 1 the device is authorized. */
+  return (authorized == NULL) || (strcmp (authorized, "1") != 0);
+}
+
+static gboolean
 process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
                       struct libinput_event *event)
 {
   gboolean handled = TRUE;
-  struct libinput_device *libinput_device = libinput_event_get_device(event);
+  struct libinput_device *libinput_device = libinput_event_get_device (event);
   ClutterInputDevice *device;
   ClutterInputDeviceEvdev *device_evdev;
 
@@ -1260,12 +1313,20 @@ process_device_event (ClutterDeviceManagerEvdev *manager_evdev,
         seat_key_count =
           libinput_event_keyboard_get_seat_key_count (key_event);
 
-	/* Ignore key events that are not seat wide state changes. */
-	if ((key_state == LIBINPUT_KEY_STATE_PRESSED &&
-	     seat_key_count != 1) ||
-	    (key_state == LIBINPUT_KEY_STATE_RELEASED &&
-	     seat_key_count != 0))
+        /* Ignore key events that are not seat wide state changes. */
+        if ((key_state == LIBINPUT_KEY_STATE_PRESSED &&
+             seat_key_count != 1) ||
+            (key_state == LIBINPUT_KEY_STATE_RELEASED &&
+             seat_key_count != 0))
           break;
+
+        if (manager_evdev->priv->keyboard_security &&
+            g_hash_table_contains (manager_evdev->priv->untrusted_keys_hashset, GINT_TO_POINTER (key)) &&
+            is_keyboard_forbidden (libinput_device))
+          {
+            g_debug ("Key event has been dropped because the device is not authorized");
+            break;
+          }
 
         clutter_seat_evdev_notify_key (seat_from_device (device),
                                        device,
@@ -1830,14 +1891,16 @@ open_restricted (const char *path,
           g_warning ("Could not open device %s: %s", path, error->message);
           g_error_free (error);
         }
+      else
+        ioctl (fd, EVIOCGRAB, 1);
     }
   else
     {
       fd = open (path, O_RDWR | O_NONBLOCK);
       if (fd < 0)
-        {
-          g_warning ("Could not open device %s: %s", path, strerror (errno));
-        }
+        g_warning ("Could not open device %s: %s", path, strerror (errno));
+      else
+        ioctl (fd, EVIOCGRAB, 0);
     }
 
   return fd;
@@ -1847,6 +1910,8 @@ static void
 close_restricted (int fd,
                   void *user_data)
 {
+  ioctl (fd, EVIOCGRAB, 0);
+
   if (device_close_callback)
     device_close_callback (fd, device_callback_data);
   else
@@ -2101,9 +2166,25 @@ clutter_device_manager_evdev_stage_removed_cb (ClutterStageManager *manager,
 }
 
 static void
+settings_changed (GSettings           *settings,
+                  const char          *key,
+                  gpointer             data)
+{
+  ClutterDeviceManagerEvdevPrivate *priv = data;
+
+  /* We react only if the Keyboard protection property changed */
+  if (g_strcmp0 (key, "keyboard-protection") != 0)
+    return;
+
+  priv->keyboard_security = g_settings_get_boolean (settings, "keyboard-protection");
+  g_debug ("USB Keyboard protection is now: %i", priv->keyboard_security);
+}
+
+static void
 clutter_device_manager_evdev_init (ClutterDeviceManagerEvdev *self)
 {
   ClutterDeviceManagerEvdevPrivate *priv;
+  gint untrusted_keys_size;
 
   priv = self->priv = clutter_device_manager_evdev_get_instance_private (self);
 
@@ -2129,6 +2210,19 @@ clutter_device_manager_evdev_init (ClutterDeviceManagerEvdev *self)
                       self);
 
   priv->device_id_next = INITIAL_DEVICE_ID;
+
+  priv->untrusted_keys_hashset = g_hash_table_new (g_direct_hash, g_direct_equal);
+  untrusted_keys_size = G_N_ELEMENTS (untrusted_keys);
+  for (int i = 0; i < untrusted_keys_size; i++)
+    {
+      g_hash_table_add (priv->untrusted_keys_hashset, GINT_TO_POINTER (untrusted_keys[i]));
+    }
+
+  priv->privacy_settings = g_settings_new ("org.gnome.desktop.privacy");
+  priv->keyboard_security = g_settings_get_boolean (priv->privacy_settings,
+                                                    "keyboard-protection");
+  g_signal_connect (priv->privacy_settings, "changed",
+                    G_CALLBACK (settings_changed), priv);
 }
 
 void
