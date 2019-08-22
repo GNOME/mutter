@@ -2212,21 +2212,17 @@ process_key_event (MetaDisplay     *display,
 {
   gboolean keep_grab;
   gboolean all_keys_grabbed;
-  gboolean handled;
 
   all_keys_grabbed = window ? window->all_keys_grabbed : FALSE;
   if (!all_keys_grabbed)
     {
-      handled = process_overlay_key (display, event, window);
-      if (handled)
+      if (process_overlay_key (display, event, window))
         return TRUE;
 
-      handled = process_locate_pointer_key (display, event, window);
-      if (handled) /* Continue with the event even if handled */
-        return FALSE;
+      if (process_locate_pointer_key (display, event, window))
+        return FALSE;  /* Continue with the event even if handled */
 
-      handled = process_iso_next_group (display, event);
-      if (handled)
+      if (process_iso_next_group (display, event))
         return TRUE;
     }
 
