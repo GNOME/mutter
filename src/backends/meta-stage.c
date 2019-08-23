@@ -241,9 +241,18 @@ static void
 on_power_save_changed (MetaMonitorManager *monitor_manager,
                        MetaStage          *stage)
 {
+  ClutterActor *actor = CLUTTER_ACTOR (stage);
+
   if (meta_monitor_manager_get_power_save_mode (monitor_manager) ==
       META_POWER_SAVE_ON)
-    clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
+    {
+      clutter_actor_show (actor);
+      clutter_actor_queue_redraw (actor);
+    }
+  else
+    {
+      clutter_actor_hide (actor);
+    }
 }
 
 static void
