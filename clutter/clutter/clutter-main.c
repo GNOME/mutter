@@ -1948,7 +1948,8 @@ _clutter_process_event_details (ClutterActor        *stage,
 
       case CLUTTER_MOTION:
 #ifdef CLUTTER_WINDOWING_X11
-        if (!clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
+        if (!clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
+            !(event->any.flags & CLUTTER_EVENT_FLAG_SYNTHETIC))
           {
             if (_clutter_is_input_pointer_a11y_enabled (device))
               {
