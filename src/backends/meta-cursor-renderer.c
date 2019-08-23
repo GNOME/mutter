@@ -85,7 +85,7 @@ meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
 
 static void
 align_cursor_position (MetaCursorRenderer *renderer,
-                       ClutterRect        *rect)
+                       graphene_rect_t    *rect)
 {
   MetaCursorRendererPrivate *priv =
     meta_cursor_renderer_get_instance_private (renderer);
@@ -104,10 +104,10 @@ align_cursor_position (MetaCursorRenderer *renderer,
   clutter_stage_view_get_layout (view, &view_layout);
   view_scale = clutter_stage_view_get_scale (view);
 
-  clutter_rect_offset (rect, -view_layout.x, -view_layout.y);
+  graphene_rect_offset (rect, -view_layout.x, -view_layout.y);
   rect->origin.x = floorf (rect->origin.x * view_scale) / view_scale;
   rect->origin.y = floorf (rect->origin.y * view_scale) / view_scale;
-  clutter_rect_offset (rect, view_layout.x, view_layout.y);
+  graphene_rect_offset (rect, view_layout.x, view_layout.y);
 }
 
 static void
