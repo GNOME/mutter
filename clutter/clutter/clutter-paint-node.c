@@ -1194,6 +1194,15 @@ clutter_paint_node_get_root (ClutterPaintNode *node)
   return iter;
 }
 
+/**
+ * clutter_paint_node_get_framebuffer:
+ * @node: a #ClutterPaintNode
+ *
+ * Retrieves the #CoglFramebuffer that @node will draw
+ * into.
+ *
+ * Returns: (transfer none): a #CoglFramebuffer
+ */
 CoglFramebuffer *
 clutter_paint_node_get_framebuffer (ClutterPaintNode *node)
 {

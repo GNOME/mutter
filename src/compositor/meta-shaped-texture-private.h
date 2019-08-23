@@ -30,7 +30,7 @@
 #include "backends/meta-monitor-manager-private.h"
 #include "meta/meta-shaped-texture.h"
 
-ClutterActor *meta_shaped_texture_new (void);
+MetaShapedTexture *meta_shaped_texture_new (void);
 void meta_shaped_texture_set_texture (MetaShapedTexture *stex,
                                       CoglTexture       *texture);
 void meta_shaped_texture_set_is_y_inverted (MetaShapedTexture *stex,
@@ -40,7 +40,6 @@ void meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
 void meta_shaped_texture_set_fallback_size (MetaShapedTexture *stex,
                                             int                fallback_width,
                                             int                fallback_height);
-gboolean meta_shaped_texture_is_obscured (MetaShapedTexture *self);
 cairo_region_t * meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex);
 void meta_shaped_texture_set_transform (MetaShapedTexture    *stex,
                                         MetaMonitorTransform  transform);
@@ -51,5 +50,15 @@ void meta_shaped_texture_set_viewport_dst_size (MetaShapedTexture *stex,
                                                 int                dst_width,
                                                 int                dst_height);
 void meta_shaped_texture_reset_viewport_dst_size (MetaShapedTexture *stex);
+void meta_shaped_texture_set_buffer_scale (MetaShapedTexture *stex,
+                                           int                buffer_scale);
+int meta_shaped_texture_get_buffer_scale (MetaShapedTexture *stex);
+
+gboolean meta_shaped_texture_update_area (MetaShapedTexture     *stex,
+                                          int                    x,
+                                          int                    y,
+                                          int                    width,
+                                          int                    height,
+                                          cairo_rectangle_int_t *clip);
 
 #endif
