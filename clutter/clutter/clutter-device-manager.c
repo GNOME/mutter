@@ -517,20 +517,31 @@ _clutter_device_manager_remove_device (ClutterDeviceManager *device_manager,
  * device
  */
 void
-_clutter_device_manager_update_devices (ClutterDeviceManager *device_manager)
+_clutter_device_manager_update_devices (ClutterDeviceManager *device_manager,
+                                        gboolean              use_clip,
+                                        cairo_rectangle_int_t clip)
 {
   const GSList *d;
+  ClutterInputDevice *device;
+  ClutterInputDeviceType device_type;
+  ClutterPoint point;
+  ClutterEventSequence *sequence;
+  ClutterTouchInfo *info;
+  GHashTableIter iter;
 
   for (d = clutter_device_manager_peek_devices (device_manager);
        d != NULL;
        d = d->next)
     {
-      ClutterInputDevice *device = d->data;
-      ClutterInputDeviceType device_type;
+      device = d->data;
 
-      /* we only care about pointer devices */
+      /* we only care about devices with a pointer */
       device_type = clutter_input_device_get_device_type (device);
-      if (device_type != CLUTTER_POINTER_DEVICE)
+      if (device_type != CLUTTER_POINTER_DEVICE &&
+          device_type != CLUTTER_TABLET_DEVICE &&
+          device_type != CLUTTER_PEN_DEVICE &&
+          device_type != CLUTTER_ERASER_DEVICE &&
+          device_type != CLUTTER_CURSOR_DEVICE)
         continue;
 
       /* out of stage */
@@ -543,6 +554,25 @@ _clutter_device_manager_update_devices (ClutterDeviceManager *device_manager)
        * the stage
        */
       if (!clutter_stage_get_motion_events_enabled (device->stage))
+        continue;
+
+      g_hash_table_iter_init (&iter, device->touch_sequences_info);
+      while (g_hash_table_iter_next (&iter, (gpointer*) &sequence, (gpointer*) &info))
+        {
+          if (use_clip &&
+              (info->current_x < clip.x || info->current_x >= (clip.x + clip.width) ||
+               info->current_y < clip.y || info->current_y >= (clip.y + clip.height)))
+            continue;
+
+          _clutter_input_device_update (device, sequence, TRUE);
+        }
+
+      if (!clutter_input_device_get_coords (device, NULL, &point))
+        continue;
+
+      if (use_clip &&
+          (point.x < clip.x || point.x >= (clip.x + clip.width) ||
+           point.y < clip.y || point.y >= (clip.y + clip.height)))
         continue;
 
       _clutter_input_device_update (device, NULL, TRUE);

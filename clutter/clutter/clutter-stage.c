@@ -155,6 +155,7 @@ struct _ClutterStagePrivate
 
   guint relayout_pending       : 1;
   guint redraw_pending         : 1;
+  guint needs_repick           : 1;
   guint is_cursor_visible      : 1;
   guint use_fog                : 1;
   guint throttle_motion_events : 1;
@@ -163,7 +164,6 @@ struct _ClutterStagePrivate
   guint accept_focus           : 1;
   guint motion_events_enabled  : 1;
   guint has_custom_perspective : 1;
-  guint stage_was_relayout     : 1;
 };
 
 enum
@@ -1067,7 +1067,6 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
   if (!CLUTTER_ACTOR_IN_RELAYOUT (stage))
     {
       priv->relayout_pending = FALSE;
-      priv->stage_was_relayout = TRUE;
 
       CLUTTER_NOTE (ACTOR, "Recomputing layout");
 
@@ -1138,58 +1137,6 @@ clutter_stage_do_redraw (ClutterStage *stage)
                 stage);
 }
 
-static GSList *
-_clutter_stage_check_updated_pointers (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv = stage->priv;
-  ClutterDeviceManager *device_manager;
-  GSList *updating = NULL;
-  const GSList *devices;
-  cairo_rectangle_int_t clip;
-  ClutterPoint point;
-  gboolean has_clip;
-
-  has_clip = _clutter_stage_window_get_redraw_clip_bounds (priv->impl, &clip);
-
-  device_manager = clutter_device_manager_get_default ();
-  devices = clutter_device_manager_peek_devices (device_manager);
-
-  for (; devices != NULL; devices = devices->next)
-    {
-      ClutterInputDevice *dev = devices->data;
-
-      if (clutter_input_device_get_device_mode (dev) !=
-          CLUTTER_INPUT_MODE_MASTER)
-        continue;
-
-      switch (clutter_input_device_get_device_type (dev))
-        {
-        case CLUTTER_POINTER_DEVICE:
-        case CLUTTER_TABLET_DEVICE:
-        case CLUTTER_PEN_DEVICE:
-        case CLUTTER_ERASER_DEVICE:
-        case CLUTTER_CURSOR_DEVICE:
-          if (!clutter_input_device_get_coords (dev, NULL, &point))
-            continue;
-
-          if (!has_clip ||
-              (point.x >= clip.x && point.x < clip.x + clip.width &&
-               point.y >= clip.y && point.y < clip.y + clip.height))
-            updating = g_slist_prepend (updating, dev);
-          break;
-        default:
-          /* Any other devices don't need checking, either because they
-           * don't have x/y coordinates, or because they're implicitly
-           * grabbed on an actor by default as it's the case of
-           * touch(screens).
-           */
-          break;
-        }
-    }
-
-  return updating;
-}
-
 /**
  * _clutter_stage_do_update:
  * @stage: A #ClutterStage
@@ -1202,10 +1149,9 @@ gboolean
 _clutter_stage_do_update (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
-  gboolean stage_was_relayout = priv->stage_was_relayout;
-  GSList *pointers = NULL;
-
-  priv->stage_was_relayout = FALSE;
+  ClutterDeviceManager *device_manager;
+  gboolean has_clip;
+  cairo_rectangle_int_t clip;
 
   /* if the stage is being destroyed, or if the destruction already
    * happened and we don't have an StageWindow any more, then we
@@ -1220,8 +1166,8 @@ _clutter_stage_do_update (ClutterStage *stage)
   COGL_TRACE_BEGIN_SCOPED (ClutterStageDoUpdate, "Update");
 
   /* NB: We need to ensure we have an up to date layout *before* we
-   * check or clear the pending redraws flag since a relayout may
-   * queue a redraw.
+   * check or clear the pending redraws flag since a relayout or the
+   * repick afterwards may queue a redraw.
    */
   COGL_TRACE_BEGIN (ClutterStageRelayout, "Layout");
 
@@ -1232,12 +1178,34 @@ _clutter_stage_do_update (ClutterStage *stage)
   if (!priv->redraw_pending)
     return FALSE;
 
-  if (stage_was_relayout)
-    pointers = _clutter_stage_check_updated_pointers (stage);
+  COGL_TRACE_BEGIN (ClutterStageFinishQueuedRedraws, "Finish queued redraws");
+
+  /* Finish the queued redraws now so the redraw clip is initialized
+   * when we do the repick. */
+  clutter_stage_maybe_finish_queue_redraws (stage);
+
+  COGL_TRACE_END (ClutterStageFinishQueuedRedraws);
+
+  if (priv->needs_repick)
+    {
+      COGL_TRACE_BEGIN (ClutterStagePick, "Pick");
+
+      has_clip = _clutter_stage_window_get_redraw_clip_bounds (priv->impl, &clip);
+
+      device_manager = clutter_device_manager_get_default ();
+      _clutter_device_manager_update_devices (device_manager, has_clip, clip);
+
+      /* Make sure any newly queued redraws are also handled in this
+       * paint cycle. */
+      clutter_stage_maybe_finish_queue_redraws (stage);
+
+      COGL_TRACE_END (ClutterStagePick);
+
+      priv->needs_repick = FALSE;
+    }
 
   COGL_TRACE_BEGIN (ClutterStagePaint, "Paint");
 
-  clutter_stage_maybe_finish_queue_redraws (stage);
   clutter_stage_do_redraw (stage);
 
   COGL_TRACE_END (ClutterStagePaint);
@@ -1255,17 +1223,16 @@ _clutter_stage_do_update (ClutterStage *stage)
     }
 #endif /* CLUTTER_ENABLE_DEBUG */
 
-  COGL_TRACE_BEGIN (ClutterStagePick, "Pick");
-
-  while (pointers)
-    {
-      _clutter_input_device_update (pointers->data, NULL, TRUE);
-      pointers = g_slist_delete_link (pointers, pointers);
-    }
-
-  COGL_TRACE_END (ClutterStagePick);
-
   return TRUE;
+}
+
+void
+_clutter_stage_queue_repick (ClutterStage *self)
+{
+  ClutterStagePrivate *priv = self->priv;
+
+  if (!priv->needs_repick)
+    priv->needs_repick = TRUE;
 }
 
 static void
@@ -1374,9 +1341,12 @@ _clutter_stage_has_full_redraw_queued (ClutterStage *stage)
  * paint every pixel in the stage. This function would then return the
  * bounds of that clip. An application can use this information to
  * avoid some extra work if it knows that some regions of the stage
- * aren't going to be painted. This should only be called while the
- * stage is being painted. If there is no current redraw clip then
- * this function will set @clip to the full extents of the stage.
+ * aren't going to be painted.
+ *
+ * This function will only set @clip to the current redraw clip if it's
+ * called while the stage is being painted, otherwise or if there is no
+ * clip used for painting, this function will set @clip to the full
+ * extents of the stage.
  *
  * Since: 1.8
  */
@@ -1391,11 +1361,10 @@ clutter_stage_get_redraw_clip_bounds (ClutterStage          *stage,
 
   priv = stage->priv;
 
-  if (!_clutter_stage_window_get_redraw_clip_bounds (priv->impl, clip))
-    {
-      /* Set clip to the full extents of the stage */
-      _clutter_stage_window_get_geometry (priv->impl, clip);
-    }
+  if (_clutter_stage_window_current_redraw_clipped (priv->impl))
+    _clutter_stage_window_get_redraw_clip_bounds (priv->impl, clip);
+  else
+    _clutter_stage_window_get_geometry (priv->impl, clip);
 }
 
 static void
@@ -2284,6 +2253,7 @@ clutter_stage_init (ClutterStage *self)
   priv->fog.z_far  = 2.0;
 
   priv->relayout_pending = TRUE;
+  priv->needs_repick = FALSE;
 
   clutter_actor_set_reactive (CLUTTER_ACTOR (self), TRUE);
   clutter_stage_set_title (self, g_get_prgname ());
