@@ -518,6 +518,39 @@ stop_dwell_timeout (ClutterInputDevice *device)
     }
 }
 
+static gboolean
+trigger_dwell_position_timeout (gpointer data)
+{
+  ClutterInputDevice *device = data;
+
+  device->ptr_a11y_data->dwell_position_timer = 0;
+
+  if (is_dwell_click_enabled (device))
+    {
+      if (!pointer_has_moved (device))
+        start_dwell_timeout (device);
+    }
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+start_dwell_position_timeout (ClutterInputDevice *device)
+{
+  device->ptr_a11y_data->dwell_position_timer =
+    clutter_threads_add_timeout (100, trigger_dwell_position_timeout, device);
+}
+
+static void
+stop_dwell_position_timeout (ClutterInputDevice *device)
+{
+  if (device->ptr_a11y_data->dwell_position_timer)
+    {
+      g_source_remove (device->ptr_a11y_data->dwell_position_timer);
+      device->ptr_a11y_data->dwell_position_timer = 0;
+    }
+}
+
 static void
 update_dwell_position (ClutterInputDevice *device)
 {
@@ -570,6 +603,7 @@ _clutter_input_pointer_a11y_remove_device (ClutterInputDevice *device)
   if (is_dwell_dragging (device))
     emit_dwell_click (device, CLUTTER_A11Y_DWELL_CLICK_TYPE_DRAG);
 
+  stop_dwell_position_timeout (device);
   stop_dwell_timeout (device);
   stop_secondary_click_timeout (device);
 
@@ -597,11 +631,13 @@ _clutter_input_pointer_a11y_on_motion_event (ClutterInputDevice *device,
 
   if (is_dwell_click_enabled (device))
     {
+      stop_dwell_position_timeout (device);
+
       if (should_stop_dwell (device))
         stop_dwell_timeout (device);
 
       if (should_start_dwell (device))
-        start_dwell_timeout (device);
+        start_dwell_position_timeout (device);
     }
 
   if (should_update_dwell_position (device))
@@ -622,6 +658,8 @@ _clutter_input_pointer_a11y_on_button_event (ClutterInputDevice *device,
   if (pressed)
     {
       device->ptr_a11y_data->n_btn_pressed++;
+
+      stop_dwell_position_timeout (device);
 
       if (is_dwell_click_enabled (device))
         stop_dwell_timeout (device);
