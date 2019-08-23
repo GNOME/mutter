@@ -438,7 +438,7 @@ on_captured_event (ClutterActor       *stage,
       break;
     }
 
-  return CLUTTER_EVENT_STOP;
+  return CLUTTER_EVENT_PROPAGATE;
 }
 
 static void
