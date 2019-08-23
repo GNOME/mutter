@@ -287,6 +287,7 @@ pick_keycode_for_keyval_in_current_group (ClutterVirtualInputDevice *virtual_dev
   struct xkb_state  *state;
   guint keycode, layout;
   xkb_keycode_t min_keycode, max_keycode;
+  gint max_num_levels, level;
 
   keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
   xkb_keymap = meta_keymap_native_get_keyboard_map (META_KEYMAP_NATIVE (keymap));
@@ -295,23 +296,31 @@ pick_keycode_for_keyval_in_current_group (ClutterVirtualInputDevice *virtual_dev
   layout = xkb_state_serialize_layout (state, XKB_STATE_LAYOUT_EFFECTIVE);
   min_keycode = xkb_keymap_min_keycode (xkb_keymap);
   max_keycode = xkb_keymap_max_keycode (xkb_keymap);
-  for (keycode = min_keycode; keycode < max_keycode; keycode++)
+  // Run through at least once, and that will determine how many loops we check before we give up
+  max_num_levels = 1;
+  // Traverse lowest levels first, since they're more likely (and keyvals can be listed twice in a keymap)
+  for (level = 0; level < max_num_levels; level++)
     {
-      gint num_levels, level;
-      num_levels = xkb_keymap_num_levels_for_key (xkb_keymap, keycode, layout);
-      for (level = 0; level < num_levels; level++)
+      for (keycode = min_keycode; keycode < max_keycode; keycode++)
         {
-          const xkb_keysym_t *syms;
-          gint num_syms, sym;
-          num_syms = xkb_keymap_key_get_syms_by_level (xkb_keymap, keycode, layout, level, &syms);
-          for (sym = 0; sym < num_syms; sym++)
-            {
-              if (syms[sym] == keyval)
+          gint num_levels;
+          num_levels = xkb_keymap_num_levels_for_key (xkb_keymap, keycode, layout);
+	  if (num_levels > max_num_levels)
+	    max_num_levels = num_levels;
+	  if (level < num_levels)
+	    {
+              const xkb_keysym_t *syms;
+              gint num_syms, sym;
+              num_syms = xkb_keymap_key_get_syms_by_level (xkb_keymap, keycode, layout, level, &syms);
+              for (sym = 0; sym < num_syms; sym++)
                 {
-                  *keycode_out = keycode;
-                  if (level_out)
-                    *level_out = level;
-                  return TRUE;
+                  if (syms[sym] == keyval)
+                    {
+                      *keycode_out = keycode;
+                      if (level_out)
+                        *level_out = level;
+                      return TRUE;
+                    }
                 }
             }
         }
