@@ -80,6 +80,7 @@ typedef struct _ClutterPtrA11yData
   gboolean dwell_drag_started;
   gboolean dwell_gesture_started;
   guint dwell_timer;
+  guint dwell_position_timer;
 
   guint secondary_click_timer;
   gboolean secondary_click_triggered;
