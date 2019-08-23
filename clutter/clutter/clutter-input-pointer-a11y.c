@@ -621,8 +621,6 @@ _clutter_input_pointer_a11y_on_motion_event (ClutterInputDevice *device,
   if (!_clutter_is_input_pointer_a11y_enabled (device))
     return;
 
-  update_current_position (device, x, y);
-
   if (is_secondary_click_enabled (device))
     {
       if (pointer_has_moved (device))
@@ -639,6 +637,8 @@ _clutter_input_pointer_a11y_on_motion_event (ClutterInputDevice *device,
       if (should_start_dwell (device))
         start_dwell_position_timeout (device);
     }
+
+  update_current_position (device, x, y);
 
   if (should_update_dwell_position (device))
     update_dwell_position (device);
