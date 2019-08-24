@@ -57,12 +57,13 @@ get_subsurface_position (MetaWaylandSurface *surface,
                          int                *x,
                          int                *y)
 {
-  do {
-    *x += surface->sub.x;
-    *y += surface->sub.y;
+  do
+    {
+      *x += surface->sub.x;
+      *y += surface->sub.y;
 
-    surface = surface->sub.parent;
-  }
+      surface = surface->sub.parent;
+    }
   while (surface);
 }
 
