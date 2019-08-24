@@ -693,8 +693,8 @@ meta_virtual_input_device_native_class_init (MetaVirtualInputDeviceNativeClass *
   virtual_input_device_class->notify_touch_up = meta_virtual_input_device_native_notify_touch_up;
 
   obj_props[PROP_SEAT] = g_param_spec_pointer ("seat",
-                                               P_("Seat"),
-                                               P_("Seat"),
+                                               ("Seat"),
+                                               ("Seat"),
                                                CLUTTER_PARAM_READWRITE |
                                                G_PARAM_CONSTRUCT_ONLY);
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
