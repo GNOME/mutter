@@ -1265,7 +1265,9 @@ meta_wayland_surface_update_outputs_recursively (MetaWaylandSurface *surface)
 
   meta_wayland_surface_update_outputs (surface);
 
-  for (n = g_node_first_child (surface->subsurface_branch_node); n; n = g_node_next_sibling (n))
+  for (n = g_node_first_child (surface->subsurface_branch_node);
+       n;
+       n = g_node_next_sibling (n))
     {
       if (G_NODE_IS_LEAF (n))
         continue;
