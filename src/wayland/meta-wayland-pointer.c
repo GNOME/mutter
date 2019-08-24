@@ -1199,7 +1199,9 @@ pointer_can_grab_surface (MetaWaylandPointer *pointer,
   if (pointer->focus_surface == surface)
     return TRUE;
 
-  for (n = g_node_first_child (surface->subsurface_branch_node); n; n = g_node_next_sibling (n))
+  for (n = g_node_first_child (surface->subsurface_branch_node);
+       n;
+       n = g_node_next_sibling (n))
     {
       MetaWaylandSurface *subsurface = n->data;
 
