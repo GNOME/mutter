@@ -214,7 +214,9 @@ meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
 
   meta_rectangle_union (out_geometry, &geometry, out_geometry);
 
-  for (n = g_node_first_child (surface->subsurface_branch_node); n; n = g_node_next_sibling (n))
+  for (n = g_node_first_child (surface->subsurface_branch_node);
+       n;
+       n = g_node_next_sibling (n))
     {
       MetaWaylandSurface *subsurface_surface = n->data;
       MetaWaylandSubsurface *subsurface;
