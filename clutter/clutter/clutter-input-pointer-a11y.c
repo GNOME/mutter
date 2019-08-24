@@ -99,7 +99,7 @@ get_dwell_click_type (ClutterInputDevice *device)
   ClutterPointerA11ySettings settings;
 
   clutter_device_manager_get_pointer_a11y_settings (device->device_manager, &settings);
-#
+
   return settings.dwell_click_type;
 }
 
@@ -599,7 +599,8 @@ _clutter_input_pointer_a11y_on_motion_event (ClutterInputDevice *device,
     {
       if (should_stop_dwell (device))
         stop_dwell_timeout (device);
-      else if (should_start_dwell (device))
+
+      if (should_start_dwell (device))
         start_dwell_timeout (device);
     }
 
