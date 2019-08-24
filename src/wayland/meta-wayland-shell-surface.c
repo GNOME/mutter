@@ -50,7 +50,9 @@ meta_wayland_shell_surface_calculate_geometry (MetaWaylandShellSurface *shell_su
     .height = meta_wayland_surface_get_height (surface),
   };
 
-  for (n = g_node_first_child (surface->subsurface_branch_node); n; n = g_node_next_sibling (n))
+  for (n = g_node_first_child (surface->subsurface_branch_node);
+       n;
+       n = g_node_next_sibling (n))
     {
       MetaWaylandSurface *subsurface_surface = n->data;
       MetaWaylandSubsurface *subsurface;
