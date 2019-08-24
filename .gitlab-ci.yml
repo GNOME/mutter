@@ -18,15 +18,22 @@ cache:
   paths:
     - ccache/
 
+before_script:
+  - export CCACHE_BASEDIR="$PWD"
+  - export CCACHE_DIR="$PWD/ccache"
+  - ccache -s
+
 build-mutter:
   stage: build
-  variables:
-    CCACHE_BASEDIR: "$CI_PROJECT_DIR"
-    CCACHE_DIR: "$CI_PROJECT_DIR/ccache"
+  # variables:
+  #   CCACHE_BASEDIR: "$CI_PROJECT_DIR"
+  #   CCACHE_DIR: "$CI_PROJECT_DIR/ccache"
   script:
+    - ccache -s
     - meson . build -Dbuildtype=debugoptimized -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
     - ninja -C build
     - ninja -C build install
+    - ccache -s
   artifacts:
     expire_in: 1 day
     paths:
@@ -41,9 +48,11 @@ build-without-native-backend:
     CCACHE_BASEDIR: "$CI_PROJECT_DIR"
     CCACHE_DIR: "$CI_PROJECT_DIR/ccache"
   script:
+    - ccache -s
     - meson . build -Dbuildtype=debugoptimized -Dnative_backend=false -Dudev=false --werror --prefix /usr
     - ninja -C build
     - ninja -C build install
+    - ccache -s
   artifacts:
     expire_in: 1 day
     paths:
@@ -87,6 +96,7 @@ can-build-gnome-shell:
     - .gitlab-ci/checkout-gnome-shell.sh
     - meson gnome-shell gnome-shell/build --prefix /usr -Dman=false
     - ninja -C gnome-shell/build install
+    - ccache -s
   only:
     - merge_requests
     - /^.*$/
