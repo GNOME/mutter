@@ -226,7 +226,9 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
       meta_surface_actor_reset_viewport_dst_size (surface_actor);
     }
 
-  for (n = g_node_first_child (surface->subsurface_branch_node); n; n = g_node_next_sibling (n))
+  for (n = g_node_first_child (surface->subsurface_branch_node);
+       n;
+       n = g_node_next_sibling (n))
     {
       MetaWaylandSurface *subsurface_surface = n->data;
       MetaWaylandActorSurface *subsurface_actor_surface;
