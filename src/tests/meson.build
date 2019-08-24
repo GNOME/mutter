@@ -1,3 +1,12 @@
+clutter_test_utils = files (
+  'clutter-test-utils.c',
+  'clutter-test-utils.h',
+)
+
+if have_clutter_tests
+  subdir('clutter')
+endif
+
 tests_includepath = mutter_includes
 tests_c_args = mutter_c_args
 

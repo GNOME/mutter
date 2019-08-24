@@ -26,6 +26,7 @@
 #include <X11/extensions/Xcomposite.h>
 
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-event-x11.h"
 #include "clutter/x11/clutter-x11.h"
 #include "compositor/meta-sync-ring.h"
 #include "core/display-private.h"
@@ -94,7 +95,7 @@ meta_compositor_x11_process_xevent (MetaCompositorX11 *compositor_x11,
    * stage is invisible
    */
   if (xevent->type == MapNotify)
-    clutter_x11_handle_event (xevent);
+    meta_x11_handle_event (xevent);
 }
 
 static void

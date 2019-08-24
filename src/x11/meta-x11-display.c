@@ -53,6 +53,7 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-settings-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-stage-x11.h"
 #include "core/frame.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/util-private.h"
@@ -2225,7 +2226,7 @@ meta_x11_display_set_stage_input_region (MetaX11Display *x11_display,
 
   g_return_if_fail (!meta_is_wayland_compositor ());
 
-  stage_xwindow = clutter_x11_get_stage_window (stage);
+  stage_xwindow = meta_x11_get_stage_window (stage);
   XFixesSetWindowShapeRegion (xdisplay, stage_xwindow,
                               ShapeInput, 0, 0, region);
 

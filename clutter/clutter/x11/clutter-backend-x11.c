@@ -34,9 +34,7 @@
 #include <errno.h>
 
 #include "clutter-backend-x11.h"
-#include "clutter-device-manager-xi2.h"
 #include "clutter-settings-x11.h"
-#include "clutter-stage-x11.h"
 #include "clutter-x11.h"
 
 #include "xsettings/xsettings-common.h"
@@ -54,7 +52,6 @@
 #include "clutter-main.h"
 #include "clutter-private.h"
 #include "clutter-settings-private.h"
-#include "clutter-xkb-a11y-x11.h"
 
 G_DEFINE_TYPE (ClutterBackendX11, clutter_backend_x11, CLUTTER_TYPE_BACKEND)
 
@@ -101,7 +98,6 @@ static const gchar *atom_names[] = {
 #define N_ATOM_NAMES G_N_ELEMENTS (atom_names)
 
 /* various flags corresponding to pre init setup calls */
-static gboolean _no_xevent_retrieval = FALSE;
 static gboolean clutter_enable_xinput = TRUE;
 static gboolean clutter_enable_argb = FALSE;
 static gboolean clutter_enable_stereo = FALSE;
@@ -227,91 +223,6 @@ clutter_backend_x11_xsettings_notify (const char       *name,
     }
 
   g_object_thaw_notify (G_OBJECT (settings));
-}
-
-static void
-clutter_backend_x11_create_device_manager (ClutterBackendX11 *backend_x11)
-{
-  ClutterEventTranslator *translator;
-  ClutterBackend *backend;
-
-  if (clutter_enable_xinput)
-    {
-      int event_base, first_event, first_error;
-
-      if (XQueryExtension (backend_x11->xdpy, "XInputExtension",
-                           &event_base,
-                           &first_event,
-                           &first_error))
-        {
-          int major = 2;
-          int minor = 3;
-
-          if (XIQueryVersion (backend_x11->xdpy, &major, &minor) != BadRequest)
-            {
-              CLUTTER_NOTE (BACKEND, "Creating XI2 device manager");
-              backend_x11->has_xinput = TRUE;
-              backend_x11->device_manager =
-                g_object_new (CLUTTER_TYPE_DEVICE_MANAGER_XI2,
-                              "backend", backend_x11,
-                              "opcode", event_base,
-                              NULL);
-
-              backend_x11->xi_minor = minor;
-            }
-        }
-    }
-
-  if (backend_x11->device_manager == NULL)
-    {
-      g_critical ("XI2 extension is missing.");
-      backend_x11->has_xinput = FALSE;
-      backend_x11->xi_minor = -1;
-    }
-
-  backend = CLUTTER_BACKEND (backend_x11);
-  backend->device_manager = backend_x11->device_manager;
-
-  translator = CLUTTER_EVENT_TRANSLATOR (backend_x11->device_manager);
-  _clutter_backend_add_event_translator (backend, translator);
-}
-
-static void
-on_keymap_state_change (ClutterKeymapX11 *keymap_x11,
-                        gpointer          data)
-{
-  ClutterDeviceManager *device_manager = CLUTTER_DEVICE_MANAGER (data);
-  ClutterKbdA11ySettings kbd_a11y_settings;
-
-  /* On keymaps state change, just reapply the current settings, it'll
-   * take care of enabling/disabling mousekeys based on NumLock state.
-   */
-  clutter_device_manager_get_kbd_a11y_settings (device_manager, &kbd_a11y_settings);
-  clutter_device_manager_x11_apply_kbd_a11y_settings (device_manager, &kbd_a11y_settings);
-}
-
-static void
-clutter_backend_x11_create_keymap (ClutterBackendX11 *backend_x11)
-{
-  if (backend_x11->keymap == NULL)
-    {
-      ClutterEventTranslator *translator;
-      ClutterBackend *backend;
-
-      backend_x11->keymap =
-        g_object_new (CLUTTER_TYPE_KEYMAP_X11,
-                      "backend", backend_x11,
-                      NULL);
-
-      backend = CLUTTER_BACKEND (backend_x11);
-      translator = CLUTTER_EVENT_TRANSLATOR (backend_x11->keymap);
-      _clutter_backend_add_event_translator (backend, translator);
-
-      g_signal_connect (backend_x11->keymap,
-                        "state-changed",
-                        G_CALLBACK (on_keymap_state_change),
-                        backend->device_manager);
-    }
 }
 
 static gboolean
@@ -461,45 +372,6 @@ clutter_backend_x11_post_parse (ClutterBackend  *backend,
   return TRUE;
 }
 
-void
-_clutter_backend_x11_events_init (ClutterBackend *backend)
-{
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (backend);
-
-  CLUTTER_NOTE (EVENT, "initialising the event loop");
-
-  /* the event source is optional */
-  if (!_no_xevent_retrieval)
-    {
-      GSource *source;
-
-      source = _clutter_x11_event_source_new (backend_x11);
-
-      /* default priority for events
-       *
-       * XXX - at some point we'll have a common EventSource API that
-       * is created by the backend, and this code will most likely go
-       * into the default implementation of ClutterBackend
-       */
-      g_source_set_priority (source, CLUTTER_PRIORITY_EVENTS);
-
-      /* attach the source to the default context, and transfer the
-       * ownership to the GMainContext itself
-       */
-      g_source_attach (source, NULL);
-      g_source_unref (source);
-
-      backend_x11->event_source = source;
-    }
-
-  clutter_backend_x11_create_device_manager (backend_x11);
-
-  /* register keymap; unless we create a generic Keymap object, I'm
-   * afraid this will have to stay
-   */
-  clutter_backend_x11_create_keymap (backend_x11);
-}
-
 static const GOptionEntry entries[] =
 {
   {
@@ -619,7 +491,6 @@ clutter_backend_x11_translate_event (ClutterBackend *backend,
                                      ClutterEvent   *event)
 {
   ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (backend);
-  ClutterBackendClass *parent_class;
   XEvent *xevent = native;
 
   /* X11 filter functions have a higher priority */
@@ -655,11 +526,7 @@ clutter_backend_x11_translate_event (ClutterBackend *backend,
    */
   update_last_event_time (backend_x11, xevent);
 
-  /* chain up to the parent implementation, which will handle
-   * event translators
-   */
-  parent_class = CLUTTER_BACKEND_CLASS (clutter_backend_x11_parent_class);
-  return parent_class->translate_event (backend, native, event);
+  return FALSE;
 }
 
 static CoglRenderer *
@@ -779,50 +646,6 @@ clutter_backend_x11_get_display (ClutterBackend  *backend,
   return display;
 }
 
-static ClutterStageWindow *
-clutter_backend_x11_create_stage (ClutterBackend  *backend,
-				  ClutterStage    *wrapper,
-				  GError         **error)
-{
-  ClutterEventTranslator *translator;
-  ClutterStageWindow *stage;
-
-  stage = g_object_new (CLUTTER_TYPE_STAGE_X11,
-			"backend", backend,
-			"wrapper", wrapper,
-			NULL);
-
-  /* the X11 stage does event translation */
-  translator = CLUTTER_EVENT_TRANSLATOR (stage);
-  _clutter_backend_add_event_translator (backend, translator);
-
-  CLUTTER_NOTE (BACKEND, "X11 stage created (display:%p, screen:%d, root:%u)",
-                CLUTTER_BACKEND_X11 (backend)->xdpy,
-                CLUTTER_BACKEND_X11 (backend)->xscreen_num,
-                (unsigned int) CLUTTER_BACKEND_X11 (backend)->xwin_root);
-
-  return stage;
-}
-
-static PangoDirection
-clutter_backend_x11_get_keymap_direction (ClutterBackend *backend)
-{
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (backend);
-
-  if (G_UNLIKELY (backend_x11->keymap == NULL))
-    return PANGO_DIRECTION_NEUTRAL;
-
-  return _clutter_keymap_x11_get_direction (backend_x11->keymap);
-}
-
-static ClutterKeymap *
-clutter_backend_x11_get_keymap (ClutterBackend *backend)
-{
-  ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (backend);
-
-  return CLUTTER_KEYMAP (backend_x11->keymap);
-}
-
 static void
 clutter_backend_x11_class_init (ClutterBackendX11Class *klass)
 {
@@ -831,8 +654,6 @@ clutter_backend_x11_class_init (ClutterBackendX11Class *klass)
 
   gobject_class->dispose = clutter_backend_x11_dispose;
   gobject_class->finalize = clutter_backend_x11_finalize;
-
-  backend_class->create_stage = clutter_backend_x11_create_stage;
 
   backend_class->pre_parse = clutter_backend_x11_pre_parse;
   backend_class->post_parse = clutter_backend_x11_post_parse;
@@ -843,9 +664,6 @@ clutter_backend_x11_class_init (ClutterBackendX11Class *klass)
 
   backend_class->get_renderer = clutter_backend_x11_get_renderer;
   backend_class->get_display = clutter_backend_x11_get_display;
-
-  backend_class->get_keymap_direction = clutter_backend_x11_get_keymap_direction;
-  backend_class->get_keymap = clutter_backend_x11_get_keymap;
 }
 
 static void
@@ -954,58 +772,6 @@ clutter_x11_set_display (Display *xdpy)
     }
 
   _foreign_dpy= xdpy;
-}
-
-/**
- * clutter_x11_disable_event_retrieval:
- *
- * Disables the internal polling of X11 events in the main loop.
- *
- * Libraries or applications calling this function will be responsible of
- * polling all X11 events.
- *
- * You also must call clutter_x11_handle_event() to let Clutter process
- * events and maintain its internal state.
- *
- * This function can only be called before calling clutter_init().
- *
- * Even with event handling disabled, Clutter will still select
- * all the events required to maintain its internal state on the stage
- * Window; compositors using Clutter and input regions to pass events
- * through to application windows should not rely on an empty input
- * region, and should instead clear it themselves explicitly using the
- * XFixes extension.
- *
- * This function should not be normally used by applications.
- *
- * Since: 0.8
- */
-void
-clutter_x11_disable_event_retrieval (void)
-{
-  if (_clutter_context_is_initialized ())
-    {
-      g_warning ("%s() can only be used before calling clutter_init()",
-                 G_STRFUNC);
-      return;
-    }
-
-  _no_xevent_retrieval = TRUE;
-}
-
-/**
- * clutter_x11_has_event_retrieval:
- *
- * Queries the X11 backend to check if event collection has been disabled.
- *
- * Return value: TRUE if event retrival has been disabled. FALSE otherwise.
- *
- * Since: 0.8
- */
-gboolean
-clutter_x11_has_event_retrieval (void)
-{
-  return !_no_xevent_retrieval;
 }
 
 /**
@@ -1165,36 +931,6 @@ clutter_x11_remove_filter (ClutterX11FilterFunc func,
 }
 
 /**
- * clutter_x11_has_xinput:
- *
- * Gets whether Clutter has XInput support.
- *
- * Return value: %TRUE if Clutter was compiled with XInput support
- *   and XInput support is available at run time.
- *
- * Since: 0.8
- */
-gboolean
-clutter_x11_has_xinput (void)
-{
- ClutterBackend *backend = clutter_get_default_backend ();
-
-  if (backend == NULL)
-    {
-      g_critical ("The Clutter backend has not been initialised");
-      return FALSE;
-    }
-
-  if (!CLUTTER_IS_BACKEND_X11 (backend))
-    {
-      g_critical ("The Clutter backend is not a X11 backend.");
-      return FALSE;
-    }
-
-  return CLUTTER_BACKEND_X11 (backend)->has_xinput;
-}
-
-/**
  * clutter_x11_has_composite_extension:
  *
  * Retrieves whether Clutter is running on an X11 server with the
@@ -1341,84 +1077,3 @@ clutter_x11_get_use_stereo_stage (void)
   return clutter_enable_stereo;
 }
 
-XVisualInfo *
-_clutter_backend_x11_get_visual_info (ClutterBackendX11 *backend_x11)
-{
-  return cogl_clutter_winsys_xlib_get_visual_info ();
-}
-
-/**
- * clutter_x11_get_visual_info: (skip)
- *
- * Retrieves the `XVisualInfo` used by the Clutter X11 backend.
- *
- * Return value: (transfer full): a `XVisualInfo`, or `None`.
- *   The returned value should be freed using `XFree()` when done
- *
- * Since: 1.2
- */
-XVisualInfo *
-clutter_x11_get_visual_info (void)
-{
-  ClutterBackendX11 *backend_x11;
-  ClutterBackend *backend;
-
-  backend = clutter_get_default_backend ();
-  if (!CLUTTER_IS_BACKEND_X11 (backend))
-    {
-      g_critical ("The Clutter backend is not a X11 backend.");
-      return NULL;
-    }
-
-  backend_x11 = CLUTTER_BACKEND_X11 (backend);
-
-  return _clutter_backend_x11_get_visual_info (backend_x11);
-}
-
-gboolean
-_clutter_x11_input_device_translate_screen_coord (ClutterInputDevice *device,
-                                                  gint                stage_root_x,
-                                                  gint                stage_root_y,
-                                                  guint               index_,
-                                                  gdouble             value,
-                                                  gdouble            *axis_value)
-{
-  ClutterAxisInfo *info;
-  ClutterBackendX11 *backend_x11;
-  gdouble width, scale, offset;
-  
-  backend_x11 = CLUTTER_BACKEND_X11 (device->backend);
-
-  if (device->axes == NULL || index_ >= device->axes->len)
-    return FALSE;
-
-  info = &g_array_index (device->axes, ClutterAxisInfo, index_);
-  if (!(info->axis == CLUTTER_INPUT_AXIS_X || info->axis == CLUTTER_INPUT_AXIS_Y))
-    return FALSE;
-
-  width = info->max_value - info->min_value;
-
-  if (info->axis == CLUTTER_INPUT_AXIS_X)
-    {
-      if (width > 0)
-        scale = backend_x11->xscreen_width / width;
-      else
-        scale = 1;
-
-      offset = - stage_root_x;
-    }
-  else
-    {
-      if (width > 0)
-        scale = backend_x11->xscreen_height / width;
-      else
-        scale = 1;
-
-      offset = - stage_root_y;
-    }
-
-  if (axis_value)
-    *axis_value = offset + scale * (value - info->min_value);
-
-  return TRUE;
-}

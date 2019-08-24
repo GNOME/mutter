@@ -33,16 +33,12 @@
 
 G_BEGIN_DECLS
 
-#define CLUTTER_TYPE_DEVICE_MANAGER             (clutter_device_manager_get_type ())
-#define CLUTTER_DEVICE_MANAGER(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_DEVICE_MANAGER, ClutterDeviceManager))
-#define CLUTTER_IS_DEVICE_MANAGER(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_DEVICE_MANAGER))
-#define CLUTTER_DEVICE_MANAGER_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_DEVICE_MANAGER, ClutterDeviceManagerClass))
-#define CLUTTER_IS_DEVICE_MANAGER_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_DEVICE_MANAGER))
-#define CLUTTER_DEVICE_MANAGER_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_DEVICE_MANAGER, ClutterDeviceManagerClass))
+#define CLUTTER_TYPE_DEVICE_MANAGER (clutter_device_manager_get_type ())
+CLUTTER_EXPORT
+G_DECLARE_DERIVABLE_TYPE (ClutterDeviceManager, clutter_device_manager,
+                          CLUTTER, DEVICE_MANAGER, GObject)
 
-typedef struct _ClutterDeviceManager            ClutterDeviceManager;
 typedef struct _ClutterDeviceManagerPrivate     ClutterDeviceManagerPrivate;
-typedef struct _ClutterDeviceManagerClass       ClutterDeviceManagerClass;
 
 /**
  * ClutterVirtualDeviceType:
@@ -95,21 +91,6 @@ typedef struct _ClutterPointerA11ySettings
 } ClutterPointerA11ySettings;
 
 /**
- * ClutterDeviceManager:
- *
- * The #ClutterDeviceManager structure contains only private data
- *
- * Since: 1.2
- */
-struct _ClutterDeviceManager
-{
-  /*< private >*/
-  GObject parent_instance;
-
-  ClutterDeviceManagerPrivate *priv;
-};
-
-/**
  * ClutterDeviceManagerClass:
  *
  * The #ClutterDeviceManagerClass structure contains only private data
@@ -142,12 +123,17 @@ struct _ClutterDeviceManagerClass
   /* Keyboard accessbility */
   void                (* apply_kbd_a11y_settings) (ClutterDeviceManager   *device_manger,
                                                    ClutterKbdA11ySettings *settings);
-  /* padding */
-  gpointer _padding[6];
-};
 
-CLUTTER_EXPORT
-GType clutter_device_manager_get_type (void) G_GNUC_CONST;
+  /* Event platform data */
+  void (* copy_event_data) (ClutterDeviceManager *device_manager,
+                            const ClutterEvent   *src,
+                            ClutterEvent         *dest);
+  void (* free_event_data) (ClutterDeviceManager *device_manager,
+                            ClutterEvent         *event);
+
+  /* padding */
+  gpointer _padding[4];
+};
 
 CLUTTER_EXPORT
 ClutterDeviceManager *clutter_device_manager_get_default     (void);

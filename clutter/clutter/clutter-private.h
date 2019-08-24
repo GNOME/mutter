@@ -85,7 +85,6 @@ typedef struct _ClutterVertex4          ClutterVertex4;
 /* keep this for source compatibility with clutter */
 #define P_(String) (String)
 #define N_(String) (String)
-#define _(String) (String)
 
 /* This is a replacement for the nearbyint function which always rounds to the
  * nearest integer. nearbyint is apparently a C99 function so it might not
@@ -182,7 +181,9 @@ typedef struct
 gboolean _clutter_threads_dispatch      (gpointer data);
 void     _clutter_threads_dispatch_free (gpointer data);
 
+CLUTTER_EXPORT
 void                    _clutter_threads_acquire_lock                   (void);
+CLUTTER_EXPORT
 void                    _clutter_threads_release_lock                   (void);
 
 ClutterMainContext *    _clutter_context_get_default                    (void);
@@ -203,6 +204,7 @@ guint           _clutter_pixel_to_id            (guchar        pixel[4]);
 void            _clutter_id_to_color            (guint         id,
                                                  ClutterColor *col);
 
+CLUTTER_EXPORT
 void            _clutter_set_sync_to_vblank     (gboolean      sync_to_vblank);
 
 /* use this function as the accumulator if you have a signal with
@@ -291,6 +293,7 @@ gboolean        _clutter_util_matrix_decompose  (const ClutterMatrix *src,
                                                  ClutterVertex       *translate_p,
                                                  ClutterVertex4      *perspective_p);
 
+CLUTTER_EXPORT
 PangoDirection _clutter_pango_unichar_direction (gunichar ch);
 
 PangoDirection _clutter_pango_find_base_dir     (const gchar *text,

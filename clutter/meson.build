@@ -71,14 +71,6 @@ if have_x11
   ]
 endif
 
-if have_native_backend
-  clutter_pkg_private_deps += [
-    libudev_dep,
-    libinput_dep,
-    xkbcommon_dep,
-  ]
-endif
-
 if have_libwacom
   clutter_pkg_private_deps += [
     libwacom_dep,
@@ -94,6 +86,3 @@ clutter_deps = [
 
 subdir('clutter')
 
-if have_clutter_tests
-  subdir('tests')
-endif

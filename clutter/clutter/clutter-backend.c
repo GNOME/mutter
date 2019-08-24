@@ -62,9 +62,6 @@
 #ifdef CLUTTER_INPUT_X11
 #include "x11/clutter-backend-x11.h"
 #endif
-#ifdef CLUTTER_INPUT_EVDEV
-#include "evdev/clutter-device-manager-evdev.h"
-#endif
 #ifdef CLUTTER_WINDOWING_EGL
 #include "egl/clutter-backend-eglnative.h"
 #endif
@@ -104,10 +101,12 @@ clutter_backend_dispose (GObject *gobject)
   /* clear the events still in the queue of the main context */
   _clutter_clear_events_queue ();
 
-  /* remove all event translators */
-  g_clear_pointer (&backend->event_translators, g_list_free);
-
   g_clear_pointer (&backend->dummy_onscreen, cogl_object_unref);
+  if (backend->stage_window)
+    {
+      g_object_remove_weak_pointer (G_OBJECT (backend->stage_window),
+                                    (gpointer *) &backend->stage_window);
+    }
 
   G_OBJECT_CLASS (clutter_backend_parent_class)->dispose (gobject);
 }
@@ -397,7 +396,7 @@ clutter_backend_real_create_context (ClutterBackend  *backend,
       else
         g_set_error_literal (error, CLUTTER_INIT_ERROR,
                              CLUTTER_INIT_ERROR_BACKEND,
-                            _("Unable to initialize the Clutter backend: no available drivers found."));
+                             "Unable to initialize the Clutter backend: no available drivers found.");
 
       return FALSE;
     }
@@ -526,40 +525,7 @@ _clutter_create_backend (void)
 static void
 clutter_backend_real_init_events (ClutterBackend *backend)
 {
-  const char *input_backend = NULL;
-
-  input_backend = g_getenv ("CLUTTER_INPUT_BACKEND");
-  if (input_backend != NULL)
-    input_backend = g_intern_string (input_backend);
-
-#ifdef CLUTTER_INPUT_X11
-  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
-      (input_backend == NULL || input_backend == I_(CLUTTER_INPUT_X11)))
-    {
-      _clutter_backend_x11_events_init (backend);
-    }
-  else
-#endif
-#ifdef CLUTTER_INPUT_EVDEV
-  /* Evdev can be used regardless of the windowing system */
-  if ((input_backend != NULL && strcmp (input_backend, CLUTTER_INPUT_EVDEV) == 0)
-#ifdef CLUTTER_WINDOWING_EGL
-      /* but we do want to always use it for EGL native */
-      || clutter_check_windowing_backend (CLUTTER_WINDOWING_EGL)
-#endif
-      )
-    {
-      _clutter_events_evdev_init (backend);
-    }
-  else
-#endif
-  if (input_backend != NULL)
-    {
-      if (input_backend != I_(CLUTTER_INPUT_NULL))
-        g_error ("Unrecognized input backend '%s'", input_backend);
-    }
-  else
-    g_error ("Unknown input backend");
+  g_error ("Unknown input backend");
 }
 
 static ClutterDeviceManager *
@@ -584,34 +550,6 @@ clutter_backend_real_get_keymap (ClutterBackend *backend)
     }
 
   return backend->keymap;
-}
-
-static gboolean
-clutter_backend_real_translate_event (ClutterBackend *backend,
-                                      gpointer        native,
-                                      ClutterEvent   *event)
-{
-  GList *l;
-
-  for (l = backend->event_translators;
-       l != NULL;
-       l = l->next)
-    {
-      ClutterEventTranslator *translator = l->data;
-      ClutterTranslateReturn retval;
-
-      retval = _clutter_event_translator_translate_event (translator,
-                                                          native,
-                                                          event);
-
-      if (retval == CLUTTER_TRANSLATE_QUEUE)
-        return TRUE;
-
-      if (retval == CLUTTER_TRANSLATE_REMOVE)
-        return FALSE;
-    }
-
-  return FALSE;
 }
 
 static void
@@ -678,7 +616,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
 
   klass->init_events = clutter_backend_real_init_events;
   klass->get_device_manager = clutter_backend_real_get_device_manager;
-  klass->translate_event = clutter_backend_real_translate_event;
   klass->create_context = clutter_backend_real_create_context;
   klass->get_features = clutter_backend_real_get_features;
   klass->get_keymap = clutter_backend_real_get_keymap;
@@ -757,6 +694,10 @@ _clutter_backend_create_stage (ClutterBackend  *backend,
     return NULL;
 
   g_assert (CLUTTER_IS_STAGE_WINDOW (stage_window));
+
+  backend->stage_window = stage_window;
+  g_object_add_weak_pointer (G_OBJECT (backend->stage_window),
+                             (gpointer *) &backend->stage_window);
 
   return stage_window;
 }
@@ -842,37 +783,24 @@ _clutter_backend_copy_event_data (ClutterBackend     *backend,
                                   const ClutterEvent *src,
                                   ClutterEvent       *dest)
 {
-  ClutterEventExtenderInterface *iface;
-  ClutterBackendClass *klass;
+  ClutterDeviceManagerClass *device_manager_class;
+  ClutterDeviceManager *device_manager;
 
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
-  if (CLUTTER_IS_EVENT_EXTENDER (backend->device_manager))
-    {
-      iface = CLUTTER_EVENT_EXTENDER_GET_IFACE (backend->device_manager);
-      iface->copy_event_data (CLUTTER_EVENT_EXTENDER (backend->device_manager),
-                              src, dest);
-    }
-  else if (klass->copy_event_data != NULL)
-    klass->copy_event_data (backend, src, dest);
+  device_manager = clutter_device_manager_get_default ();
+  device_manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
+  device_manager_class->copy_event_data (device_manager, src, dest);
 }
 
 void
 _clutter_backend_free_event_data (ClutterBackend *backend,
                                   ClutterEvent   *event)
 {
-  ClutterEventExtenderInterface *iface;
-  ClutterBackendClass *klass;
+  ClutterDeviceManagerClass *device_manager_class;
+  ClutterDeviceManager *device_manager;
 
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
-
-  if (CLUTTER_IS_EVENT_EXTENDER (backend->device_manager))
-    {
-      iface = CLUTTER_EVENT_EXTENDER_GET_IFACE (backend->device_manager);
-      iface->free_event_data (CLUTTER_EVENT_EXTENDER (backend->device_manager),
-                              event);
-    }
-  else if (klass->free_event_data != NULL)
-    klass->free_event_data (backend, event);
+  device_manager = clutter_device_manager_get_default ();
+  device_manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
+  device_manager_class->free_event_data (device_manager, event);
 }
 
 /**
@@ -1016,28 +944,6 @@ _clutter_backend_translate_event (ClutterBackend *backend,
   return CLUTTER_BACKEND_GET_CLASS (backend)->translate_event (backend,
                                                                native,
                                                                event);
-}
-
-void
-_clutter_backend_add_event_translator (ClutterBackend         *backend,
-                                       ClutterEventTranslator *translator)
-{
-  if (g_list_find (backend->event_translators, translator) != NULL)
-    return;
-
-  backend->event_translators =
-    g_list_prepend (backend->event_translators, translator);
-}
-
-void
-_clutter_backend_remove_event_translator (ClutterBackend         *backend,
-                                          ClutterEventTranslator *translator)
-{
-  if (g_list_find (backend->event_translators, translator) == NULL)
-    return;
-
-  backend->event_translators =
-    g_list_remove (backend->event_translators, translator);
 }
 
 /**
@@ -1186,4 +1092,10 @@ ClutterKeymap *
 clutter_backend_get_keymap (ClutterBackend *backend)
 {
   return CLUTTER_BACKEND_GET_CLASS (backend)->get_keymap (backend);
+}
+
+ClutterStageWindow *
+clutter_backend_get_stage_window (ClutterBackend *backend)
+{
+  return backend->stage_window;
 }

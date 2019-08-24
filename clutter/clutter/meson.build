@@ -77,7 +77,6 @@ clutter_headers = [
   'clutter-stage-manager.h',
   'clutter-stage-view.h',
   'clutter-tap-action.h',
-  'clutter-test-utils.h',
   'clutter-texture.h',
   'clutter-text.h',
   'clutter-text-buffer.h',
@@ -168,7 +167,6 @@ clutter_sources = [
   'clutter-stage-view.c',
   'clutter-stage-window.c',
   'clutter-tap-action.c',
-  'clutter-test-utils.c',
   'clutter-text.c',
   'clutter-text-buffer.c',
   'clutter-transition-group.c',
@@ -191,7 +189,6 @@ clutter_private_headers = [
   'clutter-device-manager-private.h',
   'clutter-easing.h',
   'clutter-effect-private.h',
-  'clutter-event-translator.h',
   'clutter-event-private.h',
   'clutter-flatten-effect.h',
   'clutter-gesture-action-private.h',
@@ -215,7 +212,6 @@ clutter_private_headers = [
 
 clutter_nonintrospected_sources = [
   'clutter-easing.c',
-  'clutter-event-translator.c',
   'clutter-id-pool.c',
 ]
 
@@ -273,20 +269,8 @@ clutter_backend_private_headers = [
 if have_x11
   clutter_x11_sources = [
     'x11/clutter-backend-x11.c',
-    'x11/clutter-device-manager-xi2.c',
-    'x11/clutter-event-x11.c',
-    'x11/clutter-input-device-tool-xi2.c',
-    'x11/clutter-input-device-xi2.c',
-    'x11/clutter-keymap-x11.c',
-    'x11/clutter-stage-x11.c',
-    'x11/clutter-virtual-input-device-x11.c',
   ]
   clutter_backend_sources += clutter_x11_sources
-
-  clutter_x11_nonintrospected_sources = [
-    'x11/clutter-xkb-a11y-x11.c',
-  ]
-  clutter_backend_nonintrospected_sources += clutter_x11_nonintrospected_sources
 
   clutter_x11_headers = [
     'x11/clutter-x11.h',
@@ -295,14 +279,7 @@ if have_x11
 
   clutter_x11_private_headers = [
     'x11/clutter-backend-x11.h',
-    'x11/clutter-device-manager-xi2.h',
-    'x11/clutter-input-device-tool-xi2.h',
-    'x11/clutter-input-device-xi2.h',
-    'x11/clutter-keymap-x11.h',
     'x11/clutter-settings-x11.h',
-    'x11/clutter-stage-x11.h',
-    'x11/clutter-virtual-input-device-x11.h',
-    'x11/clutter-xkb-a11y-x11.h',
   ]
   clutter_backend_private_headers += clutter_x11_private_headers
 
@@ -318,28 +295,8 @@ endif
 if have_native_backend
   clutter_native_nonintrospected_sources = [
     'egl/clutter-backend-eglnative.c',
-    'evdev/clutter-device-manager-evdev.c',
-    'evdev/clutter-event-evdev.c',
-    'evdev/clutter-input-device-evdev.c',
-    'evdev/clutter-input-device-tool-evdev.c',
-    'evdev/clutter-keymap-evdev.c',
-    'evdev/clutter-seat-evdev.c',
-    'evdev/clutter-virtual-input-device-evdev.c',
-    'evdev/clutter-xkb-utils.c',
   ]
   clutter_backend_nonintrospected_sources += clutter_native_nonintrospected_sources
-
-  clutter_native_private_headers = [
-    'evdev/clutter-evdev.h',
-    'evdev/clutter-device-manager-evdev.h',
-    'evdev/clutter-input-device-evdev.h',
-    'evdev/clutter-input-device-tool-evdev.h',
-    'evdev/clutter-keymap-evdev.h',
-    'evdev/clutter-seat-evdev.h',
-    'evdev/clutter-virtual-input-device-evdev.h',
-    'evdev/clutter-xkb-utils.h',
-  ]
-  clutter_backend_private_headers += clutter_native_private_headers
 endif
 
 if have_wayland

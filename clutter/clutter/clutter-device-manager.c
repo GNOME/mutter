@@ -91,22 +91,14 @@ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (ClutterDeviceManager,
                                      clutter_device_manager,
                                      G_TYPE_OBJECT)
 
-G_DEFINE_INTERFACE (ClutterEventExtender,
-                    clutter_event_extender,
-                    CLUTTER_TYPE_DEVICE_MANAGER)
-
-static void
-clutter_event_extender_default_init (ClutterEventExtenderInterface *iface)
-{
-}
-
 static void
 clutter_device_manager_set_property (GObject      *gobject,
                                      guint         prop_id,
                                      const GValue *value,
                                      GParamSpec   *pspec)
 {
-  ClutterDeviceManagerPrivate *priv = CLUTTER_DEVICE_MANAGER (gobject)->priv;
+  ClutterDeviceManager *self = CLUTTER_DEVICE_MANAGER (gobject);
+  ClutterDeviceManagerPrivate *priv = clutter_device_manager_get_instance_private (self);
 
   switch (prop_id)
     {
@@ -125,7 +117,8 @@ clutter_device_manager_get_property (GObject    *gobject,
                                      GValue     *value,
                                      GParamSpec *pspec)
 {
-  ClutterDeviceManagerPrivate *priv = CLUTTER_DEVICE_MANAGER (gobject)->priv;
+  ClutterDeviceManager *self = CLUTTER_DEVICE_MANAGER (gobject);
+  ClutterDeviceManagerPrivate *priv = clutter_device_manager_get_instance_private (self);
 
   switch (prop_id)
     {
@@ -309,7 +302,6 @@ clutter_device_manager_class_init (ClutterDeviceManagerClass *klass)
 static void
 clutter_device_manager_init (ClutterDeviceManager *self)
 {
-  self->priv = clutter_device_manager_get_instance_private (self);
 }
 
 /**
@@ -328,7 +320,7 @@ clutter_device_manager_get_default (void)
 {
   ClutterBackend *backend = clutter_get_default_backend ();
 
-  return backend->device_manager;
+  return CLUTTER_BACKEND_GET_CLASS (backend)->get_device_manager (backend);
 }
 
 /**
@@ -552,9 +544,11 @@ _clutter_device_manager_update_devices (ClutterDeviceManager *device_manager)
 ClutterBackend *
 _clutter_device_manager_get_backend (ClutterDeviceManager *manager)
 {
+  ClutterDeviceManagerPrivate *priv = clutter_device_manager_get_instance_private (manager);
+
   g_return_val_if_fail (CLUTTER_IS_DEVICE_MANAGER (manager), NULL);
 
-  return manager->priv->backend;
+  return priv->backend;
 }
 
 /**
@@ -623,13 +617,14 @@ clutter_device_manager_set_kbd_a11y_settings (ClutterDeviceManager   *device_man
                                               ClutterKbdA11ySettings *settings)
 {
   ClutterDeviceManagerClass *manager_class;
+  ClutterDeviceManagerPrivate *priv = clutter_device_manager_get_instance_private (device_manager);
 
   g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
 
-  if (are_kbd_a11y_settings_equal (&device_manager->priv->kbd_a11y_settings, settings))
+  if (are_kbd_a11y_settings_equal (&priv->kbd_a11y_settings, settings))
     return;
 
-  device_manager->priv->kbd_a11y_settings = *settings;
+  priv->kbd_a11y_settings = *settings;
 
   manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
   if (manager_class->apply_kbd_a11y_settings)
@@ -640,9 +635,11 @@ void
 clutter_device_manager_get_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
                                               ClutterKbdA11ySettings *settings)
 {
+  ClutterDeviceManagerPrivate *priv = clutter_device_manager_get_instance_private (device_manager);
+
   g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
 
-  *settings = device_manager->priv->kbd_a11y_settings;
+  *settings = priv->kbd_a11y_settings;
 }
 
 static gboolean
@@ -685,17 +682,20 @@ void
 clutter_device_manager_set_pointer_a11y_settings (ClutterDeviceManager       *device_manager,
                                                   ClutterPointerA11ySettings *settings)
 {
+  ClutterDeviceManagerPrivate *priv =
+    clutter_device_manager_get_instance_private (device_manager);
+
   g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
 
-  if (are_pointer_a11y_settings_equal (&device_manager->priv->pointer_a11y_settings, settings))
+  if (are_pointer_a11y_settings_equal (&priv->pointer_a11y_settings, settings))
     return;
 
-  if (device_manager->priv->pointer_a11y_settings.controls == 0 && settings->controls != 0)
+  if (priv->pointer_a11y_settings.controls == 0 && settings->controls != 0)
     clutter_device_manager_enable_pointer_a11y (device_manager);
-  else if (device_manager->priv->pointer_a11y_settings.controls != 0 && settings->controls == 0)
+  else if (priv->pointer_a11y_settings.controls != 0 && settings->controls == 0)
     clutter_device_manager_disable_pointer_a11y (device_manager);
 
-  device_manager->priv->pointer_a11y_settings = *settings;
+  priv->pointer_a11y_settings = *settings;
 }
 
 /**
@@ -709,9 +709,12 @@ void
 clutter_device_manager_get_pointer_a11y_settings (ClutterDeviceManager       *device_manager,
                                                   ClutterPointerA11ySettings *settings)
 {
+  ClutterDeviceManagerPrivate *priv =
+    clutter_device_manager_get_instance_private (device_manager);
+
   g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
 
-  *settings = device_manager->priv->pointer_a11y_settings;
+  *settings = priv->pointer_a11y_settings;
 }
 
 /**
@@ -725,7 +728,10 @@ void
 clutter_device_manager_set_pointer_a11y_dwell_click_type (ClutterDeviceManager             *device_manager,
                                                           ClutterPointerA11yDwellClickType  click_type)
 {
+  ClutterDeviceManagerPrivate *priv =
+    clutter_device_manager_get_instance_private (device_manager);
+
   g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
 
-  device_manager->priv->pointer_a11y_settings.dwell_click_type = click_type;
+  priv->pointer_a11y_settings.dwell_click_type = click_type;
 }

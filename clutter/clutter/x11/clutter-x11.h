@@ -100,15 +100,7 @@ int      clutter_x11_get_default_screen  (void);
 CLUTTER_EXPORT
 Window   clutter_x11_get_root_window     (void);
 CLUTTER_EXPORT
-XVisualInfo *clutter_x11_get_visual_info (void);
-CLUTTER_EXPORT
 void     clutter_x11_set_display         (Display * xdpy);
-
-CLUTTER_EXPORT
-Window       clutter_x11_get_stage_window  (ClutterStage *stage);
-CLUTTER_EXPORT
-gboolean     clutter_x11_set_stage_foreign (ClutterStage *stage,
-                                            Window        xwindow);
 
 CLUTTER_EXPORT
 void         clutter_x11_add_filter    (ClutterX11FilterFunc func,
@@ -116,20 +108,6 @@ void         clutter_x11_add_filter    (ClutterX11FilterFunc func,
 CLUTTER_EXPORT
 void         clutter_x11_remove_filter (ClutterX11FilterFunc func,
                                         gpointer             data);
-
-CLUTTER_EXPORT
-ClutterX11FilterReturn clutter_x11_handle_event (XEvent *xevent);
-
-CLUTTER_EXPORT
-void     clutter_x11_disable_event_retrieval (void);
-CLUTTER_EXPORT
-gboolean clutter_x11_has_event_retrieval (void);
-
-CLUTTER_EXPORT
-ClutterStage *clutter_x11_get_stage_from_window (Window win);
-
-CLUTTER_EXPORT
-gboolean clutter_x11_has_xinput (void);
 
 CLUTTER_EXPORT
 gboolean clutter_x11_has_composite_extension (void);
@@ -143,15 +121,6 @@ CLUTTER_EXPORT
 void     clutter_x11_set_use_stereo_stage (gboolean use_stereo);
 CLUTTER_EXPORT
 gboolean clutter_x11_get_use_stereo_stage (void);
-
-CLUTTER_EXPORT
-Time clutter_x11_get_current_event_time (void);
-
-CLUTTER_EXPORT
-gint clutter_x11_event_get_key_group (const ClutterEvent *event);
-
-CLUTTER_EXPORT
-guint clutter_x11_event_sequence_get_touch_detail (const ClutterEventSequence *sequence);
 
 G_END_DECLS
 
