@@ -23,6 +23,9 @@ RUN dnf -y update && dnf -y upgrade && \
     # Until Fedora catches up with mesa bug fixes
     dnf upgrade -y mesa-dri-drivers mesa-libEGL && \
 
+    # To cache build objects
+    dnf install -y ccache && \
+
     # For running unit tests
     dnf install -y xorg-x11-server-Xvfb mesa-dri-drivers dbus dbus-x11 '*/xvfb-run' gdm-lib accountsservice-libs && \
 

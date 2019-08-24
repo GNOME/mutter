@@ -14,8 +14,15 @@ check-commit-log:
   only:
     - merge_requests
 
+cache:
+  paths:
+    - ccache/
+
 build-mutter:
   stage: build
+  variables:
+    CCACHE_BASEDIR: "$CI_PROJECT_DIR"
+    CCACHE_DIR: "$CI_PROJECT_DIR/ccache"
   script:
     - meson . build -Dbuildtype=debugoptimized -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
     - ninja -C build
@@ -30,6 +37,9 @@ build-mutter:
 
 build-without-native-backend:
   stage: build
+  variables:
+    CCACHE_BASEDIR: "$CI_PROJECT_DIR"
+    CCACHE_DIR: "$CI_PROJECT_DIR/ccache"
   script:
     - meson . build -Dbuildtype=debugoptimized -Dnative_backend=false -Dudev=false --werror --prefix /usr
     - ninja -C build
@@ -70,6 +80,9 @@ can-build-gnome-shell:
     - build-mutter
   before_script:
     - meson install --no-rebuild -C build
+  variables:
+    CCACHE_BASEDIR: "$CI_PROJECT_DIR"
+    CCACHE_DIR: "$CI_PROJECT_DIR/ccache"
   script:
     - .gitlab-ci/checkout-gnome-shell.sh
     - meson gnome-shell gnome-shell/build --prefix /usr -Dman=false
