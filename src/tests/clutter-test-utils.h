@@ -89,10 +89,8 @@ main (int argc, char *argv[]) \
   char *display_name = g_strdup ("mutter-test-display-XXXXXX");\
   int fd = g_mkstemp (display_name);\
   meta_wayland_override_display_name (display_name);\
-  meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,\
-                                          META_TYPE_BACKEND_X11_NESTED);\
 \
-  meta_init ();\
+  meta_test_init ();\
 \
   clutter_test_init (&argc, &argv); \
 \
