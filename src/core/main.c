@@ -87,6 +87,7 @@
 #ifdef HAVE_WAYLAND
 #include "backends/x11/nested/meta-backend-x11-nested.h"
 #include "wayland/meta-wayland.h"
+#include "wayland/meta-xwayland.h"
 #endif
 
 #ifdef HAVE_NATIVE_BACKEND
@@ -740,4 +741,23 @@ meta_get_x11_display_policy (void)
 #endif
 
   return META_DISPLAY_POLICY_MANDATORY;
+}
+
+void
+meta_test_init (void)
+{
+#if defined(HAVE_WAYLAND)
+  g_autofree char *display_name = g_strdup ("mutter-test-display-XXXXXX");
+  int fd = g_mkstemp (display_name);
+
+  meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
+                                          META_TYPE_BACKEND_X11_NESTED);
+  meta_wayland_override_display_name (display_name);
+  meta_xwayland_override_display_number (512 + rand() % 512);
+  meta_init ();
+
+  close (fd);
+#else
+  g_error ("Tests require wayland support");
+#endif
 }
