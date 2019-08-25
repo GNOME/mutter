@@ -40,8 +40,8 @@ dnd_surface_assigned (MetaWaylandSurfaceRole *surface_role)
 }
 
 static void
-dnd_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                    MetaWaylandPendingState *pending)
+dnd_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                         MetaWaylandSurfaceState *pending)
 {
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
@@ -50,7 +50,7 @@ dnd_surface_commit (MetaWaylandSurfaceRole  *surface_role,
 
   meta_wayland_surface_queue_pending_state_frame_callbacks (surface, pending);
 
-  surface_role_class->commit (surface_role, pending);
+  surface_role_class->apply_state (surface_role, pending);
 }
 
 static void
@@ -65,5 +65,5 @@ meta_wayland_surface_role_dnd_class_init (MetaWaylandSurfaceRoleDNDClass *klass)
     META_WAYLAND_SURFACE_ROLE_CLASS (klass);
 
   surface_role_class->assigned = dnd_surface_assigned;
-  surface_role_class->commit = dnd_surface_commit;
+  surface_role_class->apply_state = dnd_surface_apply_state;
 }

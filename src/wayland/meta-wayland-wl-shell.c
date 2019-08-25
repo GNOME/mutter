@@ -32,6 +32,7 @@
 #include "wayland/meta-wayland-shell-surface.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-wayland-versions.h"
+#include "wayland/meta-wayland-window-configuration.h"
 #include "wayland/meta-wayland.h"
 #include "wayland/meta-window-wayland.h"
 
@@ -65,6 +66,8 @@ struct _MetaWaylandWlShellSurface
 
   int x;
   int y;
+
+  uint32_t emulated_ack_configure_serial;
 };
 
 static void
@@ -562,8 +565,8 @@ bind_wl_shell (struct wl_client *client,
 }
 
 static void
-wl_shell_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
-                              MetaWaylandPendingState *pending)
+wl_shell_surface_role_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                   MetaWaylandSurfaceState *pending)
 {
   MetaWaylandWlShellSurface *wl_shell_surface =
     META_WAYLAND_WL_SHELL_SURFACE (surface_role);
@@ -573,11 +576,12 @@ wl_shell_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWindow *window = surface->window;
+  cairo_region_t *input_region;
   MetaRectangle geom = { 0 };
 
   surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_wl_shell_surface_parent_class);
-  surface_role_class->commit (surface_role, pending);
+  surface_role_class->apply_state (surface_role, pending);
 
   /* For wl_shell, it's equivalent to an unmap. Semantics
    * are poorly defined, so we can choose some that are
@@ -601,10 +605,22 @@ wl_shell_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
   if (!pending->newly_attached)
     return;
 
-  meta_wayland_shell_surface_calculate_geometry (shell_surface, &geom);
-  meta_window_wayland_move_resize (window,
-                                   NULL,
-                                   geom, pending->dx, pending->dy);
+  input_region = meta_wayland_surface_calculate_input_region (surface);
+  if (!cairo_region_is_empty (input_region))
+    {
+      cairo_region_get_extents (input_region, &geom);
+      cairo_region_destroy (input_region);
+    }
+  else
+    {
+      meta_wayland_shell_surface_calculate_geometry (shell_surface, &geom);
+    }
+
+  pending->has_acked_configure_serial = TRUE;
+  pending->acked_configure_serial =
+    wl_shell_surface->emulated_ack_configure_serial;
+
+  meta_window_wayland_finish_move_resize (window, geom, pending);
 }
 
 static MetaWaylandSurface *
@@ -621,12 +637,8 @@ wl_shell_surface_role_get_toplevel (MetaWaylandSurfaceRole *surface_role)
 }
 
 static void
-wl_shell_surface_role_configure (MetaWaylandShellSurface *shell_surface,
-                                 int                      new_x,
-                                 int                      new_y,
-                                 int                      new_width,
-                                 int                      new_height,
-                                 MetaWaylandSerial       *sent_serial)
+wl_shell_surface_role_configure (MetaWaylandShellSurface        *shell_surface,
+                                 MetaWaylandWindowConfiguration *configuration)
 {
   MetaWaylandWlShellSurface *wl_shell_surface =
     META_WAYLAND_WL_SHELL_SURFACE (shell_surface);
@@ -636,7 +648,9 @@ wl_shell_surface_role_configure (MetaWaylandShellSurface *shell_surface,
 
   wl_shell_surface_send_configure (wl_shell_surface->resource,
                                    0,
-                                   new_width, new_height);
+                                   configuration->width, configuration->height);
+
+  wl_shell_surface->emulated_ack_configure_serial = configuration->serial;
 }
 
 static void
@@ -737,7 +751,7 @@ meta_wayland_wl_shell_surface_class_init (MetaWaylandWlShellSurfaceClass *klass)
   object_class->finalize = wl_shell_surface_role_finalize;
 
   surface_role_class = META_WAYLAND_SURFACE_ROLE_CLASS (klass);
-  surface_role_class->commit = wl_shell_surface_role_commit;
+  surface_role_class->apply_state = wl_shell_surface_role_apply_state;
   surface_role_class->get_toplevel = wl_shell_surface_role_get_toplevel;
 
   shell_surface_class = META_WAYLAND_SHELL_SURFACE_CLASS (klass);

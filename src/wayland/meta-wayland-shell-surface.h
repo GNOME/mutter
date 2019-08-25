@@ -33,12 +33,8 @@ struct _MetaWaylandShellSurfaceClass
 {
   MetaWaylandActorSurfaceClass parent_class;
 
-  void (*configure) (MetaWaylandShellSurface *shell_surface,
-                     int                      new_x,
-                     int                      new_y,
-                     int                      new_width,
-                     int                      new_height,
-                     MetaWaylandSerial       *sent_serial);
+  void (*configure) (MetaWaylandShellSurface        *shell_surface,
+                     MetaWaylandWindowConfiguration *configuration);
   void (*managed) (MetaWaylandShellSurface *shell_surface,
                    MetaWindow              *window);
   void (*ping) (MetaWaylandShellSurface *shell_surface,
@@ -46,12 +42,8 @@ struct _MetaWaylandShellSurfaceClass
   void (*close) (MetaWaylandShellSurface *shell_surface);
 };
 
-void meta_wayland_shell_surface_configure (MetaWaylandShellSurface *shell_surface,
-                                           int                      new_x,
-                                           int                      new_y,
-                                           int                      new_width,
-                                           int                      new_height,
-                                           MetaWaylandSerial       *sent_serial);
+void meta_wayland_shell_surface_configure (MetaWaylandShellSurface        *shell_surface,
+                                           MetaWaylandWindowConfiguration *configuration);
 
 void meta_wayland_shell_surface_ping (MetaWaylandShellSurface *shell_surface,
                                       uint32_t                 serial);

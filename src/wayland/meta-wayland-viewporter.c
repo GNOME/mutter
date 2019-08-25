@@ -37,6 +37,7 @@ static void
 wp_viewport_destructor (struct wl_resource *resource)
 {
   MetaWaylandSurface *surface;
+  MetaWaylandSurfaceState *pending;
 
   surface = wl_resource_get_user_data (resource);
   if (!surface)
@@ -45,10 +46,11 @@ wp_viewport_destructor (struct wl_resource *resource)
   g_signal_handler_disconnect (surface, surface->viewport.destroy_handler_id);
   surface->viewport.destroy_handler_id = 0;
 
-  surface->pending->viewport_src_rect.size.width = -1;
-  surface->pending->viewport_dst_width = -1;
-  surface->pending->has_new_viewport_src_rect = TRUE;
-  surface->pending->has_new_viewport_dst_size = TRUE;
+  pending = meta_wayland_surface_get_pending_state (surface);
+  pending->viewport_src_rect.size.width = -1;
+  pending->viewport_dst_width = -1;
+  pending->has_new_viewport_src_rect = TRUE;
+  pending->has_new_viewport_dst_size = TRUE;
 
   surface->viewport.resource = NULL;
 }
@@ -99,11 +101,14 @@ wp_viewport_set_source (struct wl_client   *client,
       (new_x == -1 && new_y == -1 &&
        new_width == -1 && new_height == -1))
     {
-      surface->pending->viewport_src_rect.origin.x = new_x;
-      surface->pending->viewport_src_rect.origin.y = new_y;
-      surface->pending->viewport_src_rect.size.width = new_width;
-      surface->pending->viewport_src_rect.size.height = new_height;
-      surface->pending->has_new_viewport_src_rect = TRUE;
+      MetaWaylandSurfaceState *pending;
+
+      pending = meta_wayland_surface_get_pending_state (surface);
+      pending->viewport_src_rect.origin.x = new_x;
+      pending->viewport_src_rect.origin.y = new_y;
+      pending->viewport_src_rect.size.width = new_width;
+      pending->viewport_src_rect.size.height = new_height;
+      pending->has_new_viewport_src_rect = TRUE;
     }
   else
     {
@@ -135,9 +140,12 @@ wp_viewport_set_destination (struct wl_client   *client,
   if ((dst_width > 0 && dst_height > 0) ||
       (dst_width == -1 && dst_height == -1))
     {
-      surface->pending->viewport_dst_width = dst_width;
-      surface->pending->viewport_dst_height = dst_height;
-      surface->pending->has_new_viewport_dst_size = TRUE;
+      MetaWaylandSurfaceState *pending;
+
+      pending = meta_wayland_surface_get_pending_state (surface);
+      pending->viewport_dst_width = dst_width;
+      pending->viewport_dst_height = dst_height;
+      pending->has_new_viewport_dst_size = TRUE;
     }
   else
     {

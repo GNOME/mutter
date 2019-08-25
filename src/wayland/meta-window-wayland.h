@@ -31,26 +31,18 @@
 
 G_BEGIN_DECLS
 
-#define META_TYPE_WINDOW_WAYLAND            (meta_window_wayland_get_type())
-#define META_WINDOW_WAYLAND(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_WINDOW_WAYLAND, MetaWindowWayland))
-#define META_WINDOW_WAYLAND_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass),  META_TYPE_WINDOW_WAYLAND, MetaWindowWaylandClass))
-#define META_IS_WINDOW_WAYLAND(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), META_TYPE_WINDOW_WAYLAND))
-#define META_IS_WINDOW_WAYLAND_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_WINDOW_WAYLAND))
-#define META_WINDOW_WAYLAND_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_WINDOW_WAYLAND, MetaWindowWaylandClass))
-
-GType meta_window_wayland_get_type (void);
-
-typedef struct _MetaWindowWayland      MetaWindowWayland;
-typedef struct _MetaWindowWaylandClass MetaWindowWaylandClass;
+#define META_TYPE_WINDOW_WAYLAND (meta_window_wayland_get_type())
+G_DECLARE_FINAL_TYPE (MetaWindowWayland, meta_window_wayland,
+                      META, WINDOW_WAYLAND,
+                      MetaWindow)
 
 MetaWindow * meta_window_wayland_new       (MetaDisplay        *display,
                                             MetaWaylandSurface *surface);
 
-void meta_window_wayland_move_resize (MetaWindow        *window,
-                                      MetaWaylandSerial *acked_configure_serial,
-                                      MetaRectangle      new_geom,
-                                      int                dx,
-                                      int                dy);
+void meta_window_wayland_finish_move_resize (MetaWindow              *window,
+                                             MetaRectangle            new_geom,
+                                             MetaWaylandSurfaceState *pending);
+
 int meta_window_wayland_get_geometry_scale (MetaWindow *window);
 
 void meta_window_wayland_place_relative_to (MetaWindow *window,
@@ -60,6 +52,13 @@ void meta_window_wayland_place_relative_to (MetaWindow *window,
 
 void meta_window_place_with_placement_rule (MetaWindow        *window,
                                             MetaPlacementRule *placement_rule);
+
+void meta_window_update_placement_rule (MetaWindow        *window,
+                                        MetaPlacementRule *placement_rule);
+
+MetaWaylandWindowConfiguration *
+  meta_window_wayland_peek_configuration (MetaWindowWayland *wl_window,
+                                          uint32_t           serial);
 
 void meta_window_wayland_set_min_size (MetaWindow *window,
                                        int         width,
@@ -77,7 +76,5 @@ void meta_window_wayland_get_min_size (MetaWindow *window,
 void meta_window_wayland_get_max_size (MetaWindow *window,
                                        int        *width,
                                        int        *height);
-
-gboolean meta_window_wayland_needs_move_resize (MetaWindow *window);
 
 #endif

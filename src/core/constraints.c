@@ -123,6 +123,7 @@ typedef struct
 {
   MetaRectangle        orig;
   MetaRectangle        current;
+  MetaRectangle        intermediate;
   ActionType           action_type;
   gboolean             is_user_action;
 
@@ -145,8 +146,6 @@ typedef struct
    */
   GList  *usable_screen_region;
   GList  *usable_monitor_region;
-
-  gboolean should_unmanage;
 } ConstraintInfo;
 
 static gboolean do_screen_and_monitor_relative_constraints (MetaWindow     *window,
@@ -255,14 +254,6 @@ do_all_constraints (MetaWindow         *window,
       satisfied = satisfied &&
                   (*constraint->func) (window, info, priority, check_only);
 
-      if (info->should_unmanage)
-        {
-          meta_topic (META_DEBUG_GEOMETRY,
-                      "constraint %s wants to unmanage window.\n",
-                      constraint->name);
-          return TRUE;
-        }
-
       if (!check_only)
         {
           /* Log how the constraint modified the position */
@@ -291,7 +282,8 @@ meta_window_constrain (MetaWindow          *window,
                        MetaMoveResizeFlags  flags,
                        int                  resize_gravity,
                        const MetaRectangle *orig,
-                       MetaRectangle       *new)
+                       MetaRectangle       *new,
+                       MetaRectangle       *intermediate)
 {
   ConstraintInfo info;
   ConstraintPriority priority = PRIORITY_MINIMUM;
@@ -322,18 +314,13 @@ meta_window_constrain (MetaWindow          *window,
      */
     satisfied = do_all_constraints (window, &info, priority, check_only);
 
-    if (info.should_unmanage)
-      {
-        meta_window_unmanage_on_idle (window);
-        return;
-      }
-
     /* Drop the least important constraints if we can't satisfy them all */
     priority++;
   }
 
   /* Make sure we use the constrained position */
   *new = info.current;
+  *intermediate = info.intermediate;
 
   /* We may need to update window->require_fully_onscreen,
    * window->require_on_single_monitor, and perhaps other quantities
@@ -358,6 +345,7 @@ setup_constraint_info (ConstraintInfo      *info,
 
   info->orig    = *orig;
   info->current = *new;
+  info->intermediate = *orig;
 
   if (info->current.width < 1)
     info->current.width = 1;
@@ -436,8 +424,6 @@ setup_constraint_info (ConstraintInfo      *info,
     meta_workspace_get_onscreen_region (cur_workspace);
   info->usable_monitor_region =
     meta_workspace_get_onmonitor_region (cur_workspace, logical_monitor);
-
-  info->should_unmanage = FALSE;
 
   /* Log all this information for debugging */
   meta_topic (META_DEBUG_GEOMETRY,
@@ -807,10 +793,10 @@ constrain_custom_rule (MetaWindow         *window,
   MetaPlacementRule *placement_rule;
   MetaRectangle intersection;
   gboolean constraint_satisfied;
+  MetaRectangle intermediate_rect;
   MetaRectangle adjusted_unconstrained;
   MetaPlacementRule current_rule;
-  MetaWindow *parent;
-  MetaRectangle parent_rect;
+  int parent_x, parent_y;
 
   if (priority > PRIORITY_CUSTOM_RULE)
     return TRUE;
@@ -819,21 +805,32 @@ constrain_custom_rule (MetaWindow         *window,
   if (!placement_rule)
     return TRUE;
 
-  adjusted_unconstrained = info->current;
+  current_rule = *placement_rule;
+  intermediate_rect = info->current;
 
-  parent = meta_window_get_transient_for (window);
-  meta_window_get_frame_rect (parent, &parent_rect);
+  meta_window_get_effective_parent_position (window, &parent_x, &parent_y);
 
   switch (window->placement_state)
     {
     case META_PLACEMENT_STATE_UNCONSTRAINED:
       break;
     case META_PLACEMENT_STATE_CONSTRAINED:
-      adjusted_unconstrained.x =
-        parent_rect.x + window->constrained_placement_rule_offset_x;
-      adjusted_unconstrained.y =
-        parent_rect.y + window->constrained_placement_rule_offset_y;
+    case META_PLACEMENT_STATE_INVALIDATED:
+      intermediate_rect.x =
+        parent_x + window->constrained_placement_rule_offset_x;
+      intermediate_rect.y =
+        parent_y + window->constrained_placement_rule_offset_y;
       break;
+    }
+
+  adjusted_unconstrained = intermediate_rect;
+
+  if (window->placement_state == META_PLACEMENT_STATE_INVALIDATED ||
+      current_rule.is_reactive)
+    {
+      meta_window_process_placement (window, placement_rule,
+                                     &adjusted_unconstrained.x,
+                                     &adjusted_unconstrained.y);
     }
 
   meta_rectangle_intersect (&adjusted_unconstrained, &info->work_area_monitor,
@@ -850,31 +847,17 @@ constrain_custom_rule (MetaWindow         *window,
 
   current_rule = *placement_rule;
 
+  info->current = adjusted_unconstrained;
+  info->intermediate = intermediate_rect;
+
   switch (window->placement_state)
     {
     case META_PLACEMENT_STATE_CONSTRAINED:
-      {
-        MetaRectangle parent_buffer_rect;
-
-        meta_window_get_buffer_rect (parent, &parent_buffer_rect);
-        if (!meta_rectangle_overlap (&adjusted_unconstrained,
-                                     &parent_buffer_rect) &&
-            !meta_rectangle_is_adjacent_to (&adjusted_unconstrained,
-                                            &parent_buffer_rect))
-          {
-            g_warning ("Buggy client caused popup to be placed outside of "
-                       "parent window");
-            info->should_unmanage = TRUE;
-            return TRUE;
-          }
-        else
-          {
-            info->current = adjusted_unconstrained;
-            goto done;
-          }
-        break;
-      }
+      if (!current_rule.is_reactive)
+        goto done;
+      break;
     case META_PLACEMENT_STATE_UNCONSTRAINED:
+    case META_PLACEMENT_STATE_INVALIDATED:
       break;
     }
 
@@ -972,9 +955,6 @@ constrain_custom_rule (MetaWindow         *window,
 
 done:
   window->placement_state = META_PLACEMENT_STATE_CONSTRAINED;
-
-  window->constrained_placement_rule_offset_x = info->current.x - parent_rect.x;
-  window->constrained_placement_rule_offset_y = info->current.y - parent_rect.y;
 
   return TRUE;
 }

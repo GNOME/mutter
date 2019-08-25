@@ -565,6 +565,8 @@ if have_wayland
     'wayland/meta-wayland-versions.h',
     'wayland/meta-wayland-viewporter.c',
     'wayland/meta-wayland-viewporter.h',
+    'wayland/meta-wayland-window-configuration.c',
+    'wayland/meta-wayland-window-configuration.h',
     'wayland/meta-wayland-wl-shell.c',
     'wayland/meta-wayland-wl-shell.h',
     'wayland/meta-wayland-xdg-foreign.c',
