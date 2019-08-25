@@ -741,3 +741,11 @@ meta_get_x11_display_policy (void)
 
   return META_DISPLAY_POLICY_MANDATORY;
 }
+
+void
+meta_test_init (void)
+{
+  meta_override_compositor_configuration (META_COMPOSITOR_TYPE_WAYLAND,
+                                          META_TYPE_BACKEND_X11_NESTED);
+  meta_init ();
+}
