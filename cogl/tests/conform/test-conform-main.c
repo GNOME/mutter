@@ -55,7 +55,7 @@ main (int argc, char **argv)
   ADD_TEST (test_pipeline_user_matrix, 0, 0);
   ADD_TEST (test_blend_strings, 0, 0);
   ADD_TEST (test_blend, 0, 0);
-  ADD_TEST (test_premult, 0, TEST_KNOWN_FAILURE);
+  ADD_TEST (test_premult, 0, 0);
   UNPORTED_TEST (test_readpixels);
   ADD_TEST (test_depth_test, 0, 0);
   ADD_TEST (test_backface_culling, 0, TEST_REQUIREMENT_NPOT);
