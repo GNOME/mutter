@@ -75,4 +75,8 @@ void meta_exit (MetaExitCode code) G_GNUC_NORETURN;
 META_EXPORT
 void meta_quit (MetaExitCode code);
 
+META_EXPORT
+void            meta_test_init               (void);
+
+
 #endif
