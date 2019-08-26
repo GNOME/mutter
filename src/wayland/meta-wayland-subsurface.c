@@ -523,9 +523,7 @@ wl_subcompositor_get_subsurface (struct wl_client   *client,
 
   window_actor = meta_window_actor_wayland_from_surface (surface);
   if (window_actor)
-    {
-      meta_window_actor_wayland_rebuild_surface_tree (window_actor);
-    }
+    meta_window_actor_wayland_rebuild_surface_tree (window_actor);
 
   surface_actor = meta_wayland_surface_get_actor (surface);
   clutter_actor_set_reactive (CLUTTER_ACTOR (surface_actor), TRUE);
