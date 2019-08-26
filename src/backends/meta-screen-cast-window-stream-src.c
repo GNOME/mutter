@@ -34,13 +34,11 @@ struct _MetaScreenCastWindowStreamSrc
 
   MetaScreenCastWindow *screen_cast_window;
 
-  unsigned long screen_cast_window_before_paint_handler_id;
-  unsigned long screen_cast_window_after_paint_handler_id;
+  unsigned long screen_cast_window_damaged_handler_id;
   unsigned long screen_cast_window_destroyed_handler_id;
   unsigned long cursor_moved_handler_id;
   unsigned long cursor_changed_handler_id;
 
-  gboolean actor_was_dirty;
   gboolean cursor_bitmap_invalid;
 };
 
@@ -255,15 +253,10 @@ meta_screen_cast_window_stream_src_stop (MetaScreenCastWindowStreamSrc *window_s
   if (!window_src->screen_cast_window)
     return;
 
-  if (window_src->screen_cast_window_before_paint_handler_id)
+  if (window_src->screen_cast_window_damaged_handler_id)
     g_signal_handler_disconnect (window_src->screen_cast_window,
-                                 window_src->screen_cast_window_before_paint_handler_id);
-  window_src->screen_cast_window_before_paint_handler_id = 0;
-
-  if (window_src->screen_cast_window_after_paint_handler_id)
-    g_signal_handler_disconnect (window_src->screen_cast_window,
-                                 window_src->screen_cast_window_after_paint_handler_id);
-  window_src->screen_cast_window_after_paint_handler_id = 0;
+                                 window_src->screen_cast_window_damaged_handler_id);
+  window_src->screen_cast_window_damaged_handler_id = 0;
 
   if (window_src->screen_cast_window_destroyed_handler_id)
     g_signal_handler_disconnect (window_src->screen_cast_window,
@@ -282,23 +275,12 @@ meta_screen_cast_window_stream_src_stop (MetaScreenCastWindowStreamSrc *window_s
 }
 
 static void
-screen_cast_window_before_paint (MetaScreenCastWindow          *screen_cast_window,
-                                 MetaScreenCastWindowStreamSrc *window_src)
+screen_cast_window_damaged (MetaWindowActor               *actor,
+                            MetaScreenCastWindowStreamSrc *window_src)
 {
-  window_src->actor_was_dirty =
-    meta_screen_cast_window_has_damage (screen_cast_window);
-}
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
 
-static void
-screen_cast_window_after_paint (MetaWindowActor               *actor,
-                                MetaScreenCastWindowStreamSrc *window_src)
-{
-  if (window_src->actor_was_dirty)
-    {
-      MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
-
-      meta_screen_cast_stream_src_maybe_record_frame (src);
-    }
+  meta_screen_cast_stream_src_maybe_record_frame (src);
 }
 
 static void
@@ -378,16 +360,11 @@ meta_screen_cast_window_stream_src_enable (MetaScreenCastStreamSrc *src)
 
   window_src->screen_cast_window = META_SCREEN_CAST_WINDOW (window_actor);
 
-  window_src->screen_cast_window_before_paint_handler_id =
+  window_src->screen_cast_window_damaged_handler_id =
     g_signal_connect (window_src->screen_cast_window,
-                      "paint",
-                      G_CALLBACK (screen_cast_window_before_paint),
+                      "damaged",
+                      G_CALLBACK (screen_cast_window_damaged),
                       window_src);
-  window_src->screen_cast_window_after_paint_handler_id =
-    g_signal_connect_after (window_src->screen_cast_window,
-                            "paint",
-                            G_CALLBACK (screen_cast_window_after_paint),
-                            window_src);
 
   window_src->screen_cast_window_destroyed_handler_id =
     g_signal_connect (window_src->screen_cast_window,
