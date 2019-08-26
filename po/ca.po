@@ -12,7 +12,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity 2.24\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-02-04 17:52+0000\n"
+"POT-Creation-Date: 2019-08-06 00:49+0000\n"
 "PO-Revision-Date: 2018-06-17 10:25+0200\n"
 "Last-Translator: Jordi Mas <jmas@softcatala.org>\n"
 "Language-Team: Catalan <tradgnome@softcatala.org>\n"
@@ -407,22 +407,33 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart."
+"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
+"mutter request a low priority real-time scheduling. The executable or user "
+"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
+"initializes Xwayland lazily if there are X11 clients. Requires restart."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:134
+msgid "Modifier to use to locate the pointer"
+msgstr "Modificar a usar per localitzar el punter"
+
+#: data/org.gnome.mutter.gschema.xml.in:135
+msgid "This key will initiate the “locate pointer” action."
+msgstr "Aquesta clau inicialitzarà l'acció «locate pointer»."
+
+#: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Select window from tab popup"
 msgstr "Selecció de finestra entre les emergents d'una pestanya"
 
-#: data/org.gnome.mutter.gschema.xml.in:146
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid "Cancel tab popup"
 msgstr "Cancel·lació de les finestres emergents a les pestanyes"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Switch monitor configurations"
 msgstr "Canvia configuracions de monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:156
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Rotates the built-in monitor configuration"
 msgstr "Gira la configuració del monitor integrada"
 
@@ -479,23 +490,27 @@ msgid "Re-enable shortcuts"
 msgstr "Torna a habilitar les dreceres"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:64
-msgid "Allow grabs with Xwayland"
-msgstr "Permetre la captura amb Xwayland"
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr "Permetre la captura amb Xwayland per bloquejar el focus del teclat amb Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
 msgid ""
-"Allow keyboard grabs issued by X11 applications running in Xwayland to be "
-"taken into account. For a X11 grab to be taken into account under Wayland, "
-"the client must also either send a specific X11 ClientMessage to the root "
-"window or be among the applications white-listed in key “xwayland-grab-"
-"access-rules”."
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"white-listed in key “xwayland-grab-access-rules”."
 msgstr ""
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:77
+#: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Les aplicacions Xwayland poden capturar el teclat"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:78
+#: data/org.gnome.mutter.wayland.gschema.xml.in:85
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
@@ -512,7 +527,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2423
+#: src/backends/meta-input-settings.c:2531
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Mode de commutació (grup %d)"
@@ -520,34 +535,34 @@ msgstr "Mode de commutació (grup %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2446
+#: src/backends/meta-input-settings.c:2554
 msgid "Switch monitor"
 msgstr "Commuta el monitor"
 
-#: src/backends/meta-input-settings.c:2448
+#: src/backends/meta-input-settings.c:2556
 msgid "Show on-screen help"
 msgstr "Mostra l'ajuda en pantalla"
 
-#: src/backends/meta-monitor-manager.c:954
+#: src/backends/meta-monitor.c:223
 msgid "Built-in display"
 msgstr "Pantalla integrada"
 
-#: src/backends/meta-monitor-manager.c:986
+#: src/backends/meta-monitor.c:252
 msgid "Unknown"
 msgstr "Desconeguda"
 
-#: src/backends/meta-monitor-manager.c:988
+#: src/backends/meta-monitor.c:254
 msgid "Unknown Display"
 msgstr "Pantalla desconeguda"
 
-#: src/backends/meta-monitor-manager.c:996
-#,c-format
+#: src/backends/meta-monitor.c:262
+#, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor-manager.c:1004
+#: src/backends/meta-monitor.c:270
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -555,9 +570,14 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
+#. Translators: this string will appear in Sysprof
+#: src/backends/meta-profiler.c:82
+msgid "Compositor"
+msgstr "Compositor"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:482
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -565,7 +585,7 @@ msgstr ""
 "Ja s'està executant un altre gestor de composició al monitor %i a la "
 "pantalla «%s»."
 
-#: src/core/bell.c:252
+#: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Esdeveniment de campana"
 
@@ -608,7 +628,7 @@ msgstr "Funciona com a compositor imbricat"
 
 #: src/core/main.c:233
 msgid "Run wayland compositor without starting Xwayland"
-msgstr ""
+msgstr "Executa el compositor wayland sense iniciar Xwayland"
 
 #: src/core/main.c:241
 msgid "Run as a full display server, rather than nested"
@@ -619,16 +639,16 @@ msgid "Run with X11 backend"
 msgstr "Executa amb un rerefons X11"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:150
+#: src/core/meta-close-dialog-default.c:151
 #, c-format
 msgid "“%s” is not responding."
 msgstr "«%s» no està responent."
 
-#: src/core/meta-close-dialog-default.c:152
+#: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
 msgstr "L'aplicació no està responent."
 
-#: src/core/meta-close-dialog-default.c:157
+#: src/core/meta-close-dialog-default.c:158
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -636,11 +656,11 @@ msgstr ""
 "Podeu esperar un moment perquè continuï o podeu forçar-ne la sortida "
 "completa."
 
-#: src/core/meta-close-dialog-default.c:164
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Force Quit"
 msgstr "_Força'n la sortida"
 
-#: src/core/meta-close-dialog-default.c:164
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Wait"
 msgstr "_Espera"
 
@@ -668,7 +688,7 @@ msgstr "Escriu versió"
 msgid "Mutter plugin to use"
 msgstr "Connector del Mutter a utilitzar"
 
-#: src/core/prefs.c:1786
+#: src/core/prefs.c:1849
 #, c-format
 msgid "Workspace %d"
 msgstr "Espai de treball %d"
@@ -682,7 +702,7 @@ msgstr "Mutter es va compilar sense compatibilitat per al mode detallat\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Mode de commutació: mode %d"
 
-#: src/x11/meta-x11-display.c:666
+#: src/x11/meta-x11-display.c:671
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -691,20 +711,25 @@ msgstr ""
 "La pantalla «%s» ja té un gestor de finestres; proveu l'opció --replace per "
 "reemplaçar el gestor de finestres actual."
 
-#: src/x11/meta-x11-display.c:1008
+#: src/x11/meta-x11-display.c:1032
 msgid "Failed to initialize GDK\n"
 msgstr "S'ha produït un error en inicialitzar GDK\n"
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1056
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr ""
 "S'ha produït un error en obrir la pantalla del sistema de finestres X «%s»\n"
 
-#: src/x11/meta-x11-display.c:1115
+#: src/x11/meta-x11-display.c:1140
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
-msgstr "El monitor %d en la pantalla '%s' no és vàlida\n"
+msgstr "El monitor %d en la pantalla «%s»' no és vàlida\n"
+
+#: src/x11/meta-x11-selection-input-stream.c:445
+#, c-format
+msgid "Format %s not supported"
+msgstr "El format %s no és compatible"
 
 #: src/x11/session.c:1821
 msgid ""
@@ -714,507 +739,8 @@ msgstr ""
 "Aquestes finestres no implementen «desa la configuració actual» i s'hauran "
 "de reiniciar manualment la pròxima vegada que entreu."
 
-#: src/x11/window-props.c:568
+#: src/x11/window-props.c:569
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (a %s)"
 
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "Mou la finestra un espai de treball a l'esquerra"
-
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "Mou la finestra un espai de treball a la dreta"
-
-#~ msgid "Move to workspace left"
-#~ msgstr "Mou a l'espai de treball de l'esquerra"
-
-#~ msgid "Move to workspace right"
-#~ msgstr "Mou a l'espai de treball de la dreta"
-
-#~ msgid "Toggle shaded state"
-#~ msgstr "Canvia l'estat d'ombrejat"
-
-#~ msgid "Failed to scan themes directory: %s\n"
-#~ msgstr "No s'ha pogut analitzar el directori de temes: %s\n"
-
-#~ msgid ""
-#~ "Could not find a theme! Be sure %s exists and contains the usual themes.\n"
-#~ msgstr ""
-#~ "No s'ha trobat cap tema. Assegureu-vos que %s existeix i conté els temes "
-#~ "habituals.\n"
-
-#~ msgid "Screen %d on display \"%s\" already has a window manager\n"
-#~ msgstr ""
-#~ "La pantalla %d en la visualització «%s» ja té un gestor de finestres\n"
-
-#~ msgid "%d x %d"
-#~ msgstr "%d x %d"
-
-#~ msgid "top"
-#~ msgstr "superior"
-
-#~ msgid "bottom"
-#~ msgstr "inferior"
-
-#~ msgid "left"
-#~ msgstr "esquerra"
-
-#~ msgid "right"
-#~ msgstr "dreta"
-
-#~ msgid "frame geometry does not specify \"%s\" dimension"
-#~ msgstr "la geometria del marc no especifica la dimensió «%s»"
-
-#~ msgid "frame geometry does not specify dimension \"%s\" for border \"%s\""
-#~ msgstr ""
-#~ "la geometria del marc no especifica la dimensió «%s» per al contorn «%s»"
-
-#~ msgid "Button aspect ratio %g is not reasonable"
-#~ msgstr "El ràtio d'aspecte dels botons %g no és raonable"
-
-#~ msgid "Frame geometry does not specify size of buttons"
-#~ msgstr "La geometria del marc no especifica la mida dels botons"
-
-#~ msgid "Gradients should have at least two colors"
-#~ msgstr "Els degradats han de tenir almenys dos colors"
-
-#~ msgid ""
-#~ "GTK custom color specification must have color name and fallback in "
-#~ "parentheses, e.g. gtk:custom(foo,bar); could not parse \"%s\""
-#~ msgstr ""
-#~ "L'especificació personalitzada de color de la GTK ha de tenir un nom de "
-#~ "color i un alternatiu en parèntesis, p.e. gtk:custom(foo,bar); no s'ha "
-#~ "pogut analitzar «%s»"
-
-#~ msgid ""
-#~ "Invalid character '%c' in color_name parameter of gtk:custom, only A-Za-"
-#~ "z0-9-_ are valid"
-#~ msgstr ""
-#~ "El caràcter «%c» no és vàlid en el paràmetre color_name de la GTK:"
-#~ "personalitzat, només són vàlids A-Za-z0-9-_"
-
-#~ msgid ""
-#~ "Gtk:custom format is \"gtk:custom(color_name,fallback)\", \"%s\" does not "
-#~ "fit the format"
-#~ msgstr ""
-#~ "El format de la GTK:personalitzat és «gtk:personalitzat(color_name,"
-#~ "alternatiu)», «%s» no s'ajusta al format"
-
-#~ msgid ""
-#~ "GTK color specification must have the state in brackets, e.g. gtk:"
-#~ "fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
-#~ msgstr ""
-#~ "L'especificació de color GTK ha de tenir l'estat entre claudàtors, p.e. "
-#~ "gtk:fg[NORMAL] on NORMAL és l'estat; no s'ha pogut analitzar \"%s\""
-
-#~ msgid ""
-#~ "GTK color specification must have a close bracket after the state, e.g. "
-#~ "gtk:fg[NORMAL] where NORMAL is the state; could not parse \"%s\""
-#~ msgstr ""
-#~ "L'especificació de color GTK ha de tenir un claudàtor de tancament "
-#~ "després de l'estat, p.e. gtk:fg[NORMAL] on NORMAL és l'estat; no s'ha "
-#~ "pogut analitzar «%s»"
-
-#~ msgid "Did not understand state \"%s\" in color specification"
-#~ msgstr "No s'entén l'estat «%s» en l'especificació del color"
-
-#~ msgid "Did not understand color component \"%s\" in color specification"
-#~ msgstr "No s'entén l'element de color «%s» en l'especificació del color"
-
-#~ msgid ""
-#~ "Blend format is \"blend/bg_color/fg_color/alpha\", \"%s\" does not fit "
-#~ "the format"
-#~ msgstr ""
-#~ "El format de barreja és «blend/bg_color/fg_color/alpha», «%s» no s'ajusta "
-#~ "al format"
-
-#~ msgid "Could not parse alpha value \"%s\" in blended color"
-#~ msgstr ""
-#~ "No s'ha pogut analitzar el valor d'opacitat «%s» en el color barrejat"
-
-#~ msgid "Alpha value \"%s\" in blended color is not between 0.0 and 1.0"
-#~ msgstr "El valor alfa «%s» en el color barrejat no està entre 0,0 i 1,0"
-
-#~ msgid ""
-#~ "Shade format is \"shade/base_color/factor\", \"%s\" does not fit the "
-#~ "format"
-#~ msgstr ""
-#~ "El format d'ombrejat és «shade/base_color/factor», «%s» no s'ajusta al "
-#~ "format"
-
-#~ msgid "Could not parse shade factor \"%s\" in shaded color"
-#~ msgstr ""
-#~ "No s'ha pogut analitzar el factor d'ombrejat «%s» en el color ombrejat"
-
-#~ msgid "Shade factor \"%s\" in shaded color is negative"
-#~ msgstr "El factor d'ombrejat «%s» en el color ombrejat és negatiu"
-
-#~ msgid "Could not parse color \"%s\""
-#~ msgstr "No s'ha pogut analitzar el color «%s»"
-
-#~ msgid "Coordinate expression contains character '%s' which is not allowed"
-#~ msgstr "L'expressió coordinada conté el caràcter '%s', el qual no és permès"
-
-#~ msgid ""
-#~ "Coordinate expression contains floating point number '%s' which could not "
-#~ "be parsed"
-#~ msgstr ""
-#~ "L'expressió coordinada conté el número '%s' de punt flotant el qual no es "
-#~ "pot analitzar"
-
-#~ msgid ""
-#~ "Coordinate expression contains integer '%s' which could not be parsed"
-#~ msgstr ""
-#~ "L'expressió coordinada conté l'enter '%s' el qual no es pot analitzar"
-
-#~ msgid ""
-#~ "Coordinate expression contained unknown operator at the start of this "
-#~ "text: \"%s\""
-#~ msgstr ""
-#~ "L'expressió coordinada conté un operador desconegut a l'inici d'aquest "
-#~ "text: «%s»"
-
-#~ msgid "Coordinate expression was empty or not understood"
-#~ msgstr "L'expressió coordinada estava buida o no s'ha entès"
-
-#~ msgid "Coordinate expression results in division by zero"
-#~ msgstr "L'expressió coordinada dóna una divisió per zero"
-
-#~ msgid ""
-#~ "Coordinate expression tries to use mod operator on a floating-point number"
-#~ msgstr ""
-#~ "L'expressió coordinada intenta utilitzar l'operador de mode en un número "
-#~ "de punt flotant"
-
-#~ msgid ""
-#~ "Coordinate expression has an operator \"%s\" where an operand was expected"
-#~ msgstr ""
-#~ "L'expressió coordinada té un operador «%s» on hi hauria d'anar un operand"
-
-#~ msgid "Coordinate expression had an operand where an operator was expected"
-#~ msgstr ""
-#~ "L'expressió coordinada té un operand on hi hauria d'anar un operador"
-
-#~ msgid "Coordinate expression ended with an operator instead of an operand"
-#~ msgstr ""
-#~ "L'expressió coordinada ha finalitzat amb un operador en lloc d'un operand"
-
-#~ msgid ""
-#~ "Coordinate expression has operator \"%c\" following operator \"%c\" with "
-#~ "no operand in between"
-#~ msgstr ""
-#~ "L'expressió coordinada té un operador «%c» seguit de l'operador «%c» "
-#~ "sense cap operand enmig"
-
-#~ msgid "Coordinate expression had unknown variable or constant \"%s\""
-#~ msgstr "L'expressió coordinada té una variable o constant desconeguda «%s»"
-
-#~ msgid "Coordinate expression parser overflowed its buffer."
-#~ msgstr ""
-#~ "L'analitzador d'expressions de coordinades ha desbordat la seva memòria "
-#~ "intermèdia."
-
-#~ msgid ""
-#~ "Coordinate expression had a close parenthesis with no open parenthesis"
-#~ msgstr ""
-#~ "L'expressió coordinada té un parèntesi de tancament i cap d'obertura"
-
-#~ msgid ""
-#~ "Coordinate expression had an open parenthesis with no close parenthesis"
-#~ msgstr ""
-#~ "L'expressió coordinada té un parèntesi d'obertura i cap de tancament"
-
-#~ msgid "Coordinate expression doesn't seem to have any operators or operands"
-#~ msgstr "L'expressió coordinada no sembla tenir cap operador o operand"
-
-#~ msgid "Theme contained an expression that resulted in an error: %s\n"
-#~ msgstr "El tema conté una expressió que ha provocat un error: %s\n"
-
-#~ msgid ""
-#~ "<button function=\"%s\" state=\"%s\" draw_ops=\"whatever\"/> must be "
-#~ "specified for this frame style"
-#~ msgstr ""
-#~ "<button function=\"%s\" state=\"%s\" draw_ops=\"qualsevol\"/> s'ha "
-#~ "d'especificar per a aquest estil de marc"
-
-#~ msgid ""
-#~ "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/"
-#~ ">"
-#~ msgstr ""
-#~ "No s'ha trobat <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style="
-#~ "\"qualsevol\"/>"
-
-#~ msgid "Failed to load theme \"%s\": %s\n"
-#~ msgstr "No s'ha pogut carregar el tema \"%s\": %s\n"
-
-#~ msgid "No <%s> set for theme \"%s\""
-#~ msgstr "No s'ha definit <%s> per al tema «%s»"
-
-#~ msgid ""
-#~ "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
-#~ "type=\"%s\" style_set=\"whatever\"/> element"
-#~ msgstr ""
-#~ "No s'ha definit cap estil de marc per al tipus de finestra \"%s\" en el "
-#~ "tema \"%s\", afegiu un element <window type=\"%s\" style_set=\"qualsevol"
-#~ "\"/>"
-
-#~ msgid ""
-#~ "User-defined constants must begin with a capital letter; \"%s\" does not"
-#~ msgstr ""
-#~ "Les constants de la definició d'usuari han de començar per una majúscula; "
-#~ "«%s» no ho és"
-
-#~ msgid "Constant \"%s\" has already been defined"
-#~ msgstr "La constant «%s» ja s'ha definit"
-
-#~ msgid "No \"%s\" attribute on element <%s>"
-#~ msgstr "No hi ha cap atribut «%s» a l'element <%s>"
-
-#~ msgid "Line %d character %d: %s"
-#~ msgstr "Línia %d caràcter %d: %s"
-
-#~ msgid "Attribute \"%s\" repeated twice on the same <%s> element"
-#~ msgstr "S'ha repetit l'atribut «%s» dues vegades en el mateix element <%s>"
-
-#~ msgid "Attribute \"%s\" is invalid on <%s> element in this context"
-#~ msgstr "L'atribut «%s» no és vàlid per a l'element <%s> en aquest context"
-
-#~ msgid "Could not parse \"%s\" as an integer"
-#~ msgstr "No s'ha pogut analitzar «%s» com a enter"
-
-#~ msgid "Did not understand trailing characters \"%s\" in string \"%s\""
-#~ msgstr "No s'entenen els caràcters finals «%s» de la cadena «%s»"
-
-#~ msgid "Integer %ld must be positive"
-#~ msgstr "L'enter %ld ha de ser positiu"
-
-#~ msgid "Integer %ld is too large, current max is %d"
-#~ msgstr "L'enter %ld és massa gran, el màxim actual és %d"
-
-#~ msgid "Could not parse \"%s\" as a floating point number"
-#~ msgstr "No s'ha pogut analitzar «%s» com a un número de coma flotant"
-
-#~ msgid "Boolean values must be \"true\" or \"false\" not \"%s\""
-#~ msgstr ""
-#~ "Els valors booleans han de ser «true» (cert) o «false» (fals), no «%s»"
-
-#~ msgid "Angle must be between 0.0 and 360.0, was %g\n"
-#~ msgstr "L'angle ha d'estar entre 0.0 i 360.0, era %g\n"
-
-#~ msgid ""
-#~ "Alpha must be between 0.0 (invisible) and 1.0 (fully opaque), was %g\n"
-#~ msgstr ""
-#~ "L'opacitat ha d'estar entre 0.0 (invisible) i 1.0 (totalment opac), era a "
-#~ "%g\n"
-
-#~ msgid ""
-#~ "Invalid title scale \"%s\" (must be one of xx-small,x-small,small,medium,"
-#~ "large,x-large,xx-large)\n"
-#~ msgstr ""
-#~ "Escala de títol no vàlida «%s» (ha de ser una d'aquestes: xx-small, x-"
-#~ "small, small, medium, large, x-large o xx-large)\n"
-
-#~ msgid "<%s> name \"%s\" used a second time"
-#~ msgstr "<%s> amb nom «%s» s'ha utilitzat dues vegades"
-
-#~ msgid "<%s> parent \"%s\" has not been defined"
-#~ msgstr "el pare de <%s>, «%s», no s'ha definit"
-
-#~ msgid "<%s> geometry \"%s\" has not been defined"
-#~ msgstr "la geometria de <%s>, «%s», no s'ha definit"
-
-#~ msgid "<%s> must specify either a geometry or a parent that has a geometry"
-#~ msgstr ""
-#~ "<%s> ha d'especificar bé una geometria o un pare que tingui una geometria"
-
-#~ msgid "You must specify a background for an alpha value to be meaningful"
-#~ msgstr "El valor alfa requereix que també s'especifiqui un fons de pantalla"
-
-#~ msgid "Unknown type \"%s\" on <%s> element"
-#~ msgstr "Tipus desconegut «%s» en l'element <%s>"
-
-#~ msgid "Unknown style_set \"%s\" on <%s> element"
-#~ msgstr "style_set «%s» desconegut en l'element <%s>"
-
-#~ msgid "Window type \"%s\" has already been assigned a style set"
-#~ msgstr "El tipus de finestra «%s» ja té assignat un joc d'estil"
-
-#~ msgid "Element <%s> is not allowed below <%s>"
-#~ msgstr "No es permet l'element <%s> sota <%s>"
-
-#~ msgid ""
-#~ "Cannot specify both \"button_width\"/\"button_height\" and \"aspect_ratio"
-#~ "\" for buttons"
-#~ msgstr ""
-#~ "No es pot especificar «button_width»/«button_height» i l'«aspect_ratio» a "
-#~ "la vegada per als botons"
-
-#~ msgid "Distance \"%s\" is unknown"
-#~ msgstr "La distància «%s» és desconeguda"
-
-#~ msgid "Aspect ratio \"%s\" is unknown"
-#~ msgstr "La relació d'aspecte «%s» és desconeguda"
-
-#~ msgid "Border \"%s\" is unknown"
-#~ msgstr "El contorn «%s» és desconegut"
-
-#~ msgid "No \"start_angle\" or \"from\" attribute on element <%s>"
-#~ msgstr "No hi ha cap atribut de «start_angle» o «from» en l'element <%s>"
-
-#~ msgid "No \"extent_angle\" or \"to\" attribute on element <%s>"
-#~ msgstr "No hi ha cap atribut de «extent_angle» o «to» en l'element <%s>"
-
-#~ msgid "Did not understand value \"%s\" for type of gradient"
-#~ msgstr "No s'entén el valor «%s» per al tipus de degradat"
-
-#~ msgid "Did not understand fill type \"%s\" for <%s> element"
-#~ msgstr "No s'entén el tipus de farciment «%s» per a l'element <%s>"
-
-#~ msgid "Did not understand state \"%s\" for <%s> element"
-#~ msgstr "No s'entén l'estat «%s» per a l'element <%s>"
-
-#~ msgid "Did not understand shadow \"%s\" for <%s> element"
-#~ msgstr "No s'entén l'ombra «%s» per a l'element <%s>"
-
-#~ msgid "Did not understand arrow \"%s\" for <%s> element"
-#~ msgstr "No s'entén la fletxa «%s» per a l'element <%s>"
-
-#~ msgid "No <draw_ops> called \"%s\" has been defined"
-#~ msgstr "No s'ha definit cap <draw_ops> amb el nom «%s»"
-
-#~ msgid "Including draw_ops \"%s\" here would create a circular reference"
-#~ msgstr "La inclusió de draw_ops «%s» aquí crearà una referència circular"
-
-#~ msgid "Unknown position \"%s\" for frame piece"
-#~ msgstr "Posició «%s» desconeguda per a la peça del marc"
-
-#~ msgid "Frame style already has a piece at position %s"
-#~ msgstr "L'estil del marc ja té una peça a posició %s"
-
-#~ msgid "No <draw_ops> with the name \"%s\" has been defined"
-#~ msgstr "No s'ha definit cap <draw_ops> amb el nom «%s»"
-
-#~ msgid "Unknown function \"%s\" for button"
-#~ msgstr "Funció «%s» desconeguda per al botó"
-
-#~ msgid "Button function \"%s\" does not exist in this version (%d, need %d)"
-#~ msgstr ""
-#~ "La funció de botó «%s» no existeix en aquesta versió (%d, es necessita %d)"
-
-#~ msgid "Unknown state \"%s\" for button"
-#~ msgstr "Estat «%s» desconegut per al botó"
-
-#~ msgid "Frame style already has a button for function %s state %s"
-#~ msgstr "L'estil del marc ja té un botó per a l'estat %s de la funció %s"
-
-#~ msgid "\"%s\" is not a valid value for focus attribute"
-#~ msgstr "«%s» no és un valor vàlid per a l'atribut del focus"
-
-#~ msgid "\"%s\" is not a valid value for state attribute"
-#~ msgstr "«%s» no és un valor vàlid per a l'atribut de l'estat"
-
-#~ msgid "A style called \"%s\" has not been defined"
-#~ msgstr "No s'ha definit un estil amb el nom «%s»"
-
-#~ msgid "\"%s\" is not a valid value for resize attribute"
-#~ msgstr "«%s» no és un valor vàlid per a l'atribut de redimensiona"
-
-#~ msgid ""
-#~ "Should not have \"resize\" attribute on <%s> element for maximized/shaded "
-#~ "states"
-#~ msgstr ""
-#~ "No hauria de tenir l'atribut «resize» en l'element <%s> per als estats "
-#~ "maximitzat/ombrejat"
-
-#~ msgid ""
-#~ "Should not have \"resize\" attribute on <%s> element for maximized states"
-#~ msgstr ""
-#~ "No hauria de tenir l'atribut «resize» en l'element <%s> per als estats "
-#~ "maximitzats"
-
-#~ msgid "Style has already been specified for state %s resize %s focus %s"
-#~ msgstr ""
-#~ "L'estil ja s'ha especificat per a l'estat %s redimensiona %s focus %s"
-
-#~ msgid "Style has already been specified for state %s focus %s"
-#~ msgstr "L'estil ja s'ha especificat per a l'estat %s focus %s"
-
-#~ msgid ""
-#~ "Can't have a two draw_ops for a <piece> element (theme specified a "
-#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
-#~ "elements)"
-#~ msgstr ""
-#~ "No es poden tenir dos draw_ops per a un element <piece> (el tema ha "
-#~ "especificat un atribut draw_ops i també un element <draw_ops>, o ha "
-#~ "especificat ambdós elements) "
-
-#~ msgid ""
-#~ "Can't have a two draw_ops for a <button> element (theme specified a "
-#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
-#~ "elements)"
-#~ msgstr ""
-#~ "No es poden tenir dos draw_ops per a un element <button> (el tema ha "
-#~ "especificat un atribut draw_ops i també un element <draw_ops>, o ha "
-#~ "especificat ambdós elements)"
-
-#~ msgid ""
-#~ "Can't have a two draw_ops for a <menu_icon> element (theme specified a "
-#~ "draw_ops attribute and also a <draw_ops> element, or specified two "
-#~ "elements)"
-#~ msgstr ""
-#~ "No es poden tenir dos draw_ops per a un element <menu_icon> (el tema ha "
-#~ "especificat un atribut draw_ops i també un element <draw_ops>, o ha "
-#~ "especificat ambdós elements)"
-
-#~ msgid "Bad version specification '%s'"
-#~ msgstr "Especificació de versió errònia («%s»)"
-
-#~ msgid ""
-#~ "\"version\" attribute cannot be used in metacity-theme-1.xml or metacity-"
-#~ "theme-2.xml"
-#~ msgstr ""
-#~ "L'atribut «version» no es pot utilitzat als fitxers metacity-theme-1.xml "
-#~ "o metacity-theme-2.xml"
-
-#~ msgid ""
-#~ "Theme requires version %s but latest supported theme version is %d.%d"
-#~ msgstr ""
-#~ "El tema requereix la versió %s, però la darrera versió compatible del "
-#~ "tema és la %d.%d"
-
-#~ msgid "Outermost element in theme must be <metacity_theme> not <%s>"
-#~ msgstr "L'element més extern en el tema ha de ser <metacity_theme>, no <%s>"
-
-#~ msgid ""
-#~ "Element <%s> is not allowed inside a name/author/date/description element"
-#~ msgstr ""
-#~ "L'element <%s> no és permès dins d'un element name/author/date/description"
-
-#~ msgid "Element <%s> is not allowed inside a <constant> element"
-#~ msgstr "L'element <%s> no és permès dins d'un element <constant>"
-
-#~ msgid ""
-#~ "Element <%s> is not allowed inside a distance/border/aspect_ratio element"
-#~ msgstr ""
-#~ "L'element <%s> no és permès dins d'un element distance/border/aspect_ratio"
-
-#~ msgid "Element <%s> is not allowed inside a draw operation element"
-#~ msgstr "L'element <%s> no és permès dins d'un element d'operació igual"
-
-#~ msgid "Element <%s> is not allowed inside a <%s> element"
-#~ msgstr "L'element <%s> no és permès dins d'un element <%s>"
-
-#~ msgid "No draw_ops provided for frame piece"
-#~ msgstr "No s'ha proveït cap draw_ops per a la peça del marc"
-
-#~ msgid "No draw_ops provided for button"
-#~ msgstr "No s'ha proveït cap draw_ops per al botó"
-
-#~ msgid "No text is allowed inside element <%s>"
-#~ msgstr "No es permet cap text dins de l'element <%s>"
-
-#~ msgid "<%s> specified twice for this theme"
-#~ msgstr "S'ha especificat <%s> dues vegades per a aquest tema"
-
-#~ msgid "Failed to find a valid file for theme %s\n"
-#~ msgstr "No s'ha trobat un fitxer vàlid per al tema %s\n"
