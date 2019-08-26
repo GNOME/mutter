@@ -674,8 +674,8 @@ meta_pointer_confinement_wayland_maybe_warp (MetaPointerConfinementWayland *self
 }
 
 static void
-surface_actor_geometry_changed (MetaSurfaceActorWayland       *surface_actor,
-                                MetaPointerConfinementWayland *self)
+surface_geometry_changed (MetaWaylandSurface            *surface,
+                          MetaPointerConfinementWayland *self)
 {
   meta_pointer_confinement_wayland_maybe_warp (self);
 }
@@ -700,9 +700,9 @@ meta_pointer_confinement_wayland_new (MetaWaylandPointerConstraint *constraint)
   confinement->constraint = constraint;
 
   surface = meta_wayland_pointer_constraint_get_surface (constraint);
-  g_signal_connect_object (meta_wayland_surface_get_actor (surface),
+  g_signal_connect_object (surface,
                            "geometry-changed",
-                           G_CALLBACK (surface_actor_geometry_changed),
+                           G_CALLBACK (surface_geometry_changed),
                            confinement,
                            0);
   if (surface->window)
