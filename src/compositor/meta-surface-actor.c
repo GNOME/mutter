@@ -202,6 +202,7 @@ meta_surface_actor_dispose (GObject *object)
     meta_surface_actor_get_instance_private (self);
 
   g_clear_pointer (&priv->input_region, cairo_region_destroy);
+  g_clear_object (&priv->texture);
 
   set_unobscured_region (self, NULL);
   set_clip_region (self, NULL);
