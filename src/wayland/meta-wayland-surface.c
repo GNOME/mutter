@@ -668,6 +668,8 @@ void
 meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
                                           MetaWaylandPendingState *pending)
 {
+  gboolean had_damage;
+
   if (surface->role)
     {
       meta_wayland_surface_role_pre_commit (surface->role, pending);
@@ -774,9 +776,17 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
 
   if (!cairo_region_is_empty (pending->surface_damage) ||
       !cairo_region_is_empty (pending->buffer_damage))
-    surface_process_damage (surface,
-                            pending->surface_damage,
-                            pending->buffer_damage);
+    {
+
+      surface_process_damage (surface,
+                              pending->surface_damage,
+                              pending->buffer_damage);
+      had_damage = TRUE;
+    }
+  else
+    {
+      had_damage = FALSE;
+    }
 
   surface->offset_x += pending->dx;
   surface->offset_y += pending->dy;
@@ -837,6 +847,22 @@ cleanup:
   pending_state_reset (pending);
 
   g_list_foreach (surface->subsurfaces, parent_surface_state_applied, NULL);
+
+  if (had_damage)
+    {
+      MetaWindow *toplevel_window;
+
+      toplevel_window = meta_wayland_surface_get_toplevel_window (surface);
+      if (toplevel_window)
+        {
+          MetaWindowActor *toplevel_window_actor;
+
+          toplevel_window_actor =
+            meta_window_actor_from_window (toplevel_window);
+          if (toplevel_window_actor)
+            meta_window_actor_notify_damaged (toplevel_window_actor);
+        }
+    }
 }
 
 static void

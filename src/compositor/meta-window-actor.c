@@ -115,6 +115,7 @@ enum
 {
   FIRST_FRAME,
   EFFECTS_COMPLETED,
+  DAMAGED,
 
   LAST_SIGNAL
 };
@@ -213,6 +214,20 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
    */
   signals[EFFECTS_COMPLETED] =
     g_signal_new ("effects-completed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
+  /**
+   * MetaWindowActor::damaged:
+   * @actor: the #MetaWindowActor instance
+   *
+   * Notify that one or more of the surfaces of the window have been damaged.
+   */
+  signals[DAMAGED] =
+    g_signal_new ("damaged",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0,
@@ -1499,6 +1514,8 @@ meta_window_actor_process_x11_damage (MetaWindowActor    *self,
                                        event->area.y,
                                        event->area.width,
                                        event->area.height);
+
+  meta_window_actor_notify_damaged (self);
 }
 
 void
@@ -2111,4 +2128,10 @@ meta_window_actor_from_actor (ClutterActor *actor)
   while (actor != NULL);
 
   return NULL;
+}
+
+void
+meta_window_actor_notify_damaged (MetaWindowActor *window_actor)
+{
+  g_signal_emit (window_actor, signals[DAMAGED], 0);
 }
