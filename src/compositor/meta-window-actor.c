@@ -2047,8 +2047,6 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
                                 uint8_t              *data)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (window_actor);
   cairo_surface_t *image;
   uint8_t *cr_data;
   int cr_stride;
@@ -2059,7 +2057,7 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
   if (meta_window_actor_is_destroyed (window_actor))
     return;
 
-  image = meta_surface_actor_get_image (priv->surface, bounds);
+  image = meta_window_actor_get_image (window_actor, bounds);
   cr_data = cairo_image_surface_get_data (image);
   cr_width = cairo_image_surface_get_width (image);
   cr_height = cairo_image_surface_get_height (image);
