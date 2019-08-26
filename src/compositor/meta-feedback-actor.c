@@ -40,10 +40,10 @@ typedef struct _MetaFeedbackActorPrivate MetaFeedbackActorPrivate;
 
 struct _MetaFeedbackActorPrivate
 {
-  int anchor_x;
-  int anchor_y;
-  int pos_x;
-  int pos_y;
+  float anchor_x;
+  float anchor_y;
+  float pos_x;
+  float pos_y;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaFeedbackActor, meta_feedback_actor, CLUTTER_TYPE_ACTOR)
@@ -106,10 +106,10 @@ meta_feedback_actor_get_property (GObject      *object,
   switch (prop_id)
     {
     case PROP_ANCHOR_X:
-      g_value_set_int (value, priv->anchor_x);
+      g_value_set_float (value, priv->anchor_x);
       break;
     case PROP_ANCHOR_Y:
-      g_value_set_int (value, priv->anchor_y);
+      g_value_set_float (value, priv->anchor_y);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -127,21 +127,21 @@ meta_feedback_actor_class_init (MetaFeedbackActorClass *klass)
   object_class->set_property = meta_feedback_actor_set_property;
   object_class->get_property = meta_feedback_actor_get_property;
 
-  pspec = g_param_spec_int ("anchor-x",
-                            "Anchor X",
-                            "The X axis of the anchor point",
-                            0, G_MAXINT, 0,
-                            G_PARAM_READWRITE);
+  pspec = g_param_spec_float ("anchor-x",
+                              "Anchor X",
+                              "The X axis of the anchor point",
+                              0, G_MAXFLOAT, 0,
+                              G_PARAM_READWRITE);
 
   g_object_class_install_property (object_class,
                                    PROP_ANCHOR_X,
                                    pspec);
 
-  pspec = g_param_spec_int ("anchor-y",
-                            "Anchor Y",
-                            "The Y axis of the anchor point",
-                            0, G_MAXINT, 0,
-                            G_PARAM_READWRITE);
+  pspec = g_param_spec_float ("anchor-y",
+                              "Anchor Y",
+                              "The Y axis of the anchor point",
+                              0, G_MAXFLOAT, 0,
+                              G_PARAM_READWRITE);
 
   g_object_class_install_property (object_class,
                                    PROP_ANCHOR_Y,
@@ -162,8 +162,8 @@ meta_feedback_actor_init (MetaFeedbackActor *self)
  * Return value: the newly created background actor
  */
 ClutterActor *
-meta_feedback_actor_new (int anchor_x,
-                         int anchor_y)
+meta_feedback_actor_new (float anchor_x,
+                         float anchor_y)
 {
   MetaFeedbackActor *self;
 
@@ -177,8 +177,8 @@ meta_feedback_actor_new (int anchor_x,
 
 void
 meta_feedback_actor_set_anchor (MetaFeedbackActor *self,
-                                int                anchor_x,
-                                int                anchor_y)
+                                float              anchor_x,
+                                float              anchor_y)
 {
   MetaFeedbackActorPrivate *priv;
 
@@ -206,8 +206,8 @@ meta_feedback_actor_set_anchor (MetaFeedbackActor *self,
 
 void
 meta_feedback_actor_get_anchor (MetaFeedbackActor *self,
-                                int               *anchor_x,
-                                int               *anchor_y)
+                                float             *anchor_x,
+                                float             *anchor_y)
 {
   MetaFeedbackActorPrivate *priv;
 
@@ -223,8 +223,8 @@ meta_feedback_actor_get_anchor (MetaFeedbackActor *self,
 
 void
 meta_feedback_actor_set_position (MetaFeedbackActor  *self,
-                                  int                 x,
-                                  int                 y)
+                                  float               x,
+                                  float               y)
 {
   MetaFeedbackActorPrivate *priv;
 
