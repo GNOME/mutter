@@ -1132,16 +1132,18 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   if (!clip)
     {
       fallback_clip = (cairo_rectangle_int_t) {
-        .width = stex->dst_width,
-        .height = stex->dst_height,
+        .width = stex->dst_width * stex->buffer_scale,
+        .height = stex->dst_height * stex->buffer_scale,
       };
       clip = &fallback_clip;
     }
 
   image_texture =
     COGL_TEXTURE (cogl_texture_2d_new_with_size (cogl_context,
-                                                 stex->dst_width,
-                                                 stex->dst_height));
+                                                 stex->dst_width *
+                                                 stex->buffer_scale,
+                                                 stex->dst_height *
+                                                 stex->buffer_scale));
   cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (image_texture),
                                           FALSE);
   if (!cogl_texture_allocate (COGL_TEXTURE (image_texture), &error))
@@ -1164,11 +1166,11 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   cogl_framebuffer_push_matrix (fb);
   cogl_matrix_init_identity (&projection_matrix);
   cogl_matrix_scale (&projection_matrix,
-                     1.0 / (stex->dst_width / 2.0),
-                     -1.0 / (stex->dst_height / 2.0), 0);
+                     1.0 / (stex->dst_width * stex->buffer_scale / 2.0),
+                     -1.0 / (stex->dst_height * stex->buffer_scale / 2.0), 0);
   cogl_matrix_translate (&projection_matrix,
-                         -(stex->dst_width / 2.0),
-                         -(stex->dst_height / 2.0), 0);
+                         -(stex->dst_width * stex->buffer_scale / 2.0),
+                         -(stex->dst_height * stex->buffer_scale / 2.0), 0);
 
   cogl_framebuffer_set_projection_matrix (fb, &projection_matrix);
 
@@ -1180,8 +1182,9 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   do_paint_content (stex, root_node,
                     stex->texture,
                     &(ClutterActorBox) {
-                      clip->x, clip->y,
-                      clip->width, clip->height,
+                      0, 0,
+                      stex->dst_width * stex->buffer_scale,
+                      stex->dst_height * stex->buffer_scale,
                     },
                     255);
 
@@ -1241,13 +1244,20 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
 
       transformed_clip = alloca (sizeof (cairo_rectangle_int_t));
 
-      meta_rectangle_scale_double (clip, stex->buffer_scale,
-                                   META_ROUNDING_STRATEGY_GROW,
-                                   transformed_clip);
+      if (meta_is_stage_views_scaled ())
+        {
+          meta_rectangle_scale_double (clip, stex->buffer_scale,
+                                       META_ROUNDING_STRATEGY_GROW,
+                                       transformed_clip);
+        }
+      else
+        {
+          *transformed_clip = *clip;
+        }
 
       dst_rect = (cairo_rectangle_int_t) {
-        .width = stex->dst_width,
-        .height = stex->dst_height,
+        .width = stex->dst_width * stex->buffer_scale,
+        .height = stex->dst_height * stex->buffer_scale,
       };
 
       if (!meta_rectangle_intersect (&dst_rect, transformed_clip,
