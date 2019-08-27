@@ -59,6 +59,7 @@
 #include "backends/native/meta-monitor-manager-kms.h"
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-stage-native.h"
+#include "cogl/cogl-trace.h"
 #include "core/meta-border.h"
 #include "meta/main.h"
 
@@ -799,6 +800,9 @@ meta_backend_native_pause (MetaBackendNative *native)
   MetaMonitorManagerKms *monitor_manager_kms =
     META_MONITOR_MANAGER_KMS (monitor_manager);
 
+  COGL_TRACE_BEGIN_SCOPED (MetaBackendNativePause,
+                           "Backend (pause)");
+
   meta_device_manager_native_release_devices ();
   clutter_stage_freeze_updates (stage);
 
@@ -817,6 +821,9 @@ void meta_backend_native_resume (MetaBackendNative *native)
     META_MONITOR_MANAGER_KMS (monitor_manager);
   MetaInputSettings *input_settings;
   MetaIdleMonitor *idle_monitor;
+
+  COGL_TRACE_BEGIN_SCOPED (MetaBackendNativeResume,
+                           "Backend (resume)");
 
   meta_monitor_manager_kms_resume (monitor_manager_kms);
 
