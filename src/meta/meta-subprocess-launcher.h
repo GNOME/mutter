@@ -22,6 +22,7 @@
 
 #include <glib-object.h>
 #include <gio/gio.h>
+#include <meta/meta-window-actor.h>
 
 typedef enum {
     META_SUBPROCESS_LAUNCHER_ERROR_ALREADY_LAUNCHED,

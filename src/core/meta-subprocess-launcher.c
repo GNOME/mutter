@@ -52,10 +52,12 @@
 
 struct _MetaSubprocessLauncher {
     GObject parent_instance;
+
     GSubprocessLauncher *launcher;
     GSubprocess *subprocess;
+    GCancellable *died_cancellable;
     GSubprocessFlags flags;
-
+    gboolean process_running;
     struct wl_client *wayland_client;
 };
 
@@ -81,6 +83,8 @@ static void
 meta_subprocess_launcher_dispose (GObject *gobject)
 {
     MetaSubprocessLauncher *self = META_SUBPROCESS_LAUNCHER(gobject);
+    g_cancellable_cancel (self->died_cancellable);
+    g_clear_object (&self->died_cancellable);
     g_clear_object(&self->launcher);
     g_clear_object(&self->subprocess);
     G_OBJECT_CLASS (meta_subprocess_launcher_parent_class)->dispose (gobject);
@@ -189,8 +193,22 @@ meta_subprocess_launcher_init (MetaSubprocessLauncher *self)
     self->launcher = NULL;
     self->subprocess = NULL;
     self->flags = 0;
+    self->died_cancellable = NULL;
+    self->process_running = FALSE;
 
     self->wayland_client = NULL;
+}
+
+static void
+process_died (GObject      *source,
+              GAsyncResult *result,
+              gpointer      user_data)
+{
+    MetaSubprocessLauncher *self = META_SUBPROCESS_LAUNCHER(user_data);
+    //GSubprocess *proc = G_SUBPROCESS (source);
+    //g_autoptr (GError) error = NULL;
+
+    self->process_running = FALSE;
 }
 
 /**
@@ -262,11 +280,18 @@ meta_subprocess_launcher_spawnv (MetaSubprocessLauncher *self,
     }
 #endif
     self->subprocess = g_subprocess_launcher_spawnv(self->launcher, argv, error);
-    if (self->subprocess)
+    if (self->subprocess) {
+        self->process_running = TRUE;
         g_object_ref(self->subprocess);
+        self->died_cancellable = g_cancellable_new ();
+        g_subprocess_wait_async (self->subprocess, self->died_cancellable,
+                                 process_died, self);
+    }
 #ifdef HAVE_WAYLAND
     else
+    {
         self->wayland_client = NULL;
+    }
 #endif
     return (self->subprocess);
 }
@@ -348,6 +373,13 @@ meta_subprocess_launcher_query_window_belongs_to(MetaSubprocessLauncher  *self,
                      "No process was launched.");
         return FALSE;
     }
+    if (!self->process_running) {
+        g_set_error (error,
+                     META_SUBPROCESS_LAUNCHER_ERROR,
+                     META_SUBPROCESS_LAUNCHER_ERROR_SUBPROCESS_DIED,
+                     "The process id dead.");
+        return FALSE;
+    }
     MetaWaylandSurface *surface = window->surface;
     if (surface == NULL) {
         g_set_error (error,
@@ -356,7 +388,7 @@ meta_subprocess_launcher_query_window_belongs_to(MetaSubprocessLauncher  *self,
                      "This isn't a Wayland window.");
         return FALSE;
     }
-    return wl_resource_get_client (surface->resource) == self->wayland_client;
+    return (wl_resource_get_client (surface->resource) == self->wayland_client);
 #else
     // If Wayland support isn't compiled, trigger an exception
     g_set_error (error,
