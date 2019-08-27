@@ -61,6 +61,7 @@
 #include "backends/x11/meta-event-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
+#include "cogl/cogl-trace.h"
 #include "compositor/meta-window-actor-x11.h"
 #include "compositor/meta-window-actor-wayland.h"
 #include "compositor/meta-window-actor-private.h"
@@ -1080,6 +1081,8 @@ meta_compositor_real_pre_paint (MetaCompositor *compositor)
 static void
 meta_compositor_pre_paint (MetaCompositor *compositor)
 {
+  COGL_TRACE_BEGIN_SCOPED (MetaCompositorPrePaint,
+                           "MetaCompositorPrePaint");
   META_COMPOSITOR_GET_CLASS (compositor)->pre_paint (compositor);
 }
 
@@ -1127,6 +1130,8 @@ meta_compositor_real_post_paint (MetaCompositor *compositor)
 static void
 meta_compositor_post_paint (MetaCompositor *compositor)
 {
+  COGL_TRACE_BEGIN_SCOPED (MetaCompositorPostPaint,
+                           "MetaCompositorPostPaint");
   META_COMPOSITOR_GET_CLASS (compositor)->post_paint (compositor);
 }
 
