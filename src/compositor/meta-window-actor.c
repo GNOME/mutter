@@ -115,6 +115,7 @@ enum
 {
   FIRST_FRAME,
   EFFECTS_COMPLETED,
+  DAMAGED,
 
   LAST_SIGNAL
 };
@@ -213,6 +214,20 @@ meta_window_actor_class_init (MetaWindowActorClass *klass)
    */
   signals[EFFECTS_COMPLETED] =
     g_signal_new ("effects-completed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
+  /**
+   * MetaWindowActor::damaged:
+   * @actor: the #MetaWindowActor instance
+   *
+   * Notify that one or more of the surfaces of the window have been damaged.
+   */
+  signals[DAMAGED] =
+    g_signal_new ("damaged",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0,
@@ -1498,6 +1513,8 @@ meta_window_actor_process_x11_damage (MetaWindowActor    *self,
                                        event->area.y,
                                        event->area.width,
                                        event->area.height);
+
+  meta_window_actor_notify_damaged (self);
 }
 
 void
@@ -2030,8 +2047,6 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
                                 uint8_t              *data)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (window_actor);
   cairo_surface_t *image;
   uint8_t *cr_data;
   int cr_stride;
@@ -2042,7 +2057,7 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
   if (meta_window_actor_is_destroyed (window_actor))
     return;
 
-  image = meta_surface_actor_get_image (priv->surface, bounds);
+  image = meta_window_actor_get_image (window_actor, bounds);
   cr_data = cairo_image_surface_get_data (image);
   cr_width = cairo_image_surface_get_width (image);
   cr_height = cairo_image_surface_get_height (image);
@@ -2110,4 +2125,123 @@ meta_window_actor_from_actor (ClutterActor *actor)
   while (actor != NULL);
 
   return NULL;
+}
+
+void
+meta_window_actor_notify_damaged (MetaWindowActor *window_actor)
+{
+  g_signal_emit (window_actor, signals[DAMAGED], 0);
+}
+
+cairo_surface_t *
+meta_window_actor_get_image (MetaWindowActor *self,
+                             MetaRectangle   *clip)
+{
+  MetaWindowActorPrivate *priv = meta_window_actor_get_instance_private (self);
+  ClutterActor *actor = CLUTTER_ACTOR (self);
+  MetaBackend *backend = meta_get_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  float resource_scale;
+  float width, height;
+  CoglTexture2D *texture;
+  g_autoptr (GError) error = NULL;
+  CoglOffscreen *offscreen;
+  CoglFramebuffer *framebuffer;
+  CoglColor clear_color;
+  float x, y;
+  MetaRectangle scaled_clip;
+  cairo_surface_t *surface;
+
+  if (!priv->surface)
+    return NULL;
+
+  if (clutter_actor_get_n_children (actor) == 1)
+    {
+      MetaShapedTexture *stex;
+
+      stex = meta_surface_actor_get_texture (priv->surface);
+      return meta_shaped_texture_get_image (stex, clip);
+    }
+
+  clutter_actor_get_size (actor, &width, &height);
+
+  if (width == 0 || height == 0)
+    return NULL;
+
+  if (!clutter_actor_get_resource_scale (actor, &resource_scale))
+    return NULL;
+
+  width = ceilf (width * resource_scale);
+  height = ceilf (height * resource_scale);
+
+  texture = cogl_texture_2d_new_with_size (cogl_context, width, height);
+  if (!texture)
+    return NULL;
+
+  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (texture),
+                                          FALSE);
+
+  offscreen = cogl_offscreen_new_with_texture (COGL_TEXTURE (texture));
+  framebuffer = COGL_FRAMEBUFFER (offscreen);
+
+  cogl_object_unref (texture);
+
+  if (!cogl_framebuffer_allocate (framebuffer, &error))
+    {
+      g_warning ("Failed to allocate framebuffer for screenshot: %s",
+                 error->message);
+      cogl_object_unref (framebuffer);
+      cogl_object_unref (texture);
+      return NULL;
+    }
+
+  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  clutter_actor_get_position (actor, &x, &y);
+
+  cogl_push_framebuffer (framebuffer);
+
+  cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
+  cogl_framebuffer_orthographic (framebuffer, 0, 0, width, height, 0, 1.0);
+  cogl_framebuffer_scale (framebuffer, resource_scale, resource_scale, 1);
+  cogl_framebuffer_translate (framebuffer, -x, -y, 0);
+
+  clutter_actor_paint (actor);
+
+  cogl_pop_framebuffer ();
+
+  if (clip)
+    {
+      meta_rectangle_scale_double (clip, resource_scale,
+                                   META_ROUNDING_STRATEGY_GROW,
+                                   &scaled_clip);
+      meta_rectangle_intersect (&scaled_clip,
+                                &(MetaRectangle) {
+                                  .width = width,
+                                  .height = height,
+                                },
+                                &scaled_clip);
+    }
+  else
+    {
+      scaled_clip = (MetaRectangle) {
+        .width = width,
+        .height = height,
+      };
+    }
+
+  surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
+                                        scaled_clip.width, scaled_clip.height);
+  cogl_framebuffer_read_pixels (framebuffer,
+                                scaled_clip.x, scaled_clip.y,
+                                scaled_clip.width, scaled_clip.height,
+                                CLUTTER_CAIRO_FORMAT_ARGB32,
+                                cairo_image_surface_get_data (surface));
+
+  cogl_object_unref (framebuffer);
+
+  cairo_surface_mark_dirty (surface);
+
+  return surface;
 }
