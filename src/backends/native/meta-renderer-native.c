@@ -1321,9 +1321,8 @@ notify_view_crtc_presented (MetaRendererView *view,
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
+  MetaCrtc *crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
   CoglFrameInfo *frame_info;
-  MetaCrtc *crtc;
-  float refresh_rate;
   MetaGpuKms *gpu_kms;
 
   /* Only keep the frame info for the fastest CRTC in use, which may not be
@@ -1332,15 +1331,16 @@ notify_view_crtc_presented (MetaRendererView *view,
    * satisfy all monitors.
    */
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
-
-  crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
-  refresh_rate = crtc && crtc->current_mode ?
-                 crtc->current_mode->refresh_rate :
-                 0.0f;
-  if (refresh_rate >= frame_info->refresh_rate)
+  if (frame_info != NULL)
     {
-      frame_info->presentation_time = time_ns;
-      frame_info->refresh_rate = refresh_rate;
+      float refresh_rate = crtc && crtc->current_mode ?
+                           crtc->current_mode->refresh_rate :
+                           0.0f;
+      if (refresh_rate >= frame_info->refresh_rate)
+        {
+          frame_info->presentation_time = time_ns;
+          frame_info->refresh_rate = refresh_rate;
+        }
     }
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
@@ -1726,7 +1726,7 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen  *onscreen,
     }
 }
 
-static void
+static gboolean
 wait_for_pending_flips (CoglOnscreen *onscreen)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
@@ -1758,9 +1758,11 @@ wait_for_pending_flips (CoglOnscreen *onscreen)
         {
           g_warning ("Failed to wait for flip: %s", error->message);
           g_clear_error (&error);
-          break;
+          return FALSE;
         }
     }
+
+  return TRUE;
 }
 
 static void
@@ -2192,7 +2194,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
    * Wait for the flip callback before continuing, as we might have started the
    * animation earlier due to the animation being driven by some other monitor.
    */
-  wait_for_pending_flips (onscreen);
+  if (!wait_for_pending_flips (onscreen))
+    onscreen_native->pending_set_crtc = TRUE;
 
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
   frame_info->global_frame_counter = renderer_native->frame_counter;
@@ -2208,7 +2211,10 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      g_warn_if_fail (onscreen_native->gbm.next_fb == NULL);
+      /* Any frame not yet accepted by the kernel in next_fb is about to
+       * be destroyed, so make sure it's also not queued for a flip retry.
+       */
+      meta_kms_discard_pending_page_flips (kms);
       g_clear_object (&onscreen_native->gbm.next_fb);
 
       buffer_gbm = meta_drm_buffer_gbm_new (render_gpu,
