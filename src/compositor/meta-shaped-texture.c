@@ -1128,20 +1128,25 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   cairo_rectangle_int_t fallback_clip;
   ClutterColor clear_color;
   cairo_surface_t *surface;
+  int scaled_width;
+  int scaled_height;
+
+  scaled_width = stex->dst_width * stex->buffer_scale;
+  scaled_height = stex->dst_height * stex->buffer_scale;
 
   if (!clip)
     {
       fallback_clip = (cairo_rectangle_int_t) {
-        .width = stex->dst_width,
-        .height = stex->dst_height,
+        .width = scaled_width,
+        .height = scaled_height,
       };
       clip = &fallback_clip;
     }
 
   image_texture =
     COGL_TEXTURE (cogl_texture_2d_new_with_size (cogl_context,
-                                                 stex->dst_width,
-                                                 stex->dst_height));
+                                                 scaled_width,
+                                                 scaled_height));
   cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (image_texture),
                                           FALSE);
   if (!cogl_texture_allocate (COGL_TEXTURE (image_texture), &error))
@@ -1164,11 +1169,11 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   cogl_framebuffer_push_matrix (fb);
   cogl_matrix_init_identity (&projection_matrix);
   cogl_matrix_scale (&projection_matrix,
-                     1.0 / (stex->dst_width / 2.0),
-                     -1.0 / (stex->dst_height / 2.0), 0);
+                     1.0 / (scaled_width / 2.0),
+                     -1.0 / (scaled_height / 2.0), 0);
   cogl_matrix_translate (&projection_matrix,
-                         -(stex->dst_width / 2.0),
-                         -(stex->dst_height / 2.0), 0);
+                         -(scaled_width / 2.0),
+                         -(scaled_height / 2.0), 0);
 
   cogl_framebuffer_set_projection_matrix (fb, &projection_matrix);
 
@@ -1180,8 +1185,9 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   do_paint_content (stex, root_node,
                     stex->texture,
                     &(ClutterActorBox) {
-                      clip->x, clip->y,
-                      clip->width, clip->height,
+                      0, 0,
+                      scaled_width,
+                      scaled_height,
                     },
                     255);
 
@@ -1219,7 +1225,7 @@ cairo_surface_t *
 meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                cairo_rectangle_int_t *clip)
 {
-  cairo_rectangle_int_t *transformed_clip = NULL;
+  cairo_rectangle_int_t *buffer_clip = NULL;
   CoglTexture *texture, *mask_texture;
   cairo_surface_t *surface;
 
@@ -1239,31 +1245,41 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
     {
       cairo_rectangle_int_t dst_rect;
 
-      transformed_clip = alloca (sizeof (cairo_rectangle_int_t));
+      buffer_clip = alloca (sizeof (cairo_rectangle_int_t));
 
-      meta_rectangle_scale_double (clip, stex->buffer_scale,
-                                   META_ROUNDING_STRATEGY_GROW,
-                                   transformed_clip);
+      if (meta_is_stage_views_scaled ())
+        {
+          *buffer_clip = (MetaRectangle) {
+            .x = clip->x * stex->buffer_scale,
+            .y = clip->y * stex->buffer_scale,
+            .width = clip->width * stex->buffer_scale,
+            .height = clip->height * stex->buffer_scale,
+          };
+        }
+      else
+        {
+          *buffer_clip = *clip;
+        }
 
       dst_rect = (cairo_rectangle_int_t) {
-        .width = stex->dst_width,
-        .height = stex->dst_height,
+        .width = stex->dst_width * stex->buffer_scale,
+        .height = stex->dst_height * stex->buffer_scale,
       };
 
-      if (!meta_rectangle_intersect (&dst_rect, transformed_clip,
-                                     transformed_clip))
+      if (!meta_rectangle_intersect (&dst_rect, buffer_clip,
+                                     buffer_clip))
         return NULL;
     }
 
   if (should_get_via_offscreen (stex))
-    return get_image_via_offscreen (stex, transformed_clip);
+    return get_image_via_offscreen (stex, buffer_clip);
 
-  if (transformed_clip)
+  if (buffer_clip)
     texture = cogl_texture_new_from_sub_texture (texture,
-                                                 transformed_clip->x,
-                                                 transformed_clip->y,
-                                                 transformed_clip->width,
-                                                 transformed_clip->height);
+                                                 buffer_clip->x,
+                                                 buffer_clip->y,
+                                                 buffer_clip->width,
+                                                 buffer_clip->height);
 
   surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
                                         cogl_texture_get_width (texture),
@@ -1275,7 +1291,7 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
 
   cairo_surface_mark_dirty (surface);
 
-  if (transformed_clip)
+  if (buffer_clip)
     cogl_object_unref (texture);
 
   mask_texture = stex->mask_texture;
@@ -1284,13 +1300,13 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
       cairo_t *cr;
       cairo_surface_t *mask_surface;
 
-      if (transformed_clip)
+      if (buffer_clip)
         mask_texture =
           cogl_texture_new_from_sub_texture (mask_texture,
-                                             transformed_clip->x,
-                                             transformed_clip->y,
-                                             transformed_clip->width,
-                                             transformed_clip->height);
+                                             buffer_clip->x,
+                                             buffer_clip->y,
+                                             buffer_clip->width,
+                                             buffer_clip->height);
 
       mask_surface = cairo_image_surface_create (CAIRO_FORMAT_A8,
                                                  cogl_texture_get_width (mask_texture),
@@ -1310,7 +1326,7 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
 
       cairo_surface_destroy (mask_surface);
 
-      if (transformed_clip)
+      if (buffer_clip)
         cogl_object_unref (mask_texture);
     }
 
