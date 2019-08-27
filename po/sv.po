@@ -10,15 +10,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-02-04 17:52+0000\n"
-"PO-Revision-Date: 2019-02-09 22:14+0100\n"
+"POT-Creation-Date: 2019-08-06 00:49+0000\n"
+"PO-Revision-Date: 2019-08-27 20:40+0200\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2.1\n"
+"X-Generator: Poedit 2.2.3\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -393,7 +393,10 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart."
+"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
+"mutter request a low priority real-time scheduling. The executable or user "
+"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
+"initializes Xwayland lazily if there are X11 clients. Requires restart."
 msgstr ""
 "För att aktivera experimentella funktioner, lägg till funktionens nyckelord "
 "till listan. Huruvida funktionen kräver att kompositionshanteraren startas "
@@ -404,21 +407,33 @@ msgstr ""
 "framebuffer” — gör så att mutter som standard använder en layout med logiska "
 "skärmar i en rymd av logiska bildpunktskoordinater, medan skärmars "
 "rambuffert skalas i stället för fönsterinnehållet, för att hantera HiDPI-"
-"skärmar. Kräver inte en omstart."
+"skärmar. Kräver inte en omstart. • ”rt-scheduler” — gör så att mutter "
+"efterfrågar realtidsschemaläggning med låg prioritet. Den körbara filen "
+"eller användaren måste ha CAP_SYS_NICE. Kräver en omstart. • ”autostart-"
+"xwayland” — lat initiering av Xwayland om det finns X11-klienter. Kräver en "
+"omstart."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:134
+msgid "Modifier to use to locate the pointer"
+msgstr "Modifierare att använda för att hitta muspekaren"
+
+#: data/org.gnome.mutter.gschema.xml.in:135
+msgid "This key will initiate the “locate pointer” action."
+msgstr "Denna tangent kommer att initiera åtgärden ”hitta muspekare”."
+
+#: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Select window from tab popup"
 msgstr "Välj fönster från flik-popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:146
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid "Cancel tab popup"
 msgstr "Avbryt flik-popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Switch monitor configurations"
 msgstr "Växla skärmkonfiguration"
 
-#: data/org.gnome.mutter.gschema.xml.in:156
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Rotates the built-in monitor configuration"
 msgstr "Roterar den inbyggda skärmkonfigurationen"
 
@@ -475,28 +490,37 @@ msgid "Re-enable shortcuts"
 msgstr "Återaktivera genvägar"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:64
-msgid "Allow grabs with Xwayland"
-msgstr "Tillåt fångster med Xwayland"
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr "Tillåt X11-fångster att låsa tangentbordsfokus med Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
 msgid ""
-"Allow keyboard grabs issued by X11 applications running in Xwayland to be "
-"taken into account. For a X11 grab to be taken into account under Wayland, "
-"the client must also either send a specific X11 ClientMessage to the root "
-"window or be among the applications white-listed in key “xwayland-grab-"
-"access-rules”."
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"white-listed in key “xwayland-grab-access-rules”."
 msgstr ""
-"Tillåt tangentbordsfångster utfärdade av X11-program som körs i Xwayland att "
-"tas i beräkning. För att en X11-fångst ska tas i beräkning under Wayland "
-"måste klienten också antingen sända ett specifikt X11-ClientMessage till "
-"root-fönstret eller finnas bland programmen som vitlistats i nyckeln "
-"”xwayland-grab-access-rules”."
+"Tillåt alla tangentbordshändelser att ledas till ”override redirect”-fönster "
+"i X11 med en fångst vid körning i Xwayland. Detta alternativ är för att "
+"stödja X11-klienter som mappar ett ”override redirect”-fönster (som inte "
+"erhåller tangentbordsfokus) och utfärda en tangentbordsfångst för att tvinga "
+"alla tangentbordshändelser till det fönstret. Detta alternativ används "
+"sällan och har ingen effekt på vanliga X11-fönster som kan erhålla "
+"tangentbordsfokus under normala förhållanden. För att en X11-fångst ska tas "
+"i beräkning under Wayland måste klienten också antingen sända ett specifikt "
+"X11-ClientMessage till root-fönstret eller finnas bland programmen som "
+"vitlistats i nyckeln ”xwayland-grab-access-rules”."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:77
+#: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Xwayland-program tillåts utfärda tangentbordsfångster"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:78
+#: data/org.gnome.mutter.wayland.gschema.xml.in:85
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
@@ -523,7 +547,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2423
+#: src/backends/meta-input-settings.c:2531
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Lägesväxel (grupp %d)"
@@ -531,34 +555,34 @@ msgstr "Lägesväxel (grupp %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2446
+#: src/backends/meta-input-settings.c:2554
 msgid "Switch monitor"
 msgstr "Växla skärm"
 
-#: src/backends/meta-input-settings.c:2448
+#: src/backends/meta-input-settings.c:2556
 msgid "Show on-screen help"
 msgstr "Visa hjälp på skärmen"
 
-#: src/backends/meta-monitor-manager.c:954
+#: src/backends/meta-monitor.c:223
 msgid "Built-in display"
 msgstr "Inbyggd display"
 
-#: src/backends/meta-monitor-manager.c:986
+#: src/backends/meta-monitor.c:252
 msgid "Unknown"
 msgstr "Okänd"
 
-#: src/backends/meta-monitor-manager.c:988
+#: src/backends/meta-monitor.c:254
 msgid "Unknown Display"
 msgstr "Okänd display"
 
-#: src/backends/meta-monitor-manager.c:996
+#: src/backends/meta-monitor.c:262
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor-manager.c:1004
+#: src/backends/meta-monitor.c:270
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -566,15 +590,20 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
+#. Translators: this string will appear in Sysprof
+#: src/backends/meta-profiler.c:82
+msgid "Compositor"
+msgstr "Kompositionshanterare"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:482
+#: src/compositor/compositor.c:510
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr "En annan kompositionshanterare körs redan på skärm %i på display ”%s”."
 
-#: src/core/bell.c:252
+#: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Ljudsignalhändelse"
 
@@ -623,16 +652,16 @@ msgid "Run with X11 backend"
 msgstr "Kör med X11-gränssnitt"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:150
+#: src/core/meta-close-dialog-default.c:151
 #, c-format
 msgid "“%s” is not responding."
 msgstr "”%s” svarar inte."
 
-#: src/core/meta-close-dialog-default.c:152
+#: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
 msgstr "Programmet svarar inte."
 
-#: src/core/meta-close-dialog-default.c:157
+#: src/core/meta-close-dialog-default.c:158
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
@@ -640,11 +669,11 @@ msgstr ""
 "Du kan välja att vänta en kort stund på det för att fortsätta eller tvinga "
 "programmet att helt avslutas."
 
-#: src/core/meta-close-dialog-default.c:164
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Force Quit"
 msgstr "_Tvinga avslut"
 
-#: src/core/meta-close-dialog-default.c:164
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Wait"
 msgstr "_Vänta"
 
@@ -671,7 +700,7 @@ msgstr "Skriv ut version"
 msgid "Mutter plugin to use"
 msgstr "Mutter-insticksmodul att använda"
 
-#: src/core/prefs.c:1786
+#: src/core/prefs.c:1849
 #, c-format
 msgid "Workspace %d"
 msgstr "Arbetsyta %d"
@@ -685,7 +714,7 @@ msgstr "Mutter kompilerades utan stöd för utförligt läge\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Lägesväxel: Läge %d"
 
-#: src/x11/meta-x11-display.c:666
+#: src/x11/meta-x11-display.c:671
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -694,19 +723,24 @@ msgstr ""
 "Display ”%s” har redan en fönsterhanterare; försök med flaggan --replace för "
 "att ersätta den aktuella fönsterhanteraren."
 
-#: src/x11/meta-x11-display.c:1008
+#: src/x11/meta-x11-display.c:1032
 msgid "Failed to initialize GDK\n"
 msgstr "Misslyckades med att initiera GDK\n"
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1056
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Misslyckades med att öppna X Window System-displayen ”%s”\n"
 
-#: src/x11/meta-x11-display.c:1115
+#: src/x11/meta-x11-display.c:1140
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Skärm %d på display ”%s” är ogiltig\n"
+
+#: src/x11/meta-x11-selection-input-stream.c:445
+#, c-format
+msgid "Format %s not supported"
+msgstr "Formatet %s stöds ej"
 
 #: src/x11/session.c:1821
 msgid ""
@@ -716,7 +750,7 @@ msgstr ""
 "Dessa fönster saknar stöd för ”spara nuvarande inställningar” och kommer att "
 "behöva startas om manuellt nästa gång du loggar in."
 
-#: src/x11/window-props.c:568
+#: src/x11/window-props.c:569
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
