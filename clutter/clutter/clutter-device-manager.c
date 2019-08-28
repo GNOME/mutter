@@ -465,6 +465,15 @@ _clutter_device_manager_add_device (ClutterDeviceManager *device_manager,
 
   manager_class->add_device (device_manager, device);
 
+  /*
+   * Add the pointer accessibility device as well if pointer accessibility
+   * is enabled, it's a no-op if the device is not the core pointer so it's
+   * safe to call for all pointer devices.
+   */
+  if (clutter_input_device_get_device_type (device) == CLUTTER_POINTER_DEVICE &&
+      _clutter_is_input_pointer_a11y_enabled (device))
+    _clutter_input_pointer_a11y_add_device (device);
+
   g_signal_emit (device_manager, manager_signals[DEVICE_ADDED], 0, device);
 }
 
