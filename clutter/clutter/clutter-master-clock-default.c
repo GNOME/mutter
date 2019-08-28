@@ -347,11 +347,10 @@ master_clock_advance_timelines (ClutterMasterClockDefault *master_clock)
 #endif
 }
 
-static gboolean
+static void
 master_clock_update_stages (ClutterMasterClockDefault *master_clock,
                             GSList                    *stages)
 {
-  gboolean stages_updated = FALSE;
   GSList *l;
 #ifdef CLUTTER_ENABLE_DEBUG
   gint64 start = g_get_monotonic_time ();
@@ -363,7 +362,7 @@ master_clock_update_stages (ClutterMasterClockDefault *master_clock,
    * is advanced.
    */
   for (l = stages; l != NULL; l = l->next)
-    stages_updated |= _clutter_stage_do_update (l->data);
+    _clutter_stage_do_update (l->data);
 
   _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_POST_PAINT);
 
@@ -373,8 +372,6 @@ master_clock_update_stages (ClutterMasterClockDefault *master_clock,
 
   master_clock->remaining_budget -= (g_get_monotonic_time () - start);
 #endif
-
-  return stages_updated;
 }
 
 /*
