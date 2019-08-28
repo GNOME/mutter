@@ -607,6 +607,20 @@ _clutter_device_manager_compress_motion (ClutterDeviceManager *device_manager,
   manager_class->compress_motion (device_manager, event, to_discard);
 }
 
+void
+_clutter_device_manager_ensure_a11y_state (ClutterDeviceManager *device_manager)
+{
+  ClutterInputDevice *core_pointer;
+
+  core_pointer = clutter_device_manager_get_core_device (device_manager,
+                                                         CLUTTER_POINTER_DEVICE);
+  if (core_pointer)
+    {
+      if (_clutter_is_input_pointer_a11y_enabled (core_pointer))
+        _clutter_input_pointer_a11y_add_device (core_pointer);
+    }
+}
+
 static gboolean
 are_kbd_a11y_settings_equal (ClutterKbdA11ySettings *a,
                              ClutterKbdA11ySettings *b)
