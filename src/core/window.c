@@ -70,7 +70,6 @@
 #include "cogl/cogl-trace.h"
 #include "core/boxes-private.h"
 #include "core/constraints.h"
-#include "core/core.h"
 #include "core/edge-resistance.h"
 #include "core/frame.h"
 #include "core/keybindings-private.h"
