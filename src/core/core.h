@@ -77,7 +77,6 @@ void       meta_core_set_screen_cursor (Display *xdisplay,
                                         Window   frame_on_screen,
                                         MetaCursor cursor);
 
-void meta_invalidate_default_icons (void);
 void meta_retheme_all (void);
 
 #endif

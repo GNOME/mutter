@@ -278,12 +278,6 @@ meta_core_set_screen_cursor (Display *xdisplay,
 }
 
 void
-meta_invalidate_default_icons (void)
-{
-  /* XXX: Actually invalidate the icons when they're used. */
-}
-
-void
 meta_retheme_all (void)
 {
   if (meta_get_display ())
