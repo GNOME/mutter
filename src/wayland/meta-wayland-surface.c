@@ -30,6 +30,7 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "clutter/clutter.h"
 #include "clutter/wayland/clutter-wayland-compositor.h"
+#include "cogl/cogl-trace.h"
 #include "cogl/cogl-wayland-server.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-surface-actor.h"
@@ -870,6 +871,9 @@ cleanup:
 static void
 meta_wayland_surface_commit (MetaWaylandSurface *surface)
 {
+  COGL_TRACE_BEGIN_SCOPED (MetaWaylandSurfaceCommit,
+                           "WaylandSurface (commit");
+
   if (surface->pending->buffer &&
       !meta_wayland_buffer_is_realized (surface->pending->buffer))
     meta_wayland_buffer_realize (surface->pending->buffer);
