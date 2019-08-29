@@ -36,7 +36,6 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "core/boxes-private.h"
-#include "core/core.h"
 #include "core/frame.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
