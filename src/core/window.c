@@ -67,6 +67,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "cogl/cogl-trace.h"
 #include "core/boxes-private.h"
 #include "core/constraints.h"
 #include "core/core.h"
@@ -947,6 +948,15 @@ meta_window_calculate_main_logical_monitor (MetaWindow *window)
                                                              &window_rect);
 }
 
+static void
+meta_window_manage (MetaWindow *window)
+{
+  COGL_TRACE_BEGIN_SCOPED (MetaWindowManage,
+                           "Window (manage)");
+
+  META_WINDOW_GET_CLASS (window)->manage (window);
+}
+
 MetaWindow *
 _meta_window_shared_new (MetaDisplay         *display,
                          MetaWindowClientType client_type,
@@ -958,6 +968,9 @@ _meta_window_shared_new (MetaDisplay         *display,
 {
   MetaWorkspaceManager *workspace_manager = display->workspace_manager;
   MetaWindow *window;
+
+  COGL_TRACE_BEGIN_SCOPED (MetaWindowSharedNew,
+                           "Window (new)");
 
   g_assert (attrs != NULL);
 
@@ -1171,7 +1184,7 @@ _meta_window_shared_new (MetaDisplay         *display,
 
   window->id = meta_display_generate_window_id (display);
 
-  META_WINDOW_GET_CLASS (window)->manage (window);
+  meta_window_manage (window);
 
   if (!window->override_redirect)
     meta_window_update_icon_now (window, TRUE);

@@ -40,6 +40,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "cogl/cogl-trace.h"
 #include "core/boxes-private.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/workspace-private.h"
@@ -359,6 +360,9 @@ void
 meta_workspace_add_window (MetaWorkspace *workspace,
                            MetaWindow    *window)
 {
+  COGL_TRACE_BEGIN_SCOPED (MetaWorkspaceAddWindow,
+                           "Workspace (add window)");
+
   g_assert (g_list_find (workspace->mru_list, window) == NULL);
   workspace->mru_list = g_list_prepend (workspace->mru_list, window);
 
@@ -380,6 +384,9 @@ void
 meta_workspace_remove_window (MetaWorkspace *workspace,
                               MetaWindow    *window)
 {
+  COGL_TRACE_BEGIN_SCOPED (MetaWorkspaceRemoveWindow,
+                           "Workspace (remove window)");
+
   workspace->windows = g_list_remove (workspace->windows, window);
 
   workspace->mru_list = g_list_remove (workspace->mru_list, window);

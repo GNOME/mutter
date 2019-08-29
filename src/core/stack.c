@@ -30,6 +30,7 @@
 #include "core/stack.h"
 
 #include "backends/meta-logical-monitor.h"
+#include "cogl/cogl-trace.h"
 #include "core/frame.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/window-private.h"
@@ -275,6 +276,9 @@ meta_stack_add (MetaStack  *stack,
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
 
+  COGL_TRACE_BEGIN_SCOPED (MetaStackAdd,
+                           "Stack (add window)");
+
   g_return_if_fail (meta_window_is_stackable (window));
 
   meta_topic (META_DEBUG_STACK, "Adding window %s to the stack\n", window->desc);
@@ -304,6 +308,9 @@ meta_stack_remove (MetaStack  *stack,
                    MetaWindow *window)
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
+
+  COGL_TRACE_BEGIN_SCOPED (MetaStackRemove,
+                           "Stack (remove window)");
 
   meta_topic (META_DEBUG_STACK, "Removing window %s from the stack\n", window->desc);
 
