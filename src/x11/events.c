@@ -32,6 +32,7 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "compositor/meta-compositor-x11.h"
+#include "cogl/cogl-trace.h"
 #include "core/bell.h"
 #include "core/display-private.h"
 #include "core/meta-workspace-manager-private.h"
@@ -1765,6 +1766,9 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   gboolean bypass_compositor = FALSE, bypass_gtk = FALSE;
   XIEvent *input_event;
   MetaCursorTracker *cursor_tracker;
+
+  COGL_TRACE_BEGIN_SCOPED (MetaX11DisplayHandleXevent,
+                           "X11Display (handle X11 event)");
 
 #if 0
   meta_spew_event_print (x11_display, event);
