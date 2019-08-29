@@ -52,6 +52,7 @@
 #include "clutter/x11/clutter-x11.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-compositor-x11.h"
+#include "cogl/cogl-trace.h"
 #include "core/bell.h"
 #include "core/boxes-private.h"
 #include "core/display-private.h"
@@ -1481,6 +1482,8 @@ void
 meta_display_notify_window_created (MetaDisplay  *display,
                                     MetaWindow   *window)
 {
+  COGL_TRACE_BEGIN_SCOPED (MetaDisplayNotifyWindowCreated,
+                           "Display (notify window created)");
   g_signal_emit (display, display_signals[WINDOW_CREATED], 0, window);
 }
 
