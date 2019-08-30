@@ -357,6 +357,26 @@ surface_process_damage (MetaWaylandSurface *surface,
   cairo_region_destroy (transformed_region);
 }
 
+static void
+surface_damage_whole_actor (MetaWaylandSurface *surface)
+{
+  MetaSurfaceActor *actor;
+  cairo_rectangle_int_t buffer_rect;
+
+  buffer_rect = (cairo_rectangle_int_t) {
+    .width = get_buffer_width (surface),
+    .height = get_buffer_height (surface),
+  };
+
+  if (buffer_rect.width < 1)
+    return;
+
+  actor = meta_wayland_surface_get_actor (surface);
+  meta_surface_actor_process_damage (actor,
+                                     buffer_rect.x, buffer_rect.y,
+                                     buffer_rect.width, buffer_rect.height);
+}
+
 void
 meta_wayland_surface_queue_pending_state_frame_callbacks (MetaWaylandSurface      *surface,
                                                           MetaWaylandPendingState *pending)
@@ -769,6 +789,9 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
       surface->viewport.src_rect.size.width = pending->viewport_src_rect.size.width;
       surface->viewport.src_rect.size.height = pending->viewport_src_rect.size.height;
       surface->viewport.has_src_rect = surface->viewport.src_rect.size.width > 0;
+
+      surface_damage_whole_actor (surface);
+      had_damage = TRUE;
     }
 
   if (pending->has_new_viewport_dst_size)
@@ -776,6 +799,9 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
       surface->viewport.dst_width = pending->viewport_dst_width;
       surface->viewport.dst_height = pending->viewport_dst_height;
       surface->viewport.has_dst_size = surface->viewport.dst_width > 0;
+
+      surface_damage_whole_actor (surface);
+      had_damage = TRUE;
     }
 
   if (!cairo_region_is_empty (pending->surface_damage) ||
