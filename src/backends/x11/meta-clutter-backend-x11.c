@@ -129,7 +129,7 @@ meta_clutter_backend_x11_translate_event (ClutterBackend *backend,
     return TRUE;
 
   if (meta_keymap_x11_handle_event (backend_x11->keymap, native))
-    return TRUE;
+    return FALSE;
 
   stage_x11 = META_STAGE_X11 (clutter_backend_get_stage_window (backend));
   if (meta_stage_x11_translate_event (stage_x11, native, event))
