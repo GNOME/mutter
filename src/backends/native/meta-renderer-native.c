@@ -1666,6 +1666,9 @@ meta_onscreen_native_set_crtc_modes (CoglOnscreen              *onscreen,
   MetaLogicalMonitor *logical_monitor;
   SetCrtcModeData data;
 
+  COGL_TRACE_BEGIN_SCOPED (MetaOnscreenNativeSetCrtcModes,
+                           "Onscreen (set CRTC modes)");
+
   logical_monitor = meta_renderer_view_get_logical_monitor (view);
   data = (SetCrtcModeData) {
     .renderer_gpu_data = renderer_gpu_data,
@@ -1708,6 +1711,9 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen  *onscreen,
     meta_backend_get_monitor_manager (renderer_native->backend);
   MetaPowerSave power_save_mode;
   MetaLogicalMonitor *logical_monitor;
+
+  COGL_TRACE_BEGIN_SCOPED (MetaOnscreenNativeFlipCrtcs,
+                           "Onscreen (flip CRTCs)");
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
   if (power_save_mode == META_POWER_SAVE_ON)
@@ -2086,6 +2092,9 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen *onscreen)
   GHashTableIter iter;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
 
+  COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeGpuStatePreSwapBuffers,
+                           "Onscreen (secondary gpu pre-swap-buffers)");
+
   g_hash_table_iter_init (&iter, onscreen_native->secondary_gpu_states);
   while (g_hash_table_iter_next (&iter,
                                  NULL,
@@ -2134,6 +2143,9 @@ update_secondary_gpu_state_post_swap_buffers (CoglOnscreen *onscreen,
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   GHashTableIter iter;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
+
+  COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeGpuStatePostSwapBuffers,
+                           "Onscreen (secondary gpu post-swap-buffers)");
 
   g_hash_table_iter_init (&iter, onscreen_native->secondary_gpu_states);
   while (g_hash_table_iter_next (&iter,
@@ -2186,13 +2198,19 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   g_autoptr (GError) error = NULL;
   MetaDrmBufferGbm *buffer_gbm;
 
+  COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
+                           "Onscreen (swap-buffers)");
+
   kms_update = meta_kms_ensure_pending_update (kms);
 
   /*
    * Wait for the flip callback before continuing, as we might have started the
    * animation earlier due to the animation being driven by some other monitor.
    */
+  COGL_TRACE_BEGIN (MetaRendererNativeSwapBuffersWait,
+                    "Onscreen (waiting for page flips");
   wait_for_pending_flips (onscreen);
+  COGL_TRACE_END (MetaRendererNativeSwapBuffersWait);
 
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
   frame_info->global_frame_counter = renderer_native->frame_counter;
@@ -2257,11 +2275,14 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   if (egl_context_changed)
     _cogl_winsys_egl_ensure_current (cogl_display);
 
+  COGL_TRACE_BEGIN (MetaRendererNativePostKmsUpdate,
+                    "Onscreen (post pending update");
   if (!meta_kms_post_pending_update_sync (kms, &error))
     {
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
         g_warning ("Failed to post KMS update: %s", error->message);
     }
+  COGL_TRACE_END (MetaRendererNativePostKmsUpdate);
 }
 
 static gboolean

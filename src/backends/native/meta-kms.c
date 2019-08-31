@@ -27,6 +27,7 @@
 #include "backends/native/meta-kms-impl-simple.h"
 #include "backends/native/meta-kms-update-private.h"
 #include "backends/native/meta-udev.h"
+#include "cogl/cogl-trace.h"
 
 /**
  * SECTION:kms
@@ -204,6 +205,9 @@ meta_kms_post_update_sync (MetaKms        *kms,
                            GError        **error)
 {
   meta_kms_update_seal (update);
+
+  COGL_TRACE_BEGIN_SCOPED (MetaKmsPostUpdateSync,
+                           "KMS (post update)");
 
   return meta_kms_run_impl_task_sync (kms,
                                       meta_kms_update_process_in_impl,
@@ -440,6 +444,9 @@ static void
 meta_kms_update_states_in_impl (MetaKms *kms)
 {
   GList *l;
+
+  COGL_TRACE_BEGIN_SCOPED (MetaKmsUpdateStates,
+                           "KMS (update states)");
 
   meta_assert_in_kms_impl (kms);
 

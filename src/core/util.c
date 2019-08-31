@@ -39,6 +39,7 @@
 #include <X11/Xutil.h>  /* Just for the definition of the various gravities */
 
 #include "clutter/clutter.h"
+#include "cogl/cogl-trace.h"
 #include "meta/common.h"
 #include "meta/main.h"
 
@@ -770,6 +771,37 @@ destroy_later (MetaLater *later)
   unref_later (later);
 }
 
+#ifdef HAVE_TRACING
+static const char *
+later_type_to_string (MetaLaterType when)
+{
+  switch (when)
+    {
+    case META_LATER_RESIZE:
+      return "Later (resize)";
+    case META_LATER_CALC_SHOWING:
+      return "Later (calc-showing)";
+    case META_LATER_CHECK_FULLSCREEN:
+      return "Later (check-fullscreen)";
+    case META_LATER_SYNC_STACK:
+      return "Later (sync-stack)";
+    case META_LATER_BEFORE_REDRAW:
+      return "Later (before-redraw)";
+    case META_LATER_IDLE:
+      return "Later (idle)";
+    }
+
+  return "unknown";
+}
+#endif
+
+static gboolean
+call_later_func (MetaLater *later)
+{
+  COGL_TRACE_BEGIN_SCOPED (later, later_type_to_string (later->when));
+  return later->func (later->data);
+}
+
 static void
 run_repaint_laters (GSList **laters_list)
 {
@@ -793,7 +825,7 @@ run_repaint_laters (GSList **laters_list)
     {
       MetaLater *later = l->data;
 
-      if (!later->func || !later->func (later->data))
+      if (!later->func || !call_later_func (later))
         meta_later_remove_from_list (later->id, laters_list);
       unref_later (later);
     }
