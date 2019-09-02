@@ -262,17 +262,6 @@ cogl_xlib_renderer_request_reset_on_video_memory_purge (CoglRenderer *renderer,
 
   renderer->xlib_want_reset_on_video_memory_purge = enable;
 }
-
-void
-cogl_xlib_renderer_set_threaded_swap_wait_enabled (CoglRenderer *renderer,
-						   gboolean enable)
-{
-  g_return_if_fail (cogl_is_renderer (renderer));
-  /* NB: Renderers are considered immutable once connected */
-  g_return_if_fail (!renderer->connected);
-
-  renderer->xlib_enable_threaded_swap_wait = enable;
-}
 #endif /* COGL_HAS_XLIB_SUPPORT */
 
 gboolean
