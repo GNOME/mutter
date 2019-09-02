@@ -1437,7 +1437,7 @@ handle_other_xevent (MetaX11Display *x11_display,
       break;
     case ReparentNotify:
       {
-        if (window->reparents_pending > 0)
+        if (window && window->reparents_pending > 0)
           window->reparents_pending -= 1;
         if (event->xreparent.event == x11_display->xroot)
           meta_stack_tracker_reparent_event (display->stack_tracker,
