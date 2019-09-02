@@ -977,6 +977,7 @@ data_device_end_drag_grab (MetaWaylandDragGrab *drag_grab)
     {
       meta_wayland_pointer_end_grab (drag_grab->generic.pointer);
       meta_wayland_keyboard_end_grab (drag_grab->keyboard_grab.keyboard);
+      meta_display_sync_wayland_input_focus (meta_get_display ());
     }
 
   g_slice_free (MetaWaylandDragGrab, drag_grab);
@@ -1315,11 +1316,8 @@ data_device_start_drag (struct wl_client *client,
                                        surface, drag_source, icon_surface);
 
   if (meta_wayland_seat_has_keyboard (seat))
-    {
-      meta_wayland_keyboard_set_focus (seat->keyboard, NULL);
-      meta_wayland_keyboard_start_grab (seat->keyboard,
-                                        &seat->data_device.current_grab->keyboard_grab);
-    }
+    meta_wayland_keyboard_start_grab (seat->keyboard,
+                                      &seat->data_device.current_grab->keyboard_grab);
 }
 
 static void
