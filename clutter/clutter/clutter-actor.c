@@ -6068,8 +6068,6 @@ clutter_actor_dispose (GObject *object)
                 object->ref_count,
 		g_type_name (G_OBJECT_TYPE (self)));
 
-  g_signal_emit (self, actor_signals[DESTROY], 0);
-
   /* avoid recursing when called from clutter_actor_destroy() */
   if (priv->parent != NULL)
     {
@@ -6087,6 +6085,8 @@ clutter_actor_dispose (GObject *object)
         clutter_actor_remove_child_internal (parent, self,
                                              REMOVE_CHILD_LEGACY_FLAGS);
     }
+
+  g_signal_emit (self, actor_signals[DESTROY], 0);
 
   /* parent must be gone at this point */
   g_assert (priv->parent == NULL);
