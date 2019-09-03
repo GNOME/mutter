@@ -700,3 +700,9 @@ cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen)
 {
   return onscreen->frame_counter;
 }
+
+unsigned int
+cogl_onscreen_get_pending_swaps (CoglOnscreen *onscreen)
+{
+  return onscreen->pending_frame_infos.length;
+}

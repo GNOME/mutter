@@ -115,6 +115,8 @@ void              _clutter_stage_window_finish_frame            (ClutterStageWin
 
 int64_t           _clutter_stage_window_get_frame_counter       (ClutterStageWindow *window);
 
+unsigned int      clutter_stage_window_get_pending_swaps        (ClutterStageWindow *window);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_WINDOW_H__ */
