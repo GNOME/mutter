@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-07-18 21:05+0000\n"
-"PO-Revision-Date: 2019-07-28 10:06+0200\n"
+"POT-Creation-Date: 2019-08-06 00:49+0000\n"
+"PO-Revision-Date: 2019-09-03 09:53+0200\n"
 "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
@@ -393,7 +393,8 @@ msgid ""
 "space, while scaling monitor framebuffers instead of window content, to "
 "manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
 "mutter request a low priority real-time scheduling. The executable or user "
-"must have CAP_SYS_NICE. Requires a restart."
+"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
+"initializes Xwayland lazily if there are X11 clients. Requires restart."
 msgstr ""
 "Par abilitâ lis funzionalitâts sperimentâls, zonte la peraule clâf de "
 "funzionalitât ae liste. Il fat che la funzionalitât e vedi bisugne di tornâ "
@@ -407,29 +408,31 @@ msgstr ""
 "dal barcon; dut chest par gjestî i visôrs HiDPI. Nol covente tornâ a inviâ. "
 "• “rt-scheduler” — al fâs in mût che mutter al domandi une programazion in "
 "timp reâl a prioritât basse. L'eseguibil o l'utent a scugnin vê "
-"CAP_SYS_NICE. Al covente tornâ a inviâ."
+"CAP_SYS_NICE. Al covente tornâ a inviâ. • “autostart-xwayland” — al "
+"inizialize Xwayland in maniere sflacjose se a son presints clients X11. Al "
+"covente tornâ a inviâ."
 
-#: data/org.gnome.mutter.gschema.xml.in:132
+#: data/org.gnome.mutter.gschema.xml.in:134
 msgid "Modifier to use to locate the pointer"
 msgstr "Modificadôr di doprâ par localizâ il pontadôr"
 
-#: data/org.gnome.mutter.gschema.xml.in:133
+#: data/org.gnome.mutter.gschema.xml.in:135
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Cheste clâf e inizializerâ la azion “localize pontadôr”."
 
-#: data/org.gnome.mutter.gschema.xml.in:153
+#: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Select window from tab popup"
 msgstr "Selezione barcon dal tab popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:158
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid "Cancel tab popup"
 msgstr "Anule tab popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:163
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Switch monitor configurations"
 msgstr "Cambie configurazions visôr"
 
-#: data/org.gnome.mutter.gschema.xml.in:168
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Rotates the built-in monitor configuration"
 msgstr "Al volte la configurazion dal visôr integrât"
 
@@ -712,7 +715,7 @@ msgstr "Mutter al è stât compilât cence supuart pe modalitât fetose\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Cambie mût: mût %d"
 
-#: src/x11/meta-x11-display.c:682
+#: src/x11/meta-x11-display.c:671
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -721,16 +724,16 @@ msgstr ""
 "Il display “%s” al à za un window manager; prove dopre la opzion --replace "
 "par rimplaçâ chel atuâl."
 
-#: src/x11/meta-x11-display.c:1024
+#: src/x11/meta-x11-display.c:1032
 msgid "Failed to initialize GDK\n"
 msgstr "No si è rivâts a inizializâ GDK\n"
 
-#: src/x11/meta-x11-display.c:1048
+#: src/x11/meta-x11-display.c:1056
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Impussibil vierzi il display “%s” di X Window System\n"
 
-#: src/x11/meta-x11-display.c:1132
+#: src/x11/meta-x11-display.c:1140
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Schermi %d su display “%s” no valit\n"
