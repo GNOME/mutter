@@ -624,12 +624,6 @@ send_xdg_output_events (struct wl_resource *resource,
       zxdg_output_v1_send_description (resource, description);
     }
 
-  if (need_all_events && version < NO_XDG_OUTPUT_DONE_SINCE_VERSION)
-    {
-      zxdg_output_v1_send_done (resource);
-      need_done = FALSE;
-    }
-
   if (pending_done_event && need_done)
     *pending_done_event = TRUE;
 }
@@ -642,6 +636,8 @@ meta_xdg_output_manager_get_xdg_output (struct wl_client   *client,
 {
   struct wl_resource *xdg_output_resource;
   MetaWaylandOutput *wayland_output;
+  int xdg_output_version;
+  int wl_output_version;
 
   xdg_output_resource = wl_resource_create (client,
                                             &zxdg_output_v1_interface,
@@ -666,6 +662,14 @@ meta_xdg_output_manager_get_xdg_output (struct wl_client   *client,
                           wayland_output,
                           wayland_output->logical_monitor,
                           TRUE, NULL);
+
+  xdg_output_version = wl_resource_get_version (xdg_output_resource);
+  wl_output_version = wl_resource_get_version (output);
+
+  if (xdg_output_version < NO_XDG_OUTPUT_DONE_SINCE_VERSION)
+    zxdg_output_v1_send_done (xdg_output_resource);
+  else if (wl_output_version >= WL_OUTPUT_DONE_SINCE_VERSION)
+    wl_output_send_done (output);
 }
 
 static void
