@@ -99,6 +99,22 @@ clutter_stage_view_get_onscreen (ClutterStageView *view)
   return priv->framebuffer;
 }
 
+unsigned int
+clutter_stage_view_get_pending_swaps (ClutterStageView *view)
+{
+  CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
+  unsigned int pending_swaps = 0;
+
+  if (cogl_is_onscreen (framebuffer))
+    {
+      CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+
+      pending_swaps = cogl_onscreen_get_pending_swaps (onscreen);
+    }
+
+  return pending_swaps;
+}
+
 static void
 clutter_stage_view_ensure_offscreen_blit_pipeline (ClutterStageView *view)
 {
