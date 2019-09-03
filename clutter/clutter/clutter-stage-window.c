@@ -5,6 +5,7 @@
 #include "clutter-actor.h"
 #include "clutter-stage-window.h"
 #include "clutter-private.h"
+#include "clutter-stage-view-private.h"
 
 /**
  * SECTION:clutter-stage-window
@@ -315,4 +316,20 @@ _clutter_stage_window_get_frame_counter (ClutterStageWindow *window)
     return iface->get_frame_counter (window);
   else
     return 0;
+}
+
+unsigned int
+clutter_stage_window_get_pending_swaps (ClutterStageWindow *stage_window)
+{
+  GList *l;
+  unsigned int pending_swaps = 0;
+
+  for (l = _clutter_stage_window_get_views (stage_window); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+
+      pending_swaps += clutter_stage_view_get_pending_swaps (view);
+    }
+
+  return pending_swaps;
 }
