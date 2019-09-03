@@ -154,6 +154,7 @@ struct _MetaKms
 
   MetaKmsImpl *impl;
   gboolean in_impl_task;
+  gboolean waiting_for_impl_task;
 
   GList *devices;
 
@@ -322,7 +323,9 @@ meta_kms_run_impl_task_sync (MetaKms              *kms,
   gboolean ret;
 
   kms->in_impl_task = TRUE;
+  kms->waiting_for_impl_task = TRUE;
   ret = func (kms->impl, user_data, error);
+  kms->waiting_for_impl_task = FALSE;
   kms->in_impl_task = FALSE;
 
   return ret;
@@ -438,6 +441,12 @@ gboolean
 meta_kms_in_impl_task (MetaKms *kms)
 {
   return kms->in_impl_task;
+}
+
+gboolean
+meta_kms_is_waiting_for_impl_task (MetaKms *kms)
+{
+  return kms->waiting_for_impl_task;
 }
 
 static void
