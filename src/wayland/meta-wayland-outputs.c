@@ -555,6 +555,32 @@ meta_xdg_output_destructor (struct wl_resource *resource)
 }
 
 static void
+meta_xdg_output_notify_done (struct wl_resource *resource,
+                             MetaWaylandOutput  *wayland_output)
+{
+  GList *l;
+  int version;
+
+  version = wl_resource_get_version (resource);
+
+  /* For xdg-output < 3, just send an xdg_output.done event */
+  if (version < NO_XDG_OUTPUT_DONE_SINCE_VERSION)
+    zxdg_output_v1_send_done (resource);
+
+  /* If using xdg-output 3 or later, send a wl_output.done for the matching wl_output */
+  for (l = wayland_output->resources; l; l = l->next)
+    {
+      struct wl_resource *wl_output_resource = l->data;
+
+      if (wl_resource_get_client (wl_output_resource) != wl_resource_get_client (resource))
+        continue;
+
+      if (wl_resource_get_version (wl_output_resource) >= WL_OUTPUT_DONE_SINCE_VERSION)
+        wl_output_send_done (wl_output_resource);
+    }
+}
+
+static void
 meta_xdg_output_destroy (struct wl_client   *client,
                          struct wl_resource *resource)
 {
@@ -624,9 +650,9 @@ send_xdg_output_events (struct wl_resource *resource,
       zxdg_output_v1_send_description (resource, description);
     }
 
-  if (need_all_events && version < NO_XDG_OUTPUT_DONE_SINCE_VERSION)
+  if (need_all_events)
     {
-      zxdg_output_v1_send_done (resource);
+      meta_xdg_output_notify_done (resource, wayland_output);
       need_done = FALSE;
     }
 
