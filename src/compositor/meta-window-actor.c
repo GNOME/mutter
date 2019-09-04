@@ -83,7 +83,7 @@ typedef struct _MetaWindowActorPrivate
 
   int geometry_scale;
 
-  guint             size_changed_id;
+  gulong            size_changed_id;
 
   /*
    * These need to be counters rather than flags, since more plugins
@@ -386,7 +386,16 @@ meta_window_actor_real_assign_surface_actor (MetaWindowActor  *self,
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
-  g_assert (!priv->surface);
+  if (priv->surface)
+    {
+      g_warn_if_fail (priv->window->client_type == META_WINDOW_CLIENT_TYPE_X11 &&
+                      meta_is_wayland_compositor ());
+
+      g_clear_signal_handler (&priv->size_changed_id, priv->surface);
+      clutter_actor_remove_child (CLUTTER_ACTOR (self),
+                                  CLUTTER_ACTOR (priv->surface));
+      g_clear_object (&priv->surface);
+    }
 
   priv->surface = g_object_ref_sink (surface_actor);
   priv->size_changed_id = g_signal_connect (priv->surface, "size-changed",
@@ -491,7 +500,7 @@ meta_window_actor_dispose (GObject *object)
 
   if (priv->surface)
     {
-      g_signal_handler_disconnect (priv->surface, priv->size_changed_id);
+      g_clear_signal_handler (&priv->size_changed_id, priv->surface);
       clutter_actor_remove_child (CLUTTER_ACTOR (self),
                                   CLUTTER_ACTOR (priv->surface));
       g_clear_object (&priv->surface);
