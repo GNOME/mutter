@@ -244,6 +244,7 @@ meta_kms_device_finalize (GObject *object)
   FreeImplDeviceData data;
   GError *error = NULL;
 
+  g_free (device->path);
   g_list_free (device->crtcs);
   g_list_free (device->connectors);
   g_list_free (device->planes);
