@@ -186,6 +186,7 @@ meta_kms_device_new (MetaKms            *kms,
     return NULL;
 
   device = g_object_new (META_TYPE_KMS_DEVICE, NULL);
+  device->kms = kms;
 
   data = (CreateImplDeviceData) {
     .device = device,
@@ -199,7 +200,6 @@ meta_kms_device_new (MetaKms            *kms,
       return NULL;
     }
 
-  device->kms = kms;
   device->impl_device = data.out_impl_device;
   device->flags = flags;
   device->path = g_strdup (path);
@@ -241,27 +241,30 @@ meta_kms_device_finalize (GObject *object)
   MetaBackend *backend = meta_kms_get_backend (device->kms);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
-  FreeImplDeviceData data;
-  GError *error = NULL;
 
   g_list_free (device->crtcs);
   g_list_free (device->connectors);
   g_list_free (device->planes);
 
-  data = (FreeImplDeviceData) {
-    .impl_device = device->impl_device,
-  };
-  if (!meta_kms_run_impl_task_sync (device->kms, free_impl_device_in_impl, &data,
-                                   &error))
+  if (device->impl_device)
     {
-      g_warning ("Failed to close KMS impl device: %s", error->message);
-      g_error_free (error);
-    }
-  else
-    {
-      meta_launcher_close_restricted (launcher, data.out_fd);
-    }
+      FreeImplDeviceData data;
+      GError *error = NULL;
 
+      data = (FreeImplDeviceData) {
+        .impl_device = device->impl_device,
+      };
+      if (!meta_kms_run_impl_task_sync (device->kms, free_impl_device_in_impl, &data,
+                                       &error))
+        {
+          g_warning ("Failed to close KMS impl device: %s", error->message);
+          g_error_free (error);
+        }
+      else
+        {
+          meta_launcher_close_restricted (launcher, data.out_fd);
+        }
+    }
   G_OBJECT_CLASS (meta_kms_device_parent_class)->finalize (object);
 }
 
