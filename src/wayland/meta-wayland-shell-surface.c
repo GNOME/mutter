@@ -212,6 +212,37 @@ meta_wayland_shell_surface_sync_actor_state (MetaWaylandActorSurface *actor_surf
     actor_surface_class->sync_actor_state (actor_surface);
 }
 
+void
+meta_wayland_shell_surface_destroy_window (MetaWaylandShellSurface *shell_surface)
+{
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (shell_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWindow *window;
+  MetaDisplay *display;
+  uint32_t timestamp;
+
+  window = surface->window;
+  if (!window)
+    return;
+
+  display = meta_window_get_display (window);
+  timestamp = meta_display_get_current_time_roundtrip (display);
+  meta_window_unmanage (surface->window, timestamp);
+  g_assert (!surface->window);
+}
+
+static void
+meta_wayland_shell_surface_finalize (GObject *object)
+{
+  MetaWaylandShellSurface *shell_surface = META_WAYLAND_SHELL_SURFACE (object);
+
+  meta_wayland_shell_surface_destroy_window (shell_surface);
+
+  G_OBJECT_CLASS (meta_wayland_shell_surface_parent_class)->finalize (object);
+}
+
 static void
 meta_wayland_shell_surface_init (MetaWaylandShellSurface *role)
 {
@@ -220,10 +251,13 @@ meta_wayland_shell_surface_init (MetaWaylandShellSurface *role)
 static void
 meta_wayland_shell_surface_class_init (MetaWaylandShellSurfaceClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaWaylandSurfaceRoleClass *surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (klass);
   MetaWaylandActorSurfaceClass *actor_surface_class =
     META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
+
+  object_class->finalize = meta_wayland_shell_surface_finalize;
 
   surface_role_class->commit = meta_wayland_shell_surface_surface_commit;
 
