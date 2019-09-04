@@ -165,9 +165,10 @@ zxdg_toplevel_v6_destructor (struct wl_resource *resource)
 {
   MetaWaylandZxdgToplevelV6 *xdg_toplevel =
     wl_resource_get_user_data (resource);
-  MetaWaylandSurface *surface = surface_from_xdg_toplevel_resource (resource);
+  MetaWaylandShellSurface *shell_surface =
+    META_WAYLAND_SHELL_SURFACE (xdg_toplevel);
 
-  meta_wayland_surface_destroy_window (surface);
+  meta_wayland_shell_surface_destroy_window (shell_surface);
   xdg_toplevel->resource = NULL;
 }
 
@@ -549,17 +550,15 @@ handle_popup_parent_destroyed (struct wl_listener *listener,
     META_WAYLAND_ZXDG_SURFACE_V6 (xdg_popup);
   struct wl_resource *xdg_shell_resource =
     meta_wayland_zxdg_surface_v6_get_shell_resource (xdg_surface);
-  MetaWaylandSurfaceRole *surface_role =
-    META_WAYLAND_SURFACE_ROLE (xdg_popup);
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandShellSurface *shell_surface =
+    META_WAYLAND_SHELL_SURFACE (xdg_popup);
 
   wl_resource_post_error (xdg_shell_resource,
                           ZXDG_SHELL_V6_ERROR_NOT_THE_TOPMOST_POPUP,
                           "destroyed popup not top most popup");
   xdg_popup->parent_surface = NULL;
 
-  meta_wayland_surface_destroy_window (surface);
+  meta_wayland_shell_surface_destroy_window (shell_surface);
 }
 
 static void
@@ -944,7 +943,7 @@ finish_popup_setup (MetaWaylandZxdgPopupV6 *xdg_popup)
       if (popup == NULL)
         {
           zxdg_popup_v6_send_popup_done (xdg_popup->resource);
-          meta_wayland_surface_destroy_window (surface);
+          meta_wayland_shell_surface_destroy_window (shell_surface);
           return;
         }
 
@@ -1099,6 +1098,8 @@ meta_wayland_zxdg_popup_v6_dismiss (MetaWaylandPopupSurface *popup_surface)
     META_WAYLAND_ZXDG_SURFACE_V6 (xdg_popup);
   struct wl_resource *xdg_shell_resource =
     meta_wayland_zxdg_surface_v6_get_shell_resource (xdg_surface);
+  MetaWaylandShellSurface *shell_surface =
+    META_WAYLAND_SHELL_SURFACE (xdg_popup);
   MetaWaylandSurfaceRole *surface_role = META_WAYLAND_SURFACE_ROLE (xdg_popup);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
@@ -1114,7 +1115,7 @@ meta_wayland_zxdg_popup_v6_dismiss (MetaWaylandPopupSurface *popup_surface)
 
   xdg_popup->popup = NULL;
 
-  meta_wayland_surface_destroy_window (surface);
+  meta_wayland_shell_surface_destroy_window (shell_surface);
 }
 
 static MetaWaylandSurface *

@@ -71,4 +71,6 @@ void meta_wayland_shell_surface_determine_geometry (MetaWaylandShellSurface *she
 void meta_wayland_shell_surface_set_window (MetaWaylandShellSurface *shell_surface,
                                             MetaWindow              *window);
 
+void meta_wayland_shell_surface_destroy_window (MetaWaylandShellSurface *shell_surface);
+
 #endif /* META_WAYLAND_SHELL_SURFACE_H */
