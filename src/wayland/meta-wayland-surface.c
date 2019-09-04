@@ -367,20 +367,6 @@ meta_wayland_surface_queue_pending_state_frame_callbacks (MetaWaylandSurface    
   wl_list_init (&pending->frame_callback_list);
 }
 
-void
-meta_wayland_surface_destroy_window (MetaWaylandSurface *surface)
-{
-  if (surface->window)
-    {
-      MetaDisplay *display = meta_get_display ();
-      guint32 timestamp = meta_display_get_current_time_roundtrip (display);
-
-      meta_window_unmanage (surface->window, timestamp);
-    }
-
-  g_assert (surface->window == NULL);
-}
-
 MetaWaylandBuffer *
 meta_wayland_surface_get_buffer (MetaWaylandSurface *surface)
 {
@@ -1363,12 +1349,6 @@ wl_surface_destructor (struct wl_resource *resource)
   g_signal_emit (surface, surface_signals[SURFACE_DESTROY], 0);
 
   g_clear_object (&surface->role);
-
-  /* If we still have a window at the time of destruction, that means that
-   * the client is disconnecting, as the resources are destroyed in a random
-   * order. Simply destroy the window in this case. */
-  if (surface->window)
-    meta_wayland_surface_destroy_window (surface);
 
   if (surface->unassigned.buffer)
     {
