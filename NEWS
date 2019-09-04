@@ -1,3 +1,31 @@
+3.33.92
+=======
+* Turn MetaShapedTexture into a ClutterContent implementation [Georges; !409]
+* Restore inhibit shortcut for overlay key [Olivier; #734]
+* Misc. pointer a11y improvements [Jonas D., Olivier; !746, !747, !745, !761]
+* Fix position of drag surfaces [Robert; !684]
+* Implement subsurface.place_below() for parents [Robert; !664]
+* Add meta_window_actor_get_image() [Jonas Å.; !752]
+* Revert faulty optimization from !719 [Jonas Å.; #735]
+* Add additional sysprof trace points [Jonas Å.; !757, !765]
+* Remove GLX "threaded swap wait" used on Nvidia [Daniel; !602]
+* Implement geometric picking [Daniel; !189]
+* Fix lost keyboard focus after DND [Olivier; #747]
+* Misc. bug fixes and cleanups [Florian, Carlos, Piotr, Hans, Georges, Robert,
+  Ray, Mart, Rémi; !740, !672, !749, !751, !753, !730, !755, !756, !750, !715,
+  #738944, !657, !768]
+
+Contributors:
+  Jonas Ådahl, Rémi Bernon, Piotr Drąg, Jonas Dreßler, Olivier Fourdan,
+  Carlos Garnacho, Hans de Goede, Robert Mader, Florian Müllner,
+  Georges Basile Stavracas Neto, Mart Raudsepp, Ray Strode, Daniel van Vugt
+
+Translators:
+  Piotr Drąg [pl], Марко Костић [sr], Rūdolfs Mazurs [lv], Matej Urbančič [sl],
+  Balázs Úr [hu], Fran Dieguez [gl], Jordi Mas [ca], Anders Jonsson [sv],
+  Trần Ngọc Quân [vi], Tim Sabsch [de], Fabio Tomat [fur], Goran Vidović [hr],
+  Marek Černocký [cs]
+
 3.33.91
 =======
 * Fix primary selection copy and paste between X11 and wayland [Hans; #702]
