@@ -591,7 +591,7 @@ wl_shell_surface_role_commit (MetaWaylandSurfaceRole  *surface_role,
       if (wl_shell_surface->popup)
         meta_wayland_popup_dismiss (wl_shell_surface->popup);
       else
-        meta_wayland_surface_destroy_window (surface);
+        meta_wayland_shell_surface_destroy_window (shell_surface);
       return;
     }
 
@@ -680,14 +680,12 @@ meta_wayland_wl_shell_surface_popup_dismiss (MetaWaylandPopupSurface *popup_surf
 {
   MetaWaylandWlShellSurface *wl_shell_surface =
     META_WAYLAND_WL_SHELL_SURFACE (popup_surface);
-  MetaWaylandSurfaceRole *surface_role =
-    META_WAYLAND_SURFACE_ROLE (popup_surface);
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandShellSurface *shell_surface =
+    META_WAYLAND_SHELL_SURFACE (wl_shell_surface);
 
   wl_shell_surface->popup = NULL;
 
-  meta_wayland_surface_destroy_window (surface);
+  meta_wayland_shell_surface_destroy_window (shell_surface);
 }
 
 static MetaWaylandSurface *
