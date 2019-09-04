@@ -267,6 +267,7 @@ meta_kms_device_finalize (GObject *object)
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
 
+  g_free (device->path);
   g_list_free (device->crtcs);
   g_list_free (device->connectors);
   g_list_free (device->planes);
