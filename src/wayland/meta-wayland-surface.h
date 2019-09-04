@@ -300,8 +300,6 @@ MetaWaylandSurface * meta_wayland_surface_role_get_surface (MetaWaylandSurfaceRo
 cairo_region_t *    meta_wayland_surface_calculate_input_region (MetaWaylandSurface *surface);
 
 
-void                meta_wayland_surface_destroy_window (MetaWaylandSurface *surface);
-
 gboolean            meta_wayland_surface_begin_grab_op (MetaWaylandSurface *surface,
                                                         MetaWaylandSeat    *seat,
                                                         MetaGrabOp          grab_op,
