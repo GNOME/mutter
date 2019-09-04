@@ -241,14 +241,16 @@ meta_kms_device_finalize (GObject *object)
   MetaBackend *backend = meta_kms_get_backend (device->kms);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaLauncher *launcher = meta_backend_native_get_launcher (backend_native);
-  FreeImplDeviceData data;
-  GError *error = NULL;
 
   g_list_free (device->crtcs);
   g_list_free (device->connectors);
   g_list_free (device->planes);
+
   if (device->impl_device)
     {
+      FreeImplDeviceData data;
+      GError *error = NULL;
+
       data = (FreeImplDeviceData) {
         .impl_device = device->impl_device,
       };
