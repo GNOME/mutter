@@ -7,7 +7,7 @@
 #
 # Updated in mutter:
 # Changwoo Ryu <cwryu@debian.org>, 2011-2017.
-# Gwan-gyeong Mun <elongbug@gmail.com>, 2018.
+# Gwan-gyeong Mun <elongbug@gmail.com>, 2018-2019.
 #
 #
 # 주의:
@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-02-04 17:52+0000\n"
-"PO-Revision-Date: 2019-02-27 13:38+0200\n"
+"POT-Creation-Date: 2019-08-31 12:39+0000\n"
+"PO-Revision-Date: 2019-09-03 17:49+0300\n"
 "Last-Translator: Gwan-gyeong Mun <elongbug@gmail.com>\n"
 "Language-Team: GNOME Korea <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
@@ -395,29 +395,43 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart."
+"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
+"mutter request a low priority real-time scheduling. The executable or user "
+"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
+"initializes Xwayland lazily if there are X11 clients. Requires restart."
 msgstr ""
 "실험적인 기능을 사용하려면, 해당 기능 키워드를 목록에 추가하십시오. 기능에 따"
 "라 컴포지터를 다시 시작해야 할 수도 있습니다. 실험적인 기능은 사용할 수 없을 "
 "수도 있고, 설정할 수 없을 수도 있습니다. 이 설정에 추가한 사항이 앞으로 버전"
 "에서도 동작할 거라고 기대하지 마십시오. 현재 가능한 값은: • “scale-monitor-"
 "framebuffer” — 머터는 기본적으로 논리 픽셀 좌표 공간에서 논리 모니터를 배치하"
-"고, HiDPI 모니터를 관리하기 위해 윈도우 내용 대신 모니터 프레임버퍼를 스케일"
-"링합니다. 재시작은 필요하지 않습니다."
+"고, HiDPI 모니터를 관리하기 위해 창 내용 대신 모니터 프레임 버퍼를 스케일링합"
+"니다. 재시작은 필요하지 않습니다. • “rt-scheduler” — 머터 요청을 우선순위가 "
+"낮은 실시간 스케줄링으로 만듭니다. 실행 파일 또는 사용자는 CAP_SYS_NICE가 있"
+"어야 합니다. 재시작이 필요합니다. • “autostart-xwayland” — X11 클라이언트가 "
+"있는 경우 X웨일랜드 초기화를 늦게 합니다. 재시작이 필요합니다."
 
-#: data/org.gnome.mutter.gschema.xml.in:141
+#: data/org.gnome.mutter.gschema.xml.in:134
+msgid "Modifier to use to locate the pointer"
+msgstr "포인터 위치 찾기에 사용할 키"
+
+#: data/org.gnome.mutter.gschema.xml.in:135
+msgid "This key will initiate the “locate pointer” action."
+msgstr "이 키는 “포인터 위치 찾기” 동작을 합니다."
+
+#: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Select window from tab popup"
 msgstr "탭 팝업에서 창 선택"
 
-#: data/org.gnome.mutter.gschema.xml.in:146
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid "Cancel tab popup"
 msgstr "탭 팝업 취소"
 
-#: data/org.gnome.mutter.gschema.xml.in:151
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Switch monitor configurations"
 msgstr "모니터 설정 전환"
 
-#: data/org.gnome.mutter.gschema.xml.in:156
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Rotates the built-in monitor configuration"
 msgstr "내장된 모니터 설정을 돌아가면서 전환합니다"
 
@@ -474,27 +488,34 @@ msgid "Re-enable shortcuts"
 msgstr "바로 가기 다시 사용하기"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:64
-msgid "Allow grabs with Xwayland"
-msgstr "X웨일랜드에서 잡기 허용"
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr "키보드 포커스를 고정하는 X11 잡기를 X웨일랜드에서 허용"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
 msgid ""
-"Allow keyboard grabs issued by X11 applications running in Xwayland to be "
-"taken into account. For a X11 grab to be taken into account under Wayland, "
-"the client must also either send a specific X11 ClientMessage to the root "
-"window or be among the applications white-listed in key “xwayland-grab-"
-"access-rules”."
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"white-listed in key “xwayland-grab-access-rules”."
 msgstr ""
-"X웨일랜드 환경에서 실행하는 X11 프로그램의 키보드 잡기 허용을 고려합니다. 웨"
-"일랜드에서 X11 잡기를 고려하려면, 클라이언트는 특정 X11 클라이언트메시지를 루"
-"트 창에 보내거나 \"xwayland-grab-access-rules\"의 허용 목록에 있는 프로그램 "
-"중 하나여야 합니다."
+"X웨일랜드 환경에서 X11 “override redirect” 창이 잡기를 할 때 모든 키보드 이벤"
+"트가 전달되도록 허용합니다. 이 옵션은 X11 클라이언트의 “override redirect”(키"
+"보드 포커스를 받지 않는) 창에 모든 키보드 이벤트를 강제로 적용하는 키보드 잡"
+"기를 지원합니다. 이 옵션은 거의 사용되지 않으며 일반적인 상황에서 키보드 포커"
+"스를 받을 수 있는 일반 X11 창에는 영향을 미치지 않습니다. 웨일랜드에서 X11 잡"
+"기를 고려하려면, 클라이언트는 특정 X11 클라이언트메시지를 루트 창에 보내거나 "
+"“xwayland-grab-access-rules”의 허용 목록에 있는 프로그램 중 하나여야 합니다."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:77
+#: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "X웨일랜드 프로그램에서 키보드 잡기 허용"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:78
+#: data/org.gnome.mutter.wayland.gschema.xml.in:85
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
@@ -519,7 +540,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2423
+#: src/backends/meta-input-settings.c:2531
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "모드 전환 (그룹 %d)"
@@ -527,34 +548,34 @@ msgstr "모드 전환 (그룹 %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2446
+#: src/backends/meta-input-settings.c:2554
 msgid "Switch monitor"
 msgstr "모니터 전환"
 
-#: src/backends/meta-input-settings.c:2448
+#: src/backends/meta-input-settings.c:2556
 msgid "Show on-screen help"
 msgstr "화면 도움말 표시"
 
-#: src/backends/meta-monitor-manager.c:954
+#: src/backends/meta-monitor.c:223
 msgid "Built-in display"
 msgstr "내장 디스플레이"
 
-#: src/backends/meta-monitor-manager.c:986
+#: src/backends/meta-monitor.c:252
 msgid "Unknown"
 msgstr "알 수 없음"
 
-#: src/backends/meta-monitor-manager.c:988
+#: src/backends/meta-monitor.c:254
 msgid "Unknown Display"
 msgstr "알 수 없는 디스플레이"
 
-#: src/backends/meta-monitor-manager.c:996
+#: src/backends/meta-monitor.c:262
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor-manager.c:1004
+#: src/backends/meta-monitor.c:270
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -562,9 +583,14 @@ msgctxt ""
 msgid "%s %s"
 msgstr "%s %s"
 
+#. Translators: this string will appear in Sysprof
+#: src/backends/meta-profiler.c:82
+msgid "Compositor"
+msgstr "컴포지터"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:482
+#: src/compositor/compositor.c:509
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -572,75 +598,75 @@ msgstr ""
 "다른 창 구성 관리 프로그램이 이미 디스플레이 “%2$s” 화면 %1$i번에서 실행 중입"
 "니다."
 
-#: src/core/bell.c:252
+#: src/core/bell.c:192
 msgid "Bell event"
 msgstr "삑소리 이벤트"
 
-#: src/core/main.c:185
+#: src/core/main.c:186
 msgid "Disable connection to session manager"
 msgstr "세션 관리자와 연결 하지 않습니다"
 
-#: src/core/main.c:191
+#: src/core/main.c:192
 msgid "Replace the running window manager"
 msgstr "실행 중인 창 관리자를 바꿉니다"
 
-#: src/core/main.c:197
+#: src/core/main.c:198
 msgid "Specify session management ID"
 msgstr "세션 관리 ID를 지정합니다"
 
-#: src/core/main.c:202
+#: src/core/main.c:203
 msgid "X Display to use"
 msgstr "사용할 X 디스플레이"
 
-#: src/core/main.c:208
+#: src/core/main.c:209
 msgid "Initialize session from savefile"
 msgstr "저장 파일에서 세션을 초기화 합니다"
 
-#: src/core/main.c:214
+#: src/core/main.c:215
 msgid "Make X calls synchronous"
 msgstr "동기 X 호출을 합니다"
 
-#: src/core/main.c:221
+#: src/core/main.c:222
 msgid "Run as a wayland compositor"
 msgstr "웨일랜드 컴포지터로 실행합니다"
 
-#: src/core/main.c:227
+#: src/core/main.c:228
 msgid "Run as a nested compositor"
 msgstr "중첩 컴포지터로 실행합니다"
 
-#: src/core/main.c:233
+#: src/core/main.c:234
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "웨일랜드 컴포지터를 X웨일랜드 시작없이 실행합니다"
 
-#: src/core/main.c:241
+#: src/core/main.c:242
 msgid "Run as a full display server, rather than nested"
 msgstr "전체 디스플레이 서버로 실행, 중첩 컴포지터가 아님"
 
-#: src/core/main.c:247
+#: src/core/main.c:248
 msgid "Run with X11 backend"
 msgstr "X11 백 엔드로 실행 합니다"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:150
+#: src/core/meta-close-dialog-default.c:151
 #, c-format
 msgid "“%s” is not responding."
 msgstr "“%s” 창이 반응하지 않습니다."
 
-#: src/core/meta-close-dialog-default.c:152
+#: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
 msgstr "프로그램이 반응하지 않습니다."
 
-#: src/core/meta-close-dialog-default.c:157
+#: src/core/meta-close-dialog-default.c:158
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
 msgstr "좀 더 기다리거나 해당 프로그램을 강제로 끝낼 수 있습니다."
 
-#: src/core/meta-close-dialog-default.c:164
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Force Quit"
 msgstr "강제로 끝내기(_F)"
 
-#: src/core/meta-close-dialog-default.c:164
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Wait"
 msgstr "기다리기(_W)"
 
@@ -667,21 +693,21 @@ msgstr "버전을 출력합니다"
 msgid "Mutter plugin to use"
 msgstr "사용할 머터 플러그인"
 
-#: src/core/prefs.c:1786
+#: src/core/prefs.c:1849
 #, c-format
 msgid "Workspace %d"
 msgstr "작업 공간 %d"
 
-#: src/core/util.c:121
+#: src/core/util.c:122
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "머터가 자세한 모드 지원 없이 컴파일 되었습니다\n"
 
-#: src/wayland/meta-wayland-tablet-pad.c:567
+#: src/wayland/meta-wayland-tablet-pad.c:568
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "모드 전환: 모드 %d"
 
-#: src/x11/meta-x11-display.c:666
+#: src/x11/meta-x11-display.c:679
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -690,19 +716,24 @@ msgstr ""
 "디스플레이  “%s”에 이미 창 관리자가 있습니다. 현재 창 관리자를 바꾸려면 --"
 "replace 옵션을 써보십시오."
 
-#: src/x11/meta-x11-display.c:1008
+#: src/x11/meta-x11-display.c:1040
 msgid "Failed to initialize GDK\n"
 msgstr "GDK 초기화에 실패했습니다\n"
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1064
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "X 윈도 시스템 디스플레이 “%s”을(를) 여는데 실패하였습니다\n"
 
-#: src/x11/meta-x11-display.c:1115
+#: src/x11/meta-x11-display.c:1147
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "디스플레이 “%2$s”의 화면 %1$d은(는) 잘못되었습니다\n"
+
+#: src/x11/meta-x11-selection-input-stream.c:445
+#, c-format
+msgid "Format %s not supported"
+msgstr "%s 형식은 지원하지 않습니다"
 
 #: src/x11/session.c:1821
 msgid ""
@@ -713,7 +744,7 @@ msgstr ""
 "로 다시 시작해야 합니다."
 
 # <창제목> (on <기계>)
-#: src/x11/window-props.c:568
+#: src/x11/window-props.c:569
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s에서)"
