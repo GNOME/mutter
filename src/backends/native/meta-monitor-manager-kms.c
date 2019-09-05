@@ -77,6 +77,8 @@ struct _MetaMonitorManagerKms
 
   guint hotplug_handler_id;
   guint removed_handler_id;
+
+  guint logical_monitors_invalid : 1;
 };
 
 struct _MetaMonitorManagerKmsClass
@@ -322,6 +324,7 @@ meta_monitor_manager_kms_apply_monitors_config (MetaMonitorManager      *manager
                                                 MetaMonitorsConfigMethod method,
                                                 GError                 **error)
 {
+  MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (manager);
   GPtrArray *crtc_infos;
   GPtrArray *output_infos;
 
@@ -345,6 +348,26 @@ meta_monitor_manager_kms_apply_monitors_config (MetaMonitorManager      *manager
       return TRUE;
     }
 
+  if (!meta_monitor_manager_get_has_changed (manager,
+                                             (MetaCrtcInfo **) crtc_infos->pdata,
+                                             crtc_infos->len,
+                                             (MetaOutputInfo **) output_infos->pdata,
+                                             output_infos->len))
+    {
+      /* Rebuild logical monitors if invalid, i.e. after
+       * meta_monitor_manager_read_current_state().
+       */
+      if (manager_kms->logical_monitors_invalid)
+        {
+          meta_monitor_manager_rebuild (manager, config);
+          manager_kms->logical_monitors_invalid = FALSE;
+        }
+
+      g_ptr_array_free (crtc_infos, TRUE);
+      g_ptr_array_free (output_infos, TRUE);
+      return TRUE;
+    }
+
   apply_crtc_assignments (manager,
                           (MetaCrtcInfo **) crtc_infos->pdata,
                           crtc_infos->len,
@@ -356,6 +379,7 @@ meta_monitor_manager_kms_apply_monitors_config (MetaMonitorManager      *manager
 
   update_screen_size (manager, config);
   meta_monitor_manager_rebuild (manager, config);
+  manager_kms->logical_monitors_invalid = FALSE;
 
   return TRUE;
 }
@@ -474,6 +498,13 @@ meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
 static void
 handle_hotplug_event (MetaMonitorManager *manager)
 {
+  MetaMonitorManagerKms *manager_kms = META_MONITOR_MANAGER_KMS (manager);
+
+  /* read_current_state() will rebuild monitors, leaving MetaLogicalMonitors
+   * with stale pointers to those. We will need to rebuild those even though
+   * the configuration might not have actually changed (eg. tty switch).
+   */
+  manager_kms->logical_monitors_invalid = TRUE;
   meta_monitor_manager_read_current_state (manager);
   meta_monitor_manager_on_hotplug (manager);
 }
