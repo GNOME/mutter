@@ -1828,11 +1828,14 @@ meta_x11_display_increment_event_serial (MetaX11Display *x11_display)
 void
 meta_x11_display_update_active_window_hint (MetaX11Display *x11_display)
 {
-  MetaWindow *focus_window = x11_display->display->focus_window;
+  MetaWindow *focus_window;
   gulong data[1];
 
   if (x11_display->display->closing)
     return; /* Leave old value for a replacement */
+
+  focus_window = meta_x11_display_lookup_x_window (x11_display,
+                                                   x11_display->focus_xwindow);
 
   if (focus_window)
     data[0] = focus_window->xwindow;
