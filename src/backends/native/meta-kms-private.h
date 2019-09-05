@@ -55,9 +55,13 @@ GSource * meta_kms_register_fd_in_impl (MetaKms             *kms,
 
 gboolean meta_kms_in_impl_task (MetaKms *kms);
 
+gboolean meta_kms_is_waiting_for_impl_task (MetaKms *kms);
+
 #define meta_assert_in_kms_impl(kms) \
   g_assert (meta_kms_in_impl_task (kms))
 #define meta_assert_not_in_kms_impl(kms) \
   g_assert (!meta_kms_in_impl_task (kms))
+#define meta_assert_is_waiting_for_kms_impl_task(kms) \
+  g_assert (meta_kms_is_waiting_for_impl_task (kms))
 
 #endif /* META_KMS_PRIVATE_H */
