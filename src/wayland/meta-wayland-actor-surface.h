@@ -33,6 +33,7 @@ struct _MetaWaylandActorSurfaceClass
 {
   MetaWaylandSurfaceRoleClass parent_class;
 
+  double (* get_geometry_scale) (MetaWaylandActorSurface *actor_surface);
   void (* sync_actor_state) (MetaWaylandActorSurface *actor_surface);
 };
 
