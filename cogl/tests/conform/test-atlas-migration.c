@@ -99,9 +99,9 @@ verify_texture (CoglTexture *texture, int size)
             };
 
           test_utils_compare_pixel (p,
-                                    (real_color.red << 24) |
-                                    (real_color.green << 16) |
-                                    (real_color.blue << 8) |
+                                    (((guint32) real_color.red) << 24) |
+                                    (((guint32) real_color.green) << 16) |
+                                    (((guint32) real_color.blue) << 8) |
                                     opacity);
           g_assert_cmpint (p[3], ==, opacity);
 

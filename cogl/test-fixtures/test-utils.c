@@ -250,7 +250,17 @@ void
 test_utils_check_pixel_rgb (CoglFramebuffer *test_fb,
                             int x, int y, int r, int g, int b)
 {
-  test_utils_check_pixel (test_fb, x, y, (r << 24) | (g << 16) | (b << 8));
+  g_return_if_fail (r >= 0);
+  g_return_if_fail (g >= 0);
+  g_return_if_fail (b >= 0);
+  g_return_if_fail (r <= 0xFF);
+  g_return_if_fail (g <= 0xFF);
+  g_return_if_fail (b <= 0xFF);
+
+  test_utils_check_pixel (test_fb, x, y,
+                          (((guint32) r) << 24) |
+                          (((guint32) g) << 16) |
+                          (((guint32) b) << 8));
 }
 
 void
