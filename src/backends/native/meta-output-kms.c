@@ -70,7 +70,7 @@ meta_output_kms_set_underscan (MetaOutput    *output,
       hborder = MIN (128, (uint64_t) round (crtc->current_mode->width * 0.05));
       vborder = MIN (128, (uint64_t) round (crtc->current_mode->height * 0.05));
 
-      g_debug ("Setting underscan of connector %s to %lu x %lu",
+      g_debug ("Setting underscan of connector %s to %" G_GUINT64_FORMAT " x %" G_GUINT64_FORMAT,
                meta_kms_connector_get_name (output_kms->kms_connector),
                hborder, vborder);
 
@@ -104,7 +104,7 @@ meta_output_kms_set_power_save_mode (MetaOutput    *output,
 {
   MetaOutputKms *output_kms = output->driver_private;
 
-  g_debug ("Setting DPMS state of connector %s to %lu",
+  g_debug ("Setting DPMS state of connector %s to %" G_GUINT64_FORMAT,
            meta_kms_connector_get_name (output_kms->kms_connector),
            dpms_state);
 
