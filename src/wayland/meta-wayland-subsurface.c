@@ -240,6 +240,20 @@ meta_wayland_subsurface_get_toplevel (MetaWaylandSurfaceRole *surface_role)
     return NULL;
 }
 
+static double
+meta_wayland_subsurface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
+{
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (actor_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandSurface *parent = surface->sub.parent;
+  MetaWaylandActorSurface *parent_actor =
+    META_WAYLAND_ACTOR_SURFACE (parent->role);
+
+  return meta_wayland_actor_surface_get_geometry_scale (parent_actor);
+}
+
 static void
 meta_wayland_subsurface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
 {
@@ -273,6 +287,8 @@ meta_wayland_subsurface_class_init (MetaWaylandSubsurfaceClass *klass)
 
   surface_role_class->get_toplevel = meta_wayland_subsurface_get_toplevel;
 
+  actor_surface_class->get_geometry_scale =
+    meta_wayland_subsurface_get_geometry_scale;
   actor_surface_class->sync_actor_state =
     meta_wayland_subsurface_sync_actor_state;
 }

@@ -180,6 +180,22 @@ meta_wayland_shell_surface_surface_commit (MetaWaylandSurfaceRole  *surface_role
     meta_wayland_surface_get_height (surface) * geometry_scale;
 }
 
+static double
+meta_wayland_shell_surface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
+{
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (actor_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWindow *toplevel_window;
+
+  toplevel_window = meta_wayland_surface_get_toplevel_window (surface);
+  if (meta_is_stage_views_scaled () || !toplevel_window)
+    return 1;
+  else
+    return meta_window_wayland_get_geometry_scale (toplevel_window);
+}
+
 static void
 meta_wayland_shell_surface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
 {
@@ -210,6 +226,9 @@ meta_wayland_shell_surface_class_init (MetaWaylandShellSurfaceClass *klass)
     META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
 
   surface_role_class->commit = meta_wayland_shell_surface_surface_commit;
+
+  actor_surface_class->get_geometry_scale =
+    meta_wayland_shell_surface_get_geometry_scale;
   actor_surface_class->sync_actor_state =
     meta_wayland_shell_surface_sync_actor_state;
 }
