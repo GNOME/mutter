@@ -461,8 +461,16 @@ send_modifiers (struct wl_resource *resource,
    * then fill the array. */
   ret = meta_egl_query_dma_buf_modifiers (egl, egl_display, format, 0, NULL,
                                           NULL, &num_modifiers, NULL);
-  if (!ret || num_modifiers == 0)
+  if (!ret)
     return;
+
+  if (num_modifiers == 0)
+    {
+      zwp_linux_dmabuf_v1_send_modifier (resource, format,
+                                         DRM_FORMAT_MOD_INVALID >> 32,
+                                         DRM_FORMAT_MOD_INVALID & 0xffffffff);
+      return;
+    }
 
   modifiers = g_new0 (uint64_t, num_modifiers);
   ret = meta_egl_query_dma_buf_modifiers (egl, egl_display, format,
