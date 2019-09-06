@@ -1099,12 +1099,12 @@ clutter_paint_node_to_json (ClutterPaintNode *node)
 
             case PAINT_OP_PATH:
               json_builder_set_member_name (builder, "path");
-              json_builder_add_int_value (builder, (gint64) op->op.path);
+              json_builder_add_int_value (builder, (intptr_t) op->op.path);
               break;
 
             case PAINT_OP_PRIMITIVE:
               json_builder_set_member_name (builder, "primitive");
-              json_builder_add_int_value (builder, (gint64) op->op.primitive);
+              json_builder_add_int_value (builder, (intptr_t) op->op.primitive);
               break;
 
             case PAINT_OP_INVALID:
