@@ -907,6 +907,12 @@ xwayland_surface_get_toplevel (MetaWaylandSurfaceRole *surface_role)
   return meta_wayland_surface_role_get_surface (surface_role);
 }
 
+static double
+xwayland_surface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
+{
+  return 1;
+}
+
 static void
 xwayland_surface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
 {
@@ -938,6 +944,7 @@ meta_wayland_surface_role_xwayland_class_init (MetaWaylandSurfaceRoleXWaylandCla
   surface_role_class->commit = xwayland_surface_commit;
   surface_role_class->get_toplevel = xwayland_surface_get_toplevel;
 
+  actor_surface_class->get_geometry_scale = xwayland_surface_get_geometry_scale;
   actor_surface_class->sync_actor_state = xwayland_surface_sync_actor_state;
 
   xwayland_surface_signals[XWAYLAND_SURFACE_WINDOW_ASSOCIATED] =
