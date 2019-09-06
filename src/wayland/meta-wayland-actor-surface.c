@@ -97,28 +97,19 @@ meta_wayland_actor_surface_queue_frame_callbacks (MetaWaylandActorSurface *actor
   wl_list_init (&pending->frame_callback_list);
 }
 
+static double
+meta_wayland_actor_surface_real_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
+{
+  return 1;
+}
+
 double
 meta_wayland_actor_surface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
 {
-  MetaWaylandSurfaceRole *surface_role =
-    META_WAYLAND_SURFACE_ROLE (actor_surface);
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
-  MetaWindow *toplevel_window;
+  MetaWaylandActorSurfaceClass *actor_surface_class =
+    META_WAYLAND_ACTOR_SURFACE_GET_CLASS (actor_surface);
 
-  toplevel_window = meta_wayland_surface_get_toplevel_window (surface);
-  if (meta_is_stage_views_scaled ())
-    {
-      return 1;
-    }
-  else
-    {
-      if (!toplevel_window ||
-          toplevel_window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-        return 1;
-      else
-        return meta_window_wayland_get_geometry_scale (toplevel_window);
-    }
+  return actor_surface_class->get_geometry_scale (actor_surface);
 }
 
 static void
@@ -295,6 +286,7 @@ meta_wayland_actor_surface_class_init (MetaWaylandActorSurfaceClass *klass)
   surface_role_class->is_on_logical_monitor =
     meta_wayland_actor_surface_is_on_logical_monitor;
 
+  klass->get_geometry_scale = meta_wayland_actor_surface_real_get_geometry_scale;
   klass->sync_actor_state = meta_wayland_actor_surface_real_sync_actor_state;
 }
 
