@@ -29,6 +29,7 @@ struct _MetaWaylandSurfaceRoleDND
   MetaWaylandActorSurface parent;
   int32_t pending_offset_x;
   int32_t pending_offset_y;
+  int geometry_scale;
 };
 
 G_DEFINE_TYPE (MetaWaylandSurfaceRoleDND,
@@ -111,25 +112,31 @@ dnd_subsurface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWaylandActorSurfaceClass *actor_surface_class =
     META_WAYLAND_ACTOR_SURFACE_CLASS (meta_wayland_surface_role_dnd_parent_class);
-  float geometry_scale;
-  float actor_scale;
+  CoglMatrix transform;
+  int geometry_scale;
   float anchor_x;
   float anchor_y;
-  float new_anchor_x;
-  float new_anchor_y;
 
   g_return_if_fail (META_IS_FEEDBACK_ACTOR (feedback_actor));
 
   geometry_scale =
     meta_wayland_actor_surface_get_geometry_scale (actor_surface);
-  actor_scale = geometry_scale / surface->scale;
 
   meta_feedback_actor_get_anchor (feedback_actor, &anchor_x, &anchor_y);
-  new_anchor_x = anchor_x - surface_role_dnd->pending_offset_x / actor_scale;
-  new_anchor_y = anchor_y - surface_role_dnd->pending_offset_y / actor_scale;
-  meta_feedback_actor_set_anchor (feedback_actor,
-                                  new_anchor_x,
-                                  new_anchor_y);
+  anchor_x -=
+    surface_role_dnd->pending_offset_x * geometry_scale * surface->scale;
+  anchor_y -=
+    surface_role_dnd->pending_offset_y * geometry_scale * surface->scale;
+  meta_feedback_actor_set_anchor (feedback_actor, anchor_x, anchor_y);
+
+  if (surface_role_dnd->geometry_scale != geometry_scale)
+    {
+      surface_role_dnd->geometry_scale = geometry_scale;
+
+      cogl_matrix_init_identity (&transform);
+      cogl_matrix_scale (&transform, geometry_scale, geometry_scale, 1);
+      clutter_actor_set_transform (CLUTTER_ACTOR (surface_actor), &transform);
+    }
 
   actor_surface_class->sync_actor_state (actor_surface);
 }
@@ -137,6 +144,7 @@ dnd_subsurface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
 static void
 meta_wayland_surface_role_dnd_init (MetaWaylandSurfaceRoleDND *role)
 {
+  role->geometry_scale = 1;
 }
 
 static void
