@@ -97,6 +97,30 @@ meta_wayland_actor_surface_queue_frame_callbacks (MetaWaylandActorSurface *actor
   wl_list_init (&pending->frame_callback_list);
 }
 
+static MetaLogicalMonitor *
+meta_wayland_actor_surface_calculate_main_logical_monitor (MetaWaylandActorSurface *actor_surface)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaWaylandActorSurfacePrivate *priv =
+    meta_wayland_actor_surface_get_instance_private (actor_surface);
+  ClutterActor *actor = CLUTTER_ACTOR (priv->actor);
+  float x, y, width, height;
+  cairo_rectangle_int_t actor_rect;
+
+  clutter_actor_get_transformed_position (actor, &x, &y);
+  clutter_actor_get_transformed_size (actor, &width, &height);
+
+  actor_rect.x = (int) roundf (x);
+  actor_rect.y = (int) roundf (y);
+  actor_rect.width = (int) roundf (x + width) - actor_rect.x;
+  actor_rect.height = (int) roundf (y + height) - actor_rect.y;
+
+  return meta_monitor_manager_get_logical_monitor_from_rect (monitor_manager,
+                                                             &actor_rect);
+}
+
 double
 meta_wayland_actor_surface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
 {
@@ -104,20 +128,31 @@ meta_wayland_actor_surface_get_geometry_scale (MetaWaylandActorSurface *actor_su
     META_WAYLAND_SURFACE_ROLE (actor_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
-  MetaWindow *toplevel_window;
 
-  toplevel_window = meta_wayland_surface_get_toplevel_window (surface);
   if (meta_is_stage_views_scaled ())
     {
       return 1;
     }
   else
     {
-      if (!toplevel_window ||
-          toplevel_window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-        return 1;
+      MetaWindow *toplevel_window;
+
+      toplevel_window = meta_wayland_surface_get_toplevel_window (surface);
+      if (toplevel_window)
+        {
+          if (toplevel_window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+            return 1;
+          else
+            return meta_window_wayland_get_geometry_scale (toplevel_window);
+        }
       else
-        return meta_window_wayland_get_geometry_scale (toplevel_window);
+        {
+          MetaLogicalMonitor *logical_monitor;
+
+          logical_monitor =
+            meta_wayland_actor_surface_calculate_main_logical_monitor (actor_surface);
+          return meta_logical_monitor_get_scale (logical_monitor);
+        }
     }
 }
 
