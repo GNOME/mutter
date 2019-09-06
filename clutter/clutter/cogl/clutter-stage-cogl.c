@@ -204,7 +204,7 @@ clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
   if (max_render_time_allowed <= 0)
     {
       g_warning ("Unsupported monitor refresh rate detected. "
-                 "(Refresh rate: %.3f, refresh interval: %ld)",
+                 "(Refresh rate: %.3f, refresh interval: %" G_GINT64_FORMAT ")",
                  refresh_rate,
                  refresh_interval);
       stage_cogl->update_time = now;
