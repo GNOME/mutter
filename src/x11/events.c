@@ -1393,8 +1393,7 @@ handle_other_xevent (MetaX11Display *x11_display,
           window = meta_window_x11_new (display, event->xmap.window,
                                         FALSE, META_COMP_EFFECT_CREATE);
         }
-      else if (window && window->restore_focus_on_map &&
-               window->reparents_pending == 0)
+      else if (window && window->restore_focus_on_map)
         {
           meta_window_focus (window,
                              meta_display_get_current_time_roundtrip (display));
@@ -1438,8 +1437,6 @@ handle_other_xevent (MetaX11Display *x11_display,
       break;
     case ReparentNotify:
       {
-        if (window->reparents_pending > 0)
-          window->reparents_pending -= 1;
         if (event->xreparent.event == x11_display->xroot)
           meta_stack_tracker_reparent_event (display->stack_tracker,
                                              &event->xreparent);
