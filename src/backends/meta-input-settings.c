@@ -1437,7 +1437,8 @@ lookup_tool_settings (ClutterInputDeviceTool *tool,
     }
   else
     {
-      path = g_strdup_printf ("/org/gnome/desktop/peripherals/stylus/%lx/", serial);
+      path = g_strdup_printf ("/org/gnome/desktop/peripherals/stylus/%" G_GINT64_MODIFIER "x/",
+                              serial);
     }
 
   tool_settings =
