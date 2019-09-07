@@ -1288,6 +1288,12 @@ clutter_actor_verify_map_state (ClutterActor *self)
 
 #endif /* CLUTTER_ENABLE_DEBUG */
 
+static float
+round_to_pixel_boundary (float coordinate, float scale)
+{
+  return roundf (coordinate * scale) / scale;
+}
+
 static gboolean
 _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
                                              ClutterStage          *stage,
@@ -1297,6 +1303,7 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
   CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
   CoglMatrix stage_transform, inv_stage_transform;
   CoglMatrix modelview, transform_to_stage;
+  float stage_scale;
   int v;
 
   clutter_actor_get_transform (CLUTTER_ACTOR (stage), &stage_transform);
@@ -1304,6 +1311,9 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
     return FALSE;
   cogl_framebuffer_get_modelview_matrix (fb, &modelview);
   cogl_matrix_multiply (&transform_to_stage, &inv_stage_transform, &modelview);
+
+  if (!clutter_actor_get_resource_scale (CLUTTER_ACTOR (stage), &stage_scale))
+    stage_scale = 1.f;
 
   vertices[0].x = box->x1;
   vertices[0].y = box->y1;
@@ -1327,6 +1337,9 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
                                    &vertices[v].y,
                                    &z,
                                    &w);
+
+      vertices[v].x = round_to_pixel_boundary (vertices[v].x, stage_scale);
+      vertices[v].y = round_to_pixel_boundary (vertices[v].y, stage_scale);
     }
 
   return TRUE;
