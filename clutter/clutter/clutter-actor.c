@@ -1288,6 +1288,13 @@ clutter_actor_verify_map_state (ClutterActor *self)
 
 #endif /* CLUTTER_ENABLE_DEBUG */
 
+static float
+filter_precision (float coordinate)
+{
+  /* Filter out precision errors below the 4th binary decimal place */
+  return roundf (coordinate * 16.f) / 16.f;
+}
+
 static gboolean
 _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
                                              ClutterStage          *stage,
@@ -1327,6 +1334,9 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
                                    &vertices[v].y,
                                    &z,
                                    &w);
+
+      vertices[v].x = filter_precision (vertices[v].x);
+      vertices[v].y = filter_precision (vertices[v].y);
     }
 
   return TRUE;
