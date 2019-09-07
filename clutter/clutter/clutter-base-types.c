@@ -592,13 +592,13 @@ clutter_point_compare_line (const ClutterPoint *p,
 /**
  * clutter_point_inside_quadrilateral:
  * @point: a #ClutterPoint to test
- * @vertices: array of vertices of the quadrilateral, in clockwise order,
- *            from top-left to bottom-left
+ * @vertices: array of vertices of the quadrilateral, in either clockwise or
+ *            anticlockwise order.
  *
  * Determines whether a point is inside the convex quadrilateral provided,
- * and not on any of its edges or vertices.
+ * or on any of its edges or vertices.
  *
- * Returns: %TRUE if @point is inside the quadrilateral
+ * Returns: %TRUE if @point is inside or touching the quadrilateral
  */
 gboolean
 clutter_point_inside_quadrilateral (const ClutterPoint *point,
