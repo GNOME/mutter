@@ -36,7 +36,7 @@
     </key>
 
     <key name="edge-resistance" type="b">
-      <default>true</default>
+      <default>false</default>
       <summary>Enable snapping windows to edges of other windows</summary>
       <description>
         If enabled, windows being moved or resized near the edges of other windows or
