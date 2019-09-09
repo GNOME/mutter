@@ -1092,7 +1092,7 @@ free_value (MetaPropValue *value)
     case META_PROP_VALUE_WINDOW:
       break;
     case META_PROP_VALUE_ATOM_LIST:
-      free (value->v.atom_list.atoms);
+      g_free (value->v.atom_list.atoms);
       break;
     case META_PROP_VALUE_TEXT_PROPERTY:
       free (value->v.str);
