@@ -286,6 +286,9 @@ foreach function : required_functions
   endif
 endforeach
 
+if host_machine.cpu_family() == 'x86'
+  add_project_arguments('-ffloat-store', language: 'c')
+endif
 add_project_arguments('-D_GNU_SOURCE', language: 'c')
 
 buildtype = get_option('buildtype')
