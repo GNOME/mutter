@@ -989,7 +989,7 @@ process_request_frame_extents (MetaX11Display *x11_display,
                    32, PropModeReplace, (guchar*) data, 4);
   meta_x11_error_trap_pop (x11_display);
 
-  meta_XFree (hints);
+  g_free (hints);
 }
 
 /* from fvwm2, Copyright Matthias Clasen, Dominik Vogt */
