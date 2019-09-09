@@ -180,7 +180,7 @@ update_sm_hints (MetaWindow *window)
                                        &str))
         {
           window->sm_client_id = g_strdup (str);
-          meta_XFree (str);
+          g_free (str);
         }
     }
   else
@@ -204,7 +204,7 @@ update_sm_hints (MetaWindow *window)
                               window->desc);
 
               window->sm_client_id = g_strdup (str);
-              meta_XFree (str);
+              g_free (str);
             }
         }
     }
