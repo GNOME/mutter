@@ -1637,7 +1637,7 @@ meta_window_x11_update_struts (MetaWindow *window)
                         struts[0], struts[1], struts[2], struts[3],
                         window->desc);
         }
-      meta_XFree (struts);
+      g_free (struts);
     }
   else
     {
@@ -1696,7 +1696,7 @@ meta_window_x11_update_struts (MetaWindow *window)
                         struts[0], struts[1], struts[2], struts[3],
                         window->desc);
         }
-      meta_XFree (struts);
+      g_free (struts);
     }
   else if (!new_struts)
     {
