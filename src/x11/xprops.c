@@ -1109,7 +1109,7 @@ free_value (MetaPropValue *value)
     case META_PROP_VALUE_SYNC_COUNTER:
       break;
     case META_PROP_VALUE_SYNC_COUNTER_LIST:
-      free (value->v.xcounter_list.counters);
+      g_free (value->v.xcounter_list.counters);
       break;
     }
 }
