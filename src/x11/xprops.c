@@ -696,7 +696,7 @@ wm_hints_from_results (GetPropertyResults *results,
       return FALSE;
     }
 
-  hints = calloc (1, sizeof (XWMHints));
+  hints = g_malloc0 (sizeof (XWMHints));
 
   raw = (xPropWMHints*) results->prop;
 
@@ -1090,7 +1090,7 @@ free_value (MetaPropValue *value)
       g_free (value->v.str);
       break;
     case META_PROP_VALUE_WM_HINTS:
-      free (value->v.wm_hints);
+      g_free (value->v.wm_hints);
       break;
     case META_PROP_VALUE_CLASS_HINT:
       free (value->v.class_hint.res_class);
