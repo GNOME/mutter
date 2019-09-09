@@ -727,7 +727,7 @@ static gboolean
 class_hint_from_results (GetPropertyResults *results,
                          XClassHint         *class_hint)
 {
-  int len_name, len_class;
+  int len_name;
 
   class_hint->res_class = NULL;
   class_hint->res_name = NULL;
@@ -735,31 +735,13 @@ class_hint_from_results (GetPropertyResults *results,
   if (!validate_or_free_results (results, 8, XA_STRING, FALSE))
     return FALSE;
 
-  len_name = strlen ((char *) results->prop);
-  if (! (class_hint->res_name = malloc (len_name+1)))
-    {
-      g_free (results->prop);
-      results->prop = NULL;
-      return FALSE;
-    }
+  class_hint->res_name = g_strdup ((char *) results->prop);
 
-  strcpy (class_hint->res_name, (char *)results->prop);
-
+  len_name = strlen (class_hint->res_name);
   if (len_name == (int) results->n_items)
-    len_name--;
-
-  len_class = strlen ((char *)results->prop + len_name + 1);
-
-  if (! (class_hint->res_class = malloc(len_class+1)))
-    {
-      XFree(class_hint->res_name);
-      class_hint->res_name = NULL;
-      g_free (results->prop);
-      results->prop = NULL;
-      return FALSE;
-    }
-
-  strcpy (class_hint->res_class, (char *)results->prop + len_name + 1);
+    class_hint->res_class = g_strdup ("");
+  else
+    class_hint->res_class = g_strdup ((char *) results->prop + len_name + 1);
 
   g_free (results->prop);
   results->prop = NULL;
@@ -1092,8 +1074,8 @@ free_value (MetaPropValue *value)
       g_free (value->v.wm_hints);
       break;
     case META_PROP_VALUE_CLASS_HINT:
-      free (value->v.class_hint.res_class);
-      free (value->v.class_hint.res_name);
+      g_free (value->v.class_hint.res_class);
+      g_free (value->v.class_hint.res_name);
       break;
     case META_PROP_VALUE_SIZE_HINTS:
       free (value->v.size_hints.hints);
