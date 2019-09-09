@@ -1111,7 +1111,7 @@ free_value (MetaPropValue *value)
       g_strfreev (value->v.string_list.strings);
       break;
     case META_PROP_VALUE_CARDINAL_LIST:
-      free (value->v.cardinal_list.cardinals);
+      g_free (value->v.cardinal_list.cardinals);
       break;
     case META_PROP_VALUE_SYNC_COUNTER:
       break;
