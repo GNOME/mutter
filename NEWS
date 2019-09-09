@@ -1,3 +1,17 @@
+3.34.0
+======
+* Fix xdg-output v3 support [Olivier; !771]
+* Fix crash when changing decoration state [Jonas; !773]
+* Add and remove connectors on hot-plug [Jonas; !743]
+
+Contributors:
+  Olivier Fourdan, Jonas Ådahl
+
+Translators:
+  Rafael Fontenelle [pt_BR], Gwan-gyeong Mun [ko], Christian Kirbach [de],
+  Claude Paroz [fr], Milo Casagrande [it], Emin Tufan Çetin [tr],
+  Ryuta Fujii [ja]
+
 3.33.92
 =======
 * Turn MetaShapedTexture into a ClutterContent implementation [Georges; !409]
