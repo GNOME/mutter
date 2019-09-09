@@ -993,7 +993,7 @@ meta_prop_get_values (MetaX11Display *x11_display,
             {
               char *new_str;
               new_str = latin1_to_utf8 (values[i].v.str);
-              free (values[i].v.str);
+              g_free (values[i].v.str);
               values[i].v.str = new_str;
             }
           break;
@@ -1072,7 +1072,7 @@ free_value (MetaPropValue *value)
       break;
     case META_PROP_VALUE_UTF8:
     case META_PROP_VALUE_STRING:
-      free (value->v.str);
+      g_free (value->v.str);
       break;
     case META_PROP_VALUE_STRING_AS_UTF8:
       g_free (value->v.str);
