@@ -773,7 +773,7 @@ size_hints_from_results (GetPropertyResults *results,
 
   raw = (xPropSizeHints*) results->prop;
 
-  hints = malloc (sizeof (XSizeHints));
+  hints = g_malloc (sizeof (XSizeHints));
 
   hints->flags = raw->flags;
   hints->x = raw->x;
@@ -1079,7 +1079,7 @@ free_value (MetaPropValue *value)
       g_free (value->v.class_hint.res_name);
       break;
     case META_PROP_VALUE_SIZE_HINTS:
-      free (value->v.size_hints.hints);
+      g_free (value->v.size_hints.hints);
       break;
     case META_PROP_VALUE_UTF8_LIST:
       g_strfreev (value->v.string_list.strings);
