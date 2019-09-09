@@ -165,12 +165,9 @@ validate_or_free_results (GetPropertyResults *results,
                 results->format, (int) results->n_items,
                 title, res_class, res_name);
 
-  if (type_name)
-    XFree (type_name);
-  if (expected_name)
-    XFree (expected_name);
-  if (prop_name)
-    XFree (prop_name);
+  meta_XFree (type_name);
+  meta_XFree (expected_name);
+  meta_XFree (prop_name);
 
   if (results->prop)
     {
