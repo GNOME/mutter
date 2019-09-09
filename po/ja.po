@@ -1,20 +1,22 @@
 # mutter ja.po.
-# Copyright (C) 2002-2012 Free Software Foundation, Inc.
+# Copyright (C) 2002-2019 Free Software Foundation, Inc.
 # Akira TAGOH <tagoh@gnome.gr.jp>, 2002.
 # KAMAGASAKO Masatoshi <emerald@gnome.gr.jp>, 2003.
-# Takeshi AIHANA <takeshi.aihana@gmail.com>, 2003-2011.
 # Yukihiro Nakai <nakai@gnome.gr.jp>, 2003.
+# Takeshi AIHANA <takeshi.aihana@gmail.com>, 2003-2011.
 # Satoru SATOH <ss@gnome.gr.jp>, 2006.
-# Jiro Matsuzawa <jmatsuzawa@gnome.org>, 2012, 2013.
 # Noriko Mizumoto <noriko@fedoraproject.org>, 2012.
+# Jiro Matsuzawa <jmatsuzawa@gnome.org>, 2012, 2013.
+# sujiniku <sujinikusityuu@gmail.com>, 2016.
+# sicklylife <translation@sicklylife.jp>, 2019.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
 "POT-Creation-Date: 2019-08-06 00:49+0000\n"
-"PO-Revision-Date: 2016-04-16 07:37+0900\n"
-"Last-Translator: sujiniku <sujinikusityuu@gmail.com>\n"
+"PO-Revision-Date: 2019-09-09 19:50+0900\n"
+"Last-Translator: sicklylife <translation@sicklylife.jp>\n"
 "Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -44,10 +46,8 @@ msgid "Move window to workspace 4"
 msgstr "ウィンドウをワークスペース 4 へ移動する"
 
 #: data/50-mutter-navigation.xml:21
-#, fuzzy
-#| msgid "Move window to workspace 1"
 msgid "Move window to last workspace"
-msgstr "ウィンドウをワークスペース 1 へ移動する"
+msgstr "ウィンドウを最後のワークスペースへ移動する"
 
 #: data/50-mutter-navigation.xml:24
 msgid "Move window one workspace up"
@@ -58,28 +58,20 @@ msgid "Move window one workspace down"
 msgstr "ウィンドウを下側のワークスペースへ移動する"
 
 #: data/50-mutter-navigation.xml:30
-#, fuzzy
-#| msgid "Move window one workspace to the left"
 msgid "Move window one monitor to the left"
-msgstr "ウィンドウを左側のワークスペースへ移動する"
+msgstr "ウィンドウを左側のモニターへ移動する"
 
 #: data/50-mutter-navigation.xml:33
-#, fuzzy
-#| msgid "Move window one workspace to the right"
 msgid "Move window one monitor to the right"
-msgstr "ウィンドウを右側のワークスペースへ移動する"
+msgstr "ウィンドウを右側のモニターへ移動する"
 
 #: data/50-mutter-navigation.xml:36
-#, fuzzy
-#| msgid "Move window one workspace up"
 msgid "Move window one monitor up"
-msgstr "ウィンドウを上側のワークスペースへ移動する"
+msgstr "ウィンドウを上側のモニターへ移動する"
 
 #: data/50-mutter-navigation.xml:39
-#, fuzzy
-#| msgid "Move window one workspace down"
 msgid "Move window one monitor down"
-msgstr "ウィンドウを下側のワークスペースへ移動する"
+msgstr "ウィンドウを下側のモニターへ移動する"
 
 #: data/50-mutter-navigation.xml:43
 msgid "Switch applications"
@@ -172,10 +164,8 @@ msgstr "ワークスペース 4 へ切り替える"
 
 # ｢キーボードショートカット｣のアプレット (gnome-control-center) で表示するメッセージ
 #: data/50-mutter-navigation.xml:120
-#, fuzzy
-#| msgid "Switch to workspace 1"
 msgid "Switch to last workspace"
-msgstr "ワークスペース 1 へ切り替える"
+msgstr "最後のワークスペースへ切り替える"
 
 #: data/50-mutter-navigation.xml:123
 msgid "Move to workspace above"
@@ -282,12 +272,6 @@ msgid "Modifier to use for extended window management operations"
 msgstr "ウィンドウの拡張管理の操作で使用する修飾キー"
 
 #: data/org.gnome.mutter.gschema.xml.in:8
-#, fuzzy
-#| msgid ""
-#| "This key will initiate the \"overlay\", which is a combination window "
-#| "overview and application launching system. The default is intended to be "
-#| "the \"Windows key\" on PC hardware. It's expected that this binding "
-#| "either the default or set to the empty string."
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -374,10 +358,6 @@ msgid "Draggable border width"
 msgstr "ドラッグが可能になる境界線の幅"
 
 #: data/org.gnome.mutter.gschema.xml.in:80
-#, fuzzy
-#| msgid ""
-#| "The amount of total draggable borders. If the theme's visible borders are "
-#| "not enough, invisible borders will be added to meet this value."
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -441,16 +421,13 @@ msgid "Cancel tab popup"
 msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:165
-#, fuzzy
-#| msgid "Switch applications"
 msgid "Switch monitor configurations"
-msgstr "アプリケーションを切り替える"
+msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Rotates the built-in monitor configuration"
 msgstr ""
 
-# ｢キーボードショートカット｣のアプレット (gnome-control-center) で表示するメッセージ
 #: data/org.gnome.mutter.wayland.gschema.xml.in:6
 #, fuzzy
 #| msgid "Switch to workspace 1"
@@ -585,22 +562,22 @@ msgstr ""
 
 #: src/backends/meta-monitor.c:223
 msgid "Built-in display"
-msgstr ""
+msgstr "組み込みのディスプレイ"
 
 #: src/backends/meta-monitor.c:252
 msgid "Unknown"
-msgstr ""
+msgstr "不明"
 
 #: src/backends/meta-monitor.c:254
 msgid "Unknown Display"
-msgstr ""
+msgstr "不明なディスプレイ"
 
 #: src/backends/meta-monitor.c:262
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
-msgstr ""
+msgstr "%s %s"
 
 #: src/backends/meta-monitor.c:270
 #, c-format
@@ -608,7 +585,7 @@ msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
 "inches could not be calculated, e.g. Dell U2414H"
 msgid "%s %s"
-msgstr ""
+msgstr "%s %s"
 
 #. Translators: this string will appear in Sysprof
 #: src/backends/meta-profiler.c:82
@@ -618,14 +595,11 @@ msgstr ""
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
 #: src/compositor/compositor.c:510
-#, fuzzy, c-format
-#| msgid ""
-#| "Another compositing manager is already running on screen %i on display "
-#| "\"%s\"."
+#, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr ""
-"既に別の合成マネージャーがディスプレイ \"%2$s\" 上のスクリーン %1$i で起動中"
+"すでに別の合成マネージャーがディスプレイ“%2$s”上のスクリーン %1$i で起動中"
 "です"
 
 #: src/core/bell.c:192
@@ -681,7 +655,7 @@ msgstr ""
 #: src/core/meta-close-dialog-default.c:151
 #, c-format
 msgid "“%s” is not responding."
-msgstr "“%s” から応答がありません"
+msgstr "“%s”から応答がありません"
 
 #: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
@@ -704,13 +678,7 @@ msgid "_Wait"
 msgstr "待機する(_W)"
 
 #: src/core/mutter.c:38
-#, fuzzy, c-format
-#| msgid ""
-#| "mutter %s\n"
-#| "Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-#| "This is free software; see the source for copying conditions.\n"
-#| "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-#| "PARTICULAR PURPOSE.\n"
+#, c-format
 msgid ""
 "mutter %s\n"
 "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
@@ -719,7 +687,7 @@ msgid ""
 "PARTICULAR PURPOSE.\n"
 msgstr ""
 "mutter %s\n"
-"Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
+"Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
 "This is free software; see the source for copying conditions.\n"
 "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
 "PARTICULAR PURPOSE.\n"
@@ -747,49 +715,39 @@ msgid "Mode Switch: Mode %d"
 msgstr ""
 
 #: src/x11/meta-x11-display.c:671
-#, fuzzy, c-format
-#| msgid ""
-#| "Screen %d on display \"%s\" already has a window manager; try using the --"
-#| "replace option to replace the current window manager.\n"
+#, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr ""
-"ディスプレイ \"%2$s\" 上のスクリーン %1$d はすでにウィンドウマネージャーを"
-"持っています; 現在のウィンドウマネージャーを上書きするために--replace オプ"
-"ションの使用を試してください。\n"
+"ディスプレイ“%s”はすでにウィンドウマネージャーを持っています。現在のウィンドウ"
+"マネージャーを上書きするために --replace オプションの使用を試してください。"
 
 #: src/x11/meta-x11-display.c:1032
 msgid "Failed to initialize GDK\n"
-msgstr ""
+msgstr "GDK の初期化に失敗しました\n"
 
 #: src/x11/meta-x11-display.c:1056
-#, fuzzy, c-format
-#| msgid "Failed to open X Window System display '%s'\n"
+#, c-format
 msgid "Failed to open X Window System display “%s”\n"
-msgstr "X Window System のディスプレイ '%s' のオープンに失敗しました\n"
+msgstr "X Window System のディスプレイ“%s”のオープンに失敗しました\n"
 
 #: src/x11/meta-x11-display.c:1140
-#, fuzzy, c-format
-#| msgid "Screen %d on display '%s' is invalid\n"
+#, c-format
 msgid "Screen %d on display “%s” is invalid\n"
-msgstr "ディスプレイ '%2$s' 上のスクリーン %1$d は無効です\n"
+msgstr "ディスプレイ“%2$s”上のスクリーン %1$d は無効です\n"
 
 #: src/x11/meta-x11-selection-input-stream.c:445
 #, c-format
 msgid "Format %s not supported"
-msgstr ""
+msgstr "フォーマット %s はサポートしていません"
 
 #: src/x11/session.c:1821
-#, fuzzy
-#| msgid ""
-#| "These windows do not support &quot;save current setup&quot; and will have "
-#| "to be restarted manually next time you log in."
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
 msgstr ""
-"これらのウィンドウは \"現在の設定を保存する\" 機能をサポートしません。次回ロ"
+"これらのウィンドウは“現在の設定を保存する”機能をサポートしません。次回ロ"
 "グインする時に手動で再起動してください。"
 
 #: src/x11/window-props.c:569
