@@ -28,6 +28,7 @@
 #include <string.h>
 
 #include "clutter/clutter.h"
+#include "meta/meta-backend.h"
 #include "meta/meta-background-actor.h"
 #include "meta/meta-background-group.h"
 #include "meta/meta-monitor-manager.h"
@@ -370,6 +371,67 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
 }
 
 static void
+init_keymap (MetaDefaultPlugin *self)
+{
+  g_autoptr (GError) error = NULL;
+  g_autoptr (GDBusProxy) proxy = NULL;
+  g_autoptr (GVariant) result = NULL;
+  g_autoptr (GVariant) props = NULL;
+  g_autofree char *x11_layout = NULL;
+  g_autofree char *x11_options = NULL;
+  g_autofree char *x11_variant = NULL;
+
+  proxy = g_dbus_proxy_new_for_bus_sync (G_BUS_TYPE_SYSTEM,
+                                         G_DBUS_PROXY_FLAGS_NONE,
+                                         NULL,
+                                         "org.freedesktop.locale1",
+                                         "/org/freedesktop/locale1",
+                                         "org.freedesktop.DBus.Properties",
+                                         NULL,
+                                         &error);
+  if (!proxy)
+    {
+      g_warning ("Failed to acquire org.freedesktop.locale1 proxy: %s, "
+                 "probably running in CI",
+                 error->message);
+      return;
+    }
+
+  result = g_dbus_proxy_call_sync (proxy,
+                                   "GetAll",
+                                   g_variant_new ("(s)",
+                                                  "org.freedesktop.locale1"),
+                                   G_DBUS_CALL_FLAGS_NONE,
+                                   100,
+                                   NULL,
+                                   &error);
+  if (!result)
+    {
+      g_warning ("Failed to retrieve locale properties: %s", error->message);
+      return;
+    }
+
+  props = g_variant_get_child_value (result, 0);
+  if (!props)
+    {
+      g_warning ("No locale properties found");
+      return;
+    }
+
+  if (!g_variant_lookup (props, "X11Layout", "s", &x11_layout))
+    x11_layout = g_strdup ("us");
+
+  if (!g_variant_lookup (props, "X11Options", "s", &x11_options))
+    x11_options = g_strdup ("");
+
+  if (!g_variant_lookup (props, "X11Variant", "s", &x11_variant))
+    x11_variant = g_strdup ("");
+
+  meta_backend_set_keymap (meta_get_backend (),
+                           x11_layout, x11_variant, x11_options);
+}
+
+static void
 start (MetaPlugin *plugin)
 {
   MetaDefaultPlugin *self = META_DEFAULT_PLUGIN (plugin);
@@ -384,6 +446,9 @@ start (MetaPlugin *plugin)
                     G_CALLBACK (on_monitors_changed), plugin);
 
   on_monitors_changed (monitor_manager, plugin);
+
+  if (meta_is_wayland_compositor ())
+    init_keymap (self);
 
   clutter_actor_show (meta_get_stage_for_display (display));
 }
