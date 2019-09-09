@@ -659,15 +659,14 @@ text_property_from_results (GetPropertyResults *results,
   *utf8_str_p = NULL;
 
   tp.value = results->prop;
-  results->prop = NULL;
   tp.encoding = results->type;
   tp.format = results->format;
   tp.nitems = results->n_items;
 
   *utf8_str_p = text_property_to_utf8 (results->x11_display->xdisplay, &tp);
 
-  if (tp.value != NULL)
-    XFree (tp.value);
+  g_free (results->prop);
+  results->prop = NULL;
 
   return *utf8_str_p != NULL;
 }
@@ -1088,7 +1087,7 @@ free_value (MetaPropValue *value)
       g_free (value->v.atom_list.atoms);
       break;
     case META_PROP_VALUE_TEXT_PROPERTY:
-      free (value->v.str);
+      g_free (value->v.str);
       break;
     case META_PROP_VALUE_WM_HINTS:
       free (value->v.wm_hints);
