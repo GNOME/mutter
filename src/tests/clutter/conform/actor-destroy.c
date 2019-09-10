@@ -151,7 +151,19 @@ on_destroy (ClutterActor *actor,
 {
   gboolean *destroy_called = data;
 
+  g_assert_true (CLUTTER_IS_ACTOR (clutter_actor_get_parent (actor)));
+
   *destroy_called = TRUE;
+}
+
+static void
+on_parent_set (ClutterActor *actor,
+               ClutterActor *old_parent,
+               gpointer      data)
+{
+  gboolean *parent_set_called = data;
+
+  *parent_set_called = TRUE;
 }
 
 static void
@@ -160,6 +172,7 @@ actor_destruction (void)
   ClutterActor *test = g_object_new (TEST_TYPE_DESTROY, NULL);
   ClutterActor *child = clutter_rectangle_new ();
   gboolean destroy_called = FALSE;
+  gboolean parent_set_called = FALSE;
 
   g_object_ref_sink (test);
 
@@ -171,6 +184,8 @@ actor_destruction (void)
 
   clutter_actor_set_name (child, "Child");
   clutter_container_add_actor (CLUTTER_CONTAINER (test), child);
+  g_signal_connect (child, "parent-set", G_CALLBACK (on_parent_set),
+                    &parent_set_called);
   g_signal_connect (child, "destroy", G_CALLBACK (on_destroy), &destroy_called);
 
   if (g_test_verbose ())
@@ -178,6 +193,7 @@ actor_destruction (void)
 
   clutter_actor_destroy (test);
   g_assert (destroy_called);
+  g_assert_false (parent_set_called);
   g_assert_null (child);
   g_assert_null (test);
 }

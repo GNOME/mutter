@@ -4433,7 +4433,8 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
     }
 
   /* clutter_actor_reparent() will emit ::parent-set for us */
-  if (emit_parent_set && !CLUTTER_ACTOR_IN_REPARENT (child))
+  if (emit_parent_set && !CLUTTER_ACTOR_IN_REPARENT (child) &&
+      !CLUTTER_ACTOR_IN_DESTRUCTION (child))
     {
       child->priv->needs_compute_resource_scale = TRUE;
       g_signal_emit (child, actor_signals[PARENT_SET], 0, self);
