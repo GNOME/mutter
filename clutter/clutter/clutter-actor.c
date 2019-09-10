@@ -746,9 +746,6 @@ struct _ClutterActorPrivate
    */
   ClutterTextDirection text_direction;
 
-  /* a counter used to toggle the CLUTTER_INTERNAL_CHILD flag */
-  gint internal_child;
-
   /* meta classes */
   ClutterMetaGroup *actions;
   ClutterMetaGroup *constraints;
@@ -6078,18 +6075,7 @@ clutter_actor_dispose (GObject *object)
   if (priv->parent != NULL)
     {
       ClutterActor *parent = priv->parent;
-
-      /* go through the Container implementation unless this
-       * is an internal child and has been marked as such.
-       *
-       * removing the actor from its parent will reset the
-       * realized and mapped states.
-       */
-      if (!CLUTTER_ACTOR_IS_INTERNAL_CHILD (self))
-        clutter_container_remove_actor (CLUTTER_CONTAINER (parent), self);
-      else
-        clutter_actor_remove_child_internal (parent, self,
-                                             REMOVE_CHILD_LEGACY_FLAGS);
+      clutter_container_remove_actor (CLUTTER_CONTAINER (parent), self);
     }
 
   /* parent must be gone at this point */
@@ -13104,12 +13090,6 @@ clutter_actor_add_child_internal (ClutterActor              *self,
   if (self->priv->in_cloned_branch)
     clutter_actor_push_in_cloned_branch (child, self->priv->in_cloned_branch);
 
-  /* if push_internal() has been called then we automatically set
-   * the flag on the actor
-   */
-  if (self->priv->internal_child)
-    CLUTTER_SET_PRIVATE_FLAGS (child, CLUTTER_INTERNAL_CHILD);
-
   /* children may cause their parent to expand, if they are set
    * to expand; if a child is not expanded then it cannot change
    * its parent's state. any further change later on will queue
@@ -13710,29 +13690,12 @@ clutter_actor_reparent (ClutterActor *self,
 
       if (old_parent != NULL)
         {
-         /* go through the Container implementation if this is a regular
-          * child and not an internal one
-          */
-         if (!CLUTTER_ACTOR_IS_INTERNAL_CHILD (self))
-           {
-             ClutterContainer *parent = CLUTTER_CONTAINER (old_parent);
-
-             /* this will have to call unparent() */
-             clutter_container_remove_actor (parent, self);
-           }
-         else
-           clutter_actor_remove_child_internal (old_parent, self,
-                                                REMOVE_CHILD_LEGACY_FLAGS);
+          /* this will have to call unparent() */
+          clutter_container_remove_actor (CLUTTER_CONTAINER (old_parent), self);
         }
 
       /* Note, will call set_parent() */
-      if (!CLUTTER_ACTOR_IS_INTERNAL_CHILD (self))
-        clutter_container_add_actor (CLUTTER_CONTAINER (new_parent), self);
-      else
-        clutter_actor_add_child_internal (new_parent, self,
-                                          ADD_CHILD_LEGACY_FLAGS,
-                                          insert_child_at_depth,
-                                          NULL);
+      clutter_container_add_actor (CLUTTER_CONTAINER (new_parent), self);
 
       priv->needs_compute_resource_scale = TRUE;
 
@@ -16802,100 +16765,6 @@ clutter_actor_get_text_direction (ClutterActor *self)
     priv->text_direction = clutter_get_default_text_direction ();
 
   return priv->text_direction;
-}
-
-/**
- * clutter_actor_push_internal:
- * @self: a #ClutterActor
- *
- * Should be used by actors implementing the #ClutterContainer and with
- * internal children added through clutter_actor_set_parent(), for instance:
- *
- * |[<!-- language="C" -->
- *   static void
- *   my_actor_init (MyActor *self)
- *   {
- *     self->priv = my_actor_get_instance_private (self);
- *
- *     clutter_actor_push_internal (CLUTTER_ACTOR (self));
- *
- *     // calling clutter_actor_set_parent() now will result in
- *     // the internal flag being set on a child of MyActor
- *
- *     // internal child - a background texture
- *     self->priv->background_tex = clutter_texture_new ();
- *     clutter_actor_set_parent (self->priv->background_tex,
- *                               CLUTTER_ACTOR (self));
- *
- *     // internal child - a label
- *     self->priv->label = clutter_text_new ();
- *     clutter_actor_set_parent (self->priv->label,
- *                               CLUTTER_ACTOR (self));
- *
- *     clutter_actor_pop_internal (CLUTTER_ACTOR (self));
- *
- *     // calling clutter_actor_set_parent() now will not result in
- *     // the internal flag being set on a child of MyActor
- *   }
- * ]|
- *
- * This function will be used by Clutter to toggle an "internal child"
- * flag whenever clutter_actor_set_parent() is called; internal children
- * are handled differently by Clutter, specifically when destroying their
- * parent.
- *
- * Call clutter_actor_pop_internal() when you finished adding internal
- * children.
- *
- * Nested calls to clutter_actor_push_internal() are allowed, but each
- * one must by followed by a clutter_actor_pop_internal() call.
- *
- * Since: 1.2
- *
- * Deprecated: 1.10: All children of an actor are accessible through
- *   the #ClutterActor API, and #ClutterActor implements the
- *   #ClutterContainer interface, so this function is only useful
- *   for legacy containers overriding the default implementation.
- */
-void
-clutter_actor_push_internal (ClutterActor *self)
-{
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  self->priv->internal_child += 1;
-}
-
-/**
- * clutter_actor_pop_internal:
- * @self: a #ClutterActor
- *
- * Disables the effects of clutter_actor_push_internal().
- *
- * Since: 1.2
- *
- * Deprecated: 1.10: All children of an actor are accessible through
- *   the #ClutterActor API. This function is only useful for legacy
- *   containers overriding the default implementation of the
- *   #ClutterContainer interface.
- */
-void
-clutter_actor_pop_internal (ClutterActor *self)
-{
-  ClutterActorPrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  priv = self->priv;
-
-  if (priv->internal_child == 0)
-    {
-      g_warning ("Mismatched %s: you need to call "
-                 "clutter_actor_push_composite() at least once before "
-                 "calling this function", G_STRFUNC);
-      return;
-    }
-
-  priv->internal_child -= 1;
 }
 
 /**

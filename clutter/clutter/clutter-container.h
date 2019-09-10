@@ -61,12 +61,6 @@ typedef struct _ClutterContainerIface   ClutterContainerIface;
  *   virtual function is deprecated, and it should not be overridden.
  * @foreach: virtual function for iterating over the container's children.
  *   This virtual function is deprecated, and it should not be overridden.
- * @foreach_with_internals: virtual functions for iterating over the
- *   container's children, both added using the #ClutterContainer API
- *   and internal children. The implementation of this virtual function
- *   is required only if the #ClutterContainer implementation has
- *   internal children. This virtual function is deprecated, and it should
- *   not be overridden.
  * @raise: virtual function for raising a child. This virtual function is
  *   deprecated and it should not be overridden.
  * @lower: virtual function for lowering a child. This virtual function is
@@ -107,10 +101,6 @@ struct _ClutterContainerIface
   void (* foreach)          (ClutterContainer *container,
                              ClutterCallback   callback,
                              gpointer          user_data);
-
-  void (* foreach_with_internals) (ClutterContainer *container,
-                                   ClutterCallback   callback,
-                                   gpointer          user_data);
 
   /* child stacking */
   void (* raise)            (ClutterContainer *container,

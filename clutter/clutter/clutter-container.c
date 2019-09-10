@@ -618,52 +618,6 @@ clutter_container_foreach (ClutterContainer *container,
 }
 
 /**
- * clutter_container_foreach_with_internals:
- * @container: a #ClutterContainer
- * @callback: (scope call): a function to be called for each child
- * @user_data: data to be passed to the function, or %NULL
- *
- * Calls @callback for each child of @container, including "internal"
- * children built in to the container itself that were never added
- * by the application.
- *
- * This function calls the #ClutterContainerIface.foreach_with_internals()
- * virtual function, which has been deprecated.
- *
- * Since: 1.0
- *
- * Deprecated: 1.10: See clutter_container_foreach().
- */
-void
-clutter_container_foreach_with_internals (ClutterContainer *container,
-                                          ClutterCallback   callback,
-                                          gpointer          user_data)
-{
-  ClutterContainerIface *iface;
-
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
-  g_return_if_fail (callback != NULL);
-
-  iface = CLUTTER_CONTAINER_GET_IFACE (container);
-
-#ifdef CLUTTER_ENABLE_DEBUG
-  if (G_UNLIKELY (_clutter_diagnostic_enabled ()))
-    {
-      if (iface->foreach_with_internals != NULL)
-        _clutter_diagnostic_message ("The ClutterContainer::foreach_with_internals() "
-                                     "virtual function has been deprecated "
-                                     "and it should not be overridden by "
-                                     "newly written code");
-    }
-#endif /* CLUTTER_ENABLE_DEBUG */
-
-  if (iface->foreach_with_internals != NULL)
-    iface->foreach_with_internals (container, callback, user_data);
-  else
-    iface->foreach (container, callback, user_data);
-}
-
-/**
  * clutter_container_raise_child: (virtual raise)
  * @container: a #ClutterContainer
  * @actor: the actor to raise
