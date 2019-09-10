@@ -154,16 +154,9 @@ sequence_is_pointer_emulated (MetaDisplay        *display,
    * on screen gets the "pointer emulated" flag, and it won't get assigned
    * to another sequence until the next first touch on an idle touchscreen.
    */
-  if (META_IS_BACKEND_NATIVE (backend))
-    {
-      MetaGestureTracker *tracker;
-
-      tracker = meta_display_get_gesture_tracker (display);
-
-      if (event->type == CLUTTER_TOUCH_BEGIN &&
-          meta_gesture_tracker_get_n_current_touches (tracker) == 0)
-        return TRUE;
-    }
+  if (META_IS_BACKEND_NATIVE (backend) &&
+      clutter_input_device_get_n_sequences (device) == 1)
+    return TRUE;
 #endif /* HAVE_NATIVE_BACKEND */
 
   return FALSE;
@@ -174,6 +167,7 @@ meta_display_handle_event (MetaDisplay        *display,
                            const ClutterEvent *event)
 {
   MetaBackend *backend = meta_get_backend ();
+  ClutterInputDevice *device = clutter_event_get_device (event);
   MetaWindow *window;
   gboolean bypass_clutter = FALSE;
   G_GNUC_UNUSED gboolean bypass_wayland = FALSE;

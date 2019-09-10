@@ -129,6 +129,8 @@ void                    clutter_input_device_sequence_ungrab    (ClutterInputDev
 CLUTTER_EXPORT
 ClutterActor *          clutter_input_device_sequence_get_grabbed_actor (ClutterInputDevice   *device,
                                                                          ClutterEventSequence *sequence);
+CLUTTER_EXPORT
+guint                   clutter_input_device_get_n_sequences    (ClutterInputDevice  *device);
 
 CLUTTER_EXPORT
 gboolean                clutter_input_device_keycode_to_evdev   (ClutterInputDevice *device,
