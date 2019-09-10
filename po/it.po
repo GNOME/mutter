@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-08-06 00:49+0000\n"
-"PO-Revision-Date: 2019-08-20 10:45+0200\n"
+"POT-Creation-Date: 2019-09-06 08:46+0000\n"
+"PO-Revision-Date: 2019-09-10 10:56+0200\n"
 "Last-Translator: Milo Casagrande <milo@milo.name>\n"
 "Language-Team: Italian <tp@lists.linux.it>\n"
 "Language: it\n"
@@ -398,17 +398,6 @@ msgid "Enable experimental features"
 msgstr "Abilita funzionalità sperimentali"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#, fuzzy
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -431,7 +420,10 @@ msgstr ""
 "modo che mutter disponga gli schermi logici secondo uno spazio logico di "
 "coordinate pixel, applicando il ridimensionamento ai framebuffer invece che "
 "al contenuto della finestra, per gestire schermi HiDPI (non richiede il "
-"riavvio)."
+"riavvio). • “rt-scheduler” — Richiede uno scheduling real-time a bassa "
+"priorità. L'eseguibile o l'utente deve avere la proprietà CAP_SYS_NICE "
+"(richiede il riavvio). • “autostart-xwayland” — Avvia Xwayland passivamente "
+"se ci sono client X11 (richiede il riavvio)."
 
 #: data/org.gnome.mutter.gschema.xml.in:134
 msgid "Modifier to use to locate the pointer"
@@ -515,13 +507,6 @@ msgstr ""
 "Consente alle catture X11 di bloccare il focus della tastiera con Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
-#, fuzzy
-#| msgid ""
-#| "Allow keyboard grabs issued by X11 applications running in Xwayland to be "
-#| "taken into account. For a X11 grab to be taken into account under "
-#| "Wayland, the client must also either send a specific X11 ClientMessage to "
-#| "the root window or be among the applications white-listed in key "
-#| "“xwayland-grab-access-rules”."
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -533,11 +518,17 @@ msgid ""
 "specific X11 ClientMessage to the root window or be among the applications "
 "white-listed in key “xwayland-grab-access-rules”."
 msgstr ""
-"Consente la cattura della tastiera da applicazioni X11 in esecuzione su "
-"Xwayland. Affinché la cattura X11 venga considerata da Wayland, il client "
-"deve inviare uno specifico messaggio ClientMessage X11 alla finestra "
-"principale o essere nell'elenco di applicazioni autorizzate tramite la "
-"chiave \"xwayland-grab-access-rules\"."
+"Consente a tutti gli eventi della tastiera di essere instradati verso "
+"finestre \"override redirect\" di X11 con cattura quando in esecuzione in "
+"Xwayland. Questa opzione serve per supportare i client X11 che mappano una "
+"finestra \"override redirect\" (che non riceve il focus da tastiera) ed "
+"emette una cattura della tastiera per forzare tutti gli eventi da tastiera "
+"verso quella finestra. Questa opzione non viene usata raramente e non ha "
+"alcun effetto sulle finestra X11 normali in grado di ricevere, in "
+"circostanze normali, il focus da tastiera. Affinché la cattura X11 venga "
+"considerata da Wayland, il client deve inviare uno specifico messaggio "
+"ClientMessage X11 alla finestra principale o essere nell'elenco di "
+"applicazioni autorizzate tramite la chiave \"xwayland-grab-access-rules\"."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -621,7 +612,7 @@ msgstr "Compositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:509
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -633,47 +624,47 @@ msgstr ""
 msgid "Bell event"
 msgstr "Evento campanella"
 
-#: src/core/main.c:185
+#: src/core/main.c:186
 msgid "Disable connection to session manager"
 msgstr "Disabilita la connessione al gestore di sessione"
 
-#: src/core/main.c:191
+#: src/core/main.c:192
 msgid "Replace the running window manager"
 msgstr "Sostituisce il window manager in esecuzione"
 
-#: src/core/main.c:197
+#: src/core/main.c:198
 msgid "Specify session management ID"
 msgstr "Specifica l'ID di gestione sessione"
 
-#: src/core/main.c:202
+#: src/core/main.c:203
 msgid "X Display to use"
 msgstr "Display X da usare"
 
-#: src/core/main.c:208
+#: src/core/main.c:209
 msgid "Initialize session from savefile"
 msgstr "Inizializza la sessione da file salvato"
 
-#: src/core/main.c:214
+#: src/core/main.c:215
 msgid "Make X calls synchronous"
 msgstr "Rende le chiamate X sincrone"
 
-#: src/core/main.c:221
+#: src/core/main.c:222
 msgid "Run as a wayland compositor"
 msgstr "Esegui come compositor Wayland"
 
-#: src/core/main.c:227
+#: src/core/main.c:228
 msgid "Run as a nested compositor"
 msgstr "Esegui come compositor annidato"
 
-#: src/core/main.c:233
+#: src/core/main.c:234
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Esegui il compositor Wayland senza avviare Xwayland"
 
-#: src/core/main.c:241
+#: src/core/main.c:242
 msgid "Run as a full display server, rather than nested"
 msgstr "Esegui come display server invece che annidato"
 
-#: src/core/main.c:247
+#: src/core/main.c:248
 msgid "Run with X11 backend"
 msgstr "Esegui con sistema X11"
 
@@ -731,17 +722,17 @@ msgstr "Plugin Mutter da usare"
 msgid "Workspace %d"
 msgstr "Spazio di lavoro %d"
 
-#: src/core/util.c:121
+#: src/core/util.c:122
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr ""
 "Mutter è stato compilato escludendo il supporto per la modalità prolissa\n"
 
-#: src/wayland/meta-wayland-tablet-pad.c:567
+#: src/wayland/meta-wayland-tablet-pad.c:568
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Cambio modalità: modalità %d"
 
-#: src/x11/meta-x11-display.c:671
+#: src/x11/meta-x11-display.c:679
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -750,16 +741,16 @@ msgstr ""
 "Il display «%s» ha già un window manager; provare a utilizzare l'opzione --"
 "replace per sostituirlo."
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1040
 msgid "Failed to initialize GDK\n"
 msgstr "Inizializzazione GDK non riuscita\n"
 
-#: src/x11/meta-x11-display.c:1056
+#: src/x11/meta-x11-display.c:1064
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Apertura del display «%s» di X Window System non riuscita\n"
 
-#: src/x11/meta-x11-display.c:1140
+#: src/x11/meta-x11-display.c:1147
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Lo schermo %d sul display «%s» non è valido\n"
@@ -781,18 +772,3 @@ msgstr ""
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (su %s)"
-
-#~ msgid "Move window one workspace to the left"
-#~ msgstr "Sposta la finestra sullo spazio di lavoro a sinistra"
-
-#~ msgid "Move window one workspace to the right"
-#~ msgstr "Sposta la finestra sullo spazio di lavoro a destra"
-
-#~ msgid "Move to workspace left"
-#~ msgstr "Sposta su spazio di lavoro a sinistra"
-
-#~ msgid "Move to workspace right"
-#~ msgstr "Sposta su spazio di lavoro a destra"
-
-#~ msgid "Toggle shaded state"
-#~ msgstr "Attiva/Disattiva lo stato arrotolato"
