@@ -6069,6 +6069,9 @@ clutter_actor_dispose (GObject *object)
                 object->ref_count,
 		g_type_name (G_OBJECT_TYPE (self)));
 
+  /* Stop the emission of any property change */
+  g_object_freeze_notify (object);
+
   g_signal_emit (self, actor_signals[DESTROY], 0);
 
   /* avoid recursing when called from clutter_actor_destroy() */
