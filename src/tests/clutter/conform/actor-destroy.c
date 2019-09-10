@@ -60,13 +60,8 @@ test_destroy_remove (ClutterContainer *container,
              clutter_actor_get_name (actor),
              G_OBJECT_TYPE_NAME (actor));
 
-  g_assert (actor != self->bg);
-  g_assert (actor != self->label);
-
-  if (!g_list_find (self->children, actor))
-    g_assert (actor == self->tex);
-  else
-    self->children = g_list_remove (self->children, actor);
+  g_assert_true (g_list_find (self->children, actor));
+  self->children = g_list_remove (self->children, actor);
 
   clutter_actor_unparent (actor);
 }
@@ -82,6 +77,8 @@ static void
 test_destroy_destroy (ClutterActor *self)
 {
   TestDestroy *test = TEST_DESTROY (self);
+
+  g_assert_cmpuint (g_list_length (test->children), ==, 4);
 
   if (test->bg != NULL)
     {
@@ -116,7 +113,7 @@ test_destroy_destroy (ClutterActor *self)
       test->tex = NULL;
     }
 
-  g_assert_nonnull (test->children);
+  g_assert_cmpuint (g_list_length (test->children), ==, 1);
 
   if (CLUTTER_ACTOR_CLASS (test_destroy_parent_class)->destroy)
     CLUTTER_ACTOR_CLASS (test_destroy_parent_class)->destroy (self);
@@ -135,23 +132,16 @@ test_destroy_class_init (TestDestroyClass *klass)
 static void
 test_destroy_init (TestDestroy *self)
 {
-  clutter_actor_push_internal (CLUTTER_ACTOR (self));
-
-  if (g_test_verbose ())
-    g_print ("Adding internal children...\n");
-
   self->bg = clutter_rectangle_new ();
-  clutter_actor_set_parent (self->bg, CLUTTER_ACTOR (self));
+  clutter_container_add_actor (CLUTTER_CONTAINER (self), self->bg);
   clutter_actor_set_name (self->bg, "Background");
 
   self->label = clutter_text_new ();
-  clutter_actor_set_parent (self->label, CLUTTER_ACTOR (self));
+  clutter_container_add_actor (CLUTTER_CONTAINER (self), self->label);
   clutter_actor_set_name (self->label, "Label");
 
-  clutter_actor_pop_internal (CLUTTER_ACTOR (self));
-
   self->tex = clutter_texture_new ();
-  clutter_actor_set_parent (self->tex, CLUTTER_ACTOR (self));
+  clutter_container_add_actor (CLUTTER_CONTAINER (self), self->tex);
   clutter_actor_set_name (self->tex, "Texture");
 }
 
