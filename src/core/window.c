@@ -3003,6 +3003,21 @@ meta_window_is_screen_sized (MetaWindow *window)
   return FALSE;
 }
 
+gboolean
+meta_window_is_logical_monitor_sized (MetaWindow *window)
+{
+  MetaRectangle window_rect;
+  MetaRectangle logical_monitor_rect;
+
+  if (!window->monitor)
+    return FALSE;
+
+  meta_window_get_frame_rect (window, &window_rect);
+  logical_monitor_rect = meta_logical_monitor_get_layout (window->monitor);
+
+  return meta_rectangle_equal (&window_rect, &logical_monitor_rect);
+}
+
 /**
  * meta_window_is_monitor_sized:
  * @window: a #MetaWindow

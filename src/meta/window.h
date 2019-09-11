@@ -281,6 +281,9 @@ META_EXPORT
 gboolean          meta_window_is_monitor_sized (MetaWindow *window);
 
 META_EXPORT
+gboolean          meta_window_is_logical_monitor_sized (MetaWindow *window);
+
+META_EXPORT
 gboolean          meta_window_is_on_primary_monitor (MetaWindow *window);
 
 META_EXPORT
