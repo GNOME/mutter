@@ -803,6 +803,7 @@ meta_display_open (void)
 
   if (display->x11_display)
     {
+      g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
       meta_x11_display_restore_active_workspace (display->x11_display);
       meta_x11_display_create_guard_window (display->x11_display);
     }
