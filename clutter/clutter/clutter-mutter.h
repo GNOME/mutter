@@ -60,6 +60,9 @@ void clutter_stage_update_resource_scales (ClutterStage *stage);
 CLUTTER_EXPORT
 gboolean clutter_actor_has_damage (ClutterActor *actor);
 
+CLUTTER_EXPORT
+gboolean clutter_actor_has_transitions (ClutterActor *actor);
+
 #undef __CLUTTER_H_INSIDE__
 
 #endif /* __CLUTTER_MUTTER_H__ */
