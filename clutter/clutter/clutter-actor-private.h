@@ -242,9 +242,6 @@ ClutterAnimationInfo *          _clutter_actor_get_animation_info               
 ClutterTransition *             _clutter_actor_create_transition                        (ClutterActor *self,
                                                                                          GParamSpec   *pspec,
                                                                                          ...);
-ClutterTransition *             _clutter_actor_get_transition                           (ClutterActor *self,
-                                                                                         GParamSpec   *pspec);
-
 gboolean                        _clutter_actor_foreach_child                            (ClutterActor *self,
                                                                                          ClutterForeachCallback callback,
                                                                                          gpointer user_data);
