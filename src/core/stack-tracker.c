@@ -556,7 +556,7 @@ meta_stack_tracker_new (MetaDisplay *display)
   tracker->unverified_predictions = g_queue_new ();
 
   g_signal_connect (display,
-                    "x11-display-opened",
+                    "x11-display-setup",
                     G_CALLBACK (query_xserver_stack),
                     tracker);
   g_signal_connect (display,
