@@ -19410,9 +19410,9 @@ clutter_actor_iter_destroy (ClutterActorIter *iter)
 }
 
 static const ClutterAnimationInfo default_animation_info = {
-  NULL,         /* transitions */
   NULL,         /* states */
   NULL,         /* cur_state */
+  NULL,         /* transitions */
 };
 
 static void
