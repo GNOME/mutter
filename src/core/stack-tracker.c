@@ -169,6 +169,8 @@ struct _MetaStackTracker
    * stack up with our best guess before a frame is drawn.
    */
   guint sync_stack_later;
+
+  gboolean synchronized_with_xserver;
 };
 
 static void
@@ -492,6 +494,10 @@ query_xserver_stack (MetaDisplay      *display,
   guint n_children;
   guint i, old_len;
 
+  if (tracker->synchronized_with_xserver)
+    return;
+
+  tracker->synchronized_with_xserver = TRUE;
   tracker->xserver_serial = XNextRequest (x11_display->xdisplay);
 
   XQueryTree (x11_display->xdisplay,
@@ -542,6 +548,8 @@ drop_x11_windows (MetaDisplay      *display,
 
       l = next;
     }
+
+  tracker->synchronized_with_xserver = FALSE;
 }
 
 MetaStackTracker *
