@@ -2208,7 +2208,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
    * animation earlier due to the animation being driven by some other monitor.
    */
   COGL_TRACE_BEGIN (MetaRendererNativeSwapBuffersWait,
-                    "Onscreen (waiting for page flips");
+                    "Onscreen (waiting for page flips)");
   wait_for_pending_flips (onscreen);
   COGL_TRACE_END (MetaRendererNativeSwapBuffersWait);
 
@@ -2276,7 +2276,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
     _cogl_winsys_egl_ensure_current (cogl_display);
 
   COGL_TRACE_BEGIN (MetaRendererNativePostKmsUpdate,
-                    "Onscreen (post pending update");
+                    "Onscreen (post pending update)");
   if (!meta_kms_post_pending_update_sync (kms, &error))
     {
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
