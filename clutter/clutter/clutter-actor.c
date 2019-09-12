@@ -19410,9 +19410,9 @@ clutter_actor_iter_destroy (ClutterActorIter *iter)
 }
 
 static const ClutterAnimationInfo default_animation_info = {
-  NULL,         /* transitions */
   NULL,         /* states */
   NULL,         /* cur_state */
+  NULL,         /* transitions */
 };
 
 static void
@@ -19464,20 +19464,6 @@ _clutter_actor_get_animation_info (ClutterActor *self)
     }
 
   return res;
-}
-
-ClutterTransition *
-_clutter_actor_get_transition (ClutterActor *actor,
-                               GParamSpec   *pspec)
-{
-  const ClutterAnimationInfo *info;
-
-  info = _clutter_actor_get_animation_info_or_defaults (actor);
-
-  if (info->transitions == NULL)
-    return NULL;
-
-  return g_hash_table_lookup (info->transitions, pspec->name);
 }
 
 static void
