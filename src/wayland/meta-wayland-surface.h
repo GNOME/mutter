@@ -333,4 +333,7 @@ void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSur
 int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
 
+CoglScanout *       meta_wayland_surface_try_acquire_scanout (MetaWaylandSurface *surface,
+                                                              CoglOnscreen       *onscreen);
+
 #endif
