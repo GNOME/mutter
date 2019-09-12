@@ -23,6 +23,9 @@
 #include <cairo-gobject.h>
 #include <math.h>
 
+#include "clutter/clutter-mutter.h"
+#include "cogl/cogl-scanout.h"
+
 enum
 {
   PROP_0,
@@ -45,6 +48,8 @@ typedef struct _ClutterStageViewPrivate
 
   CoglOffscreen *offscreen;
   CoglPipeline *pipeline;
+
+  CoglScanout *next_scanout;
 
   guint dirty_viewport   : 1;
   guint dirty_projection : 1;
@@ -235,6 +240,26 @@ clutter_stage_default_get_offscreen_transformation_matrix (ClutterStageView *vie
                                                            CoglMatrix       *matrix)
 {
   cogl_matrix_init_identity (matrix);
+}
+
+void
+clutter_stage_view_assign_next_scanout (ClutterStageView *view,
+                                        CoglScanout      *scanout)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  g_clear_object (&priv->next_scanout);
+  priv->next_scanout = scanout;
+}
+
+CoglScanout *
+clutter_stage_view_take_scanout (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  return g_steal_pointer (&priv->next_scanout);
 }
 
 static void
