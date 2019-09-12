@@ -887,6 +887,11 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
                                 MetaWaylandSurface *surface)
 {
   MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (pointer);
+  MetaBackend *backend = meta_get_backend ();
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+
+  g_return_if_fail (meta_cursor_tracker_get_pointer_visible (cursor_tracker) ||
+		    surface == NULL);
 
   if (pointer->focus_surface == surface)
     return;
