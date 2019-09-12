@@ -57,4 +57,9 @@ void meta_renderer_native_finish_frame (MetaRendererNative *renderer_native);
 
 int64_t meta_renderer_native_get_frame_counter (MetaRendererNative *renderer_native);
 
+gboolean meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
+                                                            uint32_t      drm_format,
+                                                            uint64_t      drm_modifier,
+                                                            uint32_t      stride);
+
 #endif /* META_RENDERER_NATIVE_H */
