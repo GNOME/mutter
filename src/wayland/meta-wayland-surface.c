@@ -872,7 +872,7 @@ static void
 meta_wayland_surface_commit (MetaWaylandSurface *surface)
 {
   COGL_TRACE_BEGIN_SCOPED (MetaWaylandSurfaceCommit,
-                           "WaylandSurface (commit");
+                           "WaylandSurface (commit)");
 
   if (surface->pending->buffer &&
       !meta_wayland_buffer_is_realized (surface->pending->buffer))
