@@ -181,10 +181,6 @@ struct _CoglFramebuffer
   int                 clear_clip_y1;
   gboolean            clear_clip_dirty;
 
-  /* Whether something has been drawn to the buffer since the last
-   * swap buffers or swap region. */
-  gboolean            mid_scene;
-
   /* driver specific */
   gboolean            dirty_bitmasks;
   CoglFramebufferBits bits;
@@ -268,9 +264,6 @@ _cogl_framebuffer_clear_without_flush4f (CoglFramebuffer *framebuffer,
 
 void
 _cogl_framebuffer_mark_clear_clip_dirty (CoglFramebuffer *framebuffer);
-
-void
-_cogl_framebuffer_mark_mid_scene (CoglFramebuffer *framebuffer);
 
 /*
  * _cogl_framebuffer_get_clip_stack:
