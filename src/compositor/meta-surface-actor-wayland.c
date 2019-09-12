@@ -79,6 +79,40 @@ meta_surface_actor_wayland_is_opaque (MetaSurfaceActor *actor)
   return meta_shaped_texture_is_opaque (stex);
 }
 
+static void
+queue_frame_callbacks (MetaSurfaceActorWayland *self)
+{
+  MetaWaylandCompositor *wayland_compositor;
+
+  if (!self->surface)
+    return;
+
+  if (meta_surface_actor_is_obscured (META_SURFACE_ACTOR (self)))
+    return;
+
+  wayland_compositor = self->surface->compositor;
+  wl_list_insert_list (&wayland_compositor->frame_callbacks,
+                       &self->frame_callback_list);
+  wl_list_init (&self->frame_callback_list);
+}
+
+CoglScanout *
+meta_surface_actor_wayland_try_acquire_scanout (MetaSurfaceActorWayland *self,
+                                                CoglOnscreen            *onscreen)
+{
+  MetaWaylandSurface *surface;
+  CoglScanout *scanout;
+
+  surface = meta_surface_actor_wayland_get_surface (self);
+  scanout = meta_wayland_surface_try_acquire_scanout (surface, onscreen);
+  if (!scanout)
+    return NULL;
+
+  queue_frame_callbacks (self);
+
+  return scanout;
+}
+
 void
 meta_surface_actor_wayland_add_frame_callbacks (MetaSurfaceActorWayland *self,
                                                 struct wl_list *frame_callbacks)
@@ -92,14 +126,7 @@ meta_surface_actor_wayland_paint (ClutterActor        *actor,
 {
   MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
 
-  if (self->surface &&
-      !meta_surface_actor_is_obscured (META_SURFACE_ACTOR (actor)))
-    {
-      MetaWaylandCompositor *compositor = self->surface->compositor;
-
-      wl_list_insert_list (&compositor->frame_callbacks, &self->frame_callback_list);
-      wl_list_init (&self->frame_callback_list);
-    }
+  queue_frame_callbacks (self);
 
   CLUTTER_ACTOR_CLASS (meta_surface_actor_wayland_parent_class)->paint (actor,
                                                                         paint_context);
