@@ -427,6 +427,8 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
   MetaWaylandPointer *pointer = grab->pointer;
   MetaWaylandSeat *seat = meta_wayland_pointer_get_seat (pointer);
   MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
   if (pointer->button_count > 0)
     return;
@@ -444,7 +446,8 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
       break;
     }
 
-  if (meta_wayland_seat_has_pointer (seat))
+  if (meta_wayland_seat_has_pointer (seat) &&
+      meta_cursor_tracker_get_pointer_visible (cursor_tracker))
     meta_wayland_pointer_set_focus (pointer, surface);
 }
 
