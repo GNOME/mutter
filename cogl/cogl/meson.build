@@ -131,6 +131,7 @@ cogl_nonintrospected_headers = [
   'cogl-version.h',
   'cogl-gtype-private.h',
   'cogl-glib-source.h',
+  'cogl-scanout.h',
 ]
 
 cogl_nodist_headers = [
@@ -364,6 +365,7 @@ cogl_sources = [
   'cogl-closure-list.c',
   'cogl-fence.c',
   'cogl-fence-private.h',
+  'cogl-scanout.c',
   'deprecated/cogl-vertex-buffer-private.h',
   'deprecated/cogl-vertex-buffer.c',
   'deprecated/cogl-material-compat.c',

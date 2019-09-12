@@ -50,6 +50,8 @@ G_BEGIN_DECLS
 typedef struct _CoglOnscreen CoglOnscreen;
 #define COGL_ONSCREEN(X) ((CoglOnscreen *)(X))
 
+typedef struct _CoglScanout CoglScanout;
+
 /**
  * cogl_onscreen_get_gtype:
  *
@@ -347,6 +349,13 @@ void
 cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                         const int *rectangles,
                                         int n_rectangles);
+
+/**
+ * cogl_onscreen_direct_scanout: (skip)
+ */
+void
+cogl_onscreen_direct_scanout (CoglOnscreen *onscreen,
+                              CoglScanout  *scanout);
 
 /**
  * cogl_onscreen_swap_region:
