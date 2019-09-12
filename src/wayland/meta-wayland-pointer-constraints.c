@@ -419,8 +419,8 @@ meta_wayland_pointer_constraint_disable (MetaWaylandPointerConstraint *constrain
 {
   constraint->is_enabled = FALSE;
   meta_wayland_pointer_constraint_notify_deactivated (constraint);
-  meta_wayland_pointer_end_grab (constraint->grab.pointer);
   meta_backend_set_client_pointer_constraint (meta_get_backend (), NULL);
+  meta_wayland_pointer_end_grab (constraint->grab.pointer);
 }
 
 void
