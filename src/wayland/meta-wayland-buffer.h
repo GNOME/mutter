@@ -88,5 +88,7 @@ gboolean                meta_wayland_buffer_is_y_inverted       (MetaWaylandBuff
 void                    meta_wayland_buffer_process_damage      (MetaWaylandBuffer     *buffer,
                                                                  CoglTexture           *texture,
                                                                  cairo_region_t        *region);
+CoglScanout *           meta_wayland_buffer_try_acquire_scanout (MetaWaylandBuffer     *buffer,
+                                                                 CoglOnscreen          *onscreen);
 
 #endif /* META_WAYLAND_BUFFER_H */
