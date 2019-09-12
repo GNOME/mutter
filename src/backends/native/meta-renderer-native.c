@@ -2306,6 +2306,41 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   COGL_TRACE_END (MetaRendererNativePostKmsUpdate);
 }
 
+gboolean
+meta_onscreen_native_is_format_scanout_compatible (CoglOnscreen *onscreen,
+                                                   uint32_t      drm_format,
+                                                   uint64_t      drm_modifier)
+{
+  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+  MetaDrmBuffer *fb;
+  struct gbm_bo *gbm_bo;
+
+  if (g_hash_table_size (onscreen_native->secondary_gpu_states) > 0)
+    return FALSE;
+
+  if (!onscreen_native->gbm.surface)
+    return FALSE;
+
+  fb = onscreen_native->gbm.current_fb ? onscreen_native->gbm.current_fb
+                                       : onscreen_native->gbm.next_fb;
+  if (!fb)
+    return FALSE;
+
+  if (!META_IS_DRM_BUFFER_GBM (fb))
+    return FALSE;
+
+  gbm_bo = meta_drm_buffer_gbm_get_bo (META_DRM_BUFFER_GBM (fb));
+
+  if (gbm_bo_get_format (gbm_bo) != drm_format)
+    return FALSE;
+
+  if (gbm_bo_get_modifier (gbm_bo) != drm_modifier)
+    return FALSE;
+
+  return TRUE;
+}
+
 static void
 meta_onscreen_native_direct_scanout (CoglOnscreen *onscreen,
                                      CoglScanout  *scanout)
