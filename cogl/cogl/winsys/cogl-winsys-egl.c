@@ -406,7 +406,7 @@ try_create_context (CoglDisplay *display,
                        &value);
 
       if (value != EGL_CONTEXT_PRIORITY_HIGH_IMG)
-        g_warning ("Failed to obtain high priority context");
+        g_message ("Failed to obtain high priority context");
     }
 
   if (egl_renderer->platform_vtable->context_created &&
