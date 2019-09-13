@@ -1372,23 +1372,8 @@ meta_display_set_input_focus (MetaDisplay *display,
 
   if (display->x11_display)
     {
-      MetaX11Display *x11_display = display->x11_display;
-      Window xwindow;
-      gulong serial;
-
-      meta_x11_error_trap_push (x11_display);
-
-      if (window)
-        xwindow = focus_frame ? window->frame->xwindow : window->xwindow;
-      else
-        xwindow = x11_display->no_focus_window;
-
-      meta_x11_display_set_input_focus (x11_display, xwindow, timestamp);
-      serial = XNextRequest (x11_display->xdisplay);
-
-      meta_x11_display_update_focus_window (x11_display, xwindow, serial, TRUE);
-
-      meta_x11_error_trap_pop (display->x11_display);
+      meta_x11_display_set_input_focus (display->x11_display, window,
+                                        focus_frame, timestamp);
     }
 
   meta_display_update_focus_window (display, window);
