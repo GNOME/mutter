@@ -91,8 +91,6 @@ MetaWindowActor *meta_window_actor_from_actor (ClutterActor *actor);
 void meta_window_actor_set_geometry_scale (MetaWindowActor *window_actor,
                                            int              geometry_scale);
 
-int meta_window_actor_get_geometry_scale (MetaWindowActor *window_actor);
-
 void meta_window_actor_notify_damaged (MetaWindowActor *window_actor);
 
 #endif /* META_WINDOW_ACTOR_PRIVATE_H */
