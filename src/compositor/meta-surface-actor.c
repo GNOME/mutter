@@ -300,6 +300,23 @@ meta_surface_actor_init (MetaSurfaceActor *self)
                                   CLUTTER_REQUEST_CONTENT_SIZE);
 }
 
+/**
+ * meta_surface_actor_get_image:
+ * @self: A #MetaSurfaceActor
+ * @clip: (nullable): A clipping rectangle. The clip region is in
+ * the same coordinate space as the contents preferred size.
+ * For a shaped texture of a wl_surface, this means surface
+ * coordinate space. If NULL, the whole content will be used.
+ *
+ * Flattens the two layers of the surface actor shaped texture into
+ * one ARGB32 image by alpha blending the two images, and returns the
+ * flattened image.
+ * The resulting size of the returned image may be different from the
+ * preferred size of the shaped texture content.
+ *
+ * Returns: (nullable) (transfer full): a new cairo surface to be freed
+ * with cairo_surface_destroy().
+ */
 cairo_surface_t *
 meta_surface_actor_get_image (MetaSurfaceActor      *self,
                               cairo_rectangle_int_t *clip)
