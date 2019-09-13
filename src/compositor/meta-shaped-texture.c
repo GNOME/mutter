@@ -1204,7 +1204,7 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
 /**
  * meta_shaped_texture_get_image:
  * @stex: A #MetaShapedTexture
- * @clip: A clipping rectangle, to help prevent extra processing.
+ * @clip: (nullable): A clipping rectangle, to help prevent extra processing.
  * In the case that the clipping rectangle is partially or fully
  * outside the bounds of the texture, the rectangle will be clipped.
  *
@@ -1212,7 +1212,7 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
  * image by alpha blending the two images, and returns the flattened
  * image.
  *
- * Returns: (transfer full): a new cairo surface to be freed with
+ * Returns: (nullable) (transfer full): a new cairo surface to be freed with
  * cairo_surface_destroy().
  */
 cairo_surface_t *
