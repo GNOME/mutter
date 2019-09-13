@@ -37,7 +37,7 @@ META_EXPORT
 G_DECLARE_FINAL_TYPE (MetaShapedTexture,
                       meta_shaped_texture,
                       META, SHAPED_TEXTURE,
-                      ClutterActor)
+                      GObject)
 
 
 META_EXPORT
