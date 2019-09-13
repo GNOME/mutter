@@ -2142,6 +2142,20 @@ meta_window_actor_notify_damaged (MetaWindowActor *window_actor)
   g_signal_emit (window_actor, signals[DAMAGED], 0);
 }
 
+/**
+ * meta_window_actor_get_image:
+ * @self: A #MetaWindowActor
+ * @clip: (nullable): A clipping rectangle, to help prevent extra processing.
+ * In the case that the clipping rectangle is partially or fully
+ * outside the bounds of the texture, the rectangle will be clipped.
+ *
+ * Flattens the two layers of the Window surface actor shaped texture
+ * into one ARGB32 image by alpha blending the two images, and returns
+ * the flattened image.
+ *
+ * Returns: (transfer full): a new cairo surface to be freed with
+ * cairo_surface_destroy().
+ */
 cairo_surface_t *
 meta_window_actor_get_image (MetaWindowActor *self,
                              MetaRectangle   *clip)
