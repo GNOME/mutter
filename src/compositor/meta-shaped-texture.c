@@ -1204,7 +1204,7 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
 /**
  * meta_shaped_texture_get_image:
  * @stex: A #MetaShapedTexture
- * @clip: A clipping rectangle, to help prevent extra processing.
+ * @clip: (nullable): A clipping rectangle, to help prevent extra processing.
  * In the case that the clipping rectangle is partially or fully
  * outside the bounds of the texture, the rectangle will be clipped.
  *
