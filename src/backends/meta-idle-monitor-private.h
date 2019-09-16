@@ -54,7 +54,6 @@ struct _MetaIdleMonitorClass
   GObjectClass parent_class;
 };
 
-void _meta_idle_monitor_watch_fire (MetaIdleMonitorWatch *watch);
 void meta_idle_monitor_reset_idletime (MetaIdleMonitor *monitor);
 
 #endif /* META_IDLE_MONITOR_PRIVATE_H */
