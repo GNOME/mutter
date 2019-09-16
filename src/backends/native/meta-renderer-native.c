@@ -264,10 +264,6 @@ static void
 free_current_secondary_bo (MetaGpuKms                          *gpu_kms,
                            MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state);
 
-static void
-free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
-                        MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state);
-
 static gboolean
 cogl_pixel_format_from_drm_format (uint32_t               drm_format,
                                    CoglPixelFormat       *out_format,
@@ -738,7 +734,7 @@ secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_sta
     }
 
   free_current_secondary_bo (gpu_kms, secondary_gpu_state);
-  free_next_secondary_bo (gpu_kms, secondary_gpu_state);
+  g_clear_object (&secondary_gpu_state->gbm.next_fb);
   g_clear_pointer (&secondary_gpu_state->gbm.surface, gbm_surface_destroy);
 
   for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
@@ -1450,13 +1446,6 @@ static const MetaKmsPageFlipFeedback page_flip_feedback = {
   .mode_set_fallback = page_flip_feedback_mode_set_fallback,
   .discarded = page_flip_feedback_discarded,
 };
-
-static void
-free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
-                        MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
-{
-  g_clear_object (&secondary_gpu_state->gbm.next_fb);
-}
 
 #ifdef HAVE_EGL_DEVICE
 static int
