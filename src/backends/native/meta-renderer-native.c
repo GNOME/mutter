@@ -974,17 +974,7 @@ static void
 free_current_secondary_bo (MetaGpuKms                          *gpu_kms,
                            MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
-  MetaRendererNativeGpuData *renderer_gpu_data;
-
-  renderer_gpu_data = secondary_gpu_state->renderer_gpu_data;
-  switch (renderer_gpu_data->secondary.copy_mode)
-    {
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
-      g_clear_object (&secondary_gpu_state->gbm.current_fb);
-      break;
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
-      break;
-    }
+  g_clear_object (&secondary_gpu_state->gbm.current_fb);
 }
 
 static void
@@ -1465,17 +1455,7 @@ static void
 free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
                         MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
-  MetaRendererNativeGpuData *renderer_gpu_data;
-
-  renderer_gpu_data = secondary_gpu_state->renderer_gpu_data;
-  switch (renderer_gpu_data->secondary.copy_mode)
-    {
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
-      g_clear_object (&secondary_gpu_state->gbm.next_fb);
-      break;
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
-      break;
-    }
+  g_clear_object (&secondary_gpu_state->gbm.next_fb);
 }
 
 #ifdef HAVE_EGL_DEVICE
