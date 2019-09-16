@@ -54,8 +54,8 @@ static GParamSpec *obj_props[PROP_LAST];
 
 G_DEFINE_TYPE (MetaIdleMonitor, meta_idle_monitor, G_TYPE_OBJECT)
 
-void
-_meta_idle_monitor_watch_fire (MetaIdleMonitorWatch *watch)
+static void
+meta_idle_monitor_watch_fire (MetaIdleMonitorWatch *watch)
 {
   MetaIdleMonitor *monitor;
   guint id;
@@ -324,8 +324,9 @@ idle_monitor_dispatch_timeout (GSource     *source,
   if (ready_time > now)
     return G_SOURCE_CONTINUE;
 
-  _meta_idle_monitor_watch_fire (watch);
   g_source_set_ready_time (watch->timeout_source, -1);
+
+  meta_idle_monitor_watch_fire (watch);
 
   return G_SOURCE_CONTINUE;
 }
@@ -511,7 +512,7 @@ meta_idle_monitor_reset_idletime (MetaIdleMonitor *monitor)
 
       if (watch->timeout_msec == 0)
         {
-          _meta_idle_monitor_watch_fire ((MetaIdleMonitorWatch *) watch);
+          meta_idle_monitor_watch_fire (watch);
         }
       else
         {
