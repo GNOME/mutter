@@ -1262,12 +1262,15 @@ meta_shaped_texture_get_image (MetaShapedTexture     *stex,
 
   if (should_get_via_offscreen (stex))
     {
+      int image_width;
+      int image_height;
+
+      image_width = stex->dst_width * stex->buffer_scale;
+      image_height = stex->dst_height * stex->buffer_scale;
       return get_image_via_offscreen (stex,
                                       buffer_clip,
-                                      stex->dst_width *
-                                      stex->buffer_scale,
-                                      stex->dst_height *
-                                      stex->buffer_scale);
+                                      image_width,
+                                      image_height);
     }
 
   if (buffer_clip)
