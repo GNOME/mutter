@@ -511,7 +511,7 @@ meta_idle_monitor_reset_idletime (MetaIdleMonitor *monitor)
 
       if (watch->timeout_msec == 0)
         {
-          meta_idle_monitor_watch_fire ((MetaIdleMonitorWatch *) watch);
+          meta_idle_monitor_watch_fire (watch);
         }
       else
         {
