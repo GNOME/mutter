@@ -324,8 +324,9 @@ idle_monitor_dispatch_timeout (GSource     *source,
   if (ready_time > now)
     return G_SOURCE_CONTINUE;
 
-  meta_idle_monitor_watch_fire (watch);
   g_source_set_ready_time (watch->timeout_source, -1);
+
+  meta_idle_monitor_watch_fire (watch);
 
   return G_SOURCE_CONTINUE;
 }
