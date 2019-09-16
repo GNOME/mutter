@@ -1832,14 +1832,15 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
                                         secondary_gpu_state->gbm.surface,
                                         renderer_native->use_modifiers,
                                         &error);
-  secondary_gpu_state->gbm.next_fb = META_DRM_BUFFER (buffer_gbm);
-  if (!secondary_gpu_state->gbm.next_fb)
+  if (!buffer_gbm)
     {
       g_warning ("meta_drm_buffer_gbm_new failed: %s",
                  error->message);
       g_error_free (error);
       return;
     }
+
+  secondary_gpu_state->gbm.next_fb = META_DRM_BUFFER (buffer_gbm);
 }
 
 static MetaDumbBuffer *
@@ -2235,13 +2236,14 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                             onscreen_native->gbm.surface,
                                             renderer_native->use_modifiers,
                                             &error);
-      onscreen_native->gbm.next_fb = META_DRM_BUFFER (buffer_gbm);
-      if (!onscreen_native->gbm.next_fb)
+      if (!buffer_gbm)
         {
           g_warning ("meta_drm_buffer_gbm_new failed: %s",
                      error->message);
           return;
         }
+
+      onscreen_native->gbm.next_fb = META_DRM_BUFFER (buffer_gbm);
 
       break;
 #ifdef HAVE_EGL_DEVICE
