@@ -2679,7 +2679,6 @@ release_dumb_fb (MetaDumbBuffer *dumb_fb,
     close (dumb_fb->dmabuf_fd);
 
   munmap (dumb_fb->map, dumb_fb->map_size);
-  dumb_fb->map = NULL;
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
@@ -2689,6 +2688,10 @@ release_dumb_fb (MetaDumbBuffer *dumb_fb,
     .handle = dumb_fb->handle
   };
   drmIoctl (kms_fd, DRM_IOCTL_MODE_DESTROY_DUMB, &destroy_arg);
+
+  *dumb_fb = (MetaDumbBuffer) {
+    .dmabuf_fd = -1,
+  };
 }
 
 static gboolean
