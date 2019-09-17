@@ -133,6 +133,9 @@ meta_output_kms_read_edid (MetaOutput *output)
 
   connector_state =
     meta_kms_connector_get_current_state (output_kms->kms_connector);
+  if (!connector_state)
+    return NULL;
+
   edid_data = connector_state->edid_data;
   if (!edid_data)
     return NULL;
