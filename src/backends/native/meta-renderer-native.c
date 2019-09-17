@@ -715,12 +715,21 @@ init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_nat
 }
 
 static void
+secondary_gpu_release_dumb (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
+{
+  MetaGpuKms *gpu_kms = secondary_gpu_state->gpu_kms;
+  unsigned i;
+
+  for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
+    release_dumb_fb (&secondary_gpu_state->cpu.dumb_fbs[i], gpu_kms);
+}
+
+static void
 secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaEgl *egl = meta_backend_get_egl (backend);
   MetaGpuKms *gpu_kms = secondary_gpu_state->gpu_kms;
-  unsigned int i;
 
   if (secondary_gpu_state->egl_surface != EGL_NO_SURFACE)
     {
@@ -737,13 +746,7 @@ secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_sta
   g_clear_object (&secondary_gpu_state->gbm.next_fb);
   g_clear_pointer (&secondary_gpu_state->gbm.surface, gbm_surface_destroy);
 
-  for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
-    {
-      MetaDumbBuffer *dumb_fb = &secondary_gpu_state->cpu.dumb_fbs[i];
-
-      if (dumb_fb->fb_id)
-        release_dumb_fb (dumb_fb, gpu_kms);
-    }
+  secondary_gpu_release_dumb (secondary_gpu_state);
 
   g_free (secondary_gpu_state);
 }
