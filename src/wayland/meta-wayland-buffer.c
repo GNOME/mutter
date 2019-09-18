@@ -217,6 +217,18 @@ shm_format_to_cogl_pixel_format (enum wl_shm_format     shm_format,
       format = COGL_PIXEL_FORMAT_BGRA_8888;
       components = COGL_TEXTURE_COMPONENTS_RGB;
       break;
+    case WL_SHM_FORMAT_XRGB2101010:
+      components = COGL_TEXTURE_COMPONENTS_RGB;
+      G_GNUC_FALLTHROUGH;
+    case WL_SHM_FORMAT_ARGB2101010:
+      format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
+      break;
+    case WL_SHM_FORMAT_XBGR2101010:
+      components = COGL_TEXTURE_COMPONENTS_RGB;
+      G_GNUC_FALLTHROUGH;
+    case WL_SHM_FORMAT_ABGR2101010:
+      format = COGL_PIXEL_FORMAT_ABGR_2101010_PRE;
+      break;
 #endif
     default:
       return FALSE;
@@ -235,12 +247,19 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
                                   CoglPixelFormat       *format_out,
                                   CoglTextureComponents *components_out)
 {
+  MetaBackend *backend = meta_get_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
   CoglPixelFormat cogl_format;
   CoglTextureComponents cogl_components;
 
   if (!shm_format_to_cogl_pixel_format (wl_shm_buffer_get_format (shm_buffer),
                                         &cogl_format,
                                         &cogl_components))
+    return FALSE;
+
+  if (!cogl_context_format_supports_upload (cogl_context, cogl_format))
     return FALSE;
 
   if (format_out)
@@ -745,9 +764,18 @@ meta_wayland_buffer_class_init (MetaWaylandBufferClass *klass)
 void
 meta_wayland_init_shm (MetaWaylandCompositor *compositor)
 {
+  MetaBackend *backend = meta_get_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+
   static const enum wl_shm_format shm_formats[] = {
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
     WL_SHM_FORMAT_RGB565,
+    WL_SHM_FORMAT_ARGB2101010,
+    WL_SHM_FORMAT_XRGB2101010,
+    WL_SHM_FORMAT_ABGR2101010,
+    WL_SHM_FORMAT_XBGR2101010,
 #endif
   };
   int i;
@@ -755,5 +783,17 @@ meta_wayland_init_shm (MetaWaylandCompositor *compositor)
   wl_display_init_shm (compositor->wayland_display);
 
   for (i = 0; i < G_N_ELEMENTS (shm_formats); i++)
-    wl_display_add_shm_format (compositor->wayland_display, shm_formats[i]);
+    {
+      CoglPixelFormat cogl_format;
+
+      if (!shm_format_to_cogl_pixel_format (shm_formats[i],
+                                            &cogl_format,
+                                            NULL))
+        continue;
+
+      if (!cogl_context_format_supports_upload (cogl_context, cogl_format))
+        continue;
+
+      wl_display_add_shm_format (compositor->wayland_display, shm_formats[i]);
+    }
 }
