@@ -57,6 +57,7 @@
 #include "cogl/cogl-egl.h"
 #include "meta/util.h"
 #include "wayland/meta-wayland-dma-buf.h"
+#include "wayland/meta-wayland-private.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-drm-buffer-gbm.h"
@@ -205,6 +206,10 @@ shm_format_to_cogl_pixel_format (enum wl_shm_format     shm_format,
       components = COGL_TEXTURE_COMPONENTS_RGB;
       break;
 #elif G_BYTE_ORDER == G_LITTLE_ENDIAN
+    case WL_SHM_FORMAT_RGB565:
+      format = COGL_PIXEL_FORMAT_RGB_565;
+      components = COGL_TEXTURE_COMPONENTS_RGB;
+      break;
     case WL_SHM_FORMAT_ARGB8888:
       format = COGL_PIXEL_FORMAT_BGRA_8888_PRE;
       break;
@@ -735,4 +740,20 @@ meta_wayland_buffer_class_init (MetaWaylandBufferClass *klass)
                                               0,
                                               NULL, NULL, NULL,
                                               G_TYPE_NONE, 0);
+}
+
+void
+meta_wayland_init_shm (MetaWaylandCompositor *compositor)
+{
+  static const enum wl_shm_format shm_formats[] = {
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+    WL_SHM_FORMAT_RGB565,
+#endif
+  };
+  int i;
+
+  wl_display_init_shm (compositor->wayland_display);
+
+  for (i = 0; i < G_N_ELEMENTS (shm_formats); i++)
+    wl_display_add_shm_format (compositor->wayland_display, shm_formats[i]);
 }
