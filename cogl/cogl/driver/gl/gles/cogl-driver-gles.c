@@ -59,6 +59,9 @@
 #ifndef GL_UNSIGNED_INT_2_10_10_10_REV_EXT
 #define GL_UNSIGNED_INT_2_10_10_10_REV_EXT 0x8368
 #endif
+#ifndef GL_HALF_FLOAT_OES
+#define GL_HALF_FLOAT_OES 0x8D61
+#endif
 
 static gboolean
 _cogl_driver_pixel_format_from_gl_internal (CoglContext *context,
@@ -205,6 +208,26 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       glintformat = GL_RGBA;
       glformat = GL_RGBA;
       gltype = GL_UNSIGNED_SHORT_5_5_5_1;
+      break;
+
+    case COGL_PIXEL_FORMAT_BGRA_FP_16161616:
+    case COGL_PIXEL_FORMAT_ARGB_FP_16161616:
+    case COGL_PIXEL_FORMAT_ABGR_FP_16161616:
+    case COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE:
+    case COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE:
+    case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
+      g_warning ("Unhandled 16 bpc pixel format used");
+
+      G_GNUC_FALLTHROUGH;
+    case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
+      if (!_cogl_has_private_feature
+          (context, COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_HALF_FLOAT))
+        g_warning ("Missing 16 bpc half float extension");
+
+      glintformat = GL_RGBA;
+      glformat = GL_RGBA;
+      gltype = GL_HALF_FLOAT_OES;
       break;
 
     case COGL_PIXEL_FORMAT_DEPTH_16:

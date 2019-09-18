@@ -288,6 +288,31 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       gltype = GL_UNSIGNED_SHORT_5_5_5_1;
       break;
 
+    case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
+      glintformat = GL_RGBA;
+      glformat = GL_RGBA;
+      gltype = GL_HALF_FLOAT;
+      break;
+    case COGL_PIXEL_FORMAT_BGRA_FP_16161616:
+    case COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE:
+      glintformat = GL_RGBA;
+      glformat = GL_BGRA;
+      gltype = GL_HALF_FLOAT;
+      break;
+    case COGL_PIXEL_FORMAT_ARGB_FP_16161616:
+    case COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE:
+      glintformat = GL_RGBA;
+      glformat = GL_BGRA;
+      gltype = GL_HALF_FLOAT;
+      break;
+    case COGL_PIXEL_FORMAT_ABGR_FP_16161616:
+    case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
+      glintformat = GL_RGBA;
+      glformat = GL_RGBA;
+      gltype = GL_HALF_FLOAT;
+      break;
+
     case COGL_PIXEL_FORMAT_DEPTH_16:
       glintformat = GL_DEPTH_COMPONENT16;
       glformat = GL_DEPTH_COMPONENT;
