@@ -229,6 +229,18 @@ shm_format_to_cogl_pixel_format (enum wl_shm_format     shm_format,
     case WL_SHM_FORMAT_ABGR2101010:
       format = COGL_PIXEL_FORMAT_ABGR_2101010_PRE;
       break;
+    case WL_SHM_FORMAT_XRGB16161616F:
+      components = COGL_TEXTURE_COMPONENTS_RGB;
+      G_GNUC_FALLTHROUGH;
+    case WL_SHM_FORMAT_ARGB16161616F:
+      format = COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE;
+      break;
+    case WL_SHM_FORMAT_XBGR16161616F:
+      components = COGL_TEXTURE_COMPONENTS_RGB;
+      G_GNUC_FALLTHROUGH;
+    case WL_SHM_FORMAT_ABGR16161616F:
+      format = COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE;
+      break;
 #endif
     default:
       return FALSE;
@@ -776,6 +788,10 @@ meta_wayland_init_shm (MetaWaylandCompositor *compositor)
     WL_SHM_FORMAT_XRGB2101010,
     WL_SHM_FORMAT_ABGR2101010,
     WL_SHM_FORMAT_XBGR2101010,
+    WL_SHM_FORMAT_ARGB16161616F,
+    WL_SHM_FORMAT_XRGB16161616F,
+    WL_SHM_FORMAT_ABGR16161616F,
+    WL_SHM_FORMAT_XBGR16161616F,
 #endif
   };
   int i;
