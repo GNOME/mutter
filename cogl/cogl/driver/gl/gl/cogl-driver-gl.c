@@ -204,28 +204,44 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_RGBA_1010102_PRE:
       glintformat = GL_RGBA;
       glformat = GL_RGBA;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      gltype = GL_UNSIGNED_INT_2_10_10_10_REV;
+#else
       gltype = GL_UNSIGNED_INT_10_10_10_2;
+#endif
       break;
 
     case COGL_PIXEL_FORMAT_BGRA_1010102:
     case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:
       glintformat = GL_RGBA;
       glformat = GL_BGRA;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      gltype = GL_UNSIGNED_INT_2_10_10_10_REV;
+#else
       gltype = GL_UNSIGNED_INT_10_10_10_2;
+#endif
       break;
 
     case COGL_PIXEL_FORMAT_ABGR_2101010:
     case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
       glintformat = GL_RGBA;
       glformat = GL_RGBA;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      gltype = GL_UNSIGNED_INT_10_10_10_2;
+#else
       gltype = GL_UNSIGNED_INT_2_10_10_10_REV;
+#endif
       break;
 
     case COGL_PIXEL_FORMAT_ARGB_2101010:
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
       glintformat = GL_RGBA;
       glformat = GL_BGRA;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      gltype = GL_UNSIGNED_INT_10_10_10_2;
+#else
       gltype = GL_UNSIGNED_INT_2_10_10_10_REV;
+#endif
       break;
 
       /* The following three types of channel ordering
