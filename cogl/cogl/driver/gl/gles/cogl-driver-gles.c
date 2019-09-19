@@ -56,6 +56,9 @@
 #ifndef GL_RG8
 #define GL_RG8 0x822B
 #endif
+#ifndef GL_UNSIGNED_INT_2_10_10_10_REV_EXT
+#define GL_UNSIGNED_INT_2_10_10_10_REV_EXT 0x8368
+#endif
 
 static gboolean
 _cogl_driver_pixel_format_from_gl_internal (CoglContext *context,
@@ -138,21 +141,44 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       required_format = COGL_PIXEL_FORMAT_RGB_888;
       break;
 
-      /* Just one 32-bit ordering supported */
-    case COGL_PIXEL_FORMAT_RGBA_8888:
-    case COGL_PIXEL_FORMAT_RGBA_8888_PRE:
-    case COGL_PIXEL_FORMAT_ARGB_8888:
-    case COGL_PIXEL_FORMAT_ARGB_8888_PRE:
-    case COGL_PIXEL_FORMAT_ABGR_8888:
-    case COGL_PIXEL_FORMAT_ABGR_8888_PRE:
     case COGL_PIXEL_FORMAT_RGBA_1010102:
     case COGL_PIXEL_FORMAT_RGBA_1010102_PRE:
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      if (_cogl_has_private_feature
+          (context,  COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102))
+        {
+          glintformat = GL_RGBA;
+          glformat = GL_RGBA;
+          gltype = GL_UNSIGNED_INT_2_10_10_10_REV_EXT;
+          break;
+        }
+#endif
     case COGL_PIXEL_FORMAT_BGRA_1010102:
     case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:
     case COGL_PIXEL_FORMAT_ABGR_2101010:
     case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
     case COGL_PIXEL_FORMAT_ARGB_2101010:
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      if (_cogl_has_private_feature
+          (context,  COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102))
+        {
+          glintformat = GL_RGBA;
+          glformat = GL_RGBA;
+          gltype = GL_UNSIGNED_INT_2_10_10_10_REV_EXT;
+          required_format = COGL_PIXEL_FORMAT_RGBA_1010102;
+          required_format |= (format & COGL_PREMULT_BIT);
+          break;
+        }
+#endif
+
+      G_GNUC_FALLTHROUGH;
+    case COGL_PIXEL_FORMAT_RGBA_8888:
+    case COGL_PIXEL_FORMAT_RGBA_8888_PRE:
+    case COGL_PIXEL_FORMAT_ARGB_8888:
+    case COGL_PIXEL_FORMAT_ARGB_8888_PRE:
+    case COGL_PIXEL_FORMAT_ABGR_8888:
+    case COGL_PIXEL_FORMAT_ABGR_8888_PRE:
       glintformat = GL_RGBA;
       glformat = GL_RGBA;
       gltype = GL_UNSIGNED_BYTE;
