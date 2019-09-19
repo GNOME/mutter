@@ -260,12 +260,12 @@ G_PASTE (_cogl_unpack_rgba_1010102_, component_size) (const uint8_t *src,
     {
       uint32_t v = *(const uint32_t *) src;
 
-      dst[0] = UNPACK_10 (v >> 22);
-      dst[1] = UNPACK_10 ((v >> 12) & 0x3ff);
-      dst[2] = UNPACK_10 ((v >> 2) & 0x3ff);
-      dst[3] = UNPACK_2 (v & 3);
+      dst[3] = UNPACK_2 (v >> 30);
+      dst[2] = UNPACK_10 ((v >> 20) & 0x3ff);
+      dst[1] = UNPACK_10 ((v >> 10) & 0x3ff);
+      dst[0] = UNPACK_10 (v & 0x3ff);
       dst += 4;
-      src += 2;
+      src += 4;
     }
 }
 
@@ -278,12 +278,12 @@ G_PASTE (_cogl_unpack_bgra_1010102_, component_size) (const uint8_t *src,
     {
       uint32_t v = *(const uint32_t *) src;
 
-      dst[2] = UNPACK_10 (v >> 22);
-      dst[1] = UNPACK_10 ((v >> 12) & 0x3ff);
-      dst[0] = UNPACK_10 ((v >> 2) & 0x3ff);
-      dst[3] = UNPACK_2 (v & 3);
+      dst[3] = UNPACK_2 (v >> 30);
+      dst[0] = UNPACK_10 ((v >> 20) & 0x3ff);
+      dst[1] = UNPACK_10 ((v >> 10) & 0x3ff);
+      dst[2] = UNPACK_10 (v & 0x3ff);
       dst += 4;
-      src += 2;
+      src += 4;
     }
 }
 
@@ -296,12 +296,12 @@ G_PASTE (_cogl_unpack_argb_2101010_, component_size) (const uint8_t *src,
     {
       uint32_t v = *(const uint32_t *) src;
 
-      dst[3] = UNPACK_2 (v >> 30);
-      dst[0] = UNPACK_10 ((v >> 20) & 0x3ff);
-      dst[1] = UNPACK_10 ((v >> 10) & 0x3ff);
-      dst[2] = UNPACK_10 (v & 0x3ff);
+      dst[2] = UNPACK_10 (v >> 22);
+      dst[1] = UNPACK_10 ((v >> 12) & 0x3ff);
+      dst[0] = UNPACK_10 ((v >> 2) & 0x3ff);
+      dst[3] = UNPACK_2 (v & 3);
       dst += 4;
-      src += 2;
+      src += 4;
     }
 }
 
@@ -314,12 +314,12 @@ G_PASTE (_cogl_unpack_abgr_2101010_, component_size) (const uint8_t *src,
     {
       uint32_t v = *(const uint32_t *) src;
 
-      dst[3] = UNPACK_2 (v >> 30);
-      dst[2] = UNPACK_10 ((v >> 20) & 0x3ff);
-      dst[1] = UNPACK_10 ((v >> 10) & 0x3ff);
-      dst[0] = UNPACK_10 (v & 0x3ff);
+      dst[0] = UNPACK_10 (v >> 22);
+      dst[1] = UNPACK_10 ((v >> 12) & 0x3ff);
+      dst[2] = UNPACK_10 ((v >> 2) & 0x3ff);
+      dst[3] = UNPACK_2 (v & 3);
       dst += 4;
-      src += 2;
+      src += 4;
     }
 }
 
@@ -620,10 +620,10 @@ G_PASTE (_cogl_pack_rgba_1010102_, component_size) (const component_type *src,
     {
       uint32_t *v = (uint32_t *) dst;
 
-      *v = ((PACK_10 (src[0]) << 22) |
-            (PACK_10 (src[1]) << 12) |
-            (PACK_10 (src[2]) << 2) |
-            PACK_2 (src[3]));
+      *v = ((PACK_2 (src[3]) << 30) |
+            (PACK_10 (src[2]) << 20) |
+            (PACK_10 (src[1]) << 10) |
+            PACK_10 (src[0]));
       src += 4;
       dst += 4;
     }
@@ -631,24 +631,6 @@ G_PASTE (_cogl_pack_rgba_1010102_, component_size) (const component_type *src,
 
 inline static void
 G_PASTE (_cogl_pack_bgra_1010102_, component_size) (const component_type *src,
-                                                    uint8_t *dst,
-                                                    int width)
-{
-  while (width-- > 0)
-    {
-      uint32_t *v = (uint32_t *) dst;
-
-      *v = ((PACK_10 (src[2]) << 22) |
-            (PACK_10 (src[1]) << 12) |
-            (PACK_10 (src[0]) << 2) |
-            PACK_2 (src[3]));
-      src += 4;
-      dst += 4;
-    }
-}
-
-inline static void
-G_PASTE (_cogl_pack_argb_2101010_, component_size) (const component_type *src,
                                                     uint8_t *dst,
                                                     int width)
 {
@@ -666,6 +648,24 @@ G_PASTE (_cogl_pack_argb_2101010_, component_size) (const component_type *src,
 }
 
 inline static void
+G_PASTE (_cogl_pack_argb_2101010_, component_size) (const component_type *src,
+                                                    uint8_t *dst,
+                                                    int width)
+{
+  while (width-- > 0)
+    {
+      uint32_t *v = (uint32_t *) dst;
+
+      *v = ((PACK_10 (src[2]) << 22) |
+            (PACK_10 (src[1]) << 12) |
+            (PACK_10 (src[0]) << 2) |
+            PACK_2 (src[3]));
+      src += 4;
+      dst += 4;
+    }
+}
+
+inline static void
 G_PASTE (_cogl_pack_abgr_2101010_, component_size) (const component_type *src,
                                                     uint8_t *dst,
                                                     int width)
@@ -674,10 +674,10 @@ G_PASTE (_cogl_pack_abgr_2101010_, component_size) (const component_type *src,
     {
       uint32_t *v = (uint32_t *) dst;
 
-      *v = ((PACK_2 (src[3]) << 30) |
-            (PACK_10 (src[2]) << 20) |
-            (PACK_10 (src[1]) << 10) |
-            PACK_10 (src[0]));
+      *v = ((PACK_10 (src[0]) << 22) |
+            (PACK_10 (src[1]) << 12) |
+            (PACK_10 (src[2]) << 2) |
+            PACK_2 (src[3]));
       src += 4;
       dst += 4;
     }
