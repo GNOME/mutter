@@ -355,6 +355,14 @@ _cogl_driver_update_features (CoglContext *context,
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_BGRA8888, TRUE);
 
+  if (_cogl_check_extension ("GL_EXT_texture_type_2_10_10_10_REV", gl_extensions))
+    COGL_FLAGS_SET (private_features,
+                    COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102, TRUE);
+
+  if (_cogl_check_extension ("GL_OES_texture_half_float", gl_extensions))
+    COGL_FLAGS_SET (private_features,
+                    COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_HALF_FLOAT, TRUE);
+
   if (_cogl_check_extension ("GL_EXT_unpack_subimage", gl_extensions))
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_UNPACK_SUBIMAGE, TRUE);

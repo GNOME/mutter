@@ -506,6 +506,14 @@ _cogl_driver_update_features (CoglContext *ctx,
                     COGL_FEATURE_ID_TEXTURE_RG,
                     TRUE);
 
+  COGL_FLAGS_SET (private_features,
+                  COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102, TRUE);
+
+  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
+    COGL_FLAGS_SET (private_features,
+                    COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_HALF_FLOAT,
+                    TRUE);
+
   /* Cache features */
   for (i = 0; i < G_N_ELEMENTS (private_features); i++)
     ctx->private_features[i] |= private_features[i];
