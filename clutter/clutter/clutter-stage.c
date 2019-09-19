@@ -226,6 +226,7 @@ static void capture_view_into (ClutterStage          *stage,
                                cairo_rectangle_int_t *rect,
                                uint8_t               *data,
                                int                    stride);
+static void clutter_stage_update_view_perspective (ClutterStage *stage);
 
 static void clutter_container_iface_init (ClutterContainerIface *iface);
 
@@ -2354,29 +2355,6 @@ clutter_stage_init (ClutterStage *self)
   clutter_actor_set_background_color (CLUTTER_ACTOR (self),
                                       &default_stage_color);
 
-  priv->perspective.fovy   = 60.0; /* 60 Degrees */
-  priv->perspective.aspect = (float) geom.width / (float) geom.height;
-  priv->perspective.z_near = 0.1;
-  priv->perspective.z_far  = 100.0;
-
-  cogl_matrix_init_identity (&priv->projection);
-  cogl_matrix_perspective (&priv->projection,
-                           priv->perspective.fovy,
-                           priv->perspective.aspect,
-                           priv->perspective.z_near,
-                           priv->perspective.z_far);
-  cogl_matrix_get_inverse (&priv->projection,
-                           &priv->inverse_projection);
-  cogl_matrix_init_identity (&priv->view);
-  cogl_matrix_view_2d_in_perspective (&priv->view,
-                                      priv->perspective.fovy,
-                                      priv->perspective.aspect,
-                                      priv->perspective.z_near,
-                                      50, /* distance to 2d plane */
-                                      geom.width,
-                                      geom.height);
-
-
   /* FIXME - remove for 2.0 */
   priv->fog.z_near = 1.0;
   priv->fog.z_far  = 2.0;
@@ -2544,6 +2522,7 @@ clutter_stage_set_perspective (ClutterStage       *stage,
   priv->has_custom_perspective = TRUE;
 
   clutter_stage_set_perspective_internal (stage, perspective);
+  clutter_stage_update_view_perspective (stage);
 }
 
 /**
@@ -2670,6 +2649,7 @@ _clutter_stage_set_viewport (ClutterStage *stage,
   priv->viewport[2] = width;
   priv->viewport[3] = height;
 
+  clutter_stage_update_view_perspective (stage);
   _clutter_stage_dirty_viewport (stage);
 
   queue_full_redraw (stage);
@@ -3506,6 +3486,50 @@ calculate_z_translation (float z_near)
        + z_near;
 }
 
+static void
+clutter_stage_update_view_perspective (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  ClutterPerspective perspective;
+  float z_2d;
+
+  perspective = priv->perspective;
+
+  /* Ideally we want to regenerate the perspective matrix whenever
+   * the size changes but if the user has provided a custom matrix
+   * then we don't want to override it */
+  if (!priv->has_custom_perspective)
+    {
+      perspective.fovy = 60.0; /* 60 Degrees */
+      perspective.z_near = 0.1;
+      perspective.aspect = priv->viewport[2] / priv->viewport[3];
+      z_2d = calculate_z_translation (perspective.z_near);
+
+      /* NB: z_2d is only enough room for 85% of the stage_height between
+       * the stage and the z_near plane. For behind the stage plane we
+       * want a more consistent gap of 10 times the stage_height before
+       * hitting the far plane so we calculate that relative to the final
+       * height of the stage plane at the z_2d_distance we got... */
+      perspective.z_far = z_2d +
+        tanf (_DEG_TO_RAD (perspective.fovy / 2.0f)) * z_2d * 20.0f;
+
+      clutter_stage_set_perspective_internal (stage, &perspective);
+    }
+  else
+    {
+      z_2d = calculate_z_translation (perspective.z_near);
+    }
+
+  cogl_matrix_init_identity (&priv->view);
+  cogl_matrix_view_2d_in_perspective (&priv->view,
+                                      perspective.fovy,
+                                      perspective.aspect,
+                                      perspective.z_near,
+                                      z_2d,
+                                      priv->viewport[2],
+                                      priv->viewport[3]);
+}
+
 void
 _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
                                      ClutterStageView *view)
@@ -3516,7 +3540,6 @@ _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
   if (clutter_stage_view_is_dirty_viewport (view))
     {
       cairo_rectangle_int_t view_layout;
-      ClutterPerspective perspective;
       float fb_scale;
       float viewport_offset_x;
       float viewport_offset_y;
@@ -3524,7 +3547,6 @@ _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
       float viewport_y;
       float viewport_width;
       float viewport_height;
-      float z_2d;
 
       CLUTTER_NOTE (PAINT,
                     "Setting up the viewport { w:%f, h:%f }",
@@ -3543,38 +3565,6 @@ _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
       cogl_framebuffer_set_viewport (fb,
                                      viewport_x, viewport_y,
                                      viewport_width, viewport_height);
-
-      perspective = priv->perspective;
-
-      /* Ideally we want to regenerate the perspective matrix whenever
-       * the size changes but if the user has provided a custom matrix
-       * then we don't want to override it */
-      if (!priv->has_custom_perspective)
-        {
-          perspective.aspect = priv->viewport[2] / priv->viewport[3];
-          z_2d = calculate_z_translation (perspective.z_near);
-
-          /* NB: z_2d is only enough room for 85% of the stage_height between
-           * the stage and the z_near plane. For behind the stage plane we
-           * want a more consistent gap of 10 times the stage_height before
-           * hitting the far plane so we calculate that relative to the final
-           * height of the stage plane at the z_2d_distance we got... */
-          perspective.z_far = z_2d +
-            tanf (_DEG_TO_RAD (perspective.fovy / 2.0f)) * z_2d * 20.0f;
-
-          clutter_stage_set_perspective_internal (stage, &perspective);
-        }
-      else
-        z_2d = calculate_z_translation (perspective.z_near);
-
-      cogl_matrix_init_identity (&priv->view);
-      cogl_matrix_view_2d_in_perspective (&priv->view,
-                                          perspective.fovy,
-                                          perspective.aspect,
-                                          perspective.z_near,
-                                          z_2d,
-                                          priv->viewport[2],
-                                          priv->viewport[3]);
 
       clutter_stage_view_set_dirty_viewport (view, FALSE);
     }
