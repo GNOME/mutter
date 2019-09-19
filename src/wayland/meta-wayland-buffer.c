@@ -186,15 +186,15 @@ meta_wayland_buffer_realize (MetaWaylandBuffer *buffer)
   return FALSE;
 }
 
-static void
-shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
-                                  CoglPixelFormat       *format_out,
-                                  CoglTextureComponents *components_out)
+static gboolean
+shm_format_to_cogl_pixel_format (enum wl_shm_format     shm_format,
+                                 CoglPixelFormat       *format_out,
+                                 CoglTextureComponents *components_out)
 {
   CoglPixelFormat format;
   CoglTextureComponents components = COGL_TEXTURE_COMPONENTS_RGBA;
 
-  switch (wl_shm_buffer_get_format (shm_buffer))
+  switch (shm_format)
     {
 #if G_BYTE_ORDER == G_BIG_ENDIAN
     case WL_SHM_FORMAT_ARGB8888:
@@ -214,14 +214,36 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
       break;
 #endif
     default:
-      g_warn_if_reached ();
-      format = COGL_PIXEL_FORMAT_ARGB_8888;
+      return FALSE;
     }
 
   if (format_out)
     *format_out = format;
   if (components_out)
     *components_out = components;
+
+  return TRUE;
+}
+
+static gboolean
+shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
+                                  CoglPixelFormat       *format_out,
+                                  CoglTextureComponents *components_out)
+{
+  CoglPixelFormat cogl_format;
+  CoglTextureComponents cogl_components;
+
+  if (!shm_format_to_cogl_pixel_format (wl_shm_buffer_get_format (shm_buffer),
+                                        &cogl_format,
+                                        &cogl_components))
+    return FALSE;
+
+  if (format_out)
+    *format_out = cogl_format;
+  if (components_out)
+    *components_out = cogl_components;
+
+  return TRUE;
 }
 
 static gboolean
@@ -243,7 +265,12 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
   stride = wl_shm_buffer_get_stride (shm_buffer);
   width = wl_shm_buffer_get_width (shm_buffer);
   height = wl_shm_buffer_get_height (shm_buffer);
-  shm_buffer_get_cogl_pixel_format (shm_buffer, &format, &components);
+  if (!shm_buffer_get_cogl_pixel_format (shm_buffer, &format, &components))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Invalid shm pixel format");
+      return FALSE;
+    }
 
   if (*texture &&
       cogl_texture_get_width (*texture) == width &&
