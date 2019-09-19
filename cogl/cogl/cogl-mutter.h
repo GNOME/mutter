@@ -47,4 +47,7 @@ void cogl_renderer_set_custom_winsys (CoglRenderer                *renderer,
                                       CoglCustomWinsysVtableGetter winsys_vtable_getter,
                                       void                        *user_data);
 
+gboolean cogl_context_format_supports_upload (CoglContext *ctx,
+                                              CoglPixelFormat format);
+
 #endif /* __COGL_MUTTER_H___ */
