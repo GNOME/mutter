@@ -475,10 +475,7 @@ meta_egl_get_platform_display (MetaEgl      *egl,
                                            native_display,
                                            attrib_list);
   if (display == EGL_NO_DISPLAY)
-    {
-      set_egl_error (error);
-      return EGL_NO_DISPLAY;
-    }
+    set_egl_error (error);
 
   return display;
 }
