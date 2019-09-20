@@ -315,6 +315,8 @@ gboolean        _clutter_run_progress_function  (GType gtype,
                                                  gdouble progress,
                                                  GValue *retval);
 
+void            clutter_timeline_cancel_delay (ClutterTimeline *timeline);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_PRIVATE_H__ */
