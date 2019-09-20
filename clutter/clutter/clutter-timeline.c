@@ -1214,10 +1214,10 @@ clutter_timeline_pause (ClutterTimeline *timeline)
 
   priv = timeline->priv;
 
-  if (priv->delay_id == 0 && !priv->is_playing)
-    return;
-
   clutter_timeline_cancel_delay (timeline);
+
+  if (!priv->is_playing)
+    return;
 
   priv->msecs_delta = 0;
   set_is_playing (timeline, FALSE);
