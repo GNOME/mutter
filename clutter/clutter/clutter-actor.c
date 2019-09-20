@@ -19484,6 +19484,8 @@ transition_closure_free (gpointer data)
 
       if (clutter_timeline_is_playing (timeline))
         clutter_timeline_stop (timeline);
+      else if (clutter_timeline_get_delay (timeline) > 0)
+        clutter_timeline_cancel_delay (timeline);
 
       /* remove the reference added in add_transition_internal() */
       g_object_unref (clos->transition);

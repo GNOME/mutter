@@ -424,7 +424,7 @@ clutter_timeline_set_custom_property (ClutterScriptable *scriptable,
     g_object_set_property (G_OBJECT (scriptable), name, value);
 }
 
-static void
+void
 clutter_timeline_cancel_delay (ClutterTimeline *timeline)
 {
   g_clear_handle_id (&timeline->priv->delay_id, g_source_remove);
