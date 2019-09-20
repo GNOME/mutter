@@ -266,7 +266,8 @@ get_plane_type (MetaKmsImplDevice       *impl_device,
     case DRM_PLANE_TYPE_OVERLAY:
       return META_KMS_PLANE_TYPE_OVERLAY;
     default:
-      g_warning ("Unhandled plane type %lu", props->prop_values[idx]);
+      g_warning ("Unhandled plane type %" G_GUINT64_FORMAT,
+                 props->prop_values[idx]);
       return -1;
     }
 }
