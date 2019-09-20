@@ -2864,7 +2864,7 @@ meta_window_maximize_internal (MetaWindow        *window,
     window->maximized_vertically   || maximize_vertically;
 
   /* Update the edge constraints */
-  update_edge_constraints (window);;
+  update_edge_constraints (window);
 
   meta_window_recalc_features (window);
   set_net_wm_state (window);
@@ -3399,10 +3399,14 @@ meta_window_unmaximize (MetaWindow        *window,
 
       /* Window's size hints may have changed while maximized, making
        * saved_rect invalid.  #329152
+       * Do not enforce limits, if no previous 'saved_rect' has been stored.
        */
-      meta_window_frame_rect_to_client_rect (window, &target_rect, &target_rect);
-      ensure_size_hints_satisfied (&target_rect, &window->size_hints);
-      meta_window_client_rect_to_frame_rect (window, &target_rect, &target_rect);
+      if (target_rect.width > 0 && target_rect.height > 0)
+        {
+          meta_window_frame_rect_to_client_rect (window, &target_rect, &target_rect);
+          ensure_size_hints_satisfied (&target_rect, &window->size_hints);
+          meta_window_client_rect_to_frame_rect (window, &target_rect, &target_rect);
+        }
 
       meta_compositor_size_change_window (window->display->compositor, window,
                                           META_SIZE_CHANGE_UNMAXIMIZE,
@@ -4064,6 +4068,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
 
   constrained_rect = unconstrained_rect;
   if (flags & (META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION) &&
+      unconstrained_rect.width > 0 && unconstrained_rect.height > 0 &&
       window->monitor)
     {
       MetaRectangle old_rect;
