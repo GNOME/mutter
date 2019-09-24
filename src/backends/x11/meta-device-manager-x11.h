@@ -36,19 +36,8 @@ struct _MetaDeviceManagerX11
 {
   ClutterDeviceManager parent_instance;
 
-  GHashTable *devices_by_id;
-  GHashTable *tools_by_serial;
-
   GSList *all_devices;
-
-  GList *master_devices;
-  GList *slave_devices;
-
-  int opcode;
-
-#ifdef HAVE_LIBWACOM
-  WacomDeviceDatabase *wacom_db;
-#endif
+  ClutterSeat *seat;
 };
 
 gboolean meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
