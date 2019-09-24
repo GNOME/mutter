@@ -1955,6 +1955,9 @@ process_event (MetaDisplay          *display,
       (!window && binding->flags & META_KEY_BINDING_PER_WINDOW))
     goto not_found;
 
+  if (binding->handler == NULL)
+    meta_bug ("Binding %s has no handler\n", binding->name);
+
   if (display->focus_window &&
       !(binding->handler->flags & META_KEY_BINDING_NON_MASKABLE))
     {
@@ -1980,12 +1983,9 @@ process_event (MetaDisplay          *display,
       return TRUE;
     }
 
-  if (binding->handler == NULL)
-    meta_bug ("Binding %s has no handler\n", binding->name);
-  else
-    meta_topic (META_DEBUG_KEYBINDINGS,
-                "Running handler for %s\n",
-                binding->name);
+  meta_topic (META_DEBUG_KEYBINDINGS,
+              "Running handler for %s\n",
+              binding->name);
 
   /* Global keybindings count as a let-the-terminal-lose-focus
    * due to new window mapping until the user starts
