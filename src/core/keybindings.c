@@ -1934,6 +1934,12 @@ invoke_handler (MetaDisplay     *display,
 }
 
 static gboolean
+meta_key_binding_has_handler_func (MetaKeyBinding *binding)
+{
+  return (!!binding->handler->func || !!binding->handler->default_func);
+}
+
+static gboolean
 process_event (MetaDisplay          *display,
                MetaWindow           *window,
                ClutterKeyEvent      *event)
@@ -1953,6 +1959,12 @@ process_event (MetaDisplay          *display,
 
   if (!binding ||
       (!window && binding->flags & META_KEY_BINDING_PER_WINDOW))
+    goto not_found;
+
+  if (binding->handler == NULL)
+    meta_bug ("Binding %s has no handler\n", binding->name);
+
+  if (!meta_key_binding_has_handler_func (binding))
     goto not_found;
 
   if (display->focus_window &&
@@ -1980,12 +1992,9 @@ process_event (MetaDisplay          *display,
       return TRUE;
     }
 
-  if (binding->handler == NULL)
-    meta_bug ("Binding %s has no handler\n", binding->name);
-  else
-    meta_topic (META_DEBUG_KEYBINDINGS,
-                "Running handler for %s\n",
-                binding->name);
+  meta_topic (META_DEBUG_KEYBINDINGS,
+              "Running handler for %s\n",
+              binding->name);
 
   /* Global keybindings count as a let-the-terminal-lose-focus
    * due to new window mapping until the user starts
