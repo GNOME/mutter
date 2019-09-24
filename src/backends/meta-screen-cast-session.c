@@ -48,6 +48,8 @@ struct _MetaScreenCastSession
   GList *streams;
 
   MetaScreenCastSessionHandle *handle;
+
+  gboolean disable_animations;
 };
 
 static void
@@ -165,6 +167,13 @@ MetaScreenCast *
 meta_screen_cast_session_get_screen_cast (MetaScreenCastSession *session)
 {
   return session->screen_cast;
+}
+
+void
+meta_screen_cast_session_set_disable_animations (MetaScreenCastSession *session,
+                                                 gboolean               disable_animations)
+{
+  session->disable_animations = disable_animations;
 }
 
 char *
