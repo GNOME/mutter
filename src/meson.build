@@ -256,6 +256,8 @@ mutter_sources = [
   'backends/x11/meta-input-device-tool-x11.h',
   'backends/x11/meta-input-settings-x11.c',
   'backends/x11/meta-input-settings-x11.h',
+  'backends/x11/meta-seat-x11.c',
+  'backends/x11/meta-seat-x11.h',
   'backends/x11/meta-keymap-x11.c',
   'backends/x11/meta-keymap-x11.h',
   'backends/x11/meta-monitor-manager-xrandr.c',
