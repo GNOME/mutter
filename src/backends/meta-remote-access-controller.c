@@ -43,6 +43,8 @@ static int controller_signals[N_CONTROLLER_SIGNALS];
 typedef struct _MetaRemoteAccessHandlePrivate
 {
   gboolean has_stopped;
+
+  gboolean disable_animations;
 } MetaRemoteAccessHandlePrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaRemoteAccessHandle,
@@ -74,6 +76,32 @@ meta_remote_access_handle_stop (MetaRemoteAccessHandle *handle)
     return;
 
   META_REMOTE_ACCESS_HANDLE_GET_CLASS (handle)->stop (handle);
+}
+
+/**
+ * meta_remote_access_get_disable_animations:
+ * @handle: A #MetaRemoteAccessHandle
+ *
+ * Returns: %TRUE if the remote access requested that animations should be
+ * disabled.
+ */
+gboolean
+meta_remote_access_handle_get_disable_animations (MetaRemoteAccessHandle *handle)
+{
+  MetaRemoteAccessHandlePrivate *priv =
+    meta_remote_access_handle_get_instance_private (handle);
+
+  return priv->disable_animations;
+}
+
+void
+meta_remote_access_handle_set_disable_animations (MetaRemoteAccessHandle *handle,
+                                                  gboolean                disable_animations)
+{
+  MetaRemoteAccessHandlePrivate *priv =
+    meta_remote_access_handle_get_instance_private (handle);
+
+  priv->disable_animations = disable_animations;
 }
 
 void
