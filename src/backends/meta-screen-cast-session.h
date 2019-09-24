@@ -64,4 +64,7 @@ MetaScreenCastStream * meta_screen_cast_session_get_stream (MetaScreenCastSessio
 
 MetaScreenCast * meta_screen_cast_session_get_screen_cast (MetaScreenCastSession *session);
 
+void meta_screen_cast_session_set_disable_animations (MetaScreenCastSession *session,
+                                                      gboolean               disable_animations);
+
 #endif /* META_SCREEN_CAST_SESSION_H */

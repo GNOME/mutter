@@ -22,6 +22,10 @@
 					   Remote desktop driven screen casts
 					   are started and stopped by the remote
 					   desktop session.
+	* "disable-animations" (b): Set to "true" if the screen cast application
+				    would prefer animations to be globally
+				    disabled, while the session is running. Default
+				    is "false". Available since version 3.
     -->
     <method name="CreateSession">
       <arg name="properties" type="a{sv}" direction="in" />
