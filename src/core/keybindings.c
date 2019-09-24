@@ -1934,6 +1934,12 @@ invoke_handler (MetaDisplay     *display,
 }
 
 static gboolean
+meta_key_binding_has_handler_func (MetaKeyBinding *binding)
+{
+  return (!!binding->handler->func || !!binding->handler->default_func);
+}
+
+static gboolean
 process_event (MetaDisplay          *display,
                MetaWindow           *window,
                ClutterKeyEvent      *event)
@@ -1957,6 +1963,9 @@ process_event (MetaDisplay          *display,
 
   if (binding->handler == NULL)
     meta_bug ("Binding %s has no handler\n", binding->name);
+
+  if (!meta_key_binding_has_handler_func (binding))
+    goto not_found;
 
   if (display->focus_window &&
       !(binding->handler->flags & META_KEY_BINDING_NON_MASKABLE))
