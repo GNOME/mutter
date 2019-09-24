@@ -32,7 +32,7 @@
 
 #define META_SCREEN_CAST_DBUS_SERVICE "org.gnome.Mutter.ScreenCast"
 #define META_SCREEN_CAST_DBUS_PATH "/org/gnome/Mutter/ScreenCast"
-#define META_SCREEN_CAST_API_VERSION 2
+#define META_SCREEN_CAST_API_VERSION 3
 
 struct _MetaScreenCast
 {
@@ -116,6 +116,7 @@ handle_create_session (MetaDBusScreenCast    *skeleton,
   const char *session_path;
   const char *client_dbus_name;
   char *remote_desktop_session_id = NULL;
+  gboolean disable_animations;
   MetaScreenCastSessionType session_type;
 
   g_variant_lookup (properties, "remote-desktop-session-id", "s",
@@ -158,6 +159,13 @@ handle_create_session (MetaDBusScreenCast    *skeleton,
           g_object_unref (session);
           return TRUE;
         }
+    }
+
+  if (g_variant_lookup (properties, "disable-animations", "b",
+                        &disable_animations))
+    {
+      meta_screen_cast_session_set_disable_animations (session,
+                                                       disable_animations);
     }
 
   client_dbus_name = g_dbus_method_invocation_get_sender (invocation);
