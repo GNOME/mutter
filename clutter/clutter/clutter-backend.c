@@ -1100,6 +1100,14 @@ clutter_backend_get_stage_window (ClutterBackend *backend)
   return backend->stage_window;
 }
 
+/**
+ * clutter_backend_get_default_seat:
+ * @backend: the #ClutterBackend
+ *
+ * Returns the default seat
+ *
+ * Returns: (transfer none): the default seat
+ **/
 ClutterSeat *
 clutter_backend_get_default_seat (ClutterBackend *backend)
 {
@@ -1108,6 +1116,14 @@ clutter_backend_get_default_seat (ClutterBackend *backend)
   return CLUTTER_BACKEND_GET_CLASS (backend)->get_default_seat (backend);
 }
 
+/**
+ * clutter_backend_list_seats:
+ * @backend: the #ClutterBackend
+ *
+ * Returns all known seats
+ *
+ * Returns: (transfer container) (element-type Clutter.Seat): the known seats
+ **/
 GList *
 clutter_backend_list_seats (ClutterBackend *backend)
 {

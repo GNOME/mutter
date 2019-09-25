@@ -164,6 +164,14 @@ clutter_seat_init (ClutterSeat *seat)
 {
 }
 
+/**
+ * clutter_seat_get_pointer:
+ * @seat: a #ClutterSeat
+ *
+ * Returns the master pointer
+ *
+ * Returns: (transfer none): the master pointer
+ **/
 ClutterInputDevice *
 clutter_seat_get_pointer (ClutterSeat *seat)
 {
@@ -172,6 +180,14 @@ clutter_seat_get_pointer (ClutterSeat *seat)
   return CLUTTER_SEAT_GET_CLASS (seat)->get_pointer (seat);
 }
 
+/**
+ * clutter_seat_get_keyboard:
+ * @seat: a #ClutterSeat
+ *
+ * Returns the master keyboard
+ *
+ * Returns: (transfer none): the master keyboard
+ **/
 ClutterInputDevice *
 clutter_seat_get_keyboard (ClutterSeat *seat)
 {
@@ -180,6 +196,15 @@ clutter_seat_get_keyboard (ClutterSeat *seat)
   return CLUTTER_SEAT_GET_CLASS (seat)->get_keyboard (seat);
 }
 
+/**
+ * clutter_seat_list_devices:
+ * @seat: a #ClutterSeat
+ * @parent: master device, or %NULL
+ *
+ * Returns the list of HW devices
+ *
+ * Returns: (transfer container) (element-type Clutter.InputDevice): A list of #ClutterInputDevice
+ **/
 GList *
 clutter_seat_list_devices (ClutterSeat        *seat,
                            ClutterInputDevice *parent)
