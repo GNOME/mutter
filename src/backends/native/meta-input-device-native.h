@@ -101,12 +101,10 @@ struct _MetaInputDeviceNativeClass
 
 GType                     meta_input_device_native_get_type        (void) G_GNUC_CONST;
 
-ClutterInputDevice *      meta_input_device_native_new             (ClutterDeviceManager    *manager,
-                                                                    MetaSeatNative          *seat,
+ClutterInputDevice *      meta_input_device_native_new             (MetaSeatNative          *seat,
                                                                     struct libinput_device  *libinput_device);
 
-ClutterInputDevice *      meta_input_device_native_new_virtual     (ClutterDeviceManager    *manager,
-                                                                    MetaSeatNative          *seat,
+ClutterInputDevice *      meta_input_device_native_new_virtual     (MetaSeatNative          *seat,
                                                                     ClutterInputDeviceType   type,
                                                                     ClutterInputMode         mode);
 
