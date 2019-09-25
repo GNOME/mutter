@@ -77,4 +77,21 @@ MetaGpuKmsFlipClosureContainer * meta_gpu_kms_wrap_flip_closure (MetaGpuKms *gpu
 
 void meta_gpu_kms_flip_closure_container_free (MetaGpuKmsFlipClosureContainer *closure_container);
 
+typedef struct _MetaGpuKmsFBArgs
+{
+  uint32_t width;
+  uint32_t height;
+  uint32_t format;
+  uint32_t handles[4];
+  uint32_t offsets[4];
+  uint32_t strides[4];
+  uint64_t modifiers[4];
+} MetaGpuKmsFBArgs;
+
+gboolean meta_gpu_kms_add_fb (MetaGpuKms              *gpu_kms,
+                              gboolean                 use_modifiers,
+                              const MetaGpuKmsFBArgs  *args,
+                              uint32_t                *fb_id_out,
+                              GError                 **error);
+
 #endif /* META_GPU_KMS_H */

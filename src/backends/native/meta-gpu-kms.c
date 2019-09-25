@@ -25,6 +25,7 @@
 #include "backends/native/meta-gpu-kms.h"
 
 #include <drm.h>
+#include <drm_fourcc.h>
 #include <errno.h>
 #include <poll.h>
 #include <string.h>
@@ -62,6 +63,80 @@ struct _MetaGpuKms
 };
 
 G_DEFINE_TYPE (MetaGpuKms, meta_gpu_kms, META_TYPE_GPU)
+
+gboolean
+meta_gpu_kms_add_fb (MetaGpuKms              *gpu_kms,
+                     gboolean                 use_modifiers,
+                     const MetaGpuKmsFBArgs  *args,
+                     uint32_t                *fb_id_out,
+                     GError                 **error)
+{
+  MetaDrmFormatBuf tmp;
+  uint32_t fb_id;
+
+  if (use_modifiers && args->modifiers[0] != DRM_FORMAT_MOD_INVALID)
+    {
+      if (drmModeAddFB2WithModifiers (gpu_kms->fd,
+                                      args->width,
+                                      args->height,
+                                      args->format,
+                                      args->handles,
+                                      args->strides,
+                                      args->offsets,
+                                      args->modifiers,
+                                      &fb_id,
+                                      DRM_MODE_FB_MODIFIERS))
+        {
+          g_set_error (error,
+                       G_IO_ERROR,
+                       g_io_error_from_errno (errno),
+                       "drmModeAddFB2WithModifiers failed: %s",
+                       g_strerror (errno));
+          return FALSE;
+        }
+    }
+  else if (drmModeAddFB2 (gpu_kms->fd,
+                          args->width,
+                          args->height,
+                          args->format,
+                          args->handles,
+                          args->strides,
+                          args->offsets,
+                          &fb_id,
+                          0))
+    {
+      if (args->format != DRM_FORMAT_XRGB8888)
+        {
+          g_set_error (error,
+                       G_IO_ERROR,
+                       G_IO_ERROR_FAILED,
+                       "drmModeAddFB does not support format '%s' (0x%x)",
+                       meta_drm_format_to_string (&tmp, args->format),
+                       args->format);
+          return FALSE;
+        }
+
+      if (drmModeAddFB (gpu_kms->fd,
+                        args->width,
+                        args->height,
+                        24,
+                        32,
+                        args->strides[0],
+                        args->handles[0],
+                        &fb_id))
+        {
+          g_set_error (error,
+                       G_IO_ERROR,
+                       g_io_error_from_errno (errno),
+                       "drmModeAddFB failed: %s",
+                       g_strerror (errno));
+          return FALSE;
+        }
+    }
+
+    *fb_id_out = fb_id;
+    return TRUE;
+}
 
 gboolean
 meta_gpu_kms_is_crtc_active (MetaGpuKms *gpu_kms,

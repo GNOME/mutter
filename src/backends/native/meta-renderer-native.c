@@ -2534,9 +2534,11 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
   uint32_t fb_id = 0;
   void *map;
   int kms_fd;
-  uint32_t handles[4] = { 0, };
-  uint32_t pitches[4] = { 0, };
-  uint32_t offsets[4] = { 0, };
+  MetaGpuKmsFBArgs fb_args = {
+    .width = width,
+    .height = height,
+    .format = format,
+  };
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
@@ -2554,42 +2556,11 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
       goto err_ioctl;
     }
 
-  handles[0] = create_arg.handle;
-  pitches[0] = create_arg.pitch;
+  fb_args.handles[0] = create_arg.handle;
+  fb_args.strides[0] = create_arg.pitch;
 
-  if (drmModeAddFB2 (kms_fd, width, height, format,
-                     handles, pitches, offsets,
-                     &fb_id, 0) != 0)
-    {
-      g_debug ("drmModeAddFB2 failed (%s), falling back to drmModeAddFB",
-               g_strerror (errno));
-    }
-
-  if (fb_id == 0)
-    {
-      if (format != DRM_FORMAT_XRGB8888)
-        {
-          g_set_error (error, G_IO_ERROR,
-                       G_IO_ERROR_FAILED,
-                       "drmModeAddFB does not support format 0x%x",
-                       format);
-          goto err_add_fb;
-        }
-
-      if (drmModeAddFB (kms_fd, width, height,
-                        24 /* depth of RGBX8888 */,
-                        32 /* bpp of RGBX8888 */,
-                        create_arg.pitch,
-                        create_arg.handle,
-                        &fb_id) != 0)
-        {
-          g_set_error (error, G_IO_ERROR,
-                       G_IO_ERROR_FAILED,
-                       "drmModeAddFB failed: %s",
-                       g_strerror (errno));
-          goto err_add_fb;
-        }
-    }
+  if (!meta_gpu_kms_add_fb (gpu_kms, FALSE, &fb_args, &fb_id, error))
+    goto err_add_fb;
 
   map_arg = (struct drm_mode_map_dumb) {
     .handle = create_arg.handle
