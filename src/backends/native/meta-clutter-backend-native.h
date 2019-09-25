@@ -38,4 +38,6 @@ G_DECLARE_FINAL_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
 
 MetaStageNative * meta_clutter_backend_native_get_stage_native (ClutterBackend *backend);
 
+void meta_clutter_backend_native_set_seat_id (const gchar *seat_id);
+
 #endif /* META_CLUTTER_BACKEND_NATIVE_H */

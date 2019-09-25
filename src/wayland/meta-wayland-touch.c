@@ -34,6 +34,7 @@
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-device-manager-native.h"
 #include "backends/native/meta-event-native.h"
+#include "backends/native/meta-seat-native.h"
 #endif
 
 G_DEFINE_TYPE (MetaWaylandTouch, meta_wayland_touch,
@@ -570,7 +571,13 @@ meta_wayland_touch_enable (MetaWaylandTouch *touch)
 #ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_get_backend ();
   if (META_IS_BACKEND_NATIVE (backend))
-    meta_device_manager_native_add_filter (evdev_filter_func, touch, NULL);
+    {
+      ClutterBackend *backend = clutter_get_default_backend ();
+      ClutterSeat *seat = clutter_backend_get_default_seat (backend);
+
+      meta_seat_native_add_filter (META_SEAT_NATIVE (seat),
+                                   evdev_filter_func, touch, NULL);
+    }
 #endif
 }
 
@@ -580,7 +587,13 @@ meta_wayland_touch_disable (MetaWaylandTouch *touch)
 #ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_get_backend ();
   if (META_IS_BACKEND_NATIVE (backend))
-    meta_device_manager_native_remove_filter (evdev_filter_func, touch);
+    {
+      ClutterBackend *backend = clutter_get_default_backend ();
+      ClutterSeat *seat = clutter_backend_get_default_seat (backend);
+
+      meta_seat_native_remove_filter (META_SEAT_NATIVE (seat),
+                                      evdev_filter_func, touch);
+    }
 #endif
 
   meta_wayland_touch_cancel (touch);
