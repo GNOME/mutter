@@ -80,10 +80,6 @@ struct _MetaStageX11Class
 CLUTTER_EXPORT
 GType meta_stage_x11_get_type (void) G_GNUC_CONST;
 
-void  meta_stage_x11_events_device_changed (MetaStageX11         *stage_x11,
-					    ClutterInputDevice   *device,
-					    ClutterDeviceManager *device_manager);
-
 /* Private to subclasses */
 void            meta_stage_x11_set_user_time                (MetaStageX11 *stage_x11,
 							     guint32       user_time);
