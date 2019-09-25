@@ -2463,6 +2463,14 @@ clutter_input_device_is_grouped (ClutterInputDevice *device,
   return CLUTTER_INPUT_DEVICE_GET_CLASS (device)->is_grouped (device, other_device);
 }
 
+/**
+ * clutter_input_device_get_seat:
+ * @device: a #ClutterInputDevice
+ *
+ * Returns the seat the device belongs to
+ *
+ * Returns: (transfer none): the device seat
+ **/
 ClutterSeat *
 clutter_input_device_get_seat (ClutterInputDevice *device)
 {
