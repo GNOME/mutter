@@ -58,6 +58,7 @@
 #include "backends/native/meta-launcher.h"
 #include "backends/native/meta-monitor-manager-kms.h"
 #include "backends/native/meta-renderer-native.h"
+#include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-stage-native.h"
 #include "cogl/cogl-trace.h"
 #include "core/meta-border.h"
@@ -340,15 +341,18 @@ meta_backend_native_create_clutter_backend (MetaBackend *backend)
 static void
 meta_backend_native_post_init (MetaBackend *backend)
 {
-  ClutterDeviceManager *manager = clutter_device_manager_get_default ();
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   MetaSettings *settings = meta_backend_get_settings (backend);
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
 
-  meta_device_manager_native_set_pointer_constrain_callback (manager, pointer_constrain_callback,
-                                                             NULL, NULL);
-  meta_device_manager_native_set_relative_motion_filter (manager, relative_motion_filter,
-                                                         meta_backend_get_monitor_manager (backend));
+  meta_seat_native_set_pointer_constrain_callback (META_SEAT_NATIVE (seat),
+                                                   pointer_constrain_callback,
+                                                   NULL, NULL);
+  meta_seat_native_set_relative_motion_filter (META_SEAT_NATIVE (seat),
+                                               relative_motion_filter,
+                                               meta_backend_get_monitor_manager (backend));
 
   if (meta_settings_is_experimental_feature_enabled (settings,
                                                      META_EXPERIMENTAL_FEATURE_RT_SCHEDULER))
@@ -413,7 +417,7 @@ meta_backend_native_warp_pointer (MetaBackend *backend,
   guint32 time_ = 0;
 
   /* Warp the input device pointer state. */
-  meta_device_manager_native_warp_pointer (device, time_, x, y);
+  meta_seat_native_warp_pointer (device, time_, x, y);
 
   /* Warp displayed pointer cursor. */
   meta_cursor_tracker_update_position (cursor_tracker, x, y);
@@ -796,11 +800,14 @@ meta_backend_native_pause (MetaBackendNative *native)
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerKms *monitor_manager_kms =
     META_MONITOR_MANAGER_KMS (monitor_manager);
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  MetaSeatNative *seat =
+    META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
 
   COGL_TRACE_BEGIN_SCOPED (MetaBackendNativePause,
                            "Backend (pause)");
 
-  meta_device_manager_native_release_devices ();
+  meta_seat_native_release_devices (seat);
   clutter_stage_freeze_updates (stage);
 
   disconnect_udev_device_added_handler (native);
@@ -819,6 +826,9 @@ void meta_backend_native_resume (MetaBackendNative *native)
   MetaInputSettings *input_settings;
   MetaIdleMonitor *idle_monitor;
   ClutterDeviceManager *device_manager;
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  MetaSeatNative *seat =
+    META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
 
   COGL_TRACE_BEGIN_SCOPED (MetaBackendNativeResume,
                            "Backend (resume)");
@@ -827,7 +837,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
 
   connect_udev_device_added_handler (native);
 
-  meta_device_manager_native_reclaim_devices ();
+  meta_seat_native_reclaim_devices (seat);
   clutter_stage_thaw_updates (stage);
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));

@@ -26,12 +26,42 @@
 #include <libinput.h>
 #include <linux/input-event-codes.h>
 
-#include "backends/native/meta-device-manager-native.h"
 #include "backends/native/meta-xkb-utils.h"
 #include "clutter/clutter.h"
 
 typedef struct _MetaTouchState MetaTouchState;
 typedef struct _MetaSeatNative MetaSeatNative;
+typedef struct _MetaEventSource  MetaEventSource;
+
+/**
+ * MetaPointerConstrainCallback:
+ * @device: the core pointer device
+ * @time: the event time in milliseconds
+ * @x: (inout): the new X coordinate
+ * @y: (inout): the new Y coordinate
+ * @user_data: user data passed to this function
+ *
+ * This callback will be called for all pointer motion events, and should
+ * update (@x, @y) to constrain the pointer position appropriately.
+ * The subsequent motion event will use the updated values as the new coordinates.
+ * Note that the coordinates are not clamped to the stage size, and the callback
+ * must make sure that this happens before it returns.
+ * Also note that the event will be emitted even if the pointer is constrained
+ * to be in the same position.
+ */
+typedef void (* MetaPointerConstrainCallback) (ClutterInputDevice *device,
+                                               uint32_t            time,
+                                               float               prev_x,
+                                               float               prev_y,
+                                               float              *x,
+                                               float              *y,
+                                               gpointer            user_data);
+typedef void (* MetaRelativeMotionFilter) (ClutterInputDevice *device,
+                                           float               x,
+                                           float               y,
+                                           float              *dx,
+                                           float              *dy,
+                                           gpointer            user_data);
 
 struct _MetaTouchState
 {
@@ -44,8 +74,12 @@ struct _MetaTouchState
 
 struct _MetaSeatNative
 {
+  ClutterSeat parent_instance;
+
+  char *seat_id;
+  MetaEventSource *event_source;
+  struct libinput *libinput;
   struct libinput_seat *libinput_seat;
-  MetaDeviceManagerNative *manager_evdev;
 
   GSList *devices;
 
@@ -63,6 +97,23 @@ struct _MetaSeatNative
   uint32_t button_state;
   int button_count[KEY_CNT];
 
+  ClutterStage *stage;
+  ClutterStageManager *stage_manager;
+  gulong stage_added_handler;
+  gulong stage_removed_handler;
+
+  int device_id_next;
+  GList *free_device_ids;
+
+  MetaPointerConstrainCallback constrain_callback;
+  gpointer constrain_data;
+  GDestroyNotify constrain_data_notify;
+
+  MetaRelativeMotionFilter relative_motion_filter;
+  gpointer relative_motion_filter_user_data;
+
+  GSList *event_filters;
+
   /* keyboard repeat */
   gboolean repeat;
   uint32_t repeat_delay;
@@ -78,7 +129,31 @@ struct _MetaSeatNative
   /* Emulation of discrete scroll events out of smooth ones */
   float accum_scroll_dx;
   float accum_scroll_dy;
+
+  gboolean released;
 };
+
+#define META_TYPE_SEAT_NATIVE meta_seat_native_get_type ()
+G_DECLARE_FINAL_TYPE (MetaSeatNative, meta_seat_native,
+                      META, SEAT_NATIVE, ClutterSeat)
+
+static inline uint64_t
+us (uint64_t us)
+{
+  return us;
+}
+
+static inline uint64_t
+ms2us (uint64_t ms)
+{
+  return us (ms * 1000);
+}
+
+static inline uint32_t
+us2ms (uint64_t us)
+{
+  return (uint32_t) (us / 1000);
+}
 
 void meta_seat_native_notify_key (MetaSeatNative     *seat,
                                   ClutterInputDevice *device,
@@ -145,16 +220,81 @@ MetaTouchState * meta_seat_native_acquire_touch_state (MetaSeatNative *seat,
 void meta_seat_native_release_touch_state (MetaSeatNative *seat,
                                            MetaTouchState *touch_state);
 
-MetaTouchState * meta_seat_native_get_touch (MetaSeatNative *seat,
-                                             uint32_t        id);
-
 void meta_seat_native_set_stage (MetaSeatNative *seat,
                                  ClutterStage   *stage);
+ClutterStage * meta_seat_native_get_stage (MetaSeatNative *seat);
 
 void meta_seat_native_clear_repeat_timer (MetaSeatNative *seat);
 
-MetaSeatNative * meta_seat_native_new (MetaDeviceManagerNative *manager_evdev);
+gint meta_seat_native_acquire_device_id (MetaSeatNative     *seat);
+void meta_seat_native_release_device_id (MetaSeatNative     *seat,
+                                         ClutterInputDevice *device);
 
-void meta_seat_native_free (MetaSeatNative *seat);
+void meta_seat_native_update_xkb_state (MetaSeatNative *seat);
+
+void meta_seat_native_constrain_pointer (MetaSeatNative     *seat,
+                                         ClutterInputDevice *core_pointer,
+                                         uint64_t            time_us,
+                                         float               x,
+                                         float               y,
+                                         float              *new_x,
+                                         float              *new_y);
+
+void meta_seat_native_filter_relative_motion (MetaSeatNative     *seat,
+                                              ClutterInputDevice *device,
+                                              float               x,
+                                              float               y,
+                                              float              *dx,
+                                              float              *dy);
+
+void meta_seat_native_dispatch (MetaSeatNative *seat);
+
+/**
+ * MetaOpenDeviceCallback:
+ * @path: the device path
+ * @flags: flags to be passed to open
+ *
+ * This callback will be called when Clutter needs to access an input
+ * device. It should return an open file descriptor for the file at @path,
+ * or -1 if opening failed.
+ */
+typedef int (* MetaOpenDeviceCallback) (const char  *path,
+                                        int          flags,
+                                        gpointer     user_data,
+                                        GError     **error);
+typedef void (* MetaCloseDeviceCallback) (int          fd,
+                                          gpointer     user_data);
+
+void  meta_seat_native_set_device_callbacks (MetaOpenDeviceCallback  open_callback,
+                                             MetaCloseDeviceCallback close_callback,
+                                             gpointer                user_data);
+
+void  meta_seat_native_release_devices (MetaSeatNative *seat);
+void  meta_seat_native_reclaim_devices (MetaSeatNative *seat);
+
+void  meta_seat_native_set_pointer_constrain_callback (MetaSeatNative               *seat,
+                                                       MetaPointerConstrainCallback  callback,
+                                                       gpointer                      user_data,
+                                                       GDestroyNotify                user_data_notify);
+
+void meta_seat_native_set_relative_motion_filter (MetaSeatNative           *seat,
+                                                  MetaRelativeMotionFilter  filter,
+                                                  gpointer                  user_data);
+
+typedef gboolean (* MetaEvdevFilterFunc) (struct libinput_event *event,
+                                          gpointer               data);
+
+void meta_seat_native_add_filter    (MetaSeatNative        *seat,
+                                     MetaEvdevFilterFunc    func,
+                                     gpointer               data,
+                                     GDestroyNotify         destroy_notify);
+void meta_seat_native_remove_filter (MetaSeatNative        *seat,
+                                     MetaEvdevFilterFunc    func,
+                                     gpointer               data);
+
+void meta_seat_native_warp_pointer (ClutterInputDevice   *pointer_device,
+                                    uint32_t              time_,
+                                    int                   x,
+                                    int                   y);
 
 #endif /* META_SEAT_NATIVE_H */
