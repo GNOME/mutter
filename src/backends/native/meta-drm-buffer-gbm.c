@@ -57,16 +57,8 @@ acquire_swapped_buffer (MetaDrmBufferGbm  *buffer_gbm,
                         gboolean           use_modifiers,
                         GError           **error)
 {
-  uint32_t handles[4] = {0, 0, 0, 0};
-  uint32_t strides[4] = {0, 0, 0, 0};
-  uint32_t offsets[4] = {0, 0, 0, 0};
-  uint64_t modifiers[4] = {0, 0, 0, 0};
-  uint32_t width, height;
-  uint32_t format;
+  MetaGpuKmsFBArgs fb_args = { 0, };
   struct gbm_bo *bo;
-  int kms_fd;
-
-  kms_fd = meta_gpu_kms_get_fd (buffer_gbm->gpu_kms);
 
   bo = gbm_surface_lock_front_buffer (buffer_gbm->surface);
   if (!bo)
@@ -81,10 +73,10 @@ acquire_swapped_buffer (MetaDrmBufferGbm  *buffer_gbm,
   if (gbm_bo_get_handle_for_plane (bo, 0).s32 == -1)
     {
       /* Failed to fetch handle to plane, falling back to old method */
-      strides[0] = gbm_bo_get_stride (bo);
-      handles[0] = gbm_bo_get_handle (bo).u32;
-      offsets[0] = 0;
-      modifiers[0] = DRM_FORMAT_MOD_INVALID;
+      fb_args.strides[0] = gbm_bo_get_stride (bo);
+      fb_args.handles[0] = gbm_bo_get_handle (bo).u32;
+      fb_args.offsets[0] = 0;
+      fb_args.modifiers[0] = DRM_FORMAT_MOD_INVALID;
     }
   else
     {
@@ -92,76 +84,24 @@ acquire_swapped_buffer (MetaDrmBufferGbm  *buffer_gbm,
 
       for (i = 0; i < gbm_bo_get_plane_count (bo); i++)
         {
-          strides[i] = gbm_bo_get_stride_for_plane (bo, i);
-          handles[i] = gbm_bo_get_handle_for_plane (bo, i).u32;
-          offsets[i] = gbm_bo_get_offset (bo, i);
-          modifiers[i] = gbm_bo_get_modifier (bo);
+          fb_args.strides[i] = gbm_bo_get_stride_for_plane (bo, i);
+          fb_args.handles[i] = gbm_bo_get_handle_for_plane (bo, i).u32;
+          fb_args.offsets[i] = gbm_bo_get_offset (bo, i);
+          fb_args.modifiers[i] = gbm_bo_get_modifier (bo);
         }
      }
 
-  width = gbm_bo_get_width (bo);
-  height = gbm_bo_get_height (bo);
-  format = gbm_bo_get_format (bo);
+  fb_args.width = gbm_bo_get_width (bo);
+  fb_args.height = gbm_bo_get_height (bo);
+  fb_args.format = gbm_bo_get_format (bo);
 
-  if (use_modifiers && modifiers[0] != DRM_FORMAT_MOD_INVALID)
+  if (!meta_gpu_kms_add_fb (buffer_gbm->gpu_kms,
+                            use_modifiers,
+                            &fb_args,
+                            &buffer_gbm->fb_id, error))
     {
-      if (drmModeAddFB2WithModifiers (kms_fd,
-                                      width, height,
-                                      format,
-                                      handles,
-                                      strides,
-                                      offsets,
-                                      modifiers,
-                                      &buffer_gbm->fb_id,
-                                      DRM_MODE_FB_MODIFIERS))
-        {
-          g_set_error (error,
-                       G_IO_ERROR,
-                       g_io_error_from_errno (errno),
-                       "drmModeAddFB2WithModifiers failed: %s",
-                       g_strerror (errno));
-          gbm_surface_release_buffer (buffer_gbm->surface, bo);
-          return FALSE;
-        }
-    }
-  else if (drmModeAddFB2 (kms_fd,
-                          width,
-                          height,
-                          format,
-                          handles,
-                          strides,
-                          offsets,
-                          &buffer_gbm->fb_id,
-                          0))
-    {
-      if (format != DRM_FORMAT_XRGB8888)
-        {
-          g_set_error (error,
-                       G_IO_ERROR,
-                       G_IO_ERROR_FAILED,
-                       "drmModeAddFB does not support format 0x%x",
-                       format);
-          gbm_surface_release_buffer (buffer_gbm->surface, bo);
-          return FALSE;
-        }
-
-      if (drmModeAddFB (kms_fd,
-                        width,
-                        height,
-                        24,
-                        32,
-                        strides[0],
-                        handles[0],
-                        &buffer_gbm->fb_id))
-        {
-          g_set_error (error,
-                       G_IO_ERROR,
-                       g_io_error_from_errno (errno),
-                       "drmModeAddFB failed: %s",
-                       g_strerror (errno));
-          gbm_surface_release_buffer (buffer_gbm->surface, bo);
-          return FALSE;
-        }
+      gbm_surface_release_buffer (buffer_gbm->surface, bo);
+      return FALSE;
     }
 
   buffer_gbm->bo = bo;
