@@ -1285,9 +1285,14 @@ meta_compositor_class_init (MetaCompositorClass *klass)
 void
 meta_disable_unredirect_for_display (MetaDisplay *display)
 {
-  MetaCompositor *compositor = get_compositor_for_display (display);
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
+  MetaCompositor *compositor;
+  MetaCompositorPrivate *priv;
+
+  if (display->closing)
+    return;
+
+  compositor = get_compositor_for_display (display);
+  priv = meta_compositor_get_instance_private (compositor);
 
   priv->disable_unredirect_count++;
 }
@@ -1302,9 +1307,14 @@ meta_disable_unredirect_for_display (MetaDisplay *display)
 void
 meta_enable_unredirect_for_display (MetaDisplay *display)
 {
-  MetaCompositor *compositor = get_compositor_for_display (display);
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
+  MetaCompositor *compositor;
+  MetaCompositorPrivate *priv;
+
+  if (display->closing)
+    return;
+
+  compositor = get_compositor_for_display (display);
+  priv = meta_compositor_get_instance_private (compositor);
 
   if (priv->disable_unredirect_count == 0)
     g_warning ("Called enable_unredirect_for_display while unredirection is enabled.");
