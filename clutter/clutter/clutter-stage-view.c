@@ -19,6 +19,7 @@
 
 #include "clutter/clutter-stage-view.h"
 #include "clutter/clutter-stage-view-private.h"
+#include "clutter-debug.h"
 
 #include <cairo-gobject.h>
 #include <math.h>
@@ -142,6 +143,23 @@ clutter_stage_view_blit_offscreen (ClutterStageView            *view,
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
   CoglMatrix matrix;
+
+  clutter_stage_view_get_offscreen_transformation_matrix (view, &matrix);
+  if (cogl_matrix_is_identity (&matrix))
+    {
+      g_autoptr (GError) error = NULL;
+
+      if (cogl_blit_framebuffer (priv->offscreen,
+                                 priv->framebuffer,
+                                 rect->x, rect->y,
+                                 rect->x, rect->y,
+                                 rect->width, rect->height,
+                                 &error))
+        {
+          return;
+        }
+      CLUTTER_NOTE (PAINT, "Failed Cogl blit: %s", error->message);
+    }
 
   clutter_stage_view_ensure_offscreen_blit_pipeline (view);
   cogl_framebuffer_push_matrix (priv->framebuffer);
