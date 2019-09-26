@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-08-24 16:57+0000\n"
-"PO-Revision-Date: 2019-08-24 19:44+0200\n"
+"POT-Creation-Date: 2019-09-26 09:57+0000\n"
+"PO-Revision-Date: 2019-09-26 21:20+0200\n"
 "Last-Translator: Matej Urbančič <mateju@svn.gnome.org>\n"
 "Language-Team: Slovenian GNOME Translation Team <gnome-si@googlegroups.com>\n"
 "Language: sl_SI\n"
@@ -387,17 +387,6 @@ msgid "Enable experimental features"
 msgstr "Omogoči preizkusne možnosti"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
-#, fuzzy
-#| msgid ""
-#| "To enable experimental features, add the feature keyword to the list. "
-#| "Whether the feature requires restarting the compositor depends on the "
-#| "given feature. Any experimental feature is not required to still be "
-#| "available, or configurable. Don’t expect adding anything in this setting "
-#| "to be future proof. Currently possible keywords: • “scale-monitor-"
-#| "framebuffer” — makes mutter default to layout logical monitors in a "
-#| "logical pixel coordinate space, while scaling monitor framebuffers "
-#| "instead of window content, to manage HiDPI monitors. Does not require a "
-#| "restart."
 msgid ""
 "To enable experimental features, add the feature keyword to the list. "
 "Whether the feature requires restarting the compositor depends on the given "
@@ -413,11 +402,16 @@ msgid ""
 msgstr ""
 "Za omogočanje preizkusnih možnosti je treba dodati ključne besede na seznam "
 "ključev. Ali vpisana možnost zahteva ponovni zagon sestavljalnika, je "
-"odvisno od posamezne možnosti. Te možnosti niso zahtevane niti nastavljive. "
-"Trenutno so na voljo ključne besede: • »scale-monitor-framebuffer« – določi "
-"privzeto rabo sistema mutter za logične zaslone v logičnem točkovnem "
-"koordinatnem prostoru, pri čemer prilagaja predpomnilnik in ne vsebine za "
-"upravljanje z zasloni HiDPI. Možnost ne zahteva ponovnega zagona."
+"odvisno od posamezne možnosti. Te možnosti niso zahtevane niti nastavljive, "
+"najverjetneje niti ne bodo. Trenutno so na voljo ključne besede: • »scale-"
+"monitor-framebuffer« – določi privzeto rabo sistema mutter za logične "
+"zaslone v logičnem točkovnem koordinatnem prostoru, pri čemer prilagaja "
+"predpomnilnik in ne vsebine za upravljanje z zasloni HiDPI. Možnost ne "
+"zahteva ponovnega zagona.• “rt-scheduler” — postavi zahteve mutter na nižjo "
+"prednostno raven. Izvršljivi program oziroma uporabnik mora imeti omogočeno "
+"možnost CAP_SYS_NICE. Ta možnost zahteva ponovni zagon. • »autostart-"
+"xwayland« - lenobno zažne okolje Xwayland, če ima odjemalce X11. Prav tako "
+"zahteva ponoven zagon."
 
 #: data/org.gnome.mutter.gschema.xml.in:134
 msgid "Modifier to use to locate the pointer"
@@ -500,13 +494,6 @@ msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr "Dovoli zajemanje za zaklep žariščenja tipkovnice z XWayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
-#, fuzzy
-#| msgid ""
-#| "Allow keyboard grabs issued by X11 applications running in Xwayland to be "
-#| "taken into account. For a X11 grab to be taken into account under "
-#| "Wayland, the client must also either send a specific X11 ClientMessage to "
-#| "the root window or be among the applications white-listed in key "
-#| "“xwayland-grab-access-rules”."
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -519,9 +506,13 @@ msgid ""
 "white-listed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Upošteva zajeme s tipkovnico, ki jih sprožijo programi X11, zagnani v okolju "
-"Xwayland. Če naj se programski zajem upošteva, mora odjemalec ali poslati "
-"specifično sporočilo X11 na korensko okno ali pa mora biti zaveden na "
-"seznamu programov v ključu »xwayland-garb-access-rules«."
+"Xwayland. možnost je namenjena podpori odjemalcem X11, ki preslikajo okno s "
+"\"preglasitvijo preusmeritve\" (ne dobi žarišča tipkovnice) in vsili dogodke "
+"tipkovnice v to okno. Možnost se uporablja redko ne vpliva na običajna okna "
+"X11, ki lahko v običajnih okoliščinah pridobijo žarišča. Da bo zajem X11 "
+"upoštevan v okolju Waylandu, mora odjemalec poslati tudi določeno sporočilo "
+"odjemalcu X11 v korensko okno ali pa mora biti med mrogrami na belem seznamu "
+"v ključu \"xwayland-grab-access-rules\"."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -553,7 +544,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2531
+#: src/backends/meta-input-settings.c:2532
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Preklop načina (skupina %d)"
@@ -561,11 +552,11 @@ msgstr "Preklop načina (skupina %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2554
+#: src/backends/meta-input-settings.c:2555
 msgid "Switch monitor"
 msgstr "Nadzornik preklopa"
 
-#: src/backends/meta-input-settings.c:2556
+#: src/backends/meta-input-settings.c:2557
 msgid "Show on-screen help"
 msgstr "Pokaži zaslonsko pomoč"
 
@@ -603,7 +594,7 @@ msgstr "Sestavljalnik"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:508
+#: src/compositor/compositor.c:509
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -614,47 +605,47 @@ msgstr ""
 msgid "Bell event"
 msgstr "Dogodek zvonjenja"
 
-#: src/core/main.c:185
+#: src/core/main.c:186
 msgid "Disable connection to session manager"
 msgstr "Onemogoči povezavo z upravljalnikom sej"
 
-#: src/core/main.c:191
+#: src/core/main.c:192
 msgid "Replace the running window manager"
 msgstr "Zamenjaj trenutni upravljalnik oken"
 
-#: src/core/main.c:197
+#: src/core/main.c:198
 msgid "Specify session management ID"
 msgstr "Navedite ID upravljanja seje"
 
-#: src/core/main.c:202
+#: src/core/main.c:203
 msgid "X Display to use"
 msgstr "Zaslon X za uporabo"
 
-#: src/core/main.c:208
+#: src/core/main.c:209
 msgid "Initialize session from savefile"
 msgstr "Začni sejo iz shranjene datoteke"
 
-#: src/core/main.c:214
+#: src/core/main.c:215
 msgid "Make X calls synchronous"
 msgstr "Uskladi klice X"
 
-#: src/core/main.c:221
+#: src/core/main.c:222
 msgid "Run as a wayland compositor"
 msgstr "Zaženi izbirnik wayland"
 
-#: src/core/main.c:227
+#: src/core/main.c:228
 msgid "Run as a nested compositor"
 msgstr "Zaženi kot gnezden vpisovalnik"
 
-#: src/core/main.c:233
+#: src/core/main.c:234
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Zaženi sestavljalnik wayland brez zagona okolja Xwayland"
 
-#: src/core/main.c:241
+#: src/core/main.c:242
 msgid "Run as a full display server, rather than nested"
 msgstr "Zaženi kot polni strežnik zaslona in ne vstavljeno"
 
-#: src/core/main.c:247
+#: src/core/main.c:248
 msgid "Run with X11 backend"
 msgstr "Zaženi z zaledjem X11"
 
@@ -712,7 +703,7 @@ msgstr "Vstavek Mutter za uporabo"
 msgid "Workspace %d"
 msgstr "Delovna površina %d"
 
-#: src/core/util.c:121
+#: src/core/util.c:122
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr ""
 "Program Mutter je kodno preveden brez podpore za podrobni način izpisovanja\n"
