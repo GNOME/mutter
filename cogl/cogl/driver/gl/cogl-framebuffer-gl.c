@@ -163,21 +163,6 @@ _cogl_framebuffer_gl_flush_clip_state (CoglFramebuffer *framebuffer)
 }
 
 static void
-_cogl_framebuffer_gl_flush_dither_state (CoglFramebuffer *framebuffer)
-{
-  CoglContext *ctx = framebuffer->context;
-
-  if (ctx->current_gl_dither_enabled != framebuffer->dither_enabled)
-    {
-      if (framebuffer->dither_enabled)
-        GE (ctx, glEnable (GL_DITHER));
-      else
-        GE (ctx, glDisable (GL_DITHER));
-      ctx->current_gl_dither_enabled = framebuffer->dither_enabled;
-    }
-}
-
-static void
 _cogl_framebuffer_gl_flush_modelview_state (CoglFramebuffer *framebuffer)
 {
   CoglMatrixEntry *modelview_entry =
@@ -376,9 +361,6 @@ _cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_CLIP:
           _cogl_framebuffer_gl_flush_clip_state (draw_buffer);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_DITHER:
-          _cogl_framebuffer_gl_flush_dither_state (draw_buffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_MODELVIEW:
           _cogl_framebuffer_gl_flush_modelview_state (draw_buffer);

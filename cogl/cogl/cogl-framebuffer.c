@@ -113,7 +113,6 @@ _cogl_framebuffer_init (CoglFramebuffer *framebuffer,
   framebuffer->viewport_height = height;
   framebuffer->viewport_age = 0;
   framebuffer->viewport_age_for_scissor_workaround = -1;
-  framebuffer->dither_enabled = TRUE;
   framebuffer->depth_buffer_clear_needed = TRUE;
 
   framebuffer->modelview_stack = cogl_matrix_stack_new (ctx);
@@ -779,14 +778,6 @@ _cogl_framebuffer_compare_clip_state (CoglFramebuffer *a,
 }
 
 static unsigned long
-_cogl_framebuffer_compare_dither_state (CoglFramebuffer *a,
-                                        CoglFramebuffer *b)
-{
-  return a->dither_enabled != b->dither_enabled ?
-    COGL_FRAMEBUFFER_STATE_DITHER : 0;
-}
-
-static unsigned long
 _cogl_framebuffer_compare_modelview_state (CoglFramebuffer *a,
                                            CoglFramebuffer *b)
 {
@@ -842,9 +833,6 @@ _cogl_framebuffer_compare (CoglFramebuffer *a,
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_CLIP:
           differences |= _cogl_framebuffer_compare_clip_state (a, b);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_DITHER:
-          differences |= _cogl_framebuffer_compare_dither_state (a, b);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_MODELVIEW:
           differences |=
@@ -972,22 +960,6 @@ cogl_framebuffer_set_stereo_mode (CoglFramebuffer *framebuffer,
   if (framebuffer->context->current_draw_buffer == framebuffer)
     framebuffer->context->current_draw_buffer_changes |=
       COGL_FRAMEBUFFER_STATE_STEREO_MODE;
-}
-
-gboolean
-cogl_framebuffer_get_dither_enabled (CoglFramebuffer *framebuffer)
-{
-  return framebuffer->dither_enabled;
-}
-
-void
-cogl_framebuffer_set_dither_enabled (CoglFramebuffer *framebuffer,
-                                     gboolean dither_enabled)
-{
-  if (framebuffer->dither_enabled == dither_enabled)
-    return;
-
-  framebuffer->dither_enabled = dither_enabled;
 }
 
 int
