@@ -84,6 +84,17 @@ META_EXPORT
 void meta_subprocess_launcher_set_flags                      (MetaSubprocessLauncher   *self,
                                                               GSubprocessFlags          flags);
 
+META_EXPORT
+int meta_subprocess_launcher_create_env_socket           (MetaSubprocessLauncher   *self,
+                                                               const gchar              *variable,
+                                                               GError                  **error);
+
+META_EXPORT
+int meta_subprocess_launcher_create_param_socket         (MetaSubprocessLauncher   *self,
+                                                               const gchar              *parameter,
+                                                               const gboolean            single,
+                                                               GError                  **error);
+
 G_END_DECLS
 
 #endif /* __VIEWER_FILE_H__ */
