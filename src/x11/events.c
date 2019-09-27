@@ -808,12 +808,12 @@ handle_window_focus_event (MetaX11Display *x11_display,
       (!x11_display->focused_by_us &&
        x11_display->server_focus_serial == x11_display->focus_serial))
     {
-      meta_display_update_focus_window (display, focus_window);
       meta_x11_display_update_focus_window (x11_display,
                                             focus_window ?
                                             focus_window->xwindow : None,
                                             x11_display->server_focus_serial,
                                             FALSE);
+      meta_display_update_focus_window (display, focus_window);
       return TRUE;
     }
   else
@@ -1807,13 +1807,13 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
     {
       meta_topic (META_DEBUG_FOCUS, "Earlier attempt to focus %s failed\n",
                   display->focus_window->desc);
-      meta_display_update_focus_window (display,
-                                        meta_x11_display_lookup_x_window (x11_display,
-                                                                          x11_display->server_focus_window));
       meta_x11_display_update_focus_window (x11_display,
                                             x11_display->server_focus_window,
                                             x11_display->server_focus_serial,
                                             FALSE);
+      meta_display_update_focus_window (display,
+                                        meta_x11_display_lookup_x_window (x11_display,
+                                                                          x11_display->server_focus_window));
     }
 
   if (event->xany.window == x11_display->xroot)
