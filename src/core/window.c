@@ -5482,6 +5482,8 @@ meta_window_get_workspaces (MetaWindow *window)
     return window->workspace->list_containing_self;
   else if (window->constructing)
     return NULL;
+  else if (window->unmanaging)
+    g_return_val_if_reached (NULL);
   else
     g_assert_not_reached ();
   return NULL;
