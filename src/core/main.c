@@ -70,6 +70,10 @@
 #include <systemd/sd-login.h>
 #endif /* HAVE_WAYLAND && HAVE_NATIVE_BACKEND */
 
+#ifdef HAVE_SYS_PRCTL
+#include <sys/prctl.h>
+#endif
+
 #include "backends/meta-backend-private.h"
 #include "backends/x11/cm/meta-backend-x11-cm.h"
 #include "backends/x11/meta-backend-x11.h"
@@ -531,6 +535,10 @@ meta_init (void)
   sigset_t empty_mask;
   MetaCompositorType compositor_type;
   GType backend_gtype;
+
+#ifdef HAVE_SYS_PRCTL
+  prctl (PR_SET_DUMPABLE, 1);
+#endif
 
   sigemptyset (&empty_mask);
   act.sa_handler = SIG_IGN;
