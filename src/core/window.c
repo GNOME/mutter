@@ -5474,7 +5474,11 @@ idle_update_icon (gpointer data)
 GList*
 meta_window_get_workspaces (MetaWindow *window)
 {
-  MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
+  MetaWorkspaceManager *workspace_manager;
+
+  g_return_val_if_fail (!window->unmanaging, NULL);
+
+  workspace_manager = window->display->workspace_manager;
 
   if (window->on_all_workspaces)
     return workspace_manager->workspaces;
