@@ -366,6 +366,10 @@ cdata.set('HAVE_PROFILER', have_profiler)
 xkb_base = xkeyboard_config_dep.get_pkgconfig_variable('xkb_base')
 cdata.set_quoted('XKB_BASE', xkb_base)
 
+if cc.has_header_symbol('sys/prctl.h', 'prctl')
+  cdata.set('HAVE_SYS_PRCTL', 1)
+endif
+
 if have_wayland
   xwayland_path = get_option('xwayland_path')
   if xwayland_path == ''
