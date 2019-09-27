@@ -61,6 +61,9 @@
 /* XKB base prefix */
 #mesondefine XKB_BASE
 
+/* Whether <sys/prctl.h> exists and it defines prctl() */
+#mesondefine HAVE_SYS_PRCTL
+
 /* Either <sys/random.h> or <linux/random.h> */
 #mesondefine HAVE_SYS_RANDOM
 #mesondefine HAVE_LINUX_RANDOM
