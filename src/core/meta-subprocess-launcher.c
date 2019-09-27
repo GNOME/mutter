@@ -36,6 +36,9 @@
 #include <meta/util.h>
 #include <meta/meta-window-actor.h>
 #include <core/window-private.h>
+#include <gmodule.h>
+#include <gio/gunixinputstream.h>
+#include <gio/gunixoutputstream.h>
 
 #ifdef HAVE_WAYLAND
 #include <wayland-server.h>
@@ -57,6 +60,21 @@ struct _MetaSubprocessLauncher {
     GSubprocessFlags flags;
     gboolean process_running;
     struct wl_client *wayland_client;
+    int fd_counter;
+    GSList *fd_list;
+};
+
+enum
+{
+    FD_ELEMENT_TYPE_ENVIRONMENT,
+    FD_ELEMENT_TYPE_SINGLE_PARAMETER,
+    FD_ELEMENT_TYPE_DOUBLE_PARAMETER
+};
+
+struct fd_element {
+    gchar *name;
+    int fd;
+    int type;
 };
 
 G_DEFINE_TYPE (MetaSubprocessLauncher, meta_subprocess_launcher, G_TYPE_OBJECT)
@@ -76,6 +94,14 @@ meta_subprocess_launcher_error_quark (void)
     return g_quark_from_static_string ("meta-subprocess-launcher-error-quark");
 }
 
+static void free_fd_element(void *data) {
+    struct fd_element *element = (struct fd_element*) data;
+    g_free(element->name);
+    if (element->fd >= 0)
+        close(element->fd);
+    g_free(element);
+}
+
 static void
 meta_subprocess_launcher_dispose (GObject *gobject)
 {
@@ -85,6 +111,7 @@ meta_subprocess_launcher_dispose (GObject *gobject)
     g_clear_object(&self->launcher);
     g_clear_object(&self->subprocess);
     G_OBJECT_CLASS (meta_subprocess_launcher_parent_class)->dispose (gobject);
+    g_slist_free_full(self->fd_list, free_fd_element);
 }
 
 static void
@@ -182,8 +209,9 @@ meta_subprocess_launcher_init (MetaSubprocessLauncher *self)
     self->flags = 0;
     self->died_cancellable = NULL;
     self->process_running = FALSE;
-
+    self->fd_counter = 3;
     self->wayland_client = NULL;
+    self->fd_list = NULL;
 }
 
 static void
@@ -196,6 +224,23 @@ process_died (GObject      *source,
     //g_autoptr (GError) error = NULL;
 
     self->process_running = FALSE;
+}
+
+static int
+add_fd_to_list (MetaSubprocessLauncher  *self,
+                const gchar             *variable,
+                int                      type)
+{
+    int client_fd[2];
+    struct fd_element *element = g_malloc(sizeof(struct fd_element));
+
+    if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, client_fd) < 0)
+        return -1;
+    element->name = g_strdup(variable);
+    element->fd = client_fd[1];
+    element->type = type;
+    self->fd_list = g_slist_prepend(self->fd_list, element);
+    return client_fd[0];
 }
 
 /**
@@ -233,7 +278,10 @@ meta_subprocess_launcher_new (GSubprocessFlags flags)
 GSubprocess *
 meta_subprocess_launcher_spawnv (MetaSubprocessLauncher *self,
                                  const gchar * const    *argv,
-                                 GError                **error) {
+                                 GError                **error)
+{
+    GPtrArray *args;
+    GSList *list_element;
 
     g_return_val_if_fail (error == NULL || *error == NULL, NULL);
     g_return_val_if_fail (argv != NULL && argv[0] != NULL && argv[0][0] != '\0', NULL);
@@ -247,10 +295,11 @@ meta_subprocess_launcher_spawnv (MetaSubprocessLauncher *self,
     }
 #ifdef HAVE_WAYLAND
     if (meta_is_wayland_compositor()) {
-        int client_fd[2];
+        int client_fd;
         MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
 
-        if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, client_fd) < 0)
+        client_fd = add_fd_to_list(self, "WAYLAND_SOCKET", FD_ELEMENT_TYPE_ENVIRONMENT);
+        if (client_fd < 0)
         {
             g_set_error (error,
                          META_SUBPROCESS_LAUNCHER_ERROR,
@@ -258,13 +307,40 @@ meta_subprocess_launcher_spawnv (MetaSubprocessLauncher *self,
                          "Failed to create a socket pair for the wayland client.");
             return NULL;
         }
-        g_subprocess_launcher_take_fd (self->launcher, client_fd[1], 3);
-        g_subprocess_launcher_setenv (self->launcher, "WAYLAND_SOCKET", "3", TRUE);
         self->wayland_client = wl_client_create (compositor->wayland_display,
-                                                 client_fd[0]);
+                                                 client_fd);
     }
 #endif
-    self->subprocess = g_subprocess_launcher_spawnv(self->launcher, argv, error);
+    args = g_ptr_array_new ();
+    for(;*argv;argv++)
+        g_ptr_array_add (args, g_strdup(*argv));
+    for(list_element = self->fd_list; list_element != NULL; list_element = list_element->next) {
+        struct fd_element *element = list_element->data;
+        gchar *tmp_string;
+        switch(element->type) {
+        case FD_ELEMENT_TYPE_ENVIRONMENT:
+            tmp_string = g_strdup_printf ("%d", self->fd_counter);
+            g_subprocess_launcher_setenv (self->launcher, element->name, tmp_string, true);
+            g_free(tmp_string);
+            break;
+        case FD_ELEMENT_TYPE_SINGLE_PARAMETER:
+            tmp_string = g_strdup_printf ("%s%d", element->name, self->fd_counter);
+            g_ptr_array_add (args, tmp_string);
+            break;
+        case FD_ELEMENT_TYPE_DOUBLE_PARAMETER:
+            tmp_string = g_strdup_printf ("%d", self->fd_counter);
+            g_ptr_array_add (args, g_strdup(element->name));
+            g_ptr_array_add (args, tmp_string);
+            break;
+        }
+        g_subprocess_launcher_take_fd (self->launcher, element->fd, self->fd_counter);
+        self->fd_counter++;
+        element->fd = -1;
+    }
+    g_ptr_array_add (args, NULL);
+
+    self->subprocess = g_subprocess_launcher_spawnv(self->launcher, (const gchar * const *) args->pdata, error);
+    g_ptr_array_free (args, TRUE);
     if (self->subprocess) {
         self->process_running = TRUE;
         g_object_ref(self->subprocess);
@@ -521,4 +597,75 @@ void meta_subprocess_launcher_set_flags                      (MetaSubprocessLaun
                                                               GSubprocessFlags          flags)
 {
     g_subprocess_launcher_set_flags (self->launcher, flags);
+}
+
+
+/**
+ * meta_subprocess_launcher_create_env_socket:
+ * @self: a #MetaSubprocessLauncher
+ * @variable: a name for an environment variable, used to pass the socket ID
+ * @error: Error
+ *
+ * Creates a socket pair, returns the first one, and pass the other to the child process
+ * (when launched). Also creates an environment variable with the specified name at @variable,
+ * and assigns as its value the ID of the second socket.
+ *
+ * Returns: (transfer full): an IOStream for communicating with this socket
+ **/
+GIOStream *meta_subprocess_launcher_create_env_socket   (MetaSubprocessLauncher   *self,
+                                                         const gchar              *variable,
+                                                         GError                  **error)
+{
+    int client_fd;
+
+    client_fd = add_fd_to_list(self, variable, FD_ELEMENT_TYPE_ENVIRONMENT);
+    if (client_fd < 0)
+    {
+        g_set_error (error,
+                     META_SUBPROCESS_LAUNCHER_ERROR,
+                     META_SUBPROCESS_LAUNCHER_ERROR_NO_SOCKET_PAIR,
+                     "Failed to create a socket pair for the client.");
+        return 0;
+    }
+    return g_simple_io_stream_new(g_unix_input_stream_new(client_fd, true),
+                                  g_unix_output_stream_new(client_fd, true));
+}
+
+/**
+ * meta_subprocess_launcher_create_param_socket:
+ * @self: a #MetaSubprocessLauncher
+ * @parameter: a string for a parameter, used to pass the socket ID
+ * @single: specifies wether the socket ID should be append to the parameter string, as a single parameter,
+ *          or added as a new parameter after the one passed in @parameter
+ * @error: Error
+ *
+ * Creates a socket pair, returns the first one, and pass the other to the child process
+ * (when launched). Also appends a parameter with the specified name at @variable,
+ * and assigns as its value the ID of the second socket.
+ *
+ * If @single is true, the socket ID will be append to @parameter, so it is responsibility of
+ * the programmer to add any needed characters (so @parameter should be something like '-param=');
+ * but if @single is false, two parameters will be added to the command line: one for @parameter,
+ * and another for the socket ID (like for "--param X").
+ *
+ * Returns: (transfer full): an IOStream for communicating with this socket
+ **/
+GIOStream *meta_subprocess_launcher_create_param_socket   (MetaSubprocessLauncher   *self,
+                                                           const gchar              *parameter,
+                                                           const gboolean            single,
+                                                           GError                  **error)
+{
+    int client_fd;
+
+    client_fd = add_fd_to_list(self, parameter, single ? FD_ELEMENT_TYPE_SINGLE_PARAMETER : FD_ELEMENT_TYPE_DOUBLE_PARAMETER);
+    if (client_fd < 0)
+    {
+        g_set_error (error,
+                     META_SUBPROCESS_LAUNCHER_ERROR,
+                     META_SUBPROCESS_LAUNCHER_ERROR_NO_SOCKET_PAIR,
+                     "Failed to create a socket pair for the client.");
+        return 0;
+    }
+    return g_simple_io_stream_new(g_unix_input_stream_new(client_fd, true),
+                                  g_unix_output_stream_new(client_fd, true));
 }
