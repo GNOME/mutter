@@ -46,18 +46,6 @@ struct _CoglTextureDriver
            CoglPixelFormat internal_format);
 
   /*
-   * This sets up the glPixelStore state for an upload to a destination with
-   * the same size, and with no offset.
-   */
-  /* NB: GLES can't upload a sub region of pixel data from a larger source
-   * buffer which is why this interface is limited. The GL driver has a more
-   * flexible version of this function that is uses internally */
-  void
-  (* prep_gl_for_pixels_upload) (CoglContext *ctx,
-                                 int pixels_rowstride,
-                                 int pixels_bpp);
-
-  /*
    * This uploads a sub-region from source_bmp to a single GL texture
    * handle (i.e a single CoglTexture slice)
    *
