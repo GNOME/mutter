@@ -596,7 +596,11 @@ meta_compositor_add_window (MetaCompositor    *compositor,
       break;
 
     case META_WINDOW_CLIENT_TYPE_WAYLAND:
+#ifdef HAVE_WAYLAND
       window_actor_type = META_TYPE_WINDOW_ACTOR_WAYLAND;
+#else
+      g_return_if_reached ();
+#endif
       break;
     }
 
