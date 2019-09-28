@@ -317,8 +317,6 @@ mutter_sources = [
   'compositor/meta-texture-tower.h',
   'compositor/meta-window-actor.c',
   'compositor/meta-window-actor-private.h',
-  'compositor/meta-window-actor-wayland.c',
-  'compositor/meta-window-actor-wayland.h',
   'compositor/meta-window-actor-x11.c',
   'compositor/meta-window-actor-x11.h',
   'compositor/meta-window-group.c',
@@ -475,6 +473,8 @@ if have_wayland
   mutter_sources += [
     'compositor/meta-surface-actor-wayland.c',
     'compositor/meta-surface-actor-wayland.h',
+    'compositor/meta-window-actor-wayland.c',
+    'compositor/meta-window-actor-wayland.h',
     'compositor/meta-compositor-server.c',
     'compositor/meta-compositor-server.h',
     'wayland/meta-cursor-sprite-wayland.c',
