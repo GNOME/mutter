@@ -29,6 +29,7 @@
 #include "core/frame.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-cullable.h"
+#include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-surface-actor-x11.h"
 #include "compositor/meta-surface-actor.h"
 #include "compositor/meta-window-actor-private.h"
