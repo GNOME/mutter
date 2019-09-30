@@ -58,24 +58,13 @@ static void _cogl_pipeline_free (CoglPipeline *tex);
 static void recursively_free_layer_caches (CoglPipeline *pipeline);
 static gboolean _cogl_pipeline_is_weak (CoglPipeline *pipeline);
 
-const CoglPipelineFragend *_cogl_pipeline_fragends[COGL_PIPELINE_N_FRAGENDS];
-const CoglPipelineVertend *_cogl_pipeline_vertends[COGL_PIPELINE_N_VERTENDS];
-/* The 'MAX' here is so that we don't define an empty array when there
-   are no progends */
-const CoglPipelineProgend *
-_cogl_pipeline_progends[MAX (COGL_PIPELINE_N_PROGENDS, 1)];
+const CoglPipelineFragend *_cogl_pipeline_fragend;
+const CoglPipelineVertend *_cogl_pipeline_vertend;
+const CoglPipelineProgend *_cogl_pipeline_progend;
 
-#ifdef COGL_PIPELINE_FRAGEND_GLSL
 #include "driver/gl/cogl-pipeline-fragend-glsl-private.h"
-#endif
-
-#ifdef COGL_PIPELINE_VERTEND_GLSL
 #include "driver/gl/cogl-pipeline-vertend-glsl-private.h"
-#endif
-
-#ifdef COGL_PIPELINE_PROGEND_GLSL
 #include "driver/gl/cogl-pipeline-progend-glsl-private.h"
-#endif
 
 COGL_OBJECT_DEFINE (Pipeline, pipeline);
 COGL_GTYPE_DEFINE_CLASS (Pipeline, pipeline);
@@ -104,25 +93,14 @@ _cogl_pipeline_init_default_pipeline (void)
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   /* Take this opportunity to setup the backends... */
-#ifdef COGL_PIPELINE_FRAGEND_GLSL
-  _cogl_pipeline_fragends[COGL_PIPELINE_FRAGEND_GLSL] =
-    &_cogl_pipeline_glsl_fragend;
-#endif
-#ifdef COGL_PIPELINE_PROGEND_GLSL
-  _cogl_pipeline_progends[COGL_PIPELINE_PROGEND_GLSL] =
-    &_cogl_pipeline_glsl_progend;
-#endif
-
-#ifdef COGL_PIPELINE_VERTEND_GLSL
-  _cogl_pipeline_vertends[COGL_PIPELINE_VERTEND_GLSL] =
-    &_cogl_pipeline_glsl_vertend;
-#endif
+  _cogl_pipeline_fragend = &_cogl_pipeline_glsl_fragend;
+  _cogl_pipeline_progend = &_cogl_pipeline_glsl_progend;
+  _cogl_pipeline_vertend = &_cogl_pipeline_glsl_vertend;
 
   _cogl_pipeline_node_init (COGL_NODE (pipeline));
 
   pipeline->is_weak = FALSE;
   pipeline->journal_ref_count = 0;
-  pipeline->progend = COGL_PIPELINE_PROGEND_UNDEFINED;
   pipeline->differences = COGL_PIPELINE_STATE_ALL_SPARSE;
 
   pipeline->real_blend_enable = FALSE;
@@ -329,8 +307,6 @@ _cogl_pipeline_copy (CoglPipeline *src, gboolean is_weak)
   pipeline->layers_cache_dirty = TRUE;
   pipeline->deprecated_get_layers_list = NULL;
   pipeline->deprecated_get_layers_list_dirty = TRUE;
-
-  pipeline->progend = src->progend;
 
   pipeline->has_static_breadcrumb = FALSE;
 
@@ -890,12 +866,6 @@ _cogl_pipeline_needs_blending_enabled (CoglPipeline *pipeline,
   return FALSE;
 }
 
-void
-_cogl_pipeline_set_progend (CoglPipeline *pipeline, int progend)
-{
-  pipeline->progend = progend;
-}
-
 static void
 _cogl_pipeline_copy_differences (CoglPipeline *dest,
                                  CoglPipeline *src,
@@ -1243,28 +1213,21 @@ _cogl_pipeline_pre_change_notify (CoglPipeline     *pipeline,
    */
   if (!from_layer_change)
     {
-      int i;
+      const CoglPipelineProgend *progend = _cogl_pipeline_progend;
+      const CoglPipelineVertend *vertend = _cogl_pipeline_vertend;
+      const CoglPipelineFragend *fragend = _cogl_pipeline_fragend;
 
-      for (i = 0; i < COGL_PIPELINE_N_PROGENDS; i++)
-        {
-          const CoglPipelineProgend *progend = _cogl_pipeline_progends[i];
-          const CoglPipelineVertend *vertend =
-            _cogl_pipeline_vertends[progend->vertend];
-          const CoglPipelineFragend *fragend =
-            _cogl_pipeline_fragends[progend->fragend];
+      if (vertend->pipeline_pre_change_notify)
+        vertend->pipeline_pre_change_notify (pipeline, change, new_color);
 
-          if (vertend->pipeline_pre_change_notify)
-            vertend->pipeline_pre_change_notify (pipeline, change, new_color);
+      /* TODO: make the vertend and fragend implementation details
+       * of the progend */
 
-          /* TODO: make the vertend and fragend implementation details
-           * of the progend */
+      if (fragend->pipeline_pre_change_notify)
+        fragend->pipeline_pre_change_notify (pipeline, change, new_color);
 
-          if (fragend->pipeline_pre_change_notify)
-            fragend->pipeline_pre_change_notify (pipeline, change, new_color);
-
-          if (progend->pipeline_pre_change_notify)
-            progend->pipeline_pre_change_notify (pipeline, change, new_color);
-        }
+      if (progend->pipeline_pre_change_notify)
+        progend->pipeline_pre_change_notify (pipeline, change, new_color);
     }
 
   /* There may be an arbitrary tree of descendants of this pipeline;

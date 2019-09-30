@@ -42,8 +42,6 @@
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 
-#ifdef COGL_PIPELINE_VERTEND_GLSL
-
 #include "cogl-context-private.h"
 #include "cogl-object-private.h"
 #include "cogl-pipeline-state-private.h"
@@ -668,5 +666,3 @@ UNIT_TEST (check_point_size_shader,
   /* The fourth pipeline should be exactly the same as the first */
   g_assert (shader_states[0] == shader_states[3]);
 }
-
-#endif /* COGL_PIPELINE_VERTEND_GLSL */
