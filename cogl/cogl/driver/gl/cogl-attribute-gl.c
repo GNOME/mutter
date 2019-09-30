@@ -156,8 +156,6 @@ foreach_changed_bit_and_save (CoglContext *context,
   _cogl_bitmask_set_bits (current_bits, new_bits);
 }
 
-#ifdef COGL_PIPELINE_PROGEND_GLSL
-
 static void
 setup_generic_buffered_attribute (CoglContext *context,
                                   CoglPipeline *pipeline,
@@ -226,136 +224,6 @@ setup_generic_const_attribute (CoglContext *context,
       break;
     default:
       g_warn_if_reached ();
-    }
-}
-
-#endif /* COGL_PIPELINE_PROGEND_GLSL */
-
-static void
-setup_legacy_buffered_attribute (CoglContext *ctx,
-                                 CoglPipeline *pipeline,
-                                 CoglAttribute *attribute,
-                                 uint8_t *base)
-{
-  switch (attribute->name_state->name_id)
-    {
-    case COGL_ATTRIBUTE_NAME_ID_COLOR_ARRAY:
-      _cogl_bitmask_set (&ctx->enable_builtin_attributes_tmp,
-                         COGL_ATTRIBUTE_NAME_ID_COLOR_ARRAY, TRUE);
-      GE (ctx, glColorPointer (attribute->d.buffered.n_components,
-                               attribute->d.buffered.type,
-                               attribute->d.buffered.stride,
-                               base + attribute->d.buffered.offset));
-      break;
-    case COGL_ATTRIBUTE_NAME_ID_NORMAL_ARRAY:
-      _cogl_bitmask_set (&ctx->enable_builtin_attributes_tmp,
-                         COGL_ATTRIBUTE_NAME_ID_NORMAL_ARRAY, TRUE);
-      GE (ctx, glNormalPointer (attribute->d.buffered.type,
-                                attribute->d.buffered.stride,
-                                base + attribute->d.buffered.offset));
-      break;
-    case COGL_ATTRIBUTE_NAME_ID_TEXTURE_COORD_ARRAY:
-      {
-        int layer_number = attribute->name_state->layer_number;
-        const CoglPipelineGetLayerFlags flags =
-          COGL_PIPELINE_GET_LAYER_NO_CREATE;
-        CoglPipelineLayer *layer =
-          _cogl_pipeline_get_layer_with_flags (pipeline, layer_number, flags);
-
-        if (layer)
-          {
-            int unit = _cogl_pipeline_layer_get_unit_index (layer);
-
-            _cogl_bitmask_set (&ctx->enable_texcoord_attributes_tmp,
-                               unit,
-                               TRUE);
-
-            GE (ctx, glClientActiveTexture (GL_TEXTURE0 + unit));
-            GE (ctx, glTexCoordPointer (attribute->d.buffered.n_components,
-                                        attribute->d.buffered.type,
-                                        attribute->d.buffered.stride,
-                                        base + attribute->d.buffered.offset));
-          }
-        break;
-      }
-    case COGL_ATTRIBUTE_NAME_ID_POSITION_ARRAY:
-      _cogl_bitmask_set (&ctx->enable_builtin_attributes_tmp,
-                         COGL_ATTRIBUTE_NAME_ID_POSITION_ARRAY, TRUE);
-      GE (ctx, glVertexPointer (attribute->d.buffered.n_components,
-                                attribute->d.buffered.type,
-                                attribute->d.buffered.stride,
-                                base + attribute->d.buffered.offset));
-      break;
-    case COGL_ATTRIBUTE_NAME_ID_CUSTOM_ARRAY:
-#ifdef COGL_PIPELINE_PROGEND_GLSL
-      if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_GL_PROGRAMMABLE))
-        setup_generic_buffered_attribute (ctx, pipeline, attribute, base);
-#endif
-      break;
-    default:
-      g_warn_if_reached ();
-    }
-}
-
-static void
-setup_legacy_const_attribute (CoglContext *ctx,
-                              CoglPipeline *pipeline,
-                              CoglAttribute *attribute)
-{
-#ifdef COGL_PIPELINE_PROGEND_GLSL
-  if (attribute->name_state->name_id == COGL_ATTRIBUTE_NAME_ID_CUSTOM_ARRAY)
-    {
-      if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_GL_PROGRAMMABLE))
-        setup_generic_const_attribute (ctx, pipeline, attribute);
-    }
-  else
-#endif
-    {
-      float vector[4] = { 0, 0, 0, 1 };
-      float *boxed = attribute->d.constant.boxed.v.float_value;
-      int n_components = attribute->d.constant.boxed.size;
-      int i;
-
-      for (i = 0; i < n_components; i++)
-        vector[i] = boxed[i];
-
-      switch (attribute->name_state->name_id)
-        {
-        case COGL_ATTRIBUTE_NAME_ID_COLOR_ARRAY:
-          GE (ctx, glColor4f (vector[0], vector[1], vector[2], vector[3]));
-          break;
-        case COGL_ATTRIBUTE_NAME_ID_NORMAL_ARRAY:
-          GE (ctx, glNormal3f (vector[0], vector[1], vector[2]));
-          break;
-        case COGL_ATTRIBUTE_NAME_ID_TEXTURE_COORD_ARRAY:
-          {
-            int layer_number = attribute->name_state->layer_number;
-            const CoglPipelineGetLayerFlags flags =
-              COGL_PIPELINE_GET_LAYER_NO_CREATE;
-            CoglPipelineLayer *layer =
-              _cogl_pipeline_get_layer_with_flags (pipeline,
-                                                   layer_number,
-                                                   flags);
-
-            if (layer)
-              {
-                int unit = _cogl_pipeline_layer_get_unit_index (layer);
-
-                GE (ctx, glClientActiveTexture (GL_TEXTURE0 + unit));
-
-                GE (ctx, glMultiTexCoord4f (vector[0],
-                                            vector[1],
-                                            vector[2],
-                                            vector[3]));
-              }
-            break;
-          }
-        case COGL_ATTRIBUTE_NAME_ID_POSITION_ARRAY:
-          GE (ctx, glVertex4f (vector[0], vector[1], vector[2], vector[3]));
-          break;
-        default:
-          g_warn_if_reached ();
-        }
     }
 }
 
@@ -502,19 +370,13 @@ _cogl_gl_flush_attributes_state (CoglFramebuffer *framebuffer,
                                   COGL_BUFFER_BIND_TARGET_ATTRIBUTE_BUFFER,
                                   NULL);
 
-          if (pipeline->progend == COGL_PIPELINE_PROGEND_GLSL)
-            setup_generic_buffered_attribute (ctx, pipeline, attribute, base);
-          else
-            setup_legacy_buffered_attribute (ctx, pipeline, attribute, base);
+          setup_generic_buffered_attribute (ctx, pipeline, attribute, base);
 
           _cogl_buffer_gl_unbind (buffer);
         }
       else
         {
-          if (pipeline->progend == COGL_PIPELINE_PROGEND_GLSL)
-            setup_generic_const_attribute (ctx, pipeline, attribute);
-          else
-            setup_legacy_const_attribute (ctx, pipeline, attribute);
+          setup_generic_const_attribute (ctx, pipeline, attribute);
         }
     }
 

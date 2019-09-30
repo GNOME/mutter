@@ -805,9 +805,6 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
    */
   _cogl_pipeline_pre_change_notify (pipeline, state, NULL, FALSE);
 
-  if (program != NULL)
-    _cogl_pipeline_set_progend (pipeline, COGL_PIPELINE_PROGEND_UNDEFINED);
-
   /* If we are the current authority see if we can revert to one of our
    * ancestors being the authority */
   if (pipeline == authority &&
