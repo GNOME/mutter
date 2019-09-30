@@ -1045,7 +1045,6 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
   unsigned long pipelines_difference;
   int n_layers;
   unsigned long *layer_differences;
-  int i;
   CoglTextureUnit *unit1;
   const CoglPipelineProgend *progend;
 
@@ -1160,23 +1159,19 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
    * with the given progend so we will simply use that to avoid
    * fallback code paths.
    */
-  if (pipeline->progend == COGL_PIPELINE_PROGEND_UNDEFINED)
-    _cogl_pipeline_set_progend (pipeline, COGL_PIPELINE_PROGEND_DEFAULT);
 
-  for (i = pipeline->progend;
-       i < COGL_PIPELINE_N_PROGENDS;
-       i++, _cogl_pipeline_set_progend (pipeline, i))
+  do
     {
       const CoglPipelineVertend *vertend;
       const CoglPipelineFragend *fragend;
       CoglPipelineAddLayerState state;
 
-      progend = _cogl_pipeline_progends[i];
+      progend = _cogl_pipeline_progend;
 
       if (G_UNLIKELY (!progend->start (pipeline)))
         continue;
 
-      vertend = _cogl_pipeline_vertends[progend->vertend];
+      vertend = _cogl_pipeline_vertend;
 
       vertend->start (pipeline,
                       n_layers,
@@ -1206,7 +1201,7 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
        * ctx->codegen_source_buffer as a scratch buffer.
        */
 
-      fragend = _cogl_pipeline_fragends[progend->fragend];
+      fragend = _cogl_pipeline_fragend;
       state.fragend = fragend;
 
       fragend->start (pipeline,
@@ -1227,6 +1222,7 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
         progend->end (pipeline, pipelines_difference);
       break;
     }
+  while (0);
 
   /* FIXME: This reference is actually resulting in lots of
    * copy-on-write reparenting because one-shot pipelines end up
@@ -1247,13 +1243,13 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
 
 done:
 
-  progend = _cogl_pipeline_progends[pipeline->progend];
+  progend = _cogl_pipeline_progend;
 
   /* We can't assume the color will be retained between flushes when
    * using the glsl progend because the generic attribute values are
    * not stored as part of the program object so they could be
    * overridden by any attribute changes in another program */
-  if (pipeline->progend == COGL_PIPELINE_PROGEND_GLSL && !with_color_attrib)
+  if (!with_color_attrib)
     {
       int attribute;
       CoglPipeline *authority =

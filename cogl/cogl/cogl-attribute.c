@@ -47,9 +47,7 @@
 #include "cogl-private.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
-#ifdef COGL_PIPELINE_PROGEND_GLSL
 #include "driver/gl/cogl-pipeline-progend-glsl-private.h"
-#endif
 
 #include <string.h>
 #include <stdio.h>

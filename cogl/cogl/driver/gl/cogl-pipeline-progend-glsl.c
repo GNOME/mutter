@@ -42,8 +42,6 @@
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 
-#ifdef COGL_PIPELINE_PROGEND_GLSL
-
 #include "cogl-context-private.h"
 #include "cogl-object-private.h"
 #include "cogl-pipeline-cache.h"
@@ -1056,13 +1054,9 @@ update_float_uniform (CoglPipeline *pipeline,
 
 const CoglPipelineProgend _cogl_pipeline_glsl_progend =
   {
-    COGL_PIPELINE_VERTEND_GLSL,
-    COGL_PIPELINE_FRAGEND_GLSL,
     _cogl_pipeline_progend_glsl_start,
     _cogl_pipeline_progend_glsl_end,
     _cogl_pipeline_progend_glsl_pre_change_notify,
     _cogl_pipeline_progend_glsl_layer_pre_change_notify,
     _cogl_pipeline_progend_glsl_pre_paint
   };
-
-#endif /* COGL_PIPELINE_PROGEND_GLSL */
