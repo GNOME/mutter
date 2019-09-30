@@ -3213,11 +3213,11 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
     case COGL_GPU_INFO_ARCHITECTURE_SANDYBRIDGE:
     case COGL_GPU_INFO_ARCHITECTURE_SGX:
     case COGL_GPU_INFO_ARCHITECTURE_MALI:
-      break;
+      return FALSE;
     case COGL_GPU_INFO_ARCHITECTURE_LLVMPIPE:
     case COGL_GPU_INFO_ARCHITECTURE_SOFTPIPE:
     case COGL_GPU_INFO_ARCHITECTURE_SWRAST:
-      return TRUE;
+      break;
     }
 
   kms_fd = meta_gpu_kms_get_fd (primary_gpu);
