@@ -390,14 +390,10 @@ _cogl_pipeline_layer_pre_change_notify (CoglPipeline *required_owner,
    * have a single owner and can only be associated with a single
    * backend that needs to be notified of the layer change...
    */
-  if (required_owner->progend != COGL_PIPELINE_PROGEND_UNDEFINED)
     {
-      const CoglPipelineProgend *progend =
-        _cogl_pipeline_progends[required_owner->progend];
-      const CoglPipelineFragend *fragend =
-        _cogl_pipeline_fragends[progend->fragend];
-      const CoglPipelineVertend *vertend =
-        _cogl_pipeline_vertends[progend->vertend];
+      const CoglPipelineProgend *progend = _cogl_pipeline_progend;
+      const CoglPipelineFragend *fragend = _cogl_pipeline_fragend;
+      const CoglPipelineVertend *vertend = _cogl_pipeline_vertend;
 
       if (fragend->layer_pre_change_notify)
         fragend->layer_pre_change_notify (required_owner, layer, change);
