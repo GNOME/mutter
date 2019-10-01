@@ -29,6 +29,7 @@
 #include <clutter/clutter-macros.h>
 
 #include <glib-object.h>
+#include <pango/pango.h>
 
 typedef struct _ClutterKeymap ClutterKeymap;
 typedef struct _ClutterKeymapClass ClutterKeymapClass;
@@ -39,6 +40,7 @@ struct _ClutterKeymapClass
 
   gboolean (* get_num_lock_state)  (ClutterKeymap *keymap);
   gboolean (* get_caps_lock_state) (ClutterKeymap *keymap);
+  PangoDirection (* get_direction) (ClutterKeymap *keymap);
 };
 
 #define CLUTTER_TYPE_KEYMAP (clutter_keymap_get_type ())
@@ -52,5 +54,7 @@ gboolean clutter_keymap_get_num_lock_state  (ClutterKeymap *keymap);
 
 CLUTTER_EXPORT
 gboolean clutter_keymap_get_caps_lock_state (ClutterKeymap *keymap);
+
+PangoDirection clutter_keymap_get_direction (ClutterKeymap *keymap);
 
 #endif /* CLUTTER_KEYMAP_H */
