@@ -223,12 +223,9 @@ meta_input_device_native_is_grouped (ClutterInputDevice *device,
 }
 
 static void
-meta_input_device_native_bell_notify (void)
+meta_input_device_native_bell_notify (MetaInputDeviceNative *device)
 {
-  ClutterBackend *backend;
-
-  backend = clutter_get_default_backend ();
-  clutter_backend_bell_notify (backend);
+  clutter_seat_bell_notify (CLUTTER_SEAT (device->seat));
 }
 
 static void
@@ -278,7 +275,7 @@ trigger_slow_keys (gpointer data)
   meta_input_device_native_free_pending_slow_key (slow_keys_event);
 
   if (device->a11y_flags & CLUTTER_A11Y_SLOW_KEYS_BEEP_ACCEPT)
-    meta_input_device_native_bell_notify ();
+    meta_input_device_native_bell_notify (device);
 
   return G_SOURCE_REMOVE;
 }
@@ -316,7 +313,7 @@ start_slow_keys (ClutterEvent                *event,
   device->slow_keys_list = g_list_append (device->slow_keys_list, slow_keys_event);
 
   if (device->a11y_flags & CLUTTER_A11Y_SLOW_KEYS_BEEP_PRESS)
-    meta_input_device_native_bell_notify ();
+    meta_input_device_native_bell_notify (device);
 }
 
 static void
@@ -336,7 +333,7 @@ stop_slow_keys (ClutterEvent                *event,
       meta_input_device_native_free_pending_slow_key (slow_keys_event);
 
       if (device->a11y_flags & CLUTTER_A11Y_SLOW_KEYS_BEEP_REJECT)
-        meta_input_device_native_bell_notify ();
+        meta_input_device_native_bell_notify (device);
 
       return;
     }
@@ -394,7 +391,7 @@ static void
 notify_bounce_keys_reject (MetaInputDeviceNative *device)
 {
   if (device->a11y_flags & CLUTTER_A11Y_BOUNCE_KEYS_BEEP_REJECT)
-    meta_input_device_native_bell_notify ();
+    meta_input_device_native_bell_notify (device);
 }
 
 static gboolean
@@ -614,7 +611,7 @@ handle_stickykeys_release (ClutterEvent          *event,
   if (key_event_is_modifier (event))
     {
       if (device->a11y_flags & CLUTTER_A11Y_STICKY_KEYS_BEEP)
-        meta_input_device_native_bell_notify ();
+        meta_input_device_native_bell_notify (device);
 
       return;
     }
@@ -633,7 +630,7 @@ trigger_toggle_slowkeys (gpointer data)
   device->toggle_slowkeys_timer = 0;
 
   if (device->a11y_flags & CLUTTER_A11Y_FEATURE_STATE_CHANGE_BEEP)
-    meta_input_device_native_bell_notify ();
+    meta_input_device_native_bell_notify (device);
 
   if (device->a11y_flags & CLUTTER_A11Y_SLOW_KEYS_ENABLED)
     set_slowkeys_off (device);
@@ -699,7 +696,7 @@ handle_enablekeys_release (ClutterEvent          *event,
           device->shift_count = 0;
 
           if (device->a11y_flags & CLUTTER_A11Y_FEATURE_STATE_CHANGE_BEEP)
-            meta_input_device_native_bell_notify ();
+            meta_input_device_native_bell_notify (device);
 
           if (device->a11y_flags & CLUTTER_A11Y_STICKY_KEYS_ENABLED)
             set_stickykeys_off (device);
@@ -1240,7 +1237,7 @@ void
 meta_input_device_native_a11y_maybe_notify_toggle_keys (MetaInputDeviceNative *device)
 {
   if (device->a11y_flags & CLUTTER_A11Y_TOGGLE_KEYS_ENABLED)
-    meta_input_device_native_bell_notify ();
+    meta_input_device_native_bell_notify (device);
 }
 
 static void
