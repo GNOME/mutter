@@ -540,18 +540,6 @@ clutter_backend_real_get_device_manager (ClutterBackend *backend)
   return backend->device_manager;
 }
 
-static ClutterKeymap *
-clutter_backend_real_get_keymap (ClutterBackend *backend)
-{
-  if (G_UNLIKELY (backend->keymap == NULL))
-    {
-      g_critical ("No keymap available, expect broken keyboard input");
-      return NULL;
-    }
-
-  return backend->keymap;
-}
-
 static void
 clutter_backend_class_init (ClutterBackendClass *klass)
 {
@@ -618,7 +606,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
   klass->get_device_manager = clutter_backend_real_get_device_manager;
   klass->create_context = clutter_backend_real_create_context;
   klass->get_features = clutter_backend_real_get_features;
-  klass->get_keymap = clutter_backend_real_get_keymap;
 }
 
 static void
@@ -1035,20 +1022,6 @@ clutter_backend_set_input_method (ClutterBackend     *backend,
                                   ClutterInputMethod *method)
 {
   g_set_object (&backend->input_method, method);
-}
-
-/**
- * clutter_backend_get_keymap:
- * @backend: the #ClutterBackend
- *
- * Gets the keymap used by Clutter
- *
- * Returns: (transfer none): the keymap
- **/
-ClutterKeymap *
-clutter_backend_get_keymap (ClutterBackend *backend)
-{
-  return CLUTTER_BACKEND_GET_CLASS (backend)->get_keymap (backend);
 }
 
 ClutterStageWindow *

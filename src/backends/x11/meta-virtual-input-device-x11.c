@@ -131,7 +131,8 @@ meta_virtual_input_device_x11_notify_keyval (ClutterVirtualInputDevice *virtual_
                                              ClutterKeyState            key_state)
 {
   ClutterBackend *backend = clutter_get_default_backend ();
-  MetaKeymapX11 *keymap = META_KEYMAP_X11 (clutter_backend_get_keymap (backend));
+  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
+  MetaKeymapX11 *keymap = META_KEYMAP_X11 (clutter_seat_get_keymap (seat));
   uint32_t keycode, level;
 
   if (!meta_keymap_x11_keycode_for_keyval (keymap, keyval, &keycode, &level))

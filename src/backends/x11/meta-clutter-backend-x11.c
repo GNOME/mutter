@@ -42,7 +42,6 @@
 struct _MetaClutterBackendX11
 {
   ClutterBackendX11 parent;
-  MetaKeymapX11 *keymap;
   MetaDeviceManagerX11 *device_manager;
   MetaSeatX11 *core_seat;
 };
@@ -88,14 +87,6 @@ meta_clutter_backend_x11_get_device_manager (ClutterBackend *backend)
   return CLUTTER_DEVICE_MANAGER (backend_x11->device_manager);
 }
 
-static ClutterKeymap *
-meta_clutter_backend_x11_get_keymap (ClutterBackend *backend)
-{
-  MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
-
-  return CLUTTER_KEYMAP (backend_x11->keymap);
-}
-
 static gboolean
 meta_clutter_backend_x11_translate_event (ClutterBackend *backend,
                                           gpointer        native,
@@ -109,9 +100,6 @@ meta_clutter_backend_x11_translate_event (ClutterBackend *backend,
     CLUTTER_BACKEND_CLASS (meta_clutter_backend_x11_parent_class);
   if (clutter_backend_class->translate_event (backend, native, event))
     return TRUE;
-
-  if (meta_keymap_x11_handle_event (backend_x11->keymap, native))
-    return FALSE;
 
   stage_x11 = META_STAGE_X11 (clutter_backend_get_stage_window (backend));
   if (meta_stage_x11_translate_event (stage_x11, native, event))
@@ -180,7 +168,6 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
   clutter_backend_class->get_renderer = meta_clutter_backend_x11_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_x11_create_stage;
   clutter_backend_class->get_device_manager = meta_clutter_backend_x11_get_device_manager;
-  clutter_backend_class->get_keymap = meta_clutter_backend_x11_get_keymap;
   clutter_backend_class->translate_event = meta_clutter_backend_x11_translate_event;
   clutter_backend_class->init_events = meta_clutter_backend_x11_init_events;
   clutter_backend_class->get_default_seat = meta_clutter_backend_x11_get_default_seat;

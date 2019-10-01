@@ -28,6 +28,7 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-device-manager-native.h"
 #include "backends/native/meta-input-device-native.h"
 #include "backends/native/meta-input-device-tool-native.h"
 #include "backends/native/meta-input-settings-native.h"

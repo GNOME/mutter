@@ -47,6 +47,7 @@ struct _MetaSeatX11
   GList *devices;
   GHashTable *devices_by_id;
   GHashTable *tools_by_serial;
+  MetaKeymapX11 *keymap;
 
   int pointer_id;
   int keyboard_id;
@@ -1247,6 +1248,20 @@ translate_coords (MetaStageX11 *stage_x11,
 }
 
 static void
+on_keymap_state_change (MetaKeymapX11 *keymap_x11,
+                        gpointer       data)
+{
+  ClutterSeat *seat = CLUTTER_SEAT (data);
+  ClutterKbdA11ySettings kbd_a11y_settings;
+
+  /* On keymaps state change, just reapply the current settings, it'll
+   * take care of enabling/disabling mousekeys based on NumLock state.
+   */
+  clutter_seat_get_kbd_a11y_settings (seat, &kbd_a11y_settings);
+  meta_seat_x11_apply_kbd_a11y_settings (seat, &kbd_a11y_settings);
+}
+
+static void
 meta_seat_x11_set_property (GObject      *object,
                             guint         prop_id,
                             const GValue *value,
@@ -1371,6 +1386,14 @@ meta_seat_x11_constructed (GObject *object)
 
   XSync (xdisplay, False);
 
+  seat_x11->keymap = g_object_new (META_TYPE_KEYMAP_X11,
+                                   "backend", backend,
+                                   NULL);
+  g_signal_connect (seat_x11->keymap,
+                    "state-changed",
+                    G_CALLBACK (on_keymap_state_change),
+                    seat_x11);
+
   if (G_OBJECT_CLASS (meta_seat_x11_parent_class)->constructed)
     G_OBJECT_CLASS (meta_seat_x11_parent_class)->constructed (object);
 }
@@ -1427,6 +1450,12 @@ meta_seat_x11_bell_notify (ClutterSeat *seat)
   meta_bell_notify (display, NULL);
 }
 
+static ClutterKeymap *
+meta_seat_x11_get_keymap (ClutterSeat *seat)
+{
+  return CLUTTER_KEYMAP (META_SEAT_X11 (seat)->keymap);
+}
+
 static void
 meta_seat_x11_class_init (MetaSeatX11Class *klass)
 {
@@ -1442,6 +1471,7 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->get_keyboard = meta_seat_x11_get_keyboard;
   seat_class->list_devices = meta_seat_x11_list_devices;
   seat_class->bell_notify = meta_seat_x11_bell_notify;
+  seat_class->get_keymap = meta_seat_x11_get_keymap;
 
   props[PROP_OPCODE] =
     g_param_spec_int ("opcode",
@@ -1523,6 +1553,9 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
   XGenericEventCookie *cookie;
   XIEvent *xi_event;
 
+  if (meta_keymap_x11_handle_event (seat->keymap, xevent))
+    return FALSE;
+
   cookie = &xevent->xcookie;
 
   if (cookie->type != GenericEvent ||
@@ -1592,7 +1625,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
     case XI_KeyRelease:
       {
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
-        MetaKeymapX11 *keymap_x11 = META_KEYMAP_X11 (clutter_backend_get_keymap (backend));
+        MetaKeymapX11 *keymap_x11 = seat->keymap;
         MetaEventX11 *event_x11;
         char buffer[7] = { 0, };
         gunichar n;

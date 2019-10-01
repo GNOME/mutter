@@ -760,9 +760,11 @@ clutter_text_create_layout_no_cache (ClutterText       *text,
 
           if (clutter_actor_has_key_focus (CLUTTER_ACTOR (text)))
             {
+              ClutterSeat *seat;
               ClutterKeymap *keymap;
 
-              keymap = clutter_backend_get_keymap (backend);
+              seat = clutter_backend_get_default_seat (backend);
+              keymap = clutter_seat_get_keymap (seat);
               pango_dir = clutter_keymap_get_direction (keymap);
             }
           else

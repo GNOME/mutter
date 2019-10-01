@@ -181,9 +181,11 @@ meta_backend_finalize (GObject *object)
 
   if (priv->keymap_state_changed_id)
     {
+      ClutterSeat *seat;
       ClutterKeymap *keymap;
 
-      keymap = clutter_backend_get_keymap (priv->clutter_backend);
+      seat = clutter_backend_get_default_seat (priv->clutter_backend);
+      keymap = clutter_seat_get_keymap (seat);
       g_clear_signal_handler (&priv->keymap_state_changed_id, keymap);
     }
 
@@ -499,7 +501,8 @@ meta_backend_real_post_init (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   ClutterDeviceManager *device_manager = clutter_device_manager_get_default ();
-  ClutterKeymap *keymap = clutter_backend_get_keymap (priv->clutter_backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
+  ClutterKeymap *keymap = clutter_seat_get_keymap (seat);
 
   priv->stage = meta_stage_new (backend);
   clutter_actor_realize (priv->stage);
