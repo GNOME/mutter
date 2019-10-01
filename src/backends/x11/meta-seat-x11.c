@@ -1457,6 +1457,29 @@ meta_seat_x11_get_keymap (ClutterSeat *seat)
 }
 
 static void
+meta_seat_x11_copy_event_data (ClutterSeat        *seat,
+                               const ClutterEvent *src,
+                               ClutterEvent       *dest)
+{
+  gpointer event_x11;
+
+  event_x11 = _clutter_event_get_platform_data (src);
+  if (event_x11 != NULL)
+    _clutter_event_set_platform_data (dest, meta_event_x11_copy (event_x11));
+}
+
+static void
+meta_seat_x11_free_event_data (ClutterSeat  *seat,
+                               ClutterEvent *event)
+{
+  gpointer event_x11;
+
+  event_x11 = _clutter_event_get_platform_data (event);
+  if (event_x11 != NULL)
+    meta_event_x11_free (event_x11);
+}
+
+static void
 meta_seat_x11_class_init (MetaSeatX11Class *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -1472,6 +1495,8 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->list_devices = meta_seat_x11_list_devices;
   seat_class->bell_notify = meta_seat_x11_bell_notify;
   seat_class->get_keymap = meta_seat_x11_get_keymap;
+  seat_class->copy_event_data = meta_seat_x11_copy_event_data;
+  seat_class->free_event_data = meta_seat_x11_free_event_data;
 
   props[PROP_OPCODE] =
     g_param_spec_int ("opcode",
