@@ -52,24 +52,6 @@ typedef enum _ClutterVirtualDeviceType
 } ClutterVirtualDeviceType;
 
 /**
- * ClutterKbdA11ySettings:
- *
- * The #ClutterKbdA11ySettings structure contains keyboard accessibility
- * settings
- *
- */
-typedef struct _ClutterKbdA11ySettings
-{
-  ClutterKeyboardA11yFlags controls;
-  gint slowkeys_delay;
-  gint debounce_delay;
-  gint timeout_delay;
-  gint mousekeys_init_delay;
-  gint mousekeys_max_speed;
-  gint mousekeys_accel_time;
-} ClutterKbdA11ySettings;
-
-/**
  * ClutterPointerA11ySettings:
  *
  * The #ClutterPointerA11ySettings structure contains pointer accessibility
@@ -120,9 +102,6 @@ struct _ClutterDeviceManagerClass
   void                (* compress_motion) (ClutterDeviceManager *device_manger,
                                            ClutterEvent         *event,
                                            const ClutterEvent   *to_discard);
-  /* Keyboard accessbility */
-  void                (* apply_kbd_a11y_settings) (ClutterDeviceManager   *device_manger,
-                                                   ClutterKbdA11ySettings *settings);
 
   /* padding */
   gpointer _padding[4];
@@ -148,14 +127,6 @@ ClutterVirtualInputDevice *clutter_device_manager_create_virtual_device (Clutter
 
 CLUTTER_EXPORT
 ClutterVirtualDeviceType clutter_device_manager_get_supported_virtual_device_types (ClutterDeviceManager *device_manager);
-
-CLUTTER_EXPORT
-void clutter_device_manager_set_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
-                                                   ClutterKbdA11ySettings *settings);
-
-CLUTTER_EXPORT
-void clutter_device_manager_get_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
-                                                   ClutterKbdA11ySettings *settings);
 
 CLUTTER_EXPORT
 void clutter_device_manager_set_pointer_a11y_settings (ClutterDeviceManager       *device_manager,

@@ -249,10 +249,11 @@ clear_slow_keys (MetaInputDeviceNative *device)
 static guint
 get_slow_keys_delay (ClutterInputDevice *device)
 {
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
   ClutterKbdA11ySettings a11y_settings;
 
-  clutter_device_manager_get_kbd_a11y_settings (device->device_manager,
-                                                &a11y_settings);
+  clutter_seat_get_kbd_a11y_settings (CLUTTER_SEAT (device_native->seat),
+                                      &a11y_settings);
   /* Settings use int, we use uint, make sure we dont go negative */
   return MAX (0, a11y_settings.slowkeys_delay);
 }
@@ -344,10 +345,11 @@ stop_slow_keys (ClutterEvent                *event,
 static guint
 get_debounce_delay (ClutterInputDevice *device)
 {
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
   ClutterKbdA11ySettings a11y_settings;
 
-  clutter_device_manager_get_kbd_a11y_settings (device->device_manager,
-                                                &a11y_settings);
+  clutter_seat_get_kbd_a11y_settings (CLUTTER_SEAT (device_native->seat),
+                                      &a11y_settings);
   /* Settings use int, we use uint, make sure we dont go negative */
   return MAX (0, a11y_settings.debounce_delay);
 }
@@ -424,7 +426,7 @@ key_event_is_modifier (ClutterEvent *event)
 static void
 notify_stickykeys_mask (MetaInputDeviceNative *device)
 {
-  g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->device_manager,
+  g_signal_emit_by_name (device->seat,
                          "kbd-a11y-mods-state-changed",
                          device->stickykeys_latched_mask,
                          device->stickykeys_locked_mask);
@@ -496,7 +498,7 @@ notify_stickykeys_change (MetaInputDeviceNative *device)
   device->stickykeys_depressed_mask = 0;
   update_internal_xkb_state (device, 0, 0);
 
-  g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->device_manager,
+  g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->seat,
                          "kbd-a11y-flags-changed",
                          device->a11y_flags,
                          CLUTTER_A11Y_STICKY_KEYS_ENABLED);
@@ -529,7 +531,7 @@ set_slowkeys_off (MetaInputDeviceNative *device)
 {
   device->a11y_flags &= ~CLUTTER_A11Y_SLOW_KEYS_ENABLED;
 
-  g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->device_manager,
+  g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->seat,
                          "kbd-a11y-flags-changed",
                          device->a11y_flags,
                          CLUTTER_A11Y_SLOW_KEYS_ENABLED);
@@ -540,7 +542,7 @@ set_slowkeys_on (MetaInputDeviceNative *device)
 {
   device->a11y_flags |= CLUTTER_A11Y_SLOW_KEYS_ENABLED;
 
-  g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->device_manager,
+  g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->seat,
                          "kbd-a11y-flags-changed",
                          device->a11y_flags,
                          CLUTTER_A11Y_SLOW_KEYS_ENABLED);

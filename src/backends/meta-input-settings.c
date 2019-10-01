@@ -68,6 +68,7 @@ struct _DeviceMappingInfo
 struct _MetaInputSettingsPrivate
 {
   ClutterDeviceManager *device_manager;
+  ClutterSeat *seat;
   MetaMonitorManager *monitor_manager;
   gulong monitors_changed_id;
 
@@ -1247,6 +1248,8 @@ load_keyboard_a11y_settings (MetaInputSettings  *input_settings,
   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
   ClutterKbdA11ySettings kbd_a11y_settings = { 0 };
   ClutterInputDevice *core_keyboard;
+  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
   guint i;
 
   core_keyboard = clutter_device_manager_get_core_device (priv->device_manager, CLUTTER_KEYBOARD_DEVICE);
@@ -1273,14 +1276,14 @@ load_keyboard_a11y_settings (MetaInputSettings  *input_settings,
   kbd_a11y_settings.mousekeys_accel_time = g_settings_get_int (priv->keyboard_a11y_settings,
                                                                "mousekeys-accel-time");
 
-  clutter_device_manager_set_kbd_a11y_settings (priv->device_manager, &kbd_a11y_settings);
+  clutter_seat_set_kbd_a11y_settings (seat, &kbd_a11y_settings);
 }
 
 static void
-on_keyboard_a11y_settings_changed (ClutterDeviceManager    *device_manager,
-                                   ClutterKeyboardA11yFlags new_flags,
-                                   ClutterKeyboardA11yFlags what_changed,
-                                   MetaInputSettings       *input_settings)
+on_keyboard_a11y_settings_changed (ClutterSeat              *seat,
+                                   ClutterKeyboardA11yFlags  new_flags,
+                                   ClutterKeyboardA11yFlags  what_changed,
+                                   MetaInputSettings        *input_settings)
 {
   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
   guint i;
@@ -1953,6 +1956,7 @@ meta_input_settings_init (MetaInputSettings *settings)
   MetaInputSettingsPrivate *priv;
 
   priv = meta_input_settings_get_instance_private (settings);
+  priv->seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
   priv->device_manager = clutter_device_manager_get_default ();
   g_signal_connect (priv->device_manager, "device-added",
                     G_CALLBACK (meta_input_settings_device_added), settings);
@@ -1986,7 +1990,7 @@ meta_input_settings_init (MetaInputSettings *settings)
   priv->keyboard_a11y_settings = g_settings_new ("org.gnome.desktop.a11y.keyboard");
   g_signal_connect (priv->keyboard_a11y_settings, "changed",
                     G_CALLBACK (meta_input_keyboard_a11y_settings_changed), settings);
-  g_signal_connect (priv->device_manager, "kbd-a11y-flags-changed",
+  g_signal_connect (priv->seat, "kbd-a11y-flags-changed",
                     G_CALLBACK (on_keyboard_a11y_settings_changed), settings);
 
   priv->mouse_a11y_settings = g_settings_new ("org.gnome.desktop.a11y.mouse");

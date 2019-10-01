@@ -2557,6 +2557,18 @@ meta_seat_native_free_event_data (ClutterSeat  *seat,
 }
 
 static void
+meta_seat_native_apply_kbd_a11y_settings (ClutterSeat            *seat,
+                                          ClutterKbdA11ySettings *settings)
+{
+  ClutterInputDevice *device;
+
+  device = clutter_seat_get_keyboard (seat);
+  if (device)
+    meta_input_device_native_apply_kbd_a11y_settings (META_INPUT_DEVICE_NATIVE (device),
+                                                      settings);
+}
+
+static void
 meta_seat_native_class_init (MetaSeatNativeClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -2575,6 +2587,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->get_keymap = meta_seat_native_get_keymap;
   seat_class->copy_event_data = meta_seat_native_copy_event_data;
   seat_class->free_event_data = meta_seat_native_free_event_data;
+  seat_class->apply_kbd_a11y_settings = meta_seat_native_apply_kbd_a11y_settings;
 
   props[PROP_SEAT_ID] =
     g_param_spec_string ("seat-id",
