@@ -213,3 +213,9 @@ clutter_seat_list_devices (ClutterSeat *seat)
 
   return CLUTTER_SEAT_GET_CLASS (seat)->list_devices (seat);
 }
+
+void
+clutter_seat_bell_notify (ClutterSeat *seat)
+{
+  CLUTTER_SEAT_GET_CLASS (seat)->bell_notify (seat);
+}

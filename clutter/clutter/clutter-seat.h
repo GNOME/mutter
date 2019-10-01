@@ -45,6 +45,8 @@ struct _ClutterSeatClass
   ClutterInputDevice * (* get_keyboard) (ClutterSeat *seat);
 
   GList * (* list_devices) (ClutterSeat *seat);
+
+  void (* bell_notify) (ClutterSeat *seat);
 };
 
 CLUTTER_EXPORT
@@ -53,5 +55,7 @@ CLUTTER_EXPORT
 ClutterInputDevice * clutter_seat_get_keyboard (ClutterSeat *seat);
 CLUTTER_EXPORT
 GList * clutter_seat_list_devices (ClutterSeat *seat);
+CLUTTER_EXPORT
+void clutter_seat_bell_notify (ClutterSeat *seat);
 
 #endif /* CLUTTER_SEAT_H */
