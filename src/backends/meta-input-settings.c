@@ -2617,6 +2617,7 @@ void
 meta_input_settings_maybe_save_numlock_state (MetaInputSettings *input_settings)
 {
   MetaInputSettingsPrivate *priv;
+  ClutterSeat *seat;
   ClutterKeymap *keymap;
   gboolean numlock_state;
 
@@ -2625,7 +2626,8 @@ meta_input_settings_maybe_save_numlock_state (MetaInputSettings *input_settings)
   if (!g_settings_get_boolean (priv->keyboard_settings, "remember-numlock-state"))
     return;
 
-  keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  keymap = clutter_seat_get_keymap (seat);
   numlock_state = clutter_keymap_get_num_lock_state (keymap);
 
   if (numlock_state == g_settings_get_boolean (priv->keyboard_settings, "numlock-state"))

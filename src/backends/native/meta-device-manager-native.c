@@ -260,11 +260,11 @@ meta_device_manager_native_set_keyboard_map (ClutterDeviceManager *evdev,
 
   g_return_if_fail (META_IS_DEVICE_MANAGER_NATIVE (evdev));
 
-  keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
+  manager_evdev = META_DEVICE_MANAGER_NATIVE (evdev);
+  keymap = clutter_seat_get_keymap (CLUTTER_SEAT (manager_evdev->priv->main_seat));
   meta_keymap_native_set_keyboard_map (META_KEYMAP_NATIVE (keymap),
                                        xkb_keymap);
 
-  manager_evdev = META_DEVICE_MANAGER_NATIVE (evdev);
   meta_seat_native_update_xkb_state (manager_evdev->priv->main_seat);
 }
 
@@ -368,7 +368,7 @@ meta_device_manager_native_set_keyboard_numlock (ClutterDeviceManager *evdev,
   manager_evdev = META_DEVICE_MANAGER_NATIVE (evdev);
   priv = manager_evdev->priv;
 
-  keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
+  keymap = clutter_seat_get_keymap (CLUTTER_SEAT (priv->main_seat));
   xkb_keymap = meta_keymap_native_get_keyboard_map (META_KEYMAP_NATIVE (keymap));
 
   numlock = (1 << xkb_keymap_mod_get_index (xkb_keymap, "Mod2"));
