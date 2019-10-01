@@ -74,9 +74,6 @@ CLUTTER_EXPORT
 CoglContext *                   clutter_backend_get_cogl_context        (ClutterBackend             *backend);
 
 CLUTTER_EXPORT
-void                            clutter_backend_bell_notify             (ClutterBackend             *backend);
-
-CLUTTER_EXPORT
 ClutterInputMethod *            clutter_backend_get_input_method        (ClutterBackend             *backend);
 
 CLUTTER_EXPORT
