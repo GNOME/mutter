@@ -333,10 +333,7 @@ meta_seat_native_notify_key (MetaSeatNative     *seat,
 
   if (update_keys && (changed_state & XKB_STATE_LEDS))
     {
-      ClutterBackend *backend;
-
-      backend = clutter_get_default_backend ();
-      g_signal_emit_by_name (clutter_backend_get_keymap (backend), "state-changed");
+      g_signal_emit_by_name (seat->keymap, "state-changed");
       meta_seat_native_sync_leds (seat);
       meta_input_device_native_a11y_maybe_notify_toggle_keys (META_INPUT_DEVICE_NATIVE (seat->core_keyboard));
     }
@@ -2379,6 +2376,8 @@ meta_seat_native_constructed (GObject *object)
   source = meta_event_source_new (seat);
   seat->event_source = source;
 
+  seat->keymap = g_object_new (META_TYPE_KEYMAP_NATIVE, NULL);
+
   if (G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed)
     G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed (object);
 }
@@ -2528,6 +2527,14 @@ meta_seat_native_bell_notify (ClutterSeat *seat)
   meta_bell_notify (display, NULL);
 }
 
+static ClutterKeymap *
+meta_seat_native_get_keymap (ClutterSeat *seat)
+{
+  MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
+
+  return CLUTTER_KEYMAP (seat_native->keymap);
+}
+
 static void
 meta_seat_native_class_init (MetaSeatNativeClass *klass)
 {
@@ -2544,6 +2551,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->get_keyboard = meta_seat_native_get_keyboard;
   seat_class->list_devices = meta_seat_native_list_devices;
   seat_class->bell_notify = meta_seat_native_bell_notify;
+  seat_class->get_keymap = meta_seat_native_get_keymap;
 
   props[PROP_SEAT_ID] =
     g_param_spec_string ("seat-id",
@@ -2589,7 +2597,6 @@ meta_seat_native_stage_removed_cb (ClutterStageManager *manager,
 static void
 meta_seat_native_init (MetaSeatNative *seat)
 {
-  ClutterKeymap *keymap;
   struct xkb_keymap *xkb_keymap;
 
   seat->stage_manager = clutter_stage_manager_get_default ();
@@ -2619,8 +2626,7 @@ meta_seat_native_init (MetaSeatNative *seat)
   seat->repeat_delay = 250;     /* ms */
   seat->repeat_interval = 33;   /* ms */
 
-  keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
-  xkb_keymap = meta_keymap_native_get_keyboard_map (META_KEYMAP_NATIVE (keymap));
+  xkb_keymap = meta_keymap_native_get_keyboard_map (seat->keymap);
 
   if (xkb_keymap)
     {
@@ -2830,10 +2836,8 @@ meta_seat_native_update_xkb_state (MetaSeatNative *seat)
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
   struct xkb_keymap *xkb_keymap;
-  ClutterKeymap *keymap;
 
-  keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
-  xkb_keymap = meta_keymap_native_get_keyboard_map (META_KEYMAP_NATIVE (keymap));
+  xkb_keymap = meta_keymap_native_get_keyboard_map (seat->keymap);
 
   latched_mods = xkb_state_serialize_mods (seat->xkb,
                                            XKB_STATE_MODS_LATCHED);
