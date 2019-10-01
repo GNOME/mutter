@@ -2534,6 +2534,29 @@ meta_seat_native_get_keymap (ClutterSeat *seat)
 }
 
 static void
+meta_seat_native_copy_event_data (ClutterSeat        *seat,
+                                  const ClutterEvent *src,
+                                  ClutterEvent       *dest)
+{
+  MetaEventNative *event_evdev;
+
+  event_evdev = _clutter_event_get_platform_data (src);
+  if (event_evdev != NULL)
+    _clutter_event_set_platform_data (dest, meta_event_native_copy (event_evdev));
+}
+
+static void
+meta_seat_native_free_event_data (ClutterSeat  *seat,
+                                  ClutterEvent *event)
+{
+  MetaEventNative *event_evdev;
+
+  event_evdev = _clutter_event_get_platform_data (event);
+  if (event_evdev != NULL)
+    meta_event_native_free (event_evdev);
+}
+
+static void
 meta_seat_native_class_init (MetaSeatNativeClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -2550,6 +2573,8 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->list_devices = meta_seat_native_list_devices;
   seat_class->bell_notify = meta_seat_native_bell_notify;
   seat_class->get_keymap = meta_seat_native_get_keymap;
+  seat_class->copy_event_data = meta_seat_native_copy_event_data;
+  seat_class->free_event_data = meta_seat_native_free_event_data;
 
   props[PROP_SEAT_ID] =
     g_param_spec_string ("seat-id",
