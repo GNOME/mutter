@@ -61,4 +61,6 @@ GList * meta_renderer_get_views (MetaRenderer *renderer);
 MetaRendererView * meta_renderer_get_view_from_logical_monitor (MetaRenderer       *renderer,
                                                                 MetaLogicalMonitor *logical_monitor);
 
+gboolean meta_renderer_is_hardware_accelerated (MetaRenderer *renderer);
+
 #endif /* META_RENDERER_H */
