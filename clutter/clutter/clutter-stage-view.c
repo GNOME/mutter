@@ -149,6 +149,8 @@ clutter_stage_view_blit_offscreen (ClutterStageView            *view,
       int fb_width = cogl_framebuffer_get_width (priv->framebuffer);
       int fb_height = cogl_framebuffer_get_height (priv->framebuffer);
 
+      cogl_framebuffer_finish (priv->offscreen);
+
       if (cogl_blit_framebuffer (priv->offscreen,
                                  priv->framebuffer,
                                  0, 0,
