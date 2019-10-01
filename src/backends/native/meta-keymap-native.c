@@ -82,6 +82,12 @@ meta_keymap_native_get_caps_lock_state (ClutterKeymap *keymap)
                                        XKB_STATE_MODS_LOCKED);
 }
 
+static PangoDirection
+meta_keymap_native_get_direction (ClutterKeymap *keymap)
+{
+  return PANGO_DIRECTION_NEUTRAL;
+}
+
 static void
 meta_keymap_native_class_init (MetaKeymapNativeClass *klass)
 {
@@ -92,6 +98,7 @@ meta_keymap_native_class_init (MetaKeymapNativeClass *klass)
 
   keymap_class->get_num_lock_state = meta_keymap_native_get_num_lock_state;
   keymap_class->get_caps_lock_state = meta_keymap_native_get_caps_lock_state;
+  keymap_class->get_direction = meta_keymap_native_get_direction;
 }
 
 static void
