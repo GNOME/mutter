@@ -516,22 +516,26 @@ meta_keymap_x11_get_caps_lock_state (ClutterKeymap *keymap)
 }
 
 static PangoDirection
-meta_keymap_x11_get_direction (MetaKeymapX11 *keymap)
+meta_keymap_x11_get_direction (ClutterKeymap *keymap)
 {
+  MetaKeymapX11 *keymap_x11;
+
   g_return_val_if_fail (META_IS_KEYMAP_X11 (keymap), PANGO_DIRECTION_NEUTRAL);
 
-  if (keymap->use_xkb)
+  keymap_x11 = META_KEYMAP_X11 (keymap);
+
+  if (keymap_x11->use_xkb)
     {
-      if (!keymap->has_direction)
+      if (!keymap_x11->has_direction)
         {
           XkbStateRec state_rec;
 
           XkbGetState (clutter_x11_get_default_display (),
                        XkbUseCoreKbd, &state_rec);
-          update_direction (keymap, XkbStateGroup (&state_rec));
+          update_direction (keymap_x11, XkbStateGroup (&state_rec));
         }
 
-      return keymap->current_direction;
+      return keymap_x11->current_direction;
     }
   else
     {

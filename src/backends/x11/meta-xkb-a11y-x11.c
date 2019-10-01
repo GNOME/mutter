@@ -198,6 +198,7 @@ meta_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_
                                                  ClutterKbdA11ySettings *kbd_a11y_settings)
 {
   ClutterBackend *backend;
+  ClutterSeat *seat;
   Display *xdisplay = clutter_x11_get_default_display ();
   XkbDescRec *desc;
   gboolean enable_accessX;
@@ -207,6 +208,7 @@ meta_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_
     return;
 
   backend = clutter_get_default_backend ();
+  seat = clutter_backend_get_default_seat (backend);
 
   /* general */
   enable_accessX = kbd_a11y_settings->controls & CLUTTER_A11Y_KEYBOARD_ENABLED;
@@ -245,7 +247,7 @@ meta_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_
     }
 
   /* mouse keys */
-  if (clutter_keymap_get_num_lock_state (clutter_backend_get_keymap (backend)))
+  if (clutter_keymap_get_num_lock_state (clutter_seat_get_keymap (seat)))
     {
       /* Disable mousekeys when NumLock is ON */
       desc->ctrls->enabled_ctrls &= ~(XkbMouseKeysMask | XkbMouseKeysAccelMask);
