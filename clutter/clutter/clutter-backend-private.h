@@ -96,9 +96,7 @@ struct _ClutterBackendClass
                                                 gpointer            native,
                                                 ClutterEvent       *event);
 
-  void                  (* bell_notify)          (ClutterBackend   *backend);
-
-  ClutterKeymap *       (* get_keymap)           (ClutterBackend   *backend);
+  ClutterKeymap *       (* get_keymap)         (ClutterBackend   *backend);
 
   ClutterSeat *         (* get_default_seat)   (ClutterBackend *backend);
 
