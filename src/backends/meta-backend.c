@@ -1033,6 +1033,21 @@ meta_backend_get_remote_access_controller (MetaBackend *backend)
 }
 
 /**
+ * meta_backend_is_rendering_hardware_accelerated:
+ * @backend: A #MetaBackend
+ *
+ * Returns: %TRUE if the rendering is hardware accelerated, otherwise
+ * %FALSE.
+ */
+gboolean
+meta_backend_is_rendering_hardware_accelerated (MetaBackend *backend)
+{
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+
+  return meta_renderer_is_hardware_accelerated (renderer);
+}
+
+/**
  * meta_backend_grab_device: (skip)
  */
 gboolean
