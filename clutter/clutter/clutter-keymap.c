@@ -62,3 +62,9 @@ clutter_keymap_get_caps_lock_state (ClutterKeymap *keymap)
 {
   return CLUTTER_KEYMAP_GET_CLASS (keymap)->get_caps_lock_state (keymap);
 }
+
+PangoDirection
+clutter_keymap_get_direction (ClutterKeymap *keymap)
+{
+  return CLUTTER_KEYMAP_GET_CLASS (keymap)->get_direction (keymap);
+}

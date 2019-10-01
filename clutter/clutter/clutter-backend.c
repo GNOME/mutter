@@ -997,18 +997,6 @@ clutter_wayland_set_compositor_display (void *display)
 }
 #endif
 
-PangoDirection
-_clutter_backend_get_keymap_direction (ClutterBackend *backend)
-{
-  ClutterBackendClass *klass;
-
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
-  if (klass->get_keymap_direction != NULL)
-    return klass->get_keymap_direction (backend);
-
-  return PANGO_DIRECTION_NEUTRAL;
-}
-
 void
 clutter_set_allowed_drivers (const char *drivers)
 {
