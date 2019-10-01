@@ -46,6 +46,8 @@ struct _MetaRendererClass
   void (* rebuild_views) (MetaRenderer *renderer);
 };
 
+MetaBackend * meta_renderer_get_backend (MetaRenderer *renderer);
+
 CoglRenderer * meta_renderer_create_cogl_renderer (MetaRenderer *renderer);
 
 void meta_renderer_rebuild_views (MetaRenderer *renderer);

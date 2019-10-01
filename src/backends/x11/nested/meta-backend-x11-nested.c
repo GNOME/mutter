@@ -40,7 +40,9 @@ static MetaRenderer *
 meta_backend_x11_nested_create_renderer (MetaBackend *backend,
                                          GError     **error)
 {
-  return g_object_new (META_TYPE_RENDERER_X11_NESTED, NULL);
+  return g_object_new (META_TYPE_RENDERER_X11_NESTED,
+                       "backend", backend,
+                       NULL);
 }
 
 static MetaMonitorManager *
