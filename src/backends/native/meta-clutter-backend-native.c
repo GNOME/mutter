@@ -103,14 +103,6 @@ meta_clutter_backend_native_create_stage (ClutterBackend  *backend,
   return CLUTTER_STAGE_WINDOW (clutter_backend_native->stage_native);
 }
 
-static void
-meta_clutter_backend_native_bell_notify (ClutterBackend  *backend)
-{
-  MetaDisplay *display = meta_get_display ();
-
-  meta_bell_notify (display, NULL);
-}
-
 static ClutterDeviceManager *
 meta_clutter_backend_native_get_device_manager (ClutterBackend *backend)
 {
@@ -162,7 +154,6 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
 
   clutter_backend_class->get_renderer = meta_clutter_backend_native_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;
-  clutter_backend_class->bell_notify = meta_clutter_backend_native_bell_notify;
   clutter_backend_class->get_device_manager = meta_clutter_backend_native_get_device_manager;
   clutter_backend_class->get_keymap = meta_clutter_backend_native_get_keymap;
   clutter_backend_class->init_events = meta_clutter_backend_native_init_events;
