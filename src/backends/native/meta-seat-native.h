@@ -26,6 +26,7 @@
 #include <libinput.h>
 #include <linux/input-event-codes.h>
 
+#include "backends/native/meta-keymap-native.h"
 #include "backends/native/meta-xkb-utils.h"
 #include "clutter/clutter.h"
 
@@ -113,6 +114,8 @@ struct _MetaSeatNative
   gpointer relative_motion_filter_user_data;
 
   GSList *event_filters;
+
+  MetaKeymapNative *keymap;
 
   /* keyboard repeat */
   gboolean repeat;
