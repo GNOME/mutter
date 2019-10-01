@@ -186,6 +186,33 @@ meta_renderer_get_view_from_logical_monitor (MetaRenderer       *renderer,
   return NULL;
 }
 
+gboolean
+meta_renderer_is_hardware_accelerated (MetaRenderer *renderer)
+{
+  MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
+  MetaBackend *backend = priv->backend;
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglGpuInfo *info = &cogl_context->gpu;
+
+  switch (info->architecture)
+    {
+    case COGL_GPU_INFO_ARCHITECTURE_UNKNOWN:
+    case COGL_GPU_INFO_ARCHITECTURE_SANDYBRIDGE:
+    case COGL_GPU_INFO_ARCHITECTURE_SGX:
+    case COGL_GPU_INFO_ARCHITECTURE_MALI:
+      return TRUE;
+    case COGL_GPU_INFO_ARCHITECTURE_LLVMPIPE:
+    case COGL_GPU_INFO_ARCHITECTURE_SOFTPIPE:
+    case COGL_GPU_INFO_ARCHITECTURE_SWRAST:
+      return FALSE;
+    }
+
+  g_assert_not_reached ();
+  return FALSE;
+}
+
 static void
 meta_renderer_get_property (GObject    *object,
                             guint       prop_id,
