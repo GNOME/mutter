@@ -759,7 +759,12 @@ clutter_text_create_layout_no_cache (ClutterText       *text,
           ClutterTextDirection text_dir;
 
           if (clutter_actor_has_key_focus (CLUTTER_ACTOR (text)))
-            pango_dir = _clutter_backend_get_keymap_direction (backend);
+            {
+              ClutterKeymap *keymap;
+
+              keymap = clutter_backend_get_keymap (backend);
+              pango_dir = clutter_keymap_get_direction (keymap);
+            }
           else
             {
               text_dir = clutter_actor_get_text_direction (CLUTTER_ACTOR (text));

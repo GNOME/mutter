@@ -96,17 +96,6 @@ meta_clutter_backend_x11_get_device_manager (ClutterBackend *backend)
   return CLUTTER_DEVICE_MANAGER (backend_x11->device_manager);
 }
 
-static PangoDirection
-meta_clutter_backend_x11_get_keymap_direction (ClutterBackend *backend)
-{
-  ClutterKeymap *keymap = clutter_backend_get_keymap (backend);
-
-  if (G_UNLIKELY (keymap == NULL))
-    return PANGO_DIRECTION_NEUTRAL;
-
-  return meta_keymap_x11_get_direction (META_KEYMAP_X11 (keymap));
-}
-
 static ClutterKeymap *
 meta_clutter_backend_x11_get_keymap (ClutterBackend *backend)
 {
@@ -200,7 +189,6 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
   clutter_backend_class->create_stage = meta_clutter_backend_x11_create_stage;
   clutter_backend_class->bell_notify = meta_clutter_backend_x11_bell_notify;
   clutter_backend_class->get_device_manager = meta_clutter_backend_x11_get_device_manager;
-  clutter_backend_class->get_keymap_direction = meta_clutter_backend_x11_get_keymap_direction;
   clutter_backend_class->get_keymap = meta_clutter_backend_x11_get_keymap;
   clutter_backend_class->translate_event = meta_clutter_backend_x11_translate_event;
   clutter_backend_class->init_events = meta_clutter_backend_x11_init_events;
