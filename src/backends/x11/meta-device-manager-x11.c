@@ -53,29 +53,6 @@ G_DEFINE_TYPE (MetaDeviceManagerX11,
                CLUTTER_TYPE_DEVICE_MANAGER)
 
 static void
-meta_device_manager_x11_copy_event_data (ClutterDeviceManager *device_manager,
-                                         const ClutterEvent   *src,
-                                         ClutterEvent         *dest)
-{
-  gpointer event_x11;
-
-  event_x11 = _clutter_event_get_platform_data (src);
-  if (event_x11 != NULL)
-    _clutter_event_set_platform_data (dest, meta_event_x11_copy (event_x11));
-}
-
-static void
-meta_device_manager_x11_free_event_data (ClutterDeviceManager *device_manager,
-                                         ClutterEvent         *event)
-{
-  gpointer event_x11;
-
-  event_x11 = _clutter_event_get_platform_data (event);
-  if (event_x11 != NULL)
-    meta_event_x11_free (event_x11);
-}
-
-static void
 meta_device_manager_x11_select_stage_events (ClutterDeviceManager *manager,
                                              ClutterStage         *stage)
 {
@@ -301,8 +278,6 @@ meta_device_manager_x11_class_init (MetaDeviceManagerX11Class *klass)
   manager_class->create_virtual_device = meta_device_manager_x11_create_virtual_device;
   manager_class->get_supported_virtual_device_types = meta_device_manager_x11_get_supported_virtual_device_types;
   manager_class->apply_kbd_a11y_settings = meta_device_manager_x11_apply_kbd_a11y_settings;
-  manager_class->copy_event_data = meta_device_manager_x11_copy_event_data;
-  manager_class->free_event_data = meta_device_manager_x11_free_event_data;
 }
 
 static void

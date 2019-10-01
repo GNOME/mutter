@@ -53,29 +53,6 @@ G_DEFINE_TYPE_WITH_CODE (MetaDeviceManagerNative,
                          CLUTTER_TYPE_DEVICE_MANAGER,
                          G_ADD_PRIVATE (MetaDeviceManagerNative))
 
-static void
-meta_device_manager_native_copy_event_data (ClutterDeviceManager *device_manager,
-                                            const ClutterEvent   *src,
-                                            ClutterEvent         *dest)
-{
-  MetaEventNative *event_evdev;
-
-  event_evdev = _clutter_event_get_platform_data (src);
-  if (event_evdev != NULL)
-    _clutter_event_set_platform_data (dest, meta_event_native_copy (event_evdev));
-}
-
-static void
-meta_device_manager_native_free_event_data (ClutterDeviceManager *device_manager,
-                                            ClutterEvent         *event)
-{
-  MetaEventNative *event_evdev;
-
-  event_evdev = _clutter_event_get_platform_data (event);
-  if (event_evdev != NULL)
-    meta_event_native_free (event_evdev);
-}
-
 /*
  * ClutterDeviceManager implementation
  */
@@ -215,8 +192,6 @@ meta_device_manager_native_class_init (MetaDeviceManagerNativeClass *klass)
   manager_class->get_supported_virtual_device_types = meta_device_manager_native_get_supported_virtual_device_types;
   manager_class->compress_motion = meta_device_manager_native_compress_motion;
   manager_class->apply_kbd_a11y_settings = meta_device_manager_native_apply_kbd_a11y_settings;
-  manager_class->copy_event_data = meta_device_manager_native_copy_event_data;
-  manager_class->free_event_data = meta_device_manager_native_free_event_data;
 }
 
 static void

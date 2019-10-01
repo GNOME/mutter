@@ -770,24 +770,24 @@ _clutter_backend_copy_event_data (ClutterBackend     *backend,
                                   const ClutterEvent *src,
                                   ClutterEvent       *dest)
 {
-  ClutterDeviceManagerClass *device_manager_class;
-  ClutterDeviceManager *device_manager;
+  ClutterSeatClass *seat_class;
+  ClutterSeat *seat;
 
-  device_manager = clutter_device_manager_get_default ();
-  device_manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
-  device_manager_class->copy_event_data (device_manager, src, dest);
+  seat = clutter_backend_get_default_seat (backend);
+  seat_class = CLUTTER_SEAT_GET_CLASS (seat);
+  seat_class->copy_event_data (seat, src, dest);
 }
 
 void
 _clutter_backend_free_event_data (ClutterBackend *backend,
                                   ClutterEvent   *event)
 {
-  ClutterDeviceManagerClass *device_manager_class;
-  ClutterDeviceManager *device_manager;
+  ClutterSeatClass *seat_class;
+  ClutterSeat *seat;
 
-  device_manager = clutter_device_manager_get_default ();
-  device_manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
-  device_manager_class->free_event_data (device_manager, event);
+  seat = clutter_backend_get_default_seat (backend);
+  seat_class = CLUTTER_SEAT_GET_CLASS (seat);
+  seat_class->free_event_data (seat, event);
 }
 
 /**
