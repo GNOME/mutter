@@ -3257,24 +3257,12 @@ static gboolean
 should_force_shadow_fb (MetaRendererNative *renderer_native,
                         MetaGpuKms         *primary_gpu)
 {
-  CoglContext *cogl_context =
-    cogl_context_from_renderer_native (renderer_native);
-  CoglGpuInfo *info = &cogl_context->gpu;
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
   int kms_fd;
   uint64_t prefer_shadow = 0;
 
-  switch (info->architecture)
-    {
-    case COGL_GPU_INFO_ARCHITECTURE_UNKNOWN:
-    case COGL_GPU_INFO_ARCHITECTURE_SANDYBRIDGE:
-    case COGL_GPU_INFO_ARCHITECTURE_SGX:
-    case COGL_GPU_INFO_ARCHITECTURE_MALI:
-      return FALSE;
-    case COGL_GPU_INFO_ARCHITECTURE_LLVMPIPE:
-    case COGL_GPU_INFO_ARCHITECTURE_SOFTPIPE:
-    case COGL_GPU_INFO_ARCHITECTURE_SWRAST:
-      break;
-    }
+  if (meta_renderer_is_hardware_accelerated (renderer))
+    return FALSE;
 
   kms_fd = meta_gpu_kms_get_fd (primary_gpu);
   if (drmGetCap (kms_fd, DRM_CAP_DUMB_PREFER_SHADOW, &prefer_shadow) == 0)
