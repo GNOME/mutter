@@ -50,6 +50,13 @@ struct _ClutterSeatClass
   void (* bell_notify) (ClutterSeat *seat);
 
   ClutterKeymap * (* get_keymap) (ClutterSeat *seat);
+
+  /* Event platform data */
+  void (* copy_event_data) (ClutterSeat        *seat,
+                            const ClutterEvent *src,
+                            ClutterEvent       *dest);
+  void (* free_event_data) (ClutterSeat        *seat,
+                            ClutterEvent       *event);
 };
 
 CLUTTER_EXPORT
