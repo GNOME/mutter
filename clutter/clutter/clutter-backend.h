@@ -80,9 +80,6 @@ CLUTTER_EXPORT
 void                            clutter_backend_set_input_method        (ClutterBackend             *backend,
                                                                          ClutterInputMethod         *method);
 CLUTTER_EXPORT
-ClutterKeymap *                 clutter_backend_get_keymap              (ClutterBackend             *backend);
-
-CLUTTER_EXPORT
 ClutterSeat *                   clutter_backend_get_default_seat        (ClutterBackend             *backend);
 
 G_END_DECLS

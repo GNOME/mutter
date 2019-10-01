@@ -24,7 +24,6 @@
 
 #include <clutter/clutter-backend.h>
 #include <clutter/clutter-device-manager.h>
-#include <clutter/clutter-keymap.h>
 #include <clutter/clutter-seat.h>
 #include <clutter/clutter-stage-window.h>
 
@@ -60,8 +59,6 @@ struct _ClutterBackend
   ClutterStageWindow *stage_window;
 
   ClutterInputMethod *input_method;
-
-  ClutterKeymap *keymap;
 };
 
 struct _ClutterBackendClass
@@ -95,8 +92,6 @@ struct _ClutterBackendClass
   gboolean              (* translate_event)    (ClutterBackend     *backend,
                                                 gpointer            native,
                                                 ClutterEvent       *event);
-
-  ClutterKeymap *       (* get_keymap)         (ClutterBackend   *backend);
 
   ClutterSeat *         (* get_default_seat)   (ClutterBackend *backend);
 
