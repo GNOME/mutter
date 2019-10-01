@@ -27,6 +27,7 @@
 #include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
+#include "core/bell.h"
 #include "meta-seat-x11.h"
 
 enum
@@ -1419,6 +1420,14 @@ meta_seat_x11_list_devices (ClutterSeat *seat)
 }
 
 static void
+meta_seat_x11_bell_notify (ClutterSeat *seat)
+{
+  MetaDisplay *display = meta_get_display ();
+
+  meta_bell_notify (display, NULL);
+}
+
+static void
 meta_seat_x11_class_init (MetaSeatX11Class *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -1432,6 +1441,7 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->get_pointer = meta_seat_x11_get_pointer;
   seat_class->get_keyboard = meta_seat_x11_get_keyboard;
   seat_class->list_devices = meta_seat_x11_list_devices;
+  seat_class->bell_notify = meta_seat_x11_bell_notify;
 
   props[PROP_OPCODE] =
     g_param_spec_int ("opcode",

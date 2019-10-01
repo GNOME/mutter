@@ -38,6 +38,7 @@
 #include "backends/native/meta-input-device-tool-native.h"
 #include "backends/native/meta-keymap-native.h"
 #include "clutter/clutter-mutter.h"
+#include "core/bell.h"
 
 /*
  * Clutter makes the assumption that two core devices have ID's 2 and 3 (core
@@ -2504,6 +2505,14 @@ meta_seat_native_list_devices (ClutterSeat *seat)
 }
 
 static void
+meta_seat_native_bell_notify (ClutterSeat *seat)
+{
+  MetaDisplay *display = meta_get_display ();
+
+  meta_bell_notify (display, NULL);
+}
+
+static void
 meta_seat_native_class_init (MetaSeatNativeClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -2518,6 +2527,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->get_pointer = meta_seat_native_get_pointer;
   seat_class->get_keyboard = meta_seat_native_get_keyboard;
   seat_class->list_devices = meta_seat_native_list_devices;
+  seat_class->bell_notify = meta_seat_native_bell_notify;
 
   props[PROP_SEAT_ID] =
     g_param_spec_string ("seat-id",
