@@ -175,18 +175,6 @@ meta_device_manager_native_compress_motion (ClutterDeviceManager *device_manger,
                                          dy_unaccel + dst_dy_unaccel);
 }
 
-static void
-meta_device_manager_native_apply_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
-                                                    ClutterKbdA11ySettings *settings)
-{
-  ClutterInputDevice *device;
-
-  device = meta_device_manager_native_get_core_device (device_manager, CLUTTER_KEYBOARD_DEVICE);
-  if (device)
-    meta_input_device_native_apply_kbd_a11y_settings (META_INPUT_DEVICE_NATIVE (device),
-                                                      settings);
-}
-
 /*
  * GObject implementation
  */
@@ -204,7 +192,6 @@ meta_device_manager_native_class_init (MetaDeviceManagerNativeClass *klass)
   manager_class->create_virtual_device = meta_device_manager_native_create_virtual_device;
   manager_class->get_supported_virtual_device_types = meta_device_manager_native_get_supported_virtual_device_types;
   manager_class->compress_motion = meta_device_manager_native_compress_motion;
-  manager_class->apply_kbd_a11y_settings = meta_device_manager_native_apply_kbd_a11y_settings;
 }
 
 static void

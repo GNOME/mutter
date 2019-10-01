@@ -115,14 +115,14 @@ static void
 on_keymap_state_change (MetaKeymapX11 *keymap_x11,
                         gpointer       data)
 {
-  ClutterDeviceManager *device_manager = CLUTTER_DEVICE_MANAGER (data);
+  ClutterSeat *seat = CLUTTER_SEAT (data);
   ClutterKbdA11ySettings kbd_a11y_settings;
 
   /* On keymaps state change, just reapply the current settings, it'll
    * take care of enabling/disabling mousekeys based on NumLock state.
    */
-  clutter_device_manager_get_kbd_a11y_settings (device_manager, &kbd_a11y_settings);
-  meta_device_manager_x11_apply_kbd_a11y_settings (device_manager, &kbd_a11y_settings);
+  clutter_seat_get_kbd_a11y_settings (seat, &kbd_a11y_settings);
+  meta_seat_x11_apply_kbd_a11y_settings (seat, &kbd_a11y_settings);
 }
 
 static void
@@ -163,7 +163,7 @@ meta_clutter_backend_x11_init_events (ClutterBackend *backend)
   g_signal_connect (clutter_seat_get_keymap (CLUTTER_SEAT (backend_x11->core_seat)),
                     "state-changed",
                     G_CALLBACK (on_keymap_state_change),
-                    backend_x11->device_manager);
+                    backend_x11->core_seat);
 }
 
 static ClutterSeat *
