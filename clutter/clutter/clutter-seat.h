@@ -28,6 +28,7 @@
 #endif
 
 #include "clutter/clutter-types.h"
+#include "clutter/clutter-keymap.h"
 
 #define CLUTTER_TYPE_SEAT (clutter_seat_get_type ())
 
@@ -47,6 +48,8 @@ struct _ClutterSeatClass
   GList * (* list_devices) (ClutterSeat *seat);
 
   void (* bell_notify) (ClutterSeat *seat);
+
+  ClutterKeymap * (* get_keymap) (ClutterSeat *seat);
 };
 
 CLUTTER_EXPORT
@@ -57,5 +60,8 @@ CLUTTER_EXPORT
 GList * clutter_seat_list_devices (ClutterSeat *seat);
 CLUTTER_EXPORT
 void clutter_seat_bell_notify (ClutterSeat *seat);
+
+CLUTTER_EXPORT
+ClutterKeymap * clutter_seat_get_keymap (ClutterSeat *seat);
 
 #endif /* CLUTTER_SEAT_H */

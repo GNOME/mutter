@@ -404,6 +404,7 @@ meta_wayland_keyboard_update_xkb_state (MetaWaylandKeyboard *keyboard)
   MetaBackend *backend = meta_get_backend ();
   xkb_layout_index_t layout_idx;
   ClutterKeymap *keymap;
+  ClutterSeat *seat;
 
   /* Preserve latched/locked modifiers state */
   if (xkb_info->state)
@@ -417,7 +418,8 @@ meta_wayland_keyboard_update_xkb_state (MetaWaylandKeyboard *keyboard)
       latched = locked = 0;
     }
 
-  keymap = clutter_backend_get_keymap (clutter_get_default_backend ());
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  keymap = clutter_seat_get_keymap (seat);
   numlock = (1 <<  xkb_keymap_mod_get_index (xkb_info->keymap, "Mod2"));
 
   if (clutter_keymap_get_num_lock_state (keymap))

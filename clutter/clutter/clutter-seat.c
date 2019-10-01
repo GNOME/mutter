@@ -219,3 +219,17 @@ clutter_seat_bell_notify (ClutterSeat *seat)
 {
   CLUTTER_SEAT_GET_CLASS (seat)->bell_notify (seat);
 }
+
+/**
+ * clutter_seat_get_keymap:
+ * @seat: a #ClutterSeat
+ *
+ * Returns the seat keymap
+ *
+ * Returns: (transfer none): the seat keymap
+ **/
+ClutterKeymap *
+clutter_seat_get_keymap (ClutterSeat *seat)
+{
+  return CLUTTER_SEAT_GET_CLASS (seat)->get_keymap (seat);
+}
