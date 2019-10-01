@@ -54,8 +54,6 @@ struct _ClutterDeviceManagerPrivate
   /* back-pointer to the backend */
   ClutterBackend *backend;
 
-  /* Keyboard a11y */
-  ClutterKbdA11ySettings kbd_a11y_settings;
   /* Pointer a11y */
   ClutterPointerA11ySettings pointer_a11y_settings;
 };
@@ -76,8 +74,6 @@ enum
   DEVICE_ADDED,
   DEVICE_REMOVED,
   TOOL_CHANGED,
-  KBD_A11Y_MASK_CHANGED,
-  KBD_A11Y_FLAGS_CHANGED,
   PTR_A11Y_DWELL_CLICK_TYPE_CHANGED,
   PTR_A11Y_TIMEOUT_STARTED,
   PTR_A11Y_TIMEOUT_STOPPED,
@@ -196,46 +192,6 @@ clutter_device_manager_class_init (ClutterDeviceManagerClass *klass)
                   G_TYPE_NONE, 2,
                   CLUTTER_TYPE_INPUT_DEVICE,
                   CLUTTER_TYPE_INPUT_DEVICE_TOOL);
-
-  /**
-   * ClutterDeviceManager::kbd-a11y-mods-state-changed:
-   * @manager: the #ClutterDeviceManager that emitted the signal
-   * @latched_mask: the latched modifier mask from stickykeys
-   * @locked_mask:  the locked modifier mask from stickykeys
-   *
-   * The ::kbd-a11y-mods-state-changed signal is emitted each time either the
-   * latched modifiers mask or locked modifiers mask are changed as the
-   * result of keyboard accessibilty's sticky keys operations.
-   */
-  manager_signals[KBD_A11Y_MASK_CHANGED] =
-    g_signal_new (I_("kbd-a11y-mods-state-changed"),
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0, NULL, NULL,
-                  _clutter_marshal_VOID__UINT_UINT,
-                  G_TYPE_NONE, 2,
-                  G_TYPE_UINT,
-                  G_TYPE_UINT);
-
-  /**
-   * ClutterDeviceManager::kbd-a11y-flags-changed:
-   * @manager: the #ClutterDeviceManager that emitted the signal
-   * @settings_flags: the new ClutterKeyboardA11yFlags configuration
-   * @changed_mask: the ClutterKeyboardA11yFlags changed
-   *
-   * The ::kbd-a11y-flags-changed signal is emitted each time the
-   * ClutterKeyboardA11yFlags configuration is changed as the result of
-   * keyboard accessibilty operations.
-   */
-  manager_signals[KBD_A11Y_FLAGS_CHANGED] =
-    g_signal_new (I_("kbd-a11y-flags-changed"),
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0, NULL, NULL,
-                  _clutter_marshal_VOID__UINT_UINT,
-                  G_TYPE_NONE, 2,
-                  G_TYPE_UINT,
-                  G_TYPE_UINT);
 
   /**
    * ClutterDeviceManager::ptr-a11y-dwell-click-type-changed:
@@ -619,43 +575,6 @@ clutter_device_manager_ensure_a11y_state (ClutterDeviceManager *device_manager)
       if (_clutter_is_input_pointer_a11y_enabled (core_pointer))
         _clutter_input_pointer_a11y_add_device (core_pointer);
     }
-}
-
-static gboolean
-are_kbd_a11y_settings_equal (ClutterKbdA11ySettings *a,
-                             ClutterKbdA11ySettings *b)
-{
-  return (memcmp (a, b, sizeof (ClutterKbdA11ySettings)) == 0);
-}
-
-void
-clutter_device_manager_set_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
-                                              ClutterKbdA11ySettings *settings)
-{
-  ClutterDeviceManagerClass *manager_class;
-  ClutterDeviceManagerPrivate *priv = clutter_device_manager_get_instance_private (device_manager);
-
-  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
-
-  if (are_kbd_a11y_settings_equal (&priv->kbd_a11y_settings, settings))
-    return;
-
-  priv->kbd_a11y_settings = *settings;
-
-  manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
-  if (manager_class->apply_kbd_a11y_settings)
-    manager_class->apply_kbd_a11y_settings (device_manager, settings);
-}
-
-void
-clutter_device_manager_get_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
-                                              ClutterKbdA11ySettings *settings)
-{
-  ClutterDeviceManagerPrivate *priv = clutter_device_manager_get_instance_private (device_manager);
-
-  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
-
-  *settings = priv->kbd_a11y_settings;
 }
 
 static gboolean

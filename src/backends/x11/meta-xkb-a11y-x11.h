@@ -29,10 +29,10 @@
 #include "clutter/clutter.h"
 
 void
-meta_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
-                                                 ClutterKbdA11ySettings *kbd_a11y_settings);
+meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat            *seat,
+                                       ClutterKbdA11ySettings *kbd_a11y_settings);
 
 gboolean
-meta_device_manager_x11_a11y_init               (ClutterDeviceManager *device_manager);
+meta_seat_x11_a11y_init               (ClutterSeat            *seat);
 
 #endif /* META_XKB_A11Y_X11_H */
