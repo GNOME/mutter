@@ -34,6 +34,8 @@ enum
   DEVICE_ADDED,
   DEVICE_REMOVED,
   TOOL_CHANGED,
+  KBD_A11Y_MASK_CHANGED,
+  KBD_A11Y_FLAGS_CHANGED,
   N_SIGNALS,
 };
 
@@ -53,6 +55,9 @@ typedef struct _ClutterSeatPrivate ClutterSeatPrivate;
 struct _ClutterSeatPrivate
 {
   ClutterBackend *backend;
+
+  /* Keyboard a11y */
+  ClutterKbdA11ySettings kbd_a11y_settings;
 };
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (ClutterSeat, clutter_seat, G_TYPE_OBJECT)
@@ -151,6 +156,52 @@ clutter_seat_class_init (ClutterSeatClass *klass)
                               G_TYPE_FROM_CLASS (object_class),
                               _clutter_marshal_VOID__OBJECT_OBJECTv);
 
+  /**
+   * ClutterSeat::kbd-a11y-mods-state-changed:
+   * @seat: the #ClutterSeat that emitted the signal
+   * @latched_mask: the latched modifier mask from stickykeys
+   * @locked_mask:  the locked modifier mask from stickykeys
+   *
+   * The ::kbd-a11y-mods-state-changed signal is emitted each time either the
+   * latched modifiers mask or locked modifiers mask are changed as the
+   * result of keyboard accessibilty's sticky keys operations.
+   */
+  signals[KBD_A11Y_MASK_CHANGED] =
+    g_signal_new (I_("kbd-a11y-mods-state-changed"),
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  _clutter_marshal_VOID__UINT_UINT,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_UINT,
+                  G_TYPE_UINT);
+  g_signal_set_va_marshaller (signals[KBD_A11Y_MASK_CHANGED],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_VOID__UINT_UINTv);
+
+  /**
+   * ClutterSeat::kbd-a11y-flags-changed:
+   * @seat: the #ClutterSeat that emitted the signal
+   * @settings_flags: the new ClutterKeyboardA11yFlags configuration
+   * @changed_mask: the ClutterKeyboardA11yFlags changed
+   *
+   * The ::kbd-a11y-flags-changed signal is emitted each time the
+   * ClutterKeyboardA11yFlags configuration is changed as the result of
+   * keyboard accessibility operations.
+   */
+  signals[KBD_A11Y_FLAGS_CHANGED] =
+    g_signal_new (I_("kbd-a11y-flags-changed"),
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  _clutter_marshal_VOID__UINT_UINT,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_UINT,
+                  G_TYPE_UINT);
+  g_signal_set_va_marshaller (signals[KBD_A11Y_FLAGS_CHANGED],
+                              G_TYPE_FROM_CLASS (object_class),
+                              _clutter_marshal_VOID__UINT_UINTv);
+
   props[PROP_BACKEND] =
     g_param_spec_object ("backend",
                          P_("Backend"),
@@ -232,4 +283,41 @@ ClutterKeymap *
 clutter_seat_get_keymap (ClutterSeat *seat)
 {
   return CLUTTER_SEAT_GET_CLASS (seat)->get_keymap (seat);
+}
+
+static gboolean
+are_kbd_a11y_settings_equal (ClutterKbdA11ySettings *a,
+                             ClutterKbdA11ySettings *b)
+{
+  return (memcmp (a, b, sizeof (ClutterKbdA11ySettings)) == 0);
+}
+
+void
+clutter_seat_set_kbd_a11y_settings (ClutterSeat            *seat,
+                                    ClutterKbdA11ySettings *settings)
+{
+  ClutterSeatClass *seat_class;
+  ClutterSeatPrivate *priv = clutter_seat_get_instance_private (seat);
+
+  g_return_if_fail (CLUTTER_IS_SEAT (seat));
+
+  if (are_kbd_a11y_settings_equal (&priv->kbd_a11y_settings, settings))
+    return;
+
+  priv->kbd_a11y_settings = *settings;
+
+  seat_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (seat);
+  if (seat_class->apply_kbd_a11y_settings)
+    seat_class->apply_kbd_a11y_settings (seat, settings);
+}
+
+void
+clutter_seat_get_kbd_a11y_settings (ClutterSeat            *seat,
+                                    ClutterKbdA11ySettings *settings)
+{
+  ClutterSeatPrivate *priv = clutter_seat_get_instance_private (seat);
+
+  g_return_if_fail (CLUTTER_IS_SEAT (seat));
+
+  *settings = priv->kbd_a11y_settings;
 }

@@ -1222,6 +1222,8 @@ load_keyboard_a11y_settings (MetaInputSettings  *input_settings,
   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
   ClutterKbdA11ySettings kbd_a11y_settings = { 0 };
   ClutterInputDevice *core_keyboard;
+  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
   guint i;
 
   core_keyboard = clutter_device_manager_get_core_device (priv->device_manager, CLUTTER_KEYBOARD_DEVICE);
@@ -1248,7 +1250,7 @@ load_keyboard_a11y_settings (MetaInputSettings  *input_settings,
   kbd_a11y_settings.mousekeys_accel_time = g_settings_get_int (priv->keyboard_a11y_settings,
                                                                "mousekeys-accel-time");
 
-  clutter_device_manager_set_kbd_a11y_settings (priv->device_manager, &kbd_a11y_settings);
+  clutter_seat_set_kbd_a11y_settings (seat, &kbd_a11y_settings);
 }
 
 static void
