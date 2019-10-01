@@ -100,7 +100,9 @@ static MetaRenderer *
 meta_backend_x11_cm_create_renderer (MetaBackend *backend,
                                      GError     **error)
 {
-  return g_object_new (META_TYPE_RENDERER_X11_CM, NULL);
+  return g_object_new (META_TYPE_RENDERER_X11_CM,
+                       "backend", backend,
+                       NULL);
 }
 
 static MetaMonitorManager *
