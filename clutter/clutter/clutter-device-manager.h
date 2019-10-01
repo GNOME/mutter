@@ -124,13 +124,6 @@ struct _ClutterDeviceManagerClass
   void                (* apply_kbd_a11y_settings) (ClutterDeviceManager   *device_manger,
                                                    ClutterKbdA11ySettings *settings);
 
-  /* Event platform data */
-  void (* copy_event_data) (ClutterDeviceManager *device_manager,
-                            const ClutterEvent   *src,
-                            ClutterEvent         *dest);
-  void (* free_event_data) (ClutterDeviceManager *device_manager,
-                            ClutterEvent         *event);
-
   /* padding */
   gpointer _padding[4];
 };
