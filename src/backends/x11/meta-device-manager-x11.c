@@ -31,7 +31,6 @@
 #include "backends/x11/meta-seat-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "backends/x11/meta-virtual-input-device-x11.h"
-#include "backends/x11/meta-xkb-a11y-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
 #include "core/display-private.h"
@@ -196,7 +195,6 @@ on_tool_changed (ClutterSeat            *seat,
 static void
 meta_device_manager_x11_constructed (GObject *object)
 {
-  ClutterDeviceManager *manager = CLUTTER_DEVICE_MANAGER (object);
   MetaDeviceManagerX11 *manager_xi2 = META_DEVICE_MANAGER_X11 (object);
 
   g_signal_connect (manager_xi2->seat, "device-added",
@@ -205,8 +203,6 @@ meta_device_manager_x11_constructed (GObject *object)
                     G_CALLBACK (on_device_removed), manager_xi2);
   g_signal_connect (manager_xi2->seat, "tool-changed",
                     G_CALLBACK (on_tool_changed), manager_xi2);
-
-  meta_device_manager_x11_a11y_init (manager);
 
   if (G_OBJECT_CLASS (meta_device_manager_x11_parent_class)->constructed)
     G_OBJECT_CLASS (meta_device_manager_x11_parent_class)->constructed (object);
@@ -277,7 +273,6 @@ meta_device_manager_x11_class_init (MetaDeviceManagerX11Class *klass)
   manager_class->select_stage_events = meta_device_manager_x11_select_stage_events;
   manager_class->create_virtual_device = meta_device_manager_x11_create_virtual_device;
   manager_class->get_supported_virtual_device_types = meta_device_manager_x11_get_supported_virtual_device_types;
-  manager_class->apply_kbd_a11y_settings = meta_device_manager_x11_apply_kbd_a11y_settings;
 }
 
 static void

@@ -436,10 +436,10 @@ meta_wayland_keyboard_update_xkb_state (MetaWaylandKeyboard *keyboard)
 }
 
 static void
-on_kbd_a11y_mask_changed (ClutterDeviceManager   *device_manager,
-                          xkb_mod_mask_t          new_latched_mods,
-                          xkb_mod_mask_t          new_locked_mods,
-                          MetaWaylandKeyboard    *keyboard)
+on_kbd_a11y_mask_changed (ClutterSeat         *seat,
+                          xkb_mod_mask_t       new_latched_mods,
+                          xkb_mod_mask_t       new_locked_mods,
+                          MetaWaylandKeyboard *keyboard)
 {
   xkb_mod_mask_t latched, locked, depressed, group;
 
@@ -567,6 +567,7 @@ void
 meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard)
 {
   MetaBackend *backend = meta_get_backend ();
+  ClutterBackend *clutter_backend = clutter_get_default_backend ();
 
   keyboard->settings = g_settings_new ("org.gnome.desktop.peripherals.keyboard");
   g_signal_connect (keyboard->settings, "changed",
@@ -577,7 +578,8 @@ meta_wayland_keyboard_enable (MetaWaylandKeyboard *keyboard)
   g_signal_connect (backend, "keymap-layout-group-changed",
                     G_CALLBACK (on_keymap_layout_group_changed), keyboard);
 
-  g_signal_connect (clutter_device_manager_get_default (), "kbd-a11y-mods-state-changed",
+  g_signal_connect (clutter_backend_get_default_seat (clutter_backend),
+		    "kbd-a11y-mods-state-changed",
                     G_CALLBACK (on_kbd_a11y_mask_changed), keyboard);
 
   meta_wayland_keyboard_take_keymap (keyboard, meta_backend_get_keymap (backend));
