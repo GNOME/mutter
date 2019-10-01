@@ -25,6 +25,7 @@
 #include "backends/x11/meta-input-device-x11.h"
 #include "backends/x11/meta-keymap-x11.h"
 #include "backends/x11/meta-stage-x11.h"
+#include "backends/x11/meta-xkb-a11y-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
 #include "core/bell.h"
@@ -1394,6 +1395,8 @@ meta_seat_x11_constructed (GObject *object)
                     G_CALLBACK (on_keymap_state_change),
                     seat_x11);
 
+  meta_seat_x11_a11y_init (CLUTTER_SEAT (seat_x11));
+
   if (G_OBJECT_CLASS (meta_seat_x11_parent_class)->constructed)
     G_OBJECT_CLASS (meta_seat_x11_parent_class)->constructed (object);
 }
@@ -1497,6 +1500,7 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->get_keymap = meta_seat_x11_get_keymap;
   seat_class->copy_event_data = meta_seat_x11_copy_event_data;
   seat_class->free_event_data = meta_seat_x11_free_event_data;
+  seat_class->apply_kbd_a11y_settings = meta_seat_x11_apply_kbd_a11y_settings;
 
   props[PROP_OPCODE] =
     g_param_spec_int ("opcode",
