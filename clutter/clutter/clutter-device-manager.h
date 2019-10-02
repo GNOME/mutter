@@ -41,17 +41,6 @@ G_DECLARE_DERIVABLE_TYPE (ClutterDeviceManager, clutter_device_manager,
 typedef struct _ClutterDeviceManagerPrivate     ClutterDeviceManagerPrivate;
 
 /**
- * ClutterVirtualDeviceType:
- */
-typedef enum _ClutterVirtualDeviceType
-{
-  CLUTTER_VIRTUAL_DEVICE_TYPE_NONE = 0,
-  CLUTTER_VIRTUAL_DEVICE_TYPE_KEYBOARD = 1 << 0,
-  CLUTTER_VIRTUAL_DEVICE_TYPE_POINTER = 1 << 1,
-  CLUTTER_VIRTUAL_DEVICE_TYPE_TOUCHSCREEN = 1 << 2,
-} ClutterVirtualDeviceType;
-
-/**
  * ClutterDeviceManagerClass:
  *
  * The #ClutterDeviceManagerClass structure contains only private data
@@ -75,9 +64,6 @@ struct _ClutterDeviceManagerClass
                                            ClutterInputDevice     *device);
   void                (* select_stage_events) (ClutterDeviceManager *manager,
                                                ClutterStage       *stage);
-  ClutterVirtualInputDevice *(* create_virtual_device) (ClutterDeviceManager  *device_manager,
-                                                        ClutterInputDeviceType device_type);
-  ClutterVirtualDeviceType (* get_supported_virtual_device_types) (ClutterDeviceManager *device_manager);
   void                (* compress_motion) (ClutterDeviceManager *device_manger,
                                            ClutterEvent         *event,
                                            const ClutterEvent   *to_discard);
@@ -99,13 +85,6 @@ ClutterInputDevice *  clutter_device_manager_get_device      (ClutterDeviceManag
 CLUTTER_EXPORT
 ClutterInputDevice *  clutter_device_manager_get_core_device (ClutterDeviceManager   *device_manager,
                                                               ClutterInputDeviceType  device_type);
-
-CLUTTER_EXPORT
-ClutterVirtualInputDevice *clutter_device_manager_create_virtual_device (ClutterDeviceManager  *device_manager,
-                                                                         ClutterInputDeviceType device_type);
-
-CLUTTER_EXPORT
-ClutterVirtualDeviceType clutter_device_manager_get_supported_virtual_device_types (ClutterDeviceManager *device_manager);
 
 G_END_DECLS
 

@@ -37,6 +37,7 @@
 #include "backends/native/meta-input-device-native.h"
 #include "backends/native/meta-input-device-tool-native.h"
 #include "backends/native/meta-keymap-native.h"
+#include "backends/native/meta-virtual-input-device-native.h"
 #include "clutter/clutter-mutter.h"
 #include "core/bell.h"
 
@@ -2568,6 +2569,24 @@ meta_seat_native_apply_kbd_a11y_settings (ClutterSeat            *seat,
                                                       settings);
 }
 
+static ClutterVirtualInputDevice *
+meta_seat_native_create_virtual_device (ClutterSeat            *seat,
+                                        ClutterInputDeviceType  device_type)
+{
+  return g_object_new (META_TYPE_VIRTUAL_INPUT_DEVICE_NATIVE,
+                       "seat", seat,
+                       "device-type", device_type,
+                       NULL);
+}
+
+static ClutterVirtualDeviceType
+meta_seat_native_get_supported_virtual_device_types (ClutterSeat *seat)
+{
+  return (CLUTTER_VIRTUAL_DEVICE_TYPE_KEYBOARD |
+          CLUTTER_VIRTUAL_DEVICE_TYPE_POINTER |
+          CLUTTER_VIRTUAL_DEVICE_TYPE_TOUCHSCREEN);
+}
+
 static void
 meta_seat_native_class_init (MetaSeatNativeClass *klass)
 {
@@ -2588,6 +2607,8 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->copy_event_data = meta_seat_native_copy_event_data;
   seat_class->free_event_data = meta_seat_native_free_event_data;
   seat_class->apply_kbd_a11y_settings = meta_seat_native_apply_kbd_a11y_settings;
+  seat_class->create_virtual_device = meta_seat_native_create_virtual_device;
+  seat_class->get_supported_virtual_device_types = meta_seat_native_get_supported_virtual_device_types;
 
   props[PROP_SEAT_ID] =
     g_param_spec_string ("seat-id",

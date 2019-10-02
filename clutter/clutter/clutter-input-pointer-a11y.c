@@ -586,8 +586,8 @@ _clutter_input_pointer_a11y_add_device (ClutterInputDevice *device)
     return;
 
   device->accessibility_virtual_device =
-    clutter_device_manager_create_virtual_device (device->device_manager,
-                                                  CLUTTER_POINTER_DEVICE);
+    clutter_seat_create_virtual_device (device->seat,
+                                        CLUTTER_POINTER_DEVICE);
 
   device->ptr_a11y_data = g_new0 (ClutterPtrA11yData, 1);
 }

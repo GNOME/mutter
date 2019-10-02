@@ -127,29 +127,6 @@ meta_device_manager_native_get_device (ClutterDeviceManager *manager,
   return NULL;
 }
 
-static ClutterVirtualInputDevice *
-meta_device_manager_native_create_virtual_device (ClutterDeviceManager  *manager,
-                                                  ClutterInputDeviceType device_type)
-{
-  MetaDeviceManagerNative *manager_evdev =
-    META_DEVICE_MANAGER_NATIVE (manager);
-  MetaDeviceManagerNativePrivate *priv = manager_evdev->priv;
-
-  return g_object_new (META_TYPE_VIRTUAL_INPUT_DEVICE_NATIVE,
-                       "device-manager", manager,
-                       "seat", priv->main_seat,
-                       "device-type", device_type,
-                       NULL);
-}
-
-static ClutterVirtualDeviceType
-meta_device_manager_native_get_supported_virtual_device_types (ClutterDeviceManager *device_manager)
-{
-  return (CLUTTER_VIRTUAL_DEVICE_TYPE_KEYBOARD |
-          CLUTTER_VIRTUAL_DEVICE_TYPE_POINTER |
-          CLUTTER_VIRTUAL_DEVICE_TYPE_TOUCHSCREEN);
-}
-
 static void
 meta_device_manager_native_compress_motion (ClutterDeviceManager *device_manger,
                                             ClutterEvent         *event,
@@ -236,8 +213,6 @@ meta_device_manager_native_class_init (MetaDeviceManagerNativeClass *klass)
   manager_class->get_devices = meta_device_manager_native_get_devices;
   manager_class->get_core_device = meta_device_manager_native_get_core_device;
   manager_class->get_device = meta_device_manager_native_get_device;
-  manager_class->create_virtual_device = meta_device_manager_native_create_virtual_device;
-  manager_class->get_supported_virtual_device_types = meta_device_manager_native_get_supported_virtual_device_types;
   manager_class->compress_motion = meta_device_manager_native_compress_motion;
 }
 
