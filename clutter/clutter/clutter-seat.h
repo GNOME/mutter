@@ -29,6 +29,7 @@
 
 #include "clutter/clutter-types.h"
 #include "clutter/clutter-keymap.h"
+#include "clutter/clutter-virtual-input-device.h"
 
 #define CLUTTER_TYPE_SEAT (clutter_seat_get_type ())
 
@@ -75,6 +76,17 @@ typedef struct _ClutterPointerA11ySettings
   gint dwell_threshold;
 } ClutterPointerA11ySettings;
 
+/**
+ * ClutterVirtualDeviceType:
+ */
+typedef enum
+{
+  CLUTTER_VIRTUAL_DEVICE_TYPE_NONE = 0,
+  CLUTTER_VIRTUAL_DEVICE_TYPE_KEYBOARD = 1 << 0,
+  CLUTTER_VIRTUAL_DEVICE_TYPE_POINTER = 1 << 1,
+  CLUTTER_VIRTUAL_DEVICE_TYPE_TOUCHSCREEN = 1 << 2,
+} ClutterVirtualDeviceType;
+
 typedef struct _ClutterSeatClass ClutterSeatClass;
 
 struct _ClutterSeatClass
@@ -100,6 +112,11 @@ struct _ClutterSeatClass
   /* Keyboard accessibility */
   void (* apply_kbd_a11y_settings) (ClutterSeat            *seat,
                                     ClutterKbdA11ySettings *settings);
+
+  /* Virtual devices */
+  ClutterVirtualInputDevice * (* create_virtual_device) (ClutterSeat            *seat,
+                                                         ClutterInputDeviceType  device_type);
+  ClutterVirtualDeviceType (* get_supported_virtual_device_types) (ClutterSeat *seat);
 };
 
 CLUTTER_EXPORT
@@ -134,5 +151,11 @@ void clutter_seat_get_pointer_a11y_settings (ClutterSeat                *seat,
 CLUTTER_EXPORT
 void clutter_seat_set_pointer_a11y_dwell_click_type (ClutterSeat                      *seat,
                                                      ClutterPointerA11yDwellClickType  click_type);
+CLUTTER_EXPORT
+ClutterVirtualInputDevice *clutter_seat_create_virtual_device (ClutterSeat            *seat,
+                                                               ClutterInputDeviceType  device_type);
+
+CLUTTER_EXPORT
+ClutterVirtualDeviceType clutter_seat_get_supported_virtual_device_types (ClutterSeat *seat);
 
 #endif /* CLUTTER_SEAT_H */
