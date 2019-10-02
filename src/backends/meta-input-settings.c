@@ -1351,14 +1351,15 @@ load_pointer_a11y_settings (MetaInputSettings  *input_settings,
   ClutterPointerA11ySettings pointer_a11y_settings;
   ClutterInputDevice *core_pointer;
   GDesktopMouseDwellMode dwell_mode;
-
+  ClutterSeat *seat;
   guint i;
 
   core_pointer = clutter_device_manager_get_core_device (priv->device_manager, CLUTTER_POINTER_DEVICE);
   if (device && device != core_pointer)
     return;
 
-  clutter_device_manager_get_pointer_a11y_settings (priv->device_manager, &pointer_a11y_settings);
+  seat = clutter_input_device_get_seat (device);
+  clutter_seat_get_pointer_a11y_settings (seat, &pointer_a11y_settings);
   pointer_a11y_settings.controls = 0;
   for (i = 0; i < G_N_ELEMENTS (pointer_a11y_settings_flags_pair); i++)
     {
@@ -1390,7 +1391,7 @@ load_pointer_a11y_settings (MetaInputSettings  *input_settings,
   pointer_a11y_settings.dwell_gesture_secondary =
     pointer_a11y_dwell_direction_from_setting (input_settings, "dwell-gesture-secondary");
 
-  clutter_device_manager_set_pointer_a11y_settings (priv->device_manager, &pointer_a11y_settings);
+  clutter_seat_set_pointer_a11y_settings (seat, &pointer_a11y_settings);
 }
 
 static void

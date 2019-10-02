@@ -825,7 +825,6 @@ void meta_backend_native_resume (MetaBackendNative *native)
     META_MONITOR_MANAGER_KMS (monitor_manager);
   MetaInputSettings *input_settings;
   MetaIdleMonitor *idle_monitor;
-  ClutterDeviceManager *device_manager;
   ClutterBackend *clutter_backend = clutter_get_default_backend ();
   MetaSeatNative *seat =
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
@@ -848,6 +847,5 @@ void meta_backend_native_resume (MetaBackendNative *native)
   input_settings = meta_backend_get_input_settings (backend);
   meta_input_settings_maybe_restore_numlock_state (input_settings);
 
-  device_manager = clutter_device_manager_get_default ();
-  clutter_device_manager_ensure_a11y_state (device_manager);
+  clutter_seat_ensure_a11y_state (CLUTTER_SEAT (seat));
 }
