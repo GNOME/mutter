@@ -860,7 +860,6 @@ static void
 enable_mousekeys (MetaInputDeviceNative *device_evdev)
 {
   ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (device_evdev);
-  ClutterDeviceManager *manager = device->device_manager;
 
   device_evdev->mousekeys_btn = CLUTTER_BUTTON_PRIMARY;
   device_evdev->move_mousekeys_timer = 0;
@@ -872,8 +871,8 @@ enable_mousekeys (MetaInputDeviceNative *device_evdev)
     return;
 
   device->accessibility_virtual_device =
-    clutter_device_manager_create_virtual_device (manager,
-                                                  CLUTTER_POINTER_DEVICE);
+    clutter_seat_create_virtual_device (CLUTTER_SEAT (device_evdev->seat),
+                                        CLUTTER_POINTER_DEVICE);
 }
 
 static void
