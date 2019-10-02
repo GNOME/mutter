@@ -116,8 +116,8 @@ static gboolean
 meta_remote_desktop_session_start (MetaRemoteDesktopSession *session,
                                    GError                  **error)
 {
-  ClutterDeviceManager *device_manager =
-    clutter_device_manager_get_default ();
+  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
 
   g_assert (!session->virtual_pointer && !session->virtual_keyboard);
 
@@ -128,15 +128,11 @@ meta_remote_desktop_session_start (MetaRemoteDesktopSession *session,
     }
 
   session->virtual_pointer =
-    clutter_device_manager_create_virtual_device (device_manager,
-                                                  CLUTTER_POINTER_DEVICE);
+    clutter_seat_create_virtual_device (seat, CLUTTER_POINTER_DEVICE);
   session->virtual_keyboard =
-    clutter_device_manager_create_virtual_device (device_manager,
-                                                  CLUTTER_KEYBOARD_DEVICE);
-
+    clutter_seat_create_virtual_device (seat, CLUTTER_KEYBOARD_DEVICE);
   session->virtual_touchscreen =
-    clutter_device_manager_create_virtual_device (device_manager,
-                                                  CLUTTER_TOUCHSCREEN_DEVICE);
+    clutter_seat_create_virtual_device (seat, CLUTTER_TOUCHSCREEN_DEVICE);
 
   init_remote_access_handle (session);
 

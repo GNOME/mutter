@@ -228,23 +228,6 @@ meta_device_manager_x11_set_property (GObject      *object,
     }
 }
 
-static ClutterVirtualInputDevice *
-meta_device_manager_x11_create_virtual_device (ClutterDeviceManager   *manager,
-                                               ClutterInputDeviceType  device_type)
-{
-  return g_object_new (META_TYPE_VIRTUAL_INPUT_DEVICE_X11,
-                       "device-manager", manager,
-                       "device-type", device_type,
-                       NULL);
-}
-
-static ClutterVirtualDeviceType
-meta_device_manager_x11_get_supported_virtual_device_types (ClutterDeviceManager *device_manager)
-{
-  return (CLUTTER_VIRTUAL_DEVICE_TYPE_KEYBOARD |
-          CLUTTER_VIRTUAL_DEVICE_TYPE_POINTER);
-}
-
 static void
 meta_device_manager_x11_class_init (MetaDeviceManagerX11Class *klass)
 {
@@ -271,8 +254,6 @@ meta_device_manager_x11_class_init (MetaDeviceManagerX11Class *klass)
   manager_class->get_core_device = meta_device_manager_x11_get_core_device;
   manager_class->get_device = meta_device_manager_x11_get_device;
   manager_class->select_stage_events = meta_device_manager_x11_select_stage_events;
-  manager_class->create_virtual_device = meta_device_manager_x11_create_virtual_device;
-  manager_class->get_supported_virtual_device_types = meta_device_manager_x11_get_supported_virtual_device_types;
 }
 
 static void
