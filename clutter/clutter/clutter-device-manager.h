@@ -52,27 +52,6 @@ typedef enum _ClutterVirtualDeviceType
 } ClutterVirtualDeviceType;
 
 /**
- * ClutterPointerA11ySettings:
- *
- * The #ClutterPointerA11ySettings structure contains pointer accessibility
- * settings
- *
- */
-typedef struct _ClutterPointerA11ySettings
-{
-  ClutterPointerA11yFlags controls;
-  ClutterPointerA11yDwellClickType dwell_click_type;
-  ClutterPointerA11yDwellMode dwell_mode;
-  ClutterPointerA11yDwellDirection dwell_gesture_single;
-  ClutterPointerA11yDwellDirection dwell_gesture_double;
-  ClutterPointerA11yDwellDirection dwell_gesture_drag;
-  ClutterPointerA11yDwellDirection dwell_gesture_secondary;
-  gint secondary_click_delay;
-  gint dwell_delay;
-  gint dwell_threshold;
-} ClutterPointerA11ySettings;
-
-/**
  * ClutterDeviceManagerClass:
  *
  * The #ClutterDeviceManagerClass structure contains only private data
@@ -127,18 +106,6 @@ ClutterVirtualInputDevice *clutter_device_manager_create_virtual_device (Clutter
 
 CLUTTER_EXPORT
 ClutterVirtualDeviceType clutter_device_manager_get_supported_virtual_device_types (ClutterDeviceManager *device_manager);
-
-CLUTTER_EXPORT
-void clutter_device_manager_set_pointer_a11y_settings (ClutterDeviceManager       *device_manager,
-                                                       ClutterPointerA11ySettings *settings);
-
-CLUTTER_EXPORT
-void clutter_device_manager_get_pointer_a11y_settings (ClutterDeviceManager       *device_manager,
-                                                       ClutterPointerA11ySettings *settings);
-
-CLUTTER_EXPORT
-void clutter_device_manager_set_pointer_a11y_dwell_click_type (ClutterDeviceManager             *device_manager,
-                                                               ClutterPointerA11yDwellClickType  click_type);
 
 G_END_DECLS
 
