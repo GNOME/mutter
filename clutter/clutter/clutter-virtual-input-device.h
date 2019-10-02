@@ -27,7 +27,7 @@
 #include <glib-object.h>
 #include <stdint.h>
 
-#include "clutter-device-manager.h"
+#include "clutter-seat.h"
 
 #define CLUTTER_TYPE_VIRTUAL_INPUT_DEVICE (clutter_virtual_input_device_get_type ())
 
@@ -168,9 +168,6 @@ CLUTTER_EXPORT
 void clutter_virtual_input_device_notify_touch_up (ClutterVirtualInputDevice *virtual_device,
                                                    uint64_t                   time_us,
                                                    int                        slot);
-
-CLUTTER_EXPORT
-ClutterDeviceManager * clutter_virtual_input_device_get_manager (ClutterVirtualInputDevice *virtual_device);
 
 CLUTTER_EXPORT
 int clutter_virtual_input_device_get_device_type (ClutterVirtualInputDevice *virtual_device);
