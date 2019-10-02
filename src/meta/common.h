@@ -147,7 +147,7 @@ enum
   _WGO_N = META_GRAB_OP_WINDOW_DIR_NORTH,
 };
 
-#define GRAB_OP_GET_BASE_TYPE(op) (op & 0x00FF)
+#define META_GRAB_OP_GET_BASE_TYPE(op) (op & 0x00FF)
 
 typedef enum
 {
@@ -507,7 +507,7 @@ void meta_frame_borders_clear (MetaFrameBorders *self);
 
 /************************************************************/
 
-#define POINT_IN_RECT(xcoord, ycoord, rect) \
+#define META_POINT_IN_RECT(xcoord, ycoord, rect) \
  ((xcoord) >= (rect).x &&                   \
   (xcoord) <  ((rect).x + (rect).width) &&  \
   (ycoord) >= (rect).y &&                   \

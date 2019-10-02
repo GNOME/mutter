@@ -1146,7 +1146,7 @@ window_contains_point (MetaWindow *window,
 
   meta_window_get_frame_rect (window, &rect);
 
-  return POINT_IN_RECT (root_x, root_y, rect);
+  return META_POINT_IN_RECT (root_x, root_y, rect);
 }
 
 static gboolean
