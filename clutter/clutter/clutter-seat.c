@@ -29,6 +29,7 @@
 #include "clutter-marshal.h"
 #include "clutter-private.h"
 #include "clutter-seat.h"
+#include "clutter-virtual-input-device.h"
 
 enum
 {
@@ -502,4 +503,40 @@ clutter_seat_set_pointer_a11y_dwell_click_type (ClutterSeat                     
   g_return_if_fail (CLUTTER_IS_SEAT (seat));
 
   priv->pointer_a11y_settings.dwell_click_type = click_type;
+}
+
+/**
+ * clutter_seat_create_virtual_device:
+ * @seat: a #ClutterSeat
+ * @device_type: the type of the virtual device
+ *
+ * Creates a virtual input device.
+ *
+ * Returns: (transfer full): a newly created virtual device
+ **/
+ClutterVirtualInputDevice *
+clutter_seat_create_virtual_device (ClutterSeat            *seat,
+                                    ClutterInputDeviceType  device_type)
+{
+  ClutterSeatClass *seat_class;
+
+  g_return_val_if_fail (CLUTTER_IS_SEAT (seat), NULL);
+
+  seat_class = CLUTTER_SEAT_GET_CLASS (seat);
+  return seat_class->create_virtual_device (seat, device_type);
+}
+
+/**
+ * clutter_seat_supported_virtual_device_types: (skip)
+ */
+ClutterVirtualDeviceType
+clutter_seat_get_supported_virtual_device_types (ClutterSeat *seat)
+{
+  ClutterSeatClass *seat_class;
+
+  g_return_val_if_fail (CLUTTER_IS_SEAT (seat),
+                        CLUTTER_VIRTUAL_DEVICE_TYPE_NONE);
+
+  seat_class = CLUTTER_SEAT_GET_CLASS (seat);
+  return seat_class->get_supported_virtual_device_types (seat);
 }

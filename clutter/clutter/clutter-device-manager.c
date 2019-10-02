@@ -45,9 +45,7 @@
 #include "clutter-marshal.h"
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
-#include "clutter-virtual-input-device.h"
 #include "clutter-input-device-tool.h"
-#include "clutter-input-pointer-a11y-private.h"
 
 struct _ClutterDeviceManagerPrivate
 {
@@ -438,43 +436,6 @@ _clutter_device_manager_get_backend (ClutterDeviceManager *manager)
   g_return_val_if_fail (CLUTTER_IS_DEVICE_MANAGER (manager), NULL);
 
   return priv->backend;
-}
-
-/**
- * clutter_device_manager_create_virtual_device:
- * @device_manager: a #ClutterDeviceManager
- * @device_type: the type of the virtual device
- *
- * Creates a virtual input device.
- *
- * Returns: (transfer full): a newly created virtual device
- **/
-ClutterVirtualInputDevice *
-clutter_device_manager_create_virtual_device (ClutterDeviceManager   *device_manager,
-                                              ClutterInputDeviceType  device_type)
-{
-  ClutterDeviceManagerClass *manager_class;
-
-  g_return_val_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager), NULL);
-
-  manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
-  return manager_class->create_virtual_device (device_manager,
-                                               device_type);
-}
-
-/**
- * clutter_device_manager_supported_virtua_device_types: (skip)
- */
-ClutterVirtualDeviceType
-clutter_device_manager_get_supported_virtual_device_types (ClutterDeviceManager *device_manager)
-{
-  ClutterDeviceManagerClass *manager_class;
-
-  g_return_val_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager),
-                        CLUTTER_VIRTUAL_DEVICE_TYPE_NONE);
-
-  manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
-  return manager_class->get_supported_virtual_device_types (device_manager);
 }
 
 void
