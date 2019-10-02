@@ -3003,6 +3003,21 @@ meta_window_is_screen_sized (MetaWindow *window)
   return FALSE;
 }
 
+gboolean
+meta_window_is_logical_monitor_sized (MetaWindow *window)
+{
+  MetaRectangle window_rect;
+  MetaRectangle logical_monitor_rect;
+
+  if (!window->monitor)
+    return FALSE;
+
+  meta_window_get_frame_rect (window, &window_rect);
+  logical_monitor_rect = meta_logical_monitor_get_layout (window->monitor);
+
+  return meta_rectangle_equal (&window_rect, &logical_monitor_rect);
+}
+
 /**
  * meta_window_is_monitor_sized:
  * @window: a #MetaWindow
@@ -3048,30 +3063,6 @@ meta_window_is_on_primary_monitor (MetaWindow *window)
   g_return_val_if_fail (window->monitor, FALSE);
 
   return window->monitor->is_primary;
-}
-
-/**
- * meta_window_requested_bypass_compositor:
- * @window: a #MetaWindow
- *
- * Return value: %TRUE if the window requested to bypass the compositor
- */
-gboolean
-meta_window_requested_bypass_compositor (MetaWindow *window)
-{
-  return window->bypass_compositor == _NET_WM_BYPASS_COMPOSITOR_HINT_ON;
-}
-
-/**
- * meta_window_requested_dont_bypass_compositor:
- * @window: a #MetaWindow
- *
- * Return value: %TRUE if the window requested to opt out of unredirecting
- */
-gboolean
-meta_window_requested_dont_bypass_compositor (MetaWindow *window)
-{
-  return window->bypass_compositor == _NET_WM_BYPASS_COMPOSITOR_HINT_OFF;
 }
 
 static void

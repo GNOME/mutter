@@ -30,6 +30,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "cogl/cogl-scanout.h"
 #include "cogl/cogl-wayland-server.h"
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/region-utils.h"
@@ -72,23 +73,42 @@ meta_surface_actor_wayland_is_visible (MetaSurfaceActor *actor)
 }
 
 static gboolean
-meta_surface_actor_wayland_should_unredirect (MetaSurfaceActor *actor)
+meta_surface_actor_wayland_is_opaque (MetaSurfaceActor *actor)
 {
-  return FALSE;
+  MetaShapedTexture *stex = meta_surface_actor_get_texture (actor);
+
+  return meta_shaped_texture_is_opaque (stex);
 }
 
 static void
-meta_surface_actor_wayland_set_unredirected (MetaSurfaceActor *actor,
-                                             gboolean          unredirected)
+queue_frame_callbacks (MetaSurfaceActorWayland *self)
 {
-  /* Do nothing. In the future, we'll use KMS to set this
-   * up as a hardware overlay or something. */
+  MetaWaylandCompositor *wayland_compositor;
+
+  if (!self->surface)
+    return;
+
+  wayland_compositor = self->surface->compositor;
+  wl_list_insert_list (&wayland_compositor->frame_callbacks,
+                       &self->frame_callback_list);
+  wl_list_init (&self->frame_callback_list);
 }
 
-static gboolean
-meta_surface_actor_wayland_is_unredirected (MetaSurfaceActor *actor)
+CoglScanout *
+meta_surface_actor_wayland_try_acquire_scanout (MetaSurfaceActorWayland *self,
+                                                CoglOnscreen            *onscreen)
 {
-  return FALSE;
+  MetaWaylandSurface *surface;
+  CoglScanout *scanout;
+
+  surface = meta_surface_actor_wayland_get_surface (self);
+  scanout = meta_wayland_surface_try_acquire_scanout (surface, onscreen);
+  if (!scanout)
+    return NULL;
+
+  queue_frame_callbacks (self);
+
+  return scanout;
 }
 
 void
@@ -115,13 +135,7 @@ meta_surface_actor_wayland_paint (ClutterActor *actor)
 {
   MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
 
-  if (self->surface)
-    {
-      MetaWaylandCompositor *compositor = self->surface->compositor;
-
-      wl_list_insert_list (&compositor->frame_callbacks, &self->frame_callback_list);
-      wl_list_init (&self->frame_callback_list);
-    }
+  queue_frame_callbacks (self);
 
   CLUTTER_ACTOR_CLASS (meta_surface_actor_wayland_parent_class)->paint (actor);
 }
@@ -162,10 +176,7 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
   surface_actor_class->process_damage = meta_surface_actor_wayland_process_damage;
   surface_actor_class->pre_paint = meta_surface_actor_wayland_pre_paint;
   surface_actor_class->is_visible = meta_surface_actor_wayland_is_visible;
-
-  surface_actor_class->should_unredirect = meta_surface_actor_wayland_should_unredirect;
-  surface_actor_class->set_unredirected = meta_surface_actor_wayland_set_unredirected;
-  surface_actor_class->is_unredirected = meta_surface_actor_wayland_is_unredirected;
+  surface_actor_class->is_opaque = meta_surface_actor_wayland_is_opaque;
 
   surface_actor_class->get_window = meta_surface_actor_wayland_get_window;
 

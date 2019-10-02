@@ -25,22 +25,21 @@
 
 #include "core/window-private.h"
 #include "x11/iconcache.h"
+#include "x11/window-x11.h"
 
 G_BEGIN_DECLS
 
+/*
+ * Mirrors _NET_WM_BYPASS_COMPOSITOR preference values.
+ */
+typedef enum _MetaBypassCompositorHint
+{
+  META_BYPASS_COMPOSITOR_HINT_AUTO = 0,
+  META_BYPASS_COMPOSITOR_HINT_ON = 1,
+  META_BYPASS_COMPOSITOR_HINT_OFF = 2,
+} MetaBypassCompositorHint;
+
 typedef struct _MetaWindowX11Private MetaWindowX11Private;
-
-struct _MetaWindowX11Class
-{
-  MetaWindowClass parent_class;
-};
-
-struct _MetaWindowX11
-{
-  MetaWindow parent;
-
-  MetaWindowX11Private *priv;
-};
 
 struct _MetaWindowX11Private
 {
@@ -72,7 +71,15 @@ struct _MetaWindowX11Private
   MetaIconCache icon_cache;
   Pixmap wm_hints_pixmap;
   Pixmap wm_hints_mask;
+
+  /* Bypass compositor hints */
+  MetaBypassCompositorHint bypass_compositor;
 };
+
+MetaWindowX11Private * meta_window_x11_get_private (MetaWindowX11 *window_x11);
+
+void meta_window_x11_set_bypass_compositor_hint (MetaWindowX11            *window_x11,
+                                                 MetaBypassCompositorHint  requested_value);
 
 G_END_DECLS
 

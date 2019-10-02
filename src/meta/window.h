@@ -99,6 +99,8 @@ typedef enum
 #define META_IS_WINDOW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass),  META_TYPE_WINDOW))
 #define META_WINDOW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj),  META_TYPE_WINDOW, MetaWindowClass))
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaWindow, g_object_unref)
+
 typedef struct _MetaWindowClass   MetaWindowClass;
 
 META_EXPORT
@@ -279,13 +281,10 @@ META_EXPORT
 gboolean          meta_window_is_monitor_sized (MetaWindow *window);
 
 META_EXPORT
+gboolean          meta_window_is_logical_monitor_sized (MetaWindow *window);
+
+META_EXPORT
 gboolean          meta_window_is_on_primary_monitor (MetaWindow *window);
-
-META_EXPORT
-gboolean          meta_window_requested_bypass_compositor (MetaWindow *window);
-
-META_EXPORT
-gboolean          meta_window_requested_dont_bypass_compositor (MetaWindow *window);
 
 META_EXPORT
 gboolean meta_window_get_icon_geometry (MetaWindow    *window,

@@ -4877,14 +4877,6 @@ clutter_stage_thaw_updates (ClutterStage *stage)
     }
 }
 
-GList *
-_clutter_stage_peek_stage_views (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv = stage->priv;
-
-  return _clutter_stage_window_get_views (priv->impl);
-}
-
 void
 clutter_stage_update_resource_scales (ClutterStage *stage)
 {
