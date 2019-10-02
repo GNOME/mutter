@@ -102,6 +102,10 @@ struct _ClutterSeatClass
 
   ClutterKeymap * (* get_keymap) (ClutterSeat *seat);
 
+  void (* compress_motion) (ClutterSeat        *seat,
+                            ClutterEvent       *event,
+                            const ClutterEvent *to_discard);
+
   /* Event platform data */
   void (* copy_event_data) (ClutterSeat        *seat,
                             const ClutterEvent *src,
@@ -157,5 +161,9 @@ ClutterVirtualInputDevice *clutter_seat_create_virtual_device (ClutterSeat      
 
 CLUTTER_EXPORT
 ClutterVirtualDeviceType clutter_seat_get_supported_virtual_device_types (ClutterSeat *seat);
+
+void clutter_seat_compress_motion (ClutterSeat        *seat,
+                                   ClutterEvent       *event,
+                                   const ClutterEvent *to_discard);
 
 #endif /* CLUTTER_SEAT_H */
