@@ -203,9 +203,6 @@ CLUTTER_EXPORT
 void            _clutter_device_manager_remove_device           (ClutterDeviceManager *device_manager,
                                                                  ClutterInputDevice   *device);
 void            _clutter_device_manager_update_devices          (ClutterDeviceManager *device_manager);
-CLUTTER_EXPORT
-void            _clutter_device_manager_select_stage_events     (ClutterDeviceManager *device_manager,
-                                                                 ClutterStage         *stage);
 ClutterBackend *_clutter_device_manager_get_backend             (ClutterDeviceManager *device_manager);
 
 /* input device */

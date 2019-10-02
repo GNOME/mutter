@@ -311,19 +311,6 @@ clutter_device_manager_get_core_device (ClutterDeviceManager   *device_manager,
   return manager_class->get_core_device (device_manager, device_type);
 }
 
-void
-_clutter_device_manager_select_stage_events (ClutterDeviceManager *device_manager,
-                                             ClutterStage         *stage)
-{
-  ClutterDeviceManagerClass *manager_class;
-
-  g_return_if_fail (CLUTTER_IS_DEVICE_MANAGER (device_manager));
-
-  manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
-  if (manager_class->select_stage_events)
-    manager_class->select_stage_events (device_manager, stage);
-}
-
 /*
  * _clutter_device_manager_add_device:
  * @device_manager: a #ClutterDeviceManager
