@@ -2227,3 +2227,39 @@ meta_seat_x11_lookup_device_id (MetaSeatX11 *seat_x11,
   return g_hash_table_lookup (seat_x11->devices_by_id,
                               GINT_TO_POINTER (device_id));
 }
+
+void
+meta_seat_x11_select_stage_events (MetaSeatX11  *seat,
+                                   ClutterStage *stage)
+{
+  MetaStageX11 *stage_x11;
+  XIEventMask xi_event_mask;
+  unsigned char *mask;
+  int len;
+
+  stage_x11 = META_STAGE_X11 (_clutter_stage_get_window (stage));
+
+  len = XIMaskLen (XI_LASTEVENT);
+  mask = g_new0 (unsigned char, len);
+
+  XISetMask (mask, XI_Motion);
+  XISetMask (mask, XI_ButtonPress);
+  XISetMask (mask, XI_ButtonRelease);
+  XISetMask (mask, XI_KeyPress);
+  XISetMask (mask, XI_KeyRelease);
+  XISetMask (mask, XI_Enter);
+  XISetMask (mask, XI_Leave);
+
+  XISetMask (mask, XI_TouchBegin);
+  XISetMask (mask, XI_TouchUpdate);
+  XISetMask (mask, XI_TouchEnd);
+
+  xi_event_mask.deviceid = XIAllMasterDevices;
+  xi_event_mask.mask = mask;
+  xi_event_mask.mask_len = len;
+
+  XISelectEvents (clutter_x11_get_default_display (),
+                  stage_x11->xwin, &xi_event_mask, 1);
+
+  g_free (mask);
+}
