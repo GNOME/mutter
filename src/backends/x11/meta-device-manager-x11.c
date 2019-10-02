@@ -52,42 +52,6 @@ G_DEFINE_TYPE (MetaDeviceManagerX11,
                CLUTTER_TYPE_DEVICE_MANAGER)
 
 static void
-meta_device_manager_x11_select_stage_events (ClutterDeviceManager *manager,
-                                             ClutterStage         *stage)
-{
-  MetaStageX11 *stage_x11;
-  XIEventMask xi_event_mask;
-  unsigned char *mask;
-  int len;
-
-  stage_x11 = META_STAGE_X11 (_clutter_stage_get_window (stage));
-
-  len = XIMaskLen (XI_LASTEVENT);
-  mask = g_new0 (unsigned char, len);
-
-  XISetMask (mask, XI_Motion);
-  XISetMask (mask, XI_ButtonPress);
-  XISetMask (mask, XI_ButtonRelease);
-  XISetMask (mask, XI_KeyPress);
-  XISetMask (mask, XI_KeyRelease);
-  XISetMask (mask, XI_Enter);
-  XISetMask (mask, XI_Leave);
-
-  XISetMask (mask, XI_TouchBegin);
-  XISetMask (mask, XI_TouchUpdate);
-  XISetMask (mask, XI_TouchEnd);
-
-  xi_event_mask.deviceid = XIAllMasterDevices;
-  xi_event_mask.mask = mask;
-  xi_event_mask.mask_len = len;
-
-  XISelectEvents (clutter_x11_get_default_display (),
-                  stage_x11->xwin, &xi_event_mask, 1);
-
-  g_free (mask);
-}
-
-static void
 meta_device_manager_x11_add_device (ClutterDeviceManager *manager,
                                     ClutterInputDevice   *device)
 {
@@ -253,7 +217,6 @@ meta_device_manager_x11_class_init (MetaDeviceManagerX11Class *klass)
   manager_class->get_devices = meta_device_manager_x11_get_devices;
   manager_class->get_core_device = meta_device_manager_x11_get_core_device;
   manager_class->get_device = meta_device_manager_x11_get_device;
-  manager_class->select_stage_events = meta_device_manager_x11_select_stage_events;
 }
 
 static void
