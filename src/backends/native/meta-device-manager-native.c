@@ -128,31 +128,6 @@ meta_device_manager_native_get_device (ClutterDeviceManager *manager,
 }
 
 static void
-meta_device_manager_native_compress_motion (ClutterDeviceManager *device_manger,
-                                            ClutterEvent         *event,
-                                            const ClutterEvent   *to_discard)
-{
-  double dx, dy;
-  double dx_unaccel, dy_unaccel;
-  double dst_dx = 0.0, dst_dy = 0.0;
-  double dst_dx_unaccel = 0.0, dst_dy_unaccel = 0.0;
-
-  if (!meta_event_native_get_relative_motion (to_discard,
-                                              &dx, &dy,
-                                              &dx_unaccel, &dy_unaccel))
-    return;
-
-  meta_event_native_get_relative_motion (event,
-                                         &dst_dx, &dst_dy,
-                                         &dst_dx_unaccel, &dst_dy_unaccel);
-  meta_event_native_set_relative_motion (event,
-                                         dx + dst_dx,
-                                         dy + dst_dy,
-                                         dx_unaccel + dst_dx_unaccel,
-                                         dy_unaccel + dst_dy_unaccel);
-}
-
-static void
 on_device_added (ClutterSeat          *seat,
                  ClutterInputDevice   *parent,
                  ClutterInputDevice   *device,
@@ -213,7 +188,6 @@ meta_device_manager_native_class_init (MetaDeviceManagerNativeClass *klass)
   manager_class->get_devices = meta_device_manager_native_get_devices;
   manager_class->get_core_device = meta_device_manager_native_get_core_device;
   manager_class->get_device = meta_device_manager_native_get_device;
-  manager_class->compress_motion = meta_device_manager_native_compress_motion;
 }
 
 static void

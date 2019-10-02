@@ -2588,6 +2588,31 @@ meta_seat_native_get_supported_virtual_device_types (ClutterSeat *seat)
 }
 
 static void
+meta_seat_native_compress_motion (ClutterSeat        *seat,
+                                  ClutterEvent       *event,
+                                  const ClutterEvent *to_discard)
+{
+  double dx, dy;
+  double dx_unaccel, dy_unaccel;
+  double dst_dx = 0.0, dst_dy = 0.0;
+  double dst_dx_unaccel = 0.0, dst_dy_unaccel = 0.0;
+
+  if (!meta_event_native_get_relative_motion (to_discard,
+                                              &dx, &dy,
+                                              &dx_unaccel, &dy_unaccel))
+    return;
+
+  meta_event_native_get_relative_motion (event,
+                                         &dst_dx, &dst_dy,
+                                         &dst_dx_unaccel, &dst_dy_unaccel);
+  meta_event_native_set_relative_motion (event,
+                                         dx + dst_dx,
+                                         dy + dst_dy,
+                                         dx_unaccel + dst_dx_unaccel,
+                                         dy_unaccel + dst_dy_unaccel);
+}
+
+static void
 meta_seat_native_class_init (MetaSeatNativeClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -2609,6 +2634,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->apply_kbd_a11y_settings = meta_seat_native_apply_kbd_a11y_settings;
   seat_class->create_virtual_device = meta_seat_native_create_virtual_device;
   seat_class->get_supported_virtual_device_types = meta_seat_native_get_supported_virtual_device_types;
+  seat_class->compress_motion = meta_seat_native_compress_motion;
 
   props[PROP_SEAT_ID] =
     g_param_spec_string ("seat-id",

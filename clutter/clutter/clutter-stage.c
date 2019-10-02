@@ -1239,11 +1239,9 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
 
               if (next_event->type == CLUTTER_MOTION)
                 {
-                  ClutterDeviceManager *device_manager =
-                    clutter_device_manager_get_default ();
+                  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
-                  _clutter_device_manager_compress_motion (device_manager,
-                                                           next_event, event);
+                  clutter_seat_compress_motion (seat, next_event, event);
                 }
 
               goto next_event;
