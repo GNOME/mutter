@@ -188,7 +188,6 @@ meta_device_manager_native_class_init (MetaDeviceManagerNativeClass *klass)
   manager_class->get_devices = meta_device_manager_native_get_devices;
   manager_class->get_core_device = meta_device_manager_native_get_core_device;
   manager_class->get_device = meta_device_manager_native_get_device;
-  manager_class->compress_motion = meta_device_manager_native_compress_motion;
 }
 
 static void
