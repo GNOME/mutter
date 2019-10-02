@@ -1599,8 +1599,12 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
 
             clutter_event_set_source_device (event, source_device);
             clutter_event_set_device (event, device);
-            clutter_event_set_device_tool (event,
-                                           meta_input_device_x11_get_current_tool (source_device));
+
+            if (source_device)
+              {
+                clutter_event_set_device_tool (event,
+                  meta_input_device_x11_get_current_tool (source_device));
+              }
 
             event->button.axes = translate_axes (event->button.device,
                                                  event->button.x,
@@ -1708,8 +1712,12 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
 
         clutter_event_set_source_device (event, source_device);
         clutter_event_set_device (event, device);
-        clutter_event_set_device_tool (event,
-                                       meta_input_device_x11_get_current_tool (source_device));
+
+        if (source_device)
+          {
+            clutter_event_set_device_tool (event,
+              meta_input_device_x11_get_current_tool (source_device));
+          }
 
         event->motion.axes = translate_axes (event->motion.device,
                                              event->motion.x,
