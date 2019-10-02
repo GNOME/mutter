@@ -22,6 +22,7 @@
 #include "config.h"
 
 #include "compositor/clutter-utils.h"
+#include "compositor/meta-window-actor-private.h"
 
 #include <math.h>
 
@@ -118,11 +119,22 @@ meta_actor_is_untransformed (ClutterActor *actor,
                              int          *x_origin,
                              int          *y_origin)
 {
+  MetaWindowActor *window_actor;
   gfloat widthf, heightf;
   ClutterVertex verts[4];
 
   clutter_actor_get_size (actor, &widthf, &heightf);
   clutter_actor_get_abs_allocation_vertices (actor, verts);
+
+  window_actor = meta_window_actor_from_actor (actor);
+  if (window_actor)
+    {
+      int geometry_scale;
+
+      geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
+      widthf *= geometry_scale;
+      heightf *= geometry_scale;
+    }
 
   return meta_actor_vertices_are_untransformed (verts, widthf, heightf, x_origin, y_origin);
 }
