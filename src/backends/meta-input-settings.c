@@ -2237,11 +2237,15 @@ meta_input_settings_emulate_keybinding (MetaInputSettings  *input_settings,
 
   if (!priv->virtual_pad_keyboard)
     {
-      ClutterDeviceManager *manager = clutter_device_manager_get_default ();
+      ClutterBackend *backend;
+      ClutterSeat *seat;
+
+      backend = clutter_get_default_backend ();
+      seat = clutter_backend_get_default_seat (backend);
 
       priv->virtual_pad_keyboard =
-        clutter_device_manager_create_virtual_device (manager,
-                                                      CLUTTER_KEYBOARD_DEVICE);
+        clutter_seat_create_virtual_device (seat,
+                                            CLUTTER_KEYBOARD_DEVICE);
     }
 
   state = is_press ? CLUTTER_KEY_STATE_PRESSED : CLUTTER_KEY_STATE_RELEASED;

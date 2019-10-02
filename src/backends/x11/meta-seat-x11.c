@@ -25,6 +25,7 @@
 #include "backends/x11/meta-input-device-x11.h"
 #include "backends/x11/meta-keymap-x11.h"
 #include "backends/x11/meta-stage-x11.h"
+#include "backends/x11/meta-virtual-input-device-x11.h"
 #include "backends/x11/meta-xkb-a11y-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
@@ -1482,6 +1483,23 @@ meta_seat_x11_free_event_data (ClutterSeat  *seat,
     meta_event_x11_free (event_x11);
 }
 
+static ClutterVirtualInputDevice *
+meta_seat_x11_create_virtual_device (ClutterSeat            *seat,
+                                     ClutterInputDeviceType  device_type)
+{
+  return g_object_new (META_TYPE_VIRTUAL_INPUT_DEVICE_X11,
+                       "seat", seat,
+                       "device-type", device_type,
+                       NULL);
+}
+
+static ClutterVirtualDeviceType
+meta_seat_x11_get_supported_virtual_device_types (ClutterSeat *seat)
+{
+  return (CLUTTER_VIRTUAL_DEVICE_TYPE_KEYBOARD |
+          CLUTTER_VIRTUAL_DEVICE_TYPE_POINTER);
+}
+
 static void
 meta_seat_x11_class_init (MetaSeatX11Class *klass)
 {
@@ -1501,6 +1519,8 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->copy_event_data = meta_seat_x11_copy_event_data;
   seat_class->free_event_data = meta_seat_x11_free_event_data;
   seat_class->apply_kbd_a11y_settings = meta_seat_x11_apply_kbd_a11y_settings;
+  seat_class->create_virtual_device = meta_seat_x11_create_virtual_device;
+  seat_class->get_supported_virtual_device_types = meta_seat_x11_get_supported_virtual_device_types;
 
   props[PROP_OPCODE] =
     g_param_spec_int ("opcode",
