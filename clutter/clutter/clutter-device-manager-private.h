@@ -211,8 +211,6 @@ ClutterBackend *_clutter_device_manager_get_backend             (ClutterDeviceMa
 void            _clutter_device_manager_compress_motion         (ClutterDeviceManager *device_manger,
                                                                  ClutterEvent         *event,
                                                                  const ClutterEvent   *to_discard);
-CLUTTER_EXPORT
-void            clutter_device_manager_ensure_a11y_state        (ClutterDeviceManager *device_manager);
 
 /* input device */
 CLUTTER_EXPORT
