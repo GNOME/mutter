@@ -1291,6 +1291,22 @@ handle_raw_event (MetaDeviceManagerX11 *manager_xi2,
     }
 }
 
+static ClutterInputDevice *
+get_source_device_checked (MetaDeviceManagerX11 *manager_xi2,
+                           XIDeviceEvent        *xev)
+{
+  ClutterInputDevice *source_device;
+
+  source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
+                                       GINT_TO_POINTER (xev->sourceid));
+
+  if (!source_device)
+    g_warning ("Impossible to get the source device with id %d for event of "
+               "type %d", xev->sourceid, xev->evtype);
+
+  return source_device;
+}
+
 gboolean
 meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
                                          XEvent               *xevent,
@@ -1458,8 +1474,10 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
       {
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
 
-        source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
-                                             GINT_TO_POINTER (xev->sourceid));
+        source_device = get_source_device_checked (manager_xi2, xev);
+        if (!source_device)
+          return FALSE;
+
         device = g_hash_table_lookup (manager_xi2->devices_by_id,
                                       GINT_TO_POINTER (xev->deviceid));
 
@@ -1626,7 +1644,7 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
             break;
           }
 
-        if (source_device != NULL && device->stage != NULL)
+        if (device->stage != NULL)
           _clutter_input_device_set_stage (source_device, device->stage);
 
         if (xev->flags & XIPointerEmulated)
@@ -1644,8 +1662,10 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
         double delta_x, delta_y;
 
-        source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
-                                             GINT_TO_POINTER (xev->sourceid));
+        source_device = get_source_device_checked (manager_xi2, xev);
+        if (!source_device)
+          return FALSE;
+
         device = g_hash_table_lookup (manager_xi2->devices_by_id,
                                       GINT_TO_POINTER (xev->deviceid));
 
@@ -1716,7 +1736,7 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
                                              event->motion.y,
                                              &xev->valuators);
 
-        if (source_device != NULL && device->stage != NULL)
+        if (device->stage != NULL)
           _clutter_input_device_set_stage (source_device, device->stage);
 
         if (xev->flags & XIPointerEmulated)
