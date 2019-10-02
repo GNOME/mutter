@@ -50,6 +50,12 @@
 #define IS_KEY_EVENT(e) ((e)->type == CLUTTER_KEY_PRESS || \
                          (e)->type == CLUTTER_KEY_RELEASE)
 
+typedef enum
+{
+  SYNC_POINTER,
+  REPLAY_POINTER,
+} EventMode;
+
 static gboolean
 stage_has_key_focus (void)
 {
@@ -167,6 +173,43 @@ sequence_is_pointer_emulated (MetaDisplay        *display,
 #endif /* HAVE_NATIVE_BACKEND */
 
   return FALSE;
+}
+
+static void
+maybe_unfreeze_pointer_events (MetaBackend        *backend,
+                               const ClutterEvent *event,
+                               EventMode           mode)
+{
+  Display *xdisplay;
+  int event_mode;
+  int device_id;
+
+  if (event->type != CLUTTER_BUTTON_PRESS)
+    return;
+
+  if (!META_IS_BACKEND_X11 (backend))
+    return;
+
+  device_id = clutter_event_get_device_id (event);
+  switch (mode)
+    {
+    case SYNC_POINTER:
+      event_mode = XISyncDevice;
+      meta_verbose ("Syncing events time %u device %i\n",
+                    (unsigned int) event->button.time, device_id);
+      break;
+    case REPLAY_POINTER:
+      event_mode = XIReplayDevice;
+      meta_verbose ("Replaying events time %u device %i\n",
+                    (unsigned int) event->button.time, device_id);
+      break;
+    default:
+      g_assert_not_reached ();
+      return;
+    }
+
+  xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
+  XIAllowEvents (xdisplay, device_id, event_mode, event->button.time);
 }
 
 static gboolean
@@ -382,17 +425,7 @@ meta_display_handle_event (MetaDisplay        *display,
         {
           /* Only replay button press events, since that's where we
            * have the synchronous grab. */
-          if (event->type == CLUTTER_BUTTON_PRESS)
-            {
-              if (META_IS_BACKEND_X11 (backend))
-                {
-                  Display *xdisplay = meta_backend_x11_get_xdisplay (META_BACKEND_X11 (backend));
-                  meta_verbose ("Allowing events time %u\n",
-                                (unsigned int)event->button.time);
-                  XIAllowEvents (xdisplay, clutter_event_get_device_id (event),
-                                 XIReplayDevice, event->button.time);
-                }
-            }
+          maybe_unfreeze_pointer_events (backend, event, REPLAY_POINTER);
 
           /* If the focus window has an active close dialog let clutter
            * events go through, so fancy clutter dialogs can get to handle
@@ -407,6 +440,13 @@ meta_display_handle_event (MetaDisplay        *display,
         }
 
       goto out;
+    }
+  else
+    {
+      /* We could not match the event with a window, make sure we sync
+       * the pointer to discard the sequence and don't keep events frozen.
+       */
+       maybe_unfreeze_pointer_events (backend, event, SYNC_POINTER);
     }
 
  out:
