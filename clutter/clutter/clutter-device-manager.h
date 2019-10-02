@@ -64,9 +64,6 @@ struct _ClutterDeviceManagerClass
                                            ClutterInputDevice     *device);
   void                (* select_stage_events) (ClutterDeviceManager *manager,
                                                ClutterStage       *stage);
-  void                (* compress_motion) (ClutterDeviceManager *device_manger,
-                                           ClutterEvent         *event,
-                                           const ClutterEvent   *to_discard);
 
   /* padding */
   gpointer _padding[4];

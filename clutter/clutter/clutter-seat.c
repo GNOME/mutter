@@ -540,3 +540,19 @@ clutter_seat_get_supported_virtual_device_types (ClutterSeat *seat)
   seat_class = CLUTTER_SEAT_GET_CLASS (seat);
   return seat_class->get_supported_virtual_device_types (seat);
 }
+
+void
+clutter_seat_compress_motion (ClutterSeat        *seat,
+                              ClutterEvent       *event,
+                              const ClutterEvent *to_discard)
+{
+  ClutterSeatClass *seat_class;
+
+  g_return_if_fail (CLUTTER_IS_SEAT (seat));
+
+  seat_class = CLUTTER_SEAT_GET_CLASS (seat);
+  if (!seat_class->compress_motion)
+    return;
+
+  seat_class->compress_motion (seat, event, to_discard);
+}
