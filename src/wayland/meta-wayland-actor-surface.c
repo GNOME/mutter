@@ -36,6 +36,8 @@ typedef struct _MetaWaylandActorSurfacePrivate MetaWaylandActorSurfacePrivate;
 struct _MetaWaylandActorSurfacePrivate
 {
   MetaSurfaceActor *actor;
+
+  gulong actor_destroyed_handler_id;
 };
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaWaylandActorSurface,
@@ -60,6 +62,10 @@ clear_surface_actor (MetaWaylandActorSurface *actor_surface)
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
 
+  if (!priv->actor)
+    return;
+
+  g_clear_signal_handler (&priv->actor_destroyed_handler_id, priv->actor);
   g_signal_handlers_disconnect_by_func (priv->actor,
                                         meta_wayland_surface_notify_geometry_changed,
                                         surface);
@@ -103,6 +109,9 @@ meta_wayland_actor_surface_queue_frame_callbacks (MetaWaylandActorSurface *actor
     meta_wayland_actor_surface_get_instance_private (actor_surface);
   MetaSurfaceActorWayland *surface_actor_wayland =
     META_SURFACE_ACTOR_WAYLAND (priv->actor);
+
+  if (!priv->actor)
+    return;
 
   meta_surface_actor_wayland_add_frame_callbacks (surface_actor_wayland,
                                                   &pending->frame_callback_list);
@@ -226,6 +235,11 @@ meta_wayland_actor_surface_commit (MetaWaylandSurfaceRole  *surface_role,
 {
   MetaWaylandActorSurface *actor_surface =
     META_WAYLAND_ACTOR_SURFACE (surface_role);
+  MetaWaylandActorSurfacePrivate *priv =
+    meta_wayland_actor_surface_get_instance_private (actor_surface);
+
+  if (!priv->actor)
+    return;
 
   meta_wayland_actor_surface_queue_frame_callbacks (actor_surface, pending);
 
@@ -304,6 +318,13 @@ meta_wayland_actor_surface_get_actor (MetaWaylandActorSurface *actor_surface)
   return priv->actor;
 }
 
+static void
+on_actor_destroyed (ClutterActor            *actor,
+                    MetaWaylandActorSurface *actor_surface)
+{
+  clear_surface_actor (actor_surface);
+}
+
 void
 meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface)
 {
@@ -315,6 +336,10 @@ meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface)
   clear_surface_actor (actor_surface);
 
   priv->actor = g_object_ref_sink (meta_surface_actor_wayland_new (surface));
+  priv->actor_destroyed_handler_id =
+    g_signal_connect (priv->actor, "destroy",
+                      G_CALLBACK (on_actor_destroyed),
+                      surface);
 
   g_signal_connect_swapped (priv->actor, "notify::allocation",
                             G_CALLBACK (meta_wayland_surface_notify_geometry_changed),
