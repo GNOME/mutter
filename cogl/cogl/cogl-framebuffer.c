@@ -1374,6 +1374,11 @@ cogl_blit_framebuffer (CoglFramebuffer *src,
       return FALSE;
     }
 
+  /* Make sure any batched primitives get submitted to the driver
+   * before blitting
+   */
+  _cogl_framebuffer_flush_journal (src);
+
   /* Make sure the current framebuffers are bound. We explicitly avoid
      flushing the clip state so we can bind our own empty state */
   _cogl_framebuffer_flush_state (dest,
