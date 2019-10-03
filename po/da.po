@@ -20,8 +20,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-09-06 06:32+0000\n"
-"PO-Revision-Date: 2019-10-02 05:46+0200\n"
+"POT-Creation-Date: 2019-10-02 04:01+0000\n"
+"PO-Revision-Date: 2019-10-03 19:37+0200\n"
 "Last-Translator: Alan Mortensen <alanmortensen.am@gmail.com>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "Language: da\n"
@@ -408,7 +408,21 @@ msgid ""
 "mutter request a low priority real-time scheduling. The executable or user "
 "must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
 "initializes Xwayland lazily if there are X11 clients. Requires restart."
-msgstr "For at slå eksperimentelle funktioner til, skal du tilføje funktionsnøgleordet til listen. Om funktionen kræver genstart af kompositoren afhænger af den givne funktion. Der er ingen garanti for at eksperimentelle funktion forbliver tilgængelige eller mulige at konfigurere. Forvent ikke at noget i denne indstilling nødvendigvis fungerer i fremtiden. Mulige nøgleord i øjeblikket: • “scale-monitor-framebuffer” — får mutter til som standard at arrangere logiske skærme i et logisk pixelkoordinatrum, mens skærmes framebuffere skaleres frem for vinduesindholdet for at håndtere HiDPI-skærme. Kræver ikke genstart. • “rt-scheduler” — får mutter til at anmode om en lav prioritet til realtids-prioritetstildeling. Den eksekverbare fil eller brugeren skal have CAP_SYS_NICE. Kræver genstart. • “autostart-xwayland” — venter med at initialisere Xwayland indtil det er nødvendigt, hvis der er X11-klienter. Kræver genstart."
+msgstr ""
+"For at slå eksperimentelle funktioner til, skal du tilføje "
+"funktionsnøgleordet til listen. Om funktionen kræver genstart af "
+"kompositoren afhænger af den givne funktion. Der er ingen garanti for, at "
+"eksperimentelle funktioner forbliver tilgængelige eller mulige at "
+"konfigurere. Forvent ikke at noget i denne indstilling nødvendigvis fungerer "
+"i fremtiden. Mulige nøgleord i øjeblikket: • “scale-monitor-framebuffer” — "
+"får mutter til som standard at arrangere logiske skærme i et logisk "
+"pixelkoordinatrum, mens skærmes framebuffere skaleres frem for "
+"vinduesindholdet for at håndtere HiDPI-skærme. Kræver ikke genstart. • “rt-"
+"scheduler” — får mutter til at anmode om en lav prioritet til realtids-"
+"prioritetstildeling. Den eksekverbare fil eller brugeren skal have "
+"CAP_SYS_NICE. Kræver genstart. • “autostart-xwayland” — venter med at "
+"initialisere Xwayland indtil det er nødvendigt, hvis der er X11-klienter. "
+"Kræver genstart."
 
 #: data/org.gnome.mutter.gschema.xml.in:134
 msgid "Modifier to use to locate the pointer"
@@ -502,7 +516,17 @@ msgid ""
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
 "white-listed in key “xwayland-grab-access-rules”."
-msgstr "Tillad at alle tastaturbegivenheder sendes til X11-vinduer med “override redirect” via indfangelse ved kørsel i Xwayland. Denne indstilling er der for at understøtte X11-klienter, som afbilder et “override redirect”-vindue (som ikke modtager tastaturfokus) og udsende en tastaturindfangelse, som tvinger alle tastaturbegivenheder til dét vindue. Denne indstilling bruges sjældent, og har ingen virkning på normale X11-vinduer, som kan modtage tastaturfokus under normale omstændigheder. For at en X11-tastaturindfangelse behandles i Wayland, skal klienten også enten sende en specifik X11-ClientMessage til rodvinduet eller være blandt de godkendte programmer i nøglen “xwayland-grab-access-rules”."
+msgstr ""
+"Tillad at alle tastaturbegivenheder sendes til X11-vinduer med “override "
+"redirect” via indfangelse ved kørsel i Xwayland. Denne indstilling er der "
+"for at understøtte X11-klienter, som afbilder et “override redirect”-vindue "
+"(som ikke modtager tastaturfokus) og udsende en tastaturindfangelse, som "
+"tvinger alle tastaturbegivenheder til dét vindue. Denne indstilling bruges "
+"sjældent, og har ingen virkning på normale X11-vinduer, som kan modtage "
+"tastaturfokus under normale omstændigheder. For at en X11-"
+"tastaturindfangelse behandles i Wayland, skal klienten også enten sende en "
+"specifik X11-ClientMessage til rodvinduet eller være blandt de godkendte "
+"programmer i nøglen “xwayland-grab-access-rules”."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -535,7 +559,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2531
+#: src/backends/meta-input-settings.c:2532
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Tilstandsskift (Gruppe %d)"
@@ -543,11 +567,11 @@ msgstr "Tilstandsskift (Gruppe %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2554
+#: src/backends/meta-input-settings.c:2555
 msgid "Switch monitor"
 msgstr "Skift skærm"
 
-#: src/backends/meta-input-settings.c:2556
+#: src/backends/meta-input-settings.c:2557
 msgid "Show on-screen help"
 msgstr "Vis integreret hjælp"
 
@@ -595,47 +619,47 @@ msgstr "Der kører allerede en anden kompositor på skærm %i på terminal “%s
 msgid "Bell event"
 msgstr "Bip-hændelse"
 
-#: src/core/main.c:186
+#: src/core/main.c:190
 msgid "Disable connection to session manager"
 msgstr "Deaktivér forbindelse til sessionshåndtering"
 
-#: src/core/main.c:192
+#: src/core/main.c:196
 msgid "Replace the running window manager"
 msgstr "Erstat den kørende vindueshåndtering"
 
-#: src/core/main.c:198
+#: src/core/main.c:202
 msgid "Specify session management ID"
 msgstr "Angiv sessionhåndterings-id"
 
-#: src/core/main.c:203
+#: src/core/main.c:207
 msgid "X Display to use"
 msgstr "X-terminal som bruges"
 
-#: src/core/main.c:209
+#: src/core/main.c:213
 msgid "Initialize session from savefile"
 msgstr "Initialisér session fra gemt fil"
 
-#: src/core/main.c:215
+#: src/core/main.c:219
 msgid "Make X calls synchronous"
 msgstr "Gør kald til X synkrone"
 
-#: src/core/main.c:222
+#: src/core/main.c:226
 msgid "Run as a wayland compositor"
 msgstr "Kør som en wayland-kompositor"
 
-#: src/core/main.c:228
+#: src/core/main.c:232
 msgid "Run as a nested compositor"
 msgstr "Kør som en indlejret kompositor"
 
-#: src/core/main.c:234
+#: src/core/main.c:238
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Kør wayland-kompositoren uden at starte Xwayland"
 
-#: src/core/main.c:242
+#: src/core/main.c:246
 msgid "Run as a full display server, rather than nested"
 msgstr "Kør som fuld terminalserver, frem for indlejret"
 
-#: src/core/main.c:248
+#: src/core/main.c:252
 msgid "Run with X11 backend"
 msgstr "Kør med X11-motor"
 
