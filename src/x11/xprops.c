@@ -165,12 +165,9 @@ validate_or_free_results (GetPropertyResults *results,
                 results->format, (int) results->n_items,
                 title, res_class, res_name);
 
-  if (type_name)
-    XFree (type_name);
-  if (expected_name)
-    XFree (expected_name);
-  if (prop_name)
-    XFree (prop_name);
+  meta_XFree (type_name);
+  meta_XFree (expected_name);
+  meta_XFree (prop_name);
 
   if (results->prop)
     {
@@ -316,14 +313,7 @@ motif_hints_from_results (GetPropertyResults *results,
    * MotifWmHints than the one we expect, apparently.  I'm not sure of
    * the history behind it. See bug #89841 for example.
    */
-  *hints_p = calloc (1, sizeof (MotifWmHints));
-  if (*hints_p == NULL)
-    {
-      g_free (results->prop);
-      results->prop = NULL;
-      return FALSE;
-    }
-
+  *hints_p = g_new0 (MotifWmHints, 1);
   memcpy(*hints_p, results->prop, MIN (sizeof (MotifWmHints),
                                        results->n_items * sizeof (uint32_t)));
 
@@ -669,15 +659,13 @@ text_property_from_results (GetPropertyResults *results,
   *utf8_str_p = NULL;
 
   tp.value = results->prop;
-  results->prop = NULL;
   tp.encoding = results->type;
   tp.format = results->format;
   tp.nitems = results->n_items;
 
   *utf8_str_p = text_property_to_utf8 (results->x11_display->xdisplay, &tp);
 
-  if (tp.value != NULL)
-    XFree (tp.value);
+  g_clear_pointer (&results->prop, g_free);
 
   return *utf8_str_p != NULL;
 }
@@ -707,7 +695,7 @@ wm_hints_from_results (GetPropertyResults *results,
       return FALSE;
     }
 
-  hints = calloc (1, sizeof (XWMHints));
+  hints = g_new0 (XWMHints, 1);
 
   raw = (xPropWMHints*) results->prop;
 
@@ -739,7 +727,7 @@ static gboolean
 class_hint_from_results (GetPropertyResults *results,
                          XClassHint         *class_hint)
 {
-  int len_name, len_class;
+  int len_name;
 
   class_hint->res_class = NULL;
   class_hint->res_name = NULL;
@@ -747,31 +735,13 @@ class_hint_from_results (GetPropertyResults *results,
   if (!validate_or_free_results (results, 8, XA_STRING, FALSE))
     return FALSE;
 
-  len_name = strlen ((char *) results->prop);
-  if (! (class_hint->res_name = malloc (len_name+1)))
-    {
-      g_free (results->prop);
-      results->prop = NULL;
-      return FALSE;
-    }
+  class_hint->res_name = g_strdup ((char *) results->prop);
 
-  strcpy (class_hint->res_name, (char *)results->prop);
-
+  len_name = strlen (class_hint->res_name);
   if (len_name == (int) results->n_items)
-    len_name--;
-
-  len_class = strlen ((char *)results->prop + len_name + 1);
-
-  if (! (class_hint->res_class = malloc(len_class+1)))
-    {
-      XFree(class_hint->res_name);
-      class_hint->res_name = NULL;
-      g_free (results->prop);
-      results->prop = NULL;
-      return FALSE;
-    }
-
-  strcpy (class_hint->res_class, (char *)results->prop + len_name + 1);
+    class_hint->res_class = g_strdup ("");
+  else
+    class_hint->res_class = g_strdup ((char *) results->prop + len_name + 1);
 
   g_free (results->prop);
   results->prop = NULL;
@@ -802,7 +772,7 @@ size_hints_from_results (GetPropertyResults *results,
 
   raw = (xPropSizeHints*) results->prop;
 
-  hints = malloc (sizeof (XSizeHints));
+  hints = g_new0 (XSizeHints, 1);
 
   hints->flags = raw->flags;
   hints->x = raw->x;
@@ -1003,7 +973,7 @@ meta_prop_get_values (MetaX11Display *x11_display,
             {
               char *new_str;
               new_str = latin1_to_utf8 (values[i].v.str);
-              free (values[i].v.str);
+              g_free (values[i].v.str);
               values[i].v.str = new_str;
             }
           break;
@@ -1082,44 +1052,44 @@ free_value (MetaPropValue *value)
       break;
     case META_PROP_VALUE_UTF8:
     case META_PROP_VALUE_STRING:
-      free (value->v.str);
+      g_free (value->v.str);
       break;
     case META_PROP_VALUE_STRING_AS_UTF8:
       g_free (value->v.str);
       break;
     case META_PROP_VALUE_MOTIF_HINTS:
-      free (value->v.motif_hints);
+      g_free (value->v.motif_hints);
       break;
     case META_PROP_VALUE_CARDINAL:
       break;
     case META_PROP_VALUE_WINDOW:
       break;
     case META_PROP_VALUE_ATOM_LIST:
-      free (value->v.atom_list.atoms);
+      g_free (value->v.atom_list.atoms);
       break;
     case META_PROP_VALUE_TEXT_PROPERTY:
-      free (value->v.str);
+      g_free (value->v.str);
       break;
     case META_PROP_VALUE_WM_HINTS:
-      free (value->v.wm_hints);
+      g_free (value->v.wm_hints);
       break;
     case META_PROP_VALUE_CLASS_HINT:
-      free (value->v.class_hint.res_class);
-      free (value->v.class_hint.res_name);
+      g_free (value->v.class_hint.res_class);
+      g_free (value->v.class_hint.res_name);
       break;
     case META_PROP_VALUE_SIZE_HINTS:
-      free (value->v.size_hints.hints);
+      g_free (value->v.size_hints.hints);
       break;
     case META_PROP_VALUE_UTF8_LIST:
       g_strfreev (value->v.string_list.strings);
       break;
     case META_PROP_VALUE_CARDINAL_LIST:
-      free (value->v.cardinal_list.cardinals);
+      g_free (value->v.cardinal_list.cardinals);
       break;
     case META_PROP_VALUE_SYNC_COUNTER:
       break;
     case META_PROP_VALUE_SYNC_COUNTER_LIST:
-      free (value->v.xcounter_list.counters);
+      g_free (value->v.xcounter_list.counters);
       break;
     }
 }

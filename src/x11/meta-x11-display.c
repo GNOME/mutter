@@ -1320,7 +1320,7 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
                                        &list, &n_items))
         {
           num = list[0];
-          meta_XFree (list);
+          g_free (list);
         }
 
         if (num > meta_workspace_manager_get_n_workspaces (display->workspace_manager))
@@ -2186,7 +2186,7 @@ meta_x11_display_update_workspace_layout (MetaX11Display *x11_display)
                         "(3 is accepted for backwards compat)\n", n_items);
         }
 
-      meta_XFree (list);
+      g_free (list);
 
       meta_workspace_manager_update_workspace_layout (workspace_manager,
                                                       starting_corner,

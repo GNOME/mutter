@@ -171,17 +171,11 @@ update_sm_hints (MetaWindow *window)
 
   if (leader != None)
     {
-      char *str;
-
       window->xclient_leader = leader;
 
-      if (meta_prop_get_latin1_string (window->display->x11_display, leader,
-                                       window->display->x11_display->atom_SM_CLIENT_ID,
-                                       &str))
-        {
-          window->sm_client_id = g_strdup (str);
-          meta_XFree (str);
-        }
+      meta_prop_get_latin1_string (window->display->x11_display, leader,
+                                   window->display->x11_display->atom_SM_CLIENT_ID,
+                                   &window->sm_client_id);
     }
   else
     {
@@ -192,20 +186,13 @@ update_sm_hints (MetaWindow *window)
           /* Some broken apps (kdelibs fault?) set SM_CLIENT_ID on the app
            * instead of the client leader
            */
-          char *str;
+          meta_prop_get_latin1_string (window->display->x11_display, window->xwindow,
+                                       window->display->x11_display->atom_SM_CLIENT_ID,
+                                       &window->sm_client_id);
 
-          str = NULL;
-          if (meta_prop_get_latin1_string (window->display->x11_display, window->xwindow,
-                                           window->display->x11_display->atom_SM_CLIENT_ID,
-                                           &str))
-            {
-              if (window->sm_client_id == NULL) /* first time through */
-                meta_warning ("Window %s sets SM_CLIENT_ID on itself, instead of on the WM_CLIENT_LEADER window as specified in the ICCCM.\n",
-                              window->desc);
-
-              window->sm_client_id = g_strdup (str);
-              meta_XFree (str);
-            }
+          if (window->sm_client_id)
+            meta_warning ("Window %s sets SM_CLIENT_ID on itself, instead of on the WM_CLIENT_LEADER window as specified in the ICCCM.\n",
+                          window->desc);
         }
     }
 
@@ -1637,7 +1624,7 @@ meta_window_x11_update_struts (MetaWindow *window)
                         struts[0], struts[1], struts[2], struts[3],
                         window->desc);
         }
-      meta_XFree (struts);
+      g_free (struts);
     }
   else
     {
@@ -1696,7 +1683,7 @@ meta_window_x11_update_struts (MetaWindow *window)
                         struts[0], struts[1], struts[2], struts[3],
                         window->desc);
         }
-      meta_XFree (struts);
+      g_free (struts);
     }
   else if (!new_struts)
     {
