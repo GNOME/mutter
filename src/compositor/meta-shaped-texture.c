@@ -949,6 +949,8 @@ void
 meta_shaped_texture_set_is_y_inverted (MetaShapedTexture *stex,
                                        gboolean           is_y_inverted)
 {
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
+
   if (stex->is_y_inverted == is_y_inverted)
     return;
 
@@ -964,6 +966,8 @@ void
 meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
                                  CoglSnippet       *snippet)
 {
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
+
   if (stex->snippet == snippet)
     return;
 
@@ -1016,6 +1020,7 @@ meta_shaped_texture_set_opaque_region (MetaShapedTexture *stex,
 cairo_region_t *
 meta_shaped_texture_get_opaque_region (MetaShapedTexture *stex)
 {
+  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), NULL);
   return stex->opaque_region;
 }
 
