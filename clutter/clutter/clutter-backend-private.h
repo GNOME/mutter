@@ -23,7 +23,6 @@
 #define __CLUTTER_BACKEND_PRIVATE_H__
 
 #include <clutter/clutter-backend.h>
-#include <clutter/clutter-device-manager.h>
 #include <clutter/clutter-seat.h>
 #include <clutter/clutter-stage-window.h>
 
@@ -46,8 +45,6 @@ struct _ClutterBackend
   GSource *cogl_source;
 
   CoglOnscreen *dummy_onscreen;
-
-  ClutterDeviceManager *device_manager;
 
   cairo_font_options_t *font_options;
 
@@ -87,7 +84,6 @@ struct _ClutterBackendClass
                                                 GError         **error);
   gboolean              (* create_context)     (ClutterBackend  *backend,
                                                 GError         **error);
-  ClutterDeviceManager *(* get_device_manager) (ClutterBackend  *backend);
 
   gboolean              (* translate_event)    (ClutterBackend     *backend,
                                                 gpointer            native,

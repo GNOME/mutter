@@ -25,10 +25,9 @@
 
 #include "clutter-build-config.h"
 
-#include "clutter-device-manager.h"
-#include "clutter-device-manager-private.h"
 #include "clutter-enum-types.h"
 #include "clutter-input-device.h"
+#include "clutter-input-device-private.h"
 #include "clutter-input-pointer-a11y-private.h"
 #include "clutter-main.h"
 #include "clutter-virtual-input-device.h"
