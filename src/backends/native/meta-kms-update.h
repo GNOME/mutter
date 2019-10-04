@@ -27,6 +27,7 @@
 
 #include "backends/meta-monitor-transform.h"
 #include "backends/native/meta-kms-types.h"
+#include "meta/boxes.h"
 
 struct _MetaKmsPageFlipFeedback
 {
@@ -87,6 +88,17 @@ static inline int16_t
 meta_fixed_16_to_int (MetaFixed16 fixed)
 {
   return fixed / 65536;
+}
+
+static inline MetaRectangle
+meta_fixed_16_rectangle_to_rectangle (MetaFixed16Rectangle fixed_rect)
+{
+  return (MetaRectangle) {
+    .x = meta_fixed_16_to_int (fixed_rect.x),
+    .y = meta_fixed_16_to_int (fixed_rect.y),
+    .width = meta_fixed_16_to_int (fixed_rect.width),
+    .height = meta_fixed_16_to_int (fixed_rect.height),
+  };
 }
 
 #endif /* META_KMS_UPDATE_H */
