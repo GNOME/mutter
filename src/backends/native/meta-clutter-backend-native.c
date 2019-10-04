@@ -44,7 +44,6 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-renderer.h"
-#include "backends/native/meta-device-manager-native.h"
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-stage-native.h"
 #include "clutter/clutter.h"
@@ -57,7 +56,6 @@ struct _MetaClutterBackendNative
 
   MetaSeatNative *main_seat;
   MetaStageNative *stage_native;
-  MetaDeviceManagerNative *device_manager;
 };
 
 static gchar *evdev_seat_id;
@@ -101,14 +99,6 @@ meta_clutter_backend_native_create_stage (ClutterBackend  *backend,
   return CLUTTER_STAGE_WINDOW (clutter_backend_native->stage_native);
 }
 
-static ClutterDeviceManager *
-meta_clutter_backend_native_get_device_manager (ClutterBackend *backend)
-{
-  MetaClutterBackendNative *backend_native = META_CLUTTER_BACKEND_NATIVE (backend);
-
-  return CLUTTER_DEVICE_MANAGER (backend_native->device_manager);
-}
-
 static void
 meta_clutter_backend_native_init_events (ClutterBackend *backend)
 {
@@ -119,8 +109,6 @@ meta_clutter_backend_native_init_events (ClutterBackend *backend)
                                             "backend", backend,
                                             "seat-id", seat_id,
                                             NULL);
-  backend_native->device_manager =
-    meta_device_manager_native_new (backend, backend_native->main_seat);
 }
 
 static ClutterSeat *
@@ -143,7 +131,6 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
 
   clutter_backend_class->get_renderer = meta_clutter_backend_native_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;
-  clutter_backend_class->get_device_manager = meta_clutter_backend_native_get_device_manager;
   clutter_backend_class->init_events = meta_clutter_backend_native_init_events;
   clutter_backend_class->get_default_seat = meta_clutter_backend_native_get_default_seat;
 }
