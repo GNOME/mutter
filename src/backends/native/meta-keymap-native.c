@@ -53,12 +53,11 @@ meta_keymap_native_finalize (GObject *object)
 static gboolean
 meta_keymap_native_get_num_lock_state (ClutterKeymap *keymap)
 {
-  MetaDeviceManagerNative *device_manager;
   struct xkb_state *xkb_state;
+  ClutterSeat *seat;
 
-  device_manager =
-    META_DEVICE_MANAGER_NATIVE (clutter_device_manager_get_default ());
-  xkb_state = meta_device_manager_native_get_xkb_state (device_manager);
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  xkb_state = meta_seat_native_get_xkb_state (META_SEAT_NATIVE (seat));
 
   return xkb_state_mod_name_is_active (xkb_state,
                                        XKB_MOD_NAME_NUM,
@@ -69,12 +68,11 @@ meta_keymap_native_get_num_lock_state (ClutterKeymap *keymap)
 static gboolean
 meta_keymap_native_get_caps_lock_state (ClutterKeymap *keymap)
 {
-  MetaDeviceManagerNative *device_manager;
   struct xkb_state *xkb_state;
+  ClutterSeat *seat;
 
-  device_manager =
-    META_DEVICE_MANAGER_NATIVE (clutter_device_manager_get_default ());
-  xkb_state = meta_device_manager_native_get_xkb_state (device_manager);
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  xkb_state = meta_seat_native_get_xkb_state (META_SEAT_NATIVE (seat));
 
   return xkb_state_mod_name_is_active (xkb_state,
                                        XKB_MOD_NAME_CAPS,

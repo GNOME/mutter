@@ -284,7 +284,7 @@ meta_wayland_tablet_seat_new (MetaWaylandTabletManager *manager,
   devices = clutter_seat_list_devices (tablet_seat->clutter_seat);
 
   for (l = devices; l; l = l->next)
-    meta_wayland_tablet_seat_device_added (tablet_seat, l->data);
+    meta_wayland_tablet_seat_device_added (tablet_seat, l->data, NULL);
 
   g_list_free (devices);
 
