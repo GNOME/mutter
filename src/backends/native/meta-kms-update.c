@@ -235,6 +235,23 @@ meta_kms_plane_assignment_set_plane_property (MetaKmsPlaneAssignment *plane_assi
     g_list_prepend (plane_assignment->plane_properties, plane_prop);
 }
 
+MetaKmsPlaneAssignment *
+meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,
+                                              MetaKmsCrtc   *crtc)
+{
+  GList *l;
+
+  for (l = meta_kms_update_get_plane_assignments (update); l; l = l->next)
+    {
+      MetaKmsPlaneAssignment *plane_assignment = l->data;
+
+      if (plane_assignment->crtc == crtc)
+        return plane_assignment;
+    }
+
+  return NULL;
+}
+
 GList *
 meta_kms_update_get_plane_assignments (MetaKmsUpdate *update)
 {
