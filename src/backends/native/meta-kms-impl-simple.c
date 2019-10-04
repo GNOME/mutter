@@ -134,24 +134,6 @@ process_plane_property (MetaKmsImpl      *impl,
   return TRUE;
 }
 
-static MetaKmsPlaneAssignment *
-get_primary_plane_assignment (MetaKmsImpl   *impl,
-                              MetaKmsUpdate *update,
-                              MetaKmsCrtc   *crtc)
-{
-  GList *l;
-
-  for (l = meta_kms_update_get_plane_assignments (update); l; l = l->next)
-    {
-      MetaKmsPlaneAssignment *plane_assignment = l->data;
-
-      if (plane_assignment->crtc == crtc)
-        return plane_assignment;
-    }
-
-  return NULL;
-}
-
 static CachedModeSet *
 cached_mode_set_new (GList                 *connectors,
                      const drmModeModeInfo *drm_mode)
@@ -222,7 +204,8 @@ process_mode_set (MetaKmsImpl     *impl,
                                 &connectors,
                                 &n_connectors);
 
-      plane_assignment = get_primary_plane_assignment (impl, update, crtc);
+      plane_assignment = meta_kms_update_get_primary_plane_assignment (update,
+                                                                       crtc);
       if (!plane_assignment)
         {
           g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -632,7 +615,8 @@ process_page_flip (MetaKmsImpl      *impl,
   int ret;
 
   crtc = page_flip->crtc;
-  plane_assignment = get_primary_plane_assignment (impl, update, crtc);
+  plane_assignment = meta_kms_update_get_primary_plane_assignment (update,
+                                                                   crtc);
 
   page_flip_data = meta_kms_page_flip_data_new (impl,
                                                 crtc,
