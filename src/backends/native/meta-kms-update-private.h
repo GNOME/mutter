@@ -97,6 +97,9 @@ void meta_kms_plane_assignment_set_plane_property (MetaKmsPlaneAssignment *plane
                                                    uint32_t                prop_id,
                                                    uint64_t                value);
 
+MetaKmsPlaneAssignment * meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,
+                                                                       MetaKmsCrtc   *crtc);
+
 GList * meta_kms_update_get_plane_assignments (MetaKmsUpdate *update);
 
 GList * meta_kms_update_get_mode_sets (MetaKmsUpdate *update);
