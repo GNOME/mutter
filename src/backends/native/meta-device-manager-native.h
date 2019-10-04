@@ -54,24 +54,4 @@ GType meta_device_manager_native_get_type (void) G_GNUC_CONST;
 MetaDeviceManagerNative * meta_device_manager_native_new (ClutterBackend *backend,
                                                           MetaSeatNative *seat);
 
-struct xkb_state * meta_device_manager_native_get_xkb_state (MetaDeviceManagerNative *manager_evdev);
-
-void               meta_device_manager_native_set_keyboard_map   (ClutterDeviceManager *evdev,
-                                                                  struct xkb_keymap    *keymap);
-
-struct xkb_keymap * meta_device_manager_native_get_keyboard_map (ClutterDeviceManager *evdev);
-
-void meta_device_manager_native_set_keyboard_layout_index (ClutterDeviceManager *evdev,
-                                                           xkb_layout_index_t    idx);
-
-xkb_layout_index_t meta_device_manager_native_get_keyboard_layout_index (ClutterDeviceManager *evdev);
-
-void meta_device_manager_native_set_keyboard_numlock (ClutterDeviceManager *evdev,
-                                                      gboolean              numlock_state);
-
-void meta_device_manager_native_set_keyboard_repeat (ClutterDeviceManager *evdev,
-                                                     gboolean              repeat,
-                                                     uint32_t              delay,
-                                                     uint32_t              interval);
-
 #endif /* META_DEVICE_MANAGER_NATIVE_H */
