@@ -44,7 +44,6 @@ struct _MetaWaylandTouch
   GHashTable *touch_surfaces; /* HT of MetaWaylandSurface->MetaWaylandTouchSurface */
   GHashTable *touches; /* HT of sequence->MetaWaylandTouchInfo */
 
-  ClutterInputDevice *device;
   guint64 frame_slots;
 };
 
