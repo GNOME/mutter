@@ -273,10 +273,7 @@ meta_display_handle_event (MetaDisplay        *display,
   source = clutter_event_get_source_device (event);
 
   if (source)
-    {
-      meta_backend_update_last_device (backend,
-                                       clutter_input_device_get_device_id (source));
-    }
+    meta_backend_update_last_device (backend, source);
 
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor () && event->type == CLUTTER_MOTION)
