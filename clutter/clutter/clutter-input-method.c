@@ -452,8 +452,8 @@ clutter_input_method_forward_key (ClutterInputMethod *im,
                                   gboolean            press)
 {
   ClutterInputMethodPrivate *priv;
-  ClutterDeviceManager *device_manager;
   ClutterInputDevice *keyboard;
+  ClutterSeat *seat;
   ClutterStage *stage;
   ClutterEvent *event;
 
@@ -463,9 +463,8 @@ clutter_input_method_forward_key (ClutterInputMethod *im,
   if (!priv->focus)
     return;
 
-  device_manager = clutter_device_manager_get_default ();
-  keyboard = clutter_device_manager_get_core_device (device_manager,
-                                                     CLUTTER_KEYBOARD_DEVICE);
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  keyboard = clutter_seat_get_keyboard (seat);
   stage = _clutter_input_device_get_stage (keyboard);
   if (stage == NULL)
     return;

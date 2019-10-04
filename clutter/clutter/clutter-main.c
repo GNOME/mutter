@@ -1834,13 +1834,10 @@ _clutter_process_event_details (ClutterActor        *stage,
           {
             if (_clutter_is_input_pointer_a11y_enabled (device))
               {
-                ClutterInputDevice *core_pointer;
                 gfloat x, y;
 
                 clutter_event_get_coords (event, &x, &y);
-                core_pointer = clutter_device_manager_get_core_device (device->device_manager,
-                                                                       CLUTTER_POINTER_DEVICE);
-                _clutter_input_pointer_a11y_on_motion_event (core_pointer, x, y);
+                _clutter_input_pointer_a11y_on_motion_event (device, x, y);
               }
           }
 #endif /* CLUTTER_WINDOWING_X11 */
@@ -1879,12 +1876,7 @@ _clutter_process_event_details (ClutterActor        *stage,
           {
             if (_clutter_is_input_pointer_a11y_enabled (device) && (event->type != CLUTTER_MOTION))
               {
-                ClutterInputDevice *core_pointer;
-
-                core_pointer = clutter_device_manager_get_core_device (device->device_manager,
-                                                                       CLUTTER_POINTER_DEVICE);
-
-                _clutter_input_pointer_a11y_on_button_event (core_pointer,
+                _clutter_input_pointer_a11y_on_button_event (device,
                                                              event->button.button,
                                                              event->type == CLUTTER_BUTTON_PRESS);
               }
