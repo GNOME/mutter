@@ -31,7 +31,7 @@ struct _MetaWaylandTabletSeat
 {
   MetaWaylandTabletManager *manager;
   MetaWaylandSeat *seat;
-  ClutterDeviceManager *device_manager;
+  ClutterSeat *clutter_seat;
   struct wl_list resource_list;
 
   GHashTable *tablets;

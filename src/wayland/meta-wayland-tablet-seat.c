@@ -260,12 +260,12 @@ meta_wayland_tablet_seat_new (MetaWaylandTabletManager *manager,
                               MetaWaylandSeat          *seat)
 {
   MetaWaylandTabletSeat *tablet_seat;
-  const GSList *devices, *l;
+  GList *devices, *l;
 
   tablet_seat = g_slice_new0 (MetaWaylandTabletSeat);
   tablet_seat->manager = manager;
   tablet_seat->seat = seat;
-  tablet_seat->device_manager = clutter_device_manager_get_default ();
+  tablet_seat->clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
   tablet_seat->tablets = g_hash_table_new_full (NULL, NULL, NULL,
                                                 (GDestroyNotify) meta_wayland_tablet_free);
   tablet_seat->tools = g_hash_table_new_full (NULL, NULL, NULL,
@@ -274,17 +274,19 @@ meta_wayland_tablet_seat_new (MetaWaylandTabletManager *manager,
                                              (GDestroyNotify) meta_wayland_tablet_pad_free);
   wl_list_init (&tablet_seat->resource_list);
 
-  g_signal_connect_swapped (tablet_seat->device_manager, "device-added",
+  g_signal_connect_swapped (tablet_seat->clutter_seat, "device-added",
                             G_CALLBACK (meta_wayland_tablet_seat_device_added),
                             tablet_seat);
-  g_signal_connect_swapped (tablet_seat->device_manager, "device-removed",
+  g_signal_connect_swapped (tablet_seat->clutter_seat, "device-removed",
                             G_CALLBACK (meta_wayland_tablet_seat_device_removed),
                             tablet_seat);
 
-  devices = clutter_device_manager_peek_devices (tablet_seat->device_manager);
+  devices = clutter_seat_list_devices (tablet_seat->clutter_seat);
 
   for (l = devices; l; l = l->next)
     meta_wayland_tablet_seat_device_added (tablet_seat, l->data);
+
+  g_list_free (devices);
 
   return tablet_seat;
 }
@@ -300,7 +302,7 @@ meta_wayland_tablet_seat_free (MetaWaylandTabletSeat *tablet_seat)
       wl_list_init (wl_resource_get_link (resource));
     }
 
-  g_signal_handlers_disconnect_by_data (tablet_seat->device_manager,
+  g_signal_handlers_disconnect_by_data (tablet_seat->clutter_seat,
                                         tablet_seat);
   g_hash_table_destroy (tablet_seat->tablets);
   g_hash_table_destroy (tablet_seat->tools);
@@ -476,12 +478,12 @@ static GList *
 lookup_grouped_devices (ClutterInputDevice     *device,
                         ClutterInputDeviceType  type)
 {
-  ClutterDeviceManager *device_manager;
-  const GSList *devices, *l;
+  ClutterSeat *clutter_seat;
+  GList *devices, *l;
   GList *group = NULL;
 
-  device_manager = clutter_device_manager_get_default ();
-  devices = clutter_device_manager_peek_devices (device_manager);
+  clutter_seat = clutter_input_device_get_seat (device);
+  devices = clutter_seat_list_devices (clutter_seat);
 
   for (l = devices; l; l = l->next)
     {
@@ -495,6 +497,8 @@ lookup_grouped_devices (ClutterInputDevice     *device,
 
       group = g_list_prepend (group, l->data);
     }
+
+  g_list_free (devices);
 
   return group;
 }
