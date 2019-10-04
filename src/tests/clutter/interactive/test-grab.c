@@ -192,9 +192,9 @@ cyan_press_cb (ClutterActor    *actor,
                ClutterEvent    *event,
                gpointer         data)
 {
-  ClutterDeviceManager *dm = clutter_device_manager_get_default ();
-  ClutterInputDevice *device =
-    clutter_device_manager_get_core_device (dm, CLUTTER_KEYBOARD_DEVICE);
+  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
+  ClutterInputDevice *device = clutter_seat_get_pointer (seat);
 
   if (clutter_input_device_get_grabbed_actor (device) != NULL)
     clutter_input_device_ungrab (device);

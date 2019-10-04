@@ -152,9 +152,9 @@ stage_motion_event_cb (ClutterActor   *actor,
 }
 
 static void
-manager_device_added_cb (ClutterDeviceManager *manager,
-                         ClutterInputDevice   *device,
-                         TestDevicesApp       *app)
+seat_device_added_cb (ClutterSeat        *seat,
+                      ClutterInputDevice *device,
+                      TestDevicesApp     *app)
 {
   ClutterInputDeviceType device_type;
   ClutterActor *hand = NULL;
@@ -185,9 +185,9 @@ manager_device_added_cb (ClutterDeviceManager *manager,
 }
 
 static void
-manager_device_removed_cb (ClutterDeviceManager *manager,
-                           ClutterInputDevice   *device,
-                           TestDevicesApp       *app)
+seat_device_removed_cb (ClutterSeat        *seat,
+                        ClutterInputDevice *device,
+                        TestDevicesApp     *app)
 {
   ClutterInputDeviceType device_type;
   ClutterActor *hand = NULL;
@@ -215,8 +215,8 @@ test_devices_main (int argc, char **argv)
 {
   ClutterActor *stage;
   TestDevicesApp *app;
-  ClutterDeviceManager *manager;
-  const GSList *stage_devices, *l;
+  ClutterSeat *seat;
+  GList *stage_devices, *l;
 
   if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
     return 1;
@@ -241,15 +241,15 @@ test_devices_main (int argc, char **argv)
 
   clutter_actor_show_all (stage);
 
-  manager = clutter_device_manager_get_default ();
-  g_signal_connect (manager,
-                    "device-added", G_CALLBACK (manager_device_added_cb),
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_signal_connect (seat,
+                    "device-added", G_CALLBACK (seat_device_added_cb),
                     app);
-  g_signal_connect (manager,
-                    "device-removed", G_CALLBACK (manager_device_removed_cb),
+  g_signal_connect (seat,
+                    "device-removed", G_CALLBACK (seat_device_removed_cb),
                     app);
 
-  stage_devices = clutter_device_manager_peek_devices (manager);
+  stage_devices = clutter_seat_list_devices (seat);
 
   if (stage_devices == NULL)
     g_error ("No input devices found.");
@@ -284,6 +284,8 @@ test_devices_main (int argc, char **argv)
           clutter_container_add_actor (CLUTTER_CONTAINER (stage), hand);
         }
     }
+
+  g_list_free (stage_devices);
 
   clutter_main ();
 
