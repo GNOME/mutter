@@ -30,4 +30,7 @@ MetaKmsCrtc * meta_kms_crtc_new (MetaKmsImplDevice *impl_device,
 
 void meta_kms_crtc_update_state (MetaKmsCrtc *crtc);
 
+void meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
+                                  MetaKmsUpdate *update);
+
 #endif /* META_KMS_CRTC_PRIVATE_H */

@@ -319,8 +319,7 @@ init_planes (MetaKmsImplDevice *impl_device)
 }
 
 void
-meta_kms_impl_device_update_states (MetaKmsImplDevice        *impl_device,
-                                    MetaKmsUpdateStatesFlags  flags)
+meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
 {
   drmModeRes *drm_resources;
 
@@ -328,14 +327,23 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice        *impl_device,
 
   drm_resources = drmModeGetResources (impl_device->fd);
 
-  if (flags & META_KMS_UPDATE_STATES_FLAG_HOTPLUG)
-    update_connectors (impl_device, drm_resources);
+  update_connectors (impl_device, drm_resources);
 
   g_list_foreach (impl_device->crtcs, (GFunc) meta_kms_crtc_update_state,
                   NULL);
   g_list_foreach (impl_device->connectors, (GFunc) meta_kms_connector_update_state,
                   drm_resources);
   drmModeFreeResources (drm_resources);
+}
+
+void
+meta_kms_impl_device_predict_states (MetaKmsImplDevice *impl_device,
+                                     MetaKmsUpdate     *update)
+{
+  g_list_foreach (impl_device->crtcs, (GFunc) meta_kms_crtc_predict_state,
+                  update);
+  g_list_foreach (impl_device->connectors, (GFunc) meta_kms_connector_predict_state,
+                  update);
 }
 
 MetaKmsImplDevice *
