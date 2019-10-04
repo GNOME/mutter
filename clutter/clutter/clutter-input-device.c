@@ -37,12 +37,12 @@
 
 #include "clutter-actor-private.h"
 #include "clutter-debug.h"
-#include "clutter-device-manager-private.h"
 #include "clutter-enum-types.h"
 #include "clutter-event-private.h"
 #include "clutter-marshal.h"
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
+#include "clutter-input-device-private.h"
 #include "clutter-input-device-tool.h"
 
 #include <math.h>
@@ -57,7 +57,6 @@ enum
   PROP_NAME,
 
   PROP_DEVICE_TYPE,
-  PROP_DEVICE_MANAGER,
   PROP_SEAT,
   PROP_DEVICE_MODE,
 
@@ -171,10 +170,6 @@ clutter_input_device_set_property (GObject      *gobject,
       self->device_type = g_value_get_enum (value);
       break;
 
-    case PROP_DEVICE_MANAGER:
-      self->device_manager = g_value_get_object (value);
-      break;
-
     case PROP_SEAT:
       self->seat = g_value_get_object (value);
       break;
@@ -249,10 +244,6 @@ clutter_input_device_get_property (GObject    *gobject,
 
     case PROP_DEVICE_TYPE:
       g_value_set_enum (value, self->device_type);
-      break;
-
-    case PROP_DEVICE_MANAGER:
-      g_value_set_object (value, self->device_manager);
       break;
 
     case PROP_SEAT:
@@ -368,20 +359,6 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
                        CLUTTER_POINTER_DEVICE,
                        CLUTTER_PARAM_READWRITE |
                        G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterInputDevice:device-manager:
-   *
-   * The #ClutterDeviceManager instance which owns the device
-   *
-   * Since: 1.6
-   */
-  obj_props[PROP_DEVICE_MANAGER] =
-    g_param_spec_object ("device-manager",
-                         P_("Device Manager"),
-                         P_("The device manager instance"),
-                         CLUTTER_TYPE_DEVICE_MANAGER,
-                         CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
   /**
    * ClutterInputDevice:seat:

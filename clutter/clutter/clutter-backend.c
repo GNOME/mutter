@@ -51,7 +51,6 @@
 #include "clutter-stage-manager-private.h"
 #include "clutter-stage-private.h"
 #include "clutter-stage-window.h"
-#include "clutter-device-manager-private.h"
 
 #ifdef CLUTTER_HAS_WAYLAND_COMPOSITOR_SUPPORT
 #include "wayland/clutter-wayland-compositor.h"
@@ -528,18 +527,6 @@ clutter_backend_real_init_events (ClutterBackend *backend)
   g_error ("Unknown input backend");
 }
 
-static ClutterDeviceManager *
-clutter_backend_real_get_device_manager (ClutterBackend *backend)
-{
-  if (G_UNLIKELY (backend->device_manager == NULL))
-    {
-      g_critical ("No device manager available, expect broken input");
-      return NULL;
-    }
-
-  return backend->device_manager;
-}
-
 static void
 clutter_backend_class_init (ClutterBackendClass *klass)
 {
@@ -603,7 +590,6 @@ clutter_backend_class_init (ClutterBackendClass *klass)
   klass->font_changed = clutter_backend_real_font_changed;
 
   klass->init_events = clutter_backend_real_init_events;
-  klass->get_device_manager = clutter_backend_real_get_device_manager;
   klass->create_context = clutter_backend_real_create_context;
   klass->get_features = clutter_backend_real_get_features;
 }

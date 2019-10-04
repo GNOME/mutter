@@ -29,7 +29,6 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-renderer.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
-#include "backends/x11/meta-device-manager-x11.h"
 #include "backends/x11/meta-keymap-x11.h"
 #include "backends/x11/meta-seat-x11.h"
 #include "backends/x11/meta-xkb-a11y-x11.h"
@@ -42,7 +41,6 @@
 struct _MetaClutterBackendX11
 {
   ClutterBackendX11 parent;
-  MetaDeviceManagerX11 *device_manager;
   MetaSeatX11 *core_seat;
 };
 
@@ -77,14 +75,6 @@ meta_clutter_backend_x11_create_stage (ClutterBackend  *backend,
 			"wrapper", wrapper,
 			NULL);
   return stage;
-}
-
-static ClutterDeviceManager *
-meta_clutter_backend_x11_get_device_manager (ClutterBackend *backend)
-{
-  MetaClutterBackendX11 *backend_x11 = META_CLUTTER_BACKEND_X11 (backend);
-
-  return CLUTTER_DEVICE_MANAGER (backend_x11->device_manager);
 }
 
 static gboolean
@@ -133,13 +123,6 @@ meta_clutter_backend_x11_init_events (ClutterBackend *backend)
             meta_seat_x11_new (event_base,
                                META_VIRTUAL_CORE_POINTER_ID,
                                META_VIRTUAL_CORE_KEYBOARD_ID);
-
-          g_debug ("Creating XI2 device manager");
-          backend_x11->device_manager =
-            g_object_new (META_TYPE_DEVICE_MANAGER_X11,
-                          "backend", backend_x11,
-                          "seat", backend_x11->core_seat,
-                          NULL);
         }
     }
 
@@ -167,7 +150,6 @@ meta_clutter_backend_x11_class_init (MetaClutterBackendX11Class *klass)
 
   clutter_backend_class->get_renderer = meta_clutter_backend_x11_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_x11_create_stage;
-  clutter_backend_class->get_device_manager = meta_clutter_backend_x11_get_device_manager;
   clutter_backend_class->translate_event = meta_clutter_backend_x11_translate_event;
   clutter_backend_class->init_events = meta_clutter_backend_x11_init_events;
   clutter_backend_class->get_default_seat = meta_clutter_backend_x11_get_default_seat;
