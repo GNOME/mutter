@@ -32,7 +32,6 @@
 #ifdef HAVE_NATIVE_BACKEND
 #include <libinput.h>
 #include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-device-manager-native.h"
 #include "backends/native/meta-event-native.h"
 #include "backends/native/meta-seat-native.h"
 #endif
@@ -554,8 +553,6 @@ evdev_filter_func (struct libinput_event *event,
 void
 meta_wayland_touch_enable (MetaWaylandTouch *touch)
 {
-  ClutterDeviceManager *manager;
-
 #ifdef HAVE_NATIVE_BACKEND
   touch->touch_surfaces = g_hash_table_new_full (NULL, NULL, NULL,
                                                  (GDestroyNotify) touch_surface_free);
@@ -564,9 +561,6 @@ meta_wayland_touch_enable (MetaWaylandTouch *touch)
 #endif /* HAVE_NATIVE_BACKEND */
 
   wl_list_init (&touch->resource_list);
-
-  manager = clutter_device_manager_get_default ();
-  touch->device = clutter_device_manager_get_core_device (manager, CLUTTER_TOUCHSCREEN_DEVICE);
 
 #ifdef HAVE_NATIVE_BACKEND
   MetaBackend *backend = meta_get_backend ();

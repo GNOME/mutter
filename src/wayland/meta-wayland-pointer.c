@@ -499,7 +499,7 @@ meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
-  ClutterDeviceManager *manager;
+  ClutterSeat *clutter_seat;
 
   pointer->pointer_clients =
     g_hash_table_new_full (NULL, NULL, NULL,
@@ -507,8 +507,8 @@ meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
 
   pointer->cursor_surface = NULL;
 
-  manager = clutter_device_manager_get_default ();
-  pointer->device = clutter_device_manager_get_core_device (manager, CLUTTER_POINTER_DEVICE);
+  clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  pointer->device = clutter_seat_get_pointer (clutter_seat);
 
   g_signal_connect (cursor_tracker,
                     "cursor-changed",
