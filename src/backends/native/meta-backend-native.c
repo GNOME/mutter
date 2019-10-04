@@ -441,10 +441,10 @@ meta_backend_native_set_keymap (MetaBackend *backend,
                                 const char  *variants,
                                 const char  *options)
 {
-  ClutterDeviceManager *manager = clutter_device_manager_get_default ();
   struct xkb_rule_names names;
   struct xkb_keymap *keymap;
   struct xkb_context *context;
+  ClutterSeat *seat;
 
   names.rules = DEFAULT_XKB_RULES_FILE;
   names.model = DEFAULT_XKB_MODEL;
@@ -456,7 +456,8 @@ meta_backend_native_set_keymap (MetaBackend *backend,
   keymap = xkb_keymap_new_from_names (context, &names, XKB_KEYMAP_COMPILE_NO_FLAGS);
   xkb_context_unref (context);
 
-  meta_device_manager_native_set_keyboard_map (manager, keymap);
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  meta_seat_native_set_keyboard_map (META_SEAT_NATIVE (seat), keymap);
 
   meta_backend_notify_keymap_changed (backend);
 
@@ -466,30 +467,34 @@ meta_backend_native_set_keymap (MetaBackend *backend,
 static struct xkb_keymap *
 meta_backend_native_get_keymap (MetaBackend *backend)
 {
-  ClutterDeviceManager *manager = clutter_device_manager_get_default ();
-  return meta_device_manager_native_get_keyboard_map (manager);
+  ClutterSeat *seat;
+
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  return meta_seat_native_get_keyboard_map (META_SEAT_NATIVE (seat));
 }
 
 static xkb_layout_index_t
 meta_backend_native_get_keymap_layout_group (MetaBackend *backend)
 {
-  ClutterDeviceManager *manager = clutter_device_manager_get_default ();
+  ClutterSeat *seat;
 
-  return meta_device_manager_native_get_keyboard_layout_index (manager);
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  return meta_seat_native_get_keyboard_layout_index (META_SEAT_NATIVE (seat));
 }
 
 static void
 meta_backend_native_lock_layout_group (MetaBackend *backend,
                                        guint        idx)
 {
-  ClutterDeviceManager *manager = clutter_device_manager_get_default ();
   xkb_layout_index_t old_idx;
+  ClutterSeat *seat;
 
   old_idx = meta_backend_native_get_keymap_layout_group (backend);
   if (old_idx == idx)
     return;
 
-  meta_device_manager_native_set_keyboard_layout_index (manager, idx);
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  meta_seat_native_set_keyboard_layout_index (META_SEAT_NATIVE (seat), idx);
   meta_backend_notify_keymap_layout_group_changed (backend, idx);
 }
 
@@ -497,8 +502,11 @@ static void
 meta_backend_native_set_numlock (MetaBackend *backend,
                                  gboolean     numlock_state)
 {
-  ClutterDeviceManager *manager = clutter_device_manager_get_default ();
-  meta_device_manager_native_set_keyboard_numlock (manager, numlock_state);
+  ClutterSeat *seat;
+
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  meta_seat_native_set_keyboard_numlock (META_SEAT_NATIVE (seat),
+                                         numlock_state);
 }
 
 static gboolean
