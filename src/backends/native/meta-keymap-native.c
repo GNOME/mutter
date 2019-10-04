@@ -21,8 +21,8 @@
 
 #include "config.h"
 
-#include "backends/native/meta-device-manager-native.h"
 #include "backends/native/meta-keymap-native.h"
+#include "backends/native/meta-seat-native.h"
 
 static const char *option_xkb_layout = "us";
 static const char *option_xkb_variant = "";
