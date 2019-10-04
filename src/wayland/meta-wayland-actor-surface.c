@@ -339,7 +339,7 @@ meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface)
   priv->actor_destroyed_handler_id =
     g_signal_connect (priv->actor, "destroy",
                       G_CALLBACK (on_actor_destroyed),
-                      surface);
+                      actor_surface);
 
   g_signal_connect_swapped (priv->actor, "notify::allocation",
                             G_CALLBACK (meta_wayland_surface_notify_geometry_changed),
