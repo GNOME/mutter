@@ -8117,12 +8117,12 @@ mouse_mode_focus (MetaWindow  *window,
 static gboolean
 window_has_pointer_wayland (MetaWindow *window)
 {
-  ClutterDeviceManager *dm;
+  ClutterSeat *seat;
   ClutterInputDevice *dev;
   ClutterActor *pointer_actor, *window_actor;
 
-  dm = clutter_device_manager_get_default ();
-  dev = clutter_device_manager_get_core_device (dm, CLUTTER_POINTER_DEVICE);
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  dev = clutter_seat_get_pointer (seat);
   pointer_actor = clutter_input_device_get_pointer_actor (dev);
   window_actor = CLUTTER_ACTOR (meta_window_get_compositor_private (window));
 
