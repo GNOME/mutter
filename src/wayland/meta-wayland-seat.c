@@ -99,12 +99,12 @@ bind_seat (struct wl_client *client,
 }
 
 static uint32_t
-lookup_device_capabilities (ClutterDeviceManager *device_manager)
+lookup_device_capabilities (ClutterSeat *seat)
 {
-  const GSList *devices, *l;
+  GList *devices, *l;
   uint32_t capabilities = 0;
 
-  devices = clutter_device_manager_peek_devices (device_manager);
+  devices = clutter_seat_list_devices (seat);
 
   for (l = devices; l; l = l->next)
     {
@@ -138,6 +138,8 @@ lookup_device_capabilities (ClutterDeviceManager *device_manager)
           break;
         }
     }
+
+  g_list_free (devices);
 
   return capabilities;
 }
@@ -188,21 +190,21 @@ meta_wayland_seat_set_capabilities (MetaWaylandSeat *seat,
 }
 
 static void
-meta_wayland_seat_update_capabilities (MetaWaylandSeat      *seat,
-                                       ClutterDeviceManager *device_manager)
+meta_wayland_seat_update_capabilities (MetaWaylandSeat *seat,
+				       ClutterSeat     *clutter_seat)
 {
   uint32_t capabilities;
 
-  capabilities = lookup_device_capabilities (device_manager);
+  capabilities = lookup_device_capabilities (clutter_seat);
   meta_wayland_seat_set_capabilities (seat, capabilities);
 }
 
 static void
-meta_wayland_seat_devices_updated (ClutterDeviceManager *device_manager,
-                                   ClutterInputDevice   *input_device,
-                                   MetaWaylandSeat      *seat)
+meta_wayland_seat_devices_updated (ClutterSeat        *clutter_seat,
+                                   ClutterInputDevice *input_device,
+                                   MetaWaylandSeat    *seat)
 {
-  meta_wayland_seat_update_capabilities (seat, device_manager);
+  meta_wayland_seat_update_capabilities (seat, clutter_seat);
 }
 
 static MetaWaylandSeat *
@@ -210,7 +212,7 @@ meta_wayland_seat_new (MetaWaylandCompositor *compositor,
                        struct wl_display     *display)
 {
   MetaWaylandSeat *seat = g_new0 (MetaWaylandSeat, 1);
-  ClutterDeviceManager *device_manager;
+  ClutterSeat *clutter_seat;
 
   wl_list_init (&seat->base_resource_list);
   seat->wl_display = display;
@@ -230,11 +232,11 @@ meta_wayland_seat_new (MetaWaylandCompositor *compositor,
 
   meta_wayland_data_device_init (&seat->data_device);
 
-  device_manager = clutter_device_manager_get_default ();
-  meta_wayland_seat_update_capabilities (seat, device_manager);
-  g_signal_connect (device_manager, "device-added",
+  clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  meta_wayland_seat_update_capabilities (seat, clutter_seat);
+  g_signal_connect (clutter_seat, "device-added",
                     G_CALLBACK (meta_wayland_seat_devices_updated), seat);
-  g_signal_connect (device_manager, "device-removed",
+  g_signal_connect (clutter_seat, "device-removed",
                     G_CALLBACK (meta_wayland_seat_devices_updated), seat);
 
   wl_global_create (display, &wl_seat_interface, META_WL_SEAT_VERSION, seat, bind_seat);
@@ -254,10 +256,10 @@ meta_wayland_seat_init (MetaWaylandCompositor *compositor)
 void
 meta_wayland_seat_free (MetaWaylandSeat *seat)
 {
-  ClutterDeviceManager *device_manager;
+  ClutterSeat *clutter_seat;
 
-  device_manager = clutter_device_manager_get_default ();
-  g_signal_handlers_disconnect_by_data (device_manager, seat);
+  clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_signal_handlers_disconnect_by_data (clutter_seat, seat);
   meta_wayland_seat_set_capabilities (seat, 0);
 
   g_object_unref (seat->pointer);
