@@ -3029,3 +3029,159 @@ meta_seat_native_reclaim_devices (MetaSeatNative *seat)
 
   seat->released = FALSE;
 }
+
+/**
+ * meta_seat_native_set_keyboard_map: (skip)
+ * @seat: the #ClutterSeat created by the evdev backend
+ * @keymap: the new keymap
+ *
+ * Instructs @evdev to use the speficied keyboard map. This will cause
+ * the backend to drop the state and create a new one with the new
+ * map. To avoid state being lost, callers should ensure that no key
+ * is pressed when calling this function.
+ */
+void
+meta_seat_native_set_keyboard_map (MetaSeatNative    *seat,
+                                   struct xkb_keymap *xkb_keymap)
+{
+  ClutterKeymap *keymap;
+
+  g_return_if_fail (META_IS_SEAT_NATIVE (seat));
+
+  keymap = clutter_seat_get_keymap (CLUTTER_SEAT (seat));
+  meta_keymap_native_set_keyboard_map (META_KEYMAP_NATIVE (keymap),
+                                       xkb_keymap);
+
+  meta_seat_native_update_xkb_state (seat);
+}
+
+/**
+ * meta_seat_native_get_keyboard_map: (skip)
+ * @seat: the #ClutterSeat created by the evdev backend
+ *
+ * Retrieves the #xkb_keymap in use by the evdev backend.
+ *
+ * Return value: the #xkb_keymap.
+ */
+struct xkb_keymap *
+meta_seat_native_get_keyboard_map (MetaSeatNative *seat)
+{
+  g_return_val_if_fail (META_IS_SEAT_NATIVE (seat), NULL);
+
+  return xkb_state_get_keymap (seat->xkb);
+}
+
+/**
+ * meta_seat_native_set_keyboard_layout_index: (skip)
+ * @seat: the #ClutterSeat created by the evdev backend
+ * @idx: the xkb layout index to set
+ *
+ * Sets the xkb layout index on the backend's #xkb_state .
+ */
+void
+meta_seat_native_set_keyboard_layout_index (MetaSeatNative     *seat,
+                                            xkb_layout_index_t  idx)
+{
+  xkb_mod_mask_t depressed_mods;
+  xkb_mod_mask_t latched_mods;
+  xkb_mod_mask_t locked_mods;
+  struct xkb_state *state;
+
+  g_return_if_fail (META_IS_SEAT_NATIVE (seat));
+
+  state = seat->xkb;
+
+  depressed_mods = xkb_state_serialize_mods (state, XKB_STATE_MODS_DEPRESSED);
+  latched_mods = xkb_state_serialize_mods (state, XKB_STATE_MODS_LATCHED);
+  locked_mods = xkb_state_serialize_mods (state, XKB_STATE_MODS_LOCKED);
+
+  xkb_state_update_mask (state, depressed_mods, latched_mods, locked_mods, 0, 0, idx);
+
+  seat->layout_idx = idx;
+}
+
+/**
+ * meta_seat_native_get_keyboard_layout_index: (skip)
+ */
+xkb_layout_index_t
+meta_seat_native_get_keyboard_layout_index (MetaSeatNative *seat)
+{
+  return seat->layout_idx;
+}
+
+/**
+ * meta_seat_native_set_keyboard_numlock: (skip)
+ * @seat: the #ClutterSeat created by the evdev backend
+ * @numlock_set: TRUE to set NumLock ON, FALSE otherwise.
+ *
+ * Sets the NumLock state on the backend's #xkb_state .
+ */
+void
+meta_seat_native_set_keyboard_numlock (MetaSeatNative *seat,
+                                       gboolean        numlock_state)
+{
+  xkb_mod_mask_t depressed_mods;
+  xkb_mod_mask_t latched_mods;
+  xkb_mod_mask_t locked_mods;
+  xkb_mod_mask_t group_mods;
+  xkb_mod_mask_t numlock;
+  struct xkb_keymap *xkb_keymap;
+  ClutterKeymap *keymap;
+
+  g_return_if_fail (META_IS_SEAT_NATIVE (seat));
+
+  keymap = clutter_seat_get_keymap (CLUTTER_SEAT (seat));
+  xkb_keymap = meta_keymap_native_get_keyboard_map (META_KEYMAP_NATIVE (keymap));
+
+  numlock = (1 << xkb_keymap_mod_get_index (xkb_keymap, "Mod2"));
+
+  depressed_mods = xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_DEPRESSED);
+  latched_mods = xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_LATCHED);
+  locked_mods = xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_LOCKED);
+  group_mods = xkb_state_serialize_layout (seat->xkb, XKB_STATE_LAYOUT_EFFECTIVE);
+
+  if (numlock_state)
+    locked_mods |= numlock;
+  else
+    locked_mods &= ~numlock;
+
+  xkb_state_update_mask (seat->xkb,
+                         depressed_mods,
+                         latched_mods,
+                         locked_mods,
+                         0, 0,
+                         group_mods);
+
+  meta_seat_native_sync_leds (seat);
+}
+
+/**
+ * meta_seat_native_set_keyboard_repeat:
+ * @seat: the #ClutterSeat created by the evdev backend
+ * @repeat: whether to enable or disable keyboard repeat events
+ * @delay: the delay in ms between the hardware key press event and
+ * the first synthetic event
+ * @interval: the period in ms between consecutive synthetic key
+ * press events
+ *
+ * Enables or disables sythetic key press events, allowing for initial
+ * delay and interval period to be specified.
+ */
+void
+meta_seat_native_set_keyboard_repeat (MetaSeatNative *seat,
+                                      gboolean        repeat,
+                                      uint32_t        delay,
+                                      uint32_t        interval)
+{
+  g_return_if_fail (META_IS_SEAT_NATIVE (seat));
+
+  seat->repeat = repeat;
+  seat->repeat_delay = delay;
+  seat->repeat_interval = interval;
+}
+
+struct xkb_state *
+meta_seat_native_get_xkb_state (MetaSeatNative *seat)
+{
+  return seat->xkb;
+}
