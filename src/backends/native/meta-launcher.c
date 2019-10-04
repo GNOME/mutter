@@ -39,8 +39,8 @@
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-cursor-renderer-native.h"
-#include "backends/native/meta-device-manager-native.h"
 #include "backends/native/meta-renderer-native.h"
+#include "backends/native/meta-seat-native.h"
 #include "clutter/clutter.h"
 
 #include "meta-dbus-login1.h"

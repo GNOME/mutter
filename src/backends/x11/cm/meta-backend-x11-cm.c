@@ -70,9 +70,9 @@ take_touch_grab (MetaBackend *backend)
 }
 
 static void
-on_device_added (ClutterDeviceManager *device_manager,
-                 ClutterInputDevice   *device,
-                 gpointer              user_data)
+on_device_added (ClutterSeat        *seat,
+                 ClutterInputDevice *device,
+                 gpointer            user_data)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (user_data);
 
@@ -85,11 +85,12 @@ meta_backend_x11_cm_post_init (MetaBackend *backend)
 {
   MetaBackendClass *parent_backend_class =
     META_BACKEND_CLASS (meta_backend_x11_cm_parent_class);
+  ClutterSeat *seat;
 
   parent_backend_class->post_init (backend);
 
-  g_signal_connect_object (clutter_device_manager_get_default (),
-                           "device-added",
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_signal_connect_object (seat, "device-added",
                            G_CALLBACK (on_device_added), backend, 0);
 
   take_touch_grab (backend);
