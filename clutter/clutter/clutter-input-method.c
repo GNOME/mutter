@@ -22,10 +22,10 @@
 #include "clutter-build-config.h"
 
 #include "clutter-private.h"
+#include "clutter/clutter-input-device-private.h"
 #include "clutter/clutter-input-method.h"
 #include "clutter/clutter-input-method-private.h"
 #include "clutter/clutter-input-focus-private.h"
-#include "clutter/clutter-device-manager-private.h"
 
 typedef struct _ClutterInputMethodPrivate ClutterInputMethodPrivate;
 

@@ -86,8 +86,6 @@ struct _ClutterBackendX11
 
   Time last_event_time;
 
-  ClutterDeviceManager *device_manager;
-
   XSettingsClient *xsettings;
   Window xsettings_xwin;
 };

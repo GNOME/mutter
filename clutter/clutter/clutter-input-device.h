@@ -28,10 +28,39 @@
 #error "Only <clutter/clutter.h> can be included directly."
 #endif
 
+#include <clutter/clutter-backend.h>
 #include <clutter/clutter-types.h>
 #include <clutter/clutter-seat.h>
 
 G_BEGIN_DECLS
+
+typedef void (*ClutterEmitInputDeviceEvent) (ClutterEvent       *event,
+                                             ClutterInputDevice *device);
+
+struct _ClutterInputDeviceClass
+{
+  GObjectClass parent_class;
+
+  gboolean (* keycode_to_evdev) (ClutterInputDevice *device,
+                                 guint               hardware_keycode,
+                                 guint              *evdev_keycode);
+  void (* update_from_tool) (ClutterInputDevice     *device,
+                             ClutterInputDeviceTool *tool);
+
+  gboolean (* is_mode_switch_button) (ClutterInputDevice *device,
+                                      guint               group,
+                                      guint               button);
+  gint (* get_group_n_modes) (ClutterInputDevice *device,
+                              gint                group);
+
+  gboolean (* is_grouped) (ClutterInputDevice *device,
+                           ClutterInputDevice *other_device);
+
+  /* Keyboard accessbility */
+  void (* process_kbd_a11y_event) (ClutterEvent               *event,
+                                   ClutterInputDevice         *device,
+                                   ClutterEmitInputDeviceEvent emit_event_func);
+};
 
 #define CLUTTER_TYPE_INPUT_DEVICE               (clutter_input_device_get_type ())
 #define CLUTTER_INPUT_DEVICE(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_INPUT_DEVICE, ClutterInputDevice))
