@@ -257,8 +257,8 @@ meta_backend_monitors_changed (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  ClutterDeviceManager *manager = clutter_device_manager_get_default ();
-  ClutterInputDevice *device = clutter_device_manager_get_core_device (manager, CLUTTER_POINTER_DEVICE);
+  ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
+  ClutterInputDevice *device = clutter_seat_get_pointer (seat);
   graphene_point_t point;
 
   meta_backend_sync_screen_size (backend);
@@ -352,9 +352,9 @@ meta_backend_monitor_device (MetaBackend        *backend,
 }
 
 static void
-on_device_added (ClutterDeviceManager *device_manager,
-                 ClutterInputDevice   *device,
-                 gpointer              user_data)
+on_device_added (ClutterSeat        *seat,
+                 ClutterInputDevice *device,
+                 gpointer            user_data)
 {
   MetaBackend *backend = META_BACKEND (user_data);
   int device_id = clutter_input_device_get_device_id (device);
@@ -370,15 +370,16 @@ device_is_slave_touchscreen (ClutterInputDevice *device)
 }
 
 static inline gboolean
-check_has_pointing_device (ClutterDeviceManager *manager)
+check_has_pointing_device (ClutterSeat *seat)
 {
-  const GSList *devices;
+  GList *l, *devices;
+  gboolean found = FALSE;
 
-  devices = clutter_device_manager_peek_devices (manager);
+  devices = clutter_seat_list_devices (seat);
 
-  for (; devices; devices = devices->next)
+  for (l = devices; l; l = l->next)
     {
-      ClutterInputDevice *device = devices->data;
+      ClutterInputDevice *device = l->data;
 
       if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
         continue;
@@ -386,35 +387,44 @@ check_has_pointing_device (ClutterDeviceManager *manager)
           clutter_input_device_get_device_type (device) == CLUTTER_KEYBOARD_DEVICE)
         continue;
 
-      return TRUE;
+      found = TRUE;
+      break;
     }
 
-  return FALSE;
+  g_list_free (devices);
+
+  return found;
 }
 
 static inline gboolean
-check_has_slave_touchscreen (ClutterDeviceManager *manager)
+check_has_slave_touchscreen (ClutterSeat *seat)
 {
-  const GSList *devices;
+  GList *l, *devices;
+  gboolean found = FALSE;
 
-  devices = clutter_device_manager_peek_devices (manager);
+  devices = clutter_seat_list_devices (seat);
 
-  for (; devices; devices = devices->next)
+  for (l = devices; l; l = l->next)
     {
-      ClutterInputDevice *device = devices->data;
+      ClutterInputDevice *device = l->data;
 
       if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_MASTER &&
           clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE)
-        return TRUE;
+        {
+          found = TRUE;
+          break;
+        }
     }
 
-  return FALSE;
+  g_list_free (devices);
+
+  return found;
 }
 
 static void
-on_device_removed (ClutterDeviceManager *device_manager,
-                   ClutterInputDevice   *device,
-                   gpointer              user_data)
+on_device_removed (ClutterSeat        *seat,
+                   ClutterInputDevice *device,
+                   gpointer            user_data)
 {
   MetaBackend *backend = META_BACKEND (user_data);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
@@ -434,7 +444,7 @@ on_device_removed (ClutterDeviceManager *device_manager,
       priv->current_device = NULL;
 
       device_type = clutter_input_device_get_device_type (device);
-      has_touchscreen = check_has_slave_touchscreen (device_manager);
+      has_touchscreen = check_has_slave_touchscreen (seat);
 
       if (device_type == CLUTTER_TOUCHSCREEN_DEVICE && has_touchscreen)
         {
@@ -443,7 +453,7 @@ on_device_removed (ClutterDeviceManager *device_manager,
         }
       else if (device_type != CLUTTER_KEYBOARD_DEVICE)
         {
-          has_pointing_device = check_has_pointing_device (device_manager);
+          has_pointing_device = check_has_pointing_device (seat);
           meta_cursor_tracker_set_pointer_visible (cursor_tracker,
                                                    has_pointing_device &&
                                                    !has_touchscreen);
@@ -452,33 +462,33 @@ on_device_removed (ClutterDeviceManager *device_manager,
 }
 
 static void
-create_device_monitors (MetaBackend          *backend,
-                        ClutterDeviceManager *device_manager)
+create_device_monitors (MetaBackend *backend,
+                        ClutterSeat *seat)
 {
-  const GSList *devices;
-  const GSList *l;
+  GList *l, *devices;
 
   create_device_monitor (backend, META_IDLE_MONITOR_CORE_DEVICE);
 
-  devices = clutter_device_manager_peek_devices (device_manager);
+  devices = clutter_seat_list_devices (seat);
   for (l = devices; l; l = l->next)
     {
       ClutterInputDevice *device = l->data;
 
       meta_backend_monitor_device (backend, device);
     }
+
+  g_list_free (devices);
 }
 
 static void
-set_initial_pointer_visibility (MetaBackend          *backend,
-                                ClutterDeviceManager *device_manager)
+set_initial_pointer_visibility (MetaBackend *backend,
+                                ClutterSeat *seat)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  const GSList *devices;
-  const GSList *l;
+  GList *l, *devices;
   gboolean has_touchscreen = FALSE;
 
-  devices = clutter_device_manager_peek_devices (device_manager);
+  devices = clutter_seat_list_devices (seat);
   for (l = devices; l; l = l->next)
     {
       ClutterInputDevice *device = l->data;
@@ -486,6 +496,7 @@ set_initial_pointer_visibility (MetaBackend          *backend,
       has_touchscreen |= device_is_slave_touchscreen (device);
     }
 
+  g_list_free (devices);
   meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker,
                                            !has_touchscreen);
 }
@@ -500,7 +511,6 @@ static void
 meta_backend_real_post_init (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  ClutterDeviceManager *device_manager = clutter_device_manager_get_default ();
   ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
   ClutterKeymap *keymap = clutter_seat_get_keymap (seat);
 
@@ -518,14 +528,14 @@ meta_backend_real_post_init (MetaBackend *backend)
     g_hash_table_new_full (g_int_hash, g_int_equal,
                            NULL, (GDestroyNotify) g_object_unref);
 
-  create_device_monitors (backend, device_manager);
+  create_device_monitors (backend, seat);
 
-  g_signal_connect_object (device_manager, "device-added",
+  g_signal_connect_object (seat, "device-added",
                            G_CALLBACK (on_device_added), backend, 0);
-  g_signal_connect_object (device_manager, "device-removed",
+  g_signal_connect_object (seat, "device-removed",
                            G_CALLBACK (on_device_removed), backend, 0);
 
-  set_initial_pointer_visibility (backend, device_manager);
+  set_initial_pointer_visibility (backend, seat);
 
   priv->input_settings = meta_backend_create_input_settings (backend);
 

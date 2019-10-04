@@ -26,7 +26,6 @@
 
 #include "backends/native/meta-input-device-tool-native.h"
 #include "backends/native/meta-input-device-native.h"
-#include "backends/native/meta-device-manager-native.h"
 #include "backends/native/meta-seat-native.h"
 #include "clutter/clutter-mutter.h"
 
