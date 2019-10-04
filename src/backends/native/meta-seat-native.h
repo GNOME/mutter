@@ -300,4 +300,24 @@ void meta_seat_native_warp_pointer (ClutterInputDevice   *pointer_device,
                                     int                   x,
                                     int                   y);
 
+struct xkb_state * meta_seat_native_get_xkb_state (MetaSeatNative *seat);
+
+void               meta_seat_native_set_keyboard_map   (MetaSeatNative    *seat,
+                                                        struct xkb_keymap *keymap);
+
+struct xkb_keymap * meta_seat_native_get_keyboard_map (MetaSeatNative *seat);
+
+void meta_seat_native_set_keyboard_layout_index (MetaSeatNative     *seat,
+                                                 xkb_layout_index_t  idx);
+
+xkb_layout_index_t meta_seat_native_get_keyboard_layout_index (MetaSeatNative *seat);
+
+void meta_seat_native_set_keyboard_numlock (MetaSeatNative *seat,
+                                            gboolean        numlock_state);
+
+void meta_seat_native_set_keyboard_repeat (MetaSeatNative *seat,
+                                           gboolean        repeat,
+                                           uint32_t        delay,
+                                           uint32_t        interval);
+
 #endif /* META_SEAT_NATIVE_H */
