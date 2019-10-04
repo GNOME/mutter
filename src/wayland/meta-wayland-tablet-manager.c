@@ -131,11 +131,6 @@ meta_wayland_tablet_manager_init (MetaWaylandCompositor *compositor)
 void
 meta_wayland_tablet_manager_free (MetaWaylandTabletManager *tablet_manager)
 {
-  ClutterDeviceManager *device_manager;
-
-  device_manager = clutter_device_manager_get_default ();
-  g_signal_handlers_disconnect_by_data (device_manager, tablet_manager);
-
   g_hash_table_destroy (tablet_manager->seats);
   g_slice_free (MetaWaylandTabletManager, tablet_manager);
 }
