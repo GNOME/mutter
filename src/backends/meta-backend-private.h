@@ -167,8 +167,8 @@ void meta_backend_freeze_updates (MetaBackend *backend);
 
 void meta_backend_thaw_updates (MetaBackend *backend);
 
-void meta_backend_update_last_device (MetaBackend *backend,
-                                      int          device_id);
+void meta_backend_update_last_device (MetaBackend        *backend,
+                                      ClutterInputDevice *device);
 
 gboolean meta_backend_get_relative_motion_deltas (MetaBackend *backend,
                                                   const        ClutterEvent *event,

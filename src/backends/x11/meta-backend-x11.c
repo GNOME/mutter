@@ -46,6 +46,7 @@
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
+#include "backends/x11/meta-seat-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
 #include "clutter/clutter.h"
@@ -242,6 +243,9 @@ handle_device_change (MetaBackendX11 *x11,
                       XIEvent        *event)
 {
   XIDeviceChangedEvent *device_changed;
+  ClutterInputDevice *device;
+  ClutterBackend *backend;
+  ClutterSeat *seat;
 
   if (event->evtype != XI_DeviceChanged)
     return;
@@ -251,8 +255,11 @@ handle_device_change (MetaBackendX11 *x11,
   if (device_changed->reason != XISlaveSwitch)
     return;
 
-  meta_backend_update_last_device (META_BACKEND (x11),
-                                   device_changed->sourceid);
+  backend = meta_backend_get_clutter_backend (META_BACKEND (x11));
+  seat = clutter_backend_get_default_seat (backend);
+  device = meta_seat_x11_lookup_device_id (META_SEAT_X11 (seat),
+                                           device_changed->sourceid);
+  meta_backend_update_last_device (META_BACKEND (x11), device);
 }
 
 /* Clutter makes the assumption that there is only one X window

@@ -148,7 +148,7 @@ struct _MetaBackendPrivate
 
   GHashTable *device_monitors;
 
-  int current_device_id;
+  ClutterInputDevice *current_device;
 
   MetaPointerConstraint *client_pointer_constraint;
   MetaDnd *dnd;
@@ -425,13 +425,13 @@ on_device_removed (ClutterDeviceManager *device_manager,
   /* If the device the user last interacted goes away, check again pointer
    * visibility.
    */
-  if (priv->current_device_id == device_id)
+  if (priv->current_device == device)
     {
       MetaCursorTracker *cursor_tracker = priv->cursor_tracker;
       gboolean has_touchscreen, has_pointing_device;
       ClutterInputDeviceType device_type;
 
-      priv->current_device_id = 0;
+      priv->current_device = NULL;
 
       device_type = clutter_input_device_get_device_type (device);
       has_touchscreen = check_has_slave_touchscreen (device_manager);
@@ -770,7 +770,7 @@ meta_backend_class_init (MetaBackendClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 1, G_TYPE_INT);
+                  G_TYPE_NONE, 1, CLUTTER_TYPE_INPUT_DEVICE);
   signals[LID_IS_CLOSED_CHANGED] =
     g_signal_new ("lid-is-closed-changed",
                   G_TYPE_FROM_CLASS (object_class),
@@ -1171,17 +1171,12 @@ update_last_device (MetaBackend *backend)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaCursorTracker *cursor_tracker = priv->cursor_tracker;
   ClutterInputDeviceType device_type;
-  ClutterDeviceManager *manager;
-  ClutterInputDevice *device;
 
   priv->device_update_idle_id = 0;
-  manager = clutter_device_manager_get_default ();
-  device = clutter_device_manager_get_device (manager,
-                                              priv->current_device_id);
-  device_type = clutter_input_device_get_device_type (device);
+  device_type = clutter_input_device_get_device_type (priv->current_device);
 
   g_signal_emit (backend, signals[LAST_DEVICE_CHANGED], 0,
-                 priv->current_device_id);
+                 priv->current_device);
 
   switch (device_type)
     {
@@ -1199,24 +1194,19 @@ update_last_device (MetaBackend *backend)
 }
 
 void
-meta_backend_update_last_device (MetaBackend *backend,
-                                 int          device_id)
+meta_backend_update_last_device (MetaBackend        *backend,
+                                 ClutterInputDevice *device)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  ClutterDeviceManager *manager;
-  ClutterInputDevice *device;
 
-  if (priv->current_device_id == device_id)
+  if (priv->current_device == device)
     return;
-
-  manager = clutter_device_manager_get_default ();
-  device = clutter_device_manager_get_device (manager, device_id);
 
   if (!device ||
       clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
     return;
 
-  priv->current_device_id = device_id;
+  priv->current_device = device;
 
   if (priv->device_update_idle_id == 0)
     {
