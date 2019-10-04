@@ -50,7 +50,6 @@
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-cursor-renderer-native.h"
-#include "backends/native/meta-device-manager-native.h"
 #include "backends/native/meta-event-native.h"
 #include "backends/native/meta-input-settings-native.h"
 #include "backends/native/meta-kms.h"
@@ -409,8 +408,8 @@ meta_backend_native_warp_pointer (MetaBackend *backend,
                                   int          x,
                                   int          y)
 {
-  ClutterDeviceManager *manager = clutter_device_manager_get_default ();
-  ClutterInputDevice *device = clutter_device_manager_get_core_device (manager, CLUTTER_POINTER_DEVICE);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  ClutterInputDevice *device = clutter_seat_get_pointer (seat);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
   /* XXX */

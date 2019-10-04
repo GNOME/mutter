@@ -67,7 +67,6 @@ struct _DeviceMappingInfo
 
 struct _MetaInputSettingsPrivate
 {
-  ClutterDeviceManager *device_manager;
   ClutterSeat *seat;
   MetaMonitorManager *monitor_manager;
   guint monitors_changed_id;
@@ -130,15 +129,15 @@ meta_input_settings_get_devices (MetaInputSettings      *settings,
                                  ClutterInputDeviceType  type)
 {
   MetaInputSettingsPrivate *priv;
-  const GSList *devices;
+  GList *l, *devices;
   GSList *list = NULL;
 
   priv = meta_input_settings_get_instance_private (settings);
-  devices = clutter_device_manager_peek_devices (priv->device_manager);
+  devices = clutter_seat_list_devices (priv->seat);
 
-  while (devices)
+  for (l = devices; l; l = l->next)
     {
-      ClutterInputDevice *device = devices->data;
+      ClutterInputDevice *device = l->data;
 
       if (clutter_input_device_get_device_type (device) == type &&
           clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_MASTER)
@@ -146,6 +145,8 @@ meta_input_settings_get_devices (MetaInputSettings      *settings,
 
       devices = devices->next;
     }
+
+  g_list_free (devices);
 
   return list;
 }
@@ -387,10 +388,9 @@ update_pointer_accel_profile (MetaInputSettings  *input_settings,
     {
       MetaInputSettingsPrivate *priv =
         meta_input_settings_get_instance_private (input_settings);
-      const GSList *devices;
-      const GSList *l;
+      GList *l, *devices;
 
-      devices = clutter_device_manager_peek_devices (priv->device_manager);
+      devices = clutter_seat_list_devices (priv->seat);
       for (l = devices; l; l = l->next)
         {
           device = l->data;
@@ -402,6 +402,8 @@ update_pointer_accel_profile (MetaInputSettings  *input_settings,
           do_update_pointer_accel_profile (input_settings, settings,
                                            device, profile);
         }
+
+      g_list_free (devices);
     }
 }
 
@@ -742,11 +744,11 @@ update_trackball_scroll_button (MetaInputSettings  *input_settings,
     }
   else if (!device)
     {
-      const GSList *devices;
+      GList *l, *devices;
 
-      devices = clutter_device_manager_peek_devices (priv->device_manager);
+      devices = clutter_seat_list_devices (priv->seat);
 
-      while (devices)
+      for (l = devices; l; l = l->next)
         {
           device = devices->data;
 
@@ -755,6 +757,8 @@ update_trackball_scroll_button (MetaInputSettings  *input_settings,
 
           devices = devices->next;
         }
+
+      g_list_free (devices);
     }
 }
 
@@ -1227,7 +1231,7 @@ load_keyboard_a11y_settings (MetaInputSettings  *input_settings,
   ClutterSeat *seat = clutter_backend_get_default_seat (backend);
   guint i;
 
-  core_keyboard = clutter_device_manager_get_core_device (priv->device_manager, CLUTTER_KEYBOARD_DEVICE);
+  core_keyboard = clutter_seat_get_keyboard (priv->seat);
   if (device && device != core_keyboard)
     return;
 
@@ -1326,15 +1330,14 @@ load_pointer_a11y_settings (MetaInputSettings  *input_settings,
   ClutterPointerA11ySettings pointer_a11y_settings;
   ClutterInputDevice *core_pointer;
   GDesktopMouseDwellMode dwell_mode;
-  ClutterSeat *seat;
   guint i;
 
-  core_pointer = clutter_device_manager_get_core_device (priv->device_manager, CLUTTER_POINTER_DEVICE);
+  core_pointer = clutter_seat_get_pointer (priv->seat);
   if (device && device != core_pointer)
     return;
 
-  seat = clutter_input_device_get_seat (device);
-  clutter_seat_get_pointer_a11y_settings (seat, &pointer_a11y_settings);
+  clutter_seat_get_pointer_a11y_settings (CLUTTER_SEAT (priv->seat),
+                                          &pointer_a11y_settings);
   pointer_a11y_settings.controls = 0;
   for (i = 0; i < G_N_ELEMENTS (pointer_a11y_settings_flags_pair); i++)
     {
@@ -1366,7 +1369,8 @@ load_pointer_a11y_settings (MetaInputSettings  *input_settings,
   pointer_a11y_settings.dwell_gesture_secondary =
     pointer_a11y_dwell_direction_from_setting (input_settings, "dwell-gesture-secondary");
 
-  clutter_seat_set_pointer_a11y_settings (seat, &pointer_a11y_settings);
+  clutter_seat_set_pointer_a11y_settings (CLUTTER_SEAT (priv->seat),
+                                          &pointer_a11y_settings);
 }
 
 static void
@@ -1754,9 +1758,9 @@ evaluate_two_finger_scrolling (MetaInputSettings  *input_settings,
 }
 
 static void
-meta_input_settings_device_added (ClutterDeviceManager *device_manager,
-                                  ClutterInputDevice   *device,
-                                  MetaInputSettings    *input_settings)
+meta_input_settings_device_added (ClutterSeat        *seat,
+                                  ClutterInputDevice *device,
+                                  MetaInputSettings  *input_settings)
 {
   if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
     return;
@@ -1768,9 +1772,9 @@ meta_input_settings_device_added (ClutterDeviceManager *device_manager,
 }
 
 static void
-meta_input_settings_device_removed (ClutterDeviceManager *device_manager,
-                                    ClutterInputDevice   *device,
-                                    MetaInputSettings    *input_settings)
+meta_input_settings_device_removed (ClutterSeat        *seat,
+                                    ClutterInputDevice *device,
+                                    MetaInputSettings  *input_settings)
 {
   MetaInputSettingsPrivate *priv;
 
@@ -1821,7 +1825,7 @@ current_tool_info_free (CurrentToolInfo *info)
 }
 
 static void
-meta_input_settings_tool_changed (ClutterDeviceManager   *device_manager,
+meta_input_settings_tool_changed (ClutterSeat            *seat,
                                   ClutterInputDevice     *device,
                                   ClutterInputDeviceTool *tool,
                                   MetaInputSettings      *input_settings)
@@ -1848,10 +1852,10 @@ static void
 check_mappable_devices (MetaInputSettings *input_settings)
 {
   MetaInputSettingsPrivate *priv;
-  const GSList *devices, *l;
+  GList *l, *devices;
 
   priv = meta_input_settings_get_instance_private (input_settings);
-  devices = clutter_device_manager_peek_devices (priv->device_manager);
+  devices = clutter_seat_list_devices (priv->seat);
 
   for (l = devices; l; l = l->next)
     {
@@ -1862,6 +1866,8 @@ check_mappable_devices (MetaInputSettings *input_settings)
 
       check_add_mappable_device (input_settings, device);
     }
+
+  g_list_free (devices);
 }
 
 static void
@@ -1933,12 +1939,11 @@ meta_input_settings_init (MetaInputSettings *settings)
 
   priv = meta_input_settings_get_instance_private (settings);
   priv->seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  priv->device_manager = clutter_device_manager_get_default ();
-  g_signal_connect (priv->device_manager, "device-added",
+  g_signal_connect (priv->seat, "device-added",
                     G_CALLBACK (meta_input_settings_device_added), settings);
-  g_signal_connect (priv->device_manager, "device-removed",
+  g_signal_connect (priv->seat, "device-removed",
                     G_CALLBACK (meta_input_settings_device_removed), settings);
-  g_signal_connect (priv->device_manager, "tool-changed",
+  g_signal_connect (priv->seat, "tool-changed",
                     G_CALLBACK (meta_input_settings_tool_changed), settings);
 
   priv->mouse_settings = g_settings_new ("org.gnome.desktop.peripherals.mouse");
