@@ -304,8 +304,12 @@ meta_wayland_subsurface_class_init (MetaWaylandSubsurfaceClass *klass)
 static void
 unparent_actor (MetaWaylandSurface *surface)
 {
-  ClutterActor *actor = CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface));
+  ClutterActor *actor;
   ClutterActor *parent_actor;
+
+  actor = CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface));
+  if (!actor)
+    return;
 
   parent_actor = clutter_actor_get_parent (actor);
   clutter_actor_remove_child (parent_actor, actor);
