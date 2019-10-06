@@ -100,8 +100,12 @@
 
     <!--
 	NotifyPointerButton:
+	@button: libinput pointer button
+	@state: TRUE if pressed, FALSE if released
 
-	A pointer button was pressed or released
+	A pointer button was pressed or released. Note that @button is expected to
+	be a libinput constant, which will be translated to Clutter constant
+	internally.
      -->
     <method name="NotifyPointerButton">
       <arg name="button" type="i" direction="in" />
