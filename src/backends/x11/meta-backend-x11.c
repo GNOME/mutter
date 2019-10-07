@@ -356,6 +356,7 @@ handle_host_xevent (MetaBackend *backend,
         {
           switch (xkb_ev->any.xkb_type)
             {
+            case XkbNewKeyboardNotify:
             case XkbMapNotify:
               keymap_changed (backend);
               break;
