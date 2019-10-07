@@ -812,15 +812,26 @@ hide_tile_preview (MetaPlugin *plugin)
 }
 
 static void
+finish_timeline (ClutterTimeline *timeline)
+{
+  g_object_ref (timeline);
+  clutter_timeline_stop (timeline);
+  g_signal_emit_by_name (timeline, "completed", NULL);
+  g_object_unref (timeline);
+}
+
+static void
 kill_switch_workspace (MetaPlugin     *plugin)
 {
   MetaDefaultPluginPrivate *priv = META_DEFAULT_PLUGIN (plugin)->priv;
 
   if (priv->tml_switch_workspace1)
     {
+      g_object_ref (priv->tml_switch_workspace1);
       clutter_timeline_stop (priv->tml_switch_workspace1);
       clutter_timeline_stop (priv->tml_switch_workspace2);
       g_signal_emit_by_name (priv->tml_switch_workspace1, "completed", NULL);
+      g_object_unref (priv->tml_switch_workspace1);
     }
 }
 
@@ -833,22 +844,13 @@ kill_window_effects (MetaPlugin      *plugin,
   apriv = get_actor_private (window_actor);
 
   if (apriv->tml_minimize)
-    {
-      clutter_timeline_stop (apriv->tml_minimize);
-      g_signal_emit_by_name (apriv->tml_minimize, "completed", NULL);
-    }
+    finish_timeline (apriv->tml_minimize);
 
   if (apriv->tml_map)
-    {
-      clutter_timeline_stop (apriv->tml_map);
-      g_signal_emit_by_name (apriv->tml_map, "completed", NULL);
-    }
+    finish_timeline (apriv->tml_map);
 
   if (apriv->tml_destroy)
-    {
-      clutter_timeline_stop (apriv->tml_destroy);
-      g_signal_emit_by_name (apriv->tml_destroy, "completed", NULL);
-    }
+    finish_timeline (apriv->tml_destroy);
 }
 
 static const MetaPluginInfo *
