@@ -1031,7 +1031,6 @@ typedef struct _TransitionClosure
   ClutterTransition *transition;
   gchar *name;
   gulong completed_id;
-  guint is_implicit : 1;
 } TransitionClosure;
 
 static void clutter_container_iface_init  (ClutterContainerIface  *iface);
@@ -4239,11 +4238,7 @@ _clutter_actor_stop_transitions (ClutterActor *self)
     {
       TransitionClosure *closure = value;
 
-      /* implicit transitions, and automatically managed explicit ones,
-       * should be removed at this point
-       */
-      if (closure->is_implicit ||
-          clutter_transition_get_remove_on_complete (closure->transition))
+      if (clutter_transition_get_remove_on_complete (closure->transition))
         {
           g_hash_table_iter_remove (&iter);
         }
@@ -19524,15 +19519,8 @@ on_transition_stopped (ClutterTransition *transition,
   t_quark = g_quark_from_string (clos->name);
   t_name = g_strdup (clos->name);
 
-  if (clos->is_implicit ||
-      clutter_transition_get_remove_on_complete (transition))
+  if (clutter_transition_get_remove_on_complete (transition))
     {
-      /* we take a reference here because removing the closure
-       * will release the reference on the transition, and we
-       * want the transition to survive the signal emission
-       */
-      g_object_ref (transition);
-
       /* this is safe, because the timeline has now stopped,
        * so we won't recurse; the reference on the Animatable
        * will be dropped by the ::stopped signal closure in
@@ -19568,8 +19556,7 @@ on_transition_stopped (ClutterTransition *transition,
 static void
 clutter_actor_add_transition_internal (ClutterActor *self,
                                        const gchar  *name,
-                                       ClutterTransition *transition,
-                                       gboolean           is_implicit)
+                                       ClutterTransition *transition)
 {
   ClutterTimeline *timeline;
   TransitionClosure *clos;
@@ -19599,7 +19586,6 @@ clutter_actor_add_transition_internal (ClutterActor *self,
   clos->actor = self;
   clos->transition = g_object_ref (transition);
   clos->name = g_strdup (name);
-  clos->is_implicit = is_implicit;
   clos->completed_id = g_signal_connect (timeline, "stopped",
                                          G_CALLBACK (on_transition_stopped),
                                          clos);
@@ -19758,6 +19744,8 @@ _clutter_actor_create_transition (ClutterActor *actor,
     {
       res = clutter_property_transition_new (pspec->name);
 
+      clutter_transition_set_remove_on_complete (res, TRUE);
+
       interval = clutter_interval_new_with_values (ptype, &initial, &final);
       clutter_transition_set_interval (res, interval);
 
@@ -19791,7 +19779,7 @@ _clutter_actor_create_transition (ClutterActor *actor,
 #endif /* CLUTTER_ENABLE_DEBUG */
 
       /* this will start the transition as well */
-      clutter_actor_add_transition_internal (actor, pspec->name, res, TRUE);
+      clutter_actor_add_transition_internal (actor, pspec->name, res);
 
       /* the actor now owns the transition */
       g_object_unref (res);
@@ -19865,7 +19853,7 @@ clutter_actor_add_transition (ClutterActor      *self,
   g_return_if_fail (name != NULL);
   g_return_if_fail (CLUTTER_IS_TRANSITION (transition));
 
-  clutter_actor_add_transition_internal (self, name, transition, FALSE);
+  clutter_actor_add_transition_internal (self, name, transition);
 }
 
 /**
