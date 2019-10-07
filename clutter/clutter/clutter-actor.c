@@ -19521,13 +19521,6 @@ on_transition_stopped (ClutterTransition *transition,
 
   if (clutter_transition_get_remove_on_complete (transition))
     {
-      /* we take a reference here because removing the closure will release the
-       * reference on the transition, and we want the transition to survive the
-       * signal emission. It'll be unreferenced by the remove-on-complete
-       * handling in ClutterTransition::stopped.
-       */
-      g_object_ref (transition);
-
       /* this is safe, because the timeline has now stopped,
        * so we won't recurse; the reference on the Animatable
        * will be dropped by the ::stopped signal closure in
