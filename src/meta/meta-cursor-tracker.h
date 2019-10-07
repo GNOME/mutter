@@ -62,4 +62,11 @@ META_EXPORT
 void           meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
                                                         gboolean           visible);
 
+META_EXPORT
+gboolean       meta_cursor_tracker_get_keep_focus_while_hidden (MetaCursorTracker *tracker);
+
+META_EXPORT
+void           meta_cursor_tracker_set_keep_focus_while_hidden (MetaCursorTracker *tracker,
+                                                                gboolean           keep_focus);
+
 #endif
