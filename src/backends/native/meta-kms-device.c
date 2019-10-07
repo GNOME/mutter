@@ -109,28 +109,34 @@ meta_kms_device_get_primary_plane_for (MetaKmsDevice *device,
 }
 
 void
-meta_kms_device_update_states_in_impl (MetaKmsDevice            *device,
-                                       MetaKmsUpdateStatesFlags  flags)
+meta_kms_device_update_states_in_impl (MetaKmsDevice *device)
+{
+  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+
+  meta_assert_in_kms_impl (device->kms);
+  meta_assert_is_waiting_for_kms_impl_task (device->kms);
+
+  meta_kms_impl_device_update_states (impl_device);
+
+  g_list_free (device->crtcs);
+  device->crtcs = meta_kms_impl_device_copy_crtcs (impl_device);
+
+  g_list_free (device->connectors);
+  device->connectors = meta_kms_impl_device_copy_connectors (impl_device);
+
+  g_list_free (device->planes);
+  device->planes = meta_kms_impl_device_copy_planes (impl_device);
+}
+
+void
+meta_kms_device_predict_states_in_impl (MetaKmsDevice *device,
+                                        MetaKmsUpdate *update)
 {
   MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
 
   meta_assert_in_kms_impl (device->kms);
 
-  meta_kms_impl_device_update_states (impl_device, flags);
-
-  if (flags & META_KMS_UPDATE_STATES_FLAG_HOTPLUG)
-    {
-      meta_assert_is_waiting_for_kms_impl_task (device->kms);
-
-      g_list_free (device->crtcs);
-      device->crtcs = meta_kms_impl_device_copy_crtcs (impl_device);
-
-      g_list_free (device->connectors);
-      device->connectors = meta_kms_impl_device_copy_connectors (impl_device);
-
-      g_list_free (device->planes);
-      device->planes = meta_kms_impl_device_copy_planes (impl_device);
-    }
+  meta_kms_impl_device_predict_states (impl_device, update);
 }
 
 static gboolean

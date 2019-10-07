@@ -143,6 +143,63 @@ meta_kms_crtc_update_state (MetaKmsCrtc *crtc)
   drmModeFreeCrtc (drm_crtc);
 }
 
+void
+meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
+                             MetaKmsUpdate *update)
+{
+  GList *mode_sets;
+  GList *crtc_gammas;
+  GList *l;
+
+  mode_sets = meta_kms_update_get_mode_sets (update);
+  for (l = mode_sets; l; l = l->next)
+    {
+      MetaKmsModeSet *mode_set = l->data;
+
+      if (mode_set->crtc != crtc)
+        continue;
+
+      if (mode_set->drm_mode)
+        {
+          MetaKmsPlaneAssignment *plane_assignment;
+
+          plane_assignment =
+            meta_kms_update_get_primary_plane_assignment (update, crtc);
+
+          crtc->current_state.rect =
+            meta_fixed_16_rectangle_to_rectangle (plane_assignment->src_rect);
+          crtc->current_state.is_drm_mode_valid = TRUE;
+          crtc->current_state.drm_mode = *mode_set->drm_mode;
+        }
+      else
+        {
+          crtc->current_state.rect = (MetaRectangle) { 0 };
+          crtc->current_state.is_drm_mode_valid = FALSE;
+          crtc->current_state.drm_mode = (drmModeModeInfo) { 0 };
+        }
+
+      break;
+    }
+
+  crtc_gammas = meta_kms_update_get_crtc_gammas (update);
+  for (l = crtc_gammas; l; l = l->next)
+    {
+      MetaKmsCrtcGamma *gamma = l->data;
+
+      if (gamma->crtc != crtc)
+        continue;
+
+      crtc->current_state.gamma.size = gamma->size;
+      crtc->current_state.gamma.red =
+        g_memdup (gamma->red, gamma->size * sizeof (uint16_t));
+      crtc->current_state.gamma.green =
+        g_memdup (gamma->green, gamma->size * sizeof (uint16_t));
+      crtc->current_state.gamma.blue =
+        g_memdup (gamma->blue, gamma->size * sizeof (uint16_t));
+      break;
+    }
+}
+
 MetaKmsCrtc *
 meta_kms_crtc_new (MetaKmsImplDevice *impl_device,
                    drmModeCrtc       *drm_crtc,

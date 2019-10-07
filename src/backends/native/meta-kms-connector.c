@@ -24,6 +24,7 @@
 
 #include <errno.h>
 
+#include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-update-private.h"
@@ -493,6 +494,35 @@ meta_kms_connector_update_state (MetaKmsConnector *connector,
                                  drm_resources);
   if (drm_connector)
     drmModeFreeConnector (drm_connector);
+}
+
+void
+meta_kms_connector_predict_state (MetaKmsConnector *connector,
+                                  MetaKmsUpdate    *update)
+{
+  GList *mode_sets;
+  GList *l;
+
+  if (!connector->current_state)
+    return;
+
+  mode_sets = meta_kms_update_get_mode_sets (update);
+  for (l = mode_sets; l; l = l->next)
+    {
+      MetaKmsModeSet *mode_set = l->data;
+      MetaKmsCrtc *crtc;
+
+      if (!g_list_find (mode_set->connectors, connector))
+        continue;
+
+      crtc = mode_set->crtc;
+      if (crtc)
+        connector->current_state->current_crtc_id = meta_kms_crtc_get_id (crtc);
+      else
+        connector->current_state->current_crtc_id = 0;
+
+      break;
+    }
 }
 
 static void
