@@ -228,7 +228,8 @@ sync_focus_surface (MetaWaylandPointer *pointer)
   MetaBackend *backend = meta_get_backend ();
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
-  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker))
+  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
+      !meta_cursor_tracker_get_keep_focus_while_hidden (cursor_tracker))
     {
       meta_wayland_pointer_set_focus (pointer, NULL);
       return;

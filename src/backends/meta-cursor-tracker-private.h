@@ -31,6 +31,7 @@ struct _MetaCursorTracker {
   GObject parent_instance;
 
   gboolean is_showing;
+  gboolean keep_focus_while_hidden;
 
   MetaCursorSprite *effective_cursor; /* May be NULL when hidden */
   MetaCursorSprite *displayed_cursor;
