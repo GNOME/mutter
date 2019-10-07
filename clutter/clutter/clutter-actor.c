@@ -19495,6 +19495,13 @@ transition_closure_free (gpointer data)
     }
 }
 
+static gboolean
+unref_and_remove (gpointer user_data)
+{
+  g_object_unref (user_data);
+  return G_SOURCE_REMOVE;
+}
+
 static void
 on_transition_stopped (ClutterTransition *transition,
                        gboolean           is_finished,
@@ -19526,7 +19533,7 @@ on_transition_stopped (ClutterTransition *transition,
        * signal emission. It'll be unreferenced by the remove-on-complete
        * handling in ClutterTransition::stopped.
        */
-      g_object_ref (transition);
+      g_idle_add (unref_and_remove, g_object_ref (transition));
 
       /* this is safe, because the timeline has now stopped,
        * so we won't recurse; the reference on the Animatable
