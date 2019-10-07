@@ -427,6 +427,14 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
   MetaWaylandPointer *pointer = grab->pointer;
   MetaWaylandSeat *seat = meta_wayland_pointer_get_seat (pointer);
   MetaDisplay *display = meta_get_display ();
+  MetaBackend *backend = meta_get_backend ();
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+
+  if (!meta_wayland_seat_has_pointer (seat))
+    return;
+
+  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker))
+    return;
 
   if (pointer->button_count > 0)
     return;
@@ -444,8 +452,7 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
       break;
     }
 
-  if (meta_wayland_seat_has_pointer (seat))
-    meta_wayland_pointer_set_focus (pointer, surface);
+  meta_wayland_pointer_set_focus (pointer, surface);
 }
 
 static void
@@ -887,6 +894,11 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
                                 MetaWaylandSurface *surface)
 {
   MetaWaylandInputDevice *input_device = META_WAYLAND_INPUT_DEVICE (pointer);
+  MetaBackend *backend = meta_get_backend ();
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+
+  g_return_if_fail (meta_cursor_tracker_get_pointer_visible (cursor_tracker) ||
+		    surface == NULL);
 
   if (pointer->focus_surface == surface)
     return;
