@@ -582,6 +582,8 @@ if have_wayland
     'wayland/meta-xwayland-private.h',
     'wayland/meta-xwayland-dnd.c',
     'wayland/meta-xwayland-dnd-private.h',
+    'wayland/meta-xwayland-surface.c',
+    'wayland/meta-xwayland-surface.h',
   ]
 endif
 

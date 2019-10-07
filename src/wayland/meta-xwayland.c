@@ -39,36 +39,10 @@
 #include <unistd.h>
 #include <X11/Xauth.h>
 
-#include "compositor/meta-surface-actor-wayland.h"
-#include "compositor/meta-window-actor-private.h"
 #include "core/main-private.h"
 #include "meta/main.h"
-#include "wayland/meta-wayland-actor-surface.h"
+#include "wayland/meta-xwayland-surface.h"
 #include "x11/meta-x11-display-private.h"
-
-enum
-{
-  XWAYLAND_SURFACE_WINDOW_ASSOCIATED,
-
-  XWAYLAND_SURFACE_LAST_SIGNAL
-};
-
-guint xwayland_surface_signals[XWAYLAND_SURFACE_LAST_SIGNAL];
-
-#define META_TYPE_WAYLAND_SURFACE_ROLE_XWAYLAND (meta_wayland_surface_role_xwayland_get_type ())
-G_DECLARE_FINAL_TYPE (MetaWaylandSurfaceRoleXWayland,
-                      meta_wayland_surface_role_xwayland,
-                      META, WAYLAND_SURFACE_ROLE_XWAYLAND,
-                      MetaWaylandActorSurface)
-
-struct _MetaWaylandSurfaceRoleXWayland
-{
-  MetaWaylandActorSurface parent;
-};
-
-G_DEFINE_TYPE (MetaWaylandSurfaceRoleXWayland,
-               meta_wayland_surface_role_xwayland,
-               META_TYPE_WAYLAND_ACTOR_SURFACE)
 
 static int display_number_override = -1;
 
@@ -79,20 +53,10 @@ meta_xwayland_associate_window_with_surface (MetaWindow          *window,
                                              MetaWaylandSurface  *surface)
 {
   MetaDisplay *display = window->display;
-  MetaWindowActor *window_actor;
-
-  /* If the window has an existing surface, like if we're
-   * undecorating or decorating the window, then we need
-   * to detach the window from its old surface.
-   */
-  if (window->surface)
-    {
-      meta_wayland_surface_set_window (window->surface, NULL);
-      window->surface = NULL;
-    }
+  MetaXwaylandSurface *xwayland_surface;
 
   if (!meta_wayland_surface_assign_role (surface,
-                                         META_TYPE_WAYLAND_SURFACE_ROLE_XWAYLAND,
+                                         META_TYPE_XWAYLAND_SURFACE,
                                          NULL))
     {
       wl_resource_post_error (surface->resource,
@@ -102,20 +66,8 @@ meta_xwayland_associate_window_with_surface (MetaWindow          *window,
       return;
     }
 
-  window->surface = surface;
-  meta_wayland_surface_set_window (surface, window);
-  g_signal_emit (surface->role,
-                 xwayland_surface_signals[XWAYLAND_SURFACE_WINDOW_ASSOCIATED],
-                 0);
-
-  window_actor = meta_window_actor_from_window (window);
-  if (window_actor)
-    {
-      MetaSurfaceActor *surface_actor;
-
-      surface_actor = meta_wayland_surface_get_actor (surface);
-      meta_window_actor_assign_surface_actor (window_actor, surface_actor);
-    }
+  xwayland_surface = META_XWAYLAND_SURFACE (surface->role);
+  meta_xwayland_surface_associate_with_window (xwayland_surface, window);
 
   /* Now that we have a surface check if it should have focus. */
   meta_display_sync_wayland_input_focus (display);
@@ -856,126 +808,4 @@ meta_xwayland_shutdown (MetaXWaylandManager *manager)
       unlink (manager->lock_file);
       g_clear_pointer (&manager->lock_file, g_free);
     }
-}
-
-static void
-xwayland_surface_assigned (MetaWaylandSurfaceRole *surface_role)
-{
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
-  MetaWaylandSurfaceRoleClass *surface_role_class =
-    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_surface_role_xwayland_parent_class);
-
-  /* See comment in xwayland_surface_commit for why we reply even though the
-   * surface may not be drawn the next frame.
-   */
-  wl_list_insert_list (&surface->compositor->frame_callbacks,
-                       &surface->pending_frame_callback_list);
-  wl_list_init (&surface->pending_frame_callback_list);
-
-  surface_role_class->assigned (surface_role);
-}
-
-static void
-xwayland_surface_commit (MetaWaylandSurfaceRole  *surface_role,
-                         MetaWaylandPendingState *pending)
-{
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
-  MetaWaylandSurfaceRoleClass *surface_role_class =
-    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_surface_role_xwayland_parent_class);
-
-  /* For Xwayland windows, throttling frames when the window isn't actually
-   * drawn is less useful, because Xwayland still has to do the drawing sent
-   * from the application - the throttling would only be of sending us damage
-   * messages, so we simplify and send frame callbacks after the next paint of
-   * the screen, whether the window was drawn or not.
-   *
-   * Currently it may take a few frames before we draw the window, for not
-   * completely understood reasons, and in that case, not thottling frame
-   * callbacks to drawing has the happy side effect that we avoid showing the
-   * user the initial black frame from when the window is mapped empty.
-   */
-  meta_wayland_surface_queue_pending_state_frame_callbacks (surface, pending);
-
-  surface_role_class->commit (surface_role, pending);
-}
-
-static MetaWaylandSurface *
-xwayland_surface_get_toplevel (MetaWaylandSurfaceRole *surface_role)
-{
-  return meta_wayland_surface_role_get_surface (surface_role);
-}
-
-static double
-xwayland_surface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
-{
-  return 1;
-}
-
-static void
-xwayland_surface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
-{
-  MetaWaylandSurfaceRole *surface_role =
-    META_WAYLAND_SURFACE_ROLE (actor_surface);
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
-  MetaWaylandActorSurfaceClass *actor_surface_class =
-    META_WAYLAND_ACTOR_SURFACE_CLASS (meta_wayland_surface_role_xwayland_parent_class);
-
-  if (surface->window)
-    actor_surface_class->sync_actor_state (actor_surface);
-}
-
-static void
-xwayland_surface_finalize (GObject *object)
-{
-  MetaWaylandSurfaceRole *surface_role =
-    META_WAYLAND_SURFACE_ROLE (object);
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
-  GObjectClass *parent_object_class =
-    G_OBJECT_CLASS (meta_wayland_surface_role_xwayland_parent_class);
-  MetaWindow *window;
-
-  window = surface->window;
-  if (window)
-    {
-      meta_wayland_surface_set_window (surface, NULL);
-      window->surface = NULL;
-    }
-
-  parent_object_class->finalize (object);
-}
-
-static void
-meta_wayland_surface_role_xwayland_init (MetaWaylandSurfaceRoleXWayland *role)
-{
-}
-
-static void
-meta_wayland_surface_role_xwayland_class_init (MetaWaylandSurfaceRoleXWaylandClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  MetaWaylandSurfaceRoleClass *surface_role_class =
-    META_WAYLAND_SURFACE_ROLE_CLASS (klass);
-  MetaWaylandActorSurfaceClass *actor_surface_class =
-    META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
-
-  object_class->finalize = xwayland_surface_finalize;
-
-  surface_role_class->assigned = xwayland_surface_assigned;
-  surface_role_class->commit = xwayland_surface_commit;
-  surface_role_class->get_toplevel = xwayland_surface_get_toplevel;
-
-  actor_surface_class->get_geometry_scale = xwayland_surface_get_geometry_scale;
-  actor_surface_class->sync_actor_state = xwayland_surface_sync_actor_state;
-
-  xwayland_surface_signals[XWAYLAND_SURFACE_WINDOW_ASSOCIATED] =
-    g_signal_new ("window-associated",
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0, NULL, NULL,
-                  g_cclosure_marshal_VOID__VOID,
-                  G_TYPE_NONE, 0);
 }
