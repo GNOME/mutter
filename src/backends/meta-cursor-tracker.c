@@ -136,6 +136,7 @@ static void
 meta_cursor_tracker_init (MetaCursorTracker *self)
 {
   self->is_showing = TRUE;
+  self->keep_focus_while_hidden = FALSE;
 }
 
 static void
@@ -451,6 +452,44 @@ meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
   if (visible == tracker->is_showing)
     return;
   tracker->is_showing = visible;
+
+  sync_cursor (tracker);
+
+  g_signal_emit (tracker, signals[VISIBILITY_CHANGED], 0);
+}
+
+/**
+ * meta_cursor_tracker_get_keep_focus_while_hidden:
+ * @tracker: a #MetaCursorTracker object.
+ *
+ * Returns: %FALSE if the Wayland focus surface of the pointer will
+ * be forced to NULL while the pointer is hidden, %TRUE otherwise.
+ * This function is only meant to be used by the magnifier of the shell
+ * and will be removed in a future release.
+ */
+gboolean
+meta_cursor_tracker_get_keep_focus_while_hidden (MetaCursorTracker *tracker)
+{
+  return tracker->keep_focus_while_hidden;
+}
+
+/**
+ * meta_cursor_tracker_set_keep_focus_while_hidden:
+ * @tracker: a #MetaCursorTracker object.
+ * @keep_focus: whether to keep the cursor focus while hidden
+ *
+ * If this is set to %TRUE, the Wayland focus surface of the pointer will
+ * not be forced to NULL while the pointer is hidden.
+ * This function is only meant to be used by the magnifier of the shell
+ * and will be removed in a future release.
+ */
+void
+meta_cursor_tracker_set_keep_focus_while_hidden (MetaCursorTracker *tracker,
+                                                 gboolean           keep_focus)
+{
+  if (keep_focus == tracker->keep_focus_while_hidden)
+    return;
+  tracker->keep_focus_while_hidden = keep_focus;
 
   sync_cursor (tracker);
 
