@@ -62,7 +62,7 @@ meta_keymap_native_get_num_lock_state (ClutterKeymap *keymap)
 
   return xkb_state_mod_name_is_active (xkb_state,
                                        XKB_MOD_NAME_NUM,
-                                       XKB_STATE_MODS_LATCHED ||
+                                       XKB_STATE_MODS_LATCHED |
                                        XKB_STATE_MODS_LOCKED);
 }
 
@@ -78,7 +78,7 @@ meta_keymap_native_get_caps_lock_state (ClutterKeymap *keymap)
 
   return xkb_state_mod_name_is_active (xkb_state,
                                        XKB_MOD_NAME_CAPS,
-                                       XKB_STATE_MODS_LATCHED ||
+                                       XKB_STATE_MODS_LATCHED |
                                        XKB_STATE_MODS_LOCKED);
 }
 
