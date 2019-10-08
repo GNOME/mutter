@@ -1843,6 +1843,24 @@ meta_wayland_surface_should_cache_state (MetaWaylandSurface *surface)
   return meta_wayland_surface_role_should_cache_state (surface->role);
 }
 
+static void
+meta_wayland_surface_role_notify_subsurface_state_changed (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurfaceRoleClass *klass;
+
+  klass = META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface_role);
+  g_return_if_fail (klass->notify_subsurface_state_changed);
+
+  klass->notify_subsurface_state_changed (surface_role);
+}
+
+void
+meta_wayland_surface_notify_subsurface_state_changed (MetaWaylandSurface *surface)
+{
+  if (surface->role)
+    meta_wayland_surface_role_notify_subsurface_state_changed (surface->role);
+}
+
 MetaWaylandSurface *
 meta_wayland_surface_role_get_surface (MetaWaylandSurfaceRole *role)
 {

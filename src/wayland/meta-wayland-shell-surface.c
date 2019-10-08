@@ -24,6 +24,7 @@
 #include "wayland/meta-wayland-shell-surface.h"
 
 #include "compositor/meta-surface-actor-wayland.h"
+#include "compositor/meta-window-actor-wayland.h"
 #include "wayland/meta-wayland-actor-surface.h"
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-subsurface.h"
@@ -165,6 +166,22 @@ meta_wayland_shell_surface_surface_apply_state (MetaWaylandSurfaceRole  *surface
     meta_wayland_surface_get_height (surface) * geometry_scale;
 }
 
+static void
+meta_wayland_shell_surface_notify_subsurface_state_changed (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWindow *window;
+  MetaWindowActor *window_actor;
+
+  window = surface->window;
+  if (!window)
+    return;
+
+  window_actor = meta_window_actor_from_window (window);
+  meta_window_actor_wayland_rebuild_surface_tree (window_actor);
+}
+
 static double
 meta_wayland_shell_surface_get_geometry_scale (MetaWaylandActorSurface *actor_surface)
 {
@@ -246,6 +263,8 @@ meta_wayland_shell_surface_class_init (MetaWaylandShellSurfaceClass *klass)
 
   surface_role_class->apply_state =
     meta_wayland_shell_surface_surface_apply_state;
+  surface_role_class->notify_subsurface_state_changed =
+    meta_wayland_shell_surface_notify_subsurface_state_changed;
 
   actor_surface_class->get_geometry_scale =
     meta_wayland_shell_surface_get_geometry_scale;

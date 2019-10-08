@@ -91,17 +91,6 @@ meta_window_actor_wayland_rebuild_surface_tree (MetaWindowActor *actor)
                    actor);
 }
 
-MetaWindowActor *
-meta_window_actor_wayland_from_surface (MetaWaylandSurface *surface)
-{
-  if (surface->window)
-    return meta_window_actor_from_window (surface->window);
-  else if (surface->sub.parent)
-    return meta_window_actor_wayland_from_surface (surface->sub.parent);
-  else
-    return NULL;
-}
-
 static void
 meta_window_actor_wayland_assign_surface_actor (MetaWindowActor  *actor,
                                                 MetaSurfaceActor *surface_actor)

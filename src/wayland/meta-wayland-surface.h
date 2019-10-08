@@ -62,6 +62,7 @@ struct _MetaWaylandSurfaceRoleClass
                                      MetaLogicalMonitor     *logical_monitor);
   MetaWaylandSurface * (*get_toplevel) (MetaWaylandSurfaceRole *surface_role);
   gboolean (*should_cache_state) (MetaWaylandSurfaceRole *surface_role);
+  void (*notify_subsurface_state_changed) (MetaWaylandSurfaceRole *surface_role);
 };
 
 struct _MetaWaylandSurfaceState
@@ -324,6 +325,8 @@ CoglTexture *       meta_wayland_surface_get_texture (MetaWaylandSurface *surfac
 MetaSurfaceActor *  meta_wayland_surface_get_actor (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface);
+
+void                meta_wayland_surface_notify_subsurface_state_changed (MetaWaylandSurface *surface);
 
 int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
