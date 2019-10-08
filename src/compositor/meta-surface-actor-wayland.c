@@ -86,18 +86,6 @@ meta_surface_actor_wayland_add_frame_callbacks (MetaSurfaceActorWayland *self,
   wl_list_insert_list (&self->frame_callback_list, frame_callbacks);
 }
 
-static MetaWindow *
-meta_surface_actor_wayland_get_window (MetaSurfaceActor *actor)
-{
-  MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
-  MetaWaylandSurface *surface = meta_surface_actor_wayland_get_surface (self);
-
-  if (!surface)
-    return NULL;
-
-  return surface->window;
-}
-
 static void
 meta_surface_actor_wayland_paint (ClutterActor        *actor,
                                   ClutterPaintContext *paint_context)
@@ -154,8 +142,6 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
   surface_actor_class->pre_paint = meta_surface_actor_wayland_pre_paint;
   surface_actor_class->is_visible = meta_surface_actor_wayland_is_visible;
   surface_actor_class->is_opaque = meta_surface_actor_wayland_is_opaque;
-
-  surface_actor_class->get_window = meta_surface_actor_wayland_get_window;
 
   object_class->dispose = meta_surface_actor_wayland_dispose;
 }
