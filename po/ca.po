@@ -189,7 +189,7 @@ msgstr "Canvia entre el mode a pantalla completa"
 
 #: data/50-mutter-windows.xml:12
 msgid "Toggle maximization state"
-msgstr "Canvia l'estat de maximització"
+msgstr "Canvia l'estat de maximització"
 
 #: data/50-mutter-windows.xml:14
 msgid "Maximize window"
@@ -218,8 +218,8 @@ msgstr "Redimensiona la finestra"
 #: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
 msgstr ""
-"Canvia la funció que fa que la finestra estigui en tots els espais de "
-"treball o només en un"
+"Canvia la funció que fa que la finestra estigui en tots els espais de "
+"treball o només en un"
 
 #: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
