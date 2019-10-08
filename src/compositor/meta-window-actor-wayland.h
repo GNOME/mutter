@@ -33,6 +33,5 @@ G_DECLARE_FINAL_TYPE (MetaWindowActorWayland,
                       MetaWindowActor)
 
 void meta_window_actor_wayland_rebuild_surface_tree (MetaWindowActor *actor);
-MetaWindowActor * meta_window_actor_wayland_from_surface (MetaWaylandSurface *surface);
 
 #endif /*META_WINDOW_ACTOR_WAYLAND_H */
