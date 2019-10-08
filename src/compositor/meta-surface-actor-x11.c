@@ -365,13 +365,6 @@ meta_surface_actor_x11_dispose (GObject *object)
   G_OBJECT_CLASS (meta_surface_actor_x11_parent_class)->dispose (object);
 }
 
-static MetaWindow *
-meta_surface_actor_x11_get_window (MetaSurfaceActor *actor)
-{
-  MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
-  return self->window;
-}
-
 static void
 meta_surface_actor_x11_class_init (MetaSurfaceActorX11Class *klass)
 {
@@ -387,8 +380,6 @@ meta_surface_actor_x11_class_init (MetaSurfaceActorX11Class *klass)
   surface_actor_class->should_unredirect = meta_surface_actor_x11_should_unredirect;
   surface_actor_class->set_unredirected = meta_surface_actor_x11_set_unredirected;
   surface_actor_class->is_unredirected = meta_surface_actor_x11_is_unredirected;
-
-  surface_actor_class->get_window = meta_surface_actor_x11_get_window;
 }
 
 static void
