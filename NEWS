@@ -1,3 +1,33 @@
+3.34.1
+======
+* Fix startup of X11 session services on wayland [Carlos; #771]
+* Fix _NET_ACTIVE_WINDOW emission [Carlos; #751]
+* Fix initial view perspective [Marco; !803]
+* Fix screenshots and window animations when scaled [Robert; !758]
+* Re-enable coredumps when capabilities are set [Jonas; !811]
+* Fix scaling of DND surface actors [Robert; !780]
+* Optimize blitting of untransformed offscreen stage views [Olivier; !809, !820]
+* Fix freeze of pointer event delivery on X11 [Olivier; !821]
+* Fix scaling of stylus input coordinates with HiDPI [Dorian; !830]
+* Fix memory leak when using implicit animations [Jonas; !828]
+* Fix numlock state for native backend [Carlos; #769]
+* Fixed crashes [Marco, Olivier, Jonas Å.; !805, #823, !808, !825,
+  #844, !826, #779]
+* Misc. bug fixes and cleanups [Jonas Å., Georges, Jonas D., Michal, Daniel,
+  Iain, Adam, Marco, Carlos, Ting-Wei, Hans, Robert; !787, !795, !791, !797,
+  !772, !775, !799, !778, !785, !782, !796, #819, !814, !769, !817, !783, !786,
+  !829, !774, #822]
+
+Contributors:
+  Marco Trevisan (Treviño), Jonas Dreßler, Olivier Fourdan, Carlos Garnacho,
+  Hans de Goede, Adam Jackson, Ting-Wei Lan, Iain Lane, Michal Lazo,
+  Robert Mader, Georges Basile Stavracas Neto, Dorian Stoll, Daniel van Vugt,
+  Jonas Ådahl
+
+Translators:
+  Milo Casagrande [it], Nathan Follens [nl], Matej Urbančič [sl],
+  Ask Hjorth Larsen [da], Alan Mortensen [da], Jordi Mas [ca]
+
 3.34.0
 ======
 * Fix xdg-output v3 support [Olivier; !771]
