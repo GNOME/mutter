@@ -520,12 +520,6 @@ meta_surface_actor_set_frozen (MetaSurfaceActor *self,
     }
 }
 
-MetaWindow *
-meta_surface_actor_get_window (MetaSurfaceActor *self)
-{
-  return META_SURFACE_ACTOR_GET_CLASS (self)->get_window (self);
-}
-
 void
 meta_surface_actor_set_transform (MetaSurfaceActor     *self,
                                   MetaMonitorTransform  transform)
