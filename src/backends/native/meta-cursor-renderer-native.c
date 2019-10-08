@@ -394,16 +394,9 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
       tex_width = cogl_texture_get_width (texture);
       tex_height = cogl_texture_get_height (texture);
 
-      if (meta_is_stage_views_scaled ())
-        {
-          cursor_crtc_scale =
-            calculate_cursor_crtc_sprite_scale (data->in_cursor_sprite,
-                                                data->in_logical_monitor);
-        }
-      else
-        {
-          cursor_crtc_scale = 1.0;
-        }
+      cursor_crtc_scale =
+        calculate_cursor_crtc_sprite_scale (data->in_cursor_sprite,
+                                            data->in_logical_monitor);
 
       cursor_rect = (MetaRectangle) {
         .x = crtc_cursor_x,
@@ -582,15 +575,8 @@ get_common_logical_monitors_scale (MetaCursorRenderer *renderer,
                                       NULL))
         continue;
 
-      if (meta_is_stage_views_scaled ())
-        {
-          tmp_scale =
-            calculate_cursor_crtc_sprite_scale (cursor_sprite, logical_monitor);
-        }
-      else
-        {
-          tmp_scale = 1.0;
-        }
+      tmp_scale =
+        calculate_cursor_crtc_sprite_scale (cursor_sprite, logical_monitor);
 
       if (has_visible_crtc_sprite && scale != tmp_scale)
         return FALSE;
