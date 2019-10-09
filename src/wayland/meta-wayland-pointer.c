@@ -927,6 +927,7 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
     {
       struct wl_client *client = wl_resource_get_client (surface->resource);
       ClutterPoint pos;
+      MetaWindow *focus_window;
 
       pointer->focus_surface = surface;
 
@@ -937,8 +938,9 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
 
       clutter_input_device_get_coords (pointer->device, NULL, &pos);
 
-      if (pointer->focus_surface->window)
-        meta_window_handle_enter (pointer->focus_surface->window,
+      focus_window = meta_wayland_surface_get_window (pointer->focus_surface);
+      if (focus_window)
+        meta_window_handle_enter (focus_window,
                                   /* XXX -- can we reliably get a timestamp for setting focus? */
                                   clutter_get_current_event_time (),
                                   pos.x, pos.y);
