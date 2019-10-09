@@ -68,6 +68,7 @@ struct _MetaWaylandSurfaceRoleClass
                                     float                   abs_y,
                                     float                  *out_sx,
                                     float                  *out_sy);
+  MetaWindow * (*get_window) (MetaWaylandSurfaceRole *surface_role);
 };
 
 struct _MetaWaylandSurfaceState
@@ -143,7 +144,6 @@ struct _MetaWaylandSurface
   struct wl_resource *resource;
   MetaWaylandCompositor *compositor;
   MetaWaylandSurfaceRole *role;
-  MetaWindow *window;
   cairo_region_t *input_region;
   cairo_region_t *opaque_region;
   int scale;
@@ -334,6 +334,10 @@ MetaSurfaceActor *  meta_wayland_surface_get_actor (MetaWaylandSurface *surface)
 void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSurface *surface);
 
 void                meta_wayland_surface_notify_subsurface_state_changed (MetaWaylandSurface *surface);
+
+void                meta_wayland_surface_notify_unmapped (MetaWaylandSurface *surface);
+
+void                meta_wayland_surface_update_outputs_recursively (MetaWaylandSurface *surface);
 
 int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
