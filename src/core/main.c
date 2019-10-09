@@ -766,6 +766,6 @@ meta_test_init (void)
 
   close (fd);
 #else
-  g_error ("Tests require wayland support");
+  g_assert_not_reached ();
 #endif
 }
