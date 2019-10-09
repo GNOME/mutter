@@ -120,13 +120,6 @@ static MetaWaylandSurface *
 meta_wayland_surface_role_get_toplevel (MetaWaylandSurfaceRole *surface_role);
 
 static void
-window_position_changed (MetaWindow         *window,
-                         MetaWaylandSurface *surface);
-static void
-window_actor_effects_completed (MetaWindowActor    *window_actor,
-                                MetaWaylandSurface *surface);
-
-static void
 role_assignment_valist_to_properties (GType       role_type,
                                       const char *first_property_name,
                                       va_list     var_args,
@@ -1260,7 +1253,7 @@ meta_wayland_surface_update_outputs (MetaWaylandSurface *surface)
                         surface);
 }
 
-static void
+void
 meta_wayland_surface_update_outputs_recursively (MetaWaylandSurface *surface)
 {
   GNode *n;
@@ -1278,47 +1271,10 @@ meta_wayland_surface_update_outputs_recursively (MetaWaylandSurface *surface)
     }
 }
 
-
 void
-meta_wayland_surface_set_window (MetaWaylandSurface *surface,
-                                 MetaWindow         *window)
+meta_wayland_surface_notify_unmapped (MetaWaylandSurface *surface)
 {
-  gboolean was_unmapped = surface->window && !window;
-  ClutterActor *actor;
-
-  if (surface->window == window)
-    return;
-
-  if (surface->window)
-    {
-      g_signal_handlers_disconnect_by_func (surface->window,
-                                            window_position_changed,
-                                            surface);
-      g_signal_handlers_disconnect_by_func (meta_window_actor_from_window (surface->window),
-                                            window_actor_effects_completed,
-                                            surface);
-    }
-
-  surface->window = window;
-
-  actor = CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface));
-  if (actor)
-    clutter_actor_set_reactive (actor, !!window);
-
-  if (was_unmapped)
-    g_signal_emit (surface, surface_signals[SURFACE_UNMAPPED], 0);
-
-  if (window)
-    {
-      g_signal_connect_object (window,
-                               "position-changed",
-                               G_CALLBACK (window_position_changed),
-                               surface, 0);
-      g_signal_connect_object (meta_window_actor_from_window (window),
-                               "effects-completed",
-                               G_CALLBACK (window_actor_effects_completed),
-                               surface, 0);
-    }
+  g_signal_emit (surface, surface_signals[SURFACE_UNMAPPED], 0);
 }
 
 static void
@@ -1387,20 +1343,6 @@ wl_surface_destructor (struct wl_resource *resource)
   g_object_unref (surface);
 
   meta_wayland_compositor_repick (compositor);
-}
-
-static void
-window_position_changed (MetaWindow         *window,
-                         MetaWaylandSurface *surface)
-{
-  meta_wayland_surface_update_outputs_recursively (surface);
-}
-
-static void
-window_actor_effects_completed (MetaWindowActor    *window_actor,
-                                MetaWaylandSurface *surface)
-{
-  meta_wayland_surface_update_outputs_recursively (surface);
 }
 
 MetaWaylandSurface *
@@ -1805,10 +1747,23 @@ meta_wayland_surface_role_get_toplevel (MetaWaylandSurfaceRole *surface_role)
     return NULL;
 }
 
+static MetaWindow *
+meta_wayland_surface_role_get_window (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurfaceRoleClass *klass;
+
+  klass = META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface_role);
+
+  if (klass->get_window)
+    return klass->get_window (surface_role);
+  else
+    return NULL;
+}
+
 MetaWindow *
 meta_wayland_surface_get_window (MetaWaylandSurface *surface)
 {
-  return surface->window;
+  return meta_wayland_surface_role_get_window (surface->role);
 }
 
 static void
