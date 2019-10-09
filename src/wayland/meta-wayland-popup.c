@@ -186,7 +186,7 @@ meta_wayland_popup_grab_begin (MetaWaylandPopupGrab *grab,
                                MetaWaylandSurface   *surface)
 {
   MetaWaylandPointer *pointer = grab->generic.pointer;
-  MetaWindow *window = surface->window;
+  MetaWindow *window = meta_wayland_surface_get_window (surface);
 
   meta_wayland_pointer_start_grab (pointer, (MetaWaylandPointerGrab*)grab);
   meta_display_begin_grab_op (window->display,
