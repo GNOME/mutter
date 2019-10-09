@@ -220,7 +220,7 @@ on_device_added (ClutterSeat              *seat,
   char *path;
 
   device_id = clutter_input_device_get_device_id (device);
-  monitor = meta_idle_monitor_get_for_device (device_id);
+  monitor = meta_idle_monitor_get_for_device (device);
   path = g_strdup_printf ("/org/gnome/Mutter/IdleMonitor/Device%d", device_id);
 
   create_monitor_skeleton (manager, monitor, path);

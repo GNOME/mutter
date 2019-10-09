@@ -121,8 +121,8 @@ void meta_init_backend (GType backend_gtype);
 
 ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
 
-MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend *backend,
-                                                 int          device_id);
+MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend        *backend,
+                                                 ClutterInputDevice *device);
 void meta_backend_foreach_device_monitor (MetaBackend *backend,
                                           GFunc        func,
                                           gpointer     user_data);

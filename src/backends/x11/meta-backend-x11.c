@@ -157,6 +157,9 @@ handle_alarm_notify (MetaBackend           *backend,
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
   MetaIdleMonitor *idle_monitor;
   XSyncAlarmAttributes attr;
+  ClutterBackend *clutter_backend;
+  ClutterSeat *seat;
+  ClutterInputDevice *pointer;
 
   if (alarm_event->state != XSyncAlarmActive ||
       alarm_event->alarm != priv->user_active_alarm)
@@ -166,7 +169,10 @@ handle_alarm_notify (MetaBackend           *backend,
   XSyncChangeAlarm (priv->xdisplay, priv->user_active_alarm,
                     XSyncCAEvents, &attr);
 
-  idle_monitor = meta_backend_get_idle_monitor (backend, 0);
+  clutter_backend = meta_backend_get_clutter_backend (backend);
+  seat = clutter_backend_get_default_seat (clutter_backend);
+  pointer = clutter_seat_get_pointer (seat);
+  idle_monitor = meta_backend_get_idle_monitor (backend, pointer);
   meta_idle_monitor_reset_idletime (idle_monitor);
 }
 

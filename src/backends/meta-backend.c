@@ -81,8 +81,6 @@
 #include "backends/native/meta-backend-native.h"
 #endif
 
-#define META_IDLE_MONITOR_CORE_DEVICE 0
-
 enum
 {
   KEYMAP_CHANGED,
@@ -311,44 +309,42 @@ meta_backend_foreach_device_monitor (MetaBackend *backend,
 }
 
 static MetaIdleMonitor *
-meta_backend_create_idle_monitor (MetaBackend *backend,
-                                  int          device_id)
+meta_backend_create_idle_monitor (MetaBackend        *backend,
+                                  ClutterInputDevice *device)
 {
   return g_object_new (META_TYPE_IDLE_MONITOR,
-                       "device-id", device_id,
+                       "device", device,
                        NULL);
 }
 
 static void
-create_device_monitor (MetaBackend *backend,
-                       int          device_id)
+create_device_monitor (MetaBackend        *backend,
+                       ClutterInputDevice *device)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaIdleMonitor *idle_monitor;
 
-  g_assert (g_hash_table_lookup (priv->device_monitors, &device_id) == NULL);
+  if (g_hash_table_contains (priv->device_monitors, device))
+    return;
 
-  idle_monitor = meta_backend_create_idle_monitor (backend, device_id);
-  g_hash_table_insert (priv->device_monitors, &idle_monitor->device_id, idle_monitor);
+  idle_monitor = meta_backend_create_idle_monitor (backend, device);
+  g_hash_table_insert (priv->device_monitors, device, idle_monitor);
 }
 
 static void
-destroy_device_monitor (MetaBackend *backend,
-                        int          device_id)
+destroy_device_monitor (MetaBackend        *backend,
+                        ClutterInputDevice *device)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
-  g_hash_table_remove (priv->device_monitors, &device_id);
+  g_hash_table_remove (priv->device_monitors, device);
 }
 
 static void
 meta_backend_monitor_device (MetaBackend        *backend,
                              ClutterInputDevice *device)
 {
-  int device_id;
-
-  device_id = clutter_input_device_get_device_id (device);
-  create_device_monitor (backend, device_id);
+  create_device_monitor (backend, device);
 }
 
 static void
@@ -357,9 +353,8 @@ on_device_added (ClutterSeat        *seat,
                  gpointer            user_data)
 {
   MetaBackend *backend = META_BACKEND (user_data);
-  int device_id = clutter_input_device_get_device_id (device);
 
-  create_device_monitor (backend, device_id);
+  create_device_monitor (backend, device);
 }
 
 static inline gboolean
@@ -428,9 +423,8 @@ on_device_removed (ClutterSeat        *seat,
 {
   MetaBackend *backend = META_BACKEND (user_data);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-  int device_id = clutter_input_device_get_device_id (device);
 
-  destroy_device_monitor (backend, device_id);
+  destroy_device_monitor (backend, device);
 
   /* If the device the user last interacted goes away, check again pointer
    * visibility.
@@ -467,7 +461,8 @@ create_device_monitors (MetaBackend *backend,
 {
   GList *l, *devices;
 
-  create_device_monitor (backend, META_IDLE_MONITOR_CORE_DEVICE);
+  create_device_monitor (backend, clutter_seat_get_pointer (seat));
+  create_device_monitor (backend, clutter_seat_get_keyboard (seat));
 
   devices = clutter_seat_list_devices (seat);
   for (l = devices; l; l = l->next)
@@ -525,8 +520,7 @@ meta_backend_real_post_init (MetaBackend *backend)
   priv->cursor_renderer = META_BACKEND_GET_CLASS (backend)->create_cursor_renderer (backend);
 
   priv->device_monitors =
-    g_hash_table_new_full (g_int_hash, g_int_equal,
-                           NULL, (GDestroyNotify) g_object_unref);
+    g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) g_object_unref);
 
   create_device_monitors (backend, seat);
 
@@ -934,12 +928,12 @@ meta_backend_post_init (MetaBackend *backend)
  * meta_backend_get_idle_monitor: (skip)
  */
 MetaIdleMonitor *
-meta_backend_get_idle_monitor (MetaBackend *backend,
-                               int          device_id)
+meta_backend_get_idle_monitor (MetaBackend        *backend,
+                               ClutterInputDevice *device)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
-  return g_hash_table_lookup (priv->device_monitors, &device_id);
+  return g_hash_table_lookup (priv->device_monitors, device);
 }
 
 /**
