@@ -164,26 +164,30 @@ window_associated (MetaWaylandSurfaceRole                   *surface_role,
                    MetaWaylandSurfacePointerConstraintsData *data)
 {
   MetaWaylandSurface *surface = data->surface;
+  MetaWindow *window;
 
-  connect_window (data, surface->window);
+  window = meta_wayland_surface_get_window (surface);
+  connect_window (data, window);
   g_signal_handler_disconnect (surface, data->window_associated_handler_id);
   data->window_associated_handler_id = 0;
 
-  meta_wayland_pointer_constraint_maybe_enable_for_window (surface->window);
+  meta_wayland_pointer_constraint_maybe_enable_for_window (window);
 }
 
 static MetaWaylandSurfacePointerConstraintsData *
 surface_constraint_data_new (MetaWaylandSurface *surface)
 {
   MetaWaylandSurfacePointerConstraintsData *data;
+  MetaWindow *window;
 
   data = g_new0 (MetaWaylandSurfacePointerConstraintsData, 1);
 
   data->surface = surface;
 
-  if (surface->window)
+  window = meta_wayland_surface_get_window (surface);
+  if (window)
     {
-      connect_window (data, surface->window);
+      connect_window (data, window);
     }
   else if (meta_xwayland_is_xwayland_surface (surface))
     {
@@ -283,8 +287,9 @@ static void
 pointer_focus_surface_changed (MetaWaylandPointer           *pointer,
                                MetaWaylandPointerConstraint *constraint)
 {
-  MetaWindow *window = constraint->surface->window;
+  MetaWindow *window;
 
+  window = meta_wayland_surface_get_window (constraint->surface);
   if (window)
     {
       MetaWaylandSeat *seat = meta_wayland_pointer_get_seat (pointer);
@@ -456,7 +461,7 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
 {
   MetaWindow *window;
 
-  window = constraint->surface->window;
+  window = meta_wayland_surface_get_window (constraint->surface);
   if (!window)
     {
       /*
@@ -497,8 +502,6 @@ should_constraint_be_enabled (MetaWaylandPointerConstraint *constraint)
     }
   else
     {
-      MetaWindow *window = constraint->surface->window;
-
       if (!meta_window_appears_focused (window))
         return FALSE;
     }
@@ -613,7 +616,7 @@ meta_wayland_pointer_constraint_calculate_effective_region (MetaWaylandPointerCo
   if (constraint->region)
     cairo_region_intersect (region, constraint->region);
 
-  window = constraint->surface->window;
+  window = meta_wayland_surface_get_window (constraint->surface);
   if (window && window->frame)
     {
       MetaFrame *frame = window->frame;
