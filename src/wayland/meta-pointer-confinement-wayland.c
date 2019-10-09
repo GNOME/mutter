@@ -643,6 +643,7 @@ meta_pointer_confinement_wayland_maybe_warp (MetaPointerConfinementWayland *self
       GArray *borders;
       float closest_distance_2 = FLT_MAX;
       MetaBorder *closest_border = NULL;
+      ClutterSeat *seat;
       unsigned int i;
       float x;
       float y;
@@ -667,7 +668,9 @@ meta_pointer_confinement_wayland_maybe_warp (MetaPointerConfinementWayland *self
       warp_to_behind_border (closest_border, &sx, &sy);
 
       meta_wayland_surface_get_absolute_coordinates (surface, sx, sy, &x, &y);
-      meta_backend_warp_pointer (meta_get_backend (), (int)x, (int)y);
+
+      seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+      clutter_seat_warp_pointer (seat, (int)x, (int)y);
     }
 
   cairo_region_destroy (region);

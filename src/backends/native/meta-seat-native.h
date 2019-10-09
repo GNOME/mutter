@@ -295,11 +295,6 @@ void meta_seat_native_remove_filter (MetaSeatNative        *seat,
                                      MetaEvdevFilterFunc    func,
                                      gpointer               data);
 
-void meta_seat_native_warp_pointer (ClutterInputDevice   *pointer_device,
-                                    uint32_t              time_,
-                                    int                   x,
-                                    int                   y);
-
 struct xkb_state * meta_seat_native_get_xkb_state (MetaSeatNative *seat);
 
 void               meta_seat_native_set_keyboard_map   (MetaSeatNative    *seat,
