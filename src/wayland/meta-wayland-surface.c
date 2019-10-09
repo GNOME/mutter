@@ -972,8 +972,12 @@ wl_surface_frame (struct wl_client *client,
 
   callback = g_slice_new0 (MetaWaylandFrameCallback);
   callback->surface = surface;
-  callback->resource = wl_resource_create (client, &wl_callback_interface, META_WL_CALLBACK_VERSION, callback_id);
-  wl_resource_set_implementation (callback->resource, NULL, callback, destroy_frame_callback);
+  callback->resource = wl_resource_create (client,
+                                           &wl_callback_interface,
+                                           META_WL_CALLBACK_VERSION,
+                                           callback_id);
+  wl_resource_set_implementation (callback->resource, NULL, callback,
+                                  destroy_frame_callback);
 
   wl_list_insert (surface->pending->frame_callback_list.prev, &callback->link);
 }
@@ -1370,7 +1374,9 @@ wl_surface_destructor (struct wl_resource *resource)
 
   meta_wayland_compositor_destroy_frame_callbacks (compositor, surface);
 
-  g_hash_table_foreach (surface->outputs_to_destroy_notify_id, surface_output_disconnect_signal, surface);
+  g_hash_table_foreach (surface->outputs_to_destroy_notify_id,
+                        surface_output_disconnect_signal,
+                        surface);
   g_hash_table_unref (surface->outputs_to_destroy_notify_id);
 
   wl_list_for_each_safe (cb, next, &surface->pending_frame_callback_list, link)
@@ -1419,12 +1425,20 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
                              guint32                id)
 {
   MetaWaylandSurface *surface = g_object_new (META_TYPE_WAYLAND_SURFACE, NULL);
+  int surface_version;
 
   surface->compositor = compositor;
   surface->scale = 1;
 
-  surface->resource = wl_resource_create (client, &wl_surface_interface, wl_resource_get_version (compositor_resource), id);
-  wl_resource_set_implementation (surface->resource, &meta_wayland_wl_surface_interface, surface, wl_surface_destructor);
+  surface_version = wl_resource_get_version (compositor_resource);
+  surface->resource = wl_resource_create (client,
+                                          &wl_surface_interface,
+                                          surface_version,
+                                          id);
+  wl_resource_set_implementation (surface->resource,
+                                  &meta_wayland_wl_surface_interface,
+                                  surface,
+                                  wl_surface_destructor);
 
   wl_list_init (&surface->pending_frame_callback_list);
 
