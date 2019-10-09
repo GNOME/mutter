@@ -26,6 +26,7 @@
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-private.h"
 #include "wayland/meta-wayland-actor-surface.h"
+#include "wayland/meta-xwayland-private.h"
 
 enum
 {
@@ -94,6 +95,8 @@ meta_xwayland_surface_assigned (MetaWaylandSurfaceRole *surface_role)
   wl_list_insert_list (&surface->compositor->frame_callbacks,
                        &surface->pending_frame_callback_list);
   wl_list_init (&surface->pending_frame_callback_list);
+
+  surface->dnd.funcs = meta_xwayland_selection_get_drag_dest_funcs ();
 
   surface_role_class->assigned (surface_role);
 }
