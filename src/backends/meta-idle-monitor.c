@@ -518,13 +518,16 @@ meta_idle_monitor_reset_idletime (MetaIdleMonitor *monitor)
         }
       else
         {
-          if (monitor->inhibited) {
-            g_source_set_ready_time (watch->timeout_source, -1);
-          } else {
-            g_source_set_ready_time (watch->timeout_source,
-                                   monitor->last_event_time +
-                                   watch->timeout_msec * 1000);
-          }
+          if (monitor->inhibited)
+            {
+              g_source_set_ready_time (watch->timeout_source, -1);
+            }
+          else
+            {
+              g_source_set_ready_time (watch->timeout_source,
+                                       monitor->last_event_time +
+                                       watch->timeout_msec * 1000);
+            }
         }
     }
 
