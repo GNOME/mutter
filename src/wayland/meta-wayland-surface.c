@@ -1148,19 +1148,6 @@ static const struct wl_surface_interface meta_wayland_wl_surface_interface = {
 };
 
 static void
-sync_drag_dest_funcs (MetaWaylandSurface *surface)
-{
-  MetaWindow *window;
-
-  window = meta_wayland_surface_get_window (surface);
-  if (window &&
-      window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-    surface->dnd.funcs = meta_xwayland_selection_get_drag_dest_funcs ();
-  else
-    surface->dnd.funcs = meta_wayland_data_device_get_drag_dest_funcs ();
-}
-
-static void
 surface_entered_output (MetaWaylandSurface *surface,
                         MetaWaylandOutput *wayland_output)
 {
@@ -1324,8 +1311,6 @@ meta_wayland_surface_set_window (MetaWaylandSurface *surface,
   if (actor)
     clutter_actor_set_reactive (actor, !!window);
 
-  sync_drag_dest_funcs (surface);
-
   if (was_unmapped)
     g_signal_emit (surface, surface_signals[SURFACE_UNMAPPED], 0);
 
@@ -1447,8 +1432,6 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
                                   wl_surface_destructor);
 
   wl_list_init (&surface->pending_frame_callback_list);
-
-  sync_drag_dest_funcs (surface);
 
   surface->outputs_to_destroy_notify_id = g_hash_table_new (NULL, NULL);
   surface->shortcut_inhibited_seats = g_hash_table_new (NULL, NULL);
