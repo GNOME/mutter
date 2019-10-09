@@ -281,7 +281,7 @@ meta_wayland_subsurface_sync_actor_state (MetaWaylandActorSurface *actor_surface
   MetaWaylandSurface *toplevel_surface;
 
   toplevel_surface = meta_wayland_surface_get_toplevel (surface);
-  if (toplevel_surface && toplevel_surface->window)
+  if (toplevel_surface && meta_wayland_surface_get_window (toplevel_surface))
     actor_surface_class->sync_actor_state (actor_surface);
 
   sync_actor_subsurface_state (surface);

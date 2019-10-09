@@ -83,7 +83,7 @@ gtk_surface_set_dbus_properties (struct wl_client   *client,
   MetaWaylandSurface *surface = gtk_surface->surface;
   MetaWindow *window;
 
-  window = surface->window;
+  window = meta_wayland_surface_get_window (surface);
   if (!window)
     return;
 
@@ -104,7 +104,7 @@ gtk_surface_set_modal (struct wl_client   *client,
   MetaWaylandSurface *surface = gtk_surface->surface;
   MetaWindow *window;
 
-  window = surface->window;
+  window = meta_wayland_surface_get_window (surface);
   if (!window)
     return;
 
@@ -123,7 +123,7 @@ gtk_surface_unset_modal (struct wl_client   *client,
   MetaWaylandSurface *surface = gtk_surface->surface;
   MetaWindow *window;
 
-  window = surface->window;
+  window = meta_wayland_surface_get_window (surface);
   if (!window)
     return;
 
@@ -143,7 +143,7 @@ gtk_surface_present (struct wl_client   *client,
   MetaWaylandSurface *surface = gtk_surface->surface;
   MetaWindow *window;
 
-  window = surface->window;
+  window = meta_wayland_surface_get_window (surface);
   if (!window)
     return;
 
@@ -162,7 +162,7 @@ gtk_surface_request_focus (struct wl_client   *client,
   MetaStartupSequence *sequence = NULL;
   MetaWindow *window;
 
-  window = surface->window;
+  window = meta_wayland_surface_get_window (surface);
   if (!window)
     return;
 
@@ -313,11 +313,14 @@ static void
 on_configure (MetaWaylandSurface    *surface,
               MetaWaylandGtkSurface *gtk_surface)
 {
-  send_configure (gtk_surface, surface->window);
+  MetaWindow *window;
 
+  window = meta_wayland_surface_get_window (surface);
+  send_configure (gtk_surface, window);
 
-  if (wl_resource_get_version (gtk_surface->resource) >= GTK_SURFACE1_CONFIGURE_EDGES_SINCE_VERSION)
-    send_configure_edges (gtk_surface, surface->window);
+  if (wl_resource_get_version (gtk_surface->resource) >=
+      GTK_SURFACE1_CONFIGURE_EDGES_SINCE_VERSION)
+    send_configure_edges (gtk_surface, window);
 }
 
 static void
@@ -387,11 +390,13 @@ gtk_shell_system_bell (struct wl_client   *client,
       MetaWaylandGtkSurface *gtk_surface =
         wl_resource_get_user_data (gtk_surface_resource);
       MetaWaylandSurface *surface = gtk_surface->surface;
+      MetaWindow *window;
 
-      if (!surface->window)
+      window = meta_wayland_surface_get_window (surface);
+      if (!window)
         return;
 
-      meta_bell_notify (display, surface->window);
+      meta_bell_notify (display, window);
     }
   else
     {
