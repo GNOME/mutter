@@ -102,6 +102,21 @@ meta_xwayland_surface_assigned (MetaWaylandSurfaceRole *surface_role)
 }
 
 static void
+meta_xwayland_surface_pre_commit (MetaWaylandSurfaceRole  *surface_role,
+                                  MetaWaylandPendingState *pending)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWindow *window;
+
+  window = meta_wayland_surface_get_window (surface);
+  if (pending->newly_attached &&
+      surface->buffer_ref.buffer &&
+      window)
+    meta_window_queue (window, META_QUEUE_CALC_SHOWING);
+}
+
+static void
 meta_xwayland_surface_commit (MetaWaylandSurfaceRole  *surface_role,
                               MetaWaylandPendingState *pending)
 {
@@ -207,6 +222,7 @@ meta_xwayland_surface_class_init (MetaXwaylandSurfaceClass *klass)
   object_class->finalize = meta_xwayland_surface_finalize;
 
   surface_role_class->assigned = meta_xwayland_surface_assigned;
+  surface_role_class->pre_commit = meta_xwayland_surface_pre_commit;
   surface_role_class->commit = meta_xwayland_surface_commit;
   surface_role_class->get_relative_coordinates =
     meta_xwayland_surface_get_relative_coordinates;
