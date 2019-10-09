@@ -1501,6 +1501,21 @@ meta_seat_x11_get_supported_virtual_device_types (ClutterSeat *seat)
 }
 
 static void
+meta_seat_x11_warp_pointer (ClutterSeat *seat,
+                            int          x,
+                            int          y)
+{
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+
+  XIWarpPointer (clutter_x11_get_default_display (),
+                 seat_x11->pointer_id,
+                 None,
+                 clutter_x11_get_root_window (),
+                 0, 0, 0, 0,
+                 x, y);
+}
+
+static void
 meta_seat_x11_class_init (MetaSeatX11Class *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -1521,6 +1536,7 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->apply_kbd_a11y_settings = meta_seat_x11_apply_kbd_a11y_settings;
   seat_class->create_virtual_device = meta_seat_x11_create_virtual_device;
   seat_class->get_supported_virtual_device_types = meta_seat_x11_get_supported_virtual_device_types;
+  seat_class->warp_pointer = meta_seat_x11_warp_pointer;
 
   props[PROP_OPCODE] =
     g_param_spec_int ("opcode",

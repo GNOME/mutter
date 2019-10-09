@@ -237,6 +237,7 @@ reset_pointer_position (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaMonitorManager *monitor_manager = priv->monitor_manager;
+  ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
   MetaLogicalMonitor *primary;
 
   primary =
@@ -244,7 +245,7 @@ reset_pointer_position (MetaBackend *backend)
 
   /* Move the pointer out of the way to avoid hovering over reactive
    * elements (e.g. users list at login) causing undesired behaviour. */
-  meta_backend_warp_pointer (backend,
+  clutter_seat_warp_pointer (seat,
                              primary->rect.x + primary->rect.width * 0.9,
                              primary->rect.y + primary->rect.height * 0.9);
 }
@@ -1065,17 +1066,6 @@ meta_backend_finish_touch_sequence (MetaBackend          *backend,
     META_BACKEND_GET_CLASS (backend)->finish_touch_sequence (backend,
                                                              sequence,
                                                              state);
-}
-
-/**
- * meta_backend_warp_pointer: (skip)
- */
-void
-meta_backend_warp_pointer (MetaBackend *backend,
-                           int          x,
-                           int          y)
-{
-  META_BACKEND_GET_CLASS (backend)->warp_pointer (backend, x, y);
 }
 
 MetaLogicalMonitor *

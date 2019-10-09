@@ -670,22 +670,6 @@ meta_backend_x11_finish_touch_sequence (MetaBackend          *backend,
     }
 }
 
-static void
-meta_backend_x11_warp_pointer (MetaBackend *backend,
-                               int          x,
-                               int          y)
-{
-  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
-  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-
-  XIWarpPointer (priv->xdisplay,
-                 META_VIRTUAL_CORE_POINTER_ID,
-                 None,
-                 meta_backend_x11_get_xwindow (x11),
-                 0, 0, 0, 0,
-                 x, y);
-}
-
 static MetaLogicalMonitor *
 meta_backend_x11_get_current_logical_monitor (MetaBackend *backend)
 {
@@ -862,7 +846,6 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
   backend_class->grab_device = meta_backend_x11_grab_device;
   backend_class->ungrab_device = meta_backend_x11_ungrab_device;
   backend_class->finish_touch_sequence = meta_backend_x11_finish_touch_sequence;
-  backend_class->warp_pointer = meta_backend_x11_warp_pointer;
   backend_class->get_current_logical_monitor = meta_backend_x11_get_current_logical_monitor;
   backend_class->get_keymap = meta_backend_x11_get_keymap;
   backend_class->get_keymap_layout_group = meta_backend_x11_get_keymap_layout_group;

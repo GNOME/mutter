@@ -403,25 +403,6 @@ meta_backend_native_create_input_settings (MetaBackend *backend)
   return g_object_new (META_TYPE_INPUT_SETTINGS_NATIVE, NULL);
 }
 
-static void
-meta_backend_native_warp_pointer (MetaBackend *backend,
-                                  int          x,
-                                  int          y)
-{
-  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  ClutterInputDevice *device = clutter_seat_get_pointer (seat);
-  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
-
-  /* XXX */
-  guint32 time_ = 0;
-
-  /* Warp the input device pointer state. */
-  meta_seat_native_warp_pointer (device, time_, x, y);
-
-  /* Warp displayed pointer cursor. */
-  meta_cursor_tracker_update_position (cursor_tracker, x, y);
-}
-
 static MetaLogicalMonitor *
 meta_backend_native_get_current_logical_monitor (MetaBackend *backend)
 {
@@ -703,8 +684,6 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->create_cursor_renderer = meta_backend_native_create_cursor_renderer;
   backend_class->create_renderer = meta_backend_native_create_renderer;
   backend_class->create_input_settings = meta_backend_native_create_input_settings;
-
-  backend_class->warp_pointer = meta_backend_native_warp_pointer;
 
   backend_class->get_current_logical_monitor = meta_backend_native_get_current_logical_monitor;
 
