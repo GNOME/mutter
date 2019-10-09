@@ -224,6 +224,19 @@ meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
     }
 }
 
+static void
+meta_wayland_subsurface_assigned (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandSurfaceRoleClass *surface_role_class =
+    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_subsurface_parent_class);
+
+  surface->dnd.funcs = meta_wayland_data_device_get_drag_dest_funcs ();
+
+  surface_role_class->assigned (surface_role);
+}
+
 static MetaWaylandSurface *
 meta_wayland_subsurface_get_toplevel (MetaWaylandSurfaceRole *surface_role)
 {
@@ -300,6 +313,7 @@ meta_wayland_subsurface_class_init (MetaWaylandSubsurfaceClass *klass)
   MetaWaylandActorSurfaceClass *actor_surface_class =
     META_WAYLAND_ACTOR_SURFACE_CLASS (klass);
 
+  surface_role_class->assigned = meta_wayland_subsurface_assigned;
   surface_role_class->get_toplevel = meta_wayland_subsurface_get_toplevel;
   surface_role_class->notify_subsurface_state_changed =
     meta_wayland_subsurface_notify_subsurface_state_changed;
