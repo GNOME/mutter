@@ -241,6 +241,11 @@ meta_wayland_actor_surface_commit (MetaWaylandSurfaceRole  *surface_role,
   if (!priv->actor)
     return;
 
+  if (!wl_list_empty (&pending->frame_callback_list) &&
+      cairo_region_is_empty (pending->surface_damage) &&
+      cairo_region_is_empty (pending->buffer_damage))
+    clutter_actor_queue_redraw (CLUTTER_ACTOR (priv->actor));
+
   meta_wayland_actor_surface_queue_frame_callbacks (actor_surface, pending);
 
   meta_wayland_actor_surface_sync_actor_state (actor_surface);
