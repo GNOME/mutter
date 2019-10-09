@@ -291,15 +291,21 @@ meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
   uint32_t time_us_lo;
   wl_fixed_t dxf, dyf;
   wl_fixed_t dx_unaccelf, dy_unaccelf;
+  MetaBackend *backend = meta_get_backend ();
 
   if (!pointer->focus_client)
     return;
 
-  if (!meta_backend_get_relative_motion_deltas (meta_get_backend (),
-                                                event,
-                                                &dx, &dy,
-                                                &dx_unaccel, &dy_unaccel))
+#ifdef HAVE_NATIVE_BACKEND
+  if (!META_IS_BACKEND_NATIVE (backend) ||
+      !meta_event_native_get_relative_motion (event,
+                                              &dx, &dy,
+                                              &dx_unaccel, &dy_unaccel))
     return;
+#else
+  if (META_IS_BACKEND_X11 (backend))
+    return;
+#endif
 
 #ifdef HAVE_NATIVE_BACKEND
   time_us = meta_event_native_get_time_usec (event);

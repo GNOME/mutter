@@ -589,17 +589,6 @@ meta_backend_real_select_stage_events (MetaBackend *backend)
 }
 
 static gboolean
-meta_backend_real_get_relative_motion_deltas (MetaBackend *backend,
-                                             const         ClutterEvent *event,
-                                             double        *dx,
-                                             double        *dy,
-                                             double        *dx_unaccel,
-                                             double        *dy_unaccel)
-{
-  return FALSE;
-}
-
-static gboolean
 meta_backend_real_is_lid_closed (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
@@ -751,7 +740,6 @@ meta_backend_class_init (MetaBackendClass *klass)
   klass->grab_device = meta_backend_real_grab_device;
   klass->ungrab_device = meta_backend_real_ungrab_device;
   klass->select_stage_events = meta_backend_real_select_stage_events;
-  klass->get_relative_motion_deltas = meta_backend_real_get_relative_motion_deltas;
   klass->is_lid_closed = meta_backend_real_is_lid_closed;
 
   signals[KEYMAP_CHANGED] =
@@ -1219,21 +1207,6 @@ meta_backend_update_last_device (MetaBackend        *backend,
       g_source_set_name_by_id (priv->device_update_idle_id,
                                "[mutter] update_last_device");
     }
-}
-
-gboolean
-meta_backend_get_relative_motion_deltas (MetaBackend *backend,
-                                         const        ClutterEvent *event,
-                                         double       *dx,
-                                         double       *dy,
-                                         double       *dx_unaccel,
-                                         double       *dy_unaccel)
-{
-  MetaBackendClass *klass = META_BACKEND_GET_CLASS (backend);
-  return klass->get_relative_motion_deltas (backend,
-                                            event,
-                                            dx, dy,
-                                            dx_unaccel, dy_unaccel);
 }
 
 MetaPointerConstraint *

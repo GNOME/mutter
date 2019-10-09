@@ -106,12 +106,6 @@ struct _MetaBackendClass
   void (* update_screen_size) (MetaBackend *backend, int width, int height);
   void (* select_stage_events) (MetaBackend *backend);
 
-  gboolean (* get_relative_motion_deltas) (MetaBackend *backend,
-                                           const        ClutterEvent *event,
-                                           double       *dx,
-                                           double       *dy,
-                                           double       *dx_unaccel,
-                                           double       *dy_unaccel);
   void (* set_numlock) (MetaBackend *backend,
                         gboolean     numlock_state);
 
@@ -169,13 +163,6 @@ void meta_backend_thaw_updates (MetaBackend *backend);
 
 void meta_backend_update_last_device (MetaBackend        *backend,
                                       ClutterInputDevice *device);
-
-gboolean meta_backend_get_relative_motion_deltas (MetaBackend *backend,
-                                                  const        ClutterEvent *event,
-                                                  double       *dx,
-                                                  double       *dy,
-                                                  double       *dx_unaccel,
-                                                  double       *dy_unaccel);
 
 MetaPointerConstraint * meta_backend_get_client_pointer_constraint (MetaBackend *backend);
 void meta_backend_set_client_pointer_constraint (MetaBackend *backend,

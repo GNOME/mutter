@@ -508,19 +508,6 @@ meta_backend_native_set_numlock (MetaBackend *backend,
                                          numlock_state);
 }
 
-static gboolean
-meta_backend_native_get_relative_motion_deltas (MetaBackend *backend,
-                                                const        ClutterEvent *event,
-                                                double       *dx,
-                                                double       *dy,
-                                                double       *dx_unaccel,
-                                                double       *dy_unaccel)
-{
-  return meta_event_native_get_relative_motion (event,
-                                                dx, dy,
-                                                dx_unaccel, dy_unaccel);
-}
-
 static void
 meta_backend_native_update_screen_size (MetaBackend *backend,
                                         int width, int height)
@@ -725,7 +712,6 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->get_keymap = meta_backend_native_get_keymap;
   backend_class->get_keymap_layout_group = meta_backend_native_get_keymap_layout_group;
   backend_class->lock_layout_group = meta_backend_native_lock_layout_group;
-  backend_class->get_relative_motion_deltas = meta_backend_native_get_relative_motion_deltas;
   backend_class->update_screen_size = meta_backend_native_update_screen_size;
   backend_class->set_numlock = meta_backend_native_set_numlock;
 }
