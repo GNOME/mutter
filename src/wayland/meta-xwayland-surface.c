@@ -123,6 +123,23 @@ meta_xwayland_surface_commit (MetaWaylandSurfaceRole  *surface_role,
   surface_role_class->commit (surface_role, pending);
 }
 
+static void
+meta_xwayland_surface_get_relative_coordinates (MetaWaylandSurfaceRole *surface_role,
+                                                float                   abs_x,
+                                                float                   abs_y,
+                                                float                  *out_sx,
+                                                float                  *out_sy)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaRectangle window_rect;
+
+  meta_window_get_buffer_rect (meta_wayland_surface_get_window (surface),
+                               &window_rect);
+  *out_sx = abs_x - window_rect.x;
+  *out_sy = abs_y - window_rect.y;
+}
+
 static MetaWaylandSurface *
 meta_xwayland_surface_get_toplevel (MetaWaylandSurfaceRole *surface_role)
 {
@@ -188,6 +205,8 @@ meta_xwayland_surface_class_init (MetaXwaylandSurfaceClass *klass)
 
   surface_role_class->assigned = meta_xwayland_surface_assigned;
   surface_role_class->commit = meta_xwayland_surface_commit;
+  surface_role_class->get_relative_coordinates =
+    meta_xwayland_surface_get_relative_coordinates;
   surface_role_class->get_toplevel = meta_xwayland_surface_get_toplevel;
 
   actor_surface_class->get_geometry_scale =

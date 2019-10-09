@@ -63,6 +63,11 @@ struct _MetaWaylandSurfaceRoleClass
   gboolean (*is_on_logical_monitor) (MetaWaylandSurfaceRole *surface_role,
                                      MetaLogicalMonitor     *logical_monitor);
   MetaWaylandSurface * (*get_toplevel) (MetaWaylandSurfaceRole *surface_role);
+  void (*get_relative_coordinates) (MetaWaylandSurfaceRole *surface_role,
+                                    float                   abs_x,
+                                    float                   abs_y,
+                                    float                  *out_sx,
+                                    float                  *out_sy);
   void (*notify_subsurface_state_changed) (MetaWaylandSurfaceRole *surface_role);
 };
 
