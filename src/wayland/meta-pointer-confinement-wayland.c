@@ -693,6 +693,7 @@ meta_pointer_confinement_wayland_new (MetaWaylandPointerConstraint *constraint)
   GObject *object;
   MetaPointerConfinementWayland *confinement;
   MetaWaylandSurface *surface;
+  MetaWindow *window;
 
   object = g_object_new (META_TYPE_POINTER_CONFINEMENT_WAYLAND, NULL);
   confinement = META_POINTER_CONFINEMENT_WAYLAND (object);
@@ -705,9 +706,11 @@ meta_pointer_confinement_wayland_new (MetaWaylandPointerConstraint *constraint)
                            G_CALLBACK (surface_geometry_changed),
                            confinement,
                            0);
-  if (surface->window)
+
+  window = meta_wayland_surface_get_window (surface);
+  if (window)
     {
-      g_signal_connect_object (surface->window,
+      g_signal_connect_object (window,
                                "position-changed",
                                G_CALLBACK (window_position_changed),
                                confinement,
