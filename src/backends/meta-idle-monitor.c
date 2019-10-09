@@ -207,6 +207,8 @@ update_inhibited (MetaIdleMonitor *monitor,
   if (inhibited == monitor->inhibited)
     return;
 
+  monitor->inhibited = inhibited;
+
   g_hash_table_foreach (monitor->watches,
                         update_inhibited_watch,
                         monitor);
@@ -516,9 +518,16 @@ meta_idle_monitor_reset_idletime (MetaIdleMonitor *monitor)
         }
       else
         {
-          g_source_set_ready_time (watch->timeout_source,
-                                   monitor->last_event_time +
-                                   watch->timeout_msec * 1000);
+          if (monitor->inhibited)
+            {
+              g_source_set_ready_time (watch->timeout_source, -1);
+            }
+          else
+            {
+              g_source_set_ready_time (watch->timeout_source,
+                                       monitor->last_event_time +
+                                       watch->timeout_msec * 1000);
+            }
         }
     }
 
