@@ -556,3 +556,13 @@ clutter_seat_compress_motion (ClutterSeat        *seat,
 
   seat_class->compress_motion (seat, event, to_discard);
 }
+
+void
+clutter_seat_warp_pointer (ClutterSeat *seat,
+                           int          x,
+                           int          y)
+{
+  g_return_if_fail (CLUTTER_IS_SEAT (seat));
+
+  CLUTTER_SEAT_GET_CLASS (seat)->warp_pointer (seat, x, y);
+}

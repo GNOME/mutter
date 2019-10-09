@@ -71,10 +71,6 @@ struct _MetaBackendClass
                               int          device_id,
                               uint32_t     timestamp);
 
-  void (* warp_pointer) (MetaBackend *backend,
-                         int          x,
-                         int          y);
-
   MetaLogicalMonitor * (* get_current_logical_monitor) (MetaBackend *backend);
 
   void (* set_keymap) (MetaBackend *backend,
@@ -128,10 +124,6 @@ gboolean meta_backend_grab_device (MetaBackend *backend,
 gboolean meta_backend_ungrab_device (MetaBackend *backend,
                                      int          device_id,
                                      uint32_t     timestamp);
-
-void meta_backend_warp_pointer (MetaBackend *backend,
-                                int          x,
-                                int          y);
 
 MetaLogicalMonitor * meta_backend_get_current_logical_monitor (MetaBackend *backend);
 
