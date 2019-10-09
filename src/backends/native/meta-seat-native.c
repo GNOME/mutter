@@ -32,6 +32,7 @@
 #include <linux/input.h>
 #include <math.h>
 
+#include "backends/meta-cursor-tracker-private.h"
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-event-native.h"
 #include "backends/native/meta-input-device-native.h"
@@ -2625,6 +2626,20 @@ meta_seat_native_compress_motion (ClutterSeat        *seat,
 }
 
 static void
+meta_seat_native_warp_pointer (ClutterSeat *seat,
+                               int          x,
+                               int          y)
+{
+  MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
+  MetaBackend *backend = meta_get_backend ();
+  MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
+
+  notify_absolute_motion (seat_native->core_pointer, 0, x, y, NULL);
+
+  meta_cursor_tracker_update_position (cursor_tracker, x, y);
+}
+
+static void
 meta_seat_native_class_init (MetaSeatNativeClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
@@ -2647,6 +2662,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->create_virtual_device = meta_seat_native_create_virtual_device;
   seat_class->get_supported_virtual_device_types = meta_seat_native_get_supported_virtual_device_types;
   seat_class->compress_motion = meta_seat_native_compress_motion;
+  seat_class->warp_pointer = meta_seat_native_warp_pointer;
 
   props[PROP_SEAT_ID] =
     g_param_spec_string ("seat-id",
@@ -2930,33 +2946,6 @@ meta_seat_native_update_xkb_state (MetaSeatNative *seat)
   seat->scroll_lock_led = xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_SCROLL);
 
   meta_seat_native_sync_leds (seat);
-}
-
-/**
- * meta_seat_native_warp_pointer:
- * @pointer_device: the pointer device to warp
- * @time: the timestamp for the warp event
- * @x: the new X position of the pointer
- * @y: the new Y position of the pointer
- *
- * Warps the pointer to a new location. Technically, this is
- * processed the same way as an absolute motion event from
- * libinput: it simply generates an absolute motion event that
- * will be processed on the next iteration of the mainloop.
- *
- * The intended use for this is for display servers that need
- * to warp cursor the cursor to a new location.
- *
- * Since: 1.20
- * Stability: unstable
- */
-void
-meta_seat_native_warp_pointer (ClutterInputDevice   *pointer_device,
-                               uint32_t              time_,
-                               int                   x,
-                               int                   y)
-{
-  notify_absolute_motion (pointer_device, ms2us(time_), x, y, NULL);
 }
 
 gint

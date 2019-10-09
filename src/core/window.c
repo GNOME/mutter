@@ -6868,8 +6868,10 @@ warp_grab_pointer (MetaWindow          *window,
                               &display->grab_anchor_window_pos);
 
   {
-    MetaBackend *backend = meta_get_backend ();
-    meta_backend_warp_pointer (backend, *x, *y);
+    ClutterSeat *seat;
+
+    seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+    clutter_seat_warp_pointer (seat, *x, *y);
   }
 
   if (meta_x11_error_trap_pop_with_return (display->x11_display) != Success)
