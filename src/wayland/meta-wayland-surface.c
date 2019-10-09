@@ -633,8 +633,11 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
 
   if (state->newly_attached)
     {
-      if (!surface->buffer_ref.buffer && surface->window)
-        meta_window_queue (surface->window, META_QUEUE_CALC_SHOWING);
+      MetaWindow *window;
+
+      window = meta_wayland_surface_get_window (surface);
+      if (!surface->buffer_ref.buffer && window)
+        meta_window_queue (window, META_QUEUE_CALC_SHOWING);
 
       /* Always release any previously held buffer. If the buffer held is same
        * as the newly attached buffer, we still need to release it here, because
@@ -1128,8 +1131,11 @@ static const struct wl_surface_interface meta_wayland_wl_surface_interface = {
 static void
 sync_drag_dest_funcs (MetaWaylandSurface *surface)
 {
-  if (surface->window &&
-      surface->window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+  MetaWindow *window;
+
+  window = meta_wayland_surface_get_window (surface);
+  if (window &&
+      window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     surface->dnd.funcs = meta_xwayland_selection_get_drag_dest_funcs ();
   else
     surface->dnd.funcs = meta_wayland_data_device_get_drag_dest_funcs ();
@@ -1434,7 +1440,7 @@ meta_wayland_surface_begin_grab_op (MetaWaylandSurface *surface,
                                     gfloat              x,
                                     gfloat              y)
 {
-  MetaWindow *window = surface->window;
+  MetaWindow *window = meta_wayland_surface_get_window (surface);
 
   if (grab_op == META_GRAB_OP_NONE)
     return FALSE;
@@ -1574,7 +1580,7 @@ meta_wayland_surface_get_toplevel_window (MetaWaylandSurface *surface)
 
   toplevel = meta_wayland_surface_get_toplevel (surface);
   if (toplevel)
-    return toplevel->window;
+    return meta_wayland_surface_get_window (toplevel);
   else
     return NULL;
 }
@@ -1586,6 +1592,8 @@ meta_wayland_surface_get_relative_coordinates (MetaWaylandSurface *surface,
                                                float               *sx,
                                                float               *sy)
 {
+  MetaWindow *window;
+
   /* Using clutter API to transform coordinates is only accurate right
    * after a clutter layout pass but this function is used e.g. to
    * deliver pointer motion events which can happen at any time. This
@@ -1594,12 +1602,13 @@ meta_wayland_surface_get_relative_coordinates (MetaWaylandSurface *surface,
    * coordinates if a client is moving a window in response to motion
    * events.
    */
-  if (surface->window &&
-      surface->window->client_type == META_WINDOW_CLIENT_TYPE_X11)
+  window = meta_wayland_surface_get_window (surface);
+  if (window &&
+      window->client_type == META_WINDOW_CLIENT_TYPE_X11)
     {
       MetaRectangle window_rect;
 
-      meta_window_get_buffer_rect (surface->window, &window_rect);
+      meta_window_get_buffer_rect (window, &window_rect);
       *sx = abs_x - window_rect.x;
       *sy = abs_y - window_rect.y;
     }
@@ -1820,6 +1829,12 @@ meta_wayland_surface_role_get_toplevel (MetaWaylandSurfaceRole *surface_role)
     return klass->get_toplevel (surface_role);
   else
     return NULL;
+}
+
+MetaWindow *
+meta_wayland_surface_get_window (MetaWaylandSurface *surface)
+{
+  return surface->window;
 }
 
 static gboolean

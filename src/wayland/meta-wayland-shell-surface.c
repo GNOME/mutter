@@ -154,7 +154,7 @@ meta_wayland_shell_surface_surface_apply_state (MetaWaylandSurfaceRole  *surface
   if (!buffer)
     return;
 
-  window = surface->window;
+  window = meta_wayland_surface_get_window (surface);
   if (!window)
     return;
 
@@ -174,7 +174,7 @@ meta_wayland_shell_surface_notify_subsurface_state_changed (MetaWaylandSurfaceRo
   MetaWindow *window;
   MetaWindowActor *window_actor;
 
-  window = surface->window;
+  window = meta_wayland_surface_get_window (surface);
   if (!window)
     return;
 
@@ -207,11 +207,13 @@ meta_wayland_shell_surface_sync_actor_state (MetaWaylandActorSurface *actor_surf
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWaylandActorSurfaceClass *actor_surface_class =
     META_WAYLAND_ACTOR_SURFACE_CLASS (meta_wayland_shell_surface_parent_class);
-  MetaWaylandSurface *toplevel_surface;
+  MetaWindow *toplevel_window;
 
-  toplevel_surface = meta_wayland_surface_get_toplevel (surface);
-  if (toplevel_surface && toplevel_surface->window)
-    actor_surface_class->sync_actor_state (actor_surface);
+  toplevel_window = meta_wayland_surface_get_toplevel_window (surface);
+  if (!toplevel_window)
+    return;
+
+  actor_surface_class->sync_actor_state (actor_surface);
 }
 
 void
@@ -225,14 +227,14 @@ meta_wayland_shell_surface_destroy_window (MetaWaylandShellSurface *shell_surfac
   MetaDisplay *display;
   uint32_t timestamp;
 
-  window = surface->window;
+  window = meta_wayland_surface_get_window (surface);
   if (!window)
     return;
 
   display = meta_window_get_display (window);
   timestamp = meta_display_get_current_time_roundtrip (display);
-  meta_window_unmanage (surface->window, timestamp);
-  g_assert (!surface->window);
+  meta_window_unmanage (window, timestamp);
+  g_assert (!meta_wayland_surface_get_window (surface));
 }
 
 static void

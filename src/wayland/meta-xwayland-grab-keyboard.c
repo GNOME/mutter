@@ -228,7 +228,7 @@ static void
 meta_xwayland_keyboard_grab_activate (MetaXwaylandKeyboardActiveGrab *active_grab)
 {
   MetaWaylandSurface *surface = active_grab->surface;
-  MetaWindow *window = surface->window;
+  MetaWindow *window = meta_wayland_surface_get_window (surface);
   MetaWaylandSeat *seat = active_grab->seat;
 
   if (meta_xwayland_grab_is_granted (window))
@@ -259,7 +259,7 @@ zwp_xwayland_keyboard_grab_manager_grab (struct wl_client   *client,
                                          struct wl_resource *seat_resource)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (surface_resource);
-  MetaWindow *window = surface->window;
+  MetaWindow *window = meta_wayland_surface_get_window (surface);
   MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
   MetaXwaylandKeyboardActiveGrab *active_grab;
   struct wl_resource *grab_resource;

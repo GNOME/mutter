@@ -471,7 +471,7 @@ meta_x11_drag_dest_focus_in (MetaWaylandDataDevice *data_device,
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   MetaXWaylandDnd *dnd = compositor->xwayland_manager.dnd;
 
-  dnd->dnd_dest = surface->window->xwindow;
+  dnd->dnd_dest = meta_wayland_surface_get_window (surface)->xwindow;
   xdnd_send_enter (dnd, dnd->dnd_dest);
 }
 
@@ -619,6 +619,7 @@ repick_drop_surface (MetaWaylandCompositor *compositor,
   Display *xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
   MetaXWaylandDnd *dnd = compositor->xwayland_manager.dnd;
   MetaWaylandSurface *focus = NULL;
+  MetaWindow *focus_window;
 
   focus = pick_drop_surface (compositor, event);
   if (dnd->focus_surface == focus)
@@ -626,15 +627,20 @@ repick_drop_surface (MetaWaylandCompositor *compositor,
 
   dnd->focus_surface = focus;
 
-  if (focus &&
-      focus->window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
+  if (focus)
+    focus_window = meta_wayland_surface_get_window (focus);
+  else
+    focus_window = NULL;
+
+  if (focus_window &&
+      focus_window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
     {
       XMapRaised (xdisplay, dnd->dnd_window);
       XMoveResizeWindow (xdisplay, dnd->dnd_window,
-                         focus->window->rect.x,
-                         focus->window->rect.y,
-                         focus->window->rect.width,
-                         focus->window->rect.height);
+                         focus_window->rect.x,
+                         focus_window->rect.y,
+                         focus_window->rect.width,
+                         focus_window->rect.height);
     }
   else
     {

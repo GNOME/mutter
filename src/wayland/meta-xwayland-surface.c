@@ -102,7 +102,7 @@ meta_xwayland_surface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
   MetaWaylandActorSurfaceClass *actor_surface_class =
     META_WAYLAND_ACTOR_SURFACE_CLASS (meta_xwayland_surface_parent_class);
 
-  if (surface->window)
+  if (meta_wayland_surface_get_window (surface))
     actor_surface_class->sync_actor_state (actor_surface);
 }
 
@@ -117,7 +117,7 @@ meta_xwayland_surface_finalize (GObject *object)
     G_OBJECT_CLASS (meta_xwayland_surface_parent_class);
   MetaWindow *window;
 
-  window = surface->window;
+  window = meta_wayland_surface_get_window (surface);
   if (window)
     {
       meta_wayland_surface_set_window (surface, NULL);
