@@ -26,6 +26,7 @@
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-private.h"
 #include "wayland/meta-wayland-actor-surface.h"
+#include "wayland/meta-xwayland-private.h"
 
 enum
 {
@@ -78,6 +79,19 @@ meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surfa
       surface_actor = meta_wayland_surface_get_actor (surface);
       meta_window_actor_assign_surface_actor (window_actor, surface_actor);
     }
+}
+
+static void
+meta_xwayland_surface_assigned (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWaylandSurfaceRoleClass *surface_role_class =
+    META_WAYLAND_SURFACE_ROLE_CLASS (meta_xwayland_surface_parent_class);
+
+  surface->dnd.funcs = meta_xwayland_selection_get_drag_dest_funcs ();
+
+  surface_role_class->assigned (surface_role);
 }
 
 static void
@@ -160,6 +174,7 @@ meta_xwayland_surface_class_init (MetaXwaylandSurfaceClass *klass)
 
   object_class->finalize = meta_xwayland_surface_finalize;
 
+  surface_role_class->assigned = meta_xwayland_surface_assigned;
   surface_role_class->get_relative_coordinates =
     meta_xwayland_surface_get_relative_coordinates;
   surface_role_class->get_toplevel = meta_xwayland_surface_get_toplevel;

@@ -134,6 +134,19 @@ meta_wayland_shell_surface_managed (MetaWaylandShellSurface *shell_surface,
 }
 
 static void
+meta_wayland_shell_surface_assigned (MetaWaylandSurfaceRole *surface_role)
+{
+  MetaWaylandSurfaceRoleClass *surface_role_class =
+    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_shell_surface_parent_class);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+
+  surface->dnd.funcs = meta_wayland_data_device_get_drag_dest_funcs ();
+
+  surface_role_class->assigned (surface_role);
+}
+
+static void
 meta_wayland_shell_surface_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
                                                 MetaWaylandSurfaceState *pending)
 {
@@ -263,6 +276,7 @@ meta_wayland_shell_surface_class_init (MetaWaylandShellSurfaceClass *klass)
 
   object_class->finalize = meta_wayland_shell_surface_finalize;
 
+  surface_role_class->assigned = meta_wayland_shell_surface_assigned;
   surface_role_class->apply_state =
     meta_wayland_shell_surface_surface_apply_state;
   surface_role_class->notify_subsurface_state_changed =
