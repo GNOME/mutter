@@ -1592,33 +1592,12 @@ meta_wayland_surface_get_relative_coordinates (MetaWaylandSurface *surface,
                                                float               *sx,
                                                float               *sy)
 {
-  MetaWindow *window;
+  MetaWaylandSurfaceRoleClass *surface_role_class =
+    META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface->role);
 
-  /* Using clutter API to transform coordinates is only accurate right
-   * after a clutter layout pass but this function is used e.g. to
-   * deliver pointer motion events which can happen at any time. This
-   * isn't a problem for wayland clients since they don't control
-   * their position, but X clients do and we'd be sending outdated
-   * coordinates if a client is moving a window in response to motion
-   * events.
-   */
-  window = meta_wayland_surface_get_window (surface);
-  if (window &&
-      window->client_type == META_WINDOW_CLIENT_TYPE_X11)
-    {
-      MetaRectangle window_rect;
-
-      meta_window_get_buffer_rect (window, &window_rect);
-      *sx = abs_x - window_rect.x;
-      *sy = abs_y - window_rect.y;
-    }
-  else
-    {
-      ClutterActor *actor =
-        CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface));
-
-      clutter_actor_transform_stage_point (actor, abs_x, abs_y, sx, sy);
-    }
+  surface_role_class->get_relative_coordinates (surface->role,
+                                                abs_x, abs_y,
+                                                sx, sy);
 }
 
 void

@@ -63,6 +63,11 @@ struct _MetaWaylandSurfaceRoleClass
   MetaWaylandSurface * (*get_toplevel) (MetaWaylandSurfaceRole *surface_role);
   gboolean (*should_cache_state) (MetaWaylandSurfaceRole *surface_role);
   void (*notify_subsurface_state_changed) (MetaWaylandSurfaceRole *surface_role);
+  void (*get_relative_coordinates) (MetaWaylandSurfaceRole *surface_role,
+                                    float                   abs_x,
+                                    float                   abs_y,
+                                    float                  *out_sx,
+                                    float                  *out_sy);
 };
 
 struct _MetaWaylandSurfaceState

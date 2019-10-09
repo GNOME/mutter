@@ -80,6 +80,23 @@ meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surfa
     }
 }
 
+static void
+meta_xwayland_surface_get_relative_coordinates (MetaWaylandSurfaceRole *surface_role,
+                                                float                   abs_x,
+                                                float                   abs_y,
+                                                float                  *out_sx,
+                                                float                  *out_sy)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaRectangle window_rect;
+
+  meta_window_get_buffer_rect (meta_wayland_surface_get_window (surface),
+                               &window_rect);
+  *out_sx = abs_x - window_rect.x;
+  *out_sy = abs_y - window_rect.y;
+}
+
 static MetaWaylandSurface *
 meta_xwayland_surface_get_toplevel (MetaWaylandSurfaceRole *surface_role)
 {
@@ -143,6 +160,8 @@ meta_xwayland_surface_class_init (MetaXwaylandSurfaceClass *klass)
 
   object_class->finalize = meta_xwayland_surface_finalize;
 
+  surface_role_class->get_relative_coordinates =
+    meta_xwayland_surface_get_relative_coordinates;
   surface_role_class->get_toplevel = meta_xwayland_surface_get_toplevel;
 
   actor_surface_class->get_geometry_scale =
