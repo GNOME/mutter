@@ -147,6 +147,21 @@ meta_wayland_shell_surface_assigned (MetaWaylandSurfaceRole *surface_role)
 }
 
 static void
+meta_wayland_shell_surface_surface_pre_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                                    MetaWaylandSurfaceState *pending)
+{
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWindow *window;
+
+  window = meta_wayland_surface_get_window (surface);
+  if (pending->newly_attached &&
+      !surface->buffer_ref.buffer &&
+      window)
+    meta_window_queue (window, META_QUEUE_CALC_SHOWING);
+}
+
+static void
 meta_wayland_shell_surface_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
                                                 MetaWaylandSurfaceState *pending)
 {
@@ -277,6 +292,8 @@ meta_wayland_shell_surface_class_init (MetaWaylandShellSurfaceClass *klass)
   object_class->finalize = meta_wayland_shell_surface_finalize;
 
   surface_role_class->assigned = meta_wayland_shell_surface_assigned;
+  surface_role_class->pre_apply_state =
+    meta_wayland_shell_surface_surface_pre_apply_state;
   surface_role_class->apply_state =
     meta_wayland_shell_surface_surface_apply_state;
   surface_role_class->notify_subsurface_state_changed =

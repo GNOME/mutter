@@ -633,12 +633,6 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
 
   if (state->newly_attached)
     {
-      MetaWindow *window;
-
-      window = meta_wayland_surface_get_window (surface);
-      if (!surface->buffer_ref.buffer && window)
-        meta_window_queue (window, META_QUEUE_CALC_SHOWING);
-
       /* Always release any previously held buffer. If the buffer held is same
        * as the newly attached buffer, we still need to release it here, because
        * wl_surface.attach+commit and wl_buffer.release on the attached buffer
