@@ -292,6 +292,23 @@ meta_wayland_actor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *surfac
 }
 
 static void
+meta_wayland_actor_surface_get_relative_coordinates (MetaWaylandSurfaceRole *surface_role,
+                                                     float                   abs_x,
+                                                     float                   abs_y,
+                                                     float                  *out_sx,
+                                                     float                  *out_sy)
+{
+  MetaWaylandActorSurface *actor_surface =
+    META_WAYLAND_ACTOR_SURFACE (surface_role);
+  MetaWaylandActorSurfacePrivate *priv =
+    meta_wayland_actor_surface_get_instance_private (actor_surface);
+
+  clutter_actor_transform_stage_point (CLUTTER_ACTOR (priv->actor),
+                                       abs_x, abs_y,
+                                       out_sx, out_sy);
+}
+
+static void
 meta_wayland_actor_surface_init (MetaWaylandActorSurface *role)
 {
 }
@@ -310,6 +327,8 @@ meta_wayland_actor_surface_class_init (MetaWaylandActorSurfaceClass *klass)
   surface_role_class->commit = meta_wayland_actor_surface_commit;
   surface_role_class->is_on_logical_monitor =
     meta_wayland_actor_surface_is_on_logical_monitor;
+  surface_role_class->get_relative_coordinates =
+    meta_wayland_actor_surface_get_relative_coordinates;
 
   klass->sync_actor_state = meta_wayland_actor_surface_real_sync_actor_state;
 }
