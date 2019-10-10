@@ -82,12 +82,12 @@ meta_x11_handle_event (XEvent *xevent)
   gboolean allocated_event;
 
   /* The return values here are someone approximate; we return
-   * META_X11_FILTER_REMOVE if a clutter event is
+   * CLUTTER_X11_FILTER_REMOVE if a clutter event is
    * generated for the event. This mostly, but not entirely,
    * corresponds to whether other event processing should be
    * excluded. As long as the stage window is not shared with another
    * toolkit it should be safe, and never return
-   * %META_X11_FILTER_REMOVE when more processing is needed.
+   * %CLUTTER_X11_FILTER_REMOVE when more processing is needed.
    */
 
   result = CLUTTER_X11_FILTER_CONTINUE;
