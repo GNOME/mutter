@@ -282,12 +282,6 @@ meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update)
   return update->crtc_gammas;
 }
 
-gboolean
-meta_kms_update_has_mode_set (MetaKmsUpdate *update)
-{
-  return !!update->mode_sets;
-}
-
 void
 meta_kms_update_seal (MetaKmsUpdate *update)
 {
