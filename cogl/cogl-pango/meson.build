@@ -62,7 +62,7 @@ if have_introspection
     ],
     extra_args: introspection_args + [
       '-UCOGL_COMPILATION',
-      '-DG_LOG_DOMAIN=\"CoglPango\"',
+      '-DG_LOG_DOMAIN="CoglPango"',
     ],
     install_dir_gir: pkglibdir,
     install_dir_typelib: pkglibdir,
