@@ -28,10 +28,10 @@ build-mutter:
     - merge_requests
     - /^.*$/
 
-build-without-native-backend:
+build-without-native-backend-and-wayland:
   stage: build
   script:
-    - meson . build -Dbuildtype=debugoptimized -Dnative_backend=false -Dudev=false --werror --prefix /usr
+    - meson . build -Dbuildtype=debugoptimized -Dnative_backend=false -Dudev=false -Dwayland=false -Dcore_tests=false --werror --prefix /usr
     - ninja -C build
     - ninja -C build install
   artifacts:
