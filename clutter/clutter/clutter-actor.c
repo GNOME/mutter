@@ -835,6 +835,7 @@ struct _ClutterActorPrivate
   guint enable_model_view_transform : 1;
   guint enable_paint_unmapped       : 1;
   guint has_pointer                 : 1;
+  guint has_key_focus               : 1;
   guint propagated_one_redraw       : 1;
   guint paint_volume_valid          : 1;
   guint last_paint_volume_valid     : 1;
@@ -6064,6 +6065,13 @@ clutter_actor_dispose (GObject *object)
                 object->ref_count,
 		g_type_name (G_OBJECT_TYPE (self)));
 
+  if (priv->has_key_focus)
+    {
+      ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+
+      clutter_stage_set_key_focus (CLUTTER_STAGE (stage), NULL);
+    }
+
   /* Stop the emission of any property change */
   g_object_freeze_notify (object);
 
@@ -8712,6 +8720,13 @@ clutter_actor_class_init (ClutterActorClass *klass)
 }
 
 static void
+on_key_focus_changed (ClutterActor *self,
+                      gpointer      data)
+{
+  self->priv->has_key_focus = GPOINTER_TO_UINT (data);
+}
+
+static void
 clutter_actor_init (ClutterActor *self)
 {
   ClutterActorPrivate *priv;
@@ -8762,6 +8777,11 @@ clutter_actor_init (ClutterActor *self)
    */
   clutter_actor_save_easing_state (self);
   clutter_actor_set_easing_duration (self, 0);
+
+  g_signal_connect (self, "key-focus-in", G_CALLBACK (on_key_focus_changed),
+                    GUINT_TO_POINTER (TRUE));
+  g_signal_connect (self, "key-focus-out", G_CALLBACK (on_key_focus_changed),
+                    GUINT_TO_POINTER (FALSE));
 }
 
 /**
@@ -17616,15 +17636,9 @@ clutter_actor_clear_effects (ClutterActor *self)
 gboolean
 clutter_actor_has_key_focus (ClutterActor *self)
 {
-  ClutterActor *stage;
-
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
-  stage = _clutter_actor_get_stage_internal (self);
-  if (stage == NULL)
-    return FALSE;
-
-  return clutter_stage_get_key_focus (CLUTTER_STAGE (stage)) == self;
+  return self->priv->has_key_focus;
 }
 
 static gboolean
