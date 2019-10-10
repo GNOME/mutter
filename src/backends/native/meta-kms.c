@@ -211,8 +211,7 @@ meta_kms_update_process_in_impl (MetaKmsImpl  *impl,
 
   ret = meta_kms_impl_process_update (impl, update, error);
 
-  if (meta_kms_update_has_mode_set (update))
-    meta_kms_predict_states_in_impl (meta_kms_impl_get_kms (impl), update);
+  meta_kms_predict_states_in_impl (meta_kms_impl_get_kms (impl), update);
 
   return ret;
 }
