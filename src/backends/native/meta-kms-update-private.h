@@ -110,6 +110,4 @@ GList * meta_kms_update_get_connector_properties (MetaKmsUpdate *update);
 
 GList * meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update);
 
-gboolean meta_kms_update_has_mode_set (MetaKmsUpdate *update);
-
 #endif /* META_KMS_UPDATE_PRIVATE_H */
