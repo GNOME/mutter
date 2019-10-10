@@ -835,6 +835,7 @@ struct _ClutterActorPrivate
   guint enable_model_view_transform : 1;
   guint enable_paint_unmapped       : 1;
   guint has_pointer                 : 1;
+  guint has_key_focus               : 1;
   guint propagated_one_redraw       : 1;
   guint paint_volume_valid          : 1;
   guint last_paint_volume_valid     : 1;
@@ -1692,6 +1693,20 @@ clutter_actor_is_mapped (ClutterActor *self)
 }
 
 static void
+maybe_unset_key_focus (ClutterActor *self)
+{
+  ClutterActor *stage;
+
+  if (!self->priv->has_key_focus)
+    return;
+
+  stage = _clutter_actor_get_stage_internal (self);
+
+  if (stage)
+    clutter_stage_set_key_focus (CLUTTER_STAGE (stage), NULL);
+}
+
+static void
 clutter_actor_real_unmap (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
@@ -1724,17 +1739,7 @@ clutter_actor_real_unmap (ClutterActor *self)
 
   /* relinquish keyboard focus if we were unmapped while owning it */
   if (!CLUTTER_ACTOR_IS_TOPLEVEL (self))
-    {
-      ClutterStage *stage;
-
-      stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
-
-      if (stage != NULL &&
-          clutter_stage_get_key_focus (stage) == self)
-        {
-          clutter_stage_set_key_focus (stage, NULL);
-        }
-    }
+    maybe_unset_key_focus (self);
 }
 
 /**
@@ -6063,6 +6068,8 @@ clutter_actor_dispose (GObject *object)
 		_clutter_actor_get_debug_name (self),
                 object->ref_count,
 		g_type_name (G_OBJECT_TYPE (self)));
+
+  maybe_unset_key_focus (self);
 
   /* Stop the emission of any property change */
   g_object_freeze_notify (object);
@@ -15979,6 +15986,9 @@ clutter_actor_grab_key_focus (ClutterActor *self)
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
+  if (self->priv->has_key_focus)
+    return;
+
   stage = _clutter_actor_get_stage_internal (self);
   if (stage != NULL)
     clutter_stage_set_key_focus (CLUTTER_STAGE (stage), self);
@@ -16765,6 +16775,23 @@ _clutter_actor_set_has_pointer (ClutterActor *self,
       priv->has_pointer = has_pointer;
 
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_HAS_POINTER]);
+    }
+}
+
+void
+_clutter_actor_set_has_key_focus (ClutterActor *self,
+                                  gboolean      has_key_focus)
+{
+  ClutterActorPrivate *priv = self->priv;
+
+  if (priv->has_key_focus != has_key_focus)
+    {
+      priv->has_key_focus = has_key_focus;
+
+      if (has_key_focus)
+        g_signal_emit (self, actor_signals[KEY_FOCUS_IN], 0);
+      else
+        g_signal_emit (self, actor_signals[KEY_FOCUS_OUT], 0);
     }
 }
 
@@ -17616,15 +17643,9 @@ clutter_actor_clear_effects (ClutterActor *self)
 gboolean
 clutter_actor_has_key_focus (ClutterActor *self)
 {
-  ClutterActor *stage;
-
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
-  stage = _clutter_actor_get_stage_internal (self);
-  if (stage == NULL)
-    return FALSE;
-
-  return clutter_stage_get_key_focus (CLUTTER_STAGE (stage)) == self;
+  return self->priv->has_key_focus;
 }
 
 static gboolean

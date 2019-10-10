@@ -1066,10 +1066,7 @@ clutter_stage_emit_key_focus_event (ClutterStage *stage,
   if (priv->key_focused_actor == NULL)
     return;
 
-  if (focus_in)
-    g_signal_emit_by_name (priv->key_focused_actor, "key-focus-in");
-  else
-    g_signal_emit_by_name (priv->key_focused_actor, "key-focus-out");
+  _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), focus_in);
 
   g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
 }
@@ -3011,14 +3008,6 @@ clutter_stage_get_title (ClutterStage       *stage)
   return stage->priv->title;
 }
 
-static void
-on_key_focus_destroy (ClutterActor *actor,
-                      ClutterStage *stage)
-{
-  /* unset the key focus */
-  clutter_stage_set_key_focus (stage, NULL);
-}
-
 /**
  * clutter_stage_set_key_focus:
  * @stage: the #ClutterStage
@@ -3058,18 +3047,14 @@ clutter_stage_set_key_focus (ClutterStage *stage,
       old_focused_actor = priv->key_focused_actor;
 
       /* set key_focused_actor to NULL before emitting the signal or someone
-       * might hide the previously focused actor in the signal handler and we'd
-       * get re-entrant call and get glib critical from g_object_weak_unref
+       * might hide the previously focused actor in the signal handler
        */
-      g_signal_handlers_disconnect_by_func (priv->key_focused_actor,
-                                            G_CALLBACK (on_key_focus_destroy),
-                                            stage);
       priv->key_focused_actor = NULL;
 
-      g_signal_emit_by_name (old_focused_actor, "key-focus-out");
+      _clutter_actor_set_has_key_focus (old_focused_actor, FALSE);
     }
   else
-    g_signal_emit_by_name (stage, "key-focus-out");
+    _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), FALSE);
 
   /* Note, if someone changes key focus in focus-out signal handler we'd be
    * overriding the latter call below moving the focus where it was originally
@@ -3079,14 +3064,10 @@ clutter_stage_set_key_focus (ClutterStage *stage,
   if (actor != NULL)
     {
       priv->key_focused_actor = actor;
-
-      g_signal_connect (actor,
-                        "destroy", G_CALLBACK (on_key_focus_destroy),
-                        stage);
-      g_signal_emit_by_name (priv->key_focused_actor, "key-focus-in");
+      _clutter_actor_set_has_key_focus (actor, FALSE);
     }
   else
-    g_signal_emit_by_name (stage, "key-focus-in");
+    _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), TRUE);
 
   g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
 }
