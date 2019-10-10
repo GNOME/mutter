@@ -621,49 +621,6 @@ clutter_offscreen_effect_create_texture (ClutterOffscreenEffect *effect,
 }
 
 /**
- * clutter_offscreen_effect_get_target_size:
- * @effect: a #ClutterOffscreenEffect
- * @width: (out): return location for the target width, or %NULL
- * @height: (out): return location for the target height, or %NULL
- *
- * Retrieves the size of the offscreen buffer used by @effect to
- * paint the actor to which it has been applied.
- *
- * This function should only be called by #ClutterOffscreenEffect
- * implementations, from within the #ClutterOffscreenEffectClass.paint_target()
- * virtual function.
- *
- * Return value: %TRUE if the offscreen buffer has a valid size,
- *   and %FALSE otherwise
- *
- * Since: 1.8
- *
- * Deprecated: 1.14: Use clutter_offscreen_effect_get_target_rect() instead
- */
-gboolean
-clutter_offscreen_effect_get_target_size (ClutterOffscreenEffect *effect,
-                                          gfloat                 *width,
-                                          gfloat                 *height)
-{
-  ClutterOffscreenEffectPrivate *priv;
-
-  g_return_val_if_fail (CLUTTER_IS_OFFSCREEN_EFFECT (effect), FALSE);
-
-  priv = effect->priv;
-
-  if (priv->texture == NULL)
-    return FALSE;
-
-  if (width)
-    *width = cogl_texture_get_width (priv->texture);
-
-  if (height)
-    *height = cogl_texture_get_height (priv->texture);
-
-  return TRUE;
-}
-
-/**
  * clutter_offscreen_effect_get_target_rect:
  * @effect: a #ClutterOffscreenEffect
  * @rect: (out caller-allocates): return location for the target area
