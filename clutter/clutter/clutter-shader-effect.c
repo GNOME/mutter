@@ -500,6 +500,7 @@ static void
 clutter_shader_effect_init (ClutterShaderEffect *effect)
 {
   effect->priv = clutter_shader_effect_get_instance_private (effect);
+  effect->priv->shader_type = CLUTTER_FRAGMENT_SHADER;
 }
 
 /**
