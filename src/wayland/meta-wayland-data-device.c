@@ -1660,18 +1660,6 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
   data_device->selection_data_source = source;
   data_device->selection_serial = serial;
 
-  focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
-  if (focus_client)
-    {
-      data_device_resource = wl_resource_find_for_client (&data_device->resource_list, focus_client);
-      if (data_device_resource)
-        {
-          struct wl_resource *offer;
-          offer = create_and_send_clipboard_offer (data_device, data_device_resource);
-          wl_data_device_send_selection (data_device_resource, offer);
-        }
-    }
-
   if (source)
     {
       MetaWaylandDataSourceWayland *source_wayland =
@@ -1698,6 +1686,18 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
   else
     {
       unset_selection_source (data_device, META_SELECTION_CLIPBOARD);
+    }
+
+  focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
+  if (focus_client)
+    {
+      data_device_resource = wl_resource_find_for_client (&data_device->resource_list, focus_client);
+      if (data_device_resource)
+        {
+          struct wl_resource *offer;
+          offer = create_and_send_clipboard_offer (data_device, data_device_resource);
+          wl_data_device_send_selection (data_device_resource, offer);
+        }
     }
 
   wl_signal_emit (&data_device->selection_ownership_signal, source);
@@ -1800,18 +1800,6 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
   data_device->primary_data_source = source;
   data_device->primary_serial = serial;
 
-  focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
-  if (focus_client)
-    {
-      data_device_resource = wl_resource_find_for_client (&data_device->primary_resource_list, focus_client);
-      if (data_device_resource)
-        {
-          struct wl_resource *offer;
-          offer = create_and_send_primary_offer (data_device, data_device_resource);
-          gtk_primary_selection_device_send_selection (data_device_resource, offer);
-        }
-    }
-
   if (source)
     {
       MetaSelectionSource *selection_source;
@@ -1836,6 +1824,18 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
   else
     {
       unset_selection_source (data_device, META_SELECTION_PRIMARY);
+    }
+
+  focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
+  if (focus_client)
+    {
+      data_device_resource = wl_resource_find_for_client (&data_device->primary_resource_list, focus_client);
+      if (data_device_resource)
+        {
+          struct wl_resource *offer;
+          offer = create_and_send_primary_offer (data_device, data_device_resource);
+          gtk_primary_selection_device_send_selection (data_device_resource, offer);
+        }
     }
 
   wl_signal_emit (&data_device->primary_ownership_signal, source);
