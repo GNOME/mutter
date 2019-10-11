@@ -60,21 +60,31 @@ round_to_fixed (float x)
 #define MTX_GL_SCALE_X(x,w,v1,v2) ((((((x) / (w)) + 1.0f) / 2.0f) * (v1)) + (v2))
 #define MTX_GL_SCALE_Y(y,w,v1,v2) ((v1) - (((((y) / (w)) + 1.0f) / 2.0f) * (v1)) + (v2))
 
+typedef enum
+{
+  UNTRANSFORMED     = 0x0,
+  FRACTIONAL_OFFSET = 0x1,
+  SKEWED            = 0x2,
+  FRACTIONAL_SCALED = 0x4,
+  INTEGER_SCALED    = 0x8  /* meaning integers >= 2 */
+} VertexAlignment;
+
 /* This helper function checks if (according to our fixed point precision)
  * the vertices @verts form a box of width @widthf and height @heightf
  * located at integral coordinates. These coordinates are returned
  * in @x_origin and @y_origin.
  */
-static gboolean
-meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
-                                       float               widthf,
-                                       float               heightf,
-                                       int                *x_origin,
-                                       int                *y_origin)
+static VertexAlignment
+meta_actor_vertices_alignment (graphene_point3d_t *verts,
+                               float               widthf,
+                               float               heightf,
+                               int                *x_origin,
+                               int                *y_origin)
 {
   int width, height;
   int v0x, v0y, v1x, v1y, v2x, v2y, v3x, v3y;
   int x, y;
+  VertexAlignment ret = UNTRANSFORMED;
 
   width = round_to_fixed (widthf); height = round_to_fixed (heightf);
 
@@ -91,23 +101,28 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
 
   /* At integral coordinates? */
   if (x * 256 != v0x || y * 256 != v0y)
-    return FALSE;
+    ret |= FRACTIONAL_OFFSET;
 
   /* Not scaled? */
   if (v1x - v0x != width || v2y - v0y != height)
-    return FALSE;
+    {
+      if ((v1x - v0x) % width || (v2y - v0y) % height)
+        ret |= FRACTIONAL_SCALED;
+      else
+        ret |= INTEGER_SCALED;
+    }
 
   /* Not rotated/skewed? */
   if (v0x != v2x || v0y != v1y ||
       v3x != v1x || v3y != v2y)
-    return FALSE;
+    ret |= SKEWED;
 
   if (x_origin)
     *x_origin = x;
   if (y_origin)
     *y_origin = y;
 
-  return TRUE;
+  return ret;
 }
 
 /* Check if an actor is "untransformed" - which actually means transformed by
@@ -124,7 +139,11 @@ meta_actor_is_untransformed (ClutterActor *actor,
   clutter_actor_get_size (actor, &widthf, &heightf);
   clutter_actor_get_abs_allocation_vertices (actor, verts);
 
-  return meta_actor_vertices_are_untransformed (verts, widthf, heightf, x_origin, y_origin);
+  return meta_actor_vertices_alignment (verts,
+                                        widthf,
+                                        heightf,
+                                        x_origin,
+                                        y_origin) == UNTRANSFORMED;
 }
 
 /**
@@ -189,6 +208,10 @@ meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                       viewport[3], viewport[1]);
     }
 
-  return meta_actor_vertices_are_untransformed (vertices, paint_width, paint_height, x_origin, y_origin);
+  return meta_actor_vertices_alignment (vertices,
+                                        paint_width,
+                                        paint_height,
+                                        x_origin,
+                                        y_origin) == UNTRANSFORMED;
 }
 
