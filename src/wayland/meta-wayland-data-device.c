@@ -36,6 +36,7 @@
 #include <unistd.h>
 
 #include "compositor/meta-dnd-actor-private.h"
+#include "meta/meta-selection-source-memory.h"
 #include "wayland/meta-selection-source-wayland-private.h"
 #include "wayland/meta-wayland-dnd-surface.h"
 #include "wayland/meta-wayland-pointer.h"
@@ -1627,6 +1628,7 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
   struct wl_resource *data_device_resource;
   struct wl_client *focus_client;
+  MetaSelectionSource *selection_source;
 
   if (data_device->selection_data_source &&
       data_device->selection_serial - serial < UINT32_MAX / 2)
@@ -1646,22 +1648,21 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
 
   if (source)
     {
-      MetaSelectionSource *selection_source;
-
       meta_wayland_data_source_set_seat (source, seat);
       g_object_weak_ref (G_OBJECT (source),
                          selection_data_source_destroyed,
                          data_device);
 
       selection_source = meta_selection_source_wayland_new (source);
-      set_selection_source (data_device, META_SELECTION_CLIPBOARD,
-                            selection_source);
-      g_object_unref (selection_source);
     }
   else
     {
-      unset_selection_source (data_device, META_SELECTION_CLIPBOARD);
+      selection_source = g_object_new (META_TYPE_SELECTION_SOURCE_MEMORY, NULL);
     }
+
+  set_selection_source (data_device, META_SELECTION_CLIPBOARD,
+                        selection_source);
+  g_object_unref (selection_source);
 
   focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
   if (focus_client)
@@ -1748,6 +1749,7 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
   struct wl_resource *data_device_resource;
   struct wl_client *focus_client;
+  MetaSelectionSource *selection_source;
 
   if (META_IS_WAYLAND_DATA_SOURCE_PRIMARY (source))
     {
@@ -1777,22 +1779,21 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
 
   if (source)
     {
-      MetaSelectionSource *selection_source;
-
       meta_wayland_data_source_set_seat (source, seat);
       g_object_weak_ref (G_OBJECT (source),
                          primary_source_destroyed,
                          data_device);
 
       selection_source = meta_selection_source_wayland_new (source);
-      set_selection_source (data_device, META_SELECTION_PRIMARY,
-                            selection_source);
-      g_object_unref (selection_source);
     }
   else
     {
-      unset_selection_source (data_device, META_SELECTION_PRIMARY);
+      selection_source = g_object_new (META_TYPE_SELECTION_SOURCE_MEMORY, NULL);
     }
+
+  set_selection_source (data_device, META_SELECTION_PRIMARY,
+                        selection_source);
+  g_object_unref (selection_source);
 
   focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
   if (focus_client)
