@@ -93,8 +93,8 @@ meta_actor_vertices_are_untransformed (ClutterVertex *verts,
   if (x * 256 != v0x || y * 256 != v0y)
     return FALSE;
 
-  /* Not scaled? */
-  if (v1x - v0x != width || v2y - v0y != height)
+  /* Not fractionally scaled? */
+  if (((v1x - v0x) % width) != 0 || ((v2y - v0y) % height) != 0)
     return FALSE;
 
   /* Not rotated/skewed? */
