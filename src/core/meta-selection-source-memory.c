@@ -76,6 +76,9 @@ meta_selection_source_memory_get_mimetypes (MetaSelectionSource *source)
 {
   MetaSelectionSourceMemory *source_mem = META_SELECTION_SOURCE_MEMORY (source);
 
+  if (!source_mem->mimetype)
+    return NULL;
+
   return g_list_prepend (NULL, g_strdup (source_mem->mimetype));
 }
 
@@ -84,7 +87,7 @@ meta_selection_source_memory_finalize (GObject *object)
 {
   MetaSelectionSourceMemory *source_mem = META_SELECTION_SOURCE_MEMORY (object);
 
-  g_bytes_unref (source_mem->content);
+  g_clear_pointer (&source_mem->content, g_bytes_unref);
   g_free (source_mem->mimetype);
 
   G_OBJECT_CLASS (meta_selection_source_memory_parent_class)->finalize (object);
