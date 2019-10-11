@@ -29,10 +29,8 @@
 struct _MetaSelectionSourceWayland
 {
   MetaSelectionSource parent_instance;
+  MetaWaylandDataSource *data_source;
   GList *mimetypes;
-  MetaWaylandSendFunc send_func;
-  MetaWaylandCancelFunc cancel_func;
-  struct wl_resource *resource;
 };
 
 G_DEFINE_TYPE (MetaSelectionSourceWayland, meta_selection_source_wayland,
@@ -85,7 +83,8 @@ meta_selection_source_wayland_read_async (MetaSelectionSource *source,
   g_task_set_source_tag (task, meta_selection_source_wayland_read_async);
 
   stream = g_unix_input_stream_new (pipe_fds[0], TRUE);
-  source_wayland->send_func (source_wayland->resource, mimetype, pipe_fds[1]);
+  meta_wayland_data_source_send (source_wayland->data_source,
+                                 mimetype, pipe_fds[1]);
   close (pipe_fds[1]);
 
   g_task_return_pointer (task, stream, g_object_unref);
@@ -119,7 +118,7 @@ meta_selection_source_wayland_deactivated (MetaSelectionSource *source)
   MetaSelectionSourceWayland *source_wayland =
     META_SELECTION_SOURCE_WAYLAND (source);
 
-  source_wayland->cancel_func (source_wayland->resource);
+  meta_wayland_data_source_cancel (source_wayland->data_source);
   META_SELECTION_SOURCE_CLASS (meta_selection_source_wayland_parent_class)->deactivated (source);
 }
 
@@ -143,20 +142,29 @@ meta_selection_source_wayland_init (MetaSelectionSourceWayland *source)
 {
 }
 
+static GList *
+copy_string_array_to_list (struct wl_array *array)
+{
+  GList *l = NULL;
+  char **p;
+
+  wl_array_for_each (p, array)
+    l = g_list_prepend (l, g_strdup (*p));
+
+  return l;
+}
+
 MetaSelectionSource *
-meta_selection_source_wayland_new (struct wl_resource    *resource,
-                                   GList                 *mime_types,
-                                   MetaWaylandSendFunc    send_func,
-                                   MetaWaylandCancelFunc  cancel_func)
+meta_selection_source_wayland_new (MetaWaylandDataSource *data_source)
 {
   MetaSelectionSourceWayland *source_wayland;
+  struct wl_array *mimetypes;
 
   source_wayland = g_object_new (META_TYPE_SELECTION_SOURCE_WAYLAND, NULL);
-  source_wayland->mimetypes = g_list_copy_deep (mime_types,
-                                                (GCopyFunc) g_strdup, NULL);
-  source_wayland->send_func = send_func;
-  source_wayland->cancel_func = cancel_func;
-  source_wayland->resource = resource;
+  source_wayland->data_source = data_source;
+
+  mimetypes = meta_wayland_data_source_get_mime_types (data_source);
+  source_wayland->mimetypes = copy_string_array_to_list (mimetypes);
 
   return META_SELECTION_SOURCE (source_wayland);
 }

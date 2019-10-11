@@ -111,6 +111,8 @@ gboolean meta_wayland_data_source_has_target     (MetaWaylandDataSource *source)
 void     meta_wayland_data_source_set_has_target (MetaWaylandDataSource *source,
                                                   gboolean               has_target);
 
+void     meta_wayland_data_source_cancel         (MetaWaylandDataSource *source);
+
 void     meta_wayland_data_source_send           (MetaWaylandDataSource *source,
                                                   const gchar           *mime_type,
                                                   gint                   fd);
