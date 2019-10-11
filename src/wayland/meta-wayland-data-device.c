@@ -1420,7 +1420,7 @@ meta_wayland_source_drag_finished (MetaWaylandDataSource *source)
 static void
 meta_wayland_source_finalize (GObject *object)
 {
-  G_OBJECT_CLASS (meta_wayland_data_source_parent_class)->finalize (object);
+  G_OBJECT_CLASS (meta_wayland_data_source_wayland_parent_class)->finalize (object);
 }
 
 static void
