@@ -394,15 +394,26 @@ data_offer_receive (struct wl_client *client, struct wl_resource *resource,
                     const char *mime_type, int32_t fd)
 {
   MetaWaylandDataOffer *offer = wl_resource_get_user_data (resource);
+  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  MetaWaylandDataDevice *data_device = &compositor->seat->data_device;
   MetaDisplay *display = meta_get_display ();
   MetaSelectionType selection_type;
   GList *mime_types;
   gboolean found;
 
-  if (offer->dnd_actions != 0)
-    selection_type = META_SELECTION_DND;
+  if (offer->source == data_device->dnd_data_source)
+    {
+      selection_type = META_SELECTION_DND;
+    }
+  else if (offer->source == data_device->selection_data_source)
+    {
+      selection_type = META_SELECTION_CLIPBOARD;
+    }
   else
-    selection_type = META_SELECTION_CLIPBOARD;
+    {
+      close (fd);
+      return;
+    }
 
   mime_types = meta_selection_get_mimetypes (meta_display_get_selection (display),
                                              selection_type);
