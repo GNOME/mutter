@@ -25,6 +25,8 @@
 #include <wayland-server.h>
 
 #include "meta/meta-selection-source.h"
+#include "wayland/meta-wayland-data-device.h"
+#include "wayland/meta-wayland-data-device-private.h"
 
 #define META_TYPE_SELECTION_SOURCE_WAYLAND (meta_selection_source_wayland_get_type ())
 
@@ -33,14 +35,6 @@ G_DECLARE_FINAL_TYPE (MetaSelectionSourceWayland,
                       META, SELECTION_SOURCE_WAYLAND,
                       MetaSelectionSource)
 
-typedef void (* MetaWaylandSendFunc) (struct wl_resource *resource,
-                                      const char         *mimetype,
-                                      int                 fd);
-typedef void (* MetaWaylandCancelFunc) (struct wl_resource *resource);
-
-MetaSelectionSource * meta_selection_source_wayland_new (struct wl_resource    *resource,
-                                                         GList                 *mime_types,
-                                                         MetaWaylandSendFunc    send_func,
-                                                         MetaWaylandCancelFunc  cancel_func);
+MetaSelectionSource * meta_selection_source_wayland_new (MetaWaylandDataSource *source);
 
 #endif /* META_SELECTION_SOURCE_WAYLAND_H */

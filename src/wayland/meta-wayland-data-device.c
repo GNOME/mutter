@@ -250,7 +250,7 @@ meta_wayland_data_source_get_mime_types (const MetaWaylandDataSource *source)
   return &priv->mime_types;
 }
 
-static void
+void
 meta_wayland_data_source_cancel (MetaWaylandDataSource *source)
 {
   META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->cancel (source);
@@ -1152,18 +1152,6 @@ destroy_data_device_icon (struct wl_listener *listener, void *data)
     clutter_actor_remove_all_children (drag_grab->feedback_actor);
 }
 
-static GList *
-copy_string_array_to_list (struct wl_array *array)
-{
-  GList *l = NULL;
-  char **p;
-
-  wl_array_for_each (p, array)
-    l = g_list_prepend (l, g_strdup (*p));
-
-  return l;
-}
-
 void
 meta_wayland_data_device_start_drag (MetaWaylandDataDevice                 *data_device,
                                      struct wl_client                      *client,
@@ -1263,7 +1251,6 @@ data_device_start_drag (struct wl_client *client,
   MetaWaylandSurface *surface = NULL, *icon_surface = NULL;
   MetaWaylandDataSource *drag_source = NULL;
   MetaSelectionSource *selection_source;
-  GList *mimetypes;
 
   if (origin_resource)
     surface = wl_resource_get_user_data (origin_resource);
@@ -1299,12 +1286,7 @@ data_device_start_drag (struct wl_client *client,
       return;
     }
 
-  mimetypes = copy_string_array_to_list (meta_wayland_data_source_get_mime_types (drag_source));
-  selection_source = meta_selection_source_wayland_new (source_resource,
-                                                        mimetypes,
-                                                        wl_data_source_send_send,
-                                                        wl_data_source_send_cancelled);
-  g_list_free_full (mimetypes, g_free);
+  selection_source = meta_selection_source_wayland_new (drag_source);
   set_selection_source (data_device, META_SELECTION_DND,
                         selection_source);
   g_object_unref (selection_source);
@@ -1664,23 +1646,14 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
 
   if (source)
     {
-      MetaWaylandDataSourceWayland *source_wayland =
-        META_WAYLAND_DATA_SOURCE_WAYLAND (source);
       MetaSelectionSource *selection_source;
-      GList *mimetypes;
 
       meta_wayland_data_source_set_seat (source, seat);
       g_object_weak_ref (G_OBJECT (source),
                          selection_data_source_destroyed,
                          data_device);
 
-      mimetypes = copy_string_array_to_list (meta_wayland_data_source_get_mime_types (source));
-      selection_source = meta_selection_source_wayland_new (source_wayland->resource,
-                                                            mimetypes,
-                                                            wl_data_source_send_send,
-                                                            wl_data_source_send_cancelled);
-      g_list_free_full (mimetypes, g_free);
-
+      selection_source = meta_selection_source_wayland_new (source);
       set_selection_source (data_device, META_SELECTION_CLIPBOARD,
                             selection_source);
       g_object_unref (selection_source);
@@ -1805,20 +1778,13 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
   if (source)
     {
       MetaSelectionSource *selection_source;
-      GList *mimetypes;
 
       meta_wayland_data_source_set_seat (source, seat);
       g_object_weak_ref (G_OBJECT (source),
                          primary_source_destroyed,
                          data_device);
 
-      mimetypes = copy_string_array_to_list (meta_wayland_data_source_get_mime_types (source));
-      selection_source = meta_selection_source_wayland_new (META_WAYLAND_DATA_SOURCE_WAYLAND (source)->resource,
-                                                            mimetypes,
-                                                            gtk_primary_selection_source_send_send,
-                                                            gtk_primary_selection_source_send_cancelled);
-      g_list_free_full (mimetypes, g_free);
-
+      selection_source = meta_selection_source_wayland_new (source);
       set_selection_source (data_device, META_SELECTION_PRIMARY,
                             selection_source);
       g_object_unref (selection_source);
