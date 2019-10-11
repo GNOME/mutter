@@ -1369,7 +1369,8 @@ meta_wayland_source_cancel (MetaWaylandDataSource *source)
   MetaWaylandDataSourceWayland *source_wayland =
     META_WAYLAND_DATA_SOURCE_WAYLAND (source);
 
-  wl_data_source_send_cancelled (source_wayland->resource);
+  if (source_wayland->resource)
+    wl_data_source_send_cancelled (source_wayland->resource);
 }
 
 static void
@@ -1464,7 +1465,8 @@ meta_wayland_data_source_primary_cancel (MetaWaylandDataSource *source)
   MetaWaylandDataSourceWayland *source_wayland;
 
   source_wayland = META_WAYLAND_DATA_SOURCE_WAYLAND (source);
-  gtk_primary_selection_source_send_cancelled (source_wayland->resource);
+  if (source_wayland->resource)
+    gtk_primary_selection_source_send_cancelled (source_wayland->resource);
 }
 
 static void
