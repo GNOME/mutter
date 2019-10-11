@@ -60,6 +60,7 @@ struct _MetaWaylandDataOffer
   gboolean action_sent;
   uint32_t dnd_actions;
   enum wl_data_device_manager_dnd_action preferred_dnd_action;
+  MetaSelectionType selection_type;
 };
 
 typedef struct _MetaWaylandDataSourcePrivate
@@ -399,11 +400,7 @@ data_offer_receive (struct wl_client *client, struct wl_resource *resource,
   GList *mime_types;
   gboolean found;
 
-  if (offer->dnd_actions != 0)
-    selection_type = META_SELECTION_DND;
-  else
-    selection_type = META_SELECTION_CLIPBOARD;
-
+  selection_type = offer->selection_type;
   mime_types = meta_selection_get_mimetypes (meta_display_get_selection (display),
                                              selection_type);
   found = g_list_find_custom (mime_types, mime_type, (GCompareFunc) g_strcmp0) != NULL;
@@ -622,6 +619,7 @@ create_and_send_dnd_offer (MetaWaylandDataSource *source,
   MetaWaylandDataOffer *offer = g_slice_new0 (MetaWaylandDataOffer);
   char **p;
 
+  offer->selection_type = META_SELECTION_DND;
   offer->source = source;
   g_object_add_weak_pointer (G_OBJECT (source), (gpointer *)&offer->source);
   offer->resource = wl_resource_create (wl_resource_get_client (target),
@@ -2043,6 +2041,7 @@ create_and_send_clipboard_offer (MetaWaylandDataDevice *data_device,
     return NULL;
 
   offer = g_slice_new0 (MetaWaylandDataOffer);
+  offer->selection_type = META_SELECTION_CLIPBOARD;
   offer->resource = wl_resource_create (wl_resource_get_client (target),
                                         &wl_data_offer_interface,
                                         wl_resource_get_version (target), 0);
@@ -2075,6 +2074,7 @@ create_and_send_primary_offer (MetaWaylandDataDevice *data_device,
     return NULL;
 
   offer = g_slice_new0 (MetaWaylandDataOffer);
+  offer->selection_type = META_SELECTION_PRIMARY;
   offer->resource = wl_resource_create (wl_resource_get_client (target),
                                         &gtk_primary_selection_offer_interface,
                                         wl_resource_get_version (target), 0);
