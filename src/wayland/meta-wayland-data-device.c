@@ -60,6 +60,7 @@ struct _MetaWaylandDataOffer
   gboolean action_sent;
   uint32_t dnd_actions;
   enum wl_data_device_manager_dnd_action preferred_dnd_action;
+  guint dnd : 1;
 };
 
 typedef struct _MetaWaylandDataSourcePrivate
@@ -399,7 +400,7 @@ data_offer_receive (struct wl_client *client, struct wl_resource *resource,
   GList *mime_types;
   gboolean found;
 
-  if (offer->dnd_actions != 0)
+  if (offer->dnd)
     selection_type = META_SELECTION_DND;
   else
     selection_type = META_SELECTION_CLIPBOARD;
@@ -622,6 +623,7 @@ create_and_send_dnd_offer (MetaWaylandDataSource *source,
   MetaWaylandDataOffer *offer = g_slice_new0 (MetaWaylandDataOffer);
   char **p;
 
+  offer->dnd = TRUE;
   offer->source = source;
   g_object_add_weak_pointer (G_OBJECT (source), (gpointer *)&offer->source);
   offer->resource = wl_resource_create (wl_resource_get_client (target),
