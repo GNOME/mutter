@@ -1309,6 +1309,7 @@ data_device_start_drag (struct wl_client *client,
   g_list_free_full (mimetypes, g_free);
   set_selection_source (data_device, META_SELECTION_DND,
                         selection_source);
+  g_object_unref (selection_source);
 
   meta_wayland_pointer_set_focus (seat->pointer, NULL);
   meta_wayland_data_device_start_drag (data_device, client,
@@ -1694,6 +1695,7 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
 
       set_selection_source (data_device, META_SELECTION_CLIPBOARD,
                             selection_source);
+      g_object_unref (selection_source);
     }
   else
     {
@@ -1831,6 +1833,7 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
 
       set_selection_source (data_device, META_SELECTION_PRIMARY,
                             selection_source);
+      g_object_unref (selection_source);
     }
   else
     {
