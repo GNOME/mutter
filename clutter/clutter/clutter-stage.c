@@ -552,10 +552,10 @@ is_inside_input_region (const graphene_point_t *point,
 }
 
 static gboolean
-pick_record_contains_pixel (ClutterStage     *stage,
+pick_record_contains_point (ClutterStage     *stage,
                             const PickRecord *rec,
-                            int               x,
-                            int               y)
+                            float             x,
+                            float             y)
 {
   const graphene_point_t point = GRAPHENE_POINT_INIT (x, y);
   ClutterStagePrivate *priv;
@@ -1676,8 +1676,8 @@ clutter_stage_get_redraw_clip_bounds (ClutterStage          *stage,
 
 static ClutterActor *
 _clutter_stage_do_pick_on_view (ClutterStage     *stage,
-                                gint              x,
-                                gint              y,
+                                float             x,
+                                float             y,
                                 ClutterPickMode   mode,
                                 ClutterStageView *view)
 {
@@ -1712,7 +1712,7 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
     {
       const PickRecord *rec = &g_array_index (priv->pick_stack, PickRecord, i);
 
-      if (rec->actor && pick_record_contains_pixel (stage, rec, x, y))
+      if (rec->actor && pick_record_contains_point (stage, rec, x, y))
         return rec->actor;
     }
 
@@ -1748,8 +1748,8 @@ clutter_stage_get_view_at (ClutterStage *stage,
 
 ClutterActor *
 _clutter_stage_do_pick (ClutterStage   *stage,
-                        gint            x,
-                        gint            y,
+                        float           x,
+                        float           y,
                         ClutterPickMode mode)
 {
   ClutterActor *actor = CLUTTER_ACTOR (stage);
@@ -2893,8 +2893,8 @@ clutter_stage_read_pixels (ClutterStage *stage,
 ClutterActor *
 clutter_stage_get_actor_at_pos (ClutterStage    *stage,
                                 ClutterPickMode  pick_mode,
-                                gint             x,
-                                gint             y)
+                                float            x,
+                                float            y)
 {
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
 

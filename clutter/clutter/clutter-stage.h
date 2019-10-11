@@ -201,8 +201,8 @@ gboolean        clutter_stage_event                             (ClutterStage   
 CLUTTER_EXPORT
 ClutterActor *  clutter_stage_get_actor_at_pos                  (ClutterStage          *stage,
                                                                  ClutterPickMode        pick_mode,
-                                                                 gint                   x,
-                                                                 gint                   y);
+                                                                 float                  x,
+                                                                 float                  y);
 CLUTTER_EXPORT
 guchar *        clutter_stage_read_pixels                       (ClutterStage          *stage,
                                                                  gint                   x,

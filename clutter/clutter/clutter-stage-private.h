@@ -89,8 +89,8 @@ void clutter_stage_push_pick_clip (ClutterStage           *stage,
 void clutter_stage_pop_pick_clip (ClutterStage *stage);
 
 ClutterActor *_clutter_stage_do_pick (ClutterStage    *stage,
-                                      gint             x,
-                                      gint             y,
+                                      float            x,
+                                      float            y,
                                       ClutterPickMode  mode);
 
 ClutterPaintVolume *_clutter_stage_paint_volume_stack_allocate (ClutterStage *stage);
