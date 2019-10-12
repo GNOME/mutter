@@ -526,6 +526,7 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
   MetaWorkspaceLayout layout1, layout2;
   gint num_workspaces, current_space, new_space;
   MetaMotionDirection direction;
+  GList *l;
 
   meta_verbose ("Activating workspace %d\n",
                 meta_workspace_index (workspace));
@@ -644,6 +645,8 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
   if (focus_this)
     {
       meta_window_activate (focus_this, timestamp);
+      for (l = workspace->windows; l; l = l->next)
+        meta_window_appears_focused_changed (l->data);
     }
   else if (move_window)
     {
