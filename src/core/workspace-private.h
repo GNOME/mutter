@@ -92,6 +92,7 @@ GList* meta_workspace_get_onscreen_region       (MetaWorkspace *workspace);
 GList * meta_workspace_get_onmonitor_region (MetaWorkspace      *workspace,
                                              MetaLogicalMonitor *logical_monitor);
 
+MetaWindow * meta_workspace_get_default_focus_window (MetaWorkspace *workspace);
 void meta_workspace_focus_default_window (MetaWorkspace *workspace,
                                           MetaWindow    *not_this_one,
                                           guint32        timestamp);
