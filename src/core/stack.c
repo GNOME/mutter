@@ -1150,7 +1150,8 @@ window_contains_point (MetaWindow *window,
 }
 
 static gboolean
-window_can_get_default_focus (MetaWindow *window)
+window_can_get_default_focus (MetaWindow    *window,
+                              MetaWorkspace *workspace)
 {
   if (window->unmaps_pending > 0)
     return FALSE;
@@ -1161,7 +1162,7 @@ window_can_get_default_focus (MetaWindow *window)
   if (!meta_window_is_focusable (window))
     return FALSE;
 
-  if (!meta_window_should_be_showing (window))
+  if (!meta_window_should_be_showing_on_workspace (window, workspace))
     return FALSE;
 
   if (window->type == META_WINDOW_DOCK)
@@ -1197,7 +1198,7 @@ get_default_focus_window (MetaStack     *stack,
       if (window == not_this_one)
         continue;
 
-      if (!window_can_get_default_focus (window))
+      if (!window_can_get_default_focus (window, workspace))
         continue;
 
       if (must_be_at_point && !window_contains_point (window, root_x, root_y))
@@ -1268,7 +1269,7 @@ meta_stack_get_default_focus_candidates (MetaStack     *stack,
     {
       GList *next = l->next;
 
-      if (!window_can_get_default_focus (l->data))
+      if (!window_can_get_default_focus (l->data, workspace))
         windows = g_list_delete_link (windows, l);
 
       l = next;
