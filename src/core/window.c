@@ -1751,19 +1751,26 @@ meta_window_showing_on_its_workspace (MetaWindow *window)
 }
 
 gboolean
-meta_window_should_be_showing (MetaWindow  *window)
+meta_window_should_be_showing (MetaWindow *window)
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
 
+  /* Windows should be showing if they're located on the
+   * active workspace and they're showing on their own workspace. */
+  return meta_window_should_be_showing_on_workspace (window, workspace_manager->active_workspace);
+}
+
+gboolean
+meta_window_should_be_showing_on_workspace (MetaWindow    *window,
+                                            MetaWorkspace *workspace)
+{
 #ifdef HAVE_WAYLAND
   if (window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND &&
       !meta_wayland_surface_get_buffer (window->surface))
     return FALSE;
 #endif
 
-  /* Windows should be showing if they're located on the
-   * active workspace and they're showing on their own workspace. */
-  return (meta_window_located_on_workspace (window, workspace_manager->active_workspace) &&
+  return (meta_window_located_on_workspace (window, workspace) &&
           meta_window_showing_on_its_workspace (window));
 }
 

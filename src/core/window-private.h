@@ -656,7 +656,9 @@ void        meta_window_resize_frame_with_gravity (MetaWindow  *window,
                                                    int          gravity);
 
 /* Return whether the window should be currently mapped */
-gboolean    meta_window_should_be_showing   (MetaWindow  *window);
+gboolean    meta_window_should_be_showing              (MetaWindow    *window);
+gboolean    meta_window_should_be_showing_on_workspace (MetaWindow    *window,
+                                                        MetaWorkspace *workspace);
 
 void        meta_window_update_struts      (MetaWindow  *window);
 
