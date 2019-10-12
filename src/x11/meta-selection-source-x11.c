@@ -82,6 +82,15 @@ meta_selection_source_x11_read_async (MetaSelectionSource *source,
   task = g_task_new (source, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_selection_source_x11_read_async);
 
+  if (strcmp (mimetype, "text/plain") == 0 &&
+      g_list_find_custom (source_x11->mimetypes, "STRING",
+                          (GCompareFunc) g_strcmp0))
+    mimetype = "STRING";
+  else if (strcmp (mimetype, "text/plain;charset=utf-8") == 0 &&
+           g_list_find_custom (source_x11->mimetypes, "UTF8_STRING",
+                               (GCompareFunc) g_strcmp0))
+    mimetype = "UTF8_STRING";
+
   meta_x11_selection_input_stream_new_async (source_x11->x11_display,
                                              source_x11->x11_display->selection.xwindow,
                                              gdk_x11_get_xatom_name (source_x11->xselection),
