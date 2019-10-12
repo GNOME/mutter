@@ -1268,6 +1268,15 @@ meta_workspace_get_name (MetaWorkspace *workspace)
   return meta_prefs_get_workspace_name (meta_workspace_index (workspace));
 }
 
+MetaWindow *
+meta_workspace_get_default_focus_window (MetaWorkspace *workspace)
+{
+  if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK)
+    return meta_stack_get_default_focus_window (workspace->display->stack, workspace, NULL);
+
+  return NULL;
+}
+
 void
 meta_workspace_focus_default_window (MetaWorkspace *workspace,
                                      MetaWindow    *not_this_one,
