@@ -680,6 +680,8 @@ void        meta_window_get_session_geometry (MetaWindow  *window,
 
 void        meta_window_update_unfocused_button_grabs (MetaWindow *window);
 
+void        meta_window_appears_focused_changed (MetaWindow *window);
+
 void     meta_window_set_focused_internal (MetaWindow *window,
                                            gboolean    focused);
 
