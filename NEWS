@@ -1,3 +1,18 @@
+3.35.1
+======
+* Fix immediate screen blank after releaseing inhibitor [Tim; #573]
+* Respond to frame callbacks regardless of damage [Jonas; !839]
+* selection [Carlos; !842]
+* Fix Night Light on wayland [Jonas; !840]
+* Fix various copy+paste/DND regressions [Carlos; !848, #789, #842,
+  #793, #845, #854]
+* Misc. bug fixes and cleanups [Daniel, Marco, Jonas, Georges;
+  !841, !764, !837, !846]
+
+Contributors:
+  Marco Trevisan (Treviño), Carlos Garnacho, Tim Klocke,
+  Georges Basile Stavracas Neto, Daniel van Vugt, Jonas Ådahl
+
 3.34.1
 ======
 * Fix startup of X11 session services on wayland [Carlos; #771]
