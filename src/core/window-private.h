@@ -382,6 +382,9 @@ struct _MetaWindow
   /* TRUE iff window == window->display->focus_window */
   guint has_focus : 1;
 
+  /* TRUE if window appears focused at the moment */
+  guint appears_focused : 1;
+
   /* Have we placed this window? */
   guint placed : 1;
 
@@ -716,6 +719,8 @@ void        meta_window_get_session_geometry (MetaWindow  *window,
                                               int         *height);
 
 void        meta_window_update_unfocused_button_grabs (MetaWindow *window);
+
+void        meta_window_update_appears_focused (MetaWindow *window);
 
 void     meta_window_set_focused_internal (MetaWindow *window,
                                            gboolean    focused);

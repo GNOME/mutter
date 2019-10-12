@@ -251,6 +251,10 @@ prefs_changed_callback (MetaPreference pref,
       meta_window_recalc_features (window);
       meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
     }
+  else if (pref == META_PREF_FOCUS_MODE)
+    {
+      meta_window_update_appears_focused (window);
+    }
 }
 
 static void
@@ -402,7 +406,7 @@ meta_window_get_property(GObject         *object,
       g_value_set_string (value, win->mutter_hints);
       break;
     case PROP_APPEARS_FOCUSED:
-      g_value_set_boolean (value, meta_window_appears_focused (win));
+      g_value_set_boolean (value, win->appears_focused);
       break;
     case PROP_WM_CLASS:
       g_value_set_string (value, win->res_class);
@@ -1514,7 +1518,7 @@ meta_window_unmanage (MetaWindow  *window,
    * on what gets focused, maintaining sloppy focus
    * invariants.
    */
-  if (meta_window_appears_focused (window))
+  if (window->appears_focused)
     meta_window_propagate_focus_appearance (window, FALSE);
   if (window->has_focus)
     {
@@ -4911,6 +4915,9 @@ set_workspace_state (MetaWindow    *window,
         }
     }
 
+  if (!window->constructing)
+    meta_window_update_appears_focused (window);
+
   /* queue a move_resize since changing workspaces may change
    * the relevant struts
    */
@@ -5266,9 +5273,26 @@ meta_window_change_workspace_by_index (MetaWindow *window,
     meta_window_change_workspace (window, workspace);
 }
 
-static void
-meta_window_appears_focused_changed (MetaWindow *window)
+void
+meta_window_update_appears_focused (MetaWindow *window)
 {
+  MetaWorkspaceManager *workspace_manager;
+  MetaWorkspace *workspace;
+  gboolean appears_focused;
+
+  workspace_manager = window->display->workspace_manager;
+  workspace = meta_window_get_workspace (window);
+
+  if (workspace && workspace != workspace_manager->active_workspace)
+    appears_focused = window == meta_workspace_get_default_focus_window (workspace);
+  else
+    appears_focused = window->has_focus || window->attached_focus_window;
+
+  if (window->appears_focused == appears_focused)
+    return;
+
+  window->appears_focused = appears_focused;
+
   set_net_wm_state (window);
   meta_window_frame_size_changed (window);
 
@@ -5348,7 +5372,7 @@ meta_window_propagate_focus_appearance (MetaWindow *window,
 
       if (child_focus_state_changed && !parent->has_focus)
         {
-          meta_window_appears_focused_changed (parent);
+          meta_window_update_appears_focused (parent);
         }
 
       child = parent;
@@ -5423,7 +5447,7 @@ meta_window_set_focused_internal (MetaWindow *window,
       g_signal_emit (window, window_signals[FOCUS], 0);
 
       if (!window->attached_focus_window)
-        meta_window_appears_focused_changed (window);
+        meta_window_update_appears_focused (window);
 
       meta_window_propagate_focus_appearance (window, TRUE);
     }
@@ -5436,7 +5460,7 @@ meta_window_set_focused_internal (MetaWindow *window,
       meta_window_propagate_focus_appearance (window, FALSE);
 
       if (!window->attached_focus_window)
-        meta_window_appears_focused_changed (window);
+        meta_window_update_appears_focused (window);
 
       /* Re-grab for click to focus and raise-on-click, if necessary */
       if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
@@ -7361,7 +7385,7 @@ meta_window_get_frame (MetaWindow *window)
 gboolean
 meta_window_appears_focused (MetaWindow *window)
 {
-  return window->has_focus || (window->attached_focus_window != NULL);
+  return window->appears_focused;
 }
 
 gboolean
@@ -8099,7 +8123,7 @@ meta_window_set_transient_for (MetaWindow *window,
       return;
     }
 
-  if (meta_window_appears_focused (window) && window->transient_for != NULL)
+  if (window->appears_focused && window->transient_for != NULL)
     meta_window_propagate_focus_appearance (window, FALSE);
 
   /* may now be a dialog */
@@ -8155,7 +8179,7 @@ meta_window_set_transient_for (MetaWindow *window,
   if (!window->constructing && !window->override_redirect)
     meta_window_queue (window, META_QUEUE_MOVE_RESIZE | META_QUEUE_CALC_SHOWING);
 
-  if (meta_window_appears_focused (window) && window->transient_for != NULL)
+  if (window->appears_focused && window->transient_for != NULL)
     meta_window_propagate_focus_appearance (window, TRUE);
 }
 

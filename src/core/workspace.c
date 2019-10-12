@@ -365,14 +365,36 @@ meta_workspace_remove (MetaWorkspace *workspace)
    */
 }
 
+static void
+update_workspace_default_focus (MetaWorkspace *workspace,
+                                MetaWindow    *not_this_one)
+{
+  g_autoptr (GSList) windows = NULL;
+  GSList *l;
+
+  windows = meta_display_list_windows (workspace->display, META_LIST_DEFAULT);
+  for (l = windows; l; l = l->next)
+    {
+      MetaWindow *window = META_WINDOW (l->data);
+
+      if (meta_window_located_on_workspace (window, workspace) &&
+          window != not_this_one)
+        meta_window_update_appears_focused (window);
+    }
+}
+
 void
 meta_workspace_add_window (MetaWorkspace *workspace,
                            MetaWindow    *window)
 {
+  MetaWorkspaceManager *workspace_manager;
+
   g_return_if_fail (g_list_find (workspace->mru_list, window) == NULL);
 
   COGL_TRACE_BEGIN_SCOPED (MetaWorkspaceAddWindow,
                            "Workspace (add window)");
+
+  workspace_manager = workspace->display->workspace_manager;
 
   workspace->mru_list = g_list_prepend (workspace->mru_list, window);
 
@@ -386,6 +408,9 @@ meta_workspace_add_window (MetaWorkspace *workspace,
       meta_workspace_invalidate_work_area (workspace);
     }
 
+  if (workspace != workspace_manager->active_workspace)
+    update_workspace_default_focus (workspace, window);
+
   g_signal_emit (workspace, signals[WINDOW_ADDED], 0, window);
   g_object_notify_by_pspec (G_OBJECT (workspace), obj_props[PROP_N_WINDOWS]);
 }
@@ -394,6 +419,8 @@ void
 meta_workspace_remove_window (MetaWorkspace *workspace,
                               MetaWindow    *window)
 {
+  MetaWorkspaceManager *workspace_manager = workspace->display->workspace_manager;
+
   COGL_TRACE_BEGIN_SCOPED (MetaWorkspaceRemoveWindow,
                            "Workspace (remove window)");
 
@@ -409,6 +436,9 @@ meta_workspace_remove_window (MetaWorkspace *workspace,
                   meta_workspace_index (workspace), window->desc);
       meta_workspace_invalidate_work_area (workspace);
     }
+
+  if (workspace != workspace_manager->active_workspace)
+    update_workspace_default_focus (workspace, window);
 
   g_signal_emit (workspace, signals[WINDOW_REMOVED], 0, window);
   g_object_notify (G_OBJECT (workspace), "n-windows");
@@ -658,6 +688,7 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
   if (focus_this)
     {
       meta_window_activate (focus_this, timestamp);
+      update_workspace_default_focus (workspace, focus_this);
     }
   else if (move_window)
     {
