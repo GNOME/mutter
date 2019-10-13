@@ -540,6 +540,9 @@ struct _MetaWindow
   int constrained_placement_rule_offset_y;
 
   guint unmanage_idle_id;
+
+  /* Prevent blinking when focusing */
+  gboolean focusing;
 };
 
 struct _MetaWindowClass

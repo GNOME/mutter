@@ -4772,6 +4772,10 @@ meta_window_focus (MetaWindow  *window,
       window = modal_transient;
     }
 
+  /* If the window was already appearing focused, but didn't have has_focus set,
+   * it will now briefly appear unfocused on X11. Set a flag to prevent that. */
+  window->focusing = TRUE;
+
   meta_window_flush_calc_showing (window);
 
   if ((!window->mapped || window->hidden) && !window->shaded)
@@ -4779,6 +4783,7 @@ meta_window_focus (MetaWindow  *window,
       meta_topic (META_DEBUG_FOCUS,
                   "Window %s is not showing, not focusing after all\n",
                   window->desc);
+      window->focusing = FALSE;
       return;
     }
 
@@ -5260,6 +5265,8 @@ meta_window_set_focused_internal (MetaWindow *window,
                                   gboolean    focused)
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
+
+  window->focusing = FALSE;
 
   if (focused)
     {
@@ -7250,7 +7257,7 @@ meta_window_appears_focused (MetaWindow *window)
   if (workspace && workspace != workspace_manager->active_workspace)
     default_window = meta_workspace_get_default_focus_window (workspace);
 
-  return window->has_focus || (window->attached_focus_window != NULL) || (window == default_window);
+  return window->has_focus || window->focusing || (window->attached_focus_window != NULL) || (window == default_window);
 }
 
 gboolean
