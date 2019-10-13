@@ -40,7 +40,6 @@
 #include <X11/extensions/Xdamage.h>
 #include <X11/extensions/Xfixes.h>
 
-#include "backends/meta-cursor-sprite-xcursor.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-monitor-dbus.h"
 #include "backends/meta-input-settings-private.h"
@@ -1567,47 +1566,27 @@ find_highest_logical_monitor_scale (MetaBackend      *backend,
   return highest_scale;
 }
 
-static void
-root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
-                        int                      x,
-                        int                      y,
-                        MetaDisplay             *display)
+void
+meta_display_root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
+                                     int                      x,
+                                     int                      y,
+                                     gpointer                 data)
 {
   MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_xcursor);
   MetaBackend *backend = meta_get_backend ();
+  float scale;
 
-  if (meta_is_stage_views_scaled ())
+  scale = find_highest_logical_monitor_scale (backend, cursor_sprite);
+  if (scale != 0.0)
     {
-      float scale;
-
-      scale = find_highest_logical_monitor_scale (backend, cursor_sprite);
-      if (scale != 0.0)
-        {
-          float ceiled_scale;
-
-          ceiled_scale = ceilf (scale);
-          meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
-                                                      (int) ceiled_scale);
-          meta_cursor_sprite_set_texture_scale (cursor_sprite,
-                                                1.0 / ceiled_scale);
-        }
-    }
-  else
-    {
-      MetaMonitorManager *monitor_manager =
-        meta_backend_get_monitor_manager (backend);
-      MetaLogicalMonitor *logical_monitor;
-
-      logical_monitor =
-        meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
+      float ceiled_scale;
 
       /* Reload the cursor texture if the scale has changed. */
-      if (logical_monitor)
-        {
-          meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
-                                                      logical_monitor->scale);
-          meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0);
-        }
+      ceiled_scale = ceilf (scale);
+      meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
+                                                  (int) ceiled_scale);
+      meta_cursor_sprite_set_texture_scale (cursor_sprite,
+                                            1.0 / ceiled_scale);
     }
 }
 
@@ -1617,8 +1596,8 @@ manage_root_cursor_sprite_scale (MetaDisplay             *display,
 {
   g_signal_connect_object (sprite_xcursor,
                            "prepare-at",
-                           G_CALLBACK (root_cursor_prepare_at),
-                           display,
+                           G_CALLBACK (meta_display_root_cursor_prepare_at),
+                           NULL,
                            0);
 }
 
