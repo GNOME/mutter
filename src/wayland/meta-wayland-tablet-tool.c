@@ -35,6 +35,7 @@
 #include "wayland/meta-wayland-tablet-seat.h"
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "core/display-private.h"
 
 #ifdef HAVE_NATIVE_BACKEND
 #include <linux/input-event-codes.h>
@@ -393,38 +394,6 @@ tablet_tool_handle_cursor_surface_destroy (struct wl_listener *listener,
   meta_wayland_tablet_tool_set_cursor_surface (tool, NULL);
 }
 
-static void
-tool_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
-                        int                      x,
-                        int                      y,
-                        MetaWaylandTabletTool   *tool)
-{
-  MetaBackend *backend = meta_get_backend ();
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaLogicalMonitor *logical_monitor;
-
-  logical_monitor =
-    meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
-
-  /* Reload the cursor texture if the scale has changed. */
-  if (logical_monitor)
-    {
-      MetaCursorSprite *cursor_sprite = META_CURSOR_SPRITE (sprite_xcursor);
-      float ceiled_scale;
-
-      ceiled_scale = ceilf (logical_monitor->scale);
-      meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
-                                                  (int) ceiled_scale);
-
-      if (meta_is_stage_views_scaled ())
-        meta_cursor_sprite_set_texture_scale (cursor_sprite,
-                                              1.0 / ceiled_scale);
-      else
-        meta_cursor_sprite_set_texture_scale (cursor_sprite, 1.0);
-    }
-}
-
 MetaWaylandTabletTool *
 meta_wayland_tablet_tool_new (MetaWaylandTabletSeat  *seat,
                               ClutterInputDevice     *device,
@@ -445,7 +414,7 @@ meta_wayland_tablet_tool_new (MetaWaylandTabletSeat  *seat,
   tool->default_sprite = meta_cursor_sprite_xcursor_new (META_CURSOR_CROSSHAIR);
   tool->prepare_at_signal_id =
     g_signal_connect (tool->default_sprite, "prepare-at",
-                      G_CALLBACK (tool_cursor_prepare_at), tool);
+                      G_CALLBACK (meta_display_root_cursor_prepare_at), NULL);
 
   return tool;
 }
