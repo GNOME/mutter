@@ -27,7 +27,6 @@
 #include <math.h>
 #include <string.h>
 
-#include "core/core.h"
 #include "core/frame.h"
 #include "core/window-private.h"
 #include "meta/boxes.h"
@@ -36,6 +35,7 @@
 #include "meta/util.h"
 #include "ui/ui.h"
 #include "ui/frames.h"
+#include "x11/meta-x11-window-control.h"
 #include "x11/window-x11-private.h"
 #include "x11/window-x11.h"
 

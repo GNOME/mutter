@@ -23,7 +23,8 @@
 
 #include "config.h"
 
-#include "core/core.h"
+#include "x11/meta-x11-window-control.h"
+
 #include "core/frame.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/util-private.h"
