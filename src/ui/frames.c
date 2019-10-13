@@ -336,7 +336,7 @@ meta_frames_style_updated  (GtkWidget *widget)
 
   g_hash_table_foreach (frames->frames, reattach_style_func, NULL);
 
-  meta_retheme_all ();
+  meta_display_queue_retheme_all_windows (meta_get_display ());
 
   GTK_WIDGET_CLASS (meta_frames_parent_class)->style_updated (widget);
 }

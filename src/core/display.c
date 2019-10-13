@@ -1969,12 +1969,6 @@ meta_display_queue_retheme_all_windows (MetaDisplay *display)
   g_slist_free (windows);
 }
 
-void
-meta_display_retheme_all (void)
-{
-  meta_display_queue_retheme_all_windows (meta_get_display ());
-}
-
 /*
  * Stores whether syncing is currently enabled.
  */
