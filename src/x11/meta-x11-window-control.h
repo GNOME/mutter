@@ -20,8 +20,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef META_CORE_H
-#define META_CORE_H
+#ifndef META_X11_WINDOW__CONTROL_H
+#define META_X11_WINDOW__CONTROL_H
 
 #include <gdk/gdkx.h>
 
@@ -77,4 +77,4 @@ void       meta_core_set_screen_cursor (Display *xdisplay,
                                         Window   frame_on_screen,
                                         MetaCursor cursor);
 
-#endif
+#endif /* META_X11_WINDOW_CONTROL_H */
