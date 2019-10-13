@@ -28,6 +28,7 @@
 
 #include <math.h>
 
+#include "backends/meta-backend-private.h"
 #include "backends/meta-stage-private.h"
 #include "clutter/clutter.h"
 #include "clutter/clutter-mutter.h"
@@ -227,9 +228,13 @@ meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
     return (graphene_rect_t) GRAPHENE_RECT_INIT_ZERO;
 
   meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
-  texture_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
   width = cogl_texture_get_width (texture);
   height = cogl_texture_get_height (texture);
+
+  if (meta_is_stage_views_scaled())
+    texture_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
+  else
+    texture_scale = 1.0;
 
   return (graphene_rect_t) {
     .origin = {
