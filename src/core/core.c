@@ -276,10 +276,3 @@ meta_core_set_screen_cursor (Display *xdisplay,
 
   meta_frame_set_screen_cursor (window->frame, cursor);
 }
-
-void
-meta_retheme_all (void)
-{
-  if (meta_get_display ())
-    meta_display_retheme_all ();
-}
