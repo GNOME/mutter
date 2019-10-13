@@ -90,25 +90,8 @@ cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
 
   if (!meta_xwayland_is_xwayland_surface (surface))
     {
-      MetaBackend *backend = meta_get_backend ();
-      MetaMonitorManager *monitor_manager =
-        meta_backend_get_monitor_manager (backend);
-      MetaLogicalMonitor *logical_monitor;
-
-      logical_monitor =
-        meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
-      if (logical_monitor)
-        {
-          float texture_scale;
-
-          if (meta_is_stage_views_scaled ())
-            texture_scale = 1.0 / surface->scale;
-          else
-            texture_scale = (meta_logical_monitor_get_scale (logical_monitor) /
-                             surface->scale);
-
-          meta_cursor_sprite_set_texture_scale (cursor_sprite, texture_scale);
-        }
+      meta_cursor_sprite_set_texture_scale (cursor_sprite,
+                                            1.0 / surface->scale);
     }
   meta_wayland_surface_update_outputs (surface);
 }
