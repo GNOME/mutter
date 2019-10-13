@@ -25,13 +25,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "core/core.h"
 #include "meta/prefs.h"
 #include "meta/util.h"
 #include "ui/frames.h"
 #include "ui/theme-private.h"
 #include "ui/ui.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/meta-x11-window-control.h"
 
 struct _MetaUI
 {
