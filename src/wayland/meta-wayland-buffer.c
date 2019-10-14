@@ -477,22 +477,30 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
   struct wl_shm_buffer *shm_buffer;
   int i, n_rectangles;
   gboolean set_texture_failed = FALSE;
+  CoglPixelFormat format;
 
   n_rectangles = cairo_region_num_rectangles (region);
 
   shm_buffer = wl_shm_buffer_get (buffer->resource);
   wl_shm_buffer_begin_access (shm_buffer);
 
+  shm_buffer_get_cogl_pixel_format (shm_buffer, &format, NULL);
+
+  /* We shouldn't be getting multi-plane texture formats. */
+  if (cogl_pixel_format_get_n_planes (format) != 1)
+    {
+      wl_shm_buffer_end_access (shm_buffer);
+      return FALSE;
+    }
+
   for (i = 0; i < n_rectangles; i++)
     {
       const uint8_t *data = wl_shm_buffer_get_data (shm_buffer);
       int32_t stride = wl_shm_buffer_get_stride (shm_buffer);
-      CoglPixelFormat format;
-      int bpp;
       cairo_rectangle_int_t rect;
+      uint8_t bpp;
 
-      shm_buffer_get_cogl_pixel_format (shm_buffer, &format, NULL);
-      bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+      bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
       cairo_region_get_rectangle (region, i, &rect);
 
       if (!_cogl_texture_set_region (texture,

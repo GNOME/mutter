@@ -276,7 +276,11 @@ static gboolean
 _cogl_blit_get_tex_data_begin (CoglBlitData *data)
 {
   data->format = _cogl_texture_get_format (data->src_tex);
-  data->bpp = _cogl_pixel_format_get_bytes_per_pixel (data->format);
+
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (data->format) == 1,
+                        FALSE);
+
+  data->bpp = cogl_pixel_format_get_bytes_per_pixel (data->format, 0);
 
   data->image_data = g_malloc (data->bpp * data->src_width *
                                data->src_height);
