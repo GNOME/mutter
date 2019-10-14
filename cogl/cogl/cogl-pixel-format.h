@@ -233,17 +233,27 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
   COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8 = (3 | COGL_DEPTH_BIT | COGL_STENCIL_BIT)
 } CoglPixelFormat;
 
-/*
- * _cogl_pixel_format_get_bytes_per_pixel:
- * @format: a #CoglPixelFormat
+/**
+ * COGL_PIXEL_FORMAT_MAX_PLANES:
  *
- * Queries how many bytes a pixel of the given @format takes.
+ * The maximum number of planes of a pixel format (see also
+ * cogl_pixel_format_get_planes()).
+ */
+#define COGL_PIXEL_FORMAT_MAX_PLANES (4)
+
+/**
+ * cogl_pixel_format_get_bytes_per_pixel:
+ * @format: The pixel format
+ * @plane: The index of the plane (should not be more than the number of planes
+ *         in the given format).
  *
- * Return value: The number of bytes taken for a pixel of the given
- *               @format.
+ * Queries the number of bytes per pixel for a given format in the given plane.
+ *
+ * Returns: The number of bytes per pixel in the given format's given plane.
  */
 int
-_cogl_pixel_format_get_bytes_per_pixel (CoglPixelFormat format);
+cogl_pixel_format_get_bytes_per_pixel (CoglPixelFormat format,
+                                       int             plane);
 
 /*
  * _cogl_pixel_format_has_aligned_components:
@@ -283,6 +293,17 @@ _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format);
  */
 #define COGL_PIXEL_FORMAT_CAN_HAVE_PREMULT(format) \
   (((format) & COGL_A_BIT) && (format) != COGL_PIXEL_FORMAT_A_8)
+
+/**
+ * cogl_pixel_format_get_n_planes:
+ * @format: The format for which to get the number of planes
+ *
+ * Returns the number of planes the given CoglPixelFormat specifies.
+ *
+ * Returns: The no. of planes of @format (at most %COGL_PIXEL_FORMAT_MAX_PLANES)
+ */
+int
+cogl_pixel_format_get_n_planes (CoglPixelFormat format);
 
 /**
  * cogl_pixel_format_to_string:

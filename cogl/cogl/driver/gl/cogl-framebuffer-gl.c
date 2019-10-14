@@ -1226,6 +1226,8 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
   gboolean pack_invert_set;
   int status = FALSE;
 
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, FALSE);
+
   _cogl_framebuffer_flush_state (framebuffer,
                                  framebuffer,
                                  COGL_FRAMEBUFFER_STATE_BIND);
@@ -1300,7 +1302,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
       if (!tmp_bmp)
         goto EXIT;
 
-      bpp = _cogl_pixel_format_get_bytes_per_pixel (read_format);
+      bpp = cogl_pixel_format_get_bytes_per_pixel (read_format, 0);
       rowstride = cogl_bitmap_get_rowstride (tmp_bmp);
 
       ctx->texture_driver->prep_gl_for_pixels_download (ctx,
@@ -1357,7 +1359,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
       else
         shared_bmp = cogl_object_ref (bitmap);
 
-      bpp = _cogl_pixel_format_get_bytes_per_pixel (bmp_format);
+      bpp = cogl_pixel_format_get_bytes_per_pixel (bmp_format, 0);
 
       ctx->texture_driver->prep_gl_for_pixels_download (ctx,
                                                         rowstride,
