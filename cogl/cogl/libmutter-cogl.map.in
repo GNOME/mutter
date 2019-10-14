@@ -42,7 +42,6 @@ global:
   _cogl_framebuffer_winsys_update_size;
   _cogl_winsys_egl_make_current;
   _cogl_winsys_egl_ensure_current;
-  _cogl_pixel_format_get_bytes_per_pixel*;
   _cogl_system_error_quark;
   _cogl_util_next_p2;
   @unit_tests_symbols@

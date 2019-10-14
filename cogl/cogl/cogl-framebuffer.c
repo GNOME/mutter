@@ -1316,10 +1316,13 @@ cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
                               CoglPixelFormat format,
                               uint8_t *pixels)
 {
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+  uint8_t bpp;
   CoglBitmap *bitmap;
   gboolean ret;
 
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, FALSE);
+
+  bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
   bitmap = cogl_bitmap_new_for_data (framebuffer->context,
                                      width, height,
                                      format,
