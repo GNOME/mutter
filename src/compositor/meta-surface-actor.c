@@ -129,8 +129,7 @@ meta_surface_actor_paint (ClutterActor *actor)
 }
 
 static void
-meta_surface_actor_pick (ClutterActor       *actor,
-                         const ClutterColor *color)
+meta_surface_actor_pick (ClutterActor *actor)
 {
   MetaSurfaceActor *self = META_SURFACE_ACTOR (actor);
   MetaSurfaceActorPrivate *priv =
@@ -143,7 +142,7 @@ meta_surface_actor_pick (ClutterActor       *actor,
 
   /* If there is no region then use the regular pick */
   if (priv->input_region == NULL)
-    CLUTTER_ACTOR_CLASS (meta_surface_actor_parent_class)->pick (actor, color);
+    CLUTTER_ACTOR_CLASS (meta_surface_actor_parent_class)->pick (actor);
   else
     {
       int n_rects;

@@ -233,8 +233,7 @@ struct _ClutterActorClass
                                  ClutterActor          *old_parent);
 
   void (* destroy)              (ClutterActor          *self);
-  void (* pick)                 (ClutterActor          *actor,
-                                 const ClutterColor    *color);
+  void (* pick)                 (ClutterActor          *actor);
 
   gboolean (* queue_redraw)     (ClutterActor          *actor,
                                  ClutterActor          *leaf_that_queued,
