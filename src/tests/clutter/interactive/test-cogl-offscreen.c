@@ -133,8 +133,8 @@ test_coglbox_dispose (GObject *object)
 
   priv = TEST_COGLBOX_GET_PRIVATE (object);
 
-  cogl_handle_unref (priv->texture_id);
-  cogl_handle_unref (priv->offscreen_id);
+  cogl_object_unref (priv->texture_id);
+  cogl_object_unref (priv->offscreen_id);
 
   G_OBJECT_CLASS (test_coglbox_parent_class)->dispose (object);
 }
@@ -256,7 +256,7 @@ test_coglbox_map (ClutterActor *actor)
 
   cogl_pop_framebuffer ();
 
-  if (priv->offscreen_id == COGL_INVALID_HANDLE)
+  if (priv->offscreen_id == NULL)
     printf ("Failed creating offscreen to texture!\n");
 }
 
@@ -281,7 +281,7 @@ test_coglbox_init (TestCoglbox *self)
                                                  COGL_TEXTURE_NONE,
 						 COGL_PIXEL_FORMAT_RGB_888);
 
-  if (priv->texture_id == COGL_INVALID_HANDLE)
+  if (priv->texture_id == NULL)
     printf ("Failed creating texture with size!\n");
 }
 
