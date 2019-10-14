@@ -152,6 +152,8 @@ test_readpixels (TestUtilsGTestFixture *fixture,
 {
   unsigned int idle_source;
   ClutterActor *stage;
+  ClutterActorIter iter;
+  ClutterActor *actor;
 
   stage = clutter_stage_get_default ();
   clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
@@ -168,9 +170,7 @@ test_readpixels (TestUtilsGTestFixture *fixture,
   g_source_remove (idle_source);
 
   /* Remove all of the actors from the stage */
-  clutter_container_foreach (CLUTTER_CONTAINER (stage),
-                             (ClutterCallback) clutter_actor_destroy,
-                             NULL);
+  clutter_actor_remove_all_children (stage);
 
   if (cogl_test_verbose ())
     g_print ("OK\n");
