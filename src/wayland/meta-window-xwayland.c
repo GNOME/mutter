@@ -79,7 +79,15 @@ meta_window_xwayland_move_resize_internal (MetaWindow                *window,
                                            MetaMoveResizeFlags        flags,
                                            MetaMoveResizeResultFlags *result)
 {
-  META_WINDOW_CLASS (meta_window_xwayland_parent_class)->move_resize_internal (window, gravity, unconstrained_rect, constrained_rect, flags, result);
+  MetaWindowClass *parent_class =
+    META_WINDOW_CLASS (meta_window_xwayland_parent_class);
+
+  parent_class->move_resize_internal (window,
+                                      gravity,
+                                      unconstrained_rect,
+                                      constrained_rect,
+                                      flags,
+                                      result);
 
   if (*result & META_MOVE_RESIZE_RESULT_RESIZED)
     meta_window_set_resize_pending (window, TRUE);
