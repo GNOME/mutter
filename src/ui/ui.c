@@ -59,7 +59,7 @@ meta_ui_new (MetaX11Display *x11_display)
   ui = g_new0 (MetaUI, 1);
   ui->xdisplay = x11_display->xdisplay;
 
-  ui->frames = meta_frames_new ();
+  ui->frames = meta_frames_new (x11_display);
   /* GTK+ needs the frame-sync protocol to work in order to properly
    * handle style changes. This means that the dummy widget we create
    * to get the style for title bars actually needs to be mapped

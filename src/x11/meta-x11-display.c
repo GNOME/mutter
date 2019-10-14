@@ -1407,6 +1407,12 @@ meta_x11_display_get_screen_number (MetaX11Display *x11_display)
   return DefaultScreen (x11_display->xdisplay);
 }
 
+MetaDisplay *
+meta_x11_display_get_display (MetaX11Display *x11_display)
+{
+  return x11_display->display;
+}
+
 /**
  * meta_x11_display_get_xdisplay: (skip)
  * @x11_display: a #MetaX11Display
