@@ -3834,7 +3834,8 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
   window->sync_request_serial = new_counter_value;
   meta_compositor_sync_updates_frozen (window->display->compositor, window);
 
-  if (new_counter_value >= window->sync_request_wait_serial && window->sync_request_timeout_id)
+    if (new_counter_value >= window->sync_request_wait_serial &&
+        window->sync_request_timeout_id)
     {
 	if (!window->extended_sync_request_counter || new_counter_value % 2 == 0)
          {
