@@ -152,10 +152,15 @@ prepare_bitmap_alignment_for_upload (CoglContext *ctx,
                                      GError **error)
 {
   CoglPixelFormat format = cogl_bitmap_get_format (src_bmp);
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+  uint8_t bpp;
   int src_rowstride = cogl_bitmap_get_rowstride (src_bmp);
   int width = cogl_bitmap_get_width (src_bmp);
   int alignment = 1;
+
+  g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, FALSE);
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, FALSE);
+
+  bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
 
   if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_UNPACK_SUBIMAGE) ||
       src_rowstride == 0)
@@ -195,13 +200,19 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
   GLuint gl_handle;
   uint8_t *data;
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
+  uint8_t bpp;
   CoglBitmap *slice_bmp;
   int rowstride;
   gboolean status = TRUE;
   GError *internal_error = NULL;
   int level_width;
   int level_height;
+
+  g_return_val_if_fail (source_format != COGL_PIXEL_FORMAT_ANY, FALSE);
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (source_format) == 1,
+                        FALSE);
+
+  bpp = cogl_pixel_format_get_bytes_per_pixel (source_format, 0);
 
   cogl_texture_get_gl_texture (texture, &gl_handle, &gl_target);
 
@@ -337,7 +348,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
                                    GError **error)
 {
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
+  uint8_t bpp;
   int rowstride;
   int bmp_width = cogl_bitmap_get_width (source_bmp);
   int bmp_height = cogl_bitmap_get_height (source_bmp);
@@ -345,6 +356,12 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
   uint8_t *data;
   GError *internal_error = NULL;
   gboolean status = TRUE;
+
+  g_return_val_if_fail (source_format != COGL_PIXEL_FORMAT_ANY, FALSE);
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (source_format) == 1,
+                        FALSE);
+
+  bpp = cogl_pixel_format_get_bytes_per_pixel (source_format, 0);
 
   bmp = prepare_bitmap_alignment_for_upload (ctx, source_bmp, error);
   if (!bmp)

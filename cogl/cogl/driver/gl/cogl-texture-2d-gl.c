@@ -82,6 +82,10 @@ _cogl_texture_2d_gl_can_create (CoglContext *ctx,
   GLenum gl_format;
   GLenum gl_type;
 
+  /* We only support single plane formats for now */
+  if (cogl_pixel_format_get_n_planes (internal_format) != 1)
+    return FALSE;
+
   ctx->driver_vtable->pixel_format_to_gl (ctx,
                                           internal_format,
                                           &gl_intformat,
@@ -250,7 +254,7 @@ allocate_from_bitmap (CoglTexture2D *tex_2d,
       if (data)
         {
           memcpy (tex_2d->first_pixel.data, data,
-                  _cogl_pixel_format_get_bytes_per_pixel (format));
+                  cogl_pixel_format_get_bytes_per_pixel (format, 0));
           _cogl_bitmap_unmap (upload_bmp);
         }
       else
@@ -259,7 +263,7 @@ allocate_from_bitmap (CoglTexture2D *tex_2d,
                      "glGenerateMipmap fallback");
           g_error_free (ignore);
           memset (tex_2d->first_pixel.data, 0,
-                  _cogl_pixel_format_get_bytes_per_pixel (format));
+                  cogl_pixel_format_get_bytes_per_pixel (format, 0));
         }
     }
 
@@ -778,6 +782,11 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
 
   upload_format = cogl_bitmap_get_format (upload_bmp);
 
+  /* Only support single plane formats */
+  if (upload_format == COGL_PIXEL_FORMAT_ANY ||
+      cogl_pixel_format_get_n_planes (upload_format) != 1)
+    return FALSE;
+
   ctx->driver_vtable->pixel_format_to_gl (ctx,
                                           upload_format,
                                           NULL, /* internal gl format */
@@ -791,8 +800,7 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
       GError *ignore = NULL;
       uint8_t *data =
         _cogl_bitmap_map (upload_bmp, COGL_BUFFER_ACCESS_READ, 0, &ignore);
-      CoglPixelFormat bpp =
-        _cogl_pixel_format_get_bytes_per_pixel (upload_format);
+      uint8_t bpp = cogl_pixel_format_get_bytes_per_pixel (upload_format, 0);
 
       tex_2d->first_pixel.gl_format = gl_format;
       tex_2d->first_pixel.gl_type = gl_type;
@@ -847,12 +855,15 @@ _cogl_texture_2d_gl_get_data (CoglTexture2D *tex_2d,
                               uint8_t *data)
 {
   CoglContext *ctx = COGL_TEXTURE (tex_2d)->context;
-  int bpp;
+  uint8_t bpp;
   int width = COGL_TEXTURE (tex_2d)->width;
   GLenum gl_format;
   GLenum gl_type;
 
-  bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+  g_return_if_fail (format != COGL_PIXEL_FORMAT_ANY);
+  g_return_if_fail (cogl_pixel_format_get_n_planes (format) == 1);
+
+  bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
 
   ctx->driver_vtable->pixel_format_to_gl (ctx,
                                           format,
