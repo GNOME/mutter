@@ -3838,10 +3838,7 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
         window->sync_request_timeout_id)
     {
 	if (!window->extended_sync_request_counter || new_counter_value % 2 == 0)
-         {
-	   g_source_remove (window->sync_request_timeout_id);
-	   window->sync_request_timeout_id = 0;
-	 }
+         g_clear_handle_id (&window->sync_request_timeout_id, g_source_remove);
 
 	if (window == window->display->grab_window &&
 	    meta_grab_op_is_resizing (window->display->grab_op) &&
