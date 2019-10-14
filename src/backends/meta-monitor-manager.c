@@ -2493,7 +2493,7 @@ meta_monitor_manager_get_logical_monitor_at (MetaMonitorManager *manager,
     {
       MetaLogicalMonitor *logical_monitor = l->data;
 
-      if (POINT_IN_RECT (x, y, logical_monitor->rect))
+      if (META_POINT_IN_RECT (x, y, logical_monitor->rect))
         return logical_monitor;
     }
 
