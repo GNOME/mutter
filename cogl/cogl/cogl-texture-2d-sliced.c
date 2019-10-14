@@ -155,6 +155,9 @@ _cogl_texture_2d_sliced_allocate_waste_buffer (CoglTexture2DSliced *tex_2ds,
   CoglSpan *last_y_span;
   uint8_t *waste_buf = NULL;
 
+  g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, NULL);
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, NULL);
+
   /* If the texture has any waste then allocate a buffer big enough to
      fill the gaps */
   last_x_span = &g_array_index (tex_2ds->slice_x_spans, CoglSpan,
@@ -163,7 +166,7 @@ _cogl_texture_2d_sliced_allocate_waste_buffer (CoglTexture2DSliced *tex_2ds,
                                 tex_2ds->slice_y_spans->len - 1);
   if (last_x_span->waste > 0 || last_y_span->waste > 0)
     {
-      int bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
+      uint8_t bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
       CoglSpan  *first_x_span
         = &g_array_index (tex_2ds->slice_x_spans, CoglSpan, 0);
       CoglSpan  *first_y_span
@@ -209,16 +212,22 @@ _cogl_texture_2d_sliced_set_waste (CoglTexture2DSliced *tex_2ds,
     {
       int bmp_rowstride = cogl_bitmap_get_rowstride (source_bmp);
       CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
-      int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
+      uint8_t bpp;
       uint8_t *bmp_data;
       const uint8_t *src;
       uint8_t *dst;
       unsigned int wy, wx;
       CoglBitmap *waste_bmp;
 
+      /* We only support single plane formats here */
+      if (cogl_pixel_format_get_n_planes (source_format) == 1)
+        return FALSE;
+
       bmp_data = _cogl_bitmap_map (source_bmp, COGL_BUFFER_ACCESS_READ, 0, error);
       if (bmp_data == NULL)
         return FALSE;
+
+      bpp = cogl_pixel_format_get_bytes_per_pixel (source_format, 0);
 
       if (need_x)
         {
@@ -968,11 +977,12 @@ cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
   CoglTexture2DSliced *tex_2ds;
 
   g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, NULL);
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, NULL);
   g_return_val_if_fail (data != NULL, NULL);
 
   /* Rowstride from width if not given */
   if (rowstride == 0)
-    rowstride = width * _cogl_pixel_format_get_bytes_per_pixel (format);
+    rowstride = width * cogl_pixel_format_get_bytes_per_pixel (format, 0);
 
   /* Wrap the data into a bitmap */
   bmp = cogl_bitmap_new_for_data (ctx,
