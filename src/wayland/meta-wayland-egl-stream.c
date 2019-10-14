@@ -115,6 +115,8 @@ meta_wayland_eglstream_controller_init (MetaWaylandCompositor *compositor)
                         bind_eglstream_controller) == NULL)
     goto fail;
 
+  g_debug ("WL: loaded libnvidia-egl-wayland.so.1:wl_eglstream_controller.");
+
   return TRUE;
 
 fail:
