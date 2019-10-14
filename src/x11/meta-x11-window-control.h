@@ -27,54 +27,55 @@
 
 #include "meta/boxes.h"
 #include "meta/common.h"
+#include "x11/meta-x11-display-private.h"
 
-void meta_core_queue_frame_resize (Display *xdisplay,
-                                   Window frame_xwindow);
+void meta_x11_wm_queue_frame_resize (MetaX11Display *x11_display,
+                                     Window          frame_xwindow);
 
-void meta_core_user_lower_and_unfocus (Display *xdisplay,
-                                       Window   frame_xwindow,
-                                       guint32  timestamp);
+void meta_x11_wm_user_lower_and_unfocus (MetaX11Display *x11_display,
+                                         Window          frame_xwindow,
+                                         uint32_t        timestamp);
 
-void meta_core_toggle_maximize  (Display *xdisplay,
-                                 Window   frame_xwindow);
-void meta_core_toggle_maximize_horizontally  (Display *xdisplay,
-                                              Window   frame_xwindow);
-void meta_core_toggle_maximize_vertically    (Display *xdisplay,
-                                              Window   frame_xwindow);
+void meta_x11_wm_toggle_maximize (MetaX11Display *x11_display,
+                                  Window          frame_xwindow);
+void meta_x11_wm_toggle_maximize_horizontally (MetaX11Display *xdisplay,
+                                               Window          frame_xwindow);
+void meta_x11_wm_toggle_maximize_vertically (MetaX11Display *x11_display,
+                                             Window          frame_xwindow);
 
-void meta_core_show_window_menu (Display            *xdisplay,
-                                 Window              frame_xwindow,
-                                 MetaWindowMenuType  menu,
-                                 int                 root_x,
-                                 int                 root_y,
-                                 guint32             timestamp);
+void meta_x11_wm_show_window_menu (MetaX11Display     *x11_xdisplay,
+                                   Window              frame_xwindow,
+                                   MetaWindowMenuType  menu,
+                                   int                 root_x,
+                                   int                 root_y,
+                                   uint32_t            timestamp);
 
-void meta_core_show_window_menu_for_rect (Display            *xdisplay,
-                                          Window              frame_xwindow,
-                                          MetaWindowMenuType  menu,
-                                          MetaRectangle      *rect,
-                                          guint32             timestamp);
+void meta_x11_wm_show_window_menu_for_rect (MetaX11Display     *x11_display,
+                                            Window              frame_xwindow,
+                                            MetaWindowMenuType  menu,
+                                            MetaRectangle      *rect,
+                                            uint32_t            timestamp);
 
-gboolean   meta_core_begin_grab_op (Display    *xdisplay,
-                                    Window      frame_xwindow,
-                                    MetaGrabOp  op,
-                                    gboolean    pointer_already_grabbed,
-                                    gboolean    frame_action,
-                                    int         button,
-                                    gulong      modmask,
-                                    guint32     timestamp,
-                                    int         root_x,
-                                    int         root_y);
-void       meta_core_end_grab_op   (Display    *xdisplay,
-                                    guint32     timestamp);
-MetaGrabOp meta_core_get_grab_op     (Display    *xdisplay);
+gboolean meta_x11_wm_begin_grab_op (MetaX11Display *x11_display,
+                                    Window          frame_xwindow,
+                                    MetaGrabOp      op,
+                                    gboolean        pointer_already_grabbed,
+                                    gboolean        frame_action,
+                                    int             button,
+                                    gulong          modmask,
+                                    uint32_t        timestamp,
+                                    int             root_x,
+                                    int             root_y);
+void meta_x11_wm_end_grab_op (MetaX11Display *x11_display,
+                              uint32_t        timestamp);
+MetaGrabOp meta_x11_wm_get_grab_op (MetaX11Display *x11_display);
 
 
-void       meta_core_grab_buttons  (Display *xdisplay,
-                                    Window   frame_xwindow);
+void meta_x11_wm_grab_buttons  (MetaX11Display *x11_display,
+                                Window          frame_xwindow);
 
-void       meta_core_set_screen_cursor (Display *xdisplay,
-                                        Window   frame_on_screen,
-                                        MetaCursor cursor);
+void meta_x11_wm_set_screen_cursor (MetaX11Display *x11_display,
+                                    Window          frame_on_screen,
+                                    MetaCursor      cursor);
 
 #endif /* META_X11_WINDOW_CONTROL_H */

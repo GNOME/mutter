@@ -87,6 +87,8 @@ struct _MetaFrames
 {
   GtkWindow parent_instance;
 
+  MetaX11Display *x11_display;
+
   GHashTable *text_heights;
 
   GHashTable *frames;
@@ -111,7 +113,7 @@ struct _MetaFramesClass
 
 GType        meta_frames_get_type               (void) G_GNUC_CONST;
 
-MetaFrames *meta_frames_new (void);
+MetaFrames * meta_frames_new (MetaX11Display *x11_display);
 
 MetaUIFrame * meta_frames_manage_window (MetaFrames *frames,
                                          MetaWindow *meta_window,

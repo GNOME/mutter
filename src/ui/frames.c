@@ -276,13 +276,16 @@ meta_frames_finalize (GObject *object)
 }
 
 static void
-queue_recalc_func (gpointer key, gpointer value, gpointer data)
+queue_recalc_func (gpointer key,
+                   gpointer value,
+                   gpointer user_data)
 {
   MetaUIFrame *frame = value;
+  MetaFrames *frames = user_data;
 
   invalidate_whole_window (frame);
-  meta_core_queue_frame_resize (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
-                                frame->xwindow);
+  meta_x11_wm_queue_frame_resize (frames->x11_display,
+                                  frame->xwindow);
 
   g_clear_object (&frame->text_layout);
 }
@@ -430,13 +433,14 @@ meta_ui_frame_calc_geometry (MetaUIFrame       *frame,
 }
 
 MetaFrames*
-meta_frames_new (void)
+meta_frames_new (MetaX11Display *x11_display)
 {
   MetaFrames *frames;
 
   frames = g_object_new (META_TYPE_FRAMES,
                          "type", GTK_WINDOW_POPUP,
                          NULL);
+  frames->x11_display = x11_display;
 
   /* Put the window at an arbitrary offscreen location; the one place
    * it can't be is at -100x-100, since the meta_window_new() will
@@ -523,7 +527,7 @@ meta_frames_manage_window (MetaFrames *frames,
   frame->prelit_control = META_FRAME_CONTROL_NONE;
   frame->button_state = META_BUTTON_STATE_NORMAL;
 
-  meta_core_grab_buttons (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()), frame->xwindow);
+  meta_x11_wm_grab_buttons (frames->x11_display, frame->xwindow);
 
   g_hash_table_replace (frames->frames, &frame->xwindow, frame);
 
@@ -536,9 +540,9 @@ meta_ui_frame_unmanage (MetaUIFrame *frame)
   MetaFrames *frames = frame->frames;
 
   /* restore the cursor */
-  meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
-                               frame->xwindow,
-                               META_CURSOR_DEFAULT);
+  meta_x11_wm_set_screen_cursor (frames->x11_display,
+                                 frame->xwindow,
+                                 META_CURSOR_DEFAULT);
 
   gdk_window_set_user_data (frame->window, NULL);
 
@@ -756,14 +760,14 @@ meta_frame_titlebar_event (MetaUIFrame        *frame,
                            int                 action)
 {
   MetaFrameFlags flags;
-  Display *display;
+  MetaX11Display *x11_display;
   uint32_t evtime;
   float x, y;
 
   g_assert (event->type == CLUTTER_BUTTON_PRESS ||
             event->type == CLUTTER_TOUCH_BEGIN);
 
-  display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
+  x11_display = frame->frames->x11_display;
 
   flags = meta_frame_get_flags (frame->meta_window->frame);
 
@@ -788,7 +792,7 @@ meta_frame_titlebar_event (MetaUIFrame        *frame,
       {
         if (flags & META_FRAME_ALLOWS_MAXIMIZE)
           {
-            meta_core_toggle_maximize (display, frame->xwindow);
+            meta_x11_wm_toggle_maximize (x11_display, frame->xwindow);
           }
       }
       break;
@@ -797,7 +801,8 @@ meta_frame_titlebar_event (MetaUIFrame        *frame,
       {
         if (flags & META_FRAME_ALLOWS_MAXIMIZE)
           {
-            meta_core_toggle_maximize_horizontally (display, frame->xwindow);
+            meta_x11_wm_toggle_maximize_horizontally (x11_display,
+                                                      frame->xwindow);
           }
       }
       break;
@@ -806,7 +811,7 @@ meta_frame_titlebar_event (MetaUIFrame        *frame,
       {
         if (flags & META_FRAME_ALLOWS_MAXIMIZE)
           {
-            meta_core_toggle_maximize_vertically (display, frame->xwindow);
+            meta_x11_wm_toggle_maximize_vertically (x11_display, frame->xwindow);
           }
       }
       break;
@@ -823,16 +828,16 @@ meta_frame_titlebar_event (MetaUIFrame        *frame,
       break;
 
     case G_DESKTOP_TITLEBAR_ACTION_LOWER:
-      meta_core_user_lower_and_unfocus (display,
-                                        frame->xwindow,
-                                        evtime);
+      meta_x11_wm_user_lower_and_unfocus (x11_display,
+                                          frame->xwindow,
+                                          evtime);
       break;
 
     case G_DESKTOP_TITLEBAR_ACTION_MENU:
-      meta_core_show_window_menu (display,
-                                  frame->xwindow,
-                                  META_WINDOW_MENU_WM,
-                                  x, y, evtime);
+      meta_x11_wm_show_window_menu (x11_display,
+                                    frame->xwindow,
+                                    META_WINDOW_MENU_WM,
+                                    x, y, evtime);
       break;
     }
 
@@ -876,19 +881,17 @@ meta_frames_try_grab_op (MetaUIFrame *frame,
                          guint32      time)
 {
   MetaFrames *frames = frame->frames;
-  Display *display;
   gboolean ret;
 
-  display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
-  ret = meta_core_begin_grab_op (display,
-                                 frame->xwindow,
-                                 op,
-                                 FALSE,
-                                 TRUE,
-                                 frame->grab_button,
-                                 0,
-                                 time,
-                                 grab_x, grab_y);
+  ret = meta_x11_wm_begin_grab_op (frames->x11_display,
+                                   frame->xwindow,
+                                   op,
+                                   FALSE,
+                                   TRUE,
+                                   frame->grab_button,
+                                   0,
+                                   time,
+                                   grab_x, grab_y);
   if (!ret)
     {
       frames->current_grab_op = op;
@@ -906,7 +909,6 @@ static gboolean
 meta_frames_retry_grab_op (MetaFrames *frames,
                            guint       time)
 {
-  Display *display;
   MetaGrabOp op;
   gboolean ret;
 
@@ -915,18 +917,17 @@ meta_frames_retry_grab_op (MetaFrames *frames,
 
   op = frames->current_grab_op;
   frames->current_grab_op = META_GRAB_OP_NONE;
-  display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
 
-  ret = meta_core_begin_grab_op (display,
-                                 frames->grab_frame->xwindow,
-                                 op,
-                                 FALSE,
-                                 TRUE,
-                                 frames->grab_frame->grab_button,
-                                 0,
-                                 time,
-                                 frames->grab_x,
-                                 frames->grab_y);
+  ret = meta_x11_wm_begin_grab_op (frames->x11_display,
+                                   frames->grab_frame->xwindow,
+                                   op,
+                                   FALSE,
+                                   TRUE,
+                                   frames->grab_frame->grab_button,
+                                   0,
+                                   time,
+                                   frames->grab_x,
+                                   frames->grab_y);
   if (ret)
     frames->grab_touch = NULL;
 
@@ -1012,7 +1013,7 @@ static gboolean
 meta_frame_left_click_event (MetaUIFrame        *frame,
                              const ClutterEvent *event)
 {
-  Display *display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
+  MetaX11Display *x11_display = frame->frames->x11_display;
   MetaFrameControl control;
   guint32 evtime;
   gfloat x, y;
@@ -1056,11 +1057,11 @@ meta_frame_left_click_event (MetaUIFrame        *frame,
            * button state while the menu is open
            */
           frame->maybe_ignore_leave_notify = TRUE;
-          meta_core_show_window_menu_for_rect (display,
-                                               frame->xwindow,
-                                               META_WINDOW_MENU_WM,
-                                               &root_rect,
-                                               evtime);
+          meta_x11_wm_show_window_menu_for_rect (x11_display,
+                                                 frame->xwindow,
+                                                 META_WINDOW_MENU_WM,
+                                                 &root_rect,
+                                                 evtime);
         }
       else
         {
@@ -1111,7 +1112,6 @@ handle_press_event (MetaUIFrame        *frame,
                     const ClutterEvent *event)
 {
   MetaFrameControl control;
-  Display *display;
   uint32_t evtime, action;
   float x, y;
 
@@ -1121,8 +1121,6 @@ handle_press_event (MetaUIFrame        *frame,
   action = get_action (event);
   if (action == META_ACTION_IGNORE)
     return FALSE;
-
-  display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
 
   evtime = clutter_event_get_time (event);
   clutter_event_get_coords (event, &x, &y);
@@ -1148,11 +1146,11 @@ handle_press_event (MetaUIFrame        *frame,
   if (control == META_FRAME_CONTROL_TITLE &&
       action == META_ACTION_DOUBLE_CLICK)
     {
-      meta_core_end_grab_op (display, evtime);
+      meta_x11_wm_end_grab_op (frame->frames->x11_display, evtime);
       return meta_frame_double_click_event (frame, event);
     }
 
-  if (meta_core_get_grab_op (display) != META_GRAB_OP_NONE)
+  if (meta_x11_wm_get_grab_op (frame->frames->x11_display) != META_GRAB_OP_NONE)
     return FALSE; /* already up to something */
 
   frame->grab_button = get_button_number (event);
@@ -1174,7 +1172,6 @@ static gboolean
 handle_release_event (MetaUIFrame        *frame,
                       const ClutterEvent *event)
 {
-  Display *display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
   guint32 evtime, button;
   gfloat x, y;
 
@@ -1186,7 +1183,7 @@ handle_release_event (MetaUIFrame        *frame,
   button = get_button_number (event);
 
   frame->frames->current_grab_op = META_GRAB_OP_NONE;
-  meta_core_end_grab_op (display, evtime);
+  meta_x11_wm_end_grab_op (frame->frames->x11_display, evtime);
 
   /* We only handle the releases we handled the presses for (things
    * involving frame controls). Window ops that don't require a
@@ -1288,9 +1285,9 @@ meta_ui_frame_update_prelit_control (MetaUIFrame     *frame,
     }
 
   /* set/unset the prelight cursor */
-  meta_core_set_screen_cursor (GDK_DISPLAY_XDISPLAY (gdk_display_get_default ()),
-                               frame->xwindow,
-                               cursor);
+  meta_x11_wm_set_screen_cursor (frame->frames->x11_display,
+                                 frame->xwindow,
+                                 cursor);
 
   switch (control)
     {
@@ -1586,11 +1583,9 @@ static gboolean
 handle_leave_notify_event (MetaUIFrame *frame,
                            ClutterCrossingEvent *event)
 {
-  Display *display;
   MetaGrabOp grab_op;
 
-  display = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
-  grab_op = meta_core_get_grab_op (display);
+  grab_op = meta_x11_wm_get_grab_op (frame->frames->x11_display);
 
   /* ignore the first LeaveNotify event after opening a window menu
    * if it is the result of a compositor grab
