@@ -135,8 +135,10 @@ _cogl_bitmap_copy_subregion (CoglBitmap *src,
   g_return_val_if_fail ((src->format & ~COGL_PREMULT_BIT) ==
                         (dst->format & ~COGL_PREMULT_BIT),
                         FALSE);
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (src->format) == 1,
+                        FALSE);
 
-  bpp = _cogl_pixel_format_get_bytes_per_pixel (src->format);
+  bpp = cogl_pixel_format_get_bytes_per_pixel (src->format, 0);
 
   if ((srcdata = _cogl_bitmap_map (src, COGL_BUFFER_ACCESS_READ, 0, error)))
     {
@@ -183,10 +185,11 @@ cogl_bitmap_new_for_data (CoglContext *context,
   CoglBitmap *bmp;
 
   g_return_val_if_fail (cogl_is_context (context), NULL);
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, NULL);
 
   /* Rowstride from width if not given */
   if (rowstride == 0)
-    rowstride = width * _cogl_pixel_format_get_bytes_per_pixel (format);
+    rowstride = width * cogl_pixel_format_get_bytes_per_pixel (format, 0);
 
   bmp = g_slice_new (CoglBitmap);
   bmp->context = context;
@@ -211,10 +214,17 @@ _cogl_bitmap_new_with_malloc_buffer (CoglContext *context,
                                      GError **error)
 {
   static CoglUserDataKey bitmap_free_key;
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (format);
-  int rowstride = ((width * bpp) + 3) & ~3;
-  uint8_t *data = g_try_malloc (rowstride * height);
+  int bpp;
+  int rowstride;
+  uint8_t *data;
   CoglBitmap *bitmap;
+
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, NULL);
+
+  /* Try to malloc the data */
+  bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
+  rowstride = ((width * bpp) + 3) & ~3;
+  data = g_try_malloc (rowstride * height);
 
   if (!data)
     {
@@ -224,6 +234,7 @@ _cogl_bitmap_new_with_malloc_buffer (CoglContext *context,
       return NULL;
     }
 
+  /* Now create the bitmap */
   bitmap = cogl_bitmap_new_for_data (context,
                                      width, height,
                                      format,
@@ -305,10 +316,11 @@ cogl_bitmap_new_with_size (CoglContext *context,
 
   /* creating a buffer to store "any" format does not make sense */
   g_return_val_if_fail (format != COGL_PIXEL_FORMAT_ANY, NULL);
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (format) == 1, NULL);
 
   /* for now we fallback to cogl_pixel_buffer_new, later, we could ask
    * libdrm a tiled buffer for instance */
-  rowstride = width * _cogl_pixel_format_get_bytes_per_pixel (format);
+  rowstride = width * cogl_pixel_format_get_bytes_per_pixel (format, 0);
 
   pixel_buffer =
     cogl_pixel_buffer_new (context,
