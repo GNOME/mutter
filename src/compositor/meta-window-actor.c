@@ -2183,21 +2183,28 @@ meta_window_actor_get_image (MetaWindowActor *self,
   if (clutter_actor_get_n_children (actor) == 1)
     {
       MetaShapedTexture *stex;
-      MetaRectangle surface_clip;
-      int geometry_scale;
+      MetaRectangle *surface_clip = NULL;
+      cairo_surface_t *surface;
 
-      geometry_scale =
-        meta_window_actor_get_geometry_scale (self);
+      if (clip)
+        {
 
-      surface_clip = (MetaRectangle) {
-        .x = clip->x / geometry_scale,
-        .y = clip->y / geometry_scale,
-        .width = clip->width / geometry_scale,
-        .height = clip->height / geometry_scale,
-      };
+          int geometry_scale;
+
+          geometry_scale =
+            meta_window_actor_get_geometry_scale (self);
+
+          surface_clip = g_new0 (MetaRectangle, 1);
+          surface_clip->x = clip->x / geometry_scale,
+          surface_clip->y = clip->y / geometry_scale;
+          surface_clip->width = clip->width / geometry_scale;
+          surface_clip->height = clip->height / geometry_scale;
+        }
 
       stex = meta_surface_actor_get_texture (priv->surface);
-      return meta_shaped_texture_get_image (stex, &surface_clip);
+      surface = meta_shaped_texture_get_image (stex, surface_clip);
+      g_free (surface_clip);
+      return surface;
     }
 
   clutter_actor_get_size (actor, &width, &height);
