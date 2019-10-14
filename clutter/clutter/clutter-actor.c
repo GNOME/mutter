@@ -8719,13 +8719,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
 }
 
 static void
-on_key_focus_changed (ClutterActor *self,
-                      gpointer      data)
-{
-  self->priv->has_key_focus = GPOINTER_TO_UINT (data);
-}
-
-static void
 clutter_actor_init (ClutterActor *self)
 {
   ClutterActorPrivate *priv;
@@ -8776,11 +8769,6 @@ clutter_actor_init (ClutterActor *self)
    */
   clutter_actor_save_easing_state (self);
   clutter_actor_set_easing_duration (self, 0);
-
-  g_signal_connect (self, "key-focus-in", G_CALLBACK (on_key_focus_changed),
-                    GUINT_TO_POINTER (TRUE));
-  g_signal_connect (self, "key-focus-out", G_CALLBACK (on_key_focus_changed),
-                    GUINT_TO_POINTER (FALSE));
 }
 
 /**
@@ -16787,6 +16775,23 @@ _clutter_actor_set_has_pointer (ClutterActor *self,
       priv->has_pointer = has_pointer;
 
       g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_HAS_POINTER]);
+    }
+}
+
+void
+_clutter_actor_set_has_key_focus (ClutterActor *self,
+                                  gboolean      has_key_focus)
+{
+  ClutterActorPrivate *priv = self->priv;
+
+  if (priv->has_key_focus != has_key_focus)
+    {
+      priv->has_key_focus = has_key_focus;
+
+      if (has_key_focus)
+        g_signal_emit (self, actor_signals[KEY_FOCUS_IN], 0);
+      else
+        g_signal_emit (self, actor_signals[KEY_FOCUS_OUT], 0);
     }
 }
 
