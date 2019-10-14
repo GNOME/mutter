@@ -3843,7 +3843,8 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
 	if (window == window->display->grab_window &&
 	    meta_grab_op_is_resizing (window->display->grab_op) &&
             !meta_window_resize_is_pending (window) &&
-	    (!window->extended_sync_request_counter || new_counter_value % 2 == 0))
+            (!window->extended_sync_request_counter ||
+             new_counter_value % 2 == 0))
 	  {
 	    meta_topic (META_DEBUG_RESIZING,
 			"Alarm event received last motion x = %d y = %d\n",
