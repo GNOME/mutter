@@ -1066,10 +1066,7 @@ clutter_stage_emit_key_focus_event (ClutterStage *stage,
   if (priv->key_focused_actor == NULL)
     return;
 
-  if (focus_in)
-    g_signal_emit_by_name (priv->key_focused_actor, "key-focus-in");
-  else
-    g_signal_emit_by_name (priv->key_focused_actor, "key-focus-out");
+  _clutter_actor_set_has_key_focus (stage, focus_in);
 
   g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
 }
@@ -3054,10 +3051,10 @@ clutter_stage_set_key_focus (ClutterStage *stage,
        */
       priv->key_focused_actor = NULL;
 
-      g_signal_emit_by_name (old_focused_actor, "key-focus-out");
+      _clutter_actor_set_has_key_focus (old_focused_actor, FALSE);
     }
   else
-    g_signal_emit_by_name (stage, "key-focus-out");
+    _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), FALSE);
 
   /* Note, if someone changes key focus in focus-out signal handler we'd be
    * overriding the latter call below moving the focus where it was originally
@@ -3067,10 +3064,10 @@ clutter_stage_set_key_focus (ClutterStage *stage,
   if (actor != NULL)
     {
       priv->key_focused_actor = actor;
-      g_signal_emit_by_name (priv->key_focused_actor, "key-focus-in");
+      _clutter_actor_set_has_key_focus (actor, FALSE);
     }
   else
-    g_signal_emit_by_name (stage, "key-focus-in");
+    _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), TRUE);
 
   g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_KEY_FOCUS]);
 }

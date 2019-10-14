@@ -274,6 +274,9 @@ void                            _clutter_actor_set_enable_paint_unmapped        
 void                            _clutter_actor_set_has_pointer                          (ClutterActor *self,
                                                                                          gboolean      has_pointer);
 
+void                            _clutter_actor_set_has_key_focus                        (ClutterActor *self,
+                                                                                         gboolean      has_key_focus);
+
 void                            _clutter_actor_queue_redraw_with_clip                   (ClutterActor             *self,
                                                                                          ClutterRedrawFlags        flags,
                                                                                          const ClutterPaintVolume *clip_volume);
