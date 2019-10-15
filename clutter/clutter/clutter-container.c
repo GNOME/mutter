@@ -118,37 +118,6 @@ container_real_remove (ClutterContainer *container,
   clutter_actor_remove_child (CLUTTER_ACTOR (container), actor);
 }
 
-typedef struct {
-  ClutterCallback callback;
-  gpointer data;
-} ForeachClosure;
-
-static gboolean
-foreach_cb (ClutterActor *actor,
-            gpointer      data)
-{
-  ForeachClosure *clos = data;
-
-  clos->callback (actor, clos->data);
-
-  return TRUE;
-}
-
-static void
-container_real_foreach (ClutterContainer *container,
-                        ClutterCallback   callback,
-                        gpointer          user_data)
-{
-  ForeachClosure clos;
-
-  clos.callback = callback;
-  clos.data = user_data;
-
-  _clutter_actor_foreach_child (CLUTTER_ACTOR (container),
-                                foreach_cb,
-                                &clos);
-}
-
 static void
 container_real_raise (ClutterContainer *container,
                       ClutterActor     *child,
@@ -243,7 +212,6 @@ clutter_container_default_init (ClutterContainerInterface *iface)
 
   iface->add = container_real_add;
   iface->remove = container_real_remove;
-  iface->foreach = container_real_foreach;
   iface->raise = container_real_raise;
   iface->lower = container_real_lower;
   iface->sort_depth_order = container_real_sort_depth_order;
@@ -533,15 +501,6 @@ clutter_container_remove_valist (ClutterContainer *container,
   container_remove_valist (container, first_actor, var_args);
 }
 
-static void
-get_children_cb (ClutterActor *child,
-                 gpointer      data)
-{
-  GList **children = data;
-
-  *children = g_list_prepend (*children, child);
-}
-
 /**
  * clutter_container_get_children:
  * @container: a #ClutterContainer
@@ -559,108 +518,9 @@ get_children_cb (ClutterActor *child,
 GList *
 clutter_container_get_children (ClutterContainer *container)
 {
-  GList *retval;
-
   g_return_val_if_fail (CLUTTER_IS_CONTAINER (container), NULL);
 
-  retval = NULL;
-  clutter_container_foreach (container, get_children_cb, &retval);
-
-  return g_list_reverse (retval);
-}
-
-/**
- * clutter_container_foreach:
- * @container: a #ClutterContainer
- * @callback: (scope call): a function to be called for each child
- * @user_data: data to be passed to the function, or %NULL
- *
- * Calls @callback for each child of @container that was added
- * by the application (with clutter_container_add_actor()). Does
- * not iterate over "internal" children that are part of the
- * container's own implementation, if any.
- *
- * This function calls the #ClutterContainerIface.foreach()
- * virtual function, which has been deprecated.
- *
- * Since: 0.4
- *
- * Deprecated: 1.10: Use clutter_actor_get_first_child() or
- *   clutter_actor_get_last_child() to retrieve the beginning of
- *   the list of children, and clutter_actor_get_next_sibling()
- *   and clutter_actor_get_previous_sibling() to iterate over it;
- *   alternatively, use the #ClutterActorIter API.
- */
-void
-clutter_container_foreach (ClutterContainer *container,
-                           ClutterCallback   callback,
-                           gpointer          user_data)
-{
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
-  g_return_if_fail (callback != NULL);
-
-#ifdef CLUTTER_ENABLE_DEBUG
-  if (G_UNLIKELY (_clutter_diagnostic_enabled ()))
-    {
-      ClutterContainerIface *iface = CLUTTER_CONTAINER_GET_IFACE (container);
-
-      if (iface->foreach != container_real_foreach)
-        _clutter_diagnostic_message ("The ClutterContainer::foreach() "
-                                     "virtual function has been deprecated "
-                                     "and it should not be overridden by "
-                                     "newly written code");
-    }
-#endif /* CLUTTER_ENABLE_DEBUG */
-
-  CLUTTER_CONTAINER_GET_IFACE (container)->foreach (container,
-                                                    callback,
-                                                    user_data);
-}
-
-/**
- * clutter_container_foreach_with_internals:
- * @container: a #ClutterContainer
- * @callback: (scope call): a function to be called for each child
- * @user_data: data to be passed to the function, or %NULL
- *
- * Calls @callback for each child of @container, including "internal"
- * children built in to the container itself that were never added
- * by the application.
- *
- * This function calls the #ClutterContainerIface.foreach_with_internals()
- * virtual function, which has been deprecated.
- *
- * Since: 1.0
- *
- * Deprecated: 1.10: See clutter_container_foreach().
- */
-void
-clutter_container_foreach_with_internals (ClutterContainer *container,
-                                          ClutterCallback   callback,
-                                          gpointer          user_data)
-{
-  ClutterContainerIface *iface;
-
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
-  g_return_if_fail (callback != NULL);
-
-  iface = CLUTTER_CONTAINER_GET_IFACE (container);
-
-#ifdef CLUTTER_ENABLE_DEBUG
-  if (G_UNLIKELY (_clutter_diagnostic_enabled ()))
-    {
-      if (iface->foreach_with_internals != NULL)
-        _clutter_diagnostic_message ("The ClutterContainer::foreach_with_internals() "
-                                     "virtual function has been deprecated "
-                                     "and it should not be overridden by "
-                                     "newly written code");
-    }
-#endif /* CLUTTER_ENABLE_DEBUG */
-
-  if (iface->foreach_with_internals != NULL)
-    iface->foreach_with_internals (container, callback, user_data);
-  else
-    iface->foreach (container, callback, user_data);
+  return clutter_actor_get_children (CLUTTER_ACTOR (container));
 }
 
 /**

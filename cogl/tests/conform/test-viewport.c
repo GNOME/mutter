@@ -406,9 +406,7 @@ test_viewport (TestUtilsGTestFixture *fixture,
   g_source_remove (idle_source);
 
   /* Remove all of the actors from the stage */
-  clutter_container_foreach (CLUTTER_CONTAINER (stage),
-                             (ClutterCallback) clutter_actor_destroy,
-                             NULL);
+  clutter_actor_remove_all_children (stage);
 
   if (cogl_test_verbose ())
     g_print ("OK\n");

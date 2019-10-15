@@ -171,20 +171,6 @@ clutter_group_real_actor_removed (ClutterContainer *container,
 }
 
 static void
-clutter_group_real_foreach (ClutterContainer *container,
-                            ClutterCallback   callback,
-                            gpointer          user_data)
-{
-  ClutterGroupPrivate *priv = CLUTTER_GROUP (container)->priv;
-
-  /* Using g_list_foreach instead of iterating the list manually
-     because it has better protection against the current node being
-     removed. This will happen for example if someone calls
-     clutter_container_foreach(container, clutter_actor_destroy) */
-  g_list_foreach (priv->children, (GFunc) callback, user_data);
-}
-
-static void
 clutter_group_real_raise (ClutterContainer *container,
                           ClutterActor     *actor,
                           ClutterActor     *sibling)
@@ -285,7 +271,6 @@ clutter_container_iface_init (ClutterContainerIface *iface)
   iface->actor_added = clutter_group_real_actor_added;
   iface->remove = clutter_group_real_remove;
   iface->actor_removed = clutter_group_real_actor_removed;
-  iface->foreach = clutter_group_real_foreach;
   iface->raise = clutter_group_real_raise;
   iface->lower = clutter_group_real_lower;
   iface->sort_depth_order = clutter_group_real_sort_depth_order;
@@ -391,21 +376,28 @@ clutter_group_dispose (GObject *object)
 }
 
 static void
-clutter_group_real_show_all (ClutterActor *actor)
+clutter_group_real_show_all (ClutterActor *self)
 {
-  clutter_container_foreach (CLUTTER_CONTAINER (actor),
-                             CLUTTER_CALLBACK (clutter_actor_show),
-                             NULL);
-  clutter_actor_show (actor);
+  ClutterActorIter iter;
+  ClutterActor *actor;
+
+  clutter_actor_iter_init (&iter, self);
+  while (clutter_actor_iter_next (&iter, &actor))
+    clutter_actor_show (actor);
+
+  clutter_actor_show (self);
 }
 
 static void
 clutter_group_real_hide_all (ClutterActor *actor)
 {
+  ClutterActorIter iter;
+
   clutter_actor_hide (actor);
-  clutter_container_foreach (CLUTTER_CONTAINER (actor),
-                             CLUTTER_CALLBACK (clutter_actor_hide),
-                             NULL);
+
+  clutter_actor_iter_init (&iter, actor);
+  while (clutter_actor_iter_next (&iter, &actor))
+    clutter_actor_hide (actor);
 }
 
 static gboolean

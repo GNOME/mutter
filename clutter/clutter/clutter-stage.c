@@ -250,20 +250,6 @@ clutter_stage_real_remove (ClutterContainer *container,
 }
 
 static void
-clutter_stage_real_foreach (ClutterContainer *container,
-                            ClutterCallback   callback,
-                            gpointer          user_data)
-{
-  ClutterActorIter iter;
-  ClutterActor *child;
-
-  clutter_actor_iter_init (&iter, CLUTTER_ACTOR (container));
-
-  while (clutter_actor_iter_next (&iter, &child))
-    callback (child, user_data);
-}
-
-static void
 clutter_stage_real_raise (ClutterContainer *container,
                           ClutterActor     *child,
                           ClutterActor     *sibling)
@@ -293,7 +279,6 @@ clutter_container_iface_init (ClutterContainerIface *iface)
 {
   iface->add = clutter_stage_real_add;
   iface->remove = clutter_stage_real_remove;
-  iface->foreach = clutter_stage_real_foreach;
   iface->raise = clutter_stage_real_raise;
   iface->lower = clutter_stage_real_lower;
   iface->sort_depth_order = clutter_stage_real_sort_depth_order;
