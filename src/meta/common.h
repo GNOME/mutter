@@ -147,8 +147,6 @@ enum
   _WGO_N = META_GRAB_OP_WINDOW_DIR_NORTH,
 };
 
-#define META_GRAB_OP_GET_BASE_TYPE(op) (op & 0x00FF)
-
 typedef enum
 {
   META_GRAB_OP_NONE,
@@ -506,12 +504,6 @@ void meta_frame_borders_clear (MetaFrameBorders *self);
 #define META_PRIORITY_PREFS_NOTIFY   (G_PRIORITY_DEFAULT_IDLE + 10)
 
 /************************************************************/
-
-#define META_POINT_IN_RECT(xcoord, ycoord, rect) \
- ((xcoord) >= (rect).x &&                   \
-  (xcoord) <  ((rect).x + (rect).width) &&  \
-  (ycoord) >= (rect).y &&                   \
-  (ycoord) <  ((rect).y + (rect).height))
 
 /**
  * MetaStackLayer:
