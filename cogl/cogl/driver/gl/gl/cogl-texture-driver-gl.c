@@ -188,12 +188,17 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
   GLuint gl_handle;
   uint8_t *data;
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
+  int bpp;
   gboolean status = TRUE;
   GError *internal_error = NULL;
   int level_width;
   int level_height;
 
+  g_return_val_if_fail (source_format != COGL_PIXEL_FORMAT_ANY, FALSE);
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (source_format) == 1,
+                        FALSE);
+
+  bpp = cogl_pixel_format_get_bytes_per_pixel (source_format, 0);
   cogl_texture_get_gl_texture (texture, &gl_handle, &gl_target);
 
   data = _cogl_bitmap_gl_bind (source_bmp, COGL_BUFFER_ACCESS_READ, 0, &internal_error);
@@ -294,9 +299,15 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
 {
   uint8_t *data;
   CoglPixelFormat source_format = cogl_bitmap_get_format (source_bmp);
-  int bpp = _cogl_pixel_format_get_bytes_per_pixel (source_format);
+  int bpp;
   gboolean status = TRUE;
   GError *internal_error = NULL;
+
+  g_return_val_if_fail (source_format != COGL_PIXEL_FORMAT_ANY, FALSE);
+  g_return_val_if_fail (cogl_pixel_format_get_n_planes (source_format) == 1,
+                        FALSE);
+
+  bpp = cogl_pixel_format_get_bytes_per_pixel (source_format, 0);
 
   data = _cogl_bitmap_gl_bind (source_bmp,
                                COGL_BUFFER_ACCESS_READ,
