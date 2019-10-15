@@ -37,6 +37,14 @@ typedef enum _MetaDisplayPolicy
   META_DISPLAY_POLICY_DISABLED,
 } MetaDisplayPolicy;
 
+#define META_POINT_IN_RECT(xcoord, ycoord, rect) \
+ ((xcoord) >= (rect).x &&                   \
+  (xcoord) <  ((rect).x + (rect).width) &&  \
+  (ycoord) >= (rect).y &&                   \
+  (ycoord) <  ((rect).y + (rect).height))
+
+#define META_GRAB_OP_GET_BASE_TYPE(op) (op & 0x00FF)
+
 META_EXPORT_TEST
 void meta_override_compositor_configuration (MetaCompositorType compositor_type,
                                              GType              backend_gtype);
