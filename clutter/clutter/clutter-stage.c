@@ -3049,7 +3049,7 @@ clutter_stage_set_key_focus (ClutterStage *stage,
   if (actor != NULL)
     {
       priv->key_focused_actor = actor;
-      _clutter_actor_set_has_key_focus (actor, FALSE);
+      _clutter_actor_set_has_key_focus (actor, TRUE);
     }
   else
     _clutter_actor_set_has_key_focus (CLUTTER_ACTOR (stage), TRUE);
