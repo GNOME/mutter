@@ -152,8 +152,6 @@ test_readpixels (TestUtilsGTestFixture *fixture,
 {
   unsigned int idle_source;
   ClutterActor *stage;
-  ClutterActorIter iter;
-  ClutterActor *actor;
 
   stage = clutter_stage_get_default ();
   clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
