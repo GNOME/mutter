@@ -147,7 +147,7 @@ get_drag_threshold (ClutterDragAction *action,
                     gint              *x_threshold,
                     gint              *y_threshold)
 {
-  ClutterDragActionPrivate *priv = action->priv;
+  ClutterDragActionPrivate *priv = clutter_drag_action_get_instance_private (action);
   ClutterSettings *settings = clutter_settings_get_default ();
   gint x_res, y_res, default_threshold;
 
@@ -175,7 +175,7 @@ emit_drag_begin (ClutterDragAction *action,
                  ClutterActor      *actor,
                  ClutterEvent      *event)
 {
-  ClutterDragActionPrivate *priv = action->priv;
+  ClutterDragActionPrivate *priv = clutter_drag_action_get_instance_private (action);
 
   if (priv->stage != NULL)
     {
@@ -205,7 +205,7 @@ emit_drag_motion (ClutterDragAction *action,
                   ClutterActor      *actor,
                   ClutterEvent      *event)
 {
-  ClutterDragActionPrivate *priv = action->priv;
+  ClutterDragActionPrivate *priv = clutter_drag_action_get_instance_private (action);
   ClutterActor *drag_handle = NULL;
   gfloat delta_x, delta_y;
   gfloat motion_x, motion_y;
@@ -283,7 +283,7 @@ emit_drag_end (ClutterDragAction *action,
                ClutterActor      *actor,
                ClutterEvent      *event)
 {
-  ClutterDragActionPrivate *priv = action->priv;
+  ClutterDragActionPrivate *priv = clutter_drag_action_get_instance_private (action);
 
   /* ::drag-end may result in the destruction of the actor, which in turn
    * will lead to the removal and finalization of the action, so we need
@@ -346,7 +346,7 @@ on_captured_event (ClutterActor      *stage,
                    ClutterEvent      *event,
                    ClutterDragAction *action)
 {
-  ClutterDragActionPrivate *priv = action->priv;
+  ClutterDragActionPrivate *priv = clutter_drag_action_get_instance_private (action);
   ClutterActor *actor;
 
   actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
@@ -407,7 +407,7 @@ on_drag_begin (ClutterActor      *actor,
                ClutterEvent      *event,
                ClutterDragAction *action)
 {
-  ClutterDragActionPrivate *priv = action->priv;
+  ClutterDragActionPrivate *priv = clutter_drag_action_get_instance_private (action);
 
   if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (action)))
     return CLUTTER_EVENT_PROPAGATE;
@@ -469,7 +469,7 @@ static void
 clutter_drag_action_set_actor (ClutterActorMeta *meta,
                                ClutterActor     *actor)
 {
-  ClutterDragActionPrivate *priv = CLUTTER_DRAG_ACTION (meta)->priv;
+  ClutterDragActionPrivate *priv = clutter_drag_action_get_instance_private (CLUTTER_DRAG_ACTION (meta));
 
   if (priv->button_press_id != 0)
     {
@@ -527,11 +527,12 @@ clutter_drag_action_real_drag_motion (ClutterDragAction *action,
                                       gfloat             delta_x,
                                       gfloat             delta_y)
 {
+  ClutterDragActionPrivate *priv = clutter_drag_action_get_instance_private (action);
   ClutterActor *drag_handle;
   gfloat x, y;
 
-  if (action->priv->drag_handle != NULL)
-    drag_handle = action->priv->drag_handle;
+  if (priv->drag_handle != NULL)
+    drag_handle = priv->drag_handle;
   else
     drag_handle = actor;
 
@@ -540,9 +541,9 @@ clutter_drag_action_real_drag_motion (ClutterDragAction *action,
   x += delta_x;
   y += delta_y;
 
-  if (action->priv->drag_area_set)
+  if (priv->drag_area_set)
     {
-      ClutterRect *drag_area = &action->priv->drag_area;
+      ClutterRect *drag_area = &priv->drag_area;
 
       x = CLAMP (x, drag_area->origin.x, drag_area->origin.x + drag_area->size.width);
       y = CLAMP (y, drag_area->origin.y, drag_area->origin.y + drag_area->size.height);
@@ -558,7 +559,7 @@ clutter_drag_action_set_property (GObject      *gobject,
                                   GParamSpec   *pspec)
 {
   ClutterDragAction *action = CLUTTER_DRAG_ACTION (gobject);
-  ClutterDragActionPrivate *priv = action->priv;
+  ClutterDragActionPrivate *priv = clutter_drag_action_get_instance_private (action);
 
   switch (prop_id)
     {
@@ -597,7 +598,7 @@ clutter_drag_action_get_property (GObject    *gobject,
                                   GValue     *value,
                                   GParamSpec *pspec)
 {
-  ClutterDragActionPrivate *priv = CLUTTER_DRAG_ACTION (gobject)->priv;
+  ClutterDragActionPrivate *priv = clutter_drag_action_get_instance_private (CLUTTER_DRAG_ACTION (gobject));
 
   switch (prop_id)
     {
@@ -643,7 +644,7 @@ clutter_drag_action_get_property (GObject    *gobject,
 static void
 clutter_drag_action_dispose (GObject *gobject)
 {
-  ClutterDragActionPrivate *priv = CLUTTER_DRAG_ACTION (gobject)->priv;
+  ClutterDragActionPrivate *priv = clutter_drag_action_get_instance_private (CLUTTER_DRAG_ACTION (gobject));
 
   /* if we're being disposed while a capture is still present, we
    * need to reset the state we are currently holding
@@ -980,7 +981,6 @@ clutter_drag_action_class_init (ClutterDragActionClass *klass)
 static void
 clutter_drag_action_init (ClutterDragAction *self)
 {
-  self->priv = clutter_drag_action_get_instance_private (self);
 }
 
 /**
@@ -1026,7 +1026,7 @@ clutter_drag_action_set_drag_threshold (ClutterDragAction *action,
   g_return_if_fail (CLUTTER_IS_DRAG_ACTION (action));
 
   self = G_OBJECT (action);
-  priv = action->priv;
+  priv = clutter_drag_action_get_instance_private (action);
 
   g_object_freeze_notify (self);
 
@@ -1086,7 +1086,7 @@ static void
 on_drag_handle_destroy (ClutterActor      *handle,
                         ClutterDragAction *action)
 {
-  ClutterDragActionPrivate *priv = action->priv;
+  ClutterDragActionPrivate *priv = clutter_drag_action_get_instance_private (action);
   ClutterActor *actor;
 
   /* make sure we reset the state */
@@ -1115,7 +1115,7 @@ clutter_drag_action_set_drag_handle (ClutterDragAction *action,
   g_return_if_fail (CLUTTER_IS_DRAG_ACTION (action));
   g_return_if_fail (handle == NULL || CLUTTER_IS_ACTOR (handle));
 
-  priv = action->priv;
+  priv = clutter_drag_action_get_instance_private (action);
 
   if (priv->drag_handle == handle)
     return;
@@ -1159,9 +1159,13 @@ clutter_drag_action_set_drag_handle (ClutterDragAction *action,
 ClutterActor *
 clutter_drag_action_get_drag_handle (ClutterDragAction *action)
 {
+  ClutterDragActionPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_DRAG_ACTION (action), NULL);
 
-  return action->priv->drag_handle;
+  priv = clutter_drag_action_get_instance_private (action);
+
+  return priv->drag_handle;
 }
 
 /**
@@ -1183,7 +1187,7 @@ clutter_drag_action_set_drag_axis (ClutterDragAction *action,
   g_return_if_fail (axis >= CLUTTER_DRAG_AXIS_NONE &&
                     axis <= CLUTTER_DRAG_Y_AXIS);
 
-  priv = action->priv;
+  priv = clutter_drag_action_get_instance_private (action);
 
   if (priv->drag_axis == axis)
     return;
@@ -1206,10 +1210,14 @@ clutter_drag_action_set_drag_axis (ClutterDragAction *action,
 ClutterDragAxis
 clutter_drag_action_get_drag_axis (ClutterDragAction *action)
 {
+  ClutterDragActionPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_DRAG_ACTION (action),
                         CLUTTER_DRAG_AXIS_NONE);
 
-  return action->priv->drag_axis;
+  priv = clutter_drag_action_get_instance_private (action);
+
+  return priv->drag_axis;
 }
 
 /**
@@ -1228,13 +1236,17 @@ clutter_drag_action_get_press_coords (ClutterDragAction *action,
                                       gfloat            *press_x,
                                       gfloat            *press_y)
 {
+  ClutterDragActionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_DRAG_ACTION (action));
 
+  priv = clutter_drag_action_get_instance_private (action);
+
   if (press_x)
-    *press_x = action->priv->press_x;
+    *press_x = priv->press_x;
 
   if (press_y)
-    *press_y = action->priv->press_y;
+    *press_y = priv->press_y;
 }
 
 /**
@@ -1255,13 +1267,17 @@ clutter_drag_action_get_motion_coords (ClutterDragAction *action,
                                        gfloat            *motion_x,
                                        gfloat            *motion_y)
 {
+  ClutterDragActionPrivate *priv;
+
   g_return_if_fail (CLUTTER_IS_DRAG_ACTION (action));
 
+  priv = clutter_drag_action_get_instance_private (action);
+
   if (motion_x)
-    *motion_x = action->priv->last_motion_x;
+    *motion_x = priv->last_motion_x;
 
   if (motion_y)
-    *motion_y = action->priv->last_motion_y;
+    *motion_y = priv->last_motion_y;
 }
 
 /**
@@ -1280,11 +1296,15 @@ gboolean
 clutter_drag_action_get_drag_area (ClutterDragAction *action,
 				   ClutterRect       *drag_area)
 {
+  ClutterDragActionPrivate *priv;
+
   g_return_val_if_fail (CLUTTER_IS_DRAG_ACTION (action), FALSE);
 
+  priv = clutter_drag_action_get_instance_private (action);
+
   if (drag_area != NULL)
-    *drag_area = action->priv->drag_area;
-  return action->priv->drag_area_set;
+    *drag_area = priv->drag_area;
+  return priv->drag_area_set;
 }
 
 /**
@@ -1305,7 +1325,7 @@ clutter_drag_action_set_drag_area (ClutterDragAction *action,
 
   g_return_if_fail (CLUTTER_IS_DRAG_ACTION (action));
 
-  priv = action->priv;
+  priv = clutter_drag_action_get_instance_private (action);
 
   if (drag_area != NULL)
     {

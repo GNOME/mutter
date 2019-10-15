@@ -260,7 +260,7 @@ out:
 static void
 drop_action_register (ClutterDropAction *self)
 {
-  ClutterDropActionPrivate *priv = self->priv;
+  ClutterDropActionPrivate *priv = clutter_drop_action_get_instance_private (self);
   DropTarget *data;
 
   g_assert (priv->stage != NULL);
@@ -286,7 +286,7 @@ drop_action_register (ClutterDropAction *self)
 static void
 drop_action_unregister (ClutterDropAction *self)
 {
-  ClutterDropActionPrivate *priv = self->priv;
+  ClutterDropActionPrivate *priv = clutter_drop_action_get_instance_private (self);
   DropTarget *data = NULL;
 
   if (priv->stage != NULL)
@@ -305,10 +305,12 @@ on_actor_mapped (ClutterActor      *actor,
                  GParamSpec        *pspec,
                  ClutterDropAction *self)
 {
+  ClutterDropActionPrivate *priv = clutter_drop_action_get_instance_private (self);
+
   if (clutter_actor_is_mapped (actor))
     {
-      if (self->priv->stage == NULL)
-        self->priv->stage = clutter_actor_get_stage (actor);
+      if (priv->stage == NULL)
+        priv->stage = clutter_actor_get_stage (actor);
 
       drop_action_register (self);
     }
@@ -320,7 +322,7 @@ static void
 clutter_drop_action_set_actor (ClutterActorMeta *meta,
                                ClutterActor     *actor)
 {
-  ClutterDropActionPrivate *priv = CLUTTER_DROP_ACTION (meta)->priv;
+  ClutterDropActionPrivate *priv = clutter_drop_action_get_instance_private (CLUTTER_DROP_ACTION (meta));
 
   if (priv->actor != NULL)
     {
@@ -508,7 +510,6 @@ clutter_drop_action_class_init (ClutterDropActionClass *klass)
 static void
 clutter_drop_action_init (ClutterDropAction *self)
 {
-  self->priv = clutter_drop_action_get_instance_private (self);
 }
 
 /**
