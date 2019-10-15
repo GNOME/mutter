@@ -3750,8 +3750,6 @@ meta_window_activate_full (MetaWindow     *window,
     meta_window_focus (window, timestamp);
   else
     meta_workspace_activate_with_focus (window->workspace, window, timestamp);
-
-  meta_window_check_alive (window, timestamp);
 }
 
 /* This function exists since most of the functionality in window_activate
@@ -4771,6 +4769,8 @@ meta_window_focus (MetaWindow  *window,
                   window->desc);
       return;
     }
+
+  meta_window_check_alive (window, timestamp);
 
   META_WINDOW_GET_CLASS (window)->focus (window, timestamp);
 
