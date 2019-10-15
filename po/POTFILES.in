@@ -14,7 +14,6 @@ src/backends/meta-profiler.c
 src/compositor/compositor.c
 src/compositor/meta-background.c
 src/core/bell.c
-src/core/core.c
 src/core/display.c
 src/core/keybindings.c
 src/core/main.c
