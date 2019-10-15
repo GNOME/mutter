@@ -23,7 +23,8 @@
 
 #include "config.h"
 
-#include "core/core.h"
+#include "x11/meta-x11-window-control.h"
+
 #include "core/frame.h"
 #include "core/meta-workspace-manager-private.h"
 #include "core/util-private.h"
@@ -34,28 +35,14 @@
 #include "x11/window-x11-private.h"
 #include "x11/window-x11.h"
 
-/* Looks up the MetaWindow representing the frame of the given X window.
- * Used as a helper function by a bunch of the functions below.
- *
- * FIXME: The functions that use this function throw the result away
- * after use. Many of these functions tend to be called in small groups,
- * which results in get_window() getting called several times in succession
- * with the same parameters. We should profile to see whether this wastes
- * much time, and if it does we should look into a generalised
- * meta_core_get_window_info() which takes a bunch of pointers to variables
- * to put its results in, and only fills in the non-null ones.
- */
 static MetaWindow *
-get_window (Display *xdisplay,
-            Window   frame_xwindow)
+window_from_frame (MetaX11Display *x11_display,
+                   Window          frame_xwindow)
 {
-  MetaDisplay *display;
   MetaWindow *window;
 
-  display = meta_display_for_x_display (xdisplay);
-  window = meta_x11_display_lookup_x_window (display->x11_display, frame_xwindow);
-
-  if (window == NULL || window->frame == NULL)
+  window = meta_x11_display_lookup_x_window (x11_display, frame_xwindow);
+  if (!window || !window->frame)
     {
       meta_bug ("No such frame window 0x%lx!\n", frame_xwindow);
       return NULL;
@@ -65,10 +52,10 @@ get_window (Display *xdisplay,
 }
 
 void
-meta_core_queue_frame_resize (Display *xdisplay,
-                              Window   frame_xwindow)
+meta_x11_wm_queue_frame_resize (MetaX11Display *x11_display,
+                                Window          frame_xwindow)
 {
-  MetaWindow *window = get_window (xdisplay, frame_xwindow);
+  MetaWindow *window = window_from_frame (x11_display, frame_xwindow);
 
   meta_window_queue (window, META_QUEUE_MOVE_RESIZE);
   meta_window_frame_size_changed (window);
@@ -114,11 +101,11 @@ lower_window_and_transients (MetaWindow *window,
 }
 
 void
-meta_core_user_lower_and_unfocus (Display *xdisplay,
-                                  Window   frame_xwindow,
-                                  guint32  timestamp)
+meta_x11_wm_user_lower_and_unfocus (MetaX11Display *x11_display,
+                                    Window          frame_xwindow,
+                                    uint32_t        timestamp)
 {
-  MetaWindow *window = get_window (xdisplay, frame_xwindow);
+  MetaWindow *window = window_from_frame (x11_display, frame_xwindow);
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
 
   lower_window_and_transients (window, NULL);
@@ -133,10 +120,10 @@ meta_core_user_lower_and_unfocus (Display *xdisplay,
 }
 
 void
-meta_core_toggle_maximize_vertically (Display *xdisplay,
-				      Window   frame_xwindow)
+meta_x11_wm_toggle_maximize_vertically (MetaX11Display *x11_display,
+                                        Window          frame_xwindow)
 {
-  MetaWindow *window = get_window (xdisplay, frame_xwindow);
+  MetaWindow *window = window_from_frame (x11_display, frame_xwindow);
 
   if (meta_prefs_get_raise_on_click ())
     meta_window_raise (window);
@@ -148,10 +135,10 @@ meta_core_toggle_maximize_vertically (Display *xdisplay,
 }
 
 void
-meta_core_toggle_maximize_horizontally (Display *xdisplay,
-				        Window   frame_xwindow)
+meta_x11_wm_toggle_maximize_horizontally (MetaX11Display *x11_display,
+                                          Window          frame_xwindow)
 {
-  MetaWindow *window = get_window (xdisplay, frame_xwindow);
+  MetaWindow *window = window_from_frame (x11_display, frame_xwindow);
 
   if (meta_prefs_get_raise_on_click ())
     meta_window_raise (window);
@@ -163,10 +150,10 @@ meta_core_toggle_maximize_horizontally (Display *xdisplay,
 }
 
 void
-meta_core_toggle_maximize (Display *xdisplay,
-                           Window   frame_xwindow)
+meta_x11_wm_toggle_maximize (MetaX11Display *x11_display,
+                             Window   frame_xwindow)
 {
-  MetaWindow *window = get_window (xdisplay, frame_xwindow);
+  MetaWindow *window = window_from_frame (x11_display, frame_xwindow);
 
   if (meta_prefs_get_raise_on_click ())
     meta_window_raise (window);
@@ -178,14 +165,14 @@ meta_core_toggle_maximize (Display *xdisplay,
 }
 
 void
-meta_core_show_window_menu (Display            *xdisplay,
-                            Window              frame_xwindow,
-                            MetaWindowMenuType  menu,
-                            int                 root_x,
-                            int                 root_y,
-                            guint32             timestamp)
+meta_x11_wm_show_window_menu (MetaX11Display     *x11_display,
+                              Window              frame_xwindow,
+                              MetaWindowMenuType  menu,
+                              int                 root_x,
+                              int                 root_y,
+                              uint32_t            timestamp)
 {
-  MetaWindow *window = get_window (xdisplay, frame_xwindow);
+  MetaWindow *window = window_from_frame (x11_display, frame_xwindow);
 
   if (meta_prefs_get_raise_on_click ())
     meta_window_raise (window);
@@ -195,13 +182,13 @@ meta_core_show_window_menu (Display            *xdisplay,
 }
 
 void
-meta_core_show_window_menu_for_rect (Display            *xdisplay,
-                                     Window              frame_xwindow,
-                                     MetaWindowMenuType  menu,
-                                     MetaRectangle      *rect,
-                                     guint32             timestamp)
+meta_x11_wm_show_window_menu_for_rect (MetaX11Display     *x11_display,
+                                       Window              frame_xwindow,
+                                       MetaWindowMenuType  menu,
+                                       MetaRectangle      *rect,
+                                       uint32_t            timestamp)
 {
-  MetaWindow *window = get_window (xdisplay, frame_xwindow);
+  MetaWindow *window = window_from_frame (x11_display, frame_xwindow);
 
   if (meta_prefs_get_raise_on_click ())
     meta_window_raise (window);
@@ -211,21 +198,21 @@ meta_core_show_window_menu_for_rect (Display            *xdisplay,
 }
 
 gboolean
-meta_core_begin_grab_op (Display    *xdisplay,
-                         Window      frame_xwindow,
-                         MetaGrabOp  op,
-                         gboolean    pointer_already_grabbed,
-                         gboolean    frame_action,
-                         int         button,
-                         gulong      modmask,
-                         guint32     timestamp,
-                         int         root_x,
-                         int         root_y)
+meta_x11_wm_begin_grab_op (MetaX11Display *x11_display,
+                           Window          frame_xwindow,
+                           MetaGrabOp      op,
+                           gboolean        pointer_already_grabbed,
+                           gboolean        frame_action,
+                           int             button,
+                           gulong          modmask,
+                           uint32_t        timestamp,
+                           int             root_x,
+                           int             root_y)
 {
-  MetaWindow *window = get_window (xdisplay, frame_xwindow);
+  MetaWindow *window = window_from_frame (x11_display, frame_xwindow);
   MetaDisplay *display;
 
-  display = meta_display_for_x_display (xdisplay);
+  display = meta_x11_display_get_display (x11_display);
 
   return meta_display_begin_grab_op (display, window,
                                      op, pointer_already_grabbed,
@@ -235,57 +222,44 @@ meta_core_begin_grab_op (Display    *xdisplay,
 }
 
 void
-meta_core_end_grab_op (Display *xdisplay,
-                       guint32  timestamp)
+meta_x11_wm_end_grab_op (MetaX11Display *x11_display,
+                         uint32_t        timestamp)
 {
   MetaDisplay *display;
 
-  display = meta_display_for_x_display (xdisplay);
+  display = meta_x11_display_get_display (x11_display);
 
   meta_display_end_grab_op (display, timestamp);
 }
 
 MetaGrabOp
-meta_core_get_grab_op (Display *xdisplay)
+meta_x11_wm_get_grab_op (MetaX11Display *x11_display)
 {
   MetaDisplay *display;
 
-  display = meta_display_for_x_display (xdisplay);
+  display = meta_x11_display_get_display (x11_display);
 
   return display->grab_op;
 }
 
 void
-meta_core_grab_buttons  (Display *xdisplay,
-                         Window   frame_xwindow)
+meta_x11_wm_grab_buttons  (MetaX11Display *x11_display,
+                           Window          frame_xwindow)
 {
   MetaDisplay *display;
 
-  display = meta_display_for_x_display (xdisplay);
+  display = meta_x11_display_get_display (x11_display);
 
   meta_verbose ("Grabbing buttons on frame 0x%lx\n", frame_xwindow);
   meta_display_grab_window_buttons (display, frame_xwindow);
 }
 
 void
-meta_core_set_screen_cursor (Display *xdisplay,
-                             Window   frame_on_screen,
-                             MetaCursor cursor)
+meta_x11_wm_set_screen_cursor (MetaX11Display *x11_display,
+                               Window          frame_on_screen,
+                               MetaCursor      cursor)
 {
-  MetaWindow *window = get_window (xdisplay, frame_on_screen);
+  MetaWindow *window = window_from_frame (x11_display, frame_on_screen);
 
   meta_frame_set_screen_cursor (window->frame, cursor);
-}
-
-void
-meta_invalidate_default_icons (void)
-{
-  /* XXX: Actually invalidate the icons when they're used. */
-}
-
-void
-meta_retheme_all (void)
-{
-  if (meta_get_display ())
-    meta_display_retheme_all ();
 }

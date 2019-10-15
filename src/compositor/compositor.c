@@ -66,7 +66,6 @@
 #include "compositor/meta-window-actor-wayland.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-window-group-private.h"
-#include "core/core.h"
 #include "core/display-private.h"
 #include "core/frame.h"
 #include "core/util-private.h"

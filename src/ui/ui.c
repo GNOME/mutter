@@ -25,13 +25,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "core/core.h"
 #include "meta/prefs.h"
 #include "meta/util.h"
 #include "ui/frames.h"
 #include "ui/theme-private.h"
 #include "ui/ui.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/meta-x11-window-control.h"
 
 struct _MetaUI
 {
@@ -59,7 +59,7 @@ meta_ui_new (MetaX11Display *x11_display)
   ui = g_new0 (MetaUI, 1);
   ui->xdisplay = x11_display->xdisplay;
 
-  ui->frames = meta_frames_new ();
+  ui->frames = meta_frames_new (x11_display);
   /* GTK+ needs the frame-sync protocol to work in order to properly
    * handle style changes. This means that the dummy widget we create
    * to get the style for title bars actually needs to be mapped

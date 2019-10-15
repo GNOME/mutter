@@ -717,7 +717,7 @@ prefs_changed_callback (MetaPreference pref,
   switch (pref)
     {
     case META_PREF_DRAGGABLE_BORDER_WIDTH:
-      meta_display_retheme_all ();
+      meta_display_queue_retheme_all_windows (meta_get_display ());
       break;
 
     default:
