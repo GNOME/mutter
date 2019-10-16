@@ -2345,8 +2345,7 @@ _clutter_actor_rerealize (ClutterActor    *self,
 }
 
 static void
-clutter_actor_real_pick (ClutterActor       *self,
-			 const ClutterColor *color)
+clutter_actor_real_pick (ClutterActor *self)
 {
   if (clutter_actor_should_pick_paint (self))
     {
@@ -4163,22 +4162,15 @@ clutter_actor_continue_paint (ClutterActor *self)
         }
       else
         {
-          ClutterColor col = { 0, };
-
           /* The actor will log a silhouette of itself to the stage pick log.
-           * Note that the picking color is no longer used as the "log" instead
-           * keeps a weak pointer to the actor itself. But we keep the color
-           * parameter for now so as to maintain ABI compatibility. The color
-           * parameter can be removed when someone feels like breaking the ABI
-           * along with gnome-shell.
            *
            * XXX:2.0 - Call the pick() virtual directly
            */
           if (g_signal_has_handler_pending (self, actor_signals[PICK],
                                             0, TRUE))
-            g_signal_emit (self, actor_signals[PICK], 0, &col);
+            g_signal_emit (self, actor_signals[PICK], 0);
           else
-            CLUTTER_ACTOR_GET_CLASS (self)->pick (self, &col);
+            CLUTTER_ACTOR_GET_CLASS (self)->pick (self);
         }
     }
   else
@@ -8537,12 +8529,10 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor::pick:
    * @actor: the #ClutterActor that received the signal
-   * @color: the #ClutterColor to be used when picking
    *
    * The ::pick signal is emitted each time an actor is being painted
    * in "pick mode". The pick mode is used to identify the actor during
    * the event handling phase, or by clutter_stage_get_actor_at_pos().
-   * The actor should paint its shape using the passed @pick_color.
    *
    * Subclasses of #ClutterActor should override the class signal handler
    * and paint themselves in that function.
@@ -8560,8 +8550,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
                   G_SIGNAL_RUN_LAST | G_SIGNAL_DEPRECATED,
                   G_STRUCT_OFFSET (ClutterActorClass, pick),
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_COLOR | G_SIGNAL_TYPE_STATIC_SCOPE);
+                  G_TYPE_NONE, 0);
 
   /**
    * ClutterActor::allocation-changed:

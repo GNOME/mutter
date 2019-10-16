@@ -1000,8 +1000,7 @@ clutter_stage_paint (ClutterActor *self)
 }
 
 static void
-clutter_stage_pick (ClutterActor       *self,
-		    const ClutterColor *color)
+clutter_stage_pick (ClutterActor *self)
 {
   ClutterActorIter iter;
   ClutterActor *child;
