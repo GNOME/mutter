@@ -26,18 +26,39 @@ environment.</description>
   <category rdf:resource="http://api.gnome.org/doap-extensions#core" />
   <programming-language>C</programming-language>
 
-  <maintainer>
+  <author>
     <foaf:Person>
       <foaf:name>Tomas Frydrych</foaf:name>
       <foaf:mbox rdf:resource="mailto:tf@linux.intel.com" />
       <gnome:userid>tomasf</gnome:userid>
     </foaf:Person>
-  </maintainer>
-  <maintainer>
+  </author>
+  <author>
     <foaf:Person>
       <foaf:name>Owen Taylor</foaf:name>
       <foaf:mbox rdf:resource="mailto:otaylor@redhat.com" />
       <gnome:userid>otaylor</gnome:userid>
+    </foaf:Person>
+  </author>
+  <maintainer>
+    <foaf:Person>
+      <foaf:name>Jonas Ådahl</foaf:name>
+      <foaf:mbox rdf:resource="mailto:jadahl@gmail.com" />
+      <gnome:userid>jadahl</gnome:userid>
+    </foaf:Person>
+  </maintainer>
+  <maintainer>
+    <foaf:Person>
+      <foaf:name>Carlos Garnacho</foaf:name>
+      <foaf:mbox rdf:resource="mailto:carlosg@gnome.org" />
+      <gnome:userid>carlosg</gnome:userid>
+    </foaf:Person>
+  </maintainer>
+  <maintainer>
+    <foaf:Person>
+      <foaf:name>Georges Basile Stavracas Neto</foaf:name>
+      <foaf:mbox rdf:resource="mailto:gbsneto@gnome.org" />
+      <gnome:userid>gbsneto</gnome:userid>
     </foaf:Person>
   </maintainer>
   <maintainer>
