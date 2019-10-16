@@ -677,7 +677,7 @@ meta_compositor_window_shape_changed (MetaCompositor *compositor,
   if (!window_actor)
     return;
 
-  meta_window_actor_update_shape (window_actor);
+  meta_window_actor_x11_update_shape (META_WINDOW_ACTOR_X11 (window_actor));
 }
 
 void
@@ -1150,18 +1150,6 @@ meta_post_paint_func (gpointer data)
 }
 
 static void
-on_shadow_factory_changed (MetaShadowFactory *factory,
-                           MetaCompositor    *compositor)
-{
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
-  GList *l;
-
-  for (l = priv->windows; l; l = l->next)
-    meta_window_actor_invalidate_shadow (l->data);
-}
-
-static void
 meta_compositor_set_property (GObject      *object,
                               guint         prop_id,
                               const GValue *value,
@@ -1210,11 +1198,6 @@ meta_compositor_init (MetaCompositor *compositor)
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
 
   priv->context = clutter_backend->cogl_context;
-
-  g_signal_connect (meta_shadow_factory_get_default (),
-                    "changed",
-                    G_CALLBACK (on_shadow_factory_changed),
-                    compositor);
 
   priv->pre_paint_func_id =
     clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_PRE_PAINT,
