@@ -45,7 +45,6 @@ clutter_tests_interactive_test_sources = [
   'test-cairo-flowers.c',
   'test-cogl-vertex-buffer.c',
   'test-stage-sizing.c',
-  'test-scrolling.c',
   'test-swipe-action.c',
   'test-cogl-point-sprites.c',
   'test-table-layout.c',
