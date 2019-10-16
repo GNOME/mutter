@@ -85,16 +85,8 @@ GType
 cogl_handle_get_type (void) G_GNUC_CONST;
 
 /* We forward declare this in cogl-types to avoid circular dependencies
- * between cogl-matrix.h, cogl-euler.h and cogl-quaterion.h */
+ * between cogl-matrix.h and cogl-quaterion.h */
 typedef struct _CoglMatrix      CoglMatrix;
-
-/* Same as above we forward declared CoglQuaternion to avoid
- * circular dependencies. */
-typedef struct _CoglQuaternion CoglQuaternion;
-
-/* Same as above we forward declared CoglEuler to avoid
- * circular dependencies. */
-typedef struct _CoglEuler CoglEuler;
 
 /**
  * CoglAngle:
@@ -253,41 +245,6 @@ typedef enum
   COGL_TEXTURE_NO_SLICING     = 1 << 1,
   COGL_TEXTURE_NO_ATLAS       = 1 << 2
 } CoglTextureFlags;
-
-/**
- * CoglFogMode:
- * @COGL_FOG_MODE_LINEAR: Calculates the fog blend factor as:
- * |[
- *   f = end - eye_distance / end - start
- * ]|
- * @COGL_FOG_MODE_EXPONENTIAL: Calculates the fog blend factor as:
- * |[
- *   f = e ^ -(density * eye_distance)
- * ]|
- * @COGL_FOG_MODE_EXPONENTIAL_SQUARED: Calculates the fog blend factor as:
- * |[
- *   f = e ^ -(density * eye_distance)^2
- * ]|
- *
- * The fog mode determines the equation used to calculate the fogging blend
- * factor while fogging is enabled. The simplest %COGL_FOG_MODE_LINEAR mode
- * determines f as:
- *
- * |[
- *   f = end - eye_distance / end - start
- * ]|
- *
- * Where eye_distance is the distance of the current fragment in eye
- * coordinates from the origin.
- *
- * Since: 1.0
- */
-typedef enum
-{
-  COGL_FOG_MODE_LINEAR,
-  COGL_FOG_MODE_EXPONENTIAL,
-  COGL_FOG_MODE_EXPONENTIAL_SQUARED
-} CoglFogMode;
 
 /**
  * COGL_BLEND_STRING_ERROR:

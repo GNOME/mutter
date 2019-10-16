@@ -121,7 +121,7 @@ ClutterActor *  clutter_test_get_stage          (void);
 
 #define clutter_test_assert_actor_at_point(stage,point,actor) \
 G_STMT_START { \
-  const ClutterPoint *__p = (point); \
+  const graphene_point_t *__p = (point); \
   ClutterActor *__actor = (actor); \
   ClutterActor *__stage = (stage); \
   ClutterActor *__res; \
@@ -141,7 +141,7 @@ G_STMT_START { \
 
 #define clutter_test_assert_color_at_point(stage,point,color) \
 G_STMT_START { \
-  const ClutterPoint *__p = (point); \
+  const graphene_point_t *__p = (point); \
   const ClutterColor *__c = (color); \
   ClutterActor *__stage = (stage); \
   ClutterColor __res; \
@@ -158,15 +158,15 @@ G_STMT_START { \
 } G_STMT_END
 
 CLUTTER_EXPORT
-gboolean        clutter_test_check_actor_at_point       (ClutterActor       *stage,
-                                                         const ClutterPoint *point,
-                                                         ClutterActor       *actor,
-                                                         ClutterActor      **result);
+gboolean        clutter_test_check_actor_at_point       (ClutterActor            *stage,
+                                                         const graphene_point_t  *point,
+                                                         ClutterActor            *actor,
+                                                         ClutterActor           **result);
 CLUTTER_EXPORT
-gboolean        clutter_test_check_color_at_point       (ClutterActor       *stage,
-                                                         const ClutterPoint *point,
-                                                         const ClutterColor *color,
-                                                         ClutterColor       *result);
+gboolean        clutter_test_check_color_at_point       (ClutterActor           *stage,
+                                                         const graphene_point_t *point,
+                                                         const ClutterColor     *color,
+                                                         ClutterColor           *result);
 
 G_END_DECLS
 

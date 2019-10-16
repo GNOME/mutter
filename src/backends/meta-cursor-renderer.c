@@ -85,7 +85,7 @@ meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
 
 static void
 align_cursor_position (MetaCursorRenderer *renderer,
-                       ClutterRect        *rect)
+                       graphene_rect_t    *rect)
 {
   MetaCursorRendererPrivate *priv =
     meta_cursor_renderer_get_instance_private (renderer);
@@ -104,10 +104,10 @@ align_cursor_position (MetaCursorRenderer *renderer,
   clutter_stage_view_get_layout (view, &view_layout);
   view_scale = clutter_stage_view_get_scale (view);
 
-  clutter_rect_offset (rect, -view_layout.x, -view_layout.y);
+  graphene_rect_offset (rect, -view_layout.x, -view_layout.y);
   rect->origin.x = floorf (rect->origin.x * view_scale) / view_scale;
   rect->origin.y = floorf (rect->origin.y * view_scale) / view_scale;
-  clutter_rect_offset (rect, view_layout.x, view_layout.y);
+  graphene_rect_offset (rect, view_layout.x, view_layout.y);
 }
 
 static void
@@ -118,7 +118,7 @@ queue_redraw (MetaCursorRenderer *renderer,
   MetaBackend *backend = meta_get_backend ();
   ClutterActor *stage = meta_backend_get_stage (backend);
   CoglTexture *texture;
-  ClutterRect rect = CLUTTER_RECT_INIT_ZERO;
+  graphene_rect_t rect = GRAPHENE_RECT_INIT_ZERO;
 
   /* During early initialization, we can have no stage */
   if (!stage)
@@ -211,7 +211,7 @@ meta_cursor_renderer_init (MetaCursorRenderer *renderer)
                                            NULL);
 }
 
-ClutterRect
+graphene_rect_t
 meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
                                      MetaCursorSprite   *cursor_sprite)
 {
@@ -224,14 +224,14 @@ meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
 
   texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
   if (!texture)
-    return (ClutterRect) CLUTTER_RECT_INIT_ZERO;
+    return (graphene_rect_t) GRAPHENE_RECT_INIT_ZERO;
 
   meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
   texture_scale = meta_cursor_sprite_get_texture_scale (cursor_sprite);
   width = cogl_texture_get_width (texture);
   height = cogl_texture_get_height (texture);
 
-  return (ClutterRect) {
+  return (graphene_rect_t) {
     .origin = {
       .x = priv->current_x - (hot_x * texture_scale),
       .y = priv->current_y - (hot_y * texture_scale)
@@ -315,13 +315,13 @@ meta_cursor_renderer_set_position (MetaCursorRenderer *renderer,
   meta_cursor_renderer_update_cursor (renderer, priv->displayed_cursor);
 }
 
-ClutterPoint
+graphene_point_t
 meta_cursor_renderer_get_position (MetaCursorRenderer *renderer)
 {
   MetaCursorRendererPrivate *priv =
     meta_cursor_renderer_get_instance_private (renderer);
 
-  return (ClutterPoint) {
+  return (graphene_point_t) {
     .x = priv->current_x,
     .y = priv->current_y
   };

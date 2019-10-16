@@ -352,63 +352,64 @@ _clutter_script_parse_knot (ClutterScript *script,
 }
 
 static gboolean
-parse_geometry_from_array (JsonArray       *array,
-                           ClutterGeometry *geometry)
+parse_rect_from_array (JsonArray       *array,
+                       graphene_rect_t *rect)
 {
   if (json_array_get_length (array) != 4)
     return FALSE;
 
-  geometry->x = json_array_get_int_element (array, 0);
-  geometry->y = json_array_get_int_element (array, 1);
-  geometry->width = json_array_get_int_element (array, 2);
-  geometry->height = json_array_get_int_element (array, 3);
+  graphene_rect_init (rect,
+                      json_array_get_int_element (array, 0),
+                      json_array_get_int_element (array, 1),
+                      json_array_get_int_element (array, 2),
+                      json_array_get_int_element (array, 3));
 
   return TRUE;
 }
 
 static gboolean
-parse_geometry_from_object (JsonObject      *object,
-                            ClutterGeometry *geometry)
+parse_rect_from_object (JsonObject      *object,
+                            graphene_rect_t *rect)
 {
   if (json_object_has_member (object, "x"))
-    geometry->x = json_object_get_int_member (object, "x");
+    rect->origin.x = json_object_get_int_member (object, "x");
   else
-    geometry->x = 0;
+    rect->origin.x = 0;
 
   if (json_object_has_member (object, "y"))
-    geometry->y = json_object_get_int_member (object, "y");
+    rect->origin.y = json_object_get_int_member (object, "y");
   else
-    geometry->y = 0;
+    rect->origin.y = 0;
 
   if (json_object_has_member (object, "width"))
-    geometry->width = json_object_get_int_member (object, "width");
+    rect->size.width = json_object_get_int_member (object, "width");
   else
-    geometry->width = 0;
+    rect->size.width = 0;
 
   if (json_object_has_member (object, "height"))
-    geometry->height = json_object_get_int_member (object, "height");
+    rect->size.height = json_object_get_int_member (object, "height");
   else
-    geometry->height = 0;
+    rect->size.height = 0;
 
   return TRUE;
 }
 
 gboolean
-_clutter_script_parse_geometry (ClutterScript   *script,
-                                JsonNode        *node,
-                                ClutterGeometry *geometry)
+_clutter_script_parse_rect (ClutterScript   *script,
+                            JsonNode        *node,
+                            graphene_rect_t *rect)
 {
   g_return_val_if_fail (CLUTTER_IS_SCRIPT (script), FALSE);
   g_return_val_if_fail (node != NULL, FALSE);
-  g_return_val_if_fail (geometry != NULL, FALSE);
+  g_return_val_if_fail (rect != NULL, FALSE);
 
   switch (JSON_NODE_TYPE (node))
     {
     case JSON_NODE_ARRAY:
-      return parse_geometry_from_array (json_node_get_array (node), geometry);
+      return parse_rect_from_array (json_node_get_array (node), rect);
 
     case JSON_NODE_OBJECT:
-      return parse_geometry_from_object (json_node_get_object (node), geometry);
+      return parse_rect_from_object (json_node_get_object (node), rect);
 
     default:
       break;
@@ -492,8 +493,8 @@ _clutter_script_parse_color (ClutterScript *script,
 }
 
 static gboolean
-parse_point_from_array (JsonArray    *array,
-                        ClutterPoint *point)
+parse_point_from_array (JsonArray        *array,
+                        graphene_point_t *point)
 {
   if (json_array_get_length (array) != 2)
     return FALSE;
@@ -505,8 +506,8 @@ parse_point_from_array (JsonArray    *array,
 }
 
 static gboolean
-parse_point_from_object (JsonObject   *object,
-                         ClutterPoint *point)
+parse_point_from_object (JsonObject       *object,
+                         graphene_point_t *point)
 {
   if (json_object_has_member (object, "x"))
     point->x = json_object_get_double_member (object, "x");
@@ -522,9 +523,9 @@ parse_point_from_object (JsonObject   *object,
 }
 
 gboolean
-_clutter_script_parse_point (ClutterScript *script,
-                             JsonNode      *node,
-                             ClutterPoint  *point)
+_clutter_script_parse_point (ClutterScript    *script,
+                             JsonNode         *node,
+                             graphene_point_t *point)
 {
   g_return_val_if_fail (CLUTTER_IS_SCRIPT (script), FALSE);
   g_return_val_if_fail (node != NULL, FALSE);
@@ -546,8 +547,8 @@ _clutter_script_parse_point (ClutterScript *script,
 }
 
 static gboolean
-parse_size_from_array (JsonArray   *array,
-                       ClutterSize *size)
+parse_size_from_array (JsonArray       *array,
+                       graphene_size_t *size)
 {
   if (json_array_get_length (array) != 2)
     return FALSE;
@@ -559,8 +560,8 @@ parse_size_from_array (JsonArray   *array,
 }
 
 static gboolean
-parse_size_from_object (JsonObject  *object,
-                        ClutterSize *size)
+parse_size_from_object (JsonObject      *object,
+                        graphene_size_t *size)
 {
   if (json_object_has_member (object, "width"))
     size->width = json_object_get_double_member (object, "width");
@@ -576,9 +577,9 @@ parse_size_from_object (JsonObject  *object,
 }
 
 gboolean
-_clutter_script_parse_size (ClutterScript *script,
-                            JsonNode      *node,
-                            ClutterSize   *size)
+_clutter_script_parse_size (ClutterScript   *script,
+                            JsonNode        *node,
+                            graphene_size_t *size)
 {
   g_return_val_if_fail (CLUTTER_IS_SCRIPT (script), FALSE);
   g_return_val_if_fail (node != NULL, FALSE);
@@ -1328,11 +1329,11 @@ _clutter_script_parse_node (ClutterScript *script,
                   return TRUE;
                 }
             }
-          else if (p_type == CLUTTER_TYPE_GEOMETRY)
+          else if (p_type == GRAPHENE_TYPE_RECT)
             {
-              ClutterGeometry geom = { 0, };
+              graphene_rect_t rect = GRAPHENE_RECT_INIT_ZERO;
 
-              /* geometry := {
+              /* rect := {
                *        "x" : (int),
                *        "y" : (int),
                *        "width" : (int),
@@ -1340,9 +1341,9 @@ _clutter_script_parse_node (ClutterScript *script,
                * }
                */
 
-              if (_clutter_script_parse_geometry (script, node, &geom))
+              if (_clutter_script_parse_rect (script, node, &rect))
                 {
-                  g_value_set_boxed (value, &geom);
+                  g_value_set_boxed (value, &rect);
                   return TRUE;
                 }
             }
@@ -1364,9 +1365,9 @@ _clutter_script_parse_node (ClutterScript *script,
                   return TRUE;
                 }
             }
-          else if (p_type == CLUTTER_TYPE_POINT)
+          else if (p_type == GRAPHENE_TYPE_POINT)
             {
-              ClutterPoint point = CLUTTER_POINT_INIT_ZERO;
+              graphene_point_t point = GRAPHENE_POINT_INIT_ZERO;
 
               if (_clutter_script_parse_point (script, node, &point))
                 {
@@ -1374,9 +1375,9 @@ _clutter_script_parse_node (ClutterScript *script,
                   return TRUE;
                 }
             }
-          else if (p_type == CLUTTER_TYPE_SIZE)
+          else if (p_type == GRAPHENE_TYPE_SIZE)
             {
-              ClutterSize size = CLUTTER_SIZE_INIT_ZERO;
+              graphene_size_t size = GRAPHENE_SIZE_INIT_ZERO;
 
               if (_clutter_script_parse_size (script, node, &size))
                 {
@@ -1417,15 +1418,15 @@ _clutter_script_parse_node (ClutterScript *script,
                   return TRUE;
                 }
             }
-          else if (G_VALUE_HOLDS (value, CLUTTER_TYPE_GEOMETRY))
+          else if (G_VALUE_HOLDS (value, GRAPHENE_TYPE_RECT))
             {
-              ClutterGeometry geom = { 0, };
+              graphene_rect_t rect = GRAPHENE_RECT_INIT_ZERO;
 
-              /* geometry := [ (int), (int), (int), (int) ] */
+              /* rect := [ (int), (int), (int), (int) ] */
 
-              if (_clutter_script_parse_geometry (script, node, &geom))
+              if (_clutter_script_parse_rect (script, node, &rect))
                 {
-                  g_value_set_boxed (value, &geom);
+                  g_value_set_boxed (value, &rect);
                   return TRUE;
                 }
             }
@@ -1441,9 +1442,9 @@ _clutter_script_parse_node (ClutterScript *script,
                   return TRUE;
                 }
             }
-          else if (G_VALUE_HOLDS (value, CLUTTER_TYPE_POINT))
+          else if (G_VALUE_HOLDS (value, GRAPHENE_TYPE_POINT))
             {
-              ClutterPoint point = CLUTTER_POINT_INIT_ZERO;
+              graphene_point_t point = GRAPHENE_POINT_INIT_ZERO;
 
               if (_clutter_script_parse_point (script, node, &point))
                 {
@@ -1451,9 +1452,9 @@ _clutter_script_parse_node (ClutterScript *script,
                   return TRUE;
                 }
             }
-          else if (G_VALUE_HOLDS (value, CLUTTER_TYPE_SIZE))
+          else if (G_VALUE_HOLDS (value, GRAPHENE_TYPE_SIZE))
             {
-              ClutterSize size = CLUTTER_SIZE_INIT_ZERO;
+              graphene_size_t size = GRAPHENE_SIZE_INIT_ZERO;
 
               if (_clutter_script_parse_size (script, node, &size))
                 {

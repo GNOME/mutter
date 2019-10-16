@@ -107,7 +107,7 @@ struct _ClutterStageQueueRedrawEntry
 
 typedef struct _PickRecord
 {
-  ClutterPoint vertex[4];
+  graphene_point_t vertex[4];
   ClutterActor *actor;
   int clip_stack_top;
 } PickRecord;
@@ -115,7 +115,7 @@ typedef struct _PickRecord
 typedef struct _PickClipRecord
 {
   int prev;
-  ClutterPoint vertex[4];
+  graphene_point_t vertex[4];
 } PickClipRecord;
 
 struct _ClutterStagePrivate
@@ -128,8 +128,6 @@ struct _ClutterStagePrivate
   CoglMatrix inverse_projection;
   CoglMatrix view;
   float viewport[4];
-
-  ClutterFog fog;
 
   gchar *title;
   ClutterActor *key_focused_actor;
@@ -173,7 +171,6 @@ struct _ClutterStagePrivate
   guint relayout_pending       : 1;
   guint redraw_pending         : 1;
   guint is_cursor_visible      : 1;
-  guint use_fog                : 1;
   guint throttle_motion_events : 1;
   guint use_alpha              : 1;
   guint min_size_changed       : 1;
@@ -191,8 +188,6 @@ enum
   PROP_CURSOR_VISIBLE,
   PROP_PERSPECTIVE,
   PROP_TITLE,
-  PROP_USE_FOG,
-  PROP_FOG,
   PROP_USE_ALPHA,
   PROP_KEY_FOCUS,
   PROP_NO_CLEAR_HINT,
@@ -381,9 +376,9 @@ _clutter_stage_clear_pick_stack (ClutterStage *stage)
 }
 
 void
-clutter_stage_log_pick (ClutterStage       *stage,
-                        const ClutterPoint *vertices,
-                        ClutterActor       *actor)
+clutter_stage_log_pick (ClutterStage           *stage,
+                        const graphene_point_t *vertices,
+                        ClutterActor           *actor)
 {
   ClutterStagePrivate *priv;
   PickRecord rec;
@@ -395,7 +390,7 @@ clutter_stage_log_pick (ClutterStage       *stage,
 
   g_assert (!priv->pick_stack_frozen);
 
-  memcpy (rec.vertex, vertices, 4 * sizeof (ClutterPoint));
+  memcpy (rec.vertex, vertices, 4 * sizeof (graphene_point_t));
   rec.actor = actor;
   rec.clip_stack_top = priv->pick_clip_stack_top;
 
@@ -403,8 +398,8 @@ clutter_stage_log_pick (ClutterStage       *stage,
 }
 
 void
-clutter_stage_push_pick_clip (ClutterStage       *stage,
-                              const ClutterPoint *vertices)
+clutter_stage_push_pick_clip (ClutterStage           *stage,
+                              const graphene_point_t *vertices)
 {
   ClutterStagePrivate *priv;
   PickClipRecord clip;
@@ -416,7 +411,7 @@ clutter_stage_push_pick_clip (ClutterStage       *stage,
   g_assert (!priv->pick_stack_frozen);
 
   clip.prev = priv->pick_clip_stack_top;
-  memcpy (clip.vertex, vertices, 4 * sizeof (ClutterPoint));
+  memcpy (clip.vertex, vertices, 4 * sizeof (graphene_point_t));
 
   g_array_append_val (priv->pick_clip_stack, clip);
   priv->pick_clip_stack_top = priv->pick_clip_stack->len - 1;
@@ -449,7 +444,7 @@ clutter_stage_pop_pick_clip (ClutterStage *stage)
 }
 
 static gboolean
-is_quadrilateral_axis_aligned_rectangle (const ClutterPoint *vertices)
+is_quadrilateral_axis_aligned_rectangle (const graphene_point_t *vertices)
 {
   int i;
 
@@ -467,8 +462,8 @@ is_quadrilateral_axis_aligned_rectangle (const ClutterPoint *vertices)
 }
 
 static gboolean
-is_inside_axis_aligned_rectangle (const ClutterPoint *point,
-                                  const ClutterPoint *vertices)
+is_inside_axis_aligned_rectangle (const graphene_point_t *point,
+                                  const graphene_point_t *vertices)
 {
   float min_x = FLT_MAX;
   float max_x = FLT_MIN;
@@ -490,15 +485,70 @@ is_inside_axis_aligned_rectangle (const ClutterPoint *point,
           point->y < max_y);
 }
 
+static int
+clutter_point_compare_line (const graphene_point_t *p,
+                            const graphene_point_t *a,
+                            const graphene_point_t *b)
+{
+  graphene_vec3_t vec_pa;
+  graphene_vec3_t vec_pb;
+  graphene_vec3_t cross;
+  float cross_z;
+
+  graphene_vec3_init (&vec_pa, p->x - a->x, p->y - a->y, 0.f);
+  graphene_vec3_init (&vec_pb, p->x - b->x, p->y - b->y, 0.f);
+  graphene_vec3_cross (&vec_pa, &vec_pb, &cross);
+  cross_z = graphene_vec3_get_z (&cross);
+
+  if (cross_z > 0.f)
+    return 1;
+  else if (cross_z < 0.f)
+    return -1;
+  else
+    return 0;
+}
+
 static gboolean
-is_inside_input_region (const ClutterPoint *point,
-                        const ClutterPoint *vertices)
+is_inside_unaligned_rectangle (const graphene_point_t *point,
+                               const graphene_point_t *vertices)
+{
+  unsigned int i;
+  int first_side;
+
+  first_side = 0;
+
+  for (i = 0; i < 4; i++)
+    {
+      int side;
+
+      side = clutter_point_compare_line (point,
+                                         &vertices[i],
+                                         &vertices[(i + 1) % 4]);
+
+      if (side)
+        {
+          if (first_side == 0)
+            first_side = side;
+          else if (side != first_side)
+            return FALSE;
+        }
+    }
+
+  if (first_side == 0)
+    return FALSE;
+
+  return TRUE;
+}
+
+static gboolean
+is_inside_input_region (const graphene_point_t *point,
+                        const graphene_point_t *vertices)
 {
 
   if (is_quadrilateral_axis_aligned_rectangle (vertices))
     return is_inside_axis_aligned_rectangle (point, vertices);
   else
-    return clutter_point_inside_quadrilateral (point, vertices);
+    return is_inside_unaligned_rectangle (point, vertices);
 }
 
 static gboolean
@@ -507,7 +557,7 @@ pick_record_contains_pixel (ClutterStage     *stage,
                             int               x,
                             int               y)
 {
-  const ClutterPoint point = CLUTTER_POINT_INIT (x, y);
+  const graphene_point_t point = GRAPHENE_POINT_INIT (x, y);
   ClutterStagePrivate *priv;
   int clip_index;
 
@@ -720,8 +770,9 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
   Vector4 *tmp_poly;
   ClutterPlane *plane;
   int i;
-  float b[3];
-  float c[3];
+  Vector4 *poly;
+  graphene_vec3_t b;
+  graphene_vec3_t c;
   int count;
 
   tmp_poly = g_alloca (sizeof (Vector4) * n_vertices * 2);
@@ -788,23 +839,37 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
   for (i = 0; i < count; i++)
     {
       plane = &planes[i];
-      memcpy (plane->v0, tmp_poly + i, sizeof (float) * 3);
-      memcpy (b, tmp_poly + n_vertices + i, sizeof (float) * 3);
-      memcpy (c, tmp_poly + n_vertices + i + 1, sizeof (float) * 3);
-      cogl_vector3_subtract (b, b, plane->v0);
-      cogl_vector3_subtract (c, c, plane->v0);
-      cogl_vector3_cross_product (plane->n, b, c);
-      cogl_vector3_normalize (plane->n);
+
+      poly = &tmp_poly[i];
+      graphene_vec3_init (&plane->v0, poly->x, poly->y, poly->z);
+
+      poly = &tmp_poly[n_vertices + i];
+      graphene_vec3_init (&b, poly->x, poly->y, poly->z);
+
+      poly = &tmp_poly[n_vertices + i + 1];
+      graphene_vec3_init (&c, poly->x, poly->y, poly->z);
+
+      graphene_vec3_subtract (&b, &plane->v0, &b);
+      graphene_vec3_subtract (&c, &plane->v0, &c);
+      graphene_vec3_cross (&b, &c, &plane->n);
+      graphene_vec3_normalize (&plane->n, &plane->n);
     }
 
   plane = &planes[n_vertices - 1];
-  memcpy (plane->v0, tmp_poly + 0, sizeof (float) * 3);
-  memcpy (b, tmp_poly + (2 * n_vertices - 1), sizeof (float) * 3);
-  memcpy (c, tmp_poly + n_vertices, sizeof (float) * 3);
-  cogl_vector3_subtract (b, b, plane->v0);
-  cogl_vector3_subtract (c, c, plane->v0);
-  cogl_vector3_cross_product (plane->n, b, c);
-  cogl_vector3_normalize (plane->n);
+
+  poly = &tmp_poly[0];
+  graphene_vec3_init (&plane->v0, poly->x, poly->y, poly->z);
+
+  poly = &tmp_poly[2 * n_vertices - 1];
+  graphene_vec3_init (&b, poly->x, poly->y, poly->z);
+
+  poly = &tmp_poly[n_vertices];
+  graphene_vec3_init (&c, poly->x, poly->y, poly->z);
+
+  graphene_vec3_subtract (&b, &plane->v0, &b);
+  graphene_vec3_subtract (&c, &plane->v0, &c);
+  graphene_vec3_cross (&b, &c, &plane->n);
+  graphene_vec3_normalize (&plane->n, &plane->n);
 }
 
 static void
@@ -1357,7 +1422,7 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
   GSList *updating = NULL;
   const GSList *devices;
   cairo_rectangle_int_t clip;
-  ClutterPoint point;
+  graphene_point_t point;
   gboolean has_clip;
 
   has_clip = _clutter_stage_window_get_redraw_clip_bounds (priv->impl, &clip);
@@ -1801,14 +1866,6 @@ clutter_stage_set_property (GObject      *object,
       clutter_stage_set_title (stage, g_value_get_string (value));
       break;
 
-    case PROP_USE_FOG:
-      clutter_stage_set_use_fog (stage, g_value_get_boolean (value));
-      break;
-
-    case PROP_FOG:
-      clutter_stage_set_fog (stage, g_value_get_boxed (value));
-      break;
-
     case PROP_USE_ALPHA:
       clutter_stage_set_use_alpha (stage, g_value_get_boolean (value));
       break;
@@ -1861,14 +1918,6 @@ clutter_stage_get_property (GObject    *gobject,
 
     case PROP_TITLE:
       g_value_set_string (value, priv->title);
-      break;
-
-    case PROP_USE_FOG:
-      g_value_set_boolean (value, priv->use_fog);
-      break;
-
-    case PROP_FOG:
-      g_value_set_boxed (value, &priv->fog);
       break;
 
     case PROP_USE_ALPHA:
@@ -2055,41 +2104,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
                            P_("Stage Title"),
                            NULL,
                            CLUTTER_PARAM_READWRITE);
-
-  /**
-   * ClutterStage:use-fog:
-   *
-   * Whether the stage should use a linear GL "fog" in creating the
-   * depth-cueing effect, to enhance the perception of depth by fading
-   * actors farther from the viewpoint.
-   *
-   * Since: 0.6
-   *
-   * Deprecated: 1.10: This property does not do anything.
-   */
-  obj_props[PROP_USE_FOG] =
-      g_param_spec_boolean ("use-fog",
-                            P_("Use Fog"),
-                            P_("Whether to enable depth cueing"),
-                            FALSE,
-                            CLUTTER_PARAM_READWRITE | G_PARAM_DEPRECATED);
-
-  /**
-   * ClutterStage:fog:
-   *
-   * The settings for the GL "fog", used only if #ClutterStage:use-fog
-   * is set to %TRUE
-   *
-   * Since: 1.0
-   *
-   * Deprecated: 1.10: This property does not do anything.
-   */
-  obj_props[PROP_FOG] =
-      g_param_spec_boxed ("fog",
-                          P_("Fog"),
-                          P_("Settings for the depth cueing"),
-                          CLUTTER_TYPE_FOG,
-                          CLUTTER_PARAM_READWRITE | G_PARAM_DEPRECATED);
 
   /**
    * ClutterStage:use-alpha:
@@ -2328,7 +2342,6 @@ clutter_stage_init (ClutterStage *self)
   priv->event_queue = g_queue_new ();
 
   priv->is_cursor_visible = TRUE;
-  priv->use_fog = FALSE;
   priv->throttle_motion_events = TRUE;
   priv->min_size_changed = FALSE;
   priv->sync_delay = -1;
@@ -2336,10 +2349,6 @@ clutter_stage_init (ClutterStage *self)
 
   clutter_actor_set_background_color (CLUTTER_ACTOR (self),
                                       &default_stage_color);
-
-  /* FIXME - remove for 2.0 */
-  priv->fog.z_near = 1.0;
-  priv->fog.z_far  = 2.0;
 
   priv->relayout_pending = TRUE;
 
@@ -3078,136 +3087,6 @@ clutter_stage_get_key_focus (ClutterStage *stage)
   return CLUTTER_ACTOR (stage);
 }
 
-/**
- * clutter_stage_get_use_fog:
- * @stage: the #ClutterStage
- *
- * Gets whether the depth cueing effect is enabled on @stage.
- *
- * Return value: %TRUE if the depth cueing effect is enabled
- *
- * Since: 0.6
- *
- * Deprecated: 1.10: This function will always return %FALSE
- */
-gboolean
-clutter_stage_get_use_fog (ClutterStage *stage)
-{
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-
-  return stage->priv->use_fog;
-}
-
-/**
- * clutter_stage_set_use_fog:
- * @stage: the #ClutterStage
- * @fog: %TRUE for enabling the depth cueing effect
- *
- * Sets whether the depth cueing effect on the stage should be enabled
- * or not.
- *
- * Depth cueing is a 3D effect that makes actors farther away from the
- * viewing point less opaque, by fading them with the stage color.
-
- * The parameters of the GL fog used can be changed using the
- * clutter_stage_set_fog() function.
- *
- * Since: 0.6
- *
- * Deprecated: 1.10: Calling this function produces no visible effect
- */
-void
-clutter_stage_set_use_fog (ClutterStage *stage,
-                           gboolean      fog)
-{
-}
-
-/**
- * clutter_stage_set_fog:
- * @stage: the #ClutterStage
- * @fog: a #ClutterFog structure
- *
- * Sets the fog (also known as "depth cueing") settings for the @stage.
- *
- * A #ClutterStage will only use a linear fog progression, which
- * depends solely on the distance from the viewer. The cogl_set_fog()
- * function in COGL exposes more of the underlying implementation,
- * and allows changing the for progression function. It can be directly
- * used by disabling the #ClutterStage:use-fog property and connecting
- * a signal handler to the #ClutterActor::paint signal on the @stage,
- * like:
- *
- * |[
- *   clutter_stage_set_use_fog (stage, FALSE);
- *   g_signal_connect (stage, "paint", G_CALLBACK (on_stage_paint), NULL);
- * ]|
- *
- * The paint signal handler will call cogl_set_fog() with the
- * desired settings:
- *
- * |[
- *   static void
- *   on_stage_paint (ClutterActor *actor)
- *   {
- *     ClutterColor stage_color = { 0, };
- *     CoglColor fog_color = { 0, };
- *
- *     // set the fog color to the stage background color
- *     clutter_stage_get_color (CLUTTER_STAGE (actor), &stage_color);
- *     cogl_color_init_from_4ub (&fog_color,
- *                               stage_color.red,
- *                               stage_color.green,
- *                               stage_color.blue,
- *                               stage_color.alpha);
- *
- *     // enable fog //
- *     cogl_set_fog (&fog_color,
- *                   COGL_FOG_MODE_EXPONENTIAL, // mode
- *                   0.5,                       // density
- *                   5.0, 30.0);                // z_near and z_far
- *   }
- * ]|
- *
- * The fogging functions only work correctly when the visible actors use
- * unmultiplied alpha colors. By default Cogl will premultiply textures and
- * cogl_set_source_color() will premultiply colors, so unless you explicitly
- * load your textures requesting an unmultiplied internal format and use
- * cogl_material_set_color() you can only use fogging with fully opaque actors.
- * Support for premultiplied colors will improve in the future when we can
- * depend on fragment shaders.
- *
- * Since: 0.6
- *
- * Deprecated: 1.10: Fog settings are ignored.
- */
-void
-clutter_stage_set_fog (ClutterStage *stage,
-                       ClutterFog   *fog)
-{
-}
-
-/**
- * clutter_stage_get_fog:
- * @stage: the #ClutterStage
- * @fog: (out): return location for a #ClutterFog structure
- *
- * Retrieves the current depth cueing settings from the stage.
- *
- * Since: 0.6
- *
- * Deprecated: 1.10: This function will always return the default
- *   values of #ClutterFog
- */
-void
-clutter_stage_get_fog (ClutterStage *stage,
-                        ClutterFog   *fog)
-{
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-  g_return_if_fail (fog != NULL);
-
-  *fog = stage->priv->fog;
-}
-
 /*** Perspective boxed type ******/
 
 static gpointer
@@ -3229,24 +3108,6 @@ clutter_perspective_free (gpointer data)
 G_DEFINE_BOXED_TYPE (ClutterPerspective, clutter_perspective,
                      clutter_perspective_copy,
                      clutter_perspective_free);
-
-static gpointer
-clutter_fog_copy (gpointer data)
-{
-  if (G_LIKELY (data))
-    return g_slice_dup (ClutterFog, data);
-
-  return NULL;
-}
-
-static void
-clutter_fog_free (gpointer data)
-{
-  if (G_LIKELY (data))
-    g_slice_free (ClutterFog, data);
-}
-
-G_DEFINE_BOXED_TYPE (ClutterFog, clutter_fog, clutter_fog_copy, clutter_fog_free);
 
 /**
  * clutter_stage_new:
@@ -4651,7 +4512,7 @@ clutter_stage_get_capture_final_size (ClutterStage          *stage,
 
   if (rect)
     {
-      ClutterRect capture_rect;
+      graphene_rect_t capture_rect;
 
       _clutter_util_rect_from_rectangle (rect, &capture_rect);
       if (!_clutter_stage_get_max_view_scale_factor_for_rect (stage,
@@ -4858,9 +4719,9 @@ clutter_stage_update_resource_scales (ClutterStage *stage)
 }
 
 gboolean
-_clutter_stage_get_max_view_scale_factor_for_rect (ClutterStage *stage,
-                                                   ClutterRect  *rect,
-                                                   float        *view_scale)
+_clutter_stage_get_max_view_scale_factor_for_rect (ClutterStage    *stage,
+                                                   graphene_rect_t *rect,
+                                                   float           *view_scale)
 {
   ClutterStagePrivate *priv = stage->priv;
   float scale = 0.0f;
@@ -4870,12 +4731,12 @@ _clutter_stage_get_max_view_scale_factor_for_rect (ClutterStage *stage,
     {
       ClutterStageView *view = l->data;
       cairo_rectangle_int_t view_layout;
-      ClutterRect view_rect;
+      graphene_rect_t view_rect;
 
       clutter_stage_view_get_layout (view, &view_layout);
       _clutter_util_rect_from_rectangle (&view_layout, &view_rect);
 
-      if (clutter_rect_intersection (&view_rect, rect, NULL))
+      if (graphene_rect_intersection (&view_rect, rect, NULL))
         scale = MAX (clutter_stage_view_get_scale (view), scale);
     }
 

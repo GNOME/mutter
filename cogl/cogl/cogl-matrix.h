@@ -41,8 +41,9 @@
 #include <cogl/cogl-types.h>
 #include <cogl/cogl-macros.h>
 
-#include <cogl/cogl-quaternion.h>
 #include <glib-object.h>
+
+#include <graphene.h>
 
 G_BEGIN_DECLS
 
@@ -197,32 +198,18 @@ cogl_matrix_rotate (CoglMatrix *matrix,
 		    float z);
 
 /**
- * cogl_matrix_rotate_quaternion:
- * @matrix: A 4x4 transformation matrix
- * @quaternion: A quaternion describing a rotation
- *
- * Multiplies @matrix with a rotation transformation described by the
- * given #CoglQuaternion.
- *
- * Since: 2.0
- */
-void
-cogl_matrix_rotate_quaternion (CoglMatrix *matrix,
-                               const CoglQuaternion *quaternion);
-
-/**
  * cogl_matrix_rotate_euler:
  * @matrix: A 4x4 transformation matrix
  * @euler: A euler describing a rotation
  *
  * Multiplies @matrix with a rotation transformation described by the
- * given #CoglEuler.
+ * given #graphene_euler_t.
  *
  * Since: 2.0
  */
 void
 cogl_matrix_rotate_euler (CoglMatrix *matrix,
-                          const CoglEuler *euler);
+                          const graphene_euler_t *euler);
 
 /**
  * cogl_matrix_translate:
@@ -516,26 +503,15 @@ const float *
 cogl_matrix_get_array (const CoglMatrix *matrix);
 
 /**
- * cogl_matrix_init_from_quaternion:
- * @matrix: A 4x4 transformation matrix
- * @quaternion: A #CoglQuaternion
- *
- * Initializes @matrix from a #CoglQuaternion rotation.
- */
-void
-cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
-                                  const CoglQuaternion *quaternion);
-
-/**
  * cogl_matrix_init_from_euler:
  * @matrix: A 4x4 transformation matrix
- * @euler: A #CoglEuler
+ * @euler: A #graphene_euler_t
  *
- * Initializes @matrix from a #CoglEuler rotation.
+ * Initializes @matrix from a #graphene_euler_t rotation.
  */
 void
 cogl_matrix_init_from_euler (CoglMatrix *matrix,
-                             const CoglEuler *euler);
+                             const graphene_euler_t *euler);
 
 /**
  * cogl_matrix_equal:

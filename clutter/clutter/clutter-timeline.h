@@ -208,13 +208,13 @@ gboolean                        clutter_timeline_get_step_progress              
                                                                                  gint                     *n_steps,
                                                                                  ClutterStepMode          *step_mode);
 CLUTTER_EXPORT
-void                            clutter_timeline_set_cubic_bezier_progress      (ClutterTimeline          *timeline,
-                                                                                 const ClutterPoint       *c_1,
-                                                                                 const ClutterPoint       *c_2);
+void                            clutter_timeline_set_cubic_bezier_progress      (ClutterTimeline        *timeline,
+                                                                                 const graphene_point_t *c_1,
+                                                                                 const graphene_point_t *c_2);
 CLUTTER_EXPORT
-gboolean                        clutter_timeline_get_cubic_bezier_progress      (ClutterTimeline          *timeline,
-                                                                                 ClutterPoint             *c_1,
-                                                                                 ClutterPoint             *c_2);
+gboolean                        clutter_timeline_get_cubic_bezier_progress      (ClutterTimeline  *timeline,
+                                                                                 graphene_point_t *c_1,
+                                                                                 graphene_point_t *c_2);
 
 CLUTTER_EXPORT
 gint64                          clutter_timeline_get_duration_hint              (ClutterTimeline          *timeline);

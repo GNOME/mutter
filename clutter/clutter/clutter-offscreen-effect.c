@@ -86,7 +86,7 @@ struct _ClutterOffscreenEffectPrivate
   ClutterActor *actor;
   ClutterActor *stage;
 
-  ClutterVertex position;
+  graphene_point3d_t position;
 
   int fbo_offset_x;
   int fbo_offset_y;
@@ -250,8 +250,10 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
   gfloat target_width = -1, target_height = -1;
   gfloat resource_scale;
   gfloat ceiled_resource_scale;
-  ClutterVertex local_offset = { 0.f, 0.f, 0.f };
+  graphene_point3d_t local_offset;
   gfloat old_viewport[4];
+
+  local_offset = GRAPHENE_POINT3D_INIT (0.0f, 0.0f, 0.0f);
 
   if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (effect)))
     return FALSE;
@@ -682,7 +684,7 @@ clutter_offscreen_effect_get_target_size (ClutterOffscreenEffect *effect,
  */
 gboolean
 clutter_offscreen_effect_get_target_rect (ClutterOffscreenEffect *effect,
-                                          ClutterRect            *rect)
+                                          graphene_rect_t        *rect)
 {
   ClutterOffscreenEffectPrivate *priv;
 
@@ -694,11 +696,11 @@ clutter_offscreen_effect_get_target_rect (ClutterOffscreenEffect *effect,
   if (priv->texture == NULL)
     return FALSE;
 
-  clutter_rect_init (rect,
-                     priv->position.x,
-                     priv->position.y,
-                     cogl_texture_get_width (priv->texture),
-                     cogl_texture_get_height (priv->texture));
+  graphene_rect_init (rect,
+                      priv->position.x,
+                      priv->position.y,
+                      cogl_texture_get_width (priv->texture),
+                      cogl_texture_get_height (priv->texture));
 
   return TRUE;
 }

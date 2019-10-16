@@ -252,10 +252,10 @@ void meta_rectangle_scale_double (const MetaRectangle  *rect,
                                   MetaRoundingStrategy  rounding_strategy,
                                   MetaRectangle        *dest);
 
-static inline ClutterRect
-meta_rectangle_to_clutter_rect (MetaRectangle *rect)
+static inline graphene_rect_t
+meta_rectangle_to_graphene_rect (MetaRectangle *rect)
 {
-  return (ClutterRect) {
+  return (graphene_rect_t) {
     .origin = {
       .x = rect->x,
       .y = rect->y
@@ -274,12 +274,12 @@ void meta_rectangle_transform (const MetaRectangle  *rect,
                                int                   height,
                                MetaRectangle        *dest);
 
-void meta_rectangle_from_clutter_rect (ClutterRect          *rect,
-                                       MetaRoundingStrategy  rounding_strategy,
-                                       MetaRectangle        *dest);
+void meta_rectangle_from_graphene_rect (const graphene_rect_t *rect,
+                                        MetaRoundingStrategy   rounding_strategy,
+                                        MetaRectangle         *dest);
 
 void meta_rectangle_crop_and_scale (const MetaRectangle *rect,
-                                    ClutterRect         *src_rect,
+                                    graphene_rect_t     *src_rect,
                                     int                  dst_width,
                                     int                  dst_height,
                                     MetaRectangle       *dest);

@@ -157,7 +157,7 @@ struct _ClutterTextPrivate
   gint text_logical_y;
 
   /* Where to draw the cursor */
-  ClutterRect cursor_rect;
+  graphene_rect_t cursor_rect;
   ClutterColor cursor_color;
   guint cursor_size;
 
@@ -1304,7 +1304,7 @@ static inline void
 update_cursor_location (ClutterText *self)
 {
   ClutterTextPrivate *priv = self->priv;
-  ClutterRect rect;
+  graphene_rect_t rect;
   float x, y;
 
   if (!priv->editable)
@@ -1312,7 +1312,7 @@ update_cursor_location (ClutterText *self)
 
   rect = priv->cursor_rect;
   clutter_actor_get_transformed_position (CLUTTER_ACTOR (self), &x, &y);
-  clutter_rect_offset (&rect, x, y);
+  graphene_rect_offset (&rect, x, y);
   clutter_input_focus_set_cursor_location (priv->input_focus, &rect);
 }
 
@@ -1322,7 +1322,7 @@ clutter_text_ensure_cursor_position (ClutterText *self,
 {
   ClutterTextPrivate *priv = self->priv;
   gfloat x, y, cursor_height;
-  ClutterRect cursor_rect = CLUTTER_RECT_INIT_ZERO;
+  graphene_rect_t cursor_rect = GRAPHENE_RECT_INIT_ZERO;
   gint position;
 
   position = priv->position;
@@ -1345,25 +1345,17 @@ clutter_text_ensure_cursor_position (ClutterText *self,
                                             &x, &y,
                                             &cursor_height);
 
-  clutter_rect_init (&cursor_rect,
-                     x,
-                     y + CURSOR_Y_PADDING * scale,
-                     priv->cursor_size * scale,
-                     cursor_height - 2 * CURSOR_Y_PADDING * scale);
+  graphene_rect_init (&cursor_rect,
+                      x,
+                      y + CURSOR_Y_PADDING * scale,
+                      priv->cursor_size * scale,
+                      cursor_height - 2 * CURSOR_Y_PADDING * scale);
 
-  if (!clutter_rect_equals (&priv->cursor_rect, &cursor_rect))
+  if (!graphene_rect_equal (&priv->cursor_rect, &cursor_rect))
     {
-      ClutterGeometry cursor_pos;
-
       priv->cursor_rect = cursor_rect;
 
-      /* XXX:2.0 - remove */
-      cursor_pos.x = clutter_rect_get_x (&priv->cursor_rect);
-      cursor_pos.y = clutter_rect_get_y (&priv->cursor_rect);
-      cursor_pos.width = clutter_rect_get_width (&priv->cursor_rect);
-      cursor_pos.height = clutter_rect_get_height (&priv->cursor_rect);
-      g_signal_emit (self, text_signals[CURSOR_EVENT], 0, &cursor_pos);
-
+      g_signal_emit (self, text_signals[CURSOR_EVENT], 0, &cursor_rect);
       g_signal_emit (self, text_signals[CURSOR_CHANGED], 0);
 
       update_cursor_location (self);
@@ -2712,7 +2704,7 @@ clutter_text_paint (ClutterActor *self)
 
       if (actor_width < text_width)
         {
-          gint cursor_x = clutter_rect_get_x (&priv->cursor_rect);
+          gint cursor_x = graphene_rect_get_x (&priv->cursor_rect);
 
           if (priv->position == -1)
             {
@@ -2799,7 +2791,7 @@ add_selection_to_paint_volume (ClutterText           *text,
 {
   ClutterPaintVolume *total_volume = user_data;
   ClutterPaintVolume rect_volume;
-  ClutterVertex vertex;
+  graphene_point3d_t vertex;
 
   _clutter_paint_volume_init_static (&rect_volume, CLUTTER_ACTOR (text));
 
@@ -2821,7 +2813,7 @@ clutter_text_get_paint_volume_for_cursor (ClutterText        *text,
                                           ClutterPaintVolume *volume)
 {
   ClutterTextPrivate *priv = text->priv;
-  ClutterVertex origin;
+  graphene_point3d_t origin;
 
   clutter_text_ensure_cursor_position (text, resource_scale);
 
@@ -2864,7 +2856,7 @@ clutter_text_get_paint_volume (ClutterActor       *self,
     {
       PangoLayout *layout;
       PangoRectangle ink_rect;
-      ClutterVertex origin;
+      graphene_point3d_t origin;
       float resource_scale;
 
       /* If the text is single line editable then it gets clipped to
@@ -4399,10 +4391,10 @@ clutter_text_class_init (ClutterTextClass *klass)
   /**
    * ClutterText::cursor-event:
    * @self: the #ClutterText that emitted the signal
-   * @geometry: the coordinates of the cursor
+   * @rect: the coordinates of the cursor
    *
    * The ::cursor-event signal is emitted whenever the cursor position
-   * changes inside a #ClutterText actor. Inside @geometry it is stored
+   * changes inside a #ClutterText actor. Inside @rect it is stored
    * the current position and size of the cursor, relative to the actor
    * itself.
    *
@@ -4417,7 +4409,7 @@ clutter_text_class_init (ClutterTextClass *klass)
 		  G_STRUCT_OFFSET (ClutterTextClass, cursor_event),
 		  NULL, NULL, NULL,
 		  G_TYPE_NONE, 1,
-		  CLUTTER_TYPE_GEOMETRY | G_SIGNAL_TYPE_STATIC_SCOPE);
+		  GRAPHENE_TYPE_RECT | G_SIGNAL_TYPE_STATIC_SCOPE);
 
   /**
    * ClutterText::cursor-changed:
@@ -6780,8 +6772,8 @@ clutter_text_get_layout_offsets (ClutterText *self,
  * Since: 1.16
  */
 void
-clutter_text_get_cursor_rect (ClutterText *self,
-                              ClutterRect *rect)
+clutter_text_get_cursor_rect (ClutterText     *self,
+                              graphene_rect_t *rect)
 {
   g_return_if_fail (CLUTTER_IS_TEXT (self));
   g_return_if_fail (rect != NULL);

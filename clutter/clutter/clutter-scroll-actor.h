@@ -86,11 +86,11 @@ CLUTTER_EXPORT
 ClutterScrollMode       clutter_scroll_actor_get_scroll_mode    (ClutterScrollActor *actor);
 
 CLUTTER_EXPORT
-void                    clutter_scroll_actor_scroll_to_point    (ClutterScrollActor *actor,
-                                                                 const ClutterPoint *point);
+void                    clutter_scroll_actor_scroll_to_point    (ClutterScrollActor     *actor,
+                                                                 const graphene_point_t *point);
 CLUTTER_EXPORT
-void                    clutter_scroll_actor_scroll_to_rect     (ClutterScrollActor *actor,
-                                                                 const ClutterRect  *rect);
+void                    clutter_scroll_actor_scroll_to_rect     (ClutterScrollActor    *actor,
+                                                                 const graphene_rect_t *rect);
 
 G_END_DECLS
 

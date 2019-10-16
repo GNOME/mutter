@@ -42,6 +42,7 @@
 #include "cogl-matrix.h"
 #include "cogl-context.h"
 
+#include <graphene.h>
 
 /**
  * SECTION:cogl-matrix-stack
@@ -307,28 +308,16 @@ cogl_matrix_stack_rotate (CoglMatrixStack *stack,
                           float z);
 
 /**
- * cogl_matrix_stack_rotate_quaternion:
- * @stack: A #CoglMatrixStack
- * @quaternion: A #CoglQuaternion
- *
- * Multiplies the current matrix by one that rotates according to the
- * rotation described by @quaternion.
- */
-void
-cogl_matrix_stack_rotate_quaternion (CoglMatrixStack *stack,
-                                     const CoglQuaternion *quaternion);
-
-/**
  * cogl_matrix_stack_rotate_euler:
  * @stack: A #CoglMatrixStack
- * @euler: A #CoglEuler
+ * @euler: A #graphene_euler_t
  *
  * Multiplies the current matrix by one that rotates according to the
  * rotation described by @euler.
  */
 void
 cogl_matrix_stack_rotate_euler (CoglMatrixStack *stack,
-                                const CoglEuler *euler);
+                                const graphene_euler_t *euler);
 
 /**
  * cogl_matrix_stack_multiply:

@@ -701,7 +701,7 @@ struct _ClutterActorPrivate
   ClutterAllocationFlags allocation_flags;
 
   /* clip, in actor coordinates */
-  ClutterRect clip;
+  graphene_rect_t clip;
 
   /* the cached transformation matrix; see apply_transform() */
   CoglMatrix transform;
@@ -902,7 +902,6 @@ enum
   PROP_DEPTH, /* XXX:2.0 remove */
   PROP_Z_POSITION,
 
-  PROP_CLIP, /* XXX:2.0 remove */
   PROP_CLIP_RECT,
   PROP_HAS_CLIP,
   PROP_CLIP_TO_ALLOCATION,
@@ -1289,7 +1288,7 @@ static gboolean
 _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
                                              ClutterStage          *stage,
                                              const ClutterActorBox *box,
-                                             ClutterPoint           vertices[4])
+                                             graphene_point_t       vertices[4])
 {
   CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
   CoglMatrix stage_transform, inv_stage_transform;
@@ -1345,7 +1344,7 @@ clutter_actor_pick_box (ClutterActor          *self,
                         const ClutterActorBox *box)
 {
   ClutterStage *stage;
-  ClutterPoint vertices[4];
+  graphene_point_t vertices[4];
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
   g_return_if_fail (box != NULL);
@@ -1364,7 +1363,7 @@ _clutter_actor_push_pick_clip (ClutterActor          *self,
                                const ClutterActorBox *clip)
 {
   ClutterStage *stage;
-  ClutterPoint vertices[4];
+  graphene_point_t vertices[4];
 
   stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
 
@@ -2891,8 +2890,8 @@ clutter_actor_real_queue_relayout (ClutterActor *self)
  * @self: A #ClutterActor
  * @ancestor: (allow-none): A #ClutterActor ancestor, or %NULL to use the
  *   default #ClutterStage
- * @point: A point as #ClutterVertex
- * @vertex: (out caller-allocates): The translated #ClutterVertex
+ * @point: A point as #graphene_point3d_t
+ * @vertex: (out caller-allocates): The translated #graphene_point3d_t
  *
  * Transforms @point in coordinates relative to the actor into
  * ancestor-relative coordinates using the relevant transform
@@ -2906,10 +2905,10 @@ clutter_actor_real_queue_relayout (ClutterActor *self)
  * Since: 0.6
  */
 void
-clutter_actor_apply_relative_transform_to_point (ClutterActor        *self,
-						 ClutterActor        *ancestor,
-						 const ClutterVertex *point,
-						 ClutterVertex       *vertex)
+clutter_actor_apply_relative_transform_to_point (ClutterActor             *self,
+                                                 ClutterActor             *ancestor,
+                                                 const graphene_point3d_t *point,
+                                                 graphene_point3d_t       *vertex)
 {
   gfloat w;
   CoglMatrix matrix;
@@ -2936,10 +2935,10 @@ clutter_actor_apply_relative_transform_to_point (ClutterActor        *self,
 }
 
 static gboolean
-_clutter_actor_fully_transform_vertices (ClutterActor *self,
-                                         const ClutterVertex *vertices_in,
-                                         ClutterVertex *vertices_out,
-                                         int n_vertices)
+_clutter_actor_fully_transform_vertices (ClutterActor             *self,
+                                         const graphene_point3d_t *vertices_in,
+                                         graphene_point3d_t       *vertices_out,
+                                         int                       n_vertices)
 {
   ClutterActor *stage;
   CoglMatrix modelview;
@@ -2981,8 +2980,8 @@ _clutter_actor_fully_transform_vertices (ClutterActor *self,
 /**
  * clutter_actor_apply_transform_to_point:
  * @self: A #ClutterActor
- * @point: A point as #ClutterVertex
- * @vertex: (out caller-allocates): The translated #ClutterVertex
+ * @point: A point as #graphene_point3d_t
+ * @vertex: (out caller-allocates): The translated #graphene_point3d_t
  *
  * Transforms @point in coordinates relative to the actor
  * into screen-relative coordinates with the current actor
@@ -2991,9 +2990,9 @@ _clutter_actor_fully_transform_vertices (ClutterActor *self,
  * Since: 0.4
  **/
 void
-clutter_actor_apply_transform_to_point (ClutterActor        *self,
-                                        const ClutterVertex *point,
-                                        ClutterVertex       *vertex)
+clutter_actor_apply_transform_to_point (ClutterActor             *self,
+                                        const graphene_point3d_t *point,
+                                        graphene_point3d_t       *vertex)
 {
   g_return_if_fail (point != NULL);
   g_return_if_fail (vertex != NULL);
@@ -3043,10 +3042,10 @@ _clutter_actor_get_relative_transformation_matrix (ClutterActor *self,
  * transformed vertices to @verts[]. */
 static gboolean
 _clutter_actor_transform_and_project_box (ClutterActor          *self,
-					  const ClutterActorBox *box,
-					  ClutterVertex          verts[])
+                                          const ClutterActorBox *box,
+                                          graphene_point3d_t    *verts)
 {
-  ClutterVertex box_vertices[4];
+  graphene_point3d_t box_vertices[4];
 
   box_vertices[0].x = box->x1;
   box_vertices[0].y = box->y1;
@@ -3070,8 +3069,8 @@ _clutter_actor_transform_and_project_box (ClutterActor          *self,
  * @self: A #ClutterActor
  * @ancestor: (allow-none): A #ClutterActor to calculate the vertices
  *   against, or %NULL to use the #ClutterStage
- * @verts: (out) (array fixed-size=4) (element-type Clutter.Vertex): return
- *   location for an array of 4 #ClutterVertex in which to store the result
+ * @verts: (out) (array fixed-size=4): return
+ *   location for an array of 4 #graphene_point3d_t in which to store the result
  *
  * Calculates the transformed coordinates of the four corners of the
  * actor in the plane of @ancestor. The returned vertices relate to
@@ -3090,13 +3089,13 @@ _clutter_actor_transform_and_project_box (ClutterActor          *self,
  * Since: 0.6
  */
 void
-clutter_actor_get_allocation_vertices (ClutterActor  *self,
-                                       ClutterActor  *ancestor,
-                                       ClutterVertex  verts[])
+clutter_actor_get_allocation_vertices (ClutterActor       *self,
+                                       ClutterActor       *ancestor,
+                                       graphene_point3d_t *verts)
 {
   ClutterActorPrivate *priv;
   ClutterActorBox box;
-  ClutterVertex vertices[4];
+  graphene_point3d_t vertices[4];
   CoglMatrix modelview;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
@@ -3148,9 +3147,9 @@ clutter_actor_get_allocation_vertices (ClutterActor  *self,
 
   cogl_matrix_transform_points (&modelview,
                                 3,
-                                sizeof (ClutterVertex),
+                                sizeof (graphene_point3d_t),
                                 vertices,
-                                sizeof (ClutterVertex),
+                                sizeof (graphene_point3d_t),
                                 vertices,
                                 4);
 }
@@ -3159,7 +3158,7 @@ clutter_actor_get_allocation_vertices (ClutterActor  *self,
  * clutter_actor_get_abs_allocation_vertices:
  * @self: A #ClutterActor
  * @verts: (out) (array fixed-size=4): Pointer to a location of an array
- *   of 4 #ClutterVertex where to store the result.
+ *   of 4 #graphene_point3d_t where to store the result.
  *
  * Calculates the transformed screen coordinates of the four corners of
  * the actor; the returned vertices relate to the #ClutterActorBox
@@ -3173,8 +3172,8 @@ clutter_actor_get_allocation_vertices (ClutterActor  *self,
  * Since: 0.4
  */
 void
-clutter_actor_get_abs_allocation_vertices (ClutterActor  *self,
-                                           ClutterVertex  verts[])
+clutter_actor_get_abs_allocation_vertices (ClutterActor       *self,
+                                           graphene_point3d_t *verts)
 {
   ClutterActorPrivate *priv;
   ClutterActorBox actor_space_allocation;
@@ -3415,7 +3414,7 @@ _clutter_actor_draw_paint_volume_full (ClutterActor *self,
 {
   static CoglPipeline *outline = NULL;
   CoglPrimitive *prim;
-  ClutterVertex line_ends[12 * 2];
+  graphene_point3d_t line_ends[12 * 2];
   int n_vertices;
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
@@ -4474,11 +4473,11 @@ static const ClutterTransformInfo default_transform_info = {
 
   { 0, },                       /* anchor XXX:2.0 - remove*/
 
-  CLUTTER_VERTEX_INIT_ZERO,     /* translation */
+  GRAPHENE_POINT3D_INIT_ZERO,   /* translation */
 
   0.f,                          /* z-position */
 
-  CLUTTER_POINT_INIT_ZERO,      /* pivot */
+  GRAPHENE_POINT_INIT_ZERO,     /* pivot */
   0.f,                          /* pivot-z */
 
   CLUTTER_MATRIX_INIT_IDENTITY,
@@ -4557,8 +4556,8 @@ _clutter_actor_get_transform_info (ClutterActor *self)
 }
 
 static inline void
-clutter_actor_set_pivot_point_internal (ClutterActor       *self,
-                                        const ClutterPoint *pivot)
+clutter_actor_set_pivot_point_internal (ClutterActor           *self,
+                                        const graphene_point_t *pivot)
 {
   ClutterTransformInfo *info;
 
@@ -4863,11 +4862,11 @@ clutter_actor_get_rotation_angle (ClutterActor      *self,
  * rotation angle.
  */
 static inline void
-clutter_actor_set_rotation_center_internal (ClutterActor        *self,
-                                            ClutterRotateAxis    axis,
-                                            const ClutterVertex *center)
+clutter_actor_set_rotation_center_internal (ClutterActor             *self,
+                                            ClutterRotateAxis         axis,
+                                            const graphene_point3d_t *center)
 {
-  ClutterVertex v = CLUTTER_VERTEX_INIT_ZERO; 
+  graphene_point3d_t v = GRAPHENE_POINT3D_INIT_ZERO;
   GObject *obj = G_OBJECT (self);
   ClutterTransformInfo *info;
 
@@ -5094,8 +5093,8 @@ clutter_actor_set_anchor_coord (ClutterActor      *self,
 }
 
 static void
-clutter_actor_set_clip_rect (ClutterActor      *self,
-                             const ClutterRect *clip)
+clutter_actor_set_clip_rect (ClutterActor          *self,
+                             const graphene_rect_t *clip)
 {
   ClutterActorPrivate *priv = self->priv;
   GObject *obj = G_OBJECT (self);
@@ -5110,7 +5109,6 @@ clutter_actor_set_clip_rect (ClutterActor      *self,
 
   clutter_actor_queue_redraw (self);
 
-  g_object_notify_by_pspec (obj, obj_props[PROP_CLIP]); /* XXX:2.0 - remove */
   g_object_notify_by_pspec (obj, obj_props[PROP_CLIP_RECT]);
   g_object_notify_by_pspec (obj, obj_props[PROP_HAS_CLIP]);
 }
@@ -5136,7 +5134,7 @@ clutter_actor_set_property (GObject      *object,
 
     case PROP_POSITION:
       {
-        const ClutterPoint *pos = g_value_get_boxed (value);
+        const graphene_point_t *pos = g_value_get_boxed (value);
 
         if (pos != NULL)
           clutter_actor_set_position (actor, pos->x, pos->y);
@@ -5155,7 +5153,7 @@ clutter_actor_set_property (GObject      *object,
 
     case PROP_SIZE:
       {
-        const ClutterSize *size = g_value_get_boxed (value);
+        const graphene_size_t *size = g_value_get_boxed (value);
 
         if (size != NULL)
           clutter_actor_set_size (actor, size->width, size->height);
@@ -5241,10 +5239,10 @@ clutter_actor_set_property (GObject      *object,
 
     case PROP_PIVOT_POINT:
       {
-        const ClutterPoint *pivot = g_value_get_boxed (value);
+        const graphene_point_t *pivot = g_value_get_boxed (value);
 
         if (pivot == NULL)
-          pivot = clutter_point_zero ();
+          pivot = graphene_point_zero ();
 
         clutter_actor_set_pivot_point (actor, pivot->x, pivot->y);
       }
@@ -5296,16 +5294,6 @@ clutter_actor_set_property (GObject      *object,
 
     case PROP_SCALE_GRAVITY: /* XXX:2.0 - remove */
       clutter_actor_set_scale_gravity (actor, g_value_get_enum (value));
-      break;
-
-    case PROP_CLIP: /* XXX:2.0 - remove */
-      {
-        const ClutterGeometry *geom = g_value_get_boxed (value);
-
-	clutter_actor_set_clip (actor,
-				geom->x, geom->y,
-				geom->width, geom->height);
-      }
       break;
 
     case PROP_CLIP_RECT:
@@ -5500,11 +5488,11 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_POSITION:
       {
-        ClutterPoint position;
+        graphene_point_t position;
 
-        clutter_point_init (&position,
-                            clutter_actor_get_x (actor),
-                            clutter_actor_get_y (actor));
+        graphene_point_init (&position,
+                             clutter_actor_get_x (actor),
+                             clutter_actor_get_y (actor));
         g_value_set_boxed (value, &position);
       }
       break;
@@ -5519,11 +5507,11 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_SIZE:
       {
-        ClutterSize size;
+        graphene_size_t size;
 
-        clutter_size_init (&size,
-                           clutter_actor_get_width (actor),
-                           clutter_actor_get_height (actor));
+        graphene_size_init (&size,
+                            clutter_actor_get_width (actor),
+                            clutter_actor_get_height (actor));
         g_value_set_boxed (value, &size);
       }
       break;
@@ -5644,19 +5632,6 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_HAS_CLIP:
       g_value_set_boolean (value, priv->has_clip);
-      break;
-
-    case PROP_CLIP: /* XXX:2.0 - remove */
-      {
-        ClutterGeometry clip;
-
-        clip.x      = CLUTTER_NEARBYINT (priv->clip.origin.x);
-        clip.y      = CLUTTER_NEARBYINT (priv->clip.origin.y);
-        clip.width  = CLUTTER_NEARBYINT (priv->clip.size.width);
-        clip.height = CLUTTER_NEARBYINT (priv->clip.size.height);
-
-        g_value_set_boxed (value, &clip);
-      }
       break;
 
     case PROP_CLIP_RECT:
@@ -5806,7 +5781,7 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_ROTATION_CENTER_X: /* XXX:2.0 - remove */
       {
-        ClutterVertex center;
+        graphene_point3d_t center;
 
         clutter_actor_get_rotation (actor, CLUTTER_X_AXIS,
                                     &center.x,
@@ -5819,7 +5794,7 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_ROTATION_CENTER_Y: /* XXX:2.0 - remove */
       {
-        ClutterVertex center;
+        graphene_point3d_t center;
 
         clutter_actor_get_rotation (actor, CLUTTER_Y_AXIS,
                                     &center.x,
@@ -5832,7 +5807,7 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_ROTATION_CENTER_Z: /* XXX:2.0 - remove */
       {
-        ClutterVertex center;
+        graphene_point3d_t center;
 
         clutter_actor_get_rotation (actor, CLUTTER_Z_AXIS,
                                     &center.x,
@@ -6249,7 +6224,7 @@ clutter_actor_update_default_paint_volume (ClutterActor       *self,
           priv->clip.size.width >= 0 &&
           priv->clip.size.height >= 0)
         {
-          ClutterVertex origin;
+          graphene_point3d_t origin;
 
           origin.x = priv->clip.origin.x;
           origin.y = priv->clip.origin.y;
@@ -6525,7 +6500,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("position",
                         P_("Position"),
                         P_("The position of the origin of the actor"),
-                        CLUTTER_TYPE_POINT,
+                        GRAPHENE_TYPE_POINT,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         CLUTTER_PARAM_ANIMATABLE);
@@ -6584,7 +6559,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("size",
                         P_("Size"),
                         P_("The size of the actor"),
-                        CLUTTER_TYPE_SIZE,
+                        GRAPHENE_TYPE_SIZE,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         CLUTTER_PARAM_ANIMATABLE);
@@ -7027,24 +7002,10 @@ clutter_actor_class_init (ClutterActorClass *klass)
                           CLUTTER_PARAM_READABLE);
 
   /**
-   * ClutterActor:clip:
-   *
-   * The visible region of the actor, in actor-relative coordinates
-   *
-   * Deprecated: 1.12: Use #ClutterActor:clip-rect instead.
-   */
-  obj_props[PROP_CLIP] = /* XXX:2.0 - remove */
-    g_param_spec_boxed ("clip",
-                        P_("Clip"),
-                        P_("The clip region for the actor"),
-                        CLUTTER_TYPE_GEOMETRY,
-                        CLUTTER_PARAM_READWRITE);
-
-  /**
    * ClutterActor:clip-rect:
    *
    * The visible region of the actor, in actor-relative coordinates,
-   * expressed as a #ClutterRect.
+   * expressed as a #graphene_rect_t.
    *
    * Setting this property to %NULL will unset the existing clip.
    *
@@ -7057,7 +7018,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("clip-rect",
                         P_("Clip Rectangle"),
                         P_("The visible region of the actor"),
-                        CLUTTER_TYPE_RECT,
+                        GRAPHENE_TYPE_RECT,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS);
 
@@ -7094,7 +7055,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("pivot-point",
                         P_("Pivot Point"),
                         P_("The point around which the scaling and rotation occur"),
-                        CLUTTER_TYPE_POINT,
+                        GRAPHENE_TYPE_POINT,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         CLUTTER_PARAM_ANIMATABLE);
@@ -7316,7 +7277,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("rotation-center-x",
                         P_("Rotation Center X"),
                         P_("The rotation center on the X axis"),
-                        CLUTTER_TYPE_VERTEX,
+                        GRAPHENE_TYPE_POINT3D,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         G_PARAM_DEPRECATED);
@@ -7334,7 +7295,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("rotation-center-y",
                         P_("Rotation Center Y"),
                         P_("The rotation center on the Y axis"),
-                        CLUTTER_TYPE_VERTEX,
+                        GRAPHENE_TYPE_POINT3D,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         G_PARAM_DEPRECATED);
@@ -7352,7 +7313,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("rotation-center-z",
                         P_("Rotation Center Z"),
                         P_("The rotation center on the Z axis"),
-                        CLUTTER_TYPE_VERTEX,
+                        GRAPHENE_TYPE_POINT3D,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         G_PARAM_DEPRECATED);
@@ -9007,7 +8968,7 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
   if (flags & CLUTTER_REDRAW_CLIPPED_TO_ALLOCATION)
     {
       ClutterActorBox allocation_clip;
-      ClutterVertex origin;
+      graphene_point3d_t origin;
 
       /* If the actor doesn't have a valid allocation then we will
        * queue a full stage redraw. */
@@ -9211,7 +9172,7 @@ clutter_actor_queue_redraw_with_clip (ClutterActor                *self,
                                       const cairo_rectangle_int_t *clip)
 {
   ClutterPaintVolume volume;
-  ClutterVertex origin;
+  graphene_point3d_t origin;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
@@ -10438,17 +10399,17 @@ clutter_actor_set_position (ClutterActor *self,
 			    gfloat        x,
 			    gfloat        y)
 {
-  ClutterPoint new_position;
-  ClutterPoint cur_position;
+  graphene_point_t new_position;
+  graphene_point_t cur_position;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  clutter_point_init (&new_position, x, y);
+  graphene_point_init (&new_position, x, y);
 
   cur_position.x = clutter_actor_get_x (self);
   cur_position.y = clutter_actor_get_y (self);
 
-  if (!clutter_point_equals (&cur_position, &new_position))
+  if (!graphene_point_equal (&cur_position, &new_position))
     _clutter_actor_create_transition (self, obj_props[PROP_POSITION],
                                       &cur_position,
                                       &new_position);
@@ -10883,8 +10844,8 @@ clutter_actor_set_height_internal (ClutterActor *self,
 }
 
 static void
-clutter_actor_set_size_internal (ClutterActor      *self,
-                                 const ClutterSize *size)
+clutter_actor_set_size_internal (ClutterActor          *self,
+                                 const graphene_size_t *size)
 {
   if (size != NULL)
     {
@@ -10920,11 +10881,11 @@ clutter_actor_set_size (ClutterActor *self,
 			gfloat        width,
 			gfloat        height)
 {
-  ClutterSize new_size;
+  graphene_size_t new_size;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  clutter_size_init (&new_size, width, height);
+  graphene_size_init (&new_size, width, height);
 
   /* minor optimization: if we don't have a duration then we can
    * skip the get_size() below, to avoid the chance of going through
@@ -10943,11 +10904,11 @@ clutter_actor_set_size (ClutterActor *self,
     }
   else
     {
-      ClutterSize cur_size;
+      graphene_size_t cur_size;
 
-      clutter_size_init (&cur_size,
-                         clutter_actor_get_width (self),
-                         clutter_actor_get_height (self));
+      graphene_size_init (&cur_size,
+                          clutter_actor_get_width (self),
+                          clutter_actor_get_height (self));
 
       _clutter_actor_create_transition (self,
                                         obj_props[PROP_SIZE],
@@ -11033,8 +10994,8 @@ clutter_actor_get_transformed_position (ClutterActor *self,
                                         gfloat       *x,
                                         gfloat       *y)
 {
-  ClutterVertex v1;
-  ClutterVertex v2;
+  graphene_point3d_t v1;
+  graphene_point3d_t v2;
 
   v1.x = v1.y = v1.z = 0;
   clutter_actor_apply_transform_to_point (self, &v1, &v2);
@@ -11080,7 +11041,7 @@ clutter_actor_get_transformed_size (ClutterActor *self,
                                     gfloat       *height)
 {
   ClutterActorPrivate *priv;
-  ClutterVertex v[4];
+  graphene_point3d_t v[4];
   gfloat x_min, x_max, y_min, y_max;
   gint i;
 
@@ -11402,8 +11363,8 @@ clutter_actor_set_y_internal (ClutterActor *self,
 }
 
 static void
-clutter_actor_set_position_internal (ClutterActor       *self,
-                                     const ClutterPoint *position)
+clutter_actor_set_position_internal (ClutterActor           *self,
+                                     const graphene_point_t *position)
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterLayoutInfo *linfo;
@@ -11412,7 +11373,7 @@ clutter_actor_set_position_internal (ClutterActor       *self,
   linfo = _clutter_actor_get_layout_info (self);
 
   if (priv->position_set &&
-      clutter_point_equals (position, &linfo->fixed_pos))
+      graphene_point_equal (position, &linfo->fixed_pos))
     return;
 
   clutter_actor_store_old_geometry (self, &old);
@@ -11497,8 +11458,7 @@ clutter_actor_set_y (ClutterActor *self,
  * the X coordinate of the origin of the allocation box.
  *
  * If the actor has any fixed coordinate set using clutter_actor_set_x(),
- * clutter_actor_set_position() or clutter_actor_set_geometry(), this
- * function will return that coordinate.
+ * clutter_actor_set_position(), this function will return that coordinate.
  *
  * If both the allocation and a fixed position are missing, this function
  * will return 0.
@@ -11545,8 +11505,7 @@ clutter_actor_get_x (ClutterActor *self)
  * the Y coordinate of the origin of the allocation box.
  *
  * If the actor has any fixed coordinate set using clutter_actor_set_y(),
- * clutter_actor_set_position() or clutter_actor_set_geometry(), this
- * function will return that coordinate.
+ * clutter_actor_set_position(), this function will return that coordinate.
  *
  * If both the allocation and a fixed position are missing, this function
  * will return 0.
@@ -12231,7 +12190,7 @@ clutter_actor_set_pivot_point (ClutterActor *self,
                                gfloat        pivot_x,
                                gfloat        pivot_y)
 {
-  ClutterPoint pivot = CLUTTER_POINT_INIT (pivot_x, pivot_y);
+  graphene_point_t pivot = GRAPHENE_POINT_INIT (pivot_x, pivot_y);
   const ClutterTransformInfo *info;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
@@ -12392,7 +12351,7 @@ clutter_actor_set_rotation (ClutterActor      *self,
                             gfloat             y,
                             gfloat             z)
 {
-  ClutterVertex v;
+  graphene_point3d_t v;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
@@ -12589,7 +12548,6 @@ clutter_actor_set_clip (ClutterActor *self,
 
   clutter_actor_queue_redraw (self);
 
-  g_object_notify_by_pspec (obj, obj_props[PROP_CLIP]);
   g_object_notify_by_pspec (obj, obj_props[PROP_CLIP_RECT]);
   g_object_notify_by_pspec (obj, obj_props[PROP_HAS_CLIP]);
 }
@@ -15372,7 +15330,7 @@ clutter_actor_transform_stage_point (ClutterActor *self,
 				     gfloat       *x_out,
 				     gfloat       *y_out)
 {
-  ClutterVertex v[4];
+  graphene_point3d_t v[4];
   double ST[3][3];
   double RQ[3][3];
   int du, dv;
@@ -17848,9 +17806,9 @@ clutter_actor_get_paint_box (ClutterActor    *self,
 }
 
 static gboolean
-_clutter_actor_get_resource_scale_for_rect (ClutterActor *self,
-                                            ClutterRect  *bounding_rect,
-                                            float        *resource_scale)
+_clutter_actor_get_resource_scale_for_rect (ClutterActor    *self,
+                                            graphene_rect_t *bounding_rect,
+                                            float           *resource_scale)
 {
   ClutterActor *stage;
   float max_scale = 0;
@@ -17873,7 +17831,7 @@ static gboolean
 _clutter_actor_compute_resource_scale (ClutterActor *self,
                                        float        *resource_scale)
 {
-  ClutterRect bounding_rect;
+  graphene_rect_t bounding_rect;
   ClutterActorPrivate *priv = self->priv;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (self) ||
@@ -18417,13 +18375,13 @@ clutter_actor_get_layout_manager (ClutterActor *self)
 }
 
 static const ClutterLayoutInfo default_layout_info = {
-  CLUTTER_POINT_INIT_ZERO,      /* fixed-pos */
+  GRAPHENE_POINT_INIT_ZERO,     /* fixed-pos */
   { 0, 0, 0, 0 },               /* margin */
   CLUTTER_ACTOR_ALIGN_FILL,     /* x-align */
   CLUTTER_ACTOR_ALIGN_FILL,     /* y-align */
   FALSE, FALSE,                 /* expand */
-  CLUTTER_SIZE_INIT_ZERO,       /* minimum */
-  CLUTTER_SIZE_INIT_ZERO,       /* natural */
+  GRAPHENE_SIZE_INIT_ZERO,       /* minimum */
+  GRAPHENE_SIZE_INIT_ZERO,       /* natural */
 };
 
 static void

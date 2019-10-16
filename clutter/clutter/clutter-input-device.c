@@ -991,7 +991,7 @@ clutter_input_device_get_enabled (ClutterInputDevice *device)
 gboolean
 clutter_input_device_get_coords (ClutterInputDevice   *device,
                                  ClutterEventSequence *sequence,
-                                 ClutterPoint         *point)
+                                 graphene_point_t     *point)
 {
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
   g_return_val_if_fail (point != NULL, FALSE);
@@ -1038,7 +1038,7 @@ _clutter_input_device_update (ClutterInputDevice   *device,
   ClutterStage *stage;
   ClutterActor *new_cursor_actor;
   ClutterActor *old_cursor_actor;
-  ClutterPoint point = { -1, -1 };
+  graphene_point_t point = GRAPHENE_POINT_INIT (-1.0f, -1.0f);
   ClutterInputDeviceType device_type = device->device_type;
 
   g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&

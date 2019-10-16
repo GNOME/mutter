@@ -73,11 +73,8 @@
 
 #include <cogl-util.h>
 #include <cogl-debug.h>
-#include <cogl-quaternion.h>
-#include <cogl-quaternion-private.h>
 #include <cogl-matrix.h>
 #include <cogl-matrix-private.h>
-#include <cogl-quaternion-private.h>
 
 #include <glib.h>
 #include <math.h>
@@ -1359,18 +1356,8 @@ cogl_matrix_rotate (CoglMatrix *matrix,
 }
 
 void
-cogl_matrix_rotate_quaternion (CoglMatrix *matrix,
-                               const CoglQuaternion *quaternion)
-{
-  CoglMatrix rotation_transform;
-
-  cogl_matrix_init_from_quaternion (&rotation_transform, quaternion);
-  cogl_matrix_multiply (matrix, matrix, &rotation_transform);
-}
-
-void
 cogl_matrix_rotate_euler (CoglMatrix *matrix,
-                          const CoglEuler *euler)
+                          const graphene_euler_t *euler)
 {
   CoglMatrix rotation_transform;
 
@@ -1735,56 +1722,14 @@ _cogl_matrix_init_from_matrix_without_inverse (CoglMatrix *matrix,
   matrix->flags = src->flags | MAT_DIRTY_INVERSE;
 }
 
-static void
-_cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
-                                   const CoglQuaternion *quaternion)
-{
-  float qnorm = _COGL_QUATERNION_NORM (quaternion);
-  float s = (qnorm > 0.0f) ? (2.0f / qnorm) : 0.0f;
-  float xs = quaternion->x * s;
-  float ys = quaternion->y * s;
-  float zs = quaternion->z * s;
-  float wx = quaternion->w * xs;
-  float wy = quaternion->w * ys;
-  float wz = quaternion->w * zs;
-  float xx = quaternion->x * xs;
-  float xy = quaternion->x * ys;
-  float xz = quaternion->x * zs;
-  float yy = quaternion->y * ys;
-  float yz = quaternion->y * zs;
-  float zz = quaternion->z * zs;
-
-  matrix->xx = 1.0f - (yy + zz);
-  matrix->yx = xy + wz;
-  matrix->zx = xz - wy;
-  matrix->xy = xy - wz;
-  matrix->yy = 1.0f - (xx + zz);
-  matrix->zy = yz + wx;
-  matrix->xz = xz + wy;
-  matrix->yz = yz - wx;
-  matrix->zz = 1.0f - (xx + yy);
-  matrix->xw = matrix->yw = matrix->zw = 0.0f;
-  matrix->wx = matrix->wy = matrix->wz = 0.0f;
-  matrix->ww = 1.0f;
-
-  matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
-}
-
-void
-cogl_matrix_init_from_quaternion (CoglMatrix *matrix,
-                                  const CoglQuaternion *quaternion)
-{
-  _cogl_matrix_init_from_quaternion (matrix, quaternion);
-}
-
 void
 cogl_matrix_init_from_euler (CoglMatrix *matrix,
-                             const CoglEuler *euler)
+                             const graphene_euler_t *euler)
 {
   /* Convert angles to radians */
-  float heading_rad = euler->heading / 180.0f * G_PI;
-  float pitch_rad = euler->pitch / 180.0f * G_PI;
-  float roll_rad = euler->roll / 180.0f * G_PI;
+  float heading_rad = graphene_euler_get_y (euler) / 180.0f * G_PI;
+  float pitch_rad = graphene_euler_get_x (euler) / 180.0f * G_PI;
+  float roll_rad = graphene_euler_get_z (euler) / 180.0f * G_PI;
   /* Pre-calculate the sin and cos */
   float sin_heading = sinf (heading_rad);
   float cos_heading = cosf (heading_rad);
@@ -2238,41 +2183,41 @@ cogl_matrix_look_at (CoglMatrix *matrix,
                      float world_up_z)
 {
   CoglMatrix tmp;
-  float forward[3];
-  float side[3];
-  float up[3];
+  graphene_vec3_t forward;
+  graphene_vec3_t side;
+  graphene_vec3_t up;
 
   /* Get a unit viewing direction vector */
-  cogl_vector3_init (forward,
-                     object_x - eye_position_x,
-                     object_y - eye_position_y,
-                     object_z - eye_position_z);
-  cogl_vector3_normalize (forward);
+  graphene_vec3_init (&forward,
+                      object_x - eye_position_x,
+                      object_y - eye_position_y,
+                      object_z - eye_position_z);
+  graphene_vec3_normalize (&forward, &forward);
 
-  cogl_vector3_init (up, world_up_x, world_up_y, world_up_z);
+  graphene_vec3_init (&up, world_up_x, world_up_y, world_up_z);
 
   /* Take the sideways direction as being perpendicular to the viewing
    * direction and the word up vector. */
-  cogl_vector3_cross_product (side, forward, up);
-  cogl_vector3_normalize (side);
+  graphene_vec3_cross (&forward, &up, &side);
+  graphene_vec3_normalize (&side, &side);
 
   /* Now we have unit sideways and forward-direction vectors calculate
    * a new mutually perpendicular up vector. */
-  cogl_vector3_cross_product (up, side, forward);
+  graphene_vec3_cross (&side, &forward, &up);
 
-  tmp.xx = side[0];
-  tmp.yx = side[1];
-  tmp.zx = side[2];
+  tmp.xx = graphene_vec3_get_x (&side);
+  tmp.yx = graphene_vec3_get_y (&side);
+  tmp.zx = graphene_vec3_get_z (&side);
   tmp.wx = 0;
 
-  tmp.xy = up[0];
-  tmp.yy = up[1];
-  tmp.zy = up[2];
+  tmp.xy = graphene_vec3_get_x (&up);
+  tmp.yy = graphene_vec3_get_y (&up);
+  tmp.zy = graphene_vec3_get_z (&up);
   tmp.wy = 0;
 
-  tmp.xz = -forward[0];
-  tmp.yz = -forward[1];
-  tmp.zz = -forward[2];
+  tmp.xz = -graphene_vec3_get_x (&forward);
+  tmp.yz = -graphene_vec3_get_y (&forward);
+  tmp.zz = -graphene_vec3_get_z (&forward);
   tmp.wz = 0;
 
   tmp.xw = 0;

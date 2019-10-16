@@ -72,7 +72,7 @@ dnd_surface_find_logical_monitor (MetaWaylandActorSurface *actor_surface)
     meta_backend_get_cursor_renderer (backend);
   MetaMonitorManager *monitor_manager =
      meta_backend_get_monitor_manager (backend);
-  ClutterPoint pointer_pos;
+  graphene_point_t pointer_pos;
 
   pointer_pos = meta_cursor_renderer_get_position (cursor_renderer);
   return meta_monitor_manager_get_logical_monitor_at (monitor_manager,

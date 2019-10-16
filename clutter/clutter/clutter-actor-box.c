@@ -340,7 +340,7 @@ clutter_actor_box_contains (const ClutterActorBox *box,
 /**
  * clutter_actor_box_from_vertices:
  * @box: a #ClutterActorBox
- * @verts: (array fixed-size=4): array of four #ClutterVertex
+ * @verts: (array fixed-size=4): array of four #graphene_point3d_t
  *
  * Calculates the bounding box represented by the four vertices; for details
  * of the vertex array see clutter_actor_get_abs_allocation_vertices().
@@ -348,8 +348,8 @@ clutter_actor_box_contains (const ClutterActorBox *box,
  * Since: 1.0
  */
 void
-clutter_actor_box_from_vertices (ClutterActorBox     *box,
-                                 const ClutterVertex  verts[])
+clutter_actor_box_from_vertices (ClutterActorBox          *box,
+                                 const graphene_point3d_t  verts[])
 {
   gfloat x_1, x_2, y_1, y_2;
 

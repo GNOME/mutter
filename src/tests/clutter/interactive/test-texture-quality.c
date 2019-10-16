@@ -54,7 +54,6 @@ test_texture_quality_main (int argc, char *argv[])
   ClutterActor     *stage;
   ClutterActor     *image;
   ClutterColor      stage_color = { 0x12, 0x34, 0x56, 0xff };
-  ClutterFog        stage_fog = { 10.0, -50.0 };
   GError           *error;
   gchar            *file;
 
@@ -63,8 +62,6 @@ test_texture_quality_main (int argc, char *argv[])
 
   stage = clutter_stage_new ();
   clutter_actor_set_background_color (stage, &stage_color);
-  clutter_stage_set_use_fog (CLUTTER_STAGE (stage), TRUE);
-  clutter_stage_set_fog (CLUTTER_STAGE (stage), &stage_fog);
   g_signal_connect (stage,
                     "destroy", G_CALLBACK (clutter_main_quit),
                     NULL);

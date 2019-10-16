@@ -36,10 +36,9 @@
   } while (0)
 
 void
-test_euler_quaternion (void)
+test_euler (void)
 {
-  CoglEuler euler;
-  CoglQuaternion quaternion;
+  graphene_euler_t euler;
   CoglMatrix matrix_a, matrix_b;
 
   /* Try doing the rotation with three separate rotations */
@@ -49,28 +48,15 @@ test_euler_quaternion (void)
   cogl_matrix_rotate (&matrix_a, 50.0f, 0.0f, 0.0f, 1.0f);
 
   /* And try the same rotation with a euler */
-  cogl_euler_init (&euler, -30, 40, 50);
+  graphene_euler_init_with_order (&euler, 40, -30, 50, GRAPHENE_EULER_ORDER_RYXZ);
   cogl_matrix_init_from_euler (&matrix_b, &euler);
 
   /* Verify that the matrices are approximately the same */
   COMPARE_MATRICES (&matrix_a, &matrix_b);
 
-  /* Try converting the euler to a matrix via a quaternion */
-  cogl_quaternion_init_from_euler (&quaternion, &euler);
-  memset (&matrix_b, 0, sizeof (matrix_b));
-  cogl_matrix_init_from_quaternion (&matrix_b, &quaternion);
-  COMPARE_MATRICES (&matrix_a, &matrix_b);
-
   /* Try applying the rotation from a euler to a framebuffer */
   cogl_framebuffer_identity_matrix (test_fb);
   cogl_framebuffer_rotate_euler (test_fb, &euler);
-  memset (&matrix_b, 0, sizeof (matrix_b));
-  cogl_framebuffer_get_modelview_matrix (test_fb, &matrix_b);
-  COMPARE_MATRICES (&matrix_a, &matrix_b);
-
-  /* And again with a quaternion */
-  cogl_framebuffer_identity_matrix (test_fb);
-  cogl_framebuffer_rotate_quaternion (test_fb, &quaternion);
   memset (&matrix_b, 0, sizeof (matrix_b));
   cogl_framebuffer_get_modelview_matrix (test_fb, &matrix_b);
   COMPARE_MATRICES (&matrix_a, &matrix_b);

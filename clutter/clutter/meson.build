@@ -127,6 +127,7 @@ clutter_sources = [
   'clutter-flatten-effect.c',
   'clutter-flow-layout.c',
   'clutter-gesture-action.c',
+  'clutter-graphene.c',
   'clutter-grid-layout.c',
   'clutter-image.c',
   'clutter-input-device.c',
@@ -191,6 +192,7 @@ clutter_private_headers = [
   'clutter-effect-private.h',
   'clutter-event-private.h',
   'clutter-flatten-effect.h',
+  'clutter-graphene.h',
   'clutter-gesture-action-private.h',
   'clutter-id-pool.h',
   'clutter-input-focus-private.h',
@@ -240,7 +242,6 @@ clutter_deprecated_headers = [
 ]
 
 clutter_deprecated_sources = [
-  'deprecated/clutter-actor-deprecated.c',
   'deprecated/clutter-alpha.c',
   'deprecated/clutter-animation.c',
   'deprecated/clutter-behaviour.c',
@@ -454,6 +455,7 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
 libmutter_clutter_dep = declare_dependency(
   sources: [clutter_enum_types[1]],
   link_with: libmutter_clutter,
+  dependencies: clutter_deps,
 )
 
 if have_introspection

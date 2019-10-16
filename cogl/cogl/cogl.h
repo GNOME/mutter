@@ -42,6 +42,8 @@
 #define __COGL_MUST_UNDEF_COGL_H_INSIDE__
 #endif
 
+#include <graphene.h>
+
 /* We currently keep gtype integration delimited in case we eventually
  * want to split it out into a separate utility library when Cogl
  * becomes a standalone project. (like cairo-gobject.so)
@@ -99,9 +101,6 @@
 #include <cogl/cogl-context.h>
 #include <cogl/cogl-buffer.h>
 #include <cogl/cogl-pixel-buffer.h>
-#include <cogl/cogl-vector.h>
-#include <cogl/cogl-euler.h>
-#include <cogl/cogl-quaternion.h>
 #include <cogl/cogl-texture-2d.h>
 #include <cogl/cogl-texture-2d-gl.h>
 #include <cogl/cogl-texture-2d-sliced.h>

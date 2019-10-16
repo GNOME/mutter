@@ -184,8 +184,6 @@ cogl_depth_state_set_range
 cogl_depth_state_set_write_enabled
 cogl_depth_test_function_get_type
 
-cogl_disable_fog
-
 #ifdef COGL_HAS_GTYPE_SUPPORT
 cogl_display_get_gtype
 #endif
@@ -195,19 +193,6 @@ cogl_display_setup
 cogl_display_set_onscreen_template
 
 cogl_double_to_fixed
-
-cogl_euler_copy
-cogl_euler_equal
-cogl_euler_free
-#ifdef COGL_HAS_GTYPE_SUPPORT
-cogl_euler_get_gtype
-#endif
-cogl_euler_init
-cogl_euler_init_from_matrix
-#if 0
-/* not yet implemented */
-cogl_euler_init_from_quaternion
-#endif
 
 cogl_features_available
 cogl_feature_flags_get_type
@@ -222,8 +207,6 @@ cogl_fixed_pow2
 cogl_fixed_sin
 cogl_fixed_sqrt
 cogl_fixed_tan
-
-cogl_fog_mode_get_type
 
 cogl_foreach_feature
 
@@ -283,7 +266,6 @@ cogl_framebuffer_rotate
 
 #ifdef COGL_ENABLE_EXPERIMENTAL_API
 cogl_framebuffer_rotate_euler
-cogl_framebuffer_rotate_quaternion
 #endif
 
 cogl_framebuffer_scale
@@ -326,8 +308,6 @@ cogl_get_proc_address
 cogl_get_projection_matrix
 cogl_get_rectangle_indices
 cogl_get_source
-cogl_get_static_identity_quaternion
-cogl_get_static_zero_quaternion
 cogl_get_viewport
 
 #ifdef COGL_HAS_GLIB_SUPPORT
@@ -475,7 +455,6 @@ cogl_matrix_init_from_array
 cogl_matrix_init_translation
 cogl_matrix_is_identity
 cogl_matrix_init_from_euler
-cogl_matrix_init_from_quaternion
 cogl_matrix_init_identity
 cogl_matrix_look_at
 cogl_matrix_multiply
@@ -489,7 +468,6 @@ cogl_matrix_rotate
 
 #ifdef COGL_ENABLE_EXPERIMENTAL_API
 cogl_matrix_rotate_euler
-cogl_matrix_rotate_quaternion
 #endif
 
 cogl_matrix_scale
@@ -509,7 +487,6 @@ cogl_matrix_stack_pop
 cogl_matrix_stack_push
 cogl_matrix_stack_rotate
 cogl_matrix_stack_rotate_euler
-cogl_matrix_stack_rotate_quaternion
 cogl_matrix_stack_scale
 cogl_matrix_stack_set
 cogl_matrix_stack_translate
@@ -738,31 +715,6 @@ cogl_push_framebuffer
 cogl_push_matrix
 cogl_push_source
 
-cogl_quaternion_copy
-cogl_quaternion_dot_product
-cogl_quaternion_equal
-cogl_quaternion_free
-#ifdef COGL_HAS_GTYPE_SUPPORT
-cogl_quaternion_get_gtype
-#endif
-cogl_quaternion_get_rotation_angle
-cogl_quaternion_get_rotation_axis
-cogl_quaternion_init
-cogl_quaternion_init_from_angle_vector
-cogl_quaternion_init_from_array
-cogl_quaternion_init_from_euler
-cogl_quaternion_init_from_x_rotation
-cogl_quaternion_init_from_y_rotation
-cogl_quaternion_init_from_z_rotation
-cogl_quaternion_init_identity
-cogl_quaternion_invert
-cogl_quaternion_multiply
-cogl_quaternion_nlerp
-cogl_quaternion_normalize
-cogl_quaternion_pow
-cogl_quaternion_slerp
-cogl_quaternion_squad
-
 cogl_read_pixels
 cogl_read_pixels_flags_get_type
 
@@ -797,7 +749,6 @@ cogl_set_depth_test_enabled
 #ifndef COGL_DISABLE_DEPRECATED
 cogl_set_draw_buffer
 #endif
-cogl_set_fog
 #ifdef COGL_HAS_SDL_SUPPORT
 cogl_sdl_context_new
 cogl_sdl_handle_event
@@ -933,23 +884,6 @@ cogl_texture_2d_sliced_new_with_size
 
 cogl_transform
 cogl_translate
-
-cogl_vector3_add
-cogl_vector3_copy
-cogl_vector3_cross_product
-cogl_vector3_distance
-cogl_vector3_divide_scalar
-cogl_vector3_dot_product
-cogl_vector3_equal
-cogl_vector3_equal_with_epsilon
-cogl_vector3_free
-cogl_vector3_init
-cogl_vector3_init_zero
-cogl_vector3_invert
-cogl_vector3_magnitude
-cogl_vector3_multiply_scalar
-cogl_vector3_normalize
-cogl_vector3_subtract
 
 cogl_vertex_buffer_add
 cogl_vertex_buffer_delete

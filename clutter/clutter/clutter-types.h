@@ -33,20 +33,16 @@
 #include <clutter/clutter-macros.h>
 #include <clutter/clutter-enums.h>
 
+#include <graphene-gobject.h>
+
 G_BEGIN_DECLS
 
 #define CLUTTER_TYPE_ACTOR_BOX          (clutter_actor_box_get_type ())
-#define CLUTTER_TYPE_FOG                (clutter_fog_get_type ())
-#define CLUTTER_TYPE_GEOMETRY           (clutter_geometry_get_type ())
 #define CLUTTER_TYPE_KNOT               (clutter_knot_get_type ())
 #define CLUTTER_TYPE_MARGIN             (clutter_margin_get_type ())
 #define CLUTTER_TYPE_MATRIX             (clutter_matrix_get_type ())
 #define CLUTTER_TYPE_PAINT_VOLUME       (clutter_paint_volume_get_type ())
 #define CLUTTER_TYPE_PERSPECTIVE        (clutter_perspective_get_type ())
-#define CLUTTER_TYPE_VERTEX             (clutter_vertex_get_type ())
-#define CLUTTER_TYPE_POINT              (clutter_point_get_type ())
-#define CLUTTER_TYPE_SIZE               (clutter_size_get_type ())
-#define CLUTTER_TYPE_RECT               (clutter_rect_get_type ())
 
 typedef struct _ClutterActor                    ClutterActor;
 
@@ -79,14 +75,9 @@ typedef struct _ClutterPathNode                 ClutterPathNode;
 
 typedef struct _ClutterActorBox                 ClutterActorBox;
 typedef struct _ClutterColor                    ClutterColor;
-typedef struct _ClutterGeometry                 ClutterGeometry; /* XXX:2.0 - remove */
 typedef struct _ClutterKnot                     ClutterKnot;
 typedef struct _ClutterMargin                   ClutterMargin;
 typedef struct _ClutterPerspective              ClutterPerspective;
-typedef struct _ClutterPoint                    ClutterPoint;
-typedef struct _ClutterRect                     ClutterRect;
-typedef struct _ClutterSize                     ClutterSize;
-typedef struct _ClutterVertex                   ClutterVertex;
 
 typedef struct _ClutterAlpha            	ClutterAlpha;
 typedef struct _ClutterAnimation                ClutterAnimation;
@@ -113,7 +104,6 @@ typedef union _ClutterEvent                     ClutterEvent;
  */
 typedef struct _ClutterEventSequence            ClutterEventSequence;
 
-typedef struct _ClutterFog                      ClutterFog; /* deprecated */
 typedef struct _ClutterBehaviour                ClutterBehaviour; /* deprecated */
 typedef struct _ClutterShader                   ClutterShader; /* deprecated */
 
@@ -136,310 +126,6 @@ typedef struct _ClutterShader                   ClutterShader; /* deprecated */
  * Since: 1.4
  */
 typedef struct _ClutterPaintVolume      ClutterPaintVolume;
-
-/**
- * ClutterPoint:
- * @x: X coordinate, in pixels
- * @y: Y coordinate, in pixels
- *
- * A point in 2D space.
- *
- * Since: 1.12
- */
-struct _ClutterPoint
-{
-  float x;
-  float y;
-};
-
-/**
- * CLUTTER_POINT_INIT:
- * @x: X coordinate
- * @y: Y coordinate
- *
- * A simple macro for initializing a #ClutterPoint when declaring it, e.g.:
- *
- * |[
- *   ClutterPoint p = CLUTTER_POINT_INIT (100, 100);
- * ]|
- *
- * Since: 1.12
- */
-#define CLUTTER_POINT_INIT(x,y)         { (x), (y) }
-
-/**
- * CLUTTER_POINT_INIT_ZERO:
- *
- * A simple macro for initializing a #ClutterPoint to (0, 0) when
- * declaring it.
- *
- * Since: 1.12
- */
-#define CLUTTER_POINT_INIT_ZERO         CLUTTER_POINT_INIT (0.f, 0.f)
-
-CLUTTER_EXPORT
-GType clutter_point_get_type (void) G_GNUC_CONST;
-
-CLUTTER_EXPORT
-const ClutterPoint *    clutter_point_zero      (void);
-CLUTTER_EXPORT
-ClutterPoint *          clutter_point_alloc     (void);
-CLUTTER_EXPORT
-ClutterPoint *          clutter_point_init      (ClutterPoint       *point,
-                                                 float               x,
-                                                 float               y);
-CLUTTER_EXPORT
-ClutterPoint *          clutter_point_copy      (const ClutterPoint *point);
-CLUTTER_EXPORT
-void                    clutter_point_free      (ClutterPoint       *point);
-CLUTTER_EXPORT
-gboolean                clutter_point_equals    (const ClutterPoint *a,
-                                                 const ClutterPoint *b);
-CLUTTER_EXPORT
-float                   clutter_point_distance  (const ClutterPoint *a,
-                                                 const ClutterPoint *b,
-                                                 float              *x_distance,
-                                                 float              *y_distance);
-CLUTTER_EXPORT
-gboolean clutter_point_inside_quadrilateral     (const ClutterPoint *point,
-                                                 const ClutterPoint *vertices);
-
-/**
- * ClutterSize:
- * @width: the width, in pixels
- * @height: the height, in pixels
- *
- * A size, in 2D space.
- *
- * Since: 1.12
- */
-struct _ClutterSize
-{
-  float width;
-  float height;
-};
-
-/**
- * CLUTTER_SIZE_INIT:
- * @width: the width
- * @height: the height
- *
- * A simple macro for initializing a #ClutterSize when declaring it, e.g.:
- *
- * |[
- *   ClutterSize s = CLUTTER_SIZE_INIT (200, 200);
- * ]|
- *
- * Since: 1.12
- */
-#define CLUTTER_SIZE_INIT(width,height) { (width), (height) }
-
-/**
- * CLUTTER_SIZE_INIT_ZERO:
- *
- * A simple macro for initializing a #ClutterSize to (0, 0) when
- * declaring it.
- *
- * Since: 1.12
- */
-#define CLUTTER_SIZE_INIT_ZERO          CLUTTER_SIZE_INIT (0.f, 0.f)
-
-CLUTTER_EXPORT
-GType clutter_size_get_type (void) G_GNUC_CONST;
-
-CLUTTER_EXPORT
-ClutterSize *   clutter_size_alloc      (void);
-CLUTTER_EXPORT
-ClutterSize *   clutter_size_init       (ClutterSize       *size,
-                                         float              width,
-                                         float              height);
-CLUTTER_EXPORT
-ClutterSize *   clutter_size_copy       (const ClutterSize *size);
-CLUTTER_EXPORT
-void            clutter_size_free       (ClutterSize       *size);
-CLUTTER_EXPORT
-gboolean        clutter_size_equals     (const ClutterSize *a,
-                                         const ClutterSize *b);
-
-/**
- * ClutterRect:
- * @origin: the origin of the rectangle
- * @size: the size of the rectangle
- *
- * The location and size of a rectangle.
- *
- * The width and height of a #ClutterRect can be negative; Clutter considers
- * a rectangle with an origin of [ 0.0, 0.0 ] and a size of [ 10.0, 10.0 ] to
- * be equivalent to a rectangle with origin of [ 10.0, 10.0 ] and size of
- * [ -10.0, -10.0 ].
- *
- * Application code can normalize rectangles using clutter_rect_normalize():
- * this function will ensure that the width and height of a #ClutterRect are
- * positive values. All functions taking a #ClutterRect as an argument will
- * implicitly normalize it before computing eventual results. For this reason
- * it is safer to access the contents of a #ClutterRect by using the provided
- * API at all times, instead of directly accessing the structure members.
- *
- * Since: 1.12
- */
-struct _ClutterRect
-{
-  ClutterPoint origin;
-  ClutterSize size;
-};
-
-/**
- * CLUTTER_RECT_INIT:
- * @x: the X coordinate
- * @y: the Y coordinate
- * @width: the width
- * @height: the height
- *
- * A simple macro for initializing a #ClutterRect when declaring it, e.g.:
- *
- * |[
- *   ClutterRect r = CLUTTER_RECT_INIT (100, 100, 200, 200);
- * ]|
- *
- * Since: 1.12
- */
-#define CLUTTER_RECT_INIT(x,y,width,height)     { { (x), (y) }, { (width), (height) } }
-
-/**
- * CLUTTER_RECT_INIT_ZERO:
- *
- * A simple macro for initializing a #ClutterRect to (0, 0, 0, 0) when
- * declaring it.
- *
- * Since: 1.12
- */
-#define CLUTTER_RECT_INIT_ZERO                  CLUTTER_RECT_INIT (0.f, 0.f, 0.f, 0.f)
-
-CLUTTER_EXPORT
-GType clutter_rect_get_type (void) G_GNUC_CONST;
-
-CLUTTER_EXPORT
-const ClutterRect *     clutter_rect_zero               (void);
-CLUTTER_EXPORT
-ClutterRect *           clutter_rect_alloc              (void);
-CLUTTER_EXPORT
-ClutterRect *           clutter_rect_init               (ClutterRect       *rect,
-                                                         float              x,
-                                                         float              y,
-                                                         float              width,
-                                                         float              height);
-CLUTTER_EXPORT
-ClutterRect *           clutter_rect_copy               (const ClutterRect *rect);
-CLUTTER_EXPORT
-void                    clutter_rect_free               (ClutterRect       *rect);
-CLUTTER_EXPORT
-gboolean                clutter_rect_equals             (ClutterRect       *a,
-                                                         ClutterRect       *b);
-
-CLUTTER_EXPORT
-ClutterRect *           clutter_rect_normalize          (ClutterRect       *rect);
-CLUTTER_EXPORT
-void                    clutter_rect_get_center         (ClutterRect       *rect,
-                                                         ClutterPoint      *center);
-CLUTTER_EXPORT
-gboolean                clutter_rect_contains_point     (ClutterRect       *rect,
-                                                         ClutterPoint      *point);
-CLUTTER_EXPORT
-gboolean                clutter_rect_contains_rect      (ClutterRect       *a,
-                                                         ClutterRect       *b);
-CLUTTER_EXPORT
-void                    clutter_rect_union              (ClutterRect       *a,
-                                                         ClutterRect       *b,
-                                                         ClutterRect       *res);
-CLUTTER_EXPORT
-gboolean                clutter_rect_intersection       (ClutterRect       *a,
-                                                         ClutterRect       *b,
-                                                         ClutterRect       *res);
-CLUTTER_EXPORT
-void                    clutter_rect_offset             (ClutterRect       *rect,
-                                                         float              d_x,
-                                                         float              d_y);
-CLUTTER_EXPORT
-void                    clutter_rect_inset              (ClutterRect       *rect,
-                                                         float              d_x,
-                                                         float              d_y);
-CLUTTER_EXPORT
-void                    clutter_rect_scale              (ClutterRect       *rect,
-                                                         float              s_x,
-                                                         float              s_y);
-CLUTTER_EXPORT
-void                    clutter_rect_clamp_to_pixel     (ClutterRect       *rect);
-CLUTTER_EXPORT
-float                   clutter_rect_get_x              (ClutterRect       *rect);
-CLUTTER_EXPORT
-float                   clutter_rect_get_y              (ClutterRect       *rect);
-CLUTTER_EXPORT
-float                   clutter_rect_get_width          (ClutterRect       *rect);
-CLUTTER_EXPORT
-float                   clutter_rect_get_height         (ClutterRect       *rect);
-
-/**
- * ClutterVertex:
- * @x: X coordinate of the vertex
- * @y: Y coordinate of the vertex
- * @z: Z coordinate of the vertex
- *
- * A point in 3D space, expressed in pixels
- *
- * Since: 0.4
- */
-struct _ClutterVertex
-{
-  gfloat x;
-  gfloat y;
-  gfloat z;
-};
-
-/**
- * CLUTTER_VERTEX_INIT:
- * @x: the X coordinate of the vertex
- * @y: the Y coordinate of the vertex
- * @z: the Z coordinate of the vertex
- *
- * A simple macro for initializing a #ClutterVertex when declaring it, e.g.:
- *
- * |[
- *   ClutterVertex v = CLUTTER_VERTEX_INIT (x, y, z);
- * ]|
- *
- * Since: 1.10
- */
-#define CLUTTER_VERTEX_INIT(x,y,z)      { (x), (y), (z) }
-
-/**
- * CLUTTER_VERTEX_INIT_ZERO:
- *
- * A simple macro for initializing a #ClutterVertex to (0, 0, 0).
- *
- * Since: 1.12
- */
-#define CLUTTER_VERTEX_INIT_ZERO        CLUTTER_VERTEX_INIT (0.f, 0.f, 0.f)
-
-CLUTTER_EXPORT
-GType          clutter_vertex_get_type (void) G_GNUC_CONST;
-CLUTTER_EXPORT
-ClutterVertex *clutter_vertex_new      (gfloat               x,
-                                        gfloat               y,
-                                        gfloat               z);
-CLUTTER_EXPORT
-ClutterVertex *clutter_vertex_alloc    (void);
-CLUTTER_EXPORT
-ClutterVertex *clutter_vertex_init     (ClutterVertex       *vertex,
-                                        gfloat               x,
-                                        gfloat               y,
-                                        gfloat               z);
-CLUTTER_EXPORT
-ClutterVertex *clutter_vertex_copy     (const ClutterVertex *vertex);
-CLUTTER_EXPORT
-void           clutter_vertex_free     (ClutterVertex       *vertex);
-CLUTTER_EXPORT
-gboolean       clutter_vertex_equal    (const ClutterVertex *vertex_a,
-                                        const ClutterVertex *vertex_b);
 
 /**
  * ClutterActorBox:
@@ -544,8 +230,8 @@ gboolean         clutter_actor_box_contains      (const ClutterActorBox *box,
                                                   gfloat                 x,
                                                   gfloat                 y);
 CLUTTER_EXPORT
-void             clutter_actor_box_from_vertices (ClutterActorBox       *box,
-                                                  const ClutterVertex    verts[]);
+void             clutter_actor_box_from_vertices (ClutterActorBox          *box,
+                                                  const graphene_point3d_t  verts[]);
 CLUTTER_EXPORT
 void             clutter_actor_box_interpolate   (const ClutterActorBox *initial,
                                                   const ClutterActorBox *final,
@@ -570,41 +256,6 @@ void             clutter_actor_box_set_size       (ClutterActorBox       *box,
 CLUTTER_EXPORT
 void             clutter_actor_box_scale          (ClutterActorBox       *box,
                                                    gfloat                 scale);
-
-/**
- * ClutterGeometry:
- * @x: X coordinate of the top left corner of an actor
- * @y: Y coordinate of the top left corner of an actor
- * @width: width of an actor
- * @height: height of an actor
- *
- * The rectangle containing an actor's bounding box, measured in pixels.
- *
- * You should not use #ClutterGeometry, or operate on its fields
- * directly; you should use #cairo_rectangle_int_t or #ClutterRect if you
- * need a rectangle type, depending on the precision required.
- *
- * Deprecated: 1.16
- */
-struct _ClutterGeometry
-{
-  /*< public >*/
-  gint   x;
-  gint   y;
-  guint  width;
-  guint  height;
-};
-
-CLUTTER_EXPORT
-GType clutter_geometry_get_type (void) G_GNUC_CONST;
-
-CLUTTER_DEPRECATED
-void      clutter_geometry_union      (const ClutterGeometry *geometry_a,
-                                       const ClutterGeometry *geometry_b,
-                                       ClutterGeometry       *result);
-CLUTTER_DEPRECATED
-gboolean  clutter_geometry_intersects (const ClutterGeometry *geometry0,
-                                       const ClutterGeometry *geometry1);
 
 /**
  * ClutterKnot:
@@ -677,10 +328,10 @@ void                clutter_paint_volume_free                (ClutterPaintVolume
 
 CLUTTER_EXPORT
 void                clutter_paint_volume_set_origin          (ClutterPaintVolume       *pv,
-                                                              const ClutterVertex      *origin);
+                                                              const graphene_point3d_t *origin);
 CLUTTER_EXPORT
 void                clutter_paint_volume_get_origin          (const ClutterPaintVolume *pv,
-                                                              ClutterVertex            *vertex);
+                                                              graphene_point3d_t       *vertex);
 CLUTTER_EXPORT
 void                clutter_paint_volume_set_width           (ClutterPaintVolume       *pv,
                                                               gfloat                    width);
