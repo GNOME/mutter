@@ -36,6 +36,7 @@
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-window-wayland.h"
+#include "wayland/meta-xwayland-surface.h"
 
 struct _MetaSurfaceActorWayland
 {
@@ -96,8 +97,9 @@ meta_surface_actor_wayland_set_frozen (MetaSurfaceActor *actor,
   META_SURFACE_ACTOR_CLASS (meta_surface_actor_wayland_parent_class)->set_frozen (actor,
                                                                                   is_frozen);
 
-  if (surface)
-    meta_wayland_surface_set_frozen (surface, is_frozen);
+  if (surface && surface->role && META_IS_XWAYLAND_SURFACE (surface->role))
+    meta_xwayland_surface_set_frozen (META_XWAYLAND_SURFACE (surface->role),
+                                      is_frozen);
 }
 
 static void
