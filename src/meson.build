@@ -302,6 +302,8 @@ mutter_sources = [
   'compositor/meta-feedback-actor-private.h',
   'compositor/meta-module.c',
   'compositor/meta-module.h',
+  'compositor/meta-multi-texture.c',
+  'compositor/meta-multi-texture-format.c',
   'compositor/meta-plugin.c',
   'compositor/meta-plugin-manager.c',
   'compositor/meta-plugin-manager.h',
