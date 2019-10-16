@@ -507,7 +507,7 @@ pick_record_contains_pixel (ClutterStage     *stage,
                             int               x,
                             int               y)
 {
-  const ClutterPoint point = CLUTTER_POINT_INIT (x, y);
+  const ClutterPoint point = CLUTTER_POINT_INIT (x + 0.5f, y + 0.5f);
   ClutterStagePrivate *priv;
   int clip_index;
 
