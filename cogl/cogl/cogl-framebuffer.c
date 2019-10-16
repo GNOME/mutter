@@ -242,12 +242,6 @@ _cogl_framebuffer_mark_clear_clip_dirty (CoglFramebuffer *framebuffer)
 }
 
 void
-_cogl_framebuffer_mark_mid_scene (CoglFramebuffer *framebuffer)
-{
-  framebuffer->mid_scene = TRUE;
-}
-
-void
 cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
                           unsigned long buffers,
                           float red,
@@ -256,10 +250,15 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
                           float alpha)
 {
   CoglClipStack *clip_stack = _cogl_framebuffer_get_clip_stack (framebuffer);
+  gboolean had_depth_and_color_buffer_bits;
   int scissor_x0;
   int scissor_y0;
   int scissor_x1;
   int scissor_y1;
+
+  had_depth_and_color_buffer_bits =
+    (buffers & COGL_BUFFER_BIT_DEPTH) &&
+    (buffers & COGL_BUFFER_BIT_COLOR);
 
   if (!framebuffer->depth_buffer_clear_needed &&
       (buffers & COGL_BUFFER_BIT_DEPTH))
@@ -306,8 +305,7 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
    * Note: Comparing without an epsilon is considered
    * appropriate here.
    */
-  if (buffers & COGL_BUFFER_BIT_COLOR &&
-      buffers & COGL_BUFFER_BIT_DEPTH &&
+  if (had_depth_and_color_buffer_bits &&
       !framebuffer->clear_clip_dirty &&
       framebuffer->clear_color_red == red &&
       framebuffer->clear_color_green == green &&
@@ -377,13 +375,12 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
 
 cleared:
 
-  _cogl_framebuffer_mark_mid_scene (framebuffer);
   _cogl_framebuffer_mark_clear_clip_dirty (framebuffer);
 
   if (buffers & COGL_BUFFER_BIT_DEPTH)
     framebuffer->depth_buffer_clear_needed = FALSE;
 
-  if (buffers & COGL_BUFFER_BIT_COLOR && buffers & COGL_BUFFER_BIT_DEPTH)
+  if (had_depth_and_color_buffer_bits)
     {
       /* For our fast-path for reading back a single pixel of simple
        * scenes where the whole frame is in the journal we need to
@@ -397,18 +394,11 @@ cleared:
 
       /* NB: A clear may be scissored so we need to track the extents
        * that the clear is applicable too... */
-      if (clip_stack)
-        {
-          _cogl_clip_stack_get_bounds (clip_stack,
-                                       &framebuffer->clear_clip_x0,
-                                       &framebuffer->clear_clip_y0,
-                                       &framebuffer->clear_clip_x1,
-                                       &framebuffer->clear_clip_y1);
-        }
-      else
-        {
-          /* FIXME: set degenerate clip */
-        }
+      _cogl_clip_stack_get_bounds (clip_stack,
+                                   &framebuffer->clear_clip_x0,
+                                   &framebuffer->clear_clip_y0,
+                                   &framebuffer->clear_clip_x1,
+                                   &framebuffer->clear_clip_y1);
     }
 }
 
@@ -485,14 +475,29 @@ _cogl_framebuffer_set_clip_stack (CoglFramebuffer *framebuffer,
 }
 
 void
+cogl_framebuffer_set_viewport4fv (CoglFramebuffer *framebuffer,
+                                  float *viewport)
+{
+  if (framebuffer->viewport_x == viewport[0] &&
+      framebuffer->viewport_y == viewport[1] &&
+      framebuffer->viewport_width == viewport[2] &&
+      framebuffer->viewport_height == viewport[3])
+    return;
+
+  framebuffer->viewport_x = viewport[0];
+  framebuffer->viewport_y = viewport[1];
+  framebuffer->viewport_width = viewport[2];
+  framebuffer->viewport_height = viewport[3];
+  framebuffer->viewport_age++;
+}
+
+void
 cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
                                float x,
                                float y,
                                float width,
                                float height)
 {
-  CoglContext *context = framebuffer->context;
-
   g_return_if_fail (width > 0 && height > 0);
 
   if (framebuffer->viewport_x == x &&
@@ -501,16 +506,10 @@ cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
       framebuffer->viewport_height == height)
     return;
 
-  _cogl_framebuffer_flush_journal (framebuffer);
-
   framebuffer->viewport_x = x;
   framebuffer->viewport_y = y;
   framebuffer->viewport_width = width;
   framebuffer->viewport_height = height;
-  framebuffer->viewport_age++;
-
-  if (context->current_draw_buffer == framebuffer)
-    context->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_VIEWPORT;
 }
 
 float
@@ -1056,12 +1055,7 @@ cogl_framebuffer_set_dither_enabled (CoglFramebuffer *framebuffer,
   if (framebuffer->dither_enabled == dither_enabled)
     return;
 
-  cogl_flush (); /* Currently dithering changes aren't tracked in the journal */
   framebuffer->dither_enabled = dither_enabled;
-
-  if (framebuffer->context->current_draw_buffer == framebuffer)
-    framebuffer->context->current_draw_buffer_changes |=
-      COGL_FRAMEBUFFER_STATE_DITHER;
 }
 
 void
