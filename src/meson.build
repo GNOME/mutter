@@ -315,6 +315,8 @@ mutter_sources = [
   'compositor/meta-later.c',
   'compositor/meta-module.c',
   'compositor/meta-module.h',
+  'compositor/meta-multi-texture.c',
+  'compositor/meta-multi-texture-format.c',
   'compositor/meta-plugin.c',
   'compositor/meta-plugin-manager.c',
   'compositor/meta-plugin-manager.h',
