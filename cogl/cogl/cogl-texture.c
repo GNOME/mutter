@@ -546,9 +546,6 @@ get_texture_bits_via_offscreen (CoglTexture *meta_texture,
   GError *ignore_error = NULL;
   CoglPixelFormat real_format;
 
-  if (!cogl_has_feature (ctx, COGL_FEATURE_ID_OFFSCREEN))
-    return FALSE;
-
   offscreen = _cogl_offscreen_new_with_texture_full
                                       (sub_texture,
                                        COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL,

@@ -729,14 +729,6 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
     {
       CoglOffscreen *offscreen = COGL_OFFSCREEN (framebuffer);
 
-      if (!cogl_has_feature (ctx, COGL_FEATURE_ID_OFFSCREEN))
-        {
-          g_set_error_literal (error, COGL_SYSTEM_ERROR,
-                               COGL_SYSTEM_ERROR_UNSUPPORTED,
-                               "Offscreen framebuffers not supported by system");
-          return FALSE;
-        }
-
       if (!cogl_texture_allocate (offscreen->texture, error))
         return FALSE;
 
