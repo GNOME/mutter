@@ -430,12 +430,6 @@ _cogl_driver_update_features (CoglContext *ctx,
                       COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE, TRUE);
     }
 
-  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0) ||
-      _cogl_check_extension ("GL_ARB_depth_texture", gl_extensions))
-    {
-      COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_DEPTH_TEXTURE, TRUE);
-    }
-
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_PBOS, TRUE);
 
   flags |= (COGL_FEATURE_MAP_BUFFER_FOR_READ |
