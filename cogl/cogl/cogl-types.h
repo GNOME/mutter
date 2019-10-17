@@ -125,8 +125,6 @@ typedef struct _CoglTextureVertex       CoglTextureVertex;
  *     supported with CoglBufferAccess including read support.
  * @COGL_FEATURE_MAP_BUFFER_FOR_WRITE: Whether cogl_buffer_map() is
  *     supported with CoglBufferAccess including write support.
- * @COGL_FEATURE_DEPTH_TEXTURE: Whether #CoglFramebuffer support rendering the
- *     depth buffer to a texture.
  *
  * Flags for the supported features.
  *
@@ -144,7 +142,6 @@ typedef enum
   COGL_FEATURE_MAP_BUFFER_FOR_READ    = (1 << 21),
   COGL_FEATURE_MAP_BUFFER_FOR_WRITE   = (1 << 22),
   COGL_FEATURE_ONSCREEN_MULTIPLE      = (1 << 23),
-  COGL_FEATURE_DEPTH_TEXTURE          = (1 << 24)
 } CoglFeatureFlags;
 
 /**
