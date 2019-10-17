@@ -183,35 +183,31 @@ clutter_root_node_new (CoglFramebuffer    *framebuffer,
 }
 
 /*
- * Transform node
- *
- * A private PaintNode, that changes the modelview of its child
- * nodes.
+ * ClutterTransformNode
  */
 
-#define clutter_transform_node_get_type _clutter_transform_node_get_type
-
-typedef struct _ClutterTransformNode {
+struct _ClutterTransformNode
+{
   ClutterPaintNode parent_instance;
 
-  CoglMatrix modelview;
-} ClutterTransformNode;
+  CoglMatrix transform;
+};
 
-typedef struct _ClutterPaintNodeClass   ClutterTransformNodeClass;
+struct _ClutterTransformNodeClass
+{
+  ClutterPaintNodeClass parent_class;
+};
 
 G_DEFINE_TYPE (ClutterTransformNode, clutter_transform_node, CLUTTER_TYPE_PAINT_NODE)
 
 static gboolean
 clutter_transform_node_pre_draw (ClutterPaintNode *node)
 {
-  ClutterTransformNode *tnode = (ClutterTransformNode *) node;
-  CoglMatrix matrix;
+  ClutterTransformNode *transform_node = (ClutterTransformNode *) node;
+  CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
 
-  cogl_push_matrix ();
-
-  cogl_get_modelview_matrix (&matrix);
-  cogl_matrix_multiply (&matrix, &matrix, &tnode->modelview);
-  cogl_set_modelview_matrix (&matrix);
+  cogl_framebuffer_push_matrix (fb);
+  cogl_framebuffer_transform (fb, &transform_node->transform);
 
   return TRUE;
 }
@@ -219,7 +215,9 @@ clutter_transform_node_pre_draw (ClutterPaintNode *node)
 static void
 clutter_transform_node_post_draw (ClutterPaintNode *node)
 {
-  cogl_pop_matrix ();
+  CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
+
+  cogl_framebuffer_pop_matrix (fb);
 }
 
 static void
@@ -235,18 +233,24 @@ clutter_transform_node_class_init (ClutterTransformNodeClass *klass)
 static void
 clutter_transform_node_init (ClutterTransformNode *self)
 {
-  cogl_matrix_init_identity (&self->modelview);
+  cogl_matrix_init_identity (&self->transform);
 }
 
+/*
+ * clutter_transform_node_new:
+ * @transform: (nullable): the transform matrix to apply
+ *
+ * Return value: (transfer full): the newly created #ClutterTransformNode.
+ *   Use clutter_paint_node_unref() when done.
+ */
 ClutterPaintNode *
-_clutter_transform_node_new (const CoglMatrix *modelview)
+clutter_transform_node_new (const CoglMatrix *transform)
 {
   ClutterTransformNode *res;
 
-  res = _clutter_paint_node_create (_clutter_transform_node_get_type ());
-
-  if (modelview != NULL)
-    res->modelview = *modelview;
+  res = _clutter_paint_node_create (CLUTTER_TYPE_TRANSFORM_NODE);
+  if (transform)
+    res->transform = *transform;
 
   return (ClutterPaintNode *) res;
 }
