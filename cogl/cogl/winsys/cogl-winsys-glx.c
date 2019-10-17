@@ -832,9 +832,6 @@ update_winsys_features (CoglContext *context, GError **error)
 
   context->feature_flags |= glx_renderer->legacy_feature_flags;
 
-  COGL_FLAGS_SET (context->features,
-                  COGL_FEATURE_ID_ONSCREEN_MULTIPLE, TRUE);
-
   if (glx_renderer->glXCopySubBuffer || context->glBlitFramebuffer)
     {
       CoglGpuInfo *info = &context->gpu;

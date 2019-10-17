@@ -387,8 +387,6 @@ _cogl_winsys_egl_context_init (CoglContext *context,
                                  event_filter_cb,
                                  context);
 
-  COGL_FLAGS_SET (context->features,
-                  COGL_FEATURE_ID_ONSCREEN_MULTIPLE, TRUE);
   COGL_FLAGS_SET (context->winsys_features,
                   COGL_WINSYS_FEATURE_MULTIPLE_ONSCREEN,
                   TRUE);
