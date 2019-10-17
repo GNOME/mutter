@@ -307,8 +307,6 @@ _cogl_driver_update_features (CoglContext *context,
   flags |= COGL_FEATURE_DEPTH_RANGE;
   COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_OFFSCREEN, TRUE);
   COGL_FLAGS_SET (context->features,
-                  COGL_FEATURE_ID_MIRRORED_REPEAT, TRUE);
-  COGL_FLAGS_SET (context->features,
                   COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE, TRUE);
 
   COGL_FLAGS_SET (private_features,
