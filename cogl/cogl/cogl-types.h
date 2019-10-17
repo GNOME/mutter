@@ -122,8 +122,6 @@ typedef struct _CoglTextureVertex       CoglTextureVertex;
  * @COGL_FEATURE_UNSIGNED_INT_INDICES: Set if
  *     %COGL_INDICES_TYPE_UNSIGNED_INT is supported in
  *     cogl_vertex_buffer_indices_new().
- * @COGL_FEATURE_POINT_SPRITE: Whether
- *     cogl_material_set_layer_point_sprite_coords_enabled() is supported.
  * @COGL_FEATURE_MAP_BUFFER_FOR_READ: Whether cogl_buffer_map() is
  *     supported with CoglBufferAccess including read support.
  * @COGL_FEATURE_MAP_BUFFER_FOR_WRITE: Whether cogl_buffer_map() is
@@ -145,7 +143,6 @@ typedef enum
   COGL_FEATURE_STENCIL_BUFFER         = (1 << 10),
   COGL_FEATURE_PBOS		      = (1 << 12),
   COGL_FEATURE_UNSIGNED_INT_INDICES   = (1 << 13),
-  COGL_FEATURE_POINT_SPRITE           = (1 << 18),
   COGL_FEATURE_MAP_BUFFER_FOR_READ    = (1 << 21),
   COGL_FEATURE_MAP_BUFFER_FOR_WRITE   = (1 << 22),
   COGL_FEATURE_ONSCREEN_MULTIPLE      = (1 << 23),

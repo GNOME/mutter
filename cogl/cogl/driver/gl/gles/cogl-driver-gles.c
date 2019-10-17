@@ -309,8 +309,6 @@ _cogl_driver_update_features (CoglContext *context,
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ANY_GL, TRUE);
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
 
-  flags |= COGL_FEATURE_POINT_SPRITE;
-
   if (context->glGenRenderbuffers)
     {
       flags |= COGL_FEATURE_OFFSCREEN;
