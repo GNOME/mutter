@@ -407,14 +407,19 @@ _cogl_driver_update_features (CoglContext *ctx,
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_MESA_PACK_INVERT, TRUE);
 
-  if (ctx->glGenRenderbuffers)
+  if (!ctx->glGenRenderbuffers)
     {
-      flags |= COGL_FEATURE_OFFSCREEN;
-      COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_OFFSCREEN, TRUE);
-      COGL_FLAGS_SET (private_features,
-                      COGL_PRIVATE_FEATURE_QUERY_FRAMEBUFFER_BITS,
-                      TRUE);
+      g_set_error (error,
+                   COGL_DRIVER_ERROR,
+                   COGL_DRIVER_ERROR_NO_SUITABLE_DRIVER_FOUND,
+                   "Framebuffer objects are required to use the GL driver");
+      return FALSE;
     }
+  flags |= COGL_FEATURE_OFFSCREEN;
+  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_OFFSCREEN, TRUE);
+  COGL_FLAGS_SET (private_features,
+                  COGL_PRIVATE_FEATURE_QUERY_FRAMEBUFFER_BITS,
+                  TRUE);
 
   if (ctx->glBlitFramebuffer)
     COGL_FLAGS_SET (private_features,
