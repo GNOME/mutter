@@ -67,34 +67,6 @@ COGL_EXT_FUNCTION (void, glClearDepthf,
                    (GLclampf depth))
 COGL_EXT_END ()
 
-COGL_EXT_BEGIN (only_in_both_gles_and_gl_1_3,
-                1, 3,
-                COGL_EXT_IN_GLES2,
-                "\0",
-                "\0")
-COGL_EXT_FUNCTION (void, glCompressedTexImage2D,
-                   (GLenum target,
-                    GLint level,
-                    GLenum internalformat,
-                    GLsizei width,
-                    GLsizei height,
-                    GLint border,
-                    GLsizei imageSize,
-                    const GLvoid* data))
-COGL_EXT_FUNCTION (void, glCompressedTexSubImage2D,
-                   (GLenum target,
-                    GLint level,
-                    GLint xoffset,
-                    GLint yoffset,
-                    GLsizei width,
-                    GLsizei height,
-                    GLenum format,
-                    GLsizei imageSize,
-                    const GLvoid* data))
-COGL_EXT_FUNCTION (void, glSampleCoverage,
-                   (GLclampf value, GLboolean invert))
-COGL_EXT_END ()
-
 COGL_EXT_BEGIN (only_in_both_gles_and_gl_1_5,
                 1, 5,
                 COGL_EXT_IN_GLES2,
