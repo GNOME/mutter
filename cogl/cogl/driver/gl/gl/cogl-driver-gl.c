@@ -438,7 +438,6 @@ _cogl_driver_update_features (CoglContext *ctx,
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_PBOS, TRUE);
 
   flags |= COGL_FEATURE_POINT_SPRITE;
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_POINT_SPRITE, TRUE);
 
   flags |= (COGL_FEATURE_MAP_BUFFER_FOR_READ |
             COGL_FEATURE_MAP_BUFFER_FOR_WRITE);
