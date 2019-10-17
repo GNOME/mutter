@@ -60,7 +60,6 @@ typedef struct
   CoglSwapChain *swap_chain;
   gboolean need_stencil;
   int samples_per_pixel;
-  gboolean depth_texture_enabled;
   gboolean stereo_enabled;
 } CoglFramebufferConfig;
 
