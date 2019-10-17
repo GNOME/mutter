@@ -1019,7 +1019,7 @@ clutter_stage_pick (ClutterActor *self)
    */
   clutter_actor_iter_init (&iter, self);
   while (clutter_actor_iter_next (&iter, &child))
-    clutter_actor_paint (child);
+    clutter_actor_pick (child);
 }
 
 static gboolean
@@ -1702,7 +1702,8 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
       cogl_push_framebuffer (fb);
 
       context->pick_mode = mode;
-      clutter_stage_do_paint_view (stage, view, NULL);
+      setup_view_for_pick_paint (stage, view, NULL);
+      clutter_actor_pick (CLUTTER_ACTOR (stage));
       context->pick_mode = CLUTTER_PICK_NONE;
       priv->cached_pick_mode = mode;
 
