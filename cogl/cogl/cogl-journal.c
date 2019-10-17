@@ -1127,12 +1127,6 @@ create_attribute_buffer (CoglJournal *journal,
   CoglAttributeBuffer *vbo;
   CoglContext *ctx = journal->framebuffer->context;
 
-  /* If CoglBuffers are being emulated with malloc then there's not
-     really any point in using the pool so we'll just allocate the
-     buffer directly */
-  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_VBOS))
-    return cogl_attribute_buffer_new_with_size (ctx, n_bytes);
-
   vbo = journal->vbo_pool[journal->next_vbo_in_pool];
 
   if (vbo == NULL)

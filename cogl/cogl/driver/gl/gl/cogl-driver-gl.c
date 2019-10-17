@@ -446,7 +446,6 @@ _cogl_driver_update_features (CoglContext *ctx,
 
   if (ctx->glGenBuffers)
     {
-      COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_VBOS, TRUE);
       flags |= (COGL_FEATURE_MAP_BUFFER_FOR_READ |
                 COGL_FEATURE_MAP_BUFFER_FOR_WRITE);
       COGL_FLAGS_SET (ctx->features,
