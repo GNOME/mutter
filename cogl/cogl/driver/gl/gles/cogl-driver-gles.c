@@ -322,7 +322,6 @@ _cogl_driver_update_features (CoglContext *context,
     {
       /* The GL_OES_mapbuffer extension doesn't support mapping for
          read */
-      flags |= COGL_FEATURE_MAP_BUFFER_FOR_WRITE;
       COGL_FLAGS_SET (context->features,
                       COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
     }
@@ -330,8 +329,6 @@ _cogl_driver_update_features (CoglContext *context,
   if (context->glMapBufferRange)
     {
       /* MapBufferRange in ES3+ does support mapping for read */
-      flags |= (COGL_FEATURE_MAP_BUFFER_FOR_WRITE |
-                COGL_FEATURE_MAP_BUFFER_FOR_READ);
       COGL_FLAGS_SET(context->features,
                      COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
       COGL_FLAGS_SET(context->features,
