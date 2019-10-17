@@ -94,11 +94,6 @@ OPT (DISABLE_BATCHING,
      "disable-batching",
      N_("Disable Journal batching"),
      N_("Disable batching of geometry in the Cogl Journal."))
-OPT (DISABLE_VBOS,
-     N_("Root Cause"),
-     "disable-vbos",
-     N_("Disable GL Vertex Buffers"),
-     N_("Disable use of OpenGL vertex buffer objects"))
 OPT (DISABLE_PBOS,
      N_("Root Cause"),
      "disable-pbos",
