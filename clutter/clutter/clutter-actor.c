@@ -3876,10 +3876,11 @@ clutter_actor_paint_node (ClutterActor     *actor,
 void
 clutter_actor_paint (ClutterActor *self)
 {
+  g_autoptr (ClutterPaintNode) actor_node = NULL;
+  g_autoptr (ClutterPaintNode) root_node = NULL;
   ClutterActorPrivate *priv;
   ClutterActorBox clip;
   gboolean clip_set = FALSE;
-  ClutterStage *stage;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
@@ -3906,22 +3907,51 @@ clutter_actor_paint (ClutterActor *self)
 
   clutter_actor_ensure_resource_scale (self);
 
-  stage = (ClutterStage *) _clutter_actor_get_stage_internal (self);
-
   /* mark that we are in the paint process */
   CLUTTER_SET_PRIVATE_FLAGS (self, CLUTTER_IN_PAINT);
 
-  cogl_push_matrix ();
+  actor_node = clutter_actor_node_new (self);
+  root_node = clutter_paint_node_ref (actor_node);
+
+  if (priv->has_clip)
+    {
+      clip.x1 = priv->clip.origin.x;
+      clip.y1 = priv->clip.origin.y;
+      clip.x2 = priv->clip.origin.x + priv->clip.size.width;
+      clip.y2 = priv->clip.origin.y + priv->clip.size.height;
+      clip_set = TRUE;
+    }
+  else if (priv->clip_to_allocation)
+    {
+      clip.x1 = 0.f;
+      clip.y1 = 0.f;
+      clip.x2 = priv->allocation.x2 - priv->allocation.x1;
+      clip.y2 = priv->allocation.y2 - priv->allocation.y1;
+      clip_set = TRUE;
+    }
+
+  if (clip_set)
+    {
+      g_autoptr (ClutterPaintNode) clip_node = NULL;
+
+      clip_node = clutter_clip_node_new ();
+      clutter_paint_node_add_rectangle (clip_node, &clip);
+      clutter_paint_node_add_child (clip_node, root_node);
+
+      root_node = g_steal_pointer (&clip_node);
+    }
 
   if (priv->enable_model_view_transform)
     {
-      CoglMatrix matrix;
+      g_autoptr (ClutterPaintNode) transform_node = NULL;
+      CoglMatrix transform;
 
-      /* XXX: It could be better to cache the modelview with the actor
-       * instead of progressively building up the transformations on
-       * the matrix stack every time we paint. */
-      cogl_get_modelview_matrix (&matrix);
-      _clutter_actor_apply_modelview_transform (self, &matrix);
+      clutter_actor_get_transform (self, &transform);
+
+      transform_node = clutter_transform_node_new (&transform);
+      clutter_paint_node_add_child (transform_node, root_node);
+
+      root_node = g_steal_pointer (&transform_node);
 
 #ifdef CLUTTER_ENABLE_DEBUG
       /* Catch when out-of-band transforms have been made by actors not as part
@@ -3933,7 +3963,7 @@ clutter_actor_paint (ClutterActor *self)
           _clutter_actor_get_relative_transformation_matrix (self, NULL,
                                                              &expected_matrix);
 
-          if (!cogl_matrix_equal (&matrix, &expected_matrix))
+          if (!cogl_matrix_equal (&transform, &expected_matrix))
             {
               GString *buf = g_string_sized_new (1024);
               ClutterActor *parent;
@@ -3960,36 +3990,6 @@ clutter_actor_paint (ClutterActor *self)
             }
         }
 #endif /* CLUTTER_ENABLE_DEBUG */
-
-      cogl_set_modelview_matrix (&matrix);
-    }
-
-  if (priv->has_clip)
-    {
-      clip.x1 = priv->clip.origin.x;
-      clip.y1 = priv->clip.origin.y;
-      clip.x2 = priv->clip.origin.x + priv->clip.size.width;
-      clip.y2 = priv->clip.origin.y + priv->clip.size.height;
-      clip_set = TRUE;
-    }
-  else if (priv->clip_to_allocation)
-    {
-      clip.x1 = 0.f;
-      clip.y1 = 0.f;
-      clip.x2 = priv->allocation.x2 - priv->allocation.x1;
-      clip.y2 = priv->allocation.y2 - priv->allocation.y1;
-      clip_set = TRUE;
-    }
-
-  if (clip_set)
-    {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
-
-      cogl_framebuffer_push_rectangle_clip (fb,
-                                            clip.x1,
-                                            clip.y1,
-                                            clip.x2,
-                                            clip.y2);
     }
 
   /* We check whether we need to add the flatten effect before
@@ -4054,7 +4054,7 @@ clutter_actor_paint (ClutterActor *self)
     priv->next_effect_to_paint =
       _clutter_meta_group_peek_metas (priv->effects);
 
-  clutter_actor_continue_paint (self);
+  clutter_paint_node_paint (root_node);
 
   if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_VOLUMES))
     _clutter_actor_draw_paint_volume (self);
@@ -4064,15 +4064,6 @@ clutter_actor_paint (ClutterActor *self)
   priv->is_dirty = FALSE;
 
 done:
-  if (clip_set)
-    {
-      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
-
-      cogl_framebuffer_pop_clip (fb);
-    }
-
-  cogl_pop_matrix ();
-
   /* paint sequence complete */
   CLUTTER_UNSET_PRIVATE_FLAGS (self, CLUTTER_IN_PAINT);
 }
