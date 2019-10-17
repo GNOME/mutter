@@ -141,7 +141,6 @@ typedef enum
   COGL_FEATURE_UNSIGNED_INT_INDICES   = (1 << 13),
   COGL_FEATURE_MAP_BUFFER_FOR_READ    = (1 << 21),
   COGL_FEATURE_MAP_BUFFER_FOR_WRITE   = (1 << 22),
-  COGL_FEATURE_ONSCREEN_MULTIPLE      = (1 << 23),
 } CoglFeatureFlags;
 
 /**
