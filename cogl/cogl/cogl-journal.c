@@ -305,45 +305,29 @@ _cogl_journal_flush_modelview_and_entries (CoglJournalEntry *batch_start,
   if (!_cogl_pipeline_get_real_blend_enabled (state->pipeline))
     draw_flags |= COGL_DRAW_COLOR_ATTRIBUTE_IS_OPAQUE;
 
-#ifdef HAVE_COGL_GL
-  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_QUADS))
+  if (batch_len > 1)
     {
-      /* XXX: it's rather evil that we sneak in the GL_QUADS enum here... */
+      CoglVerticesMode mode = COGL_VERTICES_MODE_TRIANGLES;
+      int first_vertex = state->current_vertex * 6 / 4;
+      _cogl_framebuffer_draw_indexed_attributes (framebuffer,
+                                                 state->pipeline,
+                                                 mode,
+                                                 first_vertex,
+                                                 batch_len * 6,
+                                                 state->indices,
+                                                 attributes,
+                                                 state->attributes->len,
+                                                 draw_flags);
+    }
+  else
+    {
       _cogl_framebuffer_draw_attributes (framebuffer,
                                          state->pipeline,
-                                         GL_QUADS,
-                                         state->current_vertex, batch_len * 4,
+                                         COGL_VERTICES_MODE_TRIANGLE_FAN,
+                                         state->current_vertex, 4,
                                          attributes,
                                          state->attributes->len,
                                          draw_flags);
-    }
-  else
-#endif /* HAVE_COGL_GL */
-    {
-      if (batch_len > 1)
-        {
-          CoglVerticesMode mode = COGL_VERTICES_MODE_TRIANGLES;
-          int first_vertex = state->current_vertex * 6 / 4;
-          _cogl_framebuffer_draw_indexed_attributes (framebuffer,
-                                                     state->pipeline,
-                                                     mode,
-                                                     first_vertex,
-                                                     batch_len * 6,
-                                                     state->indices,
-                                                     attributes,
-                                                     state->attributes->len,
-                                                     draw_flags);
-        }
-      else
-        {
-          _cogl_framebuffer_draw_attributes (framebuffer,
-                                             state->pipeline,
-                                             COGL_VERTICES_MODE_TRIANGLE_FAN,
-                                             state->current_vertex, 4,
-                                             attributes,
-                                             state->attributes->len,
-                                             draw_flags);
-        }
     }
 
   /* DEBUGGING CODE XXX: This path will cause all rectangles to be
@@ -637,8 +621,7 @@ _cogl_journal_flush_vbo_offsets_and_entries (CoglJournalEntry *batch_start,
                         4,
                         COGL_ATTRIBUTE_TYPE_UNSIGNED_BYTE);
 
-  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_QUADS))
-    state->indices = cogl_get_rectangle_indices (ctx, batch_len);
+  state->indices = cogl_get_rectangle_indices (ctx, batch_len);
 
   /* We only create new Attributes when the stride within the
    * AttributeBuffer changes. (due to a change in the number of pipeline

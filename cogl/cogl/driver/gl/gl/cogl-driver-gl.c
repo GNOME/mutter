@@ -484,7 +484,6 @@ _cogl_driver_update_features (CoglContext *ctx,
       /* Features which are not available in GL 3 */
       COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_GL_FIXED, TRUE);
       COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEST, TRUE);
-      COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_QUADS, TRUE);
       COGL_FLAGS_SET (private_features,
                       COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
 
