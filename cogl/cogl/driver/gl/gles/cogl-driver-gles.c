@@ -313,7 +313,6 @@ _cogl_driver_update_features (CoglContext *context,
 
   if (_cogl_check_extension ("GL_OES_element_index_uint", gl_extensions))
     {
-      flags |= COGL_FEATURE_UNSIGNED_INT_INDICES;
       COGL_FLAGS_SET (context->features,
                       COGL_FEATURE_ID_UNSIGNED_INT_INDICES, TRUE);
     }
