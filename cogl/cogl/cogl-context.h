@@ -193,8 +193,6 @@ cogl_is_context (void *object);
  *     supported with CoglBufferAccess including read support.
  * @COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE: Whether cogl_buffer_map() is
  *     supported with CoglBufferAccess including write support.
- * @COGL_FEATURE_ID_MIRRORED_REPEAT: Whether
- *    %COGL_PIPELINE_WRAP_MODE_MIRRORED_REPEAT is supported.
  * @COGL_FEATURE_ID_SWAP_BUFFERS_EVENT:
  *     Available if the window system supports reporting an event
  *     for swap buffer completions.
@@ -221,7 +219,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_POINT_SPRITE,
   COGL_FEATURE_ID_MAP_BUFFER_FOR_READ,
   COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE,
-  COGL_FEATURE_ID_MIRRORED_REPEAT,
   COGL_FEATURE_ID_SWAP_BUFFERS_EVENT,
   COGL_FEATURE_ID_DEPTH_TEXTURE,
   COGL_FEATURE_ID_PRESENTATION_TIME,
