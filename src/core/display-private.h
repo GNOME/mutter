@@ -270,6 +270,7 @@ void meta_display_unmanage_windows   (MetaDisplay *display,
 
 void meta_display_grab (MetaDisplay *display);
 void meta_display_ungrab (MetaDisplay *display);
+gboolean meta_display_is_grabbed (MetaDisplay *display);
 
 /* Utility function to compare the stacking of two windows */
 int           meta_display_stack_cmp           (const void *a,

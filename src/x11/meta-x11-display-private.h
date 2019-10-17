@@ -189,6 +189,7 @@ MetaX11Display *meta_x11_display_new (MetaDisplay *display, GError **error);
 
 void meta_x11_display_grab (MetaX11Display *x11_display);
 void meta_x11_display_ungrab (MetaX11Display *x11_display);
+gboolean meta_x11_display_is_grabbed (MetaX11Display *x11_display);
 
 void meta_x11_display_restore_active_workspace (MetaX11Display *x11_display);
 

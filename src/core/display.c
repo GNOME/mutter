@@ -2542,6 +2542,19 @@ meta_display_ungrab (MetaDisplay *display)
     }
 }
 
+gboolean
+meta_display_is_grabbed (MetaDisplay *display)
+{
+  if (display->x11_display)
+    {
+      return meta_x11_display_is_grabbed (display->x11_display);
+    }
+  else
+    {
+      return FALSE;
+    }
+}
+
 int
 meta_display_stack_cmp (const void *a,
                         const void *b)
