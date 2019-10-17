@@ -114,7 +114,6 @@ typedef struct _CoglTextureVertex       CoglTextureVertex;
  * CoglFeatureFlags:
  * @COGL_FEATURE_TEXTURE_YUV: ycbcr conversion support
  * @COGL_FEATURE_TEXTURE_READ_PIXELS: glReadPixels() support
- * @COGL_FEATURE_OFFSCREEN: FBO support
  * @COGL_FEATURE_OFFSCREEN_MULTISAMPLE: Multisample support on FBOs
  * @COGL_FEATURE_FOUR_CLIP_PLANES: At least 4 clip planes available
  * @COGL_FEATURE_STENCIL_BUFFER: Stencil buffer support
@@ -137,7 +136,6 @@ typedef enum
 {
   COGL_FEATURE_TEXTURE_YUV            = (1 << 3),
   COGL_FEATURE_TEXTURE_READ_PIXELS    = (1 << 4),
-  COGL_FEATURE_OFFSCREEN              = (1 << 6),
   COGL_FEATURE_OFFSCREEN_MULTISAMPLE  = (1 << 7),
   COGL_FEATURE_FOUR_CLIP_PLANES       = (1 << 9),
   COGL_FEATURE_STENCIL_BUFFER         = (1 << 10),
