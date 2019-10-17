@@ -2524,6 +2524,24 @@ meta_display_unmanage_windows (MetaDisplay *display,
   g_slist_free (winlist);
 }
 
+void
+meta_display_grab (MetaDisplay *display)
+{
+  if (display->x11_display)
+    {
+      meta_x11_display_grab (display->x11_display);
+    }
+}
+
+void
+meta_display_ungrab (MetaDisplay *display)
+{
+  if (display->x11_display)
+    {
+      meta_x11_display_ungrab (display->x11_display);
+    }
+}
+
 int
 meta_display_stack_cmp (const void *a,
                         const void *b)
