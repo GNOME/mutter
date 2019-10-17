@@ -444,15 +444,10 @@ _cogl_driver_update_features (CoglContext *ctx,
   flags |= COGL_FEATURE_POINT_SPRITE;
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_POINT_SPRITE, TRUE);
 
-  if (ctx->glGenBuffers)
-    {
-      flags |= (COGL_FEATURE_MAP_BUFFER_FOR_READ |
-                COGL_FEATURE_MAP_BUFFER_FOR_WRITE);
-      COGL_FLAGS_SET (ctx->features,
-                         COGL_FEATURE_ID_MAP_BUFFER_FOR_READ, TRUE);
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
-    }
+  flags |= (COGL_FEATURE_MAP_BUFFER_FOR_READ |
+            COGL_FEATURE_MAP_BUFFER_FOR_WRITE);
+  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_MAP_BUFFER_FOR_READ, TRUE);
+  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
 
   if (ctx->glEGLImageTargetTexture2D)
     COGL_FLAGS_SET (private_features,
