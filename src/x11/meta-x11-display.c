@@ -1367,6 +1367,40 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
 }
 
 void
+meta_x11_display_grab (MetaX11Display *x11_display)
+{
+  g_return_if_fail (META_IS_X11_DISPLAY (x11_display));
+
+  if (x11_display->server_grab_count == 0)
+    {
+      XGrabServer (x11_display->xdisplay);
+    }
+
+  x11_display->server_grab_count += 1;
+  meta_verbose ("Grabbing X display, grab count now %d\n", x11_display->server_grab_count);
+}
+
+void
+meta_x11_display_ungrab (MetaX11Display *x11_display)
+{
+  g_return_if_fail (META_IS_X11_DISPLAY (x11_display));
+
+  if (x11_display->server_grab_count == 0)
+    {
+      meta_bug ("Tried to ungrab non-grabbbed X server\n");
+    }
+
+  x11_display->server_grab_count -= 1;
+  if (x11_display->server_grab_count == 0)
+    {
+      XUngrabServer (x11_display->xdisplay);
+      XFlush (x11_display->xdisplay);
+    }
+
+  meta_verbose ("Ungrabbing X display, grab count now %d\n", x11_display->server_grab_count);
+}
+
+void
 meta_x11_display_restore_active_workspace (MetaX11Display *x11_display)
 {
   MetaDisplay *display;
