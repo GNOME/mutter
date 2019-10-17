@@ -415,7 +415,6 @@ _cogl_driver_update_features (CoglContext *ctx,
                    "Framebuffer objects are required to use the GL driver");
       return FALSE;
     }
-  flags |= COGL_FEATURE_OFFSCREEN;
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_QUERY_FRAMEBUFFER_BITS,
                   TRUE);

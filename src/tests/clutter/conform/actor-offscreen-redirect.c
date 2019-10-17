@@ -314,9 +314,6 @@ actor_offscreen_redirect (void)
 {
   Data data = { 0 };
 
-  if (!cogl_features_available (COGL_FEATURE_OFFSCREEN))
-    return;
-
   data.stage = clutter_test_get_stage ();
   data.parent_container = clutter_actor_new ();
   data.container = g_object_new (foo_group_get_type (), NULL);
