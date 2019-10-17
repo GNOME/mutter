@@ -513,6 +513,8 @@ meta_window_x11_manage (MetaWindow *window)
 
   meta_icon_cache_init (&priv->icon_cache);
 
+  meta_display_grab (display);
+
   meta_x11_display_register_x_window (display->x11_display,
                                       &window->xwindow,
                                       window);
@@ -573,6 +575,8 @@ meta_window_x11_manage (MetaWindow *window)
 
   meta_window_x11_update_shape_region (window);
   meta_window_x11_update_input_region (window);
+
+  meta_display_ungrab (display);
 }
 
 static void
