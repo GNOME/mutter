@@ -318,11 +318,6 @@ _cogl_driver_update_features (CoglContext *context,
                       COGL_FEATURE_ID_UNSIGNED_INT_INDICES, TRUE);
     }
 
-  if (_cogl_check_extension ("GL_OES_depth_texture", gl_extensions))
-    {
-      COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_DEPTH_TEXTURE, TRUE);
-    }
-
   if (context->glMapBuffer)
     {
       /* The GL_OES_mapbuffer extension doesn't support mapping for
