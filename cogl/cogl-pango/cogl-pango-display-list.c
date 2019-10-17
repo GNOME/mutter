@@ -276,6 +276,7 @@ emit_vertex_buffer_geometry (CoglFramebuffer *fb,
       gboolean allocated = FALSE;
       CoglAttribute *attributes[2];
       CoglPrimitive *prim;
+      CoglIndices *indices;
       int i;
 
       n_verts = node->d.texture.rectangles->len * 4;
@@ -354,22 +355,11 @@ emit_vertex_buffer_geometry (CoglFramebuffer *fb,
                                                  attributes,
                                                  2 /* n_attributes */);
 
-#ifdef CLUTTER_COGL_HAS_GL
-      if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_QUADS))
-        cogl_primitive_set_mode (prim, GL_QUADS);
-      else
-#endif
-        {
-          /* GLES doesn't support GL_QUADS so instead we use a VBO
-             with indexed vertices to generate GL_TRIANGLES from the
-             quads */
+      indices =
+        cogl_get_rectangle_indices (ctx, node->d.texture.rectangles->len);
 
-          CoglIndices *indices =
-            cogl_get_rectangle_indices (ctx, node->d.texture.rectangles->len);
-
-          cogl_primitive_set_indices (prim, indices,
-                                      node->d.texture.rectangles->len * 6);
-        }
+      cogl_primitive_set_indices (prim, indices,
+                                  node->d.texture.rectangles->len * 6);
 
       node->d.texture.primitive = prim;
 
