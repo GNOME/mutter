@@ -433,7 +433,6 @@ _cogl_driver_update_features (CoglContext *ctx,
   if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0) ||
       _cogl_check_extension ("GL_ARB_depth_texture", gl_extensions))
     {
-      flags |= COGL_FEATURE_DEPTH_TEXTURE;
       COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_DEPTH_TEXTURE, TRUE);
     }
 
