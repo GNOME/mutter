@@ -298,7 +298,7 @@ clutter_group_real_pick (ClutterActor *actor)
   /* Chain up so we get a bounding box pained (if we are reactive) */
   CLUTTER_ACTOR_CLASS (clutter_group_parent_class)->pick (actor);
 
-  g_list_foreach (priv->children, (GFunc) clutter_actor_paint, NULL);
+  g_list_foreach (priv->children, (GFunc) clutter_actor_pick, NULL);
 }
 
 static void
