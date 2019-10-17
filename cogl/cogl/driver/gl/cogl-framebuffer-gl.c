@@ -279,9 +279,7 @@ _cogl_framebuffer_gl_bind (CoglFramebuffer *framebuffer, GLenum target)
       const CoglWinsysVtable *winsys =
         _cogl_framebuffer_get_winsys (framebuffer);
       winsys->onscreen_bind (COGL_ONSCREEN (framebuffer));
-      /* glBindFramebuffer is an an extension with OpenGL ES 1.1 */
-      if (cogl_has_feature (ctx, COGL_FEATURE_ID_OFFSCREEN))
-        GE (ctx, glBindFramebuffer (target, 0));
+      GE (ctx, glBindFramebuffer (target, 0));
 
       /* Initialise the glDrawBuffer state the first time the context
        * is bound to the default framebuffer. If the winsys is using a

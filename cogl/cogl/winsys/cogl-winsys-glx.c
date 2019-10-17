@@ -2223,19 +2223,15 @@ get_fbconfig_for_depth (CoglContext *context,
 
       stencil = value;
 
-      /* glGenerateMipmap is defined in the offscreen extension */
-      if (cogl_has_feature (context, COGL_FEATURE_ID_OFFSCREEN))
-        {
-          glx_renderer->glXGetFBConfigAttrib (dpy,
-                                              fbconfigs[i],
-                                              GLX_BIND_TO_MIPMAP_TEXTURE_EXT,
-                                              &value);
+      glx_renderer->glXGetFBConfigAttrib (dpy,
+                                          fbconfigs[i],
+                                          GLX_BIND_TO_MIPMAP_TEXTURE_EXT,
+                                          &value);
 
-          if (value < mipmap)
-            continue;
+      if (value < mipmap)
+        continue;
 
-          mipmap =  value;
-        }
+      mipmap = value;
 
       *fbconfig_ret = fbconfigs[i];
       *can_mipmap_ret = mipmap;

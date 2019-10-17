@@ -238,35 +238,6 @@ allocate_from_bitmap (CoglTexture2D *tex_2d,
                                           NULL,
                                           NULL);
 
-  /* Keep a copy of the first pixel so that if glGenerateMipmap isn't
-     supported we can fallback to using GL_GENERATE_MIPMAP */
-  if (!cogl_has_feature (ctx, COGL_FEATURE_ID_OFFSCREEN))
-    {
-      GError *ignore = NULL;
-      uint8_t *data = _cogl_bitmap_map (upload_bmp,
-                                        COGL_BUFFER_ACCESS_READ, 0,
-                                        &ignore);
-      CoglPixelFormat format = cogl_bitmap_get_format (upload_bmp);
-
-      tex_2d->first_pixel.gl_format = gl_format;
-      tex_2d->first_pixel.gl_type = gl_type;
-
-      if (data)
-        {
-          memcpy (tex_2d->first_pixel.data, data,
-                  cogl_pixel_format_get_bytes_per_pixel (format, 0));
-          _cogl_bitmap_unmap (upload_bmp);
-        }
-      else
-        {
-          g_warning ("Failed to read first pixel of bitmap for "
-                     "glGenerateMipmap fallback");
-          g_error_free (ignore);
-          memset (tex_2d->first_pixel.data, 0,
-                  cogl_pixel_format_get_bytes_per_pixel (format, 0));
-        }
-    }
-
   tex_2d->gl_texture =
     ctx->texture_driver->gen (ctx, GL_TEXTURE_2D, internal_format);
   if (!ctx->texture_driver->upload_to_gl (ctx,
@@ -724,32 +695,7 @@ _cogl_texture_2d_gl_get_gl_handle (CoglTexture2D *tex_2d)
 void
 _cogl_texture_2d_gl_generate_mipmap (CoglTexture2D *tex_2d)
 {
-  CoglContext *ctx = COGL_TEXTURE (tex_2d)->context;
-
-  /* glGenerateMipmap is defined in the FBO extension. If it's not
-     available we'll fallback to temporarily enabling
-     GL_GENERATE_MIPMAP and reuploading the first pixel */
-  if (cogl_has_feature (ctx, COGL_FEATURE_ID_OFFSCREEN))
-    _cogl_texture_gl_generate_mipmaps (COGL_TEXTURE (tex_2d));
-#ifdef HAVE_COGL_GL
-  else
-    {
-      _cogl_bind_gl_texture_transient (GL_TEXTURE_2D,
-                                       tex_2d->gl_texture,
-                                       tex_2d->is_foreign);
-
-      GE( ctx, glTexParameteri (GL_TEXTURE_2D,
-                                GL_GENERATE_MIPMAP,
-                                GL_TRUE) );
-      GE( ctx, glTexSubImage2D (GL_TEXTURE_2D, 0, 0, 0, 1, 1,
-                                tex_2d->first_pixel.gl_format,
-                                tex_2d->first_pixel.gl_type,
-                                tex_2d->first_pixel.data) );
-      GE( ctx, glTexParameteri (GL_TEXTURE_2D,
-                                GL_GENERATE_MIPMAP,
-                                GL_FALSE) );
-    }
-#endif
+  _cogl_texture_gl_generate_mipmaps (COGL_TEXTURE (tex_2d));
 }
 
 gboolean
@@ -792,36 +738,6 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
                                           NULL, /* internal gl format */
                                           &gl_format,
                                           &gl_type);
-
-  /* If this touches the first pixel then we'll update our copy */
-  if (dst_x == 0 && dst_y == 0 &&
-      !cogl_has_feature (ctx, COGL_FEATURE_ID_OFFSCREEN))
-    {
-      GError *ignore = NULL;
-      uint8_t *data =
-        _cogl_bitmap_map (upload_bmp, COGL_BUFFER_ACCESS_READ, 0, &ignore);
-      int bpp = cogl_pixel_format_get_bytes_per_pixel (upload_format, 0);
-
-      tex_2d->first_pixel.gl_format = gl_format;
-      tex_2d->first_pixel.gl_type = gl_type;
-
-      if (data)
-        {
-          memcpy (tex_2d->first_pixel.data,
-                  (data +
-                   cogl_bitmap_get_rowstride (upload_bmp) * src_y +
-                   bpp * src_x),
-                  bpp);
-          _cogl_bitmap_unmap (bmp);
-        }
-      else
-        {
-          g_warning ("Failed to read first bitmap pixel for "
-                     "glGenerateMipmap fallback");
-          g_error_free (ignore);
-          memset (tex_2d->first_pixel.data, 0, bpp);
-        }
-    }
 
   status = ctx->texture_driver->upload_subregion_to_gl (ctx,
                                                         tex,
