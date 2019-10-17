@@ -1347,16 +1347,6 @@ cogl_pipeline_set_per_vertex_point_size (CoglPipeline *pipeline,
   if (authority->big_state->per_vertex_point_size == enable)
     return TRUE;
 
-  if (enable && !cogl_has_feature (ctx, COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE))
-    {
-      g_set_error_literal (error,
-                           COGL_SYSTEM_ERROR,
-                           COGL_SYSTEM_ERROR_UNSUPPORTED,
-                           "Per-vertex point size is not supported");
-
-      return FALSE;
-    }
-
   /* - Flush journal primitives referencing the current state.
    * - Make sure the pipeline has no dependants so it may be modified.
    * - If the pipeline isn't currently an authority for the state being

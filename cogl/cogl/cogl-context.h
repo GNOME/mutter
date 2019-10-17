@@ -187,8 +187,6 @@ cogl_is_context (void *object);
  *     cogl_indices_new().
  * @COGL_FEATURE_ID_POINT_SPRITE: Whether
  *     cogl_pipeline_set_layer_point_sprite_coords_enabled() is supported.
- * @COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE: Whether cogl_point_size_in
- *     can be used as an attribute to set a per-vertex point size.
  * @COGL_FEATURE_ID_MAP_BUFFER_FOR_READ: Whether cogl_buffer_map() is
  *     supported with CoglBufferAccess including read support.
  * @COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE: Whether cogl_buffer_map() is
@@ -223,7 +221,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_DEPTH_TEXTURE,
   COGL_FEATURE_ID_PRESENTATION_TIME,
   COGL_FEATURE_ID_FENCE,
-  COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE,
   COGL_FEATURE_ID_TEXTURE_RG,
   COGL_FEATURE_ID_BUFFER_AGE,
   COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL,
