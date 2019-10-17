@@ -1078,10 +1078,8 @@ clutter_clip_node_new (void)
 }
 
 /*
- * ClutterLayerNode (private)
+ * ClutterLayerNode
  */
-
-#define clutter_layer_node_get_type     _clutter_layer_node_get_type
 
 struct _ClutterLayerNode
 {
@@ -1268,11 +1266,11 @@ clutter_layer_node_init (ClutterLayerNode *self)
  * Since: 1.10
  */
 ClutterPaintNode *
-_clutter_layer_node_new (const CoglMatrix        *projection,
-                         const cairo_rectangle_t *viewport,
-                         float                    width,
-                         float                    height,
-                         guint8                   opacity)
+clutter_layer_node_new (const CoglMatrix        *projection,
+                        const cairo_rectangle_t *viewport,
+                        float                    width,
+                        float                    height,
+                        guint8                   opacity)
 {
   ClutterLayerNode *res;
   CoglColor color;
