@@ -294,8 +294,7 @@ G_BEGIN_DECLS
  *    will be the bottom right. Note that there is currently a bug in
  *    Cogl where when rendering to an offscreen buffer these
  *    coordinates will be upside-down. The value is undefined when not
- *    rendering points. This builtin can only be used if the
- *    %COGL_FEATURE_ID_POINT_SPRITE feature is available.
+ *    rendering points.
  *   </para></glossdef>
  *  </glossentry>
  * </glosslist>

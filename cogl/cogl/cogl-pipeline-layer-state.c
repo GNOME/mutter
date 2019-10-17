@@ -613,30 +613,6 @@ cogl_pipeline_set_layer_point_sprite_coords_enabled (CoglPipeline *pipeline,
 
   g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
 
-  /* Don't allow point sprite coordinates to be enabled if the driver
-     doesn't support it */
-  if (enable && !cogl_has_feature (ctx, COGL_FEATURE_ID_POINT_SPRITE))
-    {
-      if (error)
-        {
-          g_set_error_literal (error,
-                               COGL_SYSTEM_ERROR,
-                               COGL_SYSTEM_ERROR_UNSUPPORTED,
-                               "Point sprite texture coordinates are enabled for "
-                               "a layer but the GL driver does not support it.");
-        }
-      else
-        {
-          static gboolean warning_seen = FALSE;
-          if (!warning_seen)
-            g_warning ("Point sprite texture coordinates are enabled "
-                       "for a layer but the GL driver does not support it.");
-          warning_seen = TRUE;
-        }
-
-      return FALSE;
-    }
-
   /* Note: this will ensure that the layer exists, creating one if it
    * doesn't already.
    *

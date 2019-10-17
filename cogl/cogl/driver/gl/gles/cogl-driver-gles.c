@@ -311,7 +311,6 @@ _cogl_driver_update_features (CoglContext *context,
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
 
   flags |= COGL_FEATURE_POINT_SPRITE;
-  COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_POINT_SPRITE, TRUE);
 
   if (context->glGenRenderbuffers)
     {

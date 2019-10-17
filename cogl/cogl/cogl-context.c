@@ -408,8 +408,7 @@ cogl_context_new (CoglDisplay *display,
      pipeline to track whether any layers have point sprite coords
      enabled. We don't need to do this for GL3 or GLES2 because point
      sprites are handled using a builtin varying in the shader. */
-  if (_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_GL_FIXED) &&
-      cogl_has_feature (context, COGL_FEATURE_ID_POINT_SPRITE))
+  if (_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_GL_FIXED))
     GE (context, glEnable (GL_POINT_SPRITE));
 
   _cogl_list_init (&context->fences);
