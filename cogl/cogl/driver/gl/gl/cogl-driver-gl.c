@@ -463,7 +463,6 @@ _cogl_driver_update_features (CoglContext *ctx,
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE, TRUE);
 
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE, TRUE);
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_ENABLE_PROGRAM_POINT_SIZE, TRUE);
 

@@ -36,12 +36,6 @@ check_flags (TestFlags flags,
       return FALSE;
     }
 
-  if (flags & TEST_REQUIREMENT_PER_VERTEX_POINT_SIZE &&
-      !cogl_has_feature (test_ctx, COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE))
-    {
-      return FALSE;
-    }
-
   if (flags & TEST_REQUIREMENT_MAP_WRITE &&
       !cogl_has_feature (test_ctx, COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE))
     {
