@@ -72,8 +72,7 @@ clutter_features_from_cogl (guint cogl_flags)
   
   clutter_flags |= CLUTTER_FEATURE_SHADERS_GLSL;
   
-  if (cogl_flags & COGL_FEATURE_OFFSCREEN)
-    clutter_flags |= CLUTTER_FEATURE_OFFSCREEN;
+  clutter_flags |= CLUTTER_FEATURE_OFFSCREEN;
   
   return clutter_flags;
 }

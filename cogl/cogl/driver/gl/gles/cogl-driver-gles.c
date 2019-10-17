@@ -301,17 +301,11 @@ _cogl_driver_update_features (CoglContext *context,
                                      gl_minor,
                                      gl_extensions);
 
-  flags |= COGL_FEATURE_OFFSCREEN;
   /* Note GLES 2 core doesn't support mipmaps for npot textures or
    * repeat modes other than CLAMP_TO_EDGE. */
 
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ANY_GL, TRUE);
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
-
-  if (context->glGenRenderbuffers)
-    {
-      flags |= COGL_FEATURE_OFFSCREEN;
-    }
 
   if (context->glBlitFramebuffer)
     COGL_FLAGS_SET (private_features,
