@@ -223,7 +223,7 @@ clutter_effect_real_pick (ClutterEffect           *effect,
   ClutterActor *actor;
 
   actor = clutter_actor_meta_get_actor (actor_meta);
-  clutter_actor_continue_paint (actor);
+  clutter_actor_continue_pick (actor);
 }
 
 static void
