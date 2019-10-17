@@ -190,6 +190,26 @@ ClutterPaintNode *      clutter_layer_node_new          (const CoglMatrix       
                                                          guint8                   opacity);
 
 
+#define CLUTTER_TYPE_TRANSFORM_NODE             (clutter_transform_node_get_type ())
+#define CLUTTER_TRANSFORM_NODE(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_TRANSFORM_NODE, ClutterTransformNode))
+#define CLUTTER_IS_TRANSFORM_NODE(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_TRANSFORM_NODE))
+
+/*
+ * ClutterTransformNode:
+ *
+ * The #ClutterLayerNode structure is an opaque
+ * type whose members cannot be directly accessed.
+ *
+ * Since: 1.10
+ */
+typedef struct _ClutterTransformNode            ClutterTransformNode;
+typedef struct _ClutterPaintNodeClass           ClutterTransformNodeClass;
+
+CLUTTER_EXPORT
+GType clutter_transform_node_get_type (void) G_GNUC_CONST;
+
+CLUTTER_EXPORT
+ClutterPaintNode *      clutter_transform_node_new          (const CoglMatrix *projection);
 
 G_END_DECLS
 
