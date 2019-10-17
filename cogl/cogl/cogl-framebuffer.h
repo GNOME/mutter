@@ -846,9 +846,6 @@ cogl_framebuffer_set_stereo_mode (CoglFramebuffer *framebuffer,
  * is available as a texture. You can retrieve the texture with
  * cogl_framebuffer_get_depth_texture().
  *
- * <note>It's possible that your GPU does not support depth textures. You
- * should check the %COGL_FEATURE_ID_DEPTH_TEXTURE feature before using this
- * function.</note>
  * <note>It's not valid to call this function after the framebuffer has been
  * allocated as the creation of the depth texture is done at allocation time.
  * </note>
