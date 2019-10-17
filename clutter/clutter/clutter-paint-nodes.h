@@ -143,6 +143,25 @@ CLUTTER_EXPORT
 ClutterPaintNode *      clutter_text_node_new           (PangoLayout           *layout,
                                                          const ClutterColor    *color);
 
+#define CLUTTER_TYPE_ACTOR_NODE                 (clutter_actor_node_get_type ())
+#define CLUTTER_ACTOR_NODE(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_ACTOR_NODE, ClutterActorNode))
+#define CLUTTER_IS_ACTOR_NODE(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_ACTOR_NODE))
+
+/**
+ * ClutterActorNode:
+ *
+ * The #ClutterActorNode structure is an opaque
+ * type whose members cannot be directly accessed.
+ */
+typedef struct _ClutterActorNode ClutterActorNode;
+typedef struct _ClutterActorNode ClutterActorNodeClass;
+
+CLUTTER_EXPORT
+GType clutter_actor_node_get_type (void) G_GNUC_CONST;
+
+CLUTTER_EXPORT
+ClutterPaintNode * clutter_actor_node_new (ClutterActor *actor);
+
 #define CLUTTER_TYPE_ROOT_NODE                  (clutter_root_node_get_type ())
 #define CLUTTER_ROOT_NODE(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_ROOT_NODE, ClutterRootNode))
 #define CLUTTER_IS_ROOT_NODE(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_ROOT_NODE))
