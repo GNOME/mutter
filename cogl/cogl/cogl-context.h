@@ -185,8 +185,6 @@ cogl_is_context (void *object);
  * @COGL_FEATURE_ID_UNSIGNED_INT_INDICES: Set if
  *     %COGL_INDICES_TYPE_UNSIGNED_INT is supported in
  *     cogl_indices_new().
- * @COGL_FEATURE_ID_POINT_SPRITE: Whether
- *     cogl_pipeline_set_layer_point_sprite_coords_enabled() is supported.
  * @COGL_FEATURE_ID_MAP_BUFFER_FOR_READ: Whether cogl_buffer_map() is
  *     supported with CoglBufferAccess including read support.
  * @COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE: Whether cogl_buffer_map() is
@@ -214,7 +212,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE,
   COGL_FEATURE_ID_ONSCREEN_MULTIPLE,
   COGL_FEATURE_ID_UNSIGNED_INT_INDICES,
-  COGL_FEATURE_ID_POINT_SPRITE,
   COGL_FEATURE_ID_MAP_BUFFER_FOR_READ,
   COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE,
   COGL_FEATURE_ID_SWAP_BUFFERS_EVENT,
