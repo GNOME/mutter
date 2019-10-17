@@ -347,9 +347,9 @@ handle_pad_button_event (MetaWaylandTabletPad *pad,
     return FALSE;
 
   if (event->type == CLUTTER_PAD_BUTTON_PRESS)
-    button_state = ZWP_TABLET_TOOL_V2_BUTTON_STATE_PRESSED;
+    button_state = ZWP_TABLET_PAD_V2_BUTTON_STATE_PRESSED;
   else if (event->type == CLUTTER_PAD_BUTTON_RELEASE)
-    button_state = ZWP_TABLET_TOOL_V2_BUTTON_STATE_RELEASED;
+    button_state = ZWP_TABLET_PAD_V2_BUTTON_STATE_RELEASED;
   else
     return FALSE;
 
