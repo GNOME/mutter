@@ -154,53 +154,6 @@ void
 cogl_pop_framebuffer (void);
 
 /**
- * cogl_set_draw_buffer:
- * @target: A #CoglBufferTarget that specifies what kind of framebuffer you
- *          are setting as the render target.
- * @offscreen: If you are setting a framebuffer of type COGL_OFFSCREEN_BUFFER
- *             then this is a CoglHandle for the offscreen buffer.
- *
- * Redirects all subsequent drawing to the specified framebuffer. This
- * can either be an offscreen buffer created with
- * cogl_offscreen_new_to_texture () or you can revert to your original
- * on screen window buffer.
- *
- * Deprecated: 1.16: The latest drawing apis take explicit
- *                   #CoglFramebuffer arguments so this stack of
- *                   framebuffers shouldn't be used anymore.
- */
-COGL_DEPRECATED
-void
-cogl_set_draw_buffer (CoglBufferTarget target,
-                      CoglHandle offscreen);
-
-/**
- * cogl_push_draw_buffer:
- *
- * Save cogl_set_draw_buffer() state.
- *
- * Deprecated: 1.16: The latest drawing apis take explicit
- *                   #CoglFramebuffer arguments so this stack of
- *                   framebuffers shouldn't be used anymore.
- */
-COGL_DEPRECATED
-void
-cogl_push_draw_buffer (void);
-
-/**
- * cogl_pop_draw_buffer:
- *
- * Restore cogl_set_draw_buffer() state.
- *
- * Deprecated: 1.16: The latest drawing apis take explicit
- *                   #CoglFramebuffer arguments so this stack of
- *                   framebuffers shouldn't be used anymore.
- */
-COGL_DEPRECATED
-void
-cogl_pop_draw_buffer (void);
-
-/**
  * cogl_read_pixels:
  * @x: The window x position to start reading from
  * @y: The window y position to start reading from
@@ -233,32 +186,6 @@ cogl_read_pixels (int x,
                   CoglReadPixelsFlags source,
                   CoglPixelFormat format,
                   uint8_t *pixels);
-
-
-/* XXX: Since this api was marked unstable, maybe we can just
- * remove this api if we can't find anyone is using it. */
-/**
- * cogl_framebuffer_get_color_format: (skip)
- * @framebuffer: A #CoglFramebuffer framebuffer
- *
- * Queries the common #CoglPixelFormat of all color buffers attached
- * to this framebuffer. For an offscreen framebuffer created with
- * cogl_offscreen_new_with_texture() this will correspond to the format
- * of the texture.
- *
- * This API is deprecated because it is missleading to report a
- * #CoglPixelFormat for the internal format of the @framebuffer since
- * #CoglPixelFormat is such a precise format description and it's
- * only the set of components and the premultiplied alpha status
- * that is really known.
- *
- * Since: 1.8
- * Stability: unstable
- * Deprecated 1.18: Removed since it is misleading
- */
-COGL_DEPRECATED
-CoglPixelFormat
-cogl_framebuffer_get_color_format (CoglFramebuffer *framebuffer);
 
 G_END_DECLS
 

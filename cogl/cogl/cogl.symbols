@@ -227,7 +227,6 @@ cogl_framebuffer_finish
 cogl_framebuffer_frustum
 cogl_framebuffer_get_alpha_bits
 cogl_framebuffer_get_blue_bits
-cogl_framebuffer_get_color_format
 cogl_framebuffer_get_context
 cogl_framebuffer_get_depth_bits
 cogl_framebuffer_get_depth_write_enabled
@@ -719,9 +718,6 @@ cogl_scale
 
 cogl_set_backface_culling_enabled
 cogl_set_depth_test_enabled
-#ifndef COGL_DISABLE_DEPRECATED
-cogl_set_draw_buffer
-#endif
 #ifdef COGL_HAS_SDL_SUPPORT
 cogl_sdl_context_new
 cogl_sdl_handle_event

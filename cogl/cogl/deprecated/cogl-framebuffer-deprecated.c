@@ -163,21 +163,6 @@ cogl_set_framebuffer (CoglFramebuffer *framebuffer)
   _cogl_set_framebuffers (framebuffer, framebuffer);
 }
 
-/* XXX: deprecated API */
-void
-cogl_set_draw_buffer (CoglBufferTarget target, CoglHandle handle)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  if (target == COGL_WINDOW_BUFFER)
-    handle = ctx->window_buffer;
-
-  /* This is deprecated public API. The public API doesn't currently
-     really expose the concept of separate draw and read buffers so
-     for the time being this actually just sets both buffers */
-  cogl_set_framebuffer (handle);
-}
-
 CoglFramebuffer *
 cogl_get_draw_framebuffer (void)
 {
@@ -244,13 +229,6 @@ cogl_push_framebuffer (CoglFramebuffer *buffer)
   _cogl_push_framebuffers (buffer, buffer);
 }
 
-/* XXX: deprecated API */
-void
-cogl_push_draw_buffer (void)
-{
-  cogl_push_framebuffer (cogl_get_draw_framebuffer ());
-}
-
 void
 cogl_pop_framebuffer (void)
 {
@@ -279,17 +257,4 @@ cogl_pop_framebuffer (void)
   ctx->framebuffer_stack =
     g_slist_delete_link (ctx->framebuffer_stack,
                          ctx->framebuffer_stack);
-}
-
-/* XXX: deprecated API */
-void
-cogl_pop_draw_buffer (void)
-{
-  cogl_pop_framebuffer ();
-}
-
-CoglPixelFormat
-cogl_framebuffer_get_color_format (CoglFramebuffer *framebuffer)
-{
-  return framebuffer->internal_format;
 }
