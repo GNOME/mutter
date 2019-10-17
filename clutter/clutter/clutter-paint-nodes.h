@@ -163,6 +163,34 @@ CLUTTER_EXPORT
 ClutterPaintNode *      clutter_root_node_new           (CoglFramebuffer       *framebuffer,
                                                          const ClutterColor    *clear_color,
                                                          CoglBufferBit          clear_flags);
+
+#define CLUTTER_TYPE_LAYER_NODE                 (clutter_layer_node_get_type ())
+#define CLUTTER_LAYER_NODE(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_LAYER_NODE, ClutterLayerNode))
+#define CLUTTER_IS_LAYER_NODE(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_LAYER_NODE))
+
+/*
+ * ClutterLayerNode:
+ *
+ * The #ClutterLayerNode structure is an opaque
+ * type whose members cannot be directly accessed.
+ *
+ * Since: 1.10
+ */
+typedef struct _ClutterLayerNode                ClutterLayerNode;
+typedef struct _ClutterLayerNodeClass           ClutterLayerNodeClass;
+
+CLUTTER_EXPORT
+GType clutter_layer_node_get_type (void) G_GNUC_CONST;
+
+CLUTTER_EXPORT
+ClutterPaintNode *      clutter_layer_node_new          (const CoglMatrix        *projection,
+                                                         const cairo_rectangle_t *viewport,
+                                                         float                    width,
+                                                         float                    height,
+                                                         guint8                   opacity);
+
+
+
 G_END_DECLS
 
 #endif /* __CLUTTER_PAINT_NODES_H__ */

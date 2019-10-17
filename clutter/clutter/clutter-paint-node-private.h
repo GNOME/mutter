@@ -139,30 +139,6 @@ ClutterPaintNode *      clutter_paint_node_get_last_child               (Clutter
 G_GNUC_INTERNAL
 ClutterPaintNode *      clutter_paint_node_get_parent                   (ClutterPaintNode      *node);
 
-#define CLUTTER_TYPE_LAYER_NODE                 (_clutter_layer_node_get_type ())
-#define CLUTTER_LAYER_NODE(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_LAYER_NODE, ClutterLayerNode))
-#define CLUTTER_IS_LAYER_NODE(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_LAYER_NODE))
-
-/*
- * ClutterLayerNode:
- *
- * The #ClutterLayerNode structure is an opaque
- * type whose members cannot be directly accessed.
- *
- * Since: 1.10
- */
-typedef struct _ClutterLayerNode                ClutterLayerNode;
-typedef struct _ClutterLayerNodeClass           ClutterLayerNodeClass;
-
-GType _clutter_layer_node_get_type (void) G_GNUC_CONST;
-
-ClutterPaintNode *      _clutter_layer_node_new         (const CoglMatrix        *projection,
-                                                         const cairo_rectangle_t *viewport,
-                                                         float                    width,
-                                                         float                    height,
-                                                         guint8                   opacity);
-
-
 G_END_DECLS
 
 #endif /* __CLUTTER_PAINT_NODE_PRIVATE_H__ */
