@@ -1926,7 +1926,7 @@ meta_x11_display_set_input_focus_internal (MetaX11Display *x11_display,
    * we know which is which by making two requests that the server will
    * process at the same time.
    */
-  XGrabServer (x11_display->xdisplay);
+  meta_x11_display_grab (x11_display);
 
   XSetInputFocus (x11_display->xdisplay,
                   xwindow,
@@ -1938,8 +1938,7 @@ meta_x11_display_set_input_focus_internal (MetaX11Display *x11_display,
                    x11_display->atom__MUTTER_FOCUS_SET,
                    XA_STRING, 8, PropModeAppend, NULL, 0);
 
-  XUngrabServer (x11_display->xdisplay);
-  XFlush (x11_display->xdisplay);
+  meta_x11_display_ungrab (x11_display);
 
   meta_x11_error_trap_pop (x11_display);
 }
