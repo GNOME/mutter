@@ -165,14 +165,6 @@ texture_fbo (TestConformSimpleFixture *fixture,
   ClutterActor *actor;
   int ypos = 0;
 
-  if (!cogl_features_available (COGL_FEATURE_OFFSCREEN))
-    {
-      if (g_test_verbose ())
-        g_print ("Offscreen buffers are not available, skipping.\n");
-
-      return;
-    }
-
   state.frame = 0;
 
   state.stage = clutter_stage_new ();
