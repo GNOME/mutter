@@ -245,17 +245,6 @@ validate_blend_statements (CoglBlendStringStatement *statements,
                            "for arg0 and DST_COLOR for arg1";
             goto error;
           }
-
-        if (!_cogl_has_private_feature (ctx,
-                                        COGL_PRIVATE_FEATURE_BLEND_CONSTANT) &&
-            arg->factor.is_color &&
-            (arg->factor.source.info->type ==
-             COGL_BLEND_STRING_COLOR_SOURCE_CONSTANT))
-          {
-            error_string = "Driver doesn't support constant blend factors";
-            detail = COGL_BLEND_STRING_ERROR_GPU_UNSUPPORTED_ERROR;
-            goto error;
-          }
       }
 
   return TRUE;

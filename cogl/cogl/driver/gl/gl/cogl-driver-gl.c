@@ -436,8 +436,6 @@ _cogl_driver_update_features (CoglContext *ctx,
     }
 
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_PBOS, TRUE);
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_BLEND_CONSTANT, TRUE);
 
   flags |= COGL_FEATURE_POINT_SPRITE;
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_POINT_SPRITE, TRUE);
@@ -483,7 +481,6 @@ _cogl_driver_update_features (CoglContext *ctx,
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ANY_GL, TRUE);
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_FORMAT_CONVERSION, TRUE);
-  COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_BLEND_CONSTANT, TRUE);
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_BUILTIN_POINT_SIZE_UNIFORM, TRUE);
   COGL_FLAGS_SET (private_features,

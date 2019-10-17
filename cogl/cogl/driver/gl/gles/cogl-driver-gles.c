@@ -309,9 +309,6 @@ _cogl_driver_update_features (CoglContext *context,
   COGL_FLAGS_SET (context->features,
                   COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE, TRUE);
 
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_BLEND_CONSTANT, TRUE);
-
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ANY_GL, TRUE);
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
 
