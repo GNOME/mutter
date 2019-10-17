@@ -1014,9 +1014,6 @@ cogl_pipeline_set_blend_constant (CoglPipeline *pipeline,
 
   g_return_if_fail (cogl_is_pipeline (pipeline));
 
-  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_BLEND_CONSTANT))
-    return;
-
 #if defined(HAVE_COGL_GLES2) || defined(HAVE_COGL_GL)
   {
     CoglPipelineState state = COGL_PIPELINE_STATE_BLEND;
