@@ -62,6 +62,8 @@ struct _MetaX11Display
 
   guint32 timestamp;
 
+  guint server_grab_count;
+
   /* Pull in all the names of atoms as fields; we will intern them when the
    * class is constructed.
    */

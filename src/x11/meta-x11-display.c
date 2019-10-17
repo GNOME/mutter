@@ -1176,6 +1176,8 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   x11_display->xdisplay = xdisplay;
   x11_display->xroot = xroot;
 
+  x11_display->server_grab_count = 0;
+
   x11_display->name = g_strdup (XDisplayName (NULL));
   x11_display->screen_name = get_screen_name (xdisplay, number);
   x11_display->default_xvisual = DefaultVisualOfScreen (xscreen);
