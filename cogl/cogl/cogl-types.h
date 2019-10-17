@@ -116,7 +116,6 @@ typedef struct _CoglTextureVertex       CoglTextureVertex;
  * @COGL_FEATURE_TEXTURE_READ_PIXELS: glReadPixels() support
  * @COGL_FEATURE_OFFSCREEN_MULTISAMPLE: Multisample support on FBOs
  * @COGL_FEATURE_FOUR_CLIP_PLANES: At least 4 clip planes available
- * @COGL_FEATURE_STENCIL_BUFFER: Stencil buffer support
  * @COGL_FEATURE_PBOS: PBO support
  *
  * Flags for the supported features.
@@ -129,7 +128,6 @@ typedef enum
   COGL_FEATURE_TEXTURE_READ_PIXELS    = (1 << 4),
   COGL_FEATURE_OFFSCREEN_MULTISAMPLE  = (1 << 7),
   COGL_FEATURE_FOUR_CLIP_PLANES       = (1 << 9),
-  COGL_FEATURE_STENCIL_BUFFER         = (1 << 10),
   COGL_FEATURE_PBOS		      = (1 << 12),
 } CoglFeatureFlags;
 
