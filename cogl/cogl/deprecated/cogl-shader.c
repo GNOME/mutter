@@ -84,7 +84,6 @@ cogl_create_shader (CoglShaderType type)
     }
 
   shader = g_slice_new (CoglShader);
-  shader->language = COGL_SHADER_LANGUAGE_GLSL;
   shader->gl_handle = 0;
   shader->compilation_pipeline = NULL;
   shader->type = type;
@@ -114,7 +113,6 @@ cogl_shader_source (CoglHandle   handle,
                     const char  *source)
 {
   CoglShader *shader;
-  CoglShaderLanguage language;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
@@ -122,16 +120,8 @@ cogl_shader_source (CoglHandle   handle,
     return;
 
   shader = handle;
-  language = COGL_SHADER_LANGUAGE_GLSL;
-
-  /* Delete the old object if the language is changing... */
-  if (G_UNLIKELY (language != shader->language) &&
-      shader->gl_handle)
-    delete_shader (shader);
 
   shader->source = g_strdup (source);
-
-  shader->language = language;
 }
 
 void

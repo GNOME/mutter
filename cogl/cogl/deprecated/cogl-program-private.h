@@ -76,9 +76,6 @@ _cogl_program_flush_uniforms (CoglProgram *program,
                               GLuint gl_program,
                               gboolean gl_program_changed);
 
-CoglShaderLanguage
-_cogl_program_get_language (CoglHandle handle);
-
 gboolean
 _cogl_program_has_fragment_shader (CoglHandle handle);
 

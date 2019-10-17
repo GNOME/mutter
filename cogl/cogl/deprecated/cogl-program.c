@@ -96,7 +96,6 @@ cogl_program_attach_shader (CoglHandle program_handle,
                             CoglHandle shader_handle)
 {
   CoglProgram *program;
-  CoglShader *shader;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
@@ -104,11 +103,6 @@ cogl_program_attach_shader (CoglHandle program_handle,
     return;
 
   program = program_handle;
-  shader = shader_handle;
-
-  if (shader->language == COGL_SHADER_LANGUAGE_GLSL)
-    g_return_if_fail (_cogl_program_get_language (program) ==
-                      COGL_SHADER_LANGUAGE_GLSL);
 
   program->attached_shaders
     = g_slist_prepend (program->attached_shaders,
@@ -355,47 +349,24 @@ _cogl_program_flush_uniforms (CoglProgram *program,
         {
           if (gl_program_changed || !uniform->location_valid)
             {
-              if (_cogl_program_get_language (program) ==
-                  COGL_SHADER_LANGUAGE_GLSL)
-                uniform->location =
-                  ctx->glGetUniformLocation (gl_program, uniform->name);
+               uniform->location =
+                 ctx->glGetUniformLocation (gl_program, uniform->name);
 
-              uniform->location_valid = TRUE;
+               uniform->location_valid = TRUE;
             }
 
           /* If the uniform isn't really in the program then there's
              no need to actually set it */
           if (uniform->location != -1)
             {
-              switch (_cogl_program_get_language (program))
-                {
-                case COGL_SHADER_LANGUAGE_GLSL:
-                  _cogl_boxed_value_set_uniform (ctx,
-                                                 uniform->location,
-                                                 &uniform->value);
-                  break;
-                }
+               _cogl_boxed_value_set_uniform (ctx,
+                                              uniform->location,
+                                              &uniform->value);
             }
 
           uniform->dirty = FALSE;
         }
     }
-}
-
-CoglShaderLanguage
-_cogl_program_get_language (CoglHandle handle)
-{
-  CoglProgram *program = handle;
-
-  /* Use the language of the first shader */
-
-  if (program->attached_shaders)
-    {
-      CoglShader *shader = program->attached_shaders->data;
-      return shader->language;
-    }
-  else
-    return COGL_SHADER_LANGUAGE_GLSL;
 }
 
 static gboolean

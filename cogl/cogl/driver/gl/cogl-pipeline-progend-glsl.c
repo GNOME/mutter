@@ -638,15 +638,6 @@ _cogl_pipeline_progend_glsl_flush_uniforms (CoglPipeline *pipeline,
 static gboolean
 _cogl_pipeline_progend_glsl_start (CoglPipeline *pipeline)
 {
-  CoglHandle user_program;
-
-  _COGL_GET_CONTEXT (ctx, FALSE);
-
-  user_program = cogl_pipeline_get_user_program (pipeline);
-  if (user_program &&
-      _cogl_program_get_language (user_program) != COGL_SHADER_LANGUAGE_GLSL)
-    return FALSE;
-
   return TRUE;
 }
 
@@ -741,8 +732,6 @@ _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
               CoglShader *shader = l->data;
 
               _cogl_shader_compile_real (shader, pipeline);
-
-              g_assert (shader->language == COGL_SHADER_LANGUAGE_GLSL);
 
               GE( ctx, glAttachShader (program_state->program,
                                        shader->gl_handle) );
