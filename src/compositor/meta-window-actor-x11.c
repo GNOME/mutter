@@ -125,6 +125,9 @@ typedef struct
 } FrameData;
 
 static void
+handle_updates (MetaWindowActorX11 *actor_x11);
+
+static void
 frame_data_free (FrameData *frame)
 {
   g_slice_free (FrameData, frame);
@@ -387,6 +390,7 @@ surface_size_changed (MetaSurfaceActor *actor,
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (user_data);
 
   meta_window_actor_x11_update_shape (actor_x11);
+  handle_updates (actor_x11);
 }
 
 static void
