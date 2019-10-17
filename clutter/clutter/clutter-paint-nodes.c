@@ -1082,6 +1082,99 @@ clutter_clip_node_new (void)
 }
 
 /*
+ * ClutterActorNode
+ */
+
+struct _ClutterActorNode
+{
+  ClutterPaintNode parent_instance;
+
+  ClutterActor *actor;
+};
+
+struct _ClutterActorNodeClass
+{
+  ClutterPaintNodeClass parent_class;
+};
+
+G_DEFINE_TYPE (ClutterActorNode, clutter_actor_node, CLUTTER_TYPE_PAINT_NODE)
+
+static gboolean
+clutter_actor_node_pre_draw (ClutterPaintNode *node)
+{
+  return TRUE;
+}
+
+static void
+clutter_actor_node_draw (ClutterPaintNode *node)
+{
+  ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
+
+  clutter_actor_continue_paint (actor_node->actor);
+}
+
+static JsonNode *
+clutter_actor_node_serialize (ClutterPaintNode *node)
+{
+  ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
+  g_autoptr (JsonBuilder) builder = NULL;
+  const char *debug_name;
+
+  debug_name = _clutter_actor_get_debug_name (actor_node->actor);
+
+  builder = json_builder_new ();
+
+  json_builder_begin_object (builder);
+  json_builder_set_member_name (builder, "actor");
+  json_builder_add_string_value (builder, debug_name);
+  json_builder_end_object (builder);
+
+  return json_builder_get_root (builder);
+}
+static void
+clutter_actor_node_class_init (ClutterActorNodeClass *klass)
+{
+  ClutterPaintNodeClass *node_class;
+
+  node_class = CLUTTER_PAINT_NODE_CLASS (klass);
+  node_class->pre_draw = clutter_actor_node_pre_draw;
+  node_class->draw = clutter_actor_node_draw;
+  node_class->serialize = clutter_actor_node_serialize;
+}
+
+static void
+clutter_actor_node_init (ClutterActorNode *self)
+{
+}
+
+/*
+ * clutter_actor_node_new:
+ * @actor: the actor to paint
+ *
+ * Creates a new #ClutterActorNode.
+ *
+ * The actor is painted together with any effects
+ * applied to it. Children of this node will draw
+ * over the actor contents.
+ *
+ * Return value: (transfer full): the newly created #ClutterActorNode.
+ *   Use clutter_paint_node_unref() when done.
+ */
+ClutterPaintNode *
+clutter_actor_node_new (ClutterActor *actor)
+{
+  ClutterActorNode *res;
+
+  g_assert (actor != NULL);
+
+  res = _clutter_paint_node_create (CLUTTER_TYPE_ACTOR_NODE);
+  res->actor = actor;
+
+  return (ClutterPaintNode *) res;
+}
+
+
+/*
  * ClutterLayerNode
  */
 
