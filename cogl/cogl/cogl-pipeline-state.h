@@ -544,11 +544,6 @@ cogl_pipeline_get_point_size (CoglPipeline *pipeline);
  * and cogl_point_size_out is not written to then the results are
  * undefined.
  *
- * Note that enabling this will only work if the
- * %COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE feature is available. If
- * this is not available then the function will return %FALSE and set
- * a #GError.
- *
  * Since: 2.0
  * Stability: Unstable
  * Return value: %TRUE if the change suceeded or %FALSE otherwise
