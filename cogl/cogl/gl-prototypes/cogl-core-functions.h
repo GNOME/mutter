@@ -63,10 +63,25 @@ COGL_EXT_BEGIN (core,
                 COGL_EXT_IN_GLES2,
                 "\0",
                 "\0")
+COGL_EXT_FUNCTION (void, glActiveTexture,
+                   (GLenum                texture))
+COGL_EXT_FUNCTION (void, glBindBuffer,
+                   (GLenum		 target,
+                    GLuint		 buffer))
 COGL_EXT_FUNCTION (void, glBindTexture,
                    (GLenum target, GLuint texture))
 COGL_EXT_FUNCTION (void, glBlendFunc,
                    (GLenum sfactor, GLenum dfactor))
+COGL_EXT_FUNCTION (void, glBufferData,
+                   (GLenum		 target,
+                    GLsizeiptr		 size,
+                    const GLvoid		*data,
+                    GLenum		 usage))
+COGL_EXT_FUNCTION (void, glBufferSubData,
+                   (GLenum		 target,
+                    GLintptr		 offset,
+                    GLsizeiptr		 size,
+                    const GLvoid		*data))
 COGL_EXT_FUNCTION (void, glClear,
                    (GLbitfield mask))
 COGL_EXT_FUNCTION (void, glClearColor,
@@ -90,6 +105,9 @@ COGL_EXT_FUNCTION (void, glCopyTexSubImage2D,
                     GLint y,
                     GLsizei width,
                     GLsizei height))
+COGL_EXT_FUNCTION (void, glDeleteBuffers,
+                   (GLsizei		 n,
+                    const GLuint		*buffers))
 COGL_EXT_FUNCTION (void, glDeleteTextures,
                    (GLsizei n, const GLuint* textures))
 COGL_EXT_FUNCTION (void, glDepthFunc,
@@ -115,8 +133,13 @@ COGL_EXT_FUNCTION (void, glFrontFace,
                    (GLenum mode))
 COGL_EXT_FUNCTION (void, glCullFace,
                    (GLenum mode))
+COGL_EXT_FUNCTION (void, glGenBuffers,
+                   (GLsizei		 n,
+                    GLuint		*buffers))
 COGL_EXT_FUNCTION (void, glGenTextures,
                    (GLsizei n, GLuint* textures))
+COGL_EXT_FUNCTION (void, glGetBufferParameteriv,
+                   (GLenum target, GLenum pname, GLint* params))
 COGL_EXT_FUNCTION (GLenum, glGetError,
                    (void))
 COGL_EXT_FUNCTION (void, glGetIntegerv,
@@ -129,6 +152,8 @@ COGL_EXT_FUNCTION (const GLubyte*, glGetString,
                    (GLenum name))
 COGL_EXT_FUNCTION (void, glHint,
                    (GLenum target, GLenum mode))
+COGL_EXT_FUNCTION (GLboolean, glIsBuffer,
+                   (GLuint               buffer))
 COGL_EXT_FUNCTION (GLboolean, glIsTexture,
                    (GLuint texture))
 COGL_EXT_FUNCTION (void, glPixelStorei,
