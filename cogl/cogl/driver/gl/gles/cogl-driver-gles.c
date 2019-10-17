@@ -306,7 +306,6 @@ _cogl_driver_update_features (CoglContext *context,
    * repeat modes other than CLAMP_TO_EDGE. */
   flags |= COGL_FEATURE_DEPTH_RANGE;
   COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_OFFSCREEN, TRUE);
-  COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_DEPTH_RANGE, TRUE);
   COGL_FLAGS_SET (context->features,
                   COGL_FEATURE_ID_MIRRORED_REPEAT, TRUE);
   COGL_FLAGS_SET (context->features,

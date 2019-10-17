@@ -185,7 +185,6 @@ cogl_is_context (void *object);
  * @COGL_FEATURE_ID_UNSIGNED_INT_INDICES: Set if
  *     %COGL_INDICES_TYPE_UNSIGNED_INT is supported in
  *     cogl_indices_new().
- * @COGL_FEATURE_ID_DEPTH_RANGE: cogl_pipeline_set_depth_range() support
  * @COGL_FEATURE_ID_POINT_SPRITE: Whether
  *     cogl_pipeline_set_layer_point_sprite_coords_enabled() is supported.
  * @COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE: Whether cogl_point_size_in
@@ -219,7 +218,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE,
   COGL_FEATURE_ID_ONSCREEN_MULTIPLE,
   COGL_FEATURE_ID_UNSIGNED_INT_INDICES,
-  COGL_FEATURE_ID_DEPTH_RANGE,
   COGL_FEATURE_ID_POINT_SPRITE,
   COGL_FEATURE_ID_MAP_BUFFER_FOR_READ,
   COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE,

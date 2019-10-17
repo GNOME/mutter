@@ -398,7 +398,6 @@ _cogl_driver_update_features (CoglContext *ctx,
            | COGL_FEATURE_DEPTH_RANGE);
   COGL_FLAGS_SET (ctx->features,
                   COGL_FEATURE_ID_UNSIGNED_INT_INDICES, TRUE);
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_DEPTH_RANGE, TRUE);
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_MIRRORED_REPEAT, TRUE);
 
   _cogl_feature_check_ext_functions (ctx,
