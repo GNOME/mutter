@@ -118,7 +118,6 @@ typedef struct _CoglTextureVertex       CoglTextureVertex;
  * @COGL_FEATURE_OFFSCREEN_MULTISAMPLE: Multisample support on FBOs
  * @COGL_FEATURE_FOUR_CLIP_PLANES: At least 4 clip planes available
  * @COGL_FEATURE_STENCIL_BUFFER: Stencil buffer support
- * @COGL_FEATURE_VBOS: VBO support
  * @COGL_FEATURE_PBOS: PBO support
  * @COGL_FEATURE_UNSIGNED_INT_INDICES: Set if
  *     %COGL_INDICES_TYPE_UNSIGNED_INT is supported in
@@ -145,7 +144,6 @@ typedef enum
   COGL_FEATURE_OFFSCREEN_MULTISAMPLE  = (1 << 7),
   COGL_FEATURE_FOUR_CLIP_PLANES       = (1 << 9),
   COGL_FEATURE_STENCIL_BUFFER         = (1 << 10),
-  COGL_FEATURE_VBOS		      = (1 << 11),
   COGL_FEATURE_PBOS		      = (1 << 12),
   COGL_FEATURE_UNSIGNED_INT_INDICES   = (1 << 13),
   COGL_FEATURE_DEPTH_RANGE            = (1 << 14),

@@ -70,7 +70,6 @@ static const int n_cogl_log_debug_keys =
 static const GDebugKey cogl_behavioural_debug_keys[] = {
   { "rectangles", COGL_DEBUG_RECTANGLES },
   { "disable-batching", COGL_DEBUG_DISABLE_BATCHING },
-  { "disable-vbos", COGL_DEBUG_DISABLE_VBOS },
   { "disable-pbos", COGL_DEBUG_DISABLE_PBOS },
   { "disable-software-transform", COGL_DEBUG_DISABLE_SOFTWARE_TRANSFORM },
   { "dump-atlas-image", COGL_DEBUG_DUMP_ATLAS_IMAGE },
