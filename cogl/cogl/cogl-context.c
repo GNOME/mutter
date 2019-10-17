@@ -98,9 +98,6 @@ static CoglContext *_cogl_context = NULL;
 static void
 _cogl_init_feature_overrides (CoglContext *ctx)
 {
-  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_VBOS)))
-    COGL_FLAGS_SET (ctx->private_features, COGL_PRIVATE_FEATURE_VBOS, FALSE);
-
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_PBOS)))
     COGL_FLAGS_SET (ctx->private_features, COGL_PRIVATE_FEATURE_PBOS, FALSE);
 }
