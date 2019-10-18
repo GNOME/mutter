@@ -49,7 +49,6 @@
 #include "cogl1-context.h"
 #include "cogl-offscreen.h"
 #include "cogl-matrix-stack.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
 
 static void *
 _cogl_clip_stack_push_entry (CoglClipStack *clip_stack,

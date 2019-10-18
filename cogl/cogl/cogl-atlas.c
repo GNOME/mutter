@@ -42,7 +42,6 @@
 #include "cogl-framebuffer-private.h"
 #include "cogl-blit.h"
 #include "cogl-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
 
 #include <stdlib.h>
 

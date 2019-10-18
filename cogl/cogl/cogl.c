@@ -52,8 +52,6 @@
 #include "cogl-private.h"
 #include "cogl1-context.h"
 #include "cogl-offscreen.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
-#include "driver/gl/cogl-attribute-gl-private.h"
 #include "winsys/cogl-winsys-private.h"
 #include "deprecated/cogl-clutter.h"
 
