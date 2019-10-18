@@ -203,20 +203,6 @@ CoglWinsysID
 cogl_renderer_get_winsys_id (CoglRenderer *renderer);
 
 /**
- * cogl_renderer_get_n_fragment_texture_units:
- * @renderer: A #CoglRenderer
- *
- * Queries how many texture units can be used from fragment programs
- *
- * Returns: the number of texture image units.
- *
- * Since: 1.8
- * Stability: Unstable
- */
-int
-cogl_renderer_get_n_fragment_texture_units (CoglRenderer *renderer);
-
-/**
  * cogl_renderer_check_onscreen_template: (skip)
  * @renderer: A #CoglRenderer
  * @onscreen_template: A #CoglOnscreenTemplate
