@@ -113,7 +113,6 @@ typedef struct _CoglTextureVertex       CoglTextureVertex;
 /**
  * CoglFeatureFlags:
  * @COGL_FEATURE_TEXTURE_YUV: ycbcr conversion support
- * @COGL_FEATURE_TEXTURE_READ_PIXELS: glReadPixels() support
  * @COGL_FEATURE_PBOS: PBO support
  *
  * Flags for the supported features.
@@ -123,7 +122,6 @@ typedef struct _CoglTextureVertex       CoglTextureVertex;
 typedef enum
 {
   COGL_FEATURE_TEXTURE_YUV            = (1 << 3),
-  COGL_FEATURE_TEXTURE_READ_PIXELS    = (1 << 4),
   COGL_FEATURE_PBOS		      = (1 << 12),
 } CoglFeatureFlags;
 
