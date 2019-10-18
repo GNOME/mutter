@@ -393,7 +393,6 @@ _cogl_driver_update_features (CoglContext *ctx,
                                   &ctx->glsl_major,
                                   &ctx->glsl_minor);
 
-  flags = (COGL_FEATURE_TEXTURE_READ_PIXELS);
   COGL_FLAGS_SET (ctx->features,
                   COGL_FEATURE_ID_UNSIGNED_INT_INDICES, TRUE);
 
