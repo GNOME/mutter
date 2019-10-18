@@ -65,7 +65,7 @@ round_to_fixed (float x)
  * located at integral coordinates. These coordinates are returned
  * in @x_origin and @y_origin.
  */
-gboolean
+static gboolean
 meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
                                        float               widthf,
                                        float               heightf,
