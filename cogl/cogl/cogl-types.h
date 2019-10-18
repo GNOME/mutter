@@ -112,16 +112,12 @@ typedef struct _CoglTextureVertex       CoglTextureVertex;
 
 /**
  * CoglFeatureFlags:
- * @COGL_FEATURE_PBOS: PBO support
  *
  * Flags for the supported features.
  *
  * Since: 0.8
  */
-typedef enum
-{
-  COGL_FEATURE_PBOS		      = (1 << 12),
-} CoglFeatureFlags;
+typedef int CoglFeatureFlags;
 
 /**
  * CoglBufferTarget:
