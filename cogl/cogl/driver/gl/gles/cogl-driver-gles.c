@@ -242,7 +242,6 @@ _cogl_driver_update_features (CoglContext *context,
 {
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
-  CoglFeatureFlags flags = 0;
   char **gl_extensions;
   int gl_major, gl_minor;
   int i;
@@ -364,7 +363,6 @@ _cogl_driver_update_features (CoglContext *context,
   /* Cache features */
   for (i = 0; i < G_N_ELEMENTS (private_features); i++)
     context->private_features[i] |= private_features[i];
-  context->feature_flags |= flags;
 
   g_strfreev (gl_extensions);
 

@@ -111,15 +111,6 @@ typedef struct _CoglTextureVertex       CoglTextureVertex;
 #define COGL_STENCIL_BIT        (1 << 9)
 
 /**
- * CoglFeatureFlags:
- *
- * Flags for the supported features.
- *
- * Since: 0.8
- */
-typedef int CoglFeatureFlags;
-
-/**
  * CoglBufferTarget:
  * @COGL_WINDOW_BUFFER: FIXME
  * @COGL_OFFSCREEN_BUFFER: FIXME

@@ -67,14 +67,6 @@
 }
 
 {
-   cogl_features
-   Memcheck:Leak
-   fun:*alloc
-   ...
-   fun:cogl_get_features
-}
-
-{
    glx_query_version
    Memcheck:Leak
    fun:*alloc
