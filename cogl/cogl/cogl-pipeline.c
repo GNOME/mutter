@@ -49,7 +49,6 @@
 #include "cogl-depth-state-private.h"
 #include "cogl1-context.h"
 #include "cogl-gtype-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
 
 #include <glib.h>
 #include <glib/gprintf.h>
