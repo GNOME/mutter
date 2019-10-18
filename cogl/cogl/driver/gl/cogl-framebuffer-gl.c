@@ -36,6 +36,7 @@
 #include "cogl-texture-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-framebuffer-gl-private.h"
+#include "driver/gl/cogl-bitmap-gl-private.h"
 #include "driver/gl/cogl-buffer-gl-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
 

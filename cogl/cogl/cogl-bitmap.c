@@ -38,7 +38,6 @@
 #include "cogl-pixel-buffer.h"
 #include "cogl-context-private.h"
 #include "cogl-gtype-private.h"
-#include "driver/gl/cogl-buffer-gl-private.h"
 
 #include <string.h>
 
@@ -441,86 +440,6 @@ _cogl_bitmap_unmap (CoglBitmap *bitmap)
 
   if (bitmap->buffer)
     cogl_buffer_unmap (bitmap->buffer);
-}
-
-uint8_t *
-_cogl_bitmap_gl_bind (CoglBitmap *bitmap,
-                      CoglBufferAccess access,
-                      CoglBufferMapHint hints,
-                      GError **error)
-{
-  uint8_t *ptr;
-  GError *internal_error = NULL;
-
-  g_return_val_if_fail (access & (COGL_BUFFER_ACCESS_READ |
-                                  COGL_BUFFER_ACCESS_WRITE),
-                        NULL);
-
-  /* Divert to another bitmap if this data is shared */
-  if (bitmap->shared_bmp)
-    return _cogl_bitmap_gl_bind (bitmap->shared_bmp, access, hints, error);
-
-  g_return_val_if_fail (!bitmap->bound, NULL);
-
-  /* If the bitmap wasn't created from a buffer then the
-     implementation of bind is the same as map */
-  if (bitmap->buffer == NULL)
-    {
-      uint8_t *data = _cogl_bitmap_map (bitmap, access, hints, error);
-      if (data)
-        bitmap->bound = TRUE;
-      return data;
-    }
-
-  if (access == COGL_BUFFER_ACCESS_READ)
-    ptr = _cogl_buffer_gl_bind (bitmap->buffer,
-                                COGL_BUFFER_BIND_TARGET_PIXEL_UNPACK,
-                                &internal_error);
-  else if (access == COGL_BUFFER_ACCESS_WRITE)
-    ptr = _cogl_buffer_gl_bind (bitmap->buffer,
-                                COGL_BUFFER_BIND_TARGET_PIXEL_PACK,
-                                &internal_error);
-  else
-    {
-      ptr = NULL;
-      g_assert_not_reached ();
-      return NULL;
-    }
-
-  /* NB: _cogl_buffer_gl_bind() may return NULL in non-error
-   * conditions so we have to explicitly check internal_error to see
-   * if an exception was thrown */
-  if (internal_error)
-    {
-      g_propagate_error (error, internal_error);
-      return NULL;
-    }
-
-  bitmap->bound = TRUE;
-
-  /* The data pointer actually stores the offset */
-  return ptr + GPOINTER_TO_INT (bitmap->data);
-}
-
-void
-_cogl_bitmap_gl_unbind (CoglBitmap *bitmap)
-{
-  /* Divert to another bitmap if this data is shared */
-  if (bitmap->shared_bmp)
-    {
-      _cogl_bitmap_gl_unbind (bitmap->shared_bmp);
-      return;
-    }
-
-  g_assert (bitmap->bound);
-  bitmap->bound = FALSE;
-
-  /* If the bitmap wasn't created from a pixel array then the
-     implementation of unbind is the same as unmap */
-  if (bitmap->buffer)
-    _cogl_buffer_gl_unbind (bitmap->buffer);
-  else
-    _cogl_bitmap_unmap (bitmap);
 }
 
 CoglContext *

@@ -47,6 +47,7 @@
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
+#include "driver/gl/cogl-bitmap-gl-private.h"
 
 #include <string.h>
 #include <stdlib.h>
