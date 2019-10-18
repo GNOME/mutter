@@ -41,7 +41,6 @@
 #include "cogl-point-in-poly-private.h"
 #include "cogl-private.h"
 #include "cogl1-context.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "deprecated/cogl-vertex-buffer-private.h"
 
 #include <string.h>

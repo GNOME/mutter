@@ -52,7 +52,6 @@
 #include "cogl-private.h"
 #include "cogl-primitives-private.h"
 #include "cogl-gtype-private.h"
-#include "driver/gl/cogl-texture-gl-private.h"
 #include "winsys/cogl-winsys-private.h"
 
 extern CoglObjectClass _cogl_onscreen_class;

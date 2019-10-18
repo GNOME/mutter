@@ -51,7 +51,6 @@
 #include "cogl-xlib.h"
 #include "cogl-private.h"
 #include "cogl-gtype-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
 #include "winsys/cogl-winsys-private.h"
 
