@@ -64,9 +64,6 @@ clutter_features_from_cogl (guint cogl_flags)
 {
   ClutterFeatureFlags clutter_flags = 0;
   
-  if (cogl_flags & COGL_FEATURE_TEXTURE_YUV)
-    clutter_flags |= CLUTTER_FEATURE_TEXTURE_YUV;
-  
   clutter_flags |= CLUTTER_FEATURE_SHADERS_GLSL;
   
   clutter_flags |= CLUTTER_FEATURE_OFFSCREEN;
