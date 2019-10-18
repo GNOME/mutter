@@ -143,30 +143,12 @@ meta_actor_is_untransformed (ClutterActor *actor,
                                         y_origin) == UNTRANSFORMED;
 }
 
-/**
- * meta_actor_painting_untransformed:
- * @paint_width: the width of the painted area
- * @paint_height: the height of the painted area
- * @x_origin: if the transform is only an integer translation
- *  then the X coordinate of the location of the origin under the transformation
- *  from drawing space to screen pixel space is returned here.
- * @y_origin: if the transform is only an integer translation
- *  then the X coordinate of the location of the origin under the transformation
- *  from drawing space to screen pixel space is returned here.
- *
- * Determines if the current painting transform is an integer translation.
- * This can differ from the result of meta_actor_is_untransformed() when
- * painting an actor if we're inside a inside a clone paint. @paint_width
- * and @paint_height are used to determine the vertices of the rectangle
- * we check to see if the painted area is "close enough" to the integer
- * transform.
- */
-gboolean
-meta_actor_painting_untransformed (CoglFramebuffer *fb,
-                                   int              paint_width,
-                                   int              paint_height,
-                                   int             *x_origin,
-                                   int             *y_origin)
+static VertexAlignment
+meta_actor_painting_alignment (CoglFramebuffer *fb,
+                               int              paint_width,
+                               int              paint_height,
+                               int             *x_origin,
+                               int             *y_origin)
 {
   CoglMatrix modelview, projection, modelview_projection;
   graphene_point3d_t vertices[4];
@@ -209,6 +191,52 @@ meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                         paint_width,
                                         paint_height,
                                         x_origin,
+                                        y_origin);
+}
+
+/**
+ * meta_actor_painting_untransformed:
+ * @paint_width: the width of the painted area
+ * @paint_height: the height of the painted area
+ * @x_origin: if the transform is only an integer translation
+ *  then the X coordinate of the location of the origin under the transformation
+ *  from drawing space to screen pixel space is returned here.
+ * @y_origin: if the transform is only an integer translation
+ *  then the X coordinate of the location of the origin under the transformation
+ *  from drawing space to screen pixel space is returned here.
+ *
+ * Determines if the current painting transform is an integer translation.
+ * This can differ from the result of meta_actor_is_untransformed() when
+ * painting an actor if we're inside a inside a clone paint. @paint_width
+ * and @paint_height are used to determine the vertices of the rectangle
+ * we check to see if the painted area is "close enough" to the integer
+ * transform.
+ */
+gboolean
+meta_actor_painting_untransformed (CoglFramebuffer *fb,
+                                   int              paint_width,
+                                   int              paint_height,
+                                   int             *x_origin,
+                                   int             *y_origin)
+{
+  return meta_actor_painting_alignment (fb,
+                                        paint_width,
+                                        paint_height,
+                                        x_origin,
                                         y_origin) == UNTRANSFORMED;
 }
 
+gboolean
+meta_actor_painting_integer_scale (CoglFramebuffer *fb,
+                                   int              paint_width,
+                                   int              paint_height)
+{
+  VertexAlignment alignment = meta_actor_painting_alignment (fb,
+                                                             paint_width,
+                                                             paint_height,
+                                                             NULL,
+                                                             NULL);
+
+  return alignment == UNTRANSFORMED ||
+         alignment == INTEGER_SCALED;
+}
