@@ -43,6 +43,18 @@
 #include "driver/gl/cogl-clip-stack-gl-private.h"
 #include "driver/gl/cogl-buffer-gl-private.h"
 
+gboolean
+_cogl_driver_gl_context_init (CoglContext *context,
+                              GError **error)
+{
+  return TRUE;
+}
+
+void
+_cogl_driver_gl_context_deinit (CoglContext *context)
+{
+}
+
 static gboolean
 _cogl_driver_pixel_format_from_gl_internal (CoglContext *context,
                                             GLenum gl_int_format,
@@ -499,6 +511,8 @@ _cogl_driver_update_features (CoglContext *ctx,
 const CoglDriverVtable
 _cogl_driver_gl =
   {
+    _cogl_driver_gl_context_init,
+    _cogl_driver_gl_context_deinit,
     _cogl_driver_pixel_format_from_gl_internal,
     _cogl_driver_pixel_format_to_gl,
     _cogl_driver_update_features,

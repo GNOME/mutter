@@ -52,9 +52,23 @@ _cogl_driver_update_features (CoglContext *ctx,
   return TRUE;
 }
 
+static gboolean
+_cogl_driver_nop_context_init( CoglContext *context,
+                               GError **error)
+{
+  return TRUE;
+}
+
+static void
+_cogl_driver_nop_context_deinit (CoglContext *context)
+{
+}
+
 const CoglDriverVtable
 _cogl_driver_nop =
   {
+    _cogl_driver_nop_context_init,
+    _cogl_driver_nop_context_deinit,
     NULL, /* pixel_format_from_gl_internal */
     NULL, /* pixel_format_to_gl */
     _cogl_driver_update_features,

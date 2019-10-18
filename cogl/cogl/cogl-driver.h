@@ -40,6 +40,12 @@ typedef struct _CoglDriverVtable CoglDriverVtable;
 
 struct _CoglDriverVtable
 {
+  gboolean
+  (* context_init) (CoglContext *context, GError **error);
+
+  void
+  (* context_deinit) (CoglContext *context);
+
   /* TODO: factor this out since this is OpenGL specific and
    * so can be ignored by non-OpenGL drivers. */
   gboolean

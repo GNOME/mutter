@@ -104,6 +104,12 @@ _cogl_context_get_winsys (CoglContext *context)
   return context->display->renderer->winsys_vtable;
 }
 
+static const CoglDriverVtable *
+_cogl_context_get_driver (CoglContext *context)
+{
+  return context->driver_vtable;
+}
+
 /* For reference: There was some deliberation over whether to have a
  * constructor that could throw an exception but looking at standard
  * practices with several high level OO languages including python, C++,
@@ -201,6 +207,13 @@ cogl_context_new (CoglDisplay *display,
 
   winsys = _cogl_context_get_winsys (context);
   if (!winsys->context_init (context, error))
+    {
+      cogl_object_unref (display);
+      g_free (context);
+      return NULL;
+    }
+
+  if (!context->driver_vtable->context_init (context, error))
     {
       cogl_object_unref (display);
       g_free (context);
@@ -393,6 +406,7 @@ static void
 _cogl_context_free (CoglContext *context)
 {
   const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
+  const CoglDriverVtable *driver = _cogl_context_get_driver (context);
 
   winsys->context_deinit (context);
 
@@ -473,6 +487,8 @@ _cogl_context_free (CoglContext *context)
   g_array_free (context->attribute_name_index_map, TRUE);
 
   g_byte_array_free (context->buffer_map_fallback_array, TRUE);
+
+  driver->context_deinit (context);
 
   cogl_object_unref (context->display);
 

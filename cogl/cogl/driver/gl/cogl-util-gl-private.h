@@ -76,6 +76,13 @@ _cogl_gl_error_to_string (GLenum error_code);
 
 #endif /* COGL_GL_DEBUG */
 
+gboolean
+_cogl_driver_gl_context_init (CoglContext *context,
+                              GError **error);
+
+void
+_cogl_driver_gl_context_deinit (CoglContext *context);
+
 GLenum
 _cogl_gl_util_get_error (CoglContext *ctx);
 
