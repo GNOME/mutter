@@ -191,22 +191,6 @@ cogl_viewport (unsigned int width,
   cogl_set_viewport (0, 0, width, height);
 }
 
-CoglFeatureFlags
-cogl_get_features (void)
-{
-  _COGL_GET_CONTEXT (ctx, 0);
-
-  return ctx->feature_flags;
-}
-
-gboolean
-cogl_features_available (CoglFeatureFlags features)
-{
-  _COGL_GET_CONTEXT (ctx, 0);
-
-  return (ctx->feature_flags & features) == features;
-}
-
 gboolean
 cogl_has_feature (CoglContext *ctx, CoglFeatureID feature)
 {

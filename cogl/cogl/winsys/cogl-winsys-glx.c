@@ -142,7 +142,6 @@ typedef struct _CoglTexturePixmapGLX
                                   winsys_feature)                       \
   { major_version, minor_version,                                       \
       0, namespaces, extension_names,                                   \
-      feature_flags,                                                    \
       0,                                                                \
       winsys_feature, \
       cogl_glx_feature_ ## name ## _funcs },
@@ -708,8 +707,6 @@ update_base_winsys_features (CoglRenderer *renderer)
                              split_extensions,
                              glx_renderer))
       {
-        glx_renderer->legacy_feature_flags |=
-          winsys_feature_data[i].feature_flags;
         if (winsys_feature_data[i].winsys_feature)
           COGL_FLAGS_SET (glx_renderer->base_winsys_features,
                           winsys_feature_data[i].winsys_feature,
@@ -829,8 +826,6 @@ update_winsys_features (CoglContext *context, GError **error)
   memcpy (context->winsys_features,
           glx_renderer->base_winsys_features,
           sizeof (context->winsys_features));
-
-  context->feature_flags |= glx_renderer->legacy_feature_flags;
 
   if (glx_renderer->glXCopySubBuffer || context->glBlitFramebuffer)
     {

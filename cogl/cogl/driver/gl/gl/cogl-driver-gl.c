@@ -333,7 +333,6 @@ static gboolean
 _cogl_driver_update_features (CoglContext *ctx,
                               GError **error)
 {
-  CoglFeatureFlags flags = 0;
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
   char **gl_extensions;
@@ -480,7 +479,6 @@ _cogl_driver_update_features (CoglContext *ctx,
   /* Cache features */
   for (i = 0; i < G_N_ELEMENTS (private_features); i++)
     ctx->private_features[i] |= private_features[i];
-  ctx->feature_flags |= flags;
 
   g_strfreev (gl_extensions);
 

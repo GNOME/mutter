@@ -77,8 +77,6 @@ struct _CoglFeatureData
      extension is different from the namespace, you can specify it
      with a ':' after the namespace */
   const char *extension_names;
-  /* A set of feature flags to enable if the extension is available */
-  CoglFeatureFlags feature_flags;
   /* A set of private feature flags to enable if the extension is
    * available */
   int feature_flags_private;
