@@ -553,9 +553,8 @@ do_paint_content (MetaShapedTexture *stex,
 
   filter = COGL_PIPELINE_FILTER_LINEAR;
 
-  if (meta_actor_painting_untransformed (clutter_paint_node_get_framebuffer (root_node),
-                                         dst_width, dst_height,
-                                         NULL, NULL))
+  if (meta_actor_painting_integer_scale (clutter_paint_node_get_framebuffer (root_node),
+                                         dst_width, dst_height))
     filter = COGL_PIPELINE_FILTER_NEAREST;
 
   ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
