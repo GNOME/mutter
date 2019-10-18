@@ -33,4 +33,8 @@ gboolean meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                             int             *x_origin,
                                             int             *y_origin);
 
+gboolean meta_actor_painting_integer_scale (CoglFramebuffer *fb,
+                                            int              paint_width,
+                                            int              paint_height);
+
 #endif /* __META_CLUTTER_UTILS_H__ */
