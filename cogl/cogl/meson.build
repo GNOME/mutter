@@ -168,6 +168,8 @@ cogl_common_driver_sources = [
   'driver/gl/cogl-clip-stack-gl.c',
   'driver/gl/cogl-buffer-gl-private.h',
   'driver/gl/cogl-buffer-gl.c',
+  'driver/gl/cogl-bitmap-gl-private.h',
+  'driver/gl/cogl-bitmap-gl.c',
   'driver/gl/cogl-pipeline-opengl.c',
   'driver/gl/cogl-pipeline-opengl-private.h',
   'driver/gl/cogl-pipeline-fragend-glsl.c',
