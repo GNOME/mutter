@@ -97,7 +97,7 @@
 #define COGL_WINSYS_FEATURE_BEGIN(name, namespaces, extension_names,    \
                                   egl_private_flags)                    \
   { 255, 255, 0, namespaces, extension_names,                           \
-      0, egl_private_flags,                                             \
+      egl_private_flags,                                                \
       0,                                                                \
       cogl_egl_feature_ ## name ## _funcs },
 #undef COGL_WINSYS_FEATURE_FUNCTION

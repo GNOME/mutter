@@ -196,7 +196,7 @@ error:
                        gles_availability,                               \
                        namespaces, extension_names)                     \
   { min_gl_major, min_gl_minor, gles_availability, namespaces,          \
-      extension_names, 0, 0, 0,                                         \
+      extension_names, 0, 0,                                            \
     cogl_ext_ ## name ## _funcs },
 #undef COGL_EXT_FUNCTION
 #define COGL_EXT_FUNCTION(ret, name, args)
