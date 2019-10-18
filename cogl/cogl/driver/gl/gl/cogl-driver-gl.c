@@ -424,7 +424,6 @@ _cogl_driver_update_features (CoglContext *ctx,
 
   if (ctx->glRenderbufferStorageMultisampleIMG)
     {
-      flags |= COGL_FEATURE_OFFSCREEN_MULTISAMPLE;
       COGL_FLAGS_SET (ctx->features,
                       COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE, TRUE);
     }
