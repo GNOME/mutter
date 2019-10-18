@@ -732,7 +732,6 @@ cogl_renderer_get_driver
 #ifdef COGL_HAS_GTYPE_SUPPORT
 cogl_renderer_get_gtype
 #endif
-cogl_renderer_get_n_fragment_texture_units
 cogl_renderer_error_get_type
 cogl_renderer_get_winsys_id
 cogl_renderer_new

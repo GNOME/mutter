@@ -46,7 +46,6 @@
 #include "cogl-config-private.h"
 #include "cogl-gtype-private.h"
 
-#include "driver/gl/cogl-util-gl-private.h"
 #include "winsys/cogl-winsys-private.h"
 #include "winsys/cogl-winsys-stub-private.h"
 
@@ -732,20 +731,6 @@ _cogl_renderer_get_proc_address (CoglRenderer *renderer,
   const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
 
   return winsys->renderer_get_proc_address (renderer, name, in_core);
-}
-
-int
-cogl_renderer_get_n_fragment_texture_units (CoglRenderer *renderer)
-{
-  int n = 0;
-
-  _COGL_GET_CONTEXT (ctx, 0);
-
-#if defined (HAVE_COGL_GL) || defined (HAVE_COGL_GLES2)
-  GE (ctx, glGetIntegerv (GL_MAX_TEXTURE_IMAGE_UNITS, &n));
-#endif
-
-  return n;
 }
 
 void
