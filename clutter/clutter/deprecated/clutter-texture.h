@@ -123,14 +123,6 @@ gboolean                clutter_texture_get_pick_with_alpha     (ClutterTexture 
 CLUTTER_DEPRECATED_FOR(ClutterOffscreenEffect)
 ClutterActor *          clutter_texture_new_from_actor          (ClutterActor           *actor);
 
-CLUTTER_DEPRECATED
-gboolean                clutter_texture_set_from_yuv_data       (ClutterTexture         *texture,
-                                                                 const guchar           *data,
-                                                                 gint                    width,
-                                                                 gint                    height,
-                                                                 ClutterTextureFlags     flags,
-                                                                 GError                **error);
-
 G_END_DECLS
 
 #endif /* __CLUTTER_TEXTURE_DEPRECATED_H__ */
