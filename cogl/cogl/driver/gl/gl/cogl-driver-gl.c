@@ -422,12 +422,6 @@ _cogl_driver_update_features (CoglContext *ctx,
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER, TRUE);
 
-  if (ctx->glRenderbufferStorageMultisampleIMG)
-    {
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE, TRUE);
-    }
-
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_PBOS, TRUE);
 
   COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_MAP_BUFFER_FOR_READ, TRUE);
