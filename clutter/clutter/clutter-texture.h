@@ -46,8 +46,7 @@ G_BEGIN_DECLS
  * @CLUTTER_TEXTURE_ERROR_NO_YUV: YUV operation attempted but no YUV support
  *   found
  * @CLUTTER_TEXTURE_ERROR_BAD_FORMAT: The requested format for
- * clutter_texture_set_from_rgb_data or
- * clutter_texture_set_from_yuv_data is unsupported.
+ * clutter_texture_set_from_rgb_data is unsupported.
  *
  * Error enumeration for #ClutterTexture
  *

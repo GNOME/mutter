@@ -1215,8 +1215,7 @@ typedef enum
  * @CLUTTER_TEXTURE_RGB_FLAG_PREMULT: Unused flag
  * @CLUTTER_TEXTURE_YUV_FLAG_YUV2: Unused flag
  *
- * Flags for clutter_texture_set_from_rgb_data() and
- * clutter_texture_set_from_yuv_data().
+ * Flags for clutter_texture_set_from_rgb_data().
  *
  * Since: 0.4
  *
