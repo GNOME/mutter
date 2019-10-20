@@ -1655,41 +1655,6 @@ clutter_stage_get_redraw_clip (ClutterStage *stage)
   return cairo_region_create_rectangle (&clip);
 }
 
-/**
- * clutter_stage_get_redraw_clip_bounds:
- * @stage: A #ClutterStage
- * @clip: (out caller-allocates): Return location for the clip bounds
- *
- * Gets the bounds of the current redraw for @stage in stage pixel
- * coordinates. E.g., if only a single actor has queued a redraw then
- * Clutter may redraw the stage with a clip so that it doesn't have to
- * paint every pixel in the stage. This function would then return the
- * bounds of that clip. An application can use this information to
- * avoid some extra work if it knows that some regions of the stage
- * aren't going to be painted. This should only be called while the
- * stage is being painted. If there is no current redraw clip then
- * this function will set @clip to the full extents of the stage.
- *
- * Since: 1.8
- */
-void
-clutter_stage_get_redraw_clip_bounds (ClutterStage          *stage,
-                                      cairo_rectangle_int_t *clip)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-  g_return_if_fail (clip != NULL);
-
-  priv = stage->priv;
-
-  if (!_clutter_stage_window_get_redraw_clip_bounds (priv->impl, clip))
-    {
-      /* Set clip to the full extents of the stage */
-      _clutter_stage_window_get_geometry (priv->impl, clip);
-    }
-}
-
 static ClutterActor *
 _clutter_stage_do_pick_on_view (ClutterStage     *stage,
                                 float             x,
