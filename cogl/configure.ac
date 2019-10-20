@@ -485,9 +485,10 @@ AS_IF([test "x$enable_gles1" = "xyes"],
                   [AC_MSG_ERROR([Unable to locate EGL header])])
             AC_SUBST([COGL_EGL_INCLUDES])
 
-            AC_CHECK_HEADERS([EGL/eglext.h],
+            AC_CHECK_HEADERS([EGL/eglext.h EGL/eglmesaext.h],
                              [COGL_EGL_INCLUDES="$COGL_EGL_INCLUDE
-#include <EGL/eglext.h>"],
+#include <EGL/eglext.h>
+#include <EGL/eglmesaext.h>"],
                              [],
                              [$COGL_EGL_INCLUDES])
 
@@ -749,6 +750,11 @@ AS_IF([test "x$NEED_EGL" = "xyes" && test "x$EGL_CHECKED" != "xyes"],
               [],
               [AC_MSG_ERROR([Unable to locate required EGL headers])],
               [#include <EGL/egl.h>])
+            AC_CHECK_HEADERS(
+              [EGL/eglmesaext.h],
+              [],
+              [AC_MSG_ERROR([Unable to locate required EGL headers])],
+              [#include <EGL/eglmesaext.h>])
 
             AC_CHECK_LIB(EGL, [eglInitialize],
               [COGL_EXTRA_LDFLAGS="$COGL_EXTRA_LDFLAGS -lEGL"],
@@ -759,7 +765,8 @@ AS_IF([test "x$NEED_EGL" = "xyes" && test "x$EGL_CHECKED" != "xyes"],
           )
 
         COGL_EGL_INCLUDES="#include <EGL/egl.h>
-#include <EGL/eglext.h>"
+#include <EGL/eglext.h>
+#include <EGL/eglmesaext.h>"
         AC_SUBST([COGL_EGL_INCLUDES])
       ])
 
