@@ -249,23 +249,6 @@ _clutter_stage_window_get_redraw_clip (ClutterStageWindow *window)
   return NULL;
 }
 
-gboolean
-_clutter_stage_window_get_redraw_clip_bounds (ClutterStageWindow    *window,
-                                              cairo_rectangle_int_t *stage_clip)
-{
-  cairo_region_t *redraw_clip;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE_WINDOW (window), FALSE);
-
-  redraw_clip = _clutter_stage_window_get_redraw_clip (window);
-  if (!redraw_clip)
-    return FALSE;
-
-  cairo_region_get_extents (redraw_clip, stage_clip);
-  cairo_region_destroy (redraw_clip);
-  return TRUE;
-}
-
 void
 _clutter_stage_window_set_accept_focus (ClutterStageWindow *window,
                                         gboolean            accept_focus)
