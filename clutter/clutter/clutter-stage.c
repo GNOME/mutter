@@ -1428,11 +1428,10 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
   ClutterDeviceManager *device_manager;
   GSList *updating = NULL;
   const GSList *devices;
-  cairo_rectangle_int_t clip;
+  cairo_region_t *clip;
   graphene_point_t point;
-  gboolean has_clip;
 
-  has_clip = _clutter_stage_window_get_redraw_clip_bounds (priv->impl, &clip);
+  clip = _clutter_stage_window_get_redraw_clip (priv->impl);
 
   device_manager = clutter_device_manager_get_default ();
   devices = clutter_device_manager_peek_devices (device_manager);
@@ -1455,9 +1454,7 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
           if (!clutter_input_device_get_coords (dev, NULL, &point))
             continue;
 
-          if (!has_clip ||
-              (point.x >= clip.x && point.x < clip.x + clip.width &&
-               point.y >= clip.y && point.y < clip.y + clip.height))
+          if (!clip || cairo_region_contains_point (clip, point.x, point.y))
             updating = g_slist_prepend (updating, dev);
           break;
         default:
