@@ -401,7 +401,7 @@ static void
 pending_buffer_resource_destroyed (MetaWaylandBuffer       *buffer,
                                    MetaWaylandPendingState *pending)
 {
-  g_signal_handler_disconnect (buffer, pending->buffer_destroy_handler_id);
+  g_clear_signal_handler (&pending->buffer_destroy_handler_id, buffer);
   pending->buffer = NULL;
 }
 
