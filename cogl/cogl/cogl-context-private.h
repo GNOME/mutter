@@ -273,11 +273,6 @@ struct _CoglContext
      same state multiple times. When the clip state is flushed this
      will hold a reference */
   CoglClipStack    *current_clip_stack;
-  /* Whether the stencil buffer was used as part of the current clip
-     state. If TRUE then any further use of the stencil buffer (such
-     as for drawing paths) would need to be merged with the existing
-     stencil buffer */
-  gboolean          current_clip_stack_uses_stencil;
 
   /* This is used as a temporary buffer to fill a CoglBuffer when
      cogl_buffer_map fails and we only want to map to fill it with new
