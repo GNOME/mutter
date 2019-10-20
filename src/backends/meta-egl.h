@@ -28,6 +28,7 @@
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
+#include <EGL/eglmesaext.h>
 #include <glib-object.h>
 
 #define META_EGL_ERROR meta_egl_error_quark ()

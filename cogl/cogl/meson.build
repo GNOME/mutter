@@ -48,7 +48,7 @@ cogl_gl_header_h = configure_file(
 built_headers += [cogl_gl_header_h]
 
 if have_egl
-  cogl_egl_includes_string = '#include <EGL/egl.h>\n#include <EGL/eglext.h>'
+  cogl_egl_includes_string = '#include <EGL/egl.h>\n#include <EGL/eglext.h>\n#include <EGL/eglmesaext.h>'
 else
   cogl_egl_includes_string = ''
 endif

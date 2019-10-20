@@ -27,6 +27,7 @@
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
+#include <EGL/eglmesaext.h>
 #include <gio/gio.h>
 #include <glib.h>
 #include <glib-object.h>
