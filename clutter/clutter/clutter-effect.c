@@ -216,8 +216,7 @@ clutter_effect_real_paint (ClutterEffect           *effect,
 }
 
 static void
-clutter_effect_real_pick (ClutterEffect           *effect,
-                          ClutterEffectPaintFlags  flags)
+clutter_effect_real_pick (ClutterEffect *effect)
 {
   ClutterActorMeta *actor_meta = CLUTTER_ACTOR_META (effect);
   ClutterActor *actor;
@@ -288,12 +287,11 @@ _clutter_effect_paint (ClutterEffect           *effect,
 }
 
 void
-_clutter_effect_pick (ClutterEffect           *effect,
-                      ClutterEffectPaintFlags  flags)
+_clutter_effect_pick (ClutterEffect *effect)
 {
   g_return_if_fail (CLUTTER_IS_EFFECT (effect));
 
-  CLUTTER_EFFECT_GET_CLASS (effect)->pick (effect, flags);
+  CLUTTER_EFFECT_GET_CLASS (effect)->pick (effect);
 }
 
 gboolean

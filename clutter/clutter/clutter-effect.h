@@ -82,8 +82,7 @@ struct _ClutterEffectClass
 
   void     (* paint)               (ClutterEffect           *effect,
                                     ClutterEffectPaintFlags  flags);
-  void     (* pick)                (ClutterEffect           *effect,
-                                    ClutterEffectPaintFlags  flags);
+  void     (* pick)                (ClutterEffect           *effect);
 
   /*< private >*/
   void (* _clutter_effect4) (void);
