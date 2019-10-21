@@ -772,12 +772,14 @@ meta_kms_impl_simple_handle_page_flip_callback (MetaKmsImpl         *impl,
     {
       impl_simple->postponed_page_flip_datas =
         g_list_append (impl_simple->postponed_page_flip_datas,
-                       page_flip_data);
+                       meta_kms_page_flip_data_ref (page_flip_data));
     }
   else
     {
       meta_kms_page_flip_data_flipped_in_impl (page_flip_data);
     }
+
+  meta_kms_page_flip_data_unref (page_flip_data);
 }
 
 static void
