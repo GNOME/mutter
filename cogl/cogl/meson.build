@@ -336,7 +336,6 @@ cogl_sources = [
   'cogl-poll-private.h',
   'cogl-poll.c',
   'gl-prototypes/cogl-all-functions.h',
-  'gl-prototypes/cogl-fixed-functions.h',
   'cogl-memory-stack-private.h',
   'cogl-memory-stack.c',
   'cogl-magazine-private.h',

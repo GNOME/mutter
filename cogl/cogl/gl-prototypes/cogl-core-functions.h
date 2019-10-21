@@ -136,22 +136,12 @@ COGL_EXT_FUNCTION (void, glGenBuffers,
                     GLuint		*buffers))
 COGL_EXT_FUNCTION (void, glGenTextures,
                    (GLsizei n, GLuint* textures))
-COGL_EXT_FUNCTION (void, glGetBufferParameteriv,
-                   (GLenum target, GLenum pname, GLint* params))
 COGL_EXT_FUNCTION (GLenum, glGetError,
                    (void))
 COGL_EXT_FUNCTION (void, glGetIntegerv,
                    (GLenum pname, GLint* params))
-COGL_EXT_FUNCTION (void, glGetBooleanv,
-                   (GLenum pname, GLboolean* params))
-COGL_EXT_FUNCTION (void, glGetFloatv,
-                   (GLenum pname, GLfloat* params))
 COGL_EXT_FUNCTION (const GLubyte*, glGetString,
                    (GLenum name))
-COGL_EXT_FUNCTION (void, glHint,
-                   (GLenum target, GLenum mode))
-COGL_EXT_FUNCTION (GLboolean, glIsBuffer,
-                   (GLuint               buffer))
 COGL_EXT_FUNCTION (GLboolean, glIsTexture,
                    (GLuint texture))
 COGL_EXT_FUNCTION (void, glPixelStorei,
@@ -182,18 +172,10 @@ COGL_EXT_FUNCTION (void, glTexImage2D,
                     GLenum format,
                     GLenum type,
                     const GLvoid* pixels))
-COGL_EXT_FUNCTION (void, glTexParameterf,
-                   (GLenum target, GLenum pname, GLfloat param))
-COGL_EXT_FUNCTION (void, glTexParameterfv,
-                   (GLenum target, GLenum pname, const GLfloat* params))
 COGL_EXT_FUNCTION (void, glTexParameteri,
                    (GLenum target, GLenum pname, GLint param))
 COGL_EXT_FUNCTION (void, glTexParameteriv,
                    (GLenum target, GLenum pname, const GLint* params))
-COGL_EXT_FUNCTION (void, glGetTexParameterfv,
-                   (GLenum target, GLenum pname, GLfloat* params))
-COGL_EXT_FUNCTION (void, glGetTexParameteriv,
-                   (GLenum target, GLenum pname, GLint* params))
 COGL_EXT_FUNCTION (void, glTexSubImage2D,
                    (GLenum target,
                     GLint level,
@@ -204,18 +186,6 @@ COGL_EXT_FUNCTION (void, glTexSubImage2D,
                     GLenum format,
                     GLenum type,
                     const GLvoid* pixels))
-COGL_EXT_FUNCTION (void, glCopyTexImage2D,
-                   (GLenum target,
-                    GLint level,
-                    GLenum internalformat,
-                    GLint x,
-                    GLint y,
-                    GLsizei width,
-                    GLsizei height,
-                    GLint border))
 COGL_EXT_FUNCTION (void, glViewport,
                    (GLint x, GLint y, GLsizei width, GLsizei height))
-COGL_EXT_FUNCTION (GLboolean, glIsEnabled, (GLenum cap))
-COGL_EXT_FUNCTION (void, glLineWidth, (GLfloat width))
-COGL_EXT_FUNCTION (void, glPolygonOffset, (GLfloat factor, GLfloat units))
 COGL_EXT_END ()

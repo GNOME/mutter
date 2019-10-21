@@ -63,6 +63,4 @@ COGL_EXT_BEGIN (only_in_both_gles,
                 "ES2_compatibility\0")
 COGL_EXT_FUNCTION (void, glDepthRangef,
                    (GLfloat near_val, GLfloat far_val))
-COGL_EXT_FUNCTION (void, glClearDepthf,
-                   (GLclampf depth))
 COGL_EXT_END ()
