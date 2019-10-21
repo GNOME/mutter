@@ -262,6 +262,20 @@ meta_x11_selection_input_stream_close_finish (GInputStream  *stream,
 }
 
 static void
+meta_x11_selection_input_stream_dispose (GObject *object)
+{
+  MetaX11SelectionInputStream *stream =
+    META_X11_SELECTION_INPUT_STREAM (object);
+  MetaX11SelectionInputStreamPrivate *priv =
+    meta_x11_selection_input_stream_get_instance_private (stream);
+
+  priv->x11_display->selection.input_streams =
+    g_list_remove (priv->x11_display->selection.input_streams, stream);
+
+  G_OBJECT_CLASS (meta_x11_selection_input_stream_parent_class)->dispose (object);
+}
+
+static void
 meta_x11_selection_input_stream_finalize (GObject *object)
 {
   MetaX11SelectionInputStream *stream =
@@ -284,6 +298,7 @@ meta_x11_selection_input_stream_class_init (MetaX11SelectionInputStreamClass *kl
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GInputStreamClass *istream_class = G_INPUT_STREAM_CLASS (klass);
 
+  object_class->dispose = meta_x11_selection_input_stream_dispose;
   object_class->finalize = meta_x11_selection_input_stream_finalize;
 
   istream_class->read_fn = meta_x11_selection_input_stream_read;

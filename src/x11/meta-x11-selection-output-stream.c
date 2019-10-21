@@ -490,6 +490,20 @@ meta_x11_selection_output_stream_close_finish (GOutputStream  *stream,
 }
 
 static void
+meta_x11_selection_output_stream_dispose (GObject *object)
+{
+  MetaX11SelectionOutputStream *stream =
+    META_X11_SELECTION_OUTPUT_STREAM (object);
+  MetaX11SelectionOutputStreamPrivate *priv =
+    meta_x11_selection_output_stream_get_instance_private (stream);
+
+  priv->x11_display->selection.output_streams =
+    g_list_remove (priv->x11_display->selection.output_streams, stream);
+
+  G_OBJECT_CLASS (meta_x11_selection_output_stream_parent_class)->dispose (object);
+}
+
+static void
 meta_x11_selection_output_stream_finalize (GObject *object)
 {
   MetaX11SelectionOutputStream *stream =
@@ -514,6 +528,7 @@ meta_x11_selection_output_stream_class_init (MetaX11SelectionOutputStreamClass *
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   GOutputStreamClass *output_stream_class = G_OUTPUT_STREAM_CLASS (klass);
 
+  object_class->dispose = meta_x11_selection_output_stream_dispose;
   object_class->finalize = meta_x11_selection_output_stream_finalize;
 
   output_stream_class->write_fn = meta_x11_selection_output_stream_write;
