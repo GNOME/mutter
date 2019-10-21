@@ -1478,6 +1478,13 @@ meta_wayland_surface_begin_grab_op (MetaWaylandSurface *surface,
                                      x, y);
 }
 
+/**
+ * meta_wayland_shell_init:
+ * @compositor: The #MetaWaylandCompositor object
+ *
+ * Initializes the Wayland interfaces providing features that deal with
+ * desktop-specific conundrums, like XDG shell, wl_shell (deprecated), etc.
+ */
 void
 meta_wayland_shell_init (MetaWaylandCompositor *compositor)
 {
