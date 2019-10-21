@@ -22,6 +22,30 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
+/**
+ * SECTION:meta-wayland-buffer
+ * @title: MetaWaylandBuffer
+ * @short_description: A wrapper for wayland buffers
+ *
+ * #MetaWaylandBuffer is a general wrapper around wl_buffer, the basic way of
+ * passing rendered data from Wayland clients to the compositor. Note there are
+ * multiple ways of passing a buffer to the compositor, as specified by
+ * #MetaWaylandBufferType.
+ */
+
+/**
+ * MetaWaylandBufferType:
+ * @META_WAYLAND_BUFFER_TYPE_UNKNOWN: Unknown type.
+ * @META_WAYLAND_BUFFER_TYPE_SHM: wl_buffer backed by shared memory
+ * @META_WAYLAND_BUFFER_TYPE_EGL_IMAGE: wl_buffer backed by an EGLImage
+ * @META_WAYLAND_BUFFER_TYPE_EGL_STREAM: wl_buffer backed by an EGLStream (NVIDIA-specific)
+ * @META_WAYLAND_BUFFER_TYPE_DMA_BUF: wl_buffer backed by a dma_buf
+ *
+ * Specifies the backing memory for a #MetaWaylandBuffer. Depending on the type
+ * of buffer, this will lead to different handling for the compositor.  For
+ * example, a shared-memory buffer will still need to be uploaded to the GPU.
+ */
+
 #include "config.h"
 
 #include "wayland/meta-wayland-buffer.h"
@@ -449,6 +473,15 @@ meta_wayland_buffer_attach (MetaWaylandBuffer  *buffer,
   return FALSE;
 }
 
+/**
+ * meta_wayland_buffer_create_snippet:
+ * @buffer: A #MetaWaylandBuffer object
+ *
+ * If needed, this method creates a #CoglSnippet to make sure the buffer can be
+ * dealt with appropriately in a #CoglPipeline that renders it.
+ *
+ * Returns: (transfer full) (nullable): A new #CoglSnippet, or %NULL.
+ */
 CoglSnippet *
 meta_wayland_buffer_create_snippet (MetaWaylandBuffer *buffer)
 {
@@ -582,6 +615,11 @@ meta_wayland_buffer_class_init (MetaWaylandBufferClass *klass)
 
   object_class->finalize = meta_wayland_buffer_finalize;
 
+  /**
+   * MetaWaylandBuffer::resource-destroyed:
+   *
+   * Called when the underlying wl_resource was destroyed.
+   */
   signals[RESOURCE_DESTROYED] = g_signal_new ("resource-destroyed",
                                               G_TYPE_FROM_CLASS (object_class),
                                               G_SIGNAL_RUN_LAST,
