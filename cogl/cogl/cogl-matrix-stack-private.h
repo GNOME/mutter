@@ -162,13 +162,6 @@ typedef enum
 } CoglMatrixMode;
 
 void
-_cogl_matrix_entry_flush_to_gl_builtins (CoglContext *ctx,
-                                         CoglMatrixEntry *entry,
-                                         CoglMatrixMode mode,
-                                         CoglFramebuffer *framebuffer,
-                                         gboolean disable_flip);
-
-void
 _cogl_matrix_entry_cache_init (CoglMatrixEntryCache *cache);
 
 gboolean
