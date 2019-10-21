@@ -1014,9 +1014,6 @@ cogl_pipeline_set_blend_constant (CoglPipeline *pipeline,
 
   g_return_if_fail (cogl_is_pipeline (pipeline));
 
-  if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_BLEND_CONSTANT))
-    return;
-
 #if defined(HAVE_COGL_GLES2) || defined(HAVE_COGL_GL)
   {
     CoglPipelineState state = COGL_PIPELINE_STATE_BLEND;
@@ -1349,16 +1346,6 @@ cogl_pipeline_set_per_vertex_point_size (CoglPipeline *pipeline,
 
   if (authority->big_state->per_vertex_point_size == enable)
     return TRUE;
-
-  if (enable && !cogl_has_feature (ctx, COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE))
-    {
-      g_set_error_literal (error,
-                           COGL_SYSTEM_ERROR,
-                           COGL_SYSTEM_ERROR_UNSUPPORTED,
-                           "Per-vertex point size is not supported");
-
-      return FALSE;
-    }
 
   /* - Flush journal primitives referencing the current state.
    * - Make sure the pipeline has no dependants so it may be modified.

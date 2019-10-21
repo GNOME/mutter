@@ -142,7 +142,6 @@ typedef struct _CoglTexturePixmapGLX
                                   winsys_feature)                       \
   { major_version, minor_version,                                       \
       0, namespaces, extension_names,                                   \
-      feature_flags,                                                    \
       0,                                                                \
       winsys_feature, \
       cogl_glx_feature_ ## name ## _funcs },
@@ -708,8 +707,6 @@ update_base_winsys_features (CoglRenderer *renderer)
                              split_extensions,
                              glx_renderer))
       {
-        glx_renderer->legacy_feature_flags |=
-          winsys_feature_data[i].feature_flags;
         if (winsys_feature_data[i].winsys_feature)
           COGL_FLAGS_SET (glx_renderer->base_winsys_features,
                           winsys_feature_data[i].winsys_feature,
@@ -829,12 +826,6 @@ update_winsys_features (CoglContext *context, GError **error)
   memcpy (context->winsys_features,
           glx_renderer->base_winsys_features,
           sizeof (context->winsys_features));
-
-  context->feature_flags |= glx_renderer->legacy_feature_flags;
-
-  context->feature_flags |= COGL_FEATURE_ONSCREEN_MULTIPLE;
-  COGL_FLAGS_SET (context->features,
-                  COGL_FEATURE_ID_ONSCREEN_MULTIPLE, TRUE);
 
   if (glx_renderer->glXCopySubBuffer || context->glBlitFramebuffer)
     {
@@ -2223,19 +2214,15 @@ get_fbconfig_for_depth (CoglContext *context,
 
       stencil = value;
 
-      /* glGenerateMipmap is defined in the offscreen extension */
-      if (cogl_has_feature (context, COGL_FEATURE_ID_OFFSCREEN))
-        {
-          glx_renderer->glXGetFBConfigAttrib (dpy,
-                                              fbconfigs[i],
-                                              GLX_BIND_TO_MIPMAP_TEXTURE_EXT,
-                                              &value);
+      glx_renderer->glXGetFBConfigAttrib (dpy,
+                                          fbconfigs[i],
+                                          GLX_BIND_TO_MIPMAP_TEXTURE_EXT,
+                                          &value);
 
-          if (value < mipmap)
-            continue;
+      if (value < mipmap)
+        continue;
 
-          mipmap =  value;
-        }
+      mipmap = value;
 
       *fbconfig_ret = fbconfigs[i];
       *can_mipmap_ret = mipmap;

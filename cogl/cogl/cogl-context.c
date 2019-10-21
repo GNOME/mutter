@@ -98,9 +98,6 @@ static CoglContext *_cogl_context = NULL;
 static void
 _cogl_init_feature_overrides (CoglContext *ctx)
 {
-  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_VBOS)))
-    COGL_FLAGS_SET (ctx->private_features, COGL_PRIVATE_FEATURE_VBOS, FALSE);
-
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_PBOS)))
     COGL_FLAGS_SET (ctx->private_features, COGL_PRIVATE_FEATURE_PBOS, FALSE);
 }
@@ -166,7 +163,6 @@ cogl_context_new (CoglDisplay *display,
 
   /* Init default values */
   memset (context->features, 0, sizeof (context->features));
-  context->feature_flags = 0;
   memset (context->private_features, 0, sizeof (context->private_features));
   memset (context->winsys_features, 0, sizeof (context->winsys_features));
 
@@ -411,8 +407,7 @@ cogl_context_new (CoglDisplay *display,
      pipeline to track whether any layers have point sprite coords
      enabled. We don't need to do this for GL3 or GLES2 because point
      sprites are handled using a builtin varying in the shader. */
-  if (_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_GL_FIXED) &&
-      cogl_has_feature (context, COGL_FEATURE_ID_POINT_SPRITE))
+  if (_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_GL_FIXED))
     GE (context, glEnable (GL_POINT_SPRITE));
 
   _cogl_list_init (&context->fences);

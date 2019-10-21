@@ -279,9 +279,7 @@ _cogl_framebuffer_gl_bind (CoglFramebuffer *framebuffer, GLenum target)
       const CoglWinsysVtable *winsys =
         _cogl_framebuffer_get_winsys (framebuffer);
       winsys->onscreen_bind (COGL_ONSCREEN (framebuffer));
-      /* glBindFramebuffer is an an extension with OpenGL ES 1.1 */
-      if (cogl_has_feature (ctx, COGL_FEATURE_ID_OFFSCREEN))
-        GE (ctx, glBindFramebuffer (target, 0));
+      GE (ctx, glBindFramebuffer (target, 0));
 
       /* Initialise the glDrawBuffer state the first time the context
        * is bound to the default framebuffer. If the winsys is using a
@@ -438,20 +436,6 @@ _cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
 
   ctx->current_draw_buffer_state_flushed |= state;
   ctx->current_draw_buffer_changes &= ~state;
-}
-
-static CoglTexture *
-create_depth_texture (CoglContext *ctx,
-                      int width,
-                      int height)
-{
-  CoglTexture2D *depth_texture =
-    cogl_texture_2d_new_with_size (ctx, width, height);
-
-  cogl_texture_set_components (COGL_TEXTURE (depth_texture),
-                               COGL_TEXTURE_COMPONENTS_DEPTH);
-
-  return COGL_TEXTURE (depth_texture);
 }
 
 static CoglTexture *
@@ -785,24 +769,6 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                                 &level_width,
                                 &level_height,
                                 NULL);
-
-  if (fb->config.depth_texture_enabled &&
-      offscreen->depth_texture == NULL)
-    {
-      offscreen->depth_texture =
-        create_depth_texture (ctx,
-                              level_width,
-                              level_height);
-
-      if (!cogl_texture_allocate (offscreen->depth_texture, error))
-        {
-          cogl_object_unref (offscreen->depth_texture);
-          offscreen->depth_texture = NULL;
-          return FALSE;
-        }
-
-      _cogl_texture_associate_framebuffer (offscreen->depth_texture, fb);
-    }
 
   /* XXX: The framebuffer_object spec isn't clear in defining whether attaching
    * a texture as a renderbuffer with mipmap filtering enabled while the

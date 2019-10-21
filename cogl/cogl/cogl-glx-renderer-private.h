@@ -69,8 +69,6 @@ typedef struct _CoglGLXRenderer
   unsigned long base_winsys_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_WINSYS_FEATURE_N_FEATURES)];
 
-  CoglFeatureFlags legacy_feature_flags;
-
   /* Function pointers for core GLX functionality. We can't just link
      against these directly because we need to conditionally load
      libGL when we are using GLX so that it won't conflict with a GLES

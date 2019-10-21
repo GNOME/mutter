@@ -242,7 +242,6 @@ _cogl_driver_update_features (CoglContext *context,
 {
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
-  CoglFeatureFlags flags = 0;
   char **gl_extensions;
   int gl_major, gl_minor;
   int i;
@@ -301,32 +300,11 @@ _cogl_driver_update_features (CoglContext *context,
                                      gl_minor,
                                      gl_extensions);
 
-  flags |= COGL_FEATURE_OFFSCREEN;
   /* Note GLES 2 core doesn't support mipmaps for npot textures or
    * repeat modes other than CLAMP_TO_EDGE. */
-  flags |= COGL_FEATURE_DEPTH_RANGE;
-  COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_OFFSCREEN, TRUE);
-  COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_DEPTH_RANGE, TRUE);
-  COGL_FLAGS_SET (context->features,
-                  COGL_FEATURE_ID_MIRRORED_REPEAT, TRUE);
-  COGL_FLAGS_SET (context->features,
-                  COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE, TRUE);
 
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_BLEND_CONSTANT, TRUE);
-
-  COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_VBOS, TRUE);
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ANY_GL, TRUE);
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
-
-  flags |= COGL_FEATURE_POINT_SPRITE;
-  COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_POINT_SPRITE, TRUE);
-
-  if (context->glGenRenderbuffers)
-    {
-      flags |= COGL_FEATURE_OFFSCREEN;
-      COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_OFFSCREEN, TRUE);
-    }
 
   if (context->glBlitFramebuffer)
     COGL_FLAGS_SET (private_features,
@@ -334,22 +312,14 @@ _cogl_driver_update_features (CoglContext *context,
 
   if (_cogl_check_extension ("GL_OES_element_index_uint", gl_extensions))
     {
-      flags |= COGL_FEATURE_UNSIGNED_INT_INDICES;
       COGL_FLAGS_SET (context->features,
                       COGL_FEATURE_ID_UNSIGNED_INT_INDICES, TRUE);
-    }
-
-  if (_cogl_check_extension ("GL_OES_depth_texture", gl_extensions))
-    {
-      flags |= COGL_FEATURE_DEPTH_TEXTURE;
-      COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_DEPTH_TEXTURE, TRUE);
     }
 
   if (context->glMapBuffer)
     {
       /* The GL_OES_mapbuffer extension doesn't support mapping for
          read */
-      flags |= COGL_FEATURE_MAP_BUFFER_FOR_WRITE;
       COGL_FLAGS_SET (context->features,
                       COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
     }
@@ -357,8 +327,6 @@ _cogl_driver_update_features (CoglContext *context,
   if (context->glMapBufferRange)
     {
       /* MapBufferRange in ES3+ does support mapping for read */
-      flags |= (COGL_FEATURE_MAP_BUFFER_FOR_WRITE |
-                COGL_FEATURE_MAP_BUFFER_FOR_READ);
       COGL_FLAGS_SET(context->features,
                      COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
       COGL_FLAGS_SET(context->features,
@@ -395,7 +363,6 @@ _cogl_driver_update_features (CoglContext *context,
   /* Cache features */
   for (i = 0; i < G_N_ELEMENTS (private_features); i++)
     context->private_features[i] |= private_features[i];
-  context->feature_flags |= flags;
 
   g_strfreev (gl_extensions);
 

@@ -1595,67 +1595,6 @@ clutter_texture_set_from_rgb_data (ClutterTexture       *texture,
 					error);
 }
 
-/**
- * clutter_texture_set_from_yuv_data:
- * @texture: A #ClutterTexture
- * @data: (array): Image data in YUV type colorspace.
- * @width: Width in pixels of image data.
- * @height: Height in pixels of image data
- * @flags: #ClutterTextureFlags
- * @error: Return location for a #GError, or %NULL.
- *
- * Sets a #ClutterTexture from YUV image data. If an error occurred,
- * %FALSE is returned and @error is set.
- *
- * The YUV support depends on the driver; the format supported by the
- * few drivers exposing this capability are not really useful.
- *
- * The proper way to convert image data in any YUV colorspace to any
- * RGB colorspace is to use a fragment shader associated with the
- * #ClutterTexture material.
- *
- * Return value: %TRUE if the texture was successfully updated
- *
- * Since: 0.4
- *
- * Deprecated: 1.10: Use a custom #ClutterContent implementation and
- *   set up the Cogl pipeline using a #ClutterPipelineNode with a
- *   fragment shader instead.
- */
-gboolean
-clutter_texture_set_from_yuv_data (ClutterTexture     *texture,
-				   const guchar       *data,
-				   gint                width,
-				   gint                height,
-				   ClutterTextureFlags flags,
-				   GError            **error)
-{
-  g_return_val_if_fail (CLUTTER_IS_TEXTURE (texture), FALSE);
-
-  if (!clutter_feature_available (CLUTTER_FEATURE_TEXTURE_YUV))
-    {
-      g_set_error (error, CLUTTER_TEXTURE_ERROR,
-                   CLUTTER_TEXTURE_ERROR_NO_YUV,
-                   "YUV textures are not supported");
-      return FALSE;
-    }
-
-  /* Convert the flags to a CoglPixelFormat */
-  if ((flags & CLUTTER_TEXTURE_YUV_FLAG_YUV2))
-    {
-      g_set_error (error, CLUTTER_TEXTURE_ERROR,
-		   CLUTTER_TEXTURE_ERROR_BAD_FORMAT,
-		   "YUV2 textures are not supported");
-      return FALSE;
-    }
-
-  return clutter_texture_set_from_data (texture, data,
-					COGL_PIXEL_FORMAT_YUV,
-					width, height,
-					width * 3, 3,
-					error);
-}
-
 /*
  * clutter_texture_async_load_complete:
  * @self: a #ClutterTexture

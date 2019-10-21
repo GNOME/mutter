@@ -729,18 +729,6 @@ allocate_space (CoglAtlasTexture *atlas_tex,
       return FALSE;
     }
 
-  /* If we can't use FBOs then it will be too slow to migrate textures
-     and we shouldn't use the atlas */
-  if (!cogl_has_feature (ctx, COGL_FEATURE_ID_OFFSCREEN))
-    {
-      g_set_error_literal (error,
-                           COGL_SYSTEM_ERROR,
-                           COGL_SYSTEM_ERROR_UNSUPPORTED,
-                           "Atlasing disabled because migrations "
-                           "would be too slow");
-      return FALSE;
-    }
-
   /* Look for an existing atlas that can hold the texture */
   for (l = ctx->atlases; l; l = l->next)
     {

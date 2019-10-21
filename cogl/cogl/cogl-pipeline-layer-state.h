@@ -432,10 +432,6 @@ cogl_pipeline_get_layer_mag_filter (CoglPipeline *pipeline,
  * have 1.0,1.0. If @enable is %FALSE then the coordinates will be
  * fixed for the entire point.
  *
- * This function will only work if %COGL_FEATURE_ID_POINT_SPRITE is
- * available. If the feature is not available then the function will
- * return %FALSE and set @error.
- *
  * Return value: %TRUE if the function succeeds, %FALSE otherwise.
  * Since: 2.0
  * Stability: unstable

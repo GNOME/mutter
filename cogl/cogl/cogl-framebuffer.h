@@ -838,65 +838,6 @@ cogl_framebuffer_set_stereo_mode (CoglFramebuffer *framebuffer,
 				  CoglStereoMode stereo_mode);
 
 /**
- * cogl_framebuffer_set_depth_texture_enabled:
- * @framebuffer: A #CoglFramebuffer
- * @enabled: TRUE or FALSE
- *
- * If @enabled is #TRUE, the depth buffer used when rendering to @framebuffer
- * is available as a texture. You can retrieve the texture with
- * cogl_framebuffer_get_depth_texture().
- *
- * <note>It's possible that your GPU does not support depth textures. You
- * should check the %COGL_FEATURE_ID_DEPTH_TEXTURE feature before using this
- * function.</note>
- * <note>It's not valid to call this function after the framebuffer has been
- * allocated as the creation of the depth texture is done at allocation time.
- * </note>
- *
- * Since: 1.14
- * Stability: unstable
- */
-void
-cogl_framebuffer_set_depth_texture_enabled (CoglFramebuffer *framebuffer,
-                                            gboolean enabled);
-
-/**
- * cogl_framebuffer_get_depth_texture_enabled:
- * @framebuffer: A #CoglFramebuffer
- *
- * Queries whether texture based depth buffer has been enabled via
- * cogl_framebuffer_set_depth_texture_enabled().
- *
- * Return value: %TRUE if a depth texture has been enabled, else
- *               %FALSE.
- *
- * Since: 1.14
- * Stability: unstable
- */
-gboolean
-cogl_framebuffer_get_depth_texture_enabled (CoglFramebuffer *framebuffer);
-
-/**
- * cogl_framebuffer_get_depth_texture:
- * @framebuffer: A #CoglFramebuffer
- *
- * Retrieves the depth buffer of @framebuffer as a #CoglTexture. You need to
- * call cogl_framebuffer_get_depth_texture(fb, TRUE); before using this
- * function.
- *
- * <note>Calling this function implicitely allocates the framebuffer.</note>
- * <note>The texture returned stays valid as long as the framebuffer stays
- * valid.</note>
- *
- * Returns: (transfer none): the depth texture
- *
- * Since: 1.14
- * Stability: unstable
- */
-CoglTexture *
-cogl_framebuffer_get_depth_texture (CoglFramebuffer *framebuffer);
-
-/**
  * cogl_framebuffer_set_samples_per_pixel:
  * @framebuffer: A #CoglFramebuffer framebuffer
  * @samples_per_pixel: The minimum number of samples per pixel

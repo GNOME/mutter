@@ -177,33 +177,19 @@ cogl_is_context (void *object);
  * @COGL_FEATURE_ID_TEXTURE_RG: Support for
  *    %COGL_TEXTURE_COMPONENTS_RG as the internal components of a
  *    texture.
- * @COGL_FEATURE_ID_OFFSCREEN: Offscreen rendering support
- * @COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE: Multisample support for
- *    offscreen framebuffers
- * @COGL_FEATURE_ID_ONSCREEN_MULTIPLE: Multiple onscreen framebuffers
- *    supported.
  * @COGL_FEATURE_ID_UNSIGNED_INT_INDICES: Set if
  *     %COGL_INDICES_TYPE_UNSIGNED_INT is supported in
  *     cogl_indices_new().
- * @COGL_FEATURE_ID_DEPTH_RANGE: cogl_pipeline_set_depth_range() support
- * @COGL_FEATURE_ID_POINT_SPRITE: Whether
- *     cogl_pipeline_set_layer_point_sprite_coords_enabled() is supported.
- * @COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE: Whether cogl_point_size_in
- *     can be used as an attribute to set a per-vertex point size.
  * @COGL_FEATURE_ID_MAP_BUFFER_FOR_READ: Whether cogl_buffer_map() is
  *     supported with CoglBufferAccess including read support.
  * @COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE: Whether cogl_buffer_map() is
  *     supported with CoglBufferAccess including write support.
- * @COGL_FEATURE_ID_MIRRORED_REPEAT: Whether
- *    %COGL_PIPELINE_WRAP_MODE_MIRRORED_REPEAT is supported.
  * @COGL_FEATURE_ID_SWAP_BUFFERS_EVENT:
  *     Available if the window system supports reporting an event
  *     for swap buffer completions.
  * @COGL_FEATURE_ID_BUFFER_AGE: Available if the age of #CoglOnscreen back
  *    buffers are tracked and so cogl_onscreen_get_buffer_age() can be
  *    expected to return age values other than 0.
- * @COGL_FEATURE_ID_DEPTH_TEXTURE: Whether #CoglFramebuffer support rendering
- *     the depth buffer to a texture.
  * @COGL_FEATURE_ID_PRESENTATION_TIME: Whether frame presentation
  *    time stamps will be recorded in #CoglFrameInfo objects.
  *
@@ -215,20 +201,12 @@ cogl_is_context (void *object);
  */
 typedef enum _CoglFeatureID
 {
-  COGL_FEATURE_ID_OFFSCREEN,
-  COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE,
-  COGL_FEATURE_ID_ONSCREEN_MULTIPLE,
   COGL_FEATURE_ID_UNSIGNED_INT_INDICES,
-  COGL_FEATURE_ID_DEPTH_RANGE,
-  COGL_FEATURE_ID_POINT_SPRITE,
   COGL_FEATURE_ID_MAP_BUFFER_FOR_READ,
   COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE,
-  COGL_FEATURE_ID_MIRRORED_REPEAT,
   COGL_FEATURE_ID_SWAP_BUFFERS_EVENT,
-  COGL_FEATURE_ID_DEPTH_TEXTURE,
   COGL_FEATURE_ID_PRESENTATION_TIME,
   COGL_FEATURE_ID_FENCE,
-  COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE,
   COGL_FEATURE_ID_TEXTURE_RG,
   COGL_FEATURE_ID_BUFFER_AGE,
   COGL_FEATURE_ID_TEXTURE_EGL_IMAGE_EXTERNAL,

@@ -705,15 +705,6 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
 
   if (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN)
     {
-      if (framebuffer->config.depth_texture_enabled)
-        {
-          g_set_error_literal (error, COGL_FRAMEBUFFER_ERROR,
-                               COGL_FRAMEBUFFER_ERROR_ALLOCATE,
-                               "Can't allocate onscreen framebuffer with a "
-                               "texture based depth buffer");
-          return FALSE;
-        }
-
       if (!winsys->onscreen_init (onscreen, error))
         return FALSE;
 
@@ -727,14 +718,6 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
   else
     {
       CoglOffscreen *offscreen = COGL_OFFSCREEN (framebuffer);
-
-      if (!cogl_has_feature (ctx, COGL_FEATURE_ID_OFFSCREEN))
-        {
-          g_set_error_literal (error, COGL_SYSTEM_ERROR,
-                               COGL_SYSTEM_ERROR_UNSUPPORTED,
-                               "Offscreen framebuffers not supported by system");
-          return FALSE;
-        }
 
       if (!cogl_texture_allocate (offscreen->texture, error))
         return FALSE;
@@ -1055,32 +1038,6 @@ cogl_framebuffer_set_dither_enabled (CoglFramebuffer *framebuffer,
     return;
 
   framebuffer->dither_enabled = dither_enabled;
-}
-
-void
-cogl_framebuffer_set_depth_texture_enabled (CoglFramebuffer *framebuffer,
-                                            gboolean enabled)
-{
-  g_return_if_fail (!framebuffer->allocated);
-
-  framebuffer->config.depth_texture_enabled = enabled;
-}
-
-gboolean
-cogl_framebuffer_get_depth_texture_enabled (CoglFramebuffer *framebuffer)
-{
-  return framebuffer->config.depth_texture_enabled;
-}
-
-CoglTexture *
-cogl_framebuffer_get_depth_texture (CoglFramebuffer *framebuffer)
-{
-  /* lazily allocate the framebuffer... */
-  if (!cogl_framebuffer_allocate (framebuffer, NULL))
-    return NULL;
-
-  g_return_val_if_fail (cogl_is_offscreen (framebuffer), NULL);
-  return COGL_OFFSCREEN(framebuffer)->depth_texture;
 }
 
 int

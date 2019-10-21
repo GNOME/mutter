@@ -62,36 +62,6 @@ cogl_get_option_group (void);
 
 /* Misc */
 /**
- * cogl_get_features:
- *
- * Returns all of the features supported by COGL.
- *
- * Return value: A logical OR of all the supported COGL features.
- *
- * Since: 0.8
- * Deprecated: 1.10: Use cogl_foreach_feature() instead
- */
-COGL_DEPRECATED_FOR (cogl_foreach_feature)
-CoglFeatureFlags
-cogl_get_features (void);
-
-/**
- * cogl_features_available:
- * @features: A bitmask of features to check for
- *
- * Checks whether the given COGL features are available. Multiple
- * features can be checked for by or-ing them together with the '|'
- * operator. %TRUE is only returned if all of the requested features
- * are available.
- *
- * Return value: %TRUE if the features are available, %FALSE otherwise.
- * Deprecated: 1.10: Use cogl_has_feature() instead
- */
-COGL_DEPRECATED_FOR (cogl_has_feature)
-gboolean
-cogl_features_available (CoglFeatureFlags features);
-
-/**
  * cogl_get_proc_address: (skip)
  * @name: the name of the function.
  *

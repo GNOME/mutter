@@ -333,7 +333,6 @@ static gboolean
 _cogl_driver_update_features (CoglContext *ctx,
                               GError **error)
 {
-  CoglFeatureFlags flags = 0;
   unsigned long private_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_N_PRIVATE_FEATURES)] = { 0 };
   char **gl_extensions;
@@ -393,13 +392,8 @@ _cogl_driver_update_features (CoglContext *ctx,
                                   &ctx->glsl_major,
                                   &ctx->glsl_minor);
 
-  flags = (COGL_FEATURE_TEXTURE_READ_PIXELS
-           | COGL_FEATURE_UNSIGNED_INT_INDICES
-           | COGL_FEATURE_DEPTH_RANGE);
   COGL_FLAGS_SET (ctx->features,
                   COGL_FEATURE_ID_UNSIGNED_INT_INDICES, TRUE);
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_DEPTH_RANGE, TRUE);
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_MIRRORED_REPEAT, TRUE);
 
   _cogl_feature_check_ext_functions (ctx,
                                      gl_major,
@@ -410,50 +404,26 @@ _cogl_driver_update_features (CoglContext *ctx,
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_MESA_PACK_INVERT, TRUE);
 
-  if (ctx->glGenRenderbuffers)
+  if (!ctx->glGenRenderbuffers)
     {
-      flags |= COGL_FEATURE_OFFSCREEN;
-      COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_OFFSCREEN, TRUE);
-      COGL_FLAGS_SET (private_features,
-                      COGL_PRIVATE_FEATURE_QUERY_FRAMEBUFFER_BITS,
-                      TRUE);
+      g_set_error (error,
+                   COGL_DRIVER_ERROR,
+                   COGL_DRIVER_ERROR_NO_SUITABLE_DRIVER_FOUND,
+                   "Framebuffer objects are required to use the GL driver");
+      return FALSE;
     }
+  COGL_FLAGS_SET (private_features,
+                  COGL_PRIVATE_FEATURE_QUERY_FRAMEBUFFER_BITS,
+                  TRUE);
 
   if (ctx->glBlitFramebuffer)
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER, TRUE);
 
-  if (ctx->glRenderbufferStorageMultisampleIMG)
-    {
-      flags |= COGL_FEATURE_OFFSCREEN_MULTISAMPLE;
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_OFFSCREEN_MULTISAMPLE, TRUE);
-    }
-
-  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0) ||
-      _cogl_check_extension ("GL_ARB_depth_texture", gl_extensions))
-    {
-      flags |= COGL_FEATURE_DEPTH_TEXTURE;
-      COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_DEPTH_TEXTURE, TRUE);
-    }
-
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_PBOS, TRUE);
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_BLEND_CONSTANT, TRUE);
 
-  flags |= COGL_FEATURE_POINT_SPRITE;
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_POINT_SPRITE, TRUE);
-
-  if (ctx->glGenBuffers)
-    {
-      COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_VBOS, TRUE);
-      flags |= (COGL_FEATURE_MAP_BUFFER_FOR_READ |
-                COGL_FEATURE_MAP_BUFFER_FOR_WRITE);
-      COGL_FLAGS_SET (ctx->features,
-                         COGL_FEATURE_ID_MAP_BUFFER_FOR_READ, TRUE);
-      COGL_FLAGS_SET (ctx->features,
-                      COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
-    }
+  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_MAP_BUFFER_FOR_READ, TRUE);
+  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE, TRUE);
 
   if (ctx->glEGLImageTargetTexture2D)
     COGL_FLAGS_SET (private_features,
@@ -473,25 +443,16 @@ _cogl_driver_update_features (CoglContext *ctx,
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE, TRUE);
 
-  COGL_FLAGS_SET (ctx->features, COGL_FEATURE_ID_PER_VERTEX_POINT_SIZE, TRUE);
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_ENABLE_PROGRAM_POINT_SIZE, TRUE);
 
   if (ctx->driver == COGL_DRIVER_GL)
     {
-      int max_clip_planes = 0;
-
       /* Features which are not available in GL 3 */
       COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_GL_FIXED, TRUE);
       COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEST, TRUE);
-      COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_QUADS, TRUE);
       COGL_FLAGS_SET (private_features,
                       COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
-
-      GE( ctx, glGetIntegerv (GL_MAX_CLIP_PLANES, &max_clip_planes) );
-      if (max_clip_planes >= 4)
-        COGL_FLAGS_SET (private_features,
-                        COGL_PRIVATE_FEATURE_FOUR_CLIP_PLANES, TRUE);
     }
 
   COGL_FLAGS_SET (private_features,
@@ -499,7 +460,6 @@ _cogl_driver_update_features (CoglContext *ctx,
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ANY_GL, TRUE);
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_FORMAT_CONVERSION, TRUE);
-  COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_BLEND_CONSTANT, TRUE);
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_BUILTIN_POINT_SIZE_UNIFORM, TRUE);
   COGL_FLAGS_SET (private_features,
@@ -519,7 +479,6 @@ _cogl_driver_update_features (CoglContext *ctx,
   /* Cache features */
   for (i = 0; i < G_N_ELEMENTS (private_features); i++)
     ctx->private_features[i] |= private_features[i];
-  ctx->feature_flags |= flags;
 
   g_strfreev (gl_extensions);
 

@@ -111,52 +111,6 @@ typedef struct _CoglTextureVertex       CoglTextureVertex;
 #define COGL_STENCIL_BIT        (1 << 9)
 
 /**
- * CoglFeatureFlags:
- * @COGL_FEATURE_TEXTURE_YUV: ycbcr conversion support
- * @COGL_FEATURE_TEXTURE_READ_PIXELS: glReadPixels() support
- * @COGL_FEATURE_OFFSCREEN: FBO support
- * @COGL_FEATURE_OFFSCREEN_MULTISAMPLE: Multisample support on FBOs
- * @COGL_FEATURE_FOUR_CLIP_PLANES: At least 4 clip planes available
- * @COGL_FEATURE_STENCIL_BUFFER: Stencil buffer support
- * @COGL_FEATURE_VBOS: VBO support
- * @COGL_FEATURE_PBOS: PBO support
- * @COGL_FEATURE_UNSIGNED_INT_INDICES: Set if
- *     %COGL_INDICES_TYPE_UNSIGNED_INT is supported in
- *     cogl_vertex_buffer_indices_new().
- * @COGL_FEATURE_DEPTH_RANGE: cogl_material_set_depth_range() support
- * @COGL_FEATURE_POINT_SPRITE: Whether
- *     cogl_material_set_layer_point_sprite_coords_enabled() is supported.
- * @COGL_FEATURE_MAP_BUFFER_FOR_READ: Whether cogl_buffer_map() is
- *     supported with CoglBufferAccess including read support.
- * @COGL_FEATURE_MAP_BUFFER_FOR_WRITE: Whether cogl_buffer_map() is
- *     supported with CoglBufferAccess including write support.
- * @COGL_FEATURE_DEPTH_TEXTURE: Whether #CoglFramebuffer support rendering the
- *     depth buffer to a texture.
- *
- * Flags for the supported features.
- *
- * Since: 0.8
- */
-typedef enum
-{
-  COGL_FEATURE_TEXTURE_YUV            = (1 << 3),
-  COGL_FEATURE_TEXTURE_READ_PIXELS    = (1 << 4),
-  COGL_FEATURE_OFFSCREEN              = (1 << 6),
-  COGL_FEATURE_OFFSCREEN_MULTISAMPLE  = (1 << 7),
-  COGL_FEATURE_FOUR_CLIP_PLANES       = (1 << 9),
-  COGL_FEATURE_STENCIL_BUFFER         = (1 << 10),
-  COGL_FEATURE_VBOS		      = (1 << 11),
-  COGL_FEATURE_PBOS		      = (1 << 12),
-  COGL_FEATURE_UNSIGNED_INT_INDICES   = (1 << 13),
-  COGL_FEATURE_DEPTH_RANGE            = (1 << 14),
-  COGL_FEATURE_POINT_SPRITE           = (1 << 18),
-  COGL_FEATURE_MAP_BUFFER_FOR_READ    = (1 << 21),
-  COGL_FEATURE_MAP_BUFFER_FOR_WRITE   = (1 << 22),
-  COGL_FEATURE_ONSCREEN_MULTIPLE      = (1 << 23),
-  COGL_FEATURE_DEPTH_TEXTURE          = (1 << 24)
-} CoglFeatureFlags;
-
-/**
  * CoglBufferTarget:
  * @COGL_WINDOW_BUFFER: FIXME
  * @COGL_OFFSCREEN_BUFFER: FIXME
