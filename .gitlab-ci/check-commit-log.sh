@@ -40,6 +40,7 @@ function commit_message_subject_is_compliant() {
   return 0
 }
 
+RET=0
 for commit in $commits; do
   commit_short=$(echo $commit | cut -c -8)
 
@@ -52,6 +53,8 @@ for commit in $commits; do
   if [ $? != 0 ]; then
     echo "Commit message for $commit_short is not compliant:"
     echo "$errors"
-    exit 1
+    RET=1
   fi
 done
+
+exit $RET
