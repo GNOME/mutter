@@ -44,7 +44,7 @@ for commit in $commits; do
   commit_short=$(echo $commit | cut -c -8)
 
   if ! commit_message_has_url $commit; then
-    echo "Missing merge request or issue URL on commit $commit_short"
+    echo "Commit $commit_short needs a merge request or issue URL"
     exit 1
   fi
 
