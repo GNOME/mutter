@@ -892,9 +892,9 @@ _clutter_stage_update_active_framebuffer (ClutterStage    *stage,
  * be able to cull them.
  */
 static void
-clutter_stage_do_paint_view (ClutterStage                *stage,
-                             ClutterStageView            *view,
-                             const cairo_rectangle_int_t *clip)
+setup_view_for_pick_or_paint (ClutterStage                *stage,
+                              ClutterStageView            *view,
+                              const cairo_rectangle_int_t *clip)
 {
   ClutterStagePrivate *priv = stage->priv;
   CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
@@ -949,6 +949,14 @@ clutter_stage_do_paint_view (ClutterStage                *stage,
 
   _clutter_stage_paint_volume_stack_free_all (stage);
   _clutter_stage_update_active_framebuffer (stage, framebuffer);
+}
+
+static void
+clutter_stage_do_paint_view (ClutterStage                *stage,
+                             ClutterStageView            *view,
+                             const cairo_rectangle_int_t *clip)
+{
+  setup_view_for_pick_or_paint (stage, view, clip);
   clutter_actor_paint (CLUTTER_ACTOR (stage));
 }
 
@@ -1011,7 +1019,7 @@ clutter_stage_pick (ClutterActor *self)
    */
   clutter_actor_iter_init (&iter, self);
   while (clutter_actor_iter_next (&iter, &child))
-    clutter_actor_paint (child);
+    clutter_actor_pick (child);
 }
 
 static gboolean
@@ -1694,7 +1702,8 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
       cogl_push_framebuffer (fb);
 
       context->pick_mode = mode;
-      clutter_stage_do_paint_view (stage, view, NULL);
+      setup_view_for_pick_or_paint (stage, view, NULL);
+      clutter_actor_pick (CLUTTER_ACTOR (stage));
       context->pick_mode = CLUTTER_PICK_NONE;
       priv->cached_pick_mode = mode;
 

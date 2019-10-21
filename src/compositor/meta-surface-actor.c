@@ -168,7 +168,7 @@ meta_surface_actor_pick (ClutterActor *actor)
   clutter_actor_iter_init (&iter, actor);
 
   while (clutter_actor_iter_next (&iter, &child))
-    clutter_actor_paint (child);
+    clutter_actor_pick (child);
 }
 
 static gboolean

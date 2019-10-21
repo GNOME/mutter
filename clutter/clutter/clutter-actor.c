@@ -2373,7 +2373,7 @@ clutter_actor_real_pick (ClutterActor *self)
       for (iter = self->priv->first_child;
            iter != NULL;
            iter = iter->priv->next_sibling)
-        clutter_actor_paint (iter);
+        clutter_actor_pick (iter);
     }
 }
 
@@ -3877,7 +3877,6 @@ void
 clutter_actor_paint (ClutterActor *self)
 {
   ClutterActorPrivate *priv;
-  ClutterPickMode pick_mode;
   ClutterActorBox clip;
   gboolean clip_set = FALSE;
   ClutterStage *stage;
@@ -3888,16 +3887,11 @@ clutter_actor_paint (ClutterActor *self)
     return;
 
   priv = self->priv;
-
-  pick_mode = _clutter_context_get_pick_mode ();
-
-  if (pick_mode == CLUTTER_PICK_NONE)
-    priv->propagated_one_redraw = FALSE;
+  priv->propagated_one_redraw = FALSE;
 
   /* It's an important optimization that we consider painting of
    * actors with 0 opacity to be a NOP... */
-  if (pick_mode == CLUTTER_PICK_NONE &&
-      /* ignore top-levels, since they might be transparent */
+  if (/* ignore top-levels, since they might be transparent */
       !CLUTTER_ACTOR_IS_TOPLEVEL (self) &&
       /* Use the override opacity if its been set */
       ((priv->opacity_override >= 0) ?
@@ -3989,31 +3983,21 @@ clutter_actor_paint (ClutterActor *self)
 
   if (clip_set)
     {
-      if (pick_mode == CLUTTER_PICK_NONE)
-        {
-          CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
+      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
 
-          cogl_framebuffer_push_rectangle_clip (fb,
-                                                clip.x1,
-                                                clip.y1,
-                                                clip.x2,
-                                                clip.y2);
-        }
-      else
-        {
-          if (!_clutter_actor_push_pick_clip (self, &clip))
-            clip_set = FALSE;
-        }
+      cogl_framebuffer_push_rectangle_clip (fb,
+                                            clip.x1,
+                                            clip.y1,
+                                            clip.x2,
+                                            clip.y2);
     }
 
-  if (pick_mode == CLUTTER_PICK_NONE)
-    {
-      /* We check whether we need to add the flatten effect before
-         each paint so that we can avoid having a mechanism for
-         applications to notify when the value of the
-         has_overlaps virtual changes. */
-      add_or_remove_flatten_effect (self);
-    }
+  /* We check whether we need to add the flatten effect before
+   * each paint so that we can avoid having a mechanism for
+   * applications to notify when the value of the
+   * has_overlaps virtual changes.
+   */
+  add_or_remove_flatten_effect (self);
 
   /* We save the current paint volume so that the next time the
    * actor queues a redraw we can constrain the redraw to just
@@ -4042,7 +4026,7 @@ clutter_actor_paint (ClutterActor *self)
    * paint then the last-paint-volume would likely represent the new
    * actor position not the old.
    */
-  if (!in_clone_paint () && pick_mode == CLUTTER_PICK_NONE)
+  if (!in_clone_paint ())
     {
       gboolean success;
       /* annoyingly gcc warns if uninitialized even though
@@ -4072,28 +4056,19 @@ clutter_actor_paint (ClutterActor *self)
 
   clutter_actor_continue_paint (self);
 
-  if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_VOLUMES &&
-                  pick_mode == CLUTTER_PICK_NONE))
+  if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_VOLUMES))
     _clutter_actor_draw_paint_volume (self);
 
   /* If we make it here then the actor has run through a complete
      paint run including all the effects so it's no longer dirty */
-  if (pick_mode == CLUTTER_PICK_NONE)
-    priv->is_dirty = FALSE;
+  priv->is_dirty = FALSE;
 
 done:
   if (clip_set)
     {
-      if (pick_mode == CLUTTER_PICK_NONE)
-        {
-          CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
+      CoglFramebuffer *fb = _clutter_stage_get_active_framebuffer (stage);
 
-          cogl_framebuffer_pop_clip (fb);
-        }
-      else
-        {
-          _clutter_actor_pop_pick_clip (self);
-        }
+      cogl_framebuffer_pop_clip (fb);
     }
 
   cogl_pop_matrix ();
@@ -4135,43 +4110,28 @@ clutter_actor_continue_paint (ClutterActor *self)
      actual actor */
   if (priv->next_effect_to_paint == NULL)
     {
-      if (_clutter_context_get_pick_mode () == CLUTTER_PICK_NONE)
-        {
-          ClutterPaintNode *dummy;
+      ClutterPaintNode *dummy;
 
-          /* XXX - this will go away in 2.0, when we can get rid of this
-           * stuff and switch to a pure retained render tree of PaintNodes
-           * for the entire frame, starting from the Stage; the paint()
-           * virtual function can then be called directly.
-           */
-          dummy = _clutter_dummy_node_new (self);
-          clutter_paint_node_set_name (dummy, "Root");
+      /* XXX - this will go away in 2.0, when we can get rid of this
+       * stuff and switch to a pure retained render tree of PaintNodes
+       * for the entire frame, starting from the Stage; the paint()
+       * virtual function can then be called directly.
+       */
+      dummy = _clutter_dummy_node_new (self);
+      clutter_paint_node_set_name (dummy, "Root");
 
-          /* XXX - for 1.12, we use the return value of paint_node() to
-           * decide whether we should emit the ::paint signal.
-           */
-          clutter_actor_paint_node (self, dummy);
-          clutter_paint_node_unref (dummy);
+      /* XXX - for 1.12, we use the return value of paint_node() to
+       * decide whether we should emit the ::paint signal.
+       */
+      clutter_actor_paint_node (self, dummy);
+      clutter_paint_node_unref (dummy);
 
-          /* XXX:2.0 - Call the paint() virtual directly */
-          if (g_signal_has_handler_pending (self, actor_signals[PAINT],
-                                            0, TRUE))
-            g_signal_emit (self, actor_signals[PAINT], 0);
-          else
-            CLUTTER_ACTOR_GET_CLASS (self)->paint (self);
-        }
+      /* XXX:2.0 - Call the paint() virtual directly */
+      if (g_signal_has_handler_pending (self, actor_signals[PAINT],
+                                        0, TRUE))
+        g_signal_emit (self, actor_signals[PAINT], 0);
       else
-        {
-          /* The actor will log a silhouette of itself to the stage pick log.
-           *
-           * XXX:2.0 - Call the pick() virtual directly
-           */
-          if (g_signal_has_handler_pending (self, actor_signals[PICK],
-                                            0, TRUE))
-            g_signal_emit (self, actor_signals[PICK], 0);
-          else
-            CLUTTER_ACTOR_GET_CLASS (self)->pick (self);
-        }
+        CLUTTER_ACTOR_GET_CLASS (self)->paint (self);
     }
   else
     {
@@ -4185,31 +4145,157 @@ clutter_actor_continue_paint (ClutterActor *self)
       priv->current_effect = priv->next_effect_to_paint->data;
       priv->next_effect_to_paint = priv->next_effect_to_paint->next;
 
-      if (_clutter_context_get_pick_mode () == CLUTTER_PICK_NONE)
+      if (priv->is_dirty)
         {
-          if (priv->is_dirty)
-            {
-              /* If there's an effect queued with this redraw then all
-                 effects up to that one will be considered dirty. It
-                 is expected the queued effect will paint the cached
-                 image and not call clutter_actor_continue_paint again
-                 (although it should work ok if it does) */
-              if (priv->effect_to_redraw == NULL ||
-                  priv->current_effect != priv->effect_to_redraw)
-                run_flags |= CLUTTER_EFFECT_PAINT_ACTOR_DIRTY;
-            }
-
-          _clutter_effect_paint (priv->current_effect, run_flags);
+          /* If there's an effect queued with this redraw then all
+           * effects up to that one will be considered dirty. It
+           * is expected the queued effect will paint the cached
+           * image and not call clutter_actor_continue_paint again
+           * (although it should work ok if it does)
+           */
+          if (priv->effect_to_redraw == NULL ||
+              priv->current_effect != priv->effect_to_redraw)
+            run_flags |= CLUTTER_EFFECT_PAINT_ACTOR_DIRTY;
         }
+
+      _clutter_effect_paint (priv->current_effect, run_flags);
+
+      priv->current_effect = old_current_effect;
+    }
+}
+
+/**
+ * clutter_actor_pick:
+ * @actor: A #ClutterActor
+ *
+ * Asks @actor to perform a pick.
+ */
+void
+clutter_actor_pick (ClutterActor *actor)
+{
+  ClutterActorPrivate *priv;
+  ClutterActorBox clip;
+  gboolean clip_set = FALSE;
+
+  if (CLUTTER_ACTOR_IN_DESTRUCTION (actor))
+    return;
+
+  priv = actor->priv;
+
+  /* if we aren't paintable (not in a toplevel with all
+   * parents paintable) then do nothing.
+   */
+  if (!CLUTTER_ACTOR_IS_MAPPED (actor))
+    return;
+
+  clutter_actor_ensure_resource_scale (actor);
+
+  /* mark that we are in the paint process */
+  CLUTTER_SET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);
+
+  cogl_push_matrix ();
+
+  if (priv->enable_model_view_transform)
+    {
+      CoglMatrix matrix;
+
+      cogl_get_modelview_matrix (&matrix);
+      _clutter_actor_apply_modelview_transform (actor, &matrix);
+      cogl_set_modelview_matrix (&matrix);
+    }
+
+  if (priv->has_clip)
+    {
+      clip.x1 = priv->clip.origin.x;
+      clip.y1 = priv->clip.origin.y;
+      clip.x2 = priv->clip.origin.x + priv->clip.size.width;
+      clip.y2 = priv->clip.origin.y + priv->clip.size.height;
+      clip_set = TRUE;
+    }
+  else if (priv->clip_to_allocation)
+    {
+      clip.x1 = 0.f;
+      clip.y1 = 0.f;
+      clip.x2 = priv->allocation.x2 - priv->allocation.x1;
+      clip.y2 = priv->allocation.y2 - priv->allocation.y1;
+      clip_set = TRUE;
+    }
+
+  if (clip_set)
+    clip_set = _clutter_actor_push_pick_clip (actor, &clip);
+
+  priv->next_effect_to_paint = NULL;
+  if (priv->effects)
+    {
+      priv->next_effect_to_paint =
+        _clutter_meta_group_peek_metas (priv->effects);
+    }
+
+  clutter_actor_continue_pick (actor);
+
+  if (clip_set)
+    _clutter_actor_pop_pick_clip (actor);
+
+  cogl_pop_matrix ();
+
+  /* paint sequence complete */
+  CLUTTER_UNSET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);
+}
+
+/**
+ * clutter_actor_continue_pick:
+ * @actor: A #ClutterActor
+ *
+ * Run the next stage of the pick sequence. This function should only
+ * be called within the implementation of the ‘pick’ virtual of a
+ * #ClutterEffect. It will cause the run method of the next effect to
+ * be applied, or it will pick the actual actor if the current effect
+ * is the last effect in the chain.
+ */
+void
+clutter_actor_continue_pick (ClutterActor *actor)
+{
+  ClutterActorPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (actor));
+
+  g_return_if_fail (CLUTTER_ACTOR_IN_PICK (actor));
+
+  priv = actor->priv;
+
+  /* Skip any effects that are disabled */
+  while (priv->next_effect_to_paint &&
+         !clutter_actor_meta_get_enabled (priv->next_effect_to_paint->data))
+    priv->next_effect_to_paint = priv->next_effect_to_paint->next;
+
+  /* If this has come from the last effect then we'll just pick the
+   * actual actor.
+   */
+  if (priv->next_effect_to_paint == NULL)
+    {
+      /* The actor will log a silhouette of itself to the stage pick log.
+       *
+       * XXX:2.0 - Call the pick() virtual directly
+       */
+      if (g_signal_has_handler_pending (actor, actor_signals[PICK],
+                                        0, TRUE))
+        g_signal_emit (actor, actor_signals[PICK], 0);
       else
-        {
-          /* We can't determine when an actor has been modified since
-             its last pick so lets just assume it has always been
-             modified */
-          run_flags |= CLUTTER_EFFECT_PAINT_ACTOR_DIRTY;
+        CLUTTER_ACTOR_GET_CLASS (actor)->pick (actor);
+    }
+  else
+    {
+      ClutterEffect *old_current_effect;
 
-          _clutter_effect_pick (priv->current_effect, run_flags);
-        }
+      /* Cache the current effect so that we can put it back before
+       * returning.
+       */
+      old_current_effect = priv->current_effect;
+
+      priv->current_effect = priv->next_effect_to_paint->data;
+      priv->next_effect_to_paint = priv->next_effect_to_paint->next;
+
+      _clutter_effect_pick (priv->current_effect);
 
       priv->current_effect = old_current_effect;
     }

@@ -353,6 +353,10 @@ void                            clutter_actor_paint                             
 CLUTTER_EXPORT
 void                            clutter_actor_continue_paint                    (ClutterActor                *self);
 CLUTTER_EXPORT
+void                            clutter_actor_pick                              (ClutterActor                *actor);
+CLUTTER_EXPORT
+void                            clutter_actor_continue_pick                     (ClutterActor                *actor);
+CLUTTER_EXPORT
 void                            clutter_actor_queue_redraw                      (ClutterActor                *self);
 CLUTTER_EXPORT
 void                            clutter_actor_queue_redraw_with_clip            (ClutterActor                *self,
