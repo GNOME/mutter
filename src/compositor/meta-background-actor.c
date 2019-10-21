@@ -573,6 +573,8 @@ meta_background_actor_paint (ClutterActor *actor)
       paint_clipped_rectangle (fb, self->pipeline, &rect,
                                &self->texture_area);
     }
+
+  cairo_region_destroy (region);
 }
 
 static void
