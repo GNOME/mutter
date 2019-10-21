@@ -706,8 +706,12 @@ meta_window_actor_effect_completed (MetaWindowActor  *self,
   if (is_freeze_thaw_effect (event) && !inconsistent)
     meta_window_actor_thaw (self);
 
-  if (!meta_window_actor_effect_in_progress (self))
-    meta_window_actor_after_effects (self);
+  if (!meta_window_actor_effect_in_progress (self) ||
+      (priv->needs_destroy && !priv->destroy_in_progress))
+    {
+      g_warn_if_fail (!meta_window_actor_effect_in_progress (self));
+      meta_window_actor_after_effects (self);
+    }
 }
 
 void
