@@ -48,30 +48,6 @@ cogl_material_new (void)
   return COGL_MATERIAL (cogl_pipeline_new (ctx));
 }
 
-CoglMaterial *
-cogl_material_copy (CoglMaterial *source)
-{
-  return COGL_MATERIAL (cogl_pipeline_copy (COGL_PIPELINE (source)));
-}
-
-CoglHandle
-cogl_material_ref (CoglHandle handle)
-{
-  return cogl_object_ref (handle);
-}
-
-void
-cogl_material_unref (CoglHandle handle)
-{
-  cogl_object_unref (handle);
-}
-
-gboolean
-cogl_is_material (CoglHandle handle)
-{
-  return cogl_is_pipeline (handle);
-}
-
 void
 cogl_material_set_color (CoglMaterial    *material,
                          const CoglColor *color)
@@ -88,34 +64,6 @@ cogl_material_set_color4ub (CoglMaterial *material,
 {
   cogl_pipeline_set_color4ub (COGL_PIPELINE (material),
                               red, green, blue, alpha);
-}
-
-void
-cogl_material_set_color4f (CoglMaterial *material,
-                           float         red,
-                           float         green,
-                           float         blue,
-                           float         alpha)
-{
-  cogl_pipeline_set_color4f (COGL_PIPELINE (material),
-                             red, green, blue, alpha);
-}
-
-void
-cogl_material_get_color (CoglMaterial *material,
-                         CoglColor    *color)
-{
-  cogl_pipeline_get_color (COGL_PIPELINE (material), color);
-}
-
-void
-cogl_material_set_alpha_test_function (CoglMaterial         *material,
-				       CoglMaterialAlphaFunc alpha_func,
-				       float                 alpha_reference)
-{
-  cogl_pipeline_set_alpha_test_function (COGL_PIPELINE (material),
-                                         alpha_func,
-                                         alpha_reference);
 }
 
 gboolean
@@ -142,18 +90,6 @@ cogl_material_set_point_size (CoglMaterial *material,
   cogl_pipeline_set_point_size (COGL_PIPELINE (material), point_size);
 }
 
-float
-cogl_material_get_point_size (CoglMaterial *material)
-{
-  return cogl_pipeline_get_point_size (COGL_PIPELINE (material));
-}
-
-CoglHandle
-cogl_material_get_user_program (CoglMaterial *material)
-{
-  return cogl_pipeline_get_user_program (COGL_PIPELINE (material));
-}
-
 void
 cogl_material_set_user_program (CoglMaterial *material,
                                 CoglHandle program)
@@ -168,13 +104,6 @@ cogl_material_set_layer (CoglMaterial *material,
 {
   cogl_pipeline_set_layer_texture (COGL_PIPELINE (material),
                                    layer_index, texture);
-}
-
-void
-cogl_material_remove_layer (CoglMaterial *material,
-			    int           layer_index)
-{
-  cogl_pipeline_remove_layer (COGL_PIPELINE (material), layer_index);
 }
 
 gboolean
@@ -208,42 +137,6 @@ cogl_material_set_layer_matrix (CoglMaterial     *material,
                                   layer_index, matrix);
 }
 
-const GList *
-cogl_material_get_layers (CoglMaterial *material)
-{
-  return _cogl_pipeline_get_layers (COGL_PIPELINE (material));
-}
-
-int
-cogl_material_get_n_layers (CoglMaterial *material)
-{
-  return cogl_pipeline_get_n_layers (COGL_PIPELINE (material));
-}
-
-CoglMaterialLayerType
-cogl_material_layer_get_type (CoglMaterialLayer *layer)
-{
-  return COGL_MATERIAL_LAYER_TYPE_TEXTURE;
-}
-
-CoglHandle
-cogl_material_layer_get_texture (CoglMaterialLayer *layer)
-{
-  return _cogl_pipeline_layer_get_texture (COGL_PIPELINE_LAYER (layer));
-}
-
-CoglMaterialFilter
-cogl_material_layer_get_min_filter (CoglMaterialLayer *layer)
-{
-  return _cogl_pipeline_layer_get_min_filter (COGL_PIPELINE_LAYER (layer));
-}
-
-CoglMaterialFilter
-cogl_material_layer_get_mag_filter (CoglMaterialLayer *layer)
-{
-  return _cogl_pipeline_layer_get_mag_filter (COGL_PIPELINE_LAYER (layer));
-}
-
 void
 cogl_material_set_layer_filters (CoglMaterial      *material,
                                  int                layer_index,
@@ -268,116 +161,3 @@ cogl_material_set_layer_point_sprite_coords_enabled (CoglMaterial *material,
                                                               enable,
                                                               error);
 }
-
-gboolean
-cogl_material_get_layer_point_sprite_coords_enabled (CoglMaterial *material,
-                                                     int           layer_index)
-{
-  CoglPipeline *pipeline = COGL_PIPELINE (material);
-  return cogl_pipeline_get_layer_point_sprite_coords_enabled (pipeline,
-                                                              layer_index);
-}
-
-CoglMaterialWrapMode
-cogl_material_get_layer_wrap_mode_s (CoglMaterial *material,
-                                     int           layer_index)
-{
-  return cogl_pipeline_get_layer_wrap_mode_s (COGL_PIPELINE (material),
-                                              layer_index);
-}
-
-void
-cogl_material_set_layer_wrap_mode_s (CoglMaterial        *material,
-                                     int                  layer_index,
-                                     CoglMaterialWrapMode mode)
-{
-  cogl_pipeline_set_layer_wrap_mode_s (COGL_PIPELINE (material), layer_index,
-                                       mode);
-}
-
-CoglMaterialWrapMode
-cogl_material_get_layer_wrap_mode_t (CoglMaterial *material,
-                                     int           layer_index)
-{
-  return cogl_pipeline_get_layer_wrap_mode_t (COGL_PIPELINE (material),
-                                              layer_index);
-}
-
-void
-cogl_material_set_layer_wrap_mode_t (CoglMaterial        *material,
-                                     int                  layer_index,
-                                     CoglMaterialWrapMode mode)
-{
-  cogl_pipeline_set_layer_wrap_mode_t (COGL_PIPELINE (material), layer_index,
-                                       mode);
-}
-
-CoglMaterialWrapMode
-cogl_material_get_layer_wrap_mode_p (CoglMaterial *material,
-                                     int           layer_index)
-{
-  return cogl_pipeline_get_layer_wrap_mode_p (COGL_PIPELINE (material),
-                                              layer_index);
-}
-
-void
-cogl_material_set_layer_wrap_mode_p (CoglMaterial        *material,
-                                     int                  layer_index,
-                                     CoglMaterialWrapMode mode)
-{
-  cogl_pipeline_set_layer_wrap_mode_p (COGL_PIPELINE (material), layer_index,
-                                       mode);
-}
-
-void
-cogl_material_set_layer_wrap_mode (CoglMaterial        *material,
-                                   int                  layer_index,
-                                   CoglMaterialWrapMode mode)
-{
-  cogl_pipeline_set_layer_wrap_mode (COGL_PIPELINE (material), layer_index,
-                                     mode);
-}
-
-CoglMaterialWrapMode
-cogl_material_layer_get_wrap_mode_s (CoglMaterialLayer *layer)
-{
-  return _cogl_pipeline_layer_get_wrap_mode_s (COGL_PIPELINE_LAYER (layer));
-}
-
-CoglMaterialWrapMode
-cogl_material_layer_get_wrap_mode_t (CoglMaterialLayer *layer)
-{
-  return _cogl_pipeline_layer_get_wrap_mode_t (COGL_PIPELINE_LAYER (layer));
-}
-
-CoglMaterialWrapMode
-cogl_material_layer_get_wrap_mode_p (CoglMaterialLayer *layer)
-{
-  return _cogl_pipeline_layer_get_wrap_mode_p (COGL_PIPELINE_LAYER (layer));
-}
-
-void
-cogl_material_foreach_layer (CoglMaterial *material,
-                             CoglMaterialLayerCallback callback,
-                             void *user_data)
-{
-  cogl_pipeline_foreach_layer (COGL_PIPELINE (material),
-                               (CoglPipelineLayerCallback)callback, user_data);
-}
-
-gboolean
-cogl_material_set_depth_state (CoglMaterial *material,
-                               const CoglDepthState *state,
-                               GError **error)
-{
-  return cogl_pipeline_set_depth_state (COGL_PIPELINE (material),
-                                        state, error);
-}
-
-void
-cogl_material_get_depth_state (CoglMaterial *material,
-                               CoglDepthState *state_out)
-{
-  cogl_pipeline_get_depth_state (COGL_PIPELINE (material), state_out);
-}
-
