@@ -28,8 +28,6 @@ typedef struct SuperOH
   gint stage_height;
   gfloat radius;
 
-  ClutterBehaviour *scaler_1;
-  ClutterBehaviour *scaler_2;
   ClutterTimeline *timeline;
 
   guint frame_id;
@@ -143,16 +141,6 @@ frame_cb (ClutterTimeline *timeline,
     }
 }
 
-static gdouble
-my_sine_wave (ClutterAlpha *alpha,
-              gpointer      dummy G_GNUC_UNUSED)
-{
-  ClutterTimeline *timeline = clutter_alpha_get_timeline (alpha);
-  gdouble progress = clutter_timeline_get_progress (timeline);
-
-  return sin (progress * G_PI);
-}
-
 static void
 hand_pre_paint (ClutterActor *actor,
                 gpointer      user_data)
@@ -208,7 +196,6 @@ stop_and_quit (ClutterActor *actor,
 G_MODULE_EXPORT int
 test_paint_wrapper_main (int argc, char *argv[])
 {
-  ClutterAlpha *alpha;
   ClutterActor *stage;
   ClutterColor  stage_color = { 0x61, 0x64, 0x8c, 0xff };
   SuperOH      *oh;
@@ -259,12 +246,6 @@ test_paint_wrapper_main (int argc, char *argv[])
   /* fire a callback for frame change */
   oh->frame_id =
     g_signal_connect (oh->timeline, "new-frame", G_CALLBACK (frame_cb), oh);
-
-  /* Set up some behaviours to handle scaling  */
-  alpha = clutter_alpha_new_with_func (oh->timeline, my_sine_wave, NULL, NULL);
-
-  oh->scaler_1 = clutter_behaviour_scale_new (alpha, 0.5, 0.5, 1.0, 1.0);
-  oh->scaler_2 = clutter_behaviour_scale_new (alpha, 1.0, 1.0, 0.5, 0.5);
 
   real_hand = clutter_texture_new_from_file (TESTS_DATADIR 
                                              G_DIR_SEPARATOR_S
@@ -334,11 +315,6 @@ test_paint_wrapper_main (int argc, char *argv[])
 
       /* Add to our group group */
       clutter_container_add_actor (CLUTTER_CONTAINER (oh->group), oh->hand[i]);
-
-      if (i % 2)
-	clutter_behaviour_apply (oh->scaler_1, oh->hand[i]);
-      else
-	clutter_behaviour_apply (oh->scaler_2, oh->hand[i]);
     }
 
   oh->paint_guards = g_malloc0 (sizeof (gboolean) * n_hands);
@@ -359,8 +335,6 @@ test_paint_wrapper_main (int argc, char *argv[])
 
   clutter_main ();
 
-  g_object_unref (oh->scaler_1);
-  g_object_unref (oh->scaler_2);
   g_object_unref (oh->timeline);
   g_free (oh->paint_guards);
   g_free (oh->hand);
