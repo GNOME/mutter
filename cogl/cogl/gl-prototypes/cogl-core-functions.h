@@ -70,8 +70,6 @@ COGL_EXT_FUNCTION (void, glBindBuffer,
                     GLuint		 buffer))
 COGL_EXT_FUNCTION (void, glBindTexture,
                    (GLenum target, GLuint texture))
-COGL_EXT_FUNCTION (void, glBlendFunc,
-                   (GLenum sfactor, GLenum dfactor))
 COGL_EXT_FUNCTION (void, glBufferData,
                    (GLenum		 target,
                     GLsizeiptr		 size,
