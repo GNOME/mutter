@@ -251,7 +251,6 @@ clutter_deprecated_sources = [
   'deprecated/clutter-box.c',
   'deprecated/clutter-cairo-texture.c',
   'deprecated/clutter-group.c',
-  'deprecated/clutter-layout-manager-deprecated.c',
   'deprecated/clutter-rectangle.c',
   'deprecated/clutter-state.c',
   'deprecated/clutter-table-layout.c',
