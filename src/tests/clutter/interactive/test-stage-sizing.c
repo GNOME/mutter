@@ -41,7 +41,7 @@ test_stage_sizing_main (int argc, char *argv[])
 
   box = clutter_actor_new ();
   clutter_actor_set_layout_manager (box, clutter_box_layout_new ());
-  clutter_actor_add_constraint (box, clutter_align_constraint_new (stage, CLUTTER_ALIGN_BOTH, 0.5));
+  clutter_actor_add_constraint (box, clutter_align_constraint_new (stage, CLUTTER_ALIGN_BOTH, CLUTTER_ALIGN_INSIDE, 0.5));
   clutter_actor_add_child (stage, box);
 
   rect = clutter_actor_new ();

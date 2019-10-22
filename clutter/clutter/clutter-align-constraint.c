@@ -58,6 +58,7 @@ struct _ClutterAlignConstraint
   ClutterActor *actor;
   ClutterActor *source;
   ClutterAlignAxis align_axis;
+  ClutterAlignPosition align_position;
   gfloat factor;
 };
 
@@ -72,6 +73,7 @@ enum
 
   PROP_SOURCE,
   PROP_ALIGN_AXIS,
+  PROP_ALIGN_POSITION,
   PROP_FACTOR,
 
   PROP_LAST
@@ -133,9 +135,10 @@ clutter_align_constraint_update_allocation (ClutterConstraint *constraint,
                                             ClutterActorBox   *allocation)
 {
   ClutterAlignConstraint *align = CLUTTER_ALIGN_CONSTRAINT (constraint);
-  gfloat source_width, source_height;
   gfloat actor_width, actor_height;
   gfloat source_x, source_y;
+  gfloat source_width, source_height;
+  gfloat start_factor, end_factor;
 
   if (align->source == NULL)
     return;
@@ -145,25 +148,47 @@ clutter_align_constraint_update_allocation (ClutterConstraint *constraint,
   clutter_actor_get_position (align->source, &source_x, &source_y);
   clutter_actor_get_size (align->source, &source_width, &source_height);
 
+  switch (align->align_position)
+    {
+    case CLUTTER_ALIGN_INSIDE:
+      start_factor = 0;
+      end_factor = -1;
+      break;
+
+    case CLUTTER_ALIGN_ON_EDGE:
+      start_factor = -0.5;
+      end_factor = 0;
+      break;
+
+    case CLUTTER_ALIGN_OUTSIDE:
+      start_factor = -1;
+      end_factor = 1;
+      break;
+
+    default:
+      g_assert_not_reached ();
+      break;
+    }
+
   switch (align->align_axis)
     {
     case CLUTTER_ALIGN_X_AXIS:
-      allocation->x1 = ((source_width - actor_width) * align->factor)
-                     + source_x;
+      allocation->x1 = ((source_width + (end_factor * actor_width)) * align->factor)
+                     + source_x + (start_factor * actor_width);
       allocation->x2 = allocation->x1 + actor_width;
       break;
 
     case CLUTTER_ALIGN_Y_AXIS:
-      allocation->y1 = ((source_height - actor_height) * align->factor)
-                     + source_y;
+      allocation->y1 = ((source_height + (end_factor * actor_height)) * align->factor)
+                     + source_y + (start_factor * actor_height);
       allocation->y2 = allocation->y1 + actor_height;
       break;
 
     case CLUTTER_ALIGN_BOTH:
-      allocation->x1 = ((source_width - actor_width) * align->factor)
-                     + source_x;
-      allocation->y1 = ((source_height - actor_height) * align->factor)
-                     + source_y;
+      allocation->x1 = ((source_width + (end_factor * actor_width)) * align->factor)
+                     + source_x + (start_factor * actor_width);
+      allocation->y1 = ((source_height + (end_factor * actor_height)) * align->factor)
+                     + source_y + (start_factor * actor_height);
       allocation->x2 = allocation->x1 + actor_width;
       allocation->y2 = allocation->y1 + actor_height;
       break;
@@ -213,6 +238,10 @@ clutter_align_constraint_set_property (GObject      *gobject,
       clutter_align_constraint_set_align_axis (align, g_value_get_enum (value));
       break;
 
+    case PROP_ALIGN_POSITION:
+      clutter_align_constraint_set_align_position (align, g_value_get_enum (value));
+      break;
+
     case PROP_FACTOR:
       clutter_align_constraint_set_factor (align, g_value_get_float (value));
       break;
@@ -239,6 +268,10 @@ clutter_align_constraint_get_property (GObject    *gobject,
 
     case PROP_ALIGN_AXIS:
       g_value_set_enum (value, align->align_axis);
+      break;
+
+    case PROP_ALIGN_POSITION:
+      g_value_set_enum (value, align->align_position);
       break;
 
     case PROP_FACTOR:
@@ -295,6 +328,19 @@ clutter_align_constraint_class_init (ClutterAlignConstraintClass *klass)
                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
   /**
+   * ClutterAlignConstraint:align-position:
+   *
+   * The min/max position of the alignment in relation to the source actor
+   */
+  obj_props[PROP_ALIGN_POSITION] =
+    g_param_spec_enum ("align-position",
+                       P_("Align Position"),
+                       P_("The min/max position in relation to the source"),
+                       CLUTTER_TYPE_ALIGN_POSITION,
+                       CLUTTER_ALIGN_INSIDE,
+                       CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
+
+  /**
    * ClutterAlignConstraint:factor:
    *
    * The alignment factor, as a normalized value between 0.0 and 1.0
@@ -326,6 +372,7 @@ clutter_align_constraint_init (ClutterAlignConstraint *self)
   self->actor = NULL;
   self->source = NULL;
   self->align_axis = CLUTTER_ALIGN_X_AXIS;
+  self->align_position = CLUTTER_ALIGN_INSIDE;
   self->factor = 0.0f;
 }
 
@@ -334,6 +381,7 @@ clutter_align_constraint_init (ClutterAlignConstraint *self)
  * @source: (allow-none): the #ClutterActor to use as the source of the
  *   alignment, or %NULL
  * @axis: the axis to be used to compute the alignment
+ * @position: the position in relation to the source actor
  * @factor: the alignment factor, between 0.0 and 1.0
  *
  * Creates a new constraint, aligning a #ClutterActor's position with
@@ -345,15 +393,17 @@ clutter_align_constraint_init (ClutterAlignConstraint *self)
  * Since: 1.4
  */
 ClutterConstraint *
-clutter_align_constraint_new (ClutterActor     *source,
-                              ClutterAlignAxis  axis,
-                              gfloat            factor)
+clutter_align_constraint_new (ClutterActor         *source,
+                              ClutterAlignAxis      axis,
+                              ClutterAlignPosition  position,
+                              gfloat                factor)
 {
   g_return_val_if_fail (source == NULL || CLUTTER_IS_ACTOR (source), NULL);
 
   return g_object_new (CLUTTER_TYPE_ALIGN_CONSTRAINT,
                        "source", source,
                        "align-axis", axis,
+                       "align-position", position,
                        "factor", factor,
                        NULL);
 }
@@ -486,6 +536,57 @@ clutter_align_constraint_get_align_axis (ClutterAlignConstraint *align)
                         CLUTTER_ALIGN_X_AXIS);
 
   return align->align_axis;
+}
+
+/**
+ * clutter_align_constraint_set_align_position:
+ * @align: a #ClutterAlignConstraint
+ * @position: the position to of the actor in relation to the source actor
+ *
+ * Sets the min/max position of the alignment in relation to the source actor.
+ *
+ * Setting ClutterAlignConstraint:align-position to %CLUTTER_ALIGN_INSIDE
+ * while using a factor of 0 or 1 will position the actor completely inside
+ * (aligned to the edge) of the source actor on the specified axis.
+ * Setting ClutterAlignConstraint:align-position to %CLUTTER_ALIGN_ON_EDGE
+ * while using a factor of 0 or 1 will position the actor on the edge (half
+ * inside, half outside) of the source actor on the specified axis.
+ * Setting ClutterAlignConstraint:align-position to %CLUTTER_ALIGN_OUTSIDE
+ * while using a factor of 0 or 1 will position the actor completely outside
+ * (aligned to the edge) of the source actor on the specified axis.
+ */
+void
+clutter_align_constraint_set_align_position (ClutterAlignConstraint *align,
+                                             ClutterAlignPosition    position)
+{
+  g_return_if_fail (CLUTTER_IS_ALIGN_CONSTRAINT (align));
+
+  if (align->align_position == position)
+    return;
+
+  align->align_position = position;
+
+  if (align->actor != NULL)
+    clutter_actor_queue_relayout (align->actor);
+
+  g_object_notify_by_pspec (G_OBJECT (align), obj_props[PROP_ALIGN_POSITION]);
+}
+
+/**
+ * clutter_align_constraint_get_align_position
+ * @align: a #ClutterAlignConstraint
+ *
+ * Retrieves the value set using clutter_align_constraint_set_align_position()
+ *
+ * Return value: the alignment position
+ */
+ClutterAlignPosition
+clutter_align_constraint_get_align_position (ClutterAlignConstraint *align)
+{
+  g_return_val_if_fail (CLUTTER_IS_ALIGN_CONSTRAINT (align),
+                        CLUTTER_ALIGN_INSIDE);
+
+  return align->align_position;
 }
 
 /**

@@ -576,6 +576,23 @@ typedef enum
 } ClutterAllocationFlags;
 
 /**
+ * ClutterAlignPosition:
+ * @CLUTTER_ALIGN_INSIDE: Position the actor inside the source actor
+ * @CLUTTER_ALIGN_ON_EDGE: Position the actor on the edges of the source actor
+ * @CLUTTER_ALIGN_OUTSIDE: Position the actor outside the source actor
+ *
+ * Specifies whether the min/max-positions (alignment-factor 0 and 1) of a
+ * #ClutterAlignConstraint should position the actor completely inside, on the
+ * edge (half inside, half outside) or completely outside of the source actor.
+ */
+typedef enum /*< prefix=CLUTTER_ALIGN >*/
+{
+  CLUTTER_ALIGN_INSIDE,
+  CLUTTER_ALIGN_ON_EDGE,
+  CLUTTER_ALIGN_OUTSIDE
+} ClutterAlignPosition;
+
+/**
  * ClutterAlignAxis:
  * @CLUTTER_ALIGN_X_AXIS: Maintain the alignment on the X axis
  * @CLUTTER_ALIGN_Y_AXIS: Maintain the alignment on the Y axis

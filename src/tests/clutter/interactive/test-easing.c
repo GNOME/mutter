@@ -252,8 +252,8 @@ test_easing_main (int argc, char *argv[])
   label = clutter_text_new ();
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), label);
   clutter_text_set_text (CLUTTER_TEXT (label), text);
-  clutter_actor_add_constraint (label, clutter_align_constraint_new (stage, CLUTTER_ALIGN_X_AXIS, 0.95));
-  clutter_actor_add_constraint (label, clutter_align_constraint_new (stage, CLUTTER_ALIGN_Y_AXIS, 0.95));
+  clutter_actor_add_constraint (label, clutter_align_constraint_new (stage, CLUTTER_ALIGN_X_AXIS, CLUTTER_ALIGN_INSIDE, 0.95));
+  clutter_actor_add_constraint (label, clutter_align_constraint_new (stage, CLUTTER_ALIGN_Y_AXIS, CLUTTER_ALIGN_INSIDE, 0.95));
   easing_mode_label = label;
 
   g_free (text);
