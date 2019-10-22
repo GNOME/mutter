@@ -20,8 +20,6 @@ typedef struct SuperOH
   gint stage_height;
   gfloat radius;
 
-  ClutterBehaviour *scaler_1;
-  ClutterBehaviour *scaler_2;
   ClutterTimeline *timeline;
 } SuperOH;
 
@@ -155,20 +153,9 @@ stop_and_quit (ClutterActor *stage,
   clutter_main_quit ();
 }
 
-static gdouble
-my_sine_wave (ClutterAlpha *alpha,
-              gpointer      dummy G_GNUC_UNUSED)
-{
-  ClutterTimeline *timeline = clutter_alpha_get_timeline (alpha);
-  gdouble progress = clutter_timeline_get_progress (timeline);
-
-  return sin (progress * G_PI);
-}
-
 G_MODULE_EXPORT int
 test_actors_main (int argc, char *argv[])
 {
-  ClutterAlpha *alpha;
   SuperOH      *oh;
   gint          i;
   GError       *error;
@@ -206,12 +193,6 @@ test_actors_main (int argc, char *argv[])
 
   /* fire a callback for frame change */
   g_signal_connect (oh->timeline, "new-frame", G_CALLBACK (frame_cb), oh);
-
-  /* Set up some behaviours to handle scaling  */
-  alpha = clutter_alpha_new_with_func (oh->timeline, my_sine_wave, NULL, NULL);
-
-  oh->scaler_1 = clutter_behaviour_scale_new (alpha, 0.5, 0.5, 1.0, 1.0);
-  oh->scaler_2 = clutter_behaviour_scale_new (alpha, 1.0, 1.0, 0.5, 0.5);
 
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
   real_hand = clutter_texture_new_from_file (file, &error);
@@ -283,11 +264,6 @@ test_actors_main (int argc, char *argv[])
       g_signal_connect (oh->hand[i], "destroy",
                         G_CALLBACK (on_hand_destroy),
                         oh);
-
-      if (i % 2)
-	clutter_behaviour_apply (oh->scaler_1, oh->hand[i]);
-      else
-	clutter_behaviour_apply (oh->scaler_2, oh->hand[i]);
     }
 
   /* Add the group to the stage */
@@ -308,8 +284,6 @@ test_actors_main (int argc, char *argv[])
   clutter_timeline_stop (oh->timeline);
 
   /* clean up */
-  g_object_unref (oh->scaler_1);
-  g_object_unref (oh->scaler_2);
   g_object_unref (oh->timeline);
   g_free (oh->hand);
   g_free (oh);
