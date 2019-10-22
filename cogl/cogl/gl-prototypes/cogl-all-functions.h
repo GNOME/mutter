@@ -181,7 +181,7 @@ COGL_EXT_FUNCTION (void, glSamplerParameteri,
 COGL_EXT_END ()
 
 COGL_EXT_BEGIN (only_gl3, 3, 0,
-                0, /* not in either GLES */
+                COGL_EXT_IN_GLES3,
                 "\0",
                 "\0")
 COGL_EXT_FUNCTION (const GLubyte *, glGetStringi,
