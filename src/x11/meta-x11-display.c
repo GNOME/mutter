@@ -1934,10 +1934,10 @@ meta_x11_display_set_input_focus_xwindow (MetaX11Display *x11_display,
 {
   gulong serial;
 
-  meta_display_unset_input_focus (x11_display->display, timestamp);
   serial = XNextRequest (x11_display->xdisplay);
   meta_x11_display_set_input_focus_internal (x11_display, window, timestamp);
   meta_x11_display_update_focus_window (x11_display, window, serial, TRUE);
+  meta_display_unset_input_focus (x11_display->display, timestamp);
 }
 
 static MetaX11DisplayLogicalMonitorData *
