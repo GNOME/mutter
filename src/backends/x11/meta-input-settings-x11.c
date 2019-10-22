@@ -516,6 +516,13 @@ meta_input_settings_x11_is_trackball_device (MetaInputSettings  *settings,
   return has_udev_property (settings, device, "ID_INPUT_TRACKBALL");
 }
 
+static gboolean
+meta_input_settings_x11_is_pointingstick_device (MetaInputSettings  *settings,
+                                                ClutterInputDevice *device)
+{
+  return has_udev_property (settings, device, "ID_INPUT_POINTINGSTICK");
+}
+
 static void
 set_device_accel_profile (ClutterInputDevice         *device,
                           GDesktopPointerAccelProfile profile)
@@ -561,6 +568,63 @@ err_available:
 }
 
 static void
+set_device_scroll_method (ClutterInputDevice         *device,
+                          GDesktopDeviceScrollMethod  method)
+{
+  guchar *defaults, *available;
+  guchar values[3] = { 0 }; /* none, on-button */
+
+  defaults = get_property (device, "libinput Scroll Method Enabled Default",
+                           XA_INTEGER, 8, 3);
+  if (!defaults)
+    return;
+
+  available = get_property (device, "libinput Scroll Methods Available",
+                           XA_INTEGER, 8, 3);
+  if (!available)
+    goto err_available;
+
+  switch (method)
+    {
+    case G_DESKTOP_DEVICE_SCROLL_METHOD_NONE:
+      values[0] = 0;
+      values[1] = 0;
+      values[2] = 0;
+      break;
+    case G_DESKTOP_DEVICE_SCROLL_METHOD_2FG:
+      values[0] = 1;
+      values[1] = 0;
+      values[2] = 0;
+      break;
+    case G_DESKTOP_DEVICE_SCROLL_METHOD_EDGE:
+      values[0] = 0;
+      values[1] = 1;
+      values[2] = 0;
+      break;
+    case G_DESKTOP_DEVICE_SCROLL_METHOD_ON_BUTTON_DOWN:
+      values[0] = 0;
+      values[1] = 0;
+      values[2] = 1;
+      break;
+    default:
+      g_warn_if_reached ();
+    case G_DESKTOP_DEVICE_SCROLL_METHOD_DEFAULT:
+      values[0] = defaults[0];
+      values[1] = defaults[1];
+      values[2] = defaults[2];
+      break;
+    }
+
+  change_property (device, "libinput Scroll Method Enabled",
+                   XA_INTEGER, 8, &values, 3);
+
+  meta_XFree (available);
+
+err_available:
+  meta_XFree (defaults);
+}
+
+static void
 meta_input_settings_x11_set_mouse_accel_profile (MetaInputSettings          *settings,
                                                  ClutterInputDevice         *device,
                                                  GDesktopPointerAccelProfile profile)
@@ -580,6 +644,28 @@ meta_input_settings_x11_set_trackball_accel_profile (MetaInputSettings          
     return;
 
   set_device_accel_profile (device, profile);
+}
+
+static void
+meta_input_settings_x11_set_pointingstick_accel_profile (MetaInputSettings          *settings,
+                                                         ClutterInputDevice         *device,
+                                                         GDesktopPointerAccelProfile profile)
+{
+  if (!meta_input_settings_x11_is_pointingstick_device (settings, device))
+    return;
+
+  set_device_accel_profile (device, profile);
+}
+
+static void
+meta_input_settings_x11_set_pointingstick_scroll_method (MetaInputSettings         *settings,
+                                                         ClutterInputDevice        *device,
+                                                         GDesktopDeviceScrollMethod method)
+{
+  if (!meta_input_settings_x11_is_pointingstick_device (settings, device))
+    return;
+
+  set_device_scroll_method (device, method);
 }
 
 static void
@@ -857,12 +943,15 @@ meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
 
   input_settings_class->set_mouse_accel_profile = meta_input_settings_x11_set_mouse_accel_profile;
   input_settings_class->set_trackball_accel_profile = meta_input_settings_x11_set_trackball_accel_profile;
+  input_settings_class->set_pointingstick_accel_profile = meta_input_settings_x11_set_pointingstick_accel_profile;
+  input_settings_class->set_pointingstick_scroll_method = meta_input_settings_x11_set_pointingstick_scroll_method;
 
   input_settings_class->set_stylus_pressure = meta_input_settings_x11_set_stylus_pressure;
   input_settings_class->set_stylus_button_map = meta_input_settings_x11_set_stylus_button_map;
 
   input_settings_class->has_two_finger_scroll = meta_input_settings_x11_has_two_finger_scroll;
   input_settings_class->is_trackball_device = meta_input_settings_x11_is_trackball_device;
+  input_settings_class->is_pointingstick_device = meta_input_settings_x11_is_pointingstick_device;
 }
 
 static void

@@ -73,7 +73,6 @@ struct _MetaInputSettingsClass
   void (* set_scroll_button) (MetaInputSettings  *settings,
                               ClutterInputDevice *device,
                               guint               button);
-
   void (* set_click_method)  (MetaInputSettings            *settings,
                               ClutterInputDevice           *device,
                               GDesktopTouchpadClickMethod   mode);
@@ -103,6 +102,12 @@ struct _MetaInputSettingsClass
   void (* set_trackball_accel_profile) (MetaInputSettings          *settings,
                                         ClutterInputDevice         *device,
                                         GDesktopPointerAccelProfile profile);
+  void (* set_pointingstick_accel_profile) (MetaInputSettings          *settings,
+                                            ClutterInputDevice         *device,
+                                            GDesktopPointerAccelProfile profile);
+  void (* set_pointingstick_scroll_method) (MetaInputSettings         *settings,
+                                            ClutterInputDevice        *device,
+                                            GDesktopDeviceScrollMethod profile);
 
   void (* set_stylus_pressure) (MetaInputSettings            *settings,
                                 ClutterInputDevice           *device,
@@ -118,6 +123,8 @@ struct _MetaInputSettingsClass
                                       ClutterInputDevice *device);
   gboolean (* is_trackball_device) (MetaInputSettings  *settings,
                                     ClutterInputDevice *device);
+  gboolean (* is_pointingstick_device) (MetaInputSettings  *settings,
+                                        ClutterInputDevice *device);
 };
 
 GSettings *           meta_input_settings_get_tablet_settings (MetaInputSettings  *settings,
