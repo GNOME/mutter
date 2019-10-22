@@ -57,13 +57,6 @@
  * #ClutterAnimatable interface it is possible for that instance to
  * control the way the initial and final states are interpolated.
  *
- * #ClutterAnimations are distinguished from #ClutterBehaviours
- * because the former can only control #GObject properties of a single
- * #GObject instance, while the latter can control multiple properties
- * using accessor functions inside the #ClutterBehaviour
- * `alpha_notify` virtual function, and can control multiple #ClutterActors
- * as well.
- *
  * For convenience, it is possible to use the clutter_actor_animate()
  * function call which will take care of setting up and tearing down
  * a #ClutterAnimation instance and animate an actor between its current
