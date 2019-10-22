@@ -31,6 +31,7 @@
 #include <glib-object.h>
 
 #include "cogl/cogl.h"
+#include "meta/meta-multi-texture.h"
 #include "wayland/meta-wayland-types.h"
 
 #define META_TYPE_WAYLAND_DMA_BUF_BUFFER (meta_wayland_dma_buf_buffer_get_type ())
@@ -43,7 +44,7 @@ gboolean meta_wayland_dma_buf_init (MetaWaylandCompositor *compositor);
 
 gboolean
 meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
-                                    CoglTexture       **texture,
+                                    MetaMultiTexture  **texture,
                                     GError            **error);
 
 MetaWaylandDmaBufBuffer *

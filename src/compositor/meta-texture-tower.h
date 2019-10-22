@@ -24,6 +24,7 @@
 #define __META_TEXTURE_TOWER_H__
 
 #include "clutter/clutter.h"
+#include <meta/meta-multi-texture.h>
 
 G_BEGIN_DECLS
 
@@ -54,13 +55,13 @@ typedef struct _MetaTextureTower MetaTextureTower;
 MetaTextureTower *meta_texture_tower_new               (void);
 void              meta_texture_tower_free              (MetaTextureTower *tower);
 void              meta_texture_tower_set_base_texture  (MetaTextureTower *tower,
-                                                        CoglTexture      *texture);
+                                                        MetaMultiTexture *texture);
 void              meta_texture_tower_update_area       (MetaTextureTower *tower,
                                                         int               x,
                                                         int               y,
                                                         int               width,
                                                         int               height);
-CoglTexture      *meta_texture_tower_get_paint_texture (MetaTextureTower    *tower,
+MetaMultiTexture *meta_texture_tower_get_paint_texture (MetaTextureTower *tower,
                                                         ClutterPaintContext *paint_context);
 
 G_END_DECLS

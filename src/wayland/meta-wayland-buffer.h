@@ -29,6 +29,7 @@
 #include <wayland-server.h>
 
 #include "cogl/cogl.h"
+#include "meta/meta-multi-texture.h"
 #include "wayland/meta-wayland-types.h"
 #include "wayland/meta-wayland-egl-stream.h"
 #include "wayland/meta-wayland-dma-buf.h"
@@ -56,19 +57,19 @@ struct _MetaWaylandBuffer
   MetaWaylandBufferType type;
 
   struct {
-    CoglTexture *texture;
+    MetaMultiTexture *texture;
   } egl_image;
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
   struct {
     MetaWaylandEglStream *stream;
-    CoglTexture *texture;
+    MetaMultiTexture *texture;
   } egl_stream;
 #endif
 
   struct {
     MetaWaylandDmaBufBuffer *dma_buf;
-    CoglTexture *texture;
+    MetaMultiTexture *texture;
   } dma_buf;
 };
 
@@ -81,12 +82,12 @@ struct wl_resource *    meta_wayland_buffer_get_resource        (MetaWaylandBuff
 gboolean                meta_wayland_buffer_is_realized         (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_realize             (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_attach              (MetaWaylandBuffer     *buffer,
-                                                                 CoglTexture          **texture,
+                                                                 MetaMultiTexture     **texture,
                                                                  GError               **error);
 CoglSnippet *           meta_wayland_buffer_create_snippet      (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_is_y_inverted       (MetaWaylandBuffer     *buffer);
 void                    meta_wayland_buffer_process_damage      (MetaWaylandBuffer     *buffer,
-                                                                 CoglTexture           *texture,
+                                                                 MetaMultiTexture      *texture,
                                                                  cairo_region_t        *region);
 
 #endif /* META_WAYLAND_BUFFER_H */
