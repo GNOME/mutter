@@ -19,7 +19,6 @@ clutter_tests_interactive_test_sources = [
   'test-texture-async.c',
   'test-texture-material.c',
   'test-events.c',
-  'test-scale.c',
   'test-actors.c',
   'test-shader-effects.c',
   'test-script.c',
