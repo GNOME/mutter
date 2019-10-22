@@ -232,7 +232,7 @@ COGL_EXT_FUNCTION (const GLubyte *, glGetStringi,
 COGL_EXT_END ()
 
 COGL_EXT_BEGIN (vertex_array_object, 3, 0,
-                0, /* not in either GLES */
+                COGL_EXT_IN_GLES3,
                 "ARB\0OES\0",
                 "vertex_array_object\0")
 COGL_EXT_FUNCTION (void, glBindVertexArray,
