@@ -2984,6 +2984,19 @@ meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
   renderer_native->pending_unset_disabled_crtcs = TRUE;
 }
 
+static void
+adjust_size_to_transform (MetaMonitorTransform  transform,
+                          int                  *width,
+                          int                  *height)
+{
+  if (meta_monitor_transform_is_rotated (transform))
+    {
+      int tmp = *width;
+      *width = *height;
+      *height = tmp;
+    }
+}
+
 static CoglOnscreen *
 meta_renderer_native_create_onscreen (MetaRendererNative   *renderer_native,
                                       MetaGpuKms           *render_gpu,
@@ -3000,16 +3013,9 @@ meta_renderer_native_create_onscreen (MetaRendererNative   *renderer_native,
   gint width, height;
   GList *l;
 
-  if (meta_monitor_transform_is_rotated (transform))
-    {
-      width = view_height;
-      height = view_width;
-    }
-  else
-    {
-      width = view_width;
-      height = view_height;
-    }
+  width = view_width;
+  height = view_height;
+  adjust_size_to_transform (transform, &width, &height);
 
   onscreen = cogl_onscreen_new (context, width, height);
 
@@ -3256,6 +3262,8 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   MetaMonitorTransform view_transform;
   CoglOnscreen *onscreen = NULL;
   CoglOffscreen *offscreen = NULL;
+  CoglOffscreen *shadowfb = NULL;
+  gboolean use_shadow_fb;
   float scale;
   int width, height;
   MetaRendererView *view;
@@ -3282,9 +3290,11 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   if (!onscreen)
     g_error ("Failed to allocate onscreen framebuffer: %s", error->message);
 
-  if (view_transform != META_MONITOR_TRANSFORM_NORMAL ||
+  use_shadow_fb =
       should_force_shadow_fb (renderer_native,
-                              renderer_native->primary_gpu_kms))
+                              renderer_native->primary_gpu_kms);
+
+  if (view_transform != META_MONITOR_TRANSFORM_NORMAL || use_shadow_fb)
     {
       offscreen = meta_renderer_native_create_offscreen (renderer_native,
                                                          cogl_context,
@@ -3294,17 +3304,37 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                                                          &error);
       if (!offscreen)
         g_error ("Failed to allocate back buffer texture: %s", error->message);
+
     }
+
+  if (view_transform != META_MONITOR_TRANSFORM_NORMAL && use_shadow_fb)
+    {
+      int shadow_width = width;
+      int shadow_height = height;
+
+      adjust_size_to_transform (view_transform, &shadow_width, &shadow_height);
+      shadowfb = meta_renderer_native_create_offscreen (renderer_native,
+                                                        cogl_context,
+                                                        view_transform,
+                                                        shadow_width,
+                                                        shadow_height,
+                                                        &error);
+      if (!shadowfb)
+        g_error ("Failed to allocate shadow buffer texture: %s", error->message);
+    }
+
 
   view = g_object_new (META_TYPE_RENDERER_VIEW,
                        "layout", &logical_monitor->rect,
                        "scale", scale,
                        "framebuffer", onscreen,
                        "offscreen", offscreen,
+                       "shadowfb", shadowfb,
                        "logical-monitor", logical_monitor,
                        "transform", view_transform,
                        NULL);
   g_clear_pointer (&offscreen, cogl_object_unref);
+  g_clear_pointer (&shadowfb, cogl_object_unref);
 
   meta_onscreen_native_set_view (onscreen, view);
 
