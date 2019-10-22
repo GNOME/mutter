@@ -170,7 +170,7 @@ COGL_EXT_FUNCTION (void, glFramebufferTexture2DMultisampleIMG,
 COGL_EXT_END ()
 
 COGL_EXT_BEGIN (ARB_sampler_objects, 3, 3,
-                0, /* not in either GLES */
+                COGL_EXT_IN_GLES3,
                 "ARB:\0",
                 "sampler_objects\0")
 COGL_EXT_FUNCTION (void, glGenSamplers,
