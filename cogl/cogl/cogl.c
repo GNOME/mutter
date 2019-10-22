@@ -48,7 +48,6 @@
 #include "cogl-attribute-private.h"
 #include "cogl-framebuffer-private.h"
 #include "cogl-renderer-private.h"
-#include "cogl-config-private.h"
 #include "cogl-private.h"
 #include "cogl1-context.h"
 #include "cogl-offscreen.h"
@@ -630,7 +629,6 @@ _cogl_init (void)
       g_type_init ();
 #endif
 
-      _cogl_config_read ();
       _cogl_debug_check_environment ();
       initialized = TRUE;
     }

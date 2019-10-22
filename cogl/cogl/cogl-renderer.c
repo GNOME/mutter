@@ -43,7 +43,6 @@
 #include "cogl-renderer.h"
 #include "cogl-renderer-private.h"
 #include "cogl-display-private.h"
-#include "cogl-config-private.h"
 #include "cogl-gtype-private.h"
 
 #include "winsys/cogl-winsys-private.h"
@@ -395,9 +394,6 @@ _cogl_renderer_choose_driver (CoglRenderer *renderer,
   const CoglDriverDescription *desc;
   int i;
 
-  if (!driver_name)
-    driver_name = _cogl_config_driver;
-
   if (driver_name)
     {
       driver_override = driver_name_to_id (driver_name);
@@ -568,8 +564,6 @@ cogl_renderer_connect (CoglRenderer *renderer, GError **error)
       else
         {
           char *user_choice = getenv ("COGL_RENDERER");
-          if (!user_choice)
-            user_choice = _cogl_config_renderer;
           if (user_choice &&
               g_ascii_strcasecmp (winsys->name, user_choice) != 0)
             continue;

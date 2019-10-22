@@ -339,8 +339,6 @@ cogl_sources = [
   'cogl-point-in-poly.c',
   'cogl-list.c',
   'cogl-list.h',
-  'cogl-config-private.h',
-  'cogl-config.c',
   'cogl-boxed-value.h',
   'cogl-boxed-value.c',
   'cogl-snippet-private.h',

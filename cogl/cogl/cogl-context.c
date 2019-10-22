@@ -46,7 +46,6 @@
 #include "cogl-attribute-private.h"
 #include "cogl1-context.h"
 #include "cogl-gpu-info-private.h"
-#include "cogl-config-private.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
@@ -590,11 +589,9 @@ _cogl_context_get_gl_extensions (CoglContext *context)
       ret = g_strsplit (all_extensions, " ", 0 /* max tokens */);
     }
 
-  if ((env_disabled_extensions = g_getenv ("COGL_DISABLE_GL_EXTENSIONS"))
-      || _cogl_config_disable_gl_extensions)
+  if ((env_disabled_extensions = g_getenv ("COGL_DISABLE_GL_EXTENSIONS")))
     {
       char **split_env_disabled_extensions;
-      char **split_conf_disabled_extensions;
       char **src, **dst;
 
       if (env_disabled_extensions)
@@ -605,14 +602,6 @@ _cogl_context_get_gl_extensions (CoglContext *context)
       else
         split_env_disabled_extensions = NULL;
 
-      if (_cogl_config_disable_gl_extensions)
-        split_conf_disabled_extensions =
-          g_strsplit (_cogl_config_disable_gl_extensions,
-                      ",",
-                      0 /* no max tokens */);
-      else
-        split_conf_disabled_extensions = NULL;
-
       for (dst = ret, src = ret;
            *src;
            src++)
@@ -621,10 +610,6 @@ _cogl_context_get_gl_extensions (CoglContext *context)
 
           if (split_env_disabled_extensions)
             for (d = split_env_disabled_extensions; *d; d++)
-              if (!strcmp (*src, *d))
-                goto disabled;
-          if (split_conf_disabled_extensions)
-            for (d = split_conf_disabled_extensions; *d; d++)
               if (!strcmp (*src, *d))
                 goto disabled;
 
@@ -640,8 +625,6 @@ _cogl_context_get_gl_extensions (CoglContext *context)
 
       if (split_env_disabled_extensions)
         g_strfreev (split_env_disabled_extensions);
-      if (split_conf_disabled_extensions)
-        g_strfreev (split_conf_disabled_extensions);
     }
 
   return ret;
@@ -654,8 +637,6 @@ _cogl_context_get_gl_version (CoglContext *context)
 
   if ((version_override = g_getenv ("COGL_OVERRIDE_GL_VERSION")))
     return version_override;
-  else if (_cogl_config_override_gl_version)
-    return _cogl_config_override_gl_version;
   else
     return (const char *) context->glGetString (GL_VERSION);
 
