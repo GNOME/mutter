@@ -8,7 +8,6 @@
 #include "deprecated/clutter-animatable.h"
 #include "deprecated/clutter-animation.h"
 #include "deprecated/clutter-behaviour.h"
-#include "deprecated/clutter-behaviour-scale.h"
 #include "deprecated/clutter-bin-layout.h"
 #include "deprecated/clutter-box.h"
 #include "deprecated/clutter-cairo-texture.h"
