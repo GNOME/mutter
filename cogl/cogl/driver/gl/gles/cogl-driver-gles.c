@@ -314,6 +314,9 @@ _cogl_driver_update_features (CoglContext *context,
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ANY_GL, TRUE);
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
 
+  if (context->glGenSamplers)
+    COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS, TRUE);
+
   if (context->glBlitFramebuffer)
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_BLIT_FRAMEBUFFER, TRUE);
