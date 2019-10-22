@@ -68,7 +68,6 @@ typedef enum
    * driver being used and instead check for broad opengl feature
    * sets that can be shared by several GL apis */
   COGL_PRIVATE_FEATURE_ANY_GL,
-  COGL_PRIVATE_FEATURE_GL_FIXED,
   COGL_PRIVATE_FEATURE_GL_PROGRAMMABLE,
   COGL_PRIVATE_FEATURE_GL_EMBEDDED,
   COGL_PRIVATE_FEATURE_GL_WEB,

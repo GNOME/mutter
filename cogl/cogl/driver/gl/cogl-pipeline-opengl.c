@@ -360,8 +360,7 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   /* On GLES2 we'll flush the color later */
-  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_GL_FIXED) &&
-      !with_color_attrib)
+  if (ctx->driver == COGL_DRIVER_GL && !with_color_attrib)
     {
       if ((pipelines_difference & COGL_PIPELINE_STATE_COLOR) ||
           /* Assume if we were previously told to skip the color, then
@@ -563,7 +562,7 @@ get_max_activateable_texture_units (void)
 #endif
 
 #ifdef HAVE_COGL_GL
-      if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_GL_FIXED))
+      if (ctx->driver == COGL_DRIVER_GL)
         {
           /* GL_MAX_TEXTURE_UNITS defines the number of units that are
              usable from the fixed function pipeline, therefore it isn't
@@ -695,7 +694,7 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
    * glsl progend.
    */
 #ifdef HAVE_COGL_GL
-  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_GL_FIXED) &&
+  if (ctx->driver == COGL_DRIVER_GL &&
       (layers_difference & COGL_PIPELINE_LAYER_STATE_POINT_SPRITE_COORDS))
     {
       CoglPipelineState change = COGL_PIPELINE_LAYER_STATE_POINT_SPRITE_COORDS;

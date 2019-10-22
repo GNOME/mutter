@@ -59,8 +59,7 @@ toggle_builtin_attribute_enabled_cb (int bit_num, void *user_data)
   ForeachChangedBitState *state = user_data;
   CoglContext *context = state->context;
 
-  g_return_val_if_fail (_cogl_has_private_feature
-                        (context, COGL_PRIVATE_FEATURE_GL_FIXED),
+  g_return_val_if_fail (context->driver == COGL_DRIVER_GL,
                         FALSE);
 
 #ifdef HAVE_COGL_GL
@@ -98,8 +97,7 @@ toggle_texcood_attribute_enabled_cb (int bit_num, void *user_data)
   ForeachChangedBitState *state = user_data;
   CoglContext *context = state->context;
 
-  g_return_val_if_fail (_cogl_has_private_feature
-                        (context, COGL_PRIVATE_FEATURE_GL_FIXED),
+  g_return_val_if_fail (context->driver == COGL_DRIVER_GL,
                         FALSE);
 
 #ifdef HAVE_COGL_GL
