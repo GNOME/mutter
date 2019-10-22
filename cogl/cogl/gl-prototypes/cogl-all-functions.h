@@ -258,7 +258,7 @@ COGL_EXT_END ()
 
 #ifdef GL_ARB_sync
 COGL_EXT_BEGIN (sync, 3, 2,
-                0, /* not in either GLES */
+                COGL_EXT_IN_GLES3,
                 "ARB:\0",
                 "sync\0")
 COGL_EXT_FUNCTION (GLsync, glFenceSync,
