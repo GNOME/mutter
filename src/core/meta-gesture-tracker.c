@@ -573,14 +573,3 @@ meta_gesture_tracker_get_sequence_state (MetaGestureTracker   *tracker,
 
   return info->state;
 }
-
-gint
-meta_gesture_tracker_get_n_current_touches (MetaGestureTracker *tracker)
-{
-  MetaGestureTrackerPrivate *priv;
-
-  g_return_val_if_fail (META_IS_GESTURE_TRACKER (tracker), 0);
-
-  priv = meta_gesture_tracker_get_instance_private (tracker);
-  return g_hash_table_size (priv->sequences);
-}
