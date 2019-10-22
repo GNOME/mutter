@@ -58,8 +58,8 @@ typedef struct
 struct _MetaTextureTower
 {
   int n_levels;
-  CoglTexture *textures[MAX_TEXTURE_LEVELS];
-  CoglOffscreen *fbos[MAX_TEXTURE_LEVELS];
+  MetaMultiTexture *textures[MAX_TEXTURE_LEVELS];
+  GList *fbos[MAX_TEXTURE_LEVELS];
   Box invalid[MAX_TEXTURE_LEVELS];
   CoglPipeline *pipeline_template;
 };
@@ -113,7 +113,7 @@ meta_texture_tower_free (MetaTextureTower *tower)
  */
 void
 meta_texture_tower_set_base_texture (MetaTextureTower *tower,
-                                     CoglTexture      *texture)
+                                     MetaMultiTexture *texture)
 {
   int i;
 
@@ -126,11 +126,12 @@ meta_texture_tower_set_base_texture (MetaTextureTower *tower,
     {
       for (i = 1; i < tower->n_levels; i++)
         {
-          cogl_clear_object (&tower->textures[i]);
-          g_clear_object (&tower->fbos[i]);
+          g_clear_object (&tower->textures[i]);
+          g_list_free_full (tower->fbos[i], g_object_unref);
+          tower->fbos[i] = NULL;
         }
 
-      cogl_object_unref (tower->textures[0]);
+      g_object_unref (tower->textures[0]);
     }
 
   tower->textures[0] = texture;
@@ -139,10 +140,10 @@ meta_texture_tower_set_base_texture (MetaTextureTower *tower,
     {
       int width, height;
 
-      cogl_object_ref (tower->textures[0]);
+      g_object_ref (tower->textures[0]);
 
-      width = cogl_texture_get_width (tower->textures[0]);
-      height = cogl_texture_get_height (tower->textures[0]);
+      width = meta_multi_texture_get_width (tower->textures[0]);
+      height = meta_multi_texture_get_height (tower->textures[0]);
 
       tower->n_levels = 1 + MAX ((int)(M_LOG2E * log (width)), (int)(M_LOG2E * log (height)));
       tower->n_levels = MIN(tower->n_levels, MAX_TEXTURE_LEVELS);
@@ -183,8 +184,8 @@ meta_texture_tower_update_area (MetaTextureTower *tower,
   if (tower->textures[0] == NULL)
     return;
 
-  texture_width = cogl_texture_get_width (tower->textures[0]);
-  texture_height = cogl_texture_get_height (tower->textures[0]);
+  texture_width = meta_multi_texture_get_width (tower->textures[0]);
+  texture_height = meta_multi_texture_get_height (tower->textures[0]);
 
   invalid.x1 = x;
   invalid.y1 = y;
@@ -359,9 +360,26 @@ texture_tower_create_texture (MetaTextureTower *tower,
                               int               width,
                               int               height)
 {
-  tower->textures[level] = cogl_texture_new_with_size (width, height,
-                                                       COGL_TEXTURE_NO_AUTO_MIPMAP,
-                                                       TEXTURE_FORMAT);
+  MetaMultiTextureFormat format;
+  guint i, n_planes;
+  GPtrArray *planes;
+  CoglTexture **textures;
+
+  format = meta_multi_texture_get_format (tower->textures[0]);
+  n_planes = meta_multi_texture_format_get_n_planes (format);
+  planes = g_ptr_array_new_full (n_planes, g_object_unref);
+  for (i = 0; i < n_planes; i++)
+    {
+      CoglTexture *texture;
+
+       texture = cogl_texture_new_with_size (width, height,
+                                             COGL_TEXTURE_NO_AUTO_MIPMAP,
+                                             TEXTURE_FORMAT);
+       g_ptr_array_add (planes, texture);
+    }
+
+  textures = (CoglTexture **) g_ptr_array_free (planes, FALSE);
+  tower->textures[level] = meta_multi_texture_new (format, textures, n_planes);
 
   tower->invalid[level].x1 = 0;
   tower->invalid[level].y1 = 0;
@@ -373,50 +391,68 @@ static void
 texture_tower_revalidate (MetaTextureTower *tower,
                           int               level)
 {
-  CoglTexture *source_texture = tower->textures[level - 1];
-  int source_texture_width = cogl_texture_get_width (source_texture);
-  int source_texture_height = cogl_texture_get_height (source_texture);
-  CoglTexture *dest_texture = tower->textures[level];
-  int dest_texture_width = cogl_texture_get_width (dest_texture);
-  int dest_texture_height = cogl_texture_get_height (dest_texture);
+  MetaMultiTexture *src_tex = tower->textures[level - 1];
+  int src_width = meta_multi_texture_get_width (src_tex);
+  int src_height = meta_multi_texture_get_height (src_tex);
+  guint src_n_planes = meta_multi_texture_get_n_planes (src_tex);
+  MetaMultiTexture *dest_tex = tower->textures[level];
+  int dest_width = meta_multi_texture_get_width (dest_tex);
+  int dest_height = meta_multi_texture_get_height (dest_tex);
   Box *invalid = &tower->invalid[level];
-  CoglFramebuffer *fb;
-  GError *catch_error = NULL;
-  CoglPipeline *pipeline;
+  guint i;
 
-  if (tower->fbos[level] == NULL)
-    tower->fbos[level] = cogl_offscreen_new_with_texture (dest_texture);
-
-  fb = COGL_FRAMEBUFFER (tower->fbos[level]);
-
-  if (!cogl_framebuffer_allocate (fb, &catch_error))
+  /* FIXME: cogl_offscreen_texture_new_with_texture doesn't work for
+   * multi-plane textures, so we have to make an FBO for each layer */
+    for (i = 0; i < src_n_planes; i++)
     {
-      g_error_free (catch_error);
-      return;
+      Box *invalid = &tower->invalid[level];
+      CoglTexture *src_plane, *dest_plane;
+      CoglFramebuffer *fb;
+      GError *catch_error = NULL;
+      CoglPipeline *pipeline;
+
+      src_plane = meta_multi_texture_get_plane (src_tex, i);
+      dest_plane = meta_multi_texture_get_plane (dest_tex, i);
+
+      if (g_list_nth (tower->fbos[level], i) != NULL)
+        {
+          fb = COGL_FRAMEBUFFER (g_list_nth (tower->fbos[level], i)->data);
+        }
+      else
+        {
+          fb = COGL_FRAMEBUFFER (cogl_offscreen_new_with_texture (dest_plane));
+          tower->fbos[level] = g_list_append (tower->fbos[level], fb);
+        }
+
+      if (!cogl_framebuffer_allocate (fb, &catch_error))
+        {
+          g_error_free (catch_error);
+          return;
+        }
+
+      cogl_framebuffer_orthographic (fb, 0, 0, dest_width, dest_height, -1., 1.);
+
+      if (!tower->pipeline_template)
+        {
+          CoglContext *ctx =
+            clutter_backend_get_cogl_context (clutter_get_default_backend ());
+          tower->pipeline_template = cogl_pipeline_new (ctx);
+          cogl_pipeline_set_blend (tower->pipeline_template, "RGBA = ADD (SRC_COLOR, 0)", NULL);
+        }
+
+      pipeline = cogl_pipeline_copy (tower->pipeline_template);
+      cogl_pipeline_set_layer_texture (pipeline, 0, src_plane);
+
+      cogl_framebuffer_draw_textured_rectangle (fb, pipeline,
+                                                invalid->x1, invalid->y1,
+                                                invalid->x2, invalid->y2,
+                                                (2. * invalid->x1) / src_width,
+                                                (2. * invalid->y1) / src_height,
+                                                (2. * invalid->x2) / src_width,
+                                                (2. * invalid->y2) / src_height);
+
+      cogl_object_unref (pipeline);
     }
-
-  cogl_framebuffer_orthographic (fb, 0, 0, dest_texture_width, dest_texture_height, -1., 1.);
-
-  if (!tower->pipeline_template)
-    {
-      CoglContext *ctx =
-        clutter_backend_get_cogl_context (clutter_get_default_backend ());
-      tower->pipeline_template = cogl_pipeline_new (ctx);
-      cogl_pipeline_set_blend (tower->pipeline_template, "RGBA = ADD (SRC_COLOR, 0)", NULL);
-    }
-
-  pipeline = cogl_pipeline_copy (tower->pipeline_template);
-  cogl_pipeline_set_layer_texture (pipeline, 0, tower->textures[level - 1]);
-
-  cogl_framebuffer_draw_textured_rectangle (fb, pipeline,
-                                            invalid->x1, invalid->y1,
-                                            invalid->x2, invalid->y2,
-                                            (2. * invalid->x1) / source_texture_width,
-                                            (2. * invalid->y1) / source_texture_height,
-                                            (2. * invalid->x2) / source_texture_width,
-                                            (2. * invalid->y2) / source_texture_height);
-
-  cogl_object_unref (pipeline);
 
   tower->invalid[level].x1 = tower->invalid[level].x2 = 0;
   tower->invalid[level].y1 = tower->invalid[level].y2 = 0;
@@ -436,8 +472,8 @@ texture_tower_revalidate (MetaTextureTower *tower,
  * Return value: the COGL texture handle to use for painting, or
  *  %NULL if no base texture has yet been set.
  */
-CoglTexture *
-meta_texture_tower_get_paint_texture (MetaTextureTower    *tower,
+MetaMultiTexture *
+meta_texture_tower_get_paint_texture (MetaTextureTower *tower,
                                       ClutterPaintContext *paint_context)
 {
   int texture_width, texture_height;
@@ -448,8 +484,8 @@ meta_texture_tower_get_paint_texture (MetaTextureTower    *tower,
   if (tower->textures[0] == NULL)
     return NULL;
 
-  texture_width = cogl_texture_get_width (tower->textures[0]);
-  texture_height = cogl_texture_get_height (tower->textures[0]);
+  texture_width = meta_multi_texture_get_width (tower->textures[0]);
+  texture_height = meta_multi_texture_get_height (tower->textures[0]);
 
   level = get_paint_level (paint_context, texture_width, texture_height);
   if (level < 0) /* singular paint matrix, scaled to nothing */

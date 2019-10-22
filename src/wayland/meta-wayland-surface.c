@@ -302,7 +302,7 @@ get_buffer_width (MetaWaylandSurface *surface)
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
 
   if (buffer)
-    return cogl_texture_get_width (surface->texture);
+    return meta_multi_texture_get_width (surface->texture);
   else
     return 0;
 }
@@ -313,7 +313,7 @@ get_buffer_height (MetaWaylandSurface *surface)
   MetaWaylandBuffer *buffer = meta_wayland_surface_get_buffer (surface);
 
   if (buffer)
-    return cogl_texture_get_height (surface->texture);
+    return meta_multi_texture_get_height (surface->texture);
   else
     return 0;
 }
@@ -689,7 +689,7 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
         }
       else
         {
-          cogl_clear_object (&surface->texture);
+          g_clear_object (&surface->texture);
         }
 
       /* If the newly attached buffer is going to be accessed directly without
@@ -1327,7 +1327,7 @@ wl_surface_destructor (struct wl_resource *resource)
 
   if (surface->buffer_held)
     meta_wayland_surface_unref_buffer_use_count (surface);
-  g_clear_pointer (&surface->texture, cogl_object_unref);
+  g_clear_object (&surface->texture);
   g_clear_pointer (&surface->buffer_ref, meta_wayland_buffer_ref_unref);
 
   g_clear_object (&surface->cached_state);
@@ -1906,7 +1906,7 @@ meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurface *surface,
   return g_hash_table_contains (surface->shortcut_inhibited_seats, seat);
 }
 
-CoglTexture *
+MetaMultiTexture *
 meta_wayland_surface_get_texture (MetaWaylandSurface *surface)
 {
   return surface->texture;

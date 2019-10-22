@@ -96,7 +96,7 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   CoglPixelFormat cogl_format;
   EGLImageKHR egl_image;
   CoglEglImageFlags flags;
-  CoglTexture2D *texture;
+  CoglTexture2D *cogl_texture;
   MetaDrmFormatBuf format_buf;
 
   if (buffer->dma_buf.texture)
@@ -170,20 +170,20 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
     return FALSE;
 
   flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
-  texture = cogl_egl_texture_2d_new_from_image (cogl_context,
-                                                dma_buf->width,
-                                                dma_buf->height,
-                                                cogl_format,
-                                                egl_image,
-                                                flags,
-                                                error);
+  cogl_texture = cogl_egl_texture_2d_new_from_image (cogl_context,
+                                                     dma_buf->width,
+                                                     dma_buf->height,
+                                                     cogl_format,
+                                                     egl_image,
+                                                     flags,
+                                                     error);
 
   meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
 
-  if (!texture)
+  if (!cogl_texture)
     return FALSE;
 
-  buffer->dma_buf.texture = COGL_TEXTURE (texture);
+  buffer->dma_buf.texture = meta_multi_texture_new_simple (COGL_TEXTURE (cogl_texture));
   buffer->is_y_inverted = dma_buf->is_y_inverted;
 
   return TRUE;
@@ -191,14 +191,14 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
 
 gboolean
 meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
-                                    CoglTexture       **texture,
+                                    MetaMultiTexture  **texture,
                                     GError            **error)
 {
   if (!meta_wayland_dma_buf_realize_texture (buffer, error))
     return FALSE;
 
-  cogl_clear_object (texture);
-  *texture = cogl_object_ref (buffer->dma_buf.texture);
+  g_clear_object (texture);
+  *texture = g_object_ref (buffer->dma_buf.texture);
   return TRUE;
 }
 

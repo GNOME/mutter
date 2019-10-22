@@ -162,7 +162,7 @@ struct _MetaWaylandSurface
   GHashTable *outputs;
   MetaMonitorTransform buffer_transform;
 
-  CoglTexture *texture;
+  MetaMultiTexture *texture;
 
   /* Buffer reference state. */
   MetaWaylandBufferRef *buffer_ref;
@@ -326,7 +326,7 @@ void                meta_wayland_surface_restore_shortcuts (MetaWaylandSurface *
 gboolean            meta_wayland_surface_is_shortcuts_inhibited (MetaWaylandSurface *surface,
                                                                  MetaWaylandSeat    *seat);
 
-CoglTexture *       meta_wayland_surface_get_texture (MetaWaylandSurface *surface);
+MetaMultiTexture *  meta_wayland_surface_get_texture (MetaWaylandSurface *surface);
 
 MetaSurfaceActor *  meta_wayland_surface_get_actor (MetaWaylandSurface *surface);
 
