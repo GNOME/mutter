@@ -104,7 +104,6 @@ typedef union _ClutterEvent                     ClutterEvent;
  */
 typedef struct _ClutterEventSequence            ClutterEventSequence;
 
-typedef struct _ClutterBehaviour                ClutterBehaviour; /* deprecated */
 typedef struct _ClutterShader                   ClutterShader; /* deprecated */
 
 /**

@@ -27,8 +27,7 @@
  * and bezier curves.
  *
  * A #ClutterPath contains a description of a path consisting of
- * straight lines and bezier curves. This can be used in a
- * #ClutterBehaviourPath to animate an actor moving along the path.
+ * straight lines and bezier curves.
  *
  * The path consists of a series of nodes. Each node is one of the
  * following four types:
@@ -244,9 +243,6 @@ clutter_path_finalize (GObject *object)
  *
  * Creates a new #ClutterPath instance with no nodes.
  *
- * The object has a floating reference so if you add it to a
- * #ClutterBehaviourPath then you do not need to unref it.
- *
  * Return value: the newly created #ClutterPath
  *
  * Since: 1.0
@@ -266,9 +262,6 @@ clutter_path_new (void)
  * Creates a new #ClutterPath instance with the nodes described in
  * @desc. See clutter_path_add_string() for details of the format of
  * the string.
- *
- * The object has a floating reference so if you add it to a
- * #ClutterBehaviourPath then you do not need to unref it.
  *
  * Return value: the newly created #ClutterPath
  *
