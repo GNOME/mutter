@@ -39,9 +39,7 @@
  * be available any more in the next major version of Clutter.
  *
  * A #ClutterAlpha binds a #ClutterTimeline to a progress function which
- * translates the time T into an adimensional factor alpha. The factor can
- * then be used to drive a #ClutterBehaviour, which will translate the
- * alpha value into something meaningful for a #ClutterActor.
+ * translates the time T into an adimensional factor alpha.
  *
  * You should provide a #ClutterTimeline and bind it to the #ClutterAlpha
  * instance using clutter_alpha_set_timeline(). You should also set an
@@ -59,9 +57,6 @@
  * pause, stop or resume the #ClutterAlpha from calling the alpha function by
  * using the appropriate functions of the #ClutterTimeline object.
  *
- * #ClutterAlpha is used to "drive" a #ClutterBehaviour instance, and it
- * is internally used by the #ClutterAnimation API.
- *
  * #ClutterAlpha is available since Clutter 0.2.
  *
  * #ClutterAlpha is deprecated since Clutter 1.12. #ClutterTimeline and
@@ -78,9 +73,7 @@
  *
  * The following JSON fragment defines a #ClutterAlpha
  * using a #ClutterTimeline with id "sine-timeline" and an alpha
- * function called `my_sine_alpha`. The defined #ClutterAlpha
- * instance can be reused in multiple #ClutterBehaviour
- * definitions or for #ClutterAnimation definitions.
+ * function called `my_sine_alpha`.
  *
  * |[
  * {
@@ -644,9 +637,6 @@ clutter_alpha_get_timeline (ClutterAlpha *alpha)
  * to compute the alpha value using clutter_alpha_set_func() and
  * bind a #ClutterTimeline object to the #ClutterAlpha instance
  * using clutter_alpha_set_timeline().
- *
- * You should use the newly created #ClutterAlpha instance inside
- * a #ClutterBehaviour object.
  *
  * Return value: the newly created empty #ClutterAlpha instance.
  *

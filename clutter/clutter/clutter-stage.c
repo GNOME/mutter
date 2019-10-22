@@ -86,8 +86,6 @@
  *   fully opaque actors covering the whole visible area of the stage,
  *   i.e. when no blending with the stage color happens over the whole
  *   stage viewport
- *
- * A series of hints that enable or disable behaviours on the stage
  */
 typedef enum /*< prefix=CLUTTER_STAGE >*/
 {

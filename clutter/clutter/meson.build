@@ -222,7 +222,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-alpha.h',
   'deprecated/clutter-animatable.h',
   'deprecated/clutter-animation.h',
-  'deprecated/clutter-behaviour.h',
   'deprecated/clutter-bin-layout.h',
   'deprecated/clutter-box.h',
   'deprecated/clutter-cairo-texture.h',
@@ -241,7 +240,6 @@ clutter_deprecated_headers = [
 clutter_deprecated_sources = [
   'deprecated/clutter-alpha.c',
   'deprecated/clutter-animation.c',
-  'deprecated/clutter-behaviour.c',
   'deprecated/clutter-box.c',
   'deprecated/clutter-cairo-texture.c',
   'deprecated/clutter-group.c',
