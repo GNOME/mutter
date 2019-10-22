@@ -98,8 +98,6 @@ cogl_headers = [
 ]
 
 cogl_nonintrospected_headers = [
-  'cogl-deprecated.h',
-  'cogl-pango.h',
   'cogl-renderer.h',
   'cogl-swap-chain.h',
   'cogl-onscreen-template.h',

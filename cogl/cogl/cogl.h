@@ -129,11 +129,6 @@
 #include <cogl/deprecated/cogl-clutter.h>
 
 /*
- * API deprecations
- */
-#include <cogl/cogl-deprecated.h>
-
-/*
  * Cogl Path api compatability
  *
  * The cogl_path_ api used to be part of the core Cogl api so for
