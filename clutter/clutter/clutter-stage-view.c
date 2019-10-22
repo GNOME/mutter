@@ -30,6 +30,7 @@ enum
   PROP_LAYOUT,
   PROP_FRAMEBUFFER,
   PROP_OFFSCREEN,
+  PROP_SHADOWFB,
   PROP_SCALE,
 
   PROP_LAST
@@ -44,7 +45,10 @@ typedef struct _ClutterStageViewPrivate
   CoglFramebuffer *framebuffer;
 
   CoglOffscreen *offscreen;
-  CoglPipeline *pipeline;
+  CoglPipeline *offscreen_pipeline;
+
+  CoglOffscreen *shadowfb;
+  CoglPipeline *shadowfb_pipeline;
 
   guint dirty_viewport   : 1;
   guint dirty_projection : 1;
@@ -78,6 +82,8 @@ clutter_stage_view_get_framebuffer (ClutterStageView *view)
 
   if (priv->offscreen)
     return priv->offscreen;
+  else if (priv->shadowfb)
+    return priv->shadowfb;
   else
     return priv->framebuffer;
 }
@@ -99,6 +105,24 @@ clutter_stage_view_get_onscreen (ClutterStageView *view)
   return priv->framebuffer;
 }
 
+static CoglPipeline *
+clutter_stage_view_create_framebuffer_pipeline (CoglFramebuffer *framebuffer)
+{
+  CoglPipeline *pipeline;
+
+  pipeline = cogl_pipeline_new (cogl_framebuffer_get_context (framebuffer));
+
+  cogl_pipeline_set_layer_filters (pipeline, 0,
+                                   COGL_PIPELINE_FILTER_NEAREST,
+                                   COGL_PIPELINE_FILTER_NEAREST);
+  cogl_pipeline_set_layer_texture (pipeline, 0,
+                                   cogl_offscreen_get_texture (framebuffer));
+  cogl_pipeline_set_layer_wrap_mode (pipeline, 0,
+                                     COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+
+  return pipeline;
+}
+
 static void
 clutter_stage_view_ensure_offscreen_blit_pipeline (ClutterStageView *view)
 {
@@ -109,21 +133,27 @@ clutter_stage_view_ensure_offscreen_blit_pipeline (ClutterStageView *view)
 
   g_assert (priv->offscreen != NULL);
 
-  if (priv->pipeline)
+  if (priv->offscreen_pipeline)
     return;
 
-  priv->pipeline =
-    cogl_pipeline_new (cogl_framebuffer_get_context (priv->offscreen));
-  cogl_pipeline_set_layer_filters (priv->pipeline, 0,
-                                   COGL_PIPELINE_FILTER_NEAREST,
-                                   COGL_PIPELINE_FILTER_NEAREST);
-  cogl_pipeline_set_layer_texture (priv->pipeline, 0,
-                                   cogl_offscreen_get_texture (priv->offscreen));
-  cogl_pipeline_set_layer_wrap_mode (priv->pipeline, 0,
-                                     COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+  priv->offscreen_pipeline =
+    clutter_stage_view_create_framebuffer_pipeline (priv->offscreen);
 
   if (view_class->setup_offscreen_blit_pipeline)
-    view_class->setup_offscreen_blit_pipeline (view, priv->pipeline);
+    view_class->setup_offscreen_blit_pipeline (view, priv->offscreen_pipeline);
+}
+
+static void
+clutter_stage_view_ensure_shadowfb_blit_pipeline (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  if (priv->shadowfb_pipeline)
+    return;
+
+  priv->shadowfb_pipeline =
+    clutter_stage_view_create_framebuffer_pipeline (priv->shadowfb);
 }
 
 void
@@ -132,7 +162,45 @@ clutter_stage_view_invalidate_offscreen_blit_pipeline (ClutterStageView *view)
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
-  g_clear_pointer (&priv->pipeline, cogl_object_unref);
+  g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
+}
+
+static void
+clutter_stage_view_copy_to_framebuffer (ClutterStageView            *view,
+                                        const cairo_rectangle_int_t *rect,
+                                        CoglPipeline                *pipeline,
+                                        CoglFramebuffer             *src_framebuffer,
+                                        CoglFramebuffer             *dst_framebuffer,
+                                        gboolean                     can_blit)
+{
+  CoglMatrix matrix;
+
+  /* First, try with blit */
+  if (can_blit)
+    {
+      if (cogl_blit_framebuffer (src_framebuffer,
+                                 dst_framebuffer,
+                                 0, 0,
+                                 0, 0,
+                                 cogl_framebuffer_get_width (dst_framebuffer),
+                                 cogl_framebuffer_get_height (dst_framebuffer),
+                                 NULL))
+        return;
+    }
+
+  /* If blit fails, fallback to the slower painting method */
+  cogl_framebuffer_push_matrix (dst_framebuffer);
+
+  cogl_matrix_init_identity (&matrix);
+  cogl_matrix_translate (&matrix, -1, 1, 0);
+  cogl_matrix_scale (&matrix, 2, -2, 0);
+  cogl_framebuffer_set_projection_matrix (dst_framebuffer, &matrix);
+
+  cogl_framebuffer_draw_rectangle (dst_framebuffer,
+                                   pipeline,
+                                   0, 0, 1, 1);
+
+  cogl_framebuffer_pop_matrix (dst_framebuffer);
 }
 
 void
@@ -141,39 +209,46 @@ clutter_stage_view_blit_offscreen (ClutterStageView            *view,
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
-  CoglMatrix matrix;
 
-  clutter_stage_view_get_offscreen_transformation_matrix (view, &matrix);
-  if (cogl_matrix_is_identity (&matrix))
+  if (priv->offscreen)
     {
-      int fb_width = cogl_framebuffer_get_width (priv->framebuffer);
-      int fb_height = cogl_framebuffer_get_height (priv->framebuffer);
+      gboolean can_blit;
+      CoglMatrix matrix;
 
-      if (cogl_blit_framebuffer (priv->offscreen,
-                                 priv->framebuffer,
-                                 0, 0,
-                                 0, 0,
-                                 fb_width, fb_height,
-                                 NULL))
-        return;
+      clutter_stage_view_ensure_offscreen_blit_pipeline (view);
+      clutter_stage_view_get_offscreen_transformation_matrix (view, &matrix);
+      can_blit = cogl_matrix_is_identity (&matrix);
+
+      if (priv->shadowfb)
+        {
+          clutter_stage_view_copy_to_framebuffer (view,
+                                                  rect,
+                                                  priv->offscreen_pipeline,
+                                                  priv->offscreen,
+                                                  priv->shadowfb,
+                                                  can_blit);
+        }
+      else
+        {
+          clutter_stage_view_copy_to_framebuffer (view,
+                                                  rect,
+                                                  priv->offscreen_pipeline,
+                                                  priv->offscreen,
+                                                  priv->framebuffer,
+                                                  can_blit);
+        }
     }
 
-  clutter_stage_view_ensure_offscreen_blit_pipeline (view);
-  cogl_framebuffer_push_matrix (priv->framebuffer);
-
-  /* Set transform so 0,0 is on the top left corner and 1,1 on
-   * the bottom right corner.
-   */
-  cogl_matrix_init_identity (&matrix);
-  cogl_matrix_translate (&matrix, -1, 1, 0);
-  cogl_matrix_scale (&matrix, 2, -2, 0);
-  cogl_framebuffer_set_projection_matrix (priv->framebuffer, &matrix);
-
-  cogl_framebuffer_draw_rectangle (priv->framebuffer,
-                                   priv->pipeline,
-                                   0, 0, 1, 1);
-
-  cogl_framebuffer_pop_matrix (priv->framebuffer);
+  if (priv->shadowfb)
+    {
+      clutter_stage_view_ensure_shadowfb_blit_pipeline (view);
+      clutter_stage_view_copy_to_framebuffer (view,
+                                              rect,
+                                              priv->shadowfb_pipeline,
+                                              priv->shadowfb,
+                                              priv->framebuffer,
+                                              TRUE);
+    }
 }
 
 float
@@ -273,6 +348,9 @@ clutter_stage_view_get_property (GObject    *object,
     case PROP_OFFSCREEN:
       g_value_set_boxed (value, priv->offscreen);
       break;
+    case PROP_SHADOWFB:
+      g_value_set_boxed (value, priv->shadowfb);
+      break;
     case PROP_SCALE:
       g_value_set_float (value, priv->scale);
       break;
@@ -318,6 +396,9 @@ clutter_stage_view_set_property (GObject      *object,
     case PROP_OFFSCREEN:
       priv->offscreen = g_value_dup_boxed (value);
       break;
+    case PROP_SHADOWFB:
+      priv->shadowfb = g_value_dup_boxed (value);
+      break;
     case PROP_SCALE:
       priv->scale = g_value_get_float (value);
       break;
@@ -334,8 +415,10 @@ clutter_stage_view_dispose (GObject *object)
     clutter_stage_view_get_instance_private (view);
 
   g_clear_pointer (&priv->framebuffer, cogl_object_unref);
+  g_clear_pointer (&priv->shadowfb, cogl_object_unref);
   g_clear_pointer (&priv->offscreen, cogl_object_unref);
-  g_clear_pointer (&priv->pipeline, cogl_object_unref);
+  g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
+  g_clear_pointer (&priv->shadowfb_pipeline, cogl_object_unref);
 
   G_OBJECT_CLASS (clutter_stage_view_parent_class)->dispose (object);
 }
@@ -385,6 +468,15 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
     g_param_spec_boxed ("offscreen",
                         "Offscreen buffer",
                         "Framebuffer used as intermediate buffer",
+                        COGL_TYPE_HANDLE,
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_SHADOWFB] =
+    g_param_spec_boxed ("shadowfb",
+                        "Shadow framebuffer",
+                        "Framebuffer used as intermediate shadow buffer",
                         COGL_TYPE_HANDLE,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |
