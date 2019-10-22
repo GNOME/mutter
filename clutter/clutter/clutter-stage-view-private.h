@@ -20,8 +20,8 @@
 
 #include "clutter/clutter-stage-view.h"
 
-void clutter_stage_view_blit_offscreen (ClutterStageView            *view,
-                                        const cairo_rectangle_int_t *clip);
+void clutter_stage_view_after_paint (ClutterStageView            *view,
+                                     const cairo_rectangle_int_t *clip);
 
 gboolean clutter_stage_view_is_dirty_viewport (ClutterStageView *view);
 

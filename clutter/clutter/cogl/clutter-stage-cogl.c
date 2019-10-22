@@ -563,11 +563,7 @@ paint_stage (ClutterStageCogl            *stage_cogl,
   _clutter_stage_maybe_setup_viewport (stage, view);
   _clutter_stage_paint_view (stage, view, &paint_rect);
 
-  if (clutter_stage_view_get_onscreen (view) !=
-      clutter_stage_view_get_framebuffer (view))
-    {
-      clutter_stage_view_blit_offscreen (view, &paint_rect);
-    }
+  clutter_stage_view_after_paint (view, &paint_rect);
 }
 
 static void
