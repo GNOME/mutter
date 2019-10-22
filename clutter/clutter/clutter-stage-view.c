@@ -30,6 +30,7 @@ enum
   PROP_LAYOUT,
   PROP_FRAMEBUFFER,
   PROP_OFFSCREEN,
+  PROP_SHADOWFB,
   PROP_SCALE,
 
   PROP_LAST
@@ -44,6 +45,7 @@ typedef struct _ClutterStageViewPrivate
   CoglFramebuffer *framebuffer;
 
   CoglOffscreen *offscreen;
+  CoglOffscreen *shadowfb;
   CoglPipeline *pipeline;
 
   guint dirty_viewport   : 1;
@@ -141,25 +143,20 @@ clutter_stage_view_blit_offscreen (ClutterStageView            *view,
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
+  CoglFramebuffer *framebuffer = priv->offscreen;
   CoglMatrix matrix;
 
   clutter_stage_view_get_offscreen_transformation_matrix (view, &matrix);
   if (cogl_matrix_is_identity (&matrix))
-    {
-      int fb_width = cogl_framebuffer_get_width (priv->framebuffer);
-      int fb_height = cogl_framebuffer_get_height (priv->framebuffer);
+    goto blit_to_onscreen;
 
-      if (cogl_blit_framebuffer (priv->offscreen,
-                                 priv->framebuffer,
-                                 0, 0,
-                                 0, 0,
-                                 fb_width, fb_height,
-                                 NULL))
-        return;
-    }
+  if (priv->shadowfb)
+    framebuffer = priv->shadowfb;
+  else
+    framebuffer = priv->framebuffer;
 
   clutter_stage_view_ensure_offscreen_blit_pipeline (view);
-  cogl_framebuffer_push_matrix (priv->framebuffer);
+  cogl_framebuffer_push_matrix (framebuffer);
 
   /* Set transform so 0,0 is on the top left corner and 1,1 on
    * the bottom right corner.
@@ -167,13 +164,27 @@ clutter_stage_view_blit_offscreen (ClutterStageView            *view,
   cogl_matrix_init_identity (&matrix);
   cogl_matrix_translate (&matrix, -1, 1, 0);
   cogl_matrix_scale (&matrix, 2, -2, 0);
-  cogl_framebuffer_set_projection_matrix (priv->framebuffer, &matrix);
+  cogl_framebuffer_set_projection_matrix (framebuffer, &matrix);
 
-  cogl_framebuffer_draw_rectangle (priv->framebuffer,
+  cogl_framebuffer_draw_rectangle (framebuffer,
                                    priv->pipeline,
                                    0, 0, 1, 1);
 
-  cogl_framebuffer_pop_matrix (priv->framebuffer);
+  cogl_framebuffer_pop_matrix (framebuffer);
+
+  if (framebuffer == priv->framebuffer)
+    return;
+
+  framebuffer = priv->shadowfb;
+
+blit_to_onscreen:
+  cogl_blit_framebuffer (framebuffer,
+                         priv->framebuffer,
+                         0, 0,
+                         0, 0,
+                         cogl_framebuffer_get_width (priv->framebuffer),
+                         cogl_framebuffer_get_height (priv->framebuffer),
+                         NULL);
 }
 
 float
@@ -273,6 +284,9 @@ clutter_stage_view_get_property (GObject    *object,
     case PROP_OFFSCREEN:
       g_value_set_boxed (value, priv->offscreen);
       break;
+    case PROP_SHADOWFB:
+      g_value_set_boxed (value, priv->shadowfb);
+      break;
     case PROP_SCALE:
       g_value_set_float (value, priv->scale);
       break;
@@ -318,6 +332,9 @@ clutter_stage_view_set_property (GObject      *object,
     case PROP_OFFSCREEN:
       priv->offscreen = g_value_dup_boxed (value);
       break;
+    case PROP_SHADOWFB:
+      priv->shadowfb = g_value_dup_boxed (value);
+      break;
     case PROP_SCALE:
       priv->scale = g_value_get_float (value);
       break;
@@ -334,6 +351,7 @@ clutter_stage_view_dispose (GObject *object)
     clutter_stage_view_get_instance_private (view);
 
   g_clear_pointer (&priv->framebuffer, cogl_object_unref);
+  g_clear_pointer (&priv->shadowfb, cogl_object_unref);
   g_clear_pointer (&priv->offscreen, cogl_object_unref);
   g_clear_pointer (&priv->pipeline, cogl_object_unref);
 
@@ -385,6 +403,15 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
     g_param_spec_boxed ("offscreen",
                         "Offscreen buffer",
                         "Framebuffer used as intermediate buffer",
+                        COGL_TYPE_HANDLE,
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_SHADOWFB] =
+    g_param_spec_boxed ("shadowfb",
+                        "Shadow framebuffer",
+                        "Framebuffer used as intermediate shadow buffer",
                         COGL_TYPE_HANDLE,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT_ONLY |
