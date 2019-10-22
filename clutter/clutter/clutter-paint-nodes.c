@@ -183,35 +183,31 @@ clutter_root_node_new (CoglFramebuffer    *framebuffer,
 }
 
 /*
- * Transform node
- *
- * A private PaintNode, that changes the modelview of its child
- * nodes.
+ * ClutterTransformNode
  */
 
-#define clutter_transform_node_get_type _clutter_transform_node_get_type
-
-typedef struct _ClutterTransformNode {
+struct _ClutterTransformNode
+{
   ClutterPaintNode parent_instance;
 
-  CoglMatrix modelview;
-} ClutterTransformNode;
+  CoglMatrix transform;
+};
 
-typedef struct _ClutterPaintNodeClass   ClutterTransformNodeClass;
+struct _ClutterTransformNodeClass
+{
+  ClutterPaintNodeClass parent_class;
+};
 
 G_DEFINE_TYPE (ClutterTransformNode, clutter_transform_node, CLUTTER_TYPE_PAINT_NODE)
 
 static gboolean
 clutter_transform_node_pre_draw (ClutterPaintNode *node)
 {
-  ClutterTransformNode *tnode = (ClutterTransformNode *) node;
-  CoglMatrix matrix;
+  ClutterTransformNode *transform_node = (ClutterTransformNode *) node;
+  CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
 
-  cogl_push_matrix ();
-
-  cogl_get_modelview_matrix (&matrix);
-  cogl_matrix_multiply (&matrix, &matrix, &tnode->modelview);
-  cogl_set_modelview_matrix (&matrix);
+  cogl_framebuffer_push_matrix (fb);
+  cogl_framebuffer_transform (fb, &transform_node->transform);
 
   return TRUE;
 }
@@ -219,7 +215,9 @@ clutter_transform_node_pre_draw (ClutterPaintNode *node)
 static void
 clutter_transform_node_post_draw (ClutterPaintNode *node)
 {
-  cogl_pop_matrix ();
+  CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
+
+  cogl_framebuffer_pop_matrix (fb);
 }
 
 static void
@@ -235,18 +233,24 @@ clutter_transform_node_class_init (ClutterTransformNodeClass *klass)
 static void
 clutter_transform_node_init (ClutterTransformNode *self)
 {
-  cogl_matrix_init_identity (&self->modelview);
+  cogl_matrix_init_identity (&self->transform);
 }
 
+/*
+ * clutter_transform_node_new:
+ * @transform: (nullable): the transform matrix to apply
+ *
+ * Return value: (transfer full): the newly created #ClutterTransformNode.
+ *   Use clutter_paint_node_unref() when done.
+ */
 ClutterPaintNode *
-_clutter_transform_node_new (const CoglMatrix *modelview)
+clutter_transform_node_new (const CoglMatrix *transform)
 {
   ClutterTransformNode *res;
 
-  res = _clutter_paint_node_create (_clutter_transform_node_get_type ());
-
-  if (modelview != NULL)
-    res->modelview = *modelview;
+  res = _clutter_paint_node_create (CLUTTER_TYPE_TRANSFORM_NODE);
+  if (transform)
+    res->transform = *transform;
 
   return (ClutterPaintNode *) res;
 }
@@ -1078,10 +1082,101 @@ clutter_clip_node_new (void)
 }
 
 /*
- * ClutterLayerNode (private)
+ * ClutterActorNode
  */
 
-#define clutter_layer_node_get_type     _clutter_layer_node_get_type
+struct _ClutterActorNode
+{
+  ClutterPaintNode parent_instance;
+
+  ClutterActor *actor;
+};
+
+struct _ClutterActorNodeClass
+{
+  ClutterPaintNodeClass parent_class;
+};
+
+G_DEFINE_TYPE (ClutterActorNode, clutter_actor_node, CLUTTER_TYPE_PAINT_NODE)
+
+static gboolean
+clutter_actor_node_pre_draw (ClutterPaintNode *node)
+{
+  return TRUE;
+}
+
+static void
+clutter_actor_node_draw (ClutterPaintNode *node)
+{
+  ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
+
+  clutter_actor_continue_paint (actor_node->actor);
+}
+
+static JsonNode *
+clutter_actor_node_serialize (ClutterPaintNode *node)
+{
+  ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
+  g_autoptr (JsonBuilder) builder = NULL;
+  const char *debug_name;
+
+  debug_name = _clutter_actor_get_debug_name (actor_node->actor);
+
+  builder = json_builder_new ();
+
+  json_builder_begin_object (builder);
+  json_builder_set_member_name (builder, "actor");
+  json_builder_add_string_value (builder, debug_name);
+  json_builder_end_object (builder);
+
+  return json_builder_get_root (builder);
+}
+static void
+clutter_actor_node_class_init (ClutterActorNodeClass *klass)
+{
+  ClutterPaintNodeClass *node_class;
+
+  node_class = CLUTTER_PAINT_NODE_CLASS (klass);
+  node_class->pre_draw = clutter_actor_node_pre_draw;
+  node_class->draw = clutter_actor_node_draw;
+  node_class->serialize = clutter_actor_node_serialize;
+}
+
+static void
+clutter_actor_node_init (ClutterActorNode *self)
+{
+}
+
+/*
+ * clutter_actor_node_new:
+ * @actor: the actor to paint
+ *
+ * Creates a new #ClutterActorNode.
+ *
+ * The actor is painted together with any effects
+ * applied to it. Children of this node will draw
+ * over the actor contents.
+ *
+ * Return value: (transfer full): the newly created #ClutterActorNode.
+ *   Use clutter_paint_node_unref() when done.
+ */
+ClutterPaintNode *
+clutter_actor_node_new (ClutterActor *actor)
+{
+  ClutterActorNode *res;
+
+  g_assert (actor != NULL);
+
+  res = _clutter_paint_node_create (CLUTTER_TYPE_ACTOR_NODE);
+  res->actor = actor;
+
+  return (ClutterPaintNode *) res;
+}
+
+
+/*
+ * ClutterLayerNode
+ */
 
 struct _ClutterLayerNode
 {
@@ -1268,11 +1363,11 @@ clutter_layer_node_init (ClutterLayerNode *self)
  * Since: 1.10
  */
 ClutterPaintNode *
-_clutter_layer_node_new (const CoglMatrix        *projection,
-                         const cairo_rectangle_t *viewport,
-                         float                    width,
-                         float                    height,
-                         guint8                   opacity)
+clutter_layer_node_new (const CoglMatrix        *projection,
+                        const cairo_rectangle_t *viewport,
+                        float                    width,
+                        float                    height,
+                        guint8                   opacity)
 {
   ClutterLayerNode *res;
   CoglColor color;
