@@ -216,16 +216,6 @@ validate_blend_statements (CoglBlendStringStatement *statements,
 
   _COGL_GET_CONTEXT (ctx, 0);
 
-  if (n_statements == 2 &&
-      !ctx->glBlendEquationSeparate &&
-      statements[0].function->type != statements[1].function->type)
-    {
-      error_string = "Separate blend functions for the RGB an A "
-        "channels isn't supported by the driver";
-      detail = COGL_BLEND_STRING_ERROR_GPU_UNSUPPORTED_ERROR;
-      goto error;
-    }
-
   for (i = 0; i < n_statements; i++)
     for (j = 0; j < statements[i].function->argc; j++)
       {

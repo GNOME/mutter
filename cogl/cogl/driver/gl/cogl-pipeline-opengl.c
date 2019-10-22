@@ -495,14 +495,8 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
           GE (ctx, glBlendColor (red, green, blue, alpha));
         }
 
-      if (ctx->glBlendEquationSeparate &&
-          blend_state->blend_equation_rgb !=
-          blend_state->blend_equation_alpha)
-        GE (ctx,
-            glBlendEquationSeparate (blend_state->blend_equation_rgb,
-                                     blend_state->blend_equation_alpha));
-      else
-        GE (ctx, glBlendEquation (blend_state->blend_equation_rgb));
+      GE (ctx, glBlendEquationSeparate (blend_state->blend_equation_rgb,
+                                        blend_state->blend_equation_alpha));
 
       if (ctx->glBlendFuncSeparate &&
           (blend_state->blend_src_factor_rgb !=

@@ -121,8 +121,6 @@ COGL_EXT_BEGIN (blending, 1, 2,
                 COGL_EXT_IN_GLES2,
                 "\0",
                 "\0")
-COGL_EXT_FUNCTION (void, glBlendEquation,
-                   (GLenum                mode))
 COGL_EXT_FUNCTION (void, glBlendColor,
                    (GLclampf              red,
                     GLclampf              green,
