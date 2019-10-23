@@ -423,10 +423,10 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   EGLDisplay egl_display = cogl_egl_context_get_egl_display (cogl_context);
   int format, width, height, y_inverted;
-  CoglPixelFormat cogl_format;
-  EGLImageKHR egl_image;
-  CoglEglImageFlags flags;
-  CoglTexture2D *texture_2d;
+  MetaMultiTextureFormat multi_format = META_MULTI_TEXTURE_FORMAT_SIMPLE;
+  CoglPixelFormat cogl_format = COGL_PIXEL_FORMAT_ANY;
+  guint i, n_planes;
+  GPtrArray *planes;
 
   if (buffer->egl_image.texture)
     {
@@ -455,6 +455,7 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
                                       NULL))
     y_inverted = EGL_TRUE;
 
+  /* Query the color format */
   switch (format)
     {
     case EGL_TEXTURE_RGB:
@@ -463,6 +464,16 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
     case EGL_TEXTURE_RGBA:
       cogl_format = COGL_PIXEL_FORMAT_RGBA_8888_PRE;
       break;
+    case EGL_TEXTURE_Y_UV_WL:
+      /* Technically it can be anything with a separate Y and UV plane
+       * but since this is only used for shaders later, it's ok */
+      multi_format = META_MULTI_TEXTURE_FORMAT_NV12;
+      break;
+    case EGL_TEXTURE_Y_U_V_WL:
+      /* Technically it can be anything with a separate Y and UV plane
+       * but since this is only used for shaders later, it's ok */
+      multi_format = META_MULTI_TEXTURE_FORMAT_YUV444;
+      break;
     default:
       g_set_error (error, G_IO_ERROR,
                    G_IO_ERROR_FAILED,
@@ -470,35 +481,64 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
       return FALSE;
     }
 
-  /* The WL_bind_wayland_display spec states that EGL_NO_CONTEXT is to be used
-   * in conjunction with the EGL_WAYLAND_BUFFER_WL target. */
-  egl_image = meta_egl_create_image (egl, egl_display, EGL_NO_CONTEXT,
-                                     EGL_WAYLAND_BUFFER_WL, buffer->resource,
-                                     NULL,
-                                     error);
-  if (egl_image == EGL_NO_IMAGE_KHR)
-    return FALSE;
+  /* Each EGLImage is a plane in the final texture */
+  n_planes = meta_multi_texture_format_get_n_planes (multi_format);
+  planes = g_ptr_array_new_full (n_planes, cogl_object_unref);
 
-  flags = COGL_EGL_IMAGE_FLAG_NONE;
-  texture_2d = cogl_egl_texture_2d_new_from_image (cogl_context,
-                                                   width, height,
-                                                   cogl_format,
-                                                   egl_image,
-                                                   flags,
-                                                   error);
+  g_warning ("Got EGL with format %u", multi_format);
 
-  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
+  for (i = 0; i < n_planes; i++)
+    {
+      EGLint egl_attribs[3];
+      EGLImageKHR egl_img;
+      CoglEglImageFlags flags;
+      CoglTexture2D *texture_2d;
 
-  if (!texture_2d)
-    return FALSE;
+      /* Specify that we want the i'th plane */
+      egl_attribs[0] = EGL_WAYLAND_PLANE_WL;
+      egl_attribs[1] = i;
+      egl_attribs[2] = EGL_NONE;
 
-  buffer->egl_image.texture = meta_multi_texture_new_simple (COGL_TEXTURE (texture_2d));
+      /* The WL_bind_wayland_display spec states that EGL_NO_CONTEXT is to be
+       * used in conjunction with the EGL_WAYLAND_BUFFER_WL target. */
+      egl_img = meta_egl_create_image (egl, egl_display, EGL_NO_CONTEXT,
+                                       EGL_WAYLAND_BUFFER_WL, buffer->resource,
+                                       egl_attribs,
+                                       error);
+
+      if (G_UNLIKELY (egl_img == EGL_NO_IMAGE_KHR))
+        goto on_error;
+
+      flags = COGL_EGL_IMAGE_FLAG_NONE;
+      texture_2d = cogl_egl_texture_2d_new_from_image (cogl_context,
+                                                       width, height,
+                                                       cogl_format,
+                                                       egl_img,
+                                                       flags,
+                                                       error);
+
+      meta_egl_destroy_image (egl, egl_display, egl_img, NULL);
+
+      if (G_UNLIKELY (!texture_2d))
+        goto on_error;
+
+      g_ptr_array_add (planes, COGL_TEXTURE (texture_2d));
+    }
+
+  buffer->egl_image.texture =
+      meta_multi_texture_new (multi_format,
+                              (CoglTexture**) g_ptr_array_free (planes, FALSE),
+                              n_planes);
   buffer->is_y_inverted = !!y_inverted;
 
   g_clear_object (texture);
   *texture = g_object_ref (buffer->egl_image.texture);
 
   return TRUE;
+
+on_error:
+  g_ptr_array_free (planes, TRUE);
+  return FALSE;
 }
 
 #ifdef HAVE_WAYLAND_EGLSTREAM
