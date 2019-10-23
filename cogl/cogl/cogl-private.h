@@ -69,7 +69,6 @@ typedef enum
    * sets that can be shared by several GL apis */
   COGL_PRIVATE_FEATURE_ANY_GL,
   COGL_PRIVATE_FEATURE_GL_PROGRAMMABLE,
-  COGL_PRIVATE_FEATURE_GL_EMBEDDED,
 
   COGL_N_PRIVATE_FEATURES
 } CoglPrivateFeature;

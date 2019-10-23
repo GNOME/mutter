@@ -113,7 +113,6 @@ static CoglDriverDescription _cogl_drivers[] =
     COGL_DRIVER_GLES2,
     "gles2",
     { COGL_PRIVATE_FEATURE_ANY_GL,
-      COGL_PRIVATE_FEATURE_GL_EMBEDDED,
       COGL_PRIVATE_FEATURE_GL_PROGRAMMABLE,
       -1 },
     &_cogl_driver_gles,
