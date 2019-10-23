@@ -1022,6 +1022,5 @@ cogl_atlas_texture_vtable =
     _cogl_atlas_texture_gl_flush_legacy_texobj_wrap_modes,
     _cogl_atlas_texture_get_format,
     _cogl_atlas_texture_get_gl_format,
-    NULL, /* is_foreign */
     NULL /* set_auto_mipmap */
   };

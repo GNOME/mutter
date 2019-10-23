@@ -1098,6 +1098,5 @@ cogl_texture_pixmap_x11_vtable =
     _cogl_texture_pixmap_x11_gl_flush_legacy_texobj_wrap_modes,
     _cogl_texture_pixmap_x11_get_format,
     _cogl_texture_pixmap_x11_get_gl_format,
-    NULL, /* is_foreign */
     NULL /* set_auto_mipmap */
   };

@@ -109,8 +109,6 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
 
   tex_2d->gl_target = GL_TEXTURE_2D;
 
-  tex_2d->is_foreign = FALSE;
-
   ctx->driver_vtable->texture_2d_init (tex_2d);
 
   return _cogl_texture_2d_object_new (tex_2d);
@@ -486,12 +484,6 @@ _cogl_texture_2d_get_gl_format (CoglTexture *tex)
   return COGL_TEXTURE_2D (tex)->gl_internal_format;
 }
 
-static gboolean
-_cogl_texture_2d_is_foreign (CoglTexture *tex)
-{
-  return COGL_TEXTURE_2D (tex)->is_foreign;
-}
-
 static const CoglTextureVtable
 cogl_texture_2d_vtable =
   {
@@ -513,6 +505,5 @@ cogl_texture_2d_vtable =
     _cogl_texture_2d_gl_flush_legacy_texobj_wrap_modes,
     _cogl_texture_2d_get_format,
     _cogl_texture_2d_get_gl_format,
-    _cogl_texture_2d_is_foreign,
     _cogl_texture_2d_set_auto_mipmap
   };

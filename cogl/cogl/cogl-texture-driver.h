@@ -61,7 +61,6 @@ struct _CoglTextureDriver
   gboolean
   (* upload_subregion_to_gl) (CoglContext *ctx,
                               CoglTexture *texture,
-                              gboolean is_foreign,
                               int src_x,
                               int src_y,
                               int dst_x,
@@ -84,7 +83,6 @@ struct _CoglTextureDriver
   (* upload_to_gl) (CoglContext *ctx,
                     GLenum gl_target,
                     GLuint gl_handle,
-                    gboolean is_foreign,
                     CoglBitmap *source_bmp,
                     GLint internal_gl_format,
                     GLuint source_gl_format,
@@ -129,15 +127,6 @@ struct _CoglTextureDriver
                       GLenum gl_type,
                       int width,
                       int height);
-
-  /*
-   * It may depend on the driver as to what texture targets may be used when
-   * creating a foreign texture. E.g. OpenGL supports ARB_texture_rectangle
-   * but GLES doesn't
-   */
-  gboolean
-  (* allows_foreign_gl_target) (CoglContext *ctx,
-                                GLenum gl_target);
 
   /*
    * The driver may impose constraints on what formats can be used to store
