@@ -183,24 +183,36 @@ send_output_events (struct wl_resource *resource,
   MetaLogicalMonitor *old_logical_monitor;
   guint old_mode_flags;
   gint old_scale;
+  gint scale;
+  MetaRectangle old_rect;
+  MetaRectangle rect;
   float old_refresh_rate;
   float refresh_rate;
 
   old_logical_monitor = wayland_output->logical_monitor;
   old_mode_flags = wayland_output->mode_flags;
   old_scale = wayland_output->scale;
+  old_rect = old_logical_monitor->rect;
   old_refresh_rate = wayland_output->refresh_rate;
 
+  scale = calculate_wayland_output_scale (logical_monitor);
+  rect = logical_monitor->rect;
   monitor = pick_main_monitor (logical_monitor);
-
   current_mode = meta_monitor_get_current_mode (monitor);
   refresh_rate = meta_monitor_mode_get_refresh_rate (current_mode);
+
+  if (meta_is_stage_views_scaled ()) {
+    old_rect.width *= old_scale;
+    old_rect.height *= old_scale;
+    rect.width *= scale;
+    rect.height *= scale;
+  }
 
   gboolean need_done = FALSE;
 
   if (need_all_events ||
-      old_logical_monitor->rect.x != logical_monitor->rect.x ||
-      old_logical_monitor->rect.y != logical_monitor->rect.y ||
+      old_rect.x != rect.x ||
+      old_rect.y != rect.y ||
       is_different_rotation (old_logical_monitor, logical_monitor))
     {
       int width_mm, height_mm;
@@ -231,8 +243,8 @@ send_output_events (struct wl_resource *resource,
       transform = WL_OUTPUT_TRANSFORM_NORMAL;
 
       wl_output_send_geometry (resource,
-                               logical_monitor->rect.x,
-                               logical_monitor->rect.y,
+                               rect.x,
+                               rect.y,
                                width_mm,
                                height_mm,
                                subpixel_order,
@@ -247,24 +259,21 @@ send_output_events (struct wl_resource *resource,
     mode_flags |= WL_OUTPUT_MODE_PREFERRED;
 
   if (need_all_events ||
-      old_logical_monitor->rect.width != logical_monitor->rect.width ||
-      old_logical_monitor->rect.height != logical_monitor->rect.height ||
+      old_rect.width != rect.width ||
+      old_rect.height != rect.height ||
       old_refresh_rate != refresh_rate ||
       old_mode_flags != mode_flags)
     {
       wl_output_send_mode (resource,
                            mode_flags,
-                           logical_monitor->rect.width,
-                           logical_monitor->rect.height,
+                           rect.width,
+                           rect.height,
                            (int32_t) (refresh_rate * 1000));
       need_done = TRUE;
     }
 
   if (version >= WL_OUTPUT_SCALE_SINCE_VERSION)
     {
-      int scale;
-
-      scale = calculate_wayland_output_scale (logical_monitor);
       if (need_all_events ||
           old_scale != scale)
         {
