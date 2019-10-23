@@ -822,7 +822,6 @@ cogl_texture_pixmap_x11_update_area
 cogl_texture_rectangle_get_gtype
 #endif
 cogl_texture_rectangle_new_from_bitmap
-cogl_texture_rectangle_new_from_foreign
 cogl_texture_rectangle_new_with_size
 #ifndef COGL_DISABLE_DEPRECATED
 cogl_texture_ref

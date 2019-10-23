@@ -146,8 +146,6 @@ struct _CoglTextureVtable
   CoglPixelFormat (* get_format) (CoglTexture *tex);
   GLenum (* get_gl_format) (CoglTexture *tex);
 
-  gboolean (* is_foreign) (CoglTexture *tex);
-
   /* Only needs to be implemented if is_primitive == TRUE */
   void (* set_auto_mipmap) (CoglTexture *texture,
                             gboolean value);
@@ -157,7 +155,6 @@ typedef enum _CoglTextureSoureType {
   COGL_TEXTURE_SOURCE_TYPE_SIZED = 1,
   COGL_TEXTURE_SOURCE_TYPE_BITMAP,
   COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE,
-  COGL_TEXTURE_SOURCE_TYPE_GL_FOREIGN,
   COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL
 } CoglTextureSourceType;
 
@@ -325,9 +322,6 @@ _cogl_texture_determine_internal_format (CoglTexture *texture,
 void
 _cogl_texture_set_internal_format (CoglTexture *texture,
                                    CoglPixelFormat internal_format);
-
-gboolean
-_cogl_texture_is_foreign (CoglTexture *texture);
 
 void
 _cogl_texture_associate_framebuffer (CoglTexture *texture,

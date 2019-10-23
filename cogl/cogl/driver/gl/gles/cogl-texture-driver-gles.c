@@ -81,7 +81,7 @@ _cogl_texture_driver_gen (CoglContext *ctx,
 
   GE (ctx, glGenTextures (1, &tex));
 
-  _cogl_bind_gl_texture_transient (gl_target, tex, FALSE);
+  _cogl_bind_gl_texture_transient (gl_target, tex);
 
   switch (gl_target)
     {
@@ -184,7 +184,6 @@ prepare_bitmap_alignment_for_upload (CoglContext *ctx,
 static gboolean
 _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
                                              CoglTexture *texture,
-                                             gboolean is_foreign,
                                              int src_x,
                                              int src_y,
                                              int dst_x,
@@ -270,7 +269,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
       return FALSE;
     }
 
-  _cogl_bind_gl_texture_transient (gl_target, gl_handle, is_foreign);
+  _cogl_bind_gl_texture_transient (gl_target, gl_handle);
 
   /* Clear any GL errors */
   _cogl_gl_util_clear_gl_errors (ctx);
@@ -341,7 +340,6 @@ static gboolean
 _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
                                    GLenum gl_target,
                                    GLuint gl_handle,
-                                   gboolean is_foreign,
                                    CoglBitmap *source_bmp,
                                    GLint internal_gl_format,
                                    GLuint source_gl_format,
@@ -373,7 +371,7 @@ _cogl_texture_driver_upload_to_gl (CoglContext *ctx,
   /* Setup gl alignment to match rowstride and top-left corner */
   _cogl_texture_driver_prep_gl_for_pixels_upload (ctx, rowstride, bpp);
 
-  _cogl_bind_gl_texture_transient (gl_target, gl_handle, is_foreign);
+  _cogl_bind_gl_texture_transient (gl_target, gl_handle);
 
   data = _cogl_bitmap_gl_bind (bmp,
                                COGL_BUFFER_ACCESS_READ,
@@ -442,16 +440,6 @@ _cogl_texture_driver_size_supported (CoglContext *ctx,
   return width <= max_size && height <= max_size;
 }
 
-static gboolean
-_cogl_texture_driver_allows_foreign_gl_target (CoglContext *ctx,
-                                               GLenum gl_target)
-{
-  /* Allow 2-dimensional textures only */
-  if (gl_target != GL_TEXTURE_2D)
-    return FALSE;
-  return TRUE;
-}
-
 static CoglPixelFormat
 _cogl_texture_driver_find_best_gl_get_data_format
                                             (CoglContext *context,
@@ -476,6 +464,5 @@ _cogl_texture_driver_gles =
     _cogl_texture_driver_prep_gl_for_pixels_download,
     _cogl_texture_driver_gl_get_tex_image,
     _cogl_texture_driver_size_supported,
-    _cogl_texture_driver_allows_foreign_gl_target,
     _cogl_texture_driver_find_best_gl_get_data_format
   };

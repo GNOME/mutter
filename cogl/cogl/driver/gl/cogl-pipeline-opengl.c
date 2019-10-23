@@ -77,7 +77,6 @@ texture_unit_init (CoglContext *ctx,
   unit->enabled_gl_target = 0;
   unit->gl_texture = 0;
   unit->gl_target = 0;
-  unit->is_foreign = FALSE;
   unit->dirty_gl_texture = FALSE;
   unit->matrix_stack = cogl_matrix_stack_new (ctx);
 
@@ -166,8 +165,7 @@ _cogl_set_active_texture_unit (int unit_index)
  */
 void
 _cogl_bind_gl_texture_transient (GLenum gl_target,
-                                 GLuint gl_texture,
-                                 gboolean is_foreign)
+                                 GLuint gl_texture)
 {
   CoglTextureUnit *unit;
 
@@ -183,18 +181,12 @@ _cogl_bind_gl_texture_transient (GLenum gl_target,
   _cogl_set_active_texture_unit (1);
   unit = _cogl_get_texture_unit (1);
 
-  /* NB: If we have previously bound a foreign texture to this texture
-   * unit we don't know if that texture has since been deleted and we
-   * are seeing the texture name recycled */
-  if (unit->gl_texture == gl_texture &&
-      !unit->dirty_gl_texture &&
-      !unit->is_foreign)
+  if (unit->gl_texture == gl_texture && !unit->dirty_gl_texture)
     return;
 
   GE (ctx, glBindTexture (gl_target, gl_texture));
 
   unit->dirty_gl_texture = TRUE;
-  unit->is_foreign = is_foreign;
 }
 
 void
@@ -775,7 +767,7 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
        * associated with the texture unit then we can't assume that we
        * aren't seeing a recycled texture name so we have to bind.
        */
-      if (unit->gl_texture != gl_texture || unit->is_foreign)
+      if (unit->gl_texture != gl_texture)
         {
           if (unit_index == 1)
             unit->dirty_gl_texture = TRUE;
@@ -784,8 +776,6 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
           unit->gl_texture = gl_texture;
           unit->gl_target = gl_target;
         }
-
-      unit->is_foreign = _cogl_texture_is_foreign (texture);
 
       /* The texture_storage_changed boolean indicates if the
        * CoglTexture's underlying GL texture storage has changed since
