@@ -887,6 +887,32 @@ libmutter_dep = declare_dependency(
   ],
 )
 
+# Interal library for gtk-doc (we need symbol visibility)
+_libmutter_public_symbols = library(libmutter_name + '-public-symbols',
+  sources: [
+    mutter_sources,
+    mutter_built_sources,
+  ],
+  include_directories: mutter_includes,
+  c_args: mutter_c_args,
+  dependencies: [
+    libmutter_cogl_dep,
+    libmutter_clutter_dep,
+    mutter_deps,
+  ],
+)
+
+_libmutter_public_symbols_dep = declare_dependency(
+  link_with: _libmutter_public_symbols,
+  include_directories: mutter_includes,
+  sources: mutter_built_sources,
+  dependencies: [
+    libmutter_cogl_dep,
+    libmutter_clutter_dep,
+    mutter_deps,
+  ],
+)
+
 executable('mutter',
   sources: [
     files('core/mutter.c'),
