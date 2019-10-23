@@ -25,16 +25,10 @@
 #ifndef META_WAYLAND_DATA_DEVICE_PRIVATE_H
 #define META_WAYLAND_DATA_DEVICE_PRIVATE_H
 
-#define META_TYPE_WAYLAND_DATA_SOURCE_WAYLAND (meta_wayland_data_source_wayland_get_type ())
-G_DECLARE_FINAL_TYPE (MetaWaylandDataSourceWayland,
-                      meta_wayland_data_source_wayland,
-                      META, WAYLAND_DATA_SOURCE_WAYLAND,
-                      MetaWaylandDataSource);
-
 #define META_TYPE_WAYLAND_DATA_SOURCE_PRIMARY (meta_wayland_data_source_primary_get_type ())
 G_DECLARE_FINAL_TYPE (MetaWaylandDataSourcePrimary,
                       meta_wayland_data_source_primary,
                       META, WAYLAND_DATA_SOURCE_PRIMARY,
-                      MetaWaylandDataSourceWayland);
+                      MetaWaylandDataSource);
 
 #endif /* META_WAYLAND_DATA_DEVICE_PRIVATE_H */
