@@ -71,13 +71,6 @@ typedef struct _CoglTextureUnit
    * dirty_gl_texture == TRUE */
   GLenum             gl_target;
 
-  /* Foreign textures are those not created or deleted by Cogl. If we ever
-   * call glBindTexture for a foreign texture then the next time we are
-   * asked to glBindTexture we can't try and optimize a redundant state
-   * change because we don't know if the original texture name was deleted
-   * and now we are being asked to bind a recycled name. */
-  gboolean           is_foreign;
-
   /* We have many components in Cogl that need to temporarily bind arbitrary
    * textures e.g. to query texture object parameters and since we don't
    * want that to result in too much redundant reflushing of layer state
@@ -141,8 +134,7 @@ _cogl_set_active_texture_unit (int unit_index);
 
 void
 _cogl_bind_gl_texture_transient (GLenum gl_target,
-                                 GLuint gl_texture,
-                                 gboolean is_foreign);
+                                 GLuint gl_texture);
 
 void
 _cogl_delete_gl_texture (GLuint gl_texture);

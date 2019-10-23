@@ -115,7 +115,6 @@ cogl_nonintrospected_headers = [
   'cogl-output.h',
   'cogl-matrix-stack.h',
   'cogl-poll.h',
-  'cogl-texture-2d-gl.h',
   'cogl-sub-texture.h',
   'cogl-atlas-texture.h',
   'cogl-meta-texture.h',

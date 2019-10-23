@@ -46,7 +46,6 @@
 #include "cogl-texture-driver.h"
 #include "cogl-texture-2d-sliced-private.h"
 #include "cogl-texture-2d-private.h"
-#include "cogl-texture-2d-gl.h"
 #include "cogl-sub-texture-private.h"
 #include "cogl-atlas-texture-private.h"
 #include "cogl-pipeline.h"
@@ -154,7 +153,6 @@ _cogl_texture_free_loader (CoglTexture *texture)
         {
         case COGL_TEXTURE_SOURCE_TYPE_SIZED:
         case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE:
-        case COGL_TEXTURE_SOURCE_TYPE_GL_FOREIGN:
         case COGL_TEXTURE_SOURCE_TYPE_EGL_IMAGE_EXTERNAL:
           break;
         case COGL_TEXTURE_SOURCE_TYPE_BITMAP:
@@ -189,15 +187,6 @@ _cogl_texture_needs_premult_conversion (CoglPixelFormat src_format,
           dst_format != COGL_PIXEL_FORMAT_A_8 &&
           (src_format & COGL_PREMULT_BIT) !=
           (dst_format & COGL_PREMULT_BIT));
-}
-
-gboolean
-_cogl_texture_is_foreign (CoglTexture *texture)
-{
-  if (texture->vtable->is_foreign)
-    return texture->vtable->is_foreign (texture);
-  else
-    return FALSE;
 }
 
 gboolean
