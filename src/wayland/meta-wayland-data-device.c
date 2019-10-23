@@ -1734,16 +1734,7 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
   struct wl_client *focus_client;
   MetaSelectionSource *selection_source;
 
-  if (META_IS_WAYLAND_DATA_SOURCE_PRIMARY (source))
-    {
-      struct wl_resource *resource;
-
-      resource = meta_wayland_data_source_get_resource (source);
-
-      if (wl_resource_get_client (resource) !=
-          meta_wayland_keyboard_get_focus_client (seat->keyboard))
-        return;
-    }
+  g_assert (!source || META_IS_WAYLAND_DATA_SOURCE_PRIMARY (source));
 
   if (data_device->primary_data_source &&
       data_device->primary_serial - serial < UINT32_MAX / 2)
@@ -1800,10 +1791,16 @@ primary_device_set_selection (struct wl_client   *client,
                               uint32_t            serial)
 {
   MetaWaylandDataDevice *data_device = wl_resource_get_user_data (resource);
+  MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
   MetaWaylandDataSource *source = NULL;
 
   if (source_resource)
     source = wl_resource_get_user_data (source_resource);
+
+  if (wl_resource_get_client (resource) !=
+      meta_wayland_keyboard_get_focus_client (seat->keyboard))
+    return;
+
   meta_wayland_data_device_set_primary (data_device, source, serial);
 }
 
