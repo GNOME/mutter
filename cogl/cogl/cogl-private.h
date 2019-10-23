@@ -64,9 +64,9 @@ typedef enum
    * is first allocated or when it is shown or resized */
   COGL_PRIVATE_FEATURE_DIRTY_EVENTS,
   COGL_PRIVATE_FEATURE_ENABLE_PROGRAM_POINT_SIZE,
-  /* These features let us avoid conditioning code based on the exact
-   * driver being used and instead check for broad opengl feature
-   * sets that can be shared by several GL apis */
+  /* This feature allows for explicitly selecting a GL-based backend,
+   * as opposed to nop or (in the future) Vulkan.
+   */
   COGL_PRIVATE_FEATURE_ANY_GL,
 
   COGL_N_PRIVATE_FEATURES
