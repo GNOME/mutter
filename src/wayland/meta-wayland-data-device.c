@@ -1677,6 +1677,7 @@ data_device_set_selection (struct wl_client *client,
                            guint32 serial)
 {
   MetaWaylandDataDevice *data_device = wl_resource_get_user_data (resource);
+  MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
   MetaWaylandDataSourcePrivate *priv;
   MetaWaylandDataSource *source;
 
@@ -1697,6 +1698,10 @@ data_device_set_selection (struct wl_client *client,
           return;
         }
     }
+
+  if (wl_resource_get_client (resource) !=
+      meta_wayland_keyboard_get_focus_client (seat->keyboard))
+    return;
 
   /* FIXME: Store serial and check against incoming serial here. */
   meta_wayland_data_device_set_selection (data_device, source, serial);
