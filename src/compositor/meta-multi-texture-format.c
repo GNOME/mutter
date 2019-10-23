@@ -36,6 +36,56 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define _YUV_TO_RGB(res, y, u, v)                                \
+    "vec4 " res ";\n"                                             \
+    res ".r = (" y ") + 1.59765625 * (" v ");\n"                  \
+    res ".g = (" y ") - 0.390625 * (" u ") - 0.8125 * (" v ");\n" \
+    res ".b = (" y ") + 2.015625 * (" u ");\n"                    \
+    res ".a = 1.0;\n"
+
+/* Shader for a single YUV plane */
+#define YUV_TO_RGB_FUNC "meta_yuv_to_rgba"
+static const char yuv_to_rgb_shader[] =
+    "vec4\n"
+    YUV_TO_RGB_FUNC " (vec2 UV)\n"
+    "{\n"
+    "  vec4 orig_color = texture2D(cogl_sampler0, UV);\n"
+    "  float y = 1.16438356 * (orig_color.r - 0.0625);\n"
+    "  float u = orig_color.g - 0.5;\n"
+    "  float v = orig_color.b - 0.5;\n"
+       _YUV_TO_RGB ("color", "y", "u", "v")
+    "  return color;\n"
+    "}\n";
+
+/* Shader for 1 Y-plane and 1 UV-plane */
+#define Y_UV_TO_RGB_FUNC "meta_y_uv_to_rgba"
+static const char y_uv_to_rgb_shader[] =
+    "vec4\n"
+    Y_UV_TO_RGB_FUNC "(vec2 UV)\n"
+    "{\n"
+    "  float y = 1.1640625 * (texture2D (cogl_sampler0, UV).x - 0.0625);\n"
+    "  vec2 uv = texture2D (cogl_sampler1, UV).rg;\n"
+    "  uv -= 0.5;\n"
+    "  float u = uv.x;\n"
+    "  float v = uv.y;\n"
+       _YUV_TO_RGB ("color", "y", "u", "v")
+    "  return color;\n"
+    "}\n";
+
+/* Shader for 1 Y-plane, 1 U-plane and 1 V-plane */
+#define Y_U_V_TO_RGB_FUNC "meta_y_u_v_to_rgba"
+static const char y_u_v_to_rgb_shader[] =
+    "vec4\n"
+    Y_U_V_TO_RGB_FUNC "(vec2 UV)\n"
+    "{\n"
+    "  float y = 1.16438356 * (texture2D(cogl_sampler0, UV).x - 0.0625);\n"
+    "  float u = texture2D(cogl_sampler1, UV).x - 0.5;\n"
+    "  float v = texture2D(cogl_sampler2, UV).x - 0.5;\n"
+       _YUV_TO_RGB ("color", "y", "u", "v")
+    "  return color;\n"
+    "}\n";
+
+
 typedef struct _MetaMultiTextureFormatInfo
 {
   MetaMultiTextureFormat multi_format;
@@ -46,6 +96,10 @@ typedef struct _MetaMultiTextureFormatInfo
   uint8_t hsub[COGL_PIXEL_FORMAT_MAX_PLANES];       /* horizontal subsampling                */
   uint8_t vsub[COGL_PIXEL_FORMAT_MAX_PLANES];       /* vertical subsampling                  */
   CoglPixelFormat subformats[COGL_PIXEL_FORMAT_MAX_PLANES]; /* influences how we deal with it on a GL level */
+
+  /* Shaders */
+  const char *rgb_shaderfunc;  /* Shader name to convert to RGBA (or NULL) */
+  const char *rgb_shader;      /* Shader to convert to RGBA (or NULL)      */
 } MetaMultiTextureFormatInfo;
 
 /* NOTE: The actual enum values are used as the index, so you don't need to
@@ -58,6 +112,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1 },
     .vsub = { 1 },
     .subformats = { COGL_PIXEL_FORMAT_ANY },
+    .rgb_shaderfunc = NULL,
+    .rgb_shader = NULL,
   },
   /* Packed YUV */
   { /* YUYV */
@@ -66,6 +122,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1 },
     .vsub = { 1 },
     .subformats = { COGL_PIXEL_FORMAT_ARGB_8888 },
+    .rgb_shaderfunc = YUV_TO_RGB_FUNC,
+    .rgb_shader = yuv_to_rgb_shader,
   },
   { /* YVYU */
     .n_planes = 1,
@@ -73,6 +131,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1 },
     .vsub = { 1 },
     .subformats = { COGL_PIXEL_FORMAT_ARGB_8888 },
+    .rgb_shaderfunc = YUV_TO_RGB_FUNC,
+    .rgb_shader = yuv_to_rgb_shader,
   },
   { /* UYVY */
     .n_planes = 1,
@@ -80,6 +140,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1 },
     .vsub = { 1 },
     .subformats = { COGL_PIXEL_FORMAT_ARGB_8888 },
+    .rgb_shaderfunc = YUV_TO_RGB_FUNC,
+    .rgb_shader = yuv_to_rgb_shader,
   },
   { /* VYUY */
     .n_planes = 1,
@@ -87,6 +149,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1 },
     .vsub = { 1 },
     .subformats = { COGL_PIXEL_FORMAT_ARGB_8888 },
+    .rgb_shaderfunc = YUV_TO_RGB_FUNC,
+    .rgb_shader = yuv_to_rgb_shader,
   },
   { /* AYUV */
     .n_planes = 1,
@@ -94,6 +158,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1 },
     .vsub = { 1 },
     .subformats = { COGL_PIXEL_FORMAT_ARGB_8888 },
+    .rgb_shaderfunc = YUV_TO_RGB_FUNC,
+    .rgb_shader = yuv_to_rgb_shader,
   },
   /* 2 plane RGB + A */
   { /* XRGB8888_A8 */
@@ -102,6 +168,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 1 },
     .vsub = { 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_ARGB_8888, COGL_PIXEL_FORMAT_A_8 },
+    .rgb_shaderfunc = NULL,
+    .rgb_shader = NULL,
   },
   { /* XBGR8888_A8 */
     .n_planes = 2,
@@ -109,6 +177,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 1 },
     .vsub = { 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_ABGR_8888, COGL_PIXEL_FORMAT_A_8 },
+    .rgb_shaderfunc = NULL,
+    .rgb_shader = NULL,
   },
   { /* RGBX8888_A8 */
     .n_planes = 2,
@@ -116,6 +186,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 1 },
     .vsub = { 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_RGBA_8888, COGL_PIXEL_FORMAT_A_8 },
+    .rgb_shaderfunc = NULL,
+    .rgb_shader = NULL,
   },
   { /* BGRX8888_A8 */
     .n_planes = 2,
@@ -123,6 +195,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 1 },
     .vsub = { 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_BGRA_8888, COGL_PIXEL_FORMAT_A_8 },
+    .rgb_shaderfunc = NULL,
+    .rgb_shader = NULL,
   },
   { /* RGB888_A8 */
     .n_planes = 2,
@@ -130,6 +204,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 1 },
     .vsub = { 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_RGB_888, COGL_PIXEL_FORMAT_A_8 },
+    .rgb_shaderfunc = NULL,
+    .rgb_shader = NULL,
   },
   { /* BGR888_A8 */
     .n_planes = 2,
@@ -137,6 +213,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 1 },
     .vsub = { 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_BGR_888, COGL_PIXEL_FORMAT_A_8 },
+    .rgb_shaderfunc = NULL,
+    .rgb_shader = NULL,
   },
   { /* RGB565_A8 */
     .n_planes = 2,
@@ -144,6 +222,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 1 },
     .vsub = { 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_RGB_565, COGL_PIXEL_FORMAT_A_8 },
+    .rgb_shaderfunc = NULL,
+    .rgb_shader = NULL,
   },
   { /* BGR565_A8 */
     .n_planes = 2,
@@ -151,6 +231,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 1 },
     .vsub = { 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_RGB_565, COGL_PIXEL_FORMAT_A_8 },
+    .rgb_shaderfunc = NULL,
+    .rgb_shader = NULL,
   },
   /* 2 plane YUV */
   { /* NV12 */
@@ -159,6 +241,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 2 },
     .vsub = { 1, 2 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_RG_88 },
+    .rgb_shaderfunc = Y_UV_TO_RGB_FUNC,
+    .rgb_shader = y_uv_to_rgb_shader,
   },
   { /* NV21 */
     .n_planes = 2,
@@ -166,6 +250,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 2 },
     .vsub = { 1, 2 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_RG_88 },
+    .rgb_shaderfunc = Y_UV_TO_RGB_FUNC,
+    .rgb_shader = y_uv_to_rgb_shader,
   },
   { /* NV16 */
     .n_planes = 2,
@@ -173,6 +259,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 2 },
     .vsub = { 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_RG_88 },
+    .rgb_shaderfunc = Y_UV_TO_RGB_FUNC,
+    .rgb_shader = y_uv_to_rgb_shader,
   },
   { /* NV61 */
     .n_planes = 2,
@@ -180,6 +268,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 2 },
     .vsub = { 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_RG_88 },
+    .rgb_shaderfunc = Y_UV_TO_RGB_FUNC,
+    .rgb_shader = y_uv_to_rgb_shader,
   },
   { /* NV24 */
     .n_planes = 2,
@@ -187,6 +277,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 1 },
     .vsub = { 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_RG_88 },
+    .rgb_shaderfunc = Y_UV_TO_RGB_FUNC,
+    .rgb_shader = y_uv_to_rgb_shader,
   },
   { /* NV42 */
     .n_planes = 2,
@@ -194,6 +286,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 1 },
     .vsub = { 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_RG_88 },
+    .rgb_shaderfunc = Y_UV_TO_RGB_FUNC,
+    .rgb_shader = y_uv_to_rgb_shader,
   },
   /* 3 plane YUV */
   { /* YUV410 */
@@ -202,6 +296,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 4, 4 },
     .vsub = { 1, 4, 4 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8 },
+    .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
+    .rgb_shader = y_u_v_to_rgb_shader,
   },
   { /* YVU410 */
     .n_planes = 3,
@@ -209,6 +305,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 4, 4 },
     .vsub = { 1, 4, 4 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8 },
+    .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
+    .rgb_shader = y_u_v_to_rgb_shader,
   },
   { /* YUV411 */
     .n_planes = 3,
@@ -216,6 +314,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 4, 4 },
     .vsub = { 1, 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8 },
+    .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
+    .rgb_shader = y_u_v_to_rgb_shader,
   },
   { /* YVU411 */
     .n_planes = 3,
@@ -223,6 +323,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 4, 4 },
     .vsub = { 1, 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8 },
+    .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
+    .rgb_shader = y_u_v_to_rgb_shader,
   },
   { /* YUV420 */
     .n_planes = 3,
@@ -230,6 +332,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 2, 2 },
     .vsub = { 1, 2, 2 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8 },
+    .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
+    .rgb_shader = y_u_v_to_rgb_shader,
   },
   { /* YVU420 */
     .n_planes = 3,
@@ -237,6 +341,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 2, 2 },
     .vsub = { 1, 2, 2 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8 },
+    .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
+    .rgb_shader = y_u_v_to_rgb_shader,
   },
   { /* YUV422 */
     .n_planes = 3,
@@ -244,6 +350,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 2, 2 },
     .vsub = { 1, 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8 },
+    .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
+    .rgb_shader = y_u_v_to_rgb_shader,
   },
   { /* YVU422 */
     .n_planes = 3,
@@ -251,6 +359,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 2, 2 },
     .vsub = { 1, 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8 },
+    .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
+    .rgb_shader = y_u_v_to_rgb_shader,
   },
   { /* YUV444 */
     .n_planes = 3,
@@ -258,6 +368,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 1, 1 },
     .vsub = { 1, 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8 },
+    .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
+    .rgb_shader = y_u_v_to_rgb_shader,
   },
   { /* YVU444 */
     .n_planes = 3,
@@ -265,6 +377,8 @@ static MetaMultiTextureFormatInfo multi_format_table[] = {
     .hsub = { 1, 1, 1 },
     .vsub = { 1, 1, 1 },
     .subformats = { COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8, COGL_PIXEL_FORMAT_G_8 },
+    .rgb_shaderfunc = Y_U_V_TO_RGB_FUNC,
+    .rgb_shader = y_u_v_to_rgb_shader,
   },
 };
 
@@ -314,4 +428,53 @@ meta_multi_texture_format_get_subformats (MetaMultiTextureFormat format,
 
   for (i = 0; i < multi_format_table[format].n_planes; i++)
     formats_out[i] = multi_format_table[format].subformats[i];
+}
+
+gboolean
+meta_multi_texture_format_needs_shaders (MetaMultiTextureFormat format)
+{
+  g_return_val_if_fail (format < G_N_ELEMENTS (multi_format_table), FALSE);
+
+  return multi_format_table[format].rgb_shaderfunc != NULL;
+}
+
+gboolean
+meta_multi_texture_format_get_snippets (MetaMultiTextureFormat format,
+                                        CoglSnippet          **vertex_snippet,
+                                        CoglSnippet          **fragment_snippet,
+                                        CoglSnippet          **layer_snippet)
+{
+  const char *shader_func;
+  const char *shader_impl;
+  g_autofree char *layer_hook = NULL;
+
+  g_return_val_if_fail (format < G_N_ELEMENTS (multi_format_table), FALSE);
+
+  /* Get the function name; bail out early if we don't need a shader */
+  shader_func = multi_format_table[format].rgb_shaderfunc;
+  if (shader_func == NULL)
+    return FALSE;
+
+  shader_impl = multi_format_table[format].rgb_shader;
+
+  /* Make sure we actually call the function */
+  layer_hook = g_strdup_printf ("cogl_layer = %s(cogl_tex_coord0_in.st);\n",
+                                shader_func);
+
+  if (vertex_snippet)
+    *vertex_snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_VERTEX_GLOBALS,
+                                        shader_impl,
+                                        NULL);
+
+  if (fragment_snippet)
+    *fragment_snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_FRAGMENT_GLOBALS,
+                                          shader_impl,
+                                          NULL);
+
+  if (layer_snippet)
+    *layer_snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_LAYER_FRAGMENT,
+                                       NULL,
+                                       layer_hook);
+
+  return TRUE;
 }
