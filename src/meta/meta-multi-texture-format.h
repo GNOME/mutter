@@ -124,6 +124,15 @@ META_EXPORT
 void  meta_multi_texture_format_get_subformats          (MetaMultiTextureFormat format,
                                                          CoglPixelFormat       *formats_out);
 
+META_EXPORT
+gboolean meta_multi_texture_format_needs_shaders        (MetaMultiTextureFormat format);
+
+META_EXPORT
+gboolean meta_multi_texture_format_get_snippets         (MetaMultiTextureFormat format,
+                                                        CoglSnippet          **vertex_snippet,
+                                                        CoglSnippet          **fragment_snippet,
+                                                        CoglSnippet          **layer_snippet);
+
 G_END_DECLS
 
 #endif

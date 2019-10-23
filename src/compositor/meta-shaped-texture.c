@@ -272,24 +272,31 @@ static CoglPipeline *
 get_base_pipeline (MetaShapedTexture *stex,
                    CoglContext       *ctx)
 {
+  guint i, n_planes;
+  MetaMultiTextureFormat format;
   CoglPipeline *pipeline;
   graphene_matrix_t matrix;
 
   if (stex->base_pipeline)
     return stex->base_pipeline;
 
+  /* We'll add as many layers as there are planes in the multi texture,
+   * plus an extra one for the mask */
+  n_planes = meta_multi_texture_get_n_planes (stex->texture);
+
   pipeline = cogl_pipeline_new (ctx);
-  cogl_pipeline_set_layer_wrap_mode_s (pipeline, 0,
-                                       COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
-  cogl_pipeline_set_layer_wrap_mode_t (pipeline, 0,
-                                       COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
-  cogl_pipeline_set_layer_wrap_mode_s (pipeline, 1,
-                                       COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
-  cogl_pipeline_set_layer_wrap_mode_t (pipeline, 1,
-                                       COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+
+  for (i = 0; i < n_planes; i++)
+    {
+      cogl_pipeline_set_layer_wrap_mode_s (pipeline, i,
+                                           COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+      cogl_pipeline_set_layer_wrap_mode_t (pipeline, i,
+                                           COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
+    }
 
   graphene_matrix_init_identity (&matrix);
 
+  /* Apply transformation if needed */
   if (stex->transform != META_MONITOR_TRANSFORM_NORMAL)
     {
       graphene_euler_t euler;
@@ -334,6 +341,7 @@ get_base_pipeline (MetaShapedTexture *stex,
                                  &GRAPHENE_POINT3D_INIT (0.5, 0.5, 0.0));
     }
 
+  /* Apply viewport scaling if neeed */
   if (stex->has_viewport_src_rect)
     {
       float scaled_tex_width = stex->tex_width / (float) stex->buffer_scale;
@@ -375,9 +383,29 @@ get_base_pipeline (MetaShapedTexture *stex,
       cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
     }
 
-  cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
-  cogl_pipeline_set_layer_matrix (pipeline, 1, &matrix);
+  for (i = 0; i < n_planes + 1; i++)
+    cogl_pipeline_set_layer_matrix (pipeline, i, &matrix);
 
+  /* Add color conversion shaders if needed */
+  format = meta_multi_texture_get_format (stex->texture);
+  if (meta_multi_texture_format_needs_shaders (format))
+    {
+      CoglSnippet *vertex_snippet;
+      CoglSnippet *fragment_snippet;
+      CoglSnippet *layer_snippet;
+
+      meta_multi_texture_format_get_snippets (format,
+                                              &vertex_snippet,
+                                              &fragment_snippet,
+                                              &layer_snippet);
+      cogl_pipeline_add_snippet (pipeline, vertex_snippet);
+      cogl_pipeline_add_snippet (pipeline, fragment_snippet);
+
+      for (i = 0; i < n_planes; i++)
+        cogl_pipeline_add_layer_snippet (pipeline, i, layer_snippet);
+    }
+
+  /* And custom external shaders (e.g. for EGLStreams) */
   if (stex->snippet)
     cogl_pipeline_add_layer_snippet (pipeline, 0, stex->snippet);
 
@@ -398,12 +426,14 @@ get_masked_pipeline (MetaShapedTexture *stex,
                      CoglContext       *ctx)
 {
   CoglPipeline *pipeline;
+  guint n_planes;
 
   if (stex->masked_pipeline)
     return stex->masked_pipeline;
 
   pipeline = cogl_pipeline_copy (get_base_pipeline (stex, ctx));
-  cogl_pipeline_set_layer_combine (pipeline, 1,
+  n_planes = meta_multi_texture_get_n_planes (stex->texture);
+  cogl_pipeline_set_layer_combine (pipeline, n_planes,
                                    "RGBA = MODULATE (PREVIOUS, TEXTURE[A])",
                                    NULL);
 
