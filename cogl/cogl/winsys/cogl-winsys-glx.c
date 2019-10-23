@@ -826,33 +826,7 @@ update_winsys_features (CoglContext *context, GError **error)
           sizeof (context->winsys_features));
 
   if (glx_renderer->glXCopySubBuffer || context->glBlitFramebuffer)
-    {
-      CoglGpuInfo *info = &context->gpu;
-      CoglGpuInfoArchitecture arch = info->architecture;
-
-      COGL_FLAGS_SET (context->winsys_features, COGL_WINSYS_FEATURE_SWAP_REGION, TRUE);
-
-      /*
-       * "The "drisw" binding in Mesa for loading sofware renderers is
-       * broken, and neither glBlitFramebuffer nor glXCopySubBuffer
-       * work correctly."
-       * - ajax
-       * - https://bugzilla.gnome.org/show_bug.cgi?id=674208
-       *
-       * This is broken in software Mesa at least as of 7.10 and got
-       * fixed in Mesa 10.1
-       */
-
-      if (info->driver_package == COGL_GPU_INFO_DRIVER_PACKAGE_MESA &&
-          info->driver_package_version < COGL_VERSION_ENCODE (10, 1, 0) &&
-          (arch == COGL_GPU_INFO_ARCHITECTURE_LLVMPIPE ||
-           arch == COGL_GPU_INFO_ARCHITECTURE_SOFTPIPE ||
-           arch == COGL_GPU_INFO_ARCHITECTURE_SWRAST))
-	{
-	  COGL_FLAGS_SET (context->winsys_features,
-			  COGL_WINSYS_FEATURE_SWAP_REGION, FALSE);
-	}
-    }
+    COGL_FLAGS_SET (context->winsys_features, COGL_WINSYS_FEATURE_SWAP_REGION, TRUE);
 
   /* Note: glXCopySubBuffer and glBlitFramebuffer won't be throttled
    * by the SwapInterval so we have to throttle swap_region requests
