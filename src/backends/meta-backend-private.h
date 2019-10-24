@@ -51,6 +51,14 @@
 #define META_TYPE_BACKEND (meta_backend_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaBackend, meta_backend, META, BACKEND, GObject)
 
+typedef enum _MetaSequenceState
+{
+  META_SEQUENCE_NONE,
+  META_SEQUENCE_ACCEPTED,
+  META_SEQUENCE_REJECTED,
+  META_SEQUENCE_PENDING_END
+} MetaSequenceState;
+
 struct _MetaBackendClass
 {
   GObjectClass parent_class;
@@ -72,6 +80,10 @@ struct _MetaBackendClass
   gboolean (* ungrab_device) (MetaBackend *backend,
                               int          device_id,
                               uint32_t     timestamp);
+
+  void (* finish_touch_sequence) (MetaBackend          *backend,
+                                  ClutterEventSequence *sequence,
+                                  MetaSequenceState     state);
 
   void (* warp_pointer) (MetaBackend *backend,
                          int          x,
@@ -133,6 +145,10 @@ gboolean meta_backend_grab_device (MetaBackend *backend,
 gboolean meta_backend_ungrab_device (MetaBackend *backend,
                                      int          device_id,
                                      uint32_t     timestamp);
+
+void meta_backend_finish_touch_sequence (MetaBackend          *backend,
+                                         ClutterEventSequence *sequence,
+                                         MetaSequenceState     state);
 
 void meta_backend_warp_pointer (MetaBackend *backend,
                                 int          x,

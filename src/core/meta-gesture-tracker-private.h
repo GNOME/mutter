@@ -38,12 +38,7 @@
 typedef struct _MetaGestureTracker MetaGestureTracker;
 typedef struct _MetaGestureTrackerClass MetaGestureTrackerClass;
 
-typedef enum {
-  META_SEQUENCE_NONE,
-  META_SEQUENCE_ACCEPTED,
-  META_SEQUENCE_REJECTED,
-  META_SEQUENCE_PENDING_END
-} MetaSequenceState;
+typedef enum _MetaSequenceState MetaSequenceState;
 
 struct _MetaGestureTracker
 {

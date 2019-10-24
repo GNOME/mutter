@@ -31,6 +31,7 @@
 #include "config.h"
 #include "meta-gesture-tracker-private.h"
 #include "meta-surface-actor.h"
+#include "meta-backend-private.h"
 
 #define DISTANCE_THRESHOLD 30
 
