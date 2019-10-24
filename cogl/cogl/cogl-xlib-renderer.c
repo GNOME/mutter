@@ -632,15 +632,3 @@ _cogl_xlib_renderer_output_for_rectangle (CoglRenderer *renderer,
 
   return max_overlapped;
 }
-
-XVisualInfo *
-cogl_xlib_renderer_get_visual_info (CoglRenderer *renderer)
-{
-  CoglXlibRenderer *xlib_renderer;
-
-  g_return_val_if_fail (cogl_is_renderer (renderer), NULL);
-
-  xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-
-  return xlib_renderer->xvisinfo;
-}
