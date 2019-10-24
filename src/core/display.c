@@ -57,6 +57,7 @@
 #include "backends/native/meta-backend-native.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/meta-stage-private.h"
+#include "backends/meta-backend-private.h"
 #include "backends/meta-input-settings-private.h"
 #include <clutter/x11/clutter-x11.h>
 
@@ -602,27 +603,23 @@ gesture_tracker_state_changed (MetaGestureTracker   *tracker,
                                MetaSequenceState     state,
                                MetaDisplay          *display)
 {
-  if (meta_is_wayland_compositor ())
+  switch (state)
     {
-      if (state == META_SEQUENCE_ACCEPTED)
-        meta_display_cancel_touch (display);
-    }
-  else
-    {
-      MetaBackendX11 *backend = META_BACKEND_X11 (meta_get_backend ());
-      int event_mode;
+    case META_SEQUENCE_NONE:
+    case META_SEQUENCE_PENDING_END:
+      return;
+    case META_SEQUENCE_ACCEPTED:
+      meta_display_cancel_touch (display);
 
-      if (state == META_SEQUENCE_ACCEPTED)
-        event_mode = XIAcceptTouch;
-      else if (state == META_SEQUENCE_REJECTED)
-        event_mode = XIRejectTouch;
-      else
-        return;
+      /* Intentional fall-through */
+    case META_SEQUENCE_REJECTED:
+      {
+        MetaBackend *backend;
 
-      XIAllowTouchEvents (meta_backend_x11_get_xdisplay (backend),
-                          META_VIRTUAL_CORE_POINTER_ID,
-                          clutter_x11_event_sequence_get_touch_detail (sequence),
-                          DefaultRootWindow (display->x11_display->xdisplay), event_mode);
+        backend = meta_get_backend ();
+        meta_backend_finish_touch_sequence (backend, sequence, state);
+        break;
+      }
     }
 }
 

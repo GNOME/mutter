@@ -961,6 +961,20 @@ meta_backend_ungrab_device (MetaBackend *backend,
 }
 
 /**
+ * meta_backend_finish_touch_sequence: (skip)
+ */
+void
+meta_backend_finish_touch_sequence (MetaBackend          *backend,
+                                    ClutterEventSequence *sequence,
+                                    MetaSequenceState     state)
+{
+  if (META_BACKEND_GET_CLASS (backend)->finish_touch_sequence)
+    META_BACKEND_GET_CLASS (backend)->finish_touch_sequence (backend,
+                                                             sequence,
+                                                             state);
+}
+
+/**
  * meta_backend_warp_pointer: (skip)
  */
 void
