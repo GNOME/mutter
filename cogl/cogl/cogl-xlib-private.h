@@ -45,7 +45,4 @@ struct _CoglXlibTrapState
   CoglXlibTrapState *old_state;
 };
 
-int
-_cogl_xlib_get_damage_base (void);
-
 #endif /* __COGL_XLIB_PRIVATE_H */

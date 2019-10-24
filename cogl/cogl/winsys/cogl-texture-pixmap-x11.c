@@ -49,6 +49,8 @@
 #include "cogl-renderer-private.h"
 #include "cogl-object-private.h"
 #include "cogl-xlib.h"
+#include "cogl-xlib-renderer-private.h"
+#include "cogl-x11-renderer-private.h"
 #include "cogl-private.h"
 #include "cogl-gtype-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
@@ -228,6 +230,17 @@ process_damage_event (CoglTexturePixmapX11 *tex_pixmap,
       winsys = _cogl_texture_pixmap_x11_get_winsys (tex_pixmap);
       winsys->texture_pixmap_x11_damage_notify (tex_pixmap);
     }
+}
+
+static int
+_cogl_xlib_get_damage_base (void)
+{
+  CoglX11Renderer *x11_renderer;
+  _COGL_GET_CONTEXT (ctxt, -1);
+
+  x11_renderer =
+    (CoglX11Renderer *) _cogl_xlib_renderer_get_data (ctxt->display->renderer);
+  return x11_renderer->damage_base;
 }
 
 static CoglFilterReturn

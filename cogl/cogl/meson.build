@@ -386,7 +386,6 @@ if have_x11
     'cogl-xlib-private.h',
     'cogl-xlib-renderer-private.h',
     'cogl-xlib-renderer.c',
-    'cogl-xlib.c',
     'winsys/cogl-texture-pixmap-x11-private.h',
     'winsys/cogl-texture-pixmap-x11.c',
   ]
