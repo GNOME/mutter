@@ -41,7 +41,6 @@
 #include "cogl-framebuffer-private.h"
 #include "cogl-onscreen-private.h"
 #ifdef COGL_HAS_XLIB_SUPPORT
-#include "cogl-clutter-xlib.h"
 #include "cogl-xlib-renderer.h"
 #endif
 #include "winsys/cogl-winsys-private.h"
@@ -93,20 +92,3 @@ cogl_onscreen_clutter_backend_set_size (int width, int height)
 
   _cogl_framebuffer_winsys_update_size (framebuffer, width, height);
 }
-
-#ifdef COGL_HAS_XLIB_SUPPORT
-XVisualInfo *
-cogl_clutter_winsys_xlib_get_visual_info (void)
-{
-  CoglRenderer *renderer;
-
-  _COGL_GET_CONTEXT (ctx, NULL);
-
-  g_return_val_if_fail (ctx->display != NULL, NULL);
-
-  renderer = cogl_display_get_renderer (ctx->display);
-  g_return_val_if_fail (renderer != NULL, NULL);
-
-  return cogl_xlib_renderer_get_visual_info (renderer);
-}
-#endif
