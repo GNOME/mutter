@@ -566,23 +566,6 @@ cogl_texture_pixmap_x11_is_using_tfp_extension (CoglTexturePixmapX11 *tex_pixmap
   return !!tex_pixmap->winsys;
 }
 
-void
-cogl_texture_pixmap_x11_set_damage_object (CoglTexturePixmapX11 *tex_pixmap,
-                                           uint32_t damage,
-                                           CoglTexturePixmapX11ReportLevel
-                                                                  report_level)
-{
-  int damage_base;
-
-  _COGL_GET_CONTEXT (ctxt, NO_RETVAL);
-
-  g_return_if_fail (tex_pixmap->stereo_mode != COGL_TEXTURE_PIXMAP_RIGHT);
-
-  damage_base = _cogl_xlib_get_damage_base ();
-  if (damage_base >= 0)
-    set_damage_object_internal (ctxt, tex_pixmap, damage, report_level);
-}
-
 static CoglTexture *
 create_fallback_texture (CoglContext *ctx,
                          int width,
