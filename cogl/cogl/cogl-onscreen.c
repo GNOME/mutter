@@ -411,54 +411,16 @@ cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen)
 }
 
 #ifdef COGL_HAS_X11_SUPPORT
-void
-cogl_x11_onscreen_set_foreign_window_xid (CoglOnscreen *onscreen,
-                                          uint32_t xid,
-                                          CoglOnscreenX11MaskCallback update,
-                                          void *user_data)
-{
-  /* We don't wan't applications to get away with being lazy here and not
-   * passing an update callback... */
-  g_return_if_fail (update);
-
-  onscreen->foreign_xid = xid;
-  onscreen->foreign_update_mask_callback = update;
-  onscreen->foreign_update_mask_data = user_data;
-}
-
 uint32_t
 cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen)
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
 
-  if (onscreen->foreign_xid)
-    return onscreen->foreign_xid;
-  else
-    {
-      const CoglWinsysVtable *winsys = _cogl_framebuffer_get_winsys (framebuffer);
+  /* This should only be called for x11 onscreens */
+  g_return_val_if_fail (winsys->onscreen_x11_get_window_xid != NULL, 0);
 
-      /* This should only be called for x11 onscreens */
-      g_return_val_if_fail (winsys->onscreen_x11_get_window_xid != NULL, 0);
-
-      return winsys->onscreen_x11_get_window_xid (onscreen);
-    }
-}
-
-uint32_t
-cogl_x11_onscreen_get_visual_xid (CoglOnscreen *onscreen)
-{
-  CoglContext *ctx = COGL_FRAMEBUFFER (onscreen)->context;
-  XVisualInfo *visinfo;
-  uint32_t id;
-
-  /* This should only be called for xlib based onscreens */
-  visinfo = cogl_xlib_renderer_get_visual_info (ctx->display->renderer);
-  if (visinfo == NULL)
-    return 0;
-
-  id = (uint32_t)visinfo->visualid;
-
-  return id;
+  return winsys->onscreen_x11_get_window_xid (onscreen);
 }
 #endif /* COGL_HAS_X11_SUPPORT */
 

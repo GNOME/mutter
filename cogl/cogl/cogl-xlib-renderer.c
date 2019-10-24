@@ -597,22 +597,6 @@ cogl_xlib_renderer_remove_filter (CoglRenderer *renderer,
                                        (CoglNativeFilterFunc)func, data);
 }
 
-int64_t
-_cogl_xlib_renderer_get_dispatch_timeout (CoglRenderer *renderer)
-{
-  CoglXlibRenderer *xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-
-  if (renderer->xlib_enable_event_retrieval)
-    {
-      if (XPending (xlib_renderer->xdpy))
-        return 0;
-      else
-        return -1;
-    }
-  else
-    return -1;
-}
-
 CoglOutput *
 _cogl_xlib_renderer_output_for_rectangle (CoglRenderer *renderer,
                                           int x,
@@ -647,16 +631,4 @@ _cogl_xlib_renderer_output_for_rectangle (CoglRenderer *renderer,
     }
 
   return max_overlapped;
-}
-
-XVisualInfo *
-cogl_xlib_renderer_get_visual_info (CoglRenderer *renderer)
-{
-  CoglXlibRenderer *xlib_renderer;
-
-  g_return_val_if_fail (cogl_is_renderer (renderer), NULL);
-
-  xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-
-  return xlib_renderer->xvisinfo;
 }

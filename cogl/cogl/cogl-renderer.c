@@ -47,7 +47,6 @@
 #include "cogl-gtype-private.h"
 
 #include "winsys/cogl-winsys-private.h"
-#include "winsys/cogl-winsys-stub-private.h"
 
 #ifdef COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
 #include "winsys/cogl-winsys-egl-x11-private.h"
@@ -142,7 +141,6 @@ static CoglWinsysVtableGetter _cogl_winsys_vtable_getters[] =
 #ifdef COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
   _cogl_winsys_egl_xlib_get_vtable,
 #endif
-  _cogl_winsys_stub_get_vtable,
 };
 
 static void _cogl_renderer_free (CoglRenderer *renderer);
@@ -230,7 +228,7 @@ cogl_xlib_renderer_set_foreign_display (CoglRenderer *renderer,
 
   /* If the application is using a foreign display then we can assume
      it will also do its own event retrieval */
-  cogl_xlib_renderer_set_event_retrieval_enabled (renderer, FALSE);
+  renderer->xlib_enable_event_retrieval = FALSE;
 }
 
 Display *
@@ -239,17 +237,6 @@ cogl_xlib_renderer_get_foreign_display (CoglRenderer *renderer)
   g_return_val_if_fail (cogl_is_renderer (renderer), NULL);
 
   return renderer->foreign_xdpy;
-}
-
-void
-cogl_xlib_renderer_set_event_retrieval_enabled (CoglRenderer *renderer,
-                                                gboolean enable)
-{
-  g_return_if_fail (cogl_is_renderer (renderer));
-  /* NB: Renderers are considered immutable once connected */
-  g_return_if_fail (!renderer->connected);
-
-  renderer->xlib_enable_event_retrieval = enable;
 }
 
 void

@@ -717,17 +717,6 @@ clutter_stage_allocate (ClutterActor           *self,
                                     flags | CLUTTER_DELEGATE_LAYOUT);
     }
 
-  /* XXX: Until Cogl becomes fully responsible for backend windows
-   * Clutter need to manually keep it informed of the current window
-   * size. We do this after the allocation above so that the stage
-   * window has a chance to update the window size based on the
-   * allocation.
-   */
-  _clutter_stage_window_get_geometry (priv->impl, &window_size);
-
-  cogl_onscreen_clutter_backend_set_size (window_size.width,
-                                          window_size.height);
-
   /* reset the viewport if the allocation effectively changed */
   clutter_actor_get_allocation_box (self, &alloc);
   clutter_actor_box_get_size (&alloc, &new_width, &new_height);

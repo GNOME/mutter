@@ -41,72 +41,13 @@
 #include "cogl-framebuffer-private.h"
 #include "cogl-onscreen-private.h"
 #ifdef COGL_HAS_XLIB_SUPPORT
-#include "cogl-clutter-xlib.h"
 #include "cogl-xlib-renderer.h"
 #endif
 #include "winsys/cogl-winsys-private.h"
-#include "winsys/cogl-winsys-stub-private.h"
 #include "deprecated/cogl-clutter.h"
-
-gboolean
-cogl_clutter_check_extension (const char *name, const char *ext)
-{
-  char *end;
-  int name_len, n;
-
-  if (name == NULL || ext == NULL)
-    return FALSE;
-
-  end = (char*)(ext + strlen(ext));
-
-  name_len = strlen(name);
-
-  while (ext < end)
-    {
-      n = strcspn(ext, " ");
-
-      if ((name_len == n) && (!strncmp(name, ext, n)))
-	return TRUE;
-      ext += (n + 1);
-    }
-
-  return FALSE;
-}
 
 gboolean
 cogl_clutter_winsys_has_feature (CoglWinsysFeature feature)
 {
   return _cogl_winsys_has_feature (feature);
 }
-
-void
-cogl_onscreen_clutter_backend_set_size (int width, int height)
-{
-  CoglFramebuffer *framebuffer;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  if (_cogl_context_get_winsys (ctx) != _cogl_winsys_stub_get_vtable ())
-    return;
-
-  framebuffer = COGL_FRAMEBUFFER (ctx->window_buffer);
-
-  _cogl_framebuffer_winsys_update_size (framebuffer, width, height);
-}
-
-#ifdef COGL_HAS_XLIB_SUPPORT
-XVisualInfo *
-cogl_clutter_winsys_xlib_get_visual_info (void)
-{
-  CoglRenderer *renderer;
-
-  _COGL_GET_CONTEXT (ctx, NULL);
-
-  g_return_val_if_fail (ctx->display != NULL, NULL);
-
-  renderer = cogl_display_get_renderer (ctx->display);
-  g_return_val_if_fail (renderer != NULL, NULL);
-
-  return cogl_xlib_renderer_get_visual_info (renderer);
-}
-#endif

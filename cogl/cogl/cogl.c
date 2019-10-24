@@ -53,7 +53,6 @@
 #include "cogl1-context.h"
 #include "cogl-offscreen.h"
 #include "winsys/cogl-winsys-private.h"
-#include "deprecated/cogl-clutter.h"
 
 #include "deprecated/cogl-framebuffer-deprecated.h"
 
@@ -75,13 +74,6 @@ _cogl_check_extension (const char *name, char * const *ext)
       ext++;
 
   return FALSE;
-}
-
-/* XXX: This has been deprecated as public API */
-gboolean
-cogl_check_extension (const char *name, const char *ext)
-{
-  return cogl_clutter_check_extension (name, ext);
 }
 
 /* XXX: it's expected that we'll deprecated this with

@@ -339,8 +339,6 @@ cogl_sources = [
   'cogl-point-in-poly.c',
   'cogl-list.c',
   'cogl-list.h',
-  'winsys/cogl-winsys-stub-private.h',
-  'winsys/cogl-winsys-stub.c',
   'cogl-config-private.h',
   'cogl-config.c',
   'cogl-boxed-value.h',
@@ -378,15 +376,11 @@ if have_x11
     'winsys/cogl-texture-pixmap-x11.h',
     'cogl-xlib.h',
   ]
-  cogl_deprecated_nonintrospected_headers += [
-    'deprecated/cogl-clutter-xlib.h',
-  ]
   cogl_sources += [
     'cogl-x11-renderer-private.h',
     'cogl-xlib-private.h',
     'cogl-xlib-renderer-private.h',
     'cogl-xlib-renderer.c',
-    'cogl-xlib.c',
     'winsys/cogl-texture-pixmap-x11-private.h',
     'winsys/cogl-texture-pixmap-x11.c',
   ]
