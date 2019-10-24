@@ -493,7 +493,7 @@ has_udev_property (MetaInputSettings  *settings,
 
   if (!warned_once)
     {
-      g_warning ("Failed to set acceleration profile: no udev support");
+      g_warning ("Failed to query property: no udev support");
       warned_once = TRUE;
     }
 
@@ -507,6 +507,13 @@ is_mouse (MetaInputSettings  *settings,
 {
   return (has_udev_property (settings, device, "ID_INPUT_MOUSE") &&
           !has_udev_property (settings, device, "ID_INPUT_POINTINGSTICK"));
+}
+
+static gboolean
+meta_input_settings_x11_is_touchpad_device (MetaInputSettings  *settings,
+                                            ClutterInputDevice *device)
+{
+  return has_udev_property (settings, device, "ID_INPUT_TOUCHPAD");
 }
 
 static gboolean
@@ -818,6 +825,48 @@ meta_input_settings_x11_set_stylus_button_map (MetaInputSettings          *setti
 }
 
 static void
+meta_input_settings_x11_set_mouse_middle_click_emulation (MetaInputSettings  *settings,
+                                                          ClutterInputDevice *device,
+                                                          gboolean            enabled)
+{
+  guchar value = enabled ? 1 : 0;
+
+  if (!is_mouse (settings, device))
+    return;
+
+  change_property (device, "libinput Middle Click Emulation Enabled",
+                   XA_INTEGER, 8, &value, 1);
+}
+
+static void
+meta_input_settings_x11_set_touchpad_middle_click_emulation (MetaInputSettings  *settings,
+                                                             ClutterInputDevice *device,
+                                                             gboolean            enabled)
+{
+  guchar value = enabled ? 1 : 0;
+
+  if (!meta_input_settings_x11_is_touchpad_device (settings, device))
+    return;
+
+  change_property (device, "libinput Middle Click Emulation Enabled",
+                   XA_INTEGER, 8, &value, 1);
+}
+
+static void
+meta_input_settings_x11_set_trackball_middle_click_emulation (MetaInputSettings  *settings,
+                                                              ClutterInputDevice *device,
+                                                              gboolean            enabled)
+{
+  guchar value = enabled ? 1 : 0;
+
+  if (!meta_input_settings_x11_is_trackball_device (settings, device))
+    return;
+
+  change_property (device, "libinput Middle Click Emulation Enabled",
+                   XA_INTEGER, 8, &value, 1);
+}
+
+static void
 meta_input_settings_x11_set_stylus_pressure (MetaInputSettings      *settings,
                                              ClutterInputDevice     *device,
                                              ClutterInputDeviceTool *tool,
@@ -860,6 +909,10 @@ meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
 
   input_settings_class->set_stylus_pressure = meta_input_settings_x11_set_stylus_pressure;
   input_settings_class->set_stylus_button_map = meta_input_settings_x11_set_stylus_button_map;
+
+  input_settings_class->set_mouse_middle_click_emulation = meta_input_settings_x11_set_mouse_middle_click_emulation;
+  input_settings_class->set_touchpad_middle_click_emulation = meta_input_settings_x11_set_touchpad_middle_click_emulation;
+  input_settings_class->set_trackball_middle_click_emulation = meta_input_settings_x11_set_trackball_middle_click_emulation;
 
   input_settings_class->has_two_finger_scroll = meta_input_settings_x11_has_two_finger_scroll;
   input_settings_class->is_trackball_device = meta_input_settings_x11_is_trackball_device;
