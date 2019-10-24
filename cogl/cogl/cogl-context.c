@@ -51,9 +51,6 @@
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "winsys/cogl-winsys-private.h"
-#include "winsys/cogl-winsys-stub-private.h"
-
-#include "deprecated/cogl-framebuffer-deprecated.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -326,17 +323,6 @@ cogl_context_new (CoglDisplay *display,
 
   context->window_buffer = NULL;
   context->framebuffer_stack = _cogl_create_framebuffer_stack ();
-
-  /* XXX: In this case the Clutter backend is still responsible for
-   * the OpenGL binding API and for creating onscreen framebuffers and
-   * so we have to add a dummy framebuffer to represent the backend
-   * owned window... */
-  if (_cogl_context_get_winsys (context) == _cogl_winsys_stub_get_vtable ())
-    {
-      CoglOnscreen *window = _cogl_onscreen_new ();
-      cogl_set_framebuffer (COGL_FRAMEBUFFER (window));
-      cogl_object_unref (COGL_FRAMEBUFFER (window));
-    }
 
   context->current_path = NULL;
   context->stencil_pipeline = cogl_pipeline_new (context);

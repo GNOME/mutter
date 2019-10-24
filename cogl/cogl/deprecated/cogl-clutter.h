@@ -45,10 +45,6 @@ COGL_DEPRECATED_FOR (cogl_has_feature)
 gboolean
 cogl_clutter_winsys_has_feature (CoglWinsysFeature feature);
 
-#define cogl_onscreen_clutter_backend_set_size cogl_onscreen_clutter_backend_set_size_CLUTTER
-void
-cogl_onscreen_clutter_backend_set_size (int width, int height);
-
 G_END_DECLS
 
 #endif /* __COGL_CLUTTER_H__ */

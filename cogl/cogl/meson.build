@@ -339,8 +339,6 @@ cogl_sources = [
   'cogl-point-in-poly.c',
   'cogl-list.c',
   'cogl-list.h',
-  'winsys/cogl-winsys-stub-private.h',
-  'winsys/cogl-winsys-stub.c',
   'cogl-config-private.h',
   'cogl-config.c',
   'cogl-boxed-value.h',

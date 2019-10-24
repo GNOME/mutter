@@ -47,7 +47,6 @@
 #include "cogl-gtype-private.h"
 
 #include "winsys/cogl-winsys-private.h"
-#include "winsys/cogl-winsys-stub-private.h"
 
 #ifdef COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
 #include "winsys/cogl-winsys-egl-x11-private.h"
@@ -142,7 +141,6 @@ static CoglWinsysVtableGetter _cogl_winsys_vtable_getters[] =
 #ifdef COGL_HAS_EGL_PLATFORM_XLIB_SUPPORT
   _cogl_winsys_egl_xlib_get_vtable,
 #endif
-  _cogl_winsys_stub_get_vtable,
 };
 
 static void _cogl_renderer_free (CoglRenderer *renderer);
