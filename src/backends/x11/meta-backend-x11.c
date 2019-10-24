@@ -591,6 +591,28 @@ meta_backend_x11_ungrab_device (MetaBackend *backend,
 }
 
 static void
+meta_backend_x11_finish_touch_sequence (MetaBackend          *backend,
+                                        ClutterEventSequence *sequence,
+                                        MetaSequenceState     state)
+{
+  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
+  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
+  int event_mode;
+
+  if (state == META_SEQUENCE_ACCEPTED)
+    event_mode = XIAcceptTouch;
+  else if (state == META_SEQUENCE_REJECTED)
+    event_mode = XIRejectTouch;
+  else
+    g_return_if_reached ();
+
+  XIAllowTouchEvents (priv->xdisplay,
+                      META_VIRTUAL_CORE_POINTER_ID,
+                      meta_x11_event_sequence_get_touch_detail (sequence),
+                      DefaultRootWindow (priv->xdisplay), event_mode);
+}
+
+static void
 meta_backend_x11_warp_pointer (MetaBackend *backend,
                                int          x,
                                int          y)
@@ -781,6 +803,7 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
   backend_class->post_init = meta_backend_x11_post_init;
   backend_class->grab_device = meta_backend_x11_grab_device;
   backend_class->ungrab_device = meta_backend_x11_ungrab_device;
+  backend_class->finish_touch_sequence = meta_backend_x11_finish_touch_sequence;
   backend_class->warp_pointer = meta_backend_x11_warp_pointer;
   backend_class->get_current_logical_monitor = meta_backend_x11_get_current_logical_monitor;
   backend_class->get_keymap = meta_backend_x11_get_keymap;
