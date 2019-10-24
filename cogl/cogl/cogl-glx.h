@@ -58,26 +58,6 @@
 #include <GL/glx.h>
 #include <cogl/cogl-types.h>
 
-G_BEGIN_DECLS
-
-/**
- * cogl_glx_context_get_glx_context:
- * @context: A #CoglContext pointer
- *
- * If you have done a runtime check to determine that Cogl is using
- * GLX internally then this API can be used to retrieve the GLXContext
- * handle that was setup internally. The result is undefined if Cogl
- * is not using GLX.
- *
- * Return value: The internally setup GLXContext handle.
- * Since: 1.18
- * Stability: unstable
- */
-GLXContext
-cogl_glx_context_get_glx_context (CoglContext *context);
-
-G_END_DECLS
-
 /* The gobject introspection scanner seems to parse public headers in
  * isolation which means we need to be extra careful about how we
  * define and undefine __COGL_H_INSIDE__ used to detect when internal
