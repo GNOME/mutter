@@ -378,9 +378,6 @@ if have_x11
     'winsys/cogl-texture-pixmap-x11.h',
     'cogl-xlib.h',
   ]
-  cogl_deprecated_nonintrospected_headers += [
-    'deprecated/cogl-clutter-xlib.h',
-  ]
   cogl_sources += [
     'cogl-x11-renderer-private.h',
     'cogl-xlib-private.h',

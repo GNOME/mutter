@@ -55,7 +55,6 @@
 #endif /* COGL_COMPILATION */
 
 #include <cogl/cogl-types.h>
-#include <cogl/deprecated/cogl-clutter-xlib.h>
 #include <cogl/cogl-xlib-renderer.h>
 #include <cogl/cogl-macros.h>
 
