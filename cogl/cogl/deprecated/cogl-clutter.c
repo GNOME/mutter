@@ -47,31 +47,6 @@
 #include "deprecated/cogl-clutter.h"
 
 gboolean
-cogl_clutter_check_extension (const char *name, const char *ext)
-{
-  char *end;
-  int name_len, n;
-
-  if (name == NULL || ext == NULL)
-    return FALSE;
-
-  end = (char*)(ext + strlen(ext));
-
-  name_len = strlen(name);
-
-  while (ext < end)
-    {
-      n = strcspn(ext, " ");
-
-      if ((name_len == n) && (!strncmp(name, ext, n)))
-	return TRUE;
-      ext += (n + 1);
-    }
-
-  return FALSE;
-}
-
-gboolean
 cogl_clutter_winsys_has_feature (CoglWinsysFeature feature)
 {
   return _cogl_winsys_has_feature (feature);

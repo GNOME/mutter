@@ -80,27 +80,6 @@ GCallback
 cogl_get_proc_address (const char *name);
 
 /**
- * cogl_check_extension:
- * @name: extension to check for
- * @ext: list of extensions
- *
- * Check whether @name occurs in list of extensions in @ext.
- *
- * Return value: %TRUE if the extension occurs in the list, %FALSE otherwise.
- *
- * Deprecated: 1.2: OpenGL is an implementation detail for Cogl and so it's
- *   not appropriate to expose OpenGL extensions through the Cogl API. This
- *   function can be replaced by the following equivalent code:
- * |[
- *   gboolean retval = (strstr (ext, name) != NULL) ? TRUE : FALSE;
- * ]|
- */
-COGL_DEPRECATED
-gboolean
-cogl_check_extension (const char *name,
-                      const char *ext);
-
-/**
  * cogl_get_bitmasks:
  * @red: (out): Return location for the number of red bits or %NULL
  * @green: (out): Return location for the number of green bits or %NULL
