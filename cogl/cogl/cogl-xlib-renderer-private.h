@@ -92,9 +92,6 @@ _cogl_xlib_renderer_untrap_errors (CoglRenderer *renderer,
 CoglXlibRenderer *
 _cogl_xlib_renderer_get_data (CoglRenderer *renderer);
 
-int64_t
-_cogl_xlib_renderer_get_dispatch_timeout (CoglRenderer *renderer);
-
 CoglOutput *
 _cogl_xlib_renderer_output_for_rectangle (CoglRenderer *renderer,
                                           int x,

@@ -53,7 +53,6 @@
 #include "cogl1-context.h"
 #include "cogl-offscreen.h"
 #include "winsys/cogl-winsys-private.h"
-#include "deprecated/cogl-clutter.h"
 
 #include "deprecated/cogl-framebuffer-deprecated.h"
 

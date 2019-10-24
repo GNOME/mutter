@@ -597,22 +597,6 @@ cogl_xlib_renderer_remove_filter (CoglRenderer *renderer,
                                        (CoglNativeFilterFunc)func, data);
 }
 
-int64_t
-_cogl_xlib_renderer_get_dispatch_timeout (CoglRenderer *renderer)
-{
-  CoglXlibRenderer *xlib_renderer = _cogl_xlib_renderer_get_data (renderer);
-
-  if (renderer->xlib_enable_event_retrieval)
-    {
-      if (XPending (xlib_renderer->xdpy))
-        return 0;
-      else
-        return -1;
-    }
-  else
-    return -1;
-}
-
 CoglOutput *
 _cogl_xlib_renderer_output_for_rectangle (CoglRenderer *renderer,
                                           int x,
