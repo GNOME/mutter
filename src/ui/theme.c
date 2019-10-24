@@ -129,11 +129,29 @@ meta_frame_layout_get_borders (const MetaFrameLayout *layout,
   scale_border (&borders->total, scale);
 }
 
+static int
+meta_theme_get_gdk_scale (void)
+{
+  const char *gdk_scale;
+
+  gdk_scale = g_getenv("GDK_SCALE");
+
+  if (gdk_scale)
+    return g_ascii_strtoll (gdk_scale, NULL, 10);
+
+  return 0;
+}
+
 int
 meta_theme_get_window_scaling_factor (void)
 {
   GdkScreen *screen;
+  int gdk_scale;
   GValue value = G_VALUE_INIT;
+
+  gdk_scale = meta_theme_get_gdk_scale ();
+  if (gdk_scale > 0)
+    return gdk_scale;
 
   g_value_init (&value, G_TYPE_INT);
 
@@ -149,7 +167,11 @@ meta_frame_layout_apply_scale (const MetaFrameLayout *layout,
                                PangoFontDescription  *font_desc)
 {
   int size = pango_font_description_get_size (font_desc);
-  double scale = layout->title_scale / meta_theme_get_window_scaling_factor ();
+  double scale = layout->title_scale;
+
+  if (meta_theme_get_gdk_scale () <= 0)
+    scale /= meta_theme_get_window_scaling_factor ();
+
   pango_font_description_set_size (font_desc, MAX (size * scale, 1));
 }
 
