@@ -292,7 +292,6 @@ struct _CoglContext
    * the eglx backend doesn't yet have a corresponding Cogl winsys
    * and so we wont have a renderer in that case. */
 #ifdef COGL_HAS_XLIB_SUPPORT
-  int damage_base;
   /* List of callback functions that will be given every Xlib event */
   GSList *event_filters;
   /* Current top of the XError trap state stack. The actual memory for
