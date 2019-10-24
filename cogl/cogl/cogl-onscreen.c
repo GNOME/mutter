@@ -443,23 +443,6 @@ cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen)
       return winsys->onscreen_x11_get_window_xid (onscreen);
     }
 }
-
-uint32_t
-cogl_x11_onscreen_get_visual_xid (CoglOnscreen *onscreen)
-{
-  CoglContext *ctx = COGL_FRAMEBUFFER (onscreen)->context;
-  XVisualInfo *visinfo;
-  uint32_t id;
-
-  /* This should only be called for xlib based onscreens */
-  visinfo = cogl_xlib_renderer_get_visual_info (ctx->display->renderer);
-  if (visinfo == NULL)
-    return 0;
-
-  id = (uint32_t)visinfo->visualid;
-
-  return id;
-}
 #endif /* COGL_HAS_X11_SUPPORT */
 
 CoglFrameClosure *
