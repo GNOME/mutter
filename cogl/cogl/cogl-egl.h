@@ -79,26 +79,6 @@ G_BEGIN_DECLS
 EGLDisplay
 cogl_egl_context_get_egl_display (CoglContext *context);
 
-/**
- * cogl_egl_context_get_egl_context:
- * @context: A #CoglContext pointer
- *
- * If you have done a runtime check to determine that Cogl is using
- * EGL internally then this API can be used to retrieve the EGLContext
- * handle that was setup internally. The result is undefined if Cogl
- * is not using EGL.
- *
- * Note: The current window system backend can be checked using
- * cogl_renderer_get_winsys_id().
- *
- * Return value: The internally setup EGLDisplay handle.
- * Since: 1.18
- * Stability: unstable
- */
-EGLContext
-cogl_egl_context_get_egl_context (CoglContext *context);
-
-
 G_END_DECLS
 
 /* The gobject introspection scanner seems to parse public headers in
