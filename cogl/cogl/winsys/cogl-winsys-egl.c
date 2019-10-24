@@ -947,11 +947,3 @@ cogl_egl_context_get_egl_display (CoglContext *context)
 
   return egl_renderer->edpy;
 }
-
-EGLContext
-cogl_egl_context_get_egl_context (CoglContext *context)
-{
-  CoglDisplayEGL *egl_display = context->display->winsys;
-
-  return egl_display->egl_context;
-}
