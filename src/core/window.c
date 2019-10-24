@@ -1092,7 +1092,7 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->disable_sync = FALSE;
 
   window->unmaps_pending = 0;
-  window->reparents_pending = 0;
+  window->reparent_unmaps_pending = 0;
 
   window->mwm_decorated = TRUE;
   window->mwm_border_only = FALSE;

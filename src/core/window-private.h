@@ -462,9 +462,10 @@ struct _MetaWindow
    */
   int unmaps_pending;
 
-  /* Number of XReparentWindow requests that we have queued.
+  /* Number of UnmapNotify that are caused by XReparentWindow
+   * requests that we have queued.
    */
-  int reparents_pending;
+  int reparent_unmaps_pending;
 
   /* See docs for meta_window_get_stable_sequence() */
   guint32 stable_sequence;

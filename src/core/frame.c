@@ -89,14 +89,17 @@ meta_window_ensure_frame (MetaWindow *window)
   meta_x11_display_register_x_window (x11_display, &frame->xwindow, window);
 
   meta_x11_error_trap_push (x11_display);
-  if (window->mapped)
+  if ((window->mapped || window->reparent_unmaps_pending > 0) &&
+       window->unmaps_pending == window->reparent_unmaps_pending)
     {
       window->mapped = FALSE; /* the reparent will unmap the window,
                                * we don't want to take that as a withdraw
                                */
       meta_topic (META_DEBUG_WINDOW_STATE,
-                  "Incrementing unmaps_pending on %s for reparent\n", window->desc);
+                  "Incrementing unmaps_pending and reparent_unmaps_pending "
+                  "on %s for reparent\n", window->desc);
       window->unmaps_pending += 1;
+      window->reparent_unmaps_pending += 1;
     }
 
   meta_stack_tracker_record_remove (window->display->stack_tracker,
@@ -107,7 +110,6 @@ meta_window_ensure_frame (MetaWindow *window)
                    frame->xwindow,
                    frame->child_x,
                    frame->child_y);
-  window->reparents_pending += 1;
   /* FIXME handle this error */
   meta_x11_error_trap_pop (x11_display);
 
@@ -181,15 +183,18 @@ meta_window_destroy_frame (MetaWindow *window)
    * thus the error trap.
    */
   meta_x11_error_trap_push (x11_display);
-  if (window->mapped)
+  if ((window->mapped || window->reparent_unmaps_pending > 0) &&
+       window->unmaps_pending == window->reparent_unmaps_pending)
     {
       window->mapped = FALSE; /* Keep track of unmapping it, so we
                                * can identify a withdraw initiated
                                * by the client.
                                */
       meta_topic (META_DEBUG_WINDOW_STATE,
-                  "Incrementing unmaps_pending on %s for reparent back to root\n", window->desc);
+                  "Incrementing unmaps_pending and reparent_unmaps_pending "
+                  "on %s for reparent back to root\n", window->desc);
       window->unmaps_pending += 1;
+      window->reparent_unmaps_pending += 1;
     }
 
   if (!x11_display->closing)
@@ -207,7 +212,6 @@ meta_window_destroy_frame (MetaWindow *window)
                         */
                        window->frame->rect.x + borders.invisible.left,
                        window->frame->rect.y + borders.invisible.top);
-      window->reparents_pending += 1;
     }
 
   meta_x11_error_trap_pop (x11_display);
