@@ -156,10 +156,6 @@ cogl_x11_onscreen_set_foreign_window_xid (CoglOnscreen *onscreen,
 uint32_t
 cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen);
 
-/* XXX: we should maybe remove this, since nothing currently uses
- * it and the current implementation looks dubious. */
-uint32_t
-cogl_x11_onscreen_get_visual_xid (CoglOnscreen *onscreen);
 #endif /* COGL_HAS_X11 */
 
 /**
