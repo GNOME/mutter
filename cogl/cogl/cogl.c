@@ -77,13 +77,6 @@ _cogl_check_extension (const char *name, char * const *ext)
   return FALSE;
 }
 
-/* XXX: This has been deprecated as public API */
-gboolean
-cogl_check_extension (const char *name, const char *ext)
-{
-  return cogl_clutter_check_extension (name, ext);
-}
-
 /* XXX: it's expected that we'll deprecated this with
  * cogl_framebuffer_clear at some point. */
 void
