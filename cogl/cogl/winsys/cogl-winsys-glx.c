@@ -88,7 +88,6 @@ typedef struct _CoglOnscreenXlib
 {
   Window xwin;
   int x, y;
-  gboolean is_foreign_xwin;
   CoglOutput *output;
 } CoglOnscreenXlib;
 
@@ -524,7 +523,6 @@ notify_resize (CoglContext *context,
 
   glx_onscreen->pending_resize_notify++;
 
-  if (!xlib_onscreen->is_foreign_xwin)
     {
       int x, y;
 
@@ -1345,48 +1343,9 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
     }
 
   /* FIXME: We need to explicitly Select for ConfigureNotify events.
-   * For foreign windows we need to be careful not to mess up any
-   * existing event mask.
    * We need to document that for windows we create then toolkits
    * must be careful not to clear event mask bits that we select.
    */
-
-  /* XXX: Note we ignore the user's original width/height when
-   * given a foreign X window. */
-  if (onscreen->foreign_xid)
-    {
-      Status status;
-      CoglXlibTrapState state;
-      XWindowAttributes attr;
-      int xerror;
-
-      xwin = onscreen->foreign_xid;
-
-      _cogl_xlib_renderer_trap_errors (display->renderer, &state);
-
-      status = XGetWindowAttributes (xlib_renderer->xdpy, xwin, &attr);
-      XSync (xlib_renderer->xdpy, False);
-      xerror = _cogl_xlib_renderer_untrap_errors (display->renderer, &state);
-      if (status == 0 || xerror)
-        {
-          char message[1000];
-          XGetErrorText (xlib_renderer->xdpy, xerror, message, sizeof(message));
-          g_set_error (error, COGL_WINSYS_ERROR,
-                       COGL_WINSYS_ERROR_CREATE_ONSCREEN,
-                       "Unable to query geometry of foreign xid 0x%08lX: %s",
-                       xwin, message);
-          return FALSE;
-        }
-
-      _cogl_framebuffer_winsys_update_size (framebuffer,
-                                            attr.width, attr.height);
-
-      /* Make sure the app selects for the events we require... */
-      onscreen->foreign_update_mask_callback (onscreen,
-                                              COGL_ONSCREEN_X11_EVENT_MASK,
-                                              onscreen->foreign_update_mask_data);
-    }
-  else
     {
       int width;
       int height;
@@ -1457,7 +1416,6 @@ _cogl_winsys_onscreen_init (CoglOnscreen *onscreen,
   glx_onscreen = onscreen->winsys;
 
   xlib_onscreen->xwin = xwin;
-  xlib_onscreen->is_foreign_xwin = onscreen->foreign_xid ? TRUE : FALSE;
 
   /* Try and create a GLXWindow to use with extensions dependent on
    * GLX versions >= 1.3 that don't accept regular X Windows as GLX
@@ -1546,7 +1504,7 @@ _cogl_winsys_onscreen_deinit (CoglOnscreen *onscreen)
       glx_onscreen->glxwin = None;
     }
 
-  if (!xlib_onscreen->is_foreign_xwin && xlib_onscreen->xwin != None)
+  if (xlib_onscreen->xwin != None)
     {
       XDestroyWindow (xlib_renderer->xdpy, xlib_onscreen->xwin);
       xlib_onscreen->xwin = None;
@@ -1585,10 +1543,9 @@ _cogl_winsys_onscreen_bind (CoglOnscreen *onscreen)
   _cogl_xlib_renderer_trap_errors (context->display->renderer, &old_state);
 
   COGL_NOTE (WINSYS,
-             "MakeContextCurrent dpy: %p, window: 0x%x (%s), context: %p",
+             "MakeContextCurrent dpy: %p, window: 0x%x, context: %p",
              xlib_renderer->xdpy,
              (unsigned int) drawable,
-             xlib_onscreen->is_foreign_xwin ? "foreign" : "native",
              glx_display->glx_context);
 
   glx_renderer->glXMakeContextCurrent (xlib_renderer->xdpy,
@@ -1917,24 +1874,23 @@ _cogl_winsys_onscreen_swap_region (CoglOnscreen *onscreen,
   if (have_counter)
     glx_onscreen->last_swap_vsync_counter = end_frame_vsync_counter;
 
-  if (!xlib_onscreen->is_foreign_xwin)
-    {
-      CoglOutput *output;
+  {
+    CoglOutput *output;
 
-      x_min = CLAMP (x_min, 0, framebuffer_width);
-      x_max = CLAMP (x_max, 0, framebuffer_width);
-      y_min = CLAMP (y_min, 0, framebuffer_width);
-      y_max = CLAMP (y_max, 0, framebuffer_height);
+    x_min = CLAMP (x_min, 0, framebuffer_width);
+    x_max = CLAMP (x_max, 0, framebuffer_width);
+    y_min = CLAMP (y_min, 0, framebuffer_width);
+    y_max = CLAMP (y_max, 0, framebuffer_height);
 
-      output =
-        _cogl_xlib_renderer_output_for_rectangle (context->display->renderer,
-                                                  xlib_onscreen->x + x_min,
-                                                  xlib_onscreen->y + y_min,
-                                                  x_max - x_min,
-                                                  y_max - y_min);
+    output =
+      _cogl_xlib_renderer_output_for_rectangle (context->display->renderer,
+                                                xlib_onscreen->x + x_min,
+                                                xlib_onscreen->y + y_min,
+                                                x_max - x_min,
+                                                y_max - y_min);
 
-      set_frame_info_output (onscreen, output);
-    }
+    set_frame_info_output (onscreen, output);
+  }
 
   /* XXX: we don't get SwapComplete events based on how we implement
    * the _swap_region() API but if cogl-onscreen.c knows we are
