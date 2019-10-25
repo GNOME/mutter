@@ -1242,6 +1242,9 @@ meta_display_grab_window_buttons (MetaDisplay *display,
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
+  if (meta_display_is_grabbed (display))
+    return;
+
   /* Grab Alt + button1 for moving window.
    * Grab Alt + button2 for resizing window.
    * Grab Alt + button3 for popping up window menu.
@@ -1278,6 +1281,9 @@ meta_display_ungrab_window_buttons (MetaDisplay *display,
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
+  if (meta_display_is_grabbed (display))
+    return;
+
   if (keys->window_grab_modifiers == 0)
     return;
 
@@ -1303,6 +1309,9 @@ meta_display_grab_focus_window_button (MetaDisplay *display,
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
+  if (meta_display_is_grabbed (display))
+    return;
+
   /* Grab button 1 for activating unfocused windows */
   meta_verbose ("Grabbing unfocused window buttons for %s\n", window->desc);
 
@@ -1326,6 +1335,9 @@ meta_display_ungrab_focus_window_button (MetaDisplay *display,
                                          MetaWindow  *window)
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
+
+  if (meta_display_is_grabbed (display))
+    return;
 
   meta_verbose ("Ungrabbing unfocused window buttons for %s\n", window->desc);
 
@@ -1572,6 +1584,10 @@ meta_window_grab_keys (MetaWindow  *window)
 
   if (meta_is_wayland_compositor ())
     return;
+
+  if (meta_display_is_grabbed (display))
+    return;
+
   if (window->all_keys_grabbed)
     return;
 
@@ -1606,9 +1622,16 @@ meta_window_grab_keys (MetaWindow  *window)
 void
 meta_window_ungrab_keys (MetaWindow  *window)
 {
-  if (!meta_is_wayland_compositor () && window->keys_grabbed)
+  MetaDisplay *display = window->display;
+
+  if (meta_is_wayland_compositor ())
+    return;
+
+  if (meta_display_is_grabbed (display))
+    return;
+
+  if (window->keys_grabbed)
     {
-      MetaDisplay *display = window->display;
       MetaKeyBindingManager *keys = &display->key_binding_manager;
 
       if (window->grab_on_frame &&

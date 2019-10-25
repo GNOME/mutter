@@ -1176,6 +1176,8 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
   x11_display->xdisplay = xdisplay;
   x11_display->xroot = xroot;
 
+  x11_display->server_grab_count = 0;
+
   x11_display->name = g_strdup (XDisplayName (NULL));
   x11_display->screen_name = get_screen_name (xdisplay, number);
   x11_display->default_xvisual = DefaultVisualOfScreen (xscreen);
@@ -1362,6 +1364,48 @@ meta_x11_display_new (MetaDisplay *display, GError **error)
     meta_dnd_init_xdnd (x11_display);
 
   return x11_display;
+}
+
+void
+meta_x11_display_grab (MetaX11Display *x11_display)
+{
+  g_return_if_fail (META_IS_X11_DISPLAY (x11_display));
+
+  if (x11_display->server_grab_count == 0)
+    {
+      XGrabServer (x11_display->xdisplay);
+    }
+
+  x11_display->server_grab_count += 1;
+  meta_verbose ("Grabbing X display, grab count now %d\n", x11_display->server_grab_count);
+}
+
+void
+meta_x11_display_ungrab (MetaX11Display *x11_display)
+{
+  g_return_if_fail (META_IS_X11_DISPLAY (x11_display));
+
+  if (x11_display->server_grab_count == 0)
+    {
+      meta_bug ("Tried to ungrab non-grabbbed X server\n");
+    }
+
+  x11_display->server_grab_count -= 1;
+  if (x11_display->server_grab_count == 0)
+    {
+      XUngrabServer (x11_display->xdisplay);
+      XFlush (x11_display->xdisplay);
+    }
+
+  meta_verbose ("Ungrabbing X display, grab count now %d\n", x11_display->server_grab_count);
+}
+
+gboolean
+meta_x11_display_is_grabbed (MetaX11Display *x11_display)
+{
+  g_return_val_if_fail (META_IS_X11_DISPLAY (x11_display), FALSE);
+
+  return x11_display->server_grab_count > 0;
 }
 
 void
@@ -1888,7 +1932,7 @@ meta_x11_display_set_input_focus_internal (MetaX11Display *x11_display,
    * we know which is which by making two requests that the server will
    * process at the same time.
    */
-  XGrabServer (x11_display->xdisplay);
+  meta_x11_display_grab (x11_display);
 
   XSetInputFocus (x11_display->xdisplay,
                   xwindow,
@@ -1900,8 +1944,7 @@ meta_x11_display_set_input_focus_internal (MetaX11Display *x11_display,
                    x11_display->atom__MUTTER_FOCUS_SET,
                    XA_STRING, 8, PropModeAppend, NULL, 0);
 
-  XUngrabServer (x11_display->xdisplay);
-  XFlush (x11_display->xdisplay);
+  meta_x11_display_ungrab (x11_display);
 
   meta_x11_error_trap_pop (x11_display);
 }
