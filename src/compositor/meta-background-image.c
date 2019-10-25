@@ -40,6 +40,15 @@ enum
 
 static guint signals[LAST_SIGNAL] = { 0 };
 
+#define STATS_TILE_SIZE 16
+
+typedef struct {
+  guint32 luminance_sum_squares;
+  guint32 acutance_sum_squares;
+  guint16 luminance_sum;
+  guint16 acutance_sum;
+} BackgroundStatsTile;
+
 /**
  * MetaBackgroundImageCache:
  *
@@ -67,6 +76,9 @@ struct _MetaBackgroundImage
   gboolean in_cache;
   gboolean loaded;
   CoglTexture *texture;
+
+  BackgroundStatsTile *stats;
+  uint n_stats_tiles;
 };
 
 G_DEFINE_TYPE (MetaBackgroundImageCache, meta_background_image_cache, G_TYPE_OBJECT);
@@ -120,6 +132,11 @@ meta_background_image_cache_get_default (void)
   return cache;
 }
 
+/* The maximum size of the image-part we cache in kilobytes starting from the upper left corner.
+ * We use it to calculate luminance and acutance values for requested areas of the image.
+ */
+#define MAX_CACHED_SIZE 1000
+
 static void
 load_file (GTask               *task,
            MetaBackgroundImage *image,
@@ -129,6 +146,10 @@ load_file (GTask               *task,
   GError *error = NULL;
   GdkPixbuf *pixbuf;
   GFileInputStream *stream;
+  uint image_width, image_height, n_channels, rowstride;
+  guchar *pixels;
+  guint tiles_rowstride, n_tiles;
+  g_autofree guchar *luminance_rows = NULL;
 
   stream = g_file_read (image->file, NULL, &error);
   if (stream == NULL)
@@ -145,6 +166,85 @@ load_file (GTask               *task,
       g_task_return_error (task, error);
       return;
     }
+
+  image_width = gdk_pixbuf_get_width (pixbuf);
+  image_height = gdk_pixbuf_get_height (pixbuf);
+  n_channels = gdk_pixbuf_get_n_channels (pixbuf);
+  rowstride = gdk_pixbuf_get_rowstride (pixbuf);
+  pixels = gdk_pixbuf_get_pixels (pixbuf);
+
+  /* We now calculate the values needed for statistics in tiles of the size
+   * STATS_TILE_SIZE.
+   */
+
+  tiles_rowstride = (image_width + STATS_TILE_SIZE - 1) / STATS_TILE_SIZE;
+  n_tiles = tiles_rowstride * (image_height + STATS_TILE_SIZE - 1) / STATS_TILE_SIZE;
+
+  if (n_tiles * sizeof (BackgroundStatsTile) > MAX_CACHED_SIZE * 1000)
+    n_tiles = (MAX_CACHED_SIZE * 1000) / sizeof (BackgroundStatsTile);
+
+  image->stats = g_new0 (BackgroundStatsTile, n_tiles);
+  image->n_stats_tiles = n_tiles;
+
+  /* Cached luminance of current and last row */
+  luminance_rows = g_malloc (image_width * 2);
+
+  for (uint y = 0; y < image_height; y++)
+    for (uint x = 0; x < image_width; x++)
+      {
+        BackgroundStatsTile *tile, *tile_left, *tile_above;
+        uint i = y * rowstride + x * n_channels;
+        uint i_tile = x / STATS_TILE_SIZE + y / STATS_TILE_SIZE * tiles_rowstride;
+
+        if (i_tile > n_tiles)
+          break;
+
+        uint8_t r = pixels[i];
+        uint8_t g = pixels[i + 1];
+        uint8_t b = pixels[i + 2];
+
+        /* Calculate and cache luminance */
+        uint8_t luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+        luminance_rows[x + (y % 2) * image_width] = luminance;
+
+        tile = &image->stats[i_tile];
+        tile_left = &image->stats[(x - 1) / STATS_TILE_SIZE + y / STATS_TILE_SIZE * tiles_rowstride];
+        tile_above = &image->stats[x / STATS_TILE_SIZE + (y - 1) / STATS_TILE_SIZE * tiles_rowstride];
+
+        tile->luminance_sum += luminance;
+        tile->luminance_sum_squares += (guint32) luminance * luminance;
+
+        /* Calculate actuance towards the left and top pixel */
+        if (x > 0 && x < image_width - 1 &&
+            y > 0 && y < image_height - 1)
+          {
+            uint8_t acutance_left = ABS (luminance - luminance_rows[x - 1 + (y % 2) * image_width]);
+            uint8_t acutance_top = ABS (luminance - luminance_rows[x + ((y - 1) % 2) * image_width]);
+
+            tile->acutance_sum += acutance_left / 4 + acutance_top / 4;
+
+            tile->acutance_sum_squares += ((guint32) acutance_left * acutance_left) / 4;
+            tile->acutance_sum_squares += ((guint32) acutance_top * acutance_top) / 4;
+          }
+
+        /* Update acutance of the tile left of the current pixel */
+        if (y > 0 && y < image_height - 1 && x > 1)
+          {
+            uint8_t acutance_right = ABS (luminance_rows[x - 1 + (y % 2) * image_width] - luminance);
+
+            tile_left->acutance_sum += acutance_right / 4;
+            tile_left->acutance_sum_squares += ((guint32) acutance_right * acutance_right) / 4;
+          }
+
+        /* Update acutance of the tile above the current pixel */
+        if (x > 0 && x < image_width - 1 && y > 1)
+          {
+            uint8_t acutance_bottom = ABS (luminance_rows[x + ((y - 1) % 2) * image_width] - luminance);
+
+            tile_above->acutance_sum += acutance_bottom / 4;
+            tile_above->acutance_sum_squares += ((guint32) acutance_bottom * acutance_bottom) / 4;
+          }
+     }
 
   g_task_return_pointer (task, pixbuf, (GDestroyNotify) g_object_unref);
 }
@@ -302,6 +402,7 @@ meta_background_image_finalize (GObject *object)
     cogl_object_unref (image->texture);
   if (image->file)
     g_object_unref (image->file);
+  g_clear_pointer (&image->stats, g_free);
 
   G_OBJECT_CLASS (meta_background_image_parent_class)->finalize (object);
 }
@@ -367,4 +468,100 @@ meta_background_image_get_texture (MetaBackgroundImage *image)
   g_return_val_if_fail (META_IS_BACKGROUND_IMAGE (image), NULL);
 
   return image->texture;
+}
+
+/**
+ * meta_background_image_get_color_info:
+ * @image: A #MetaBackgroundImage
+ * @image_area: The area of the image to analyze as #cairo_rectangle_int_t
+ * @mean_luminance: (out): The mean luminance as #float
+ * @luminance_variance: (out): Variance of the luminance as #float
+ * @mean_acutance: (out): The mean acutance as #float
+ * @acutance_variance: (out): Variance of the acutance as #float
+ *
+ * Gets color information about a specified area of a background image.
+ * Calculates the mean luminance, variance of the luminance, the mean
+ * acutance and the variance of the acutance of the area.
+ * This only works if the requested area is inside the cached part of the
+ * image, the size of this part is limited by MAX_CACHED_SIZE.
+ *
+ * Return value: %TRUE if the calculation was successful, %FALSE if the area
+ *  is not completely cached or if the given input was invalid.
+ **/
+gboolean
+meta_background_image_get_color_info (MetaBackgroundImage   *image,
+                                      cairo_rectangle_int_t *image_area,
+                                      float                 *mean_luminance,
+                                      float                 *luminance_variance,
+                                      float                 *mean_acutance,
+                                      float                 *acutance_variance)
+{
+  uint texture_width, texture_height;
+  guint tiles_rowstride;
+  cairo_rectangle_int_t tile_area;
+  guint64 acutance_sum = 0, luminance_sum = 0, luminance_sum_squares = 0, acutance_sum_squares = 0;
+  guint x = 0, y = 0, values_count = 0, acutance_values_count = 0;
+  guint result_width, result_height;
+
+  g_return_val_if_fail (META_IS_BACKGROUND_IMAGE (image), FALSE);
+
+  texture_width = cogl_texture_get_width (image->texture);
+  texture_height = cogl_texture_get_height (image->texture);
+
+  if (image_area->width == 0 ||
+      image_area->x + image_area->width > texture_width ||
+      image_area->x < 0)
+    return FALSE;
+
+  if (image_area->height == 0 ||
+      image_area->y + image_area->height > texture_height ||
+      image_area->y < 0)
+    return FALSE;
+
+  tiles_rowstride = (texture_width + STATS_TILE_SIZE - 1) / STATS_TILE_SIZE;
+
+  tile_area.x = image_area->x / STATS_TILE_SIZE;
+  tile_area.y = image_area->y / STATS_TILE_SIZE;
+  tile_area.width = (image_area->width + STATS_TILE_SIZE - 1) / STATS_TILE_SIZE;
+  tile_area.height = (image_area->height + STATS_TILE_SIZE - 1) / STATS_TILE_SIZE;
+
+  if (tile_area.x + tile_area.width + (tile_area.y + tile_area.height) * tiles_rowstride > image->n_stats_tiles)
+    return FALSE;
+
+  for (y = tile_area.y; y < tile_area.y + tile_area.height; y++)
+    for (x = tile_area.x; x < tile_area.x + tile_area.width; x++)
+      {
+        BackgroundStatsTile *tile = &image->stats[x + y * tiles_rowstride];
+        guint tile_width = MIN (texture_width - x * STATS_TILE_SIZE, STATS_TILE_SIZE);
+        guint tile_height = MIN (texture_height - y * STATS_TILE_SIZE, STATS_TILE_SIZE);
+
+        luminance_sum += tile->luminance_sum;
+        luminance_sum_squares += tile->luminance_sum_squares;
+        acutance_sum += tile->acutance_sum;
+        acutance_sum_squares += tile->acutance_sum_squares;
+        values_count += tile_width * tile_height;
+      }
+
+  acutance_values_count = values_count;
+  result_width = tile_area.width * STATS_TILE_SIZE;
+  result_height = tile_area.height * STATS_TILE_SIZE;
+
+  if (image_area->x == 0)
+    acutance_values_count -= result_height;
+
+  if (image_area->x + image_area->width == texture_width)
+    acutance_values_count -= result_height;
+
+  if (image_area->y == 0)
+    acutance_values_count -= result_width;
+
+  if (image_area->y + image_area->height == texture_height)
+    acutance_values_count -= result_width;
+
+  *mean_luminance = (double) luminance_sum / values_count;
+  *luminance_variance = ((double) luminance_sum_squares / values_count) - (*mean_luminance * *mean_luminance);
+  *mean_acutance = (double) acutance_sum / acutance_values_count;
+  *acutance_variance = ((double) acutance_sum_squares / acutance_values_count) - (*mean_acutance * *mean_acutance);
+
+  return TRUE;
 }

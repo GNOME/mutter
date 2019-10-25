@@ -59,11 +59,19 @@ META_EXPORT
 MetaBackgroundImageCache *meta_background_image_cache_get_default (void);
 
 META_EXPORT
-MetaBackgroundImage *meta_background_image_cache_load  (MetaBackgroundImageCache *cache,
-                                                        GFile                    *file);
+MetaBackgroundImage *meta_background_image_cache_load     (MetaBackgroundImageCache *cache,
+                                                           GFile                    *file);
 
 META_EXPORT
-void                 meta_background_image_cache_purge (MetaBackgroundImageCache *cache,
-                                                        GFile                    *file);
+void                 meta_background_image_cache_purge    (MetaBackgroundImageCache *cache,
+                                                           GFile                    *file);
+
+META_EXPORT
+gboolean             meta_background_image_get_color_info (MetaBackgroundImage   *image,
+                                                           cairo_rectangle_int_t *image_area,
+                                                           float                 *mean_luminance,
+                                                           float                 *luminance_variance,
+                                                           float                 *mean_acutance,
+                                                           float                 *acutance_variance);
 
 #endif /* __META_BACKGROUND_IMAGE_H__ */
