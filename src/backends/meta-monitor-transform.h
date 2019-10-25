@@ -53,4 +53,7 @@ meta_monitor_transform_is_flipped (MetaMonitorTransform transform)
 
 MetaMonitorTransform meta_monitor_transform_invert (MetaMonitorTransform transform);
 
+MetaMonitorTransform meta_monitor_transform_relative_transform (MetaMonitorTransform transform_a,
+                                                                MetaMonitorTransform transform_b);
+
 #endif /* META_MONITOR_TRANSFORM_H */

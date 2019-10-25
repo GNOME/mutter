@@ -35,6 +35,7 @@
 #include <libsn/sn.h>
 #endif
 
+#include "backends/meta-cursor-sprite-xcursor.h"
 #include "clutter/clutter.h"
 #include "core/keybindings-private.h"
 #include "core/meta-gesture-tracker-private.h"
@@ -313,6 +314,10 @@ MetaDisplay* meta_display_for_x_display  (Display     *xdisplay);
 META_EXPORT_TEST
 MetaDisplay* meta_get_display            (void);
 
+void meta_display_root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
+                                          int                      x,
+                                          int                      y,
+                                          gpointer                 data);
 void meta_display_reload_cursor (MetaDisplay *display);
 void meta_display_update_cursor (MetaDisplay *display);
 
