@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2018 Endless, Inc.
+ * Copyright (C) 2013 Intel Corporation
+ * Copyright (C) 2013-2019 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -16,22 +17,22 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
  * 02111-1307, USA.
  *
- * Written by:
- *     Georges Basile Stavracas Neto <gbsneto@gnome.org>
  */
 
-#ifndef META_WINDOW_ACTOR_WAYLAND_H
-#define META_WINDOW_ACTOR_WAYLAND_H
+#ifndef META_XWAYLAND_SURFACE_H
+#define META_XWAYLAND_SURFACE_H
 
-#include "compositor/meta-window-actor-private.h"
-#include "wayland/meta-wayland-surface.h"
+#include "meta/types.h"
+#include "wayland/meta-wayland-actor-surface.h"
 
-#define META_TYPE_WINDOW_ACTOR_WAYLAND (meta_window_actor_wayland_get_type())
-G_DECLARE_FINAL_TYPE (MetaWindowActorWayland,
-                      meta_window_actor_wayland,
-                      META, WINDOW_ACTOR_WAYLAND,
-                      MetaWindowActor)
+#define META_TYPE_XWAYLAND_SURFACE (meta_xwayland_surface_get_type ())
+G_DECLARE_FINAL_TYPE (MetaXwaylandSurface,
+                      meta_xwayland_surface,
+                      META, XWAYLAND_SURFACE,
+                      MetaWaylandActorSurface)
 
-void meta_window_actor_wayland_rebuild_surface_tree (MetaWindowActor *actor);
+void
+meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surface,
+                                             MetaWindow          *window);
 
-#endif /*META_WINDOW_ACTOR_WAYLAND_H */
+#endif /* META_XWAYLAND_SURFACE_H */
