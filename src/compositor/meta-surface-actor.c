@@ -43,6 +43,9 @@ typedef struct _MetaSurfaceActorPrivate
 
 static void cullable_iface_init (MetaCullableInterface *iface);
 
+void meta_surface_actor_real_set_frozen (MetaSurfaceActor *self,
+                                         gboolean          frozen);
+
 G_DEFINE_ABSTRACT_TYPE_WITH_CODE (MetaSurfaceActor, meta_surface_actor, CLUTTER_TYPE_ACTOR,
                                   G_ADD_PRIVATE (MetaSurfaceActor)
                                   G_IMPLEMENT_INTERFACE (META_TYPE_CULLABLE, cullable_iface_init));
@@ -205,6 +208,8 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
   actor_class->pick = meta_surface_actor_pick;
   actor_class->get_paint_volume = meta_surface_actor_get_paint_volume;
 
+  klass->set_frozen = meta_surface_actor_real_set_frozen;
+
   signals[REPAINT_SCHEDULED] = g_signal_new ("repaint-scheduled",
                                              G_TYPE_FROM_CLASS (object_class),
                                              G_SIGNAL_RUN_LAST,
@@ -214,8 +219,8 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
 
   signals[SIZE_CHANGED] = g_signal_new ("size-changed",
                                         G_TYPE_FROM_CLASS (object_class),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,
+                                        G_SIGNAL_RUN_FIRST,
+                                        G_STRUCT_OFFSET (MetaSurfaceActorClass, size_changed),
                                         NULL, NULL, NULL,
                                         G_TYPE_NONE, 0);
 }
@@ -496,6 +501,13 @@ void
 meta_surface_actor_set_frozen (MetaSurfaceActor *self,
                                gboolean          frozen)
 {
+  return META_SURFACE_ACTOR_GET_CLASS (self)->set_frozen (self, frozen);
+}
+
+void
+meta_surface_actor_real_set_frozen (MetaSurfaceActor *self,
+                                    gboolean          frozen)
+{
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
 
@@ -517,12 +529,6 @@ meta_surface_actor_set_frozen (MetaSurfaceActor *self,
         }
       g_clear_pointer (&priv->pending_damage, cairo_region_destroy);
     }
-}
-
-MetaWindow *
-meta_surface_actor_get_window (MetaSurfaceActor *self)
-{
-  return META_SURFACE_ACTOR_GET_CLASS (self)->get_window (self);
 }
 
 void

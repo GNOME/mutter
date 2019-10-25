@@ -223,6 +223,7 @@ enum
   WORKSPACE_CHANGED,
   FOCUS,
   RAISED,
+  UNMANAGING,
   UNMANAGED,
   SIZE_CHANGED,
   POSITION_CHANGED,
@@ -643,6 +644,14 @@ meta_window_class_init (MetaWindowClass *klass)
 
   window_signals[RAISED] =
     g_signal_new ("raised",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
+  window_signals[UNMANAGING] =
+    g_signal_new ("unmanaging",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0,
@@ -1432,17 +1441,9 @@ meta_window_unmanage (MetaWindow  *window,
   if (window->unmanage_idle_id)
     g_source_remove (window->unmanage_idle_id);
 
-  meta_window_free_delete_dialog (window);
+  g_signal_emit (window, window_signals[UNMANAGING], 0);
 
-#ifdef HAVE_WAYLAND
-  /* This needs to happen for both Wayland and XWayland clients,
-   * so it can't be in MetaWindowWayland. */
-  if (window->surface)
-    {
-      meta_wayland_surface_set_window (window->surface, NULL);
-      window->surface = NULL;
-    }
-#endif
+  meta_window_free_delete_dialog (window);
 
   if (window->visible_to_compositor)
     {
@@ -3815,6 +3816,9 @@ meta_window_activate_with_workspace (MetaWindow     *window,
 gboolean
 meta_window_updates_are_frozen (MetaWindow *window)
 {
+  if (window->frame_redraw_pending)
+    return TRUE;
+
   return META_WINDOW_GET_CLASS (window)->are_updates_frozen (window);
 }
 
@@ -6383,6 +6387,28 @@ meta_window_update_resize (MetaWindow *window,
                            gboolean force)
 {
   update_resize (window, snap, x, y, force);
+}
+
+void
+meta_window_set_resize_pending (MetaWindow *window,
+                                gboolean    is_resize_pending)
+{
+  window->resize_pending = is_resize_pending;
+}
+
+gboolean
+meta_window_resize_is_pending (MetaWindow  *window)
+{
+  return window->resize_pending;
+}
+
+void
+meta_window_set_frame_redraw_pending (MetaWindow *window,
+                                      gboolean    is_frame_redraw_pending)
+{
+  window->frame_redraw_pending = is_frame_redraw_pending;
+
+  meta_compositor_sync_updates_frozen (window->display->compositor, window);
 }
 
 static void

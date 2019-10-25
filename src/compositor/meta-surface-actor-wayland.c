@@ -36,6 +36,7 @@
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-window-wayland.h"
+#include "wayland/meta-xwayland-surface.h"
 
 struct _MetaSurfaceActorWayland
 {
@@ -86,16 +87,33 @@ meta_surface_actor_wayland_add_frame_callbacks (MetaSurfaceActorWayland *self,
   wl_list_insert_list (&self->frame_callback_list, frame_callbacks);
 }
 
-static MetaWindow *
-meta_surface_actor_wayland_get_window (MetaSurfaceActor *actor)
+static void
+meta_surface_actor_wayland_set_frozen (MetaSurfaceActor *actor,
+                                       gboolean          is_frozen)
 {
   MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
   MetaWaylandSurface *surface = meta_surface_actor_wayland_get_surface (self);
 
-  if (!surface)
-    return NULL;
+  META_SURFACE_ACTOR_CLASS (meta_surface_actor_wayland_parent_class)->set_frozen (actor,
+                                                                                  is_frozen);
 
-  return surface->window;
+  if (surface && surface->role && META_IS_XWAYLAND_SURFACE (surface->role))
+    meta_xwayland_surface_set_frozen (META_XWAYLAND_SURFACE (surface->role),
+                                      is_frozen);
+}
+
+static void
+meta_surface_actor_wayland_size_changed (MetaSurfaceActor *actor)
+{
+  MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
+  MetaWaylandSurface *surface = self->surface;
+  MetaWindow *window = NULL;
+
+  if (surface && surface->role)
+    window = meta_wayland_surface_get_window (surface);
+
+  if (window)
+    meta_window_set_resize_pending (window, FALSE);
 }
 
 static void
@@ -152,7 +170,9 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
   surface_actor_class->is_visible = meta_surface_actor_wayland_is_visible;
   surface_actor_class->is_opaque = meta_surface_actor_wayland_is_opaque;
 
-  surface_actor_class->get_window = meta_surface_actor_wayland_get_window;
+  surface_actor_class->set_frozen = meta_surface_actor_wayland_set_frozen;
+
+  surface_actor_class->size_changed = meta_surface_actor_wayland_size_changed;
 
   object_class->dispose = meta_surface_actor_wayland_dispose;
 }

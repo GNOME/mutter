@@ -125,6 +125,9 @@ typedef struct
 } FrameData;
 
 static void
+handle_updates (MetaWindowActorX11 *actor_x11);
+
+static void
 frame_data_free (FrameData *frame)
 {
   g_slice_free (FrameData, frame);
@@ -387,6 +390,7 @@ surface_size_changed (MetaSurfaceActor *actor,
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (user_data);
 
   meta_window_actor_x11_update_shape (actor_x11);
+  handle_updates (actor_x11);
 }
 
 static void
@@ -1123,7 +1127,9 @@ handle_updates (MetaWindowActorX11 *actor_x11)
 
   meta_surface_actor_pre_paint (surface);
 
-  if (!meta_surface_actor_is_visible (surface))
+  if (!meta_surface_actor_is_visible (surface) ||
+      meta_window_resize_is_pending (
+        meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11))))
     return;
 
   check_needs_reshape (actor_x11);
