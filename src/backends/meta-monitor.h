@@ -224,8 +224,9 @@ void meta_monitor_calculate_crtc_pos (MetaMonitor          *monitor,
                                       int                  *out_y);
 
 META_EXPORT_TEST
-float meta_monitor_calculate_mode_scale (MetaMonitor     *monitor,
-                                         MetaMonitorMode *monitor_mode);
+float meta_monitor_calculate_mode_scale (MetaMonitor                 *monitor,
+                                         MetaMonitorMode             *monitor_mode,
+                                         MetaMonitorScalesConstraint  constraints);
 
 META_EXPORT_TEST
 float * meta_monitor_calculate_supported_scales (MetaMonitor                 *monitor,
