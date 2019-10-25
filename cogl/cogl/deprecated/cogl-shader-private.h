@@ -38,18 +38,12 @@
 
 typedef struct _CoglShader CoglShader;
 
-typedef enum
-{
-  COGL_SHADER_LANGUAGE_GLSL,
-} CoglShaderLanguage;
-
 struct _CoglShader
 {
   CoglHandleObject _parent;
   GLuint gl_handle;
   CoglPipeline *compilation_pipeline;
   CoglShaderType type;
-  CoglShaderLanguage language;
   char *source;
 };
 

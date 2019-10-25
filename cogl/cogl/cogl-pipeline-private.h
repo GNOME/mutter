@@ -49,24 +49,11 @@
 
 #include <glib.h>
 
-#if defined(HAVE_COGL_GL) || defined(HAVE_COGL_GLES2)
-
-#define COGL_PIPELINE_PROGEND_GLSL 0
-#define COGL_PIPELINE_VERTEND_GLSL 0
-#define COGL_PIPELINE_FRAGEND_GLSL 0
-
-#define COGL_PIPELINE_N_PROGENDS    1
-#define COGL_PIPELINE_N_VERTENDS    1
-#define COGL_PIPELINE_N_FRAGENDS    1
-
-#else /* defined(HAVE_COGL_GL) || defined(HAVE_COGL_GLES2) */
+#if !(defined(HAVE_COGL_GL) || defined(HAVE_COGL_GLES2))
 
 #error No drivers defined
 
 #endif /* defined(HAVE_COGL_GL) || defined(HAVE_COGL_GLES2) */
-
-#define COGL_PIPELINE_PROGEND_DEFAULT    0
-#define COGL_PIPELINE_PROGEND_UNDEFINED  3
 
 /* XXX: should I rename these as
  * COGL_PIPELINE_STATE_INDEX_XYZ... ?
@@ -439,12 +426,6 @@ struct _CoglPipeline
    * where the pipeline originates from */
   unsigned int          has_static_breadcrumb:1;
 #endif
-
-  /* There are multiple fragment and vertex processing backends for
-   * CoglPipeline, glsl, arbfp and fixed that are bundled under a
-   * "progend". This identifies the backend being used for the
-   * pipeline. */
-  unsigned int          progend:3;
 };
 
 typedef struct _CoglPipelineFragend
@@ -455,14 +436,12 @@ typedef struct _CoglPipelineFragend
   gboolean (*add_layer) (CoglPipeline *pipeline,
                          CoglPipelineLayer *layer,
                          unsigned long layers_difference);
-  gboolean (*passthrough) (CoglPipeline *pipeline);
   gboolean (*end) (CoglPipeline *pipeline,
                    unsigned long pipelines_difference);
 
   void (*pipeline_pre_change_notify) (CoglPipeline *pipeline,
                                       CoglPipelineState change,
                                       const CoglColor *new_color);
-  void (*pipeline_set_parent_notify) (CoglPipeline *pipeline);
   void (*layer_pre_change_notify) (CoglPipeline *owner,
                                    CoglPipelineLayer *layer,
                                    CoglPipelineLayerState change);
@@ -490,8 +469,6 @@ typedef struct _CoglPipelineVertend
 
 typedef struct
 {
-  int vertend;
-  int fragend;
   gboolean (*start) (CoglPipeline *pipeline);
   void (*end) (CoglPipeline *pipeline,
                unsigned long pipelines_difference);
@@ -507,17 +484,9 @@ typedef struct
   void (* pre_paint) (CoglPipeline *pipeline, CoglFramebuffer *framebuffer);
 } CoglPipelineProgend;
 
-typedef enum
-{
-  COGL_PIPELINE_PROGRAM_TYPE_GLSL = 1,
-} CoglPipelineProgramType;
-
-extern const CoglPipelineFragend *
-_cogl_pipeline_fragends[COGL_PIPELINE_N_FRAGENDS];
-extern const CoglPipelineVertend *
-_cogl_pipeline_vertends[COGL_PIPELINE_N_VERTENDS];
-extern const CoglPipelineProgend *
-_cogl_pipeline_progends[];
+extern const CoglPipelineFragend *_cogl_pipeline_fragend;
+extern const CoglPipelineVertend *_cogl_pipeline_vertend;
+extern const CoglPipelineProgend *_cogl_pipeline_progend;
 
 void
 _cogl_pipeline_init_default_pipeline (void);
@@ -644,10 +613,7 @@ typedef struct _CoglPipelineFlushOptions
 } CoglPipelineFlushOptions;
 
 void
-_cogl_use_fragment_program (GLuint gl_program, CoglPipelineProgramType type);
-
-void
-_cogl_use_vertex_program (GLuint gl_program, CoglPipelineProgramType type);
+_cogl_use_program (GLuint gl_program);
 
 unsigned int
 _cogl_get_n_args_for_combine_func (CoglPipelineCombineFunc func);

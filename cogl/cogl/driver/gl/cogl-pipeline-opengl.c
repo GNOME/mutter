@@ -246,8 +246,8 @@ _cogl_pipeline_texture_storage_change_notify (CoglTexture *texture)
     }
 }
 
-static void
-set_glsl_program (GLuint gl_program)
+void
+_cogl_use_program (GLuint gl_program)
 {
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
@@ -263,94 +263,6 @@ set_glsl_program (GLuint gl_program)
           ctx->current_gl_program = 0;
         }
     }
-}
-
-void
-_cogl_use_fragment_program (GLuint gl_program, CoglPipelineProgramType type)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  /* If we're changing program type... */
-  if (type != ctx->current_fragment_program_type)
-    {
-      /* ... disable the old type */
-      switch (ctx->current_fragment_program_type)
-        {
-        case COGL_PIPELINE_PROGRAM_TYPE_GLSL:
-          /* If the program contains a vertex shader then we shouldn't
-             disable it */
-          if (ctx->current_vertex_program_type !=
-              COGL_PIPELINE_PROGRAM_TYPE_GLSL)
-            set_glsl_program (0);
-          break;
-        }
-
-      /* ... and enable the new type */
-      switch (type)
-        {
-        case COGL_PIPELINE_PROGRAM_TYPE_GLSL:
-          /* don't need to to anything */
-          break;
-        }
-    }
-
-  if (type == COGL_PIPELINE_PROGRAM_TYPE_GLSL)
-    {
-#ifdef COGL_PIPELINE_FRAGEND_GLSL
-      set_glsl_program (gl_program);
-
-#else
-
-      g_warning ("Unexpected use of GLSL fragend!");
-
-#endif /* COGL_PIPELINE_FRAGEND_GLSL */
-    }
-
-  ctx->current_fragment_program_type = type;
-}
-
-void
-_cogl_use_vertex_program (GLuint gl_program, CoglPipelineProgramType type)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  /* If we're changing program type... */
-  if (type != ctx->current_vertex_program_type)
-    {
-      /* ... disable the old type */
-      switch (ctx->current_vertex_program_type)
-        {
-        case COGL_PIPELINE_PROGRAM_TYPE_GLSL:
-          /* If the program contains a fragment shader then we shouldn't
-             disable it */
-          if (ctx->current_fragment_program_type !=
-              COGL_PIPELINE_PROGRAM_TYPE_GLSL)
-            set_glsl_program (0);
-          break;
-        }
-
-      /* ... and enable the new type */
-      switch (type)
-        {
-        case COGL_PIPELINE_PROGRAM_TYPE_GLSL:
-          /* don't need to to anything */
-          break;
-        }
-    }
-
-  if (type == COGL_PIPELINE_PROGRAM_TYPE_GLSL)
-    {
-#ifdef COGL_PIPELINE_VERTEND_GLSL
-      set_glsl_program (gl_program);
-
-#else
-
-      g_warning ("Unexpected use of GLSL vertend!");
-
-#endif /* COGL_PIPELINE_VERTEND_GLSL */
-    }
-
-  ctx->current_vertex_program_type = type;
 }
 
 #if defined(HAVE_COGL_GLES2) || defined(HAVE_COGL_GL)
@@ -1133,7 +1045,6 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
   unsigned long pipelines_difference;
   int n_layers;
   unsigned long *layer_differences;
-  int i;
   CoglTextureUnit *unit1;
   const CoglPipelineProgend *progend;
 
@@ -1248,23 +1159,19 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
    * with the given progend so we will simply use that to avoid
    * fallback code paths.
    */
-  if (pipeline->progend == COGL_PIPELINE_PROGEND_UNDEFINED)
-    _cogl_pipeline_set_progend (pipeline, COGL_PIPELINE_PROGEND_DEFAULT);
 
-  for (i = pipeline->progend;
-       i < COGL_PIPELINE_N_PROGENDS;
-       i++, _cogl_pipeline_set_progend (pipeline, i))
+  do
     {
       const CoglPipelineVertend *vertend;
       const CoglPipelineFragend *fragend;
       CoglPipelineAddLayerState state;
 
-      progend = _cogl_pipeline_progends[i];
+      progend = _cogl_pipeline_progend;
 
       if (G_UNLIKELY (!progend->start (pipeline)))
         continue;
 
-      vertend = _cogl_pipeline_vertends[progend->vertend];
+      vertend = _cogl_pipeline_vertend;
 
       vertend->start (pipeline,
                       n_layers,
@@ -1294,7 +1201,7 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
        * ctx->codegen_source_buffer as a scratch buffer.
        */
 
-      fragend = _cogl_pipeline_fragends[progend->fragend];
+      fragend = _cogl_pipeline_fragend;
       state.fragend = fragend;
 
       fragend->start (pipeline,
@@ -1308,13 +1215,6 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
       if (G_UNLIKELY (state.error_adding_layer))
         continue;
 
-      if (!state.added_layer)
-        {
-          if (fragend->passthrough &&
-              G_UNLIKELY (!fragend->passthrough (pipeline)))
-            continue;
-        }
-
       if (G_UNLIKELY (!fragend->end (pipeline, pipelines_difference)))
         continue;
 
@@ -1322,6 +1222,7 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
         progend->end (pipeline, pipelines_difference);
       break;
     }
+  while (0);
 
   /* FIXME: This reference is actually resulting in lots of
    * copy-on-write reparenting because one-shot pipelines end up
@@ -1342,13 +1243,13 @@ _cogl_pipeline_flush_gl_state (CoglContext *ctx,
 
 done:
 
-  progend = _cogl_pipeline_progends[pipeline->progend];
+  progend = _cogl_pipeline_progend;
 
   /* We can't assume the color will be retained between flushes when
    * using the glsl progend because the generic attribute values are
    * not stored as part of the program object so they could be
    * overridden by any attribute changes in another program */
-  if (pipeline->progend == COGL_PIPELINE_PROGEND_GLSL && !with_color_attrib)
+  if (!with_color_attrib)
     {
       int attribute;
       CoglPipeline *authority =
