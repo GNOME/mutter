@@ -361,6 +361,25 @@ _clutter_context_get_show_fps (void)
   return context->show_fps;
 }
 
+gboolean
+_clutter_context_get_global_resource_scale (float *global_resource_scale)
+{
+  ClutterMainContext *context = _clutter_context_get_default ();
+
+  if (global_resource_scale)
+    *global_resource_scale = context->global_resource_scale;
+
+  return context->global_resource_scale > 0.0f;
+}
+
+gboolean
+_clutter_context_has_scaled_stage_views (void)
+{
+  ClutterMainContext *context = _clutter_context_get_default ();
+
+  return context->scaled_stage_views;
+}
+
 /**
  * clutter_get_accessibility_enabled:
  *
