@@ -781,12 +781,13 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   else
     use_clipped_redraw = FALSE;
 
+  cairo_region_get_extents (fb_clip_region, &clip_rect);
   clip_region_empty = may_use_clipped_redraw && cairo_region_is_empty (fb_clip_region);
 
   swap_with_damage = FALSE;
   if (has_buffer_age)
     {
-      if (use_clipped_redraw && !clip_region_empty)
+      if (use_clipped_redraw)
         {
           int age;
 
