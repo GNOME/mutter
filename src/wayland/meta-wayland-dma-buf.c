@@ -87,10 +87,12 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   MetaWaylandDmaBufBuffer *dma_buf = buffer->dma_buf.dma_buf;
   uint32_t n_planes;
   uint64_t modifiers[META_WAYLAND_DMA_BUF_MAX_FDS];
-  CoglPixelFormat cogl_format;
+  MetaMultiTextureFormat multi_format = META_MULTI_TEXTURE_FORMAT_SIMPLE;
+  CoglPixelFormat subformats[META_WAYLAND_DMA_BUF_MAX_FDS] = { COGL_PIXEL_FORMAT_ANY, };
   EGLImageKHR egl_image;
   CoglEglImageFlags flags;
   CoglTexture2D *cogl_texture;
+  GPtrArray *planes;
 
   if (buffer->dma_buf.texture)
     return TRUE;
@@ -105,16 +107,55 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
      * and access the buffer memory at all.
      */
     case DRM_FORMAT_XRGB8888:
-      cogl_format = COGL_PIXEL_FORMAT_RGB_888;
+      subformats[0] = COGL_PIXEL_FORMAT_RGB_888;
       break;
     case DRM_FORMAT_ARGB8888:
-      cogl_format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
+      subformats[0] = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
       break;
     case DRM_FORMAT_ARGB2101010:
-      cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
+      subformats[0] = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
       break;
     case DRM_FORMAT_RGB565:
-      cogl_format = COGL_PIXEL_FORMAT_RGB_565;
+      subformats[0] = COGL_PIXEL_FORMAT_RGB_565;
+      break;
+    case DRM_FORMAT_YUYV:
+      multi_format = META_MULTI_TEXTURE_FORMAT_YUYV;
+      break;
+    case DRM_FORMAT_NV12:
+      multi_format = META_MULTI_TEXTURE_FORMAT_NV12;
+      break;
+    case DRM_FORMAT_NV21:
+      multi_format = META_MULTI_TEXTURE_FORMAT_NV21;
+      break;
+    case DRM_FORMAT_YUV410:
+      multi_format = META_MULTI_TEXTURE_FORMAT_YUV410;
+      break;
+    case DRM_FORMAT_YVU410:
+      multi_format = META_MULTI_TEXTURE_FORMAT_YVU410;
+      break;
+    case DRM_FORMAT_YUV411:
+      multi_format = META_MULTI_TEXTURE_FORMAT_YUV411;
+      break;
+    case DRM_FORMAT_YVU411:
+      multi_format = META_MULTI_TEXTURE_FORMAT_YVU411;
+      break;
+    case DRM_FORMAT_YUV420:
+      multi_format = META_MULTI_TEXTURE_FORMAT_YUV420;
+      break;
+    case DRM_FORMAT_YVU420:
+      multi_format = META_MULTI_TEXTURE_FORMAT_YVU420;
+      break;
+    case DRM_FORMAT_YUV422:
+      multi_format = META_MULTI_TEXTURE_FORMAT_YUV422;
+      break;
+    case DRM_FORMAT_YVU422:
+      multi_format = META_MULTI_TEXTURE_FORMAT_YVU422;
+      break;
+    case DRM_FORMAT_YUV444:
+      multi_format = META_MULTI_TEXTURE_FORMAT_YUV444;
+      break;
+    case DRM_FORMAT_YVU444:
+      multi_format = META_MULTI_TEXTURE_FORMAT_YVU444;
       break;
     default:
       g_set_error (error, G_IO_ERROR,
@@ -123,6 +164,9 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
       return FALSE;
     }
 
+  if (multi_format != META_MULTI_TEXTURE_FORMAT_SIMPLE)
+    meta_multi_texture_format_get_subformats (multi_format, subformats);
+
   for (n_planes = 0; n_planes < META_WAYLAND_DMA_BUF_MAX_FDS; n_planes++)
     {
       if (dma_buf->fds[n_planes] < 0)
@@ -130,6 +174,8 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
 
       modifiers[n_planes] = dma_buf->drm_modifier;
     }
+
+  planes = g_ptr_array_new_full (n_planes, cogl_object_unref);
 
   egl_image = meta_egl_create_dmabuf_image (egl,
                                             egl_display,
@@ -145,11 +191,13 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   if (egl_image == EGL_NO_IMAGE_KHR)
     return FALSE;
 
+  /* FIXME: at this point, we might want to try importing each plane separately */
+
   flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
   cogl_texture = cogl_egl_texture_2d_new_from_image (cogl_context,
                                                      dma_buf->width,
                                                      dma_buf->height,
-                                                     cogl_format,
+                                                     subformats[0],
                                                      egl_image,
                                                      flags,
                                                      error);
@@ -159,7 +207,12 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
   if (!cogl_texture)
     return FALSE;
 
-  buffer->dma_buf.texture = meta_multi_texture_new_simple (COGL_TEXTURE (cogl_texture));
+  g_ptr_array_add (planes, COGL_TEXTURE (cogl_texture));
+
+  buffer->dma_buf.texture =
+      meta_multi_texture_new (multi_format,
+                              (CoglTexture**) g_ptr_array_free (planes, FALSE),
+                              n_planes);
   buffer->is_y_inverted = dma_buf->is_y_inverted;
 
   return TRUE;
@@ -530,6 +583,7 @@ dma_buf_bind (struct wl_client *client,
   send_modifiers (resource, DRM_FORMAT_XRGB8888);
   send_modifiers (resource, DRM_FORMAT_ARGB2101010);
   send_modifiers (resource, DRM_FORMAT_RGB565);
+  send_modifiers (resource, DRM_FORMAT_NV12);
 }
 
 /**
