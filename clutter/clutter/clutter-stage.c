@@ -138,7 +138,7 @@ struct _ClutterStagePrivate
 
   ClutterPlane current_clip_planes[4];
 
-  GList *pending_queue_relayouts;
+  GHashTable *pending_relayouts;
   GList *pending_queue_redraws;
 
   CoglFramebuffer *active_framebuffer;
@@ -1330,7 +1330,7 @@ _clutter_stage_needs_update (ClutterStage *stage)
 
   priv = stage->priv;
 
-  return priv->pending_queue_relayouts || priv->redraw_pending;
+  return g_hash_table_size (priv->pending_relayouts) || priv->redraw_pending;
 }
 
 void
@@ -1339,27 +1339,13 @@ clutter_stage_queue_actor_relayout (ClutterStage *stage,
 {
   ClutterStagePrivate *priv = stage->priv;
 
-  if (priv->pending_queue_relayouts)
-    {
-      ClutterActor *first = priv->pending_queue_relayouts->data;
+  if (g_hash_table_size (priv->pending_relayouts) == 0)
+    _clutter_stage_schedule_update (stage);
 
-      if (first == (ClutterActor *) stage)
-        {
-          return;
-        }
-      else if (actor == (ClutterActor *) stage)
-        {
-          g_list_free_full (priv->pending_queue_relayouts, g_object_unref);
-          priv->pending_queue_relayouts = NULL;
-        }
-    }
-  else
-    {
-      _clutter_stage_schedule_update (stage);
-    }
+  if (actor == (ClutterActor *) stage)
+    g_hash_table_remove_all (priv->pending_relayouts);
 
-  priv->pending_queue_relayouts =
-    g_list_prepend (priv->pending_queue_relayouts, g_object_ref (actor));
+  g_hash_table_insert (priv->pending_relayouts, g_object_ref (actor), NULL);
 }
 
 void
@@ -1367,20 +1353,16 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
 {
   ClutterStage *stage = CLUTTER_STAGE (actor);
   ClutterStagePrivate *priv = stage->priv;
-  g_autolist (ClutterActor) pending_queue_relayouts = NULL;
-  GList *l;
+  GHashTableIter iter;
+  ClutterActor *queued_actor;
   int count = 0;
-
-  if (!priv->pending_queue_relayouts)
-    return;
-
-  pending_queue_relayouts = g_steal_pointer (&priv->pending_queue_relayouts);
 
   CLUTTER_NOTE (ACTOR, ">>> Recomputing layout");
 
-  for (l = pending_queue_relayouts; l != NULL; l = l->next)
+  g_hash_table_iter_init (&iter, priv->pending_relayouts);
+  while (g_hash_table_iter_next (&iter, (gpointer) &queued_actor, NULL))
     {
-      ClutterActor *queued_actor = CLUTTER_ACTOR (l->data);
+      g_hash_table_iter_steal (&iter);
 
       if (CLUTTER_ACTOR_IN_RELAYOUT (queued_actor))  /* avoid reentrancy */
         continue;
@@ -1389,7 +1371,7 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
       if (clutter_actor_get_stage (queued_actor) != actor)
         continue;
 
-      if (l == pending_queue_relayouts && queued_actor == actor)
+      if (queued_actor == actor)
         CLUTTER_NOTE (ACTOR, "    Deep relayout of stage %s",
                       _clutter_actor_get_debug_name (queued_actor));
       else
@@ -1404,6 +1386,7 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
       CLUTTER_UNSET_PRIVATE_FLAGS (queued_actor, CLUTTER_IN_RELAYOUT);
 
       count++;
+      g_object_unref (queued_actor);
     }
 
   CLUTTER_NOTE (ACTOR, "<<< Completed recomputing layout of %d subtrees", count);
@@ -2033,8 +2016,8 @@ clutter_stage_dispose (GObject *object)
                     (GDestroyNotify) free_queue_redraw_entry);
   priv->pending_queue_redraws = NULL;
 
-  g_list_free_full (priv->pending_queue_relayouts, g_object_unref);
-  priv->pending_queue_relayouts = NULL;
+  g_hash_table_destroy (priv->pending_relayouts);
+  priv->pending_relayouts = NULL;
 
   /* this will release the reference on the stage */
   stage_manager = clutter_stage_manager_get_default ();
@@ -2411,6 +2394,10 @@ clutter_stage_init (ClutterStage *self)
   clutter_actor_set_background_color (CLUTTER_ACTOR (self),
                                       &default_stage_color);
 
+  priv->pending_relayouts = g_hash_table_new_full (NULL,
+                                                   NULL,
+                                                   g_object_unref,
+                                                   NULL);
   clutter_stage_queue_actor_relayout (self, CLUTTER_ACTOR (self));
 
   clutter_actor_set_reactive (CLUTTER_ACTOR (self), TRUE);
