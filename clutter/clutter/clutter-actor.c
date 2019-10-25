@@ -3904,9 +3904,6 @@ clutter_actor_paint (ClutterActor *self)
 
   clutter_actor_ensure_resource_scale (self);
 
-  /* mark that we are in the paint process */
-  CLUTTER_SET_PRIVATE_FLAGS (self, CLUTTER_IN_PAINT);
-
   actor_node = clutter_actor_node_new (self);
   root_node = clutter_paint_node_ref (actor_node);
 
@@ -4044,7 +4041,7 @@ clutter_actor_paint (ClutterActor *self)
       if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_REDRAWS))
         _clutter_actor_paint_cull_result (self, success, result);
       else if (result == CLUTTER_CULL_RESULT_OUT && success)
-        goto done;
+        return;
     }
 
   if (priv->effects == NULL)
@@ -4061,10 +4058,6 @@ clutter_actor_paint (ClutterActor *self)
   /* If we make it here then the actor has run through a complete
      paint run including all the effects so it's no longer dirty */
   priv->is_dirty = FALSE;
-
-done:
-  /* paint sequence complete */
-  CLUTTER_UNSET_PRIVATE_FLAGS (self, CLUTTER_IN_PAINT);
 }
 
 /**
