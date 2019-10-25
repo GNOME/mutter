@@ -48,6 +48,8 @@ struct _MetaScreenCastSession
   GList *streams;
 
   MetaScreenCastSessionHandle *handle;
+
+  gboolean disable_animations;
 };
 
 static void
@@ -89,6 +91,10 @@ init_remote_access_handle (MetaScreenCastSession *session)
 
   remote_access_controller = meta_backend_get_remote_access_controller (backend);
   remote_access_handle = META_REMOTE_ACCESS_HANDLE (session->handle);
+
+  meta_remote_access_handle_set_disable_animations (remote_access_handle,
+                                                    session->disable_animations);
+
   meta_remote_access_controller_notify_new_handle (remote_access_controller,
                                                    remote_access_handle);
 }
@@ -165,6 +171,13 @@ MetaScreenCast *
 meta_screen_cast_session_get_screen_cast (MetaScreenCastSession *session)
 {
   return session->screen_cast;
+}
+
+void
+meta_screen_cast_session_set_disable_animations (MetaScreenCastSession *session,
+                                                 gboolean               disable_animations)
+{
+  session->disable_animations = disable_animations;
 }
 
 char *

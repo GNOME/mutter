@@ -82,17 +82,6 @@
 #define DRM_FORMAT_INVALID 0
 #endif
 
-enum
-{
-  PROP_0,
-
-  PROP_BACKEND,
-
-  PROP_LAST
-};
-
-static GParamSpec *obj_props[PROP_LAST];
-
 typedef enum _MetaSharedFramebufferCopyMode
 {
   /* the secondary GPU will make the copy */
@@ -213,7 +202,6 @@ struct _MetaRendererNative
 
   MetaGpuKms *primary_gpu_kms;
 
-  MetaBackend *backend;
   MetaGles3 *gles3;
 
   gboolean use_modifiers;
@@ -343,7 +331,9 @@ get_secondary_gpu_state (CoglOnscreen *onscreen,
 static MetaEgl *
 meta_renderer_native_get_egl (MetaRendererNative *renderer_native)
 {
-  return meta_backend_get_egl (renderer_native->backend);
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+
+  return meta_backend_get_egl (meta_renderer_get_backend (renderer));
 }
 
 static MetaEgl *
@@ -1707,8 +1697,9 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen  *onscreen,
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaRendererView *view = onscreen_native->view;
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
   MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (renderer_native->backend);
+    meta_backend_get_monitor_manager (meta_renderer_get_backend (renderer));
   MetaPowerSave power_save_mode;
   MetaLogicalMonitor *logical_monitor;
 
@@ -2183,7 +2174,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
   MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
-  MetaBackend *backend = renderer_native->backend;
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
@@ -2940,9 +2932,11 @@ _cogl_winsys_egl_vtable = {
 gboolean
 meta_renderer_native_supports_mirroring (MetaRendererNative *renderer_native)
 {
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   GList *l;
 
-  for (l = meta_backend_get_gpus (renderer_native->backend); l; l = l->next)
+  for (l = meta_backend_get_gpus (backend); l; l = l->next)
     {
       MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
       MetaRendererNativeGpuData *renderer_gpu_data;
@@ -3191,7 +3185,8 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
 static CoglContext *
 cogl_context_from_renderer_native (MetaRendererNative *renderer_native)
 {
-  MetaBackend *backend = renderer_native->backend;
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
 
   return clutter_backend_get_cogl_context (clutter_backend);
@@ -3201,24 +3196,12 @@ static gboolean
 should_force_shadow_fb (MetaRendererNative *renderer_native,
                         MetaGpuKms         *primary_gpu)
 {
-  CoglContext *cogl_context =
-    cogl_context_from_renderer_native (renderer_native);
-  CoglGpuInfo *info = &cogl_context->gpu;
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
   int kms_fd;
   uint64_t prefer_shadow = 0;
 
-  switch (info->architecture)
-    {
-    case COGL_GPU_INFO_ARCHITECTURE_UNKNOWN:
-    case COGL_GPU_INFO_ARCHITECTURE_SANDYBRIDGE:
-    case COGL_GPU_INFO_ARCHITECTURE_SGX:
-    case COGL_GPU_INFO_ARCHITECTURE_MALI:
-      return FALSE;
-    case COGL_GPU_INFO_ARCHITECTURE_LLVMPIPE:
-    case COGL_GPU_INFO_ARCHITECTURE_SOFTPIPE:
-    case COGL_GPU_INFO_ARCHITECTURE_SWRAST:
-      break;
-    }
+  if (meta_renderer_is_hardware_accelerated (renderer))
+    return FALSE;
 
   kms_fd = meta_gpu_kms_get_fd (primary_gpu);
   if (drmGetCap (kms_fd, DRM_CAP_DUMB_PREFER_SHADOW, &prefer_shadow) == 0)
@@ -3245,7 +3228,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                                   MetaLogicalMonitor *logical_monitor)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-  MetaBackend *backend = renderer_native->backend;
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   CoglContext *cogl_context =
@@ -3333,9 +3316,8 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
 static void
 meta_renderer_native_rebuild_views (MetaRenderer *renderer)
 {
-  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-  MetaBackendNative *backend_native =
-    META_BACKEND_NATIVE (renderer_native->backend);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaRendererClass *parent_renderer_class =
     META_RENDERER_CLASS (meta_renderer_native_parent_class);
@@ -3350,7 +3332,8 @@ meta_renderer_native_rebuild_views (MetaRenderer *renderer)
 void
 meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
 {
-  MetaBackend *backend = renderer_native->backend;
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaKmsUpdate *kms_update = NULL;
@@ -3362,7 +3345,7 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
     {
       GList *l;
 
-      for (l = meta_backend_get_gpus (renderer_native->backend); l; l = l->next)
+      for (l = meta_backend_get_gpus (backend); l; l = l->next)
         {
           MetaGpu *gpu = l->data;
           GList *k;
@@ -3397,49 +3380,6 @@ int64_t
 meta_renderer_native_get_frame_counter (MetaRendererNative *renderer_native)
 {
   return renderer_native->frame_counter;
-}
-
-static void
-meta_renderer_native_get_property (GObject    *object,
-                                   guint       prop_id,
-                                   GValue     *value,
-                                   GParamSpec *pspec)
-{
-  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (object);
-
-  switch (prop_id)
-    {
-    case PROP_BACKEND:
-      g_value_set_object (value, renderer_native->backend);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-on_gpu_added (MetaBackendNative  *backend_native,
-              MetaGpuKms         *gpu_kms,
-              MetaRendererNative *renderer_native);
-
-static void
-meta_renderer_native_set_property (GObject      *object,
-                                   guint         prop_id,
-                                   const GValue *value,
-                                   GParamSpec   *pspec)
-{
-  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (object);
-
-  switch (prop_id)
-    {
-    case PROP_BACKEND:
-      renderer_native->backend = g_value_get_object (value);
-      break;
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
 }
 
 static gboolean
@@ -3825,7 +3765,10 @@ get_egl_device_display (MetaRendererNative  *renderer_native,
 static int
 count_drm_devices (MetaRendererNative *renderer_native)
 {
-  return g_list_length (meta_backend_get_gpus (renderer_native->backend));
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+
+  return g_list_length (meta_backend_get_gpus (backend));
 }
 
 static MetaRendererNativeGpuData *
@@ -3996,8 +3939,9 @@ static void
 on_power_save_mode_changed (MetaMonitorManager *monitor_manager,
                             MetaRendererNative *renderer_native)
 {
-  MetaBackendNative *backend_native =
-    META_BACKEND_NATIVE (renderer_native->backend);
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaPowerSave power_save_mode;
 
@@ -4087,7 +4031,8 @@ meta_renderer_native_initable_init (GInitable     *initable,
                                     GError       **error)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (initable);
-  MetaBackend *backend = renderer_native->backend;
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   GList *gpus;
   GList *l;
 
@@ -4137,7 +4082,8 @@ static void
 meta_renderer_native_constructed (GObject *object)
 {
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (object);
-  MetaBackend *backend = renderer_native->backend;
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaSettings *settings = meta_backend_get_settings (backend);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -4169,24 +4115,12 @@ meta_renderer_native_class_init (MetaRendererNativeClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
   MetaRendererClass *renderer_class = META_RENDERER_CLASS (klass);
 
-  object_class->get_property = meta_renderer_native_get_property;
-  object_class->set_property = meta_renderer_native_set_property;
   object_class->finalize = meta_renderer_native_finalize;
   object_class->constructed = meta_renderer_native_constructed;
 
   renderer_class->create_cogl_renderer = meta_renderer_native_create_cogl_renderer;
   renderer_class->create_view = meta_renderer_native_create_view;
   renderer_class->rebuild_views = meta_renderer_native_rebuild_views;
-
-  obj_props[PROP_BACKEND] =
-    g_param_spec_object ("backend",
-                         "backend",
-                         "MetaBackendNative",
-                         META_TYPE_BACKEND_NATIVE,
-                         G_PARAM_READWRITE |
-                         G_PARAM_CONSTRUCT_ONLY |
-                         G_PARAM_STATIC_STRINGS);
-  g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 }
 
 MetaRendererNative *

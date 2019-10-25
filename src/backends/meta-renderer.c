@@ -48,12 +48,32 @@
 
 #include "backends/meta-backend-private.h"
 
+enum
+{
+  PROP_0,
+
+  PROP_BACKEND,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 typedef struct _MetaRendererPrivate
 {
+  MetaBackend *backend;
   GList *views;
 } MetaRendererPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaRenderer, meta_renderer, G_TYPE_OBJECT)
+
+MetaBackend *
+meta_renderer_get_backend (MetaRenderer *renderer)
+{
+  MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
+
+  return priv->backend;
+}
 
 /**
  * meta_renderer_create_cogl_renderer:
@@ -166,6 +186,73 @@ meta_renderer_get_view_from_logical_monitor (MetaRenderer       *renderer,
   return NULL;
 }
 
+gboolean
+meta_renderer_is_hardware_accelerated (MetaRenderer *renderer)
+{
+  MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
+  MetaBackend *backend = priv->backend;
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglGpuInfo *info = &cogl_context->gpu;
+
+  switch (info->architecture)
+    {
+    case COGL_GPU_INFO_ARCHITECTURE_UNKNOWN:
+    case COGL_GPU_INFO_ARCHITECTURE_SANDYBRIDGE:
+    case COGL_GPU_INFO_ARCHITECTURE_SGX:
+    case COGL_GPU_INFO_ARCHITECTURE_MALI:
+      return TRUE;
+    case COGL_GPU_INFO_ARCHITECTURE_LLVMPIPE:
+    case COGL_GPU_INFO_ARCHITECTURE_SOFTPIPE:
+    case COGL_GPU_INFO_ARCHITECTURE_SWRAST:
+      return FALSE;
+    }
+
+  g_assert_not_reached ();
+  return FALSE;
+}
+
+static void
+meta_renderer_get_property (GObject    *object,
+                            guint       prop_id,
+                            GValue     *value,
+                            GParamSpec *pspec)
+{
+  MetaRenderer *renderer = META_RENDERER (object);
+  MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
+
+  switch (prop_id)
+    {
+    case PROP_BACKEND:
+      g_value_set_object (value, priv->backend);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_renderer_set_property (GObject      *object,
+                            guint         prop_id,
+                            const GValue *value,
+                            GParamSpec   *pspec)
+{
+  MetaRenderer *renderer = META_RENDERER (object);
+  MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
+
+  switch (prop_id)
+    {
+    case PROP_BACKEND:
+      priv->backend = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
 static void
 meta_renderer_finalize (GObject *object)
 {
@@ -186,7 +273,19 @@ meta_renderer_class_init (MetaRendererClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->get_property = meta_renderer_get_property;
+  object_class->set_property = meta_renderer_set_property;
   object_class->finalize = meta_renderer_finalize;
 
   klass->rebuild_views = meta_renderer_real_rebuild_views;
+
+  obj_props[PROP_BACKEND] =
+    g_param_spec_object ("backend",
+                         "backend",
+                         "MetaBackend",
+                         META_TYPE_BACKEND,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }

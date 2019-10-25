@@ -28,4 +28,7 @@ void meta_remote_access_controller_notify_new_handle (MetaRemoteAccessController
 
 void meta_remote_access_handle_notify_stopped (MetaRemoteAccessHandle *handle);
 
+void meta_remote_access_handle_set_disable_animations (MetaRemoteAccessHandle *handle,
+                                                       gboolean                disable_animations);
+
 #endif /* META_REMOTE_ACCESS_CONTROLLER_PRIVATE_H */

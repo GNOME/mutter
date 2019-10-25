@@ -43,6 +43,9 @@ struct _MetaRemoteAccessHandleClass
 META_EXPORT
 void meta_remote_access_handle_stop (MetaRemoteAccessHandle *handle);
 
+META_EXPORT
+gboolean meta_remote_access_handle_get_disable_animations (MetaRemoteAccessHandle *handle);
+
 #define META_TYPE_REMOTE_ACCESS_CONTROLLER meta_remote_access_controller_get_type ()
 
 META_EXPORT
