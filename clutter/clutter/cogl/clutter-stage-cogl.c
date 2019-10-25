@@ -715,7 +715,8 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
       view_region = cairo_region_create_rectangle (&view_rect);
       cairo_region_intersect (redraw_clip, view_region);
 
-      have_clip = !cairo_region_equal (redraw_clip, view_region);
+      have_clip = (!cairo_region_is_empty (redraw_clip) &&
+                   !cairo_region_equal (redraw_clip, view_region));
       cairo_region_destroy (view_region);
     }
 
