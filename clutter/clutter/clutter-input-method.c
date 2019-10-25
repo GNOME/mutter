@@ -35,6 +35,7 @@ struct _ClutterInputMethodPrivate
   ClutterInputContentHintFlags content_hints;
   ClutterInputContentPurpose content_purpose;
   gboolean can_show_preedit;
+  gboolean has_focus;
 };
 
 enum
@@ -92,6 +93,20 @@ set_can_show_preedit (ClutterInputMethod *im,
 
   priv = clutter_input_method_get_instance_private (im);
   priv->can_show_preedit = can_show_preedit;
+}
+
+static void
+clutter_input_method_finalize (GObject *object)
+{
+  ClutterInputMethod *im;
+  ClutterInputMethodPrivate *priv;
+
+  im = CLUTTER_INPUT_METHOD (object);
+  priv = clutter_input_method_get_instance_private (im);
+  if (priv->focus)
+    g_clear_object (&priv->focus);
+
+  G_OBJECT_CLASS(clutter_input_method_parent_class)->finalize (object);
 }
 
 static void
@@ -154,6 +169,7 @@ clutter_input_method_class_init (ClutterInputMethodClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->finalize = clutter_input_method_finalize;
   object_class->set_property = clutter_input_method_set_property;
   object_class->get_property = clutter_input_method_get_property;
 
@@ -231,21 +247,19 @@ clutter_input_method_focus_in (ClutterInputMethod *im,
 
   priv = clutter_input_method_get_instance_private (im);
 
-  if (priv->focus == focus)
+  if (priv->focus == focus && priv->has_focus)
     return;
 
-  if (priv->focus)
+  if (priv->focus && priv->focus != focus)
     clutter_input_method_focus_out (im);
 
   g_set_object (&priv->focus, focus);
+  priv->has_focus = TRUE;
 
-  if (focus)
-    {
-      klass = CLUTTER_INPUT_METHOD_GET_CLASS (im);
-      klass->focus_in (im, focus);
+  klass = CLUTTER_INPUT_METHOD_GET_CLASS (im);
+  klass->focus_in (im, focus);
 
-      clutter_input_focus_focus_in (priv->focus, im);
-    }
+  clutter_input_focus_focus_in (focus, im);
 }
 
 void
@@ -258,11 +272,19 @@ clutter_input_method_focus_out (ClutterInputMethod *im)
 
   priv = clutter_input_method_get_instance_private (im);
 
+  /* Own priv->focus even if priv->has_focus is FALSE because
+   * clutter_input_method_set_preedit_text() can be called to the
+   * no focus context.
+   */
+  if (!priv->has_focus)
+    return;
+
+  priv->has_focus = FALSE;
+
   if (!priv->focus)
     return;
 
   clutter_input_focus_focus_out (priv->focus);
-  g_clear_object (&priv->focus);
 
   klass = CLUTTER_INPUT_METHOD_GET_CLASS (im);
   klass->focus_out (im);
