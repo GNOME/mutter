@@ -228,7 +228,8 @@ sync_focus_surface (MetaWaylandPointer *pointer)
   MetaBackend *backend = meta_get_backend ();
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
-  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker))
+  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
+      !meta_cursor_tracker_get_keep_focus_while_hidden (cursor_tracker))
     {
       meta_wayland_pointer_set_focus (pointer, NULL);
       return;
@@ -433,7 +434,8 @@ default_grab_focus (MetaWaylandPointerGrab *grab,
   if (!meta_wayland_seat_has_pointer (seat))
     return;
 
-  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker))
+  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) &&
+      !meta_cursor_tracker_get_keep_focus_while_hidden (cursor_tracker))
     return;
 
   if (pointer->button_count > 0)
@@ -898,7 +900,8 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
   g_return_if_fail (meta_cursor_tracker_get_pointer_visible (cursor_tracker) ||
-		    surface == NULL);
+                    meta_cursor_tracker_get_keep_focus_while_hidden (cursor_tracker) ||
+                    surface == NULL);
 
   if (pointer->focus_surface == surface)
     return;
