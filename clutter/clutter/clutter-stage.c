@@ -1415,11 +1415,10 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
   ClutterDeviceManager *device_manager;
   GSList *updating = NULL;
   const GSList *devices;
-  cairo_rectangle_int_t clip;
+  cairo_region_t *clip;
   graphene_point_t point;
-  gboolean has_clip;
 
-  has_clip = _clutter_stage_window_get_redraw_clip_bounds (priv->impl, &clip);
+  clip = _clutter_stage_window_get_redraw_clip (priv->impl);
 
   device_manager = clutter_device_manager_get_default ();
   devices = clutter_device_manager_peek_devices (device_manager);
@@ -1442,9 +1441,7 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
           if (!clutter_input_device_get_coords (dev, NULL, &point))
             continue;
 
-          if (!has_clip ||
-              (point.x >= clip.x && point.x < clip.x + clip.width &&
-               point.y >= clip.y && point.y < clip.y + clip.height))
+          if (!clip || cairo_region_contains_point (clip, point.x, point.y))
             updating = g_slist_prepend (updating, dev);
           break;
         default:
@@ -1651,41 +1648,6 @@ clutter_stage_get_redraw_clip (ClutterStage *stage)
   /* Set clip to the full extents of the stage */
   _clutter_stage_window_get_geometry (priv->impl, &clip);
   return cairo_region_create_rectangle (&clip);
-}
-
-/**
- * clutter_stage_get_redraw_clip_bounds:
- * @stage: A #ClutterStage
- * @clip: (out caller-allocates): Return location for the clip bounds
- *
- * Gets the bounds of the current redraw for @stage in stage pixel
- * coordinates. E.g., if only a single actor has queued a redraw then
- * Clutter may redraw the stage with a clip so that it doesn't have to
- * paint every pixel in the stage. This function would then return the
- * bounds of that clip. An application can use this information to
- * avoid some extra work if it knows that some regions of the stage
- * aren't going to be painted. This should only be called while the
- * stage is being painted. If there is no current redraw clip then
- * this function will set @clip to the full extents of the stage.
- *
- * Since: 1.8
- */
-void
-clutter_stage_get_redraw_clip_bounds (ClutterStage          *stage,
-                                      cairo_rectangle_int_t *clip)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-  g_return_if_fail (clip != NULL);
-
-  priv = stage->priv;
-
-  if (!_clutter_stage_window_get_redraw_clip_bounds (priv->impl, clip))
-    {
-      /* Set clip to the full extents of the stage */
-      _clutter_stage_window_get_geometry (priv->impl, clip);
-    }
 }
 
 static ClutterActor *
