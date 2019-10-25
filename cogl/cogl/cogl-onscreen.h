@@ -813,6 +813,9 @@ cogl_is_onscreen (void *object);
 int64_t
 cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen);
 
+unsigned int
+cogl_onscreen_get_pending_swaps (CoglOnscreen *onscreen);
+
 G_END_DECLS
 
 #endif /* __COGL_ONSCREEN_H */

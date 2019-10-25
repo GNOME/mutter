@@ -33,5 +33,6 @@ gboolean clutter_stage_view_is_dirty_projection (ClutterStageView *view);
 void clutter_stage_view_set_dirty_projection (ClutterStageView *view,
                                               gboolean          dirty);
 
+unsigned int clutter_stage_view_get_pending_swaps (ClutterStageView *view);
 
 #endif /* __CLUTTER_STAGE_VIEW_PRIVATE_H__ */
