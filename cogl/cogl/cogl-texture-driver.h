@@ -130,6 +130,11 @@ struct _CoglTextureDriver
                       int width,
                       int height);
 
+
+  gboolean
+  (* format_supports_upload) (CoglContext *ctx,
+                              CoglPixelFormat format);
+
   /*
    * It may depend on the driver as to what texture targets may be used when
    * creating a foreign texture. E.g. OpenGL supports ARB_texture_rectangle

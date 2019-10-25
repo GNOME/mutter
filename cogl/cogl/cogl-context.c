@@ -30,6 +30,7 @@
 
 #include "cogl-config.h"
 
+#include "cogl-mutter.h"
 #include "cogl-object.h"
 #include "cogl-private.h"
 #include "cogl-profile.h"
@@ -695,4 +696,11 @@ cogl_get_graphics_reset_status (CoglContext *context)
     default:
       return COGL_GRAPHICS_RESET_STATUS_NO_ERROR;
     }
+}
+
+gboolean
+cogl_context_format_supports_upload (CoglContext *ctx,
+                                     CoglPixelFormat format)
+{
+  return ctx->texture_driver->format_supports_upload (ctx, format);
 }

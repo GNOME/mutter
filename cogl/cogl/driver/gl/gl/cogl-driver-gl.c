@@ -204,28 +204,44 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
     case COGL_PIXEL_FORMAT_RGBA_1010102_PRE:
       glintformat = GL_RGBA;
       glformat = GL_RGBA;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      gltype = GL_UNSIGNED_INT_2_10_10_10_REV;
+#else
       gltype = GL_UNSIGNED_INT_10_10_10_2;
+#endif
       break;
 
     case COGL_PIXEL_FORMAT_BGRA_1010102:
     case COGL_PIXEL_FORMAT_BGRA_1010102_PRE:
       glintformat = GL_RGBA;
       glformat = GL_BGRA;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      gltype = GL_UNSIGNED_INT_2_10_10_10_REV;
+#else
       gltype = GL_UNSIGNED_INT_10_10_10_2;
+#endif
       break;
 
     case COGL_PIXEL_FORMAT_ABGR_2101010:
     case COGL_PIXEL_FORMAT_ABGR_2101010_PRE:
       glintformat = GL_RGBA;
       glformat = GL_RGBA;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      gltype = GL_UNSIGNED_INT_10_10_10_2;
+#else
       gltype = GL_UNSIGNED_INT_2_10_10_10_REV;
+#endif
       break;
 
     case COGL_PIXEL_FORMAT_ARGB_2101010:
     case COGL_PIXEL_FORMAT_ARGB_2101010_PRE:
       glintformat = GL_RGBA;
       glformat = GL_BGRA;
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      gltype = GL_UNSIGNED_INT_10_10_10_2;
+#else
       gltype = GL_UNSIGNED_INT_2_10_10_10_REV;
+#endif
       break;
 
       /* The following three types of channel ordering
@@ -247,6 +263,31 @@ _cogl_driver_pixel_format_to_gl (CoglContext     *context,
       glintformat = GL_RGBA;
       glformat = GL_RGBA;
       gltype = GL_UNSIGNED_SHORT_5_5_5_1;
+      break;
+
+    case COGL_PIXEL_FORMAT_RGBA_FP_16161616:
+    case COGL_PIXEL_FORMAT_RGBA_FP_16161616_PRE:
+      glintformat = GL_RGBA;
+      glformat = GL_RGBA;
+      gltype = GL_HALF_FLOAT;
+      break;
+    case COGL_PIXEL_FORMAT_BGRA_FP_16161616:
+    case COGL_PIXEL_FORMAT_BGRA_FP_16161616_PRE:
+      glintformat = GL_RGBA;
+      glformat = GL_BGRA;
+      gltype = GL_HALF_FLOAT;
+      break;
+    case COGL_PIXEL_FORMAT_ARGB_FP_16161616:
+    case COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE:
+      glintformat = GL_RGBA;
+      glformat = GL_BGRA;
+      gltype = GL_HALF_FLOAT;
+      break;
+    case COGL_PIXEL_FORMAT_ABGR_FP_16161616:
+    case COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE:
+      glintformat = GL_RGBA;
+      glformat = GL_RGBA;
+      gltype = GL_HALF_FLOAT;
       break;
 
     case COGL_PIXEL_FORMAT_DEPTH_16:
@@ -474,6 +515,14 @@ _cogl_driver_update_features (CoglContext *ctx,
       _cogl_check_extension ("GL_ARB_texture_rg", gl_extensions))
     COGL_FLAGS_SET (ctx->features,
                     COGL_FEATURE_ID_TEXTURE_RG,
+                    TRUE);
+
+  COGL_FLAGS_SET (private_features,
+                  COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_RGBA1010102, TRUE);
+
+  if (COGL_CHECK_GL_VERSION (gl_major, gl_minor, 3, 0))
+    COGL_FLAGS_SET (private_features,
+                    COGL_PRIVATE_FEATURE_TEXTURE_FORMAT_HALF_FLOAT,
                     TRUE);
 
   /* Cache features */

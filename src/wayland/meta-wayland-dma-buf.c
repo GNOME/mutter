@@ -100,11 +100,22 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
     case DRM_FORMAT_ARGB8888:
       cogl_format = COGL_PIXEL_FORMAT_ARGB_8888_PRE;
       break;
+    case DRM_FORMAT_XRGB2101010:
+      cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010;
+      break;
     case DRM_FORMAT_ARGB2101010:
       cogl_format = COGL_PIXEL_FORMAT_ARGB_2101010_PRE;
       break;
     case DRM_FORMAT_RGB565:
       cogl_format = COGL_PIXEL_FORMAT_RGB_565;
+      break;
+    case DRM_FORMAT_XBGR16161616F:
+    case DRM_FORMAT_ABGR16161616F:
+      cogl_format = COGL_PIXEL_FORMAT_ABGR_FP_16161616_PRE;
+      break;
+    case DRM_FORMAT_XRGB16161616F:
+    case DRM_FORMAT_ARGB16161616F:
+      cogl_format = COGL_PIXEL_FORMAT_ARGB_FP_16161616_PRE;
       break;
     default:
       g_set_error (error, G_IO_ERROR,
@@ -510,7 +521,12 @@ dma_buf_bind (struct wl_client *client,
   send_modifiers (resource, DRM_FORMAT_ARGB8888);
   send_modifiers (resource, DRM_FORMAT_XRGB8888);
   send_modifiers (resource, DRM_FORMAT_ARGB2101010);
+  send_modifiers (resource, DRM_FORMAT_XRGB2101010);
   send_modifiers (resource, DRM_FORMAT_RGB565);
+  send_modifiers (resource, DRM_FORMAT_ABGR16161616F);
+  send_modifiers (resource, DRM_FORMAT_XBGR16161616F);
+  send_modifiers (resource, DRM_FORMAT_XRGB16161616F);
+  send_modifiers (resource, DRM_FORMAT_ARGB16161616F);
 }
 
 gboolean
