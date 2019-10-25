@@ -35,6 +35,7 @@ mutter_public_headers = [
   'meta-window-group.h',
   'meta-window-shape.h',
   'meta-workspace-manager.h',
+  'meta-subprocess-launcher.h',
   'prefs.h',
   'theme.h',
   'types.h',

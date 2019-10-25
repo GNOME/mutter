@@ -382,6 +382,8 @@ mutter_sources = [
   'core/window-private.h',
   'core/workspace.c',
   'core/workspace-private.h',
+  'core/meta-subprocess-launcher.c',
+  'meta/meta-subprocess-launcher.h',
   'ui/frames.c',
   'ui/frames.h',
   'ui/theme.c',
