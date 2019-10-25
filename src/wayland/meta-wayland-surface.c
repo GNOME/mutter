@@ -726,6 +726,7 @@ meta_wayland_surface_apply_pending_state (MetaWaylandSurface      *surface,
               meta_shaped_texture_set_texture (stex, texture);
               meta_shaped_texture_set_snippet (stex, snippet);
               meta_shaped_texture_set_is_y_inverted (stex, is_y_inverted);
+              clutter_content_invalidate (CLUTTER_CONTENT (stex));
               g_clear_pointer (&snippet, cogl_object_unref);
             }
         }

@@ -107,6 +107,9 @@ struct _MetaShapedTexture
 
   int buffer_scale;
 
+  MetaShapedTextureInvalidateFunc invalidate_func;
+  gpointer invalidate_user_data;
+
   guint create_mipmaps : 1;
 };
 
@@ -681,6 +684,24 @@ do_paint_content (MetaShapedTexture *stex,
   g_clear_pointer (&blended_tex_region, cairo_region_destroy);
 }
 
+static void
+update_invalidation_counters (MetaShapedTexture *stex)
+{
+  stex->prev_invalidation = stex->last_invalidation;
+  stex->last_invalidation = g_get_monotonic_time ();
+
+  if (stex->prev_invalidation)
+    {
+      gint64 interval = stex->last_invalidation - stex->prev_invalidation;
+      gboolean fast_update = interval < MIN_MIPMAP_AGE_USEC;
+
+      if (!fast_update)
+        stex->fast_updates = 0;
+      else if (stex->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
+        stex->fast_updates++;
+    }
+}
+
 static CoglTexture *
 select_texture_for_paint (MetaShapedTexture *stex)
 {
@@ -775,10 +796,38 @@ meta_shaped_texture_get_preferred_size (ClutterContent *content,
 }
 
 static void
+meta_shaped_texture_invalidate (ClutterContent *content)
+{
+  MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
+
+  update_invalidation_counters (stex);
+
+  if (!stex->invalidate_func)
+    return;
+
+  stex->invalidate_func (stex, FALSE, stex->invalidate_user_data);
+}
+
+static void
+meta_shaped_texture_invalidate_size (ClutterContent *content)
+{
+  MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
+
+  update_invalidation_counters (stex);
+
+  if (!stex->invalidate_func)
+    return;
+
+  stex->invalidate_func (stex, TRUE, stex->invalidate_user_data);
+}
+
+static void
 clutter_content_iface_init (ClutterContentInterface *iface)
 {
   iface->paint_content = meta_shaped_texture_paint_content;
   iface->get_preferred_size = meta_shaped_texture_get_preferred_size;
+  iface->invalidate = meta_shaped_texture_invalidate;
+  iface->invalidate_size = meta_shaped_texture_invalidate_size;
 }
 
 void
@@ -1430,4 +1479,27 @@ meta_shaped_texture_get_buffer_scale (MetaShapedTexture *stex)
   g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 1.0);
 
   return stex->buffer_scale;
+}
+
+void
+meta_shaped_texture_paint_node (MetaShapedTexture *stex,
+                                ClutterPaintNode  *root_node,
+                                ClutterActorBox   *box,
+                                guchar             opacity)
+{
+  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
+
+  if (!stex->texture)
+    return;
+
+  do_paint_content (stex, root_node, stex->texture, box, opacity);
+}
+
+void
+meta_shaped_texture_set_invalidate_func (MetaShapedTexture               *stex,
+                                         MetaShapedTextureInvalidateFunc  func,
+                                         gpointer                         user_data)
+{
+  stex->invalidate_func = func;
+  stex->invalidate_user_data = user_data;
 }
