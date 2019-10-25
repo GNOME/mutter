@@ -88,7 +88,7 @@ G_BEGIN_DECLS
   ((((ClutterActor*)(a))->flags & CLUTTER_ACTOR_REALIZED) != FALSE)
 
 #define CLUTTER_ACTOR_IS_VISIBLE(a) \
-  CLUTTER_MACRO_DEPRECATED_FOR ("Deprecated macro. Use clutter_actor_is_visible instead") \
+  CLUTTER_MACRO_DEPRECATED_FOR ("Deprecated macro. Use clutter_actor_is_visible_to_parent instead") \
   ((((ClutterActor*)(a))->flags & CLUTTER_ACTOR_VISIBLE) != FALSE)
 
 #define CLUTTER_ACTOR_IS_REACTIVE(a) \
@@ -373,6 +373,10 @@ const gchar *                   clutter_actor_get_name                          
 CLUTTER_EXPORT
 AtkObject *                     clutter_actor_get_accessible                    (ClutterActor                *self);
 
+CLUTTER_EXPORT
+gboolean                        clutter_actor_is_visible_to_parent              (ClutterActor                *self);
+CLUTTER_EXPORT
+gboolean                        clutter_actor_is_visible_to_stage               (ClutterActor                *self);
 CLUTTER_EXPORT
 gboolean                        clutter_actor_is_visible                        (ClutterActor                *self);
 CLUTTER_EXPORT
