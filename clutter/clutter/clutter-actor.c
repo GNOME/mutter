@@ -9725,6 +9725,23 @@ clutter_actor_get_preferred_width (ClutterActor *self,
       return;
     }
 
+  /* if the request mode is CONTENT_SIZE we simply return the content width */
+  if (priv->request_mode == CLUTTER_REQUEST_CONTENT_SIZE)
+    {
+      float content_width = 0.f;
+
+      if (priv->content != NULL)
+        clutter_content_get_preferred_size (priv->content, &content_width, NULL);
+
+      if (min_width_p != NULL)
+        *min_width_p = content_width;
+
+      if (natural_width_p != NULL)
+        *natural_width_p = content_width;
+
+      return;
+    }
+
   CLUTTER_SET_PRIVATE_FLAGS (self, CLUTTER_IN_PREF_WIDTH);
 
   /* the remaining cases are:
@@ -9869,6 +9886,23 @@ clutter_actor_get_preferred_height (ClutterActor *self,
 
       if (natural_height_p != NULL)
         *natural_height_p = info->natural.height + (info->margin.top + info->margin.bottom);
+
+      return;
+    }
+
+  /* if the request mode is CONTENT_SIZE we simply return the content height */
+  if (priv->request_mode == CLUTTER_REQUEST_CONTENT_SIZE)
+    {
+      float content_height = 0.f;
+
+      if (priv->content != NULL)
+        clutter_content_get_preferred_size (priv->content, NULL, &content_height);
+
+      if (min_height_p != NULL)
+        *min_height_p = content_height;
+
+      if (natural_height_p != NULL)
+        *natural_height_p = content_height;
 
       return;
     }
