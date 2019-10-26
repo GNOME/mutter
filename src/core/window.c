@@ -227,6 +227,7 @@ enum
   SIZE_CHANGED,
   POSITION_CHANGED,
   SHOWN,
+  CLOSE_DIALOG_VISIBLE,
 
   LAST_SIGNAL
 };
@@ -699,6 +700,22 @@ meta_window_class_init (MetaWindowClass *klass)
    */
   window_signals[SIZE_CHANGED] =
     g_signal_new ("size-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+
+  /**
+   * MetaWindow::close-dialog-visible:
+   * @window: a #MetaWindow
+   *
+   * This is emitted when we're showing or hiding a close
+   * dialog because the window is no longer responding
+   * above the window.
+   */
+  window_signals[CLOSE_DIALOG_VISIBLE] =
+    g_signal_new ("close-dialog-visible",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0,
@@ -8504,6 +8521,12 @@ meta_window_emit_size_changed (MetaWindow *window)
   g_signal_emit (window, window_signals[SIZE_CHANGED], 0);
 }
 
+void
+meta_window_emit_close_dialog_visible (MetaWindow *window)
+{
+  g_signal_emit (window, window_signals[CLOSE_DIALOG_VISIBLE], 0);
+}
+
 MetaPlacementRule *
 meta_window_get_placement_rule (MetaWindow *window)
 {
@@ -8570,4 +8593,19 @@ MetaWindowClientType
 meta_window_get_client_type (MetaWindow *window)
 {
   return window->client_type;
+}
+
+/**
+ * meta_window_get_close_dialog_visible:
+ * @window: a #MetaWindow
+ *
+ * Returns whether we're showing a close dialog above the window.
+ *
+ * Returns: %TRUE when a close dialog is shown, %FALSE otherwise
+ */
+gboolean
+meta_window_get_close_dialog_visible (MetaWindow *window)
+{
+  return (window->close_dialog &&
+          meta_close_dialog_is_visible (window->close_dialog));
 }

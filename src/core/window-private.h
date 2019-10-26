@@ -832,6 +832,8 @@ gboolean meta_window_has_pointer (MetaWindow *window);
 
 void meta_window_emit_size_changed (MetaWindow *window);
 
+void meta_window_emit_close_dialog_visible (MetaWindow *window);
+
 MetaPlacementRule *meta_window_get_placement_rule (MetaWindow *window);
 
 void meta_window_force_placement (MetaWindow *window,

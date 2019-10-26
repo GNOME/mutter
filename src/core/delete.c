@@ -63,6 +63,7 @@ meta_window_set_alive (MetaWindow *window,
   if (is_alive && window->close_dialog)
     {
       meta_close_dialog_hide (window->close_dialog);
+      meta_window_emit_close_dialog_visible (window);
     }
   else if (!is_alive)
     {
@@ -73,6 +74,8 @@ meta_window_set_alive (MetaWindow *window,
           window->display->event_route == META_EVENT_ROUTE_NORMAL &&
           window == window->display->focus_window)
         meta_close_dialog_focus (window->close_dialog);
+
+      meta_window_emit_close_dialog_visible (window);
     }
 }
 
