@@ -163,21 +163,6 @@ _cogl_framebuffer_gl_flush_clip_state (CoglFramebuffer *framebuffer)
 }
 
 static void
-_cogl_framebuffer_gl_flush_dither_state (CoglFramebuffer *framebuffer)
-{
-  CoglContext *ctx = framebuffer->context;
-
-  if (ctx->current_gl_dither_enabled != framebuffer->dither_enabled)
-    {
-      if (framebuffer->dither_enabled)
-        GE (ctx, glEnable (GL_DITHER));
-      else
-        GE (ctx, glDisable (GL_DITHER));
-      ctx->current_gl_dither_enabled = framebuffer->dither_enabled;
-    }
-}
-
-static void
 _cogl_framebuffer_gl_flush_modelview_state (CoglFramebuffer *framebuffer)
 {
   CoglMatrixEntry *modelview_entry =
@@ -193,38 +178,6 @@ _cogl_framebuffer_gl_flush_projection_state (CoglFramebuffer *framebuffer)
     _cogl_framebuffer_get_projection_entry (framebuffer);
   _cogl_context_set_current_projection_entry (framebuffer->context,
                                              projection_entry);
-}
-
-static void
-_cogl_framebuffer_gl_flush_front_face_winding_state (CoglFramebuffer *framebuffer)
-{
-  CoglContext *context = framebuffer->context;
-  CoglPipelineCullFaceMode mode;
-
-  /* NB: The face winding state is actually owned by the current
-   * CoglPipeline.
-   *
-   * If we don't have a current pipeline then we can just assume that
-   * when we later do flush a pipeline we will check the current
-   * framebuffer to know how to setup the winding */
-  if (!context->current_pipeline)
-    return;
-
-  mode = cogl_pipeline_get_cull_face_mode (context->current_pipeline);
-
-  /* If the current CoglPipeline has a culling mode that doesn't care
-   * about the winding we can avoid forcing an update of the state and
-   * bail out. */
-  if (mode == COGL_PIPELINE_CULL_FACE_MODE_NONE ||
-      mode == COGL_PIPELINE_CULL_FACE_MODE_BOTH)
-    return;
-
-  /* Since the winding state is really owned by the current pipeline
-   * the way we "flush" an updated winding is to dirty the pipeline
-   * state... */
-  context->current_pipeline_changes_since_flush |=
-    COGL_PIPELINE_STATE_CULL_FACE;
-  context->current_pipeline_age--;
 }
 
 static void
@@ -409,21 +362,11 @@ _cogl_framebuffer_gl_flush_state (CoglFramebuffer *draw_buffer,
         case COGL_FRAMEBUFFER_STATE_INDEX_CLIP:
           _cogl_framebuffer_gl_flush_clip_state (draw_buffer);
           break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_DITHER:
-          _cogl_framebuffer_gl_flush_dither_state (draw_buffer);
-          break;
         case COGL_FRAMEBUFFER_STATE_INDEX_MODELVIEW:
           _cogl_framebuffer_gl_flush_modelview_state (draw_buffer);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION:
           _cogl_framebuffer_gl_flush_projection_state (draw_buffer);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
-          _cogl_framebuffer_gl_flush_front_face_winding_state (draw_buffer);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_DEPTH_WRITE:
-          /* Nothing to do for depth write state change; the state will always
-           * be taken into account when flushing the pipeline's depth state. */
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_STEREO_MODE:
           _cogl_framebuffer_gl_flush_stereo_mode_state (draw_buffer);
@@ -919,18 +862,6 @@ _cogl_framebuffer_gl_clear (CoglFramebuffer *framebuffer,
   if (buffers & COGL_BUFFER_BIT_DEPTH)
     {
       gl_buffers |= GL_DEPTH_BUFFER_BIT;
-
-      if (ctx->depth_writing_enabled_cache != framebuffer->depth_writing_enabled)
-        {
-          GE( ctx, glDepthMask (framebuffer->depth_writing_enabled));
-
-          ctx->depth_writing_enabled_cache = framebuffer->depth_writing_enabled;
-
-          /* Make sure the DepthMask is updated when the next primitive is drawn */
-          ctx->current_pipeline_changes_since_flush |=
-            COGL_PIPELINE_STATE_DEPTH;
-          ctx->current_pipeline_age--;
-        }
     }
 
   if (buffers & COGL_BUFFER_BIT_STENCIL)

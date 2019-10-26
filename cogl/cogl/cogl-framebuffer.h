@@ -770,39 +770,6 @@ cogl_framebuffer_set_dither_enabled (CoglFramebuffer *framebuffer,
                                      gboolean dither_enabled);
 
 /**
- * cogl_framebuffer_get_depth_write_enabled:
- * @framebuffer: a pointer to a #CoglFramebuffer
- *
- * Queries whether depth buffer writing is enabled for @framebuffer. This
- * can be controlled via cogl_framebuffer_set_depth_write_enabled().
- *
- * Return value: %TRUE if depth writing is enabled or %FALSE if not.
- * Since: 1.18
- * Stability: unstable
- */
-gboolean
-cogl_framebuffer_get_depth_write_enabled (CoglFramebuffer *framebuffer);
-
-/**
- * cogl_framebuffer_set_depth_write_enabled:
- * @framebuffer: a pointer to a #CoglFramebuffer
- * @depth_write_enabled: %TRUE to enable depth writing or %FALSE to disable
- *
- * Enables or disables depth buffer writing when rendering to @framebuffer.
- * If depth writing is enabled for both the framebuffer and the rendering
- * pipeline, and the framebuffer has an associated depth buffer, depth
- * information will be written to this buffer during rendering.
- *
- * Depth buffer writing is enabled by default.
- *
- * Since: 1.18
- * Stability: unstable
- */
-void
-cogl_framebuffer_set_depth_write_enabled (CoglFramebuffer *framebuffer,
-                                          gboolean depth_write_enabled);
-
-/**
  * cogl_framebuffer_get_stereo_mode:
  * @framebuffer: a pointer to a #CoglFramebuffer
  *
@@ -1060,8 +1027,7 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
  * @pipeline.
  *
  * <note>This api doesn't support any of the legacy global state options such
- * as cogl_set_depth_test_enabled(), cogl_set_backface_culling_enabled() or
- * cogl_program_use()</note>
+ * as cogl_set_backface_culling_enabled() or cogl_program_use()</note>
  *
  * Stability: unstable
  * Since: 1.10
@@ -1145,8 +1111,7 @@ cogl_framebuffer_vdraw_attributes (CoglFramebuffer *framebuffer,
  * @pipeline.
  *
  * <note>This api doesn't support any of the legacy global state options such
- * as cogl_set_depth_test_enabled(), cogl_set_backface_culling_enabled() or
- * cogl_program_use()</note>
+ * as cogl_set_backface_culling_enabled() or cogl_program_use()</note>
  *
  * Stability: unstable
  * Since: 1.10
@@ -1211,8 +1176,8 @@ cogl_framebuffer_draw_attributes (CoglFramebuffer *framebuffer,
  * @pipeline.
  *
  * <note>This api doesn't support any of the legacy global state
- * options such as cogl_set_depth_test_enabled(),
- * cogl_set_backface_culling_enabled() or cogl_program_use()</note>
+ * options such as cogl_set_backface_culling_enabled() or
+ * cogl_program_use()</note>
  *
  * Stability: unstable
  * Since: 1.10
@@ -1279,8 +1244,8 @@ cogl_framebuffer_vdraw_indexed_attributes (CoglFramebuffer *framebuffer,
  * @pipeline.
  *
  * <note>This api doesn't support any of the legacy global state
- * options such as cogl_set_depth_test_enabled(),
- * cogl_set_backface_culling_enabled() or cogl_program_use()</note>
+ * options such as cogl_set_backface_culling_enabled() or
+ * cogl_program_use()</note>
  *
  * Stability: unstable
  * Since: 1.10

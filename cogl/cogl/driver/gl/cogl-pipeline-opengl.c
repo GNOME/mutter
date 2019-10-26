@@ -370,11 +370,6 @@ static void
 flush_depth_state (CoglContext *ctx,
                    CoglDepthState *depth_state)
 {
-  gboolean depth_writing_enabled = depth_state->write_enabled;
-
-  if (ctx->current_draw_buffer)
-    depth_writing_enabled &= ctx->current_draw_buffer->depth_writing_enabled;
-
   if (ctx->depth_test_enabled_cache != depth_state->test_enabled)
     {
       if (depth_state->test_enabled == TRUE)
@@ -393,13 +388,6 @@ flush_depth_state (CoglContext *ctx,
     {
       GE (ctx, glDepthFunc (depth_state->test_function));
       ctx->depth_test_function_cache = depth_state->test_function;
-    }
-
-  if (ctx->depth_writing_enabled_cache != depth_writing_enabled)
-    {
-      GE (ctx, glDepthMask (depth_writing_enabled ?
-                            GL_TRUE : GL_FALSE));
-      ctx->depth_writing_enabled_cache = depth_writing_enabled;
     }
 
   if ((ctx->depth_range_near_cache != depth_state->range_near ||
@@ -618,17 +606,7 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
              need to invert the winding of the front face because
              everything is painted upside down */
           invert_winding = cogl_is_offscreen (ctx->current_draw_buffer);
-
-          switch (cull_face_state->front_winding)
-            {
-            case COGL_WINDING_CLOCKWISE:
-              GE( ctx, glFrontFace (invert_winding ? GL_CCW : GL_CW) );
-              break;
-
-            case COGL_WINDING_COUNTER_CLOCKWISE:
-              GE( ctx, glFrontFace (invert_winding ? GL_CW : GL_CCW) );
-              break;
-            }
+          GE( ctx, glFrontFace (invert_winding ? GL_CW : GL_CCW) );
         }
     }
 

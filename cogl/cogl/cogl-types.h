@@ -461,21 +461,6 @@ typedef enum _CoglWinsysFeature
 } CoglWinsysFeature;
 
 /**
- * CoglWinding:
- * @COGL_WINDING_CLOCKWISE: Vertices are in a clockwise order
- * @COGL_WINDING_COUNTER_CLOCKWISE: Vertices are in a counter-clockwise order
- *
- * Enum used to represent the two directions of rotation. This can be
- * used to set the front face for culling by calling
- * cogl_pipeline_set_front_face_winding().
- */
-typedef enum
-{
-  COGL_WINDING_CLOCKWISE,
-  COGL_WINDING_COUNTER_CLOCKWISE
-} CoglWinding;
-
-/**
  * CoglBufferBit:
  * @COGL_BUFFER_BIT_COLOR: Selects the primary color buffer
  * @COGL_BUFFER_BIT_DEPTH: Selects the depth buffer

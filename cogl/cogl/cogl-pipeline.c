@@ -188,7 +188,6 @@ _cogl_pipeline_init_default_pipeline (void)
   big_state->point_size = 0.0f;
 
   cull_face_state->mode = COGL_PIPELINE_CULL_FACE_MODE_NONE;
-  cull_face_state->front_winding = COGL_WINDING_COUNTER_CLOCKWISE;
 
   _cogl_bitmask_init (&uniforms_state->override_mask);
   _cogl_bitmask_init (&uniforms_state->changed_mask);
@@ -2528,14 +2527,6 @@ _cogl_pipeline_apply_legacy_state (CoglPipeline *pipeline)
   if (ctx->current_program &&
       cogl_pipeline_get_user_program (pipeline) == NULL)
     cogl_pipeline_set_user_program (pipeline, ctx->current_program);
-
-  if (ctx->legacy_depth_test_enabled)
-    {
-      CoglDepthState depth_state;
-      cogl_depth_state_init (&depth_state);
-      cogl_depth_state_set_test_enabled (&depth_state, TRUE);
-      cogl_pipeline_set_depth_state (pipeline, &depth_state, NULL);
-    }
 
   if (ctx->legacy_backface_culling_enabled)
     cogl_pipeline_set_cull_face_mode (pipeline,

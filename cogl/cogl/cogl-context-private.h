@@ -183,11 +183,8 @@ struct _CoglContext
 
   gboolean              depth_test_enabled_cache;
   CoglDepthTestFunction depth_test_function_cache;
-  gboolean              depth_writing_enabled_cache;
   float                 depth_range_near_cache;
   float                 depth_range_far_cache;
-
-  gboolean              legacy_depth_test_enabled;
 
   CoglBuffer       *current_buffer[COGL_BUFFER_BIND_TARGET_COUNT];
 

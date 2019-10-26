@@ -84,30 +84,6 @@ cogl_clear (const CoglColor *color, unsigned long buffers)
   cogl_framebuffer_clear (cogl_get_draw_framebuffer (), buffers, color);
 }
 
-/* XXX: This API has been deprecated */
-void
-cogl_set_depth_test_enabled (gboolean setting)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  if (ctx->legacy_depth_test_enabled == setting)
-    return;
-
-  ctx->legacy_depth_test_enabled = setting;
-  if (ctx->legacy_depth_test_enabled)
-    ctx->legacy_state_set++;
-  else
-    ctx->legacy_state_set--;
-}
-
-/* XXX: This API has been deprecated */
-gboolean
-cogl_get_depth_test_enabled (void)
-{
-  _COGL_GET_CONTEXT (ctx, FALSE);
-  return ctx->legacy_depth_test_enabled;
-}
-
 void
 cogl_set_backface_culling_enabled (gboolean setting)
 {

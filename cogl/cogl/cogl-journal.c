@@ -1027,49 +1027,6 @@ compare_entry_clip_stacks (CoglJournalEntry *entry0, CoglJournalEntry *entry1)
 }
 
 static void
-_cogl_journal_flush_dither_and_entries (CoglJournalEntry *batch_start,
-                                        int               batch_len,
-                                        void             *data)
-{
-  CoglJournalFlushState *state = data;
-  CoglFramebuffer *framebuffer = state->journal->framebuffer;
-  CoglContext *ctx = framebuffer->context;
-
-  COGL_STATIC_TIMER (time_flush_dither_and_entries,
-                     "Journal Flush", /* parent */
-                     "flush: viewport+dither+clip+vbo+texcoords+pipeline+entries",
-                     "The time spent flushing viewport + dither + clip + vbo + "
-                     "texcoord offsets + pipeline + entries",
-                     0 /* no application private data */);
-
-  COGL_TIMER_START (_cogl_uprof_context, time_flush_dither_and_entries);
-
-  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_BATCHING)))
-    g_print ("BATCHING:  dither batch len = %d\n", batch_len);
-
-  cogl_framebuffer_set_dither_enabled (framebuffer, batch_start->dither_enabled);
-  ctx->current_draw_buffer_changes |= COGL_FRAMEBUFFER_STATE_DITHER;
-
-  _cogl_framebuffer_flush_state (framebuffer,
-                                 framebuffer,
-                                 COGL_FRAMEBUFFER_STATE_DITHER);
-
-  batch_and_call (batch_start,
-                  batch_len,
-                  compare_entry_clip_stacks,
-                  _cogl_journal_flush_clip_stacks_and_entries,
-                  state);
-
-  COGL_TIMER_STOP (_cogl_uprof_context, time_flush_dither_and_entries);
-}
-
-static gboolean
-compare_entry_dither_states (CoglJournalEntry *entry0, CoglJournalEntry *entry1)
-{
-  return entry0->dither_enabled == entry1->dither_enabled;
-}
-
-static void
 _cogl_journal_flush_viewport_and_entries (CoglJournalEntry *batch_start,
                                           int               batch_len,
                                           void             *data)
@@ -1102,8 +1059,8 @@ _cogl_journal_flush_viewport_and_entries (CoglJournalEntry *batch_start,
 
   batch_and_call (batch_start,
                   batch_len,
-                  compare_entry_dither_states,
-                  _cogl_journal_flush_dither_and_entries,
+                  compare_entry_clip_stacks,
+                  _cogl_journal_flush_clip_stacks_and_entries,
                   state);
 
   if (memcmp (batch_start->viewport, current_viewport, sizeof (float) * 4) != 0)
@@ -1404,8 +1361,7 @@ _cogl_journal_flush (CoglJournal *journal)
   _cogl_framebuffer_flush_state (framebuffer,
                                  framebuffer,
                                  COGL_FRAMEBUFFER_STATE_ALL &
-                                 ~(COGL_FRAMEBUFFER_STATE_DITHER |
-                                   COGL_FRAMEBUFFER_STATE_VIEWPORT |
+                                 ~(COGL_FRAMEBUFFER_STATE_VIEWPORT |
                                    COGL_FRAMEBUFFER_STATE_MODELVIEW |
                                    COGL_FRAMEBUFFER_STATE_CLIP));
 
@@ -1616,7 +1572,6 @@ _cogl_journal_log_quad (CoglJournal  *journal,
 
   clip_stack = _cogl_framebuffer_get_clip_stack (framebuffer);
   entry->clip_stack = _cogl_clip_stack_ref (clip_stack);
-  entry->dither_enabled = cogl_framebuffer_get_dither_enabled (framebuffer);
 
   cogl_framebuffer_get_viewport4fv (framebuffer, entry->viewport);
 

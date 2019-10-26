@@ -176,12 +176,10 @@ cogl_debug_object_print_instances
 cogl_depth_state_get_range
 cogl_depth_state_get_test_enabled
 cogl_depth_state_get_test_function
-cogl_depth_state_get_write_enabled
 cogl_depth_state_init
 cogl_depth_state_set_test_enabled
 cogl_depth_state_set_test_function
 cogl_depth_state_set_range
-cogl_depth_state_set_write_enabled
 cogl_depth_test_function_get_type
 
 #ifdef COGL_HAS_GTYPE_SUPPORT
@@ -230,7 +228,6 @@ cogl_framebuffer_get_blue_bits
 cogl_framebuffer_get_color_format
 cogl_framebuffer_get_context
 cogl_framebuffer_get_depth_bits
-cogl_framebuffer_get_depth_write_enabled
 cogl_framebuffer_get_dither_enabled
 cogl_framebuffer_get_green_bits
 #ifdef COGL_HAS_GTYPE_SUPPORT
@@ -267,7 +264,6 @@ cogl_framebuffer_rotate_euler
 #endif
 
 cogl_framebuffer_scale
-cogl_framebuffer_set_depth_write_enabled
 cogl_framebuffer_set_dither_enabled
 cogl_framebuffer_set_modelview_matrix
 cogl_framebuffer_set_projection_matrix
@@ -295,7 +291,6 @@ cogl_frustum
 cogl_get_backface_culling_enabled
 cogl_get_bitmasks
 cogl_get_clock_time
-cogl_get_depth_test_enabled
 cogl_get_draw_framebuffer
 cogl_get_graphics_reset_status
 cogl_get_modelview_matrix
@@ -573,7 +568,6 @@ cogl_pipeline_get_cull_face_mode
 cogl_pipeline_get_depth_state
 cogl_pipeline_get_diffuse
 cogl_pipeline_get_emission
-cogl_pipeline_get_front_face_winding
 #ifdef COGL_HAS_GTYPE_SUPPORT
 cogl_pipeline_get_gtype
 #endif
@@ -604,7 +598,6 @@ cogl_pipeline_set_cull_face_mode
 cogl_pipeline_set_depth_state
 cogl_pipeline_set_diffuse
 cogl_pipeline_set_emission
-cogl_pipeline_set_front_face_winding
 cogl_pipeline_set_layer_combine
 cogl_pipeline_set_layer_combine_constant
 cogl_pipeline_set_layer_filters
@@ -740,7 +733,6 @@ cogl_rotate
 cogl_scale
 
 cogl_set_backface_culling_enabled
-cogl_set_depth_test_enabled
 #ifndef COGL_DISABLE_DEPRECATED
 cogl_set_draw_buffer
 #endif

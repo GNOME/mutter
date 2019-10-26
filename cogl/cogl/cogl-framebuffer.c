@@ -113,8 +113,6 @@ _cogl_framebuffer_init (CoglFramebuffer *framebuffer,
   framebuffer->viewport_height = height;
   framebuffer->viewport_age = 0;
   framebuffer->viewport_age_for_scissor_workaround = -1;
-  framebuffer->dither_enabled = TRUE;
-  framebuffer->depth_writing_enabled = TRUE;
   framebuffer->depth_buffer_clear_needed = TRUE;
 
   framebuffer->modelview_stack = cogl_matrix_stack_new (ctx);
@@ -780,14 +778,6 @@ _cogl_framebuffer_compare_clip_state (CoglFramebuffer *a,
 }
 
 static unsigned long
-_cogl_framebuffer_compare_dither_state (CoglFramebuffer *a,
-                                        CoglFramebuffer *b)
-{
-  return a->dither_enabled != b->dither_enabled ?
-    COGL_FRAMEBUFFER_STATE_DITHER : 0;
-}
-
-static unsigned long
 _cogl_framebuffer_compare_modelview_state (CoglFramebuffer *a,
                                            CoglFramebuffer *b)
 {
@@ -805,24 +795,6 @@ _cogl_framebuffer_compare_projection_state (CoglFramebuffer *a,
      set the current projection stack on the context to the
      framebuffer's stack. */
   return COGL_FRAMEBUFFER_STATE_PROJECTION;
-}
-
-static unsigned long
-_cogl_framebuffer_compare_front_face_winding_state (CoglFramebuffer *a,
-                                                    CoglFramebuffer *b)
-{
-  if (a->type != b->type)
-    return COGL_FRAMEBUFFER_STATE_FRONT_FACE_WINDING;
-  else
-    return 0;
-}
-
-static unsigned long
-_cogl_framebuffer_compare_depth_write_state (CoglFramebuffer *a,
-                                             CoglFramebuffer *b)
-{
-  return a->depth_writing_enabled != b->depth_writing_enabled ?
-    COGL_FRAMEBUFFER_STATE_DEPTH_WRITE : 0;
 }
 
 static unsigned long
@@ -862,9 +834,6 @@ _cogl_framebuffer_compare (CoglFramebuffer *a,
         case COGL_FRAMEBUFFER_STATE_INDEX_CLIP:
           differences |= _cogl_framebuffer_compare_clip_state (a, b);
           break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_DITHER:
-          differences |= _cogl_framebuffer_compare_dither_state (a, b);
-          break;
         case COGL_FRAMEBUFFER_STATE_INDEX_MODELVIEW:
           differences |=
             _cogl_framebuffer_compare_modelview_state (a, b);
@@ -872,14 +841,6 @@ _cogl_framebuffer_compare (CoglFramebuffer *a,
         case COGL_FRAMEBUFFER_STATE_INDEX_PROJECTION:
           differences |=
             _cogl_framebuffer_compare_projection_state (a, b);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_FRONT_FACE_WINDING:
-          differences |=
-            _cogl_framebuffer_compare_front_face_winding_state (a, b);
-          break;
-        case COGL_FRAMEBUFFER_STATE_INDEX_DEPTH_WRITE:
-          differences |=
-            _cogl_framebuffer_compare_depth_write_state (a, b);
           break;
         case COGL_FRAMEBUFFER_STATE_INDEX_STEREO_MODE:
           differences |=
@@ -999,45 +960,6 @@ cogl_framebuffer_set_stereo_mode (CoglFramebuffer *framebuffer,
   if (framebuffer->context->current_draw_buffer == framebuffer)
     framebuffer->context->current_draw_buffer_changes |=
       COGL_FRAMEBUFFER_STATE_STEREO_MODE;
-}
-
-gboolean
-cogl_framebuffer_get_depth_write_enabled (CoglFramebuffer *framebuffer)
-{
-  return framebuffer->depth_writing_enabled;
-}
-
-void
-cogl_framebuffer_set_depth_write_enabled (CoglFramebuffer *framebuffer,
-                                          gboolean depth_write_enabled)
-{
-  if (framebuffer->depth_writing_enabled == depth_write_enabled)
-    return;
-
-  /* XXX: Currently depth write changes don't go through the journal */
-  _cogl_framebuffer_flush_journal (framebuffer);
-
-  framebuffer->depth_writing_enabled = depth_write_enabled;
-
-  if (framebuffer->context->current_draw_buffer == framebuffer)
-    framebuffer->context->current_draw_buffer_changes |=
-      COGL_FRAMEBUFFER_STATE_DEPTH_WRITE;
-}
-
-gboolean
-cogl_framebuffer_get_dither_enabled (CoglFramebuffer *framebuffer)
-{
-  return framebuffer->dither_enabled;
-}
-
-void
-cogl_framebuffer_set_dither_enabled (CoglFramebuffer *framebuffer,
-                                     gboolean dither_enabled)
-{
-  if (framebuffer->dither_enabled == dither_enabled)
-    return;
-
-  framebuffer->dither_enabled = dither_enabled;
 }
 
 int
