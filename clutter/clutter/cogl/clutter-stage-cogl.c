@@ -869,7 +869,10 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     }
   else if (use_clipped_redraw)
     {
+      graphene_rect_t rect;
+      cairo_region_t *paint_region;
       cairo_rectangle_int_t scissor_rect;
+      cairo_rectangle_int_t paint_rect;
 
       calculate_scissor_region (&clip_rect,
                                 subpixel_compensation,
@@ -891,8 +894,17 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                                           scissor_rect.width,
                                           scissor_rect.height);
 
-      paint_stage (stage_cogl, view, fb_clip_region);
+      _clutter_util_rect_from_rectangle (&clip_rect, &rect);
+      scale_and_clamp_rect (&rect, 1.0f / fb_scale, &paint_rect);
+      _clutter_util_rectangle_offset (&paint_rect,
+                                      view_rect.x,
+                                      view_rect.y,
+                                      &paint_rect);
 
+      paint_region = cairo_region_create_rectangle (&paint_rect);
+      paint_stage (stage_cogl, view, paint_region);
+
+      cairo_region_destroy (paint_region);
       cogl_framebuffer_pop_clip (fb);
 
       stage_cogl->using_clipped_redraw = FALSE;
