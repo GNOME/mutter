@@ -81,7 +81,7 @@ find_onscreen_for_xid (CoglContext *context, uint32_t xid)
       CoglOnscreenEGL *egl_onscreen;
       CoglOnscreenXlib *xlib_onscreen;
 
-      if (!framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN)
+      if (framebuffer->type != COGL_FRAMEBUFFER_TYPE_ONSCREEN)
         continue;
 
       egl_onscreen = COGL_ONSCREEN (framebuffer)->winsys;
