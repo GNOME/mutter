@@ -285,8 +285,11 @@ relative_motion_across_outputs (MetaMonitorManager *monitor_manager,
                                                                cur, direction);
     }
 
-  *dx_inout = x - cur_x;
-  *dy_inout = y - cur_y;
+  if( cur )
+    {
+      *dx_inout = x - cur_x;
+      *dy_inout = y - cur_y;
+    }
 }
 
 static void
