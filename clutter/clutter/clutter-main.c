@@ -55,9 +55,9 @@
 #include "clutter-backend-private.h"
 #include "clutter-config.h"
 #include "clutter-debug.h"
-#include "clutter-device-manager-private.h"
 #include "clutter-event-private.h"
 #include "clutter-feature.h"
+#include "clutter-input-device-private.h"
 #include "clutter-input-pointer-a11y-private.h"
 #include "clutter-graphene.h"
 #include "clutter-main.h"
@@ -1838,8 +1838,7 @@ _clutter_process_event_details (ClutterActor        *stage,
                 gfloat x, y;
 
                 clutter_event_get_coords (event, &x, &y);
-                core_pointer = clutter_device_manager_get_core_device (device->device_manager,
-                                                                       CLUTTER_POINTER_DEVICE);
+                core_pointer = clutter_event_get_device (event);
                 _clutter_input_pointer_a11y_on_motion_event (core_pointer, x, y);
               }
           }
@@ -1881,9 +1880,7 @@ _clutter_process_event_details (ClutterActor        *stage,
               {
                 ClutterInputDevice *core_pointer;
 
-                core_pointer = clutter_device_manager_get_core_device (device->device_manager,
-                                                                       CLUTTER_POINTER_DEVICE);
-
+                core_pointer = clutter_event_get_device (event);
                 _clutter_input_pointer_a11y_on_button_event (core_pointer,
                                                              event->button.button,
                                                              event->type == CLUTTER_BUTTON_PRESS);

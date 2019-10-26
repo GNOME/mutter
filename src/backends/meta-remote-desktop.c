@@ -234,14 +234,14 @@ meta_remote_desktop_new (MetaDbusSessionWatcher *session_watcher)
 static MetaRemoteDesktopDeviceTypes
 calculate_supported_device_types (void)
 {
-  ClutterDeviceManager *device_manager =
-    clutter_device_manager_get_default ();
+  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
   ClutterVirtualDeviceType device_types;
   MetaRemoteDesktopDeviceTypes supported_devices =
     META_REMOTE_DESKTOP_DEVICE_TYPE_NONE;
 
   device_types =
-    clutter_device_manager_get_supported_virtual_device_types (device_manager);
+    clutter_seat_get_supported_virtual_device_types (seat);
 
   if (device_types & CLUTTER_VIRTUAL_DEVICE_TYPE_KEYBOARD)
     supported_devices |= META_REMOTE_DESKTOP_DEVICE_TYPE_KEYBOARD;

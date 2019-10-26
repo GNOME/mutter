@@ -40,8 +40,6 @@ int      meta_keymap_x11_translate_key_state (MetaKeymapX11       *keymap,
 gboolean meta_keymap_x11_get_is_modifier     (MetaKeymapX11       *keymap,
                                               int                  keycode);
 
-PangoDirection meta_keymap_x11_get_direction (MetaKeymapX11       *keymap);
-
 gboolean meta_keymap_x11_keycode_for_keyval       (MetaKeymapX11    *keymap_x11,
                                                    guint             keyval,
                                                    guint            *keycode_out,

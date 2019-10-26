@@ -315,9 +315,11 @@ meta_input_settings_native_set_keyboard_repeat (MetaInputSettings *settings,
                                                 guint              delay,
                                                 guint              interval)
 {
-  ClutterDeviceManager *manager = clutter_device_manager_get_default ();
+  ClutterSeat *seat;
 
-  meta_device_manager_native_set_keyboard_repeat (manager, enabled, delay, interval);
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  meta_seat_native_set_keyboard_repeat (META_SEAT_NATIVE (seat),
+                                        enabled, delay, interval);
 }
 
 static void

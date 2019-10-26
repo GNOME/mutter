@@ -23,8 +23,7 @@
 #define __CLUTTER_BACKEND_PRIVATE_H__
 
 #include <clutter/clutter-backend.h>
-#include <clutter/clutter-device-manager.h>
-#include <clutter/clutter-keymap.h>
+#include <clutter/clutter-seat.h>
 #include <clutter/clutter-stage-window.h>
 
 #define CLUTTER_BACKEND_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), CLUTTER_TYPE_BACKEND, ClutterBackendClass))
@@ -47,8 +46,6 @@ struct _ClutterBackend
 
   CoglOnscreen *dummy_onscreen;
 
-  ClutterDeviceManager *device_manager;
-
   cairo_font_options_t *font_options;
 
   gchar *font_name;
@@ -59,8 +56,6 @@ struct _ClutterBackend
   ClutterStageWindow *stage_window;
 
   ClutterInputMethod *input_method;
-
-  ClutterKeymap *keymap;
 };
 
 struct _ClutterBackendClass
@@ -89,17 +84,12 @@ struct _ClutterBackendClass
                                                 GError         **error);
   gboolean              (* create_context)     (ClutterBackend  *backend,
                                                 GError         **error);
-  ClutterDeviceManager *(* get_device_manager) (ClutterBackend  *backend);
 
   gboolean              (* translate_event)    (ClutterBackend     *backend,
                                                 gpointer            native,
                                                 ClutterEvent       *event);
 
-  PangoDirection        (* get_keymap_direction) (ClutterBackend   *backend);
-
-  void                  (* bell_notify)          (ClutterBackend   *backend);
-
-  ClutterKeymap *       (* get_keymap)           (ClutterBackend   *backend);
+  ClutterSeat *         (* get_default_seat)   (ClutterBackend *backend);
 
   /* signals */
   void (* resolution_changed) (ClutterBackend *backend);
@@ -138,8 +128,6 @@ ClutterFeatureFlags     _clutter_backend_get_features                   (Clutter
 gfloat                  _clutter_backend_get_units_per_em               (ClutterBackend         *backend,
                                                                          PangoFontDescription   *font_desc);
 gint32                  _clutter_backend_get_units_serial               (ClutterBackend         *backend);
-
-PangoDirection          _clutter_backend_get_keymap_direction           (ClutterBackend         *backend);
 
 CLUTTER_EXPORT
 void                    _clutter_backend_reset_cogl_framebuffer         (ClutterBackend         *backend);

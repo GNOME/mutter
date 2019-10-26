@@ -40,7 +40,7 @@ struct _MetaInputMapper
 {
   GObject parent_instance;
   MetaMonitorManager *monitor_manager;
-  ClutterDeviceManager *input_device_manager;
+  ClutterSeat *seat;
   GHashTable *input_devices; /* ClutterInputDevice -> MetaMapperInputInfo */
   GHashTable *output_devices; /* MetaLogicalMonitor -> MetaMapperOutputInfo */
 #ifdef HAVE_LIBGUDEV
@@ -525,9 +525,9 @@ input_mapper_monitors_changed_cb (MetaMonitorManager *monitor_manager,
 }
 
 static void
-input_mapper_device_removed_cb (ClutterDeviceManager *device_manager,
-                                ClutterInputDevice   *device,
-                                MetaInputMapper      *mapper)
+input_mapper_device_removed_cb (ClutterSeat        *seat,
+                                ClutterInputDevice *device,
+                                MetaInputMapper    *mapper)
 {
   meta_input_mapper_remove_device (mapper, device);
 }
@@ -540,7 +540,7 @@ meta_input_mapper_finalize (GObject *object)
   g_signal_handlers_disconnect_by_func (mapper->monitor_manager,
                                         input_mapper_monitors_changed_cb,
                                         mapper);
-  g_signal_handlers_disconnect_by_func (mapper->input_device_manager,
+  g_signal_handlers_disconnect_by_func (mapper->seat,
                                         input_mapper_device_removed_cb,
                                         mapper);
 
@@ -568,8 +568,8 @@ meta_input_mapper_constructed (GObject *object)
   mapper->udev_client = g_udev_client_new (udev_subsystems);
 #endif
 
-  mapper->input_device_manager = clutter_device_manager_get_default ();
-  g_signal_connect (mapper->input_device_manager, "device-removed",
+  mapper->seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  g_signal_connect (mapper->seat, "device-removed",
                     G_CALLBACK (input_mapper_device_removed_cb), mapper);
 
   backend = meta_get_backend ();

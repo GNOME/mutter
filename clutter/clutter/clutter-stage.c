@@ -60,10 +60,10 @@
 #include "clutter-color.h"
 #include "clutter-container.h"
 #include "clutter-debug.h"
-#include "clutter-device-manager-private.h"
 #include "clutter-enum-types.h"
 #include "clutter-event-private.h"
 #include "clutter-id-pool.h"
+#include "clutter-input-device-private.h"
 #include "clutter-main.h"
 #include "clutter-marshal.h"
 #include "clutter-master-clock.h"
@@ -1269,11 +1269,9 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
 
               if (next_event->type == CLUTTER_MOTION)
                 {
-                  ClutterDeviceManager *device_manager =
-                    clutter_device_manager_get_default ();
+                  ClutterSeat *seat = clutter_input_device_get_seat (device);
 
-                  _clutter_device_manager_compress_motion (device_manager,
-                                                           next_event, event);
+                  clutter_seat_compress_motion (seat, next_event, event);
                 }
 
               goto next_event;
@@ -1412,21 +1410,23 @@ static GSList *
 _clutter_stage_check_updated_pointers (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
-  ClutterDeviceManager *device_manager;
+  ClutterBackend *backend;
+  ClutterSeat *seat;
   GSList *updating = NULL;
-  const GSList *devices;
+  GList *l, *devices;
   cairo_rectangle_int_t clip;
   graphene_point_t point;
   gboolean has_clip;
 
   has_clip = _clutter_stage_window_get_redraw_clip_bounds (priv->impl, &clip);
 
-  device_manager = clutter_device_manager_get_default ();
-  devices = clutter_device_manager_peek_devices (device_manager);
+  backend = clutter_get_default_backend ();
+  seat = clutter_backend_get_default_seat (backend);
+  devices = clutter_seat_list_devices (seat);
 
-  for (; devices != NULL; devices = devices->next)
+  for (l = devices; l; l = l->next)
     {
-      ClutterInputDevice *dev = devices->data;
+      ClutterInputDevice *dev = l->data;
 
       if (clutter_input_device_get_device_mode (dev) !=
           CLUTTER_INPUT_MODE_MASTER)
@@ -1456,6 +1456,8 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
           break;
         }
     }
+
+  g_list_free (devices);
 
   return updating;
 }

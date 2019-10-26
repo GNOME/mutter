@@ -75,7 +75,7 @@ set_xkb_desc_rec (Display    *xdisplay,
 }
 
 static void
-check_settings_changed (ClutterDeviceManager *device_manager)
+check_settings_changed (ClutterSeat *seat)
 {
   Display *xdisplay = clutter_x11_get_default_display ();
   ClutterKbdA11ySettings kbd_a11y_settings;
@@ -86,7 +86,7 @@ check_settings_changed (ClutterDeviceManager *device_manager)
   if (!desc)
     return;
 
-  clutter_device_manager_get_kbd_a11y_settings (device_manager, &kbd_a11y_settings);
+  clutter_seat_get_kbd_a11y_settings (seat, &kbd_a11y_settings);
 
   if (desc->ctrls->enabled_ctrls & XkbSlowKeysMask &&
       !(kbd_a11y_settings.controls & CLUTTER_A11Y_SLOW_KEYS_ENABLED))
@@ -115,7 +115,7 @@ check_settings_changed (ClutterDeviceManager *device_manager)
     }
 
   if (what_changed)
-    g_signal_emit_by_name (device_manager,
+    g_signal_emit_by_name (seat,
                            "kbd-a11y-flags-changed",
                            kbd_a11y_settings.controls,
                            what_changed);
@@ -128,7 +128,7 @@ xkb_a11y_event_filter (XEvent       *xevent,
                        ClutterEvent *clutter_event,
                        gpointer      data)
 {
-  ClutterDeviceManager *device_manager = CLUTTER_DEVICE_MANAGER (data);
+  ClutterSeat *seat = CLUTTER_SEAT (data);
   XkbEvent *xkbev = (XkbEvent *) xevent;
 
   /* 'event_type' is set to zero on notifying us of updates in
@@ -141,9 +141,9 @@ xkb_a11y_event_filter (XEvent       *xevent,
    */
   if (xevent->xany.type == (_xkb_event_base + XkbEventCode) &&
       xkbev->any.xkb_type == XkbControlsNotify && xkbev->ctrls.event_type != 0)
-    check_settings_changed (device_manager);
+    check_settings_changed (seat);
 
-  return  CLUTTER_X11_FILTER_CONTINUE;
+  return CLUTTER_X11_FILTER_CONTINUE;
 }
 
 static gboolean
@@ -194,10 +194,9 @@ set_xkb_ctrl (XkbDescRec               *desc,
 }
 
 void
-meta_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_manager,
-                                                 ClutterKbdA11ySettings *kbd_a11y_settings)
+meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat            *seat,
+                                       ClutterKbdA11ySettings *kbd_a11y_settings)
 {
-  ClutterBackend *backend;
   Display *xdisplay = clutter_x11_get_default_display ();
   XkbDescRec *desc;
   gboolean enable_accessX;
@@ -205,8 +204,6 @@ meta_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_
   desc = get_xkb_desc_rec (xdisplay);
   if (!desc)
     return;
-
-  backend = clutter_get_default_backend ();
 
   /* general */
   enable_accessX = kbd_a11y_settings->controls & CLUTTER_A11Y_KEYBOARD_ENABLED;
@@ -245,7 +242,7 @@ meta_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_
     }
 
   /* mouse keys */
-  if (clutter_keymap_get_num_lock_state (clutter_backend_get_keymap (backend)))
+  if (clutter_keymap_get_num_lock_state (clutter_seat_get_keymap (seat)))
     {
       /* Disable mousekeys when NumLock is ON */
       desc->ctrls->enabled_ctrls &= ~(XkbMouseKeysMask | XkbMouseKeysAccelMask);
@@ -316,7 +313,7 @@ meta_device_manager_x11_apply_kbd_a11y_settings (ClutterDeviceManager   *device_
 }
 
 gboolean
-meta_device_manager_x11_a11y_init (ClutterDeviceManager *device_manager)
+meta_seat_x11_a11y_init (ClutterSeat *seat)
 {
   Display *xdisplay = clutter_x11_get_default_display ();
   guint event_mask;
@@ -328,7 +325,7 @@ meta_device_manager_x11_a11y_init (ClutterDeviceManager *device_manager)
 
   XkbSelectEvents (xdisplay, XkbUseCoreKbd, event_mask, event_mask);
 
-  clutter_x11_add_filter (xkb_a11y_event_filter, device_manager);
+  clutter_x11_add_filter (xkb_a11y_event_filter, seat);
 
   return TRUE;
 }

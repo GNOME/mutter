@@ -46,6 +46,7 @@
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
+#include "backends/x11/meta-seat-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
 #include "clutter/clutter.h"
@@ -152,6 +153,9 @@ handle_alarm_notify (MetaBackend           *backend,
   MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
   MetaIdleMonitor *idle_monitor;
   XSyncAlarmAttributes attr;
+  ClutterBackend *clutter_backend;
+  ClutterSeat *seat;
+  ClutterInputDevice *pointer;
 
   if (alarm_event->state != XSyncAlarmActive ||
       alarm_event->alarm != priv->user_active_alarm)
@@ -161,7 +165,10 @@ handle_alarm_notify (MetaBackend           *backend,
   XSyncChangeAlarm (priv->xdisplay, priv->user_active_alarm,
                     XSyncCAEvents, &attr);
 
-  idle_monitor = meta_backend_get_idle_monitor (backend, 0);
+  clutter_backend = meta_backend_get_clutter_backend (backend);
+  seat = clutter_backend_get_default_seat (clutter_backend);
+  pointer = clutter_seat_get_pointer (seat);
+  idle_monitor = meta_backend_get_idle_monitor (backend, pointer);
   meta_idle_monitor_reset_idletime (idle_monitor);
 }
 
@@ -230,6 +237,9 @@ handle_device_change (MetaBackendX11 *x11,
                       XIEvent        *event)
 {
   XIDeviceChangedEvent *device_changed;
+  ClutterInputDevice *device;
+  ClutterBackend *backend;
+  ClutterSeat *seat;
 
   if (event->evtype != XI_DeviceChanged)
     return;
@@ -239,8 +249,11 @@ handle_device_change (MetaBackendX11 *x11,
   if (device_changed->reason != XISlaveSwitch)
     return;
 
-  meta_backend_update_last_device (META_BACKEND (x11),
-                                   device_changed->sourceid);
+  backend = meta_backend_get_clutter_backend (META_BACKEND (x11));
+  seat = clutter_backend_get_default_seat (backend);
+  device = meta_seat_x11_lookup_device_id (META_SEAT_X11 (seat),
+                                           device_changed->sourceid);
+  meta_backend_update_last_device (META_BACKEND (x11), device);
 }
 
 /* Clutter makes the assumption that there is only one X window
@@ -590,22 +603,6 @@ meta_backend_x11_ungrab_device (MetaBackend *backend,
   return (ret == Success);
 }
 
-static void
-meta_backend_x11_warp_pointer (MetaBackend *backend,
-                               int          x,
-                               int          y)
-{
-  MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
-  MetaBackendX11Private *priv = meta_backend_x11_get_instance_private (x11);
-
-  XIWarpPointer (priv->xdisplay,
-                 META_VIRTUAL_CORE_POINTER_ID,
-                 None,
-                 meta_backend_x11_get_xwindow (x11),
-                 0, 0, 0, 0,
-                 x, y);
-}
-
 static MetaLogicalMonitor *
 meta_backend_x11_get_current_logical_monitor (MetaBackend *backend)
 {
@@ -781,7 +778,6 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
   backend_class->post_init = meta_backend_x11_post_init;
   backend_class->grab_device = meta_backend_x11_grab_device;
   backend_class->ungrab_device = meta_backend_x11_ungrab_device;
-  backend_class->warp_pointer = meta_backend_x11_warp_pointer;
   backend_class->get_current_logical_monitor = meta_backend_x11_get_current_logical_monitor;
   backend_class->get_keymap = meta_backend_x11_get_keymap;
   backend_class->get_keymap_layout_group = meta_backend_x11_get_keymap_layout_group;

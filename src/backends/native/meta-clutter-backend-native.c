@@ -44,8 +44,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-renderer.h"
-#include "backends/native/meta-device-manager-native.h"
-#include "backends/native/meta-keymap-native.h"
+#include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-stage-native.h"
 #include "clutter/clutter.h"
 #include "core/bell.h"
@@ -55,10 +54,11 @@ struct _MetaClutterBackendNative
 {
   ClutterBackendEglNative parent;
 
+  MetaSeatNative *main_seat;
   MetaStageNative *stage_native;
-  MetaKeymapNative *keymap;
-  MetaDeviceManagerNative *device_manager;
 };
+
+static gchar *evdev_seat_id;
 
 G_DEFINE_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
                CLUTTER_TYPE_BACKEND_EGL_NATIVE)
@@ -100,38 +100,23 @@ meta_clutter_backend_native_create_stage (ClutterBackend  *backend,
 }
 
 static void
-meta_clutter_backend_native_bell_notify (ClutterBackend  *backend)
-{
-  MetaDisplay *display = meta_get_display ();
-
-  meta_bell_notify (display, NULL);
-}
-
-static ClutterDeviceManager *
-meta_clutter_backend_native_get_device_manager (ClutterBackend *backend)
-{
-  MetaClutterBackendNative *backend_native = META_CLUTTER_BACKEND_NATIVE (backend);
-
-  return CLUTTER_DEVICE_MANAGER (backend_native->device_manager);
-}
-
-static ClutterKeymap *
-meta_clutter_backend_native_get_keymap (ClutterBackend *backend)
-{
-  MetaClutterBackendNative *backend_native = META_CLUTTER_BACKEND_NATIVE (backend);
-
-  return CLUTTER_KEYMAP (backend_native->keymap);
-}
-
-static void
 meta_clutter_backend_native_init_events (ClutterBackend *backend)
 {
   MetaClutterBackendNative *backend_native = META_CLUTTER_BACKEND_NATIVE (backend);
+  const gchar *seat_id = evdev_seat_id ? evdev_seat_id : "seat0";
 
-  backend_native->keymap = g_object_new (META_TYPE_KEYMAP_NATIVE, NULL);
-  backend_native->device_manager = g_object_new (META_TYPE_DEVICE_MANAGER_NATIVE,
-                                                 "backend", backend,
-                                                 NULL);
+  backend_native->main_seat = g_object_new (META_TYPE_SEAT_NATIVE,
+                                            "backend", backend,
+                                            "seat-id", seat_id,
+                                            NULL);
+}
+
+static ClutterSeat *
+meta_clutter_backend_native_get_default_seat (ClutterBackend *backend)
+{
+  MetaClutterBackendNative *backend_native = META_CLUTTER_BACKEND_NATIVE (backend);
+
+  return CLUTTER_SEAT (backend_native->main_seat);
 }
 
 static void
@@ -146,8 +131,21 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
 
   clutter_backend_class->get_renderer = meta_clutter_backend_native_get_renderer;
   clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;
-  clutter_backend_class->bell_notify = meta_clutter_backend_native_bell_notify;
-  clutter_backend_class->get_device_manager = meta_clutter_backend_native_get_device_manager;
-  clutter_backend_class->get_keymap = meta_clutter_backend_native_get_keymap;
   clutter_backend_class->init_events = meta_clutter_backend_native_init_events;
+  clutter_backend_class->get_default_seat = meta_clutter_backend_native_get_default_seat;
+}
+
+/**
+ * meta_cluter_backend_native_set_seat_id:
+ * @seat_id: The seat ID
+ *
+ * Sets the seat to assign to the libinput context.
+ *
+ * For reliable effects, this function must be called before clutter_init().
+ */
+void
+meta_clutter_backend_native_set_seat_id (const gchar *seat_id)
+{
+  g_free (evdev_seat_id);
+  evdev_seat_id = g_strdup (seat_id);
 }

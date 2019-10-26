@@ -37,9 +37,10 @@
 #include "backends/meta-backend-private.h"
 #include "backends/native/dbus-utils.h"
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-cursor-renderer-native.h"
-#include "backends/native/meta-device-manager-native.h"
 #include "backends/native/meta-renderer-native.h"
+#include "backends/native/meta-seat-native.h"
 #include "clutter/clutter.h"
 
 #include "meta-dbus-login1.h"
@@ -525,11 +526,11 @@ meta_launcher_new (GError **error)
   self->sysfs_fds = g_hash_table_new (NULL, NULL);
   self->session_active = TRUE;
 
-  meta_device_manager_native_set_seat_id (self->seat_id);
+  meta_clutter_backend_native_set_seat_id (self->seat_id);
 
-  meta_device_manager_native_set_device_callbacks (on_evdev_device_open,
-                                                   on_evdev_device_close,
-                                                   self);
+  meta_seat_native_set_device_callbacks (on_evdev_device_open,
+                                         on_evdev_device_close,
+                                         self);
 
   g_signal_connect (self->session_proxy, "notify::active", G_CALLBACK (on_active_changed), self);
 

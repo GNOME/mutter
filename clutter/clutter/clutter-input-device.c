@@ -37,12 +37,12 @@
 
 #include "clutter-actor-private.h"
 #include "clutter-debug.h"
-#include "clutter-device-manager-private.h"
 #include "clutter-enum-types.h"
 #include "clutter-event-private.h"
 #include "clutter-marshal.h"
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
+#include "clutter-input-device-private.h"
 #include "clutter-input-device-tool.h"
 
 #include <math.h>
@@ -57,7 +57,7 @@ enum
   PROP_NAME,
 
   PROP_DEVICE_TYPE,
-  PROP_DEVICE_MANAGER,
+  PROP_SEAT,
   PROP_DEVICE_MODE,
 
   PROP_HAS_CURSOR,
@@ -170,8 +170,8 @@ clutter_input_device_set_property (GObject      *gobject,
       self->device_type = g_value_get_enum (value);
       break;
 
-    case PROP_DEVICE_MANAGER:
-      self->device_manager = g_value_get_object (value);
+    case PROP_SEAT:
+      self->seat = g_value_get_object (value);
       break;
 
     case PROP_DEVICE_MODE:
@@ -246,8 +246,8 @@ clutter_input_device_get_property (GObject    *gobject,
       g_value_set_enum (value, self->device_type);
       break;
 
-    case PROP_DEVICE_MANAGER:
-      g_value_set_object (value, self->device_manager);
+    case PROP_SEAT:
+      g_value_set_object (value, self->seat);
       break;
 
     case PROP_DEVICE_MODE:
@@ -361,17 +361,15 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
                        G_PARAM_CONSTRUCT_ONLY);
 
   /**
-   * ClutterInputDevice:device-manager:
+   * ClutterInputDevice:seat:
    *
-   * The #ClutterDeviceManager instance which owns the device
-   *
-   * Since: 1.6
+   * The #ClutterSeat instance which owns the device
    */
-  obj_props[PROP_DEVICE_MANAGER] =
-    g_param_spec_object ("device-manager",
-                         P_("Device Manager"),
-                         P_("The device manager instance"),
-                         CLUTTER_TYPE_DEVICE_MANAGER,
+  obj_props[PROP_SEAT] =
+    g_param_spec_object ("seat",
+                         P_("Seat"),
+                         P_("Seat"),
+                         CLUTTER_TYPE_SEAT,
                          CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
   /**
@@ -1224,11 +1222,11 @@ clutter_input_device_get_device_mode (ClutterInputDevice *device)
  *
  *   translate_native_event_to_clutter (native_event, &c_event);
  *
- *   // get the device manager
- *   manager = clutter_device_manager_get_default ();
+ *   // get the seat
+ *   seat = clutter_backend_get_deafult_seat (clutter_get_default_backend ());
  *
  *   // use the default Core Pointer that Clutter backends register by default
- *   device = clutter_device_manager_get_core_device (manager, %CLUTTER_POINTER_DEVICE);
+ *   device = clutter_seat_get_pointer (seat);
  *
  *   // update the state of the input device
  *   clutter_input_device_update_from_event (device, &c_event, FALSE);
@@ -2440,4 +2438,20 @@ clutter_input_device_is_grouped (ClutterInputDevice *device,
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (other_device), FALSE);
 
   return CLUTTER_INPUT_DEVICE_GET_CLASS (device)->is_grouped (device, other_device);
+}
+
+/**
+ * clutter_input_device_get_seat:
+ * @device: a #ClutterInputDevice
+ *
+ * Returns the seat the device belongs to
+ *
+ * Returns: (transfer none): the device seat
+ **/
+ClutterSeat *
+clutter_input_device_get_seat (ClutterInputDevice *device)
+{
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
+
+  return device->seat;
 }

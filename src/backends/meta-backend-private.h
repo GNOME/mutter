@@ -71,10 +71,6 @@ struct _MetaBackendClass
                               int          device_id,
                               uint32_t     timestamp);
 
-  void (* warp_pointer) (MetaBackend *backend,
-                         int          x,
-                         int          y);
-
   MetaLogicalMonitor * (* get_current_logical_monitor) (MetaBackend *backend);
 
   void (* set_keymap) (MetaBackend *backend,
@@ -94,12 +90,6 @@ struct _MetaBackendClass
   void (* update_screen_size) (MetaBackend *backend, int width, int height);
   void (* select_stage_events) (MetaBackend *backend);
 
-  gboolean (* get_relative_motion_deltas) (MetaBackend *backend,
-                                           const        ClutterEvent *event,
-                                           double       *dx,
-                                           double       *dy,
-                                           double       *dx_unaccel,
-                                           double       *dy_unaccel);
   void (* set_numlock) (MetaBackend *backend,
                         gboolean     numlock_state);
 
@@ -109,8 +99,8 @@ void meta_init_backend (GType backend_gtype);
 
 ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
 
-MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend *backend,
-                                                 int          device_id);
+MetaIdleMonitor * meta_backend_get_idle_monitor (MetaBackend        *backend,
+                                                 ClutterInputDevice *device);
 void meta_backend_foreach_device_monitor (MetaBackend *backend,
                                           GFunc        func,
                                           gpointer     user_data);
@@ -135,10 +125,6 @@ gboolean meta_backend_ungrab_device (MetaBackend *backend,
                                      int          device_id,
                                      uint32_t     timestamp);
 
-void meta_backend_warp_pointer (MetaBackend *backend,
-                                int          x,
-                                int          y);
-
 MetaLogicalMonitor * meta_backend_get_current_logical_monitor (MetaBackend *backend);
 
 struct xkb_keymap * meta_backend_get_keymap (MetaBackend *backend);
@@ -151,15 +137,8 @@ void meta_backend_freeze_updates (MetaBackend *backend);
 
 void meta_backend_thaw_updates (MetaBackend *backend);
 
-void meta_backend_update_last_device (MetaBackend *backend,
-                                      int          device_id);
-
-gboolean meta_backend_get_relative_motion_deltas (MetaBackend *backend,
-                                                  const        ClutterEvent *event,
-                                                  double       *dx,
-                                                  double       *dy,
-                                                  double       *dx_unaccel,
-                                                  double       *dy_unaccel);
+void meta_backend_update_last_device (MetaBackend        *backend,
+                                      ClutterInputDevice *device);
 
 MetaPointerConstraint * meta_backend_get_client_pointer_constraint (MetaBackend *backend);
 void meta_backend_set_client_pointer_constraint (MetaBackend *backend,

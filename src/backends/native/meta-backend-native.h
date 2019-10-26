@@ -47,4 +47,6 @@ MetaUdev * meta_backend_native_get_udev (MetaBackendNative *native);
 
 MetaKms * meta_backend_native_get_kms (MetaBackendNative *native);
 
+void meta_backend_native_set_seat_id (const gchar *seat_id);
+
 #endif /* META_BACKEND_NATIVE_H */

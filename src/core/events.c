@@ -103,7 +103,6 @@ handle_idletime_for_event (const ClutterEvent *event)
 {
   ClutterInputDevice *device, *source_device;
   MetaIdleMonitor *core_monitor, *device_monitor;
-  int device_id;
 
   device = clutter_event_get_device (event);
   if (device == NULL)
@@ -118,10 +117,8 @@ handle_idletime_for_event (const ClutterEvent *event)
       event->type == CLUTTER_DELETE)
     return;
 
-  device_id = clutter_input_device_get_device_id (device);
-
   core_monitor = meta_idle_monitor_get_core ();
-  device_monitor = meta_idle_monitor_get_for_device (device_id);
+  device_monitor = meta_idle_monitor_get_for_device (device);
 
   meta_idle_monitor_reset_idletime (core_monitor);
   meta_idle_monitor_reset_idletime (device_monitor);
@@ -129,8 +126,7 @@ handle_idletime_for_event (const ClutterEvent *event)
   source_device = clutter_event_get_source_device (event);
   if (source_device != device)
     {
-      device_id = clutter_input_device_get_device_id (device);
-      device_monitor = meta_idle_monitor_get_for_device (device_id);
+      device_monitor = meta_idle_monitor_get_for_device (source_device);
       meta_idle_monitor_reset_idletime (device_monitor);
     }
 }
@@ -273,10 +269,7 @@ meta_display_handle_event (MetaDisplay        *display,
   source = clutter_event_get_source_device (event);
 
   if (source)
-    {
-      meta_backend_update_last_device (backend,
-                                       clutter_input_device_get_device_id (source));
-    }
+    meta_backend_update_last_device (backend, source);
 
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor () && event->type == CLUTTER_MOTION)

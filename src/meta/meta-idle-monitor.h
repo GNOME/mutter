@@ -44,7 +44,7 @@ META_EXPORT
 MetaIdleMonitor *meta_idle_monitor_get_core (void);
 
 META_EXPORT
-MetaIdleMonitor *meta_idle_monitor_get_for_device (int device_id);
+MetaIdleMonitor *meta_idle_monitor_get_for_device (ClutterInputDevice *device);
 
 META_EXPORT
 guint         meta_idle_monitor_add_idle_watch        (MetaIdleMonitor          *monitor,

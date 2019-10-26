@@ -515,6 +515,34 @@ meta_keymap_x11_get_caps_lock_state (ClutterKeymap *keymap)
   return keymap_x11->caps_lock_state;
 }
 
+static PangoDirection
+meta_keymap_x11_get_direction (ClutterKeymap *keymap)
+{
+  MetaKeymapX11 *keymap_x11;
+
+  g_return_val_if_fail (META_IS_KEYMAP_X11 (keymap), PANGO_DIRECTION_NEUTRAL);
+
+  keymap_x11 = META_KEYMAP_X11 (keymap);
+
+  if (keymap_x11->use_xkb)
+    {
+      if (!keymap_x11->has_direction)
+        {
+          XkbStateRec state_rec;
+
+          XkbGetState (clutter_x11_get_default_display (),
+                       XkbUseCoreKbd, &state_rec);
+          update_direction (keymap_x11, XkbStateGroup (&state_rec));
+        }
+
+      return keymap_x11->current_direction;
+    }
+  else
+    {
+      return PANGO_DIRECTION_NEUTRAL;
+    }
+}
+
 static void
 meta_keymap_x11_class_init (MetaKeymapX11Class *klass)
 {
@@ -534,6 +562,7 @@ meta_keymap_x11_class_init (MetaKeymapX11Class *klass)
 
   keymap_class->get_num_lock_state = meta_keymap_x11_get_num_lock_state;
   keymap_class->get_caps_lock_state = meta_keymap_x11_get_caps_lock_state;
+  keymap_class->get_direction = meta_keymap_x11_get_direction;
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 }
@@ -678,28 +707,6 @@ meta_keymap_x11_get_is_modifier (MetaKeymapX11 *keymap,
     }
 
   return FALSE;
-}
-
-PangoDirection
-meta_keymap_x11_get_direction (MetaKeymapX11 *keymap)
-{
-  g_return_val_if_fail (META_IS_KEYMAP_X11 (keymap), PANGO_DIRECTION_NEUTRAL);
-
-  if (keymap->use_xkb)
-    {
-      if (!keymap->has_direction)
-        {
-          XkbStateRec state_rec;
-
-          XkbGetState (clutter_x11_get_default_display (),
-                       XkbUseCoreKbd, &state_rec);
-          update_direction (keymap, XkbStateGroup (&state_rec));
-        }
-
-      return keymap->current_direction;
-    }
-  else
-    return PANGO_DIRECTION_NEUTRAL;
 }
 
 static gboolean

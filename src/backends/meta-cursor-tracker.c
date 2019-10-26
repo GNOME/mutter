@@ -405,12 +405,12 @@ get_pointer_position_clutter (int         *x,
                               int         *y,
                               int         *mods)
 {
-  ClutterDeviceManager *cmanager;
+  ClutterSeat *seat;
   ClutterInputDevice *cdevice;
   graphene_point_t point;
 
-  cmanager = clutter_device_manager_get_default ();
-  cdevice = clutter_device_manager_get_core_device (cmanager, CLUTTER_POINTER_DEVICE);
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  cdevice = clutter_seat_get_pointer (seat);
 
   clutter_input_device_get_coords (cdevice, NULL, &point);
   if (x)

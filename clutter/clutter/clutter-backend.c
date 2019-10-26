@@ -51,7 +51,6 @@
 #include "clutter-stage-manager-private.h"
 #include "clutter-stage-private.h"
 #include "clutter-stage-window.h"
-#include "clutter-device-manager-private.h"
 
 #ifdef CLUTTER_HAS_WAYLAND_COMPOSITOR_SUPPORT
 #include "wayland/clutter-wayland-compositor.h"
@@ -528,30 +527,6 @@ clutter_backend_real_init_events (ClutterBackend *backend)
   g_error ("Unknown input backend");
 }
 
-static ClutterDeviceManager *
-clutter_backend_real_get_device_manager (ClutterBackend *backend)
-{
-  if (G_UNLIKELY (backend->device_manager == NULL))
-    {
-      g_critical ("No device manager available, expect broken input");
-      return NULL;
-    }
-
-  return backend->device_manager;
-}
-
-static ClutterKeymap *
-clutter_backend_real_get_keymap (ClutterBackend *backend)
-{
-  if (G_UNLIKELY (backend->keymap == NULL))
-    {
-      g_critical ("No keymap available, expect broken keyboard input");
-      return NULL;
-    }
-
-  return backend->keymap;
-}
-
 static void
 clutter_backend_class_init (ClutterBackendClass *klass)
 {
@@ -615,10 +590,8 @@ clutter_backend_class_init (ClutterBackendClass *klass)
   klass->font_changed = clutter_backend_real_font_changed;
 
   klass->init_events = clutter_backend_real_init_events;
-  klass->get_device_manager = clutter_backend_real_get_device_manager;
   klass->create_context = clutter_backend_real_create_context;
   klass->get_features = clutter_backend_real_get_features;
-  klass->get_keymap = clutter_backend_real_get_keymap;
 }
 
 static void
@@ -783,24 +756,24 @@ _clutter_backend_copy_event_data (ClutterBackend     *backend,
                                   const ClutterEvent *src,
                                   ClutterEvent       *dest)
 {
-  ClutterDeviceManagerClass *device_manager_class;
-  ClutterDeviceManager *device_manager;
+  ClutterSeatClass *seat_class;
+  ClutterSeat *seat;
 
-  device_manager = clutter_device_manager_get_default ();
-  device_manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
-  device_manager_class->copy_event_data (device_manager, src, dest);
+  seat = clutter_backend_get_default_seat (backend);
+  seat_class = CLUTTER_SEAT_GET_CLASS (seat);
+  seat_class->copy_event_data (seat, src, dest);
 }
 
 void
 _clutter_backend_free_event_data (ClutterBackend *backend,
                                   ClutterEvent   *event)
 {
-  ClutterDeviceManagerClass *device_manager_class;
-  ClutterDeviceManager *device_manager;
+  ClutterSeatClass *seat_class;
+  ClutterSeat *seat;
 
-  device_manager = clutter_device_manager_get_default ();
-  device_manager_class = CLUTTER_DEVICE_MANAGER_GET_CLASS (device_manager);
-  device_manager_class->free_event_data (device_manager, event);
+  seat = clutter_backend_get_default_seat (backend);
+  seat_class = CLUTTER_SEAT_GET_CLASS (seat);
+  seat_class->free_event_data (seat, event);
 }
 
 /**
@@ -997,18 +970,6 @@ clutter_wayland_set_compositor_display (void *display)
 }
 #endif
 
-PangoDirection
-_clutter_backend_get_keymap_direction (ClutterBackend *backend)
-{
-  ClutterBackendClass *klass;
-
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
-  if (klass->get_keymap_direction != NULL)
-    return klass->get_keymap_direction (backend);
-
-  return PANGO_DIRECTION_NEUTRAL;
-}
-
 void
 _clutter_backend_reset_cogl_framebuffer (ClutterBackend *backend)
 {
@@ -1042,16 +1003,6 @@ clutter_set_allowed_drivers (const char *drivers)
   allowed_drivers = g_strdup (drivers);
 }
 
-void
-clutter_backend_bell_notify (ClutterBackend *backend)
-{
-  ClutterBackendClass *klass;
-
-  klass = CLUTTER_BACKEND_GET_CLASS (backend);
-  if (klass->bell_notify)
-    klass->bell_notify (backend);
-}
-
 /**
  * clutter_backend_get_input_method:
  * @backend: the #CLutterBackend
@@ -1080,22 +1031,24 @@ clutter_backend_set_input_method (ClutterBackend     *backend,
   g_set_object (&backend->input_method, method);
 }
 
-/**
- * clutter_backend_get_keymap:
- * @backend: the #ClutterBackend
- *
- * Gets the keymap used by Clutter
- *
- * Returns: (transfer none): the keymap
- **/
-ClutterKeymap *
-clutter_backend_get_keymap (ClutterBackend *backend)
-{
-  return CLUTTER_BACKEND_GET_CLASS (backend)->get_keymap (backend);
-}
-
 ClutterStageWindow *
 clutter_backend_get_stage_window (ClutterBackend *backend)
 {
   return backend->stage_window;
+}
+
+/**
+ * clutter_backend_get_default_seat:
+ * @backend: the #ClutterBackend
+ *
+ * Returns the default seat
+ *
+ * Returns: (transfer none): the default seat
+ **/
+ClutterSeat *
+clutter_backend_get_default_seat (ClutterBackend *backend)
+{
+  g_return_val_if_fail (CLUTTER_IS_BACKEND (backend), NULL);
+
+  return CLUTTER_BACKEND_GET_CLASS (backend)->get_default_seat (backend);
 }

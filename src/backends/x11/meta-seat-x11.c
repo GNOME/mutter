@@ -1,5 +1,5 @@
 /*
- * Copyright © 2011  Intel Corp.
+ * Copyright (C) 2019 Red Hat Inc.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -14,38 +14,55 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  *
- * Author: Emmanuele Bassi <ebassi@linux.intel.com>
+ * Author: Carlos Garnacho <carlosg@gnome.org>
  */
-
 #include "config.h"
 
-#include <stdint.h>
 #include <X11/extensions/XInput2.h>
 
-#include "backends/x11/meta-backend-x11.h"
-#include "backends/x11/meta-device-manager-x11.h"
 #include "backends/x11/meta-event-x11.h"
-#include "backends/x11/meta-input-device-x11.h"
 #include "backends/x11/meta-input-device-tool-x11.h"
+#include "backends/x11/meta-input-device-x11.h"
 #include "backends/x11/meta-keymap-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "backends/x11/meta-virtual-input-device-x11.h"
 #include "backends/x11/meta-xkb-a11y-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
-#include "core/display-private.h"
-#include "meta/meta-x11-errors.h"
+#include "core/bell.h"
+#include "meta-seat-x11.h"
 
 enum
 {
   PROP_0,
-
   PROP_OPCODE,
-
-  PROP_LAST
+  PROP_POINTER_ID,
+  PROP_KEYBOARD_ID,
+  N_PROPS
 };
 
-static GParamSpec *obj_props[PROP_LAST] = { NULL, };
+struct _MetaSeatX11
+{
+  ClutterSeat parent_instance;
+  ClutterInputDevice *core_pointer;
+  ClutterInputDevice *core_keyboard;
+  GList *devices;
+  GHashTable *devices_by_id;
+  GHashTable *tools_by_serial;
+  MetaKeymapX11 *keymap;
+
+  int pointer_id;
+  int keyboard_id;
+  int opcode;
+
+#ifdef HAVE_LIBWACOM
+  WacomDeviceDatabase *wacom_db;
+#endif
+};
+
+static GParamSpec *props[N_PROPS] = { 0 };
+
+G_DEFINE_TYPE (MetaSeatX11, meta_seat_x11, CLUTTER_TYPE_SEAT)
 
 static const char *clutter_input_axis_atom_names[] = {
   "Abs X",              /* CLUTTER_INPUT_AXIS_X */
@@ -56,8 +73,6 @@ static const char *clutter_input_axis_atom_names[] = {
   "Abs Wheel",          /* CLUTTER_INPUT_AXIS_WHEEL */
   "Abs Distance",       /* CLUTTER_INPUT_AXIS_DISTANCE */
 };
-
-#define N_AXIS_ATOMS    G_N_ELEMENTS (clutter_input_axis_atom_names)
 
 static const char *wacom_type_atoms[] = {
     "STYLUS",
@@ -86,34 +101,9 @@ enum
   PAD_AXIS_RING2,
 };
 
+#define N_AXIS_ATOMS    G_N_ELEMENTS (clutter_input_axis_atom_names)
+
 static Atom clutter_input_axis_atoms[N_AXIS_ATOMS] = { 0, };
-
-G_DEFINE_TYPE (MetaDeviceManagerX11,
-               meta_device_manager_x11,
-               CLUTTER_TYPE_DEVICE_MANAGER)
-
-static void
-meta_device_manager_x11_copy_event_data (ClutterDeviceManager *device_manager,
-                                         const ClutterEvent   *src,
-                                         ClutterEvent         *dest)
-{
-  gpointer event_x11;
-
-  event_x11 = _clutter_event_get_platform_data (src);
-  if (event_x11 != NULL)
-    _clutter_event_set_platform_data (dest, meta_event_x11_copy (event_x11));
-}
-
-static void
-meta_device_manager_x11_free_event_data (ClutterDeviceManager *device_manager,
-                                         ClutterEvent         *event)
-{
-  gpointer event_x11;
-
-  event_x11 = _clutter_event_get_platform_data (event);
-  if (event_x11 != NULL)
-    meta_event_x11_free (event_x11);
-}
 
 static void
 translate_valuator_class (Display             *xdisplay,
@@ -464,9 +454,9 @@ guess_source_from_wacom_type (XIDeviceInfo            *info,
 }
 
 static ClutterInputDevice *
-create_device (MetaDeviceManagerX11 *manager_xi2,
-               ClutterBackend       *backend,
-               XIDeviceInfo         *info)
+create_device (MetaSeatX11    *seat_x11,
+               ClutterBackend *backend,
+               XIDeviceInfo   *info)
 {
   ClutterInputDeviceType source, touch_source;
   ClutterInputDevice *retval;
@@ -550,7 +540,6 @@ create_device (MetaDeviceManagerX11 *manager_xi2,
                          "name", info->name,
                          "id", info->deviceid,
                          "has-cursor", (info->use == XIMasterPointer),
-                         "device-manager", manager_xi2,
                          "device-type", source,
                          "device-mode", mode,
                          "backend", backend,
@@ -561,6 +550,7 @@ create_device (MetaDeviceManagerX11 *manager_xi2,
                          "n-rings", num_rings,
                          "n-strips", num_strips,
                          "n-mode-groups", MAX (num_rings, num_strips),
+                         "seat", seat_x11,
                          NULL);
 
   translate_device_classes (clutter_x11_get_default_display (), retval,
@@ -569,7 +559,7 @@ create_device (MetaDeviceManagerX11 *manager_xi2,
 
 #ifdef HAVE_LIBWACOM
   if (source == CLUTTER_PAD_DEVICE)
-    meta_input_device_x11_ensure_wacom_info (retval, manager_xi2->wacom_db);
+    meta_input_device_x11_ensure_wacom_info (retval, seat_x11->wacom_db);
 #endif
 
   g_free (vendor_id);
@@ -625,38 +615,41 @@ pad_passive_button_grab (ClutterInputDevice *device)
 }
 
 static ClutterInputDevice *
-add_device (MetaDeviceManagerX11 *manager_xi2,
-            ClutterBackend       *backend,
-            XIDeviceInfo         *info,
-            gboolean              in_construction)
+add_device (MetaSeatX11    *seat_x11,
+            ClutterBackend *backend,
+            XIDeviceInfo   *info,
+            gboolean        in_construction)
 {
   ClutterInputDevice *device;
 
-  device = create_device (manager_xi2, backend, info);
+  device = create_device (seat_x11, backend, info);
 
-  /* we don't go through the DeviceManager::add_device() vfunc because
-   * that emits the signal, and we only do it conditionally
-   */
-  g_hash_table_replace (manager_xi2->devices_by_id,
+  g_hash_table_replace (seat_x11->devices_by_id,
                         GINT_TO_POINTER (info->deviceid),
                         device);
 
-  if (info->use == XIMasterPointer ||
-      info->use == XIMasterKeyboard)
+  if (info->use == XIMasterPointer &&
+      info->deviceid == seat_x11->pointer_id)
     {
-      manager_xi2->master_devices =
-        g_list_prepend (manager_xi2->master_devices, device);
+      seat_x11->core_pointer = device;
     }
-  else if (info->use == XISlavePointer ||
-           info->use == XISlaveKeyboard ||
-           info->use == XIFloatingSlave)
+  else if (info->use == XIMasterKeyboard &&
+           info->deviceid == seat_x11->keyboard_id)
     {
-      manager_xi2->slave_devices =
-        g_list_prepend (manager_xi2->slave_devices, device);
+      seat_x11->core_keyboard = device;
+    }
+  else if ((info->use == XISlavePointer &&
+            info->attachment == seat_x11->pointer_id) ||
+           (info->use == XISlaveKeyboard &&
+            info->attachment == seat_x11->keyboard_id))
+    {
+      seat_x11->devices = g_list_prepend (seat_x11->devices, device);
     }
   else
-    g_warning ("Unhandled device: %s",
-               clutter_input_device_get_device_name (device));
+    {
+      g_warning ("Unhandled device: %s",
+                 clutter_input_device_get_device_name (device));
+    }
 
   if (clutter_input_device_get_device_type (device) == CLUTTER_PAD_DEVICE)
     pad_passive_button_grab (device);
@@ -670,62 +663,120 @@ add_device (MetaDeviceManagerX11 *manager_xi2,
         {
           ClutterInputDevice *master;
 
-          master = g_hash_table_lookup (manager_xi2->devices_by_id,
+          master = g_hash_table_lookup (seat_x11->devices_by_id,
                                         GINT_TO_POINTER (info->attachment));
           _clutter_input_device_set_associated_device (device, master);
           _clutter_input_device_add_slave (master, device);
+
+          g_signal_emit_by_name (seat_x11, "device-added", device);
         }
-
-      /* blow the cache */
-      g_slist_free (manager_xi2->all_devices);
-      manager_xi2->all_devices = NULL;
-
-      g_signal_emit_by_name (manager_xi2, "device-added", device);
     }
 
   return device;
 }
 
 static void
-remove_device (MetaDeviceManagerX11 *manager_xi2,
-               int                   device_id)
+remove_device (MetaSeatX11 *seat_x11,
+               int          device_id)
 {
   ClutterInputDevice *device;
 
-  device = g_hash_table_lookup (manager_xi2->devices_by_id,
+  device = g_hash_table_lookup (seat_x11->devices_by_id,
                                 GINT_TO_POINTER (device_id));
 
   if (device != NULL)
     {
-      manager_xi2->master_devices =
-        g_list_remove (manager_xi2->master_devices, device);
-      manager_xi2->slave_devices =
-        g_list_remove (manager_xi2->slave_devices, device);
-
-      /* blow the cache */
-      g_slist_free (manager_xi2->all_devices);
-      manager_xi2->all_devices = NULL;
-
-      g_signal_emit_by_name (manager_xi2, "device-removed", device);
+      if (seat_x11->core_pointer == device)
+        {
+          seat_x11->core_pointer = NULL;
+        }
+      else if (seat_x11->core_keyboard == device)
+        {
+          seat_x11->core_keyboard = NULL;
+        }
+      else
+        {
+          seat_x11->devices = g_list_remove (seat_x11->devices, device);
+          g_signal_emit_by_name (seat_x11, "device-removed", device);
+          g_hash_table_remove (seat_x11->devices_by_id,
+                               GINT_TO_POINTER (device_id));
+        }
 
       g_object_run_dispose (G_OBJECT (device));
-
-      g_hash_table_remove (manager_xi2->devices_by_id,
-                           GINT_TO_POINTER (device_id));
+      g_object_unref (device);
     }
 }
 
 static void
-translate_hierarchy_event (ClutterBackend       *backend,
-                           MetaDeviceManagerX11 *manager_xi2,
-                           XIHierarchyEvent     *ev)
+relate_masters (gpointer key,
+                gpointer value,
+                gpointer data)
+{
+  MetaSeatX11 *seat_x11 = data;
+  ClutterInputDevice *device, *relative;
+
+  device = g_hash_table_lookup (seat_x11->devices_by_id, key);
+  relative = g_hash_table_lookup (seat_x11->devices_by_id, value);
+
+  _clutter_input_device_set_associated_device (device, relative);
+  _clutter_input_device_set_associated_device (relative, device);
+}
+
+static void
+relate_slaves (gpointer key,
+               gpointer value,
+               gpointer data)
+{
+  MetaSeatX11 *seat_x11 = data;
+  ClutterInputDevice *master, *slave;
+
+  slave = g_hash_table_lookup (seat_x11->devices_by_id, key);
+  master = g_hash_table_lookup (seat_x11->devices_by_id, value);
+
+  _clutter_input_device_set_associated_device (slave, master);
+  _clutter_input_device_add_slave (master, slave);
+}
+
+static uint
+device_get_tool_serial (ClutterInputDevice *device)
+{
+  gulong nitems, bytes_after;
+  uint32_t *data = NULL;
+  int serial_id = 0;
+  int rc, format;
+  Atom type;
+  Atom prop;
+
+  prop = XInternAtom (clutter_x11_get_default_display (), "Wacom Serial IDs", True);
+  if (prop == None)
+    return 0;
+
+  clutter_x11_trap_x_errors ();
+  rc = XIGetProperty (clutter_x11_get_default_display (),
+                      clutter_input_device_get_device_id (device),
+                      prop, 0, 4, FALSE, XA_INTEGER, &type, &format, &nitems, &bytes_after,
+                      (guchar **) &data);
+  clutter_x11_untrap_x_errors ();
+
+  if (rc == Success && type == XA_INTEGER && format == 32 && nitems >= 4)
+    serial_id = data[3];
+
+  XFree (data);
+
+  return serial_id;
+}
+
+static void
+translate_hierarchy_event (ClutterBackend   *backend,
+                           MetaSeatX11      *seat_x11,
+                           XIHierarchyEvent *ev)
 {
   int i;
 
   for (i = 0; i < ev->num_info; i++)
     {
       if (ev->info[i].flags & XIDeviceEnabled &&
-          !g_hash_table_lookup (manager_xi2->devices_by_id,
+          !g_hash_table_lookup (seat_x11->devices_by_id,
                                 GINT_TO_POINTER (ev->info[i].deviceid)))
         {
           XIDeviceInfo *info;
@@ -740,7 +791,7 @@ translate_hierarchy_event (ClutterBackend       *backend,
           clutter_x11_untrap_x_errors ();
           if (info != NULL)
             {
-              add_device (manager_xi2, backend, &info[0], FALSE);
+              add_device (seat_x11, backend, &info[0], FALSE);
               XIFreeDeviceInfo (info);
             }
         }
@@ -748,7 +799,7 @@ translate_hierarchy_event (ClutterBackend       *backend,
         {
           g_debug ("Hierarchy event: device disabled");
 
-          remove_device (manager_xi2, ev->info[i].deviceid);
+          remove_device (seat_x11, ev->info[i].deviceid);
         }
       else if ((ev->info[i].flags & XISlaveAttached) ||
                (ev->info[i].flags & XISlaveDetached))
@@ -756,14 +807,13 @@ translate_hierarchy_event (ClutterBackend       *backend,
           ClutterInputDevice *master, *slave;
           XIDeviceInfo *info;
           int n_devices;
-          gboolean send_changed = FALSE;
 
           g_debug ("Hierarchy event: slave %s",
                    (ev->info[i].flags & XISlaveAttached)
                    ? "attached"
                    : "detached");
 
-          slave = g_hash_table_lookup (manager_xi2->devices_by_id,
+          slave = g_hash_table_lookup (seat_x11->devices_by_id,
                                        GINT_TO_POINTER (ev->info[i].deviceid));
           master = clutter_input_device_get_associated_device (slave);
 
@@ -772,8 +822,6 @@ translate_hierarchy_event (ClutterBackend       *backend,
             {
               _clutter_input_device_remove_slave (master, slave);
               _clutter_input_device_set_associated_device (slave, NULL);
-
-              send_changed = TRUE;
             }
 
           /* and attach the slave to the new master if needed */
@@ -786,48 +834,219 @@ translate_hierarchy_event (ClutterBackend       *backend,
               clutter_x11_untrap_x_errors ();
               if (info != NULL)
                 {
-                  master = g_hash_table_lookup (manager_xi2->devices_by_id,
+                  master = g_hash_table_lookup (seat_x11->devices_by_id,
                                                 GINT_TO_POINTER (info->attachment));
                   if (master != NULL)
                     {
                       _clutter_input_device_set_associated_device (slave, master);
                       _clutter_input_device_add_slave (master, slave);
-
-                      send_changed = TRUE;
                     }
                   XIFreeDeviceInfo (info);
                 }
-            }
-
-          if (send_changed)
-            {
-              ClutterStage *stage = _clutter_input_device_get_stage (master);
-              if (stage != NULL)
-		{
-		  meta_stage_x11_events_device_changed (META_STAGE_X11 (_clutter_stage_get_window (stage)),
-							master,
-							CLUTTER_DEVICE_MANAGER (manager_xi2));
-		}
             }
         }
     }
 }
 
 static void
-meta_device_manager_x11_select_events (ClutterDeviceManager *manager,
-                                       Window                xwindow,
-                                       XIEventMask          *event_mask)
+translate_property_event (MetaSeatX11 *seat_x11,
+                          XIEvent     *event)
 {
-  Display *xdisplay;
+  XIPropertyEvent *xev = (XIPropertyEvent *) event;
+  Atom serial_ids_prop = XInternAtom (clutter_x11_get_default_display (), "Wacom Serial IDs", True);
+  ClutterInputDevice *device;
 
-  xdisplay = clutter_x11_get_default_display ();
+  device = g_hash_table_lookup (seat_x11->devices_by_id,
+                                GINT_TO_POINTER (xev->deviceid));
+  if (!device)
+    return;
 
-  XISelectEvents (xdisplay, xwindow, event_mask, 1);
+  if (xev->property == serial_ids_prop)
+    {
+      ClutterInputDeviceTool *tool = NULL;
+      ClutterInputDeviceToolType type;
+      int serial_id;
+
+      serial_id = device_get_tool_serial (device);
+
+      if (serial_id != 0)
+        {
+          tool = g_hash_table_lookup (seat_x11->tools_by_serial,
+                                      GUINT_TO_POINTER (serial_id));
+          if (!tool)
+            {
+              type = clutter_input_device_get_device_type (device) == CLUTTER_ERASER_DEVICE ?
+                CLUTTER_INPUT_DEVICE_TOOL_ERASER : CLUTTER_INPUT_DEVICE_TOOL_PEN;
+              tool = meta_input_device_tool_x11_new (serial_id, type);
+              g_hash_table_insert (seat_x11->tools_by_serial,
+                                   GUINT_TO_POINTER (serial_id),
+                                   tool);
+            }
+        }
+
+      meta_input_device_x11_update_tool (device, tool);
+      g_signal_emit_by_name (seat_x11, "tool-changed", device, tool);
+    }
+}
+
+static void
+translate_raw_event (MetaSeatX11 *seat_x11,
+                     XEvent      *xevent)
+{
+  ClutterInputDevice *device;
+  XGenericEventCookie *cookie;
+  XIEvent *xi_event;
+  XIRawEvent *xev;
+  float x,y;
+
+  cookie = &xevent->xcookie;
+  xi_event = (XIEvent *) cookie->data;
+  xev = (XIRawEvent *) xi_event;
+
+  device = g_hash_table_lookup (seat_x11->devices_by_id,
+                                GINT_TO_POINTER (xev->deviceid));
+  if (device == NULL)
+    return;
+
+  if (!_clutter_is_input_pointer_a11y_enabled (device))
+    return;
+
+  switch (cookie->evtype)
+    {
+    case XI_RawMotion:
+      g_debug ("raw motion: device:%d '%s'",
+               device->id,
+               device->device_name);
+
+      /* We don't get actual pointer location with raw events, and we cannot
+       * rely on `clutter_input_device_get_coords()` either because of
+       * unreparented toplevels (like all client-side decoration windows),
+       * so we need to explicitely query the pointer here...
+       */
+      if (meta_input_device_x11_get_pointer_location (device, &x, &y))
+        _clutter_input_pointer_a11y_on_motion_event (device, x, y);
+      break;
+    case XI_RawButtonPress:
+    case XI_RawButtonRelease:
+      g_debug ("raw button %s: device:%d '%s' button %i",
+               cookie->evtype == XI_RawButtonPress
+               ? "press  "
+               : "release",
+               device->id,
+               device->device_name,
+               xev->detail);
+      _clutter_input_pointer_a11y_on_button_event (device,
+                                                  xev->detail,
+                                                  (cookie->evtype == XI_RawButtonPress));
+      break;
+    }
+}
+
+static gboolean
+translate_pad_axis (ClutterInputDevice *device,
+                    XIValuatorState    *valuators,
+                    ClutterEventType   *evtype,
+                    uint32_t           *number,
+                    double             *value)
+{
+  double *values;
+  int i;
+
+  values = valuators->values;
+
+  for (i = PAD_AXIS_FIRST; i < valuators->mask_len * 8; i++)
+    {
+      double val;
+      uint32_t axis_number = 0;
+
+      if (!XIMaskIsSet (valuators->mask, i))
+        continue;
+
+      val = *values++;
+      if (val <= 0)
+        continue;
+
+      _clutter_input_device_translate_axis (device, i, val, value);
+
+      if (i == PAD_AXIS_RING1 || i == PAD_AXIS_RING2)
+        {
+          *evtype = CLUTTER_PAD_RING;
+          (*value) *= 360.0;
+        }
+      else if (i == PAD_AXIS_STRIP1 || i == PAD_AXIS_STRIP2)
+        {
+          *evtype = CLUTTER_PAD_STRIP;
+        }
+      else
+        continue;
+
+      if (i == PAD_AXIS_STRIP2 || i == PAD_AXIS_RING2)
+        axis_number++;
+
+      *number = axis_number;
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+translate_pad_event (ClutterEvent       *event,
+                     XIDeviceEvent      *xev,
+                     ClutterInputDevice *device)
+{
+  double value;
+  uint32_t number, mode = 0;
+
+  if (!translate_pad_axis (device, &xev->valuators,
+                           &event->any.type,
+                           &number, &value))
+    return FALSE;
+
+  /* When touching a ring/strip a first XI_Motion event
+   * is generated. Use it to reset the pad state, so
+   * later events actually have a directionality.
+   */
+  if (xev->evtype == XI_Motion)
+    value = -1;
+
+#ifdef HAVE_LIBWACOM
+  mode = meta_input_device_x11_get_pad_group_mode (device, number);
+#endif
+
+  if (event->any.type == CLUTTER_PAD_RING)
+    {
+      event->pad_ring.ring_number = number;
+      event->pad_ring.angle = value;
+      event->pad_ring.mode = mode;
+    }
+  else
+    {
+      event->pad_strip.strip_number = number;
+      event->pad_strip.value = value;
+      event->pad_strip.mode = mode;
+    }
+
+  event->any.time = xev->time;
+  clutter_event_set_device (event, device);
+  clutter_event_set_source_device (event, device);
+
+  g_debug ("%s: win:0x%x, device:%d '%s', time:%d "
+           "(value:%f)",
+           event->any.type == CLUTTER_PAD_RING
+           ? "pad ring  "
+           : "pad strip",
+           (unsigned int) xev->event,
+           device->id,
+           device->device_name,
+           event->any.time, value);
+
+  return TRUE;
 }
 
 static ClutterStage *
-get_event_stage (MetaDeviceManagerX11 *manager_xi2,
-                 XIEvent              *xi_event)
+get_event_stage (MetaSeatX11 *seat_x11,
+                 XIEvent     *xi_event)
 {
   Window xwindow = None;
 
@@ -967,72 +1186,6 @@ translate_axes (ClutterInputDevice *device,
   return retval;
 }
 
-static gboolean
-translate_pad_axis (ClutterInputDevice *device,
-                    XIValuatorState    *valuators,
-                    ClutterEventType   *evtype,
-                    uint32_t           *number,
-                    double             *value)
-{
-  double *values;
-  int i;
-
-  values = valuators->values;
-
-  for (i = PAD_AXIS_FIRST; i < valuators->mask_len * 8; i++)
-    {
-      double val;
-      uint32_t axis_number = 0;
-
-      if (!XIMaskIsSet (valuators->mask, i))
-        continue;
-
-      val = *values++;
-      if (val <= 0)
-        continue;
-
-      _clutter_input_device_translate_axis (device, i, val, value);
-
-      if (i == PAD_AXIS_RING1 || i == PAD_AXIS_RING2)
-        {
-          *evtype = CLUTTER_PAD_RING;
-          (*value) *= 360.0;
-        }
-      else if (i == PAD_AXIS_STRIP1 || i == PAD_AXIS_STRIP2)
-        {
-          *evtype = CLUTTER_PAD_STRIP;
-        }
-      else
-        continue;
-
-      if (i == PAD_AXIS_STRIP2 || i == PAD_AXIS_RING2)
-        axis_number++;
-
-      *number = axis_number;
-      return TRUE;
-    }
-
-  return FALSE;
-}
-
-static void
-translate_coords (MetaStageX11 *stage_x11,
-                  double        event_x,
-                  double        event_y,
-                  float        *x_out,
-                  float        *y_out)
-{
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_x11);
-  ClutterActor *stage = CLUTTER_ACTOR (stage_cogl->wrapper);
-  float stage_width;
-  float stage_height;
-
-  clutter_actor_get_size (stage, &stage_width, &stage_height);
-
-  *x_out = CLAMP (event_x, 0, stage_width);
-  *y_out = CLAMP (event_y, 0, stage_height);
-}
-
 static double
 scroll_valuators_changed (ClutterInputDevice *device,
                           XIValuatorState    *valuators,
@@ -1079,235 +1232,383 @@ scroll_valuators_changed (ClutterInputDevice *device,
 }
 
 static void
-meta_device_manager_x11_select_stage_events (ClutterDeviceManager *manager,
-                                             ClutterStage         *stage)
+translate_coords (MetaStageX11 *stage_x11,
+                  double        event_x,
+                  double        event_y,
+                  float        *x_out,
+                  float        *y_out)
 {
-  MetaStageX11 *stage_x11;
-  XIEventMask xi_event_mask;
-  unsigned char *mask;
-  int len;
+  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_x11);
+  ClutterActor *stage = CLUTTER_ACTOR (stage_cogl->wrapper);
+  float stage_width;
+  float stage_height;
 
-  stage_x11 = META_STAGE_X11 (_clutter_stage_get_window (stage));
+  clutter_actor_get_size (stage, &stage_width, &stage_height);
 
-  len = XIMaskLen (XI_LASTEVENT);
-  mask = g_new0 (unsigned char, len);
-
-  XISetMask (mask, XI_Motion);
-  XISetMask (mask, XI_ButtonPress);
-  XISetMask (mask, XI_ButtonRelease);
-  XISetMask (mask, XI_KeyPress);
-  XISetMask (mask, XI_KeyRelease);
-  XISetMask (mask, XI_Enter);
-  XISetMask (mask, XI_Leave);
-
-  XISetMask (mask, XI_TouchBegin);
-  XISetMask (mask, XI_TouchUpdate);
-  XISetMask (mask, XI_TouchEnd);
-
-  xi_event_mask.deviceid = XIAllMasterDevices;
-  xi_event_mask.mask = mask;
-  xi_event_mask.mask_len = len;
-
-  XISelectEvents (clutter_x11_get_default_display (),
-                  stage_x11->xwin, &xi_event_mask, 1);
-
-  g_free (mask);
-}
-
-static uint
-device_get_tool_serial (ClutterInputDevice *device)
-{
-  gulong nitems, bytes_after;
-  uint32_t *data = NULL;
-  int serial_id = 0;
-  int rc, format;
-  Atom type;
-  Atom prop;
-
-  prop = XInternAtom (clutter_x11_get_default_display (), "Wacom Serial IDs", True);
-  if (prop == None)
-    return 0;
-
-  clutter_x11_trap_x_errors ();
-  rc = XIGetProperty (clutter_x11_get_default_display (),
-                      clutter_input_device_get_device_id (device),
-                      prop, 0, 4, FALSE, XA_INTEGER, &type, &format, &nitems, &bytes_after,
-                      (guchar **) &data);
-  clutter_x11_untrap_x_errors ();
-
-  if (rc == Success && type == XA_INTEGER && format == 32 && nitems >= 4)
-    serial_id = data[3];
-
-  XFree (data);
-
-  return serial_id;
+  *x_out = CLAMP (event_x, 0, stage_width);
+  *y_out = CLAMP (event_y, 0, stage_height);
 }
 
 static void
-handle_property_event (MetaDeviceManagerX11 *manager_xi2,
-                       XIEvent              *event)
+on_keymap_state_change (MetaKeymapX11 *keymap_x11,
+                        gpointer       data)
 {
-  XIPropertyEvent *xev = (XIPropertyEvent *) event;
-  Atom serial_ids_prop = XInternAtom (clutter_x11_get_default_display (), "Wacom Serial IDs", True);
-  ClutterInputDevice *device;
+  ClutterSeat *seat = CLUTTER_SEAT (data);
+  ClutterKbdA11ySettings kbd_a11y_settings;
 
-  device = g_hash_table_lookup (manager_xi2->devices_by_id,
-                                GINT_TO_POINTER (xev->deviceid));
-  if (!device)
-    return;
+  /* On keymaps state change, just reapply the current settings, it'll
+   * take care of enabling/disabling mousekeys based on NumLock state.
+   */
+  clutter_seat_get_kbd_a11y_settings (seat, &kbd_a11y_settings);
+  meta_seat_x11_apply_kbd_a11y_settings (seat, &kbd_a11y_settings);
+}
 
-  if (xev->property == serial_ids_prop)
+static void
+meta_seat_x11_set_property (GObject      *object,
+                            guint         prop_id,
+                            const GValue *value,
+                            GParamSpec   *pspec)
+{
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (object);
+
+  switch (prop_id)
     {
-      ClutterInputDeviceTool *tool = NULL;
-      ClutterInputDeviceToolType type;
-      int serial_id;
-
-      serial_id = device_get_tool_serial (device);
-
-      if (serial_id != 0)
-        {
-          tool = g_hash_table_lookup (manager_xi2->tools_by_serial,
-                                      GUINT_TO_POINTER (serial_id));
-          if (!tool)
-            {
-              type = clutter_input_device_get_device_type (device) == CLUTTER_ERASER_DEVICE ?
-                CLUTTER_INPUT_DEVICE_TOOL_ERASER : CLUTTER_INPUT_DEVICE_TOOL_PEN;
-              tool = meta_input_device_tool_x11_new (serial_id, type);
-              g_hash_table_insert (manager_xi2->tools_by_serial,
-                                   GUINT_TO_POINTER (serial_id),
-                                   tool);
-            }
-        }
-
-      meta_input_device_x11_update_tool (device, tool);
-      g_signal_emit_by_name (manager_xi2, "tool-changed", device, tool);
+    case PROP_OPCODE:
+      seat_x11->opcode = g_value_get_int (value);
+      break;
+    case PROP_POINTER_ID:
+      seat_x11->pointer_id = g_value_get_int (value);
+      break;
+    case PROP_KEYBOARD_ID:
+      seat_x11->keyboard_id = g_value_get_int (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
 }
 
-static gboolean
-translate_pad_event (ClutterEvent       *event,
-                     XIDeviceEvent      *xev,
-                     ClutterInputDevice *device)
+static void
+meta_seat_x11_get_property (GObject    *object,
+                            guint       prop_id,
+                            GValue     *value,
+                            GParamSpec *pspec)
 {
-  double value;
-  uint32_t number, mode = 0;
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (object);
 
-  if (!translate_pad_axis (device, &xev->valuators,
-                           &event->any.type,
-                           &number, &value))
-    return FALSE;
+  switch (prop_id)
+    {
+    case PROP_OPCODE:
+      g_value_set_int (value, seat_x11->opcode);
+      break;
+    case PROP_POINTER_ID:
+      g_value_set_int (value, seat_x11->pointer_id);
+      break;
+    case PROP_KEYBOARD_ID:
+      g_value_set_int (value, seat_x11->keyboard_id);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
 
-  /* When touching a ring/strip a first XI_Motion event
-   * is generated. Use it to reset the pad state, so
-   * later events actually have a directionality.
-   */
-  if (xev->evtype == XI_Motion)
-    value = -1;
+static void
+meta_seat_x11_constructed (GObject *object)
+{
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (object);
+  ClutterBackend *backend = clutter_get_default_backend ();
+  GHashTable *masters, *slaves;
+  XIDeviceInfo *info;
+  XIEventMask event_mask;
+  unsigned char mask[XIMaskLen(XI_LASTEVENT)] = { 0, };
+  int n_devices, i;
+  Display *xdisplay;
+
+  xdisplay = clutter_x11_get_default_display ();
+  masters = g_hash_table_new (NULL, NULL);
+  slaves = g_hash_table_new (NULL, NULL);
+
+  info = XIQueryDevice (clutter_x11_get_default_display (),
+                        XIAllDevices, &n_devices);
+
+  for (i = 0; i < n_devices; i++)
+    {
+      XIDeviceInfo *xi_device = &info[i];
+
+      if (!xi_device->enabled)
+        continue;
+
+      add_device (seat_x11, backend, xi_device, TRUE);
+
+      if (xi_device->use == XIMasterPointer ||
+          xi_device->use == XIMasterKeyboard)
+        {
+          g_hash_table_insert (masters,
+                               GINT_TO_POINTER (xi_device->deviceid),
+                               GINT_TO_POINTER (xi_device->attachment));
+        }
+      else if (xi_device->use == XISlavePointer ||
+               xi_device->use == XISlaveKeyboard)
+        {
+          g_hash_table_insert (slaves,
+                               GINT_TO_POINTER (xi_device->deviceid),
+                               GINT_TO_POINTER (xi_device->attachment));
+        }
+    }
+
+  XIFreeDeviceInfo (info);
+
+  g_hash_table_foreach (masters, relate_masters, seat_x11);
+  g_hash_table_destroy (masters);
+
+  g_hash_table_foreach (slaves, relate_slaves, seat_x11);
+  g_hash_table_destroy (slaves);
+
+  XISetMask (mask, XI_HierarchyChanged);
+  XISetMask (mask, XI_DeviceChanged);
+  XISetMask (mask, XI_PropertyEvent);
+
+  event_mask.deviceid = XIAllDevices;
+  event_mask.mask_len = sizeof (mask);
+  event_mask.mask = mask;
+
+  XISelectEvents (xdisplay, clutter_x11_get_root_window (),
+                  &event_mask, 1);
+
+  memset(mask, 0, sizeof (mask));
+  XISetMask (mask, XI_RawMotion);
+  XISetMask (mask, XI_RawButtonPress);
+  XISetMask (mask, XI_RawButtonRelease);
+
+  event_mask.deviceid = XIAllMasterDevices;
+  event_mask.mask_len = sizeof (mask);
+  event_mask.mask = mask;
+
+  XISelectEvents (xdisplay, clutter_x11_get_root_window (),
+                  &event_mask, 1);
+
+  XSync (xdisplay, False);
+
+  seat_x11->keymap = g_object_new (META_TYPE_KEYMAP_X11,
+                                   "backend", backend,
+                                   NULL);
+  g_signal_connect (seat_x11->keymap,
+                    "state-changed",
+                    G_CALLBACK (on_keymap_state_change),
+                    seat_x11);
+
+  meta_seat_x11_a11y_init (CLUTTER_SEAT (seat_x11));
+
+  if (G_OBJECT_CLASS (meta_seat_x11_parent_class)->constructed)
+    G_OBJECT_CLASS (meta_seat_x11_parent_class)->constructed (object);
+}
+
+static void
+meta_seat_x11_finalize (GObject *object)
+{
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (object);
+
+  g_hash_table_unref (seat_x11->devices_by_id);
+  g_hash_table_unref (seat_x11->tools_by_serial);
+  g_list_free (seat_x11->devices);
 
 #ifdef HAVE_LIBWACOM
-  mode = meta_input_device_x11_get_pad_group_mode (device, number);
+  libwacom_database_destroy (seat_x11->wacom_db);
 #endif
 
-  if (event->any.type == CLUTTER_PAD_RING)
-    {
-      event->pad_ring.ring_number = number;
-      event->pad_ring.angle = value;
-      event->pad_ring.mode = mode;
-    }
-  else
-    {
-      event->pad_strip.strip_number = number;
-      event->pad_strip.value = value;
-      event->pad_strip.mode = mode;
-    }
+  G_OBJECT_CLASS (meta_seat_x11_parent_class)->finalize (object);
+}
 
-  event->any.time = xev->time;
-  clutter_event_set_device (event, device);
-  clutter_event_set_source_device (event, device);
+static ClutterInputDevice *
+meta_seat_x11_get_pointer (ClutterSeat *seat)
+{
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
 
-  g_debug ("%s: win:0x%x, device:%d '%s', time:%d "
-           "(value:%f)",
-           event->any.type == CLUTTER_PAD_RING
-           ? "pad ring  "
-           : "pad strip",
-           (unsigned int) xev->event,
-           device->id,
-           device->device_name,
-           event->any.time, value);
+  return seat_x11->core_pointer;
+}
 
-  return TRUE;
+static ClutterInputDevice *
+meta_seat_x11_get_keyboard (ClutterSeat *seat)
+{
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+
+  return seat_x11->core_keyboard;
+}
+
+static GList *
+meta_seat_x11_list_devices (ClutterSeat *seat)
+{
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  GList *retval = NULL, *l;
+
+  for (l = seat_x11->devices; l; l = l->next)
+    retval = g_list_prepend (retval, l->data);
+
+  return retval;
 }
 
 static void
-handle_raw_event (MetaDeviceManagerX11 *manager_xi2,
-                  XEvent               *xevent)
+meta_seat_x11_bell_notify (ClutterSeat *seat)
 {
-  ClutterInputDevice *device;
-  XGenericEventCookie *cookie;
-  XIEvent *xi_event;
-  XIRawEvent *xev;
-  float x,y;
+  MetaDisplay *display = meta_get_display ();
 
-  cookie = &xevent->xcookie;
-  xi_event = (XIEvent *) cookie->data;
-  xev = (XIRawEvent *) xi_event;
+  meta_bell_notify (display, NULL);
+}
 
-  device = g_hash_table_lookup (manager_xi2->devices_by_id,
-                                GINT_TO_POINTER (xev->deviceid));
-  if (device == NULL)
-    return;
+static ClutterKeymap *
+meta_seat_x11_get_keymap (ClutterSeat *seat)
+{
+  return CLUTTER_KEYMAP (META_SEAT_X11 (seat)->keymap);
+}
 
-  if (!_clutter_is_input_pointer_a11y_enabled (device))
-    return;
+static void
+meta_seat_x11_copy_event_data (ClutterSeat        *seat,
+                               const ClutterEvent *src,
+                               ClutterEvent       *dest)
+{
+  gpointer event_x11;
 
-  switch (cookie->evtype)
-    {
-    case XI_RawMotion:
-      g_debug ("raw motion: device:%d '%s'",
-               device->id,
-               device->device_name);
+  event_x11 = _clutter_event_get_platform_data (src);
+  if (event_x11 != NULL)
+    _clutter_event_set_platform_data (dest, meta_event_x11_copy (event_x11));
+}
 
-      /* We don't get actual pointer location with raw events, and we cannot
-       * rely on `clutter_input_device_get_coords()` either because of
-       * unreparented toplevels (like all client-side decoration windows),
-       * so we need to explicitely query the pointer here...
-       */
-      if (meta_input_device_x11_get_pointer_location (device, &x, &y))
-        _clutter_input_pointer_a11y_on_motion_event (device, x, y);
-      break;
-    case XI_RawButtonPress:
-    case XI_RawButtonRelease:
-      g_debug ("raw button %s: device:%d '%s' button %i",
-               cookie->evtype == XI_RawButtonPress
-               ? "press  "
-               : "release",
-               device->id,
-               device->device_name,
-               xev->detail);
-      _clutter_input_pointer_a11y_on_button_event (device,
-                                                  xev->detail,
-                                                  (cookie->evtype == XI_RawButtonPress));
-      break;
-    }
+static void
+meta_seat_x11_free_event_data (ClutterSeat  *seat,
+                               ClutterEvent *event)
+{
+  gpointer event_x11;
+
+  event_x11 = _clutter_event_get_platform_data (event);
+  if (event_x11 != NULL)
+    meta_event_x11_free (event_x11);
+}
+
+static ClutterVirtualInputDevice *
+meta_seat_x11_create_virtual_device (ClutterSeat            *seat,
+                                     ClutterInputDeviceType  device_type)
+{
+  return g_object_new (META_TYPE_VIRTUAL_INPUT_DEVICE_X11,
+                       "seat", seat,
+                       "device-type", device_type,
+                       NULL);
+}
+
+static ClutterVirtualDeviceType
+meta_seat_x11_get_supported_virtual_device_types (ClutterSeat *seat)
+{
+  return (CLUTTER_VIRTUAL_DEVICE_TYPE_KEYBOARD |
+          CLUTTER_VIRTUAL_DEVICE_TYPE_POINTER);
+}
+
+static void
+meta_seat_x11_warp_pointer (ClutterSeat *seat,
+                            int          x,
+                            int          y)
+{
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+
+  XIWarpPointer (clutter_x11_get_default_display (),
+                 seat_x11->pointer_id,
+                 None,
+                 clutter_x11_get_root_window (),
+                 0, 0, 0, 0,
+                 x, y);
+}
+
+static void
+meta_seat_x11_class_init (MetaSeatX11Class *klass)
+{
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+  ClutterSeatClass *seat_class = CLUTTER_SEAT_CLASS (klass);
+
+  object_class->set_property = meta_seat_x11_set_property;
+  object_class->get_property = meta_seat_x11_get_property;
+  object_class->constructed = meta_seat_x11_constructed;
+  object_class->finalize = meta_seat_x11_finalize;
+
+  seat_class->get_pointer = meta_seat_x11_get_pointer;
+  seat_class->get_keyboard = meta_seat_x11_get_keyboard;
+  seat_class->list_devices = meta_seat_x11_list_devices;
+  seat_class->bell_notify = meta_seat_x11_bell_notify;
+  seat_class->get_keymap = meta_seat_x11_get_keymap;
+  seat_class->copy_event_data = meta_seat_x11_copy_event_data;
+  seat_class->free_event_data = meta_seat_x11_free_event_data;
+  seat_class->apply_kbd_a11y_settings = meta_seat_x11_apply_kbd_a11y_settings;
+  seat_class->create_virtual_device = meta_seat_x11_create_virtual_device;
+  seat_class->get_supported_virtual_device_types = meta_seat_x11_get_supported_virtual_device_types;
+  seat_class->warp_pointer = meta_seat_x11_warp_pointer;
+
+  props[PROP_OPCODE] =
+    g_param_spec_int ("opcode",
+                      "Opcode",
+                      "Opcode",
+                      0, G_MAXINT, 0,
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT_ONLY);
+  props[PROP_POINTER_ID] =
+    g_param_spec_int ("pointer-id",
+                      "Pointer ID",
+                      "Pointer ID",
+                      2, G_MAXINT, 2,
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT_ONLY);
+  props[PROP_KEYBOARD_ID] =
+    g_param_spec_int ("keyboard-id",
+                      "Keyboard ID",
+                      "Keyboard ID",
+                      2, G_MAXINT, 2,
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT_ONLY);
+
+  g_object_class_install_properties (object_class, N_PROPS, props);
+}
+
+static void
+meta_seat_x11_init (MetaSeatX11 *seat)
+{
+  seat->devices_by_id = g_hash_table_new_full (NULL, NULL,
+                                               NULL,
+                                               (GDestroyNotify) g_object_unref);
+  seat->tools_by_serial = g_hash_table_new_full (NULL, NULL, NULL,
+                                                 (GDestroyNotify) g_object_unref);
+
+#ifdef HAVE_LIBWACOM
+  seat->wacom_db = libwacom_database_new ();
+#endif
+}
+
+MetaSeatX11 *
+meta_seat_x11_new (int opcode,
+                   int master_pointer,
+                   int master_keyboard)
+{
+  return g_object_new (META_TYPE_SEAT_X11,
+                       "opcode", opcode,
+                       "pointer-id", master_pointer,
+                       "keyboard-id", master_keyboard,
+                       NULL);
 }
 
 gboolean
-meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
-                                         XEvent               *xevent,
-                                         ClutterEvent         *event)
+meta_seat_x11_translate_event (MetaSeatX11  *seat,
+                               XEvent       *xevent,
+                               ClutterEvent *event)
 {
   gboolean retval = FALSE;
   ClutterBackend *backend = clutter_get_default_backend ();
-  MetaStageX11 *stage_x11 = NULL;
   ClutterStage *stage = NULL;
+  MetaStageX11 *stage_x11 = NULL;
   ClutterInputDevice *device, *source_device;
   XGenericEventCookie *cookie;
   XIEvent *xi_event;
 
+  if (meta_keymap_x11_handle_event (seat->keymap, xevent))
+    return FALSE;
+
   cookie = &xevent->xcookie;
 
   if (cookie->type != GenericEvent ||
-      cookie->extension != manager_xi2->opcode)
+      cookie->extension != seat->opcode)
     return FALSE;
 
   xi_event = (XIEvent *) cookie->data;
@@ -1319,7 +1620,7 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
       cookie->evtype == XI_RawButtonPress ||
       cookie->evtype == XI_RawButtonRelease)
     {
-      handle_raw_event (manager_xi2, xevent);
+      translate_raw_event (seat, xevent);
       return FALSE;
     }
 
@@ -1327,7 +1628,7 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
         xi_event->evtype == XI_DeviceChanged ||
         xi_event->evtype == XI_PropertyEvent))
     {
-      stage = get_event_stage (manager_xi2, xi_event);
+      stage = get_event_stage (seat, xi_event);
       if (stage == NULL || CLUTTER_ACTOR_IN_DESTRUCTION (stage))
         return FALSE;
       else
@@ -1342,7 +1643,7 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
       {
         XIHierarchyEvent *xev = (XIHierarchyEvent *) xi_event;
 
-        translate_hierarchy_event (backend, manager_xi2, xev);
+        translate_hierarchy_event (backend, seat, xev);
       }
       retval = FALSE;
       break;
@@ -1351,9 +1652,9 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
       {
         XIDeviceChangedEvent *xev = (XIDeviceChangedEvent *) xi_event;
 
-        device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        device = g_hash_table_lookup (seat->devices_by_id,
                                       GINT_TO_POINTER (xev->deviceid));
-        source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        source_device = g_hash_table_lookup (seat->devices_by_id,
                                              GINT_TO_POINTER (xev->sourceid));
         if (device)
           {
@@ -1369,12 +1670,11 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
       }
       retval = FALSE;
       break;
-
     case XI_KeyPress:
     case XI_KeyRelease:
       {
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
-        MetaKeymapX11 *keymap_x11 = META_KEYMAP_X11 (clutter_backend_get_keymap (backend));
+        MetaKeymapX11 *keymap_x11 = seat->keymap;
         MetaEventX11 *event_x11;
         char buffer[7] = { 0, };
         gunichar n;
@@ -1413,11 +1713,11 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
         event_x11->caps_lock_set =
           clutter_keymap_get_caps_lock_state (CLUTTER_KEYMAP (keymap_x11));
 
-        source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        source_device = g_hash_table_lookup (seat->devices_by_id,
                                              GINT_TO_POINTER (xev->sourceid));
         clutter_event_set_source_device (event, source_device);
 
-        device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        device = g_hash_table_lookup (seat->devices_by_id,
                                       GINT_TO_POINTER (xev->deviceid));
         clutter_event_set_device (event, device);
 
@@ -1458,9 +1758,9 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
       {
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
 
-        source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        source_device = g_hash_table_lookup (seat->devices_by_id,
                                              GINT_TO_POINTER (xev->sourceid));
-        device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        device = g_hash_table_lookup (seat->devices_by_id,
                                       GINT_TO_POINTER (xev->deviceid));
 
         /* Set the stage for core events coming out of nowhere (see bug #684509) */
@@ -1644,9 +1944,9 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
         double delta_x, delta_y;
 
-        source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        source_device = g_hash_table_lookup (seat->devices_by_id,
                                              GINT_TO_POINTER (xev->sourceid));
-        device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        device = g_hash_table_lookup (seat->devices_by_id,
                                       GINT_TO_POINTER (xev->deviceid));
 
         if (clutter_input_device_get_device_type (source_device) == CLUTTER_PAD_DEVICE)
@@ -1737,7 +2037,7 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
     case XI_TouchBegin:
       {
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
-        device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        device = g_hash_table_lookup (seat->devices_by_id,
                                       GINT_TO_POINTER (xev->deviceid));
         if (!_clutter_input_device_get_stage (device))
           _clutter_input_device_set_stage (device, stage);
@@ -1747,7 +2047,7 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
       {
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
 
-        source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        source_device = g_hash_table_lookup (seat->devices_by_id,
                                              GINT_TO_POINTER (xev->sourceid));
 
         if (xi_event->evtype == XI_TouchBegin)
@@ -1765,7 +2065,7 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
 
         clutter_event_set_source_device (event, source_device);
 
-        device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        device = g_hash_table_lookup (seat->devices_by_id,
                                       GINT_TO_POINTER (xev->deviceid));
         clutter_event_set_device (event, device);
 
@@ -1804,7 +2104,7 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
       {
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
 
-        source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        source_device = g_hash_table_lookup (seat->devices_by_id,
                                              GINT_TO_POINTER (xev->sourceid));
 
         event->touch.type = event->type = CLUTTER_TOUCH_UPDATE;
@@ -1815,7 +2115,7 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
 
         clutter_event_set_source_device (event, source_device);
 
-        device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        device = g_hash_table_lookup (seat->devices_by_id,
                                       GINT_TO_POINTER (xev->deviceid));
         clutter_event_set_device (event, device);
 
@@ -1851,10 +2151,10 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
       {
         XIEnterEvent *xev = (XIEnterEvent *) xi_event;
 
-        device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        device = g_hash_table_lookup (seat->devices_by_id,
                                       GINT_TO_POINTER (xev->deviceid));
 
-        source_device = g_hash_table_lookup (manager_xi2->devices_by_id,
+        source_device = g_hash_table_lookup (seat->devices_by_id,
                                              GINT_TO_POINTER (xev->sourceid));
 
         if (xi_event->evtype == XI_Enter)
@@ -1906,7 +2206,7 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
       retval = FALSE;
       break;
     case XI_PropertyEvent:
-      handle_property_event (manager_xi2, xi_event);
+      translate_property_event (seat, xi_event);
       retval = FALSE;
       break;
     }
@@ -1914,282 +2214,46 @@ meta_device_manager_x11_translate_event (MetaDeviceManagerX11 *manager_xi2,
   return retval;
 }
 
-static void
-meta_device_manager_x11_add_device (ClutterDeviceManager *manager,
-                                    ClutterInputDevice   *device)
+ClutterInputDevice *
+meta_seat_x11_lookup_device_id (MetaSeatX11 *seat_x11,
+                                int          device_id)
 {
-  /* XXX implement */
+  return g_hash_table_lookup (seat_x11->devices_by_id,
+                              GINT_TO_POINTER (device_id));
 }
 
-static void
-meta_device_manager_x11_remove_device (ClutterDeviceManager *manager,
-                                       ClutterInputDevice   *device)
+void
+meta_seat_x11_select_stage_events (MetaSeatX11  *seat,
+                                   ClutterStage *stage)
 {
-  /* XXX implement */
-}
+  MetaStageX11 *stage_x11;
+  XIEventMask xi_event_mask;
+  unsigned char *mask;
+  int len;
 
-static const GSList *
-meta_device_manager_x11_get_devices (ClutterDeviceManager *manager)
-{
-  MetaDeviceManagerX11 *manager_xi2 = META_DEVICE_MANAGER_X11 (manager);
-  GSList *all_devices = NULL;
-  GList *l;
+  stage_x11 = META_STAGE_X11 (_clutter_stage_get_window (stage));
 
-  if (manager_xi2->all_devices != NULL)
-    return manager_xi2->all_devices;
+  len = XIMaskLen (XI_LASTEVENT);
+  mask = g_new0 (unsigned char, len);
 
-  for (l = manager_xi2->master_devices; l != NULL; l = l->next)
-    all_devices = g_slist_prepend (all_devices, l->data);
+  XISetMask (mask, XI_Motion);
+  XISetMask (mask, XI_ButtonPress);
+  XISetMask (mask, XI_ButtonRelease);
+  XISetMask (mask, XI_KeyPress);
+  XISetMask (mask, XI_KeyRelease);
+  XISetMask (mask, XI_Enter);
+  XISetMask (mask, XI_Leave);
 
-  for (l = manager_xi2->slave_devices; l != NULL; l = l->next)
-    all_devices = g_slist_prepend (all_devices, l->data);
+  XISetMask (mask, XI_TouchBegin);
+  XISetMask (mask, XI_TouchUpdate);
+  XISetMask (mask, XI_TouchEnd);
 
-  manager_xi2->all_devices = g_slist_reverse (all_devices);
+  xi_event_mask.deviceid = XIAllMasterDevices;
+  xi_event_mask.mask = mask;
+  xi_event_mask.mask_len = len;
 
-  return manager_xi2->all_devices;
-}
+  XISelectEvents (clutter_x11_get_default_display (),
+                  stage_x11->xwin, &xi_event_mask, 1);
 
-static ClutterInputDevice *
-meta_device_manager_x11_get_device (ClutterDeviceManager *manager,
-                                    gint                  id)
-{
-  MetaDeviceManagerX11 *manager_xi2 = META_DEVICE_MANAGER_X11 (manager);
-
-  return g_hash_table_lookup (manager_xi2->devices_by_id,
-                              GINT_TO_POINTER (id));
-}
-
-static ClutterInputDevice *
-meta_device_manager_x11_get_core_device (ClutterDeviceManager   *manager,
-                                         ClutterInputDeviceType  device_type)
-{
-  MetaDeviceManagerX11 *manager_xi2 = META_DEVICE_MANAGER_X11 (manager);
-  ClutterInputDevice *pointer = NULL;
-  GList *l;
-
-  for (l = manager_xi2->master_devices; l != NULL ; l = l->next)
-    {
-      ClutterInputDevice *device = l->data;
-      if (clutter_input_device_get_device_type (device) == CLUTTER_POINTER_DEVICE)
-        {
-          pointer = device;
-          break;
-        }
-    }
-
-  if (pointer == NULL)
-    return NULL;
-
-  switch (device_type)
-    {
-    case CLUTTER_POINTER_DEVICE:
-      return pointer;
-
-    case CLUTTER_KEYBOARD_DEVICE:
-      return clutter_input_device_get_associated_device (pointer);
-
-    default:
-      break;
-    }
-
-  return NULL;
-}
-
-static void
-relate_masters (gpointer key,
-                gpointer value,
-                gpointer data)
-{
-  MetaDeviceManagerX11 *manager_xi2 = data;
-  ClutterInputDevice *device, *relative;
-
-  device = g_hash_table_lookup (manager_xi2->devices_by_id, key);
-  relative = g_hash_table_lookup (manager_xi2->devices_by_id, value);
-
-  _clutter_input_device_set_associated_device (device, relative);
-  _clutter_input_device_set_associated_device (relative, device);
-}
-
-static void
-relate_slaves (gpointer key,
-               gpointer value,
-               gpointer data)
-{
-  MetaDeviceManagerX11 *manager_xi2 = data;
-  ClutterInputDevice *master, *slave;
-
-  slave = g_hash_table_lookup (manager_xi2->devices_by_id, key);
-  master = g_hash_table_lookup (manager_xi2->devices_by_id, value);
-
-  _clutter_input_device_set_associated_device (slave, master);
-  _clutter_input_device_add_slave (master, slave);
-}
-
-static void
-meta_device_manager_x11_constructed (GObject *object)
-{
-  MetaDeviceManagerX11 *manager_xi2 = META_DEVICE_MANAGER_X11 (object);
-  ClutterDeviceManager *manager = CLUTTER_DEVICE_MANAGER (object);
-  ClutterBackend *backend = clutter_get_default_backend ();
-  GHashTable *masters, *slaves;
-  XIDeviceInfo *info;
-  XIEventMask event_mask;
-  unsigned char mask[(XI_LASTEVENT + 7) / 8] = { 0, };
-  int n_devices, i;
-
-  masters = g_hash_table_new (NULL, NULL);
-  slaves = g_hash_table_new (NULL, NULL);
-
-  info = XIQueryDevice (clutter_x11_get_default_display (),
-                        XIAllDevices, &n_devices);
-
-  for (i = 0; i < n_devices; i++)
-    {
-      XIDeviceInfo *xi_device = &info[i];
-
-      if (!xi_device->enabled)
-        continue;
-
-      add_device (manager_xi2, backend, xi_device, TRUE);
-
-      if (xi_device->use == XIMasterPointer ||
-          xi_device->use == XIMasterKeyboard)
-        {
-          g_hash_table_insert (masters,
-                               GINT_TO_POINTER (xi_device->deviceid),
-                               GINT_TO_POINTER (xi_device->attachment));
-        }
-      else if (xi_device->use == XISlavePointer ||
-               xi_device->use == XISlaveKeyboard)
-        {
-          g_hash_table_insert (slaves,
-                               GINT_TO_POINTER (xi_device->deviceid),
-                               GINT_TO_POINTER (xi_device->attachment));
-        }
-    }
-
-  XIFreeDeviceInfo (info);
-
-  g_hash_table_foreach (masters, relate_masters, manager_xi2);
-  g_hash_table_destroy (masters);
-
-  g_hash_table_foreach (slaves, relate_slaves, manager_xi2);
-  g_hash_table_destroy (slaves);
-
-  XISetMask (mask, XI_HierarchyChanged);
-  XISetMask (mask, XI_DeviceChanged);
-  XISetMask (mask, XI_PropertyEvent);
-
-  event_mask.deviceid = XIAllDevices;
-  event_mask.mask_len = sizeof (mask);
-  event_mask.mask = mask;
-
-  meta_device_manager_x11_select_events (manager,
-                                         clutter_x11_get_root_window (),
-                                         &event_mask);
-
-  memset(mask, 0, sizeof (mask));
-  XISetMask (mask, XI_RawMotion);
-  XISetMask (mask, XI_RawButtonPress);
-  XISetMask (mask, XI_RawButtonRelease);
-
-  event_mask.deviceid = XIAllMasterDevices;
-  event_mask.mask_len = sizeof (mask);
-  event_mask.mask = mask;
-
-  meta_device_manager_x11_select_events (manager,
-					 clutter_x11_get_root_window (),
-					 &event_mask);
-
-  XSync (clutter_x11_get_default_display (), False);
-
-  meta_device_manager_x11_a11y_init (manager);
-
-  if (G_OBJECT_CLASS (meta_device_manager_x11_parent_class)->constructed)
-    G_OBJECT_CLASS (meta_device_manager_x11_parent_class)->constructed (object);
-}
-
-static void
-meta_device_manager_x11_set_property (GObject      *object,
-                                      guint         prop_id,
-                                      const GValue *value,
-                                      GParamSpec   *pspec)
-{
-  MetaDeviceManagerX11 *manager_xi2 = META_DEVICE_MANAGER_X11 (object);
-
-  switch (prop_id)
-    {
-    case PROP_OPCODE:
-      manager_xi2->opcode = g_value_get_int (value);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
-      break;
-    }
-}
-
-static ClutterVirtualInputDevice *
-meta_device_manager_x11_create_virtual_device (ClutterDeviceManager   *manager,
-                                               ClutterInputDeviceType  device_type)
-{
-  return g_object_new (META_TYPE_VIRTUAL_INPUT_DEVICE_X11,
-                       "device-manager", manager,
-                       "device-type", device_type,
-                       NULL);
-}
-
-static ClutterVirtualDeviceType
-meta_device_manager_x11_get_supported_virtual_device_types (ClutterDeviceManager *device_manager)
-{
-  return (CLUTTER_VIRTUAL_DEVICE_TYPE_KEYBOARD |
-          CLUTTER_VIRTUAL_DEVICE_TYPE_POINTER);
-}
-
-static void
-meta_device_manager_x11_class_init (MetaDeviceManagerX11Class *klass)
-{
-  ClutterDeviceManagerClass *manager_class;
-  GObjectClass *gobject_class;
-
-  obj_props[PROP_OPCODE] =
-    g_param_spec_int ("opcode",
-                      "Opcode",
-                      "The XI2 opcode",
-                      -1, G_MAXINT,
-                      -1,
-                      G_PARAM_WRITABLE | G_PARAM_CONSTRUCT_ONLY);
-
-  gobject_class = G_OBJECT_CLASS (klass);
-  gobject_class->constructed = meta_device_manager_x11_constructed;
-  gobject_class->set_property = meta_device_manager_x11_set_property;
-
-  g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
-  
-  manager_class = CLUTTER_DEVICE_MANAGER_CLASS (klass);
-  manager_class->add_device = meta_device_manager_x11_add_device;
-  manager_class->remove_device = meta_device_manager_x11_remove_device;
-  manager_class->get_devices = meta_device_manager_x11_get_devices;
-  manager_class->get_core_device = meta_device_manager_x11_get_core_device;
-  manager_class->get_device = meta_device_manager_x11_get_device;
-  manager_class->select_stage_events = meta_device_manager_x11_select_stage_events;
-  manager_class->create_virtual_device = meta_device_manager_x11_create_virtual_device;
-  manager_class->get_supported_virtual_device_types = meta_device_manager_x11_get_supported_virtual_device_types;
-  manager_class->apply_kbd_a11y_settings = meta_device_manager_x11_apply_kbd_a11y_settings;
-  manager_class->copy_event_data = meta_device_manager_x11_copy_event_data;
-  manager_class->free_event_data = meta_device_manager_x11_free_event_data;
-}
-
-static void
-meta_device_manager_x11_init (MetaDeviceManagerX11 *self)
-{
-  self->devices_by_id = g_hash_table_new_full (NULL, NULL,
-                                               NULL,
-                                               (GDestroyNotify) g_object_unref);
-  self->tools_by_serial = g_hash_table_new_full (NULL, NULL, NULL,
-                                                 (GDestroyNotify) g_object_unref);
-
-#ifdef HAVE_LIBWACOM
-  self->wacom_db = libwacom_database_new ();
-#endif
+  g_free (mask);
 }

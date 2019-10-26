@@ -33,6 +33,7 @@
 #include "core/display-private.h"
 #include "meta/meta-x11-errors.h"
 #include "meta-backend-x11.h"
+#include "meta-seat-x11.h"
 #include "meta-stage-x11.h"
 
 #define STAGE_X11_IS_MAPPED(s)  ((((MetaStageX11 *) (s))->wm_state & STAGE_X11_WITHDRAWN) == 0)
@@ -305,31 +306,6 @@ meta_stage_x11_unrealize (ClutterStageWindow *stage_window)
   g_clear_pointer (&stage_x11->onscreen, cogl_object_unref);
 }
 
-void
-meta_stage_x11_events_device_changed (MetaStageX11         *stage_x11,
-                                      ClutterInputDevice   *device,
-                                      ClutterDeviceManager *device_manager)
-{
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_x11);
-
-  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_FLOATING)
-    _clutter_device_manager_select_stage_events (device_manager,
-                                                 stage_cogl->wrapper);
-}
-
-static void
-stage_events_device_added (ClutterDeviceManager *device_manager,
-                           ClutterInputDevice *device,
-                           gpointer user_data)
-{
-  ClutterStageWindow *stage_window = user_data;
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-
-  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_FLOATING)
-    _clutter_device_manager_select_stage_events (device_manager,
-                                                 stage_cogl->wrapper);
-}
-
 static void
 frame_cb (CoglOnscreen  *onscreen,
           CoglFrameEvent frame_event,
@@ -353,8 +329,8 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
   MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
   ClutterBackend *backend = CLUTTER_BACKEND (stage_cogl->backend);
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (clutter_backend_get_default_seat (backend));
   Display *xdisplay = clutter_x11_get_default_display ();
-  ClutterDeviceManager *device_manager;
   float width, height;
   GError *error = NULL;
 
@@ -421,20 +397,7 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
    */
   XSelectInput (xdisplay, stage_x11->xwin, META_STAGE_X11_EVENT_MASK);
 
-  /* input events also depent on the actual device, so we need to
-   * use the device manager to let every device select them, using
-   * the event mask we passed to XSelectInput as the template
-   */
-  device_manager = clutter_device_manager_get_default ();
-  if (G_UNLIKELY (device_manager != NULL))
-    {
-      _clutter_device_manager_select_stage_events (device_manager,
-                                                   stage_cogl->wrapper);
-
-      g_signal_connect (device_manager, "device-added",
-                        G_CALLBACK (stage_events_device_added),
-                        stage_window);
-    }
+  meta_seat_x11_select_stage_events (seat_x11, stage_cogl->wrapper);
 
   meta_stage_x11_fix_window_size (stage_x11,
                                   stage_x11->xwin_width,
