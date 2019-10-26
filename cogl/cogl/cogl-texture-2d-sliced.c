@@ -41,7 +41,6 @@
 #include "cogl-bitmap.h"
 #include "cogl-bitmap-private.h"
 #include "cogl-texture-private.h"
-#include "cogl-texture-2d-gl.h"
 #include "cogl-texture-2d-private.h"
 #include "cogl-texture-2d-sliced-private.h"
 #include "cogl-texture-driver.h"
@@ -918,50 +917,6 @@ cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
 }
 
 CoglTexture2DSliced *
-_cogl_texture_2d_sliced_new_from_foreign (CoglContext *ctx,
-                                          unsigned int gl_handle,
-                                          unsigned int gl_target,
-                                          int width,
-                                          int height,
-                                          int x_pot_waste,
-                                          int y_pot_waste,
-                                          CoglPixelFormat format)
-{
-  CoglTextureLoader *loader;
-
-  /* NOTE: width, height and internal format are not queriable
-   * in GLES, hence such a function prototype.
-   */
-
-  /* This should only be called when the texture target is 2D. */
-  g_return_val_if_fail (gl_target == GL_TEXTURE_2D, NULL);
-
-  /* Assert it is a valid GL texture object */
-  g_return_val_if_fail (ctx->glIsTexture (gl_handle), FALSE);
-
-  /* Validate width and height */
-  g_return_val_if_fail (width > 0 && height > 0, NULL);
-
-  /* Validate pot waste */
-  g_return_val_if_fail (x_pot_waste >= 0 && x_pot_waste < width &&
-                            y_pot_waste >= 0 && y_pot_waste < height,
-                            NULL);
-
-  loader = _cogl_texture_create_loader ();
-  loader->src_type = COGL_TEXTURE_SOURCE_TYPE_GL_FOREIGN;
-  loader->src.gl_foreign.gl_handle = gl_handle;
-  loader->src.gl_foreign.width = width + x_pot_waste;
-  loader->src.gl_foreign.height = height + y_pot_waste;
-  loader->src.gl_foreign.format = format;
-
-  return _cogl_texture_2d_sliced_create_base (ctx,
-                                              width,
-                                              height,
-                                              0, /* max waste */
-                                              format, loader);
-}
-
-CoglTexture2DSliced *
 cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
                                       int width,
                                       int height,
@@ -1107,71 +1062,6 @@ allocate_from_bitmap (CoglTexture2DSliced *tex_2ds,
 }
 
 static gboolean
-allocate_from_gl_foreign (CoglTexture2DSliced *tex_2ds,
-                          CoglTextureLoader *loader,
-                          GError **error)
-{
-  CoglTexture *tex = COGL_TEXTURE (tex_2ds);
-  CoglContext *ctx = tex->context;
-  CoglPixelFormat format = loader->src.gl_foreign.format;
-  int gl_width = loader->src.gl_foreign.width;
-  int gl_height = loader->src.gl_foreign.height;
-  int x_pot_waste = gl_width - tex->width;
-  int y_pot_waste = gl_height - tex->height;
-  CoglSpan x_span;
-  CoglSpan y_span;
-  CoglTexture2D *tex_2d =
-    cogl_texture_2d_gl_new_from_foreign (ctx,
-                                         loader->src.gl_foreign.gl_handle,
-                                         gl_width,
-                                         gl_height,
-                                         format);
-
-  if (!cogl_texture_allocate (COGL_TEXTURE (tex_2d), error))
-    {
-      cogl_object_unref (tex_2d);
-      return FALSE;
-    }
-
-  /* The texture 2d backend may use a different pixel format if it
-     queries the actual texture so we'll refetch the format it
-     actually used */
-  format = _cogl_texture_get_format (tex);
-
-  tex_2ds->internal_format = format;
-
-  /* Create slice arrays */
-  tex_2ds->slice_x_spans =
-    g_array_sized_new (FALSE, FALSE, sizeof (CoglSpan), 1);
-
-  tex_2ds->slice_y_spans =
-    g_array_sized_new (FALSE, FALSE, sizeof (CoglSpan), 1);
-
-  tex_2ds->slice_textures =
-    g_array_sized_new (FALSE, FALSE, sizeof (CoglTexture2D *), 1);
-
-  /* Store info for a single slice */
-  x_span.start = 0;
-  x_span.size = gl_width;
-  x_span.waste = x_pot_waste;
-  g_array_append_val (tex_2ds->slice_x_spans, x_span);
-
-  y_span.start = 0;
-  y_span.size = gl_height;
-  y_span.waste = y_pot_waste;
-  g_array_append_val (tex_2ds->slice_y_spans, y_span);
-
-  g_array_append_val (tex_2ds->slice_textures, tex_2d);
-
-  _cogl_texture_set_allocated (tex,
-                               format,
-                               tex->width,
-                               tex->height);
-
-  return TRUE;
-}
-
-static gboolean
 _cogl_texture_2d_sliced_allocate (CoglTexture *tex,
                                   GError **error)
 {
@@ -1186,28 +1076,11 @@ _cogl_texture_2d_sliced_allocate (CoglTexture *tex,
       return allocate_with_size (tex_2ds, loader, error);
     case COGL_TEXTURE_SOURCE_TYPE_BITMAP:
       return allocate_from_bitmap (tex_2ds, loader, error);
-    case COGL_TEXTURE_SOURCE_TYPE_GL_FOREIGN:
-      return allocate_from_gl_foreign (tex_2ds, loader, error);
     default:
       break;
     }
 
   g_return_val_if_reached (FALSE);
-}
-
-static gboolean
-_cogl_texture_2d_sliced_is_foreign (CoglTexture *tex)
-{
-  CoglTexture2DSliced *tex_2ds = COGL_TEXTURE_2D_SLICED (tex);
-  CoglTexture2D *slice_tex;
-
-  /* Make sure slices were created */
-  if (tex_2ds->slice_textures == NULL)
-    return FALSE;
-
-  /* Pass the call on to the first slice */
-  slice_tex = g_array_index (tex_2ds->slice_textures, CoglTexture2D *, 0);
-  return _cogl_texture_is_foreign (COGL_TEXTURE (slice_tex));
 }
 
 static int
@@ -1466,6 +1339,5 @@ cogl_texture_2d_sliced_vtable =
     _cogl_texture_2d_sliced_gl_flush_legacy_texobj_wrap_modes,
     _cogl_texture_2d_sliced_get_format,
     _cogl_texture_2d_sliced_get_gl_format,
-    _cogl_texture_2d_sliced_is_foreign,
     NULL /* set_auto_mipmap */
   };
