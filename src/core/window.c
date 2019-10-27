@@ -4776,7 +4776,7 @@ meta_window_focus (MetaWindow  *window,
       return;
     }
 
-  meta_window_check_alive (window, timestamp);
+  meta_window_check_alive (window);
 
   META_WINDOW_GET_CLASS (window)->focus (window, timestamp);
 

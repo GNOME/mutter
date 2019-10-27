@@ -389,8 +389,7 @@ void        meta_window_focus              (MetaWindow  *window,
                                             guint32      timestamp);
 
 META_EXPORT
-void        meta_window_check_alive        (MetaWindow  *window,
-                                            guint32      timestamp);
+void        meta_window_check_alive        (MetaWindow  *window);
 
 META_EXPORT
 void meta_window_get_work_area_current_monitor (MetaWindow    *window,
