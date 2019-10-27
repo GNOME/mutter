@@ -3405,20 +3405,20 @@ _clutter_actor_apply_relative_transformation_matrix (ClutterActor *self,
 }
 
 static void
-_clutter_actor_draw_paint_volume_full (ClutterActor *self,
+_clutter_actor_draw_paint_volume_full (ClutterActor       *self,
                                        ClutterPaintVolume *pv,
-                                       const char *label,
-                                       const CoglColor *color)
+                                       const char         *label,
+                                       const ClutterColor *color,
+                                       ClutterPaintNode   *node)
 {
+  g_autoptr (ClutterPaintNode) pipeline_node = NULL;
   static CoglPipeline *outline = NULL;
   CoglPrimitive *prim;
   graphene_point3d_t line_ends[12 * 2];
   int n_vertices;
   CoglContext *ctx =
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
-  /* XXX: at some point we'll query this from the stage but we can't
-   * do that until the osx backend uses Cogl natively. */
-  CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
+  CoglColor cogl_color;
 
   if (outline == NULL)
     outline = cogl_pipeline_new (ctx);
@@ -3452,29 +3452,50 @@ _clutter_actor_draw_paint_volume_full (ClutterActor *self,
                                 n_vertices,
                                 (CoglVertexP3 *)line_ends);
 
-  cogl_pipeline_set_color (outline, color);
-  cogl_framebuffer_draw_primitive (fb, outline, prim);
+  cogl_color_set_from_4ub (&cogl_color,
+                           color->red,
+                           color->green,
+                           color->blue,
+                           color->alpha);
+  cogl_pipeline_set_color (outline, &cogl_color);
+
+  pipeline_node = clutter_pipeline_node_new (outline);
+  clutter_paint_node_set_name (pipeline_node,
+                               "ClutterActor (paint volume outline)");
+  clutter_paint_node_add_primitive (pipeline_node, prim);
+  clutter_paint_node_add_child (node, pipeline_node);
   cogl_object_unref (prim);
 
   if (label)
     {
+      g_autoptr (ClutterPaintNode) text_node = NULL;
       PangoLayout *layout;
+
       layout = pango_layout_new (clutter_actor_get_pango_context (self));
       pango_layout_set_text (layout, label, -1);
-      cogl_pango_render_layout (layout,
-                                pv->vertices[0].x,
-                                pv->vertices[0].y,
-                                color,
-                                0);
+
+      text_node = clutter_text_node_new (layout, color);
+      clutter_paint_node_set_name (text_node,
+                                   "ClutterActor (paint volume label)");
+      clutter_paint_node_add_rectangle (text_node,
+                                        &(ClutterActorBox) {
+                                          .x1 = pv->vertices[0].x,
+                                          .y1 = pv->vertices[0].y,
+                                          .x2 = pv->vertices[2].x,
+                                          .y2 = pv->vertices[2].y,
+                                        });
+      clutter_paint_node_add_child (node, text_node);
+
       g_object_unref (layout);
     }
 }
 
 static void
-_clutter_actor_draw_paint_volume (ClutterActor *self)
+_clutter_actor_draw_paint_volume (ClutterActor     *self,
+                                  ClutterPaintNode *node)
 {
   ClutterPaintVolume *pv;
-  CoglColor color;
+  ClutterColor color;
 
   pv = _clutter_actor_get_paint_volume_mutable (self);
   if (!pv)
@@ -3489,61 +3510,79 @@ _clutter_actor_draw_paint_volume (ClutterActor *self)
       clutter_paint_volume_set_width (&fake_pv, width);
       clutter_paint_volume_set_height (&fake_pv, height);
 
-      cogl_color_init_from_4f (&color, 0, 0, 1, 1);
+      clutter_color_init (&color, 0, 0, 255, 255);
       _clutter_actor_draw_paint_volume_full (self, &fake_pv,
                                              _clutter_actor_get_debug_name (self),
-                                             &color);
+                                             &color,
+                                             node);
 
       clutter_paint_volume_free (&fake_pv);
     }
   else
     {
-      cogl_color_init_from_4f (&color, 0, 1, 0, 1);
+      clutter_color_init (&color, 0, 255, 0, 255);
       _clutter_actor_draw_paint_volume_full (self, pv,
                                              _clutter_actor_get_debug_name (self),
-                                             &color);
+                                             &color,
+                                             node);
     }
 }
 
 static void
-_clutter_actor_paint_cull_result (ClutterActor *self,
-                                  gboolean success,
-                                  ClutterCullResult result)
+_clutter_actor_paint_cull_result (ClutterActor      *self,
+                                  gboolean           success,
+                                  ClutterCullResult  result,
+                                  ClutterPaintNode  *node)
 {
+  ClutterActorPrivate *priv = self->priv;
   ClutterPaintVolume *pv;
-  CoglColor color;
+  ClutterColor color;
 
   if (success)
     {
       if (result == CLUTTER_CULL_RESULT_IN)
-        cogl_color_init_from_4f (&color, 0, 1, 0, 1);
+        clutter_color_init (&color, 0, 255, 0, 255);
       else if (result == CLUTTER_CULL_RESULT_OUT)
-        cogl_color_init_from_4f (&color, 0, 0, 1, 1);
+        clutter_color_init (&color, 0, 0, 255, 255);
       else
-        cogl_color_init_from_4f (&color, 0, 1, 1, 1);
+        clutter_color_init (&color, 0, 255, 255, 255);
     }
   else
-    cogl_color_init_from_4f (&color, 1, 1, 1, 1);
+    clutter_color_init (&color, 255, 255, 255, 255);
 
   if (success && (pv = _clutter_actor_get_paint_volume_mutable (self)))
     _clutter_actor_draw_paint_volume_full (self, pv,
                                            _clutter_actor_get_debug_name (self),
-                                           &color);
+                                           &color,
+                                           node);
   else
     {
+      g_autoptr (ClutterPaintNode) text_node = NULL;
       PangoLayout *layout;
+      float width;
+      float height;
       char *label =
         g_strdup_printf ("CULL FAILURE: %s", _clutter_actor_get_debug_name (self));
-      cogl_color_init_from_4f (&color, 1, 1, 1, 1);
-      cogl_set_source_color (&color);
+      clutter_color_init (&color, 255, 255, 255, 255);
+
+      width = clutter_actor_box_get_width (&priv->allocation);
+      height = clutter_actor_box_get_height (&priv->allocation);
 
       layout = pango_layout_new (clutter_actor_get_pango_context (self));
       pango_layout_set_text (layout, label, -1);
-      cogl_pango_render_layout (layout,
-                                0,
-                                0,
-                                &color,
-                                0);
+
+      text_node = clutter_text_node_new (layout, &color);
+      clutter_paint_node_set_name (text_node,
+                                   "ClutterActor (paint volume text)");
+      clutter_paint_node_add_rectangle (text_node,
+                                        &(ClutterActorBox) {
+                                          .x1 = 0.f,
+                                          .y1 = 0.f,
+                                          .x2 = width,
+                                          .y2 = height,
+                                        });
+      clutter_paint_node_add_child (node, text_node);
+
       g_free (label);
       g_object_unref (layout);
     }
@@ -4039,7 +4078,7 @@ clutter_actor_paint (ClutterActor *self)
       success = cull_actor (self, &result);
 
       if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_REDRAWS))
-        _clutter_actor_paint_cull_result (self, success, result);
+        _clutter_actor_paint_cull_result (self, success, result, actor_node);
       else if (result == CLUTTER_CULL_RESULT_OUT && success)
         return;
     }
@@ -4050,10 +4089,10 @@ clutter_actor_paint (ClutterActor *self)
     priv->next_effect_to_paint =
       _clutter_meta_group_peek_metas (priv->effects);
 
-  clutter_paint_node_paint (root_node);
-
   if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_VOLUMES))
-    _clutter_actor_draw_paint_volume (self);
+    _clutter_actor_draw_paint_volume (self, actor_node);
+
+  clutter_paint_node_paint (root_node);
 
   /* If we make it here then the actor has run through a complete
      paint run including all the effects so it's no longer dirty */
