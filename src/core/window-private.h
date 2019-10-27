@@ -540,6 +540,9 @@ struct _MetaWindow
   int constrained_placement_rule_offset_y;
 
   guint unmanage_idle_id;
+
+  /* Prevent blinking when focusing */
+  gboolean focusing;
 };
 
 struct _MetaWindowClass
@@ -679,6 +682,8 @@ void        meta_window_get_session_geometry (MetaWindow  *window,
                                               int         *height);
 
 void        meta_window_update_unfocused_button_grabs (MetaWindow *window);
+
+void        meta_window_appears_focused_changed (MetaWindow *window);
 
 void     meta_window_set_focused_internal (MetaWindow *window,
                                            gboolean    focused);
