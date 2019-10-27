@@ -3944,6 +3944,62 @@ clutter_actor_paint (ClutterActor *self)
 
   clutter_actor_ensure_resource_scale (self);
 
+  /* We check whether we need to add the flatten effect before
+   * each paint so that we can avoid having a mechanism for
+   * applications to notify when the value of the
+   * has_overlaps virtual changes.
+   */
+  add_or_remove_flatten_effect (self);
+
+  /* We save the current paint volume so that the next time the
+   * actor queues a redraw we can constrain the redraw to just
+   * cover the union of the new bounding box and the old.
+   *
+   * We also fetch the current paint volume to perform culling so
+   * we can avoid painting actors outside the current clip region.
+   *
+   * If we are painting inside a clone, we should neither update
+   * the paint volume or use it to cull painting, since the paint
+   * box represents the location of the source actor on the
+   * screen.
+   *
+   * XXX: We are starting to do a lot of vertex transforms on
+   * the CPU in a typical paint, so at some point we should
+   * audit these and consider caching some things.
+   *
+   * NB: We don't perform culling while picking at this point because
+   * clutter-stage.c doesn't setup the clipping planes appropriately.
+   *
+   * NB: We don't want to update the last-paint-volume during picking
+   * because the last-paint-volume is used to determine the old screen
+   * space location of an actor that has moved so we can know the
+   * minimal region to redraw to clear an old view of the actor. If we
+   * update this during picking then by the time we come around to
+   * paint then the last-paint-volume would likely represent the new
+   * actor position not the old.
+   */
+  if (!in_clone_paint ())
+    {
+      gboolean success;
+      /* annoyingly gcc warns if uninitialized even though
+       * the initialization is redundant :-( */
+      ClutterCullResult result = CLUTTER_CULL_RESULT_IN;
+
+      if (G_LIKELY ((clutter_paint_debug_flags &
+                     (CLUTTER_DEBUG_DISABLE_CULLING |
+                      CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)) !=
+                    (CLUTTER_DEBUG_DISABLE_CULLING |
+                     CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)))
+        _clutter_actor_update_last_paint_volume (self);
+
+      success = cull_actor (self, &result);
+
+      if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_REDRAWS))
+        _clutter_actor_paint_cull_result (self, success, result, actor_node);
+      else if (result == CLUTTER_CULL_RESULT_OUT && success)
+        return;
+    }
+
   actor_node = clutter_actor_node_new (self);
   root_node = clutter_paint_node_ref (actor_node);
 
@@ -4024,62 +4080,6 @@ clutter_actor_paint (ClutterActor *self)
             }
         }
 #endif /* CLUTTER_ENABLE_DEBUG */
-    }
-
-  /* We check whether we need to add the flatten effect before
-   * each paint so that we can avoid having a mechanism for
-   * applications to notify when the value of the
-   * has_overlaps virtual changes.
-   */
-  add_or_remove_flatten_effect (self);
-
-  /* We save the current paint volume so that the next time the
-   * actor queues a redraw we can constrain the redraw to just
-   * cover the union of the new bounding box and the old.
-   *
-   * We also fetch the current paint volume to perform culling so
-   * we can avoid painting actors outside the current clip region.
-   *
-   * If we are painting inside a clone, we should neither update
-   * the paint volume or use it to cull painting, since the paint
-   * box represents the location of the source actor on the
-   * screen.
-   *
-   * XXX: We are starting to do a lot of vertex transforms on
-   * the CPU in a typical paint, so at some point we should
-   * audit these and consider caching some things.
-   *
-   * NB: We don't perform culling while picking at this point because
-   * clutter-stage.c doesn't setup the clipping planes appropriately.
-   *
-   * NB: We don't want to update the last-paint-volume during picking
-   * because the last-paint-volume is used to determine the old screen
-   * space location of an actor that has moved so we can know the
-   * minimal region to redraw to clear an old view of the actor. If we
-   * update this during picking then by the time we come around to
-   * paint then the last-paint-volume would likely represent the new
-   * actor position not the old.
-   */
-  if (!in_clone_paint ())
-    {
-      gboolean success;
-      /* annoyingly gcc warns if uninitialized even though
-       * the initialization is redundant :-( */
-      ClutterCullResult result = CLUTTER_CULL_RESULT_IN;
-
-      if (G_LIKELY ((clutter_paint_debug_flags &
-                     (CLUTTER_DEBUG_DISABLE_CULLING |
-                      CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)) !=
-                    (CLUTTER_DEBUG_DISABLE_CULLING |
-                     CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)))
-        _clutter_actor_update_last_paint_volume (self);
-
-      success = cull_actor (self, &result);
-
-      if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_REDRAWS))
-        _clutter_actor_paint_cull_result (self, success, result, actor_node);
-      else if (result == CLUTTER_CULL_RESULT_OUT && success)
-        return;
     }
 
   if (priv->effects == NULL)
