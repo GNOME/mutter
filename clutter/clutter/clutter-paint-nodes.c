@@ -1102,6 +1102,10 @@ G_DEFINE_TYPE (ClutterActorNode, clutter_actor_node, CLUTTER_TYPE_PAINT_NODE)
 static gboolean
 clutter_actor_node_pre_draw (ClutterPaintNode *node)
 {
+  ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
+
+  CLUTTER_SET_PRIVATE_FLAGS (actor_node->actor, CLUTTER_IN_PAINT);
+
   return TRUE;
 }
 
@@ -1111,6 +1115,14 @@ clutter_actor_node_draw (ClutterPaintNode *node)
   ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
 
   clutter_actor_continue_paint (actor_node->actor);
+}
+
+static void
+clutter_actor_node_post_draw (ClutterPaintNode *node)
+{
+  ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
+
+  CLUTTER_UNSET_PRIVATE_FLAGS (actor_node->actor, CLUTTER_IN_PAINT);
 }
 
 static JsonNode *
@@ -1139,6 +1151,7 @@ clutter_actor_node_class_init (ClutterActorNodeClass *klass)
   node_class = CLUTTER_PAINT_NODE_CLASS (klass);
   node_class->pre_draw = clutter_actor_node_pre_draw;
   node_class->draw = clutter_actor_node_draw;
+  node_class->post_draw = clutter_actor_node_post_draw;
   node_class->serialize = clutter_actor_node_serialize;
 }
 
