@@ -60,6 +60,7 @@
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-drm-buffer-dumb.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
+#include "backends/native/meta-drm-buffer-import.h"
 #include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-kms-update.h"
@@ -95,6 +96,8 @@ static GParamSpec *obj_props[PROP_LAST];
 
 typedef enum _MetaSharedFramebufferCopyMode
 {
+  /* Zero-copy: primary GPU exports, secondary GPU imports as KMS FB */
+  META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO,
   /* the secondary GPU will make the copy */
   META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU,
   /*
@@ -150,6 +153,13 @@ typedef struct _MetaDumbBuffer
   int dmabuf_fd;
 } MetaDumbBuffer;
 
+typedef enum _MetaSharedFramebufferImportStatus
+{
+  META_SHARED_FRAMEBUFFER_IMPORT_STATUS_UNKNOWN, /* not tried yet */
+  META_SHARED_FRAMEBUFFER_IMPORT_STATUS_FAILED,
+  META_SHARED_FRAMEBUFFER_IMPORT_STATUS_OK
+} MetaSharedFramebufferImportStatus;
+
 typedef struct _MetaOnscreenNativeSecondaryGpuState
 {
   MetaGpuKms *gpu_kms;
@@ -172,6 +182,7 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
 
   gboolean noted_primary_gpu_copy_ok;
   gboolean noted_primary_gpu_copy_failed;
+  MetaSharedFramebufferImportStatus import_status;
 } MetaOnscreenNativeSecondaryGpuState;
 
 typedef struct _MetaOnscreenNative
@@ -263,10 +274,6 @@ meta_renderer_native_get_egl (MetaRendererNative *renderer_native);
 static void
 free_current_secondary_bo (MetaGpuKms                          *gpu_kms,
                            MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state);
-
-static void
-free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
-                        MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state);
 
 static gboolean
 cogl_pixel_format_from_drm_format (uint32_t               drm_format,
@@ -719,12 +726,21 @@ init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_nat
 }
 
 static void
+secondary_gpu_release_dumb (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
+{
+  MetaGpuKms *gpu_kms = secondary_gpu_state->gpu_kms;
+  unsigned i;
+
+  for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
+    release_dumb_fb (&secondary_gpu_state->cpu.dumb_fbs[i], gpu_kms);
+}
+
+static void
 secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaEgl *egl = meta_backend_get_egl (backend);
   MetaGpuKms *gpu_kms = secondary_gpu_state->gpu_kms;
-  unsigned int i;
 
   if (secondary_gpu_state->egl_surface != EGL_NO_SURFACE)
     {
@@ -738,16 +754,10 @@ secondary_gpu_state_free (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_sta
     }
 
   free_current_secondary_bo (gpu_kms, secondary_gpu_state);
-  free_next_secondary_bo (gpu_kms, secondary_gpu_state);
+  g_clear_object (&secondary_gpu_state->gbm.next_fb);
   g_clear_pointer (&secondary_gpu_state->gbm.surface, gbm_surface_destroy);
 
-  for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
-    {
-      MetaDumbBuffer *dumb_fb = &secondary_gpu_state->cpu.dumb_fbs[i];
-
-      if (dumb_fb->fb_id)
-        release_dumb_fb (dumb_fb, gpu_kms);
-    }
+  secondary_gpu_release_dumb (secondary_gpu_state);
 
   g_free (secondary_gpu_state);
 }
@@ -868,6 +878,12 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
         }
     }
 
+  /*
+   * This function initializes everything needed for
+   * META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO as well.
+   */
+  secondary_gpu_state->import_status = META_SHARED_FRAMEBUFFER_IMPORT_STATUS_UNKNOWN;
+
   g_hash_table_insert (onscreen_native->secondary_gpu_states,
                        gpu_kms, secondary_gpu_state);
 
@@ -895,6 +911,13 @@ init_secondary_gpu_state (MetaRendererNative  *renderer_native,
                                                    error))
         return FALSE;
       break;
+    case META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO:
+      /*
+       * Initialize also the primary copy mode, so that if zero-copy
+       * path fails, which is quite likely, we can simply continue
+       * with the primary copy path on the very first frame.
+       */
+      /* fall through */
     case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
       if (!init_secondary_gpu_state_cpu_copy_mode (renderer_native,
                                                    onscreen,
@@ -974,17 +997,7 @@ static void
 free_current_secondary_bo (MetaGpuKms                          *gpu_kms,
                            MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
-  MetaRendererNativeGpuData *renderer_gpu_data;
-
-  renderer_gpu_data = secondary_gpu_state->renderer_gpu_data;
-  switch (renderer_gpu_data->secondary.copy_mode)
-    {
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
-      g_clear_object (&secondary_gpu_state->gbm.current_fb);
-      break;
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
-      break;
-    }
+  g_clear_object (&secondary_gpu_state->gbm.current_fb);
 }
 
 static void
@@ -1461,23 +1474,6 @@ static const MetaKmsPageFlipFeedback page_flip_feedback = {
   .discarded = page_flip_feedback_discarded,
 };
 
-static void
-free_next_secondary_bo (MetaGpuKms                          *gpu_kms,
-                        MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
-{
-  MetaRendererNativeGpuData *renderer_gpu_data;
-
-  renderer_gpu_data = secondary_gpu_state->renderer_gpu_data;
-  switch (renderer_gpu_data->secondary.copy_mode)
-    {
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
-      g_clear_object (&secondary_gpu_state->gbm.next_fb);
-      break;
-    case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
-      break;
-    }
-}
-
 #ifdef HAVE_EGL_DEVICE
 static int
 custom_egl_stream_page_flip (gpointer custom_page_flip_data,
@@ -1769,6 +1765,68 @@ wait_for_pending_flips (CoglOnscreen *onscreen)
     }
 }
 
+static gboolean
+import_shared_framebuffer (CoglOnscreen                        *onscreen,
+                           MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
+{
+  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+  MetaDrmBufferGbm *buffer_gbm;
+  MetaDrmBufferImport *buffer_import;
+  g_autoptr (GError) error = NULL;
+
+  buffer_gbm = META_DRM_BUFFER_GBM (onscreen_native->gbm.next_fb);
+
+  buffer_import = meta_drm_buffer_import_new (secondary_gpu_state->gpu_kms,
+                                              buffer_gbm,
+                                              &error);
+  if (!buffer_import)
+    {
+      g_debug ("Zero-copy disabled for %s, meta_drm_buffer_import_new failed: %s",
+               meta_gpu_kms_get_file_path (secondary_gpu_state->gpu_kms),
+               error->message);
+
+      g_warn_if_fail (secondary_gpu_state->import_status == META_SHARED_FRAMEBUFFER_IMPORT_STATUS_UNKNOWN);
+
+      /*
+       * Fall back. If META_SHARED_FRAMEBUFFER_IMPORT_STATUS_UNKNOWN is
+       * in effect, we have COPY_MODE_PRIMARY prepared already, so we
+       * simply retry with that path. Import status cannot be FAILED,
+       * because we should not retry if failed once.
+       *
+       * If import status is OK, that is unexpected and we do not
+       * have the fallback path prepared which means this output cannot
+       * work anymore.
+       */
+      secondary_gpu_state->renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
+
+      secondary_gpu_state->import_status = META_SHARED_FRAMEBUFFER_IMPORT_STATUS_FAILED;
+      return FALSE;
+    }
+
+  /*
+   * next_fb may already contain a fallback buffer, so clear it only
+   * when we are sure to succeed.
+   */
+  g_clear_object (&secondary_gpu_state->gbm.next_fb);
+  secondary_gpu_state->gbm.next_fb = META_DRM_BUFFER (buffer_import);
+
+  if (secondary_gpu_state->import_status == META_SHARED_FRAMEBUFFER_IMPORT_STATUS_UNKNOWN)
+    {
+      /*
+       * Clean up the cpu-copy part of
+       * init_secondary_gpu_state_cpu_copy_mode ()
+       */
+      secondary_gpu_release_dumb (secondary_gpu_state);
+
+      g_debug ("Using zero-copy for %s succeeded once.",
+               meta_gpu_kms_get_file_path (secondary_gpu_state->gpu_kms));
+    }
+
+  secondary_gpu_state->import_status = META_SHARED_FRAMEBUFFER_IMPORT_STATUS_OK;
+  return TRUE;
+}
+
 static void
 copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
                              MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
@@ -1825,19 +1883,20 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
       return;
     }
 
-  g_clear_object (&secondary_gpu_state->gbm.next_fb);
   buffer_gbm = meta_drm_buffer_gbm_new (secondary_gpu_state->gpu_kms,
                                         secondary_gpu_state->gbm.surface,
                                         renderer_native->use_modifiers,
                                         &error);
-  secondary_gpu_state->gbm.next_fb = META_DRM_BUFFER (buffer_gbm);
-  if (!secondary_gpu_state->gbm.next_fb)
+  if (!buffer_gbm)
     {
       g_warning ("meta_drm_buffer_gbm_new failed: %s",
                  error->message);
       g_error_free (error);
       return;
     }
+
+  g_clear_object (&secondary_gpu_state->gbm.next_fb);
+  secondary_gpu_state->gbm.next_fb = META_DRM_BUFFER (buffer_gbm);
 }
 
 static MetaDumbBuffer *
@@ -2108,6 +2167,11 @@ update_secondary_gpu_state_pre_swap_buffers (CoglOnscreen *onscreen)
         case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
           /* Done after eglSwapBuffers. */
           break;
+        case META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO:
+          /* Done after eglSwapBuffers. */
+          if (secondary_gpu_state->import_status != META_SHARED_FRAMEBUFFER_IMPORT_STATUS_UNKNOWN)
+            break;
+          /* fall through to prepare fallback */
         case META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY:
           if (!copy_shared_framebuffer_primary_gpu (onscreen,
                                                     secondary_gpu_state))
@@ -2157,8 +2221,14 @@ update_secondary_gpu_state_post_swap_buffers (CoglOnscreen *onscreen,
       renderer_gpu_data =
         meta_renderer_native_get_gpu_data (renderer_native,
                                            secondary_gpu_state->gpu_kms);
+retry:
       switch (renderer_gpu_data->secondary.copy_mode)
         {
+        case META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO:
+          if (!import_shared_framebuffer (onscreen,
+                                          secondary_gpu_state))
+            goto retry;
+          break;
         case META_SHARED_FRAMEBUFFER_COPY_MODE_SECONDARY_GPU:
           copy_shared_framebuffer_gpu (onscreen,
                                        secondary_gpu_state,
@@ -2226,20 +2296,20 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   switch (renderer_gpu_data->mode)
     {
     case META_RENDERER_NATIVE_MODE_GBM:
-      g_warn_if_fail (onscreen_native->gbm.next_fb == NULL);
-      g_clear_object (&onscreen_native->gbm.next_fb);
-
       buffer_gbm = meta_drm_buffer_gbm_new (render_gpu,
                                             onscreen_native->gbm.surface,
                                             renderer_native->use_modifiers,
                                             &error);
-      onscreen_native->gbm.next_fb = META_DRM_BUFFER (buffer_gbm);
-      if (!onscreen_native->gbm.next_fb)
+      if (!buffer_gbm)
         {
           g_warning ("meta_drm_buffer_gbm_new failed: %s",
                      error->message);
           return;
         }
+
+      g_warn_if_fail (onscreen_native->gbm.next_fb == NULL);
+      g_clear_object (&onscreen_native->gbm.next_fb);
+      onscreen_native->gbm.next_fb = META_DRM_BUFFER (buffer_gbm);
 
       break;
 #ifdef HAVE_EGL_DEVICE
@@ -2558,9 +2628,7 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
   uint32_t fb_id = 0;
   void *map;
   int kms_fd;
-  uint32_t handles[4] = { 0, };
-  uint32_t pitches[4] = { 0, };
-  uint32_t offsets[4] = { 0, };
+  MetaGpuKmsFBArgs fb_args = { width, height, format, };
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
@@ -2578,42 +2646,11 @@ init_dumb_fb (MetaDumbBuffer  *dumb_fb,
       goto err_ioctl;
     }
 
-  handles[0] = create_arg.handle;
-  pitches[0] = create_arg.pitch;
+  fb_args.handles[0] = create_arg.handle;
+  fb_args.strides[0] = create_arg.pitch;
 
-  if (drmModeAddFB2 (kms_fd, width, height, format,
-                     handles, pitches, offsets,
-                     &fb_id, 0) != 0)
-    {
-      g_debug ("drmModeAddFB2 failed (%s), falling back to drmModeAddFB",
-               g_strerror (errno));
-    }
-
-  if (fb_id == 0)
-    {
-      if (format != DRM_FORMAT_XRGB8888)
-        {
-          g_set_error (error, G_IO_ERROR,
-                       G_IO_ERROR_FAILED,
-                       "drmModeAddFB does not support format 0x%x",
-                       format);
-          goto err_add_fb;
-        }
-
-      if (drmModeAddFB (kms_fd, width, height,
-                        24 /* depth of RGBX8888 */,
-                        32 /* bpp of RGBX8888 */,
-                        create_arg.pitch,
-                        create_arg.handle,
-                        &fb_id) != 0)
-        {
-          g_set_error (error, G_IO_ERROR,
-                       G_IO_ERROR_FAILED,
-                       "drmModeAddFB failed: %s",
-                       g_strerror (errno));
-          goto err_add_fb;
-        }
-    }
+  if (!meta_gpu_kms_add_fb (gpu_kms, FALSE, &fb_args, &fb_id, error))
+    goto err_add_fb;
 
   map_arg = (struct drm_mode_map_dumb) {
     .handle = create_arg.handle
@@ -2706,7 +2743,6 @@ release_dumb_fb (MetaDumbBuffer *dumb_fb,
     close (dumb_fb->dmabuf_fd);
 
   munmap (dumb_fb->map, dumb_fb->map_size);
-  dumb_fb->map = NULL;
 
   kms_fd = meta_gpu_kms_get_fd (gpu_kms);
 
@@ -2716,6 +2752,9 @@ release_dumb_fb (MetaDumbBuffer *dumb_fb,
     .handle = dumb_fb->handle
   };
   drmIoctl (kms_fd, DRM_IOCTL_MODE_DESTROY_DUMB, &destroy_arg);
+
+  memset (dumb_fb, 0, sizeof *dumb_fb);
+  dumb_fb->dmabuf_fd = -1;
 }
 
 static gboolean
@@ -3602,7 +3641,9 @@ static void
 init_secondary_gpu_data_cpu (MetaRendererNativeGpuData *renderer_gpu_data)
 {
   renderer_gpu_data->secondary.is_hardware_rendering = FALSE;
-  renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_PRIMARY;
+
+  /* First try ZERO, it automatically falls back to PRIMARY as needed */
+  renderer_gpu_data->secondary.copy_mode = META_SHARED_FRAMEBUFFER_COPY_MODE_ZERO;
 }
 
 static void
