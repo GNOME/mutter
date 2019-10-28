@@ -38,6 +38,8 @@ struct _MetaWaylandActorSurfacePrivate
   MetaSurfaceActor *actor;
 
   gulong actor_destroyed_handler_id;
+
+  struct wl_list frame_callback_list;
 };
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaWaylandActorSurface,
@@ -78,12 +80,16 @@ meta_wayland_actor_surface_dispose (GObject *object)
   MetaWaylandActorSurface *actor_surface = META_WAYLAND_ACTOR_SURFACE (object);
   MetaWaylandActorSurfacePrivate *priv =
     meta_wayland_actor_surface_get_instance_private (actor_surface);
+  MetaWaylandFrameCallback *cb, *next;
 
   if (priv->actor)
     {
       clutter_actor_set_reactive (CLUTTER_ACTOR (priv->actor), FALSE);
       clear_surface_actor (actor_surface);
     }
+
+  wl_list_for_each_safe (cb, next, &priv->frame_callback_list, link)
+    wl_resource_destroy (cb->resource);
 
   G_OBJECT_CLASS (meta_wayland_actor_surface_parent_class)->dispose (object);
 }
@@ -113,6 +119,9 @@ meta_wayland_actor_surface_queue_frame_callbacks (MetaWaylandActorSurface *actor
   if (!priv->actor)
     return;
 
+  meta_surface_actor_wayland_add_frame_callbacks (surface_actor_wayland,
+                                                  &priv->frame_callback_list);
+  wl_list_init (&priv->frame_callback_list);
   meta_surface_actor_wayland_add_frame_callbacks (surface_actor_wayland,
                                                   &pending->frame_callback_list);
   wl_list_init (&pending->frame_callback_list);
@@ -239,7 +248,12 @@ meta_wayland_actor_surface_commit (MetaWaylandSurfaceRole  *surface_role,
     meta_wayland_actor_surface_get_instance_private (actor_surface);
 
   if (!priv->actor)
-    return;
+    {
+      wl_list_insert_list (&priv->frame_callback_list,
+                           &pending->frame_callback_list);
+      wl_list_init (&pending->frame_callback_list);
+      return;
+    }
 
   if (!wl_list_empty (&pending->frame_callback_list) &&
       cairo_region_is_empty (pending->surface_damage) &&
@@ -292,8 +306,12 @@ meta_wayland_actor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *surfac
 }
 
 static void
-meta_wayland_actor_surface_init (MetaWaylandActorSurface *role)
+meta_wayland_actor_surface_init (MetaWaylandActorSurface *actor_surface)
 {
+  MetaWaylandActorSurfacePrivate *priv =
+    meta_wayland_actor_surface_get_instance_private (actor_surface);
+
+  wl_list_init (&priv->frame_callback_list);
 }
 
 static void
