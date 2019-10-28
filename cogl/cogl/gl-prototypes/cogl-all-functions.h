@@ -170,7 +170,7 @@ COGL_EXT_FUNCTION (void, glFramebufferTexture2DMultisampleIMG,
 COGL_EXT_END ()
 
 COGL_EXT_BEGIN (ARB_sampler_objects, 3, 3,
-                0, /* not in either GLES */
+                COGL_EXT_IN_GLES3,
                 "ARB:\0",
                 "sampler_objects\0")
 COGL_EXT_FUNCTION (void, glGenSamplers,
@@ -224,7 +224,7 @@ COGL_EXT_FUNCTION (void, glGetAttachedObjects,
 COGL_EXT_END ()
 
 COGL_EXT_BEGIN (only_gl3, 3, 0,
-                0, /* not in either GLES */
+                COGL_EXT_IN_GLES3,
                 "\0",
                 "\0")
 COGL_EXT_FUNCTION (const GLubyte *, glGetStringi,
@@ -232,7 +232,7 @@ COGL_EXT_FUNCTION (const GLubyte *, glGetStringi,
 COGL_EXT_END ()
 
 COGL_EXT_BEGIN (vertex_array_object, 3, 0,
-                0, /* not in either GLES */
+                COGL_EXT_IN_GLES3,
                 "ARB\0OES\0",
                 "vertex_array_object\0")
 COGL_EXT_FUNCTION (void, glBindVertexArray,
@@ -258,7 +258,7 @@ COGL_EXT_END ()
 
 #ifdef GL_ARB_sync
 COGL_EXT_BEGIN (sync, 3, 2,
-                0, /* not in either GLES */
+                COGL_EXT_IN_GLES3,
                 "ARB:\0",
                 "sync\0")
 COGL_EXT_FUNCTION (GLsync, glFenceSync,
