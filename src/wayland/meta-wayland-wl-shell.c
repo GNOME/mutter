@@ -647,7 +647,7 @@ wl_shell_surface_role_managed (MetaWaylandShellSurface *shell_surface,
     META_WAYLAND_WL_SHELL_SURFACE (shell_surface);
 
   if (wl_shell_surface->state == META_WL_SHELL_SURFACE_STATE_POPUP)
-    meta_window_set_type (window, META_WINDOW_DROPDOWN_MENU);
+    meta_window_set_window_type (window, META_WINDOW_DROPDOWN_MENU);
 }
 
 static void

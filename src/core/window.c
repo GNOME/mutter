@@ -5541,8 +5541,8 @@ meta_window_type_changed (MetaWindow *window)
 }
 
 void
-meta_window_set_type (MetaWindow     *window,
-                      MetaWindowType  type)
+meta_window_set_window_type (MetaWindow     *window,
+                             MetaWindowType  type)
 {
   if (window->type == type)
     return;
