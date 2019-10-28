@@ -1713,6 +1713,7 @@ meta_display_begin_grab_op (MetaDisplay *display,
   MetaEventRoute event_route;
 
   g_assert (window != NULL);
+  g_assert (!window->unmanaging);
 
   meta_topic (META_DEBUG_WINDOW_OPS,
               "Doing grab op %u on window %s button %d pointer already grabbed: %d pointer pos %d,%d\n",
