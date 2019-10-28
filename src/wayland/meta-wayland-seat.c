@@ -504,9 +504,17 @@ gboolean
 meta_wayland_seat_can_popup (MetaWaylandSeat *seat,
                              uint32_t         serial)
 {
+  MetaWaylandCompositor *compositor;
+  MetaWaylandTabletSeat *tablet_seat;
+
+  compositor = meta_wayland_compositor_get_default ();
+  tablet_seat =
+    meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
+
   return (meta_wayland_pointer_can_popup (seat->pointer, serial) ||
           meta_wayland_keyboard_can_popup (seat->keyboard, serial) ||
-          meta_wayland_touch_can_popup (seat->touch, serial));
+          meta_wayland_touch_can_popup (seat->touch, serial) ||
+          meta_wayland_tablet_seat_can_popup (tablet_seat, serial));
 }
 
 gboolean
