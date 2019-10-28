@@ -578,6 +578,8 @@ struct _MetaWindowClass
                                   MetaWindowUpdateMonitorFlags  flags);
   void (*main_monitor_changed)   (MetaWindow *window,
                                   const MetaLogicalMonitor *old);
+  void (*adjust_fullscreen_monitor_rect) (MetaWindow *window,
+                                          MetaRectangle *monitor_rect);
   void (*force_restore_shortcuts) (MetaWindow         *window,
                                    ClutterInputDevice *source);
   gboolean (*shortcuts_inhibited) (MetaWindow         *window,
@@ -648,6 +650,9 @@ void        meta_window_update_fullscreen_monitors (MetaWindow         *window,
                                                     MetaLogicalMonitor *right);
 
 gboolean    meta_window_has_fullscreen_monitors (MetaWindow *window);
+
+void        meta_window_adjust_fullscreen_monitor_rect (MetaWindow *window,
+                                                        MetaRectangle *monitor_rect);
 
 void        meta_window_resize_frame_with_gravity (MetaWindow  *window,
                                                    gboolean     user_op,

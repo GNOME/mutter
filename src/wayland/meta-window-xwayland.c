@@ -20,6 +20,7 @@
 
 #include "x11/window-x11.h"
 #include "x11/window-x11-private.h"
+#include "x11/xprops.h"
 #include "wayland/meta-window-xwayland.h"
 #include "wayland/meta-wayland.h"
 
@@ -51,6 +52,81 @@ G_DEFINE_TYPE (MetaWindowXwayland, meta_window_xwayland, META_TYPE_WINDOW_X11)
 static void
 meta_window_xwayland_init (MetaWindowXwayland *window_xwayland)
 {
+}
+
+/* This is a workaround for X11 games which use randr to change the resolution
+ * in combination with NET_WM_STATE_FULLSCREEN when going fullscreen.
+ *
+ * Newer versions of Xwayland support the randr part of this by supporting randr
+ * resolution change emulation in combination with using WPviewport to scale the
+ * app's window (at the emulated resolution) to fill the entire monitor.
+ *
+ * Apps using randr in combination with NET_WM_STATE_FULLSCREEN expect the
+ * fullscreen window to have the size of the emulated randr resolution since
+ * when running on regular Xorg the resolution will actually be changed and
+ * after that going fullscreen through NET_WM_STATE_FULLSCREEN will size
+ * the window to be equal to the new resolution.
+ *
+ * We need to emulate this behavior for these games to work correctly.
+ *
+ * Xwayland's emulated resolution is a per X11 client setting and Xwayland
+ * will set a special _XWAYLAND_RANDR_EMU_MONITOR_RECTS property on the
+ * toplevel windows of a client (and only those of that client), which has
+ * changed the (emulated) resolution through a randr call.
+ *
+ * Here we check for that property and if it is set we adjust the fullscreen
+ * monitor rect for this window to match the emulated resolution.
+ */
+static void
+meta_window_xwayland_adjust_fullscreen_monitor_rect (MetaWindow *window,
+                                                     MetaRectangle *fs_monitor_rect)
+{
+  MetaX11Display *x11_display = window->display->x11_display;
+  MetaRectangle win_monitor_rect;
+  MetaRectangle *rects;
+  uint32_t *list = NULL;
+  int i, n_items = 0;
+
+  /* This code relies on MetaRectangle consisting of 4 32 bit integers */
+  G_STATIC_ASSERT (sizeof(MetaRectangle) == 16);
+
+  if (!window->monitor)
+    {
+      g_warning ("MetaWindow does not have a monitor");
+      return;
+    }
+
+  meta_display_get_monitor_geometry (window->display,
+                                     window->monitor->number,
+                                     &win_monitor_rect);
+
+  if (!meta_prop_get_cardinal_list (x11_display,
+                                    window->xwindow,
+                                    x11_display->atom__XWAYLAND_RANDR_EMU_MONITOR_RECTS,
+                                    &list, &n_items))
+    return;
+
+  if (n_items % 4)
+    {
+      meta_verbose ("_XWAYLAND_RANDR_EMU_MONITOR_RECTS on %s has %d values which is not a multiple of 4",
+                    window->desc, n_items);
+      g_free (list);
+      return;
+    }
+
+  rects = (MetaRectangle *)list;
+  n_items = n_items / 4;
+  for (i = 0; i < n_items; i++)
+    {
+      if (rects[i].x == win_monitor_rect.x && rects[i].y == win_monitor_rect.y)
+        {
+          fs_monitor_rect->width  = rects[i].width;
+          fs_monitor_rect->height = rects[i].height;
+          break;
+        }
+    }
+
+  g_free (list);
 }
 
 static void
@@ -115,6 +191,7 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
+  window_class->adjust_fullscreen_monitor_rect = meta_window_xwayland_adjust_fullscreen_monitor_rect;
   window_class->force_restore_shortcuts = meta_window_xwayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_xwayland_shortcuts_inhibited;
 

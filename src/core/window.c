@@ -3625,6 +3625,16 @@ meta_window_has_fullscreen_monitors (MetaWindow *window)
 }
 
 void
+meta_window_adjust_fullscreen_monitor_rect (MetaWindow *window,
+                                            MetaRectangle *monitor_rect)
+{
+  MetaWindowClass *window_class = META_WINDOW_GET_CLASS (window);
+
+  if (window_class->adjust_fullscreen_monitor_rect)
+    window_class->adjust_fullscreen_monitor_rect (window, monitor_rect);
+}
+
+void
 meta_window_shade (MetaWindow  *window,
                    guint32      timestamp)
 {

@@ -431,6 +431,9 @@ setup_constraint_info (ConstraintInfo      *info,
                             &info->entire_monitor);
     }
 
+  if (window->fullscreen)
+    meta_window_adjust_fullscreen_monitor_rect (window, &info->entire_monitor);
+
   cur_workspace = window->display->workspace_manager->active_workspace;
   info->usable_screen_region   =
     meta_workspace_get_onscreen_region (cur_workspace);
