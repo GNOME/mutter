@@ -1018,3 +1018,10 @@ meta_wayland_tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
   return ((tool->down_serial == serial || tool->button_serial == serial) &&
           tablet_tool_can_grab_surface (tool, surface));
 }
+
+gboolean
+meta_wayland_tablet_tool_can_popup (MetaWaylandTabletTool *tool,
+                                    uint32_t               serial)
+{
+  return tool->down_serial == serial || tool->button_serial == serial;
+}
