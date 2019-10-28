@@ -8112,7 +8112,7 @@ window_has_pointer_wayland (MetaWindow *window)
 
   dm = clutter_device_manager_get_default ();
   dev = clutter_device_manager_get_core_device (dm, CLUTTER_POINTER_DEVICE);
-  pointer_actor = clutter_input_device_get_pointer_actor (dev);
+  pointer_actor = clutter_input_device_get_actor (dev, NULL);
   window_actor = CLUTTER_ACTOR (meta_window_get_compositor_private (window));
 
   return pointer_actor && clutter_actor_contains (window_actor, pointer_actor);

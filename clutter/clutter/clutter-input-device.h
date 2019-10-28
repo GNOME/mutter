@@ -62,7 +62,10 @@ gboolean                clutter_input_device_get_coords        (ClutterInputDevi
 CLUTTER_EXPORT
 ClutterModifierType     clutter_input_device_get_modifier_state (ClutterInputDevice  *device);
 CLUTTER_EXPORT
-ClutterActor *          clutter_input_device_get_pointer_actor  (ClutterInputDevice  *device);
+ClutterActor *          clutter_input_device_get_actor         (ClutterInputDevice   *device,
+                                                                ClutterEventSequence *sequence);
+CLUTTER_EXPORT
+GList *                 clutter_input_device_get_touch_sequences (ClutterInputDevice  *device);
 CLUTTER_EXPORT
 ClutterStage *          clutter_input_device_get_pointer_stage  (ClutterInputDevice  *device);
 CLUTTER_EXPORT
@@ -71,6 +74,10 @@ CLUTTER_EXPORT
 ClutterInputMode        clutter_input_device_get_device_mode    (ClutterInputDevice  *device);
 CLUTTER_EXPORT
 gboolean                clutter_input_device_get_has_cursor     (ClutterInputDevice  *device);
+CLUTTER_EXPORT
+void                    clutter_input_device_set_focus         (ClutterInputDevice   *device,
+                                                                ClutterEventSequence *sequence,
+                                                                gboolean              focus);
 CLUTTER_EXPORT
 void                    clutter_input_device_set_enabled        (ClutterInputDevice  *device,
                                                                  gboolean             enabled);

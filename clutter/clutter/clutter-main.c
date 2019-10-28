@@ -1619,6 +1619,35 @@ emit_crossing_event (ClutterEvent       *event,
 }
 
 static inline void
+emit_crossing_event (ClutterEvent       *event,
+                     ClutterInputDevice *device)
+{
+  ClutterMainContext *context = _clutter_context_get_default ();
+  ClutterActor *grab_actor = NULL;
+
+  if (_clutter_event_process_filters (event))
+    return;
+
+  if (event->crossing.sequence != NULL)
+    {
+      if (device->sequence_grab_actors != NULL)
+        grab_actor = g_hash_table_lookup (device->sequence_grab_actors, event->crossing.sequence);
+    }
+  else
+    {
+      if (context->pointer_grab_actor != NULL)
+        grab_actor = context->pointer_grab_actor;
+      else if (device != NULL && device->pointer_grab_actor != NULL)
+        grab_actor = device->pointer_grab_actor;
+    }
+
+  if (grab_actor != NULL)
+    clutter_actor_event (grab_actor, event, FALSE);
+  else
+    emit_event_chain (event);
+}
+
+static inline void
 emit_touch_event (ClutterEvent       *event,
                   ClutterInputDevice *device)
 {
