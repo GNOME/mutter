@@ -6203,12 +6203,13 @@ update_move (MetaWindow  *window,
     new_y = old.y;
 
   /* Do any edge resistance/snapping */
-  meta_window_edge_resistance_for_move (window,
-                                        &new_x,
-                                        &new_y,
-                                        update_move_timeout,
-                                        snap,
-                                        FALSE);
+  if (meta_prefs_get_edge_resistance ())
+    meta_window_edge_resistance_for_move (window,
+                                          &new_x,
+                                          &new_y,
+                                          update_move_timeout,
+                                          snap,
+                                          FALSE);
 
   meta_window_move_frame (window, TRUE, new_x, new_y);
 }
@@ -6343,13 +6344,14 @@ update_resize (MetaWindow *window,
   g_assert (gravity >= 0);
 
   /* Do any edge resistance/snapping */
-  meta_window_edge_resistance_for_resize (window,
-                                          &new_w,
-                                          &new_h,
-                                          gravity,
-                                          update_resize_timeout,
-                                          snap,
-                                          FALSE);
+  if (meta_prefs_get_edge_resistance ())
+    meta_window_edge_resistance_for_resize (window,
+                                            &new_w,
+                                            &new_h,
+                                            gravity,
+                                            update_resize_timeout,
+                                            snap,
+                                            FALSE);
 
   meta_window_resize_frame_with_gravity (window, TRUE, new_w, new_h, gravity);
 

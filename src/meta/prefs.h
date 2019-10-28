@@ -59,6 +59,7 @@
  * @META_PREF_CURSOR_SIZE: cursor size
  * @META_PREF_RESIZE_WITH_RIGHT_BUTTON: resize with right button
  * @META_PREF_EDGE_TILING: edge tiling
+ * @META_PREF_EDGE_RESISTANCE: edge resistance
  * @META_PREF_FORCE_FULLSCREEN: force fullscreen
  * @META_PREF_WORKSPACES_ONLY_ON_PRIMARY: workspaces only on primary
  * @META_PREF_DRAGGABLE_BORDER_WIDTH: draggable border width
@@ -98,6 +99,7 @@ typedef enum
   META_PREF_CURSOR_SIZE,
   META_PREF_RESIZE_WITH_RIGHT_BUTTON,
   META_PREF_EDGE_TILING,
+  META_PREF_EDGE_RESISTANCE,
   META_PREF_FORCE_FULLSCREEN,
   META_PREF_WORKSPACES_ONLY_ON_PRIMARY,
   META_PREF_DRAGGABLE_BORDER_WIDTH,
@@ -175,6 +177,9 @@ gboolean                    meta_prefs_get_gnome_animations   (void);
 
 META_EXPORT
 gboolean                    meta_prefs_get_edge_tiling        (void);
+
+META_EXPORT
+gboolean                    meta_prefs_get_edge_resistance    (void);
 
 META_EXPORT
 gboolean                    meta_prefs_get_auto_maximize      (void);
