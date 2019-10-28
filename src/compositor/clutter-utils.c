@@ -60,21 +60,31 @@ round_to_fixed (float x)
 #define MTX_GL_SCALE_X(x,w,v1,v2) ((((((x) / (w)) + 1.0f) / 2.0f) * (v1)) + (v2))
 #define MTX_GL_SCALE_Y(y,w,v1,v2) ((v1) - (((((y) / (w)) + 1.0f) / 2.0f) * (v1)) + (v2))
 
+typedef enum
+{
+  UNTRANSFORMED     = 0x0,
+  FRACTIONAL_OFFSET = 0x1,
+  SKEWED            = 0x2,
+  FRACTIONAL_SCALED = 0x4,
+  INTEGER_SCALED    = 0x8  /* meaning integers >= 2 */
+} VertexAlignment;
+
 /* This helper function checks if (according to our fixed point precision)
  * the vertices @verts form a box of width @widthf and height @heightf
  * located at integral coordinates. These coordinates are returned
  * in @x_origin and @y_origin.
  */
-gboolean
-meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
-                                       float               widthf,
-                                       float               heightf,
-                                       int                *x_origin,
-                                       int                *y_origin)
+static VertexAlignment
+meta_actor_vertices_alignment (graphene_point3d_t *verts,
+                               float               widthf,
+                               float               heightf,
+                               int                *x_origin,
+                               int                *y_origin)
 {
   int width, height;
   int v0x, v0y, v1x, v1y, v2x, v2y, v3x, v3y;
   int x, y;
+  VertexAlignment ret = UNTRANSFORMED;
 
   width = round_to_fixed (widthf); height = round_to_fixed (heightf);
 
@@ -91,23 +101,28 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
 
   /* At integral coordinates? */
   if (x * 256 != v0x || y * 256 != v0y)
-    return FALSE;
+    ret |= FRACTIONAL_OFFSET;
 
   /* Not scaled? */
   if (v1x - v0x != width || v2y - v0y != height)
-    return FALSE;
+    {
+      if ((v1x - v0x) % width || (v2y - v0y) % height)
+        ret |= FRACTIONAL_SCALED;
+      else
+        ret |= INTEGER_SCALED;
+    }
 
   /* Not rotated/skewed? */
   if (v0x != v2x || v0y != v1y ||
       v3x != v1x || v3y != v2y)
-    return FALSE;
+    ret |= SKEWED;
 
   if (x_origin)
     *x_origin = x;
   if (y_origin)
     *y_origin = y;
 
-  return TRUE;
+  return ret;
 }
 
 /* Check if an actor is "untransformed" - which actually means transformed by
@@ -124,33 +139,19 @@ meta_actor_is_untransformed (ClutterActor *actor,
   clutter_actor_get_size (actor, &widthf, &heightf);
   clutter_actor_get_abs_allocation_vertices (actor, verts);
 
-  return meta_actor_vertices_are_untransformed (verts, widthf, heightf, x_origin, y_origin);
+  return meta_actor_vertices_alignment (verts,
+                                        widthf,
+                                        heightf,
+                                        x_origin,
+                                        y_origin) == UNTRANSFORMED;
 }
 
-/**
- * meta_actor_painting_untransformed:
- * @paint_width: the width of the painted area
- * @paint_height: the height of the painted area
- * @x_origin: if the transform is only an integer translation
- *  then the X coordinate of the location of the origin under the transformation
- *  from drawing space to screen pixel space is returned here.
- * @y_origin: if the transform is only an integer translation
- *  then the X coordinate of the location of the origin under the transformation
- *  from drawing space to screen pixel space is returned here.
- *
- * Determines if the current painting transform is an integer translation.
- * This can differ from the result of meta_actor_is_untransformed() when
- * painting an actor if we're inside a inside a clone paint. @paint_width
- * and @paint_height are used to determine the vertices of the rectangle
- * we check to see if the painted area is "close enough" to the integer
- * transform.
- */
-gboolean
-meta_actor_painting_untransformed (CoglFramebuffer *fb,
-                                   int              paint_width,
-                                   int              paint_height,
-                                   int             *x_origin,
-                                   int             *y_origin)
+static VertexAlignment
+meta_actor_painting_alignment (CoglFramebuffer *fb,
+                               int              paint_width,
+                               int              paint_height,
+                               int             *x_origin,
+                               int             *y_origin)
 {
   CoglMatrix modelview, projection, modelview_projection;
   graphene_point3d_t vertices[4];
@@ -189,6 +190,56 @@ meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                       viewport[3], viewport[1]);
     }
 
-  return meta_actor_vertices_are_untransformed (vertices, paint_width, paint_height, x_origin, y_origin);
+  return meta_actor_vertices_alignment (vertices,
+                                        paint_width,
+                                        paint_height,
+                                        x_origin,
+                                        y_origin);
 }
 
+/**
+ * meta_actor_painting_untransformed:
+ * @paint_width: the width of the painted area
+ * @paint_height: the height of the painted area
+ * @x_origin: if the transform is only an integer translation
+ *  then the X coordinate of the location of the origin under the transformation
+ *  from drawing space to screen pixel space is returned here.
+ * @y_origin: if the transform is only an integer translation
+ *  then the X coordinate of the location of the origin under the transformation
+ *  from drawing space to screen pixel space is returned here.
+ *
+ * Determines if the current painting transform is an integer translation.
+ * This can differ from the result of meta_actor_is_untransformed() when
+ * painting an actor if we're inside a inside a clone paint. @paint_width
+ * and @paint_height are used to determine the vertices of the rectangle
+ * we check to see if the painted area is "close enough" to the integer
+ * transform.
+ */
+gboolean
+meta_actor_painting_untransformed (CoglFramebuffer *fb,
+                                   int              paint_width,
+                                   int              paint_height,
+                                   int             *x_origin,
+                                   int             *y_origin)
+{
+  return meta_actor_painting_alignment (fb,
+                                        paint_width,
+                                        paint_height,
+                                        x_origin,
+                                        y_origin) == UNTRANSFORMED;
+}
+
+gboolean
+meta_actor_painting_integer_scale (CoglFramebuffer *fb,
+                                   int              paint_width,
+                                   int              paint_height)
+{
+  VertexAlignment alignment = meta_actor_painting_alignment (fb,
+                                                             paint_width,
+                                                             paint_height,
+                                                             NULL,
+                                                             NULL);
+
+  return alignment == UNTRANSFORMED ||
+         alignment == INTEGER_SCALED;
+}

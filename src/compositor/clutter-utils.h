@@ -23,11 +23,6 @@
 
 #include "clutter/clutter.h"
 
-gboolean meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
-                                                float               widthf,
-                                                float               heightf,
-                                                int                *x_origin,
-                                                int                *y_origin);
 gboolean meta_actor_is_untransformed (ClutterActor *actor,
                                       int          *x_origin,
                                       int          *y_origin);
@@ -37,5 +32,9 @@ gboolean meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                             int              paint_height,
                                             int             *x_origin,
                                             int             *y_origin);
+
+gboolean meta_actor_painting_integer_scale (CoglFramebuffer *fb,
+                                            int              paint_width,
+                                            int              paint_height);
 
 #endif /* __META_CLUTTER_UTILS_H__ */

@@ -366,6 +366,32 @@ meta_stage_update_cursor_overlay (MetaStage       *stage,
   g_assert (meta_is_wayland_compositor () || texture == NULL);
 
   meta_overlay_set (overlay, texture, rect);
+
+  if (texture)
+    {
+      ClutterStageView *view =
+        clutter_stage_get_view_at (CLUTTER_STAGE (stage),
+                                   rect->origin.x,
+                                   rect->origin.y);
+
+      if (view)
+        {
+          const CoglPipelineFilter min_filter = COGL_PIPELINE_FILTER_LINEAR;
+          CoglPipelineFilter mag_filter = COGL_PIPELINE_FILTER_LINEAR;
+          float view_scale = clutter_stage_view_get_scale (view);
+          unsigned int texture_width = cogl_texture_get_width (texture);
+          unsigned int pixel_width = rect->size.width * view_scale;
+
+          if (texture_width && (pixel_width % texture_width) == 0)
+            mag_filter = COGL_PIPELINE_FILTER_NEAREST;
+
+          cogl_pipeline_set_layer_filters (overlay->pipeline,
+                                           0,
+                                           min_filter,
+                                           mag_filter);
+        }
+    }
+
   queue_redraw_for_overlay (stage, overlay);
 }
 

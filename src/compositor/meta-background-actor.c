@@ -438,10 +438,9 @@ setup_pipeline (MetaBackgroundActor   *self,
 
   fb = cogl_get_draw_framebuffer ();
   if (!self->force_bilinear &&
-      meta_actor_painting_untransformed (fb,
+      meta_actor_painting_integer_scale (fb,
                                          actor_pixel_rect->width,
-                                         actor_pixel_rect->height,
-                                         NULL, NULL))
+                                         actor_pixel_rect->height))
     filter = COGL_PIPELINE_FILTER_NEAREST;
   else
     filter = COGL_PIPELINE_FILTER_LINEAR;
