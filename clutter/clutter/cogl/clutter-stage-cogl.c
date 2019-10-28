@@ -525,22 +525,48 @@ swap_framebuffer (ClutterStageWindow *stage_window,
 }
 
 static void
+scale_and_clamp_rect (const graphene_rect_t *rect,
+                      float                  scale,
+                      cairo_rectangle_int_t *dest)
+
+{
+  graphene_rect_t tmp = *rect;
+
+  graphene_rect_scale (&tmp, scale, scale, &tmp);
+  _clutter_util_rectangle_int_extents (&tmp, dest);
+}
+
+static void
 paint_stage (ClutterStageCogl            *stage_cogl,
              ClutterStageView            *view,
              cairo_region_t              *clip)
 {
   ClutterStage *stage = stage_cogl->wrapper;
   cairo_rectangle_int_t clip_rect;
+  cairo_rectangle_int_t paint_rect;
+  cairo_rectangle_int_t view_rect;
+  graphene_rect_t rect;
+  float fb_scale;
+
+  clutter_stage_view_get_layout (view, &view_rect);
+  fb_scale = clutter_stage_view_get_scale (view);
 
   cairo_region_get_extents (clip, &clip_rect);
 
+  _clutter_util_rect_from_rectangle (&clip_rect, &rect);
+  scale_and_clamp_rect (&rect, 1.0f / fb_scale, &paint_rect);
+  _clutter_util_rectangle_offset (&paint_rect,
+                                  view_rect.x,
+                                  view_rect.y,
+                                  &paint_rect);
+
   _clutter_stage_maybe_setup_viewport (stage, view);
-  _clutter_stage_paint_view (stage, view, &clip_rect);
+  _clutter_stage_paint_view (stage, view, &paint_rect);
 
   if (clutter_stage_view_get_onscreen (view) !=
       clutter_stage_view_get_framebuffer (view))
     {
-      clutter_stage_view_blit_offscreen (view, &clip_rect);
+      clutter_stage_view_blit_offscreen (view, &paint_rect);
     }
 }
 
@@ -651,18 +677,6 @@ is_buffer_age_enabled (void)
          cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
 }
 
-static void
-scale_and_clamp_rect (const graphene_rect_t *rect,
-                      float                  scale,
-                      cairo_rectangle_int_t *dest)
-
-{
-  graphene_rect_t tmp = *rect;
-
-  graphene_rect_scale (&tmp, scale, scale, &tmp);
-  _clutter_util_rectangle_int_extents (&tmp, dest);
-}
-
 static gboolean
 clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                                 ClutterStageView   *view)
@@ -684,7 +698,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   cairo_region_t *redraw_clip;
   cairo_region_t *fb_clip_region;
   cairo_region_t *swap_region;
-  cairo_rectangle_int_t clip_rect;
   cairo_rectangle_int_t redraw_rect;
   gboolean clip_region_empty;
   float fb_scale;
@@ -860,8 +873,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
         }
     }
 
-  cairo_region_get_extents (fb_clip_region, &clip_rect);
-
   cogl_push_framebuffer (fb);
   if (use_clipped_redraw && clip_region_empty)
     {
@@ -869,7 +880,10 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     }
   else if (use_clipped_redraw)
     {
+      cairo_rectangle_int_t clip_rect;
       cairo_rectangle_int_t scissor_rect;
+
+      cairo_region_get_extents (fb_clip_region, &clip_rect);
 
       calculate_scissor_region (&clip_rect,
                                 subpixel_compensation,
@@ -907,10 +921,10 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
           may_use_clipped_redraw &&
           !clip_region_empty)
         {
-          graphene_rect_t rect;
-          cairo_region_t *paint_region;
+          cairo_rectangle_int_t clip_rect;
           cairo_rectangle_int_t scissor_rect;
-          cairo_rectangle_int_t paint_rect;
+
+          cairo_region_get_extents (fb_clip_region, &clip_rect);
 
           calculate_scissor_region (&clip_rect,
                                     subpixel_compensation,
@@ -923,16 +937,8 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                                               scissor_rect.width,
                                               scissor_rect.height);
 
-          _clutter_util_rect_from_rectangle (&clip_rect, &rect);
-          scale_and_clamp_rect (&rect, 1.0f / fb_scale, &paint_rect);
-          _clutter_util_rectangle_offset (&paint_rect,
-                                          view_rect.x,
-                                          view_rect.y,
-                                          &paint_rect);
+          paint_stage (stage_cogl, view, fb_clip_region);
 
-          paint_region = cairo_region_create_rectangle (&paint_rect);
-          paint_stage (stage_cogl, view, paint_region);
-          cairo_region_destroy (paint_region);
           cogl_framebuffer_pop_clip (fb);
         }
       else
