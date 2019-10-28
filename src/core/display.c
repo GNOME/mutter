@@ -845,6 +845,8 @@ meta_display_open (void)
 
   display->sound_player = g_object_new (META_TYPE_SOUND_PLAYER, NULL);
 
+  display->ping_serial = 0;
+
   /* Done opening new display */
   display->display_opening = FALSE;
 
@@ -2050,10 +2052,7 @@ meta_display_ping_timeout (gpointer data)
 
 /**
  * meta_display_ping_window:
- * @display: The #MetaDisplay that the window is on
  * @window: The #MetaWindow to send the ping to
- * @timestamp: The timestamp of the ping. Used for uniqueness.
- *             Cannot be CurrentTime; use a real timestamp!
  *
  * Sends a ping request to a window. The window must respond to
  * the request within a certain amount of time. If it does, we
@@ -2065,20 +2064,15 @@ meta_display_ping_timeout (gpointer data)
  * the callbacks will be called from the event loop.
  */
 void
-meta_display_ping_window (MetaWindow *window,
-			  guint32     serial)
+meta_display_ping_window (MetaWindow *window)
 {
   MetaDisplay *display = window->display;
   MetaPingData *ping_data;
 
-  if (serial == 0)
-    {
-      meta_warning ("Tried to ping a window with a bad serial! Not allowed.\n");
-      return;
-    }
-
   if (!meta_window_can_ping (window))
     return;
+
+  guint32 serial = display->ping_serial++;
 
   ping_data = g_new (MetaPingData, 1);
   ping_data->window = window;

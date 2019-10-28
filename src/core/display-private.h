@@ -240,6 +240,8 @@ struct _MetaDisplay
   GBytes *saved_clipboard;
   gchar *saved_clipboard_mimetype;
   MetaSelection *selection;
+
+  guint32 ping_serial;
 };
 
 struct _MetaDisplayClass
@@ -338,8 +340,7 @@ const char* meta_event_detail_to_string (int d);
 
 void meta_display_queue_retheme_all_windows (MetaDisplay *display);
 
-void meta_display_ping_window      (MetaWindow  *window,
-                                    guint32      serial);
+void meta_display_ping_window      (MetaWindow  *window);
 void meta_display_pong_for_serial  (MetaDisplay *display,
                                     guint32      serial);
 

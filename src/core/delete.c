@@ -77,10 +77,9 @@ meta_window_set_alive (MetaWindow *window,
 }
 
 void
-meta_window_check_alive (MetaWindow *window,
-                         guint32     timestamp)
+meta_window_check_alive (MetaWindow *window)
 {
-  meta_display_ping_window (window, timestamp);
+  meta_display_ping_window (window);
 }
 
 void
@@ -89,7 +88,7 @@ meta_window_delete (MetaWindow  *window,
 {
   META_WINDOW_GET_CLASS (window)->delete (window, timestamp);
 
-  meta_window_check_alive (window, timestamp);
+  meta_window_check_alive (window);
 }
 
 void
