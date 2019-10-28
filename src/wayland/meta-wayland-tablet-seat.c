@@ -552,3 +552,20 @@ meta_wayland_tablet_seat_set_pad_focus (MetaWaylandTabletSeat *tablet_seat,
   while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &pad))
     meta_wayland_tablet_pad_set_focus (pad, surface);
 }
+
+gboolean
+meta_wayland_tablet_seat_can_popup (MetaWaylandTabletSeat *tablet_seat,
+                                    uint32_t               serial)
+{
+  MetaWaylandTabletTool *tool;
+  GHashTableIter iter;
+
+  g_hash_table_iter_init (&iter, tablet_seat->tools);
+  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &tool))
+    {
+      if (meta_wayland_tablet_tool_can_popup (tool, serial))
+        return TRUE;
+    }
+
+  return FALSE;
+}
