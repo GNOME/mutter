@@ -75,5 +75,7 @@ MetaWaylandTablet     *meta_wayland_tablet_seat_lookup_paired_tablet (MetaWaylan
                                                                       MetaWaylandTabletPad  *pad);
 GList                 *meta_wayland_tablet_seat_lookup_paired_pads   (MetaWaylandTabletSeat *tablet_seat,
                                                                       MetaWaylandTablet     *tablet);
+gboolean               meta_wayland_tablet_seat_can_popup            (MetaWaylandTabletSeat *tablet_seat,
+                                                                      uint32_t               serial);
 
 #endif /* META_WAYLAND_TABLET_SEAT_H */

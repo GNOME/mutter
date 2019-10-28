@@ -85,5 +85,7 @@ void     meta_wayland_tablet_tool_set_cursor_position (MetaWaylandTabletTool  *t
 gboolean meta_wayland_tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
                                                     MetaWaylandSurface    *surface,
                                                     uint32_t               serial);
+gboolean meta_wayland_tablet_tool_can_popup        (MetaWaylandTabletTool *tool,
+                                                    uint32_t               serial);
 
 #endif /* META_WAYLAND_TABLET_TOOL_H */
