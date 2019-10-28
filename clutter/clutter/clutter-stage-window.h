@@ -67,6 +67,8 @@ struct _ClutterStageWindowInterface
   GList            *(* get_views)               (ClutterStageWindow *stage_window);
   int64_t           (* get_frame_counter)       (ClutterStageWindow *stage_window);
   void              (* finish_frame)            (ClutterStageWindow *stage_window);
+
+  int64_t           (* get_next_presentation_time) (ClutterStageWindow *stage_window);
 };
 
 ClutterActor *    _clutter_stage_window_get_wrapper        (ClutterStageWindow *window);
@@ -114,6 +116,8 @@ GList *           _clutter_stage_window_get_views               (ClutterStageWin
 void              _clutter_stage_window_finish_frame            (ClutterStageWindow *window);
 
 int64_t           _clutter_stage_window_get_frame_counter       (ClutterStageWindow *window);
+
+int64_t           _clutter_stage_window_get_next_presentation_time (ClutterStageWindow *window);
 
 G_END_DECLS
 

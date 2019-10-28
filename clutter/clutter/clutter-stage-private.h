@@ -78,6 +78,7 @@ void     _clutter_stage_schedule_update                   (ClutterStage *stage);
 gint64    _clutter_stage_get_update_time                  (ClutterStage *stage);
 void     _clutter_stage_clear_update_time                 (ClutterStage *stage);
 gboolean _clutter_stage_has_full_redraw_queued            (ClutterStage *stage);
+int64_t  _clutter_stage_get_next_presentation_time        (ClutterStage *stage);
 
 void clutter_stage_log_pick (ClutterStage           *stage,
                              const graphene_point_t *vertices,
