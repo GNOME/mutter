@@ -329,6 +329,8 @@ try_create_context (CoglDisplay *display,
   if (renderer->driver == COGL_DRIVER_GL ||
       renderer->driver == COGL_DRIVER_GL3)
     eglBindAPI (EGL_OPENGL_API);
+  else if (renderer->driver == COGL_DRIVER_GLES2)
+    eglBindAPI (EGL_OPENGL_ES_API);
 
   egl_attributes_from_framebuffer_config (display,
                                           &display->onscreen_template->config,
