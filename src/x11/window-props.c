@@ -1661,6 +1661,15 @@ reload_transient_for (MetaWindow    *window,
                         transient_for, window->desc);
           transient_for = None;
         }
+      else if (parent->override_redirect)
+        {
+          meta_warning ("WM_TRANSIENT_FOR window %s for top-level %s is an "
+                        "override-redirect window and this is not correct "
+                        "according to the standard, so we'll fallback to "
+                        "the root window.\n", parent->desc, window->desc);
+          transient_for = parent->display->x11_display->xroot;
+          parent = NULL;
+        }
 
       /* Make sure there is not a loop */
       if (check_xtransient_for_loop (window, parent))

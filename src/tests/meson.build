@@ -131,6 +131,7 @@ stacking_tests = [
   'mixed-windows',
   'set-parent',
   'override-redirect',
+  'set-override-redirect-parent',
   'set-parent-exported',
 ]
 
