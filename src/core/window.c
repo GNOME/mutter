@@ -1306,6 +1306,7 @@ _meta_window_shared_new (MetaDisplay         *display,
                       "Putting window %s on same workspace as parent %s\n",
                       window->desc, window->transient_for->desc);
 
+          g_warn_if_fail (!window->transient_for->override_redirect);
           set_workspace_state (window,
                                should_be_on_all_workspaces (window->transient_for),
                                window->transient_for->workspace);
