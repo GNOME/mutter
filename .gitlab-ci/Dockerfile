@@ -19,7 +19,7 @@ RUN dnf -y update && dnf -y upgrade && \
     dnf install -y 'pkgconfig(graphene-gobject-1.0)' 'pkgconfig(sysprof-capture-3)' && \
 
     # For running unit tests
-    dnf install -y xorg-x11-server-Xvfb mesa-dri-drivers dbus dbus-x11 '*/xvfb-run' gdm-lib accountsservice-libs && \
+    dnf install -y xorg-x11-server-Xvfb mesa-dri-drivers dbus dbus-x11 '*/xvfb-run' gdm-lib accountsservice-libs gnome-control-center && \
 
     # GNOME Shell
     dnf builddep -y gnome-shell --setopt=install_weak_deps=False && \
