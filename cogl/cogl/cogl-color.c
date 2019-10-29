@@ -76,17 +76,6 @@ cogl_color_init_from_4ub (CoglColor *color,
   color->alpha = alpha;
 }
 
-/* XXX: deprecated, use cogl_color_init_from_4ub */
-void
-cogl_color_set_from_4ub (CoglColor *dest,
-                         uint8_t red,
-                         uint8_t green,
-                         uint8_t blue,
-                         uint8_t alpha)
-{
-  cogl_color_init_from_4ub (dest, red, green, blue, alpha);
-}
-
 void
 cogl_color_init_from_4f (CoglColor *color,
                          float red,
@@ -100,17 +89,6 @@ cogl_color_init_from_4f (CoglColor *color,
   color->green =  (green * 255);
   color->blue  =  (blue * 255);
   color->alpha =  (alpha * 255);
-}
-
-/* XXX: deprecated, use cogl_color_init_from_4f */
-void
-cogl_color_set_from_4f (CoglColor *color,
-                        float red,
-                        float green,
-                        float blue,
-                        float alpha)
-{
-  cogl_color_init_from_4f (color, red, green, blue, alpha);
 }
 
 void

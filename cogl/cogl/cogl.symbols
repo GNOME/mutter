@@ -138,8 +138,6 @@ cogl_color_set_alpha_float
 cogl_color_set_blue
 cogl_color_set_blue_byte
 cogl_color_set_blue_float
-cogl_color_set_from_4f
-cogl_color_set_from_4ub
 cogl_color_set_green
 cogl_color_set_green_byte
 cogl_color_set_green_float

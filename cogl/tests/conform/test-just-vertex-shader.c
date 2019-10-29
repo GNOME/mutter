@@ -40,7 +40,7 @@ paint_legacy (TestState *state)
   cogl_clear (&color, COGL_BUFFER_BIT_COLOR);
 
   /* Set the primary vertex color as red */
-  cogl_color_set_from_4ub (&color, 0xff, 0x00, 0x00, 0xff);
+  cogl_color_init_from_4ub (&color, 0xff, 0x00, 0x00, 0xff);
   cogl_material_set_color (material, &color);
 
   /* Override the vertex color in the texture environment with a
@@ -110,7 +110,7 @@ paint (TestState *state)
   cogl_clear (&color, COGL_BUFFER_BIT_COLOR);
 
   /* Set the primary vertex color as red */
-  cogl_color_set_from_4ub (&color, 0xff, 0x00, 0x00, 0xff);
+  cogl_color_init_from_4ub (&color, 0xff, 0x00, 0x00, 0xff);
   cogl_pipeline_set_color (pipeline, &color);
 
   /* Override the vertex color in the texture environment with a

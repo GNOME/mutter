@@ -117,27 +117,6 @@ cogl_color_init_from_4ub (CoglColor *color,
                           uint8_t alpha);
 
 /**
- * cogl_color_set_from_4ub:
- * @color: A pointer to a #CoglColor to initialize
- * @red: value of the red channel, between 0 and 255
- * @green: value of the green channel, between 0 and 255
- * @blue: value of the blue channel, between 0 and 255
- * @alpha: value of the alpha channel, between 0 and 255
- *
- * Sets the values of the passed channels into a #CoglColor.
- *
- * Since: 1.0
- * Deprecated: 1.4: Use cogl_color_init_from_4ub instead.
- */
-COGL_DEPRECATED_FOR (cogl_color_init_from_4ub)
-void
-cogl_color_set_from_4ub (CoglColor *color,
-                         uint8_t red,
-                         uint8_t green,
-                         uint8_t blue,
-                         uint8_t alpha);
-
-/**
  * cogl_color_init_from_4f:
  * @color: A pointer to a #CoglColor to initialize
  * @red: value of the red channel, between 0 and 1.0
@@ -155,27 +134,6 @@ cogl_color_init_from_4f (CoglColor *color,
                          float green,
                          float blue,
                          float alpha);
-
-/**
- * cogl_color_set_from_4f:
- * @color: A pointer to a #CoglColor to initialize
- * @red: value of the red channel, between 0 and %1.0
- * @green: value of the green channel, between 0 and %1.0
- * @blue: value of the blue channel, between 0 and %1.0
- * @alpha: value of the alpha channel, between 0 and %1.0
- *
- * Sets the values of the passed channels into a #CoglColor
- *
- * Since: 1.0
- * Deprecated: 1.4: Use cogl_color_init_from_4f instead.
- */
-COGL_DEPRECATED_FOR (cogl_color_init_from_4f)
-void
-cogl_color_set_from_4f (CoglColor *color,
-                        float red,
-                        float green,
-                        float blue,
-                        float alpha);
 
 /**
  * cogl_color_init_from_4fv:
