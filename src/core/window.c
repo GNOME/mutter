@@ -4835,9 +4835,12 @@ set_workspace_state (MetaWindow    *window,
 {
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
 
-  /* If we're on all workspaces, then our new workspace must be NULL. */
+  /* If we're on all workspaces, then our new workspace must be NULL,
+   * otherwise it must be set, unless we're unmanaging. */
   if (on_all_workspaces)
-    g_assert (workspace == NULL);
+    g_assert_null (workspace);
+  else
+    g_assert_true (window->unmanaging || workspace != NULL);
 
   /* If this is an override-redirect window, ensure that the only
    * times we're setting the workspace state is either during construction
