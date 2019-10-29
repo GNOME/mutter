@@ -546,28 +546,6 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
           GE (ctx, glAlphaFunc (alpha_state->alpha_func,
                                 alpha_state->alpha_func_reference));
         }
-
-      /* Under GLES2 the lighting parameters are implemented as uniforms
-         in the progend */
-      if (pipelines_difference & COGL_PIPELINE_STATE_LIGHTING)
-        {
-          CoglPipeline *authority =
-            _cogl_pipeline_get_authority (pipeline,
-                                          COGL_PIPELINE_STATE_LIGHTING);
-          CoglPipelineLightingState *lighting_state =
-            &authority->big_state->lighting_state;
-
-          GE (ctx, glMaterialfv (GL_FRONT_AND_BACK, GL_AMBIENT,
-                                 lighting_state->ambient));
-          GE (ctx, glMaterialfv (GL_FRONT_AND_BACK, GL_DIFFUSE,
-                                 lighting_state->diffuse));
-          GE (ctx, glMaterialfv (GL_FRONT_AND_BACK, GL_SPECULAR,
-                                 lighting_state->specular));
-          GE (ctx, glMaterialfv (GL_FRONT_AND_BACK, GL_EMISSION,
-                                 lighting_state->emission));
-          GE (ctx, glMaterialfv (GL_FRONT_AND_BACK, GL_SHININESS,
-                                 &lighting_state->shininess));
-        }
     }
 
 #endif

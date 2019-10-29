@@ -764,32 +764,6 @@ _cogl_pipeline_change_implies_transparency (CoglPipeline *pipeline,
         return TRUE;
     }
 
-  /* XXX: we should only need to look at these if lighting is enabled
-   */
-  if (changes & COGL_PIPELINE_STATE_LIGHTING)
-    {
-      /* XXX: This stuff is showing up in sysprof reports which is
-       * silly because lighting isn't currently actually supported
-       * by Cogl except for these token properties. When we actually
-       * expose lighting support we can avoid these checks when
-       * lighting is disabled. */
-#if 0
-      CoglColor tmp;
-      cogl_pipeline_get_ambient (pipeline, &tmp);
-      if (cogl_color_get_alpha_byte (&tmp) != 0xff)
-        return TRUE;
-      cogl_pipeline_get_diffuse (pipeline, &tmp);
-      if (cogl_color_get_alpha_byte (&tmp) != 0xff)
-        return TRUE;
-      cogl_pipeline_get_specular (pipeline, &tmp);
-      if (cogl_color_get_alpha_byte (&tmp) != 0xff)
-        return TRUE;
-      cogl_pipeline_get_emission (pipeline, &tmp);
-      if (cogl_color_get_alpha_byte (&tmp) != 0xff)
-        return TRUE;
-#endif
-    }
-
   if (changes & COGL_PIPELINE_STATE_LAYERS)
     {
       /* has_alpha tracks the alpha status of the GL_PREVIOUS layer.
@@ -963,13 +937,6 @@ _cogl_pipeline_copy_differences (CoglPipeline *dest,
   else
     goto check_for_blending_change;
 
-  if (differences & COGL_PIPELINE_STATE_LIGHTING)
-    {
-      memcpy (&big_state->lighting_state,
-              &src->big_state->lighting_state,
-              sizeof (CoglPipelineLightingState));
-    }
-
   if (differences & COGL_PIPELINE_STATE_ALPHA_FUNC)
     big_state->alpha_state.alpha_func =
       src->big_state->alpha_state.alpha_func;
@@ -1095,13 +1062,6 @@ _cogl_pipeline_init_multi_property_sparse_state (CoglPipeline *pipeline,
       pipeline->n_layers = authority->n_layers;
       pipeline->layer_differences = NULL;
       break;
-    case COGL_PIPELINE_STATE_LIGHTING:
-      {
-        memcpy (&pipeline->big_state->lighting_state,
-                &authority->big_state->lighting_state,
-                sizeof (CoglPipelineLightingState));
-        break;
-      }
     case COGL_PIPELINE_STATE_BLEND:
       {
         memcpy (&pipeline->big_state->blend_state,
@@ -2212,11 +2172,6 @@ _cogl_pipeline_equal (CoglPipeline *pipeline0,
                                  &authorities1[bit]->color))
             goto done;
           break;
-        case COGL_PIPELINE_STATE_LIGHTING_INDEX:
-          if (!_cogl_pipeline_lighting_state_equal (authorities0[bit],
-                                                    authorities1[bit]))
-            goto done;
-          break;
         case COGL_PIPELINE_STATE_ALPHA_FUNC_INDEX:
           if (!_cogl_pipeline_alpha_func_state_equal (authorities0[bit],
                                                       authorities1[bit]))
@@ -2672,8 +2627,6 @@ _cogl_pipeline_init_state_hash_functions (void)
     _cogl_pipeline_hash_blend_enable_state;
   state_hash_functions[COGL_PIPELINE_STATE_LAYERS_INDEX] =
     _cogl_pipeline_hash_layers_state;
-  state_hash_functions[COGL_PIPELINE_STATE_LIGHTING_INDEX] =
-    _cogl_pipeline_hash_lighting_state;
   state_hash_functions[COGL_PIPELINE_STATE_ALPHA_FUNC_INDEX] =
     _cogl_pipeline_hash_alpha_func_state;
   state_hash_functions[COGL_PIPELINE_STATE_ALPHA_FUNC_REFERENCE_INDEX] =
@@ -2701,7 +2654,7 @@ _cogl_pipeline_init_state_hash_functions (void)
 
   {
   /* So we get a big error if we forget to update this code! */
-  _COGL_STATIC_ASSERT (COGL_PIPELINE_STATE_SPARSE_COUNT == 16,
+  _COGL_STATIC_ASSERT (COGL_PIPELINE_STATE_SPARSE_COUNT == 15,
                        "Make sure to install a hash function for "
                        "newly added pipeline state and update assert "
                        "in _cogl_pipeline_init_state_hash_functions");

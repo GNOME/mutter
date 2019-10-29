@@ -70,27 +70,6 @@ _cogl_pipeline_color_equal (CoglPipeline *authority0,
 }
 
 gboolean
-_cogl_pipeline_lighting_state_equal (CoglPipeline *authority0,
-                                     CoglPipeline *authority1)
-{
-  CoglPipelineLightingState *state0 = &authority0->big_state->lighting_state;
-  CoglPipelineLightingState *state1 = &authority1->big_state->lighting_state;
-
-  if (memcmp (state0->ambient, state1->ambient, sizeof (float) * 4) != 0)
-    return FALSE;
-  if (memcmp (state0->diffuse, state1->diffuse, sizeof (float) * 4) != 0)
-    return FALSE;
-  if (memcmp (state0->specular, state1->specular, sizeof (float) * 4) != 0)
-    return FALSE;
-  if (memcmp (state0->emission, state1->emission, sizeof (float) * 4) != 0)
-    return FALSE;
-  if (state0->shininess != state1->shininess)
-    return FALSE;
-
-  return TRUE;
-}
-
-gboolean
 _cogl_pipeline_alpha_func_state_equal (CoglPipeline *authority0,
                                        CoglPipeline *authority1)
 {
@@ -1409,17 +1388,6 @@ _cogl_pipeline_hash_blend_enable_state (CoglPipeline *authority,
 {
   uint8_t blend_enable = authority->blend_enable;
   state->hash = _cogl_util_one_at_a_time_hash (state->hash, &blend_enable, 1);
-}
-
-void
-_cogl_pipeline_hash_lighting_state (CoglPipeline *authority,
-                                    CoglPipelineHashState *state)
-{
-  CoglPipelineLightingState *lighting_state =
-    &authority->big_state->lighting_state;
-  state->hash =
-    _cogl_util_one_at_a_time_hash (state->hash, lighting_state,
-                                   sizeof (CoglPipelineLightingState));
 }
 
 void
