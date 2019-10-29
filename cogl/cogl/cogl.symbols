@@ -495,7 +495,6 @@ cogl_offscreen_new_with_texture
 cogl_onscreen_add_dirty_callback
 cogl_onscreen_add_frame_callback
 cogl_onscreen_add_resize_callback
-cogl_onscreen_add_swap_buffers_callback
 #ifndef COGL_WINSYS_INTEGRATED
 cogl_onscreen_clutter_backend_set_size_CLUTTER
 #endif
@@ -513,7 +512,6 @@ cogl_onscreen_new
 cogl_onscreen_remove_dirty_callback
 cogl_onscreen_remove_frame_callback
 cogl_onscreen_remove_resize_callback
-cogl_onscreen_remove_swap_buffers_callback
 #ifdef COGL_HAS_GTYPE_SUPPORT
 cogl_onscreen_resize_closure_get_gtype
 #endif

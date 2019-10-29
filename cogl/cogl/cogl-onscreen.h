@@ -453,58 +453,6 @@ void
 cogl_onscreen_remove_frame_callback (CoglOnscreen *onscreen,
                                      CoglFrameClosure *closure);
 
-typedef void (*CoglSwapBuffersNotify) (CoglFramebuffer *framebuffer,
-                                       void *user_data);
-
-/**
- * cogl_onscreen_add_swap_buffers_callback:
- * @onscreen: A #CoglOnscreen framebuffer
- * @callback: (scope notified): A callback function to call when a swap
- *            has completed
- * @user_data: (closure): A private pointer to be passed to @callback
- *
- * Installs a @callback function that should be called whenever a swap buffers
- * request (made using cogl_onscreen_swap_buffers()) for the given
- * @onscreen completes.
- *
- * <note>Applications should check for the %COGL_FEATURE_ID_SWAP_BUFFERS_EVENT
- * feature before using this API. It's currently undefined when and if
- * registered callbacks will be called if this feature is not supported.</note>
- *
- * We recommend using this mechanism when available to manually throttle your
- * applications so your application will be able to avoid long blocks in the
- * driver caused by throttling when you request to swap buffers too quickly.
- *
- * Return value: a unique identifier that can be used to remove to remove
- *               the callback later.
- * Since: 1.10
- * Stability: unstable
- * Deprecated: 1.14: Use cogl_onscreen_add_frame_callback() instead
- */
-COGL_DEPRECATED_FOR (cogl_onscreen_add_frame_callback)
-unsigned int
-cogl_onscreen_add_swap_buffers_callback (CoglOnscreen *onscreen,
-                                         CoglSwapBuffersNotify callback,
-                                         void *user_data);
-
-/**
- * cogl_onscreen_remove_swap_buffers_callback:
- * @onscreen: A #CoglOnscreen framebuffer
- * @id: An identifier returned from cogl_onscreen_add_swap_buffers_callback()
- *
- * Removes a callback that was previously registered
- * using cogl_onscreen_add_swap_buffers_callback().
- *
- * Since: 1.10
- * Stability: unstable
- * Deprecated: 1.14: Use cogl_onscreen_remove_frame_callback() instead
- */
-
-COGL_DEPRECATED_FOR (cogl_onscreen_remove_frame_callback)
-void
-cogl_onscreen_remove_swap_buffers_callback (CoglOnscreen *onscreen,
-                                            unsigned int id);
-
 /**
  * cogl_onscreen_set_resizable:
  * @onscreen: A #CoglOnscreen framebuffer
