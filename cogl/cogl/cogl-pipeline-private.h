@@ -190,25 +190,6 @@ typedef enum _CoglPipelineState
    COGL_PIPELINE_STATE_VERTEX_SNIPPETS | \
    COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS)
 
-typedef enum
-{
-  COGL_PIPELINE_LIGHTING_STATE_PROPERTY_AMBIENT = 1,
-  COGL_PIPELINE_LIGHTING_STATE_PROPERTY_DIFFUSE,
-  COGL_PIPELINE_LIGHTING_STATE_PROPERTY_SPECULAR,
-  COGL_PIPELINE_LIGHTING_STATE_PROPERTY_EMISSION,
-  COGL_PIPELINE_LIGHTING_STATE_PROPERTY_SHININESS
-} CoglPipelineLightingStateProperty;
-
-typedef struct
-{
-  /* Standard OpenGL lighting model attributes */
-  float ambient[4];
-  float diffuse[4];
-  float specular[4];
-  float emission[4];
-  float shininess;
-} CoglPipelineLightingState;
-
 typedef struct
 {
   /* Determines what fragments are discarded based on their alpha */
@@ -261,7 +242,6 @@ typedef struct
 
 typedef struct
 {
-  CoglPipelineLightingState lighting_state;
   CoglPipelineAlphaFuncState alpha_state;
   CoglPipelineBlendState blend_state;
   CoglHandle user_program;

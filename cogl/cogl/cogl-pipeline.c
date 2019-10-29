@@ -95,7 +95,6 @@ _cogl_pipeline_init_default_pipeline (void)
   /* XXX: NB: It's important that we zero this to avoid polluting
    * pipeline hash values with un-initialized data */
   CoglPipelineBigState *big_state = g_slice_new0 (CoglPipelineBigState);
-  CoglPipelineLightingState *lighting_state = &big_state->lighting_state;
   CoglPipelineAlphaFuncState *alpha_state = &big_state->alpha_state;
   CoglPipelineBlendState *blend_state = &big_state->blend_state;
   CoglPipelineCullFaceState *cull_face_state = &big_state->cull_face_state;
@@ -141,29 +140,6 @@ _cogl_pipeline_init_default_pipeline (void)
 
   /* Use the same defaults as the GL spec... */
   cogl_color_init_from_4ub (&pipeline->color, 0xff, 0xff, 0xff, 0xff);
-
-  /* Use the same defaults as the GL spec... */
-  lighting_state->ambient[0] = 0.2;
-  lighting_state->ambient[1] = 0.2;
-  lighting_state->ambient[2] = 0.2;
-  lighting_state->ambient[3] = 1.0;
-
-  lighting_state->diffuse[0] = 0.8;
-  lighting_state->diffuse[1] = 0.8;
-  lighting_state->diffuse[2] = 0.8;
-  lighting_state->diffuse[3] = 1.0;
-
-  lighting_state->specular[0] = 0;
-  lighting_state->specular[1] = 0;
-  lighting_state->specular[2] = 0;
-  lighting_state->specular[3] = 1.0;
-
-  lighting_state->emission[0] = 0;
-  lighting_state->emission[1] = 0;
-  lighting_state->emission[2] = 0;
-  lighting_state->emission[3] = 1.0;
-
-  lighting_state->shininess = 0.0f;
 
   /* Use the same defaults as the GL spec... */
   alpha_state->alpha_func = COGL_PIPELINE_ALPHA_FUNC_ALWAYS;
