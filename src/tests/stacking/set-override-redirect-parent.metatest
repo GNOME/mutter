@@ -22,3 +22,16 @@ show 2/2
 create 2/3
 set_parent 2/3 2
 show 2/3
+
+
+new_client 3 x11
+create 3/1 override
+show 3/1
+
+create 3/2 override
+set_parent 3/2 1
+show 3/2
+
+create 3/3 override
+set_parent 3/3 2
+show 3/3

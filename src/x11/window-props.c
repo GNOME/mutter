@@ -1663,12 +1663,35 @@ reload_transient_for (MetaWindow    *window,
         }
       else if (parent->override_redirect)
         {
-          meta_warning ("WM_TRANSIENT_FOR window %s for top-level %s is an "
-                        "override-redirect window and this is not correct "
-                        "according to the standard, so we'll fallback to "
-                        "the root window.\n", parent->desc, window->desc);
-          transient_for = parent->display->x11_display->xroot;
-          parent = NULL;
+          const gchar *window_kind = window->override_redirect ?
+            "override-redirect" : "top-level";
+
+          if (parent->xtransient_for != None)
+            {
+              /* We don't have to go through the parents, as per this code it is
+               * not possible that a window has the WM_TRANSIENT_FOR set to an
+               * override-redirect window anyways */
+              meta_warning ("WM_TRANSIENT_FOR window %s for %s window %s is an "
+                            "override-redirect window and this is not correct "
+                            "according to the standard, so we'll fallback to "
+                            "the first non-override-redirect window 0x%lx.\n",
+                            parent->desc, window->desc, window_kind,
+                            parent->xtransient_for);
+              transient_for = parent->xtransient_for;
+              parent =
+                meta_x11_display_lookup_x_window (parent->display->x11_display,
+                                                  transient_for);
+            }
+          else
+            {
+              meta_warning ("WM_TRANSIENT_FOR window %s for %s window %s is an "
+                            "override-redirect window and this is not correct "
+                            "according to the standard, so we'll fallback to "
+                            "the root window.\n", parent->desc, window_kind,
+                            window->desc);
+              transient_for = parent->display->x11_display->xroot;
+              parent = NULL;
+            }
         }
 
       /* Make sure there is not a loop */
@@ -1840,7 +1863,7 @@ meta_x11_display_init_window_prop_hooks (MetaX11Display *x11_display)
     { x11_display->atom__NET_WM_USER_TIME, META_PROP_VALUE_CARDINAL, reload_net_wm_user_time,  LOAD_INIT },
     { x11_display->atom__NET_WM_STATE,     META_PROP_VALUE_ATOM_LIST, reload_net_wm_state,     LOAD_INIT | INIT_ONLY },
     { x11_display->atom__MOTIF_WM_HINTS,   META_PROP_VALUE_MOTIF_HINTS, reload_mwm_hints,      LOAD_INIT },
-    { XA_WM_TRANSIENT_FOR,                 META_PROP_VALUE_WINDOW,    reload_transient_for,    LOAD_INIT },
+    { XA_WM_TRANSIENT_FOR,                 META_PROP_VALUE_WINDOW,    reload_transient_for,    LOAD_INIT | INCLUDE_OR },
     { x11_display->atom__GTK_THEME_VARIANT, META_PROP_VALUE_UTF8,     reload_gtk_theme_variant, LOAD_INIT },
     { x11_display->atom__GTK_APPLICATION_ID,               META_PROP_VALUE_UTF8,         reload_gtk_application_id,               LOAD_INIT },
     { x11_display->atom__GTK_UNIQUE_BUS_NAME,              META_PROP_VALUE_UTF8,         reload_gtk_unique_bus_name,              LOAD_INIT },
