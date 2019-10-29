@@ -272,8 +272,6 @@ cogl_framebuffer_set_samples_per_pixel
 cogl_framebuffer_set_viewport
 cogl_framebuffer_transform
 cogl_framebuffer_translate
-cogl_framebuffer_vdraw_attributes
-/* cogl_framebuffer_vdraw_indexed_attributes */ /* Not Implemented! */
 
 #ifdef COGL_HAS_GTYPE_SUPPORT
 cogl_frame_closure_get_gtype
