@@ -943,9 +943,16 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
         }
       else
         {
+          cairo_rectangle_int_t clip;
           cairo_region_t *view_region;
 
-          view_region = cairo_region_create_rectangle (&view_rect);
+          clip = (cairo_rectangle_int_t) {
+            .x = 0,
+            .y = 0,
+            .width = ceilf (view_rect.width * fb_scale),
+            .height = ceilf (view_rect.height * fb_scale)
+          };
+          view_region = cairo_region_create_rectangle (&clip);
           paint_stage (stage_cogl, view, view_region);
           cairo_region_destroy (view_region);
         }
