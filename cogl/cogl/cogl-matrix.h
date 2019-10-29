@@ -375,34 +375,6 @@ cogl_matrix_orthographic (CoglMatrix *matrix,
                           float far);
 
 /**
- * cogl_matrix_ortho:
- * @matrix: A 4x4 transformation matrix
- * @left: The coordinate for the left clipping plane
- * @right: The coordinate for the right clipping plane
- * @bottom: The coordinate for the bottom clipping plane
- * @top: The coordinate for the top clipping plane
- * @near: The <emphasis>distance</emphasis> to the near clipping
- *   plane (will be <emphasis>negative</emphasis> if the plane is
- *   behind the viewer)
- * @far: The <emphasis>distance</emphasis> to the far clipping
- *   plane (will be <emphasis>negative</emphasis> if the plane is
- *   behind the viewer)
- *
- * Multiplies @matrix by a parallel projection matrix.
- *
- * Deprecated: 1.10: Use cogl_matrix_orthographic()
- */
-COGL_DEPRECATED_FOR (cogl_matrix_orthographic)
-void
-cogl_matrix_ortho (CoglMatrix *matrix,
-                   float       left,
-                   float       right,
-                   float       bottom,
-                   float       top,
-                   float       near,
-                   float       far);
-
-/**
  * cogl_matrix_view_2d_in_frustum:
  * @matrix: A 4x4 transformation matrix
  * @left: coord of left vertical clipping plane

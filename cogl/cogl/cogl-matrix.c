@@ -1477,19 +1477,6 @@ _cogl_matrix_orthographic (CoglMatrix *matrix,
 }
 
 void
-cogl_matrix_ortho (CoglMatrix *matrix,
-                   float left,
-                   float right,
-                   float bottom,
-                   float top,
-                   float near,
-                   float far)
-{
-  _cogl_matrix_orthographic (matrix, left, top, right, bottom, near, far);
-  _COGL_MATRIX_DEBUG_PRINT (matrix);
-}
-
-void
 cogl_matrix_orthographic (CoglMatrix *matrix,
                           float x_1,
                           float y_1,

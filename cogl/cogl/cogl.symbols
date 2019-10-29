@@ -440,9 +440,6 @@ cogl_matrix_init_from_euler
 cogl_matrix_init_identity
 cogl_matrix_look_at
 cogl_matrix_multiply
-#ifndef COGL_DISABLE_DEPRECATED
-cogl_matrix_ortho
-#endif
 cogl_matrix_orthographic
 cogl_matrix_perspective
 cogl_matrix_project_points
