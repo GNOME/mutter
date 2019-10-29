@@ -1625,6 +1625,22 @@ reload_wm_hints (MetaWindow    *window,
   meta_window_queue (window, META_QUEUE_UPDATE_ICON | META_QUEUE_MOVE_RESIZE);
 }
 
+static gboolean
+check_xtransient_for_loop (MetaWindow *window,
+                           MetaWindow *parent)
+{
+  while (parent)
+    {
+      if (parent == window)
+        return TRUE;
+
+      parent = meta_x11_display_lookup_x_window (parent->display->x11_display,
+                                                 parent->xtransient_for);
+    }
+
+  return FALSE;
+}
+
 static void
 reload_transient_for (MetaWindow    *window,
                       MetaPropValue *value,
@@ -1647,18 +1663,11 @@ reload_transient_for (MetaWindow    *window,
         }
 
       /* Make sure there is not a loop */
-      while (parent)
+      if (check_xtransient_for_loop (window, parent))
         {
-          if (parent == window)
-            {
-              meta_warning ("WM_TRANSIENT_FOR window 0x%lx for %s would create loop.\n",
-                            transient_for, window->desc);
-              transient_for = None;
-              break;
-            }
-
-          parent = meta_x11_display_lookup_x_window (parent->display->x11_display,
-                                                     parent->xtransient_for);
+          meta_warning ("WM_TRANSIENT_FOR window 0x%lx for %s would create a "
+                        "loop.\n", transient_for, window->desc);
+          transient_for = None;
         }
     }
   else
@@ -1679,8 +1688,6 @@ reload_transient_for (MetaWindow    *window,
     meta_window_set_transient_for (window, NULL);
   else
     {
-      parent = meta_x11_display_lookup_x_window (window->display->x11_display,
-                                                 window->xtransient_for);
       meta_window_set_transient_for (window, parent);
     }
 }
