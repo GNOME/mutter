@@ -699,7 +699,7 @@ _cogl_winsys_onscreen_get_buffer_age (CoglOnscreen *onscreen)
   CoglDisplayEGL *egl_display = context->display->winsys;
   EGLSurface surface = egl_onscreen->egl_surface;
   static gboolean warned = FALSE;
-  int age;
+  int age = 0;
 
   if (!(egl_renderer->private_features & COGL_EGL_WINSYS_FEATURE_BUFFER_AGE))
     return 0;
