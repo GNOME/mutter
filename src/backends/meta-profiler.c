@@ -51,13 +51,12 @@ G_DEFINE_TYPE_WITH_CODE (MetaProfiler,
 static gboolean
 handle_start (MetaDBusSysprof3Profiler *dbus_profiler,
               GDBusMethodInvocation    *invocation,
+              GUnixFDList              *fd_list,
               GVariant                 *options,
               GVariant                 *fd_variant)
 {
   MetaProfiler *profiler = META_PROFILER (dbus_profiler);
   GMainContext *main_context = g_main_context_default ();
-  GDBusMessage *message;
-  GUnixFDList *fd_list;
   const char *group_name;
   int position;
   int fd = -1;
@@ -73,8 +72,6 @@ handle_start (MetaDBusSysprof3Profiler *dbus_profiler,
 
   g_variant_get (fd_variant, "h", &position);
 
-  message = g_dbus_method_invocation_get_message (invocation);
-  fd_list = g_dbus_message_get_unix_fd_list (message);
   if (fd_list)
     fd = g_unix_fd_list_get (fd_list, position, NULL);
 
@@ -98,7 +95,7 @@ handle_start (MetaDBusSysprof3Profiler *dbus_profiler,
 
   g_debug ("Profiler running");
 
-  meta_dbus_sysprof3_profiler_complete_start (dbus_profiler, invocation);
+  meta_dbus_sysprof3_profiler_complete_start (dbus_profiler, invocation, NULL);
   return TRUE;
 }
 
