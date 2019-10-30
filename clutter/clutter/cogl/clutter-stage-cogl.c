@@ -800,7 +800,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   swap_with_damage = FALSE;
   if (has_buffer_age)
     {
-      if (use_clipped_redraw)
+      if (use_clipped_redraw && !clip_region_empty)
         {
           int age;
 
