@@ -20,7 +20,7 @@
 
 #include "config.h"
 
-#include "backends/native/meta-kms-plane.h"
+#include "backends/native/meta-kms-plane-private.h"
 
 #include <drm_fourcc.h>
 #include <stdio.h>

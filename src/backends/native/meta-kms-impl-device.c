@@ -30,6 +30,7 @@
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-impl.h"
 #include "backends/native/meta-kms-page-flip-private.h"
+#include "backends/native/meta-kms-plane-private.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-private.h"
 #include "backends/native/meta-kms-update.h"

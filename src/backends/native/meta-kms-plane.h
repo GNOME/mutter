@@ -38,11 +38,6 @@ typedef enum _MetaKmsPlaneType
 G_DECLARE_FINAL_TYPE (MetaKmsPlane, meta_kms_plane,
                       META, KMS_PLANE, GObject)
 
-MetaKmsPlane * meta_kms_plane_new (MetaKmsPlaneType         type,
-                                   MetaKmsImplDevice       *impl_device,
-                                   drmModePlane            *drm_plane,
-                                   drmModeObjectProperties *drm_plane_props);
-
 MetaKmsDevice * meta_kms_plane_get_device (MetaKmsPlane *plane);
 
 uint32_t meta_kms_plane_get_id (MetaKmsPlane *plane);
