@@ -78,24 +78,6 @@
 #include "cogl/cogl.h"
 #include "cogl/cogl-trace.h"
 
-/* <private>
- * ClutterStageHint:
- * @CLUTTER_STAGE_NONE: No hint set
- * @CLUTTER_STAGE_NO_CLEAR_ON_PAINT: When this hint is set, the stage
- *   should not clear the viewport; this flag is useful when painting
- *   fully opaque actors covering the whole visible area of the stage,
- *   i.e. when no blending with the stage color happens over the whole
- *   stage viewport
- */
-typedef enum /*< prefix=CLUTTER_STAGE >*/
-{
-  CLUTTER_STAGE_HINT_NONE = 0,
-
-  CLUTTER_STAGE_NO_CLEAR_ON_PAINT = 1 << 0
-} ClutterStageHint;
-
-#define STAGE_NO_CLEAR_ON_PAINT(s)      ((((ClutterStage *) (s))->priv->stage_hints & CLUTTER_STAGE_NO_CLEAR_ON_PAINT) != 0)
-
 struct _ClutterStageQueueRedrawEntry
 {
   ClutterActor *actor;
@@ -131,8 +113,6 @@ struct _ClutterStagePrivate
   ClutterActor *key_focused_actor;
 
   GQueue *event_queue;
-
-  ClutterStageHint stage_hints;
 
   GArray *paint_volume_stack;
 
@@ -188,7 +168,6 @@ enum
   PROP_TITLE,
   PROP_USE_ALPHA,
   PROP_KEY_FOCUS,
-  PROP_NO_CLEAR_HINT,
   PROP_ACCEPT_FOCUS,
   PROP_LAST
 };
@@ -1889,10 +1868,6 @@ clutter_stage_set_property (GObject      *object,
       clutter_stage_set_key_focus (stage, g_value_get_object (value));
       break;
 
-    case PROP_NO_CLEAR_HINT:
-      clutter_stage_set_no_clear_hint (stage, g_value_get_boolean (value));
-      break;
-
     case PROP_ACCEPT_FOCUS:
       clutter_stage_set_accept_focus (stage, g_value_get_boolean (value));
       break;
@@ -1941,15 +1916,6 @@ clutter_stage_get_property (GObject    *gobject,
 
     case PROP_KEY_FOCUS:
       g_value_set_object (value, priv->key_focused_actor);
-      break;
-
-    case PROP_NO_CLEAR_HINT:
-      {
-        gboolean hint =
-          (priv->stage_hints & CLUTTER_STAGE_NO_CLEAR_ON_PAINT) != 0;
-
-        g_value_set_boolean (value, hint);
-      }
       break;
 
     case PROP_ACCEPT_FOCUS:
@@ -2153,23 +2119,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
                            P_("The currently key focused actor"),
                            CLUTTER_TYPE_ACTOR,
                            CLUTTER_PARAM_READWRITE);
-
-  /**
-   * ClutterStage:no-clear-hint:
-   *
-   * Whether or not the #ClutterStage should clear its contents
-   * before each paint cycle.
-   *
-   * See clutter_stage_set_no_clear_hint() for further information.
-   *
-   * Since: 1.4
-   */
-  obj_props[PROP_NO_CLEAR_HINT] =
-      g_param_spec_boolean ("no-clear-hint",
-                            P_("No Clear Hint"),
-                            P_("Whether the stage should clear its contents"),
-                            FALSE,
-                            CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterStage:accept-focus:
@@ -3786,72 +3735,6 @@ _clutter_stage_clear_update_time (ClutterStage *stage)
   stage_window = _clutter_stage_get_window (stage);
   if (stage_window)
     _clutter_stage_window_clear_update_time (stage_window);
-}
-
-/**
- * clutter_stage_set_no_clear_hint:
- * @stage: a #ClutterStage
- * @no_clear: %TRUE if the @stage should not clear itself on every
- *   repaint cycle
- *
- * Sets whether the @stage should clear itself at the beginning
- * of each paint cycle or not.
- *
- * Clearing the #ClutterStage can be a costly operation, especially
- * if the stage is always covered - for instance, in a full-screen
- * video player or in a game with a background texture.
- *
- * This setting is a hint; Clutter might discard this hint
- * depending on its internal state.
- *
- * If parts of the stage are visible and you disable clearing you
- * might end up with visual artifacts while painting the contents of
- * the stage.
- *
- * Since: 1.4
- */
-void
-clutter_stage_set_no_clear_hint (ClutterStage *stage,
-                                 gboolean      no_clear)
-{
-  ClutterStagePrivate *priv;
-  ClutterStageHint new_hints;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  priv = stage->priv;
-  new_hints = priv->stage_hints;
-
-  if (no_clear)
-    new_hints |= CLUTTER_STAGE_NO_CLEAR_ON_PAINT;
-  else
-    new_hints &= ~CLUTTER_STAGE_NO_CLEAR_ON_PAINT;
-
-  if (priv->stage_hints == new_hints)
-    return;
-
-  priv->stage_hints = new_hints;
-
-  g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_NO_CLEAR_HINT]);
-}
-
-/**
- * clutter_stage_get_no_clear_hint:
- * @stage: a #ClutterStage
- *
- * Retrieves the hint set with clutter_stage_set_no_clear_hint()
- *
- * Return value: %TRUE if the stage should not clear itself on every paint
- *   cycle, and %FALSE otherwise
- *
- * Since: 1.4
- */
-gboolean
-clutter_stage_get_no_clear_hint (ClutterStage *stage)
-{
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-
-  return (stage->priv->stage_hints & CLUTTER_STAGE_NO_CLEAR_ON_PAINT) != 0;
 }
 
 ClutterPaintVolume *

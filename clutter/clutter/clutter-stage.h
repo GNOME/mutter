@@ -164,11 +164,6 @@ void            clutter_stage_get_minimum_size                  (ClutterStage   
                                                                  guint                 *width,
                                                                  guint                 *height);
 CLUTTER_EXPORT
-void            clutter_stage_set_no_clear_hint                 (ClutterStage          *stage,
-                                                                 gboolean               no_clear);
-CLUTTER_EXPORT
-gboolean        clutter_stage_get_no_clear_hint                 (ClutterStage          *stage);
-CLUTTER_EXPORT
 void            clutter_stage_set_use_alpha                     (ClutterStage          *stage,
                                                                  gboolean               use_alpha);
 CLUTTER_EXPORT

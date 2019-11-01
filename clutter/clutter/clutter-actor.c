@@ -3807,8 +3807,6 @@ clutter_actor_paint_node (ClutterActor     *actor,
                     bg_color.alpha);
 
       clear_flags = COGL_BUFFER_BIT_DEPTH;
-      if (!clutter_stage_get_no_clear_hint (CLUTTER_STAGE (actor)))
-        clear_flags |= COGL_BUFFER_BIT_COLOR;
 
       node = clutter_root_node_new (fb, &bg_color, clear_flags);
       clutter_paint_node_set_name (node, "stageClear");
