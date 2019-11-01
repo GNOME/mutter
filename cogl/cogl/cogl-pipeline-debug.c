@@ -193,27 +193,9 @@ dump_pipeline_cb (CoglNode *node, void *user_data)
 
   if (pipeline->differences & COGL_PIPELINE_STATE_BLEND)
     {
-      const char *blend_enable_name;
-
       changes = TRUE;
-
-      switch (pipeline->blend_enable)
-        {
-        case COGL_PIPELINE_BLEND_ENABLE_AUTOMATIC:
-          blend_enable_name = "AUTO";
-          break;
-        case COGL_PIPELINE_BLEND_ENABLE_ENABLED:
-          blend_enable_name = "ENABLED";
-          break;
-        case COGL_PIPELINE_BLEND_ENABLE_DISABLED:
-          blend_enable_name = "DISABLED";
-          break;
-        default:
-          blend_enable_name = "UNKNOWN";
-        }
       g_string_append_printf (changes_label,
-                              "\\lblend=%s\\n",
-                              blend_enable_name);
+                              "\\lblend\\n");
     }
 
   if (pipeline->differences & COGL_PIPELINE_STATE_LAYERS)

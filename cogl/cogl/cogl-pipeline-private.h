@@ -62,7 +62,6 @@ typedef enum
 {
   /* sparse state */
   COGL_PIPELINE_STATE_COLOR_INDEX,
-  COGL_PIPELINE_STATE_BLEND_ENABLE_INDEX,
   COGL_PIPELINE_STATE_LAYERS_INDEX,
   COGL_PIPELINE_STATE_ALPHA_FUNC_INDEX,
   COGL_PIPELINE_STATE_ALPHA_FUNC_REFERENCE_INDEX,
@@ -99,8 +98,6 @@ typedef enum _CoglPipelineState
 {
   COGL_PIPELINE_STATE_COLOR =
     1L<<COGL_PIPELINE_STATE_COLOR_INDEX,
-  COGL_PIPELINE_STATE_BLEND_ENABLE =
-    1L<<COGL_PIPELINE_STATE_BLEND_ENABLE_INDEX,
   COGL_PIPELINE_STATE_LAYERS =
     1L<<COGL_PIPELINE_STATE_LAYERS_INDEX,
 
@@ -147,7 +144,6 @@ typedef enum _CoglPipelineState
 
 #define COGL_PIPELINE_STATE_AFFECTS_BLENDING \
   (COGL_PIPELINE_STATE_COLOR | \
-   COGL_PIPELINE_STATE_BLEND_ENABLE | \
    COGL_PIPELINE_STATE_LAYERS | \
    COGL_PIPELINE_STATE_BLEND | \
    COGL_PIPELINE_STATE_USER_SHADER | \
@@ -183,15 +179,6 @@ typedef struct
   CoglPipelineAlphaFunc alpha_func;
   float		        alpha_func_reference;
 } CoglPipelineAlphaFuncState;
-
-typedef enum _CoglPipelineBlendEnable
-{
-  /* XXX: we want to detect users mistakenly using TRUE or FALSE
-   * so start the enum at 2. */
-  COGL_PIPELINE_BLEND_ENABLE_ENABLED = 2,
-  COGL_PIPELINE_BLEND_ENABLE_DISABLED,
-  COGL_PIPELINE_BLEND_ENABLE_AUTOMATIC
-} CoglPipelineBlendEnable;
 
 typedef struct
 {
@@ -366,13 +353,6 @@ struct _CoglPipeline
 
   /* Determines if pipeline->big_state is valid */
   unsigned int          has_big_state:1;
-
-  /* By default blending is enabled automatically depending on the
-   * unlit color, the lighting colors or the texture format. The user
-   * can override this to explicitly enable or disable blending.
-   *
-   * This is a sparse property */
-  unsigned int          blend_enable:3;
 
   /* There are many factors that can determine if we need to enable
    * blending, this holds our final decision */
@@ -773,13 +753,6 @@ _cogl_pipeline_apply_legacy_state (CoglPipeline *pipeline);
 void
 _cogl_pipeline_apply_overrides (CoglPipeline *pipeline,
                                 CoglPipelineFlushOptions *options);
-
-CoglPipelineBlendEnable
-_cogl_pipeline_get_blend_enabled (CoglPipeline *pipeline);
-
-void
-_cogl_pipeline_set_blend_enabled (CoglPipeline *pipeline,
-                                  CoglPipelineBlendEnable enable);
 
 #ifdef COGL_DEBUG_ENABLED
 void

@@ -407,56 +407,6 @@ cogl_pipeline_set_color4f (CoglPipeline *pipeline,
   cogl_pipeline_set_color (pipeline, &color);
 }
 
-CoglPipelineBlendEnable
-_cogl_pipeline_get_blend_enabled (CoglPipeline *pipeline)
-{
-  CoglPipeline *authority;
-
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
-
-  authority =
-    _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_BLEND_ENABLE);
-  return authority->blend_enable;
-}
-
-static gboolean
-_cogl_pipeline_blend_enable_equal (CoglPipeline *authority0,
-                                   CoglPipeline *authority1)
-{
-  return authority0->blend_enable == authority1->blend_enable ? TRUE : FALSE;
-}
-
-void
-_cogl_pipeline_set_blend_enabled (CoglPipeline *pipeline,
-                                  CoglPipelineBlendEnable enable)
-{
-  CoglPipelineState state = COGL_PIPELINE_STATE_BLEND_ENABLE;
-  CoglPipeline *authority;
-
-  g_return_if_fail (cogl_is_pipeline (pipeline));
-  g_return_if_fail (enable > 1 &&
-                    "don't pass TRUE or FALSE to _set_blend_enabled!");
-
-  authority = _cogl_pipeline_get_authority (pipeline, state);
-
-  if (authority->blend_enable == enable)
-    return;
-
-  /* - Flush journal primitives referencing the current state.
-   * - Make sure the pipeline has no dependants so it may be modified.
-   * - If the pipeline isn't currently an authority for the state being
-   *   changed, then initialize that state from the current authority.
-   */
-  _cogl_pipeline_pre_change_notify (pipeline, state, NULL, FALSE);
-
-  pipeline->blend_enable = enable;
-
-  _cogl_pipeline_update_authority (pipeline, authority, state,
-                                   _cogl_pipeline_blend_enable_equal);
-
-  pipeline->dirty_real_blend_enable = TRUE;
-}
-
 static void
 _cogl_pipeline_set_alpha_test_function (CoglPipeline *pipeline,
                                         CoglPipelineAlphaFunc alpha_func)
@@ -1377,14 +1327,6 @@ _cogl_pipeline_hash_color_state (CoglPipeline *authority,
 {
   state->hash = _cogl_util_one_at_a_time_hash (state->hash, &authority->color,
                                                _COGL_COLOR_DATA_SIZE);
-}
-
-void
-_cogl_pipeline_hash_blend_enable_state (CoglPipeline *authority,
-                                        CoglPipelineHashState *state)
-{
-  uint8_t blend_enable = authority->blend_enable;
-  state->hash = _cogl_util_one_at_a_time_hash (state->hash, &blend_enable, 1);
 }
 
 void

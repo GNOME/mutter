@@ -109,10 +109,6 @@ _cogl_pipeline_hash_color_state (CoglPipeline *authority,
                                  CoglPipelineHashState *state);
 
 void
-_cogl_pipeline_hash_blend_enable_state (CoglPipeline *authority,
-                                        CoglPipelineHashState *state);
-
-void
 _cogl_pipeline_hash_layers_state (CoglPipeline *authority,
                                   CoglPipelineHashState *state);
 

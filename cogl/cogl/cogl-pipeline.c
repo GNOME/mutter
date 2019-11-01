@@ -104,7 +104,6 @@ _cogl_pipeline_init_default_pipeline (void)
 
   pipeline->real_blend_enable = FALSE;
 
-  pipeline->blend_enable = COGL_PIPELINE_BLEND_ENABLE_AUTOMATIC;
   pipeline->layer_differences = NULL;
   pipeline->n_layers = 0;
 
@@ -721,23 +720,11 @@ _cogl_pipeline_needs_blending_enabled (CoglPipeline *pipeline,
                                        const CoglColor *override_color,
                                        gboolean unknown_color_alpha)
 {
-  CoglPipeline *enable_authority;
   CoglPipeline *blend_authority;
   CoglPipelineBlendState *blend_state;
-  CoglPipelineBlendEnable enabled;
 
   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_BLENDING)))
     return FALSE;
-
-  /* We unconditionally check the _BLEND_ENABLE state first because
-   * all the other changes are irrelevent if blend_enable != _AUTOMATIC
-   */
-  enable_authority =
-    _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_BLEND_ENABLE);
-
-  enabled = enable_authority->blend_enable;
-  if (enabled != COGL_PIPELINE_BLEND_ENABLE_AUTOMATIC)
-    return enabled == COGL_PIPELINE_BLEND_ENABLE_ENABLED ? TRUE : FALSE;
 
   blend_authority =
     _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_BLEND);
@@ -825,9 +812,6 @@ _cogl_pipeline_copy_differences (CoglPipeline *dest,
 
   if (differences & COGL_PIPELINE_STATE_COLOR)
     dest->color = src->color;
-
-  if (differences & COGL_PIPELINE_STATE_BLEND_ENABLE)
-    dest->blend_enable = src->blend_enable;
 
   if (differences & COGL_PIPELINE_STATE_LAYERS)
     {
@@ -977,7 +961,6 @@ _cogl_pipeline_init_multi_property_sparse_state (CoglPipeline *pipeline,
     /* XXX: avoid using a default: label so we get a warning if we
      * don't explicitly handle a newly defined state-group here. */
     case COGL_PIPELINE_STATE_COLOR:
-    case COGL_PIPELINE_STATE_BLEND_ENABLE:
     case COGL_PIPELINE_STATE_ALPHA_FUNC:
     case COGL_PIPELINE_STATE_ALPHA_FUNC_REFERENCE:
     case COGL_PIPELINE_STATE_NON_ZERO_POINT_SIZE:
@@ -2170,7 +2153,6 @@ _cogl_pipeline_equal (CoglPipeline *pipeline0,
             break;
           }
 
-        case COGL_PIPELINE_STATE_BLEND_ENABLE_INDEX:
         case COGL_PIPELINE_STATE_REAL_BLEND_ENABLE_INDEX:
         case COGL_PIPELINE_STATE_COUNT:
           g_warn_if_reached ();
@@ -2514,8 +2496,6 @@ _cogl_pipeline_init_state_hash_functions (void)
 {
   state_hash_functions[COGL_PIPELINE_STATE_COLOR_INDEX] =
     _cogl_pipeline_hash_color_state;
-  state_hash_functions[COGL_PIPELINE_STATE_BLEND_ENABLE_INDEX] =
-    _cogl_pipeline_hash_blend_enable_state;
   state_hash_functions[COGL_PIPELINE_STATE_LAYERS_INDEX] =
     _cogl_pipeline_hash_layers_state;
   state_hash_functions[COGL_PIPELINE_STATE_ALPHA_FUNC_INDEX] =
@@ -2545,7 +2525,7 @@ _cogl_pipeline_init_state_hash_functions (void)
 
   {
   /* So we get a big error if we forget to update this code! */
-  _COGL_STATIC_ASSERT (COGL_PIPELINE_STATE_SPARSE_COUNT == 15,
+  _COGL_STATIC_ASSERT (COGL_PIPELINE_STATE_SPARSE_COUNT == 14,
                        "Make sure to install a hash function for "
                        "newly added pipeline state and update assert "
                        "in _cogl_pipeline_init_state_hash_functions");
