@@ -378,15 +378,22 @@ create_monitor_test_clients (void)
 }
 
 static void
-check_monitor_test_clients_state (void)
+check_test_client_state (TestClient *test_client)
 {
   GError *error = NULL;
 
-  if (!test_client_wait (wayland_monitor_test_client, &error))
-    g_error ("Failed to sync Wayland test client: %s", error->message);
+  if (!test_client_wait (test_client, &error))
+    {
+      g_error ("Failed to sync test client '%s': %s",
+               test_client_get_id (test_client), error->message);
+    }
+}
 
-  if (!test_client_wait (x11_monitor_test_client, &error))
-    g_error ("Failed to sync X11 test client: %s", error->message);
+static void
+check_monitor_test_clients_state (void)
+{
+  check_test_client_state (wayland_monitor_test_client);
+  check_test_client_state (x11_monitor_test_client);
 }
 
 static void
