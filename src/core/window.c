@@ -3191,7 +3191,10 @@ meta_window_tile (MetaWindow   *window,
 
   /* Don't do anything if no tiling is requested */
   if (window->tile_mode == META_TILE_NONE)
-    return;
+    {
+      window->tile_monitor_number = -1;
+      return;
+    }
 
   if (window->tile_mode == META_TILE_MAXIMIZED)
     directions = META_MAXIMIZE_BOTH;
