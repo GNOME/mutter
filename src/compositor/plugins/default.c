@@ -737,14 +737,20 @@ destroy (MetaPlugin *plugin, MetaWindowActor *window_actor)
  * Tile preview private data accessor
  */
 static void
-free_display_tile_preview (gpointer data)
+free_display_tile_preview (DisplayTilePreview *preview)
 {
-  DisplayTilePreview *preview = data;
 
   if (G_LIKELY (preview != NULL)) {
     clutter_actor_destroy (preview->actor);
     g_slice_free (DisplayTilePreview, preview);
   }
+}
+
+static void
+on_display_closing (MetaDisplay        *display,
+                    DisplayTilePreview *preview)
+{
+  free_display_tile_preview (preview);
 }
 
 static DisplayTilePreview *
@@ -769,9 +775,13 @@ get_display_tile_preview (MetaDisplay *display)
       clutter_actor_set_opacity (preview->actor, 100);
 
       clutter_actor_add_child (meta_get_window_group_for_display (display), preview->actor);
-      g_object_set_qdata_full (G_OBJECT (display),
-                               display_tile_preview_data_quark, preview,
-                               free_display_tile_preview);
+      g_signal_connect (display,
+                        "closing",
+                        G_CALLBACK (on_display_closing),
+                        preview);
+      g_object_set_qdata (G_OBJECT (display),
+                          display_tile_preview_data_quark,
+                          preview);
     }
 
   return preview;
