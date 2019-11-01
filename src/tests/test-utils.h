@@ -70,6 +70,9 @@ MetaWindow * test_client_find_window (TestClient *client,
                                       const char *window_id,
                                       GError    **error);
 
+void test_client_wait_for_window_shown (TestClient *client,
+                                        MetaWindow *window);
+
 gboolean test_client_quit (TestClient *client,
                            GError    **error);
 

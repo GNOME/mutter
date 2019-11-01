@@ -359,6 +359,57 @@ test_client_find_window (TestClient *client,
   return result;
 }
 
+typedef struct _WaitForShownData
+{
+  GMainLoop *loop;
+  MetaWindow *window;
+  guint shown_handler_id;
+} WaitForShownData;
+
+static void
+on_window_shown (MetaWindow       *window,
+                 WaitForShownData *data)
+{
+  g_main_loop_quit (data->loop);
+}
+
+static gboolean
+wait_for_showing_before_redraw (gpointer user_data)
+{
+  WaitForShownData *data = user_data;
+
+  if (meta_window_is_hidden (data->window))
+    {
+      data->shown_handler_id = g_signal_connect (data->window, "shown",
+                                                 G_CALLBACK (on_window_shown),
+                                                 data);
+    }
+  else
+    {
+      g_main_loop_quit (data->loop);
+    }
+
+  return FALSE;
+}
+
+void
+test_client_wait_for_window_shown (TestClient *client,
+                                   MetaWindow *window)
+{
+  WaitForShownData data = {
+    .loop = g_main_loop_new (NULL, FALSE),
+    .window = window,
+  };
+  meta_later_add (META_LATER_BEFORE_REDRAW,
+                  wait_for_showing_before_redraw,
+                  &data,
+                  NULL);
+  g_main_loop_run (data.loop);
+  if (data.shown_handler_id)
+    g_signal_handler_disconnect (window, data.shown_handler_id);
+  g_main_loop_unref (data.loop);
+}
+
 gboolean
 test_client_alarm_filter (MetaX11Display        *x11_display,
                           XSyncAlarmNotifyEvent *event,

@@ -342,39 +342,6 @@ test_case_check_xserver_stacking (TestCase *test,
   return *error == NULL;
 }
 
-typedef struct _WaitForShownData
-{
-  GMainLoop *loop;
-  MetaWindow *window;
-  guint shown_handler_id;
-} WaitForShownData;
-
-static void
-on_window_shown (MetaWindow       *window,
-                 WaitForShownData *data)
-{
-  g_main_loop_quit (data->loop);
-}
-
-static gboolean
-test_case_wait_for_showing_before_redraw (gpointer user_data)
-{
-  WaitForShownData *data = user_data;
-
-  if (meta_window_is_hidden (data->window))
-    {
-      data->shown_handler_id = g_signal_connect (data->window, "shown",
-                                                 G_CALLBACK (on_window_shown),
-                                                 data);
-    }
-  else
-    {
-      g_main_loop_quit (data->loop);
-    }
-
-  return FALSE;
-}
-
 static gboolean
 test_case_do (TestCase *test,
               int       argc,
@@ -533,18 +500,7 @@ test_case_do (TestCase *test,
       if (!window)
         return FALSE;
 
-      WaitForShownData data = {
-        .loop = g_main_loop_new (NULL, FALSE),
-        .window = window,
-      };
-      meta_later_add (META_LATER_BEFORE_REDRAW,
-                      test_case_wait_for_showing_before_redraw,
-                      &data,
-                      NULL);
-      g_main_loop_run (data.loop);
-      if (data.shown_handler_id)
-        g_signal_handler_disconnect (window, data.shown_handler_id);
-      g_main_loop_unref (data.loop);
+      test_client_wait_for_window_shown (client, window);
     }
   else if (strcmp (argv[0], "hide") == 0 ||
            strcmp (argv[0], "activate") == 0 ||
