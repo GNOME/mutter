@@ -3932,11 +3932,16 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
   if (!new)
     new = meta_monitor_manager_get_primary_logical_monitor (monitor_manager);
 
+  if (window->tile_mode != META_TILE_NONE)
+    {
+      if (new)
+        window->tile_monitor_number = new->number;
+      else
+        window->tile_monitor_number = -1;
+    }
+
   if (new && old)
     {
-      if (window->tile_mode != META_TILE_NONE)
-        window->tile_monitor_number = new->number;
-
       /* This will eventually reach meta_window_update_monitor that
        * will send leave/enter-monitor events. The old != new monitor
        * check will always fail (due to the new logical_monitors set) so
