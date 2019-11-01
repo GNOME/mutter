@@ -750,12 +750,17 @@ free_display_tile_preview (gpointer data)
 static DisplayTilePreview *
 get_display_tile_preview (MetaDisplay *display)
 {
-  DisplayTilePreview *preview = g_object_get_qdata (G_OBJECT (display), display_tile_preview_data_quark);
+  DisplayTilePreview *preview;
 
-  if (G_UNLIKELY (display_tile_preview_data_quark == 0))
-    display_tile_preview_data_quark = g_quark_from_static_string (DISPLAY_TILE_PREVIEW_DATA_KEY);
+  if (!display_tile_preview_data_quark)
+    {
+      display_tile_preview_data_quark =
+        g_quark_from_static_string (DISPLAY_TILE_PREVIEW_DATA_KEY);
+    }
 
-  if (G_UNLIKELY (!preview))
+  preview = g_object_get_qdata (G_OBJECT (display),
+                                display_tile_preview_data_quark);
+  if (!preview)
     {
       preview = g_slice_new0 (DisplayTilePreview);
 
