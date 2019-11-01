@@ -42,7 +42,6 @@
 #include "cogl-framebuffer-private.h"
 #include "cogl1-context.h"
 #include "cogl-primitives-private.h"
-#include "deprecated/cogl-vertex-buffer-private.h"
 
 #include <string.h>
 #include <math.h>
