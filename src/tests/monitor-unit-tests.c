@@ -28,6 +28,7 @@
 #include "backends/meta-monitor-config-migration.h"
 #include "backends/meta-monitor-config-store.h"
 #include "backends/meta-output.h"
+#include "core/window-private.h"
 #include "meta-backend-test.h"
 #include "tests/meta-monitor-manager-test.h"
 #include "tests/monitor-test-utils.h"
@@ -5760,6 +5761,105 @@ meta_test_monitor_migrated_wiggle_discard (void)
     g_error ("Failed to remove test data output file: %s", error->message);
 }
 
+static gboolean
+quit_main_loop (gpointer data)
+{
+  GMainLoop *loop = data;
+
+  g_main_loop_quit (loop);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+dispatch (void)
+{
+  GMainLoop *loop;
+
+  loop = g_main_loop_new (NULL, FALSE);
+  meta_later_add (META_LATER_BEFORE_REDRAW,
+                  quit_main_loop,
+                  loop,
+                  NULL);
+  g_main_loop_run (loop);
+}
+
+static TestClient *
+create_test_window (const char *window_name)
+{
+  TestClient *test_client;
+  static int client_count = 0;
+  g_autofree char *client_name = NULL;
+  g_autoptr (GError) error = NULL;
+
+  client_name = g_strdup_printf ("test_client_%d", client_count++);
+  test_client = test_client_new (client_name, META_WINDOW_CLIENT_TYPE_WAYLAND,
+                                 &error);
+  if (!test_client)
+    g_error ("Failed to launch test client: %s", error->message);
+
+  if (!test_client_do (test_client, &error,
+                       "create", window_name,
+                       NULL))
+    g_error ("Failed to create window: %s", error->message);
+
+  return test_client;
+}
+
+static void
+meta_test_monitor_wm_tiling (void)
+{
+  MonitorTestCase test_case = initial_test_case;
+  MetaMonitorTestSetup *test_setup;
+  g_autoptr (GError) error = NULL;
+
+  test_setup = create_monitor_test_setup (&test_case,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  emulate_hotplug (test_setup);
+
+  /*
+   * 1) Start with two monitors connected.
+   * 2) Tile it on the second monitor.
+   * 3) Unplug both monitors.
+   * 4) Replug in first monitor.
+   */
+
+  const char *test_window_name= "window1";
+  TestClient *test_client = create_test_window (test_window_name);
+
+  if (!test_client_do (test_client, &error,
+                       "show", test_window_name,
+                       NULL))
+    g_error ("Failed to show the window: %s", error->message);
+
+  MetaWindow *test_window =
+    test_client_find_window (test_client,
+                             test_window_name,
+                             &error);
+  if (!test_window)
+    g_error ("Failed to find the window: %s", error->message);
+  test_client_wait_for_window_shown (test_client, test_window);
+
+  meta_window_tile (test_window, META_TILE_MAXIMIZED);
+  meta_window_move_to_monitor (test_window, 1);
+  check_test_client_state (test_client);
+
+  fprintf(stderr, ":::: %s:%d %s() - UNPLUGGING\n", __FILE__, __LINE__, __func__);
+
+  test_case.setup.n_outputs = 0;
+  test_setup = create_monitor_test_setup (&test_case,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  emulate_hotplug (test_setup);
+  test_case.setup.n_outputs = 1;
+  test_setup = create_monitor_test_setup (&test_case,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  emulate_hotplug (test_setup);
+
+  dispatch ();
+
+  test_client_destroy (test_client);
+}
+
 static void
 meta_test_monitor_migrated_wiggle (void)
 {
@@ -6015,6 +6115,9 @@ init_monitor_tests (void)
                     meta_test_monitor_migrated_wiggle);
   add_monitor_test ("/backends/monitor/migrated/wiggle-discard",
                     meta_test_monitor_migrated_wiggle_discard);
+
+  add_monitor_test ("/backends/monitor/wm/tiling",
+                    meta_test_monitor_wm_tiling);
 }
 
 void

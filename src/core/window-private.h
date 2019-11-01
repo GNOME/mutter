@@ -629,6 +629,7 @@ void        meta_window_unmanage           (MetaWindow  *window,
 void        meta_window_unmanage_on_idle   (MetaWindow *window);
 void        meta_window_queue              (MetaWindow  *window,
                                             guint queuebits);
+META_EXPORT_TEST
 void        meta_window_tile               (MetaWindow        *window,
                                             MetaTileMode       mode);
 MetaTileMode meta_window_get_tile_mode     (MetaWindow        *window);
