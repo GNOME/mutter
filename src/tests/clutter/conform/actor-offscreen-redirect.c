@@ -316,6 +316,9 @@ actor_offscreen_redirect (void)
 
   data.stage = clutter_test_get_stage ();
   data.parent_container = clutter_actor_new ();
+  clutter_actor_set_background_color (data.parent_container,
+                                      &(ClutterColor) { 255, 255, 255, 255 });
+
   data.container = g_object_new (foo_group_get_type (), NULL);
   data.foo_actor = g_object_new (foo_actor_get_type (), NULL);
   clutter_actor_set_size (CLUTTER_ACTOR (data.foo_actor), 100, 100);
