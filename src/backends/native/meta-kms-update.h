@@ -66,6 +66,10 @@ MetaKmsPlaneAssignment * meta_kms_update_assign_plane (MetaKmsUpdate        *upd
                                                        MetaFixed16Rectangle  src_rect,
                                                        MetaFixed16Rectangle  dst_rect);
 
+MetaKmsPlaneAssignment * meta_kms_update_unassign_plane (MetaKmsUpdate *update,
+                                                         MetaKmsCrtc   *crtc,
+                                                         MetaKmsPlane  *plane);
+
 void meta_kms_update_page_flip (MetaKmsUpdate                 *update,
                                 MetaKmsCrtc                   *crtc,
                                 const MetaKmsPageFlipFeedback *feedback,

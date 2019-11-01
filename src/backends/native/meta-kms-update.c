@@ -102,6 +102,29 @@ meta_kms_update_assign_plane (MetaKmsUpdate        *update,
   return plane_assignment;
 }
 
+MetaKmsPlaneAssignment *
+meta_kms_update_unassign_plane (MetaKmsUpdate *update,
+                                MetaKmsCrtc   *crtc,
+                                MetaKmsPlane  *plane)
+{
+  MetaKmsPlaneAssignment *plane_assignment;
+
+  g_assert (!meta_kms_update_is_sealed (update));
+
+  plane_assignment = g_new0 (MetaKmsPlaneAssignment, 1);
+  *plane_assignment = (MetaKmsPlaneAssignment) {
+    .update = update,
+    .crtc = crtc,
+    .plane = plane,
+    .fb_id = 0,
+  };
+
+  update->plane_assignments = g_list_prepend (update->plane_assignments,
+                                              plane_assignment);
+
+  return plane_assignment;
+}
+
 void
 meta_kms_update_mode_set (MetaKmsUpdate   *update,
                           MetaKmsCrtc     *crtc,
