@@ -5857,6 +5857,29 @@ meta_test_monitor_wm_tiling (void)
 
   dispatch ();
 
+  /*
+   * 1) Start with two monitors connected.
+   * 2) Tile a window on the second monitor.
+   * 3) Untile window.
+   * 4) Unplug monitor.
+   * 5) Tile window again.
+   */
+
+  test_case.setup.n_outputs = 2;
+  test_setup = create_monitor_test_setup (&test_case,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  emulate_hotplug (test_setup);
+
+  meta_window_move_to_monitor (test_window, 1);
+  meta_window_tile (test_window, META_TILE_NONE);
+
+  test_case.setup.n_outputs = 1;
+  test_setup = create_monitor_test_setup (&test_case,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  emulate_hotplug (test_setup);
+
+  meta_window_tile (test_window, META_TILE_MAXIMIZED);
+
   test_client_destroy (test_client);
 }
 
