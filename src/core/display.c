@@ -156,6 +156,7 @@ enum
   SHOWING_DESKTOP_CHANGED,
   RESTACKED,
   WORKAREAS_CHANGED,
+  CLOSING,
   LAST_SIGNAL
 };
 
@@ -489,6 +490,12 @@ meta_display_class_init (MetaDisplayClass *klass)
 
   display_signals[WORKAREAS_CHANGED] =
     g_signal_new ("workareas-changed",
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+  display_signals[CLOSING] =
+    g_signal_new ("closing",
                   G_TYPE_FROM_CLASS (klass),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
@@ -970,6 +977,8 @@ meta_display_close (MetaDisplay *display,
     }
 
   display->closing += 1;
+
+  g_signal_emit (display, display_signals[CLOSING], 0);
 
   meta_compositor_unmanage (display->compositor);
 
