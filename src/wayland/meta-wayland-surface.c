@@ -1647,8 +1647,8 @@ meta_wayland_surface_get_absolute_coordinates (MetaWaylandSurface *surface,
   ClutterActor *actor =
     CLUTTER_ACTOR (meta_wayland_surface_get_actor (surface));
   ClutterVertex sv = {
-    .x = sx * surface->scale,
-    .y = sy * surface->scale,
+    .x = sx,
+    .y = sy,
   };
   ClutterVertex v = { 0 };
 
