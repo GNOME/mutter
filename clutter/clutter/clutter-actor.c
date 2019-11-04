@@ -3934,6 +3934,7 @@ clutter_actor_paint (ClutterActor *self)
       clip_node = clutter_clip_node_new ();
       clutter_paint_node_add_rectangle (clip_node, &clip);
       clutter_paint_node_add_child (clip_node, root_node);
+      clutter_paint_node_unref (root_node);
 
       root_node = g_steal_pointer (&clip_node);
     }
@@ -3947,6 +3948,7 @@ clutter_actor_paint (ClutterActor *self)
 
       transform_node = clutter_transform_node_new (&transform);
       clutter_paint_node_add_child (transform_node, root_node);
+      clutter_paint_node_unref (root_node);
 
       root_node = g_steal_pointer (&transform_node);
 
