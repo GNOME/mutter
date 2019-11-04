@@ -1937,8 +1937,8 @@ meta_x11_display_set_input_focus_xwindow (MetaX11Display *x11_display,
   if (meta_display_timestamp_too_old (x11_display->display, &timestamp))
     return;
 
-  serial = XNextRequest (x11_display->xdisplay);
   meta_x11_display_set_input_focus_internal (x11_display, window, timestamp);
+  serial = XNextRequest (x11_display->xdisplay);
   meta_x11_display_update_focus_window (x11_display, window, serial, TRUE);
   meta_display_update_focus_window (x11_display->display, NULL);
   meta_display_remove_autoraise_callback (x11_display->display);
