@@ -103,7 +103,8 @@ meta_surface_actor_wayland_paint (ClutterActor *actor)
 {
   MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
 
-  if (self->surface)
+  if (self->surface &&
+      !meta_surface_actor_is_obscured (META_SURFACE_ACTOR (actor)))
     {
       MetaWaylandCompositor *compositor = self->surface->compositor;
 
