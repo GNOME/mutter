@@ -56,7 +56,6 @@ cogl_test_conformance_sources = [
 #  "test-texture-pixmap-x11.c",",
 #  "test-vertex-buffer-contiguous.c",
 #  "test-vertex-buffer-interleved.c",
-#  "test-vertex-buffer-mutability.c",
 #]
 
 cogl_test_conformance_includes = [
