@@ -385,33 +385,6 @@ clutter_container_add_actor (ClutterContainer *container,
 }
 
 /**
- * clutter_container_add_valist: (skip)
- * @container: a #ClutterContainer
- * @first_actor: the first #ClutterActor to add
- * @var_args: list of actors to add, followed by %NULL
- *
- * Alternative va_list version of clutter_container_add().
- *
- * This function will call #ClutterContainerIface.add(), which is a
- * deprecated virtual function. The default implementation will
- * call clutter_actor_add_child().
- *
- * Since: 0.4
- *
- * Deprecated: 1.10: Use clutter_actor_add_child() instead.
- */
-void
-clutter_container_add_valist (ClutterContainer *container,
-                              ClutterActor     *first_actor,
-                              va_list           var_args)
-{
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
-  g_return_if_fail (CLUTTER_IS_ACTOR (first_actor));
-
-  container_add_valist (container, first_actor, var_args);
-}
-
-/**
  * clutter_container_remove: (skip)
  * @container: a #ClutterContainer
  * @first_actor: first #ClutterActor to remove
@@ -472,33 +445,6 @@ clutter_container_remove_actor (ClutterContainer *container,
   g_return_if_fail (CLUTTER_IS_ACTOR (actor));
 
   container_remove_actor (container, actor);
-}
-
-/**
- * clutter_container_remove_valist: (skip)
- * @container: a #ClutterContainer
- * @first_actor: the first #ClutterActor to add
- * @var_args: list of actors to remove, followed by %NULL
- *
- * Alternative va_list version of clutter_container_remove().
- *
- * This function will call #ClutterContainerIface.remove(), which is a
- * deprecated virtual function. The default implementation will call
- * clutter_actor_remove_child().
- *
- * Since: 0.4
- *
- * Deprecated: 1.10: Use clutter_actor_remove_child() instead.
- */
-void
-clutter_container_remove_valist (ClutterContainer *container,
-                                 ClutterActor     *first_actor,
-                                 va_list           var_args)
-{
-  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
-  g_return_if_fail (CLUTTER_IS_ACTOR (first_actor));
-
-  container_remove_valist (container, first_actor, var_args);
 }
 
 /**
