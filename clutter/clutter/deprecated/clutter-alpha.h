@@ -113,12 +113,6 @@ CLUTTER_DEPRECATED
 ClutterAlpha *   clutter_alpha_new_full         (ClutterTimeline  *timeline,
                                                  gulong            mode);
 CLUTTER_DEPRECATED
-ClutterAlpha *   clutter_alpha_new_with_func    (ClutterTimeline  *timeline,
-                                                 ClutterAlphaFunc  func,
-                                                 gpointer          data,
-                                                 GDestroyNotify    destroy);
-
-CLUTTER_DEPRECATED
 gdouble          clutter_alpha_get_alpha        (ClutterAlpha     *alpha);
 CLUTTER_DEPRECATED
 void             clutter_alpha_set_func         (ClutterAlpha     *alpha,
@@ -138,12 +132,6 @@ void             clutter_alpha_set_mode         (ClutterAlpha     *alpha,
                                                  gulong            mode);
 CLUTTER_DEPRECATED
 gulong           clutter_alpha_get_mode         (ClutterAlpha     *alpha);
-
-CLUTTER_DEPRECATED
-gulong           clutter_alpha_register_func    (ClutterAlphaFunc  func,
-                                                 gpointer          data);
-CLUTTER_DEPRECATED
-gulong           clutter_alpha_register_closure (GClosure         *closure);
 
 G_END_DECLS
 
