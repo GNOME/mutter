@@ -34,14 +34,7 @@
 G_BEGIN_DECLS
 
 CLUTTER_DEPRECATED
-guint32         clutter_actor_get_gid                           (ClutterActor          *self);
-
-CLUTTER_DEPRECATED
 ClutterActor *  clutter_get_actor_by_gid                        (guint32                id_);
-
-CLUTTER_DEPRECATED_FOR(clutter_actor_remove_child() and clutter_actor_add_child())
-void            clutter_actor_reparent                          (ClutterActor          *self,
-                                                                 ClutterActor          *new_parent);
 
 CLUTTER_DEPRECATED_FOR(clutter_actor_add_child)
 void            clutter_actor_set_parent                        (ClutterActor          *self,
@@ -49,20 +42,6 @@ void            clutter_actor_set_parent                        (ClutterActor   
 
 CLUTTER_DEPRECATED_FOR(clutter_actor_remove_child)
 void            clutter_actor_unparent                          (ClutterActor          *self);
-
-CLUTTER_DEPRECATED_FOR(clutter_actor_set_child_above_sibling)
-void            clutter_actor_raise                             (ClutterActor          *self,
-                                                                 ClutterActor          *below);
-
-CLUTTER_DEPRECATED_FOR(clutter_actor_set_child_below_sibling)
-void            clutter_actor_lower                             (ClutterActor          *self,
-                                                                 ClutterActor          *above);
-
-CLUTTER_DEPRECATED_FOR(clutter_actor_set_child_above_sibling() with NULL sibling)
-void            clutter_actor_raise_top                         (ClutterActor          *self);
-
-CLUTTER_DEPRECATED_FOR(clutter_actor_set_child_below_sibling() with NULL sibling)
-void            clutter_actor_lower_bottom                      (ClutterActor          *self);
 
 CLUTTER_DEPRECATED
 void            clutter_actor_push_internal                     (ClutterActor          *self);
@@ -72,9 +51,6 @@ void            clutter_actor_pop_internal                      (ClutterActor   
 
 CLUTTER_DEPRECATED
 void            clutter_actor_show_all                          (ClutterActor          *self);
-
-CLUTTER_DEPRECATED
-void            clutter_actor_hide_all                          (ClutterActor          *self);
 
 CLUTTER_DEPRECATED_FOR(clutter_actor_set_z_position)
 void            clutter_actor_set_depth                         (ClutterActor          *self,
@@ -109,11 +85,6 @@ void            clutter_actor_set_scale_full                    (ClutterActor   
                                                                  gdouble                scale_y,
                                                                  gfloat                 center_x,
                                                                  gfloat                 center_y);
-CLUTTER_DEPRECATED_FOR(clutter_actor_set_scale and clutter_actor_set_pivot_point)
-void            clutter_actor_set_scale_with_gravity            (ClutterActor          *self,
-                                                                 gdouble                scale_x,
-                                                                 gdouble                scale_y,
-                                                                 ClutterGravity         gravity);
 CLUTTER_DEPRECATED_FOR(clutter_actor_get_pivot_point)
 void            clutter_actor_get_scale_center                  (ClutterActor          *self,
                                                                  gfloat                *center_x,
@@ -130,10 +101,6 @@ void            clutter_actor_move_anchor_point                 (ClutterActor   
                                                                  gfloat                 anchor_x,
                                                                  gfloat                 anchor_y);
 CLUTTER_DEPRECATED
-void            clutter_actor_get_anchor_point                  (ClutterActor          *self,
-                                                                 gfloat                *anchor_x,
-                                                                 gfloat                *anchor_y);
-CLUTTER_DEPRECATED
 ClutterGravity  clutter_actor_get_anchor_point_gravity          (ClutterActor          *self);
 CLUTTER_DEPRECATED
 void            clutter_actor_set_anchor_point_from_gravity     (ClutterActor          *self,
@@ -141,9 +108,6 @@ void            clutter_actor_set_anchor_point_from_gravity     (ClutterActor   
 CLUTTER_DEPRECATED
 void            clutter_actor_move_anchor_point_from_gravity    (ClutterActor          *self,
                                                                  ClutterGravity         gravity);
-CLUTTER_DEPRECATED
-void            clutter_actor_get_transformation_matrix         (ClutterActor          *self,
-                                                                 ClutterMatrix         *matrix);
 
 G_END_DECLS
 

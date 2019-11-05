@@ -2029,29 +2029,6 @@ clutter_actor_hide (ClutterActor *self)
 }
 
 /**
- * clutter_actor_hide_all:
- * @self: a #ClutterActor
- *
- * Calls clutter_actor_hide() on all child actors (if any).
- *
- * Since: 0.2
- *
- * Deprecated: 1.10: Using clutter_actor_hide() on the actor will
- *   prevent its children from being painted as well.
- */
-void
-clutter_actor_hide_all (ClutterActor *self)
-{
-  ClutterActorClass *klass;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  klass = CLUTTER_ACTOR_GET_CLASS (self);
-  if (klass->hide_all)
-    klass->hide_all (self);
-}
-
-/**
  * clutter_actor_realize:
  * @self: A #ClutterActor
  *
@@ -4531,7 +4508,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
       clutter_actor_queue_compute_expand (self);
     }
 
-  /* clutter_actor_reparent() will emit ::parent-set for us */
   if (emit_parent_set && !CLUTTER_ACTOR_IN_REPARENT (child) &&
       !CLUTTER_ACTOR_IN_DESTRUCTION (child))
     {
@@ -11728,45 +11704,6 @@ clutter_actor_set_scale_full (ClutterActor *self,
 }
 
 /**
- * clutter_actor_set_scale_with_gravity:
- * @self: A #ClutterActor
- * @scale_x: double factor to scale actor by horizontally.
- * @scale_y: double factor to scale actor by vertically.
- * @gravity: the location of the scale center expressed as a compass
- *   direction.
- *
- * Scales an actor with the given factors around the given
- * center point. The center point is specified as one of the compass
- * directions in #ClutterGravity. For example, setting it to north
- * will cause the top of the actor to remain unchanged and the rest of
- * the actor to expand left, right and downwards.
- *
- * The #ClutterActor:scale-x and #ClutterActor:scale-y properties are
- * animatable.
- *
- * Since: 1.0
- *
- * Deprecated: 1.12: Use clutter_actor_set_pivot_point() to set the
- *   scale center using normalized coordinates instead.
- */
-void
-clutter_actor_set_scale_with_gravity (ClutterActor   *self,
-                                      gdouble         scale_x,
-                                      gdouble         scale_y,
-                                      ClutterGravity  gravity)
-{
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  g_object_freeze_notify (G_OBJECT (self));
-
-  clutter_actor_set_scale_factor (self, CLUTTER_X_AXIS, scale_x);
-  clutter_actor_set_scale_factor (self, CLUTTER_Y_AXIS, scale_y);
-  clutter_actor_set_scale_gravity (self, gravity);
-
-  g_object_thaw_notify (G_OBJECT (self));
-}
-
-/**
  * clutter_actor_get_scale:
  * @self: A #ClutterActor
  * @scale_x: (out) (allow-none): Location to store horizonal
@@ -12154,27 +12091,6 @@ clutter_actor_get_name (ClutterActor *self)
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), NULL);
 
   return self->priv->name;
-}
-
-/**
- * clutter_actor_get_gid:
- * @self: A #ClutterActor
- *
- * Retrieves the unique id for @self.
- *
- * Return value: Globally unique value for this object instance.
- *
- * Since: 0.6
- *
- * Deprecated: 1.8: The id is not used any longer, and this function
- *   always returns 0.
- */
-guint32
-clutter_actor_get_gid (ClutterActor *self)
-{
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), 0);
-
-  return 0;
 }
 
 static inline void
@@ -13164,7 +13080,6 @@ clutter_actor_add_child_internal (ClutterActor              *self,
       clutter_actor_queue_compute_expand (self);
     }
 
-  /* clutter_actor_reparent() will emit ::parent-set for us */
   if (emit_parent_set && !CLUTTER_ACTOR_IN_REPARENT (child))
     {
       child->priv->needs_compute_resource_scale = TRUE;
@@ -13686,89 +13601,6 @@ clutter_actor_unparent (ClutterActor *self)
 }
 
 /**
- * clutter_actor_reparent:
- * @self: a #ClutterActor
- * @new_parent: the new #ClutterActor parent
- *
- * Resets the parent actor of @self.
- *
- * This function is logically equivalent to calling clutter_actor_unparent()
- * and clutter_actor_set_parent(), but more efficiently implemented, as it
- * ensures the child is not finalized when unparented, and emits the
- * #ClutterActor::parent-set signal only once.
- *
- * In reality, calling this function is less useful than it sounds, as some
- * application code may rely on changes in the intermediate state between
- * removal and addition of the actor from its old parent to the @new_parent.
- * Thus, it is strongly encouraged to avoid using this function in application
- * code.
- *
- * Since: 0.2
- *
- * Deprecated: 1.10: Use clutter_actor_remove_child() and
- *   clutter_actor_add_child() instead; remember to take a reference on
- *   the actor being removed before calling clutter_actor_remove_child()
- *   to avoid the reference count dropping to zero and the actor being
- *   destroyed.
- */
-void
-clutter_actor_reparent (ClutterActor *self,
-                        ClutterActor *new_parent)
-{
-  ClutterActorPrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-  g_return_if_fail (CLUTTER_IS_ACTOR (new_parent));
-  g_return_if_fail (self != new_parent);
-
-  if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
-    {
-      g_warning ("Cannot set a parent on a toplevel actor");
-      return;
-    }
-
-  if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
-    {
-      g_warning ("Cannot set a parent currently being destroyed");
-      return;
-    }
-
-  priv = self->priv;
-
-  if (priv->parent != new_parent)
-    {
-      ClutterActor *old_parent;
-
-      CLUTTER_SET_PRIVATE_FLAGS (self, CLUTTER_IN_REPARENT);
-
-      old_parent = priv->parent;
-
-      g_object_ref (self);
-
-      if (old_parent != NULL)
-        {
-          /* this will have to call unparent() */
-          clutter_container_remove_actor (CLUTTER_CONTAINER (old_parent), self);
-        }
-
-      /* Note, will call set_parent() */
-      clutter_container_add_actor (CLUTTER_CONTAINER (new_parent), self);
-
-      priv->needs_compute_resource_scale = TRUE;
-
-      /* we emit the ::parent-set signal once */
-      g_signal_emit (self, actor_signals[PARENT_SET], 0, old_parent);
-
-      CLUTTER_UNSET_PRIVATE_FLAGS (self, CLUTTER_IN_REPARENT);
-
-      /* the IN_REPARENT flag suspends state updates */
-      clutter_actor_update_map_state (self, MAP_STATE_CHECK);
-
-      g_object_unref (self);
-   }
-}
-
-/**
  * clutter_actor_contains:
  * @self: A #ClutterActor
  * @descendant: A #ClutterActor, possibly contained in @self
@@ -13935,134 +13767,6 @@ clutter_actor_set_child_at_index (ClutterActor *self,
   clutter_actor_queue_relayout (self);
 }
 
-/**
- * clutter_actor_raise:
- * @self: A #ClutterActor
- * @below: (allow-none): A #ClutterActor to raise above.
- *
- * Puts @self above @below.
- *
- * Both actors must have the same parent, and the parent must implement
- * the #ClutterContainer interface
- *
- * This function calls clutter_container_raise_child() internally.
- *
- * Deprecated: 1.10: Use clutter_actor_set_child_above_sibling() instead.
- */
-void
-clutter_actor_raise (ClutterActor *self,
-                     ClutterActor *below)
-{
-  ClutterActor *parent;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  parent = clutter_actor_get_parent (self);
-  if (parent == NULL)
-    {
-      g_warning ("%s: Actor '%s' is not inside a container",
-                 G_STRFUNC,
-                 _clutter_actor_get_debug_name (self));
-      return;
-    }
-
-  if (below != NULL)
-    {
-      if (parent != clutter_actor_get_parent (below))
-        {
-          g_warning ("%s Actor '%s' is not in the same container as "
-                     "actor '%s'",
-                     G_STRFUNC,
-                     _clutter_actor_get_debug_name (self),
-                     _clutter_actor_get_debug_name (below));
-          return;
-        }
-    }
-
-  clutter_container_raise_child (CLUTTER_CONTAINER (parent), self, below);
-}
-
-/**
- * clutter_actor_lower:
- * @self: A #ClutterActor
- * @above: (allow-none): A #ClutterActor to lower below
- *
- * Puts @self below @above.
- *
- * Both actors must have the same parent, and the parent must implement
- * the #ClutterContainer interface.
- *
- * This function calls clutter_container_lower_child() internally.
- *
- * Deprecated: 1.10: Use clutter_actor_set_child_below_sibling() instead.
- */
-void
-clutter_actor_lower (ClutterActor *self,
-                     ClutterActor *above)
-{
-  ClutterActor *parent;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  parent = clutter_actor_get_parent (self);
-  if (parent == NULL)
-    {
-      g_warning ("%s: Actor of type %s is not inside a container",
-                 G_STRFUNC,
-                 _clutter_actor_get_debug_name (self));
-      return;
-    }
-
-  if (above)
-    {
-      if (parent != clutter_actor_get_parent (above))
-        {
-          g_warning ("%s: Actor '%s' is not in the same container as "
-                     "actor '%s'",
-                     G_STRFUNC,
-                     _clutter_actor_get_debug_name (self),
-                     _clutter_actor_get_debug_name (above));
-          return;
-        }
-    }
-
-  clutter_container_lower_child (CLUTTER_CONTAINER (parent), self, above);
-}
-
-/**
- * clutter_actor_raise_top:
- * @self: A #ClutterActor
- *
- * Raises @self to the top.
- *
- * This function calls clutter_actor_raise() internally.
- *
- * Deprecated: 1.10: Use clutter_actor_set_child_above_sibling() with
- *   a %NULL sibling, instead.
- */
-void
-clutter_actor_raise_top (ClutterActor *self)
-{
-  clutter_actor_raise (self, NULL);
-}
-
-/**
- * clutter_actor_lower_bottom:
- * @self: A #ClutterActor
- *
- * Lowers @self to the bottom.
- *
- * This function calls clutter_actor_lower() internally.
- *
- * Deprecated: 1.10: Use clutter_actor_set_child_below_sibling() with
- *   a %NULL sibling, instead.
- */
-void
-clutter_actor_lower_bottom (ClutterActor *self)
-{
-  clutter_actor_lower (self, NULL);
-}
-
 /*
  * Event handling
  */
@@ -14203,34 +13907,6 @@ clutter_actor_get_reactive (ClutterActor *actor)
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), FALSE);
 
   return CLUTTER_ACTOR_IS_REACTIVE (actor) ? TRUE : FALSE;
-}
-
-/**
- * clutter_actor_get_anchor_point:
- * @self: a #ClutterActor
- * @anchor_x: (out): return location for the X coordinate of the anchor point
- * @anchor_y: (out): return location for the Y coordinate of the anchor point
- *
- * Gets the current anchor point of the @actor in pixels.
- *
- * Since: 0.6
- *
- * Deprecated: 1.12: Use #ClutterActor:pivot-point instead
- */
-void
-clutter_actor_get_anchor_point (ClutterActor *self,
-				gfloat       *anchor_x,
-                                gfloat       *anchor_y)
-{
-  const ClutterTransformInfo *info;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  info = _clutter_actor_get_transform_info_or_defaults (self);
-  clutter_anchor_coord_get_units (self, &info->anchor,
-                                  anchor_x,
-                                  anchor_y,
-                                  NULL);
 }
 
 /**
@@ -16490,25 +16166,6 @@ clutter_actor_unset_flags (ClutterActor      *self,
     g_object_notify_by_pspec (obj, obj_props[PROP_VISIBLE]);
 
   g_object_thaw_notify (obj);
-}
-
-/**
- * clutter_actor_get_transformation_matrix:
- * @self: a #ClutterActor
- * @matrix: (out caller-allocates): the return location for a #ClutterMatrix
- *
- * Retrieves the transformations applied to @self relative to its
- * parent.
- *
- * Since: 1.0
- *
- * Deprecated: 1.12: Use clutter_actor_get_transform() instead
- */
-void
-clutter_actor_get_transformation_matrix (ClutterActor  *self,
-                                         ClutterMatrix *matrix)
-{
-  clutter_actor_get_transform (self, matrix);
 }
 
 static void
