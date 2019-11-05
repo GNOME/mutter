@@ -352,32 +352,6 @@ cogl_vertex_buffer_draw_elements (CoglHandle       handle,
                                   int              count);
 
 /**
- * cogl_vertex_buffer_ref:
- * @handle: a @CoglHandle.
- *
- * Increment the reference count for a vertex buffer
- *
- * Return value: the @handle.
- *
- * Deprecated: 1.2: Use cogl_object_ref() instead
- */
-COGL_DEPRECATED_FOR (cogl_object_ref)
-CoglHandle
-cogl_vertex_buffer_ref (CoglHandle handle);
-
-/**
- * cogl_vertex_buffer_unref:
- * @handle: a @CoglHandle.
- *
- * Decrement the reference count for a vertex buffer
- *
- * Deprecated: 1.2: Use cogl_object_unref() instead
- */
-COGL_DEPRECATED_FOR (cogl_object_unref)
-void
-cogl_vertex_buffer_unref (CoglHandle handle);
-
-/**
  * cogl_vertex_buffer_indices_get_for_quads:
  * @n_indices: the number of indices in the vertex buffer.
  *

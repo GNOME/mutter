@@ -44,7 +44,6 @@
 static void _cogl_shader_free (CoglShader *shader);
 
 COGL_HANDLE_DEFINE (Shader, shader);
-COGL_OBJECT_DEFINE_DEPRECATED_REF_COUNTING (shader);
 
 #ifndef GL_FRAGMENT_SHADER
 #define GL_FRAGMENT_SHADER 0x8B30

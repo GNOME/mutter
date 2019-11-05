@@ -250,32 +250,6 @@ CoglHandle
 cogl_create_shader (CoglShaderType shader_type);
 
 /**
- * cogl_shader_ref:
- * @handle: A #CoglHandle to a shader.
- *
- * Add an extra reference to a shader.
- *
- * Returns: @handle
- * Deprecated: 1.16: Use #CoglSnippet api
- */
-COGL_DEPRECATED_FOR (cogl_snippet_)
-CoglHandle
-cogl_shader_ref (CoglHandle handle);
-
-/**
- * cogl_shader_unref:
- * @handle: A #CoglHandle to a shader.
- *
- * Removes a reference to a shader. If it was the last reference the
- * shader object will be destroyed.
- *
- * Deprecated: 1.16: Use #CoglSnippet api
- */
-COGL_DEPRECATED_FOR (cogl_snippet_)
-void
-cogl_shader_unref (CoglHandle handle);
-
-/**
  * cogl_is_shader:
  * @handle: A CoglHandle
  *
@@ -377,33 +351,6 @@ cogl_shader_is_compiled (CoglHandle handle);
 COGL_DEPRECATED_FOR (cogl_snippet_)
 CoglHandle
 cogl_create_program (void);
-
-/**
- * cogl_program_ref:
- * @handle: A #CoglHandle to a program.
- *
- * Add an extra reference to a program.
- *
- * Deprecated: 1.0: Please use cogl_object_ref() instead.
- *
- * Returns: @handle
- */
-COGL_DEPRECATED_FOR (cogl_snippet_)
-CoglHandle
-cogl_program_ref (CoglHandle handle);
-
-/**
- * cogl_program_unref:
- * @handle: A #CoglHandle to a program.
- *
- * Removes a reference to a program. If it was the last reference the
- * program object will be destroyed.
- *
- * Deprecated: 1.0: Please use cogl_object_unref() instead.
- */
-COGL_DEPRECATED_FOR (cogl_snippet_)
-void
-cogl_program_unref (CoglHandle handle);
 
 /**
  * cogl_is_program:

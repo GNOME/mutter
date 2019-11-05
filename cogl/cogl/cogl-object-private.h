@@ -243,37 +243,6 @@ _cogl_is_##type_name (void *object)                                     \
   return obj->klass == &_cogl_##type_name##_class;                      \
 }
 
-#define COGL_OBJECT_DEFINE_DEPRECATED_REF_COUNTING(type_name)   \
-                                                                \
-void * G_GNUC_DEPRECATED                                        \
-cogl_##type_name##_ref (void *object)                           \
-{                                                               \
-  if (!cogl_is_##type_name (object))                            \
-    return NULL;                                                \
-                                                                \
-  _COGL_OBJECT_DEBUG_REF (TypeName, object);                    \
-                                                                \
-  cogl_object_ref (object);                                     \
-                                                                \
-  return object;                                                \
-}                                                               \
-                                                                \
-void G_GNUC_DEPRECATED                                          \
-cogl_##type_name##_unref (void *object)                         \
-{                                                               \
-  if (!cogl_is_##type_name (object))                            \
-    {                                                           \
-      g_warning (G_STRINGIFY (cogl_##type_name##_unref)         \
-                 ": Ignoring unref of Cogl handle "             \
-                 "due to type mismatch");                       \
-      return;                                                   \
-    }                                                           \
-                                                                \
-  _COGL_OBJECT_DEBUG_UNREF (TypeName, object);                  \
-                                                                \
-  cogl_object_unref (object);                                   \
-}
-
 #define COGL_OBJECT_DEFINE(TypeName, type_name)                 \
   COGL_OBJECT_DEFINE_WITH_CODE_GTYPE (TypeName, type_name, (void) 0)
 
