@@ -131,20 +131,6 @@ void              clutter_state_set           (ClutterState    *state,
 CLUTTER_DEPRECATED
 GList           * clutter_state_get_states    (ClutterState    *state);
 CLUTTER_DEPRECATED
-GList           * clutter_state_get_keys      (ClutterState    *state,
-                                               const gchar     *source_state_name,
-                                               const gchar     *target_state_name,
-                                               GObject         *object,
-                                               const gchar     *property_name);
-CLUTTER_DEPRECATED
-void              clutter_state_remove_key    (ClutterState    *state,
-                                               const gchar     *source_state_name,
-                                               const gchar     *target_state_name,
-                                               GObject         *object,
-                                               const gchar     *property_name);
-CLUTTER_DEPRECATED
-ClutterTimeline * clutter_state_get_timeline  (ClutterState    *state);
-CLUTTER_DEPRECATED
 const gchar *     clutter_state_get_state     (ClutterState    *state);
 
 /*
@@ -154,24 +140,7 @@ const gchar *     clutter_state_get_state     (ClutterState    *state);
 CLUTTER_DEPRECATED
 GType                 clutter_state_key_get_type              (void) G_GNUC_CONST;
 CLUTTER_DEPRECATED
-gdouble               clutter_state_key_get_pre_delay         (const ClutterStateKey *state_key);
-CLUTTER_DEPRECATED
-gdouble               clutter_state_key_get_post_delay        (const ClutterStateKey *state_key);
-CLUTTER_DEPRECATED
-gulong                clutter_state_key_get_mode              (const ClutterStateKey *state_key);
-CLUTTER_DEPRECATED
-gboolean              clutter_state_key_get_value             (const ClutterStateKey *state_key,
-                                                               GValue                *value);
-CLUTTER_DEPRECATED
 GType                 clutter_state_key_get_property_type     (const ClutterStateKey *key);
-CLUTTER_DEPRECATED
-GObject *             clutter_state_key_get_object            (const ClutterStateKey *state_key);
-CLUTTER_DEPRECATED
-const gchar *         clutter_state_key_get_property_name     (const ClutterStateKey *state_key);
-CLUTTER_DEPRECATED
-const gchar *         clutter_state_key_get_source_state_name (const ClutterStateKey *state_key);
-CLUTTER_DEPRECATED
-const gchar *         clutter_state_key_get_target_state_name (const ClutterStateKey *state_key);
 
 G_END_DECLS
 
