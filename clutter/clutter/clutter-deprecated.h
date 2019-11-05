@@ -12,7 +12,6 @@
 #include "deprecated/clutter-container.h"
 #include "deprecated/clutter-group.h"
 #include "deprecated/clutter-rectangle.h"
-#include "deprecated/clutter-stage-manager.h"
 #include "deprecated/clutter-stage.h"
 #include "deprecated/clutter-state.h"
 #include "deprecated/clutter-table-layout.h"
