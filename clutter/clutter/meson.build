@@ -219,7 +219,6 @@ clutter_nonintrospected_sources = [
 clutter_deprecated_headers = [
   'deprecated/clutter-actor.h',
   'deprecated/clutter-alpha.h',
-  'deprecated/clutter-animatable.h',
   'deprecated/clutter-animation.h',
   'deprecated/clutter-bin-layout.h',
   'deprecated/clutter-box.h',
