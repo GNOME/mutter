@@ -103,6 +103,8 @@ _cogl_texture_2d_create_base (CoglContext *ctx,
   _cogl_texture_init (tex, ctx, width, height, internal_format, loader,
                       &cogl_texture_2d_vtable);
 
+  g_warning ("cogl_texture_2d_vtable = %p", &cogl_texture_2d_vtable);
+
   tex_2d->mipmaps_dirty = TRUE;
   tex_2d->auto_mipmap = TRUE;
   tex_2d->is_get_data_supported = TRUE;

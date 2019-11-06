@@ -189,7 +189,10 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
                                             modifiers,
                                             error);
   if (egl_image == EGL_NO_IMAGE_KHR)
-    return FALSE;
+    {
+      g_debug ("Couldn't create EGLImage from DMA-buf: %s", (*error)->message);
+      return FALSE;
+    }
 
   /* FIXME: at this point, we might want to try importing each plane separately */
 
@@ -202,10 +205,14 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
                                                      flags,
                                                      error);
 
+  G_BREAKPOINT();
   meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
 
-  if (!cogl_texture)
-    return FALSE;
+  if (cogl_texture == NULL)
+    {
+      g_debug ("Couldn't upload DMA-buf EGLImage: %s", *error? (*error)->message : "");
+      return FALSE;
+    }
 
   g_ptr_array_add (planes, COGL_TEXTURE (cogl_texture));
 
