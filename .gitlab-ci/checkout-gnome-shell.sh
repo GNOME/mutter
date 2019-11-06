@@ -1,6 +1,5 @@
 #!/usr/bin/bash
 
-mutter_branch=$(git describe --contains --all HEAD)
 gnome_shell_target=
 
 git clone https://gitlab.gnome.org/GNOME/gnome-shell.git
@@ -26,8 +25,7 @@ if [ "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME" ]; then
 fi
 
 if [ -z "$gnome_shell_target" ]; then
-  gnome_shell_target=$(git branch -r -l origin/$mutter_branch)
-  gnome_shell_target=${gnome_shell_target:-$(git branch -r -l ${mutter_branch#remotes/})}
+  gnome_shell_target=$(git branch -r -l origin/$CI_COMMIT_REF_NAME)
   gnome_shell_target=${gnome_shell_target:-origin/master}
   echo Using $gnome_shell_target instead
 fi
