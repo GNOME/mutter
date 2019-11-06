@@ -226,7 +226,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-rectangle.h',
   'deprecated/clutter-stage.h',
   'deprecated/clutter-state.h',
-  'deprecated/clutter-table-layout.h',
   'deprecated/clutter-timeline.h',
 ]
 
@@ -237,7 +236,6 @@ clutter_deprecated_sources = [
   'deprecated/clutter-group.c',
   'deprecated/clutter-rectangle.c',
   'deprecated/clutter-state.c',
-  'deprecated/clutter-table-layout.c',
 ]
 
 clutter_backend_sources = []

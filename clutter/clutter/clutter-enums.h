@@ -1183,29 +1183,6 @@ typedef enum /*< prefix=CLUTTER_PAN >*/
   CLUTTER_PAN_AXIS_AUTO
 } ClutterPanAxis;
 
-
-/**
- * ClutterTableAlignment:
- * @CLUTTER_TABLE_ALIGNMENT_START: Align the child to the top or to the
- *   left of a cell in the table, depending on the axis
- * @CLUTTER_TABLE_ALIGNMENT_CENTER: Align the child to the center of
- *   a cell in the table
- * @CLUTTER_TABLE_ALIGNMENT_END: Align the child to the bottom or to the
- *   right of a cell in the table, depending on the axis
- *
- * The alignment policies available on each axis of the #ClutterTableLayout
- *
- * Since: 1.4
- *
- * Deprecated: 1.22: Use the alignment properties of #ClutterActor
- */
-typedef enum
-{
-  CLUTTER_TABLE_ALIGNMENT_START,
-  CLUTTER_TABLE_ALIGNMENT_CENTER,
-  CLUTTER_TABLE_ALIGNMENT_END
-} ClutterTableAlignment;
-
 /**
  * ClutterTextureFlags:
  * @CLUTTER_TEXTURE_NONE: No flags

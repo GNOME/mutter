@@ -254,7 +254,7 @@ test_text_field_main (gint    argc,
 {
   ClutterActor *stage;
   ClutterActor *box, *label, *entry;
-  ClutterLayoutManager *table;
+  ClutterLayoutManager *grid;
   PangoAttrList *entry_attrs;
 
   if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
@@ -265,12 +265,12 @@ test_text_field_main (gint    argc,
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_Black);
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
 
-  table = clutter_table_layout_new ();
-  clutter_table_layout_set_column_spacing (CLUTTER_TABLE_LAYOUT (table), 6);
-  clutter_table_layout_set_row_spacing (CLUTTER_TABLE_LAYOUT (table), 6);
+  grid = clutter_grid_layout_new ();
+  clutter_grid_layout_set_column_spacing (CLUTTER_GRID_LAYOUT (grid), 6);
+  clutter_grid_layout_set_row_spacing (CLUTTER_GRID_LAYOUT (grid), 6);
 
   box = clutter_actor_new ();
-  clutter_actor_set_layout_manager (box, table);
+  clutter_actor_set_layout_manager (box, grid);
   clutter_actor_add_constraint (box, clutter_bind_constraint_new (stage, CLUTTER_BIND_WIDTH, -24.0));
   clutter_actor_add_constraint (box, clutter_bind_constraint_new (stage, CLUTTER_BIND_HEIGHT, -24.0));
   clutter_actor_set_position (box, 12, 12);
@@ -279,7 +279,7 @@ test_text_field_main (gint    argc,
   label = create_label (CLUTTER_COLOR_White, "<b>Input field:</b>");
   g_object_set (label, "min-width", 150.0, NULL);
   clutter_actor_add_child (box, label);
-  clutter_layout_manager_child_set (table, CLUTTER_CONTAINER (box), label,
+  clutter_layout_manager_child_set (grid, CLUTTER_CONTAINER (box), label,
                                     "row", 0,
                                     "column", 0,
                                     "x-expand", FALSE,
@@ -291,7 +291,7 @@ test_text_field_main (gint    argc,
   pango_attr_list_insert (entry_attrs, pango_attr_underline_color_new (65535, 0, 0));
   entry = create_entry (CLUTTER_COLOR_Black, "somme misspeeled textt", entry_attrs, 0, 0);
   clutter_actor_add_child (box, entry);
-  clutter_layout_manager_child_set (table, CLUTTER_CONTAINER (box), entry,
+  clutter_layout_manager_child_set (grid, CLUTTER_CONTAINER (box), entry,
                                     "row", 0,
                                     "column", 1,
                                     "x-expand", TRUE,
@@ -302,7 +302,7 @@ test_text_field_main (gint    argc,
 
   label = create_label (CLUTTER_COLOR_White, "<b>A very long password field:</b>");
   clutter_actor_add_child (box, label);
-  clutter_layout_manager_child_set (table, CLUTTER_CONTAINER (box), label,
+  clutter_layout_manager_child_set (grid, CLUTTER_CONTAINER (box), label,
                                     "row", 1,
                                     "column", 0,
                                     "x-expand", FALSE,
@@ -311,7 +311,7 @@ test_text_field_main (gint    argc,
 
   entry = create_entry (CLUTTER_COLOR_Black, "password", NULL, '*', 8);
   clutter_actor_add_child (box, entry);
-  clutter_layout_manager_child_set (table, CLUTTER_CONTAINER (box), entry,
+  clutter_layout_manager_child_set (grid, CLUTTER_CONTAINER (box), entry,
                                     "row", 1,
                                     "column", 1,
                                     "x-expand", TRUE,

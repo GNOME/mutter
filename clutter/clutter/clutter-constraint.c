@@ -48,7 +48,7 @@
  * Constraints provide a way to build user interfaces by using
  * relations between #ClutterActors, without explicit fixed
  * positioning and sizing, similarly to how fluid layout managers like
- * #ClutterBoxLayout and #ClutterTableLayout lay out their children.
+ * #ClutterBoxLayout lay out their children.
  *
  * Constraints are attached to a #ClutterActor, and are available
  * for inspection using clutter_actor_get_constraints().

@@ -98,7 +98,7 @@
  * |[
  * {
  *   "type" : "ClutterBox",
- *   "layout-manager" : { "type" : "ClutterTableLayout" },
+ *   "layout-manager" : { "type" : "ClutterGridLayout" },
  *   "children" : [
  *     {
  *       "type" : "ClutterText",
