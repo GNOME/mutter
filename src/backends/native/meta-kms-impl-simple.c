@@ -73,11 +73,12 @@ meta_kms_impl_simple_new (MetaKms  *kms,
 }
 
 static gboolean
-process_connector_property (MetaKmsImpl               *impl,
-                            MetaKmsUpdate             *update,
-                            MetaKmsConnectorProperty  *connector_property,
-                            GError                   **error)
+process_connector_property (MetaKmsImpl    *impl,
+                            MetaKmsUpdate  *update,
+                            gpointer        update_entry,
+                            GError        **error)
 {
+  MetaKmsConnectorProperty *connector_property = update_entry;
   MetaKmsConnector *connector = connector_property->connector;
   MetaKmsDevice *device = meta_kms_connector_get_device (connector);
   MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
@@ -180,9 +181,10 @@ fill_connector_ids_array (GList     *connectors,
 static gboolean
 process_mode_set (MetaKmsImpl     *impl,
                   MetaKmsUpdate   *update,
-                  MetaKmsModeSet  *mode_set,
+                  gpointer         update_entry,
                   GError         **error)
 {
+  MetaKmsModeSet *mode_set = update_entry;
   MetaKmsImplSimple *impl_simple = META_KMS_IMPL_SIMPLE (impl);
   MetaKmsCrtc *crtc = mode_set->crtc;
   MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
@@ -270,10 +272,12 @@ process_mode_set (MetaKmsImpl     *impl,
 }
 
 static gboolean
-process_crtc_gamma (MetaKmsImpl       *impl,
-                    MetaKmsCrtcGamma  *gamma,
-                    GError           **error)
+process_crtc_gamma (MetaKmsImpl    *impl,
+                    MetaKmsUpdate  *update,
+                    gpointer        update_entry,
+                    GError        **error)
 {
+  MetaKmsCrtcGamma *gamma = update_entry;
   MetaKmsCrtc *crtc = gamma->crtc;
   MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
   MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
@@ -608,11 +612,12 @@ mode_set_fallback (MetaKmsImplSimple       *impl_simple,
 }
 
 static gboolean
-process_page_flip (MetaKmsImpl      *impl,
-                   MetaKmsUpdate    *update,
-                   MetaKmsPageFlip  *page_flip,
-                   GError          **error)
+process_page_flip (MetaKmsImpl    *impl,
+                   MetaKmsUpdate  *update,
+                   gpointer        update_entry,
+                   GError        **error)
 {
+  MetaKmsPageFlip *page_flip = update_entry;
   MetaKmsImplSimple *impl_simple = META_KMS_IMPL_SIMPLE (impl);
   MetaKmsCrtc *crtc;
   MetaKmsDevice *device;
@@ -722,6 +727,27 @@ discard_page_flip (MetaKmsImpl     *impl,
 }
 
 static gboolean
+process_entries (MetaKmsImpl     *impl,
+                 MetaKmsUpdate   *update,
+                 GList           *entries,
+                 gboolean      (* func) (MetaKmsImpl    *impl,
+                                         MetaKmsUpdate  *update,
+                                         gpointer        entry_data,
+                                         GError        **error),
+                 GError         **error)
+{
+  GList *l;
+
+  for (l = entries; l; l = l->next)
+    {
+      if (!func (impl, update, l->data, error))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 meta_kms_impl_simple_process_update (MetaKmsImpl    *impl,
                                      MetaKmsUpdate  *update,
                                      GError        **error)
@@ -730,37 +756,33 @@ meta_kms_impl_simple_process_update (MetaKmsImpl    *impl,
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
 
-  for (l = meta_kms_update_get_connector_properties (update); l; l = l->next)
-    {
-      MetaKmsConnectorProperty *connector_property = l->data;
+  if (!process_entries (impl,
+                        update,
+                        meta_kms_update_get_connector_properties (update),
+                        process_connector_property,
+                        error))
+    goto discard_page_flips;
 
-      if (!process_connector_property (impl, update, connector_property, error))
-        goto discard_page_flips;
-    }
+  if (!process_entries (impl,
+                        update,
+                        meta_kms_update_get_mode_sets (update),
+                        process_mode_set,
+                        error))
+    goto discard_page_flips;
 
-  for (l = meta_kms_update_get_mode_sets (update); l; l = l->next)
-    {
-      MetaKmsModeSet *mode_set = l->data;
+  if (!process_entries (impl,
+                        update,
+                        meta_kms_update_get_crtc_gammas (update),
+                        process_crtc_gamma,
+                        error))
+    goto discard_page_flips;
 
-      if (!process_mode_set (impl, update, mode_set, error))
-        goto discard_page_flips;
-    }
-
-  for (l = meta_kms_update_get_crtc_gammas (update); l; l = l->next)
-    {
-      MetaKmsCrtcGamma *gamma = l->data;
-
-      if (!process_crtc_gamma (impl, gamma, error))
-        goto discard_page_flips;
-    }
-
-  for (l = meta_kms_update_get_page_flips (update); l; l = l->next)
-    {
-      MetaKmsPageFlip *page_flip = l->data;
-
-      if (!process_page_flip (impl, update, page_flip, error))
-        goto discard_page_flips;
-    }
+  if (!process_entries (impl,
+                        update,
+                        meta_kms_update_get_page_flips (update),
+                        process_page_flip,
+                        error))
+    goto discard_page_flips;
 
   return TRUE;
 
