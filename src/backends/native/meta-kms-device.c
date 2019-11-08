@@ -321,7 +321,7 @@ meta_kms_device_finalize (GObject *object)
         .impl_device = device->impl_device,
       };
       if (!meta_kms_run_impl_task_sync (device->kms, free_impl_device_in_impl, &data,
-                                       &error))
+                                        &error))
         {
           g_warning ("Failed to close KMS impl device: %s", error->message);
           g_error_free (error);
