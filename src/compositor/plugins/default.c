@@ -590,6 +590,7 @@ minimize (MetaPlugin *plugin, MetaWindowActor *window_actor)
   MetaWindowType type;
   MetaRectangle icon_geometry;
   MetaWindow *meta_window = meta_window_actor_get_meta_window (window_actor);
+  ClutterTimeline *timeline = NULL;
   ClutterActor *actor  = CLUTTER_ACTOR (window_actor);
 
 
@@ -603,23 +604,27 @@ minimize (MetaPlugin *plugin, MetaWindowActor *window_actor)
 
   if (type == META_WINDOW_NORMAL)
     {
+      timeline = actor_animate (actor,
+                                CLUTTER_EASE_IN_SINE,
+                                MINIMIZE_TIMEOUT,
+                                "scale-x", 0.0,
+                                "scale-y", 0.0,
+                                "x", (double)icon_geometry.x,
+                                "y", (double)icon_geometry.y,
+                                NULL);
+    }
+
+  if (timeline)
+    {
       EffectCompleteData *data = g_new0 (EffectCompleteData, 1);
       ActorPrivate *apriv = get_actor_private (window_actor);
 
-      apriv->tml_minimize = actor_animate (actor,
-                                           CLUTTER_EASE_IN_SINE,
-                                           MINIMIZE_TIMEOUT,
-                                           "scale-x", 0.0,
-                                           "scale-y", 0.0,
-                                           "x", (double)icon_geometry.x,
-                                           "y", (double)icon_geometry.y,
-                                           NULL);
+      apriv->tml_minimize = timeline;
       data->plugin = plugin;
       data->actor = actor;
       g_signal_connect (apriv->tml_minimize, "completed",
                         G_CALLBACK (on_minimize_effect_complete),
                         data);
-
     }
   else
     meta_plugin_minimize_completed (plugin, window_actor);
@@ -708,21 +713,27 @@ destroy (MetaPlugin *plugin, MetaWindowActor *window_actor)
   MetaWindowType type;
   ClutterActor *actor = CLUTTER_ACTOR (window_actor);
   MetaWindow *meta_window = meta_window_actor_get_meta_window (window_actor);
+  ClutterTimeline *timeline = NULL;
 
   type = meta_window_get_window_type (meta_window);
 
   if (type == META_WINDOW_NORMAL)
     {
+      timeline = actor_animate (actor,
+                                CLUTTER_EASE_OUT_QUAD,
+                                DESTROY_TIMEOUT,
+                                "opacity", 0,
+                                "scale-x", 0.8,
+                                "scale-y", 0.8,
+                                NULL);
+    }
+
+  if (timeline)
+    {
       EffectCompleteData *data = g_new0 (EffectCompleteData, 1);
       ActorPrivate *apriv = get_actor_private (window_actor);
 
-      apriv->tml_destroy = actor_animate (actor,
-                                          CLUTTER_EASE_OUT_QUAD,
-                                          DESTROY_TIMEOUT,
-                                          "opacity", 0,
-                                          "scale-x", 0.8,
-                                          "scale-y", 0.8,
-                                          NULL);
+      apriv->tml_destroy = timeline;
       data->plugin = plugin;
       data->actor = actor;
       g_signal_connect (apriv->tml_destroy, "completed",
