@@ -195,6 +195,8 @@ meta_plugin_manager_event_simple (MetaPluginManager *plugin_mgr,
       if (klass->destroy)
         {
           retval = TRUE;
+          meta_plugin_manager_kill_window_effects (plugin_mgr,
+                                                   actor);
           klass->destroy (plugin, actor);
         }
       break;
