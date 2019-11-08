@@ -42,6 +42,9 @@ GList * meta_kms_device_get_crtcs (MetaKmsDevice *device);
 MetaKmsPlane * meta_kms_device_get_primary_plane_for (MetaKmsDevice *device,
                                                       MetaKmsCrtc   *crtc);
 
+MetaKmsPlane * meta_kms_device_get_cursor_plane_for (MetaKmsDevice *device,
+                                                     MetaKmsCrtc   *crtc);
+
 int meta_kms_device_dispatch_sync (MetaKmsDevice  *device,
                                    GError        **error);
 
