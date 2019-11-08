@@ -3509,6 +3509,7 @@ create_secondary_egl_context (MetaEgl   *egl,
 {
   EGLint attributes[] = {
     EGL_CONTEXT_CLIENT_VERSION, 3,
+    EGL_CONTEXT_PRIORITY_LEVEL_IMG, EGL_CONTEXT_PRIORITY_HIGH_IMG,
     EGL_NONE
   };
 

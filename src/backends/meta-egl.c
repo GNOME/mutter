@@ -35,6 +35,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-egl.h"
 #include "backends/meta-egl-ext.h"
+#include "cogl/cogl-egl.h"
 #include "meta/util.h"
 
 struct _MetaEgl
@@ -506,16 +507,9 @@ meta_egl_create_context (MetaEgl      *egl,
                          const EGLint *attrib_list,
                          GError      **error)
 {
-  EGLContext context;
-
-  context = eglCreateContext (display, config, share_context, attrib_list);
-  if (context == EGL_NO_CONTEXT)
-    {
-      set_egl_error (error);
-      return EGL_NO_CONTEXT;
-    }
-
-  return context;
+  return cogl_egl_create_context (display, config,
+                                  share_context, attrib_list,
+                                  error);
 }
 
 gboolean
