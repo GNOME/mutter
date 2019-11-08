@@ -38,6 +38,7 @@ typedef enum _MetaKmsFeedbackResult
 typedef enum _MetaKmsAssignPlaneFlag
 {
   META_KMS_ASSIGN_PLANE_FLAG_NONE = 0,
+  META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED = 1 << 0,
 } MetaKmsAssignPlaneFlag;
 
 struct _MetaKmsPageFlipFeedback
@@ -59,9 +60,18 @@ struct _MetaKmsPageFlipFeedback
 typedef int (* MetaKmsCustomPageFlipFunc) (gpointer custom_page_flip_data,
                                            gpointer user_data);
 
+typedef struct _MetaKmsPlaneFeedback
+{
+  MetaKmsPlane *plane;
+  MetaKmsCrtc *crtc;
+  GError *error;
+} MetaKmsPlaneFeedback;
+
 void meta_kms_feedback_free (MetaKmsFeedback *feedback);
 
 MetaKmsFeedbackResult meta_kms_feedback_get_result (MetaKmsFeedback *feedback);
+
+GList * meta_kms_feedback_get_failed_planes (MetaKmsFeedback *feedback);
 
 const GError * meta_kms_feedback_get_error (MetaKmsFeedback *feedback);
 

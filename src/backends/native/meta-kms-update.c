@@ -37,6 +37,30 @@ struct _MetaKmsUpdate
   GList *crtc_gammas;
 };
 
+void
+meta_kms_plane_feedback_free (MetaKmsPlaneFeedback *plane_feedback)
+{
+  g_error_free (plane_feedback->error);
+  g_free (plane_feedback);
+}
+
+MetaKmsPlaneFeedback *
+meta_kms_plane_feedback_new_take_error (MetaKmsPlane *plane,
+                                        MetaKmsCrtc  *crtc,
+                                        GError       *error)
+{
+  MetaKmsPlaneFeedback *plane_feedback;
+
+  plane_feedback = g_new0 (MetaKmsPlaneFeedback, 1);
+  *plane_feedback = (MetaKmsPlaneFeedback) {
+    .plane = plane,
+    .crtc = crtc,
+    .error = error,
+  };
+
+  return plane_feedback;
+}
+
 MetaKmsFeedback *
 meta_kms_feedback_new_passed (void)
 {
@@ -51,7 +75,8 @@ meta_kms_feedback_new_passed (void)
 }
 
 MetaKmsFeedback *
-meta_kms_feedback_new_failed (GError *error)
+meta_kms_feedback_new_failed (GList  *failed_planes,
+                              GError *error)
 {
   MetaKmsFeedback *feedback;
 
@@ -59,6 +84,7 @@ meta_kms_feedback_new_failed (GError *error)
   *feedback = (MetaKmsFeedback) {
     .result = META_KMS_FEEDBACK_FAILED,
     .error = error,
+    .failed_planes = failed_planes,
   };
 
   return feedback;
@@ -67,6 +93,8 @@ meta_kms_feedback_new_failed (GError *error)
 void
 meta_kms_feedback_free (MetaKmsFeedback *feedback)
 {
+  g_list_free_full (feedback->failed_planes,
+                    (GDestroyNotify) meta_kms_plane_feedback_free);
   g_clear_error (&feedback->error);
   g_free (feedback);
 }
@@ -75,6 +103,12 @@ MetaKmsFeedbackResult
 meta_kms_feedback_get_result (MetaKmsFeedback *feedback)
 {
   return feedback->result;
+}
+
+GList *
+meta_kms_feedback_get_failed_planes (MetaKmsFeedback *feedback)
+{
+  return feedback->failed_planes;
 }
 
 const GError *

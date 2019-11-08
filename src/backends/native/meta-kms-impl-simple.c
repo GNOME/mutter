@@ -747,11 +747,156 @@ process_entries (MetaKmsImpl     *impl,
   return TRUE;
 }
 
+static gboolean
+process_cursor_plane_assignment (MetaKmsImpl             *impl,
+                                 MetaKmsUpdate           *update,
+                                 MetaKmsPlaneAssignment  *plane_assignment,
+                                 GError                 **error)
+{
+  MetaKmsPlane *plane;
+  MetaKmsDevice *device;
+  MetaKmsImplDevice *impl_device;
+  int fd;
+
+  plane = plane_assignment->plane;
+  device = meta_kms_plane_get_device (plane);
+  impl_device = meta_kms_device_get_impl_device (device);
+  fd = meta_kms_impl_device_get_fd (impl_device);
+
+  if (!(plane_assignment->flags & META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED))
+    {
+      int width, height;
+      int ret;
+
+      width = meta_fixed_16_to_int (plane_assignment->dst_rect.width);
+      height = meta_fixed_16_to_int (plane_assignment->dst_rect.height);
+
+      ret = drmModeSetCursor (fd, meta_kms_crtc_get_id (plane_assignment->crtc),
+                              plane_assignment->fb_id,
+                              width, height);
+      if (ret != 0)
+        {
+          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
+                       "drmModeSetCursor failed: %s", g_strerror (-ret));
+          return FALSE;
+        }
+    }
+
+  drmModeMoveCursor (fd,
+                     meta_kms_crtc_get_id (plane_assignment->crtc),
+                     meta_fixed_16_to_int (plane_assignment->dst_rect.x),
+                     meta_fixed_16_to_int (plane_assignment->dst_rect.y));
+
+  return TRUE;
+}
+
+static gboolean
+process_plane_assignment (MetaKmsImpl             *impl,
+                          MetaKmsUpdate           *update,
+                          MetaKmsPlaneAssignment  *plane_assignment,
+                          MetaKmsPlaneFeedback   **plane_feedback)
+{
+  MetaKmsPlane *plane;
+  MetaKmsPlaneType plane_type;
+  GError *error = NULL;
+
+  plane = plane_assignment->plane;
+  plane_type = meta_kms_plane_get_plane_type (plane);
+  switch (plane_type)
+    {
+    case META_KMS_PLANE_TYPE_PRIMARY:
+      /* Handled as part of the mode-set and page flip. */
+      return TRUE;
+    case META_KMS_PLANE_TYPE_CURSOR:
+      if (!process_cursor_plane_assignment (impl, update,
+                                            plane_assignment,
+                                            &error))
+        {
+          *plane_feedback =
+            meta_kms_plane_feedback_new_take_error (plane,
+                                                    plane_assignment->crtc,
+                                                    g_steal_pointer (&error));
+          return FALSE;
+        }
+      else
+        {
+          return TRUE;
+        }
+    case META_KMS_PLANE_TYPE_OVERLAY:
+      error = g_error_new_literal (G_IO_ERROR, G_IO_ERROR_FAILED,
+                                   "Overlay planes cannot be assigned");
+      *plane_feedback =
+        meta_kms_plane_feedback_new_take_error (plane,
+                                                plane_assignment->crtc,
+                                                g_steal_pointer (&error));
+      return TRUE;
+    }
+
+  g_assert_not_reached ();
+}
+
+static GList *
+process_plane_assignments (MetaKmsImpl   *impl,
+                           MetaKmsUpdate *update)
+{
+  GList *failed_planes = NULL;
+  GList *l;
+
+  for (l = meta_kms_update_get_plane_assignments (update); l; l = l->next)
+    {
+      MetaKmsPlaneAssignment *plane_assignment = l->data;
+      MetaKmsPlaneFeedback *plane_feedback;
+
+      if (!process_plane_assignment (impl, update, plane_assignment,
+                                     &plane_feedback))
+        failed_planes = g_list_prepend (failed_planes, plane_feedback);
+    }
+
+  return failed_planes;
+}
+
+static GList *
+generate_all_failed_feedbacks (MetaKmsUpdate *update)
+{
+  GList *failed_planes = NULL;
+  GList *l;
+
+  for (l = meta_kms_update_get_plane_assignments (update); l; l = l->next)
+    {
+      MetaKmsPlaneAssignment *plane_assignment = l->data;
+      MetaKmsPlane *plane;
+      MetaKmsPlaneType plane_type;
+      MetaKmsPlaneFeedback *plane_feedback;
+
+      plane = plane_assignment->plane;
+      plane_type = meta_kms_plane_get_plane_type (plane);
+      switch (plane_type)
+        {
+        case META_KMS_PLANE_TYPE_PRIMARY:
+          continue;
+        case META_KMS_PLANE_TYPE_CURSOR:
+        case META_KMS_PLANE_TYPE_OVERLAY:
+          break;
+        }
+
+      plane_feedback =
+        meta_kms_plane_feedback_new_take_error (plane_assignment->plane,
+                                                plane_assignment->crtc,
+                                                g_error_new (G_IO_ERROR,
+                                                             G_IO_ERROR_FAILED,
+                                                             "Discarded"));
+      failed_planes = g_list_prepend (failed_planes, plane_feedback);
+    }
+
+  return failed_planes;
+}
+
 static MetaKmsFeedback *
 meta_kms_impl_simple_process_update (MetaKmsImpl   *impl,
                                      MetaKmsUpdate *update)
 {
   GError *error = NULL;
+  GList *failed_planes;
   GList *l;
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
@@ -761,32 +906,43 @@ meta_kms_impl_simple_process_update (MetaKmsImpl   *impl,
                         meta_kms_update_get_connector_properties (update),
                         process_connector_property,
                         &error))
-    goto discard_page_flips;
+    goto err_planes_not_assigned;
 
   if (!process_entries (impl,
                         update,
                         meta_kms_update_get_mode_sets (update),
                         process_mode_set,
                         &error))
-    goto discard_page_flips;
+    goto err_planes_not_assigned;
 
   if (!process_entries (impl,
                         update,
                         meta_kms_update_get_crtc_gammas (update),
                         process_crtc_gamma,
                         &error))
-    goto discard_page_flips;
+    goto err_planes_not_assigned;
+
+  failed_planes = process_plane_assignments (impl, update);
+  if (failed_planes)
+    {
+      g_set_error (&error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to assign one or more planes");
+      goto err_planes_assigned;
+    }
 
   if (!process_entries (impl,
                         update,
                         meta_kms_update_get_page_flips (update),
                         process_page_flip,
                         &error))
-    goto discard_page_flips;
+    goto err_planes_assigned;
 
   return meta_kms_feedback_new_passed ();
 
-discard_page_flips:
+err_planes_not_assigned:
+  failed_planes = generate_all_failed_feedbacks (update);
+
+err_planes_assigned:
   for (l = meta_kms_update_get_page_flips (update); l; l = l->next)
     {
       MetaKmsPageFlip *page_flip = l->data;
@@ -794,7 +950,7 @@ discard_page_flips:
       discard_page_flip (impl, update, page_flip);
     }
 
-  return meta_kms_feedback_new_failed (error);
+  return meta_kms_feedback_new_failed (failed_planes, error);
 }
 
 static void

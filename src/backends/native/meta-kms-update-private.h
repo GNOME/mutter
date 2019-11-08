@@ -30,6 +30,7 @@ typedef struct _MetaKmsFeedback
 {
   MetaKmsFeedbackResult result;
 
+  GList *failed_planes;
   GError *error;
 } MetaKmsFeedback;
 
@@ -85,9 +86,16 @@ typedef struct _MetaKmsPageFlip
   gpointer custom_page_flip_user_data;
 } MetaKmsPageFlip;
 
+void meta_kms_plane_feedback_free (MetaKmsPlaneFeedback *plane_feedback);
+
+MetaKmsPlaneFeedback * meta_kms_plane_feedback_new_take_error (MetaKmsPlane *plane,
+                                                               MetaKmsCrtc  *crtc,
+                                                               GError       *error);
+
 MetaKmsFeedback * meta_kms_feedback_new_passed (void);
 
-MetaKmsFeedback * meta_kms_feedback_new_failed (GError *error);
+MetaKmsFeedback * meta_kms_feedback_new_failed (GList  *failed_planes,
+                                                GError *error);
 
 void meta_kms_update_seal (MetaKmsUpdate *update);
 
@@ -121,5 +129,8 @@ GList * meta_kms_update_get_page_flips (MetaKmsUpdate *update);
 GList * meta_kms_update_get_connector_properties (MetaKmsUpdate *update);
 
 GList * meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsPlaneFeedback,
+                               meta_kms_plane_feedback_free)
 
 #endif /* META_KMS_UPDATE_PRIVATE_H */
