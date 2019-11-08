@@ -276,6 +276,8 @@ flush_callbacks (MetaKms *kms)
   GList *l;
   int callback_count = 0;
 
+  meta_assert_not_in_kms_impl (kms);
+
   for (l = kms->pending_callbacks; l; l = l->next)
     {
       MetaKmsCallbackData *callback_data = l->data;
