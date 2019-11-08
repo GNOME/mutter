@@ -37,6 +37,10 @@
 #include "backends/meta-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-output.h"
+#include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-update.h"
+#include "backends/native/meta-kms.h"
 #include "backends/native/meta-renderer-native.h"
 #include "core/boxes-private.h"
 #include "meta/boxes.h"
@@ -211,74 +215,100 @@ set_pending_cursor_sprite_gbm_bo (MetaCursorSprite *cursor_sprite,
 
 static void
 set_crtc_cursor (MetaCursorRendererNative *native,
+                 MetaKmsUpdate            *kms_update,
                  MetaCrtc                 *crtc,
+                 int                       x,
+                 int                       y,
                  MetaCursorSprite         *cursor_sprite)
 {
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (native);
-  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
-  MetaGpuKms *gpu_kms;
-  int kms_fd;
-
-  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
-  cursor_renderer_gpu_data =
+  MetaCursorNativePrivate *cursor_priv = get_cursor_priv (cursor_sprite);
+  MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data =
     meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
+  MetaCursorNativeGpuState *cursor_gpu_state =
+    get_cursor_gpu_state (cursor_priv, gpu_kms);
+  MetaKmsCrtc *kms_crtc;
+  MetaKmsDevice *kms_device;
+  MetaKmsPlane *cursor_plane;
+  struct gbm_bo *bo;
+  union gbm_bo_handle handle;
+  int cursor_width, cursor_height;
+  MetaFixed16Rectangle src_rect;
+  MetaFixed16Rectangle dst_rect;
+  MetaKmsAssignPlaneFlag flags;
 
-  if (cursor_sprite)
-    {
-      MetaCursorNativePrivate *cursor_priv;
-      MetaCursorNativeGpuState *cursor_gpu_state;
-      struct gbm_bo *bo;
-      union gbm_bo_handle handle;
-      int hot_x, hot_y;
-
-      cursor_priv = get_cursor_priv (cursor_sprite);
-      cursor_gpu_state = get_cursor_gpu_state (cursor_priv, gpu_kms);
-
-      if (cursor_gpu_state->pending_bo_state == META_CURSOR_GBM_BO_STATE_SET)
-        bo = get_pending_cursor_sprite_gbm_bo (cursor_gpu_state);
-      else
-        bo = get_active_cursor_sprite_gbm_bo (cursor_gpu_state);
-
-      if (!priv->hw_state_invalidated && bo == crtc->cursor_renderer_private)
-        return;
-
-      crtc->cursor_renderer_private = bo;
-
-      handle = gbm_bo_get_handle (bo);
-      meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
-
-      if (drmModeSetCursor2 (kms_fd, crtc->crtc_id, handle.u32,
-                             cursor_renderer_gpu_data->cursor_width,
-                             cursor_renderer_gpu_data->cursor_height,
-                             hot_x, hot_y) < 0)
-        {
-          if (errno != EACCES)
-            {
-              g_warning ("drmModeSetCursor2 failed with (%s), "
-                         "drawing cursor with OpenGL from now on",
-                         strerror (errno));
-              priv->has_hw_cursor = FALSE;
-              cursor_renderer_gpu_data->hw_cursor_broken = TRUE;
-            }
-        }
-
-      if (cursor_gpu_state->pending_bo_state == META_CURSOR_GBM_BO_STATE_SET)
-        {
-          cursor_gpu_state->active_bo =
-            (cursor_gpu_state->active_bo + 1) % HW_CURSOR_BUFFER_COUNT;
-          cursor_gpu_state->pending_bo_state = META_CURSOR_GBM_BO_STATE_NONE;
-        }
-    }
+  if (cursor_gpu_state->pending_bo_state == META_CURSOR_GBM_BO_STATE_SET)
+    bo = get_pending_cursor_sprite_gbm_bo (cursor_gpu_state);
   else
+    bo = get_active_cursor_sprite_gbm_bo (cursor_gpu_state);
+
+  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
+  cursor_plane = meta_kms_device_get_cursor_plane_for (kms_device, kms_crtc);
+  g_return_if_fail (cursor_plane);
+
+  handle = gbm_bo_get_handle (bo);
+
+  cursor_width = cursor_renderer_gpu_data->cursor_width;
+  cursor_height = cursor_renderer_gpu_data->cursor_height;
+  src_rect = (MetaFixed16Rectangle) {
+    .x = meta_fixed_16_from_int (0),
+    .y = meta_fixed_16_from_int (0),
+    .width = meta_fixed_16_from_int (cursor_width),
+    .height = meta_fixed_16_from_int (cursor_height),
+  };
+  dst_rect = (MetaFixed16Rectangle) {
+    .x = meta_fixed_16_from_int (x),
+    .y = meta_fixed_16_from_int (y),
+    .width = meta_fixed_16_from_int (cursor_width),
+    .height = meta_fixed_16_from_int (cursor_height),
+  };
+
+  flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;
+  if (!priv->hw_state_invalidated && bo == crtc->cursor_renderer_private)
+    flags |= META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED;
+
+  meta_kms_update_assign_plane (kms_update,
+                                kms_crtc,
+                                cursor_plane,
+                                handle.u32,
+                                src_rect,
+                                dst_rect,
+                                flags);
+
+  crtc->cursor_renderer_private = bo;
+
+  if (cursor_gpu_state->pending_bo_state == META_CURSOR_GBM_BO_STATE_SET)
     {
-      if (priv->hw_state_invalidated || crtc->cursor_renderer_private != NULL)
-        {
-          drmModeSetCursor2 (kms_fd, crtc->crtc_id, 0, 0, 0, 0, 0);
-          crtc->cursor_renderer_private = NULL;
-        }
+      cursor_gpu_state->active_bo =
+        (cursor_gpu_state->active_bo + 1) % HW_CURSOR_BUFFER_COUNT;
+      cursor_gpu_state->pending_bo_state = META_CURSOR_GBM_BO_STATE_NONE;
     }
+}
+
+static void
+unset_crtc_cursor (MetaCursorRendererNative *native,
+                   MetaKmsUpdate            *kms_update,
+                   MetaCrtc                 *crtc)
+{
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (native);
+  MetaKmsCrtc *kms_crtc;
+  MetaKmsDevice *kms_device;
+  MetaKmsPlane *cursor_plane;
+
+  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
+  cursor_plane = meta_kms_device_get_cursor_plane_for (kms_device, kms_crtc);
+  g_return_if_fail (cursor_plane);
+
+  if (!priv->hw_state_invalidated && !crtc->cursor_renderer_private)
+    return;
+
+  meta_kms_update_unassign_plane (kms_update, kms_crtc, cursor_plane);
+  crtc->cursor_renderer_private = NULL;
 }
 
 typedef struct
@@ -287,6 +317,7 @@ typedef struct
   MetaLogicalMonitor *in_logical_monitor;
   graphene_rect_t in_local_cursor_rect;
   MetaCursorSprite *in_cursor_sprite;
+  MetaKmsUpdate *in_kms_update;
 
   gboolean out_painted;
 } UpdateCrtcCursorData;
@@ -351,33 +382,45 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
                                   &data->in_local_cursor_rect,
                                   NULL))
     {
-      MetaGpuKms *gpu_kms;
-      int kms_fd;
       float crtc_cursor_x, crtc_cursor_y;
 
-      set_crtc_cursor (data->in_cursor_renderer_native,
-                       crtc,
-                       data->in_cursor_sprite);
-
-      gpu_kms = META_GPU_KMS (meta_monitor_get_gpu (monitor));
-      kms_fd = meta_gpu_kms_get_fd (gpu_kms);
       crtc_cursor_x = (data->in_local_cursor_rect.origin.x -
                        scaled_crtc_rect.origin.x) * scale;
       crtc_cursor_y = (data->in_local_cursor_rect.origin.y -
                        scaled_crtc_rect.origin.y) * scale;
-      drmModeMoveCursor (kms_fd,
-                         crtc->crtc_id,
-                         floorf (crtc_cursor_x),
-                         floorf (crtc_cursor_y));
+
+      set_crtc_cursor (data->in_cursor_renderer_native,
+                       data->in_kms_update,
+                       crtc,
+                       (int) floorf (crtc_cursor_x),
+                       (int) floorf (crtc_cursor_y),
+                       data->in_cursor_sprite);
 
       data->out_painted = data->out_painted || TRUE;
     }
   else
     {
-      set_crtc_cursor (data->in_cursor_renderer_native, crtc, NULL);
+      unset_crtc_cursor (data->in_cursor_renderer_native,
+                         data->in_kms_update,
+                         crtc);
     }
 
   return TRUE;
+}
+
+static void
+disable_hw_cursor_for_crtc (MetaKmsCrtc  *kms_crtc,
+                            const GError *error)
+{
+  MetaCrtc *crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
+  MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data =
+    meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
+
+  g_warning ("Failed to set hardware cursor (%s), "
+             "using OpenGL from now on",
+             error->message);
+  cursor_renderer_gpu_data->hw_cursor_broken = TRUE;
 }
 
 static void
@@ -388,12 +431,18 @@ update_hw_cursor (MetaCursorRendererNative *native,
     meta_cursor_renderer_native_get_instance_private (native);
   MetaCursorRenderer *renderer = META_CURSOR_RENDERER (native);
   MetaBackend *backend = priv->backend;
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (priv->backend);
+  MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
+  MetaKmsUpdate *kms_update;
   GList *logical_monitors;
   GList *l;
   graphene_rect_t rect;
   gboolean painted = FALSE;
+  g_autoptr (MetaKmsFeedback) feedback = NULL;
+
+  kms_update = meta_kms_ensure_pending_update (kms);
 
   if (cursor_sprite)
     rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
@@ -419,7 +468,8 @@ update_hw_cursor (MetaCursorRendererNative *native,
           },
           .size = rect.size
         },
-        .in_cursor_sprite = cursor_sprite
+        .in_cursor_sprite = cursor_sprite,
+        .in_kms_update = kms_update,
       };
 
       monitors = meta_logical_monitor_get_monitors (logical_monitor);
@@ -436,6 +486,25 @@ update_hw_cursor (MetaCursorRendererNative *native,
         }
 
       painted = painted || data.out_painted;
+    }
+
+  feedback = meta_kms_post_pending_update_sync (kms);
+  if (meta_kms_feedback_get_result (feedback) != META_KMS_FEEDBACK_PASSED)
+    {
+      for (l = meta_kms_feedback_get_failed_planes (feedback); l; l = l->next)
+        {
+          MetaKmsPlaneFeedback *plane_feedback = l->data;
+
+          if (!g_error_matches (plane_feedback->error,
+                                G_IO_ERROR,
+                                G_IO_ERROR_PERMISSION_DENIED))
+            {
+              disable_hw_cursor_for_crtc (plane_feedback->crtc,
+                                          plane_feedback->error);
+            }
+        }
+
+      priv->has_hw_cursor = FALSE;
     }
 
   priv->hw_state_invalidated = FALSE;
