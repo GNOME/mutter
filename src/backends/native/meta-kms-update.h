@@ -57,8 +57,6 @@ MetaKmsUpdate * meta_kms_update_new (void);
 
 void meta_kms_update_free (MetaKmsUpdate *update);
 
-G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsUpdate, meta_kms_update_free)
-
 void meta_kms_update_mode_set (MetaKmsUpdate   *update,
                                MetaKmsCrtc     *crtc,
                                GList           *connectors,
@@ -110,5 +108,7 @@ meta_fixed_16_rectangle_to_rectangle (MetaFixed16Rectangle fixed_rect)
     .height = meta_fixed_16_to_int (fixed_rect.height),
   };
 }
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsUpdate, meta_kms_update_free)
 
 #endif /* META_KMS_UPDATE_H */
