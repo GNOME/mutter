@@ -202,7 +202,7 @@ meta_kms_predict_states_in_impl (MetaKms       *kms,
 }
 
 static gpointer
-meta_kms_update_process_in_impl (MetaKmsImpl  *impl,
+meta_kms_process_update_in_impl (MetaKmsImpl  *impl,
                                  gpointer      user_data,
                                  GError      **error)
 {
@@ -229,7 +229,7 @@ meta_kms_post_update_sync (MetaKms        *kms,
                            "KMS (post update)");
 
   ret = meta_kms_run_impl_task_sync (kms,
-                                     meta_kms_update_process_in_impl,
+                                     meta_kms_process_update_in_impl,
                                      update,
                                      error);
   return GPOINTER_TO_INT (ret);
