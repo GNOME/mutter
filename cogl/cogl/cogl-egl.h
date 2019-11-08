@@ -79,6 +79,15 @@ G_BEGIN_DECLS
 EGLDisplay
 cogl_egl_context_get_egl_display (CoglContext *context);
 
+gboolean cogl_egl_init_thread (void);
+
+EGLContext
+cogl_egl_create_context (EGLDisplay     display,
+                         EGLConfig      config,
+                         EGLContext     shared_context,
+                         const EGLint  *attrib_list,
+                         GError       **error);
+
 G_END_DECLS
 
 /* The gobject introspection scanner seems to parse public headers in

@@ -110,6 +110,21 @@ static const CoglFeatureData winsys_feature_data[] =
 #include "winsys/cogl-winsys-egl-feature-functions.h"
   };
 
+static GMainContext *egl_thread_context = NULL;
+
+typedef struct _CreateEGLContextData
+{
+  EGLDisplay display;
+  EGLConfig config;
+  EGLContext shared_context;
+  const EGLint *attrib_list;
+  EGLContext context;
+  GError *error;
+  GMutex mutex;
+  GCond cond;
+  gboolean finished;
+} CreateEGLContextData;
+
 static GCallback
 _cogl_winsys_renderer_get_proc_address (CoglRenderer *renderer,
                                         const char *name,
@@ -386,16 +401,14 @@ try_create_context (CoglDisplay *display,
 
   attribs[i++] = EGL_NONE;
 
-  egl_display->egl_context = eglCreateContext (edpy,
-                                               config,
-                                               EGL_NO_CONTEXT,
-                                               attribs);
+  egl_display->egl_context = cogl_egl_create_context (edpy,
+                                                      config,
+                                                      EGL_NO_CONTEXT,
+                                                      attribs,
+                                                      error);
 
   if (egl_display->egl_context == EGL_NO_CONTEXT)
-    {
-      error_message = "Unable to create a suitable EGL context";
-      goto fail;
-    }
+    goto err;
 
   if (egl_renderer->private_features &
       COGL_EGL_WINSYS_FEATURE_CONTEXT_PRIORITY)
@@ -964,4 +977,207 @@ cogl_egl_context_get_egl_display (CoglContext *context)
   CoglRendererEGL *egl_renderer = context->display->renderer->winsys;
 
   return egl_renderer->edpy;
+}
+
+static gpointer
+init_egl_context_thread (gpointer data)
+{
+  GMainContext *main_context = data;
+  GMainLoop *main_loop = g_main_loop_new (main_context, FALSE);
+
+  g_main_loop_run (main_loop);
+  return NULL;
+}
+
+gboolean
+cogl_egl_init_thread (void)
+{
+  g_autoptr (GMainContext) main_context = NULL;
+  g_autoptr (GThread) thread = NULL;
+  g_autoptr (GError) error = NULL;
+
+  if (egl_thread_context != NULL)
+    return TRUE;
+
+  main_context = g_main_context_new ();
+  thread = g_thread_try_new ("EGL context generator thread",
+                             init_egl_context_thread,
+                             main_context, &error);
+  if (!thread)
+    {
+      g_warning ("Failed to create EGL Context generator thread: %s",
+                 error->message);
+
+      return FALSE;
+    }
+
+  egl_thread_context = g_steal_pointer (&main_context);
+
+  return TRUE;
+}
+
+static CreateEGLContextData *
+create_egl_context_data_new (EGLDisplay    display,
+                             EGLConfig     config,
+                             EGLContext    shared_context,
+                             const EGLint *attrib_list)
+{
+  CreateEGLContextData *data;
+
+  data = g_new0 (CreateEGLContextData, 1);
+  data->display = display;
+  data->config = config;
+  data->shared_context = shared_context;
+  data->attrib_list = attrib_list;
+  data->context = EGL_NO_CONTEXT;
+  g_mutex_init (&data->mutex);
+  g_cond_init (&data->cond);
+
+  return data;
+}
+
+static const char *
+get_egl_error_str (EGLint error_number)
+{
+  switch (error_number)
+    {
+    case EGL_SUCCESS:
+      return "The last function succeeded without error.";
+      break;
+    case EGL_NOT_INITIALIZED:
+      return "EGL is not initialized, or could not be initialized, for the specified EGL display connection.";
+      break;
+    case EGL_BAD_ACCESS:
+      return "EGL cannot access a requested resource (for example a context is bound in another thread).";
+      break;
+    case EGL_BAD_ALLOC:
+      return "EGL failed to allocate resources for the requested operation.";
+      break;
+    case EGL_BAD_ATTRIBUTE:
+      return "An unrecognized attribute or attribute value was passed in the attribute list.";
+      break;
+    case EGL_BAD_CONTEXT:
+      return "An EGLContext argument does not name a valid EGL rendering context.";
+      break;
+    case EGL_BAD_CONFIG:
+      return "An EGLConfig argument does not name a valid EGL frame buffer configuration.";
+      break;
+    case EGL_BAD_CURRENT_SURFACE:
+      return "The current surface of the calling thread is a window, pixel buffer or pixmap that is no longer valid.";
+      break;
+    case EGL_BAD_DISPLAY:
+      return "An EGLDisplay argument does not name a valid EGL display connection.";
+      break;
+    case EGL_BAD_SURFACE:
+      return "An EGLSurface argument does not name a valid surface (window, pixel buffer or pixmap) configured for GL rendering.";
+      break;
+    case EGL_BAD_MATCH:
+      return "Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).";
+      break;
+    case EGL_BAD_PARAMETER:
+      return "One or more argument values are invalid.";
+      break;
+    case EGL_BAD_NATIVE_PIXMAP:
+      return "A NativePixmapType argument does not refer to a valid native pixmap.";
+      break;
+    case EGL_BAD_NATIVE_WINDOW:
+      return "A NativeWindowType argument does not refer to a valid native window.";
+      break;
+    case EGL_CONTEXT_LOST:
+      return "A power management event has occurred. The application must destroy all contexts and reinitialise OpenGL ES state and objects to continue rendering. ";
+      break;
+    case EGL_BAD_STREAM_KHR:
+      return "An EGLStreamKHR argument does not name a valid EGL stream.";
+      break;
+    case EGL_BAD_STATE_KHR:
+      return "An EGLStreamKHR argument is not in a valid state";
+      break;
+    case EGL_BAD_DEVICE_EXT:
+      return "An EGLDeviceEXT argument does not name a valid EGL device.";
+      break;
+    case EGL_BAD_OUTPUT_LAYER_EXT:
+      return "An EGLOutputLayerEXT argument does not name a valid EGL output layer.";
+    default:
+      return "Unknown error";
+      break;
+    }
+}
+
+static void
+set_egl_error (GError **error)
+{
+  EGLint error_number;
+  const char *error_str;
+
+  if (!error)
+    return;
+
+  error_number = eglGetError ();
+  error_str = get_egl_error_str (error_number);
+  g_set_error_literal (error, COGL_WINSYS_ERROR,
+                       COGL_WINSYS_ERROR_CREATE_CONTEXT,
+                       error_str);
+}
+
+/* Executed in the EGL context generator thread */
+static gboolean
+create_context_in_thread (gpointer user_data)
+{
+  CreateEGLContextData *data = user_data;
+
+  g_mutex_lock (&data->mutex);
+  data->context = eglCreateContext (data->display,
+                                    data->config,
+                                    data->shared_context,
+                                    data->attrib_list);
+  if (data->context == EGL_NO_CONTEXT)
+    set_egl_error (&data->error);
+
+  data->finished = TRUE;
+  g_cond_signal (&data->cond);
+  g_mutex_unlock (&data->mutex);
+
+  return G_SOURCE_REMOVE;
+}
+
+EGLContext
+cogl_egl_create_context (EGLDisplay     display,
+                         EGLConfig      config,
+                         EGLContext     shared_context,
+                         const EGLint  *attrib_list,
+                         GError       **error)
+{
+  CreateEGLContextData *data;
+  EGLContext context;
+  GSource *source;
+
+  if (!cogl_egl_init_thread ())
+    {
+      g_set_error_literal (error, COGL_WINSYS_ERROR,
+                           COGL_WINSYS_ERROR_CREATE_CONTEXT,
+                           "EGL thread initialization failed");
+      return EGL_NO_CONTEXT;
+    }
+
+  data = create_egl_context_data_new (display, config,
+                                      shared_context, attrib_list);
+  g_mutex_lock (&data->mutex);
+
+  source = g_idle_source_new ();
+  g_source_set_callback (source, create_context_in_thread,
+                         data, NULL);
+  g_source_attach (source, egl_thread_context);
+  g_source_unref (source);
+
+  while (!data->finished)
+    g_cond_wait (&data->cond, &data->mutex);
+
+  context = data->context;
+  if (data->error)
+    g_propagate_error (error, data->error);
+
+  g_mutex_unlock (&data->mutex);
+  g_free (data);
+
+  return context;
 }
