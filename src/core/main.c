@@ -591,7 +591,10 @@ meta_init (void)
 
 #ifdef HAVE_NATIVE_BACKEND
   if (backend_gtype == META_TYPE_BACKEND_NATIVE)
-    meta_set_scheduler ();
+    {
+      meta_set_scheduler ();
+      cogl_egl_init_thread ();
+    }
 #endif
 
   g_unix_signal_add (SIGTERM, on_sigterm, NULL);
