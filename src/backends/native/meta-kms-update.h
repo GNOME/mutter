@@ -29,6 +29,12 @@
 #include "backends/native/meta-kms-types.h"
 #include "meta/boxes.h"
 
+typedef enum _MetaKmsFeedbackResult
+{
+  META_KMS_FEEDBACK_PASSED,
+  META_KMS_FEEDBACK_FAILED,
+} MetaKmsFeedbackResult;
+
 typedef enum _MetaKmsAssignPlaneFlag
 {
   META_KMS_ASSIGN_PLANE_FLAG_NONE = 0,
@@ -52,6 +58,12 @@ struct _MetaKmsPageFlipFeedback
 
 typedef int (* MetaKmsCustomPageFlipFunc) (gpointer custom_page_flip_data,
                                            gpointer user_data);
+
+void meta_kms_feedback_free (MetaKmsFeedback *feedback);
+
+MetaKmsFeedbackResult meta_kms_feedback_get_result (MetaKmsFeedback *feedback);
+
+const GError * meta_kms_feedback_get_error (MetaKmsFeedback *feedback);
 
 MetaKmsUpdate * meta_kms_update_new (void);
 
@@ -109,6 +121,7 @@ meta_fixed_16_rectangle_to_rectangle (MetaFixed16Rectangle fixed_rect)
   };
 }
 
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsFeedback, meta_kms_feedback_free)
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsUpdate, meta_kms_update_free)
 
 #endif /* META_KMS_UPDATE_H */

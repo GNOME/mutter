@@ -44,12 +44,11 @@ meta_kms_impl_get_kms (MetaKmsImpl *impl)
   return priv->kms;
 }
 
-gboolean
-meta_kms_impl_process_update (MetaKmsImpl    *impl,
-                              MetaKmsUpdate  *update,
-                              GError        **error)
+MetaKmsFeedback *
+meta_kms_impl_process_update (MetaKmsImpl   *impl,
+                              MetaKmsUpdate *update)
 {
-  return META_KMS_IMPL_GET_CLASS (impl)->process_update (impl, update, error);
+  return META_KMS_IMPL_GET_CLASS (impl)->process_update (impl, update);
 }
 
 void

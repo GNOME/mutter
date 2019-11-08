@@ -26,6 +26,13 @@
 #include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-update.h"
 
+typedef struct _MetaKmsFeedback
+{
+  MetaKmsFeedbackResult result;
+
+  GError *error;
+} MetaKmsFeedback;
+
 typedef struct _MetaKmsProperty
 {
   uint32_t prop_id;
@@ -77,6 +84,10 @@ typedef struct _MetaKmsPageFlip
   MetaKmsCustomPageFlipFunc custom_page_flip_func;
   gpointer custom_page_flip_user_data;
 } MetaKmsPageFlip;
+
+MetaKmsFeedback * meta_kms_feedback_new_passed (void);
+
+MetaKmsFeedback * meta_kms_feedback_new_failed (GError *error);
 
 void meta_kms_update_seal (MetaKmsUpdate *update);
 

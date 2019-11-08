@@ -747,11 +747,11 @@ process_entries (MetaKmsImpl     *impl,
   return TRUE;
 }
 
-static gboolean
-meta_kms_impl_simple_process_update (MetaKmsImpl    *impl,
-                                     MetaKmsUpdate  *update,
-                                     GError        **error)
+static MetaKmsFeedback *
+meta_kms_impl_simple_process_update (MetaKmsImpl   *impl,
+                                     MetaKmsUpdate *update)
 {
+  GError *error = NULL;
   GList *l;
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
@@ -760,31 +760,31 @@ meta_kms_impl_simple_process_update (MetaKmsImpl    *impl,
                         update,
                         meta_kms_update_get_connector_properties (update),
                         process_connector_property,
-                        error))
+                        &error))
     goto discard_page_flips;
 
   if (!process_entries (impl,
                         update,
                         meta_kms_update_get_mode_sets (update),
                         process_mode_set,
-                        error))
+                        &error))
     goto discard_page_flips;
 
   if (!process_entries (impl,
                         update,
                         meta_kms_update_get_crtc_gammas (update),
                         process_crtc_gamma,
-                        error))
+                        &error))
     goto discard_page_flips;
 
   if (!process_entries (impl,
                         update,
                         meta_kms_update_get_page_flips (update),
                         process_page_flip,
-                        error))
+                        &error))
     goto discard_page_flips;
 
-  return TRUE;
+  return meta_kms_feedback_new_passed ();
 
 discard_page_flips:
   for (l = meta_kms_update_get_page_flips (update); l; l = l->next)
@@ -794,7 +794,7 @@ discard_page_flips:
       discard_page_flip (impl, update, page_flip);
     }
 
-  return FALSE;
+  return meta_kms_feedback_new_failed (error);
 }
 
 static void

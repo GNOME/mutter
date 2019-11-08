@@ -2280,6 +2280,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   MetaPowerSave power_save_mode;
   g_autoptr (GError) error = NULL;
   MetaDrmBufferGbm *buffer_gbm;
+  g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
                            "Onscreen (swap-buffers)");
@@ -2361,8 +2362,11 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
 
   COGL_TRACE_BEGIN (MetaRendererNativePostKmsUpdate,
                     "Onscreen (post pending update)");
-  if (!meta_kms_post_pending_update_sync (kms, &error))
+  kms_feedback = meta_kms_post_pending_update_sync (kms);
+  if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
     {
+      const GError *error = meta_kms_feedback_get_error (kms_feedback);
+
       if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
         g_warning ("Failed to post KMS update: %s", error->message);
     }
@@ -3431,7 +3435,6 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaKmsUpdate *kms_update = NULL;
-  GError *error = NULL;
 
   renderer_native->frame_counter++;
 
@@ -3461,11 +3464,15 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
 
   if (kms_update)
     {
-      if (!meta_kms_post_pending_update_sync (kms, &error))
+      g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+
+      kms_feedback = meta_kms_post_pending_update_sync (kms);
+      if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
         {
+          const GError *error = meta_kms_feedback_get_error (kms_feedback);
+
           if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
             g_warning ("Failed to post KMS update: %s", error->message);
-          g_error_free (error);
         }
     }
 }

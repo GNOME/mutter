@@ -33,6 +33,8 @@ typedef struct _MetaKmsUpdate MetaKmsUpdate;
 typedef struct _MetaKmsPlaneAssignment MetaKmsPlaneAssignment;
 typedef struct _MetaKmsModeSet MetaKmsModeSet;
 
+typedef struct _MetaKmsFeedback MetaKmsFeedback;
+
 typedef struct _MetaKmsPageFlipFeedback MetaKmsPageFlipFeedback;
 
 typedef struct _MetaKmsImpl MetaKmsImpl;

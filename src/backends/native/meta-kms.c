@@ -207,41 +207,34 @@ meta_kms_process_update_in_impl (MetaKmsImpl  *impl,
                                  GError      **error)
 {
   g_autoptr (MetaKmsUpdate) update = user_data;
-  gboolean ret;
+  MetaKmsFeedback *feedback;
 
-  ret = meta_kms_impl_process_update (impl, update, error);
-
+  feedback = meta_kms_impl_process_update (impl, update);
   meta_kms_predict_states_in_impl (meta_kms_impl_get_kms (impl), update);
 
-  return GINT_TO_POINTER (ret);
+  return feedback;
 }
 
-static gboolean
-meta_kms_post_update_sync (MetaKms        *kms,
-                           MetaKmsUpdate  *update,
-                           GError        **error)
+static MetaKmsFeedback *
+meta_kms_post_update_sync (MetaKms       *kms,
+                           MetaKmsUpdate *update)
 {
-  gpointer ret;
-
   meta_kms_update_seal (update);
 
   COGL_TRACE_BEGIN_SCOPED (MetaKmsPostUpdateSync,
                            "KMS (post update)");
 
-  ret = meta_kms_run_impl_task_sync (kms,
-                                     meta_kms_process_update_in_impl,
-                                     update,
-                                     error);
-  return GPOINTER_TO_INT (ret);
+  return meta_kms_run_impl_task_sync (kms,
+                                      meta_kms_process_update_in_impl,
+                                      update,
+                                      NULL);
 }
 
-gboolean
-meta_kms_post_pending_update_sync (MetaKms  *kms,
-                                   GError  **error)
+MetaKmsFeedback *
+meta_kms_post_pending_update_sync (MetaKms *kms)
 {
   return meta_kms_post_update_sync (kms,
-                                    g_steal_pointer (&kms->pending_update),
-                                    error);
+                                    g_steal_pointer (&kms->pending_update));
 }
 
 static gpointer

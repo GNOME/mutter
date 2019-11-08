@@ -33,9 +33,8 @@ struct _MetaKmsImplClass
 {
   GObjectClass parent_class;
 
-  gboolean (* process_update) (MetaKmsImpl    *impl,
-                               MetaKmsUpdate  *update,
-                               GError        **error);
+  MetaKmsFeedback * (* process_update) (MetaKmsImpl   *impl,
+                                        MetaKmsUpdate *update);
   void (* handle_page_flip_callback) (MetaKmsImpl         *impl,
                                       MetaKmsPageFlipData *page_flip_data);
   void (* discard_pending_page_flips) (MetaKmsImpl *impl);
@@ -44,9 +43,8 @@ struct _MetaKmsImplClass
 
 MetaKms * meta_kms_impl_get_kms (MetaKmsImpl *impl);
 
-gboolean meta_kms_impl_process_update (MetaKmsImpl    *impl,
-                                       MetaKmsUpdate  *update,
-                                       GError        **error);
+MetaKmsFeedback * meta_kms_impl_process_update (MetaKmsImpl   *impl,
+                                                MetaKmsUpdate *update);
 
 void meta_kms_impl_handle_page_flip_callback (MetaKmsImpl         *impl,
                                               MetaKmsPageFlipData *page_flip_data);

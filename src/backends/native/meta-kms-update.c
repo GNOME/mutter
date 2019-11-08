@@ -37,6 +37,52 @@ struct _MetaKmsUpdate
   GList *crtc_gammas;
 };
 
+MetaKmsFeedback *
+meta_kms_feedback_new_passed (void)
+{
+  MetaKmsFeedback *feedback;
+
+  feedback = g_new0 (MetaKmsFeedback, 1);
+  *feedback = (MetaKmsFeedback) {
+    .result = META_KMS_FEEDBACK_PASSED,
+  };
+
+  return feedback;
+}
+
+MetaKmsFeedback *
+meta_kms_feedback_new_failed (GError *error)
+{
+  MetaKmsFeedback *feedback;
+
+  feedback = g_new0 (MetaKmsFeedback, 1);
+  *feedback = (MetaKmsFeedback) {
+    .result = META_KMS_FEEDBACK_FAILED,
+    .error = error,
+  };
+
+  return feedback;
+}
+
+void
+meta_kms_feedback_free (MetaKmsFeedback *feedback)
+{
+  g_clear_error (&feedback->error);
+  g_free (feedback);
+}
+
+MetaKmsFeedbackResult
+meta_kms_feedback_get_result (MetaKmsFeedback *feedback)
+{
+  return feedback->result;
+}
+
+const GError *
+meta_kms_feedback_get_error (MetaKmsFeedback *feedback)
+{
+  return feedback->error;
+}
+
 static MetaKmsProperty *
 meta_kms_property_new (uint32_t prop_id,
                        uint64_t value)
