@@ -40,6 +40,7 @@ typedef struct _MetaKmsPlaneAssignment
   uint32_t fb_id;
   MetaFixed16Rectangle src_rect;
   MetaFixed16Rectangle dst_rect;
+  MetaKmsAssignPlaneFlag flags;
 
   GList *plane_properties;
 } MetaKmsPlaneAssignment;

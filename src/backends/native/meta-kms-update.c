@@ -75,12 +75,13 @@ meta_kms_mode_set_free (MetaKmsModeSet *mode_set)
 }
 
 MetaKmsPlaneAssignment *
-meta_kms_update_assign_plane (MetaKmsUpdate        *update,
-                              MetaKmsCrtc          *crtc,
-                              MetaKmsPlane         *plane,
-                              uint32_t              fb_id,
-                              MetaFixed16Rectangle  src_rect,
-                              MetaFixed16Rectangle  dst_rect)
+meta_kms_update_assign_plane (MetaKmsUpdate          *update,
+                              MetaKmsCrtc            *crtc,
+                              MetaKmsPlane           *plane,
+                              uint32_t                fb_id,
+                              MetaFixed16Rectangle    src_rect,
+                              MetaFixed16Rectangle    dst_rect,
+                              MetaKmsAssignPlaneFlag  flags)
 {
   MetaKmsPlaneAssignment *plane_assignment;
 
@@ -94,6 +95,7 @@ meta_kms_update_assign_plane (MetaKmsUpdate        *update,
     .fb_id = fb_id,
     .src_rect = src_rect,
     .dst_rect = dst_rect,
+    .flags = flags,
   };
 
   update->plane_assignments = g_list_prepend (update->plane_assignments,

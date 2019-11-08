@@ -83,6 +83,7 @@ meta_crtc_kms_assign_primary_plane (MetaCrtc      *crtc,
   int x, y;
   MetaFixed16Rectangle src_rect;
   MetaFixed16Rectangle dst_rect;
+  MetaKmsAssignPlaneFlag flags;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
   MetaKmsPlane *primary_kms_plane;
@@ -105,6 +106,8 @@ meta_crtc_kms_assign_primary_plane (MetaCrtc      *crtc,
     .height = meta_fixed_16_from_int (crtc->rect.height),
   };
 
+  flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;
+
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
   kms_device = meta_kms_crtc_get_device (kms_crtc);
   primary_kms_plane = meta_kms_device_get_primary_plane_for (kms_device,
@@ -114,7 +117,8 @@ meta_crtc_kms_assign_primary_plane (MetaCrtc      *crtc,
                                                    primary_kms_plane,
                                                    fb_id,
                                                    src_rect,
-                                                   dst_rect);
+                                                   dst_rect,
+                                                   flags);
   meta_crtc_kms_apply_transform (crtc, plane_assignment);
 }
 

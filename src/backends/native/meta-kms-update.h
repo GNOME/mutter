@@ -29,6 +29,11 @@
 #include "backends/native/meta-kms-types.h"
 #include "meta/boxes.h"
 
+typedef enum _MetaKmsAssignPlaneFlag
+{
+  META_KMS_ASSIGN_PLANE_FLAG_NONE = 0,
+} MetaKmsAssignPlaneFlag;
+
 struct _MetaKmsPageFlipFeedback
 {
   void (* flipped) (MetaKmsCrtc  *crtc,
@@ -59,12 +64,13 @@ void meta_kms_update_mode_set (MetaKmsUpdate   *update,
                                GList           *connectors,
                                drmModeModeInfo *drm_mode);
 
-MetaKmsPlaneAssignment * meta_kms_update_assign_plane (MetaKmsUpdate        *update,
-                                                       MetaKmsCrtc          *crtc,
-                                                       MetaKmsPlane         *plane,
-                                                       uint32_t              fb_id,
-                                                       MetaFixed16Rectangle  src_rect,
-                                                       MetaFixed16Rectangle  dst_rect);
+MetaKmsPlaneAssignment * meta_kms_update_assign_plane (MetaKmsUpdate          *update,
+                                                       MetaKmsCrtc            *crtc,
+                                                       MetaKmsPlane           *plane,
+                                                       uint32_t                fb_id,
+                                                       MetaFixed16Rectangle    src_rect,
+                                                       MetaFixed16Rectangle    dst_rect,
+                                                       MetaKmsAssignPlaneFlag  flags);
 
 MetaKmsPlaneAssignment * meta_kms_update_unassign_plane (MetaKmsUpdate *update,
                                                          MetaKmsCrtc   *crtc,
