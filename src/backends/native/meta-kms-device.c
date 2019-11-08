@@ -155,24 +155,26 @@ meta_kms_device_predict_states_in_impl (MetaKmsDevice *device,
   meta_kms_impl_device_predict_states (impl_device, update);
 }
 
-static gboolean
+static gpointer
 dispatch_in_impl (MetaKmsImpl  *impl,
                   gpointer      user_data,
                   GError      **error)
 {
   MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (user_data);
+  gboolean ret;
 
-  return meta_kms_impl_device_dispatch (impl_device, error);
+  ret = meta_kms_impl_device_dispatch (impl_device, error);
+  return GINT_TO_POINTER (ret);
 }
 
-static gboolean
+static gpointer
 dispatch_idle_in_impl (MetaKmsImpl  *impl,
                        gpointer      user_data,
                        GError      **error)
 {
   meta_kms_impl_dispatch_idle (impl);
 
-  return TRUE;
+  return GINT_TO_POINTER (TRUE);
 }
 
 int
@@ -211,7 +213,7 @@ typedef struct _CreateImplDeviceData
   GList *out_planes;
 } CreateImplDeviceData;
 
-static gboolean
+static gpointer
 create_impl_device_in_impl (MetaKmsImpl  *impl,
                             gpointer      user_data,
                             GError      **error)
@@ -228,7 +230,7 @@ create_impl_device_in_impl (MetaKmsImpl  *impl,
   data->out_connectors = meta_kms_impl_device_copy_connectors (impl_device);
   data->out_planes = meta_kms_impl_device_copy_planes (impl_device);
 
-  return TRUE;
+  return GINT_TO_POINTER (TRUE);
 }
 
 MetaKmsDevice *
@@ -280,7 +282,7 @@ typedef struct _FreeImplDeviceData
   int out_fd;
 } FreeImplDeviceData;
 
-static gboolean
+static gpointer
 free_impl_device_in_impl (MetaKmsImpl  *impl,
                           gpointer      user_data,
                           GError      **error)
@@ -294,7 +296,7 @@ free_impl_device_in_impl (MetaKmsImpl  *impl,
 
   data->out_fd = fd;
 
-  return TRUE;
+  return GINT_TO_POINTER (TRUE);
 }
 
 static void

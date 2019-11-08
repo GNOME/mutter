@@ -137,14 +137,16 @@ meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
   return TRUE;
 }
 
-static gboolean
+static gpointer
 kms_event_dispatch_in_impl (MetaKmsImpl  *impl,
                             gpointer      user_data,
                             GError      **error)
 {
   MetaKmsImplDevice *impl_device = user_data;
+  gboolean ret;
 
-  return meta_kms_impl_device_dispatch (impl_device, error);
+  ret = meta_kms_impl_device_dispatch (impl_device, error);
+  return GINT_TO_POINTER (ret);
 }
 
 drmModePropertyPtr

@@ -27,7 +27,7 @@
 typedef void (* MetaKmsCallback) (MetaKms  *kms,
                                   gpointer  user_data);
 
-typedef gboolean (* MetaKmsImplTaskFunc) (MetaKmsImpl  *impl,
+typedef gpointer (* MetaKmsImplTaskFunc) (MetaKmsImpl  *impl,
                                           gpointer      user_data,
                                           GError      **error);
 
@@ -38,7 +38,7 @@ void meta_kms_queue_callback (MetaKms         *kms,
 
 int meta_kms_flush_callbacks (MetaKms *kms);
 
-gboolean meta_kms_run_impl_task_sync (MetaKms              *kms,
+gpointer meta_kms_run_impl_task_sync (MetaKms              *kms,
                                       MetaKmsImplTaskFunc   func,
                                       gpointer              user_data,
                                       GError              **error);

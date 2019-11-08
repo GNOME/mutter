@@ -201,7 +201,7 @@ meta_kms_predict_states_in_impl (MetaKms       *kms,
                   update);
 }
 
-static gboolean
+static gpointer
 meta_kms_update_process_in_impl (MetaKmsImpl  *impl,
                                  gpointer      user_data,
                                  GError      **error)
@@ -213,7 +213,7 @@ meta_kms_update_process_in_impl (MetaKmsImpl  *impl,
 
   meta_kms_predict_states_in_impl (meta_kms_impl_get_kms (impl), update);
 
-  return ret;
+  return GINT_TO_POINTER (ret);
 }
 
 static gboolean
@@ -221,15 +221,18 @@ meta_kms_post_update_sync (MetaKms        *kms,
                            MetaKmsUpdate  *update,
                            GError        **error)
 {
+  gpointer ret;
+
   meta_kms_update_seal (update);
 
   COGL_TRACE_BEGIN_SCOPED (MetaKmsPostUpdateSync,
                            "KMS (post update)");
 
-  return meta_kms_run_impl_task_sync (kms,
-                                      meta_kms_update_process_in_impl,
-                                      update,
-                                      error);
+  ret = meta_kms_run_impl_task_sync (kms,
+                                     meta_kms_update_process_in_impl,
+                                     update,
+                                     error);
+  return GPOINTER_TO_INT (ret);
 }
 
 gboolean
@@ -241,13 +244,13 @@ meta_kms_post_pending_update_sync (MetaKms  *kms,
                                     error);
 }
 
-static gboolean
+static gpointer
 meta_kms_discard_pending_page_flips_in_impl (MetaKmsImpl  *impl,
                                              gpointer      user_data,
                                              GError      **error)
 {
   meta_kms_impl_discard_pending_page_flips (impl);
-  return TRUE;
+  return GINT_TO_POINTER (TRUE);
 }
 
 void
@@ -330,13 +333,13 @@ meta_kms_flush_callbacks (MetaKms *kms)
   return callback_count;
 }
 
-gboolean
+gpointer
 meta_kms_run_impl_task_sync (MetaKms              *kms,
                              MetaKmsImplTaskFunc   func,
                              gpointer              user_data,
                              GError              **error)
 {
-  gboolean ret;
+  gpointer ret;
 
   kms->in_impl_task = TRUE;
   kms->waiting_for_impl_task = TRUE;
@@ -405,7 +408,7 @@ meta_kms_fd_impl_source_dispatch (GSource     *source,
 {
   MetaKmsFdImplSource *fd_impl_source = (MetaKmsFdImplSource *) source;
   MetaKms *kms = fd_impl_source->kms;
-  gboolean ret;
+  gpointer ret;
   GError *error = NULL;
 
   kms->in_impl_task = TRUE;
@@ -414,7 +417,7 @@ meta_kms_fd_impl_source_dispatch (GSource     *source,
                                   &error);
   kms->in_impl_task = FALSE;
 
-  if (!ret)
+  if (!GPOINTER_TO_INT (ret))
     {
       g_warning ("Failed to dispatch fd source: %s", error->message);
       g_error_free (error);
@@ -478,7 +481,7 @@ meta_kms_update_states_in_impl (MetaKms *kms)
                   NULL);
 }
 
-static gboolean
+static gpointer
 update_states_in_impl (MetaKmsImpl  *impl,
                        gpointer      user_data,
                        GError      **error)
@@ -487,14 +490,17 @@ update_states_in_impl (MetaKmsImpl  *impl,
 
   meta_kms_update_states_in_impl (kms);
 
-  return TRUE;
+  return GINT_TO_POINTER (TRUE);
 }
 
 static gboolean
 meta_kms_update_states_sync (MetaKms  *kms,
                              GError  **error)
 {
-  return meta_kms_run_impl_task_sync (kms, update_states_in_impl, NULL, error);
+  gpointer ret;
+
+  ret = meta_kms_run_impl_task_sync (kms, update_states_in_impl, NULL, error);
+  return GPOINTER_TO_INT (ret);
 }
 
 static void
