@@ -210,9 +210,14 @@ get_compositor_for_display (MetaDisplay *display)
 ClutterActor *
 meta_get_stage_for_display (MetaDisplay *display)
 {
-  MetaCompositor *compositor = get_compositor_for_display (display);
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
+  MetaCompositor *compositor;
+  MetaCompositorPrivate *priv;
+
+  g_return_val_if_fail (display, NULL);
+
+  compositor = get_compositor_for_display (display);
+  g_return_val_if_fail (compositor, NULL);
+  priv = meta_compositor_get_instance_private (compositor);
 
   return priv->stage;
 }
@@ -226,9 +231,14 @@ meta_get_stage_for_display (MetaDisplay *display)
 ClutterActor *
 meta_get_window_group_for_display (MetaDisplay *display)
 {
-  MetaCompositor *compositor = get_compositor_for_display (display);
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
+  MetaCompositor *compositor;
+  MetaCompositorPrivate *priv;
+
+  g_return_val_if_fail (display, NULL);
+
+  compositor = get_compositor_for_display (display);
+  g_return_val_if_fail (compositor, NULL);
+  priv = meta_compositor_get_instance_private (compositor);
 
   return priv->window_group;
 }
@@ -242,9 +252,14 @@ meta_get_window_group_for_display (MetaDisplay *display)
 ClutterActor *
 meta_get_top_window_group_for_display (MetaDisplay *display)
 {
-  MetaCompositor *compositor = get_compositor_for_display (display);
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
+  MetaCompositor *compositor;
+  MetaCompositorPrivate *priv;
+
+  g_return_val_if_fail (display, NULL);
+
+  compositor = get_compositor_for_display (display);
+  g_return_val_if_fail (compositor, NULL);
+  priv = meta_compositor_get_instance_private (compositor);
 
   return priv->top_window_group;
 }
@@ -258,9 +273,14 @@ meta_get_top_window_group_for_display (MetaDisplay *display)
 ClutterActor *
 meta_get_feedback_group_for_display (MetaDisplay *display)
 {
-  MetaCompositor *compositor = get_compositor_for_display (display);
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
+  MetaCompositor *compositor;
+  MetaCompositorPrivate *priv;
+
+  g_return_val_if_fail (display, NULL);
+
+  compositor = get_compositor_for_display (display);
+  g_return_val_if_fail (compositor, NULL);
+  priv = meta_compositor_get_instance_private (compositor);
 
   return priv->feedback_group;
 }
@@ -274,9 +294,14 @@ meta_get_feedback_group_for_display (MetaDisplay *display)
 GList *
 meta_get_window_actors (MetaDisplay *display)
 {
-  MetaCompositor *compositor = get_compositor_for_display (display);
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
+  MetaCompositor *compositor;
+  MetaCompositorPrivate *priv;
+
+  g_return_val_if_fail (display, NULL);
+
+  compositor = get_compositor_for_display (display);
+  g_return_val_if_fail (compositor, NULL);
+  priv = meta_compositor_get_instance_private (compositor);
 
   return priv->windows;
 }
