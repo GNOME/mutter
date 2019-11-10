@@ -295,7 +295,6 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   MetaOutput *output;
   MetaOutputKms *output_kms;
   const MetaKmsConnectorState *connector_state;
-  MetaMonitorTransform panel_orientation_transform;
   uint32_t connector_id;
   GArray *crtcs;
   GList *l;
@@ -318,8 +317,9 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
 
   connector_state = meta_kms_connector_get_current_state (kms_connector);
 
-  panel_orientation_transform = connector_state->panel_orientation_transform;
-  if (meta_monitor_transform_is_rotated (panel_orientation_transform))
+  output->panel_orientation_transform =
+    connector_state->panel_orientation_transform;
+  if (meta_monitor_transform_is_rotated (output->panel_orientation_transform))
     {
       output->width_mm = connector_state->height_mm;
       output->height_mm = connector_state->width_mm;
