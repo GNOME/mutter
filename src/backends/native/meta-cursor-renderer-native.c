@@ -322,6 +322,7 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
                                    &crtc_x, &crtc_y);
 
   transform = meta_logical_monitor_get_transform (data->in_logical_monitor);
+  transform = meta_monitor_logical_to_crtc_transform (monitor, transform);
   if (meta_monitor_transform_is_rotated (transform))
     {
       crtc_width = monitor_crtc_mode->crtc_mode->height;
