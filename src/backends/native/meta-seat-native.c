@@ -915,8 +915,8 @@ meta_seat_native_constrain_pointer (MetaSeatNative     *seat,
       float stage_width = clutter_actor_get_width (stage);
       float stage_height = clutter_actor_get_height (stage);
 
-      *new_x = CLAMP (x, 0.f, stage_width - 1);
-      *new_y = CLAMP (y, 0.f, stage_height - 1);
+      *new_x = CLAMP (*new_x, 0.f, stage_width - 1);
+      *new_y = CLAMP (*new_y, 0.f, stage_height - 1);
     }
 }
 
