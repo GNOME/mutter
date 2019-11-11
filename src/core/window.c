@@ -3915,7 +3915,7 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
     {
       meta_window_update_monitor (window,
                                   META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE);
-      return;
+      goto out;
     }
 
   old = window->monitor;
@@ -3958,6 +3958,11 @@ meta_window_update_for_monitors_changed (MetaWindow *window)
       meta_window_update_monitor (window,
                                   META_WINDOW_UPDATE_MONITOR_FLAGS_FORCE);
     }
+
+out:
+  g_assert (!window->monitor ||
+            g_list_find (meta_monitor_manager_get_logical_monitors (monitor_manager),
+                         window->monitor));
 }
 
 void
