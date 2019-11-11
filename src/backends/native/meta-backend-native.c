@@ -344,14 +344,14 @@ meta_backend_native_post_init (MetaBackend *backend)
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   MetaSettings *settings = meta_backend_get_settings (backend);
 
-  META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
-
   meta_seat_native_set_pointer_constrain_callback (META_SEAT_NATIVE (seat),
                                                    pointer_constrain_callback,
                                                    NULL, NULL);
   meta_seat_native_set_relative_motion_filter (META_SEAT_NATIVE (seat),
                                                relative_motion_filter,
                                                meta_backend_get_monitor_manager (backend));
+
+  META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
 
   if (meta_settings_is_experimental_feature_enabled (settings,
                                                      META_EXPERIMENTAL_FEATURE_RT_SCHEDULER))
