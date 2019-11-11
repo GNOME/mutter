@@ -28,6 +28,13 @@
 #include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-update.h"
 
+typedef struct _MetaKmsDeviceCaps
+{
+  gboolean has_cursor_size;
+  uint64_t cursor_width;
+  uint64_t cursor_height;
+} MetaKmsDeviceCaps;
+
 #define META_TYPE_KMS_IMPL_DEVICE (meta_kms_impl_device_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKmsImplDevice, meta_kms_impl_device,
                       META, KMS_IMPL_DEVICE,
@@ -40,6 +47,8 @@ GList * meta_kms_impl_device_copy_connectors (MetaKmsImplDevice *impl_device);
 GList * meta_kms_impl_device_copy_crtcs (MetaKmsImplDevice *impl_device);
 
 GList * meta_kms_impl_device_copy_planes (MetaKmsImplDevice *impl_device);
+
+const MetaKmsDeviceCaps * meta_kms_impl_device_get_caps (MetaKmsImplDevice *impl_device);
 
 gboolean meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
                                         GError            **error);

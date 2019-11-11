@@ -43,6 +43,8 @@ struct _MetaKmsDevice
   GList *crtcs;
   GList *connectors;
   GList *planes;
+
+  MetaKmsDeviceCaps caps;
 };
 
 G_DEFINE_TYPE (MetaKmsDevice, meta_kms_device, G_TYPE_OBJECT);
@@ -69,6 +71,23 @@ MetaKmsDeviceFlag
 meta_kms_device_get_flags (MetaKmsDevice *device)
 {
   return device->flags;
+}
+
+gboolean
+meta_kms_device_get_cursor_size (MetaKmsDevice *device,
+                                 uint64_t      *out_cursor_width,
+                                 uint64_t      *out_cursor_height)
+{
+  if (device->caps.has_cursor_size)
+    {
+      *out_cursor_width = device->caps.cursor_width;
+      *out_cursor_height = device->caps.cursor_height;
+      return TRUE;
+    }
+  else
+    {
+      return FALSE;
+    }
 }
 
 GList *
@@ -211,6 +230,7 @@ typedef struct _CreateImplDeviceData
   GList *out_crtcs;
   GList *out_connectors;
   GList *out_planes;
+  MetaKmsDeviceCaps out_caps;
 } CreateImplDeviceData;
 
 static gpointer
@@ -229,6 +249,7 @@ create_impl_device_in_impl (MetaKmsImpl  *impl,
   data->out_crtcs = meta_kms_impl_device_copy_crtcs (impl_device);
   data->out_connectors = meta_kms_impl_device_copy_connectors (impl_device);
   data->out_planes = meta_kms_impl_device_copy_planes (impl_device);
+  data->out_caps = *meta_kms_impl_device_get_caps (impl_device);
 
   return GINT_TO_POINTER (TRUE);
 }
@@ -271,6 +292,7 @@ meta_kms_device_new (MetaKms            *kms,
   device->crtcs = data.out_crtcs;
   device->connectors = data.out_connectors;
   device->planes = data.out_planes;
+  device->caps = data.out_caps;
 
   return device;
 }
