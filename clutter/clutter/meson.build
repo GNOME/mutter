@@ -307,7 +307,6 @@ cally_headers = [
     'cally/cally-root.h',
     'cally/cally-stage.h',
     'cally/cally-text.h',
-    'cally/cally-texture.h',
     'cally/cally-util.h',
 ]
 
@@ -320,7 +319,6 @@ cally_sources = [
     'cally/cally-root.c',
     'cally/cally-stage.c',
     'cally/cally-text.c',
-    'cally/cally-texture.c',
     'cally/cally-util.c',
 ]
 
