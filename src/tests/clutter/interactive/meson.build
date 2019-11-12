@@ -76,6 +76,7 @@ executable('test-interactive',
   sources: clutter_tests_interactive_sources,
   include_directories: [
     clutter_includes,
+    clutter_tests_includepath,
     clutter_tests_interactive_includepath,
   ],
   c_args: clutter_tests_interactive_c_args,

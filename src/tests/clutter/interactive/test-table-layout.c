@@ -6,6 +6,7 @@
 #include <clutter/clutter.h>
 #include <cogl/cogl.h>
 #include <cogl-pango/cogl-pango.h>
+#include "test-utils.h"
 
 #define FONT "Sans 12"
 
@@ -155,7 +156,7 @@ create_image (const gchar *file, const gchar *color)
   ClutterActor *texture;
   ClutterActor *result;
 
-  texture = clutter_texture_new_from_file (file, NULL);
+  texture = clutter_test_utils_create_texture_from_file (file, NULL);
   g_object_set (G_OBJECT (texture), "keep-aspect-ratio", TRUE, NULL);
   clutter_actor_show (texture);
 

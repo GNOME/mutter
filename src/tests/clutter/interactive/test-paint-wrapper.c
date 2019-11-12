@@ -15,6 +15,8 @@
 #include "clutter/x11/clutter-x11.h"
 #endif
 
+#include "test-utils.h"
+
 #define NHANDS  6
 
 typedef struct SuperOH
@@ -247,10 +249,10 @@ test_paint_wrapper_main (int argc, char *argv[])
   oh->frame_id =
     g_signal_connect (oh->timeline, "new-frame", G_CALLBACK (frame_cb), oh);
 
-  real_hand = clutter_texture_new_from_file (TESTS_DATADIR 
-                                             G_DIR_SEPARATOR_S
-                                             "redhand.png",
-                                             &error);
+  real_hand = clutter_test_utils_create_texture_from_file (TESTS_DATADIR
+                                                           G_DIR_SEPARATOR_S
+                                                           "redhand.png",
+                                                           &error);
   if (real_hand == NULL)
     {
       g_error ("image load failed: %s", error->message);

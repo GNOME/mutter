@@ -2,6 +2,7 @@
 #include <math.h>
 #include <gmodule.h>
 #include <clutter/clutter.h>
+#include "test-utils.h"
 
 #define STAGE_WIDTH    1024
 #define STAGE_HEIGHT   768
@@ -82,7 +83,7 @@ static ClutterActor *new_rect (gint r,
 
   gchar *file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
 
-  hand = clutter_texture_new_from_file (file, &error);
+  hand = clutter_test_utils_create_texture_from_file (file, &error);
   if (rectangle == NULL)
     g_error ("image load failed: %s", error->message);
   g_free (file);

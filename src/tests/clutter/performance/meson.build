@@ -24,7 +24,10 @@ foreach test : clutter_tests_performance_tests
       '@0@.c'.format(test),
       'test-common.h',
     ],
-    include_directories: clutter_includes,
+    include_directories: [
+      clutter_includes,
+      clutter_tests_includepath,
+    ],
     c_args: clutter_tests_performance_c_args,
     dependencies: [
       clutter_deps,

@@ -6,6 +6,7 @@
 #include <gmodule.h>
 
 #include <clutter/clutter.h>
+#include "test-utils.h"
 
 int
 test_shader_effects_main (int argc, char *argv[]);
@@ -31,7 +32,7 @@ test_shader_effects_main (int argc, char *argv[])
 
   /* Make a hand */
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
-  hand = clutter_texture_new_from_file (file, NULL);
+  hand = clutter_test_utils_create_texture_from_file (file, NULL);
   if (!hand)
     g_error("Unable to load '%s'", file);
 

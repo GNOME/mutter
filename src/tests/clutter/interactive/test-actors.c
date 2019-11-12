@@ -6,6 +6,8 @@
 #include <glib.h>
 #include <gmodule.h>
 
+#include "test-utils.h"
+
 #define NHANDS  6
 
 typedef struct SuperOH
@@ -195,7 +197,7 @@ test_actors_main (int argc, char *argv[])
   g_signal_connect (oh->timeline, "new-frame", G_CALLBACK (frame_cb), oh);
 
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);
-  real_hand = clutter_texture_new_from_file (file, &error);
+  real_hand = clutter_test_utils_create_texture_from_file (file, &error);
   if (real_hand == NULL)
     g_error ("image load failed: %s", error->message);
 

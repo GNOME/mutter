@@ -6,6 +6,8 @@
 #include <clutter/x11/clutter-x11.h>
 #endif
 
+#include "test-utils.h"
+
 typedef struct {
   ClutterActor *stage;
 
@@ -172,10 +174,10 @@ manager_device_added_cb (ClutterDeviceManager *manager,
 
       clutter_input_device_set_enabled (device, TRUE);
 
-      hand = clutter_texture_new_from_file (TESTS_DATADIR
-                                            G_DIR_SEPARATOR_S
-                                            "redhand.png",
-                                            NULL);
+      hand = clutter_test_utils_create_texture_from_file (TESTS_DATADIR
+                                                          G_DIR_SEPARATOR_S
+                                                          "redhand.png",
+                                                          NULL);
       g_hash_table_insert (app->devices, device, hand);
 
       clutter_container_add_actor (CLUTTER_CONTAINER (app->stage), hand);
@@ -273,10 +275,10 @@ test_devices_main (int argc, char **argv)
 
           clutter_input_device_set_enabled (device, TRUE);
 
-          hand = clutter_texture_new_from_file (TESTS_DATADIR
-                                                G_DIR_SEPARATOR_S
-                                                "redhand.png",
-                                                NULL);
+          hand = clutter_test_utils_create_texture_from_file (TESTS_DATADIR
+                                                              G_DIR_SEPARATOR_S
+                                                              "redhand.png",
+                                                              NULL);
           g_hash_table_insert (app->devices, device, hand);
 
           clutter_container_add_actor (CLUTTER_CONTAINER (stage), hand);
