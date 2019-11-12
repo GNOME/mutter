@@ -83,6 +83,7 @@ executable('test-interactive',
   dependencies: [
     clutter_deps,
     libmutter_clutter_dep,
+    libmutter_dep,
     gdk_pixbuf_dep,
   ],
   install: false,
