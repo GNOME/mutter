@@ -52,12 +52,6 @@ const char *
 test_touch_events_describe (void);
 
 static void
-canvas_paint (ClutterCairoTexture *canvas)
-{
-  clutter_cairo_texture_invalidate (canvas);
-}
-
-static void
 draw_touch (ClutterEvent *event,
             cairo_t      *cr)
 {
@@ -80,8 +74,10 @@ draw_touch (ClutterEvent *event,
 }
 
 static gboolean
-draw_touches (ClutterCairoTexture *canvas,
-              cairo_t             *cr)
+draw_touches (ClutterCanvas *canvas,
+              cairo_t       *cr,
+              int            width,
+              int            height)
 {
   g_queue_foreach (new_surface ? &all_events : &events, (GFunc) draw_touch, cr);
   g_queue_clear (&events);
@@ -89,17 +85,6 @@ draw_touches (ClutterCairoTexture *canvas,
   new_surface = FALSE;
 
   return TRUE;
-}
-
-static cairo_surface_t *
-create_surface (ClutterCairoTexture *texture,
-                guint width,
-                guint height,
-                gpointer user_data)
-{
-  new_surface = TRUE;
-
-  return NULL;
 }
 
 static gboolean
@@ -135,7 +120,8 @@ rect_event_cb (ClutterActor *actor, ClutterEvent *event, gpointer data)
 G_MODULE_EXPORT int
 test_touch_events_main (int argc, char *argv[])
 {
-  ClutterActor *stage, *canvas;
+  ClutterActor *stage, *canvas_actor;
+  ClutterContent *canvas;
   int i;
 
   /* initialize Clutter */
@@ -151,18 +137,16 @@ test_touch_events_main (int argc, char *argv[])
   clutter_actor_show (stage);
 
   /* our 2D canvas, courtesy of Cairo */
-  canvas = clutter_cairo_texture_new (1, 1);
-  g_signal_connect (canvas, "paint", G_CALLBACK (canvas_paint), NULL);
+  canvas = clutter_canvas_new ();
+  clutter_canvas_set_size (CLUTTER_CANVAS (canvas), STAGE_WIDTH, STAGE_HEIGHT);
   g_signal_connect (canvas, "draw", G_CALLBACK (draw_touches), NULL);
-  g_signal_connect (canvas, "create-surface", G_CALLBACK (create_surface), NULL);
-  clutter_cairo_texture_set_auto_resize (CLUTTER_CAIRO_TEXTURE (canvas), TRUE);
-  clutter_actor_add_constraint (canvas,
-                                clutter_bind_constraint_new (stage,
-                                                             CLUTTER_BIND_SIZE,
-                                                             0));
-  clutter_container_add_actor (CLUTTER_CONTAINER (stage), canvas);
 
-  g_signal_connect (stage, "event", G_CALLBACK (event_cb), canvas);
+  canvas_actor = g_object_new (CLUTTER_TYPE_ACTOR,
+                               "content", canvas,
+                               NULL);
+  clutter_container_add_actor (CLUTTER_CONTAINER (stage), canvas_actor);
+
+  g_signal_connect (stage, "event", G_CALLBACK (event_cb), canvas_actor);
 
   for (i = 0; i < NUM_ACTORS; i++)
     {
