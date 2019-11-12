@@ -136,19 +136,21 @@ on_button_press (ClutterActor       *actor,
 }
 
 static gboolean
-draw_bouncer (ClutterCairoTexture *texture,
-              cairo_t             *cr)
+draw_bouncer (ClutterCanvas *canvas,
+              cairo_t       *cr,
+              int            width,
+              int            height)
 {
   const ClutterColor *bouncer_color;
   cairo_pattern_t *pattern;
-  guint width, height;
   float radius;
-
-  clutter_cairo_texture_get_surface_size (texture, &width, &height);
 
   radius = MAX (width, height);
 
-  clutter_cairo_texture_clear (texture);
+  cairo_save (cr);
+  cairo_set_operator (cr, CAIRO_OPERATOR_CLEAR);
+  cairo_paint (cr);
+  cairo_restore (cr);
 
   cairo_arc (cr, radius / 2, radius / 2, radius / 2, 0.0, 2.0 * G_PI);
 
@@ -181,18 +183,22 @@ static ClutterActor *
 make_bouncer (gfloat width,
               gfloat height)
 {
+  ClutterContent *canvas;
   ClutterActor *retval;
 
-  retval = clutter_cairo_texture_new (width, height);
-  g_signal_connect (retval, "draw", G_CALLBACK (draw_bouncer), NULL);
+  canvas = clutter_canvas_new ();
+  clutter_canvas_set_size (CLUTTER_CANVAS (canvas), width, height);
+  g_signal_connect (canvas, "draw", G_CALLBACK (draw_bouncer), NULL);
 
+  retval = g_object_new (CLUTTER_TYPE_ACTOR,
+                         "content", canvas,
+                         NULL);
   clutter_actor_set_name (retval, "bouncer");
   clutter_actor_set_size (retval, width, height);
   clutter_actor_set_anchor_point (retval, width / 2, height / 2);
   clutter_actor_set_reactive (retval, TRUE);
 
-  /* make sure we draw the bouncer immediately */
-  clutter_cairo_texture_invalidate (CLUTTER_CAIRO_TEXTURE (retval));
+  clutter_content_invalidate (canvas);
 
   return retval;
 }
