@@ -101,8 +101,8 @@
  *   "layout-manager" : { "type" : "ClutterTableLayout" },
  *   "children" : [
  *     {
- *       "type" : "ClutterTexture",
- *       "filename" : "image-00.png",
+ *       "type" : "ClutterText",
+ *       "text" : "Some text",
  *
  *       "layout::row" : 0,
  *       "layout::column" : 0,
@@ -112,8 +112,8 @@
  *       "layout::y-expand" : true
  *     },
  *     {
- *       "type" : "ClutterTexture",
- *       "filename" : "image-01.png",
+ *       "type" : "ClutterText",
+ *       "text" : "Some more text",
  *
  *       "layout::row" : 0,
  *       "layout::column" : 1,

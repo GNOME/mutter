@@ -2311,8 +2311,7 @@ clutter_threads_remove_repaint_func (guint handle_id)
  * that it does not block, otherwise the frame time budget may be lost.
  *
  * A repaint function is useful to ensure that an update of the scenegraph
- * is performed before the scenegraph is repainted; for instance, uploading
- * a frame from a video into a #ClutterTexture. By default, a repaint
+ * is performed before the scenegraph is repainted. By default, a repaint
  * function added using this function will be invoked prior to the frame
  * being processed.
  *
@@ -2361,8 +2360,7 @@ clutter_threads_add_repaint_func (GSourceFunc    func,
  * that it does not block, otherwise the frame time budget may be lost.
  *
  * A repaint function is useful to ensure that an update of the scenegraph
- * is performed before the scenegraph is repainted; for instance, uploading
- * a frame from a video into a #ClutterTexture. The @flags passed to this
+ * is performed before the scenegraph is repainted. The @flags passed to this
  * function will determine the section of the frame processing that will
  * result in @func being called.
  *
