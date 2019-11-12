@@ -34,24 +34,6 @@
         ]
       }, 
       {
-        "id" : "red-hand",
-        "type" : "ClutterTexture",
-        "filename" : "redhand.png",
-        "position" : { "x" : 100.0, "y" : 100.0 },
-        "width" : "20 mm",
-        "keep-aspect-ratio" : true,
-        "anchor-x" : "5 em",
-        "anchor-y" : "5 pt",
-        "opacity" : 100
-      },
-      {
-        "id" : "red-hand-clone",
-        "type" : "ClutterClone",
-        "source" : "red-hand",
-        "position" : [ 250.0, 150.0 ],
-        "opacity" : 100
-      },
-      {
         "id" : "label",
         "type" : "ClutterText",
         "x" : 50,

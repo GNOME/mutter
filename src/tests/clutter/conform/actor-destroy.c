@@ -16,7 +16,6 @@ struct _TestDestroy
 
   ClutterActor *bg;
   ClutterActor *label;
-  ClutterActor *tex;
 
   GList *children;
 };
@@ -78,7 +77,7 @@ test_destroy_destroy (ClutterActor *self)
 {
   TestDestroy *test = TEST_DESTROY (self);
 
-  g_assert_cmpuint (g_list_length (test->children), ==, 4);
+  g_assert_cmpuint (g_list_length (test->children), ==, 3);
 
   if (test->bg != NULL)
     {
@@ -100,17 +99,6 @@ test_destroy_destroy (ClutterActor *self)
 
       clutter_actor_destroy (test->label);
       test->label = NULL;
-    }
-
-  if (test->tex != NULL)
-    {
-      if (g_test_verbose ())
-        g_print ("Destroying '%s' (type:%s)\n",
-                 clutter_actor_get_name (test->tex),
-                 G_OBJECT_TYPE_NAME (test->tex));
-
-      clutter_actor_destroy (test->tex);
-      test->tex = NULL;
     }
 
   g_assert_cmpuint (g_list_length (test->children), ==, 1);
@@ -139,10 +127,6 @@ test_destroy_init (TestDestroy *self)
   self->label = clutter_text_new ();
   clutter_container_add_actor (CLUTTER_CONTAINER (self), self->label);
   clutter_actor_set_name (self->label, "Label");
-
-  self->tex = clutter_texture_new ();
-  clutter_container_add_actor (CLUTTER_CONTAINER (self), self->tex);
-  clutter_actor_set_name (self->tex, "Texture");
 }
 
 static void

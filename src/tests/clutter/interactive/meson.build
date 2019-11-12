@@ -15,9 +15,6 @@ clutter_tests_interactive_link_args = [
 ]
 
 clutter_tests_interactive_test_sources = [
-  'test-texture-slicing.c',
-  'test-texture-async.c',
-  'test-texture-material.c',
   'test-events.c',
   'test-actors.c',
   'test-shader-effects.c',
@@ -25,13 +22,11 @@ clutter_tests_interactive_test_sources = [
   'test-grab.c',
   'test-cogl-shader-glsl.c',
   'test-state.c',
-  'test-fbo.c',
   'test-cogl-tex-tile.c',
   'test-cogl-tex-convert.c',
   'test-cogl-offscreen.c',
   'test-cogl-tex-polygon.c',
   'test-cogl-multitexture.c',
-  'test-stage-read-pixels.c',
   'test-paint-wrapper.c',
   'test-layout.c',
   'test-animation.c',
