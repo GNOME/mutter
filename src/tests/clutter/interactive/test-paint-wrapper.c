@@ -144,8 +144,9 @@ frame_cb (ClutterTimeline *timeline,
 }
 
 static void
-hand_pre_paint (ClutterActor *actor,
-                gpointer      user_data)
+hand_pre_paint (ClutterActor        *actor,
+                ClutterPaintContext *paint_context,
+                gpointer             user_data)
 {
   SuperOH *oh = user_data;
   gfloat w, h;
@@ -165,8 +166,9 @@ hand_pre_paint (ClutterActor *actor,
 }
 
 static void
-hand_post_paint (ClutterActor *actor,
-                 gpointer      user_data)
+hand_post_paint (ClutterActor        *actor,
+                 ClutterPaintContext *paint_context,
+                 gpointer             user_data)
 {
   SuperOH *oh = user_data;
   gfloat w, h;

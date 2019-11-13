@@ -55,7 +55,9 @@ frame_cb (ClutterTimeline  *timeline,
 }
 
 static void
-material_rectangle_paint (ClutterActor *actor, gpointer data)
+material_rectangle_paint (ClutterActor        *actor,
+                          ClutterPaintContext *paint_context,
+                          gpointer             data)
 {
   TestMultiLayerMaterialState *state = data;
 

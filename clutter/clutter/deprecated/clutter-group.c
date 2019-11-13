@@ -277,14 +277,15 @@ clutter_container_iface_init (ClutterContainerIface *iface)
 }
 
 static void
-clutter_group_real_paint (ClutterActor *actor)
+clutter_group_real_paint (ClutterActor        *actor,
+                          ClutterPaintContext *paint_context)
 {
   ClutterGroupPrivate *priv = CLUTTER_GROUP (actor)->priv;
 
   CLUTTER_NOTE (PAINT, "ClutterGroup paint enter '%s'",
                 _clutter_actor_get_debug_name (actor));
 
-  g_list_foreach (priv->children, (GFunc) clutter_actor_paint, NULL);
+  g_list_foreach (priv->children, (GFunc) clutter_actor_paint, paint_context);
 
   CLUTTER_NOTE (PAINT, "ClutterGroup paint leave '%s'",
                 _clutter_actor_get_debug_name (actor));

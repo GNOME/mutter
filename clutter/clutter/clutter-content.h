@@ -65,9 +65,10 @@ struct _ClutterContentInterface
   gboolean      (* get_preferred_size)  (ClutterContent   *content,
                                          gfloat           *width,
                                          gfloat           *height);
-  void          (* paint_content)       (ClutterContent   *content,
-                                         ClutterActor     *actor,
-                                         ClutterPaintNode *node);
+  void          (* paint_content)       (ClutterContent      *content,
+                                         ClutterActor        *actor,
+                                         ClutterPaintNode    *node,
+                                         ClutterPaintContext *paint_context);
 
   void          (* attached)            (ClutterContent   *content,
                                          ClutterActor     *actor);

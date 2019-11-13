@@ -68,6 +68,7 @@
 #include "clutter-marshal.h"
 #include "clutter-master-clock.h"
 #include "clutter-mutter.h"
+#include "clutter-paint-context-private.h"
 #include "clutter-paint-volume-private.h"
 #include "clutter-private.h"
 #include "clutter-stage-manager-private.h"
@@ -922,8 +923,13 @@ clutter_stage_do_paint_view (ClutterStage                *stage,
                              ClutterStageView            *view,
                              const cairo_rectangle_int_t *clip)
 {
+  ClutterPaintContext *paint_context;
+
+  paint_context = clutter_paint_context_new_for_view (view);
+
   setup_view_for_pick_or_paint (stage, view, clip);
-  clutter_actor_paint (CLUTTER_ACTOR (stage));
+  clutter_actor_paint (CLUTTER_ACTOR (stage), paint_context);
+  clutter_paint_context_destroy (paint_context);
 }
 
 /* This provides a common point of entry for painting the scenegraph
@@ -963,14 +969,15 @@ _clutter_stage_emit_after_paint (ClutterStage *stage)
  * respect the Z order as it uses our empty sort_depth_order.
  */
 static void
-clutter_stage_paint (ClutterActor *self)
+clutter_stage_paint (ClutterActor        *self,
+                     ClutterPaintContext *paint_context)
 {
   ClutterActorIter iter;
   ClutterActor *child;
 
   clutter_actor_iter_init (&iter, self);
   while (clutter_actor_iter_next (&iter, &child))
-    clutter_actor_paint (child);
+    clutter_actor_paint (child, paint_context);
 }
 
 static void
@@ -2165,6 +2172,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
   /**
    * ClutterStage::after-paint:
    * @stage: the stage that received the event
+   * @paint_Context: the paint context
    *
    * The ::after-paint signal is emitted after the stage is painted,
    * but before the results are displayed on the screen.

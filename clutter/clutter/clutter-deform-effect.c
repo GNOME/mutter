@@ -166,7 +166,8 @@ clutter_deform_effect_set_actor (ClutterActorMeta *meta,
 }
 
 static void
-clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect)
+clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect,
+                                    ClutterPaintContext    *paint_context)
 {
   ClutterDeformEffect *self= CLUTTER_DEFORM_EFFECT (effect);
   ClutterDeformEffectPrivate *priv = self->priv;

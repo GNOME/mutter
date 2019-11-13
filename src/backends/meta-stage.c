@@ -184,12 +184,13 @@ notify_watchers_for_mode (MetaStage           *stage,
 }
 
 static void
-meta_stage_paint (ClutterActor *actor)
+meta_stage_paint (ClutterActor        *actor,
+                  ClutterPaintContext *paint_context)
 {
   MetaStage *stage = META_STAGE (actor);
   GList *l;
 
-  CLUTTER_ACTOR_CLASS (meta_stage_parent_class)->paint (actor);
+  CLUTTER_ACTOR_CLASS (meta_stage_parent_class)->paint (actor, paint_context);
 
   notify_watchers_for_mode (stage, stage->current_view,
                             META_STAGE_WATCH_AFTER_ACTOR_PAINT);

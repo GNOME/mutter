@@ -98,7 +98,9 @@ TestCallback tests[] =
 };
 
 static void
-on_paint (ClutterActor *actor, TestState *state)
+on_paint (ClutterActor        *actor,
+          ClutterPaintContext *paint_context,
+          TestState           *state)
 {
   tests[state->current_test] (state);
 }

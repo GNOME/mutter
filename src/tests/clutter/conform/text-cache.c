@@ -28,7 +28,9 @@ struct _CallbackData
 };
 
 static void
-on_paint (ClutterActor *stage, CallbackData *data)
+on_paint (ClutterActor        *stage,
+          ClutterPaintContext *paint_context,
+          CallbackData        *data)
 {
   PangoLayout *new_layout;
 

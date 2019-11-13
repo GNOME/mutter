@@ -33,9 +33,10 @@ G_DEFINE_TYPE_WITH_CODE (SolidContent, solid_content, G_TYPE_OBJECT,
                                                 clutter_content_iface_init))
 
 static void
-solid_content_paint_content (ClutterContent   *content,
-                             ClutterActor     *actor,
-                             ClutterPaintNode *root)
+solid_content_paint_content (ClutterContent      *content,
+                             ClutterActor        *actor,
+                             ClutterPaintNode    *root,
+                             ClutterPaintContext *paint_context)
 {
   SolidContent *self = (SolidContent *) content;
   ClutterActorBox box, content_box;

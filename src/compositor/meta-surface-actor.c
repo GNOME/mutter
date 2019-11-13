@@ -116,7 +116,8 @@ set_clip_region (MetaSurfaceActor *surface_actor,
 }
 
 static void
-meta_surface_actor_paint (ClutterActor *actor)
+meta_surface_actor_paint (ClutterActor        *actor,
+                          ClutterPaintContext *paint_context)
 {
   MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (actor);
   MetaSurfaceActorPrivate *priv =
@@ -125,7 +126,8 @@ meta_surface_actor_paint (ClutterActor *actor)
   if (priv->clip_region && cairo_region_is_empty (priv->clip_region))
     return;
 
-  CLUTTER_ACTOR_CLASS (meta_surface_actor_parent_class)->paint (actor);
+  CLUTTER_ACTOR_CLASS (meta_surface_actor_parent_class)->paint (actor,
+                                                                paint_context);
 }
 
 static void

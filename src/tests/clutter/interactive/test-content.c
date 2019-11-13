@@ -32,9 +32,10 @@ G_DEFINE_TYPE_WITH_CODE (ColorContent, color_content, G_TYPE_OBJECT,
                                                 clutter_content_iface_init))
 
 static void
-color_content_paint_content (ClutterContent   *content,
-                             ClutterActor     *actor,
-                             ClutterPaintNode *root)
+color_content_paint_content (ClutterContent      *content,
+                             ClutterActor        *actor,
+                             ClutterPaintNode    *root,
+                             ClutterPaintContext *paint_context)
 {
   ColorContent *self = (ColorContent *) content;
   ClutterActorBox box, content_box;

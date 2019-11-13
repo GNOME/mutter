@@ -63,7 +63,9 @@ validate_result (TestState *state)
 }
 
 static void
-on_paint (ClutterActor *actor, TestState *state)
+on_paint (ClutterActor        *actor,
+          ClutterPaintContext *paint_context,
+          TestState           *state)
 {
   /* Draw a faded blue triangle */
   cogl_vertex_buffer_draw (state->buffer,

@@ -202,18 +202,21 @@ clutter_paint_node_real_finalize (ClutterPaintNode *node)
 }
 
 static gboolean
-clutter_paint_node_real_pre_draw (ClutterPaintNode *node)
+clutter_paint_node_real_pre_draw (ClutterPaintNode    *node,
+                                  ClutterPaintContext *paint_context)
 {
   return FALSE;
 }
 
 static void
-clutter_paint_node_real_draw (ClutterPaintNode *node)
+clutter_paint_node_real_draw (ClutterPaintNode    *node,
+                              ClutterPaintContext *paint_context)
 {
 }
 
 static void
-clutter_paint_node_real_post_draw (ClutterPaintNode *node)
+clutter_paint_node_real_post_draw (ClutterPaintNode    *node,
+                                   ClutterPaintContext *paint_context)
 {
 }
 
@@ -997,29 +1000,30 @@ clutter_paint_node_add_primitive (ClutterPaintNode *node,
  * its children, if any.
  */
 void
-clutter_paint_node_paint (ClutterPaintNode *node)
+clutter_paint_node_paint (ClutterPaintNode    *node,
+                          ClutterPaintContext *paint_context)
 {
   ClutterPaintNodeClass *klass = CLUTTER_PAINT_NODE_GET_CLASS (node);
   ClutterPaintNode *iter;
   gboolean res;
 
-  res = klass->pre_draw (node);
+  res = klass->pre_draw (node, paint_context);
 
   if (res)
     {
-      klass->draw (node);
+      klass->draw (node, paint_context);
     }
 
   for (iter = node->first_child;
        iter != NULL;
        iter = iter->next_sibling)
     {
-      clutter_paint_node_paint (iter);
+      clutter_paint_node_paint (iter, paint_context);
     }
 
   if (res)
     {
-      klass->post_draw (node);
+      klass->post_draw (node, paint_context);
     }
 }
 

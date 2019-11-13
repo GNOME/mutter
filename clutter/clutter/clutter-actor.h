@@ -39,6 +39,7 @@
 
 #include <clutter/clutter-types.h>
 #include <clutter/clutter-event.h>
+#include <clutter/clutter-paint-context.h>
 
 G_BEGIN_DECLS
 
@@ -228,7 +229,8 @@ struct _ClutterActorClass
   void (* unrealize)            (ClutterActor          *self);
   void (* map)                  (ClutterActor          *self);
   void (* unmap)                (ClutterActor          *self);
-  void (* paint)                (ClutterActor          *self);
+  void (* paint)                (ClutterActor          *self,
+                                 ClutterPaintContext   *paint_context);
   void (* parent_set)           (ClutterActor          *actor,
                                  ClutterActor          *old_parent);
 
@@ -349,9 +351,11 @@ void                            clutter_actor_map                               
 CLUTTER_EXPORT
 void                            clutter_actor_unmap                             (ClutterActor                *self);
 CLUTTER_EXPORT
-void                            clutter_actor_paint                             (ClutterActor                *self);
+void                            clutter_actor_paint                             (ClutterActor                *self,
+                                                                                 ClutterPaintContext         *paint_context);
 CLUTTER_EXPORT
-void                            clutter_actor_continue_paint                    (ClutterActor                *self);
+void                            clutter_actor_continue_paint                    (ClutterActor                *self,
+                                                                                 ClutterPaintContext         *paint_context);
 CLUTTER_EXPORT
 void                            clutter_actor_pick                              (ClutterActor                *actor);
 CLUTTER_EXPORT

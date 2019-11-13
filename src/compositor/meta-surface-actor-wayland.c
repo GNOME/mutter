@@ -99,7 +99,8 @@ meta_surface_actor_wayland_get_window (MetaSurfaceActor *actor)
 }
 
 static void
-meta_surface_actor_wayland_paint (ClutterActor *actor)
+meta_surface_actor_wayland_paint (ClutterActor        *actor,
+                                  ClutterPaintContext *paint_context)
 {
   MetaSurfaceActorWayland *self = META_SURFACE_ACTOR_WAYLAND (actor);
 
@@ -112,7 +113,8 @@ meta_surface_actor_wayland_paint (ClutterActor *actor)
       wl_list_init (&self->frame_callback_list);
     }
 
-  CLUTTER_ACTOR_CLASS (meta_surface_actor_wayland_parent_class)->paint (actor);
+  CLUTTER_ACTOR_CLASS (meta_surface_actor_wayland_parent_class)->paint (actor,
+                                                                        paint_context);
 }
 
 static void

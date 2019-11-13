@@ -105,7 +105,8 @@ G_DEFINE_TYPE (ClutterColorizeEffect,
                CLUTTER_TYPE_OFFSCREEN_EFFECT);
 
 static gboolean
-clutter_colorize_effect_pre_paint (ClutterEffect *effect)
+clutter_colorize_effect_pre_paint (ClutterEffect       *effect,
+                                   ClutterPaintContext *paint_context)
 {
   ClutterColorizeEffect *self = CLUTTER_COLORIZE_EFFECT (effect);
   ClutterEffectClass *parent_class;
@@ -126,7 +127,7 @@ clutter_colorize_effect_pre_paint (ClutterEffect *effect)
     }
 
   parent_class = CLUTTER_EFFECT_CLASS (clutter_colorize_effect_parent_class);
-  if (parent_class->pre_paint (effect))
+  if (parent_class->pre_paint (effect, paint_context))
     {
       ClutterOffscreenEffect *offscreen_effect =
         CLUTTER_OFFSCREEN_EFFECT (effect);
@@ -145,7 +146,8 @@ clutter_colorize_effect_pre_paint (ClutterEffect *effect)
 }
 
 static void
-clutter_colorize_effect_paint_target (ClutterOffscreenEffect *effect)
+clutter_colorize_effect_paint_target (ClutterOffscreenEffect *effect,
+                                      ClutterPaintContext    *paint_context)
 {
   ClutterColorizeEffect *self = CLUTTER_COLORIZE_EFFECT (effect);
   CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();

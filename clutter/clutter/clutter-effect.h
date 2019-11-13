@@ -30,6 +30,7 @@
 #endif
 
 #include <clutter/clutter-actor-meta.h>
+#include <clutter/clutter-paint-context.h>
 
 G_BEGIN_DECLS
 
@@ -74,13 +75,16 @@ struct _ClutterEffectClass
   ClutterActorMetaClass parent_class;
 
   /*< public >*/
-  gboolean (* pre_paint)           (ClutterEffect           *effect);
-  void     (* post_paint)          (ClutterEffect           *effect);
+  gboolean (* pre_paint)           (ClutterEffect           *effect,
+                                    ClutterPaintContext     *paint_context);
+  void     (* post_paint)          (ClutterEffect           *effect,
+                                    ClutterPaintContext     *paint_context);
 
   gboolean (* modify_paint_volume) (ClutterEffect           *effect,
                                     ClutterPaintVolume      *volume);
 
   void     (* paint)               (ClutterEffect           *effect,
+                                    ClutterPaintContext     *paint_context,
                                     ClutterEffectPaintFlags  flags);
   void     (* pick)                (ClutterEffect           *effect);
 

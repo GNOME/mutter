@@ -166,7 +166,8 @@ test_coglbox_triangle_texture (int    tex_width,
 }
 
 static void
-test_coglbox_paint (ClutterActor *self)
+test_coglbox_paint (ClutterActor        *self,
+                    ClutterPaintContext *paint_context)
 {
   TestCoglboxPrivate *priv = TEST_COGLBOX_GET_PRIVATE (self);
   CoglHandle tex_handle = priv->use_sliced ? priv->sliced_tex

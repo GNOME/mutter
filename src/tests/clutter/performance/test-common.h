@@ -25,7 +25,9 @@ clutter_perf_fps_init (void)
   g_random_set_seed (12345678);
 }
 
-static void perf_stage_paint_cb (ClutterStage *stage, gpointer *data);
+static void perf_stage_paint_cb (ClutterStage        *stage,
+                                 ClutterPaintContext *paint_context,
+                                 gpointer            *data);
 static gboolean perf_fake_mouse_cb (gpointer stage);
 
 static inline void
@@ -47,7 +49,10 @@ clutter_perf_fps_report (const gchar *id)
        id, testframes / g_timer_elapsed (testtimer, NULL));
 }
 
-static void perf_stage_paint_cb (ClutterStage *stage, gpointer *data)
+static void
+perf_stage_paint_cb (ClutterStage        *stage,
+                     ClutterPaintContext *paint_context,
+                     gpointer            *data)
 {
   if (!testtimer)
     testtimer = g_timer_new ();

@@ -11,7 +11,9 @@ static int n_chars;
 static int rows, cols;
 
 static void
-on_paint (ClutterActor *actor, gconstpointer *data)
+on_paint (ClutterActor        *actor,
+          ClutterPaintContext *paint_context,
+          gconstpointer       *data)
 {
   static GTimer *timer = NULL;
   static int fps = 0;

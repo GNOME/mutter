@@ -507,7 +507,8 @@ meta_background_actor_get_paint_volume (ClutterActor       *actor,
 }
 
 static void
-meta_background_actor_paint (ClutterActor *actor)
+meta_background_actor_paint (ClutterActor        *actor,
+                             ClutterPaintContext *paint_context)
 {
   MetaBackgroundActor *self = META_BACKGROUND_ACTOR (actor);
   ClutterActorBox actor_box;

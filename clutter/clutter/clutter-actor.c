@@ -3760,7 +3760,8 @@ add_or_remove_flatten_effect (ClutterActor *self)
 }
 
 static void
-clutter_actor_real_paint (ClutterActor *actor)
+clutter_actor_real_paint (ClutterActor        *actor,
+                          ClutterPaintContext *paint_context)
 {
   ClutterActorPrivate *priv = actor->priv;
   ClutterActor *iter;
@@ -3777,13 +3778,14 @@ clutter_actor_real_paint (ClutterActor *actor)
                     iter->priv->allocation.x2 - iter->priv->allocation.x1,
                     iter->priv->allocation.y2 - iter->priv->allocation.y1);
 
-      clutter_actor_paint (iter);
+      clutter_actor_paint (iter, paint_context);
     }
 }
 
 static gboolean
-clutter_actor_paint_node (ClutterActor     *actor,
-                          ClutterPaintNode *root)
+clutter_actor_paint_node (ClutterActor        *actor,
+                          ClutterPaintNode    *root,
+                          ClutterPaintContext *paint_context)
 {
   ClutterActorPrivate *priv = actor->priv;
   ClutterActorBox box;
@@ -3847,7 +3849,7 @@ clutter_actor_paint_node (ClutterActor     *actor,
     }
 
   if (priv->content != NULL)
-    _clutter_content_paint_content (priv->content, actor, root);
+    _clutter_content_paint_content (priv->content, actor, root, paint_context);
 
   if (CLUTTER_ACTOR_GET_CLASS (actor)->paint_node != NULL)
     CLUTTER_ACTOR_GET_CLASS (actor)->paint_node (actor, root);
@@ -3863,7 +3865,7 @@ clutter_actor_paint_node (ClutterActor     *actor,
     }
 #endif /* CLUTTER_ENABLE_DEBUG */
 
-  clutter_paint_node_paint (root);
+  clutter_paint_node_paint (root, paint_context);
 
   return TRUE;
 }
@@ -3887,7 +3889,8 @@ clutter_actor_paint_node (ClutterActor     *actor,
  * unless it is performing a pick paint.
  */
 void
-clutter_actor_paint (ClutterActor *self)
+clutter_actor_paint (ClutterActor        *self,
+                     ClutterPaintContext *paint_context)
 {
   g_autoptr (ClutterPaintNode) actor_node = NULL;
   g_autoptr (ClutterPaintNode) root_node = NULL;
@@ -4069,7 +4072,7 @@ clutter_actor_paint (ClutterActor *self)
   if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_VOLUMES))
     _clutter_actor_draw_paint_volume (self, actor_node);
 
-  clutter_paint_node_paint (root_node);
+  clutter_paint_node_paint (root_node, paint_context);
 
   /* If we make it here then the actor has run through a complete
      paint run including all the effects so it's no longer dirty */
@@ -4089,7 +4092,8 @@ clutter_actor_paint (ClutterActor *self)
  * Since: 1.8
  */
 void
-clutter_actor_continue_paint (ClutterActor *self)
+clutter_actor_continue_paint (ClutterActor        *self,
+                              ClutterPaintContext *paint_context)
 {
   ClutterActorPrivate *priv;
 
@@ -4122,15 +4126,15 @@ clutter_actor_continue_paint (ClutterActor *self)
       /* XXX - for 1.12, we use the return value of paint_node() to
        * decide whether we should emit the ::paint signal.
        */
-      clutter_actor_paint_node (self, dummy);
+      clutter_actor_paint_node (self, dummy, paint_context);
       clutter_paint_node_unref (dummy);
 
       /* XXX:2.0 - Call the paint() virtual directly */
       if (g_signal_has_handler_pending (self, actor_signals[PAINT],
                                         0, TRUE))
-        g_signal_emit (self, actor_signals[PAINT], 0);
+        g_signal_emit (self, actor_signals[PAINT], 0, paint_context);
       else
-        CLUTTER_ACTOR_GET_CLASS (self)->paint (self);
+        CLUTTER_ACTOR_GET_CLASS (self)->paint (self, paint_context);
     }
   else
     {
@@ -4157,7 +4161,7 @@ clutter_actor_continue_paint (ClutterActor *self)
             run_flags |= CLUTTER_EFFECT_PAINT_ACTOR_DIRTY;
         }
 
-      _clutter_effect_paint (priv->current_effect, run_flags);
+      _clutter_effect_paint (priv->current_effect, paint_context, run_flags);
 
       priv->current_effect = old_current_effect;
     }
@@ -8534,6 +8538,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor::paint:
    * @actor: the #ClutterActor that received the signal
+   * @paint_context: a #ClutterPaintContext
    *
    * The ::paint signal is emitted each time an actor is being painted.
    *
@@ -8561,7 +8566,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                   G_SIGNAL_DEPRECATED,
                   G_STRUCT_OFFSET (ClutterActorClass, paint),
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_PAINT_CONTEXT);
   /**
    * ClutterActor::realize:
    * @actor: the #ClutterActor that received the signal

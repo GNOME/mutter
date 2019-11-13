@@ -103,7 +103,8 @@ struct _ClutterRootNode
 G_DEFINE_TYPE (ClutterRootNode, clutter_root_node, CLUTTER_TYPE_PAINT_NODE)
 
 static gboolean
-clutter_root_node_pre_draw (ClutterPaintNode *node)
+clutter_root_node_pre_draw (ClutterPaintNode    *node,
+                            ClutterPaintContext *paint_context)
 {
   ClutterRootNode *rnode = (ClutterRootNode *) node;
 
@@ -117,7 +118,8 @@ clutter_root_node_pre_draw (ClutterPaintNode *node)
 }
 
 static void
-clutter_root_node_post_draw (ClutterPaintNode *node)
+clutter_root_node_post_draw (ClutterPaintNode    *node,
+                             ClutterPaintContext *paint_context)
 {
   cogl_pop_framebuffer ();
 }
@@ -201,7 +203,8 @@ struct _ClutterTransformNodeClass
 G_DEFINE_TYPE (ClutterTransformNode, clutter_transform_node, CLUTTER_TYPE_PAINT_NODE)
 
 static gboolean
-clutter_transform_node_pre_draw (ClutterPaintNode *node)
+clutter_transform_node_pre_draw (ClutterPaintNode    *node,
+                                 ClutterPaintContext *paint_context)
 {
   ClutterTransformNode *transform_node = (ClutterTransformNode *) node;
   CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
@@ -213,7 +216,8 @@ clutter_transform_node_pre_draw (ClutterPaintNode *node)
 }
 
 static void
-clutter_transform_node_post_draw (ClutterPaintNode *node)
+clutter_transform_node_post_draw (ClutterPaintNode    *node,
+                                  ClutterPaintContext *paint_context)
 {
   CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
 
@@ -278,7 +282,8 @@ struct _ClutterDummyNode
 G_DEFINE_TYPE (ClutterDummyNode, clutter_dummy_node, CLUTTER_TYPE_PAINT_NODE)
 
 static gboolean
-clutter_dummy_node_pre_draw (ClutterPaintNode *node)
+clutter_dummy_node_pre_draw (ClutterPaintNode    *node,
+                             ClutterPaintContext *paint_context)
 {
   return TRUE;
 }
@@ -383,7 +388,8 @@ clutter_pipeline_node_finalize (ClutterPaintNode *node)
 }
 
 static gboolean
-clutter_pipeline_node_pre_draw (ClutterPaintNode *node)
+clutter_pipeline_node_pre_draw (ClutterPaintNode    *node,
+                                ClutterPaintContext *paint_context)
 {
   ClutterPipelineNode *pnode = CLUTTER_PIPELINE_NODE (node);
 
@@ -398,7 +404,8 @@ clutter_pipeline_node_pre_draw (ClutterPaintNode *node)
 }
 
 static void
-clutter_pipeline_node_draw (ClutterPaintNode *node)
+clutter_pipeline_node_draw (ClutterPaintNode    *node,
+                            ClutterPaintContext *paint_context)
 {
   ClutterPipelineNode *pnode = CLUTTER_PIPELINE_NODE (node);
   CoglFramebuffer *fb;
@@ -459,7 +466,8 @@ clutter_pipeline_node_draw (ClutterPaintNode *node)
 }
 
 static void
-clutter_pipeline_node_post_draw (ClutterPaintNode *node)
+clutter_pipeline_node_post_draw (ClutterPaintNode    *node,
+                                 ClutterPaintContext *paint_context)
 {
   cogl_pop_source ();
 }
@@ -780,7 +788,8 @@ clutter_text_node_finalize (ClutterPaintNode *node)
 }
 
 static gboolean
-clutter_text_node_pre_draw (ClutterPaintNode *node)
+clutter_text_node_pre_draw (ClutterPaintNode    *node,
+                            ClutterPaintContext *paint_context)
 {
   ClutterTextNode *tnode = CLUTTER_TEXT_NODE (node);
 
@@ -788,7 +797,8 @@ clutter_text_node_pre_draw (ClutterPaintNode *node)
 }
 
 static void
-clutter_text_node_draw (ClutterPaintNode *node)
+clutter_text_node_draw (ClutterPaintNode    *node,
+                        ClutterPaintContext *paint_context)
 {
   ClutterTextNode *tnode = CLUTTER_TEXT_NODE (node);
   PangoRectangle extents;
@@ -974,7 +984,8 @@ struct _ClutterClipNodeClass
 G_DEFINE_TYPE (ClutterClipNode, clutter_clip_node, CLUTTER_TYPE_PAINT_NODE)
 
 static gboolean
-clutter_clip_node_pre_draw (ClutterPaintNode *node)
+clutter_clip_node_pre_draw (ClutterPaintNode    *node,
+                            ClutterPaintContext *paint_context)
 {
   gboolean retval = FALSE;
   CoglFramebuffer *fb;
@@ -1018,7 +1029,8 @@ clutter_clip_node_pre_draw (ClutterPaintNode *node)
 }
 
 static void
-clutter_clip_node_post_draw (ClutterPaintNode *node)
+clutter_clip_node_post_draw (ClutterPaintNode    *node,
+                             ClutterPaintContext *paint_context)
 {
   CoglFramebuffer *fb;
   guint i;
@@ -1100,7 +1112,8 @@ struct _ClutterActorNodeClass
 G_DEFINE_TYPE (ClutterActorNode, clutter_actor_node, CLUTTER_TYPE_PAINT_NODE)
 
 static gboolean
-clutter_actor_node_pre_draw (ClutterPaintNode *node)
+clutter_actor_node_pre_draw (ClutterPaintNode    *node,
+                             ClutterPaintContext *paint_context)
 {
   ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
 
@@ -1110,15 +1123,17 @@ clutter_actor_node_pre_draw (ClutterPaintNode *node)
 }
 
 static void
-clutter_actor_node_draw (ClutterPaintNode *node)
+clutter_actor_node_draw (ClutterPaintNode    *node,
+                         ClutterPaintContext *paint_context)
 {
   ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
 
-  clutter_actor_continue_paint (actor_node->actor);
+  clutter_actor_continue_paint (actor_node->actor, paint_context);
 }
 
 static void
-clutter_actor_node_post_draw (ClutterPaintNode *node)
+clutter_actor_node_post_draw (ClutterPaintNode    *node,
+                              ClutterPaintContext *paint_context)
 {
   ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
 
@@ -1217,7 +1232,8 @@ struct _ClutterLayerNodeClass
 G_DEFINE_TYPE (ClutterLayerNode, clutter_layer_node, CLUTTER_TYPE_PAINT_NODE)
 
 static gboolean
-clutter_layer_node_pre_draw (ClutterPaintNode *node)
+clutter_layer_node_pre_draw (ClutterPaintNode *node,
+                             ClutterPaintContext *paint_context)
 {
   ClutterLayerNode *lnode = (ClutterLayerNode *) node;
   CoglMatrix matrix;
@@ -1265,7 +1281,8 @@ clutter_layer_node_pre_draw (ClutterPaintNode *node)
 }
 
 static void
-clutter_layer_node_post_draw (ClutterPaintNode *node)
+clutter_layer_node_post_draw (ClutterPaintNode    *node,
+                              ClutterPaintContext *paint_context)
 {
   ClutterLayerNode *lnode = CLUTTER_LAYER_NODE (node);
   CoglFramebuffer *fb;

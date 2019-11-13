@@ -54,7 +54,9 @@ do_events (ClutterActor *stage)
 }
 
 static void
-on_paint (ClutterActor *stage, gconstpointer *data)
+on_paint (ClutterActor        *stage,
+          ClutterPaintContext *paint_context,
+          gconstpointer       *data)
 {
   do_events (stage);
 }

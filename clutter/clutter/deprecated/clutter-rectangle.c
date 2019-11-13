@@ -78,7 +78,8 @@ static const ClutterColor default_border_color = {   0,   0,   0, 255 };
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterRectangle, clutter_rectangle, CLUTTER_TYPE_ACTOR)
 
 static void
-clutter_rectangle_paint (ClutterActor *self)
+clutter_rectangle_paint (ClutterActor        *self,
+                         ClutterPaintContext *paint_context)
 {
   ClutterRectanglePrivate *priv = CLUTTER_RECTANGLE (self)->priv;
   CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();

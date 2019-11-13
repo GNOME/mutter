@@ -99,7 +99,9 @@ make_texture (guchar ref)
 }
 
 static void
-on_paint (ClutterActor *actor, TestState *state)
+on_paint (ClutterActor        *actor,
+          ClutterPaintContext *paint_context,
+          TestState           *state)
 {
   CoglHandle tex0, tex1;
   CoglHandle material;

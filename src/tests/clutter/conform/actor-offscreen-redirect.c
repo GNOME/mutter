@@ -37,7 +37,8 @@ G_DEFINE_TYPE (FooActor, foo_actor, CLUTTER_TYPE_ACTOR);
 static gboolean group_has_overlaps;
 
 static void
-foo_actor_paint (ClutterActor *actor)
+foo_actor_paint (ClutterActor        *actor,
+                 ClutterPaintContext *paint_context)
 {
   FooActor *foo_actor = (FooActor *) actor;
   ClutterActorBox allocation;

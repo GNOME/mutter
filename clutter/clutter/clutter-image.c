@@ -118,9 +118,10 @@ clutter_image_init (ClutterImage *self)
 }
 
 static void
-clutter_image_paint_content (ClutterContent   *content,
-                             ClutterActor     *actor,
-                             ClutterPaintNode *root)
+clutter_image_paint_content (ClutterContent      *content,
+                             ClutterActor        *actor,
+                             ClutterPaintNode    *root,
+                             ClutterPaintContext *paint_context)
 {
   ClutterImagePrivate *priv = CLUTTER_IMAGE (content)->priv;
   ClutterPaintNode *node;

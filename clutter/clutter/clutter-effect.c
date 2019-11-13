@@ -177,13 +177,15 @@ G_DEFINE_ABSTRACT_TYPE (ClutterEffect,
                         CLUTTER_TYPE_ACTOR_META);
 
 static gboolean
-clutter_effect_real_pre_paint (ClutterEffect *effect)
+clutter_effect_real_pre_paint (ClutterEffect       *effect,
+                               ClutterPaintContext *paint_context)
 {
   return TRUE;
 }
 
 static void
-clutter_effect_real_post_paint (ClutterEffect *effect)
+clutter_effect_real_post_paint (ClutterEffect       *effect,
+                                ClutterPaintContext *paint_context)
 {
 }
 
@@ -196,6 +198,7 @@ clutter_effect_real_modify_paint_volume (ClutterEffect      *effect,
 
 static void
 clutter_effect_real_paint (ClutterEffect           *effect,
+                           ClutterPaintContext     *paint_context,
                            ClutterEffectPaintFlags  flags)
 {
   ClutterActorMeta *actor_meta = CLUTTER_ACTOR_META (effect);
@@ -206,13 +209,13 @@ clutter_effect_real_paint (ClutterEffect           *effect,
      effects that haven't migrated to use the 'paint' virtual yet. This
      just calls the old pre and post virtuals before chaining on */
 
-  pre_paint_succeeded = _clutter_effect_pre_paint (effect);
+  pre_paint_succeeded = _clutter_effect_pre_paint (effect, paint_context);
 
   actor = clutter_actor_meta_get_actor (actor_meta);
-  clutter_actor_continue_paint (actor);
+  clutter_actor_continue_paint (actor, paint_context);
 
   if (pre_paint_succeeded)
-    _clutter_effect_post_paint (effect);
+    _clutter_effect_post_paint (effect, paint_context);
 }
 
 static void
@@ -262,28 +265,31 @@ clutter_effect_init (ClutterEffect *self)
 }
 
 gboolean
-_clutter_effect_pre_paint (ClutterEffect *effect)
+_clutter_effect_pre_paint (ClutterEffect       *effect,
+                           ClutterPaintContext *paint_context)
 {
   g_return_val_if_fail (CLUTTER_IS_EFFECT (effect), FALSE);
 
-  return CLUTTER_EFFECT_GET_CLASS (effect)->pre_paint (effect);
+  return CLUTTER_EFFECT_GET_CLASS (effect)->pre_paint (effect, paint_context);
 }
 
 void
-_clutter_effect_post_paint (ClutterEffect *effect)
+_clutter_effect_post_paint (ClutterEffect       *effect,
+                            ClutterPaintContext *paint_context)
 {
   g_return_if_fail (CLUTTER_IS_EFFECT (effect));
 
-  CLUTTER_EFFECT_GET_CLASS (effect)->post_paint (effect);
+  CLUTTER_EFFECT_GET_CLASS (effect)->post_paint (effect, paint_context);
 }
 
 void
 _clutter_effect_paint (ClutterEffect           *effect,
+                       ClutterPaintContext     *paint_context,
                        ClutterEffectPaintFlags  flags)
 {
   g_return_if_fail (CLUTTER_IS_EFFECT (effect));
 
-  CLUTTER_EFFECT_GET_CLASS (effect)->paint (effect, flags);
+  CLUTTER_EFFECT_GET_CLASS (effect)->paint (effect, paint_context, flags);
 }
 
 void

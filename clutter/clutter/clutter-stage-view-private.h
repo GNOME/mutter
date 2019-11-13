@@ -33,5 +33,7 @@ gboolean clutter_stage_view_is_dirty_projection (ClutterStageView *view);
 void clutter_stage_view_set_dirty_projection (ClutterStageView *view,
                                               gboolean          dirty);
 
+void clutter_stage_view_add_redraw_clip (ClutterStageView      *view,
+                                         cairo_rectangle_int_t *clip);
 
 #endif /* __CLUTTER_STAGE_VIEW_PRIVATE_H__ */

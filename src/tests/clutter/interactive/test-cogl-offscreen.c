@@ -83,7 +83,8 @@ G_DEFINE_TYPE_WITH_PRIVATE (TestCoglbox, test_coglbox, CLUTTER_TYPE_ACTOR);
  *--------------------------------------------------*/
 
 static void
-test_coglbox_paint (ClutterActor *self)
+test_coglbox_paint (ClutterActor        *self,
+                    ClutterPaintContext *paint_context)
 {
   TestCoglboxPrivate *priv = TEST_COGLBOX_GET_PRIVATE (self);
   gfloat texcoords[4] = { 0, 0, 1, 1 };

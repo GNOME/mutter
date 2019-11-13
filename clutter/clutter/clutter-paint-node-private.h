@@ -27,6 +27,7 @@
 
 #include <glib-object.h>
 #include <json-glib/json-glib.h>
+#include <clutter/clutter-paint-context.h>
 #include <clutter/clutter-paint-node.h>
 
 G_BEGIN_DECLS
@@ -63,9 +64,12 @@ struct _ClutterPaintNodeClass
 
   void     (* finalize)  (ClutterPaintNode *node);
 
-  gboolean (* pre_draw)  (ClutterPaintNode *node);
-  void     (* draw)      (ClutterPaintNode *node);
-  void     (* post_draw) (ClutterPaintNode *node);
+  gboolean (* pre_draw)  (ClutterPaintNode    *node,
+                          ClutterPaintContext *paint_context);
+  void     (* draw)      (ClutterPaintNode    *node,
+                          ClutterPaintContext *paint_context);
+  void     (* post_draw) (ClutterPaintNode    *node,
+                          ClutterPaintContext *paint_context);
 
   JsonNode*(* serialize) (ClutterPaintNode *node);
 

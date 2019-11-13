@@ -2548,7 +2548,8 @@ clutter_text_compute_layout_offsets (ClutterText           *self,
 #define TEXT_PADDING    2
 
 static void
-clutter_text_paint (ClutterActor *self)
+clutter_text_paint (ClutterActor        *self,
+                    ClutterPaintContext *paint_context)
 {
   ClutterText *text = CLUTTER_TEXT (self);
   ClutterTextPrivate *priv = text->priv;

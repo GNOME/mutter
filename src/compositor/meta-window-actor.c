@@ -1338,6 +1338,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
   CoglColor clear_color;
   float x, y;
   MetaRectangle scaled_clip;
+  ClutterPaintContext *paint_context;
   cairo_surface_t *surface;
 
   if (!priv->surface)
@@ -1409,7 +1410,9 @@ meta_window_actor_get_image (MetaWindowActor *self,
   cogl_framebuffer_scale (framebuffer, resource_scale, resource_scale, 1);
   cogl_framebuffer_translate (framebuffer, -x, -y, 0);
 
-  clutter_actor_paint (actor);
+  paint_context = clutter_paint_context_new_for_framebuffer (framebuffer);
+  clutter_actor_paint (actor, paint_context);
+  clutter_paint_context_destroy (paint_context);
 
   cogl_pop_framebuffer ();
 

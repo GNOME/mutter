@@ -96,9 +96,10 @@ clutter_content_real_invalidate_size (ClutterContent *content)
 }
 
 static void
-clutter_content_real_paint_content (ClutterContent   *content,
-                                    ClutterActor     *actor,
-                                    ClutterPaintNode *context)
+clutter_content_real_paint_content (ClutterContent      *content,
+                                    ClutterActor        *actor,
+                                    ClutterPaintNode    *context,
+                                    ClutterPaintContext *paint_context)
 {
 }
 
@@ -300,7 +301,8 @@ _clutter_content_detached (ClutterContent *content,
  * _clutter_content_paint_content:
  * @content: a #ClutterContent
  * @actor: a #ClutterActor
- * @context: a #ClutterPaintNode
+ * @node: a #ClutterPaintNode
+ * @paint_context: a #ClutterPaintContext
  *
  * Creates the render tree for the @content and @actor.
  *
@@ -308,11 +310,13 @@ _clutter_content_detached (ClutterContent *content,
  * virtual function.
  */
 void
-_clutter_content_paint_content (ClutterContent   *content,
-                                ClutterActor     *actor,
-                                ClutterPaintNode *node)
+_clutter_content_paint_content (ClutterContent      *content,
+                                ClutterActor        *actor,
+                                ClutterPaintNode    *node,
+                                ClutterPaintContext *paint_context)
 {
-  CLUTTER_CONTENT_GET_IFACE (content)->paint_content (content, actor, node);
+  CLUTTER_CONTENT_GET_IFACE (content)->paint_content (content, actor, node,
+                                                      paint_context);
 }
 
 /**

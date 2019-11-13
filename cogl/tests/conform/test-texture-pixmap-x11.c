@@ -140,7 +140,9 @@ check_paint (TestState *state, int x, int y, int scale)
 #define FRAME_COUNT_UPDATED 8
 
 static void
-on_paint (ClutterActor *actor, TestState *state)
+on_paint (ClutterActor        *actor,
+          ClutterPaintContext *paint_context,
+          TestState           *state)
 {
   CoglHandle material;
 

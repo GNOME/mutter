@@ -52,7 +52,8 @@ cullable_iface_init (MetaCullableInterface *iface)
 }
 
 static void
-meta_window_group_paint (ClutterActor *actor)
+meta_window_group_paint (ClutterActor        *actor,
+                         ClutterPaintContext *paint_context)
 {
   cairo_region_t *clip_region;
   cairo_region_t *unobscured_region;
@@ -90,7 +91,8 @@ meta_window_group_paint (ClutterActor *actor)
                                               &paint_y_origin) ||
           !meta_actor_is_untransformed (actor, NULL, NULL))
         {
-          CLUTTER_ACTOR_CLASS (meta_window_group_parent_class)->paint (actor);
+          CLUTTER_ACTOR_CLASS (meta_window_group_parent_class)->paint (actor,
+                                                                       paint_context);
           return;
         }
     }
@@ -121,7 +123,8 @@ meta_window_group_paint (ClutterActor *actor)
   cairo_region_destroy (unobscured_region);
   cairo_region_destroy (clip_region);
 
-  CLUTTER_ACTOR_CLASS (meta_window_group_parent_class)->paint (actor);
+  CLUTTER_ACTOR_CLASS (meta_window_group_parent_class)->paint (actor,
+                                                               paint_context);
 
   meta_cullable_reset_culling (META_CULLABLE (window_group));
 }

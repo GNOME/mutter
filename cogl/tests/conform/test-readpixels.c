@@ -15,7 +15,9 @@ static const ClutterColor stage_color = { 0x0, 0x0, 0x0, 0xff };
 
 
 static void
-on_paint (ClutterActor *actor, void *state)
+on_paint (ClutterActor        *actor,
+          ClutterPaintContext *paint_context,
+          void                *state)
 {
   float saved_viewport[4];
   CoglMatrix saved_projection;

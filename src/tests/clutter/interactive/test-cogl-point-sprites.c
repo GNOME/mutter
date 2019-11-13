@@ -95,7 +95,9 @@ generate_round_texture (void)
 }
 
 static void
-paint_cb (ClutterActor *stage, Data *data)
+paint_cb (ClutterActor        *stage,
+          ClutterPaintContext *paint_context,
+          Data                *data)
 {
   CoglMatrix old_matrix, new_matrix;
   int i;

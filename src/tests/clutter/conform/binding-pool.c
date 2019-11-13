@@ -132,7 +132,8 @@ key_group_key_press (ClutterActor    *actor,
 }
 
 static void
-key_group_paint (ClutterActor *actor)
+key_group_paint (ClutterActor        *actor,
+                 ClutterPaintContext *paint_context)
 {
   KeyGroup *self = KEY_GROUP (actor);
   ClutterActorIter iter;
@@ -158,7 +159,7 @@ key_group_paint (ClutterActor *actor)
           cogl_rectangle (box.x1, box.y1, box.x2, box.y2);
         }
 
-      clutter_actor_paint (child);
+      clutter_actor_paint (child, paint_context);
     }
 }
 

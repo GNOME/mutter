@@ -328,9 +328,10 @@ clutter_canvas_init (ClutterCanvas *self)
 }
 
 static void
-clutter_canvas_paint_content (ClutterContent   *content,
-                              ClutterActor     *actor,
-                              ClutterPaintNode *root)
+clutter_canvas_paint_content (ClutterContent      *content,
+                              ClutterActor        *actor,
+                              ClutterPaintNode    *root,
+                              ClutterPaintContext *paint_context)
 {
   ClutterCanvas *self = CLUTTER_CANVAS (content);
   ClutterCanvasPrivate *priv = self->priv;

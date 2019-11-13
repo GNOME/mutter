@@ -237,7 +237,8 @@ update_fbo (ClutterEffect *effect,
 }
 
 static gboolean
-clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
+clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
+                                    ClutterPaintContext *paint_context)
 {
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
   ClutterOffscreenEffectPrivate *priv = self->priv;
@@ -378,7 +379,8 @@ clutter_offscreen_effect_pre_paint (ClutterEffect *effect)
 }
 
 static void
-clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect)
+clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect,
+                                            ClutterPaintContext    *paint_context)
 {
   ClutterOffscreenEffectPrivate *priv = effect->priv;
   CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
@@ -407,7 +409,8 @@ clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect)
 }
 
 static void
-clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect)
+clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect,
+                                        ClutterPaintContext    *paint_context)
 {
   ClutterOffscreenEffectPrivate *priv = effect->priv;
   CoglMatrix modelview;
@@ -436,13 +439,14 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect)
   /* paint the target material; this is virtualized for
    * sub-classes that require special hand-holding
    */
-  clutter_offscreen_effect_paint_target (effect);
+  clutter_offscreen_effect_paint_target (effect, paint_context);
 
   cogl_pop_matrix ();
 }
 
 static void
-clutter_offscreen_effect_post_paint (ClutterEffect *effect)
+clutter_offscreen_effect_post_paint (ClutterEffect       *effect,
+                                     ClutterPaintContext *paint_context)
 {
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
   ClutterOffscreenEffectPrivate *priv = self->priv;
@@ -458,11 +462,12 @@ clutter_offscreen_effect_post_paint (ClutterEffect *effect)
   cogl_pop_matrix ();
   cogl_pop_framebuffer ();
 
-  clutter_offscreen_effect_paint_texture (self);
+  clutter_offscreen_effect_paint_texture (self, paint_context);
 }
 
 static void
 clutter_offscreen_effect_paint (ClutterEffect           *effect,
+                                ClutterPaintContext     *paint_context,
                                 ClutterEffectPaintFlags  flags)
 {
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
@@ -476,10 +481,10 @@ clutter_offscreen_effect_paint (ClutterEffect           *effect,
       /* Chain up to the parent paint method which will call the pre and
          post paint functions to update the image */
       CLUTTER_EFFECT_CLASS (clutter_offscreen_effect_parent_class)->
-        paint (effect, flags);
+        paint (effect, paint_context, flags);
     }
   else
-    clutter_offscreen_effect_paint_texture (self);
+    clutter_offscreen_effect_paint_texture (self, paint_context);
 }
 
 static void
@@ -582,17 +587,20 @@ clutter_offscreen_effect_get_target (ClutterOffscreenEffect *effect)
 /**
  * clutter_offscreen_effect_paint_target:
  * @effect: a #ClutterOffscreenEffect
+ * @paint_context: a #ClutterPaintContext
  *
  * Calls the paint_target() virtual function of the @effect
  *
  * Since: 1.4
  */
 void
-clutter_offscreen_effect_paint_target (ClutterOffscreenEffect *effect)
+clutter_offscreen_effect_paint_target (ClutterOffscreenEffect *effect,
+                                       ClutterPaintContext    *paint_context)
 {
   g_return_if_fail (CLUTTER_IS_OFFSCREEN_EFFECT (effect));
 
-  CLUTTER_OFFSCREEN_EFFECT_GET_CLASS (effect)->paint_target (effect);
+  CLUTTER_OFFSCREEN_EFFECT_GET_CLASS (effect)->paint_target (effect,
+                                                             paint_context);
 }
 
 /**

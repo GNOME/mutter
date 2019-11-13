@@ -716,9 +716,10 @@ select_texture_for_paint (MetaShapedTexture *stex)
 }
 
 static void
-meta_shaped_texture_paint_content (ClutterContent   *content,
-                                   ClutterActor     *actor,
-                                   ClutterPaintNode *root_node)
+meta_shaped_texture_paint_content (ClutterContent      *content,
+                                   ClutterActor        *actor,
+                                   ClutterPaintNode    *root_node,
+                                   ClutterPaintContext *paint_context)
 {
   MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
   ClutterActorBox alloc;
@@ -1184,6 +1185,7 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   CoglMatrix projection_matrix;
   cairo_rectangle_int_t fallback_clip;
   ClutterColor clear_color;
+  ClutterPaintContext *paint_context;
   cairo_surface_t *surface;
 
   if (!clip)
@@ -1234,6 +1236,8 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   root_node = clutter_root_node_new (fb, &clear_color, COGL_BUFFER_BIT_COLOR);
   clutter_paint_node_set_name (root_node, "MetaShapedTexture.offscreen");
 
+  paint_context = clutter_paint_context_new_for_framebuffer (fb);
+
   do_paint_content (stex, root_node,
                     stex->texture,
                     &(ClutterActorBox) {
@@ -1243,7 +1247,8 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
                     },
                     255);
 
-  clutter_paint_node_paint (root_node);
+  clutter_paint_node_paint (root_node, paint_context);
+  clutter_paint_context_destroy (paint_context);
 
   surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
                                         clip->width, clip->height);

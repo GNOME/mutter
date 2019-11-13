@@ -191,7 +191,9 @@ test_invalid_texture_layers_with_constant_colors (TestState *state,
 }
 
 static void
-on_paint (ClutterActor *actor, TestState *state)
+on_paint (ClutterActor        *actor,
+          ClutterPaintContext *paint_context,
+          TestState           *state)
 {
   test_invalid_texture_layers (state,
                                0, 0 /* position */

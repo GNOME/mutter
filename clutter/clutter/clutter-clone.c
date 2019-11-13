@@ -152,7 +152,8 @@ clutter_clone_apply_transform (ClutterActor *self, CoglMatrix *matrix)
 }
 
 static void
-clutter_clone_paint (ClutterActor *actor)
+clutter_clone_paint (ClutterActor        *actor,
+                     ClutterPaintContext *paint_context)
 {
   ClutterClone *self = CLUTTER_CLONE (actor);
   ClutterClonePrivate *priv = self->priv;
@@ -189,7 +190,7 @@ clutter_clone_paint (ClutterActor *actor)
   if (clutter_actor_is_realized (priv->clone_source))
     {
       _clutter_actor_push_clone_paint ();
-      clutter_actor_paint (priv->clone_source);
+      clutter_actor_paint (priv->clone_source, paint_context);
       _clutter_actor_pop_clone_paint ();
     }
 

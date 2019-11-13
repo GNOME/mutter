@@ -1140,7 +1140,8 @@ meta_window_actor_x11_pre_paint (MetaWindowActor *actor)
 }
 
 static void
-meta_window_actor_x11_paint (ClutterActor *actor)
+meta_window_actor_x11_paint (ClutterActor        *actor,
+                             ClutterPaintContext *paint_context)
 {
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (actor);
   MetaWindow *window;
@@ -1202,7 +1203,8 @@ meta_window_actor_x11_paint (ClutterActor *actor)
         cairo_region_destroy (clip);
     }
 
-  CLUTTER_ACTOR_CLASS (meta_window_actor_x11_parent_class)->paint (actor);
+  CLUTTER_ACTOR_CLASS (meta_window_actor_x11_parent_class)->paint (actor,
+                                                                   paint_context);
 }
 
 static void
