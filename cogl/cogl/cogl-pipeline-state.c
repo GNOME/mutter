@@ -973,7 +973,7 @@ cogl_pipeline_get_front_face_winding (CoglPipeline *pipeline)
   CoglPipeline *authority;
 
   g_return_val_if_fail (cogl_is_pipeline (pipeline),
-                        COGL_PIPELINE_CULL_FACE_MODE_NONE);
+                        COGL_WINDING_CLOCKWISE);
 
   authority = _cogl_pipeline_get_authority (pipeline, state);
 
