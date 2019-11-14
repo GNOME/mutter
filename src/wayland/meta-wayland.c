@@ -446,6 +446,7 @@ meta_wayland_init (void)
 
   if (meta_get_x11_display_policy () != META_DISPLAY_POLICY_DISABLED)
     {
+      set_gnome_env ("GNOME_SETUP_DISPLAY", compositor->xwayland_manager.private_connection.name);
       set_gnome_env ("DISPLAY", compositor->xwayland_manager.public_connection.name);
       set_gnome_env ("XAUTHORITY", meta_wayland_get_xwayland_auth_file (compositor));
     }
