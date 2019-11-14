@@ -42,6 +42,7 @@
 
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-monitor-private.h"
+#include "backends/meta-keymap-utils.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-pointer-constraint.h"
@@ -437,7 +438,7 @@ meta_backend_native_set_keymap (MetaBackend *backend,
   names.variant = variants;
   names.options = options;
 
-  context = xkb_context_new (XKB_CONTEXT_NO_FLAGS);
+  context = meta_create_xkb_context ();
   keymap = xkb_keymap_new_from_names (context, &names, XKB_KEYMAP_COMPILE_NO_FLAGS);
   xkb_context_unref (context);
 

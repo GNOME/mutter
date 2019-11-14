@@ -43,6 +43,7 @@
 #include <xkbcommon/xkbcommon-x11.h>
 
 #include "backends/meta-idle-monitor-private.h"
+#include "backends/meta-keymap-utils.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-clutter-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
@@ -704,7 +705,7 @@ meta_backend_x11_get_keymap (MetaBackend *backend)
 
   if (priv->keymap == NULL)
     {
-      struct xkb_context *context = xkb_context_new (XKB_CONTEXT_NO_FLAGS);
+      struct xkb_context *context = meta_create_xkb_context ();
       priv->keymap = xkb_x11_keymap_new_from_device (context,
                                                      priv->xcb,
                                                      xkb_x11_get_core_keyboard_device_id (priv->xcb),
