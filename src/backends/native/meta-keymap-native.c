@@ -111,7 +111,7 @@ meta_keymap_native_init (MetaKeymapNative *keymap)
   names.variant = option_xkb_variant;
   names.options = option_xkb_options;
 
-  ctx = xkb_context_new (0);
+  ctx = xkb_context_new (XKB_CONTEXT_NO_FLAGS);
   g_assert (ctx);
   keymap->keymap = xkb_keymap_new_from_names (ctx, &names, 0);
   xkb_context_unref (ctx);
