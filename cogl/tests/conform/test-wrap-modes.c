@@ -253,7 +253,7 @@ paint (TestState *state)
   cogl_object_unref (state->texture);
 
   /* Draw the tests using cogl_polygon */
-  state->texture = create_texture (COGL_TEXTURE_NO_ATLAS);
+  state->texture = create_texture (TEST_UTILS_TEXTURE_NO_ATLAS);
   cogl_push_matrix ();
   cogl_translate (0.0f, TEX_SIZE * 4.0f, 0.0f);
   draw_tests_polygon (state);
@@ -261,7 +261,7 @@ paint (TestState *state)
   cogl_object_unref (state->texture);
 
   /* Draw the tests using a vertex buffer */
-  state->texture = create_texture (COGL_TEXTURE_NO_ATLAS);
+  state->texture = create_texture (TEST_UTILS_TEXTURE_NO_ATLAS);
   cogl_push_matrix ();
   cogl_translate (0.0f, TEX_SIZE * 6.0f, 0.0f);
   draw_tests_vbo (state);
