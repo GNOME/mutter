@@ -865,7 +865,7 @@ _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
     {
       fb->samples_per_pixel = gl_framebuffer->samples_per_pixel;
 
-      if (!offscreen->create_flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL)
+      if (!(offscreen->create_flags & COGL_OFFSCREEN_DISABLE_DEPTH_AND_STENCIL))
         {
           /* Record that the last set of flags succeeded so that we can
              try that set first next time */
