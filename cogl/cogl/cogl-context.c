@@ -347,7 +347,7 @@ cogl_context_new (CoglDisplay *display,
      */
     GE (context, glEnable (GL_ALPHA_TEST));
 
-  if ((context->driver == COGL_DRIVER_GL3))
+  if (context->driver == COGL_DRIVER_GL3)
     {
       GLuint vertex_array;
 
