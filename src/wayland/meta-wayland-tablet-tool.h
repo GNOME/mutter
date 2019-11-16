@@ -44,7 +44,7 @@ struct _MetaWaylandTabletTool
   struct wl_listener cursor_surface_destroy_listener;
   MetaCursorRenderer *cursor_renderer;
   MetaCursorSpriteXcursor *default_sprite;
-  guint prepare_at_signal_id;
+  gulong prepare_at_signal_id;
 
   MetaWaylandSurface *current;
   guint32 pressed_buttons;

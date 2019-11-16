@@ -780,8 +780,8 @@ destroy_drag_focus (struct wl_listener *listener, void *data)
 
   grab->drag_focus_data_device = NULL;
 
-  g_signal_handler_disconnect (grab->drag_focus,
-                               grab->drag_focus_destroy_handler_id);
+  g_clear_signal_handler (&grab->drag_focus_destroy_handler_id,
+                          grab->drag_focus);
   grab->drag_focus = NULL;
 }
 
@@ -852,8 +852,8 @@ meta_wayland_drag_grab_set_focus (MetaWaylandDragGrab *drag_grab,
   if (drag_grab->drag_focus)
     {
       meta_wayland_surface_drag_dest_focus_out (drag_grab->drag_focus);
-      g_signal_handler_disconnect (drag_grab->drag_focus,
-                                   drag_grab->drag_focus_destroy_handler_id);
+      g_clear_signal_handler (&drag_grab->drag_focus_destroy_handler_id,
+                              drag_grab->drag_focus);
       drag_grab->drag_focus = NULL;
     }
 

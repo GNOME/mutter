@@ -195,9 +195,8 @@ meta_screen_cast_window_stream_finalize (GObject *object)
   MetaScreenCastWindowStream *window_stream =
     META_SCREEN_CAST_WINDOW_STREAM (object);
 
-  if (window_stream->window_unmanaged_handler_id)
-    g_signal_handler_disconnect (window_stream->window,
-                                 window_stream->window_unmanaged_handler_id);
+  g_clear_signal_handler (&window_stream->window_unmanaged_handler_id,
+                          window_stream->window);
 
   G_OBJECT_CLASS (meta_screen_cast_window_stream_parent_class)->finalize (object);
 }

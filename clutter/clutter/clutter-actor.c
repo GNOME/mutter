@@ -808,8 +808,8 @@ struct _ClutterActorPrivate
   gpointer create_child_data;
   GDestroyNotify create_child_notify;
 
-  guint resolution_changed_id;
-  guint font_changed_id;
+  gulong resolution_changed_id;
+  gulong font_changed_id;
 
   /* bitfields: KEEP AT THE END */
 
@@ -6141,17 +6141,8 @@ clutter_actor_dispose (GObject *object)
       g_assert (!CLUTTER_ACTOR_IS_REALIZED (self));
     }
 
-  if (priv->resolution_changed_id)
-    {
-      g_signal_handler_disconnect (backend, priv->resolution_changed_id);
-      priv->resolution_changed_id = 0;
-    }
-
-  if (priv->font_changed_id)
-    {
-      g_signal_handler_disconnect (backend, priv->font_changed_id);
-      priv->font_changed_id = 0;
-    }
+  g_clear_signal_handler (&priv->resolution_changed_id, backend);
+  g_clear_signal_handler (&priv->font_changed_id, backend);
 
   g_clear_object (&priv->pango_context);
   g_clear_object (&priv->actions);
@@ -19009,7 +19000,7 @@ transition_closure_free (gpointer data)
        * so that we don't end up inside on_transition_stopped() from
        * a call to g_hash_table_remove().
        */
-      g_signal_handler_disconnect (clos->transition, clos->completed_id);
+      g_clear_signal_handler (&clos->completed_id, clos->transition);
 
       if (clutter_timeline_is_playing (timeline))
         clutter_timeline_stop (timeline);

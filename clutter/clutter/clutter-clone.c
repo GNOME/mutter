@@ -400,8 +400,7 @@ clutter_clone_set_source_internal (ClutterClone *self,
 
   if (priv->clone_source != NULL)
     {
-      g_signal_handler_disconnect (priv->clone_source, priv->source_destroy_id);
-      priv->source_destroy_id = 0;
+      g_clear_signal_handler (&priv->source_destroy_id, priv->clone_source);
       _clutter_actor_detach_clone (priv->clone_source, CLUTTER_ACTOR (self));
       g_object_unref (priv->clone_source);
       priv->clone_source = NULL;

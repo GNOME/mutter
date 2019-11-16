@@ -178,17 +178,17 @@ struct _ClutterTextPrivate
   guint password_hint_timeout;
 
   /* Signal handler for when the backend changes its font settings */
-  guint settings_changed_id;
+  gulong settings_changed_id;
 
   /* Signal handler for when the :text-direction changes */
-  guint direction_changed_id;
+  gulong direction_changed_id;
 
   ClutterInputFocus *input_focus;
   ClutterInputContentHintFlags input_hints;
   ClutterInputContentPurpose input_purpose;
 
   /* Signal handler for when the :resource-scale changes */
-  guint resource_scale_changed_id;
+  gulong resource_scale_changed_id;
 
   /* bitfields */
   guint alignment               : 2;
@@ -1758,24 +1758,10 @@ clutter_text_dispose (GObject *gobject)
   /* get rid of the entire cache */
   clutter_text_dirty_cache (self);
 
-  if (priv->direction_changed_id)
-    {
-      g_signal_handler_disconnect (self, priv->direction_changed_id);
-      priv->direction_changed_id = 0;
-    }
-
-  if (priv->resource_scale_changed_id)
-    {
-      g_signal_handler_disconnect (self, priv->resource_scale_changed_id);
-      priv->resource_scale_changed_id = 0;
-    }
-
-  if (priv->settings_changed_id)
-    {
-      g_signal_handler_disconnect (clutter_get_default_backend (),
-                                   priv->settings_changed_id);
-      priv->settings_changed_id = 0;
-    }
+  g_clear_signal_handler (&priv->direction_changed_id, self);
+  g_clear_signal_handler (&priv->resource_scale_changed_id, self);
+  g_clear_signal_handler (&priv->settings_changed_id,
+                          clutter_get_default_backend ());
 
   if (priv->password_hint_id)
     {

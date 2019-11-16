@@ -156,7 +156,7 @@ static void
 verify_redraw (Data *data, int expected_paint_count)
 {
   GMainLoop *main_loop = g_main_loop_new (NULL, TRUE);
-  guint paint_handler;
+  gulong paint_handler;
 
   paint_handler = g_signal_connect_data (data->stage,
                                          "paint",
@@ -173,7 +173,7 @@ verify_redraw (Data *data, int expected_paint_count)
   /* Wait for it to paint */
   g_main_loop_run (main_loop);
 
-  g_signal_handler_disconnect (data->stage, paint_handler);
+  g_clear_signal_handler (&paint_handler, data->stage);
 
   g_assert_cmpint (data->foo_actor->paint_count, ==, expected_paint_count);
 }

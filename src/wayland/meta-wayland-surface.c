@@ -444,11 +444,8 @@ pending_state_destroy (MetaWaylandPendingState *state)
   g_clear_pointer (&state->opaque_region, cairo_region_destroy);
 
   if (state->buffer)
-    {
-      g_signal_handler_disconnect (state->buffer,
-                                   state->buffer_destroy_handler_id);
-      state->buffer_destroy_handler_id = 0;
-    }
+    g_clear_signal_handler (&state->buffer_destroy_handler_id, state->buffer);
+
   wl_list_for_each_safe (cb, next, &state->frame_callback_list, link)
     wl_resource_destroy (cb->resource);
 }
@@ -467,18 +464,10 @@ merge_pending_state (MetaWaylandPendingState *from,
   if (from->newly_attached)
     {
       if (to->buffer)
-        {
-          g_signal_handler_disconnect (to->buffer,
-                                       to->buffer_destroy_handler_id);
-          to->buffer_destroy_handler_id = 0;
-        }
+        g_clear_signal_handler (&to->buffer_destroy_handler_id, to->buffer);
 
       if (from->buffer)
-        {
-          g_signal_handler_disconnect (from->buffer,
-                                       from->buffer_destroy_handler_id);
-          from->buffer_destroy_handler_id = 0;
-        }
+        g_clear_signal_handler (&from->buffer_destroy_handler_id, from->buffer);
 
       to->newly_attached = TRUE;
       to->buffer = from->buffer;
@@ -906,8 +895,8 @@ wl_surface_attach (struct wl_client *client,
 
   if (surface->pending->buffer)
     {
-      g_signal_handler_disconnect (surface->pending->buffer,
-                                   surface->pending->buffer_destroy_handler_id);
+      g_clear_signal_handler (&surface->pending->buffer_destroy_handler_id,
+                              surface->pending->buffer);
     }
 
   surface->pending->newly_attached = TRUE;

@@ -72,7 +72,7 @@ struct _MetaBackendNative
   MetaKms *kms;
   MetaBarrierManagerNative *barrier_manager;
 
-  guint udev_device_added_handler_id;
+  gulong udev_device_added_handler_id;
 };
 
 static GInitableIface *initable_parent_iface;
@@ -601,9 +601,7 @@ connect_udev_device_added_handler (MetaBackendNative *native)
 static void
 disconnect_udev_device_added_handler (MetaBackendNative *native)
 {
-  g_signal_handler_disconnect (native->udev,
-                               native->udev_device_added_handler_id);
-  native->udev_device_added_handler_id = 0;
+  g_clear_signal_handler (&native->udev_device_added_handler_id, native->udev);
 }
 
 static gboolean

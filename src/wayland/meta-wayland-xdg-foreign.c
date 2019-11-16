@@ -106,8 +106,8 @@ meta_wayland_xdg_exported_destroy (MetaWaylandXdgExported *exported)
       meta_wayland_xdg_imported_destroy (imported);
     }
 
-  g_signal_handler_disconnect (exported->surface,
-                               exported->surface_unmapped_handler_id);
+  g_clear_signal_handler (&exported->surface_unmapped_handler_id,
+                          exported->surface);
   wl_resource_set_user_data (exported->resource, NULL);
 
   g_hash_table_remove (foreign->exported_surfaces, exported->handle);
@@ -287,8 +287,8 @@ xdg_imported_set_parent_of (struct wl_client   *client,
     }
 
   if (imported->parent_of)
-    g_signal_handler_disconnect (imported->parent_of,
-                                 imported->parent_of_unmapped_handler_id);
+   g_clear_signal_handler (&imported->parent_of_unmapped_handler_id,
+                           imported->parent_of);
 
   imported->parent_of = surface;
 
@@ -326,8 +326,8 @@ meta_wayland_xdg_imported_destroy (MetaWaylandXdgImported *imported)
     {
       MetaWindow *window;
 
-      g_signal_handler_disconnect (imported->parent_of,
-                                   imported->parent_of_unmapped_handler_id);
+      g_clear_signal_handler (&imported->parent_of_unmapped_handler_id,
+                              imported->parent_of);
 
       window = imported->parent_of->window;
       if (window)

@@ -205,7 +205,7 @@ test_texture_pixmap_x11 (TestUtilsGTestFixture *fixture,
 
   TestState state;
   unsigned int idle_handler;
-  unsigned int paint_handler;
+  unsigned long paint_handler;
 
   state.frame_count = 0;
   state.stage = clutter_stage_get_default ();
@@ -226,7 +226,7 @@ test_texture_pixmap_x11 (TestUtilsGTestFixture *fixture,
 
   clutter_main ();
 
-  g_signal_handler_disconnect (state.stage, paint_handler);
+  g_clear_signal_handler (&paint_handler, state.stage);
 
   g_source_remove (idle_handler);
 

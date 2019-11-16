@@ -107,7 +107,7 @@ drop_target_free (gpointer _data)
 {
   DropTarget *data = _data;
 
-  g_signal_handler_disconnect (data->stage, data->capture_id);
+  g_clear_signal_handler (&data->capture_id, data->stage);
   g_hash_table_destroy (data->actions);
   g_free (data);
 }
@@ -326,12 +326,10 @@ clutter_drop_action_set_actor (ClutterActorMeta *meta,
     {
       drop_action_unregister (CLUTTER_DROP_ACTION (meta));
 
-      if (priv->mapped_id != 0)
-        g_signal_handler_disconnect (priv->actor, priv->mapped_id);
+      g_clear_signal_handler (&priv->mapped_id, priv->actor);
 
       priv->stage = NULL;
       priv->actor = NULL;
-      priv->mapped_id = 0;
     }
 
   priv->actor = actor;

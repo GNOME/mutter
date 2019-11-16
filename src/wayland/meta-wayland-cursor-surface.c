@@ -360,9 +360,8 @@ meta_wayland_cursor_surface_set_renderer (MetaWaylandCursorSurface *cursor_surfa
 
   if (priv->cursor_renderer)
     {
-      g_signal_handler_disconnect (priv->cursor_renderer,
-                                   priv->cursor_painted_handler_id);
-      priv->cursor_painted_handler_id = 0;
+      g_clear_signal_handler (&priv->cursor_painted_handler_id,
+                              priv->cursor_renderer);
       g_object_unref (priv->cursor_renderer);
     }
   if (renderer)

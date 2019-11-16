@@ -331,19 +331,10 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
       uninhibit_hw_cursor (monitor_src);
     }
 
-  if (monitor_src->cursor_moved_handler_id)
-    {
-      g_signal_handler_disconnect (cursor_tracker,
-                                   monitor_src->cursor_moved_handler_id);
-      monitor_src->cursor_moved_handler_id = 0;
-    }
-
-  if (monitor_src->cursor_changed_handler_id)
-    {
-      g_signal_handler_disconnect (cursor_tracker,
-                                   monitor_src->cursor_changed_handler_id);
-      monitor_src->cursor_changed_handler_id = 0;
-    }
+  g_clear_signal_handler (&monitor_src->cursor_moved_handler_id,
+                          cursor_tracker);
+  g_clear_signal_handler (&monitor_src->cursor_changed_handler_id,
+                          cursor_tracker);
 }
 
 static gboolean

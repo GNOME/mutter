@@ -326,10 +326,7 @@ meta_dnd_wayland_handle_end_modal (MetaCompositor *compositor)
     return;
 
   for (i = 0; i < G_N_ELEMENTS (priv->handler_id); i++)
-    {
-      g_signal_handler_disconnect (stage, priv->handler_id[i]);
-      priv->handler_id[i] = 0;
-    }
+    g_clear_signal_handler (&priv->handler_id[i], stage);
 
   priv->compositor = NULL;
   priv->wl_compositor = NULL;

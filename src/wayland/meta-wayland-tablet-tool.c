@@ -466,7 +466,7 @@ meta_wayland_tablet_tool_free (MetaWaylandTabletTool *tool)
       wl_list_init (wl_resource_get_link (resource));
     }
 
-  g_signal_handler_disconnect (tool->default_sprite, tool->prepare_at_signal_id);
+  g_clear_signal_handler (&tool->prepare_at_signal_id, tool->default_sprite);
   g_object_unref (tool->default_sprite);
 
   g_slice_free (MetaWaylandTabletTool, tool);

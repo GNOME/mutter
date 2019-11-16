@@ -253,25 +253,14 @@ meta_screen_cast_window_stream_src_stop (MetaScreenCastWindowStreamSrc *window_s
   if (!window_src->screen_cast_window)
     return;
 
-  if (window_src->screen_cast_window_damaged_handler_id)
-    g_signal_handler_disconnect (window_src->screen_cast_window,
-                                 window_src->screen_cast_window_damaged_handler_id);
-  window_src->screen_cast_window_damaged_handler_id = 0;
-
-  if (window_src->screen_cast_window_destroyed_handler_id)
-    g_signal_handler_disconnect (window_src->screen_cast_window,
-                                 window_src->screen_cast_window_destroyed_handler_id);
-  window_src->screen_cast_window_destroyed_handler_id = 0;
-
-  if (window_src->cursor_moved_handler_id)
-    g_signal_handler_disconnect (cursor_tracker,
-                                 window_src->cursor_moved_handler_id);
-  window_src->cursor_moved_handler_id = 0;
-
-  if (window_src->cursor_changed_handler_id)
-    g_signal_handler_disconnect (cursor_tracker,
-                                 window_src->cursor_changed_handler_id);
-  window_src->cursor_changed_handler_id = 0;
+  g_clear_signal_handler (&window_src->screen_cast_window_damaged_handler_id,
+                          window_src->screen_cast_window);
+  g_clear_signal_handler (&window_src->screen_cast_window_destroyed_handler_id,
+                          window_src->screen_cast_window);
+  g_clear_signal_handler (&window_src->cursor_moved_handler_id,
+                          cursor_tracker);
+  g_clear_signal_handler (&window_src->cursor_changed_handler_id,
+                          cursor_tracker);
 }
 
 static void

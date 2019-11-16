@@ -74,7 +74,7 @@ struct _MetaWaylandPointer
   guint32 click_serial;
 
   MetaWaylandSurface *cursor_surface;
-  guint cursor_surface_destroy_id;
+  gulong cursor_surface_destroy_id;
 
   MetaWaylandPointerGrab *grab;
   MetaWaylandPointerGrab default_grab;

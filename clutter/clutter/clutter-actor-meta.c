@@ -51,7 +51,7 @@
 struct _ClutterActorMetaPrivate
 {
   ClutterActor *actor;
-  guint destroy_id;
+  gulong destroy_id;
 
   gchar *name;
 
@@ -91,11 +91,7 @@ clutter_actor_meta_real_set_actor (ClutterActorMeta *meta,
   if (meta->priv->actor == actor)
     return;
 
-  if (meta->priv->destroy_id != 0)
-    {
-      g_signal_handler_disconnect (meta->priv->actor, meta->priv->destroy_id);
-      meta->priv->destroy_id = 0;
-    }
+  g_clear_signal_handler (&meta->priv->destroy_id, meta->priv->actor);
 
   meta->priv->actor = actor;
 
@@ -162,8 +158,8 @@ clutter_actor_meta_finalize (GObject *gobject)
 {
   ClutterActorMetaPrivate *priv = CLUTTER_ACTOR_META (gobject)->priv;
 
-  if (priv->destroy_id != 0 && priv->actor != NULL)
-    g_signal_handler_disconnect (priv->actor, priv->destroy_id);
+  if (priv->actor != NULL)
+    g_clear_signal_handler (&priv->destroy_id, priv->actor);
 
   g_free (priv->name);
 

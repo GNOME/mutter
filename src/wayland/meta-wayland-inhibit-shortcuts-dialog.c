@@ -55,7 +55,7 @@ surface_inhibit_shortcuts_data_set (MetaWaylandSurface   *surface,
 static void
 surface_inhibit_shortcuts_data_destroy_dialog (InhibitShortcutsData *data)
 {
-  g_signal_handler_disconnect (data->dialog, data->response_handler_id);
+  g_clear_signal_handler (&data->response_handler_id, data->dialog);
   meta_inhibit_shortcuts_dialog_hide (data->dialog);
   g_clear_object (&data->dialog);
 }

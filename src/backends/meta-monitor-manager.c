@@ -802,8 +802,8 @@ meta_monitor_manager_finalize (GObject *object)
 
   g_list_free_full (manager->logical_monitors, g_object_unref);
 
-  g_signal_handler_disconnect (manager->backend,
-                               manager->experimental_features_changed_handler_id);
+  g_clear_signal_handler (&manager->experimental_features_changed_handler_id,
+                          manager->backend);
 
   G_OBJECT_CLASS (meta_monitor_manager_parent_class)->finalize (object);
 }

@@ -1992,7 +1992,7 @@ gboolean
 meta_prefs_remove_keybinding (const char *name)
 {
   MetaKeyPref *pref;
-  guint        id;
+  gulong id;
 
   pref = g_hash_table_lookup (key_bindings, name);
   if (!pref)
@@ -2008,7 +2008,7 @@ meta_prefs_remove_keybinding (const char *name)
     }
 
   id = GPOINTER_TO_UINT (g_object_steal_data (G_OBJECT (pref->settings), name));
-  g_signal_handler_disconnect (pref->settings, id);
+  g_clear_signal_handler (&id, pref->settings);
 
   g_hash_table_remove (key_bindings, name);
 

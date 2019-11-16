@@ -62,8 +62,8 @@ gtk_surface_destructor (struct wl_resource *resource)
     {
       g_object_steal_qdata (G_OBJECT (gtk_surface->surface),
                             quark_gtk_surface_data);
-      g_signal_handler_disconnect (gtk_surface->surface,
-                                   gtk_surface->configure_handler_id);
+      g_clear_signal_handler (&gtk_surface->configure_handler_id,
+                              gtk_surface->surface);
     }
 
   g_free (gtk_surface);

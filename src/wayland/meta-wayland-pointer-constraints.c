@@ -166,8 +166,7 @@ window_associated (MetaWaylandSurfaceRole                   *surface_role,
   MetaWaylandSurface *surface = data->surface;
 
   connect_window (data, surface->window);
-  g_signal_handler_disconnect (surface, data->window_associated_handler_id);
-  data->window_associated_handler_id = 0;
+  g_clear_signal_handler (&data->window_associated_handler_id, surface);
 
   meta_wayland_pointer_constraint_maybe_enable_for_window (surface->window);
 }
@@ -206,17 +205,15 @@ surface_constraint_data_free (MetaWaylandSurfacePointerConstraintsData *data)
 {
   if (data->window)
     {
-      g_signal_handler_disconnect (data->window,
-                                   data->appears_changed_handler_id);
-      g_signal_handler_disconnect (data->window,
-                                   data->raised_handler_id);
+      g_clear_signal_handler (&data->appears_changed_handler_id, data->window);
+      g_clear_signal_handler (&data->raised_handler_id, data->window);
       g_object_remove_weak_pointer (G_OBJECT (data->window),
                                     (gpointer *) &data->window);
     }
   else
     {
-      g_signal_handler_disconnect (data->surface->role,
-                                   data->window_associated_handler_id);
+      g_clear_signal_handler (&data->window_associated_handler_id,
+                              data->surface->role);
     }
 
   g_list_free_full (data->pointer_constraints,
@@ -757,8 +754,7 @@ pending_constraint_state_applied (MetaWaylandPendingState           *pending,
       constraint->region = NULL;
     }
 
-  g_signal_handler_disconnect (pending,
-                               constraint_pending->applied_handler_id);
+  g_clear_signal_handler (&constraint_pending->applied_handler_id, pending);
   remove_pending_constraint_state (constraint, pending);
 
   /* The pointer is potentially warped by the actor paint signal callback if
@@ -1158,8 +1154,8 @@ meta_wayland_pointer_constraint_finalize (GObject *object)
   MetaWaylandPointerConstraint *constraint =
     META_WAYLAND_POINTER_CONSTRAINT (object);
 
-  g_signal_handler_disconnect (constraint->seat->pointer,
-                               constraint->pointer_focus_surface_handler_id);
+  g_clear_signal_handler (&constraint->pointer_focus_surface_handler_id,
+                          constraint->seat->pointer);
 
   G_OBJECT_CLASS (meta_wayland_pointer_constraint_parent_class)->finalize (object);
 }

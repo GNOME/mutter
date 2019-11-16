@@ -87,8 +87,8 @@ struct _MetaDeviceManagerNativePrivate
   gpointer relative_motion_filter_user_data;
 
   ClutterStageManager *stage_manager;
-  guint stage_added_handler;
-  guint stage_removed_handler;
+  gulong stage_added_handler;
+  gulong stage_removed_handler;
 
   GSList *event_filters;
 
@@ -1947,19 +1947,8 @@ meta_device_manager_native_dispose (GObject *object)
   manager_evdev = META_DEVICE_MANAGER_NATIVE (object);
   priv = manager_evdev->priv;
 
-  if (priv->stage_added_handler)
-    {
-      g_signal_handler_disconnect (priv->stage_manager,
-                                   priv->stage_added_handler);
-      priv->stage_added_handler = 0;
-    }
-
-  if (priv->stage_removed_handler)
-    {
-      g_signal_handler_disconnect (priv->stage_manager,
-                                   priv->stage_removed_handler);
-      priv->stage_removed_handler = 0;
-    }
+  g_clear_signal_handler (&priv->stage_added_handler, priv->stage_manager);
+  g_clear_signal_handler (&priv->stage_removed_handler, priv->stage_manager);
 
   if (priv->stage_manager)
     {
@@ -2048,9 +2037,7 @@ meta_device_manager_native_stage_added_cb (ClutterStageManager     *manager,
   /* We only want to do this once so we can catch the default
      stage. If the application has multiple stages then it will need
      to manage the stage of the input devices itself */
-  g_signal_handler_disconnect (priv->stage_manager,
-                               priv->stage_added_handler);
-  priv->stage_added_handler = 0;
+  g_clear_signal_handler (&priv->stage_added_handler, priv->stage_manager);
 }
 
 static void

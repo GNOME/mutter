@@ -496,8 +496,8 @@ meta_wayland_xdg_popup_unmap (MetaWaylandXdgPopup *xdg_popup)
 
   if (xdg_popup->parent_surface)
     {
-      g_signal_handler_disconnect (xdg_popup->parent_surface,
-                                   xdg_popup->parent_surface_unmapped_handler_id);
+      g_clear_signal_handler (&xdg_popup->parent_surface_unmapped_handler_id,
+                              xdg_popup->parent_surface);
       xdg_popup->parent_surface = NULL;
     }
 

@@ -158,8 +158,8 @@ struct _MetaKms
 
   MetaBackend *backend;
 
-  guint hotplug_handler_id;
-  guint removed_handler_id;
+  gulong hotplug_handler_id;
+  gulong removed_handler_id;
 
   MetaKmsImpl *impl;
   gboolean in_impl_task;
@@ -588,11 +588,8 @@ meta_kms_finalize (GObject *object)
 
   g_list_free_full (kms->devices, g_object_unref);
 
-  if (kms->hotplug_handler_id)
-    g_signal_handler_disconnect (udev, kms->hotplug_handler_id);
-
-  if (kms->removed_handler_id)
-    g_signal_handler_disconnect (udev, kms->removed_handler_id);
+  g_clear_signal_handler (&kms->hotplug_handler_id, udev);
+  g_clear_signal_handler (&kms->removed_handler_id, udev);
 
   G_OBJECT_CLASS (meta_kms_parent_class)->finalize (object);
 }

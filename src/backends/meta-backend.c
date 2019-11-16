@@ -144,7 +144,7 @@ struct _MetaBackendPrivate
   gboolean is_pointer_position_initialized;
 
   guint device_update_idle_id;
-  guint keymap_state_changed_id;
+  gulong keymap_state_changed_id;
 
   GHashTable *device_monitors;
 
@@ -184,7 +184,7 @@ meta_backend_finalize (GObject *object)
       ClutterKeymap *keymap;
 
       keymap = clutter_backend_get_keymap (priv->clutter_backend);
-      g_signal_handler_disconnect (keymap, priv->keymap_state_changed_id);
+      g_clear_signal_handler (&priv->keymap_state_changed_id, keymap);
     }
 
   g_list_free_full (priv->gpus, g_object_unref);

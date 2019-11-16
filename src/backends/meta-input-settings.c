@@ -50,7 +50,7 @@ struct _CurrentToolInfo
   ClutterInputDevice *device;
   ClutterInputDeviceTool *tool;
   GSettings *settings;
-  guint changed_id;
+  gulong changed_id;
 };
 
 struct _DeviceMappingInfo
@@ -58,7 +58,7 @@ struct _DeviceMappingInfo
   MetaInputSettings *input_settings;
   ClutterInputDevice *device;
   GSettings *settings;
-  guint changed_id;
+  gulong changed_id;
 #ifdef HAVE_LIBWACOM
   WacomDevice *wacom_device;
 #endif
@@ -69,7 +69,7 @@ struct _MetaInputSettingsPrivate
 {
   ClutterDeviceManager *device_manager;
   MetaMonitorManager *monitor_manager;
-  guint monitors_changed_id;
+  gulong monitors_changed_id;
 
   GSettings *mouse_settings;
   GSettings *touchpad_settings;
@@ -168,12 +168,8 @@ meta_input_settings_dispose (GObject *object)
   g_clear_pointer (&priv->mappable_devices, g_hash_table_unref);
   g_clear_pointer (&priv->current_tools, g_hash_table_unref);
 
-  if (priv->monitors_changed_id && priv->monitor_manager)
-    {
-      g_signal_handler_disconnect (priv->monitor_manager,
-                                   priv->monitors_changed_id);
-      priv->monitors_changed_id = 0;
-    }
+  if (priv->monitor_manager)
+    g_clear_signal_handler (&priv->monitors_changed_id, priv->monitor_manager);
 
   g_clear_object (&priv->monitor_manager);
 
@@ -1555,7 +1551,7 @@ device_mapping_info_free (DeviceMappingInfo *info)
   if (info->wacom_device)
     libwacom_destroy (info->wacom_device);
 #endif
-  g_signal_handler_disconnect (info->settings, info->changed_id);
+  g_clear_signal_handler (&info->changed_id, info->settings);
   g_object_unref (info->settings);
   g_free (info->group_modes);
   g_slice_free (DeviceMappingInfo, info);
@@ -1812,7 +1808,7 @@ current_tool_info_new (MetaInputSettings      *input_settings,
 static void
 current_tool_info_free (CurrentToolInfo *info)
 {
-  g_signal_handler_disconnect (info->settings, info->changed_id);
+  g_clear_signal_handler (&info->changed_id, info->settings);
   g_free (info);
 }
 

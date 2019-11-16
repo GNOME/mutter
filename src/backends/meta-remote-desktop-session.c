@@ -151,8 +151,8 @@ meta_remote_desktop_session_close (MetaRemoteDesktopSession *session)
 
   if (session->screen_cast_session)
     {
-      g_signal_handler_disconnect (session->screen_cast_session,
-                                   session->screen_cast_session_closed_handler_id);
+      g_clear_signal_handler (&session->screen_cast_session_closed_handler_id,
+                              session->screen_cast_session);
       meta_screen_cast_session_close (session->screen_cast_session);
       session->screen_cast_session = NULL;
     }

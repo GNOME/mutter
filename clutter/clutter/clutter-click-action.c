@@ -105,8 +105,8 @@ struct _ClutterClickActionPrivate
 {
   ClutterActor *stage;
 
-  guint event_id;
-  guint capture_id;
+  gulong event_id;
+  gulong capture_id;
   guint long_press_id;
 
   gint long_press_threshold;
@@ -202,11 +202,7 @@ click_action_emit_long_press (gpointer data)
                  CLUTTER_LONG_PRESS_ACTIVATE,
                  &result);
 
-  if (priv->capture_id != 0)
-    {
-      g_signal_handler_disconnect (priv->stage, priv->capture_id);
-      priv->capture_id = 0;
-    }
+  g_clear_signal_handler (&priv->capture_id, priv->stage);
 
   click_action_set_pressed (action, FALSE);
   click_action_set_held (action, FALSE);
@@ -375,11 +371,7 @@ on_captured_event (ClutterActor       *stage,
       click_action_cancel_long_press (action);
 
       /* disconnect the capture */
-      if (priv->capture_id != 0)
-        {
-          g_signal_handler_disconnect (priv->stage, priv->capture_id);
-          priv->capture_id = 0;
-        }
+      g_clear_signal_handler (&priv->capture_id, priv->stage);
 
       if (priv->long_press_id != 0)
         {
@@ -453,7 +445,7 @@ clutter_click_action_set_actor (ClutterActorMeta *meta,
       ClutterActor *old_actor = clutter_actor_meta_get_actor (meta);
 
       if (old_actor != NULL)
-        g_signal_handler_disconnect (old_actor, priv->event_id);
+        g_clear_signal_handler (&priv->event_id, old_actor);
 
       priv->event_id = 0;
     }
@@ -461,7 +453,7 @@ clutter_click_action_set_actor (ClutterActorMeta *meta,
   if (priv->capture_id != 0)
     {
       if (priv->stage != NULL)
-        g_signal_handler_disconnect (priv->stage, priv->capture_id);
+        g_clear_signal_handler (&priv->capture_id, priv->stage);
 
       priv->capture_id = 0;
       priv->stage = NULL;
@@ -545,18 +537,10 @@ clutter_click_action_dispose (GObject *gobject)
 {
   ClutterClickActionPrivate *priv = CLUTTER_CLICK_ACTION (gobject)->priv;
 
-  if (priv->event_id)
-    {
-      g_signal_handler_disconnect (clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (gobject)),
-                                   priv->event_id);
-      priv->event_id = 0;
-    }
+  g_clear_signal_handler (&priv->event_id,
+                          clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (gobject)));
 
-  if (priv->capture_id)
-    {
-      g_signal_handler_disconnect (priv->stage, priv->capture_id);
-      priv->capture_id = 0;
-    }
+  g_clear_signal_handler (&priv->capture_id, priv->stage);
 
   if (priv->long_press_id)
     {
@@ -760,11 +744,7 @@ clutter_click_action_release (ClutterClickAction *action)
     return;
 
   /* disconnect the capture */
-  if (priv->capture_id != 0)
-    {
-      g_signal_handler_disconnect (priv->stage, priv->capture_id);
-      priv->capture_id = 0;
-    }
+  g_clear_signal_handler (&priv->capture_id, priv->stage);
 
   click_action_cancel_long_press (action);
   click_action_set_held (action, FALSE);

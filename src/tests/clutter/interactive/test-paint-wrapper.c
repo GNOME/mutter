@@ -32,7 +32,7 @@ typedef struct SuperOH
 
   ClutterTimeline *timeline;
 
-  guint frame_id;
+  gulong frame_id;
 
   gboolean *paint_guards;
 } SuperOH;
@@ -189,7 +189,7 @@ static void
 stop_and_quit (ClutterActor *actor,
                SuperOH      *oh)
 {
-  g_signal_handler_disconnect (oh->timeline, oh->frame_id);
+  g_clear_signal_handler (&oh->frame_id, oh->timeline);
   clutter_timeline_stop (oh->timeline);
 
   clutter_main_quit ();

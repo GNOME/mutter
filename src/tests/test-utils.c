@@ -363,7 +363,7 @@ typedef struct _WaitForShownData
 {
   GMainLoop *loop;
   MetaWindow *window;
-  guint shown_handler_id;
+  gulong shown_handler_id;
 } WaitForShownData;
 
 static void
@@ -405,8 +405,7 @@ test_client_wait_for_window_shown (TestClient *client,
                   &data,
                   NULL);
   g_main_loop_run (data.loop);
-  if (data.shown_handler_id)
-    g_signal_handler_disconnect (window, data.shown_handler_id);
+  g_clear_signal_handler (&data.shown_handler_id, window);
   g_main_loop_unref (data.loop);
 }
 

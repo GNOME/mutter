@@ -42,8 +42,7 @@ wp_viewport_destructor (struct wl_resource *resource)
   if (!surface)
     return;
 
-  g_signal_handler_disconnect (surface, surface->viewport.destroy_handler_id);
-  surface->viewport.destroy_handler_id = 0;
+  g_clear_signal_handler (&surface->viewport.destroy_handler_id, surface);
 
   surface->pending->viewport_src_rect.size.width = -1;
   surface->pending->viewport_dst_width = -1;

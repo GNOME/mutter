@@ -315,11 +315,7 @@ emit_drag_end (ClutterDragAction *action,
     goto out;
 
   /* disconnect the capture */
-  if (priv->capture_id != 0)
-    {
-      g_signal_handler_disconnect (priv->stage, priv->capture_id);
-      priv->capture_id = 0;
-    }
+  g_clear_signal_handler (&priv->capture_id, priv->stage);
 
   clutter_stage_set_motion_events_enabled (priv->stage,
                                            priv->motion_events_enabled);
@@ -478,8 +474,8 @@ clutter_drag_action_set_actor (ClutterActorMeta *meta,
       old_actor = clutter_actor_meta_get_actor (meta);
       if (old_actor != NULL)
         {
-          g_signal_handler_disconnect (old_actor, priv->button_press_id);
-          g_signal_handler_disconnect (old_actor, priv->touch_begin_id);
+          g_clear_signal_handler (&priv->button_press_id, old_actor);
+          g_clear_signal_handler (&priv->touch_begin_id, old_actor);
         }
 
       priv->button_press_id = 0;
@@ -489,7 +485,7 @@ clutter_drag_action_set_actor (ClutterActorMeta *meta,
   if (priv->capture_id != 0)
     {
       if (priv->stage != NULL)
-        g_signal_handler_disconnect (priv->stage, priv->capture_id);
+        g_clear_signal_handler (&priv->capture_id, priv->stage);
 
       priv->capture_id = 0;
       priv->stage = NULL;
@@ -668,7 +664,7 @@ clutter_drag_action_dispose (GObject *gobject)
                                                priv->motion_events_enabled);
 
       if (priv->stage != NULL)
-        g_signal_handler_disconnect (priv->stage, priv->capture_id);
+        g_clear_signal_handler (&priv->capture_id, priv->stage);
 
       priv->capture_id = 0;
       priv->stage = NULL;
@@ -681,8 +677,8 @@ clutter_drag_action_dispose (GObject *gobject)
       actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (gobject));
       if (actor != NULL)
         {
-          g_signal_handler_disconnect (actor, priv->button_press_id);
-          g_signal_handler_disconnect (actor, priv->touch_begin_id);
+          g_clear_signal_handler (&priv->button_press_id, actor);
+          g_clear_signal_handler (&priv->touch_begin_id, actor);
         }
 
       priv->button_press_id = 0;

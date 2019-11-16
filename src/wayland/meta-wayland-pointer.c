@@ -535,10 +535,10 @@ meta_wayland_pointer_disable (MetaWaylandPointer *pointer)
                                         meta_wayland_pointer_on_cursor_visibility_changed,
                                         pointer);
 
-  if (pointer->cursor_surface && pointer->cursor_surface_destroy_id)
+  if (pointer->cursor_surface)
     {
-      g_signal_handler_disconnect (pointer->cursor_surface,
-                                   pointer->cursor_surface_destroy_id);
+      g_clear_signal_handler (&pointer->cursor_surface_destroy_id,
+                              pointer->cursor_surface);
     }
 
   meta_wayland_pointer_cancel_grab (pointer);
@@ -585,8 +585,8 @@ meta_wayland_pointer_set_current (MetaWaylandPointer *pointer,
 {
   if (pointer->current)
     {
-      g_signal_handler_disconnect (pointer->current,
-                                   pointer->current_surface_destroyed_handler_id);
+      g_clear_signal_handler (&pointer->current_surface_destroyed_handler_id,
+                              pointer->current);
       pointer->current = NULL;
     }
 
@@ -917,9 +917,8 @@ meta_wayland_pointer_set_focus (MetaWaylandPointer *pointer,
           pointer->focus_client = NULL;
         }
 
-      g_signal_handler_disconnect (pointer->focus_surface,
-                                   pointer->focus_surface_destroyed_handler_id);
-      pointer->focus_surface_destroyed_handler_id = 0;
+      g_clear_signal_handler (&pointer->focus_surface_destroyed_handler_id,
+                              pointer->focus_surface);
       pointer->focus_surface = NULL;
     }
 
@@ -1101,8 +1100,8 @@ meta_wayland_pointer_set_cursor_surface (MetaWaylandPointer *pointer,
   if (prev_cursor_surface)
     {
       meta_wayland_surface_update_outputs (prev_cursor_surface);
-      g_signal_handler_disconnect (prev_cursor_surface,
-                                   pointer->cursor_surface_destroy_id);
+      g_clear_signal_handler (&pointer->cursor_surface_destroy_id,
+                              prev_cursor_surface);
     }
 
   if (cursor_surface)

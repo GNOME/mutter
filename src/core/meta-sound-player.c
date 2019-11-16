@@ -43,7 +43,7 @@ struct _MetaPlayRequest
 {
   ca_proplist *props;
   uint32_t id;
-  guint cancel_id;
+  gulong cancel_id;
   GCancellable *cancellable;
   MetaSoundPlayer *player;
 };
@@ -119,8 +119,8 @@ finish_cb (ca_context *context,
 
   if (error_code != CA_ERROR_CANCELED)
     g_cancellable_disconnect (req->cancellable, req->cancel_id);
-  else if (req->cancellable != NULL && req->cancel_id != 0)
-    g_signal_handler_disconnect (req->cancellable, req->cancel_id);
+  else if (req->cancellable != NULL)
+    g_clear_signal_handler (&req->cancel_id, req->cancellable);
 
   meta_play_request_free (req);
 }

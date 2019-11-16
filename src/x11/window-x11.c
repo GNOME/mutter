@@ -790,8 +790,8 @@ disconnect_pending_focus_window_signals (MetaWindow *window,
 static void
 meta_window_x11_delayed_focus_data_free (MetaWindowX11DelayedFocusData *data)
 {
-  g_signal_handler_disconnect (data->window, data->unmanaged_id);
-  g_signal_handler_disconnect (data->window->display, data->focused_changed_id);
+  g_clear_signal_handler (&data->unmanaged_id, data->window);
+  g_clear_signal_handler (&data->focused_changed_id, data->window->display);
 
   if (data->pending_focus_candidates)
     {

@@ -46,7 +46,7 @@ struct _MetaUdev
 
   GUdevClient *gudev_client;
 
-  guint uevent_handler_id;
+  gulong uevent_handler_id;
 };
 
 G_DEFINE_TYPE (MetaUdev, meta_udev, G_TYPE_OBJECT)
@@ -187,7 +187,7 @@ meta_udev_finalize (GObject *object)
 {
   MetaUdev *udev = META_UDEV (object);
 
-  g_signal_handler_disconnect (udev->gudev_client, udev->uevent_handler_id);
+  g_clear_signal_handler (&udev->uevent_handler_id, udev->gudev_client);
   g_clear_object (&udev->gudev_client);
 
   G_OBJECT_CLASS (meta_udev_parent_class)->finalize (object);
