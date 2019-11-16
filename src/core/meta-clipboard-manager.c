@@ -32,9 +32,9 @@ static struct {
   const char *mimetype_glob;
   ssize_t max_transfer_size;
 } supported_mimetypes[] = {
+  { "image/*",                  MAX_IMAGE_SIZE },
   { "text/plain",               MAX_TEXT_SIZE },
   { "text/plain;charset=utf-8", MAX_TEXT_SIZE },
-  { "image/*",                  MAX_IMAGE_SIZE },
 };
 
 static gboolean
