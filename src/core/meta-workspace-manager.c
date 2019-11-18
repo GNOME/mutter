@@ -294,8 +294,8 @@ meta_workspace_manager_get_n_workspaces (MetaWorkspaceManager *workspace_manager
  * index. It's valid to call this function with an out-of-range index and it
  * will robustly return %NULL.
  *
- * Return value: (transfer none): the workspace object with specified index, or %NULL
- *   if the index is out of range.
+ * Return value: (transfer none) (nullable): the workspace object with specified
+ *   index, or %NULL if the index is out of range.
  */
 MetaWorkspace *
 meta_workspace_manager_get_workspace_by_index (MetaWorkspaceManager *workspace_manager,
