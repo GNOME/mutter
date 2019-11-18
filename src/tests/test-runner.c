@@ -66,6 +66,8 @@ test_case_new (void)
 {
   TestCase *test = g_new0 (TestCase, 1);
 
+  test_wait_for_x11_display ();
+
   meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
                                      test_case_alarm_filter, test);
 

@@ -84,4 +84,6 @@ void test_client_destroy (TestClient *client);
 
 const char * test_get_plugin_name (void);
 
+void test_wait_for_x11_display (void);
+
 #endif /* TEST_UTILS_H */

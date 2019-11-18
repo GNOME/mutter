@@ -343,6 +343,8 @@ create_monitor_test_clients (void)
 {
   GError *error = NULL;
 
+  test_wait_for_x11_display ();
+
   meta_x11_display_set_alarm_filter (meta_get_display ()->x11_display,
                                      monitor_tests_alarm_filter, NULL);
 
