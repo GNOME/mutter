@@ -42,4 +42,12 @@ gboolean meta_xwayland_dnd_handle_event (XEvent *xevent);
 
 const MetaWaylandDragDestFuncs * meta_xwayland_selection_get_drag_dest_funcs (void);
 
+void meta_xwayland_start_xserver (MetaXWaylandManager *manager,
+                                  GCancellable        *cancellable,
+                                  GAsyncReadyCallback  callback,
+                                  gpointer             user_data);
+gboolean meta_xwayland_start_xserver_finish (MetaXWaylandManager  *manager,
+                                             GAsyncResult         *result,
+                                             GError              **error);
+
 #endif /* META_XWAYLAND_PRIVATE_H */

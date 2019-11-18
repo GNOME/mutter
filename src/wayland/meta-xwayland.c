@@ -535,17 +535,6 @@ add_local_user_to_xhost (Display *xdisplay)
 }
 
 static void
-xserver_finished_init (MetaXWaylandManager *manager)
-{
-  /* At this point xwayland is all setup to start accepting
-   * connections so we can quit the transient initialization mainloop
-   * and unblock meta_wayland_init() to continue initializing mutter.
-   * */
-  g_main_loop_quit (manager->init_loop);
-  g_clear_pointer (&manager->init_loop, g_main_loop_unref);
-}
-
-static void
 on_init_x11_cb (MetaDisplay  *display,
                 GAsyncResult *result,
                 gpointer      user_data)
@@ -561,45 +550,53 @@ on_displayfd_ready (int          fd,
                     GIOCondition condition,
                     gpointer     user_data)
 {
-  MetaXWaylandManager *manager = user_data;
-  MetaDisplay *display = meta_get_display ();
+  GTask *task = user_data;
 
   /* The server writes its display name to the displayfd
    * socket when it's ready. We don't care about the data
    * in the socket, just that it wrote something, since
    * that means it's ready. */
-  xserver_finished_init (manager);
-
-  if (meta_get_x11_display_policy () == META_DISPLAY_POLICY_ON_DEMAND)
-    {
-      meta_display_init_x11 (display, NULL,
-                             (GAsyncReadyCallback) on_init_x11_cb, NULL);
-    }
+  g_task_return_boolean (task, TRUE);
+  g_object_unref (task);
 
   return G_SOURCE_REMOVE;
 }
 
-static gboolean
-meta_xwayland_start_xserver (MetaXWaylandManager *manager)
+void
+meta_xwayland_start_xserver (MetaXWaylandManager *manager,
+                             GCancellable        *cancellable,
+                             GAsyncReadyCallback  callback,
+                             gpointer             user_data)
 {
   int xwayland_client_fd[2];
   int displayfd[2];
   g_autoptr(GSubprocessLauncher) launcher = NULL;
   GSubprocessFlags flags;
   GError *error = NULL;
+  g_autoptr (GTask) task = NULL;
+
+  task = g_task_new (NULL, cancellable, callback, user_data);
+  g_task_set_source_tag (task, meta_xwayland_start_xserver);
+  g_task_set_task_data (task, manager, NULL);
 
   /* We want xwayland to be a wayland client so we make a socketpair to setup a
    * wayland protocol connection. */
   if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, xwayland_client_fd) < 0)
     {
-      g_warning ("xwayland_client_fd socketpair failed\n");
-      return FALSE;
+      g_task_return_new_error (task,
+                               G_IO_ERROR,
+                               g_io_error_from_errno (errno),
+                               "xwayland_client_fd socketpair failed");
+      return;
     }
 
   if (socketpair (AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0, displayfd) < 0)
     {
-      g_warning ("displayfd socketpair failed\n");
-      return FALSE;
+      g_task_return_new_error (task,
+                               G_IO_ERROR,
+                               g_io_error_from_errno (errno),
+                               "displayfd socketpair failed");
+      return;
     }
 
   /* xwayland, please. */
@@ -633,24 +630,28 @@ meta_xwayland_start_xserver (MetaXWaylandManager *manager)
                                                NULL);
   if (!manager->proc)
     {
-      g_error ("Failed to spawn Xwayland: %s", error->message);
-      return FALSE;
+      g_task_return_error (task, error);
+      return;
     }
 
   manager->xserver_died_cancellable = g_cancellable_new ();
   g_subprocess_wait_async (manager->proc, manager->xserver_died_cancellable,
                            xserver_died, NULL);
-  g_unix_fd_add (displayfd[0], G_IO_IN, on_displayfd_ready, manager);
+  g_unix_fd_add (displayfd[0], G_IO_IN, on_displayfd_ready,
+                 g_steal_pointer (&task));
   manager->client = wl_client_create (manager->wayland_display,
                                       xwayland_client_fd[0]);
+}
 
-  /* We need to run a mainloop until we know xwayland has a binding
-   * for our xserver interface at which point we can assume it's
-   * ready to start accepting connections. */
-  manager->init_loop = g_main_loop_new (NULL, FALSE);
-  g_main_loop_run (manager->init_loop);
+gboolean
+meta_xwayland_start_xserver_finish (MetaXWaylandManager  *manager,
+                                    GAsyncResult         *result,
+                                    GError              **error)
+{
+  g_assert (g_task_get_source_tag (G_TASK (result)) ==
+            meta_xwayland_start_xserver);
 
-  return TRUE;
+  return g_task_propagate_boolean (G_TASK (result), error);
 }
 
 static gboolean
@@ -658,10 +659,10 @@ xdisplay_connection_activity_cb (gint         fd,
                                  GIOCondition cond,
                                  gpointer     user_data)
 {
-  MetaXWaylandManager *manager = user_data;
+  MetaDisplay *display = meta_get_display ();
 
-  if (!meta_xwayland_start_xserver (manager))
-    g_critical ("Could not start Xserver");
+  meta_display_init_x11 (display, NULL,
+                         (GAsyncReadyCallback) on_init_x11_cb, NULL);
 
   return G_SOURCE_REMOVE;
 }
@@ -744,18 +745,13 @@ meta_xwayland_init (MetaXWaylandManager *manager,
   manager->wayland_display = wl_display;
   policy = meta_get_x11_display_policy ();
 
-  if (policy == META_DISPLAY_POLICY_MANDATORY)
-    {
-      return meta_xwayland_start_xserver (manager);
-    }
-  else if (policy == META_DISPLAY_POLICY_ON_DEMAND)
+  if (policy == META_DISPLAY_POLICY_ON_DEMAND)
     {
       g_unix_fd_add (manager->abstract_fd, G_IO_IN,
                      xdisplay_connection_activity_cb, manager);
-      return TRUE;
     }
 
-  return FALSE;
+  return TRUE;
 }
 
 static void

@@ -716,19 +716,40 @@ meta_display_init_x11_finish (MetaDisplay   *display,
   return TRUE;
 }
 
+static void
+on_xserver_started (MetaXWaylandManager *manager,
+                    GAsyncResult        *result,
+                    gpointer             user_data)
+{
+  g_autoptr (GTask) task = user_data;
+  GError *error = NULL;
+  gboolean retval;
+
+  retval = meta_xwayland_start_xserver_finish (manager, result, &error);
+
+  if (error)
+    g_task_return_error (task, error);
+  else
+    g_task_return_boolean (task, retval);
+}
+
 void
 meta_display_init_x11 (MetaDisplay         *display,
                        GCancellable        *cancellable,
                        GAsyncReadyCallback  callback,
                        gpointer             user_data)
 {
-  GTask *task;
+  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+
+  g_autoptr (GTask) task = NULL;
 
   task = g_task_new (display, cancellable, callback, user_data);
   g_task_set_source_tag (task, meta_display_init_x11);
 
-  g_task_return_boolean (task, TRUE);
-  g_object_unref (task);
+  meta_xwayland_start_xserver (&compositor->xwayland_manager,
+                               cancellable,
+                               (GAsyncReadyCallback) on_xserver_started,
+                               g_steal_pointer (&task));
 }
 
 static void

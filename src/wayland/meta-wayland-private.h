@@ -57,7 +57,6 @@ typedef struct
 
   GCancellable *xserver_died_cancellable;
   GSubprocess *proc;
-  GMainLoop *init_loop;
 
   GList *x11_windows;
 
