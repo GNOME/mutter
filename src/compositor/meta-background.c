@@ -943,6 +943,14 @@ meta_background_set_gradient (MetaBackground            *self,
   mark_changed (self);
 }
 
+/**
+ * meta_background_set_file:
+ * @self: a #MetaBackground
+ * @file: (nullable): a #GFile representing the background file
+ * @style: the background style to apply
+ *
+ * Set the background to @file
+ */
 void
 meta_background_set_file (MetaBackground            *self,
                           GFile                     *file,
