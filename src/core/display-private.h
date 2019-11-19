@@ -426,8 +426,14 @@ MetaWindow *meta_display_get_window_from_id (MetaDisplay *display,
                                              uint64_t     window_id);
 uint64_t    meta_display_generate_window_id (MetaDisplay *display);
 
-gboolean meta_display_init_x11     (MetaDisplay  *display,
-                                    GError      **error);
+void meta_display_init_x11 (MetaDisplay         *display,
+                            GCancellable        *cancellable,
+                            GAsyncReadyCallback  callback,
+                            gpointer             user_data);
+gboolean meta_display_init_x11_finish (MetaDisplay   *display,
+                                       GAsyncResult  *result,
+                                       GError       **error);
+
 void     meta_display_shutdown_x11 (MetaDisplay  *display);
 
 #endif
