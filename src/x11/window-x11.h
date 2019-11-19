@@ -81,4 +81,7 @@ void     meta_window_x11_configure_notify        (MetaWindow      *window,
 
 Window   meta_window_x11_get_toplevel_xwindow    (MetaWindow *window);
 
+void     meta_window_x11_freeze_commits          (MetaWindow *window);
+void     meta_window_x11_thaw_commits            (MetaWindow *window);
+
 #endif

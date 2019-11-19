@@ -18,6 +18,8 @@
 
 #include "config.h"
 
+#include "core/frame.h"
+#include "meta/meta-x11-errors.h"
 #include "x11/window-x11.h"
 #include "x11/window-x11-private.h"
 #include "x11/xprops.h"
@@ -40,6 +42,7 @@ struct _MetaWindowXwayland
   MetaWindowX11 parent;
 
   gboolean xwayland_may_grab_keyboard;
+  int freeze_count;
 };
 
 struct _MetaWindowXwaylandClass
@@ -160,6 +163,63 @@ meta_window_xwayland_shortcuts_inhibited (MetaWindow         *window,
 }
 
 static void
+apply_allow_commits_x11_property (MetaWindowXwayland *xwayland_window,
+                                  gboolean            allow_commits)
+{
+  MetaWindow *window = META_WINDOW (xwayland_window);
+  MetaDisplay *display = window->display;
+  MetaX11Display *x11_display = display->x11_display;
+  Display *xdisplay = x11_display->xdisplay;
+  MetaFrame *frame;
+  Window xwin;
+  guint32 property[1];
+
+  frame = meta_window_get_frame (window);
+  if (!frame)
+    xwin = window->xwindow;
+  else
+    xwin = meta_frame_get_xwindow (frame);
+
+  if (!xwin)
+    return;
+
+  property[0] = !!allow_commits;
+
+  meta_x11_error_trap_push (x11_display);
+  XChangeProperty (xdisplay, xwin,
+                   x11_display->atom__XWAYLAND_ALLOW_COMMITS,
+                   XA_CARDINAL, 32, PropModeReplace,
+                   (guchar*) &property, 1);
+  meta_x11_error_trap_pop (x11_display);
+  XFlush (xdisplay);
+}
+
+static void
+meta_window_xwayland_freeze_commits (MetaWindow *window)
+{
+  MetaWindowXwayland *xwayland_window = META_WINDOW_XWAYLAND (window);
+
+  if (xwayland_window->freeze_count == 0)
+    apply_allow_commits_x11_property (xwayland_window, FALSE);
+
+  xwayland_window->freeze_count++;
+}
+
+static void
+meta_window_xwayland_thaw_commits (MetaWindow *window)
+{
+  MetaWindowXwayland *xwayland_window = META_WINDOW_XWAYLAND (window);
+
+  g_return_if_fail (xwayland_window->freeze_count > 0);
+
+  xwayland_window->freeze_count--;
+  if (xwayland_window->freeze_count > 0)
+    return;
+
+  apply_allow_commits_x11_property (xwayland_window, TRUE);
+}
+
+static void
 meta_window_xwayland_get_property (GObject    *object,
                                    guint       prop_id,
                                    GValue     *value,
@@ -201,11 +261,15 @@ static void
 meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
 {
   MetaWindowClass *window_class = META_WINDOW_CLASS (klass);
+  MetaWindowX11Class *window_x11_class = META_WINDOW_X11_CLASS (klass);
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   window_class->adjust_fullscreen_monitor_rect = meta_window_xwayland_adjust_fullscreen_monitor_rect;
   window_class->force_restore_shortcuts = meta_window_xwayland_force_restore_shortcuts;
   window_class->shortcuts_inhibited = meta_window_xwayland_shortcuts_inhibited;
+
+  window_x11_class->freeze_commits = meta_window_xwayland_freeze_commits;
+  window_x11_class->thaw_commits = meta_window_xwayland_thaw_commits;
 
   gobject_class->get_property = meta_window_xwayland_get_property;
   gobject_class->set_property = meta_window_xwayland_set_property;

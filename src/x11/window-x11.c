@@ -1974,6 +1974,16 @@ meta_window_x11_calculate_layer (MetaWindow *window)
 }
 
 static void
+meta_window_x11_impl_freeze_commits (MetaWindow *window)
+{
+}
+
+static void
+meta_window_x11_impl_thaw_commits (MetaWindow *window)
+{
+}
+
+static void
 meta_window_x11_map (MetaWindow *window)
 {
   MetaX11Display *x11_display = window->display->x11_display;
@@ -2024,6 +2034,9 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
   window_class->calculate_layer = meta_window_x11_calculate_layer;
   window_class->map = meta_window_x11_map;
   window_class->unmap = meta_window_x11_unmap;
+
+  klass->freeze_commits = meta_window_x11_impl_freeze_commits;
+  klass->thaw_commits = meta_window_x11_impl_thaw_commits;
 }
 
 void
@@ -3994,4 +4007,18 @@ Window
 meta_window_x11_get_toplevel_xwindow (MetaWindow *window)
 {
   return window->frame ? window->frame->xwindow : window->xwindow;
+}
+
+void
+meta_window_x11_freeze_commits (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  META_WINDOW_X11_GET_CLASS (window_x11)->freeze_commits (window);
+}
+
+void
+meta_window_x11_thaw_commits (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  META_WINDOW_X11_GET_CLASS (window_x11)->thaw_commits (window);
 }

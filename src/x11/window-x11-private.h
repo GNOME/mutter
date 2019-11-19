@@ -33,6 +33,9 @@ typedef struct _MetaWindowX11Private MetaWindowX11Private;
 struct _MetaWindowX11Class
 {
   MetaWindowClass parent_class;
+
+  void (*freeze_commits) (MetaWindow *window);
+  void (*thaw_commits)   (MetaWindow *window);
 };
 
 struct _MetaWindowX11
