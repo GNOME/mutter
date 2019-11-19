@@ -67,10 +67,6 @@ struct _MetaWaylandDataDevice
   MetaWaylandDragGrab *current_grab;
   struct wl_client *focus_client;
 
-  struct wl_signal selection_ownership_signal;
-  struct wl_signal dnd_ownership_signal;
-  struct wl_signal primary_ownership_signal;
-
   guint selection_owner_signal_id;
 
   MetaSelectionSource *owners[META_N_SELECTION_TYPES];
