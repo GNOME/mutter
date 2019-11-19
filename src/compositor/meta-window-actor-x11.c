@@ -98,6 +98,7 @@ struct _MetaWindowActorX11
   gboolean needs_reshape;
   gboolean recompute_focused_shadow;
   gboolean recompute_unfocused_shadow;
+  gboolean is_frozen;
 };
 
 static MetaCullableInterface *cullable_parent_iface;
@@ -1316,6 +1317,18 @@ static void
 meta_window_actor_x11_set_frozen (MetaWindowActor *actor,
                                   gboolean         frozen)
 {
+  MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (actor);
+  MetaWindow *window = meta_window_actor_get_meta_window (actor);
+
+  if (actor_x11->is_frozen == frozen)
+    return;
+
+  actor_x11->is_frozen = frozen;
+
+  if (frozen)
+    meta_window_x11_freeze_commits (window);
+  else
+    meta_window_x11_thaw_commits (window);
 }
 
 static void
