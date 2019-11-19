@@ -571,12 +571,7 @@ destroy_data_offer (struct wl_resource *resource)
               WL_DATA_OFFER_ACTION_SINCE_VERSION)
             meta_wayland_data_source_notify_finish (offer->source);
           else
-            {
-              if (seat->data_device.dnd_data_source == offer->source)
-                unset_selection_source (&seat->data_device, META_SELECTION_DND);
-              meta_wayland_data_source_cancel (offer->source);
-              meta_wayland_data_source_set_current_offer (offer->source, NULL);
-            }
+            meta_wayland_data_source_set_current_offer (offer->source, NULL);
         }
 
       g_object_remove_weak_pointer (G_OBJECT (offer->source),
@@ -1036,6 +1031,7 @@ drag_grab_button (MetaWaylandPointerGrab *grab,
       gboolean success;
 
       if (drag_grab->drag_focus && source &&
+          meta_wayland_data_source_get_current_offer (source) &&
           meta_wayland_data_source_has_target (source) &&
           meta_wayland_data_source_get_current_action (source))
         {
