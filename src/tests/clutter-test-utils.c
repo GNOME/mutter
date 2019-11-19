@@ -12,6 +12,22 @@ typedef struct {
 
 static ClutterTestEnvironment *test_environ = NULL;
 
+#define DBUS_NAME_WARNING "Lost or failed to acquire name"
+
+static gboolean
+log_func (const gchar    *log_domain,
+          GLogLevelFlags  log_level,
+          const gchar    *message,
+          gpointer        user_data)
+{
+  if ((log_level & G_LOG_LEVEL_WARNING) &&
+      g_strcmp0 (log_domain, "mutter") == 0 &&
+      g_str_has_prefix (message, DBUS_NAME_WARNING))
+    return FALSE;
+
+  return TRUE;
+}
+
 /*
  * clutter_test_init:
  * @argc: (inout): number of arguments in @argv
@@ -106,6 +122,8 @@ static void
 clutter_test_func_wrapper (gconstpointer data_)
 {
   const ClutterTestData *data = data_;
+
+  g_test_log_set_fatal_handler (log_func, NULL);
 
   /* ensure that the previous test state has been cleaned up */
   g_assert_null (test_environ->stage);
