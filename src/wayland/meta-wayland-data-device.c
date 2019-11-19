@@ -1129,8 +1129,6 @@ drag_grab_data_source_destroyed (gpointer data, GObject *where_the_object_was)
   MetaWaylandDragGrab *drag_grab = data;
 
   drag_grab->drag_data_source = NULL;
-  meta_wayland_data_device_set_dnd_source (&drag_grab->seat->data_device, NULL);
-  unset_selection_source (&drag_grab->seat->data_device, META_SELECTION_DND);
   data_device_end_drag_grab (drag_grab);
 }
 
@@ -1592,6 +1590,16 @@ meta_wayland_data_device_get_drag_dest_funcs (void)
   return &meta_wayland_drag_dest_funcs;
 }
 
+static void
+dnd_data_source_destroyed (gpointer  data,
+                           GObject  *object_was_here)
+{
+  MetaWaylandDataDevice *data_device = data;
+
+  data_device->dnd_data_source = NULL;
+  unset_selection_source (data_device, META_SELECTION_DND);
+}
+
 void
 meta_wayland_data_device_set_dnd_source (MetaWaylandDataDevice *data_device,
                                          MetaWaylandDataSource *source)
@@ -1600,14 +1608,20 @@ meta_wayland_data_device_set_dnd_source (MetaWaylandDataDevice *data_device,
     return;
 
   if (data_device->dnd_data_source)
-    g_object_remove_weak_pointer (G_OBJECT (data_device->dnd_data_source),
-                                  (gpointer *)&data_device->dnd_data_source);
+    {
+      g_object_weak_unref (G_OBJECT (data_device->dnd_data_source),
+                           dnd_data_source_destroyed,
+                           data_device);
+    }
 
   data_device->dnd_data_source = source;
 
   if (source)
-    g_object_add_weak_pointer (G_OBJECT (data_device->dnd_data_source),
-                               (gpointer *)&data_device->dnd_data_source);
+    {
+      g_object_weak_ref (G_OBJECT (source),
+                         dnd_data_source_destroyed,
+                         data_device);
+    }
 }
 
 void
