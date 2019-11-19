@@ -1068,7 +1068,6 @@ drag_grab_button (MetaWaylandPointerGrab *grab,
         }
       else
         {
-          meta_wayland_data_source_cancel (source);
           meta_wayland_data_source_set_current_offer (source, NULL);
           meta_wayland_data_device_set_dnd_source (&seat->data_device, NULL);
           unset_selection_source (&seat->data_device, META_SELECTION_DND);
