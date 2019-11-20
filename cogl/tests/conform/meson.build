@@ -45,7 +45,6 @@ cogl_test_conformance_sources = [
 ]
 
 #unported = [
-#  "test-fixed.c",
 #  "test-materials.c",
 #  "test-viewport.c",
 #  "test-multitexture.c",
