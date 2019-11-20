@@ -102,7 +102,6 @@ paint_cb (ClutterActor        *stage,
   CoglMatrix old_matrix, new_matrix;
   int i;
   float diff_time;
-  CoglHandle vbo;
 
   cogl_get_projection_matrix (&old_matrix);
   /* Use an orthogonal projection from -1 -> 1 in both axes */
@@ -196,22 +195,6 @@ paint_cb (ClutterActor        *stage,
 
       g_timer_reset (data->last_spark_time);
     }
-
-  vbo = cogl_vertex_buffer_new (N_SPARKS);
-  cogl_vertex_buffer_add (vbo, "gl_Vertex", 2,
-                          COGL_ATTRIBUTE_TYPE_FLOAT, FALSE,
-                          sizeof (Spark),
-                          &data->sparks[0].x);
-  cogl_vertex_buffer_add (vbo, "gl_Color", 4,
-                          COGL_ATTRIBUTE_TYPE_UNSIGNED_BYTE, TRUE,
-                          sizeof (Spark),
-                          &data->sparks[0].color.red);
-  cogl_vertex_buffer_submit (vbo);
-
-  cogl_set_source (data->material);
-  cogl_vertex_buffer_draw (vbo, COGL_VERTICES_MODE_POINTS, 0, N_SPARKS);
-
-  cogl_object_unref (vbo);
 
   cogl_set_projection_matrix (&old_matrix);
   cogl_pop_matrix ();

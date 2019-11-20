@@ -140,43 +140,6 @@ draw_tests_polygon (TestState *state)
 }
 
 static void
-draw_tests_vbo (TestState *state)
-{
-  CoglHandle vbo;
-  int i;
-
-  vbo = cogl_vertex_buffer_new (4);
-  cogl_vertex_buffer_add (vbo, "gl_Vertex", 3,
-                          COGL_ATTRIBUTE_TYPE_FLOAT, FALSE,
-                          sizeof (vertices[0]),
-                          &vertices[0].x);
-  cogl_vertex_buffer_add (vbo, "gl_MultiTexCoord0", 2,
-                          COGL_ATTRIBUTE_TYPE_FLOAT, FALSE,
-                          sizeof (vertices[0]),
-                          &vertices[0].tx);
-  cogl_vertex_buffer_submit (vbo);
-
-  for (i = 0; i < G_N_ELEMENTS (wrap_modes); i += 2)
-    {
-      CoglPipelineWrapMode wrap_mode_s, wrap_mode_t;
-      CoglPipeline *pipeline;
-
-      wrap_mode_s = wrap_modes[i];
-      wrap_mode_t = wrap_modes[i + 1];
-      pipeline = create_pipeline (state, wrap_mode_s, wrap_mode_t);
-      cogl_set_source (pipeline);
-      cogl_object_unref (pipeline);
-      cogl_push_matrix ();
-      cogl_translate (TEX_SIZE * i, 0.0f, 0.0f);
-      /* Render the pipeline at four times the size of the texture */
-      cogl_vertex_buffer_draw (vbo, COGL_VERTICES_MODE_TRIANGLE_FAN, 0, 4);
-      cogl_pop_matrix ();
-    }
-
-  cogl_object_unref (vbo);
-}
-
-static void
 validate_set (TestState *state, int offset)
 {
   uint8_t data[TEX_SIZE * 2 * TEX_SIZE * 2 * 4], *p;
@@ -232,7 +195,6 @@ validate_result (TestState *state)
   validate_set (state, 1); /* atlased rectangle */
 #endif
   validate_set (state, 2); /* cogl_polygon */
-  validate_set (state, 3); /* vertex buffer */
 }
 
 static void
@@ -257,14 +219,6 @@ paint (TestState *state)
   cogl_push_matrix ();
   cogl_translate (0.0f, TEX_SIZE * 4.0f, 0.0f);
   draw_tests_polygon (state);
-  cogl_pop_matrix ();
-  cogl_object_unref (state->texture);
-
-  /* Draw the tests using a vertex buffer */
-  state->texture = create_texture (TEST_UTILS_TEXTURE_NO_ATLAS);
-  cogl_push_matrix ();
-  cogl_translate (0.0f, TEX_SIZE * 6.0f, 0.0f);
-  draw_tests_vbo (state);
   cogl_pop_matrix ();
   cogl_object_unref (state->texture);
 

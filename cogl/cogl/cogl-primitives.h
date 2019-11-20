@@ -40,8 +40,7 @@ G_BEGIN_DECLS
  * @short_description: Functions that draw various primitive 3D shapes
  *
  * The primitives API provides utilities for drawing some
- * common 3D shapes in a more convenient way than the CoglVertexBuffer
- * API provides.
+ * common 3D shapes.
  */
 
 /**

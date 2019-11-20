@@ -160,8 +160,7 @@ cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
  * data is actually allocated.
  *
  * Sub textures have undefined behaviour texture coordinates outside
- * of the range [0,1] are used. They also do not work with
- * CoglVertexBuffers.
+ * of the range [0,1] are used.
  *
  * The sub texture will keep a reference to the full texture so you do
  * not need to keep one separately if you only want to use the sub

@@ -36,7 +36,6 @@ clutter_tests_interactive_test_sources = [
   'test-text-field.c',
   'test-cairo-clock.c',
   'test-cairo-flowers.c',
-  'test-cogl-vertex-buffer.c',
   'test-stage-sizing.c',
   'test-scrolling.c',
   'test-swipe-action.c',

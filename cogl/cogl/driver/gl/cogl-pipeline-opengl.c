@@ -985,7 +985,7 @@ fragend_add_layer_cb (CoglPipelineLayer *layer,
  *
  *    Currently for textured rectangles we manually calculate the texture
  *    coords for each slice based on the users given coords, but this solution
- *    isn't ideal, and can't be used with CoglVertexBuffers.
+ *    isn't ideal.
  */
 void
 _cogl_pipeline_flush_gl_state (CoglContext *ctx,

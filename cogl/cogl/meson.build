@@ -65,7 +65,6 @@ built_headers += [cogl_gl_header_h]
 
 cogl_deprecated_headers = [
   'deprecated/cogl-material-compat.h',
-  'deprecated/cogl-vertex-buffer.h',
   'deprecated/cogl-shader.h',
   'deprecated/cogl-clutter.h',
   'deprecated/cogl-type-casts.h',
@@ -352,8 +351,6 @@ cogl_sources = [
   'cogl-closure-list.c',
   'cogl-fence.c',
   'cogl-fence-private.h',
-  'deprecated/cogl-vertex-buffer-private.h',
-  'deprecated/cogl-vertex-buffer.c',
   'deprecated/cogl-material-compat.c',
   'deprecated/cogl-program.c',
   'deprecated/cogl-program-private.h',
