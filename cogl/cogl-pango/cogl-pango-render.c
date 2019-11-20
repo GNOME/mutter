@@ -455,34 +455,6 @@ cogl_pango_show_layout (CoglFramebuffer *fb,
 }
 
 void
-cogl_pango_render_layout_subpixel (PangoLayout *layout,
-                                   int x,
-                                   int y,
-                                   const CoglColor *color,
-                                   int flags)
-{
-  cogl_pango_show_layout (cogl_get_draw_framebuffer (),
-                          layout,
-                          x / (float) PANGO_SCALE,
-                          y / (float) PANGO_SCALE,
-                          color);
-}
-
-void
-cogl_pango_render_layout (PangoLayout *layout,
-                          int x,
-                          int y,
-                          const CoglColor *color,
-                          int flags)
-{
-  cogl_pango_render_layout_subpixel (layout,
-                                     x * PANGO_SCALE,
-                                     y * PANGO_SCALE,
-                                     color,
-                                     flags);
-}
-
-void
 cogl_pango_show_layout_line (CoglFramebuffer *fb,
                              PangoLayoutLine *line,
                              float x,
@@ -517,19 +489,6 @@ cogl_pango_show_layout_line (CoglFramebuffer *fb,
 
   _cogl_pango_display_list_free (priv->display_list);
   priv->display_list = NULL;
-}
-
-void
-cogl_pango_render_layout_line (PangoLayoutLine *line,
-                               int x,
-                               int y,
-                               const CoglColor *color)
-{
-  cogl_pango_show_layout_line (cogl_get_draw_framebuffer (),
-                               line,
-                               x / (float) PANGO_SCALE,
-                               y / (float) PANGO_SCALE,
-                               color);
 }
 
 void
