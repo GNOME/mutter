@@ -15,7 +15,8 @@ gboolean        _clutter_effect_has_custom_paint_volume (ClutterEffect          
 void            _clutter_effect_paint                   (ClutterEffect           *effect,
                                                          ClutterPaintContext     *paint_context,
                                                          ClutterEffectPaintFlags  flags);
-void            _clutter_effect_pick                    (ClutterEffect           *effect);
+void            _clutter_effect_pick                    (ClutterEffect           *effect,
+                                                         ClutterPickContext      *pick_context);
 
 G_END_DECLS
 

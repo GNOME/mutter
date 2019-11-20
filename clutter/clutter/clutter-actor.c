@@ -1330,6 +1330,7 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
 /**
  * clutter_actor_pick_box:
  * @self: The #ClutterActor being "pick" painted.
+ * @pick_context: The #ClutterPickContext
  * @box: A rectangle in the actor's own local coordinates.
  *
  * Logs (does a virtual paint of) a rectangle for picking. Note that @box is
@@ -1340,6 +1341,7 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
  */
 void
 clutter_actor_pick_box (ClutterActor          *self,
+                        ClutterPickContext    *pick_context,
                         const ClutterActorBox *box)
 {
   ClutterStage *stage;
@@ -2321,7 +2323,8 @@ _clutter_actor_rerealize (ClutterActor    *self,
 }
 
 static void
-clutter_actor_real_pick (ClutterActor *self)
+clutter_actor_real_pick (ClutterActor       *self,
+                         ClutterPickContext *pick_context)
 {
   if (clutter_actor_should_pick_paint (self))
     {
@@ -2332,7 +2335,7 @@ clutter_actor_real_pick (ClutterActor *self)
         .y2 = clutter_actor_get_height (self),
       };
 
-      clutter_actor_pick_box (self, &box);
+      clutter_actor_pick_box (self, pick_context, &box);
     }
 
   /* XXX - this thoroughly sucks, but we need to maintain compatibility
@@ -2349,7 +2352,7 @@ clutter_actor_real_pick (ClutterActor *self)
       for (iter = self->priv->first_child;
            iter != NULL;
            iter = iter->priv->next_sibling)
-        clutter_actor_pick (iter);
+        clutter_actor_pick (iter, pick_context);
     }
 }
 
@@ -4174,7 +4177,8 @@ clutter_actor_continue_paint (ClutterActor        *self,
  * Asks @actor to perform a pick.
  */
 void
-clutter_actor_pick (ClutterActor *actor)
+clutter_actor_pick (ClutterActor       *actor,
+                    ClutterPickContext *pick_context)
 {
   ClutterActorPrivate *priv;
   ClutterActorBox clip;
@@ -4234,7 +4238,7 @@ clutter_actor_pick (ClutterActor *actor)
         _clutter_meta_group_peek_metas (priv->effects);
     }
 
-  clutter_actor_continue_pick (actor);
+  clutter_actor_continue_pick (actor, pick_context);
 
   if (clip_set)
     _clutter_actor_pop_pick_clip (actor);
@@ -4256,7 +4260,8 @@ clutter_actor_pick (ClutterActor *actor)
  * is the last effect in the chain.
  */
 void
-clutter_actor_continue_pick (ClutterActor *actor)
+clutter_actor_continue_pick (ClutterActor       *actor,
+                             ClutterPickContext *pick_context)
 {
   ClutterActorPrivate *priv;
 
@@ -4282,9 +4287,9 @@ clutter_actor_continue_pick (ClutterActor *actor)
        */
       if (g_signal_has_handler_pending (actor, actor_signals[PICK],
                                         0, TRUE))
-        g_signal_emit (actor, actor_signals[PICK], 0);
+        g_signal_emit (actor, actor_signals[PICK], 0, pick_context);
       else
-        CLUTTER_ACTOR_GET_CLASS (actor)->pick (actor);
+        CLUTTER_ACTOR_GET_CLASS (actor)->pick (actor, pick_context);
     }
   else
     {
@@ -4298,7 +4303,7 @@ clutter_actor_continue_pick (ClutterActor *actor)
       priv->current_effect = priv->next_effect_to_paint->data;
       priv->next_effect_to_paint = priv->next_effect_to_paint->next;
 
-      _clutter_effect_pick (priv->current_effect);
+      _clutter_effect_pick (priv->current_effect, pick_context);
 
       priv->current_effect = old_current_effect;
     }
@@ -8610,6 +8615,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   /**
    * ClutterActor::pick:
    * @actor: the #ClutterActor that received the signal
+   * @pick_context: a #ClutterPickContext
    *
    * The ::pick signal is emitted each time an actor is being painted
    * in "pick mode". The pick mode is used to identify the actor during
@@ -8631,7 +8637,8 @@ clutter_actor_class_init (ClutterActorClass *klass)
                   G_SIGNAL_RUN_LAST | G_SIGNAL_DEPRECATED,
                   G_STRUCT_OFFSET (ClutterActorClass, pick),
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_PICK_CONTEXT);
 
   /**
    * ClutterActor::allocation-changed:

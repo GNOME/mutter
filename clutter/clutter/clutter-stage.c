@@ -70,6 +70,7 @@
 #include "clutter-mutter.h"
 #include "clutter-paint-context-private.h"
 #include "clutter-paint-volume-private.h"
+#include "clutter-pick-context-private.h"
 #include "clutter-private.h"
 #include "clutter-stage-manager-private.h"
 #include "clutter-stage-private.h"
@@ -981,7 +982,8 @@ clutter_stage_paint (ClutterActor        *self,
 }
 
 static void
-clutter_stage_pick (ClutterActor *self)
+clutter_stage_pick (ClutterActor       *self,
+                    ClutterPickContext *pick_context)
 {
   ClutterActorIter iter;
   ClutterActor *child;
@@ -992,7 +994,7 @@ clutter_stage_pick (ClutterActor *self)
    */
   clutter_actor_iter_init (&iter, self);
   while (clutter_actor_iter_next (&iter, &child))
-    clutter_actor_pick (child);
+    clutter_actor_pick (child, pick_context);
 }
 
 static gboolean
@@ -1652,17 +1654,21 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
 
   if (mode != priv->cached_pick_mode)
     {
+      ClutterPickContext *pick_context;
+
       _clutter_stage_clear_pick_stack (stage);
 
+      pick_context = clutter_pick_context_new_for_view (view);
       cogl_push_framebuffer (fb);
 
       context->pick_mode = mode;
       setup_view_for_pick_or_paint (stage, view, NULL);
-      clutter_actor_pick (CLUTTER_ACTOR (stage));
+      clutter_actor_pick (CLUTTER_ACTOR (stage), pick_context);
       context->pick_mode = CLUTTER_PICK_NONE;
       priv->cached_pick_mode = mode;
 
       cogl_pop_framebuffer ();
+      clutter_pick_context_destroy (pick_context);
 
       add_pick_stack_weak_refs (stage);
     }

@@ -31,6 +31,7 @@
 
 #include <clutter/clutter-actor-meta.h>
 #include <clutter/clutter-paint-context.h>
+#include <clutter/clutter-pick-context.h>
 
 G_BEGIN_DECLS
 
@@ -86,7 +87,8 @@ struct _ClutterEffectClass
   void     (* paint)               (ClutterEffect           *effect,
                                     ClutterPaintContext     *paint_context,
                                     ClutterEffectPaintFlags  flags);
-  void     (* pick)                (ClutterEffect           *effect);
+  void     (* pick)                (ClutterEffect           *effect,
+                                    ClutterPickContext      *pick_context);
 
   /*< private >*/
   void (* _clutter_effect4) (void);

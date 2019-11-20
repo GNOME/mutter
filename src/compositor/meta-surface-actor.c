@@ -131,7 +131,8 @@ meta_surface_actor_paint (ClutterActor        *actor,
 }
 
 static void
-meta_surface_actor_pick (ClutterActor *actor)
+meta_surface_actor_pick (ClutterActor       *actor,
+                         ClutterPickContext *pick_context)
 {
   MetaSurfaceActor *self = META_SURFACE_ACTOR (actor);
   MetaSurfaceActorPrivate *priv =
@@ -144,7 +145,12 @@ meta_surface_actor_pick (ClutterActor *actor)
 
   /* If there is no region then use the regular pick */
   if (priv->input_region == NULL)
-    CLUTTER_ACTOR_CLASS (meta_surface_actor_parent_class)->pick (actor);
+    {
+      ClutterActorClass *actor_class =
+        CLUTTER_ACTOR_CLASS (meta_surface_actor_parent_class);
+
+      actor_class->pick (actor, pick_context);
+    }
   else
     {
       int n_rects;
@@ -163,14 +169,14 @@ meta_surface_actor_pick (ClutterActor *actor)
           box.y1 = rect.y;
           box.x2 = rect.x + rect.width;
           box.y2 = rect.y + rect.height;
-          clutter_actor_pick_box (actor, &box);
+          clutter_actor_pick_box (actor, pick_context, &box);
         }
     }
 
   clutter_actor_iter_init (&iter, actor);
 
   while (clutter_actor_iter_next (&iter, &child))
-    clutter_actor_pick (child);
+    clutter_actor_pick (child, pick_context);
 }
 
 static gboolean

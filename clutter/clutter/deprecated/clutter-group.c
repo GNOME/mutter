@@ -292,14 +292,15 @@ clutter_group_real_paint (ClutterActor        *actor,
 }
 
 static void
-clutter_group_real_pick (ClutterActor *actor)
+clutter_group_real_pick (ClutterActor       *actor,
+                         ClutterPickContext *pick_context)
 {
   ClutterGroupPrivate *priv = CLUTTER_GROUP (actor)->priv;
 
   /* Chain up so we get a bounding box pained (if we are reactive) */
-  CLUTTER_ACTOR_CLASS (clutter_group_parent_class)->pick (actor);
+  CLUTTER_ACTOR_CLASS (clutter_group_parent_class)->pick (actor, pick_context);
 
-  g_list_foreach (priv->children, (GFunc) clutter_actor_pick, NULL);
+  g_list_foreach (priv->children, (GFunc) clutter_actor_pick, pick_context);
 }
 
 static void

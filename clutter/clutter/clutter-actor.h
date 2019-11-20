@@ -40,6 +40,7 @@
 #include <clutter/clutter-types.h>
 #include <clutter/clutter-event.h>
 #include <clutter/clutter-paint-context.h>
+#include <clutter/clutter-pick-context.h>
 
 G_BEGIN_DECLS
 
@@ -235,7 +236,8 @@ struct _ClutterActorClass
                                  ClutterActor          *old_parent);
 
   void (* destroy)              (ClutterActor          *self);
-  void (* pick)                 (ClutterActor          *actor);
+  void (* pick)                 (ClutterActor          *actor,
+                                 ClutterPickContext    *pick_context);
 
   gboolean (* queue_redraw)     (ClutterActor          *actor,
                                  ClutterActor          *leaf_that_queued,
@@ -357,9 +359,11 @@ CLUTTER_EXPORT
 void                            clutter_actor_continue_paint                    (ClutterActor                *self,
                                                                                  ClutterPaintContext         *paint_context);
 CLUTTER_EXPORT
-void                            clutter_actor_pick                              (ClutterActor                *actor);
+void                            clutter_actor_pick                              (ClutterActor                *actor,
+                                                                                 ClutterPickContext          *pick_context);
 CLUTTER_EXPORT
-void                            clutter_actor_continue_pick                     (ClutterActor                *actor);
+void                            clutter_actor_continue_pick                     (ClutterActor                *actor,
+                                                                                 ClutterPickContext          *pick_context);
 CLUTTER_EXPORT
 void                            clutter_actor_queue_redraw                      (ClutterActor                *self);
 CLUTTER_EXPORT
@@ -911,6 +915,7 @@ void                            clutter_actor_bind_model_with_properties        
 
 CLUTTER_EXPORT
 void clutter_actor_pick_box (ClutterActor          *self,
+                             ClutterPickContext    *pick_context,
                              const ClutterActorBox *box);
 
 G_END_DECLS
