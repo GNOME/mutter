@@ -15673,7 +15673,7 @@ update_pango_context (ClutterBackend *backend,
  * stored by the #ClutterBackend change.
  *
  * You can use the returned #PangoContext to create a #PangoLayout
- * and render text using cogl_pango_render_layout() to reuse the
+ * and render text using cogl_pango_show_layout() to reuse the
  * glyphs cache also used by Clutter.
  *
  * Return value: (transfer none): the #PangoContext for a #ClutterActor.
