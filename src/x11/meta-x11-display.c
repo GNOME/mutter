@@ -246,11 +246,7 @@ meta_x11_display_dispose (GObject *object)
       x11_display->gdk_display = NULL;
     }
 
-  if (x11_display->display_close_idle)
-    {
-      g_source_remove (x11_display->display_close_idle);
-      x11_display->display_close_idle = 0;
-    }
+  g_clear_handle_id (&x11_display->display_close_idle, g_source_remove);
 
   g_free (x11_display->name);
   x11_display->name = NULL;

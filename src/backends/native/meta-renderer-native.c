@@ -4143,7 +4143,8 @@ meta_renderer_native_finalize (GObject *object)
     {
       g_list_free_full (renderer_native->power_save_page_flip_onscreens,
                         (GDestroyNotify) cogl_object_unref);
-      g_source_remove (renderer_native->power_save_page_flip_source_id);
+      g_clear_handle_id (&renderer_native->power_save_page_flip_source_id,
+                         g_source_remove);
     }
 
   g_hash_table_destroy (renderer_native->gpu_datas);

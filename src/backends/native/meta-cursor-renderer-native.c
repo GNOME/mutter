@@ -166,8 +166,7 @@ meta_cursor_renderer_native_finalize (GObject *object)
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (renderer);
 
-  if (priv->animation_timeout_id)
-    g_source_remove (priv->animation_timeout_id);
+  g_clear_handle_id (&priv->animation_timeout_id, g_source_remove);
 
   G_OBJECT_CLASS (meta_cursor_renderer_native_parent_class)->finalize (object);
 }
@@ -658,11 +657,7 @@ maybe_schedule_cursor_sprite_animation_frame (MetaCursorRendererNative *native,
   if (!cursor_change && priv->animation_timeout_id)
     return;
 
-  if (priv->animation_timeout_id)
-    {
-      g_source_remove (priv->animation_timeout_id);
-      priv->animation_timeout_id = 0;
-    }
+  g_clear_handle_id (&priv->animation_timeout_id, g_source_remove);
 
   if (cursor_sprite && meta_cursor_sprite_is_animated (cursor_sprite))
     {

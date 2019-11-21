@@ -228,7 +228,7 @@ test_texture_pixmap_x11 (TestUtilsGTestFixture *fixture,
 
   g_clear_signal_handler (&paint_handler, state.stage);
 
-  g_source_remove (idle_handler);
+  g_clear_handle_id (&idle_handler, g_source_remove);
 
   XFreePixmap (state.display, state.pixmap);
 

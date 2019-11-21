@@ -208,8 +208,7 @@ meta_backend_finalize (GObject *object)
   g_clear_object (&priv->system_bus);
   g_clear_object (&priv->upower_proxy);
 
-  if (priv->device_update_idle_id)
-    g_source_remove (priv->device_update_idle_id);
+  g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
 
   g_hash_table_destroy (priv->device_monitors);
 

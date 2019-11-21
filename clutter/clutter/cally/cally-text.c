@@ -247,11 +247,7 @@ cally_text_finalize   (GObject *obj)
 /*   g_object_unref (cally_text->priv->textutil); */
 /*   cally_text->priv->textutil = NULL; */
 
-  if (cally_text->priv->insert_idle_handler)
-    {
-      g_source_remove (cally_text->priv->insert_idle_handler);
-      cally_text->priv->insert_idle_handler = 0;
-    }
+  g_clear_handle_id (&cally_text->priv->insert_idle_handler, g_source_remove);
 
   G_OBJECT_CLASS (cally_text_parent_class)->finalize (obj);
 }

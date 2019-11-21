@@ -235,8 +235,7 @@ meta_input_device_native_free_pending_slow_key (gpointer data)
   SlowKeysEventPending *slow_keys_event = data;
 
   clutter_event_free (slow_keys_event->event);
-  if (slow_keys_event->timer)
-    g_source_remove (slow_keys_event->timer);
+  g_clear_handle_id (&slow_keys_event->timer, g_source_remove);
   g_free (slow_keys_event);
 }
 
@@ -381,11 +380,7 @@ start_bounce_keys (ClutterEvent          *event,
 static void
 stop_bounce_keys (MetaInputDeviceNative *device)
 {
-  if (device->debounce_timer)
-    {
-      g_source_remove (device->debounce_timer);
-      device->debounce_timer = 0;
-    }
+  g_clear_handle_id (&device->debounce_timer, g_source_remove);
 }
 
 static void
@@ -656,11 +651,7 @@ start_toggle_slowkeys (MetaInputDeviceNative *device)
 static void
 stop_toggle_slowkeys (MetaInputDeviceNative *device)
 {
-  if (device->toggle_slowkeys_timer)
-    {
-      g_source_remove (device->toggle_slowkeys_timer);
-      device->toggle_slowkeys_timer = 0;
-    }
+  g_clear_handle_id (&device->toggle_slowkeys_timer, g_source_remove);
 }
 
 static void
@@ -988,11 +979,7 @@ stop_mousekeys_move (MetaInputDeviceNative *device)
   device->mousekeys_first_motion_time = 0;
   device->mousekeys_last_motion_time = 0;
 
-  if (device->move_mousekeys_timer)
-    {
-      g_source_remove (device->move_mousekeys_timer);
-      device->move_mousekeys_timer = 0;
-    }
+  g_clear_handle_id (&device->move_mousekeys_timer, g_source_remove);
 }
 
 static void

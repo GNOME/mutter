@@ -107,8 +107,7 @@ meta_input_device_x11_finalize (GObject *object)
   if (device_xi2->group_modes)
     g_array_unref (device_xi2->group_modes);
 
-  if (device_xi2->inhibit_pointer_query_timer)
-    g_source_remove (device_xi2->inhibit_pointer_query_timer);
+  g_clear_handle_id (&device_xi2->inhibit_pointer_query_timer, g_source_remove);
 #endif
 
   G_OBJECT_CLASS (meta_input_device_x11_parent_class)->finalize (object);

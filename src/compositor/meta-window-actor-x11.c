@@ -144,8 +144,7 @@ remove_frame_messages_timer (MetaWindowActorX11 *actor_x11)
 {
   g_assert (actor_x11->send_frame_messages_timer != 0);
 
-  g_source_remove (actor_x11->send_frame_messages_timer);
-  actor_x11->send_frame_messages_timer = 0;
+  g_clear_handle_id (&actor_x11->send_frame_messages_timer, g_source_remove);
 }
 
 static void

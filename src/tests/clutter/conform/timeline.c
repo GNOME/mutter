@@ -313,7 +313,7 @@ timeline_base (TestConformSimpleFixture *fixture,
   timeline_data_destroy (&data_2);
   timeline_data_destroy (&data_3);
 
-  g_source_remove (delay_tag);
+  g_clear_handle_id (&delay_tag, g_source_remove);
 
   clutter_actor_destroy (stage);
 }

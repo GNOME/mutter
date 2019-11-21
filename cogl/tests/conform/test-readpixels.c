@@ -165,7 +165,7 @@ test_readpixels (TestUtilsGTestFixture *fixture,
   clutter_actor_show (stage);
   clutter_main ();
 
-  g_source_remove (idle_source);
+  g_clear_handle_id (&idle_source, g_source_remove);
 
   /* Remove all of the actors from the stage */
   clutter_actor_remove_all_children (stage);

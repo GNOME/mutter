@@ -215,8 +215,7 @@ meta_sequence_info_new (MetaGestureTracker *tracker,
 static void
 meta_sequence_info_free (MetaSequenceInfo *info)
 {
-  if (info->autodeny_timeout_id)
-    g_source_remove (info->autodeny_timeout_id);
+  g_clear_handle_id (&info->autodeny_timeout_id, g_source_remove);
 
   if (info->state == META_SEQUENCE_NONE)
     meta_gesture_tracker_set_sequence_state (info->tracker, info->sequence,
@@ -537,11 +536,7 @@ meta_gesture_tracker_set_sequence_state (MetaGestureTracker   *tracker,
     return FALSE;
 
   /* Unset autodeny timeout */
-  if (info->autodeny_timeout_id)
-    {
-      g_source_remove (info->autodeny_timeout_id);
-      info->autodeny_timeout_id = 0;
-    }
+  g_clear_handle_id (&info->autodeny_timeout_id, g_source_remove);
 
   info->state = state;
   g_signal_emit (tracker, signals[STATE_CHANGED], 0, sequence, info->state);

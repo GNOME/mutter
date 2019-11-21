@@ -799,8 +799,8 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
                * fallback to redrawing the full stage until the cooling
                * off period is over.
                */
-              if (stage_x11->clipped_redraws_cool_off)
-                g_source_remove (stage_x11->clipped_redraws_cool_off);
+              g_clear_handle_id (&stage_x11->clipped_redraws_cool_off,
+                                 g_source_remove);
 
               stage_x11->clipped_redraws_cool_off =
                 clutter_threads_add_timeout (1000,

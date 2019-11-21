@@ -180,11 +180,7 @@ meta_close_dialog_default_hide (MetaCloseDialog *dialog)
 
   dialog_default = META_CLOSE_DIALOG_DEFAULT (dialog);
 
-  if (dialog_default->child_watch_id)
-    {
-      g_source_remove (dialog_default->child_watch_id);
-      dialog_default->child_watch_id = 0;
-    }
+  g_clear_handle_id (&dialog_default->child_watch_id, g_source_remove);
 
   if (dialog_default->dialog_pid > -1)
     {
@@ -207,8 +203,7 @@ meta_close_dialog_default_finalize (GObject *object)
 
   dialog = META_CLOSE_DIALOG_DEFAULT (object);
 
-  if (dialog->child_watch_id)
-    g_source_remove (dialog->child_watch_id);
+  g_clear_handle_id (&dialog->child_watch_id, g_source_remove);
 
   if (dialog->dialog_pid > -1)
     {

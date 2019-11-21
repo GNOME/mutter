@@ -249,7 +249,7 @@ test_vertex_buffer_contiguous (TestUtilsGTestFixture *fixture,
   cogl_object_unref (state.material);
   cogl_object_unref (state.texture);
 
-  g_source_remove (idle_source);
+  g_clear_handle_id (&idle_source, g_source_remove);
 
   if (cogl_test_verbose ())
     g_print ("OK\n");

@@ -1232,8 +1232,7 @@ save_config_timeout (gpointer user_data)
 static void
 cancel_persistent_confirmation (MetaMonitorManager *manager)
 {
-  g_source_remove (manager->persistent_timeout_id);
-  manager->persistent_timeout_id = 0;
+  g_clear_handle_id (&manager->persistent_timeout_id, g_source_remove);
 }
 
 static void

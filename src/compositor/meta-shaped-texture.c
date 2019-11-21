@@ -228,11 +228,7 @@ meta_shaped_texture_dispose (GObject *object)
 {
   MetaShapedTexture *stex = (MetaShapedTexture *) object;
 
-  if (stex->remipmap_timeout_id)
-    {
-      g_source_remove (stex->remipmap_timeout_id);
-      stex->remipmap_timeout_id = 0;
-    }
+  g_clear_handle_id (&stex->remipmap_timeout_id, g_source_remove);
 
   if (stex->paint_tower)
     meta_texture_tower_free (stex->paint_tower);

@@ -207,8 +207,7 @@ meta_seat_native_clear_repeat_timer (MetaSeatNative *seat)
 {
   if (seat->repeat_timer)
     {
-      g_source_remove (seat->repeat_timer);
-      seat->repeat_timer = 0;
+      g_clear_handle_id (&seat->repeat_timer, g_source_remove);
       g_clear_object (&seat->repeat_device);
     }
 }

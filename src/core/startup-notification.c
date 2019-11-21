@@ -531,12 +531,8 @@ meta_startup_notification_remove_sequence (MetaStartupNotification *sn,
 
   g_signal_handlers_disconnect_by_func (seq, on_sequence_completed, sn);
 
-  if (sn->startup_sequences == NULL &&
-      sn->startup_sequence_timeout != 0)
-    {
-      g_source_remove (sn->startup_sequence_timeout);
-      sn->startup_sequence_timeout = 0;
-    }
+  if (sn->startup_sequences == NULL)
+    g_clear_handle_id (&sn->startup_sequence_timeout, g_source_remove);
 
   g_signal_emit (sn, sn_signals[CHANGED], 0, seq);
   g_object_unref (seq);
@@ -572,8 +568,7 @@ meta_startup_notification_finalize (GObject *object)
 {
   MetaStartupNotification *sn = META_STARTUP_NOTIFICATION (object);
 
-  if (sn->startup_sequence_timeout)
-    g_source_remove (sn->startup_sequence_timeout);
+  g_clear_handle_id (&sn->startup_sequence_timeout, g_source_remove);
 
   g_slist_free_full (sn->startup_sequences, g_object_unref);
   sn->startup_sequences = NULL;

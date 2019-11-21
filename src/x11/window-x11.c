@@ -3843,8 +3843,7 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
                   window->display->grab_latest_motion_x,
                   window->display->grab_latest_motion_y);
 
-      g_source_remove (window->sync_request_timeout_id);
-      window->sync_request_timeout_id = 0;
+      g_clear_handle_id (&window->sync_request_timeout_id, g_source_remove);
 
       /* This means we are ready for another configure;
        * no pointer round trip here, to keep in sync */

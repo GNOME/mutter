@@ -310,11 +310,7 @@ cally_actor_finalize (GObject *obj)
 
   _cally_actor_clean_action_list (cally_actor);
 
-  if (priv->action_idle_handler)
-    {
-      g_source_remove (priv->action_idle_handler);
-      priv->action_idle_handler = 0;
-    }
+  g_clear_handle_id (&priv->action_idle_handler, g_source_remove);
 
   if (priv->action_queue)
     {

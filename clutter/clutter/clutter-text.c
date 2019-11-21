@@ -1763,11 +1763,7 @@ clutter_text_dispose (GObject *gobject)
   g_clear_signal_handler (&priv->settings_changed_id,
                           clutter_get_default_backend ());
 
-  if (priv->password_hint_id)
-    {
-      g_source_remove (priv->password_hint_id);
-      priv->password_hint_id = 0;
-    }
+  g_clear_handle_id (&priv->password_hint_id, g_source_remove);
 
   clutter_text_set_buffer (self, NULL);
 
@@ -2450,8 +2446,7 @@ clutter_text_key_press (ClutterActor    *actor,
 
           if (priv->show_password_hint)
             {
-              if (priv->password_hint_id != 0)
-                g_source_remove (priv->password_hint_id);
+              g_clear_handle_id (&priv->password_hint_id, g_source_remove);
 
               priv->password_hint_visible = TRUE;
               priv->password_hint_id =

@@ -197,8 +197,8 @@ stop_secondary_click_timeout (ClutterInputDevice *device)
 {
   if (device->ptr_a11y_data->secondary_click_timer)
     {
-      g_source_remove (device->ptr_a11y_data->secondary_click_timer);
-      device->ptr_a11y_data->secondary_click_timer = 0;
+      g_clear_handle_id (&device->ptr_a11y_data->secondary_click_timer,
+                         g_source_remove);
 
       g_signal_emit_by_name (device->device_manager,
                              "ptr-a11y-timeout-stopped",
@@ -511,8 +511,7 @@ stop_dwell_timeout (ClutterInputDevice *device)
 {
   if (device->ptr_a11y_data->dwell_timer)
     {
-      g_source_remove (device->ptr_a11y_data->dwell_timer);
-      device->ptr_a11y_data->dwell_timer = 0;
+      g_clear_handle_id (&device->ptr_a11y_data->dwell_timer, g_source_remove);
       device->ptr_a11y_data->dwell_gesture_started = FALSE;
 
       g_signal_emit_by_name (device->device_manager,

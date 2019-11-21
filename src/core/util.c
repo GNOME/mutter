@@ -762,11 +762,7 @@ unref_later (MetaLater *later)
 static void
 destroy_later (MetaLater *later)
 {
-  if (later->source)
-    {
-      g_source_remove (later->source);
-      later->source = 0;
-    }
+  g_clear_handle_id (&later->source, g_source_remove);
   later->func = NULL;
   unref_later (later);
 }

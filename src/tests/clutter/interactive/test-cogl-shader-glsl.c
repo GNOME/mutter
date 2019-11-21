@@ -229,11 +229,7 @@ button_release_cb (ClutterActor *actor,
 
   /* Stop the automatic cycling if the user want to manually control
    * which shader to display */
-  if (timeout_id)
-    {
-      g_source_remove (timeout_id);
-      timeout_id = 0;
-    }
+  g_clear_handle_id (&timeout_id, g_source_remove);
 
   if (event->button.button == 1)
     {

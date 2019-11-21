@@ -739,11 +739,7 @@ window_created_cb (MetaDisplay         *display,
   g_signal_connect (window, "unmanaged",
                     G_CALLBACK (window_unmanaged_cb), manager);
 
-  if (manager->xserver_grace_period_id)
-    {
-      g_source_remove (manager->xserver_grace_period_id);
-      manager->xserver_grace_period_id = 0;
-    }
+  g_clear_handle_id (&manager->xserver_grace_period_id, g_source_remove);
 }
 
 static void

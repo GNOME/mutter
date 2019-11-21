@@ -129,7 +129,7 @@ test_texture_mipmaps (TestUtilsGTestFixture *fixture,
 
   clutter_main ();
 
-  g_source_remove (idle_source);
+  g_clear_handle_id (&idle_source, g_source_remove);
 
   if (cogl_test_verbose ())
     g_print ("OK\n");

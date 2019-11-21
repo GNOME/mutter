@@ -257,8 +257,7 @@ click_action_cancel_long_press (ClutterClickAction *action)
 
       actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
 
-      g_source_remove (priv->long_press_id);
-      priv->long_press_id = 0;
+      g_clear_handle_id (&priv->long_press_id, g_source_remove);
 
       g_signal_emit (action, click_signals[LONG_PRESS], 0,
                      actor,
@@ -373,11 +372,7 @@ on_captured_event (ClutterActor       *stage,
       /* disconnect the capture */
       g_clear_signal_handler (&priv->capture_id, priv->stage);
 
-      if (priv->long_press_id != 0)
-        {
-          g_source_remove (priv->long_press_id);
-          priv->long_press_id = 0;
-        }
+      g_clear_handle_id (&priv->long_press_id, g_source_remove);
 
       if (!clutter_actor_contains (actor, clutter_event_get_source (event)))
         return CLUTTER_EVENT_PROPAGATE;
@@ -459,11 +454,7 @@ clutter_click_action_set_actor (ClutterActorMeta *meta,
       priv->stage = NULL;
     }
 
-  if (priv->long_press_id != 0)
-    {
-      g_source_remove (priv->long_press_id);
-      priv->long_press_id = 0;
-    }
+  g_clear_handle_id (&priv->long_press_id, g_source_remove);
 
   click_action_set_pressed (action, FALSE);
   click_action_set_held (action, FALSE);
@@ -542,11 +533,7 @@ clutter_click_action_dispose (GObject *gobject)
 
   g_clear_signal_handler (&priv->capture_id, priv->stage);
 
-  if (priv->long_press_id)
-    {
-      g_source_remove (priv->long_press_id);
-      priv->long_press_id = 0;
-    }
+  g_clear_handle_id (&priv->long_press_id, g_source_remove);
 
   G_OBJECT_CLASS (clutter_click_action_parent_class)->dispose (gobject);
 }

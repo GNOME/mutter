@@ -1430,8 +1430,7 @@ meta_window_unmanage (MetaWindow  *window,
   meta_verbose ("Unmanaging %s\n", window->desc);
   window->unmanaging = TRUE;
 
-  if (window->unmanage_idle_id)
-    g_source_remove (window->unmanage_idle_id);
+  g_clear_handle_id (&window->unmanage_idle_id, g_source_remove);
 
   meta_window_free_delete_dialog (window);
 
@@ -1540,11 +1539,7 @@ meta_window_unmanage (MetaWindow  *window,
       invalidate_work_areas (window);
     }
 
-  if (window->sync_request_timeout_id)
-    {
-      g_source_remove (window->sync_request_timeout_id);
-      window->sync_request_timeout_id = 0;
-    }
+  g_clear_handle_id (&window->sync_request_timeout_id, g_source_remove);
 
   if (window->display->grab_window == window)
     meta_display_end_grab_op (window->display, timestamp);
@@ -6341,11 +6336,7 @@ update_resize (MetaWindow *window,
     }
 
   /* Remove any scheduled compensation events */
-  if (window->display->grab_resize_timeout_id)
-    {
-      g_source_remove (window->display->grab_resize_timeout_id);
-      window->display->grab_resize_timeout_id = 0;
-    }
+  g_clear_handle_id (&window->display->grab_resize_timeout_id, g_source_remove);
 
   meta_window_get_frame_rect (window, &old);
 
@@ -8226,8 +8217,7 @@ queue_focus_callback (MetaDisplay *display,
   focus_data->pointer_x = pointer_x;
   focus_data->pointer_y = pointer_y;
 
-  if (display->focus_timeout_id != 0)
-    g_source_remove (display->focus_timeout_id);
+  g_clear_handle_id (&display->focus_timeout_id, g_source_remove);
 
   display->focus_timeout_id =
     g_timeout_add_full (G_PRIORITY_DEFAULT,

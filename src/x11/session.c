@@ -150,7 +150,7 @@ new_ice_connection (IceConn connection, IcePointer client_data, Bool opening,
     {
       input_id = GPOINTER_TO_UINT ((gpointer) *watch_data);
 
-      g_source_remove (input_id);
+      g_clear_handle_id (&input_id, g_source_remove);
     }
 }
 
