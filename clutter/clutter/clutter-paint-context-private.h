@@ -29,4 +29,6 @@ void clutter_paint_context_pop_framebuffer (ClutterPaintContext *paint_context);
 
 gboolean clutter_paint_context_is_drawing_off_stage (ClutterPaintContext *paint_context);
 
+CoglFramebuffer * clutter_paint_context_get_base_framebuffer (ClutterPaintContext *paint_context);
+
 #endif /* CLUTTER_PAINT_CONTEXT_PRIVATE_H */

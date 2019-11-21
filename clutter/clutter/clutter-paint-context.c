@@ -129,6 +129,12 @@ clutter_paint_context_get_framebuffer (ClutterPaintContext *paint_context)
   return paint_context->framebuffers->data;
 }
 
+CoglFramebuffer *
+clutter_paint_context_get_base_framebuffer (ClutterPaintContext *paint_context)
+{
+  return g_list_last (paint_context->framebuffers)->data;
+}
+
 /**
  * clutter_paint_context_get_stage_view: (skip)
  */
