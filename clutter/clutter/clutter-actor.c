@@ -3817,7 +3817,7 @@ clutter_actor_paint_node (ClutterActor        *actor,
       CoglFramebuffer *fb;
       CoglBufferBit clear_flags;
 
-      fb = _clutter_stage_get_active_framebuffer (CLUTTER_STAGE (actor));
+      fb = clutter_paint_context_get_base_framebuffer (paint_context);
 
       if (clutter_stage_get_use_alpha (CLUTTER_STAGE (actor)))
         {
@@ -4123,6 +4123,7 @@ clutter_actor_continue_paint (ClutterActor        *self,
      actual actor */
   if (priv->next_effect_to_paint == NULL)
     {
+      CoglFramebuffer *framebuffer;
       ClutterPaintNode *dummy;
 
       /* XXX - this will go away in 2.0, when we can get rid of this
@@ -4130,7 +4131,8 @@ clutter_actor_continue_paint (ClutterActor        *self,
        * for the entire frame, starting from the Stage; the paint()
        * virtual function can then be called directly.
        */
-      dummy = _clutter_dummy_node_new (self);
+      framebuffer = clutter_paint_context_get_base_framebuffer (paint_context);
+      dummy = _clutter_dummy_node_new (self, framebuffer);
       clutter_paint_node_set_name (dummy, "Root");
 
       /* XXX - for 1.12, we use the return value of paint_node() to

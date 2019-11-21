@@ -321,6 +321,16 @@ clutter_dummy_node_get_framebuffer (ClutterPaintNode *node)
 }
 
 static void
+clutter_dummy_node_finalize (ClutterPaintNode *node)
+{
+  ClutterDummyNode *dnode = (ClutterDummyNode *) node;
+
+  cogl_clear_object (&dnode->framebuffer);
+
+  CLUTTER_PAINT_NODE_CLASS (clutter_dummy_node_parent_class)->finalize (node);
+}
+
+static void
 clutter_dummy_node_class_init (ClutterDummyNodeClass *klass)
 {
   ClutterPaintNodeClass *node_class = CLUTTER_PAINT_NODE_CLASS (klass);
@@ -328,6 +338,7 @@ clutter_dummy_node_class_init (ClutterDummyNodeClass *klass)
   node_class->pre_draw = clutter_dummy_node_pre_draw;
   node_class->serialize = clutter_dummy_node_serialize;
   node_class->get_framebuffer = clutter_dummy_node_get_framebuffer;
+  node_class->finalize = clutter_dummy_node_finalize;
 }
 
 static void
@@ -336,7 +347,8 @@ clutter_dummy_node_init (ClutterDummyNode *self)
 }
 
 ClutterPaintNode *
-_clutter_dummy_node_new (ClutterActor *actor)
+_clutter_dummy_node_new (ClutterActor    *actor,
+                         CoglFramebuffer *framebuffer)
 {
   ClutterPaintNode *res;
   ClutterDummyNode *dnode;
@@ -345,7 +357,7 @@ _clutter_dummy_node_new (ClutterActor *actor)
 
   dnode = (ClutterDummyNode *) res;
   dnode->actor = actor;
-  dnode->framebuffer = _clutter_actor_get_active_framebuffer (actor);
+  dnode->framebuffer = cogl_object_ref (framebuffer);
 
   return res;
 }

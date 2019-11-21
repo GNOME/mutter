@@ -115,7 +115,8 @@ void                    _clutter_paint_node_init_types                  (void);
 gpointer                _clutter_paint_node_create                      (GType gtype);
 
 ClutterPaintNode *      _clutter_transform_node_new                     (const CoglMatrix            *matrix);
-ClutterPaintNode *      _clutter_dummy_node_new                         (ClutterActor                *actor);
+ClutterPaintNode *      _clutter_dummy_node_new                         (ClutterActor                *actor,
+                                                                         CoglFramebuffer             *framebuffer);
 
 void                    _clutter_paint_node_dump_tree                   (ClutterPaintNode            *root);
 
