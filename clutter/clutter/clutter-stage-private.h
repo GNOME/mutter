@@ -104,8 +104,6 @@ ClutterStageQueueRedrawEntry *_clutter_stage_queue_actor_redraw            (Clut
                                                                             const ClutterPaintVolume     *clip);
 void                          _clutter_stage_queue_redraw_entry_invalidate (ClutterStageQueueRedrawEntry *entry);
 
-CoglFramebuffer *_clutter_stage_get_active_framebuffer (ClutterStage *stage);
-
 void            _clutter_stage_add_pointer_drag_actor    (ClutterStage       *stage,
                                                           ClutterInputDevice *device,
                                                           ClutterActor       *actor);

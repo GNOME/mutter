@@ -122,8 +122,6 @@ struct _ClutterStagePrivate
 
   GList *pending_queue_redraws;
 
-  CoglFramebuffer *active_framebuffer;
-
   gint sync_delay;
 
   GTimer *fps_timer;
@@ -840,20 +838,6 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
   graphene_vec3_normalize (&plane->n, &plane->n);
 }
 
-static void
-_clutter_stage_update_active_framebuffer (ClutterStage    *stage,
-                                          CoglFramebuffer *framebuffer)
-{
-  ClutterStagePrivate *priv = stage->priv;
-
-  /* We track the CoglFramebuffer that corresponds to the stage itself
-   * so, for example, we can disable culling when rendering to an
-   * offscreen framebuffer.
-   */
-
-  priv->active_framebuffer = framebuffer;
-}
-
 /* XXX: Instead of having a toplevel 2D clip region, it might be
  * better to have a clip volume within the view frustum. This could
  * allow us to avoid projecting actors into window coordinates to
@@ -865,7 +849,6 @@ setup_view_for_pick_or_paint (ClutterStage                *stage,
                               const cairo_rectangle_int_t *clip)
 {
   ClutterStagePrivate *priv = stage->priv;
-  CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
   cairo_rectangle_int_t view_layout;
   float clip_poly[8];
   float viewport[4];
@@ -916,7 +899,6 @@ setup_view_for_pick_or_paint (ClutterStage                *stage,
                                              priv->current_clip_planes);
 
   _clutter_stage_paint_volume_stack_free_all (stage);
-  _clutter_stage_update_active_framebuffer (stage, framebuffer);
 }
 
 static void
@@ -4021,18 +4003,6 @@ clutter_stage_get_motion_events_enabled (ClutterStage *stage)
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
 
   return stage->priv->motion_events_enabled;
-}
-
-/* NB: The presumption shouldn't be that a stage can't be comprised
- * of multiple internal framebuffers, so instead of simply naming
- * this function _clutter_stage_get_framebuffer(), the "active"
- * infix is intended to clarify that it gets the framebuffer that
- * is currently in use/being painted.
- */
-CoglFramebuffer *
-_clutter_stage_get_active_framebuffer (ClutterStage *stage)
-{
-  return stage->priv->active_framebuffer;
 }
 
 void
