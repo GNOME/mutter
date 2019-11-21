@@ -137,3 +137,19 @@ clutter_paint_context_get_stage_view (ClutterPaintContext *paint_context)
 {
   return paint_context->view;
 }
+
+/**
+ * clutter_paint_context_is_drawing_off_stage: (skip)
+ *
+ * Return %TRUE if the paint context is currently drawing off stage.
+ * This happens if there are any framebuffers pushed, and the base framebuffer
+ * comes from the stage view.
+ */
+gboolean
+clutter_paint_context_is_drawing_off_stage (ClutterPaintContext *paint_context)
+{
+  if (g_list_length (paint_context->framebuffers) > 1)
+    return TRUE;
+
+  return !paint_context->view;
+}

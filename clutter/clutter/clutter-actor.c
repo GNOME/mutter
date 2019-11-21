@@ -643,6 +643,7 @@
 #include "clutter-main.h"
 #include "clutter-marshal.h"
 #include "clutter-mutter.h"
+#include "clutter-paint-context-private.h"
 #include "clutter-paint-nodes.h"
 #include "clutter-paint-node-private.h"
 #include "clutter-paint-volume-private.h"
@@ -3594,8 +3595,9 @@ in_clone_paint (void)
  * means there's no point in trying to cull descendants of the current
  * node. */
 static gboolean
-cull_actor (ClutterActor      *self,
-            ClutterCullResult *result_out)
+cull_actor (ClutterActor        *self,
+            ClutterPaintContext *paint_context,
+            ClutterCullResult   *result_out)
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterStage *stage;
@@ -3622,10 +3624,10 @@ cull_actor (ClutterActor      *self,
       return FALSE;
     }
 
-  if (cogl_get_draw_framebuffer () != _clutter_stage_get_active_framebuffer (stage))
+  if (clutter_paint_context_is_drawing_off_stage (paint_context))
     {
       CLUTTER_NOTE (CLIPPING, "Bail from cull_actor without culling (%s): "
-                    "Current framebuffer doesn't correspond to stage",
+                    "Drawing off stage",
                     _clutter_actor_get_debug_name (self));
       return FALSE;
     }
@@ -4058,7 +4060,7 @@ clutter_actor_paint (ClutterActor        *self,
                      CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)))
         _clutter_actor_update_last_paint_volume (self);
 
-      success = cull_actor (self, &result);
+      success = cull_actor (self, paint_context, &result);
 
       if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_REDRAWS))
         _clutter_actor_paint_cull_result (self, success, result, actor_node);
