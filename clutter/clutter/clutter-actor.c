@@ -1287,10 +1287,12 @@ clutter_actor_verify_map_state (ClutterActor *self)
 static gboolean
 _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
                                              ClutterStage          *stage,
+                                             ClutterPickContext    *pick_context,
                                              const ClutterActorBox *box,
                                              graphene_point_t       vertices[4])
 {
-  CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *fb =
+   clutter_pick_context_get_framebuffer (pick_context);
   CoglMatrix stage_transform, inv_stage_transform;
   CoglMatrix modelview, transform_to_stage;
   int v;
@@ -1356,12 +1358,14 @@ clutter_actor_pick_box (ClutterActor          *self,
 
   stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
 
-  if (_clutter_actor_transform_local_box_to_stage (self, stage, box, vertices))
+  if (_clutter_actor_transform_local_box_to_stage (self, stage, pick_context,
+                                                   box, vertices))
     clutter_stage_log_pick (stage, vertices, self);
 }
 
 static gboolean
 _clutter_actor_push_pick_clip (ClutterActor          *self,
+                               ClutterPickContext    *pick_context,
                                const ClutterActorBox *clip)
 {
   ClutterStage *stage;
@@ -1369,7 +1373,8 @@ _clutter_actor_push_pick_clip (ClutterActor          *self,
 
   stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
 
-  if (!_clutter_actor_transform_local_box_to_stage (self, stage, clip, vertices))
+  if (!_clutter_actor_transform_local_box_to_stage (self, stage, pick_context,
+                                                    clip, vertices))
     return FALSE;
 
   clutter_stage_push_pick_clip (stage, vertices);
@@ -4183,6 +4188,7 @@ clutter_actor_pick (ClutterActor       *actor,
                     ClutterPickContext *pick_context)
 {
   ClutterActorPrivate *priv;
+  CoglFramebuffer *framebuffer;
   ClutterActorBox clip;
   gboolean clip_set = FALSE;
 
@@ -4202,15 +4208,16 @@ clutter_actor_pick (ClutterActor       *actor,
   /* mark that we are in the paint process */
   CLUTTER_SET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);
 
-  cogl_push_matrix ();
+  framebuffer = clutter_pick_context_get_framebuffer (pick_context);
+  cogl_framebuffer_push_matrix (framebuffer);
 
   if (priv->enable_model_view_transform)
     {
       CoglMatrix matrix;
 
-      cogl_get_modelview_matrix (&matrix);
+      cogl_framebuffer_get_modelview_matrix (framebuffer, &matrix);
       _clutter_actor_apply_modelview_transform (actor, &matrix);
-      cogl_set_modelview_matrix (&matrix);
+      cogl_framebuffer_set_modelview_matrix (framebuffer, &matrix);
     }
 
   if (priv->has_clip)
@@ -4231,7 +4238,7 @@ clutter_actor_pick (ClutterActor       *actor,
     }
 
   if (clip_set)
-    clip_set = _clutter_actor_push_pick_clip (actor, &clip);
+    clip_set = _clutter_actor_push_pick_clip (actor, pick_context, &clip);
 
   priv->next_effect_to_paint = NULL;
   if (priv->effects)
@@ -4245,7 +4252,7 @@ clutter_actor_pick (ClutterActor       *actor,
   if (clip_set)
     _clutter_actor_pop_pick_clip (actor);
 
-  cogl_pop_matrix ();
+  cogl_framebuffer_pop_matrix (framebuffer);
 
   /* paint sequence complete */
   CLUTTER_UNSET_PRIVATE_FLAGS (actor, CLUTTER_IN_PICK);

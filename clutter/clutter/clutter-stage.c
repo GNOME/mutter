@@ -1647,7 +1647,6 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
 {
   ClutterMainContext *context = _clutter_context_get_default ();
   ClutterStagePrivate *priv = stage->priv;
-  CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
   int i;
 
   g_assert (context->pick_mode == CLUTTER_PICK_NONE);
@@ -1659,7 +1658,6 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
       _clutter_stage_clear_pick_stack (stage);
 
       pick_context = clutter_pick_context_new_for_view (view);
-      cogl_push_framebuffer (fb);
 
       context->pick_mode = mode;
       setup_view_for_pick_or_paint (stage, view, NULL);
@@ -1667,7 +1665,6 @@ _clutter_stage_do_pick_on_view (ClutterStage     *stage,
       context->pick_mode = CLUTTER_PICK_NONE;
       priv->cached_pick_mode = mode;
 
-      cogl_pop_framebuffer ();
       clutter_pick_context_destroy (pick_context);
 
       add_pick_stack_weak_refs (stage);
