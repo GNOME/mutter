@@ -177,7 +177,7 @@ typedef void (*CoglMetaTextureCallback) (CoglTexture *sub_texture,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_meta_texture_foreach_in_region (CoglMetaTexture *meta_texture,
                                      float tx_1,
                                      float ty_1,

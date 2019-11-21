@@ -43,7 +43,7 @@
 /**
  * cogl_dma_buf_handle_new: (skip)
  */
-CoglDmaBufHandle *
+COGL_EXPORT CoglDmaBufHandle *
 cogl_dma_buf_handle_new (CoglFramebuffer *framebuffer,
                          int              dmabuf_fd,
                          gpointer         data,
@@ -55,7 +55,7 @@ cogl_dma_buf_handle_new (CoglFramebuffer *framebuffer,
  * Releases @dmabuf_handle; it is a programming error to release
  * an already released handle.
  */
-void
+COGL_EXPORT void
 cogl_dma_buf_handle_free (CoglDmaBufHandle *dmabuf_handle);
 
 /**
@@ -66,7 +66,7 @@ cogl_dma_buf_handle_free (CoglDmaBufHandle *dmabuf_handle);
  *
  * Returns: (transfer none): a #CoglFramebuffer
  */
-CoglFramebuffer *
+COGL_EXPORT CoglFramebuffer *
 cogl_dma_buf_handle_get_framebuffer (CoglDmaBufHandle *dmabuf_handle);
 
 /**
@@ -76,7 +76,7 @@ cogl_dma_buf_handle_get_framebuffer (CoglDmaBufHandle *dmabuf_handle);
  *
  * Returns: a valid file descriptor
  */
-int
+COGL_EXPORT int
 cogl_dma_buf_handle_get_fd (CoglDmaBufHandle *dmabuf_handle);
 
 

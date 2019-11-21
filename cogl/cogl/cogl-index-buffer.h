@@ -61,7 +61,7 @@ typedef struct _CoglIndexBuffer	      CoglIndexBuffer;
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
-GType cogl_index_buffer_get_gtype (void);
+COGL_EXPORT GType cogl_index_buffer_get_gtype (void);
 
 /**
  * cogl_index_buffer_new:
@@ -78,7 +78,7 @@ GType cogl_index_buffer_get_gtype (void);
  * Since: 1.4
  * Stability: Unstable
  */
-CoglIndexBuffer *
+COGL_EXPORT CoglIndexBuffer *
 cogl_index_buffer_new (CoglContext *context,
                        size_t bytes);
 
@@ -94,7 +94,7 @@ cogl_index_buffer_new (CoglContext *context,
  * Since: 1.4
  * Stability: Unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_index_buffer (void *object);
 
 G_END_DECLS

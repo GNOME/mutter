@@ -55,6 +55,7 @@ typedef struct _CoglOnscreen CoglOnscreen;
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_onscreen_get_gtype (void);
 
 /**
@@ -71,7 +72,7 @@ GType cogl_onscreen_get_gtype (void);
  * Since: 1.8
  * Stability: unstable
  */
-CoglOnscreen *
+COGL_EXPORT CoglOnscreen *
 cogl_onscreen_new (CoglContext *context, int width, int height);
 
 #ifdef COGL_HAS_X11
@@ -92,7 +93,7 @@ cogl_onscreen_new (CoglContext *context, int width, int height);
  * Since: 1.10
  * Stability: unstable
  */
-uint32_t
+COGL_EXPORT uint32_t
 cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen);
 
 #endif /* COGL_HAS_X11 */
@@ -125,7 +126,7 @@ cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen);
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_onscreen_show (CoglOnscreen *onscreen);
 
 /**
@@ -150,7 +151,7 @@ cogl_onscreen_show (CoglOnscreen *onscreen);
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_onscreen_hide (CoglOnscreen *onscreen);
 
 /**
@@ -174,7 +175,7 @@ cogl_onscreen_hide (CoglOnscreen *onscreen);
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_onscreen_swap_buffers (CoglOnscreen *onscreen);
 
 
@@ -227,7 +228,7 @@ cogl_onscreen_swap_buffers (CoglOnscreen *onscreen);
  * Since: 1.14
  * Stability: stable
  */
-int
+COGL_EXPORT int
 cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen);
 
 /**
@@ -278,7 +279,7 @@ cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen);
  * Since: 1.16
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
                                         const int *rectangles,
                                         int n_rectangles);
@@ -303,7 +304,7 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_onscreen_swap_region (CoglOnscreen *onscreen,
                            const int *rectangles,
                            int n_rectangles);
@@ -388,6 +389,7 @@ typedef struct _CoglClosure CoglFrameClosure;
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_frame_closure_get_gtype (void);
 
 /**
@@ -427,7 +429,7 @@ GType cogl_frame_closure_get_gtype (void);
  * Since: 1.14
  * Stability: unstable
  */
-CoglFrameClosure *
+COGL_EXPORT CoglFrameClosure *
 cogl_onscreen_add_frame_callback (CoglOnscreen *onscreen,
                                   CoglFrameCallback callback,
                                   void *user_data,
@@ -449,7 +451,7 @@ cogl_onscreen_add_frame_callback (CoglOnscreen *onscreen,
  * Since: 1.14
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_onscreen_remove_frame_callback (CoglOnscreen *onscreen,
                                      CoglFrameClosure *closure);
 
@@ -482,7 +484,7 @@ cogl_onscreen_remove_frame_callback (CoglOnscreen *onscreen,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_onscreen_set_resizable (CoglOnscreen *onscreen,
                              gboolean resizable);
 
@@ -509,7 +511,7 @@ cogl_onscreen_set_resizable (CoglOnscreen *onscreen,
  *               resizable or not.
  * Since: 2.0
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_onscreen_get_resizable (CoglOnscreen *onscreen);
 
 /**
@@ -560,6 +562,7 @@ typedef struct _CoglClosure CoglOnscreenResizeClosure;
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_onscreen_resize_closure_get_gtype (void);
 
 /**
@@ -594,7 +597,7 @@ GType cogl_onscreen_resize_closure_get_gtype (void);
  *               remove the callback and associated @user_data later.
  * Since: 2.0
  */
-CoglOnscreenResizeClosure *
+COGL_EXPORT CoglOnscreenResizeClosure *
 cogl_onscreen_add_resize_callback (CoglOnscreen *onscreen,
                                    CoglOnscreenResizeCallback callback,
                                    void *user_data,
@@ -610,7 +613,7 @@ cogl_onscreen_add_resize_callback (CoglOnscreen *onscreen,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_onscreen_remove_resize_callback (CoglOnscreen *onscreen,
                                       CoglOnscreenResizeClosure *closure);
 
@@ -674,6 +677,7 @@ typedef struct _CoglClosure CoglOnscreenDirtyClosure;
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_onscreen_dirty_closure_get_gtype (void);
 
 /**
@@ -706,7 +710,7 @@ GType cogl_onscreen_dirty_closure_get_gtype (void);
  * Since: 1.16
  * Stability: unstable
  */
-CoglOnscreenDirtyClosure *
+COGL_EXPORT CoglOnscreenDirtyClosure *
 cogl_onscreen_add_dirty_callback (CoglOnscreen *onscreen,
                                   CoglOnscreenDirtyCallback callback,
                                   void *user_data,
@@ -728,7 +732,7 @@ cogl_onscreen_add_dirty_callback (CoglOnscreen *onscreen,
  * Since: 1.16
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_onscreen_remove_dirty_callback (CoglOnscreen *onscreen,
                                      CoglOnscreenDirtyClosure *closure);
 
@@ -743,7 +747,7 @@ cogl_onscreen_remove_dirty_callback (CoglOnscreen *onscreen,
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_onscreen (void *object);
 
 /**
@@ -758,7 +762,7 @@ cogl_is_onscreen (void *object);
  * Since: 1.14
  * Stability: unstable
  */
-int64_t
+COGL_EXPORT int64_t
 cogl_onscreen_get_frame_counter (CoglOnscreen *onscreen);
 
 G_END_DECLS

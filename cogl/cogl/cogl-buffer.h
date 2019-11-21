@@ -107,7 +107,7 @@ _cogl_buffer_error_domain (void);
  * Since: 1.2
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_buffer (void *object);
 
 /**
@@ -121,7 +121,7 @@ cogl_is_buffer (void *object);
  * Since: 1.2
  * Stability: unstable
  */
-unsigned int
+COGL_EXPORT unsigned int
 cogl_buffer_get_size (CoglBuffer *buffer);
 
 /**
@@ -155,7 +155,7 @@ typedef enum /*< prefix=COGL_BUFFER_UPDATE_HINT >*/
  * Since: 1.2
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_buffer_set_update_hint (CoglBuffer          *buffer,
                              CoglBufferUpdateHint hint);
 
@@ -170,7 +170,7 @@ cogl_buffer_set_update_hint (CoglBuffer          *buffer,
  * Since: 1.2
  * Stability: unstable
  */
-CoglBufferUpdateHint
+COGL_EXPORT CoglBufferUpdateHint
 cogl_buffer_get_update_hint (CoglBuffer *buffer);
 
 /**
@@ -244,7 +244,7 @@ typedef enum /*< prefix=COGL_BUFFER_MAP_HINT >*/
  * Since: 1.2
  * Stability: unstable
  */
-void *
+COGL_EXPORT void *
 cogl_buffer_map (CoglBuffer *buffer,
                  CoglBufferAccess access,
                  CoglBufferMapHint hints);
@@ -281,7 +281,7 @@ cogl_buffer_map (CoglBuffer *buffer,
  * Since: 2.0
  * Stability: unstable
  */
-void *
+COGL_EXPORT void *
 cogl_buffer_map_range (CoglBuffer *buffer,
                        size_t offset,
                        size_t size,
@@ -298,7 +298,7 @@ cogl_buffer_map_range (CoglBuffer *buffer,
  * Since: 1.2
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_buffer_unmap (CoglBuffer *buffer);
 
 /**
@@ -317,7 +317,7 @@ cogl_buffer_unmap (CoglBuffer *buffer);
  * Since: 1.2
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_buffer_set_data (CoglBuffer *buffer,
                       size_t offset,
                       const void *data,

@@ -268,10 +268,10 @@ _cogl_framebuffer_mark_clear_clip_dirty (CoglFramebuffer *framebuffer);
 CoglClipStack *
 _cogl_framebuffer_get_clip_stack (CoglFramebuffer *framebuffer);
 
-CoglMatrixStack *
+COGL_EXPORT CoglMatrixStack *
 _cogl_framebuffer_get_modelview_stack (CoglFramebuffer *framebuffer);
 
-CoglMatrixStack *
+COGL_EXPORT CoglMatrixStack *
 _cogl_framebuffer_get_projection_stack (CoglFramebuffer *framebuffer);
 
 void
@@ -393,7 +393,7 @@ _cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
  * Since: 2.0
  * Stability: unstable
  */
-int
+COGL_EXPORT int
 _cogl_framebuffer_get_stencil_bits (CoglFramebuffer *framebuffer);
 
 #endif /* __COGL_FRAMEBUFFER_PRIVATE_H */

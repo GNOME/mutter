@@ -2576,7 +2576,7 @@ static CoglWinsysVtable _cogl_winsys_vtable =
  * c99 initializers for insane platforms they can initialize
  * the members by name in a function.
  */
-const CoglWinsysVtable *
+COGL_EXPORT const CoglWinsysVtable *
 _cogl_winsys_glx_get_vtable (void)
 {
   return &_cogl_winsys_vtable;

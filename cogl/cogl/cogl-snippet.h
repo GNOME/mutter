@@ -345,6 +345,7 @@ typedef struct _CoglSnippet CoglSnippet;
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_snippet_get_gtype (void);
 
 /* Enumeration of all the hook points that a snippet can be attached
@@ -690,7 +691,7 @@ typedef enum
  * Since: 1.10
  * Stability: Unstable
  */
-CoglSnippet *
+COGL_EXPORT CoglSnippet *
 cogl_snippet_new (CoglSnippetHook hook,
                   const char *declarations,
                   const char *post);
@@ -704,7 +705,7 @@ cogl_snippet_new (CoglSnippetHook hook,
  * Since: 1.10
  * Stability: Unstable
  */
-CoglSnippetHook
+COGL_EXPORT CoglSnippetHook
 cogl_snippet_get_hook (CoglSnippet *snippet);
 
 /**
@@ -719,7 +720,7 @@ cogl_snippet_get_hook (CoglSnippet *snippet);
  * Since: 1.10
  * Stability: Unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_snippet (void *object);
 
 /**
@@ -740,7 +741,7 @@ cogl_is_snippet (void *object);
  * Since: 1.10
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_snippet_set_declarations (CoglSnippet *snippet,
                                const char *declarations);
 
@@ -754,7 +755,7 @@ cogl_snippet_set_declarations (CoglSnippet *snippet,
  * Since: 1.10
  * Stability: Unstable
  */
-const char *
+COGL_EXPORT const char *
 cogl_snippet_get_declarations (CoglSnippet *snippet);
 
 /**
@@ -774,7 +775,7 @@ cogl_snippet_get_declarations (CoglSnippet *snippet);
  * Since: 1.10
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_snippet_set_pre (CoglSnippet *snippet,
                       const char *pre);
 
@@ -788,7 +789,7 @@ cogl_snippet_set_pre (CoglSnippet *snippet,
  * Since: 1.10
  * Stability: Unstable
  */
-const char *
+COGL_EXPORT const char *
 cogl_snippet_get_pre (CoglSnippet *snippet);
 
 /**
@@ -808,7 +809,7 @@ cogl_snippet_get_pre (CoglSnippet *snippet);
  * Since: 1.10
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_snippet_set_replace (CoglSnippet *snippet,
                           const char *replace);
 
@@ -822,7 +823,7 @@ cogl_snippet_set_replace (CoglSnippet *snippet,
  * Since: 1.10
  * Stability: Unstable
  */
-const char *
+COGL_EXPORT const char *
 cogl_snippet_get_replace (CoglSnippet *snippet);
 
 /**
@@ -842,7 +843,7 @@ cogl_snippet_get_replace (CoglSnippet *snippet);
  * Since: 1.10
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_snippet_set_post (CoglSnippet *snippet,
                        const char *post);
 
@@ -856,7 +857,7 @@ cogl_snippet_set_post (CoglSnippet *snippet,
  * Since: 1.10
  * Stability: Unstable
  */
-const char *
+COGL_EXPORT const char *
 cogl_snippet_get_post (CoglSnippet *snippet);
 
 G_END_DECLS

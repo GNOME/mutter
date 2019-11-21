@@ -272,7 +272,7 @@ _cogl_texture_register_texture_type (const CoglObjectClass *klass);
   (TypeName, type_name,                                                 \
    _cogl_texture_register_texture_type (&_cogl_##type_name##_class))
 
-gboolean
+COGL_EXPORT gboolean
 _cogl_texture_can_hardware_repeat (CoglTexture *texture);
 
 void
@@ -346,7 +346,7 @@ _cogl_texture_spans_foreach_in_region (CoglSpan *x_spans,
                                        CoglMetaTextureCallback callback,
                                        void *user_data);
 
-gboolean
+COGL_EXPORT gboolean
 _cogl_texture_set_region (CoglTexture *texture,
                           int width,
                           int height,
@@ -390,7 +390,7 @@ _cogl_texture_set_allocated (CoglTexture *texture,
                              int width,
                              int height);
 
-CoglPixelFormat
+COGL_EXPORT CoglPixelFormat
 _cogl_texture_get_format (CoglTexture *texture);
 
 CoglTextureLoader *

@@ -69,6 +69,7 @@ G_BEGIN_DECLS
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_pipeline_get_gtype (void);
 
 /**
@@ -83,7 +84,7 @@ GType cogl_pipeline_get_gtype (void);
  * Since: 2.0
  * Stability: Unstable
  */
-CoglPipeline *
+COGL_EXPORT CoglPipeline *
 cogl_pipeline_new (CoglContext *context);
 
 /**
@@ -104,7 +105,7 @@ cogl_pipeline_new (CoglContext *context);
  * Since: 2.0
  * Stability: Unstable
  */
-CoglPipeline *
+COGL_EXPORT CoglPipeline *
 cogl_pipeline_copy (CoglPipeline *source);
 
 /**
@@ -119,7 +120,7 @@ cogl_pipeline_copy (CoglPipeline *source);
  * Since: 2.0
  * Stability: Unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_pipeline (void *object);
 
 /**
@@ -151,7 +152,7 @@ typedef gboolean (*CoglPipelineLayerCallback) (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_foreach_layer (CoglPipeline *pipeline,
                              CoglPipelineLayerCallback callback,
                              void *user_data);
@@ -176,7 +177,7 @@ cogl_pipeline_foreach_layer (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-int
+COGL_EXPORT int
 cogl_pipeline_get_uniform_location (CoglPipeline *pipeline,
                                     const char *uniform_name);
 

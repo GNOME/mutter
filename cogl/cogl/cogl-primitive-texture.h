@@ -102,7 +102,7 @@ cogl_is_primitive_texture (void *object);
  * Since: 2.0
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_primitive_texture_set_auto_mipmap (CoglPrimitiveTexture *primitive_texture,
                                         gboolean value);
 

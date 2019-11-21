@@ -50,6 +50,7 @@ G_BEGIN_DECLS
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_path_get_gtype (void);
 
 #define cogl_path_new cogl2_path_new
@@ -64,7 +65,7 @@ GType cogl_path_get_gtype (void);
  *
  * Since: 2.0
  */
-CoglPath *
+COGL_EXPORT CoglPath *
 cogl_path_new (void);
 
 /**
@@ -82,7 +83,7 @@ cogl_path_new (void);
  *
  * Since: 2.0
  */
-CoglPath *
+COGL_EXPORT CoglPath *
 cogl_path_copy (CoglPath *path);
 
 /**
@@ -96,7 +97,7 @@ cogl_path_copy (CoglPath *path);
  *
  * Since: 2.0
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_path (void *object);
 
 #define cogl_path_move_to cogl2_path_move_to
@@ -110,7 +111,7 @@ cogl_is_path (void *object);
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_move_to (CoglPath *path,
                    float x,
                    float y);
@@ -127,7 +128,7 @@ cogl_path_move_to (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_rel_move_to (CoglPath *path,
                        float x,
                        float y);
@@ -143,7 +144,7 @@ cogl_path_rel_move_to (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_line_to (CoglPath *path,
                    float x,
                    float y);
@@ -159,7 +160,7 @@ cogl_path_line_to (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_rel_line_to (CoglPath *path,
                        float x,
                        float y);
@@ -187,7 +188,7 @@ cogl_path_rel_line_to (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_arc (CoglPath *path,
                float center_x,
                float center_y,
@@ -212,7 +213,7 @@ cogl_path_arc (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_curve_to (CoglPath *path,
                     float x_1,
                     float y_1,
@@ -238,7 +239,7 @@ cogl_path_curve_to (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_rel_curve_to (CoglPath *path,
                         float x_1,
                         float y_1,
@@ -256,7 +257,7 @@ cogl_path_rel_curve_to (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_close (CoglPath *path);
 
 #define cogl_path_line cogl2_path_line
@@ -273,7 +274,7 @@ cogl_path_close (CoglPath *path);
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_line (CoglPath *path,
                 float x_1,
                 float y_1,
@@ -301,7 +302,7 @@ cogl_path_line (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_polyline (CoglPath *path,
                     const float *coords,
                     int num_points);
@@ -323,7 +324,7 @@ cogl_path_polyline (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_polygon (CoglPath *path,
                    const float *coords,
                    int num_points);
@@ -341,7 +342,7 @@ cogl_path_polygon (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_rectangle (CoglPath *path,
                      float x_1,
                      float y_1,
@@ -361,7 +362,7 @@ cogl_path_rectangle (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_ellipse (CoglPath *path,
                    float center_x,
                    float center_y,
@@ -384,7 +385,7 @@ cogl_path_ellipse (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_round_rectangle (CoglPath *path,
                            float x_1,
                            float y_1,
@@ -406,7 +407,7 @@ cogl_path_round_rectangle (CoglPath *path,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_path_set_fill_rule (CoglPath *path, CoglPathFillRule fill_rule);
 
 #define cogl_path_get_fill_rule cogl2_path_get_fill_rule
@@ -419,7 +420,7 @@ cogl_path_set_fill_rule (CoglPath *path, CoglPathFillRule fill_rule);
  *
  * Since: 2.0
  */
-CoglPathFillRule
+COGL_EXPORT CoglPathFillRule
 cogl_path_get_fill_rule (CoglPath *path);
 
 /**
@@ -441,7 +442,7 @@ cogl_path_get_fill_rule (CoglPath *path);
  *
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_fill_path (CoglFramebuffer *framebuffer,
                             CoglPipeline *pipeline,
                             CoglPath *path);
@@ -458,7 +459,7 @@ cogl_framebuffer_fill_path (CoglFramebuffer *framebuffer,
  *
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_stroke_path (CoglFramebuffer *framebuffer,
                               CoglPipeline *pipeline,
                               CoglPath *path);
@@ -476,7 +477,7 @@ cogl_framebuffer_stroke_path (CoglFramebuffer *framebuffer,
  * Since: 1.0
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_push_path_clip (CoglFramebuffer *framebuffer,
                                  CoglPath *path);
 

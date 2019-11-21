@@ -71,6 +71,7 @@ typedef enum _CoglEglImageFlags
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_texture_2d_get_gtype (void);
 
 /**
@@ -83,7 +84,7 @@ GType cogl_texture_2d_get_gtype (void);
  * Return value: %TRUE if the object references a #CoglTexture2D,
  *   %FALSE otherwise
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_texture_2d (void *object);
 
 /**
@@ -110,7 +111,7 @@ cogl_is_texture_2d (void *object);
  *
  * Since: 2.0
  */
-CoglTexture2D *
+COGL_EXPORT CoglTexture2D *
 cogl_texture_2d_new_with_size (CoglContext *ctx,
                                int width,
                                int height);
@@ -139,7 +140,7 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
  *
  * Since: 1.16
  */
-CoglTexture2D *
+COGL_EXPORT CoglTexture2D *
 cogl_texture_2d_new_from_file (CoglContext *ctx,
                                const char *filename,
                                GError **error);
@@ -177,7 +178,7 @@ cogl_texture_2d_new_from_file (CoglContext *ctx,
  *
  * Since: 2.0
  */
-CoglTexture2D *
+COGL_EXPORT CoglTexture2D *
 cogl_texture_2d_new_from_data (CoglContext *ctx,
                                int width,
                                int height,
@@ -209,7 +210,7 @@ cogl_texture_2d_new_from_data (CoglContext *ctx,
  * Since: 2.0
  * Stability: unstable
  */
-CoglTexture2D *
+COGL_EXPORT CoglTexture2D *
 cogl_texture_2d_new_from_bitmap (CoglBitmap *bitmap);
 
 /**
@@ -219,7 +220,7 @@ cogl_texture_2d_new_from_bitmap (CoglBitmap *bitmap);
 /* NB: The reason we require the width, height and format to be passed
  * even though they may seem redundant is because GLES 1/2 don't
  * provide a way to query these properties. */
-CoglTexture2D *
+COGL_EXPORT CoglTexture2D *
 cogl_egl_texture_2d_new_from_image (CoglContext *ctx,
                                     int width,
                                     int height,
@@ -235,7 +236,7 @@ typedef gboolean (*CoglTexture2DEGLImageExternalAlloc) (CoglTexture2D *tex_2d,
 /**
  * cogl_texture_2d_new_from_egl_image_external: (skip)
  */
-CoglTexture2D *
+COGL_EXPORT CoglTexture2D *
 cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
                                              int width,
                                              int height,
@@ -244,10 +245,10 @@ cogl_texture_2d_new_from_egl_image_external (CoglContext *ctx,
                                              GDestroyNotify destroy,
                                              GError **error);
 
-void
+COGL_EXPORT void
 cogl_texture_2d_egl_image_external_bind (CoglTexture2D *tex_2d);
 
-void
+COGL_EXPORT void
 cogl_texture_2d_egl_image_external_alloc_finish (CoglTexture2D *tex_2d,
 						 void *user_data,
 						 GDestroyNotify destroy);

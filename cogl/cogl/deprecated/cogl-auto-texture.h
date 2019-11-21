@@ -52,7 +52,7 @@ G_BEGIN_DECLS
  *                   cogl_texture_2d_new_with_size()
  */
 COGL_DEPRECATED_FOR (cogl_texture_2d_new_with_size__OR__cogl_texture_2d_sliced_new_with_size)
-CoglTexture *
+COGL_EXPORT CoglTexture *
 cogl_texture_new_with_size (unsigned int width,
                             unsigned int height,
                             CoglTextureFlags flags,
@@ -82,7 +82,7 @@ cogl_texture_new_with_size (unsigned int width,
  *                   cogl_texture_2d_new_from_file()
  */
 COGL_DEPRECATED_FOR (cogl_texture_2d_new_from_file__OR__cogl_texture_2d_sliced_new_from_file)
-CoglTexture *
+COGL_EXPORT CoglTexture *
 cogl_texture_new_from_file (const char       *filename,
                             CoglTextureFlags   flags,
                             CoglPixelFormat    internal_format,
@@ -116,7 +116,7 @@ cogl_texture_new_from_file (const char       *filename,
  *                   cogl_texture_2d_new_from_data()
  */
 COGL_DEPRECATED_FOR (cogl_texture_2d_new_from_data__OR__cogl_texture_2d_sliced_new_from_data)
-CoglTexture *
+COGL_EXPORT CoglTexture *
 cogl_texture_new_from_data (int width,
                             int height,
                             CoglTextureFlags flags,
@@ -142,7 +142,7 @@ cogl_texture_new_from_data (int width,
  *                   cogl_texture_2d_new_from_bitmap()
  */
 COGL_DEPRECATED_FOR (cogl_texture_2d_new_from_bitmap__OR__cogl_texture_2d_sliced_new_from_bitmap)
-CoglTexture *
+COGL_EXPORT CoglTexture *
 cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
                               CoglTextureFlags flags,
                               CoglPixelFormat internal_format);
@@ -172,7 +172,7 @@ cogl_texture_new_from_bitmap (CoglBitmap *bitmap,
  * Deprecated: 1.18: Use cogl_sub_texture_new()
  */
 COGL_DEPRECATED_FOR (cogl_sub_texture_new)
-CoglTexture *
+COGL_EXPORT CoglTexture *
 cogl_texture_new_from_sub_texture (CoglTexture *full_texture,
                                    int sub_x,
                                    int sub_y,

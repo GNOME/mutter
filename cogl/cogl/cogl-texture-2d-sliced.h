@@ -75,6 +75,7 @@ typedef struct _CoglTexture2DSliced CoglTexture2DSliced;
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_texture_2d_sliced_get_gtype (void);
 
 /**
@@ -118,7 +119,7 @@ GType cogl_texture_2d_sliced_get_gtype (void);
  * Since: 1.10
  * Stability: unstable
  */
-CoglTexture2DSliced *
+COGL_EXPORT CoglTexture2DSliced *
 cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
                                       int width,
                                       int height,
@@ -166,7 +167,7 @@ cogl_texture_2d_sliced_new_with_size (CoglContext *ctx,
  *
  * Since: 1.16
  */
-CoglTexture2DSliced *
+COGL_EXPORT CoglTexture2DSliced *
 cogl_texture_2d_sliced_new_from_file (CoglContext *ctx,
                                       const char *filename,
                                       int max_waste,
@@ -227,7 +228,7 @@ cogl_texture_2d_sliced_new_from_file (CoglContext *ctx,
  *
  * Since: 1.16
  */
-CoglTexture2DSliced *
+COGL_EXPORT CoglTexture2DSliced *
 cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
                                       int width,
                                       int height,
@@ -278,7 +279,7 @@ cogl_texture_2d_sliced_new_from_data (CoglContext *ctx,
  *
  * Since: 1.16
  */
-CoglTexture2DSliced *
+COGL_EXPORT CoglTexture2DSliced *
 cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
                                         int max_waste);
 
@@ -293,7 +294,7 @@ cogl_texture_2d_sliced_new_from_bitmap (CoglBitmap *bmp,
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_texture_2d_sliced (void *object);
 
 #endif /* __COGL_TEXURE_2D_SLICED_H */

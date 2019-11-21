@@ -84,7 +84,7 @@ typedef struct {
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_depth_state_init (CoglDepthState *state);
 
 /**
@@ -112,7 +112,7 @@ cogl_depth_state_init (CoglDepthState *state);
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_depth_state_set_test_enabled (CoglDepthState *state,
                                    gboolean enable);
 
@@ -127,7 +127,7 @@ cogl_depth_state_set_test_enabled (CoglDepthState *state,
  * Since: 2.0
  * Stability: Unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_depth_state_get_test_enabled (CoglDepthState *state);
 
 /**
@@ -150,7 +150,7 @@ cogl_depth_state_get_test_enabled (CoglDepthState *state);
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_depth_state_set_write_enabled (CoglDepthState *state,
                                     gboolean enable);
 
@@ -165,7 +165,7 @@ cogl_depth_state_set_write_enabled (CoglDepthState *state,
  * Since: 2.0
  * Stability: Unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_depth_state_get_write_enabled (CoglDepthState *state);
 
 /**
@@ -186,7 +186,7 @@ cogl_depth_state_get_write_enabled (CoglDepthState *state);
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_depth_state_set_test_function (CoglDepthState *state,
                                     CoglDepthTestFunction function);
 
@@ -201,7 +201,7 @@ cogl_depth_state_set_test_function (CoglDepthState *state,
  * Since: 2.0
  * Stability: Unstable
  */
-CoglDepthTestFunction
+COGL_EXPORT CoglDepthTestFunction
 cogl_depth_state_get_test_function (CoglDepthState *state);
 
 /**
@@ -235,7 +235,7 @@ cogl_depth_state_get_test_function (CoglDepthState *state);
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_depth_state_set_range (CoglDepthState *state,
                             float near_val,
                             float far_val);
@@ -253,7 +253,7 @@ cogl_depth_state_set_range (CoglDepthState *state,
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_depth_state_get_range (CoglDepthState *state,
                             float *near_val,
                             float *far_val);

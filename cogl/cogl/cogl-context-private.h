@@ -300,7 +300,7 @@ struct _CoglContext
 #undef COGL_EXT_END
 };
 
-CoglContext *
+COGL_EXPORT CoglContext *
 _cogl_context_get_default (void);
 
 const CoglWinsysVtable *

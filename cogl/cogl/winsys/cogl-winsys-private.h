@@ -49,7 +49,7 @@
 
 #include "cogl-poll.h"
 
-uint32_t
+COGL_EXPORT uint32_t
 _cogl_winsys_error_quark (void);
 
 #define COGL_WINSYS_ERROR (_cogl_winsys_error_quark ())

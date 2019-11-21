@@ -64,6 +64,7 @@ G_BEGIN_DECLS
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_attribute_buffer_get_gtype (void);
 
 /**
@@ -89,7 +90,7 @@ GType cogl_attribute_buffer_get_gtype (void);
  *
  * Stability: Unstable
  */
-CoglAttributeBuffer *
+COGL_EXPORT CoglAttributeBuffer *
 cogl_attribute_buffer_new_with_size (CoglContext *context,
                                      size_t bytes);
 
@@ -122,7 +123,7 @@ cogl_attribute_buffer_new_with_size (CoglContext *context,
  * Since: 1.4
  * Stability: Unstable
  */
-CoglAttributeBuffer *
+COGL_EXPORT CoglAttributeBuffer *
 cogl_attribute_buffer_new (CoglContext *context,
                            size_t bytes,
                            const void *data);
@@ -139,7 +140,7 @@ cogl_attribute_buffer_new (CoglContext *context,
  * Since: 1.4
  * Stability: Unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_attribute_buffer (void *object);
 
 G_END_DECLS

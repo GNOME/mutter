@@ -76,7 +76,7 @@ G_BEGIN_DECLS
  * Since: 1.8
  * Stability: unstable
  */
-EGLDisplay
+COGL_EXPORT EGLDisplay
 cogl_egl_context_get_egl_display (CoglContext *context);
 
 G_END_DECLS

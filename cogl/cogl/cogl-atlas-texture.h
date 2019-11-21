@@ -74,6 +74,7 @@ typedef struct _CoglAtlasTexture CoglAtlasTexture;
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_atlas_texture_get_gtype (void);
 
 /**
@@ -108,7 +109,7 @@ GType cogl_atlas_texture_get_gtype (void);
  * Since: 1.16
  * Stability: unstable
  */
-CoglAtlasTexture *
+COGL_EXPORT CoglAtlasTexture *
 cogl_atlas_texture_new_with_size (CoglContext *ctx,
                                   int width,
                                   int height);
@@ -146,7 +147,7 @@ cogl_atlas_texture_new_with_size (CoglContext *ctx,
  * Since: 1.16
  * Stability: unstable
  */
-CoglAtlasTexture *
+COGL_EXPORT CoglAtlasTexture *
 cogl_atlas_texture_new_from_file (CoglContext *ctx,
                                   const char *filename,
                                   GError **error);
@@ -191,7 +192,7 @@ cogl_atlas_texture_new_from_file (CoglContext *ctx,
  * Since: 1.16
  * Stability: unstable
  */
-CoglAtlasTexture *
+COGL_EXPORT CoglAtlasTexture *
 cogl_atlas_texture_new_from_data (CoglContext *ctx,
                                   int width,
                                   int height,
@@ -231,7 +232,7 @@ cogl_atlas_texture_new_from_data (CoglContext *ctx,
  * Since: 1.16
  * Stability: unstable
  */
-CoglAtlasTexture *
+COGL_EXPORT CoglAtlasTexture *
 cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp);
 
 /**
@@ -246,7 +247,7 @@ cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp);
  * Since: 1.16
  * Stability: Unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_atlas_texture (void *object);
 
 G_END_DECLS

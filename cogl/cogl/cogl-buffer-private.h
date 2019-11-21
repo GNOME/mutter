@@ -168,10 +168,10 @@ void *
 _cogl_buffer_map_range_for_fill_or_fallback (CoglBuffer *buffer,
                                              size_t offset,
                                              size_t size);
-void *
+COGL_EXPORT void *
 _cogl_buffer_map_for_fill_or_fallback (CoglBuffer *buffer);
 
-void
+COGL_EXPORT void
 _cogl_buffer_unmap_for_fill_or_fallback (CoglBuffer *buffer);
 
 G_END_DECLS

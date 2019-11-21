@@ -66,7 +66,7 @@ G_BEGIN_DECLS
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_wayland_display_set_compositor_display (CoglDisplay *display,
                                           struct wl_display *wayland_display);
 

@@ -75,10 +75,12 @@ typedef enum
   COGL_DEBUG_N_FLAGS
 } CoglDebugFlags;
 
-extern GHashTable *_cogl_debug_instances;
+COGL_EXPORT
+GHashTable *_cogl_debug_instances;
 #define COGL_DEBUG_N_LONGS COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_DEBUG_N_FLAGS)
 
-extern unsigned long _cogl_debug_flags[COGL_DEBUG_N_LONGS];
+COGL_EXPORT
+unsigned long _cogl_debug_flags[COGL_DEBUG_N_LONGS];
 
 #define COGL_DEBUG_ENABLED(flag) \
   COGL_FLAGS_GET (_cogl_debug_flags, flag)

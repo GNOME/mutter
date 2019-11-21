@@ -112,33 +112,34 @@ G_BEGIN_DECLS
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_indices_get_gtype (void);
 
-CoglIndices *
+COGL_EXPORT CoglIndices *
 cogl_indices_new (CoglContext *context,
                   CoglIndicesType type,
                   const void *indices_data,
                   int n_indices);
 
-CoglIndices *
+COGL_EXPORT CoglIndices *
 cogl_indices_new_for_buffer (CoglIndicesType type,
                              CoglIndexBuffer *buffer,
                              size_t offset);
 
-CoglIndexBuffer *
+COGL_EXPORT CoglIndexBuffer *
 cogl_indices_get_buffer (CoglIndices *indices);
 
-CoglIndicesType
+COGL_EXPORT CoglIndicesType
 cogl_indices_get_type (CoglIndices *indices);
 
-size_t
+COGL_EXPORT size_t
 cogl_indices_get_offset (CoglIndices *indices);
 
-void
+COGL_EXPORT void
 cogl_indices_set_offset (CoglIndices *indices,
                          size_t offset);
 
-CoglIndices *
+COGL_EXPORT CoglIndices *
 cogl_get_rectangle_indices (CoglContext *context, int n_rectangles);
 
 /**
@@ -152,7 +153,7 @@ cogl_get_rectangle_indices (CoglContext *context, int n_rectangles);
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_indices (void *object);
 
 G_END_DECLS

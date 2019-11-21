@@ -332,7 +332,7 @@ typedef enum
 CoglPipelineLayerType
 _cogl_pipeline_layer_get_type (CoglPipelineLayer *layer);
 
-CoglTexture *
+COGL_EXPORT CoglTexture *
 _cogl_pipeline_layer_get_texture (CoglPipelineLayer *layer);
 
 CoglTexture *

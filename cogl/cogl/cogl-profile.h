@@ -48,7 +48,7 @@ extern UProfContext *_cogl_uprof_context;
 void
 _cogl_uprof_init (void);
 
-void
+COGL_EXPORT void
 _cogl_profile_trace_message (const char *format, ...);
 
 #else

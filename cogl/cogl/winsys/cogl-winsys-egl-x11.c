@@ -829,7 +829,7 @@ _cogl_winsys_egl_vtable =
     .onscreen_deinit = _cogl_winsys_egl_onscreen_deinit
   };
 
-const CoglWinsysVtable *
+COGL_EXPORT const CoglWinsysVtable *
 _cogl_winsys_egl_xlib_get_vtable (void)
 {
   static gboolean vtable_inited = FALSE;

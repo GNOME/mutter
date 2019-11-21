@@ -99,6 +99,7 @@ G_BEGIN_DECLS
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_context_get_gtype (void);
 
 /**
@@ -113,7 +114,7 @@ GType cogl_context_get_gtype (void);
  * Since: 1.8
  * Stability: unstable
  */
-CoglContext *
+COGL_EXPORT CoglContext *
 cogl_context_new (CoglDisplay *display,
                   GError **error);
 
@@ -132,7 +133,7 @@ cogl_context_new (CoglDisplay *display,
  * Since: 1.8
  * Stability: unstable
  */
-CoglDisplay *
+COGL_EXPORT CoglDisplay *
 cogl_context_get_display (CoglContext *context);
 
 /**
@@ -151,7 +152,7 @@ cogl_context_get_display (CoglContext *context);
  * Since: 1.16
  * Stability: unstable
  */
-CoglRenderer *
+COGL_EXPORT CoglRenderer *
 cogl_context_get_renderer (CoglContext *context);
 
 /**
@@ -166,7 +167,7 @@ cogl_context_get_renderer (CoglContext *context);
  * Since: 1.10
  * Stability: Unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_context (void *object);
 
 /* XXX: not guarded by the EXPERIMENTAL_API defines to avoid
@@ -234,7 +235,7 @@ typedef enum _CoglFeatureID
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_has_feature (CoglContext *context, CoglFeatureID feature);
 
 /**
@@ -254,7 +255,7 @@ cogl_has_feature (CoglContext *context, CoglFeatureID feature);
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_has_features (CoglContext *context, ...);
 
 /**
@@ -283,7 +284,7 @@ typedef void (*CoglFeatureCallback) (CoglFeatureID feature, void *user_data);
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_foreach_feature (CoglContext *context,
                       CoglFeatureCallback callback,
                       void *user_data);
@@ -308,7 +309,7 @@ cogl_foreach_feature (CoglContext *context,
  * Since: 1.14
  * Stability: unstable
  */
-int64_t
+COGL_EXPORT int64_t
 cogl_get_clock_time (CoglContext *context);
 
 /**
@@ -350,7 +351,7 @@ typedef enum _CoglGraphicsResetStatus
  *
  * Return value: a #CoglGraphicsResetStatus
  */
-CoglGraphicsResetStatus
+COGL_EXPORT CoglGraphicsResetStatus
 cogl_get_graphics_reset_status (CoglContext *context);
 
 G_END_DECLS

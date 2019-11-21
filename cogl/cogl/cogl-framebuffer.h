@@ -103,6 +103,7 @@ G_BEGIN_DECLS
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_framebuffer_get_gtype (void);
 
 /**
@@ -125,7 +126,7 @@ GType cogl_framebuffer_get_gtype (void);
  * Since: 1.8
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
                            GError **error);
 
@@ -139,7 +140,7 @@ cogl_framebuffer_allocate (CoglFramebuffer *framebuffer,
  * Since: 1.8
  * Stability: unstable
  */
-int
+COGL_EXPORT int
 cogl_framebuffer_get_width (CoglFramebuffer *framebuffer);
 
 /**
@@ -152,7 +153,7 @@ cogl_framebuffer_get_width (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-int
+COGL_EXPORT int
 cogl_framebuffer_get_height (CoglFramebuffer *framebuffer);
 
 /**
@@ -184,7 +185,7 @@ cogl_framebuffer_get_height (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
                                float x,
                                float y,
@@ -202,7 +203,7 @@ cogl_framebuffer_set_viewport (CoglFramebuffer *framebuffer,
  * Since: 1.8
  * Stability: unstable
  */
-float
+COGL_EXPORT float
 cogl_framebuffer_get_viewport_x (CoglFramebuffer *framebuffer);
 
 /**
@@ -216,7 +217,7 @@ cogl_framebuffer_get_viewport_x (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-float
+COGL_EXPORT float
 cogl_framebuffer_get_viewport_y (CoglFramebuffer *framebuffer);
 
 /**
@@ -230,7 +231,7 @@ cogl_framebuffer_get_viewport_y (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-float
+COGL_EXPORT float
 cogl_framebuffer_get_viewport_width (CoglFramebuffer *framebuffer);
 
 /**
@@ -244,7 +245,7 @@ cogl_framebuffer_get_viewport_width (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-float
+COGL_EXPORT float
 cogl_framebuffer_get_viewport_height (CoglFramebuffer *framebuffer);
 
 /**
@@ -262,7 +263,7 @@ cogl_framebuffer_get_viewport_height (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_get_viewport4fv (CoglFramebuffer *framebuffer,
                                   float *viewport);
 
@@ -275,7 +276,7 @@ cogl_framebuffer_get_viewport4fv (CoglFramebuffer *framebuffer,
  *
  * Since: 1.10
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_push_matrix (CoglFramebuffer *framebuffer);
 
 /**
@@ -286,7 +287,7 @@ cogl_framebuffer_push_matrix (CoglFramebuffer *framebuffer);
  *
  * Since: 1.10
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_pop_matrix (CoglFramebuffer *framebuffer);
 
 /**
@@ -298,7 +299,7 @@ cogl_framebuffer_pop_matrix (CoglFramebuffer *framebuffer);
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_identity_matrix (CoglFramebuffer *framebuffer);
 
 /**
@@ -314,7 +315,7 @@ cogl_framebuffer_identity_matrix (CoglFramebuffer *framebuffer);
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_scale (CoglFramebuffer *framebuffer,
                         float x,
                         float y,
@@ -333,7 +334,7 @@ cogl_framebuffer_scale (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_translate (CoglFramebuffer *framebuffer,
                             float x,
                             float y,
@@ -356,7 +357,7 @@ cogl_framebuffer_translate (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_rotate (CoglFramebuffer *framebuffer,
                          float angle,
                          float x,
@@ -374,7 +375,7 @@ cogl_framebuffer_rotate (CoglFramebuffer *framebuffer,
  * Since: 2.0
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_rotate_euler (CoglFramebuffer *framebuffer,
                                const graphene_euler_t *euler);
 
@@ -388,7 +389,7 @@ cogl_framebuffer_rotate_euler (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_transform (CoglFramebuffer *framebuffer,
                             const CoglMatrix *matrix);
 
@@ -402,7 +403,7 @@ cogl_framebuffer_transform (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_get_modelview_matrix (CoglFramebuffer *framebuffer,
                                        CoglMatrix *matrix);
 
@@ -416,7 +417,7 @@ cogl_framebuffer_get_modelview_matrix (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_set_modelview_matrix (CoglFramebuffer *framebuffer,
                                        const CoglMatrix *matrix);
 
@@ -440,7 +441,7 @@ cogl_framebuffer_set_modelview_matrix (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_perspective (CoglFramebuffer *framebuffer,
                               float fov_y,
                               float aspect,
@@ -468,7 +469,7 @@ cogl_framebuffer_perspective (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_frustum (CoglFramebuffer *framebuffer,
                           float left,
                           float right,
@@ -497,7 +498,7 @@ cogl_framebuffer_frustum (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_orthographic (CoglFramebuffer *framebuffer,
                                float x_1,
                                float y_1,
@@ -516,7 +517,7 @@ cogl_framebuffer_orthographic (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_get_projection_matrix (CoglFramebuffer *framebuffer,
                                         CoglMatrix *matrix);
 
@@ -530,7 +531,7 @@ cogl_framebuffer_get_projection_matrix (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_set_projection_matrix (CoglFramebuffer *framebuffer,
                                         const CoglMatrix *matrix);
 
@@ -554,7 +555,7 @@ cogl_framebuffer_set_projection_matrix (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_push_scissor_clip (CoglFramebuffer *framebuffer,
                                     int x,
                                     int y,
@@ -581,7 +582,7 @@ cogl_framebuffer_push_scissor_clip (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_push_rectangle_clip (CoglFramebuffer *framebuffer,
                                       float x_1,
                                       float y_1,
@@ -617,7 +618,7 @@ cogl_framebuffer_push_rectangle_clip (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_push_primitive_clip (CoglFramebuffer *framebuffer,
                                       CoglPrimitive *primitive,
                                       float bounds_x1,
@@ -625,7 +626,7 @@ cogl_framebuffer_push_primitive_clip (CoglFramebuffer *framebuffer,
                                       float bounds_x2,
                                       float bounds_y2);
 
-void
+COGL_EXPORT void
 cogl_framebuffer_push_region_clip (CoglFramebuffer *framebuffer,
                                    cairo_region_t  *region);
 
@@ -640,7 +641,7 @@ cogl_framebuffer_push_region_clip (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_pop_clip (CoglFramebuffer *framebuffer);
 
 /**
@@ -654,7 +655,7 @@ cogl_framebuffer_pop_clip (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-int
+COGL_EXPORT int
 cogl_framebuffer_get_red_bits (CoglFramebuffer *framebuffer);
 
 /**
@@ -668,7 +669,7 @@ cogl_framebuffer_get_red_bits (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-int
+COGL_EXPORT int
 cogl_framebuffer_get_green_bits (CoglFramebuffer *framebuffer);
 
 /**
@@ -682,7 +683,7 @@ cogl_framebuffer_get_green_bits (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-int
+COGL_EXPORT int
 cogl_framebuffer_get_blue_bits (CoglFramebuffer *framebuffer);
 
 /**
@@ -696,7 +697,7 @@ cogl_framebuffer_get_blue_bits (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-int
+COGL_EXPORT int
 cogl_framebuffer_get_alpha_bits (CoglFramebuffer *framebuffer);
 
 /**
@@ -710,7 +711,7 @@ cogl_framebuffer_get_alpha_bits (CoglFramebuffer *framebuffer);
  * Since: 2.0
  * Stability: unstable
  */
-int
+COGL_EXPORT int
 cogl_framebuffer_get_depth_bits (CoglFramebuffer *framebuffer);
 
 /*
@@ -727,7 +728,7 @@ cogl_framebuffer_get_depth_bits (CoglFramebuffer *framebuffer);
  * Since: 1.20
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_framebuffer_get_is_stereo (CoglFramebuffer *framebuffer);
 
 /**
@@ -745,7 +746,7 @@ cogl_framebuffer_get_is_stereo (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_framebuffer_get_dither_enabled (CoglFramebuffer *framebuffer);
 
 /**
@@ -770,7 +771,7 @@ cogl_framebuffer_get_dither_enabled (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_set_dither_enabled (CoglFramebuffer *framebuffer,
                                      gboolean dither_enabled);
 
@@ -785,7 +786,7 @@ cogl_framebuffer_set_dither_enabled (CoglFramebuffer *framebuffer,
  * Since: 1.18
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_framebuffer_get_depth_write_enabled (CoglFramebuffer *framebuffer);
 
 /**
@@ -803,7 +804,7 @@ cogl_framebuffer_get_depth_write_enabled (CoglFramebuffer *framebuffer);
  * Since: 1.18
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_set_depth_write_enabled (CoglFramebuffer *framebuffer,
                                           gboolean depth_write_enabled);
 
@@ -818,7 +819,7 @@ cogl_framebuffer_set_depth_write_enabled (CoglFramebuffer *framebuffer,
  * Since: 1.20
  * Stability: unstable
  */
-CoglStereoMode
+COGL_EXPORT CoglStereoMode
 cogl_framebuffer_get_stereo_mode (CoglFramebuffer *framebuffer);
 
 /**
@@ -838,7 +839,7 @@ cogl_framebuffer_get_stereo_mode (CoglFramebuffer *framebuffer);
  * Since: 1.20
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_set_stereo_mode (CoglFramebuffer *framebuffer,
 				  CoglStereoMode stereo_mode);
 
@@ -883,7 +884,7 @@ cogl_framebuffer_set_stereo_mode (CoglFramebuffer *framebuffer,
  * Since: 1.8
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_set_samples_per_pixel (CoglFramebuffer *framebuffer,
                                         int samples_per_pixel);
 
@@ -911,7 +912,7 @@ cogl_framebuffer_set_samples_per_pixel (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-int
+COGL_EXPORT int
 cogl_framebuffer_get_samples_per_pixel (CoglFramebuffer *framebuffer);
 
 
@@ -943,7 +944,7 @@ cogl_framebuffer_get_samples_per_pixel (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_resolve_samples (CoglFramebuffer *framebuffer);
 
 /**
@@ -979,7 +980,7 @@ cogl_framebuffer_resolve_samples (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_resolve_samples_region (CoglFramebuffer *framebuffer,
                                          int x,
                                          int y,
@@ -999,7 +1000,7 @@ cogl_framebuffer_resolve_samples_region (CoglFramebuffer *framebuffer,
  * Since: 1.8
  * Stability: unstable
  */
-CoglContext *
+COGL_EXPORT CoglContext *
 cogl_framebuffer_get_context (CoglFramebuffer *framebuffer);
 
 /**
@@ -1016,7 +1017,7 @@ cogl_framebuffer_get_context (CoglFramebuffer *framebuffer);
  * Since: 1.8
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_clear (CoglFramebuffer *framebuffer,
                         unsigned long buffers,
                         const CoglColor *color);
@@ -1041,7 +1042,7 @@ cogl_framebuffer_clear (CoglFramebuffer *framebuffer,
  * Since: 1.8
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
                           unsigned long buffers,
                           float red,
@@ -1074,7 +1075,7 @@ cogl_framebuffer_clear4f (CoglFramebuffer *framebuffer,
  *                   cogl_primitive_draw() instead
  */
 COGL_DEPRECATED_FOR (cogl_primitive_draw)
-void
+COGL_EXPORT void
 cogl_framebuffer_draw_primitive (CoglFramebuffer *framebuffer,
                                  CoglPipeline *pipeline,
                                  CoglPrimitive *primitive);
@@ -1103,7 +1104,7 @@ cogl_framebuffer_draw_primitive (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_draw_rectangle (CoglFramebuffer *framebuffer,
                                  CoglPipeline *pipeline,
                                  float x_1,
@@ -1154,7 +1155,7 @@ cogl_framebuffer_draw_rectangle (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_draw_textured_rectangle (CoglFramebuffer *framebuffer,
                                           CoglPipeline *pipeline,
                                           float x_1,
@@ -1225,7 +1226,7 @@ cogl_framebuffer_draw_textured_rectangle (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_draw_multitextured_rectangle (CoglFramebuffer *framebuffer,
                                                CoglPipeline *pipeline,
                                                float x_1,
@@ -1269,7 +1270,7 @@ cogl_framebuffer_draw_multitextured_rectangle (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_draw_rectangles (CoglFramebuffer *framebuffer,
                                   CoglPipeline *pipeline,
                                   const float *coordinates,
@@ -1323,7 +1324,7 @@ cogl_framebuffer_draw_rectangles (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_draw_textured_rectangles (CoglFramebuffer *framebuffer,
                                            CoglPipeline *pipeline,
                                            const float *coordinates,
@@ -1358,7 +1359,7 @@ cogl_framebuffer_draw_textured_rectangles (CoglFramebuffer *framebuffer,
  * Since: 1.8
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_discard_buffers (CoglFramebuffer *framebuffer,
                                   unsigned long buffers);
 
@@ -1379,7 +1380,7 @@ cogl_framebuffer_discard_buffers (CoglFramebuffer *framebuffer,
  * Stability: unstable
  * Since: 1.10
  */
-void
+COGL_EXPORT void
 cogl_framebuffer_finish (CoglFramebuffer *framebuffer);
 
 /**
@@ -1408,7 +1409,7 @@ cogl_framebuffer_finish (CoglFramebuffer *framebuffer);
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                           int x,
                                           int y,
@@ -1454,7 +1455,7 @@ cogl_framebuffer_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
                               int x,
                               int y,
@@ -1463,7 +1464,7 @@ cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
                               CoglPixelFormat format,
                               uint8_t *pixels);
 
-uint32_t
+COGL_EXPORT uint32_t
 cogl_framebuffer_error_quark (void);
 
 /**
@@ -1489,7 +1490,7 @@ typedef enum /*< prefix=COGL_FRAMEBUFFER_ERROR >*/
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_framebuffer (void *object);
 
 /**
@@ -1544,7 +1545,7 @@ cogl_is_framebuffer (void *object);
  * and this function returns FALSE, an error object with a code from
  * COGL_SYSTEM_ERROR will be created.
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_blit_framebuffer (CoglFramebuffer *src,
                        CoglFramebuffer *dest,
                        int src_x,

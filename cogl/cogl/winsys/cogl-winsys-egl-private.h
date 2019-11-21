@@ -173,16 +173,16 @@ typedef struct _CoglOnscreenEGL
   void *platform;
 } CoglOnscreenEGL;
 
-const CoglWinsysVtable *
+COGL_EXPORT const CoglWinsysVtable *
 _cogl_winsys_egl_get_vtable (void);
 
-EGLBoolean
+COGL_EXPORT EGLBoolean
 _cogl_winsys_egl_make_current (CoglDisplay *display,
                                EGLSurface draw,
                                EGLSurface read,
                                EGLContext context);
 
-EGLBoolean
+COGL_EXPORT EGLBoolean
 _cogl_winsys_egl_ensure_current (CoglDisplay *display);
 
 #ifdef EGL_KHR_image_base
@@ -205,7 +205,7 @@ _cogl_egl_query_wayland_buffer (CoglContext *ctx,
                                 int *value);
 #endif
 
-gboolean
+COGL_EXPORT gboolean
 _cogl_winsys_egl_renderer_connect_common (CoglRenderer *renderer,
                                           GError **error);
 

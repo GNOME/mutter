@@ -33,7 +33,7 @@
 
 #include "winsys/cogl-winsys-private.h"
 
-const CoglWinsysVtable *
+COGL_EXPORT const CoglWinsysVtable *
 _cogl_winsys_egl_xlib_get_vtable (void);
 
 #endif /* __COGL_WINSYS_EGL_X11_PRIVATE_H */

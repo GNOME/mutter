@@ -279,7 +279,7 @@ _cogl_object_set_user_data (CoglObject *object,
                             void *user_data,
                             CoglUserDataDestroyInternalCallback destroy);
 
-void
+COGL_EXPORT void
 _cogl_object_default_unref (void *obj);
 
 #endif /* __COGL_OBJECT_PRIVATE_H */

@@ -65,12 +65,12 @@ CoglAtlasTexture *
 _cogl_atlas_texture_new_from_bitmap (CoglBitmap *bmp,
                                      gboolean can_convert_in_place);
 
-void
+COGL_EXPORT void
 _cogl_atlas_texture_add_reorganize_callback (CoglContext *ctx,
                                              GHookFunc callback,
                                              void *user_data);
 
-void
+COGL_EXPORT void
 _cogl_atlas_texture_remove_reorganize_callback (CoglContext *ctx,
                                                 GHookFunc callback,
                                                 void *user_data);

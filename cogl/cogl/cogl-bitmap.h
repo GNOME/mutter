@@ -54,6 +54,7 @@ G_BEGIN_DECLS
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_bitmap_get_gtype (void);
 
 /**
@@ -80,7 +81,7 @@ GType cogl_bitmap_get_gtype (void);
  *
  * Since: 1.0
  */
-CoglBitmap *
+COGL_EXPORT CoglBitmap *
 cogl_bitmap_new_from_file (const char *filename,
                            GError **error);
 
@@ -103,7 +104,7 @@ cogl_bitmap_new_from_file (const char *filename,
  * Since: 1.8
  * Stability: unstable
  */
-CoglBitmap *
+COGL_EXPORT CoglBitmap *
 cogl_bitmap_new_from_buffer (CoglBuffer *buffer,
                              CoglPixelFormat format,
                              int width,
@@ -140,7 +141,7 @@ cogl_bitmap_new_from_buffer (CoglBuffer *buffer,
  * Since: 1.10
  * Stability: Unstable
  */
-CoglBitmap *
+COGL_EXPORT CoglBitmap *
 cogl_bitmap_new_with_size (CoglContext *context,
                            unsigned int width,
                            unsigned int height,
@@ -166,7 +167,7 @@ cogl_bitmap_new_with_size (CoglContext *context,
  * Since: 1.10
  * Stability: unstable
  */
-CoglBitmap *
+COGL_EXPORT CoglBitmap *
 cogl_bitmap_new_for_data (CoglContext *context,
                           int width,
                           int height,
@@ -182,7 +183,7 @@ cogl_bitmap_new_for_data (CoglContext *context,
  * Since: 1.10
  * Stability: unstable
  */
-CoglPixelFormat
+COGL_EXPORT CoglPixelFormat
 cogl_bitmap_get_format (CoglBitmap *bitmap);
 
 /**
@@ -193,7 +194,7 @@ cogl_bitmap_get_format (CoglBitmap *bitmap);
  * Since: 1.10
  * Stability: unstable
  */
-int
+COGL_EXPORT int
 cogl_bitmap_get_width (CoglBitmap *bitmap);
 
 /**
@@ -204,7 +205,7 @@ cogl_bitmap_get_width (CoglBitmap *bitmap);
  * Since: 1.10
  * Stability: unstable
  */
-int
+COGL_EXPORT int
 cogl_bitmap_get_height (CoglBitmap *bitmap);
 
 /**
@@ -217,7 +218,7 @@ cogl_bitmap_get_height (CoglBitmap *bitmap);
  * Since: 1.10
  * Stability: unstable
  */
-int
+COGL_EXPORT int
 cogl_bitmap_get_rowstride (CoglBitmap *bitmap);
 
 /**
@@ -231,7 +232,7 @@ cogl_bitmap_get_rowstride (CoglBitmap *bitmap);
  * Stability: unstable
  * Since: 1.10
  */
-CoglPixelBuffer *
+COGL_EXPORT CoglPixelBuffer *
 cogl_bitmap_get_buffer (CoglBitmap *bitmap);
 
 /**
@@ -247,7 +248,7 @@ cogl_bitmap_get_buffer (CoglBitmap *bitmap);
  *
  * Since: 1.0
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_bitmap_get_size_from_file (const char *filename,
                                 int *width,
                                 int *height);
@@ -263,7 +264,7 @@ cogl_bitmap_get_size_from_file (const char *filename,
  *
  * Since: 1.0
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_bitmap (void *object);
 
 /**
@@ -297,6 +298,7 @@ typedef enum
   COGL_BITMAP_ERROR_CORRUPT_IMAGE
 } CoglBitmapError;
 
+COGL_EXPORT
 uint32_t cogl_bitmap_error_quark (void);
 
 G_END_DECLS

@@ -57,7 +57,7 @@ G_BEGIN_DECLS
  * Deprecated: 1.16: Not replaced
  */
 COGL_DEPRECATED
-GOptionGroup *
+COGL_EXPORT GOptionGroup *
 cogl_get_option_group (void);
 
 /* Misc */
@@ -76,7 +76,7 @@ cogl_get_option_group (void);
  * Return value: a pointer to the requested function or %NULL if the
  *   function is not available.
  */
-GCallback
+COGL_EXPORT GCallback
 cogl_get_proc_address (const char *name);
 
 /**
@@ -92,7 +92,7 @@ cogl_get_proc_address (const char *name);
  * Deprecated: 1.16: Use cogl_pipeline_set_depth_state() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_depth_state)
-void
+COGL_EXPORT void
 cogl_set_depth_test_enabled (gboolean setting);
 
 /**
@@ -105,7 +105,7 @@ cogl_set_depth_test_enabled (gboolean setting);
  * Deprecated: 1.16: Use cogl_pipeline_set_depth_state() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_depth_state)
-gboolean
+COGL_EXPORT gboolean
 cogl_get_depth_test_enabled (void);
 
 /**
@@ -121,7 +121,7 @@ cogl_get_depth_test_enabled (void);
  * Deprecated: 1.16: Use cogl_pipeline_set_cull_face_mode() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_cull_face_mode)
-void
+COGL_EXPORT void
 cogl_set_backface_culling_enabled (gboolean setting);
 
 /**
@@ -135,7 +135,7 @@ cogl_set_backface_culling_enabled (gboolean setting);
  * Deprecated: 1.16: Use cogl_pipeline_get_cull_face_mode() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_get_cull_face_mode)
-gboolean
+COGL_EXPORT gboolean
 cogl_get_backface_culling_enabled (void);
 
 /**
@@ -164,7 +164,7 @@ cogl_get_backface_culling_enabled (void);
  *
  * Since: 1.0
  */
-void
+COGL_EXPORT void
 cogl_flush (void);
 
 G_END_DECLS

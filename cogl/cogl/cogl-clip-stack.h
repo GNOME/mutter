@@ -178,7 +178,7 @@ _cogl_clip_stack_push_window_rectangle (CoglClipStack *stack,
                                         int width,
                                         int height);
 
-CoglClipStack *
+COGL_EXPORT CoglClipStack *
 _cogl_clip_stack_push_rectangle (CoglClipStack *stack,
                                  float x_1,
                                  float y_1,
@@ -188,7 +188,7 @@ _cogl_clip_stack_push_rectangle (CoglClipStack *stack,
                                  CoglMatrixEntry *projection_entry,
                                  const float *viewport);
 
-CoglClipStack *
+COGL_EXPORT CoglClipStack *
 _cogl_clip_stack_push_primitive (CoglClipStack *stack,
                                  CoglPrimitive *primitive,
                                  float bounds_x1,

@@ -75,4 +75,6 @@
 
 #endif /* COGL_DISABLE_DEPRECATION_WARNINGS */
 
+#define COGL_EXPORT __attribute__((visibility("default"))) extern
+
 #endif /* __COGL_MACROS_H__ */

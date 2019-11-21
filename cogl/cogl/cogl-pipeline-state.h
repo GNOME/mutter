@@ -58,7 +58,7 @@ G_BEGIN_DECLS
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_color (CoglPipeline    *pipeline,
                          const CoglColor *color);
 
@@ -77,7 +77,7 @@ cogl_pipeline_set_color (CoglPipeline    *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_color4ub (CoglPipeline *pipeline,
 			    uint8_t red,
                             uint8_t green,
@@ -99,7 +99,7 @@ cogl_pipeline_set_color4ub (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_color4f (CoglPipeline *pipeline,
                            float         red,
                            float         green,
@@ -116,7 +116,7 @@ cogl_pipeline_set_color4f (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_get_color (CoglPipeline *pipeline,
                          CoglColor    *color);
 
@@ -173,7 +173,7 @@ typedef enum
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_alpha_test_function (CoglPipeline         *pipeline,
 				       CoglPipelineAlphaFunc alpha_func,
 				       float                 alpha_reference);
@@ -187,7 +187,7 @@ cogl_pipeline_set_alpha_test_function (CoglPipeline         *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-CoglPipelineAlphaFunc
+COGL_EXPORT CoglPipelineAlphaFunc
 cogl_pipeline_get_alpha_test_function (CoglPipeline *pipeline);
 
 /**
@@ -199,7 +199,7 @@ cogl_pipeline_get_alpha_test_function (CoglPipeline *pipeline);
  * Since: 2.0
  * Stability: Unstable
  */
-float
+COGL_EXPORT float
 cogl_pipeline_get_alpha_test_reference (CoglPipeline *pipeline);
 
 /**
@@ -284,7 +284,7 @@ cogl_pipeline_get_alpha_test_reference (CoglPipeline *pipeline);
  * Since: 2.0
  * Stability: Unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_pipeline_set_blend (CoglPipeline *pipeline,
                          const char   *blend_string,
                          GError **error);
@@ -300,7 +300,7 @@ cogl_pipeline_set_blend (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_blend_constant (CoglPipeline *pipeline,
                                   const CoglColor *constant_color);
 
@@ -325,7 +325,7 @@ cogl_pipeline_set_blend_constant (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_point_size (CoglPipeline *pipeline,
                               float point_size);
 
@@ -341,7 +341,7 @@ cogl_pipeline_set_point_size (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-float
+COGL_EXPORT float
 cogl_pipeline_get_point_size (CoglPipeline *pipeline);
 
 /**
@@ -365,7 +365,7 @@ cogl_pipeline_get_point_size (CoglPipeline *pipeline);
  * Stability: Unstable
  * Return value: %TRUE if the change suceeded or %FALSE otherwise
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_pipeline_set_per_vertex_point_size (CoglPipeline *pipeline,
                                          gboolean enable,
                                          GError **error);
@@ -380,7 +380,7 @@ cogl_pipeline_set_per_vertex_point_size (CoglPipeline *pipeline,
  *   enabled or %FALSE otherwise. The per-vertex point size can be
  *   enabled with cogl_pipeline_set_per_vertex_point_size().
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_pipeline_get_per_vertex_point_size (CoglPipeline *pipeline);
 
 /**
@@ -395,7 +395,7 @@ cogl_pipeline_get_per_vertex_point_size (CoglPipeline *pipeline);
  * Since: 2.0
  * Stability: Unstable
  */
-CoglHandle
+COGL_EXPORT CoglHandle
 cogl_pipeline_get_user_program (CoglPipeline *pipeline);
 
 /**
@@ -440,7 +440,7 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline);
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_user_program (CoglPipeline *pipeline,
                                 CoglHandle program);
 
@@ -464,7 +464,7 @@ cogl_pipeline_set_user_program (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_pipeline_set_depth_state (CoglPipeline *pipeline,
                                const CoglDepthState *state,
                                GError **error);
@@ -480,7 +480,7 @@ cogl_pipeline_set_depth_state (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_get_depth_state (CoglPipeline *pipeline,
                                CoglDepthState *state_out);
 
@@ -524,7 +524,7 @@ typedef enum
  * Status: Unstable
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_cull_face_mode (CoglPipeline *pipeline,
                                   CoglPipelineCullFaceMode cull_face_mode);
 
@@ -537,7 +537,7 @@ cogl_pipeline_set_cull_face_mode (CoglPipeline *pipeline,
  * Status: Unstable
  * Since: 2.0
  */
-CoglPipelineCullFaceMode
+COGL_EXPORT CoglPipelineCullFaceMode
 cogl_pipeline_get_cull_face_mode (CoglPipeline *pipeline);
 
 /**
@@ -556,7 +556,7 @@ cogl_pipeline_get_cull_face_mode (CoglPipeline *pipeline);
  * Status: Unstable
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_front_face_winding (CoglPipeline *pipeline,
                                       CoglWinding front_winding);
 
@@ -577,7 +577,7 @@ cogl_pipeline_set_front_face_winding (CoglPipeline *pipeline,
  * Status: Unstable
  * Since: 2.0
  */
-CoglWinding
+COGL_EXPORT CoglWinding
 cogl_pipeline_get_front_face_winding (CoglPipeline *pipeline);
 
 /**
@@ -600,7 +600,7 @@ cogl_pipeline_get_front_face_winding (CoglPipeline *pipeline);
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_uniform_1f (CoglPipeline *pipeline,
                               int uniform_location,
                               float value);
@@ -625,7 +625,7 @@ cogl_pipeline_set_uniform_1f (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_uniform_1i (CoglPipeline *pipeline,
                               int uniform_location,
                               int value);
@@ -654,7 +654,7 @@ cogl_pipeline_set_uniform_1i (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_uniform_float (CoglPipeline *pipeline,
                                  int uniform_location,
                                  int n_components,
@@ -685,7 +685,7 @@ cogl_pipeline_set_uniform_float (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_uniform_int (CoglPipeline *pipeline,
                                int uniform_location,
                                int n_components,
@@ -722,7 +722,7 @@ cogl_pipeline_set_uniform_int (CoglPipeline *pipeline,
  * Since: 2.0
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_set_uniform_matrix (CoglPipeline *pipeline,
                                   int uniform_location,
                                   int dimensions,
@@ -743,7 +743,7 @@ cogl_pipeline_set_uniform_matrix (CoglPipeline *pipeline,
  * Since: 1.10
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_pipeline_add_snippet (CoglPipeline *pipeline,
                            CoglSnippet *snippet);
 

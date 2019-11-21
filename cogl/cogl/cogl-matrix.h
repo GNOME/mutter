@@ -135,7 +135,7 @@ COGL_STRUCT_SIZE_ASSERT (CoglMatrix, 128 + sizeof (unsigned long) * 3);
  *   .wx=0; .wy=0; .wz=0; .ww=1;
  * ]|
  */
-void
+COGL_EXPORT void
 cogl_matrix_init_identity (CoglMatrix *matrix);
 
 /**
@@ -156,7 +156,7 @@ cogl_matrix_init_identity (CoglMatrix *matrix);
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_matrix_init_translation (CoglMatrix *matrix,
                               float       tx,
                               float       ty,
@@ -174,7 +174,7 @@ cogl_matrix_init_translation (CoglMatrix *matrix,
  * <note>It is possible to multiply the @a matrix in-place, so
  * @result can be equal to @a but can't be equal to @b.</note>
  */
-void
+COGL_EXPORT void
 cogl_matrix_multiply (CoglMatrix *result,
 		      const CoglMatrix *a,
 		      const CoglMatrix *b);
@@ -190,7 +190,7 @@ cogl_matrix_multiply (CoglMatrix *result,
  * Multiplies @matrix with a rotation matrix that applies a rotation
  * of @angle degrees around the specified 3D vector.
  */
-void
+COGL_EXPORT void
 cogl_matrix_rotate (CoglMatrix *matrix,
 		    float angle,
 		    float x,
@@ -207,7 +207,7 @@ cogl_matrix_rotate (CoglMatrix *matrix,
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_matrix_rotate_euler (CoglMatrix *matrix,
                           const graphene_euler_t *euler);
 
@@ -221,7 +221,7 @@ cogl_matrix_rotate_euler (CoglMatrix *matrix,
  * Multiplies @matrix with a transform matrix that translates along
  * the X, Y and Z axis.
  */
-void
+COGL_EXPORT void
 cogl_matrix_translate (CoglMatrix *matrix,
 		       float x,
 		       float y,
@@ -237,7 +237,7 @@ cogl_matrix_translate (CoglMatrix *matrix,
  * Multiplies @matrix with a transform matrix that scales along the X,
  * Y and Z axis.
  */
-void
+COGL_EXPORT void
 cogl_matrix_scale (CoglMatrix *matrix,
 		   float sx,
 		   float sy,
@@ -286,7 +286,7 @@ cogl_matrix_scale (CoglMatrix *matrix,
  * Since: 1.8
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_matrix_look_at (CoglMatrix *matrix,
                      float eye_position_x,
                      float eye_position_y,
@@ -314,7 +314,7 @@ cogl_matrix_look_at (CoglMatrix *matrix,
  *
  * Multiplies @matrix by the given frustum perspective matrix.
  */
-void
+COGL_EXPORT void
 cogl_matrix_frustum (CoglMatrix *matrix,
                      float       left,
                      float       right,
@@ -339,7 +339,7 @@ cogl_matrix_frustum (CoglMatrix *matrix,
  * since there wont be enough precision to identify the depth of
  * objects near to each other.</note>
  */
-void
+COGL_EXPORT void
 cogl_matrix_perspective (CoglMatrix *matrix,
                          float       fov_y,
                          float       aspect,
@@ -365,7 +365,7 @@ cogl_matrix_perspective (CoglMatrix *matrix,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_matrix_orthographic (CoglMatrix *matrix,
                           float x_1,
                           float y_1,
@@ -404,7 +404,7 @@ cogl_matrix_orthographic (CoglMatrix *matrix,
  * Since: 1.8
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_matrix_view_2d_in_frustum (CoglMatrix *matrix,
                                 float left,
                                 float right,
@@ -443,7 +443,7 @@ cogl_matrix_view_2d_in_frustum (CoglMatrix *matrix,
  * Since: 1.8
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_matrix_view_2d_in_perspective (CoglMatrix *matrix,
                                     float fov_y,
                                     float aspect,
@@ -459,7 +459,7 @@ cogl_matrix_view_2d_in_perspective (CoglMatrix *matrix,
  *
  * Initializes @matrix with the contents of @array
  */
-void
+COGL_EXPORT void
 cogl_matrix_init_from_array (CoglMatrix *matrix,
                              const float *array);
 
@@ -471,7 +471,7 @@ cogl_matrix_init_from_array (CoglMatrix *matrix,
  *
  * Return value: a pointer to the float array
  */
-const float *
+COGL_EXPORT const float *
 cogl_matrix_get_array (const CoglMatrix *matrix);
 
 /**
@@ -481,7 +481,7 @@ cogl_matrix_get_array (const CoglMatrix *matrix);
  *
  * Initializes @matrix from a #graphene_euler_t rotation.
  */
-void
+COGL_EXPORT void
 cogl_matrix_init_from_euler (CoglMatrix *matrix,
                              const graphene_euler_t *euler);
 
@@ -497,7 +497,7 @@ cogl_matrix_init_from_euler (CoglMatrix *matrix,
  *
  * Since: 1.4
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_matrix_equal (const void *v1, const void *v2);
 
 /**
@@ -512,7 +512,7 @@ cogl_matrix_equal (const void *v1, const void *v2);
  *
  * Since: 1.6
  */
-CoglMatrix *
+COGL_EXPORT CoglMatrix *
 cogl_matrix_copy (const CoglMatrix *matrix);
 
 /**
@@ -524,7 +524,7 @@ cogl_matrix_copy (const CoglMatrix *matrix);
  *
  * Since: 1.6
  */
-void
+COGL_EXPORT void
 cogl_matrix_free (CoglMatrix *matrix);
 
 /**
@@ -547,7 +547,7 @@ cogl_matrix_free (CoglMatrix *matrix);
  *
  * Since: 1.2
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_matrix_get_inverse (const CoglMatrix *matrix,
                          CoglMatrix *inverse);
 
@@ -566,7 +566,7 @@ cogl_matrix_get_inverse (const CoglMatrix *matrix,
  * Transforms a point whos position is given and returned as four float
  * components.
  */
-void
+COGL_EXPORT void
 cogl_matrix_transform_point (const CoglMatrix *matrix,
                              float *x,
                              float *y,
@@ -622,7 +622,7 @@ cogl_matrix_transform_point (const CoglMatrix *matrix,
  *
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_matrix_transform_points (const CoglMatrix *matrix,
                               int n_components,
                               size_t stride_in,
@@ -677,7 +677,7 @@ cogl_matrix_transform_points (const CoglMatrix *matrix,
  *
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_matrix_project_points (const CoglMatrix *matrix,
                             int n_components,
                             size_t stride_in,
@@ -695,7 +695,7 @@ cogl_matrix_project_points (const CoglMatrix *matrix,
  * Returns: %TRUE if @matrix is an identity matrix else %FALSE
  * Since: 1.8
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_matrix_is_identity (const CoglMatrix *matrix);
 
 /**
@@ -707,7 +707,7 @@ cogl_matrix_is_identity (const CoglMatrix *matrix);
  *
  * Since: 1.10
  */
-void
+COGL_EXPORT void
 cogl_matrix_transpose (CoglMatrix *matrix);
 
 /**
@@ -718,7 +718,7 @@ cogl_matrix_transpose (CoglMatrix *matrix);
  *
  * Since: 2.0
  */
-void
+COGL_EXPORT void
 cogl_debug_matrix_print (const CoglMatrix *matrix);
 
 #define COGL_GTYPE_TYPE_MATRIX (cogl_matrix_get_gtype ())
@@ -728,6 +728,7 @@ cogl_debug_matrix_print (const CoglMatrix *matrix);
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_matrix_get_gtype (void);
 
 /**
@@ -739,7 +740,7 @@ GType cogl_matrix_get_gtype (void);
  *
  * Deprecated: 1.18: Use cogl_matrix_get_gtype() instead.
  */
-GType
+COGL_EXPORT GType
 cogl_gtype_matrix_get_type (void);
 
 G_END_DECLS

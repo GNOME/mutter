@@ -76,6 +76,7 @@ G_BEGIN_DECLS
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_texture_get_gtype (void);
 
 /**
@@ -108,6 +109,7 @@ typedef enum
   COGL_TEXTURE_ERROR_TYPE
 } CoglTextureError;
 
+COGL_EXPORT
 uint32_t cogl_texture_error_quark (void);
 
 /**
@@ -119,7 +121,7 @@ uint32_t cogl_texture_error_quark (void);
  * Return value: %TRUE if the @object references a texture, and
  *   %FALSE otherwise
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_texture (void *object);
 
 /**
@@ -171,7 +173,7 @@ typedef enum _CoglTextureComponents
  *
  * Since: 1.18
  */
-void
+COGL_EXPORT void
 cogl_texture_set_components (CoglTexture *texture,
                              CoglTextureComponents components);
 
@@ -189,7 +191,7 @@ cogl_texture_set_components (CoglTexture *texture,
  *
  * Since: 1.18
  */
-CoglTextureComponents
+COGL_EXPORT CoglTextureComponents
 cogl_texture_get_components (CoglTexture *texture);
 
 /**
@@ -223,7 +225,7 @@ cogl_texture_get_components (CoglTexture *texture);
  *
  * Since: 1.18
  */
-void
+COGL_EXPORT void
 cogl_texture_set_premultiplied (CoglTexture *texture,
                                 gboolean premultiplied);
 
@@ -242,7 +244,7 @@ cogl_texture_set_premultiplied (CoglTexture *texture,
  *               value or %FALSE if not.
  * Since: 1.18
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_texture_get_premultiplied (CoglTexture *texture);
 
 /**
@@ -253,7 +255,7 @@ cogl_texture_get_premultiplied (CoglTexture *texture);
  *
  * Return value: the width of the GPU side texture in pixels
  */
-unsigned int
+COGL_EXPORT unsigned int
 cogl_texture_get_width (CoglTexture *texture);
 
 /**
@@ -264,7 +266,7 @@ cogl_texture_get_width (CoglTexture *texture);
  *
  * Return value: the height of the GPU side texture in pixels
  */
-unsigned int
+COGL_EXPORT unsigned int
 cogl_texture_get_height (CoglTexture *texture);
 
 /**
@@ -276,7 +278,7 @@ cogl_texture_get_height (CoglTexture *texture);
  *
  * Return value: the maximum waste
  */
-int
+COGL_EXPORT int
 cogl_texture_get_max_waste (CoglTexture *texture);
 
 /**
@@ -289,7 +291,7 @@ cogl_texture_get_max_waste (CoglTexture *texture);
  * Return value: %TRUE if the texture is sliced, %FALSE if the texture
  *   is stored as a single GPU texture
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_texture_is_sliced (CoglTexture *texture);
 
 /**
@@ -308,7 +310,7 @@ cogl_texture_is_sliced (CoglTexture *texture);
  * Return value: %TRUE if the handle was successfully retrieved, %FALSE
  *   if the handle was invalid
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_texture_get_gl_texture (CoglTexture *texture,
                              unsigned int *out_gl_handle,
                              unsigned int *out_gl_target);
@@ -332,7 +334,7 @@ cogl_texture_get_gl_texture (CoglTexture *texture,
  *
  * Return value: the size of the texture data in bytes
  */
-int
+COGL_EXPORT int
 cogl_texture_get_data (CoglTexture *texture,
                        CoglPixelFormat format,
                        unsigned int rowstride,
@@ -364,7 +366,7 @@ cogl_texture_get_data (CoglTexture *texture,
  * Return value: %TRUE if the subregion upload was successful, and
  *   %FALSE otherwise
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_texture_set_region (CoglTexture *texture,
                          int src_x,
                          int src_y,
@@ -430,7 +432,7 @@ cogl_texture_set_region (CoglTexture *texture,
  * Return value: %TRUE if the data upload was successful, and
  *               %FALSE otherwise
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_texture_set_data (CoglTexture *texture,
                        CoglPixelFormat format,
                        int rowstride,
@@ -463,7 +465,7 @@ cogl_texture_set_data (CoglTexture *texture,
  * Since: 1.8
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_texture_set_region_from_bitmap (CoglTexture *texture,
                                      int src_x,
                                      int src_y,
@@ -491,14 +493,14 @@ cogl_texture_set_region_from_bitmap (CoglTexture *texture,
  *               otherwise %FALSE and @error will be updated if it
  *               wasn't %NULL.
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_texture_allocate (CoglTexture *texture,
                        GError **error);
 
 /**
  * cogl_texture_is_get_data_supported: (skip)
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_texture_is_get_data_supported (CoglTexture *texture);
 
 G_END_DECLS

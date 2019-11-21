@@ -61,6 +61,7 @@ G_BEGIN_DECLS
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_pixel_buffer_get_gtype (void);
 
 /**
@@ -82,7 +83,7 @@ GType cogl_pixel_buffer_get_gtype (void);
  * Since: 1.10
  * Stability: unstable
  */
-CoglPixelBuffer *
+COGL_EXPORT CoglPixelBuffer *
 cogl_pixel_buffer_new (CoglContext *context,
                        size_t size,
                        const void *data);
@@ -99,7 +100,7 @@ cogl_pixel_buffer_new (CoglContext *context,
  * Since: 1.2
  * Stability: Unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_pixel_buffer (void *object);
 
 G_END_DECLS

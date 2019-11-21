@@ -80,7 +80,7 @@ G_BEGIN_DECLS
  */
 #define COGL_RENDERER_ERROR cogl_renderer_error_quark ()
 
-uint32_t
+COGL_EXPORT uint32_t
 cogl_renderer_error_quark (void);
 
 typedef struct _CoglRenderer CoglRenderer;
@@ -90,6 +90,7 @@ typedef struct _CoglRenderer CoglRenderer;
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_renderer_get_gtype (void);
 
 /**
@@ -102,7 +103,7 @@ GType cogl_renderer_get_gtype (void);
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_renderer (void *object);
 
 /**
@@ -145,7 +146,7 @@ cogl_is_renderer (void *object);
  * Since: 1.10
  * Stability: unstable
  */
-CoglRenderer *
+COGL_EXPORT CoglRenderer *
 cogl_renderer_new (void);
 
 /* optional configuration APIs */
@@ -184,7 +185,7 @@ typedef enum
  *
  * This may only be called on an un-connected #CoglRenderer.
  */
-void
+COGL_EXPORT void
 cogl_renderer_set_winsys_id (CoglRenderer *renderer,
                              CoglWinsysID winsys_id);
 
@@ -199,7 +200,7 @@ cogl_renderer_set_winsys_id (CoglRenderer *renderer,
  * Returns: The #CoglWinsysID corresponding to the chosen window
  *          system backend.
  */
-CoglWinsysID
+COGL_EXPORT CoglWinsysID
 cogl_renderer_get_winsys_id (CoglRenderer *renderer);
 
 /**
@@ -216,7 +217,7 @@ cogl_renderer_get_winsys_id (CoglRenderer *renderer);
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_renderer_check_onscreen_template (CoglRenderer *renderer,
                                        CoglOnscreenTemplate *onscreen_template,
                                        GError **error);
@@ -238,7 +239,7 @@ cogl_renderer_check_onscreen_template (CoglRenderer *renderer,
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_renderer_connect (CoglRenderer *renderer, GError **error);
 
 /**
@@ -284,7 +285,7 @@ typedef enum
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_renderer_add_constraint (CoglRenderer *renderer,
                               CoglRendererConstraint constraint);
 
@@ -301,7 +302,7 @@ cogl_renderer_add_constraint (CoglRenderer *renderer,
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_renderer_remove_constraint (CoglRenderer *renderer,
                                  CoglRendererConstraint constraint);
 
@@ -346,7 +347,7 @@ typedef enum
  * Since: 1.10
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_renderer_set_driver (CoglRenderer *renderer,
                           CoglDriver driver);
 
@@ -361,7 +362,7 @@ cogl_renderer_set_driver (CoglRenderer *renderer,
  * Since: 1.10
  * Stability: unstable
  */
-CoglDriver
+COGL_EXPORT CoglDriver
 cogl_renderer_get_driver (CoglRenderer *renderer);
 
 /**
@@ -393,7 +394,7 @@ typedef void (*CoglOutputCallback) (CoglOutput *output, void *user_data);
  * Since: 1.14
  * Stability: Unstable
  */
-void
+COGL_EXPORT void
 cogl_renderer_foreach_output (CoglRenderer *renderer,
                               CoglOutputCallback callback,
                               void *user_data);
@@ -413,7 +414,7 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
  * return result must be released with cogl_dma_buf_handle_free()
  * after use.
  */
-CoglDmaBufHandle *
+COGL_EXPORT CoglDmaBufHandle *
 cogl_renderer_create_dma_buf (CoglRenderer  *renderer,
                               int            width,
                               int            height,

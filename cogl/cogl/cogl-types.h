@@ -39,6 +39,7 @@
 #include <stddef.h>
 
 #include <cogl/cogl-defines.h>
+#include <cogl/cogl-macros.h>
 
 #include <glib.h>
 #include <glib-object.h>
@@ -81,7 +82,7 @@ typedef struct { \
 typedef void * CoglHandle;
 
 #define COGL_TYPE_HANDLE        (cogl_handle_get_type ())
-GType
+COGL_EXPORT GType
 cogl_handle_get_type (void) G_GNUC_CONST;
 
 /* We forward declare this in cogl-types to avoid circular dependencies
@@ -276,7 +277,7 @@ typedef enum /*< prefix=COGL_ERROR >*/
   COGL_SYSTEM_ERROR_NO_MEMORY
 } CoglSystemError;
 
-uint32_t
+COGL_EXPORT uint32_t
 _cogl_system_error_quark (void);
 
 /**

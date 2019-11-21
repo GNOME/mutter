@@ -20,19 +20,13 @@ cogl_pango_deps = [
   libmutter_cogl_dep,
 ]
 
-libmutter_cogl_pango_map = 'libmutter-cogl-pango.map'
-libmutter_cogl_pango_link_args = [
-  '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(),
-      libmutter_cogl_pango_map),
-]
 libmutter_cogl_pango = shared_library('mutter-cogl-pango-' + libmutter_api_version,
   sources: [cogl_pango_sources, cogl_pango_public_headers],
   version: '0.0.0',
   soversion: 0,
   c_args: cogl_c_args,
   include_directories: [cogl_includepath, cogl_path_includepath],
-  link_depends: libmutter_cogl_pango_map,
-  link_args: libmutter_cogl_pango_link_args,
+  gnu_symbol_visibility: 'hidden',
   dependencies: [cogl_pango_deps],
   install_rpath: pkglibdir,
   install_dir: pkglibdir,

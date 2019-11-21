@@ -75,6 +75,7 @@ typedef struct _CoglDisplay	      CoglDisplay;
  *
  * Returns: a #GType that can be used with the GLib type system.
  */
+COGL_EXPORT
 GType cogl_display_get_gtype (void);
 
 /**
@@ -117,7 +118,7 @@ GType cogl_display_get_gtype (void);
  * Since: 1.10
  * Stability: unstable
  */
-CoglDisplay *
+COGL_EXPORT CoglDisplay *
 cogl_display_new (CoglRenderer *renderer,
                   CoglOnscreenTemplate *onscreen_template);
 
@@ -132,7 +133,7 @@ cogl_display_new (CoglRenderer *renderer,
  * Since: 1.10
  * Stability: unstable
  */
-CoglRenderer *
+COGL_EXPORT CoglRenderer *
 cogl_display_get_renderer (CoglDisplay *display);
 
 /**
@@ -151,7 +152,7 @@ cogl_display_get_renderer (CoglDisplay *display);
  * Since: 1.16
  * Stability: unstable
  */
-void
+COGL_EXPORT void
 cogl_display_set_onscreen_template (CoglDisplay *display,
                                     CoglOnscreenTemplate *onscreen_template);
 
@@ -186,7 +187,7 @@ cogl_display_set_onscreen_template (CoglDisplay *display,
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_display_setup (CoglDisplay *display,
                     GError **error);
 
@@ -201,7 +202,7 @@ cogl_display_setup (CoglDisplay *display,
  * Since: 1.10
  * Stability: unstable
  */
-gboolean
+COGL_EXPORT gboolean
 cogl_is_display (void *object);
 
 G_END_DECLS

@@ -39,6 +39,7 @@
 #include <stddef.h>
 
 #include <cogl/cogl-defines.h>
+#include <cogl/cogl-macros.h>
 
 #include <glib.h>
 #include <glib-object.h>
@@ -251,7 +252,7 @@ typedef enum /*< prefix=COGL_PIXEL_FORMAT >*/
  *
  * Returns: The number of bytes per pixel in the given format's given plane.
  */
-int
+COGL_EXPORT int
 cogl_pixel_format_get_bytes_per_pixel (CoglPixelFormat format,
                                        int             plane);
 
@@ -302,7 +303,7 @@ _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format);
  *
  * Returns: The no. of planes of @format (at most %COGL_PIXEL_FORMAT_MAX_PLANES)
  */
-int
+COGL_EXPORT int
 cogl_pixel_format_get_n_planes (CoglPixelFormat format);
 
 /**
@@ -313,7 +314,7 @@ cogl_pixel_format_get_n_planes (CoglPixelFormat format);
  *
  * Returns: (transfer none): A string representation of @format.
  */
-const char *
+COGL_EXPORT const char *
 cogl_pixel_format_to_string (CoglPixelFormat format);
 
 G_END_DECLS

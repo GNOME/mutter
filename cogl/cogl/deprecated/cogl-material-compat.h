@@ -57,6 +57,7 @@ typedef struct _CoglMaterial	      CoglMaterial;
 typedef struct _CoglMaterialLayer     CoglMaterialLayer;
 
 #define COGL_TYPE_MATERIAL (cogl_material_get_type ())
+COGL_EXPORT
 GType cogl_material_get_type (void);
 
 #define COGL_MATERIAL(OBJECT) ((CoglMaterial *)OBJECT)
@@ -150,7 +151,7 @@ typedef enum
  * Deprecated: 1.16: Use cogl_pipeline_new() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_new)
-CoglMaterial *
+COGL_EXPORT CoglMaterial *
 cogl_material_new (void);
 
 /**
@@ -171,7 +172,7 @@ cogl_material_new (void);
  * Deprecated: 1.16: Use cogl_pipeline_set_color() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_color)
-void
+COGL_EXPORT void
 cogl_material_set_color (CoglMaterial    *material,
                          const CoglColor *color);
 
@@ -191,7 +192,7 @@ cogl_material_set_color (CoglMaterial    *material,
  * Deprecated: 1.16: Use cogl_pipeline_set_color4ub() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_color4ub)
-void
+COGL_EXPORT void
 cogl_material_set_color4ub (CoglMaterial *material,
 			    uint8_t red,
                             uint8_t green,
@@ -251,7 +252,7 @@ typedef enum
  * Deprecated: 1.16: Use cogl_pipeline_set_alpha_test_function() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_alpha_test_function)
-void
+COGL_EXPORT void
 cogl_material_set_alpha_test_function (CoglMaterial         *material,
 				       CoglMaterialAlphaFunc alpha_func,
 				       float                 alpha_reference);
@@ -342,7 +343,7 @@ cogl_material_set_alpha_test_function (CoglMaterial         *material,
  * Deprecated: 1.16: Use cogl_pipeline_set_blend() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_blend)
-gboolean
+COGL_EXPORT gboolean
 cogl_material_set_blend (CoglMaterial *material,
                          const char   *blend_string,
                          GError      **error);
@@ -359,7 +360,7 @@ cogl_material_set_blend (CoglMaterial *material,
  * Deprecated: 1.16: Use cogl_pipeline_set_blend_constant() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_blend_constant)
-void
+COGL_EXPORT void
 cogl_material_set_blend_constant (CoglMaterial *material,
                                   const CoglColor *constant_color);
 
@@ -380,7 +381,7 @@ cogl_material_set_blend_constant (CoglMaterial *material,
  * Deprecated: 1.16: Use cogl_pipeline_set_point_size() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_point_size)
-void
+COGL_EXPORT void
 cogl_material_set_point_size (CoglMaterial *material,
                               float         point_size);
 
@@ -427,7 +428,7 @@ cogl_material_set_point_size (CoglMaterial *material,
  * Deprecated: 1.16: Use #CoglSnippet api instead instead
  */
 COGL_DEPRECATED_FOR (cogl_snippet_)
-void
+COGL_EXPORT void
 cogl_material_set_user_program (CoglMaterial *material,
                                 CoglHandle program);
 
@@ -452,7 +453,7 @@ cogl_material_set_user_program (CoglMaterial *material,
  * Deprecated: 1.16: Use cogl_pipeline_set_layer() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_layer)
-void
+COGL_EXPORT void
 cogl_material_set_layer (CoglMaterial *material,
 			 int           layer_index,
 			 CoglHandle    texture);
@@ -551,7 +552,7 @@ cogl_material_set_layer (CoglMaterial *material,
  * Deprecated: 1.16: Use cogl_pipeline_set_layer_combine() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_combine)
-gboolean
+COGL_EXPORT gboolean
 cogl_material_set_layer_combine (CoglMaterial *material,
 				 int           layer_index,
 				 const char   *blend_string,
@@ -572,7 +573,7 @@ cogl_material_set_layer_combine (CoglMaterial *material,
  * instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_combine_constant)
-void
+COGL_EXPORT void
 cogl_material_set_layer_combine_constant (CoglMaterial    *material,
                                           int              layer_index,
                                           const CoglColor *constant);
@@ -588,7 +589,7 @@ cogl_material_set_layer_combine_constant (CoglMaterial    *material,
  * Deprecated: 1.16: Use cogl_pipeline_set_layer_matrix() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_matrix)
-void
+COGL_EXPORT void
 cogl_material_set_layer_matrix (CoglMaterial     *material,
 				int               layer_index,
 				const CoglMatrix *matrix);
@@ -605,7 +606,7 @@ cogl_material_set_layer_matrix (CoglMaterial     *material,
  * Deprecated: 1.16: Use cogl_pipeline_set_layer_filters() instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_filters)
-void
+COGL_EXPORT void
 cogl_material_set_layer_filters (CoglMaterial      *material,
                                  int                layer_index,
                                  CoglMaterialFilter min_filter,
@@ -631,7 +632,7 @@ cogl_material_set_layer_filters (CoglMaterial      *material,
  *                  instead
  */
 COGL_DEPRECATED_FOR (cogl_pipeline_set_layer_point_sprite_coords_enabled)
-gboolean
+COGL_EXPORT gboolean
 cogl_material_set_layer_point_sprite_coords_enabled (CoglMaterial *material,
                                                      int           layer_index,
                                                      gboolean      enable,

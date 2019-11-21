@@ -775,7 +775,7 @@ _cogl_pipeline_get_layer_combine_constant (CoglPipeline *pipeline,
                                            int layer_index,
                                            float *constant);
 
-void
+COGL_EXPORT void
 _cogl_pipeline_prune_to_n_layers (CoglPipeline *pipeline, int n);
 
 
@@ -786,7 +786,7 @@ _cogl_pipeline_prune_to_n_layers (CoglPipeline *pipeline, int n);
 typedef gboolean (*CoglPipelineInternalLayerCallback) (CoglPipelineLayer *layer,
                                                        void *user_data);
 
-void
+COGL_EXPORT void
 _cogl_pipeline_foreach_layer_internal (CoglPipeline *pipeline,
                                        CoglPipelineInternalLayerCallback callback,
                                        void *user_data);

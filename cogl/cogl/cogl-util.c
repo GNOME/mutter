@@ -44,7 +44,7 @@
  * Return value: @a if @a is already a power of two, otherwise returns
  *   the next nearest power of two.
  */
-int
+COGL_EXPORT int
 _cogl_util_next_p2 (int a)
 {
   int rval = 1;

@@ -1,6 +1,0 @@
-{
-global:
-  cogl_pango_*;
-local:
-  *;
-};

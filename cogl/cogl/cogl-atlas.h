@@ -64,12 +64,12 @@ struct _CoglAtlas
   GHookList post_reorganize_callbacks;
 };
 
-CoglAtlas *
+COGL_EXPORT CoglAtlas *
 _cogl_atlas_new (CoglPixelFormat texture_format,
                  CoglAtlasFlags flags,
                  CoglAtlasUpdatePositionCallback update_position_cb);
 
-gboolean
+COGL_EXPORT gboolean
 _cogl_atlas_reserve_space (CoglAtlas             *atlas,
                            unsigned int           width,
                            unsigned int           height,
@@ -87,7 +87,7 @@ _cogl_atlas_copy_rectangle (CoglAtlas *atlas,
                             int height,
                             CoglPixelFormat format);
 
-void
+COGL_EXPORT void
 _cogl_atlas_add_reorganize_callback (CoglAtlas            *atlas,
                                      GHookFunc             pre_callback,
                                      GHookFunc             post_callback,
