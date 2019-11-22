@@ -123,29 +123,6 @@ cogl_get_backface_culling_enabled (void)
   return ctx->legacy_backface_culling_enabled;
 }
 
-void
-cogl_set_source_color (const CoglColor *color)
-{
-  CoglPipeline *pipeline;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  if (cogl_color_get_alpha_byte (color) == 0xff)
-    {
-      cogl_pipeline_set_color (ctx->opaque_color_pipeline, color);
-      pipeline = ctx->opaque_color_pipeline;
-    }
-  else
-    {
-      CoglColor premultiplied = *color;
-      cogl_color_premultiply (&premultiplied);
-      cogl_pipeline_set_color (ctx->blended_color_pipeline, &premultiplied);
-      pipeline = ctx->blended_color_pipeline;
-    }
-
-  cogl_set_source (pipeline);
-}
-
 gboolean
 cogl_has_feature (CoglContext *ctx, CoglFeatureID feature)
 {
@@ -337,41 +314,6 @@ cogl_set_source (void *material_or_pipeline)
       top->push_count--;
       cogl_push_source (pipeline);
     }
-}
-
-void
-cogl_set_source_texture (CoglTexture *texture)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  g_return_if_fail (texture != NULL);
-
-  cogl_pipeline_set_layer_texture (ctx->texture_pipeline, 0, texture);
-  cogl_set_source (ctx->texture_pipeline);
-}
-
-void
-cogl_set_source_color4ub (uint8_t red,
-                          uint8_t green,
-                          uint8_t blue,
-                          uint8_t alpha)
-{
-  CoglColor c = { 0, };
-
-  cogl_color_init_from_4ub (&c, red, green, blue, alpha);
-  cogl_set_source_color (&c);
-}
-
-void
-cogl_set_source_color4f (float red,
-                         float green,
-                         float blue,
-                         float alpha)
-{
-  CoglColor c = { 0, };
-
-  cogl_color_init_from_4f (&c, red, green, blue, alpha);
-  cogl_set_source_color (&c);
 }
 
 /* Scale from OpenGL normalized device coordinates (ranging from -1 to 1)

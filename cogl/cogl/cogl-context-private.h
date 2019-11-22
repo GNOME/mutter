@@ -145,10 +145,9 @@ struct _CoglContext
   GArray           *texture_units;
   int               active_texture_unit;
 
-  /* Pipelines */
-  CoglPipeline     *opaque_color_pipeline; /* used for set_source_color */
-  CoglPipeline     *blended_color_pipeline; /* used for set_source_color */
-  CoglPipeline     *texture_pipeline; /* used for set_source_texture */
+  /* Only used for comparing other pipelines when reading pixels. */
+  CoglPipeline     *opaque_color_pipeline;
+
   GString          *codegen_header_buffer;
   GString          *codegen_source_buffer;
   GString          *codegen_boilerplate_buffer;

@@ -255,8 +255,7 @@ cogl_context_new (CoglDisplay *display,
     }
 
   context->opaque_color_pipeline = cogl_pipeline_new (context);
-  context->blended_color_pipeline = cogl_pipeline_new (context);
-  context->texture_pipeline = cogl_pipeline_new (context);
+
   context->codegen_header_buffer = g_string_new ("");
   context->codegen_source_buffer = g_string_new ("");
   context->codegen_boilerplate_buffer = g_string_new ("");
@@ -414,10 +413,6 @@ _cogl_context_free (CoglContext *context)
 
   if (context->opaque_color_pipeline)
     cogl_object_unref (context->opaque_color_pipeline);
-  if (context->blended_color_pipeline)
-    cogl_object_unref (context->blended_color_pipeline);
-  if (context->texture_pipeline)
-    cogl_object_unref (context->texture_pipeline);
 
   if (context->blit_texture_pipeline)
     cogl_object_unref (context->blit_texture_pipeline);
