@@ -405,10 +405,7 @@ clutter_pipeline_node_pre_draw (ClutterPaintNode    *node,
 
   if (node->operations != NULL &&
       pnode->pipeline != NULL)
-    {
-      cogl_push_source (pnode->pipeline);
-      return TRUE;
-    }
+    return TRUE;
 
   return FALSE;
 }
@@ -453,18 +450,20 @@ clutter_pipeline_node_draw (ClutterPaintNode    *node,
           break;
 
         case PAINT_OP_TEX_RECT:
-          cogl_rectangle_with_texture_coords (op->op.texrect[0],
-                                              op->op.texrect[1],
-                                              op->op.texrect[2],
-                                              op->op.texrect[3],
-                                              op->op.texrect[4],
-                                              op->op.texrect[5],
-                                              op->op.texrect[6],
-                                              op->op.texrect[7]);
+          cogl_framebuffer_draw_textured_rectangle (fb,
+                                                    pnode->pipeline,
+                                                    op->op.texrect[0],
+                                                    op->op.texrect[1],
+                                                    op->op.texrect[2],
+                                                    op->op.texrect[3],
+                                                    op->op.texrect[4],
+                                                    op->op.texrect[5],
+                                                    op->op.texrect[6],
+                                                    op->op.texrect[7]);
           break;
 
         case PAINT_OP_MULTITEX_RECT:
-          cogl_framebuffer_draw_multitextured_rectangle (cogl_get_draw_framebuffer (),
+          cogl_framebuffer_draw_multitextured_rectangle (fb,
                                                          pnode->pipeline,
                                                          op->op.texrect[0],
                                                          op->op.texrect[1],
@@ -475,7 +474,7 @@ clutter_pipeline_node_draw (ClutterPaintNode    *node,
           break;
 
         case PAINT_OP_PATH:
-          cogl_path_fill (op->op.path);
+          cogl_framebuffer_fill_path (fb, pnode->pipeline, op->op.path);
           break;
 
         case PAINT_OP_PRIMITIVE:
@@ -491,7 +490,6 @@ static void
 clutter_pipeline_node_post_draw (ClutterPaintNode    *node,
                                  ClutterPaintContext *paint_context)
 {
-  cogl_pop_source ();
 }
 
 static JsonNode *
@@ -1328,20 +1326,20 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
 
         case PAINT_OP_TEX_RECT:
           /* now we need to paint the texture */
-          cogl_push_source (lnode->state);
-          cogl_rectangle_with_texture_coords (op->op.texrect[0],
-                                              op->op.texrect[1],
-                                              op->op.texrect[2],
-                                              op->op.texrect[3],
-                                              op->op.texrect[4],
-                                              op->op.texrect[5],
-                                              op->op.texrect[6],
-                                              op->op.texrect[7]);
-          cogl_pop_source ();
+          cogl_framebuffer_draw_textured_rectangle (fb,
+                                                    lnode->state,
+                                                    op->op.texrect[0],
+                                                    op->op.texrect[1],
+                                                    op->op.texrect[2],
+                                                    op->op.texrect[3],
+                                                    op->op.texrect[4],
+                                                    op->op.texrect[5],
+                                                    op->op.texrect[6],
+                                                    op->op.texrect[7]);
           break;
 
         case PAINT_OP_MULTITEX_RECT:
-          cogl_framebuffer_draw_multitextured_rectangle (cogl_get_draw_framebuffer (),
+          cogl_framebuffer_draw_multitextured_rectangle (fb,
                                                          lnode->state,
                                                          op->op.texrect[0],
                                                          op->op.texrect[1],
@@ -1352,9 +1350,7 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
           break;
 
         case PAINT_OP_PATH:
-          cogl_push_source (lnode->state);
-          cogl_path_fill (op->op.path);
-          cogl_pop_source ();
+          cogl_framebuffer_fill_path (fb, lnode->state, op->op.path);
           break;
 
         case PAINT_OP_PRIMITIVE:
