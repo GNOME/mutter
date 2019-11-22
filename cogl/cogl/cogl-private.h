@@ -95,9 +95,6 @@ gboolean
 _cogl_check_extension (const char *name, char * const *ext);
 
 void
-_cogl_clear (const CoglColor *color, unsigned long buffers);
-
-void
 _cogl_init (void);
 
 void
