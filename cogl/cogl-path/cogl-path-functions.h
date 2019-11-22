@@ -422,26 +422,6 @@ cogl_path_set_fill_rule (CoglPath *path, CoglPathFillRule fill_rule);
 CoglPathFillRule
 cogl_path_get_fill_rule (CoglPath *path);
 
-#define cogl_path_fill cogl2_path_fill
-/**
- * cogl_path_fill:
- *
- * Fills the interior of the constructed shape using the current
- * drawing color.
- *
- * The interior of the shape is determined using the fill rule of the
- * path. See %CoglPathFillRule for details.
- *
- * <note>The result of referencing sliced textures in your current
- * pipeline when filling a path are undefined. You should pass
- * the %COGL_TEXTURE_NO_SLICING flag when loading any texture you will
- * use while filling a path.</note>
- *
- * Since: 2.0
- */
-void
-cogl_path_fill (CoglPath *path);
-
 /**
  * cogl_framebuffer_fill_path:
  * @framebuffer: A #CoglFramebuffer
@@ -465,19 +445,6 @@ void
 cogl_framebuffer_fill_path (CoglFramebuffer *framebuffer,
                             CoglPipeline *pipeline,
                             CoglPath *path);
-
-#define cogl_path_stroke cogl2_path_stroke
-/**
- * cogl_path_stroke:
- *
- * Strokes the constructed shape using the current drawing color and a
- * width of 1 pixel (regardless of the current transformation
- * matrix).
- *
- * Since: 2.0
- */
-void
-cogl_path_stroke (CoglPath *path);
 
 /**
  * cogl_framebuffer_stroke_path:
@@ -512,22 +479,6 @@ cogl_framebuffer_stroke_path (CoglFramebuffer *framebuffer,
 void
 cogl_framebuffer_push_path_clip (CoglFramebuffer *framebuffer,
                                  CoglPath *path);
-
-#define cogl_clip_push_from_path cogl2_clip_push_from_path
-/**
- * cogl_clip_push_from_path:
- * @path: The path to clip with.
- *
- * Sets a new clipping area using the silhouette of the specified,
- * filled @path.  The clipping area is intersected with the previous
- * clipping area. To restore the previous clipping area, call
- * call cogl_clip_pop().
- *
- * Since: 1.8
- * Stability: Unstable
- */
-void
-cogl_clip_push_from_path (CoglPath *path);
 
 G_END_DECLS
 

@@ -385,38 +385,6 @@ _cogl_path_fill_nodes (CoglPath *path,
     }
 }
 
-/* TODO: Update to the protoype used in the Cogl master branch.
- * This is experimental API but not in sync with the cogl_path_fill()
- * api in Cogl master which takes explicit framebuffer and pipeline
- * arguments */
-void
-cogl2_path_fill (CoglPath *path)
-{
-  g_return_if_fail (cogl_is_path (path));
-
-  _cogl_path_fill_nodes (path,
-                         cogl_get_draw_framebuffer (),
-                         cogl_get_source (),
-                         0 /* flags */);
-}
-
-/* TODO: Update to the protoype used in the Cogl master branch.
- * This is experimental API but not in sync with the cogl_path_fill()
- * api in Cogl master which takes explicit framebuffer and pipeline
- * arguments */
-void
-cogl2_path_stroke (CoglPath *path)
-{
-  g_return_if_fail (cogl_is_path (path));
-
-  if (path->data->path_nodes->len == 0)
-    return;
-
-  _cogl_path_stroke_nodes (path,
-                           cogl_get_draw_framebuffer (),
-                           cogl_get_source ());
-}
-
 void
 cogl2_path_move_to (CoglPath *path,
                     float x,
@@ -1502,12 +1470,6 @@ cogl_framebuffer_push_path_clip (CoglFramebuffer *framebuffer,
   if (framebuffer->context->current_draw_buffer == framebuffer)
     framebuffer->context->current_draw_buffer_changes |=
       COGL_FRAMEBUFFER_STATE_CLIP;
-}
-
-void
-cogl_clip_push_from_path (CoglPath *path)
-{
-  cogl_framebuffer_push_path_clip (cogl_get_draw_framebuffer (), path);
 }
 
 static void
