@@ -3801,9 +3801,6 @@ clutter_actor_paint_node (ClutterActor        *actor,
   ClutterActorBox box;
   ClutterColor bg_color;
 
-  if (root == NULL)
-    return FALSE;
-
   box.x1 = 0.f;
   box.y1 = 0.f;
   box.x2 = clutter_actor_box_get_width (&priv->allocation);
