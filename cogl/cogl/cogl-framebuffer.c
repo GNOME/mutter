@@ -2172,8 +2172,7 @@ cogl_framebuffer_draw_primitive (CoglFramebuffer *framebuffer,
                                  CoglPipeline *pipeline,
                                  CoglPrimitive *primitive)
 {
-  _cogl_primitive_draw (primitive, framebuffer, pipeline,
-                        COGL_DRAW_SKIP_LEGACY_STATE);
+  _cogl_primitive_draw (primitive, framebuffer, pipeline, 0);
 }
 
 void
@@ -2199,8 +2198,7 @@ cogl_framebuffer_draw_rectangle (CoglFramebuffer *framebuffer,
   _cogl_framebuffer_draw_multitextured_rectangles (framebuffer,
                                                    pipeline,
                                                    &rect,
-                                                   1,
-                                                   TRUE);
+                                                   1);
 }
 
 void
@@ -2231,8 +2229,7 @@ cogl_framebuffer_draw_textured_rectangle (CoglFramebuffer *framebuffer,
   _cogl_framebuffer_draw_multitextured_rectangles (framebuffer,
                                                    pipeline,
                                                    &rect,
-                                                   1,
-                                                   TRUE);
+                                                   1);
 }
 
 void
@@ -2260,8 +2257,7 @@ cogl_framebuffer_draw_multitextured_rectangle (CoglFramebuffer *framebuffer,
   _cogl_framebuffer_draw_multitextured_rectangles (framebuffer,
                                                    pipeline,
                                                    &rect,
-                                                   1,
-                                                   TRUE);
+                                                   1);
 }
 
 void
@@ -2290,8 +2286,7 @@ cogl_framebuffer_draw_rectangles (CoglFramebuffer *framebuffer,
   _cogl_framebuffer_draw_multitextured_rectangles (framebuffer,
                                                    pipeline,
                                                    rects,
-                                                   n_rectangles,
-                                                   TRUE);
+                                                   n_rectangles);
 }
 
 void
@@ -2320,6 +2315,5 @@ cogl_framebuffer_draw_textured_rectangles (CoglFramebuffer *framebuffer,
   _cogl_framebuffer_draw_multitextured_rectangles (framebuffer,
                                                    pipeline,
                                                    rects,
-                                                   n_rectangles,
-                                                   TRUE);
+                                                   n_rectangles);
 }

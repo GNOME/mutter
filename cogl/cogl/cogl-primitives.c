@@ -629,8 +629,7 @@ _cogl_framebuffer_draw_multitextured_rectangles (
                                         CoglFramebuffer *framebuffer,
                                         CoglPipeline *pipeline,
                                         CoglMultiTexturedRect *rects,
-                                        int n_rects,
-                                        gboolean disable_legacy_state)
+                                        int n_rects)
 {
   CoglContext *ctx = framebuffer->context;
   CoglPipeline *original_pipeline;
@@ -653,18 +652,6 @@ _cogl_framebuffer_draw_multitextured_rectangles (
 
   if (state.override_source)
     pipeline = state.override_source;
-
-  if (!disable_legacy_state)
-    {
-      if (G_UNLIKELY (ctx->legacy_state_set) &&
-          _cogl_get_enable_legacy_state ())
-        {
-          /* If we haven't already made a pipeline copy */
-          if (pipeline == original_pipeline)
-            pipeline = cogl_pipeline_copy (pipeline);
-          _cogl_pipeline_apply_legacy_state (pipeline);
-        }
-    }
 
   /*
    * Emit geometry for each of the rectangles...
@@ -761,8 +748,7 @@ _cogl_rectangle_immediate (CoglFramebuffer *framebuffer,
                                      1,
                                      COGL_DRAW_SKIP_JOURNAL_FLUSH |
                                      COGL_DRAW_SKIP_PIPELINE_VALIDATION |
-                                     COGL_DRAW_SKIP_FRAMEBUFFER_FLUSH |
-                                     COGL_DRAW_SKIP_LEGACY_STATE);
+                                     COGL_DRAW_SKIP_FRAMEBUFFER_FLUSH);
 
 
   cogl_object_unref (attributes[0]);

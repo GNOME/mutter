@@ -259,9 +259,6 @@ cogl_context_new (CoglDisplay *display,
   context->codegen_header_buffer = g_string_new ("");
   context->codegen_source_buffer = g_string_new ("");
   context->codegen_boilerplate_buffer = g_string_new ("");
-  context->source_stack = NULL;
-
-  context->legacy_state_set = 0;
 
   context->default_gl_texture_2d_tex = NULL;
 
@@ -317,8 +314,6 @@ cogl_context_new (CoglDisplay *display,
   for (i = 0; i < COGL_BUFFER_BIND_TARGET_COUNT; i++)
     context->current_buffer[i] = NULL;
 
-  context->framebuffer_stack = _cogl_create_framebuffer_stack ();
-
   context->current_path = NULL;
   context->stencil_pipeline = cogl_pipeline_new (context);
 
@@ -373,8 +368,6 @@ cogl_context_new (CoglDisplay *display,
                                    white_pixel,
                                    NULL); /* abort on error */
 
-  cogl_push_source (context->opaque_color_pipeline);
-
   context->atlases = NULL;
   g_hook_list_init (&context->atlas_reorganize_callbacks, sizeof (GHook));
 
@@ -402,8 +395,6 @@ _cogl_context_free (CoglContext *context)
   const CoglWinsysVtable *winsys = _cogl_context_get_winsys (context);
 
   winsys->context_deinit (context);
-
-  _cogl_free_framebuffer_stack (context->framebuffer_stack);
 
   if (context->current_path)
     cogl_object_unref (context->current_path);

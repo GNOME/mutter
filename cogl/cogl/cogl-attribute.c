@@ -650,15 +650,6 @@ _cogl_flush_attributes_state (CoglFramebuffer *framebuffer,
    * when the framebuffer really does get drawn to. */
   _cogl_framebuffer_mark_clear_clip_dirty (framebuffer);
 
-  if (G_UNLIKELY (!(flags & COGL_DRAW_SKIP_LEGACY_STATE)) &&
-      G_UNLIKELY (ctx->legacy_state_set) &&
-      _cogl_get_enable_legacy_state ())
-    {
-      copy = cogl_pipeline_copy (pipeline);
-      pipeline = copy;
-      _cogl_pipeline_apply_legacy_state (pipeline);
-    }
-
   ctx->driver_vtable->flush_attributes_state (framebuffer,
                                               pipeline,
                                               &layers_state,

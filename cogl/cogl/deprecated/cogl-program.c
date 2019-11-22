@@ -126,11 +126,6 @@ cogl_program_use (CoglHandle handle)
 
   g_return_if_fail (handle == NULL || cogl_is_program (handle));
 
-  if (ctx->current_program == 0 && handle != 0)
-    ctx->legacy_state_set++;
-  else if (handle == 0 && ctx->current_program != 0)
-    ctx->legacy_state_set--;
-
   if (handle != NULL)
     cogl_object_ref (handle);
   if (ctx->current_program != NULL)

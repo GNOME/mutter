@@ -1010,27 +1010,6 @@ _clutter_backend_get_keymap_direction (ClutterBackend *backend)
 }
 
 void
-_clutter_backend_reset_cogl_framebuffer (ClutterBackend *backend)
-{
-  if (backend->dummy_onscreen == NULL)
-    {
-      GError *internal_error = NULL;
-
-      backend->dummy_onscreen = cogl_onscreen_new (backend->cogl_context, 1, 1);
-
-      if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (backend->dummy_onscreen),
-                                      &internal_error))
-        {
-          g_critical ("Unable to create dummy onscreen: %s", internal_error->message);
-          g_error_free (internal_error);
-          return;
-        }
-    }
-
-  cogl_set_framebuffer (COGL_FRAMEBUFFER (backend->dummy_onscreen));
-}
-
-void
 clutter_set_allowed_drivers (const char *drivers)
 {
   if (_clutter_context_is_initialized ())

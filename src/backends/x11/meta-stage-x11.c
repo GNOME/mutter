@@ -269,7 +269,6 @@ set_cursor_visible (MetaStageX11 *stage_x11)
 static void
 meta_stage_x11_unrealize (ClutterStageWindow *stage_window)
 {
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
   MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
 
   if (clutter_stages_by_xid != NULL)
@@ -277,19 +276,6 @@ meta_stage_x11_unrealize (ClutterStageWindow *stage_window)
       g_hash_table_remove (clutter_stages_by_xid,
                            GINT_TO_POINTER (stage_x11->xwin));
     }
-
-  /* Clutter still uses part of the deprecated stateful API of Cogl
-   * (in particulart cogl_set_framebuffer). It means Cogl can keep an
-   * internal reference to the onscreen object we rendered to. In the
-   * case of foreign window, we want to avoid this, as we don't know
-   * what's going to happen to that window.
-   *
-   * The following call sets the current Cogl framebuffer to a dummy
-   * 1x1 one if we're unrealizing the current one, so Cogl doesn't
-   * keep any reference to the foreign window.
-   */
-  if (cogl_get_draw_framebuffer () == COGL_FRAMEBUFFER (stage_x11->onscreen))
-    _clutter_backend_reset_cogl_framebuffer (stage_cogl->backend);
 
   if (stage_x11->frame_closure)
     {

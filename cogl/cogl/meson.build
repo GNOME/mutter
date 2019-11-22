@@ -71,10 +71,6 @@ cogl_deprecated_headers = [
   'deprecated/cogl-auto-texture.h',
 ]
 
-cogl_deprecated_nonintrospected_headers = [
-  'deprecated/cogl-framebuffer-deprecated.h',
-]
-
 cogl_headers = [
   'cogl1-context.h',
   'cogl-bitmap.h',
@@ -356,7 +352,6 @@ cogl_sources = [
   'deprecated/cogl-shader-private.h',
   'deprecated/cogl-shader.c',
   'deprecated/cogl-clutter.c',
-  'deprecated/cogl-framebuffer-deprecated.c',
   'cogl-glib-source.c',
   'cogl-mutter.h',
 ]
@@ -427,7 +422,6 @@ cogl_headers_all = [
   cogl_introspected_headers,
   cogl_nonintrospected_headers,
   cogl_deprecated_headers,
-  cogl_deprecated_nonintrospected_headers,
 ]
 
 cogl_test_deps = []
@@ -497,7 +491,6 @@ install_headers([
 
 install_headers([
     cogl_deprecated_headers,
-    cogl_deprecated_nonintrospected_headers,
   ],
   subdir: join_paths(cogl_cogl_includesubdir, 'deprecated'))
 

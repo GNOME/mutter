@@ -1463,19 +1463,6 @@ cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
                               CoglPixelFormat format,
                               uint8_t *pixels);
 
-/**
- * cogl_get_draw_framebuffer:
- *
- * Gets the current #CoglFramebuffer as set using
- * cogl_push_framebuffer()
- *
- * Return value: (transfer none): The current #CoglFramebuffer
- * Stability: unstable
- * Since: 1.8
- */
-CoglFramebuffer *
-cogl_get_draw_framebuffer (void);
-
 uint32_t
 cogl_framebuffer_error_quark (void);
 

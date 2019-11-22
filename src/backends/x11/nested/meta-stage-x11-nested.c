@@ -307,32 +307,6 @@ static void
 meta_stage_x11_nested_unrealize (ClutterStageWindow *stage_window)
 {
   MetaStageX11Nested *stage_nested = META_STAGE_X11_NESTED (stage_window);
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-  MetaBackend *backend = meta_get_backend ();
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  GList *l;
-
-  /* Clutter still uses part of the deprecated stateful API of Cogl
-   * (in particulart cogl_set_framebuffer). It means Cogl can keep an
-   * internal reference to the onscreen object we rendered to. In the
-   * case of foreign window, we want to avoid this, as we don't know
-   * what's going to happen to that window.
-   *
-   * The following call sets the current Cogl framebuffer to a dummy
-   * 1x1 one if we're unrealizing the current one, so Cogl doesn't
-   * keep any reference to the foreign window.
-   */
-  for (l = meta_renderer_get_views (renderer); l ;l = l->next)
-    {
-      ClutterStageView *view = l->data;
-      CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
-
-      if (cogl_get_draw_framebuffer () == framebuffer)
-        {
-          _clutter_backend_reset_cogl_framebuffer (stage_cogl->backend);
-          break;
-        }
-    }
 
   g_clear_pointer (&stage_nested->pipeline, cogl_object_unref);
 

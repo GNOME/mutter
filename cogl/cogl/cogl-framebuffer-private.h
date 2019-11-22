@@ -341,21 +341,6 @@ _cogl_offscreen_new_with_texture_full (CoglTexture *texture,
                                        CoglOffscreenFlags create_flags,
                                        int level);
 
-/*
- * _cogl_push_framebuffers:
- * @draw_buffer: A pointer to the buffer used for drawing
- * @read_buffer: A pointer to the buffer used for reading back pixels
- *
- * Redirects drawing and reading to the specified framebuffers as in
- * cogl_push_framebuffer() except that it allows the draw and read
- * buffer to be different. The buffers are pushed as a pair so that
- * they can later both be restored with a single call to
- * cogl_pop_framebuffer().
- */
-void
-_cogl_push_framebuffers (CoglFramebuffer *draw_buffer,
-                         CoglFramebuffer *read_buffer);
-
 void
 _cogl_framebuffer_push_projection (CoglFramebuffer *framebuffer);
 

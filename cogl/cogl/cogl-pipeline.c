@@ -2389,37 +2389,6 @@ _cogl_pipeline_journal_unref (CoglPipeline *pipeline)
 
 #ifdef COGL_DEBUG_ENABLED
 void
-_cogl_pipeline_apply_legacy_state (CoglPipeline *pipeline)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  /* It was a mistake that we ever copied the OpenGL style API for
-   * associating these things directly with the context when we
-   * originally wrote Cogl. Until the corresponding deprecated APIs
-   * can be removed though we now shoehorn the state changes through
-   * the cogl_pipeline API instead.
-   */
-
-  /* A program explicitly set on the pipeline has higher precedence than
-   * one associated with the context using cogl_program_use() */
-  if (ctx->current_program &&
-      cogl_pipeline_get_user_program (pipeline) == NULL)
-    cogl_pipeline_set_user_program (pipeline, ctx->current_program);
-
-  if (ctx->legacy_depth_test_enabled)
-    {
-      CoglDepthState depth_state;
-      cogl_depth_state_init (&depth_state);
-      cogl_depth_state_set_test_enabled (&depth_state, TRUE);
-      cogl_pipeline_set_depth_state (pipeline, &depth_state, NULL);
-    }
-
-  if (ctx->legacy_backface_culling_enabled)
-    cogl_pipeline_set_cull_face_mode (pipeline,
-                                      COGL_PIPELINE_CULL_FACE_MODE_BACK);
-}
-
-void
 _cogl_pipeline_set_static_breadcrumb (CoglPipeline *pipeline,
                                       const char *breadcrumb)
 {

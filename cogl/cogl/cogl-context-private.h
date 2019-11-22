@@ -151,9 +151,6 @@ struct _CoglContext
   GString          *codegen_header_buffer;
   GString          *codegen_source_buffer;
   GString          *codegen_boilerplate_buffer;
-  GList            *source_stack;
-
-  int               legacy_state_set;
 
   CoglPipelineCache *pipeline_cache;
 
@@ -190,7 +187,6 @@ struct _CoglContext
   CoglBuffer       *current_buffer[COGL_BUFFER_BIND_TARGET_COUNT];
 
   /* Framebuffers */
-  GSList           *framebuffer_stack;
   unsigned long     current_draw_buffer_state_flushed;
   unsigned long     current_draw_buffer_changes;
   CoglFramebuffer  *current_draw_buffer;

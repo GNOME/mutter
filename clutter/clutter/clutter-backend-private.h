@@ -141,9 +141,6 @@ gint32                  _clutter_backend_get_units_serial               (Clutter
 
 PangoDirection          _clutter_backend_get_keymap_direction           (ClutterBackend         *backend);
 
-CLUTTER_EXPORT
-void                    _clutter_backend_reset_cogl_framebuffer         (ClutterBackend         *backend);
-
 void                    clutter_set_allowed_drivers                     (const char             *drivers);
 
 CLUTTER_EXPORT

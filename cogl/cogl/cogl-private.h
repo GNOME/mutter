@@ -97,12 +97,6 @@ _cogl_check_extension (const char *name, char * const *ext);
 void
 _cogl_init (void);
 
-void
-_cogl_push_source (CoglPipeline *pipeline, gboolean enable_legacy);
-
-gboolean
-_cogl_get_enable_legacy_state (void);
-
 #define _cogl_has_private_feature(ctx, feature) \
   COGL_FLAGS_GET ((ctx)->private_features, (feature))
 

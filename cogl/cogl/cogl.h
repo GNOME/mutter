@@ -83,7 +83,6 @@
  * they enable the experimental api... */
 #include <cogl/deprecated/cogl-type-casts.h>
 
-#include <cogl/deprecated/cogl-framebuffer-deprecated.h>
 #include <cogl/deprecated/cogl-auto-texture.h>
 #include <cogl/deprecated/cogl-shader.h>
 #include <cogl/deprecated/cogl-material-compat.h>
