@@ -1203,9 +1203,10 @@ clutter_paint_node_get_root (ClutterPaintNode *node)
  * @node: a #ClutterPaintNode
  *
  * Retrieves the #CoglFramebuffer that @node will draw
- * into.
+ * into, if it the root node has a custom framebuffer set.
  *
- * Returns: (transfer none): a #CoglFramebuffer
+ * Returns: (transfer none): a #CoglFramebuffer or %NULL if no custom one is
+ * set.
  */
 CoglFramebuffer *
 clutter_paint_node_get_framebuffer (ClutterPaintNode *node)
@@ -1216,6 +1217,6 @@ clutter_paint_node_get_framebuffer (ClutterPaintNode *node)
   klass = CLUTTER_PAINT_NODE_GET_CLASS (root);
   if (klass->get_framebuffer != NULL)
     return klass->get_framebuffer (root);
-
-  return cogl_get_draw_framebuffer ();
+  else
+    return NULL;
 }

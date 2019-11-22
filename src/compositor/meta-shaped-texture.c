@@ -525,6 +525,7 @@ do_paint_content (MetaShapedTexture *stex,
   cairo_region_t *blended_tex_region;
   CoglContext *ctx;
   CoglPipelineFilter filter;
+  CoglFramebuffer *framebuffer;
 
   ensure_size_valid (stex);
 
@@ -547,7 +548,10 @@ do_paint_content (MetaShapedTexture *stex,
 
   filter = COGL_PIPELINE_FILTER_LINEAR;
 
-  if (meta_actor_painting_untransformed (clutter_paint_node_get_framebuffer (root_node),
+  framebuffer = clutter_paint_node_get_framebuffer (root_node);
+  if (!framebuffer)
+    framebuffer = cogl_get_draw_framebuffer ();
+  if (meta_actor_painting_untransformed (framebuffer,
                                          dst_width, dst_height,
                                          NULL, NULL))
     filter = COGL_PIPELINE_FILTER_NEAREST;

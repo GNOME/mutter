@@ -413,6 +413,18 @@ clutter_pipeline_node_pre_draw (ClutterPaintNode    *node,
   return FALSE;
 }
 
+static CoglFramebuffer *
+get_target_framebuffer (ClutterPaintNode *node)
+{
+  CoglFramebuffer *framebuffer;
+
+  framebuffer = clutter_paint_node_get_framebuffer (node);
+  if (framebuffer)
+    return framebuffer;
+
+  return cogl_get_draw_framebuffer ();
+}
+
 static void
 clutter_pipeline_node_draw (ClutterPaintNode    *node,
                             ClutterPaintContext *paint_context)
@@ -818,7 +830,7 @@ clutter_text_node_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return;
 
-  fb = clutter_paint_node_get_framebuffer (node);
+  fb = get_target_framebuffer (node);
 
   pango_layout_get_pixel_extents (tnode->layout, NULL, &extents);
 
@@ -1004,7 +1016,7 @@ clutter_clip_node_pre_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return FALSE;
 
-  fb = clutter_paint_node_get_framebuffer (node);
+  fb = get_target_framebuffer (node);
 
   for (i = 0; i < node->operations->len; i++)
     {
@@ -1048,7 +1060,7 @@ clutter_clip_node_post_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return;
 
-  fb = clutter_paint_node_get_framebuffer (node);
+  fb = get_target_framebuffer (node);
 
   for (i = 0; i < node->operations->len; i++)
     {
