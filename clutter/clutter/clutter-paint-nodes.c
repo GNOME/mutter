@@ -427,7 +427,7 @@ clutter_pipeline_node_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return;
 
-  fb = clutter_paint_node_get_framebuffer (node);
+  fb = cogl_get_draw_framebuffer ();
 
   for (i = 0; i < node->operations->len; i++)
     {
