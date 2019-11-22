@@ -69,45 +69,47 @@ paint_test_backface_culling (TestState *state,
                                    COGL_PIPELINE_FILTER_NEAREST,
                                    COGL_PIPELINE_FILTER_NEAREST);
 
-  cogl_push_framebuffer (framebuffer);
-
   /* Render the scene sixteen times to test all of the combinations of
      cull face mode, legacy state and winding orders */
-  for (draw_num = 0; draw_num < 16; draw_num++)
+  for (draw_num = 0; draw_num < 8; draw_num++)
     {
       float x1 = 0, x2, y1 = 0, y2 = (float)(TEXTURE_RENDER_SIZE);
-      CoglTextureVertex verts[4];
+      CoglVertexP3T2 verts[4];
+      CoglPrimitive *primitive;
       CoglPipeline *pipeline;
 
-      cogl_push_matrix ();
-      cogl_translate (0, TEXTURE_RENDER_SIZE * draw_num, 0);
+      cogl_framebuffer_push_matrix (framebuffer);
+      cogl_framebuffer_translate (framebuffer,
+                                  0,
+                                  TEXTURE_RENDER_SIZE * draw_num,
+                                  0);
 
       pipeline = cogl_pipeline_copy (base_pipeline);
 
       cogl_pipeline_set_front_face_winding (pipeline, FRONT_WINDING (draw_num));
       cogl_pipeline_set_cull_face_mode (pipeline, CULL_FACE_MODE (draw_num));
 
-      cogl_push_source (pipeline);
-
       memset (verts, 0, sizeof (verts));
 
       x2 = x1 + (float)(TEXTURE_RENDER_SIZE);
 
       /* Draw a front-facing texture */
-      cogl_rectangle (x1, y1, x2, y2);
+      cogl_framebuffer_draw_rectangle (framebuffer, pipeline, x1, y1, x2, y2);
 
       x1 = x2;
       x2 = x1 + (float)(TEXTURE_RENDER_SIZE);
 
       /* Draw a front-facing texture with flipped texcoords */
-      cogl_rectangle_with_texture_coords (x1, y1, x2, y2,
-                                          1.0, 0.0, 0.0, 1.0);
+      cogl_framebuffer_draw_textured_rectangle (framebuffer, pipeline,
+                                                x1, y1, x2, y2,
+                                                1.0, 0.0, 0.0, 1.0);
 
       x1 = x2;
       x2 = x1 + (float)(TEXTURE_RENDER_SIZE);
 
       /* Draw a back-facing texture */
-      cogl_rectangle (x2, y1, x1, y2);
+      cogl_framebuffer_draw_rectangle (framebuffer, pipeline,
+                                       x2, y1, x1, y2);
 
       x1 = x2;
       x2 = x1 + (float)(TEXTURE_RENDER_SIZE);
@@ -115,18 +117,24 @@ paint_test_backface_culling (TestState *state,
       /* If the texture is sliced then cogl_polygon doesn't work so
          we'll just use a solid color instead */
       if (cogl_texture_is_sliced (state->texture))
-        cogl_set_source_color4ub (255, 0, 0, 255);
+        cogl_pipeline_set_color4ub (pipeline, 255, 0, 0, 255);
 
       /* Draw a front-facing polygon */
       verts[0].x = x1;    verts[0].y = y2;
       verts[1].x = x2;    verts[1].y = y2;
       verts[2].x = x2;    verts[2].y = y1;
       verts[3].x = x1;    verts[3].y = y1;
-      verts[0].tx = 0;    verts[0].ty = 0;
-      verts[1].tx = 1.0;  verts[1].ty = 0;
-      verts[2].tx = 1.0;  verts[2].ty = 1.0;
-      verts[3].tx = 0;    verts[3].ty = 1.0;
-      cogl_polygon (verts, 4, FALSE);
+      verts[0].s = 0;     verts[0].t = 0;
+      verts[1].s = 1.0;   verts[1].t = 0;
+      verts[2].s = 1.0;   verts[2].t = 1.0;
+      verts[3].s = 0;     verts[3].t = 1.0;
+
+      primitive = cogl_primitive_new_p3t2 (test_ctx,
+                                           COGL_VERTICES_MODE_TRIANGLE_FAN,
+                                           4,
+                                           verts);
+      cogl_primitive_draw (primitive, framebuffer, pipeline);
+      cogl_object_unref (primitive);
 
       x1 = x2;
       x2 = x1 + (float)(TEXTURE_RENDER_SIZE);
@@ -136,22 +144,25 @@ paint_test_backface_culling (TestState *state,
       verts[1].x = x2;    verts[1].y = y1;
       verts[2].x = x2;    verts[2].y = y2;
       verts[3].x = x1;    verts[3].y = y2;
-      verts[0].tx = 0;    verts[0].ty = 0;
-      verts[1].tx = 1.0;  verts[1].ty = 0;
-      verts[2].tx = 1.0;  verts[2].ty = 1.0;
-      verts[3].tx = 0;    verts[3].ty = 1.0;
-      cogl_polygon (verts, 4, FALSE);
+      verts[0].s = 0;     verts[0].t = 0;
+      verts[1].s = 1.0;   verts[1].t = 0;
+      verts[2].s = 1.0;   verts[2].t = 1.0;
+      verts[3].s = 0;     verts[3].t = 1.0;
+
+      primitive = cogl_primitive_new_p3t2 (test_ctx,
+                                           COGL_VERTICES_MODE_TRIANGLE_FAN,
+                                           4,
+                                           verts);
+      cogl_primitive_draw (primitive, framebuffer, pipeline);
+      cogl_object_unref (primitive);
 
       x1 = x2;
       x2 = x1 + (float)(TEXTURE_RENDER_SIZE);
 
-      cogl_pop_matrix ();
+      cogl_framebuffer_pop_matrix (framebuffer);
 
-      cogl_pop_source ();
       cogl_object_unref (pipeline);
     }
-
-  cogl_pop_framebuffer ();
 
   cogl_object_unref (base_pipeline);
 }
