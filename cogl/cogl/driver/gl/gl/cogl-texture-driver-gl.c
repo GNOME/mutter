@@ -43,7 +43,6 @@
 #include "cogl-pipeline.h"
 #include "cogl-context-private.h"
 #include "cogl-object-private.h"
-#include "cogl-primitives.h"
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"

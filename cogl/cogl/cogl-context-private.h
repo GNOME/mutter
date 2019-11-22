@@ -39,7 +39,6 @@
 #endif
 
 #include "cogl-display-private.h"
-#include "cogl-primitives.h"
 #include "cogl-clip-stack.h"
 #include "cogl-matrix-stack.h"
 #include "cogl-pipeline-private.h"
