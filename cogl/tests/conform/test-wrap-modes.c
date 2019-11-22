@@ -73,12 +73,6 @@ wrap_modes[] =
 
     COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE,
     COGL_PIPELINE_WRAP_MODE_REPEAT,
-
-    COGL_PIPELINE_WRAP_MODE_AUTOMATIC,
-    COGL_PIPELINE_WRAP_MODE_AUTOMATIC,
-
-    COGL_PIPELINE_WRAP_MODE_AUTOMATIC,
-    COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE
   };
 
 static void
@@ -108,12 +102,12 @@ draw_tests (TestState *state)
     }
 }
 
-static const CoglTextureVertex vertices[4] =
+static const CoglVertexP3T2 vertices[4] =
   {
-    { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f },
-    { 0.0f, TEX_SIZE * 2, 0.0f, 0.0f, 2.0f },
-    { TEX_SIZE * 2, TEX_SIZE * 2, 0.0f, 2.0f, 2.0f },
-    { TEX_SIZE * 2, 0.0f, 0.0f, 2.0f, 0.0f }
+    { .x = 0.0f, .y = 0.0f, .z = 0.0f, .s = 0.0f, .t = 0.0f },
+    { .x = 0.0f, .y = TEX_SIZE * 2, .z = 0.0f, .s = 0.0f, .t = 2.0f },
+    { .x = TEX_SIZE * 2, .y = TEX_SIZE * 2, .z = 0.0f, .s = 2.0f, .t = 2.0f },
+    { .x = TEX_SIZE * 2, .y = 0.0f, .z = 0.0f, .s = 2.0f, .t = 0.0f }
   };
 
 static void
@@ -124,18 +118,23 @@ draw_tests_polygon (TestState *state)
   for (i = 0; i < G_N_ELEMENTS (wrap_modes); i += 2)
     {
       CoglPipelineWrapMode wrap_mode_s, wrap_mode_t;
+      CoglPrimitive *primitive;
       CoglPipeline *pipeline;
 
       wrap_mode_s = wrap_modes[i];
       wrap_mode_t = wrap_modes[i + 1];
       pipeline = create_pipeline (state, wrap_mode_s, wrap_mode_t);
-      cogl_set_source (pipeline);
-      cogl_object_unref (pipeline);
-      cogl_push_matrix ();
-      cogl_translate (TEX_SIZE * i, 0.0f, 0.0f);
+      cogl_framebuffer_push_matrix (test_fb);
+      cogl_framebuffer_translate (test_fb, TEX_SIZE * i, 0.0f, 0.0f);
       /* Render the pipeline at four times the size of the texture */
-      cogl_polygon (vertices, G_N_ELEMENTS (vertices), FALSE);
-      cogl_pop_matrix ();
+      primitive = cogl_primitive_new_p3t2 (test_ctx,
+                                           COGL_VERTICES_MODE_TRIANGLE_FAN,
+                                           G_N_ELEMENTS (vertices),
+                                           vertices);
+      cogl_primitive_draw (primitive, test_fb, pipeline);
+      cogl_object_unref (primitive);
+      cogl_object_unref (pipeline);
+      cogl_framebuffer_pop_matrix (test_fb);
     }
 }
 
@@ -194,7 +193,7 @@ validate_result (TestState *state)
 #if 0 /* this doesn't currently work */
   validate_set (state, 1); /* atlased rectangle */
 #endif
-  validate_set (state, 2); /* cogl_polygon */
+  validate_set (state, 2); /* CoglPrimitive */
 }
 
 static void
@@ -214,7 +213,7 @@ paint (TestState *state)
   cogl_pop_matrix ();
   cogl_object_unref (state->texture);
 
-  /* Draw the tests using cogl_polygon */
+  /* Draw the tests using CoglPrimitive */
   state->texture = create_texture (TEST_UTILS_TEXTURE_NO_ATLAS);
   cogl_push_matrix ();
   cogl_translate (0.0f, TEX_SIZE * 4.0f, 0.0f);
