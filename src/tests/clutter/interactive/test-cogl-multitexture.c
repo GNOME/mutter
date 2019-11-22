@@ -60,22 +60,26 @@ material_rectangle_paint (ClutterActor        *actor,
                           gpointer             data)
 {
   TestMultiLayerMaterialState *state = data;
+  CoglFramebuffer *framebuffer =
+    clutter_paint_context_get_framebuffer (paint_context);
 
-  cogl_push_matrix ();
+  cogl_framebuffer_push_matrix (framebuffer);
 
-  cogl_translate (150, 15, 0);
+  cogl_framebuffer_translate (framebuffer, 150, 15, 0);
 
-  cogl_set_source (state->material0);
-  cogl_rectangle_with_multitexture_coords (0, 0, 200, 213,
-                                           state->tex_coords,
-                                           12);
-  cogl_translate (-300, -30, 0);
-  cogl_set_source (state->material1);
-  cogl_rectangle_with_multitexture_coords (0, 0, 200, 213,
-                                           state->tex_coords,
-                                           12);
+  cogl_framebuffer_draw_multitextured_rectangle (framebuffer,
+                                                 COGL_FRAMEBUFFER (state->material0),
+                                                 0, 0, 200, 213,
+                                                 state->tex_coords,
+                                                 12);
+  cogl_framebuffer_translate (framebuffer, -300, -30, 0);
+  cogl_framebuffer_draw_multitextured_rectangle (framebuffer,
+                                                 COGL_FRAMEBUFFER (state->material1),
+                                                 0, 0, 200, 213,
+                                                 state->tex_coords,
+                                                 12);
 
-  cogl_pop_matrix ();
+  cogl_framebuffer_pop_matrix (framebuffer);
 }
 
 static void

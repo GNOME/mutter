@@ -174,6 +174,7 @@ test_coglbox_paint (ClutterActor        *self,
                                            : priv->not_sliced_tex;
   int tex_width = cogl_texture_get_width (tex_handle);
   int tex_height = cogl_texture_get_height (tex_handle);
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
   CoglHandle material = cogl_material_new ();
 
   cogl_material_set_layer (material, 0, tex_handle);
@@ -186,26 +187,26 @@ test_coglbox_paint (ClutterActor        *self,
                                    ? COGL_MATERIAL_FILTER_LINEAR :
                                    COGL_MATERIAL_FILTER_NEAREST);
 
-  cogl_push_matrix ();
-  cogl_translate (tex_width / 2, 0, 0);
-  cogl_rotate (priv->frame, 0, 1, 0);
-  cogl_translate (-tex_width / 2, 0, 0);
+  cogl_framebuffer_push_matrix (framebuffer);
+  cogl_framebuffer_translate (framebuffer, tex_width / 2, 0, 0);
+  cogl_framebuffer_rotate (framebuffer, priv->frame, 0, 1, 0);
+  cogl_framebuffer_translate (framebuffer, -tex_width / 2, 0, 0);
 
   /* Draw a hand and refect it */
-  cogl_set_source (material);
-  cogl_rectangle_with_texture_coords (0, 0, tex_width, tex_height,
-                                      0, 0, 1, 1);
+  cogl_framebuffer_draw_textured_rectangle (framebuffer, material,
+                                            0, 0, tex_width, tex_height,
+                                            0, 0, 1, 1);
   test_coglbox_fade_texture (0, tex_height,
 			     tex_width, (tex_height * 3 / 2),
 			     0.0, 1.0,
 			     1.0, 0.5);
 
-  cogl_pop_matrix ();
+  cogl_framebuffer_pop_matrix (framebuffer);
 
-  cogl_push_matrix ();
-  cogl_translate (tex_width * 3 / 2 + 60, 0, 0);
-  cogl_rotate (priv->frame, 0, 1, 0);
-  cogl_translate (-tex_width / 2 - 10, 0, 0);
+  cogl_framebuffer_push_matrix (framebuffer);
+  cogl_framebuffer_translate (framebuffer, tex_width * 3 / 2 + 60, 0, 0);
+  cogl_framebuffer_rotate (framebuffer, priv->frame, 0, 1, 0);
+  cogl_framebuffer_translate (framebuffer, -tex_width / 2 - 10, 0, 0);
 
   /* Draw the texture split into two triangles */
   test_coglbox_triangle_texture (tex_width, tex_height,
@@ -219,7 +220,7 @@ test_coglbox_paint (ClutterActor        *self,
 				 1, 0,
 				 1, 1);
 
-  cogl_pop_matrix ();
+  cogl_framebuffer_pop_matrix (framebuffer);
 
   cogl_object_unref (material);
 }

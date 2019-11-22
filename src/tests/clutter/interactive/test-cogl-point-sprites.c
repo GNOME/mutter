@@ -99,17 +99,18 @@ paint_cb (ClutterActor        *stage,
           ClutterPaintContext *paint_context,
           Data                *data)
 {
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
   CoglMatrix old_matrix, new_matrix;
   int i;
   float diff_time;
 
-  cogl_get_projection_matrix (&old_matrix);
+  cogl_framebuffer_get_projection_matrix (framebuffer, &old_matrix);
   /* Use an orthogonal projection from -1 -> 1 in both axes */
   cogl_matrix_init_identity (&new_matrix);
-  cogl_set_projection_matrix (&new_matrix);
+  cogl_framebuffer_set_projection_matrix (framebuffer, &new_matrix);
 
-  cogl_push_matrix ();
-  cogl_set_modelview_matrix (&new_matrix);
+  cogl_framebuffer_push_matrix (framebuffer);
+  cogl_framebuffer_set_modelview_matrix (framebuffer, &new_matrix);
 
   /* Update all of the firework's positions */
   for (i = 0; i < N_FIREWORKS; i++)
@@ -196,8 +197,8 @@ paint_cb (ClutterActor        *stage,
       g_timer_reset (data->last_spark_time);
     }
 
-  cogl_set_projection_matrix (&old_matrix);
-  cogl_pop_matrix ();
+  cogl_framebuffer_set_projection_matrix (framebuffer, &old_matrix);
+  cogl_framebuffer_pop_matrix (framebuffer);
 }
 
 static gboolean

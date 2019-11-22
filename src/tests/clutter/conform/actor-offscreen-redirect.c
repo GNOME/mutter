@@ -40,8 +40,12 @@ static void
 foo_actor_paint (ClutterActor        *actor,
                  ClutterPaintContext *paint_context)
 {
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
   FooActor *foo_actor = (FooActor *) actor;
   ClutterActorBox allocation;
+  CoglPipeline *pipeline;
+  CoglFramebuffer *framebuffer;
 
   foo_actor->last_paint_opacity = clutter_actor_get_paint_opacity (actor);
   foo_actor->paint_count++;
@@ -49,14 +53,19 @@ foo_actor_paint (ClutterActor        *actor,
   clutter_actor_get_allocation_box (actor, &allocation);
 
   /* Paint a red rectangle with the right opacity */
-  cogl_set_source_color4ub (255,
-                            0,
-                            0,
-                            foo_actor->last_paint_opacity);
-  cogl_rectangle (allocation.x1,
-                  allocation.y1,
-                  allocation.x2,
-                  allocation.y2);
+  pipeline = cogl_pipeline_new (ctx);
+  cogl_pipeline_set_color4ub (pipeline,
+                              255, 0, 0,
+                              foo_actor->last_paint_opacity);
+
+  framebuffer = cogl_get_draw_framebuffer ();
+  cogl_framebuffer_draw_rectangle (framebuffer,
+                                   pipeline,
+                                   allocation.x1,
+                                   allocation.y1,
+                                   allocation.x2,
+                                   allocation.y2);
+  cogl_object_unref (pipeline);
 }
 
 static gboolean

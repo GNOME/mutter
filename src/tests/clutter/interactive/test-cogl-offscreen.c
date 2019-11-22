@@ -87,38 +87,46 @@ test_coglbox_paint (ClutterActor        *self,
                     ClutterPaintContext *paint_context)
 {
   TestCoglboxPrivate *priv = TEST_COGLBOX_GET_PRIVATE (self);
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   gfloat texcoords[4] = { 0, 0, 1, 1 };
-  CoglHandle material;
+  CoglPipeline *pipeline;
 
-  cogl_set_source_color4ub (0x66, 0x66, 0xdd, 0xff);
-  cogl_rectangle (0, 0, 400, 400);
+  pipeline = cogl_pipeline_new (ctx);
+  cogl_pipeline_set_color4ub (pipeline, 0x66, 0x66, 0xdd, 0xff);
+  cogl_framebuffer_draw_rectangle (framebuffer, pipeline, 0, 0, 400, 400);
+  cogl_object_unref (pipeline);
 
-  cogl_set_source_texture (priv->texhand_id);
-  cogl_rectangle_with_texture_coords (0, 0,
-                                      400, 400,
-                                      0, 0,
-                                      6, 6);
+  pipeline = cogl_pipeline_new (ctx);
+  cogl_pipeline_set_layer_texture (pipeline, 0, priv->texhand_id);
+  cogl_framebuffer_draw_textured_rectangle (framebuffer, pipeline,
+                                            0, 0,
+                                            400, 400,
+                                            0, 0,
+                                            6, 6);
+  cogl_object_unref (pipeline);
 
-  cogl_push_framebuffer (priv->offscreen_id);
+  pipeline = cogl_pipeline_new (ctx);
+  cogl_pipeline_set_color4ub (pipeline, 0xff, 0, 0, 0xff);
+  cogl_framebuffer_draw_rectangle (priv->offscreen_id, pipeline,
+                                   20, 20, 20 + 100, 20 + 100);
 
-  cogl_set_source_color4ub (0xff, 0, 0, 0xff);
-  cogl_rectangle (20, 20, 20 + 100, 20 + 100);
+  cogl_pipeline_set_color4ub (pipeline, 0, 0xff, 0, 0xff);
+  cogl_framebuffer_draw_rectangle (priv->offscreen_id, pipeline,
+                                   80, 80, 80 + 100, 80 + 100);
+  cogl_object_unref (pipeline);
 
-  cogl_set_source_color4ub (0, 0xff, 0, 0xff);
-  cogl_rectangle (80, 80, 80 + 100, 80 + 100);
-
-  cogl_pop_framebuffer ();
-
-  material = cogl_material_new ();
-  cogl_material_set_color4ub (material, 0x88, 0x88, 0x88, 0x88);
-  cogl_material_set_layer (material, 0, priv->texture_id);
-  cogl_set_source (material);
-  cogl_rectangle_with_texture_coords (100, 100,
-                                      300, 300,
-                                      texcoords[0],
-                                      texcoords[1],
-                                      texcoords[2],
-                                      texcoords[3]);
+  pipeline = cogl_pipeline_new (ctx);
+  cogl_pipeline_set_color4ub (pipeline, 0x88, 0x88, 0x88, 0x88);
+  cogl_pipeline_set_layer_texture (pipeline, 0, priv->texture_id);
+  cogl_framebuffer_draw_textured_rectangle (framebuffer, pipeline,
+                                            100, 100,
+                                            300, 300,
+                                            texcoords[0],
+                                            texcoords[1],
+                                            texcoords[2],
+                                            texcoords[3]);
+  cogl_object_unref (pipeline);
 }
 
 static void
@@ -161,24 +169,25 @@ test_coglbox_dispose (GObject *object)
  * framebuffer
  */
 static void
-setup_viewport (unsigned int width,
-                unsigned int height,
-                float fovy,
-                float aspect,
-                float z_near,
-                float z_far)
+setup_viewport (CoglFramebuffer *framebuffer,
+                unsigned int     width,
+                unsigned int     height,
+                float            fovy,
+                float            aspect,
+                float            z_near,
+                float            z_far)
 {
   float z_camera;
   CoglMatrix projection_matrix;
   CoglMatrix mv_matrix;
 
-  cogl_set_viewport (0, 0, width, height);
+  cogl_framebuffer_set_viewport (framebuffer, 0, 0, width, height);
 
   /* For Ortho projection.
    * _cogl_matrix_stack_ortho (projection_stack, 0, width, 0,  height, -1, 1);
    */
 
-  cogl_perspective (fovy, aspect, z_near, z_far);
+  cogl_framebuffer_perspective (framebuffer, fovy, aspect, z_near, z_far);
 
   /*
    * In theory, we can compute the camera distance from screen as:
@@ -219,14 +228,14 @@ setup_viewport (unsigned int width,
    * doesn't make sense.
    */
 
-  cogl_get_projection_matrix (&projection_matrix);
+  cogl_framebuffer_get_projection_matrix (framebuffer, &projection_matrix);
   z_camera = 0.5 * projection_matrix.xx;
 
   cogl_matrix_init_identity (&mv_matrix);
   cogl_matrix_translate (&mv_matrix, -0.5f, -0.5f, -z_camera);
   cogl_matrix_scale (&mv_matrix, 1.0f / width, -1.0f / height, 1.0f / width);
   cogl_matrix_translate (&mv_matrix, 0.0f, -1.0 * height, 0.0f);
-  cogl_set_modelview_matrix (&mv_matrix);
+  cogl_framebuffer_set_modelview_matrix (framebuffer, &mv_matrix);
 }
 
 static void
@@ -247,15 +256,12 @@ test_coglbox_map (ClutterActor *actor)
   clutter_stage_get_perspective (CLUTTER_STAGE (stage), &perspective);
   clutter_actor_get_size (stage, &stage_width, &stage_height);
 
-  cogl_push_framebuffer (priv->offscreen_id);
-
-  setup_viewport (stage_width, stage_height,
+  setup_viewport (priv->offscreen_id,
+                  stage_width, stage_height,
                   perspective.fovy,
                   perspective.aspect,
                   perspective.z_near,
                   perspective.z_far);
-
-  cogl_pop_framebuffer ();
 
   if (priv->offscreen_id == NULL)
     printf ("Failed creating offscreen to texture!\n");

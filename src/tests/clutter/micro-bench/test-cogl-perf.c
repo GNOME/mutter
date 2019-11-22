@@ -34,8 +34,11 @@ test_rectangles (TestState *state)
 {
 #define RECT_WIDTH 5
 #define RECT_HEIGHT 5
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   int x;
   int y;
+  CoglPipeline *pipeline;
 
   /* Should the rectangles be randomly positioned/colored/rotated?
    *
@@ -59,19 +62,23 @@ test_rectangles (TestState *state)
    *
    */
 
+  pipeline = cogl_pipeline_new (ctx);
+
   for (y = 0; y < STAGE_HEIGHT; y += RECT_HEIGHT)
     {
       for (x = 0; x < STAGE_WIDTH; x += RECT_WIDTH)
         {
-          cogl_push_matrix ();
-          cogl_translate (x, y, 0);
-          cogl_rotate (45, 0, 0, 1);
-          cogl_set_source_color4f (1,
-                                   (1.0f/STAGE_WIDTH)*y,
-                                   (1.0f/STAGE_HEIGHT)*x,
-                                   1);
-          cogl_rectangle (0, 0, RECT_WIDTH, RECT_HEIGHT);
-          cogl_pop_matrix ();
+          cogl_framebuffer_push_matrix (framebuffer);
+          cogl_framebuffer_translate (framebuffer, x, y, 0);
+          cogl_framebuffer_rotate (framebuffer, 45, 0, 0, 1);
+          cogl_pipeline_set_color4f (pipeline,
+                                     1,
+                                     (1.0f / STAGE_WIDTH) * y,
+                                     (1.0f / STAGE_HEIGHT) * x,
+                                     1);
+          cogl_framebuffer_draw_rectangle (framebuffer, pipeline,
+                                           0, 0, RECT_WIDTH, RECT_HEIGHT);
+          cogl_framebuffer_pop_matrix (framebuffer);
         }
     }
 
@@ -79,15 +86,17 @@ test_rectangles (TestState *state)
     {
       for (x = 0; x < STAGE_WIDTH; x += RECT_WIDTH)
         {
-          cogl_push_matrix ();
-          cogl_translate (x, y, 0);
-          cogl_rotate (0, 0, 0, 1);
-          cogl_set_source_color4f (1,
-                                   (1.0f/STAGE_WIDTH)*x,
-                                   (1.0f/STAGE_HEIGHT)*y,
-                                   (1.0f/STAGE_WIDTH)*x);
-          cogl_rectangle (0, 0, RECT_WIDTH, RECT_HEIGHT);
-          cogl_pop_matrix ();
+          cogl_framebuffer_push_matrix (framebuffer);
+          cogl_framebuffer_translate (framebuffer, x, y, 0);
+          cogl_framebuffer_rotate (framebuffer, 0, 0, 0, 1);
+          cogl_pipeline_set_color4f (pipeline,
+                                     1,
+                                     (1.0f / STAGE_WIDTH) * x,
+                                     (1.0f / STAGE_HEIGHT) * y,
+                                     (1.0f / STAGE_WIDTH) * x);
+          cogl_framebuffer_draw_rectangle (framebuffer, pipeline,
+                                           0, 0, RECT_WIDTH, RECT_HEIGHT);
+          cogl_framebuffer_pop_matrix (framebuffer);
         }
     }
 }

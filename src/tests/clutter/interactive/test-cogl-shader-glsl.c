@@ -164,18 +164,21 @@ static unsigned int timeout_id = 0;
 static int shader_no = 0;
 
 static void
-paint_cb (ClutterActor *actor)
+paint_cb (ClutterActor        *actor,
+          ClutterPaintContext *paint_context)
 {
+  CoglFramebuffer *framebuffer =
+    clutter_paint_context_get_framebuffer (paint_context);
   float stage_width = clutter_actor_get_width (actor);
   float stage_height = clutter_actor_get_height (actor);
   float image_width = cogl_texture_get_width (redhand);
   float image_height = cogl_texture_get_height (redhand);
 
-  cogl_set_source (material);
-  cogl_rectangle (stage_width/2.0f - image_width/2.0f,
-                  stage_height/2.0f - image_height/2.0f,
-                  stage_width/2.0f + image_width/2.0f,
-                  stage_height/2.0f + image_height/2.0f);
+  cogl_framebuffer_draw_rectangle (framebuffer, COGL_PIPELINE (material),
+                                   stage_width / 2.0f - image_width / 2.0f,
+                                   stage_height / 2.0f - image_height / 2.0f,
+                                   stage_width / 2.0f + image_width / 2.0f,
+                                   stage_height / 2.0f + image_height / 2.0f);
 }
 
 static void

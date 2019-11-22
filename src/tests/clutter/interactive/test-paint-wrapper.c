@@ -148,6 +148,9 @@ hand_pre_paint (ClutterActor        *actor,
                 ClutterPaintContext *paint_context,
                 gpointer             user_data)
 {
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglPipeline *pipeline;
   SuperOH *oh = user_data;
   gfloat w, h;
   int actor_num;
@@ -159,8 +162,11 @@ hand_pre_paint (ClutterActor        *actor,
 
   clutter_actor_get_size (actor, &w, &h);
 
-  cogl_set_source_color4ub (255, 0, 0, 128);
-  cogl_rectangle (0, 0, w / 2, h / 2);
+  pipeline = cogl_pipeline_new (ctx);
+  cogl_pipeline_set_color4ub (pipeline, 255, 0, 0, 128);
+  cogl_framebuffer_draw_rectangle (framebuffer, pipeline,
+                                   0, 0, w / 2, h / 2);
+  cogl_object_unref (pipeline);
 
   oh->paint_guards[actor_num] = TRUE;
 }
@@ -170,6 +176,9 @@ hand_post_paint (ClutterActor        *actor,
                  ClutterPaintContext *paint_context,
                  gpointer             user_data)
 {
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
+  CoglPipeline *pipeline;
   SuperOH *oh = user_data;
   gfloat w, h;
   int actor_num;
@@ -181,8 +190,11 @@ hand_post_paint (ClutterActor        *actor,
 
   clutter_actor_get_size (actor, &w, &h);
 
-  cogl_set_source_color4ub (0, 255, 0, 128);
-  cogl_rectangle (w / 2, h / 2, w, h);
+  pipeline = cogl_pipeline_new (ctx);
+  cogl_pipeline_set_color4ub (pipeline, 0, 255, 0, 128);
+  cogl_framebuffer_draw_rectangle (framebuffer, pipeline,
+                                   w / 2, h / 2, w, h);
+  cogl_object_unref (pipeline);
 
   oh->paint_guards[actor_num] = FALSE;
 }
