@@ -1256,6 +1256,7 @@ clutter_layer_node_pre_draw (ClutterPaintNode *node,
                              ClutterPaintContext *paint_context)
 {
   ClutterLayerNode *lnode = (ClutterLayerNode *) node;
+  CoglFramebuffer *framebuffer;
   CoglMatrix matrix;
 
   /* if we were unable to create an offscreen buffer for this node, then
@@ -1271,7 +1272,8 @@ clutter_layer_node_pre_draw (ClutterPaintNode *node,
   /* copy the same modelview from the current framebuffer to the one we
    * are going to use
    */
-  cogl_get_modelview_matrix (&matrix);
+  framebuffer = cogl_get_draw_framebuffer ();
+  cogl_framebuffer_get_modelview_matrix (framebuffer, &matrix);
 
   cogl_push_framebuffer (lnode->offscreen);
 
@@ -1291,7 +1293,7 @@ clutter_layer_node_pre_draw (ClutterPaintNode *node,
                             COGL_BUFFER_BIT_COLOR | COGL_BUFFER_BIT_DEPTH,
                             0.f, 0.f, 0.f, 0.f);
 
-  cogl_push_matrix ();
+  cogl_framebuffer_push_matrix (lnode->offscreen);
 
   /* every draw operation after this point will happen an offscreen
    * framebuffer
@@ -1309,7 +1311,7 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
   guint i;
 
   /* switch to the previous framebuffer */
-  cogl_pop_matrix ();
+  cogl_framebuffer_pop_matrix (lnode->offscreen);
   cogl_pop_framebuffer ();
 
   fb = cogl_get_draw_framebuffer ();
