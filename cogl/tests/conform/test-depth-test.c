@@ -244,43 +244,6 @@ paint (TestState *state)
                 FALSE, /* legacy mode */
                 0xff0000ff); /* expected */
   }
-
-  /* Test that the legacy cogl_set_depth_test_enabled() API still
-   * works... */
-
-  {
-    /* Nearest */
-    TestDepthState rect0_state = {
-      0xff0000ff, /* rgba color */
-      -10, /* depth */
-      FALSE, /* depth test enable */
-      COGL_DEPTH_TEST_FUNCTION_LESS,
-      TRUE, /* depth write enable */
-      TRUE, /* FB depth write enable */
-      0, 1 /* depth range */
-    };
-    /* Furthest */
-    TestDepthState rect1_state = {
-      0x00ff00ff, /* rgba color */
-      -70, /* depth */
-      FALSE, /* depth test enable */
-      COGL_DEPTH_TEST_FUNCTION_LESS,
-      TRUE, /* depth write enable */
-      TRUE, /* FB depth write enable */
-      0, 1 /* depth range */
-    };
-
-    cogl_set_depth_test_enabled (TRUE);
-    test_depth (state, 0, 2, /* position */
-                &rect0_state, &rect1_state, NULL,
-                TRUE, /* legacy mode */
-                0xff0000ff); /* expected */
-    cogl_set_depth_test_enabled (FALSE);
-    test_depth (state, 1, 2, /* position */
-                &rect0_state, &rect1_state, NULL,
-                TRUE, /* legacy mode */
-                0x00ff00ff); /* expected */
-  }
 }
 
 void

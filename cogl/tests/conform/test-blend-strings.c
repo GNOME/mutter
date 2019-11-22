@@ -53,7 +53,6 @@ test_blend_paint (TestState  *state,
   uint8_t Ba = MASK_ALPHA (blend_constant);
   CoglColor blend_const_color;
 
-  CoglHandle material;
   CoglPipeline *pipeline;
   gboolean status;
   GError *error = NULL;
@@ -118,59 +117,6 @@ test_blend_paint (TestState  *state,
       else
         g_print ("  blend constant = UNUSED\n");
     }
-
-  test_utils_check_pixel (test_fb, x_off, y_off, expected_result);
-
-
-  /*
-   * Test with legacy API
-   */
-
-  /* Clear previous work */
-  cogl_set_source_color4ub (0, 0, 0, 0xff);
-  cogl_rectangle (x * QUAD_WIDTH,
-                  y * QUAD_WIDTH,
-                  x * QUAD_WIDTH + QUAD_WIDTH,
-                  y * QUAD_WIDTH + QUAD_WIDTH);
-
-  /* First write out the destination color without any blending... */
-  material = cogl_material_new ();
-  cogl_material_set_color4ub (material, Dr, Dg, Db, Da);
-  cogl_material_set_blend (material, "RGBA = ADD (SRC_COLOR, 0)", NULL);
-  cogl_set_source (material);
-  cogl_rectangle (x * QUAD_WIDTH,
-                  y * QUAD_WIDTH,
-                  x * QUAD_WIDTH + QUAD_WIDTH,
-                  y * QUAD_WIDTH + QUAD_WIDTH);
-  cogl_object_unref (material);
-
-  /*
-   * Now blend a rectangle over our well defined destination:
-   */
-
-  material = cogl_material_new ();
-  cogl_material_set_color4ub (material, Sr, Sg, Sb, Sa);
-
-  status = cogl_material_set_blend (material, blend_string, &error);
-  if (!status)
-    {
-      /* This is a failure as it must be equivalent to the new API */
-      g_warning ("Error setting blend string %s: %s",
-		 blend_string, error->message);
-      g_assert_not_reached ();
-    }
-
-  cogl_color_init_from_4ub (&blend_const_color, Br, Bg, Bb, Ba);
-  cogl_material_set_blend_constant (material, &blend_const_color);
-
-  cogl_set_source (material);
-  cogl_rectangle (x * QUAD_WIDTH,
-                  y * QUAD_WIDTH,
-                  x * QUAD_WIDTH + QUAD_WIDTH,
-                  y * QUAD_WIDTH + QUAD_WIDTH);
-  cogl_object_unref (material);
-
-  /* See what we got... */
 
   test_utils_check_pixel (test_fb, x_off, y_off, expected_result);
 }
