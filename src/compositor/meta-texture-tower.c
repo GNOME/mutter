@@ -245,6 +245,7 @@ meta_texture_tower_update_area (MetaTextureTower *tower,
 static int
 get_paint_level (int width, int height)
 {
+  CoglFramebuffer *framebuffer;
   CoglMatrix projection, modelview, pm;
   float v[4];
   double viewport_width, viewport_height;
@@ -271,12 +272,13 @@ get_paint_level (int width, int height)
    *  (w_c)                               (w_o)        (1)
    */
 
-  cogl_get_projection_matrix (&projection);
-  cogl_get_modelview_matrix (&modelview);
+  framebuffer = cogl_get_draw_framebuffer ();
+  cogl_framebuffer_get_projection_matrix (framebuffer, &projection);
+  cogl_framebuffer_get_modelview_matrix (framebuffer, &modelview);
 
   cogl_matrix_multiply (&pm, &projection, &modelview);
 
-  cogl_get_viewport (v);
+  cogl_framebuffer_get_viewport4fv (framebuffer, v);
   viewport_width = v[2];
   viewport_height = v[3];
 
