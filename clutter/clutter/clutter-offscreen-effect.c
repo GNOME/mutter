@@ -249,6 +249,7 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   CoglColor transparent;
   gfloat stage_width, stage_height;
   gfloat target_width = -1, target_height = -1;
+  CoglFramebuffer *framebuffer;
   gfloat resource_scale;
   gfloat ceiled_resource_scale;
   graphene_point3d_t local_offset;
@@ -313,7 +314,8 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   if (!update_fbo (effect, target_width, target_height, resource_scale))
     return FALSE;
 
-  cogl_get_modelview_matrix (&old_modelview);
+  framebuffer = clutter_paint_context_get_framebuffer (paint_context);
+  cogl_framebuffer_get_modelview_matrix (framebuffer, &old_modelview);
 
   /* let's draw offscreen */
   cogl_push_framebuffer (priv->offscreen);
@@ -326,7 +328,7 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
    * contents on screen...
    */
   clutter_actor_get_transform (priv->stage, &modelview);
-  cogl_set_modelview_matrix (&modelview);
+  cogl_framebuffer_set_modelview_matrix (priv->offscreen, &modelview);
 
   /* Save the original viewport for calculating priv->position */
   _clutter_stage_get_viewport (CLUTTER_STAGE (priv->stage),
@@ -338,10 +340,11 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   /* Set up the viewport so that it has the same size as the stage (avoid
    * distortion), but translated to account for the FBO offset...
    */
-  cogl_set_viewport (-priv->fbo_offset_x,
-                     -priv->fbo_offset_y,
-                     stage_width,
-                     stage_height);
+  cogl_framebuffer_set_viewport (priv->offscreen,
+                                 -priv->fbo_offset_x,
+                                 -priv->fbo_offset_y,
+                                 stage_width,
+                                 stage_height);
 
   /* Copy the stage's projection matrix across to the framebuffer */
   _clutter_stage_get_projection_matrix (CLUTTER_STAGE (priv->stage),
@@ -358,14 +361,15 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
                                           &priv->position,
                                           1);
 
-  cogl_set_projection_matrix (&projection);
+  cogl_framebuffer_set_projection_matrix (priv->offscreen, &projection);
 
   cogl_color_init_from_4ub (&transparent, 0, 0, 0, 0);
-  cogl_clear (&transparent,
-              COGL_BUFFER_BIT_COLOR |
-              COGL_BUFFER_BIT_DEPTH);
+  cogl_framebuffer_clear (priv->offscreen,
+                          COGL_BUFFER_BIT_COLOR |
+                          COGL_BUFFER_BIT_DEPTH,
+                          &transparent);
 
-  cogl_push_matrix ();
+  cogl_framebuffer_push_matrix (priv->offscreen);
 
   /* Override the actor's opacity to fully opaque - we paint the offscreen
    * texture with the actor's paint opacity, so we need to do this to avoid
@@ -413,15 +417,16 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect,
                                         ClutterPaintContext    *paint_context)
 {
   ClutterOffscreenEffectPrivate *priv = effect->priv;
+  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
   CoglMatrix modelview;
   float resource_scale;
 
-  cogl_push_matrix ();
+  cogl_framebuffer_push_matrix (framebuffer);
 
   /* The current modelview matrix is *almost* perfect already. It's only
    * missing a correction for the expanded FBO and offset rendering within...
    */
-  cogl_get_modelview_matrix (&modelview);
+  cogl_framebuffer_get_modelview_matrix (framebuffer, &modelview);
 
   if (clutter_actor_get_resource_scale (priv->actor, &resource_scale) &&
       resource_scale != 1.0f)
@@ -434,14 +439,14 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect,
                          priv->fbo_offset_x,
                          priv->fbo_offset_y,
                          0.0f);
-  cogl_set_modelview_matrix (&modelview);
+  cogl_framebuffer_set_modelview_matrix (framebuffer, &modelview);
 
   /* paint the target material; this is virtualized for
    * sub-classes that require special hand-holding
    */
   clutter_offscreen_effect_paint_target (effect, paint_context);
 
-  cogl_pop_matrix ();
+  cogl_framebuffer_pop_matrix (framebuffer);
 }
 
 static void
@@ -450,6 +455,7 @@ clutter_offscreen_effect_post_paint (ClutterEffect       *effect,
 {
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
   ClutterOffscreenEffectPrivate *priv = self->priv;
+  CoglFramebuffer *framebuffer;
 
   if (priv->offscreen == NULL ||
       priv->target == NULL ||
@@ -459,7 +465,8 @@ clutter_offscreen_effect_post_paint (ClutterEffect       *effect,
   /* Restore the previous opacity override */
   clutter_actor_set_opacity_override (priv->actor, priv->old_opacity_override);
 
-  cogl_pop_matrix ();
+  framebuffer = cogl_get_draw_framebuffer ();
+  cogl_framebuffer_pop_matrix (framebuffer);
   cogl_pop_framebuffer ();
 
   clutter_offscreen_effect_paint_texture (self, paint_context);
