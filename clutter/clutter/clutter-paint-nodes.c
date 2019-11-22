@@ -1182,6 +1182,7 @@ clutter_actor_node_serialize (ClutterPaintNode *node)
 
   return json_builder_get_root (builder);
 }
+
 static void
 clutter_actor_node_class_init (ClutterActorNodeClass *klass)
 {
