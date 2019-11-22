@@ -2567,7 +2567,7 @@ clutter_text_paint (ClutterActor        *self,
   float alloc_height;
   float resource_scale;
 
-  fb = cogl_get_draw_framebuffer ();
+  fb = clutter_paint_context_get_framebuffer (paint_context);
 
   /* Note that if anything in this paint method changes it needs to be
      reflected in the get_paint_volume implementation which is tightly

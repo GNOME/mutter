@@ -243,7 +243,9 @@ meta_texture_tower_update_area (MetaTextureTower *tower,
  * Meta.
  */
 static int
-get_paint_level (int width, int height)
+get_paint_level (ClutterPaintContext *paint_context,
+                 int                  width,
+                 int                  height)
 {
   CoglFramebuffer *framebuffer;
   CoglMatrix projection, modelview, pm;
@@ -272,7 +274,7 @@ get_paint_level (int width, int height)
    *  (w_c)                               (w_o)        (1)
    */
 
-  framebuffer = cogl_get_draw_framebuffer ();
+  framebuffer = clutter_paint_context_get_framebuffer (paint_context);
   cogl_framebuffer_get_projection_matrix (framebuffer, &projection);
   cogl_framebuffer_get_modelview_matrix (framebuffer, &modelview);
 
@@ -419,6 +421,7 @@ texture_tower_revalidate (MetaTextureTower *tower,
 /**
  * meta_texture_tower_get_paint_texture:
  * @tower: a #MetaTextureTower
+ * @paint_context: a #ClutterPaintContext
  *
  * Gets the texture from the tower that best matches the current
  * rendering scale. (On the assumption here the texture is going to
@@ -430,7 +433,8 @@ texture_tower_revalidate (MetaTextureTower *tower,
  *  %NULL if no base texture has yet been set.
  */
 CoglTexture *
-meta_texture_tower_get_paint_texture (MetaTextureTower *tower)
+meta_texture_tower_get_paint_texture (MetaTextureTower    *tower,
+                                      ClutterPaintContext *paint_context)
 {
   int texture_width, texture_height;
   int level;
@@ -443,7 +447,7 @@ meta_texture_tower_get_paint_texture (MetaTextureTower *tower)
   texture_width = cogl_texture_get_width (tower->textures[0]);
   texture_height = cogl_texture_get_height (tower->textures[0]);
 
-  level = get_paint_level(texture_width, texture_height);
+  level = get_paint_level (paint_context, texture_width, texture_height);
   if (level < 0) /* singular paint matrix, scaled to nothing */
     return NULL;
   level = MIN (level, tower->n_levels - 1);

@@ -157,7 +157,8 @@ key_group_paint (ClutterActor        *actor,
   ClutterActorIter iter;
   ClutterActor *child;
   gint i = 0;
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *framebuffer =
+    clutter_paint_context_get_framebuffer (paint_context);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglPipeline *pipeline;
 

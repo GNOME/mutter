@@ -83,7 +83,7 @@ meta_window_group_paint (ClutterActor        *actor,
     {
       CoglFramebuffer *fb;
 
-      fb = cogl_get_draw_framebuffer ();
+      fb = clutter_paint_context_get_framebuffer (paint_context);
       if (!meta_actor_painting_untransformed (fb,
                                               screen_width,
                                               screen_height,

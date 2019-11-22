@@ -58,7 +58,7 @@ foo_actor_paint (ClutterActor        *actor,
                               255, 0, 0,
                               foo_actor->last_paint_opacity);
 
-  framebuffer = cogl_get_draw_framebuffer ();
+  framebuffer = clutter_paint_context_get_framebuffer (paint_context);
   cogl_framebuffer_draw_rectangle (framebuffer,
                                    pipeline,
                                    allocation.x1,

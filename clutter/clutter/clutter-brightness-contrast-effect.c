@@ -180,7 +180,8 @@ clutter_brightness_contrast_effect_paint_target (ClutterOffscreenEffect *effect,
                                                  ClutterPaintContext    *paint_context)
 {
   ClutterBrightnessContrastEffect *self = CLUTTER_BRIGHTNESS_CONTRAST_EFFECT (effect);
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *framebuffer =
+   clutter_paint_context_get_framebuffer (paint_context);
   ClutterActor *actor;
   guint8 paint_opacity;
 

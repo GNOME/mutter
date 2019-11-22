@@ -82,7 +82,8 @@ clutter_rectangle_paint (ClutterActor        *self,
                          ClutterPaintContext *paint_context)
 {
   ClutterRectanglePrivate *priv = CLUTTER_RECTANGLE (self)->priv;
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *framebuffer =
+    clutter_paint_context_get_framebuffer (paint_context);
   static CoglPipeline *default_color_pipeline = NULL;
   CoglPipeline *content_pipeline;
   ClutterActorBox alloc;

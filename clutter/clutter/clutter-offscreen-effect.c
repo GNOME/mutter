@@ -74,6 +74,7 @@
 #include "clutter-debug.h"
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
+#include "clutter-paint-context-private.h"
 #include "clutter-paint-volume-private.h"
 #include "clutter-actor-box-private.h"
 
@@ -317,8 +318,7 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   framebuffer = clutter_paint_context_get_framebuffer (paint_context);
   cogl_framebuffer_get_modelview_matrix (framebuffer, &old_modelview);
 
-  /* let's draw offscreen */
-  cogl_push_framebuffer (priv->offscreen);
+  clutter_paint_context_push_framebuffer (paint_context, priv->offscreen);
 
   /* We don't want the FBO contents to be transformed. That could waste memory
    * (e.g. during zoom), or result in something that's not rectangular (clipped
@@ -387,7 +387,8 @@ clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect,
                                             ClutterPaintContext    *paint_context)
 {
   ClutterOffscreenEffectPrivate *priv = effect->priv;
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *framebuffer =
+    clutter_paint_context_get_framebuffer (paint_context);
   guint8 paint_opacity;
 
   paint_opacity = clutter_actor_get_paint_opacity (priv->actor);
@@ -417,7 +418,8 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect,
                                         ClutterPaintContext    *paint_context)
 {
   ClutterOffscreenEffectPrivate *priv = effect->priv;
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *framebuffer =
+    clutter_paint_context_get_framebuffer (paint_context);
   CoglMatrix modelview;
   float resource_scale;
 
@@ -465,9 +467,9 @@ clutter_offscreen_effect_post_paint (ClutterEffect       *effect,
   /* Restore the previous opacity override */
   clutter_actor_set_opacity_override (priv->actor, priv->old_opacity_override);
 
-  framebuffer = cogl_get_draw_framebuffer ();
+  framebuffer = clutter_paint_context_get_framebuffer (paint_context);
   cogl_framebuffer_pop_matrix (framebuffer);
-  cogl_pop_framebuffer ();
+  clutter_paint_context_pop_framebuffer (paint_context);
 
   clutter_offscreen_effect_paint_texture (self, paint_context);
 }

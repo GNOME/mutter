@@ -87,7 +87,8 @@ test_coglbox_paint (ClutterActor        *self,
                     ClutterPaintContext *paint_context)
 {
   TestCoglboxPrivate *priv = TEST_COGLBOX_GET_PRIVATE (self);
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *framebuffer =
+    clutter_paint_context_get_framebuffer (paint_context);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   gfloat texcoords[4] = { 0, 0, 1, 1 };
   CoglPipeline *pipeline;

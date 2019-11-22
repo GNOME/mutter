@@ -2769,7 +2769,6 @@ clutter_stage_read_pixels (ClutterStage *stage,
     return NULL;
 
   framebuffer = clutter_stage_view_get_framebuffer (view);
-  cogl_push_framebuffer (framebuffer);
   clutter_stage_do_paint_view (stage, view, &clip_rect);
 
   view_scale = clutter_stage_view_get_scale (view);
@@ -2783,8 +2782,6 @@ clutter_stage_read_pixels (ClutterStage *stage,
                                 pixel_width, pixel_height,
                                 COGL_PIXEL_FORMAT_RGBA_8888,
                                 pixels);
-
-  cogl_pop_framebuffer ();
 
   return pixels;
 }
@@ -4414,7 +4411,6 @@ capture_view_into (ClutterStage          *stage,
 
   if (paint)
     {
-      cogl_push_framebuffer (framebuffer);
       _clutter_stage_maybe_setup_viewport (stage, view);
       clutter_stage_do_paint_view (stage, view, rect);
     }
@@ -4438,9 +4434,6 @@ capture_view_into (ClutterStage          *stage,
                                             roundf ((rect->y - view_layout.y) * view_scale),
                                             COGL_READ_PIXELS_COLOR_BUFFER,
                                             bitmap);
-
-  if (paint)
-    cogl_pop_framebuffer ();
 
   cogl_object_unref (bitmap);
 }

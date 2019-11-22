@@ -869,7 +869,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
         }
     }
 
-  cogl_push_framebuffer (fb);
   if (use_clipped_redraw && clip_region_empty)
     {
       CLUTTER_NOTE (CLIPPING, "Empty stage output paint\n");
@@ -960,7 +959,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
           cairo_region_destroy (view_region);
         }
     }
-  cogl_pop_framebuffer ();
 
   cairo_region_get_extents (redraw_clip, &redraw_rect);
 

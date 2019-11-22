@@ -174,7 +174,8 @@ clutter_deform_effect_paint_target (ClutterOffscreenEffect *effect,
   CoglHandle material;
   CoglPipeline *pipeline;
   CoglDepthState depth_state;
-  CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *fb =
+    clutter_paint_context_get_framebuffer (paint_context);
 
   if (priv->is_dirty)
     {

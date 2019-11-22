@@ -148,7 +148,8 @@ hand_pre_paint (ClutterActor        *actor,
                 ClutterPaintContext *paint_context,
                 gpointer             user_data)
 {
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *framebuffer =
+    clutter_paint_context_get_framebuffer (paint_context);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglPipeline *pipeline;
   SuperOH *oh = user_data;
@@ -176,7 +177,8 @@ hand_post_paint (ClutterActor        *actor,
                  ClutterPaintContext *paint_context,
                  gpointer             user_data)
 {
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *framebuffer =
+    clutter_paint_context_get_framebuffer (paint_context);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglPipeline *pipeline;
   SuperOH *oh = user_data;

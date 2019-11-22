@@ -197,7 +197,8 @@ test_coglbox_paint (ClutterActor        *self,
                                            : priv->not_sliced_tex;
   int tex_width = cogl_texture_get_width (tex_handle);
   int tex_height = cogl_texture_get_height (tex_handle);
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *framebuffer =
+    clutter_paint_context_get_framebuffer (paint_context);
   CoglHandle material = cogl_material_new ();
 
   cogl_material_set_layer (material, 0, tex_handle);

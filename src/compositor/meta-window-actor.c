@@ -1403,8 +1403,6 @@ meta_window_actor_get_image (MetaWindowActor *self,
   cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
   clutter_actor_get_position (actor, &x, &y);
 
-  cogl_push_framebuffer (framebuffer);
-
   cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
   cogl_framebuffer_orthographic (framebuffer, 0, 0, width, height, 0, 1.0);
   cogl_framebuffer_scale (framebuffer, resource_scale, resource_scale, 1);
@@ -1413,8 +1411,6 @@ meta_window_actor_get_image (MetaWindowActor *self,
   paint_context = clutter_paint_context_new_for_framebuffer (framebuffer);
   clutter_actor_paint (actor, paint_context);
   clutter_paint_context_destroy (paint_context);
-
-  cogl_pop_framebuffer ();
 
   if (clip)
     {

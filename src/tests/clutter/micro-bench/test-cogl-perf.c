@@ -27,14 +27,17 @@ typedef struct _TestState
   int current_test;
 } TestState;
 
-typedef void (*TestCallback) (TestState *state);
+typedef void (*TestCallback) (TestState           *state,
+                              ClutterPaintContext *paint_context);
 
 static void
-test_rectangles (TestState *state)
+test_rectangles (TestState           *state,
+                 ClutterPaintContext *paint_context)
 {
 #define RECT_WIDTH 5
 #define RECT_HEIGHT 5
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *framebuffer =
+    clutter_paint_context_get_framebuffer (paint_context);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   int x;
   int y;
@@ -111,7 +114,7 @@ on_paint (ClutterActor        *actor,
           ClutterPaintContext *paint_context,
           TestState           *state)
 {
-  tests[state->current_test] (state);
+  tests[state->current_test] (state, paint_context);
 }
 
 static gboolean

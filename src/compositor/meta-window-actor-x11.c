@@ -1168,6 +1168,7 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
       MetaShadowParams params;
       cairo_rectangle_int_t shape_bounds;
       cairo_region_t *clip = actor_x11->shadow_clip;
+      CoglFramebuffer *framebuffer;
 
       get_shape_bounds (actor_x11, &shape_bounds);
       get_shadow_params (actor_x11, appears_focused, &params);
@@ -1188,8 +1189,9 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
             cairo_region_subtract (clip, frame_bounds);
         }
 
+      framebuffer = clutter_paint_context_get_framebuffer (paint_context);
       meta_shadow_paint (shadow,
-                         cogl_get_draw_framebuffer (),
+                         framebuffer,
                          params.x_offset + shape_bounds.x,
                          params.y_offset + shape_bounds.y,
                          shape_bounds.width,

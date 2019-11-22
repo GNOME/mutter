@@ -337,6 +337,7 @@ make_pipeline (PipelineFlags pipeline_flags)
 
 static void
 setup_pipeline (MetaBackgroundActor   *self,
+                ClutterPaintContext   *paint_context,
                 cairo_rectangle_int_t *actor_pixel_rect)
 {
   PipelineFlags pipeline_flags = 0;
@@ -436,7 +437,7 @@ setup_pipeline (MetaBackgroundActor   *self,
                              color_component,
                              opacity / 255.);
 
-  fb = cogl_get_draw_framebuffer ();
+  fb = clutter_paint_context_get_framebuffer (paint_context);
   if (!self->force_bilinear &&
       meta_actor_painting_untransformed (fb,
                                          actor_pixel_rect->width,
@@ -526,14 +527,14 @@ meta_background_actor_paint (ClutterActor        *actor,
   actor_pixel_rect.width = actor_box.x2 - actor_box.x1;
   actor_pixel_rect.height = actor_box.y2 - actor_box.y1;
 
-  setup_pipeline (self, &actor_pixel_rect);
+  setup_pipeline (self, paint_context, &actor_pixel_rect);
   set_glsl_parameters (self, &actor_pixel_rect);
 
   /* Limit to how many separate rectangles we'll draw; beyond this just
    * fall back and draw the whole thing */
 #define MAX_RECTS 64
 
-  fb = cogl_get_draw_framebuffer ();
+  fb = clutter_paint_context_get_framebuffer (paint_context);
 
   /* Now figure out what to actually paint.
    */

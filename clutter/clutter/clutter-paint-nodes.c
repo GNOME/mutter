@@ -44,6 +44,7 @@
 #include "clutter-color.h"
 #include "clutter-debug.h"
 #include "clutter-private.h"
+#include "clutter-paint-context-private.h"
 
 #include "clutter-paint-nodes.h"
 
@@ -108,7 +109,7 @@ clutter_root_node_pre_draw (ClutterPaintNode    *node,
 {
   ClutterRootNode *rnode = (ClutterRootNode *) node;
 
-  cogl_push_framebuffer (rnode->framebuffer);
+  clutter_paint_context_push_framebuffer (paint_context, rnode->framebuffer);
 
   cogl_framebuffer_clear (rnode->framebuffer,
                           rnode->clear_flags,
@@ -121,7 +122,7 @@ static void
 clutter_root_node_post_draw (ClutterPaintNode    *node,
                              ClutterPaintContext *paint_context)
 {
-  cogl_pop_framebuffer ();
+  clutter_paint_context_pop_framebuffer (paint_context);
 }
 
 static void
@@ -205,7 +206,8 @@ clutter_transform_node_pre_draw (ClutterPaintNode    *node,
                                  ClutterPaintContext *paint_context)
 {
   ClutterTransformNode *transform_node = (ClutterTransformNode *) node;
-  CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *fb =
+   clutter_paint_context_get_framebuffer (paint_context);
 
   cogl_framebuffer_push_matrix (fb);
   cogl_framebuffer_transform (fb, &transform_node->transform);
@@ -217,7 +219,8 @@ static void
 clutter_transform_node_post_draw (ClutterPaintNode    *node,
                                   ClutterPaintContext *paint_context)
 {
-  CoglFramebuffer *fb = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *fb =
+   clutter_paint_context_get_framebuffer (paint_context);
 
   cogl_framebuffer_pop_matrix (fb);
 }
@@ -411,7 +414,8 @@ clutter_pipeline_node_pre_draw (ClutterPaintNode    *node,
 }
 
 static CoglFramebuffer *
-get_target_framebuffer (ClutterPaintNode *node)
+get_target_framebuffer (ClutterPaintNode    *node,
+                        ClutterPaintContext *paint_context)
 {
   CoglFramebuffer *framebuffer;
 
@@ -419,7 +423,7 @@ get_target_framebuffer (ClutterPaintNode *node)
   if (framebuffer)
     return framebuffer;
 
-  return cogl_get_draw_framebuffer ();
+  return clutter_paint_context_get_framebuffer (paint_context);
 }
 
 static void
@@ -436,7 +440,7 @@ clutter_pipeline_node_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return;
 
-  fb = cogl_get_draw_framebuffer ();
+  fb = clutter_paint_context_get_framebuffer (paint_context);
 
   for (i = 0; i < node->operations->len; i++)
     {
@@ -828,7 +832,7 @@ clutter_text_node_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return;
 
-  fb = get_target_framebuffer (node);
+  fb = get_target_framebuffer (node, paint_context);
 
   pango_layout_get_pixel_extents (tnode->layout, NULL, &extents);
 
@@ -1014,7 +1018,7 @@ clutter_clip_node_pre_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return FALSE;
 
-  fb = get_target_framebuffer (node);
+  fb = get_target_framebuffer (node, paint_context);
 
   for (i = 0; i < node->operations->len; i++)
     {
@@ -1058,7 +1062,7 @@ clutter_clip_node_post_draw (ClutterPaintNode    *node,
   if (node->operations == NULL)
     return;
 
-  fb = get_target_framebuffer (node);
+  fb = get_target_framebuffer (node, paint_context);
 
   for (i = 0; i < node->operations->len; i++)
     {
@@ -1272,10 +1276,10 @@ clutter_layer_node_pre_draw (ClutterPaintNode *node,
   /* copy the same modelview from the current framebuffer to the one we
    * are going to use
    */
-  framebuffer = cogl_get_draw_framebuffer ();
+  framebuffer = clutter_paint_context_get_framebuffer (paint_context);
   cogl_framebuffer_get_modelview_matrix (framebuffer, &matrix);
 
-  cogl_push_framebuffer (lnode->offscreen);
+  clutter_paint_context_push_framebuffer (paint_context, lnode->offscreen);
 
   cogl_framebuffer_set_modelview_matrix (lnode->offscreen, &matrix);
 
@@ -1312,9 +1316,9 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
 
   /* switch to the previous framebuffer */
   cogl_framebuffer_pop_matrix (lnode->offscreen);
-  cogl_pop_framebuffer ();
+  clutter_paint_context_pop_framebuffer (paint_context);
 
-  fb = cogl_get_draw_framebuffer ();
+  fb = clutter_paint_context_get_framebuffer (paint_context);
 
   for (i = 0; i < node->operations->len; i++)
     {

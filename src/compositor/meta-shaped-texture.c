@@ -512,12 +512,12 @@ texture_is_idle_and_not_mipmapped (gpointer user_data)
 }
 
 static void
-do_paint_content (MetaShapedTexture *stex,
-                  ClutterPaintNode  *root_node,
-                  CoglTexture       *paint_tex,
-                  ClutterActorBox   *alloc,
-                  uint8_t            opacity)
-
+do_paint_content (MetaShapedTexture   *stex,
+                  ClutterPaintNode    *root_node,
+                  ClutterPaintContext *paint_context,
+                  CoglTexture         *paint_tex,
+                  ClutterActorBox     *alloc,
+                  uint8_t              opacity)
 {
   int dst_width, dst_height;
   cairo_rectangle_int_t content_rect;
@@ -550,7 +550,7 @@ do_paint_content (MetaShapedTexture *stex,
 
   framebuffer = clutter_paint_node_get_framebuffer (root_node);
   if (!framebuffer)
-    framebuffer = cogl_get_draw_framebuffer ();
+    framebuffer = clutter_paint_context_get_framebuffer (paint_context);
   if (meta_actor_painting_untransformed (framebuffer,
                                          dst_width, dst_height,
                                          NULL, NULL))
@@ -680,7 +680,8 @@ do_paint_content (MetaShapedTexture *stex,
 }
 
 static CoglTexture *
-select_texture_for_paint (MetaShapedTexture *stex)
+select_texture_for_paint (MetaShapedTexture   *stex,
+                          ClutterPaintContext *paint_context)
 {
   CoglTexture *texture = NULL;
   int64_t now;
@@ -696,7 +697,10 @@ select_texture_for_paint (MetaShapedTexture *stex)
 
       if (age >= MIN_MIPMAP_AGE_USEC ||
           stex->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
-        texture = meta_texture_tower_get_paint_texture (stex->paint_tower);
+        {
+          texture = meta_texture_tower_get_paint_texture (stex->paint_tower,
+                                                          paint_context);
+        }
     }
 
   if (!texture)
@@ -745,14 +749,14 @@ meta_shaped_texture_paint_content (ClutterContent      *content,
    * Setting the texture quality to high without SGIS_generate_mipmap
    * support for TFP textures will result in fallbacks to XGetImage.
    */
-  paint_tex = select_texture_for_paint (stex);
+  paint_tex = select_texture_for_paint (stex, paint_context);
   if (!paint_tex)
     return;
 
   opacity = clutter_actor_get_paint_opacity (actor);
   clutter_actor_get_content_box (actor, &alloc);
 
-  do_paint_content (stex, root_node, paint_tex, &alloc, opacity);
+  do_paint_content (stex, root_node, paint_context, paint_tex, &alloc, opacity);
 }
 
 static gboolean
@@ -1242,7 +1246,7 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
 
   paint_context = clutter_paint_context_new_for_framebuffer (fb);
 
-  do_paint_content (stex, root_node,
+  do_paint_content (stex, root_node, paint_context,
                     stex->texture,
                     &(ClutterActorBox) {
                       0, 0,

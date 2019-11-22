@@ -119,14 +119,18 @@ meta_overlay_set (MetaOverlay     *overlay,
 }
 
 static void
-meta_overlay_paint (MetaOverlay *overlay)
+meta_overlay_paint (MetaOverlay         *overlay,
+                    ClutterPaintContext *paint_context)
 {
+  CoglFramebuffer *framebuffer;
+
   if (!overlay->enabled)
     return;
 
   g_assert (meta_is_wayland_compositor ());
 
-  cogl_framebuffer_draw_rectangle (cogl_get_draw_framebuffer (),
+  framebuffer = clutter_paint_context_get_framebuffer (paint_context);
+  cogl_framebuffer_draw_rectangle (framebuffer,
                                    overlay->pipeline,
                                    overlay->current_rect.origin.x,
                                    overlay->current_rect.origin.y,
@@ -198,7 +202,7 @@ meta_stage_paint (ClutterActor        *actor,
   g_signal_emit (stage, signals[ACTORS_PAINTED], 0);
 
   for (l = stage->overlays; l; l = l->next)
-    meta_overlay_paint (l->data);
+    meta_overlay_paint (l->data, paint_context);
 
   notify_watchers_for_mode (stage, stage->current_view,
                             META_STAGE_WATCH_AFTER_OVERLAY_PAINT);

@@ -157,7 +157,8 @@ clutter_desaturate_effect_paint_target (ClutterOffscreenEffect *effect,
                                         ClutterPaintContext    *paint_context)
 {
   ClutterDesaturateEffect *self = CLUTTER_DESATURATE_EFFECT (effect);
-  CoglFramebuffer *framebuffer = cogl_get_draw_framebuffer ();
+  CoglFramebuffer *framebuffer =
+   clutter_paint_context_get_framebuffer (paint_context);
   ClutterActor *actor;
   CoglHandle texture;
   guint8 paint_opacity;

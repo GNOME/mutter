@@ -147,7 +147,7 @@ key_group_paint (ClutterActor        *actor,
   pipeline = cogl_pipeline_new (ctx);
   cogl_pipeline_set_color4ub (pipeline, 255, 255, 0, 224);
 
-  framebuffer = cogl_get_draw_framebuffer ();
+  framebuffer = clutter_paint_context_get_framebuffer (paint_context);
 
   clutter_actor_iter_init (&iter, actor);
   while (clutter_actor_iter_next (&iter, &child))
