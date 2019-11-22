@@ -63,11 +63,12 @@ test_blend_paint (TestState  *state,
   pipeline = cogl_pipeline_new (test_ctx);
   cogl_pipeline_set_color4ub (pipeline, Dr, Dg, Db, Da);
   cogl_pipeline_set_blend (pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
-  cogl_set_source (pipeline);
-  cogl_rectangle (x * QUAD_WIDTH,
-                  y * QUAD_WIDTH,
-                  x * QUAD_WIDTH + QUAD_WIDTH,
-                  y * QUAD_WIDTH + QUAD_WIDTH);
+  cogl_framebuffer_draw_rectangle (test_fb,
+                                   pipeline,
+                                   x * QUAD_WIDTH,
+                                   y * QUAD_WIDTH,
+                                   x * QUAD_WIDTH + QUAD_WIDTH,
+                                   y * QUAD_WIDTH + QUAD_WIDTH);
   cogl_object_unref (pipeline);
 
   /*
@@ -94,11 +95,12 @@ test_blend_paint (TestState  *state,
   cogl_color_init_from_4ub (&blend_const_color, Br, Bg, Bb, Ba);
   cogl_pipeline_set_blend_constant (pipeline, &blend_const_color);
 
-  cogl_set_source (pipeline);
-  cogl_rectangle (x * QUAD_WIDTH,
-                  y * QUAD_WIDTH,
-                  x * QUAD_WIDTH + QUAD_WIDTH,
-                  y * QUAD_WIDTH + QUAD_WIDTH);
+  cogl_framebuffer_draw_rectangle (test_fb,
+                                   pipeline,
+                                   x * QUAD_WIDTH,
+                                   y * QUAD_WIDTH,
+                                   x * QUAD_WIDTH + QUAD_WIDTH,
+                                   y * QUAD_WIDTH + QUAD_WIDTH);
   cogl_object_unref (pipeline);
 
   /* See what we got... */
@@ -175,7 +177,7 @@ test_tex_combine (TestState *state,
   uint8_t Ca = MASK_ALPHA (combine_constant);
   CoglColor combine_const_color;
 
-  CoglHandle material;
+  CoglPipeline *pipeline;
   gboolean status;
   GError *error = NULL;
   int y_off;
@@ -185,17 +187,17 @@ test_tex_combine (TestState *state,
   tex0 = make_texture (tex0_color);
   tex1 = make_texture (tex1_color);
 
-  material = cogl_material_new ();
+  pipeline = cogl_pipeline_new (test_ctx);
 
-  cogl_material_set_color4ub (material, 0x80, 0x80, 0x80, 0x80);
-  cogl_material_set_blend (material, "RGBA = ADD (SRC_COLOR, 0)", NULL);
+  cogl_pipeline_set_color4ub (pipeline, 0x80, 0x80, 0x80, 0x80);
+  cogl_pipeline_set_blend (pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
 
-  cogl_material_set_layer (material, 0, tex0);
-  cogl_material_set_layer_combine (material, 0,
+  cogl_pipeline_set_layer_texture (pipeline, 0, tex0);
+  cogl_pipeline_set_layer_combine (pipeline, 0,
                                    "RGBA = REPLACE (TEXTURE)", NULL);
 
-  cogl_material_set_layer (material, 1, tex1);
-  status = cogl_material_set_layer_combine (material, 1,
+  cogl_pipeline_set_layer_texture (pipeline, 1, tex1);
+  status = cogl_pipeline_set_layer_combine (pipeline, 1,
                                             combine_string, &error);
   if (!status)
     {
@@ -206,15 +208,16 @@ test_tex_combine (TestState *state,
     }
 
   cogl_color_init_from_4ub (&combine_const_color, Cr, Cg, Cb, Ca);
-  cogl_material_set_layer_combine_constant (material, 1, &combine_const_color);
+  cogl_pipeline_set_layer_combine_constant (pipeline, 1, &combine_const_color);
 
-  cogl_set_source (material);
-  cogl_rectangle (x * QUAD_WIDTH,
-                  y * QUAD_WIDTH,
-                  x * QUAD_WIDTH + QUAD_WIDTH,
-                  y * QUAD_WIDTH + QUAD_WIDTH);
+  cogl_framebuffer_draw_rectangle (test_fb,
+                                   pipeline,
+                                   x * QUAD_WIDTH,
+                                   y * QUAD_WIDTH,
+                                   x * QUAD_WIDTH + QUAD_WIDTH,
+                                   y * QUAD_WIDTH + QUAD_WIDTH);
 
-  cogl_object_unref (material);
+  cogl_object_unref (pipeline);
   cogl_object_unref (tex0);
   cogl_object_unref (tex1);
 
@@ -297,7 +300,7 @@ paint (TestState *state)
                     "A = MODULATE (PREVIOUS, TEXTURE)", /* tex combine */
                     0xffffff20); /* expected */
 
-  /* XXX: we are assuming test_tex_combine creates a material with
+  /* XXX: we are assuming test_tex_combine creates a pipeline with
    * a color of 0x80808080 (i.e. the "PRIMARY" color) */
   test_tex_combine (state, 7, 0, /* position */
                     0xffffff80, /* texture 0 color (alpha = 0.5) */
@@ -365,11 +368,7 @@ test_blend_strings (void)
                                  -1,
                                  100);
 
-  /* XXX: we have to push/pop a framebuffer since this test currently
-   * uses the legacy cogl_rectangle() api. */
-  cogl_push_framebuffer (test_fb);
   paint (&state);
-  cogl_pop_framebuffer ();
 
   if (cogl_test_verbose ())
     g_print ("OK\n");

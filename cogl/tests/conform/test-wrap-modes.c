@@ -210,15 +210,16 @@ paint (TestState *state)
   cogl_framebuffer_push_matrix (test_fb);
   cogl_framebuffer_translate (test_fb, 0.0f, TEX_SIZE * 2.0f, 0.0f);
   draw_tests (state);
-  cogl_pop_matrix ();
+  cogl_framebuffer_pop_matrix (test_fb);
   cogl_object_unref (state->texture);
 
   /* Draw the tests using CoglPrimitive */
   state->texture = create_texture (TEST_UTILS_TEXTURE_NO_ATLAS);
-  cogl_push_matrix ();
-  cogl_translate (0.0f, TEX_SIZE * 4.0f, 0.0f);
+  cogl_framebuffer_push_matrix (test_fb);
+  cogl_framebuffer_translate (test_fb,
+                              0.0f, TEX_SIZE * 4.0f, 0.0f);
   draw_tests_polygon (state);
-  cogl_pop_matrix ();
+  cogl_framebuffer_pop_matrix (test_fb);
   cogl_object_unref (state->texture);
 
   validate_result (state);
@@ -239,11 +240,7 @@ test_wrap_modes (void)
                                  -1,
                                  100);
 
-  /* XXX: we have to push/pop a framebuffer since this test currently
-   * uses the legacy cogl_vertex_buffer_draw() api. */
-  cogl_push_framebuffer (test_fb);
   paint (&state);
-  cogl_pop_framebuffer ();
 
   if (cogl_test_verbose ())
     g_print ("OK\n");

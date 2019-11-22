@@ -83,16 +83,22 @@ draw_rectangle (TestState *state,
     }
   else
     {
-      cogl_push_framebuffer (test_fb);
-      cogl_push_matrix ();
-      cogl_set_source_color4ub (Cr, Cg, Cb, Ca);
-      cogl_translate (0, 0, rect_state->depth);
-      cogl_rectangle (x * QUAD_WIDTH,
-                      y * QUAD_WIDTH,
-                      x * QUAD_WIDTH + QUAD_WIDTH,
-                      y * QUAD_WIDTH + QUAD_WIDTH);
-      cogl_pop_matrix ();
-      cogl_pop_framebuffer ();
+      CoglPipeline *legacy_pipeline;
+
+      legacy_pipeline = cogl_pipeline_new (test_ctx);
+
+      cogl_framebuffer_push_matrix (test_fb);
+      cogl_pipeline_set_color4ub (pipeline, Cr, Cg, Cb, Ca);
+      cogl_framebuffer_translate (test_fb, 0, 0, rect_state->depth);
+      cogl_framebuffer_draw_rectangle (test_fb,
+                                       pipeline,
+                                       x * QUAD_WIDTH,
+                                       y * QUAD_WIDTH,
+                                       x * QUAD_WIDTH + QUAD_WIDTH,
+                                       y * QUAD_WIDTH + QUAD_WIDTH);
+      cogl_framebuffer_pop_matrix (test_fb);
+
+      cogl_object_unref (legacy_pipeline);
     }
 
   cogl_object_unref (pipeline);

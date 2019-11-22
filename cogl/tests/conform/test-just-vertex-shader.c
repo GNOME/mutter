@@ -37,7 +37,7 @@ paint (TestState *state)
   CoglHandle shader, program;
 
   cogl_color_init_from_4ub (&color, 0, 0, 0, 255);
-  cogl_clear (&color, COGL_BUFFER_BIT_COLOR);
+  cogl_framebuffer_clear (test_fb, COGL_BUFFER_BIT_COLOR, &color);
 
   /* Set the primary vertex color as red */
   cogl_color_init_from_4ub (&color, 0xff, 0x00, 0x00, 0xff);
@@ -85,14 +85,15 @@ paint (TestState *state)
   cogl_object_unref (shader);
 
   /* Draw something without the program */
-  cogl_set_source (pipeline);
-  cogl_rectangle (0, 0, 50, 50);
+  cogl_framebuffer_draw_rectangle (test_fb, pipeline,
+                                   0, 0, 50, 50);
 
   /* Draw it again using the program. It should look exactly the same */
   cogl_pipeline_set_user_program (pipeline, program);
   cogl_object_unref (program);
 
-  cogl_rectangle (50, 0, 100, 50);
+  cogl_framebuffer_draw_rectangle (test_fb, pipeline,
+                                   50, 0, 100, 50);
   cogl_pipeline_set_user_program (pipeline, NULL);
 
   cogl_object_unref (pipeline);
@@ -119,14 +120,8 @@ test_just_vertex_shader (void)
                                  -1,
                                  100);
 
-  /* XXX: we have to push/pop a framebuffer since this test currently
-   * uses the legacy cogl_rectangle() api. */
-  cogl_push_framebuffer (test_fb);
-
   paint (&state);
   validate_result (test_fb);
-
-  cogl_pop_framebuffer ();
 
   if (cogl_test_verbose ())
     g_print ("OK\n");

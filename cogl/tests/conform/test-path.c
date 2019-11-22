@@ -22,9 +22,7 @@ draw_path_at (CoglPath *path, CoglPipeline *pipeline, int x, int y)
   cogl_framebuffer_push_matrix (test_fb);
   cogl_framebuffer_translate (test_fb, x * BLOCK_SIZE, y * BLOCK_SIZE, 0.0f);
 
-  cogl_set_framebuffer (test_fb);
-  cogl_set_source (pipeline);
-  cogl_path_fill (path);
+  cogl_framebuffer_fill_path (test_fb, pipeline, path);
 
   cogl_framebuffer_pop_matrix (test_fb);
 }
