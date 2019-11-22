@@ -38,13 +38,12 @@ validate_part (CoglFramebuffer *framebuffer,
                            shown ? 0xff0000ff : 0x000000ff);
 }
 
-/* We draw everything 16 times. The draw number is used as a bitmask
-   to test all of the combinations of enabling legacy state, both
-   winding orders and all four culling modes */
+/* We draw everything 8 times. The draw number is used as a bitmask
+   to test all of the combinations of enabling both winding orders and all four
+   culling modes */
 
-#define USE_LEGACY_STATE(draw_num) (((draw_num) & 0x01) >> 0)
-#define FRONT_WINDING(draw_num)    (((draw_num) & 0x02) >> 1)
-#define CULL_FACE_MODE(draw_num)   (((draw_num) & 0x0c) >> 2)
+#define FRONT_WINDING(draw_num)    (((draw_num) & 0x01) >> 1)
+#define CULL_FACE_MODE(draw_num)   (((draw_num) & 0x06) >> 2)
 
 static void
 paint_test_backface_culling (TestState *state,
@@ -85,7 +84,6 @@ paint_test_backface_culling (TestState *state,
 
       pipeline = cogl_pipeline_copy (base_pipeline);
 
-      cogl_set_backface_culling_enabled (USE_LEGACY_STATE (draw_num));
       cogl_pipeline_set_front_face_winding (pipeline, FRONT_WINDING (draw_num));
       cogl_pipeline_set_cull_face_mode (pipeline, CULL_FACE_MODE (draw_num));
 
@@ -163,15 +161,12 @@ validate_result (CoglFramebuffer *framebuffer, int y_offset)
 {
   int draw_num;
 
-  for (draw_num = 0; draw_num < 16; draw_num++)
+  for (draw_num = 0; draw_num < 8; draw_num++)
     {
       gboolean cull_front, cull_back;
       CoglPipelineCullFaceMode cull_mode;
 
-      if (USE_LEGACY_STATE (draw_num))
-        cull_mode = COGL_PIPELINE_CULL_FACE_MODE_BACK;
-      else
-        cull_mode = CULL_FACE_MODE (draw_num);
+      cull_mode = CULL_FACE_MODE (draw_num);
 
       switch (cull_mode)
         {
@@ -242,13 +237,13 @@ paint (TestState *state)
   cogl_pipeline_set_layer_texture (pipeline, 0, state->offscreen_tex);
   cogl_framebuffer_draw_rectangle (test_fb,
                                    pipeline,
-                                   0, TEXTURE_RENDER_SIZE * 16,
+                                   0, TEXTURE_RENDER_SIZE * 8,
                                    state->width,
-                                   state->height + TEXTURE_RENDER_SIZE * 16);
+                                   state->height + TEXTURE_RENDER_SIZE * 8);
   cogl_object_unref (pipeline);
 
   validate_result (test_fb, 0);
-  validate_result (test_fb, 16);
+  validate_result (test_fb, 8);
 }
 
 static CoglTexture *
