@@ -84,85 +84,108 @@ G_DEFINE_TYPE_WITH_PRIVATE (TestCoglbox, test_coglbox, CLUTTER_TYPE_ACTOR);
  *--------------------------------------------------*/
 
 static void
-test_coglbox_fade_texture (gfloat     x1,
-			   gfloat     y1,
-			   gfloat     x2,
-			   gfloat     y2,
-			   gfloat     tx1,
-			   gfloat     ty1,
-			   gfloat     tx2,
-			   gfloat     ty2)
+test_coglbox_fade_texture (CoglFramebuffer *framebuffer,
+                           CoglPipeline    *pipeline,
+                           float            x1,
+                           float            y1,
+                           float            x2,
+                           float            y2,
+                           float            tx1,
+                           float            ty1,
+                           float            tx2,
+                           float            ty2)
 {
-  CoglTextureVertex vertices[4];
+  CoglVertexP3T2C4 vertices[4];
+  CoglPrimitive *primitive;
   int i;
 
   vertices[0].x = x1;
   vertices[0].y = y1;
   vertices[0].z = 0;
-  vertices[0].tx = tx1;
-  vertices[0].ty = ty1;
+  vertices[0].s = tx1;
+  vertices[0].t = ty1;
   vertices[1].x = x1;
   vertices[1].y = y2;
   vertices[1].z = 0;
-  vertices[1].tx = tx1;
-  vertices[1].ty = ty2;
+  vertices[1].s = tx1;
+  vertices[1].t = ty2;
   vertices[2].x = x2;
   vertices[2].y = y2;
   vertices[2].z = 0;
-  vertices[2].tx = tx2;
-  vertices[2].ty = ty2;
+  vertices[2].s = tx2;
+  vertices[2].t = ty2;
   vertices[3].x = x2;
   vertices[3].y = y1;
   vertices[3].z = 0;
-  vertices[3].tx = tx2;
-  vertices[3].ty = ty1;
+  vertices[3].s = tx2;
+  vertices[3].t = ty1;
 
   for (i = 0; i < 4; i++)
     {
-      cogl_color_init_from_4ub (&(vertices[i].color),
+      CoglColor cogl_color;
+
+      cogl_color_init_from_4ub (&cogl_color,
                                 255,
                                 255,
                                 255,
                                 ((i ^ (i >> 1)) & 1) ? 0 : 128);
-      cogl_color_premultiply (&(vertices[i].color));
+      cogl_color_premultiply (&cogl_color);
+      vertices[i].r = cogl_color_get_red_byte (&cogl_color);
+      vertices[i].g = cogl_color_get_green_byte (&cogl_color);
+      vertices[i].b = cogl_color_get_blue_byte (&cogl_color);
+      vertices[i].a = cogl_color_get_alpha_byte (&cogl_color);
     }
 
-  cogl_polygon (vertices, 4, TRUE);
+  primitive =
+    cogl_primitive_new_p3t2c4 (cogl_framebuffer_get_context (framebuffer),
+                               COGL_VERTICES_MODE_TRIANGLE_FAN,
+                               4,
+                               vertices);
+  cogl_primitive_draw (primitive, framebuffer, pipeline);
+  cogl_object_unref (primitive);
 }
 
 static void
-test_coglbox_triangle_texture (int    tex_width,
-                               int    tex_height,
-                               gfloat x,
-			       gfloat y,
-			       gfloat tx1,
-			       gfloat ty1,
-			       gfloat tx2,
-			       gfloat ty2,
-			       gfloat tx3,
-			       gfloat ty3)
+test_coglbox_triangle_texture (CoglFramebuffer *framebuffer,
+                               CoglHandle       material,
+                               int              tex_width,
+                               int              tex_height,
+                               float            x,
+                               float            y,
+                               float            tx1,
+                               float            ty1,
+                               float            tx2,
+                               float            ty2,
+                               float            tx3,
+                               float            ty3)
 {
-  CoglTextureVertex vertices[3];
+  CoglVertexP3T2 vertices[3];
+  CoglPrimitive *primitive;
 
   vertices[0].x = x + tx1 * tex_width;
   vertices[0].y = y + ty1 * tex_height;
   vertices[0].z = 0;
-  vertices[0].tx = tx1;
-  vertices[0].ty = ty1;
+  vertices[0].s = tx1;
+  vertices[0].t = ty1;
 
   vertices[1].x = x + tx2 * tex_width;
   vertices[1].y = y + ty2 * tex_height;
   vertices[1].z = 0;
-  vertices[1].tx = tx2;
-  vertices[1].ty = ty2;
+  vertices[1].s = tx2;
+  vertices[1].t = ty2;
 
   vertices[2].x = x + tx3 * tex_width;
   vertices[2].y = y + ty3 * tex_height;
   vertices[2].z = 0;
-  vertices[2].tx = tx3;
-  vertices[2].ty = ty3;
+  vertices[2].s = tx3;
+  vertices[2].t = ty3;
 
-  cogl_polygon (vertices, 3, FALSE);
+  primitive = cogl_primitive_new_p3t2 (cogl_framebuffer_get_context (framebuffer),
+                                       COGL_VERTICES_MODE_TRIANGLE_FAN,
+                                       3,
+                                       vertices);
+  cogl_primitive_draw (primitive, framebuffer, material);
+  cogl_object_unref (primitive);
 }
 
 static void
@@ -196,7 +219,8 @@ test_coglbox_paint (ClutterActor        *self,
   cogl_framebuffer_draw_textured_rectangle (framebuffer, material,
                                             0, 0, tex_width, tex_height,
                                             0, 0, 1, 1);
-  test_coglbox_fade_texture (0, tex_height,
+  test_coglbox_fade_texture (framebuffer, material,
+                             0, tex_height,
 			     tex_width, (tex_height * 3 / 2),
 			     0.0, 1.0,
 			     1.0, 0.5);
@@ -209,12 +233,14 @@ test_coglbox_paint (ClutterActor        *self,
   cogl_framebuffer_translate (framebuffer, -tex_width / 2 - 10, 0, 0);
 
   /* Draw the texture split into two triangles */
-  test_coglbox_triangle_texture (tex_width, tex_height,
+  test_coglbox_triangle_texture (framebuffer, material,
+                                 tex_width, tex_height,
 				 0, 0,
 				 0, 0,
 				 0, 1,
 				 1, 1);
-  test_coglbox_triangle_texture (tex_width, tex_height,
+  test_coglbox_triangle_texture (framebuffer, material,
+                                 tex_width, tex_height,
 				 20, 0,
 				 0, 0,
 				 1, 0,
