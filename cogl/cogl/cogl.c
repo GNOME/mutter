@@ -75,14 +75,6 @@ _cogl_check_extension (const char *name, char * const *ext)
   return FALSE;
 }
 
-/* XXX: it's expected that we'll deprecated this with
- * cogl_framebuffer_clear at some point. */
-void
-cogl_clear (const CoglColor *color, unsigned long buffers)
-{
-  cogl_framebuffer_clear (cogl_get_draw_framebuffer (), buffers, color);
-}
-
 /* XXX: This API has been deprecated */
 void
 cogl_set_depth_test_enabled (gboolean setting)
@@ -154,34 +146,6 @@ cogl_set_source_color (const CoglColor *color)
   cogl_set_source (pipeline);
 }
 
-void
-cogl_set_viewport (int x,
-                   int y,
-                   int width,
-                   int height)
-{
-  CoglFramebuffer *framebuffer;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  framebuffer = cogl_get_draw_framebuffer ();
-
-  cogl_framebuffer_set_viewport (framebuffer,
-                                 x,
-                                 y,
-                                 width,
-                                 height);
-}
-
-/* XXX: This should be deprecated, and we should expose a way to also
- * specify an x and y viewport offset */
-void
-cogl_viewport (unsigned int width,
-	       unsigned int height)
-{
-  cogl_set_viewport (0, 0, width, height);
-}
-
 gboolean
 cogl_has_feature (CoglContext *ctx, CoglFeatureID feature)
 {
@@ -214,44 +178,6 @@ cogl_foreach_feature (CoglContext *ctx,
       callback (i, user_data);
 }
 
-/* XXX: This function should either be replaced with one returning
- * integers, or removed/deprecated and make the
- * _cogl_framebuffer_get_viewport* functions public.
- */
-void
-cogl_get_viewport (float viewport[4])
-{
-  CoglFramebuffer *framebuffer;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  framebuffer = cogl_get_draw_framebuffer ();
-  cogl_framebuffer_get_viewport4fv (framebuffer, viewport);
-}
-
-void
-cogl_get_bitmasks (int *red,
-                   int *green,
-                   int *blue,
-                   int *alpha)
-{
-  CoglFramebuffer *framebuffer;
-
-  framebuffer = cogl_get_draw_framebuffer ();
-
-  if (red)
-    *red = cogl_framebuffer_get_red_bits (framebuffer);
-
-  if (green)
-    *green = cogl_framebuffer_get_green_bits (framebuffer);
-
-  if (blue)
-    *blue = cogl_framebuffer_get_blue_bits (framebuffer);
-
-  if (alpha)
-    *alpha = cogl_framebuffer_get_alpha_bits (framebuffer);
-}
-
 void
 cogl_flush (void)
 {
@@ -261,130 +187,6 @@ cogl_flush (void)
 
   for (l = ctx->framebuffers; l; l = l->next)
     _cogl_framebuffer_flush_journal (l->data);
-}
-
-void
-cogl_read_pixels (int x,
-                  int y,
-                  int width,
-                  int height,
-                  CoglReadPixelsFlags source,
-                  CoglPixelFormat format,
-                  uint8_t *pixels)
-{
-  int bpp;
-  CoglBitmap *bitmap;
-
-  g_return_if_fail (format != COGL_PIXEL_FORMAT_ANY);
-  g_return_if_fail (cogl_pixel_format_get_n_planes (format) == 1);
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  bpp = cogl_pixel_format_get_bytes_per_pixel (format, 0);
-  bitmap = cogl_bitmap_new_for_data (ctx,
-                                     width, height,
-                                     format,
-                                     bpp * width, /* rowstride */
-                                     pixels);
-  cogl_framebuffer_read_pixels_into_bitmap (_cogl_get_read_framebuffer (),
-                                            x, y,
-                                            source,
-                                            bitmap);
-  cogl_object_unref (bitmap);
-}
-
-void
-cogl_push_matrix (void)
-{
-  cogl_framebuffer_push_matrix (cogl_get_draw_framebuffer ());
-}
-
-void
-cogl_pop_matrix (void)
-{
-  cogl_framebuffer_pop_matrix (cogl_get_draw_framebuffer ());
-}
-
-void
-cogl_scale (float x, float y, float z)
-{
-  cogl_framebuffer_scale (cogl_get_draw_framebuffer (), x, y, z);
-}
-
-void
-cogl_translate (float x, float y, float z)
-{
-  cogl_framebuffer_translate (cogl_get_draw_framebuffer (), x, y, z);
-}
-
-void
-cogl_rotate (float angle, float x, float y, float z)
-{
-  cogl_framebuffer_rotate (cogl_get_draw_framebuffer (), angle, x, y, z);
-}
-
-void
-cogl_transform (const CoglMatrix *matrix)
-{
-  cogl_framebuffer_transform (cogl_get_draw_framebuffer (), matrix);
-}
-
-void
-cogl_perspective (float fov_y,
-		  float aspect,
-		  float z_near,
-		  float z_far)
-{
-  cogl_framebuffer_perspective (cogl_get_draw_framebuffer (),
-                                fov_y, aspect, z_near, z_far);
-}
-
-void
-cogl_frustum (float        left,
-	      float        right,
-	      float        bottom,
-	      float        top,
-	      float        z_near,
-	      float        z_far)
-{
-  cogl_framebuffer_frustum (cogl_get_draw_framebuffer (),
-                            left, right, bottom, top, z_near, z_far);
-}
-
-void
-cogl_ortho (float left,
-	    float right,
-	    float bottom,
-	    float top,
-	    float near,
-	    float far)
-{
-  cogl_framebuffer_orthographic (cogl_get_draw_framebuffer (),
-                                 left, top, right, bottom, near, far);
-}
-
-void
-cogl_get_modelview_matrix (CoglMatrix *matrix)
-{
-  cogl_framebuffer_get_modelview_matrix (cogl_get_draw_framebuffer (), matrix);
-}
-
-void
-cogl_set_modelview_matrix (CoglMatrix *matrix)
-{
-  cogl_framebuffer_set_modelview_matrix (cogl_get_draw_framebuffer (), matrix);
-}
-
-void
-cogl_get_projection_matrix (CoglMatrix *matrix)
-{
-  cogl_framebuffer_get_projection_matrix (cogl_get_draw_framebuffer (), matrix);
-}
-
-void
-cogl_set_projection_matrix (CoglMatrix *matrix)
-{
-  cogl_framebuffer_set_projection_matrix (cogl_get_draw_framebuffer (), matrix);
 }
 
 uint32_t

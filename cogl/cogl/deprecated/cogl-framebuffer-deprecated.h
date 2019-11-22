@@ -153,40 +153,6 @@ COGL_DEPRECATED
 void
 cogl_pop_framebuffer (void);
 
-/**
- * cogl_read_pixels:
- * @x: The window x position to start reading from
- * @y: The window y position to start reading from
- * @width: The width of the rectangle you want to read
- * @height: The height of the rectangle you want to read
- * @source: Identifies which auxillary buffer you want to read
- *          (only COGL_READ_PIXELS_COLOR_BUFFER supported currently)
- * @format: The pixel format you want the result in
- *          (only COGL_PIXEL_FORMAT_RGBA_8888 supported currently)
- * @pixels: The location to write the pixel data.
- *
- * This reads a rectangle of pixels from the current framebuffer where
- * position (0, 0) is the top left. The pixel at (x, y) is the first
- * read, and the data is returned with a rowstride of (width * 4).
- *
- * Currently Cogl assumes that the framebuffer is in a premultiplied
- * format so if @format is non-premultiplied it will convert it. To
- * read the pixel values without any conversion you should either
- * specify a format that doesn't use an alpha channel or use one of
- * the formats ending in PRE.
- *
- * Deprecated: 1.16: Use cogl_framebuffer_read_pixels() instead
- */
-COGL_DEPRECATED_FOR (cogl_framebuffer_read_pixels)
-void
-cogl_read_pixels (int x,
-                  int y,
-                  int width,
-                  int height,
-                  CoglReadPixelsFlags source,
-                  CoglPixelFormat format,
-                  uint8_t *pixels);
-
 G_END_DECLS
 
 #endif /* __COGL_FRAMEBUFFER_DEPRECATED_H__ */
