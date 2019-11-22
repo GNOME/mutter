@@ -161,9 +161,6 @@ _cogl_onscreen_free (CoglOnscreen *onscreen)
     cogl_object_unref (frame_info);
   g_queue_clear (&onscreen->pending_frame_infos);
 
-  if (framebuffer->context->window_buffer == COGL_FRAMEBUFFER (onscreen))
-    framebuffer->context->window_buffer = NULL;
-
   winsys->onscreen_deinit (onscreen);
   g_return_if_fail (onscreen->winsys == NULL);
 

@@ -318,7 +318,6 @@ cogl_context_new (CoglDisplay *display,
   for (i = 0; i < COGL_BUFFER_BIND_TARGET_COUNT; i++)
     context->current_buffer[i] = NULL;
 
-  context->window_buffer = NULL;
   context->framebuffer_stack = _cogl_create_framebuffer_stack ();
 
   context->current_path = NULL;

@@ -85,24 +85,6 @@ _cogl_free_framebuffer_stack (GSList *stack)
   g_slist_free (stack);
 }
 
-static void
-notify_buffers_changed (CoglFramebuffer *old_draw_buffer,
-                        CoglFramebuffer *new_draw_buffer,
-                        CoglFramebuffer *old_read_buffer,
-                        CoglFramebuffer *new_read_buffer)
-{
-  /* XXX: To support the deprecated cogl_set_draw_buffer API we keep
-   * track of the last onscreen framebuffer that was set so that it
-   * can be restored if the COGL_WINDOW_BUFFER enum is used. A
-   * reference isn't taken to the framebuffer because otherwise we
-   * would have a circular reference between the context and the
-   * framebuffer. Instead the pointer is set to NULL in
-   * _cogl_onscreen_free as a kind of a cheap weak reference */
-  if (new_draw_buffer &&
-      new_draw_buffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN)
-    new_draw_buffer->context->window_buffer = new_draw_buffer;
-}
-
 /* Set the current framebuffer without checking if it's already the
  * current framebuffer. This is used by cogl_pop_framebuffer while
  * the top of the stack is currently not up to date. */
@@ -119,11 +101,6 @@ _cogl_set_framebuffers_real (CoglFramebuffer *draw_buffer,
                     draw_buffer->context == read_buffer->context : TRUE);
 
   entry = ctx->framebuffer_stack->data;
-
-  notify_buffers_changed (entry->draw_buffer,
-                          draw_buffer,
-                          entry->read_buffer,
-                          read_buffer);
 
   if (draw_buffer)
     cogl_object_ref (draw_buffer);
@@ -233,7 +210,6 @@ void
 cogl_pop_framebuffer (void)
 {
   CoglFramebufferStackEntry *to_pop;
-  CoglFramebufferStackEntry *to_restore;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
@@ -241,14 +217,6 @@ cogl_pop_framebuffer (void)
   g_assert (ctx->framebuffer_stack->next != NULL);
 
   to_pop = ctx->framebuffer_stack->data;
-  to_restore = ctx->framebuffer_stack->next->data;
-
-  if (to_pop->draw_buffer != to_restore->draw_buffer ||
-      to_pop->read_buffer != to_restore->read_buffer)
-    notify_buffers_changed (to_pop->draw_buffer,
-                            to_restore->draw_buffer,
-                            to_pop->read_buffer,
-                            to_restore->read_buffer);
 
   cogl_object_unref (to_pop->draw_buffer);
   cogl_object_unref (to_pop->read_buffer);
