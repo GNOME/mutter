@@ -492,8 +492,6 @@ set_cogl_texture (MetaShapedTexture *stex,
 
   if (stex->create_mipmaps)
     meta_texture_tower_set_base_texture (stex->paint_tower, cogl_tex);
-
-  clutter_content_invalidate (CLUTTER_CONTENT (stex));
 }
 
 static gboolean
