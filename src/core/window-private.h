@@ -780,6 +780,8 @@ void meta_window_set_gtk_dbus_properties  (MetaWindow *window,
                                            const char *application_object_path,
                                            const char *window_object_path);
 
+gboolean meta_window_has_transient_type   (MetaWindow *window);
+
 void meta_window_set_transient_for        (MetaWindow *window,
                                            MetaWindow *parent);
 

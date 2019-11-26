@@ -40,15 +40,8 @@
 #include "meta/workspace.h"
 #include "x11/meta-x11-display-private.h"
 
-#define WINDOW_HAS_TRANSIENT_TYPE(w)                    \
-          (w->type == META_WINDOW_DIALOG ||             \
-	   w->type == META_WINDOW_MODAL_DIALOG ||       \
-           w->type == META_WINDOW_TOOLBAR ||            \
-           w->type == META_WINDOW_MENU ||               \
-           w->type == META_WINDOW_UTILITY)
-
-#define WINDOW_TRANSIENT_FOR_WHOLE_GROUP(w)                     \
-  (WINDOW_HAS_TRANSIENT_TYPE (w) && w->transient_for == NULL)
+#define WINDOW_TRANSIENT_FOR_WHOLE_GROUP(w)        \
+  (meta_window_has_transient_type (w) && w->transient_for == NULL)
 
 static void meta_window_set_stack_position_no_sync (MetaWindow *window,
                                                     int         position);
@@ -552,7 +545,7 @@ compute_layer (MetaWindow *window)
    * fullscreen.
    */
   if (window->layer != META_LAYER_DESKTOP &&
-      WINDOW_HAS_TRANSIENT_TYPE(window) &&
+      meta_window_has_transient_type (window) &&
       window->transient_for == NULL)
     {
       /* We only do the group thing if the dialog is NOT transient for
@@ -754,7 +747,7 @@ create_constraints (Constraint **constraints,
               /* better way I think, so transient-for-group are constrained
                * only above non-transient-type windows in their group
                */
-              if (!WINDOW_HAS_TRANSIENT_TYPE (group_window))
+              if (!meta_window_has_transient_type (group_window))
 #endif
                 {
                   meta_topic (META_DEBUG_STACK, "Constraining %s above %s as it's transient for its group\n",
@@ -861,7 +854,7 @@ ensure_above (MetaWindow *above,
 {
   gboolean is_transient;
 
-  is_transient = WINDOW_HAS_TRANSIENT_TYPE (above) ||
+  is_transient = meta_window_has_transient_type (above) ||
                  above->transient_for == below;
   if (is_transient && above->layer < below->layer)
     {

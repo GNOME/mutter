@@ -7977,6 +7977,16 @@ check_transient_for_loop (MetaWindow *window,
   return FALSE;
 }
 
+gboolean
+meta_window_has_transient_type (MetaWindow *window)
+{
+  return (window->type == META_WINDOW_DIALOG ||
+          window->type == META_WINDOW_MODAL_DIALOG ||
+          window->type == META_WINDOW_TOOLBAR ||
+          window->type == META_WINDOW_MENU ||
+          window->type == META_WINDOW_UTILITY);
+}
+
 void
 meta_window_set_transient_for (MetaWindow *window,
                                MetaWindow *parent)
