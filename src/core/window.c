@@ -8582,6 +8582,12 @@ meta_window_is_stackable (MetaWindow *window)
   return META_WINDOW_GET_CLASS (window)->is_stackable (window);
 }
 
+MetaStackLayer
+meta_window_calculate_layer (MetaWindow *window)
+{
+  return META_WINDOW_GET_CLASS (window)->calculate_layer (window);
+}
+
 /**
  * meta_window_get_id:
  * @window: a #MetaWindow

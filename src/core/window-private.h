@@ -589,6 +589,8 @@ struct _MetaWindowClass
   gboolean (*can_ping)            (MetaWindow *window);
   gboolean (*are_updates_frozen)  (MetaWindow *window);
 
+  MetaStackLayer (*calculate_layer) (MetaWindow *window);
+
   void (* map)   (MetaWindow *window);
   void (* unmap) (MetaWindow *window);
 };
@@ -692,6 +694,8 @@ void     meta_window_set_focused_internal (MetaWindow *window,
 gboolean meta_window_is_focusable (MetaWindow *window);
 
 gboolean meta_window_can_ping (MetaWindow *window);
+
+MetaStackLayer meta_window_calculate_layer (MetaWindow *window);
 
 void     meta_window_current_workspace_changed (MetaWindow *window);
 

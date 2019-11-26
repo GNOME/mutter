@@ -441,132 +441,6 @@ meta_stack_update_window_tile_matches (MetaStack     *stack,
   g_list_free (windows);
 }
 
-/* Get layer ignoring any transient or group relationships */
-static MetaStackLayer
-get_standalone_layer (MetaWindow *window)
-{
-  MetaStackLayer layer;
-
-  switch (window->type)
-    {
-    case META_WINDOW_DESKTOP:
-      layer = META_LAYER_DESKTOP;
-      break;
-
-    case META_WINDOW_DOCK:
-      if (window->wm_state_below ||
-          (window->monitor && window->monitor->in_fullscreen))
-        layer = META_LAYER_BOTTOM;
-      else
-        layer = META_LAYER_DOCK;
-      break;
-
-    case META_WINDOW_DROPDOWN_MENU:
-    case META_WINDOW_POPUP_MENU:
-    case META_WINDOW_TOOLTIP:
-    case META_WINDOW_NOTIFICATION:
-    case META_WINDOW_COMBO:
-    case META_WINDOW_OVERRIDE_OTHER:
-      switch (window->client_type)
-        {
-        case META_WINDOW_CLIENT_TYPE_X11:
-          layer = META_LAYER_OVERRIDE_REDIRECT;
-          break;
-        case META_WINDOW_CLIENT_TYPE_WAYLAND:
-          layer = META_LAYER_NORMAL;
-          break;
-        default:
-          g_assert_not_reached ();
-        }
-      break;
-    default:
-      layer = meta_window_get_default_layer (window);
-      break;
-    }
-
-  return layer;
-}
-
-/* Note that this function can never use window->layer only
- * get_standalone_layer, or we'd have issues.
- */
-static MetaStackLayer
-get_maximum_layer_in_group (MetaWindow *window)
-{
-  GSList *members;
-  MetaGroup *group;
-  GSList *tmp;
-  MetaStackLayer max;
-  MetaStackLayer layer;
-
-  max = META_LAYER_DESKTOP;
-
-  group = meta_window_get_group (window);
-
-  if (group != NULL)
-    members = meta_group_list_windows (group);
-  else
-    members = NULL;
-
-  tmp = members;
-  while (tmp != NULL)
-    {
-      MetaWindow *w = tmp->data;
-
-      if (!w->override_redirect)
-        {
-          layer = get_standalone_layer (w);
-          if (layer > max)
-            max = layer;
-        }
-
-      tmp = tmp->next;
-    }
-
-  g_slist_free (members);
-
-  return max;
-}
-
-static void
-compute_layer (MetaWindow *window)
-{
-  window->layer = get_standalone_layer (window);
-
-  /* We can only do promotion-due-to-group for dialogs and other
-   * transients, or weird stuff happens like the desktop window and
-   * nautilus windows getting in the same layer, or all gnome-terminal
-   * windows getting in fullscreen layer if any terminal is
-   * fullscreen.
-   */
-  if (window->layer != META_LAYER_DESKTOP &&
-      meta_window_has_transient_type (window) &&
-      window->transient_for == NULL)
-    {
-      /* We only do the group thing if the dialog is NOT transient for
-       * a particular window. Imagine a group with a normal window, a dock,
-       * and a dialog transient for the normal window; you don't want the dialog
-       * above the dock if it wouldn't normally be.
-       */
-
-      MetaStackLayer group_max;
-
-      group_max = get_maximum_layer_in_group (window);
-
-      if (group_max > window->layer)
-        {
-          meta_topic (META_DEBUG_STACK,
-                      "Promoting window %s from layer %u to %u due to group membership\n",
-                      window->desc, window->layer, group_max);
-          window->layer = group_max;
-        }
-    }
-
-  meta_topic (META_DEBUG_STACK, "Window %s on layer %u type = %u has_focus = %d\n",
-              window->desc, window->layer,
-              window->type, window->has_focus);
-}
-
 /* Front of the layer list is the topmost window,
  * so the lower stack position is later in the list
  */
@@ -957,7 +831,7 @@ stack_do_relayer (MetaStack *stack)
       w = tmp->data;
       old_layer = w->layer;
 
-      compute_layer (w);
+      w->layer = meta_window_calculate_layer (w);
 
       if (w->layer != old_layer)
         {

@@ -634,6 +634,12 @@ meta_window_wayland_are_updates_frozen (MetaWindow *window)
   return !wl_window->has_been_shown;
 }
 
+static MetaStackLayer
+meta_window_wayland_calculate_layer (MetaWindow *window)
+{
+  return meta_window_get_default_layer (window);
+}
+
 static void
 meta_window_wayland_map (MetaWindow *window)
 {
@@ -667,6 +673,7 @@ meta_window_wayland_class_init (MetaWindowWaylandClass *klass)
   window_class->is_stackable = meta_window_wayland_is_stackable;
   window_class->can_ping = meta_window_wayland_can_ping;
   window_class->are_updates_frozen = meta_window_wayland_are_updates_frozen;
+  window_class->calculate_layer = meta_window_wayland_calculate_layer;
   window_class->map = meta_window_wayland_map;
   window_class->unmap = meta_window_wayland_unmap;
 }
