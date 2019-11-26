@@ -6946,6 +6946,17 @@ meta_window_update_keyboard_move (MetaWindow *window)
                      &x, &y);
 }
 
+MetaStackLayer
+meta_window_get_default_layer (MetaWindow *window)
+{
+  if (window->wm_state_below)
+    return META_LAYER_BOTTOM;
+  else if (window->wm_state_above && !META_WINDOW_MAXIMIZED (window))
+    return META_LAYER_TOP;
+  else
+    return META_LAYER_NORMAL;
+}
+
 void
 meta_window_update_layer (MetaWindow *window)
 {

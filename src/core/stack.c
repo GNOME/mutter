@@ -480,12 +480,7 @@ get_standalone_layer (MetaWindow *window)
         }
       break;
     default:
-      if (window->wm_state_below)
-        layer = META_LAYER_BOTTOM;
-      else if (window->wm_state_above && !META_WINDOW_MAXIMIZED (window))
-        layer = META_LAYER_TOP;
-      else
-        layer = META_LAYER_NORMAL;
+      layer = meta_window_get_default_layer (window);
       break;
     }
 

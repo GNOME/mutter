@@ -737,6 +737,7 @@ void meta_window_update_keyboard_resize (MetaWindow *window,
                                          gboolean    update_cursor);
 void meta_window_update_keyboard_move   (MetaWindow *window);
 
+MetaStackLayer meta_window_get_default_layer (MetaWindow *window);
 void meta_window_update_layer (MetaWindow *window);
 
 void meta_window_recalc_features    (MetaWindow *window);
