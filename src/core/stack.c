@@ -858,8 +858,11 @@ static void
 ensure_above (MetaWindow *above,
               MetaWindow *below)
 {
-  if (WINDOW_HAS_TRANSIENT_TYPE(above) &&
-      above->layer < below->layer)
+  gboolean is_transient;
+
+  is_transient = WINDOW_HAS_TRANSIENT_TYPE (above) ||
+                 above->transient_for == below;
+  if (is_transient && above->layer < below->layer)
     {
       meta_topic (META_DEBUG_STACK,
 		  "Promoting window %s from layer %u to %u due to contraint\n",
