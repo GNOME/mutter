@@ -368,12 +368,8 @@ parse_transforms (MetaCrtc          *crtc,
 
       if (strcmp (prop->enums[i].name, "rotate-0") == 0)
         transform = META_MONITOR_TRANSFORM_NORMAL;
-      else if (strcmp (prop->enums[i].name, "rotate-90") == 0)
-        transform = META_MONITOR_TRANSFORM_90;
       else if (strcmp (prop->enums[i].name, "rotate-180") == 0)
         transform = META_MONITOR_TRANSFORM_180;
-      else if (strcmp (prop->enums[i].name, "rotate-270") == 0)
-        transform = META_MONITOR_TRANSFORM_270;
 
       if (transform != -1)
         {
