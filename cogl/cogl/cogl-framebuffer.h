@@ -987,7 +987,7 @@ cogl_framebuffer_resolve_samples_region (CoglFramebuffer *framebuffer,
                                          int height);
 
 /**
- * cogl_framebuffer_get_context: (skip)
+ * cogl_framebuffer_get_context:
  * @framebuffer: A #CoglFramebuffer
  *
  * Can be used to query the #CoglContext a given @framebuffer was

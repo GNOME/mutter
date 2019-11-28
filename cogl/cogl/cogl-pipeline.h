@@ -72,7 +72,7 @@ G_BEGIN_DECLS
 GType cogl_pipeline_get_gtype (void);
 
 /**
- * cogl_pipeline_new: (skip)
+ * cogl_pipeline_new: (constructor)
  * @context: a #CoglContext
  *
  * Allocates and initializes a default simple pipeline that will color

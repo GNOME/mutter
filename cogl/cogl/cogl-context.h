@@ -102,7 +102,7 @@ G_BEGIN_DECLS
 GType cogl_context_get_gtype (void);
 
 /**
- * cogl_context_new: (constructor)
+ * cogl_context_new: (constructor) (skip)
  * @display: (allow-none): A #CoglDisplay pointer
  * @error: A GError return location.
  *
@@ -118,7 +118,7 @@ cogl_context_new (CoglDisplay *display,
                   GError **error);
 
 /**
- * cogl_context_get_display:
+ * cogl_context_get_display: (skip)
  * @context: A #CoglContext pointer
  *
  * Retrieves the #CoglDisplay that is internally associated with the
@@ -136,7 +136,7 @@ CoglDisplay *
 cogl_context_get_display (CoglContext *context);
 
 /**
- * cogl_context_get_renderer:
+ * cogl_context_get_renderer: (skip)
  * @context: A #CoglContext pointer
  *
  * Retrieves the #CoglRenderer that is internally associated with the
