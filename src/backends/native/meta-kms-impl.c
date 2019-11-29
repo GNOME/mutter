@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Red Hat
+ * Copyright (C) 2019 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -63,6 +64,12 @@ void
 meta_kms_impl_discard_pending_page_flips (MetaKmsImpl *impl)
 {
   META_KMS_IMPL_GET_CLASS (impl)->discard_pending_page_flips (impl);
+}
+
+void
+meta_kms_impl_dispatch_idle (MetaKmsImpl *impl)
+{
+  META_KMS_IMPL_GET_CLASS (impl)->dispatch_idle (impl);
 }
 
 static void
