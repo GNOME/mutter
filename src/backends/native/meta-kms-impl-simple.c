@@ -519,7 +519,7 @@ mode_set_fallback_feedback_idle (gpointer user_data)
   g_clear_pointer (&impl_simple->mode_set_fallback_feedback_source,
                    g_source_unref);
 
-  if (!impl_simple->pending_page_flip_retries)
+  if (impl_simple->pending_page_flip_retries)
     {
       impl_simple->postponed_mode_set_fallback_datas =
         g_steal_pointer (&impl_simple->mode_set_fallback_page_flip_datas);
