@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2019 Red Hat
+ * Copyright (C) 2019 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -149,11 +150,27 @@ dispatch_in_impl (MetaKmsImpl  *impl,
   return meta_kms_impl_device_dispatch (impl_device, error);
 }
 
+static gboolean
+dispatch_idle_in_impl (MetaKmsImpl  *impl,
+                       gpointer      user_data,
+                       GError      **error)
+{
+  meta_kms_impl_dispatch_idle (impl);
+
+  return TRUE;
+}
+
 int
 meta_kms_device_dispatch_sync (MetaKmsDevice  *device,
                                GError        **error)
 {
   int callback_count;
+
+  if (!meta_kms_run_impl_task_sync (device->kms,
+                                    dispatch_idle_in_impl,
+                                    device->impl_device,
+                                    error))
+    return -1;
 
   callback_count = meta_kms_flush_callbacks (device->kms);
   if (callback_count > 0)

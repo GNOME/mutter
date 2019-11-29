@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Red Hat
+ * Copyright (C) 2019 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -38,6 +39,7 @@ struct _MetaKmsImplClass
   void (* handle_page_flip_callback) (MetaKmsImpl         *impl,
                                       MetaKmsPageFlipData *page_flip_data);
   void (* discard_pending_page_flips) (MetaKmsImpl *impl);
+  void (* dispatch_idle) (MetaKmsImpl *impl);
 };
 
 MetaKms * meta_kms_impl_get_kms (MetaKmsImpl *impl);
@@ -50,5 +52,7 @@ void meta_kms_impl_handle_page_flip_callback (MetaKmsImpl         *impl,
                                               MetaKmsPageFlipData *page_flip_data);
 
 void meta_kms_impl_discard_pending_page_flips (MetaKmsImpl *impl);
+
+void meta_kms_impl_dispatch_idle (MetaKmsImpl *impl);
 
 #endif /* META_KMS_IMPL_H */
