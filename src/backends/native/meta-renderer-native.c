@@ -1786,6 +1786,9 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferSecondaryGpu,
                            "FB Copy (secondary GPU)");
 
+  g_warn_if_fail (secondary_gpu_state->gbm.next_fb == NULL);
+  g_clear_object (&secondary_gpu_state->gbm.next_fb);
+
   if (!meta_egl_make_current (egl,
                               renderer_gpu_data->egl_display,
                               secondary_gpu_state->egl_surface,
@@ -1825,7 +1828,6 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
       return;
     }
 
-  g_clear_object (&secondary_gpu_state->gbm.next_fb);
   buffer_gbm = meta_drm_buffer_gbm_new (secondary_gpu_state->gpu_kms,
                                         secondary_gpu_state->gbm.surface,
                                         renderer_native->use_modifiers,
