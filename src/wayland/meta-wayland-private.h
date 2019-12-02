@@ -46,7 +46,9 @@ typedef struct
 {
   int display_index;
   char *lock_file;
+#ifdef __linux__
   int abstract_fd;
+#endif
   int unix_fd;
   char *name;
 } MetaXWaylandConnection;
