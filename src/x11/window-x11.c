@@ -1448,6 +1448,16 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
        (window->size_hints.flags & USPosition)))
     need_configure_notify = TRUE;
 
+  /* If resizing, freeze commits - This is for Xwayland, and a no-op on Xorg */
+  if (need_resize_client || need_resize_frame)
+    {
+      if (!meta_window_x11_should_thaw_after_paint (window))
+        {
+          meta_window_x11_set_thaw_after_paint (window, TRUE);
+          meta_window_x11_freeze_commits (window);
+        }
+    }
+
   /* The rest of this function syncs our new size/pos with X as
    * efficiently as possible
    */

@@ -40,6 +40,7 @@
 #include "meta/meta-x11-errors.h"
 #include "meta/window.h"
 #include "x11/meta-x11-display-private.h"
+#include "x11/window-x11.h"
 
 enum
 {
@@ -1213,6 +1214,7 @@ static void
 meta_window_actor_x11_post_paint (MetaWindowActor *actor)
 {
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (actor);
+  MetaWindow *window;
 
   actor_x11->repaint_scheduled = FALSE;
 
@@ -1237,6 +1239,14 @@ meta_window_actor_x11_post_paint (MetaWindowActor *actor)
         }
 
       actor_x11->needs_frame_drawn = FALSE;
+    }
+
+  /* This is for Xwayland, and a no-op on plain Xorg */
+  window = meta_window_actor_get_meta_window (actor);
+  if (meta_window_x11_should_thaw_after_paint (window))
+    {
+      meta_window_x11_thaw_commits (window);
+      meta_window_x11_set_thaw_after_paint (window, FALSE);
     }
 }
 
