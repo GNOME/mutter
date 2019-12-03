@@ -52,4 +52,11 @@ CoglFramebuffer * clutter_paint_context_get_framebuffer (ClutterPaintContext *pa
 CLUTTER_EXPORT
 ClutterStageView * clutter_paint_context_get_stage_view (ClutterPaintContext *paint_context);
 
+CLUTTER_EXPORT
+void clutter_paint_context_push_framebuffer (ClutterPaintContext *paint_context,
+                                             CoglFramebuffer     *framebuffer);
+
+CLUTTER_EXPORT
+void clutter_paint_context_pop_framebuffer (ClutterPaintContext *paint_context);
+
 #endif /* CLUTTER_PAINT_CONTEXT_H */
