@@ -1,3 +1,53 @@
+3.35.2
+======
+* Don't emit focus event after destruction [Marco; gnome-shell#1704, !860]
+* Add a notion of pixel format planes [Niels; !858]
+* Replace various Cogl/Clutter types with Graphene [Georges; !458]
+* Improve CoglJournal [Georges, Jasper; !402]
+* Split pick and paint [Georges; !865]
+* Remove deprecated/unused cogl/clutter APIs [Adam; !866, !878, !879, !880,
+  !885, !900, !902, !904, !896, !913, !922, !883, !903, !921, !933, !819]
+* Fix hang when opening not-responding dialog on Xorg [Carlos; !876]
+* Allow changing Clutter debug flags at runtime [Georges; !862]
+* Fix frozen grabs on Xorg after weeks of inactivity [Jonas; !886]
+* Fix triggering popups from stylus devices o wayland [Carlos; #886]
+* Fix fallback to GLES2 [Adam; #635]
+* Fix buffer age checks on multiple monitors [Carlos; !906]
+* Adjust to Sysprof API change [Christian; !908]
+* Improve support for (X11) fullscreen games under wayland [Hans; !739]
+* Support shadow framebuffers for offscreen rendering [Olivier; !877]
+* Fix hang after interacting with desktop icons on X11 [Marco; !909]
+* Don't double scale when getting absolute surface coordinates [Xiang; !915]
+* Respect NET_WM_TRANSIENT_FOR for override-redirect windows [Marco; !920]
+* Kill window effects on destroy [Robert; !924]
+* Remove deprecated ClutterTexture [Jonas; !932]
+* Use regions instead of bounding box for clipping and culling [Carlos; !867]
+* Use partial damage for dma-buf and EGLImage buffers on wayland [Robert; #947]
+* Do not stack transients underneath their always-on-top parent [Florian; #587]
+* Add explicit paint/pick contexts [Jonas; !935]
+* Fix KMS freeze after pageflip fallback [Pekka; !953]
+* Fixed crashes [Robert, Carlos, Jonas, Marco, Hans, Tim; !856, !869, !912,
+  !895, !928, #591, !823, !960]
+* Plugged memory leaks [Niels, Robert, Carlos, Marco; !847, !868, !873, #908]
+* Misc. bug fixes and cleanups [Niels, Robert, Jonas, Marco, Carlos, Daniel,
+  Jan, Adam, Cosimo, Florian, Thomas, Georges, Hans, Corentin, Christian,
+  Benjamin; !853, !822, !451, !854, !816, !857, !859, !734, !844, !851, #876,
+  !874, !673, !692, !888, !889, !894, !901, !905, !872, !898, !911, !918, !863,
+  #878, !811, !893, !925, !926, !890, !931, !927, !934, !938, !940, !947, !941,
+  !929, !949, !952, !871, !955, !956, !958, !907, !965, !964, !966]
+
+Contributors:
+  Marco Trevisan (Treviño), Jan Alexander Steffens (heftig),
+  Thomas Hindoe Paaboel Andersen, Benjamin Berg, Cosimo Cecchi, Tim Crawford,
+  Piotr Drąg, Xiang Fan, Olivier Fourdan, Carlos Garnacho, Hans de Goede,
+  Niels De Graef, Christian Hergert, Adam Jackson, Robert Mader,
+  Florian Müllner, Georges Basile Stavracas Neto, Bastien Nocera, Corentin Noël,
+  Pekka Paalanen, Jasper St. Pierre, Christian Rauch, Daniel van Vugt,
+  Jonas Ådahl
+
+Translators:
+  Bruce Cowan [en_GB]
+
 3.35.1
 ======
 * Fix immediate screen blank after releaseing inhibitor [Tim; #573]
