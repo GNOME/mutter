@@ -590,6 +590,34 @@ create_monitor_config (MetaMonitor     *monitor,
   return monitor_config;
 }
 
+static MetaMonitorTransform
+get_monitor_transform (MetaMonitorManager *monitor_manager,
+                       MetaMonitor        *monitor)
+{
+  MetaOrientationManager *orientation_manager;
+  MetaBackend *backend;
+
+  if (!meta_monitor_is_laptop_panel (monitor))
+    return META_MONITOR_TRANSFORM_NORMAL;
+
+  backend = meta_monitor_manager_get_backend (monitor_manager);
+  orientation_manager = meta_backend_get_orientation_manager (backend);
+
+  switch (meta_orientation_manager_get_orientation (orientation_manager))
+    {
+    case META_ORIENTATION_BOTTOM_UP:
+      return META_MONITOR_TRANSFORM_180;
+    case META_ORIENTATION_LEFT_UP:
+      return META_MONITOR_TRANSFORM_90;
+    case META_ORIENTATION_RIGHT_UP:
+      return META_MONITOR_TRANSFORM_270;
+    case META_ORIENTATION_UNDEFINED:
+    case META_ORIENTATION_NORMAL:
+    default:
+      return META_MONITOR_TRANSFORM_NORMAL;
+    }
+}
+
 static MetaLogicalMonitorConfig *
 create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_manager,
                                          MetaMonitor                 *monitor,
@@ -601,6 +629,7 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
   MetaMonitorMode *mode;
   int width, height;
   float scale;
+  MetaMonitorTransform transform;
   MetaMonitorConfig *monitor_config;
   MetaLogicalMonitorConfig *logical_monitor_config;
 
@@ -628,6 +657,14 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
 
   monitor_config = create_monitor_config (monitor, mode);
 
+  transform = get_monitor_transform (monitor_manager, monitor);
+  if (meta_monitor_transform_is_rotated (transform))
+    {
+      int temp = width;
+      width = height;
+      height = temp;
+    }
+
   logical_monitor_config = g_new0 (MetaLogicalMonitorConfig, 1);
   *logical_monitor_config = (MetaLogicalMonitorConfig) {
     .layout = (MetaRectangle) {
@@ -636,6 +673,7 @@ create_preferred_logical_monitor_config (MetaMonitorManager          *monitor_ma
       .width = width,
       .height = height
     },
+    .transform = transform,
     .scale = scale,
     .monitor_configs = g_list_append (NULL, monitor_config)
   };
