@@ -292,16 +292,22 @@ gboolean
 meta_x11_startup_notification_handle_xevent (MetaX11Display *x11_display,
                                              XEvent         *xevent)
 {
+#ifdef HAVE_STARTUP_NOTIFICATION
   MetaX11StartupNotification *x11_sn = x11_display->startup_notification;
 
   if (!x11_sn)
     return FALSE;
 
   return sn_display_process_event (x11_sn->sn_display, xevent);
+#else
+  return FALSE;
+#endif
 }
 
+#ifdef HAVE_STARTUP_NOTIFICATION
 typedef void (* SetAppIdFunc) (SnLauncherContext *context,
                                const char        *app_id);
+#endif
 
 gchar *
 meta_x11_startup_notification_launch (MetaX11Display *x11_display,
