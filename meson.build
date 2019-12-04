@@ -52,6 +52,9 @@ gbm_req = '>= 10.3'
 # screen cast version requirements
 libpipewire_req = '>= 0.3.0'
 
+# profiler requirements
+sysprof_req = '>= 3.35.2'
+
 gnome = import('gnome')
 pkg = import('pkgconfig')
 i18n  = import('i18n')
@@ -276,7 +279,7 @@ endif
 
 have_profiler = get_option('profiler')
 if have_profiler
-  sysprof_dep = dependency('sysprof-capture-3')
+  sysprof_dep = dependency('sysprof-capture-3', version: sysprof_req)
 endif
 
 required_functions = [
