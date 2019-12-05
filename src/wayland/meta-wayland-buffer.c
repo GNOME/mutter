@@ -456,7 +456,7 @@ meta_wayland_buffer_create_snippet (MetaWaylandBuffer *buffer)
   if (!buffer->egl_stream.stream)
     return NULL;
 
-  return meta_wayland_egl_stream_create_snippet ();
+  return meta_wayland_egl_stream_create_snippet (buffer->egl_stream.stream);
 #else
   return NULL;
 #endif /* HAVE_WAYLAND_EGLSTREAM */

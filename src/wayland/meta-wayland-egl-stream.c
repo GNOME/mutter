@@ -134,6 +134,7 @@ struct _MetaWaylandEglStream
   MetaWaylandBuffer *buffer;
   CoglTexture2D *texture;
   gboolean is_y_inverted;
+  CoglSnippet *snippet;
 };
 
 G_DEFINE_TYPE (MetaWaylandEglStream, meta_wayland_egl_stream,
@@ -289,18 +290,22 @@ meta_wayland_egl_stream_is_y_inverted (MetaWaylandEglStream *stream)
 }
 
 CoglSnippet *
-meta_wayland_egl_stream_create_snippet (void)
+meta_wayland_egl_stream_create_snippet (MetaWaylandEglStream *stream)
 {
-  CoglSnippet *snippet;
+  if (!stream->snippet)
+    {
+      CoglSnippet *snippet;
 
-  snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_TEXTURE_LOOKUP,
-                              "uniform samplerExternalOES tex_external;",
-                              NULL);
-  cogl_snippet_set_replace (snippet,
-                            "cogl_texel = texture2D (tex_external,\n"
-                            "                        cogl_tex_coord.xy);");
+      snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_TEXTURE_LOOKUP,
+                                  "uniform samplerExternalOES tex_external;",
+                                  NULL);
+      cogl_snippet_set_replace (snippet,
+                                "cogl_texel = texture2D (tex_external,\n"
+                                "                        cogl_tex_coord.xy);");
+      stream->snippet = snippet;
+    }
 
-  return snippet;
+  return cogl_object_ref (stream->snippet);
 }
 
 gboolean
@@ -340,6 +345,8 @@ meta_wayland_egl_stream_finalize (GObject *object)
   g_assert (!stream->texture);
 
   meta_egl_destroy_stream (egl, egl_display, stream->egl_stream, NULL);
+
+  cogl_clear_object (&stream->snippet);
 
   G_OBJECT_CLASS (meta_wayland_egl_stream_parent_class)->finalize (object);
 }
