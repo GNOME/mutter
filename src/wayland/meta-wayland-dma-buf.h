@@ -44,7 +44,6 @@ gboolean meta_wayland_dma_buf_init (MetaWaylandCompositor *compositor);
 gboolean
 meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
                                     CoglTexture       **texture,
-                                    gboolean           *changed_texture,
                                     GError            **error);
 
 MetaWaylandDmaBufBuffer *

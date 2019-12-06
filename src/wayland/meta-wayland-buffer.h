@@ -82,7 +82,6 @@ gboolean                meta_wayland_buffer_is_realized         (MetaWaylandBuff
 gboolean                meta_wayland_buffer_realize             (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_attach              (MetaWaylandBuffer     *buffer,
                                                                  CoglTexture          **texture,
-                                                                 gboolean              *changed_texture,
                                                                  GError               **error);
 CoglSnippet *           meta_wayland_buffer_create_snippet      (MetaWaylandBuffer     *buffer);
 gboolean                meta_wayland_buffer_is_y_inverted       (MetaWaylandBuffer     *buffer);

@@ -28,6 +28,7 @@
 #include "compositor/meta-surface-actor-wayland.h"
 #include "compositor/meta-window-actor-wayland.h"
 #include "compositor/region-utils.h"
+#include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-window-wayland.h"
 
@@ -147,13 +148,33 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
     meta_wayland_surface_role_get_surface (surface_role);
   MetaSurfaceActor *surface_actor;
   MetaShapedTexture *stex;
+  MetaWaylandBuffer *buffer;
   cairo_rectangle_int_t surface_rect;
   int geometry_scale;
   MetaWaylandSurface *subsurface_surface;
 
   surface_actor = priv->actor;
   stex = meta_surface_actor_get_texture (surface_actor);
-  meta_shaped_texture_set_buffer_scale (stex, surface->scale);
+
+  buffer = surface->buffer_ref.buffer;
+  if (buffer)
+    {
+      CoglSnippet *snippet;
+      gboolean is_y_inverted;
+
+      snippet = meta_wayland_buffer_create_snippet (buffer);
+      is_y_inverted = meta_wayland_buffer_is_y_inverted (buffer);
+
+      meta_shaped_texture_set_texture (stex, surface->texture);
+      meta_shaped_texture_set_snippet (stex, snippet);
+      meta_shaped_texture_set_is_y_inverted (stex, is_y_inverted);
+      meta_shaped_texture_set_buffer_scale (stex, surface->scale);
+      cogl_clear_object (&snippet);
+    }
+  else
+    {
+      meta_shaped_texture_set_texture (stex, NULL);
+    }
 
   /* Wayland surface coordinate space -> stage coordinate space */
   geometry_scale = meta_wayland_actor_surface_get_geometry_scale (actor_surface);

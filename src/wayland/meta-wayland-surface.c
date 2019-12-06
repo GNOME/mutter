@@ -652,11 +652,9 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
       if (state->buffer)
         {
           GError *error = NULL;
-          gboolean changed_texture;
 
           if (!meta_wayland_buffer_attach (state->buffer,
                                            &surface->texture,
-                                           &changed_texture,
                                            &error))
             {
               g_warning ("Could not import pending buffer: %s", error->message);
@@ -666,24 +664,6 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                                       error->message);
               g_error_free (error);
               goto cleanup;
-            }
-
-          if (changed_texture && meta_wayland_surface_get_actor (surface))
-            {
-              MetaShapedTexture *stex;
-              CoglTexture *texture;
-              CoglSnippet *snippet;
-              gboolean is_y_inverted;
-
-              stex = meta_surface_actor_get_texture (meta_wayland_surface_get_actor (surface));
-              texture = surface->texture;
-              snippet = meta_wayland_buffer_create_snippet (state->buffer);
-              is_y_inverted = meta_wayland_buffer_is_y_inverted (state->buffer);
-
-              meta_shaped_texture_set_texture (stex, texture);
-              meta_shaped_texture_set_snippet (stex, snippet);
-              meta_shaped_texture_set_is_y_inverted (stex, is_y_inverted);
-              g_clear_pointer (&snippet, cogl_object_unref);
             }
         }
       else
