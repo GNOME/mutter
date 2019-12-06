@@ -158,13 +158,11 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
 gboolean
 meta_wayland_dma_buf_buffer_attach (MetaWaylandBuffer  *buffer,
                                     CoglTexture       **texture,
-                                    gboolean           *changed_texture,
                                     GError            **error)
 {
   if (!meta_wayland_dma_buf_realize_texture (buffer, error))
     return FALSE;
 
-  *changed_texture = *texture != buffer->dma_buf.texture;
   cogl_clear_object (texture);
   *texture = cogl_object_ref (buffer->dma_buf.texture);
   return TRUE;

@@ -198,7 +198,6 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
 static gboolean
 shm_buffer_attach (MetaWaylandBuffer  *buffer,
                    CoglTexture       **texture,
-                   gboolean           *changed_texture,
                    GError            **error)
 {
   MetaBackend *backend = meta_get_backend ();
@@ -224,7 +223,6 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
       _cogl_texture_get_format (*texture) == format)
     {
       buffer->is_y_inverted = TRUE;
-      *changed_texture = FALSE;
       return TRUE;
     }
 
@@ -269,7 +267,6 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
     return FALSE;
 
   *texture = new_texture;
-  *changed_texture = TRUE;
   buffer->is_y_inverted = TRUE;
 
   return TRUE;
@@ -278,7 +275,6 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
 static gboolean
 egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
                          CoglTexture       **texture,
-                         gboolean           *changed_texture,
                          GError            **error)
 {
   MetaBackend *backend = meta_get_backend ();
@@ -294,7 +290,6 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
 
   if (buffer->egl_image.texture)
     {
-      *changed_texture = *texture != buffer->egl_image.texture;
       cogl_clear_object (texture);
       *texture = cogl_object_ref (buffer->egl_image.texture);
       return TRUE;
@@ -362,7 +357,6 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
 
   cogl_clear_object (texture);
   *texture = cogl_object_ref (buffer->egl_image.texture);
-  *changed_texture = TRUE;
 
   return TRUE;
 }
@@ -371,7 +365,6 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
 static gboolean
 egl_stream_buffer_attach (MetaWaylandBuffer  *buffer,
                           CoglTexture       **texture,
-                          gboolean           *changed_texture,
                           GError            **error)
 {
   MetaWaylandEglStream *stream = buffer->egl_stream.stream;
@@ -381,7 +374,6 @@ egl_stream_buffer_attach (MetaWaylandBuffer  *buffer,
   if (!meta_wayland_egl_stream_attach (stream, error))
     return FALSE;
 
-  *changed_texture = *texture != buffer->egl_stream.texture;
   cogl_clear_object (texture);
   *texture = cogl_object_ref (buffer->egl_stream.texture);
 
@@ -411,7 +403,6 @@ egl_stream_buffer_attach (MetaWaylandBuffer  *buffer,
 gboolean
 meta_wayland_buffer_attach (MetaWaylandBuffer  *buffer,
                             CoglTexture       **texture,
-                            gboolean           *changed_texture,
                             GError            **error)
 {
   g_return_val_if_fail (buffer->resource, FALSE);
@@ -428,17 +419,16 @@ meta_wayland_buffer_attach (MetaWaylandBuffer  *buffer,
   switch (buffer->type)
     {
     case META_WAYLAND_BUFFER_TYPE_SHM:
-      return shm_buffer_attach (buffer, texture, changed_texture, error);
+      return shm_buffer_attach (buffer, texture, error);
     case META_WAYLAND_BUFFER_TYPE_EGL_IMAGE:
-      return egl_image_buffer_attach (buffer, texture, changed_texture, error);
+      return egl_image_buffer_attach (buffer, texture, error);
 #ifdef HAVE_WAYLAND_EGLSTREAM
     case META_WAYLAND_BUFFER_TYPE_EGL_STREAM:
-      return egl_stream_buffer_attach (buffer, texture, changed_texture, error);
+      return egl_stream_buffer_attach (buffer, texture, error);
 #endif
     case META_WAYLAND_BUFFER_TYPE_DMA_BUF:
       return meta_wayland_dma_buf_buffer_attach (buffer,
                                                  texture,
-                                                 changed_texture,
                                                  error);
     case META_WAYLAND_BUFFER_TYPE_UNKNOWN:
       g_assert_not_reached ();
