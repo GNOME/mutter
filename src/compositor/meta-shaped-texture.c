@@ -932,6 +932,9 @@ meta_shaped_texture_set_texture (MetaShapedTexture *stex,
 {
   g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
 
+  if (stex->texture == texture)
+    return;
+
   set_cogl_texture (stex, texture);
 }
 
