@@ -75,6 +75,9 @@ struct _MetaWindowX11Private
   MetaIconCache icon_cache;
   Pixmap wm_hints_pixmap;
   Pixmap wm_hints_mask;
+
+  /* Freeze/thaw on resize (for Xwayland) */
+  gboolean thaw_after_paint;
 };
 
 G_END_DECLS

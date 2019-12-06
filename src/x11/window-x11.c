@@ -4022,3 +4022,22 @@ meta_window_x11_thaw_commits (MetaWindow *window)
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
   META_WINDOW_X11_GET_CLASS (window_x11)->thaw_commits (window);
 }
+
+void
+meta_window_x11_set_thaw_after_paint (MetaWindow *window,
+                                      gboolean    thaw_after_paint)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+
+  priv->thaw_after_paint = thaw_after_paint;
+}
+
+gboolean
+meta_window_x11_should_thaw_after_paint (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+  MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
+
+  return priv->thaw_after_paint;
+}

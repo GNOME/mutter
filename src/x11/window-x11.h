@@ -84,4 +84,8 @@ Window   meta_window_x11_get_toplevel_xwindow    (MetaWindow *window);
 void     meta_window_x11_freeze_commits          (MetaWindow *window);
 void     meta_window_x11_thaw_commits            (MetaWindow *window);
 
+void     meta_window_x11_set_thaw_after_paint    (MetaWindow *window,
+                                                  gboolean    thaw_after_paint);
+gboolean meta_window_x11_should_thaw_after_paint (MetaWindow *window);
+
 #endif
