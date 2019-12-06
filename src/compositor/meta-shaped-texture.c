@@ -458,16 +458,11 @@ set_cogl_texture (MetaShapedTexture *stex,
 {
   int width, height;
 
-  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
-
-  if (stex->texture)
-    cogl_object_unref (stex->texture);
-
-  stex->texture = cogl_tex;
+  cogl_clear_object (&stex->texture);
 
   if (cogl_tex != NULL)
     {
-      cogl_object_ref (cogl_tex);
+      stex->texture = cogl_object_ref (cogl_tex);
       width = cogl_texture_get_width (COGL_TEXTURE (cogl_tex));
       height = cogl_texture_get_height (COGL_TEXTURE (cogl_tex));
     }
