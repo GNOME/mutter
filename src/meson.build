@@ -769,6 +769,10 @@ if have_remote_desktop
   mutter_built_sources += dbus_screen_cast_built_sources
 endif
 
+wayland_protocol_server_headers = []
+wayland_protocol_client_headers = []
+wayland_protocol_sources = []
+
 if have_wayland
   # Format:
   #  - protocol name
@@ -831,7 +835,7 @@ if have_wayland
                                                   output_base))
     endif
 
-    mutter_built_sources += custom_target('@0@ server header'.format(output_base),
+    wayland_protocol_server_headers += custom_target('@0@ server header'.format(output_base),
       input: input,
       output: '@0@-server-protocol.h'.format(output_base),
       command: [
@@ -841,7 +845,18 @@ if have_wayland
       ]
     )
 
-    mutter_built_sources += custom_target('@0@ source'.format(output_base),
+    # used by tests
+    wayland_protocol_client_headers += custom_target('@0@ client header'.format(output_base),
+      input: input,
+      output: '@0@-client-protocol.h'.format(output_base),
+      command: [
+        wayland_scanner,
+        'client-header',
+        '@INPUT@', '@OUTPUT@',
+      ]
+    )
+
+    wayland_protocol_sources += custom_target('@0@ source'.format(output_base),
       input: input,
       output: '@0@-protocol.c'.format(output_base),
       command: [
@@ -852,6 +867,9 @@ if have_wayland
     )
   endforeach
 endif
+
+mutter_built_sources += wayland_protocol_server_headers
+mutter_built_sources += wayland_protocol_sources
 
 subdir('meta')
 

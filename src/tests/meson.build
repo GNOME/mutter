@@ -17,6 +17,8 @@ tests_deps = [
   libmutter_clutter_dep,
 ]
 
+subdir('wayland-test-clients')
+
 if have_installed_tests
   stacking_files_datadir = join_paths(pkgdatadir, 'tests')
 
@@ -88,6 +90,10 @@ unit_tests = executable('mutter-test-unit-tests',
     'monitor-test-utils.h',
     'monitor-unit-tests.c',
     'monitor-unit-tests.h',
+    'wayland-unit-tests.c',
+    'wayland-unit-tests.h',
+    test_driver_server_header,
+    test_driver_protocol_code,
   ],
   include_directories: tests_includepath,
   c_args: tests_c_args,

@@ -39,7 +39,10 @@ struct _MetaWaylandActorSurfaceClass
 
 void meta_wayland_actor_surface_sync_actor_state (MetaWaylandActorSurface *actor_surface);
 double meta_wayland_actor_surface_get_geometry_scale (MetaWaylandActorSurface *actor_surface);
+
+META_EXPORT_TEST
 MetaSurfaceActor * meta_wayland_actor_surface_get_actor (MetaWaylandActorSurface *actor_surface);
+
 void meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface);
 
 void meta_wayland_actor_surface_queue_frame_callbacks (MetaWaylandActorSurface *actor_surface,

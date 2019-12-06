@@ -34,6 +34,7 @@
 #include "tests/monitor-unit-tests.h"
 #include "tests/monitor-store-unit-tests.h"
 #include "tests/test-utils.h"
+#include "tests/wayland-unit-tests.h"
 #include "wayland/meta-wayland.h"
 
 typedef struct _MetaTestLaterOrderCallbackData
@@ -228,6 +229,7 @@ run_tests (gpointer data)
     META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER);
 
   pre_run_monitor_tests ();
+  pre_run_wayland_tests ();
 
   ret = g_test_run ();
 
@@ -251,6 +253,7 @@ init_tests (int argc, char **argv)
   init_monitor_config_migration_tests ();
   init_monitor_tests ();
   init_boxes_tests ();
+  init_wayland_tests ();
 }
 
 int
