@@ -348,6 +348,16 @@ meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface)
     meta_wayland_actor_surface_get_instance_private (actor_surface);
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (META_WAYLAND_SURFACE_ROLE (actor_surface));
+  MetaWaylandSurface *subsurface_surface;
+
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
+    {
+      MetaWaylandActorSurface *actor_surface;
+
+      actor_surface = META_WAYLAND_ACTOR_SURFACE (subsurface_surface->role);
+      meta_wayland_actor_surface_reset_actor (actor_surface);
+      meta_wayland_actor_surface_sync_actor_state (actor_surface);
+    }
 
   clear_surface_actor (actor_surface);
 
