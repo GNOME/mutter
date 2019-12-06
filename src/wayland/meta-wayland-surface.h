@@ -327,4 +327,38 @@ void                meta_wayland_surface_notify_geometry_changed (MetaWaylandSur
 int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
 
+static inline GNode *
+meta_get_next_subsurface_sibling (GNode *n)
+{
+  GNode *next;
+
+  if (!n)
+    return NULL;
+
+  next = g_node_next_sibling (n);
+  if (!next)
+    return NULL;
+  if (!G_NODE_IS_LEAF (next))
+    return next;
+  else
+    return meta_get_next_subsurface_sibling (next);
+}
+
+static inline GNode *
+meta_get_first_subsurface_node (MetaWaylandSurface *surface)
+{
+  GNode *n;
+
+  n = g_node_first_child (surface->subsurface_branch_node);
+  if (!G_NODE_IS_LEAF (n))
+    return n;
+  else
+    return meta_get_next_subsurface_sibling (n);
+}
+
+#define META_WAYLAND_SURFACE_FOREACH_SUBSURFACE(surface, subsurface) \
+  for (GNode *G_PASTE(__n, __LINE__) = meta_get_first_subsurface_node ((surface)); \
+       (subsurface = (G_PASTE (__n, __LINE__) ? G_PASTE (__n, __LINE__)->data : NULL)); \
+       G_PASTE (__n, __LINE__) = meta_get_next_subsurface_sibling (G_PASTE (__n, __LINE__)))
+
 #endif
