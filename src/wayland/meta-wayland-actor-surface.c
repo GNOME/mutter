@@ -292,6 +292,9 @@ meta_wayland_actor_surface_is_on_logical_monitor (MetaWaylandSurfaceRole *surfac
   MetaRectangle logical_monitor_layout;
   gboolean is_on_monitor;
 
+  if (!clutter_actor_is_mapped (actor))
+    return FALSE;
+
   clutter_actor_get_transformed_position (actor, &x, &y);
   clutter_actor_get_transformed_size (actor, &width, &height);
 
