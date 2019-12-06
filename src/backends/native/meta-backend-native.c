@@ -583,7 +583,6 @@ on_udev_device_added (MetaUdev          *udev,
     {
       g_warning ("Failed to hotplug secondary gpu '%s': %s",
                  device_path, error->message);
-      g_error_free (error);
       return;
     }
 
