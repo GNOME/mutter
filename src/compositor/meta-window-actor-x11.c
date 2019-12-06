@@ -1111,16 +1111,27 @@ handle_updates (MetaWindowActorX11 *actor_x11)
   MetaSurfaceActor *surface =
     meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
 
-  if (meta_window_actor_is_frozen (META_WINDOW_ACTOR (actor_x11)))
-    {
-      /* The window is frozen due to a pending animation: we'll wait until
-       * the animation finishes to reshape and repair the window */
-      return;
-    }
-
   if (META_IS_SURFACE_ACTOR_X11 (surface) &&
       meta_surface_actor_x11_is_unredirected (META_SURFACE_ACTOR_X11 (surface)))
     return;
+
+  if (meta_window_actor_is_frozen (META_WINDOW_ACTOR (actor_x11)))
+    {
+      MetaWindow *window =
+        meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
+
+      /* The window is frozen due to a pending animation: we'll wait until
+       * the animation finishes to repair the window.
+       *
+       * However, with Xwayland, we still might need to update the shape
+       * region as the wl_buffer will be set to plain black on resize,
+       * which causes the shadows to look bad.
+       */
+      if (surface && meta_window_x11_always_update_shape (window))
+        update_shape_region (actor_x11);
+
+      return;
+    }
 
   meta_surface_actor_pre_paint (surface);
 
