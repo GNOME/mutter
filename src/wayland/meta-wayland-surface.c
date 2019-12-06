@@ -600,20 +600,6 @@ meta_wayland_surface_state_class_init (MetaWaylandSurfaceStateClass *klass)
                   G_TYPE_NONE, 0);
 }
 
-static void
-parent_surface_state_applied (GNode    *subsurface_node,
-                              gpointer  user_data)
-{
-  MetaWaylandSurface *surface = subsurface_node->data;
-  MetaWaylandSubsurface *subsurface;
-
-  if (G_NODE_IS_LEAF (subsurface_node))
-    return;
-
-  subsurface = META_WAYLAND_SUBSURFACE (surface->role);
-  meta_wayland_subsurface_parent_state_applied (subsurface);
-}
-
 void
 meta_wayland_surface_cache_pending_frame_callbacks (MetaWaylandSurface      *surface,
                                                     MetaWaylandSurfaceState *pending)
@@ -627,6 +613,7 @@ static void
 meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                                   MetaWaylandSurfaceState *state)
 {
+  MetaWaylandSurface *subsurface_surface;
   gboolean had_damage = FALSE;
 
   g_signal_emit (surface, surface_signals[SURFACE_PRE_STATE_APPLIED], 0);
@@ -802,10 +789,13 @@ cleanup:
 
   meta_wayland_surface_state_reset (state);
 
-  g_node_children_foreach (surface->subsurface_branch_node,
-                           G_TRAVERSE_ALL,
-                           parent_surface_state_applied,
-                           NULL);
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
+    {
+      MetaWaylandSubsurface *subsurface;
+
+      subsurface = META_WAYLAND_SUBSURFACE (subsurface_surface->role);
+      meta_wayland_subsurface_parent_state_applied (subsurface);
+    }
 
   if (had_damage)
     {
@@ -1287,21 +1277,13 @@ meta_wayland_surface_update_outputs (MetaWaylandSurface *surface)
 static void
 meta_wayland_surface_update_outputs_recursively (MetaWaylandSurface *surface)
 {
-  GNode *n;
+  MetaWaylandSurface *subsurface_surface;
 
   meta_wayland_surface_update_outputs (surface);
 
-  for (n = g_node_first_child (surface->subsurface_branch_node);
-       n;
-       n = g_node_next_sibling (n))
-    {
-      if (G_NODE_IS_LEAF (n))
-        continue;
-
-      meta_wayland_surface_update_outputs_recursively (n->data);
-    }
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
+    meta_wayland_surface_update_outputs_recursively (subsurface_surface);
 }
-
 
 void
 meta_wayland_surface_set_window (MetaWaylandSurface *surface,

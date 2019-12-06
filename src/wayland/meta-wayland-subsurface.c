@@ -204,7 +204,7 @@ meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
   MetaRectangle geometry;
-  GNode *n;
+  MetaWaylandSurface *subsurface_surface;
 
   geometry = (MetaRectangle) {
     .x = surface->offset_x + surface->sub.x,
@@ -215,15 +215,9 @@ meta_wayland_subsurface_union_geometry (MetaWaylandSubsurface *subsurface,
 
   meta_rectangle_union (out_geometry, &geometry, out_geometry);
 
-  for (n = g_node_first_child (surface->subsurface_branch_node);
-       n;
-       n = g_node_next_sibling (n))
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
     {
-      MetaWaylandSurface *subsurface_surface = n->data;
       MetaWaylandSubsurface *subsurface;
-
-      if (G_NODE_IS_LEAF (n))
-        continue;
 
       subsurface = META_WAYLAND_SUBSURFACE (subsurface_surface->role);
       meta_wayland_subsurface_union_geometry (subsurface,

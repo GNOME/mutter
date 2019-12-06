@@ -147,9 +147,9 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
     meta_wayland_surface_role_get_surface (surface_role);
   MetaSurfaceActor *surface_actor;
   MetaShapedTexture *stex;
-  GNode *n;
   cairo_rectangle_int_t surface_rect;
   int geometry_scale;
+  MetaWaylandSurface *subsurface_surface;
 
   surface_actor = priv->actor;
   stex = meta_surface_actor_get_texture (surface_actor);
@@ -213,19 +213,12 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
       meta_surface_actor_reset_viewport_dst_size (surface_actor);
     }
 
-  for (n = g_node_first_child (surface->subsurface_branch_node);
-       n;
-       n = g_node_next_sibling (n))
+  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
     {
-      MetaWaylandSurface *subsurface_surface = n->data;
-      MetaWaylandActorSurface *subsurface_actor_surface;
+      MetaWaylandActorSurface *actor_surface;
 
-      if (G_NODE_IS_LEAF (n))
-        continue;
-
-      subsurface_actor_surface =
-        META_WAYLAND_ACTOR_SURFACE (subsurface_surface->role);
-      meta_wayland_actor_surface_sync_actor_state (subsurface_actor_surface);
+      actor_surface = META_WAYLAND_ACTOR_SURFACE (subsurface_surface->role);
+      meta_wayland_actor_surface_sync_actor_state (actor_surface);
     }
 }
 
