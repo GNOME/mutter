@@ -2014,6 +2014,12 @@ meta_window_x11_unmap (MetaWindow *window)
   window->unmaps_pending ++;
 }
 
+static gboolean
+meta_window_x11_impl_always_update_shape (MetaWindow *window)
+{
+  return FALSE;
+}
+
 static void
 meta_window_x11_class_init (MetaWindowX11Class *klass)
 {
@@ -2047,6 +2053,7 @@ meta_window_x11_class_init (MetaWindowX11Class *klass)
 
   klass->freeze_commits = meta_window_x11_impl_freeze_commits;
   klass->thaw_commits = meta_window_x11_impl_thaw_commits;
+  klass->always_update_shape = meta_window_x11_impl_always_update_shape;
 }
 
 void
@@ -4050,4 +4057,12 @@ meta_window_x11_should_thaw_after_paint (MetaWindow *window)
   MetaWindowX11Private *priv = meta_window_x11_get_instance_private (window_x11);
 
   return priv->thaw_after_paint;
+}
+
+gboolean
+meta_window_x11_always_update_shape (MetaWindow *window)
+{
+  MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
+
+  return META_WINDOW_X11_GET_CLASS (window_x11)->always_update_shape (window);
 }

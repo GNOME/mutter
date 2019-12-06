@@ -219,6 +219,21 @@ meta_window_xwayland_thaw_commits (MetaWindow *window)
   apply_allow_commits_x11_property (xwayland_window, TRUE);
 }
 
+static gboolean
+meta_window_xwayland_always_update_shape (MetaWindow *window)
+{
+  /*
+   * On Xwayland, resizing a window will clear the corresponding Wayland
+   * buffer to plain solid black.
+   *
+   * Therefore, to address the black shadows which sometimes show during
+   * resize with Xwayland, we need to always update the window shape
+   * regardless of the actual frozen state of the window actor.
+   */
+
+  return TRUE;
+}
+
 static void
 meta_window_xwayland_get_property (GObject    *object,
                                    guint       prop_id,
@@ -270,6 +285,7 @@ meta_window_xwayland_class_init (MetaWindowXwaylandClass *klass)
 
   window_x11_class->freeze_commits = meta_window_xwayland_freeze_commits;
   window_x11_class->thaw_commits = meta_window_xwayland_thaw_commits;
+  window_x11_class->always_update_shape = meta_window_xwayland_always_update_shape;
 
   gobject_class->get_property = meta_window_xwayland_get_property;
   gobject_class->set_property = meta_window_xwayland_set_property;

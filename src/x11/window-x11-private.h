@@ -36,6 +36,7 @@ struct _MetaWindowX11Class
 
   void (*freeze_commits) (MetaWindow *window);
   void (*thaw_commits)   (MetaWindow *window);
+  gboolean (*always_update_shape) (MetaWindow *window);
 };
 
 struct _MetaWindowX11
