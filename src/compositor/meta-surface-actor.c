@@ -442,15 +442,6 @@ meta_surface_actor_get_opaque_region (MetaSurfaceActor *self)
   return meta_shaped_texture_get_opaque_region (priv->texture);
 }
 
-static gboolean
-is_frozen (MetaSurfaceActor *self)
-{
-  MetaSurfaceActorPrivate *priv =
-    meta_surface_actor_get_instance_private (self);
-
-  return priv->frozen;
-}
-
 void
 meta_surface_actor_process_damage (MetaSurfaceActor *self,
                                    int x, int y, int width, int height)
@@ -458,7 +449,7 @@ meta_surface_actor_process_damage (MetaSurfaceActor *self,
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
 
-  if (is_frozen (self))
+  if (meta_surface_actor_is_frozen (self))
     {
       /* The window is frozen due to an effect in progress: we ignore damage
        * here on the off chance that this will stop the corresponding
@@ -525,6 +516,15 @@ meta_surface_actor_set_frozen (MetaSurfaceActor *self,
         }
       g_clear_pointer (&priv->pending_damage, cairo_region_destroy);
     }
+}
+
+gboolean
+meta_surface_actor_is_frozen (MetaSurfaceActor *self)
+{
+  MetaSurfaceActorPrivate *priv =
+    meta_surface_actor_get_instance_private (self);
+
+  return priv->frozen;
 }
 
 MetaWindow *
