@@ -2061,14 +2061,15 @@ meta_display_ping_timeout (gpointer data)
  */
 void
 meta_display_ping_window (MetaWindow *window,
-			  guint32     serial)
+                          guint32     serial)
 {
   MetaDisplay *display = window->display;
   MetaPingData *ping_data;
 
   if (serial == 0)
     {
-      meta_warning ("Tried to ping a window with a bad serial! Not allowed.\n");
+      meta_warning ("Tried to ping window %s with a bad serial! Not allowed.\n",
+                    window->desc);
       return;
     }
 
