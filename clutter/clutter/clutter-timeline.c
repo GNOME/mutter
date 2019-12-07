@@ -1038,15 +1038,15 @@ clutter_timeline_do_frame (ClutterTimeline *timeline)
        * to correpondingly reduce elapsed_time_delta to reflect the correct
        * range of times */
       if (priv->direction == CLUTTER_TIMELINE_FORWARD)
-	{
-	  elapsed_time_delta -= (priv->elapsed_time - priv->duration);
-	  priv->elapsed_time = priv->duration;
-	}
+        {
+          elapsed_time_delta -= (priv->elapsed_time - priv->duration);
+          priv->elapsed_time = priv->duration;
+        }
       else if (priv->direction == CLUTTER_TIMELINE_BACKWARD)
-	{
-	  elapsed_time_delta -= - priv->elapsed_time;
-	  priv->elapsed_time = 0;
-	}
+        {
+          elapsed_time_delta -= - priv->elapsed_time;
+          priv->elapsed_time = 0;
+        }
 
       end_msecs = priv->elapsed_time;
 
@@ -1756,12 +1756,12 @@ _clutter_timeline_do_tick (ClutterTimeline *timeline,
         }
 
       if (msecs != 0)
-	{
-	  /* Avoid accumulating error */
+        {
+          /* Avoid accumulating error */
           priv->last_frame_time += msecs;
-	  priv->msecs_delta = msecs;
-	  clutter_timeline_do_frame (timeline);
-	}
+          priv->msecs_delta = msecs;
+          clutter_timeline_do_frame (timeline);
+        }
     }
 }
 
