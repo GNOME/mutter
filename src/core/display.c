@@ -2063,6 +2063,7 @@ void
 meta_display_ping_window (MetaWindow *window,
                           guint32     serial)
 {
+  GSList *l;
   MetaDisplay *display = window->display;
   MetaPingData *ping_data;
 
@@ -2075,6 +2076,19 @@ meta_display_ping_window (MetaWindow *window,
 
   if (!meta_window_can_ping (window))
     return;
+
+  for (l = display->pending_pings; l; l = l->next)
+    {
+      MetaPingData *ping_data = l->data;
+
+      if (serial == ping_data->serial)
+        {
+          meta_warning ("Ping serial %u was reused for window %s, "
+                        "previous use was for window %s.\n",
+                        serial, window->desc, ping_data->window->desc);
+          return;
+        }
+    }
 
   ping_data = g_new (MetaPingData, 1);
   ping_data->window = window;
