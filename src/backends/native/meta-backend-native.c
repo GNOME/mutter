@@ -227,6 +227,7 @@ relative_motion_across_outputs (MetaMonitorManager *monitor_manager,
 {
   MetaLogicalMonitor *cur = current;
   float x = cur_x, y = cur_y;
+  float target_x = cur_x, target_y = cur_y;
   float dx = *dx_inout, dy = *dy_inout;
   MetaDisplayDirection direction = -1;
 
@@ -256,6 +257,9 @@ relative_motion_across_outputs (MetaMonitorManager *monitor_manager,
               { cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height }
       };
 
+      target_x = motion.b.x;
+      target_y = motion.b.y;
+
       if (direction != META_DISPLAY_RIGHT &&
           meta_line2_intersects_with (&motion, &left, &intersection))
         direction = META_DISPLAY_LEFT;
@@ -269,12 +273,8 @@ relative_motion_across_outputs (MetaMonitorManager *monitor_manager,
                meta_line2_intersects_with (&motion, &bottom, &intersection))
         direction = META_DISPLAY_DOWN;
       else
-        {
-          /* We reached the dest logical monitor */
-          x = motion.b.x;
-          y = motion.b.y;
-          break;
-        }
+        /* We reached the dest logical monitor */
+        break;
 
       x = intersection.x;
       y = intersection.y;
@@ -285,8 +285,8 @@ relative_motion_across_outputs (MetaMonitorManager *monitor_manager,
                                                                cur, direction);
     }
 
-  *dx_inout = x - cur_x;
-  *dy_inout = y - cur_y;
+  *dx_inout = target_x - cur_x;
+  *dy_inout = target_y - cur_y;
 }
 
 static void
