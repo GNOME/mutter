@@ -25,6 +25,7 @@
 #include "backends/meta-screen-cast-stream-src.h"
 
 #include <errno.h>
+#include <fcntl.h>
 #include <pipewire/pipewire.h>
 #include <spa/param/props.h>
 #include <spa/param/format-utils.h>
@@ -90,6 +91,8 @@ typedef struct _MetaScreenCastStreamSrcPrivate
 
   uint64_t last_frame_timestamp_us;
 
+  GHashTable *dmabuf_handles;
+
   int stream_width;
   int stream_height;
 } MetaScreenCastStreamSrcPrivate;
@@ -137,6 +140,19 @@ meta_screen_cast_stream_src_record_frame (MetaScreenCastStreamSrc *src,
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
   return klass->record_frame (src, data);
+}
+
+static gboolean
+meta_screen_cast_stream_src_blit_to_framebuffer (MetaScreenCastStreamSrc *src,
+                                                 CoglFramebuffer         *framebuffer)
+{
+  MetaScreenCastStreamSrcClass *klass =
+    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+
+  if (klass->blit_to_framebuffer)
+      return klass->blit_to_framebuffer (src, framebuffer);
+
+  return FALSE;
 }
 
 static void
@@ -394,6 +410,33 @@ maybe_record_cursor (MetaScreenCastStreamSrc *src,
   g_assert_not_reached ();
 }
 
+static gboolean
+do_record_frame (MetaScreenCastStreamSrc *src,
+                 struct spa_buffer       *spa_buffer,
+                 uint8_t                 *data)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  if (spa_buffer->datas[0].data ||
+      spa_buffer->datas[0].type == SPA_DATA_MemFd)
+    {
+      return meta_screen_cast_stream_src_record_frame (src, data);
+    }
+  else if (spa_buffer->datas[0].type == SPA_DATA_DmaBuf)
+    {
+      CoglDmaBufHandle *dmabuf_handle =
+        g_hash_table_lookup (priv->dmabuf_handles,
+                             GINT_TO_POINTER (spa_buffer->datas[0].fd));
+      CoglFramebuffer *dmabuf_fbo =
+        cogl_dma_buf_handle_get_framebuffer (dmabuf_handle);
+
+      return meta_screen_cast_stream_src_blit_to_framebuffer (src, dmabuf_fbo);
+    }
+
+  return FALSE;
+}
+
 void
 meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
 {
@@ -402,8 +445,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
   MetaRectangle crop_rect;
   struct pw_buffer *buffer;
   struct spa_buffer *spa_buffer;
-  uint8_t *map = NULL;
-  uint8_t *data;
+  uint8_t *data = NULL;
   uint64_t now_us;
 
   now_us = g_get_monotonic_time ();
@@ -424,32 +466,15 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
     }
 
   spa_buffer = buffer->buffer;
+  data = spa_buffer->datas[0].data;
 
-  if (spa_buffer->datas[0].data)
+  if (spa_buffer->datas[0].type != SPA_DATA_DmaBuf && !data)
     {
-      data = spa_buffer->datas[0].data;
-    }
-  else if (spa_buffer->datas[0].type == SPA_DATA_MemFd)
-    {
-      map = mmap (NULL, spa_buffer->datas[0].maxsize + spa_buffer->datas[0].mapoffset,
-                  PROT_READ | PROT_WRITE, MAP_SHARED,
-                  spa_buffer->datas[0].fd, 0);
-      if (map == MAP_FAILED)
-        {
-          g_warning ("Failed to mmap pipewire stream buffer: %s",
-                     strerror (errno));
-          return;
-        }
-
-      data = SPA_MEMBER (map, spa_buffer->datas[0].mapoffset, uint8_t);
-    }
-  else
-    {
-      g_warning ("Unhandled spa buffer type: %d", spa_buffer->datas[0].type);
+      g_critical ("Invalid buffer data");
       return;
     }
 
-  if (meta_screen_cast_stream_src_record_frame (src, data))
+  if (do_record_frame (src, spa_buffer, data))
     {
       struct spa_meta_region *spa_meta_video_crop;
 
@@ -486,9 +511,6 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
   maybe_record_cursor (src, spa_buffer, data);
 
   priv->last_frame_timestamp_us = now_us;
-
-  if (map)
-    munmap (map, spa_buffer->datas[0].maxsize + spa_buffer->datas[0].mapoffset);
 
   pw_stream_queue_buffer (priv->pipewire_stream, buffer);
 }
@@ -618,10 +640,116 @@ on_stream_param_changed (void                 *data,
   pw_stream_update_params (priv->pipewire_stream, params, G_N_ELEMENTS (params));
 }
 
+static void
+on_stream_add_buffer (void             *data,
+                      struct pw_buffer *buffer)
+{
+  MetaScreenCastStreamSrc *src = data;
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  CoglContext *context =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  CoglRenderer *renderer = cogl_context_get_renderer (context);
+  g_autoptr (GError) error = NULL;
+  CoglDmaBufHandle *dmabuf_handle;
+  struct spa_buffer *spa_buffer = buffer->buffer;
+  struct spa_data *spa_data = spa_buffer->datas;
+  const int bpp = 4;
+  int stride;
+
+  stride = SPA_ROUND_UP_N (priv->video_format.size.width * bpp, 4);
+
+  spa_data[0].mapoffset = 0;
+  spa_data[0].maxsize = stride * priv->video_format.size.height;
+
+  dmabuf_handle = cogl_renderer_create_dma_buf (renderer,
+                                                priv->stream_width,
+                                                priv->stream_height,
+                                                &error);
+
+  if (error)
+    g_debug ("Error exporting DMA buffer handle: %s", error->message);
+
+  if (dmabuf_handle)
+    {
+      spa_data[0].type = SPA_DATA_DmaBuf;
+      spa_data[0].flags = SPA_DATA_FLAG_READWRITE;
+      spa_data[0].fd = cogl_dma_buf_handle_get_fd (dmabuf_handle);
+      spa_data[0].data = NULL;
+
+      g_hash_table_insert (priv->dmabuf_handles,
+                           GINT_TO_POINTER (spa_data[0].fd),
+                           dmabuf_handle);
+    }
+  else
+    {
+      unsigned int seals;
+
+      /* Fallback to a memfd buffer */
+      spa_data[0].type = SPA_DATA_MemFd;
+      spa_data[0].flags = SPA_DATA_FLAG_READWRITE;
+      spa_data[0].fd = memfd_create ("mutter-screen-cast-memfd",
+                                     MFD_CLOEXEC | MFD_ALLOW_SEALING);
+      if (spa_data[0].fd == -1)
+        {
+          g_critical ("Can't create memfd: %m");
+          return;
+        }
+      spa_data[0].mapoffset = 0;
+      spa_data[0].maxsize = stride * priv->video_format.size.height;
+
+      if (ftruncate (spa_data[0].fd, spa_data[0].maxsize) < 0)
+        {
+          g_critical ("Can't truncate to %d: %m", spa_data[0].maxsize);
+          return;
+        }
+
+      seals = F_SEAL_GROW | F_SEAL_SHRINK | F_SEAL_SEAL;
+      if (fcntl (spa_data[0].fd, F_ADD_SEALS, seals) == -1)
+        g_warning ("Failed to add seals: %m");
+
+      spa_data[0].data = mmap (NULL,
+                               spa_data[0].maxsize,
+                               PROT_READ | PROT_WRITE,
+                               MAP_SHARED,
+                               spa_data[0].fd,
+                               spa_data[0].mapoffset);
+      if (spa_data[0].data == MAP_FAILED)
+        {
+          g_critical ("Failed to mmap memory: %m");
+          return;
+        }
+    }
+}
+
+static void
+on_stream_remove_buffer (void             *data,
+                         struct pw_buffer *buffer)
+{
+  MetaScreenCastStreamSrc *src = data;
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+  struct spa_buffer *spa_buffer = buffer->buffer;
+  struct spa_data *spa_data = spa_buffer->datas;
+
+  if (spa_data[0].type == SPA_DATA_DmaBuf)
+    {
+      if (!g_hash_table_remove (priv->dmabuf_handles, GINT_TO_POINTER (spa_data[0].fd)))
+        g_critical ("Failed to remove non-exported DMA buffer");
+    }
+  else if (spa_data[0].type == SPA_DATA_MemFd)
+    {
+      munmap (spa_data[0].data, spa_data[0].maxsize);
+      close (spa_data[0].fd);
+    }
+}
+
 static const struct pw_stream_events stream_events = {
   PW_VERSION_STREAM_EVENTS,
   .state_changed = on_stream_state_changed,
   .param_changed = on_stream_param_changed,
+  .add_buffer = on_stream_add_buffer,
+  .remove_buffer = on_stream_remove_buffer,
 };
 
 static struct pw_stream *
@@ -686,7 +814,7 @@ create_pipewire_stream (MetaScreenCastStreamSrc  *src,
                               PW_DIRECTION_OUTPUT,
                               SPA_ID_INVALID,
                               (PW_STREAM_FLAG_DRIVER |
-                               PW_STREAM_FLAG_MAP_BUFFERS),
+                               PW_STREAM_FLAG_ALLOC_BUFFERS),
                               params, G_N_ELEMENTS (params));
   if (result != 0)
     {
@@ -854,6 +982,7 @@ meta_screen_cast_stream_src_finalize (GObject *object)
   if (meta_screen_cast_stream_src_is_enabled (src))
     meta_screen_cast_stream_src_disable (src);
 
+  g_clear_pointer (&priv->dmabuf_handles, g_hash_table_destroy);
   g_clear_pointer (&priv->pipewire_stream, pw_stream_destroy);
   g_clear_pointer (&priv->pipewire_core, pw_core_disconnect);
   g_clear_pointer (&priv->pipewire_context, pw_context_destroy);
@@ -905,6 +1034,12 @@ meta_screen_cast_stream_src_get_property (GObject    *object,
 static void
 meta_screen_cast_stream_src_init (MetaScreenCastStreamSrc *src)
 {
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  priv->dmabuf_handles =
+    g_hash_table_new_full (NULL, NULL, NULL,
+                           (GDestroyNotify) cogl_dma_buf_handle_free);
 }
 
 static void
