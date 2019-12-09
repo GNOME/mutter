@@ -61,6 +61,7 @@
 #include <cogl/cogl1-context.h>
 #include <cogl/cogl-bitmap.h>
 #include <cogl/cogl-color.h>
+#include <cogl/cogl-dma-buf-handle.h>
 #include <cogl/cogl-matrix.h>
 #include <cogl/cogl-matrix-stack.h>
 #include <cogl/cogl-offscreen.h>

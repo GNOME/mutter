@@ -101,6 +101,14 @@ typedef int32_t CoglAngle;
 typedef struct _CoglColor               CoglColor;
 typedef struct _CoglTextureVertex       CoglTextureVertex;
 
+/**
+ * CoglDmaBufHandle: (skip)
+ *
+ * An opaque type that tracks the lifetime of a DMA buffer fd. Release
+ * with cogl_dma_buf_handle_free().
+ */
+typedef struct _CoglDmaBufHandle CoglDmaBufHandle;
+
 /* Enum declarations */
 
 #define COGL_A_BIT              (1 << 4)

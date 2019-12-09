@@ -756,3 +756,17 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
   for (l = renderer->outputs; l; l = l->next)
     callback (l->data, user_data);
 }
+
+CoglDmaBufHandle *
+cogl_renderer_create_dma_buf (CoglRenderer  *renderer,
+                              int            width,
+                              int            height,
+                              GError       **error)
+{
+  const CoglWinsysVtable *winsys = _cogl_renderer_get_winsys (renderer);
+
+  if (winsys->renderer_create_dma_buf)
+    return winsys->renderer_create_dma_buf (renderer, width, height, error);
+
+  return NULL;
+}

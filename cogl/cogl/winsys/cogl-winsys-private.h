@@ -91,6 +91,12 @@ typedef struct _CoglWinsysVtable
   void
   (*display_destroy) (CoglDisplay *display);
 
+  CoglDmaBufHandle *
+  (*renderer_create_dma_buf) (CoglRenderer  *renderer,
+                              int            width,
+                              int            height,
+                              GError       **error);
+
   gboolean
   (*context_init) (CoglContext *context, GError **error);
 

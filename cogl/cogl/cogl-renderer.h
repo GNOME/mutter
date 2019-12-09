@@ -398,6 +398,27 @@ cogl_renderer_foreach_output (CoglRenderer *renderer,
                               CoglOutputCallback callback,
                               void *user_data);
 
+/**
+ * cogl_renderer_create_dma_buf: (skip)
+ * @renderer: A #CoglRenderer
+ * @width: width of the new
+ * @height: height of the new
+ * @error: (nullable): return location for a #GError
+ *
+ * Creates a new #CoglFramebuffer with @width x @height, and format
+ * hardcoded to XRGB, and exports the new framebuffer's DMA buffer
+ * handle.
+ *
+ * Returns: (nullable)(transfer full): a #CoglDmaBufHandle. The
+ * return result must be released with cogl_dma_buf_handle_free()
+ * after use.
+ */
+CoglDmaBufHandle *
+cogl_renderer_create_dma_buf (CoglRenderer  *renderer,
+                              int            width,
+                              int            height,
+                              GError       **error);
+
 G_END_DECLS
 
 #endif /* __COGL_RENDERER_H__ */
