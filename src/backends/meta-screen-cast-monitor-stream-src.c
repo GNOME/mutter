@@ -381,6 +381,66 @@ meta_screen_cast_monitor_stream_src_record_frame (MetaScreenCastStreamSrc *src,
   return TRUE;
 }
 
+static gboolean
+meta_screen_cast_monitor_stream_src_blit_to_framebuffer (MetaScreenCastStreamSrc *src,
+                                                         CoglFramebuffer         *framebuffer)
+{
+  MetaScreenCastMonitorStreamSrc *monitor_src =
+    META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
+  MetaBackend *backend = get_backend (monitor_src);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaMonitor *monitor;
+  MetaLogicalMonitor *logical_monitor;
+  MetaRectangle logical_monitor_layout;
+  GList *l;
+  float view_scale;
+
+  monitor = get_monitor (monitor_src);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
+
+  if (meta_is_stage_views_scaled ())
+    view_scale = meta_logical_monitor_get_scale (logical_monitor);
+  else
+    view_scale = 1.0;
+
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+    {
+      ClutterStageView *view = CLUTTER_STAGE_VIEW (l->data);
+      g_autoptr (GError) error = NULL;
+      CoglFramebuffer *view_framebuffer;
+      MetaRectangle view_layout;
+      int x, y;
+
+      clutter_stage_view_get_layout (view, &view_layout);
+
+      if (!meta_rectangle_overlap (&logical_monitor_layout, &view_layout))
+        continue;
+
+      view_framebuffer = clutter_stage_view_get_framebuffer (view);
+
+      x = (int) roundf ((view_layout.x - logical_monitor_layout.x) * view_scale);
+      y = (int) roundf ((view_layout.y - logical_monitor_layout.y) * view_scale);
+
+      if (!cogl_blit_framebuffer (view_framebuffer,
+                                  framebuffer,
+                                  0, 0,
+                                  x, y,
+                                  cogl_framebuffer_get_width (view_framebuffer),
+                                  cogl_framebuffer_get_height (view_framebuffer),
+                                  &error))
+        {
+          g_warning ("Error blitting view into DMABuf framebuffer: %s",
+                     error->message);
+          return FALSE;
+        }
+    }
+
+  cogl_framebuffer_flush (framebuffer);
+
+  return TRUE;
+}
+
 static void
 meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *src,
                                                          struct spa_meta_cursor  *spa_meta_cursor)
@@ -502,6 +562,8 @@ meta_screen_cast_monitor_stream_src_class_init (MetaScreenCastMonitorStreamSrcCl
   src_class->enable = meta_screen_cast_monitor_stream_src_enable;
   src_class->disable = meta_screen_cast_monitor_stream_src_disable;
   src_class->record_frame = meta_screen_cast_monitor_stream_src_record_frame;
+  src_class->blit_to_framebuffer =
+    meta_screen_cast_monitor_stream_src_blit_to_framebuffer;
   src_class->set_cursor_metadata =
     meta_screen_cast_monitor_stream_src_set_cursor_metadata;
 }
