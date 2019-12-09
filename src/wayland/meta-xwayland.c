@@ -854,24 +854,6 @@ meta_xwayland_shutdown (MetaXWaylandManager *manager)
     }
 }
 
-static void
-xwayland_surface_assigned (MetaWaylandSurfaceRole *surface_role)
-{
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
-  MetaWaylandSurfaceRoleClass *surface_role_class =
-    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_surface_role_xwayland_parent_class);
-
-  /* See comment in xwayland_surface_commit for why we reply even though the
-   * surface may not be drawn the next frame.
-   */
-  wl_list_insert_list (&surface->compositor->frame_callbacks,
-                       &surface->pending_frame_callback_list);
-  wl_list_init (&surface->pending_frame_callback_list);
-
-  surface_role_class->assigned (surface_role);
-}
-
 static MetaWaylandSurface *
 xwayland_surface_get_toplevel (MetaWaylandSurfaceRole *surface_role)
 {
@@ -935,7 +917,6 @@ meta_wayland_surface_role_xwayland_class_init (MetaWaylandSurfaceRoleXWaylandCla
 
   object_class->finalize = xwayland_surface_finalize;
 
-  surface_role_class->assigned = xwayland_surface_assigned;
   surface_role_class->get_toplevel = xwayland_surface_get_toplevel;
 
   actor_surface_class->get_geometry_scale = xwayland_surface_get_geometry_scale;
