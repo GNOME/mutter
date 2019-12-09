@@ -1649,26 +1649,35 @@ secondary_gpu_get_next_dumb_buffer (MetaOnscreenNativeSecondaryGpuState *seconda
     return &secondary_gpu_state->cpu.dumb_fbs[0];
 }
 
-static gboolean
-copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscreen,
-                                     MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
+static CoglContext *
+cogl_context_from_renderer_native (MetaRendererNative *renderer_native)
 {
-  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-  CoglContext *cogl_context = framebuffer->context;
-  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
-  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+  MetaRenderer *renderer = META_RENDERER (renderer_native);
+  MetaBackend *backend = meta_renderer_get_backend (renderer);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+
+  return clutter_backend_get_cogl_context (clutter_backend);
+}
+
+static CoglFramebuffer *
+create_dma_buf_framebuffer (MetaRendererNative  *renderer_native,
+                            int                  dmabuf_fd,
+                            uint32_t             width,
+                            uint32_t             height,
+                            uint32_t             stride,
+                            uint32_t             offset,
+                            uint64_t             modifier,
+                            uint32_t             drm_format,
+                            GError             **error)
+{
+  CoglContext *cogl_context =
+    cogl_context_from_renderer_native (renderer_native);
   CoglDisplay *cogl_display = cogl_context->display;
   CoglRenderer *cogl_renderer = cogl_display->renderer;
   CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
   EGLDisplay egl_display = cogl_renderer_egl->edpy;
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
-  MetaRendererNativeGpuData *primary_gpu_data;
-  MetaDrmBufferDumb *buffer_dumb;
-  MetaDumbBuffer *dumb_fb;
-  int dmabuf_fd;
   EGLImageKHR egl_image;
-  g_autoptr (GError) error = NULL;
   uint32_t strides[1];
   uint32_t offsets[1];
   uint64_t modifiers[1];
@@ -1678,11 +1687,76 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   CoglOffscreen *cogl_fbo;
   int ret;
 
+  ret = cogl_pixel_format_from_drm_format (drm_format, &cogl_format, NULL);
+  g_assert (ret);
+
+  strides[0] = stride;
+  offsets[0] = offset;
+  modifiers[0] = modifier;
+  egl_image = meta_egl_create_dmabuf_image (egl,
+                                            egl_display,
+                                            width,
+                                            height,
+                                            drm_format,
+                                            1 /* n_planes */,
+                                            &dmabuf_fd,
+                                            strides,
+                                            offsets,
+                                            modifiers,
+                                            error);
+  if (egl_image == EGL_NO_IMAGE_KHR)
+    return NULL;
+
+  flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
+  cogl_tex = cogl_egl_texture_2d_new_from_image (cogl_context,
+                                                 width,
+                                                 height,
+                                                 cogl_format,
+                                                 egl_image,
+                                                 flags,
+                                                 error);
+
+  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
+
+  if (!cogl_tex)
+    return NULL;
+
+  cogl_fbo = cogl_offscreen_new_with_texture (COGL_TEXTURE (cogl_tex));
+  cogl_object_unref (cogl_tex);
+
+  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (cogl_fbo), error))
+    {
+      cogl_object_unref (cogl_fbo);
+      return NULL;
+    }
+
+
+  return COGL_FRAMEBUFFER (cogl_fbo);
+}
+
+static gboolean
+copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscreen,
+                                     MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
+{
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
+  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
+  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
+  MetaRendererNativeGpuData *primary_gpu_data;
+  MetaDrmBufferDumb *buffer_dumb;
+  MetaDumbBuffer *dumb_fb;
+  CoglFramebuffer *dmabuf_fb;
+  int dmabuf_fd;
+  g_autoptr (GError) error = NULL;
+  CoglPixelFormat cogl_format;
+  int ret;
+
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferPrimaryGpu,
                            "FB Copy (primary GPU)");
 
-  primary_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                        renderer_native->primary_gpu_kms);
+  primary_gpu_data =
+    meta_renderer_native_get_gpu_data (renderer_native,
+                                       renderer_native->primary_gpu_kms);
   if (!primary_gpu_data->secondary.has_EGL_EXT_image_dma_buf_import_modifiers)
     return FALSE;
 
@@ -1701,70 +1775,33 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   if (dmabuf_fd == -1)
     return FALSE;
 
-  strides[0] = dumb_fb->stride_bytes;
-  offsets[0] = 0;
-  modifiers[0] = DRM_FORMAT_MOD_LINEAR;
-  egl_image = meta_egl_create_dmabuf_image (egl,
-                                            egl_display,
-                                            dumb_fb->width,
-                                            dumb_fb->height,
-                                            dumb_fb->drm_format,
-                                            1 /* n_planes */,
-                                            &dmabuf_fd,
-                                            strides,
-                                            offsets,
-                                            modifiers,
-                                            &error);
-  if (egl_image == EGL_NO_IMAGE_KHR)
-    {
-      g_debug ("%s: Failed to import dumb buffer to EGL: %s",
-               __func__, error->message);
+  dmabuf_fb = create_dma_buf_framebuffer (renderer_native,
+                                          dmabuf_fd,
+                                          dumb_fb->width,
+                                          dumb_fb->height,
+                                          dumb_fb->stride_bytes,
+                                          0, DRM_FORMAT_MOD_LINEAR,
+                                          dumb_fb->drm_format,
+                                          &error);
 
+  if (error)
+    {
+      g_debug ("%s: Failed to blit DMA buffer image: %s",
+               G_STRFUNC, error->message);
       return FALSE;
     }
 
-  flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
-  cogl_tex = cogl_egl_texture_2d_new_from_image (cogl_context,
-                                                 dumb_fb->width,
-                                                 dumb_fb->height,
-                                                 cogl_format,
-                                                 egl_image,
-                                                 flags,
-                                                 &error);
-
-  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
-
-  if (!cogl_tex)
-    {
-      g_debug ("%s: Failed to make Cogl texture: %s",
-               __func__, error->message);
-
-      return FALSE;
-    }
-
-  cogl_fbo = cogl_offscreen_new_with_texture (COGL_TEXTURE (cogl_tex));
-  cogl_object_unref (cogl_tex);
-
-  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (cogl_fbo), &error))
-    {
-      g_debug ("%s: Failed Cogl FBO alloc: %s",
-               __func__, error->message);
-      cogl_object_unref (cogl_fbo);
-
-      return FALSE;
-    }
-
-  if (!cogl_blit_framebuffer (framebuffer, COGL_FRAMEBUFFER (cogl_fbo),
+  if (!cogl_blit_framebuffer (framebuffer, COGL_FRAMEBUFFER (dmabuf_fb),
                               0, 0, 0, 0,
-                              dumb_fb->width, dumb_fb->height, &error))
+                              dumb_fb->width,
+                              dumb_fb->height,
+                              &error))
     {
-      g_debug ("%s: Failed Cogl blit: %s", __func__, error->message);
-      cogl_object_unref (cogl_fbo);
-
+      cogl_object_unref (dmabuf_fb);
       return FALSE;
     }
 
-  cogl_object_unref (cogl_fbo);
+  cogl_object_unref (dmabuf_fb);
 
   g_clear_object (&secondary_gpu_state->gbm.next_fb);
   buffer_dumb = meta_drm_buffer_dumb_new (dumb_fb->fb_id);
@@ -2905,16 +2942,6 @@ calculate_view_transform (MetaMonitorManager *monitor_manager,
     return META_MONITOR_TRANSFORM_NORMAL;
   else
     return crtc_transform;
-}
-
-static CoglContext *
-cogl_context_from_renderer_native (MetaRendererNative *renderer_native)
-{
-  MetaRenderer *renderer = META_RENDERER (renderer_native);
-  MetaBackend *backend = meta_renderer_get_backend (renderer);
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-
-  return clutter_backend_get_cogl_context (clutter_backend);
 }
 
 static gboolean
