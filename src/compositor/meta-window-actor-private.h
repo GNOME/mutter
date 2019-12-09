@@ -26,6 +26,8 @@ struct _MetaWindowActorClass
   void (*pre_paint) (MetaWindowActor *actor);
   void (*post_paint) (MetaWindowActor *actor);
   void (*queue_destroy) (MetaWindowActor *actor);
+  void (*set_frozen) (MetaWindowActor *actor,
+                      gboolean         frozen);
 };
 
 typedef enum

@@ -144,6 +144,12 @@ meta_window_actor_wayland_queue_destroy (MetaWindowActor *actor)
 {
 }
 
+static void
+meta_window_actor_wayland_set_frozen (MetaWindowActor *actor,
+                                      gboolean         frozen)
+{
+}
+
 static gboolean
 meta_window_actor_wayland_get_paint_volume (ClutterActor       *actor,
                                             ClutterPaintVolume *volume)
@@ -181,6 +187,7 @@ meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
   window_actor_class->pre_paint = meta_window_actor_wayland_pre_paint;
   window_actor_class->post_paint = meta_window_actor_wayland_post_paint;
   window_actor_class->queue_destroy = meta_window_actor_wayland_queue_destroy;
+  window_actor_class->set_frozen = meta_window_actor_wayland_set_frozen;
 }
 
 static void

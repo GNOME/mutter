@@ -252,13 +252,28 @@ meta_window_actor_is_frozen (MetaWindowActor *self)
 }
 
 static void
+meta_window_actor_set_frozen (MetaWindowActor *self,
+                              gboolean         frozen)
+{
+  MetaWindowActorPrivate *priv =
+    meta_window_actor_get_instance_private (self);
+
+  if (meta_surface_actor_is_frozen (priv->surface) == frozen)
+    return;
+
+  meta_surface_actor_set_frozen (priv->surface, frozen);
+
+  META_WINDOW_ACTOR_GET_CLASS (self)->set_frozen (self, frozen);
+}
+
+static void
 meta_window_actor_freeze (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
   if (priv->freeze_count == 0 && priv->surface)
-    meta_surface_actor_set_frozen (priv->surface, TRUE);
+    meta_window_actor_set_frozen (self, TRUE);
 
   priv->freeze_count ++;
 }
@@ -273,7 +288,7 @@ meta_window_actor_sync_thawed_state (MetaWindowActor *self)
     priv->first_frame_state = DRAWING_FIRST_FRAME;
 
   if (priv->surface)
-    meta_surface_actor_set_frozen (priv->surface, FALSE);
+    meta_window_actor_set_frozen (self, FALSE);
 
   /* We sometimes ignore moves and resizes on frozen windows */
   meta_window_actor_sync_actor_geometry (self, FALSE);
@@ -312,7 +327,7 @@ meta_window_actor_real_assign_surface_actor (MetaWindowActor  *self,
   priv->surface = g_object_ref_sink (surface_actor);
 
   if (meta_window_actor_is_frozen (self))
-    meta_surface_actor_set_frozen (priv->surface, TRUE);
+    meta_window_actor_set_frozen (self, TRUE);
   else
     meta_window_actor_sync_thawed_state (self);
 }

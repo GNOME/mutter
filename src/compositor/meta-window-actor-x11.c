@@ -1313,6 +1313,12 @@ meta_window_actor_x11_queue_destroy (MetaWindowActor *actor)
 }
 
 static void
+meta_window_actor_x11_set_frozen (MetaWindowActor *actor,
+                                  gboolean         frozen)
+{
+}
+
+static void
 meta_window_actor_x11_set_property (GObject      *object,
                                     guint         prop_id,
                                     const GValue *value,
@@ -1481,6 +1487,7 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
   window_actor_class->pre_paint = meta_window_actor_x11_pre_paint;
   window_actor_class->post_paint = meta_window_actor_x11_post_paint;
   window_actor_class->queue_destroy = meta_window_actor_x11_queue_destroy;
+  window_actor_class->set_frozen = meta_window_actor_x11_set_frozen;
 
   actor_class->paint = meta_window_actor_x11_paint;
   actor_class->get_paint_volume = meta_window_actor_x11_get_paint_volume;
