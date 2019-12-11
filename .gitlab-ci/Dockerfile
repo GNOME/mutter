@@ -27,3 +27,7 @@ RUN dnf -y update && dnf -y upgrade && \
     dnf remove -y --noautoremove mutter mutter-devel && \
 
     dnf clean all
+
+# Add a machine-id as specified in the freedesktop spec:
+# https://www.freedesktop.org/software/systemd/man/machine-id.html
+RUN cat /dev/urandom | tr -dc a-f0-9 | head -c32 > /etc/machine-id && echo "" >> /etc/machine-id
