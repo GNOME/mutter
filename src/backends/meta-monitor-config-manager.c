@@ -850,6 +850,55 @@ meta_monitor_config_manager_create_suggested (MetaMonitorConfigManager *config_m
                                    META_MONITORS_CONFIG_FLAG_NONE);
 }
 
+static GList *
+clone_monitor_config_list (GList *monitor_configs_in)
+{
+  MetaMonitorConfig *monitor_config_in;
+  MetaMonitorConfig *monitor_config_out;
+  GList *monitor_configs_out = NULL;
+  GList *l;
+
+  for (l = monitor_configs_in; l; l = l->next)
+    {
+      monitor_config_in = l->data;
+      monitor_config_out = g_new0 (MetaMonitorConfig, 1);
+      *monitor_config_out = (MetaMonitorConfig) {
+        .monitor_spec = meta_monitor_spec_clone (monitor_config_in->monitor_spec),
+        .mode_spec = g_memdup (monitor_config_in->mode_spec,
+                               sizeof (MetaMonitorModeSpec)),
+        .enable_underscanning = monitor_config_in->enable_underscanning
+      };
+      monitor_configs_out =
+        g_list_append (monitor_configs_out, monitor_config_out);
+    }
+
+  return monitor_configs_out;
+}
+
+static GList *
+clone_logical_monitor_config_list (GList *logical_monitor_configs_in)
+{
+  MetaLogicalMonitorConfig *logical_monitor_config_in;
+  MetaLogicalMonitorConfig *logical_monitor_config_out;
+  GList *logical_monitor_configs_out = NULL;
+  GList *l;
+
+  for (l = logical_monitor_configs_in; l; l = l->next)
+    {
+      logical_monitor_config_in = l->data;
+
+      logical_monitor_config_out =
+        g_memdup (logical_monitor_config_in, sizeof (MetaLogicalMonitorConfig));
+      logical_monitor_config_out->monitor_configs =
+        clone_monitor_config_list (logical_monitor_config_in->monitor_configs);
+
+      logical_monitor_configs_out =
+        g_list_append (logical_monitor_configs_out, logical_monitor_config_out);
+    }
+
+  return logical_monitor_configs_out;
+}
+
 static MetaMonitorsConfig *
 create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
                                      gboolean                  rotate,
@@ -860,8 +909,6 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
   MetaLogicalMonitorConfig *current_logical_monitor_config;
   GList *logical_monitor_configs;
   MetaLogicalMonitorLayoutMode layout_mode;
-  MetaMonitorConfig *monitor_config;
-  MetaMonitorConfig *current_monitor_config;
 
   if (!meta_monitor_manager_get_is_builtin_display_on (config_manager->monitor_manager))
     return NULL;
@@ -897,17 +944,9 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
   if (g_list_length (current_logical_monitor_config->monitor_configs) != 1)
     return NULL;
 
-  current_monitor_config = current_logical_monitor_config->monitor_configs->data;
-
-  monitor_config = g_new0 (MetaMonitorConfig, 1);
-  *monitor_config = (MetaMonitorConfig) {
-    .monitor_spec = meta_monitor_spec_clone (current_monitor_config->monitor_spec),
-    .mode_spec = g_memdup (current_monitor_config->mode_spec, sizeof (MetaMonitorModeSpec)),
-    .enable_underscanning = current_monitor_config->enable_underscanning
-  };
-
-  logical_monitor_config = g_memdup (current_logical_monitor_config, sizeof (MetaLogicalMonitorConfig));
-  logical_monitor_config->monitor_configs = g_list_append (NULL, monitor_config);
+  logical_monitor_configs =
+    clone_logical_monitor_config_list (config_manager->current_config->logical_monitor_configs);
+  logical_monitor_config = logical_monitor_configs->data;
   logical_monitor_config->transform = transform;
 
   if (meta_monitor_transform_is_rotated (current_logical_monitor_config->transform) !=
@@ -918,7 +957,6 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
       logical_monitor_config->layout.height = temp;
     }
 
-  logical_monitor_configs = g_list_append (NULL, logical_monitor_config);
   layout_mode = config_manager->current_config->layout_mode;
   return meta_monitors_config_new (monitor_manager,
                                    logical_monitor_configs,
