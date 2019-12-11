@@ -1,3 +1,37 @@
+3.34.2
+======
+* Fix immediate screen blank after releasing inhibitor [Tim; #573]
+* Respond to frame callbacks regardless of damage [Jonas Å.; !839]
+* Translate well-known selection atoms to mimetypes [Carlos; !842]
+* Fix Night Light on wayland [Jonas Å.; !840]
+* Fix various copy+paste/DND regressions [Carlos; !848, #789, #842,
+  #793, #845, #854]
+* Don't emit focus event after desctruction [Marco; gnome-shell#1704, !860]
+* Fix hang when opening not-responding dialog on Xorg [Carlos; !876]
+* Fix frozen grabs on Xorg after weeks of inactivity [Jonas Å.; !886]
+* Fix triggering popups from stylus devices on wayland [Carlos; #886]
+* Support shadow framebuffers for offscreen rendering [Olivier; !917]
+* Fix hang after interacting with desktop icons on X11 [Marco; !909]
+* Don't double scale when getting absolute surface coordinates [Xiang; !915]
+* Kill window effects on destroy [Robert; !924]
+* Use partial damage for dma-buf and EGLImage buffers on wayland [Robert; #947]
+* Do not stack transients underneath their always-on-top parent [Florian; #587]
+* Fix KMS freeze after pageflip [Pekka; !953]
+* Fixed crashes [Robert, Jonas Å., Marco, Hans, Carlos, Tim; !856, !912, !895,
+  !928, #591, !823, !960]
+* Plugged memory leaks [Niels, Robert, Carlos; !847, !868, !873]
+* Misc. bug fixes and cleanups [Daniel, Marco, Jonas Å., Georges, Cosimo,
+  Florian, Hans, Robert, Jonas D.; !841, !764, !837, !846, !673, !811, !893,
+  !925, !927, !940, !832]
+
+Contributors:
+  Marco Trevisan (Treviño), Cosimo Cecchi, Tim Crawford, Jonas Dreßler,
+  Xiang Fan, Olivier Fourdan, Carlos Garnacho, Hans de Goede, Niels De Graef,
+  Tim Klocke, Robert Mader, Florian Müllner, Georges Basile Stavracas Neto,
+  Pekka Paalanen, Daniel van Vugt, Jonas Ådahl
+
+Translators:
+  Bruce Cowan [en_GB]
 3.34.1
 ======
 * Fix startup of X11 session services on wayland [Carlos; #771]
