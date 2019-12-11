@@ -42,17 +42,60 @@
 #include "driver/gl/cogl-attribute-gl-private.h"
 #include "driver/gl/cogl-clip-stack-gl-private.h"
 #include "driver/gl/cogl-buffer-gl-private.h"
+#include "driver/gl/cogl-pipeline-opengl-private.h"
 
 gboolean
 _cogl_driver_gl_context_init (CoglContext *context,
                               GError **error)
 {
+  context->texture_units =
+    g_array_new (FALSE, FALSE, sizeof (CoglTextureUnit));
+
+  /* See cogl-pipeline.c for more details about why we leave texture unit 1
+   * active by default... */
+  context->active_texture_unit = 1;
+  GE (context, glActiveTexture (GL_TEXTURE1));
+
+  if (_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_ALPHA_TEST))
+    /* The default for GL_ALPHA_TEST is to always pass which is equivalent to
+     * the test being disabled therefore we assume that for all drivers there
+     * will be no performance impact if we always leave the test enabled which
+     * makes things a bit simpler for us. Under GLES2 the alpha test is
+     * implemented in the fragment shader so there is no enable for it
+     */
+    GE (context, glEnable (GL_ALPHA_TEST));
+
+  if ((context->driver == COGL_DRIVER_GL3))
+    {
+      GLuint vertex_array;
+
+      /* In a forward compatible context, GL 3 doesn't support rendering
+       * using the default vertex array object. Cogl doesn't use vertex
+       * array objects yet so for now we just create a dummy array
+       * object that we will use as our own default object. Eventually
+       * it could be good to attach the vertex array objects to
+       * CoglPrimitives */
+      context->glGenVertexArrays (1, &vertex_array);
+      context->glBindVertexArray (vertex_array);
+    }
+
+  /* As far as I can tell, GL_POINT_SPRITE doesn't have any effect
+     unless GL_COORD_REPLACE is enabled for an individual layer.
+     Therefore it seems like it should be ok to just leave it enabled
+     all the time instead of having to have a set property on each
+     pipeline to track whether any layers have point sprite coords
+     enabled. We don't need to do this for GL3 or GLES2 because point
+     sprites are handled using a builtin varying in the shader. */
+  if (_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_GL_FIXED))
+    GE (context, glEnable (GL_POINT_SPRITE));
+
   return TRUE;
 }
 
 void
 _cogl_driver_gl_context_deinit (CoglContext *context)
 {
+  _cogl_destroy_texture_units (context);
 }
 
 static gboolean

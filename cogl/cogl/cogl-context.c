@@ -47,8 +47,6 @@
 #include "cogl1-context.h"
 #include "cogl-gpu-info-private.h"
 #include "cogl-gtype-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
-#include "driver/gl/cogl-util-gl-private.h"
 #include "winsys/cogl-winsys-private.h"
 
 #include <string.h>
@@ -256,17 +254,6 @@ cogl_context_new (CoglDisplay *display,
 
   context->flushed_matrix_mode = COGL_MATRIX_MODELVIEW;
 
-  context->texture_units =
-    g_array_new (FALSE, FALSE, sizeof (CoglTextureUnit));
-
-  if (_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_ANY_GL))
-    {
-      /* See cogl-pipeline.c for more details about why we leave texture unit 1
-       * active by default... */
-      context->active_texture_unit = 1;
-      GE (context, glActiveTexture (GL_TEXTURE1));
-    }
-
   context->opaque_color_pipeline = cogl_pipeline_new (context);
 
   context->codegen_header_buffer = g_string_new ("");
@@ -341,31 +328,6 @@ cogl_context_new (CoglDisplay *display,
   context->texture_download_pipeline = NULL;
   context->blit_texture_pipeline = NULL;
 
-#ifdef HAVE_COGL_GL
-  if (_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_ALPHA_TEST))
-    /* The default for GL_ALPHA_TEST is to always pass which is equivalent to
-     * the test being disabled therefore we assume that for all drivers there
-     * will be no performance impact if we always leave the test enabled which
-     * makes things a bit simpler for us. Under GLES2 the alpha test is
-     * implemented in the fragment shader so there is no enable for it
-     */
-    GE (context, glEnable (GL_ALPHA_TEST));
-
-  if (context->driver == COGL_DRIVER_GL3)
-    {
-      GLuint vertex_array;
-
-      /* In a forward compatible context, GL 3 doesn't support rendering
-       * using the default vertex array object. Cogl doesn't use vertex
-       * array objects yet so for now we just create a dummy array
-       * object that we will use as our own default object. Eventually
-       * it could be good to attach the vertex array objects to
-       * CoglPrimitives */
-      context->glGenVertexArrays (1, &vertex_array);
-      context->glBindVertexArray (vertex_array);
-    }
-#endif
-
   context->current_modelview_entry = NULL;
   context->current_projection_entry = NULL;
   _cogl_matrix_entry_identity_init (&context->identity_entry);
@@ -386,16 +348,6 @@ cogl_context_new (CoglDisplay *display,
 
   context->buffer_map_fallback_array = g_byte_array_new ();
   context->buffer_map_fallback_in_use = FALSE;
-
-  /* As far as I can tell, GL_POINT_SPRITE doesn't have any effect
-     unless GL_COORD_REPLACE is enabled for an individual layer.
-     Therefore it seems like it should be ok to just leave it enabled
-     all the time instead of having to have a set property on each
-     pipeline to track whether any layers have point sprite coords
-     enabled. We don't need to do this for GL3 or GLES2 because point
-     sprites are handled using a builtin varying in the shader. */
-  if (_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_GL_FIXED))
-    GE (context, glEnable (GL_POINT_SPRITE));
 
   _cogl_list_init (&context->fences);
 
@@ -477,8 +429,6 @@ _cogl_context_free (CoglContext *context)
   _cogl_pipeline_cache_free (context->pipeline_cache);
 
   _cogl_sampler_cache_free (context->sampler_cache);
-
-  _cogl_destroy_texture_units ();
 
   g_ptr_array_free (context->uniform_names, TRUE);
   g_hash_table_destroy (context->uniform_name_hash);

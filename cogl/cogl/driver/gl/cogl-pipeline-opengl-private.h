@@ -127,7 +127,7 @@ CoglTextureUnit *
 _cogl_get_texture_unit (int index_);
 
 void
-_cogl_destroy_texture_units (void);
+_cogl_destroy_texture_units (CoglContext *ctx);
 
 void
 _cogl_set_active_texture_unit (int unit_index);

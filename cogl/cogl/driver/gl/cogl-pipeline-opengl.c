@@ -116,11 +116,9 @@ _cogl_get_texture_unit (int index_)
 }
 
 void
-_cogl_destroy_texture_units (void)
+_cogl_destroy_texture_units (CoglContext *ctx)
 {
   int i;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
   for (i = 0; i < ctx->texture_units->len; i++)
     {
