@@ -1,8 +1,8 @@
 # Rebuild and push with
 #
 #     cd .gitlab-ci/
-#     docker build --no-cache -t registry.gitlab.gnome.org/gnome/mutter/master:v3 .
-#     docker push registry.gitlab.gnome.org/gnome/mutter/master:v3
+#     podman build --format docker --no-cache -t registry.gitlab.gnome.org/gnome/mutter/master:v3 .
+#     podman push registry.gitlab.gnome.org/gnome/mutter/master:v3
 #
 
 FROM fedora:31
