@@ -517,6 +517,33 @@ update_touchpad_disable_while_typing (MetaInputSettings  *input_settings,
     }
 }
 
+static gboolean
+device_is_tablet_touchpad (MetaInputSettings  *input_settings,
+                           ClutterInputDevice *device)
+{
+#ifdef HAVE_LIBWACOM
+  WacomIntegrationFlags flags = 0;
+  WacomDevice *wacom_device;
+
+  if (clutter_input_device_get_device_type (device) != CLUTTER_TOUCHPAD_DEVICE)
+    return FALSE;
+
+  wacom_device =
+    meta_input_settings_get_tablet_wacom_device (input_settings,
+                                                 device);
+  if (wacom_device)
+    {
+      flags = libwacom_get_integration_flags (wacom_device);
+
+      if ((flags & (WACOM_DEVICE_INTEGRATED_SYSTEM |
+                    WACOM_DEVICE_INTEGRATED_DISPLAY)) == 0)
+        return TRUE;
+    }
+#endif
+
+  return FALSE;
+}
+
 static void
 update_touchpad_tap_enabled (MetaInputSettings  *input_settings,
                              ClutterInputDevice *device)
@@ -531,7 +558,8 @@ update_touchpad_tap_enabled (MetaInputSettings  *input_settings,
 
   priv = meta_input_settings_get_instance_private (input_settings);
   input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
-  enabled = g_settings_get_boolean (priv->touchpad_settings, "tap-to-click");
+  enabled = device_is_tablet_touchpad (input_settings, device) ||
+    g_settings_get_boolean (priv->touchpad_settings, "tap-to-click");
 
   if (device)
     {
@@ -561,7 +589,8 @@ update_touchpad_tap_and_drag_enabled (MetaInputSettings  *input_settings,
 
   priv = meta_input_settings_get_instance_private (input_settings);
   input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
-  enabled = g_settings_get_boolean (priv->touchpad_settings, "tap-and-drag");
+  enabled = device_is_tablet_touchpad (input_settings, device) ||
+    g_settings_get_boolean (priv->touchpad_settings, "tap-and-drag");
 
   if (device)
     {
