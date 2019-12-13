@@ -42,5 +42,8 @@ ClutterInputDevice *
 meta_input_mapper_get_logical_monitor_device (MetaInputMapper        *mapper,
                                               MetaLogicalMonitor     *logical_monitor,
                                               ClutterInputDeviceType  device_type);
+MetaLogicalMonitor *
+meta_input_mapper_get_device_logical_monitor (MetaInputMapper *mapper,
+                                              ClutterInputDevice *device);
 
 #endif /* META_INPUT_MAPPER_H */

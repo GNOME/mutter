@@ -675,3 +675,29 @@ meta_input_mapper_get_logical_monitor_device (MetaInputMapper        *mapper,
 
   return NULL;
 }
+
+MetaLogicalMonitor *
+meta_input_mapper_get_device_logical_monitor (MetaInputMapper    *mapper,
+                                              ClutterInputDevice *device)
+{
+  MetaMapperOutputInfo *output;
+  MetaLogicalMonitor *logical_monitor;
+  GHashTableIter iter;
+  GList *l;
+
+  g_hash_table_iter_init (&iter, mapper->output_devices);
+
+  while (g_hash_table_iter_next (&iter, (gpointer *) &logical_monitor,
+                                 (gpointer *) &output))
+    {
+      for (l = output->input_devices; l; l = l->next)
+        {
+          MetaMapperInputInfo *input = l->data;
+
+          if (input->device == device)
+            return logical_monitor;
+        }
+    }
+
+  return NULL;
+}

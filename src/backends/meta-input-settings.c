@@ -2064,6 +2064,44 @@ meta_input_settings_get_tablet_settings (MetaInputSettings  *settings,
   return info ? g_object_ref (info->settings) : NULL;
 }
 
+static ClutterInputDevice *
+find_grouped_pen (MetaInputSettings  *settings,
+                  ClutterInputDevice *device)
+{
+  MetaInputSettingsPrivate *priv;
+  GList *l, *devices;
+  ClutterInputDeviceType device_type;
+  ClutterInputDevice *pen = NULL;
+
+  device_type = clutter_input_device_get_device_type (device);
+
+  if (device_type == CLUTTER_TABLET_DEVICE ||
+      device_type == CLUTTER_PEN_DEVICE)
+    return device;
+
+  priv = meta_input_settings_get_instance_private (settings);
+  devices = clutter_seat_list_devices (priv->seat);
+
+  for (l = devices; l; l = l->next)
+    {
+      ClutterInputDevice *other_device = l->data;
+
+      device_type = clutter_input_device_get_device_type (other_device);
+
+      if ((device_type == CLUTTER_TABLET_DEVICE ||
+           device_type == CLUTTER_PEN_DEVICE) &&
+          clutter_input_device_is_grouped (device, other_device))
+        {
+          pen = other_device;
+          break;
+        }
+    }
+
+  g_list_free (devices);
+
+  return pen;
+}
+
 MetaLogicalMonitor *
 meta_input_settings_get_tablet_logical_monitor (MetaInputSettings  *settings,
                                                 ClutterInputDevice *device)
@@ -2075,13 +2113,27 @@ meta_input_settings_get_tablet_logical_monitor (MetaInputSettings  *settings,
   g_return_val_if_fail (META_IS_INPUT_SETTINGS (settings), NULL);
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
 
+  if (clutter_input_device_get_device_type (device) == CLUTTER_PAD_DEVICE)
+    {
+      device = find_grouped_pen (settings, device);
+      if (!device)
+        return NULL;
+    }
+
   priv = meta_input_settings_get_instance_private (settings);
   info = g_hash_table_lookup (priv->mappable_devices, device);
   if (!info)
     return NULL;
 
-  meta_input_settings_find_monitor (settings, info->settings, device,
-                                    NULL, &logical_monitor);
+  logical_monitor =
+    meta_input_mapper_get_device_logical_monitor (priv->input_mapper, device);
+
+  if (!logical_monitor)
+    {
+      meta_input_settings_find_monitor (settings, info->settings, device,
+                                        NULL, &logical_monitor);
+    }
+
   return logical_monitor;
 }
 
