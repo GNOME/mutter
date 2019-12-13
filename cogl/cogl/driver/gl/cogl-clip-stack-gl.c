@@ -170,26 +170,27 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
   for (i = 0; i < num_rectangles; i++)
     {
       cairo_rectangle_int_t rect;
-      float tl[4], br[4];
+      float x1, y1, z1, w1;
+      float x2, y2, z2, w2;
 
       cairo_region_get_rectangle (region, i, &rect);
 
-      tl[0] = rect.x;
-      tl[1] = rect.y;
-      tl[2] = 0.;
-      tl[3] = 1.;
+      x1 = rect.x;
+      y1 = rect.y;
+      z1 = 0.f;
+      w1 = 1.f;
 
-      br[0] = rect.x + rect.width;
-      br[1] = rect.y + rect.height;
-      br[2] = 0.;
-      br[3] = 1.;
+      x2 = rect.x + rect.width;
+      y2 = rect.y + rect.height;
+      z2 = 0.f;
+      w2 = 1.f;
 
-      cogl_matrix_transform_point (&matrix, &tl[0], &tl[1], &tl[2], &tl[3]);
-      cogl_matrix_transform_point (&matrix, &br[0], &br[1], &br[2], &br[3]);
+      cogl_matrix_transform_point (&matrix, &x1, &y1, &z1, &w1);
+      cogl_matrix_transform_point (&matrix, &x2, &y2, &z2, &w2);
 
       _cogl_rectangle_immediate (framebuffer,
                                  ctx->stencil_pipeline,
-                                 tl[0], tl[1], br[0], br[1]);
+                                 x1, y1, x2, y2);
     }
 
   if (merge)
