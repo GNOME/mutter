@@ -1537,7 +1537,7 @@ process_device_event (MetaDeviceManagerNative *manager_evdev,
         angle_delta = libinput_event_gesture_get_angle_delta (gesture_event);
         scale = libinput_event_gesture_get_scale (gesture_event);
         dx = libinput_event_gesture_get_dx (gesture_event);
-        dy = libinput_event_gesture_get_dx (gesture_event);
+        dy = libinput_event_gesture_get_dy (gesture_event);
 
         notify_pinch_gesture_event (device,
                                     CLUTTER_TOUCHPAD_GESTURE_PHASE_UPDATE,
