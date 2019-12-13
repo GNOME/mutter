@@ -1661,6 +1661,8 @@ check_add_mappable_device (MetaInputSettings  *input_settings,
 
 #ifdef HAVE_LIBWACOM
   if (device_type == CLUTTER_TABLET_DEVICE ||
+      device_type == CLUTTER_PEN_DEVICE ||
+      device_type == CLUTTER_ERASER_DEVICE ||
       device_type == CLUTTER_PAD_DEVICE)
     {
       WacomError *error = libwacom_error_new ();
