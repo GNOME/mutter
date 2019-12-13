@@ -393,6 +393,57 @@ meta_input_device_x11_get_pad_group_mode (ClutterInputDevice *device,
   return g_array_index (device_xi2->group_modes, uint32_t, group);
 }
 
+static gboolean
+pad_switch_mode (ClutterInputDevice *device,
+                 uint32_t            button,
+                 uint32_t            group,
+                 uint32_t           *mode)
+{
+  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+  uint32_t n_buttons, n_modes, button_group, next_mode, i;
+  GList *switch_buttons = NULL;
+
+  n_buttons = libwacom_get_num_buttons (device_x11->wacom_device);
+
+  for (i = 0; i < n_buttons; i++)
+    {
+      button_group = meta_input_device_x11_get_button_group (device, i);
+      if (button_group == group)
+        switch_buttons = g_list_prepend (switch_buttons, GINT_TO_POINTER (button));
+    }
+
+  switch_buttons = g_list_reverse (switch_buttons);
+  n_modes = clutter_input_device_get_group_n_modes (device, group);
+
+  if (g_list_length (switch_buttons) > 1)
+    {
+      /* If there's multiple switch buttons, we don't toggle but assign a mode
+       * to each of those buttons.
+       */
+      next_mode = g_list_index (switch_buttons, GINT_TO_POINTER (button));
+    }
+  else if (switch_buttons)
+    {
+      uint32_t cur_mode;
+
+      /* If there is a single button, have it toggle across modes */
+      cur_mode = g_array_index (device_x11->group_modes, uint32_t, group);
+      next_mode = (cur_mode + 1) % n_modes;
+    }
+  else
+    {
+      return FALSE;
+    }
+
+  g_list_free (switch_buttons);
+
+  if (next_mode < 0 || next_mode > n_modes)
+    return FALSE;
+
+  *mode = next_mode;
+  return TRUE;
+}
+
 void
 meta_input_device_x11_update_pad_state (ClutterInputDevice *device,
                                         uint32_t            button,
@@ -402,26 +453,26 @@ meta_input_device_x11_update_pad_state (ClutterInputDevice *device,
 {
   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (device);
   uint32_t button_group, *group_mode;
-  gboolean is_mode_switch = FALSE;
 
   button_group = meta_input_device_x11_get_button_group (device, button);
-  is_mode_switch = button_group >= 0;
 
-  /* Assign all non-mode-switch buttons to group 0 so far */
-  button_group = MAX (0, button_group);
-
-  if (button_group >= device_xi2->group_modes->len)
-    return;
+  if (button_group < 0 || button_group >= device_xi2->group_modes->len)
+    {
+      if (group)
+        *group = 0;
+      if (mode)
+        *mode = 0;
+      return;
+    }
 
   group_mode = &g_array_index (device_xi2->group_modes, uint32_t, button_group);
 
-  if (is_mode_switch && state)
+  if (state)
     {
-      uint32_t next, n_modes;
+      uint32_t next_mode;
 
-      n_modes = clutter_input_device_get_group_n_modes (device, button_group);
-      next = (*group_mode + 1) % n_modes;
-      *group_mode = next;
+      if (pad_switch_mode (device, button, button_group, &next_mode))
+        *group_mode = next_mode;
     }
 
   if (group)
