@@ -124,6 +124,7 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
   CoglMatrix matrix;
   int num_rectangles = cairo_region_num_rectangles (region);
   int i;
+  CoglVertexP2 *vertices;
 
   /* NB: This can be called while flushing the journal so we need
    * to be very conservative with what state we change.
@@ -167,11 +168,14 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
       GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE) );
     }
 
+  vertices = g_alloca (sizeof (CoglVertexP2) * num_rectangles * 6);
+
   for (i = 0; i < num_rectangles; i++)
     {
       cairo_rectangle_int_t rect;
       float x1, y1, z1, w1;
       float x2, y2, z2, w2;
+      CoglVertexP2 *v = vertices + i * 6;
 
       cairo_region_get_rectangle (region, i, &rect);
 
@@ -188,10 +192,25 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
       cogl_matrix_transform_point (&matrix, &x1, &y1, &z1, &w1);
       cogl_matrix_transform_point (&matrix, &x2, &y2, &z2, &w2);
 
-      _cogl_rectangle_immediate (framebuffer,
-                                 ctx->stencil_pipeline,
-                                 x1, y1, x2, y2);
+      v[0].x = x1;
+      v[0].y = y1;
+      v[1].x = x1;
+      v[1].y = y2;
+      v[2].x = x2;
+      v[2].y = y1;
+      v[3].x = x1;
+      v[3].y = y2;
+      v[4].x = x2;
+      v[4].y = y2;
+      v[5].x = x2;
+      v[5].y = y1;
     }
+
+  cogl_2d_primitives_immediate (framebuffer,
+                                ctx->stencil_pipeline,
+                                COGL_VERTICES_MODE_TRIANGLES,
+                                vertices,
+                                6 * num_rectangles);
 
   if (merge)
     {
