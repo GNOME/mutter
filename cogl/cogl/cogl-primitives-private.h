@@ -47,6 +47,13 @@ _cogl_rectangle_immediate (CoglFramebuffer *framebuffer,
                            float x_2,
                            float y_2);
 
+void
+cogl_2d_primitives_immediate (CoglFramebuffer *framebuffer,
+                              CoglPipeline *pipeline,
+                              CoglVerticesMode mode,
+                              const CoglVertexP2 *vertices,
+                              unsigned int n_vertices);
+
 typedef struct _CoglMultiTexturedRect
 {
   const float *position; /* x0,y0,x1,y1 */

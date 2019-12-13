@@ -708,42 +708,31 @@ _cogl_framebuffer_draw_multitextured_rectangles (
 }
 
 void
-_cogl_rectangle_immediate (CoglFramebuffer *framebuffer,
-                           CoglPipeline *pipeline,
-                           float x_1,
-                           float y_1,
-                           float x_2,
-                           float y_2)
+cogl_2d_primitives_immediate (CoglFramebuffer *framebuffer,
+                              CoglPipeline *pipeline,
+                              CoglVerticesMode mode,
+                              const CoglVertexP2 *vertices,
+                              unsigned int n_vertices)
 {
-  /* Draw a rectangle using the vertex array API to avoid going
-     through the journal. This should only be used in cases where the
-     code might be called while the journal is already being flushed
-     such as when flushing the clip state */
   CoglContext *ctx = framebuffer->context;
-  float vertices[8] =
-    {
-      x_1, y_1,
-      x_1, y_2,
-      x_2, y_1,
-      x_2, y_2
-    };
   CoglAttributeBuffer *attribute_buffer;
   CoglAttribute *attributes[1];
+  size_t vertices_size = sizeof (CoglVertexP2) * n_vertices;
 
   attribute_buffer =
-    cogl_attribute_buffer_new (ctx, sizeof (vertices), vertices);
+    cogl_attribute_buffer_new (ctx, vertices_size, vertices);
   attributes[0] = cogl_attribute_new (attribute_buffer,
                                       "cogl_position_in",
-                                      sizeof (float) * 2, /* stride */
+                                      sizeof (CoglVertexP2), /* stride */
                                       0, /* offset */
                                       2, /* n_components */
                                       COGL_ATTRIBUTE_TYPE_FLOAT);
 
   _cogl_framebuffer_draw_attributes (framebuffer,
                                      pipeline,
-                                     COGL_VERTICES_MODE_TRIANGLE_STRIP,
+                                     mode,
                                      0, /* first_index */
-                                     4, /* n_vertices */
+                                     n_vertices,
                                      attributes,
                                      1,
                                      COGL_DRAW_SKIP_JOURNAL_FLUSH |
@@ -753,4 +742,27 @@ _cogl_rectangle_immediate (CoglFramebuffer *framebuffer,
 
   cogl_object_unref (attributes[0]);
   cogl_object_unref (attribute_buffer);
+}
+
+void
+_cogl_rectangle_immediate (CoglFramebuffer *framebuffer,
+                           CoglPipeline *pipeline,
+                           float x_1,
+                           float y_1,
+                           float x_2,
+                           float y_2)
+{
+  CoglVertexP2 vertices[4] =
+    {
+      {x_1, y_1},
+      {x_1, y_2},
+      {x_2, y_1},
+      {x_2, y_2}
+    };
+
+  cogl_2d_primitives_immediate (framebuffer,
+                                pipeline,
+                                COGL_VERTICES_MODE_TRIANGLE_STRIP,
+                                vertices,
+                                4);
 }
