@@ -226,11 +226,15 @@ meta_screen_cast_window_stream_initable_init (GInitable     *initable,
                               G_CALLBACK (on_window_unmanaged),
                               window_stream);
 
+  if (meta_is_stage_views_scaled ())
+    scale = (int) ceilf (meta_logical_monitor_get_scale (logical_monitor));
+  else
+    scale = 1;
+
   /* We cannot set the stream size to the exact size of the window, because
    * windows can be resized, whereas streams cannot.
    * So we set a size equals to the size of the logical monitor for the window.
    */
-  scale = (int) ceil (meta_logical_monitor_get_scale (logical_monitor));
   window_stream->logical_width = logical_monitor->rect.width;
   window_stream->logical_height = logical_monitor->rect.height;
   window_stream->stream_width = logical_monitor->rect.width * scale;
