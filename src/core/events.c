@@ -240,13 +240,31 @@ meta_display_handle_event (MetaDisplay        *display,
     }
 #endif
 
-  if (!display->current_pad_osd &&
-      (event->type == CLUTTER_PAD_BUTTON_PRESS ||
-       event->type == CLUTTER_PAD_BUTTON_RELEASE ||
-       event->type == CLUTTER_PAD_RING ||
-       event->type == CLUTTER_PAD_STRIP))
+  if (event->type == CLUTTER_PAD_BUTTON_PRESS ||
+      event->type == CLUTTER_PAD_BUTTON_RELEASE ||
+      event->type == CLUTTER_PAD_RING ||
+      event->type == CLUTTER_PAD_STRIP)
     {
-      if (meta_input_settings_handle_pad_event (meta_backend_get_input_settings (backend),
+      gboolean handle_pad_event;
+      gboolean is_mode_switch = FALSE;
+
+      if (event->type == CLUTTER_PAD_BUTTON_PRESS ||
+          event->type == CLUTTER_PAD_BUTTON_RELEASE)
+        {
+          ClutterInputDevice *pad;
+          uint32_t button;
+
+          pad = clutter_event_get_source_device (event);
+          button = clutter_event_get_button (event);
+
+          is_mode_switch =
+            clutter_input_device_get_mode_switch_button_group (pad, button) >= 0;
+        }
+
+      handle_pad_event = !display->current_pad_osd || is_mode_switch;
+
+      if (handle_pad_event &&
+          meta_input_settings_handle_pad_event (meta_backend_get_input_settings (backend),
                                                 event))
         {
           bypass_wayland = bypass_clutter = TRUE;
