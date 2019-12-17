@@ -5,12 +5,6 @@
 #include <clutter/clutter-backend.h>
 #include <clutter/clutter-stage.h>
 
-#ifdef COGL_HAS_X11_SUPPORT
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
-#include <X11/Xutil.h>
-#endif
-
 #include "clutter/clutter-stage-window.h"
 
 G_BEGIN_DECLS

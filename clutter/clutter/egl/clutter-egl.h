@@ -37,12 +37,6 @@
 
 #include <glib.h>
 
-#ifdef COGL_HAS_XLIB_SUPPORT
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
-#include <X11/Xutil.h>
-#endif
-
 #include "clutter-egl-headers.h"
 #include <clutter/clutter.h>
 
