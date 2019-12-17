@@ -42,10 +42,6 @@
 #include "cogl-poll-private.h"
 #include "cogl-gtype-private.h"
 
-#ifdef COGL_HAS_X11_SUPPORT
-#include "cogl-xlib-renderer.h"
-#endif
-
 static void _cogl_onscreen_free (CoglOnscreen *onscreen);
 
 COGL_OBJECT_DEFINE_WITH_CODE_GTYPE (Onscreen, onscreen,

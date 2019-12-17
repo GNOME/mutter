@@ -40,10 +40,6 @@
 #include "cogl-closure-list-private.h"
 #include "winsys/cogl-winsys-private.h"
 
-#ifdef COGL_HAS_XLIB_SUPPORT
-#include <X11/Xlib.h>
-#endif
-
 typedef const CoglWinsysVtable *(*CoglCustomWinsysVtableGetter) (CoglRenderer *renderer);
 
 struct _CoglRenderer

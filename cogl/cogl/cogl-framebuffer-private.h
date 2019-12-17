@@ -41,10 +41,6 @@
 #include "cogl-gl-header.h"
 #include "cogl-clip-stack.h"
 
-#ifdef COGL_HAS_XLIB_SUPPORT
-#include <X11/Xlib.h>
-#endif
-
 typedef enum _CoglFramebufferType {
   COGL_FRAMEBUFFER_TYPE_ONSCREEN,
   COGL_FRAMEBUFFER_TYPE_OFFSCREEN
