@@ -34,10 +34,6 @@
 #include "cogl-context.h"
 #include "cogl-flags.h"
 
-#ifdef COGL_HAS_XLIB_SUPPORT
-#include "cogl-xlib-private.h"
-#endif
-
 #include "cogl-display-private.h"
 #include "cogl-clip-stack.h"
 #include "cogl-matrix-stack.h"
@@ -272,18 +268,6 @@ struct _CoglContext
   size_t            buffer_map_fallback_offset;
 
   CoglSamplerCache *sampler_cache;
-
-  /* FIXME: remove these when we remove the last xlib based clutter
-   * backend. they should be tracked as part of the renderer but e.g.
-   * the eglx backend doesn't yet have a corresponding Cogl winsys
-   * and so we wont have a renderer in that case. */
-#ifdef COGL_HAS_XLIB_SUPPORT
-  /* List of callback functions that will be given every Xlib event */
-  GSList *event_filters;
-  /* Current top of the XError trap state stack. The actual memory for
-     these is expected to be allocated on the stack by the caller */
-  CoglXlibTrapState *trap_state;
-#endif
 
   unsigned long winsys_features
     [COGL_FLAGS_N_LONGS_FOR_SIZE (COGL_WINSYS_FEATURE_N_FEATURES)];
