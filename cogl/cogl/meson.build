@@ -376,11 +376,11 @@ endif
 
 if have_glx
   cogl_nonintrospected_headers += [
-    'cogl-glx.h',
+    'winsys/cogl-glx.h',
   ]
   cogl_sources += [
-    'cogl-glx-display-private.h',
-    'cogl-glx-renderer-private.h',
+    'winsys/cogl-glx-display-private.h',
+    'winsys/cogl-glx-renderer-private.h',
     'winsys/cogl-winsys-glx-feature-functions.h',
     'winsys/cogl-winsys-glx-private.h',
     'winsys/cogl-winsys-glx.c',
