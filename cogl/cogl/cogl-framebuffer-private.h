@@ -45,11 +45,6 @@
 #include <X11/Xlib.h>
 #endif
 
-#ifdef COGL_HAS_GLX_SUPPORT
-#include <GL/glx.h>
-#include <GL/glxext.h>
-#endif
-
 typedef enum _CoglFramebufferType {
   COGL_FRAMEBUFFER_TYPE_ONSCREEN,
   COGL_FRAMEBUFFER_TYPE_OFFSCREEN
