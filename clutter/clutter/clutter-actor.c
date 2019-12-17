@@ -13679,138 +13679,107 @@ clutter_actor_set_child_at_index (ClutterActor *self,
 gboolean
 clutter_actor_event (ClutterActor       *actor,
                      const ClutterEvent *event,
-		     gboolean            capture)
+                     gboolean            capture)
 {
   gboolean retval = FALSE;
   gint signal_num = -1;
+  GQuark detail = 0;
 
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
 
   g_object_ref (actor);
 
+  switch (event->type)
+    {
+    case CLUTTER_NOTHING:
+      break;
+    case CLUTTER_BUTTON_PRESS:
+      signal_num = BUTTON_PRESS_EVENT;
+      detail = quark_button;
+      break;
+    case CLUTTER_BUTTON_RELEASE:
+      signal_num = BUTTON_RELEASE_EVENT;
+      detail = quark_button;
+      break;
+    case CLUTTER_SCROLL:
+      signal_num = SCROLL_EVENT;
+      detail = quark_scroll;
+      break;
+    case CLUTTER_KEY_PRESS:
+      signal_num = KEY_PRESS_EVENT;
+      detail = quark_key;
+      break;
+    case CLUTTER_KEY_RELEASE:
+      signal_num = KEY_RELEASE_EVENT;
+      detail = quark_key;
+      break;
+    case CLUTTER_MOTION:
+      signal_num = MOTION_EVENT;
+      detail = quark_motion;
+      break;
+    case CLUTTER_ENTER:
+      signal_num = ENTER_EVENT;
+      detail = quark_pointer_focus;
+      break;
+    case CLUTTER_LEAVE:
+      signal_num = LEAVE_EVENT;
+      detail = quark_pointer_focus;
+      break;
+    case CLUTTER_TOUCH_BEGIN:
+    case CLUTTER_TOUCH_END:
+    case CLUTTER_TOUCH_UPDATE:
+    case CLUTTER_TOUCH_CANCEL:
+      signal_num = TOUCH_EVENT;
+      detail = quark_touch;
+      break;
+    case CLUTTER_TOUCHPAD_PINCH:
+    case CLUTTER_TOUCHPAD_SWIPE:
+      signal_num = -1;
+      detail = quark_touchpad;
+      break;
+    case CLUTTER_PROXIMITY_IN:
+    case CLUTTER_PROXIMITY_OUT:
+      signal_num = -1;
+      detail = quark_proximity;
+      break;
+    case CLUTTER_PAD_BUTTON_PRESS:
+    case CLUTTER_PAD_BUTTON_RELEASE:
+    case CLUTTER_PAD_STRIP:
+    case CLUTTER_PAD_RING:
+      signal_num = -1;
+      detail = quark_pad;
+      break;
+    case CLUTTER_DELETE:
+      signal_num = -1;
+      detail = quark_delete;
+      break;
+    case CLUTTER_DESTROY_NOTIFY:
+      signal_num = -1;
+      detail = quark_destroy;
+      break;
+    case CLUTTER_CLIENT_MESSAGE:
+      signal_num = -1;
+      detail = quark_client;
+      break;
+    case CLUTTER_STAGE_STATE:
+      signal_num = -1;
+      detail = quark_stage;
+      break;
+    case CLUTTER_EVENT_LAST:  /* Just keep compiler warnings quiet */
+      break;
+    }
+
   if (capture)
+    g_signal_emit (actor, actor_signals[CAPTURED_EVENT], detail, event, &retval);
+  else
     {
-      GQuark detail = 0;
+      g_signal_emit (actor, actor_signals[EVENT], 0, event, &retval);
 
-      switch (event->type)
-        {
-        case CLUTTER_NOTHING:
-          break;
-        case CLUTTER_KEY_PRESS:
-        case CLUTTER_KEY_RELEASE:
-          detail = quark_key;
-          break;
-        case CLUTTER_MOTION:
-          detail = quark_motion;
-          break;
-        case CLUTTER_ENTER:
-        case CLUTTER_LEAVE:
-          detail = quark_pointer_focus;
-          break;
-        case CLUTTER_BUTTON_PRESS:
-        case CLUTTER_BUTTON_RELEASE:
-          detail = quark_button;
-          break;
-        case CLUTTER_SCROLL:
-          detail = quark_scroll;
-          break;
-        case CLUTTER_STAGE_STATE:
-          detail = quark_stage;
-          break;
-        case CLUTTER_DESTROY_NOTIFY:
-          detail = quark_destroy;
-          break;
-        case CLUTTER_CLIENT_MESSAGE:
-          detail = quark_client;
-          break;
-        case CLUTTER_DELETE:
-          detail = quark_delete;
-          break;
-        case CLUTTER_TOUCH_BEGIN:
-        case CLUTTER_TOUCH_UPDATE:
-        case CLUTTER_TOUCH_END:
-        case CLUTTER_TOUCH_CANCEL:
-          detail = quark_touch;
-          break;
-        case CLUTTER_TOUCHPAD_PINCH:
-        case CLUTTER_TOUCHPAD_SWIPE:
-          detail = quark_touchpad;
-          break;
-        case CLUTTER_PROXIMITY_IN:
-        case CLUTTER_PROXIMITY_OUT:
-          detail = quark_proximity;
-          break;
-        case CLUTTER_PAD_BUTTON_PRESS:
-        case CLUTTER_PAD_BUTTON_RELEASE:
-        case CLUTTER_PAD_STRIP:
-        case CLUTTER_PAD_RING:
-          detail = quark_pad;
-          break;
-        case CLUTTER_EVENT_LAST:  /* Just keep compiler warnings quiet */
-          break;
-        }
-
-      g_signal_emit (actor,
-                     actor_signals[CAPTURED_EVENT],
-                     detail,
-                     event,
-                     &retval);
-      goto out;
+      if (!retval && signal_num != -1)
+        g_signal_emit (actor, actor_signals[signal_num], 0, event, &retval);
     }
 
-  g_signal_emit (actor, actor_signals[EVENT], 0, event, &retval);
-
-  if (!retval)
-    {
-      switch (event->type)
-	{
-	case CLUTTER_NOTHING:
-	  break;
-	case CLUTTER_BUTTON_PRESS:
-	  signal_num = BUTTON_PRESS_EVENT;
-	  break;
-	case CLUTTER_BUTTON_RELEASE:
-	  signal_num = BUTTON_RELEASE_EVENT;
-	  break;
-	case CLUTTER_SCROLL:
-	  signal_num = SCROLL_EVENT;
-	  break;
-	case CLUTTER_KEY_PRESS:
-	  signal_num = KEY_PRESS_EVENT;
-	  break;
-	case CLUTTER_KEY_RELEASE:
-	  signal_num = KEY_RELEASE_EVENT;
-	  break;
-	case CLUTTER_MOTION:
-	  signal_num = MOTION_EVENT;
-	  break;
-	case CLUTTER_ENTER:
-	  signal_num = ENTER_EVENT;
-	  break;
-	case CLUTTER_LEAVE:
-	  signal_num = LEAVE_EVENT;
-	  break;
-        case CLUTTER_TOUCH_BEGIN:
-        case CLUTTER_TOUCH_END:
-        case CLUTTER_TOUCH_UPDATE:
-        case CLUTTER_TOUCH_CANCEL:
-          signal_num = TOUCH_EVENT;
-          break;
-	case CLUTTER_DELETE:
-	case CLUTTER_DESTROY_NOTIFY:
-	case CLUTTER_CLIENT_MESSAGE:
-	default:
-	  signal_num = -1;
-	  break;
-	}
-
-      if (signal_num != -1)
-	g_signal_emit (actor, actor_signals[signal_num], 0,
-		       event, &retval);
-    }
-
-out:
   g_object_unref (actor);
 
   return retval;
