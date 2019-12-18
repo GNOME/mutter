@@ -76,7 +76,7 @@ G_BEGIN_DECLS
  * vertices multiple times.
  *
  * |[
- *   CoglVertex2f quad_vertices[] = {
+ *   CoglVertexP2 quad_vertices[] = {
  *     {x0, y0}, //0 = top left
  *     {x1, y1}, //1 = bottom left
  *     {x2, y2}, //2 = bottom right
