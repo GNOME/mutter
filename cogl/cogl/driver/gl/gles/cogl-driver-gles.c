@@ -300,6 +300,10 @@ _cogl_driver_update_features (CoglContext *context,
                                      gl_minor,
                                      gl_extensions);
 
+  if (_cogl_check_extension ("GL_ANGLE_pack_reverse_row_order", gl_extensions))
+    COGL_FLAGS_SET (private_features,
+                    COGL_PRIVATE_FEATURE_MESA_PACK_INVERT, TRUE);
+
   /* Note GLES 2 core doesn't support mipmaps for npot textures or
    * repeat modes other than CLAMP_TO_EDGE. */
 

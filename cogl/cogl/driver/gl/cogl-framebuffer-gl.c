@@ -106,6 +106,9 @@
 #ifndef GL_PACK_INVERT_MESA
 #define GL_PACK_INVERT_MESA 0x8758
 #endif
+#ifndef GL_PACK_REVERSE_ROW_ORDER_ANGLE
+#define GL_PACK_REVERSE_ROW_ORDER_ANGLE 0x93A4
+#endif
 #ifndef GL_BACK_LEFT
 #define GL_BACK_LEFT				0x0402
 #endif
@@ -1190,6 +1193,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
   GLenum gl_intformat;
   GLenum gl_format;
   GLenum gl_type;
+  GLenum gl_pack_enum = GL_FALSE;
   gboolean pack_invert_set;
   int status = FALSE;
 
@@ -1220,7 +1224,12 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
       (source & COGL_READ_PIXELS_NO_FLIP) == 0 &&
       !cogl_is_offscreen (framebuffer))
     {
-      GE (ctx, glPixelStorei (GL_PACK_INVERT_MESA, TRUE));
+      if (ctx->driver == COGL_DRIVER_GLES2)
+        gl_pack_enum = GL_PACK_REVERSE_ROW_ORDER_ANGLE;
+      else
+        gl_pack_enum = GL_PACK_INVERT_MESA;
+
+      GE (ctx, glPixelStorei (gl_pack_enum, TRUE));
       pack_invert_set = TRUE;
     }
   else
@@ -1414,7 +1423,7 @@ EXIT:
    * to interfere with other Cogl components so all other code can assume that
    * we leave the pack_invert state off. */
   if (pack_invert_set)
-    GE (ctx, glPixelStorei (GL_PACK_INVERT_MESA, FALSE));
+    GE (ctx, glPixelStorei (gl_pack_enum, FALSE));
 
   return status;
 }
