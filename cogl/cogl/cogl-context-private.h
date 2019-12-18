@@ -122,10 +122,6 @@ struct _CoglContext
   CoglMatrix        identity_matrix;
   CoglMatrix        y_flip_matrix;
 
-  /* Value that was last used when calling glMatrixMode to avoid
-     calling it multiple times */
-  CoglMatrixMode    flushed_matrix_mode;
-
   /* The matrix stack entries that should be flushed during the next
    * pipeline state flush */
   CoglMatrixEntry *current_projection_entry;
