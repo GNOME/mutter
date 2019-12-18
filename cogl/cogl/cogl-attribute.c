@@ -168,35 +168,6 @@ validate_n_components (const CoglAttributeNameState *name_state,
 {
   switch (name_state->name_id)
     {
-    case COGL_ATTRIBUTE_NAME_ID_POSITION_ARRAY:
-      if (G_UNLIKELY (n_components == 1))
-        {
-          g_critical ("glVertexPointer doesn't allow 1 component vertex "
-                      "positions so we currently only support \"cogl_vertex\" "
-                      "attributes where n_components == 2, 3 or 4");
-          return FALSE;
-        }
-      break;
-    case COGL_ATTRIBUTE_NAME_ID_COLOR_ARRAY:
-      if (G_UNLIKELY (n_components != 3 && n_components != 4))
-        {
-          g_critical ("glColorPointer expects 3 or 4 component colors so we "
-                      "currently only support \"cogl_color\" attributes where "
-                      "n_components == 3 or 4");
-          return FALSE;
-        }
-      break;
-    case COGL_ATTRIBUTE_NAME_ID_TEXTURE_COORD_ARRAY:
-      break;
-    case COGL_ATTRIBUTE_NAME_ID_NORMAL_ARRAY:
-      if (G_UNLIKELY (n_components != 3))
-        {
-          g_critical ("glNormalPointer expects 3 component normals so we "
-                      "currently only support \"cogl_normal\" attributes "
-                      "where n_components == 3");
-          return FALSE;
-        }
-      break;
     case COGL_ATTRIBUTE_NAME_ID_POINT_SIZE_ARRAY:
       if (G_UNLIKELY (n_components != 1))
         {
@@ -205,6 +176,10 @@ validate_n_components (const CoglAttributeNameState *name_state,
           return FALSE;
         }
       break;
+    case COGL_ATTRIBUTE_NAME_ID_POSITION_ARRAY:
+    case COGL_ATTRIBUTE_NAME_ID_COLOR_ARRAY:
+    case COGL_ATTRIBUTE_NAME_ID_TEXTURE_COORD_ARRAY:
+    case COGL_ATTRIBUTE_NAME_ID_NORMAL_ARRAY:
     case COGL_ATTRIBUTE_NAME_ID_CUSTOM_ARRAY:
       return TRUE;
     }

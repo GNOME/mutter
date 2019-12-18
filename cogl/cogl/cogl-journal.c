@@ -1453,9 +1453,7 @@ _cogl_journal_flush (CoglJournal *journal)
    *      is the number of pipeline layers.
    * 3) We split the entries explicitly by the number of pipeline layers:
    *      We pad our vertex data when the number of layers is < 2 so that we
-   *      can minimize changes in stride. Each time the number of layers
-   *      changes we need to call glTexCoordPointer to inform GL of new VBO
-   *      offsets.
+   *      can minimize changes in stride.
    * 4) We then split according to compatible Cogl pipelines:
    *      This is where we flush pipeline state
    * 5) Finally we split according to modelview matrix changes:

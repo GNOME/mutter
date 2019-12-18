@@ -305,7 +305,6 @@ _cogl_gl_flush_attributes_state (CoglFramebuffer *framebuffer,
        *   {
        *     age = cogl_pipeline_get_age (pipeline);
        *     XXX: actually we also need to check for legacy_state
-       *     and blending overrides for use of glColorPointer...
        *     if (overrides->ags != age ||
        *         memcmp (&overrides->options, &options,
        *                 sizeof (options) != 0)
