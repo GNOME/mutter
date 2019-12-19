@@ -396,29 +396,6 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
     }
 #endif
 
-#ifdef HAVE_COGL_GL
-
-  if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_ALPHA_TEST))
-    {
-      /* Under GLES2 the alpha function is implemented as part of the
-         fragment shader */
-      if (pipelines_difference & (COGL_PIPELINE_STATE_ALPHA_FUNC |
-                                  COGL_PIPELINE_STATE_ALPHA_FUNC_REFERENCE))
-        {
-          CoglPipeline *authority =
-            _cogl_pipeline_get_authority (pipeline,
-                                          COGL_PIPELINE_STATE_ALPHA_FUNC);
-          CoglPipelineAlphaFuncState *alpha_state =
-            &authority->big_state->alpha_state;
-
-          /* NB: Currently the Cogl defines are compatible with the GL ones: */
-          GE (ctx, glAlphaFunc (alpha_state->alpha_func,
-                                alpha_state->alpha_func_reference));
-        }
-    }
-
-#endif
-
   if (pipelines_difference & COGL_PIPELINE_STATE_DEPTH)
     {
       CoglPipeline *authority =

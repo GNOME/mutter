@@ -56,15 +56,6 @@ _cogl_driver_gl_context_init (CoglContext *context,
   context->active_texture_unit = 1;
   GE (context, glActiveTexture (GL_TEXTURE1));
 
-  if (_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_ALPHA_TEST))
-    /* The default for GL_ALPHA_TEST is to always pass which is equivalent to
-     * the test being disabled therefore we assume that for all drivers there
-     * will be no performance impact if we always leave the test enabled which
-     * makes things a bit simpler for us. Under GLES2 the alpha test is
-     * implemented in the fragment shader so there is no enable for it
-     */
-    GE (context, glEnable (GL_ALPHA_TEST));
-
   if ((context->driver == COGL_DRIVER_GL3))
     {
       GLuint vertex_array;
@@ -504,7 +495,6 @@ _cogl_driver_update_features (CoglContext *ctx,
   if (ctx->driver == COGL_DRIVER_GL)
     {
       /* Features which are not available in GL 3 */
-      COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ALPHA_TEST, TRUE);
       COGL_FLAGS_SET (private_features,
                       COGL_PRIVATE_FEATURE_ALPHA_TEXTURES, TRUE);
     }

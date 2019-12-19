@@ -1022,10 +1022,7 @@ _cogl_pipeline_fragend_glsl_end (CoglPipeline *pipeline,
         g_string_append (shader_state->source,
                          "  cogl_color_out = cogl_color_in;\n");
 
-#if defined(HAVE_COGL_GLES2) || defined (HAVE_COGL_GL)
-      if (!_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_ALPHA_TEST))
-        add_alpha_test_snippet (pipeline, shader_state);
-#endif
+      add_alpha_test_snippet (pipeline, shader_state);
 
       /* Close the function surrounding the generated fragment processing */
       g_string_append (shader_state->source, "}\n");

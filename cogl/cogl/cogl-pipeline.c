@@ -2832,10 +2832,8 @@ _cogl_pipeline_get_state_for_fragment_codegen (CoglContext *context)
 {
   CoglPipelineState state = (COGL_PIPELINE_STATE_LAYERS |
                              COGL_PIPELINE_STATE_USER_SHADER |
-                             COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS);
-
-  if (!_cogl_has_private_feature (context, COGL_PRIVATE_FEATURE_ALPHA_TEST))
-    state |= COGL_PIPELINE_STATE_ALPHA_FUNC;
+                             COGL_PIPELINE_STATE_FRAGMENT_SNIPPETS |
+                             COGL_PIPELINE_STATE_ALPHA_FUNC);
 
   return state;
 }
