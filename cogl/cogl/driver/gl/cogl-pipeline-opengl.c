@@ -687,27 +687,6 @@ flush_layers_common_gl_state_cb (CoglPipelineLayer *layer, void *user_data)
       GE( ctx, glBindSampler (unit_index, sampler_state->sampler_object) );
     }
 
-  /* FIXME: If using GLSL the progend we will use gl_PointCoord
-   * instead of us needing to replace the texture coordinates but at
-   * this point we can't currently tell if we are using the fixed or
-   * glsl progend.
-   */
-#ifdef HAVE_COGL_GL
-  if (ctx->driver == COGL_DRIVER_GL &&
-      (layers_difference & COGL_PIPELINE_LAYER_STATE_POINT_SPRITE_COORDS))
-    {
-      CoglPipelineState change = COGL_PIPELINE_LAYER_STATE_POINT_SPRITE_COORDS;
-      CoglPipelineLayer *authority =
-        _cogl_pipeline_layer_get_authority (layer, change);
-      CoglPipelineLayerBigState *big_state = authority->big_state;
-
-      _cogl_set_active_texture_unit (unit_index);
-
-      GE (ctx, glTexEnvi (GL_POINT_SPRITE, GL_COORD_REPLACE,
-                          big_state->point_sprite_coords));
-    }
-#endif
-
   cogl_object_ref (layer);
   if (unit->layer != NULL)
     cogl_object_unref (unit->layer);
