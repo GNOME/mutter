@@ -54,69 +54,6 @@ typedef struct _ForeachChangedBitState
 } ForeachChangedBitState;
 
 static gboolean
-toggle_builtin_attribute_enabled_cb (int bit_num, void *user_data)
-{
-  ForeachChangedBitState *state = user_data;
-  CoglContext *context = state->context;
-
-  g_return_val_if_fail (context->driver == COGL_DRIVER_GL,
-                        FALSE);
-
-#ifdef HAVE_COGL_GL
-  {
-    gboolean enabled = _cogl_bitmask_get (state->new_bits, bit_num);
-    GLenum cap;
-
-    switch (bit_num)
-      {
-      case COGL_ATTRIBUTE_NAME_ID_COLOR_ARRAY:
-        cap = GL_COLOR_ARRAY;
-        break;
-      case COGL_ATTRIBUTE_NAME_ID_POSITION_ARRAY:
-        cap = GL_VERTEX_ARRAY;
-        break;
-      case COGL_ATTRIBUTE_NAME_ID_NORMAL_ARRAY:
-        cap = GL_NORMAL_ARRAY;
-        break;
-      default:
-        g_assert_not_reached ();
-      }
-    if (enabled)
-      GE (context, glEnableClientState (cap));
-    else
-      GE (context, glDisableClientState (cap));
-  }
-#endif
-
-  return TRUE;
-}
-
-static gboolean
-toggle_texcood_attribute_enabled_cb (int bit_num, void *user_data)
-{
-  ForeachChangedBitState *state = user_data;
-  CoglContext *context = state->context;
-
-  g_return_val_if_fail (context->driver == COGL_DRIVER_GL,
-                        FALSE);
-
-#ifdef HAVE_COGL_GL
-  {
-    gboolean enabled = _cogl_bitmask_get (state->new_bits, bit_num);
-
-    GE( context, glClientActiveTexture (GL_TEXTURE0 + bit_num) );
-
-    if (enabled)
-      GE( context, glEnableClientState (GL_TEXTURE_COORD_ARRAY) );
-    else
-      GE( context, glDisableClientState (GL_TEXTURE_COORD_ARRAY) );
-  }
-#endif
-
-  return TRUE;
-}
-
-static gboolean
 toggle_custom_attribute_enabled_cb (int bit_num, void *user_data)
 {
   ForeachChangedBitState *state = user_data;
@@ -232,22 +169,7 @@ apply_attribute_enable_updates (CoglContext *context,
   ForeachChangedBitState changed_bits_state;
 
   changed_bits_state.context = context;
-  changed_bits_state.new_bits = &context->enable_builtin_attributes_tmp;
   changed_bits_state.pipeline = pipeline;
-
-  foreach_changed_bit_and_save (context,
-                                &context->enabled_builtin_attributes,
-                                &context->enable_builtin_attributes_tmp,
-                                toggle_builtin_attribute_enabled_cb,
-                                &changed_bits_state);
-
-  changed_bits_state.new_bits = &context->enable_texcoord_attributes_tmp;
-  foreach_changed_bit_and_save (context,
-                                &context->enabled_texcoord_attributes,
-                                &context->enable_texcoord_attributes_tmp,
-                                toggle_texcood_attribute_enabled_cb,
-                                &changed_bits_state);
-
   changed_bits_state.new_bits = &context->enable_custom_attributes_tmp;
   foreach_changed_bit_and_save (context,
                                 &context->enabled_custom_attributes,
@@ -337,8 +259,6 @@ _cogl_gl_flush_attributes_state (CoglFramebuffer *framebuffer,
                                  with_color_attrib,
                                  unknown_color_alpha);
 
-  _cogl_bitmask_clear_all (&ctx->enable_builtin_attributes_tmp);
-  _cogl_bitmask_clear_all (&ctx->enable_texcoord_attributes_tmp);
   _cogl_bitmask_clear_all (&ctx->enable_custom_attributes_tmp);
 
   /* Bind the attribute pointers. We need to do this after the

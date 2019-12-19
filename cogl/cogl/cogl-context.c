@@ -282,10 +282,6 @@ cogl_context_new (CoglDisplay *display,
   context->current_pipeline_changes_since_flush = 0;
   context->current_pipeline_with_color_attrib = FALSE;
 
-  _cogl_bitmask_init (&context->enabled_builtin_attributes);
-  _cogl_bitmask_init (&context->enable_builtin_attributes_tmp);
-  _cogl_bitmask_init (&context->enabled_texcoord_attributes);
-  _cogl_bitmask_init (&context->enable_texcoord_attributes_tmp);
   _cogl_bitmask_init (&context->enabled_custom_attributes);
   _cogl_bitmask_init (&context->enable_custom_attributes_tmp);
   _cogl_bitmask_init (&context->changed_bits_tmp);
@@ -409,10 +405,6 @@ _cogl_context_free (CoglContext *context)
   g_slist_free (context->atlases);
   g_hook_list_clear (&context->atlas_reorganize_callbacks);
 
-  _cogl_bitmask_destroy (&context->enabled_builtin_attributes);
-  _cogl_bitmask_destroy (&context->enable_builtin_attributes_tmp);
-  _cogl_bitmask_destroy (&context->enabled_texcoord_attributes);
-  _cogl_bitmask_destroy (&context->enable_texcoord_attributes_tmp);
   _cogl_bitmask_destroy (&context->enabled_custom_attributes);
   _cogl_bitmask_destroy (&context->enable_custom_attributes_tmp);
   _cogl_bitmask_destroy (&context->changed_bits_tmp);

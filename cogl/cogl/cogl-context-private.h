@@ -104,15 +104,11 @@ struct _CoglContext
   GArray *attribute_name_index_map;
   int n_attribute_names;
 
-  CoglBitmask       enabled_builtin_attributes;
-  CoglBitmask       enabled_texcoord_attributes;
   CoglBitmask       enabled_custom_attributes;
 
   /* These are temporary bitmasks that are used when disabling
-   * builtin,texcoord and custom attribute arrays. They are here just
+   * builtin and custom attribute arrays. They are here just
    * to avoid allocating new ones each time */
-  CoglBitmask       enable_builtin_attributes_tmp;
-  CoglBitmask       enable_texcoord_attributes_tmp;
   CoglBitmask       enable_custom_attributes_tmp;
   CoglBitmask       changed_bits_tmp;
 
