@@ -359,23 +359,6 @@ _cogl_pipeline_flush_color_blend_alpha_depth_state (
 {
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
-  /* On GLES2 we'll flush the color later */
-  if (ctx->driver == COGL_DRIVER_GL && !with_color_attrib)
-    {
-      if ((pipelines_difference & COGL_PIPELINE_STATE_COLOR) ||
-          /* Assume if we were previously told to skip the color, then
-           * the current color needs updating... */
-          ctx->current_pipeline_with_color_attrib)
-        {
-          CoglPipeline *authority =
-            _cogl_pipeline_get_authority (pipeline, COGL_PIPELINE_STATE_COLOR);
-          GE (ctx, glColor4ub (cogl_color_get_red_byte (&authority->color),
-                               cogl_color_get_green_byte (&authority->color),
-                               cogl_color_get_blue_byte (&authority->color),
-                               cogl_color_get_alpha_byte (&authority->color)));
-        }
-    }
-
   if (pipelines_difference & COGL_PIPELINE_STATE_BLEND)
     {
       CoglPipeline *authority =
