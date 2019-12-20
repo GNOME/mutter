@@ -78,7 +78,8 @@
 typedef enum _MonitorTestFlag
 {
   MONITOR_TEST_FLAG_NONE,
-  MONITOR_TEST_FLAG_NO_STORED
+  MONITOR_TEST_FLAG_NO_STORED,
+  MONITOR_TEST_FLAG_OFFSET_DP_CONNECTOR,
 } MonitorTestFlag;
 
 typedef struct _MonitorTestCaseMode

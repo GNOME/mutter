@@ -4824,6 +4824,16 @@ meta_test_monitor_custom_oneoff (void)
 
   check_monitor_configuration (&test_case.expect);
   check_monitor_test_clients_state ();
+
+  /* Same test after hotplugging the monitor to a different port */
+  test_setup = create_monitor_test_setup (&test_case.setup,
+                                          MONITOR_TEST_FLAG_NONE |
+                                          MONITOR_TEST_FLAG_OFFSET_DP_CONNECTOR);
+  set_custom_monitor_config ("oneoff.xml");
+  emulate_hotplug (test_setup);
+
+  check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void

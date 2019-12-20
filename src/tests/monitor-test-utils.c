@@ -541,6 +541,9 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
   int n_laptop_panels = 0;
   int n_normal_panels = 0;
 
+  if (flags & MONITOR_TEST_FLAG_OFFSET_DP_CONNECTOR)
+    n_normal_panels = 100;
+
   test_setup = g_new0 (MetaMonitorTestSetup, 1);
 
   test_setup->modes = NULL;
