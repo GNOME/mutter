@@ -129,12 +129,13 @@ meta_monitor_spec_clone (MetaMonitorSpec *monitor_spec)
 
 gboolean
 meta_monitor_spec_equals (MetaMonitorSpec *monitor_spec,
-                          MetaMonitorSpec *other_monitor_spec)
+                          MetaMonitorSpec *other_monitor_spec,
+                          gboolean         edid_only)
 {
-  return (g_str_equal (monitor_spec->connector, other_monitor_spec->connector) &&
-          g_str_equal (monitor_spec->vendor, other_monitor_spec->vendor) &&
+  return (g_str_equal (monitor_spec->vendor, other_monitor_spec->vendor) &&
           g_str_equal (monitor_spec->product, other_monitor_spec->product) &&
-          g_str_equal (monitor_spec->serial, other_monitor_spec->serial));
+          g_str_equal (monitor_spec->serial, other_monitor_spec->serial) &&
+          (edid_only || g_str_equal (monitor_spec->connector, other_monitor_spec->connector)));
 }
 
 int

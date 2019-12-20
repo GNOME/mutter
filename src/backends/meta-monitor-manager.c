@@ -2635,7 +2635,8 @@ meta_monitor_manager_get_monitor_from_spec (MetaMonitorManager *manager,
       MetaMonitor *monitor = l->data;
 
       if (meta_monitor_spec_equals (meta_monitor_get_spec (monitor),
-                                    monitor_spec))
+                                    monitor_spec,
+                                    manager->edid_sufficient))
         return monitor;
     }
 

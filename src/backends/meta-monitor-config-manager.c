@@ -1007,7 +1007,8 @@ find_logical_config_for_builtin_display_rotation (MetaMonitorConfigManager *conf
 
           monitor_config = logical_monitor_config->monitor_configs->data;
           if (meta_monitor_spec_equals (meta_monitor_get_spec (panel),
-                                        monitor_config->monitor_spec))
+                                        monitor_config->monitor_spec,
+                                        config_manager->monitor_manager->edid_sufficient))
             return logical_monitor_config;
         }
     }
@@ -1511,7 +1512,8 @@ meta_monitors_config_key_equal (gconstpointer data_a,
       MetaMonitorSpec *monitor_spec_a = l_a->data;
       MetaMonitorSpec *monitor_spec_b = l_b->data;
 
-      if (!meta_monitor_spec_equals (monitor_spec_a, monitor_spec_b))
+      if (!meta_monitor_spec_equals (monitor_spec_a, monitor_spec_b,
+                                     config_key_a->edid_sufficient))
         return FALSE;
     }
 
@@ -1576,7 +1578,8 @@ meta_monitors_config_new (MetaMonitorManager           *monitor_manager,
 
       monitor_spec = meta_monitor_get_spec (monitor);
       if (meta_logical_monitor_configs_have_monitor (logical_monitor_configs,
-                                                     monitor_spec))
+                                                     monitor_spec,
+                                                     monitor_manager->edid_sufficient))
         continue;
 
       disabled_monitor_specs =
@@ -1779,7 +1782,8 @@ has_adjacent_neighbour (MetaMonitorsConfig       *config,
 
 gboolean
 meta_logical_monitor_configs_have_monitor (GList           *logical_monitor_configs,
-                                           MetaMonitorSpec *monitor_spec)
+                                           MetaMonitorSpec *monitor_spec,
+                                           gboolean         edid_sufficient)
 {
   GList *l;
 
@@ -1793,7 +1797,8 @@ meta_logical_monitor_configs_have_monitor (GList           *logical_monitor_conf
           MetaMonitorConfig *monitor_config = k->data;
 
           if (meta_monitor_spec_equals (monitor_spec,
-                                        monitor_config->monitor_spec))
+                                        monitor_config->monitor_spec,
+                                        edid_sufficient))
             return TRUE;
         }
     }
@@ -1806,7 +1811,8 @@ meta_monitors_config_is_monitor_enabled (MetaMonitorsConfig *config,
                                          MetaMonitorSpec    *monitor_spec)
 {
   return meta_logical_monitor_configs_have_monitor (config->logical_monitor_configs,
-                                                    monitor_spec);
+                                                    monitor_spec,
+                                                    config->key->edid_sufficient);
 }
 
 gboolean

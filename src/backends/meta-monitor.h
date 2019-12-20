@@ -272,7 +272,8 @@ MetaMonitorSpec * meta_monitor_spec_clone (MetaMonitorSpec *monitor_id);
 
 META_EXPORT_TEST
 gboolean meta_monitor_spec_equals (MetaMonitorSpec *monitor_id,
-                                   MetaMonitorSpec *other_monitor_id);
+                                   MetaMonitorSpec *other_monitor_id,
+                                   gboolean         edid_only);
 
 META_EXPORT_TEST
 int meta_monitor_spec_compare (MetaMonitorSpec *monitor_spec_a,

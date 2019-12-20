@@ -178,7 +178,8 @@ MetaMonitorsConfigKey * meta_create_monitors_config_key_for_current_state (MetaM
 
 META_EXPORT_TEST
 gboolean meta_logical_monitor_configs_have_monitor (GList           *logical_monitor_configs,
-                                                    MetaMonitorSpec *monitor_spec);
+                                                    MetaMonitorSpec *monitor_spec,
+                                                    gboolean         edid_sufficient);
 
 META_EXPORT_TEST
 gboolean meta_verify_monitor_mode_spec (MetaMonitorModeSpec *monitor_mode_spec,
