@@ -5978,6 +5978,55 @@ clutter_text_get_line_wrap_mode (ClutterText *self)
   return self->priv->wrap_mode;
 }
 
+static gboolean
+attr_list_equal (PangoAttrList *old_attrs, PangoAttrList *new_attrs)
+{
+  PangoAttrIterator *i, *j;
+  gboolean equal = TRUE;
+
+  if (old_attrs == new_attrs)
+    return TRUE;
+
+  if (old_attrs == NULL || new_attrs == NULL)
+    return FALSE;
+
+  i = pango_attr_list_get_iterator (old_attrs);
+  j = pango_attr_list_get_iterator (new_attrs);
+
+  do
+    {
+      GSList *old_attributes, *new_attributes, *a, *b;
+
+      old_attributes = pango_attr_iterator_get_attrs (i);
+      new_attributes = pango_attr_iterator_get_attrs (j);
+
+      for (a = old_attributes, b = new_attributes;
+           a != NULL && b != NULL && equal;
+           a = a->next, b = b->next)
+        {
+          if (!pango_attribute_equal (a->data, b->data))
+            equal = FALSE;
+        }
+
+      if (a != NULL || b != NULL)
+        equal = FALSE;
+
+      g_slist_free_full (old_attributes,
+                         (GDestroyNotify) pango_attribute_destroy);
+      g_slist_free_full (new_attributes,
+                         (GDestroyNotify) pango_attribute_destroy);
+    }
+  while (equal && pango_attr_iterator_next (i) && pango_attr_iterator_next (j));
+
+  if (pango_attr_iterator_next (i) || pango_attr_iterator_next (j))
+    equal = FALSE;
+
+  pango_attr_iterator_destroy (i);
+  pango_attr_iterator_destroy (j);
+
+  return equal;
+}
+
 /**
  * clutter_text_set_attributes:
  * @self: a #ClutterText
@@ -6001,10 +6050,7 @@ clutter_text_set_attributes (ClutterText   *self,
 
   priv = self->priv;
 
-  /* While we should probably test for equality, Pango doesn't
-   * provide us an easy method to check for AttrList equality.
-   */
-  if (priv->attrs == attrs)
+  if (attr_list_equal (priv->attrs, attrs))
     return;
 
   if (attrs)
