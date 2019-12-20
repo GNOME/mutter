@@ -1482,10 +1482,12 @@ meta_monitors_config_key_hash (gconstpointer data)
     {
       MetaMonitorSpec *monitor_spec = l->data;
 
-      hash ^= (g_str_hash (monitor_spec->connector) ^
-               g_str_hash (monitor_spec->vendor) ^
+      hash ^= (g_str_hash (monitor_spec->vendor) ^
                g_str_hash (monitor_spec->product) ^
                g_str_hash (monitor_spec->serial));
+
+      if (!config_key->edid_sufficient)
+        hash ^= g_str_hash (monitor_spec->connector);
     }
 
   return hash;
@@ -1498,6 +1500,9 @@ meta_monitors_config_key_equal (gconstpointer data_a,
   const MetaMonitorsConfigKey *config_key_a = data_a;
   const MetaMonitorsConfigKey *config_key_b = data_b;
   GList *l_a, *l_b;
+
+  if (config_key_a->edid_sufficient != config_key_b->edid_sufficient)
+    return FALSE;
 
   for (l_a = config_key_a->monitor_specs, l_b = config_key_b->monitor_specs;
        l_a && l_b;
