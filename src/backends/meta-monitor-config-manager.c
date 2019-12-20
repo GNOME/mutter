@@ -456,6 +456,25 @@ is_lid_closed (MetaMonitorManager *monitor_manager)
     return meta_backend_is_lid_closed (backend);
 }
 
+gboolean
+meta_config_key_edid_sufficient_for_specs (GList *monitor_specs)
+{
+  GList *l;
+
+  for (l = monitor_specs; l && l->next; l = l->next)
+    {
+      MetaMonitorSpec *spec = l->data;
+      MetaMonitorSpec *spec_next = l->next->data;
+
+      if (meta_monitor_spec_equals (spec, spec_next, TRUE))
+        return FALSE;
+
+      /* XXX: Should we reject e.g. only 0 serial numbers? */
+    }
+
+  return TRUE;
+}
+
 MetaMonitorsConfigKey *
 meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_manager)
 {
@@ -497,7 +516,8 @@ meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_m
 
   config_key = g_new0 (MetaMonitorsConfigKey, 1);
   *config_key = (MetaMonitorsConfigKey) {
-    .monitor_specs = monitor_specs
+    .monitor_specs = monitor_specs,
+    .edid_sufficient = meta_config_key_edid_sufficient_for_specs (monitor_specs)
   };
 
   return config_key;
@@ -1435,7 +1455,8 @@ meta_monitors_config_key_new (GList *logical_monitor_configs,
 
   config_key = g_new0 (MetaMonitorsConfigKey, 1);
   *config_key = (MetaMonitorsConfigKey) {
-    .monitor_specs = monitor_specs
+    .monitor_specs = monitor_specs,
+    .edid_sufficient = meta_config_key_edid_sufficient_for_specs (monitor_specs)
   };
 
   return config_key;

@@ -108,7 +108,8 @@ create_config_key_from_expect (MonitorStoreTestConfiguration *expect_config)
 
   config_key = g_new0 (MetaMonitorsConfigKey, 1);
   *config_key = (MetaMonitorsConfigKey) {
-    .monitor_specs = monitor_specs
+    .monitor_specs = monitor_specs,
+    .edid_sufficient = meta_config_key_edid_sufficient_for_specs (monitor_specs)
   };
 
   return config_key;

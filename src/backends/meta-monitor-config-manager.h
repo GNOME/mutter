@@ -48,7 +48,9 @@ typedef struct _MetaLogicalMonitorConfig
 
 typedef struct _MetaMonitorsConfigKey
 {
+  /* monitor_specs needs to be sorted using meta_monitor_spec_compare. */
   GList *monitor_specs;
+  gboolean edid_sufficient;
 } MetaMonitorsConfigKey;
 
 typedef enum _MetaMonitorsConfigFlag
@@ -158,6 +160,9 @@ unsigned int meta_monitors_config_key_hash (gconstpointer config_key);
 META_EXPORT_TEST
 gboolean meta_monitors_config_key_equal (gconstpointer config_key_a,
                                          gconstpointer config_key_b);
+
+META_EXPORT_TEST
+gboolean meta_config_key_edid_sufficient_for_specs (GList *monitor_specs);
 
 META_EXPORT_TEST
 void meta_monitors_config_key_free (MetaMonitorsConfigKey *config_key);
