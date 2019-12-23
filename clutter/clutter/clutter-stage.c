@@ -443,9 +443,9 @@ is_inside_axis_aligned_rectangle (const graphene_point_t *point,
                                   const graphene_point_t *vertices)
 {
   float min_x = FLT_MAX;
-  float max_x = FLT_MIN;
+  float max_x = -FLT_MAX;
   float min_y = FLT_MAX;
-  float max_y = FLT_MIN;
+  float max_y = -FLT_MAX;
   int i;
 
   for (i = 0; i < 3; i++)
