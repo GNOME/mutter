@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-08-06 00:49+0000\n"
-"PO-Revision-Date: 2019-08-25 18:06+0200\n"
+"POT-Creation-Date: 2019-12-11 10:26+0000\n"
+"PO-Revision-Date: 2019-12-25 03:04+0100\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: Galician\n"
 "Language: gl\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.2.1\n"
+"X-Generator: Poedit 2.2.4\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -76,11 +76,11 @@ msgstr "Mover xanela un espazo de traballo abaixo"
 
 #: data/50-mutter-navigation.xml:43
 msgid "Switch applications"
-msgstr "Cambiar entre aplicativos"
+msgstr "Cambiar entre aplicacións"
 
 #: data/50-mutter-navigation.xml:48
 msgid "Switch to previous application"
-msgstr "Cambiar ao aplicativo aplicativos"
+msgstr "Cambiar á anterior aplicación"
 
 #: data/50-mutter-navigation.xml:52
 msgid "Switch windows"
@@ -92,11 +92,11 @@ msgstr "Cambiar á xanela anterior"
 
 #: data/50-mutter-navigation.xml:61
 msgid "Switch windows of an application"
-msgstr "Cambiar entre as xanelas dun aplicativo"
+msgstr "Cambiar entre as xanelas dunha aplicación"
 
 #: data/50-mutter-navigation.xml:66
 msgid "Switch to previous window of an application"
-msgstr "Cambia á xanela anterior dun aplicativo"
+msgstr "Cambia á xanela anterior dunha aplicación"
 
 #: data/50-mutter-navigation.xml:70
 msgid "Switch system controls"
@@ -116,11 +116,11 @@ msgstr "Cambia directamente á xanela anterior"
 
 #: data/50-mutter-navigation.xml:88
 msgid "Switch windows of an app directly"
-msgstr "Cambiar entre as xanelas dun aplicativo directamente"
+msgstr "Cambiar entre as xanelas dunha aplicación directamente"
 
 #: data/50-mutter-navigation.xml:93
 msgid "Switch directly to previous window of an app"
-msgstr "Cambia directamente á xanela anterior do aplicativo"
+msgstr "Cambia directamente á xanela anterior dunha aplicación"
 
 #: data/50-mutter-navigation.xml:97
 msgid "Switch system controls directly"
@@ -267,7 +267,7 @@ msgid ""
 "set to the empty string."
 msgstr ""
 "Esta tecla iniciará o «overlay», que é unha combinación da vista previa da "
-"xanela e o sistema de inicialización de aplicativos. O valor predeterminado "
+"xanela e o sistema de inicialización de aplicación. O valor predeterminado "
 "nun PC é a «Tecla Windows». Espérase que este enlace sexa configurado ao "
 "valor predeterminado ou á cadena baleira."
 
@@ -426,7 +426,7 @@ msgstr "Modificador a usar para localizar o punteiro"
 
 #: data/org.gnome.mutter.gschema.xml.in:135
 msgid "This key will initiate the “locate pointer” action."
-msgstr "Esta tecla iniciará a acción «localizar punteiro»"
+msgstr "Esta tecla iniciará a acción «localizar punteiro»."
 
 #: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Select window from tab popup"
@@ -522,7 +522,7 @@ msgstr ""
 "normais que poden recibir o foco do teclado baixo circunstancias normais. "
 "Para que a captura de X11 se leve a cabo baixo Wayland, o cliente debe "
 "enviar un ClienteMessage de X11 específico á xanela pai ou estar na lista "
-"branca de aplicativos na chave «xwayland-grab-access-rules»."
+"branca de aplicacións na chave «xwayland-grab-access-rules»."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -546,16 +546,16 @@ msgstr ""
 "Xwayland. O nome do recurso ou a clase do recurso da xanela X11 dada pode "
 "obterse usando a orde «xprop WM_CLASS». Admítense os comodíns «*» e os "
 "jokers \"?\" nos valores. Os valores comezando con «!» incluiranse na lista "
-"negra, que ten precedencia sobre a lista branca, para revogar aplicativos "
-"desde a lista por omisión do sistema. A lista por omisión do sitema inclúe "
-"os seguintes aplicativos “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Os usuarios "
+"negra, que ten precedencia sobre a lista branca, para revogar aplicacións "
+"desde a lista por omisión do sistema. A lista por omisión do sistema inclúe "
+"as seguintes aplicacións: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Os usuarios "
 "poden romper unha captura existente usando un atallo de teclado específico "
 "definido na chave de atallo «restore-shortcuts»."
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2531
+#: src/backends/meta-input-settings.c:2528
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Modo conmutador (Grupo %d)"
@@ -563,11 +563,11 @@ msgstr "Modo conmutador (Grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2554
+#: src/backends/meta-input-settings.c:2551
 msgid "Switch monitor"
 msgstr "Cambiar monitor"
 
-#: src/backends/meta-input-settings.c:2556
+#: src/backends/meta-input-settings.c:2553
 msgid "Show on-screen help"
 msgstr "Mostrar axuda en pantalla"
 
@@ -599,13 +599,13 @@ msgid "%s %s"
 msgstr "%s %s"
 
 #. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:82
+#: src/backends/meta-profiler.c:79
 msgid "Compositor"
 msgstr "Compositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:533
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -617,47 +617,47 @@ msgstr ""
 msgid "Bell event"
 msgstr "Evento de campá"
 
-#: src/core/main.c:185
+#: src/core/main.c:190
 msgid "Disable connection to session manager"
 msgstr "Desactivar a conexión ao xestor de sesión"
 
-#: src/core/main.c:191
+#: src/core/main.c:196
 msgid "Replace the running window manager"
 msgstr "Substituír o xestor de xanelas en execución"
 
-#: src/core/main.c:197
+#: src/core/main.c:202
 msgid "Specify session management ID"
 msgstr "Especificar o ID de xestión de sesión"
 
-#: src/core/main.c:202
+#: src/core/main.c:207
 msgid "X Display to use"
 msgstr "Pantalla X que se vai usar"
 
-#: src/core/main.c:208
+#: src/core/main.c:213
 msgid "Initialize session from savefile"
 msgstr "Inicializar sesión desde o ficheiro de salvagarda"
 
-#: src/core/main.c:214
+#: src/core/main.c:219
 msgid "Make X calls synchronous"
 msgstr "Facer que as chamadas a X sexan sincrónicas"
 
-#: src/core/main.c:221
+#: src/core/main.c:226
 msgid "Run as a wayland compositor"
 msgstr "Executar como compositor de wayland"
 
-#: src/core/main.c:227
+#: src/core/main.c:232
 msgid "Run as a nested compositor"
 msgstr "Executar como compositor anidado"
 
-#: src/core/main.c:233
+#: src/core/main.c:238
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Executar o compositor de wayland sen iniciar Xwayland"
 
-#: src/core/main.c:241
+#: src/core/main.c:246
 msgid "Run as a full display server, rather than nested"
 msgstr "Executar como un servidor de pantalla completo, fronte a un aniñado"
 
-#: src/core/main.c:247
+#: src/core/main.c:252
 msgid "Run with X11 backend"
 msgstr "Executar coa infraestructura de X11"
 
@@ -669,15 +669,15 @@ msgstr "«%s» non está respondendo."
 
 #: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
-msgstr "O Aplicativo non está respondendo."
+msgstr "A aplicación non está respondendo."
 
 #: src/core/meta-close-dialog-default.c:158
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
 msgstr ""
-"Pode elixir esperar un momento para ver se continúa ou forzar ao aplicativo "
-"a pechar completamente."
+"Pode elixir esperar un momento para ver se continúa ou forzar á aplicación a "
+"pechar completamente."
 
 #: src/core/meta-close-dialog-default.c:165
 msgid "_Force Quit"
@@ -715,16 +715,16 @@ msgstr "Engadido de mutter que usar"
 msgid "Workspace %d"
 msgstr "Espazo de traballo %d"
 
-#: src/core/util.c:121
+#: src/core/util.c:122
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter foi compilado sen compatibilidade para o modo detallado\n"
 
-#: src/wayland/meta-wayland-tablet-pad.c:567
+#: src/wayland/meta-wayland-tablet-pad.c:568
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Modo conmutador: Modo %d"
 
-#: src/x11/meta-x11-display.c:671
+#: src/x11/meta-x11-display.c:675
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -733,21 +733,21 @@ msgstr ""
 "A pantalla «%s» ten xa un xestor de xanelas, tente usar a opción --replace "
 "para substituír o xestor de xanelas."
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1036
 msgid "Failed to initialize GDK\n"
 msgstr "Procuciuse un fallo ao inicializar GDK\n"
 
-#: src/x11/meta-x11-display.c:1056
+#: src/x11/meta-x11-display.c:1060
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Produciuse un erro ao abrir a visualización do X Window System «%s»\n"
 
-#: src/x11/meta-x11-display.c:1140
+#: src/x11/meta-x11-display.c:1143
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "A pantalla %d na visualización «%s» non é válida\n"
 
-#: src/x11/meta-x11-selection-input-stream.c:445
+#: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "O formato %s non se admite"
