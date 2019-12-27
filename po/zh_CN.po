@@ -1,5 +1,5 @@
 # Simplified Chinese translation of mutter.
-# Copyright (C) 2012-2018 mutter's COPYRIGHT HOLDER
+# Copyright (C) 2012-2019 mutter's COPYRIGHT HOLDER
 # This file is distributed under the same license as the mutter package.
 # Sun G11n <gnome_int_l10n@ireland.sun.com>, 2002.
 # He Qiangqiang <carton@linux.net.cn>, 2002
@@ -13,14 +13,15 @@
 # Tong Hui <tonghuix@gmail.com>, 2014.
 # Mandy Wang <wangmychn@gmail.com>, 2017.
 # Mingcong Bai <jeffbai@aosc.xyz>, 2017.
-# Dingzhong Chen <wsxy162@gmail.com>, 2017, 2018.
+# liushuyu <liushuyu011@gmail.com>, 2018.
+# Dingzhong Chen <wsxy162@gmail.com>, 2017-2019.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-02-09 13:01+0000\n"
-"PO-Revision-Date: 2018-02-16 22:22+0800\n"
+"POT-Creation-Date: 2019-08-31 12:39+0000\n"
+"PO-Revision-Date: 2019-09-11 00:10+0800\n"
 "Last-Translator: Dingzhong Chen <wsxy162@gmail.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -28,7 +29,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"X-Generator: Gtranslator 3.32.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -365,7 +366,7 @@ msgstr "自动最大化接近显示器大小的窗口"
 msgid ""
 "If enabled, new windows that are initially the size of the monitor "
 "automatically get maximized."
-msgstr "如果启用，初始时为显示器大小的新窗口将自动最大化"
+msgstr "如果启用，初始时为显示器大小的新窗口将自动最大化。"
 
 #: data/org.gnome.mutter.gschema.xml.in:98
 msgid "Place new windows in the center"
@@ -379,7 +380,7 @@ msgstr "为 true 时，新窗口将总是置于此显示器已激活屏幕的中
 
 #: data/org.gnome.mutter.gschema.xml.in:107
 msgid "Enable experimental features"
-msgstr "开启实验性特性"
+msgstr "开启实验性功能"
 
 #: data/org.gnome.mutter.gschema.xml.in:108
 msgid ""
@@ -390,34 +391,40 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
-"enables remote desktop support. To support remote desktop with screen "
-"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
-"screen cast support."
+"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
+"mutter request a low priority real-time scheduling. The executable or user "
+"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
+"initializes Xwayland lazily if there are X11 clients. Requires restart."
 msgstr ""
-"要启用实验性特性，请将如下特性关键字添加到列表中。特性是否要求重启合成器取决"
-"于特性本身。实验性特性不需启用即可配置和使用。请不要将实验性特性作为未来保障"
-"的基础。当前可用的关键字：• “monitor-config-manager” — 使用新的监视器配置系"
-"统，用于替代老的系统。启用此特性将打开一个上级配置 API 以用于配置应用程序，并"
-"可提供基于每屏幕的逻辑缩放功能。• “scale-monitor-framebuffer” — 让 Mutter 默"
-"认基于像素座标排布多屏幕，并同时缩放监视器帧缓冲器而不是窗口内容，以便管理 "
-"HiDPI 监视器。该特性不需要重启来生效。• “remote-desktop” — 启用远程桌面支持。"
-"要支持远程桌面共享，还需要设置“screen-cast”。 • “screen-cast” — 启用屏幕广播"
-"支持。"
+"要启用实验性功能，请将如下功能关键字添加到列表中。功能是否要重启合成器取决于"
+"功能本身。任何实验性功能都不一定仍旧可用和可配置。请不要期望此设置中的实验性"
+"功能将来有所保障。当前可用的关键字：•“scale-monitor-framebuffer”——让 Mutter "
+"默认基于逻辑像素座标排布多屏幕，并同时缩放监视器帧缓冲器而不是窗口内容，以便"
+"管理 HiDPI 监视器。该功能不需要重启来生效。•“rt-scheduler”——让 Mutter 请求低"
+"优先级的实时调度。可执行文件或用户必须有 CAP_SYS_NICE。需要重启。•“autostart-"
+"xwayland”——如果存在 X11 客户端则延迟初始化 Xwayland。需要重启。"
 
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:134
+msgid "Modifier to use to locate the pointer"
+msgstr "用来定位指针的修饰键"
+
+#: data/org.gnome.mutter.gschema.xml.in:135
+msgid "This key will initiate the “locate pointer” action."
+msgstr "此按键将启动“定位指针”操作。"
+
+#: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Select window from tab popup"
 msgstr "从 Tab 轮换弹出界面选择窗口"
 
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:160
 msgid "Cancel tab popup"
 msgstr "取消 Tab 轮换弹出"
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Switch monitor configurations"
 msgstr "切换显示器配置"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Rotates the built-in monitor configuration"
 msgstr "旋转内置显示器配置"
 
@@ -474,26 +481,33 @@ msgid "Re-enable shortcuts"
 msgstr "重新启用快捷键"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:64
-msgid "Allow grabs with Xwayland"
-msgstr "允许用 Xwayland 捕获"
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
+msgstr "允许 X11 捕获以锁定 Xwayland 的键盘焦点"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
 msgid ""
-"Allow keyboard grabs issued by X11 applications running in Xwayland to be "
-"taken into account. For a X11 grab to be taken into account under Wayland, "
-"the client must also either send a specific X11 ClientMessage to the root "
-"window or be among the applications white-listed in key “xwayland-grab-"
-"access-rules”."
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"white-listed in key “xwayland-grab-access-rules”."
 msgstr ""
-"允许考虑运行在 Xwayland 中的 X11 应用程序发起的键盘捕获。在 Wayland 下，为了"
-"将 X11 捕获考虑在内，客户端也必须发送一个指定的 X11 ClientMessage 到根窗口，"
-"或是包含进“xwayland-grab-access-rules”键成为其中一个白名单应用程序。"
+"当运行在 Xwayland 下时，允许通过捕获，发送所有的键盘事件到 X11“覆盖重定向”窗"
+"口。此选项是为了支持（收不到键盘焦点的）“覆盖重定向”窗口所映射的 X11 客户端，"
+"并发起键盘捕获强制所有键盘事件进到那个窗口。此选项比较少用，并且对常规 X11 窗"
+"口没有影响，这些窗口在正常情况下可以收到键盘焦点。在 Wayland 下，为了 X11 捕"
+"获能够工作，客户端也必须发送一个指定的 X11 ClientMessage 到根窗口，或是包含"
+"进“xwayland-grab-access-rules”键成为其中一个白名单应用程序。"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:77
+#: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "允许发起键盘捕获的 Xwayland 应用程序"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:78
+#: data/org.gnome.mutter.wayland.gschema.xml.in:85
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
@@ -516,7 +530,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2260
+#: src/backends/meta-input-settings.c:2531
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "模式切换（组别 %d）"
@@ -524,116 +538,127 @@ msgstr "模式切换（组别 %d）"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2283
+#: src/backends/meta-input-settings.c:2554
 msgid "Switch monitor"
 msgstr "切换显示器"
 
-#: src/backends/meta-input-settings.c:2285
+#: src/backends/meta-input-settings.c:2556
 msgid "Show on-screen help"
 msgstr "显示在屏帮助"
 
-#: src/backends/meta-monitor-manager.c:900
+#: src/backends/meta-monitor.c:223
 msgid "Built-in display"
 msgstr "内置显示器"
 
-#: src/backends/meta-monitor-manager.c:923
+#: src/backends/meta-monitor.c:252
 msgid "Unknown"
 msgstr "未知"
 
-#: src/backends/meta-monitor-manager.c:925
+#: src/backends/meta-monitor.c:254
 msgid "Unknown Display"
 msgstr "未知的 Display"
 
-#. TRANSLATORS: this is a monitor vendor name, followed by a
-#. * size in inches, like 'Dell 15"'
-#.
-#: src/backends/meta-monitor-manager.c:933
+#: src/backends/meta-monitor.c:262
 #, c-format
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
+#: src/backends/meta-monitor.c:270
+#, c-format
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
+msgid "%s %s"
+msgstr "%s %s"
+
+#. Translators: this string will appear in Sysprof
+#: src/backends/meta-profiler.c:82
+msgid "Compositor"
+msgstr "合成器"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:481
+#: src/compositor/compositor.c:509
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr "显示器 %2$s 的屏幕 %1$i 上已有另外一个混成窗口管理器正在运行。"
 
-#: src/core/bell.c:194
+#: src/core/bell.c:192
 msgid "Bell event"
 msgstr "响铃事件"
 
-#: src/core/display.c:608
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "无法打开 X Window System 显示器“%s”\n"
-
-#: src/core/main.c:190
+#: src/core/main.c:186
 msgid "Disable connection to session manager"
 msgstr "禁止连接到会话管理器"
 
-#: src/core/main.c:196
+#: src/core/main.c:192
 msgid "Replace the running window manager"
 msgstr "替换正在运行的窗口管理器"
 
-#: src/core/main.c:202
+#: src/core/main.c:198
 msgid "Specify session management ID"
 msgstr "指定会话管理 ID"
 
-#: src/core/main.c:207
+#: src/core/main.c:203
 msgid "X Display to use"
 msgstr "要使用的 X Display"
 
-#: src/core/main.c:213
+#: src/core/main.c:209
 msgid "Initialize session from savefile"
 msgstr "从保存文件中初始化会话"
 
-#: src/core/main.c:219
+#: src/core/main.c:215
 msgid "Make X calls synchronous"
 msgstr "使 X 调用同步"
 
-#: src/core/main.c:226
+#: src/core/main.c:222
 msgid "Run as a wayland compositor"
-msgstr "作为 wayland 混成管理器运行"
+msgstr "以 wayland 合成器运行"
 
-#: src/core/main.c:232
+#: src/core/main.c:228
 msgid "Run as a nested compositor"
-msgstr "作为嵌套混成器运行"
+msgstr "以嵌套合成器运行"
 
-#: src/core/main.c:240
+#: src/core/main.c:234
+msgid "Run wayland compositor without starting Xwayland"
+msgstr "运行 wayland 合成器但不启动 Xwayland"
+
+#: src/core/main.c:242
 msgid "Run as a full display server, rather than nested"
 msgstr "以完整显示服务器方式运行，而不是以嵌套方式"
 
-#: src/core/main.c:246
+#: src/core/main.c:248
 msgid "Run with X11 backend"
 msgstr "以 X11 后端运行"
 
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:147
+#: src/core/meta-close-dialog-default.c:151
 #, c-format
 msgid "“%s” is not responding."
 msgstr "“%s” 未响应。"
 
-#: src/core/meta-close-dialog-default.c:149
+#: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
 msgstr "应用程序未响应。"
 
-#: src/core/meta-close-dialog-default.c:154
+#: src/core/meta-close-dialog-default.c:158
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
 msgstr "您可以选择稍等一会儿，或者强制退出该应用程序。"
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Force Quit"
 msgstr "强制退出(_F)"
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Wait"
 msgstr "等待(_W)"
 
-#: src/core/mutter.c:39
+#: src/core/mutter.c:38
 #, c-format
 msgid ""
 "mutter %s\n"
@@ -647,20 +672,29 @@ msgstr ""
 "本软件为自由软件；版权条款请参见源码\n"
 "不存在任何保证；即便是对商业性或者特定目的的适应性也不作保证。\n"
 
-#: src/core/mutter.c:53
+#: src/core/mutter.c:52
 msgid "Print version"
 msgstr "打印版本"
 
-#: src/core/mutter.c:59
+#: src/core/mutter.c:58
 msgid "Mutter plugin to use"
 msgstr "要使用的 Mutter 插件"
 
-#: src/core/prefs.c:1997
+#: src/core/prefs.c:1849
 #, c-format
 msgid "Workspace %d"
 msgstr "工作区 %d"
 
-#: src/core/screen.c:583
+#: src/core/util.c:122
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr "Mutter 编译的时候没有加入详细模式的支持\n"
+
+#: src/wayland/meta-wayland-tablet-pad.c:568
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "模式切换：%d 模式"
+
+#: src/x11/meta-x11-display.c:679
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -669,27 +703,32 @@ msgstr ""
 "Display“%s”已经有一个窗口管理器；请尝试使用 --replace 选项替换当前的窗口管理"
 "器。"
 
-#: src/core/screen.c:668
+#: src/x11/meta-x11-display.c:1040
+msgid "Failed to initialize GDK\n"
+msgstr "初始化 GDK 失败\n"
+
+#: src/x11/meta-x11-display.c:1064
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "无法打开 X Window System 显示器“%s”\n"
+
+#: src/x11/meta-x11-display.c:1147
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "显示“%2$s”上的屏幕 %1$d 无效\n"
 
-#: src/core/util.c:120
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter 编译的时候没有加入详细模式的支持\n"
-
-#: src/wayland/meta-wayland-tablet-pad.c:567
+#: src/x11/meta-x11-selection-input-stream.c:445
 #, c-format
-msgid "Mode Switch: Mode %d"
-msgstr "模式切换：%d 模式"
+msgid "Format %s not supported"
+msgstr "不支持 %s 格式"
 
-#: src/x11/session.c:1818
+#: src/x11/session.c:1821
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
 msgstr "这些窗口不支持“保存当前设置”，并且在您下次登录时，必须手动重启它们。"
 
-#: src/x11/window-props.c:559
+#: src/x11/window-props.c:569
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s（于 %s）"
@@ -1918,9 +1957,6 @@ msgstr "%s（于 %s）"
 
 #~ msgid "Commands to run in response to keybindings"
 #~ msgstr "按键组合对应的执行命令"
-
-#~ msgid "Compositing Manager"
-#~ msgstr "复合管理器"
 
 #~ msgid "Control how new windows get focus"
 #~ msgstr "控制新窗口如何获得窗口"
