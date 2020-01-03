@@ -300,12 +300,15 @@ sync_unredirected (MetaSurfaceActorX11 *self)
 
   if (self->unredirected)
     {
-      detach_pixmap (self);
       XCompositeUnredirectWindow (xdisplay, xwindow, CompositeRedirectManual);
+      XSync (xdisplay, False);
+      detach_pixmap (self);
     }
   else
     {
       XCompositeRedirectWindow (xdisplay, xwindow, CompositeRedirectManual);
+      XSync (xdisplay, False);
+      clutter_actor_queue_redraw (CLUTTER_ACTOR (self));
     }
 
   meta_x11_error_trap_pop (display->x11_display);
