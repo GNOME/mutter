@@ -3273,6 +3273,15 @@ unmaximize_window_before_freeing (MetaWindow        *window)
 #endif
 }
 
+static void
+meta_window_maybe_apply_size_hints (MetaWindow    *window,
+                                    MetaRectangle *target_rect)
+{
+  meta_window_frame_rect_to_client_rect (window, target_rect, target_rect);
+  ensure_size_hints_satisfied (target_rect, &window->size_hints);
+  meta_window_client_rect_to_frame_rect (window, target_rect, target_rect);
+}
+
 void
 meta_window_unmaximize (MetaWindow        *window,
                         MetaMaximizeFlags  directions)
@@ -3299,6 +3308,7 @@ meta_window_unmaximize (MetaWindow        *window,
       MetaRectangle target_rect;
       MetaRectangle work_area;
       MetaRectangle old_frame_rect, old_buffer_rect;
+      gboolean has_target_size;
 
       meta_window_get_work_area_for_monitor (window, window->monitor->number, &work_area);
       meta_window_get_frame_rect (window, &old_frame_rect);
@@ -3371,12 +3381,9 @@ meta_window_unmaximize (MetaWindow        *window,
        * saved_rect invalid.  #329152
        * Do not enforce limits, if no previous 'saved_rect' has been stored.
        */
-      if (target_rect.width > 0 && target_rect.height > 0)
-        {
-          meta_window_frame_rect_to_client_rect (window, &target_rect, &target_rect);
-          ensure_size_hints_satisfied (&target_rect, &window->size_hints);
-          meta_window_client_rect_to_frame_rect (window, &target_rect, &target_rect);
-        }
+      has_target_size = (target_rect.width > 0 && target_rect.height > 0);
+      if (has_target_size)
+        meta_window_maybe_apply_size_hints (window, &target_rect);
 
       meta_compositor_size_change_window (window->display->compositor, window,
                                           META_SIZE_CHANGE_UNMAXIMIZE,
@@ -3517,6 +3524,7 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
   if (window->fullscreen)
     {
       MetaRectangle old_frame_rect, old_buffer_rect, target_rect;
+      gboolean has_target_size;
 
       meta_topic (META_DEBUG_WINDOW_OPS,
                   "Unfullscreening %s", window->desc);
@@ -3532,12 +3540,9 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
        * saved_rect invalid.  #329152
        * Do not enforce limits, if no previous 'saved_rect' has been stored.
        */
-      if (target_rect.width > 0 && target_rect.height > 0)
-        {
-          meta_window_frame_rect_to_client_rect (window, &target_rect, &target_rect);
-          ensure_size_hints_satisfied (&target_rect, &window->size_hints);
-          meta_window_client_rect_to_frame_rect (window, &target_rect, &target_rect);
-        }
+      has_target_size = (target_rect.width > 0 && target_rect.height > 0);
+      if (has_target_size)
+        meta_window_maybe_apply_size_hints (window, &target_rect);
 
       /* Need to update window->has_resize_func before we move_resize()
        */
