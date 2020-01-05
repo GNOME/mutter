@@ -1,3 +1,18 @@
+3.35.3
+======
+* backends/native: Correct dy value in pinch gesture event [Yariv; !974]
+* Upload clipping rectangles in parallel [Daniel; !969]
+* More cogl API cleanups [Adam; !978, !977, !973]
+* Fix window recording on HiDPI [Pascal; !976]
+* Fix top-left pixel being insensitive to clicks [Sebastian; #893]
+* Misc. bug fixes and cleanups [Daniel, Adam; !979, !980]
+
+Contributors:
+  Yariv Barkan, Adam Jackson, Sebastian Keller, Pascal Nowack, Daniel van Vugt
+
+Translators:
+  Fran Dieguez [gl], Dz Chen [zh_CN]
+
 3.35.2
 ======
 * Don't emit focus event after destruction [Marco; gnome-shell#1704, !860]
