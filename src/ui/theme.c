@@ -861,7 +861,7 @@ meta_frame_layout_draw_with_style (MetaFrameLayout         *layout,
           if (icon_name)
             {
               GtkIconTheme *theme = gtk_icon_theme_get_default ();
-              GtkIconInfo *info;
+              g_autoptr (GtkIconInfo) info = NULL;
               GdkPixbuf *pixbuf;
 
               info = gtk_icon_theme_lookup_icon_for_scale (theme, icon_name,
