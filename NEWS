@@ -1,3 +1,11 @@
+3.34.3
+======
+* Fix window recording on HiDPI [Pascal; !976]
+* Fix top-left pixel being insensitive to clicks [Sebastian; #893]
+
+Contributors:
+  Sebastian Keller, Pascal Nowack
+
 3.34.2
 ======
 * Fix immediate screen blank after releasing inhibitor [Tim; #573]
