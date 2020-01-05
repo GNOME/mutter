@@ -116,6 +116,7 @@ write_mimetypes_cb (GOutputStream *stream,
 
   g_output_stream_write_bytes_finish (stream, res, &error);
   g_output_stream_close (stream, NULL, NULL);
+  g_object_unref (stream);
 
   if (error)
     {
