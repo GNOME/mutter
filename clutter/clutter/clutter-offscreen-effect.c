@@ -458,10 +458,17 @@ clutter_offscreen_effect_paint (ClutterEffect           *effect,
    */
   if (priv->offscreen == NULL || (flags & CLUTTER_EFFECT_PAINT_ACTOR_DIRTY))
     {
-      /* Chain up to the parent paint method which will call the pre and
-         post paint functions to update the image */
-      CLUTTER_EFFECT_CLASS (clutter_offscreen_effect_parent_class)->
-        paint (effect, flags);
+      ClutterEffectClass *effect_class = CLUTTER_EFFECT_GET_CLASS (effect);
+      gboolean pre_paint_succeeded;
+
+      pre_paint_succeeded = effect_class->pre_paint (effect);
+
+      clutter_actor_continue_paint (priv->actor);
+
+      if (pre_paint_succeeded)
+        effect_class->post_paint (effect);
+      else
+        g_clear_pointer (&priv->offscreen, cogl_object_unref);
     }
   else
     clutter_offscreen_effect_paint_texture (self);
