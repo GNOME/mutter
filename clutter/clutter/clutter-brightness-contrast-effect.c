@@ -121,12 +121,12 @@ G_DEFINE_TYPE (ClutterBrightnessContrastEffect,
 static gboolean
 will_have_no_effect (ClutterBrightnessContrastEffect *self)
 {
-  return (self->brightness_red == no_change &&
-          self->brightness_green == no_change &&
-          self->brightness_blue == no_change &&
-          self->contrast_red == no_change &&
-          self->contrast_green == no_change &&
-          self->contrast_blue == no_change);
+  return (G_APPROX_VALUE (self->brightness_red, no_change, FLT_EPSILON) &&
+          G_APPROX_VALUE (self->brightness_green, no_change, FLT_EPSILON) &&
+          G_APPROX_VALUE (self->brightness_blue, no_change, FLT_EPSILON) &&
+          G_APPROX_VALUE (self->contrast_red, no_change, FLT_EPSILON) &&
+          G_APPROX_VALUE (self->contrast_green, no_change, FLT_EPSILON) &&
+          G_APPROX_VALUE (self->contrast_blue, no_change, FLT_EPSILON));
 }
 
 static gboolean
@@ -494,9 +494,9 @@ clutter_brightness_contrast_effect_set_brightness_full (ClutterBrightnessContras
 {
   g_return_if_fail (CLUTTER_IS_BRIGHTNESS_CONTRAST_EFFECT (effect));
 
-  if (red == effect->brightness_red &&
-      green == effect->brightness_green &&
-      blue == effect->brightness_blue)
+  if (G_APPROX_VALUE (red, effect->brightness_red, FLT_EPSILON) &&
+      G_APPROX_VALUE (green, effect->brightness_green, FLT_EPSILON) &&
+      G_APPROX_VALUE (blue, effect->brightness_blue, FLT_EPSILON))
     return;
 
   effect->brightness_red = red;
@@ -584,9 +584,9 @@ clutter_brightness_contrast_effect_set_contrast_full (ClutterBrightnessContrastE
 {
   g_return_if_fail (CLUTTER_IS_BRIGHTNESS_CONTRAST_EFFECT (effect));
 
-  if (red == effect->contrast_red &&
-      green == effect->contrast_green &&
-      blue == effect->contrast_blue)
+  if (G_APPROX_VALUE (red, effect->contrast_red, FLT_EPSILON) &&
+      G_APPROX_VALUE (green, effect->contrast_green, FLT_EPSILON) &&
+      G_APPROX_VALUE (blue, effect->contrast_blue, FLT_EPSILON))
     return;
 
   effect->contrast_red = red;
