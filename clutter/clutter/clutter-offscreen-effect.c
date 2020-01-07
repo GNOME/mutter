@@ -468,6 +468,19 @@ clutter_offscreen_effect_paint (ClutterEffect           *effect,
 }
 
 static void
+clutter_offscreen_effect_notify (GObject    *gobject,
+                                 GParamSpec *pspec)
+{
+  ClutterOffscreenEffect *offscreen_effect = CLUTTER_OFFSCREEN_EFFECT (gobject);
+  ClutterOffscreenEffectPrivate *priv = offscreen_effect->priv;
+
+  if (strcmp (pspec->name, "enabled") == 0)
+    g_clear_pointer (&priv->offscreen, cogl_object_unref);
+
+  G_OBJECT_CLASS (clutter_offscreen_effect_parent_class)->notify (gobject, pspec);
+}
+
+static void
 clutter_offscreen_effect_finalize (GObject *gobject)
 {
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (gobject);
@@ -497,6 +510,7 @@ clutter_offscreen_effect_class_init (ClutterOffscreenEffectClass *klass)
   effect_class->paint = clutter_offscreen_effect_paint;
 
   gobject_class->finalize = clutter_offscreen_effect_finalize;
+  gobject_class->notify = clutter_offscreen_effect_notify;
 }
 
 static void
