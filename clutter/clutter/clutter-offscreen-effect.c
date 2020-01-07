@@ -117,11 +117,7 @@ clutter_offscreen_effect_set_actor (ClutterActorMeta *meta,
   meta_class->set_actor (meta, actor);
 
   /* clear out the previous state */
-  if (priv->offscreen != NULL)
-    {
-      cogl_handle_unref (priv->offscreen);
-      priv->offscreen = NULL;
-    }
+  g_clear_pointer (&priv->offscreen, cogl_object_unref);
 
   /* we keep a back pointer here, to avoid going through the ActorMeta */
   priv->actor = clutter_actor_meta_get_actor (meta);
@@ -197,17 +193,8 @@ update_fbo (ClutterEffect *effect,
       ensure_pipeline_filter_for_scale (self, resource_scale);
     }
 
-  if (priv->texture != NULL)
-    {
-      cogl_handle_unref (priv->texture);
-      priv->texture = NULL;
-    }
-
-  if (priv->offscreen != NULL)
-    {
-      cogl_handle_unref (priv->offscreen);
-      priv->offscreen = NULL;
-    }
+  g_clear_pointer (&priv->texture, cogl_object_unref);
+  g_clear_pointer (&priv->offscreen, cogl_object_unref);
 
   priv->texture =
     clutter_offscreen_effect_create_texture (self, target_width, target_height);
@@ -486,14 +473,9 @@ clutter_offscreen_effect_finalize (GObject *gobject)
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (gobject);
   ClutterOffscreenEffectPrivate *priv = self->priv;
 
-  if (priv->offscreen)
-    cogl_handle_unref (priv->offscreen);
-
-  if (priv->target)
-    cogl_handle_unref (priv->target);
-
-  if (priv->texture)
-    cogl_handle_unref (priv->texture);
+  g_clear_pointer (&priv->offscreen, cogl_object_unref);
+  g_clear_pointer (&priv->texture, cogl_object_unref);
+  g_clear_pointer (&priv->target, cogl_object_unref);
 
   G_OBJECT_CLASS (clutter_offscreen_effect_parent_class)->finalize (gobject);
 }
