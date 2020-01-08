@@ -712,7 +712,9 @@ if have_profiler
     'backends/meta-profiler.h',
   ]
 
-  dbus_interfaces_dir = join_paths(datadir, 'dbus-1', 'interfaces')
+  # sysprof does not export anything more specific than the prefix
+  sysprof_datadir = join_paths(sysprof_dep.get_pkgconfig_variable('prefix'), get_option('datadir'))
+  dbus_interfaces_dir = join_paths(sysprof_datadir, 'dbus-1', 'interfaces')
   sysprof3_dbus_file = join_paths(dbus_interfaces_dir, 'org.gnome.Sysprof3.Profiler.xml')
 
   dbus_sysprof3_profiler_built_sources = gnome.gdbus_codegen('meta-dbus-sysprof3-profiler',
