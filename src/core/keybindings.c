@@ -1820,12 +1820,12 @@ meta_window_grab_all_keys (MetaWindow  *window,
       meta_topic (META_DEBUG_KEYBINDINGS,
                   "Grabbing all keys on window %s\n", window->desc);
       retval = grab_keyboard (grabwindow, timestamp, XIGrabModeAsync);
-      if (retval)
-        {
-          window->keys_grabbed = FALSE;
-          window->all_keys_grabbed = TRUE;
-          window->grab_on_frame = window->frame != NULL;
-        }
+    }
+  if (retval)
+    {
+      window->keys_grabbed = FALSE;
+      window->all_keys_grabbed = TRUE;
+      window->grab_on_frame = window->frame != NULL;
     }
 
   return retval;
@@ -1835,9 +1835,10 @@ void
 meta_window_ungrab_all_keys (MetaWindow *window,
                              guint32     timestamp)
 {
-  if (!meta_is_wayland_compositor () && window->all_keys_grabbed)
+  if (window->all_keys_grabbed)
     {
-      ungrab_keyboard (timestamp);
+      if (!meta_is_wayland_compositor())
+        ungrab_keyboard (timestamp);
 
       window->grab_on_frame = FALSE;
       window->all_keys_grabbed = FALSE;
