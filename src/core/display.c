@@ -637,7 +637,7 @@ gesture_tracker_state_changed (MetaGestureTracker   *tracker,
     case META_SEQUENCE_ACCEPTED:
       meta_display_cancel_touch (display);
 
-      /* Intentional fall-through */
+      G_GNUC_FALLTHROUGH;
     case META_SEQUENCE_REJECTED:
       {
         MetaBackend *backend;

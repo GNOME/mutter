@@ -367,7 +367,7 @@ emit_barrier_event (MetaBarrierImplNative *self,
     case META_BARRIER_STATE_LEFT:
       self->state = META_BARRIER_STATE_ACTIVE;
 
-      /* Intentional fall-through. */
+      G_GNUC_FALLTHROUGH;
     case META_BARRIER_STATE_HELD:
       event->dt = time - self->last_event_time;
 

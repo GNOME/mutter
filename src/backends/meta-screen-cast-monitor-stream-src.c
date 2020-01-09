@@ -282,7 +282,7 @@ meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
         g_signal_connect_after (cursor_tracker, "cursor-changed",
                                 G_CALLBACK (cursor_changed),
                                 monitor_src);
-      /* Intentional fall-through */
+      G_GNUC_FALLTHROUGH;
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
       monitor_src->paint_watch =
         meta_stage_watch_view (meta_stage,

@@ -1523,7 +1523,7 @@ event_click_count_generate (ClutterEvent *event)
         previous_y = event->button.y;
         previous_time = event->button.time;
 
-        /* fallthrough */
+        G_GNUC_FALLTHROUGH;
       case CLUTTER_BUTTON_RELEASE:
         event->button.click_count = click_count;
         break;
@@ -1871,7 +1871,7 @@ _clutter_process_event_details (ClutterActor        *stage,
             break;
           }
 
-      /* fallthrough from motion */
+        G_GNUC_FALLTHROUGH;
       case CLUTTER_BUTTON_PRESS:
       case CLUTTER_BUTTON_RELEASE:
 #ifdef CLUTTER_WINDOWING_X11
@@ -2016,7 +2016,7 @@ _clutter_process_event_details (ClutterActor        *stage,
             break;
           }
 
-      /* fallthrough from motion */
+        G_GNUC_FALLTHROUGH;
       case CLUTTER_TOUCH_BEGIN:
       case CLUTTER_TOUCH_CANCEL:
       case CLUTTER_TOUCH_END:

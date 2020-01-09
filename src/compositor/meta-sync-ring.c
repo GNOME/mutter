@@ -394,7 +394,7 @@ meta_sync_free (MetaSync *self)
         XIfEvent (self->xdisplay, &event, alarm_event_predicate, (XPointer) self);
         meta_sync_handle_event (self, (XSyncAlarmNotifyEvent *) &event);
       }
-      /* fall through */
+      G_GNUC_FALLTHROUGH;
     case META_SYNC_STATE_READY:
       XSyncTriggerFence (self->xdisplay, self->xfence);
       XFlush (self->xdisplay);

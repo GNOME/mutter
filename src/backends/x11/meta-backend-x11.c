@@ -275,7 +275,7 @@ maybe_spoof_event_as_stage_event (MetaBackendX11 *x11,
     case XI_ButtonRelease:
       maybe_translate_touch_replay_pointer_event (x11,
                                                   (XIDeviceEvent *) input_event);
-      /* Intentional fall-through */
+      G_GNUC_FALLTHROUGH;
     case XI_KeyPress:
     case XI_KeyRelease:
     case XI_TouchBegin:

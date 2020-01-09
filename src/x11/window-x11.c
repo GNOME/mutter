@@ -1597,7 +1597,7 @@ meta_window_x11_update_struts (MetaWindow *window)
                 {
                 case META_SIDE_RIGHT:
                   temp->rect.x = BOX_RIGHT(temp->rect) - thickness;
-                  /* Intentionally fall through without breaking */
+                  G_GNUC_FALLTHROUGH;
                 case META_SIDE_LEFT:
                   temp->rect.width  = thickness;
                   temp->rect.y      = strut_begin;
@@ -1605,7 +1605,7 @@ meta_window_x11_update_struts (MetaWindow *window)
                   break;
                 case META_SIDE_BOTTOM:
                   temp->rect.y = BOX_BOTTOM(temp->rect) - thickness;
-                  /* Intentionally fall through without breaking */
+                  G_GNUC_FALLTHROUGH;
                 case META_SIDE_TOP:
                   temp->rect.height = thickness;
                   temp->rect.x      = strut_begin;
@@ -1661,13 +1661,13 @@ meta_window_x11_update_struts (MetaWindow *window)
                 {
                 case META_SIDE_RIGHT:
                   temp->rect.x = BOX_RIGHT(temp->rect) - thickness;
-                  /* Intentionally fall through without breaking */
+                  G_GNUC_FALLTHROUGH;
                 case META_SIDE_LEFT:
                   temp->rect.width  = thickness;
                   break;
                 case META_SIDE_BOTTOM:
                   temp->rect.y = BOX_BOTTOM(temp->rect) - thickness;
-                  /* Intentionally fall through without breaking */
+                  G_GNUC_FALLTHROUGH;
                 case META_SIDE_TOP:
                   temp->rect.height = thickness;
                   break;
