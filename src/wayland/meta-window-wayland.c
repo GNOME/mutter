@@ -976,7 +976,10 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   if (rect.width != window->rect.width || rect.height != window->rect.height)
     flags |= META_MOVE_RESIZE_RESIZE_ACTION;
 
-  gravity = meta_resize_gravity_from_grab_op (window->display->grab_op);
+  if (window->display->grab_window == window)
+    gravity = meta_resize_gravity_from_grab_op (window->display->grab_op);
+  else
+    gravity = META_GRAVITY_STATIC;
   meta_window_move_resize_internal (window, flags, gravity, rect);
 
   g_clear_pointer (&acked_configuration, meta_wayland_window_configuration_free);
