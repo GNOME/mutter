@@ -124,11 +124,6 @@ struct _CoglContext
 
   CoglMatrixEntry identity_entry;
 
-  /* A cache of the last (immutable) matrix stack entries that were
-   * flushed to the GL matrix builtins */
-  CoglMatrixEntryCache builtin_flushed_projection;
-  CoglMatrixEntryCache builtin_flushed_modelview;
-
   GArray           *texture_units;
   int               active_texture_unit;
 
@@ -151,8 +146,6 @@ struct _CoglContext
   /* Global journal buffers */
   GArray           *journal_flush_attributes_array;
   GArray           *journal_clip_bounds;
-
-  GArray           *polygon_vertices;
 
   /* Some simple caching, to minimize state changes... */
   CoglPipeline     *current_pipeline;
@@ -197,17 +190,10 @@ struct _CoglContext
   /* Primitives */
   CoglPipeline     *stencil_pipeline;
 
-  /* Pre-generated VBOs containing indices to generate GL_TRIANGLES
-     out of a vertex array of quads */
-  CoglIndices      *quad_buffer_indices_byte;
-  unsigned int      quad_buffer_indices_len;
-  CoglIndices      *quad_buffer_indices;
-
   CoglIndices      *rectangle_byte_indices;
   CoglIndices      *rectangle_short_indices;
   int               rectangle_short_indices_len;
 
-  CoglPipeline     *texture_download_pipeline;
   CoglPipeline     *blit_texture_pipeline;
 
   GSList           *atlases;

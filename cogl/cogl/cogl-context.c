@@ -276,8 +276,6 @@ cogl_context_new (CoglDisplay *display,
     g_array_new (TRUE, FALSE, sizeof (CoglAttribute *));
   context->journal_clip_bounds = NULL;
 
-  context->polygon_vertices = g_array_new (FALSE, FALSE, sizeof (float));
-
   context->current_pipeline = NULL;
   context->current_pipeline_changes_since_flush = 0;
   context->current_pipeline_with_color_attrib = FALSE;
@@ -310,22 +308,15 @@ cogl_context_new (CoglDisplay *display,
 
   context->stencil_pipeline = cogl_pipeline_new (context);
 
-  context->quad_buffer_indices_byte = NULL;
-  context->quad_buffer_indices = NULL;
-  context->quad_buffer_indices_len = 0;
-
   context->rectangle_byte_indices = NULL;
   context->rectangle_short_indices = NULL;
   context->rectangle_short_indices_len = 0;
 
-  context->texture_download_pipeline = NULL;
   context->blit_texture_pipeline = NULL;
 
   context->current_modelview_entry = NULL;
   context->current_projection_entry = NULL;
   _cogl_matrix_entry_identity_init (&context->identity_entry);
-  _cogl_matrix_entry_cache_init (&context->builtin_flushed_projection);
-  _cogl_matrix_entry_cache_init (&context->builtin_flushed_modelview);
 
   /* Create default textures used for fall backs */
   context->default_gl_texture_2d_tex =
@@ -372,14 +363,6 @@ _cogl_context_free (CoglContext *context)
   if (context->journal_clip_bounds)
     g_array_free (context->journal_clip_bounds, TRUE);
 
-  if (context->polygon_vertices)
-    g_array_free (context->polygon_vertices, TRUE);
-
-  if (context->quad_buffer_indices_byte)
-    cogl_object_unref (context->quad_buffer_indices_byte);
-  if (context->quad_buffer_indices)
-    cogl_object_unref (context->quad_buffer_indices);
-
   if (context->rectangle_byte_indices)
     cogl_object_unref (context->rectangle_byte_indices);
   if (context->rectangle_short_indices)
@@ -409,8 +392,6 @@ _cogl_context_free (CoglContext *context)
     cogl_matrix_entry_unref (context->current_modelview_entry);
   if (context->current_projection_entry)
     cogl_matrix_entry_unref (context->current_projection_entry);
-  _cogl_matrix_entry_cache_destroy (&context->builtin_flushed_projection);
-  _cogl_matrix_entry_cache_destroy (&context->builtin_flushed_modelview);
 
   _cogl_pipeline_cache_free (context->pipeline_cache);
 
