@@ -1124,6 +1124,20 @@ static GQuark quark_actor_layout_info = 0;
 static GQuark quark_actor_transform_info = 0;
 static GQuark quark_actor_animation_info = 0;
 
+static GQuark quark_key = 0;
+static GQuark quark_motion = 0;
+static GQuark quark_pointer_focus = 0;
+static GQuark quark_button = 0;
+static GQuark quark_scroll = 0;
+static GQuark quark_stage = 0;
+static GQuark quark_destroy = 0;
+static GQuark quark_client = 0;
+static GQuark quark_delete = 0;
+static GQuark quark_touch = 0;
+static GQuark quark_touchpad = 0;
+static GQuark quark_proximity = 0;
+static GQuark quark_pad = 0;
+
 G_DEFINE_TYPE_WITH_CODE (ClutterActor,
                          clutter_actor,
                          G_TYPE_INITIALLY_UNOWNED,
@@ -6545,6 +6559,20 @@ clutter_actor_class_init (ClutterActorClass *klass)
   quark_actor_transform_info = g_quark_from_static_string ("-clutter-actor-transform-info");
   quark_actor_animation_info = g_quark_from_static_string ("-clutter-actor-animation-info");
 
+  quark_key = g_quark_from_static_string ("key");
+  quark_motion = g_quark_from_static_string ("motion");
+  quark_pointer_focus = g_quark_from_static_string ("pointer-focus");
+  quark_button = g_quark_from_static_string ("button");
+  quark_scroll = g_quark_from_static_string ("scroll");
+  quark_stage = g_quark_from_static_string ("stage");
+  quark_destroy = g_quark_from_static_string ("destroy");
+  quark_client = g_quark_from_static_string ("client");
+  quark_delete = g_quark_from_static_string ("delete");
+  quark_touch = g_quark_from_static_string ("touch");
+  quark_touchpad = g_quark_from_static_string ("touchpad");
+  quark_proximity = g_quark_from_static_string ("proximity");
+  quark_pad = g_quark_from_static_string ("pad");
+
   object_class->constructor = clutter_actor_constructor;
   object_class->set_property = clutter_actor_set_property;
   object_class->get_property = clutter_actor_get_property;
@@ -8580,7 +8608,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   actor_signals[CAPTURED_EVENT] =
     g_signal_new (I_("captured-event"),
 		  G_TYPE_FROM_CLASS (object_class),
-		  G_SIGNAL_RUN_LAST,
+		  G_SIGNAL_RUN_LAST | G_SIGNAL_DETAILED,
 		  G_STRUCT_OFFSET (ClutterActorClass, captured_event),
 		  _clutter_boolean_handled_accumulator, NULL,
 		  _clutter_marshal_BOOLEAN__BOXED,
@@ -13890,8 +13918,70 @@ clutter_actor_event (ClutterActor       *actor,
 
   if (capture)
     {
-      g_signal_emit (actor, actor_signals[CAPTURED_EVENT], 0,
-		     event,
+      GQuark detail = 0;
+
+      switch (event->type)
+        {
+        case CLUTTER_NOTHING:
+          break;
+        case CLUTTER_KEY_PRESS:
+        case CLUTTER_KEY_RELEASE:
+          detail = quark_key;
+          break;
+        case CLUTTER_MOTION:
+          detail = quark_motion;
+          break;
+        case CLUTTER_ENTER:
+        case CLUTTER_LEAVE:
+          detail = quark_pointer_focus;
+          break;
+        case CLUTTER_BUTTON_PRESS:
+        case CLUTTER_BUTTON_RELEASE:
+          detail = quark_button;
+          break;
+        case CLUTTER_SCROLL:
+          detail = quark_scroll;
+          break;
+        case CLUTTER_STAGE_STATE:
+          detail = quark_stage;
+          break;
+        case CLUTTER_DESTROY_NOTIFY:
+          detail = quark_destroy;
+          break;
+        case CLUTTER_CLIENT_MESSAGE:
+          detail = quark_client;
+          break;
+        case CLUTTER_DELETE:
+          detail = quark_delete;
+          break;
+        case CLUTTER_TOUCH_BEGIN:
+        case CLUTTER_TOUCH_UPDATE:
+        case CLUTTER_TOUCH_END:
+        case CLUTTER_TOUCH_CANCEL:
+          detail = quark_touch;
+          break;
+        case CLUTTER_TOUCHPAD_PINCH:
+        case CLUTTER_TOUCHPAD_SWIPE:
+          detail = quark_touchpad;
+          break;
+        case CLUTTER_PROXIMITY_IN:
+        case CLUTTER_PROXIMITY_OUT:
+          detail = quark_proximity;
+          break;
+        case CLUTTER_PAD_BUTTON_PRESS:
+        case CLUTTER_PAD_BUTTON_RELEASE:
+        case CLUTTER_PAD_STRIP:
+        case CLUTTER_PAD_RING:
+          detail = quark_pad;
+          break;
+        case CLUTTER_EVENT_LAST:  /* Just keep compiler warnings quiet */
+          break;
+        }
+
+      g_signal_emit (actor,
+                     actor_signals[CAPTURED_EVENT],
+                     detail,
+                     event,
                      &retval);
       goto out;
     }
