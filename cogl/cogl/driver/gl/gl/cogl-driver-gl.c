@@ -80,6 +80,11 @@ _cogl_driver_gl_context_init (CoglContext *context,
   if (context->driver == COGL_DRIVER_GL)
     GE (context, glEnable (GL_POINT_SPRITE));
 
+  /* There's no enable for this in GLES2, it's always on */
+  if (context->driver == COGL_DRIVER_GL ||
+      context->driver == COGL_DRIVER_GL3)
+    GE (context, glEnable (GL_PROGRAM_POINT_SIZE) );
+
   return TRUE;
 }
 
@@ -489,9 +494,6 @@ _cogl_driver_update_features (CoglContext *ctx,
     COGL_FLAGS_SET (private_features,
                     COGL_PRIVATE_FEATURE_TEXTURE_SWIZZLE, TRUE);
 
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_ENABLE_PROGRAM_POINT_SIZE, TRUE);
-
   if (ctx->driver == COGL_DRIVER_GL)
     {
       /* Features which are not available in GL 3 */
@@ -504,8 +506,6 @@ _cogl_driver_update_features (CoglContext *ctx,
   COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_ANY_GL, TRUE);
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_FORMAT_CONVERSION, TRUE);
-  COGL_FLAGS_SET (private_features,
-                  COGL_PRIVATE_FEATURE_BUILTIN_POINT_SIZE_UNIFORM, TRUE);
   COGL_FLAGS_SET (private_features,
                   COGL_PRIVATE_FEATURE_QUERY_TEXTURE_PARAMETERS, TRUE);
   COGL_FLAGS_SET (private_features,

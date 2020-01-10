@@ -63,7 +63,6 @@ typedef enum
    * events. Otherwise a dirty event will be queued when the onscreen
    * is first allocated or when it is shown or resized */
   COGL_PRIVATE_FEATURE_DIRTY_EVENTS,
-  COGL_PRIVATE_FEATURE_ENABLE_PROGRAM_POINT_SIZE,
   /* This feature allows for explicitly selecting a GL-based backend,
    * as opposed to nop or (in the future) Vulkan.
    */

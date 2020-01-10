@@ -2799,14 +2799,7 @@ _cogl_pipeline_get_state_for_vertex_codegen (CoglContext *context)
                              COGL_PIPELINE_STATE_USER_SHADER |
                              COGL_PIPELINE_STATE_PER_VERTEX_POINT_SIZE |
                              COGL_PIPELINE_STATE_VERTEX_SNIPPETS);
-
-  /* If we don't have the builtin point size uniform then we'll add
-   * one in the GLSL but we'll only do this if the point size is
-   * non-zero. Whether or not the point size is zero is represented by
-   * COGL_PIPELINE_STATE_NON_ZERO_POINT_SIZE */
-  if (!_cogl_has_private_feature
-      (context, COGL_PRIVATE_FEATURE_BUILTIN_POINT_SIZE_UNIFORM))
-    state |= COGL_PIPELINE_STATE_NON_ZERO_POINT_SIZE;
+  state |= COGL_PIPELINE_STATE_NON_ZERO_POINT_SIZE;
 
   return state;
 }
