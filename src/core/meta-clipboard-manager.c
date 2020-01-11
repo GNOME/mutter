@@ -122,13 +122,17 @@ owner_changed_cb (MetaSelection       *selection,
         }
 
       if (best_idx < 0)
-        return;
+        {
+          g_list_free_full (mimetypes, g_free);
+          return;
+        }
 
       display->saved_clipboard_mimetype = g_strdup (best);
+      g_list_free_full (mimetypes, g_free);
       output = g_memory_output_stream_new_resizable ();
       meta_selection_transfer_async (selection,
                                      META_SELECTION_CLIPBOARD,
-                                     best,
+                                     display->saved_clipboard_mimetype,
                                      transfer_size,
                                      output,
                                      NULL,
