@@ -37,13 +37,9 @@ struct _MetaX11SelectionOutputStreamPrivate
 {
   MetaX11Display *x11_display;
   Window xwindow;
-  char *selection;
   Atom xselection;
-  char *target;
   Atom xtarget;
-  char *property;
   Atom xproperty;
-  const char *type;
   Atom xtype;
   int format;
   gulong timestamp;
@@ -515,10 +511,6 @@ meta_x11_selection_output_stream_finalize (GObject *object)
   g_cond_clear (&priv->cond);
   g_mutex_clear (&priv->mutex);
 
-  g_free (priv->selection);
-  g_free (priv->target);
-  g_free (priv->property);
-
   G_OBJECT_CLASS (meta_x11_selection_output_stream_parent_class)->finalize (object);
 }
 
@@ -606,14 +598,10 @@ meta_x11_selection_output_stream_new (MetaX11Display *x11_display,
 
   priv->x11_display = x11_display;
   priv->xwindow = requestor;
-  priv->selection = g_strdup (selection);
-  priv->xselection = XInternAtom (x11_display->xdisplay, priv->selection, False);
-  priv->target = g_strdup (target);
-  priv->xtarget = XInternAtom (x11_display->xdisplay, priv->target, False);
-  priv->property = g_strdup (property);
-  priv->xproperty = XInternAtom (x11_display->xdisplay, priv->property, False);
-  priv->type = g_strdup (type);
-  priv->xtype = XInternAtom (x11_display->xdisplay, priv->type, False);
+  priv->xselection = XInternAtom (x11_display->xdisplay, selection, False);
+  priv->xtarget = XInternAtom (x11_display->xdisplay, target, False);
+  priv->xproperty = XInternAtom (x11_display->xdisplay, property, False);
+  priv->xtype = XInternAtom (x11_display->xdisplay, type, False);
   priv->format = format;
   priv->timestamp = timestamp;
 
