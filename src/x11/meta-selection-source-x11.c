@@ -190,6 +190,7 @@ read_mimetypes_cb (GInputStream *stream,
     {
       g_task_return_error (task, error);
       g_object_unref (task);
+      g_object_unref (stream);
       return;
     }
 
