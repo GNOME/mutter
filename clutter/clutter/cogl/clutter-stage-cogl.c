@@ -691,7 +691,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   gboolean do_swap_buffer;
   gboolean swap_with_damage;
   ClutterActor *wrapper;
-  cairo_region_t *redraw_clip;
+  cairo_region_t *redraw_clip = NULL;
   cairo_region_t *fb_clip_region;
   cairo_region_t *swap_region;
   cairo_rectangle_int_t redraw_rect;
@@ -782,6 +782,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     {
       cairo_rectangle_int_t rect = { 0, 0, view_rect.width, view_rect.height };
       fb_clip_region = cairo_region_create_rectangle (&rect);
+      g_clear_pointer (&redraw_clip, cairo_region_destroy);
       redraw_clip = cairo_region_copy (fb_clip_region);
     }
 
