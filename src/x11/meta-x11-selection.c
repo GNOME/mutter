@@ -298,6 +298,7 @@ source_new_cb (GObject      *object,
     {
       meta_selection_set_owner (selection, selection_type, source);
       g_set_object (&x11_display->selection.owners[selection_type], source);
+      g_object_unref (source);
     }
   else if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
     {
