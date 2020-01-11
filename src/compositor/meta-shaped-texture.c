@@ -239,6 +239,8 @@ meta_shaped_texture_dispose (GObject *object)
   meta_shaped_texture_set_mask_texture (stex, NULL);
   meta_shaped_texture_reset_pipelines (stex);
 
+  g_clear_pointer (&stex->opaque_region, cairo_region_destroy);
+
   g_clear_pointer (&stex->snippet, cogl_object_unref);
 
   G_OBJECT_CLASS (meta_shaped_texture_parent_class)->dispose (object);
