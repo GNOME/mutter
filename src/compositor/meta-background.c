@@ -23,6 +23,7 @@
 
 #include <string.h>
 
+#include "backends/meta-backend-private.h"
 #include "compositor/cogl-utils.h"
 #include "meta/display.h"
 #include "meta/meta-background-image.h"
@@ -799,6 +800,30 @@ meta_background_get_texture (MetaBackground         *self,
     {
       GError *catch_error = NULL;
       gboolean bare_region_visible = FALSE;
+      int texture_width, texture_height;
+
+      if (meta_is_stage_views_scaled ())
+        {
+          texture_width = monitor_area.width * monitor_scale;
+          texture_height = monitor_area.height * monitor_scale;
+        }
+      else
+        {
+          texture_width = monitor_area.width;
+          texture_height = monitor_area.height;
+        }
+
+      if (monitor->texture == NULL)
+        {
+          CoglOffscreen *offscreen;
+
+          monitor->texture = meta_create_texture (texture_width,
+                                                  texture_height,
+                                                  COGL_TEXTURE_COMPONENTS_RGBA,
+                                                  META_TEXTURE_FLAGS_NONE);
+          offscreen = cogl_offscreen_new_with_texture (monitor->texture);
+          monitor->fbo = COGL_FRAMEBUFFER (offscreen);
+        }
 
       if (self->style != G_DESKTOP_BACKGROUND_STYLE_WALLPAPER)
         {
@@ -806,17 +831,6 @@ meta_background_get_texture (MetaBackground         *self,
           monitor_area.y *= monitor_scale;
           monitor_area.width *= monitor_scale;
           monitor_area.height *= monitor_scale;
-        }
-
-      if (monitor->texture == NULL)
-        {
-          CoglOffscreen *offscreen;
-
-          monitor->texture = meta_create_texture (monitor_area.width, monitor_area.height,
-                                                  COGL_TEXTURE_COMPONENTS_RGBA,
-                                                  META_TEXTURE_FLAGS_NONE);
-          offscreen = cogl_offscreen_new_with_texture (monitor->texture);
-          monitor->fbo = COGL_FRAMEBUFFER (offscreen);
         }
 
       if (!cogl_framebuffer_allocate (monitor->fbo, &catch_error))
