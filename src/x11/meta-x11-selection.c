@@ -27,6 +27,9 @@
 #include "x11/meta-x11-selection-output-stream-private.h"
 #include "x11/meta-x11-selection-private.h"
 
+#define UTF8_STRING_MIMETYPE "text/plain;charset=utf-8"
+#define STRING_MIMETYPE "text/plain"
+
 static gboolean
 atom_to_selection_type (Display           *xdisplay,
                         Atom               selection,
@@ -141,6 +144,45 @@ transfer_cb (MetaSelection *selection,
   g_object_unref (output);
 }
 
+static char *
+meta_x11_selection_find_target (MetaX11Display     *x11_display,
+                                MetaSelection      *selection,
+                                MetaSelectionType   selection_type,
+                                Atom                selection_atom)
+{
+  GList* mimetypes = NULL;
+  const gchar *atom_name;
+  char *retval;
+
+  mimetypes = meta_selection_get_mimetypes (selection, selection_type);
+  atom_name = gdk_x11_get_xatom_name (selection_atom);
+
+  if (g_list_find_custom (mimetypes, atom_name, (GCompareFunc) g_strcmp0))
+    {
+      retval = g_strdup (atom_name);
+    }
+  else if (strcmp (atom_name, "UTF8_STRING") == 0 &&
+           g_list_find_custom (mimetypes, UTF8_STRING_MIMETYPE,
+                               (GCompareFunc) g_strcmp0))
+    {
+      retval = g_strdup (UTF8_STRING_MIMETYPE);
+    }
+  else if (strcmp (atom_name, "STRING") == 0 &&
+           g_list_find_custom (mimetypes, STRING_MIMETYPE,
+                               (GCompareFunc) g_strcmp0))
+    {
+      retval = g_strdup (STRING_MIMETYPE);
+    }
+  else
+    {
+      retval = NULL;
+    }
+
+  g_list_free_full (mimetypes, g_free);
+
+  return retval;
+}
+
 static gboolean
 meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
                                              XEvent         *xevent)
@@ -197,15 +239,12 @@ meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
     }
   else
     {
-      gboolean has_target;
+      g_autofree char *target = NULL;
 
-      mimetypes = meta_selection_get_mimetypes (selection, selection_type);
-      has_target = g_list_find_custom (mimetypes,
-                                       gdk_x11_get_xatom_name (event->target),
-                                       (GCompareFunc) g_strcmp0) != NULL;
-      g_list_free_full (mimetypes, g_free);
+      target = meta_x11_selection_find_target (x11_display, selection,
+                                               selection_type, event->target);
 
-      if (has_target)
+      if (target != NULL)
         {
           output = meta_x11_selection_output_stream_new (x11_display,
                                                          event->requestor,
@@ -217,7 +256,7 @@ meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
 
           meta_selection_transfer_async (selection,
                                          selection_type,
-                                         gdk_x11_get_xatom_name (event->target),
+                                         target,
                                          -1,
                                          output,
                                          NULL,
@@ -226,7 +265,9 @@ meta_x11_selection_handle_selection_request (MetaX11Display *x11_display,
           return TRUE;
         }
       else
-        send_selection_notify (event, FALSE);
+        {
+          send_selection_notify (event, FALSE);
+        }
     }
 
   return FALSE;
