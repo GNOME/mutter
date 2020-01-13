@@ -562,7 +562,7 @@ meta_xwayland_data_source_fetch_mimetype_list (MetaWaylandDataSource *source,
   XGetWindowProperty (xdisplay, window, prop,
                       0, /* offset */
                       0x1fffffff, /* length */
-                      True, /* delete */
+                      False, /* delete */
                       AnyPropertyType,
                       &type_ret,
                       &format_ret,
