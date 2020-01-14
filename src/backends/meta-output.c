@@ -62,6 +62,20 @@ meta_output_get_assigned_crtc (MetaOutput *output)
   return priv->crtc;
 }
 
+MetaMonitorTransform
+meta_output_logical_to_crtc_transform (MetaOutput           *output,
+                                       MetaMonitorTransform  transform)
+{
+  MetaMonitorTransform new_transform;
+
+  new_transform = (transform + output->panel_orientation_transform) %
+                  META_MONITOR_TRANSFORM_FLIPPED;
+  if (meta_monitor_transform_is_flipped (transform))
+    new_transform += META_MONITOR_TRANSFORM_FLIPPED;
+
+  return new_transform;
+}
+
 static void
 meta_output_dispose (GObject *object)
 {

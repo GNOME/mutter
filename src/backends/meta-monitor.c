@@ -455,14 +455,8 @@ meta_monitor_logical_to_crtc_transform (MetaMonitor          *monitor,
                                         MetaMonitorTransform  transform)
 {
   MetaOutput *output = meta_monitor_get_main_output (monitor);
-  MetaMonitorTransform new_transform;
 
-  new_transform = (transform + output->panel_orientation_transform) %
-                  META_MONITOR_TRANSFORM_FLIPPED;
-  if (meta_monitor_transform_is_flipped (transform))
-    new_transform += META_MONITOR_TRANSFORM_FLIPPED;
-
-  return new_transform;
+  return meta_output_logical_to_crtc_transform (output, transform);
 }
 
 MetaMonitorTransform
