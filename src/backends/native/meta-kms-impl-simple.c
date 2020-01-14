@@ -247,7 +247,8 @@ process_mode_set (MetaKmsImpl     *impl,
   if (ret != 0)
     {
       g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
-                   "Failed to set mode on CRTC %u: %s",
+                   "Failed to set mode %s on CRTC %u: %s",
+                   mode_set->drm_mode ? mode_set->drm_mode->name : "off",
                    meta_kms_crtc_get_id (crtc),
                    g_strerror (-ret));
       return FALSE;
