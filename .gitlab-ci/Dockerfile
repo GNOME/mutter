@@ -11,6 +11,7 @@ RUN dnf -y update && dnf -y upgrade && \
     dnf install -y 'dnf-command(builddep)' && \
     dnf install -y 'dnf-command(copr)' && \
     dnf copr enable -y fmuellner/gnome-shell-ci && \
+    dnf copr enable -y jadahl/mutter-ci && \
     dnf -y update && dnf -y upgrade && \
 
     dnf builddep -y mutter && \
@@ -25,5 +26,7 @@ RUN dnf -y update && dnf -y upgrade && \
     dnf builddep -y gnome-shell --setopt=install_weak_deps=False && \
     dnf remove -y gnome-bluetooth-libs-devel dbus-glib-devel upower-devel python3-devel && \
     dnf remove -y --noautoremove mutter mutter-devel && \
+
+    dnf upgrade -y 'pkgconfig(libpipewire-0.3)' && \
 
     dnf clean all

@@ -50,7 +50,7 @@ libinput_req = '>= 1.7'
 gbm_req = '>= 10.3'
 
 # screen cast version requirements
-libpipewire_req = '>= 0.2.5'
+libpipewire_req = '>= 0.3.0'
 
 gnome = import('gnome')
 pkg = import('pkgconfig')
@@ -241,7 +241,7 @@ endif
 
 have_remote_desktop = get_option('remote_desktop')
 if have_remote_desktop
-  libpipewire_dep = dependency('libpipewire-0.2', version: libpipewire_req)
+  libpipewire_dep = dependency('libpipewire-0.3', version: libpipewire_req)
 endif
 
 have_introspection = get_option('introspection')
