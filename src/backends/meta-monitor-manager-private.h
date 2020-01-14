@@ -24,6 +24,7 @@
 #define META_MONITOR_MANAGER_PRIVATE_H
 
 #include <cogl/cogl.h>
+#include <graphene.h>
 #include <libgnome-desktop/gnome-pnp-ids.h>
 
 #include "backends/meta-backend-private.h"
@@ -72,8 +73,7 @@ struct _MetaCrtcInfo
 {
   MetaCrtc                 *crtc;
   MetaCrtcMode             *mode;
-  int                       x;
-  int                       y;
+  graphene_rect_t           layout;
   MetaMonitorTransform      transform;
   GPtrArray                *outputs;
 };

@@ -1342,8 +1342,8 @@ notify_view_crtc_presented (MetaRendererView *view,
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
 
   crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
-  refresh_rate = crtc && crtc->current_mode ?
-                 crtc->current_mode->refresh_rate :
+  refresh_rate = crtc && crtc->config ?
+                 crtc->config->mode->refresh_rate :
                  0.0f;
   if (refresh_rate >= frame_info->refresh_rate)
     {
@@ -1555,6 +1555,8 @@ queue_dummy_power_save_page_flip (CoglOnscreen *onscreen)
 static void
 meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
                                 MetaRendererView *view,
+                                MetaMonitor      *monitor,
+                                MetaOutput       *output,
                                 MetaCrtc         *crtc,
                                 MetaKmsUpdate    *kms_update)
 {
@@ -1586,7 +1588,8 @@ meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
           fb_id = meta_drm_buffer_get_fb_id (secondary_gpu_state->gbm.next_fb);
         }
 
-      meta_crtc_kms_assign_primary_plane (crtc, fb_id, kms_update);
+      meta_crtc_kms_assign_primary_plane (crtc, monitor, output,
+                                          fb_id, kms_update);
       meta_crtc_kms_page_flip (crtc,
                                &page_flip_feedback,
                                g_object_ref (view),
@@ -1637,7 +1640,8 @@ set_crtc_mode (MetaLogicalMonitor *logical_monitor,
         uint32_t fb_id;
 
         fb_id = data->onscreen_native->egl.dumb_fb.fb_id;
-        meta_crtc_kms_assign_primary_plane (crtc, fb_id, data->kms_update);
+        meta_crtc_kms_assign_primary_plane (crtc, monitor, output,
+                                            fb_id, data->kms_update);
         break;
       }
 #endif
@@ -1688,6 +1692,8 @@ flip_crtc (MetaLogicalMonitor *logical_monitor,
 
   meta_onscreen_native_flip_crtc (data->onscreen,
                                   data->view,
+                                  monitor,
+                                  output,
                                   crtc,
                                   data->kms_update);
 }
@@ -3437,7 +3443,7 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
             {
               MetaCrtc *crtc = k->data;
 
-              if (crtc->current_mode)
+              if (crtc->config)
                 continue;
 
               kms_update = meta_kms_ensure_pending_update (kms);

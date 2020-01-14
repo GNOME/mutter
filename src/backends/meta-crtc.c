@@ -31,6 +31,30 @@ meta_crtc_get_gpu (MetaCrtc *crtc)
   return crtc->gpu;
 }
 
+void
+meta_crtc_set_config (MetaCrtc             *crtc,
+                      graphene_rect_t      *layout,
+                      MetaCrtcMode         *mode,
+                      MetaMonitorTransform  transform)
+{
+  MetaCrtcConfig *config;
+
+  meta_crtc_unset_config (crtc);
+
+  config = g_new0 (MetaCrtcConfig, 1);
+  config->layout = *layout;
+  config->mode = mode;
+  config->transform = transform;
+
+  crtc->config = config;
+}
+
+void
+meta_crtc_unset_config (MetaCrtc *crtc)
+{
+  g_clear_pointer (&crtc->config, g_free);
+}
+
 static void
 meta_crtc_finalize (GObject *object)
 {

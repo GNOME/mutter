@@ -49,6 +49,13 @@ typedef enum _MetaCrtcModeFlag
   META_CRTC_MODE_FLAG_MASK = 0x3fff
 } MetaCrtcModeFlag;
 
+typedef struct _MetaCrtcConfig
+{
+  graphene_rect_t layout;
+  MetaMonitorTransform transform;
+  MetaCrtcMode *mode;
+} MetaCrtcConfig;
+
 struct _MetaCrtc
 {
   GObject parent;
@@ -56,12 +63,10 @@ struct _MetaCrtc
   MetaGpu *gpu;
 
   glong crtc_id;
-  MetaRectangle rect;
-  MetaCrtcMode *current_mode;
-  MetaMonitorTransform transform;
   unsigned int all_transforms;
 
   MetaLogicalMonitor *logical_monitor;
+  MetaCrtcConfig *config;
 
   /* Used when changing configuration */
   gboolean is_dirty;
@@ -97,5 +102,14 @@ META_EXPORT_TEST G_DECLARE_FINAL_TYPE (MetaCrtc, meta_crtc, META, CRTC, GObject)
 META_EXPORT_TEST G_DECLARE_FINAL_TYPE (MetaCrtcMode, meta_crtc_mode, META, CRTC_MODE, GObject)
 
 MetaGpu * meta_crtc_get_gpu (MetaCrtc *crtc);
+
+META_EXPORT_TEST
+void meta_crtc_set_config (MetaCrtc             *crtc,
+                           graphene_rect_t      *layout,
+                           MetaCrtcMode         *mode,
+                           MetaMonitorTransform  transform);
+
+META_EXPORT_TEST
+void meta_crtc_unset_config (MetaCrtc *crtc);
 
 #endif /* META_CRTC_H */

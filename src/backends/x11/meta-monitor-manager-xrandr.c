@@ -250,37 +250,14 @@ is_crtc_assignment_changed (MetaCrtc      *crtc,
   for (i = 0; i < n_crtc_infos; i++)
     {
       MetaCrtcInfo *crtc_info = crtc_infos[i];
-      unsigned int j;
 
       if (crtc_info->crtc != crtc)
         continue;
 
-      if (crtc->current_mode != crtc_info->mode)
-        return TRUE;
-
-      if (crtc->rect.x != crtc_info->x)
-        return TRUE;
-
-      if (crtc->rect.y != crtc_info->y)
-        return TRUE;
-
-      if (crtc->transform != crtc_info->transform)
-        return TRUE;
-
-      for (j = 0; j < crtc_info->outputs->len; j++)
-        {
-          MetaOutput *output = ((MetaOutput**) crtc_info->outputs->pdata)[j];
-          MetaCrtc *assigned_crtc;
-
-          assigned_crtc = meta_output_get_assigned_crtc (output);
-          if (assigned_crtc != crtc)
-            return TRUE;
-        }
-
-      return FALSE;
+      return meta_crtc_xrandr_is_assignment_changed (crtc, crtc_info);
     }
 
-  return crtc->current_mode != NULL;
+  return !!meta_crtc_xrandr_get_current_mode (crtc);
 }
 
 static gboolean
@@ -408,16 +385,10 @@ apply_crtc_assignments (MetaMonitorManager *manager,
       if (crtc_info->mode == NULL)
         continue;
 
-      if (meta_monitor_transform_is_rotated (crtc_info->transform))
-        {
-          width = MAX (width, crtc_info->x + crtc_info->mode->height);
-          height = MAX (height, crtc_info->y + crtc_info->mode->width);
-        }
-      else
-        {
-          width = MAX (width, crtc_info->x + crtc_info->mode->width);
-          height = MAX (height, crtc_info->y + crtc_info->mode->height);
-        }
+      width = MAX (width, (int) roundf (crtc_info->layout.origin.x +
+                                        crtc_info->layout.size.width));
+      height = MAX (height, (int) roundf (crtc_info->layout.origin.y +
+                                          crtc_info->layout.size.height));
     }
 
   /* Second disable all newly disabled CRTCs, or CRTCs that in the previous
@@ -429,10 +400,15 @@ apply_crtc_assignments (MetaMonitorManager *manager,
     {
       MetaCrtcInfo *crtc_info = crtcs[i];
       MetaCrtc *crtc = crtc_info->crtc;
+      MetaCrtcConfig *crtc_config = crtc->config;
+      int x2, y2;
 
-      if (crtc_info->mode == NULL ||
-          crtc->rect.x + crtc->rect.width > width ||
-          crtc->rect.y + crtc->rect.height > height)
+      x2 = (int) roundf (crtc_config->layout.origin.x +
+                         crtc_config->layout.size.width);
+      y2 = (int) roundf (crtc_config->layout.origin.y +
+                         crtc_config->layout.size.height);
+
+      if (!crtc_info->mode || x2 > width || y2 > height)
         {
           xrandr_set_crtc_config (manager_xrandr,
                                   crtc,
@@ -443,11 +419,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
                                   XCB_RANDR_ROTATION_ROTATE_0,
                                   NULL, 0);
 
-          crtc->rect.x = 0;
-          crtc->rect.y = 0;
-          crtc->rect.width = 0;
-          crtc->rect.height = 0;
-          crtc->current_mode = NULL;
+          meta_crtc_unset_config (crtc);
         }
     }
 
@@ -461,7 +433,8 @@ apply_crtc_assignments (MetaMonitorManager *manager,
           crtc->is_dirty = FALSE;
           continue;
         }
-      if (crtc->current_mode == NULL)
+
+      if (!crtc->config)
         continue;
 
       xrandr_set_crtc_config (manager_xrandr,
@@ -473,11 +446,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
                               XCB_RANDR_ROTATION_ROTATE_0,
                               NULL, 0);
 
-      crtc->rect.x = 0;
-      crtc->rect.y = 0;
-      crtc->rect.width = 0;
-      crtc->rect.height = 0;
-      crtc->current_mode = NULL;
+      meta_crtc_unset_config (crtc);
     }
 
   g_assert (width > 0 && height > 0);
@@ -527,7 +496,8 @@ apply_crtc_assignments (MetaMonitorManager *manager,
                                        save_timestamp,
                                        (xcb_randr_crtc_t) crtc->crtc_id,
                                        XCB_CURRENT_TIME,
-                                       crtc_info->x, crtc_info->y,
+                                       (int) roundf (crtc_info->layout.origin.x),
+                                       (int) roundf (crtc_info->layout.origin.y),
                                        (xcb_randr_mode_t) mode->mode_id,
                                        rotation,
                                        output_ids, n_output_ids))
@@ -535,27 +505,16 @@ apply_crtc_assignments (MetaMonitorManager *manager,
               meta_warning ("Configuring CRTC %d with mode %d (%d x %d @ %f) at position %d, %d and transform %u failed\n",
                             (unsigned)(crtc->crtc_id), (unsigned)(mode->mode_id),
                             mode->width, mode->height, (float)mode->refresh_rate,
-                            crtc_info->x, crtc_info->y, crtc_info->transform);
+                            (int) roundf (crtc_info->layout.origin.x),
+                            (int) roundf (crtc_info->layout.origin.y),
+                            crtc_info->transform);
               continue;
             }
 
-          if (meta_monitor_transform_is_rotated (crtc_info->transform))
-            {
-              width = mode->height;
-              height = mode->width;
-            }
-          else
-            {
-              width = mode->width;
-              height = mode->height;
-            }
-
-          crtc->rect.x = crtc_info->x;
-          crtc->rect.y = crtc_info->y;
-          crtc->rect.width = width;
-          crtc->rect.height = height;
-          crtc->current_mode = mode;
-          crtc->transform = crtc_info->transform;
+          meta_crtc_set_config (crtc,
+                                &crtc_info->layout,
+                                mode,
+                                crtc_info->transform);
         }
     }
 

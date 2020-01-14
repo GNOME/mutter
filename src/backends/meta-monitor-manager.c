@@ -1014,28 +1014,46 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
     {
       MetaCrtc *crtc = l->data;
       GVariantBuilder transforms;
-      int current_mode_index;
+      MetaCrtcConfig *crtc_config;
 
       g_variant_builder_init (&transforms, G_VARIANT_TYPE ("au"));
       for (j = 0; j <= META_MONITOR_TRANSFORM_FLIPPED_270; j++)
         if (crtc->all_transforms & (1 << j))
           g_variant_builder_add (&transforms, "u", j);
 
-      if (crtc->current_mode)
-        current_mode_index = g_list_index (combined_modes, crtc->current_mode);
+      crtc_config = crtc->config;
+
+      if (crtc_config)
+        {
+          int current_mode_index;
+
+          current_mode_index = g_list_index (combined_modes, crtc_config->mode);
+          g_variant_builder_add (&crtc_builder, "(uxiiiiiuaua{sv})",
+                                 i, /* ID */
+                                 (int64_t) crtc->crtc_id,
+                                 (int) roundf (crtc_config->layout.origin.x),
+                                 (int) roundf (crtc_config->layout.origin.y),
+                                 (int) roundf (crtc_config->layout.size.width),
+                                 (int) roundf (crtc_config->layout.size.height),
+                                 current_mode_index,
+                                 (uint32_t) crtc_config->transform,
+                                 &transforms,
+                                 NULL /* properties */);
+        }
       else
-        current_mode_index = -1;
-      g_variant_builder_add (&crtc_builder, "(uxiiiiiuaua{sv})",
-                             i, /* ID */
-                             (gint64)crtc->crtc_id,
-                             (int)crtc->rect.x,
-                             (int)crtc->rect.y,
-                             (int)crtc->rect.width,
-                             (int)crtc->rect.height,
-                             current_mode_index,
-                             (guint32)crtc->transform,
-                             &transforms,
-                             NULL /* properties */);
+        {
+          g_variant_builder_add (&crtc_builder, "(uxiiiiiuaua{sv})",
+                                 i, /* ID */
+                                 (int64_t) crtc->crtc_id,
+                                 0,
+                                 0,
+                                 0,
+                                 0,
+                                 -1,
+                                 (uint32_t) META_MONITOR_TRANSFORM_NORMAL,
+                                 &transforms,
+                                 NULL /* properties */);
+        }
     }
 
   for (l = combined_outputs, i = 0; l; l = l->next, i++)

@@ -39,6 +39,11 @@ gboolean meta_crtc_xrandr_set_config (MetaCrtc            *crtc,
                                       int                  n_outputs,
                                       xcb_timestamp_t     *out_timestamp);
 
+gboolean meta_crtc_xrandr_is_assignment_changed (MetaCrtc     *crtc,
+                                                 MetaCrtcInfo *crtc_info);
+
+MetaCrtcMode * meta_crtc_xrandr_get_current_mode (MetaCrtc *crtc);
+
 MetaCrtc * meta_create_xrandr_crtc (MetaGpuXrandr      *gpu_xrandr,
                                     XRRCrtcInfo        *xrandr_crtc,
                                     RRCrtc              crtc_id,

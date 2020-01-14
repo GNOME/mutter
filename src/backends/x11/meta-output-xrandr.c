@@ -101,12 +101,14 @@ output_set_underscanning_xrandr (MetaOutput *output,
   if (underscanning)
     {
       MetaCrtc *crtc;
+      MetaCrtcConfig *crtc_config;
       uint32_t border_value;
 
       crtc = meta_output_get_assigned_crtc (output);
+      crtc_config = crtc->config;
 
       prop = XInternAtom (xdisplay, "underscan hborder", False);
-      border_value = crtc->current_mode->width * 0.05;
+      border_value = crtc_config->mode->width * 0.05;
 
       xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
                                         (XID) output->winsys_id,
@@ -115,7 +117,7 @@ output_set_underscanning_xrandr (MetaOutput *output,
                                         1, &border_value);
 
       prop = XInternAtom (xdisplay, "underscan vborder", False);
-      border_value = crtc->current_mode->height * 0.05;
+      border_value = crtc_config->mode->height * 0.05;
 
       xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
                                         (XID) output->winsys_id,
