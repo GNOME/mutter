@@ -429,4 +429,5 @@ _cogl_driver_gles =
     _cogl_buffer_gl_set_data,
     _cogl_sampler_gl_init,
     _cogl_sampler_gl_free,
+    _cogl_gl_set_uniform,
   };

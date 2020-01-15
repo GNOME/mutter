@@ -274,6 +274,11 @@ struct _CoglDriverVtable
   void
   (*sampler_free) (CoglContext *context,
                    CoglSamplerCacheEntry *entry);
+
+  void
+  (* set_uniform) (CoglContext *ctx,
+                   GLint location,
+                   const CoglBoxedValue *value);
 };
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())

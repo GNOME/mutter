@@ -163,5 +163,10 @@ void
 _cogl_sampler_gl_free (CoglContext *context,
                        CoglSamplerCacheEntry *entry);
 
+void
+_cogl_gl_set_uniform (CoglContext *ctx,
+                      GLint location,
+                      const CoglBoxedValue *value);
+
 #endif /* __COGL_PIPELINE_OPENGL_PRIVATE_H */
 

@@ -1190,3 +1190,95 @@ done:
   COGL_TIMER_STOP (_cogl_uprof_context, pipeline_flush_timer);
 }
 
+void
+_cogl_gl_set_uniform (CoglContext *ctx,
+                      GLint location,
+                      const CoglBoxedValue *value)
+{
+  switch (value->type)
+    {
+    case COGL_BOXED_NONE:
+      break;
+
+    case COGL_BOXED_INT:
+      {
+        const int *ptr;
+
+        if (value->count == 1)
+          ptr = value->v.int_value;
+        else
+          ptr = value->v.int_array;
+
+        switch (value->size)
+          {
+          case 1:
+            GE( ctx, glUniform1iv (location, value->count, ptr) );
+            break;
+          case 2:
+            GE( ctx, glUniform2iv (location, value->count, ptr) );
+            break;
+          case 3:
+            GE( ctx, glUniform3iv (location, value->count, ptr) );
+            break;
+          case 4:
+            GE( ctx, glUniform4iv (location, value->count, ptr) );
+            break;
+          }
+      }
+      break;
+
+    case COGL_BOXED_FLOAT:
+      {
+        const float *ptr;
+
+        if (value->count == 1)
+          ptr = value->v.float_value;
+        else
+          ptr = value->v.float_array;
+
+        switch (value->size)
+          {
+          case 1:
+            GE( ctx, glUniform1fv (location, value->count, ptr) );
+            break;
+          case 2:
+            GE( ctx, glUniform2fv (location, value->count, ptr) );
+            break;
+          case 3:
+            GE( ctx, glUniform3fv (location, value->count, ptr) );
+            break;
+          case 4:
+            GE( ctx, glUniform4fv (location, value->count, ptr) );
+            break;
+          }
+      }
+      break;
+
+    case COGL_BOXED_MATRIX:
+      {
+        const float *ptr;
+
+        if (value->count == 1)
+          ptr = value->v.matrix;
+        else
+          ptr = value->v.float_array;
+
+        switch (value->size)
+          {
+          case 2:
+            GE( ctx, glUniformMatrix2fv (location, value->count,
+                                         FALSE, ptr) );
+            break;
+          case 3:
+            GE( ctx, glUniformMatrix3fv (location, value->count,
+                                         FALSE, ptr) );
+            break;
+          case 4:
+            GE( ctx, glUniformMatrix4fv (location, value->count,
+                                         FALSE, ptr) );
+            break;
+          }
+      }
+      break;
+    }
+}
