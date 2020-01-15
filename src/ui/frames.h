@@ -82,6 +82,8 @@ struct _MetaUIFrame
   MetaFrameControl prelit_control;
   MetaButtonState button_state;
   int grab_button;
+
+  gboolean is_frozen;
 };
 
 struct _MetaFrames

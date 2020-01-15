@@ -157,6 +157,11 @@ prefs_changed_callback (MetaPreference pref,
 static void
 invalidate_whole_window (MetaUIFrame *frame)
 {
+  if (!frame->is_frozen)
+    {
+      meta_window_x11_freeze_commits (frame->meta_window);
+      frame->is_frozen = TRUE;
+    }
   gdk_window_invalidate_rect (frame->window, NULL, FALSE);
 }
 
@@ -526,6 +531,7 @@ meta_frames_manage_window (MetaFrames *frames,
   frame->title = NULL;
   frame->prelit_control = META_FRAME_CONTROL_NONE;
   frame->button_state = META_BUTTON_STATE_NORMAL;
+  frame->is_frozen = FALSE;
 
   meta_x11_wm_grab_buttons (frames->x11_display, frame->xwindow);
 
@@ -554,6 +560,9 @@ meta_ui_frame_unmanage (MetaUIFrame *frame)
 
   if (frame->text_layout)
     g_object_unref (G_OBJECT (frame->text_layout));
+
+  if (frame->is_frozen)
+    meta_window_x11_thaw_commits (frame->meta_window);
 
   g_free (frame->title);
 
@@ -1563,6 +1572,12 @@ meta_ui_frame_paint (MetaUIFrame  *frame,
                          &button_layout,
                          button_states,
                          mini_icon);
+
+  if (frame->is_frozen)
+    {
+      meta_window_x11_thaw_commits (frame->meta_window);
+      frame->is_frozen = FALSE;
+    }
 }
 
 static gboolean
