@@ -2151,6 +2151,15 @@ meta_rectangle_from_graphene_rect (const graphene_rect_t *rect,
         };
       }
       break;
+    case META_ROUNDING_STRATEGY_ROUND:
+      {
+        *dest = (MetaRectangle) {
+          .x = roundf (rect->origin.x),
+          .y = roundf (rect->origin.y),
+          .width = roundf (rect->size.width),
+          .height = roundf (rect->size.height),
+        };
+      }
     }
 }
 

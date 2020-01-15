@@ -45,6 +45,7 @@ typedef enum _MetaRoundingStrategy
 {
   META_ROUNDING_STRATEGY_SHRINK,
   META_ROUNDING_STRATEGY_GROW,
+  META_ROUNDING_STRATEGY_ROUND,
 } MetaRoundingStrategy;
 
 /* Output functions -- note that the output buffer had better be big enough:
