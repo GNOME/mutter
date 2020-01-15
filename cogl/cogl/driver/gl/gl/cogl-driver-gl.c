@@ -42,6 +42,7 @@
 #include "driver/gl/cogl-attribute-gl-private.h"
 #include "driver/gl/cogl-clip-stack-gl-private.h"
 #include "driver/gl/cogl-buffer-gl-private.h"
+#include "driver/gl/cogl-pipeline-opengl-private.h"
 
 static gboolean
 _cogl_driver_gl_real_context_init (CoglContext *context)
@@ -562,4 +563,6 @@ _cogl_driver_gl =
     _cogl_buffer_gl_map_range,
     _cogl_buffer_gl_unmap,
     _cogl_buffer_gl_set_data,
+    _cogl_sampler_gl_init,
+    _cogl_sampler_gl_free,
   };

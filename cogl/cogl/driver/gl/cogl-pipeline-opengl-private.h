@@ -155,5 +155,13 @@ _cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
                                                const char **strings_in,
                                                const GLint *lengths_in);
 
+void
+_cogl_sampler_gl_init (CoglContext *context,
+                       CoglSamplerCacheEntry *entry);
+
+void
+_cogl_sampler_gl_free (CoglContext *context,
+                       CoglSamplerCacheEntry *entry);
+
 #endif /* __COGL_PIPELINE_OPENGL_PRIVATE_H */
 

@@ -79,6 +79,10 @@ _cogl_gl_error_to_string (GLenum error_code);
 typedef struct _CoglGLContext {
   GArray           *texture_units;
   int               active_texture_unit;
+
+  /* This is used for generated fake unique sampler object numbers
+   when the sampler object extension is not supported */
+  GLuint next_fake_sampler_object_number;
 } CoglGLContext;
 
 CoglGLContext *

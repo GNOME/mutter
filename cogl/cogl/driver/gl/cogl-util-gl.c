@@ -93,6 +93,7 @@ _cogl_driver_gl_context_init (CoglContext *context)
   if (!gl_context)
     return FALSE;
 
+  gl_context->next_fake_sampler_object_number = 1;
   gl_context->texture_units =
     g_array_new (FALSE, FALSE, sizeof (CoglTextureUnit));
 

@@ -694,6 +694,48 @@ _cogl_pipeline_layer_forward_wrap_modes (CoglPipelineLayer *layer,
                                                    gl_wrap_mode_t);
 }
 
+void
+_cogl_sampler_gl_init (CoglContext *context, CoglSamplerCacheEntry *entry)
+{
+  if (_cogl_has_private_feature (context,
+                                 COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS))
+    {
+      GE( context, glGenSamplers (1, &entry->sampler_object) );
+
+      GE( context, glSamplerParameteri (entry->sampler_object,
+                                        GL_TEXTURE_MIN_FILTER,
+                                        entry->min_filter) );
+      GE( context, glSamplerParameteri (entry->sampler_object,
+                                        GL_TEXTURE_MAG_FILTER,
+                                        entry->mag_filter) );
+
+      GE (context, glSamplerParameteri (entry->sampler_object,
+                                        GL_TEXTURE_WRAP_S,
+                                        entry->wrap_mode_s) );
+      GE (context, glSamplerParameteri (entry->sampler_object,
+                                        GL_TEXTURE_WRAP_T,
+                                        entry->wrap_mode_t) );
+    }
+  else
+    {
+      CoglGLContext *gl_context = context->driver_context;
+
+      /* If sampler objects aren't supported then we'll invent a
+         unique number so that pipelines can still compare the
+         unique state just by comparing the sampler object
+         numbers */
+      entry->sampler_object = gl_context->next_fake_sampler_object_number++;
+    }
+}
+
+void
+_cogl_sampler_gl_free (CoglContext *context, CoglSamplerCacheEntry *entry)
+{
+  if (_cogl_has_private_feature (context,
+                                 COGL_PRIVATE_FEATURE_SAMPLER_OBJECTS))
+    GE( context, glDeleteSamplers (1, &entry->sampler_object) );
+}
+
 /* OpenGL associates the min/mag filters and repeat modes with the
  * texture object not the texture unit so we always have to re-assert
  * the filter and repeat modes whenever we use a texture since it may

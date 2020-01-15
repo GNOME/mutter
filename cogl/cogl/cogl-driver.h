@@ -35,6 +35,7 @@
 #include "cogl-offscreen.h"
 #include "cogl-framebuffer-private.h"
 #include "cogl-attribute-private.h"
+#include "cogl-sampler-cache-private.h"
 
 typedef struct _CoglDriverVtable CoglDriverVtable;
 
@@ -265,6 +266,14 @@ struct _CoglDriverVtable
                        const void *data,
                        unsigned int size,
                        GError **error);
+
+  void
+  (*sampler_init) (CoglContext *context,
+                   CoglSamplerCacheEntry *entry);
+
+  void
+  (*sampler_free) (CoglContext *context,
+                   CoglSamplerCacheEntry *entry);
 };
 
 #define COGL_DRIVER_ERROR (_cogl_driver_error_quark ())
