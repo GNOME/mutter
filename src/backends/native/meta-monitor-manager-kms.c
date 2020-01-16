@@ -221,8 +221,6 @@ apply_crtc_assignments (MetaMonitorManager *manager,
         {
           MetaCrtc *crtc = k->data;
 
-          crtc->logical_monitor = NULL;
-
           if (crtc->is_dirty)
             {
               crtc->is_dirty = FALSE;

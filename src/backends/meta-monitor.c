@@ -66,6 +66,8 @@ typedef struct _MetaMonitorPrivate
 
   MetaMonitorSpec *spec;
 
+  MetaLogicalMonitor *logical_monitor;
+
   /*
    * The primary or first output for this monitor, 0 if we can't figure out.
    * It can be matched to a winsys_id of a MetaOutput.
@@ -1448,16 +1450,9 @@ meta_monitor_get_spec (MetaMonitor *monitor)
 MetaLogicalMonitor *
 meta_monitor_get_logical_monitor (MetaMonitor *monitor)
 {
-  MetaOutput *output;
-  MetaCrtc *crtc;
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-  crtc = meta_output_get_assigned_crtc (output);
-
-  if (crtc)
-    return crtc->logical_monitor;
-  else
-    return NULL;
+  return priv->logical_monitor;
 }
 
 MetaMonitorMode *
@@ -1894,4 +1889,13 @@ meta_monitor_get_display_name (MetaMonitor *monitor)
     meta_monitor_get_instance_private (monitor);
 
   return monitor_priv->display_name;
+}
+
+void
+meta_monitor_set_logical_monitor (MetaMonitor        *monitor,
+                                  MetaLogicalMonitor *logical_monitor)
+{
+  MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
+
+  priv->logical_monitor = logical_monitor;
 }

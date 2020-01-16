@@ -283,4 +283,7 @@ void meta_monitor_spec_free (MetaMonitorSpec *monitor_id);
 
 const char * meta_monitor_get_display_name (MetaMonitor *monitor);
 
+void meta_monitor_set_logical_monitor (MetaMonitor        *monitor,
+                                       MetaLogicalMonitor *logical_monitor);
+
 #endif /* META_MONITOR_H */

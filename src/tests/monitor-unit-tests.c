@@ -520,7 +520,7 @@ check_current_monitor_mode (MetaMonitor         *monitor,
 
       g_assert (monitor_crtc_mode->crtc_mode == crtc_config->mode);
 
-      logical_monitor = crtc->logical_monitor;
+      logical_monitor = meta_monitor_get_logical_monitor (monitor);
       g_assert_nonnull (logical_monitor);
     }
 
@@ -618,7 +618,8 @@ check_logical_monitor (MonitorTestCase               *test_case,
             }
 
           crtc = meta_output_get_assigned_crtc (output);
-          g_assert (!crtc || crtc->logical_monitor == logical_monitor);
+          g_assert (!crtc ||
+                    meta_monitor_get_logical_monitor (monitor) == logical_monitor);
           g_assert_cmpint (logical_monitor->is_presentation,
                            ==,
                            output->is_presentation);
@@ -831,7 +832,6 @@ check_monitor_configuration (MonitorTestCase *test_case)
         }
       else
         {
-          MetaLogicalMonitor *logical_monitor = crtc->logical_monitor;
           MetaCrtcMode *expected_current_mode;
 
           g_assert_nonnull (crtc_config);
@@ -844,9 +844,6 @@ check_monitor_configuration (MonitorTestCase *test_case)
           g_assert_cmpuint (crtc_config->transform,
                             ==,
                             test_case->expect.crtcs[i].transform);
-
-          logical_monitor = crtc->logical_monitor;
-          g_assert_nonnull (logical_monitor);
 
           g_assert_cmpfloat_with_epsilon (crtc_config->layout.origin.x,
                                           test_case->expect.crtcs[i].x,

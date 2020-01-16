@@ -177,16 +177,14 @@ meta_logical_monitor_add_monitor (MetaLogicalMonitor *logical_monitor,
       for (l_output = outputs; l_output; l_output = l_output->next)
         {
           MetaOutput *output = l_output->data;
-          MetaCrtc *crtc;
 
           is_presentation = is_presentation && output->is_presentation;
-          crtc = meta_output_get_assigned_crtc (output);
-          if (crtc)
-            crtc->logical_monitor = logical_monitor;
         }
     }
 
   logical_monitor->is_presentation = is_presentation;
+
+  meta_monitor_set_logical_monitor (monitor, logical_monitor);
 }
 
 gboolean

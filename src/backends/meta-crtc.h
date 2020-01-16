@@ -65,7 +65,6 @@ struct _MetaCrtc
   glong crtc_id;
   unsigned int all_transforms;
 
-  MetaLogicalMonitor *logical_monitor;
   MetaCrtcConfig *config;
 
   /* Used when changing configuration */
