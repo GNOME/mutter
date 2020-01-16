@@ -953,6 +953,7 @@ _cogl_pipeline_progend_glsl_layer_pre_change_notify (
                                                 CoglPipelineLayerState change)
 {
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglTextureUnit *unit;
 
   if ((change & (_cogl_pipeline_get_layer_state_for_fragment_codegen (ctx) |
                  COGL_PIPELINE_LAYER_STATE_AFFECTS_VERTEX_CODEGEN)))
@@ -977,6 +978,15 @@ _cogl_pipeline_progend_glsl_layer_pre_change_notify (
           program_state->unit_state[unit_index].dirty_texture_matrix = TRUE;
         }
     }
+
+  /* If the layer being changed is the same as the last layer we
+   * flushed to the corresponding texture unit then we keep a track of
+   * the changes so we can try to minimize redundant OpenGL calls if
+   * the same layer is flushed again.
+   */
+  unit = _cogl_get_texture_unit (_cogl_pipeline_layer_get_unit_index (layer));
+  if (unit->layer == layer)
+    unit->layer_changes_since_flush |= change;
 }
 
 static void

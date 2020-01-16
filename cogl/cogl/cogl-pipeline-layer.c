@@ -44,7 +44,6 @@
 #include "cogl-node-private.h"
 #include "cogl-context-private.h"
 #include "cogl-texture-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
 
 #include <string.h>
 
@@ -342,8 +341,6 @@ _cogl_pipeline_layer_pre_change_notify (CoglPipeline *required_owner,
                                         CoglPipelineLayer *layer,
                                         CoglPipelineLayerState change)
 {
-  CoglTextureUnit *unit;
-
   /* Identify the case where the layer is new with no owner or
    * dependants and so we don't need to do anything. */
   if (_cogl_list_empty (&COGL_NODE (layer)->children) &&
@@ -402,15 +399,6 @@ _cogl_pipeline_layer_pre_change_notify (CoglPipeline *required_owner,
       if (progend->layer_pre_change_notify)
         progend->layer_pre_change_notify (required_owner, layer, change);
     }
-
-  /* If the layer being changed is the same as the last layer we
-   * flushed to the corresponding texture unit then we keep a track of
-   * the changes so we can try to minimize redundant OpenGL calls if
-   * the same layer is flushed again.
-   */
-  unit = _cogl_get_texture_unit (_cogl_pipeline_layer_get_unit_index (layer));
-  if (unit->layer == layer)
-    unit->layer_changes_since_flush |= change;
 
 init_layer_state:
 
