@@ -371,10 +371,11 @@ meta_frame_get_frame_bounds (MetaFrame *frame)
 }
 
 void
-meta_frame_get_mask (MetaFrame                    *frame,
-                     cairo_t                      *cr)
+meta_frame_get_mask (MetaFrame             *frame,
+                     cairo_rectangle_int_t *frame_rect,
+                     cairo_t               *cr)
 {
-  meta_ui_frame_get_mask (frame->ui_frame, cr);
+  meta_ui_frame_get_mask (frame->ui_frame, frame_rect, cr);
 }
 
 void

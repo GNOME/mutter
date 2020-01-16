@@ -135,8 +135,9 @@ void meta_ui_frame_get_borders (MetaUIFrame      *frame,
 
 cairo_region_t * meta_ui_frame_get_bounds (MetaUIFrame *frame);
 
-void meta_ui_frame_get_mask (MetaUIFrame *frame,
-                             cairo_t     *cr);
+void meta_ui_frame_get_mask (MetaUIFrame           *frame,
+                             cairo_rectangle_int_t *frame_rect,
+                             cairo_t               *cr);
 
 void meta_ui_frame_move_resize (MetaUIFrame *frame,
                                 int x, int y, int width, int height);

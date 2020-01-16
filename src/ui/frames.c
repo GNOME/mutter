@@ -1423,21 +1423,19 @@ get_visible_frame_border_region (MetaUIFrame *frame)
  * frame's alpha channel, as a mask to be applied to an opaque pixmap.
  *
  * @frame: This frame
- * @xwindow: The X window for the frame, which has the client window as a child
+ * @frame_rect: The frame rect
  * @cr: Used to draw the resulting mask
  */
 void
-meta_ui_frame_get_mask (MetaUIFrame *frame,
-                        cairo_t     *cr)
+meta_ui_frame_get_mask (MetaUIFrame           *frame,
+                        cairo_rectangle_int_t *frame_rect,
+                        cairo_t               *cr)
 {
   MetaFrameBorders borders;
   MetaFrameFlags flags;
-  MetaRectangle frame_rect;
   cairo_surface_t *surface;
   double xscale, yscale;
   int scale;
-
-  meta_window_get_frame_rect (frame->meta_window, &frame_rect);
 
   flags = meta_frame_get_flags (frame->meta_window->frame);
 
@@ -1453,11 +1451,11 @@ meta_ui_frame_get_mask (MetaUIFrame *frame,
   gtk_render_background (frame->style_info->styles[META_STYLE_ELEMENT_FRAME], cr,
                          borders.invisible.left / scale,
                          borders.invisible.top / scale,
-                         frame_rect.width / scale, frame_rect.height / scale);
+                         frame_rect->width / scale, frame_rect->height / scale);
   gtk_render_background (frame->style_info->styles[META_STYLE_ELEMENT_TITLEBAR], cr,
                          borders.invisible.left / scale,
                          borders.invisible.top / scale,
-                         frame_rect.width / scale, borders.total.top / scale);
+                         frame_rect->width / scale, borders.total.top / scale);
 
   cairo_surface_set_device_scale (surface, xscale, yscale);
 }

@@ -72,8 +72,9 @@ void meta_frame_clear_cached_borders (MetaFrame *frame);
 
 cairo_region_t *meta_frame_get_frame_bounds (MetaFrame *frame);
 
-void meta_frame_get_mask (MetaFrame *frame,
-                          cairo_t   *cr);
+void meta_frame_get_mask (MetaFrame             *frame,
+                          cairo_rectangle_int_t *frame_rect,
+                          cairo_t               *cr);
 
 void meta_frame_set_screen_cursor (MetaFrame	*frame,
 				   MetaCursor	cursor);

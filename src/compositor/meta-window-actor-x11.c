@@ -890,6 +890,9 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
     {
       cairo_region_t *frame_paint_region, *scanned_region;
       cairo_rectangle_int_t rect = { 0, 0, tex_width, tex_height };
+      cairo_rectangle_int_t frame_rect;
+
+      meta_window_get_frame_rect (window, &frame_rect);
 
       /* Make sure we don't paint the frame over the client window. */
       frame_paint_region = cairo_region_create_rectangle (&rect);
@@ -899,7 +902,7 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
       gdk_cairo_region (cr, frame_paint_region);
       cairo_clip (cr);
 
-      meta_frame_get_mask (window->frame, cr);
+      meta_frame_get_mask (window->frame, &frame_rect, cr);
 
       cairo_surface_flush (image);
       scanned_region = scan_visible_region (mask_data, stride, frame_paint_region);
