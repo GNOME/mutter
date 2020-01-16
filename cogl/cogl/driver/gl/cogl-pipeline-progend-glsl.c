@@ -634,6 +634,82 @@ _cogl_pipeline_progend_glsl_start (CoglPipeline *pipeline)
 }
 
 static void
+_cogl_shader_compile_real (CoglHandle handle,
+                           CoglPipeline *pipeline)
+{
+  CoglShader *shader = handle;
+  GLenum gl_type;
+  GLint status;
+
+  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+
+  if (shader->gl_handle)
+    {
+      CoglPipeline *prev = shader->compilation_pipeline;
+
+      /* XXX: currently the only things that will affect the
+       * boilerplate for user shaders, apart from driver features,
+       * are the pipeline layer-indices and texture-unit-indices
+       */
+      if (pipeline == prev ||
+          _cogl_pipeline_layer_and_unit_numbers_equal (prev, pipeline))
+        return;
+
+      GE (ctx, glDeleteShader (shader->gl_handle));
+      shader->gl_handle = 0;
+
+      if (shader->compilation_pipeline)
+        {
+          cogl_object_unref (shader->compilation_pipeline);
+          shader->compilation_pipeline = NULL;
+        }
+    }
+
+  switch (shader->type)
+    {
+    case COGL_SHADER_TYPE_VERTEX:
+      gl_type = GL_VERTEX_SHADER;
+      break;
+    case COGL_SHADER_TYPE_FRAGMENT:
+      gl_type = GL_FRAGMENT_SHADER;
+      break;
+    default:
+      g_assert_not_reached ();
+      break;
+    }
+
+  shader->gl_handle = ctx->glCreateShader (gl_type);
+
+  _cogl_glsl_shader_set_source_with_boilerplate (ctx,
+                                                 shader->gl_handle,
+                                                 gl_type,
+                                                 pipeline,
+                                                 1,
+                                                 (const char **)
+                                                  &shader->source,
+                                                 NULL);
+  GE (ctx, glCompileShader (shader->gl_handle));
+
+  shader->compilation_pipeline = cogl_object_ref (pipeline);
+
+  GE (ctx, glGetShaderiv (shader->gl_handle, GL_COMPILE_STATUS, &status));
+  if (!status)
+    {
+      char buffer[512];
+      int len = 0;
+
+      ctx->glGetShaderInfoLog (shader->gl_handle, 511, &len, buffer);
+      buffer[len] = '\0';
+
+      g_warning ("Failed to compile GLSL program:\n"
+                 "src:\n%s\n"
+                 "error:\n%s\n",
+                 shader->source,
+                 buffer);
+    }
+}
+
+static void
 _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
                                  unsigned long pipelines_difference)
 {

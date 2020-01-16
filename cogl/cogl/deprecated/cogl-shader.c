@@ -32,7 +32,6 @@
 
 #include "cogl-context-private.h"
 #include "cogl-object-private.h"
-#include "cogl-glsl-shader-private.h"
 #include "cogl-glsl-shader-boilerplate.h"
 #include "driver/gl/cogl-util-gl-private.h"
 #include "deprecated/cogl-shader-private.h"
@@ -44,13 +43,6 @@
 static void _cogl_shader_free (CoglShader *shader);
 
 COGL_HANDLE_DEFINE (Shader, shader);
-
-#ifndef GL_FRAGMENT_SHADER
-#define GL_FRAGMENT_SHADER 0x8B30
-#endif
-#ifndef GL_VERTEX_SHADER
-#define GL_VERTEX_SHADER 0x8B31
-#endif
 
 static void
 _cogl_shader_free (CoglShader *shader)
@@ -91,23 +83,6 @@ cogl_create_shader (CoglShaderType type)
   return _cogl_shader_handle_new (shader);
 }
 
-static void
-delete_shader (CoglShader *shader)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  if (shader->gl_handle)
-    GE (ctx, glDeleteShader (shader->gl_handle));
-
-  shader->gl_handle = 0;
-
-  if (shader->compilation_pipeline)
-    {
-      cogl_object_unref (shader->compilation_pipeline);
-      shader->compilation_pipeline = NULL;
-    }
-}
-
 void
 cogl_shader_source (CoglHandle   handle,
                     const char  *source)
@@ -122,77 +97,6 @@ cogl_shader_source (CoglHandle   handle,
   shader = handle;
 
   shader->source = g_strdup (source);
-}
-
-void
-_cogl_shader_compile_real (CoglHandle handle,
-                           CoglPipeline *pipeline)
-{
-  CoglShader *shader = handle;
-  GLenum gl_type;
-  GLint status;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  if (shader->gl_handle)
-    {
-      CoglPipeline *prev = shader->compilation_pipeline;
-
-      /* XXX: currently the only things that will affect the
-       * boilerplate for user shaders, apart from driver features,
-       * are the pipeline layer-indices and texture-unit-indices
-       */
-      if (pipeline == prev ||
-          _cogl_pipeline_layer_and_unit_numbers_equal (prev, pipeline))
-        return;
-    }
-
-  if (shader->gl_handle)
-    delete_shader (shader);
-
-  switch (shader->type)
-    {
-    case COGL_SHADER_TYPE_VERTEX:
-      gl_type = GL_VERTEX_SHADER;
-      break;
-    case COGL_SHADER_TYPE_FRAGMENT:
-      gl_type = GL_FRAGMENT_SHADER;
-      break;
-    default:
-      g_assert_not_reached ();
-      break;
-    }
-
-  shader->gl_handle = ctx->glCreateShader (gl_type);
-
-  _cogl_glsl_shader_set_source_with_boilerplate (ctx,
-                                                 shader->gl_handle,
-                                                 gl_type,
-                                                 pipeline,
-                                                 1,
-                                                 (const char **)
-                                                  &shader->source,
-                                                 NULL);
-
-  GE (ctx, glCompileShader (shader->gl_handle));
-
-  shader->compilation_pipeline = cogl_object_ref (pipeline);
-
-  GE (ctx, glGetShaderiv (shader->gl_handle, GL_COMPILE_STATUS, &status));
-  if (!status)
-    {
-      char buffer[512];
-      int len = 0;
-
-      ctx->glGetShaderInfoLog (shader->gl_handle, 511, &len, buffer);
-      buffer[len] = '\0';
-
-      g_warning ("Failed to compile GLSL program:\n"
-                 "src:\n%s\n"
-                 "error:\n%s\n",
-                 shader->source,
-                 buffer);
-    }
 }
 
 CoglShaderType

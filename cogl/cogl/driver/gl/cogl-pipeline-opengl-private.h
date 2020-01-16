@@ -146,5 +146,14 @@ _cogl_pipeline_flush_gl_state (CoglContext *context,
                                gboolean skip_gl_state,
                                gboolean unknown_color_alpha);
 
+void
+_cogl_glsl_shader_set_source_with_boilerplate (CoglContext *ctx,
+                                               GLuint shader_gl_handle,
+                                               GLenum shader_gl_type,
+                                               CoglPipeline *pipeline,
+                                               GLsizei count_in,
+                                               const char **strings_in,
+                                               const GLint *lengths_in);
+
 #endif /* __COGL_PIPELINE_OPENGL_PRIVATE_H */
 

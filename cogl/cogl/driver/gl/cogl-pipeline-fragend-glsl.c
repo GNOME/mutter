@@ -43,11 +43,11 @@
 #include "cogl-snippet-private.h"
 #include "cogl-list.h"
 #include "driver/gl/cogl-util-gl-private.h"
+#include "driver/gl/cogl-pipeline-opengl-private.h"
 
 #include "cogl-context-private.h"
 #include "cogl-object-private.h"
 #include "cogl-pipeline-cache.h"
-#include "cogl-glsl-shader-private.h"
 #include "driver/gl/cogl-pipeline-fragend-glsl-private.h"
 #include "deprecated/cogl-shader-private.h"
 #include "deprecated/cogl-program-private.h"

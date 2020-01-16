@@ -274,8 +274,6 @@ cogl_sources = [
   'cogl-pipeline-layer-state.c',
   'cogl-pipeline-state-private.h',
   'cogl-pipeline-debug.c',
-  'cogl-glsl-shader.c',
-  'cogl-glsl-shader-private.h',
   'cogl-glsl-shader-boilerplate.h',
   'cogl-pipeline-snippet-private.h',
   'cogl-pipeline-snippet.c',
