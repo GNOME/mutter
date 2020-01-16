@@ -99,6 +99,8 @@ struct _MetaWindowActorX11
   gboolean recompute_focused_shadow;
   gboolean recompute_unfocused_shadow;
   gboolean is_frozen;
+
+  cairo_rectangle_int_t client_area;
 };
 
 static MetaCullableInterface *cullable_parent_iface;
@@ -839,7 +841,6 @@ scan_visible_region (guchar         *mask_data,
 
 static void
 build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
-                           cairo_rectangle_int_t *client_area,
                            cairo_region_t        *shape_region)
 {
   ClutterBackend *backend = clutter_get_default_backend ();
@@ -892,7 +893,8 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
 
       /* Make sure we don't paint the frame over the client window. */
       frame_paint_region = cairo_region_create_rectangle (&rect);
-      cairo_region_subtract_rectangle (frame_paint_region, client_area);
+      cairo_region_subtract_rectangle (frame_paint_region,
+                                       &actor_x11->client_area);
 
       gdk_cairo_region (cr, frame_paint_region);
       cairo_clip (cr);
@@ -950,14 +952,13 @@ update_shape_region (MetaWindowActorX11 *actor_x11)
   MetaWindow *window =
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   cairo_region_t *region = NULL;
-  cairo_rectangle_int_t client_area;
-
-  meta_window_get_client_area_rect (window, &client_area);
 
   if (window->frame && window->shape_region)
     {
       region = cairo_region_copy (window->shape_region);
-      cairo_region_translate (region, client_area.x, client_area.y);
+      cairo_region_translate (region,
+                              actor_x11->client_area.x,
+                              actor_x11->client_area.y);
     }
   else if (window->shape_region != NULL)
     {
@@ -968,11 +969,11 @@ update_shape_region (MetaWindowActorX11 *actor_x11)
       /* If we don't have a shape on the server, that means that
        * we have an implicit shape of one rectangle covering the
        * entire window. */
-      region = cairo_region_create_rectangle (&client_area);
+      region = cairo_region_create_rectangle (&actor_x11->client_area);
     }
 
   if (window->shape_region || window->frame)
-    build_and_scan_frame_mask (actor_x11, &client_area, region);
+    build_and_scan_frame_mask (actor_x11, region);
 
   g_clear_pointer (&actor_x11->shape_region, cairo_region_destroy);
   actor_x11->shape_region = region;
@@ -1046,10 +1047,6 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
   is_maybe_transparent = is_actor_maybe_transparent (actor_x11);
   if (is_maybe_transparent && window->opaque_region)
     {
-      cairo_rectangle_int_t client_area;
-
-      meta_window_get_client_area_rect (window, &client_area);
-
       /* The opaque region is defined to be a part of the
        * window which ARGB32 will always paint with opaque
        * pixels. For these regions, we want to avoid painting
@@ -1061,7 +1058,9 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
        * case, graphical glitches will occur.
        */
       opaque_region = cairo_region_copy (window->opaque_region);
-      cairo_region_translate (opaque_region, client_area.x, client_area.y);
+      cairo_region_translate (opaque_region,
+                              actor_x11->client_area.x,
+                              actor_x11->client_area.y);
       cairo_region_intersect (opaque_region, actor_x11->shape_region);
     }
   else if (is_maybe_transparent)
@@ -1110,16 +1109,15 @@ handle_updates (MetaWindowActorX11 *actor_x11)
 {
   MetaSurfaceActor *surface =
     meta_window_actor_get_surface (META_WINDOW_ACTOR (actor_x11));
+  MetaWindow *window;
 
   if (META_IS_SURFACE_ACTOR_X11 (surface) &&
       meta_surface_actor_x11_is_unredirected (META_SURFACE_ACTOR_X11 (surface)))
     return;
 
+  window = meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   if (meta_window_actor_is_frozen (META_WINDOW_ACTOR (actor_x11)))
     {
-      MetaWindow *window =
-        meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
-
       /* The window is frozen due to a pending animation: we'll wait until
        * the animation finishes to repair the window.
        *
@@ -1138,6 +1136,7 @@ handle_updates (MetaWindowActorX11 *actor_x11)
   if (!meta_surface_actor_is_visible (surface))
     return;
 
+  meta_window_get_client_area_rect (window, &actor_x11->client_area);
   check_needs_reshape (actor_x11);
   check_needs_shadow (actor_x11);
 }
