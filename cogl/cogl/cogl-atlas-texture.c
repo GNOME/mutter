@@ -48,7 +48,6 @@
 #include "cogl1-context.h"
 #include "cogl-sub-texture.h"
 #include "cogl-gtype-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-texture-gl-private.h"
 
 #include <stdlib.h>

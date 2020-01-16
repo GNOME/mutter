@@ -31,7 +31,6 @@
 #include "cogl-config.h"
 
 #include "cogl-util.h"
-#include "driver/gl/cogl-util-gl-private.h"
 #include "cogl-context-private.h"
 #include "cogl-object-private.h"
 
