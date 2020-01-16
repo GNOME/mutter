@@ -418,7 +418,6 @@ cogl_pipeline_get_user_program (CoglPipeline *pipeline);
  *                     "!!ARBfp1.0\n"
  *                     "MOV result.color,fragment.color;\n"
  *                     "END\n");
- * cogl_shader_compile (shader);
  *
  * program = cogl_create_program ();
  * cogl_program_attach_shader (program, shader);

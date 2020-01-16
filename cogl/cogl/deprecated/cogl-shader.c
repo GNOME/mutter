@@ -125,19 +125,6 @@ cogl_shader_source (CoglHandle   handle,
 }
 
 void
-cogl_shader_compile (CoglHandle handle)
-{
-  /* XXX: For GLSL we don't actually compile anything until the shader
-   * gets used so we have an opportunity to add some boilerplate to
-   * the shader.
-   *
-   * At the end of the day this is obviously a badly designed API
-   * given that we are having to lie to the user. It was a mistake to
-   * so thinly wrap the OpenGL shader API and the current plan is to
-   * replace it with a pipeline snippets API. */
-}
-
-void
 _cogl_shader_compile_real (CoglHandle handle,
                            CoglPipeline *pipeline)
 {
@@ -208,33 +195,6 @@ _cogl_shader_compile_real (CoglHandle handle,
     }
 }
 
-char *
-cogl_shader_get_info_log (CoglHandle handle)
-{
-  if (!cogl_is_shader (handle))
-    return NULL;
-
-  /* XXX: This API doesn't really do anything!
-   *
-   * This API is purely for compatibility
-   *
-   * The reason we don't do anything is because a shader needs to
-   * be associated with a CoglPipeline for Cogl to be able to
-   * compile and link anything.
-   *
-   * The way this API was originally designed as a very thin wrapper
-   * over the GL api was a mistake and it's now very difficult to
-   * make the API work in a meaningful way given how the rest of Cogl
-   * has evolved.
-   *
-   * The CoglShader API is mostly deprecated by CoglSnippets and so
-   * these days we do the bare minimum to support the existing users
-   * of it until they are able to migrate to the snippets api.
-   */
-
-  return g_strdup ("");
-}
-
 CoglShaderType
 cogl_shader_get_type (CoglHandle  handle)
 {
@@ -250,36 +210,4 @@ cogl_shader_get_type (CoglHandle  handle)
 
   shader = handle;
   return shader->type;
-}
-
-gboolean
-cogl_shader_is_compiled (CoglHandle handle)
-{
-#if defined (HAVE_COGL_GL) || defined (HAVE_COGL_GLES2)
-  if (!cogl_is_shader (handle))
-    return FALSE;
-
-  /* XXX: This API doesn't really do anything!
-   *
-   * This API is purely for compatibility and blatantly lies to the
-   * user about whether their shader has been compiled.
-   *
-   * I suppose we could say we're stretching the definition of
-   * "compile" and are deferring any related errors to be "linker"
-   * errors.
-   *
-   * The reason we don't do anything is because a shader needs to
-   * be associated with a CoglPipeline for Cogl to be able to
-   * compile and link anything.
-   *
-   * The CoglShader API is mostly deprecated by CoglSnippets and so
-   * these days we do the bare minimum to support the existing users
-   * of it until they are able to migrate to the snippets api.
-   */
-
-  return TRUE;
-
-#else
-  return FALSE;
-#endif
 }

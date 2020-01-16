@@ -367,24 +367,12 @@ clutter_shader_effect_try_static_source (ClutterShaderEffect *self)
 
           CLUTTER_NOTE (SHADER, "Compiling shader effect");
 
-          cogl_shader_compile (class_priv->shader);
+          class_priv->program = cogl_create_program ();
 
-          if (cogl_shader_is_compiled (class_priv->shader))
-            {
-              class_priv->program = cogl_create_program ();
+          cogl_program_attach_shader (class_priv->program,
+                                      class_priv->shader);
 
-              cogl_program_attach_shader (class_priv->program,
-                                          class_priv->shader);
-
-              cogl_program_link (class_priv->program);
-            }
-          else
-            {
-              gchar *log_buf = cogl_shader_get_info_log (class_priv->shader);
-
-              g_warning (G_STRLOC ": Unable to compile the GLSL shader: %s", log_buf);
-              g_free (log_buf);
-            }
+          cogl_program_link (class_priv->program);
         }
 
       priv->shader = cogl_object_ref (class_priv->shader);
@@ -902,23 +890,11 @@ clutter_shader_effect_set_shader_source (ClutterShaderEffect *effect,
 
   CLUTTER_NOTE (SHADER, "Compiling shader effect");
 
-  cogl_shader_compile (priv->shader);
+  priv->program = cogl_create_program ();
 
-  if (cogl_shader_is_compiled (priv->shader))
-    {
-      priv->program = cogl_create_program ();
+  cogl_program_attach_shader (priv->program, priv->shader);
 
-      cogl_program_attach_shader (priv->program, priv->shader);
-
-      cogl_program_link (priv->program);
-    }
-  else
-    {
-      gchar *log_buf = cogl_shader_get_info_log (priv->shader);
-
-      g_warning (G_STRLOC ": Unable to compile the GLSL shader: %s", log_buf);
-      g_free (log_buf);
-    }
+  cogl_program_link (priv->program);
 
   return TRUE;
 }

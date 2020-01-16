@@ -69,14 +69,6 @@ paint (TestState *state)
                       "  cogl_color_out = cogl_color_in;\n"
                       "  cogl_tex_coord_out[0] = cogl_tex_coord_in;\n"
                       "}\n");
-  cogl_shader_compile (shader);
-  if (!cogl_shader_is_compiled (shader))
-    {
-      char *log = cogl_shader_get_info_log (shader);
-      g_warning ("Shader compilation failed:\n%s", log);
-      g_free (log);
-      g_assert_not_reached ();
-    }
 
   program = cogl_create_program ();
   cogl_program_attach_shader (program, shader);

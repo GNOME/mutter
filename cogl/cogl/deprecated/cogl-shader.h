@@ -282,37 +282,6 @@ cogl_shader_source (CoglHandle  shader,
                     const char *source);
 
 /**
- * cogl_shader_compile:
- * @handle: #CoglHandle for a shader.
- *
- * Compiles the shader, no return value, but the shader is now ready
- * for linking into a program. Note that calling this function is
- * optional. If it is not called then the shader will be automatically
- * compiled when it is linked.
- * Deprecated: 1.16: Use #CoglSnippet api
- */
-COGL_DEPRECATED_FOR (cogl_snippet_)
-void
-cogl_shader_compile (CoglHandle handle);
-
-/**
- * cogl_shader_get_info_log:
- * @handle: #CoglHandle for a shader.
- *
- * Retrieves the information log for a coglobject, can be used in conjunction
- * with cogl_shader_get_parameteriv() to retrieve the compiler warnings/error
- * messages that caused a shader to not compile correctly, mainly useful for
- * debugging purposes.
- *
- * Return value: a newly allocated string containing the info log. Use
- *   g_free() to free it
- * Deprecated: 1.16: Use #CoglSnippet api
- */
-COGL_DEPRECATED_FOR (cogl_snippet_)
-char *
-cogl_shader_get_info_log (CoglHandle handle);
-
-/**
  * cogl_shader_get_type:
  * @handle: #CoglHandle for a shader.
  *
@@ -325,19 +294,6 @@ cogl_shader_get_info_log (CoglHandle handle);
 COGL_DEPRECATED_FOR (cogl_snippet_)
 CoglShaderType
 cogl_shader_get_type (CoglHandle handle);
-
-/**
- * cogl_shader_is_compiled:
- * @handle: #CoglHandle for a shader.
- *
- * Retrieves whether a shader #CoglHandle has been compiled
- *
- * Return value: %TRUE if the shader object has sucessfully be compiled
- * Deprecated: 1.16: Use #CoglSnippet api
- */
-COGL_DEPRECATED_FOR (cogl_snippet_)
-gboolean
-cogl_shader_is_compiled (CoglHandle handle);
 
 /**
  * cogl_create_program:
