@@ -567,7 +567,12 @@ mode_set_fallback (MetaKmsImplSimple       *impl_simple,
 
   cached_mode_set = g_hash_table_lookup (impl_simple->cached_mode_sets,
                                          crtc);
-  g_assert (cached_mode_set);
+  if (!cached_mode_set)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Missing mode set for page flip fallback");
+      return FALSE;
+    }
 
   fill_connector_ids_array (cached_mode_set->connectors,
                             &connectors,
