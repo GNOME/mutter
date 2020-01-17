@@ -787,6 +787,10 @@ meta_xwayland_dnd_handle_client_message (MetaWaylandCompositor *compositor,
                                                              xdnd_atoms[ATOM_DND_TYPE_LIST]);
             }
 
+          meta_wayland_data_source_set_actions (dnd->source,
+                                                WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY |
+                                                WL_DATA_DEVICE_MANAGER_DND_ACTION_MOVE |
+                                                WL_DATA_DEVICE_MANAGER_DND_ACTION_ASK);
           meta_wayland_drag_grab_set_focus (drag_grab, dnd->focus_surface);
           return TRUE;
         }
@@ -806,7 +810,7 @@ meta_xwayland_dnd_handle_client_message (MetaWaylandCompositor *compositor,
           clutter_event_set_time (motion, dnd->last_motion_time);
 
           action = atom_to_action ((Atom) event->data.l[4]);
-          meta_wayland_data_source_set_actions (dnd->source, action);
+          meta_wayland_data_source_set_user_action (dnd->source, action);
 
           meta_wayland_surface_drag_dest_motion (drag_focus, motion);
           xdnd_send_status (dnd, (Window) event->data.l[0],

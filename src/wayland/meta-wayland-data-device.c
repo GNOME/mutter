@@ -345,9 +345,9 @@ meta_wayland_data_source_set_actions (MetaWaylandDataSource *source,
   priv->actions_set = TRUE;
 }
 
-static void
-meta_wayland_data_source_set_user_action (MetaWaylandDataSource                  *source,
-                                          enum wl_data_device_manager_dnd_action  action)
+void
+meta_wayland_data_source_set_user_action (MetaWaylandDataSource *source,
+                                          uint32_t               action)
 {
   MetaWaylandDataSourcePrivate *priv =
     meta_wayland_data_source_get_instance_private (source);
