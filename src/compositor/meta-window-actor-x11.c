@@ -892,7 +892,16 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
       cairo_rectangle_int_t rect = { 0, 0, tex_width, tex_height };
       cairo_rectangle_int_t frame_rect;
 
-      meta_window_get_frame_rect (window, &frame_rect);
+      /* If we update the shape regardless of the frozen state of the actor,
+       * as with Xwayland to avoid the black shadow effect, we ought to base
+       * the frame size on the buffer size rather than the reported window's
+       * frame size, as the buffer may not have been committed yet at this
+       * point.
+       */
+      if (meta_window_x11_always_update_shape (window))
+        meta_window_x11_buffer_rect_to_frame_rect (window, &rect, &frame_rect);
+      else
+        meta_window_get_frame_rect (window, &frame_rect);
 
       /* Make sure we don't paint the frame over the client window. */
       frame_paint_region = cairo_region_create_rectangle (&rect);
