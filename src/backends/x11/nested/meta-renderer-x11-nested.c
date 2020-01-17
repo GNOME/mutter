@@ -234,4 +234,3 @@ meta_renderer_x11_nested_class_init (MetaRendererX11NestedClass *klass)
 
   renderer_class->create_view = meta_renderer_x11_nested_create_view;
 }
-
