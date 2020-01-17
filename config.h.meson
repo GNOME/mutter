@@ -70,3 +70,12 @@
 
 /* Whether Xwayland has -initfd option */
 #mesondefine HAVE_XWAYLAND_INITFD
+
+/* Whether the mkostemp function exists */
+#mesondefine HAVE_MKOSTEMP
+
+/* Whether the posix_fallocate function exists */
+#mesondefine HAVE_POSIX_FALLOCATE
+
+/* Whether the memfd_create function exists */
+#mesondefine HAVE_MEMFD_CREATE

@@ -408,6 +408,20 @@ if have_wayland
   endif
 endif
 
+optional_functions = [
+  'mkostemp',
+  'posix_fallocate',
+  'memfd_create',
+]
+
+foreach function : optional_functions
+  if cc.has_function(function)
+    cdata.set('HAVE_' + function.to_upper(), 1)
+  else
+    message('Optional function ' + function + ' missing')
+  endif
+endforeach
+
 xwayland_grab_default_access_rules = get_option('xwayland_grab_default_access_rules')
 cdata.set_quoted('XWAYLAND_GRAB_DEFAULT_ACCESS_RULES',
                  xwayland_grab_default_access_rules)
