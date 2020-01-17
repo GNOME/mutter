@@ -76,14 +76,10 @@ meta_crtc_kms_apply_transform (MetaCrtc               *crtc,
 
 void
 meta_crtc_kms_assign_primary_plane (MetaCrtc      *crtc,
-                                    MetaMonitor   *monitor,
-                                    MetaOutput    *output,
                                     uint32_t       fb_id,
                                     MetaKmsUpdate *kms_update)
 {
-  MetaMonitorMode *monitor_mode;
   MetaCrtcConfig *crtc_config;
-  int crtc_x, crtc_y;
   MetaFixed16Rectangle src_rect;
   MetaFixed16Rectangle dst_rect;
   MetaKmsAssignPlaneFlag flags;
@@ -94,17 +90,10 @@ meta_crtc_kms_assign_primary_plane (MetaCrtc      *crtc,
 
   crtc_config = crtc->config;
 
-  monitor_mode = meta_monitor_get_current_mode (monitor);
-  meta_monitor_calculate_crtc_pos (monitor,
-                                   monitor_mode,
-                                   output,
-                                   crtc_config->transform,
-                                   &crtc_x,
-                                   &crtc_y);
 
   src_rect = (MetaFixed16Rectangle) {
-    .x = meta_fixed_16_from_int (crtc_x),
-    .y = meta_fixed_16_from_int (crtc_y),
+    .x = meta_fixed_16_from_int (0),
+    .y = meta_fixed_16_from_int (0),
     .width = meta_fixed_16_from_int (crtc_config->mode->width),
     .height = meta_fixed_16_from_int (crtc_config->mode->height),
   };

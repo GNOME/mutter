@@ -4476,49 +4476,42 @@ capture_view_into (ClutterStage          *stage,
   cogl_object_unref (bitmap);
 }
 
-static ClutterStageView *
-get_view_at_rect (ClutterStage          *stage,
-                  cairo_rectangle_int_t *rect)
-{
-  ClutterStagePrivate *priv = stage->priv;
-  GList *views = _clutter_stage_window_get_views (priv->impl);
-  GList *l;
-
-  for (l = views; l; l = l->next)
-    {
-      ClutterStageView *view = l->data;
-      cairo_rectangle_int_t view_layout;
-      cairo_region_t *region;
-      cairo_rectangle_int_t view_capture_rect;
-
-      clutter_stage_view_get_layout (view, &view_layout);
-      region = cairo_region_create_rectangle (&view_layout);
-      cairo_region_intersect_rectangle (region, rect);
-      cairo_region_get_extents (region, &view_capture_rect);
-      cairo_region_destroy (region);
-
-      if (view_capture_rect.width == 0 || view_capture_rect.height == 0)
-        continue;
-
-      g_assert (view_capture_rect.width == rect->width &&
-                view_capture_rect.height == rect->height);
-      return view;
-    }
-
-  return NULL;
-}
-
 void
 clutter_stage_capture_into (ClutterStage          *stage,
                             gboolean               paint,
                             cairo_rectangle_int_t *rect,
                             uint8_t               *data)
 {
-  ClutterStageView *view;
+  ClutterStagePrivate *priv = stage->priv;
+  GList *l;
   int bpp = 4;
+  int stride;
 
-  view = get_view_at_rect (stage, rect);
-  capture_view_into (stage, paint, view, rect, data, rect->width * bpp);
+  stride = rect->width * 4;
+
+  for (l = _clutter_stage_window_get_views (priv->impl); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+      cairo_rectangle_int_t view_layout;
+      cairo_region_t *region;
+      cairo_rectangle_int_t capture_rect;
+      int x_offset, y_offset;
+
+      clutter_stage_view_get_layout (view, &view_layout);
+      region = cairo_region_create_rectangle (&view_layout);
+      cairo_region_intersect_rectangle (region, rect);
+
+      cairo_region_get_extents (region, &capture_rect);
+      cairo_region_destroy (region);
+
+      x_offset = capture_rect.x - rect->x;
+      y_offset = capture_rect.y - rect->y;
+
+      capture_view_into (stage, paint, view,
+                         &capture_rect,
+                         data + (x_offset * bpp) + (y_offset * stride),
+                         stride);
+    }
 }
 
 /**

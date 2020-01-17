@@ -42,9 +42,9 @@ struct _MetaScreenCastMonitorStreamSrc
   MetaScreenCastStreamSrc parent;
 
   gboolean cursor_bitmap_invalid;
+  gboolean hw_cursor_inhibited;
 
-  MetaStageWatch *paint_watch;
-  MetaStageWatch *after_paint_watch;
+  GList *watches;
 
   gulong cursor_moved_handler_id;
   gulong cursor_changed_handler_id;
@@ -226,9 +226,13 @@ inhibit_hw_cursor (MetaScreenCastMonitorStreamSrc *monitor_src)
   MetaCursorRenderer *cursor_renderer;
   MetaHwCursorInhibitor *inhibitor;
 
+  g_return_if_fail (!monitor_src->hw_cursor_inhibited);
+
   cursor_renderer = get_cursor_renderer (monitor_src);
   inhibitor = META_HW_CURSOR_INHIBITOR (monitor_src);
   meta_cursor_renderer_add_hw_cursor_inhibitor (cursor_renderer, inhibitor);
+
+  monitor_src->hw_cursor_inhibited = TRUE;
 }
 
 static void
@@ -237,9 +241,53 @@ uninhibit_hw_cursor (MetaScreenCastMonitorStreamSrc *monitor_src)
   MetaCursorRenderer *cursor_renderer;
   MetaHwCursorInhibitor *inhibitor;
 
+  g_return_if_fail (monitor_src->hw_cursor_inhibited);
+
   cursor_renderer = get_cursor_renderer (monitor_src);
   inhibitor = META_HW_CURSOR_INHIBITOR (monitor_src);
   meta_cursor_renderer_remove_hw_cursor_inhibitor (cursor_renderer, inhibitor);
+
+  monitor_src->hw_cursor_inhibited = FALSE;
+}
+
+static void
+add_view_painted_watches (MetaScreenCastMonitorStreamSrc *monitor_src,
+                          MetaStageWatchPhase             watch_phase)
+{
+  MetaBackend *backend = get_backend (monitor_src);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  ClutterStage *stage;
+  MetaStage *meta_stage;
+  MetaMonitor *monitor;
+  MetaLogicalMonitor *logical_monitor;
+  MetaRectangle logical_monitor_layout;
+  GList *l;
+
+  stage = get_stage (monitor_src);
+  meta_stage = META_STAGE (stage);
+  monitor = get_monitor (monitor_src);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
+
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+    {
+      MetaRendererView *view = l->data;
+      MetaRectangle view_layout;
+
+      clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
+      if (meta_rectangle_overlap (&logical_monitor_layout, &view_layout))
+        {
+          MetaStageWatch *watch;
+
+          watch = meta_stage_watch_view (meta_stage,
+                                         CLUTTER_STAGE_VIEW (view),
+                                         watch_phase,
+                                         stage_painted,
+                                         monitor_src);
+
+          monitor_src->watches = g_list_prepend (monitor_src->watches, watch);
+        }
+    }
 }
 
 static void
@@ -248,28 +296,12 @@ meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
   MetaBackend *backend = get_backend (monitor_src);
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
-  MetaRendererView *view;
-  MetaMonitor *monitor;
-  MetaLogicalMonitor *logical_monitor;
-  MetaStage *meta_stage;
-  ClutterStageView *stage_view;
   ClutterStage *stage;
   MetaScreenCastStream *stream;
 
   stream = meta_screen_cast_stream_src_get_stream (src);
   stage = get_stage (monitor_src);
-  meta_stage = META_STAGE (stage);
-  monitor = get_monitor (monitor_src);
-  logical_monitor = meta_monitor_get_logical_monitor (monitor);
-  view = meta_renderer_get_view_from_logical_monitor (renderer,
-                                                      logical_monitor);
-
-  if (view)
-    stage_view = CLUTTER_STAGE_VIEW (view);
-  else
-    stage_view = NULL;
 
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
@@ -284,21 +316,13 @@ meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
                                 monitor_src);
       G_GNUC_FALLTHROUGH;
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
-      monitor_src->paint_watch =
-        meta_stage_watch_view (meta_stage,
-                               stage_view,
-                               META_STAGE_WATCH_AFTER_ACTOR_PAINT,
-                               stage_painted,
-                               monitor_src);
+      add_view_painted_watches (monitor_src,
+                                META_STAGE_WATCH_AFTER_ACTOR_PAINT);
       break;
     case META_SCREEN_CAST_CURSOR_MODE_EMBEDDED:
       inhibit_hw_cursor (monitor_src);
-      monitor_src->after_paint_watch =
-        meta_stage_watch_view (meta_stage,
-                               stage_view,
-                               META_STAGE_WATCH_AFTER_PAINT,
-                               stage_painted,
-                               monitor_src);
+      add_view_painted_watches (monitor_src,
+                                META_STAGE_WATCH_AFTER_PAINT);
       break;
     }
 
@@ -314,22 +338,21 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   ClutterStage *stage;
   MetaStage *meta_stage;
+  GList *l;
 
   stage = get_stage (monitor_src);
   meta_stage = META_STAGE (stage);
 
-  if (monitor_src->paint_watch)
+  for (l = monitor_src->watches; l; l = l->next)
     {
-      meta_stage_remove_watch (meta_stage, monitor_src->paint_watch);
-      monitor_src->paint_watch = NULL;
-    }
+      MetaStageWatch *watch = l->data;
 
-  if (monitor_src->after_paint_watch)
-    {
-      meta_stage_remove_watch (meta_stage, monitor_src->after_paint_watch);
-      monitor_src->after_paint_watch = NULL;
-      uninhibit_hw_cursor (monitor_src);
+      meta_stage_remove_watch (meta_stage, watch);
     }
+  g_clear_pointer (&monitor_src->watches, g_list_free);
+
+  if (monitor_src->hw_cursor_inhibited)
+    uninhibit_hw_cursor (monitor_src);
 
   g_clear_signal_handler (&monitor_src->cursor_moved_handler_id,
                           cursor_tracker);
@@ -367,13 +390,11 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   MetaBackend *backend = get_backend (monitor_src);
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaCursorSprite *cursor_sprite;
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
   MetaRectangle logical_monitor_layout;
   graphene_rect_t logical_monitor_rect;
-  MetaRendererView *view;
   float view_scale;
   graphene_point_t cursor_position;
   int x, y;
@@ -393,10 +414,8 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   logical_monitor_rect =
     meta_rectangle_to_graphene_rect (&logical_monitor_layout);
 
-  view = meta_renderer_get_view_from_logical_monitor (renderer,
-                                                      logical_monitor);
-  if (view)
-    view_scale = clutter_stage_view_get_scale (CLUTTER_STAGE_VIEW (view));
+  if (meta_is_stage_views_scaled ())
+    view_scale = meta_logical_monitor_get_scale (logical_monitor);
   else
     view_scale = 1.0;
 

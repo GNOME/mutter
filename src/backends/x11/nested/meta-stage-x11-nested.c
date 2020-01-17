@@ -101,46 +101,33 @@ typedef struct
 } DrawCrtcData;
 
 static gboolean
-draw_crtc (MetaMonitor         *monitor,
-           MetaMonitorMode     *monitor_mode,
-           MetaMonitorCrtcMode *monitor_crtc_mode,
-           gpointer             user_data,
-           GError             **error)
+draw_view (MetaStageX11Nested *stage_nested,
+           MetaRendererView   *renderer_view,
+           CoglTexture        *texture)
 {
-  DrawCrtcData *data = user_data;
-  MetaStageX11 *stage_x11 = META_STAGE_X11 (data->stage_nested);
+  MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_nested);
   CoglFramebuffer *onscreen = COGL_FRAMEBUFFER (stage_x11->onscreen);
-  CoglTexture *texture = data->texture;
-  MetaLogicalMonitor *logical_monitor = data->logical_monitor;
-  MetaOutput *output = monitor_crtc_mode->output;
+  ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (renderer_view);
   MetaCrtc *crtc;
   MetaCrtcConfig *crtc_config;
-  MetaRendererView *renderer_view = META_RENDERER_VIEW (data->view);
-  MetaMonitorTransform view_transform;
-  MetaMonitorTransform layout_transform = META_MONITOR_TRANSFORM_NORMAL;
-  cairo_rectangle_int_t view_layout;
   CoglMatrix projection_matrix;
   CoglMatrix transform;
   float texture_width, texture_height;
   float sample_x, sample_y, sample_width, sample_height;
-  float scale;
-  int viewport_x, viewport_y;
-  int viewport_width, viewport_height;
   float s_1, t_1, s_2, t_2;
 
   texture_width = cogl_texture_get_width (texture);
   texture_height = cogl_texture_get_height (texture);
 
-  crtc = meta_output_get_assigned_crtc (output);
+  crtc = g_object_get_data (G_OBJECT (renderer_view), "crtc");
   crtc_config = crtc->config;
 
-  clutter_stage_view_get_layout (data->view, &view_layout);
-  sample_x = (int) roundf (crtc_config->layout.origin.x) - view_layout.x;
-  sample_y = (int) roundf (crtc_config->layout.origin.y) - view_layout.y;
-  sample_width = (int) roundf (crtc_config->layout.size.width);
-  sample_height = (int) roundf (crtc_config->layout.size.height);
+  sample_x = 0;
+  sample_y = 0;
+  sample_width = texture_width;
+  sample_height = texture_height;
 
-  clutter_stage_view_get_offscreen_transformation_matrix (data->view,
+  clutter_stage_view_get_offscreen_transformation_matrix (stage_view,
                                                           &transform);
 
   cogl_framebuffer_push_matrix (onscreen);
@@ -156,93 +143,19 @@ draw_crtc (MetaMonitor         *monitor,
   s_2 = (sample_x + sample_width) / texture_width;
   t_2 = (sample_y + sample_height) / texture_height;
 
-  view_transform = meta_renderer_view_get_transform (renderer_view);
-
-  if (view_transform == logical_monitor->transform)
-    {
-      switch (view_transform)
-        {
-        case META_MONITOR_TRANSFORM_NORMAL:
-        case META_MONITOR_TRANSFORM_FLIPPED:
-          layout_transform = META_MONITOR_TRANSFORM_NORMAL;
-          break;
-        case META_MONITOR_TRANSFORM_270:
-        case META_MONITOR_TRANSFORM_FLIPPED_270:
-          layout_transform = META_MONITOR_TRANSFORM_90;
-          break;
-        case META_MONITOR_TRANSFORM_180:
-        case META_MONITOR_TRANSFORM_FLIPPED_180:
-          layout_transform = META_MONITOR_TRANSFORM_180;
-          break;
-        case META_MONITOR_TRANSFORM_90:
-        case META_MONITOR_TRANSFORM_FLIPPED_90:
-          layout_transform = META_MONITOR_TRANSFORM_270;
-          break;
-        }
-    }
-  else
-    {
-      layout_transform = logical_monitor->transform;
-    }
-
-  meta_monitor_calculate_crtc_pos (monitor, monitor_mode, output,
-                                   layout_transform,
-                                   &viewport_x,
-                                   &viewport_y);
-  viewport_x += logical_monitor->rect.x;
-  viewport_y += logical_monitor->rect.y;
-  if (meta_monitor_transform_is_rotated (logical_monitor->transform))
-    {
-      viewport_width = monitor_crtc_mode->crtc_mode->height;
-      viewport_height = monitor_crtc_mode->crtc_mode->width;
-    }
-  else
-    {
-      viewport_width = monitor_crtc_mode->crtc_mode->width;
-      viewport_height = monitor_crtc_mode->crtc_mode->height;
-    }
-
-  scale = clutter_stage_view_get_scale (data->view);
-  viewport_width = roundf (viewport_width / scale);
-  viewport_height = roundf (viewport_height / scale);
-
   cogl_framebuffer_set_viewport (onscreen,
-                                 viewport_x, viewport_y,
-                                 viewport_width, viewport_height);
+                                 crtc_config->layout.origin.x,
+                                 crtc_config->layout.origin.y,
+                                 crtc_config->layout.size.width,
+                                 crtc_config->layout.size.height);
 
   cogl_framebuffer_draw_textured_rectangle (onscreen,
-                                            data->stage_nested->pipeline,
+                                            stage_nested->pipeline,
                                             0, 0, 1, 1,
                                             s_1, t_1, s_2, t_2);
 
   cogl_framebuffer_pop_matrix (onscreen);
   return TRUE;
-}
-
-static void
-draw_logical_monitor (MetaStageX11Nested    *stage_nested,
-                      MetaLogicalMonitor    *logical_monitor,
-                      CoglTexture           *texture,
-                      ClutterStageView      *view,
-                      cairo_rectangle_int_t *view_layout)
-{
-  MetaMonitor *monitor;
-  MetaMonitorMode *current_mode;
-
-  cogl_pipeline_set_layer_wrap_mode (stage_nested->pipeline, 0,
-                                     COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
-
-  monitor = meta_logical_monitor_get_monitors (logical_monitor)->data;
-  current_mode = meta_monitor_get_current_mode (monitor);
-  meta_monitor_mode_foreach_crtc (monitor, current_mode,
-                                  draw_crtc,
-                                  &(DrawCrtcData) {
-                                    .stage_nested = stage_nested,
-                                    .texture = texture,
-                                    .view = view,
-                                    .logical_monitor = logical_monitor
-                                  },
-                                  NULL);
 }
 
 static void
@@ -267,39 +180,17 @@ meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window)
     {
       ClutterStageView *view = l->data;
       MetaRendererView *renderer_view = META_RENDERER_VIEW (view);
-      MetaLogicalMonitor *logical_monitor;
-      cairo_rectangle_int_t view_layout;
       CoglFramebuffer *framebuffer;
       CoglTexture *texture;
-
-      clutter_stage_view_get_layout (view, &view_layout);
 
       framebuffer = clutter_stage_view_get_onscreen (view);
       texture = cogl_offscreen_get_texture (COGL_OFFSCREEN (framebuffer));
 
       cogl_pipeline_set_layer_texture (stage_nested->pipeline, 0, texture);
+      cogl_pipeline_set_layer_wrap_mode (stage_nested->pipeline, 0,
+                                         COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
 
-      logical_monitor = meta_renderer_view_get_logical_monitor (renderer_view);
-      if (logical_monitor)
-        {
-          draw_logical_monitor (stage_nested, logical_monitor, texture, view, &view_layout);
-        }
-      else
-        {
-          MetaMonitorManager *monitor_manager =
-            meta_backend_get_monitor_manager (backend);
-          GList *logical_monitors;
-          GList *k;
-
-          logical_monitors =
-            meta_monitor_manager_get_logical_monitors (monitor_manager);
-          for (k = logical_monitors; k; k = k->next)
-            {
-              logical_monitor = k->data;
-
-              draw_logical_monitor (stage_nested, logical_monitor, texture, view, &view_layout);
-            }
-        }
+      draw_view (stage_nested, renderer_view, texture);
     }
 
   cogl_onscreen_swap_buffers (stage_x11->onscreen);

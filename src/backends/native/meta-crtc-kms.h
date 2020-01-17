@@ -38,8 +38,6 @@ void meta_crtc_kms_apply_transform (MetaCrtc               *crtc,
                                     MetaKmsPlaneAssignment *kms_plane_assignment);
 
 void meta_crtc_kms_assign_primary_plane (MetaCrtc      *crtc,
-                                         MetaMonitor   *monitor,
-                                         MetaOutput    *output,
                                          uint32_t       fb_id,
                                          MetaKmsUpdate *kms_update);
 

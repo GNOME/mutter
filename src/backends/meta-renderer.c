@@ -47,6 +47,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-logical-monitor.h"
 
 enum
 {
@@ -93,10 +94,14 @@ meta_renderer_create_cogl_renderer (MetaRenderer *renderer)
 
 static MetaRendererView *
 meta_renderer_create_view (MetaRenderer       *renderer,
-                           MetaLogicalMonitor *logical_monitor)
+                           MetaLogicalMonitor *logical_monitor,
+                           MetaOutput         *output,
+                           MetaCrtc           *crtc)
 {
   return META_RENDERER_GET_CLASS (renderer)->create_view (renderer,
-                                                          logical_monitor);
+                                                          logical_monitor,
+                                                          output,
+                                                          crtc);
 }
 
 /**
@@ -112,6 +117,21 @@ void
 meta_renderer_rebuild_views (MetaRenderer *renderer)
 {
   return META_RENDERER_GET_CLASS (renderer)->rebuild_views (renderer);
+}
+
+static void
+create_crtc_view (MetaLogicalMonitor *logical_monitor,
+                  MetaMonitor        *monitor,
+                  MetaOutput         *output,
+                  MetaCrtc           *crtc,
+                  gpointer            user_data)
+{
+  MetaRenderer *renderer = user_data;
+  MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
+  MetaRendererView *view;
+
+  view = meta_renderer_create_view (renderer, logical_monitor, output, crtc);
+  priv->views = g_list_append (priv->views, view);
 }
 
 static void
@@ -132,10 +152,10 @@ meta_renderer_real_rebuild_views (MetaRenderer *renderer)
   for (l = logical_monitors; l; l = l->next)
     {
       MetaLogicalMonitor *logical_monitor = l->data;
-      MetaRendererView *view;
 
-      view = meta_renderer_create_view (renderer, logical_monitor);
-      priv->views = g_list_append (priv->views, view);
+      meta_logical_monitor_foreach_crtc (logical_monitor,
+                                         create_crtc_view,
+                                         renderer);
     }
 }
 
@@ -166,24 +186,6 @@ meta_renderer_get_views (MetaRenderer *renderer)
   MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
 
   return priv->views;
-}
-
-MetaRendererView *
-meta_renderer_get_view_from_logical_monitor (MetaRenderer       *renderer,
-                                             MetaLogicalMonitor *logical_monitor)
-{
-  GList *l;
-
-  for (l = meta_renderer_get_views (renderer); l; l = l->next)
-    {
-      MetaRendererView *view = l->data;
-
-      if (meta_renderer_view_get_logical_monitor (view) ==
-          logical_monitor)
-        return view;
-    }
-
-  return NULL;
 }
 
 gboolean

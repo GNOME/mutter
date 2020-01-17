@@ -42,7 +42,9 @@ struct _MetaRendererClass
 
   CoglRenderer * (* create_cogl_renderer) (MetaRenderer *renderer);
   MetaRendererView * (* create_view) (MetaRenderer       *renderer,
-                                      MetaLogicalMonitor *logical_monitor);
+                                      MetaLogicalMonitor *logical_monitor,
+                                      MetaOutput         *output,
+                                      MetaCrtc           *crtc);
   void (* rebuild_views) (MetaRenderer *renderer);
 };
 
@@ -57,9 +59,6 @@ void meta_renderer_set_legacy_view (MetaRenderer     *renderer,
 
 META_EXPORT_TEST
 GList * meta_renderer_get_views (MetaRenderer *renderer);
-
-MetaRendererView * meta_renderer_get_view_from_logical_monitor (MetaRenderer       *renderer,
-                                                                MetaLogicalMonitor *logical_monitor);
 
 gboolean meta_renderer_is_hardware_accelerated (MetaRenderer *renderer);
 

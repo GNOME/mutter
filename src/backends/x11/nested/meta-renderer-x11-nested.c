@@ -172,7 +172,9 @@ meta_renderer_x11_nested_ensure_legacy_view (MetaRendererX11Nested *renderer_x11
 
 static MetaRendererView *
 meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
-                                      MetaLogicalMonitor *logical_monitor)
+                                      MetaLogicalMonitor *logical_monitor,
+                                      MetaOutput         *output,
+                                      MetaCrtc           *crtc)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -184,6 +186,8 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
   int width, height;
   CoglOffscreen *fake_onscreen;
   CoglOffscreen *offscreen;
+  MetaRectangle view_layout;
+  MetaRendererView *view;
 
   view_transform = calculate_view_transform (monitor_manager, logical_monitor);
 
@@ -192,18 +196,8 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
   else
     view_scale = 1.0;
 
-  if (meta_monitor_transform_is_rotated (view_transform))
-    {
-      width = logical_monitor->rect.height;
-      height = logical_monitor->rect.width;
-    }
-  else
-    {
-      width = logical_monitor->rect.width;
-      height = logical_monitor->rect.height;
-    }
-  width = roundf (width * view_scale);
-  height = roundf (height * view_scale);
+  width = roundf (crtc->config->layout.size.width * view_scale);
+  height = roundf (crtc->config->layout.size.height * view_scale);
 
   fake_onscreen = create_offscreen (cogl_context, width, height);
 
@@ -212,14 +206,20 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
   else
     offscreen = NULL;
 
-  return g_object_new (META_TYPE_RENDERER_VIEW,
-                       "layout", &logical_monitor->rect,
+  meta_rectangle_from_graphene_rect (&crtc->config->layout,
+                                     META_ROUNDING_STRATEGY_ROUND,
+                                     &view_layout);
+
+  view = g_object_new (META_TYPE_RENDERER_VIEW,
+                       "layout", &view_layout,
                        "framebuffer", COGL_FRAMEBUFFER (fake_onscreen),
                        "offscreen", COGL_FRAMEBUFFER (offscreen),
                        "transform", view_transform,
                        "scale", view_scale,
-                       "logical-monitor", logical_monitor,
                        NULL);
+  g_object_set_data (G_OBJECT (view), "crtc", crtc);
+
+  return view;
 }
 
 static void
