@@ -121,6 +121,8 @@ uint32_t meta_wayland_data_source_get_current_action (MetaWaylandDataSource *sou
 
 void     meta_wayland_data_source_set_actions        (MetaWaylandDataSource *source,
                                                       uint32_t               dnd_actions);
+void     meta_wayland_data_source_set_user_action    (MetaWaylandDataSource *source,
+                                                      uint32_t               action);
 void     meta_wayland_data_source_set_current_action (MetaWaylandDataSource *source,
                                                       uint32_t               action);
 
