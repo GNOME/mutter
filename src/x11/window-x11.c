@@ -4066,3 +4066,22 @@ meta_window_x11_always_update_shape (MetaWindow *window)
 
   return META_WINDOW_X11_GET_CLASS (window_x11)->always_update_shape (window);
 }
+
+void
+meta_window_x11_buffer_rect_to_frame_rect (MetaWindow    *window,
+                                           MetaRectangle *buffer_rect,
+                                           MetaRectangle *frame_rect)
+
+{
+  MetaFrameBorders borders;
+
+  g_return_if_fail (window->frame);
+
+  meta_frame_calc_borders (window->frame, &borders);
+
+  *frame_rect = *buffer_rect;
+  frame_rect->x += borders.invisible.left;
+  frame_rect->y += borders.invisible.top;
+  frame_rect->width -= borders.invisible.left + borders.invisible.right;
+  frame_rect->height -= borders.invisible.top + borders.invisible.bottom;
+}
