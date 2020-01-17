@@ -3336,7 +3336,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   if (!onscreen)
     g_error ("Failed to allocate onscreen framebuffer: %s", error->message);
 
- if (view_transform != META_MONITOR_TRANSFORM_NORMAL)
+  if (view_transform != META_MONITOR_TRANSFORM_NORMAL)
     {
       offscreen = meta_renderer_native_create_offscreen (renderer_native,
                                                          cogl_context,
@@ -3345,7 +3345,6 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                                                          &error);
       if (!offscreen)
         g_error ("Failed to allocate back buffer texture: %s", error->message);
-
     }
 
   if (should_force_shadow_fb (renderer_native,
