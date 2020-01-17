@@ -82,6 +82,9 @@ paint_egl_image (MetaGles3   *gles3,
                                     0, 0, width, height,
                                     GL_COLOR_BUFFER_BIT,
                                     GL_NEAREST));
+
+  GLBAS (gles3, glDeleteTextures, (1, &texture));
+  GLBAS (gles3, glDeleteFramebuffers, (1, &framebuffer));
 }
 
 gboolean
