@@ -4316,7 +4316,6 @@ capture_view (ClutterStage          *stage,
                                       texture_width, texture_height);
   cairo_surface_set_device_scale (image, view_scale, view_scale);
 
-
   data = cairo_image_surface_get_data (image);
   stride = cairo_image_surface_get_stride (image);
 
