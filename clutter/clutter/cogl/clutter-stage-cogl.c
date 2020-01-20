@@ -541,7 +541,7 @@ scale_and_clamp_rect (const graphene_rect_t *rect,
 static void
 paint_stage (ClutterStageCogl *stage_cogl,
              ClutterStageView *view,
-             cairo_region_t   *clip)
+             cairo_region_t   *fb_clip_region)
 {
   ClutterStage *stage = stage_cogl->wrapper;
   cairo_rectangle_int_t clip_rect;
@@ -553,7 +553,7 @@ paint_stage (ClutterStageCogl *stage_cogl,
   clutter_stage_view_get_layout (view, &view_rect);
   fb_scale = clutter_stage_view_get_scale (view);
 
-  cairo_region_get_extents (clip, &clip_rect);
+  cairo_region_get_extents (fb_clip_region, &clip_rect);
 
   _clutter_util_rect_from_rectangle (&clip_rect, &rect);
   scale_and_clamp_rect (&rect, 1.0f / fb_scale, &paint_rect);
