@@ -539,9 +539,9 @@ scale_and_clamp_rect (const graphene_rect_t *rect,
 }
 
 static void
-paint_stage (ClutterStageCogl            *stage_cogl,
-             ClutterStageView            *view,
-             cairo_region_t              *clip)
+paint_stage (ClutterStageCogl *stage_cogl,
+             ClutterStageView *view,
+             cairo_region_t   *clip)
 {
   ClutterStage *stage = stage_cogl->wrapper;
   cairo_rectangle_int_t clip_rect;
