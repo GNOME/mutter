@@ -752,7 +752,18 @@ _cogl_pipeline_progend_glsl_end (CoglPipeline *pipeline,
 
   gl_program = program_state->program;
 
-  cogl_use_program (gl_program);
+  if (ctx->current_gl_program != gl_program)
+    {
+      _cogl_gl_util_clear_gl_errors (ctx);
+      ctx->glUseProgram (gl_program);
+      if (_cogl_gl_util_get_error (ctx) == GL_NO_ERROR)
+        ctx->current_gl_program = gl_program;
+      else
+        {
+          GE( ctx, glUseProgram (0) );
+          ctx->current_gl_program = 0;
+        }
+    }
 
   state.unit = 0;
   state.gl_program = gl_program;

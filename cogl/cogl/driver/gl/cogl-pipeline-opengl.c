@@ -233,25 +233,6 @@ _cogl_pipeline_texture_storage_change_notify (CoglTexture *texture)
     }
 }
 
-void
-cogl_use_program (GLuint gl_program)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  if (ctx->current_gl_program != gl_program)
-    {
-      _cogl_gl_util_clear_gl_errors (ctx);
-      ctx->glUseProgram (gl_program);
-      if (_cogl_gl_util_get_error (ctx) == GL_NO_ERROR)
-        ctx->current_gl_program = gl_program;
-      else
-        {
-          GE( ctx, glUseProgram (0) );
-          ctx->current_gl_program = 0;
-        }
-    }
-}
-
 #if defined(HAVE_COGL_GLES2) || defined(HAVE_COGL_GL)
 
 static gboolean
