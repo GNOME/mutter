@@ -333,12 +333,6 @@ _cogl_offscreen_new_with_texture_full (CoglTexture *texture,
                                        int level);
 
 void
-_cogl_framebuffer_push_projection (CoglFramebuffer *framebuffer);
-
-void
-_cogl_framebuffer_pop_projection (CoglFramebuffer *framebuffer);
-
-void
 _cogl_framebuffer_save_clip_stack (CoglFramebuffer *framebuffer);
 
 void
