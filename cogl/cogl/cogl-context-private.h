@@ -228,8 +228,6 @@ struct _CoglContext
   GLint             max_activateable_texture_units;
 
   /* Fragment processing programs */
-  CoglHandle              current_program;
-
   GLuint                  current_gl_program;
 
   gboolean current_gl_dither_enabled;

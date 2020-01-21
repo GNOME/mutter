@@ -119,20 +119,6 @@ cogl_program_link (CoglHandle handle)
      whenever the settings change */
 }
 
-void
-cogl_program_use (CoglHandle handle)
-{
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  g_return_if_fail (handle == NULL || cogl_is_program (handle));
-
-  if (handle != NULL)
-    cogl_object_ref (handle);
-  if (ctx->current_program != NULL)
-    cogl_object_unref (ctx->current_program);
-  ctx->current_program = handle;
-}
-
 int
 cogl_program_get_uniform_location (CoglHandle handle,
                                    const char *uniform_name)
@@ -193,18 +179,6 @@ cogl_program_modify_uniform (CoglProgram *program,
 }
 
 void
-cogl_program_uniform_1f (int uniform_no,
-                         float  value)
-{
-  CoglProgramUniform *uniform;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  uniform = cogl_program_modify_uniform (ctx->current_program, uniform_no);
-  _cogl_boxed_value_set_1f (&uniform->value, value);
-}
-
-void
 cogl_program_set_uniform_1f (CoglHandle handle,
                              int uniform_location,
                              float value)
@@ -213,18 +187,6 @@ cogl_program_set_uniform_1f (CoglHandle handle,
 
   uniform = cogl_program_modify_uniform (handle, uniform_location);
   _cogl_boxed_value_set_1f (&uniform->value, value);
-}
-
-void
-cogl_program_uniform_1i (int uniform_no,
-                         int value)
-{
-  CoglProgramUniform *uniform;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  uniform = cogl_program_modify_uniform (ctx->current_program, uniform_no);
-  _cogl_boxed_value_set_1i (&uniform->value, value);
 }
 
 void
@@ -239,20 +201,6 @@ cogl_program_set_uniform_1i (CoglHandle handle,
 }
 
 void
-cogl_program_uniform_float (int uniform_no,
-                            int size,
-                            int count,
-                            const float *value)
-{
-  CoglProgramUniform *uniform;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  uniform = cogl_program_modify_uniform (ctx->current_program, uniform_no);
-  _cogl_boxed_value_set_float (&uniform->value, size, count, value);
-}
-
-void
 cogl_program_set_uniform_float (CoglHandle handle,
                                 int uniform_location,
                                 int n_components,
@@ -263,20 +211,6 @@ cogl_program_set_uniform_float (CoglHandle handle,
 
   uniform = cogl_program_modify_uniform (handle, uniform_location);
   _cogl_boxed_value_set_float (&uniform->value, n_components, count, value);
-}
-
-void
-cogl_program_uniform_int (int uniform_no,
-                          int size,
-                          int count,
-                          const int *value)
-{
-  CoglProgramUniform *uniform;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  uniform = cogl_program_modify_uniform (ctx->current_program, uniform_no);
-  _cogl_boxed_value_set_int (&uniform->value, size, count, value);
 }
 
 void
@@ -308,21 +242,6 @@ cogl_program_set_uniform_matrix (CoglHandle handle,
                                 count,
                                 transpose,
                                 value);
-}
-
-void
-cogl_program_uniform_matrix (int uniform_no,
-                             int size,
-                             int count,
-                             gboolean transpose,
-                             const float *value)
-{
-  CoglProgramUniform *uniform;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  uniform = cogl_program_modify_uniform (ctx->current_program, uniform_no);
-  _cogl_boxed_value_set_matrix (&uniform->value, size, count, transpose, value);
 }
 
 void
