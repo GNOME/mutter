@@ -464,15 +464,6 @@ _cogl_framebuffer_get_clip_stack (CoglFramebuffer *framebuffer)
 }
 
 void
-_cogl_framebuffer_set_clip_stack (CoglFramebuffer *framebuffer,
-                                  CoglClipStack *stack)
-{
-  _cogl_clip_stack_ref (stack);
-  _cogl_clip_stack_unref (framebuffer->clip_stack);
-  framebuffer->clip_stack = stack;
-}
-
-void
 cogl_framebuffer_set_viewport4fv (CoglFramebuffer *framebuffer,
                                   float *viewport)
 {

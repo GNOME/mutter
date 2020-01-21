@@ -259,9 +259,7 @@ _cogl_framebuffer_mark_clear_clip_dirty (CoglFramebuffer *framebuffer);
  * _cogl_framebuffer_get_clip_stack:
  * @framebuffer: A #CoglFramebuffer
  *
- * Gets a pointer to the current clip stack. This can be used to later
- * return to the same clip stack state with
- * _cogl_framebuffer_set_clip_stack(). A reference is not taken on the
+ * Gets a pointer to the current clip stack. A reference is not taken on the
  * stack so if you want to keep it you should call
  * _cogl_clip_stack_ref().
  *
@@ -269,17 +267,6 @@ _cogl_framebuffer_mark_clear_clip_dirty (CoglFramebuffer *framebuffer);
  */
 CoglClipStack *
 _cogl_framebuffer_get_clip_stack (CoglFramebuffer *framebuffer);
-
-/*
- * _cogl_framebuffer_set_clip_stack:
- * @framebuffer: A #CoglFramebuffer
- * @stack: a pointer to the replacement clip stack
- *
- * Replaces the @framebuffer clip stack with @stack.
- */
-void
-_cogl_framebuffer_set_clip_stack (CoglFramebuffer *framebuffer,
-                                  CoglClipStack *stack);
 
 CoglMatrixStack *
 _cogl_framebuffer_get_modelview_stack (CoglFramebuffer *framebuffer);
