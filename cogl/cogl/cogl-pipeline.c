@@ -280,8 +280,6 @@ _cogl_pipeline_copy (CoglPipeline *src, gboolean is_weak)
    */
 
   pipeline->layers_cache_dirty = TRUE;
-  pipeline->deprecated_get_layers_list = NULL;
-  pipeline->deprecated_get_layers_list_dirty = TRUE;
 
   pipeline->has_static_breadcrumb = FALSE;
 
@@ -396,8 +394,6 @@ _cogl_pipeline_free (CoglPipeline *pipeline)
 
   if (pipeline->differences & COGL_PIPELINE_STATE_NEEDS_BIG_STATE)
     g_slice_free (CoglPipelineBigState, pipeline->big_state);
-
-  g_list_free (pipeline->deprecated_get_layers_list);
 
   recursively_free_layer_caches (pipeline);
 
@@ -2293,42 +2289,6 @@ cogl_pipeline_remove_layer (CoglPipeline *pipeline, int layer_index)
   _cogl_pipeline_try_reverting_layers_authority (pipeline, NULL);
 
   pipeline->dirty_real_blend_enable = TRUE;
-}
-
-static gboolean
-prepend_layer_to_list_cb (CoglPipelineLayer *layer,
-                          void *user_data)
-{
-  GList **layers = user_data;
-
-  *layers = g_list_prepend (*layers, layer);
-  return TRUE;
-}
-
-/* TODO: deprecate this API and replace it with
- * cogl_pipeline_foreach_layer
- * TODO: update the docs to note that if the user modifies any layers
- * then the list may become invalid.
- */
-const GList *
-_cogl_pipeline_get_layers (CoglPipeline *pipeline)
-{
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), NULL);
-
-  if (!pipeline->deprecated_get_layers_list_dirty)
-    g_list_free (pipeline->deprecated_get_layers_list);
-
-  pipeline->deprecated_get_layers_list = NULL;
-
-  _cogl_pipeline_foreach_layer_internal (pipeline,
-                                         prepend_layer_to_list_cb,
-                                         &pipeline->deprecated_get_layers_list);
-  pipeline->deprecated_get_layers_list =
-    g_list_reverse (pipeline->deprecated_get_layers_list);
-
-  pipeline->deprecated_get_layers_list_dirty = 0;
-
-  return pipeline->deprecated_get_layers_list;
 }
 
 int
