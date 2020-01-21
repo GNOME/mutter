@@ -572,16 +572,6 @@ _cogl_framebuffer_add_dependency (CoglFramebuffer *framebuffer,
 }
 
 void
-_cogl_framebuffer_remove_all_dependencies (CoglFramebuffer *framebuffer)
-{
-  GList *l;
-  for (l = framebuffer->deps; l; l = l->next)
-    cogl_object_unref (l->data);
-  g_list_free (framebuffer->deps);
-  framebuffer->deps = NULL;
-}
-
-void
 _cogl_framebuffer_flush_journal (CoglFramebuffer *framebuffer)
 {
   _cogl_journal_flush (framebuffer->journal);
@@ -593,7 +583,10 @@ _cogl_framebuffer_flush_dependency_journals (CoglFramebuffer *framebuffer)
   GList *l;
   for (l = framebuffer->deps; l; l = l->next)
     _cogl_framebuffer_flush_journal (l->data);
-  _cogl_framebuffer_remove_all_dependencies (framebuffer);
+  for (l = framebuffer->deps; l; l = l->next)
+    cogl_object_unref (l->data);
+  g_list_free (framebuffer->deps);
+  framebuffer->deps = NULL;
 }
 
 CoglOffscreen *

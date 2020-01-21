@@ -279,9 +279,6 @@ _cogl_framebuffer_add_dependency (CoglFramebuffer *framebuffer,
                                   CoglFramebuffer *dependency);
 
 void
-_cogl_framebuffer_remove_all_dependencies (CoglFramebuffer *framebuffer);
-
-void
 _cogl_framebuffer_flush_journal (CoglFramebuffer *framebuffer);
 
 void
