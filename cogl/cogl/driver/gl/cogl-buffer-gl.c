@@ -160,7 +160,7 @@ recreate_store (CoglBuffer *buffer,
   return TRUE;
 }
 
-GLenum
+static GLenum
 _cogl_buffer_access_to_gl_enum (CoglBufferAccess access)
 {
   if ((access & COGL_BUFFER_ACCESS_READ_WRITE) == COGL_BUFFER_ACCESS_READ_WRITE)

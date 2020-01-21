@@ -139,9 +139,6 @@ _cogl_buffer_fini (CoglBuffer *buffer);
 CoglBufferUsageHint
 _cogl_buffer_get_usage_hint (CoglBuffer *buffer);
 
-GLenum
-_cogl_buffer_access_to_gl_enum (CoglBufferAccess access);
-
 CoglBuffer *
 _cogl_buffer_immutable_ref (CoglBuffer *buffer);
 
