@@ -731,28 +731,6 @@ try_creating_fbo (CoglContext *ctx,
 }
 
 gboolean
-_cogl_framebuffer_try_creating_gl_fbo (CoglContext *ctx,
-                                       CoglTexture *texture,
-                                       int texture_level,
-                                       int texture_level_width,
-                                       int texture_level_height,
-                                       CoglTexture *depth_texture,
-                                       CoglFramebufferConfig *config,
-                                       CoglOffscreenAllocateFlags flags,
-                                       CoglGLFramebuffer *gl_framebuffer)
-{
-  return try_creating_fbo (ctx,
-                           texture,
-                           texture_level,
-                           texture_level_width,
-                           texture_level_height,
-                           depth_texture,
-                           config,
-                           flags,
-                           gl_framebuffer);
-}
-
-gboolean
 _cogl_offscreen_gl_allocate (CoglOffscreen *offscreen,
                              GError **error)
 {

@@ -371,18 +371,6 @@ _cogl_framebuffer_draw_indexed_attributes (CoglFramebuffer *framebuffer,
                                            int n_attributes,
                                            CoglDrawFlags flags);
 
-gboolean
-_cogl_framebuffer_try_creating_gl_fbo (CoglContext *ctx,
-                                       CoglTexture *texture,
-                                       int texture_level,
-                                       int texture_level_width,
-                                       int texture_level_height,
-                                       CoglTexture *depth_texture,
-                                       CoglFramebufferConfig *config,
-                                       CoglOffscreenAllocateFlags flags,
-                                       CoglGLFramebuffer *gl_framebuffer);
-
-
 void
 cogl_framebuffer_set_viewport4fv (CoglFramebuffer *framebuffer,
                                   float *viewport);
