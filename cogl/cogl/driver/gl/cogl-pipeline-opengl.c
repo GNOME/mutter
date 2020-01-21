@@ -671,16 +671,15 @@ static void
 _cogl_pipeline_layer_forward_wrap_modes (CoglPipelineLayer *layer,
                                          CoglTexture *texture)
 {
-  CoglSamplerCacheWrapMode wrap_mode_s, wrap_mode_t, wrap_mode_p;
-  GLenum gl_wrap_mode_s, gl_wrap_mode_t, gl_wrap_mode_p;
+  CoglSamplerCacheWrapMode wrap_mode_s, wrap_mode_t;
+  GLenum gl_wrap_mode_s, gl_wrap_mode_t;
 
   if (texture == NULL)
     return;
 
   _cogl_pipeline_layer_get_wrap_modes (layer,
                                        &wrap_mode_s,
-                                       &wrap_mode_t,
-                                       &wrap_mode_p);
+                                       &wrap_mode_t);
 
   /* Update the wrap mode on the texture object. The texture backend
      should cache the value so that it will be a no-op if the object
@@ -703,15 +702,9 @@ _cogl_pipeline_layer_forward_wrap_modes (CoglPipelineLayer *layer,
   else
     gl_wrap_mode_t = wrap_mode_t;
 
-  if (wrap_mode_p == COGL_SAMPLER_CACHE_WRAP_MODE_AUTOMATIC)
-    gl_wrap_mode_p = GL_CLAMP_TO_EDGE;
-  else
-    gl_wrap_mode_p = wrap_mode_p;
-
   _cogl_texture_gl_flush_legacy_texobj_wrap_modes (texture,
                                                    gl_wrap_mode_s,
-                                                   gl_wrap_mode_t,
-                                                   gl_wrap_mode_p);
+                                                   gl_wrap_mode_t);
 }
 
 /* OpenGL associates the min/mag filters and repeat modes with the

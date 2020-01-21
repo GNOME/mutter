@@ -996,8 +996,7 @@ _cogl_texture_pixmap_x11_ensure_non_quad_rendering (CoglTexture *tex)
 static void
 _cogl_texture_pixmap_x11_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
                                                             GLenum wrap_mode_s,
-                                                            GLenum wrap_mode_t,
-                                                            GLenum wrap_mode_p)
+                                                            GLenum wrap_mode_t)
 {
   CoglTexturePixmapX11 *tex_pixmap = COGL_TEXTURE_PIXMAP_X11 (tex);
   CoglTexture *child_tex = _cogl_texture_pixmap_x11_get_texture (tex_pixmap);
@@ -1005,8 +1004,7 @@ _cogl_texture_pixmap_x11_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
   /* Forward on to the child texture */
   _cogl_texture_gl_flush_legacy_texobj_wrap_modes (child_tex,
                                                    wrap_mode_s,
-                                                   wrap_mode_t,
-                                                   wrap_mode_p);
+                                                   wrap_mode_t);
 }
 
 static CoglPixelFormat

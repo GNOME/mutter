@@ -159,15 +159,13 @@ _cogl_sub_texture_foreach_sub_texture_in_region (
 static void
 _cogl_sub_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
                                                      GLenum wrap_mode_s,
-                                                     GLenum wrap_mode_t,
-                                                     GLenum wrap_mode_p)
+                                                     GLenum wrap_mode_t)
 {
   CoglSubTexture *sub_tex = COGL_SUB_TEXTURE (tex);
 
   _cogl_texture_gl_flush_legacy_texobj_wrap_modes (sub_tex->full_texture,
                                                    wrap_mode_s,
-                                                   wrap_mode_t,
-                                                   wrap_mode_p);
+                                                   wrap_mode_t);
 }
 
 static void

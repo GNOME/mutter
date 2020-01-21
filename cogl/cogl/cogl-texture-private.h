@@ -140,8 +140,7 @@ struct _CoglTextureVtable
   /* OpenGL driver specific virtual function */
   void (* gl_flush_legacy_texobj_wrap_modes) (CoglTexture *tex,
                                               GLenum wrap_mode_s,
-                                              GLenum wrap_mode_t,
-                                              GLenum wrap_mode_p);
+                                              GLenum wrap_mode_t);
 
   CoglPixelFormat (* get_format) (CoglTexture *tex);
   GLenum (* get_gl_format) (CoglTexture *tex);

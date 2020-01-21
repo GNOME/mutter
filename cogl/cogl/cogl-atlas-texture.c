@@ -252,16 +252,14 @@ _cogl_atlas_texture_foreach_sub_texture_in_region (
 static void
 _cogl_atlas_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture *tex,
                                                        GLenum wrap_mode_s,
-                                                       GLenum wrap_mode_t,
-                                                       GLenum wrap_mode_p)
+                                                       GLenum wrap_mode_t)
 {
   CoglAtlasTexture *atlas_tex = COGL_ATLAS_TEXTURE (tex);
 
   /* Forward on to the sub texture */
   _cogl_texture_gl_flush_legacy_texobj_wrap_modes (atlas_tex->sub_texture,
                                                    wrap_mode_s,
-                                                   wrap_mode_t,
-                                                   wrap_mode_p);
+                                                   wrap_mode_t);
 }
 
 static void

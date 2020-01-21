@@ -331,9 +331,7 @@ cogl_pipeline_set_layer_wrap_mode_s (CoglPipeline *pipeline,
                                            authority->sampler_cache_entry,
                                            internal_mode,
                                            authority->sampler_cache_entry->
-                                           wrap_mode_t,
-                                           authority->sampler_cache_entry->
-                                           wrap_mode_p);
+                                           wrap_mode_t);
   _cogl_pipeline_set_layer_sampler_state (pipeline,
                                           layer,
                                           authority,
@@ -373,62 +371,6 @@ cogl_pipeline_set_layer_wrap_mode_t (CoglPipeline *pipeline,
                                            authority->sampler_cache_entry,
                                            authority->sampler_cache_entry->
                                            wrap_mode_s,
-                                           internal_mode,
-                                           authority->sampler_cache_entry->
-                                           wrap_mode_p);
-  _cogl_pipeline_set_layer_sampler_state (pipeline,
-                                          layer,
-                                          authority,
-                                          sampler_state);
-}
-
-/* The rationale for naming the third texture coordinate 'p' instead
-   of OpenGL's usual 'r' is that 'r' conflicts with the usual naming
-   of the 'red' component when treating a vector as a color. Under
-   GLSL this is awkward because the texture swizzling for a vector
-   uses a single letter for each component and the names for colors,
-   textures and positions are synonymous. GLSL works around this by
-   naming the components of the texture s, t, p and q. Cogl already
-   effectively already exposes this naming because it exposes GLSL so
-   it makes sense to use that naming consistently. Another alternative
-   could be u, v and w. This is what Blender and Direct3D use. However
-   the w component conflicts with the w component of a position
-   vertex.  */
-void
-cogl_pipeline_set_layer_wrap_mode_p (CoglPipeline *pipeline,
-                                     int layer_index,
-                                     CoglPipelineWrapMode mode)
-{
-  CoglPipelineLayerState       change = COGL_PIPELINE_LAYER_STATE_SAMPLER;
-  CoglPipelineLayer           *layer;
-  CoglPipelineLayer           *authority;
-  CoglSamplerCacheWrapMode     internal_mode =
-    public_to_internal_wrap_mode (mode);
-  const CoglSamplerCacheEntry *sampler_state;
-
-  _COGL_GET_CONTEXT (ctx, NO_RETVAL);
-
-  g_return_if_fail (cogl_is_pipeline (pipeline));
-
-  /* Note: this will ensure that the layer exists, creating one if it
-   * doesn't already.
-   *
-   * Note: If the layer already existed it's possibly owned by another
-   * pipeline. If the layer is created then it will be owned by
-   * pipeline. */
-  layer = _cogl_pipeline_get_layer (pipeline, layer_index);
-
-  /* Now find the ancestor of the layer that is the authority for the
-   * state we want to change */
-  authority = _cogl_pipeline_layer_get_authority (layer, change);
-
-  sampler_state =
-    _cogl_sampler_cache_update_wrap_modes (ctx->sampler_cache,
-                                           authority->sampler_cache_entry,
-                                           authority->sampler_cache_entry->
-                                           wrap_mode_s,
-                                           authority->sampler_cache_entry->
-                                           wrap_mode_t,
                                            internal_mode);
   _cogl_pipeline_set_layer_sampler_state (pipeline,
                                           layer,
@@ -468,14 +410,11 @@ cogl_pipeline_set_layer_wrap_mode (CoglPipeline *pipeline,
     _cogl_sampler_cache_update_wrap_modes (ctx->sampler_cache,
                                            authority->sampler_cache_entry,
                                            internal_mode,
-                                           internal_mode,
                                            internal_mode);
   _cogl_pipeline_set_layer_sampler_state (pipeline,
                                           layer,
                                           authority,
                                           sampler_state);
-  /* XXX: I wonder if we should really be duplicating the mode into
-   * the 'p' wrap mode too? */
 }
 
 /* FIXME: deprecate this API */
@@ -552,41 +491,10 @@ cogl_pipeline_get_layer_wrap_mode_t (CoglPipeline *pipeline, int layer_index)
   return _cogl_pipeline_layer_get_wrap_mode_t (layer);
 }
 
-CoglPipelineWrapMode
-_cogl_pipeline_layer_get_wrap_mode_p (CoglPipelineLayer *layer)
-{
-  CoglPipelineLayerState change = COGL_PIPELINE_LAYER_STATE_SAMPLER;
-  CoglPipelineLayer     *authority =
-    _cogl_pipeline_layer_get_authority (layer, change);
-  const CoglSamplerCacheEntry *sampler_state;
-
-  sampler_state = authority->sampler_cache_entry;
-  return internal_to_public_wrap_mode (sampler_state->wrap_mode_p);
-}
-
-CoglPipelineWrapMode
-cogl_pipeline_get_layer_wrap_mode_p (CoglPipeline *pipeline, int layer_index)
-{
-  CoglPipelineLayer *layer;
-
-  g_return_val_if_fail (cogl_is_pipeline (pipeline), FALSE);
-
-  /* Note: this will ensure that the layer exists, creating one if it
-   * doesn't already.
-   *
-   * Note: If the layer already existed it's possibly owned by another
-   * pipeline. If the layer is created then it will be owned by
-   * pipeline. */
-  layer = _cogl_pipeline_get_layer (pipeline, layer_index);
-
-  return _cogl_pipeline_layer_get_wrap_mode_p (layer);
-}
-
 void
 _cogl_pipeline_layer_get_wrap_modes (CoglPipelineLayer *layer,
                                      CoglSamplerCacheWrapMode *wrap_mode_s,
-                                     CoglSamplerCacheWrapMode *wrap_mode_t,
-                                     CoglSamplerCacheWrapMode *wrap_mode_p)
+                                     CoglSamplerCacheWrapMode *wrap_mode_t)
 {
   CoglPipelineLayer *authority =
     _cogl_pipeline_layer_get_authority (layer,
@@ -594,7 +502,6 @@ _cogl_pipeline_layer_get_wrap_modes (CoglPipelineLayer *layer,
 
   *wrap_mode_s = authority->sampler_cache_entry->wrap_mode_s;
   *wrap_mode_t = authority->sampler_cache_entry->wrap_mode_t;
-  *wrap_mode_p = authority->sampler_cache_entry->wrap_mode_p;
 }
 
 gboolean

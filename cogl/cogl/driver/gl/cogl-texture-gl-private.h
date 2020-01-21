@@ -45,8 +45,7 @@ _cogl_texture_gl_prep_alignment_for_pixels_download (CoglContext *ctx,
 void
 _cogl_texture_gl_flush_legacy_texobj_wrap_modes (CoglTexture *texture,
                                                  unsigned int wrap_mode_s,
-                                                 unsigned int wrap_mode_t,
-                                                 unsigned int wrap_mode_p);
+                                                 unsigned int wrap_mode_t);
 
 void
 _cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture *texture,
