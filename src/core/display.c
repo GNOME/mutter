@@ -2081,6 +2081,14 @@ meta_display_ping_window (MetaWindow *window,
     {
       MetaPingData *ping_data = l->data;
 
+      if (window == ping_data->window)
+        {
+          meta_topic (META_DEBUG_PING,
+                      "Window %s already is being pinged with serial %u\n",
+                      window->desc, ping_data->serial);
+          return;
+        }
+
       if (serial == ping_data->serial)
         {
           meta_warning ("Ping serial %u was reused for window %s, "
