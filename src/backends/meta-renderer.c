@@ -174,6 +174,8 @@ meta_renderer_finalize (GObject *object)
 
   g_list_free_full (priv->views, g_object_unref);
   priv->views = NULL;
+
+  G_OBJECT_CLASS (meta_renderer_parent_class)->finalize (object);
 }
 
 static void
