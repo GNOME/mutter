@@ -233,7 +233,7 @@ clutter_backend_egl_native_init (ClutterBackendEglNative *backend_egl_native)
   GSettingsSchemaSource *source = g_settings_schema_source_get_default ();
   GSettingsSchema *schema = g_settings_schema_source_lookup (source,
                                                              xsettings_path,
-                                                             FALSE);
+                                                             TRUE);
 
   if (!schema)
     {
