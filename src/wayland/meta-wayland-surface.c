@@ -206,7 +206,7 @@ meta_wayland_surface_assign_role (MetaWaylandSurface *surface,
                                           (const GValue *) values->data);
           surface->role = META_WAYLAND_SURFACE_ROLE (role_object);
 
-          g_array_free (names, FALSE);
+          g_array_free (names, TRUE);
           g_array_free (values, TRUE);
         }
       else
