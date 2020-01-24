@@ -266,13 +266,14 @@ set_gnome_env (const char *name,
 {
   GDBusConnection *session_bus;
   GError *error = NULL;
+  g_autoptr (GVariant) result = NULL;
 
   setenv (name, value, TRUE);
 
   session_bus = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, NULL);
   g_assert (session_bus);
 
-  g_dbus_connection_call_sync (session_bus,
+  result = g_dbus_connection_call_sync (session_bus,
 			       "org.gnome.SessionManager",
 			       "/org/gnome/SessionManager",
 			       "org.gnome.SessionManager",
