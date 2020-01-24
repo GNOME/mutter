@@ -381,8 +381,11 @@ set_encoder_device_idx_bit (uint32_t          *encoder_device_idxs,
       if (drm_encoder->encoder_id == encoder_id)
         {
           *encoder_device_idxs |= (1 << i);
+          drmModeFreeEncoder (drm_encoder);
           break;
         }
+
+      drmModeFreeEncoder (drm_encoder);
     }
 }
 
@@ -421,6 +424,8 @@ state_set_crtc_state (MetaKmsConnectorState *state,
 
       if (drm_connector->encoder_id == drm_encoder->encoder_id)
         state->current_crtc_id = drm_encoder->crtc_id;
+
+      drmModeFreeEncoder (drm_encoder);
     }
 
   state->common_possible_crtcs = common_possible_crtcs;
