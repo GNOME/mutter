@@ -1,5 +1,5 @@
 # mutter ja.po.
-# Copyright (C) 2002-2019 Free Software Foundation, Inc.
+# Copyright (C) 2002-2020 Free Software Foundation, Inc.
 # Akira TAGOH <tagoh@gnome.gr.jp>, 2002.
 # KAMAGASAKO Masatoshi <emerald@gnome.gr.jp>, 2003.
 # Yukihiro Nakai <nakai@gnome.gr.jp>, 2003.
@@ -8,14 +8,14 @@
 # Noriko Mizumoto <noriko@fedoraproject.org>, 2012.
 # Jiro Matsuzawa <jmatsuzawa@gnome.org>, 2012, 2013.
 # sujiniku <sujinikusityuu@gmail.com>, 2016.
-# sicklylife <translation@sicklylife.jp>, 2019.
+# sicklylife <translation@sicklylife.jp>, 2019-2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
 "POT-Creation-Date: 2019-11-21 15:15+0000\n"
-"PO-Revision-Date: 2019-09-09 19:50+0900\n"
+"PO-Revision-Date: 2020-01-25 00:00+0900\n"
 "Last-Translator: sicklylife <translation@sicklylife.jp>\n"
 "Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
 "Language: ja\n"
@@ -78,40 +78,32 @@ msgid "Switch applications"
 msgstr "アプリケーションを切り替える"
 
 #: data/50-mutter-navigation.xml:48
-#, fuzzy
-#| msgid "Switch applications"
 msgid "Switch to previous application"
-msgstr "アプリケーションを切り替える"
+msgstr "前のアプリケーションに切り替える"
 
 #: data/50-mutter-navigation.xml:52
 msgid "Switch windows"
 msgstr "ウィンドウを切り替える"
 
 #: data/50-mutter-navigation.xml:57
-#, fuzzy
-#| msgid "Switch windows"
 msgid "Switch to previous window"
-msgstr "ウィンドウを切り替える"
+msgstr "前のウィンドウに切り替える"
 
 #: data/50-mutter-navigation.xml:61
 msgid "Switch windows of an application"
 msgstr "ひとつのアプリケーション内のウィンドウを切り替える"
 
 #: data/50-mutter-navigation.xml:66
-#, fuzzy
-#| msgid "Switch windows of an application"
 msgid "Switch to previous window of an application"
-msgstr "ひとつのアプリケーション内のウィンドウを切り替える"
+msgstr "ひとつのアプリケーション内の前のウィンドウに切り替える"
 
 #: data/50-mutter-navigation.xml:70
 msgid "Switch system controls"
 msgstr "システムのコントロールを切り替える"
 
 #: data/50-mutter-navigation.xml:75
-#, fuzzy
-#| msgid "Switch system controls"
 msgid "Switch to previous system control"
-msgstr "システムのコントロールを切り替える"
+msgstr "前のシステムコントロールに切り替える"
 
 #: data/50-mutter-navigation.xml:79
 msgid "Switch windows directly"
@@ -119,27 +111,23 @@ msgstr "ウィンドウを直接切り替える"
 
 #: data/50-mutter-navigation.xml:84
 msgid "Switch directly to previous window"
-msgstr ""
+msgstr "前のウィンドウに直接切り替える"
 
 #: data/50-mutter-navigation.xml:88
 msgid "Switch windows of an app directly"
 msgstr "ひとつのアプリケーション内のウィンドウを直接切り替える"
 
 #: data/50-mutter-navigation.xml:93
-#, fuzzy
-#| msgid "Switch windows of an application"
 msgid "Switch directly to previous window of an app"
-msgstr "ひとつのアプリケーション内のウィンドウを切り替える"
+msgstr "ひとつのアプリケーション内の前のウィンドウに直接切り替える"
 
 #: data/50-mutter-navigation.xml:97
 msgid "Switch system controls directly"
 msgstr "システムのコントロールを直接切り替える"
 
 #: data/50-mutter-navigation.xml:102
-#, fuzzy
-#| msgid "Switch system controls"
 msgid "Switch directly to previous system control"
-msgstr "システムのコントロールを切り替える"
+msgstr "前のシステムコントロールに直接切り替える"
 
 #: data/50-mutter-navigation.xml:105
 msgid "Hide all normal windows"
@@ -189,7 +177,7 @@ msgstr "アクティビティ画面を表示する"
 
 #: data/50-mutter-wayland.xml:8
 msgid "Restore the keyboard shortcuts"
-msgstr ""
+msgstr "キーボードショートカットを復元する"
 
 #: data/50-mutter-windows.xml:6
 msgid "Windows"
@@ -429,76 +417,52 @@ msgid "Rotates the built-in monitor configuration"
 msgstr ""
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:6
-#, fuzzy
-#| msgid "Switch to workspace 1"
 msgid "Switch to VT 1"
-msgstr "ワークスペース 1 へ切り替える"
+msgstr "VT 1 へ切り替える"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:10
-#, fuzzy
-#| msgid "Switch to workspace 2"
 msgid "Switch to VT 2"
-msgstr "ワークスペース 2 へ切り替える"
+msgstr "VT 2 へ切り替える"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:14
-#, fuzzy
-#| msgid "Switch to workspace 3"
 msgid "Switch to VT 3"
-msgstr "ワークスペース 3 へ切り替える"
+msgstr "VT 3 へ切り替える"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:18
-#, fuzzy
-#| msgid "Switch to workspace 4"
 msgid "Switch to VT 4"
-msgstr "ワークスペース 4 へ切り替える"
+msgstr "VT 4 へ切り替える"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:22
-#, fuzzy
-#| msgid "Switch to workspace 5"
 msgid "Switch to VT 5"
-msgstr "ワークスペース 5 へ切り替える"
+msgstr "VT 5 へ切り替える"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:26
-#, fuzzy
-#| msgid "Switch to workspace 6"
 msgid "Switch to VT 6"
-msgstr "ワークスペース 6 へ切り替える"
+msgstr "VT 6 へ切り替える"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:30
-#, fuzzy
-#| msgid "Switch to workspace 7"
 msgid "Switch to VT 7"
-msgstr "ワークスペース 7 へ切り替える"
+msgstr "VT 7 へ切り替える"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:34
-#, fuzzy
-#| msgid "Switch to workspace 8"
 msgid "Switch to VT 8"
-msgstr "ワークスペース 8 へ切り替える"
+msgstr "VT 8 へ切り替える"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:38
-#, fuzzy
-#| msgid "Switch to workspace 9"
 msgid "Switch to VT 9"
-msgstr "ワークスペース 9 へ切り替える"
+msgstr "VT 9 へ切り替える"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:42
-#, fuzzy
-#| msgid "Switch to workspace 10"
 msgid "Switch to VT 10"
-msgstr "ワークスペース 10 へ切り替える"
+msgstr "VT 10 へ切り替える"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:46
-#, fuzzy
-#| msgid "Switch to workspace 11"
 msgid "Switch to VT 11"
-msgstr "ワークスペース 11 へ切り替える"
+msgstr "VT 11 へ切り替える"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:50
-#, fuzzy
-#| msgid "Switch to workspace 12"
 msgid "Switch to VT 12"
-msgstr "ワークスペース 12 へ切り替える"
+msgstr "VT 12 へ切り替える"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:54
 msgid "Re-enable shortcuts"
@@ -545,20 +509,18 @@ msgstr ""
 #: src/backends/meta-input-settings.c:2528
 #, c-format
 msgid "Mode Switch (Group %d)"
-msgstr ""
+msgstr "モードを切り替え (グループ %d)"
 
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
 #: src/backends/meta-input-settings.c:2551
-#, fuzzy
-#| msgid "Switch system controls"
 msgid "Switch monitor"
-msgstr "システムのコントロールを切り替える"
+msgstr "モニターを切り替え"
 
 #: src/backends/meta-input-settings.c:2553
 msgid "Show on-screen help"
-msgstr ""
+msgstr "オンスクリーンヘルプを表示"
 
 #: src/backends/meta-monitor.c:223
 msgid "Built-in display"
@@ -633,7 +595,7 @@ msgstr "X の呼び出しを同期する"
 
 #: src/core/main.c:226
 msgid "Run as a wayland compositor"
-msgstr ""
+msgstr "Wayland のコンポジターとして実行する"
 
 #: src/core/main.c:232
 msgid "Run as a nested compositor"
@@ -712,7 +674,7 @@ msgstr "この mutter は詳細ログモードをサポートしていません\
 #: src/wayland/meta-wayland-tablet-pad.c:568
 #, c-format
 msgid "Mode Switch: Mode %d"
-msgstr ""
+msgstr "モード切り替え: モード %d"
 
 #: src/x11/meta-x11-display.c:679
 #, c-format
