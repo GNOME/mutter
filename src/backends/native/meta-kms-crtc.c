@@ -203,6 +203,7 @@ meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
       if (gamma->crtc != crtc)
         continue;
 
+      clear_gamma_state (crtc);
       crtc->current_state.gamma.size = gamma->size;
       crtc->current_state.gamma.red =
         g_memdup (gamma->red, gamma->size * sizeof (uint16_t));
