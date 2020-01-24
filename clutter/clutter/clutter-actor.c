@@ -6602,7 +6602,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_float ("width",
                         P_("Width"),
                         P_("Width of the actor"),
-                        0.0, G_MAXFLOAT,
+                        -1.0f, G_MAXFLOAT,
                         0.0,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
@@ -6621,7 +6621,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_float ("height",
                         P_("Height"),
                         P_("Height of the actor"),
-                        0.0, G_MAXFLOAT,
+                        -1.0f, G_MAXFLOAT,
                         0.0,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
