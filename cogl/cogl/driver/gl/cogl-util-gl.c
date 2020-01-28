@@ -147,6 +147,94 @@ _cogl_gl_util_catch_out_of_memory (CoglContext *ctx, GError **error)
   return FALSE;
 }
 
+char **
+_cogl_context_get_gl_extensions (CoglContext *context)
+{
+  const char *env_disabled_extensions;
+  char **ret;
+
+  /* In GL 3, querying GL_EXTENSIONS is deprecated so we have to build
+   * the array using glGetStringi instead */
+#ifdef HAVE_COGL_GL
+  if (context->driver == COGL_DRIVER_GL3)
+    {
+      int num_extensions, i;
+
+      context->glGetIntegerv (GL_NUM_EXTENSIONS, &num_extensions);
+
+      ret = g_malloc (sizeof (char *) * (num_extensions + 1));
+
+      for (i = 0; i < num_extensions; i++)
+        {
+          const char *ext =
+            (const char *) context->glGetStringi (GL_EXTENSIONS, i);
+          ret[i] = g_strdup (ext);
+        }
+
+      ret[num_extensions] = NULL;
+    }
+  else
+#endif
+    {
+      const char *all_extensions =
+        (const char *) context->glGetString (GL_EXTENSIONS);
+
+      ret = g_strsplit (all_extensions, " ", 0 /* max tokens */);
+    }
+
+  if ((env_disabled_extensions = g_getenv ("COGL_DISABLE_GL_EXTENSIONS")))
+    {
+      char **split_env_disabled_extensions;
+      char **src, **dst;
+
+      if (env_disabled_extensions)
+        split_env_disabled_extensions =
+          g_strsplit (env_disabled_extensions,
+                      ",",
+                      0 /* no max tokens */);
+      else
+        split_env_disabled_extensions = NULL;
+
+      for (dst = ret, src = ret;
+           *src;
+           src++)
+        {
+          char **d;
+
+          if (split_env_disabled_extensions)
+            for (d = split_env_disabled_extensions; *d; d++)
+              if (!strcmp (*src, *d))
+                goto disabled;
+
+          *(dst++) = *src;
+          continue;
+
+        disabled:
+          g_free (*src);
+          continue;
+        }
+
+      *dst = NULL;
+
+      if (split_env_disabled_extensions)
+        g_strfreev (split_env_disabled_extensions);
+    }
+
+  return ret;
+}
+
+const char *
+_cogl_context_get_gl_version (CoglContext *context)
+{
+  const char *version_override;
+
+  if ((version_override = g_getenv ("COGL_OVERRIDE_GL_VERSION")))
+    return version_override;
+  else
+    return (const char *) context->glGetString (GL_VERSION);
+
+}
+
 gboolean
 _cogl_gl_util_parse_gl_version (const char *version_string,
                                 int *major_out,

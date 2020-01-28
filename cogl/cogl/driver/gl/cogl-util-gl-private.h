@@ -94,6 +94,20 @@ _cogl_gl_util_catch_out_of_memory (CoglContext *ctx, GError **error);
 gboolean
 _cogl_driver_gl_is_hardware_accelerated (CoglContext *context);
 
+/*
+ * _cogl_context_get_gl_extensions:
+ * @context: A CoglContext
+ *
+ * Return value: a NULL-terminated array of strings representing the
+ *   supported extensions by the current driver. This array is owned
+ *   by the caller and should be freed with g_strfreev().
+ */
+char **
+_cogl_context_get_gl_extensions (CoglContext *context);
+
+const char *
+_cogl_context_get_gl_version (CoglContext *context);
+
 /* Parses a GL version number stored in a string. @version_string must
  * point to the beginning of the version number (ie, it can't point to
  * the "OpenGL ES" part on GLES). The version number can be followed
