@@ -50,6 +50,9 @@ struct _CoglDriverVtable
   gboolean
   (* is_hardware_accelerated) (CoglContext *context);
 
+  CoglGraphicsResetStatus
+  (* get_graphics_reset_status) (CoglContext *context);
+
   /* TODO: factor this out since this is OpenGL specific and
    * so can be ignored by non-OpenGL drivers. */
   gboolean

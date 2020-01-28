@@ -37,6 +37,24 @@
 #include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 
+/* This is a relatively new extension */
+#ifndef GL_PURGED_CONTEXT_RESET_NV
+#define GL_PURGED_CONTEXT_RESET_NV 0x92BB
+#endif
+
+/* These aren't defined in the GLES2 headers */
+#ifndef GL_GUILTY_CONTEXT_RESET_ARB
+#define GL_GUILTY_CONTEXT_RESET_ARB 0x8253
+#endif
+
+#ifndef GL_INNOCENT_CONTEXT_RESET_ARB
+#define GL_INNOCENT_CONTEXT_RESET_ARB 0x8254
+#endif
+
+#ifndef GL_UNKNOWN_CONTEXT_RESET_ARB
+#define GL_UNKNOWN_CONTEXT_RESET_ARB 0x8255
+#endif
+
 #ifdef COGL_GL_DEBUG
 /* GL error to string conversion */
 static const struct {
@@ -308,4 +326,29 @@ _cogl_driver_gl_is_hardware_accelerated (CoglContext *ctx)
              strstr (renderer, "SWR");
 
   return !software;
+}
+
+CoglGraphicsResetStatus
+_cogl_gl_get_graphics_reset_status (CoglContext *context)
+{
+  if (!context->glGetGraphicsResetStatus)
+    return COGL_GRAPHICS_RESET_STATUS_NO_ERROR;
+
+  switch (context->glGetGraphicsResetStatus ())
+    {
+    case GL_GUILTY_CONTEXT_RESET_ARB:
+      return COGL_GRAPHICS_RESET_STATUS_GUILTY_CONTEXT_RESET;
+
+    case GL_INNOCENT_CONTEXT_RESET_ARB:
+      return COGL_GRAPHICS_RESET_STATUS_INNOCENT_CONTEXT_RESET;
+
+    case GL_UNKNOWN_CONTEXT_RESET_ARB:
+      return COGL_GRAPHICS_RESET_STATUS_UNKNOWN_CONTEXT_RESET;
+
+    case GL_PURGED_CONTEXT_RESET_NV:
+      return COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET;
+
+    default:
+      return COGL_GRAPHICS_RESET_STATUS_NO_ERROR;
+    }
 }

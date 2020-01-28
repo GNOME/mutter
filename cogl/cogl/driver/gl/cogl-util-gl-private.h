@@ -131,4 +131,7 @@ _cogl_gl_util_parse_gl_version (const char *version_string,
                                 int *major_out,
                                 int *minor_out);
 
+CoglGraphicsResetStatus
+_cogl_gl_get_graphics_reset_status (CoglContext *context);
+
 #endif /* _COGL_UTIL_GL_PRIVATE_H_ */
