@@ -1094,6 +1094,19 @@ static gboolean
 keyboard_drag_grab_key (MetaWaylandKeyboardGrab *grab,
                         const ClutterEvent      *event)
 {
+  if (event->key.keyval == CLUTTER_KEY_Escape)
+    {
+      MetaWaylandDragGrab *drag_grab;
+
+      drag_grab = wl_container_of (grab, drag_grab, keyboard_grab);
+      meta_wayland_data_source_cancel (drag_grab->drag_data_source);
+      meta_dnd_actor_drag_finish (META_DND_ACTOR (drag_grab->feedback_actor), FALSE);
+      drag_grab->feedback_actor = NULL;
+      data_device_end_drag_grab (drag_grab);
+
+      return TRUE;
+    }
+
   return FALSE;
 }
 
