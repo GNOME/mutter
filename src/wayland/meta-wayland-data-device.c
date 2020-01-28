@@ -1051,7 +1051,7 @@ meta_wayland_data_source_fake_read (MetaWaylandDataSource *source,
 
 static void
 drag_grab_button (MetaWaylandPointerGrab *grab,
-		  const ClutterEvent     *event)
+                  const ClutterEvent     *event)
 {
   MetaWaylandDragGrab *drag_grab = (MetaWaylandDragGrab*) grab;
   MetaWaylandSeat *seat = drag_grab->seat;
@@ -1091,7 +1091,7 @@ drag_grab_button (MetaWaylandPointerGrab *grab,
             meta_wayland_data_source_set_current_offer (source, NULL);
           meta_wayland_data_device_set_dnd_source (&seat->data_device, NULL);
           unset_selection_source (&seat->data_device, META_SELECTION_DND);
-          success= FALSE;
+          success = FALSE;
         }
 
       /* Finish drag and let actor self-destruct */
