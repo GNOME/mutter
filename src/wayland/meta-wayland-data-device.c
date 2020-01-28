@@ -75,6 +75,7 @@ typedef struct _MetaWaylandDataSourcePrivate
   MetaWaylandSeat *seat;
   guint actions_set : 1;
   guint in_ask : 1;
+  guint drop_performed : 1;
 } MetaWaylandDataSourcePrivate;
 
 typedef struct _MetaWaylandDataSourcePrimary
@@ -94,6 +95,9 @@ static MetaWaylandDataSource *
 meta_wayland_data_source_new (struct wl_resource *resource);
 static MetaWaylandDataSource *
 meta_wayland_data_source_primary_new (struct wl_resource *resource);
+
+static void
+meta_wayland_source_cancel (MetaWaylandDataSource *source);
 
 static void
 drag_grab_data_source_destroyed (gpointer data, GObject *where_the_object_was);
@@ -363,6 +367,15 @@ meta_wayland_data_source_set_user_action (MetaWaylandDataSource *source,
     data_offer_update_action (offer);
 }
 
+static gboolean
+meta_wayland_data_source_get_drop_performed (MetaWaylandDataSource *source)
+{
+  MetaWaylandDataSourcePrivate *priv =
+    meta_wayland_data_source_get_instance_private (source);
+
+  return priv->drop_performed;
+}
+
 static void
 data_offer_accept (struct wl_client *client,
                    struct wl_resource *resource,
@@ -577,11 +590,17 @@ destroy_data_offer (struct wl_resource *resource)
 
       if (offer == meta_wayland_data_source_get_current_offer (offer->source))
         {
-          if (seat->data_device.dnd_data_source == offer->source &&
-              wl_resource_get_version (offer->resource) <
-              WL_DATA_OFFER_ACTION_SINCE_VERSION)
+          if (seat->data_device.dnd_data_source == offer->source)
             {
-              meta_wayland_data_source_notify_finish (offer->source);
+              if (wl_resource_get_version (offer->resource) <
+                  WL_DATA_OFFER_ACTION_SINCE_VERSION)
+                meta_wayland_data_source_notify_finish (offer->source);
+              else if (meta_wayland_data_source_get_drop_performed (offer->source) &&
+                       meta_wayland_data_source_get_resource(offer->source) &&
+                       wl_resource_get_version(
+                       meta_wayland_data_source_get_resource(offer->source)) >=
+                       WL_DATA_SOURCE_DND_FINISHED_SINCE_VERSION)
+                meta_wayland_source_cancel (offer->source);
             }
           else
             {
@@ -1390,6 +1409,8 @@ meta_wayland_source_drop_performed (MetaWaylandDataSource *source)
   MetaWaylandDataSourcePrivate *priv =
     meta_wayland_data_source_get_instance_private (source);
 
+  priv->drop_performed = TRUE;
+
   if (wl_resource_get_version (priv->resource) >=
       WL_DATA_SOURCE_DND_DROP_PERFORMED_SINCE_VERSION)
     wl_data_source_send_dnd_drop_performed (priv->resource);
@@ -1440,6 +1461,7 @@ meta_wayland_data_source_init (MetaWaylandDataSource *source)
 
   wl_array_init (&priv->mime_types);
   priv->current_dnd_action = -1;
+  priv->drop_performed = FALSE;
 }
 
 static void
