@@ -30,11 +30,11 @@ meta_screen_cast_window_default_init (MetaScreenCastWindowInterface *iface)
 }
 
 void
-meta_screen_cast_window_get_frame_bounds (MetaScreenCastWindow *screen_cast_window,
-                                          MetaRectangle        *bounds)
+meta_screen_cast_window_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
+                                           MetaRectangle        *bounds)
 {
-  META_SCREEN_CAST_WINDOW_GET_IFACE (screen_cast_window)->get_frame_bounds (screen_cast_window,
-                                                                            bounds);
+  META_SCREEN_CAST_WINDOW_GET_IFACE (screen_cast_window)->get_buffer_bounds (screen_cast_window,
+                                                                             bounds);
 }
 
 void

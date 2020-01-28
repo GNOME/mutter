@@ -37,8 +37,8 @@ struct _MetaScreenCastWindowInterface
 {
   GTypeInterface parent_iface;
 
-  void (*get_frame_bounds) (MetaScreenCastWindow *screen_cast_window,
-                            MetaRectangle        *bounds);
+  void (*get_buffer_bounds) (MetaScreenCastWindow *screen_cast_window,
+                             MetaRectangle        *bounds);
 
   void (*transform_relative_position) (MetaScreenCastWindow *screen_cast_window,
                                        double                x,
@@ -59,8 +59,8 @@ struct _MetaScreenCastWindowInterface
   gboolean (*has_damage) (MetaScreenCastWindow *screen_cast_window);
 };
 
-void meta_screen_cast_window_get_frame_bounds (MetaScreenCastWindow *screen_cast_window,
-                                               MetaRectangle        *bounds);
+void meta_screen_cast_window_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
+                                                MetaRectangle        *bounds);
 
 void meta_screen_cast_window_transform_relative_position (MetaScreenCastWindow *screen_cast_window,
                                                           double                x,

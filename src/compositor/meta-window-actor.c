@@ -1138,29 +1138,21 @@ meta_window_actor_get_geometry_scale (MetaWindowActor *window_actor)
 }
 
 static void
-meta_window_actor_get_frame_bounds (MetaScreenCastWindow *screen_cast_window,
-                                    MetaRectangle        *bounds)
+meta_window_actor_get_buffer_bounds (MetaScreenCastWindow *screen_cast_window,
+                                     MetaRectangle        *bounds)
 {
   MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (window_actor);
-  MetaWindow *window;
   MetaShapedTexture *stex;
-  MetaRectangle buffer_rect;
-  MetaRectangle frame_rect;
   int buffer_scale;
 
   stex = meta_surface_actor_get_texture (priv->surface);
   buffer_scale = meta_shaped_texture_get_buffer_scale (stex);
-
-  window = priv->window;
-  meta_window_get_buffer_rect (window, &buffer_rect);
-  meta_window_get_frame_rect (window, &frame_rect);
-
-  bounds->x = (int) floor ((frame_rect.x - buffer_rect.x) / (float) buffer_scale);
-  bounds->y = (int) floor ((frame_rect.y - buffer_rect.y) / (float) buffer_scale);
-  bounds->width = (int) ceil (frame_rect.width / (float) buffer_scale);
-  bounds->height = (int) ceil (frame_rect.height / (float) buffer_scale);
+  *bounds = (MetaRectangle) {
+    .width = meta_shaped_texture_get_width (stex) * buffer_scale,
+    .height = meta_shaped_texture_get_height (stex) * buffer_scale,
+  };
 }
 
 static void
@@ -1177,7 +1169,7 @@ meta_window_actor_transform_relative_position (MetaScreenCastWindow *screen_cast
   MetaRectangle bounds;
   graphene_point3d_t v1 = { 0.f, }, v2 = { 0.f, };
 
-  meta_window_actor_get_frame_bounds (screen_cast_window, &bounds);
+  meta_window_actor_get_buffer_bounds (screen_cast_window, &bounds);
 
   v1.x = CLAMP ((float) x,
                 bounds.x,
@@ -1302,7 +1294,7 @@ meta_window_actor_has_damage (MetaScreenCastWindow *screen_cast_window)
 static void
 screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
 {
-  iface->get_frame_bounds = meta_window_actor_get_frame_bounds;
+  iface->get_buffer_bounds = meta_window_actor_get_buffer_bounds;
   iface->transform_relative_position = meta_window_actor_transform_relative_position;
   iface->transform_cursor_position = meta_window_actor_transform_cursor_position;
   iface->capture_into = meta_window_actor_capture_into;

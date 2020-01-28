@@ -230,8 +230,8 @@ meta_screen_cast_window_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
   MetaRectangle stream_rect;
 
-  meta_screen_cast_window_get_frame_bounds (window_src->screen_cast_window,
-                                            crop_rect);
+  meta_screen_cast_window_get_buffer_bounds (window_src->screen_cast_window,
+                                             crop_rect);
 
   stream_rect.x = 0;
   stream_rect.y = 0;
