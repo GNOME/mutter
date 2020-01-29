@@ -1776,7 +1776,7 @@ _clutter_process_event_details (ClutterActor        *stage,
 
             emit_crossing_event (event, device);
 
-            actor = _clutter_input_device_update (device, NULL, FALSE);
+            actor = clutter_input_device_update (device, NULL, FALSE);
             if (actor != stage)
               {
                 ClutterEvent *crossing;
@@ -1943,7 +1943,7 @@ _clutter_process_event_details (ClutterActor        *stage,
                * get the actor underneath
                */
               if (device != NULL)
-                actor = _clutter_input_device_update (device, NULL, TRUE);
+                actor = clutter_input_device_update (device, NULL, TRUE);
               else
                 {
                   CLUTTER_NOTE (EVENT, "No device found: picking");
@@ -2060,7 +2060,7 @@ _clutter_process_event_details (ClutterActor        *stage,
                 }
 
               if (device != NULL)
-                actor = _clutter_input_device_update (device, sequence, TRUE);
+                actor = clutter_input_device_update (device, sequence, TRUE);
               else
                 {
                   CLUTTER_NOTE (EVENT, "No device found: picking");

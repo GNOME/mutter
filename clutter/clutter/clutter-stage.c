@@ -1496,7 +1496,7 @@ _clutter_stage_do_update (ClutterStage *stage)
 
   while (pointers)
     {
-      _clutter_input_device_update (pointers->data, NULL, TRUE);
+      clutter_input_device_update (pointers->data, NULL, TRUE);
       pointers = g_slist_delete_link (pointers, pointers);
     }
 

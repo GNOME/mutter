@@ -799,7 +799,7 @@ on_cursor_actor_reactive_changed (ClutterActor       *actor,
  *
  * Sets the actor under the pointer coordinates of @device
  *
- * This function is called by _clutter_input_device_update()
+ * This function is called by clutter_input_device_update()
  * and it will:
  *
  *   - queue a %CLUTTER_LEAVE event on the previous pointer actor
@@ -1017,7 +1017,7 @@ clutter_input_device_get_coords (ClutterInputDevice   *device,
 }
 
 /*
- * _clutter_input_device_update:
+ * clutter_input_device_update:
  * @device: a #ClutterInputDevice
  *
  * Updates the input @device by determining the #ClutterActor underneath the
@@ -1031,9 +1031,9 @@ clutter_input_device_get_coords (ClutterInputDevice   *device,
  * Since: 1.2
  */
 ClutterActor *
-_clutter_input_device_update (ClutterInputDevice   *device,
-                              ClutterEventSequence *sequence,
-                              gboolean              emit_crossing)
+clutter_input_device_update (ClutterInputDevice   *device,
+                             ClutterEventSequence *sequence,
+                             gboolean              emit_crossing)
 {
   ClutterStage *stage;
   ClutterActor *new_cursor_actor;

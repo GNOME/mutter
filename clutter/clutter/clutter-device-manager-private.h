@@ -244,7 +244,8 @@ void            _clutter_input_device_set_actor                 (ClutterInputDev
                                                                  ClutterEventSequence *sequence,
                                                                  ClutterActor         *actor,
                                                                  gboolean              emit_crossing);
-ClutterActor *  _clutter_input_device_update                    (ClutterInputDevice   *device,
+CLUTTER_EXPORT
+ClutterActor *  clutter_input_device_update                     (ClutterInputDevice   *device,
                                                                  ClutterEventSequence *sequence,
                                                                  gboolean              emit_crossing);
 CLUTTER_EXPORT
