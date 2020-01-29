@@ -26,6 +26,7 @@
 #include <glib-object.h>
 
 #include <meta/common.h>
+#include <meta/display.h>
 #include <meta/prefs.h>
 #include <meta/types.h>
 
