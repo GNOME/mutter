@@ -1390,6 +1390,7 @@ window_actor_effects_completed (MetaWindowActor    *window_actor,
                                 MetaWaylandSurface *surface)
 {
   meta_wayland_surface_update_outputs_recursively (surface);
+  meta_wayland_compositor_repick (surface->compositor);
 }
 
 MetaWaylandSurface *
