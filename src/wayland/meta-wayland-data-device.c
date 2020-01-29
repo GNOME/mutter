@@ -106,6 +106,7 @@ static struct wl_resource * create_and_send_clipboard_offer (MetaWaylandDataDevi
                                                              struct wl_resource    *target);
 static struct wl_resource * create_and_send_primary_offer   (MetaWaylandDataDevice *data_device,
                                                              struct wl_resource    *target);
+static struct wl_resource * meta_wayland_data_source_get_resource (MetaWaylandDataSource *source);
 
 static void
 unbind_resource (struct wl_resource *resource)
@@ -138,8 +139,20 @@ data_offer_choose_action (MetaWaylandDataOffer *offer)
   MetaWaylandDataSource *source = offer->source;
   uint32_t actions, user_action, available_actions;
 
-  actions = meta_wayland_data_source_get_actions (source);
-  user_action = meta_wayland_data_source_get_user_action (source);
+  if (wl_resource_get_version (offer->resource) <
+      WL_DATA_OFFER_ACTION_SINCE_VERSION)
+    return WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY;
+
+  if (wl_resource_get_version (meta_wayland_data_source_get_resource (source)) <
+      WL_DATA_SOURCE_ACTION_SINCE_VERSION)
+    {
+      actions = user_action = WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY;
+    }
+  else
+    {
+      actions = meta_wayland_data_source_get_actions (source);
+      user_action = meta_wayland_data_source_get_user_action (source);
+    }
 
   available_actions = actions & offer->dnd_actions;
 
