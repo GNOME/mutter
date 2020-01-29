@@ -1028,6 +1028,7 @@ meta_wayland_pointer_start_popup_grab (MetaWaylandPointer      *pointer,
 void
 meta_wayland_pointer_repick (MetaWaylandPointer *pointer)
 {
+  clutter_input_device_update (pointer->device, NULL, FALSE);
   repick_for_event (pointer, NULL);
 }
 
