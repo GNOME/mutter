@@ -270,6 +270,7 @@ source_read_cb (MetaSelectionSource *source,
   if (!stream)
     {
       g_task_return_error (task, error);
+      g_object_unref (task);
       return;
     }
 
