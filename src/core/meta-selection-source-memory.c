@@ -43,7 +43,7 @@ meta_selection_source_memory_read_async (MetaSelectionSource *source,
 {
   MetaSelectionSourceMemory *source_mem = META_SELECTION_SOURCE_MEMORY (source);
   GInputStream *stream;
-  GTask *task;
+  g_autoptr (GTask) task = NULL;
 
   if (g_strcmp0 (mimetype, source_mem->mimetype) != 0)
     {
