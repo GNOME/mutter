@@ -1022,6 +1022,7 @@ meta_display_close (MetaDisplay *display,
   g_clear_object (&display->sound_player);
 
   meta_clipboard_manager_shutdown (display);
+  g_clear_object (&display->selection);
 
   g_object_unref (display);
   the_display = NULL;
