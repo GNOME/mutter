@@ -51,8 +51,26 @@ static guint signals[N_SIGNALS] = { 0 };
 G_DEFINE_TYPE (MetaSelection, meta_selection, G_TYPE_OBJECT)
 
 static void
+meta_selection_dispose (GObject *object)
+{
+  MetaSelection *selection = META_SELECTION (object);
+  guint i;
+
+  for (i = 0; i < META_N_SELECTION_TYPES; i++)
+    {
+      g_clear_object (&selection->owners[i]);
+    }
+
+  G_OBJECT_CLASS (meta_selection_parent_class)->dispose (object);
+}
+
+static void
 meta_selection_class_init (MetaSelectionClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->dispose = meta_selection_dispose;
+
   signals[OWNER_CHANGED] =
     g_signal_new ("owner-changed",
                   G_TYPE_FROM_CLASS (klass),
