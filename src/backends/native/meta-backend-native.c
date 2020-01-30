@@ -813,7 +813,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
 
-  idle_monitor = meta_backend_get_idle_monitor (backend, 0);
+  idle_monitor = meta_idle_monitor_get_core ();
   meta_idle_monitor_reset_idletime (idle_monitor);
 
   input_settings = meta_backend_get_input_settings (backend);
