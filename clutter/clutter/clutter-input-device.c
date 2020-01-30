@@ -96,6 +96,7 @@ clutter_input_device_dispose (GObject *gobject)
   g_clear_pointer (&device->device_name, g_free);
   g_clear_pointer (&device->vendor_id, g_free);
   g_clear_pointer (&device->product_id, g_free);
+  g_clear_pointer (&device->node_path, g_free);
 
   if (device->associated != NULL)
     {
