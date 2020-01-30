@@ -442,10 +442,22 @@ void
 meta_x11_selection_shutdown (MetaX11Display *x11_display)
 {
   MetaDisplay *display = meta_get_display ();
+  guint i;
 
   g_signal_handlers_disconnect_by_func (meta_display_get_selection (display),
                                         owner_changed_cb,
                                         x11_display);
+
+  for (i = 0; i < META_N_SELECTION_TYPES; i++)
+    {
+      g_clear_object (&x11_display->selection.owners[i]);
+      if (x11_display->selection.cancellables[i])
+        {
+          g_cancellable_cancel (x11_display->selection.cancellables[i]);
+          g_clear_object (&x11_display->selection.cancellables[i]);
+        }
+    }
+
   if (x11_display->selection.xwindow != None)
     {
       XDestroyWindow (x11_display->xdisplay, x11_display->selection.xwindow);
