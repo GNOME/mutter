@@ -698,12 +698,11 @@ remove_device (MetaSeatX11 *seat_x11,
         {
           seat_x11->devices = g_list_remove (seat_x11->devices, device);
           g_signal_emit_by_name (seat_x11, "device-removed", device);
-          g_hash_table_remove (seat_x11->devices_by_id,
-                               GINT_TO_POINTER (device_id));
         }
 
       g_object_run_dispose (G_OBJECT (device));
-      g_object_unref (device);
+      g_hash_table_remove (seat_x11->devices_by_id,
+                           GINT_TO_POINTER (device_id));
     }
 }
 
