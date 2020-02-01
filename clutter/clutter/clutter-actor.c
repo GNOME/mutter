@@ -19265,8 +19265,8 @@ _clutter_actor_create_transition (ClutterActor *actor,
   gboolean call_restore = FALSE;
   TransitionClosure *clos;
   va_list var_args;
-  GValue initial = G_VALUE_INIT;
-  GValue final = G_VALUE_INIT;
+  g_auto (GValue) initial = G_VALUE_INIT;
+  g_auto (GValue) final = G_VALUE_INIT;
   GType ptype;
   char *error;
 
@@ -19315,7 +19315,6 @@ _clutter_actor_create_transition (ClutterActor *actor,
   if (error != NULL)
     {
       g_critical ("%s: %s", G_STRLOC, error);
-      g_value_unset (&initial);
       g_free (error);
       goto out;
     }
@@ -19336,9 +19335,6 @@ _clutter_actor_create_transition (ClutterActor *actor,
                                              pspec->param_id,
                                              &final,
                                              pspec);
-
-      g_value_unset (&initial);
-      g_value_unset (&final);
 
       goto out;
     }
@@ -19387,9 +19383,6 @@ _clutter_actor_create_transition (ClutterActor *actor,
 
       /* the actor now owns the transition */
       g_object_unref (res);
-
-      g_value_unset (&initial);
-      g_value_unset (&final);
     }
   else
     {
