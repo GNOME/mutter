@@ -89,7 +89,7 @@ meta_window_group_paint (ClutterActor        *actor,
                                               screen_height,
                                               &paint_x_origin,
                                               &paint_y_origin) ||
-          !meta_actor_is_untransformed (actor, NULL, NULL))
+          !meta_cullable_is_untransformed (META_CULLABLE (actor)))
         {
           CLUTTER_ACTOR_CLASS (meta_window_group_parent_class)->paint (actor,
                                                                        paint_context);

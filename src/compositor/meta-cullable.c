@@ -100,7 +100,7 @@ meta_cullable_cull_out_children (MetaCullable   *cullable,
       if (needs_culling && clutter_actor_has_effects (child))
         needs_culling = FALSE;
 
-      if (needs_culling && !meta_actor_is_untransformed (child, NULL, NULL))
+      if (needs_culling && !meta_cullable_is_untransformed (META_CULLABLE (child)))
         needs_culling = FALSE;
 
       if (needs_culling)
@@ -149,9 +149,23 @@ meta_cullable_reset_culling_children (MetaCullable *cullable)
     }
 }
 
+static gboolean
+meta_cullable_default_is_untransformed (MetaCullable *cullable)
+{
+  float width, height;
+  graphene_point3d_t verts[4];
+
+  clutter_actor_get_size (CLUTTER_ACTOR (cullable), &width, &height);
+  clutter_actor_get_abs_allocation_vertices (CLUTTER_ACTOR (cullable), verts);
+
+  return meta_actor_vertices_are_untransformed (verts, width, height,
+                                                NULL, NULL);
+}
+
 static void
 meta_cullable_default_init (MetaCullableInterface *iface)
 {
+  iface->is_untransformed = meta_cullable_default_is_untransformed;
 }
 
 /**
@@ -184,6 +198,19 @@ meta_cullable_cull_out (MetaCullable   *cullable,
                         cairo_region_t *clip_region)
 {
   META_CULLABLE_GET_IFACE (cullable)->cull_out (cullable, unobscured_region, clip_region);
+}
+
+/**
+ * meta_cullable_is_untransformed:
+ * @cullable: The #MetaCullable
+ *
+ * Check if a cullable is "untransformed" - which actually means transformed by
+ * at most a integer-translation.
+ */
+gboolean
+meta_cullable_is_untransformed (MetaCullable *cullable)
+{
+  return META_CULLABLE_GET_IFACE (cullable)->is_untransformed (cullable);
 }
 
 /**

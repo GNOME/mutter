@@ -110,23 +110,6 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
   return TRUE;
 }
 
-/* Check if an actor is "untransformed" - which actually means transformed by
- * at most a integer-translation. The integer translation, if any, is returned.
- */
-gboolean
-meta_actor_is_untransformed (ClutterActor *actor,
-                             int          *x_origin,
-                             int          *y_origin)
-{
-  gfloat widthf, heightf;
-  graphene_point3d_t verts[4];
-
-  clutter_actor_get_size (actor, &widthf, &heightf);
-  clutter_actor_get_abs_allocation_vertices (actor, verts);
-
-  return meta_actor_vertices_are_untransformed (verts, widthf, heightf, x_origin, y_origin);
-}
-
 /**
  * meta_actor_painting_untransformed:
  * @paint_width: the width of the painted area

@@ -28,9 +28,6 @@ gboolean meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
                                                 float               heightf,
                                                 int                *x_origin,
                                                 int                *y_origin);
-gboolean meta_actor_is_untransformed (ClutterActor *actor,
-                                      int          *x_origin,
-                                      int          *y_origin);
 
 gboolean meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                             int              paint_width,
