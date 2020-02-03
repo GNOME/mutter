@@ -1437,3 +1437,23 @@ meta_shaped_texture_get_buffer_scale (MetaShapedTexture *stex)
 
   return stex->buffer_scale;
 }
+
+int
+meta_shaped_texture_get_width (MetaShapedTexture *stex)
+{
+  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 0);
+
+  ensure_size_valid (stex);
+
+  return stex->dst_width;
+}
+
+int
+meta_shaped_texture_get_height (MetaShapedTexture *stex)
+{
+  g_return_val_if_fail (META_IS_SHAPED_TEXTURE (stex), 0);
+
+  ensure_size_valid (stex);
+
+  return stex->dst_height;
+}
