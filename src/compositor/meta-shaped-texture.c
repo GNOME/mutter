@@ -36,7 +36,6 @@
 
 #include "cogl/cogl.h"
 #include "compositor/clutter-utils.h"
-#include "compositor/meta-cullable.h"
 #include "compositor/meta-texture-tower.h"
 #include "compositor/region-utils.h"
 #include "core/boxes-private.h"
