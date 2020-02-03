@@ -20,6 +20,7 @@
 #include "compositor/meta-surface-actor.h"
 
 #include "clutter/clutter.h"
+#include "compositor/clutter-utils.h"
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-shaped-texture-private.h"
 #include "compositor/meta-window-actor-private.h"
@@ -292,6 +293,27 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
     }
 }
 
+static gboolean
+meta_surface_actor_is_untransformed (MetaCullable *cullable)
+{
+  ClutterActor *actor = CLUTTER_ACTOR (cullable);
+  MetaWindowActor *window_actor;
+  float width, height;
+  graphene_point3d_t verts[4];
+  int geometry_scale;
+
+  clutter_actor_get_size (actor, &width, &height);
+  clutter_actor_get_abs_allocation_vertices (actor, verts);
+
+  window_actor = meta_window_actor_from_actor (actor);
+  geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
+
+  return meta_actor_vertices_are_untransformed (verts,
+                                                width * geometry_scale,
+                                                height * geometry_scale,
+                                                NULL, NULL);
+}
+
 static void
 meta_surface_actor_reset_culling (MetaCullable *cullable)
 {
@@ -304,6 +326,7 @@ static void
 cullable_iface_init (MetaCullableInterface *iface)
 {
   iface->cull_out = meta_surface_actor_cull_out;
+  iface->is_untransformed = meta_surface_actor_is_untransformed;
   iface->reset_culling = meta_surface_actor_reset_culling;
 }
 
