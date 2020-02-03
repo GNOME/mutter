@@ -1289,7 +1289,10 @@ _meta_window_shared_new (MetaDisplay         *display,
                                                                      window->initial_workspace);
         }
 
-      set_workspace_state (window, on_all_workspaces, workspace);
+      /* Ignore when a window requests to be placed on a non-existent workspace
+       */
+      if (on_all_workspaces || workspace != NULL)
+        set_workspace_state (window, on_all_workspaces, workspace);
     }
 
   /* override-redirect windows are subtly different from other windows
