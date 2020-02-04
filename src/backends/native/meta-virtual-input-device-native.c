@@ -644,6 +644,10 @@ meta_virtual_input_device_native_constructed (GObject *object)
 
   stage = meta_seat_native_get_stage (virtual_evdev->seat);
   _clutter_input_device_set_stage (virtual_evdev->device, stage);
+
+  g_signal_emit_by_name (virtual_evdev->seat,
+                         "device-added",
+                         virtual_evdev->device);
 }
 
 static void
@@ -656,6 +660,10 @@ meta_virtual_input_device_native_finalize (GObject *object)
   GObjectClass *object_class;
 
   release_pressed_buttons (virtual_device);
+  g_signal_emit_by_name (virtual_evdev->seat,
+                         "device-removed",
+                         virtual_evdev->device);
+
   g_clear_object (&virtual_evdev->device);
 
   object_class =
