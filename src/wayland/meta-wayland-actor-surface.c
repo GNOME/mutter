@@ -150,7 +150,6 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
   MetaShapedTexture *stex;
   MetaWaylandBuffer *buffer;
   cairo_rectangle_int_t surface_rect;
-  int geometry_scale;
   MetaWaylandSurface *subsurface_surface;
 
   surface_actor = priv->actor;
@@ -176,11 +175,9 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
       meta_shaped_texture_set_texture (stex, NULL);
     }
 
-  /* Wayland surface coordinate space -> stage coordinate space */
-  geometry_scale = meta_wayland_actor_surface_get_geometry_scale (actor_surface);
   surface_rect = (cairo_rectangle_int_t) {
-    .width = meta_wayland_surface_get_width (surface) * geometry_scale,
-    .height = meta_wayland_surface_get_height (surface) * geometry_scale,
+    .width = meta_wayland_surface_get_width (surface),
+    .height = meta_wayland_surface_get_height (surface),
   };
 
   if (surface->input_region)
