@@ -1259,31 +1259,35 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
   cr_height = cairo_image_surface_get_height (image);
   cr_stride = cairo_image_surface_get_stride (image);
 
-  if (cr_width < bounds->width || cr_height < bounds->height)
+  if (cr_width == bounds->width && cr_height == bounds->height)
     {
+      memcpy (data, cr_data, cr_height * cr_stride);
+    }
+  else
+    {
+      int width = MIN (bounds->width, cr_width);
+      int height = MIN (bounds->height, cr_height);
+      int stride = width * bpp;
       uint8_t *src, *dst;
+
       src = cr_data;
       dst = data;
 
-      for (int i = 0; i < cr_height; i++)
+      for (int i = 0; i < height; i++)
         {
-          memcpy (dst, src, cr_stride);
-          if (cr_width < bounds->width)
-            memset (dst + cr_stride, 0, (bounds->width * bpp) - cr_stride);
+          memcpy (dst, src, stride);
+          if (width < bounds->width)
+            memset (dst + stride, 0, (bounds->width * bpp) - stride);
 
           src += cr_stride;
           dst += bounds->width * bpp;
         }
 
-      for (int i = cr_height; i < bounds->height; i++)
+      for (int i = height; i < bounds->height; i++)
         {
           memset (dst, 0, bounds->width * bpp);
           dst += bounds->width * bpp;
         }
-    }
-  else
-    {
-      memcpy (data, cr_data, cr_height * cr_stride);
     }
 
   cairo_surface_destroy (image);
