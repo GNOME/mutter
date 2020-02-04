@@ -77,6 +77,21 @@ effective_unobscured_region (MetaSurfaceActor *surface_actor)
   return priv->unobscured_region;
 }
 
+static cairo_region_t*
+get_scaled_region (MetaSurfaceActor *surface_actor,
+                   cairo_region_t   *region)
+{
+  MetaWindowActor *window_actor;
+  int geometry_scale;
+
+  window_actor = meta_window_actor_from_actor (CLUTTER_ACTOR (surface_actor));
+  geometry_scale = meta_window_actor_get_geometry_scale (window_actor);
+
+  return meta_region_scale_double (region,
+                                   1.0 / geometry_scale,
+                                   META_ROUNDING_STRATEGY_GROW);
+}
+
 static void
 set_unobscured_region (MetaSurfaceActor *surface_actor,
                        cairo_region_t   *unobscured_region)
@@ -98,7 +113,9 @@ set_unobscured_region (MetaSurfaceActor *surface_actor,
         .height = height,
       };
 
-      priv->unobscured_region = cairo_region_copy (unobscured_region);
+      priv->unobscured_region =
+        get_scaled_region (surface_actor, unobscured_region);
+
       cairo_region_intersect_rectangle (priv->unobscured_region, &bounds);
     }
 }
@@ -112,7 +129,7 @@ set_clip_region (MetaSurfaceActor *surface_actor,
 
   g_clear_pointer (&priv->clip_region, cairo_region_destroy);
   if (clip_region)
-    priv->clip_region = cairo_region_copy (clip_region);
+    priv->clip_region = get_scaled_region (surface_actor, clip_region);
 }
 
 static void
