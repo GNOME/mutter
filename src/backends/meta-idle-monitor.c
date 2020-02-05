@@ -270,8 +270,7 @@ meta_idle_monitor_init (MetaIdleMonitor *monitor)
  * meta_idle_monitor_get_core:
  *
  * Returns: (transfer none): the #MetaIdleMonitor that tracks the server-global
- * idletime for all devices. To track device-specific idletime,
- * use meta_idle_monitor_get_for_device().
+ * idletime for all devices.
  */
 MetaIdleMonitor *
 meta_idle_monitor_get_core (void)
@@ -281,21 +280,6 @@ meta_idle_monitor_get_core (void)
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
 
   return meta_backend_get_idle_monitor (backend, clutter_seat_get_pointer (seat));
-}
-
-/**
- * meta_idle_monitor_get_for_device:
- * @device: the device to get the idle time for.
- *
- * Returns: (transfer none): a new #MetaIdleMonitor that tracks the
- * device-specific idletime for @device. To track server-global idletime
- * for all devices, use meta_idle_monitor_get_core().
- */
-MetaIdleMonitor *
-meta_idle_monitor_get_for_device (ClutterInputDevice *device)
-{
-  MetaBackend *backend = meta_get_backend ();
-  return meta_backend_get_idle_monitor (backend, device);
 }
 
 static guint32
