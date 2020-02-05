@@ -283,6 +283,7 @@ void
 meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
                                            const ClutterEvent *event)
 {
+#ifdef HAVE_NATIVE_BACKEND
   struct wl_resource *resource;
   double dx, dy;
   double dx_unaccel, dy_unaccel;
@@ -296,21 +297,14 @@ meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
   if (!pointer->focus_client)
     return;
 
-#ifdef HAVE_NATIVE_BACKEND
   if (!META_IS_BACKEND_NATIVE (backend) ||
       !meta_event_native_get_relative_motion (event,
                                               &dx, &dy,
                                               &dx_unaccel, &dy_unaccel))
     return;
-#else
-  if (META_IS_BACKEND_X11 (backend))
-    return;
-#endif
 
-#ifdef HAVE_NATIVE_BACKEND
   time_us = meta_event_native_get_time_usec (event);
   if (time_us == 0)
-#endif
     time_us = clutter_event_get_time (event) * 1000ULL;
   time_us_hi = (uint32_t) (time_us >> 32);
   time_us_lo = (uint32_t) time_us;
@@ -330,6 +324,7 @@ meta_wayland_pointer_send_relative_motion (MetaWaylandPointer *pointer,
                                                     dx_unaccelf,
                                                     dy_unaccelf);
     }
+#endif
 }
 
 void
