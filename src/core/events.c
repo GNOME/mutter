@@ -101,11 +101,9 @@ get_window_for_event (MetaDisplay        *display,
 static void
 handle_idletime_for_event (const ClutterEvent *event)
 {
-  ClutterInputDevice *device, *source_device;
-  MetaIdleMonitor *core_monitor, *device_monitor;
+  MetaIdleMonitor *core_monitor;
 
-  device = clutter_event_get_device (event);
-  if (device == NULL)
+  if (clutter_event_get_device (event) == NULL)
     return;
 
   if (event->any.flags & CLUTTER_EVENT_FLAG_SYNTHETIC ||
@@ -118,17 +116,7 @@ handle_idletime_for_event (const ClutterEvent *event)
     return;
 
   core_monitor = meta_idle_monitor_get_core ();
-  device_monitor = meta_idle_monitor_get_for_device (device);
-
   meta_idle_monitor_reset_idletime (core_monitor);
-  meta_idle_monitor_reset_idletime (device_monitor);
-
-  source_device = clutter_event_get_source_device (event);
-  if (source_device != device)
-    {
-      device_monitor = meta_idle_monitor_get_for_device (source_device);
-      meta_idle_monitor_reset_idletime (device_monitor);
-    }
 }
 
 static gboolean
