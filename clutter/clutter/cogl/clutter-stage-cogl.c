@@ -788,10 +788,16 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     }
   else
     {
-      cairo_rectangle_int_t rect = { 0, 0, view_rect.width, view_rect.height };
-      fb_clip_region = cairo_region_create_rectangle (&rect);
+      cairo_rectangle_int_t fb_rect;
+
+      fb_rect = (cairo_rectangle_int_t) {
+        .width = fb_width,
+        .height = fb_height,
+      };
+      fb_clip_region = cairo_region_create_rectangle (&fb_rect);
+
       g_clear_pointer (&redraw_clip, cairo_region_destroy);
-      redraw_clip = cairo_region_copy (fb_clip_region);
+      redraw_clip = cairo_region_create_rectangle (&view_rect);
     }
 
   if (may_use_clipped_redraw &&
