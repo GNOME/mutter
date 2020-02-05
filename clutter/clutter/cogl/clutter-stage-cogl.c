@@ -1090,8 +1090,7 @@ clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
     {
       ClutterStageView *view = l->data;
 
-      swap_event =
-        clutter_stage_cogl_redraw_view (stage_window, view) || swap_event;
+      swap_event |= clutter_stage_cogl_redraw_view (stage_window, view);
     }
 
   _clutter_stage_emit_after_paint (stage_cogl->wrapper);
