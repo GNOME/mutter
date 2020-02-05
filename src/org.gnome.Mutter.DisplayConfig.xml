@@ -455,5 +455,19 @@
       <arg name="logical_monitors" direction="in" type="a(iiduba(ssa{sv}))" />
       <arg name="properties" direction="in" type="a{sv}" />
     </method>
+
+    <!--
+        SetOutputCTM:
+        @serial: configuration serial
+        @output: API id of the output
+        @ctm: 3x3 matrix in fixed-point sign-magnitude S31.32
+
+        Changes the color transform matrix of @output
+    -->
+    <method name="SetOutputCTM">
+      <arg name="serial" direction="in" type="u" />
+      <arg name="output" direction="in" type="u" />
+      <arg name="ctm" direction="in" type="(ttttttttt)" />
+    </method>
   </interface>
 </node>

@@ -8,6 +8,7 @@
  * Copyright (C) 2003 Rob Adams
  * Copyright (C) 2004-2006 Elijah Newren
  * Copyright (C) 2013 Red Hat Inc.
+ * Copyright (C) 2020 NVIDIA CORPORATION
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1002,6 +1003,13 @@ meta_monitor_manager_xrandr_get_default_layout_mode (MetaMonitorManager *manager
 }
 
 static void
+meta_monitor_manager_xrandr_set_output_ctm (MetaOutput          *output,
+                                            const MetaOutputCtm *ctm)
+{
+  meta_output_xrandr_set_ctm (META_OUTPUT_XRANDR (output), ctm);
+}
+
+static void
 meta_monitor_manager_xrandr_constructed (GObject *object)
 {
   MetaMonitorManagerXrandr *manager_xrandr =
@@ -1086,6 +1094,7 @@ meta_monitor_manager_xrandr_class_init (MetaMonitorManagerXrandrClass *klass)
   manager_class->get_capabilities = meta_monitor_manager_xrandr_get_capabilities;
   manager_class->get_max_screen_size = meta_monitor_manager_xrandr_get_max_screen_size;
   manager_class->get_default_layout_mode = meta_monitor_manager_xrandr_get_default_layout_mode;
+  manager_class->set_output_ctm = meta_monitor_manager_xrandr_set_output_ctm;
 
   quark_meta_monitor_xrandr_data =
     g_quark_from_static_string ("-meta-monitor-xrandr-data");

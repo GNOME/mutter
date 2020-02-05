@@ -5,6 +5,7 @@
  * Copyright (C) 2003 Rob Adams
  * Copyright (C) 2004-2006 Elijah Newren
  * Copyright (C) 2013 Red Hat Inc.
+ * Copyright (C) 2020 NVIDIA CORPORATION
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -91,6 +92,17 @@ struct _MetaOutputAssignment
   gboolean     is_presentation;
   gboolean     is_underscanning;
 };
+
+/*
+ * MetaOutputCtm:
+ *
+ * A 3x3 color transform matrix in the fixed-point S31.32 sign-magnitude format
+ * used by DRM.
+ */
+typedef struct _MetaOutputCtm
+{
+  uint64_t matrix[9];
+} MetaOutputCtm;
 
 #define META_TYPE_MONITOR_MANAGER            (meta_monitor_manager_get_type ())
 #define META_MONITOR_MANAGER(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), META_TYPE_MONITOR_MANAGER, MetaMonitorManager))
@@ -179,6 +191,7 @@ struct _MetaMonitorManager
  * @get_capabilities: vfunc for meta_monitor_manager_get_capabilities().
  * @get_max_screen_size: vfunc for meta_monitor_manager_get_max_screen_size().
  * @get_default_layout_mode: vfunc for meta_monitor_manager_get_default_layout_mode().
+ * @set_output_ctm: vfunc for meta_monitor_manager_output_set_ctm()
  *
  * The base class for a #MetaMonitorManager.
  */
@@ -245,6 +258,9 @@ struct _MetaMonitorManagerClass
                                    int                *);
 
   MetaLogicalMonitorLayoutMode (*get_default_layout_mode) (MetaMonitorManager *);
+
+  void (*set_output_ctm) (MetaOutput          *,
+                          const MetaOutputCtm *);
 };
 
 META_EXPORT_TEST

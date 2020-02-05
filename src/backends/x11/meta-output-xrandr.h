@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2017 Red Hat
+ * Copyright (C) 2020 NVIDIA CORPORATION
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -37,6 +38,9 @@ void meta_output_xrandr_apply_mode (MetaOutputXrandr *output_xrandr);
 
 void meta_output_xrandr_change_backlight (MetaOutputXrandr *output_xrandr,
                                           int         value);
+
+void meta_output_xrandr_set_ctm (MetaOutputXrandr    *output_xrandr,
+                                 const MetaOutputCtm *ctm);
 
 GBytes * meta_output_xrandr_read_edid (MetaOutput *output_xrandr);
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2017 Red Hat
+ * Copyright (C) 2020 NVIDIA CORPORATION
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -89,6 +90,7 @@ typedef struct _MetaOutputInfo
   int backlight_max;
 
   gboolean supports_underscanning;
+  gboolean supports_color_transform;
 
   /*
    * Get a new preferred mode on hotplug events, to handle dynamic guest
