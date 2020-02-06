@@ -71,4 +71,6 @@ typedef struct _MetaWaylandXdgPositioner MetaWaylandXdgPositioner;
 
 typedef struct _MetaXWaylandManager MetaXWaylandManager;
 
+typedef struct _MetaWaylandXdgForeign MetaWaylandXdgForeign;
+
 #endif
