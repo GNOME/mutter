@@ -84,8 +84,9 @@ struct _ClutterStageClass
   gboolean (* delete_event) (ClutterStage *stage,
                              ClutterEvent *event);
 
-  void (* paint_view) (ClutterStage     *stage,
-                       ClutterStageView *view);
+  void (* paint_view) (ClutterStage         *stage,
+                       ClutterStageView     *view,
+                       const cairo_region_t *redraw_clip);
 
   /*< private >*/
   /* padding for future expansion */

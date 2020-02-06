@@ -232,6 +232,7 @@ get_pixel (CoglFramebuffer *fb,
 static void
 view_painted_cb (ClutterStage     *stage,
                  ClutterStageView *view,
+                 cairo_region_t   *redraw_clip,
                  gpointer          data)
 {
   CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);

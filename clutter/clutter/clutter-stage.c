@@ -144,8 +144,6 @@ struct _ClutterStagePrivate
   gpointer paint_data;
   GDestroyNotify paint_notify;
 
-  cairo_rectangle_int_t view_clip;
-
   int update_freeze_count;
 
   guint redraw_pending         : 1;
@@ -903,15 +901,18 @@ setup_view_for_pick_or_paint (ClutterStage                *stage,
 }
 
 static void
-clutter_stage_do_paint_view (ClutterStage                *stage,
-                             ClutterStageView            *view,
-                             const cairo_rectangle_int_t *clip)
+clutter_stage_do_paint_view (ClutterStage         *stage,
+                             ClutterStageView     *view,
+                             const cairo_region_t *redraw_clip)
 {
   ClutterPaintContext *paint_context;
+  cairo_rectangle_int_t clip_rect;
 
   paint_context = clutter_paint_context_new_for_view (view);
 
-  setup_view_for_pick_or_paint (stage, view, clip);
+  cairo_region_get_extents (redraw_clip, &clip_rect);
+  setup_view_for_pick_or_paint (stage, view, &clip_rect);
+
   clutter_actor_paint (CLUTTER_ACTOR (stage), paint_context);
   clutter_paint_context_destroy (paint_context);
 }
@@ -920,9 +921,9 @@ clutter_stage_do_paint_view (ClutterStage                *stage,
  * for picking or painting...
  */
 void
-_clutter_stage_paint_view (ClutterStage                *stage,
-                           ClutterStageView            *view,
-                           const cairo_rectangle_int_t *clip)
+clutter_stage_paint_view (ClutterStage         *stage,
+                          ClutterStageView     *view,
+                          const cairo_region_t *redraw_clip)
 {
   ClutterStagePrivate *priv = stage->priv;
 
@@ -931,15 +932,11 @@ _clutter_stage_paint_view (ClutterStage                *stage,
 
   COGL_TRACE_BEGIN_SCOPED (ClutterStagePaintView, "Paint (view)");
 
-  priv->view_clip = *clip;
-
   if (g_signal_has_handler_pending (stage, stage_signals[PAINT_VIEW],
                                     0, TRUE))
-    g_signal_emit (stage, stage_signals[PAINT_VIEW], 0, view);
+    g_signal_emit (stage, stage_signals[PAINT_VIEW], 0, view, redraw_clip);
   else
-    CLUTTER_STAGE_GET_CLASS (stage)->paint_view (stage, view);
-
-  priv->view_clip = (cairo_rectangle_int_t) { 0 };
+    CLUTTER_STAGE_GET_CLASS (stage)->paint_view (stage, view, redraw_clip);
 }
 
 void
@@ -1980,13 +1977,11 @@ clutter_stage_finalize (GObject *object)
 }
 
 static void
-clutter_stage_real_paint_view (ClutterStage     *stage,
-                               ClutterStageView *view)
+clutter_stage_real_paint_view (ClutterStage         *stage,
+                               ClutterStageView     *view,
+                               const cairo_region_t *redraw_clip)
 {
-  ClutterStagePrivate *priv = stage->priv;
-  const cairo_rectangle_int_t *clip = &priv->view_clip;
-
-  clutter_stage_do_paint_view (stage, view, clip);
+  clutter_stage_do_paint_view (stage, view, redraw_clip);
 }
 
 static void
@@ -2212,6 +2207,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
    * ClutterStage::paint-view:
    * @stage: the stage that received the event
    * @view: a #ClutterStageView
+   * @redraw_clip: a #cairo_region_t with the redraw clip
    *
    * The ::paint-view signal is emitted before a #ClutterStageView is being
    * painted.
@@ -2226,8 +2222,9 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_SIGNAL_RUN_LAST,
                   G_STRUCT_OFFSET (ClutterStageClass, paint_view),
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_STAGE_VIEW);
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_STAGE_VIEW,
+                  G_TYPE_POINTER);
 
   /**
    * ClutterStage::presented: (skip)
@@ -2803,13 +2800,17 @@ clutter_stage_read_pixels (ClutterStage *stage,
                                       .height = height,
                                     });
   cairo_region_get_extents (clip, &clip_rect);
-  cairo_region_destroy (clip);
 
   if (clip_rect.width == 0 || clip_rect.height == 0)
-    return NULL;
+    {
+      cairo_region_destroy (clip);
+      return NULL;
+    }
 
   framebuffer = clutter_stage_view_get_framebuffer (view);
-  clutter_stage_do_paint_view (stage, view, &clip_rect);
+  clutter_stage_do_paint_view (stage, view, clip);
+
+  cairo_region_destroy (clip);
 
   view_scale = clutter_stage_view_get_scale (view);
   pixel_width = roundf (clip_rect.width * view_scale);
@@ -4449,8 +4450,12 @@ capture_view_into (ClutterStage          *stage,
 
   if (paint)
     {
+      cairo_region_t *region;
+
       _clutter_stage_maybe_setup_viewport (stage, view);
-      clutter_stage_do_paint_view (stage, view, rect);
+      region = cairo_region_create_rectangle (rect);
+      clutter_stage_do_paint_view (stage, view, region);
+      cairo_region_destroy (region);
     }
 
   view_scale = clutter_stage_view_get_scale (view);

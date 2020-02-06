@@ -576,29 +576,12 @@ offset_scale_and_clamp_region (const cairo_region_t *region,
 static void
 paint_stage (ClutterStageCogl *stage_cogl,
              ClutterStageView *view,
-             cairo_region_t   *fb_clip_region)
+             cairo_region_t   *redraw_clip)
 {
   ClutterStage *stage = stage_cogl->wrapper;
-  cairo_rectangle_int_t clip_rect;
-  cairo_rectangle_int_t paint_rect;
-  cairo_rectangle_int_t view_rect;
-  graphene_rect_t rect;
-  float fb_scale;
-
-  clutter_stage_view_get_layout (view, &view_rect);
-  fb_scale = clutter_stage_view_get_scale (view);
-
-  cairo_region_get_extents (fb_clip_region, &clip_rect);
-
-  _clutter_util_rect_from_rectangle (&clip_rect, &rect);
-  scale_and_clamp_rect (&rect, 1.0f / fb_scale, &paint_rect);
-  _clutter_util_rectangle_offset (&paint_rect,
-                                  view_rect.x,
-                                  view_rect.y,
-                                  &paint_rect);
 
   _clutter_stage_maybe_setup_viewport (stage, view);
-  _clutter_stage_paint_view (stage, view, &paint_rect);
+  clutter_stage_paint_view (stage, view, redraw_clip);
 
   clutter_stage_view_after_paint (view);
 }
@@ -863,6 +846,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
 
               /* Update the redraw clip region with the extra damage. */
               cairo_region_union (stage_cogl->redraw_clip, view_damage);
+              cairo_region_union (redraw_clip, view_damage);
 
               cairo_region_destroy (view_damage);
 
@@ -939,7 +923,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
           cogl_framebuffer_push_region_clip (fb, fb_clip_region);
         }
 
-      paint_stage (stage_cogl, view, fb_clip_region);
+      paint_stage (stage_cogl, view, redraw_clip);
 
       cogl_framebuffer_pop_clip (fb);
 
@@ -971,24 +955,13 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                                               scissor_rect.width,
                                               scissor_rect.height);
 
-          paint_stage (stage_cogl, view, fb_clip_region);
+          paint_stage (stage_cogl, view, redraw_clip);
 
           cogl_framebuffer_pop_clip (fb);
         }
       else
         {
-          cairo_rectangle_int_t clip;
-          cairo_region_t *view_region;
-
-          clip = (cairo_rectangle_int_t) {
-            .x = 0,
-            .y = 0,
-            .width = ceilf (view_rect.width * fb_scale),
-            .height = ceilf (view_rect.height * fb_scale)
-          };
-          view_region = cairo_region_create_rectangle (&clip);
-          paint_stage (stage_cogl, view, view_region);
-          cairo_region_destroy (view_region);
+          paint_stage (stage_cogl, view, redraw_clip);
         }
     }
 

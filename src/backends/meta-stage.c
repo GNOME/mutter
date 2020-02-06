@@ -209,15 +209,17 @@ meta_stage_paint (ClutterActor        *actor,
 }
 
 static void
-meta_stage_paint_view (ClutterStage     *stage,
-                       ClutterStageView *view)
+meta_stage_paint_view (ClutterStage         *stage,
+                       ClutterStageView     *view,
+                       const cairo_region_t *redraw_clip)
 {
   MetaStage *meta_stage = META_STAGE (stage);
 
   notify_watchers_for_mode (meta_stage, view, META_STAGE_WATCH_BEFORE_PAINT);
 
   meta_stage->current_view = view;
-  CLUTTER_STAGE_CLASS (meta_stage_parent_class)->paint_view (stage, view);
+  CLUTTER_STAGE_CLASS (meta_stage_parent_class)->paint_view (stage, view,
+                                                             redraw_clip);
 
   notify_watchers_for_mode (meta_stage, view, META_STAGE_WATCH_AFTER_PAINT);
 }
