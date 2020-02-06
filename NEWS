@@ -1,3 +1,37 @@
+3.35.90
+=======
+* Cull out clip region [Robert; !985]
+* Always enable tap-to-click/drag on opaque Wacom tablets [Carlos; !968]
+* Fix visual glitches with offscreen effects applied [Georges; !992]
+* Fix "sticky corner" in multi-head setups [Jonas D.; #774]
+* Fix black shadows around XWayland windows during resizes [Ray, Olivier; #858]
+* Zero-copy path for GPU-less secondary GPUs [Pekka; !810]
+* Cancel DND on Esc [Carlos; #1020]
+* Sync XWayland window shadows to frame during resizes [Olivier; !1009]
+* Add support for per-monitor workareas [Alberts; !370]
+* Ensure newly mapped wayland windows receive ENTER event [Olivier; !1026]
+* Add ClutterSeat object [Carlos; !852]
+* Honour CLUTTER_ACTOR_NO_LAYOUT flag more efficiently [Daniel; !575]
+* Fix interoperation with wl_data_device_manager v1 [Carlos; #965]
+* Favor text over images in clipboard manager [Carlos; #919]
+* Apply monitor scale after background texture creation [Daniel; !1004]
+* Plugged memory leaks [Sebastian, Adam; !991, #1000, !1011, !1020, !1030,
+  !1001, !1033]
+* Fixed crashes [Jonas Å., Florian, Olivier; !961, #1029, !1037]
+* Misc. bug fixes and cleanups [Björn, Jonas Å., Adam, Sebastian, Jonas D.,
+  Daniel, Carlos, Corentin, Sebastian, Robert, Daniel; #385, !998, !1007, !995,
+  !1016, !1018, !1017, !1005, !1019, !1025, !1028, !1029, !1031, !1015, !1032,
+  !1034, #1025]
+
+Contributors:
+  Björn Daase, Jonas Dreßler, Olivier Fourdan, Carlos Garnacho, Adam Jackson,
+  Sebastian Keller, Robert Mader, Alberts Muktupāvels, Florian Müllner,
+  Georges Basile Stavracas Neto, Corentin Noël, Pekka Paalanen, Ray Strode,
+  Daniel van Vugt, Jonas Ådahl
+
+Translators:
+  sicklylife [ja], Umarzuki Bin Mochlis Moktar [ms]
+
 3.35.3
 ======
 * backends/native: Correct dy value in pinch gesture event [Yariv; !974]
