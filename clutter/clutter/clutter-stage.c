@@ -908,7 +908,7 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
   ClutterPaintContext *paint_context;
   cairo_rectangle_int_t clip_rect;
 
-  paint_context = clutter_paint_context_new_for_view (view);
+  paint_context = clutter_paint_context_new_for_view (view, redraw_clip);
 
   cairo_region_get_extents (redraw_clip, &clip_rect);
   setup_view_for_pick_or_paint (stage, view, &clip_rect);
@@ -1629,26 +1629,6 @@ _clutter_stage_has_full_redraw_queued (ClutterStage *stage)
     return TRUE;
   else
     return FALSE;
-}
-
-cairo_region_t *
-clutter_stage_get_redraw_clip (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv;
-  cairo_rectangle_int_t clip;
-  cairo_region_t *region;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), NULL);
-
-  priv = stage->priv;
-
-  region = _clutter_stage_window_get_redraw_clip (priv->impl);
-  if (region)
-    return region;
-
-  /* Set clip to the full extents of the stage */
-  _clutter_stage_window_get_geometry (priv->impl, &clip);
-  return cairo_region_create_rectangle (&clip);
 }
 
 static ClutterActor *

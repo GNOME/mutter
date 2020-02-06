@@ -207,8 +207,6 @@ guchar *        clutter_stage_read_pixels                       (ClutterStage   
                                                                  gint                   height);
 
 CLUTTER_EXPORT
-cairo_region_t * clutter_stage_get_redraw_clip                  (ClutterStage          *stage);
-CLUTTER_EXPORT
 void            clutter_stage_ensure_viewport                   (ClutterStage          *stage);
 CLUTTER_EXPORT
 void            clutter_stage_ensure_redraw                     (ClutterStage          *stage);

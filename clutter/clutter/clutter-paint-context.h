@@ -59,4 +59,7 @@ void clutter_paint_context_push_framebuffer (ClutterPaintContext *paint_context,
 CLUTTER_EXPORT
 void clutter_paint_context_pop_framebuffer (ClutterPaintContext *paint_context);
 
+CLUTTER_EXPORT
+const cairo_region_t * clutter_paint_context_get_redraw_clip (ClutterPaintContext *paint_context);
+
 #endif /* CLUTTER_PAINT_CONTEXT_H */
