@@ -166,12 +166,11 @@ clutter_stage_view_invalidate_offscreen_blit_pipeline (ClutterStageView *view)
 }
 
 static void
-clutter_stage_view_copy_to_framebuffer (ClutterStageView            *view,
-                                        const cairo_rectangle_int_t *rect,
-                                        CoglPipeline                *pipeline,
-                                        CoglFramebuffer             *src_framebuffer,
-                                        CoglFramebuffer             *dst_framebuffer,
-                                        gboolean                     can_blit)
+clutter_stage_view_copy_to_framebuffer (ClutterStageView *view,
+                                        CoglPipeline     *pipeline,
+                                        CoglFramebuffer  *src_framebuffer,
+                                        CoglFramebuffer  *dst_framebuffer,
+                                        gboolean          can_blit)
 {
   CoglMatrix matrix;
 
@@ -204,8 +203,7 @@ clutter_stage_view_copy_to_framebuffer (ClutterStageView            *view,
 }
 
 void
-clutter_stage_view_after_paint (ClutterStageView            *view,
-                                const cairo_rectangle_int_t *rect)
+clutter_stage_view_after_paint (ClutterStageView *view)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
@@ -222,7 +220,6 @@ clutter_stage_view_after_paint (ClutterStageView            *view,
       if (priv->shadowfb)
         {
           clutter_stage_view_copy_to_framebuffer (view,
-                                                  rect,
                                                   priv->offscreen_pipeline,
                                                   priv->offscreen,
                                                   priv->shadowfb,
@@ -231,7 +228,6 @@ clutter_stage_view_after_paint (ClutterStageView            *view,
       else
         {
           clutter_stage_view_copy_to_framebuffer (view,
-                                                  rect,
                                                   priv->offscreen_pipeline,
                                                   priv->offscreen,
                                                   priv->framebuffer,
@@ -243,7 +239,6 @@ clutter_stage_view_after_paint (ClutterStageView            *view,
     {
       clutter_stage_view_ensure_shadowfb_blit_pipeline (view);
       clutter_stage_view_copy_to_framebuffer (view,
-                                              rect,
                                               priv->shadowfb_pipeline,
                                               priv->shadowfb,
                                               priv->framebuffer,
