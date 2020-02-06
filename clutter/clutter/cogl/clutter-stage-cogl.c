@@ -1032,10 +1032,8 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
       do_swap_buffer = TRUE;
     }
 
-  if (redraw_clip)
-    cairo_region_destroy (redraw_clip);
-  if (fb_clip_region)
-    cairo_region_destroy (fb_clip_region);
+  g_clear_pointer (&redraw_clip, cairo_region_destroy);
+  g_clear_pointer (&fb_clip_region, cairo_region_destroy);
 
   if (do_swap_buffer)
     {
