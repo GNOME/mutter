@@ -685,7 +685,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     clutter_stage_view_cogl_get_instance_private (view_cogl);
   CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
   cairo_rectangle_int_t view_rect;
-  gboolean have_clip;
+  gboolean is_full_redraw;
   gboolean may_use_clipped_redraw;
   gboolean use_clipped_redraw;
   gboolean can_blit_sub_buffer;
@@ -717,7 +717,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
 
   /* NB: a NULL redraw clip == full stage redraw */
   if (!stage_cogl->redraw_clip)
-    have_clip = FALSE;
+    is_full_redraw = TRUE;
   else
     {
       cairo_region_t *view_region;
@@ -726,14 +726,14 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
       view_region = cairo_region_create_rectangle (&view_rect);
       cairo_region_intersect (redraw_clip, view_region);
 
-      have_clip = !cairo_region_equal (redraw_clip, view_region);
+      is_full_redraw = cairo_region_equal (redraw_clip, view_region);
       cairo_region_destroy (view_region);
     }
 
   may_use_clipped_redraw = FALSE;
   if (_clutter_stage_window_can_clip_redraws (stage_window) &&
       (can_blit_sub_buffer || has_buffer_age) &&
-      have_clip &&
+      !is_full_redraw &&
       /* some drivers struggle to get going and produce some junk
        * frames when starting up... */
       cogl_onscreen_get_frame_counter (COGL_ONSCREEN (fb)) > 3)
