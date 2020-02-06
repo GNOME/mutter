@@ -51,12 +51,6 @@ struct _ClutterStageWindowInterface
   gint64            (* get_update_time)         (ClutterStageWindow *stage_window);
   void              (* clear_update_time)       (ClutterStageWindow *stage_window);
 
-  void              (* add_redraw_clip)         (ClutterStageWindow    *stage_window,
-                                                 cairo_rectangle_int_t *stage_rectangle);
-  gboolean          (* has_redraw_clips)        (ClutterStageWindow    *stage_window);
-  gboolean          (* ignoring_redraw_clips)   (ClutterStageWindow    *stage_window);
-  cairo_region_t *  (* get_redraw_clip)         (ClutterStageWindow    *stage_window);
-
   void              (* set_accept_focus)        (ClutterStageWindow *stage_window,
                                                  gboolean            accept_focus);
 
@@ -93,12 +87,6 @@ void              _clutter_stage_window_schedule_update         (ClutterStageWin
                                                                  int                 sync_delay);
 gint64            _clutter_stage_window_get_update_time         (ClutterStageWindow *window);
 void              _clutter_stage_window_clear_update_time       (ClutterStageWindow *window);
-
-void              _clutter_stage_window_add_redraw_clip         (ClutterStageWindow    *window,
-                                                                 cairo_rectangle_int_t *stage_clip);
-gboolean          _clutter_stage_window_has_redraw_clips        (ClutterStageWindow    *window);
-gboolean          _clutter_stage_window_ignoring_redraw_clips   (ClutterStageWindow    *window);
-cairo_region_t *  _clutter_stage_window_get_redraw_clip         (ClutterStageWindow    *window);
 
 void              _clutter_stage_window_set_accept_focus        (ClutterStageWindow *window,
                                                                  gboolean            accept_focus);

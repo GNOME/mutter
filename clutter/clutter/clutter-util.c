@@ -214,6 +214,16 @@ _clutter_util_rectangle_intersection (const cairo_rectangle_int_t *src1,
     }
 }
 
+gboolean
+clutter_util_rectangle_equal (const cairo_rectangle_int_t *src1,
+                              const cairo_rectangle_int_t *src2)
+{
+  return ((src1->x == src2->x) &&
+          (src1->y == src2->y) &&
+          (src1->width == src2->width) &&
+          (src1->height == src2->height));
+}
+
 float
 _clutter_util_matrix_determinant (const ClutterMatrix *matrix)
 {

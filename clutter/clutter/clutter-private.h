@@ -248,6 +248,9 @@ gboolean _clutter_util_rectangle_intersection (const cairo_rectangle_int_t *src1
                                                const cairo_rectangle_int_t *src2,
                                                cairo_rectangle_int_t       *dest);
 
+gboolean clutter_util_rectangle_equal (const cairo_rectangle_int_t *src1,
+                                       const cairo_rectangle_int_t *src2);
+
 
 struct _ClutterVertex4
 {

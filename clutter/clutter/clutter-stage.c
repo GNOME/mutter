@@ -557,6 +557,33 @@ pick_record_contains_point (ClutterStage     *stage,
   return TRUE;
 }
 
+static void
+clutter_stage_add_redraw_clip (ClutterStage          *stage,
+                               cairo_rectangle_int_t *clip)
+{
+  GList *l;
+
+  for (l = _clutter_stage_peek_stage_views (stage); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+
+      if (!clip)
+        {
+          clutter_stage_view_add_redraw_clip (view, NULL);
+        }
+      else
+        {
+          cairo_rectangle_int_t view_layout;
+          cairo_rectangle_int_t intersection;
+
+          clutter_stage_view_get_layout (view, &view_layout);
+          if (_clutter_util_rectangle_intersection (&view_layout, clip,
+                                                    &intersection))
+            clutter_stage_view_add_redraw_clip (view, &intersection);
+        }
+    }
+}
+
 static inline void
 queue_full_redraw (ClutterStage *stage)
 {
@@ -575,7 +602,7 @@ queue_full_redraw (ClutterStage *stage)
   if (stage_window == NULL)
     return;
 
-  _clutter_stage_window_add_redraw_clip (stage_window, NULL);
+  clutter_stage_add_redraw_clip (stage, NULL);
 }
 
 static gboolean
@@ -1413,15 +1440,11 @@ clutter_stage_do_redraw (ClutterStage *stage)
 static GSList *
 _clutter_stage_check_updated_pointers (ClutterStage *stage)
 {
-  ClutterStagePrivate *priv = stage->priv;
   ClutterBackend *backend;
   ClutterSeat *seat;
   GSList *updating = NULL;
   GList *l, *devices;
-  cairo_region_t *clip;
   graphene_point_t point;
-
-  clip = _clutter_stage_window_get_redraw_clip (priv->impl);
 
   backend = clutter_get_default_backend ();
   seat = clutter_backend_get_default_seat (backend);
@@ -1430,6 +1453,8 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
   for (l = devices; l; l = l->next)
     {
       ClutterInputDevice *dev = l->data;
+      ClutterStageView *view;
+      const cairo_region_t *clip;
 
       if (clutter_input_device_get_device_mode (dev) !=
           CLUTTER_INPUT_MODE_MASTER)
@@ -1445,6 +1470,11 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
           if (!clutter_input_device_get_coords (dev, NULL, &point))
             continue;
 
+          view = clutter_stage_get_view_at (stage, point.x, point.y);
+          if (!view)
+            continue;
+
+          clip = clutter_stage_view_peek_redraw_clip (view);
           if (!clip || cairo_region_contains_point (clip, point.x, point.y))
             updating = g_slist_prepend (updating, dev);
           break;
@@ -1555,6 +1585,22 @@ clutter_stage_real_queue_relayout (ClutterActor *self)
 }
 
 static gboolean
+is_full_stage_redraw_queued (ClutterStage *stage)
+{
+  GList *l;
+
+  for (l = _clutter_stage_peek_stage_views (stage); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+
+      if (!clutter_stage_view_has_full_redraw_clip (view))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 clutter_stage_real_queue_redraw (ClutterActor       *actor,
                                  ClutterActor       *leaf,
                                  ClutterPaintVolume *redraw_clip)
@@ -1575,12 +1621,12 @@ clutter_stage_real_queue_redraw (ClutterActor       *actor,
   if (stage_window == NULL)
     return TRUE;
 
-  if (_clutter_stage_window_ignoring_redraw_clips (stage_window))
+  if (is_full_stage_redraw_queued (stage))
     return FALSE;
 
   if (redraw_clip == NULL)
     {
-      _clutter_stage_window_add_redraw_clip (stage_window, NULL);
+      clutter_stage_add_redraw_clip (stage, NULL);
       return FALSE;
     }
 
@@ -1612,23 +1658,20 @@ clutter_stage_real_queue_redraw (ClutterActor       *actor,
   stage_clip.width = intersection_box.x2 - stage_clip.x;
   stage_clip.height = intersection_box.y2 - stage_clip.y;
 
-  _clutter_stage_window_add_redraw_clip (stage_window, &stage_clip);
+  clutter_stage_add_redraw_clip (stage, &stage_clip);
   return FALSE;
 }
 
 gboolean
 _clutter_stage_has_full_redraw_queued (ClutterStage *stage)
 {
-  ClutterStageWindow *stage_window = _clutter_stage_get_window (stage);
-
-  if (CLUTTER_ACTOR_IN_DESTRUCTION (stage) || stage_window == NULL)
+  if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return FALSE;
 
-  if (stage->priv->redraw_pending &&
-      !_clutter_stage_window_has_redraw_clips (stage_window))
-    return TRUE;
-  else
+  if (!stage->priv->redraw_pending)
     return FALSE;
+
+  return is_full_stage_redraw_queued (stage);
 }
 
 static ClutterActor *
