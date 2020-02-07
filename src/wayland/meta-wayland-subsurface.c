@@ -85,6 +85,7 @@ sync_actor_subsurface_state (MetaWaylandSurface *surface)
   transform_subsurface_position (surface, &x, &y);
 
   clutter_actor_set_position (actor, x, y);
+  clutter_actor_set_reactive (actor, TRUE);
 
   if (surface->buffer_ref.buffer)
     clutter_actor_show (actor);
@@ -519,7 +520,6 @@ wl_subcompositor_get_subsurface (struct wl_client   *client,
   MetaWaylandSurface *parent = wl_resource_get_user_data (parent_resource);
   MetaWindow *toplevel_window;
   MetaWindowActor *window_actor;
-  MetaSurfaceActor *surface_actor;
 
   if (surface->wl_subsurface)
     {
@@ -567,9 +567,6 @@ wl_subcompositor_get_subsurface (struct wl_client   *client,
   window_actor = meta_window_actor_wayland_from_surface (surface);
   if (window_actor)
     meta_window_actor_wayland_rebuild_surface_tree (window_actor);
-
-  surface_actor = meta_wayland_surface_get_actor (surface);
-  clutter_actor_set_reactive (CLUTTER_ACTOR (surface_actor), TRUE);
 }
 
 static const struct wl_subcompositor_interface meta_wayland_subcompositor_interface = {
