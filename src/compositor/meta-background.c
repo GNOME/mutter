@@ -747,6 +747,25 @@ get_wrap_mode (GDesktopBackgroundStyle style)
     }
 }
 
+static int
+get_best_mipmap_level (CoglTexture *texture,
+                       int          visible_width,
+                       int          visible_height)
+{
+  int mipmap_width = cogl_texture_get_width (texture);
+  int mipmap_height = cogl_texture_get_height (texture);
+  int halves = 0;
+
+  while (mipmap_width >= visible_width && mipmap_height >= visible_height)
+    {
+      halves++;
+      mipmap_width /= 2;
+      mipmap_height /= 2;
+    }
+
+  return MAX (0, halves - 1);
+}
+
 CoglTexture *
 meta_background_get_texture (MetaBackground         *self,
                              int                     monitor_index,
@@ -854,10 +873,17 @@ meta_background_get_texture (MetaBackground         *self,
       if (texture2 != NULL && self->blend_factor != 0.0)
         {
           CoglPipeline *pipeline = create_pipeline (PIPELINE_REPLACE);
+          int mipmap_level;
+
+          mipmap_level = get_best_mipmap_level (texture2,
+                                                texture_width,
+                                                texture_height);
+
           cogl_pipeline_set_color4f (pipeline,
                                       self->blend_factor, self->blend_factor, self->blend_factor, self->blend_factor);
           cogl_pipeline_set_layer_texture (pipeline, 0, texture2);
           cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (self->style));
+          cogl_pipeline_set_layer_max_mipmap_level (pipeline, 0, mipmap_level);
 
           bare_region_visible = draw_texture (self,
                                               monitor->fbo, pipeline,
@@ -876,6 +902,12 @@ meta_background_get_texture (MetaBackground         *self,
       if (texture1 != NULL && self->blend_factor != 1.0)
         {
           CoglPipeline *pipeline = create_pipeline (PIPELINE_ADD);
+          int mipmap_level;
+
+          mipmap_level = get_best_mipmap_level (texture1,
+                                                texture_width,
+                                                texture_height);
+
           cogl_pipeline_set_color4f (pipeline,
                                      (1 - self->blend_factor),
                                      (1 - self->blend_factor),
@@ -883,6 +915,7 @@ meta_background_get_texture (MetaBackground         *self,
                                      (1 - self->blend_factor));;
           cogl_pipeline_set_layer_texture (pipeline, 0, texture1);
           cogl_pipeline_set_layer_wrap_mode (pipeline, 0, get_wrap_mode (self->style));
+          cogl_pipeline_set_layer_max_mipmap_level (pipeline, 0, mipmap_level);
 
           bare_region_visible = bare_region_visible || draw_texture (self,
                                                                      monitor->fbo, pipeline,
