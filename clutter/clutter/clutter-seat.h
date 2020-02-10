@@ -174,5 +174,7 @@ CLUTTER_EXPORT
 void clutter_seat_warp_pointer (ClutterSeat *seat,
                                 int          x,
                                 int          y);
+CLUTTER_EXPORT
+gboolean clutter_seat_get_touch_mode (ClutterSeat *seat);
 
 #endif /* CLUTTER_SEAT_H */

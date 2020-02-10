@@ -50,6 +50,7 @@ enum
 {
   PROP_0,
   PROP_BACKEND,
+  PROP_TOUCH_MODE,
   N_PROPS
 };
 
@@ -84,6 +85,7 @@ clutter_seat_set_property (GObject      *object,
     case PROP_BACKEND:
       priv->backend = g_value_get_object (value);
       break;
+    case PROP_TOUCH_MODE:
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -102,6 +104,9 @@ clutter_seat_get_property (GObject    *object,
     {
     case PROP_BACKEND:
       g_value_set_object (value, priv->backend);
+      break;
+    case PROP_TOUCH_MODE:
+      g_value_set_boolean (value, FALSE);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -276,6 +281,13 @@ clutter_seat_class_init (ClutterSeatClass *klass)
                          P_("Backend"),
                          CLUTTER_TYPE_BACKEND,
                          CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
+
+  props[PROP_TOUCH_MODE] =
+    g_param_spec_boolean ("touch-mode",
+                          P_("Touch mode"),
+                          P_("Touch mode"),
+                          FALSE,
+                          CLUTTER_PARAM_READABLE);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 }
@@ -555,4 +567,16 @@ clutter_seat_warp_pointer (ClutterSeat *seat,
   g_return_if_fail (CLUTTER_IS_SEAT (seat));
 
   CLUTTER_SEAT_GET_CLASS (seat)->warp_pointer (seat, x, y);
+}
+
+gboolean
+clutter_seat_get_touch_mode (ClutterSeat *seat)
+{
+  gboolean touch_mode;
+
+  g_return_val_if_fail (CLUTTER_IS_SEAT (seat), FALSE);
+
+  g_object_get (G_OBJECT (seat), "touch-mode", &touch_mode, NULL);
+
+  return touch_mode;
 }
