@@ -23,6 +23,7 @@
 #ifndef META_SEAT_NATIVE_H
 #define META_SEAT_NATIVE_H
 
+#include <gudev/gudev.h>
 #include <libinput.h>
 #include <linux/input-event-codes.h>
 
@@ -116,6 +117,13 @@ struct _MetaSeatNative
   GSList *event_filters;
 
   MetaKeymapNative *keymap;
+
+  GUdevClient *udev_client;
+  guint tablet_mode_switch_state : 1;
+  guint has_external_keyboard    : 1;
+  guint has_touchscreen          : 1;
+  guint has_tablet_switch        : 1;
+  guint touch_mode               : 1;
 
   /* keyboard repeat */
   gboolean repeat;

@@ -106,7 +106,10 @@ enum
 {
   PROP_0,
   PROP_SEAT_ID,
-  N_PROPS
+  N_PROPS,
+
+  /* This property is overridden */
+  PROP_TOUCH_MODE,
 };
 
 GParamSpec *props[N_PROPS] = { NULL };
@@ -1343,6 +1346,77 @@ meta_event_source_free (MetaEventSource *source)
   g_source_unref (g_source);
 }
 
+static gboolean
+has_touchscreen (MetaSeatNative *seat)
+{
+  GSList *l;
+
+  for (l = seat->devices; l; l = l->next)
+    {
+      ClutterInputDeviceType device_type;
+
+      device_type = clutter_input_device_get_device_type (l->data);
+
+      if (device_type == CLUTTER_TOUCHSCREEN_DEVICE)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+static gboolean
+has_external_keyboard (MetaSeatNative *seat)
+{
+  GList *devices, *l;
+  gboolean has_external = FALSE;
+
+  devices = g_udev_client_query_by_subsystem (seat->udev_client, "input");
+
+  for (l = devices; l; l = l->next)
+    {
+      if (!g_udev_device_has_property (l->data, "ID_INPUT_KEYBOARD"))
+        continue;
+
+      /* May be "hid" or something else, we don't care. This property
+       * will not be present in virtual "AT Translated Set 2 keyboard"
+       * devices.
+       */
+      if (!g_udev_device_has_property (l->data, "ID_TYPE"))
+        break;
+
+      has_external = TRUE;
+      break;
+    }
+
+  g_list_free_full (devices, g_object_unref);
+
+  return has_external;
+}
+
+static void
+update_touch_mode (MetaSeatNative *seat)
+{
+  gboolean touch_mode;
+
+  /* No touch mode if we don't have a touchscreen, easy */
+  if (!seat->has_touchscreen)
+    touch_mode = FALSE;
+  /* If we have a tablet mode switch, honor it being unset */
+  else if (seat->has_tablet_switch && !seat->tablet_mode_switch_state)
+    touch_mode = FALSE;
+  /* If tablet mode is enabled, or if there is no tablet mode switch
+   * (eg. kiosk machines), check availability of external keyboards.
+   */
+  else
+    touch_mode = !seat->has_external_keyboard;
+
+  if (seat->touch_mode != touch_mode)
+    {
+      seat->touch_mode = touch_mode;
+      g_object_notify (G_OBJECT (seat), "touch-mode");
+    }
+}
+
 static void
 evdev_add_device (MetaSeatNative         *seat,
                   struct libinput_device *libinput_device)
@@ -1350,6 +1424,7 @@ evdev_add_device (MetaSeatNative         *seat,
   ClutterInputDeviceType type;
   ClutterInputDevice *device, *master = NULL;
   ClutterActor *stage;
+  gboolean check_touch_mode = FALSE;
 
   device = meta_input_device_native_new (seat, libinput_device);
   stage = CLUTTER_ACTOR (meta_seat_native_get_stage (seat));
@@ -1373,6 +1448,29 @@ evdev_add_device (MetaSeatNative         *seat,
     }
 
   g_signal_emit_by_name (seat, "device-added", device);
+
+  if (type == CLUTTER_KEYBOARD_DEVICE)
+    {
+      seat->has_external_keyboard = has_external_keyboard (seat);
+      check_touch_mode = TRUE;
+    }
+  else if (type == CLUTTER_TOUCHSCREEN_DEVICE)
+    {
+      seat->has_touchscreen = TRUE;
+      check_touch_mode = TRUE;
+    }
+
+  if (libinput_device_has_capability (libinput_device,
+                                      LIBINPUT_DEVICE_CAP_SWITCH) &&
+      libinput_device_switch_has_switch (libinput_device,
+                                         LIBINPUT_SWITCH_TABLET_MODE))
+    {
+      seat->has_tablet_switch = TRUE;
+      check_touch_mode = TRUE;
+    }
+
+  if (check_touch_mode)
+    update_touch_mode (seat);
 }
 
 static void
@@ -1380,11 +1478,25 @@ evdev_remove_device (MetaSeatNative        *seat,
                      MetaInputDeviceNative *device_evdev)
 {
   ClutterInputDevice *device;
+  ClutterInputDeviceType device_type;
 
   device = CLUTTER_INPUT_DEVICE (device_evdev);
   seat->devices = g_slist_remove (seat->devices, device);
 
   g_signal_emit_by_name (seat, "device-removed", device);
+
+  device_type = clutter_input_device_get_device_type (device);
+
+  if (device_type == CLUTTER_KEYBOARD_DEVICE)
+    {
+      seat->has_external_keyboard = has_external_keyboard (seat);
+      update_touch_mode (seat);
+    }
+  else if (device_type == CLUTTER_TOUCHSCREEN_DEVICE)
+    {
+      seat->has_touchscreen = has_touchscreen (seat);
+      update_touch_mode (seat);
+    }
 
   if (seat->repeat_timer && seat->repeat_device == device)
     meta_seat_native_clear_repeat_timer (seat);
@@ -2215,6 +2327,22 @@ process_device_event (MetaSeatNative        *seat,
         notify_pad_ring (device, time, number, source, group, mode, angle);
         break;
       }
+    case LIBINPUT_EVENT_SWITCH_TOGGLE:
+      {
+        struct libinput_event_switch *switch_event =
+          libinput_event_get_switch_event (event);
+        enum libinput_switch sw =
+          libinput_event_switch_get_switch (switch_event);
+        enum libinput_switch_state state =
+          libinput_event_switch_get_switch_state (switch_event);
+
+        if (sw == LIBINPUT_SWITCH_TABLET_MODE)
+          {
+            seat->tablet_mode_switch_state = (state == LIBINPUT_SWITCH_STATE_ON);
+            update_touch_mode (seat);
+          }
+        break;
+      }
     default:
       handled = FALSE;
     }
@@ -2393,6 +2521,10 @@ meta_seat_native_constructed (GObject *object)
         xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_SCROLL);
     }
 
+  seat->udev_client = g_udev_client_new ((const gchar *[]) { "input", NULL });
+  seat->has_external_keyboard = has_external_keyboard (seat);
+  seat->has_touchscreen = has_touchscreen (seat);
+
   if (G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed)
     G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed (object);
 }
@@ -2410,6 +2542,7 @@ meta_seat_native_set_property (GObject      *object,
     case PROP_SEAT_ID:
       seat_native->seat_id = g_value_dup_string (value);
       break;
+    case PROP_TOUCH_MODE:
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -2427,6 +2560,9 @@ meta_seat_native_get_property (GObject    *object,
     {
     case PROP_SEAT_ID:
       g_value_set_string (value, seat_native->seat_id);
+      break;
+    case PROP_TOUCH_MODE:
+      g_value_set_boolean (value, seat_native->touch_mode);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -2470,6 +2606,8 @@ meta_seat_native_finalize (GObject *object)
     }
   g_slist_free (seat->devices);
   g_free (seat->touch_states);
+
+  g_object_unref (seat->udev_client);
 
   meta_event_source_free (seat->event_source);
 
@@ -2661,6 +2799,9 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
                          G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
+
+  g_object_class_override_property (object_class, PROP_TOUCH_MODE,
+                                    "tablet-mode");
 }
 
 static void
