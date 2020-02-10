@@ -46,7 +46,7 @@ wayland_server_req = '>= 1.13.0'
 wayland_protocols_req = '>= 1.18'
 
 # native backend version requirements
-libinput_req = '>= 1.4'
+libinput_req = '>= 1.7'
 gbm_req = '>= 10.3'
 
 # screen cast version requirements
