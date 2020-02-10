@@ -62,9 +62,9 @@ output_lines = [
 
 def sync_flags(hsync, vsync):
     flags = "DRM_MODE_FLAG_"
-    flags += "NHSYNC" if hsync[0] is '-' else "PHSYNC"
+    flags += "NHSYNC" if hsync[0] == '-' else "PHSYNC"
     flags += " | DRM_MODE_FLAG_"
-    flags += "NVSYNC" if vsync[0] is '-' else "PVSYNC"
+    flags += "NVSYNC" if vsync[0] == '-' else "PVSYNC"
     return flags
 
 def drm_mode_info_from_modeline(line):
