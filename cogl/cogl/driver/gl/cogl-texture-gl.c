@@ -97,12 +97,19 @@ _cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture *texture,
                                                    min_filter, mag_filter);
 }
 
+/* GL and GLES3 have this by default, but GLES2 does not except via extension.
+ * So really it's probably always available. Even if we used it and it wasn't
+ * available in some driver then there are no adverse consequences to the
+ * command simply being ignored...
+ */
+#ifndef GL_TEXTURE_MAX_LEVEL
+#define GL_TEXTURE_MAX_LEVEL 0x813D
+#endif
+
 void
 _cogl_texture_gl_maybe_update_max_level (CoglTexture *texture,
                                          int max_level)
 {
-  /* This isn't supported on GLES */
-#ifdef HAVE_COGL_GL
   CoglContext *ctx = texture->context;
 
   if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_TEXTURE_MAX_LEVEL) &&
@@ -121,7 +128,6 @@ _cogl_texture_gl_maybe_update_max_level (CoglTexture *texture,
       GE( ctx, glTexParameteri (gl_target,
                                 GL_TEXTURE_MAX_LEVEL, texture->max_level));
     }
-#endif /* HAVE_COGL_GL */
 }
 
 void
