@@ -2801,7 +2801,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   g_object_class_install_properties (object_class, N_PROPS, props);
 
   g_object_class_override_property (object_class, PROP_TOUCH_MODE,
-                                    "tablet-mode");
+                                    "touch-mode");
 }
 
 static void
