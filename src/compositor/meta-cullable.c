@@ -28,6 +28,22 @@
 
 G_DEFINE_INTERFACE (MetaCullable, meta_cullable, CLUTTER_TYPE_ACTOR);
 
+static gboolean
+has_active_effects (ClutterActor *actor)
+{
+  g_autoptr (GList) effects = NULL;
+  GList *l;
+
+  effects = clutter_actor_get_effects (actor);
+  for (l = effects; l != NULL; l = l->next)
+    {
+      if (clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (l->data)))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 /**
  * SECTION:meta-cullable
  * @title: MetaCullable
@@ -97,7 +113,7 @@ meta_cullable_cull_out_children (MetaCullable   *cullable,
        * as well for the same reason, but omitted for simplicity in the
        * hopes that no-one will do that.
        */
-      if (needs_culling && clutter_actor_has_effects (child))
+      if (needs_culling && has_active_effects (child))
         needs_culling = FALSE;
 
       if (needs_culling && !meta_cullable_is_untransformed (META_CULLABLE (child)))
