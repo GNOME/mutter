@@ -194,18 +194,22 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
       meta_surface_actor_set_input_region (surface_actor, NULL);
     }
 
-  if (surface->opaque_region)
+  if (surface->window &&
+      surface->window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
     {
-      cairo_region_t *opaque_region;
+      if (surface->opaque_region)
+        {
+          cairo_region_t *opaque_region;
 
-      opaque_region = cairo_region_copy (surface->opaque_region);
-      cairo_region_intersect_rectangle (opaque_region, &surface_rect);
-      meta_surface_actor_set_opaque_region (surface_actor, opaque_region);
-      cairo_region_destroy (opaque_region);
-    }
-  else
-    {
-      meta_surface_actor_set_opaque_region (surface_actor, NULL);
+          opaque_region = cairo_region_copy (surface->opaque_region);
+          cairo_region_intersect_rectangle (opaque_region, &surface_rect);
+          meta_surface_actor_set_opaque_region (surface_actor, opaque_region);
+          cairo_region_destroy (opaque_region);
+        }
+      else
+        {
+          meta_surface_actor_set_opaque_region (surface_actor, NULL);
+        }
     }
 
   meta_surface_actor_set_transform (surface_actor, surface->buffer_transform);
