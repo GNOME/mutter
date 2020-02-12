@@ -92,6 +92,30 @@ static gboolean
 meta_input_device_x11_is_grouped (ClutterInputDevice *device,
                                   ClutterInputDevice *other_device)
 {
+#ifdef HAVE_LIBWACOM
+  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
+  MetaInputDeviceX11 *other_device_x11 = META_INPUT_DEVICE_X11 (other_device);
+
+  if (device_x11->wacom_device &&
+      other_device_x11->wacom_device &&
+      libwacom_compare (device_x11->wacom_device,
+                        other_device_x11->wacom_device,
+                        WCOMPARE_NORMAL) == 0)
+    return TRUE;
+#endif
+
+  if (clutter_input_device_get_vendor_id (device) &&
+      clutter_input_device_get_product_id (device) &&
+      clutter_input_device_get_vendor_id (other_device) &&
+      clutter_input_device_get_product_id (other_device))
+    {
+      if (strcmp (clutter_input_device_get_vendor_id (device),
+                  clutter_input_device_get_vendor_id (other_device)) == 0 &&
+          strcmp (clutter_input_device_get_product_id (device),
+                  clutter_input_device_get_product_id (other_device)) == 0)
+        return TRUE;
+    }
+
   return FALSE;
 }
 
