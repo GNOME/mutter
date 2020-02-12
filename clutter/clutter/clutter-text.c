@@ -6001,10 +6001,7 @@ clutter_text_set_attributes (ClutterText   *self,
 
   priv = self->priv;
 
-  /* While we should probably test for equality, Pango doesn't
-   * provide us an easy method to check for AttrList equality.
-   */
-  if (priv->attrs == attrs)
+  if (pango_attr_list_equal (priv->attrs, attrs))
     return;
 
   if (attrs)
