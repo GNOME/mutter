@@ -300,7 +300,7 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   CoglFramebuffer *offscreen;
   ClutterActorBox raw_box, box;
   ClutterActor *stage;
-  graphene_matrix_t projection, modelview;
+  graphene_matrix_t projection, modelview, transform;
   const ClutterPaintVolume *volume;
   gfloat stage_width, stage_height;
   gfloat target_width = -1, target_height = -1;
@@ -368,16 +368,25 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
    * contents on screen...
    */
   clutter_actor_get_transform (priv->stage, &modelview);
+  graphene_matrix_init_translate (&transform,
+                                  &GRAPHENE_POINT3D_INIT (-priv->fbo_offset_x,
+                                                          -priv->fbo_offset_y,
+                                                          0.0));
+  graphene_matrix_scale (&transform,
+                         stage_width / target_width,
+                         stage_height / target_height,
+                         1.0);
+  graphene_matrix_multiply (&transform, &modelview, &modelview);
   cogl_framebuffer_set_modelview_matrix (offscreen, &modelview);
 
-  /* Set up the viewport so that it has the same size as the stage (avoid
-   * distortion), but translated to account for the FBO offset...
+  /* Set up the viewport so that it has the minimal size required to render any
+   * pixel in the FBO without clipping.
    */
   cogl_framebuffer_set_viewport (offscreen,
-                                 -priv->fbo_offset_x,
-                                 -priv->fbo_offset_y,
-                                 stage_width,
-                                 stage_height);
+                                 0,
+                                 0,
+                                 target_width,
+                                 target_height);
 
   /* Copy the stage's projection matrix across to the offscreen */
   _clutter_stage_get_projection_matrix (CLUTTER_STAGE (priv->stage),
