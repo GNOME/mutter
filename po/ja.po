@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-11-21 15:15+0000\n"
+"POT-Creation-Date: 2020-02-10 19:31+0000\n"
 "PO-Revision-Date: 2020-01-25 00:00+0900\n"
 "Last-Translator: sicklylife <translation@sicklylife.jp>\n"
 "Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
@@ -506,7 +506,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2528
+#: src/backends/meta-input-settings.c:2567
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "モードを切り替え (グループ %d)"
@@ -514,11 +514,11 @@ msgstr "モードを切り替え (グループ %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2551
+#: src/backends/meta-input-settings.c:2590
 msgid "Switch monitor"
 msgstr "モニターを切り替え"
 
-#: src/backends/meta-input-settings.c:2553
+#: src/backends/meta-input-settings.c:2592
 msgid "Show on-screen help"
 msgstr "オンスクリーンヘルプを表示"
 
@@ -676,7 +676,7 @@ msgstr "この mutter は詳細ログモードをサポートしていません\
 msgid "Mode Switch: Mode %d"
 msgstr "モード切り替え: モード %d"
 
-#: src/x11/meta-x11-display.c:679
+#: src/x11/meta-x11-display.c:676
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -685,16 +685,16 @@ msgstr ""
 "ディスプレイ“%s”はすでにウィンドウマネージャーを持っています。現在のウィンド"
 "ウマネージャーを上書きするために --replace オプションの使用を試してください。"
 
-#: src/x11/meta-x11-display.c:1040
+#: src/x11/meta-x11-display.c:1089
 msgid "Failed to initialize GDK\n"
 msgstr "GDK の初期化に失敗しました\n"
 
-#: src/x11/meta-x11-display.c:1064
+#: src/x11/meta-x11-display.c:1113
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "X Window System のディスプレイ“%s”のオープンに失敗しました\n"
 
-#: src/x11/meta-x11-display.c:1147
+#: src/x11/meta-x11-display.c:1196
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "ディスプレイ“%2$s”上のスクリーン %1$d は無効です\n"
