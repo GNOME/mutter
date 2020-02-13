@@ -534,10 +534,15 @@ struct _MetaWindow
   /* Bypass compositor hints */
   guint bypass_compositor;
 
-  MetaPlacementRule *placement_rule;
-  MetaPlacementState placement_state;
-  int constrained_placement_rule_offset_x;
-  int constrained_placement_rule_offset_y;
+  struct {
+    MetaPlacementRule *rule;
+    MetaPlacementState state;
+
+    struct {
+      int rel_x;
+      int rel_y;
+    } current;
+  } placement;
 
   guint unmanage_idle_id;
 };

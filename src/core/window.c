@@ -344,7 +344,7 @@ meta_window_finalize (GObject *object)
   g_free (window->gtk_window_object_path);
   g_free (window->gtk_app_menu_object_path);
   g_free (window->gtk_menubar_object_path);
-  g_free (window->placement_rule);
+  g_free (window->placement.rule);
 
   G_OBJECT_CLASS (meta_window_parent_class)->finalize (object);
 }
@@ -8523,7 +8523,7 @@ meta_window_emit_size_changed (MetaWindow *window)
 MetaPlacementRule *
 meta_window_get_placement_rule (MetaWindow *window)
 {
-  return window->placement_rule;
+  return window->placement.rule;
 }
 
 void

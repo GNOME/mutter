@@ -324,7 +324,7 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
               constrained_rect.height == 1)
             return;
 
-          if (window->placement_rule)
+          if (window->placement.rule)
             {
               MetaWindow *parent = meta_window_get_transient_for (window);
               int rel_x, rel_y;
@@ -913,9 +913,9 @@ void
 meta_window_place_with_placement_rule (MetaWindow        *window,
                                        MetaPlacementRule *placement_rule)
 {
-  g_clear_pointer (&window->placement_rule, g_free);
-  window->placement_rule = g_new0 (MetaPlacementRule, 1);
-  *window->placement_rule = *placement_rule;
+  g_clear_pointer (&window->placement.rule, g_free);
+  window->placement.rule = g_new0 (MetaPlacementRule, 1);
+  *window->placement.rule = *placement_rule;
 
   window->unconstrained_rect.width = placement_rule->width;
   window->unconstrained_rect.height = placement_rule->height;

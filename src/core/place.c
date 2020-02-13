@@ -671,7 +671,7 @@ meta_window_place (MetaWindow        *window,
 
   meta_topic (META_DEBUG_PLACEMENT, "Placing window %s\n", window->desc);
 
-  g_return_if_fail (!window->placement_rule);
+  g_return_if_fail (!window->placement.rule);
 
   switch (window->type)
     {

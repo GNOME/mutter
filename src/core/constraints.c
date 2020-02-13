@@ -490,14 +490,14 @@ place_window_if_needed(MetaWindow     *window,
 
       orig_rect = info->orig;
 
-      if (window->placement_rule)
+      if (window->placement.rule)
         {
           MetaWindow *parent = meta_window_get_transient_for (window);
           MetaRectangle parent_rect;
           int rel_x, rel_y;
 
           meta_window_process_placement (window,
-                                         window->placement_rule,
+                                         window->placement.rule,
                                          &rel_x, &rel_y);
           meta_window_get_frame_rect (parent, &parent_rect);
 
@@ -831,15 +831,15 @@ constrain_custom_rule (MetaWindow         *window,
   parent = meta_window_get_transient_for (window);
   meta_window_get_frame_rect (parent, &parent_rect);
 
-  switch (window->placement_state)
+  switch (window->placement.state)
     {
     case META_PLACEMENT_STATE_UNCONSTRAINED:
       break;
     case META_PLACEMENT_STATE_CONSTRAINED:
       adjusted_unconstrained.x =
-        parent_rect.x + window->constrained_placement_rule_offset_x;
+        parent->rect.x + window->placement.current.rel_x;
       adjusted_unconstrained.y =
-        parent_rect.y + window->constrained_placement_rule_offset_y;
+        parent->rect.y + window->placement.current.rel_y;
       break;
     }
 
@@ -857,7 +857,7 @@ constrain_custom_rule (MetaWindow         *window,
 
   current_rule = *placement_rule;
 
-  switch (window->placement_state)
+  switch (window->placement.state)
     {
     case META_PLACEMENT_STATE_CONSTRAINED:
       info->current = adjusted_unconstrained;
@@ -965,10 +965,10 @@ constrain_custom_rule (MetaWindow         *window,
     }
 
 done:
-  window->placement_state = META_PLACEMENT_STATE_CONSTRAINED;
+  window->placement.state = META_PLACEMENT_STATE_CONSTRAINED;
 
-  window->constrained_placement_rule_offset_x = info->current.x - parent_rect.x;
-  window->constrained_placement_rule_offset_y = info->current.y - parent_rect.y;
+  window->placement.current.rel_x = info->current.x - parent_rect.x;
+  window->placement.current.rel_y = info->current.y - parent_rect.y;
 
   return TRUE;
 }
