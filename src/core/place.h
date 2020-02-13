@@ -27,8 +27,8 @@
 
 void meta_window_process_placement (MetaWindow        *window,
                                     MetaPlacementRule *placement_rule,
-                                    int               *x,
-                                    int               *y);
+                                    int               *rel_x,
+                                    int               *rel_y);
 
 void meta_window_place (MetaWindow *window,
                         int         x,

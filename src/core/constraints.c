@@ -490,8 +490,25 @@ place_window_if_needed(MetaWindow     *window,
 
       orig_rect = info->orig;
 
-      meta_window_place (window, orig_rect.x, orig_rect.y,
-                         &placed_rect.x, &placed_rect.y);
+      if (window->placement_rule)
+        {
+          MetaWindow *parent = meta_window_get_transient_for (window);
+          MetaRectangle parent_rect;
+          int rel_x, rel_y;
+
+          meta_window_process_placement (window,
+                                         window->placement_rule,
+                                         &rel_x, &rel_y);
+          meta_window_get_frame_rect (parent, &parent_rect);
+
+          placed_rect.x = parent_rect.x + rel_x;
+          placed_rect.y = parent_rect.y + rel_y;
+        }
+      else
+        {
+          meta_window_place (window, orig_rect.x, orig_rect.y,
+                             &placed_rect.x, &placed_rect.y);
+        }
       did_placement = TRUE;
 
       /* placing the window may have changed the monitor.  Find the
@@ -725,12 +742,16 @@ try_flip_window_position (MetaWindow                       *window,
                           ConstraintInfo                   *info,
                           MetaPlacementRule                *placement_rule,
                           MetaPlacementConstraintAdjustment constraint_adjustment,
+                          int                               parent_x,
+                          int                               parent_y,
                           MetaRectangle                    *rect,
                           MetaRectangle                    *intersection)
 {
   MetaPlacementRule flipped_rule = *placement_rule;;
   MetaRectangle flipped_rect;
   MetaRectangle flipped_intersection;
+  int flipped_rel_x;
+  int flipped_rel_y;
 
   switch (constraint_adjustment)
     {
@@ -747,7 +768,9 @@ try_flip_window_position (MetaWindow                       *window,
 
   flipped_rect = info->current;
   meta_window_process_placement (window, &flipped_rule,
-                                 &flipped_rect.x, &flipped_rect.y);
+                                 &flipped_rel_x, &flipped_rel_y);
+  flipped_rect.x = parent_x + flipped_rel_x;
+  flipped_rect.y = parent_y + flipped_rel_y;
   meta_rectangle_intersect (&flipped_rect, &info->work_area_monitor,
                             &flipped_intersection);
 
@@ -852,7 +875,10 @@ constrain_custom_rule (MetaWindow         *window,
     {
       try_flip_window_position (window, info, &current_rule,
                                 META_PLACEMENT_CONSTRAINT_ADJUSTMENT_FLIP_X,
-                                &info->current, &intersection);
+                                parent_rect.x,
+                                parent_rect.y,
+                                &info->current,
+                                &intersection);
     }
   if (info->current.height != intersection.height &&
       (current_rule.constraint_adjustment &
@@ -860,7 +886,10 @@ constrain_custom_rule (MetaWindow         *window,
     {
       try_flip_window_position (window, info, &current_rule,
                                 META_PLACEMENT_CONSTRAINT_ADJUSTMENT_FLIP_Y,
-                                &info->current, &intersection);
+                                parent_rect.x,
+                                parent_rect.y,
+                                &info->current,
+                                &intersection);
     }
 
   meta_rectangle_intersect (&info->current, &info->work_area_monitor,
