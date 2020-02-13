@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
 "POT-Creation-Date: 2020-02-10 19:31+0000\n"
-"PO-Revision-Date: 2020-01-25 00:00+0900\n"
+"PO-Revision-Date: 2020-02-13 23:00+0900\n"
 "Last-Translator: sicklylife <translation@sicklylife.jp>\n"
 "Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
 "Language: ja\n"
@@ -23,7 +23,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.8.7.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -91,15 +90,15 @@ msgstr "前のウィンドウに切り替える"
 
 #: data/50-mutter-navigation.xml:61
 msgid "Switch windows of an application"
-msgstr "ひとつのアプリケーション内のウィンドウを切り替える"
+msgstr "一つのアプリケーション内のウィンドウを切り替える"
 
 #: data/50-mutter-navigation.xml:66
 msgid "Switch to previous window of an application"
-msgstr "ひとつのアプリケーション内の前のウィンドウに切り替える"
+msgstr "一つのアプリケーション内の前のウィンドウに切り替える"
 
 #: data/50-mutter-navigation.xml:70
 msgid "Switch system controls"
-msgstr "システムのコントロールを切り替える"
+msgstr "システムコントロールを切り替える"
 
 #: data/50-mutter-navigation.xml:75
 msgid "Switch to previous system control"
@@ -115,15 +114,15 @@ msgstr "前のウィンドウに直接切り替える"
 
 #: data/50-mutter-navigation.xml:88
 msgid "Switch windows of an app directly"
-msgstr "ひとつのアプリケーション内のウィンドウを直接切り替える"
+msgstr "一つのアプリケーション内のウィンドウを直接切り替える"
 
 #: data/50-mutter-navigation.xml:93
 msgid "Switch directly to previous window of an app"
-msgstr "ひとつのアプリケーション内の前のウィンドウに直接切り替える"
+msgstr "一つのアプリケーション内の前のウィンドウに直接切り替える"
 
 #: data/50-mutter-navigation.xml:97
 msgid "Switch system controls directly"
-msgstr "システムのコントロールを直接切り替える"
+msgstr "システムコントロールを直接切り替える"
 
 #: data/50-mutter-navigation.xml:102
 msgid "Switch directly to previous system control"
@@ -316,7 +315,7 @@ msgid ""
 "Determines whether workspace switching should happen for windows on all "
 "monitors or only for windows on the primary monitor."
 msgstr ""
-"全てのモニターにあるウィンドウに対してワークスペースの切り替えを可能にする"
+"すべてのモニターにあるウィンドウに対してワークスペースの切り替えを可能にする"
 "か、またはプライマリモニターにあるウィンドウに対してのみワークスペースの切り"
 "替えを提供するかどうかです。"
 
