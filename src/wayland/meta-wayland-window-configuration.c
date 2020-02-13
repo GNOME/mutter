@@ -49,6 +49,30 @@ meta_wayland_window_configuration_new (int x,
 }
 
 MetaWaylandWindowConfiguration *
+meta_wayland_window_configuration_new_relative (int rel_x,
+                                                int rel_y,
+                                                int width,
+                                                int height)
+{
+  MetaWaylandWindowConfiguration *configuration;
+
+  configuration = g_new0 (MetaWaylandWindowConfiguration, 1);
+  *configuration = (MetaWaylandWindowConfiguration) {
+    .serial = ++global_serial_counter,
+
+    .has_relative_position = TRUE,
+    .rel_x = rel_x,
+    .rel_y = rel_y,
+
+    .has_size = TRUE,
+    .width = width,
+    .height = height,
+  };
+
+  return configuration;
+}
+
+MetaWaylandWindowConfiguration *
 meta_wayland_window_configuration_new_empty (void)
 {
   MetaWaylandWindowConfiguration *configuration;

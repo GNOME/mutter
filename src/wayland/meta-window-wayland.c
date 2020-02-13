@@ -57,6 +57,8 @@ struct _MetaWindowWayland
   int last_sent_y;
   int last_sent_width;
   int last_sent_height;
+  int last_sent_rel_x;
+  int last_sent_rel_y;
 
   gboolean has_been_shown;
 };
@@ -163,16 +165,10 @@ meta_window_wayland_focus (MetaWindow *window,
 }
 
 static void
-meta_window_wayland_configure (MetaWindowWayland *wl_window,
-                               int                x,
-                               int                y,
-                               int                width,
-                               int                height)
+meta_window_wayland_configure (MetaWindowWayland              *wl_window,
+                               MetaWaylandWindowConfiguration *configuration)
 {
   MetaWindow *window = META_WINDOW (wl_window);
-  MetaWaylandWindowConfiguration *configuration;
-
-  configuration = meta_wayland_window_configuration_new (x, y, width, height);
 
   meta_wayland_surface_configure_notify (window->surface, configuration);
 
@@ -184,16 +180,19 @@ static void
 surface_state_changed (MetaWindow *window)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
+  MetaWaylandWindowConfiguration *configuration;
 
   /* don't send notify when the window is being unmanaged */
   if (window->unmanaging)
     return;
 
-  meta_window_wayland_configure (wl_window,
-                                 wl_window->last_sent_x,
-                                 wl_window->last_sent_y,
-                                 wl_window->last_sent_width,
-                                 wl_window->last_sent_height);
+  configuration =
+    meta_wayland_window_configuration_new (wl_window->last_sent_x,
+                                           wl_window->last_sent_y,
+                                           wl_window->last_sent_width,
+                                           wl_window->last_sent_height);
+
+  meta_window_wayland_configure (wl_window, configuration);
 }
 
 static void
@@ -306,6 +305,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
           constrained_rect.height != window->rect.height ||
           (flags & META_MOVE_RESIZE_STATE_CHANGED))
         {
+          MetaWaylandWindowConfiguration *configuration;
+
           /* If the constrained size is 1x1 and the unconstrained size is 0x0
            * it means that we are trying to resize a window where the client has
            * not yet committed a buffer. The 1x1 constrained size is a result of
@@ -323,13 +324,29 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
               constrained_rect.height == 1)
             return;
 
-          meta_window_wayland_configure (wl_window,
-                                         configured_x,
-                                         configured_y,
-                                         configured_width,
-                                         configured_height);
+          if (window->placement_rule)
+            {
+              MetaWindow *parent = meta_window_get_transient_for (window);
+              int rel_x, rel_y;
 
-          /* We need to wait until the resize completes before we can move */
+              rel_x = configured_x - parent->rect.x;
+              rel_y = configured_y - parent->rect.y;
+              configuration =
+                meta_wayland_window_configuration_new_relative (rel_x,
+                                                                rel_y,
+                                                                configured_width,
+                                                                configured_height);
+            }
+          else
+            {
+              configuration =
+                meta_wayland_window_configuration_new (configured_x,
+                                                       configured_y,
+                                                       configured_width,
+                                                       configured_height);
+            }
+
+          meta_window_wayland_configure (wl_window, configuration);
           can_move_now = FALSE;
         }
       else

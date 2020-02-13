@@ -1037,8 +1037,8 @@ meta_wayland_zxdg_popup_v6_configure (MetaWaylandShellSurface        *shell_surf
     return;
 
   geometry_scale = meta_window_wayland_get_geometry_scale (parent_window);
-  x = (configuration->x - parent_window->rect.x) / geometry_scale;
-  y = (configuration->y - parent_window->rect.y) / geometry_scale;
+  x = configuration->rel_x / geometry_scale;
+  y = configuration->rel_y / geometry_scale;
 
   zxdg_popup_v6_send_configure (xdg_popup->resource,
                                 x, y,

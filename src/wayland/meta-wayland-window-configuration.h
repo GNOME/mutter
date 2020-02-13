@@ -34,6 +34,10 @@ struct _MetaWaylandWindowConfiguration
   int x;
   int y;
 
+  gboolean has_relative_position;
+  int rel_x;
+  int rel_y;
+
   gboolean has_size;
   int width;
   int height;
@@ -43,6 +47,12 @@ MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new (int x,
                                                                         int y,
                                                                         int width,
                                                                         int height);
+
+MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_relative (int rel_x,
+                                                                                 int rel_y,
+                                                                                 int width,
+                                                                                 int height);
+
 MetaWaylandWindowConfiguration * meta_wayland_window_configuration_new_empty (void);
 
 void meta_wayland_window_configuration_free (MetaWaylandWindowConfiguration *configuration);
