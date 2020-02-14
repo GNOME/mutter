@@ -190,7 +190,9 @@ surface_state_changed (MetaWindow *window)
     meta_wayland_window_configuration_new (wl_window->last_sent_x,
                                            wl_window->last_sent_y,
                                            wl_window->last_sent_width,
-                                           wl_window->last_sent_height);
+                                           wl_window->last_sent_height,
+                                           META_MOVE_RESIZE_STATE_CHANGED,
+                                           META_GRAVITY_NONE);
 
   meta_window_wayland_configure (wl_window, configuration);
 }
@@ -340,7 +342,9 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                 meta_wayland_window_configuration_new (configured_x,
                                                        configured_y,
                                                        configured_width,
-                                                       configured_height);
+                                                       configured_height,
+                                                       flags,
+                                                       gravity);
             }
 
           meta_window_wayland_configure (wl_window, configuration);

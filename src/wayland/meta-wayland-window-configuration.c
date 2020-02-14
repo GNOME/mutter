@@ -25,10 +25,12 @@
 static uint32_t global_serial_counter = 0;
 
 MetaWaylandWindowConfiguration *
-meta_wayland_window_configuration_new (int x,
-                                       int y,
-                                       int width,
-                                       int height)
+meta_wayland_window_configuration_new (int                 x,
+                                       int                 y,
+                                       int                 width,
+                                       int                 height,
+                                       MetaMoveResizeFlags flags,
+                                       MetaGravity         gravity)
 {
   MetaWaylandWindowConfiguration *configuration;
 
@@ -43,6 +45,9 @@ meta_wayland_window_configuration_new (int x,
     .has_size = TRUE,
     .width = width,
     .height = height,
+
+    .gravity = gravity,
+    .flags = flags,
   };
 
   return configuration;
