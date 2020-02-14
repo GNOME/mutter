@@ -66,6 +66,8 @@ typedef struct _MetaWaylandXdgPositioner
   uint32_t constraint_adjustment;
   int32_t offset_x;
   int32_t offset_y;
+
+  gboolean is_reactive;
 } MetaWaylandXdgPositioner;
 
 typedef struct _MetaWaylandXdgSurfaceConstructor
@@ -1913,6 +1915,8 @@ meta_wayland_xdg_positioner_to_placement (MetaWaylandXdgPositioner *xdg_position
     .width = xdg_positioner->width,
     .height = xdg_positioner->height,
 
+    .is_reactive = xdg_positioner->is_reactive,
+
     .parent_rect = parent_rect,
   };
 }
@@ -2037,6 +2041,15 @@ xdg_positioner_set_offset (struct wl_client   *client,
   positioner->offset_y = y;
 }
 
+static void
+xdg_positioner_set_reactive (struct wl_client   *client,
+                             struct wl_resource *resource)
+{
+  MetaWaylandXdgPositioner *positioner = wl_resource_get_user_data (resource);
+
+  positioner->is_reactive = TRUE;
+}
+
 static const struct xdg_positioner_interface meta_wayland_xdg_positioner_interface = {
   xdg_positioner_destroy,
   xdg_positioner_set_size,
@@ -2045,6 +2058,7 @@ static const struct xdg_positioner_interface meta_wayland_xdg_positioner_interfa
   xdg_positioner_set_gravity,
   xdg_positioner_set_constraint_adjustment,
   xdg_positioner_set_offset,
+  xdg_positioner_set_reactive,
 };
 
 static void
