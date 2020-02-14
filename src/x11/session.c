@@ -746,28 +746,28 @@ window_type_from_string (const char *str)
 static int
 window_gravity_from_string (const char *str)
 {
-  if (strcmp (str, "NorthWestGravity") == 0)
-    return NorthWestGravity;
-  else if (strcmp (str, "NorthGravity") == 0)
-    return NorthGravity;
-  else if (strcmp (str, "NorthEastGravity") == 0)
-    return NorthEastGravity;
-  else if (strcmp (str, "WestGravity") == 0)
-    return WestGravity;
-  else if (strcmp (str, "CenterGravity") == 0)
-    return CenterGravity;
-  else if (strcmp (str, "EastGravity") == 0)
-    return EastGravity;
-  else if (strcmp (str, "SouthWestGravity") == 0)
-    return SouthWestGravity;
-  else if (strcmp (str, "SouthGravity") == 0)
-    return SouthGravity;
-  else if (strcmp (str, "SouthEastGravity") == 0)
-    return SouthEastGravity;
-  else if (strcmp (str, "StaticGravity") == 0)
-    return StaticGravity;
+  if (strcmp (str, "META_GRAVITY_NORTH_WEST") == 0)
+    return META_GRAVITY_NORTH_WEST;
+  else if (strcmp (str, "META_GRAVITY_NORTH") == 0)
+    return META_GRAVITY_NORTH;
+  else if (strcmp (str, "META_GRAVITY_NORTH_EAST") == 0)
+    return META_GRAVITY_NORTH_EAST;
+  else if (strcmp (str, "META_GRAVITY_WEST") == 0)
+    return META_GRAVITY_WEST;
+  else if (strcmp (str, "META_GRAVITY_CENTER") == 0)
+    return META_GRAVITY_CENTER;
+  else if (strcmp (str, "META_GRAVITY_EAST") == 0)
+    return META_GRAVITY_EAST;
+  else if (strcmp (str, "META_GRAVITY_SOUTH_WEST") == 0)
+    return META_GRAVITY_SOUTH_WEST;
+  else if (strcmp (str, "META_GRAVITY_SOUTH") == 0)
+    return META_GRAVITY_SOUTH;
+  else if (strcmp (str, "META_GRAVITY_SOUTH_EAST") == 0)
+    return META_GRAVITY_SOUTH_EAST;
+  else if (strcmp (str, "META_GRAVITY_STATIC") == 0)
+    return META_GRAVITY_STATIC;
   else
-    return NorthWestGravity;
+    return META_GRAVITY_NORTH_WEST;
 }
 
 static char*
@@ -1703,7 +1703,7 @@ session_info_new (void)
   info = g_new0 (MetaWindowSessionInfo, 1);
 
   info->type = META_WINDOW_NORMAL;
-  info->gravity = NorthWestGravity;
+  info->gravity = META_GRAVITY_NORTH_WEST;
 
   return info;
 }

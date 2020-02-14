@@ -133,7 +133,7 @@ typedef struct
    * explanation of the differences and similarity between resize_gravity
    * and fixed_directions
    */
-  int                  resize_gravity;
+  MetaGravity          resize_gravity;
   FixedDirections      fixed_directions;
 
   /* work_area_monitor - current monitor region minus struts
@@ -205,7 +205,7 @@ static gboolean constrain_partially_onscreen (MetaWindow         *window,
 static void setup_constraint_info        (ConstraintInfo      *info,
                                           MetaWindow          *window,
                                           MetaMoveResizeFlags  flags,
-                                          int                  resize_gravity,
+                                          MetaGravity          resize_gravity,
                                           const MetaRectangle *orig,
                                           MetaRectangle       *new);
 static void place_window_if_needed       (MetaWindow     *window,
@@ -281,7 +281,7 @@ do_all_constraints (MetaWindow         *window,
 void
 meta_window_constrain (MetaWindow          *window,
                        MetaMoveResizeFlags  flags,
-                       int                  resize_gravity,
+                       MetaGravity          resize_gravity,
                        const MetaRectangle *orig,
                        MetaRectangle       *new,
                        int                 *rel_x,
@@ -336,7 +336,7 @@ static void
 setup_constraint_info (ConstraintInfo      *info,
                        MetaWindow          *window,
                        MetaMoveResizeFlags  flags,
-                       int                  resize_gravity,
+                       MetaGravity          resize_gravity,
                        const MetaRectangle *orig,
                        MetaRectangle       *new)
 {
@@ -1422,19 +1422,19 @@ constrain_aspect_ratio (MetaWindow         *window,
    */
   switch (info->resize_gravity)
     {
-    case WestGravity:
-    case NorthGravity:
-    case SouthGravity:
-    case EastGravity:
+    case META_GRAVITY_WEST:
+    case META_GRAVITY_NORTH:
+    case META_GRAVITY_SOUTH:
+    case META_GRAVITY_EAST:
       fudge = 2;
       break;
 
-    case NorthWestGravity:
-    case SouthWestGravity:
-    case CenterGravity:
-    case NorthEastGravity:
-    case SouthEastGravity:
-    case StaticGravity:
+    case META_GRAVITY_NORTH_WEST:
+    case META_GRAVITY_SOUTH_WEST:
+    case META_GRAVITY_CENTER:
+    case META_GRAVITY_NORTH_EAST:
+    case META_GRAVITY_SOUTH_EAST:
+    case META_GRAVITY_STATIC:
     default:
       fudge = 1;
       break;
@@ -1454,24 +1454,24 @@ constrain_aspect_ratio (MetaWindow         *window,
 
   switch (info->resize_gravity)
     {
-    case WestGravity:
-    case EastGravity:
+    case META_GRAVITY_WEST:
+    case META_GRAVITY_EAST:
       /* Yeah, I suck for doing implicit rounding -- sue me */
       new_height = CLAMP (new_height, new_width / maxr,  new_width / minr);
       break;
 
-    case NorthGravity:
-    case SouthGravity:
+    case META_GRAVITY_NORTH:
+    case META_GRAVITY_SOUTH:
       /* Yeah, I suck for doing implicit rounding -- sue me */
       new_width  = CLAMP (new_width,  new_height * minr, new_height * maxr);
       break;
 
-    case NorthWestGravity:
-    case SouthWestGravity:
-    case CenterGravity:
-    case NorthEastGravity:
-    case SouthEastGravity:
-    case StaticGravity:
+    case META_GRAVITY_NORTH_WEST:
+    case META_GRAVITY_SOUTH_WEST:
+    case META_GRAVITY_CENTER:
+    case META_GRAVITY_NORTH_EAST:
+    case META_GRAVITY_SOUTH_EAST:
+    case META_GRAVITY_STATIC:
     default:
       /* Find what width would correspond to new_height, and what height would
        * correspond to new_width */

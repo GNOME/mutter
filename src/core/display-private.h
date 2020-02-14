@@ -343,7 +343,7 @@ void meta_display_ping_window      (MetaWindow  *window,
 void meta_display_pong_for_serial  (MetaDisplay *display,
                                     guint32      serial);
 
-int meta_resize_gravity_from_grab_op (MetaGrabOp op);
+MetaGravity meta_resize_gravity_from_grab_op (MetaGrabOp op);
 
 gboolean meta_grab_op_is_moving   (MetaGrabOp op);
 gboolean meta_grab_op_is_resizing (MetaGrabOp op);

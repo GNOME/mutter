@@ -529,4 +529,23 @@ typedef enum
   META_LAYER_LAST	       = 8
 } MetaStackLayer;
 
+/* MetaGravity: (skip)
+ *
+ * Identical to the corresponding gravity value macros from libX11.
+ */
+typedef enum _MetaGravity
+{
+  META_GRAVITY_NONE = 0,
+  META_GRAVITY_NORTH_WEST = 1,
+  META_GRAVITY_NORTH = 2,
+  META_GRAVITY_NORTH_EAST = 3,
+  META_GRAVITY_WEST = 4,
+  META_GRAVITY_CENTER = 5,
+  META_GRAVITY_EAST = 6,
+  META_GRAVITY_SOUTH_WEST = 7,
+  META_GRAVITY_SOUTH = 8,
+  META_GRAVITY_SOUTH_EAST = 9,
+  META_GRAVITY_STATIC = 10,
+} MetaGravity;
+
 #endif

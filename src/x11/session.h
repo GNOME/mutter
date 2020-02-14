@@ -55,7 +55,7 @@ struct _MetaWindowSessionInfo
    * light of gravity. This preserves semantics of the
    * window size/pos, even if fonts/themes change, etc.
    */
-  int gravity;
+  MetaGravity gravity;
   MetaRectangle rect;
   MetaRectangle saved_rect;
   guint on_all_workspaces : 1;

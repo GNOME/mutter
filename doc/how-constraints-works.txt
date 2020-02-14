@@ -227,7 +227,7 @@ are used for different purposes:
 Examples of where each are used:
 
   - If a window is simultaneously moved and resized to the southeast corner
-    with SouthEastGravity, but it turns out that the window was sized to
+    with META_GRAVITY_SOUTH_EAST, but it turns out that the window was sized to
     something smaller than the minimum size hint, then the size_hints
     constraint should resize the window using the resize_gravity to ensure
     that the southeast corner doesn't move.

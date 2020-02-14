@@ -2366,7 +2366,7 @@ meta_window_force_placement (MetaWindow *window,
 
   meta_window_move_resize_internal (window,
                                     flags,
-                                    NorthWestGravity,
+                                    META_GRAVITY_NORTH_WEST,
                                     window->unconstrained_rect);
   window->calc_placement = FALSE;
 
@@ -2915,7 +2915,7 @@ meta_window_maximize (MetaWindow        *window,
                                         (META_MOVE_RESIZE_MOVE_ACTION |
                                          META_MOVE_RESIZE_RESIZE_ACTION |
                                          META_MOVE_RESIZE_STATE_CHANGED),
-                                        NorthWestGravity,
+                                        META_GRAVITY_NORTH_WEST,
                                         window->unconstrained_rect);
     }
 }
@@ -3187,7 +3187,7 @@ meta_window_tile (MetaWindow   *window,
                                     (META_MOVE_RESIZE_MOVE_ACTION |
                                      META_MOVE_RESIZE_RESIZE_ACTION |
                                      META_MOVE_RESIZE_STATE_CHANGED),
-                                    NorthWestGravity,
+                                    META_GRAVITY_NORTH_WEST,
                                     window->unconstrained_rect);
 
   if (window->frame)
@@ -3385,7 +3385,7 @@ meta_window_unmaximize (MetaWindow        *window,
                                          META_MOVE_RESIZE_RESIZE_ACTION |
                                          META_MOVE_RESIZE_STATE_CHANGED |
                                          META_MOVE_RESIZE_UNMAXIMIZE),
-                                        NorthWestGravity,
+                                        META_GRAVITY_NORTH_WEST,
                                         target_rect);
 
       /* When we unmaximize, if we're doing a mouse move also we could
@@ -3502,7 +3502,7 @@ meta_window_make_fullscreen (MetaWindow  *window)
                                         (META_MOVE_RESIZE_MOVE_ACTION |
                                          META_MOVE_RESIZE_RESIZE_ACTION |
                                          META_MOVE_RESIZE_STATE_CHANGED),
-                                        NorthWestGravity,
+                                        META_GRAVITY_NORTH_WEST,
                                         window->unconstrained_rect);
     }
 }
@@ -3547,7 +3547,7 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
                                          META_MOVE_RESIZE_RESIZE_ACTION |
                                          META_MOVE_RESIZE_STATE_CHANGED |
                                          META_MOVE_RESIZE_UNFULLSCREEN),
-                                        NorthWestGravity,
+                                        META_GRAVITY_NORTH_WEST,
                                         target_rect);
 
       meta_display_queue_check_fullscreen (window->display);
@@ -3804,7 +3804,7 @@ meta_window_reposition (MetaWindow *window)
   meta_window_move_resize_internal (window,
                                     (META_MOVE_RESIZE_MOVE_ACTION |
                                      META_MOVE_RESIZE_RESIZE_ACTION),
-                                    NorthWestGravity,
+                                    META_GRAVITY_NORTH_WEST,
                                     window->rect);
 }
 
@@ -3975,7 +3975,7 @@ meta_window_update_monitor (MetaWindow                   *window,
 void
 meta_window_move_resize_internal (MetaWindow          *window,
                                   MetaMoveResizeFlags  flags,
-                                  int                  gravity,
+                                  MetaGravity          gravity,
                                   MetaRectangle        frame_rect)
 {
   /* The rectangle here that's passed in *always* in "frame rect"
@@ -4181,7 +4181,7 @@ meta_window_move_frame (MetaWindow *window,
   g_return_if_fail (!window->override_redirect);
 
   flags = (user_op ? META_MOVE_RESIZE_USER_ACTION : 0) | META_MOVE_RESIZE_MOVE_ACTION;
-  meta_window_move_resize_internal (window, flags, NorthWestGravity, rect);
+  meta_window_move_resize_internal (window, flags, META_GRAVITY_NORTH_WEST, rect);
 }
 
 static void
@@ -4214,7 +4214,7 @@ meta_window_move_between_rects (MetaWindow  *window,
                                     move_resize_flags |
                                     META_MOVE_RESIZE_MOVE_ACTION |
                                     META_MOVE_RESIZE_RESIZE_ACTION,
-                                    NorthWestGravity,
+                                    META_GRAVITY_NORTH_WEST,
                                     window->unconstrained_rect);
 }
 
@@ -4245,7 +4245,7 @@ meta_window_move_resize_frame (MetaWindow  *window,
 
   flags = (user_op ? META_MOVE_RESIZE_USER_ACTION : 0) | META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION;
 
-  meta_window_move_resize_internal (window, flags, NorthWestGravity, rect);
+  meta_window_move_resize_internal (window, flags, META_GRAVITY_NORTH_WEST, rect);
 }
 
 /**
@@ -4325,7 +4325,7 @@ meta_window_resize_frame_with_gravity (MetaWindow *window,
                                        gboolean     user_op,
                                        int          w,
                                        int          h,
-                                       int          gravity)
+                                       MetaGravity  gravity)
 {
   MetaMoveResizeFlags flags;
   MetaRectangle rect;
@@ -4399,7 +4399,7 @@ idle_move_resize (gpointer data)
 
 void
 meta_window_get_gravity_position (MetaWindow  *window,
-                                  int          gravity,
+                                  MetaGravity  gravity,
                                   int         *root_x,
                                   int         *root_y)
 {
@@ -4410,7 +4410,7 @@ meta_window_get_gravity_position (MetaWindow  *window,
   w = window->rect.width;
   h = window->rect.height;
 
-  if (gravity == StaticGravity)
+  if (gravity == META_GRAVITY_STATIC)
     {
       frame_extents = window->rect;
       if (window->frame)
@@ -4432,18 +4432,18 @@ meta_window_get_gravity_position (MetaWindow  *window,
 
   switch (gravity)
     {
-    case NorthGravity:
-    case CenterGravity:
-    case SouthGravity:
+    case META_GRAVITY_NORTH:
+    case META_GRAVITY_CENTER:
+    case META_GRAVITY_SOUTH:
       /* Find center of frame. */
       x += frame_extents.width / 2;
       /* Center client window on that point. */
       x -= w / 2;
       break;
 
-    case SouthEastGravity:
-    case EastGravity:
-    case NorthEastGravity:
+    case META_GRAVITY_SOUTH_EAST:
+    case META_GRAVITY_EAST:
+    case META_GRAVITY_NORTH_EAST:
       /* Find right edge of frame */
       x += frame_extents.width;
       /* Align left edge of client at that point. */
@@ -4455,17 +4455,17 @@ meta_window_get_gravity_position (MetaWindow  *window,
 
   switch (gravity)
     {
-    case WestGravity:
-    case CenterGravity:
-    case EastGravity:
+    case META_GRAVITY_WEST:
+    case META_GRAVITY_CENTER:
+    case META_GRAVITY_EAST:
       /* Find center of frame. */
       y += frame_extents.height / 2;
       /* Center client window there. */
       y -= h / 2;
       break;
-    case SouthWestGravity:
-    case SouthGravity:
-    case SouthEastGravity:
+    case META_GRAVITY_SOUTH_WEST:
+    case META_GRAVITY_SOUTH:
+    case META_GRAVITY_SOUTH_EAST:
       /* Find south edge of frame */
       y += frame_extents.height;
       /* Place bottom edge of client there */
@@ -6247,7 +6247,7 @@ update_resize (MetaWindow *window,
 {
   int dx, dy;
   int new_w, new_h;
-  int gravity;
+  MetaGravity gravity;
   MetaRectangle old;
   double remaining = 0;
 

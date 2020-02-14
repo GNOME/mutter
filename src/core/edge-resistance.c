@@ -1255,7 +1255,7 @@ void
 meta_window_edge_resistance_for_resize (MetaWindow  *window,
                                         int         *new_width,
                                         int         *new_height,
-                                        int          gravity,
+                                        MetaGravity  gravity,
                                         GSourceFunc  timeout_func,
                                         gboolean     snap,
                                         gboolean     is_keyboard_op)

@@ -2625,7 +2625,7 @@ process_keyboard_resize_grab (MetaDisplay     *display,
   int width_inc;
   int width, height;
   gboolean smart_snap;
-  int gravity;
+  MetaGravity gravity;
 
   handled = FALSE;
 
@@ -2697,23 +2697,25 @@ process_keyboard_resize_grab (MetaDisplay     *display,
     case CLUTTER_KEY_KP_Up:
       switch (gravity)
         {
-        case NorthGravity:
-        case NorthWestGravity:
-        case NorthEastGravity:
+        case META_GRAVITY_NORTH:
+        case META_GRAVITY_NORTH_WEST:
+        case META_GRAVITY_NORTH_EAST:
           /* Move bottom edge up */
           height -= height_inc;
           break;
 
-        case SouthGravity:
-        case SouthWestGravity:
-        case SouthEastGravity:
+        case META_GRAVITY_SOUTH:
+        case META_GRAVITY_SOUTH_WEST:
+        case META_GRAVITY_SOUTH_EAST:
           /* Move top edge up */
           height += height_inc;
           break;
 
-        case EastGravity:
-        case WestGravity:
-        case CenterGravity:
+        case META_GRAVITY_EAST:
+        case META_GRAVITY_WEST:
+        case META_GRAVITY_CENTER:
+        case META_GRAVITY_NONE:
+        case META_GRAVITY_STATIC:
           g_assert_not_reached ();
           break;
         }
@@ -2725,23 +2727,25 @@ process_keyboard_resize_grab (MetaDisplay     *display,
     case CLUTTER_KEY_KP_Down:
       switch (gravity)
         {
-        case NorthGravity:
-        case NorthWestGravity:
-        case NorthEastGravity:
+        case META_GRAVITY_NORTH:
+        case META_GRAVITY_NORTH_WEST:
+        case META_GRAVITY_NORTH_EAST:
           /* Move bottom edge down */
           height += height_inc;
           break;
 
-        case SouthGravity:
-        case SouthWestGravity:
-        case SouthEastGravity:
+        case META_GRAVITY_SOUTH:
+        case META_GRAVITY_SOUTH_WEST:
+        case META_GRAVITY_SOUTH_EAST:
           /* Move top edge down */
           height -= height_inc;
           break;
 
-        case EastGravity:
-        case WestGravity:
-        case CenterGravity:
+        case META_GRAVITY_EAST:
+        case META_GRAVITY_WEST:
+        case META_GRAVITY_CENTER:
+        case META_GRAVITY_NONE:
+        case META_GRAVITY_STATIC:
           g_assert_not_reached ();
           break;
         }
@@ -2753,23 +2757,25 @@ process_keyboard_resize_grab (MetaDisplay     *display,
     case CLUTTER_KEY_KP_Left:
       switch (gravity)
         {
-        case EastGravity:
-        case SouthEastGravity:
-        case NorthEastGravity:
+        case META_GRAVITY_EAST:
+        case META_GRAVITY_SOUTH_EAST:
+        case META_GRAVITY_NORTH_EAST:
           /* Move left edge left */
           width += width_inc;
           break;
 
-        case WestGravity:
-        case SouthWestGravity:
-        case NorthWestGravity:
+        case META_GRAVITY_WEST:
+        case META_GRAVITY_SOUTH_WEST:
+        case META_GRAVITY_NORTH_WEST:
           /* Move right edge left */
           width -= width_inc;
           break;
 
-        case NorthGravity:
-        case SouthGravity:
-        case CenterGravity:
+        case META_GRAVITY_NORTH:
+        case META_GRAVITY_SOUTH:
+        case META_GRAVITY_CENTER:
+        case META_GRAVITY_NONE:
+        case META_GRAVITY_STATIC:
           g_assert_not_reached ();
           break;
         }
@@ -2781,23 +2787,25 @@ process_keyboard_resize_grab (MetaDisplay     *display,
     case CLUTTER_KEY_KP_Right:
       switch (gravity)
         {
-        case EastGravity:
-        case SouthEastGravity:
-        case NorthEastGravity:
+        case META_GRAVITY_EAST:
+        case META_GRAVITY_SOUTH_EAST:
+        case META_GRAVITY_NORTH_EAST:
           /* Move left edge right */
           width -= width_inc;
           break;
 
-        case WestGravity:
-        case SouthWestGravity:
-        case NorthWestGravity:
+        case META_GRAVITY_WEST:
+        case META_GRAVITY_SOUTH_WEST:
+        case META_GRAVITY_NORTH_WEST:
           /* Move right edge right */
           width += width_inc;
           break;
 
-        case NorthGravity:
-        case SouthGravity:
-        case CenterGravity:
+        case META_GRAVITY_NORTH:
+        case META_GRAVITY_SOUTH:
+        case META_GRAVITY_CENTER:
+        case META_GRAVITY_NONE:
+        case META_GRAVITY_STATIC:
           g_assert_not_reached ();
           break;
         }
@@ -2940,7 +2948,7 @@ handle_always_on_top (MetaDisplay     *display,
 static void
 handle_move_to_corner_backend (MetaDisplay           *display,
                                MetaWindow            *window,
-                               int                    gravity)
+                               MetaGravity            gravity)
 {
   MetaRectangle work_area;
   MetaRectangle frame_rect;
@@ -2954,18 +2962,18 @@ handle_move_to_corner_backend (MetaDisplay           *display,
 
   switch (gravity)
     {
-    case NorthWestGravity:
-    case WestGravity:
-    case SouthWestGravity:
+    case META_GRAVITY_NORTH_WEST:
+    case META_GRAVITY_WEST:
+    case META_GRAVITY_SOUTH_WEST:
       new_x = work_area.x;
       break;
-    case NorthGravity:
-    case SouthGravity:
+    case META_GRAVITY_NORTH:
+    case META_GRAVITY_SOUTH:
       new_x = frame_rect.x;
       break;
-    case NorthEastGravity:
-    case EastGravity:
-    case SouthEastGravity:
+    case META_GRAVITY_NORTH_EAST:
+    case META_GRAVITY_EAST:
+    case META_GRAVITY_SOUTH_EAST:
       new_x = work_area.x + work_area.width - frame_rect.width;
       break;
     default:
@@ -2974,18 +2982,18 @@ handle_move_to_corner_backend (MetaDisplay           *display,
 
   switch (gravity)
     {
-    case NorthWestGravity:
-    case NorthGravity:
-    case NorthEastGravity:
+    case META_GRAVITY_NORTH_WEST:
+    case META_GRAVITY_NORTH:
+    case META_GRAVITY_NORTH_EAST:
       new_y = work_area.y;
       break;
-    case WestGravity:
-    case EastGravity:
+    case META_GRAVITY_WEST:
+    case META_GRAVITY_EAST:
       new_y = frame_rect.y;
       break;
-    case SouthWestGravity:
-    case SouthGravity:
-    case SouthEastGravity:
+    case META_GRAVITY_SOUTH_WEST:
+    case META_GRAVITY_SOUTH:
+    case META_GRAVITY_SOUTH_EAST:
       new_y = work_area.y + work_area.height - frame_rect.height;
       break;
     default:
@@ -3005,7 +3013,7 @@ handle_move_to_corner_nw  (MetaDisplay     *display,
                            MetaKeyBinding  *binding,
                            gpointer         dummy)
 {
-  handle_move_to_corner_backend (display, window, NorthWestGravity);
+  handle_move_to_corner_backend (display, window, META_GRAVITY_NORTH_WEST);
 }
 
 static void
@@ -3015,7 +3023,7 @@ handle_move_to_corner_ne  (MetaDisplay     *display,
                            MetaKeyBinding  *binding,
                            gpointer         dummy)
 {
-  handle_move_to_corner_backend (display, window, NorthEastGravity);
+  handle_move_to_corner_backend (display, window, META_GRAVITY_NORTH_EAST);
 }
 
 static void
@@ -3025,7 +3033,7 @@ handle_move_to_corner_sw  (MetaDisplay     *display,
                            MetaKeyBinding  *binding,
                            gpointer         dummy)
 {
-  handle_move_to_corner_backend (display, window, SouthWestGravity);
+  handle_move_to_corner_backend (display, window, META_GRAVITY_SOUTH_WEST);
 }
 
 static void
@@ -3035,7 +3043,7 @@ handle_move_to_corner_se  (MetaDisplay     *display,
                            MetaKeyBinding  *binding,
                            gpointer         dummy)
 {
-  handle_move_to_corner_backend (display, window, SouthEastGravity);
+  handle_move_to_corner_backend (display, window, META_GRAVITY_SOUTH_EAST);
 }
 
 static void
@@ -3045,7 +3053,7 @@ handle_move_to_side_n     (MetaDisplay     *display,
                            MetaKeyBinding  *binding,
                            gpointer         dummy)
 {
-  handle_move_to_corner_backend (display, window, NorthGravity);
+  handle_move_to_corner_backend (display, window, META_GRAVITY_NORTH);
 }
 
 static void
@@ -3055,7 +3063,7 @@ handle_move_to_side_s     (MetaDisplay     *display,
                            MetaKeyBinding  *binding,
                            gpointer         dummy)
 {
-  handle_move_to_corner_backend (display, window, SouthGravity);
+  handle_move_to_corner_backend (display, window, META_GRAVITY_SOUTH);
 }
 
 static void
@@ -3065,7 +3073,7 @@ handle_move_to_side_e     (MetaDisplay     *display,
                            MetaKeyBinding  *binding,
                            gpointer         dummy)
 {
-  handle_move_to_corner_backend (display, window, EastGravity);
+  handle_move_to_corner_backend (display, window, META_GRAVITY_EAST);
 }
 
 static void
@@ -3075,7 +3083,7 @@ handle_move_to_side_w     (MetaDisplay     *display,
                            MetaKeyBinding  *binding,
                            gpointer         dummy)
 {
-  handle_move_to_corner_backend (display, window, WestGravity);
+  handle_move_to_corner_backend (display, window, META_GRAVITY_WEST);
 }
 
 static void

@@ -327,7 +327,7 @@ meta_rectangle_contains_rect  (const MetaRectangle *outer_rect,
 void
 meta_rectangle_resize_with_gravity (const MetaRectangle *old_rect,
                                     MetaRectangle       *rect,
-                                    int                  gravity,
+                                    MetaGravity          gravity,
                                     int                  new_width,
                                     int                  new_height)
 {
@@ -342,12 +342,12 @@ meta_rectangle_resize_with_gravity (const MetaRectangle *old_rect,
    * border_width, and old and new client area widths (instead of old total
    * width and new total width) and you come up with the same formulas.
    *
-   * Also, note that the reason we can treat NorthWestGravity and
-   * StaticGravity the same is because we're not given a location at
+   * Also, note that the reason we can treat META_GRAVITY_NORTH_WEST and
+   * META_GRAVITY_STATIC the same is because we're not given a location at
    * which to place the window--the window was already placed
-   * appropriately before.  So, NorthWestGravity for this function
+   * appropriately before.  So, META_GRAVITY_NORTH_WEST for this function
    * means to just leave the upper left corner of the outer window
-   * where it already is, and StaticGravity for this function means to
+   * where it already is, and META_GRAVITY_STATIC for this function means to
    * just leave the upper left corner of the inner window where it
    * already is.  But leaving either of those two corners where they
    * already are will ensure that the other corner is fixed as well
@@ -358,15 +358,15 @@ meta_rectangle_resize_with_gravity (const MetaRectangle *old_rect,
   /* First, the x direction */
   switch (gravity)
     {
-    case NorthWestGravity:
-    case WestGravity:
-    case SouthWestGravity:
+    case META_GRAVITY_NORTH_WEST:
+    case META_GRAVITY_WEST:
+    case META_GRAVITY_SOUTH_WEST:
       rect->x = old_rect->x;
       break;
 
-    case NorthGravity:
-    case CenterGravity:
-    case SouthGravity:
+    case META_GRAVITY_NORTH:
+    case META_GRAVITY_CENTER:
+    case META_GRAVITY_SOUTH:
       /* FIXME: Needing to adjust new_width kind of sucks, but not doing so
        * would cause drift.
        */
@@ -374,13 +374,13 @@ meta_rectangle_resize_with_gravity (const MetaRectangle *old_rect,
       rect->x = old_rect->x + (old_rect->width - new_width)/2;
       break;
 
-    case NorthEastGravity:
-    case EastGravity:
-    case SouthEastGravity:
+    case META_GRAVITY_NORTH_EAST:
+    case META_GRAVITY_EAST:
+    case META_GRAVITY_SOUTH_EAST:
       rect->x = old_rect->x + (old_rect->width - new_width);
       break;
 
-    case StaticGravity:
+    case META_GRAVITY_STATIC:
     default:
       rect->x = old_rect->x;
       break;
@@ -390,15 +390,15 @@ meta_rectangle_resize_with_gravity (const MetaRectangle *old_rect,
   /* Next, the y direction */
   switch (gravity)
     {
-    case NorthWestGravity:
-    case NorthGravity:
-    case NorthEastGravity:
+    case META_GRAVITY_NORTH_WEST:
+    case META_GRAVITY_NORTH:
+    case META_GRAVITY_NORTH_EAST:
       rect->y = old_rect->y;
       break;
 
-    case WestGravity:
-    case CenterGravity:
-    case EastGravity:
+    case META_GRAVITY_WEST:
+    case META_GRAVITY_CENTER:
+    case META_GRAVITY_EAST:
       /* FIXME: Needing to adjust new_height kind of sucks, but not doing so
        * would cause drift.
        */
@@ -406,13 +406,13 @@ meta_rectangle_resize_with_gravity (const MetaRectangle *old_rect,
       rect->y = old_rect->y + (old_rect->height - new_height)/2;
       break;
 
-    case SouthWestGravity:
-    case SouthGravity:
-    case SouthEastGravity:
+    case META_GRAVITY_SOUTH_WEST:
+    case META_GRAVITY_SOUTH:
+    case META_GRAVITY_SOUTH_EAST:
       rect->y = old_rect->y + (old_rect->height - new_height);
       break;
 
-    case StaticGravity:
+    case META_GRAVITY_STATIC:
     default:
       rect->y = old_rect->y;
       break;

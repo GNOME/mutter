@@ -566,7 +566,7 @@ struct _MetaWindowClass
                                   MetaGrabOp  op);
   void (*current_workspace_changed) (MetaWindow *window);
   void (*move_resize_internal)   (MetaWindow                *window,
-                                  int                        gravity,
+                                  MetaGravity                gravity,
                                   MetaRectangle              unconstrained_rect,
                                   MetaRectangle              constrained_rect,
                                   int                        rel_x,
@@ -668,7 +668,7 @@ void        meta_window_resize_frame_with_gravity (MetaWindow  *window,
                                                    gboolean     user_op,
                                                    int          w,
                                                    int          h,
-                                                   int          gravity);
+                                                   MetaGravity  gravity);
 
 /* Return whether the window should be currently mapped */
 gboolean    meta_window_should_be_showing   (MetaWindow  *window);
@@ -681,7 +681,7 @@ void        meta_window_update_struts      (MetaWindow  *window);
  * request.
  */
 void        meta_window_get_gravity_position (MetaWindow  *window,
-                                              int          gravity,
+                                              MetaGravity  gravity,
                                               int         *x,
                                               int         *y);
 /* Get geometry for saving in the session; x/y are gravity
@@ -840,7 +840,7 @@ void meta_window_update_resize (MetaWindow *window,
 
 void meta_window_move_resize_internal (MetaWindow          *window,
                                        MetaMoveResizeFlags  flags,
-                                       int                  gravity,
+                                       MetaGravity          gravity,
                                        MetaRectangle        frame_rect);
 
 void meta_window_grab_op_began (MetaWindow *window, MetaGrabOp op);

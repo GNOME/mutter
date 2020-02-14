@@ -527,42 +527,42 @@ meta_unsigned_long_hash  (gconstpointer v)
 }
 
 const char*
-meta_gravity_to_string (int gravity)
+meta_gravity_to_string (MetaGravity gravity)
 {
   switch (gravity)
     {
-    case NorthWestGravity:
-      return "NorthWestGravity";
+    case META_GRAVITY_NORTH_WEST:
+      return "META_GRAVITY_NORTH_WEST";
       break;
-    case NorthGravity:
-      return "NorthGravity";
+    case META_GRAVITY_NORTH:
+      return "META_GRAVITY_NORTH";
       break;
-    case NorthEastGravity:
-      return "NorthEastGravity";
+    case META_GRAVITY_NORTH_EAST:
+      return "META_GRAVITY_NORTH_EAST";
       break;
-    case WestGravity:
-      return "WestGravity";
+    case META_GRAVITY_WEST:
+      return "META_GRAVITY_WEST";
       break;
-    case CenterGravity:
-      return "CenterGravity";
+    case META_GRAVITY_CENTER:
+      return "META_GRAVITY_CENTER";
       break;
-    case EastGravity:
-      return "EastGravity";
+    case META_GRAVITY_EAST:
+      return "META_GRAVITY_EAST";
       break;
-    case SouthWestGravity:
-      return "SouthWestGravity";
+    case META_GRAVITY_SOUTH_WEST:
+      return "META_GRAVITY_SOUTH_WEST";
       break;
-    case SouthGravity:
-      return "SouthGravity";
+    case META_GRAVITY_SOUTH:
+      return "META_GRAVITY_SOUTH";
       break;
-    case SouthEastGravity:
-      return "SouthEastGravity";
+    case META_GRAVITY_SOUTH_EAST:
+      return "META_GRAVITY_SOUTH_EAST";
       break;
-    case StaticGravity:
-      return "StaticGravity";
+    case META_GRAVITY_STATIC:
+      return "META_GRAVITY_STATIC";
       break;
     default:
-      return "NorthWestGravity";
+      return "META_GRAVITY_NORTH_WEST";
       break;
     }
 }

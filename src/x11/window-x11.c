@@ -261,7 +261,7 @@ send_configure_notify (MetaWindow *window)
 static void
 adjust_for_gravity (MetaWindow        *window,
                     gboolean           coords_assume_border,
-                    int                gravity,
+                    MetaGravity        gravity,
                     MetaRectangle     *rect)
 {
   MetaWindowX11 *window_x11 = META_WINDOW_X11 (window);
@@ -273,14 +273,14 @@ adjust_for_gravity (MetaWindow        *window,
   MetaFrameBorders borders;
 
   /* We're computing position to pass to window_move, which is
-   * the position of the client window (StaticGravity basically)
+   * the position of the client window (META_GRAVITY_STATIC basically)
    *
    * (see WM spec description of gravity computation, but note that
    * their formulas assume we're honoring the border width, rather
    * than compensating for having turned it off)
    */
 
-  if (gravity == StaticGravity)
+  if (gravity == META_GRAVITY_STATIC)
     return;
 
   if (coords_assume_border)
@@ -296,7 +296,7 @@ adjust_for_gravity (MetaWindow        *window,
   frame_height = child_y + rect->height + borders.visible.bottom;
 
   /* Calculate the the reference point, which is the corner of the
-   * outer window specified by the gravity. So, NorthEastGravity
+   * outer window specified by the gravity. So, META_GRAVITY_NORTH_EAST
    * would have the reference point as the top-right corner of the
    * outer window. */
   ref_x = rect->x;
@@ -304,14 +304,14 @@ adjust_for_gravity (MetaWindow        *window,
 
   switch (gravity)
     {
-    case NorthGravity:
-    case CenterGravity:
-    case SouthGravity:
+    case META_GRAVITY_NORTH:
+    case META_GRAVITY_CENTER:
+    case META_GRAVITY_SOUTH:
       ref_x += rect->width / 2 + bw;
       break;
-    case NorthEastGravity:
-    case EastGravity:
-    case SouthEastGravity:
+    case META_GRAVITY_NORTH_EAST:
+    case META_GRAVITY_EAST:
+    case META_GRAVITY_SOUTH_EAST:
       ref_x += rect->width + bw * 2;
       break;
     default:
@@ -320,14 +320,14 @@ adjust_for_gravity (MetaWindow        *window,
 
   switch (gravity)
     {
-    case WestGravity:
-    case CenterGravity:
-    case EastGravity:
+    case META_GRAVITY_WEST:
+    case META_GRAVITY_CENTER:
+    case META_GRAVITY_EAST:
       ref_y += rect->height / 2 + bw;
       break;
-    case SouthWestGravity:
-    case SouthGravity:
-    case SouthEastGravity:
+    case META_GRAVITY_SOUTH_WEST:
+    case META_GRAVITY_SOUTH:
+    case META_GRAVITY_SOUTH_EAST:
       ref_y += rect->height + bw * 2;
       break;
     default:
@@ -342,29 +342,33 @@ adjust_for_gravity (MetaWindow        *window,
 
   switch (gravity)
     {
-    case NorthGravity:
-    case CenterGravity:
-    case SouthGravity:
+    case META_GRAVITY_NORTH:
+    case META_GRAVITY_CENTER:
+    case META_GRAVITY_SOUTH:
       rect->x -= frame_width / 2;
       break;
-    case NorthEastGravity:
-    case EastGravity:
-    case SouthEastGravity:
+    case META_GRAVITY_NORTH_EAST:
+    case META_GRAVITY_EAST:
+    case META_GRAVITY_SOUTH_EAST:
       rect->x -= frame_width;
+      break;
+    default:
       break;
     }
 
   switch (gravity)
     {
-    case WestGravity:
-    case CenterGravity:
-    case EastGravity:
+    case META_GRAVITY_WEST:
+    case META_GRAVITY_CENTER:
+    case META_GRAVITY_EAST:
       rect->y -= frame_height / 2;
       break;
-    case SouthWestGravity:
-    case SouthGravity:
-    case SouthEastGravity:
+    case META_GRAVITY_SOUTH_WEST:
+    case META_GRAVITY_SOUTH:
+    case META_GRAVITY_SOUTH_EAST:
       rect->y -= frame_height;
+      break;
+    default:
       break;
     }
 
@@ -481,7 +485,7 @@ meta_window_apply_session_info (MetaWindow *window,
     {
       MetaRectangle rect;
       MetaMoveResizeFlags flags;
-      int gravity;
+      MetaGravity gravity;
 
       window->placed = TRUE; /* don't do placement algorithms later */
 
@@ -556,7 +560,7 @@ meta_window_x11_manage (MetaWindow *window)
     {
       MetaRectangle rect;
       MetaMoveResizeFlags flags;
-      int gravity = window->size_hints.win_gravity;
+      MetaGravity gravity = window->size_hints.win_gravity;
 
       rect.x = window->size_hints.x;
       rect.y = window->size_hints.y;
@@ -1305,7 +1309,7 @@ meta_window_x11_current_workspace_changed (MetaWindow *window)
 
 static void
 meta_window_x11_move_resize_internal (MetaWindow                *window,
-                                      int                        gravity,
+                                      MetaGravity                gravity,
                                       MetaRectangle              unconstrained_rect,
                                       MetaRectangle              constrained_rect,
                                       int                        rel_x,
@@ -1472,9 +1476,9 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
    * Mail from Owen subject "Suggestion: Gravity and resizing from the left"
    * http://mail.gnome.org/archives/wm-spec-list/1999-November/msg00088.html
    *
-   * An annoying fact you need to know in this code is that StaticGravity
+   * An annoying fact you need to know in this code is that META_GRAVITY_STATIC
    * does nothing if you _only_ resize or _only_ move the frame;
-   * it must move _and_ resize, otherwise you get NorthWestGravity
+   * it must move _and_ resize, otherwise you get META_GRAVITY_NORTH_WEST
    * behavior. The move and resize must actually occur, it is not
    * enough to set CWX | CWWidth but pass in the current size/pos.
    */
@@ -2442,13 +2446,13 @@ meta_window_same_client (MetaWindow *window,
 }
 
 static void
-meta_window_move_resize_request (MetaWindow *window,
-                                 guint       value_mask,
-                                 int         gravity,
-                                 int         new_x,
-                                 int         new_y,
-                                 int         new_width,
-                                 int         new_height)
+meta_window_move_resize_request (MetaWindow  *window,
+                                 guint        value_mask,
+                                 MetaGravity  gravity,
+                                 int          new_x,
+                                 int          new_y,
+                                 int          new_width,
+                                 int          new_height)
 {
   int x, y, width, height;
   gboolean allow_position_change;
@@ -3220,10 +3224,10 @@ meta_window_x11_client_message (MetaWindow *window,
   else if (event->xclient.message_type ==
            x11_display->atom__NET_MOVERESIZE_WINDOW)
     {
-      int gravity;
+      MetaGravity gravity;
       guint value_mask;
 
-      gravity = (event->xclient.data.l[0] & 0xff);
+      gravity = (MetaGravity) (event->xclient.data.l[0] & 0xff);
       value_mask = (event->xclient.data.l[0] & 0xf00) >> 8;
       /* source = (event->xclient.data.l[0] & 0xf000) >> 12; */
 

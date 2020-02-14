@@ -1221,7 +1221,7 @@ test_gravity_resize (void)
   temp    = meta_rect ( 50,  300,  20,   5);
   meta_rectangle_resize_with_gravity (&oldrect,
                                       &rect,
-                                      NorthWestGravity,
+                                      META_GRAVITY_NORTH_WEST,
                                       20,
                                       5);
   g_assert (meta_rectangle_equal (&rect, &temp));
@@ -1230,7 +1230,7 @@ test_gravity_resize (void)
   temp = meta_rect (165,  300,  20,   5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
-                                      NorthGravity,
+                                      META_GRAVITY_NORTH,
                                       20,
                                       5);
   g_assert (meta_rectangle_equal (&rect, &temp));
@@ -1239,7 +1239,7 @@ test_gravity_resize (void)
   temp = meta_rect (280,  300,  20,   5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
-                                      NorthEastGravity,
+                                      META_GRAVITY_NORTH_EAST,
                                       20,
                                       5);
   g_assert (meta_rectangle_equal (&rect, &temp));
@@ -1248,7 +1248,7 @@ test_gravity_resize (void)
   temp = meta_rect ( 50,  695,  50,   5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
-                                      SouthWestGravity,
+                                      META_GRAVITY_SOUTH_WEST,
                                       50,
                                       5);
   g_assert (meta_rectangle_equal (&rect, &temp));
@@ -1257,7 +1257,7 @@ test_gravity_resize (void)
   temp = meta_rect (150,  695,  50,   5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
-                                      SouthGravity,
+                                      META_GRAVITY_SOUTH,
                                       50,
                                       5);
   g_assert (meta_rectangle_equal (&rect, &temp));
@@ -1266,7 +1266,7 @@ test_gravity_resize (void)
   temp = meta_rect (250,  695,  50,   5);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
-                                      SouthEastGravity,
+                                      META_GRAVITY_SOUTH_EAST,
                                       50,
                                       5);
   g_assert (meta_rectangle_equal (&rect, &temp));
@@ -1275,7 +1275,7 @@ test_gravity_resize (void)
   temp = meta_rect (167, 1113, 832,  93);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
-                                      WestGravity,
+                                      META_GRAVITY_WEST,
                                       832,
                                       93);
   g_assert (meta_rectangle_equal (&rect, &temp));
@@ -1284,7 +1284,7 @@ test_gravity_resize (void)
   temp = meta_rect (-131, 1113, 833,  93);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
-                                      CenterGravity,
+                                      META_GRAVITY_CENTER,
                                       832,
                                       93);
   g_assert (meta_rectangle_equal (&rect, &temp));
@@ -1293,7 +1293,7 @@ test_gravity_resize (void)
   temp = meta_rect (270,  994, 430, 212);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
-                                      EastGravity,
+                                      META_GRAVITY_EAST,
                                       430,
                                       211);
   g_assert (meta_rectangle_equal (&rect, &temp));
@@ -1302,7 +1302,7 @@ test_gravity_resize (void)
   temp = meta_rect (300, 1000, 430, 211);
   meta_rectangle_resize_with_gravity (&rect,
                                       &rect,
-                                      StaticGravity,
+                                      META_GRAVITY_STATIC,
                                       430,
                                       211);
   g_assert (meta_rectangle_equal (&rect, &temp));

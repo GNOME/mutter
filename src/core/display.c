@@ -2532,48 +2532,48 @@ meta_display_get_tab_current (MetaDisplay   *display,
     return NULL;
 }
 
-int
+MetaGravity
 meta_resize_gravity_from_grab_op (MetaGrabOp op)
 {
-  int gravity;
+  MetaGravity gravity;
 
   gravity = -1;
   switch (op)
     {
     case META_GRAB_OP_RESIZING_SE:
     case META_GRAB_OP_KEYBOARD_RESIZING_SE:
-      gravity = NorthWestGravity;
+      gravity = META_GRAVITY_NORTH_WEST;
       break;
     case META_GRAB_OP_KEYBOARD_RESIZING_S:
     case META_GRAB_OP_RESIZING_S:
-      gravity = NorthGravity;
+      gravity = META_GRAVITY_NORTH;
       break;
     case META_GRAB_OP_KEYBOARD_RESIZING_SW:
     case META_GRAB_OP_RESIZING_SW:
-      gravity = NorthEastGravity;
+      gravity = META_GRAVITY_NORTH_EAST;
       break;
     case META_GRAB_OP_KEYBOARD_RESIZING_N:
     case META_GRAB_OP_RESIZING_N:
-      gravity = SouthGravity;
+      gravity = META_GRAVITY_SOUTH;
       break;
     case META_GRAB_OP_KEYBOARD_RESIZING_NE:
     case META_GRAB_OP_RESIZING_NE:
-      gravity = SouthWestGravity;
+      gravity = META_GRAVITY_SOUTH_WEST;
       break;
     case META_GRAB_OP_KEYBOARD_RESIZING_NW:
     case META_GRAB_OP_RESIZING_NW:
-      gravity = SouthEastGravity;
+      gravity = META_GRAVITY_SOUTH_EAST;
       break;
     case META_GRAB_OP_KEYBOARD_RESIZING_E:
     case META_GRAB_OP_RESIZING_E:
-      gravity = WestGravity;
+      gravity = META_GRAVITY_WEST;
       break;
     case META_GRAB_OP_KEYBOARD_RESIZING_W:
     case META_GRAB_OP_RESIZING_W:
-      gravity = EastGravity;
+      gravity = META_GRAVITY_EAST;
       break;
     case META_GRAB_OP_KEYBOARD_RESIZING_UNKNOWN:
-      gravity = CenterGravity;
+      gravity = META_GRAVITY_CENTER;
       break;
     default:
       break;

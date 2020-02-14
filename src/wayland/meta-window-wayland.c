@@ -217,7 +217,7 @@ meta_window_wayland_grab_op_ended (MetaWindow *window,
 
 static void
 meta_window_wayland_move_resize_internal (MetaWindow                *window,
-                                          int                        gravity,
+                                          MetaGravity                gravity,
                                           MetaRectangle              unconstrained_rect,
                                           MetaRectangle              constrained_rect,
                                           int                        rel_x,
@@ -815,7 +815,7 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   MetaDisplay *display = window->display;
   int dx, dy;
   int geometry_scale;
-  int gravity;
+  MetaGravity gravity;
   MetaRectangle rect;
   MetaMoveResizeFlags flags;
   MetaWaylandWindowConfiguration *acked_configuration;

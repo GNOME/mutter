@@ -142,7 +142,7 @@ guint meta_unsigned_long_hash  (gconstpointer v);
 META_EXPORT
 const char* meta_frame_type_to_string (MetaFrameType type);
 META_EXPORT
-const char* meta_gravity_to_string (int gravity);
+const char* meta_gravity_to_string (MetaGravity gravity);
 
 META_EXPORT
 char* meta_external_binding_name_for_action (guint keybinding_action);

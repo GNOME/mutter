@@ -1304,7 +1304,7 @@ meta_set_normal_hints (MetaWindow *window,
       meta_topic (META_DEBUG_GEOMETRY,
                   "Window %s doesn't set gravity, using NW\n",
                   window->desc);
-      window->size_hints.win_gravity = NorthWestGravity;
+      window->size_hints.win_gravity = META_GRAVITY_NORTH_WEST;
       window->size_hints.flags |= PWinGravity;
     }
 
