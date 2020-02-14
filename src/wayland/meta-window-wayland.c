@@ -800,6 +800,23 @@ meta_window_wayland_new (MetaDisplay        *display,
   return window;
 }
 
+MetaWaylandWindowConfiguration *
+meta_window_wayland_peek_configuration (MetaWindowWayland *wl_window,
+                                        uint32_t           serial)
+{
+  GList *l;
+
+  for (l = wl_window->pending_configurations; l; l = l->next)
+    {
+      MetaWaylandWindowConfiguration *configuration = l->data;
+
+      if (configuration->serial == serial)
+        return configuration;
+    }
+
+  return NULL;
+}
+
 static MetaWaylandWindowConfiguration *
 acquire_acked_configuration (MetaWindowWayland       *wl_window,
                              MetaWaylandSurfaceState *pending)

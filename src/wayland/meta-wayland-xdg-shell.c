@@ -68,6 +68,13 @@ typedef struct _MetaWaylandXdgPositioner
   int32_t offset_y;
 
   gboolean is_reactive;
+
+  gboolean has_parent_size;
+  int32_t parent_width;
+  int32_t parent_height;
+
+  gboolean acked_parent_configure;
+  uint32_t parent_configure_serial;
 } MetaWaylandXdgPositioner;
 
 typedef struct _MetaWaylandXdgSurfaceConstructor
@@ -112,6 +119,9 @@ struct _MetaWaylandXdgPopup
   MetaWaylandSurface *parent_surface;
   gulong parent_surface_unmapped_handler_id;
 
+  uint32_t pending_reposition_token;
+  gboolean pending_repositioned;
+
   MetaWaylandPopup *popup;
 
   gboolean dismissed_by_client;
@@ -152,6 +162,10 @@ meta_wayland_xdg_surface_get_window_geometry (MetaWaylandXdgSurface *xdg_surface
 static void
 meta_wayland_xdg_surface_send_configure (MetaWaylandXdgSurface          *xdg_surface,
                                          MetaWaylandWindowConfiguration *configuration);
+
+static void
+scale_placement_rule (MetaPlacementRule  *placement_rule,
+                      MetaWaylandSurface *surface);
 
 static MetaWaylandSurface *
 surface_from_xdg_surface_resource (struct wl_resource *resource)
@@ -566,9 +580,45 @@ xdg_popup_grab (struct wl_client   *client,
   xdg_popup->setup.grab_serial = serial;
 }
 
+static void
+xdg_popup_reposition (struct wl_client   *client,
+                      struct wl_resource *resource,
+                      struct wl_resource *positioner_resource,
+                      uint32_t            token)
+{
+  MetaWaylandXdgPopup *xdg_popup =
+    META_WAYLAND_XDG_POPUP (wl_resource_get_user_data (resource));
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (xdg_popup);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWindow *window;
+  MetaWindow *parent_window;
+  MetaWaylandXdgPositioner *xdg_positioner;
+  MetaPlacementRule placement_rule;
+
+  window = meta_wayland_surface_get_window (surface);
+  if (!window)
+    return;
+
+  parent_window = meta_wayland_surface_get_window (xdg_popup->parent_surface);
+
+  xdg_positioner = wl_resource_get_user_data (positioner_resource);
+  placement_rule = meta_wayland_xdg_positioner_to_placement (xdg_positioner,
+                                                             parent_window);
+
+  xdg_popup->pending_reposition_token = token;
+  xdg_popup->pending_repositioned = TRUE;
+
+  scale_placement_rule (&placement_rule, surface);
+
+  meta_window_update_placement_rule (window, &placement_rule);
+}
+
 static const struct xdg_popup_interface meta_wayland_xdg_popup_interface = {
   xdg_popup_destroy,
   xdg_popup_grab,
+  xdg_popup_reposition,
 };
 
 static void
@@ -1150,6 +1200,12 @@ meta_wayland_xdg_popup_configure (MetaWaylandShellSurface        *shell_surface,
   geometry_scale = meta_window_wayland_get_geometry_scale (parent_window);
   x = configuration->rel_x / geometry_scale;
   y = configuration->rel_y / geometry_scale;
+  if (xdg_popup->pending_repositioned)
+    {
+      xdg_popup_send_repositioned (xdg_popup->resource,
+                                   xdg_popup->pending_reposition_token);
+      xdg_popup->pending_repositioned = FALSE;
+    }
   xdg_popup_send_configure (xdg_popup->resource,
                             x, y,
                             configuration->width, configuration->height);
@@ -1905,6 +1961,50 @@ meta_wayland_xdg_positioner_to_placement (MetaWaylandXdgPositioner *xdg_position
 
   meta_window_get_frame_rect (parent_window, &parent_rect);
 
+  if (xdg_positioner->acked_parent_configure)
+    {
+      MetaWindowWayland *parent_wl_window = META_WINDOW_WAYLAND (parent_window);
+      uint32_t serial;
+      MetaWaylandWindowConfiguration *configuration;
+
+      serial = xdg_positioner->parent_configure_serial;
+      configuration = meta_window_wayland_peek_configuration (parent_wl_window,
+                                                              serial);
+
+      if (configuration)
+        {
+          if (configuration->flags & META_MOVE_RESIZE_STATE_CHANGED)
+            {
+              if (configuration->has_position)
+                {
+                  parent_rect.x = configuration->x;
+                  parent_rect.y = configuration->y;
+                }
+              if (configuration->has_size)
+                {
+                  parent_rect.width = configuration->width;
+                  parent_rect.height = configuration->height;
+                }
+            }
+          else if (xdg_positioner->has_parent_size)
+            {
+              meta_rectangle_resize_with_gravity (&parent_rect,
+                                                  &parent_rect,
+                                                  configuration->gravity,
+                                                  xdg_positioner->parent_width,
+                                                  xdg_positioner->parent_height);
+            }
+        }
+    }
+  else if (xdg_positioner->has_parent_size)
+    {
+      meta_rectangle_resize_with_gravity (&parent_rect,
+                                          &parent_rect,
+                                          META_GRAVITY_SOUTH_EAST,
+                                          xdg_positioner->parent_width,
+                                          xdg_positioner->parent_height);
+    }
+
   return (MetaPlacementRule) {
     .anchor_rect = xdg_positioner->anchor_rect,
     .gravity = positioner_gravity_to_placement_gravity (xdg_positioner->gravity),
@@ -2050,6 +2150,30 @@ xdg_positioner_set_reactive (struct wl_client   *client,
   positioner->is_reactive = TRUE;
 }
 
+static void
+xdg_positioner_set_parent_size (struct wl_client   *client,
+                                struct wl_resource *resource,
+                                int32_t             parent_width,
+                                int32_t             parent_height)
+{
+  MetaWaylandXdgPositioner *positioner = wl_resource_get_user_data (resource);
+
+  positioner->has_parent_size = TRUE;
+  positioner->parent_width = parent_width;
+  positioner->parent_height = parent_height;
+}
+
+static void
+xdg_positioner_set_parent_configure (struct wl_client   *client,
+                                     struct wl_resource *resource,
+                                     uint32_t            serial)
+{
+  MetaWaylandXdgPositioner *positioner = wl_resource_get_user_data (resource);
+
+  positioner->acked_parent_configure = TRUE;
+  positioner->parent_configure_serial = serial;
+}
+
 static const struct xdg_positioner_interface meta_wayland_xdg_positioner_interface = {
   xdg_positioner_destroy,
   xdg_positioner_set_size,
@@ -2059,6 +2183,8 @@ static const struct xdg_positioner_interface meta_wayland_xdg_positioner_interfa
   xdg_positioner_set_constraint_adjustment,
   xdg_positioner_set_offset,
   xdg_positioner_set_reactive,
+  xdg_positioner_set_parent_size,
+  xdg_positioner_set_parent_configure,
 };
 
 static void
