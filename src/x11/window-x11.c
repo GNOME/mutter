@@ -1308,6 +1308,8 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
                                       int                        gravity,
                                       MetaRectangle              unconstrained_rect,
                                       MetaRectangle              constrained_rect,
+                                      int                        rel_x,
+                                      int                        rel_y,
                                       MetaMoveResizeFlags        flags,
                                       MetaMoveResizeResultFlags *result)
 {

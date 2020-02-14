@@ -220,6 +220,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                                           int                        gravity,
                                           MetaRectangle              unconstrained_rect,
                                           MetaRectangle              constrained_rect,
+                                          int                        rel_x,
+                                          int                        rel_y,
                                           MetaMoveResizeFlags        flags,
                                           MetaMoveResizeResultFlags *result)
 {
@@ -326,11 +328,6 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
 
           if (window->placement.rule)
             {
-              MetaWindow *parent = meta_window_get_transient_for (window);
-              int rel_x, rel_y;
-
-              rel_x = configured_x - parent->rect.x;
-              rel_y = configured_y - parent->rect.y;
               configuration =
                 meta_wayland_window_configuration_new_relative (rel_x,
                                                                 rel_y,

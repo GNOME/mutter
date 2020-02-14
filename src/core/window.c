@@ -4001,6 +4001,8 @@ meta_window_move_resize_internal (MetaWindow          *window,
   gboolean did_placement;
   MetaRectangle unconstrained_rect;
   MetaRectangle constrained_rect;
+  int rel_x = 0;
+  int rel_y = 0;
   MetaMoveResizeResultFlags result = 0;
   gboolean moved_or_resized = FALSE;
   MetaWindowUpdateMonitorFlags update_monitor_flags;
@@ -4066,7 +4068,14 @@ meta_window_move_resize_internal (MetaWindow          *window,
                              flags,
                              gravity,
                              &old_rect,
-                             &constrained_rect);
+                             &constrained_rect,
+                             &rel_x,
+                             &rel_y);
+    }
+  else if (window->placement.rule)
+    {
+      rel_x = window->placement.current.rel_x;
+      rel_y = window->placement.current.rel_y;
     }
 
   /* If we did placement, then we need to save the position that the window
@@ -4080,7 +4089,13 @@ meta_window_move_resize_internal (MetaWindow          *window,
     }
 
   /* Do the protocol-specific move/resize logic */
-  META_WINDOW_GET_CLASS (window)->move_resize_internal (window, gravity, unconstrained_rect, constrained_rect, flags, &result);
+  META_WINDOW_GET_CLASS (window)->move_resize_internal (window,
+                                                        gravity,
+                                                        unconstrained_rect,
+                                                        constrained_rect,
+                                                        rel_x,
+                                                        rel_y,
+                                                        flags, &result);
 
   if (result & META_MOVE_RESIZE_RESULT_MOVED)
     {

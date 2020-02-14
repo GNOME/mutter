@@ -569,6 +569,8 @@ struct _MetaWindowClass
                                   int                        gravity,
                                   MetaRectangle              unconstrained_rect,
                                   MetaRectangle              constrained_rect,
+                                  int                        rel_x,
+                                  int                        rel_y,
                                   MetaMoveResizeFlags        flags,
                                   MetaMoveResizeResultFlags *result);
   gboolean (*update_struts)      (MetaWindow *window);

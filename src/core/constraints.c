@@ -123,6 +123,8 @@ typedef struct
 {
   MetaRectangle        orig;
   MetaRectangle        current;
+  int                  rel_x;
+  int                  rel_y;
   ActionType           action_type;
   gboolean             is_user_action;
 
@@ -281,7 +283,9 @@ meta_window_constrain (MetaWindow          *window,
                        MetaMoveResizeFlags  flags,
                        int                  resize_gravity,
                        const MetaRectangle *orig,
-                       MetaRectangle       *new)
+                       MetaRectangle       *new,
+                       int                 *rel_x,
+                       int                 *rel_y)
 {
   ConstraintInfo info;
   ConstraintPriority priority = PRIORITY_MINIMUM;
@@ -318,6 +322,8 @@ meta_window_constrain (MetaWindow          *window,
 
   /* Make sure we use the constrained position */
   *new = info.current;
+  *rel_x = info.rel_x;
+  *rel_y = info.rel_y;
 
   /* We may need to update window->require_fully_onscreen,
    * window->require_on_single_monitor, and perhaps other quantities
@@ -342,6 +348,8 @@ setup_constraint_info (ConstraintInfo      *info,
 
   info->orig    = *orig;
   info->current = *new;
+  info->rel_x = 0;
+  info->rel_y = 0;
 
   if (info->current.width < 1)
     info->current.width = 1;
@@ -494,15 +502,14 @@ place_window_if_needed(MetaWindow     *window,
         {
           MetaWindow *parent = meta_window_get_transient_for (window);
           MetaRectangle parent_rect;
-          int rel_x, rel_y;
 
           meta_window_process_placement (window,
                                          window->placement.rule,
-                                         &rel_x, &rel_y);
+                                         &info->rel_x, &info->rel_y);
           meta_window_get_frame_rect (parent, &parent_rect);
 
-          placed_rect.x = parent_rect.x + rel_x;
-          placed_rect.y = parent_rect.y + rel_y;
+          placed_rect.x = parent_rect.x + info->rel_x;
+          placed_rect.y = parent_rect.y + info->rel_y;
         }
       else
         {
@@ -745,6 +752,8 @@ try_flip_window_position (MetaWindow                       *window,
                           int                               parent_x,
                           int                               parent_y,
                           MetaRectangle                    *rect,
+                          int                              *rel_x,
+                          int                              *rel_y,
                           MetaRectangle                    *intersection)
 {
   MetaPlacementRule flipped_rule = *placement_rule;;
@@ -781,6 +790,8 @@ try_flip_window_position (MetaWindow                       *window,
     {
       *placement_rule = flipped_rule;
       *rect = flipped_rect;
+      *rel_x = flipped_rel_x;
+      *rel_y = flipped_rel_y;
       *intersection = flipped_intersection;
     }
 }
@@ -815,6 +826,8 @@ constrain_custom_rule (MetaWindow         *window,
   MetaRectangle intersection;
   gboolean constraint_satisfied;
   MetaRectangle adjusted_unconstrained;
+  int adjusted_rel_x;
+  int adjusted_rel_y;
   MetaPlacementRule current_rule;
   MetaWindow *parent;
   MetaRectangle parent_rect;
@@ -834,12 +847,16 @@ constrain_custom_rule (MetaWindow         *window,
   switch (window->placement.state)
     {
     case META_PLACEMENT_STATE_UNCONSTRAINED:
+      adjusted_rel_x = window->rect.x - parent->rect.x;
+      adjusted_rel_y = window->rect.y - parent->rect.y;
       break;
     case META_PLACEMENT_STATE_CONSTRAINED:
       adjusted_unconstrained.x =
         parent->rect.x + window->placement.current.rel_x;
       adjusted_unconstrained.y =
         parent->rect.y + window->placement.current.rel_y;
+      adjusted_rel_x = window->placement.current.rel_x;
+      adjusted_rel_y = window->placement.current.rel_y;
       break;
     }
 
@@ -861,6 +878,8 @@ constrain_custom_rule (MetaWindow         *window,
     {
     case META_PLACEMENT_STATE_CONSTRAINED:
       info->current = adjusted_unconstrained;
+      info->rel_x = adjusted_rel_x;
+      info->rel_y = adjusted_rel_y;
       goto done;
     case META_PLACEMENT_STATE_UNCONSTRAINED:
       break;
@@ -878,6 +897,8 @@ constrain_custom_rule (MetaWindow         *window,
                                 parent_rect.x,
                                 parent_rect.y,
                                 &info->current,
+                                &info->rel_x,
+                                &info->rel_y,
                                 &intersection);
     }
   if (info->current.height != intersection.height &&
@@ -889,6 +910,8 @@ constrain_custom_rule (MetaWindow         *window,
                                 parent_rect.x,
                                 parent_rect.y,
                                 &info->current,
+                                &info->rel_x,
+                                &info->rel_y,
                                 &intersection);
     }
 
@@ -906,6 +929,7 @@ constrain_custom_rule (MetaWindow         *window,
     {
       int current_x2;
       int work_area_monitor_x2;
+      int new_x;
 
       current_x2 = info->current.x + info->current.width;
       work_area_monitor_x2 = (info->work_area_monitor.x +
@@ -913,19 +937,27 @@ constrain_custom_rule (MetaWindow         *window,
 
       if (current_x2 > work_area_monitor_x2)
         {
-          info->current.x = MAX (info->work_area_monitor.x,
-                                 work_area_monitor_x2 - info->current.width);
+          new_x = MAX (info->work_area_monitor.x,
+                       work_area_monitor_x2 - info->current.width);
         }
       else if (info->current.x < info->work_area_monitor.x)
         {
-          info->current.x = info->work_area_monitor.x;
+          new_x = info->work_area_monitor.x;
         }
+      else
+        {
+          new_x = info->current.x;
+        }
+
+      info->rel_x += new_x - info->current.x;
+      info->current.x = new_x;
     }
   if (current_rule.constraint_adjustment &
       META_PLACEMENT_CONSTRAINT_ADJUSTMENT_SLIDE_Y)
     {
       int current_y2;
       int work_area_monitor_y2;
+      int new_y;
 
       current_y2 = info->current.y + info->current.height;
       work_area_monitor_y2 = (info->work_area_monitor.y +
@@ -933,13 +965,20 @@ constrain_custom_rule (MetaWindow         *window,
 
       if (current_y2 > work_area_monitor_y2)
         {
-          info->current.y = MAX (info->work_area_monitor.y,
-                                 work_area_monitor_y2 - info->current.height);
+          new_y = MAX (info->work_area_monitor.y,
+                       work_area_monitor_y2 - info->current.height);
         }
       else if (info->current.y < info->work_area_monitor.y)
         {
-          info->current.y = info->work_area_monitor.y;
+          new_y = info->work_area_monitor.y;
         }
+      else
+        {
+          new_y = info->current.y;
+        }
+
+      info->rel_y += new_y - info->current.y;
+      info->current.y = new_y;
     }
 
   meta_rectangle_intersect (&info->current, &info->work_area_monitor,
@@ -954,21 +993,27 @@ constrain_custom_rule (MetaWindow         *window,
   if (current_rule.constraint_adjustment &
       META_PLACEMENT_CONSTRAINT_ADJUSTMENT_RESIZE_X)
     {
-      info->current.x = intersection.x;
+      int new_x;
+      new_x = intersection.x;
       info->current.width = intersection.width;
+      info->rel_x += new_x - info->current.x;
+      info->current.x = new_x;
     }
   if (current_rule.constraint_adjustment &
       META_PLACEMENT_CONSTRAINT_ADJUSTMENT_RESIZE_Y)
     {
-      info->current.y = intersection.y;
+      int new_y;
+      new_y = intersection.y;
       info->current.height = intersection.height;
+      info->rel_y += new_y - info->current.y;
+      info->current.y = new_y;
     }
 
 done:
   window->placement.state = META_PLACEMENT_STATE_CONSTRAINED;
 
-  window->placement.current.rel_x = info->current.x - parent_rect.x;
-  window->placement.current.rel_y = info->current.y - parent_rect.y;
+  window->placement.current.rel_x = info->rel_x;
+  window->placement.current.rel_y = info->rel_y;
 
   return TRUE;
 }
