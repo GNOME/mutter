@@ -85,6 +85,7 @@ typedef enum
   META_MOVE_RESIZE_FORCE_MOVE = 1 << 8,
   META_MOVE_RESIZE_WAYLAND_STATE_CHANGED = 1 << 9,
   META_MOVE_RESIZE_FORCE_UPDATE_MONITOR = 1 << 10,
+  META_MOVE_RESIZE_PLACEMENT_CHANGED = 1 << 11,
 } MetaMoveResizeFlags;
 
 typedef enum
@@ -141,12 +142,19 @@ typedef struct _MetaPlacementRule
   int offset_y;
   int width;
   int height;
+
+  gboolean is_reactive;
+
+  MetaRectangle parent_rect;
 } MetaPlacementRule;
 
 typedef enum _MetaPlacementState
 {
   META_PLACEMENT_STATE_UNCONSTRAINED,
-  META_PLACEMENT_STATE_CONSTRAINED,
+  META_PLACEMENT_STATE_CONSTRAINED_PENDING,
+  META_PLACEMENT_STATE_CONSTRAINED_CONFIGURED,
+  META_PLACEMENT_STATE_CONSTRAINED_FINISHED,
+  META_PLACEMENT_STATE_INVALIDATED,
 } MetaPlacementState;
 
 typedef enum
@@ -539,6 +547,13 @@ struct _MetaWindow
     MetaPlacementState state;
 
     struct {
+      int x;
+      int y;
+      int rel_x;
+      int rel_y;
+    } pending;
+
+    struct {
       int rel_x;
       int rel_y;
     } current;
@@ -569,6 +584,7 @@ struct _MetaWindowClass
                                   MetaGravity                gravity,
                                   MetaRectangle              unconstrained_rect,
                                   MetaRectangle              constrained_rect,
+                                  MetaRectangle              temporary_rect,
                                   int                        rel_x,
                                   int                        rel_y,
                                   MetaMoveResizeFlags        flags,

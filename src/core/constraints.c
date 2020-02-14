@@ -123,6 +123,7 @@ typedef struct
 {
   MetaRectangle        orig;
   MetaRectangle        current;
+  MetaRectangle        temporary;
   int                  rel_x;
   int                  rel_y;
   ActionType           action_type;
@@ -147,6 +148,8 @@ typedef struct
    */
   GList  *usable_screen_region;
   GList  *usable_monitor_region;
+
+  MetaMoveResizeFlags  flags;
 } ConstraintInfo;
 
 static gboolean do_screen_and_monitor_relative_constraints (MetaWindow     *window,
@@ -284,6 +287,7 @@ meta_window_constrain (MetaWindow          *window,
                        MetaGravity          resize_gravity,
                        const MetaRectangle *orig,
                        MetaRectangle       *new,
+                       MetaRectangle       *temporary,
                        int                 *rel_x,
                        int                 *rel_y)
 {
@@ -322,6 +326,7 @@ meta_window_constrain (MetaWindow          *window,
 
   /* Make sure we use the constrained position */
   *new = info.current;
+  *temporary = info.temporary;
   *rel_x = info.rel_x;
   *rel_y = info.rel_y;
 
@@ -348,8 +353,10 @@ setup_constraint_info (ConstraintInfo      *info,
 
   info->orig    = *orig;
   info->current = *new;
+  info->temporary = *orig;
   info->rel_x = 0;
   info->rel_y = 0;
+  info->flags = flags;
 
   if (info->current.width < 1)
     info->current.width = 1;
@@ -500,16 +507,11 @@ place_window_if_needed(MetaWindow     *window,
 
       if (window->placement.rule)
         {
-          MetaWindow *parent = meta_window_get_transient_for (window);
-          MetaRectangle parent_rect;
-
           meta_window_process_placement (window,
                                          window->placement.rule,
                                          &info->rel_x, &info->rel_y);
-          meta_window_get_frame_rect (parent, &parent_rect);
-
-          placed_rect.x = parent_rect.x + info->rel_x;
-          placed_rect.y = parent_rect.y + info->rel_y;
+          placed_rect.x = window->placement.rule->parent_rect.x + info->rel_x;
+          placed_rect.y = window->placement.rule->parent_rect.y + info->rel_y;
         }
       else
         {
@@ -825,12 +827,13 @@ constrain_custom_rule (MetaWindow         *window,
   MetaPlacementRule *placement_rule;
   MetaRectangle intersection;
   gboolean constraint_satisfied;
+  MetaRectangle temporary_rect;
   MetaRectangle adjusted_unconstrained;
   int adjusted_rel_x;
   int adjusted_rel_y;
   MetaPlacementRule current_rule;
   MetaWindow *parent;
-  MetaRectangle parent_rect;
+  int parent_x, parent_y;
 
   if (priority > PRIORITY_CUSTOM_RULE)
     return TRUE;
@@ -839,25 +842,72 @@ constrain_custom_rule (MetaWindow         *window,
   if (!placement_rule)
     return TRUE;
 
-  adjusted_unconstrained = info->current;
-
   parent = meta_window_get_transient_for (window);
-  meta_window_get_frame_rect (parent, &parent_rect);
+  if (window->placement.state == META_PLACEMENT_STATE_CONSTRAINED_FINISHED)
+    {
+      placement_rule->parent_rect.x = parent->rect.x;
+      placement_rule->parent_rect.y = parent->rect.y;
+    }
+  parent_x = placement_rule->parent_rect.x;
+  parent_y = placement_rule->parent_rect.y;
+
+  /*
+   * Calculate the temporary position, meaning a position that will be
+   * applied if the new constrained position requires asynchronous
+   * configuration of the window. This happens for example when the parent
+   * moves, causing this window to change relative position, meaning it can
+   * only have its newly constrained position applied when the configuration is
+   * acknowledged.
+   */
 
   switch (window->placement.state)
     {
     case META_PLACEMENT_STATE_UNCONSTRAINED:
-      adjusted_rel_x = window->rect.x - parent->rect.x;
-      adjusted_rel_y = window->rect.y - parent->rect.y;
+      temporary_rect = info->current;
       break;
-    case META_PLACEMENT_STATE_CONSTRAINED:
-      adjusted_unconstrained.x =
-        parent->rect.x + window->placement.current.rel_x;
-      adjusted_unconstrained.y =
-        parent->rect.y + window->placement.current.rel_y;
+    case META_PLACEMENT_STATE_CONSTRAINED_CONFIGURED:
+    case META_PLACEMENT_STATE_CONSTRAINED_PENDING:
+    case META_PLACEMENT_STATE_CONSTRAINED_FINISHED:
+    case META_PLACEMENT_STATE_INVALIDATED:
+      temporary_rect = (MetaRectangle) {
+        .x = parent->rect.x + window->placement.current.rel_x,
+        .y = parent->rect.y + window->placement.current.rel_y,
+        .width = info->current.width,
+        .height = info->current.height,
+      };
+      break;
+    }
+
+  /*
+   * Calculate an adjusted current position. Depending on the rule
+   * configuration and placement state, this may result in window being
+   * reconstrained.
+   */
+
+  adjusted_unconstrained = temporary_rect;
+
+  if (window->placement.state == META_PLACEMENT_STATE_INVALIDATED ||
+      window->placement.state == META_PLACEMENT_STATE_UNCONSTRAINED ||
+      (window->placement.state == META_PLACEMENT_STATE_CONSTRAINED_FINISHED &&
+       placement_rule->is_reactive))
+    {
+      meta_window_process_placement (window, placement_rule,
+                                     &adjusted_rel_x,
+                                     &adjusted_rel_y);
+      adjusted_unconstrained.x = parent_x + adjusted_rel_x;
+      adjusted_unconstrained.y = parent_y + adjusted_rel_y;
+    }
+  else if (window->placement.state == META_PLACEMENT_STATE_CONSTRAINED_PENDING)
+    {
+      adjusted_rel_x = window->placement.pending.rel_x;
+      adjusted_rel_y = window->placement.pending.rel_y;
+      adjusted_unconstrained.x = window->placement.pending.x;
+      adjusted_unconstrained.y = window->placement.pending.y;
+    }
+  else
+    {
       adjusted_rel_x = window->placement.current.rel_x;
       adjusted_rel_y = window->placement.current.rel_y;
-      break;
     }
 
   meta_rectangle_intersect (&adjusted_unconstrained, &info->work_area_monitor,
@@ -872,21 +922,34 @@ constrain_custom_rule (MetaWindow         *window,
   if (check_only)
     return constraint_satisfied;
 
-  current_rule = *placement_rule;
+  info->current = adjusted_unconstrained;
+  info->rel_x = adjusted_rel_x;
+  info->rel_y = adjusted_rel_y;
+  info->temporary = temporary_rect;
 
   switch (window->placement.state)
     {
-    case META_PLACEMENT_STATE_CONSTRAINED:
-      info->current = adjusted_unconstrained;
-      info->rel_x = adjusted_rel_x;
-      info->rel_y = adjusted_rel_y;
-      goto done;
+    case META_PLACEMENT_STATE_CONSTRAINED_FINISHED:
+      if (!placement_rule->is_reactive)
+        return TRUE;
+      break;
+    case META_PLACEMENT_STATE_CONSTRAINED_PENDING:
+    case META_PLACEMENT_STATE_CONSTRAINED_CONFIGURED:
+      return TRUE;
     case META_PLACEMENT_STATE_UNCONSTRAINED:
+    case META_PLACEMENT_STATE_INVALIDATED:
       break;
     }
 
   if (constraint_satisfied)
     goto done;
+
+  /*
+   * Process the placement rule in order either until constraints are
+   * satisfied, or there are no more rules to process.
+   */
+
+  current_rule = *placement_rule;
 
   if (info->current.width != intersection.width &&
       (current_rule.constraint_adjustment &
@@ -894,8 +957,8 @@ constrain_custom_rule (MetaWindow         *window,
     {
       try_flip_window_position (window, info, &current_rule,
                                 META_PLACEMENT_CONSTRAINT_ADJUSTMENT_FLIP_X,
-                                parent_rect.x,
-                                parent_rect.y,
+                                parent_x,
+                                parent_y,
                                 &info->current,
                                 &info->rel_x,
                                 &info->rel_y,
@@ -907,8 +970,8 @@ constrain_custom_rule (MetaWindow         *window,
     {
       try_flip_window_position (window, info, &current_rule,
                                 META_PLACEMENT_CONSTRAINT_ADJUSTMENT_FLIP_Y,
-                                parent_rect.x,
-                                parent_rect.y,
+                                parent_x,
+                                parent_y,
                                 &info->current,
                                 &info->rel_x,
                                 &info->rel_y,
@@ -1010,10 +1073,12 @@ constrain_custom_rule (MetaWindow         *window,
     }
 
 done:
-  window->placement.state = META_PLACEMENT_STATE_CONSTRAINED;
+  window->placement.state = META_PLACEMENT_STATE_CONSTRAINED_PENDING;
 
-  window->placement.current.rel_x = info->rel_x;
-  window->placement.current.rel_y = info->rel_y;
+  window->placement.pending.rel_x = info->rel_x;
+  window->placement.pending.rel_y = info->rel_y;
+  window->placement.pending.x = info->current.x;
+  window->placement.pending.y = info->current.y;
 
   return TRUE;
 }

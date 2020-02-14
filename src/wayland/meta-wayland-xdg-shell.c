@@ -138,7 +138,8 @@ G_DEFINE_TYPE_WITH_CODE (MetaWaylandXdgPopup,
                                                 popup_surface_iface_init));
 
 static MetaPlacementRule
-meta_wayland_xdg_positioner_to_placement (MetaWaylandXdgPositioner *xdg_positioner);
+meta_wayland_xdg_positioner_to_placement (MetaWaylandXdgPositioner *xdg_positioner,
+                                          MetaWindow               *parent_window);
 
 static struct wl_resource *
 meta_wayland_xdg_surface_get_wm_base_resource (MetaWaylandXdgSurface *xdg_surface);
@@ -1745,6 +1746,7 @@ xdg_surface_constructor_get_popup (struct wl_client   *client,
   struct wl_resource *xdg_surface_resource = constructor->resource;
   MetaWaylandSurface *parent_surface =
     surface_from_xdg_surface_resource (parent_resource);
+  MetaWindow *parent_window;
   MetaWaylandXdgPositioner *xdg_positioner;
   MetaWaylandXdgPopup *xdg_popup;
   MetaWaylandXdgSurface *xdg_surface;
@@ -1783,9 +1785,11 @@ xdg_surface_constructor_get_popup (struct wl_client   *client,
   xdg_surface = META_WAYLAND_XDG_SURFACE (xdg_popup);
   meta_wayland_xdg_surface_constructor_finalize (constructor, xdg_surface);
 
+  parent_window = meta_wayland_surface_get_window (parent_surface);
+
   xdg_positioner = wl_resource_get_user_data (positioner_resource);
   xdg_popup->setup.placement_rule =
-    meta_wayland_xdg_positioner_to_placement (xdg_positioner);
+    meta_wayland_xdg_positioner_to_placement (xdg_positioner, parent_window);
   xdg_popup->setup.parent_surface = parent_surface;
 }
 
@@ -1892,8 +1896,13 @@ positioner_gravity_to_placement_gravity (uint32_t gravity)
 }
 
 static MetaPlacementRule
-meta_wayland_xdg_positioner_to_placement (MetaWaylandXdgPositioner *xdg_positioner)
+meta_wayland_xdg_positioner_to_placement (MetaWaylandXdgPositioner *xdg_positioner,
+                                          MetaWindow               *parent_window)
 {
+  MetaRectangle parent_rect;
+
+  meta_window_get_frame_rect (parent_window, &parent_rect);
+
   return (MetaPlacementRule) {
     .anchor_rect = xdg_positioner->anchor_rect,
     .gravity = positioner_gravity_to_placement_gravity (xdg_positioner->gravity),
@@ -1903,6 +1912,8 @@ meta_wayland_xdg_positioner_to_placement (MetaWaylandXdgPositioner *xdg_position
     .offset_y = xdg_positioner->offset_y,
     .width = xdg_positioner->width,
     .height = xdg_positioner->height,
+
+    .parent_rect = parent_rect,
   };
 }
 

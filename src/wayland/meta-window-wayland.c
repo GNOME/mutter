@@ -222,18 +222,23 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
                                           MetaGravity                gravity,
                                           MetaRectangle              unconstrained_rect,
                                           MetaRectangle              constrained_rect,
+                                          MetaRectangle              temporary_rect,
                                           int                        rel_x,
                                           int                        rel_y,
                                           MetaMoveResizeFlags        flags,
                                           MetaMoveResizeResultFlags *result)
 {
   MetaWindowWayland *wl_window = META_WINDOW_WAYLAND (window);
-  gboolean can_move_now;
+  gboolean can_move_now = FALSE;
   int configured_x;
   int configured_y;
   int configured_width;
   int configured_height;
   int geometry_scale;
+  int new_x;
+  int new_y;
+  int new_buffer_x;
+  int new_buffer_y;
 
   g_assert (window->frame == NULL);
 
@@ -300,14 +305,61 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
       /* This is a commit of an attach. We should move the window to match the
        * new position the client wants. */
       can_move_now = TRUE;
+      if (window->placement.state == META_PLACEMENT_STATE_CONSTRAINED_CONFIGURED)
+        window->placement.state = META_PLACEMENT_STATE_CONSTRAINED_FINISHED;
     }
   else
     {
-      /* If the size changed, or the state changed, then we have to wait until
-       * the client acks our configure before moving the window. */
-      if (constrained_rect.width != window->rect.width ||
-          constrained_rect.height != window->rect.height ||
-          (flags & META_MOVE_RESIZE_STATE_CHANGED))
+      if (window->placement.rule)
+        {
+          switch (window->placement.state)
+            {
+            case META_PLACEMENT_STATE_UNCONSTRAINED:
+            case META_PLACEMENT_STATE_CONSTRAINED_CONFIGURED:
+            case META_PLACEMENT_STATE_INVALIDATED:
+              can_move_now = FALSE;
+              break;
+            case META_PLACEMENT_STATE_CONSTRAINED_PENDING:
+              {
+                if (flags & META_MOVE_RESIZE_PLACEMENT_CHANGED ||
+                    rel_x != wl_window->last_sent_rel_x ||
+                    rel_y != wl_window->last_sent_rel_y ||
+                    constrained_rect.width != window->rect.width ||
+                    constrained_rect.height != window->rect.height)
+                  {
+                    MetaWaylandWindowConfiguration *configuration;
+
+                    configuration =
+                      meta_wayland_window_configuration_new_relative (rel_x,
+                                                                      rel_y,
+                                                                      configured_width,
+                                                                      configured_height);
+                    meta_window_wayland_configure (wl_window, configuration);
+
+                    wl_window->last_sent_rel_x = rel_x;
+                    wl_window->last_sent_rel_y = rel_y;
+
+                    window->placement.state = META_PLACEMENT_STATE_CONSTRAINED_CONFIGURED;
+
+                    can_move_now = FALSE;
+                  }
+                else
+                  {
+                    window->placement.state =
+                      META_PLACEMENT_STATE_CONSTRAINED_FINISHED;
+
+                    can_move_now = TRUE;
+                  }
+                break;
+              }
+            case META_PLACEMENT_STATE_CONSTRAINED_FINISHED:
+              can_move_now = TRUE;
+              break;
+            }
+        }
+      else if (constrained_rect.width != window->rect.width ||
+               constrained_rect.height != window->rect.height ||
+               flags & META_MOVE_RESIZE_STATE_CHANGED)
         {
           MetaWaylandWindowConfiguration *configuration;
 
@@ -328,32 +380,18 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
               constrained_rect.height == 1)
             return;
 
-          if (window->placement.rule)
-            {
-              configuration =
-                meta_wayland_window_configuration_new_relative (rel_x,
-                                                                rel_y,
-                                                                configured_width,
-                                                                configured_height);
-            }
-          else
-            {
-              configuration =
-                meta_wayland_window_configuration_new (configured_x,
-                                                       configured_y,
-                                                       configured_width,
-                                                       configured_height,
-                                                       flags,
-                                                       gravity);
-            }
-
+          configuration =
+            meta_wayland_window_configuration_new (configured_x,
+                                                   configured_y,
+                                                   configured_width,
+                                                   configured_height,
+                                                   flags,
+                                                   gravity);
           meta_window_wayland_configure (wl_window, configuration);
           can_move_now = FALSE;
         }
       else
         {
-          /* We're just moving the window, so we don't need to wait for a configure
-           * and then ack to simply move the window. */
           can_move_now = TRUE;
         }
     }
@@ -365,33 +403,46 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
 
   if (can_move_now)
     {
-      int new_x = constrained_rect.x;
-      int new_y = constrained_rect.y;
-
-      if (new_x != window->rect.x || new_y != window->rect.y)
-        {
-          *result |= META_MOVE_RESIZE_RESULT_MOVED;
-          window->rect.x = new_x;
-          window->rect.y = new_y;
-        }
-
-      int new_buffer_x = new_x - window->custom_frame_extents.left;
-      int new_buffer_y = new_y - window->custom_frame_extents.top;
-
-      if (new_buffer_x != window->buffer_rect.x || new_buffer_y != window->buffer_rect.y)
-        {
-          *result |= META_MOVE_RESIZE_RESULT_MOVED;
-          window->buffer_rect.x = new_buffer_x;
-          window->buffer_rect.y = new_buffer_y;
-        }
-
-      if (flags & META_MOVE_RESIZE_WAYLAND_STATE_CHANGED)
-        *result |= META_MOVE_RESIZE_RESULT_STATE_CHANGED;
+      new_x = constrained_rect.x;
+      new_y = constrained_rect.y;
     }
   else
     {
-      wl_window->has_pending_state_change = (flags & META_MOVE_RESIZE_STATE_CHANGED) != 0;
+      new_x = temporary_rect.x;
+      new_y = temporary_rect.y;
+
+      wl_window->has_pending_state_change |=
+        !!(flags & META_MOVE_RESIZE_STATE_CHANGED);
     }
+
+  if (new_x != window->rect.x || new_y != window->rect.y)
+    {
+      *result |= META_MOVE_RESIZE_RESULT_MOVED;
+      window->rect.x = new_x;
+      window->rect.y = new_y;
+    }
+
+  if (window->placement.rule &&
+      window->placement.state == META_PLACEMENT_STATE_CONSTRAINED_FINISHED)
+    {
+      window->placement.current.rel_x = rel_x;
+      window->placement.current.rel_y = rel_y;
+    }
+
+  new_buffer_x = new_x - window->custom_frame_extents.left;
+  new_buffer_y = new_y - window->custom_frame_extents.top;
+
+  if (new_buffer_x != window->buffer_rect.x ||
+      new_buffer_y != window->buffer_rect.y)
+    {
+      *result |= META_MOVE_RESIZE_RESULT_MOVED;
+      window->buffer_rect.x = new_buffer_x;
+      window->buffer_rect.y = new_buffer_y;
+    }
+
+  if (can_move_now &&
+      flags & META_MOVE_RESIZE_WAYLAND_STATE_CHANGED)
+    *result |= META_MOVE_RESIZE_RESULT_STATE_CHANGED;
 }
 
 static void
@@ -857,8 +908,19 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
     {
       if (acked_configuration)
         {
-          rect.x = acked_configuration->x;
-          rect.y = acked_configuration->y;
+          if (window->placement.rule)
+            {
+              MetaWindow *parent;
+
+              parent = meta_window_get_transient_for (window);
+              rect.x = parent->rect.x + acked_configuration->rel_x;
+              rect.y = parent->rect.y + acked_configuration->rel_y;
+            }
+          else
+            {
+              rect.x = acked_configuration->x;
+              rect.y = acked_configuration->y;
+            }
         }
       else
         {
@@ -871,6 +933,14 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
 
       if (rect.x != window->rect.x || rect.y != window->rect.y)
         flags |= META_MOVE_RESIZE_MOVE_ACTION;
+    }
+  else
+    {
+      if (acked_configuration)
+        {
+          rect.x = acked_configuration->x;
+          rect.y = acked_configuration->y;
+        }
     }
 
   if (wl_window->has_pending_state_change && acked_configuration)
@@ -918,9 +988,24 @@ meta_window_place_with_placement_rule (MetaWindow        *window,
   window->placement.rule = g_new0 (MetaPlacementRule, 1);
   *window->placement.rule = *placement_rule;
 
+  window->unconstrained_rect.x = window->rect.x;
+  window->unconstrained_rect.y = window->rect.y;
   window->unconstrained_rect.width = placement_rule->width;
   window->unconstrained_rect.height = placement_rule->height;
-  meta_window_force_placement (window, FALSE);
+  meta_window_move_resize_internal (window,
+                                    (META_MOVE_RESIZE_MOVE_ACTION |
+                                     META_MOVE_RESIZE_RESIZE_ACTION |
+                                     META_MOVE_RESIZE_PLACEMENT_CHANGED),
+                                    META_GRAVITY_NORTH_WEST,
+                                    window->unconstrained_rect);
+}
+
+void
+meta_window_update_placement_rule (MetaWindow        *window,
+                                   MetaPlacementRule *placement_rule)
+{
+  window->placement.state = META_PLACEMENT_STATE_INVALIDATED;
+  meta_window_place_with_placement_rule (window, placement_rule);
 }
 
 void
