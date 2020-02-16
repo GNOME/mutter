@@ -966,36 +966,7 @@ meta_window_actor_cull_out (MetaCullable   *cullable,
                             cairo_region_t *unobscured_region,
                             cairo_region_t *clip_region)
 {
-  MetaWindowActor *self = META_WINDOW_ACTOR (cullable);
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
-
   meta_cullable_cull_out_children (cullable, unobscured_region, clip_region);
-
-  if ((unobscured_region || clip_region) && meta_window_actor_is_opaque (self))
-    {
-      cairo_region_t *region = meta_window_get_frame_bounds (priv->window);
-
-      if (region)
-        {
-          if (unobscured_region)
-            cairo_region_subtract (unobscured_region, region);
-          if (clip_region)
-            cairo_region_subtract (clip_region, region);
-        }
-      else
-        {
-          cairo_rectangle_int_t rect;
-
-          meta_window_get_frame_rect (priv->window, &rect);
-          rect.x = rect.y = 0;
-
-          if (unobscured_region)
-            cairo_region_subtract_rectangle (unobscured_region, &rect);
-          if (clip_region)
-            cairo_region_subtract_rectangle (clip_region, &rect);
-        }
-    }
 }
 
 static void

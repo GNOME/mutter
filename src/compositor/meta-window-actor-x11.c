@@ -1447,9 +1447,50 @@ meta_window_actor_x11_cull_out (MetaCullable   *cullable,
                                 cairo_region_t *unobscured_region,
                                 cairo_region_t *clip_region)
 {
+  MetaWindowActorX11 *self = META_WINDOW_ACTOR_X11 (cullable);
+
   cullable_parent_iface->cull_out (cullable, unobscured_region, clip_region);
 
-  set_clip_region_beneath (META_WINDOW_ACTOR_X11 (cullable), clip_region);
+  if ((unobscured_region || clip_region) &&
+      meta_window_actor_is_opaque (META_WINDOW_ACTOR (self)))
+    {
+      MetaWindow *window =
+        meta_window_actor_get_meta_window (META_WINDOW_ACTOR (self));
+
+      if (window->shape_region)
+        {
+          if (unobscured_region)
+            cairo_region_subtract (unobscured_region, window->shape_region);
+          if (clip_region)
+            cairo_region_subtract (clip_region, window->shape_region);
+        }
+      else
+        {
+          cairo_region_t *region = meta_window_get_frame_bounds (window);
+
+          if (region)
+            {
+              if (unobscured_region)
+                cairo_region_subtract (unobscured_region, region);
+              if (clip_region)
+                cairo_region_subtract (clip_region, region);
+            }
+          else
+            {
+              cairo_rectangle_int_t rect;
+
+              meta_window_get_frame_rect (window, &rect);
+              rect.x = rect.y = 0;
+
+              if (unobscured_region)
+                cairo_region_subtract_rectangle (unobscured_region, &rect);
+              if (clip_region)
+                cairo_region_subtract_rectangle (clip_region, &rect);
+            }
+        }
+    }
+
+  set_clip_region_beneath (self, clip_region);
 }
 
 static void
