@@ -1,3 +1,21 @@
+3.34.4
+======
+* Handle mode set race conditions more gracefully [Jonas; !1007]
+* Fix fallback to GLES2 [Adam; #635]
+* Fix interoperation with wl_data_device_manager v1 [Carlos; #965]
+* Fix visual glitches with offscreen effects applied [Georges; !992]
+* Favor text over images in clipboard manager [Carlos; #919]
+* Fixes crashes [Jonas, Carlos; !961, !869]
+* Plugged memory leaks [Sebastian, Adam; !1002, !1011]
+* Misc. bug fixes [Carlos, Robert, Olivier; !1005, #878, !1031, !1034, !1040]
+
+Contributors:
+  Olivier Fourdan, Carlos Garnacho, Adam Jackson, Sebastian Keller,
+  Robert Mader, Georges Basile Stavracas Neto, Jonas Ådahl
+
+Translators:
+  Umarzuki Bin Mochlis Moktar [ms]
+
 3.34.3
 ======
 * Fix window recording on HiDPI [Pascal; !976]
