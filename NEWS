@@ -1,3 +1,23 @@
+3.35.91
+=======
+* Honor accelerometer orientation on monitor config changes [Hans; !959]
+* Enable culling for integer-scaled actors [Robert; !1036]
+* Add ClutterSeat::touch-mode property [Carlos; !1044]
+* Fix mis-scaling when streaming windows [Olivier; !1022]
+* Make the cursor renderer use the transactional KMS API [Jonas; !930]
+* Advertise MetaMonitor as wl_output [Olivier; !994]
+* Fix culling of XWayland windows [Robert; !1049]
+* Only consider enabled effects when disabling culling [Robert; !1052]
+* Misc. bug fixes and cleanups [Olivier, Sergio, Adam, Carlos, Björn; !1040,
+  #985, !1024, !1039, !1051]
+
+Contributors:
+  Sergio Costas, Björn Daase, Olivier Fourdan, Carlos Garnacho, Hans de Goede,
+  Adam Jackson, Robert Mader, Jonas Ådahl
+
+Translators:
+  sicklylife [ja]
+
 3.35.90
 =======
 * Cull out clip region [Robert; !985]
