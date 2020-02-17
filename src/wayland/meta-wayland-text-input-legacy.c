@@ -629,6 +629,5 @@ meta_wayland_gtk_text_input_handle_event (MetaWaylandGtkTextInput *text_input,
       !clutter_input_focus_is_focused (text_input->input_focus))
     return FALSE;
 
-  return clutter_input_focus_filter_key_event (text_input->input_focus,
-                                               (const ClutterKeyEvent *) event);
+  return clutter_input_focus_filter_event (text_input->input_focus, event);
 }
