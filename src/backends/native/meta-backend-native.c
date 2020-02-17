@@ -59,7 +59,7 @@
 #include "backends/native/meta-renderer-native.h"
 #include "backends/native/meta-seat-native.h"
 #include "backends/native/meta-stage-native.h"
-#include "cogl/cogl-trace.h"
+#include "cogl/cogl.h"
 #include "core/meta-border.h"
 #include "meta/main.h"
 

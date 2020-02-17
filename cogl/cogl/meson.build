@@ -12,6 +12,7 @@ cdata.set('COGL_HAS_X11', have_x11)
 cdata.set('COGL_HAS_X11_SUPPORT', have_x11)
 cdata.set('COGL_HAS_XLIB', have_x11)
 cdata.set('COGL_HAS_XLIB_SUPPORT', have_x11)
+cdata.set('COGL_HAS_TRACING', have_profiler)
 
 cogl_defines_h = configure_file(
   input: 'cogl-defines.h.meson',
@@ -89,6 +90,7 @@ cogl_headers = [
   'cogl-texture-2d.h',
   'cogl-texture-2d-sliced.h',
   'cogl-types.h',
+  'cogl-trace.h',
   'cogl.h',
 ]
 
@@ -288,7 +290,6 @@ cogl_sources = [
   'cogl-blend-string.h',
   'cogl-debug.c',
   'cogl-trace.c',
-  'cogl-trace.h',
   'cogl-sub-texture-private.h',
   'cogl-texture-private.h',
   'cogl-texture-2d-private.h',

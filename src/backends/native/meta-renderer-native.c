@@ -69,9 +69,8 @@
 #include "backends/native/meta-output-kms.h"
 #include "backends/native/meta-renderer-native-gles3.h"
 #include "backends/native/meta-renderer-native.h"
+//#include "cogl/cogl-framebuffer.h"
 #include "cogl/cogl.h"
-#include "cogl/cogl-framebuffer.h"
-#include "cogl/cogl-trace.h"
 #include "core/boxes-private.h"
 
 #ifndef EGL_DRM_MASTER_FD_EXT

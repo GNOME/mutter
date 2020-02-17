@@ -54,7 +54,7 @@
 #include "clutter/x11/clutter-x11.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-compositor-x11.h"
-#include "cogl/cogl-trace.h"
+#include "cogl/cogl.h"
 #include "core/bell.h"
 #include "core/boxes-private.h"
 #include "core/display-private.h"

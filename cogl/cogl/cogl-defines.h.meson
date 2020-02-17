@@ -46,3 +46,5 @@
 #mesondefine COGL_HAS_X11_SUPPORT
 #mesondefine COGL_HAS_XLIB
 #mesondefine COGL_HAS_XLIB_SUPPORT
+
+#mesondefine COGL_HAS_TRACING

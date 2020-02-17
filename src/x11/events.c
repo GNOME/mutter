@@ -32,7 +32,7 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "compositor/meta-compositor-x11.h"
-#include "cogl/cogl-trace.h"
+#include "cogl/cogl.h"
 #include "core/bell.h"
 #include "core/display-private.h"
 #include "core/meta-workspace-manager-private.h"

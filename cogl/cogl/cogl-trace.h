@@ -19,31 +19,20 @@
 #ifndef COGL_TRACE_H
 #define COGL_TRACE_H
 
-#include "cogl-config.h"
-
-#ifdef HAVE_TRACING
-
 #include <glib.h>
-#include <sysprof-capture-writer.h>
-#include <sysprof-clock.h>
 #include <stdint.h>
 #include <errno.h>
 
-typedef struct _CoglTraceContext
-{
-  SysprofCaptureWriter *writer;
-} CoglTraceContext;
+#include "cogl/cogl-defines.h"
+#include "cogl/cogl-macros.h"
 
-typedef struct _CoglTraceThreadContext
-{
-  int cpu_id;
-  GPid pid;
-  char *group;
-} CoglTraceThreadContext;
+#ifdef COGL_HAS_TRACING
+
+typedef struct _CoglTraceContext CoglTraceContext;
 
 typedef struct _CoglTraceHead
 {
-  SysprofTimeStamp begin_time;
+  uint64_t begin_time;
   const char *name;
 } CoglTraceHead;
 
@@ -69,36 +58,8 @@ cogl_trace_begin (CoglTraceHead *head,
   head->name = name;
 }
 
-static inline void
-cogl_trace_end (CoglTraceHead *head)
-{
-  SysprofTimeStamp end_time;
-  CoglTraceContext *trace_context;
-  CoglTraceThreadContext *trace_thread_context;
-
-  end_time = g_get_monotonic_time () * 1000;
-  trace_context = cogl_trace_context;
-  trace_thread_context = g_private_get (&cogl_trace_thread_data);
-
-  g_mutex_lock (&cogl_trace_mutex);
-  if (!sysprof_capture_writer_add_mark (trace_context->writer,
-                                        head->begin_time,
-                                        trace_thread_context->cpu_id,
-                                        trace_thread_context->pid,
-                                        (uint64_t) end_time - head->begin_time,
-                                        trace_thread_context->group,
-                                        head->name,
-                                        NULL))
-    {
-      /* XXX: g_main_context_get_thread_default() might be wrong, it probably
-       * needs to store the GMainContext in CoglTraceThreadContext when creating
-       * and use it here.
-       */
-      if (errno == EPIPE)
-        cogl_set_tracing_disabled_on_thread (g_main_context_get_thread_default ());
-    }
-  g_mutex_unlock (&cogl_trace_mutex);
-}
+void
+cogl_trace_end (CoglTraceHead *head);
 
 static inline void
 cogl_auto_trace_end_helper (CoglTraceHead **head)
@@ -126,7 +87,7 @@ cogl_auto_trace_end_helper (CoglTraceHead **head)
       ScopedCoglTrace##Name = &CoglTrace##Name; \
     }
 
-#else /* HAVE_TRACING */
+#else /* COGL_HAS_TRACING */
 
 #include <stdio.h>
 
@@ -142,6 +103,6 @@ void cogl_set_tracing_enabled_on_thread (void       *data,
                                          const char *filename);
 void cogl_set_tracing_disabled_on_thread (void *data);
 
-#endif /* HAVE_TRACING */
+#endif /* COGL_HAS_TRACING */
 
 #endif /* COGL_TRACE_H */

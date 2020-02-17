@@ -27,7 +27,7 @@
 #include "backends/native/meta-kms-impl-simple.h"
 #include "backends/native/meta-kms-update-private.h"
 #include "backends/native/meta-udev.h"
-#include "cogl/cogl-trace.h"
+#include "cogl/cogl.h"
 
 /**
  * SECTION:kms

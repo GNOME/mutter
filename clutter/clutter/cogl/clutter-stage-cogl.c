@@ -47,8 +47,6 @@
 #include "clutter-stage-private.h"
 #include "clutter-stage-view-private.h"
 
-#include "cogl/cogl-trace.h"
-
 #define MAX_STACK_RECTS 256
 
 typedef struct _ClutterStageViewCoglPrivate

@@ -23,12 +23,26 @@
 #ifdef HAVE_TRACING
 
 #include <sysprof-capture.h>
+#include <sysprof-capture-writer.h>
+#include <sysprof-clock.h>
 #include <syscall.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 #define COGL_TRACE_OUTPUT_FILE "cogl-trace-sp-capture.syscap"
 #define BUFFER_LENGTH (4096 * 4)
+
+struct _CoglTraceContext
+{
+  SysprofCaptureWriter *writer;
+};
+
+typedef struct _CoglTraceThreadContext
+{
+  int cpu_id;
+  GPid pid;
+  char *group;
+} CoglTraceThreadContext;
 
 typedef struct
 {
@@ -226,6 +240,37 @@ cogl_set_tracing_disabled_on_thread (GMainContext *main_context)
 
   g_source_attach (source, main_context);
   g_source_unref (source);
+}
+
+void
+cogl_trace_end (CoglTraceHead *head)
+{
+  SysprofTimeStamp end_time;
+  CoglTraceContext *trace_context;
+  CoglTraceThreadContext *trace_thread_context;
+
+  end_time = g_get_monotonic_time () * 1000;
+  trace_context = cogl_trace_context;
+  trace_thread_context = g_private_get (&cogl_trace_thread_data);
+
+  g_mutex_lock (&cogl_trace_mutex);
+  if (!sysprof_capture_writer_add_mark (trace_context->writer,
+                                        head->begin_time,
+                                        trace_thread_context->cpu_id,
+                                        trace_thread_context->pid,
+                                        (uint64_t) end_time - head->begin_time,
+                                        trace_thread_context->group,
+                                        head->name,
+                                        NULL))
+    {
+      /* XXX: g_main_context_get_thread_default() might be wrong, it probably
+       * needs to store the GMainContext in CoglTraceThreadContext when creating
+       * and use it here.
+       */
+      if (errno == EPIPE)
+        cogl_set_tracing_disabled_on_thread (g_main_context_get_thread_default ());
+    }
+  g_mutex_unlock (&cogl_trace_mutex);
 }
 
 #else

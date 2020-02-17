@@ -78,7 +78,6 @@
 #include "clutter-private.h"
 
 #include "cogl/cogl.h"
-#include "cogl/cogl-trace.h"
 
 struct _ClutterStageQueueRedrawEntry
 {

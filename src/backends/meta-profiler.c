@@ -25,7 +25,7 @@
 #include <glib/gi18n.h>
 #include <gio/gunixfdlist.h>
 
-#include "cogl/cogl-trace.h"
+#include "cogl/cogl.h"
 
 #define META_SYSPROF_PROFILER_DBUS_PATH "/org/gnome/Sysprof3/Profiler"
 

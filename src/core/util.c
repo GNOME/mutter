@@ -39,7 +39,7 @@
 #include <X11/Xutil.h>  /* Just for the definition of the various gravities */
 
 #include "clutter/clutter.h"
-#include "cogl/cogl-trace.h"
+#include "cogl/cogl.h"
 #include "meta/common.h"
 #include "meta/main.h"
 
@@ -769,7 +769,7 @@ destroy_later (MetaLater *later)
   unref_later (later);
 }
 
-#ifdef HAVE_TRACING
+#ifdef COGL_HAS_TRACING
 static const char *
 later_type_to_string (MetaLaterType when)
 {

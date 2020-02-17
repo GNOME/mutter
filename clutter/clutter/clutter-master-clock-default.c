@@ -29,9 +29,9 @@
  * of #ClutterMasterClock.
  */
 
-#include <cogl/cogl-trace.h>
-
 #include "clutter-build-config.h"
+
+#include <cogl/cogl.h>
 
 #include "clutter-master-clock.h"
 #include "clutter-master-clock-default.h"

@@ -61,7 +61,7 @@
 #include "backends/x11/meta-event-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
-#include "cogl/cogl-trace.h"
+#include "cogl/cogl.h"
 #include "compositor/meta-window-actor-x11.h"
 #include "compositor/meta-window-actor-wayland.h"
 #include "compositor/meta-window-actor-private.h"

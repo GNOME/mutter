@@ -30,7 +30,7 @@
 #include "core/stack.h"
 
 #include "backends/meta-logical-monitor.h"
-#include "cogl/cogl-trace.h"
+#include "cogl/cogl.h"
 #include "core/frame.h"
 #include "core/main-private.h"
 #include "core/meta-workspace-manager-private.h"
