@@ -277,17 +277,45 @@ clutter_input_method_get_focus (ClutterInputMethod *im)
   return priv->focus;
 }
 
+static void
+clutter_input_method_put_im_event (ClutterInputMethod *im,
+                                   ClutterEventType    event_type,
+                                   const gchar        *text,
+                                   int32_t             offset,
+                                   uint32_t            len)
+{
+  ClutterInputDevice *keyboard;
+  ClutterSeat *seat;
+  ClutterStage *stage;
+  ClutterEvent *event;
+
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  keyboard = clutter_seat_get_keyboard (seat);
+  stage = _clutter_input_device_get_stage (keyboard);
+  if (stage == NULL)
+    return;
+
+  event = clutter_event_new (event_type);
+  event->im.text = g_strdup (text);
+  event->im.offset = offset;
+  event->im.len = len;
+  clutter_event_set_device (event, keyboard);
+  clutter_event_set_source_device (event, keyboard);
+  clutter_event_set_flags (event, CLUTTER_EVENT_FLAG_INPUT_METHOD);
+
+  clutter_event_set_stage (event, stage);
+
+  clutter_event_put (event);
+  clutter_event_free (event);
+}
+
 void
 clutter_input_method_commit (ClutterInputMethod *im,
                              const gchar        *text)
 {
-  ClutterInputMethodPrivate *priv;
-
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
-  priv = clutter_input_method_get_instance_private (im);
-  if (priv->focus)
-    clutter_input_focus_commit (priv->focus, text);
+  clutter_input_method_put_im_event (im, CLUTTER_IM_COMMIT, text, 0, 0);
 }
 
 void
@@ -295,13 +323,9 @@ clutter_input_method_delete_surrounding (ClutterInputMethod *im,
                                          int                 offset,
                                          guint               len)
 {
-  ClutterInputMethodPrivate *priv;
-
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
-  priv = clutter_input_method_get_instance_private (im);
-  if (priv->focus)
-    clutter_input_focus_delete_surrounding (priv->focus, offset, len);
+  clutter_input_method_put_im_event (im, CLUTTER_IM_DELETE, NULL, offset, len);
 }
 
 void
@@ -329,13 +353,9 @@ clutter_input_method_set_preedit_text (ClutterInputMethod *im,
                                        const gchar        *preedit,
                                        guint               cursor)
 {
-  ClutterInputMethodPrivate *priv;
-
   g_return_if_fail (CLUTTER_IS_INPUT_METHOD (im));
 
-  priv = clutter_input_method_get_instance_private (im);
-  if (priv->focus)
-    clutter_input_focus_set_preedit_text (priv->focus, preedit, cursor);
+  clutter_input_method_put_im_event (im, CLUTTER_IM_PREEDIT, preedit, cursor, 0);
 }
 
 void
