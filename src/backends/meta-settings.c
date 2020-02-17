@@ -248,7 +248,7 @@ experimental_features_handler (GVariant *features_variant,
 {
   MetaSettings *settings = data;
   GVariantIter features_iter;
-  char *feature;
+  char *feature_str;
   MetaExperimentalFeature features = META_EXPERIMENTAL_FEATURE_NONE;
 
   if (settings->experimental_features_overridden)
@@ -258,18 +258,25 @@ experimental_features_handler (GVariant *features_variant,
     }
 
   g_variant_iter_init (&features_iter, features_variant);
-  while (g_variant_iter_loop (&features_iter, "s", &feature))
+  while (g_variant_iter_loop (&features_iter, "s", &feature_str))
     {
-      if (g_str_equal (feature, "scale-monitor-framebuffer"))
-        features |= META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER;
-      else if (g_str_equal (feature, "kms-modifiers"))
-        features |= META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
-      else if (g_str_equal (feature, "rt-scheduler"))
-        features |= META_EXPERIMENTAL_FEATURE_RT_SCHEDULER;
-      else if (g_str_equal (feature, "autostart-xwayland"))
-        features |= META_EXPERIMENTAL_FEATURE_AUTOSTART_XWAYLAND;
+      MetaExperimentalFeature feature = META_EXPERIMENTAL_FEATURE_NONE;
+
+      if (g_str_equal (feature_str, "scale-monitor-framebuffer"))
+        feature = META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER;
+      else if (g_str_equal (feature_str, "kms-modifiers"))
+        feature = META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS;
+      else if (g_str_equal (feature_str, "rt-scheduler"))
+        feature = META_EXPERIMENTAL_FEATURE_RT_SCHEDULER;
+      else if (g_str_equal (feature_str, "autostart-xwayland"))
+        feature = META_EXPERIMENTAL_FEATURE_AUTOSTART_XWAYLAND;
+
+      if (feature)
+        g_message ("Enabling experimental feature '%s'", feature_str);
       else
-        g_info ("Unknown experimental feature '%s'\n", feature);
+        g_warning ("Unknown experimental feature '%s'", feature_str);
+
+      features |= feature;
     }
 
   if (features != settings->experimental_features)
