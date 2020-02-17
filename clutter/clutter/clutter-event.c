@@ -416,6 +416,9 @@ clutter_event_get_position (const ClutterEvent *event,
     case CLUTTER_PAD_RING:
     case CLUTTER_DEVICE_ADDED:
     case CLUTTER_DEVICE_REMOVED:
+    case CLUTTER_IM_COMMIT:
+    case CLUTTER_IM_DELETE:
+    case CLUTTER_IM_PREEDIT:
       graphene_point_init (position, 0.f, 0.f);
       break;
 
@@ -491,6 +494,9 @@ clutter_event_set_coords (ClutterEvent *event,
     case CLUTTER_PAD_RING:
     case CLUTTER_DEVICE_ADDED:
     case CLUTTER_DEVICE_REMOVED:
+    case CLUTTER_IM_COMMIT:
+    case CLUTTER_IM_DELETE:
+    case CLUTTER_IM_PREEDIT:
       break;
 
     case CLUTTER_ENTER:
@@ -1108,6 +1114,9 @@ clutter_event_set_device (ClutterEvent       *event,
     case CLUTTER_DESTROY_NOTIFY:
     case CLUTTER_CLIENT_MESSAGE:
     case CLUTTER_EVENT_LAST:
+    case CLUTTER_IM_COMMIT:
+    case CLUTTER_IM_DELETE:
+    case CLUTTER_IM_PREEDIT:
       break;
 
     case CLUTTER_ENTER:
@@ -1208,6 +1217,9 @@ clutter_event_get_device (const ClutterEvent *event)
     case CLUTTER_STAGE_STATE:
     case CLUTTER_DESTROY_NOTIFY:
     case CLUTTER_CLIENT_MESSAGE:
+    case CLUTTER_IM_COMMIT:
+    case CLUTTER_IM_DELETE:
+    case CLUTTER_IM_PREEDIT:
     case CLUTTER_EVENT_LAST:
       break;
 
@@ -1425,6 +1437,10 @@ clutter_event_copy (const ClutterEvent *event)
     case CLUTTER_DEVICE_REMOVED:
       new_event->device.device = event->device.device;
       break;
+    case CLUTTER_IM_COMMIT:
+    case CLUTTER_IM_PREEDIT:
+      new_event->im.text = g_strdup (event->im.text);
+      break;
 
     default:
       break;
@@ -1479,6 +1495,11 @@ clutter_event_free (ClutterEvent *event)
         case CLUTTER_TOUCH_END:
         case CLUTTER_TOUCH_CANCEL:
           g_free (event->touch.axes);
+          break;
+
+        case CLUTTER_IM_COMMIT:
+        case CLUTTER_IM_PREEDIT:
+          g_free (event->im.text);
           break;
 
         default:
@@ -1777,6 +1798,9 @@ clutter_event_get_axes (const ClutterEvent *event,
     case CLUTTER_PAD_BUTTON_RELEASE:
     case CLUTTER_PAD_STRIP:
     case CLUTTER_PAD_RING:
+    case CLUTTER_IM_COMMIT:
+    case CLUTTER_IM_DELETE:
+    case CLUTTER_IM_PREEDIT:
       break;
     }
 

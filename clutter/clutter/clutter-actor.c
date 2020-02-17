@@ -1097,6 +1097,7 @@ static GQuark quark_touch = 0;
 static GQuark quark_touchpad = 0;
 static GQuark quark_proximity = 0;
 static GQuark quark_pad = 0;
+static GQuark quark_im = 0;
 
 G_DEFINE_TYPE_WITH_CODE (ClutterActor,
                          clutter_actor,
@@ -6043,6 +6044,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   quark_touchpad = g_quark_from_static_string ("touchpad");
   quark_proximity = g_quark_from_static_string ("proximity");
   quark_pad = g_quark_from_static_string ("pad");
+  quark_im = g_quark_from_static_string ("im");
 
   object_class->constructor = clutter_actor_constructor;
   object_class->set_property = clutter_actor_set_property;
@@ -12752,6 +12754,11 @@ clutter_actor_event (ClutterActor       *actor,
       signal_num = -1;
       detail = quark_stage;
       break;
+    case CLUTTER_IM_COMMIT:
+    case CLUTTER_IM_DELETE:
+    case CLUTTER_IM_PREEDIT:
+      signal_num = -1;
+      detail = quark_im;
     case CLUTTER_DEVICE_ADDED:
     case CLUTTER_DEVICE_REMOVED:
       break;

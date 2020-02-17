@@ -908,6 +908,9 @@ typedef enum /*< prefix=CLUTTER >*/
   CLUTTER_PAD_RING,
   CLUTTER_DEVICE_ADDED,
   CLUTTER_DEVICE_REMOVED,
+  CLUTTER_IM_COMMIT,
+  CLUTTER_IM_DELETE,
+  CLUTTER_IM_PREEDIT,
 
   CLUTTER_EVENT_LAST            /* helper */
 } ClutterEventType;
