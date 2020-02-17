@@ -2418,7 +2418,7 @@ clutter_text_key_press (ClutterActor    *actor,
 
   if (!(event->flags & CLUTTER_EVENT_FLAG_INPUT_METHOD) &&
       clutter_input_focus_is_focused (priv->input_focus) &&
-      clutter_input_focus_filter_key_event (priv->input_focus, event))
+      clutter_input_focus_filter_event (priv->input_focus, (ClutterEvent *) event))
     return CLUTTER_EVENT_STOP;
 
   /* we allow passing synthetic events that only contain
@@ -2487,7 +2487,7 @@ clutter_text_key_release (ClutterActor    *actor,
   ClutterTextPrivate *priv = self->priv;
 
   if (clutter_input_focus_is_focused (priv->input_focus) &&
-      clutter_input_focus_filter_key_event (priv->input_focus, event))
+      clutter_input_focus_filter_event (priv->input_focus, (ClutterEvent *) event))
     return CLUTTER_EVENT_STOP;
 
   return CLUTTER_EVENT_PROPAGATE;
@@ -3062,6 +3062,24 @@ static gboolean
 clutter_text_has_overlaps (ClutterActor *self)
 {
   return clutter_text_should_draw_cursor ((ClutterText *) self);
+}
+
+static gboolean
+clutter_text_event (ClutterActor *self,
+                    ClutterEvent *event)
+{
+  ClutterText *text = CLUTTER_TEXT (self);
+  ClutterTextPrivate *priv = text->priv;
+
+  if (clutter_input_focus_is_focused (priv->input_focus) &&
+      (event->type == CLUTTER_IM_COMMIT ||
+       event->type == CLUTTER_IM_DELETE ||
+       event->type == CLUTTER_IM_PREEDIT))
+    {
+      return clutter_input_focus_filter_event (priv->input_focus, event);
+    }
+
+  return CLUTTER_EVENT_PROPAGATE;
 }
 
 static void
@@ -3812,6 +3830,7 @@ clutter_text_class_init (ClutterTextClass *klass)
   actor_class->key_focus_in = clutter_text_key_focus_in;
   actor_class->key_focus_out = clutter_text_key_focus_out;
   actor_class->has_overlaps = clutter_text_has_overlaps;
+  actor_class->event = clutter_text_event;
 
   /**
    * ClutterText:buffer:

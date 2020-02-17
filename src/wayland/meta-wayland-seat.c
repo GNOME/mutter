@@ -415,6 +415,16 @@ meta_wayland_seat_handle_event (MetaWaylandSeat *seat,
         return meta_wayland_touch_handle_event (seat->touch, event);
 
       break;
+    case CLUTTER_IM_COMMIT:
+    case CLUTTER_IM_DELETE:
+    case CLUTTER_IM_PREEDIT:
+      if (meta_wayland_text_input_handle_event (seat->text_input, event))
+        return TRUE;
+      if (meta_wayland_gtk_text_input_handle_event (seat->gtk_text_input,
+                                                    event))
+        return TRUE;
+
+      break;
     default:
       break;
     }
