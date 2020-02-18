@@ -467,12 +467,8 @@ meta_monitor_crtc_to_logical_transform (MetaMonitor          *monitor,
                                         MetaMonitorTransform  transform)
 {
   MetaOutput *output = meta_monitor_get_main_output (monitor);
-  MetaMonitorTransform inverted_paniel_orientation_transform;
 
-  inverted_paniel_orientation_transform =
-    meta_monitor_transform_invert (output->panel_orientation_transform);
-  return meta_monitor_transform_transform (transform,
-                                           inverted_paniel_orientation_transform);
+  return meta_output_crtc_to_logical_transform (output, transform);
 }
 
 static void
