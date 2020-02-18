@@ -607,6 +607,7 @@ meta_compositor_add_window (MetaCompositor    *compositor,
 
   window_actor = g_object_new (window_actor_type,
                                "meta-window", window,
+                               "show-on-set-parent", FALSE,
                                NULL);
 
   if (window->layer == META_LAYER_OVERRIDE_REDIRECT)
