@@ -33,6 +33,7 @@
 #include "tests/monitor-config-migration-unit-tests.h"
 #include "tests/monitor-unit-tests.h"
 #include "tests/monitor-store-unit-tests.h"
+#include "tests/monitor-transform-tests.h"
 #include "tests/test-utils.h"
 #include "tests/wayland-unit-tests.h"
 #include "wayland/meta-wayland.h"
@@ -254,6 +255,7 @@ init_tests (int argc, char **argv)
   init_monitor_tests ();
   init_boxes_tests ();
   init_wayland_tests ();
+  init_monitor_transform_tests ();
 }
 
 int

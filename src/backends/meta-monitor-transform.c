@@ -39,3 +39,17 @@ meta_monitor_transform_invert (MetaMonitorTransform transform)
   g_assert_not_reached ();
   return 0;
 }
+
+MetaMonitorTransform
+meta_monitor_transform_transform (MetaMonitorTransform transform,
+                                  MetaMonitorTransform other)
+{
+  MetaMonitorTransform new_transform;
+
+  new_transform = (transform + other) % META_MONITOR_TRANSFORM_FLIPPED;
+  if (meta_monitor_transform_is_flipped (transform) !=
+      meta_monitor_transform_is_flipped (other))
+    new_transform += META_MONITOR_TRANSFORM_FLIPPED;
+
+  return new_transform;
+}
