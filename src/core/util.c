@@ -335,6 +335,8 @@ topic_name (MetaDebugTopic topic)
       return "EDGE_RESISTANCE";
     case META_DEBUG_DBUS:
       return "DBUS";
+    case META_DEBUG_INPUT:
+      return "INPUT";
     case META_DEBUG_VERBOSE:
       return "VERBOSE";
     }

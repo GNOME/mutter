@@ -275,7 +275,12 @@ update_button_count (MetaSeatNative *seat,
     {
       /* Handle cases where we newer saw the initial pressed event. */
       if (seat->button_count[button] == 0)
-        return 0;
+        {
+          meta_topic (META_DEBUG_INPUT,
+                      "Counting release of key 0x%x and count is already 0\n",
+                      button);
+          return 0;
+        }
 
       return --seat->button_count[button];
     }
@@ -297,10 +302,14 @@ meta_seat_native_notify_key (MetaSeatNative     *seat,
     {
       /* Drop any repeated button press (for example from virtual devices. */
       int count = update_button_count (seat, key, state);
-      if (state && count > 1)
-        return;
-      if (!state && count != 0)
-        return;
+      if ((state && count > 1) ||
+          (!state && count != 0))
+        {
+          meta_topic (META_DEBUG_INPUT,
+                      "Dropping repeated %s of key 0x%x, count %d, state %d\n",
+                      state ? "press" : "release", key, count, state);
+          return;
+        }
     }
 
   /* We can drop the event on the floor if no stage has been
@@ -514,10 +523,14 @@ meta_seat_native_notify_button (MetaSeatNative     *seat,
 
   /* Drop any repeated button press (for example from virtual devices. */
   button_count = update_button_count (seat, button, state);
-  if (state && button_count > 1)
-    return;
-  if (!state && button_count != 0)
-    return;
+  if ((state && button_count > 1) ||
+      (!state && button_count != 0))
+    {
+      meta_topic (META_DEBUG_INPUT,
+                  "Dropping repeated %s of button 0x%x, count %d\n",
+                  state ? "press" : "release", button, button_count);
+      return;
+    }
 
   /* We can drop the event on the floor if no stage has been
    * associated with the device yet. */
@@ -1840,7 +1853,14 @@ process_device_event (MetaSeatNative        *seat,
 	     seat_key_count != 1) ||
 	    (key_state == LIBINPUT_KEY_STATE_RELEASED &&
 	     seat_key_count != 0))
-          break;
+          {
+            meta_topic (META_DEBUG_INPUT,
+                        "Dropping key-%s of key 0x%x because seat-wide "
+                        "key count is %d\n",
+                        key_state == LIBINPUT_KEY_STATE_PRESSED ? "press" : "release",
+                        key, seat_key_count);
+            break;
+          }
 
         meta_seat_native_notify_key (seat_from_device (device),
                                      device,
@@ -1927,7 +1947,14 @@ process_device_event (MetaSeatNative        *seat,
              seat_button_count != 1) ||
             (button_state == LIBINPUT_BUTTON_STATE_RELEASED &&
              seat_button_count != 0))
-          break;
+          {
+            meta_topic (META_DEBUG_INPUT,
+                        "Dropping button-%s of button 0x%x because seat-wide "
+                        "button count is %d\n",
+                        button_state == LIBINPUT_BUTTON_STATE_PRESSED ? "press" : "release",
+                        button, seat_button_count);
+            break;
+          }
 
         meta_seat_native_notify_button (seat_from_device (device), device,
                                         time_us, button, button_state);
