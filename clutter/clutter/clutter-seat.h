@@ -159,6 +159,16 @@ void clutter_seat_get_pointer_a11y_settings (ClutterSeat                *seat,
 CLUTTER_EXPORT
 void clutter_seat_set_pointer_a11y_dwell_click_type (ClutterSeat                      *seat,
                                                      ClutterPointerA11yDwellClickType  click_type);
+
+CLUTTER_EXPORT
+void clutter_seat_inhibit_unfocus (ClutterSeat *seat);
+
+CLUTTER_EXPORT
+void clutter_seat_uninhibit_unfocus (ClutterSeat *seat);
+
+CLUTTER_EXPORT
+gboolean clutter_seat_is_unfocus_inhibited (ClutterSeat *seat);
+
 CLUTTER_EXPORT
 ClutterVirtualInputDevice *clutter_seat_create_virtual_device (ClutterSeat            *seat,
                                                                ClutterInputDeviceType  device_type);

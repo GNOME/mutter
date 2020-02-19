@@ -41,6 +41,7 @@ enum
   PTR_A11Y_DWELL_CLICK_TYPE_CHANGED,
   PTR_A11Y_TIMEOUT_STARTED,
   PTR_A11Y_TIMEOUT_STOPPED,
+  IS_UNFOCUS_INHIBITED_CHANGED,
   N_SIGNALS,
 };
 
@@ -61,6 +62,8 @@ typedef struct _ClutterSeatPrivate ClutterSeatPrivate;
 struct _ClutterSeatPrivate
 {
   ClutterBackend *backend;
+
+  unsigned int inhibit_unfocus_count;
 
   /* Keyboard a11y */
   ClutterKbdA11ySettings kbd_a11y_settings;
@@ -274,6 +277,22 @@ clutter_seat_class_init (ClutterSeatClass *klass)
   g_signal_set_va_marshaller (signals[PTR_A11Y_TIMEOUT_STOPPED],
                               G_TYPE_FROM_CLASS (object_class),
                               _clutter_marshal_VOID__OBJECT_FLAGS_BOOLEANv);
+
+  /**
+   * ClutterSeat::is-unfocus-inhibited-changed:
+   * @seat: the #ClutterSeat that emitted the signal
+   *
+   * The ::is-unfocus-inhibited-changed signal is emitted when the
+   * property to inhibit the unsetting of the focus-surface of the
+   * #ClutterSeat changed. To get the current state of this property,
+   * use clutter_seat_is_unfocus_inhibited().
+   */
+  signals[IS_UNFOCUS_INHIBITED_CHANGED] =
+    g_signal_new (I_("is-unfocus-inhibited-changed"),
+                  G_TYPE_FROM_CLASS (klass),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 
   props[PROP_BACKEND] =
     g_param_spec_object ("backend",
@@ -512,6 +531,85 @@ clutter_seat_set_pointer_a11y_dwell_click_type (ClutterSeat                     
   g_return_if_fail (CLUTTER_IS_SEAT (seat));
 
   priv->pointer_a11y_settings.dwell_click_type = click_type;
+}
+
+/**
+ * clutter_seat_inhibit_unfocus:
+ * @seat: a #ClutterSeat
+ *
+ * Inhibits unsetting of the pointer focus-surface for the #ClutterSeat @seat,
+ * this allows to keep using the pointer even when it's hidden.
+ *
+ * This property is refcounted, so clutter_seat_uninhibit_unfocus() must be
+ * called the exact same number of times as clutter_seat_inhibit_unfocus()
+ * was called before.
+ **/
+void
+clutter_seat_inhibit_unfocus (ClutterSeat *seat)
+{
+  ClutterSeatPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_SEAT (seat));
+
+  priv = clutter_seat_get_instance_private (seat);
+
+  priv->inhibit_unfocus_count++;
+
+  if (priv->inhibit_unfocus_count == 1)
+    g_signal_emit (G_OBJECT (seat), signals[IS_UNFOCUS_INHIBITED_CHANGED], 0);
+}
+
+/**
+ * clutter_seat_uninhibit_unfocus:
+ * @seat: a #ClutterSeat
+ *
+ * Disables the inhibiting of unsetting of the pointer focus-surface
+ * previously enabled by calling clutter_seat_inhibit_unfocus().
+ *
+ * This property is refcounted, so clutter_seat_uninhibit_unfocus() must be
+ * called the exact same number of times as clutter_seat_inhibit_unfocus()
+ * was called before.
+ **/
+void
+clutter_seat_uninhibit_unfocus (ClutterSeat *seat)
+{
+  ClutterSeatPrivate *priv;
+
+  g_return_if_fail (CLUTTER_IS_SEAT (seat));
+
+  priv = clutter_seat_get_instance_private (seat);
+
+  if (priv->inhibit_unfocus_count == 0)
+    {
+      g_warning ("Called clutter_seat_uninhibit_unfocus without inhibiting before");
+      return;
+    }
+
+  priv->inhibit_unfocus_count--;
+
+  if (priv->inhibit_unfocus_count == 0)
+    g_signal_emit (G_OBJECT (seat), signals[IS_UNFOCUS_INHIBITED_CHANGED], 0);
+}
+
+/**
+ * clutter_seat_is_unfocus_inhibited:
+ * @seat: a #ClutterSeat
+ *
+ * Gets whether unsetting of the pointer focus-surface is inhibited
+ * for the #ClutterSeat @seat.
+ *
+ * Returns: %TRUE if unsetting is inhibited, %FALSE otherwise
+ **/
+gboolean
+clutter_seat_is_unfocus_inhibited (ClutterSeat *seat)
+{
+  ClutterSeatPrivate *priv;
+
+  g_return_val_if_fail (CLUTTER_IS_SEAT (seat), FALSE);
+
+  priv = clutter_seat_get_instance_private (seat);
+
+  return priv->inhibit_unfocus_count > 0;
 }
 
 /**
