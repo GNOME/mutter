@@ -99,6 +99,14 @@ struct _ClutterConstraintClass
 CLUTTER_EXPORT
 GType clutter_constraint_get_type (void) G_GNUC_CONST;
 
+CLUTTER_EXPORT
+void clutter_constraint_update_preferred_size (ClutterConstraint  *constraint,
+                                               ClutterActor       *actor,
+                                               ClutterOrientation  direction,
+                                               float               for_size,
+                                               float              *minimum_size,
+                                               float              *natural_size);
+
 /* ClutterActor API */
 CLUTTER_EXPORT
 void               clutter_actor_add_constraint            (ClutterActor      *self,

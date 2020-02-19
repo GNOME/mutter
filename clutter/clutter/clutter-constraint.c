@@ -222,6 +222,17 @@ clutter_constraint_update_allocation (ClutterConstraint *constraint,
   return !clutter_actor_box_equal (allocation, &old_alloc);
 }
 
+/**
+ * clutter_constraint_update_preferred_size:
+ * @constraint: a #ClutterConstraint
+ * @actor: a #ClutterActor
+ * @direction: a #ClutterOrientation
+ * @for_size: the size in the opposite direction
+ * @minimum_size: (inout): the minimum size to modify
+ * @natural_size: (inout): the natural size to modify
+ *
+ * Asks the @constraint to update the size request of a #ClutterActor.
+ */
 void
 clutter_constraint_update_preferred_size (ClutterConstraint  *constraint,
                                           ClutterActor       *actor,
