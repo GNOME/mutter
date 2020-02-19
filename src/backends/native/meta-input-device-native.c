@@ -1284,10 +1284,10 @@ meta_input_device_native_class_init (MetaInputDeviceNativeClass *klass)
 
   obj_props[PROP_DEVICE_MATRIX] =
     g_param_spec_boxed ("device-matrix",
-			"Device input matrix",
-			"Device input matrix",
-			CAIRO_GOBJECT_TYPE_MATRIX,
-			CLUTTER_PARAM_READWRITE);
+                        "Device input matrix",
+                        "Device input matrix",
+                        CAIRO_GOBJECT_TYPE_MATRIX,
+                        CLUTTER_PARAM_READWRITE);
   obj_props[PROP_OUTPUT_ASPECT_RATIO] =
     g_param_spec_double ("output-aspect-ratio",
                          "Output aspect ratio",

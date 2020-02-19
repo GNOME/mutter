@@ -271,7 +271,7 @@ meta_virtual_input_device_native_notify_key (ClutterVirtualInputDevice *virtual_
   if (key_count < 0 || key_count > 1)
     {
       g_warning ("Received multiple virtual 0x%x key %s (ignoring)", key,
-		 key_state == CLUTTER_KEY_STATE_PRESSED ? "presses" : "releases");
+                 key_state == CLUTTER_KEY_STATE_PRESSED ? "presses" : "releases");
       update_button_count (virtual_evdev, key, 1 - key_state);
       return;
     }

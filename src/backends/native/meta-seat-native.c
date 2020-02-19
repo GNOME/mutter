@@ -1848,11 +1848,11 @@ process_device_event (MetaSeatNative        *seat,
         seat_key_count =
           libinput_event_keyboard_get_seat_key_count (key_event);
 
-	/* Ignore key events that are not seat wide state changes. */
-	if ((key_state == LIBINPUT_KEY_STATE_PRESSED &&
-	     seat_key_count != 1) ||
-	    (key_state == LIBINPUT_KEY_STATE_RELEASED &&
-	     seat_key_count != 0))
+        /* Ignore key events that are not seat wide state changes. */
+        if ((key_state == LIBINPUT_KEY_STATE_PRESSED &&
+             seat_key_count != 1) ||
+            (key_state == LIBINPUT_KEY_STATE_RELEASED &&
+             seat_key_count != 0))
           {
             meta_topic (META_DEBUG_INPUT,
                         "Dropping key-%s of key 0x%x because seat-wide "

@@ -28,11 +28,11 @@ MetaLauncher     *meta_launcher_new                     (GError       **error);
 void              meta_launcher_free                    (MetaLauncher  *self);
 
 gboolean          meta_launcher_activate_session        (MetaLauncher  *self,
-							 GError       **error);
+                                                         GError       **error);
 
 gboolean          meta_launcher_activate_vt             (MetaLauncher  *self,
-							 signed char    vt,
-							 GError       **error);
+                                                         signed char    vt,
+                                                         GError       **error);
 
 const char *      meta_launcher_get_seat_id             (MetaLauncher *launcher);
 

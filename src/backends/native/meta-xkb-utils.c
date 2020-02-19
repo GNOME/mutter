@@ -103,9 +103,9 @@ meta_xkb_translate_state (ClutterEvent     *event,
                           uint32_t          button_state)
 {
   _clutter_event_set_state_full (event,
-				 button_state,
-				 xkb_state_serialize_mods (state, XKB_STATE_MODS_DEPRESSED),
-				 xkb_state_serialize_mods (state, XKB_STATE_MODS_LATCHED),
-				 xkb_state_serialize_mods (state, XKB_STATE_MODS_LOCKED),
-				 xkb_state_serialize_mods (state, XKB_STATE_MODS_EFFECTIVE) | button_state);
+                                 button_state,
+                                 xkb_state_serialize_mods (state, XKB_STATE_MODS_DEPRESSED),
+                                 xkb_state_serialize_mods (state, XKB_STATE_MODS_LATCHED),
+                                 xkb_state_serialize_mods (state, XKB_STATE_MODS_LOCKED),
+                                 xkb_state_serialize_mods (state, XKB_STATE_MODS_EFFECTIVE) | button_state);
 }
