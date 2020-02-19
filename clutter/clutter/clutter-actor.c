@@ -3743,7 +3743,13 @@ needs_flatten_effect (ClutterActor *self)
                   CLUTTER_DEBUG_DISABLE_OFFSCREEN_REDIRECT))
     return FALSE;
 
-  if (priv->offscreen_redirect & CLUTTER_OFFSCREEN_REDIRECT_ALWAYS)
+  /* We need to enable the effect immediately even in ON_IDLE because that can
+   * only be implemented efficiently within the effect itself.
+   * If it was implemented here using just priv->is_dirty then we would lose
+   * the ability to animate opacity without repaints.
+   */
+  if ((priv->offscreen_redirect & CLUTTER_OFFSCREEN_REDIRECT_ALWAYS) ||
+      (priv->offscreen_redirect & CLUTTER_OFFSCREEN_REDIRECT_ON_IDLE))
     return TRUE;
   else if (priv->offscreen_redirect & CLUTTER_OFFSCREEN_REDIRECT_AUTOMATIC_FOR_OPACITY)
     {
@@ -4200,6 +4206,11 @@ clutter_actor_continue_paint (ClutterActor        *self,
               priv->current_effect != priv->effect_to_redraw)
             run_flags |= CLUTTER_EFFECT_PAINT_ACTOR_DIRTY;
         }
+
+      if (priv->current_effect == priv->flatten_effect &&
+          priv->offscreen_redirect & CLUTTER_OFFSCREEN_REDIRECT_ON_IDLE &&
+          run_flags & CLUTTER_EFFECT_PAINT_ACTOR_DIRTY)
+        run_flags |= CLUTTER_EFFECT_PAINT_BYPASS_EFFECT;
 
       _clutter_effect_paint (priv->current_effect, paint_context, run_flags);
 

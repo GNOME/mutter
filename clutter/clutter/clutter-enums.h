@@ -538,6 +538,10 @@ typedef enum /*< prefix=CLUTTER_ACTOR >*/
  *   virtual returns %TRUE.
  * @CLUTTER_OFFSCREEN_REDIRECT_ALWAYS: Always redirect the actor to an
  *   offscreen buffer even if it is fully opaque.
+ * @CLUTTER_OFFSCREEN_REDIRECT_ON_IDLE: Only redirect the actor if it is the
+ *   most efficient thing to do based on its recent repaint behaviour. That
+ *   means when its contents are changing less frequently than it's being used
+ *   on stage.
  *
  * Possible flags to pass to clutter_actor_set_offscreen_redirect().
  *
@@ -545,8 +549,9 @@ typedef enum /*< prefix=CLUTTER_ACTOR >*/
  */
 typedef enum /*< prefix=CLUTTER_OFFSCREEN_REDIRECT >*/
 {
-  CLUTTER_OFFSCREEN_REDIRECT_AUTOMATIC_FOR_OPACITY = 1<<0,
-  CLUTTER_OFFSCREEN_REDIRECT_ALWAYS = 1<<1
+  CLUTTER_OFFSCREEN_REDIRECT_AUTOMATIC_FOR_OPACITY = 1 << 0,
+  CLUTTER_OFFSCREEN_REDIRECT_ALWAYS                = 1 << 1,
+  CLUTTER_OFFSCREEN_REDIRECT_ON_IDLE               = 1 << 2
 } ClutterOffscreenRedirect;
 
 /**
@@ -673,12 +678,15 @@ typedef enum /*< prefix=CLUTTER_BIND >*/
  *   has queued a redraw before this paint. This implies that the effect
  *   should call clutter_actor_continue_paint() to chain to the next
  *   effect and can not cache any results from a previous paint.
+ * @CLUTTER_EFFECT_PAINT_BYPASS_EFFECT: The effect should not be used
+ *   on this frame, but it will be asked to paint the actor still.
  *
  * Flags passed to the ‘paint’ or ‘pick’ method of #ClutterEffect.
  */
 typedef enum /*< prefix=CLUTTER_EFFECT_PAINT >*/
 {
-  CLUTTER_EFFECT_PAINT_ACTOR_DIRTY = (1 << 0)
+  CLUTTER_EFFECT_PAINT_ACTOR_DIRTY   = (1 << 0),
+  CLUTTER_EFFECT_PAINT_BYPASS_EFFECT = (1 << 1)
 } ClutterEffectPaintFlags;
 
 /**

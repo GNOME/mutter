@@ -193,6 +193,9 @@ verify_redraws (gpointer user_data)
 {
   Data *data = user_data;
 
+  clutter_actor_set_offscreen_redirect (data->container,
+                                        CLUTTER_OFFSCREEN_REDIRECT_ALWAYS);
+
   /* Queueing a redraw on the actor should cause a redraw */
   clutter_actor_queue_redraw (data->container);
   verify_redraw (data, 1);
@@ -220,6 +223,7 @@ static gboolean
 run_verify (gpointer user_data)
 {
   Data *data = user_data;
+  int i;
 
   group_has_overlaps = FALSE;
 
@@ -312,6 +316,90 @@ run_verify (gpointer user_data)
                   255, 0, 0,
                   0,
                   255);
+
+  /* ON_IDLE: Defer redirection through the FBO until it is deemed to be the
+   * best performing option, which means when the actor's contents have
+   * stopped changing.
+   */
+  clutter_actor_set_offscreen_redirect (data->container,
+                                        CLUTTER_OFFSCREEN_REDIRECT_ON_IDLE);
+
+  /* Changing modes should not incur a redraw */
+  verify_results (data,
+                  255, 0, 0,
+                  0,
+                  255);
+
+  /* These will incur a redraw because the actor is dirty: */
+  for (i = 0; i < 10; i++)
+    {
+      clutter_actor_queue_redraw (data->container);
+      verify_results (data,
+                      255, 0, 0,
+                      1,
+                      255);
+    }
+
+  /* The actor is not dirty, but also not yet cached so a redraw is expected */
+  verify_results (data,
+                  255, 0, 0,
+                  1,
+                  255);
+
+  /* These will NOT incur a redraw because the actor is unchanged: */
+  for (i = 0; i < 10; i++)
+    {
+      verify_results (data,
+                      255, 0, 0,
+                      0,
+                      255);
+    }
+
+  /* The first opacity change should require no redaw */
+  clutter_actor_set_opacity (data->container, 64);
+  verify_results (data,
+                  255, 191, 191,
+                  0,
+                  255);
+
+  /* The second opacity change should require no redaw */
+  clutter_actor_set_opacity (data->container, 127);
+  verify_results (data,
+                  255, 127, 127,
+                  0,
+                  255);
+
+  /* The third opacity change should require no redaw */
+  clutter_actor_set_opacity (data->container, 255);
+  verify_results (data,
+                  255, 0, 0,
+                  0,
+                  255);
+
+  /* Now several frames without the actor changing AND the FBO is populated.
+   * Expect no internal repaints.
+   */
+  for (i = 0; i < 10; i++)
+    {
+      verify_results (data,
+                      255, 0, 0,
+                      0,
+                      255);
+    }
+
+  /* Another opacity change, no redraw expected */
+  clutter_actor_set_opacity (data->container, 127);
+  verify_results (data,
+                  255, 127, 127,
+                  0,
+                  255);
+
+  /* Finally the actor's content changes so a redraw is expected */
+  clutter_actor_queue_redraw (data->container);
+  verify_results (data,
+                  255, 127, 127,
+                  1,
+                  127);
 
   /* Check redraws */
   g_idle_add (verify_redraws, data);

@@ -469,6 +469,13 @@ clutter_offscreen_effect_paint (ClutterEffect           *effect,
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
   ClutterOffscreenEffectPrivate *priv = self->priv;
 
+  if (flags & CLUTTER_EFFECT_PAINT_BYPASS_EFFECT)
+    {
+      clutter_actor_continue_paint (priv->actor, paint_context);
+      cogl_clear_object (&priv->offscreen);
+      return;
+    }
+
   /* If we've already got a cached image and the actor hasn't been redrawn
    * then we can just use the cached image in the FBO.
    */
