@@ -494,13 +494,6 @@ meta_wayland_pointer_on_cursor_changed (MetaCursorTracker *cursor_tracker,
     meta_wayland_surface_update_outputs (pointer->cursor_surface);
 }
 
-static void
-meta_wayland_pointer_on_cursor_visibility_changed (MetaCursorTracker  *cursor_tracker,
-                                                   MetaWaylandPointer *pointer)
-{
-  sync_focus_surface (pointer);
-}
-
 void
 meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
 {
@@ -522,10 +515,10 @@ meta_wayland_pointer_enable (MetaWaylandPointer *pointer)
                     G_CALLBACK (meta_wayland_pointer_on_cursor_changed),
                     pointer);
 
-  g_signal_connect (cursor_tracker,
-                    "visibility-changed",
-                    G_CALLBACK (meta_wayland_pointer_on_cursor_visibility_changed),
-                    pointer);
+  g_signal_connect_swapped (cursor_tracker,
+                            "visibility-changed",
+                            G_CALLBACK (sync_focus_surface),
+                            pointer);
 
   g_signal_connect_swapped (clutter_seat,
                             "is-unfocus-inhibited-changed",
@@ -546,7 +539,7 @@ meta_wayland_pointer_disable (MetaWaylandPointer *pointer)
                                         pointer);
 
   g_signal_handlers_disconnect_by_func (cursor_tracker,
-                                        meta_wayland_pointer_on_cursor_visibility_changed,
+                                        sync_focus_surface,
                                         pointer);
 
   g_signal_handlers_disconnect_by_func (clutter_seat,
