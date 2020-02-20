@@ -5,13 +5,13 @@
 # Hizkuntza Politikarako Sailburuordetza <hizpol@ej-gv.es>, 2004.
 # Iñaki Larrañaga Murgoitio <dooteo@zundan.com>, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011.
 # Iñaki Larrañaga Murgoitio <dooteo@zundan.com>, 2012, 2013, 2014, 2015, 2016, 2017.
-# Asier Sarasua Garmendia  <asier.sarasua@gmail.com>, 2019.
+# Asier Sarasua Garmendia  <asier.sarasua@gmail.com>, 2019, 2020.
 #
 msgid ""
 msgstr "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-08-06 00:49+0000\n"
-"PO-Revision-Date: 2019-08-11 10:00+0100\n"
+"POT-Creation-Date: 2019-11-21 15:15+0000\n"
+"PO-Revision-Date: 2020-02-20 10:00+0100\n"
 "Last-Translator: Asier Sarasua Garmendia <asier.sarasua@gmail.com>\n"
 "Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
@@ -230,11 +230,11 @@ msgstr "Beheratu leihoa beste leihoen azpira"
 
 #: data/50-mutter-windows.xml:35
 msgid "Maximize window vertically"
-msgstr "Maximizatu leihoa bertikalki"
+msgstr "Maximizatu leihoa bertikalean"
 
 #: data/50-mutter-windows.xml:37
 msgid "Maximize window horizontally"
-msgstr "Maximizatu leihoa horizontalki"
+msgstr "Maximizatu leihoa horizontalean"
 
 #: data/50-mutter-windows.xml:41
 msgid "View split on left"
@@ -258,7 +258,7 @@ msgid ""
 "and application launching system. The default is intended to be the “Windows "
 "key” on PC hardware. It’s expected that this binding either the default or "
 "set to the empty string."
-msgstr "Gako honek “overlay“ (gainjarria) hasieratuko du: hau leihoaren ikuspegi orokorraren eta aplikazioa abiarazteko sistemaren arteko konbinazioa da. Lehenetsi gisa, PC ordenagailuko “Windows tekla“ da. Tekla konbinazio hau lehenetsia izatea edo kate huts gisa ezartzea da."
+msgstr "Gako honek “overlay” (gainjarria) hasieratuko du: hau leihoaren ikuspegi orokorraren eta aplikazioa abiarazteko sistemaren arteko konbinazioa da. Lehenetsi gisa, PC ordenagailuko “Windows tekla” da. Tekla konbinazio hau lehenetsia izatea edo kate huts gisa ezartzea da."
 
 #: data/org.gnome.mutter.gschema.xml.in:20
 msgid "Attach modal dialogs"
@@ -280,7 +280,7 @@ msgid ""
 "If enabled, dropping windows on vertical screen edges maximizes them "
 "vertically and resizes them horizontally to cover half of the available "
 "area. Dropping windows on the top screen edge maximizes them completely."
-msgstr "Gaituta egonez gero, pantailaren ertz bertikaletan leihoak jaregiteak hauek bertikalki maximizatuko dira, eta horizontalki tamainaz aldatuko dira area erabilgarriaren erdia estaltzeko. Pantailaren goiko ertzean leihoak jaregitean, hauek erabat maximizatuko dira."
+msgstr "Gaituta egonez gero, pantailaren ertz bertikaletan leihoak jaregiteak hauek bertikalean maximizatuko dira, eta horizontalean tamainaz aldatuko dira area erabilgarriaren erdia estaltzeko. Pantailaren goiko ertzean leihoak jaregitean, hauek erabat maximizatuko dira."
 
 #: data/org.gnome.mutter.gschema.xml.in:40
 msgid "Workspaces are managed dynamically"
@@ -291,7 +291,7 @@ msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
 "gnome.desktop.wm.preferences)."
-msgstr "Laneko areak dinamikoki kudeatzen diren edo laneko areak kopuru estatikoa (“org.gnome.desktop.wm.preferences“-eko “num-workspaces“ gakoak zehazten du) daukan zehazten du ."
+msgstr "Laneko areak dinamikoki kudeatzen diren edo laneko areak kopuru estatikoa (“org.gnome.desktop.wm.preferences“-eko “num-workspaces” gakoak zehazten du) daukan zehazten du ."
 
 #: data/org.gnome.mutter.gschema.xml.in:50
 msgid "Workspaces only on primary"
@@ -322,7 +322,7 @@ msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
 "the pointer stops moving."
-msgstr "TRUE (egia) gisa ezartzen bada, eta fokuaren modua “sloppy“ edo “mouse“ bada, fokua ez da berehala aldatuko leiho batean sartzean baizik eta soilik erakuslea gelditzean."
+msgstr "TRUE (egia) gisa ezartzen bada, eta fokuaren modua “sloppy” edo “mouse” bada, fokua ez da berehala aldatuko leiho batean sartzean baizik eta soilik erakuslea gelditzean."
 
 #: data/org.gnome.mutter.gschema.xml.in:79
 msgid "Draggable border width"
@@ -379,7 +379,7 @@ msgstr "Erakuslea kokatzeko erabiliko den aldatzailea"
 
 #: data/org.gnome.mutter.gschema.xml.in:135
 msgid "This key will initiate the “locate pointer” action."
-msgstr "Gako honek “kokatu erakuslea“ ekintza abiarazten du."
+msgstr "Gako honek “kokatu erakuslea” ekintza abiarazten du."
 
 #: data/org.gnome.mutter.gschema.xml.in:155
 msgid "Select window from tab popup"
@@ -482,12 +482,12 @@ msgid ""
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
-msgstr ""
+msgstr "Zerrendatu Xwayland pean X11 teklatu-kapturak bidaltzea onartuta duten edo ez duten X11 leihoen baliabide-izenak edo baliabide-klaseak. X11 leiho baten baliabide-izena edo baliabide-klasea “xprop WM_CLASS” komandoa erabilita eskuratu daiteke. “*” eta “?” komodinak onartzen diren balioetan. Hasieran “!” duten balioak zerrenda beltzean sartuta daude, eta horrek lehentasuna du zerrenda zuriaren aurretik sistema-zerrenda lehenetsiko aplikazioak bertan behera uzteko. Sistema-zerrenda lehenetsiak honako aplikazioak ditu: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Erabiltzaileek edozein kaptura hautsi dezakete “restore-shortcuts” lotura-teklan definitutako lasterbideak erabilita."
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2531
+#: src/backends/meta-input-settings.c:2528
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Modu aldaketa (%d taldea)"
@@ -495,11 +495,11 @@ msgstr "Modu aldaketa (%d taldea)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2554
+#: src/backends/meta-input-settings.c:2551
 msgid "Switch monitor"
 msgstr "Aldatu monitorea"
 
-#: src/backends/meta-input-settings.c:2556
+#: src/backends/meta-input-settings.c:2553
 msgid "Show on-screen help"
 msgstr "Erakutsi pantailako laguntzan"
 
@@ -531,63 +531,63 @@ msgid "%s %s"
 msgstr "%s %s"
 
 #. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:82
+#: src/backends/meta-profiler.c:79
 msgid "Compositor"
 msgstr "Konposatzailea"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:533
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
-msgstr "Dagoeneko beste konposatze-kudeatzailea ari da exekutatzen “%2$s“ pantailako %1$i. monitorean."
+msgstr "Dagoeneko beste konposatze-kudeatzailea ari da exekutatzen “%2$s” pantailako %1$i. monitorean."
 
 #: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Soinuaren gertaera"
 
-#: src/core/main.c:185
+#: src/core/main.c:190
 msgid "Disable connection to session manager"
 msgstr "Desgaitu saio-kudeatzailearen konexioa"
 
-#: src/core/main.c:191
+#: src/core/main.c:196
 msgid "Replace the running window manager"
 msgstr "Ordeztu exekutatzen dagoen leiho-kudeatzailea"
 
-#: src/core/main.c:197
+#: src/core/main.c:202
 msgid "Specify session management ID"
 msgstr "Zehaztu saio-kudeatzailearen IDa"
 
-#: src/core/main.c:202
+#: src/core/main.c:207
 msgid "X Display to use"
 msgstr "X pantaila erabiltzeko"
 
-#: src/core/main.c:208
+#: src/core/main.c:213
 msgid "Initialize session from savefile"
 msgstr "Hasieratu saioa babes-fitxategitik"
 
-#: src/core/main.c:214
+#: src/core/main.c:219
 msgid "Make X calls synchronous"
 msgstr "Bihurtu X dei sinkroniko"
 
-#: src/core/main.c:221
+#: src/core/main.c:226
 msgid "Run as a wayland compositor"
 msgstr "Exekutatu wayland konposatzaile gisa"
 
-#: src/core/main.c:227
+#: src/core/main.c:232
 msgid "Run as a nested compositor"
 msgstr "Exekutatu habiaratutako konposatzaile gisa"
 
-#: src/core/main.c:233
+#: src/core/main.c:238
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Exekutatu waylan konposatzailea Xwayland abiarazi gabe"
 
-#: src/core/main.c:241
+#: src/core/main.c:246
 msgid "Run as a full display server, rather than nested"
 msgstr "Exekutatu pantaila-zerbitzari oso bezala, habiaratuta baino"
 
-#: src/core/main.c:247
+#: src/core/main.c:252
 msgid "Run with X11 backend"
 msgstr "Exekutatu X11 motorra erabilita"
 
@@ -595,7 +595,7 @@ msgstr "Exekutatu X11 motorra erabilita"
 #: src/core/meta-close-dialog-default.c:151
 #, c-format
 msgid "“%s” is not responding."
-msgstr "“%s“(e)k ez du erantzuten."
+msgstr "“%s”(e)k ez du erantzuten."
 
 #: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
@@ -641,37 +641,37 @@ msgstr "Mutter-en osagaia erabiltzeko"
 msgid "Workspace %d"
 msgstr "%d. laneko area"
 
-#: src/core/util.c:121
+#: src/core/util.c:122
 msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter modu xehatuaren euskarririk gabe konpilatu da\n"
+msgstr "Mutter modu xehearen euskarririk gabe konpilatu da\n"
 
-#: src/wayland/meta-wayland-tablet-pad.c:567
+#: src/wayland/meta-wayland-tablet-pad.c:568
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Modu aldaketa: %d modua"
 
-#: src/x11/meta-x11-display.c:671
+#: src/x11/meta-x11-display.c:679
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
-msgstr "“%s“ pantailak badu leiho-kudeatzailea; erabili --replace aukera uneko leiho-kudeatzailea ordezteko."
+msgstr "“%s” pantailak badu leiho-kudeatzailea; erabili --replace aukera uneko leiho-kudeatzailea ordezteko."
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1040
 msgid "Failed to initialize GDK\n"
 msgstr "Huts egin du GDK hasieratzeak\n"
 
-#: src/x11/meta-x11-display.c:1056
+#: src/x11/meta-x11-display.c:1064
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
-msgstr "Huts egin du X Window sistemaren “%s“ pantaila irekitzean\n"
+msgstr "Huts egin du X Window sistemaren “%s” pantaila irekitzean\n"
 
-#: src/x11/meta-x11-display.c:1140
+#: src/x11/meta-x11-display.c:1147
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
-msgstr "“%2$s“ bistaratzeko %1$d pantaila ez da baliozkoa\n"
+msgstr "“%2$s” bistaratzeko %1$d pantaila ez da baliozkoa\n"
 
-#: src/x11/meta-x11-selection-input-stream.c:445
+#: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "%s formatua ez da onartzen"
