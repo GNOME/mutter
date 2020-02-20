@@ -143,16 +143,8 @@ data_offer_choose_action (MetaWaylandDataOffer *offer)
       WL_DATA_OFFER_ACTION_SINCE_VERSION)
     return WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY;
 
-  if (wl_resource_get_version (meta_wayland_data_source_get_resource (source)) <
-      WL_DATA_SOURCE_ACTION_SINCE_VERSION)
-    {
-      actions = user_action = WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY;
-    }
-  else
-    {
-      actions = meta_wayland_data_source_get_actions (source);
-      user_action = meta_wayland_data_source_get_user_action (source);
-    }
+  actions = meta_wayland_data_source_get_actions (source);
+  user_action = meta_wayland_data_source_get_user_action (source);
 
   available_actions = actions & offer->dnd_actions;
 
@@ -2187,10 +2179,18 @@ meta_wayland_data_source_new (struct wl_resource *resource)
 {
   MetaWaylandDataSource *source =
    g_object_new (META_TYPE_WAYLAND_DATA_SOURCE, NULL);
+  MetaWaylandDataSourcePrivate *priv =
+    meta_wayland_data_source_get_instance_private (source);
 
   meta_wayland_data_source_set_resource (source, resource);
   wl_resource_set_implementation (resource, &data_source_interface,
                                   source, destroy_data_source);
+
+  if (wl_resource_get_version (resource) < WL_DATA_SOURCE_ACTION_SINCE_VERSION)
+    {
+      priv->dnd_actions = priv->user_dnd_action =
+        WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY;
+    }
 
   return source;
 }
