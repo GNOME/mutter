@@ -49,6 +49,8 @@
 
 #include "cogl/cogl-trace.h"
 
+#define MAX_STACK_RECTS 256
+
 typedef struct _ClutterStageViewCoglPrivate
 {
   /*
@@ -737,15 +739,17 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
       cogl_onscreen_get_frame_counter (COGL_ONSCREEN (fb)) > 3)
     {
       graphene_rect_t rect;
+      cairo_rectangle_int_t *freeme = NULL;
       cairo_rectangle_int_t *rects;
       int n_rects, i;
 
       may_use_clipped_redraw = TRUE;
 
-      fb_clip_region = cairo_region_create ();
-
       n_rects = cairo_region_num_rectangles (redraw_clip);
-      rects = g_new (cairo_rectangle_int_t, n_rects);
+      if (n_rects < MAX_STACK_RECTS)
+        rects = g_newa (cairo_rectangle_int_t, n_rects);
+      else
+        rects = freeme = g_new (cairo_rectangle_int_t, n_rects);
       for (i = 0; i < n_rects; i++)
         {
           cairo_rectangle_int_t new_fb_clip_rect;
@@ -756,9 +760,13 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
           graphene_rect_offset (&rect, -view_rect.x, -view_rect.y);
           scale_and_clamp_rect (&rect, fb_scale, &new_fb_clip_rect);
 
-          cairo_region_union_rectangle (fb_clip_region, &new_fb_clip_rect);
+          rects[i] = new_fb_clip_rect;
         }
-      g_free (rects);
+      if (n_rects == 0)
+        fb_clip_region = cairo_region_create ();
+      else
+        fb_clip_region = cairo_region_create_rectangles (rects, n_rects);
+      g_free (freeme);
 
       if (fb_scale != floorf (fb_scale))
         {
@@ -808,6 +816,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
               graphene_rect_t rect;
               cairo_rectangle_int_t damage_region;
               cairo_rectangle_int_t *rects;
+              cairo_region_t *add_clip;
               int n_rects, i;
 
               fill_current_damage_history (view, fb_clip_region);
@@ -831,9 +840,11 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                                                   view_rect.x,
                                                   view_rect.y,
                                                   &damage_region);
-                  cairo_region_union_rectangle (stage_cogl->redraw_clip,
-                                                &damage_region);
+                  rects[i] = damage_region;
                 }
+              add_clip = cairo_region_create_rectangles (rects, n_rects);
+              cairo_region_union (stage_cogl->redraw_clip, add_clip);
+              cairo_region_destroy (add_clip);
 
               CLUTTER_NOTE (CLIPPING, "Reusing back buffer(age=%d) - repairing region: num rects: %d\n",
                             age,
