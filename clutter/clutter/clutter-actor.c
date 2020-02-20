@@ -3997,11 +3997,14 @@ clutter_actor_paint (ClutterActor        *self,
 
       clutter_actor_get_transform (self, &transform);
 
-      transform_node = clutter_transform_node_new (&transform);
-      clutter_paint_node_add_child (transform_node, root_node);
-      clutter_paint_node_unref (root_node);
+      if (!cogl_matrix_is_identity (&transform))
+        {
+          transform_node = clutter_transform_node_new (&transform);
+          clutter_paint_node_add_child (transform_node, root_node);
+          clutter_paint_node_unref (root_node);
 
-      root_node = g_steal_pointer (&transform_node);
+          root_node = g_steal_pointer (&transform_node);
+        }
 
 #ifdef CLUTTER_ENABLE_DEBUG
       /* Catch when out-of-band transforms have been made by actors not as part
