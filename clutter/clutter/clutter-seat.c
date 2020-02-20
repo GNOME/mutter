@@ -282,6 +282,12 @@ clutter_seat_class_init (ClutterSeatClass *klass)
                          CLUTTER_TYPE_BACKEND,
                          CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
 
+  /**
+   * ClutterSeat:touch-mode:
+   *
+   * The current touch-mode of the #ClutterSeat, it is set to %TRUE if the
+   * requirements documented in clutter_seat_get_touch_mode() are fulfilled.
+   **/
   props[PROP_TOUCH_MODE] =
     g_param_spec_boolean ("touch-mode",
                           P_("Touch mode"),
@@ -569,6 +575,21 @@ clutter_seat_warp_pointer (ClutterSeat *seat,
   CLUTTER_SEAT_GET_CLASS (seat)->warp_pointer (seat, x, y);
 }
 
+/**
+ * clutter_seat_get_touch_mode:
+ * @seat: a #ClutterSeat
+ *
+ * Gets the current touch-mode state of the #ClutterSeat @seat.
+ * The #ClutterSeat:touch-mode property is set to %TRUE if the following
+ * requirements are fulfilled:
+ *
+ *  - A touchscreen is available
+ *  - No external keyboard is attached to the device
+ *  - A tablet mode switch, if present, is enabled
+ *
+ * Returns: %TRUE if the device is a tablet that doesn't have an external
+ *   keyboard attached, %FALSE otherwise.
+ **/
 gboolean
 clutter_seat_get_touch_mode (ClutterSeat *seat)
 {
