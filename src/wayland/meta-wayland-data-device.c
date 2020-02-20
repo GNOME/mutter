@@ -608,11 +608,7 @@ destroy_data_offer (struct wl_resource *resource)
               if (wl_resource_get_version (offer->resource) <
                   WL_DATA_OFFER_ACTION_SINCE_VERSION)
                 meta_wayland_data_source_notify_finish (offer->source);
-              else if (meta_wayland_data_source_get_drop_performed (offer->source) &&
-                       meta_wayland_data_source_get_resource(offer->source) &&
-                       wl_resource_get_version(
-                       meta_wayland_data_source_get_resource(offer->source)) >=
-                       WL_DATA_SOURCE_DND_FINISHED_SINCE_VERSION)
+              else if (meta_wayland_data_source_get_drop_performed (offer->source))
                 meta_wayland_source_cancel (offer->source);
             }
           else
@@ -1388,7 +1384,10 @@ meta_wayland_source_cancel (MetaWaylandDataSource *source)
   MetaWaylandDataSourcePrivate *priv =
     meta_wayland_data_source_get_instance_private (source);
 
-  if (priv->resource)
+  if (!priv->resource)
+    return;
+
+  if (wl_resource_get_version(priv->resource) >= WL_DATA_SOURCE_DND_FINISHED_SINCE_VERSION)
     wl_data_source_send_cancelled (priv->resource);
 }
 
