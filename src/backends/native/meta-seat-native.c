@@ -2552,6 +2552,8 @@ meta_seat_native_constructed (GObject *object)
   seat->has_external_keyboard = has_external_keyboard (seat);
   seat->has_touchscreen = has_touchscreen (seat);
 
+  update_touch_mode (seat);
+
   if (G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed)
     G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed (object);
 }
