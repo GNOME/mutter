@@ -308,15 +308,16 @@ unset_crtc_cursor (MetaCursorRendererNative *native,
   MetaKmsDevice *kms_device;
   MetaKmsPlane *cursor_plane;
 
-  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
-  kms_device = meta_kms_crtc_get_device (kms_crtc);
-  cursor_plane = meta_kms_device_get_cursor_plane_for (kms_device, kms_crtc);
-  g_return_if_fail (cursor_plane);
-
   if (!priv->hw_state_invalidated && !crtc->cursor_renderer_private)
     return;
 
-  meta_kms_update_unassign_plane (kms_update, kms_crtc, cursor_plane);
+  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
+  cursor_plane = meta_kms_device_get_cursor_plane_for (kms_device, kms_crtc);
+
+  if (cursor_plane)
+    meta_kms_update_unassign_plane (kms_update, kms_crtc, cursor_plane);
+
   crtc->cursor_renderer_private = NULL;
 }
 
@@ -645,6 +646,67 @@ get_current_relative_transform (MetaCursorSprite *cursor_sprite)
   return cursor_priv->preprocess_state.current_relative_transform;
 }
 
+static void
+has_cursor_plane (MetaLogicalMonitor *logical_monitor,
+                  MetaMonitor        *monitor,
+                  MetaOutput         *output,
+                  MetaCrtc           *crtc,
+                  gpointer            user_data)
+{
+  gboolean *has_cursor_planes = user_data;
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+  MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
+
+  *has_cursor_planes &= !!meta_kms_device_get_cursor_plane_for (kms_device,
+                                                                kms_crtc);
+}
+
+static gboolean
+crtcs_has_cursor_planes (MetaCursorRenderer *renderer,
+                         MetaCursorSprite   *cursor_sprite)
+{
+  MetaCursorRendererNative *cursor_renderer_native =
+    META_CURSOR_RENDERER_NATIVE (renderer);
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
+  MetaBackend *backend = priv->backend;
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  GList *logical_monitors;
+  GList *l;
+  graphene_rect_t cursor_rect;
+
+  cursor_rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  for (l = logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+      MetaRectangle logical_monitor_layout;
+      graphene_rect_t logical_monitor_rect;
+      gboolean has_cursor_planes;
+
+      logical_monitor_layout =
+        meta_logical_monitor_get_layout (logical_monitor);
+      logical_monitor_rect =
+        meta_rectangle_to_graphene_rect (&logical_monitor_layout);
+
+      if (!graphene_rect_intersection (&cursor_rect, &logical_monitor_rect,
+                                       NULL))
+        continue;
+
+      has_cursor_planes = TRUE;
+      meta_logical_monitor_foreach_crtc (logical_monitor,
+                                         has_cursor_plane,
+                                         &has_cursor_planes);
+      if (!has_cursor_planes)
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
 static gboolean
 get_common_crtc_sprite_scale_for_logical_monitors (MetaCursorRenderer *renderer,
                                                    MetaCursorSprite   *cursor_sprite,
@@ -783,6 +845,9 @@ should_have_hw_cursor (MetaCursorRenderer *renderer,
       if (!has_valid_cursor_sprite_gbm_bo (cursor_sprite, gpu_kms))
         return FALSE;
     }
+
+  if (!crtcs_has_cursor_planes (renderer, cursor_sprite))
+    return FALSE;
 
   texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
   if (!texture)
