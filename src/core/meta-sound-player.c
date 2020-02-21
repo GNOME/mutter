@@ -140,9 +140,11 @@ play_sound (MetaPlayRequest *req,
 
   if (req->cancellable)
     {
-      req->cancel_id =
+      gulong cancel_id =
         g_cancellable_connect (req->cancellable,
                                G_CALLBACK (cancelled_cb), req, NULL);
+      if (cancel_id)
+        req->cancel_id = cancel_id;
     }
 }
 
