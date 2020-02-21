@@ -221,6 +221,22 @@ meta_kms_device_dispatch_sync (MetaKmsDevice  *device,
   return meta_kms_flush_callbacks (device->kms);
 }
 
+void
+meta_kms_device_add_fake_plane_in_impl (MetaKmsDevice    *device,
+                                        MetaKmsPlaneType  plane_type,
+                                        MetaKmsCrtc      *crtc)
+{
+  MetaKmsImplDevice *impl_device = device->impl_device;
+  MetaKmsPlane *plane;
+
+  meta_assert_in_kms_impl (device->kms);
+
+  plane = meta_kms_impl_device_add_fake_plane (impl_device,
+                                               plane_type,
+                                               crtc);
+  device->planes = g_list_append (device->planes, plane);
+}
+
 typedef struct _CreateImplDeviceData
 {
   MetaKmsDevice *device;

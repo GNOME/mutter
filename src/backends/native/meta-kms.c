@@ -530,6 +530,18 @@ meta_kms_get_backend (MetaKms *kms)
   return kms->backend;
 }
 
+static gpointer
+notify_device_created_in_impl (MetaKmsImpl  *impl,
+                               gpointer      user_data,
+                               GError      **error)
+{
+  MetaKmsDevice *device = user_data;
+
+  meta_kms_impl_notify_device_created (impl, device);
+
+  return GINT_TO_POINTER (TRUE);
+}
+
 MetaKmsDevice *
 meta_kms_create_device (MetaKms            *kms,
                         const char         *path,
@@ -541,6 +553,9 @@ meta_kms_create_device (MetaKms            *kms,
   device = meta_kms_device_new (kms, path, flags, error);
   if (!device)
     return NULL;
+
+  meta_kms_run_impl_task_sync (kms, notify_device_created_in_impl,
+                               device, NULL);
 
   kms->devices = g_list_append (kms->devices, device);
 

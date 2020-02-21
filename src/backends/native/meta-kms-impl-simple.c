@@ -1019,6 +1019,27 @@ meta_kms_impl_simple_dispatch_idle (MetaKmsImpl *impl)
 }
 
 static void
+meta_kms_impl_simple_notify_device_created (MetaKmsImpl   *impl,
+                                            MetaKmsDevice *device)
+{
+  GList *l;
+
+  for (l = meta_kms_device_get_crtcs (device); l; l = l->next)
+    {
+      MetaKmsCrtc *crtc = l->data;
+      MetaKmsPlane *plane;
+
+      plane = meta_kms_device_get_cursor_plane_for (device, crtc);
+      if (plane)
+        continue;
+
+      meta_kms_device_add_fake_plane_in_impl (device,
+                                              META_KMS_PLANE_TYPE_CURSOR,
+                                              crtc);
+    }
+}
+
+static void
 meta_kms_impl_simple_finalize (GObject *object)
 {
   MetaKmsImplSimple *impl_simple = META_KMS_IMPL_SIMPLE (object);
@@ -1058,4 +1079,5 @@ meta_kms_impl_simple_class_init (MetaKmsImplSimpleClass *klass)
   impl_class->handle_page_flip_callback = meta_kms_impl_simple_handle_page_flip_callback;
   impl_class->discard_pending_page_flips = meta_kms_impl_simple_discard_pending_page_flips;
   impl_class->dispatch_idle = meta_kms_impl_simple_dispatch_idle;
+  impl_class->notify_device_created = meta_kms_impl_simple_notify_device_created;
 }

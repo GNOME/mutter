@@ -298,6 +298,19 @@ get_plane_type (MetaKmsImplDevice       *impl_device,
     }
 }
 
+MetaKmsPlane *
+meta_kms_impl_device_add_fake_plane (MetaKmsImplDevice *impl_device,
+                                     MetaKmsPlaneType   plane_type,
+                                     MetaKmsCrtc       *crtc)
+{
+  MetaKmsPlane *plane;
+
+  plane = meta_kms_plane_new_fake (plane_type, crtc);
+  impl_device->planes = g_list_append (impl_device->planes, plane);
+
+  return plane;
+}
+
 static void
 init_planes (MetaKmsImplDevice *impl_device)
 {

@@ -29,4 +29,8 @@ void meta_kms_device_update_states_in_impl (MetaKmsDevice *device);
 void meta_kms_device_predict_states_in_impl (MetaKmsDevice *device,
                                              MetaKmsUpdate *update);
 
+void meta_kms_device_add_fake_plane_in_impl (MetaKmsDevice    *device,
+                                             MetaKmsPlaneType  plane_type,
+                                             MetaKmsCrtc      *crtc);
+
 #endif /* META_KMS_DEVICE_PRIVATE_H */

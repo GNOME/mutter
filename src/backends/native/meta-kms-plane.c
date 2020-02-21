@@ -35,6 +35,8 @@ struct _MetaKmsPlane
   GObject parent;
 
   MetaKmsPlaneType type;
+  gboolean is_fake;
+
   uint32_t id;
 
   uint32_t possible_crtcs;
@@ -64,6 +66,8 @@ meta_kms_plane_get_device (MetaKmsPlane *plane)
 uint32_t
 meta_kms_plane_get_id (MetaKmsPlane *plane)
 {
+  g_return_val_if_fail (!plane->is_fake, 0);
+
   return plane->id;
 }
 
@@ -332,12 +336,6 @@ init_formats (MetaKmsPlane            *plane,
   drmModePropertyPtr prop;
   int idx;
 
-  plane->formats_modifiers =
-    g_hash_table_new_full (g_direct_hash,
-                           g_direct_equal,
-                           NULL,
-                           (GDestroyNotify) free_modifier_array);
-
   prop = meta_kms_impl_device_find_property (impl_device, drm_plane_props,
                                              "IN_FORMATS", &idx);
   if (prop)
@@ -385,6 +383,36 @@ meta_kms_plane_new (MetaKmsPlaneType         type,
   return plane;
 }
 
+MetaKmsPlane *
+meta_kms_plane_new_fake (MetaKmsPlaneType  type,
+                         MetaKmsCrtc      *crtc)
+{
+  MetaKmsPlane *plane;
+
+  static const uint32_t fake_plane_drm_formats[] =
+    {
+      DRM_FORMAT_XRGB8888,
+      DRM_FORMAT_ARGB8888,
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+      /* OpenGL GL_RGBA, GL_UNSIGNED_BYTE format, hopefully supported */
+      DRM_FORMAT_XBGR8888,
+      DRM_FORMAT_ABGR8888
+#endif
+    };
+
+  plane = g_object_new (META_TYPE_KMS_PLANE, NULL);
+  plane->type = type;
+  plane->is_fake = TRUE;
+  plane->possible_crtcs = 1 << meta_kms_crtc_get_idx (crtc);
+  plane->device = meta_kms_crtc_get_device (crtc);
+
+  set_formats_from_array (plane,
+                          fake_plane_drm_formats,
+                          G_N_ELEMENTS (fake_plane_drm_formats));
+
+  return plane;
+}
+
 static void
 meta_kms_plane_finalize (GObject *object)
 {
@@ -398,6 +426,11 @@ meta_kms_plane_finalize (GObject *object)
 static void
 meta_kms_plane_init (MetaKmsPlane *plane)
 {
+  plane->formats_modifiers =
+    g_hash_table_new_full (g_direct_hash,
+                           g_direct_equal,
+                           NULL,
+                           (GDestroyNotify) free_modifier_array);
 }
 
 static void

@@ -71,6 +71,13 @@ meta_kms_impl_dispatch_idle (MetaKmsImpl *impl)
   META_KMS_IMPL_GET_CLASS (impl)->dispatch_idle (impl);
 }
 
+void
+meta_kms_impl_notify_device_created (MetaKmsImpl   *impl,
+                                     MetaKmsDevice *device)
+{
+  META_KMS_IMPL_GET_CLASS (impl)->notify_device_created (impl, device);
+}
+
 static void
 meta_kms_impl_set_property (GObject      *object,
                             guint         prop_id,

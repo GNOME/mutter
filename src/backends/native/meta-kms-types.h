@@ -58,4 +58,6 @@ typedef enum _MetaKmsDeviceFlag
   META_KMS_DEVICE_FLAG_PLATFORM_DEVICE = 1 << 1,
 } MetaKmsDeviceFlag;
 
+typedef enum _MetaKmsPlaneType MetaKmsPlaneType;
+
 #endif /* META_KMS_IMPL_TYPES_H */

@@ -67,6 +67,10 @@ void meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device);
 void meta_kms_impl_device_predict_states (MetaKmsImplDevice *impl_device,
                                           MetaKmsUpdate     *update);
 
+MetaKmsPlane * meta_kms_impl_device_add_fake_plane (MetaKmsImplDevice *impl_device,
+                                                    MetaKmsPlaneType   plane_type,
+                                                    MetaKmsCrtc       *crtc);
+
 int meta_kms_impl_device_close (MetaKmsImplDevice *impl_device);
 
 MetaKmsImplDevice * meta_kms_impl_device_new (MetaKmsDevice  *device,

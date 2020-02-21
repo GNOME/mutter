@@ -30,4 +30,8 @@ MetaKmsPlane * meta_kms_plane_new (MetaKmsPlaneType         type,
                                    MetaKmsImplDevice       *impl_device,
                                    drmModePlane            *drm_plane,
                                    drmModeObjectProperties *drm_plane_props);
+
+MetaKmsPlane * meta_kms_plane_new_fake (MetaKmsPlaneType  type,
+                                        MetaKmsCrtc      *crtc);
+
 #endif /* META_KMS_PLANE_PRIVATE_H */
