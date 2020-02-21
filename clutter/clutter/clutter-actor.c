@@ -3474,8 +3474,8 @@ _clutter_actor_draw_paint_volume_full (ClutterActor       *self,
   cogl_pipeline_set_color (outline, &cogl_color);
 
   pipeline_node = clutter_pipeline_node_new (outline);
-  clutter_paint_node_set_name (pipeline_node,
-                               "ClutterActor (paint volume outline)");
+  clutter_paint_node_set_static_name (pipeline_node,
+                                      "ClutterActor (paint volume outline)");
   clutter_paint_node_add_primitive (pipeline_node, prim);
   clutter_paint_node_add_child (node, pipeline_node);
   cogl_object_unref (prim);
@@ -3489,8 +3489,8 @@ _clutter_actor_draw_paint_volume_full (ClutterActor       *self,
       pango_layout_set_text (layout, label, -1);
 
       text_node = clutter_text_node_new (layout, color);
-      clutter_paint_node_set_name (text_node,
-                                   "ClutterActor (paint volume label)");
+      clutter_paint_node_set_static_name (text_node,
+                                          "ClutterActor (paint volume label)");
       clutter_paint_node_add_rectangle (text_node,
                                         &(ClutterActorBox) {
                                           .x1 = pv->vertices[0].x,
@@ -3586,8 +3586,8 @@ _clutter_actor_paint_cull_result (ClutterActor      *self,
       pango_layout_set_text (layout, label, -1);
 
       text_node = clutter_text_node_new (layout, &color);
-      clutter_paint_node_set_name (text_node,
-                                   "ClutterActor (paint volume text)");
+      clutter_paint_node_set_static_name (text_node,
+                                          "ClutterActor (paint volume text)");
       clutter_paint_node_add_rectangle (text_node,
                                         &(ClutterActorBox) {
                                           .x1 = 0.f,
@@ -3868,7 +3868,7 @@ clutter_actor_paint_node (ClutterActor        *actor,
       clear_flags = COGL_BUFFER_BIT_DEPTH;
 
       node = clutter_root_node_new (fb, &bg_color, clear_flags);
-      clutter_paint_node_set_name (node, "stageClear");
+      clutter_paint_node_set_static_name (node, "stageClear");
       clutter_paint_node_add_rectangle (node, &box);
       clutter_paint_node_add_child (root, node);
       clutter_paint_node_unref (node);
@@ -3883,7 +3883,7 @@ clutter_actor_paint_node (ClutterActor        *actor,
                      / 255;
 
       node = clutter_color_node_new (&bg_color);
-      clutter_paint_node_set_name (node, "backgroundColor");
+      clutter_paint_node_set_static_name (node, "backgroundColor");
       clutter_paint_node_add_rectangle (node, &box);
       clutter_paint_node_add_child (root, node);
       clutter_paint_node_unref (node);
@@ -4167,7 +4167,7 @@ clutter_actor_continue_paint (ClutterActor        *self,
        */
       framebuffer = clutter_paint_context_get_base_framebuffer (paint_context);
       dummy = _clutter_dummy_node_new (self, framebuffer);
-      clutter_paint_node_set_name (dummy, "Root");
+      clutter_paint_node_set_static_name (dummy, "Root");
 
       /* XXX - for 1.12, we use the return value of paint_node() to
        * decide whether we should emit the ::paint signal.
@@ -21171,7 +21171,7 @@ clutter_actor_create_texture_paint_node (ClutterActor *self,
   color.alpha = clutter_actor_get_paint_opacity_internal (self);
 
   node = clutter_texture_node_new (texture, &color, priv->min_filter, priv->mag_filter);
-  clutter_paint_node_set_name (node, "Texture");
+  clutter_paint_node_set_static_name (node, "Texture");
 
   if (priv->content_repeat == CLUTTER_REPEAT_NONE)
     clutter_paint_node_add_rectangle (node, &box);

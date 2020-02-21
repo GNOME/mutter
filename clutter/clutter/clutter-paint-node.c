@@ -171,8 +171,6 @@ clutter_paint_node_real_finalize (ClutterPaintNode *node)
 {
   ClutterPaintNode *iter;
 
-  g_free (node->name);
-
   if (node->operations != NULL)
     {
       guint i;
@@ -297,7 +295,8 @@ clutter_paint_node_get_type (void)
  *
  * The @name will be used for debugging purposes.
  *
- * The @node will copy the passed string.
+ * The @node will intern @name using g_intern_string(). If you have access to a
+ * static string, use clutter_paint_node_set_static_name() instead.
  *
  * Since: 1.10
  */
@@ -307,8 +306,22 @@ clutter_paint_node_set_name (ClutterPaintNode *node,
 {
   g_return_if_fail (CLUTTER_IS_PAINT_NODE (node));
 
-  g_free (node->name);
-  node->name = g_strdup (name);
+  node->name = g_intern_string (name);
+}
+
+/**
+ * clutter_paint_node_set_static_name: (skip)
+ *
+ * Like clutter_paint_node_set_name() but uses a static or interned string
+ * containing the name.
+ */
+void
+clutter_paint_node_set_static_name (ClutterPaintNode *node,
+                                    const char       *name)
+{
+  g_return_if_fail (CLUTTER_IS_PAINT_NODE (node));
+
+  node->name = name;
 }
 
 /**

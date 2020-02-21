@@ -352,7 +352,7 @@ clutter_canvas_paint_content (ClutterContent      *content,
     return;
 
   node = clutter_actor_create_texture_paint_node (actor, priv->texture);
-  clutter_paint_node_set_name (node, "Canvas Content");
+  clutter_paint_node_set_static_name (node, "Canvas Content");
   clutter_paint_node_add_child (root, node);
   clutter_paint_node_unref (node);
 

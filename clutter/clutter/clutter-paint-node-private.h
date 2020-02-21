@@ -49,11 +49,11 @@ struct _ClutterPaintNode
   ClutterPaintNode *next_sibling;
   ClutterPaintNode *last_child;
 
-  guint n_children;
-
   GArray *operations;
 
-  gchar *name;
+  const gchar *name;
+
+  guint n_children;
 
   volatile int ref_count;
 };

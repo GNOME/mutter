@@ -443,7 +443,7 @@ paint_clipped_rectangle_node (MetaShapedTexture     *stex,
   coords[7] = coords[3];
 
   node = clutter_pipeline_node_new (pipeline);
-  clutter_paint_node_set_name (node, "MetaShapedTexture (clipped)");
+  clutter_paint_node_set_static_name (node, "MetaShapedTexture (clipped)");
   clutter_paint_node_add_child (root_node, node);
 
   clutter_paint_node_add_multitexture_rectangle (node,
@@ -664,7 +664,7 @@ do_paint_content (MetaShapedTexture   *stex,
           g_autoptr (ClutterPaintNode) node = NULL;
 
           node = clutter_pipeline_node_new (blended_pipeline);
-          clutter_paint_node_set_name (node, "MetaShapedTexture (unclipped)");
+          clutter_paint_node_set_static_name (node, "MetaShapedTexture (unclipped)");
           clutter_paint_node_add_child (root_node, node);
 
           /* 3) blended_tex_region is NULL. Do a full paint. */
@@ -1241,7 +1241,7 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   clear_color = (ClutterColor) { 0, 0, 0, 0 };
 
   root_node = clutter_root_node_new (fb, &clear_color, COGL_BUFFER_BIT_COLOR);
-  clutter_paint_node_set_name (root_node, "MetaShapedTexture.offscreen");
+  clutter_paint_node_set_static_name (root_node, "MetaShapedTexture.offscreen");
 
   paint_context = clutter_paint_context_new_for_framebuffer (fb);
 
