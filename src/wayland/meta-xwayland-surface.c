@@ -195,9 +195,11 @@ meta_xwayland_surface_get_relative_coordinates (MetaWaylandSurfaceRole *surface_
                                                 float                  *out_sy)
 {
   MetaXwaylandSurface *xwayland_surface = META_XWAYLAND_SURFACE (surface_role);
-  MetaRectangle window_rect;
+  MetaRectangle window_rect = { 0 };
 
-  meta_window_get_buffer_rect (xwayland_surface->window, &window_rect);
+  if (xwayland_surface->window)
+    meta_window_get_buffer_rect (xwayland_surface->window, &window_rect);
+
   *out_sx = abs_x - window_rect.x;
   *out_sy = abs_y - window_rect.y;
 }
