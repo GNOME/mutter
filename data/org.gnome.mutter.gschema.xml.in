@@ -137,6 +137,16 @@
       </description>
     </key>
 
+    <key name="check-alive-timeout" type="u">
+      <default>5000</default>
+      <summary>Timeout for check-alive ping</summary>
+      <description>
+        Number of milliseconds a client has to respond to a ping request in
+        order to not be detected as frozen. Using 0 will disable the alive check
+        completely.
+      </description>
+    </key>
+
     <child name="keybindings" schema="org.gnome.mutter.keybindings"/>
 
   </schema>

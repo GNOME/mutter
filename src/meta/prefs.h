@@ -105,6 +105,7 @@ typedef enum
   META_PREF_CENTER_NEW_WINDOWS,
   META_PREF_DRAG_THRESHOLD,
   META_PREF_LOCATE_POINTER,
+  META_PREF_CHECK_ALIVE_TIMEOUT,
 } MetaPreference;
 
 typedef void (* MetaPrefsChangedFunc) (MetaPreference pref,
@@ -480,5 +481,8 @@ gboolean           meta_prefs_bell_is_audible      (void);
 
 META_EXPORT
 GDesktopVisualBellType meta_prefs_get_visual_bell_type (void);
+
+META_EXPORT
+unsigned int meta_prefs_get_check_alive_timeout (void);
 
 #endif

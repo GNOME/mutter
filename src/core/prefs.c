@@ -102,6 +102,7 @@ static gboolean bell_is_audible = TRUE;
 static gboolean gnome_accessibility = FALSE;
 static gboolean gnome_animations = TRUE;
 static gboolean locate_pointer_is_enabled = FALSE;
+static unsigned int check_alive_timeout = 5000;
 static char *cursor_theme = NULL;
 /* cursor_size will, when running as an X11 compositing window manager, be the
  * actual cursor size, multiplied with the global window scaling factor. On
@@ -217,6 +218,12 @@ typedef struct
   MetaBasePreference base;
   gint *target;
 } MetaIntPreference;
+
+typedef struct
+{
+  MetaBasePreference base;
+  unsigned int *target;
+} MetaUintPreference;
 
 
 /* All preferences that are not keybindings must be listed here,
@@ -511,6 +518,18 @@ static MetaIntPreference preferences_int[] =
     { { NULL, 0, 0 }, NULL },
   };
 
+static MetaUintPreference preferences_uint[] =
+  {
+    {
+      { "check-alive-timeout",
+        SCHEMA_MUTTER,
+        META_PREF_CHECK_ALIVE_TIMEOUT,
+      },
+      &check_alive_timeout,
+    },
+    { { NULL, 0, 0 }, NULL },
+  };
+
 static void
 handle_preference_init_enum (void)
 {
@@ -628,6 +647,21 @@ handle_preference_init_int (void)
       if (cursor->target)
         *cursor->target = g_settings_get_int (SETTINGS (cursor->base.schema),
                                               cursor->base.key);
+
+      ++cursor;
+    }
+}
+
+static void
+handle_preference_init_uint (void)
+{
+  MetaUintPreference *cursor = preferences_uint;
+
+  while (cursor->base.key != NULL)
+    {
+      if (cursor->target)
+        *cursor->target = g_settings_get_uint (SETTINGS (cursor->base.schema),
+                                               cursor->base.key);
 
       ++cursor;
     }
@@ -801,6 +835,28 @@ handle_preference_update_int (GSettings *settings,
   new_value = g_settings_get_int (SETTINGS (cursor->base.schema), key);
 
   /* Did it change?  If so, tell the listeners about it. */
+  if (*cursor->target != new_value)
+    {
+      *cursor->target = new_value;
+      queue_changed (cursor->base.pref);
+    }
+}
+
+static void
+handle_preference_update_uint (GSettings *settings,
+                               char *key)
+{
+  MetaUintPreference *cursor = preferences_uint;
+  unsigned int new_value;
+
+  while (cursor->base.key && strcmp (key, cursor->base.key) != 0)
+    ++cursor;
+
+  if (!cursor->base.key || !cursor->target)
+    return;
+
+  new_value = g_settings_get_uint (SETTINGS (cursor->base.schema), key);
+
   if (*cursor->target != new_value)
     {
       *cursor->target = new_value;
@@ -986,6 +1042,7 @@ meta_prefs_init (void)
   handle_preference_init_string ();
   handle_preference_init_string_array ();
   handle_preference_init_int ();
+  handle_preference_init_uint ();
 
   init_bindings ();
 }
@@ -1039,6 +1096,8 @@ settings_changed (GSettings *settings,
     handle_preference_update_bool (settings, key);
   else if (g_variant_type_equal (type, G_VARIANT_TYPE_INT32))
     handle_preference_update_int (settings, key);
+  else if (g_variant_type_equal (type, G_VARIANT_TYPE_UINT32))
+    handle_preference_update_uint (settings, key);
   else if (g_variant_type_equal (type, G_VARIANT_TYPE_STRING_ARRAY))
     handle_preference_update_string_array (settings, key);
   else if (g_variant_type_equal (type, G_VARIANT_TYPE_STRING))
@@ -1695,6 +1754,9 @@ meta_preference_to_string (MetaPreference pref)
 
     case META_PREF_LOCATE_POINTER:
       return "LOCATE_POINTER";
+
+    case META_PREF_CHECK_ALIVE_TIMEOUT:
+      return "CHECK_ALIVE_TIMEOUT";
     }
 
   return "(unknown)";
@@ -2039,6 +2101,12 @@ gboolean
 meta_prefs_is_locate_pointer_enabled (void)
 {
   return locate_pointer_is_enabled;
+}
+
+unsigned int
+meta_prefs_get_check_alive_timeout (void)
+{
+  return check_alive_timeout;
 }
 
 const char *

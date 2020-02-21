@@ -2002,12 +2002,6 @@ meta_set_syncing (gboolean setting)
     }
 }
 
-/*
- * How long, in milliseconds, we should wait after pinging a window
- * before deciding it's not going to get back to us.
- */
-#define PING_TIMEOUT_DELAY 5000
-
 /**
  * meta_display_ping_timeout:
  * @data: All the information about this ping. It is a #MetaPingData
@@ -2066,6 +2060,11 @@ meta_display_ping_window (MetaWindow *window,
   GSList *l;
   MetaDisplay *display = window->display;
   MetaPingData *ping_data;
+  unsigned int check_alive_timeout;
+
+  check_alive_timeout = meta_prefs_get_check_alive_timeout ();
+  if (check_alive_timeout == 0)
+    return;
 
   if (serial == 0)
     {
@@ -2101,9 +2100,10 @@ meta_display_ping_window (MetaWindow *window,
   ping_data = g_new (MetaPingData, 1);
   ping_data->window = window;
   ping_data->serial = serial;
-  ping_data->ping_timeout_id = g_timeout_add (PING_TIMEOUT_DELAY,
-					      meta_display_ping_timeout,
-					      ping_data);
+  ping_data->ping_timeout_id =
+    g_timeout_add (check_alive_timeout,
+                   meta_display_ping_timeout,
+                   ping_data);
   g_source_set_name_by_id (ping_data->ping_timeout_id, "[mutter] meta_display_ping_timeout");
 
   display->pending_pings = g_slist_prepend (display->pending_pings, ping_data);
