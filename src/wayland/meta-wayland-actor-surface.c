@@ -31,6 +31,7 @@
 #include "wayland/meta-wayland-buffer.h"
 #include "wayland/meta-wayland-surface.h"
 #include "wayland/meta-window-wayland.h"
+#include "wayland/meta-xwayland-surface.h"
 
 typedef struct _MetaWaylandActorSurfacePrivate MetaWaylandActorSurfacePrivate;
 
@@ -150,7 +151,6 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
   MetaShapedTexture *stex;
   MetaWaylandBuffer *buffer;
   cairo_rectangle_int_t surface_rect;
-  MetaWindow *window;
   MetaWaylandSurface *subsurface_surface;
 
   surface_actor = priv->actor;
@@ -195,9 +195,7 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
       meta_surface_actor_set_input_region (surface_actor, NULL);
     }
 
-  window = meta_wayland_surface_get_window (surface);
-  if (window &&
-      window->client_type == META_WINDOW_CLIENT_TYPE_WAYLAND)
+  if (!META_IS_XWAYLAND_SURFACE (surface_role))
     {
       if (surface->opaque_region)
         {
