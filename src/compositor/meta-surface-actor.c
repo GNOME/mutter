@@ -274,6 +274,18 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
 
       opaque_region = meta_shaped_texture_get_opaque_region (priv->texture);
 
+      if (!opaque_region && meta_shaped_texture_is_opaque (priv->texture))
+        {
+          cairo_rectangle_int_t rect;
+
+          rect = (cairo_rectangle_int_t) {
+            .width = meta_shaped_texture_get_width (priv->texture),
+            .height = meta_shaped_texture_get_height (priv->texture)
+          };
+
+          opaque_region = cairo_region_create_rectangle (&rect);
+        }
+
       if (!opaque_region)
         return;
 
