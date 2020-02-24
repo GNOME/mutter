@@ -63,6 +63,7 @@
 #include "clutter-main.h"
 #include "clutter-master-clock.h"
 #include "clutter-mutter.h"
+#include "clutter-paint-node-private.h"
 #include "clutter-private.h"
 #include "clutter-settings-private.h"
 #include "clutter-stage-manager.h"
@@ -969,6 +970,9 @@ clutter_init_real (GError **error)
   /* Initialize a11y */
   if (clutter_enable_accessibility)
     cally_accessibility_init ();
+
+  /* Initialize types required for paint nodes */
+  _clutter_paint_node_init_types ();
 
   return CLUTTER_INIT_SUCCESS;
 }
