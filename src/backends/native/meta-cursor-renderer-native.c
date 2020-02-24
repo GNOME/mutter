@@ -1602,6 +1602,31 @@ on_monitors_changed (MetaMonitorManager       *monitors,
 }
 
 static void
+init_hw_cursor_support_for_gpu (MetaGpuKms *gpu_kms)
+{
+  MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
+  struct gbm_device *gbm_device;
+  uint64_t width, height;
+
+  gbm_device = meta_gbm_device_from_gpu (gpu_kms);
+  if (!gbm_device)
+    return;
+
+  cursor_renderer_gpu_data =
+    meta_create_cursor_renderer_native_gpu_data (gpu_kms);
+
+  if (!meta_kms_device_get_cursor_size (kms_device, &width, &height))
+    {
+      width = 64;
+      height = 64;
+    }
+
+  cursor_renderer_gpu_data->cursor_width = width;
+  cursor_renderer_gpu_data->cursor_height = height;
+}
+
+static void
 init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
 {
   MetaCursorRendererNativePrivate *priv =
@@ -1613,26 +1638,8 @@ init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
   for (l = gpus; l; l = l->next)
     {
       MetaGpuKms *gpu_kms = l->data;
-      MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
-      MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
-      struct gbm_device *gbm_device;
-      uint64_t width, height;
 
-      gbm_device = meta_gbm_device_from_gpu (gpu_kms);
-      if (!gbm_device)
-        continue;
-
-      cursor_renderer_gpu_data =
-        meta_create_cursor_renderer_native_gpu_data (gpu_kms);
-
-      if (!meta_kms_device_get_cursor_size (kms_device, &width, &height))
-        {
-          width = 64;
-          height = 64;
-        }
-
-      cursor_renderer_gpu_data->cursor_width = width;
-      cursor_renderer_gpu_data->cursor_height = height;
+      init_hw_cursor_support_for_gpu (gpu_kms);
     }
 }
 
