@@ -37,6 +37,7 @@
 
 #include "clutter-actor-private.h"
 #include "clutter-child-meta.h"
+#include "clutter-container-private.h"
 #include "clutter-debug.h"
 #include "clutter-main.h"
 #include "clutter-marshal.h"
@@ -1249,4 +1250,24 @@ clutter_container_child_notify (ClutterContainer *container,
   CLUTTER_CONTAINER_GET_IFACE (container)->child_notify (container,
                                                          child,
                                                          pspec);
+}
+
+void
+_clutter_container_emit_actor_added (ClutterContainer *container,
+                                     ClutterActor     *actor)
+{
+  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
+  g_return_if_fail (CLUTTER_IS_ACTOR (actor));
+
+  g_signal_emit (container, container_signals[ACTOR_ADDED], 0, actor);
+}
+
+void
+_clutter_container_emit_actor_removed (ClutterContainer *container,
+                                       ClutterActor     *actor)
+{
+  g_return_if_fail (CLUTTER_IS_CONTAINER (container));
+  g_return_if_fail (CLUTTER_IS_ACTOR (actor));
+
+  g_signal_emit (container, container_signals[ACTOR_REMOVED], 0, actor);
 }

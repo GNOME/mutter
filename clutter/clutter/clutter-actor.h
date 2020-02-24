@@ -299,10 +299,11 @@ struct _ClutterActorClass
 
   gboolean (* touch_event)          (ClutterActor         *self,
                                      ClutterTouchEvent    *event);
+  gboolean (* has_accessible)       (ClutterActor         *self);
 
   /*< private >*/
   /* padding for future expansion */
-  gpointer _padding_dummy[26];
+  gpointer _padding_dummy[25];
 };
 
 /**
@@ -380,6 +381,8 @@ CLUTTER_EXPORT
 const gchar *                   clutter_actor_get_name                          (ClutterActor                *self);
 CLUTTER_EXPORT
 AtkObject *                     clutter_actor_get_accessible                    (ClutterActor                *self);
+CLUTTER_EXPORT
+gboolean                        clutter_actor_has_accessible                    (ClutterActor                *self);
 
 CLUTTER_EXPORT
 gboolean                        clutter_actor_is_visible                        (ClutterActor                *self);

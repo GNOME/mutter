@@ -600,10 +600,11 @@ cally_actor_real_remove_actor (ClutterActor *container,
   g_return_val_if_fail (CLUTTER_IS_ACTOR (actor), 0);
 
   atk_parent = ATK_OBJECT (data);
-  atk_child = clutter_actor_get_accessible (actor);
 
-  if (atk_child)
+  if (clutter_actor_has_accessible (actor))
     {
+      atk_child = clutter_actor_get_accessible (actor);
+
       g_value_init (&values.old_value, G_TYPE_POINTER);
       g_value_set_pointer (&values.old_value, atk_parent);
 
