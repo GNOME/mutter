@@ -389,8 +389,7 @@ add_cursor_metadata (MetaScreenCastStreamSrc *src,
 
 static void
 maybe_record_cursor (MetaScreenCastStreamSrc *src,
-                     struct spa_buffer       *spa_buffer,
-                     uint8_t                 *data)
+                     struct spa_buffer       *spa_buffer)
 {
   MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
 
@@ -505,7 +504,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
       spa_buffer->datas[0].chunk->size = 0;
     }
 
-  maybe_record_cursor (src, spa_buffer, data);
+  maybe_record_cursor (src, spa_buffer);
 
   priv->last_frame_timestamp_us = now_us;
 
