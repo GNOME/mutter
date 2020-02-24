@@ -1138,10 +1138,7 @@ handle_updates (MetaWindowActorX11 *actor_x11)
        * which causes the shadows to look bad.
        */
       if (surface && meta_window_x11_always_update_shape (window))
-        {
-          update_opaque_region (actor_x11);
-          update_shape_region (actor_x11);
-        }
+        check_needs_reshape (actor_x11);
 
       return;
     }
