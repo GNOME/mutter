@@ -1555,6 +1555,18 @@ cogl_blit_framebuffer (CoglFramebuffer *src,
                        int height,
                        GError **error);
 
+/**
+ * cogl_framebuffer_flush:
+ * @framebuffer: A #CoglFramebuffer pointer
+ *
+ * Flushes @framebuffer to ensure the current batch of commands is
+ * submitted to the GPU.
+ *
+ * Unlike cogl_framebuffer_finish(), this does not block the CPU.
+ */
+void
+cogl_framebuffer_flush (CoglFramebuffer *framebuffer);
+
 G_END_DECLS
 
 #endif /* __COGL_FRAMEBUFFER_H */

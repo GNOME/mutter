@@ -554,6 +554,7 @@ _cogl_driver_gl =
     _cogl_framebuffer_gl_clear,
     _cogl_framebuffer_gl_query_bits,
     _cogl_framebuffer_gl_finish,
+    _cogl_framebuffer_gl_flush,
     _cogl_framebuffer_gl_discard_buffers,
     _cogl_framebuffer_gl_draw_attributes,
     _cogl_framebuffer_gl_draw_indexed_attributes,

@@ -78,6 +78,7 @@ _cogl_driver_nop =
     _cogl_framebuffer_nop_clear,
     _cogl_framebuffer_nop_query_bits,
     _cogl_framebuffer_nop_finish,
+    _cogl_framebuffer_nop_flush,
     _cogl_framebuffer_nop_discard_buffers,
     _cogl_framebuffer_nop_draw_attributes,
     _cogl_framebuffer_nop_draw_indexed_attributes,

@@ -1397,6 +1397,17 @@ cogl_framebuffer_finish (CoglFramebuffer *framebuffer)
 }
 
 void
+cogl_framebuffer_flush (CoglFramebuffer *framebuffer)
+{
+
+  CoglContext *ctx = framebuffer->context;
+
+  _cogl_framebuffer_flush_journal (framebuffer);
+
+  ctx->driver_vtable->framebuffer_flush (framebuffer);
+}
+
+void
 cogl_framebuffer_push_matrix (CoglFramebuffer *framebuffer)
 {
   CoglMatrixStack *modelview_stack =

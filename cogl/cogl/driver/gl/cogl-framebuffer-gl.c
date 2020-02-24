@@ -1032,6 +1032,12 @@ _cogl_framebuffer_gl_finish (CoglFramebuffer *framebuffer)
 }
 
 void
+_cogl_framebuffer_gl_flush (CoglFramebuffer *framebuffer)
+{
+  GE (framebuffer->context, glFlush ());
+}
+
+void
 _cogl_framebuffer_gl_discard_buffers (CoglFramebuffer *framebuffer,
                                       unsigned long buffers)
 {
