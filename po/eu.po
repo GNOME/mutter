@@ -10,8 +10,8 @@
 msgid ""
 msgstr "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-11-21 15:15+0000\n"
-"PO-Revision-Date: 2020-02-20 10:00+0100\n"
+"POT-Creation-Date: 2020-02-23 17:41+0000\n"
+"PO-Revision-Date: 2020-02-24 10:00+0100\n"
 "Last-Translator: Asier Sarasua Garmendia <asier.sarasua@gmail.com>\n"
 "Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
@@ -381,19 +381,29 @@ msgstr "Erakuslea kokatzeko erabiliko den aldatzailea"
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Gako honek “kokatu erakuslea” ekintza abiarazten du."
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "Timeout for check-alive ping"
+msgstr "Bizirik egotearen ping-aren denbora-muga"
+
+#: data/org.gnome.mutter.gschema.xml.in:143
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr "Bezero batek ping eskari bati erantzuteko duen milisegundo kopurua, izoztutzat hartu baino lehen. Erabiltzen den balioa 0 bada, bizirik egotearen egiaztatzea erabat desgaituko da."
+
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
 msgstr "Hautatu leihoa laster-fitxatik"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Cancel tab popup"
 msgstr "Utzi laster-fitxa"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:175
 msgid "Switch monitor configurations"
 msgstr "Aldatu monitorearen konfigurazioak"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:180
 msgid "Rotates the built-in monitor configuration"
 msgstr "Biratu barneko monitorearen konfigurazioa"
 
@@ -487,7 +497,7 @@ msgstr "Zerrendatu Xwayland pean X11 teklatu-kapturak bidaltzea onartuta duten e
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2528
+#: src/backends/meta-input-settings.c:2567
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Modu aldaketa (%d taldea)"
@@ -495,11 +505,11 @@ msgstr "Modu aldaketa (%d taldea)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2551
+#: src/backends/meta-input-settings.c:2590
 msgid "Switch monitor"
 msgstr "Aldatu monitorea"
 
-#: src/backends/meta-input-settings.c:2553
+#: src/backends/meta-input-settings.c:2592
 msgid "Show on-screen help"
 msgstr "Erakutsi pantailako laguntzan"
 
@@ -636,7 +646,7 @@ msgstr "Bistaratu bertsioa"
 msgid "Mutter plugin to use"
 msgstr "Mutter-en osagaia erabiltzeko"
 
-#: src/core/prefs.c:1849
+#: src/core/prefs.c:1911
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. laneko area"
@@ -650,23 +660,23 @@ msgstr "Mutter modu xehearen euskarririk gabe konpilatu da\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Modu aldaketa: %d modua"
 
-#: src/x11/meta-x11-display.c:679
+#: src/x11/meta-x11-display.c:676
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 msgstr "“%s” pantailak badu leiho-kudeatzailea; erabili --replace aukera uneko leiho-kudeatzailea ordezteko."
 
-#: src/x11/meta-x11-display.c:1040
+#: src/x11/meta-x11-display.c:1089
 msgid "Failed to initialize GDK\n"
 msgstr "Huts egin du GDK hasieratzeak\n"
 
-#: src/x11/meta-x11-display.c:1064
+#: src/x11/meta-x11-display.c:1113
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Huts egin du X Window sistemaren “%s” pantaila irekitzean\n"
 
-#: src/x11/meta-x11-display.c:1147
+#: src/x11/meta-x11-display.c:1196
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "“%2$s” bistaratzeko %1$d pantaila ez da baliozkoa\n"
