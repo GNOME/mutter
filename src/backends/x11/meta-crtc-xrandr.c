@@ -234,20 +234,23 @@ meta_create_xrandr_crtc (MetaGpuXrandr      *gpu_xrandr,
                          RRCrtc              crtc_id,
                          XRRScreenResources *resources)
 {
+  MetaGpu *gpu = META_GPU (gpu_xrandr);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerXrandr *monitor_manager_xrandr =
+    META_MONITOR_MANAGER_XRANDR (monitor_manager);
+  Display *xdisplay =
+    meta_monitor_manager_xrandr_get_xdisplay (monitor_manager_xrandr);
   MetaCrtc *crtc;
   MetaCrtcXrandr *crtc_xrandr;
+  XRRPanning *panning;
   unsigned int i;
   GList *modes;
 
   crtc = g_object_new (META_TYPE_CRTC, NULL);
 
   crtc_xrandr = g_new0 (MetaCrtcXrandr, 1);
-  crtc_xrandr->rect = (MetaRectangle) {
-    .x = xrandr_crtc->x,
-    .y = xrandr_crtc->y,
-    .width = xrandr_crtc->width,
-    .height = xrandr_crtc->height,
-  };
   crtc_xrandr->transform =
     meta_monitor_transform_from_xrandr (xrandr_crtc->rotation);
 
@@ -255,6 +258,27 @@ meta_create_xrandr_crtc (MetaGpuXrandr      *gpu_xrandr,
   crtc->driver_notify = (GDestroyNotify) meta_crtc_destroy_notify;
   crtc->gpu = META_GPU (gpu_xrandr);
   crtc->crtc_id = crtc_id;
+
+  panning = XRRGetPanning (xdisplay, resources, crtc_id);
+  if (panning && panning->width > 0 && panning->height > 0)
+    {
+      crtc_xrandr->rect = (MetaRectangle) {
+        .x = panning->left,
+        .y = panning->top,
+        .width = panning->width,
+        .height = panning->height,
+      };
+    }
+  else
+    {
+      crtc_xrandr->rect = (MetaRectangle) {
+        .x = xrandr_crtc->x,
+        .y = xrandr_crtc->y,
+        .width = xrandr_crtc->width,
+        .height = xrandr_crtc->height,
+      };
+    }
+
   crtc->is_dirty = FALSE;
   crtc->all_transforms =
     meta_monitor_transform_from_xrandr_all (xrandr_crtc->rotations);
