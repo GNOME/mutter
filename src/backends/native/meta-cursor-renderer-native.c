@@ -1177,6 +1177,35 @@ on_monitors_changed (MetaMonitorManager       *monitors,
 }
 
 static void
+init_hw_cursor_support_for_gpu (MetaGpuKms *gpu_kms)
+{
+  MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
+  int kms_fd;
+  struct gbm_device *gbm_device;
+  uint64_t width, height;
+
+  gbm_device = meta_gbm_device_from_gpu (gpu_kms);
+  if (!gbm_device)
+    return;
+
+  cursor_renderer_gpu_data =
+    meta_create_cursor_renderer_native_gpu_data (gpu_kms);
+
+  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
+  if (drmGetCap (kms_fd, DRM_CAP_CURSOR_WIDTH, &width) == 0 &&
+      drmGetCap (kms_fd, DRM_CAP_CURSOR_HEIGHT, &height) == 0)
+    {
+      cursor_renderer_gpu_data->cursor_width = width;
+      cursor_renderer_gpu_data->cursor_height = height;
+    }
+  else
+    {
+      cursor_renderer_gpu_data->cursor_width = 64;
+      cursor_renderer_gpu_data->cursor_height = 64;
+    }
+}
+
+static void
 init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
 {
   MetaCursorRendererNativePrivate *priv =
@@ -1188,30 +1217,8 @@ init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
   for (l = gpus; l; l = l->next)
     {
       MetaGpuKms *gpu_kms = l->data;
-      MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data;
-      int kms_fd;
-      struct gbm_device *gbm_device;
-      uint64_t width, height;
 
-      gbm_device = meta_gbm_device_from_gpu (gpu_kms);
-      if (!gbm_device)
-        continue;
-
-      cursor_renderer_gpu_data =
-        meta_create_cursor_renderer_native_gpu_data (gpu_kms);
-
-      kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-      if (drmGetCap (kms_fd, DRM_CAP_CURSOR_WIDTH, &width) == 0 &&
-          drmGetCap (kms_fd, DRM_CAP_CURSOR_HEIGHT, &height) == 0)
-        {
-          cursor_renderer_gpu_data->cursor_width = width;
-          cursor_renderer_gpu_data->cursor_height = height;
-        }
-      else
-        {
-          cursor_renderer_gpu_data->cursor_width = 64;
-          cursor_renderer_gpu_data->cursor_height = 64;
-        }
+      init_hw_cursor_support_for_gpu (gpu_kms);
     }
 }
 
