@@ -31,6 +31,11 @@
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-kms-crtc.h"
 
+gpointer meta_crtc_kms_get_cursor_renderer_private (MetaCrtc *crtc);
+
+void meta_crtc_kms_set_cursor_renderer_private (MetaCrtc *crtc,
+                                                gpointer  cursor_renderer_private);
+
 gboolean meta_crtc_kms_is_transform_handled (MetaCrtc             *crtc,
                                              MetaMonitorTransform  transform);
 

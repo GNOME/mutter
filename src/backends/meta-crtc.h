@@ -70,9 +70,6 @@ struct _MetaCrtc
   /* Used when changing configuration */
   gboolean is_dirty;
 
-  /* Used by cursor renderer backend */
-  void *cursor_renderer_private;
-
   gpointer driver_private;
   GDestroyNotify driver_notify;
 };

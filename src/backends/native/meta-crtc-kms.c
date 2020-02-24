@@ -39,9 +39,28 @@ typedef struct _MetaCrtcKms
   MetaKmsCrtc *kms_crtc;
 
   MetaKmsPlane *primary_plane;
+
+  gpointer cursor_renderer_private;
 } MetaCrtcKms;
 
 static GQuark kms_crtc_crtc_kms_quark;
+
+gpointer
+meta_crtc_kms_get_cursor_renderer_private (MetaCrtc *crtc)
+{
+  MetaCrtcKms *crtc_kms = crtc->driver_private;
+
+  return crtc_kms->cursor_renderer_private;
+}
+
+void
+meta_crtc_kms_set_cursor_renderer_private (MetaCrtc *crtc,
+                                           gpointer  cursor_renderer_private)
+{
+  MetaCrtcKms *crtc_kms = crtc->driver_private;
+
+  crtc_kms->cursor_renderer_private = cursor_renderer_private;
+}
 
 gboolean
 meta_crtc_kms_is_transform_handled (MetaCrtc             *crtc,

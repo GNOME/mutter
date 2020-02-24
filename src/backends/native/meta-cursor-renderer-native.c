@@ -272,6 +272,7 @@ set_crtc_cursor (MetaCursorRendererNative *native,
   int cursor_width, cursor_height;
   MetaFixed16Rectangle src_rect;
   MetaFixed16Rectangle dst_rect;
+  struct gbm_bo *crtc_bo;
   MetaKmsAssignPlaneFlag flags;
   int cursor_hotspot_x;
   int cursor_hotspot_y;
@@ -305,7 +306,8 @@ set_crtc_cursor (MetaCursorRendererNative *native,
   };
 
   flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;
-  if (!priv->hw_state_invalidated && bo == crtc->cursor_renderer_private)
+  crtc_bo = meta_crtc_kms_get_cursor_renderer_private (crtc);
+  if (!priv->hw_state_invalidated && bo == crtc_bo)
     flags |= META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED;
 
   plane_assignment = meta_kms_update_assign_plane (kms_update,
@@ -323,7 +325,7 @@ set_crtc_cursor (MetaCursorRendererNative *native,
                                                 cursor_hotspot_x,
                                                 cursor_hotspot_y);
 
-  crtc->cursor_renderer_private = bo;
+  meta_crtc_kms_set_cursor_renderer_private (crtc, bo);
 
   if (cursor_gpu_state->pending_bo_state == META_CURSOR_GBM_BO_STATE_SET)
     {
@@ -343,8 +345,10 @@ unset_crtc_cursor (MetaCursorRendererNative *native,
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
   MetaKmsPlane *cursor_plane;
+  struct gbm_bo *crtc_bo;
 
-  if (!priv->hw_state_invalidated && !crtc->cursor_renderer_private)
+  crtc_bo = meta_crtc_kms_get_cursor_renderer_private (crtc);
+  if (!priv->hw_state_invalidated && !crtc_bo)
     return;
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
@@ -354,7 +358,7 @@ unset_crtc_cursor (MetaCursorRendererNative *native,
   if (cursor_plane)
     meta_kms_update_unassign_plane (kms_update, kms_crtc, cursor_plane);
 
-  crtc->cursor_renderer_private = NULL;
+  meta_crtc_kms_set_cursor_renderer_private (crtc, NULL);
 }
 
 static float
@@ -1050,9 +1054,11 @@ unset_crtc_cursor_renderer_privates (MetaGpu       *gpu,
   for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
     {
       MetaCrtc *crtc = l->data;
+      struct gbm_bo *crtc_bo;
 
-      if (bo == crtc->cursor_renderer_private)
-        crtc->cursor_renderer_private = NULL;
+      crtc_bo = meta_crtc_kms_get_cursor_renderer_private (crtc);
+      if (bo == crtc_bo)
+        meta_crtc_kms_set_cursor_renderer_private (crtc, NULL);
     }
 }
 
