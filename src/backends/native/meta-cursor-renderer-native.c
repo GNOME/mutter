@@ -2,6 +2,7 @@
 
 /*
  * Copyright (C) 2014 Red Hat
+ * Copyright 2020 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -1627,6 +1628,13 @@ init_hw_cursor_support_for_gpu (MetaGpuKms *gpu_kms)
 }
 
 static void
+on_gpu_added_for_cursor (MetaBackend *backend,
+                         MetaGpuKms  *gpu_kms)
+{
+  init_hw_cursor_support_for_gpu (gpu_kms);
+}
+
+static void
 init_hw_cursor_support (MetaCursorRendererNative *cursor_renderer_native)
 {
   MetaCursorRendererNativePrivate *priv =
@@ -1659,6 +1667,8 @@ meta_cursor_renderer_native_new (MetaBackend *backend)
   g_signal_connect_object (monitor_manager, "monitors-changed-internal",
                            G_CALLBACK (on_monitors_changed),
                            cursor_renderer_native, 0);
+  g_signal_connect (backend, "gpu-added",
+                    G_CALLBACK (on_gpu_added_for_cursor), NULL);
 
   priv->backend = backend;
   priv->hw_state_invalidated = TRUE;
