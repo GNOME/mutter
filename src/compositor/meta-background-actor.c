@@ -193,7 +193,12 @@ set_clip_region (MetaBackgroundActor *self,
 {
   g_clear_pointer (&self->clip_region, cairo_region_destroy);
   if (clip_region)
-    self->clip_region = cairo_region_copy (clip_region);
+    {
+      if (cairo_region_is_empty (clip_region))
+        self->clip_region = cairo_region_reference (clip_region);
+      else
+        self->clip_region = cairo_region_copy (clip_region);
+    }
 }
 
 static void
@@ -202,7 +207,12 @@ set_unobscured_region (MetaBackgroundActor *self,
 {
   g_clear_pointer (&self->unobscured_region, cairo_region_destroy);
   if (unobscured_region)
-    self->unobscured_region = cairo_region_copy (unobscured_region);
+    {
+      if (cairo_region_is_empty (unobscured_region))
+        self->unobscured_region = cairo_region_reference (unobscured_region);
+      else
+        self->unobscured_region = cairo_region_copy (unobscured_region);
+    }
 }
 
 static void
