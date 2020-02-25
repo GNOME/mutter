@@ -89,9 +89,6 @@ struct _MetaOutput
   int backlight_min;
   int backlight_max;
 
-  /* Used when changing configuration */
-  gboolean is_dirty;
-
   gboolean is_primary;
   gboolean is_presentation;
 

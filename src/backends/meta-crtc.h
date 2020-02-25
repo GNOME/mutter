@@ -64,9 +64,6 @@ struct _MetaCrtc
 
   MetaCrtcConfig *config;
 
-  /* Used when changing configuration */
-  gboolean is_dirty;
-
   gpointer driver_private;
   GDestroyNotify driver_notify;
 };

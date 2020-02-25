@@ -368,9 +368,14 @@ apply_crtc_assignments (MetaMonitorManager *manager,
 {
   MetaMonitorManagerXrandr *manager_xrandr = META_MONITOR_MANAGER_XRANDR (manager);
   MetaGpu *gpu = meta_monitor_manager_xrandr_get_gpu (manager_xrandr);
+  g_autoptr (GList) to_configure_outputs = NULL;
+  g_autoptr (GList) to_disable_crtcs = NULL;
   unsigned i;
   GList *l;
   int width, height, width_mm, height_mm;
+
+  to_configure_outputs = g_list_copy (meta_gpu_get_outputs (gpu));
+  to_disable_crtcs = g_list_copy (meta_gpu_get_crtcs (gpu));
 
   XGrabServer (manager_xrandr->xdisplay);
 
@@ -380,10 +385,11 @@ apply_crtc_assignments (MetaMonitorManager *manager,
     {
       MetaCrtcInfo *crtc_info = crtcs[i];
       MetaCrtc *crtc = crtc_info->crtc;
-      crtc->is_dirty = TRUE;
 
       if (crtc_info->mode == NULL)
         continue;
+
+      to_disable_crtcs = g_list_remove (to_disable_crtcs, crtc);
 
       width = MAX (width, (int) roundf (crtc_info->layout.origin.x +
                                         crtc_info->layout.size.width));
@@ -427,16 +433,9 @@ apply_crtc_assignments (MetaMonitorManager *manager,
         }
     }
 
-  /* Disable CRTCs not mentioned in the list */
-  for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
+  for (l = to_disable_crtcs; l; l = l->next)
     {
       MetaCrtc *crtc = l->data;
-
-      if (crtc->is_dirty)
-        {
-          crtc->is_dirty = FALSE;
-          continue;
-        }
 
       if (!crtc->config)
         continue;
@@ -488,7 +487,8 @@ apply_crtc_assignments (MetaMonitorManager *manager,
 
               output = ((MetaOutput**)crtc_info->outputs->pdata)[j];
 
-              output->is_dirty = TRUE;
+              to_configure_outputs = g_list_remove (to_configure_outputs,
+                                                    output);
               meta_output_assign_crtc (output, crtc);
 
               output_ids[j] = meta_output_get_id (output);
@@ -536,15 +536,9 @@ apply_crtc_assignments (MetaMonitorManager *manager,
     }
 
   /* Disable outputs not mentioned in the list */
-  for (l = meta_gpu_get_outputs (gpu); l; l = l->next)
+  for (l = to_configure_outputs; l; l = l->next)
     {
       MetaOutput *output = l->data;
-
-      if (output->is_dirty)
-        {
-          output->is_dirty = FALSE;
-          continue;
-        }
 
       meta_output_unassign_crtc (output);
       output->is_primary = FALSE;

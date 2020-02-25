@@ -176,16 +176,32 @@ apply_crtc_assignments (MetaMonitorManager *manager,
                         unsigned int         n_outputs)
 {
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
+  g_autoptr (GList) to_configure_outputs = NULL;
+  g_autoptr (GList) to_configure_crtcs = NULL;
   unsigned i;
   GList *gpus;
   GList *l;
+
+  gpus = meta_backend_get_gpus (backend);
+  for (l = gpus; l; l = l->next)
+    {
+      MetaGpu *gpu = l->data;
+      GList *crtcs;
+      GList *outputs;
+
+      outputs = g_list_copy (meta_gpu_get_outputs (gpu));
+      to_configure_outputs = g_list_concat (to_configure_outputs, outputs);
+
+      crtcs = g_list_copy (meta_gpu_get_crtcs (gpu));
+      to_configure_crtcs = g_list_concat (to_configure_crtcs, crtcs);
+    }
 
   for (i = 0; i < n_crtcs; i++)
     {
       MetaCrtcInfo *crtc_info = crtcs[i];
       MetaCrtc *crtc = crtc_info->crtc;
 
-      crtc->is_dirty = TRUE;
+      to_configure_crtcs = g_list_remove (to_configure_crtcs, crtc);
 
       if (crtc_info->mode == NULL)
         {
@@ -204,31 +220,19 @@ apply_crtc_assignments (MetaMonitorManager *manager,
             {
               MetaOutput *output = g_ptr_array_index (crtc_info->outputs, j);
 
-              output->is_dirty = TRUE;
+              to_configure_outputs = g_list_remove (to_configure_outputs,
+                                                    output);
               meta_output_assign_crtc (output, crtc);
             }
         }
     }
-  /* Disable CRTCs not mentioned in the list (they have is_dirty == FALSE,
-     because they weren't seen in the first loop) */
-  gpus = meta_backend_get_gpus (backend);
-  for (l = gpus; l; l = l->next)
+
+  /* Disable CRTCs yet to be configured. */
+  for (l = to_configure_crtcs; l; l = l->next)
     {
-      MetaGpu *gpu = l->data;
-      GList *k;
+      MetaCrtc *crtc = l->data;
 
-      for (k = meta_gpu_get_crtcs (gpu); k; k = k->next)
-        {
-          MetaCrtc *crtc = k->data;
-
-          if (crtc->is_dirty)
-            {
-              crtc->is_dirty = FALSE;
-              continue;
-            }
-
-          meta_crtc_unset_config (crtc);
-        }
+      meta_crtc_unset_config (crtc);
     }
 
   for (i = 0; i < n_outputs; i++)
@@ -241,25 +245,13 @@ apply_crtc_assignments (MetaMonitorManager *manager,
       output->is_underscanning = output_info->is_underscanning;
     }
 
-  /* Disable outputs not mentioned in the list */
-  for (l = gpus; l; l = l->next)
+  /* Disable outputs yet to be configured. */
+  for (l = to_configure_outputs; l; l = l->next)
     {
-      MetaGpu *gpu = l->data;
-      GList *k;
+      MetaOutput *output = l->data;
 
-      for (k = meta_gpu_get_outputs (gpu); k; k = k->next)
-        {
-          MetaOutput *output = k->data;
-
-          if (output->is_dirty)
-            {
-              output->is_dirty = FALSE;
-              continue;
-            }
-
-          meta_output_unassign_crtc (output);
-          output->is_primary = FALSE;
-        }
+      meta_output_unassign_crtc (output);
+      output->is_primary = FALSE;
     }
 }
 

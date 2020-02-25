@@ -280,7 +280,6 @@ meta_create_xrandr_crtc (MetaGpuXrandr      *gpu_xrandr,
       };
     }
 
-  crtc->is_dirty = FALSE;
   crtc->all_transforms =
     meta_monitor_transform_from_xrandr_all (xrandr_crtc->rotations);
 

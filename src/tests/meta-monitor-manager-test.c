@@ -123,14 +123,20 @@ apply_crtc_assignments (MetaMonitorManager *manager,
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaBackendTest *backend_test = META_BACKEND_TEST (backend);
   MetaGpu *gpu = meta_backend_test_get_gpu (backend_test);
+  g_autoptr (GList) to_configure_outputs = NULL;
+  g_autoptr (GList) to_configure_crtcs = NULL;
   GList *l;
   unsigned int i;
+
+  to_configure_outputs = g_list_copy (meta_gpu_get_outputs (gpu));
+  to_configure_crtcs = g_list_copy (meta_gpu_get_crtcs (gpu));
 
   for (i = 0; i < n_crtcs; i++)
     {
       MetaCrtcInfo *crtc_info = crtcs[i];
       MetaCrtc *crtc = crtc_info->crtc;
-      crtc->is_dirty = TRUE;
+
+      to_configure_crtcs = g_list_remove (to_configure_crtcs, crtc);
 
       if (crtc_info->mode == NULL)
         {
@@ -150,7 +156,8 @@ apply_crtc_assignments (MetaMonitorManager *manager,
             {
               output = ((MetaOutput**)crtc_info->outputs->pdata)[j];
 
-              output->is_dirty = TRUE;
+              to_configure_outputs = g_list_remove (to_configure_outputs,
+                                                    output);
               meta_output_assign_crtc (output, crtc);
             }
         }
@@ -167,29 +174,17 @@ apply_crtc_assignments (MetaMonitorManager *manager,
     }
 
   /* Disable CRTCs not mentioned in the list */
-  for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
+  for (l = to_configure_crtcs; l; l = l->next)
     {
       MetaCrtc *crtc = l->data;
-
-      if (crtc->is_dirty)
-        {
-          crtc->is_dirty = FALSE;
-          continue;
-        }
 
       meta_crtc_unset_config (crtc);
     }
 
   /* Disable outputs not mentioned in the list */
-  for (l = meta_gpu_get_outputs (gpu); l; l = l->next)
+  for (l = to_configure_outputs; l; l = l->next)
     {
       MetaOutput *output = l->data;
-
-      if (output->is_dirty)
-        {
-          output->is_dirty = FALSE;
-          continue;
-        }
 
       meta_output_unassign_crtc (output);
       output->is_primary = FALSE;
