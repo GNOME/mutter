@@ -770,8 +770,9 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
   GBytes *edid;
   unsigned int i;
 
-  output = g_object_new (META_TYPE_OUTPUT, NULL);
-  output->gpu = META_GPU (gpu_xrandr);
+  output = g_object_new (META_TYPE_OUTPUT,
+                         "gpu", gpu_xrandr,
+                         NULL);
   output->winsys_id = output_id;
   output->name = g_strdup (xrandr_output->name);
 

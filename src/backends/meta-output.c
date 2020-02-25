@@ -21,8 +21,21 @@
 
 #include "backends/meta-output.h"
 
+enum
+{
+  PROP_0,
+
+  PROP_GPU,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 typedef struct _MetaOutputPrivate
 {
+  MetaGpu *gpu;
+
   /* The CRTC driving this output, NULL if the output is not enabled */
   MetaCrtc *crtc;
 } MetaOutputPrivate;
@@ -32,7 +45,9 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaOutput, meta_output, G_TYPE_OBJECT)
 MetaGpu *
 meta_output_get_gpu (MetaOutput *output)
 {
-  return output->gpu;
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  return priv->gpu;
 }
 
 const char *
@@ -92,6 +107,44 @@ meta_output_crtc_to_logical_transform (MetaOutput           *output,
 }
 
 static void
+meta_output_set_property (GObject      *object,
+                          guint         prop_id,
+                          const GValue *value,
+                          GParamSpec   *pspec)
+{
+  MetaOutput *output = META_OUTPUT (object);
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  switch (prop_id)
+    {
+    case PROP_GPU:
+      priv->gpu = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
+meta_output_get_property (GObject    *object,
+                          guint       prop_id,
+                          GValue     *value,
+                          GParamSpec *pspec)
+{
+  MetaOutput *output = META_OUTPUT (object);
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  switch (prop_id)
+    {
+    case PROP_GPU:
+      g_value_set_object (value, priv->gpu);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
 meta_output_dispose (GObject *object)
 {
   MetaOutput *output = META_OUTPUT (object);
@@ -131,6 +184,18 @@ meta_output_class_init (MetaOutputClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->set_property = meta_output_set_property;
+  object_class->get_property = meta_output_get_property;
   object_class->dispose = meta_output_dispose;
   object_class->finalize = meta_output_finalize;
+
+  obj_props[PROP_GPU] =
+    g_param_spec_object ("gpu",
+                         "gpu",
+                         "MetaGpu",
+                         META_TYPE_GPU,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }

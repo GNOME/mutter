@@ -649,7 +649,9 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
       if (!serial)
         serial = "0x123456";
 
-      output = g_object_new (META_TYPE_OUTPUT, NULL);
+      output = g_object_new (META_TYPE_OUTPUT,
+                             "gpu", test_get_gpu (),
+                             NULL);
 
       if (crtc)
         meta_output_assign_crtc (output, crtc);

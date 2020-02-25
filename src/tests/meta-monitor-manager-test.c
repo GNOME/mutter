@@ -88,12 +88,8 @@ meta_monitor_manager_test_read_current (MetaMonitorManager *manager)
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaBackendTest *backend_test = META_BACKEND_TEST (backend);
   MetaGpu *gpu = meta_backend_test_get_gpu (backend_test);
-  GList *l;
 
   g_assert (manager_test->test_setup);
-
-  for (l = manager_test->test_setup->outputs; l; l = l->next)
-    META_OUTPUT (l->data)->gpu = gpu;
 
   meta_gpu_take_modes (gpu, manager_test->test_setup->modes);
   meta_gpu_take_crtcs (gpu, manager_test->test_setup->crtcs);

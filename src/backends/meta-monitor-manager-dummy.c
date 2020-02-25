@@ -205,7 +205,9 @@ append_monitor (MetaMonitorManager *manager,
   crtc->all_transforms = ALL_TRANSFORMS;
   *crtcs = g_list_append (*crtcs, crtc);
 
-  output = g_object_new (META_TYPE_OUTPUT, NULL);
+  output = g_object_new (META_TYPE_OUTPUT,
+                         "gpu", gpu,
+                         NULL);
 
   output_dummy = g_new0 (MetaOutputDummy, 1);
   *output_dummy = (MetaOutputDummy) {
@@ -214,7 +216,6 @@ append_monitor (MetaMonitorManager *manager,
 
   number = g_list_length (*outputs) + 1;
 
-  output->gpu = gpu;
   output->winsys_id = number;
   output->name = g_strdup_printf ("LVDS%d", number);
   output->vendor = g_strdup ("MetaProducts Inc.");
@@ -319,9 +320,10 @@ append_tiled_monitor (MetaMonitorManager *manager,
 
       preferred_mode = g_list_last (*modes)->data;
 
-      output = g_object_new (META_TYPE_OUTPUT, NULL);
+      output = g_object_new (META_TYPE_OUTPUT,
+                             "gpu", gpu,
+                             NULL);
 
-      output->gpu = gpu;
       output->winsys_id = number;
       output->name = g_strdup_printf ("LVDS%d", number);
       output->vendor = g_strdup ("MetaProducts Inc.");

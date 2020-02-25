@@ -64,8 +64,6 @@ struct _MetaOutput
 {
   GObject parent;
 
-  MetaGpu *gpu;
-
   /* The low-level ID of this output, used to apply back configuration */
   uint64_t winsys_id;
   char *name;

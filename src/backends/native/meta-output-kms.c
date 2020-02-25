@@ -302,13 +302,14 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   GList *l;
   uint32_t gpu_id;
 
-  output = g_object_new (META_TYPE_OUTPUT, NULL);
+  output = g_object_new (META_TYPE_OUTPUT,
+                         "gpu", gpu,
+                         NULL);
 
   output_kms = g_slice_new0 (MetaOutputKms);
   output->driver_private = output_kms;
   output->driver_notify = (GDestroyNotify) meta_output_destroy_notify;
 
-  output->gpu = gpu;
   output->name = g_strdup (meta_kms_connector_get_name (kms_connector));
 
   gpu_id = meta_gpu_kms_get_id (gpu_kms);
