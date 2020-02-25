@@ -130,9 +130,9 @@ void meta_output_set_backlight (MetaOutput *output,
 int meta_output_get_backlight (MetaOutput *output);
 
 META_EXPORT_TEST
-void meta_output_assign_crtc (MetaOutput           *output,
-                              MetaCrtc             *crtc,
-                              const MetaOutputInfo *output_info);
+void meta_output_assign_crtc (MetaOutput                 *output,
+                              MetaCrtc                   *crtc,
+                              const MetaOutputAssignment *output_assignment);
 
 META_EXPORT_TEST
 void meta_output_unassign_crtc (MetaOutput *output);

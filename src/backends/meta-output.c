@@ -116,9 +116,9 @@ meta_output_get_backlight (MetaOutput *output)
 }
 
 void
-meta_output_assign_crtc (MetaOutput           *output,
-                         MetaCrtc             *crtc,
-                         const MetaOutputInfo *output_info)
+meta_output_assign_crtc (MetaOutput                 *output,
+                         MetaCrtc                   *crtc,
+                         const MetaOutputAssignment *output_assignment)
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
@@ -126,9 +126,9 @@ meta_output_assign_crtc (MetaOutput           *output,
 
   g_set_object (&priv->crtc, crtc);
 
-  priv->is_primary = output_info->is_primary;
-  priv->is_presentation = output_info->is_presentation;
-  priv->is_underscanning = output_info->is_underscanning;
+  priv->is_primary = output_assignment->is_primary;
+  priv->is_presentation = output_assignment->is_presentation;
+  priv->is_underscanning = output_assignment->is_underscanning;
 }
 
 void

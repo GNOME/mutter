@@ -823,14 +823,14 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
 
   if (assigned_crtc)
     {
-      MetaOutputInfo output_info;
+      MetaOutputAssignment output_assignment;
 
-      output_info = (MetaOutputInfo) {
+      output_assignment = (MetaOutputAssignment) {
         .is_primary = (XID) meta_output_get_id (output) == primary_output,
         .is_presentation = output_get_presentation_xrandr (output),
         .is_underscanning = output_get_underscanning_xrandr (output),
       };
-      meta_output_assign_crtc (output, assigned_crtc, &output_info);
+      meta_output_assign_crtc (output, assigned_crtc, &output_assignment);
     }
 
   output->n_possible_clones = xrandr_output->nclone;

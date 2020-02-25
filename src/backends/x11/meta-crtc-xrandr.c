@@ -183,27 +183,27 @@ meta_monitor_transform_from_xrandr_all (Rotation rotation)
 }
 
 gboolean
-meta_crtc_xrandr_is_assignment_changed (MetaCrtc     *crtc,
-                                        MetaCrtcInfo *crtc_info)
+meta_crtc_xrandr_is_assignment_changed (MetaCrtc           *crtc,
+                                        MetaCrtcAssignment *crtc_assignment)
 {
   MetaCrtcXrandr *crtc_xrandr = crtc->driver_private;
   unsigned int i;
 
-  if (crtc_xrandr->current_mode != crtc_info->mode)
+  if (crtc_xrandr->current_mode != crtc_assignment->mode)
     return TRUE;
 
-  if (crtc_xrandr->rect.x != (int) roundf (crtc_info->layout.origin.x))
+  if (crtc_xrandr->rect.x != (int) roundf (crtc_assignment->layout.origin.x))
     return TRUE;
 
-  if (crtc_xrandr->rect.y != (int) roundf (crtc_info->layout.origin.y))
+  if (crtc_xrandr->rect.y != (int) roundf (crtc_assignment->layout.origin.y))
     return TRUE;
 
-  if (crtc_xrandr->transform != crtc_info->transform)
+  if (crtc_xrandr->transform != crtc_assignment->transform)
     return TRUE;
 
-  for (i = 0; i < crtc_info->outputs->len; i++)
+  for (i = 0; i < crtc_assignment->outputs->len; i++)
     {
-      MetaOutput *output = ((MetaOutput**) crtc_info->outputs->pdata)[i];
+      MetaOutput *output = ((MetaOutput**) crtc_assignment->outputs->pdata)[i];
       MetaCrtc *assigned_crtc;
 
       assigned_crtc = meta_output_get_assigned_crtc (output);

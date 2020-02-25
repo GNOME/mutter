@@ -241,52 +241,52 @@ xrandr_set_crtc_config (MetaMonitorManagerXrandr *manager_xrandr,
 }
 
 static gboolean
-is_crtc_assignment_changed (MetaCrtc      *crtc,
-                            MetaCrtcInfo **crtc_infos,
-                            unsigned int   n_crtc_infos)
+is_crtc_assignment_changed (MetaCrtc            *crtc,
+                            MetaCrtcAssignment **crtc_assignments,
+                            unsigned int         n_crtc_assignments)
 {
   unsigned int i;
 
-  for (i = 0; i < n_crtc_infos; i++)
+  for (i = 0; i < n_crtc_assignments; i++)
     {
-      MetaCrtcInfo *crtc_info = crtc_infos[i];
+      MetaCrtcAssignment *crtc_assignment = crtc_assignments[i];
 
-      if (crtc_info->crtc != crtc)
+      if (crtc_assignment->crtc != crtc)
         continue;
 
-      return meta_crtc_xrandr_is_assignment_changed (crtc, crtc_info);
+      return meta_crtc_xrandr_is_assignment_changed (crtc, crtc_assignment);
     }
 
   return !!meta_crtc_xrandr_get_current_mode (crtc);
 }
 
 static gboolean
-is_output_assignment_changed (MetaOutput      *output,
-                              MetaCrtcInfo   **crtc_infos,
-                              unsigned int     n_crtc_infos,
-                              MetaOutputInfo **output_infos,
-                              unsigned int     n_output_infos)
+is_output_assignment_changed (MetaOutput            *output,
+                              MetaCrtcAssignment   **crtc_assignments,
+                              unsigned int           n_crtc_assignments,
+                              MetaOutputAssignment **output_assignments,
+                              unsigned int           n_output_assignments)
 {
   MetaCrtc *assigned_crtc;
   gboolean output_is_found = FALSE;
   unsigned int i;
 
-  for (i = 0; i < n_output_infos; i++)
+  for (i = 0; i < n_output_assignments; i++)
     {
-      MetaOutputInfo *output_info = output_infos[i];
+      MetaOutputAssignment *output_assignment = output_assignments[i];
 
-      if (output_info->output != output)
+      if (output_assignment->output != output)
         continue;
 
-      if (meta_output_is_primary (output) != output_info->is_primary)
+      if (meta_output_is_primary (output) != output_assignment->is_primary)
         return TRUE;
 
       if (meta_output_is_presentation (output) !=
-          output_info->is_presentation)
+          output_assignment->is_presentation)
         return TRUE;
 
       if (meta_output_is_underscanning (output) !=
-          output_info->is_underscanning)
+          output_assignment->is_underscanning)
         return TRUE;
 
       output_is_found = TRUE;
@@ -297,18 +297,18 @@ is_output_assignment_changed (MetaOutput      *output,
   if (!output_is_found)
     return assigned_crtc != NULL;
 
-  for (i = 0; i < n_crtc_infos; i++)
+  for (i = 0; i < n_crtc_assignments; i++)
     {
-      MetaCrtcInfo *crtc_info = crtc_infos[i];
+      MetaCrtcAssignment *crtc_assignment = crtc_assignments[i];
       unsigned int j;
 
-      for (j = 0; j < crtc_info->outputs->len; j++)
+      for (j = 0; j < crtc_assignment->outputs->len; j++)
         {
-          MetaOutput *crtc_info_output =
-            ((MetaOutput**) crtc_info->outputs->pdata)[j];
+          MetaOutput *crtc_assignment_output =
+            ((MetaOutput**) crtc_assignment->outputs->pdata)[j];
 
-          if (crtc_info_output == output &&
-              crtc_info->crtc == assigned_crtc)
+          if (crtc_assignment_output == output &&
+              crtc_assignment->crtc == assigned_crtc)
             return FALSE;
         }
     }
@@ -326,11 +326,11 @@ meta_monitor_manager_xrandr_get_gpu (MetaMonitorManagerXrandr *manager_xrandr)
 }
 
 static gboolean
-is_assignments_changed (MetaMonitorManager *manager,
-                        MetaCrtcInfo      **crtc_infos,
-                        unsigned int        n_crtc_infos,
-                        MetaOutputInfo    **output_infos,
-                        unsigned int        n_output_infos)
+is_assignments_changed (MetaMonitorManager    *manager,
+                        MetaCrtcAssignment   **crtc_assignments,
+                        unsigned int           n_crtc_assignments,
+                        MetaOutputAssignment **output_assignments,
+                        unsigned int           n_output_assignments)
 {
   MetaMonitorManagerXrandr *manager_xrandr =
     META_MONITOR_MANAGER_XRANDR (manager);
@@ -341,7 +341,7 @@ is_assignments_changed (MetaMonitorManager *manager,
     {
       MetaCrtc *crtc = l->data;
 
-      if (is_crtc_assignment_changed (crtc, crtc_infos, n_crtc_infos))
+      if (is_crtc_assignment_changed (crtc, crtc_assignments, n_crtc_assignments))
         return TRUE;
     }
 
@@ -350,10 +350,10 @@ is_assignments_changed (MetaMonitorManager *manager,
       MetaOutput *output = l->data;
 
       if (is_output_assignment_changed (output,
-                                        crtc_infos,
-                                        n_crtc_infos,
-                                        output_infos,
-                                        n_output_infos))
+                                        crtc_assignments,
+                                        n_crtc_assignments,
+                                        output_assignments,
+                                        n_output_assignments))
         return TRUE;
     }
 
@@ -361,12 +361,12 @@ is_assignments_changed (MetaMonitorManager *manager,
 }
 
 static void
-apply_crtc_assignments (MetaMonitorManager *manager,
-                        gboolean            save_timestamp,
-                        MetaCrtcInfo      **crtcs,
-                        unsigned int        n_crtcs,
-                        MetaOutputInfo    **outputs,
-                        unsigned int        n_outputs)
+apply_crtc_assignments (MetaMonitorManager    *manager,
+                        gboolean               save_timestamp,
+                        MetaCrtcAssignment   **crtcs,
+                        unsigned int           n_crtcs,
+                        MetaOutputAssignment **outputs,
+                        unsigned int           n_outputs)
 {
   MetaMonitorManagerXrandr *manager_xrandr = META_MONITOR_MANAGER_XRANDR (manager);
   MetaGpu *gpu = meta_monitor_manager_xrandr_get_gpu (manager_xrandr);
@@ -385,18 +385,18 @@ apply_crtc_assignments (MetaMonitorManager *manager,
   width = 0; height = 0;
   for (i = 0; i < n_crtcs; i++)
     {
-      MetaCrtcInfo *crtc_info = crtcs[i];
-      MetaCrtc *crtc = crtc_info->crtc;
+      MetaCrtcAssignment *crtc_assignment = crtcs[i];
+      MetaCrtc *crtc = crtc_assignment->crtc;
 
-      if (crtc_info->mode == NULL)
+      if (crtc_assignment->mode == NULL)
         continue;
 
       to_disable_crtcs = g_list_remove (to_disable_crtcs, crtc);
 
-      width = MAX (width, (int) roundf (crtc_info->layout.origin.x +
-                                        crtc_info->layout.size.width));
-      height = MAX (height, (int) roundf (crtc_info->layout.origin.y +
-                                          crtc_info->layout.size.height));
+      width = MAX (width, (int) roundf (crtc_assignment->layout.origin.x +
+                                        crtc_assignment->layout.size.width));
+      height = MAX (height, (int) roundf (crtc_assignment->layout.origin.y +
+                                          crtc_assignment->layout.size.height));
     }
 
   /* Second disable all newly disabled CRTCs, or CRTCs that in the previous
@@ -406,8 +406,8 @@ apply_crtc_assignments (MetaMonitorManager *manager,
   */
   for (i = 0; i < n_crtcs; i++)
     {
-      MetaCrtcInfo *crtc_info = crtcs[i];
-      MetaCrtc *crtc = crtc_info->crtc;
+      MetaCrtcAssignment *crtc_assignment = crtcs[i];
+      MetaCrtc *crtc = crtc_assignment->crtc;
       MetaCrtcConfig *crtc_config;
       int x2, y2;
 
@@ -420,7 +420,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
       y2 = (int) roundf (crtc_config->layout.origin.y +
                          crtc_config->layout.size.height);
 
-      if (!crtc_info->mode || x2 > width || y2 > height)
+      if (!crtc_assignment->mode || x2 > width || y2 > height)
         {
           xrandr_set_crtc_config (manager_xrandr,
                                   crtc,
@@ -468,45 +468,52 @@ apply_crtc_assignments (MetaMonitorManager *manager,
 
   for (i = 0; i < n_crtcs; i++)
     {
-      MetaCrtcInfo *crtc_info = crtcs[i];
-      MetaCrtc *crtc = crtc_info->crtc;
+      MetaCrtcAssignment *crtc_assignment = crtcs[i];
+      MetaCrtc *crtc = crtc_assignment->crtc;
 
-      if (crtc_info->mode != NULL)
+      if (crtc_assignment->mode != NULL)
         {
           MetaCrtcMode *mode;
           g_autofree xcb_randr_output_t *output_ids = NULL;
           unsigned int j, n_output_ids;
+          xcb_randr_crtc_t crtc_id;
+          int x, y;
           xcb_randr_rotation_t rotation;
 
-          mode = crtc_info->mode;
+          mode = crtc_assignment->mode;
 
-          n_output_ids = crtc_info->outputs->len;
+          n_output_ids = crtc_assignment->outputs->len;
           output_ids = g_new (xcb_randr_output_t, n_output_ids);
 
           for (j = 0; j < n_output_ids; j++)
             {
               MetaOutput *output;
-              MetaOutputInfo *output_info;
+              MetaOutputAssignment *output_assignment;
 
-              output = ((MetaOutput**)crtc_info->outputs->pdata)[j];
+              output = ((MetaOutput**)crtc_assignment->outputs->pdata)[j];
 
               to_configure_outputs = g_list_remove (to_configure_outputs,
                                                     output);
 
-              output_info = meta_find_output_info (outputs, n_outputs, output);
-              meta_output_assign_crtc (output, crtc, output_info);
+              output_assignment = meta_find_output_assignment (outputs,
+                                                               n_outputs,
+                                                               output);
+              meta_output_assign_crtc (output, crtc, output_assignment);
 
               output_ids[j] = meta_output_get_id (output);
             }
 
-          rotation = meta_monitor_transform_to_xrandr (crtc_info->transform);
+          crtc_id = (xcb_randr_crtc_t) meta_crtc_get_id (crtc);
+          x = (int) roundf (crtc_assignment->layout.origin.x);
+          y = (int) roundf (crtc_assignment->layout.origin.y);
+          rotation =
+            meta_monitor_transform_to_xrandr (crtc_assignment->transform);
           if (!xrandr_set_crtc_config (manager_xrandr,
                                        crtc,
                                        save_timestamp,
-                                       (xcb_randr_crtc_t) meta_crtc_get_id (crtc),
+                                       crtc_id,
                                        XCB_CURRENT_TIME,
-                                       (int) roundf (crtc_info->layout.origin.x),
-                                       (int) roundf (crtc_info->layout.origin.y),
+                                       x, y,
                                        (xcb_randr_mode_t) mode->mode_id,
                                        rotation,
                                        output_ids, n_output_ids))
@@ -515,23 +522,23 @@ apply_crtc_assignments (MetaMonitorManager *manager,
                             (unsigned) meta_crtc_get_id (crtc),
                             (unsigned) mode->mode_id,
                             mode->width, mode->height, (float)mode->refresh_rate,
-                            (int) roundf (crtc_info->layout.origin.x),
-                            (int) roundf (crtc_info->layout.origin.y),
-                            crtc_info->transform);
+                            (int) roundf (crtc_assignment->layout.origin.x),
+                            (int) roundf (crtc_assignment->layout.origin.y),
+                            crtc_assignment->transform);
               continue;
             }
 
           meta_crtc_set_config (crtc,
-                                &crtc_info->layout,
+                                &crtc_assignment->layout,
                                 mode,
-                                crtc_info->transform);
+                                crtc_assignment->transform);
         }
     }
 
   for (i = 0; i < n_outputs; i++)
     {
-      MetaOutputInfo *output_info = outputs[i];
-      MetaOutput *output = output_info->output;
+      MetaOutputAssignment *output_assignment = outputs[i];
+      MetaOutput *output = output_assignment->output;
 
       meta_output_xrandr_apply_mode (output);
     }
@@ -581,8 +588,8 @@ meta_monitor_manager_xrandr_apply_monitors_config (MetaMonitorManager      *mana
                                                    MetaMonitorsConfigMethod method,
                                                    GError                 **error)
 {
-  GPtrArray *crtc_infos;
-  GPtrArray *output_infos;
+  GPtrArray *crtc_assignments;
+  GPtrArray *output_assignments;
 
   if (!config)
     {
@@ -591,7 +598,8 @@ meta_monitor_manager_xrandr_apply_monitors_config (MetaMonitorManager      *mana
     }
 
   if (!meta_monitor_config_manager_assign (manager, config,
-                                           &crtc_infos, &output_infos,
+                                           &crtc_assignments,
+                                           &output_assignments,
                                            error))
     return FALSE;
 
@@ -606,17 +614,17 @@ meta_monitor_manager_xrandr_apply_monitors_config (MetaMonitorManager      *mana
        * just update the logical state.
        */
       if (is_assignments_changed (manager,
-                                  (MetaCrtcInfo **) crtc_infos->pdata,
-                                  crtc_infos->len,
-                                  (MetaOutputInfo **) output_infos->pdata,
-                                  output_infos->len))
+                                  (MetaCrtcAssignment **) crtc_assignments->pdata,
+                                  crtc_assignments->len,
+                                  (MetaOutputAssignment **) output_assignments->pdata,
+                                  output_assignments->len))
         {
           apply_crtc_assignments (manager,
                                   TRUE,
-                                  (MetaCrtcInfo **) crtc_infos->pdata,
-                                  crtc_infos->len,
-                                  (MetaOutputInfo **) output_infos->pdata,
-                                  output_infos->len);
+                                  (MetaCrtcAssignment **) crtc_assignments->pdata,
+                                  crtc_assignments->len,
+                                  (MetaOutputAssignment **) output_assignments->pdata,
+                                  output_assignments->len);
         }
       else
         {
@@ -624,8 +632,8 @@ meta_monitor_manager_xrandr_apply_monitors_config (MetaMonitorManager      *mana
         }
     }
 
-  g_ptr_array_free (crtc_infos, TRUE);
-  g_ptr_array_free (output_infos, TRUE);
+  g_ptr_array_free (crtc_assignments, TRUE);
+  g_ptr_array_free (output_assignments, TRUE);
 
   return TRUE;
 }

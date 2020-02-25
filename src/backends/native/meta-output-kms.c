@@ -363,23 +363,23 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
 
           if (meta_crtc_get_id (crtc) == connector_state->current_crtc_id)
             {
-              MetaOutputInfo output_info;
+              MetaOutputAssignment output_assignment;
 
               if (old_output)
                 {
-                  output_info = (MetaOutputInfo) {
+                  output_assignment = (MetaOutputAssignment) {
                     .is_primary = meta_output_is_primary (old_output),
                     .is_presentation = meta_output_is_presentation (old_output),
                   };
                 }
               else
                 {
-                  output_info = (MetaOutputInfo) {
+                  output_assignment = (MetaOutputAssignment) {
                     .is_primary = FALSE,
                     .is_presentation = FALSE,
                   };
                 }
-              meta_output_assign_crtc (output, crtc, &output_info);
+              meta_output_assign_crtc (output, crtc, &output_assignment);
               break;
             }
         }

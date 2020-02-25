@@ -656,12 +656,12 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
 
       if (crtc)
         {
-          MetaOutputInfo output_info;
+          MetaOutputAssignment output_assignment;
 
-          output_info = (MetaOutputInfo) {
+          output_assignment = (MetaOutputAssignment) {
             .is_underscanning = setup->outputs[i].is_underscanning,
           };
-          meta_output_assign_crtc (output, crtc, &output_info);
+          meta_output_assign_crtc (output, crtc, &output_assignment);
         }
 
       output->name = (is_laptop_panel ? g_strdup_printf ("eDP-%d",

@@ -44,8 +44,9 @@ typedef struct _MetaGpu MetaGpu;
 typedef struct _MetaCrtc MetaCrtc;
 typedef struct _MetaOutput MetaOutput;
 typedef struct _MetaCrtcMode MetaCrtcMode;
-typedef struct _MetaCrtcInfo MetaCrtcInfo;
-typedef struct _MetaOutputInfo MetaOutputInfo;
+typedef struct _MetaCrtcAssignment MetaCrtcAssignment;
+typedef struct _MetaOutputAssignment MetaOutputAssignment;
+
 typedef struct _MetaTileInfo MetaTileInfo;
 
 typedef struct _MetaRenderer MetaRenderer;

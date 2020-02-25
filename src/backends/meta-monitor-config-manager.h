@@ -87,8 +87,8 @@ MetaMonitorConfigStore * meta_monitor_config_manager_get_store (MetaMonitorConfi
 META_EXPORT_TEST
 gboolean meta_monitor_config_manager_assign (MetaMonitorManager *manager,
                                              MetaMonitorsConfig *config,
-                                             GPtrArray         **crtc_infos,
-                                             GPtrArray         **output_infos,
+                                             GPtrArray         **crtc_assignments,
+                                             GPtrArray         **output_assignments,
                                              GError            **error);
 
 META_EXPORT_TEST

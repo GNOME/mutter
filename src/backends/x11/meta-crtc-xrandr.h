@@ -39,8 +39,8 @@ gboolean meta_crtc_xrandr_set_config (MetaCrtc            *crtc,
                                       int                  n_outputs,
                                       xcb_timestamp_t     *out_timestamp);
 
-gboolean meta_crtc_xrandr_is_assignment_changed (MetaCrtc     *crtc,
-                                                 MetaCrtcInfo *crtc_info);
+gboolean meta_crtc_xrandr_is_assignment_changed (MetaCrtc           *crtc,
+                                                 MetaCrtcAssignment *crtc_assignment);
 
 MetaCrtcMode * meta_crtc_xrandr_get_current_mode (MetaCrtc *crtc);
 
