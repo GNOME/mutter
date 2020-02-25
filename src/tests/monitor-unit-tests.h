@@ -20,10 +20,17 @@
 #ifndef MONITOR_UNIT_TESTS_H
 #define MONITOR_UNIT_TESTS_H
 
+#include "core/util-private.h"
+#include "tests/monitor-test-utils.h"
+
+typedef struct _MonitorTestCase MonitorTestCase;
+
 void init_monitor_tests (void);
 
 void pre_run_monitor_tests (void);
 
 void finish_monitor_tests (void);
+
+MonitorTestCase * test_get_initial_monitor_test_case (void);
 
 #endif /* MONITOR_UNIT_TESTS_H */

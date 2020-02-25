@@ -5614,14 +5614,17 @@ add_monitor_test (const char *test_path,
               NULL);
 }
 
+static MetaMonitorTestSetup *
+create_initial_test_setup (void)
+{
+  return create_monitor_test_setup (&initial_test_case.setup,
+                                    MONITOR_TEST_FLAG_NO_STORED);
+}
+
 void
 init_monitor_tests (void)
 {
-  MetaMonitorTestSetup *initial_test_setup;
-
-  initial_test_setup = create_monitor_test_setup (&initial_test_case.setup,
-                                                  MONITOR_TEST_FLAG_NO_STORED);
-  meta_monitor_manager_test_init_test_setup (initial_test_setup);
+  meta_monitor_manager_test_init_test_setup (create_initial_test_setup);
 
   add_monitor_test ("/backends/monitor/initial-linear-config",
                     meta_test_monitor_initial_linear_config);

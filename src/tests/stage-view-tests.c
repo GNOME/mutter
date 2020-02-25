@@ -462,15 +462,17 @@ meta_test_actor_stage_views_hide_parent (void)
   clutter_actor_destroy (outer_container);
 }
 
+static MetaMonitorTestSetup *
+create_stage_view_test_setup (void)
+{
+  return create_monitor_test_setup (&initial_test_case_setup,
+                                    MONITOR_TEST_FLAG_NO_STORED);
+}
+
 static void
 init_tests (int argc, char **argv)
 {
-  MetaMonitorTestSetup *test_setup;
-
-  test_setup = create_monitor_test_setup (&initial_test_case_setup,
-                                          MONITOR_TEST_FLAG_NO_STORED);
-
-  meta_monitor_manager_test_init_test_setup (test_setup);
+  meta_monitor_manager_test_init_test_setup (create_stage_view_test_setup);
 
   g_test_add_func ("/stage-view/stage-views-exist",
                    meta_test_stage_views_exist);

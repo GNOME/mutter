@@ -34,11 +34,13 @@ typedef struct _MetaOutputTest
   float scale;
 } MetaOutputTest;
 
+typedef MetaMonitorTestSetup * (* CreateTestSetupFunc) (void);
+
 #define META_TYPE_MONITOR_MANAGER_TEST (meta_monitor_manager_test_get_type ())
 G_DECLARE_FINAL_TYPE (MetaMonitorManagerTest, meta_monitor_manager_test,
                       META, MONITOR_MANAGER_TEST, MetaMonitorManager)
 
-void meta_monitor_manager_test_init_test_setup (MetaMonitorTestSetup *test_setup);
+void meta_monitor_manager_test_init_test_setup (CreateTestSetupFunc func);
 
 void meta_monitor_manager_test_read_current (MetaMonitorManager *manager);
 

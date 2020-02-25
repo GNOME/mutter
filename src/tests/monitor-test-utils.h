@@ -185,11 +185,11 @@ typedef struct _MonitorTestCaseExpect
   int screen_height;
 } MonitorTestCaseExpect;
 
-typedef struct _MonitorTestCase
+struct _MonitorTestCase
 {
   MonitorTestCaseSetup setup;
   MonitorTestCaseExpect expect;
-} MonitorTestCase;
+};
 
 void set_custom_monitor_config (const char *filename);
 

@@ -184,10 +184,7 @@ create_headless_test_setup (void)
 static void
 init_tests (int argc, char **argv)
 {
-  MetaMonitorTestSetup *initial_test_setup;
-
-  initial_test_setup = create_headless_test_setup ();
-  meta_monitor_manager_test_init_test_setup (initial_test_setup);
+  meta_monitor_manager_test_init_test_setup (create_headless_test_setup);
 
   g_test_add_func ("/headless-start/start", meta_test_headless_start);
   g_test_add_func ("/headless-start/monitor-getters",

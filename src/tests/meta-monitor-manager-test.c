@@ -42,12 +42,12 @@ struct _MetaMonitorManagerTest
 G_DEFINE_TYPE (MetaMonitorManagerTest, meta_monitor_manager_test,
                META_TYPE_MONITOR_MANAGER)
 
-static MetaMonitorTestSetup *_initial_test_setup = NULL;
+static CreateTestSetupFunc initial_setup_func;
 
 void
-meta_monitor_manager_test_init_test_setup (MetaMonitorTestSetup *test_setup)
+meta_monitor_manager_test_init_test_setup (CreateTestSetupFunc func)
 {
-  _initial_test_setup = test_setup;
+  initial_setup_func = func;
 }
 
 void
@@ -409,16 +409,24 @@ meta_monitor_manager_test_dispose (GObject *object)
   MetaMonitorManagerTest *manager_test = META_MONITOR_MANAGER_TEST (object);
 
   g_clear_pointer (&manager_test->test_setup, g_free);
+
+  G_OBJECT_CLASS (meta_monitor_manager_test_parent_class)->dispose (object);
+}
+
+static void
+meta_monitor_manager_test_constructed (GObject *object)
+{
+  MetaMonitorManagerTest *manager_test = META_MONITOR_MANAGER_TEST (object);
+
+  manager_test->test_setup = initial_setup_func ();
+
+  G_OBJECT_CLASS (meta_monitor_manager_test_parent_class)->constructed (object);
 }
 
 static void
 meta_monitor_manager_test_init (MetaMonitorManagerTest *manager_test)
 {
-  g_assert (_initial_test_setup);
-
   manager_test->handles_transforms = TRUE;
-
-  manager_test->test_setup = _initial_test_setup;
 }
 
 static void
@@ -428,6 +436,7 @@ meta_monitor_manager_test_class_init (MetaMonitorManagerTestClass *klass)
   MetaMonitorManagerClass *manager_class = META_MONITOR_MANAGER_CLASS (klass);
 
   object_class->dispose = meta_monitor_manager_test_dispose;
+  object_class->constructed = meta_monitor_manager_test_constructed;
 
   manager_class->ensure_initial_config = meta_monitor_manager_test_ensure_initial_config;
   manager_class->apply_monitors_config = meta_monitor_manager_test_apply_monitors_config;
