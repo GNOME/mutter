@@ -751,7 +751,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
 
               /* Update the redraw clip region with the extra damage. */
               cairo_region_union (redraw_clip, view_damage);
-              cairo_region_union (redraw_clip, view_damage);
 
               cairo_region_destroy (view_damage);
               cairo_region_destroy (fb_damage);
