@@ -27,7 +27,14 @@
 #include "backends/meta-monitor-config-manager.h"
 #include "backends/meta-monitor-config-store.h"
 #include "backends/meta-output.h"
+#include "tests/test-utils.h"
 #include "meta-backend-test.h"
+
+MetaGpu *
+test_get_gpu (void)
+{
+  return META_GPU (meta_backend_get_gpus (meta_get_backend ())->data);
+}
 
 void
 set_custom_monitor_config (const char *filename)
@@ -565,7 +572,9 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
     {
       MetaCrtc *crtc;
 
-      crtc = g_object_new (META_TYPE_CRTC, NULL);
+      crtc = g_object_new (META_TYPE_CRTC,
+                           "gpu", test_get_gpu (),
+                           NULL);
       crtc->crtc_id = i + 1;
       crtc->all_transforms = ALL_TRANSFORMS;
 

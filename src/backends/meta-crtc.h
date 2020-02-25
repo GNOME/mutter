@@ -60,8 +60,6 @@ struct _MetaCrtc
 {
   GObject parent;
 
-  MetaGpu *gpu;
-
   glong crtc_id;
   unsigned int all_transforms;
 
@@ -97,6 +95,7 @@ META_EXPORT_TEST G_DECLARE_FINAL_TYPE (MetaCrtc, meta_crtc, META, CRTC, GObject)
 #define META_TYPE_CRTC_MODE (meta_crtc_mode_get_type ())
 META_EXPORT_TEST G_DECLARE_FINAL_TYPE (MetaCrtcMode, meta_crtc_mode, META, CRTC_MODE, GObject)
 
+META_EXPORT_TEST
 MetaGpu * meta_crtc_get_gpu (MetaCrtc *crtc);
 
 META_EXPORT_TEST

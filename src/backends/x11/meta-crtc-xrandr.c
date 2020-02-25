@@ -248,7 +248,9 @@ meta_create_xrandr_crtc (MetaGpuXrandr      *gpu_xrandr,
   unsigned int i;
   GList *modes;
 
-  crtc = g_object_new (META_TYPE_CRTC, NULL);
+  crtc = g_object_new (META_TYPE_CRTC,
+                       "gpu", gpu,
+                       NULL);
 
   crtc_xrandr = g_new0 (MetaCrtcXrandr, 1);
   crtc_xrandr->transform =
@@ -256,7 +258,6 @@ meta_create_xrandr_crtc (MetaGpuXrandr      *gpu_xrandr,
 
   crtc->driver_private = crtc_xrandr;
   crtc->driver_notify = (GDestroyNotify) meta_crtc_destroy_notify;
-  crtc->gpu = META_GPU (gpu_xrandr);
   crtc->crtc_id = crtc_id;
 
   panning = XRRGetPanning (xdisplay, resources, crtc_id);
@@ -283,7 +284,7 @@ meta_create_xrandr_crtc (MetaGpuXrandr      *gpu_xrandr,
   crtc->all_transforms =
     meta_monitor_transform_from_xrandr_all (xrandr_crtc->rotations);
 
-  modes = meta_gpu_get_modes (crtc->gpu);
+  modes = meta_gpu_get_modes (gpu);
   for (i = 0; i < (unsigned int) resources->nmode; i++)
     {
       if (resources->modes[i].id == xrandr_crtc->mode)

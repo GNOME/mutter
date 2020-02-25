@@ -191,6 +191,8 @@ struct _MonitorTestCase
   MonitorTestCaseExpect expect;
 };
 
+MetaGpu * test_get_gpu (void);
+
 void set_custom_monitor_config (const char *filename);
 
 char * read_file (const char *file_path);

@@ -21,14 +21,34 @@
 
 #include "backends/meta-crtc.h"
 
-G_DEFINE_TYPE (MetaCrtc, meta_crtc, G_TYPE_OBJECT)
+#include "backends/meta-gpu.h"
+
+enum
+{
+  PROP_0,
+
+  PROP_GPU,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
+typedef struct _MetaCrtcPrivate
+{
+  MetaGpu *gpu;
+} MetaCrtcPrivate;
+
+G_DEFINE_TYPE_WITH_PRIVATE (MetaCrtc, meta_crtc, G_TYPE_OBJECT)
 
 G_DEFINE_TYPE (MetaCrtcMode, meta_crtc_mode, G_TYPE_OBJECT)
 
 MetaGpu *
 meta_crtc_get_gpu (MetaCrtc *crtc)
 {
-  return crtc->gpu;
+  MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
+
+  return priv->gpu;
 }
 
 void
@@ -56,6 +76,44 @@ meta_crtc_unset_config (MetaCrtc *crtc)
 }
 
 static void
+meta_crtc_set_property (GObject      *object,
+                        guint         prop_id,
+                        const GValue *value,
+                        GParamSpec   *pspec)
+{
+  MetaCrtc *crtc = META_CRTC (object);
+  MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
+
+  switch (prop_id)
+    {
+    case PROP_GPU:
+      priv->gpu = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
+meta_crtc_get_property (GObject    *object,
+                        guint       prop_id,
+                        GValue     *value,
+                        GParamSpec *pspec)
+{
+  MetaCrtc *crtc = META_CRTC (object);
+  MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
+
+  switch (prop_id)
+    {
+    case PROP_GPU:
+      g_value_set_object (value, priv->gpu);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+    }
+}
+
+static void
 meta_crtc_finalize (GObject *object)
 {
   MetaCrtc *crtc = META_CRTC (object);
@@ -78,7 +136,19 @@ meta_crtc_class_init (MetaCrtcClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->set_property = meta_crtc_set_property;
+  object_class->get_property = meta_crtc_get_property;
   object_class->finalize = meta_crtc_finalize;
+
+  obj_props[PROP_GPU] =
+    g_param_spec_object ("gpu",
+                         "gpu",
+                         "MetaGpu",
+                         META_TYPE_GPU,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 static void
