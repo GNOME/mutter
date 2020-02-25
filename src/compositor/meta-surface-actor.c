@@ -103,21 +103,28 @@ set_unobscured_region (MetaSurfaceActor *surface_actor,
   g_clear_pointer (&priv->unobscured_region, cairo_region_destroy);
   if (unobscured_region)
     {
-      cairo_rectangle_int_t bounds = { 0, };
-      float width, height;
+      if (cairo_region_is_empty (unobscured_region))
+        {
+          priv->unobscured_region = cairo_region_reference (unobscured_region);
+        }
+      else
+        {
+          cairo_rectangle_int_t bounds = { 0, };
+          float width, height;
 
-      clutter_content_get_preferred_size (CLUTTER_CONTENT (priv->texture),
-                                          &width,
-                                          &height);
-      bounds = (cairo_rectangle_int_t) {
-        .width = width,
-        .height = height,
-      };
+          clutter_content_get_preferred_size (CLUTTER_CONTENT (priv->texture),
+                                              &width,
+                                              &height);
+          bounds = (cairo_rectangle_int_t) {
+            .width = width,
+            .height = height,
+          };
 
-      priv->unobscured_region =
-        get_scaled_region (surface_actor, unobscured_region);
+          priv->unobscured_region =
+            get_scaled_region (surface_actor, unobscured_region);
 
-      cairo_region_intersect_rectangle (priv->unobscured_region, &bounds);
+          cairo_region_intersect_rectangle (priv->unobscured_region, &bounds);
+        }
     }
 }
 
@@ -130,7 +137,12 @@ set_clip_region (MetaSurfaceActor *surface_actor,
 
   g_clear_pointer (&priv->clip_region, cairo_region_destroy);
   if (clip_region)
-    priv->clip_region = get_scaled_region (surface_actor, clip_region);
+    {
+      if (cairo_region_is_empty (clip_region))
+        priv->clip_region = cairo_region_reference (clip_region);
+      else
+        priv->clip_region = get_scaled_region (surface_actor, clip_region);
+    }
 }
 
 static void
