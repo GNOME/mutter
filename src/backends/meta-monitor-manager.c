@@ -2934,7 +2934,6 @@ meta_output_parse_edid (MetaOutput *output,
 gboolean
 meta_output_is_laptop (MetaOutput *output)
 {
-  /* FIXME: extend with better heuristics */
   switch (output->connector_type)
     {
     case META_CONNECTOR_TYPE_eDP:
