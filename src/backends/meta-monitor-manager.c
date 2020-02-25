@@ -1149,7 +1149,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
       crtc_index = crtc ? g_list_index (combined_crtcs, crtc) : -1;
       g_variant_builder_add (&output_builder, "(uxiausauaua{sv})",
                              i, /* ID */
-                             (gint64)output->winsys_id,
+                             meta_output_get_id (output),
                              crtc_index,
                              &crtcs,
                              output->name,

@@ -294,15 +294,19 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
                         GError           **error)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
+  uint32_t connector_id;
+  uint32_t gpu_id;
   MetaOutput *output;
   MetaOutputKms *output_kms;
   const MetaKmsConnectorState *connector_state;
-  uint32_t connector_id;
   GArray *crtcs;
   GList *l;
-  uint32_t gpu_id;
+
+  gpu_id = meta_gpu_kms_get_id (gpu_kms);
+  connector_id = meta_kms_connector_get_id (kms_connector);
 
   output = g_object_new (META_TYPE_OUTPUT,
+                         "id", ((uint64_t) gpu_id << 32) | connector_id,
                          "gpu", gpu,
                          NULL);
 
@@ -311,10 +315,6 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   output->driver_notify = (GDestroyNotify) meta_output_destroy_notify;
 
   output->name = g_strdup (meta_kms_connector_get_name (kms_connector));
-
-  gpu_id = meta_gpu_kms_get_id (gpu_kms);
-  connector_id = meta_kms_connector_get_id (kms_connector);
-  output->winsys_id = ((uint64_t) gpu_id << 32) | connector_id;
 
   output_kms->kms_connector = kms_connector;
 

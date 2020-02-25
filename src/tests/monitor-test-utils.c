@@ -93,7 +93,7 @@ read_file (const char *file_path)
 
 static MetaOutput *
 output_from_winsys_id (MetaBackend *backend,
-                       uint64_t     winsys_id)
+                       uint64_t     output_id)
 {
   MetaGpu *gpu = meta_backend_test_get_gpu (META_BACKEND_TEST (backend));
   GList *l;
@@ -102,7 +102,7 @@ output_from_winsys_id (MetaBackend *backend,
     {
       MetaOutput *output = l->data;
 
-      if (output->winsys_id == winsys_id)
+      if (meta_output_get_id (output) == output_id)
         return output;
     }
 
@@ -650,12 +650,12 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
         serial = "0x123456";
 
       output = g_object_new (META_TYPE_OUTPUT,
+                             "id", i,
                              "gpu", test_get_gpu (),
                              NULL);
 
       if (crtc)
         meta_output_assign_crtc (output, crtc);
-      output->winsys_id = i;
       output->name = (is_laptop_panel ? g_strdup_printf ("eDP-%d",
                                                   ++n_laptop_panels)
                                : g_strdup_printf ("DP-%d",

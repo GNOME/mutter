@@ -491,7 +491,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
               output->is_dirty = TRUE;
               meta_output_assign_crtc (output, crtc);
 
-              output_ids[j] = output->winsys_id;
+              output_ids[j] = meta_output_get_id (output);
             }
 
           rotation = meta_monitor_transform_to_xrandr (crtc_info->transform);
@@ -793,7 +793,7 @@ meta_monitor_manager_xrandr_tiled_monitor_added (MetaMonitorManager *manager,
     {
       MetaOutput *output = l->data;
 
-      xrandr_monitor_info->outputs[i] = output->winsys_id;
+      xrandr_monitor_info->outputs[i] = meta_output_get_id (output);
     }
 
   XRRSetMonitor (manager_xrandr->xdisplay,

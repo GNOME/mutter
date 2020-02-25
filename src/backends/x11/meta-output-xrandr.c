@@ -70,7 +70,7 @@ output_set_presentation_xrandr (MetaOutput *output,
   atom = XInternAtom (xdisplay, "_MUTTER_PRESENTATION_OUTPUT", False);
 
   xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
-                                    (XID) output->winsys_id,
+                                    (XID) meta_output_get_id (output),
                                     atom, XCB_ATOM_CARDINAL, 32,
                                     XCB_PROP_MODE_REPLACE,
                                     1, &value);
@@ -90,7 +90,7 @@ output_set_underscanning_xrandr (MetaOutput *output,
   valueatom = XInternAtom (xdisplay, value, False);
 
   xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
-                                    (XID) output->winsys_id,
+                                    (XID) meta_output_get_id (output),
                                     prop, XCB_ATOM_ATOM, 32,
                                     XCB_PROP_MODE_REPLACE,
                                     1, &valueatom);
@@ -111,7 +111,7 @@ output_set_underscanning_xrandr (MetaOutput *output,
       border_value = crtc_config->mode->width * 0.05;
 
       xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
-                                        (XID) output->winsys_id,
+                                        (XID) meta_output_get_id (output),
                                         prop, XCB_ATOM_INTEGER, 32,
                                         XCB_PROP_MODE_REPLACE,
                                         1, &border_value);
@@ -120,7 +120,7 @@ output_set_underscanning_xrandr (MetaOutput *output,
       border_value = crtc_config->mode->height * 0.05;
 
       xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
-                                        (XID) output->winsys_id,
+                                        (XID) meta_output_get_id (output),
                                         prop, XCB_ATOM_INTEGER, 32,
                                         XCB_PROP_MODE_REPLACE,
                                         1, &border_value);
@@ -135,7 +135,7 @@ meta_output_xrandr_apply_mode (MetaOutput *output)
   if (output->is_primary)
     {
       XRRSetOutputPrimary (xdisplay, DefaultRootWindow (xdisplay),
-                           (XID) output->winsys_id);
+                           (XID) meta_output_get_id (output));
     }
 
   output_set_presentation_xrandr (output, output->is_presentation);
@@ -166,7 +166,7 @@ meta_output_xrandr_change_backlight (MetaOutput *output,
   atom = XInternAtom (xdisplay, "Backlight", False);
 
   xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
-                                    (XID)output->winsys_id,
+                                    (XID) meta_output_get_id (output),
                                     atom, XCB_ATOM_INTEGER, 32,
                                     XCB_PROP_MODE_REPLACE,
                                     1, &hw_value);
@@ -189,7 +189,7 @@ output_get_integer_property (MetaOutput *output,
 
   atom = XInternAtom (xdisplay, propname, False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) meta_output_get_id (output),
                         atom,
                         0, G_MAXLONG, False, False, XA_INTEGER,
                         &actual_type, &actual_format,
@@ -217,7 +217,7 @@ output_get_property_exists (MetaOutput *output,
 
   atom = XInternAtom (xdisplay, propname, False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) meta_output_get_id (output),
                         atom,
                         0, G_MAXLONG, False, False, AnyPropertyType,
                         &actual_type, &actual_format,
@@ -241,7 +241,7 @@ output_get_boolean_property (MetaOutput *output,
 
   atom = XInternAtom (xdisplay, propname, False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) meta_output_get_id (output),
                         atom,
                         0, G_MAXLONG, False, False, XA_CARDINAL,
                         &actual_type, &actual_format,
@@ -271,7 +271,7 @@ output_get_underscanning_xrandr (MetaOutput *output)
 
   atom = XInternAtom (xdisplay, "underscan", False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) meta_output_get_id (output),
                         atom,
                         0, G_MAXLONG, False, False, XA_ATOM,
                         &actual_type, &actual_format,
@@ -298,7 +298,7 @@ output_get_supports_underscanning_xrandr (MetaOutput *output)
 
   atom = XInternAtom (xdisplay, "underscan", False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) meta_output_get_id (output),
                         atom,
                         0, G_MAXLONG, False, False, XA_ATOM,
                         &actual_type, &actual_format,
@@ -308,7 +308,7 @@ output_get_supports_underscanning_xrandr (MetaOutput *output)
     return FALSE;
 
   property_info = XRRQueryOutputProperty (xdisplay,
-                                          (XID) output->winsys_id,
+                                          (XID) meta_output_get_id (output),
                                           atom);
   values = (Atom *) property_info->values;
 
@@ -341,7 +341,7 @@ output_get_backlight_xrandr (MetaOutput *output)
 
   atom = XInternAtom (xdisplay, "Backlight", False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) meta_output_get_id (output),
                         atom,
                         0, G_MAXLONG, False, False, XA_INTEGER,
                         &actual_type, &actual_format,
@@ -363,14 +363,16 @@ output_get_backlight_limits_xrandr (MetaOutput *output)
   Display *xdisplay = xdisplay_from_output (output);
   Atom atom;
   xcb_connection_t *xcb_conn;
+  xcb_randr_output_t output_id;
   xcb_randr_query_output_property_cookie_t cookie;
   g_autofree xcb_randr_query_output_property_reply_t *reply = NULL;
 
   atom = XInternAtom (xdisplay, "Backlight", False);
 
   xcb_conn = XGetXCBConnection (xdisplay);
+  output_id = meta_output_get_id (output);
   cookie = xcb_randr_query_output_property (xcb_conn,
-                                            (xcb_randr_output_t) output->winsys_id,
+                                            output_id,
                                             (xcb_atom_t) atom);
   reply = xcb_randr_query_output_property_reply (xcb_conn,
                                                  cookie,
@@ -434,12 +436,18 @@ meta_output_xrandr_read_edid (MetaOutput *output)
   gsize len;
 
   edid_atom = XInternAtom (xdisplay, "EDID", FALSE);
-  result = get_edid_property (xdisplay, output->winsys_id, edid_atom, &len);
+  result = get_edid_property (xdisplay,
+                              meta_output_get_id (output),
+                              edid_atom,
+                              &len);
 
   if (!result)
     {
       edid_atom = XInternAtom (xdisplay, "EDID_DATA", FALSE);
-      result = get_edid_property (xdisplay, output->winsys_id, edid_atom, &len);
+      result = get_edid_property (xdisplay,
+                                  meta_output_get_id (output),
+                                  edid_atom,
+                                  &len);
     }
 
   if (result)
@@ -527,7 +535,7 @@ output_get_connector_type_from_prop (MetaOutput *output)
 
   atom = XInternAtom (xdisplay, "ConnectorType", False);
   XRRGetOutputProperty (xdisplay,
-                        (XID)output->winsys_id,
+                        (XID) meta_output_get_id (output),
                         atom,
                         0, G_MAXLONG, False, False, XA_ATOM,
                         &actual_type, &actual_format,
@@ -623,7 +631,9 @@ output_get_panel_orientation_transform (MetaOutput *output)
   g_autofree char *str = NULL;
 
   atom = XInternAtom (xdisplay, "panel orientation", False);
-  XRRGetOutputProperty (xdisplay, (XID)output->winsys_id, atom,
+  XRRGetOutputProperty (xdisplay,
+                        (XID) meta_output_get_id (output),
+                        atom,
                         0, G_MAXLONG, False, False, XA_ATOM,
                         &actual_type, &actual_format,
                         &nitems, &bytes_after, &buffer);
@@ -665,7 +675,7 @@ output_get_tile_info (MetaOutput *output)
 
   tile_atom = XInternAtom (xdisplay, "TILE", FALSE);
   XRRGetOutputProperty (xdisplay,
-                        output->winsys_id,
+                        (XID) meta_output_get_id (output),
                         tile_atom, 0, 100, False,
                         False, AnyPropertyType,
                         &actual_type, &actual_format,
@@ -771,9 +781,9 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
   unsigned int i;
 
   output = g_object_new (META_TYPE_OUTPUT,
+                         "id", output_id,
                          "gpu", gpu_xrandr,
                          NULL);
-  output->winsys_id = output_id;
   output->name = g_strdup (xrandr_output->name);
 
   edid = meta_output_xrandr_read_edid (output);
@@ -817,7 +827,7 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
       output->possible_clones[i] = GINT_TO_POINTER (xrandr_output->clones[i]);
     }
 
-  output->is_primary = ((XID) output->winsys_id == primary_output);
+  output->is_primary = (XID) meta_output_get_id (output) == primary_output;
   output->is_presentation = output_get_presentation_xrandr (output);
   output->is_underscanning = output_get_underscanning_xrandr (output);
   output->supports_underscanning =

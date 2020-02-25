@@ -653,7 +653,7 @@ meta_monitor_normal_new (MetaGpu            *gpu,
   monitor_priv->gpu = gpu;
 
   monitor_priv->outputs = g_list_append (NULL, g_object_ref (output));
-  monitor_priv->winsys_id = output->winsys_id;
+  monitor_priv->winsys_id = meta_output_get_id (output);
   meta_monitor_generate_spec (monitor);
 
   meta_monitor_normal_generate_modes (monitor_normal);
@@ -1292,7 +1292,7 @@ meta_monitor_tiled_new (MetaGpu            *gpu,
   monitor_priv->gpu = gpu;
 
   monitor_tiled->tile_group_id = output->tile_info.group_id;
-  monitor_priv->winsys_id = output->winsys_id;
+  monitor_priv->winsys_id = meta_output_get_id (output);
 
   monitor_tiled->origin_output = output;
   add_tiled_monitor_outputs (gpu, monitor_tiled);

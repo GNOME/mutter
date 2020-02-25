@@ -64,8 +64,6 @@ struct _MetaOutput
 {
   GObject parent;
 
-  /* The low-level ID of this output, used to apply back configuration */
-  uint64_t winsys_id;
   char *name;
   char *vendor;
   char *product;
@@ -116,6 +114,9 @@ struct _MetaOutput
 
 #define META_TYPE_OUTPUT (meta_output_get_type ())
 META_EXPORT_TEST G_DECLARE_FINAL_TYPE (MetaOutput, meta_output, META, OUTPUT, GObject)
+
+META_EXPORT_TEST
+uint64_t meta_output_get_id (MetaOutput *output);
 
 META_EXPORT_TEST
 MetaGpu * meta_output_get_gpu (MetaOutput *output);

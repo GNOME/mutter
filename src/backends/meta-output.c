@@ -25,6 +25,7 @@ enum
 {
   PROP_0,
 
+  PROP_ID,
   PROP_GPU,
 
   N_PROPS
@@ -34,6 +35,8 @@ static GParamSpec *obj_props[N_PROPS];
 
 typedef struct _MetaOutputPrivate
 {
+  uint64_t id;
+
   MetaGpu *gpu;
 
   /* The CRTC driving this output, NULL if the output is not enabled */
@@ -41,6 +44,14 @@ typedef struct _MetaOutputPrivate
 } MetaOutputPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaOutput, meta_output, G_TYPE_OBJECT)
+
+uint64_t
+meta_output_get_id (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  return priv->id;
+}
 
 MetaGpu *
 meta_output_get_gpu (MetaOutput *output)
@@ -117,6 +128,9 @@ meta_output_set_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_ID:
+      priv->id = g_value_get_uint64 (value);
+      break;
     case PROP_GPU:
       priv->gpu = g_value_get_object (value);
       break;
@@ -136,6 +150,9 @@ meta_output_get_property (GObject    *object,
 
   switch (prop_id)
     {
+    case PROP_ID:
+      g_value_set_uint64 (value, priv->id);
+      break;
     case PROP_GPU:
       g_value_set_object (value, priv->gpu);
       break;
@@ -189,6 +206,14 @@ meta_output_class_init (MetaOutputClass *klass)
   object_class->dispose = meta_output_dispose;
   object_class->finalize = meta_output_finalize;
 
+  obj_props[PROP_ID] =
+    g_param_spec_uint64 ("id",
+                         "id",
+                         "CRTC id",
+                         0, UINT64_MAX, 0,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
   obj_props[PROP_GPU] =
     g_param_spec_object ("gpu",
                          "gpu",

@@ -152,9 +152,9 @@ meta_test_headless_monitor_connect (void)
   possible_crtcs[0] = g_list_first (test_setup->crtcs)->data;
 
   output = g_object_new (META_TYPE_OUTPUT,
+                         "id", 1,
                          "gpu", gpu,
                          NULL);
-  output->winsys_id = 1;
   output->name = g_strdup ("DP-1");
   output->vendor = g_strdup ("MetaProduct's Inc.");
   output->product = g_strdup ("MetaMonitor");
