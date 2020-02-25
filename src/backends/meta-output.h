@@ -106,8 +106,8 @@ struct _MetaOutput
    * resizing.
    */
   gboolean hotplug_mode_update;
-  gint suggested_x;
-  gint suggested_y;
+  int suggested_x;
+  int suggested_y;
 
   MetaTileInfo tile_info;
 };
