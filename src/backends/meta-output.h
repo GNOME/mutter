@@ -85,14 +85,9 @@ struct _MetaOutput
   MetaOutput **possible_clones;
   unsigned int n_possible_clones;
 
-  int backlight;
   int backlight_min;
   int backlight_max;
 
-  gboolean is_primary;
-  gboolean is_presentation;
-
-  gboolean is_underscanning;
   gboolean supports_underscanning;
 
   gpointer driver_private;
@@ -121,8 +116,23 @@ MetaGpu * meta_output_get_gpu (MetaOutput *output);
 const char * meta_output_get_name (MetaOutput *output);
 
 META_EXPORT_TEST
-void meta_output_assign_crtc (MetaOutput *output,
-                              MetaCrtc   *crtc);
+gboolean meta_output_is_primary (MetaOutput *output);
+
+META_EXPORT_TEST
+gboolean meta_output_is_presentation (MetaOutput *output);
+
+META_EXPORT_TEST
+gboolean meta_output_is_underscanning (MetaOutput *output);
+
+void meta_output_set_backlight (MetaOutput *output,
+                                int         backlight);
+
+int meta_output_get_backlight (MetaOutput *output);
+
+META_EXPORT_TEST
+void meta_output_assign_crtc (MetaOutput           *output,
+                              MetaCrtc             *crtc,
+                              const MetaOutputInfo *output_info);
 
 META_EXPORT_TEST
 void meta_output_unassign_crtc (MetaOutput *output);

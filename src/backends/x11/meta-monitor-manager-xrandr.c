@@ -278,13 +278,15 @@ is_output_assignment_changed (MetaOutput      *output,
       if (output_info->output != output)
         continue;
 
-      if (output->is_primary != output_info->is_primary)
+      if (meta_output_is_primary (output) != output_info->is_primary)
         return TRUE;
 
-      if (output->is_presentation != output_info->is_presentation)
+      if (meta_output_is_presentation (output) !=
+          output_info->is_presentation)
         return TRUE;
 
-      if (output->is_underscanning != output_info->is_underscanning)
+      if (meta_output_is_underscanning (output) !=
+          output_info->is_underscanning)
         return TRUE;
 
       output_is_found = TRUE;
@@ -484,12 +486,15 @@ apply_crtc_assignments (MetaMonitorManager *manager,
           for (j = 0; j < n_output_ids; j++)
             {
               MetaOutput *output;
+              MetaOutputInfo *output_info;
 
               output = ((MetaOutput**)crtc_info->outputs->pdata)[j];
 
               to_configure_outputs = g_list_remove (to_configure_outputs,
                                                     output);
-              meta_output_assign_crtc (output, crtc);
+
+              output_info = meta_find_output_info (outputs, n_outputs, output);
+              meta_output_assign_crtc (output, crtc, output_info);
 
               output_ids[j] = meta_output_get_id (output);
             }
@@ -528,21 +533,12 @@ apply_crtc_assignments (MetaMonitorManager *manager,
       MetaOutputInfo *output_info = outputs[i];
       MetaOutput *output = output_info->output;
 
-      output->is_primary = output_info->is_primary;
-      output->is_presentation = output_info->is_presentation;
-      output->is_underscanning = output_info->is_underscanning;
-
       meta_output_xrandr_apply_mode (output);
     }
 
-  /* Disable outputs not mentioned in the list */
-  for (l = to_configure_outputs; l; l = l->next)
-    {
-      MetaOutput *output = l->data;
-
-      meta_output_unassign_crtc (output);
-      output->is_primary = FALSE;
-    }
+  g_list_foreach (to_configure_outputs,
+                  (GFunc) meta_output_unassign_crtc,
+                  NULL);
 
   XUngrabServer (manager_xrandr->xdisplay);
   XFlush (manager_xrandr->xdisplay);

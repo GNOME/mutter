@@ -316,7 +316,7 @@ meta_monitor_is_primary (MetaMonitor *monitor)
 
   output = meta_monitor_get_main_output (monitor);
 
-  return output->is_primary;
+  return meta_output_is_primary (output);
 }
 
 gboolean
@@ -336,7 +336,7 @@ meta_monitor_is_underscanning (MetaMonitor *monitor)
 
   output = meta_monitor_get_main_output (monitor);
 
-  return output->is_underscanning;
+  return meta_output_is_underscanning (output);
 }
 
 gboolean

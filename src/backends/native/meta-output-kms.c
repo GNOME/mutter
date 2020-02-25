@@ -61,7 +61,7 @@ meta_output_kms_set_underscan (MetaOutput    *output,
   if (!output->supports_underscanning)
     return;
 
-  if (output->is_underscanning)
+  if (meta_output_is_underscanning (output))
     {
       MetaCrtc *crtc;
       MetaCrtcConfig *crtc_config;
@@ -363,7 +363,23 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
 
           if (meta_crtc_get_id (crtc) == connector_state->current_crtc_id)
             {
-              meta_output_assign_crtc (output, crtc);
+              MetaOutputInfo output_info;
+
+              if (old_output)
+                {
+                  output_info = (MetaOutputInfo) {
+                    .is_primary = meta_output_is_primary (old_output),
+                    .is_presentation = meta_output_is_presentation (old_output),
+                  };
+                }
+              else
+                {
+                  output_info = (MetaOutputInfo) {
+                    .is_primary = FALSE,
+                    .is_presentation = FALSE,
+                  };
+                }
+              meta_output_assign_crtc (output, crtc, &output_info);
               break;
             }
         }
@@ -371,17 +387,6 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
   else
     {
       meta_output_unassign_crtc (output);
-    }
-
-  if (old_output)
-    {
-      output->is_primary = old_output->is_primary;
-      output->is_presentation = old_output->is_presentation;
-    }
-  else
-    {
-      output->is_primary = FALSE;
-      output->is_presentation = FALSE;
     }
 
   output->suggested_x = connector_state->suggested_x;
@@ -407,7 +412,6 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
      */
   output->backlight_min = 0;
   output->backlight_max = 0;
-  output->backlight = -1;
 
   return output;
 }

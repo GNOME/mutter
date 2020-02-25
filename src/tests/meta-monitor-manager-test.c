@@ -125,7 +125,6 @@ apply_crtc_assignments (MetaMonitorManager *manager,
   MetaGpu *gpu = meta_backend_test_get_gpu (backend_test);
   g_autoptr (GList) to_configure_outputs = NULL;
   g_autoptr (GList) to_configure_crtcs = NULL;
-  GList *l;
   unsigned int i;
 
   to_configure_outputs = g_list_copy (meta_gpu_get_outputs (gpu));
@@ -144,7 +143,6 @@ apply_crtc_assignments (MetaMonitorManager *manager,
         }
       else
         {
-          MetaOutput *output;
           unsigned int j;
 
           meta_crtc_set_config (crtc,
@@ -154,41 +152,26 @@ apply_crtc_assignments (MetaMonitorManager *manager,
 
           for (j = 0; j < crtc_info->outputs->len; j++)
             {
+              MetaOutput *output;
+              MetaOutputInfo *output_info;
+
               output = ((MetaOutput**)crtc_info->outputs->pdata)[j];
 
               to_configure_outputs = g_list_remove (to_configure_outputs,
                                                     output);
-              meta_output_assign_crtc (output, crtc);
+
+              output_info = meta_find_output_info (outputs, n_outputs, output);
+              meta_output_assign_crtc (output, crtc, output_info);
             }
         }
     }
 
-  for (i = 0; i < n_outputs; i++)
-    {
-      MetaOutputInfo *output_info = outputs[i];
-      MetaOutput *output = output_info->output;
-
-      output->is_primary = output_info->is_primary;
-      output->is_presentation = output_info->is_presentation;
-      output->is_underscanning = output_info->is_underscanning;
-    }
-
-  /* Disable CRTCs not mentioned in the list */
-  for (l = to_configure_crtcs; l; l = l->next)
-    {
-      MetaCrtc *crtc = l->data;
-
-      meta_crtc_unset_config (crtc);
-    }
-
-  /* Disable outputs not mentioned in the list */
-  for (l = to_configure_outputs; l; l = l->next)
-    {
-      MetaOutput *output = l->data;
-
-      meta_output_unassign_crtc (output);
-      output->is_primary = FALSE;
-    }
+  g_list_foreach (to_configure_crtcs,
+                  (GFunc) meta_crtc_unset_config,
+                  NULL);
+  g_list_foreach (to_configure_outputs,
+                  (GFunc) meta_output_unassign_crtc,
+                  NULL);
 }
 
 static void

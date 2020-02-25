@@ -132,16 +132,19 @@ meta_output_xrandr_apply_mode (MetaOutput *output)
 {
   Display *xdisplay = xdisplay_from_output (output);
 
-  if (output->is_primary)
+  if (meta_output_is_primary (output))
     {
       XRRSetOutputPrimary (xdisplay, DefaultRootWindow (xdisplay),
                            (XID) meta_output_get_id (output));
     }
 
-  output_set_presentation_xrandr (output, output->is_presentation);
+  output_set_presentation_xrandr (output, meta_output_is_presentation (output));
 
   if (output->supports_underscanning)
-    output_set_underscanning_xrandr (output, output->is_underscanning);
+    {
+      output_set_underscanning_xrandr (output,
+                                       meta_output_is_underscanning (output));
+    }
 }
 
 static int
@@ -172,7 +175,7 @@ meta_output_xrandr_change_backlight (MetaOutput *output,
                                     1, &hw_value);
 
   /* We're not selecting for property notifies, so update the value immediately */
-  output->backlight = normalize_backlight (output, hw_value);
+  meta_output_set_backlight (output, normalize_backlight (output, hw_value));
 }
 
 static gboolean
@@ -730,8 +733,9 @@ output_get_modes (MetaOutput    *output,
 }
 
 static void
-output_get_crtcs (MetaOutput    *output,
-                  XRROutputInfo *xrandr_output)
+output_get_crtcs (MetaOutput     *output,
+                  XRROutputInfo  *xrandr_output,
+                  MetaCrtc      **assigned_crtc)
 {
   MetaGpu *gpu = meta_output_get_gpu (output);
   unsigned int i;
@@ -764,10 +768,12 @@ output_get_crtcs (MetaOutput    *output,
 
       if ((XID) meta_crtc_get_id (crtc) == xrandr_output->crtc)
         {
-          meta_output_assign_crtc (output, crtc);
-          break;
+          *assigned_crtc = crtc;
+          return;
         }
     }
+
+  *assigned_crtc = NULL;
 }
 
 MetaOutput *
@@ -778,6 +784,7 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
 {
   MetaOutput *output;
   GBytes *edid;
+  MetaCrtc *assigned_crtc;
   unsigned int i;
 
   output = g_object_new (META_TYPE_OUTPUT,
@@ -812,7 +819,19 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
 
   output_get_tile_info (output);
   output_get_modes (output, xrandr_output);
-  output_get_crtcs (output, xrandr_output);
+  output_get_crtcs (output, xrandr_output, &assigned_crtc);
+
+  if (assigned_crtc)
+    {
+      MetaOutputInfo output_info;
+
+      output_info = (MetaOutputInfo) {
+        .is_primary = (XID) meta_output_get_id (output) == primary_output,
+        .is_presentation = output_get_presentation_xrandr (output),
+        .is_underscanning = output_get_underscanning_xrandr (output),
+      };
+      meta_output_assign_crtc (output, assigned_crtc, &output_info);
+    }
 
   output->n_possible_clones = xrandr_output->nclone;
   output->possible_clones = g_new0 (MetaOutput *,
@@ -827,17 +846,12 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
       output->possible_clones[i] = GINT_TO_POINTER (xrandr_output->clones[i]);
     }
 
-  output->is_primary = (XID) meta_output_get_id (output) == primary_output;
-  output->is_presentation = output_get_presentation_xrandr (output);
-  output->is_underscanning = output_get_underscanning_xrandr (output);
   output->supports_underscanning =
     output_get_supports_underscanning_xrandr (output);
   output_get_backlight_limits_xrandr (output);
 
   if (!(output->backlight_min == 0 && output->backlight_max == 0))
-    output->backlight = output_get_backlight_xrandr (output);
-  else
-    output->backlight = -1;
+    meta_output_set_backlight (output, output_get_backlight_xrandr (output));
 
   if (output->n_modes == 0 || output->n_possible_crtcs == 0)
     {

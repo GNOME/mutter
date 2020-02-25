@@ -285,7 +285,7 @@ check_logical_monitor (MetaMonitorManager            *monitor_manager,
           MetaOutput *output = l_output->data;
           MetaCrtc *crtc;
 
-          if (output->is_primary)
+          if (meta_output_is_primary (output))
             {
               g_assert_null (primary_output);
               primary_output = output;
@@ -296,7 +296,7 @@ check_logical_monitor (MetaMonitorManager            *monitor_manager,
                     meta_monitor_get_logical_monitor (monitor) == logical_monitor);
           g_assert_cmpint (logical_monitor->is_presentation,
                            ==,
-                           output->is_presentation);
+                           meta_output_is_presentation (output));
         }
     }
 
@@ -370,7 +370,7 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
           g_assert (output == output_from_winsys_id (backend, winsys_id));
           g_assert_cmpint (expect->monitors[i].is_underscanning,
                            ==,
-                           output->is_underscanning);
+                           meta_output_is_underscanning (output));
         }
 
       meta_monitor_get_physical_dimensions (monitor, &width_mm, &height_mm);
@@ -655,7 +655,15 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
                              NULL);
 
       if (crtc)
-        meta_output_assign_crtc (output, crtc);
+        {
+          MetaOutputInfo output_info;
+
+          output_info = (MetaOutputInfo) {
+            .is_underscanning = setup->outputs[i].is_underscanning,
+          };
+          meta_output_assign_crtc (output, crtc, &output_info);
+        }
+
       output->name = (is_laptop_panel ? g_strdup_printf ("eDP-%d",
                                                   ++n_laptop_panels)
                                : g_strdup_printf ("DP-%d",
@@ -676,11 +684,9 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
       output->possible_crtcs = possible_crtcs;
       output->n_possible_clones = 0;
       output->possible_clones = NULL;
-      output->backlight = -1;
       output->connector_type = (is_laptop_panel ? META_CONNECTOR_TYPE_eDP
                                          : META_CONNECTOR_TYPE_DisplayPort);
       output->tile_info = setup->outputs[i].tile_info;
-      output->is_underscanning = setup->outputs[i].is_underscanning;
       output->panel_orientation_transform =
         setup->outputs[i].panel_orientation_transform;
       output->driver_private = output_test;

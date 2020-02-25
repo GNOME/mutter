@@ -1107,18 +1107,18 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
       g_variant_builder_add (&properties, "{sv}", "display-name",
                              g_variant_new_string (output->name));
       g_variant_builder_add (&properties, "{sv}", "backlight",
-                             g_variant_new_int32 (output->backlight));
+                             g_variant_new_int32 (meta_output_get_backlight (output)));
       g_variant_builder_add (&properties, "{sv}", "min-backlight-step",
                              g_variant_new_int32 ((output->backlight_max - output->backlight_min) ?
                                                   100 / (output->backlight_max - output->backlight_min) : -1));
       g_variant_builder_add (&properties, "{sv}", "primary",
-                             g_variant_new_boolean (output->is_primary));
+                             g_variant_new_boolean (meta_output_is_primary (output)));
       g_variant_builder_add (&properties, "{sv}", "presentation",
-                             g_variant_new_boolean (output->is_presentation));
+                             g_variant_new_boolean (meta_output_is_presentation (output)));
       g_variant_builder_add (&properties, "{sv}", "connector-type",
                              g_variant_new_string (get_connector_type_name (output->connector_type)));
       g_variant_builder_add (&properties, "{sv}", "underscanning",
-                             g_variant_new_boolean (output->is_underscanning));
+                             g_variant_new_boolean (meta_output_is_underscanning (output)));
       g_variant_builder_add (&properties, "{sv}", "supports-underscanning",
                              g_variant_new_boolean (output->supports_underscanning));
 
@@ -2103,6 +2103,7 @@ meta_monitor_manager_handle_change_backlight  (MetaDBusDisplayConfig *skeleton,
 {
   GList *combined_outputs;
   MetaOutput *output;
+  int new_backlight;
 
   if (serial != manager->serial)
     {
@@ -2133,7 +2134,7 @@ meta_monitor_manager_handle_change_backlight  (MetaDBusDisplayConfig *skeleton,
       return TRUE;
     }
 
-  if (output->backlight == -1 ||
+  if (meta_output_get_backlight (output) == -1 ||
       (output->backlight_min == 0 && output->backlight_max == 0))
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
@@ -2144,7 +2145,10 @@ meta_monitor_manager_handle_change_backlight  (MetaDBusDisplayConfig *skeleton,
 
   META_MONITOR_MANAGER_GET_CLASS (manager)->change_backlight (manager, output, value);
 
-  meta_dbus_display_config_complete_change_backlight (skeleton, invocation, output->backlight);
+  new_backlight = meta_output_get_backlight (output);
+  meta_dbus_display_config_complete_change_backlight (skeleton,
+                                                      invocation,
+                                                      new_backlight);
   return TRUE;
 }
 

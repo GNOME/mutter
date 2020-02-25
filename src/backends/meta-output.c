@@ -41,6 +41,13 @@ typedef struct _MetaOutputPrivate
 
   /* The CRTC driving this output, NULL if the output is not enabled */
   MetaCrtc *crtc;
+
+  gboolean is_primary;
+  gboolean is_presentation;
+
+  gboolean is_underscanning;
+
+  int backlight;
 } MetaOutputPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaOutput, meta_output, G_TYPE_OBJECT)
@@ -67,15 +74,61 @@ meta_output_get_name (MetaOutput *output)
   return output->name;
 }
 
+gboolean
+meta_output_is_primary (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  return priv->is_primary;
+}
+
+gboolean
+meta_output_is_presentation (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  return priv->is_presentation;
+}
+
+gboolean
+meta_output_is_underscanning (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  return priv->is_underscanning;
+}
+
 void
-meta_output_assign_crtc (MetaOutput *output,
-                         MetaCrtc   *crtc)
+meta_output_set_backlight (MetaOutput *output,
+                           int         backlight)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  priv->backlight = backlight;
+}
+
+int
+meta_output_get_backlight (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  return priv->backlight;
+}
+
+void
+meta_output_assign_crtc (MetaOutput           *output,
+                         MetaCrtc             *crtc,
+                         const MetaOutputInfo *output_info)
 {
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
   g_assert (crtc);
 
   g_set_object (&priv->crtc, crtc);
+
+  priv->is_primary = output_info->is_primary;
+  priv->is_presentation = output_info->is_presentation;
+  priv->is_underscanning = output_info->is_underscanning;
 }
 
 void
@@ -84,6 +137,9 @@ meta_output_unassign_crtc (MetaOutput *output)
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
   g_clear_object (&priv->crtc);
+
+  priv->is_primary = FALSE;
+  priv->is_presentation = FALSE;
 }
 
 MetaCrtc *
@@ -194,6 +250,9 @@ meta_output_finalize (GObject *object)
 static void
 meta_output_init (MetaOutput *output)
 {
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  priv->backlight = -1;
 }
 
 static void

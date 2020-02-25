@@ -178,7 +178,8 @@ meta_logical_monitor_add_monitor (MetaLogicalMonitor *logical_monitor,
         {
           MetaOutput *output = l_output->data;
 
-          is_presentation = is_presentation && output->is_presentation;
+          is_presentation = (is_presentation &&
+                             meta_output_is_presentation (output));
         }
     }
 

@@ -387,4 +387,22 @@ gboolean meta_monitor_has_aspect_as_size (MetaMonitor *monitor);
 char * meta_monitor_manager_get_vendor_name (MetaMonitorManager *manager,
                                              const char         *vendor);
 
+static inline MetaOutputInfo *
+meta_find_output_info (MetaOutputInfo **outputs,
+                       unsigned int     n_outputs,
+                       MetaOutput      *output)
+{
+  unsigned int i;
+
+  for (i = 0; i < n_outputs; i++)
+    {
+      MetaOutputInfo *output_info = outputs[i];
+
+      if (output == output_info->output)
+        return output_info;
+    }
+
+  return NULL;
+}
+
 #endif /* META_MONITOR_MANAGER_PRIVATE_H */
