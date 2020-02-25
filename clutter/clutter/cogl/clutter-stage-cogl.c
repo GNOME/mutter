@@ -743,8 +743,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
               /* Update the fb clip region with the extra damage. */
               cairo_region_union (fb_clip_region, fb_damage);
 
-              view_damage = g_steal_pointer (&fb_damage);
-              view_damage = offset_scale_and_clamp_region (view_damage,
+              view_damage = offset_scale_and_clamp_region (fb_damage,
                                                            0, 0,
                                                            1.0f / fb_scale);
               cairo_region_translate (view_damage, view_rect.x, view_rect.y);
@@ -755,6 +754,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
               cairo_region_union (redraw_clip, view_damage);
 
               cairo_region_destroy (view_damage);
+              cairo_region_destroy (fb_damage);
 
               CLUTTER_NOTE (CLIPPING, "Reusing back buffer(age=%d) - repairing region: num rects: %d\n",
                             age,
