@@ -29,6 +29,8 @@
  * of #ClutterMasterClock.
  */
 
+#include <cogl/cogl-trace.h>
+
 #include "clutter-build-config.h"
 
 #include "clutter-master-clock.h"
@@ -461,6 +463,8 @@ clutter_clock_dispatch (GSource     *source,
 
   _clutter_threads_acquire_lock ();
 
+  COGL_TRACE_BEGIN (ClutterMasterClockTick, "Master Clock (tick)");
+
   /* Get the time to use for this frame */
   master_clock->cur_tick = g_source_get_time (source);
 
@@ -491,6 +495,8 @@ clutter_clock_dispatch (GSource     *source,
   master_clock_reschedule_stage_updates (master_clock, stages);
 
   g_slist_free_full (stages, g_object_unref);
+
+  COGL_TRACE_END (ClutterMasterClockTick);
 
   _clutter_threads_release_lock ();
 
