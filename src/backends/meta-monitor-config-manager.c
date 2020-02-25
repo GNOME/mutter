@@ -84,8 +84,10 @@ is_crtc_reserved (MetaCrtc *crtc,
 
   for (i = 0; i < reserved_crtcs->len; i++)
     {
-       glong id = g_array_index (reserved_crtcs, glong, i);
-       if (id == crtc->crtc_id)
+       uint64_t id;
+
+       id = g_array_index (reserved_crtcs, uint64_t, i);
+       if (id == meta_crtc_get_id (crtc))
          return TRUE;
     }
 
@@ -381,7 +383,7 @@ meta_monitor_config_manager_assign (MetaMonitorManager *manager,
     g_ptr_array_new_with_free_func ((GDestroyNotify) meta_crtc_info_free);
   output_infos =
     g_ptr_array_new_with_free_func ((GDestroyNotify) meta_output_info_free);
-  reserved_crtcs = g_array_new (FALSE, FALSE, sizeof (glong));
+  reserved_crtcs = g_array_new (FALSE, FALSE, sizeof (uint64_t));
 
   for (l = config->logical_monitor_configs; l; l = l->next)
     {
@@ -404,7 +406,11 @@ meta_monitor_config_manager_assign (MetaMonitorManager *manager,
 
               crtc = meta_output_get_assigned_crtc (output);
               if (crtc)
-                g_array_append_val (reserved_crtcs, crtc->crtc_id);
+                {
+                  uint64_t crtc_id = meta_crtc_get_id (crtc);
+
+                  g_array_append_val (reserved_crtcs, crtc_id);
+                }
             }
         }
     }

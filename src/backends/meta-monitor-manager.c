@@ -1030,7 +1030,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
           current_mode_index = g_list_index (combined_modes, crtc_config->mode);
           g_variant_builder_add (&crtc_builder, "(uxiiiiiuaua{sv})",
                                  i, /* ID */
-                                 (int64_t) crtc->crtc_id,
+                                 (int64_t) meta_crtc_get_id (crtc),
                                  (int) roundf (crtc_config->layout.origin.x),
                                  (int) roundf (crtc_config->layout.origin.y),
                                  (int) roundf (crtc_config->layout.size.width),
@@ -1044,7 +1044,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
         {
           g_variant_builder_add (&crtc_builder, "(uxiiiiiuaua{sv})",
                                  i, /* ID */
-                                 (int64_t) crtc->crtc_id,
+                                 (int64_t) meta_crtc_get_id (crtc),
                                  0,
                                  0,
                                  0,

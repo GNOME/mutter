@@ -737,7 +737,7 @@ output_get_crtcs (MetaOutput    *output,
         {
           MetaCrtc *crtc = l->data;
 
-          if ((XID) crtc->crtc_id == xrandr_output->crtcs[i])
+          if ((XID) meta_crtc_get_id (crtc) == xrandr_output->crtcs[i])
             {
               output->possible_crtcs[n_actual_crtcs] = crtc;
               n_actual_crtcs += 1;
@@ -752,7 +752,7 @@ output_get_crtcs (MetaOutput    *output,
     {
       MetaCrtc *crtc = l->data;
 
-      if ((XID) crtc->crtc_id == xrandr_output->crtc)
+      if ((XID) meta_crtc_get_id (crtc) == xrandr_output->crtc)
         {
           meta_output_assign_crtc (output, crtc);
           break;

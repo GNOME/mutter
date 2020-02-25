@@ -199,9 +199,9 @@ append_monitor (MetaMonitorManager *manager,
   *modes = g_list_concat (*modes, new_modes);
 
   crtc = g_object_new (META_TYPE_CRTC,
+                       "id", g_list_length (*crtcs) + 1,
                        "gpu", gpu,
                        NULL);
-  crtc->crtc_id = g_list_length (*crtcs) + 1;
   crtc->all_transforms = ALL_TRANSFORMS;
   *crtcs = g_list_append (*crtcs, crtc);
 
@@ -293,9 +293,9 @@ append_tiled_monitor (MetaMonitorManager *manager,
       MetaCrtc *crtc;
 
       crtc = g_object_new (META_TYPE_CRTC,
+                           "id", g_list_length (*crtcs) + i + 1,
                            "gpu", gpu,
                            NULL);
-      crtc->crtc_id = g_list_length (*crtcs) + i + 1;
       crtc->all_transforms = ALL_TRANSFORMS;
       new_crtcs = g_list_append (new_crtcs, crtc);
     }

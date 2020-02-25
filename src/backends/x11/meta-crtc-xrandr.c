@@ -249,6 +249,7 @@ meta_create_xrandr_crtc (MetaGpuXrandr      *gpu_xrandr,
   GList *modes;
 
   crtc = g_object_new (META_TYPE_CRTC,
+                       "id", crtc_id,
                        "gpu", gpu,
                        NULL);
 
@@ -258,7 +259,6 @@ meta_create_xrandr_crtc (MetaGpuXrandr      *gpu_xrandr,
 
   crtc->driver_private = crtc_xrandr;
   crtc->driver_notify = (GDestroyNotify) meta_crtc_destroy_notify;
-  crtc->crtc_id = crtc_id;
 
   panning = XRRGetPanning (xdisplay, resources, crtc_id);
   if (panning && panning->width > 0 && panning->height > 0)

@@ -361,7 +361,7 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
         {
           MetaCrtc *crtc = l->data;
 
-          if (crtc->crtc_id == connector_state->current_crtc_id)
+          if (meta_crtc_get_id (crtc) == connector_state->current_crtc_id)
             {
               meta_output_assign_crtc (output, crtc);
               break;

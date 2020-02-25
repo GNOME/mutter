@@ -573,9 +573,9 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
       MetaCrtc *crtc;
 
       crtc = g_object_new (META_TYPE_CRTC,
+                           "id", i + 1,
                            "gpu", test_get_gpu (),
                            NULL);
-      crtc->crtc_id = i + 1;
       crtc->all_transforms = ALL_TRANSFORMS;
 
       test_setup->crtcs = g_list_append (test_setup->crtcs, crtc);

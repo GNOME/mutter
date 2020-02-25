@@ -179,13 +179,15 @@ meta_crtc_kms_set_mode (MetaCrtc      *crtc,
     {
       mode = crtc_config->mode->driver_private;
 
-      g_debug ("Setting CRTC (%ld) mode to %s", crtc->crtc_id, mode->name);
+      g_debug ("Setting CRTC (%ld) mode to %s",
+               meta_crtc_get_id (crtc), mode->name);
     }
   else
     {
       mode = NULL;
 
-      g_debug ("Unsetting CRTC (%ld) mode", crtc->crtc_id);
+      g_debug ("Unsetting CRTC (%ld) mode",
+               meta_crtc_get_id (crtc));
     }
 
   meta_kms_update_mode_set (kms_update,
@@ -297,9 +299,9 @@ meta_create_kms_crtc (MetaGpuKms  *gpu_kms,
   primary_plane = meta_kms_device_get_primary_plane_for (kms_device,
                                                          kms_crtc);
   crtc = g_object_new (META_TYPE_CRTC,
+                       "id", meta_kms_crtc_get_id (kms_crtc),
                        "gpu", gpu,
                        NULL);
-  crtc->crtc_id = meta_kms_crtc_get_id (kms_crtc);
   crtc->is_dirty = FALSE;
   crtc->all_transforms = ALL_TRANSFORMS_MASK;
 

@@ -2500,7 +2500,7 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen  *onscreen,
     return FALSE;
 
   output_attribs[0] = EGL_DRM_CRTC_EXT;
-  output_attribs[1] = onscreen_native->crtc->crtc_id;
+  output_attribs[1] = meta_crtc_get_id (onscreen_native->crtc);
   output_attribs[2] = EGL_NONE;
 
   if (!meta_egl_get_output_layers (egl, egl_display,

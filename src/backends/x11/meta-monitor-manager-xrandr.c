@@ -417,7 +417,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
           xrandr_set_crtc_config (manager_xrandr,
                                   crtc,
                                   save_timestamp,
-                                  (xcb_randr_crtc_t) crtc->crtc_id,
+                                  (xcb_randr_crtc_t) meta_crtc_get_id (crtc),
                                   XCB_CURRENT_TIME,
                                   0, 0, XCB_NONE,
                                   XCB_RANDR_ROTATION_ROTATE_0,
@@ -444,7 +444,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
       xrandr_set_crtc_config (manager_xrandr,
                               crtc,
                               save_timestamp,
-                              (xcb_randr_crtc_t) crtc->crtc_id,
+                              (xcb_randr_crtc_t) meta_crtc_get_id (crtc),
                               XCB_CURRENT_TIME,
                               0, 0, XCB_NONE,
                               XCB_RANDR_ROTATION_ROTATE_0,
@@ -498,7 +498,7 @@ apply_crtc_assignments (MetaMonitorManager *manager,
           if (!xrandr_set_crtc_config (manager_xrandr,
                                        crtc,
                                        save_timestamp,
-                                       (xcb_randr_crtc_t) crtc->crtc_id,
+                                       (xcb_randr_crtc_t) meta_crtc_get_id (crtc),
                                        XCB_CURRENT_TIME,
                                        (int) roundf (crtc_info->layout.origin.x),
                                        (int) roundf (crtc_info->layout.origin.y),
@@ -507,7 +507,8 @@ apply_crtc_assignments (MetaMonitorManager *manager,
                                        output_ids, n_output_ids))
             {
               meta_warning ("Configuring CRTC %d with mode %d (%d x %d @ %f) at position %d, %d and transform %u failed\n",
-                            (unsigned)(crtc->crtc_id), (unsigned)(mode->mode_id),
+                            (unsigned) meta_crtc_get_id (crtc),
+                            (unsigned) mode->mode_id,
                             mode->width, mode->height, (float)mode->refresh_rate,
                             (int) roundf (crtc_info->layout.origin.x),
                             (int) roundf (crtc_info->layout.origin.y),
@@ -658,7 +659,8 @@ meta_monitor_manager_xrandr_get_crtc_gamma (MetaMonitorManager  *manager,
   MetaMonitorManagerXrandr *manager_xrandr = META_MONITOR_MANAGER_XRANDR (manager);
   XRRCrtcGamma *gamma;
 
-  gamma = XRRGetCrtcGamma (manager_xrandr->xdisplay, (XID)crtc->crtc_id);
+  gamma = XRRGetCrtcGamma (manager_xrandr->xdisplay,
+                           (XID) meta_crtc_get_id (crtc));
 
   *size = gamma->size;
   *red = g_memdup (gamma->red, sizeof (unsigned short) * gamma->size);
@@ -684,7 +686,9 @@ meta_monitor_manager_xrandr_set_crtc_gamma (MetaMonitorManager *manager,
   memcpy (gamma->green, green, sizeof (unsigned short) * size);
   memcpy (gamma->blue, blue, sizeof (unsigned short) * size);
 
-  XRRSetCrtcGamma (manager_xrandr->xdisplay, (XID)crtc->crtc_id, gamma);
+  XRRSetCrtcGamma (manager_xrandr->xdisplay,
+                   (XID) meta_crtc_get_id (crtc),
+                   gamma);
 
   XRRFreeGamma (gamma);
 }
