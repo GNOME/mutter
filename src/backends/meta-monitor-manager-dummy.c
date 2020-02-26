@@ -210,8 +210,6 @@ append_monitor (MetaMonitorManager *manager,
   output_info->vendor = g_strdup ("MetaProducts Inc.");
   output_info->product = g_strdup ("MetaMonitor");
   output_info->serial = g_strdup_printf ("0xC0FFEE-%d", number);
-  output_info->suggested_x = -1;
-  output_info->suggested_y = -1;
   output_info->width_mm = 222;
   output_info->height_mm = 125;
   output_info->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
