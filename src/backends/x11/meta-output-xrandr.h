@@ -19,8 +19,8 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_OUTPUT_XRANDR
-#define META_OUTPUT_XRANDR
+#ifndef META_OUTPUT_XRANDR_H
+#define META_OUTPUT_XRANDR_H
 
 #include <X11/extensions/Xrandr.h>
 
@@ -40,4 +40,4 @@ MetaOutput * meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
                                         RROutput       output_id,
                                         RROutput       primary_output);
 
-#endif /* META_OUTPUT_XRANDR */
+#endif /* META_OUTPUT_XRANDR_H */
