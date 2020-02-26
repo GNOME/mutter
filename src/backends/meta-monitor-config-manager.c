@@ -184,6 +184,7 @@ assign_monitor_crtc (MetaMonitor         *monitor,
   float scale = 0.0;
   float width, height;
   MetaCrtcMode *crtc_mode;
+  const MetaCrtcModeInfo *crtc_mode_info;
   graphene_rect_t crtc_layout;
   MetaCrtcAssignment *crtc_assignment;
   MetaOutputAssignment *output_assignment;
@@ -233,16 +234,17 @@ assign_monitor_crtc (MetaMonitor         *monitor,
     }
 
   crtc_mode = monitor_crtc_mode->crtc_mode;
+  crtc_mode_info = meta_crtc_mode_get_info (monitor_crtc_mode->crtc_mode);
 
   if (meta_monitor_transform_is_rotated (crtc_transform))
     {
-      width = crtc_mode->height / scale;
-      height = crtc_mode->width / scale;
+      width = crtc_mode_info->height / scale;
+      height = crtc_mode_info->width / scale;
     }
   else
     {
-      width = crtc_mode->width / scale;
-      height = crtc_mode->height / scale;
+      width = crtc_mode_info->width / scale;
+      height = crtc_mode_info->height / scale;
     }
 
   crtc_layout = GRAPHENE_RECT_INIT (x_offset + (crtc_x / scale),

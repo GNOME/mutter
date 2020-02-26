@@ -114,13 +114,15 @@ output_set_underscanning_xrandr (MetaOutput *output,
     {
       MetaCrtc *crtc;
       const MetaCrtcConfig *crtc_config;
+      const MetaCrtcModeInfo *crtc_mode_info;
       uint32_t border_value;
 
       crtc = meta_output_get_assigned_crtc (output);
       crtc_config = meta_crtc_get_config (crtc);
+      crtc_mode_info = meta_crtc_mode_get_info (crtc_config->mode);
 
       prop = XInternAtom (xdisplay, "underscan hborder", False);
-      border_value = crtc_config->mode->width * 0.05;
+      border_value = crtc_mode_info->width * 0.05;
 
       xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
                                         (XID) meta_output_get_id (output),
@@ -129,7 +131,7 @@ output_set_underscanning_xrandr (MetaOutput *output,
                                         1, &border_value);
 
       prop = XInternAtom (xdisplay, "underscan vborder", False);
-      border_value = crtc_config->mode->height * 0.05;
+      border_value = crtc_mode_info->height * 0.05;
 
       xcb_randr_change_output_property (XGetXCBConnection (xdisplay),
                                         (XID) meta_output_get_id (output),
@@ -736,7 +738,7 @@ output_info_init_modes (MetaOutputInfo *output_info,
         {
           MetaCrtcMode *mode = l->data;
 
-          if (xrandr_output->modes[i] == (XID) mode->mode_id)
+          if (xrandr_output->modes[i] == (XID) meta_crtc_mode_get_id (mode))
             {
               output_info->modes[n_actual_modes] = mode;
               n_actual_modes += 1;

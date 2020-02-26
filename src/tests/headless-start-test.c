@@ -119,6 +119,7 @@ meta_test_headless_monitor_connect (void)
     META_MONITOR_MANAGER_TEST (monitor_manager);
   MetaMonitorTestSetup *test_setup;
   MetaCrtcMode **modes;
+  g_autoptr (MetaCrtcModeInfo) crtc_mode_info = NULL;
   MetaCrtcMode *crtc_mode;
   MetaGpu *gpu;
   MetaCrtc *crtc;
@@ -130,11 +131,15 @@ meta_test_headless_monitor_connect (void)
 
   test_setup = g_new0 (MetaMonitorTestSetup, 1);
 
-  crtc_mode = g_object_new (META_TYPE_CRTC_MODE, NULL);
-  crtc_mode->mode_id = 1;
-  crtc_mode->width = 1024;
-  crtc_mode->height = 768;
-  crtc_mode->refresh_rate = 60.0;
+  crtc_mode_info = meta_crtc_mode_info_new ();
+  crtc_mode_info->width = 1024;
+  crtc_mode_info->height = 768;
+  crtc_mode_info->refresh_rate = 60.0;
+
+  crtc_mode = g_object_new (META_TYPE_CRTC_MODE,
+                            "id", 1,
+                            "info", crtc_mode_info,
+                            NULL);
   test_setup->modes = g_list_append (NULL, crtc_mode);
 
   gpu = META_GPU (meta_backend_get_gpus (meta_get_backend ())->data);

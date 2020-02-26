@@ -141,18 +141,23 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
   for (i = 0; i < (unsigned)resources->nmode; i++)
     {
       XRRModeInfo *xmode = &resources->modes[i];
+      g_autofree char *crtc_mode_name = NULL;
       MetaCrtcMode *mode;
+      g_autoptr (MetaCrtcModeInfo) crtc_mode_info = NULL;
 
-      mode = g_object_new (META_TYPE_CRTC_MODE, NULL);
+      crtc_mode_info = meta_crtc_mode_info_new ();
+      crtc_mode_info->width = xmode->width;
+      crtc_mode_info->height = xmode->height;
+      crtc_mode_info->refresh_rate = (xmode->dotClock /
+                                      ((float)xmode->hTotal * xmode->vTotal));
+      crtc_mode_info->flags = xmode->modeFlags;
 
-      mode->mode_id = xmode->id;
-      mode->width = xmode->width;
-      mode->height = xmode->height;
-      mode->refresh_rate = (xmode->dotClock /
-                            ((float)xmode->hTotal * xmode->vTotal));
-      mode->flags = xmode->modeFlags;
-      mode->name = get_xmode_name (xmode);
-
+      crtc_mode_name = get_xmode_name (xmode);
+      mode = g_object_new (META_TYPE_CRTC_MODE,
+                           "id", xmode->id,
+                           "name", crtc_mode_name,
+                           "info", crtc_mode_info,
+                           NULL);
       modes = g_list_append (modes, mode);
     }
   meta_gpu_take_modes (gpu, modes);

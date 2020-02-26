@@ -88,16 +88,17 @@ static MetaCrtcMode *
 create_mode (CrtcModeSpec *spec,
              long          mode_id)
 {
-  MetaCrtcMode *mode;
+  g_autoptr (MetaCrtcModeInfo) crtc_mode_info = NULL;
 
-  mode = g_object_new (META_TYPE_CRTC_MODE, NULL);
+  crtc_mode_info = meta_crtc_mode_info_new ();
+  crtc_mode_info->width = spec->width;
+  crtc_mode_info->height = spec->height;
+  crtc_mode_info->refresh_rate = spec->refresh_rate;
 
-  mode->mode_id = mode_id;
-  mode->width = spec->width;
-  mode->height = spec->height;
-  mode->refresh_rate = spec->refresh_rate;
-
-  return mode;
+  return g_object_new (META_TYPE_CRTC_MODE,
+                       "id", mode_id,
+                       "info", crtc_mode_info,
+                       NULL);
 }
 
 static MetaGpu *
@@ -302,6 +303,7 @@ append_tiled_monitor (MetaMonitorManager *manager,
     {
       MetaOutputDummy *output_dummy;
       MetaCrtcMode *preferred_mode;
+      const MetaCrtcModeInfo *preferred_mode_info;
       unsigned int j;
       unsigned int number;
       g_autoptr (MetaOutputInfo) output_info = NULL;
@@ -311,6 +313,7 @@ append_tiled_monitor (MetaMonitorManager *manager,
       number = g_list_length (*outputs) + 1;
 
       preferred_mode = g_list_last (*modes)->data;
+      preferred_mode_info = meta_crtc_mode_get_info (preferred_mode);
 
       output_info = meta_output_info_new ();
 
@@ -332,8 +335,8 @@ append_tiled_monitor (MetaMonitorManager *manager,
         .max_v_tiles = 1,
         .loc_h_tile = i,
         .loc_v_tile = 0,
-        .tile_w = preferred_mode->width,
-        .tile_h = preferred_mode->height
+        .tile_w = preferred_mode_info->width,
+        .tile_h = preferred_mode_info->height
       },
 
       output_info->modes = g_new0 (MetaCrtcMode *, G_N_ELEMENTS (mode_specs));

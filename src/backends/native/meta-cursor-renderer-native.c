@@ -402,6 +402,7 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
     meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
   MetaCrtc *crtc;
   MetaMonitorTransform transform;
+  const MetaCrtcModeInfo *crtc_mode_info;
   graphene_rect_t scaled_crtc_rect;
   float scale;
   int crtc_x, crtc_y;
@@ -420,15 +421,17 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
                                    transform,
                                    &crtc_x, &crtc_y);
 
+  crtc_mode_info = meta_crtc_mode_get_info (monitor_crtc_mode->crtc_mode);
+
   if (meta_monitor_transform_is_rotated (transform))
     {
-      crtc_width = monitor_crtc_mode->crtc_mode->height;
-      crtc_height = monitor_crtc_mode->crtc_mode->width;
+      crtc_width = crtc_mode_info->height;
+      crtc_height = crtc_mode_info->width;
     }
   else
     {
-      crtc_width = monitor_crtc_mode->crtc_mode->width;
-      crtc_height = monitor_crtc_mode->crtc_mode->height;
+      crtc_width = crtc_mode_info->width;
+      crtc_height = crtc_mode_info->height;
     }
 
   scaled_crtc_rect = (graphene_rect_t) {
@@ -479,8 +482,8 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
       inverted_transform = meta_monitor_transform_invert (transform);
       meta_rectangle_transform (&cursor_rect,
                                 inverted_transform,
-                                monitor_crtc_mode->crtc_mode->width,
-                                monitor_crtc_mode->crtc_mode->height,
+                                crtc_mode_info->width,
+                                crtc_mode_info->height,
                                 &cursor_rect);
 
       set_crtc_cursor (data->in_cursor_renderer_native,

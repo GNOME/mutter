@@ -1113,6 +1113,30 @@ meta_onscreen_native_swap_drm_fb (CoglOnscreen *onscreen)
 }
 
 static void
+maybe_update_frame_info (MetaCrtc      *crtc,
+                         CoglFrameInfo *frame_info,
+                         int64_t        time_ns)
+{
+  const MetaCrtcConfig *crtc_config;
+  const MetaCrtcModeInfo *crtc_mode_info;
+  float refresh_rate;
+
+  g_return_if_fail (crtc);
+
+  crtc_config = meta_crtc_get_config (crtc);
+  if (!crtc_config)
+    return;
+
+  crtc_mode_info = meta_crtc_mode_get_info (crtc_config->mode);
+  refresh_rate = crtc_mode_info->refresh_rate;
+  if (refresh_rate >= frame_info->refresh_rate)
+    {
+      frame_info->presentation_time = time_ns;
+      frame_info->refresh_rate = refresh_rate;
+    }
+}
+
+static void
 notify_view_crtc_presented (MetaRendererView *view,
                             MetaKmsCrtc      *kms_crtc,
                             int64_t           time_ns)
@@ -1127,8 +1151,6 @@ notify_view_crtc_presented (MetaRendererView *view,
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   CoglFrameInfo *frame_info;
   MetaCrtc *crtc;
-  const MetaCrtcConfig *crtc_config;
-  float refresh_rate;
   MetaGpuKms *gpu_kms;
 
   /* Only keep the frame info for the fastest CRTC in use, which may not be
@@ -1139,13 +1161,7 @@ notify_view_crtc_presented (MetaRendererView *view,
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
 
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
-  crtc_config = crtc ? meta_crtc_get_config (crtc) : NULL;
-  refresh_rate = crtc_config ? crtc_config->mode->refresh_rate : 0.0f;
-  if (refresh_rate >= frame_info->refresh_rate)
-    {
-      frame_info->presentation_time = time_ns;
-      frame_info->refresh_rate = refresh_rate;
-    }
+  maybe_update_frame_info (crtc, frame_info, time_ns);
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   if (gpu_kms != render_gpu)
@@ -3161,6 +3177,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   CoglDisplayEGL *cogl_display_egl;
   CoglOnscreenEGL *onscreen_egl;
   const MetaCrtcConfig *crtc_config;
+  const MetaCrtcModeInfo *crtc_mode_info;
   MetaMonitorTransform view_transform;
   CoglOnscreen *onscreen = NULL;
   CoglOffscreen *offscreen = NULL;
@@ -3173,8 +3190,9 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   GError *error = NULL;
 
   crtc_config = meta_crtc_get_config (crtc);
-  onscreen_width = crtc_config->mode->width;
-  onscreen_height = crtc_config->mode->height;
+  crtc_mode_info = meta_crtc_mode_get_info (crtc_config->mode);
+  onscreen_width = crtc_mode_info->width;
+  onscreen_height = crtc_mode_info->height;
 
   onscreen = meta_renderer_native_create_onscreen (renderer_native,
                                                    renderer_native->primary_gpu_kms,

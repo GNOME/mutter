@@ -66,12 +66,15 @@ meta_output_kms_set_underscan (MetaOutputKms *output_kms,
     {
       MetaCrtc *crtc;
       const MetaCrtcConfig *crtc_config;
+      const MetaCrtcModeInfo *crtc_mode_info;
       uint64_t hborder, vborder;
 
       crtc = meta_output_get_assigned_crtc (output);
       crtc_config = meta_crtc_get_config (crtc);
-      hborder = MIN (128, (uint64_t) round (crtc_config->mode->width * 0.05));
-      vborder = MIN (128, (uint64_t) round (crtc_config->mode->height * 0.05));
+      crtc_mode_info = meta_crtc_mode_get_info (crtc_config->mode);
+
+      hborder = MIN (128, (uint64_t) round (crtc_mode_info->width * 0.05));
+      vborder = MIN (128, (uint64_t) round (crtc_mode_info->height * 0.05));
 
       g_debug ("Setting underscan of connector %s to %" G_GUINT64_FORMAT " x %" G_GUINT64_FORMAT,
                meta_kms_connector_get_name (output_kms->kms_connector),
@@ -207,17 +210,23 @@ static int
 compare_modes (const void *one,
                const void *two)
 {
-  MetaCrtcMode *a = *(MetaCrtcMode **) one;
-  MetaCrtcMode *b = *(MetaCrtcMode **) two;
+  MetaCrtcMode *crtc_mode_one = *(MetaCrtcMode **) one;
+  MetaCrtcMode *crtc_mode_two = *(MetaCrtcMode **) two;
+  const MetaCrtcModeInfo *crtc_mode_info_one =
+    meta_crtc_mode_get_info (crtc_mode_one);
+  const MetaCrtcModeInfo *crtc_mode_info_two =
+    meta_crtc_mode_get_info (crtc_mode_two);
 
-  if (a->width != b->width)
-    return a->width > b->width ? -1 : 1;
-  if (a->height != b->height)
-    return a->height > b->height ? -1 : 1;
-  if (a->refresh_rate != b->refresh_rate)
-    return a->refresh_rate > b->refresh_rate ? -1 : 1;
+  if (crtc_mode_info_one->width != crtc_mode_info_two->width)
+    return crtc_mode_info_one->width > crtc_mode_info_two->width ? -1 : 1;
+  if (crtc_mode_info_one->height != crtc_mode_info_two->height)
+    return crtc_mode_info_one->height > crtc_mode_info_two->height ? -1 : 1;
+  if (crtc_mode_info_one->refresh_rate != crtc_mode_info_two->refresh_rate)
+    return (crtc_mode_info_one->refresh_rate > crtc_mode_info_two->refresh_rate
+            ? -1 : 1);
 
-  return g_strcmp0 (b->name, a->name);
+  return g_strcmp0 (meta_crtc_mode_get_name (crtc_mode_one),
+                    meta_crtc_mode_get_name (crtc_mode_two));
 }
 
 static gboolean

@@ -148,14 +148,17 @@ check_monitor_mode (MetaMonitor         *monitor,
 
   if (crtc_mode)
     {
+      const MetaCrtcModeInfo *crtc_mode_info =
+        meta_crtc_mode_get_info (crtc_mode);
       float refresh_rate;
       MetaCrtcModeFlag flags;
 
       refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
       flags = meta_monitor_mode_get_flags (mode);
 
-      g_assert_cmpfloat (refresh_rate, ==, crtc_mode->refresh_rate);
-      g_assert_cmpint (flags, ==, (crtc_mode->flags & HANDLED_CRTC_MODE_FLAGS));
+      g_assert_cmpfloat (refresh_rate, ==, crtc_mode_info->refresh_rate);
+      g_assert_cmpint (flags, ==, (crtc_mode_info->flags &
+                                   HANDLED_CRTC_MODE_FLAGS));
     }
 
   data->expect_crtc_mode_iter++;
@@ -543,14 +546,19 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
   test_setup->modes = NULL;
   for (i = 0; i < setup->n_modes; i++)
     {
+      g_autoptr (MetaCrtcModeInfo) crtc_mode_info = NULL;
       MetaCrtcMode *mode;
 
-      mode = g_object_new (META_TYPE_CRTC_MODE, NULL);
-      mode->mode_id = i;
-      mode->width = setup->modes[i].width;
-      mode->height = setup->modes[i].height;
-      mode->refresh_rate = setup->modes[i].refresh_rate;
-      mode->flags = setup->modes[i].flags;
+      crtc_mode_info = meta_crtc_mode_info_new ();
+      crtc_mode_info->width = setup->modes[i].width;
+      crtc_mode_info->height = setup->modes[i].height;
+      crtc_mode_info->refresh_rate = setup->modes[i].refresh_rate;
+      crtc_mode_info->flags = setup->modes[i].flags;
+
+      mode = g_object_new (META_TYPE_CRTC_MODE,
+                           "id", i,
+                           "info", crtc_mode_info,
+                           NULL);
 
       test_setup->modes = g_list_append (test_setup->modes, mode);
     }

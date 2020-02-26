@@ -571,6 +571,8 @@ meta_monitor_create_spec (MetaMonitor  *monitor,
 {
   const MetaOutputInfo *output_info =
     meta_monitor_get_main_output_info (monitor);
+  const MetaCrtcModeInfo *crtc_mode_info =
+    meta_crtc_mode_get_info (crtc_mode);
 
   if (meta_monitor_transform_is_rotated (output_info->panel_orientation_transform))
     {
@@ -582,8 +584,8 @@ meta_monitor_create_spec (MetaMonitor  *monitor,
   return (MetaMonitorModeSpec) {
     .width = width,
     .height = height,
-    .refresh_rate = crtc_mode->refresh_rate,
-    .flags = crtc_mode->flags & HANDLED_CRTC_MODE_FLAGS
+    .refresh_rate = crtc_mode_info->refresh_rate,
+    .flags = crtc_mode_info->flags & HANDLED_CRTC_MODE_FLAGS
   };
 }
 
@@ -595,16 +597,20 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
     meta_monitor_get_instance_private (monitor);
   MetaOutput *output;
   const MetaOutputInfo *output_info;
+  MetaCrtcMode *preferred_mode;
   MetaCrtcModeFlag preferred_mode_flags;
   unsigned int i;
 
   output = meta_monitor_get_main_output (monitor);
   output_info = meta_output_get_info (output);
-  preferred_mode_flags = output_info->preferred_mode->flags;
+  preferred_mode = output_info->preferred_mode;
+  preferred_mode_flags = meta_crtc_mode_get_info (preferred_mode)->flags;
 
   for (i = 0; i < output_info->n_modes; i++)
     {
       MetaCrtcMode *crtc_mode = output_info->modes[i];
+      const MetaCrtcModeInfo *crtc_mode_info =
+        meta_crtc_mode_get_info (crtc_mode);
       MetaCrtc *crtc;
       MetaMonitorMode *mode;
       gboolean replace;
@@ -612,8 +618,8 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
       mode = g_new0 (MetaMonitorMode, 1);
       mode->monitor = monitor;
       mode->spec = meta_monitor_create_spec (monitor,
-                                             crtc_mode->width,
-                                             crtc_mode->height,
+                                             crtc_mode_info->width,
+                                             crtc_mode_info->height,
                                              crtc_mode);
       mode->id = generate_mode_id (&mode->spec);
       mode->crtc_modes = g_new (MetaMonitorCrtcMode, 1);
@@ -629,7 +635,7 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
        * otherwise take the first one in the list. This guarantees that the
        * preferred mode is always added.
        */
-      replace = crtc_mode->flags == preferred_mode_flags;
+      replace = crtc_mode_info->flags == preferred_mode_flags;
 
       if (!meta_monitor_add_mode (monitor, mode, replace))
         {
@@ -940,9 +946,10 @@ is_crtc_mode_tiled (MetaOutput   *output,
                     MetaCrtcMode *crtc_mode)
 {
   const MetaOutputInfo *output_info = meta_output_get_info (output);
+  const MetaCrtcModeInfo *crtc_mode_info = meta_crtc_mode_get_info (crtc_mode);
 
-  return (crtc_mode->width == (int) output_info->tile_info.tile_w &&
-          crtc_mode->height == (int) output_info->tile_info.tile_h);
+  return (crtc_mode_info->width == (int) output_info->tile_info.tile_w &&
+          crtc_mode_info->height == (int) output_info->tile_info.tile_h);
 }
 
 static MetaCrtcMode *
@@ -950,6 +957,8 @@ find_tiled_crtc_mode (MetaOutput   *output,
                       MetaCrtcMode *reference_crtc_mode)
 {
   const MetaOutputInfo *output_info = meta_output_get_info (output);
+  const MetaCrtcModeInfo *reference_crtc_mode_info =
+    meta_crtc_mode_get_info (reference_crtc_mode);
   MetaCrtcMode *crtc_mode;
   unsigned int i;
 
@@ -959,15 +968,18 @@ find_tiled_crtc_mode (MetaOutput   *output,
 
   for (i = 0; i < output_info->n_modes; i++)
     {
+      const MetaCrtcModeInfo *crtc_mode_info;
+
       crtc_mode = output_info->modes[i];
+      crtc_mode_info = meta_crtc_mode_get_info (crtc_mode);
 
       if (!is_crtc_mode_tiled (output, crtc_mode))
         continue;
 
-      if (crtc_mode->refresh_rate != reference_crtc_mode->refresh_rate)
+      if (crtc_mode_info->refresh_rate != reference_crtc_mode_info->refresh_rate)
         continue;
 
-      if (crtc_mode->flags != reference_crtc_mode->flags)
+      if (crtc_mode_info->flags != reference_crtc_mode_info->flags)
         continue;
 
       return crtc_mode;
@@ -1100,6 +1112,7 @@ create_untiled_monitor_mode (MetaMonitorTiled *monitor_tiled,
   MetaMonitorPrivate *monitor_priv =
     meta_monitor_get_instance_private (monitor);
   MetaMonitorModeTiled *mode;
+  const MetaCrtcModeInfo *crtc_mode_info;
   GList *l;
   int i;
 
@@ -1109,9 +1122,11 @@ create_untiled_monitor_mode (MetaMonitorTiled *monitor_tiled,
   mode = g_new0 (MetaMonitorModeTiled, 1);
   mode->is_tiled = FALSE;
   mode->parent.monitor = monitor;
+
+  crtc_mode_info = meta_crtc_mode_get_info (crtc_mode);
   mode->parent.spec = meta_monitor_create_spec (monitor,
-                                                crtc_mode->width,
-                                                crtc_mode->height,
+                                                crtc_mode_info->width,
+                                                crtc_mode_info->height,
                                                 crtc_mode);
   mode->parent.id = generate_mode_id (&mode->parent.spec);
   mode->parent.crtc_modes = g_new0 (MetaMonitorCrtcMode,

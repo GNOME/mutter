@@ -343,15 +343,24 @@ static MetaCrtcMode *
 create_mode (const drmModeModeInfo *drm_mode,
              long                   mode_id)
 {
+  g_autoptr (MetaCrtcModeInfo) crtc_mode_info = NULL;
+  g_autofree char *crtc_mode_name = NULL;
   MetaCrtcMode *mode;
 
-  mode = g_object_new (META_TYPE_CRTC_MODE, NULL);
-  mode->mode_id = mode_id;
-  mode->name = g_strndup (drm_mode->name, DRM_DISPLAY_MODE_LEN);
-  mode->width = drm_mode->hdisplay;
-  mode->height = drm_mode->vdisplay;
-  mode->flags = drm_mode->flags;
-  mode->refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
+  crtc_mode_info = meta_crtc_mode_info_new ();
+  crtc_mode_info->width = drm_mode->hdisplay;
+  crtc_mode_info->height = drm_mode->vdisplay;
+  crtc_mode_info->flags = drm_mode->flags;
+  crtc_mode_info->refresh_rate =
+    meta_calculate_drm_mode_refresh_rate (drm_mode);
+
+  crtc_mode_name = g_strndup (drm_mode->name, DRM_DISPLAY_MODE_LEN);
+  mode = g_object_new (META_TYPE_CRTC_MODE,
+                       "id", mode_id,
+                       "name", crtc_mode_name,
+                       "info", crtc_mode_info,
+                       NULL);
+
   mode->driver_private = g_slice_dup (drmModeModeInfo, drm_mode);
   mode->driver_notify = (GDestroyNotify) meta_crtc_mode_destroy_notify;
 

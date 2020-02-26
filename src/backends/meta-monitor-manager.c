@@ -1185,14 +1185,16 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
   for (l = combined_modes, i = 0; l; l = l->next, i++)
     {
       MetaCrtcMode *mode = l->data;
+      const MetaCrtcModeInfo *crtc_mode_info =
+        meta_crtc_mode_get_info (mode);;
 
       g_variant_builder_add (&mode_builder, "(uxuudu)",
                              i, /* ID */
-                             (gint64)mode->mode_id,
-                             (guint32)mode->width,
-                             (guint32)mode->height,
-                             (double)mode->refresh_rate,
-                             (guint32)mode->flags);
+                             (int64_t) meta_crtc_mode_get_id (mode),
+                             (uint32_t) crtc_mode_info->width,
+                             (uint32_t) crtc_mode_info->height,
+                             (double) crtc_mode_info->refresh_rate,
+                             (uint32_t) crtc_mode_info->flags);
     }
 
   if (!meta_monitor_manager_get_max_screen_size (manager,

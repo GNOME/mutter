@@ -47,17 +47,19 @@ typedef enum _MetaCrtcModeFlag
   META_CRTC_MODE_FLAG_MASK = 0x3fff
 } MetaCrtcModeFlag;
 
-struct _MetaCrtcMode
+typedef struct _MetaCrtcModeInfo
 {
-  GObject parent;
-
-  uint64_t mode_id;
-  char *name;
+  grefcount ref_count;
 
   int width;
   int height;
   float refresh_rate;
   MetaCrtcModeFlag flags;
+} MetaCrtcModeInfo;
+
+struct _MetaCrtcMode
+{
+  GObject parent;
 
   gpointer driver_private;
   GDestroyNotify driver_notify;
@@ -68,5 +70,26 @@ META_EXPORT_TEST
 G_DECLARE_FINAL_TYPE (MetaCrtcMode, meta_crtc_mode,
                       META, CRTC_MODE,
                       GObject)
+
+#define META_TYPE_CRTC_MODE_INFO (meta_crtc_mode_info_get_type ())
+GType meta_crtc_mode_info_get_type (void);
+
+META_EXPORT_TEST
+MetaCrtcModeInfo * meta_crtc_mode_info_new (void);
+
+META_EXPORT_TEST
+MetaCrtcModeInfo * meta_crtc_mode_info_ref (MetaCrtcModeInfo *crtc_mode_info);
+
+META_EXPORT_TEST
+void meta_crtc_mode_info_unref (MetaCrtcModeInfo *crtc_mode_info);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaCrtcModeInfo, meta_crtc_mode_info_unref)
+
+uint64_t meta_crtc_mode_get_id (MetaCrtcMode *crtc_mode);
+
+const char * meta_crtc_mode_get_name (MetaCrtcMode *crtc_mode);
+
+META_EXPORT_TEST
+const MetaCrtcModeInfo * meta_crtc_mode_get_info (MetaCrtcMode *crtc_mode);
 
 #endif /* META_CRTC_MODE_H */

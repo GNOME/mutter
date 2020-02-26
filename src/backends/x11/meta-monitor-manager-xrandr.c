@@ -475,14 +475,15 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
 
       if (crtc_assignment->mode != NULL)
         {
-          MetaCrtcMode *mode;
+          MetaCrtcMode *crtc_mode;
           g_autofree xcb_randr_output_t *output_ids = NULL;
           unsigned int j, n_output_ids;
           xcb_randr_crtc_t crtc_id;
           int x, y;
           xcb_randr_rotation_t rotation;
+          xcb_randr_mode_t mode;
 
-          mode = crtc_assignment->mode;
+          crtc_mode = crtc_assignment->mode;
 
           n_output_ids = crtc_assignment->outputs->len;
           output_ids = g_new (xcb_randr_output_t, n_output_ids);
@@ -510,20 +511,25 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
           y = (int) roundf (crtc_assignment->layout.origin.y);
           rotation =
             meta_monitor_transform_to_xrandr (crtc_assignment->transform);
+          mode =  meta_crtc_mode_get_id (crtc_mode);
           if (!xrandr_set_crtc_config (manager_xrandr,
                                        crtc,
                                        save_timestamp,
                                        crtc_id,
                                        XCB_CURRENT_TIME,
                                        x, y,
-                                       (xcb_randr_mode_t) mode->mode_id,
+                                       mode,
                                        rotation,
                                        output_ids, n_output_ids))
             {
+              const MetaCrtcModeInfo *crtc_mode_info =
+                meta_crtc_mode_get_info (crtc_mode);
+
               meta_warning ("Configuring CRTC %d with mode %d (%d x %d @ %f) at position %d, %d and transform %u failed\n",
                             (unsigned) meta_crtc_get_id (crtc),
-                            (unsigned) mode->mode_id,
-                            mode->width, mode->height, (float)mode->refresh_rate,
+                            (unsigned) mode,
+                            crtc_mode_info->width, crtc_mode_info->height,
+                            (float) crtc_mode_info->refresh_rate,
                             (int) roundf (crtc_assignment->layout.origin.x),
                             (int) roundf (crtc_assignment->layout.origin.y),
                             crtc_assignment->transform);
@@ -532,7 +538,7 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
 
           meta_crtc_set_config (crtc,
                                 &crtc_assignment->layout,
-                                mode,
+                                crtc_mode,
                                 crtc_assignment->transform);
         }
     }
