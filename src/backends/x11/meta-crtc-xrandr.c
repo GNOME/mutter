@@ -46,8 +46,6 @@
 #include "backends/x11/meta-gpu-xrandr.h"
 #include "backends/x11/meta-monitor-manager-xrandr.h"
 
-#define ALL_TRANSFORMS ((1 << (META_MONITOR_TRANSFORM_FLIPPED_270 + 1)) - 1)
-
 typedef struct _MetaCrtcXrandr
 {
   MetaRectangle rect;
@@ -161,7 +159,7 @@ meta_monitor_transform_from_xrandr_all (Rotation rotation)
   /* All rotations and one reflection -> all of them by composition */
   if ((rotation & ALL_ROTATIONS) &&
       ((rotation & RR_Reflect_X) || (rotation & RR_Reflect_Y)))
-    return ALL_TRANSFORMS;
+    return META_MONITOR_ALL_TRANSFORMS;
 
   ret = 1 << META_MONITOR_TRANSFORM_NORMAL;
   if (rotation & RR_Rotate_90)
@@ -242,15 +240,19 @@ meta_create_xrandr_crtc (MetaGpuXrandr      *gpu_xrandr,
     META_MONITOR_MANAGER_XRANDR (monitor_manager);
   Display *xdisplay =
     meta_monitor_manager_xrandr_get_xdisplay (monitor_manager_xrandr);
+  MetaMonitorTransform all_transforms;
   MetaCrtc *crtc;
   MetaCrtcXrandr *crtc_xrandr;
   XRRPanning *panning;
   unsigned int i;
   GList *modes;
 
+  all_transforms =
+    meta_monitor_transform_from_xrandr_all (xrandr_crtc->rotations);
   crtc = g_object_new (META_TYPE_CRTC,
                        "id", crtc_id,
                        "gpu", gpu,
+                       "all-transforms", all_transforms,
                        NULL);
 
   crtc_xrandr = g_new0 (MetaCrtcXrandr, 1);
@@ -279,9 +281,6 @@ meta_create_xrandr_crtc (MetaGpuXrandr      *gpu_xrandr,
         .height = xrandr_crtc->height,
       };
     }
-
-  crtc->all_transforms =
-    meta_monitor_transform_from_xrandr_all (xrandr_crtc->rotations);
 
   modes = meta_gpu_get_modes (gpu);
   for (i = 0; i < (unsigned int) resources->nmode; i++)

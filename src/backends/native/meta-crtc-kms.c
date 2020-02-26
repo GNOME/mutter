@@ -302,7 +302,6 @@ meta_create_kms_crtc (MetaGpuKms  *gpu_kms,
                        "id", meta_kms_crtc_get_id (kms_crtc),
                        "gpu", gpu,
                        NULL);
-  crtc->all_transforms = ALL_TRANSFORMS_MASK;
 
   crtc_kms = g_new0 (MetaCrtcKms, 1);
   crtc_kms->kms_crtc = kms_crtc;

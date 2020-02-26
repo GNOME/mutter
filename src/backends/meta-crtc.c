@@ -29,6 +29,7 @@ enum
 
   PROP_ID,
   PROP_GPU,
+  PROP_ALL_TRANSFORMS,
 
   N_PROPS
 };
@@ -40,6 +41,8 @@ typedef struct _MetaCrtcPrivate
   uint64_t id;
 
   MetaGpu *gpu;
+
+  MetaMonitorTransform all_transforms;
 } MetaCrtcPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCrtc, meta_crtc, G_TYPE_OBJECT)
@@ -60,6 +63,14 @@ meta_crtc_get_gpu (MetaCrtc *crtc)
   MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
 
   return priv->gpu;
+}
+
+MetaMonitorTransform
+meta_crtc_get_all_transforms (MetaCrtc *crtc)
+{
+  MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
+
+  return priv->all_transforms;
 }
 
 void
@@ -103,6 +114,9 @@ meta_crtc_set_property (GObject      *object,
     case PROP_GPU:
       priv->gpu = g_value_get_object (value);
       break;
+    case PROP_ALL_TRANSFORMS:
+      priv->all_transforms = g_value_get_uint (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -125,6 +139,9 @@ meta_crtc_get_property (GObject    *object,
     case PROP_GPU:
       g_value_set_object (value, priv->gpu);
       break;
+    case PROP_ALL_TRANSFORMS:
+      g_value_set_uint (value, priv->all_transforms);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -146,6 +163,9 @@ meta_crtc_finalize (GObject *object)
 static void
 meta_crtc_init (MetaCrtc *crtc)
 {
+  MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
+
+  priv->all_transforms = META_MONITOR_ALL_TRANSFORMS;
 }
 
 static void
@@ -173,6 +193,16 @@ meta_crtc_class_init (MetaCrtcClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_ALL_TRANSFORMS] =
+    g_param_spec_uint ("all-transforms",
+                       "all-transforms",
+                       "All transforms",
+                       0,
+                       META_MONITOR_ALL_TRANSFORMS,
+                       META_MONITOR_ALL_TRANSFORMS,
+                       G_PARAM_READWRITE |
+                       G_PARAM_CONSTRUCT_ONLY |
+                       G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 

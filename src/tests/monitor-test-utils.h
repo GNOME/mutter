@@ -26,8 +26,6 @@
 #include "backends/meta-crtc.h"
 #include "backends/meta-output.h"
 
-#define ALL_TRANSFORMS ((1 << (META_MONITOR_TRANSFORM_FLIPPED_270 + 1)) - 1)
-
 #define MAX_N_MODES 10
 #define MAX_N_OUTPUTS 10
 #define MAX_N_CRTCS 10

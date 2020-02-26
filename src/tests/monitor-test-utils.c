@@ -576,7 +576,6 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
                            "id", i + 1,
                            "gpu", test_get_gpu (),
                            NULL);
-      crtc->all_transforms = ALL_TRANSFORMS;
 
       test_setup->crtcs = g_list_append (test_setup->crtcs, crtc);
     }

@@ -36,8 +36,6 @@
 #include "backends/meta-output.h"
 #include "meta/util.h"
 
-#define ALL_TRANSFORMS ((1 << (META_MONITOR_TRANSFORM_FLIPPED_270 + 1)) - 1)
-
 #define MAX_MONITORS 5
 #define MAX_OUTPUTS (MAX_MONITORS * 2)
 #define MAX_CRTCS (MAX_MONITORS * 2)
@@ -203,7 +201,6 @@ append_monitor (MetaMonitorManager *manager,
                        "id", g_list_length (*crtcs) + 1,
                        "gpu", gpu,
                        NULL);
-  crtc->all_transforms = ALL_TRANSFORMS;
   *crtcs = g_list_append (*crtcs, crtc);
 
   number = g_list_length (*outputs) + 1;
@@ -298,7 +295,6 @@ append_tiled_monitor (MetaMonitorManager *manager,
                            "id", g_list_length (*crtcs) + i + 1,
                            "gpu", gpu,
                            NULL);
-      crtc->all_transforms = ALL_TRANSFORMS;
       new_crtcs = g_list_append (new_crtcs, crtc);
     }
   *crtcs = g_list_concat (*crtcs, new_crtcs);

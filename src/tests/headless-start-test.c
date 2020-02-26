@@ -31,7 +31,6 @@
 #include "tests/test-utils.h"
 #include "wayland/meta-wayland.h"
 
-#define ALL_TRANSFORMS ((1 << (META_MONITOR_TRANSFORM_FLIPPED_270 + 1)) - 1)
 #define FRAME_WARNING "Frame has assigned frame counter but no frame drawn time"
 
 static gboolean
@@ -143,7 +142,6 @@ meta_test_headless_monitor_connect (void)
                        "id", 1,
                        "gpu", gpu,
                        NULL);
-  crtc->all_transforms = ALL_TRANSFORMS;
   test_setup->crtcs = g_list_append (NULL, crtc);
 
   modes = g_new0 (MetaCrtcMode *, 1);

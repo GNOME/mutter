@@ -60,8 +60,6 @@ struct _MetaCrtc
 {
   GObject parent;
 
-  unsigned int all_transforms;
-
   MetaCrtcConfig *config;
 
   gpointer driver_private;
@@ -96,6 +94,8 @@ uint64_t meta_crtc_get_id (MetaCrtc *crtc);
 
 META_EXPORT_TEST
 MetaGpu * meta_crtc_get_gpu (MetaCrtc *crtc);
+
+MetaMonitorTransform meta_crtc_get_all_transforms (MetaCrtc *crtc);
 
 META_EXPORT_TEST
 void meta_crtc_set_config (MetaCrtc             *crtc,
