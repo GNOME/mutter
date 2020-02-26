@@ -4092,3 +4092,19 @@ meta_window_x11_buffer_rect_to_frame_rect (MetaWindow    *window,
   frame_rect->width -= borders.invisible.left + borders.invisible.right;
   frame_rect->height -= borders.invisible.top + borders.invisible.bottom;
 }
+
+void
+meta_window_x11_surface_rect_to_client_rect (MetaWindow    *window,
+                                             MetaRectangle *surface_rect,
+                                             MetaRectangle *client_rect)
+{
+  MetaFrameBorders borders;
+
+  meta_frame_calc_borders (window->frame, &borders);
+
+  *client_rect = *surface_rect;
+  client_rect->x += borders.total.left;
+  client_rect->y += borders.total.top;
+  client_rect->width -= borders.total.left + borders.total.right;
+  client_rect->height -= borders.total.top + borders.total.bottom;
+}

@@ -92,5 +92,7 @@ gboolean meta_window_x11_always_update_shape     (MetaWindow *window);
 void meta_window_x11_buffer_rect_to_frame_rect   (MetaWindow    *window,
                                                   MetaRectangle *buffer_rect,
                                                   MetaRectangle *frame_rect);
-
+void meta_window_x11_surface_rect_to_client_rect (MetaWindow    *window,
+                                                  MetaRectangle *surface_rect,
+                                                  MetaRectangle *client_rect);
 #endif
