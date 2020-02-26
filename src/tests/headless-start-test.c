@@ -138,7 +138,7 @@ meta_test_headless_monitor_connect (void)
   test_setup->modes = g_list_append (NULL, crtc_mode);
 
   gpu = META_GPU (meta_backend_get_gpus (meta_get_backend ())->data);
-  crtc = g_object_new (META_TYPE_CRTC,
+  crtc = g_object_new (META_TYPE_CRTC_TEST,
                        "id", 1,
                        "gpu", gpu,
                        NULL);

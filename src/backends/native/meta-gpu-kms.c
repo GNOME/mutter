@@ -481,11 +481,11 @@ init_crtcs (MetaGpuKms *gpu_kms)
   for (l = meta_kms_device_get_crtcs (kms_device); l; l = l->next)
     {
       MetaKmsCrtc *kms_crtc = l->data;
-      MetaCrtc *crtc;
+      MetaCrtcKms *crtc_kms;
 
-      crtc = meta_create_kms_crtc (gpu_kms, kms_crtc);
+      crtc_kms = meta_crtc_kms_new (gpu_kms, kms_crtc);
 
-      crtcs = g_list_append (crtcs, crtc);
+      crtcs = g_list_append (crtcs, crtc_kms);
     }
 
   meta_gpu_take_crtcs (gpu, crtcs);

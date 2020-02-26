@@ -23,6 +23,7 @@
 #ifndef META_MONITOR_MANAGER_DUMMY_H
 #define META_MONITOR_MANAGER_DUMMY_H
 
+#include "backends/meta-crtc.h"
 #include "backends/meta-gpu.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-output.h"
@@ -31,6 +32,11 @@
 G_DECLARE_FINAL_TYPE (MetaOutputDummy, meta_output_dummy,
                       META, OUTPUT_DUMMY,
                       MetaOutput)
+
+#define META_TYPE_CRTC_DUMMY (meta_crtc_dummy_get_type ())
+G_DECLARE_FINAL_TYPE (MetaCrtcDummy, meta_crtc_dummy,
+                      META, CRTC_DUMMY,
+                      MetaCrtc)
 
 #define META_TYPE_MONITOR_MANAGER_DUMMY (meta_monitor_manager_dummy_get_type ())
 G_DECLARE_FINAL_TYPE (MetaMonitorManagerDummy, meta_monitor_manager_dummy,

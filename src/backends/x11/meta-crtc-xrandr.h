@@ -28,7 +28,12 @@
 #include "backends/meta-crtc.h"
 #include "backends/x11/meta-gpu-xrandr.h"
 
-gboolean meta_crtc_xrandr_set_config (MetaCrtc            *crtc,
+#define META_TYPE_CRTC_XRANDR (meta_crtc_xrandr_get_type ())
+G_DECLARE_FINAL_TYPE (MetaCrtcXrandr, meta_crtc_xrandr,
+                      META, CRTC_XRANDR,
+                      MetaCrtc)
+
+gboolean meta_crtc_xrandr_set_config (MetaCrtcXrandr      *crtc_xrandr,
                                       xcb_randr_crtc_t     xrandr_crtc,
                                       xcb_timestamp_t      timestamp,
                                       int                  x,
@@ -39,14 +44,14 @@ gboolean meta_crtc_xrandr_set_config (MetaCrtc            *crtc,
                                       int                  n_outputs,
                                       xcb_timestamp_t     *out_timestamp);
 
-gboolean meta_crtc_xrandr_is_assignment_changed (MetaCrtc           *crtc,
+gboolean meta_crtc_xrandr_is_assignment_changed (MetaCrtcXrandr     *crtc_xrandr,
                                                  MetaCrtcAssignment *crtc_assignment);
 
-MetaCrtcMode * meta_crtc_xrandr_get_current_mode (MetaCrtc *crtc);
+MetaCrtcMode * meta_crtc_xrandr_get_current_mode (MetaCrtcXrandr *crtc_xrandr);
 
-MetaCrtc * meta_create_xrandr_crtc (MetaGpuXrandr      *gpu_xrandr,
-                                    XRRCrtcInfo        *xrandr_crtc,
-                                    RRCrtc              crtc_id,
-                                    XRRScreenResources *resources);
+MetaCrtcXrandr * meta_crtc_xrandr_new (MetaGpuXrandr      *gpu_xrandr,
+                                       XRRCrtcInfo        *xrandr_crtc,
+                                       RRCrtc              crtc_id,
+                                       XRRScreenResources *resources);
 
 #endif /* META_CRTC_XRANDR_H */

@@ -340,14 +340,14 @@ meta_onscreen_native_get_egl (MetaOnscreenNative *onscreen_native)
 }
 
 static GArray *
-get_supported_kms_modifiers (MetaCrtc *crtc,
-                             uint32_t  format)
+get_supported_kms_modifiers (MetaCrtcKms *crtc_kms,
+                             uint32_t     format)
 {
   GArray *modifiers;
   GArray *crtc_mods;
   unsigned int i;
 
-  crtc_mods = meta_crtc_kms_get_modifiers (crtc, format);
+  crtc_mods = meta_crtc_kms_get_modifiers (crtc_kms, format);
   if (!crtc_mods)
     return NULL;
 
@@ -375,7 +375,7 @@ get_supported_kms_modifiers (MetaCrtc *crtc,
 
 static GArray *
 get_supported_egl_modifiers (CoglOnscreen *onscreen,
-                             MetaCrtc     *crtc,
+                             MetaCrtcKms  *crtc_kms,
                              uint32_t      format)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
@@ -389,7 +389,7 @@ get_supported_egl_modifiers (CoglOnscreen *onscreen,
   GError *error = NULL;
   gboolean ret;
 
-  gpu = meta_crtc_get_gpu (crtc);
+  gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          META_GPU_KMS (gpu));
 
@@ -428,15 +428,15 @@ get_supported_modifiers (CoglOnscreen *onscreen,
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaCrtc *crtc = onscreen_native->crtc;
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
   MetaGpu *gpu;
   g_autoptr (GArray) modifiers = NULL;
 
-  gpu = meta_crtc_get_gpu (crtc);
+  gpu = meta_crtc_get_gpu (META_CRTC (crtc_kms));
   if (gpu == META_GPU (onscreen_native->render_gpu))
-    modifiers = get_supported_kms_modifiers (crtc, format);
+    modifiers = get_supported_kms_modifiers (crtc_kms, format);
   else
-    modifiers = get_supported_egl_modifiers (onscreen, crtc, format);
+    modifiers = get_supported_egl_modifiers (onscreen, crtc_kms, format);
 
   return g_steal_pointer (&modifiers);
 }
@@ -446,9 +446,9 @@ get_supported_kms_formats (CoglOnscreen *onscreen)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaCrtc *crtc = onscreen_native->crtc;
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
 
-  return meta_crtc_kms_copy_drm_format_list (crtc);
+  return meta_crtc_kms_copy_drm_format_list (crtc_kms);
 }
 
 static gboolean
@@ -1138,7 +1138,7 @@ notify_view_crtc_presented (MetaRendererView *view,
    */
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
 
-  crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
+  crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
   crtc_config = crtc ? meta_crtc_get_config (crtc) : NULL;
   refresh_rate = crtc_config ? crtc_config->mode->refresh_rate : 0.0f;
   if (refresh_rate >= frame_info->refresh_rate)
@@ -1223,7 +1223,7 @@ page_flip_feedback_mode_set_fallback (MetaKmsCrtc *kms_crtc,
    * use. Lets use the next best thing: the current time.
    */
 
-  crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
+  crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
 
@@ -1250,7 +1250,7 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
   if (error)
     g_warning ("Page flip discarded: %s", error->message);
 
-  crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
+  crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
 
@@ -1358,6 +1358,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaGpuKms *gpu_kms;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state = NULL;
@@ -1382,8 +1383,8 @@ meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
           fb_id = meta_drm_buffer_get_fb_id (secondary_gpu_state->gbm.next_fb);
         }
 
-      meta_crtc_kms_assign_primary_plane (crtc, fb_id, kms_update);
-      meta_crtc_kms_page_flip (crtc,
+      meta_crtc_kms_assign_primary_plane (crtc_kms, fb_id, kms_update);
+      meta_crtc_kms_page_flip (crtc_kms,
                                &page_flip_feedback,
                                g_object_ref (view),
                                kms_update);
@@ -1396,7 +1397,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       meta_kms_update_custom_page_flip (kms_update,
-                                        meta_crtc_kms_get_kms_crtc (crtc),
+                                        meta_crtc_kms_get_kms_crtc (crtc_kms),
                                         &page_flip_feedback,
                                         g_object_ref (view),
                                         custom_egl_stream_page_flip,
@@ -1414,6 +1415,7 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (onscreen_native->crtc);
 
   COGL_TRACE_BEGIN_SCOPED (MetaOnscreenNativeSetCrtcModes,
                            "Onscreen (set CRTC modes)");
@@ -1428,14 +1430,14 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
         uint32_t fb_id;
 
         fb_id = onscreen_native->egl.dumb_fb.fb_id;
-        meta_crtc_kms_assign_primary_plane (onscreen_native->crtc,
+        meta_crtc_kms_assign_primary_plane (crtc_kms,
                                             fb_id, kms_update);
         break;
       }
 #endif
     }
 
-  meta_crtc_kms_set_mode (onscreen_native->crtc, kms_update);
+  meta_crtc_kms_set_mode (crtc_kms, kms_update);
   meta_output_kms_set_underscan (META_OUTPUT_KMS (onscreen_native->output),
                                  kms_update);
 }
@@ -3304,7 +3306,7 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
                 continue;
 
               kms_update = meta_kms_ensure_pending_update (kms);
-              meta_crtc_kms_set_mode (crtc, kms_update);
+              meta_crtc_kms_set_mode (META_CRTC_KMS (crtc), kms_update);
             }
         }
 

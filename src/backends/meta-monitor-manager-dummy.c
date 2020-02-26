@@ -60,8 +60,13 @@ struct _MetaOutputDummy
   float scale;
 };
 
-G_DEFINE_TYPE (MetaOutputDummy, meta_output_dummy, META_TYPE_OUTPUT)
+struct _MetaCrtcDummy
+{
+  MetaCrtc parent;
+};
 
+G_DEFINE_TYPE (MetaOutputDummy, meta_output_dummy, META_TYPE_OUTPUT)
+G_DEFINE_TYPE (MetaCrtcDummy, meta_crtc_dummy, META_TYPE_CRTC)
 G_DEFINE_TYPE (MetaMonitorManagerDummy, meta_monitor_manager_dummy, META_TYPE_MONITOR_MANAGER);
 
 struct _MetaGpuDummy
@@ -198,7 +203,7 @@ append_monitor (MetaMonitorManager *manager,
     }
   *modes = g_list_concat (*modes, new_modes);
 
-  crtc = g_object_new (META_TYPE_CRTC,
+  crtc = g_object_new (META_TYPE_CRTC_DUMMY,
                        "id", g_list_length (*crtcs) + 1,
                        "gpu", gpu,
                        NULL);
@@ -284,7 +289,7 @@ append_tiled_monitor (MetaMonitorManager *manager,
     {
       MetaCrtc *crtc;
 
-      crtc = g_object_new (META_TYPE_CRTC,
+      crtc = g_object_new (META_TYPE_CRTC_DUMMY,
                            "id", g_list_length (*crtcs) + i + 1,
                            "gpu", gpu,
                            NULL);
@@ -791,5 +796,15 @@ meta_output_dummy_init (MetaOutputDummy *output_dummy)
 
 static void
 meta_output_dummy_class_init (MetaOutputDummyClass *klass)
+{
+}
+
+static void
+meta_crtc_dummy_init (MetaCrtcDummy *crtc_dummy)
+{
+}
+
+static void
+meta_crtc_dummy_class_init (MetaCrtcDummyClass *klass)
 {
 }

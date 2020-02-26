@@ -228,7 +228,8 @@ xrandr_set_crtc_config (MetaMonitorManagerXrandr *manager_xrandr,
 {
   xcb_timestamp_t new_timestamp;
 
-  if (!meta_crtc_xrandr_set_config (crtc, xrandr_crtc, timestamp,
+  if (!meta_crtc_xrandr_set_config (META_CRTC_XRANDR (crtc),
+                                    xrandr_crtc, timestamp,
                                     x, y, mode, rotation,
                                     outputs, n_outputs,
                                     &new_timestamp))
@@ -254,10 +255,11 @@ is_crtc_assignment_changed (MetaCrtc            *crtc,
       if (crtc_assignment->crtc != crtc)
         continue;
 
-      return meta_crtc_xrandr_is_assignment_changed (crtc, crtc_assignment);
+      return meta_crtc_xrandr_is_assignment_changed (META_CRTC_XRANDR (crtc),
+                                                     crtc_assignment);
     }
 
-  return !!meta_crtc_xrandr_get_current_mode (crtc);
+  return !!meta_crtc_xrandr_get_current_mode (META_CRTC_XRANDR (crtc));
 }
 
 static gboolean

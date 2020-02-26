@@ -56,14 +56,6 @@ typedef struct _MetaCrtcConfig
   MetaCrtcMode *mode;
 } MetaCrtcConfig;
 
-struct _MetaCrtc
-{
-  GObject parent;
-
-  gpointer driver_private;
-  GDestroyNotify driver_notify;
-};
-
 struct _MetaCrtcMode
 {
   GObject parent;
@@ -82,7 +74,13 @@ struct _MetaCrtcMode
 };
 
 #define META_TYPE_CRTC (meta_crtc_get_type ())
-META_EXPORT_TEST G_DECLARE_FINAL_TYPE (MetaCrtc, meta_crtc, META, CRTC, GObject)
+META_EXPORT_TEST
+G_DECLARE_DERIVABLE_TYPE (MetaCrtc, meta_crtc, META, CRTC, GObject)
+
+struct _MetaCrtcClass
+{
+  GObjectClass parent_class;
+};
 
 #define META_TYPE_CRTC_MODE (meta_crtc_mode_get_type ())
 META_EXPORT_TEST G_DECLARE_FINAL_TYPE (MetaCrtcMode, meta_crtc_mode, META, CRTC_MODE, GObject)

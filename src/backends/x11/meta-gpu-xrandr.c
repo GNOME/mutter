@@ -161,16 +161,16 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
     {
       XRRCrtcInfo *xrandr_crtc;
       RRCrtc crtc_id;
-      MetaCrtc *crtc;
+      MetaCrtcXrandr *crtc_xrandr;
 
       crtc_id = resources->crtcs[i];
       xrandr_crtc = XRRGetCrtcInfo (xdisplay,
                                     resources, crtc_id);
-      crtc = meta_create_xrandr_crtc (gpu_xrandr,
-                                      xrandr_crtc, crtc_id, resources);
+      crtc_xrandr = meta_crtc_xrandr_new (gpu_xrandr,
+                                          xrandr_crtc, crtc_id, resources);
       XRRFreeCrtcInfo (xrandr_crtc);
 
-      crtcs = g_list_append (crtcs, crtc);
+      crtcs = g_list_append (crtcs, crtc_xrandr);
     }
 
   meta_gpu_take_crtcs (gpu, crtcs);

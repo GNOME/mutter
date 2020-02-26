@@ -47,7 +47,7 @@ typedef struct _MetaCrtcPrivate
   MetaCrtcConfig *config;
 } MetaCrtcPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaCrtc, meta_crtc, G_TYPE_OBJECT)
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaCrtc, meta_crtc, G_TYPE_OBJECT)
 
 G_DEFINE_TYPE (MetaCrtcMode, meta_crtc_mode, G_TYPE_OBJECT)
 
@@ -165,9 +165,6 @@ meta_crtc_finalize (GObject *object)
 {
   MetaCrtc *crtc = META_CRTC (object);
   MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
-
-  if (crtc->driver_notify)
-    crtc->driver_notify (crtc);
 
   g_clear_pointer (&priv->config, g_free);
 

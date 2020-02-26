@@ -313,13 +313,13 @@ meta_output_kms_new (MetaGpuKms        *gpu_kms,
 
   for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
     {
-      MetaCrtc *crtc = l->data;
-      MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+      MetaCrtcKms *crtc_kms = META_CRTC_KMS (l->data);
+      MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
       uint32_t crtc_idx;
 
       crtc_idx = meta_kms_crtc_get_idx (kms_crtc);
       if (connector_state->common_possible_crtcs & (1 << crtc_idx))
-        g_array_append_val (crtcs, crtc);
+        g_array_append_val (crtcs, crtc_kms);
     }
 
   output_info->n_possible_crtcs = crtcs->len;

@@ -28,6 +28,7 @@
 #include "backends/meta-output.h"
 #include "tests/meta-backend-test.h"
 
+G_DEFINE_TYPE (MetaCrtcTest, meta_crtc_test, META_TYPE_CRTC)
 G_DEFINE_TYPE (MetaOutputTest, meta_output_test, META_TYPE_OUTPUT)
 
 struct _MetaMonitorManagerTest
@@ -434,5 +435,15 @@ meta_output_test_init (MetaOutputTest *output_test)
 
 static void
 meta_output_test_class_init (MetaOutputTestClass *klass)
+{
+}
+
+static void
+meta_crtc_test_init (MetaCrtcTest *crtc_test)
+{
+}
+
+static void
+meta_crtc_test_class_init (MetaCrtcTestClass *klass)
 {
 }

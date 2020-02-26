@@ -326,7 +326,7 @@ meta_monitor_manager_kms_get_crtc_gamma (MetaMonitorManager  *manager,
   MetaKmsCrtc *kms_crtc;
   const MetaKmsCrtcState *crtc_state;
 
-  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
   crtc_state = meta_kms_crtc_get_current_state (kms_crtc);
 
   *size = crtc_state->gamma.size;
@@ -419,7 +419,7 @@ meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
 
   kms_update = meta_kms_ensure_pending_update (kms);
 
-  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
   meta_kms_crtc_set_gamma (kms_crtc, kms_update,
                            size, red, green, blue);
 
@@ -487,7 +487,7 @@ meta_monitor_manager_kms_is_transform_handled (MetaMonitorManager  *manager,
                                                MetaCrtc            *crtc,
                                                MetaMonitorTransform transform)
 {
-  return meta_crtc_kms_is_transform_handled (crtc, transform);
+  return meta_crtc_kms_is_transform_handled (META_CRTC_KMS (crtc), transform);
 }
 
 static float

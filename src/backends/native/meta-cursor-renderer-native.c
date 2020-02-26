@@ -251,13 +251,14 @@ calculate_crtc_cursor_hotspot (MetaCursorSprite *cursor_sprite,
 static void
 set_crtc_cursor (MetaCursorRendererNative *native,
                  MetaKmsUpdate            *kms_update,
-                 MetaCrtc                 *crtc,
+                 MetaCrtcKms              *crtc_kms,
                  int                       x,
                  int                       y,
                  MetaCursorSprite         *cursor_sprite)
 {
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (native);
+  MetaCrtc *crtc = META_CRTC (crtc_kms);
   MetaCursorNativePrivate *cursor_priv = get_cursor_priv (cursor_sprite);
   MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data =
@@ -283,7 +284,7 @@ set_crtc_cursor (MetaCursorRendererNative *native,
   else
     bo = get_active_cursor_sprite_gbm_bo (cursor_gpu_state);
 
-  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   kms_device = meta_kms_crtc_get_device (kms_crtc);
   cursor_plane = meta_kms_device_get_cursor_plane_for (kms_device, kms_crtc);
   g_return_if_fail (cursor_plane);
@@ -306,7 +307,7 @@ set_crtc_cursor (MetaCursorRendererNative *native,
   };
 
   flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;
-  crtc_bo = meta_crtc_kms_get_cursor_renderer_private (crtc);
+  crtc_bo = meta_crtc_kms_get_cursor_renderer_private (crtc_kms);
   if (!priv->hw_state_invalidated && bo == crtc_bo)
     flags |= META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED;
 
@@ -325,7 +326,7 @@ set_crtc_cursor (MetaCursorRendererNative *native,
                                                 cursor_hotspot_x,
                                                 cursor_hotspot_y);
 
-  meta_crtc_kms_set_cursor_renderer_private (crtc, bo);
+  meta_crtc_kms_set_cursor_renderer_private (crtc_kms, bo);
 
   if (cursor_gpu_state->pending_bo_state == META_CURSOR_GBM_BO_STATE_SET)
     {
@@ -338,7 +339,7 @@ set_crtc_cursor (MetaCursorRendererNative *native,
 static void
 unset_crtc_cursor (MetaCursorRendererNative *native,
                    MetaKmsUpdate            *kms_update,
-                   MetaCrtc                 *crtc)
+                   MetaCrtcKms              *crtc_kms)
 {
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (native);
@@ -347,18 +348,18 @@ unset_crtc_cursor (MetaCursorRendererNative *native,
   MetaKmsPlane *cursor_plane;
   struct gbm_bo *crtc_bo;
 
-  crtc_bo = meta_crtc_kms_get_cursor_renderer_private (crtc);
+  crtc_bo = meta_crtc_kms_get_cursor_renderer_private (crtc_kms);
   if (!priv->hw_state_invalidated && !crtc_bo)
     return;
 
-  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+  kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   kms_device = meta_kms_crtc_get_device (kms_crtc);
   cursor_plane = meta_kms_device_get_cursor_plane_for (kms_device, kms_crtc);
 
   if (cursor_plane)
     meta_kms_update_unassign_plane (kms_update, kms_crtc, cursor_plane);
 
-  meta_crtc_kms_set_cursor_renderer_private (crtc, NULL);
+  meta_crtc_kms_set_cursor_renderer_private (crtc_kms, NULL);
 }
 
 static float
@@ -484,7 +485,7 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
 
       set_crtc_cursor (data->in_cursor_renderer_native,
                        data->in_kms_update,
-                       crtc,
+                       META_CRTC_KMS (crtc),
                        cursor_rect.x,
                        cursor_rect.y,
                        data->in_cursor_sprite);
@@ -495,7 +496,7 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
     {
       unset_crtc_cursor (data->in_cursor_renderer_native,
                          data->in_kms_update,
-                         crtc);
+                         META_CRTC_KMS (crtc));
     }
 
   return TRUE;
@@ -505,7 +506,8 @@ static void
 disable_hw_cursor_for_crtc (MetaKmsCrtc  *kms_crtc,
                             const GError *error)
 {
-  MetaCrtc *crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
+  MetaCrtcKms *crtc_kms = meta_crtc_kms_from_kms_crtc (kms_crtc);
+  MetaCrtc *crtc = META_CRTC (crtc_kms);
   MetaGpuKms *gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   MetaCursorRendererNativeGpuData *cursor_renderer_gpu_data =
     meta_cursor_renderer_native_gpu_data_from_gpu (gpu_kms);
@@ -695,7 +697,8 @@ has_cursor_plane (MetaLogicalMonitor *logical_monitor,
                   gpointer            user_data)
 {
   gboolean *has_cursor_planes = user_data;
-  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc);
+  MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
 
   *has_cursor_planes &= !!meta_kms_device_get_cursor_plane_for (kms_device,
@@ -1053,12 +1056,12 @@ unset_crtc_cursor_renderer_privates (MetaGpu       *gpu,
 
   for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
     {
-      MetaCrtc *crtc = l->data;
+      MetaCrtcKms *crtc_kms = META_CRTC_KMS (l->data);
       struct gbm_bo *crtc_bo;
 
-      crtc_bo = meta_crtc_kms_get_cursor_renderer_private (crtc);
+      crtc_bo = meta_crtc_kms_get_cursor_renderer_private (crtc_kms);
       if (bo == crtc_bo)
-        meta_crtc_kms_set_cursor_renderer_private (crtc, NULL);
+        meta_crtc_kms_set_cursor_renderer_private (crtc_kms, NULL);
     }
 }
 
