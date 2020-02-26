@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-12-11 10:26+0000\n"
-"PO-Revision-Date: 2019-12-25 04:46+0100\n"
+"POT-Creation-Date: 2020-02-23 17:41+0000\n"
+"PO-Revision-Date: 2020-02-26 21:56+0100\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
 "Language-Team: Galician\n"
 "Language: gl\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.2.4\n"
+"X-Generator: Poedit 2.3\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -428,19 +428,31 @@ msgstr "Modificador a usar para localizar o punteiro"
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Esta tecla iniciará a acción «localizar punteiro»."
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "Timeout for check-alive ping"
+msgstr "Tempo de espera para  comprobación de ping"
+
+#: data/org.gnome.mutter.gschema.xml.in:143
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"Número de milisegundos que ten un cliente para responder a ping e que non se "
+"lle detecte como caído. Usar 0 desactivará esta comprobación."
+
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
 msgstr "Seleccionar xanela da lapela emerxente"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Cancel tab popup"
 msgstr "Cancelar lapela emerxente"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:175
 msgid "Switch monitor configurations"
 msgstr "Cambiar preferencias do monitor"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:180
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rota a configuración do monitor embebido"
 
@@ -555,7 +567,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2528
+#: src/backends/meta-input-settings.c:2567
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Modo conmutador (Grupo %d)"
@@ -563,11 +575,11 @@ msgstr "Modo conmutador (Grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2551
+#: src/backends/meta-input-settings.c:2590
 msgid "Switch monitor"
 msgstr "Cambiar monitor"
 
-#: src/backends/meta-input-settings.c:2553
+#: src/backends/meta-input-settings.c:2592
 msgid "Show on-screen help"
 msgstr "Mostrar axuda en pantalla"
 
@@ -710,7 +722,7 @@ msgstr "Imprimir versión"
 msgid "Mutter plugin to use"
 msgstr "Engadido de mutter que usar"
 
-#: src/core/prefs.c:1849
+#: src/core/prefs.c:1911
 #, c-format
 msgid "Workspace %d"
 msgstr "Espazo de traballo %d"
@@ -724,7 +736,7 @@ msgstr "Mutter foi compilado sen compatibilidade para o modo detallado\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Modo conmutador: Modo %d"
 
-#: src/x11/meta-x11-display.c:675
+#: src/x11/meta-x11-display.c:676
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -733,16 +745,16 @@ msgstr ""
 "A pantalla «%s» ten xa un xestor de xanelas, tente usar a opción --replace "
 "para substituír o xestor de xanelas."
 
-#: src/x11/meta-x11-display.c:1036
+#: src/x11/meta-x11-display.c:1089
 msgid "Failed to initialize GDK\n"
 msgstr "Procuciuse un fallo ao inicializar GDK\n"
 
-#: src/x11/meta-x11-display.c:1060
+#: src/x11/meta-x11-display.c:1113
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Produciuse un erro ao abrir a visualización do X Window System «%s»\n"
 
-#: src/x11/meta-x11-display.c:1143
+#: src/x11/meta-x11-display.c:1196
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "A pantalla %d na visualización «%s» non é válida\n"
