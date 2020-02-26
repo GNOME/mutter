@@ -400,8 +400,12 @@ apply_crtc_assignments (MetaMonitorManager *manager,
     {
       MetaCrtcInfo *crtc_info = crtcs[i];
       MetaCrtc *crtc = crtc_info->crtc;
-      MetaCrtcConfig *crtc_config = crtc->config;
+      MetaCrtcConfig *crtc_config;
       int x2, y2;
+
+      crtc_config = crtc->config;
+      if (!crtc_config)
+        continue;
 
       x2 = (int) roundf (crtc_config->layout.origin.x +
                          crtc_config->layout.size.width);
