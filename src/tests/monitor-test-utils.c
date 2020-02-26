@@ -543,12 +543,6 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
   int i;
   int n_laptop_panels = 0;
   int n_normal_panels = 0;
-  gboolean hotplug_mode_update;
-
-  if (flags & MONITOR_TEST_FLAG_NO_STORED)
-    hotplug_mode_update = TRUE;
-  else
-    hotplug_mode_update = FALSE;
 
   test_setup = g_new0 (MetaMonitorTestSetup, 1);
 
@@ -659,15 +653,16 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
       output_info->serial = g_strdup (serial);
       if (setup->outputs[i].hotplug_mode)
         {
+          output_info->hotplug_mode_update = TRUE;
           output_info->suggested_x = setup->outputs[i].suggested_x;
           output_info->suggested_y = setup->outputs[i].suggested_y;
         }
-      else
+      else if (flags & MONITOR_TEST_FLAG_NO_STORED)
         {
+          output_info->hotplug_mode_update = TRUE;
           output_info->suggested_x = -1;
           output_info->suggested_y = -1;
         }
-      output_info->hotplug_mode_update = hotplug_mode_update;
       output_info->width_mm = setup->outputs[i].width_mm;
       output_info->height_mm = setup->outputs[i].height_mm;
       output_info->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
