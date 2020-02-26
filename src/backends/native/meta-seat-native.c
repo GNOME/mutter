@@ -2528,6 +2528,8 @@ meta_seat_native_constructed (GObject *object)
 
   udev_unref (udev);
 
+  seat->udev_client = g_udev_client_new ((const gchar *[]) { "input", NULL });
+
   dispatch_libinput (seat);
 
   source = meta_event_source_new (seat);
@@ -2548,10 +2550,8 @@ meta_seat_native_constructed (GObject *object)
         xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_SCROLL);
     }
 
-  seat->udev_client = g_udev_client_new ((const gchar *[]) { "input", NULL });
   seat->has_external_keyboard = has_external_keyboard (seat);
   seat->has_touchscreen = has_touchscreen (seat);
-
   update_touch_mode (seat);
 
   if (G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed)
