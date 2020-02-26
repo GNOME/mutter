@@ -60,8 +60,6 @@ struct _MetaCrtc
 {
   GObject parent;
 
-  MetaCrtcConfig *config;
-
   gpointer driver_private;
   GDestroyNotify driver_notify;
 };
@@ -105,5 +103,8 @@ void meta_crtc_set_config (MetaCrtc             *crtc,
 
 META_EXPORT_TEST
 void meta_crtc_unset_config (MetaCrtc *crtc);
+
+META_EXPORT_TEST
+const MetaCrtcConfig * meta_crtc_get_config (MetaCrtc *crtc);
 
 #endif /* META_CRTC_H */

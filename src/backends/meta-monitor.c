@@ -642,8 +642,14 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
         monitor_priv->preferred_mode = mode;
 
       crtc = meta_output_get_assigned_crtc (output);
-      if (crtc && crtc->config && crtc_mode == crtc->config->mode)
-        monitor_priv->current_mode = mode;
+      if (crtc)
+        {
+          const MetaCrtcConfig *crtc_config;
+
+          crtc_config = meta_crtc_get_config (crtc);
+          if (crtc_config && crtc_mode == crtc_config->mode)
+            monitor_priv->current_mode = mode;
+        }
     }
 }
 
@@ -689,11 +695,11 @@ meta_monitor_normal_derive_layout (MetaMonitor   *monitor,
 {
   MetaOutput *output;
   MetaCrtc *crtc;
-  MetaCrtcConfig *crtc_config;
+  const MetaCrtcConfig *crtc_config;
 
   output = meta_monitor_get_main_output (monitor);
   crtc = meta_output_get_assigned_crtc (output);
-  crtc_config = crtc->config;
+  crtc_config = meta_crtc_get_config (crtc);
 
   g_return_if_fail (crtc_config);
 
@@ -910,11 +916,14 @@ is_monitor_mode_assigned (MetaMonitor     *monitor,
       MetaOutput *output = l->data;
       MetaMonitorCrtcMode *monitor_crtc_mode = &mode->crtc_modes[i];
       MetaCrtc *crtc;
+      const MetaCrtcConfig *crtc_config;
 
       crtc = meta_output_get_assigned_crtc (output);
+      crtc_config = crtc ? meta_crtc_get_config (crtc) : NULL;
+
       if (monitor_crtc_mode->crtc_mode &&
-          (!crtc || !crtc->config ||
-           crtc->config->mode != monitor_crtc_mode->crtc_mode))
+          (!crtc || !crtc_config ||
+           crtc_config->mode != monitor_crtc_mode->crtc_mode))
         return FALSE;
       else if (!monitor_crtc_mode->crtc_mode && crtc)
         return FALSE;
@@ -1379,14 +1388,14 @@ meta_monitor_tiled_derive_layout (MetaMonitor   *monitor,
     {
       MetaOutput *output = l->data;
       MetaCrtc *crtc;
-      MetaCrtcConfig *crtc_config;
-      graphene_rect_t *crtc_layout;
+      const MetaCrtcConfig *crtc_config;
+      const graphene_rect_t *crtc_layout;
 
       crtc = meta_output_get_assigned_crtc (output);
       if (!crtc)
         continue;
 
-      crtc_config = crtc->config;
+      crtc_config = meta_crtc_get_config (crtc);
       g_return_if_fail (crtc_config);
 
       crtc_layout = &crtc_config->layout;
@@ -1553,7 +1562,8 @@ is_current_mode_known (MetaMonitor *monitor)
   output = meta_monitor_get_main_output (monitor);
   crtc = meta_output_get_assigned_crtc (output);
 
-  return meta_monitor_is_active (monitor) == (crtc && crtc->config);
+  return (meta_monitor_is_active (monitor) ==
+          (crtc && meta_crtc_get_config (crtc)));
 }
 
 void

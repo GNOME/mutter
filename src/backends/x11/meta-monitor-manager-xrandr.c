@@ -408,10 +408,10 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
     {
       MetaCrtcAssignment *crtc_assignment = crtcs[i];
       MetaCrtc *crtc = crtc_assignment->crtc;
-      MetaCrtcConfig *crtc_config;
+      const MetaCrtcConfig *crtc_config;
       int x2, y2;
 
-      crtc_config = crtc->config;
+      crtc_config = meta_crtc_get_config (crtc);
       if (!crtc_config)
         continue;
 
@@ -439,7 +439,7 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
     {
       MetaCrtc *crtc = l->data;
 
-      if (!crtc->config)
+      if (!meta_crtc_get_config (crtc))
         continue;
 
       xrandr_set_crtc_config (manager_xrandr,

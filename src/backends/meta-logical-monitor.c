@@ -119,10 +119,14 @@ static MetaMonitorTransform
 derive_monitor_transform (MetaMonitor *monitor)
 {
   MetaOutput *main_output;
+  MetaCrtc *crtc;
+  const MetaCrtcConfig *crtc_config;
   MetaMonitorTransform transform;
 
   main_output = meta_monitor_get_main_output (monitor);
-  transform = meta_output_get_assigned_crtc (main_output)->config->transform;
+  crtc = meta_output_get_assigned_crtc (main_output);
+  crtc_config = meta_crtc_get_config (crtc);
+  transform = crtc_config->transform;
 
   return meta_monitor_crtc_to_logical_transform (monitor, transform);
 }

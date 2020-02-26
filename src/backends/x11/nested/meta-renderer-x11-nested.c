@@ -185,6 +185,7 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
   CoglContext *cogl_context = clutter_backend_get_cogl_context (clutter_backend);
   MetaMonitorTransform view_transform;
   float view_scale;
+  const MetaCrtcConfig *crtc_config;
   int width, height;
   CoglOffscreen *fake_onscreen;
   CoglOffscreen *offscreen;
@@ -198,8 +199,9 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
   else
     view_scale = 1.0;
 
-  width = roundf (crtc->config->layout.size.width * view_scale);
-  height = roundf (crtc->config->layout.size.height * view_scale);
+  crtc_config = meta_crtc_get_config (crtc);
+  width = roundf (crtc_config->layout.size.width * view_scale);
+  height = roundf (crtc_config->layout.size.height * view_scale);
 
   fake_onscreen = create_offscreen (cogl_context, width, height);
 
@@ -208,7 +210,7 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
   else
     offscreen = NULL;
 
-  meta_rectangle_from_graphene_rect (&crtc->config->layout,
+  meta_rectangle_from_graphene_rect (&crtc_config->layout,
                                      META_ROUNDING_STRATEGY_ROUND,
                                      &view_layout);
 

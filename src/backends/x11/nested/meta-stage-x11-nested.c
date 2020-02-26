@@ -109,7 +109,7 @@ draw_view (MetaStageX11Nested *stage_nested,
   CoglFramebuffer *onscreen = COGL_FRAMEBUFFER (stage_x11->onscreen);
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (renderer_view);
   MetaCrtc *crtc;
-  MetaCrtcConfig *crtc_config;
+  const MetaCrtcConfig *crtc_config;
   CoglMatrix projection_matrix;
   CoglMatrix transform;
   float texture_width, texture_height;
@@ -120,7 +120,7 @@ draw_view (MetaStageX11Nested *stage_nested,
   texture_height = cogl_texture_get_height (texture);
 
   crtc = g_object_get_data (G_OBJECT (renderer_view), "crtc");
-  crtc_config = crtc->config;
+  crtc_config = meta_crtc_get_config (crtc);
 
   sample_x = 0;
   sample_y = 0;

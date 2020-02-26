@@ -80,9 +80,12 @@ meta_crtc_kms_apply_transform (MetaCrtc               *crtc,
                                MetaKmsPlaneAssignment *kms_plane_assignment)
 {
   MetaCrtcKms *crtc_kms = crtc->driver_private;
+  const MetaCrtcConfig *crtc_config;
   MetaMonitorTransform hw_transform;
 
-  hw_transform = crtc->config->transform;
+  crtc_config = meta_crtc_get_config (crtc);
+
+  hw_transform = crtc_config->transform;
   if (!meta_crtc_kms_is_transform_handled (crtc, hw_transform))
     hw_transform = META_MONITOR_TRANSFORM_NORMAL;
   if (!meta_crtc_kms_is_transform_handled (crtc, hw_transform))
@@ -98,7 +101,7 @@ meta_crtc_kms_assign_primary_plane (MetaCrtc      *crtc,
                                     uint32_t       fb_id,
                                     MetaKmsUpdate *kms_update)
 {
-  MetaCrtcConfig *crtc_config;
+  const MetaCrtcConfig *crtc_config;
   MetaFixed16Rectangle src_rect;
   MetaFixed16Rectangle dst_rect;
   MetaKmsAssignPlaneFlag flags;
@@ -107,8 +110,7 @@ meta_crtc_kms_assign_primary_plane (MetaCrtc      *crtc,
   MetaKmsPlane *primary_kms_plane;
   MetaKmsPlaneAssignment *plane_assignment;
 
-  crtc_config = crtc->config;
-
+  crtc_config = meta_crtc_get_config (crtc);
 
   src_rect = (MetaFixed16Rectangle) {
     .x = meta_fixed_16_from_int (0),
@@ -168,7 +170,6 @@ void
 meta_crtc_kms_set_mode (MetaCrtc      *crtc,
                         MetaKmsUpdate *kms_update)
 {
-  MetaCrtcConfig *crtc_config = crtc->config;
   MetaGpu *gpu = meta_crtc_get_gpu (crtc);
   GList *connectors;
   drmModeModeInfo *mode;
@@ -177,6 +178,8 @@ meta_crtc_kms_set_mode (MetaCrtc      *crtc,
 
   if (connectors)
     {
+      const MetaCrtcConfig *crtc_config = meta_crtc_get_config (crtc);
+
       mode = crtc_config->mode->driver_private;
 
       g_debug ("Setting CRTC (%ld) mode to %s",

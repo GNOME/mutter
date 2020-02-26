@@ -43,6 +43,8 @@ typedef struct _MetaCrtcPrivate
   MetaGpu *gpu;
 
   MetaMonitorTransform all_transforms;
+
+  MetaCrtcConfig *config;
 } MetaCrtcPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCrtc, meta_crtc, G_TYPE_OBJECT)
@@ -79,6 +81,7 @@ meta_crtc_set_config (MetaCrtc             *crtc,
                       MetaCrtcMode         *mode,
                       MetaMonitorTransform  transform)
 {
+  MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
   MetaCrtcConfig *config;
 
   meta_crtc_unset_config (crtc);
@@ -88,13 +91,23 @@ meta_crtc_set_config (MetaCrtc             *crtc,
   config->mode = mode;
   config->transform = transform;
 
-  crtc->config = config;
+  priv->config = config;
 }
 
 void
 meta_crtc_unset_config (MetaCrtc *crtc)
 {
-  g_clear_pointer (&crtc->config, g_free);
+  MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
+
+  g_clear_pointer (&priv->config, g_free);
+}
+
+const MetaCrtcConfig *
+meta_crtc_get_config (MetaCrtc *crtc)
+{
+  MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
+
+  return priv->config;
 }
 
 static void
@@ -151,11 +164,12 @@ static void
 meta_crtc_finalize (GObject *object)
 {
   MetaCrtc *crtc = META_CRTC (object);
+  MetaCrtcPrivate *priv = meta_crtc_get_instance_private (crtc);
 
   if (crtc->driver_notify)
     crtc->driver_notify (crtc);
 
-  g_clear_pointer (&crtc->config, g_free);
+  g_clear_pointer (&priv->config, g_free);
 
   G_OBJECT_CLASS (meta_crtc_parent_class)->finalize (object);
 }

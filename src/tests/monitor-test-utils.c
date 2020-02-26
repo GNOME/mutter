@@ -185,12 +185,12 @@ check_current_monitor_mode (MetaMonitor         *monitor,
     }
   else
     {
-      MetaCrtcConfig *crtc_config;
+      const MetaCrtcConfig *crtc_config;
       MetaLogicalMonitor *logical_monitor;
 
       g_assert_nonnull (crtc);
 
-      crtc_config  = crtc->config;
+      crtc_config = meta_crtc_get_config (crtc);
       g_assert_nonnull (crtc_config);
 
       g_assert (monitor_crtc_mode->crtc_mode == crtc_config->mode);
@@ -498,7 +498,7 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
   for (l = crtcs, i = 0; l; l = l->next, i++)
     {
       MetaCrtc *crtc = l->data;
-      MetaCrtcConfig *crtc_config = crtc->config;
+      const MetaCrtcConfig *crtc_config = meta_crtc_get_config (crtc);
 
       if (expect->crtcs[i].current_mode == -1)
         {

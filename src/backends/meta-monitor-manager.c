@@ -1017,7 +1017,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
     {
       MetaCrtc *crtc = l->data;
       GVariantBuilder transforms;
-      MetaCrtcConfig *crtc_config;
+      const MetaCrtcConfig *crtc_config;
 
       g_variant_builder_init (&transforms, G_VARIANT_TYPE ("au"));
       for (j = 0; j <= META_MONITOR_TRANSFORM_FLIPPED_270; j++)
@@ -1026,8 +1026,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
             g_variant_builder_add (&transforms, "u", j);
         }
 
-      crtc_config = crtc->config;
-
+      crtc_config = meta_crtc_get_config (crtc);
       if (crtc_config)
         {
           int current_mode_index;

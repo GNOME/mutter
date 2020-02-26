@@ -65,11 +65,11 @@ meta_output_kms_set_underscan (MetaOutput    *output,
   if (meta_output_is_underscanning (output))
     {
       MetaCrtc *crtc;
-      MetaCrtcConfig *crtc_config;
+      const MetaCrtcConfig *crtc_config;
       uint64_t hborder, vborder;
 
       crtc = meta_output_get_assigned_crtc (output);
-      crtc_config = crtc->config;
+      crtc_config = meta_crtc_get_config (crtc);
       hborder = MIN (128, (uint64_t) round (crtc_config->mode->width * 0.05));
       vborder = MIN (128, (uint64_t) round (crtc_config->mode->height * 0.05));
 

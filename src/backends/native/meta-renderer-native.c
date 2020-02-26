@@ -1127,6 +1127,7 @@ notify_view_crtc_presented (MetaRendererView *view,
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   CoglFrameInfo *frame_info;
   MetaCrtc *crtc;
+  const MetaCrtcConfig *crtc_config;
   float refresh_rate;
   MetaGpuKms *gpu_kms;
 
@@ -1138,9 +1139,8 @@ notify_view_crtc_presented (MetaRendererView *view,
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
 
   crtc = meta_crtc_kms_from_kms_crtc (kms_crtc);
-  refresh_rate = crtc && crtc->config ?
-                 crtc->config->mode->refresh_rate :
-                 0.0f;
+  crtc_config = crtc ? meta_crtc_get_config (crtc) : NULL;
+  refresh_rate = crtc_config ? crtc_config->mode->refresh_rate : 0.0f;
   if (refresh_rate >= frame_info->refresh_rate)
     {
       frame_info->presentation_time = time_ns;
@@ -2240,10 +2240,12 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+  const MetaCrtcConfig *crtc_config;
   MetaDrmBuffer *fb;
   struct gbm_bo *gbm_bo;
 
-  if (onscreen_native->crtc->config->transform != META_MONITOR_TRANSFORM_NORMAL)
+  crtc_config = meta_crtc_get_config (onscreen_native->crtc);
+  if (crtc_config->transform != META_MONITOR_TRANSFORM_NORMAL)
     return FALSE;
 
   if (onscreen_native->secondary_gpu_state)
@@ -3155,7 +3157,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
   CoglDisplayEGL *cogl_display_egl;
   CoglOnscreenEGL *onscreen_egl;
-  MetaCrtcConfig *crtc_config;
+  const MetaCrtcConfig *crtc_config;
   MetaMonitorTransform view_transform;
   CoglOnscreen *onscreen = NULL;
   CoglOffscreen *offscreen = NULL;
@@ -3167,7 +3169,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   MetaRendererView *view;
   GError *error = NULL;
 
-  crtc_config = crtc->config;
+  crtc_config = meta_crtc_get_config (crtc);
   onscreen_width = crtc_config->mode->width;
   onscreen_height = crtc_config->mode->height;
 
@@ -3219,7 +3221,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   else
     scale = 1.0;
 
-  meta_rectangle_from_graphene_rect (&crtc->config->layout,
+  meta_rectangle_from_graphene_rect (&crtc_config->layout,
                                      META_ROUNDING_STRATEGY_ROUND,
                                      &view_layout);
   view = g_object_new (META_TYPE_RENDERER_VIEW,
@@ -3297,7 +3299,7 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
             {
               MetaCrtc *crtc = k->data;
 
-              if (crtc->config)
+              if (meta_crtc_get_config (crtc))
                 continue;
 
               kms_update = meta_kms_ensure_pending_update (kms);
