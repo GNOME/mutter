@@ -172,6 +172,8 @@ mutter_sources = [
   'backends/meta-backend-private.h',
   'backends/meta-barrier.c',
   'backends/meta-barrier-private.h',
+  'backends/meta-crtc-mode.c',
+  'backends/meta-crtc-mode.h',
   'backends/meta-crtc.c',
   'backends/meta-crtc.h',
   'backends/meta-cursor.c',

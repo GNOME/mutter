@@ -49,8 +49,6 @@ typedef struct _MetaCrtcPrivate
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaCrtc, meta_crtc, G_TYPE_OBJECT)
 
-G_DEFINE_TYPE (MetaCrtcMode, meta_crtc_mode, G_TYPE_OBJECT)
-
 uint64_t
 meta_crtc_get_id (MetaCrtc *crtc)
 {
@@ -215,30 +213,4 @@ meta_crtc_class_init (MetaCrtcClass *klass)
                        G_PARAM_CONSTRUCT_ONLY |
                        G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
-}
-
-static void
-meta_crtc_mode_finalize (GObject *object)
-{
-  MetaCrtcMode *crtc_mode = META_CRTC_MODE (object);
-
-  if (crtc_mode->driver_notify)
-    crtc_mode->driver_notify (crtc_mode);
-
-  g_clear_pointer (&crtc_mode->name, g_free);
-
-  G_OBJECT_CLASS (meta_crtc_mode_parent_class)->finalize (object);
-}
-
-static void
-meta_crtc_mode_init (MetaCrtcMode *crtc_mode)
-{
-}
-
-static void
-meta_crtc_mode_class_init (MetaCrtcModeClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  object_class->finalize = meta_crtc_mode_finalize;
 }
