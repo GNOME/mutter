@@ -21,6 +21,7 @@
 #define META_MONITOR_MANAGER_TEST_H
 
 #include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-output.h"
 
 typedef struct _MetaMonitorTestSetup
 {
@@ -29,12 +30,19 @@ typedef struct _MetaMonitorTestSetup
   GList *crtcs;
 } MetaMonitorTestSetup;
 
-typedef struct _MetaOutputTest
+struct _MetaOutputTest
 {
+  MetaOutput parent;
+
   float scale;
-} MetaOutputTest;
+};
 
 typedef MetaMonitorTestSetup * (* CreateTestSetupFunc) (void);
+
+#define META_TYPE_OUTPUT_TEST (meta_output_test_get_type ())
+G_DECLARE_FINAL_TYPE (MetaOutputTest, meta_output_test,
+                      META, OUTPUT_TEST,
+                      MetaOutput)
 
 #define META_TYPE_MONITOR_MANAGER_TEST (meta_monitor_manager_test_get_type ())
 G_DECLARE_FINAL_TYPE (MetaMonitorManagerTest, meta_monitor_manager_test,

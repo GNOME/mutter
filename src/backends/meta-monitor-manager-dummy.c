@@ -53,10 +53,14 @@ struct _MetaMonitorManagerDummyClass
   MetaMonitorManagerClass parent_class;
 };
 
-typedef struct _MetaOutputDummy
+struct _MetaOutputDummy
 {
+  MetaOutput parent;
+
   float scale;
-} MetaOutputDummy;
+};
+
+G_DEFINE_TYPE (MetaOutputDummy, meta_output_dummy, META_TYPE_OUTPUT)
 
 G_DEFINE_TYPE (MetaMonitorManagerDummy, meta_monitor_manager_dummy, META_TYPE_MONITOR_MANAGER);
 
@@ -66,9 +70,6 @@ struct _MetaGpuDummy
 };
 
 G_DEFINE_TYPE (MetaGpuDummy, meta_gpu_dummy, META_TYPE_GPU)
-
-static void
-meta_output_dummy_notify_destroy (MetaOutput *output);
 
 typedef struct _CrtcModeSpec
 {
@@ -229,19 +230,13 @@ append_monitor (MetaMonitorManager *manager,
   output_info->possible_crtcs[0] = g_list_last (*crtcs)->data;
   output_info->n_possible_crtcs = 1;
 
-  output = g_object_new (META_TYPE_OUTPUT,
+  output = g_object_new (META_TYPE_OUTPUT_DUMMY,
                          "id", number,
                          "gpu", gpu,
                          "info", output_info,
                          NULL);
-
-  output_dummy = g_new0 (MetaOutputDummy, 1);
-  *output_dummy = (MetaOutputDummy) {
-    .scale = scale
-  };
-  output->driver_private = output_dummy;
-  output->driver_notify =
-    (GDestroyNotify) meta_output_dummy_notify_destroy;
+  output_dummy = META_OUTPUT_DUMMY (output);
+  output_dummy->scale = scale;
 
   *outputs = g_list_append (*outputs, output);
 }
@@ -307,11 +302,6 @@ append_tiled_monitor (MetaMonitorManager *manager,
       g_autoptr (MetaOutputInfo) output_info = NULL;
       GList *l;
 
-      output_dummy = g_new0 (MetaOutputDummy, 1);
-      *output_dummy = (MetaOutputDummy) {
-        .scale = scale
-      };
-
       /* Arbitrary ID unique for this output */
       number = g_list_length (*outputs) + 1;
 
@@ -359,23 +349,16 @@ append_tiled_monitor (MetaMonitorManager *manager,
         }
       output_info->n_possible_crtcs = n_tiles;
 
-      output = g_object_new (META_TYPE_OUTPUT,
+      output = g_object_new (META_TYPE_OUTPUT_DUMMY,
                              "id", number,
                              "gpu", gpu,
                              "info", output_info,
                              NULL);
-      output->driver_private = output_dummy;
-      output->driver_notify =
-        (GDestroyNotify) meta_output_dummy_notify_destroy;
+      output_dummy = META_OUTPUT_DUMMY (output);
+      output_dummy->scale = scale;
 
       *outputs = g_list_append (*outputs, output);
     }
-}
-
-static void
-meta_output_dummy_notify_destroy (MetaOutput *output)
-{
-  g_clear_pointer (&output->driver_private, g_free);
 }
 
 static void
@@ -652,7 +635,7 @@ meta_monitor_manager_dummy_calculate_monitor_mode_scale (MetaMonitorManager *man
   MetaOutputDummy *output_dummy;
 
   output = meta_monitor_get_main_output (monitor);
-  output_dummy = output->driver_private;
+  output_dummy = META_OUTPUT_DUMMY (output);
 
   return output_dummy->scale;
 }
@@ -798,4 +781,15 @@ meta_gpu_dummy_class_init (MetaGpuDummyClass *klass)
   MetaGpuClass *gpu_class = META_GPU_CLASS (klass);
 
   gpu_class->read_current = meta_gpu_dummy_read_current;
+}
+
+static void
+meta_output_dummy_init (MetaOutputDummy *output_dummy)
+{
+  output_dummy->scale = 1;
+}
+
+static void
+meta_output_dummy_class_init (MetaOutputDummyClass *klass)
+{
 }

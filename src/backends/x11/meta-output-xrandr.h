@@ -28,16 +28,21 @@
 #include "backends/x11/meta-gpu-xrandr.h"
 #include "backends/x11/meta-monitor-manager-xrandr.h"
 
-void meta_output_xrandr_apply_mode (MetaOutput *output);
+#define META_TYPE_OUTPUT_XRANDR (meta_output_xrandr_get_type ())
+G_DECLARE_FINAL_TYPE (MetaOutputXrandr, meta_output_xrandr,
+                      META, OUTPUT_XRANDR,
+                      MetaOutput)
 
-void meta_output_xrandr_change_backlight (MetaOutput *output,
+void meta_output_xrandr_apply_mode (MetaOutputXrandr *output_xrandr);
+
+void meta_output_xrandr_change_backlight (MetaOutputXrandr *output_xrandr,
                                           int         value);
 
-GBytes * meta_output_xrandr_read_edid (MetaOutput *output);
+GBytes * meta_output_xrandr_read_edid (MetaOutput *output_xrandr);
 
-MetaOutput * meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
-                                        XRROutputInfo *xrandr_output,
-                                        RROutput       output_id,
-                                        RROutput       primary_output);
+MetaOutputXrandr * meta_output_xrandr_new (MetaGpuXrandr *gpu_xrandr,
+                                           XRROutputInfo *xrandr_output,
+                                           RROutput       output_id,
+                                           RROutput       primary_output);
 
 #endif /* META_OUTPUT_XRANDR_H */

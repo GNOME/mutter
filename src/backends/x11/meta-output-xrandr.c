@@ -46,6 +46,13 @@
 #include "backends/x11/meta-monitor-manager-xrandr.h"
 #include "meta/util.h"
 
+struct _MetaOutputXrandr
+{
+  MetaOutput parent;
+};
+
+G_DEFINE_TYPE (MetaOutputXrandr, meta_output_xrandr, META_TYPE_OUTPUT)
+
 static Display *
 xdisplay_from_gpu (MetaGpu *gpu)
 {
@@ -133,8 +140,9 @@ output_set_underscanning_xrandr (MetaOutput *output,
 }
 
 void
-meta_output_xrandr_apply_mode (MetaOutput *output)
+meta_output_xrandr_apply_mode (MetaOutputXrandr *output_xrandr)
 {
+  MetaOutput *output = META_OUTPUT (output_xrandr);
   Display *xdisplay = xdisplay_from_output (output);
 
   if (meta_output_is_primary (output))
@@ -163,9 +171,10 @@ normalize_backlight (MetaOutput *output,
 }
 
 void
-meta_output_xrandr_change_backlight (MetaOutput *output,
-                                     int         value)
+meta_output_xrandr_change_backlight (MetaOutputXrandr *output_xrandr,
+                                     int               value)
 {
+  MetaOutput *output = META_OUTPUT (output_xrandr);
   const MetaOutputInfo *output_info = meta_output_get_info (output);
   Display *xdisplay = xdisplay_from_output (output);
   Atom atom;
@@ -786,11 +795,11 @@ find_assigned_crtc (MetaGpu       *gpu,
   return NULL;
 }
 
-MetaOutput *
-meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
-                           XRROutputInfo *xrandr_output,
-                           RROutput       output_id,
-                           RROutput       primary_output)
+MetaOutputXrandr *
+meta_output_xrandr_new (MetaGpuXrandr *gpu_xrandr,
+                        XRROutputInfo *xrandr_output,
+                        RROutput       output_id,
+                        RROutput       primary_output)
 {
   MetaGpu *gpu = META_GPU (gpu_xrandr);
   MetaBackend *backend = meta_gpu_get_backend (gpu);
@@ -859,7 +868,7 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
     output_get_supports_underscanning_xrandr (xdisplay, output_id);
   output_info_init_backlight_limits_xrandr (output_info, xdisplay, output_id);
 
-  output = g_object_new (META_TYPE_OUTPUT,
+  output = g_object_new (META_TYPE_OUTPUT_XRANDR,
                          "id", output_id,
                          "gpu", gpu_xrandr,
                          "info", output_info,
@@ -892,6 +901,16 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
     }
   else
     {
-      return output;
+      return META_OUTPUT_XRANDR (output);
     }
+}
+
+static void
+meta_output_xrandr_init (MetaOutputXrandr *output_xrandr)
+{
+}
+
+static void
+meta_output_xrandr_class_init (MetaOutputXrandrClass *klass)
+{
 }

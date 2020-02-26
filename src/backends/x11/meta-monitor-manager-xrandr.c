@@ -540,7 +540,7 @@ apply_crtc_assignments (MetaMonitorManager    *manager,
       MetaOutputAssignment *output_assignment = outputs[i];
       MetaOutput *output = output_assignment->output;
 
-      meta_output_xrandr_apply_mode (output);
+      meta_output_xrandr_apply_mode (META_OUTPUT_XRANDR (output));
     }
 
   g_list_foreach (to_configure_outputs,
@@ -643,7 +643,7 @@ meta_monitor_manager_xrandr_change_backlight (MetaMonitorManager *manager,
 					      MetaOutput         *output,
 					      gint                value)
 {
-  meta_output_xrandr_change_backlight (output, value);
+  meta_output_xrandr_change_backlight (META_OUTPUT_XRANDR (output), value);
 }
 
 static void

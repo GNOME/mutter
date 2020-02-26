@@ -163,7 +163,7 @@ meta_test_headless_monitor_connect (void)
   output_info->possible_crtcs = possible_crtcs;
   output_info->connector_type = META_CONNECTOR_TYPE_DisplayPort;
 
-  output = g_object_new (META_TYPE_OUTPUT,
+  output = g_object_new (META_TYPE_OUTPUT_TEST,
                          "id", 1,
                          "gpu", gpu,
                          "info", output_info,

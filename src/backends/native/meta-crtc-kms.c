@@ -157,7 +157,7 @@ generate_crtc_connector_list (MetaGpu  *gpu,
       if (assigned_crtc == crtc)
         {
           MetaKmsConnector *kms_connector =
-            meta_output_kms_get_kms_connector (output);
+            meta_output_kms_get_kms_connector (META_OUTPUT_KMS (output));
 
           connectors = g_list_prepend (connectors, kms_connector);
         }

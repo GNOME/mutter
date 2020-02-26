@@ -191,14 +191,14 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
 
       if (xrandr_output->connection != RR_Disconnected)
         {
-          MetaOutput *output;
+          MetaOutputXrandr *output_xrandr;
 
-          output = meta_create_xrandr_output (gpu_xrandr,
-                                              xrandr_output,
-                                              output_id,
-                                              primary_output);
-          if (output)
-            outputs = g_list_prepend (outputs, output);
+          output_xrandr = meta_output_xrandr_new (gpu_xrandr,
+                                                  xrandr_output,
+                                                  output_id,
+                                                  primary_output);
+          if (output_xrandr)
+            outputs = g_list_prepend (outputs, output_xrandr);
         }
 
       XRRFreeOutputInfo (xrandr_output);

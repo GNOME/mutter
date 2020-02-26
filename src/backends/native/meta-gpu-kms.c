@@ -238,7 +238,8 @@ meta_gpu_kms_set_power_save_mode (MetaGpuKms    *gpu_kms,
     {
       MetaOutput *output = l->data;
 
-      meta_output_kms_set_power_save_mode (output, state, kms_update);
+      meta_output_kms_set_power_save_mode (META_OUTPUT_KMS (output),
+                                           state, kms_update);
     }
 }
 
@@ -367,7 +368,8 @@ find_output_by_connector_id (GList    *outputs,
     {
       MetaOutput *output = l->data;
 
-      if (meta_output_kms_get_connector_id (output) == connector_id)
+      if (meta_output_kms_get_connector_id (META_OUTPUT_KMS (output)) ==
+          connector_id)
         return output;
     }
 
@@ -391,7 +393,8 @@ setup_output_clones (MetaGpu *gpu)
           if (other_output == output)
             continue;
 
-          if (meta_output_kms_can_clone (output, other_output))
+          if (meta_output_kms_can_clone (META_OUTPUT_KMS (output),
+                                         META_OUTPUT_KMS (other_output)))
             meta_output_add_possible_clone (output, other_output);
         }
     }
@@ -515,7 +518,7 @@ init_outputs (MetaGpuKms *gpu_kms)
     {
       MetaKmsConnector *kms_connector = l->data;
       const MetaKmsConnectorState *connector_state;
-      MetaOutput *output;
+      MetaOutputKms *output_kms;
       MetaOutput *old_output;
       GError *error = NULL;
 
@@ -526,18 +529,18 @@ init_outputs (MetaGpuKms *gpu_kms)
       old_output =
         find_output_by_connector_id (old_outputs,
                                      meta_kms_connector_get_id (kms_connector));
-      output = meta_create_kms_output (gpu_kms,
-                                       kms_connector,
-                                       old_output,
-                                       &error);
-      if (!output)
+      output_kms = meta_output_kms_new (gpu_kms,
+                                        kms_connector,
+                                        old_output,
+                                        &error);
+      if (!output_kms)
         {
           g_warning ("Failed to create KMS output: %s", error->message);
           g_error_free (error);
         }
       else
         {
-          outputs = g_list_prepend (outputs, output);
+          outputs = g_list_prepend (outputs, output_kms);
         }
     }
 

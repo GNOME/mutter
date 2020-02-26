@@ -28,6 +28,8 @@
 #include "backends/meta-output.h"
 #include "tests/meta-backend-test.h"
 
+G_DEFINE_TYPE (MetaOutputTest, meta_output_test, META_TYPE_OUTPUT)
+
 struct _MetaMonitorManagerTest
 {
   MetaMonitorManager parent;
@@ -296,7 +298,7 @@ meta_monitor_manager_test_calculate_monitor_mode_scale (MetaMonitorManager *mana
   MetaOutputTest *output_test;
 
   output = meta_monitor_get_main_output (monitor);
-  output_test = output->driver_private;
+  output_test = META_OUTPUT_TEST (output);
 
   if (output_test)
     return output_test->scale;
@@ -422,4 +424,15 @@ meta_monitor_manager_test_class_init (MetaMonitorManagerTestClass *klass)
   manager_class->get_capabilities = meta_monitor_manager_test_get_capabilities;
   manager_class->get_max_screen_size = meta_monitor_manager_test_get_max_screen_size;
   manager_class->get_default_layout_mode = meta_monitor_manager_test_get_default_layout_mode;
+}
+
+static void
+meta_output_test_init (MetaOutputTest *output_test)
+{
+  output_test->scale = 1;
+}
+
+static void
+meta_output_test_class_init (MetaOutputTestClass *klass)
+{
 }

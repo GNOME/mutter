@@ -44,19 +44,19 @@ typedef struct _MetaOutputKms
   MetaKmsConnector *kms_connector;
 } MetaOutputKms;
 
-MetaKmsConnector *
-meta_output_kms_get_kms_connector (MetaOutput *output)
-{
-  MetaOutputKms *output_kms = output->driver_private;
+G_DEFINE_TYPE (MetaOutputKms, meta_output_kms, META_TYPE_OUTPUT)
 
+MetaKmsConnector *
+meta_output_kms_get_kms_connector (MetaOutputKms *output_kms)
+{
   return output_kms->kms_connector;
 }
 
 void
-meta_output_kms_set_underscan (MetaOutput    *output,
+meta_output_kms_set_underscan (MetaOutputKms *output_kms,
                                MetaKmsUpdate *kms_update)
 {
-  MetaOutputKms *output_kms = output->driver_private;
+  MetaOutput *output = META_OUTPUT (output_kms);
   const MetaOutputInfo *output_info = meta_output_get_info (output);
 
   if (!output_info->supports_underscanning)
@@ -93,20 +93,16 @@ meta_output_kms_set_underscan (MetaOutput    *output,
 }
 
 uint32_t
-meta_output_kms_get_connector_id (MetaOutput *output)
+meta_output_kms_get_connector_id (MetaOutputKms *output_kms)
 {
-  MetaOutputKms *output_kms = output->driver_private;
-
   return meta_kms_connector_get_id (output_kms->kms_connector);
 }
 
 void
-meta_output_kms_set_power_save_mode (MetaOutput    *output,
+meta_output_kms_set_power_save_mode (MetaOutputKms *output_kms,
                                      uint64_t       dpms_state,
                                      MetaKmsUpdate *kms_update)
 {
-  MetaOutputKms *output_kms = output->driver_private;
-
   g_debug ("Setting DPMS state of connector %s to %" G_GUINT64_FORMAT,
            meta_kms_connector_get_name (output_kms->kms_connector),
            dpms_state);
@@ -117,20 +113,16 @@ meta_output_kms_set_power_save_mode (MetaOutput    *output,
 }
 
 gboolean
-meta_output_kms_can_clone (MetaOutput *output,
-                           MetaOutput *other_output)
+meta_output_kms_can_clone (MetaOutputKms *output_kms,
+                           MetaOutputKms *other_output_kms)
 {
-  MetaOutputKms *output_kms = output->driver_private;
-  MetaOutputKms *other_output_kms = other_output->driver_private;
-
   return meta_kms_connector_can_clone (output_kms->kms_connector,
                                        other_output_kms->kms_connector);
 }
 
 GBytes *
-meta_output_kms_read_edid (MetaOutput *output)
+meta_output_kms_read_edid (MetaOutputKms *output_kms)
 {
-  MetaOutputKms *output_kms = output->driver_private;
   const MetaKmsConnectorState *connector_state;
   GBytes *edid_data;
 
@@ -141,16 +133,6 @@ meta_output_kms_read_edid (MetaOutput *output)
     return NULL;
 
   return g_bytes_new_from_bytes (edid_data, 0, g_bytes_get_size (edid_data));
-}
-
-static void
-meta_output_destroy_notify (MetaOutput *output)
-{
-  MetaOutputKms *output_kms;
-
-  output_kms = output->driver_private;
-
-  g_slice_free (MetaOutputKms, output_kms);
 }
 
 static void
@@ -287,11 +269,11 @@ init_output_modes (MetaOutputInfo    *output_info,
   return TRUE;
 }
 
-MetaOutput *
-meta_create_kms_output (MetaGpuKms        *gpu_kms,
-                        MetaKmsConnector  *kms_connector,
-                        MetaOutput        *old_output,
-                        GError           **error)
+MetaOutputKms *
+meta_output_kms_new (MetaGpuKms        *gpu_kms,
+                     MetaKmsConnector  *kms_connector,
+                     MetaOutput        *old_output,
+                     GError           **error)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   uint32_t connector_id;
@@ -355,16 +337,12 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
 
   output_info->tile_info = connector_state->tile_info;
 
-  output = g_object_new (META_TYPE_OUTPUT,
+  output = g_object_new (META_TYPE_OUTPUT_KMS,
                          "id", ((uint64_t) gpu_id << 32) | connector_id,
                          "gpu", gpu,
                          "info", output_info,
                          NULL);
-
-  output_kms = g_slice_new0 (MetaOutputKms);
-  output->driver_private = output_kms;
-  output->driver_notify = (GDestroyNotify) meta_output_destroy_notify;
-
+  output_kms = META_OUTPUT_KMS (output);
   output_kms->kms_connector = kms_connector;
 
   if (connector_state->current_crtc_id)
@@ -401,5 +379,15 @@ meta_create_kms_output (MetaGpuKms        *gpu_kms,
       meta_output_unassign_crtc (output);
     }
 
-  return output;
+  return output_kms;
+}
+
+static void
+meta_output_kms_init (MetaOutputKms *output_kms)
+{
+}
+
+static void
+meta_output_kms_class_init (MetaOutputKmsClass *klass)
+{
 }

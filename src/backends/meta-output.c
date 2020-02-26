@@ -53,7 +53,7 @@ typedef struct _MetaOutputPrivate
   int backlight;
 } MetaOutputPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaOutput, meta_output, G_TYPE_OBJECT)
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaOutput, meta_output, G_TYPE_OBJECT)
 
 G_DEFINE_BOXED_TYPE (MetaOutputInfo, meta_output_info,
                      meta_output_info_ref,
@@ -307,9 +307,6 @@ meta_output_finalize (GObject *object)
 {
   MetaOutput *output = META_OUTPUT (object);
   MetaOutputPrivate *priv = meta_output_get_instance_private (output);
-
-  if (output->driver_notify)
-    output->driver_notify (output);
 
   g_clear_pointer (&priv->info, meta_output_info_unref);
 

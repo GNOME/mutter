@@ -529,12 +529,6 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
     }
 }
 
-static void
-meta_output_test_destroy_notify (MetaOutput *output)
-{
-  g_clear_pointer (&output->driver_private, g_free);
-}
-
 MetaMonitorTestSetup *
 create_monitor_test_setup (MonitorTestCaseSetup *setup,
                            MonitorTestFlag       flags)
@@ -627,15 +621,9 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
                                                possible_crtc_index);
         }
 
-      output_test = g_new0 (MetaOutputTest, 1);
-
       scale = setup->outputs[i].scale;
       if (scale < 1)
         scale = 1;
-
-      *output_test = (MetaOutputTest) {
-        .scale = scale
-      };
 
       is_laptop_panel = setup->outputs[i].is_laptop_panel;
 
@@ -679,11 +667,14 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
       output_info->panel_orientation_transform =
         setup->outputs[i].panel_orientation_transform;
 
-      output = g_object_new (META_TYPE_OUTPUT,
+      output = g_object_new (META_TYPE_OUTPUT_TEST,
                              "id", i,
                              "gpu", test_get_gpu (),
                              "info", output_info,
                              NULL);
+
+      output_test = META_OUTPUT_TEST (output);
+      output_test->scale = scale;
 
       if (crtc)
         {
@@ -694,9 +685,6 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
           };
           meta_output_assign_crtc (output, crtc, &output_assignment);
         }
-
-      output->driver_private = output_test;
-      output->driver_notify = (GDestroyNotify) meta_output_test_destroy_notify;
 
       test_setup->outputs = g_list_append (test_setup->outputs, output);
     }

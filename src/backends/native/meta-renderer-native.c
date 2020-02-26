@@ -1436,7 +1436,8 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
     }
 
   meta_crtc_kms_set_mode (onscreen_native->crtc, kms_update);
-  meta_output_kms_set_underscan (onscreen_native->output, kms_update);
+  meta_output_kms_set_underscan (META_OUTPUT_KMS (onscreen_native->output),
+                                 kms_update);
 }
 
 static void

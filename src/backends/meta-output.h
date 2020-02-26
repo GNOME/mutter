@@ -101,14 +101,6 @@ typedef struct _MetaOutputInfo
   MetaTileInfo tile_info;
 } MetaOutputInfo;
 
-struct _MetaOutput
-{
-  GObject parent;
-
-  gpointer driver_private;
-  GDestroyNotify driver_notify;
-};
-
 #define META_TYPE_OUTPUT_INFO (meta_output_info_get_type ())
 META_EXPORT_TEST
 GType meta_output_info_get_type (void);
@@ -129,7 +121,13 @@ void meta_output_info_parse_edid (MetaOutputInfo *output_info,
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaOutputInfo, meta_output_info_unref)
 
 #define META_TYPE_OUTPUT (meta_output_get_type ())
-META_EXPORT_TEST G_DECLARE_FINAL_TYPE (MetaOutput, meta_output, META, OUTPUT, GObject)
+META_EXPORT_TEST
+G_DECLARE_DERIVABLE_TYPE (MetaOutput, meta_output, META, OUTPUT, GObject)
+
+struct _MetaOutputClass
+{
+  GObjectClass parent_class;
+};
 
 META_EXPORT_TEST
 uint64_t meta_output_get_id (MetaOutput *output);

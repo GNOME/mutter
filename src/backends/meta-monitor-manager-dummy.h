@@ -25,6 +25,12 @@
 
 #include "backends/meta-gpu.h"
 #include "backends/meta-monitor-manager-private.h"
+#include "backends/meta-output.h"
+
+#define META_TYPE_OUTPUT_DUMMY (meta_output_dummy_get_type ())
+G_DECLARE_FINAL_TYPE (MetaOutputDummy, meta_output_dummy,
+                      META, OUTPUT_DUMMY,
+                      MetaOutput)
 
 #define META_TYPE_MONITOR_MANAGER_DUMMY (meta_monitor_manager_dummy_get_type ())
 G_DECLARE_FINAL_TYPE (MetaMonitorManagerDummy, meta_monitor_manager_dummy,
