@@ -63,6 +63,8 @@ meta_crtc_finalize (GObject *object)
   if (crtc->driver_notify)
     crtc->driver_notify (crtc);
 
+  g_clear_pointer (&crtc->config, g_free);
+
   G_OBJECT_CLASS (meta_crtc_parent_class)->finalize (object);
 }
 
