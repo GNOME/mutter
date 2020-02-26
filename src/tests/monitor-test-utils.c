@@ -671,8 +671,16 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
       output->vendor = g_strdup ("MetaProduct's Inc.");
       output->product = g_strdup ("MetaMonitor");
       output->serial = g_strdup (serial);
-      output->suggested_x = -1;
-      output->suggested_y = -1;
+      if (setup->outputs[i].hotplug_mode)
+        {
+          output->suggested_x = setup->outputs[i].suggested_x;
+          output->suggested_y = setup->outputs[i].suggested_y;
+        }
+      else
+        {
+          output->suggested_x = -1;
+          output->suggested_y = -1;
+        }
       output->hotplug_mode_update = hotplug_mode_update;
       output->width_mm = setup->outputs[i].width_mm;
       output->height_mm = setup->outputs[i].height_mm;

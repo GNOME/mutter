@@ -107,6 +107,9 @@ typedef struct _MonitorTestCaseOutput
   gboolean is_underscanning;
   const char *serial;
   MetaMonitorTransform panel_orientation_transform;
+  gboolean hotplug_mode;
+  int suggested_x;
+  int suggested_y;
 } MonitorTestCaseOutput;
 
 typedef struct _MonitorTestCaseCrtc

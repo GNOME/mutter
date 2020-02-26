@@ -1179,15 +1179,6 @@ meta_test_monitor_hidpi_linear_config (void)
 }
 
 static void
-set_suggested_output_position (MetaOutput *output,
-                               int         x,
-                               int         y)
-{
-  output->suggested_x = x;
-  output->suggested_y = y;
-}
-
-static void
 meta_test_monitor_suggested_config (void)
 {
   MonitorTestCase test_case = {
@@ -1214,7 +1205,10 @@ meta_test_monitor_suggested_config (void)
           .possible_crtcs = { 0 },
           .n_possible_crtcs = 1,
           .width_mm = 222,
-          .height_mm = 125
+          .height_mm = 125,
+          .hotplug_mode = TRUE,
+          .suggested_x = 1024,
+          .suggested_y = 758,
         },
         {
           .crtc = 1,
@@ -1224,7 +1218,10 @@ meta_test_monitor_suggested_config (void)
           .possible_crtcs = { 1 },
           .n_possible_crtcs = 1,
           .width_mm = 220,
-          .height_mm = 124
+          .height_mm = 124,
+          .hotplug_mode = TRUE,
+          .suggested_x = 0,
+          .suggested_y = 0,
         }
       },
       .n_outputs = 2,
@@ -1326,11 +1323,6 @@ meta_test_monitor_suggested_config (void)
 
   test_setup = create_monitor_test_setup (&test_case.setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
-
-  set_suggested_output_position (g_list_nth_data (test_setup->outputs, 0),
-                                 1024, 758);
-  set_suggested_output_position (g_list_nth_data (test_setup->outputs, 1),
-                                 0, 0);
 
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
