@@ -57,7 +57,7 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
                             float y_1,
                             float x_2,
                             float y_2,
-                            gboolean first)
+                            gboolean merge)
 {
   CoglMatrixStack *projection_stack =
     _cogl_framebuffer_get_projection_stack (framebuffer);
@@ -71,23 +71,7 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
                                               projection_stack->last_entry);
   _cogl_context_set_current_modelview_entry (ctx, modelview_entry);
 
-  if (first)
-    {
-      GE( ctx, glEnable (GL_STENCIL_TEST) );
-
-      /* Initially disallow everything */
-      GE( ctx, glClearStencil (0) );
-      GE( ctx, glClear (GL_STENCIL_BUFFER_BIT) );
-
-      /* Punch out a hole to allow the rectangle */
-      GE( ctx, glStencilFunc (GL_NEVER, 0x1, 0x1) );
-      GE( ctx, glStencilOp (GL_REPLACE, GL_REPLACE, GL_REPLACE) );
-
-      _cogl_rectangle_immediate (framebuffer,
-                                 ctx->stencil_pipeline,
-                                 x_1, y_1, x_2, y_2);
-    }
-  else
+  if (merge)
     {
       /* Add one to every pixel of the stencil buffer in the
 	 rectangle */
@@ -108,6 +92,21 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
       _cogl_rectangle_immediate (framebuffer,
                                  ctx->stencil_pipeline,
                                  -1.0, -1.0, 1.0, 1.0);
+    }
+  else
+    {
+      GE( ctx, glEnable (GL_STENCIL_TEST) );
+
+      /* Initially disallow everything */
+      GE( ctx, glClearStencil (0) );
+      GE( ctx, glClear (GL_STENCIL_BUFFER_BIT) );
+
+      /* Punch out a hole to allow the rectangle */
+      GE( ctx, glStencilFunc (GL_ALWAYS, 0x1, 0x1) );
+      GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_REPLACE) );
+      _cogl_rectangle_immediate (framebuffer,
+                                 ctx->stencil_pipeline,
+                                 x_1, y_1, x_2, y_2);
     }
 
   /* Restore the stencil mode */
@@ -491,7 +490,7 @@ _cogl_clip_stack_gl_flush (CoglClipStack *stack,
                                               rect->y0,
                                               rect->x1,
                                               rect->y1,
-                                              !using_stencil_buffer);
+                                              using_stencil_buffer);
                   using_stencil_buffer = TRUE;
                 }
               break;
