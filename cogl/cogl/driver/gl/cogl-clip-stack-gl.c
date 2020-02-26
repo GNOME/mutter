@@ -73,6 +73,9 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
   ctx->current_projection_entry = projection_stack->last_entry;
   ctx->current_modelview_entry = modelview_entry;
 
+  GE( ctx, glColorMask (FALSE, FALSE, FALSE, FALSE) );
+  GE( ctx, glDepthMask (FALSE) );
+
   if (merge)
     {
       /* Add one to every pixel of the stencil buffer in the
@@ -116,6 +119,8 @@ add_stencil_clip_rectangle (CoglFramebuffer *framebuffer,
   ctx->current_modelview_entry = old_modelview_entry;
 
   /* Restore the stencil mode */
+  GE( ctx, glDepthMask (TRUE) );
+  GE( ctx, glColorMask (TRUE, TRUE, TRUE, TRUE) );
   GE( ctx, glStencilFunc (GL_EQUAL, 0x1, 0x1) );
   GE( ctx, glStencilOp (GL_KEEP, GL_KEEP, GL_KEEP) );
 }
