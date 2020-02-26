@@ -60,9 +60,9 @@ typedef enum
   META_CONNECTOR_TYPE_DSI = 16,
 } MetaConnectorType;
 
-struct _MetaOutput
+typedef struct _MetaOutputInfo
 {
-  GObject parent;
+  grefcount ref_count;
 
   char *name;
   char *vendor;
@@ -90,9 +90,6 @@ struct _MetaOutput
 
   gboolean supports_underscanning;
 
-  gpointer driver_private;
-  GDestroyNotify driver_notify;
-
   /*
    * Get a new preferred mode on hotplug events, to handle dynamic guest
    * resizing.
@@ -102,7 +99,34 @@ struct _MetaOutput
   int suggested_y;
 
   MetaTileInfo tile_info;
+} MetaOutputInfo;
+
+struct _MetaOutput
+{
+  GObject parent;
+
+  gpointer driver_private;
+  GDestroyNotify driver_notify;
 };
+
+#define META_TYPE_OUTPUT_INFO (meta_output_info_get_type ())
+META_EXPORT_TEST
+GType meta_output_info_get_type (void);
+
+META_EXPORT_TEST
+MetaOutputInfo * meta_output_info_new (void);
+
+META_EXPORT_TEST
+MetaOutputInfo * meta_output_info_ref (MetaOutputInfo *output_info);
+
+META_EXPORT_TEST
+void meta_output_info_unref (MetaOutputInfo *output_info);
+
+META_EXPORT_TEST
+void meta_output_info_parse_edid (MetaOutputInfo *output_info,
+                                  GBytes         *edid);
+
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaOutputInfo, meta_output_info_unref)
 
 #define META_TYPE_OUTPUT (meta_output_get_type ())
 META_EXPORT_TEST G_DECLARE_FINAL_TYPE (MetaOutput, meta_output, META, OUTPUT, GObject)
@@ -128,6 +152,11 @@ void meta_output_set_backlight (MetaOutput *output,
                                 int         backlight);
 
 int meta_output_get_backlight (MetaOutput *output);
+
+void meta_output_add_possible_clone (MetaOutput *output,
+                                     MetaOutput *possible_clone);
+
+const MetaOutputInfo * meta_output_get_info (MetaOutput *output);
 
 META_EXPORT_TEST
 void meta_output_assign_crtc (MetaOutput                 *output,

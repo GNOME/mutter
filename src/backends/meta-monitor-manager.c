@@ -140,7 +140,10 @@ meta_monitor_manager_set_primary_logical_monitor (MetaMonitorManager *manager,
 static gboolean
 is_main_tiled_monitor_output (MetaOutput *output)
 {
-  return output->tile_info.loc_h_tile == 0 && output->tile_info.loc_v_tile == 0;
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
+
+  return (output_info->tile_info.loc_h_tile == 0 &&
+          output_info->tile_info.loc_v_tile == 0);
 }
 
 static MetaLogicalMonitor *
@@ -1059,15 +1062,23 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
   for (l = combined_outputs, i = 0; l; l = l->next, i++)
     {
       MetaOutput *output = l->data;
+      const MetaOutputInfo *output_info = meta_output_get_info (output);
       GVariantBuilder crtcs, modes, clones, properties;
       GBytes *edid;
       MetaCrtc *crtc;
       int crtc_index;
+      int backlight;
+      int min_backlight_step;
+      gboolean is_primary;
+      gboolean is_presentation;
+      const char * connector_type_name;
+      gboolean is_underscanning;
+      gboolean supports_underscanning;
 
       g_variant_builder_init (&crtcs, G_VARIANT_TYPE ("au"));
-      for (j = 0; j < output->n_possible_crtcs; j++)
+      for (j = 0; j < output_info->n_possible_crtcs; j++)
         {
-          MetaCrtc *possible_crtc = output->possible_crtcs[j];
+          MetaCrtc *possible_crtc = output_info->possible_crtcs[j];
           unsigned possible_crtc_index;
 
           possible_crtc_index = g_list_index (combined_crtcs, possible_crtc);
@@ -1075,52 +1086,62 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
         }
 
       g_variant_builder_init (&modes, G_VARIANT_TYPE ("au"));
-      for (j = 0; j < output->n_modes; j++)
+      for (j = 0; j < output_info->n_modes; j++)
         {
           unsigned mode_index;
 
-          mode_index = g_list_index (combined_modes, output->modes[j]);
+          mode_index = g_list_index (combined_modes, output_info->modes[j]);
           g_variant_builder_add (&modes, "u", mode_index);
         }
 
       g_variant_builder_init (&clones, G_VARIANT_TYPE ("au"));
-      for (j = 0; j < output->n_possible_clones; j++)
+      for (j = 0; j < output_info->n_possible_clones; j++)
         {
           unsigned int possible_clone_index;
 
           possible_clone_index = g_list_index (combined_outputs,
-                                               output->possible_clones[j]);
+                                               output_info->possible_clones[j]);
           g_variant_builder_add (&clones, "u", possible_clone_index);
         }
 
+      backlight = meta_output_get_backlight (output);
+      min_backlight_step =
+        output_info->backlight_max - output_info->backlight_min
+        ? 100 / (output_info->backlight_max - output_info->backlight_min)
+        : -1;
+      is_primary = meta_output_is_primary (output);
+      is_presentation = meta_output_is_presentation (output);
+      is_underscanning = meta_output_is_underscanning (output);
+      connector_type_name = get_connector_type_name (output_info->connector_type);
+      supports_underscanning = output_info->supports_underscanning;
+
       g_variant_builder_init (&properties, G_VARIANT_TYPE ("a{sv}"));
       g_variant_builder_add (&properties, "{sv}", "vendor",
-                             g_variant_new_string (output->vendor));
+                             g_variant_new_string (output_info->vendor));
       g_variant_builder_add (&properties, "{sv}", "product",
-                             g_variant_new_string (output->product));
+                             g_variant_new_string (output_info->product));
       g_variant_builder_add (&properties, "{sv}", "serial",
-                             g_variant_new_string (output->serial));
+                             g_variant_new_string (output_info->serial));
       g_variant_builder_add (&properties, "{sv}", "width-mm",
-                             g_variant_new_int32 (output->width_mm));
+                             g_variant_new_int32 (output_info->width_mm));
       g_variant_builder_add (&properties, "{sv}", "height-mm",
-                             g_variant_new_int32 (output->height_mm));
+                             g_variant_new_int32 (output_info->height_mm));
       g_variant_builder_add (&properties, "{sv}", "display-name",
-                             g_variant_new_string (output->name));
+                             g_variant_new_string (output_info->name));
       g_variant_builder_add (&properties, "{sv}", "backlight",
-                             g_variant_new_int32 (meta_output_get_backlight (output)));
+                             g_variant_new_int32 (backlight));
       g_variant_builder_add (&properties, "{sv}", "min-backlight-step",
-                             g_variant_new_int32 ((output->backlight_max - output->backlight_min) ?
-                                                  100 / (output->backlight_max - output->backlight_min) : -1));
+                             g_variant_new_int32 (min_backlight_step));
       g_variant_builder_add (&properties, "{sv}", "primary",
-                             g_variant_new_boolean (meta_output_is_primary (output)));
+                             g_variant_new_boolean (is_primary));
       g_variant_builder_add (&properties, "{sv}", "presentation",
-                             g_variant_new_boolean (meta_output_is_presentation (output)));
+                             g_variant_new_boolean (is_presentation));
       g_variant_builder_add (&properties, "{sv}", "connector-type",
-                             g_variant_new_string (get_connector_type_name (output->connector_type)));
+                             g_variant_new_string (connector_type_name));
       g_variant_builder_add (&properties, "{sv}", "underscanning",
-                             g_variant_new_boolean (meta_output_is_underscanning (output)));
+                             g_variant_new_boolean (is_underscanning));
       g_variant_builder_add (&properties, "{sv}", "supports-underscanning",
-                             g_variant_new_boolean (output->supports_underscanning));
+                             g_variant_new_boolean (supports_underscanning));
 
       edid = manager_class->read_edid (manager, output);
       if (edid)
@@ -1131,18 +1152,20 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
           g_bytes_unref (edid);
         }
 
-      if (output->tile_info.group_id)
+      if (output_info->tile_info.group_id)
         {
-          g_variant_builder_add (&properties, "{sv}", "tile",
-                                 g_variant_new ("(uuuuuuuu)",
-                                                output->tile_info.group_id,
-                                                output->tile_info.flags,
-                                                output->tile_info.max_h_tiles,
-                                                output->tile_info.max_v_tiles,
-                                                output->tile_info.loc_h_tile,
-                                                output->tile_info.loc_v_tile,
-                                                output->tile_info.tile_w,
-                                                output->tile_info.tile_h));
+          GVariant *tile_variant;
+
+          tile_variant = g_variant_new ("(uuuuuuuu)",
+                                        output_info->tile_info.group_id,
+                                        output_info->tile_info.flags,
+                                        output_info->tile_info.max_h_tiles,
+                                        output_info->tile_info.max_v_tiles,
+                                        output_info->tile_info.loc_h_tile,
+                                        output_info->tile_info.loc_v_tile,
+                                        output_info->tile_info.tile_w,
+                                        output_info->tile_info.tile_h);
+          g_variant_builder_add (&properties, "{sv}", "tile", tile_variant);
         }
 
       crtc = meta_output_get_assigned_crtc (output);
@@ -1152,7 +1175,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
                              meta_output_get_id (output),
                              crtc_index,
                              &crtcs,
-                             output->name,
+                             meta_output_get_name (output),
                              &modes,
                              &clones,
                              &properties);
@@ -2103,6 +2126,7 @@ meta_monitor_manager_handle_change_backlight  (MetaDBusDisplayConfig *skeleton,
 {
   GList *combined_outputs;
   MetaOutput *output;
+  const MetaOutputInfo *output_info;
   int new_backlight;
 
   if (serial != manager->serial)
@@ -2134,8 +2158,10 @@ meta_monitor_manager_handle_change_backlight  (MetaDBusDisplayConfig *skeleton,
       return TRUE;
     }
 
+  output_info = meta_output_get_info (output);
   if (meta_output_get_backlight (output) == -1 ||
-      (output->backlight_min == 0 && output->backlight_max == 0))
+      (output_info->backlight_min == 0 &&
+       output_info->backlight_max == 0))
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
                                              G_DBUS_ERROR_INVALID_ARGS,
@@ -2653,8 +2679,9 @@ rebuild_monitors (MetaMonitorManager *manager)
       for (k = meta_gpu_get_outputs (gpu); k; k = k->next)
         {
           MetaOutput *output = k->data;
+          const MetaOutputInfo *output_info = meta_output_get_info (output);
 
-          if (output->tile_info.group_id)
+          if (output_info->tile_info.group_id)
             {
               if (is_main_tiled_monitor_output (output))
                 {
@@ -2886,8 +2913,8 @@ meta_monitor_manager_rebuild_derived (MetaMonitorManager *manager,
 }
 
 void
-meta_output_parse_edid (MetaOutput *output,
-                        GBytes     *edid)
+meta_output_info_parse_edid (MetaOutputInfo *output_info,
+                             GBytes         *edid)
 {
   MonitorInfo *parsed_edid;
   gsize len;
@@ -2899,42 +2926,44 @@ meta_output_parse_edid (MetaOutput *output,
 
   if (parsed_edid)
     {
-      output->vendor = g_strndup (parsed_edid->manufacturer_code, 4);
-      if (!g_utf8_validate (output->vendor, -1, NULL))
-        g_clear_pointer (&output->vendor, g_free);
+      output_info->vendor = g_strndup (parsed_edid->manufacturer_code, 4);
+      if (!g_utf8_validate (output_info->vendor, -1, NULL))
+        g_clear_pointer (&output_info->vendor, g_free);
 
-      output->product = g_strndup (parsed_edid->dsc_product_name, 14);
-      if (!g_utf8_validate (output->product, -1, NULL) ||
-          output->product[0] == '\0')
+      output_info->product = g_strndup (parsed_edid->dsc_product_name, 14);
+      if (!g_utf8_validate (output_info->product, -1, NULL) ||
+          output_info->product[0] == '\0')
         {
-          g_clear_pointer (&output->product, g_free);
-          output->product = g_strdup_printf ("0x%04x", (unsigned) parsed_edid->product_code);
+          g_clear_pointer (&output_info->product, g_free);
+          output_info->product = g_strdup_printf ("0x%04x", (unsigned) parsed_edid->product_code);
         }
 
-      output->serial = g_strndup (parsed_edid->dsc_serial_number, 14);
-      if (!g_utf8_validate (output->serial, -1, NULL) ||
-          output->serial[0] == '\0')
+      output_info->serial = g_strndup (parsed_edid->dsc_serial_number, 14);
+      if (!g_utf8_validate (output_info->serial, -1, NULL) ||
+          output_info->serial[0] == '\0')
         {
-          g_clear_pointer (&output->serial, g_free);
-          output->serial = g_strdup_printf ("0x%08x", parsed_edid->serial_number);
+          g_clear_pointer (&output_info->serial, g_free);
+          output_info->serial = g_strdup_printf ("0x%08x", parsed_edid->serial_number);
         }
 
       g_free (parsed_edid);
     }
 
  out:
-  if (!output->vendor)
-    output->vendor = g_strdup ("unknown");
-  if (!output->product)
-    output->product = g_strdup ("unknown");
-  if (!output->serial)
-    output->serial = g_strdup ("unknown");
+  if (!output_info->vendor)
+    output_info->vendor = g_strdup ("unknown");
+  if (!output_info->product)
+    output_info->product = g_strdup ("unknown");
+  if (!output_info->serial)
+    output_info->serial = g_strdup ("unknown");
 }
 
 gboolean
 meta_output_is_laptop (MetaOutput *output)
 {
-  switch (output->connector_type)
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
+
+  switch (output_info->connector_type)
     {
     case META_CONNECTOR_TYPE_eDP:
     case META_CONNECTOR_TYPE_LVDS:

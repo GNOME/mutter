@@ -598,6 +598,7 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
       int scale;
       gboolean is_laptop_panel;
       const char *serial;
+      g_autoptr (MetaOutputInfo) output_info = NULL;
 
       crtc_index = setup->outputs[i].crtc;
       if (crtc_index == -1)
@@ -649,9 +650,45 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
       if (!serial)
         serial = "0x123456";
 
+      output_info = meta_output_info_new ();
+
+      output_info->name = (is_laptop_panel
+                           ? g_strdup_printf ("eDP-%d", ++n_laptop_panels)
+                           : g_strdup_printf ("DP-%d", ++n_normal_panels));
+      output_info->vendor = g_strdup ("MetaProduct's Inc.");
+      output_info->product = g_strdup ("MetaMonitor");
+      output_info->serial = g_strdup (serial);
+      if (setup->outputs[i].hotplug_mode)
+        {
+          output_info->suggested_x = setup->outputs[i].suggested_x;
+          output_info->suggested_y = setup->outputs[i].suggested_y;
+        }
+      else
+        {
+          output_info->suggested_x = -1;
+          output_info->suggested_y = -1;
+        }
+      output_info->hotplug_mode_update = hotplug_mode_update;
+      output_info->width_mm = setup->outputs[i].width_mm;
+      output_info->height_mm = setup->outputs[i].height_mm;
+      output_info->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
+      output_info->preferred_mode = preferred_mode;
+      output_info->n_modes = n_modes;
+      output_info->modes = modes;
+      output_info->n_possible_crtcs = n_possible_crtcs;
+      output_info->possible_crtcs = possible_crtcs;
+      output_info->n_possible_clones = 0;
+      output_info->possible_clones = NULL;
+      output_info->connector_type = (is_laptop_panel ? META_CONNECTOR_TYPE_eDP
+                                     : META_CONNECTOR_TYPE_DisplayPort);
+      output_info->tile_info = setup->outputs[i].tile_info;
+      output_info->panel_orientation_transform =
+        setup->outputs[i].panel_orientation_transform;
+
       output = g_object_new (META_TYPE_OUTPUT,
                              "id", i,
                              "gpu", test_get_gpu (),
+                             "info", output_info,
                              NULL);
 
       if (crtc)
@@ -664,39 +701,6 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
           meta_output_assign_crtc (output, crtc, &output_assignment);
         }
 
-      output->name = (is_laptop_panel ? g_strdup_printf ("eDP-%d",
-                                                  ++n_laptop_panels)
-                               : g_strdup_printf ("DP-%d",
-                                                  ++n_normal_panels));
-      output->vendor = g_strdup ("MetaProduct's Inc.");
-      output->product = g_strdup ("MetaMonitor");
-      output->serial = g_strdup (serial);
-      if (setup->outputs[i].hotplug_mode)
-        {
-          output->suggested_x = setup->outputs[i].suggested_x;
-          output->suggested_y = setup->outputs[i].suggested_y;
-        }
-      else
-        {
-          output->suggested_x = -1;
-          output->suggested_y = -1;
-        }
-      output->hotplug_mode_update = hotplug_mode_update;
-      output->width_mm = setup->outputs[i].width_mm;
-      output->height_mm = setup->outputs[i].height_mm;
-      output->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
-      output->preferred_mode = preferred_mode;
-      output->n_modes = n_modes;
-      output->modes = modes;
-      output->n_possible_crtcs = n_possible_crtcs;
-      output->possible_crtcs = possible_crtcs;
-      output->n_possible_clones = 0;
-      output->possible_clones = NULL;
-      output->connector_type = (is_laptop_panel ? META_CONNECTOR_TYPE_eDP
-                                         : META_CONNECTOR_TYPE_DisplayPort);
-      output->tile_info = setup->outputs[i].tile_info;
-      output->panel_orientation_transform =
-        setup->outputs[i].panel_orientation_transform;
       output->driver_private = output_test;
       output->driver_notify = (GDestroyNotify) meta_output_test_destroy_notify;
 

@@ -47,9 +47,8 @@
 #include "meta/util.h"
 
 static Display *
-xdisplay_from_output (MetaOutput *output)
+xdisplay_from_gpu (MetaGpu *gpu)
 {
-  MetaGpu *gpu = meta_output_get_gpu (output);
   MetaBackend *backend = meta_gpu_get_backend (gpu);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
@@ -57,6 +56,12 @@ xdisplay_from_output (MetaOutput *output)
     META_MONITOR_MANAGER_XRANDR (monitor_manager);
 
   return meta_monitor_manager_xrandr_get_xdisplay (monitor_manager_xrandr);
+}
+
+static Display *
+xdisplay_from_output (MetaOutput *output)
+{
+  return xdisplay_from_gpu (meta_output_get_gpu (output));
 }
 
 static void
@@ -140,7 +145,7 @@ meta_output_xrandr_apply_mode (MetaOutput *output)
 
   output_set_presentation_xrandr (output, meta_output_is_presentation (output));
 
-  if (output->supports_underscanning)
+  if (meta_output_get_info (output)->supports_underscanning)
     {
       output_set_underscanning_xrandr (output,
                                        meta_output_is_underscanning (output));
@@ -151,20 +156,23 @@ static int
 normalize_backlight (MetaOutput *output,
                      int         hw_value)
 {
-  return round ((double)(hw_value - output->backlight_min) /
-                (output->backlight_max - output->backlight_min) * 100.0);
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
+
+  return round ((double) (hw_value - output_info->backlight_min) /
+                (output_info->backlight_max - output_info->backlight_min) * 100.0);
 }
 
 void
 meta_output_xrandr_change_backlight (MetaOutput *output,
                                      int         value)
 {
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
   Display *xdisplay = xdisplay_from_output (output);
   Atom atom;
   int hw_value;
 
-  hw_value = round ((double) value / 100.0 * output->backlight_max +
-                    output->backlight_min);
+  hw_value = round ((double) value / 100.0 * output_info->backlight_max +
+                    output_info->backlight_min);
 
   atom = XInternAtom (xdisplay, "Backlight", False);
 
@@ -179,11 +187,11 @@ meta_output_xrandr_change_backlight (MetaOutput *output,
 }
 
 static gboolean
-output_get_integer_property (MetaOutput *output,
+output_get_integer_property (Display    *xdisplay,
+                             RROutput    output_id,
                              const char *propname,
                              gint       *value)
 {
-  Display *xdisplay = xdisplay_from_output (output);
   gboolean exists = FALSE;
   Atom atom, actual_type;
   int actual_format;
@@ -192,7 +200,7 @@ output_get_integer_property (MetaOutput *output,
 
   atom = XInternAtom (xdisplay, propname, False);
   XRRGetOutputProperty (xdisplay,
-                        (XID) meta_output_get_id (output),
+                        (XID) output_id,
                         atom,
                         0, G_MAXLONG, False, False, XA_INTEGER,
                         &actual_type, &actual_format,
@@ -208,10 +216,10 @@ output_get_integer_property (MetaOutput *output,
 }
 
 static gboolean
-output_get_property_exists (MetaOutput *output,
+output_get_property_exists (Display    *xdisplay,
+                            RROutput    output_id,
                             const char *propname)
 {
-  Display *xdisplay = xdisplay_from_output (output);
   gboolean exists = FALSE;
   Atom atom, actual_type;
   int actual_format;
@@ -220,7 +228,7 @@ output_get_property_exists (MetaOutput *output,
 
   atom = XInternAtom (xdisplay, propname, False);
   XRRGetOutputProperty (xdisplay,
-                        (XID) meta_output_get_id (output),
+                        (XID) output_id,
                         atom,
                         0, G_MAXLONG, False, False, AnyPropertyType,
                         &actual_type, &actual_format,
@@ -288,9 +296,9 @@ output_get_underscanning_xrandr (MetaOutput *output)
 }
 
 static gboolean
-output_get_supports_underscanning_xrandr (MetaOutput *output)
+output_get_supports_underscanning_xrandr (Display  *xdisplay,
+                                          RROutput  output_id)
 {
-  Display *xdisplay = xdisplay_from_output (output);
   Atom atom, actual_type;
   int actual_format, i;
   unsigned long nitems, bytes_after;
@@ -301,7 +309,7 @@ output_get_supports_underscanning_xrandr (MetaOutput *output)
 
   atom = XInternAtom (xdisplay, "underscan", False);
   XRRGetOutputProperty (xdisplay,
-                        (XID) meta_output_get_id (output),
+                        (XID) output_id,
                         atom,
                         0, G_MAXLONG, False, False, XA_ATOM,
                         &actual_type, &actual_format,
@@ -311,7 +319,7 @@ output_get_supports_underscanning_xrandr (MetaOutput *output)
     return FALSE;
 
   property_info = XRRQueryOutputProperty (xdisplay,
-                                          (XID) meta_output_get_id (output),
+                                          (XID) output_id,
                                           atom);
   values = (Atom *) property_info->values;
 
@@ -361,19 +369,18 @@ output_get_backlight_xrandr (MetaOutput *output)
 }
 
 static void
-output_get_backlight_limits_xrandr (MetaOutput *output)
+output_info_init_backlight_limits_xrandr (MetaOutputInfo     *output_info,
+                                          Display            *xdisplay,
+                                          xcb_randr_output_t  output_id)
 {
-  Display *xdisplay = xdisplay_from_output (output);
   Atom atom;
   xcb_connection_t *xcb_conn;
-  xcb_randr_output_t output_id;
   xcb_randr_query_output_property_cookie_t cookie;
   g_autofree xcb_randr_query_output_property_reply_t *reply = NULL;
 
   atom = XInternAtom (xdisplay, "Backlight", False);
 
   xcb_conn = XGetXCBConnection (xdisplay);
-  output_id = meta_output_get_id (output);
   cookie = xcb_randr_query_output_property (xcb_conn,
                                             output_id,
                                             (xcb_atom_t) atom);
@@ -387,13 +394,13 @@ output_get_backlight_limits_xrandr (MetaOutput *output)
 
   if (!reply->range || reply->length != 2)
     {
-      meta_verbose ("backlight %s was not range\n", output->name);
+      meta_verbose ("backlight %s was not range\n", output_info->name);
       return;
     }
 
   int32_t *values = xcb_randr_query_output_property_valid_values (reply);
-  output->backlight_min = values[0];
-  output->backlight_max = values[1];
+  output_info->backlight_min = values[0];
+  output_info->backlight_max = values[1];
 }
 
 static guint8 *
@@ -430,27 +437,21 @@ get_edid_property (Display  *xdisplay,
   return result;
 }
 
-GBytes *
-meta_output_xrandr_read_edid (MetaOutput *output)
+static GBytes *
+read_xrandr_edid (Display  *xdisplay,
+                  RROutput  output_id)
 {
-  Display *xdisplay = xdisplay_from_output (output);
   Atom edid_atom;
   guint8 *result;
   gsize len;
 
   edid_atom = XInternAtom (xdisplay, "EDID", FALSE);
-  result = get_edid_property (xdisplay,
-                              meta_output_get_id (output),
-                              edid_atom,
-                              &len);
+  result = get_edid_property (xdisplay, output_id, edid_atom, &len);
 
   if (!result)
     {
       edid_atom = XInternAtom (xdisplay, "EDID_DATA", FALSE);
-      result = get_edid_property (xdisplay,
-                                  meta_output_get_id (output),
-                                  edid_atom,
-                                  &len);
+      result = get_edid_property (xdisplay, output_id, edid_atom, &len);
     }
 
   if (result)
@@ -464,27 +465,39 @@ meta_output_xrandr_read_edid (MetaOutput *output)
   return NULL;
 }
 
-static gboolean
-output_get_hotplug_mode_update (MetaOutput *output)
+GBytes *
+meta_output_xrandr_read_edid (MetaOutput *output)
 {
-  return output_get_property_exists (output, "hotplug_mode_update");
+  Display *xdisplay = xdisplay_from_output (output);
+  RROutput output_id = (RROutput) meta_output_get_id (output);
+
+  return read_xrandr_edid (xdisplay, output_id);
+}
+
+static gboolean
+output_get_hotplug_mode_update (Display  *xdisplay,
+                                RROutput  output_id)
+{
+  return output_get_property_exists (xdisplay, output_id, "hotplug_mode_update");
 }
 
 static gint
-output_get_suggested_x (MetaOutput *output)
+output_get_suggested_x (Display  *xdisplay,
+                        RROutput  output_id)
 {
   gint val;
-  if (output_get_integer_property (output, "suggested X", &val))
+  if (output_get_integer_property (xdisplay, output_id, "suggested X", &val))
     return val;
 
   return -1;
 }
 
 static gint
-output_get_suggested_y (MetaOutput *output)
+output_get_suggested_y (Display  *xdisplay,
+                        RROutput  output_id)
 {
   gint val;
-  if (output_get_integer_property (output, "suggested Y", &val))
+  if (output_get_integer_property (xdisplay, output_id, "suggested Y", &val))
     return val;
 
   return -1;
@@ -528,9 +541,9 @@ connector_type_from_atom (Display *xdisplay,
 }
 
 static MetaConnectorType
-output_get_connector_type_from_prop (MetaOutput *output)
+output_get_connector_type_from_prop (Display  *xdisplay,
+                                     RROutput  output_id)
 {
-  Display *xdisplay = xdisplay_from_output (output);
   Atom atom, actual_type, connector_type_atom;
   int actual_format;
   unsigned long nitems, bytes_after;
@@ -538,7 +551,7 @@ output_get_connector_type_from_prop (MetaOutput *output)
 
   atom = XInternAtom (xdisplay, "ConnectorType", False);
   XRRGetOutputProperty (xdisplay,
-                        (XID) meta_output_get_id (output),
+                        (XID) output_id,
                         atom,
                         0, G_MAXLONG, False, False, XA_ATOM,
                         &actual_type, &actual_format,
@@ -552,9 +565,9 @@ output_get_connector_type_from_prop (MetaOutput *output)
 }
 
 static MetaConnectorType
-output_get_connector_type_from_name (MetaOutput *output)
+output_info_get_connector_type_from_name (const MetaOutputInfo *output_info)
 {
-  const char *name = output->name;
+  const char *name = output_info->name;
 
   /* drmmode_display.c, which was copy/pasted across all the FOSS
    * xf86-video-* drivers, seems to name its outputs based on the
@@ -600,7 +613,9 @@ output_get_connector_type_from_name (MetaOutput *output)
 }
 
 static MetaConnectorType
-output_get_connector_type (MetaOutput *output)
+output_info_get_connector_type (MetaOutputInfo *output_info,
+                                Display        *xdisplay,
+                                RROutput        output_id)
 {
   MetaConnectorType ret;
 
@@ -611,12 +626,12 @@ output_get_connector_type (MetaOutput *output)
    * Try poking it first, without any expectations that it will work.
    * If it's not there, we thankfully have other bonghits to try next.
    */
-  ret = output_get_connector_type_from_prop (output);
+  ret = output_get_connector_type_from_prop (xdisplay, output_id);
   if (ret != META_CONNECTOR_TYPE_Unknown)
     return ret;
 
   /* Fall back to heuristics based on the output name. */
-  ret = output_get_connector_type_from_name (output);
+  ret = output_info_get_connector_type_from_name (output_info);
   if (ret != META_CONNECTOR_TYPE_Unknown)
     return ret;
 
@@ -624,9 +639,9 @@ output_get_connector_type (MetaOutput *output)
 }
 
 static gint
-output_get_panel_orientation_transform (MetaOutput *output)
+output_get_panel_orientation_transform (Display  *xdisplay,
+                                        RROutput  output_id)
 {
-  Display *xdisplay = xdisplay_from_output (output);
   unsigned long nitems, bytes_after;
   Atom atom, actual_type;
   int actual_format;
@@ -635,7 +650,7 @@ output_get_panel_orientation_transform (MetaOutput *output)
 
   atom = XInternAtom (xdisplay, "panel orientation", False);
   XRRGetOutputProperty (xdisplay,
-                        (XID) meta_output_get_id (output),
+                        (XID) output_id,
                         atom,
                         0, G_MAXLONG, False, False, XA_ATOM,
                         &actual_type, &actual_format,
@@ -658,27 +673,19 @@ output_get_panel_orientation_transform (MetaOutput *output)
 }
 
 static void
-output_get_tile_info (MetaOutput *output)
+output_info_init_tile_info (MetaOutputInfo *output_info,
+                            Display        *xdisplay,
+                            RROutput        output_id)
 {
-  MetaGpu *gpu = meta_output_get_gpu (output);
-  MetaBackend *backend = meta_gpu_get_backend (gpu);
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaMonitorManagerXrandr *monitor_manager_xrandr =
-    META_MONITOR_MANAGER_XRANDR (monitor_manager);
-  Display *xdisplay = xdisplay_from_output (output);
   Atom tile_atom;
   unsigned char *prop;
   unsigned long nitems, bytes_after;
   int actual_format;
   Atom actual_type;
 
-  if (!meta_monitor_manager_xrandr_has_randr15 (monitor_manager_xrandr))
-    return;
-
   tile_atom = XInternAtom (xdisplay, "TILE", FALSE);
   XRRGetOutputProperty (xdisplay,
-                        (XID) meta_output_get_id (output),
+                        (XID) output_id,
                         tile_atom, 0, 100, False,
                         False, AnyPropertyType,
                         &actual_type, &actual_format,
@@ -687,28 +694,29 @@ output_get_tile_info (MetaOutput *output)
   if (actual_type == XA_INTEGER && actual_format == 32 && nitems == 8)
     {
       long *values = (long *)prop;
-      output->tile_info.group_id = values[0];
-      output->tile_info.flags = values[1];
-      output->tile_info.max_h_tiles = values[2];
-      output->tile_info.max_v_tiles = values[3];
-      output->tile_info.loc_h_tile = values[4];
-      output->tile_info.loc_v_tile = values[5];
-      output->tile_info.tile_w = values[6];
-      output->tile_info.tile_h = values[7];
+
+      output_info->tile_info.group_id = values[0];
+      output_info->tile_info.flags = values[1];
+      output_info->tile_info.max_h_tiles = values[2];
+      output_info->tile_info.max_v_tiles = values[3];
+      output_info->tile_info.loc_h_tile = values[4];
+      output_info->tile_info.loc_v_tile = values[5];
+      output_info->tile_info.tile_w = values[6];
+      output_info->tile_info.tile_h = values[7];
     }
   XFree (prop);
 }
 
 
 static void
-output_get_modes (MetaOutput    *output,
-                  XRROutputInfo *xrandr_output)
+output_info_init_modes (MetaOutputInfo *output_info,
+                        MetaGpu        *gpu,
+                        XRROutputInfo  *xrandr_output)
 {
-  MetaGpu *gpu = meta_output_get_gpu (output);
   unsigned int i;
   unsigned int n_actual_modes;
 
-  output->modes = g_new0 (MetaCrtcMode *, xrandr_output->nmode);
+  output_info->modes = g_new0 (MetaCrtcMode *, xrandr_output->nmode);
 
   n_actual_modes = 0;
   for (i = 0; i < (unsigned int) xrandr_output->nmode; i++)
@@ -721,28 +729,27 @@ output_get_modes (MetaOutput    *output,
 
           if (xrandr_output->modes[i] == (XID) mode->mode_id)
             {
-              output->modes[n_actual_modes] = mode;
+              output_info->modes[n_actual_modes] = mode;
               n_actual_modes += 1;
               break;
             }
         }
     }
-  output->n_modes = n_actual_modes;
+  output_info->n_modes = n_actual_modes;
   if (n_actual_modes > 0)
-    output->preferred_mode = output->modes[0];
+    output_info->preferred_mode = output_info->modes[0];
 }
 
 static void
-output_get_crtcs (MetaOutput     *output,
-                  XRROutputInfo  *xrandr_output,
-                  MetaCrtc      **assigned_crtc)
+output_info_init_crtcs (MetaOutputInfo *output_info,
+                        MetaGpu        *gpu,
+                        XRROutputInfo  *xrandr_output)
 {
-  MetaGpu *gpu = meta_output_get_gpu (output);
   unsigned int i;
   unsigned int n_actual_crtcs;
   GList *l;
 
-  output->possible_crtcs = g_new0 (MetaCrtc *, xrandr_output->ncrtc);
+  output_info->possible_crtcs = g_new0 (MetaCrtc *, xrandr_output->ncrtc);
 
   n_actual_crtcs = 0;
   for (i = 0; i < (unsigned int) xrandr_output->ncrtc; i++)
@@ -753,27 +760,30 @@ output_get_crtcs (MetaOutput     *output,
 
           if ((XID) meta_crtc_get_id (crtc) == xrandr_output->crtcs[i])
             {
-              output->possible_crtcs[n_actual_crtcs] = crtc;
+              output_info->possible_crtcs[n_actual_crtcs] = crtc;
               n_actual_crtcs += 1;
               break;
             }
         }
     }
-  output->n_possible_crtcs = n_actual_crtcs;
+  output_info->n_possible_crtcs = n_actual_crtcs;
+}
 
-  meta_output_unassign_crtc (output);
+static MetaCrtc *
+find_assigned_crtc (MetaGpu       *gpu,
+                    XRROutputInfo *xrandr_output)
+{
+  GList *l;
+
   for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
     {
       MetaCrtc *crtc = l->data;
 
       if ((XID) meta_crtc_get_id (crtc) == xrandr_output->crtc)
-        {
-          *assigned_crtc = crtc;
-          return;
-        }
+        return crtc;
     }
 
-  *assigned_crtc = NULL;
+  return NULL;
 }
 
 MetaOutput *
@@ -782,45 +792,80 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
                            RROutput       output_id,
                            RROutput       primary_output)
 {
+  MetaGpu *gpu = META_GPU (gpu_xrandr);
+  MetaBackend *backend = meta_gpu_get_backend (gpu);
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerXrandr *monitor_manager_xrandr =
+    META_MONITOR_MANAGER_XRANDR (monitor_manager);
+  Display *xdisplay =
+    meta_monitor_manager_xrandr_get_xdisplay (monitor_manager_xrandr);
+  g_autoptr (MetaOutputInfo) output_info = NULL;
   MetaOutput *output;
   GBytes *edid;
   MetaCrtc *assigned_crtc;
   unsigned int i;
 
-  output = g_object_new (META_TYPE_OUTPUT,
-                         "id", output_id,
-                         "gpu", gpu_xrandr,
-                         NULL);
-  output->name = g_strdup (xrandr_output->name);
+  output_info = meta_output_info_new ();
 
-  edid = meta_output_xrandr_read_edid (output);
-  meta_output_parse_edid (output, edid);
+  output_info->name = g_strdup (xrandr_output->name);
+
+  edid = read_xrandr_edid (xdisplay, output_id);
+  meta_output_info_parse_edid (output_info, edid);
   g_bytes_unref (edid);
 
-  output->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
-  output->hotplug_mode_update = output_get_hotplug_mode_update (output);
-  output->suggested_x = output_get_suggested_x (output);
-  output->suggested_y = output_get_suggested_y (output);
-  output->connector_type = output_get_connector_type (output);
-  output->panel_orientation_transform =
-    output_get_panel_orientation_transform (output);
+  output_info->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
+  output_info->hotplug_mode_update = output_get_hotplug_mode_update (xdisplay,
+                                                                     output_id);
+  output_info->suggested_x = output_get_suggested_x (xdisplay, output_id);
+  output_info->suggested_y = output_get_suggested_y (xdisplay, output_id);
+  output_info->connector_type = output_info_get_connector_type (output_info,
+                                                                xdisplay,
+                                                                output_id);
+  output_info->panel_orientation_transform =
+    output_get_panel_orientation_transform (xdisplay, output_id);
 
   if (meta_monitor_transform_is_rotated (
-                                output->panel_orientation_transform))
+                                output_info->panel_orientation_transform))
     {
-      output->width_mm = xrandr_output->mm_height;
-      output->height_mm = xrandr_output->mm_width;
+      output_info->width_mm = xrandr_output->mm_height;
+      output_info->height_mm = xrandr_output->mm_width;
     }
   else
     {
-      output->width_mm = xrandr_output->mm_width;
-      output->height_mm = xrandr_output->mm_height;
+      output_info->width_mm = xrandr_output->mm_width;
+      output_info->height_mm = xrandr_output->mm_height;
     }
 
-  output_get_tile_info (output);
-  output_get_modes (output, xrandr_output);
-  output_get_crtcs (output, xrandr_output, &assigned_crtc);
+  if (!meta_monitor_manager_xrandr_has_randr15 (monitor_manager_xrandr))
+    output_info_init_tile_info (output_info, xdisplay, output_id);
+  output_info_init_modes (output_info, gpu, xrandr_output);
+  output_info_init_crtcs (output_info, gpu, xrandr_output);
 
+  output_info->n_possible_clones = xrandr_output->nclone;
+  output_info->possible_clones = g_new0 (MetaOutput *,
+                                         output_info->n_possible_clones);
+  /*
+   * We can build the list of clones now, because we don't have the list of
+   * outputs yet, so temporarily set the pointers to the bare XIDs, and then
+   * we'll fix them in a second pass.
+   */
+  for (i = 0; i < (unsigned int) xrandr_output->nclone; i++)
+    {
+      output_info->possible_clones[i] = GINT_TO_POINTER (xrandr_output->clones[i]);
+    }
+
+  output_info->supports_underscanning =
+    output_get_supports_underscanning_xrandr (xdisplay, output_id);
+  output_info_init_backlight_limits_xrandr (output_info, xdisplay, output_id);
+
+  output = g_object_new (META_TYPE_OUTPUT,
+                         "id", output_id,
+                         "gpu", gpu_xrandr,
+                         "info", output_info,
+                         NULL);
+
+  assigned_crtc = find_assigned_crtc (gpu, xrandr_output);
   if (assigned_crtc)
     {
       MetaOutputAssignment output_assignment;
@@ -832,28 +877,15 @@ meta_create_xrandr_output (MetaGpuXrandr *gpu_xrandr,
       };
       meta_output_assign_crtc (output, assigned_crtc, &output_assignment);
     }
-
-  output->n_possible_clones = xrandr_output->nclone;
-  output->possible_clones = g_new0 (MetaOutput *,
-                                    output->n_possible_clones);
-  /*
-   * We can build the list of clones now, because we don't have the list of
-   * outputs yet, so temporarily set the pointers to the bare XIDs, and then
-   * we'll fix them in a second pass.
-   */
-  for (i = 0; i < (unsigned int) xrandr_output->nclone; i++)
+  else
     {
-      output->possible_clones[i] = GINT_TO_POINTER (xrandr_output->clones[i]);
+      meta_output_unassign_crtc (output);
     }
 
-  output->supports_underscanning =
-    output_get_supports_underscanning_xrandr (output);
-  output_get_backlight_limits_xrandr (output);
-
-  if (!(output->backlight_min == 0 && output->backlight_max == 0))
+  if (!(output_info->backlight_min == 0 && output_info->backlight_max == 0))
     meta_output_set_backlight (output, output_get_backlight_xrandr (output));
 
-  if (output->n_modes == 0 || output->n_possible_crtcs == 0)
+  if (output_info->n_modes == 0 || output_info->n_possible_crtcs == 0)
     {
       g_object_unref (output);
       return NULL;

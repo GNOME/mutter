@@ -69,9 +69,12 @@ static int
 compare_outputs (const void *one,
                  const void *two)
 {
-  const MetaOutput *o_one = one, *o_two = two;
+  MetaOutput *o_one = (MetaOutput *) one;
+  MetaOutput *o_two = (MetaOutput *) two;
+  const MetaOutputInfo *output_info_one = meta_output_get_info (o_one);
+  const MetaOutputInfo *output_info_two = meta_output_get_info (o_two);
 
-  return strcmp (o_one->name, o_two->name);
+  return strcmp (output_info_one->name, output_info_two->name);
 }
 
 static char *
@@ -210,11 +213,12 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
   for (l = outputs; l; l = l->next)
     {
       MetaOutput *output = l->data;
+      const MetaOutputInfo *output_info = meta_output_get_info (output);
       GList *k;
 
-      for (j = 0; j < output->n_possible_clones; j++)
+      for (j = 0; j < output_info->n_possible_clones; j++)
         {
-          RROutput clone = GPOINTER_TO_INT (output->possible_clones[j]);
+          RROutput clone = GPOINTER_TO_INT (output_info->possible_clones[j]);
 
           for (k = outputs; k; k = k->next)
             {
@@ -222,7 +226,7 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
 
               if (clone == (XID) meta_output_get_id (possible_clone))
                 {
-                  output->possible_clones[j] = possible_clone;
+                  output_info->possible_clones[j] = possible_clone;
                   break;
                 }
             }

@@ -57,8 +57,9 @@ meta_gpu_has_hotplug_mode_update (MetaGpu *gpu)
   for (l = priv->outputs; l; l = l->next)
     {
       MetaOutput *output = l->data;
+      const MetaOutputInfo *output_info = meta_output_get_info (output);
 
-      if (output->hotplug_mode_update)
+      if (output_info->hotplug_mode_update)
         return TRUE;
     }
 

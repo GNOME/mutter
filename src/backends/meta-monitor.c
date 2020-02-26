@@ -168,19 +168,28 @@ meta_monitor_spec_free (MetaMonitorSpec *monitor_spec)
   g_free (monitor_spec);
 }
 
+static const MetaOutputInfo *
+meta_monitor_get_main_output_info (MetaMonitor *monitor)
+{
+  MetaOutput *output = meta_monitor_get_main_output (monitor);
+
+  return meta_output_get_info (output);
+}
+
 static void
 meta_monitor_generate_spec (MetaMonitor *monitor)
 {
   MetaMonitorPrivate *priv = meta_monitor_get_instance_private (monitor);
-  MetaOutput *output = meta_monitor_get_main_output (monitor);
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
   MetaMonitorSpec *monitor_spec;
 
   monitor_spec = g_new0 (MetaMonitorSpec, 1);
   *monitor_spec = (MetaMonitorSpec) {
-    .connector = g_strdup (output->name),
-    .vendor = g_strdup (output->vendor),
-    .product = g_strdup (output->product),
-    .serial = g_strdup (output->serial),
+    .connector = g_strdup (output_info->name),
+    .vendor = g_strdup (output_info->vendor),
+    .product = g_strdup (output_info->product),
+    .serial = g_strdup (output_info->serial),
   };
 
   priv->spec = monitor_spec;
@@ -322,11 +331,10 @@ meta_monitor_is_primary (MetaMonitor *monitor)
 gboolean
 meta_monitor_supports_underscanning (MetaMonitor *monitor)
 {
-  MetaOutput *output;
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-
-  return output->supports_underscanning;
+  return output_info->supports_underscanning;
 }
 
 gboolean
@@ -342,11 +350,10 @@ meta_monitor_is_underscanning (MetaMonitor *monitor)
 gboolean
 meta_monitor_is_laptop_panel (MetaMonitor *monitor)
 {
-  MetaOutput *output;
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-
-  switch (output->connector_type)
+  switch (output_info->connector_type)
     {
     case META_CONNECTOR_TYPE_eDP:
     case META_CONNECTOR_TYPE_LVDS:
@@ -392,65 +399,65 @@ meta_monitor_get_physical_dimensions (MetaMonitor *monitor,
                                       int         *width_mm,
                                       int         *height_mm)
 {
-  MetaOutput *output;
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-  *width_mm = output->width_mm;
-  *height_mm = output->height_mm;
+  *width_mm = output_info->width_mm;
+  *height_mm = output_info->height_mm;
 }
 
 CoglSubpixelOrder
 meta_monitor_get_subpixel_order (MetaMonitor *monitor)
 {
-  MetaOutput *output;
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-  return output->subpixel_order;
+  return output_info->subpixel_order;
 }
 
 const char *
 meta_monitor_get_connector (MetaMonitor *monitor)
 {
-  MetaOutput *output;
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-  return output->name;
+  return output_info->name;
 }
 
 const char *
 meta_monitor_get_vendor (MetaMonitor *monitor)
 {
-  MetaOutput *output;
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-  return output->vendor;
+  return output_info->vendor;
 }
 
 const char *
 meta_monitor_get_product (MetaMonitor *monitor)
 {
-  MetaOutput *output;
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-  return output->product;
+  return output_info->product;
 }
 
 const char *
 meta_monitor_get_serial (MetaMonitor *monitor)
 {
-  MetaOutput *output;
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-  return output->serial;
+  return output_info->serial;
 }
 
 MetaConnectorType
 meta_monitor_get_connector_type (MetaMonitor *monitor)
 {
-  MetaOutput *output;
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-  return output->connector_type;
+  return output_info->connector_type;
 }
 
 MetaMonitorTransform
@@ -562,9 +569,10 @@ meta_monitor_create_spec (MetaMonitor  *monitor,
                           int           height,
                           MetaCrtcMode *crtc_mode)
 {
-  MetaOutput *output = meta_monitor_get_main_output (monitor);
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
 
-  if (meta_monitor_transform_is_rotated (output->panel_orientation_transform))
+  if (meta_monitor_transform_is_rotated (output_info->panel_orientation_transform))
     {
       int temp = width;
       width = height;
@@ -586,15 +594,17 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
   MetaMonitorPrivate *monitor_priv =
     meta_monitor_get_instance_private (monitor);
   MetaOutput *output;
+  const MetaOutputInfo *output_info;
   MetaCrtcModeFlag preferred_mode_flags;
   unsigned int i;
 
   output = meta_monitor_get_main_output (monitor);
-  preferred_mode_flags = output->preferred_mode->flags;
+  output_info = meta_output_get_info (output);
+  preferred_mode_flags = output_info->preferred_mode->flags;
 
-  for (i = 0; i < output->n_modes; i++)
+  for (i = 0; i < output_info->n_modes; i++)
     {
-      MetaCrtcMode *crtc_mode = output->modes[i];
+      MetaCrtcMode *crtc_mode = output_info->modes[i];
       MetaCrtc *crtc;
       MetaMonitorMode *mode;
       gboolean replace;
@@ -623,12 +633,12 @@ meta_monitor_normal_generate_modes (MetaMonitorNormal *monitor_normal)
 
       if (!meta_monitor_add_mode (monitor, mode, replace))
         {
-          g_assert (crtc_mode != output->preferred_mode);
+          g_assert (crtc_mode != output_info->preferred_mode);
           meta_monitor_mode_free (mode);
           continue;
         }
 
-      if (crtc_mode == output->preferred_mode)
+      if (crtc_mode == output_info->preferred_mode)
         monitor_priv->preferred_mode = mode;
 
       crtc = meta_output_get_assigned_crtc (output);
@@ -697,14 +707,14 @@ meta_monitor_normal_get_suggested_position (MetaMonitor *monitor,
                                             int         *x,
                                             int         *y)
 {
-  MetaOutput *output;
+  const MetaOutputInfo *output_info =
+    meta_monitor_get_main_output_info (monitor);
 
-  output = meta_monitor_get_main_output (monitor);
-  if (output->suggested_x < 0 && output->suggested_y < 0)
+  if (output_info->suggested_x < 0 && output_info->suggested_y < 0)
     return FALSE;
 
-  *x = output->suggested_x;
-  *y = output->suggested_y;
+  *x = output_info->suggested_x;
+  *y = output_info->suggested_y;
 
   return TRUE;
 }
@@ -765,12 +775,15 @@ add_tiled_monitor_outputs (MetaGpu          *gpu,
   for (l = outputs; l; l = l->next)
     {
       MetaOutput *output = l->data;
+      const MetaOutputInfo *output_info = meta_output_get_info (output);
+      const MetaOutputInfo *origin_output_info;
 
-      if (output->tile_info.group_id != monitor_tiled->tile_group_id)
+      if (output_info->tile_info.group_id != monitor_tiled->tile_group_id)
         continue;
 
-      g_warn_if_fail (output->subpixel_order ==
-                      monitor_tiled->origin_output->subpixel_order);
+      origin_output_info = meta_output_get_info (monitor_tiled->origin_output);
+      g_warn_if_fail (output_info->subpixel_order ==
+                      origin_output_info->subpixel_order);
 
       monitor_priv->outputs = g_list_append (monitor_priv->outputs,
                                              g_object_ref (output));
@@ -786,51 +799,68 @@ calculate_tile_coordinate (MetaMonitor         *monitor,
 {
   MetaMonitorPrivate *monitor_priv =
     meta_monitor_get_instance_private (monitor);
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
   GList *l;
   int x = 0;
   int y = 0;
 
   for (l = monitor_priv->outputs; l; l = l->next)
     {
-      MetaOutput *other_output = l->data;
+      const MetaOutputInfo *other_output_info = meta_output_get_info (l->data);
 
       switch (crtc_transform)
         {
         case META_MONITOR_TRANSFORM_NORMAL:
         case META_MONITOR_TRANSFORM_FLIPPED:
-          if (other_output->tile_info.loc_v_tile == output->tile_info.loc_v_tile &&
-              other_output->tile_info.loc_h_tile < output->tile_info.loc_h_tile)
-            x += other_output->tile_info.tile_w;
-          if (other_output->tile_info.loc_h_tile == output->tile_info.loc_h_tile &&
-              other_output->tile_info.loc_v_tile < output->tile_info.loc_v_tile)
-            y += other_output->tile_info.tile_h;
+          if ((other_output_info->tile_info.loc_v_tile ==
+               output_info->tile_info.loc_v_tile) &&
+              (other_output_info->tile_info.loc_h_tile <
+               output_info->tile_info.loc_h_tile))
+            x += other_output_info->tile_info.tile_w;
+          if ((other_output_info->tile_info.loc_h_tile ==
+               output_info->tile_info.loc_h_tile) &&
+              (other_output_info->tile_info.loc_v_tile <
+               output_info->tile_info.loc_v_tile))
+            y += other_output_info->tile_info.tile_h;
           break;
         case META_MONITOR_TRANSFORM_180:
         case META_MONITOR_TRANSFORM_FLIPPED_180:
-          if (other_output->tile_info.loc_v_tile == output->tile_info.loc_v_tile &&
-              other_output->tile_info.loc_h_tile > output->tile_info.loc_h_tile)
-            x += other_output->tile_info.tile_w;
-          if (other_output->tile_info.loc_h_tile == output->tile_info.loc_h_tile &&
-              other_output->tile_info.loc_v_tile > output->tile_info.loc_v_tile)
-            y += other_output->tile_info.tile_h;
+          if ((other_output_info->tile_info.loc_v_tile ==
+               output_info->tile_info.loc_v_tile) &&
+              (other_output_info->tile_info.loc_h_tile >
+               output_info->tile_info.loc_h_tile))
+            x += other_output_info->tile_info.tile_w;
+          if ((other_output_info->tile_info.loc_h_tile ==
+               output_info->tile_info.loc_h_tile) &&
+              (other_output_info->tile_info.loc_v_tile >
+               output_info->tile_info.loc_v_tile))
+            y += other_output_info->tile_info.tile_h;
           break;
         case META_MONITOR_TRANSFORM_270:
         case META_MONITOR_TRANSFORM_FLIPPED_270:
-          if (other_output->tile_info.loc_v_tile == output->tile_info.loc_v_tile &&
-              other_output->tile_info.loc_h_tile > output->tile_info.loc_h_tile)
-            y += other_output->tile_info.tile_w;
-          if (other_output->tile_info.loc_h_tile == output->tile_info.loc_h_tile &&
-              other_output->tile_info.loc_v_tile > output->tile_info.loc_v_tile)
-            x += other_output->tile_info.tile_h;
+          if ((other_output_info->tile_info.loc_v_tile ==
+               output_info->tile_info.loc_v_tile) &&
+              (other_output_info->tile_info.loc_h_tile >
+               output_info->tile_info.loc_h_tile))
+            y += other_output_info->tile_info.tile_w;
+          if ((other_output_info->tile_info.loc_h_tile ==
+               output_info->tile_info.loc_h_tile) &&
+              (other_output_info->tile_info.loc_v_tile >
+               output_info->tile_info.loc_v_tile))
+            x += other_output_info->tile_info.tile_h;
           break;
         case META_MONITOR_TRANSFORM_90:
         case META_MONITOR_TRANSFORM_FLIPPED_90:
-          if (other_output->tile_info.loc_v_tile == output->tile_info.loc_v_tile &&
-              other_output->tile_info.loc_h_tile < output->tile_info.loc_h_tile)
-            y += other_output->tile_info.tile_w;
-          if (other_output->tile_info.loc_h_tile == output->tile_info.loc_h_tile &&
-              other_output->tile_info.loc_v_tile < output->tile_info.loc_v_tile)
-            x += other_output->tile_info.tile_h;
+          if ((other_output_info->tile_info.loc_v_tile ==
+               output_info->tile_info.loc_v_tile) &&
+              (other_output_info->tile_info.loc_h_tile <
+               output_info->tile_info.loc_h_tile))
+            y += other_output_info->tile_info.tile_w;
+          if ((other_output_info->tile_info.loc_h_tile ==
+               output_info->tile_info.loc_h_tile) &&
+              (other_output_info->tile_info.loc_v_tile <
+               output_info->tile_info.loc_v_tile))
+            x += other_output_info->tile_info.tile_h;
           break;
         }
     }
@@ -854,13 +884,13 @@ meta_monitor_tiled_calculate_tiled_size (MetaMonitor *monitor,
   height = 0;
   for (l = monitor_priv->outputs; l; l = l->next)
     {
-      MetaOutput *output = l->data;
+      const MetaOutputInfo *output_info = meta_output_get_info (l->data);
 
-      if (output->tile_info.loc_v_tile == 0)
-        width += output->tile_info.tile_w;
+      if (output_info->tile_info.loc_v_tile == 0)
+        width += output_info->tile_info.tile_w;
 
-      if (output->tile_info.loc_h_tile == 0)
-        height += output->tile_info.tile_h;
+      if (output_info->tile_info.loc_h_tile == 0)
+        height += output_info->tile_info.tile_h;
     }
 
   *out_width = width;
@@ -897,24 +927,27 @@ static gboolean
 is_crtc_mode_tiled (MetaOutput   *output,
                     MetaCrtcMode *crtc_mode)
 {
-  return (crtc_mode->width == (int) output->tile_info.tile_w &&
-          crtc_mode->height == (int) output->tile_info.tile_h);
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
+
+  return (crtc_mode->width == (int) output_info->tile_info.tile_w &&
+          crtc_mode->height == (int) output_info->tile_info.tile_h);
 }
 
 static MetaCrtcMode *
 find_tiled_crtc_mode (MetaOutput   *output,
                       MetaCrtcMode *reference_crtc_mode)
 {
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
   MetaCrtcMode *crtc_mode;
   unsigned int i;
 
-  crtc_mode = output->preferred_mode;
+  crtc_mode = output_info->preferred_mode;
   if (is_crtc_mode_tiled (output, crtc_mode))
     return crtc_mode;
 
-  for (i = 0; i < output->n_modes; i++)
+  for (i = 0; i < output_info->n_modes; i++)
     {
-      crtc_mode = output->modes[i];
+      crtc_mode = output_info->modes[i];
 
       if (!is_crtc_mode_tiled (output, crtc_mode))
         continue;
@@ -958,12 +991,13 @@ create_tiled_monitor_mode (MetaMonitorTiled *monitor_tiled,
   for (l = monitor_priv->outputs, i = 0; l; l = l->next, i++)
     {
       MetaOutput *output = l->data;
+      const MetaOutputInfo *output_info = meta_output_get_info (output);
       MetaCrtcMode *tiled_crtc_mode;
 
       tiled_crtc_mode = find_tiled_crtc_mode (output, reference_crtc_mode);
       if (!tiled_crtc_mode)
         {
-          g_warning ("No tiled mode found on %s", output->name);
+          g_warning ("No tiled mode found on %s", meta_output_get_name (output));
           meta_monitor_mode_free ((MetaMonitorMode *) mode);
           return NULL;
         }
@@ -973,7 +1007,8 @@ create_tiled_monitor_mode (MetaMonitorTiled *monitor_tiled,
         .crtc_mode = tiled_crtc_mode
       };
 
-      is_preferred = is_preferred && tiled_crtc_mode == output->preferred_mode;
+      is_preferred = (is_preferred &&
+                      tiled_crtc_mode == output_info->preferred_mode);
     }
 
   *out_is_preferred = is_preferred;
@@ -988,16 +1023,18 @@ generate_tiled_monitor_modes (MetaMonitorTiled *monitor_tiled)
   MetaMonitorPrivate *monitor_priv =
     meta_monitor_get_instance_private (monitor);
   MetaOutput *main_output;
+  const MetaOutputInfo *main_output_info;
   GList *tiled_modes = NULL;
   unsigned int i;
   MetaMonitorMode *best_mode = NULL;
   GList *l;
 
   main_output = meta_monitor_get_main_output (META_MONITOR (monitor_tiled));
+  main_output_info = meta_output_get_info (main_output);
 
-  for (i = 0; i < main_output->n_modes; i++)
+  for (i = 0; i < main_output_info->n_modes; i++)
     {
-      MetaCrtcMode *reference_crtc_mode = main_output->modes[i];
+      MetaCrtcMode *reference_crtc_mode = main_output_info->modes[i];
       MetaMonitorMode *mode;
       gboolean is_preferred;
 
@@ -1094,13 +1131,14 @@ create_untiled_monitor_mode (MetaMonitorTiled *monitor_tiled,
 static int
 count_untiled_crtc_modes (MetaOutput *output)
 {
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
   int count;
   unsigned int i;
 
   count = 0;
-  for (i = 0; i < output->n_modes; i++)
+  for (i = 0; i < output_info->n_modes; i++)
     {
-      MetaCrtcMode *crtc_mode = output->modes[i];
+      MetaCrtcMode *crtc_mode = output_info->modes[i];
 
       if (!is_crtc_mode_tiled (output, crtc_mode))
         count++;
@@ -1149,13 +1187,15 @@ generate_untiled_monitor_modes (MetaMonitorTiled *monitor_tiled)
   MetaMonitorPrivate *monitor_priv =
     meta_monitor_get_instance_private (monitor);
   MetaOutput *main_output;
+  const MetaOutputInfo *main_output_info;
   unsigned int i;
 
   main_output = meta_monitor_get_main_output (monitor);
+  main_output_info = meta_output_get_info (main_output);
 
-  for (i = 0; i < main_output->n_modes; i++)
+  for (i = 0; i < main_output_info->n_modes; i++)
     {
-      MetaCrtcMode *crtc_mode = main_output->modes[i];
+      MetaCrtcMode *crtc_mode = main_output_info->modes[i];
       MetaMonitorMode *mode;
 
       mode = create_untiled_monitor_mode (monitor_tiled,
@@ -1177,7 +1217,7 @@ generate_untiled_monitor_modes (MetaMonitorTiled *monitor_tiled)
         }
 
       if (!monitor_priv->preferred_mode &&
-          crtc_mode == main_output->preferred_mode)
+          crtc_mode == main_output_info->preferred_mode)
         monitor_priv->preferred_mode = mode;
     }
 }
@@ -1281,6 +1321,7 @@ meta_monitor_tiled_new (MetaGpu            *gpu,
                         MetaMonitorManager *monitor_manager,
                         MetaOutput         *output)
 {
+  const MetaOutputInfo *output_info = meta_output_get_info (output);
   MetaMonitorTiled *monitor_tiled;
   MetaMonitor *monitor;
   MetaMonitorPrivate *monitor_priv;
@@ -1291,7 +1332,7 @@ meta_monitor_tiled_new (MetaGpu            *gpu,
 
   monitor_priv->gpu = gpu;
 
-  monitor_tiled->tile_group_id = output->tile_info.group_id;
+  monitor_tiled->tile_group_id = output_info->tile_info.group_id;
   monitor_priv->winsys_id = meta_output_get_id (output);
 
   monitor_tiled->origin_output = output;

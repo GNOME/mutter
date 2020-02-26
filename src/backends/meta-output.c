@@ -27,6 +27,7 @@ enum
 
   PROP_ID,
   PROP_GPU,
+  PROP_INFO,
 
   N_PROPS
 };
@@ -38,6 +39,8 @@ typedef struct _MetaOutputPrivate
   uint64_t id;
 
   MetaGpu *gpu;
+
+  MetaOutputInfo *info;
 
   /* The CRTC driving this output, NULL if the output is not enabled */
   MetaCrtc *crtc;
@@ -51,6 +54,44 @@ typedef struct _MetaOutputPrivate
 } MetaOutputPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaOutput, meta_output, G_TYPE_OBJECT)
+
+G_DEFINE_BOXED_TYPE (MetaOutputInfo, meta_output_info,
+                     meta_output_info_ref,
+                     meta_output_info_unref)
+
+MetaOutputInfo *
+meta_output_info_new (void)
+{
+  MetaOutputInfo *output_info;
+
+  output_info = g_new0 (MetaOutputInfo, 1);
+  g_ref_count_init (&output_info->ref_count);
+
+  return output_info;
+}
+
+MetaOutputInfo *
+meta_output_info_ref (MetaOutputInfo *output_info)
+{
+  g_ref_count_inc (&output_info->ref_count);
+  return output_info;
+}
+
+void
+meta_output_info_unref (MetaOutputInfo *output_info)
+{
+  if (g_ref_count_dec (&output_info->ref_count))
+    {
+      g_free (output_info->name);
+      g_free (output_info->vendor);
+      g_free (output_info->product);
+      g_free (output_info->serial);
+      g_free (output_info->modes);
+      g_free (output_info->possible_crtcs);
+      g_free (output_info->possible_clones);
+      g_free (output_info);
+    }
+}
 
 uint64_t
 meta_output_get_id (MetaOutput *output)
@@ -71,7 +112,9 @@ meta_output_get_gpu (MetaOutput *output)
 const char *
 meta_output_get_name (MetaOutput *output)
 {
-  return output->name;
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  return priv->info->name;
 }
 
 gboolean
@@ -116,6 +159,29 @@ meta_output_get_backlight (MetaOutput *output)
 }
 
 void
+meta_output_add_possible_clone (MetaOutput *output,
+                                MetaOutput *possible_clone)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+  MetaOutputInfo *output_info = priv->info;
+
+  output_info->n_possible_clones++;
+  output_info->possible_clones = g_renew (MetaOutput *,
+                                          output_info->possible_clones,
+                                          output_info->n_possible_clones);
+  output_info->possible_clones[output_info->n_possible_clones - 1] =
+    possible_clone;
+}
+
+const MetaOutputInfo *
+meta_output_get_info (MetaOutput *output)
+{
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
+
+  return priv->info;
+}
+
+void
 meta_output_assign_crtc (MetaOutput                 *output,
                          MetaCrtc                   *crtc,
                          const MetaOutputAssignment *output_assignment)
@@ -154,9 +220,10 @@ MetaMonitorTransform
 meta_output_logical_to_crtc_transform (MetaOutput           *output,
                                        MetaMonitorTransform  transform)
 {
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
   MetaMonitorTransform panel_orientation_transform;
 
-  panel_orientation_transform = output->panel_orientation_transform;
+  panel_orientation_transform = priv->info->panel_orientation_transform;
   return meta_monitor_transform_transform (transform,
                                            panel_orientation_transform);
 }
@@ -165,10 +232,11 @@ MetaMonitorTransform
 meta_output_crtc_to_logical_transform (MetaOutput           *output,
                                        MetaMonitorTransform  transform)
 {
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
   MetaMonitorTransform inverted_panel_orientation_transform;
 
   inverted_panel_orientation_transform =
-    meta_monitor_transform_invert (output->panel_orientation_transform);
+    meta_monitor_transform_invert (priv->info->panel_orientation_transform);
   return meta_monitor_transform_transform (transform,
                                            inverted_panel_orientation_transform);
 }
@@ -189,6 +257,9 @@ meta_output_set_property (GObject      *object,
       break;
     case PROP_GPU:
       priv->gpu = g_value_get_object (value);
+      break;
+    case PROP_INFO:
+      priv->info = meta_output_info_ref (g_value_get_boxed (value));
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -212,6 +283,9 @@ meta_output_get_property (GObject    *object,
     case PROP_GPU:
       g_value_set_object (value, priv->gpu);
       break;
+    case PROP_INFO:
+      g_value_set_boxed (value, priv->info);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -232,17 +306,12 @@ static void
 meta_output_finalize (GObject *object)
 {
   MetaOutput *output = META_OUTPUT (object);
-
-  g_free (output->name);
-  g_free (output->vendor);
-  g_free (output->product);
-  g_free (output->serial);
-  g_free (output->modes);
-  g_free (output->possible_crtcs);
-  g_free (output->possible_clones);
+  MetaOutputPrivate *priv = meta_output_get_instance_private (output);
 
   if (output->driver_notify)
     output->driver_notify (output);
+
+  g_clear_pointer (&priv->info, meta_output_info_unref);
 
   G_OBJECT_CLASS (meta_output_parent_class)->finalize (object);
 }
@@ -281,5 +350,13 @@ meta_output_class_init (MetaOutputClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_INFO] =
+    g_param_spec_boxed ("info",
+                        "info",
+                        "MetaOutputInfo",
+                        META_TYPE_OUTPUT_INFO,
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT_ONLY |
+                        G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }

@@ -124,6 +124,7 @@ meta_test_headless_monitor_connect (void)
   MetaGpu *gpu;
   MetaCrtc *crtc;
   MetaCrtc **possible_crtcs;
+  g_autoptr (MetaOutputInfo) output_info = NULL;
   MetaOutput *output;
   GList *logical_monitors;
   ClutterActor *stage;
@@ -151,20 +152,25 @@ meta_test_headless_monitor_connect (void)
   possible_crtcs = g_new0 (MetaCrtc *, 1);
   possible_crtcs[0] = g_list_first (test_setup->crtcs)->data;
 
+  output_info = meta_output_info_new ();
+
+  output_info->name = g_strdup ("DP-1");
+  output_info->vendor = g_strdup ("MetaProduct's Inc.");
+  output_info->product = g_strdup ("MetaMonitor");
+  output_info->serial = g_strdup ("0x987654");
+  output_info->preferred_mode = modes[0];
+  output_info->n_modes = 1;
+  output_info->modes = modes;
+  output_info->n_possible_crtcs = 1;
+  output_info->possible_crtcs = possible_crtcs;
+  output_info->connector_type = META_CONNECTOR_TYPE_DisplayPort;
+
   output = g_object_new (META_TYPE_OUTPUT,
                          "id", 1,
                          "gpu", gpu,
+                         "info", output_info,
                          NULL);
-  output->name = g_strdup ("DP-1");
-  output->vendor = g_strdup ("MetaProduct's Inc.");
-  output->product = g_strdup ("MetaMonitor");
-  output->serial = g_strdup ("0x987654");
-  output->preferred_mode = modes[0];
-  output->n_modes = 1;
-  output->modes = modes;
-  output->n_possible_crtcs = 1;
-  output->possible_crtcs = possible_crtcs;
-  output->connector_type = META_CONNECTOR_TYPE_DisplayPort;
+
   test_setup->outputs = g_list_append (NULL, output);
 
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);

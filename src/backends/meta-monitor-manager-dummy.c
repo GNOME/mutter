@@ -142,6 +142,7 @@ append_monitor (MetaMonitorManager *manager,
   MetaOutput *output;
   unsigned int i;
   unsigned int number;
+  g_autoptr (MetaOutputInfo) output_info = NULL;
   const char *mode_specs_str;
   GList *l;
 
@@ -207,43 +208,45 @@ append_monitor (MetaMonitorManager *manager,
 
   number = g_list_length (*outputs) + 1;
 
+  output_info = meta_output_info_new ();
+  output_info->name = g_strdup_printf ("LVDS%d", number);
+  output_info->vendor = g_strdup ("MetaProducts Inc.");
+  output_info->product = g_strdup ("MetaMonitor");
+  output_info->serial = g_strdup_printf ("0xC0FFEE-%d", number);
+  output_info->suggested_x = -1;
+  output_info->suggested_y = -1;
+  output_info->width_mm = 222;
+  output_info->height_mm = 125;
+  output_info->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
+  output_info->preferred_mode = g_list_last (*modes)->data;
+  output_info->n_possible_clones = 0;
+  output_info->connector_type = META_CONNECTOR_TYPE_LVDS;
+
+  output_info->modes = g_new0 (MetaCrtcMode *, n_mode_specs);
+  for (l = new_modes, i = 0; l; l = l->next, i++)
+    {
+      MetaCrtcMode *mode = l->data;
+
+      output_info->modes[i] = mode;
+    }
+  output_info->n_modes = n_mode_specs;
+  output_info->possible_crtcs = g_new0 (MetaCrtc *, 1);
+  output_info->possible_crtcs[0] = g_list_last (*crtcs)->data;
+  output_info->n_possible_crtcs = 1;
+
   output = g_object_new (META_TYPE_OUTPUT,
                          "id", number,
                          "gpu", gpu,
+                         "info", output_info,
                          NULL);
 
   output_dummy = g_new0 (MetaOutputDummy, 1);
   *output_dummy = (MetaOutputDummy) {
     .scale = scale
   };
-
-  output->name = g_strdup_printf ("LVDS%d", number);
-  output->vendor = g_strdup ("MetaProducts Inc.");
-  output->product = g_strdup ("MetaMonitor");
-  output->serial = g_strdup_printf ("0xC0FFEE-%d", number);
-  output->suggested_x = -1;
-  output->suggested_y = -1;
-  output->width_mm = 222;
-  output->height_mm = 125;
-  output->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
-  output->preferred_mode = g_list_last (*modes)->data;
-  output->n_possible_clones = 0;
-  output->connector_type = META_CONNECTOR_TYPE_LVDS;
   output->driver_private = output_dummy;
   output->driver_notify =
     (GDestroyNotify) meta_output_dummy_notify_destroy;
-
-  output->modes = g_new0 (MetaCrtcMode *, n_mode_specs);
-  for (l = new_modes, i = 0; l; l = l->next, i++)
-    {
-      MetaCrtcMode *mode = l->data;
-
-      output->modes[i] = mode;
-    }
-  output->n_modes = n_mode_specs;
-  output->possible_crtcs = g_new0 (MetaCrtc *, 1);
-  output->possible_crtcs[0] = g_list_last (*crtcs)->data;
-  output->n_possible_crtcs = 1;
 
   *outputs = g_list_append (*outputs, output);
 }
@@ -307,6 +310,7 @@ append_tiled_monitor (MetaMonitorManager *manager,
       MetaCrtcMode *preferred_mode;
       unsigned int j;
       unsigned int number;
+      g_autoptr (MetaOutputInfo) output_info = NULL;
       GList *l;
 
       output_dummy = g_new0 (MetaOutputDummy, 1);
@@ -319,24 +323,21 @@ append_tiled_monitor (MetaMonitorManager *manager,
 
       preferred_mode = g_list_last (*modes)->data;
 
-      output = g_object_new (META_TYPE_OUTPUT,
-                             "id", number,
-                             "gpu", gpu,
-                             NULL);
+      output_info = meta_output_info_new ();
 
-      output->name = g_strdup_printf ("LVDS%d", number);
-      output->vendor = g_strdup ("MetaProducts Inc.");
-      output->product = g_strdup ("MetaMonitor");
-      output->serial = g_strdup_printf ("0xC0FFEE-%d", number);
-      output->suggested_x = -1;
-      output->suggested_y = -1;
-      output->width_mm = 222;
-      output->height_mm = 125;
-      output->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
-      output->preferred_mode = preferred_mode;
-      output->n_possible_clones = 0;
-      output->connector_type = META_CONNECTOR_TYPE_LVDS;
-      output->tile_info = (MetaTileInfo) {
+      output_info->name = g_strdup_printf ("LVDS%d", number);
+      output_info->vendor = g_strdup ("MetaProducts Inc.");
+      output_info->product = g_strdup ("MetaMonitor");
+      output_info->serial = g_strdup_printf ("0xC0FFEE-%d", number);
+      output_info->suggested_x = -1;
+      output_info->suggested_y = -1;
+      output_info->width_mm = 222;
+      output_info->height_mm = 125;
+      output_info->subpixel_order = COGL_SUBPIXEL_ORDER_UNKNOWN;
+      output_info->preferred_mode = preferred_mode;
+      output_info->n_possible_clones = 0;
+      output_info->connector_type = META_CONNECTOR_TYPE_LVDS;
+      output_info->tile_info = (MetaTileInfo) {
         .group_id = tile_group_id,
         .max_h_tiles = n_tiles,
         .max_v_tiles = 1,
@@ -345,27 +346,33 @@ append_tiled_monitor (MetaMonitorManager *manager,
         .tile_w = preferred_mode->width,
         .tile_h = preferred_mode->height
       },
-      output->driver_private = output_dummy;
-      output->driver_notify =
-        (GDestroyNotify) meta_output_dummy_notify_destroy;
 
-      output->modes = g_new0 (MetaCrtcMode *, G_N_ELEMENTS (mode_specs));
+      output_info->modes = g_new0 (MetaCrtcMode *, G_N_ELEMENTS (mode_specs));
       for (l = new_modes, j = 0; l; l = l->next, j++)
         {
           MetaCrtcMode *mode = l->data;
 
-          output->modes[j] = mode;
+          output_info->modes[j] = mode;
         }
-      output->n_modes = G_N_ELEMENTS (mode_specs);
+      output_info->n_modes = G_N_ELEMENTS (mode_specs);
 
-      output->possible_crtcs = g_new0 (MetaCrtc *, n_tiles);
+      output_info->possible_crtcs = g_new0 (MetaCrtc *, n_tiles);
       for (l = new_crtcs, j = 0; l; l = l->next, j++)
         {
           MetaCrtc *crtc = l->data;
 
-          output->possible_crtcs[j] = crtc;
+          output_info->possible_crtcs[j] = crtc;
         }
-      output->n_possible_crtcs = n_tiles;
+      output_info->n_possible_crtcs = n_tiles;
+
+      output = g_object_new (META_TYPE_OUTPUT,
+                             "id", number,
+                             "gpu", gpu,
+                             "info", output_info,
+                             NULL);
+      output->driver_private = output_dummy;
+      output->driver_notify =
+        (GDestroyNotify) meta_output_dummy_notify_destroy;
 
       *outputs = g_list_append (*outputs, output);
     }

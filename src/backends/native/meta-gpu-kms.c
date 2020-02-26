@@ -264,9 +264,12 @@ static int
 compare_outputs (gconstpointer one,
                  gconstpointer two)
 {
-  const MetaOutput *o_one = one, *o_two = two;
+  MetaOutput *o_one = (MetaOutput *) one;
+  MetaOutput *o_two = (MetaOutput *) two;
+  const MetaOutputInfo *output_info_one = meta_output_get_info (o_one);
+  const MetaOutputInfo *output_info_two = meta_output_get_info (o_two);
 
-  return strcmp (o_one->name, o_two->name);
+  return strcmp (output_info_one->name, output_info_two->name);
 }
 
 static void
@@ -389,14 +392,7 @@ setup_output_clones (MetaGpu *gpu)
             continue;
 
           if (meta_output_kms_can_clone (output, other_output))
-            {
-              output->n_possible_clones++;
-              output->possible_clones = g_renew (MetaOutput *,
-                                                 output->possible_clones,
-                                                 output->n_possible_clones);
-              output->possible_clones[output->n_possible_clones - 1] =
-                other_output;
-            }
+            meta_output_add_possible_clone (output, other_output);
         }
     }
 }
