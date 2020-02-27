@@ -38,6 +38,7 @@
 #include "backends/meta-output.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-crtc-mode-kms.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-update.h"
@@ -273,12 +274,6 @@ compare_outputs (gconstpointer one,
   return strcmp (output_info_one->name, output_info_two->name);
 }
 
-static void
-meta_crtc_mode_destroy_notify (MetaCrtcMode *mode)
-{
-  g_slice_free (drmModeModeInfo, mode->driver_private);
-}
-
 gboolean
 meta_drm_mode_equal (const drmModeModeInfo *one,
                      const drmModeModeInfo *two)
@@ -329,10 +324,11 @@ meta_gpu_kms_get_mode_from_drm_mode (MetaGpuKms            *gpu_kms,
 
   for (l = meta_gpu_get_modes (gpu); l; l = l->next)
     {
-      MetaCrtcMode *mode = l->data;
+      MetaCrtcModeKms *crtc_mode_kms = l->data;
 
-      if (meta_drm_mode_equal (drm_mode, mode->driver_private))
-        return mode;
+      if (meta_drm_mode_equal (drm_mode,
+                               meta_crtc_mode_kms_get_drm_mode (crtc_mode_kms)))
+        return META_CRTC_MODE (crtc_mode_kms);
     }
 
   g_assert_not_reached ();
@@ -360,9 +356,6 @@ create_mode (const drmModeModeInfo *drm_mode,
                        "name", crtc_mode_name,
                        "info", crtc_mode_info,
                        NULL);
-
-  mode->driver_private = g_slice_dup (drmModeModeInfo, drm_mode);
-  mode->driver_notify = (GDestroyNotify) meta_crtc_mode_destroy_notify;
 
   return mode;
 }

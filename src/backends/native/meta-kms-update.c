@@ -208,10 +208,10 @@ meta_kms_update_unassign_plane (MetaKmsUpdate *update,
 }
 
 void
-meta_kms_update_mode_set (MetaKmsUpdate   *update,
-                          MetaKmsCrtc     *crtc,
-                          GList           *connectors,
-                          drmModeModeInfo *drm_mode)
+meta_kms_update_mode_set (MetaKmsUpdate         *update,
+                          MetaKmsCrtc           *crtc,
+                          GList                 *connectors,
+                          const drmModeModeInfo *drm_mode)
 {
   MetaKmsModeSet *mode_set;
 

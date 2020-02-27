@@ -26,6 +26,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-logical-monitor.h"
+#include "backends/native/meta-crtc-mode-kms.h"
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-output-kms.h"
 #include "backends/native/meta-kms-device.h"
@@ -172,15 +173,16 @@ meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
   MetaCrtc *crtc = META_CRTC (crtc_kms);
   MetaGpu *gpu = meta_crtc_get_gpu (crtc);
   GList *connectors;
-  drmModeModeInfo *mode;
+  const drmModeModeInfo *mode;
 
   connectors = generate_crtc_connector_list (gpu, crtc);
 
   if (connectors)
     {
       const MetaCrtcConfig *crtc_config = meta_crtc_get_config (crtc);
+      MetaCrtcModeKms *crtc_mode_kms = META_CRTC_MODE_KMS (crtc_config->mode);
 
-      mode = crtc_config->mode->driver_private;
+      mode = meta_crtc_mode_kms_get_drm_mode (crtc_mode_kms);
 
       g_debug ("Setting CRTC (%ld) mode to %s",
                meta_crtc_get_id (crtc), mode->name);
