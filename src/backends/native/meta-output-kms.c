@@ -255,7 +255,6 @@ init_output_modes (MetaOutputInfo    *output_info,
         output_info->preferred_mode = output_info->modes[i];
     }
 
-  /* FIXME: MSC feature bit? */
   /* Presume that if the output supports scaling, then we have
    * a panel fitter capable of adjusting any mode to suit.
    */
