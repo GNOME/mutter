@@ -632,6 +632,8 @@ if have_native_backend
     'backends/native/meta-clutter-backend-native.h',
     'backends/native/meta-crtc-kms.c',
     'backends/native/meta-crtc-kms.h',
+    'backends/native/meta-crtc-mode-kms.c',
+    'backends/native/meta-crtc-mode-kms.h',
     'backends/native/meta-cursor-renderer-native.c',
     'backends/native/meta-cursor-renderer-native.h',
     'backends/native/meta-drm-buffer-dumb.c',

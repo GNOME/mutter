@@ -152,9 +152,6 @@ meta_crtc_mode_finalize (GObject *object)
   MetaCrtcMode *crtc_mode = META_CRTC_MODE (object);
   MetaCrtcModePrivate *priv = meta_crtc_mode_get_instance_private (crtc_mode);
 
-  if (crtc_mode->driver_notify)
-    crtc_mode->driver_notify (crtc_mode);
-
   g_clear_pointer (&priv->name, g_free);
   g_clear_pointer (&priv->info, meta_crtc_mode_info_unref);
 

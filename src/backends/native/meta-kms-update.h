@@ -79,10 +79,10 @@ MetaKmsUpdate * meta_kms_update_new (void);
 
 void meta_kms_update_free (MetaKmsUpdate *update);
 
-void meta_kms_update_mode_set (MetaKmsUpdate   *update,
-                               MetaKmsCrtc     *crtc,
-                               GList           *connectors,
-                               drmModeModeInfo *drm_mode);
+void meta_kms_update_mode_set (MetaKmsUpdate         *update,
+                               MetaKmsCrtc           *crtc,
+                               GList                 *connectors,
+                               const drmModeModeInfo *drm_mode);
 
 MetaKmsPlaneAssignment * meta_kms_update_assign_plane (MetaKmsUpdate          *update,
                                                        MetaKmsCrtc            *crtc,

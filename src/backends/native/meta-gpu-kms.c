@@ -38,6 +38,7 @@
 #include "backends/meta-output.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-crtc-kms.h"
+#include "backends/native/meta-crtc-mode-kms.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-update.h"
@@ -273,12 +274,6 @@ compare_outputs (gconstpointer one,
   return strcmp (output_info_one->name, output_info_two->name);
 }
 
-static void
-meta_crtc_mode_destroy_notify (MetaCrtcMode *mode)
-{
-  g_slice_free (drmModeModeInfo, mode->driver_private);
-}
-
 gboolean
 meta_drm_mode_equal (const drmModeModeInfo *one,
                      const drmModeModeInfo *two)
@@ -329,42 +324,15 @@ meta_gpu_kms_get_mode_from_drm_mode (MetaGpuKms            *gpu_kms,
 
   for (l = meta_gpu_get_modes (gpu); l; l = l->next)
     {
-      MetaCrtcMode *mode = l->data;
+      MetaCrtcModeKms *crtc_mode_kms = l->data;
 
-      if (meta_drm_mode_equal (drm_mode, mode->driver_private))
-        return mode;
+      if (meta_drm_mode_equal (drm_mode,
+                               meta_crtc_mode_kms_get_drm_mode (crtc_mode_kms)))
+        return META_CRTC_MODE (crtc_mode_kms);
     }
 
   g_assert_not_reached ();
   return NULL;
-}
-
-static MetaCrtcMode *
-create_mode (const drmModeModeInfo *drm_mode,
-             long                   mode_id)
-{
-  g_autoptr (MetaCrtcModeInfo) crtc_mode_info = NULL;
-  g_autofree char *crtc_mode_name = NULL;
-  MetaCrtcMode *mode;
-
-  crtc_mode_info = meta_crtc_mode_info_new ();
-  crtc_mode_info->width = drm_mode->hdisplay;
-  crtc_mode_info->height = drm_mode->vdisplay;
-  crtc_mode_info->flags = drm_mode->flags;
-  crtc_mode_info->refresh_rate =
-    meta_calculate_drm_mode_refresh_rate (drm_mode);
-
-  crtc_mode_name = g_strndup (drm_mode->name, DRM_DISPLAY_MODE_LEN);
-  mode = g_object_new (META_TYPE_CRTC_MODE,
-                       "id", mode_id,
-                       "name", crtc_mode_name,
-                       "info", crtc_mode_info,
-                       NULL);
-
-  mode->driver_private = g_slice_dup (drmModeModeInfo, drm_mode);
-  mode->driver_notify = (GDestroyNotify) meta_crtc_mode_destroy_notify;
-
-  return mode;
 }
 
 static MetaOutput *
@@ -444,9 +412,9 @@ init_modes (MetaGpuKms *gpu_kms)
   mode_id = 0;
   while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &drm_mode))
     {
-      MetaCrtcMode *mode;
+      MetaCrtcModeKms *mode;
 
-      mode = create_mode (drm_mode, (long) mode_id);
+      mode = meta_crtc_mode_kms_new (drm_mode, (long) mode_id);
       modes = g_list_append (modes, mode);
 
       mode_id++;
@@ -456,9 +424,10 @@ init_modes (MetaGpuKms *gpu_kms)
 
   for (i = 0; i < G_N_ELEMENTS (meta_default_landscape_drm_mode_infos); i++)
     {
-      MetaCrtcMode *mode;
+      MetaCrtcModeKms *mode;
 
-      mode = create_mode (&meta_default_landscape_drm_mode_infos[i], mode_id);
+      mode = meta_crtc_mode_kms_new (&meta_default_landscape_drm_mode_infos[i],
+                                     mode_id);
       modes = g_list_append (modes, mode);
 
       mode_id++;
@@ -466,9 +435,10 @@ init_modes (MetaGpuKms *gpu_kms)
 
   for (i = 0; i < G_N_ELEMENTS (meta_default_portrait_drm_mode_infos); i++)
     {
-      MetaCrtcMode *mode;
+      MetaCrtcModeKms *mode;
 
-      mode = create_mode (&meta_default_portrait_drm_mode_infos[i], mode_id);
+      mode = meta_crtc_mode_kms_new (&meta_default_portrait_drm_mode_infos[i],
+                                     mode_id);
       modes = g_list_append (modes, mode);
 
       mode_id++;
