@@ -1331,7 +1331,7 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
       buffer_data = wl_shm_buffer_get_data (shm_buffer);
 
       width = wl_shm_buffer_get_width (shm_buffer);
-      height = wl_shm_buffer_get_width (shm_buffer);
+      height = wl_shm_buffer_get_height (shm_buffer);
 
       switch (wl_shm_buffer_get_format (shm_buffer))
         {
