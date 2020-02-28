@@ -436,7 +436,7 @@ meta_screen_cast_monitor_stream_src_blit_to_framebuffer (MetaScreenCastStreamSrc
         }
     }
 
-  cogl_framebuffer_flush (framebuffer);
+  cogl_framebuffer_finish (framebuffer);
 
   return TRUE;
 }
