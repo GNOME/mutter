@@ -6,20 +6,20 @@
 # Ahmad Riza H Nst  <rizahnst@eriagempita.co.id>, 2006.
 # Dirgita <dirgitadevina@yahoo.co.id>, 2011, 2012, 2014.
 # Andika Triwidada <andika@gmail.com>, 2011-2015.
-# Kukuh Syafaat <kukuhsyafaat@gnome.org>, 2017, 2018, 2019.
+# Kukuh Syafaat <kukuhsyafaat@gnome.org>, 2017-2020.
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-08-06 00:49+0000\n"
-"PO-Revision-Date: 2019-08-13 16:20+0700\n"
+"POT-Creation-Date: 2020-02-23 17:44+0000\n"
+"PO-Revision-Date: 2020-02-25 17:48+0700\n"
 "Last-Translator: Kukuh Syafaat <kukuhsyafaat@gnome.org>\n"
 "Language-Team: Indonesian <gnome-l10n-id@googlegroups.com>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2.3\n"
+"X-Generator: Poedit 2.3\n"
 "Plural-Forms: nplurals=2; plural= n!=1;\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -422,19 +422,32 @@ msgstr "Pengubah yang digunakan untuk menemukan penunjuk"
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Kunci ini akan memulai aksi \"penunjuk lokasi\"."
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "Timeout for check-alive ping"
+msgstr "Batas waktu untuk ping pemeriksaan hidup"
+
+#: data/org.gnome.mutter.gschema.xml.in:143
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"Banyaknya milidetik yang harus diselesaikan klien terhadap permintaan ping "
+"agar tidak terdeteksi sebagai beku. Menggunakan 0 akan menonaktifkan "
+"pemeriksaan hidup sepenuhnya."
+
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
 msgstr "Pilih jendela dari popup tab"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Cancel tab popup"
 msgstr "Batalkan popup tab"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:175
 msgid "Switch monitor configurations"
 msgstr "Tukar konfigurasi monitor bawaan"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:180
 msgid "Rotates the built-in monitor configuration"
 msgstr "Memutar konfigurasi monitor bawaan"
 
@@ -551,7 +564,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2531
+#: src/backends/meta-input-settings.c:2567
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Tukar Mode: (Grup %d)"
@@ -559,11 +572,11 @@ msgstr "Tukar Mode: (Grup %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2554
+#: src/backends/meta-input-settings.c:2590
 msgid "Switch monitor"
 msgstr "Berpindah monitor"
 
-#: src/backends/meta-input-settings.c:2556
+#: src/backends/meta-input-settings.c:2592
 msgid "Show on-screen help"
 msgstr "Tampilkan bantuan pada layar"
 
@@ -595,13 +608,13 @@ msgid "%s %s"
 msgstr "%s %s"
 
 #. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:82
+#: src/backends/meta-profiler.c:79
 msgid "Compositor"
 msgstr "Kompositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:533
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -612,47 +625,47 @@ msgstr ""
 msgid "Bell event"
 msgstr "Bel peristiwa"
 
-#: src/core/main.c:185
+#: src/core/main.c:190
 msgid "Disable connection to session manager"
 msgstr "Menonaktifkan koneksi ke manajer sesi"
 
-#: src/core/main.c:191
+#: src/core/main.c:196
 msgid "Replace the running window manager"
 msgstr "Mengganti manajer jendela yang tengah berjalan"
 
-#: src/core/main.c:197
+#: src/core/main.c:202
 msgid "Specify session management ID"
 msgstr "Tentukan kode pengaturan sesi"
 
-#: src/core/main.c:202
+#: src/core/main.c:207
 msgid "X Display to use"
 msgstr "Tampilan X yang digunakna"
 
-#: src/core/main.c:208
+#: src/core/main.c:213
 msgid "Initialize session from savefile"
 msgstr "Aktifkan sesi dari berkas simpanan"
 
-#: src/core/main.c:214
+#: src/core/main.c:219
 msgid "Make X calls synchronous"
 msgstr "Buat panggilan X selaras"
 
-#: src/core/main.c:221
+#: src/core/main.c:226
 msgid "Run as a wayland compositor"
 msgstr "Jalankan sebagai kompositor wayland"
 
-#: src/core/main.c:227
+#: src/core/main.c:232
 msgid "Run as a nested compositor"
 msgstr "Jalankan sebagai kompositor bersarang"
 
-#: src/core/main.c:233
+#: src/core/main.c:238
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Jalankan kompositor wayland tanpa memmulai Xwayland"
 
-#: src/core/main.c:241
+#: src/core/main.c:246
 msgid "Run as a full display server, rather than nested"
 msgstr "Jalankan sebagai server tampilan penuh, ketimbang tampilan bersarang"
 
-#: src/core/main.c:247
+#: src/core/main.c:252
 msgid "Run with X11 backend"
 msgstr "Jalankan dengan backend X11"
 
@@ -705,21 +718,21 @@ msgstr "Cetak versi"
 msgid "Mutter plugin to use"
 msgstr "Pengaya Mutter yang dipakai"
 
-#: src/core/prefs.c:1849
+#: src/core/prefs.c:1911
 #, c-format
 msgid "Workspace %d"
 msgstr "Area kerja %d"
 
-#: src/core/util.c:121
+#: src/core/util.c:122
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Muter dikompilasi tanpa dukungan mode riuh\n"
 
-#: src/wayland/meta-wayland-tablet-pad.c:567
+#: src/wayland/meta-wayland-tablet-pad.c:568
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Tukar Mode: Mode %d"
 
-#: src/x11/meta-x11-display.c:671
+#: src/x11/meta-x11-display.c:676
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -728,21 +741,21 @@ msgstr ""
 "Tampilan \"%s\" sudah memiliki manajer jendela; cobalah gunakan pilihan --"
 "replace untuk mengganti manajer jendela saat ini."
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1089
 msgid "Failed to initialize GDK\n"
 msgstr "Gagal menginisialisasi GDK\n"
 
-#: src/x11/meta-x11-display.c:1056
+#: src/x11/meta-x11-display.c:1113
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Gagal membuka tampilan X Window System \"%s\"\n"
 
-#: src/x11/meta-x11-display.c:1140
+#: src/x11/meta-x11-display.c:1196
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Layar %d pada tampilan \"%s\" tidak valid\n"
 
-#: src/x11/meta-x11-selection-input-stream.c:445
+#: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Format %s tidak didukung"
