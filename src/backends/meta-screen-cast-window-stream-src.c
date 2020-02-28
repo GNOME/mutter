@@ -401,6 +401,25 @@ meta_screen_cast_window_stream_src_record_frame (MetaScreenCastStreamSrc *src,
   return TRUE;
 }
 
+static gboolean
+meta_screen_cast_window_stream_src_blit_to_framebuffer (MetaScreenCastStreamSrc *src,
+                                                        CoglFramebuffer         *framebuffer)
+{
+  MetaScreenCastWindowStreamSrc *window_src =
+    META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
+  MetaRectangle stream_rect;
+
+  stream_rect.x = 0;
+  stream_rect.y = 0;
+  stream_rect.width = get_stream_width (window_src);
+  stream_rect.height = get_stream_height (window_src);
+
+  return
+    meta_screen_cast_window_blit_to_framebuffer (window_src->screen_cast_window,
+                                                 &stream_rect,
+                                                 framebuffer);
+}
+
 static void
 meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *src,
                                                         struct spa_meta_cursor  *spa_meta_cursor)
@@ -485,6 +504,8 @@ meta_screen_cast_window_stream_src_class_init (MetaScreenCastWindowStreamSrcClas
   src_class->enable = meta_screen_cast_window_stream_src_enable;
   src_class->disable = meta_screen_cast_window_stream_src_disable;
   src_class->record_frame = meta_screen_cast_window_stream_src_record_frame;
+  src_class->blit_to_framebuffer =
+    meta_screen_cast_window_stream_src_blit_to_framebuffer;
   src_class->get_videocrop = meta_screen_cast_window_stream_src_get_videocrop;
   src_class->set_cursor_metadata = meta_screen_cast_window_stream_src_set_cursor_metadata;
 }

@@ -1257,6 +1257,69 @@ meta_window_actor_capture_into (MetaScreenCastWindow *screen_cast_window,
 }
 
 static gboolean
+meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
+                                       MetaRectangle        *bounds,
+                                       CoglFramebuffer      *framebuffer)
+{
+  MetaWindowActor *window_actor = META_WINDOW_ACTOR (screen_cast_window);
+  ClutterActor *actor = CLUTTER_ACTOR (window_actor);
+  ClutterPaintContext *paint_context;
+  MetaRectangle scaled_clip;
+  CoglColor clear_color;
+  float resource_scale;
+  float width, height;
+  float x, y;
+
+  if (meta_window_actor_is_destroyed (window_actor))
+    return FALSE;
+
+  clutter_actor_get_size (actor, &width, &height);
+
+  if (width == 0 || height == 0)
+    return FALSE;
+
+  if (!clutter_actor_get_resource_scale (actor, &resource_scale))
+    return FALSE;
+
+  width = ceilf (width * resource_scale);
+  height = ceilf (height * resource_scale);
+
+  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+  clutter_actor_get_position (actor, &x, &y);
+
+  cogl_framebuffer_push_matrix (framebuffer);
+
+  cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
+  cogl_framebuffer_orthographic (framebuffer, 0, 0, width, height, 0, 1.0);
+  cogl_framebuffer_scale (framebuffer, resource_scale, resource_scale, 1);
+  cogl_framebuffer_translate (framebuffer, -x, -y, 0);
+
+  meta_rectangle_scale_double (bounds, resource_scale,
+                               META_ROUNDING_STRATEGY_GROW,
+                               &scaled_clip);
+  meta_rectangle_intersect (&scaled_clip,
+                            &(MetaRectangle) {
+                              .width = width,
+                              .height = height,
+                            },
+                            &scaled_clip);
+
+  cogl_framebuffer_push_rectangle_clip (framebuffer,
+                                        scaled_clip.x, scaled_clip.y,
+                                        scaled_clip.x + scaled_clip.width,
+                                        scaled_clip.y + scaled_clip.height);
+
+  paint_context = clutter_paint_context_new_for_framebuffer (framebuffer);
+  clutter_actor_paint (actor, paint_context);
+  clutter_paint_context_destroy (paint_context);
+
+  cogl_framebuffer_pop_clip (framebuffer);
+  cogl_framebuffer_pop_matrix (framebuffer);
+
+  return TRUE;
+}
+
+static gboolean
 meta_window_actor_has_damage (MetaScreenCastWindow *screen_cast_window)
 {
   return clutter_actor_has_damage (CLUTTER_ACTOR (screen_cast_window));
@@ -1269,6 +1332,7 @@ screen_cast_window_iface_init (MetaScreenCastWindowInterface *iface)
   iface->transform_relative_position = meta_window_actor_transform_relative_position;
   iface->transform_cursor_position = meta_window_actor_transform_cursor_position;
   iface->capture_into = meta_window_actor_capture_into;
+  iface->blit_to_framebuffer = meta_window_actor_blit_to_framebuffer;
   iface->has_damage = meta_window_actor_has_damage;
 }
 

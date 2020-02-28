@@ -149,10 +149,7 @@ meta_screen_cast_stream_src_blit_to_framebuffer (MetaScreenCastStreamSrc *src,
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  if (klass->blit_to_framebuffer)
-      return klass->blit_to_framebuffer (src, framebuffer);
-
-  return FALSE;
+  return klass->blit_to_framebuffer (src, framebuffer);
 }
 
 static void

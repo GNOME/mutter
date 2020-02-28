@@ -79,6 +79,17 @@ meta_screen_cast_window_capture_into (MetaScreenCastWindow *screen_cast_window,
 }
 
 gboolean
+meta_screen_cast_window_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
+                                             MetaRectangle        *bounds,
+                                             CoglFramebuffer      *framebuffer)
+{
+  MetaScreenCastWindowInterface *iface =
+    META_SCREEN_CAST_WINDOW_GET_IFACE (screen_cast_window);
+
+  return iface->blit_to_framebuffer (screen_cast_window, bounds, framebuffer);
+}
+
+gboolean
 meta_screen_cast_window_has_damage (MetaScreenCastWindow *screen_cast_window)
 {
   MetaScreenCastWindowInterface *iface =
