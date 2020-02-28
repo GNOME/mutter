@@ -547,8 +547,6 @@ meta_monitor_manager_kms_get_capabilities (MetaMonitorManager *manager)
 {
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaSettings *settings = meta_backend_get_settings (backend);
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaMonitorManagerCapability capabilities =
     META_MONITOR_MANAGER_CAPABILITY_NONE;
 
@@ -556,9 +554,6 @@ meta_monitor_manager_kms_get_capabilities (MetaMonitorManager *manager)
         settings,
         META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER))
     capabilities |= META_MONITOR_MANAGER_CAPABILITY_LAYOUT_MODE;
-
-  if (meta_renderer_native_supports_mirroring (renderer_native))
-    capabilities |= META_MONITOR_MANAGER_CAPABILITY_MIRRORING;
 
   return capabilities;
 }

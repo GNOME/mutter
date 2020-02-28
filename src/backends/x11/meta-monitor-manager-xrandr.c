@@ -959,8 +959,7 @@ meta_monitor_manager_xrandr_calculate_supported_scales (MetaMonitorManager      
 static MetaMonitorManagerCapability
 meta_monitor_manager_xrandr_get_capabilities (MetaMonitorManager *manager)
 {
-  return (META_MONITOR_MANAGER_CAPABILITY_MIRRORING |
-          META_MONITOR_MANAGER_CAPABILITY_GLOBAL_SCALE_REQUIRED);
+  return META_MONITOR_MANAGER_CAPABILITY_GLOBAL_SCALE_REQUIRED;
 }
 
 static gboolean

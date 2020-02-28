@@ -2793,34 +2793,6 @@ _cogl_winsys_egl_vtable = {
   .context_init = meta_renderer_native_init_egl_context
 };
 
-gboolean
-meta_renderer_native_supports_mirroring (MetaRendererNative *renderer_native)
-{
-  MetaRenderer *renderer = META_RENDERER (renderer_native);
-  MetaBackend *backend = meta_renderer_get_backend (renderer);
-  GList *l;
-
-  for (l = meta_backend_get_gpus (backend); l; l = l->next)
-    {
-      MetaGpuKms *gpu_kms = META_GPU_KMS (l->data);
-      MetaRendererNativeGpuData *renderer_gpu_data;
-
-      renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
-                                                             gpu_kms);
-      switch (renderer_gpu_data->mode)
-        {
-        case META_RENDERER_NATIVE_MODE_GBM:
-          break;
-#ifdef HAVE_EGL_DEVICE
-        case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-          return FALSE;
-#endif
-        }
-    }
-
-  return TRUE;
-}
-
 static void
 meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native)
 {

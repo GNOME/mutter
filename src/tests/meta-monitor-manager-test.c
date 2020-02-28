@@ -371,8 +371,6 @@ meta_monitor_manager_test_get_capabilities (MetaMonitorManager *manager)
   MetaMonitorManagerCapability capabilities =
     META_MONITOR_MANAGER_CAPABILITY_NONE;
 
-  capabilities |= META_MONITOR_MANAGER_CAPABILITY_MIRRORING;
-
   if (is_monitor_framebuffer_scaled ())
     capabilities |= META_MONITOR_MANAGER_CAPABILITY_LAYOUT_MODE;
 

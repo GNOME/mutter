@@ -714,8 +714,6 @@ meta_monitor_manager_dummy_get_capabilities (MetaMonitorManager *manager)
   MetaMonitorManagerCapability capabilities =
     META_MONITOR_MANAGER_CAPABILITY_NONE;
 
-  capabilities |= META_MONITOR_MANAGER_CAPABILITY_MIRRORING;
-
   if (meta_settings_is_experimental_feature_enabled (
         settings,
         META_EXPERIMENTAL_FEATURE_SCALE_MONITOR_FRAMEBUFFER))
