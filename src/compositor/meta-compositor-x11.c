@@ -109,6 +109,8 @@ meta_compositor_x11_manage (MetaCompositor *compositor)
   MetaBackend *backend = meta_get_backend ();
   Window xwindow;
 
+  meta_x11_display_set_cm_selection (display->x11_display);
+
   compositor_x11->output = display->x11_display->composite_overlay_window;
 
   xwindow = meta_backend_x11_get_xwindow (META_BACKEND_X11 (backend));
@@ -135,6 +137,8 @@ meta_compositor_x11_manage (MetaCompositor *compositor)
   XMapWindow (xdisplay, compositor_x11->output);
 
   compositor_x11->have_x11_sync_object = meta_sync_ring_init (xdisplay);
+
+  meta_compositor_redirect_x11_windows (META_COMPOSITOR (compositor));
 }
 
 static void
