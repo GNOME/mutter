@@ -676,6 +676,7 @@ meta_display_init_x11 (MetaDisplay  *display,
   if (!display->display_opening)
     {
       g_signal_emit (display, display_signals[X11_DISPLAY_OPENED], 0);
+      meta_x11_display_set_cm_selection (x11_display);
       meta_display_manage_all_xwindows (display);
       meta_compositor_redirect_x11_windows (display->compositor);
     }
