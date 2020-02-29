@@ -1,3 +1,42 @@
+3.35.92
+=======
+* Fix visibility of initially hidden windows [Jonas Å.; !1066]
+* Avoid flicker when (un)redirecting windows [Sebastian; #997]
+* Let BindConstraints update the preferred size [Emmanuele; !1070]
+* Learn about GLES3 [Adam; !882]
+* Ping windows on every window focus [Jonas D.; !891]
+* Remove overhead from hot code paths [Christian;
+  #1056, !1081, !1083, !1071, !1087]
+* Allow remote desktop services to inhibit animations [Jonas Å.; !838]
+* Update screen-cast code to PipeWire 0.3 API [Wim; !1062]
+* Make check-alive timeouts configurable [Jonas Å.; !1080]
+* Make each stage view correspond to a single CRTC [Jonas Å.; !1042]
+* Implement scaled/transformed hardware cursors [Robert; !526]
+* Use DMA buffers for screencasting if possible [Georges; !1086]
+* Make Xwayland startup asynchronous [Carlos; !944]
+* Fix clipping glitches in long text entries [Jonas D.; !1096]
+* Add side channel for starting required X11 services [Carlos; !945]
+* Support synchronized wayland popup moving [Jonas Å.; !705]
+* Fixed crashes [Olivier, Jonas Å.; !1073, !1093]
+* Plugged memory leaks [Sebastian, Jonas Å.; !1089, !1095]
+* Misc. bug fixes and cleanups [Jonas Å, Olivier, Florian, Daniel, Jonas D.,
+  Robert, Sebastian, Christian, Arun, Carlos, worldofpeace; !1061, #1043,
+  !1067, !1068, !1065, !835, !1058, !1069, !1075, #1060, !1077, !423, !1090,
+  !1088, !1094, #1067, !1064, !1099, !957, !1000, !1082]
+
+Contributors:
+  Emmanuele Bassi, Jonas Dreßler, Olivier Fourdan, Carlos Garnacho,
+  Christian Hergert, Adam Jackson, Sebastian Keller, Robert Mader,
+  Florian Müllner, Georges Basile Stavracas Neto, Arun Raghavan, Wim Taymans,
+  Daniel van Vugt, worldofpeace, Jonas Ådahl
+
+Translators:
+  Yi-Jyun Pan [zh_TW], Asier Sarasua Garmendia [eu], Rafael Fontenelle [pt_BR],
+  Emin Tufan Çetin [tr], Daniel Mustieles [es], Balázs Úr [hu],
+  Gwan-gyeong Mun [ko], Marek Černocký [cs], Fran Dieguez [gl],
+  Kukuh Syafaat [id], Alan Mortensen [da], Piotr Drąg [pl], sicklylife [ja],
+  Matej Urbančič [sl]
+
 3.35.91
 =======
 * Honor accelerometer orientation on monitor config changes [Hans; !959]
