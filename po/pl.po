@@ -1,20 +1,20 @@
 # Polish translation for mutter.
-# Copyright © 2002-2019 the mutter authors.
+# Copyright © 2002-2020 the mutter authors.
 # This file is distributed under the same license as the mutter package.
 # Zbigniew Chyla <chyla@alice.ci.pwr.wroc.pl>, 2002-2003.
 # Artur Flinta <aflinta@at.kernel.pl>, 2003-2005.
 # Marek Stępień <marcoos@aviary.pl>, 2007.
 # Wadim Dziedzic <wdziedzic@aviary.pl>, 2007.
 # Tomasz Dominikowski <dominikowski@gmail.com>, 2008-2009.
-# Piotr Drąg <piotrdrag@gmail.com>, 2010-2019.
-# Aviary.pl <community-poland@mozilla.org>, 2007-2019.
+# Piotr Drąg <piotrdrag@gmail.com>, 2010-2020.
+# Aviary.pl <community-poland@mozilla.org>, 2007-2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-08-06 00:49+0000\n"
-"PO-Revision-Date: 2019-08-22 18:00+0200\n"
+"POT-Creation-Date: 2020-02-23 17:41+0000\n"
+"PO-Revision-Date: 2020-02-29 13:15+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
 "Language: pl\n"
@@ -432,19 +432,32 @@ msgstr "Modyfikator używany do znalezienia kursora"
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Ten klawisz inicjuje działanie „znajdź kursor”."
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "Timeout for check-alive ping"
+msgstr "Czas oczekiwania na odpowiedź żądania sprawdzenia aktywności"
+
+#: data/org.gnome.mutter.gschema.xml.in:143
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"Liczba milisekund, w ciągu których klient musi odpowiedzieć na żądanie, aby "
+"nie został wykryty jako zawieszony. Wartość 0 całkowicie wyłączy sprawdzanie "
+"aktywności."
+
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
 msgstr "Wybór okna z wyskakującego okna dla tabulacji"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Cancel tab popup"
 msgstr "Anulowanie wyskakującego okna dla tabulacji"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:175
 msgid "Switch monitor configurations"
 msgstr "Przełączenie konfiguracji monitorów"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:180
 msgid "Rotates the built-in monitor configuration"
 msgstr "Obrócenie wbudowanego monitora"
 
@@ -560,7 +573,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2531
+#: src/backends/meta-input-settings.c:2567
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Przełącznik trybu (%d. grupa)"
@@ -568,11 +581,11 @@ msgstr "Przełącznik trybu (%d. grupa)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2554
+#: src/backends/meta-input-settings.c:2590
 msgid "Switch monitor"
 msgstr "Przełączenie monitora"
 
-#: src/backends/meta-input-settings.c:2556
+#: src/backends/meta-input-settings.c:2592
 msgid "Show on-screen help"
 msgstr "Ekran pomocy"
 
@@ -604,13 +617,13 @@ msgid "%s %s"
 msgstr "%s %s"
 
 #. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:82
+#: src/backends/meta-profiler.c:79
 msgid "Compositor"
 msgstr "Menedżer składania"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:533
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -621,47 +634,47 @@ msgstr ""
 msgid "Bell event"
 msgstr "Zdarzenie sygnału dźwiękowego"
 
-#: src/core/main.c:185
+#: src/core/main.c:190
 msgid "Disable connection to session manager"
 msgstr "Rozłącza połączenie z menedżerem sesji"
 
-#: src/core/main.c:191
+#: src/core/main.c:196
 msgid "Replace the running window manager"
 msgstr "Zastępuje uruchomionego menedżera okien"
 
-#: src/core/main.c:197
+#: src/core/main.c:202
 msgid "Specify session management ID"
 msgstr "Podaje identyfikator zarządzania sesją"
 
-#: src/core/main.c:202
+#: src/core/main.c:207
 msgid "X Display to use"
 msgstr "Używany ekran X"
 
-#: src/core/main.c:208
+#: src/core/main.c:213
 msgid "Initialize session from savefile"
 msgstr "Inicjuje sesję z zapisanego pliku"
 
-#: src/core/main.c:214
+#: src/core/main.c:219
 msgid "Make X calls synchronous"
 msgstr "Synchroniczne wywołania X"
 
-#: src/core/main.c:221
+#: src/core/main.c:226
 msgid "Run as a wayland compositor"
 msgstr "Uruchamia jako menedżer składania Wayland"
 
-#: src/core/main.c:227
+#: src/core/main.c:232
 msgid "Run as a nested compositor"
 msgstr "Uruchamia jako osadzony menedżer składania"
 
-#: src/core/main.c:233
+#: src/core/main.c:238
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Uruchamia menedżer składania Wayland bez uruchamiania Xwayland"
 
-#: src/core/main.c:241
+#: src/core/main.c:246
 msgid "Run as a full display server, rather than nested"
 msgstr "Uruchamia jako pełny serwer wyświetlania zamiast osadzonego"
 
-#: src/core/main.c:247
+#: src/core/main.c:252
 msgid "Run with X11 backend"
 msgstr "Uruchamia za pomocą mechanizmu X11"
 
@@ -713,22 +726,22 @@ msgstr "Wyświetla wersję"
 msgid "Mutter plugin to use"
 msgstr "Używana wtyczka menedżera Mutter"
 
-#: src/core/prefs.c:1849
+#: src/core/prefs.c:1911
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. obszar roboczy"
 
-#: src/core/util.c:121
+#: src/core/util.c:122
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr ""
 "Menedżer Mutter został skompilowany bez obsługi trybu z obszerną informacją\n"
 
-#: src/wayland/meta-wayland-tablet-pad.c:567
+#: src/wayland/meta-wayland-tablet-pad.c:568
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Przełącznik trybu: %d. tryb"
 
-#: src/x11/meta-x11-display.c:671
+#: src/x11/meta-x11-display.c:676
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -737,21 +750,21 @@ msgstr ""
 "Na ekranie „%s” działa już menedżer okien. Aby zastąpić działającego "
 "menedżera okien, należy użyć opcji „--replace”."
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1089
 msgid "Failed to initialize GDK\n"
 msgstr "Zainicjowanie biblioteki GDK się nie powiodło\n"
 
-#: src/x11/meta-x11-display.c:1056
+#: src/x11/meta-x11-display.c:1113
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Otwarcie połączenia z ekranem „%s” systemu X Window się nie powiodło\n"
 
-#: src/x11/meta-x11-display.c:1140
+#: src/x11/meta-x11-display.c:1196
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Podekran %d ekranu „%s” jest nieprawidłowy\n"
 
-#: src/x11/meta-x11-selection-input-stream.c:445
+#: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Format %s jest nieobsługiwany"
