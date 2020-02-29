@@ -9,13 +9,14 @@
 # Jiro Matsuzawa <jmatsuzawa@gnome.org>, 2012, 2013.
 # sujiniku <sujinikusityuu@gmail.com>, 2016.
 # sicklylife <translation@sicklylife.jp>, 2019-2020.
+# Masanori Kamayama <>, 2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
 "POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-02-13 23:00+0900\n"
+"PO-Revision-Date: 2020-03-01 00:25+0900\n"
 "Last-Translator: sicklylife <translation@sicklylife.jp>\n"
 "Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
 "Language: ja\n"
@@ -533,7 +534,7 @@ msgstr "オンスクリーンヘルプを表示"
 
 #: src/backends/meta-monitor.c:223
 msgid "Built-in display"
-msgstr "組み込みのディスプレイ"
+msgstr "ビルトインディスプレイ"
 
 #: src/backends/meta-monitor.c:252
 msgid "Unknown"
