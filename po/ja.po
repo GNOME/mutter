@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-10 19:31+0000\n"
+"POT-Creation-Date: 2020-02-23 17:41+0000\n"
 "PO-Revision-Date: 2020-02-13 23:00+0900\n"
 "Last-Translator: sicklylife <translation@sicklylife.jp>\n"
 "Language-Team: Japanese <gnome-translation@gnome.gr.jp>\n"
@@ -399,19 +399,29 @@ msgstr ""
 msgid "This key will initiate the “locate pointer” action."
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:155
-msgid "Select window from tab popup"
-msgstr "タブのポップアップでウィンドウを選択します"
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "Timeout for check-alive ping"
+msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:160
-msgid "Cancel tab popup"
+#: data/org.gnome.mutter.gschema.xml.in:143
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
 
 #: data/org.gnome.mutter.gschema.xml.in:165
+msgid "Select window from tab popup"
+msgstr "タブのポップアップでウィンドウを選択します"
+
+#: data/org.gnome.mutter.gschema.xml.in:170
+msgid "Cancel tab popup"
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:175
 msgid "Switch monitor configurations"
 msgstr ""
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:180
 msgid "Rotates the built-in monitor configuration"
 msgstr ""
 
@@ -661,7 +671,7 @@ msgstr "バージョンを表示する"
 msgid "Mutter plugin to use"
 msgstr "使用する Mutter のプラグイン"
 
-#: src/core/prefs.c:1849
+#: src/core/prefs.c:1911
 #, c-format
 msgid "Workspace %d"
 msgstr "ワークスペース %d"
