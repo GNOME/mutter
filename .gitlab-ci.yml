@@ -7,14 +7,14 @@ stages:
  - prepare
  - build
  - test
- - coverage
+ - analyze
 
 .mutter.fedora:34@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 34
-    BASE_TAG: '2021-07-07.1'
+    BASE_TAG: '2021-07-09.1'
     FDO_UPSTREAM_REPO: GNOME/mutter
-    FDO_DISTRIBUTION_PACKAGES: 'gdm gnome-shell xorg-x11-server-Xvfb sassc gcovr'
+    FDO_DISTRIBUTION_PACKAGES: 'gdm gnome-shell xorg-x11-server-Xvfb sassc gcovr clang'
 
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&
@@ -226,7 +226,7 @@ test-mutter@aarch64:
 .test-mutter-coverage:
   extends:
     - .fdo.distribution-image@fedora
-  stage: coverage
+  stage: analyze
   script:
     - ninja -C build coverage
     - cat build/meson-logs/coverage.txt
@@ -262,3 +262,29 @@ can-build-gnome-shell@x86_64:
     - .gitlab-ci/checkout-gnome-shell.sh
     - meson gnome-shell gnome-shell/build --prefix /usr -Dman=false
     - ninja -C gnome-shell/build install
+
+test-mutter-coverity:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $MUTTER_SCHEDULED_JOB == "coverity"'
+      when: always
+    - when: manual
+  extends:
+    - .fdo.distribution-image@fedora
+    - .mutter.fedora:34@x86_64
+  needs:
+    - build-fedora-container@x86_64
+  stage: analyze
+  allow_failure: true
+  script:
+    - .gitlab-ci/download-coverity-tarball.sh
+    - CC=clang meson coverity-build -Dprofiler=false
+    - ./coverity/cov-analysis-linux64-*/bin/cov-build --dir cov-int ninja -C coverity-build
+    - tar czf cov-int.tar.gz cov-int
+    - curl https://scan.coverity.com/builds?project=mutter
+      --form token=$COVERITY_TOKEN --form email=carlosg@gnome.org
+      --form file=@cov-int.tar.gz --form version="`git describe --tags`"
+      --form description="GitLab CI build"
+  cache:
+    key: coverity-tarball
+    paths:
+      - coverity
