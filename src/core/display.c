@@ -701,7 +701,13 @@ meta_display_init_x11_finish (MetaDisplay   *display,
   g_assert (g_task_get_source_tag (G_TASK (result)) == meta_display_init_x11);
 
   if (!g_task_propagate_boolean (G_TASK (result), error))
-    return FALSE;
+    {
+      if (*error == NULL)
+        g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED, "Unknown error");
+
+      return FALSE;
+    }
+
   if (display->x11_display)
     return TRUE;
 
@@ -778,8 +784,10 @@ on_x11_initialized (MetaDisplay  *display,
                     GAsyncResult *result,
                     gpointer      user_data)
 {
-  if (!meta_display_init_x11_finish (display, result, NULL))
-    g_critical ("Failed to init X11 display");
+  g_autoptr (GError) error = NULL;
+
+  if (!meta_display_init_x11_finish (display, result, &error))
+    g_critical ("Failed to init X11 display: %s", error->message);
 }
 #endif
 
