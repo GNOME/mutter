@@ -478,6 +478,7 @@ if have_introspection
       '-D__COGL_GLX_H_INSIDE__',
       '-DCOGL_GIR_SCANNING',
     ],
+    header: 'cogl/cogl.h',
     install_dir_gir: pkglibdir,
     install_dir_typelib: pkglibdir,
     install: true
