@@ -156,5 +156,5 @@ option('xwayland_grab_default_access_rules',
 option('xwayland_initfd',
   type: 'feature',
   value: 'auto',
-  description: 'Whether Xwayland -initfd argument is used'
+  description: 'Whether -initfd argument is passed to Xwayland to guarantee services (e.g. gsd-xsettings) startup before applications'
 )
