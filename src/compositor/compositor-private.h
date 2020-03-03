@@ -14,6 +14,8 @@
 /* Wait 2ms after vblank before starting to draw next frame */
 #define META_SYNC_DELAY 2
 
+typedef struct _MetaLaters MetaLaters;
+
 struct _MetaCompositorClass
 {
   GObjectClass parent_class;
@@ -70,5 +72,7 @@ MetaWindowActor * meta_compositor_get_top_window_actor (MetaCompositor *composit
 ClutterStage * meta_compositor_get_stage (MetaCompositor *compositor);
 
 gboolean meta_compositor_is_switching_workspace (MetaCompositor *compositor);
+
+MetaLaters * meta_compositor_get_laters (MetaCompositor *compositor);
 
 #endif /* META_COMPOSITOR_PRIVATE_H */

@@ -62,6 +62,7 @@
 #include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
+#include "compositor/meta-later-private.h"
 #include "compositor/meta-window-actor-x11.h"
 #include "compositor/meta-window-actor-wayland.h"
 #include "compositor/meta-window-actor-private.h"
@@ -131,6 +132,8 @@ typedef struct _MetaCompositorPrivate
   int switch_workspace_in_progress;
 
   MetaPluginManager *plugin_mgr;
+
+  MetaLaters *laters;
 } MetaCompositorPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaCompositor, meta_compositor,
@@ -1243,6 +1246,8 @@ meta_compositor_init (MetaCompositor *compositor)
                                            meta_post_paint_func,
                                            compositor,
                                            NULL);
+
+  priv->laters = meta_laters_new ();
 }
 
 static void
@@ -1251,6 +1256,8 @@ meta_compositor_dispose (GObject *object)
   MetaCompositor *compositor = META_COMPOSITOR (object);
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
+
+  g_clear_pointer (&priv->laters, meta_laters_free);
 
   g_clear_signal_handler (&priv->stage_after_paint_id, priv->stage);
   g_clear_signal_handler (&priv->stage_presented_id, priv->stage);
@@ -1609,4 +1616,13 @@ meta_compositor_is_switching_workspace (MetaCompositor *compositor)
     meta_compositor_get_instance_private (compositor);
 
   return priv->switch_workspace_in_progress > 0;
+}
+
+MetaLaters *
+meta_compositor_get_laters (MetaCompositor *compositor)
+{
+  MetaCompositorPrivate *priv =
+    meta_compositor_get_instance_private (compositor);
+
+  return priv->laters;
 }
