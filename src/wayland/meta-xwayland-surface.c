@@ -232,7 +232,13 @@ meta_xwayland_surface_sync_actor_state (MetaWaylandActorSurface *actor_surface)
     META_WAYLAND_ACTOR_SURFACE_CLASS (meta_xwayland_surface_parent_class);
 
   if (xwayland_surface->window)
-    actor_surface_class->sync_actor_state (actor_surface);
+    {
+      MetaWindowActor *window_actor =
+        meta_window_actor_from_window (xwayland_surface->window);
+
+      actor_surface_class->sync_actor_state (actor_surface);
+      meta_window_actor_update_regions (window_actor);
+    }
 }
 
 static void
