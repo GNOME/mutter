@@ -355,6 +355,17 @@ clutter_seat_get_keyboard (ClutterSeat *seat)
 }
 
 /**
+ * clutter_seat_peek_devices: (skip)
+ **/
+const GList *
+clutter_seat_peek_devices (ClutterSeat *seat)
+{
+  g_return_val_if_fail (CLUTTER_IS_SEAT (seat), NULL);
+
+  return CLUTTER_SEAT_GET_CLASS (seat)->peek_devices (seat);
+}
+
+/**
  * clutter_seat_list_devices:
  * @seat: a #ClutterSeat
  *
@@ -370,7 +381,7 @@ clutter_seat_list_devices (ClutterSeat *seat)
 {
   g_return_val_if_fail (CLUTTER_IS_SEAT (seat), NULL);
 
-  return CLUTTER_SEAT_GET_CLASS (seat)->list_devices (seat);
+  return g_list_copy ((GList *)clutter_seat_peek_devices (seat));
 }
 
 void

@@ -1471,16 +1471,12 @@ meta_seat_x11_get_keyboard (ClutterSeat *seat)
   return seat_x11->core_keyboard;
 }
 
-static GList *
-meta_seat_x11_list_devices (ClutterSeat *seat)
+static const GList *
+meta_seat_x11_peek_devices (ClutterSeat *seat)
 {
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
-  GList *retval = NULL, *l;
 
-  for (l = seat_x11->devices; l; l = l->next)
-    retval = g_list_prepend (retval, l->data);
-
-  return retval;
+  return (const GList *) seat_x11->devices;
 }
 
 static void
@@ -1565,7 +1561,7 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
 
   seat_class->get_pointer = meta_seat_x11_get_pointer;
   seat_class->get_keyboard = meta_seat_x11_get_keyboard;
-  seat_class->list_devices = meta_seat_x11_list_devices;
+  seat_class->peek_devices = meta_seat_x11_peek_devices;
   seat_class->bell_notify = meta_seat_x11_bell_notify;
   seat_class->get_keymap = meta_seat_x11_get_keymap;
   seat_class->copy_event_data = meta_seat_x11_copy_event_data;

@@ -2636,17 +2636,12 @@ meta_seat_native_get_keyboard (ClutterSeat *seat)
   return seat_native->core_keyboard;
 }
 
-static GList *
-meta_seat_native_list_devices (ClutterSeat *seat)
+static const GList *
+meta_seat_native_peek_devices (ClutterSeat *seat)
 {
   MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
-  GList *devices = NULL;
-  GSList *l;
 
-  for (l = seat_native->devices; l; l = l->next)
-    devices = g_list_prepend (devices, l->data);
-
-  return devices;
+  return (const GList *) seat_native->devices;
 }
 
 static void
@@ -2771,7 +2766,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
 
   seat_class->get_pointer = meta_seat_native_get_pointer;
   seat_class->get_keyboard = meta_seat_native_get_keyboard;
-  seat_class->list_devices = meta_seat_native_list_devices;
+  seat_class->peek_devices = meta_seat_native_peek_devices;
   seat_class->bell_notify = meta_seat_native_bell_notify;
   seat_class->get_keymap = meta_seat_native_get_keymap;
   seat_class->copy_event_data = meta_seat_native_copy_event_data;

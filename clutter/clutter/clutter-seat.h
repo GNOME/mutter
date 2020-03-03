@@ -96,7 +96,7 @@ struct _ClutterSeatClass
   ClutterInputDevice * (* get_pointer)  (ClutterSeat *seat);
   ClutterInputDevice * (* get_keyboard) (ClutterSeat *seat);
 
-  GList * (* list_devices) (ClutterSeat *seat);
+  const GList * (* peek_devices) (ClutterSeat *seat);
 
   void (* bell_notify) (ClutterSeat *seat);
 
@@ -133,6 +133,7 @@ CLUTTER_EXPORT
 ClutterInputDevice * clutter_seat_get_keyboard (ClutterSeat *seat);
 CLUTTER_EXPORT
 GList * clutter_seat_list_devices (ClutterSeat *seat);
+const GList * clutter_seat_peek_devices (ClutterSeat *seat);
 CLUTTER_EXPORT
 void clutter_seat_bell_notify (ClutterSeat *seat);
 
