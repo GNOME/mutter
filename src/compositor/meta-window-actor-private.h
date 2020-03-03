@@ -28,6 +28,7 @@ struct _MetaWindowActorClass
   void (*queue_destroy) (MetaWindowActor *actor);
   void (*set_frozen) (MetaWindowActor *actor,
                       gboolean         frozen);
+  void (*update_regions) (MetaWindowActor *actor);
 };
 
 typedef enum
@@ -87,5 +88,7 @@ void meta_window_actor_notify_damaged (MetaWindowActor *window_actor);
 gboolean meta_window_actor_is_frozen (MetaWindowActor *self);
 
 gboolean meta_window_actor_is_opaque (MetaWindowActor *self);
+
+void meta_window_actor_update_regions (MetaWindowActor *self);
 
 #endif /* META_WINDOW_ACTOR_PRIVATE_H */

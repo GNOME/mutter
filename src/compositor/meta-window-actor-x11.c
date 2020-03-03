@@ -1132,7 +1132,7 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
 }
 
 static void
-check_needs_reshape (MetaWindowActorX11 *actor_x11)
+update_regions (MetaWindowActorX11 *actor_x11)
 {
   if (!actor_x11->needs_reshape)
     return;
@@ -1142,6 +1142,18 @@ check_needs_reshape (MetaWindowActorX11 *actor_x11)
   update_opaque_region (actor_x11);
 
   actor_x11->needs_reshape = FALSE;
+}
+
+static void
+check_needs_reshape (MetaWindowActorX11 *actor_x11)
+{
+  MetaWindow *window =
+    meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
+
+  if (meta_window_x11_always_update_shape (window))
+    return;
+
+  update_regions (actor_x11);
 }
 
 void
@@ -1395,6 +1407,12 @@ meta_window_actor_x11_set_frozen (MetaWindowActor *actor,
 }
 
 static void
+meta_window_actor_x11_update_regions (MetaWindowActor *actor)
+{
+  update_regions (META_WINDOW_ACTOR_X11 (actor));
+}
+
+static void
 meta_window_actor_x11_set_property (GObject      *object,
                                     guint         prop_id,
                                     const GValue *value,
@@ -1566,6 +1584,7 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
   window_actor_class->post_paint = meta_window_actor_x11_post_paint;
   window_actor_class->queue_destroy = meta_window_actor_x11_queue_destroy;
   window_actor_class->set_frozen = meta_window_actor_x11_set_frozen;
+  window_actor_class->update_regions = meta_window_actor_x11_update_regions;
 
   actor_class->paint = meta_window_actor_x11_paint;
   actor_class->get_paint_volume = meta_window_actor_x11_get_paint_volume;

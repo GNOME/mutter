@@ -251,6 +251,12 @@ meta_window_actor_is_frozen (MetaWindowActor *self)
   return priv->surface == NULL || priv->freeze_count > 0;
 }
 
+void
+meta_window_actor_update_regions (MetaWindowActor *self)
+{
+  META_WINDOW_ACTOR_GET_CLASS (self)->update_regions (self);
+}
+
 static void
 meta_window_actor_set_frozen (MetaWindowActor *self,
                               gboolean         frozen)
