@@ -18,13 +18,17 @@ struct _MetaCompositorClass
 {
   GObjectClass parent_class;
 
-  void (* manage) (MetaCompositor *compositor);
+  gboolean (* manage) (MetaCompositor  *compositor,
+                       GError         **error);
   void (* unmanage) (MetaCompositor *compositor);
   void (* pre_paint) (MetaCompositor *compositor);
   void (* post_paint) (MetaCompositor *compositor);
   void (* remove_window) (MetaCompositor *compositor,
                           MetaWindow     *window);
 };
+
+gboolean meta_compositor_do_manage (MetaCompositor  *compositor,
+                                    GError         **error);
 
 void meta_compositor_remove_window_actor (MetaCompositor  *compositor,
                                           MetaWindowActor *window_actor);
