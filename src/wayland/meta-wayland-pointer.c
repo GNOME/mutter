@@ -621,7 +621,7 @@ repick_for_event (MetaWaylandPointer *pointer,
   if (for_event)
     actor = clutter_event_get_source (for_event);
   else
-    actor = clutter_input_device_get_pointer_actor (pointer->device);
+    actor = clutter_input_device_get_actor (pointer->device, NULL);
 
   if (META_IS_SURFACE_ACTOR_WAYLAND (actor))
     {
