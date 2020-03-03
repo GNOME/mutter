@@ -300,6 +300,7 @@ mutter_sources = [
   'compositor/meta-dnd.c',
   'compositor/meta-feedback-actor.c',
   'compositor/meta-feedback-actor-private.h',
+  'compositor/meta-later.c',
   'compositor/meta-module.c',
   'compositor/meta-module.h',
   'compositor/meta-plugin.c',
