@@ -552,7 +552,7 @@ clutter_stage_add_redraw_clip (ClutterStage          *stage,
 {
   GList *l;
 
-  for (l = _clutter_stage_peek_stage_views (stage); l; l = l->next)
+  for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
     {
       ClutterStageView *view = l->data;
 
@@ -1573,7 +1573,7 @@ is_full_stage_redraw_queued (ClutterStage *stage)
 {
   GList *l;
 
-  for (l = _clutter_stage_peek_stage_views (stage); l; l = l->next)
+  for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
     {
       ClutterStageView *view = l->data;
 
@@ -4402,8 +4402,11 @@ clutter_stage_thaw_updates (ClutterStage *stage)
     }
 }
 
+/**
+ * clutter_stage_peek_stage_views: (skip)
+ */
 GList *
-_clutter_stage_peek_stage_views (ClutterStage *stage)
+clutter_stage_peek_stage_views (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
 

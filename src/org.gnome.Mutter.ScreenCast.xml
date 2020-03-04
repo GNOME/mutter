@@ -111,6 +111,39 @@
       <arg name="properties" type="a{sv}" direction="in" />
       <arg name="stream_path" type="o" direction="out" />
     </method>
+
+    <!--
+	RecordArea:
+	@x: X position of the recorded area
+	@y: Y position of the recorded area
+	@width: width of the recorded area
+	@height: height of the recorded area
+	@properties: Properties
+	@stream_path: Path to the new stream object
+
+	Record an area of the stage. The coordinates are in stage coordinates.
+	The size of the stream does not necessarily match the size of the
+	recorded area, and will depend on DPI scale of the affected monitors.
+
+	Available @properties include:
+
+	* "cursor-mode" (u): Cursor mode. Default: 'hidden' (see below)
+	                     Available since API version 2.
+
+	Available cursor mode values:
+
+	0: hidden - cursor is not included in the stream
+	1: embedded - cursor is included in the framebuffer
+	2: metadata - cursor is included as metadata in the PipeWire stream
+    -->
+    <method name="RecordArea">
+      <arg name="x" type="i" direction="in" />
+      <arg name="y" type="i" direction="in" />
+      <arg name="width" type="i" direction="in" />
+      <arg name="height" type="i" direction="in" />
+      <arg name="properties" type="a{sv}" direction="in" />
+      <arg name="stream_path" type="o" direction="out" />
+    </method>
   </interface>
 
   <!--

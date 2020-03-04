@@ -27,6 +27,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-dbus-session-watcher.h"
 #include "backends/meta-remote-access-controller-private.h"
+#include "backends/meta-screen-cast-area-stream.h"
 #include "backends/meta-screen-cast-monitor-stream.h"
 #include "backends/meta-screen-cast-stream.h"
 #include "backends/meta-screen-cast-window-stream.h"
@@ -485,6 +486,90 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
   return TRUE;
 }
 
+static gboolean
+handle_record_area (MetaDBusScreenCastSession *skeleton,
+                    GDBusMethodInvocation     *invocation,
+                    int                        x,
+                    int                        y,
+                    int                        width,
+                    int                        height,
+                    GVariant                  *properties_variant)
+{
+  MetaScreenCastSession *session = META_SCREEN_CAST_SESSION (skeleton);
+  GDBusInterfaceSkeleton *interface_skeleton;
+  GDBusConnection *connection;
+  MetaBackend *backend;
+  ClutterStage *stage;
+  MetaScreenCastCursorMode cursor_mode;
+  g_autoptr (GError) error = NULL;
+  MetaRectangle rect;
+  MetaScreenCastAreaStream *area_stream;
+  MetaScreenCastStream *stream;
+  char *stream_path;
+
+  if (!check_permission (session, invocation))
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_ACCESS_DENIED,
+                                             "Permission denied");
+      return TRUE;
+    }
+
+  if (!g_variant_lookup (properties_variant, "cursor-mode", "u", &cursor_mode))
+    {
+      cursor_mode = META_SCREEN_CAST_CURSOR_MODE_HIDDEN;
+    }
+  else
+    {
+      if (!is_valid_cursor_mode (cursor_mode))
+        {
+          g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                                 G_DBUS_ERROR_FAILED,
+                                                 "Unknown cursor mode");
+          return TRUE;
+        }
+    }
+
+  interface_skeleton = G_DBUS_INTERFACE_SKELETON (skeleton);
+  connection = g_dbus_interface_skeleton_get_connection (interface_skeleton);
+  backend = meta_screen_cast_get_backend (session->screen_cast);
+  stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
+
+  rect = (MetaRectangle) {
+    .x = x,
+    .y = y,
+    .width = width,
+    .height = height
+  };
+  area_stream = meta_screen_cast_area_stream_new (session,
+                                                  connection,
+                                                  &rect,
+                                                  stage,
+                                                  cursor_mode,
+                                                  &error);
+  if (!area_stream)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Failed to record area: %s",
+                                             error->message);
+      return TRUE;
+    }
+
+  stream = META_SCREEN_CAST_STREAM (area_stream);
+  stream_path = meta_screen_cast_stream_get_object_path (stream);
+
+  session->streams = g_list_append (session->streams, stream);
+
+  g_signal_connect (stream, "closed", G_CALLBACK (on_stream_closed), session);
+
+  meta_dbus_screen_cast_session_complete_record_area (skeleton,
+                                                      invocation,
+                                                      stream_path);
+
+  return TRUE;
+}
+
 static void
 meta_screen_cast_session_init_iface (MetaDBusScreenCastSessionIface *iface)
 {
@@ -492,6 +577,7 @@ meta_screen_cast_session_init_iface (MetaDBusScreenCastSessionIface *iface)
   iface->handle_stop = handle_stop;
   iface->handle_record_monitor = handle_record_monitor;
   iface->handle_record_window = handle_record_window;
+  iface->handle_record_area = handle_record_area;
 }
 
 static void

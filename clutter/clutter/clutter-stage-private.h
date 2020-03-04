@@ -139,8 +139,6 @@ void            _clutter_stage_presented                (ClutterStage      *stag
                                                          CoglFrameEvent     frame_event,
                                                          ClutterFrameInfo  *frame_info);
 
-GList *         _clutter_stage_peek_stage_views         (ClutterStage *stage);
-
 void            clutter_stage_queue_actor_relayout      (ClutterStage *stage,
                                                          ClutterActor *actor);
 

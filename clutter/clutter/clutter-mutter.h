@@ -37,6 +37,9 @@
 #include "clutter/x11/clutter-backend-x11.h"
 
 CLUTTER_EXPORT
+GList * clutter_stage_peek_stage_views (ClutterStage *stage);
+
+CLUTTER_EXPORT
 void clutter_set_custom_backend_func (ClutterBackend *(* func) (void));
 
 CLUTTER_EXPORT
