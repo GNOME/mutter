@@ -3669,7 +3669,7 @@ msgid ""
 "type=\"%s\" style_set=\"whatever\"/> element"
 msgstr ""
 "Dim arddull ffrâm wedi ei osod ar gyfer y math ffenest \"%s\" yn y thema \"%s"
-"\", ychwanegwch elfen <window type=\"%s\" style_set\"beth bynnag\"/>"
+"\", ychwanegwch elfen <window type=\"%s\" style_set=\"beth bynnag\"/>"
 
 #: ../src/ui/theme.c:5207 ../src/ui/theme.c:5269 ../src/ui/theme.c:5332
 #, c-format
