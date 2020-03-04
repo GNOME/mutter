@@ -885,7 +885,6 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
   uint8_t *mask_data;
   unsigned int tex_width, tex_height;
   MetaShapedTexture *stex;
-  CoglTexture *paint_tex;
   CoglTexture2D *mask_texture;
   int stride;
   cairo_t *cr;
@@ -897,12 +896,8 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
 
   meta_shaped_texture_set_mask_texture (stex, NULL);
 
-  paint_tex = meta_shaped_texture_get_texture (stex);
-  if (paint_tex == NULL)
-    return;
-
-  tex_width = cogl_texture_get_width (paint_tex);
-  tex_height = cogl_texture_get_height (paint_tex);
+  tex_width = meta_shaped_texture_get_width (stex);
+  tex_height = meta_shaped_texture_get_height (stex);
 
   stride = cairo_format_stride_for_width (CAIRO_FORMAT_A8, tex_width);
 
