@@ -311,9 +311,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
         clutter_stage_view_cogl_get_instance_private (view_cogl);
       NotifyPresentedClosure *closure;
 
-      CLUTTER_NOTE (BACKEND, "cogl_framebuffer_finish (framebuffer: %p)",
+      CLUTTER_NOTE (BACKEND, "fake offscreen swap (framebuffer: %p)",
                     framebuffer);
-      cogl_framebuffer_finish (framebuffer);
 
       closure = g_new0 (NotifyPresentedClosure, 1);
       closure->view = view;
