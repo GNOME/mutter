@@ -430,18 +430,6 @@ swap_framebuffer (ClutterStageWindow *stage_window,
     }
 }
 
-static void
-scale_and_clamp_rect (const graphene_rect_t *rect,
-                      float                  scale,
-                      cairo_rectangle_int_t *dest)
-
-{
-  graphene_rect_t tmp = *rect;
-
-  graphene_rect_scale (&tmp, scale, scale, &tmp);
-  _clutter_util_rectangle_int_extents (&tmp, dest);
-}
-
 static cairo_region_t *
 offset_scale_and_clamp_region (const cairo_region_t *region,
                                int                   offset_x,
@@ -471,7 +459,8 @@ offset_scale_and_clamp_region (const cairo_region_t *region,
 
       _clutter_util_rect_from_rectangle (&rects[i], &tmp);
       graphene_rect_offset (&tmp, offset_x, offset_y);
-      scale_and_clamp_rect (&tmp, scale, &rects[i]);
+      graphene_rect_scale (&tmp, scale, scale, &tmp);
+      _clutter_util_rectangle_int_extents (&tmp, &rects[i]);
     }
 
   return cairo_region_create_rectangles (rects, n_rects);
