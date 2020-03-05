@@ -1458,14 +1458,20 @@ meta_backend_get_clutter_backend (MetaBackend *backend)
 }
 
 void
-meta_init_backend (GType backend_gtype)
+meta_init_backend (GType         backend_gtype,
+                   unsigned int  n_properties,
+                   const char   *names[],
+                   const GValue *values)
 {
   MetaBackend *backend;
   GError *error = NULL;
 
   /* meta_backend_init() above install the backend globally so
    * so meta_get_backend() works even during initialization. */
-  backend = g_object_new (backend_gtype, NULL);
+  backend = META_BACKEND (g_object_new_with_properties (backend_gtype,
+                                                        n_properties,
+                                                        names,
+                                                        values));
   if (!g_initable_init (G_INITABLE (backend), NULL, &error))
     {
       g_warning ("Failed to create backend: %s", error->message);

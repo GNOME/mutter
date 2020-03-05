@@ -65,6 +65,17 @@
 #include "backends/meta-screen-cast.h"
 #endif
 
+enum
+{
+  PROP_0,
+
+  PROP_HEADLESS,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 struct _MetaBackendNative
 {
   MetaBackend parent;
@@ -72,6 +83,8 @@ struct _MetaBackendNative
   MetaLauncher *launcher;
   MetaUdev *udev;
   MetaKms *kms;
+
+  gboolean is_headless;
 
   gulong udev_device_added_handler_id;
 };
@@ -521,6 +534,25 @@ meta_backend_native_initable_init (GInitable     *initable,
 }
 
 static void
+meta_backend_native_set_property (GObject      *object,
+                                  guint         prop_id,
+                                  const GValue *value,
+                                  GParamSpec   *pspec)
+{
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (object);
+
+  switch (prop_id)
+    {
+    case PROP_HEADLESS:
+      backend_native->is_headless = g_value_get_boolean (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 initable_iface_init (GInitableIface *initable_iface)
 {
   initable_parent_iface = g_type_interface_peek_parent (initable_iface);
@@ -534,6 +566,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   MetaBackendClass *backend_class = META_BACKEND_CLASS (klass);
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->set_property = meta_backend_native_set_property;
   object_class->dispose = meta_backend_native_dispose;
 
   backend_class->create_clutter_backend = meta_backend_native_create_clutter_backend;
@@ -554,6 +587,16 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->update_screen_size = meta_backend_native_update_screen_size;
 
   backend_class->set_pointer_constraint = meta_backend_native_set_pointer_constraint;
+
+  obj_props[PROP_HEADLESS] =
+    g_param_spec_boolean ("headless",
+                          "headless",
+                          "Headless",
+                          FALSE,
+                          G_PARAM_WRITABLE |
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 static void

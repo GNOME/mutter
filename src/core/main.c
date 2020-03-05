@@ -208,6 +208,7 @@ static char     *opt_wayland_display;
 #endif
 #ifdef HAVE_NATIVE_BACKEND
 static gboolean  opt_display_server;
+static gboolean  opt_headless;
 #endif
 static gboolean  opt_x11;
 
@@ -278,6 +279,11 @@ static GOptionEntry meta_options[] = {
     "display-server", 0, 0, G_OPTION_ARG_NONE,
     &opt_display_server,
     N_("Run as a full display server, rather than nested")
+  },
+  {
+    "headless", 0, 0, G_OPTION_ARG_NONE,
+    &opt_headless,
+    N_("Run as a headless display server")
   },
 #endif
   {
@@ -468,14 +474,21 @@ check_for_wayland_session_type (void)
  * Wayland compositor, then the X11 Compositing Manager backend is used.
  */
 static void
-calculate_compositor_configuration (MetaCompositorType *compositor_type,
-                                    GType              *backend_gtype)
+calculate_compositor_configuration (MetaCompositorType  *compositor_type,
+                                    GType               *backend_gtype,
+                                    unsigned int        *n_properties,
+                                    const char         **prop_names[],
+                                    GValue              *prop_values[])
 {
 #ifdef HAVE_WAYLAND
-  gboolean run_as_wayland_compositor = opt_wayland && !opt_x11;
+  gboolean run_as_wayland_compositor = ((opt_wayland ||
+                                         opt_display_server ||
+                                         opt_headless) &&
+                                        !opt_x11);
 
 #ifdef HAVE_NATIVE_BACKEND
-  if ((opt_wayland || opt_nested || opt_display_server) && opt_x11)
+  if ((opt_wayland || opt_nested || opt_display_server || opt_headless) &&
+      opt_x11)
 #else
   if ((opt_wayland || opt_nested) && opt_x11)
 #endif
@@ -485,7 +498,7 @@ calculate_compositor_configuration (MetaCompositorType *compositor_type,
     }
 
 #ifdef HAVE_NATIVE_BACKEND
-  if (opt_nested && opt_display_server)
+  if (opt_nested && (opt_display_server || opt_headless))
     {
       meta_warning ("Can't run both as nested and as a display server");
       meta_exit (META_EXIT_ERROR);
@@ -507,6 +520,10 @@ calculate_compositor_configuration (MetaCompositorType *compositor_type,
 #endif /* HAVE_WAYLAND */
     *compositor_type = META_COMPOSITOR_TYPE_X11;
 
+  *n_properties = 0;
+  *prop_names = NULL;
+  *prop_values = NULL;
+
 #ifdef HAVE_WAYLAND
   if (opt_nested)
     {
@@ -516,9 +533,25 @@ calculate_compositor_configuration (MetaCompositorType *compositor_type,
 #endif /* HAVE_WAYLAND */
 
 #ifdef HAVE_NATIVE_BACKEND
-  if (opt_display_server)
+  if (opt_display_server || opt_headless)
     {
       *backend_gtype = META_TYPE_BACKEND_NATIVE;
+      if (opt_headless)
+        {
+          static const char *headless_prop_names[] = {
+            "headless",
+          };
+          static GValue headless_prop_values[] = {
+            G_VALUE_INIT,
+          };
+
+          g_value_init (&headless_prop_values[0], G_TYPE_BOOLEAN);
+          g_value_set_boolean (&headless_prop_values[0], TRUE);
+
+          *n_properties = G_N_ELEMENTS (headless_prop_values);
+          *prop_names = headless_prop_names;
+          *prop_values = headless_prop_values;
+        }
       return;
     }
 
@@ -572,6 +605,10 @@ meta_init (void)
   const char *debug_env;
   MetaCompositorType compositor_type;
   GType backend_gtype;
+  unsigned int n_properties;
+  const char **prop_names;
+  GValue *prop_values;
+  int i;
 
 #ifdef HAVE_SYS_PRCTL
   prctl (PR_SET_DUMPABLE, 1);
@@ -610,10 +647,17 @@ meta_init (void)
     {
       compositor_type = _compositor_type_override;
       backend_gtype = _backend_gtype_override;
+      n_properties = 0;
+      prop_names = NULL;
+      prop_values = NULL;
     }
   else
     {
-      calculate_compositor_configuration (&compositor_type, &backend_gtype);
+      calculate_compositor_configuration (&compositor_type,
+                                          &backend_gtype,
+                                          &n_properties,
+                                          &prop_names,
+                                          &prop_values);
     }
 
 #ifdef HAVE_WAYLAND
@@ -644,7 +688,10 @@ meta_init (void)
   if (!meta_is_wayland_compositor ())
     meta_select_display (opt_display_name);
 
-  meta_init_backend (backend_gtype);
+  meta_init_backend (backend_gtype, n_properties, prop_names, prop_values);
+
+  for (i = 0; i < n_properties; i++)
+    g_value_reset (&prop_values[i]);
 
   meta_set_syncing (opt_sync || (g_getenv ("MUTTER_SYNC") != NULL));
 

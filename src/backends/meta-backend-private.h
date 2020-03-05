@@ -104,7 +104,10 @@ struct _MetaBackendClass
                                    MetaPointerConstraint *constraint);
 };
 
-void meta_init_backend (GType backend_gtype);
+void meta_init_backend (GType         backend_gtype,
+                        unsigned int  n_properties,
+                        const char   *names[],
+                        const GValue *values);
 void meta_release_backend (void);
 
 #ifdef HAVE_WAYLAND
