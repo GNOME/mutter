@@ -101,14 +101,11 @@ meta_input_device_x11_finalize (GObject *object)
 #ifdef HAVE_LIBWACOM
   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (object);
 
-  if (device_xi2->wacom_device)
-    libwacom_destroy (device_xi2->wacom_device);
-
   if (device_xi2->group_modes)
     g_array_unref (device_xi2->group_modes);
+#endif
 
   g_clear_handle_id (&device_xi2->inhibit_pointer_query_timer, g_source_remove);
-#endif
 
   G_OBJECT_CLASS (meta_input_device_x11_parent_class)->finalize (object);
 }
@@ -118,23 +115,25 @@ meta_input_device_x11_get_group_n_modes (ClutterInputDevice *device,
                                          int                 group)
 {
 #ifdef HAVE_LIBWACOM
-  MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (device);
+  WacomDevice *wacom_device;
 
-  if (device_xi2->wacom_device)
+  wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
+
+  if (wacom_device)
     {
       if (group == 0)
         {
-          if (libwacom_has_ring (device_xi2->wacom_device))
-            return libwacom_get_ring_num_modes (device_xi2->wacom_device);
-          else if (libwacom_get_num_strips (device_xi2->wacom_device) >= 1)
-            return libwacom_get_strips_num_modes (device_xi2->wacom_device);
+          if (libwacom_has_ring (wacom_device))
+            return libwacom_get_ring_num_modes (wacom_device);
+          else if (libwacom_get_num_strips (wacom_device) >= 1)
+            return libwacom_get_strips_num_modes (wacom_device);
         }
       else if (group == 1)
         {
-          if (libwacom_has_ring2 (device_xi2->wacom_device))
-            return libwacom_get_ring2_num_modes (device_xi2->wacom_device);
-          else if (libwacom_get_num_strips (device_xi2->wacom_device) >= 2)
-            return libwacom_get_strips_num_modes (device_xi2->wacom_device);
+          if (libwacom_has_ring2 (wacom_device))
+            return libwacom_get_ring2_num_modes (wacom_device);
+          else if (libwacom_get_num_strips (wacom_device) >= 2)
+            return libwacom_get_strips_num_modes (wacom_device);
         }
     }
 #endif
@@ -147,17 +146,18 @@ static int
 meta_input_device_x11_get_button_group (ClutterInputDevice *device,
                                         uint32_t            button)
 {
-  MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (device);
+  WacomDevice *wacom_device;
 
-  if (device_xi2->wacom_device)
+  wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
+
+  if (wacom_device)
     {
       WacomButtonFlags flags;
 
-      if (button >= libwacom_get_num_buttons (device_xi2->wacom_device))
+      if (button >= libwacom_get_num_buttons (wacom_device))
         return -1;
 
-      flags = libwacom_get_button_flag (device_xi2->wacom_device,
-                                        'A' + button);
+      flags = libwacom_get_button_flag (wacom_device, 'A' + button);
 
       if (flags &
           (WACOM_BUTTON_RING_MODESWITCH |
@@ -369,18 +369,6 @@ meta_input_device_x11_get_pointer_location (ClutterInputDevice *device,
 }
 
 #ifdef HAVE_LIBWACOM
-void
-meta_input_device_x11_ensure_wacom_info (ClutterInputDevice  *device,
-                                         WacomDeviceDatabase *wacom_db)
-{
-  MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (device);
-  const gchar *node_path;
-
-  node_path = clutter_input_device_get_device_node (device);
-  device_xi2->wacom_device = libwacom_new_from_path (wacom_db, node_path,
-                                                     WFALLBACK_NONE, NULL);
-}
-
 uint32_t
 meta_input_device_x11_get_pad_group_mode (ClutterInputDevice *device,
                                           uint32_t            group)

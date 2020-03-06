@@ -54,10 +54,6 @@ struct _MetaSeatX11
   int pointer_id;
   int keyboard_id;
   int opcode;
-
-#ifdef HAVE_LIBWACOM
-  WacomDeviceDatabase *wacom_db;
-#endif
 };
 
 static GParamSpec *props[N_PROPS] = { 0 };
@@ -556,11 +552,6 @@ create_device (MetaSeatX11    *seat_x11,
   translate_device_classes (clutter_x11_get_default_display (), retval,
                             info->classes,
                             info->num_classes);
-
-#ifdef HAVE_LIBWACOM
-  if (source == CLUTTER_PAD_DEVICE)
-    meta_input_device_x11_ensure_wacom_info (retval, seat_x11->wacom_db);
-#endif
 
   g_free (vendor_id);
   g_free (product_id);
@@ -1410,10 +1401,6 @@ meta_seat_x11_finalize (GObject *object)
   g_hash_table_unref (seat_x11->tools_by_serial);
   g_list_free (seat_x11->devices);
 
-#ifdef HAVE_LIBWACOM
-  libwacom_database_destroy (seat_x11->wacom_db);
-#endif
-
   G_OBJECT_CLASS (meta_seat_x11_parent_class)->finalize (object);
 }
 
@@ -1570,10 +1557,6 @@ meta_seat_x11_init (MetaSeatX11 *seat)
                                                (GDestroyNotify) g_object_unref);
   seat->tools_by_serial = g_hash_table_new_full (NULL, NULL, NULL,
                                                  (GDestroyNotify) g_object_unref);
-
-#ifdef HAVE_LIBWACOM
-  seat->wacom_db = libwacom_database_new ();
-#endif
 }
 
 MetaSeatX11 *
