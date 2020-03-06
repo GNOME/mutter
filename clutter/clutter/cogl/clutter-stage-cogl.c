@@ -575,7 +575,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
   cairo_rectangle_int_t view_rect;
   gboolean is_full_redraw;
-  gboolean may_use_clipped_redraw;
   gboolean use_clipped_redraw;
   gboolean can_blit_sub_buffer;
   gboolean has_buffer_age;
@@ -611,7 +610,21 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   else
     is_full_redraw = FALSE;
 
-  may_use_clipped_redraw =
+  if (has_buffer_age)
+    {
+      buffer_age = cogl_onscreen_get_buffer_age (COGL_ONSCREEN (fb));
+      if (!valid_buffer_age (view_cogl, buffer_age))
+        {
+          CLUTTER_NOTE (CLIPPING,
+                        "Invalid back buffer(age=%d): forcing full redraw\n",
+                        buffer_age);
+          use_clipped_redraw = FALSE;
+        }
+    }
+
+  use_clipped_redraw =
+    use_clipped_redraw &&
+    !(clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS) &&
     _clutter_stage_window_can_clip_redraws (stage_window) &&
     (can_blit_sub_buffer || has_buffer_age) &&
     !is_full_redraw &&
@@ -619,17 +632,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
      * frames when starting up... */
     cogl_onscreen_get_frame_counter (COGL_ONSCREEN (fb)) > 3;
 
-  if (has_buffer_age)
-    {
-      buffer_age = cogl_onscreen_get_buffer_age (COGL_ONSCREEN (fb));
-      if (!valid_buffer_age (view_cogl, buffer_age))
-        {
-          CLUTTER_NOTE (CLIPPING, "Invalid back buffer(age=%d): forcing full redraw\n", buffer_age);
-          may_use_clipped_redraw = FALSE;
-        }
-    }
-
-  if (may_use_clipped_redraw)
+  if (use_clipped_redraw)
     {
       fb_clip_region = offset_scale_and_clamp_region (redraw_clip,
                                                       -view_rect.x,
@@ -650,13 +653,8 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
       redraw_clip = cairo_region_create_rectangle (&view_rect);
     }
 
-  if (may_use_clipped_redraw &&
-      G_LIKELY (!(clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)))
-    use_clipped_redraw = TRUE;
-  else
-    use_clipped_redraw = FALSE;
-
-  clip_region_empty = may_use_clipped_redraw && cairo_region_is_empty (fb_clip_region);
+  clip_region_empty = (use_clipped_redraw &&
+                       cairo_region_is_empty (fb_clip_region));
 
   swap_with_damage = FALSE;
   if (has_buffer_age)
