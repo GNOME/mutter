@@ -581,18 +581,14 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   gboolean has_buffer_age;
   gboolean do_swap_buffer;
   gboolean swap_with_damage;
-  ClutterActor *wrapper;
   cairo_region_t *redraw_clip;
   cairo_region_t *queued_redraw_clip = NULL;
   cairo_region_t *fb_clip_region;
   cairo_region_t *swap_region;
-  cairo_rectangle_int_t redraw_rect;
   gboolean clip_region_empty;
   float fb_scale;
   int fb_width, fb_height;
   int buffer_age;
-
-  wrapper = CLUTTER_ACTOR (stage_cogl->wrapper);
 
   clutter_stage_view_get_layout (view, &view_rect);
   fb_scale = clutter_stage_view_get_scale (view);
@@ -736,47 +732,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
       CLUTTER_NOTE (CLIPPING, "Unclipped stage paint\n");
 
       paint_stage (stage_cogl, view, redraw_clip);
-    }
-
-  cairo_region_get_extents (redraw_clip, &redraw_rect);
-
-  if (may_use_clipped_redraw &&
-      G_UNLIKELY ((clutter_paint_debug_flags & CLUTTER_DEBUG_REDRAWS)))
-    {
-      CoglContext *ctx = cogl_framebuffer_get_context (fb);
-      static CoglPipeline *outline = NULL;
-      ClutterActor *actor = CLUTTER_ACTOR (wrapper);
-      float x_1 = redraw_rect.x;
-      float x_2 = redraw_rect.x + redraw_rect.width;
-      float y_1 = redraw_rect.y;
-      float y_2 = redraw_rect.y + redraw_rect.height;
-      CoglVertexP2 quad[4] = {
-        { x_1, y_1 },
-        { x_2, y_1 },
-        { x_2, y_2 },
-        { x_1, y_2 }
-      };
-      CoglPrimitive *prim;
-      CoglMatrix modelview;
-
-      if (outline == NULL)
-        {
-          outline = cogl_pipeline_new (ctx);
-          cogl_pipeline_set_color4ub (outline, 0xff, 0x00, 0x00, 0xff);
-        }
-
-      prim = cogl_primitive_new_p2 (ctx,
-                                    COGL_VERTICES_MODE_LINE_LOOP,
-                                    4, /* n_vertices */
-                                    quad);
-
-      cogl_framebuffer_push_matrix (fb);
-      cogl_matrix_init_identity (&modelview);
-      _clutter_actor_apply_modelview_transform (actor, &modelview);
-      cogl_framebuffer_set_modelview_matrix (fb, &modelview);
-      cogl_framebuffer_draw_primitive (fb, outline, prim);
-      cogl_framebuffer_pop_matrix (fb);
-      cogl_object_unref (prim);
     }
 
   /* XXX: It seems there will be a race here in that the stage
