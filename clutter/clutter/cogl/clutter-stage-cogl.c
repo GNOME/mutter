@@ -496,17 +496,6 @@ fill_current_damage_history (ClutterStageView *view,
   view_priv->damage_index++;
 }
 
-static void
-fill_current_damage_history_rectangle (ClutterStageView            *view,
-                                       const cairo_rectangle_int_t *rect)
-{
-  cairo_region_t *damage;
-
-  damage = cairo_region_create_rectangle (rect);
-  fill_current_damage_history (view, damage);
-  cairo_region_destroy (damage);
-}
-
 static cairo_region_t *
 transform_swap_region_to_onscreen (ClutterStageView *view,
                                    cairo_region_t   *swap_region)
@@ -657,13 +646,13 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   swap_with_damage = FALSE;
   if (has_buffer_age)
     {
+      fill_current_damage_history (view, fb_clip_region);
+
       if (use_clipped_redraw)
         {
           cairo_region_t *fb_damage;
           cairo_region_t *view_damage;
           int i;
-
-          fill_current_damage_history (view, fb_clip_region);
 
           fb_damage = cairo_region_create ();
 
@@ -696,18 +685,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                         cairo_region_num_rectangles (fb_clip_region));
 
           swap_with_damage = TRUE;
-        }
-      else if (!use_clipped_redraw)
-        {
-          cairo_rectangle_int_t fb_damage;
-
-          fb_damage = (cairo_rectangle_int_t) {
-            .x = 0,
-            .y = 0,
-            .width = ceilf (view_rect.width * fb_scale),
-            .height = ceilf (view_rect.height * fb_scale)
-          };
-          fill_current_damage_history_rectangle (view, &fb_damage);
         }
     }
 
