@@ -725,29 +725,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     }
   else if (use_clipped_redraw)
     {
-      cairo_rectangle_int_t clip_rect;
-
-      if (cairo_region_num_rectangles (fb_clip_region) == 1)
-        {
-          cairo_region_get_extents (fb_clip_region, &clip_rect);
-
-          CLUTTER_NOTE (CLIPPING,
-                        "Stage clip pushed: x=%d, y=%d, width=%d, height=%d\n",
-                        clip_rect.x,
-                        clip_rect.y,
-                        clip_rect.width,
-                        clip_rect.height);
-
-          cogl_framebuffer_push_scissor_clip (fb,
-                                              clip_rect.x,
-                                              clip_rect.y,
-                                              clip_rect.width,
-                                              clip_rect.height);
-        }
-      else
-        {
-          cogl_framebuffer_push_region_clip (fb, fb_clip_region);
-        }
+      cogl_framebuffer_push_region_clip (fb, fb_clip_region);
 
       paint_stage (stage_cogl, view, redraw_clip);
 
