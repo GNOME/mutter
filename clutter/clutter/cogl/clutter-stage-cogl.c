@@ -672,7 +672,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                                                        0, 0,
                                                        1.0f / fb_scale);
           cairo_region_translate (view_damage, view_rect.x, view_rect.y);
-          cairo_region_intersect_rectangle (view_damage, &view_rect);
 
           /* Update the redraw clip region with the extra damage. */
           cairo_region_union (redraw_clip, view_damage);
