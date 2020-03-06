@@ -25,6 +25,7 @@
 #include "clutter/clutter.h"
 #include "cogl/cogl.h"
 #include "meta/prefs.h"
+#include "meta/util.h"
 
 struct _MetaCursorSpriteXcursor
 {
@@ -124,6 +125,7 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
   CoglContext *cogl_context;
   CoglTexture2D *texture;
   GError *error = NULL;
+  int hotspot_x, hotspot_y;
 
   g_assert (!meta_cursor_sprite_get_cogl_texture (sprite));
 
@@ -152,9 +154,21 @@ load_from_current_xcursor_image (MetaCursorSpriteXcursor *sprite_xcursor)
       g_error_free (error);
     }
 
+  if (meta_is_wayland_compositor ())
+    {
+      hotspot_x = ((int) (xc_image->xhot / sprite_xcursor->theme_scale) *
+                   sprite_xcursor->theme_scale);
+      hotspot_y = ((int) (xc_image->yhot / sprite_xcursor->theme_scale) *
+                   sprite_xcursor->theme_scale);
+    }
+  else
+    {
+      hotspot_x = xc_image->xhot;
+      hotspot_y = xc_image->yhot;
+    }
   meta_cursor_sprite_set_texture (sprite,
                                   COGL_TEXTURE (texture),
-                                  xc_image->xhot, xc_image->yhot);
+                                  hotspot_x, hotspot_y);
 
   g_clear_pointer (&texture, cogl_object_unref);
 }
@@ -272,6 +286,7 @@ meta_cursor_sprite_xcursor_finalize (GObject *object)
 static void
 meta_cursor_sprite_xcursor_init (MetaCursorSpriteXcursor *sprite_xcursor)
 {
+  sprite_xcursor->theme_scale = 1;
   sprite_xcursor->theme_dirty = TRUE;
 }
 
