@@ -403,14 +403,10 @@ static gboolean
 swap_framebuffer (ClutterStageWindow *stage_window,
                   ClutterStageView   *view,
                   cairo_region_t     *swap_region,
-                  gboolean            swap_with_damage,
-                  cairo_region_t     *queued_redraw_clip)
+                  gboolean            swap_with_damage)
 {
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
   int *damage, n_rects, i;
-
-  if (G_UNLIKELY ((clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION)))
-    paint_damage_region (stage_window, view, swap_region, queued_redraw_clip);
 
   n_rects = cairo_region_num_rectangles (swap_region);
   damage = g_newa (int, n_rects * 4);
@@ -648,7 +644,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   gboolean swap_with_damage;
   ClutterActor *wrapper;
   cairo_region_t *redraw_clip;
-  cairo_region_t *queued_redraw_clip;
+  cairo_region_t *queued_redraw_clip = NULL;
   cairo_region_t *fb_clip_region;
   cairo_region_t *swap_region;
   cairo_rectangle_int_t redraw_rect;
@@ -672,6 +668,8 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   has_buffer_age = cogl_is_onscreen (fb) && is_buffer_age_enabled ();
 
   redraw_clip = clutter_stage_view_take_redraw_clip (view);
+  if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
+    queued_redraw_clip = cairo_region_copy (redraw_clip);
 
   /* NB: a NULL redraw clip == full stage redraw */
   if (!redraw_clip)
@@ -738,8 +736,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
       g_clear_pointer (&redraw_clip, cairo_region_destroy);
       redraw_clip = cairo_region_create_rectangle (&view_rect);
     }
-
-  queued_redraw_clip = cairo_region_copy (redraw_clip);
 
   if (may_use_clipped_redraw &&
       G_LIKELY (!(clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS)))
@@ -950,7 +946,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     }
 
   g_clear_pointer (&redraw_clip, cairo_region_destroy);
-  g_clear_pointer (&queued_redraw_clip, cairo_region_destroy);
   g_clear_pointer (&fb_clip_region, cairo_region_destroy);
 
   if (do_swap_buffer)
@@ -971,11 +966,17 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
           swap_region = transformed_swap_region;
         }
 
+      if (queued_redraw_clip)
+        {
+          paint_damage_region (stage_window, view,
+                               swap_region, queued_redraw_clip);
+          cairo_region_destroy (queued_redraw_clip);
+        }
+
       res = swap_framebuffer (stage_window,
                               view,
                               swap_region,
-                              swap_with_damage,
-                              queued_redraw_clip);
+                              swap_with_damage);
 
       cairo_region_destroy (swap_region);
 
@@ -983,6 +984,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     }
   else
     {
+      g_clear_pointer (&queued_redraw_clip, cairo_region_destroy);
       return FALSE;
     }
 }
