@@ -807,36 +807,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     {
       CLUTTER_NOTE (CLIPPING, "Unclipped stage paint\n");
 
-      /* If we are trying to debug redraw issues then we want to pass
-       * the redraw_clip so it can be visualized */
-      if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_DISABLE_CLIPPED_REDRAWS) &&
-          may_use_clipped_redraw &&
-          !clip_region_empty)
-        {
-          cairo_rectangle_int_t clip_rect;
-          cairo_rectangle_int_t scissor_rect;
-
-          cairo_region_get_extents (fb_clip_region, &clip_rect);
-
-          calculate_scissor_region (&clip_rect,
-                                    subpixel_compensation,
-                                    fb_width, fb_height,
-                                    &scissor_rect);
-
-          cogl_framebuffer_push_scissor_clip (fb,
-                                              scissor_rect.x,
-                                              scissor_rect.y,
-                                              scissor_rect.width,
-                                              scissor_rect.height);
-
-          paint_stage (stage_cogl, view, redraw_clip);
-
-          cogl_framebuffer_pop_clip (fb);
-        }
-      else
-        {
-          paint_stage (stage_cogl, view, redraw_clip);
-        }
+      paint_stage (stage_cogl, view, redraw_clip);
     }
 
   cairo_region_get_extents (redraw_clip, &redraw_rect);
