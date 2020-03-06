@@ -134,6 +134,10 @@ struct _MetaBackendPrivate
   MetaProfiler *profiler;
 #endif
 
+#ifdef HAVE_LIBWACOM
+  WacomDeviceDatabase *wacom_db;
+#endif
+
   ClutterBackend *clutter_backend;
   ClutterActor *stage;
 
@@ -197,6 +201,10 @@ meta_backend_finalize (GObject *object)
   g_clear_object (&priv->screen_cast);
   g_clear_object (&priv->dbus_session_watcher);
   g_clear_object (&priv->remote_access_controller);
+#endif
+
+#ifdef HAVE_LIBWACOM
+  g_clear_pointer (&priv->wacom_db, libwacom_database_destroy);
 #endif
 
   if (priv->sleep_signal_id)
@@ -714,6 +722,15 @@ meta_backend_constructed (GObject *object)
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
   MetaBackendClass *backend_class =
    META_BACKEND_GET_CLASS (backend);
+
+#ifdef HAVE_LIBWACOM
+  priv->wacom_db = libwacom_database_new ();
+  if (!priv->wacom_db)
+    {
+      g_warning ("Could not create database of Wacom devices, "
+                 "expect tablets to misbehave");
+    }
+#endif
 
   if (backend_class->is_lid_closed != meta_backend_real_is_lid_closed)
     return;
@@ -1442,3 +1459,13 @@ meta_backend_get_gpus (MetaBackend *backend)
 
   return priv->gpus;
 }
+
+#ifdef HAVE_LIBWACOM
+WacomDeviceDatabase *
+meta_backend_get_wacom_database (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->wacom_db;
+}
+#endif

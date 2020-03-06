@@ -190,6 +190,7 @@ mutter_sources = [
   'backends/meta-idle-monitor-dbus.c',
   'backends/meta-idle-monitor-dbus.h',
   'backends/meta-idle-monitor-private.h',
+  'backends/meta-input-device.c',
   'backends/meta-input-mapper.c',
   'backends/meta-input-mapper-private.h',
   'backends/meta-input-settings.c',

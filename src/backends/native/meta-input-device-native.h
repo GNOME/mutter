@@ -28,6 +28,7 @@
 
 #include <glib-object.h>
 
+#include "backends/meta-input-device-private.h"
 #include "backends/native/meta-seat-native.h"
 #include "clutter/clutter-mutter.h"
 

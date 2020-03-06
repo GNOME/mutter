@@ -52,7 +52,7 @@ struct _MetaInputDeviceX11Class
 
 G_DEFINE_TYPE (MetaInputDeviceX11,
                meta_input_device_x11,
-               CLUTTER_TYPE_INPUT_DEVICE)
+               META_TYPE_INPUT_DEVICE)
 
 static void
 meta_input_device_x11_constructed (GObject *object)

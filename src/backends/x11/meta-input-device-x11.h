@@ -26,6 +26,7 @@
 #include <libwacom/libwacom.h>
 #endif
 
+#include "backends/meta-input-device-private.h"
 #include "clutter/clutter.h"
 
 G_BEGIN_DECLS

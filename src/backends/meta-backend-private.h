@@ -182,4 +182,8 @@ void meta_backend_add_gpu (MetaBackend *backend,
 META_EXPORT_TEST
 GList * meta_backend_get_gpus (MetaBackend *backend);
 
+#ifdef HAVE_LIBWACOM
+WacomDeviceDatabase * meta_backend_get_wacom_database (MetaBackend *backend);
+#endif
+
 #endif /* META_BACKEND_PRIVATE_H */

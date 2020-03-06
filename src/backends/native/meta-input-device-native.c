@@ -31,7 +31,7 @@
 
 G_DEFINE_TYPE (MetaInputDeviceNative,
                meta_input_device_native,
-               CLUTTER_TYPE_INPUT_DEVICE)
+               META_TYPE_INPUT_DEVICE)
 
 enum
 {
