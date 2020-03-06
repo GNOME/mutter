@@ -578,16 +578,15 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   gboolean use_clipped_redraw;
   gboolean can_blit_sub_buffer;
   gboolean has_buffer_age;
-  gboolean do_swap_buffer;
   gboolean swap_with_damage;
   cairo_region_t *redraw_clip;
   cairo_region_t *queued_redraw_clip = NULL;
   cairo_region_t *fb_clip_region;
   cairo_region_t *swap_region;
-  gboolean clip_region_empty;
   float fb_scale;
   int fb_width, fb_height;
   int buffer_age;
+  gboolean res;
 
   clutter_stage_view_get_layout (view, &view_rect);
   fb_scale = clutter_stage_view_get_scale (view);
@@ -653,13 +652,12 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
       redraw_clip = cairo_region_create_rectangle (&view_rect);
     }
 
-  clip_region_empty = (use_clipped_redraw &&
-                       cairo_region_is_empty (fb_clip_region));
+  g_return_val_if_fail (!cairo_region_is_empty (fb_clip_region), FALSE);
 
   swap_with_damage = FALSE;
   if (has_buffer_age)
     {
-      if (use_clipped_redraw && !clip_region_empty)
+      if (use_clipped_redraw)
         {
           cairo_region_t *fb_damage;
           cairo_region_t *view_damage;
@@ -713,11 +711,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
         }
     }
 
-  if (use_clipped_redraw && clip_region_empty)
-    {
-      CLUTTER_NOTE (CLIPPING, "Empty stage output paint\n");
-    }
-  else if (use_clipped_redraw)
+  if (use_clipped_redraw)
     {
       cogl_framebuffer_push_region_clip (fb, fb_clip_region);
 
@@ -741,65 +735,42 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
    * artefacts.
    */
   if (use_clipped_redraw)
-    {
-      if (clip_region_empty)
-        {
-          do_swap_buffer = FALSE;
-        }
-      else
-        {
-          swap_region = cairo_region_copy (fb_clip_region);
-          do_swap_buffer = TRUE;
-        }
-    }
+    swap_region = cairo_region_copy (fb_clip_region);
   else
-    {
-      swap_region = cairo_region_create ();
-      do_swap_buffer = TRUE;
-    }
+    swap_region = cairo_region_create ();
 
   g_clear_pointer (&redraw_clip, cairo_region_destroy);
   g_clear_pointer (&fb_clip_region, cairo_region_destroy);
 
-  if (do_swap_buffer)
+  COGL_TRACE_BEGIN_SCOPED (ClutterStageCoglRedrawViewSwapFramebuffer,
+                           "Paint (swap framebuffer)");
+
+  if (clutter_stage_view_get_onscreen (view) !=
+      clutter_stage_view_get_framebuffer (view))
     {
-      gboolean res;
+      cairo_region_t *transformed_swap_region;
 
-      COGL_TRACE_BEGIN_SCOPED (ClutterStageCoglRedrawViewSwapFramebuffer,
-                               "Paint (swap framebuffer)");
-
-      if (clutter_stage_view_get_onscreen (view) !=
-          clutter_stage_view_get_framebuffer (view))
-        {
-          cairo_region_t *transformed_swap_region;
-
-          transformed_swap_region =
-            transform_swap_region_to_onscreen (view, swap_region);
-          cairo_region_destroy (swap_region);
-          swap_region = transformed_swap_region;
-        }
-
-      if (queued_redraw_clip)
-        {
-          paint_damage_region (stage_window, view,
-                               swap_region, queued_redraw_clip);
-          cairo_region_destroy (queued_redraw_clip);
-        }
-
-      res = swap_framebuffer (stage_window,
-                              view,
-                              swap_region,
-                              swap_with_damage);
-
+      transformed_swap_region =
+        transform_swap_region_to_onscreen (view, swap_region);
       cairo_region_destroy (swap_region);
+      swap_region = transformed_swap_region;
+    }
 
-      return res;
-    }
-  else
+  if (queued_redraw_clip)
     {
-      g_clear_pointer (&queued_redraw_clip, cairo_region_destroy);
-      return FALSE;
+      paint_damage_region (stage_window, view,
+                           swap_region, queued_redraw_clip);
+      cairo_region_destroy (queued_redraw_clip);
     }
+
+  res = swap_framebuffer (stage_window,
+                          view,
+                          swap_region,
+                          swap_with_damage);
+
+  cairo_region_destroy (swap_region);
+
+  return res;
 }
 
 static void
