@@ -555,28 +555,6 @@ transform_swap_region_to_onscreen (ClutterStageView *view,
   return transformed_region;
 }
 
-static void
-calculate_scissor_region (cairo_rectangle_int_t *fb_clip_region,
-                          int                    subpixel_compensation,
-                          int                    fb_width,
-                          int                    fb_height,
-                          cairo_rectangle_int_t *out_scissor_rect)
-{
-  *out_scissor_rect = *fb_clip_region;
-
-  if (subpixel_compensation == 0)
-    return;
-
-  if (fb_clip_region->x > 0)
-    out_scissor_rect->x += subpixel_compensation;
-  if (fb_clip_region->y > 0)
-    out_scissor_rect->y += subpixel_compensation;
-  if (fb_clip_region->x + fb_clip_region->width < fb_width)
-    out_scissor_rect->width -= 2 * subpixel_compensation;
-  if (fb_clip_region->y + fb_clip_region->height < fb_height)
-    out_scissor_rect->height -= 2 * subpixel_compensation;
-}
-
 static inline gboolean
 is_buffer_age_enabled (void)
 {
@@ -611,7 +589,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   cairo_rectangle_int_t redraw_rect;
   gboolean clip_region_empty;
   float fb_scale;
-  int subpixel_compensation = 0;
   int fb_width, fb_height;
   int buffer_age;
 
@@ -662,27 +639,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
                                                       -view_rect.x,
                                                       -view_rect.y,
                                                       fb_scale);
-
-      if (fb_scale != floorf (fb_scale))
-        {
-          int n_rects, i;
-          cairo_rectangle_int_t *rects;
-
-          subpixel_compensation = ceilf (fb_scale);
-
-          n_rects = cairo_region_num_rectangles (fb_clip_region);
-          rects = g_newa (cairo_rectangle_int_t, n_rects);
-          for (i = 0; i < n_rects; i++)
-            {
-              cairo_region_get_rectangle (fb_clip_region, i, &rects[i]);
-              rects[i].x -= subpixel_compensation;
-              rects[i].y -= subpixel_compensation;
-              rects[i].width += 2 * subpixel_compensation;
-              rects[i].height += 2 * subpixel_compensation;
-            }
-          cairo_region_destroy (fb_clip_region);
-          fb_clip_region = cairo_region_create_rectangles (rects, n_rects);
-        }
     }
   else
     {
@@ -770,29 +726,23 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   else if (use_clipped_redraw)
     {
       cairo_rectangle_int_t clip_rect;
-      cairo_rectangle_int_t scissor_rect;
 
       if (cairo_region_num_rectangles (fb_clip_region) == 1)
         {
           cairo_region_get_extents (fb_clip_region, &clip_rect);
 
-          calculate_scissor_region (&clip_rect,
-                                    subpixel_compensation,
-                                    fb_width, fb_height,
-                                    &scissor_rect);
-
           CLUTTER_NOTE (CLIPPING,
                         "Stage clip pushed: x=%d, y=%d, width=%d, height=%d\n",
-                        scissor_rect.x,
-                        scissor_rect.y,
-                        scissor_rect.width,
-                        scissor_rect.height);
+                        clip_rect.x,
+                        clip_rect.y,
+                        clip_rect.width,
+                        clip_rect.height);
 
           cogl_framebuffer_push_scissor_clip (fb,
-                                              scissor_rect.x,
-                                              scissor_rect.y,
-                                              scissor_rect.width,
-                                              scissor_rect.height);
+                                              clip_rect.x,
+                                              clip_rect.y,
+                                              clip_rect.width,
+                                              clip_rect.height);
         }
       else
         {
