@@ -150,11 +150,6 @@ gchar *                    meta_input_settings_get_pad_action_label      (MetaIn
                                                                           MetaPadActionType   action,
                                                                           guint               number);
 
-#ifdef HAVE_LIBWACOM
-WacomDevice * meta_input_settings_get_tablet_wacom_device (MetaInputSettings *settings,
-                                                           ClutterInputDevice *device);
-#endif
-
 void meta_input_settings_maybe_save_numlock_state    (MetaInputSettings *input_settings);
 void meta_input_settings_maybe_restore_numlock_state (MetaInputSettings *input_settings);
 

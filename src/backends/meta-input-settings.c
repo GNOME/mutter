@@ -31,6 +31,7 @@
 #include <string.h>
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-input-device-private.h"
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-input-mapper-private.h"
 #include "backends/meta-logical-monitor.h"
@@ -59,9 +60,6 @@ struct _DeviceMappingInfo
   ClutterInputDevice *device;
   GSettings *settings;
   gulong changed_id;
-#ifdef HAVE_LIBWACOM
-  WacomDevice *wacom_device;
-#endif
   guint *group_modes;
 };
 
@@ -84,10 +82,6 @@ struct _MetaInputSettingsPrivate
   GHashTable *current_tools;
 
   ClutterVirtualInputDevice *virtual_pad_keyboard;
-
-#ifdef HAVE_LIBWACOM
-  WacomDeviceDatabase *wacom_db;
-#endif
 
   GHashTable *two_finger_devices;
 
@@ -176,11 +170,6 @@ meta_input_settings_dispose (GObject *object)
     g_clear_signal_handler (&priv->monitors_changed_id, priv->monitor_manager);
 
   g_clear_object (&priv->monitor_manager);
-
-#ifdef HAVE_LIBWACOM
-  if (priv->wacom_db)
-    libwacom_database_destroy (priv->wacom_db);
-#endif
 
   g_clear_pointer (&priv->two_finger_devices, g_hash_table_destroy);
 
@@ -576,9 +565,8 @@ device_is_tablet_touchpad (MetaInputSettings  *input_settings,
   if (clutter_input_device_get_device_type (device) != CLUTTER_TOUCHPAD_DEVICE)
     return FALSE;
 
-  wacom_device =
-    meta_input_settings_get_tablet_wacom_device (input_settings,
-                                                 device);
+  wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
+
   if (wacom_device)
     {
       flags = libwacom_get_integration_flags (wacom_device);
@@ -953,8 +941,7 @@ meta_input_settings_delegate_on_mapper (MetaInputSettings  *input_settings,
       WacomIntegrationFlags flags = 0;
 
       wacom_device =
-        meta_input_settings_get_tablet_wacom_device (input_settings,
-                                                     device);
+        meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
 
       if (wacom_device)
         {
@@ -991,8 +978,8 @@ update_tablet_keep_aspect (MetaInputSettings  *input_settings,
   {
     WacomDevice *wacom_device;
 
-    wacom_device = meta_input_settings_get_tablet_wacom_device (input_settings,
-                                                                device);
+    wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
+
     /* Keep aspect only makes sense in external tablets */
     if (wacom_device &&
         libwacom_get_integration_flags (wacom_device) != WACOM_DEVICE_INTEGRATED_NONE)
@@ -1081,8 +1068,8 @@ update_tablet_mapping (MetaInputSettings  *input_settings,
   {
     WacomDevice *wacom_device;
 
-    wacom_device = meta_input_settings_get_tablet_wacom_device (input_settings,
-                                                                device);
+    wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
+
     /* Tablet mapping only makes sense on external tablets */
     if (wacom_device &&
         (libwacom_get_integration_flags (wacom_device) != WACOM_DEVICE_INTEGRATED_NONE))
@@ -1121,8 +1108,8 @@ update_tablet_area (MetaInputSettings  *input_settings,
   {
     WacomDevice *wacom_device;
 
-    wacom_device = meta_input_settings_get_tablet_wacom_device (input_settings,
-                                                                device);
+    wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
+
     /* Tablet area only makes sense on system/display integrated tablets */
     if (wacom_device &&
         (libwacom_get_integration_flags (wacom_device) &
@@ -1163,8 +1150,8 @@ update_tablet_left_handed (MetaInputSettings  *input_settings,
   {
     WacomDevice *wacom_device;
 
-    wacom_device = meta_input_settings_get_tablet_wacom_device (input_settings,
-                                                                device);
+    wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
+
     /* Left handed mode only makes sense on external tablets */
     if (wacom_device &&
         (libwacom_get_integration_flags (wacom_device) != WACOM_DEVICE_INTEGRATED_NONE))
@@ -1643,10 +1630,6 @@ input_mapper_device_mapped_cb (MetaInputMapper    *mapper,
 static void
 device_mapping_info_free (DeviceMappingInfo *info)
 {
-#ifdef HAVE_LIBWACOM
-  if (info->wacom_device)
-    libwacom_destroy (info->wacom_device);
-#endif
   g_clear_signal_handler (&info->changed_id, info->settings);
   g_object_unref (info->settings);
   g_free (info->group_modes);
@@ -1682,26 +1665,6 @@ check_add_mappable_device (MetaInputSettings  *input_settings,
   info->input_settings = input_settings;
   info->device = device;
   info->settings = settings;
-
-#ifdef HAVE_LIBWACOM
-  if (device_type == CLUTTER_TABLET_DEVICE ||
-      device_type == CLUTTER_PAD_DEVICE)
-    {
-      WacomError *error = libwacom_error_new ();
-
-      info->wacom_device = libwacom_new_from_path (priv->wacom_db,
-                                                   clutter_input_device_get_device_node (device),
-                                                   WFALLBACK_NONE, error);
-      if (!info->wacom_device)
-        {
-          g_warning ("Could not get tablet information for '%s': %s",
-                     clutter_input_device_get_device_name (device),
-                     libwacom_error_get_message (error));
-        }
-
-      libwacom_error_free (&error);
-    }
-#endif
 
   if (device_type == CLUTTER_PAD_DEVICE)
     {
@@ -2078,15 +2041,6 @@ meta_input_settings_init (MetaInputSettings *settings)
   g_signal_connect (priv->monitor_manager, "power-save-mode-changed",
                     G_CALLBACK (power_save_mode_changed_cb), settings);
 
-#ifdef HAVE_LIBWACOM
-  priv->wacom_db = libwacom_database_new ();
-  if (!priv->wacom_db)
-    {
-      g_warning ("Could not create database of Wacom devices, "
-                 "expect tablets to misbehave");
-    }
-#endif
-
   priv->two_finger_devices = g_hash_table_new (NULL, NULL);
 
   priv->input_mapper = meta_input_mapper_new ();
@@ -2171,25 +2125,6 @@ meta_input_settings_get_pad_button_action (MetaInputSettings   *input_settings,
   return action;
 }
 
-#ifdef HAVE_LIBWACOM
-WacomDevice *
-meta_input_settings_get_tablet_wacom_device (MetaInputSettings *settings,
-                                             ClutterInputDevice *device)
-{
-  MetaInputSettingsPrivate *priv;
-  DeviceMappingInfo *info;
-
-  g_return_val_if_fail (META_IS_INPUT_SETTINGS (settings), NULL);
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-
-  priv = meta_input_settings_get_instance_private (settings);
-  info = g_hash_table_lookup (priv->mappable_devices, device);
-  g_return_val_if_fail (info != NULL, NULL);
-
-  return info->wacom_device;
-}
-#endif /* HAVE_LIBWACOM */
-
 static gboolean
 cycle_logical_monitors (MetaInputSettings   *settings,
                         MetaLogicalMonitor  *current_logical_monitor,
@@ -2234,6 +2169,9 @@ meta_input_settings_cycle_tablet_output (MetaInputSettings  *input_settings,
   DeviceMappingInfo *info;
   MetaLogicalMonitor *logical_monitor = NULL;
   const gchar *edid[4] = { 0 }, *pretty_name = NULL;
+#ifdef HAVE_LIBWACOM
+  WacomDevice *wacom_device;
+#endif
 
   g_return_if_fail (META_IS_INPUT_SETTINGS (input_settings));
   g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
@@ -2245,13 +2183,15 @@ meta_input_settings_cycle_tablet_output (MetaInputSettings  *input_settings,
   g_return_if_fail (info != NULL);
 
 #ifdef HAVE_LIBWACOM
-  if (info->wacom_device)
+  wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
+
+  if (wacom_device)
     {
       /* Output rotation only makes sense on external tablets */
-      if (libwacom_get_integration_flags (info->wacom_device) != WACOM_DEVICE_INTEGRATED_NONE)
+      if (libwacom_get_integration_flags (wacom_device) != WACOM_DEVICE_INTEGRATED_NONE)
         return;
 
-      pretty_name = libwacom_get_name (info->wacom_device);
+      pretty_name = libwacom_get_name (wacom_device);
     }
 #endif
 
@@ -2393,13 +2333,18 @@ meta_input_settings_handle_pad_button (MetaInputSettings           *input_settin
       const gchar *pretty_name = NULL;
       MetaInputSettingsPrivate *priv;
       DeviceMappingInfo *info;
+#ifdef HAVE_LIBWACOM
+      WacomDevice *wacom_device;
+#endif
 
       priv = meta_input_settings_get_instance_private (input_settings);
       info = g_hash_table_lookup (priv->mappable_devices, pad);
 
 #ifdef HAVE_LIBWACOM
-      if (info && info->wacom_device)
-        pretty_name = libwacom_get_name (info->wacom_device);
+      wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (pad));
+
+      if (wacom_device)
+        pretty_name = libwacom_get_name (wacom_device);
 #endif
       meta_display_notify_pad_group_switch (meta_get_display (), pad,
                                             pretty_name, group, mode, n_modes);
