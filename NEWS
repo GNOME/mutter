@@ -1,3 +1,16 @@
+3.36.0
+======
+* Fix placement of popup windows in multi-monitor setups [Jonas; !1110]
+* Fix invisible mouse cursor on some hardware [Jonas; !1079]
+
+Contributors:
+  Jonas Ådahl
+
+Translators:
+  Aurimas Černius [lt], Goran Vidović [hr], Anders Jonsson [sv],
+  Guillaume Bernard [fr], Milo Casagrande [it], Daniel Korostil [uk],
+  Andre Klapper [cy], Aman Alam [pa], Nathan Follens [nl]
+
 3.35.92
 =======
 * Fix visibility of initially hidden windows [Jonas Å.; !1066]
