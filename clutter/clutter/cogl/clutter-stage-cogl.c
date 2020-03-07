@@ -291,7 +291,7 @@ paint_damage_region (ClutterStageWindow *stage_window,
                      cairo_region_t     *swap_region,
                      cairo_region_t     *queued_redraw_clip)
 {
-  CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
+  CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   static CoglPipeline *overlay_blue = NULL;
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
