@@ -10,8 +10,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-08-21 20:17+0000\n"
-"PO-Revision-Date: 2019-08-22 19:56+0200\n"
+"POT-Creation-Date: 2020-02-23 17:41+0000\n"
+"PO-Revision-Date: 2020-03-08 21:20+0100\n"
 "Last-Translator: Марко М. Костић <marko.m.kostic@gmail.com>\n"
 "Language-Team: српски <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=n==1? 3 : n%10==1 && n%100!=11 ? 0 : n"
 "%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Project-Style: gnome\n"
-"X-Generator: Poedit 2.2.3\n"
+"X-Generator: Poedit 2.3\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -423,19 +423,32 @@ msgstr "Тастер који се користи за проналажење п
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Овај тастер ће покренути „пронађи показивач“ радњу"
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "Timeout for check-alive ping"
+msgstr "Време истицања провере живахности"
+
+#: data/org.gnome.mutter.gschema.xml.in:143
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"Број милисекунди за које клијент мора одговорити на пинг захтев да се не би "
+"сматрао замрзнутим. Унос броја 0 ће онемогућити проверу живахности у "
+"потпуности."
+
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
 msgstr "Бира прозор из језичка искакања"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Cancel tab popup"
 msgstr "Отказивање језичка искакања"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:175
 msgid "Switch monitor configurations"
 msgstr "Мења подешавања монитора"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:180
 msgid "Rotates the built-in monitor configuration"
 msgstr "Заокреће уграђена подешавања монитора"
 
@@ -549,7 +562,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2531
+#: src/backends/meta-input-settings.c:2567
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Режим прекидача (група %d)"
@@ -557,11 +570,11 @@ msgstr "Режим прекидача (група %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2554
+#: src/backends/meta-input-settings.c:2590
 msgid "Switch monitor"
 msgstr "Промени монитор"
 
-#: src/backends/meta-input-settings.c:2556
+#: src/backends/meta-input-settings.c:2592
 msgid "Show on-screen help"
 msgstr "Прикажи помоћ на екрану"
 
@@ -593,13 +606,13 @@ msgid "%s %s"
 msgstr "%s %s"
 
 #. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:82
+#: src/backends/meta-profiler.c:79
 msgid "Compositor"
 msgstr "Састављач"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:505
+#: src/compositor/compositor.c:533
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -610,47 +623,47 @@ msgstr ""
 msgid "Bell event"
 msgstr "Звонца"
 
-#: src/core/main.c:185
+#: src/core/main.c:190
 msgid "Disable connection to session manager"
 msgstr "Искључује везу са управником сесије"
 
-#: src/core/main.c:191
+#: src/core/main.c:196
 msgid "Replace the running window manager"
 msgstr "Мења текућег управника прозорима"
 
-#: src/core/main.c:197
+#: src/core/main.c:202
 msgid "Specify session management ID"
 msgstr "Наводи ИБ управника сесије"
 
-#: src/core/main.c:202
+#: src/core/main.c:207
 msgid "X Display to use"
 msgstr "Икс екран који ће бити коришћен"
 
-#: src/core/main.c:208
+#: src/core/main.c:213
 msgid "Initialize session from savefile"
 msgstr "Покреће сесију из датотеке чувања"
 
-#: src/core/main.c:214
+#: src/core/main.c:219
 msgid "Make X calls synchronous"
 msgstr "Чини Икс позиве усклађеним"
 
-#: src/core/main.c:221
+#: src/core/main.c:226
 msgid "Run as a wayland compositor"
 msgstr "Ради као вејлендов композитор"
 
-#: src/core/main.c:227
+#: src/core/main.c:232
 msgid "Run as a nested compositor"
 msgstr "Ради као угнежђени композитор"
 
-#: src/core/main.c:233
+#: src/core/main.c:238
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Ради као вејлендов композитор без покретања Икс-вејленда"
 
-#: src/core/main.c:241
+#: src/core/main.c:246
 msgid "Run as a full display server, rather than nested"
 msgstr "Ради као пуни сервер приказа, уместо као угнеждени"
 
-#: src/core/main.c:247
+#: src/core/main.c:252
 msgid "Run with X11 backend"
 msgstr "Покрени на Икс11 позадинцу"
 
@@ -703,21 +716,21 @@ msgstr "Исписује издање"
 msgid "Mutter plugin to use"
 msgstr "Прикључци Матера за коришћење"
 
-#: src/core/prefs.c:1849
+#: src/core/prefs.c:1911
 #, c-format
 msgid "Workspace %d"
 msgstr "%d. радни простор"
 
-#: src/core/util.c:121
+#: src/core/util.c:122
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Матер је преведен без подршке за опширан режим\n"
 
-#: src/wayland/meta-wayland-tablet-pad.c:567
+#: src/wayland/meta-wayland-tablet-pad.c:568
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Режим прекидача: Режим %d"
 
-#: src/x11/meta-x11-display.c:678
+#: src/x11/meta-x11-display.c:676
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -726,21 +739,21 @@ msgstr ""
 "Приказ „%s“ већ има управника прозора; пробајте да користите опцију „--"
 "replace“ да замените тренутног управника прозора."
 
-#: src/x11/meta-x11-display.c:1039
+#: src/x11/meta-x11-display.c:1089
 msgid "Failed to initialize GDK\n"
 msgstr "Нисам успео да покренем ГДК\n"
 
-#: src/x11/meta-x11-display.c:1063
+#: src/x11/meta-x11-display.c:1113
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Нисам успео да отворим екран „%s“ Икс система прозора\n"
 
-#: src/x11/meta-x11-display.c:1146
+#: src/x11/meta-x11-display.c:1196
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Приказ „%d“ на екрану „%s“ није исправан\n"
 
-#: src/x11/meta-x11-selection-input-stream.c:445
+#: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Формат %s није подржан"
