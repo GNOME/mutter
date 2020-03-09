@@ -456,10 +456,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
 
   buffer = pw_stream_dequeue_buffer (priv->pipewire_stream);
   if (!buffer)
-    {
-      g_warning ("Failed to dequeue at PipeWire buffer");
-      return;
-    }
+    return;
 
   spa_buffer = buffer->buffer;
   data = spa_buffer->datas[0].data;
