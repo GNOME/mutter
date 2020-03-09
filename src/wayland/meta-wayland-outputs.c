@@ -338,15 +338,7 @@ bind_output (struct wl_client *client,
 #endif
 
   send_output_events (resource, wayland_output, logical_monitor, TRUE, NULL);
-}
 
-static void
-wayland_output_destroy_notify (gpointer data)
-{
-  MetaWaylandOutput *wayland_output = data;
-
-  g_signal_emit (wayland_output, signals[OUTPUT_DESTROYED], 0);
-  g_object_unref (wayland_output);
 }
 
 static void
@@ -468,6 +460,8 @@ make_output_inert (gpointer key,
 {
   MetaWaylandOutput *wayland_output = value;
 
+  g_signal_emit (wayland_output, signals[OUTPUT_DESTROYED], 0);
+
   wayland_output->logical_monitor = NULL;
   make_output_resources_inert (wayland_output);
 }
@@ -489,7 +483,7 @@ meta_wayland_compositor_update_outputs (MetaWaylandCompositor *compositor,
   logical_monitors =
     meta_monitor_manager_get_logical_monitors (monitor_manager);
   new_table = g_hash_table_new_full (g_int64_hash, g_int64_equal, NULL,
-                                     wayland_output_destroy_notify);
+                                     g_object_unref);
 
   for (l = logical_monitors; l; l = l->next)
     {
@@ -737,7 +731,7 @@ meta_wayland_outputs_init (MetaWaylandCompositor *compositor)
                     G_CALLBACK (on_monitors_changed), compositor);
 
   compositor->outputs = g_hash_table_new_full (g_int64_hash, g_int64_equal, NULL,
-                                               wayland_output_destroy_notify);
+                                               g_object_unref);
   compositor->outputs = meta_wayland_compositor_update_outputs (compositor, monitors);
 
   wl_global_create (compositor->wayland_display,
