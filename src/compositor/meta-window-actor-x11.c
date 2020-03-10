@@ -929,7 +929,7 @@ build_and_scan_frame_mask (MetaWindowActorX11    *actor_x11,
        */
       if (meta_window_x11_always_update_shape (window))
         {
-          meta_window_x11_buffer_rect_to_frame_rect (window, &rect, &frame_rect);
+          meta_window_x11_surface_rect_to_frame_rect (window, &rect, &frame_rect);
           get_client_area_rect_from_texture (actor_x11, stex, &client_area);
         }
       else
