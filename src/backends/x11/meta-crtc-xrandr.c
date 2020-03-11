@@ -195,7 +195,7 @@ meta_crtc_xrandr_is_assignment_changed (MetaCrtc     *crtc,
   if (crtc_xrandr->rect.x != (int) roundf (crtc_info->layout.origin.x))
     return TRUE;
 
-  if (crtc_xrandr->rect.y != (int) roundf (crtc_info->layout.origin.x))
+  if (crtc_xrandr->rect.y != (int) roundf (crtc_info->layout.origin.y))
     return TRUE;
 
   if (crtc_xrandr->transform != crtc_info->transform)
