@@ -439,7 +439,7 @@ zxdg_toplevel_v6_set_fullscreen (struct wl_client   *client,
   if (output_resource)
     {
       MetaWaylandOutput *output = wl_resource_get_user_data (output_resource);
-      if (output)
+      if (output && output->logical_monitor)
         meta_window_move_to_monitor (window, output->logical_monitor->number);
     }
 
