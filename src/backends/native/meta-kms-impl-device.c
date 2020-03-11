@@ -365,6 +365,16 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl_device->impl));
 
   drm_resources = drmModeGetResources (impl_device->fd);
+  if (!drm_resources)
+    {
+      g_list_free_full (impl_device->planes, g_object_unref);
+      g_list_free_full (impl_device->crtcs, g_object_unref);
+      g_list_free_full (impl_device->connectors, g_object_unref);
+      impl_device->planes = NULL;
+      impl_device->crtcs = NULL;
+      impl_device->connectors = NULL;
+      return;
+    }
 
   update_connectors (impl_device, drm_resources);
 
