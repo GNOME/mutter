@@ -152,6 +152,7 @@ find_unassigned_crtc (MetaOutput *output,
 typedef struct
 {
   MetaMonitorManager *monitor_manager;
+  MetaMonitorsConfig *config;
   MetaLogicalMonitorConfig *logical_monitor_config;
   MetaMonitorConfig *monitor_config;
   GPtrArray *crtc_infos;
@@ -173,7 +174,7 @@ assign_monitor_crtc (MetaMonitor         *monitor,
   MetaMonitorTransform crtc_transform;
   int crtc_x, crtc_y;
   float x_offset, y_offset;
-  float scale;
+  float scale = 0.0;
   float width, height;
   MetaCrtcMode *crtc_mode;
   graphene_rect_t crtc_layout;
@@ -209,7 +210,17 @@ assign_monitor_crtc (MetaMonitor         *monitor,
 
   x_offset = data->logical_monitor_config->layout.x;
   y_offset = data->logical_monitor_config->layout.y;
-  scale = data->logical_monitor_config->scale;
+
+  switch (data->config->layout_mode)
+    {
+    case META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL:
+      scale = data->logical_monitor_config->scale;
+      break;
+    case META_LOGICAL_MONITOR_LAYOUT_MODE_PHYSICAL:
+      scale = 1.0;
+      break;
+    }
+
   crtc_mode = monitor_crtc_mode->crtc_mode;
 
   if (meta_monitor_transform_is_rotated (crtc_transform))
@@ -272,6 +283,7 @@ assign_monitor_crtc (MetaMonitor         *monitor,
 
 static gboolean
 assign_monitor_crtcs (MetaMonitorManager       *manager,
+                      MetaMonitorsConfig       *config,
                       MetaLogicalMonitorConfig *logical_monitor_config,
                       MetaMonitorConfig        *monitor_config,
                       GPtrArray                *crtc_infos,
@@ -307,6 +319,7 @@ assign_monitor_crtcs (MetaMonitorManager       *manager,
 
   data = (MonitorAssignmentData) {
     .monitor_manager = manager,
+    .config = config,
     .logical_monitor_config = logical_monitor_config,
     .monitor_config = monitor_config,
     .crtc_infos = crtc_infos,
@@ -324,6 +337,7 @@ assign_monitor_crtcs (MetaMonitorManager       *manager,
 
 static gboolean
 assign_logical_monitor_crtcs (MetaMonitorManager       *manager,
+                              MetaMonitorsConfig       *config,
                               MetaLogicalMonitorConfig *logical_monitor_config,
                               GPtrArray                *crtc_infos,
                               GPtrArray                *output_infos,
@@ -337,6 +351,7 @@ assign_logical_monitor_crtcs (MetaMonitorManager       *manager,
       MetaMonitorConfig *monitor_config = l->data;
 
       if (!assign_monitor_crtcs (manager,
+                                 config,
                                  logical_monitor_config,
                                  monitor_config,
                                  crtc_infos, output_infos,
@@ -395,7 +410,8 @@ meta_monitor_config_manager_assign (MetaMonitorManager *manager,
     {
       MetaLogicalMonitorConfig *logical_monitor_config = l->data;
 
-      if (!assign_logical_monitor_crtcs (manager, logical_monitor_config,
+      if (!assign_logical_monitor_crtcs (manager,
+                                         config, logical_monitor_config,
                                          crtc_infos, output_infos,
                                          reserved_crtcs, error))
         {
