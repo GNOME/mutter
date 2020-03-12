@@ -63,6 +63,15 @@
 #define META_KEY_BINDING_PRIMARY_LAYOUT 0
 #define META_KEY_BINDING_SECONDARY_LAYOUT 1
 
+/* Only for special modifier keys */
+#define IGNORED_MODIFIERS (CLUTTER_LOCK_MASK |          \
+                           CLUTTER_MOD2_MASK |          \
+                           CLUTTER_BUTTON1_MASK |       \
+                           CLUTTER_BUTTON2_MASK |       \
+                           CLUTTER_BUTTON3_MASK |       \
+                           CLUTTER_BUTTON4_MASK |       \
+                           CLUTTER_BUTTON5_MASK)
+
 static gboolean add_builtin_keybinding (MetaDisplay          *display,
                                         const char           *name,
                                         GSettings            *settings,
@@ -2120,6 +2129,7 @@ process_special_modifier_key (MetaDisplay          *display,
       return TRUE;
     }
   else if (event->type == CLUTTER_KEY_PRESS &&
+           (event->modifier_state & ~(IGNORED_MODIFIERS)) == 0 &&
            resolved_key_combo_has_keycode (resolved_key_combo,
                                            event->hardware_keycode))
     {
