@@ -366,8 +366,10 @@ _cogl_driver_update_features (CoglContext *context,
       _cogl_check_extension ("GL_OES_egl_sync", gl_extensions))
     COGL_FLAGS_SET (private_features, COGL_PRIVATE_FEATURE_OES_EGL_SYNC, TRUE);
 
+#ifdef GL_ARB_sync
   if (context->glFenceSync)
     COGL_FLAGS_SET (context->features, COGL_FEATURE_ID_FENCE, TRUE);
+#endif
 
   if (_cogl_check_extension ("GL_EXT_texture_rg", gl_extensions))
     COGL_FLAGS_SET (context->features,
