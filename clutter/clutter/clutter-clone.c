@@ -262,6 +262,7 @@ clutter_clone_allocate (ClutterActor           *self,
     {
       priv->x_scale = x_scale;
       priv->y_scale = y_scale;
+      clutter_actor_invalidate_transform (CLUTTER_ACTOR (self));
     }
 
 #if 0

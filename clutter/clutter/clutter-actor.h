@@ -178,7 +178,10 @@ struct _ClutterActor
  *   implementation.
  * @apply_transform: virtual function, used when applying the transformations
  *   to an actor before painting it or when transforming coordinates or
- *   the allocation; it must chain up to the parent's implementation
+ *   the allocation; if the transformation calculated by this function may
+ *   have changed, the cached transformation must be invalidated by calling
+ *   clutter_actor_invalidate_transform(); it must chain up to the parent's
+ *   implementation
  * @parent_set: signal class handler for the #ClutterActor::parent-set
  * @destroy: signal class handler for #ClutterActor::destroy. It must
  *   chain up to the parent's implementation
@@ -917,6 +920,9 @@ void clutter_actor_pick_box (ClutterActor          *self,
 
 CLUTTER_EXPORT
 GList * clutter_actor_peek_stage_views (ClutterActor *self);
+
+CLUTTER_EXPORT
+void clutter_actor_invalidate_transform (ClutterActor *self);
 
 G_END_DECLS
 

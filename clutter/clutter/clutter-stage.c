@@ -2905,6 +2905,8 @@ clutter_stage_update_view_perspective (ClutterStage *stage)
                                       z_2d,
                                       priv->viewport[2],
                                       priv->viewport[3]);
+
+  clutter_actor_invalidate_transform (CLUTTER_ACTOR (stage));
 }
 
 void

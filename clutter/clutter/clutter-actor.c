@@ -3034,13 +3034,8 @@ clutter_actor_real_apply_transform (ClutterActor  *self,
                                     ClutterMatrix *matrix)
 {
   ClutterActorPrivate *priv = self->priv;
-  CoglMatrix *transform = &priv->transform;
   const ClutterTransformInfo *info;
   float pivot_x = 0.f, pivot_y = 0.f;
-
-  /* we already have a cached transformation */
-  if (priv->transform_valid)
-    goto multiply_and_return;
 
   info = _clutter_actor_get_transform_info_or_defaults (self);
 
@@ -3067,10 +3062,10 @@ clutter_actor_real_apply_transform (ClutterActor  *self,
       const ClutterTransformInfo *parent_info;
 
       parent_info = _clutter_actor_get_transform_info_or_defaults (priv->parent);
-      clutter_matrix_init_from_matrix (transform, &(parent_info->child_transform));
+      clutter_matrix_init_from_matrix (matrix, &(parent_info->child_transform));
     }
   else
-    clutter_matrix_init_identity (transform);
+    clutter_matrix_init_identity (matrix);
 
   /* if we have an overriding transformation, we use that, and get out */
   if (info->transform_set)
@@ -3079,11 +3074,11 @@ clutter_actor_real_apply_transform (ClutterActor  *self,
        * translations, since :transform is relative to the actor's coordinate
        * space, and to the pivot point
        */
-      cogl_matrix_translate (transform,
+      cogl_matrix_translate (matrix,
                              priv->allocation.x1 + pivot_x,
                              priv->allocation.y1 + pivot_y,
                              info->pivot_z);
-      cogl_matrix_multiply (transform, transform, &info->transform);
+      cogl_matrix_multiply (matrix, matrix, &info->transform);
       goto roll_back_pivot;
     }
 
@@ -3091,7 +3086,7 @@ clutter_actor_real_apply_transform (ClutterActor  *self,
    * of decomposing the pivot and translation info separate operations,
    * we just compose everything into a single translation
    */
-  cogl_matrix_translate (transform,
+  cogl_matrix_translate (matrix,
                          priv->allocation.x1 + pivot_x + info->translation.x,
                          priv->allocation.y1 + pivot_y + info->translation.y,
                          info->z_position + info->pivot_z + info->translation.z);
@@ -3108,27 +3103,21 @@ clutter_actor_real_apply_transform (ClutterActor  *self,
    * code we use when interpolating transformations
    */
   if (info->scale_x != 1.0 || info->scale_y != 1.0 || info->scale_z != 1.0)
-    cogl_matrix_scale (transform, info->scale_x, info->scale_y, info->scale_z);
+    cogl_matrix_scale (matrix, info->scale_x, info->scale_y, info->scale_z);
 
   if (info->rz_angle)
-    cogl_matrix_rotate (transform, info->rz_angle, 0, 0, 1.0);
+    cogl_matrix_rotate (matrix, info->rz_angle, 0, 0, 1.0);
 
   if (info->ry_angle)
-    cogl_matrix_rotate (transform, info->ry_angle, 0, 1.0, 0);
+    cogl_matrix_rotate (matrix, info->ry_angle, 0, 1.0, 0);
 
   if (info->rx_angle)
-    cogl_matrix_rotate (transform, info->rx_angle, 1.0, 0, 0);
+    cogl_matrix_rotate (matrix, info->rx_angle, 1.0, 0, 0);
 
 roll_back_pivot:
   /* roll back the pivot translation */
   if (pivot_x != 0.f || pivot_y != 0.f || info->pivot_z != 0.f)
-    cogl_matrix_translate (transform, -pivot_x, -pivot_y, -info->pivot_z);
-
-  /* we have a valid modelview */
-  priv->transform_valid = TRUE;
-
-multiply_and_return:
-  cogl_matrix_multiply (matrix, matrix, &priv->transform);
+    cogl_matrix_translate (matrix, -pivot_x, -pivot_y, -info->pivot_z);
 }
 
 /* Applies the transforms associated with this actor to the given
@@ -3137,7 +3126,17 @@ void
 _clutter_actor_apply_modelview_transform (ClutterActor  *self,
                                           ClutterMatrix *matrix)
 {
-  CLUTTER_ACTOR_GET_CLASS (self)->apply_transform (self, matrix);
+  ClutterActorPrivate *priv = self->priv;
+
+  if (priv->transform_valid)
+    goto out;
+
+  CLUTTER_ACTOR_GET_CLASS (self)->apply_transform (self, &priv->transform);
+
+  priv->transform_valid = TRUE;
+
+out:
+  cogl_matrix_multiply (matrix, matrix, &priv->transform);
 }
 
 /*
@@ -19738,4 +19737,21 @@ clutter_actor_queue_immediate_relayout (ClutterActor *self)
   stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
   if (stage)
     clutter_stage_set_actor_needs_immediate_relayout (stage);
+}
+
+/**
+ * clutter_actor_invalidate_transform:
+ * @self: A #ClutterActor
+ *
+ * Invalidate the cached transformation matrix of @self.
+ * This is needed for implementations overriding the apply_transform()
+ * vfunc and has to be called if the matrix returned by apply_transform()
+ * would change.
+ */
+void
+clutter_actor_invalidate_transform (ClutterActor *self)
+{
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+
+  self->priv->transform_valid = FALSE;
 }
