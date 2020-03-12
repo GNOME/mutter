@@ -44,7 +44,6 @@ struct _MetaXwaylandSurface
   MetaWindow *window;
 
   gulong unmanaging_handler_id;
-  gulong position_changed_handler_id;
   gulong effects_completed_handler_id;
 };
 
@@ -66,8 +65,6 @@ clear_window (MetaXwaylandSurface *xwayland_surface)
     return;
 
   g_clear_signal_handler (&xwayland_surface->unmanaging_handler_id,
-                          xwayland_surface->window);
-  g_clear_signal_handler (&xwayland_surface->position_changed_handler_id,
                           xwayland_surface->window);
 
   window_actor = meta_window_actor_from_window (xwayland_surface->window);
@@ -92,17 +89,9 @@ window_unmanaging (MetaWindow          *window,
 }
 
 static void
-window_position_changed (MetaWindow         *window,
-                         MetaWaylandSurface *surface)
-{
-  meta_wayland_surface_update_outputs_recursively (surface);
-}
-
-static void
 window_actor_effects_completed (MetaWindowActor    *window_actor,
                                 MetaWaylandSurface *surface)
 {
-  meta_wayland_surface_update_outputs_recursively (surface);
   meta_wayland_compositor_repick (surface->compositor);
 }
 
@@ -142,11 +131,6 @@ meta_xwayland_surface_associate_with_window (MetaXwaylandSurface *xwayland_surfa
                       "unmanaging",
                       G_CALLBACK (window_unmanaging),
                       xwayland_surface);
-  xwayland_surface->position_changed_handler_id =
-    g_signal_connect (window,
-                      "position-changed",
-                      G_CALLBACK (window_position_changed),
-                      surface);
   xwayland_surface->effects_completed_handler_id =
     g_signal_connect (meta_window_actor_from_window (window),
                       "effects-completed",

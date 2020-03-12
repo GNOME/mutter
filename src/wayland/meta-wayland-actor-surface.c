@@ -76,6 +76,9 @@ clear_surface_actor (MetaWaylandActorSurface *actor_surface)
   g_signal_handlers_disconnect_by_func (priv->actor,
                                         meta_wayland_surface_update_outputs_recursively,
                                         surface);
+  g_signal_handlers_disconnect_by_func (priv->actor,
+                                        meta_wayland_surface_update_outputs,
+                                        surface);
   g_clear_object (&priv->actor);
 }
 
@@ -444,5 +447,8 @@ meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surface)
                             surface);
   g_signal_connect_swapped (priv->actor, "notify::mapped",
                             G_CALLBACK (meta_wayland_surface_update_outputs_recursively),
+                            surface);
+  g_signal_connect_swapped (priv->actor, "stage-views-changed",
+                            G_CALLBACK (meta_wayland_surface_update_outputs),
                             surface);
 }
