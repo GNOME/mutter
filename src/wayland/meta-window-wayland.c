@@ -634,6 +634,10 @@ appears_focused_changed (GObject    *object,
                          gpointer    user_data)
 {
   MetaWindow *window = META_WINDOW (object);
+
+  if (window->placement.rule)
+    return;
+
   surface_state_changed (window);
 }
 
