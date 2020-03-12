@@ -2037,6 +2037,13 @@ process_special_modifier_key (MetaDisplay          *display,
         {
           *modifier_press_only = FALSE;
 
+          /* If this is a wayland session, we can avoid the shenanigans
+           * about passive grabs below, and let the event continue to
+           * be processed through the regular paths.
+           */
+          if (!xdisplay)
+            return FALSE;
+
           /* OK, the user hit modifier+key rather than pressing and
            * releasing the modifier key alone. We want to handle the key
            * sequence "normally". Unfortunately, using
@@ -2069,8 +2076,6 @@ process_special_modifier_key (MetaDisplay          *display,
                 XIAllowEvents (xdisplay,
                                clutter_input_device_get_device_id (event->device),
                                XIReplayDevice, event->time);
-
-              return FALSE;
             }
         }
       else if (event->type == CLUTTER_KEY_RELEASE)
