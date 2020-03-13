@@ -76,7 +76,8 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
   int v0x, v0y, v1x, v1y, v2x, v2y, v3x, v3y;
   int x, y;
 
-  width = round_to_fixed (widthf); height = round_to_fixed (heightf);
+  width = round_to_fixed (widthf);
+  height = round_to_fixed (heightf);
 
   v0x = round_to_fixed (verts[0].x); v0y = round_to_fixed (verts[0].y);
   v1x = round_to_fixed (verts[1].x); v1y = round_to_fixed (verts[1].y);
@@ -165,7 +166,11 @@ meta_actor_painting_untransformed (CoglFramebuffer *fb,
   for (i = 0; i < 4; i++)
     {
       float w = 1;
-      cogl_matrix_transform_point (&modelview_projection, &vertices[i].x, &vertices[i].y, &vertices[i].z, &w);
+      cogl_matrix_transform_point (&modelview_projection,
+                                   &vertices[i].x,
+                                   &vertices[i].y,
+                                   &vertices[i].z,
+                                   &w);
       vertices[i].x = MTX_GL_SCALE_X (vertices[i].x, w,
                                       viewport[2], viewport[0]);
       vertices[i].y = MTX_GL_SCALE_Y (vertices[i].y, w,
