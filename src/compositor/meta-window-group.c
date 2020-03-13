@@ -96,6 +96,8 @@ meta_window_group_paint (ClutterActor        *actor,
       if (!meta_actor_painting_untransformed (fb,
                                               screen_width,
                                               screen_height,
+                                              screen_width,
+                                              screen_height,
                                               &paint_x_origin,
                                               &paint_y_origin) ||
           !meta_cullable_is_untransformed (META_CULLABLE (actor)))

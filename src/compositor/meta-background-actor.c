@@ -452,6 +452,8 @@ setup_pipeline (MetaBackgroundActor   *self,
       meta_actor_painting_untransformed (fb,
                                          actor_pixel_rect->width,
                                          actor_pixel_rect->height,
+                                         actor_pixel_rect->width,
+                                         actor_pixel_rect->height,
                                          NULL, NULL))
     filter = COGL_PIPELINE_FILTER_NEAREST;
   else

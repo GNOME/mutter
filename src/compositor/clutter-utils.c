@@ -115,6 +115,8 @@ meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
  * meta_actor_painting_untransformed:
  * @paint_width: the width of the painted area
  * @paint_height: the height of the painted area
+ * @sample_width: the width of the sampled area of the texture
+ * @sample_height: the height of the sampled area of the texture
  * @x_origin: if the transform is only an integer translation
  *  then the X coordinate of the location of the origin under the transformation
  *  from drawing space to screen pixel space is returned here.
@@ -133,6 +135,8 @@ gboolean
 meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                    int              paint_width,
                                    int              paint_height,
+                                   int              sample_width,
+                                   int              sample_height,
                                    int             *x_origin,
                                    int             *y_origin)
 {
@@ -177,6 +181,8 @@ meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                       viewport[3], viewport[1]);
     }
 
-  return meta_actor_vertices_are_untransformed (vertices, paint_width, paint_height, x_origin, y_origin);
+  return meta_actor_vertices_are_untransformed (vertices,
+                                                sample_width, sample_height,
+                                                x_origin, y_origin);
 }
 

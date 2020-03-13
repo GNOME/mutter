@@ -32,6 +32,8 @@ gboolean meta_actor_vertices_are_untransformed (graphene_point3d_t *verts,
 gboolean meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                             int              paint_width,
                                             int              paint_height,
+                                            int              sample_widthf,
+                                            int              sample_heightf,
                                             int             *x_origin,
                                             int             *y_origin);
 

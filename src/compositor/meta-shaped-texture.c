@@ -507,6 +507,17 @@ texture_is_idle_and_not_mipmapped (gpointer user_data)
   return G_SOURCE_REMOVE;
 }
 
+static inline void
+flip_ints (int *x,
+           int *y)
+{
+  int tmp;
+
+  tmp = *x;
+  *x = *y;
+  *y = tmp;
+}
+
 static void
 do_paint_content (MetaShapedTexture   *stex,
                   ClutterPaintNode    *root_node,
@@ -522,6 +533,7 @@ do_paint_content (MetaShapedTexture   *stex,
   CoglContext *ctx;
   CoglPipelineFilter filter;
   CoglFramebuffer *framebuffer;
+  int sample_width, sample_height;
 
   ensure_size_valid (stex);
 
@@ -542,15 +554,30 @@ do_paint_content (MetaShapedTexture   *stex,
    * improves performance, especially with software rendering.
    */
 
-  filter = COGL_PIPELINE_FILTER_LINEAR;
-
   framebuffer = clutter_paint_node_get_framebuffer (root_node);
   if (!framebuffer)
     framebuffer = clutter_paint_context_get_framebuffer (paint_context);
+
+  if (stex->has_viewport_src_rect)
+    {
+      sample_width = stex->viewport_src_rect.size.width * stex->buffer_scale;
+      sample_height = stex->viewport_src_rect.size.height * stex->buffer_scale;
+    }
+  else
+    {
+      sample_width = cogl_texture_get_width (stex->texture);
+      sample_height = cogl_texture_get_height (stex->texture);
+    }
+  if (meta_monitor_transform_is_rotated (stex->transform))
+    flip_ints (&sample_width, &sample_height);
+
   if (meta_actor_painting_untransformed (framebuffer,
                                          dst_width, dst_height,
+                                         sample_width, sample_height,
                                          NULL, NULL))
     filter = COGL_PIPELINE_FILTER_NEAREST;
+  else
+    filter = COGL_PIPELINE_FILTER_LINEAR;
 
   ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
