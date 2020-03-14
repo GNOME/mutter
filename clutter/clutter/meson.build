@@ -429,7 +429,6 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
   link_with: [
     libmutter_cogl,
     libmutter_cogl_pango,
-    libmutter_cogl_path,
   ],
   install_rpath: pkglibdir,
   install_dir: pkglibdir,

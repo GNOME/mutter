@@ -66,7 +66,6 @@ foreach test : clutter_conform_tests
     dependencies: [
       clutter_deps,
       libmutter_clutter_dep,
-      libmutter_cogl_path_dep,
       libmutter_dep
     ],
     install: false,
