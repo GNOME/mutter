@@ -1393,6 +1393,26 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
       MetaMonitorTransform relative_transform;
       uint32_t gbm_format;
 
+      if (!get_common_crtc_sprite_scale_for_logical_monitors (renderer,
+                                                              cursor_sprite,
+                                                              &relative_scale))
+        {
+          unset_can_preprocess (cursor_sprite);
+          return;
+        }
+
+      if (!get_common_crtc_sprite_transform_for_logical_monitors (renderer,
+                                                                  cursor_sprite,
+                                                                  &relative_transform))
+        {
+          unset_can_preprocess (cursor_sprite);
+          return;
+        }
+
+      set_can_preprocess (cursor_sprite,
+                          relative_scale,
+                          relative_transform);
+
       wl_shm_buffer_begin_access (shm_buffer);
       buffer_data = wl_shm_buffer_get_data (shm_buffer);
 
@@ -1411,18 +1431,6 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
           g_warn_if_reached ();
           gbm_format = GBM_FORMAT_ARGB8888;
         }
-
-      get_common_crtc_sprite_scale_for_logical_monitors (renderer,
-                                                         cursor_sprite,
-                                                         &relative_scale);
-
-      get_common_crtc_sprite_transform_for_logical_monitors (renderer,
-                                                             cursor_sprite,
-                                                             &relative_transform);
-
-      set_can_preprocess (cursor_sprite,
-                          relative_scale,
-                          relative_transform);
 
       load_scaled_and_transformed_cursor_sprite (native,
                                                  gpu_kms,
@@ -1502,19 +1510,27 @@ realize_cursor_sprite_from_xcursor_for_gpu (MetaCursorRenderer      *renderer,
       is_cursor_scale_and_transform_valid (renderer, cursor_sprite))
     return;
 
-  xc_image = meta_cursor_sprite_xcursor_get_current_image (sprite_xcursor);
+  if (!get_common_crtc_sprite_scale_for_logical_monitors (renderer,
+                                                          cursor_sprite,
+                                                          &relative_scale))
+    {
+      unset_can_preprocess (cursor_sprite);
+      return;
+    }
 
-  get_common_crtc_sprite_scale_for_logical_monitors (renderer,
-                                                     cursor_sprite,
-                                                     &relative_scale);
-
-  get_common_crtc_sprite_transform_for_logical_monitors (renderer,
-                                                         cursor_sprite,
-                                                         &relative_transform);
+  if (!get_common_crtc_sprite_transform_for_logical_monitors (renderer,
+                                                              cursor_sprite,
+                                                              &relative_transform))
+    {
+      unset_can_preprocess (cursor_sprite);
+      return;
+    }
 
   set_can_preprocess (cursor_sprite,
                       relative_scale,
                       relative_transform);
+
+  xc_image = meta_cursor_sprite_xcursor_get_current_image (sprite_xcursor);
 
   load_scaled_and_transformed_cursor_sprite (native,
                                              gpu_kms,
