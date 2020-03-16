@@ -424,7 +424,7 @@ update_middle_click_emulation (MetaInputSettings  *input_settings,
                                ClutterInputDevice *device)
 {
   ConfigBoolFunc func;
-  const gchar *key = "emulate-middle";
+  const gchar *key = "middle-click-emulation";
   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
 
   if (!settings)
