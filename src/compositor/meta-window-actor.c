@@ -1292,13 +1292,9 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
 
   clutter_actor_get_position (actor, &x, &y);
 
-  cogl_framebuffer_push_matrix (framebuffer);
-
   cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
   cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
   cogl_framebuffer_orthographic (framebuffer, 0, 0, width, height, 0, 1.0);
-  cogl_framebuffer_scale (framebuffer, resource_scale, resource_scale, 1);
-  cogl_framebuffer_translate (framebuffer, -x, -y, 0);
 
   meta_rectangle_scale_double (bounds, resource_scale,
                                META_ROUNDING_STRATEGY_GROW,
@@ -1315,12 +1311,16 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
                                         scaled_clip.x + scaled_clip.width,
                                         scaled_clip.y + scaled_clip.height);
 
+  cogl_framebuffer_push_matrix (framebuffer);
+  cogl_framebuffer_scale (framebuffer, resource_scale, resource_scale, 1);
+  cogl_framebuffer_translate (framebuffer, -x, -y, 0);
+
   paint_context = clutter_paint_context_new_for_framebuffer (framebuffer);
   clutter_actor_paint (actor, paint_context);
   clutter_paint_context_destroy (paint_context);
 
-  cogl_framebuffer_pop_clip (framebuffer);
   cogl_framebuffer_pop_matrix (framebuffer);
+  cogl_framebuffer_pop_clip (framebuffer);
 
   return TRUE;
 }
