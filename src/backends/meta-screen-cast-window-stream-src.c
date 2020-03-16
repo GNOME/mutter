@@ -492,6 +492,8 @@ meta_screen_cast_window_stream_src_blit_to_framebuffer (MetaScreenCastStreamSrc 
       break;
     }
 
+  cogl_framebuffer_finish (framebuffer);
+
   return TRUE;
 }
 
