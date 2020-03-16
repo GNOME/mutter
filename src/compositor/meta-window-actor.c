@@ -1290,11 +1290,11 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
   width = ceilf (width * resource_scale);
   height = ceilf (height * resource_scale);
 
-  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
   clutter_actor_get_position (actor, &x, &y);
 
   cogl_framebuffer_push_matrix (framebuffer);
 
+  cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
   cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
   cogl_framebuffer_orthographic (framebuffer, 0, 0, width, height, 0, 1.0);
   cogl_framebuffer_scale (framebuffer, resource_scale, resource_scale, 1);
