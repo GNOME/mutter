@@ -83,6 +83,8 @@ typedef struct _MetaKmsConnectorState
   struct {
     gboolean supported;
   } underscan;
+
+  gboolean vrr_capable;
 } MetaKmsConnectorState;
 
 META_EXPORT_TEST
