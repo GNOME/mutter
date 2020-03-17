@@ -163,6 +163,7 @@ typedef enum
   STATE_MONITOR_MODE_WIDTH,
   STATE_MONITOR_MODE_HEIGHT,
   STATE_MONITOR_MODE_RATE,
+  STATE_MONITOR_MODE_RATE_MODE,
   STATE_MONITOR_MODE_FLAG,
   STATE_MONITOR_UNDERSCANNING,
   STATE_MONITOR_MAXBPC,
@@ -531,6 +532,10 @@ handle_start_element (GMarkupParseContext  *context,
           {
             parser->state = STATE_MONITOR_MODE_RATE;
           }
+        else if (g_str_equal (element_name, "ratemode"))
+          {
+            parser->state = STATE_MONITOR_MODE_RATE_MODE;
+          }
         else if (g_str_equal (element_name, "flag"))
           {
             parser->state = STATE_MONITOR_MODE_FLAG;
@@ -548,6 +553,7 @@ handle_start_element (GMarkupParseContext  *context,
     case STATE_MONITOR_MODE_WIDTH:
     case STATE_MONITOR_MODE_HEIGHT:
     case STATE_MONITOR_MODE_RATE:
+    case STATE_MONITOR_MODE_RATE_MODE:
     case STATE_MONITOR_MODE_FLAG:
       {
         g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_UNKNOWN_ELEMENT,
@@ -829,6 +835,7 @@ handle_end_element (GMarkupParseContext  *context,
     case STATE_MONITOR_MODE_WIDTH:
     case STATE_MONITOR_MODE_HEIGHT:
     case STATE_MONITOR_MODE_RATE:
+    case STATE_MONITOR_MODE_RATE_MODE:
     case STATE_MONITOR_MODE_FLAG:
       {
         parser->state = STATE_MONITOR_MODE;
@@ -1342,6 +1349,27 @@ handle_text (GMarkupParseContext *context,
         return;
       }
 
+    case STATE_MONITOR_MODE_RATE_MODE:
+      {
+        if (text_equals (text, text_len, "fixed"))
+          {
+            parser->current_monitor_mode_spec->refresh_rate_mode =
+              META_CRTC_REFRESH_RATE_MODE_FIXED;
+          }
+        else if (text_equals (text, text_len, "variable"))
+          {
+            parser->current_monitor_mode_spec->refresh_rate_mode =
+              META_CRTC_REFRESH_RATE_MODE_VARIABLE;
+          }
+        else
+          {
+            g_set_error (error, G_MARKUP_ERROR, G_MARKUP_ERROR_INVALID_CONTENT,
+                         "Invalid refresh rate mode %.*s", (int) text_len, text);
+          }
+
+        return;
+      }
+
     case STATE_MONITOR_MODE_FLAG:
       {
         if (text_equals (text, text_len, "interlace"))
@@ -1598,6 +1626,9 @@ append_monitors (GString *buffer,
                               monitor_config->mode_spec->height);
       g_string_append_printf (buffer, "          <rate>%s</rate>\n",
                               rate_str);
+      if (monitor_config->mode_spec->refresh_rate_mode ==
+          META_CRTC_REFRESH_RATE_MODE_VARIABLE)
+        g_string_append_printf (buffer, "          <ratemode>variable</ratemode>\n");
       if (monitor_config->mode_spec->flags & META_CRTC_MODE_FLAG_INTERLACE)
         g_string_append_printf (buffer, "          <flag>interlace</flag>\n");
       g_string_append (buffer, "        </mode>\n");

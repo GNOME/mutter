@@ -149,12 +149,15 @@ check_monitor_mode (MetaMonitor         *monitor,
       const MetaCrtcModeInfo *crtc_mode_info =
         meta_crtc_mode_get_info (crtc_mode);
       float refresh_rate;
+      MetaCrtcRefreshRateMode refresh_rate_mode;
       MetaCrtcModeFlag flags;
 
       refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
+      refresh_rate_mode = meta_monitor_mode_get_refresh_rate_mode (mode);
       flags = meta_monitor_mode_get_flags (mode);
 
       g_assert_cmpfloat (refresh_rate, ==, crtc_mode_info->refresh_rate);
+      g_assert_cmpint (refresh_rate_mode, ==, crtc_mode_info->refresh_rate_mode);
       g_assert_cmpint (flags, ==, (crtc_mode_info->flags &
                                    HANDLED_CRTC_MODE_FLAGS));
     }
@@ -437,11 +440,13 @@ meta_check_monitor_configuration (MetaContext           *context,
           int width;
           int height;
           float refresh_rate;
+          MetaCrtcRefreshRateMode refresh_rate_mode;
           MetaCrtcModeFlag flags;
           CheckMonitorModeData data;
 
           meta_monitor_mode_get_resolution (mode, &width, &height);
           refresh_rate = meta_monitor_mode_get_refresh_rate (mode);
+          refresh_rate_mode = meta_monitor_mode_get_refresh_rate_mode (mode);
           flags = meta_monitor_mode_get_flags (mode);
 
           g_debug ("Checking mode %dx%d @ %f", width, height, refresh_rate);
@@ -455,6 +460,9 @@ meta_check_monitor_configuration (MetaContext           *context,
           g_assert_cmpfloat (refresh_rate,
                              ==,
                              expect->monitors[i].modes[j].refresh_rate);
+          g_assert_cmpint (refresh_rate_mode,
+                           ==,
+                           expect->monitors[i].modes[j].refresh_rate_mode);
           g_assert_cmpint (flags,
                            ==,
                            expect->monitors[i].modes[j].flags);
@@ -652,6 +660,7 @@ meta_create_monitor_test_setup (MetaBackend          *backend,
       crtc_mode_info->width = setup->modes[i].width;
       crtc_mode_info->height = setup->modes[i].height;
       crtc_mode_info->refresh_rate = setup->modes[i].refresh_rate;
+      crtc_mode_info->refresh_rate_mode = setup->modes[i].refresh_rate_mode;
       crtc_mode_info->flags = setup->modes[i].flags;
 
       mode = g_object_new (META_TYPE_CRTC_MODE,

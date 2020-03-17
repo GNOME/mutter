@@ -2140,6 +2140,11 @@ meta_monitor_manager_handle_get_current_state (MetaDBusDisplayConfig *skeleton,
             g_variant_builder_add (&mode_properties_builder, "{sv}",
                                    "is-interlaced",
                                    g_variant_new_boolean (TRUE));
+          if (meta_monitor_mode_get_refresh_rate_mode (monitor_mode) ==
+              META_CRTC_REFRESH_RATE_MODE_VARIABLE)
+            g_variant_builder_add (&mode_properties_builder, "{sv}",
+                                   "refresh-rate-mode",
+                                   g_variant_new_string ("variable"));
 
           g_variant_builder_add (&modes_builder, MODE_FORMAT,
                                  mode_id,

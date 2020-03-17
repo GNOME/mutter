@@ -37,6 +37,7 @@ typedef struct _MonitorStoreTestCaseMonitorMode
   int width;
   int height;
   float refresh_rate;
+  MetaCrtcRefreshRateMode refresh_rate_mode;
   MetaCrtcModeFlag flags;
 } MonitorStoreTestCaseMonitorMode;
 
@@ -192,6 +193,9 @@ check_monitor_store_configuration (MetaMonitorConfigStore        *config_store,
           g_assert_cmpfloat (monitor_config->mode_spec->refresh_rate,
                              ==,
                              test_monitor->mode.refresh_rate);
+          g_assert_cmpint (monitor_config->mode_spec->refresh_rate_mode,
+                           ==,
+                           test_monitor->mode.refresh_rate_mode);
           g_assert_cmpint (monitor_config->mode_spec->flags,
                            ==,
                            test_monitor->mode.flags);
@@ -459,6 +463,98 @@ meta_test_monitor_store_underscanning (void)
   };
 
   meta_set_custom_monitor_config (test_context, "underscanning.xml");
+
+  check_monitor_store_configurations (&expect);
+}
+
+static void
+meta_test_monitor_store_refresh_rate_mode_fixed (void)
+{
+  MonitorStoreTestExpect expect = {
+    .configurations = {
+      {
+        .logical_monitors = {
+          {
+            .layout = {
+              .x = 0,
+              .y = 0,
+              .width = 1024,
+              .height = 768
+            },
+            .scale = 1,
+            .is_primary = TRUE,
+            .is_presentation = FALSE,
+            .monitors = {
+              {
+                .connector = "DP-1",
+                .vendor = "MetaProduct's Inc.",
+                .product = "MetaMonitor",
+                .serial = "0x123456",
+                .mode = {
+                  .width = 1024,
+                  .height = 768,
+                  .refresh_rate = 60.000495910644531,
+                  .refresh_rate_mode = META_CRTC_REFRESH_RATE_MODE_FIXED,
+                },
+                .rgb_range = META_OUTPUT_RGB_RANGE_AUTO,
+              }
+            },
+            .n_monitors = 1,
+          },
+        },
+        .n_logical_monitors = 1
+      }
+    },
+    .n_configurations = 1
+  };
+
+  meta_set_custom_monitor_config (test_context, "refresh-rate-mode-fixed.xml");
+
+  check_monitor_store_configurations (&expect);
+}
+
+static void
+meta_test_monitor_store_refresh_rate_mode_variable (void)
+{
+  MonitorStoreTestExpect expect = {
+    .configurations = {
+      {
+        .logical_monitors = {
+          {
+            .layout = {
+              .x = 0,
+              .y = 0,
+              .width = 1024,
+              .height = 768
+            },
+            .scale = 1,
+            .is_primary = TRUE,
+            .is_presentation = FALSE,
+            .monitors = {
+              {
+                .connector = "DP-1",
+                .vendor = "MetaProduct's Inc.",
+                .product = "MetaMonitor",
+                .serial = "0x123456",
+                .mode = {
+                  .width = 1024,
+                  .height = 768,
+                  .refresh_rate = 60.000495910644531,
+                  .refresh_rate_mode = META_CRTC_REFRESH_RATE_MODE_VARIABLE,
+                },
+                .rgb_range = META_OUTPUT_RGB_RANGE_AUTO,
+              }
+            },
+            .n_monitors = 1,
+          },
+        },
+        .n_logical_monitors = 1
+      }
+    },
+    .n_configurations = 1
+  };
+
+  meta_set_custom_monitor_config (test_context, "refresh-rate-mode-variable.xml");
 
   check_monitor_store_configurations (&expect);
 }
@@ -1114,6 +1210,10 @@ init_monitor_store_tests (void)
                    meta_test_monitor_store_primary);
   g_test_add_func ("/backends/monitor-store/underscanning",
                    meta_test_monitor_store_underscanning);
+  g_test_add_func ("/backends/monitor-store/refresh-rate-mode-fixed",
+                   meta_test_monitor_store_refresh_rate_mode_fixed);
+  g_test_add_func ("/backends/monitor-store/refresh-rate-mode-variable",
+                   meta_test_monitor_store_refresh_rate_mode_variable);
   g_test_add_func ("/backends/monitor-store/max-bpc",
                    meta_test_monitor_store_max_bpc);
   g_test_add_func ("/backends/monitor-store/rgb-range",
