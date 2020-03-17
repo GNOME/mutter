@@ -38,6 +38,7 @@ typedef struct _MetaMonitorModeSpec
   int width;
   int height;
   float refresh_rate;
+  MetaCrtcRefreshRateMode refresh_rate_mode;
   MetaCrtcModeFlag flags;
 } MetaMonitorModeSpec;
 
@@ -251,6 +252,9 @@ void meta_monitor_mode_get_resolution (MetaMonitorMode *monitor_mode,
 
 META_EXPORT_TEST
 float meta_monitor_mode_get_refresh_rate (MetaMonitorMode *monitor_mode);
+
+META_EXPORT_TEST
+MetaCrtcRefreshRateMode meta_monitor_mode_get_refresh_rate_mode (MetaMonitorMode *monitor_mode);
 
 META_EXPORT_TEST
 MetaCrtcModeFlag meta_monitor_mode_get_flags (MetaMonitorMode *monitor_mode);
