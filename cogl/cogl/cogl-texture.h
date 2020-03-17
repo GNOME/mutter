@@ -320,8 +320,8 @@ cogl_texture_get_gl_texture (CoglTexture *texture,
  * @rowstride: the rowstride of @data in bytes or pass 0 to calculate
  *             from the bytes-per-pixel of @format multiplied by the
  *             @texture width.
- * @data: memory location to write the @texture's contents, or %NULL
- * to only query the data size through the return value.
+ * @data: (array) (nullable): memory location to write the @texture's contents,
+ * or %NULL to only query the data size through the return value.
  *
  * Copies the pixel data from a cogl texture to system memory.
  *
@@ -354,7 +354,7 @@ cogl_texture_get_data (CoglTexture *texture,
  * @format: the #CoglPixelFormat used in the source buffer.
  * @rowstride: rowstride of source buffer (computed from width if none
  * specified)
- * @data: the actual pixel data.
+ * @data: (array): the actual pixel data.
  *
  * Sets the pixels in a rectangular subregion of @texture from an in-memory
  * buffer containing pixel data.
@@ -384,7 +384,7 @@ cogl_texture_set_region (CoglTexture *texture,
  * @format: the #CoglPixelFormat used in the source @data buffer.
  * @rowstride: rowstride of the source @data buffer (computed from
  *             the texture width and @format if it equals 0)
- * @data: the source data, pointing to the first top-left pixel to set
+ * @data: (array): the source data, pointing to the first top-left pixel to set
  * @level: The mipmap level to update (Normally 0 for the largest,
  *         base texture)
  * @error: A #GError to return exceptional errors

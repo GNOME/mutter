@@ -104,7 +104,7 @@ cogl_texture_new_from_file (const char       *filename,
  *    something other than straight blending.
  * @rowstride: the memory offset in bytes between the starts of
  *    scanlines in @data
- * @data: pointer the memory region where the source buffer resides
+ * @data: (array): pointer the memory region where the source buffer resides
  *
  * Creates a new #CoglTexture based on data residing in memory.
  *
