@@ -4349,6 +4349,20 @@ capture_view (ClutterStage          *stage,
   cairo_surface_mark_dirty (capture->image);
 }
 
+/**
+ * clutter_stage_capture:
+ * @stage: a #ClutterStage
+ * @paint: whether to pain the frame
+ * @rect: a #cairo_rectangle_int_t in stage coordinates
+ * @out_captures: (out) (array length=out_n_captures): an array of
+ *   #ClutterCapture
+ * @out_n_captures: (out): the number of captures in @out_captures
+ *
+ * Captures the stage pixels of @rect into @captures. @rect is in stage
+ * coordinates.
+ *
+ * Returns: %TRUE if a #ClutterCapture has been created, %FALSE otherwise
+ */
 gboolean
 clutter_stage_capture (ClutterStage          *stage,
                        gboolean               paint,
