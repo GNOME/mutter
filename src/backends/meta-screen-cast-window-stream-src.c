@@ -378,6 +378,8 @@ meta_screen_cast_window_stream_src_enable (MetaScreenCastStreamSrc *src)
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
       break;
     }
+
+  meta_screen_cast_stream_src_maybe_record_frame (src);
 }
 
 static void
