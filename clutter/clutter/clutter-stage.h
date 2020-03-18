@@ -233,8 +233,8 @@ CLUTTER_EXPORT
 gboolean clutter_stage_capture (ClutterStage          *stage,
                                 gboolean               paint,
                                 cairo_rectangle_int_t *rect,
-                                ClutterCapture       **captures,
-                                int                   *n_captures);
+                                ClutterCapture       **out_captures,
+                                int                   *out_n_captures);
 CLUTTER_EXPORT
 ClutterStageView * clutter_stage_get_view_at (ClutterStage *stage,
                                               float         x,
