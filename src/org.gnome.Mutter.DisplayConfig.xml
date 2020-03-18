@@ -375,8 +375,6 @@
 
 	Possible @properties are:
 
-	* "supports-mirroring" (b): FALSE if mirroring not supported; TRUE or not
-	                            present if mirroring is supported.
 	* "layout-mode" (u): Represents in what way logical monitors are laid
 			     out on the screen. The layout mode can be either
 			     of the ones listed below. Absence of this property
