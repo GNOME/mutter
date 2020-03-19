@@ -884,6 +884,11 @@ void                            clutter_actor_set_opacity_override              
 CLUTTER_EXPORT
 gint                            clutter_actor_get_opacity_override              (ClutterActor               *self);
 
+CLUTTER_EXPORT
+void                            clutter_actor_inhibit_culling                   (ClutterActor               *actor);
+CLUTTER_EXPORT
+void                            clutter_actor_uninhibit_culling                 (ClutterActor               *actor);
+
 /**
  * ClutterActorCreateChildFunc:
  * @item: (type GObject): the item in the model
