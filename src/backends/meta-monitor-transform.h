@@ -61,4 +61,12 @@ MetaMonitorTransform meta_monitor_transform_transform (MetaMonitorTransform tran
 MetaMonitorTransform meta_monitor_transform_relative_transform (MetaMonitorTransform transform,
                                                                 MetaMonitorTransform other);
 
+void meta_monitor_transform_transform_point (MetaMonitorTransform  transform,
+                                             int                   area_width,
+                                             int                   area_height,
+                                             int                   x,
+                                             int                   y,
+                                             int                  *out_x,
+                                             int                  *out_y);
+
 #endif /* META_MONITOR_TRANSFORM_H */

@@ -80,3 +80,49 @@ meta_monitor_transform_relative_transform (MetaMonitorTransform transform,
 
   return relative_transform;
 }
+
+void
+meta_monitor_transform_transform_point (MetaMonitorTransform  transform,
+                                        int                   area_width,
+                                        int                   area_height,
+                                        int                   x,
+                                        int                   y,
+                                        int                  *out_x,
+                                        int                  *out_y)
+{
+  switch (transform)
+    {
+    case META_MONITOR_TRANSFORM_NORMAL:
+      *out_x = x;
+      *out_y = y;
+      break;
+    case META_MONITOR_TRANSFORM_90:
+      *out_x = area_width - y;
+      *out_y = x;
+      break;
+    case META_MONITOR_TRANSFORM_180:
+      *out_x = area_width - x;
+      *out_y = area_height - y;
+      break;
+    case META_MONITOR_TRANSFORM_270:
+      *out_x = y,
+      *out_y = area_height - x;
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED:
+      *out_x = area_width - x;
+      *out_y = y;
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_90:
+      *out_x = area_width - y;
+      *out_y = area_height - x;
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_180:
+      *out_x = x;
+      *out_y = area_height - y;
+      break;
+    case META_MONITOR_TRANSFORM_FLIPPED_270:
+      *out_x = y;
+      *out_y = x;
+      break;
+    }
+}
