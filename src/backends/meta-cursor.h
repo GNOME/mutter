@@ -67,6 +67,10 @@ void meta_cursor_sprite_get_hotspot (MetaCursorSprite *sprite,
                                      int              *hot_x,
                                      int              *hot_y);
 
+int meta_cursor_sprite_get_width (MetaCursorSprite *sprite);
+
+int meta_cursor_sprite_get_height (MetaCursorSprite *sprite);
+
 float meta_cursor_sprite_get_texture_scale (MetaCursorSprite *sprite);
 
 MetaMonitorTransform meta_cursor_sprite_get_texture_transform (MetaCursorSprite *sprite);

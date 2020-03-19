@@ -142,6 +142,24 @@ meta_cursor_sprite_get_hotspot (MetaCursorSprite *sprite,
   *hot_y = priv->hot_y;
 }
 
+int
+meta_cursor_sprite_get_width (MetaCursorSprite *sprite)
+{
+  CoglTexture *texture;
+
+  texture = meta_cursor_sprite_get_cogl_texture (sprite);
+  return cogl_texture_get_width (texture);
+}
+
+int
+meta_cursor_sprite_get_height (MetaCursorSprite *sprite)
+{
+  CoglTexture *texture;
+
+  texture = meta_cursor_sprite_get_cogl_texture (sprite);
+  return cogl_texture_get_height (texture);
+}
+
 float
 meta_cursor_sprite_get_texture_scale (MetaCursorSprite *sprite)
 {
