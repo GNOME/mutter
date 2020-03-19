@@ -1287,6 +1287,8 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
   if (!clutter_actor_get_resource_scale (actor, &resource_scale))
     return FALSE;
 
+  clutter_actor_inhibit_culling (actor);
+
   width = ceilf (width * resource_scale);
   height = ceilf (height * resource_scale);
 
@@ -1321,6 +1323,8 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
 
   cogl_framebuffer_pop_matrix (framebuffer);
   cogl_framebuffer_pop_clip (framebuffer);
+
+  clutter_actor_uninhibit_culling (actor);
 
   return TRUE;
 }
@@ -1399,10 +1403,12 @@ meta_window_actor_get_image (MetaWindowActor *self,
   float x, y;
   MetaRectangle scaled_clip;
   ClutterPaintContext *paint_context;
-  cairo_surface_t *surface;
+  cairo_surface_t *surface = NULL;
 
   if (!priv->surface)
     return NULL;
+
+  clutter_actor_inhibit_culling (actor);
 
   if (clutter_actor_get_n_children (actor) == 1)
     {
@@ -1425,23 +1431,24 @@ meta_window_actor_get_image (MetaWindowActor *self,
         }
 
       stex = meta_surface_actor_get_texture (priv->surface);
-      return meta_shaped_texture_get_image (stex, surface_clip);
+      surface = meta_shaped_texture_get_image (stex, surface_clip);
+      goto out;
     }
 
   clutter_actor_get_size (actor, &width, &height);
 
   if (width == 0 || height == 0)
-    return NULL;
+    goto out;
 
   if (!clutter_actor_get_resource_scale (actor, &resource_scale))
-    return NULL;
+    goto out;
 
   width = ceilf (width * resource_scale);
   height = ceilf (height * resource_scale);
 
   texture = cogl_texture_2d_new_with_size (cogl_context, width, height);
   if (!texture)
-    return NULL;
+    goto out;
 
   cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (texture),
                                           FALSE);
@@ -1457,7 +1464,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
                  error->message);
       cogl_object_unref (framebuffer);
       cogl_object_unref (texture);
-      return NULL;
+      goto out;
     }
 
   cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
@@ -1504,5 +1511,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
 
   cairo_surface_mark_dirty (surface);
 
+out:
+  clutter_actor_uninhibit_culling (actor);
   return surface;
 }
