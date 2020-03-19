@@ -224,6 +224,31 @@ set_pending_cursor_sprite_gbm_bo (MetaCursorSprite *cursor_sprite,
 }
 
 static void
+calculate_crtc_cursor_hotspot (MetaCursorSprite *cursor_sprite,
+                               int              *cursor_hotspot_x,
+                               int              *cursor_hotspot_y)
+{
+  MetaCursorNativePrivate *cursor_priv = get_cursor_priv (cursor_sprite);
+  int hot_x, hot_y;
+  int width, height;
+  float scale;
+  MetaMonitorTransform transform;
+
+  scale = cursor_priv->preprocess_state.current_relative_scale;
+  transform = cursor_priv->preprocess_state.current_relative_transform;
+
+  meta_cursor_sprite_get_hotspot (cursor_sprite, &hot_x, &hot_y);
+  width = meta_cursor_sprite_get_width (cursor_sprite);
+  height = meta_cursor_sprite_get_height (cursor_sprite);
+  meta_monitor_transform_transform_point (transform,
+                                          width, height,
+                                          hot_x, hot_y,
+                                          &hot_x, &hot_y);
+  *cursor_hotspot_x = (int) roundf (hot_x * scale);
+  *cursor_hotspot_y = (int) roundf (hot_y * scale);
+}
+
+static void
 set_crtc_cursor (MetaCursorRendererNative *native,
                  MetaKmsUpdate            *kms_update,
                  MetaCrtc                 *crtc,
@@ -248,6 +273,9 @@ set_crtc_cursor (MetaCursorRendererNative *native,
   MetaFixed16Rectangle src_rect;
   MetaFixed16Rectangle dst_rect;
   MetaKmsAssignPlaneFlag flags;
+  int cursor_hotspot_x;
+  int cursor_hotspot_y;
+  MetaKmsPlaneAssignment *plane_assignment;
 
   if (cursor_gpu_state->pending_bo_state == META_CURSOR_GBM_BO_STATE_SET)
     bo = get_pending_cursor_sprite_gbm_bo (cursor_gpu_state);
@@ -280,13 +308,20 @@ set_crtc_cursor (MetaCursorRendererNative *native,
   if (!priv->hw_state_invalidated && bo == crtc->cursor_renderer_private)
     flags |= META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED;
 
-  meta_kms_update_assign_plane (kms_update,
-                                kms_crtc,
-                                cursor_plane,
-                                handle.u32,
-                                src_rect,
-                                dst_rect,
-                                flags);
+  plane_assignment = meta_kms_update_assign_plane (kms_update,
+                                                   kms_crtc,
+                                                   cursor_plane,
+                                                   handle.u32,
+                                                   src_rect,
+                                                   dst_rect,
+                                                   flags);
+
+  calculate_crtc_cursor_hotspot (cursor_sprite,
+                                 &cursor_hotspot_x,
+                                 &cursor_hotspot_y);
+  meta_kms_plane_assignment_set_cursor_hotspot (plane_assignment,
+                                                cursor_hotspot_x,
+                                                cursor_hotspot_y);
 
   crtc->cursor_renderer_private = bo;
 
