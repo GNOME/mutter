@@ -443,10 +443,6 @@ CLUTTER_EXPORT
 void                            clutter_actor_get_allocation_box                (ClutterActor                *self,
                                                                                  ClutterActorBox             *box);
 CLUTTER_EXPORT
-void                            clutter_actor_get_allocation_vertices           (ClutterActor                *self,
-                                                                                 ClutterActor                *ancestor,
-                                                                                 graphene_point3d_t          *verts);
-CLUTTER_EXPORT
 gboolean                        clutter_actor_has_allocation                    (ClutterActor                *self);
 CLUTTER_EXPORT
 void                            clutter_actor_set_size                          (ClutterActor                *self,
