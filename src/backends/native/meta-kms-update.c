@@ -340,6 +340,16 @@ meta_kms_plane_assignment_set_plane_property (MetaKmsPlaneAssignment *plane_assi
     g_list_prepend (plane_assignment->plane_properties, plane_prop);
 }
 
+void
+meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane_assignment,
+                                              int                     x,
+                                              int                     y)
+{
+  plane_assignment->cursor_hotspot.is_valid = TRUE;
+  plane_assignment->cursor_hotspot.x = x;
+  plane_assignment->cursor_hotspot.y = y;
+}
+
 MetaKmsPlaneAssignment *
 meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,
                                               MetaKmsCrtc   *crtc)

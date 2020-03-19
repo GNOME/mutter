@@ -108,6 +108,10 @@ void meta_kms_update_custom_page_flip (MetaKmsUpdate                 *update,
                                        MetaKmsCustomPageFlipFunc      custom_page_flip_func,
                                        gpointer                       custom_page_flip_user_data);
 
+void meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane_assignment,
+                                                   int                     x,
+                                                   int                     y);
+
 static inline MetaFixed16
 meta_fixed_16_from_int (int16_t d)
 {

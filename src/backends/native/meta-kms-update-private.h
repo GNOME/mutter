@@ -51,6 +51,12 @@ typedef struct _MetaKmsPlaneAssignment
   MetaKmsAssignPlaneFlag flags;
 
   GList *plane_properties;
+
+  struct {
+    gboolean is_valid;
+    int x;
+    int y;
+  } cursor_hotspot;
 } MetaKmsPlaneAssignment;
 
 typedef struct _MetaKmsModeSet
