@@ -148,7 +148,7 @@ clutter_clone_apply_transform (ClutterActor *self, CoglMatrix *matrix)
   y_scale = clutter_actor_box_get_height (&box)
           / clutter_actor_box_get_height (&source_box);
 
-  cogl_matrix_scale (matrix, x_scale, y_scale, x_scale);
+  cogl_matrix_scale (matrix, x_scale, y_scale, 1.f);
 }
 
 static void
