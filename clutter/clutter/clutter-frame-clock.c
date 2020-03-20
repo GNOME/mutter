@@ -72,6 +72,9 @@ struct _ClutterFrameClock
   ClutterFrameClockState state;
   int64_t last_presentation_time_us;
 
+  gboolean is_next_presentation_time_valid;
+  int64_t next_presentation_time_us;
+
   gboolean pending_reschedule;
 };
 
@@ -120,7 +123,8 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 
 static void
 calculate_next_update_time_us (ClutterFrameClock *frame_clock,
-                               int64_t           *out_next_update_time_us)
+                               int64_t           *out_next_update_time_us,
+                               int64_t           *out_next_presentation_time_us)
 {
   int64_t last_presentation_time_us;
   int64_t now_us;
@@ -128,6 +132,8 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
   int64_t refresh_interval_us;
   int64_t min_render_time_allowed_us;
   int64_t max_render_time_allowed_us;
+  int64_t last_next_presentation_time_us;
+  int64_t time_since_last_next_presentation_time_us;
   int64_t next_presentation_time_us;
   int64_t next_update_time_us;
 
@@ -159,12 +165,24 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
       next_presentation_time_us = logical_clock_phase_us + hw_clock_offset_us;
     }
 
+  /* Skip one interval if we got an early presented event. */
+  last_next_presentation_time_us = frame_clock->next_presentation_time_us;
+  time_since_last_next_presentation_time_us =
+      next_presentation_time_us - last_next_presentation_time_us;
+  if (frame_clock->is_next_presentation_time_valid &&
+      time_since_last_next_presentation_time_us < (refresh_interval_us / 2))
+    {
+      next_presentation_time_us =
+        frame_clock->next_presentation_time_us + refresh_interval_us;
+    }
+
   while (next_presentation_time_us < now_us + min_render_time_allowed_us)
     next_presentation_time_us += refresh_interval_us;
 
   next_update_time_us = next_presentation_time_us - max_render_time_allowed_us;
 
   *out_next_update_time_us = next_update_time_us;
+  *out_next_presentation_time_us = next_presentation_time_us;
 }
 
 void
@@ -178,7 +196,10 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
       next_update_time_us = g_get_monotonic_time ();
       break;
     case CLUTTER_FRAME_CLOCK_STATE_IDLE:
-      calculate_next_update_time_us (frame_clock, &next_update_time_us);
+      calculate_next_update_time_us (frame_clock,
+                                     &next_update_time_us,
+                                     &frame_clock->next_presentation_time_us);
+      frame_clock->is_next_presentation_time_valid = TRUE;
       break;
     case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
       return;

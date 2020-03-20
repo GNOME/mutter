@@ -158,6 +158,78 @@ frame_clock_schedule_update (void)
   g_source_unref (source);
 }
 
+static gboolean
+schedule_update_idle (gpointer user_data)
+{
+  ClutterFrameClock *frame_clock = user_data;
+
+  clutter_frame_clock_schedule_update (frame_clock);
+
+  return G_SOURCE_REMOVE;
+}
+
+static ClutterFrameResult
+immediate_frame_clock_frame (ClutterFrameClock *frame_clock,
+                             int64_t            frame_count,
+                             gpointer           user_data)
+{
+  GMainLoop *main_loop = user_data;
+
+  g_assert_cmpint (frame_count, ==, expected_frame_count);
+
+  expected_frame_count++;
+
+  if (test_frame_count == 0)
+    {
+      g_main_loop_quit (main_loop);
+      return CLUTTER_FRAME_RESULT_IDLE;
+    }
+
+  test_frame_count--;
+
+  clutter_frame_clock_notify_presented (frame_clock, g_get_monotonic_time ());
+  g_idle_add (schedule_update_idle, frame_clock);
+
+  return CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
+}
+
+static const ClutterFrameListenerIface immediate_frame_listener_iface = {
+  .frame = immediate_frame_clock_frame,
+};
+
+static void
+frame_clock_immediate_present (void)
+{
+  GMainLoop *main_loop;
+  ClutterFrameClock *frame_clock;
+  int64_t before_us;
+  int64_t after_us;
+
+  test_frame_count = 10;
+  expected_frame_count = 0;
+
+  main_loop = g_main_loop_new (NULL, FALSE);
+  frame_clock = clutter_frame_clock_new (refresh_rate,
+                                         &immediate_frame_listener_iface,
+                                         main_loop);
+
+  before_us = g_get_monotonic_time ();
+
+  clutter_frame_clock_schedule_update (frame_clock);
+  g_main_loop_run (main_loop);
+
+  after_us = g_get_monotonic_time ();
+
+  /* The initial frame will only be delayed by 2 ms, so we are checking one
+   * less.
+   */
+  g_assert_cmpint (after_us - before_us, >, 9 * refresh_interval_us);
+
+  g_main_loop_unref (main_loop);
+  g_object_unref (frame_clock);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/frame-clock/schedule-update", frame_clock_schedule_update)
+  CLUTTER_TEST_UNIT ("/frame-clock/immediate-present", frame_clock_immediate_present)
 )
