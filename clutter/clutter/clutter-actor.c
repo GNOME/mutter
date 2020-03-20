@@ -2792,7 +2792,7 @@ _clutter_actor_propagate_queue_redraw (ClutterActor       *self,
       if (stop)
         break;
 
-      self = clutter_actor_get_parent (self);
+      self = self->priv->parent;
     }
 }
 
@@ -3310,8 +3310,6 @@ _clutter_actor_apply_relative_transformation_matrix (ClutterActor *self,
                                                      ClutterActor *ancestor,
                                                      CoglMatrix *matrix)
 {
-  ClutterActor *parent;
-
   /* Note we terminate before ever calling stage->apply_transform()
    * since that would conceptually be relative to the underlying
    * window OpenGL coordinates so we'd need a special @ancestor
@@ -3319,10 +3317,9 @@ _clutter_actor_apply_relative_transformation_matrix (ClutterActor *self,
   if (self == ancestor)
     return;
 
-  parent = clutter_actor_get_parent (self);
-
-  if (parent != NULL)
-    _clutter_actor_apply_relative_transformation_matrix (parent, ancestor,
+  if (self->priv->parent != NULL)
+    _clutter_actor_apply_relative_transformation_matrix (self->priv->parent,
+                                                         ancestor,
                                                          matrix);
 
   _clutter_actor_apply_modelview_transform (self, matrix);
