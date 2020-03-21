@@ -32,12 +32,12 @@ static struct {
   const char *mimetype_glob;
   ssize_t max_transfer_size;
 } supported_mimetypes[] = {
+  { "image/tiff",               MAX_IMAGE_SIZE },
+  { "image/bmp",                MAX_IMAGE_SIZE },
   { "image/gif",                MAX_IMAGE_SIZE },
   { "image/jpeg",               MAX_IMAGE_SIZE },
   { "image/webp",               MAX_IMAGE_SIZE },
   { "image/png",                MAX_IMAGE_SIZE },
-  { "image/bmp",                MAX_IMAGE_SIZE },
-  { "image/tiff",               MAX_IMAGE_SIZE },
   { "image/svg+xml",            MAX_IMAGE_SIZE },
   { "text/plain",               MAX_TEXT_SIZE },
   { "text/plain;charset=utf-8", MAX_TEXT_SIZE },
