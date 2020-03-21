@@ -2523,19 +2523,31 @@ clutter_actor_notify_if_geometry_changed (ClutterActor          *self,
 }
 
 static void
-absolute_allocation_changed (ClutterActor *actor)
+absolute_geometry_changed (ClutterActor *actor)
 {
   queue_update_stage_views (actor);
 }
 
 static ClutterActorTraverseVisitFlags
-absolute_allocation_changed_cb (ClutterActor *actor,
-                                int           depth,
-                                gpointer      user_data)
+absolute_geometry_changed_cb (ClutterActor *actor,
+                              int           depth,
+                              gpointer      user_data)
 {
-  absolute_allocation_changed (actor);
+  absolute_geometry_changed (actor);
 
   return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
+}
+
+static void
+transform_changed (ClutterActor *actor)
+{
+  actor->priv->transform_valid = FALSE;
+
+  _clutter_actor_traverse (actor,
+                           CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
+                           absolute_geometry_changed_cb,
+                           NULL,
+                           NULL);
 }
 
 /*< private >
@@ -2587,7 +2599,7 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
   priv->absolute_origin_changed |= x1_changed || y1_changed;
 
   if (priv->absolute_origin_changed || x2_changed || y2_changed)
-    absolute_allocation_changed (self);
+    absolute_geometry_changed (self);
 
   if (x1_changed ||
       y1_changed ||
@@ -2597,7 +2609,7 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
       CLUTTER_NOTE (LAYOUT, "Allocation for '%s' changed",
                     _clutter_actor_get_debug_name (self));
 
-      priv->transform_valid = FALSE;
+      transform_changed (self);
 
       g_object_notify_by_pspec (obj, obj_props[PROP_ALLOCATION]);
 
@@ -4456,7 +4468,7 @@ clutter_actor_set_pivot_point_internal (ClutterActor           *self,
   info = _clutter_actor_get_transform_info (self);
   info->pivot = *pivot;
 
-  self->priv->transform_valid = FALSE;
+  transform_changed (self);
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_PIVOT_POINT]);
 
@@ -4472,7 +4484,7 @@ clutter_actor_set_pivot_point_z_internal (ClutterActor *self,
   info = _clutter_actor_get_transform_info (self);
   info->pivot_z = pivot_z;
 
-  self->priv->transform_valid = FALSE;
+  transform_changed (self);
 
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_PIVOT_POINT_Z]);
 
@@ -4506,7 +4518,8 @@ clutter_actor_set_translation_internal (ClutterActor *self,
   else
     g_assert_not_reached ();
 
-  self->priv->transform_valid = FALSE;
+  transform_changed (self);
+
   clutter_actor_queue_redraw (self);
   g_object_notify_by_pspec (obj, pspec);
 }
@@ -4638,7 +4651,7 @@ clutter_actor_set_rotation_angle_internal (ClutterActor *self,
   else
     g_assert_not_reached ();
 
-  self->priv->transform_valid = FALSE;
+  transform_changed (self);
 
   clutter_actor_queue_redraw (self);
 
@@ -4763,7 +4776,8 @@ clutter_actor_set_scale_factor_internal (ClutterActor *self,
   else
     g_assert_not_reached ();
 
-  self->priv->transform_valid = FALSE;
+  transform_changed (self);
+
   clutter_actor_queue_redraw (self);
   g_object_notify_by_pspec (obj, pspec);
 }
@@ -9507,7 +9521,7 @@ clutter_actor_allocate (ClutterActor          *self,
         {
           _clutter_actor_traverse (self,
                                    CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
-                                   absolute_allocation_changed_cb,
+                                   absolute_geometry_changed_cb,
                                    NULL,
                                    NULL);
         }
@@ -9565,7 +9579,7 @@ clutter_actor_allocate (ClutterActor          *self,
         {
           _clutter_actor_traverse (self,
                                    CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
-                                   absolute_allocation_changed_cb,
+                                   absolute_geometry_changed_cb,
                                    NULL,
                                    NULL);
         }
@@ -11186,7 +11200,7 @@ clutter_actor_set_z_position_internal (ClutterActor *self,
     {
       info->z_position = z_position;
 
-      self->priv->transform_valid = FALSE;
+      transform_changed (self);
 
       clutter_actor_queue_redraw (self);
 
@@ -14658,7 +14672,7 @@ clutter_actor_set_transform_internal (ClutterActor        *self,
   info->transform = *transform;
   info->transform_set = !cogl_matrix_is_identity (&info->transform);
 
-  self->priv->transform_valid = FALSE;
+  transform_changed (self);
 
   clutter_actor_queue_redraw (self);
 
@@ -19188,7 +19202,7 @@ clutter_actor_set_child_transform_internal (ClutterActor        *self,
   /* we need to reset the transform_valid flag on each child */
   clutter_actor_iter_init (&iter, self);
   while (clutter_actor_iter_next (&iter, &child))
-    child->priv->transform_valid = FALSE;
+    transform_changed (child);
 
   clutter_actor_queue_redraw (self);
 
@@ -19753,5 +19767,5 @@ clutter_actor_invalidate_transform (ClutterActor *self)
 {
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
-  self->priv->transform_valid = FALSE;
+  transform_changed (self);
 }
