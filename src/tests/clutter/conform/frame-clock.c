@@ -311,8 +311,55 @@ frame_clock_delayed_damage (void)
   g_source_unref (source);
 }
 
+static ClutterFrameResult
+no_damage_frame_clock_frame (ClutterFrameClock *frame_clock,
+                             int64_t            frame_count,
+                             gpointer           user_data)
+{
+  g_assert_not_reached ();
+
+  return CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
+}
+
+static const ClutterFrameListenerIface no_damage_frame_listener_iface = {
+  .frame = no_damage_frame_clock_frame,
+};
+
+static gboolean
+quit_main_loop_idle (gpointer user_data)
+{
+  GMainLoop *main_loop = user_data;
+
+  g_main_loop_quit (main_loop);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+frame_clock_no_damage (void)
+{
+  GMainLoop *main_loop;
+  ClutterFrameClock *frame_clock;
+
+  test_frame_count = 10;
+  expected_frame_count = 0;
+
+  main_loop = g_main_loop_new (NULL, FALSE);
+  frame_clock = clutter_frame_clock_new (refresh_rate,
+                                         &no_damage_frame_listener_iface,
+                                         NULL);
+
+  g_timeout_add (100, quit_main_loop_idle, main_loop);
+
+  g_main_loop_run (main_loop);
+
+  g_main_loop_unref (main_loop);
+  g_object_unref (frame_clock);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/frame-clock/schedule-update", frame_clock_schedule_update)
   CLUTTER_TEST_UNIT ("/frame-clock/immediate-present", frame_clock_immediate_present)
   CLUTTER_TEST_UNIT ("/frame-clock/delayed-damage", frame_clock_delayed_damage)
+  CLUTTER_TEST_UNIT ("/frame-clock/no-damage", frame_clock_no_damage)
 )
