@@ -76,6 +76,7 @@ struct _ClutterFrameClock
   int64_t next_presentation_time_us;
 
   gboolean pending_reschedule;
+  gboolean pending_reschedule_now;
 };
 
 G_DEFINE_TYPE (ClutterFrameClock, clutter_frame_clock,
@@ -108,14 +109,21 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
       break;
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
     case CLUTTER_FRAME_CLOCK_STATE_PENDING_PRESENTED:
+      frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
+
       if (frame_clock->pending_reschedule)
         {
           frame_clock->pending_reschedule = FALSE;
-          clutter_frame_clock_schedule_update (frame_clock);
-        }
-      else
-        {
-          frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
+
+          if (frame_clock->pending_reschedule_now)
+            {
+              frame_clock->pending_reschedule_now = FALSE;
+              clutter_frame_clock_schedule_update_now (frame_clock);
+            }
+          else
+            {
+              clutter_frame_clock_schedule_update (frame_clock);
+            }
         }
       break;
     }
@@ -183,6 +191,33 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
 
   *out_next_update_time_us = next_update_time_us;
   *out_next_presentation_time_us = next_presentation_time_us;
+}
+
+void
+clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
+{
+  int64_t next_update_time_us = -1;
+
+  switch (frame_clock->state)
+    {
+    case CLUTTER_FRAME_CLOCK_STATE_INIT:
+    case CLUTTER_FRAME_CLOCK_STATE_IDLE:
+      next_update_time_us = g_get_monotonic_time ();
+      break;
+    case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
+      return;
+    case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
+    case CLUTTER_FRAME_CLOCK_STATE_PENDING_PRESENTED:
+      frame_clock->pending_reschedule = TRUE;
+      frame_clock->pending_reschedule_now = TRUE;
+      return;
+    }
+
+  g_warn_if_fail (next_update_time_us != -1);
+
+  g_source_set_ready_time (frame_clock->source, next_update_time_us);
+  frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_SCHEDULED;
+  frame_clock->is_next_presentation_time_valid = FALSE;
 }
 
 void

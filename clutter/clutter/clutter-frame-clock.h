@@ -55,4 +55,7 @@ void clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
 CLUTTER_EXPORT
 void clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock);
 
+CLUTTER_EXPORT
+void clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock);
+
 #endif /* CLUTTER_FRAME_CLOCK_H */
