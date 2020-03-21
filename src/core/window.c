@@ -1319,7 +1319,7 @@ _meta_window_shared_new (MetaDisplay         *display,
 
           g_warn_if_fail (!window->transient_for->override_redirect);
           set_workspace_state (window,
-                               should_be_on_all_workspaces (window->transient_for),
+                               window->transient_for->on_all_workspaces,
                                window->transient_for->workspace);
         }
       else if (window->on_all_workspaces)
