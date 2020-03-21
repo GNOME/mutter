@@ -229,7 +229,90 @@ frame_clock_immediate_present (void)
   g_object_unref (frame_clock);
 }
 
+static gboolean
+schedule_update_timeout (gpointer user_data)
+{
+  ClutterFrameClock *frame_clock = user_data;
+
+  clutter_frame_clock_schedule_update (frame_clock);
+
+  return G_SOURCE_REMOVE;
+}
+
+static ClutterFrameResult
+delayed_damage_frame_clock_frame (ClutterFrameClock *frame_clock,
+                                  int64_t            frame_count,
+                                  gpointer           user_data)
+{
+  FrameClockTest *test = user_data;
+  GMainLoop *main_loop = test->main_loop;
+
+  g_assert_cmpint (frame_count, ==, expected_frame_count);
+
+  expected_frame_count++;
+
+  if (test_frame_count == 0)
+    {
+      g_main_loop_quit (main_loop);
+      return CLUTTER_FRAME_RESULT_IDLE;
+    }
+  else
+    {
+      test->fake_hw_clock->has_pending_present = TRUE;
+    }
+
+  test_frame_count--;
+
+  g_timeout_add (100, schedule_update_timeout, frame_clock);
+
+  return CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
+}
+
+static const ClutterFrameListenerIface delayed_damage_frame_listener_iface = {
+  .frame = delayed_damage_frame_clock_frame,
+};
+
+static void
+frame_clock_delayed_damage (void)
+{
+  FrameClockTest test;
+  ClutterFrameClock *frame_clock;
+  int64_t before_us;
+  int64_t after_us;
+  FakeHwClock *fake_hw_clock;
+  GSource *source;
+
+  test_frame_count = 2;
+  expected_frame_count = 0;
+
+  test.main_loop = g_main_loop_new (NULL, FALSE);
+  frame_clock = clutter_frame_clock_new (refresh_rate,
+                                         &delayed_damage_frame_listener_iface,
+                                         &test);
+
+  fake_hw_clock = fake_hw_clock_new (frame_clock, NULL, NULL);
+  source = &fake_hw_clock->source;
+  g_source_attach (source, NULL);
+
+  test.fake_hw_clock = fake_hw_clock;
+
+  before_us = g_get_monotonic_time ();
+
+  clutter_frame_clock_schedule_update (frame_clock);
+  g_main_loop_run (test.main_loop);
+
+  after_us = g_get_monotonic_time ();
+
+  g_assert_cmpint (after_us - before_us, >, 100000 + refresh_interval_us);
+
+  g_main_loop_unref (test.main_loop);
+  g_object_unref (frame_clock);
+  g_source_destroy (source);
+  g_source_unref (source);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/frame-clock/schedule-update", frame_clock_schedule_update)
   CLUTTER_TEST_UNIT ("/frame-clock/immediate-present", frame_clock_immediate_present)
+  CLUTTER_TEST_UNIT ("/frame-clock/delayed-damage", frame_clock_delayed_damage)
 )
