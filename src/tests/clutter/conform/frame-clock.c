@@ -357,9 +357,111 @@ frame_clock_no_damage (void)
   g_object_unref (frame_clock);
 }
 
+typedef struct _UpdateNowFrameClockTest
+{
+  FrameClockTest base;
+  guint idle_source_id;
+} UpdateNowFrameClockTest;
+
+static ClutterFrameResult
+update_now_frame_clock_frame (ClutterFrameClock *frame_clock,
+                              int64_t            frame_count,
+                              gpointer           user_data)
+{
+  UpdateNowFrameClockTest *test = user_data;
+  GMainLoop *main_loop = test->base.main_loop;
+
+  g_assert_cmpint (frame_count, ==, expected_frame_count);
+
+  expected_frame_count++;
+
+  g_clear_handle_id (&test->idle_source_id, g_source_remove);
+
+  if (test_frame_count == 0)
+    {
+      g_main_loop_quit (main_loop);
+      return CLUTTER_FRAME_RESULT_IDLE;
+    }
+  else
+    {
+      test->base.fake_hw_clock->has_pending_present = TRUE;
+    }
+
+  test_frame_count--;
+
+  return CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
+}
+
+static const ClutterFrameListenerIface update_now_frame_listener_iface = {
+  .frame = update_now_frame_clock_frame,
+};
+
+static gboolean
+assert_not_reached_idle (gpointer user_data)
+{
+  g_assert_not_reached ();
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean
+schedule_update_now_hw_callback (gpointer user_data)
+{
+  UpdateNowFrameClockTest *test = user_data;
+  ClutterFrameClock *frame_clock = test->base.fake_hw_clock->frame_clock;
+
+  clutter_frame_clock_schedule_update_now (frame_clock);
+  g_assert (!test->idle_source_id);
+  test->idle_source_id = g_idle_add (assert_not_reached_idle, NULL);
+
+  return G_SOURCE_CONTINUE;
+}
+
+static void
+frame_clock_schedule_update_now (void)
+{
+  UpdateNowFrameClockTest test = { 0 };
+  ClutterFrameClock *frame_clock;
+  int64_t before_us;
+  int64_t after_us;
+  GSource *source;
+  FakeHwClock *fake_hw_clock;
+
+  test_frame_count = 10;
+  expected_frame_count = 0;
+
+  test.base.main_loop = g_main_loop_new (NULL, FALSE);
+  frame_clock = clutter_frame_clock_new (refresh_rate,
+                                         &update_now_frame_listener_iface,
+                                         &test);
+
+  fake_hw_clock = fake_hw_clock_new (frame_clock,
+                                     schedule_update_now_hw_callback,
+                                     &test);
+  source = &fake_hw_clock->source;
+  g_source_attach (source, NULL);
+
+  test.base.fake_hw_clock = fake_hw_clock;
+
+  before_us = g_get_monotonic_time ();
+
+  clutter_frame_clock_schedule_update (frame_clock);
+  g_main_loop_run (test.base.main_loop);
+
+  after_us = g_get_monotonic_time ();
+
+  g_assert_cmpint (after_us - before_us, >, 10 * refresh_interval_us);
+
+  g_main_loop_unref (test.base.main_loop);
+
+  g_object_unref (frame_clock);
+  g_source_destroy (source);
+  g_source_unref (source);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/frame-clock/schedule-update", frame_clock_schedule_update)
   CLUTTER_TEST_UNIT ("/frame-clock/immediate-present", frame_clock_immediate_present)
   CLUTTER_TEST_UNIT ("/frame-clock/delayed-damage", frame_clock_delayed_damage)
   CLUTTER_TEST_UNIT ("/frame-clock/no-damage", frame_clock_no_damage)
+  CLUTTER_TEST_UNIT ("/frame-clock/schedule-update-now", frame_clock_schedule_update_now)
 )
