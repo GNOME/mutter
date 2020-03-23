@@ -103,6 +103,10 @@ struct _MetaInputSettingsPrivate
   MetaInputMapper *input_mapper;
 };
 
+typedef gboolean (* ConfigBoolMappingFunc) (MetaInputSettings  *input_settings,
+                                            ClutterInputDevice *device,
+                                            gboolean            value);
+
 typedef void (*ConfigBoolFunc)   (MetaInputSettings  *input_settings,
                                   ClutterInputDevice *device,
                                   gboolean            setting);
@@ -195,15 +199,22 @@ settings_device_set_bool_setting (MetaInputSettings  *input_settings,
 static void
 settings_set_bool_setting (MetaInputSettings      *input_settings,
                            ClutterInputDeviceType  type,
+                           ConfigBoolMappingFunc   mapping_func,
                            ConfigBoolFunc          func,
                            gboolean                enabled)
 {
-  GSList *devices, *d;
+  GSList *devices, *l;
 
   devices = meta_input_settings_get_devices (input_settings, type);
 
-  for (d = devices; d; d = d->next)
-    settings_device_set_bool_setting (input_settings, d->data, func, enabled);
+  for (l = devices; l; l = l->next)
+    {
+      gboolean value = enabled;
+
+      if (mapping_func)
+        value = mapping_func (input_settings, l->data, value);
+      settings_device_set_bool_setting (input_settings, l->data, func, value);
+    }
 
   g_slist_free (devices);
 }
@@ -298,7 +309,7 @@ update_touchpad_left_handed (MetaInputSettings  *input_settings,
     }
   else
     {
-      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
+      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE, NULL,
                                  input_settings_class->set_left_handed,
                                  enabled);
     }
@@ -330,7 +341,7 @@ update_mouse_left_handed (MetaInputSettings  *input_settings,
     {
       GDesktopTouchpadHandedness touchpad_handedness;
 
-      settings_set_bool_setting (input_settings, CLUTTER_POINTER_DEVICE,
+      settings_set_bool_setting (input_settings, CLUTTER_POINTER_DEVICE, NULL,
                                  input_settings_class->set_left_handed,
                                  enabled);
 
@@ -446,7 +457,8 @@ update_middle_click_emulation (MetaInputSettings  *input_settings,
     }
   else
     {
-      settings_set_bool_setting (input_settings, CLUTTER_POINTER_DEVICE, func,
+      settings_set_bool_setting (input_settings, CLUTTER_POINTER_DEVICE,
+                                 NULL, func,
                                  g_settings_get_boolean (settings, key));
     }
 }
@@ -505,10 +517,12 @@ update_device_natural_scroll (MetaInputSettings      *input_settings,
   else
     {
       settings = get_settings_for_device_type (input_settings, CLUTTER_POINTER_DEVICE);
-      settings_set_bool_setting (input_settings, CLUTTER_POINTER_DEVICE, func,
+      settings_set_bool_setting (input_settings, CLUTTER_POINTER_DEVICE,
+                                 NULL, func,
                                  g_settings_get_boolean (settings, key));
       settings = get_settings_for_device_type (input_settings, CLUTTER_TOUCHPAD_DEVICE);
-      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE, func,
+      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
+                                 NULL, func,
                                  g_settings_get_boolean (settings, key));
     }
 }
@@ -545,7 +559,7 @@ update_touchpad_disable_while_typing (MetaInputSettings  *input_settings,
     }
   else
     {
-      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
+      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE, NULL,
                                  input_settings_class->set_disable_while_typing,
                                  enabled);
     }
@@ -603,7 +617,7 @@ update_touchpad_tap_enabled (MetaInputSettings  *input_settings,
     }
   else
     {
-      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
+      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE, NULL,
                                  input_settings_class->set_tap_enabled,
                                  enabled);
     }
@@ -634,7 +648,7 @@ update_touchpad_tap_and_drag_enabled (MetaInputSettings  *input_settings,
     }
   else
     {
-      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
+      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE, NULL,
                                  input_settings_class->set_tap_and_drag_enabled,
                                  enabled);
     }
@@ -672,7 +686,7 @@ update_touchpad_edge_scroll (MetaInputSettings *input_settings,
     }
   else
     {
-      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
+      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE, NULL,
                                  (ConfigBoolFunc) input_settings_class->set_edge_scroll,
                                  edge_scroll_enabled);
     }
@@ -706,7 +720,7 @@ update_touchpad_two_finger_scroll (MetaInputSettings *input_settings,
     }
   else
     {
-      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
+      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE, NULL,
                                  (ConfigBoolFunc) input_settings_class->set_two_finger_scroll,
                                  two_finger_scroll_enabled);
     }
