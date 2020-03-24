@@ -592,6 +592,14 @@ device_is_tablet_touchpad (MetaInputSettings  *input_settings,
   return FALSE;
 }
 
+static gboolean
+force_enable_on_tablet (MetaInputSettings  *input_settings,
+                        ClutterInputDevice *device,
+                        gboolean            value)
+{
+  return device_is_tablet_touchpad (input_settings, device) || value;
+}
+
 static void
 update_touchpad_tap_enabled (MetaInputSettings  *input_settings,
                              ClutterInputDevice *device)
@@ -606,18 +614,19 @@ update_touchpad_tap_enabled (MetaInputSettings  *input_settings,
 
   priv = meta_input_settings_get_instance_private (input_settings);
   input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
-  enabled = device_is_tablet_touchpad (input_settings, device) ||
-    g_settings_get_boolean (priv->touchpad_settings, "tap-to-click");
+  enabled = g_settings_get_boolean (priv->touchpad_settings, "tap-to-click");
 
   if (device)
     {
+      enabled = force_enable_on_tablet (input_settings, device, enabled);
       settings_device_set_bool_setting (input_settings, device,
                                         input_settings_class->set_tap_enabled,
                                         enabled);
     }
   else
     {
-      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE, NULL,
+      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
+                                 force_enable_on_tablet,
                                  input_settings_class->set_tap_enabled,
                                  enabled);
     }
@@ -637,18 +646,19 @@ update_touchpad_tap_and_drag_enabled (MetaInputSettings  *input_settings,
 
   priv = meta_input_settings_get_instance_private (input_settings);
   input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
-  enabled = device_is_tablet_touchpad (input_settings, device) ||
-    g_settings_get_boolean (priv->touchpad_settings, "tap-and-drag");
+  enabled = g_settings_get_boolean (priv->touchpad_settings, "tap-and-drag");
 
   if (device)
     {
+      enabled = force_enable_on_tablet (input_settings, device, enabled);
       settings_device_set_bool_setting (input_settings, device,
                                         input_settings_class->set_tap_and_drag_enabled,
                                         enabled);
     }
   else
     {
-      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE, NULL,
+      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
+                                 force_enable_on_tablet,
                                  input_settings_class->set_tap_and_drag_enabled,
                                  enabled);
     }
