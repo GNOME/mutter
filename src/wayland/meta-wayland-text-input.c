@@ -207,10 +207,12 @@ meta_wayland_text_input_focus_set_preedit_text (ClutterInputFocus *focus,
 {
   MetaWaylandTextInput *text_input;
   struct wl_resource *resource;
-  gsize pos;
+  gsize pos = 0;
 
   text_input = META_WAYLAND_TEXT_INPUT_FOCUS (focus)->text_input;
-  pos = g_utf8_offset_to_pointer (text, cursor) - text;
+
+  if (text)
+    pos = g_utf8_offset_to_pointer (text, cursor) - text;
 
   wl_resource_for_each (resource, &text_input->focus_resource_list)
     {
