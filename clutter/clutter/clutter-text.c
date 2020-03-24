@@ -4786,11 +4786,11 @@ clutter_text_queue_redraw_or_relayout (ClutterText *self)
   clutter_text_get_preferred_height (actor, preferred_width, NULL, &preferred_height);
 
   if (clutter_actor_has_allocation (actor) &&
-      (fabsf (preferred_width - clutter_actor_get_width (actor)) > 0.001 ||
-       fabsf (preferred_height - clutter_actor_get_height (actor)) > 0.001))
-    clutter_actor_queue_relayout (actor);
-  else
+      fabsf (preferred_width - clutter_actor_get_width (actor)) <= 0.001 &&
+      fabsf (preferred_height - clutter_actor_get_height (actor)) <= 0.001)
     clutter_text_queue_redraw (actor);
+  else
+    clutter_actor_queue_relayout (actor);
 }
 
 static void
