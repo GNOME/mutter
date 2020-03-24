@@ -58,7 +58,9 @@ struct _CoglPangoGlyphCacheValue
 
   /* This will be set to TRUE when the glyph atlas is reorganized
      which means the glyph will need to be redrawn */
-  gboolean   dirty;
+  guint dirty : 1;
+  /* Set to TRUE if the glyph has colors (eg. emoji) */
+  guint has_color : 1;
 };
 
 typedef void (* CoglPangoGlyphCacheDirtyFunc) (PangoFont *font,

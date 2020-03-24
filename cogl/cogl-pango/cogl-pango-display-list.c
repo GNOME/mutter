@@ -81,6 +81,7 @@ struct _CoglPangoDisplayListNode
       GArray *rectangles;
       /* A primitive representing those vertices */
       CoglPrimitive *primitive;
+      guint has_color : 1;
     } texture;
 
     struct

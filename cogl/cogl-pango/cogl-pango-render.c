@@ -50,6 +50,7 @@
 #include <pango/pangocairo.h>
 #include <pango/pango-renderer.h>
 #include <cairo.h>
+#include <cairo-ft.h>
 
 #include "cogl/cogl-debug.h"
 #include "cogl/cogl-context-private.h"
@@ -526,6 +527,24 @@ cogl_pango_renderer_get_cached_glyph (PangoRenderer *renderer,
                                         create, font, glyph);
 }
 
+static gboolean
+font_has_color_glyphs (const PangoFont *font)
+{
+  cairo_scaled_font_t *scaled_font;
+  gboolean has_color = FALSE;
+
+  scaled_font = pango_cairo_font_get_scaled_font ((PangoCairoFont *) font);
+
+  if (cairo_scaled_font_get_type (scaled_font) == CAIRO_FONT_TYPE_FT)
+    {
+      FT_Face ft_face = cairo_ft_scaled_font_lock_face (scaled_font);
+      has_color = (FT_HAS_COLOR (ft_face) != 0);
+      cairo_ft_scaled_font_unlock_face (scaled_font);
+    }
+
+  return has_color;
+}
+
 static void
 cogl_pango_renderer_set_dirty_glyph (PangoFont *font,
                                      PangoGlyph glyph,
@@ -600,6 +619,8 @@ cogl_pango_renderer_set_dirty_glyph (PangoFont *font,
                            cairo_image_surface_get_data (surface));
 
   cairo_surface_destroy (surface);
+
+  value->has_color = font_has_color_glyphs (font);
 }
 
 static void
