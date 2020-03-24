@@ -17715,10 +17715,42 @@ _clutter_actor_compute_resource_scale (ClutterActor *self,
                                                    resource_scale))
     {
       if (priv->parent)
-        return _clutter_actor_compute_resource_scale (priv->parent,
-                                                      resource_scale);
+        {
+          gboolean in_clone_paint;
+          gboolean was_parent_in_clone_paint;
+          gboolean was_parent_unmapped;
+          gboolean was_parent_paint_unmapped;
+          gboolean ret;
+
+          in_clone_paint = clutter_actor_is_in_clone_paint (self);
+          was_parent_unmapped = !clutter_actor_is_mapped (priv->parent);
+          was_parent_in_clone_paint =
+            clutter_actor_is_in_clone_paint (priv->parent);
+          was_parent_paint_unmapped = priv->parent->priv->enable_paint_unmapped;
+
+          if (in_clone_paint && was_parent_unmapped)
+            {
+              _clutter_actor_set_in_clone_paint (priv->parent, TRUE);
+              _clutter_actor_set_enable_paint_unmapped (priv->parent, TRUE);
+            }
+
+          ret = _clutter_actor_compute_resource_scale (priv->parent,
+                                                       resource_scale);
+
+          if (in_clone_paint && was_parent_unmapped)
+            {
+              _clutter_actor_set_in_clone_paint (priv->parent,
+                                                 was_parent_in_clone_paint);
+              _clutter_actor_set_enable_paint_unmapped (priv->parent,
+                                                        was_parent_paint_unmapped);
+            }
+
+          return ret;
+        }
       else
-        return FALSE;
+        {
+          return FALSE;
+        }
     }
 
   return TRUE;
