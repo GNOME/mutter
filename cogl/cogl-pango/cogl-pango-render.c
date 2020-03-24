@@ -841,14 +841,13 @@ cogl_pango_renderer_draw_glyphs (PangoRenderer    *renderer,
   CoglPangoGlyphCacheValue *cache_value;
   int i;
 
-  cogl_pango_renderer_set_color_for_part (renderer,
-					  PANGO_RENDER_PART_FOREGROUND);
-
   for (i = 0; i < glyphs->num_glyphs; i++)
     {
       PangoGlyphInfo *gi = glyphs->glyphs + i;
       float x, y;
 
+      cogl_pango_renderer_set_color_for_part (renderer,
+                                              PANGO_RENDER_PART_FOREGROUND);
       cogl_pango_renderer_get_device_units (renderer,
 					    xi + gi->geometry.x_offset,
 					    yi + gi->geometry.y_offset,
@@ -904,6 +903,15 @@ cogl_pango_renderer_draw_glyphs (PangoRenderer    *renderer,
 	    {
 	      x += (float)(cache_value->draw_x);
 	      y += (float)(cache_value->draw_y);
+
+              /* Do not override color if the glyph/font provide its own */
+              if (cache_value->has_color)
+                {
+                  CoglColor color;
+
+                  cogl_color_init_from_4ub (&color, 0xff, 0xff, 0xff, 0xff);
+                  _cogl_pango_display_list_set_color_override (priv->display_list, &color);
+                }
 
               cogl_pango_renderer_draw_glyph (priv, cache_value, x, y);
 	    }
