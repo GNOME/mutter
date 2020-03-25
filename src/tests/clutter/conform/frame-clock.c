@@ -524,6 +524,85 @@ frame_clock_before_frame (void)
   g_object_unref (frame_clock);
 }
 
+typedef struct _InhibitTest
+{
+  GMainLoop *main_loop;
+  ClutterFrameClock *frame_clock;
+
+  gboolean frame_count;
+  gboolean pending_inhibit;
+  gboolean pending_quit;
+} InhibitTest;
+
+static ClutterFrameResult
+inhibit_frame_clock_frame (ClutterFrameClock *frame_clock,
+                           int64_t            frame_count,
+                           gpointer           user_data)
+{
+  InhibitTest *test = user_data;
+
+  g_assert_cmpint (frame_count, ==, test->frame_count);
+
+  test->frame_count++;
+
+  clutter_frame_clock_notify_presented (frame_clock, g_get_monotonic_time ());
+  clutter_frame_clock_schedule_update (frame_clock);
+
+  if (test->pending_inhibit)
+    {
+      test->pending_inhibit = FALSE;
+      clutter_frame_clock_inhibit (frame_clock);
+    }
+
+  clutter_frame_clock_schedule_update (frame_clock);
+
+  if (test->pending_quit)
+    g_main_loop_quit (test->main_loop);
+
+  return CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
+}
+
+static const ClutterFrameListenerIface inhibit_frame_listener_iface = {
+  .frame = inhibit_frame_clock_frame,
+};
+
+static gboolean
+uninhibit_timeout (gpointer user_data)
+{
+  InhibitTest *test = user_data;
+
+  g_assert_cmpint (test->frame_count, ==, 1);
+
+  clutter_frame_clock_uninhibit (test->frame_clock);
+  test->pending_quit = TRUE;
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+frame_clock_inhibit (void)
+{
+  InhibitTest test = { 0 };
+
+  expected_frame_count = 0;
+
+  test.main_loop = g_main_loop_new (NULL, FALSE);
+  test.frame_clock = clutter_frame_clock_new (refresh_rate,
+                                              &inhibit_frame_listener_iface,
+                                              &test);
+
+  test.pending_inhibit = TRUE;
+
+  clutter_frame_clock_schedule_update (test.frame_clock);
+  g_timeout_add (100, uninhibit_timeout, &test);
+  g_main_loop_run (test.main_loop);
+
+  g_assert_cmpint (test.frame_count, ==, 2);
+
+  g_main_loop_unref (test.main_loop);
+  g_object_unref (test.frame_clock);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/frame-clock/schedule-update", frame_clock_schedule_update)
   CLUTTER_TEST_UNIT ("/frame-clock/immediate-present", frame_clock_immediate_present)
@@ -531,4 +610,5 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/frame-clock/no-damage", frame_clock_no_damage)
   CLUTTER_TEST_UNIT ("/frame-clock/schedule-update-now", frame_clock_schedule_update_now)
   CLUTTER_TEST_UNIT ("/frame-clock/before-frame", frame_clock_before_frame)
+  CLUTTER_TEST_UNIT ("/frame-clock/inhibit", frame_clock_inhibit)
 )

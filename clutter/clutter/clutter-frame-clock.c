@@ -78,10 +78,31 @@ struct _ClutterFrameClock
 
   gboolean pending_reschedule;
   gboolean pending_reschedule_now;
+
+  int inhibit_count;
 };
 
 G_DEFINE_TYPE (ClutterFrameClock, clutter_frame_clock,
                G_TYPE_OBJECT)
+
+static void
+maybe_reschedule_update (ClutterFrameClock *frame_clock)
+{
+  if (frame_clock->pending_reschedule)
+    {
+      frame_clock->pending_reschedule = FALSE;
+
+      if (frame_clock->pending_reschedule_now)
+        {
+          frame_clock->pending_reschedule_now = FALSE;
+          clutter_frame_clock_schedule_update_now (frame_clock);
+        }
+      else
+        {
+          clutter_frame_clock_schedule_update (frame_clock);
+        }
+    }
+}
 
 void
 clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
@@ -111,21 +132,7 @@ clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
     case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
     case CLUTTER_FRAME_CLOCK_STATE_PENDING_PRESENTED:
       frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
-
-      if (frame_clock->pending_reschedule)
-        {
-          frame_clock->pending_reschedule = FALSE;
-
-          if (frame_clock->pending_reschedule_now)
-            {
-              frame_clock->pending_reschedule_now = FALSE;
-              clutter_frame_clock_schedule_update_now (frame_clock);
-            }
-          else
-            {
-              clutter_frame_clock_schedule_update (frame_clock);
-            }
-        }
+      maybe_reschedule_update (frame_clock);
       break;
     }
 }
@@ -195,9 +202,52 @@ calculate_next_update_time_us (ClutterFrameClock *frame_clock,
 }
 
 void
+clutter_frame_clock_inhibit (ClutterFrameClock *frame_clock)
+{
+  frame_clock->inhibit_count++;
+
+  if (frame_clock->inhibit_count == 1)
+    {
+      switch (frame_clock->state)
+        {
+        case CLUTTER_FRAME_CLOCK_STATE_INIT:
+        case CLUTTER_FRAME_CLOCK_STATE_IDLE:
+          break;
+        case CLUTTER_FRAME_CLOCK_STATE_SCHEDULED:
+          frame_clock->pending_reschedule = TRUE;
+          frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
+          break;
+        case CLUTTER_FRAME_CLOCK_STATE_DISPATCHING:
+        case CLUTTER_FRAME_CLOCK_STATE_PENDING_PRESENTED:
+          break;
+        }
+
+      g_source_set_ready_time (frame_clock->source, -1);
+    }
+}
+
+void
+clutter_frame_clock_uninhibit (ClutterFrameClock *frame_clock)
+{
+  g_return_if_fail (frame_clock->inhibit_count > 0);
+
+  frame_clock->inhibit_count--;
+
+  if (frame_clock->inhibit_count == 0)
+    maybe_reschedule_update (frame_clock);
+}
+
+void
 clutter_frame_clock_schedule_update_now (ClutterFrameClock *frame_clock)
 {
   int64_t next_update_time_us = -1;
+
+  if (frame_clock->inhibit_count > 0)
+    {
+      frame_clock->pending_reschedule = TRUE;
+      frame_clock->pending_reschedule_now = TRUE;
+      return;
+    }
 
   switch (frame_clock->state)
     {
@@ -225,6 +275,12 @@ void
 clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
 {
   int64_t next_update_time_us = -1;
+
+  if (frame_clock->inhibit_count > 0)
+    {
+      frame_clock->pending_reschedule = TRUE;
+      return;
+    }
 
   switch (frame_clock->state)
     {
