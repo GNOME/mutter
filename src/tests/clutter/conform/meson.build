@@ -34,6 +34,7 @@ clutter_conform_tests_general_tests = [
   'interval',
   'script-parser',
   'timeline',
+  'timeline-interpolate',
   'units',
 ]
 
