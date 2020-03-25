@@ -458,10 +458,77 @@ frame_clock_schedule_update_now (void)
   g_source_unref (source);
 }
 
+static void
+before_frame_frame_clock_before_frame (ClutterFrameClock *frame_clock,
+                                       int64_t            frame_count,
+                                       gpointer           user_data)
+{
+  int64_t *expected_frame_count = user_data;
+
+  g_assert_cmpint (*expected_frame_count, ==, frame_count);
+}
+
+static ClutterFrameResult
+before_frame_frame_clock_frame (ClutterFrameClock *frame_clock,
+                                int64_t            frame_count,
+                                gpointer           user_data)
+{
+  int64_t *expected_frame_count = user_data;
+
+  g_assert_cmpint (*expected_frame_count, ==, frame_count);
+
+  (*expected_frame_count)++;
+
+  clutter_frame_clock_notify_presented (frame_clock, g_get_monotonic_time ());
+  clutter_frame_clock_schedule_update (frame_clock);
+
+  return CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
+}
+
+static const ClutterFrameListenerIface before_frame_frame_listener_iface = {
+  .before_frame = before_frame_frame_clock_before_frame,
+  .frame = before_frame_frame_clock_frame,
+};
+
+static gboolean
+quit_main_loop_timeout (gpointer user_data)
+{
+  GMainLoop *main_loop = user_data;
+
+  g_main_loop_quit (main_loop);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+frame_clock_before_frame (void)
+{
+  GMainLoop *main_loop;
+  ClutterFrameClock *frame_clock;
+
+  expected_frame_count = 0;
+
+  main_loop = g_main_loop_new (NULL, FALSE);
+  frame_clock = clutter_frame_clock_new (refresh_rate,
+                                         &before_frame_frame_listener_iface,
+                                         &expected_frame_count);
+
+  clutter_frame_clock_schedule_update (frame_clock);
+  g_timeout_add (100, quit_main_loop_timeout, main_loop);
+  g_main_loop_run (main_loop);
+
+  /* We should have at least processed a couple of frames within 100 ms. */
+  g_assert_cmpint (expected_frame_count, >, 2);
+
+  g_main_loop_unref (main_loop);
+  g_object_unref (frame_clock);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/frame-clock/schedule-update", frame_clock_schedule_update)
   CLUTTER_TEST_UNIT ("/frame-clock/immediate-present", frame_clock_immediate_present)
   CLUTTER_TEST_UNIT ("/frame-clock/delayed-damage", frame_clock_delayed_damage)
   CLUTTER_TEST_UNIT ("/frame-clock/no-damage", frame_clock_no_damage)
   CLUTTER_TEST_UNIT ("/frame-clock/schedule-update-now", frame_clock_schedule_update_now)
+  CLUTTER_TEST_UNIT ("/frame-clock/before-frame", frame_clock_before_frame)
 )

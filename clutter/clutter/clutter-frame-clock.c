@@ -255,6 +255,7 @@ static gboolean
 clutter_frame_clock_dispatch (gpointer user_data)
 {
   ClutterFrameClock *frame_clock = user_data;
+  int64_t frame_count;
   ClutterFrameResult result;
 
   COGL_TRACE_BEGIN_SCOPED (ClutterFrameCLockDispatch, "Frame Clock (dispatch)");
@@ -263,9 +264,20 @@ clutter_frame_clock_dispatch (gpointer user_data)
 
   frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_DISPATCHING;
 
+  frame_count = frame_clock->frame_count++;
+
+  COGL_TRACE_BEGIN (ClutterFrameClockEvents, "Frame Clock (before frame)");
+  if (frame_clock->listener.iface->before_frame)
+    {
+      frame_clock->listener.iface->before_frame (frame_clock,
+                                                 frame_count,
+                                                 frame_clock->listener.user_data);
+    }
+  COGL_TRACE_END (ClutterFrameClockEvents);
+
   COGL_TRACE_BEGIN (ClutterFrameClockFrame, "Frame Clock (frame)");
   result = frame_clock->listener.iface->frame (frame_clock,
-                                               frame_clock->frame_count++,
+                                               frame_count,
                                                frame_clock->listener.user_data);
   COGL_TRACE_END (ClutterFrameClockFrame);
 
