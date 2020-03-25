@@ -32,6 +32,7 @@ clutter_conform_tests_general_tests = [
   'binding-pool',
   'color',
   'frame-clock',
+  'frame-clock-timeline',
   'interval',
   'script-parser',
   'timeline',
