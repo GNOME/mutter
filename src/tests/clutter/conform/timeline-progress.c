@@ -1,10 +1,11 @@
+#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <glib.h>
 #include <clutter/clutter.h>
-#include "test-conform-common.h"
 
-void
-timeline_progress_step (TestConformSimpleFixture *fixture G_GNUC_UNUSED,
-                        gconstpointer dummy G_GNUC_UNUSED)
+#include "tests/clutter-test-utils.h"
+
+static void
+timeline_progress_step (void)
 {
   ClutterTimeline *timeline;
 
@@ -86,9 +87,8 @@ timeline_progress_step (TestConformSimpleFixture *fixture G_GNUC_UNUSED,
   g_object_unref (timeline);
 }
 
-void
-timeline_progress_mode (TestConformSimpleFixture *fixture G_GNUC_UNUSED,
-                        gconstpointer dummy G_GNUC_UNUSED)
+static void
+timeline_progress_mode (void)
 {
   ClutterTimeline *timeline;
 
@@ -108,3 +108,8 @@ timeline_progress_mode (TestConformSimpleFixture *fixture G_GNUC_UNUSED,
 
   g_object_unref (timeline);
 }
+
+CLUTTER_TEST_SUITE (
+  CLUTTER_TEST_UNIT ("/timeline/progress/step", timeline_progress_step);
+  CLUTTER_TEST_UNIT ("/timeline/progress/mode", timeline_progress_mode)
+)

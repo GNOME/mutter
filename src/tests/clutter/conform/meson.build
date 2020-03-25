@@ -35,6 +35,7 @@ clutter_conform_tests_general_tests = [
   'script-parser',
   'timeline',
   'timeline-interpolate',
+  'timeline-progress',
   'units',
 ]
 
