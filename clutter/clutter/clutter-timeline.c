@@ -513,6 +513,42 @@ clutter_timeline_get_property (GObject    *object,
 }
 
 static void
+add_timeline (ClutterTimeline *timeline)
+{
+  ClutterTimelinePrivate *priv = timeline->priv;
+
+  if (priv->frame_clock)
+    {
+      clutter_frame_clock_add_timeline (priv->frame_clock, timeline);
+    }
+  else
+    {
+      ClutterMasterClock *master_clock;
+
+      master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_add_timeline (master_clock, timeline);
+    }
+}
+
+static void
+remove_timeline (ClutterTimeline *timeline)
+{
+  ClutterTimelinePrivate *priv = timeline->priv;
+
+  if (priv->frame_clock)
+    {
+      clutter_frame_clock_remove_timeline (priv->frame_clock, timeline);
+    }
+  else
+    {
+      ClutterMasterClock *master_clock;
+
+      master_clock = _clutter_master_clock_get_default ();
+      _clutter_master_clock_remove_timeline (master_clock, timeline);
+    }
+}
+
+static void
 clutter_timeline_finalize (GObject *object)
 {
   ClutterTimeline *self = CLUTTER_TIMELINE (object);
@@ -522,19 +558,7 @@ clutter_timeline_finalize (GObject *object)
     g_hash_table_destroy (priv->markers_by_name);
 
   if (priv->is_playing)
-    {
-      if (priv->frame_clock)
-        {
-          clutter_frame_clock_remove_timeline (priv->frame_clock, self);
-        }
-      else
-        {
-          ClutterMasterClock *master_clock;
-
-          master_clock = _clutter_master_clock_get_default ();
-          _clutter_master_clock_remove_timeline (master_clock, self);
-        }
-    }
+    remove_timeline (self);
 
   g_clear_object (&priv->frame_clock);
 
@@ -971,24 +995,12 @@ set_is_playing (ClutterTimeline *timeline,
     {
       priv->waiting_first_tick = TRUE;
       priv->current_repeat = 0;
-    }
 
-  if (priv->frame_clock)
-    {
-      if (priv->is_playing)
-        clutter_frame_clock_add_timeline (priv->frame_clock, timeline);
-      else
-        clutter_frame_clock_remove_timeline (priv->frame_clock, timeline);
+      add_timeline (timeline);
     }
   else
     {
-      ClutterMasterClock *master_clock;
-
-      master_clock = _clutter_master_clock_get_default ();
-      if (priv->is_playing)
-        _clutter_master_clock_add_timeline (master_clock, timeline);
-      else
-        _clutter_master_clock_remove_timeline (master_clock, timeline);
+      remove_timeline (timeline);
     }
 }
 
