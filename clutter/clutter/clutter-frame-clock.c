@@ -20,6 +20,7 @@
 #include "clutter/clutter-frame-clock.h"
 
 #include "clutter/clutter-main.h"
+#include "cogl/cogl-trace.h"
 
 static inline uint64_t
 us (uint64_t us)
@@ -256,13 +257,17 @@ clutter_frame_clock_dispatch (gpointer user_data)
   ClutterFrameClock *frame_clock = user_data;
   ClutterFrameResult result;
 
+  COGL_TRACE_BEGIN_SCOPED (ClutterFrameCLockDispatch, "Frame Clock (dispatch)");
+
   g_source_set_ready_time (frame_clock->source, -1);
 
   frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_DISPATCHING;
 
+  COGL_TRACE_BEGIN (ClutterFrameClockFrame, "Frame Clock (frame)");
   result = frame_clock->listener.iface->frame (frame_clock,
                                                frame_clock->frame_count++,
                                                frame_clock->listener.user_data);
+  COGL_TRACE_END (ClutterFrameClockFrame);
 
   switch (frame_clock->state)
     {
