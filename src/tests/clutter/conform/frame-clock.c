@@ -78,6 +78,7 @@ fake_hw_clock_new (ClutterFrameClock *frame_clock,
 static ClutterFrameResult
 frame_clock_frame (ClutterFrameClock *frame_clock,
                    int64_t            frame_count,
+                   int64_t            time_us,
                    gpointer           user_data)
 {
   FrameClockTest *test = user_data;
@@ -171,6 +172,7 @@ schedule_update_idle (gpointer user_data)
 static ClutterFrameResult
 immediate_frame_clock_frame (ClutterFrameClock *frame_clock,
                              int64_t            frame_count,
+                             int64_t            time_us,
                              gpointer           user_data)
 {
   GMainLoop *main_loop = user_data;
@@ -242,6 +244,7 @@ schedule_update_timeout (gpointer user_data)
 static ClutterFrameResult
 delayed_damage_frame_clock_frame (ClutterFrameClock *frame_clock,
                                   int64_t            frame_count,
+                                  int64_t            time_us,
                                   gpointer           user_data)
 {
   FrameClockTest *test = user_data;
@@ -314,6 +317,7 @@ frame_clock_delayed_damage (void)
 static ClutterFrameResult
 no_damage_frame_clock_frame (ClutterFrameClock *frame_clock,
                              int64_t            frame_count,
+                             int64_t            time_us,
                              gpointer           user_data)
 {
   g_assert_not_reached ();
@@ -366,6 +370,7 @@ typedef struct _UpdateNowFrameClockTest
 static ClutterFrameResult
 update_now_frame_clock_frame (ClutterFrameClock *frame_clock,
                               int64_t            frame_count,
+                              int64_t            time_us,
                               gpointer           user_data)
 {
   UpdateNowFrameClockTest *test = user_data;
@@ -471,6 +476,7 @@ before_frame_frame_clock_before_frame (ClutterFrameClock *frame_clock,
 static ClutterFrameResult
 before_frame_frame_clock_frame (ClutterFrameClock *frame_clock,
                                 int64_t            frame_count,
+                                int64_t            time_us,
                                 gpointer           user_data)
 {
   int64_t *expected_frame_count = user_data;
@@ -537,6 +543,7 @@ typedef struct _InhibitTest
 static ClutterFrameResult
 inhibit_frame_clock_frame (ClutterFrameClock *frame_clock,
                            int64_t            frame_count,
+                           int64_t            time_us,
                            gpointer           user_data)
 {
   InhibitTest *test = user_data;

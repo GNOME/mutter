@@ -307,10 +307,10 @@ clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock)
   frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_SCHEDULED;
 }
 
-static gboolean
-clutter_frame_clock_dispatch (gpointer user_data)
+static void
+clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
+                              int64_t            time_us)
 {
-  ClutterFrameClock *frame_clock = user_data;
   int64_t frame_count;
   ClutterFrameResult result;
 
@@ -334,6 +334,7 @@ clutter_frame_clock_dispatch (gpointer user_data)
   COGL_TRACE_BEGIN (ClutterFrameClockFrame, "Frame Clock (frame)");
   result = frame_clock->listener.iface->frame (frame_clock,
                                                frame_count,
+                                               time_us,
                                                frame_clock->listener.user_data);
   COGL_TRACE_END (ClutterFrameClockFrame);
 
@@ -358,8 +359,6 @@ clutter_frame_clock_dispatch (gpointer user_data)
         }
       break;
     }
-
-  return G_SOURCE_CONTINUE;
 }
 
 static gboolean
@@ -367,7 +366,14 @@ frame_clock_source_dispatch (GSource     *source,
                              GSourceFunc  callback,
                              gpointer     user_data)
 {
-  return callback (user_data);
+  ClutterClockSource *clock_source = (ClutterClockSource *) source;
+  ClutterFrameClock *frame_clock = clock_source->frame_clock;
+  int64_t dispatch_time_us;
+
+  dispatch_time_us = g_source_get_time (source);
+  clutter_frame_clock_dispatch (frame_clock, dispatch_time_us);
+
+  return G_SOURCE_CONTINUE;
 }
 
 static GSourceFuncs frame_clock_source_funcs = {
@@ -391,7 +397,6 @@ init_frame_clock_source (ClutterFrameClock *frame_clock)
   g_source_set_name (source, name);
   g_source_set_priority (source, CLUTTER_PRIORITY_REDRAW);
   g_source_set_can_recurse (source, FALSE);
-  g_source_set_callback (source, clutter_frame_clock_dispatch, frame_clock, NULL);
   clock_source->frame_clock = frame_clock;
 
   frame_clock->source = source;
