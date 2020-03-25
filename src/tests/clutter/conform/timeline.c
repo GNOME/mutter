@@ -1,11 +1,12 @@
+#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <clutter/clutter.h>
 
-#include "test-conform-common.h"
+#include "tests/clutter-test-utils.h"
 
-/* This test runs three timelines at 30 fps with 10 frames. Some of
+/* This test runs three timelines at 10 fps with 10 frames. Some of
    the timelines have markers. Once the timelines are run it then
    checks that all of the frames were hit, all of the markers were hit
    and that the completed signal was fired. The timelines are then run
@@ -15,7 +16,7 @@
    for. */
 
 #define FRAME_COUNT 10
-#define FPS         30
+#define FPS         10
 
 typedef struct _TimelineData TimelineData;
 
@@ -180,9 +181,8 @@ delay_cb (gpointer data)
   return TRUE;
 }
 
-void
-timeline_base (TestConformSimpleFixture *fixture,
-	       gconstpointer data)
+static void
+timeline_base (void)
 {
   ClutterTimeline *timeline_1;
   TimelineData data_1;
@@ -193,10 +193,6 @@ timeline_base (TestConformSimpleFixture *fixture,
   gchar **markers;
   gsize n_markers;
   guint delay_tag;
-
-  /* NB: We have to ensure a stage is instantiated else the master
-   * clock wont run... */
-  ClutterActor *stage = clutter_stage_new ();
 
   timeline_data_init (&data_1, 1);
   timeline_1 = clutter_timeline_new (FRAME_COUNT * 1000 / FPS);
@@ -314,13 +310,10 @@ timeline_base (TestConformSimpleFixture *fixture,
   timeline_data_destroy (&data_3);
 
   g_clear_handle_id (&delay_tag, g_source_remove);
-
-  clutter_actor_destroy (stage);
 }
 
-void
-timeline_markers_from_script (TestConformSimpleFixture *fixture,
-                              gconstpointer data)
+static void
+timeline_markers_from_script (void)
 {
   ClutterScript *script = clutter_script_new ();
   ClutterTimeline *timeline;
@@ -329,7 +322,10 @@ timeline_markers_from_script (TestConformSimpleFixture *fixture,
   gchar **markers;
   gsize n_markers;
 
-  test_file = clutter_test_get_data_file ("test-script-timeline-markers.json");
+  test_file = g_test_build_filename (G_TEST_DIST,
+                                     "scripts",
+                                     "test-script-timeline-markers.json",
+                                     NULL);
   clutter_script_load_from_file (script, test_file, &error);
   if (!g_test_quiet () && error != NULL)
     g_print ("Error: %s", error->message);
@@ -351,11 +347,16 @@ timeline_markers_from_script (TestConformSimpleFixture *fixture,
   markers = clutter_timeline_list_markers (timeline, 500, &n_markers);
   g_assert_cmpint (n_markers, ==, 2);
   g_assert (markers != NULL);
-  g_assert_cmpstr (markers[0], ==, "marker3");
-  g_assert_cmpstr (markers[1], ==, "marker1");
+  g_assert (g_strv_contains ((const char * const *) markers, "marker1"));
+  g_assert (g_strv_contains ((const char * const *) markers, "marker3"));
   g_strfreev (markers);
 
   g_object_unref (script);
 
   g_free (test_file);
 }
+
+CLUTTER_TEST_SUITE (
+  CLUTTER_TEST_UNIT ("/timeline/base", timeline_base);
+  CLUTTER_TEST_UNIT ("/timeline/markers-from-script", timeline_markers_from_script)
+)

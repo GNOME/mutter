@@ -33,6 +33,7 @@ clutter_conform_tests_general_tests = [
   'color',
   'interval',
   'script-parser',
+  'timeline',
   'units',
 ]
 
