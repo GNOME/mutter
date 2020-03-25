@@ -20,6 +20,7 @@
 #include "clutter/clutter-frame-clock.h"
 
 #include "clutter/clutter-main.h"
+#include "clutter/clutter-timeline-private.h"
 #include "cogl/cogl-trace.h"
 
 static inline uint64_t
@@ -80,15 +81,83 @@ struct _ClutterFrameClock
   gboolean pending_reschedule_now;
 
   int inhibit_count;
+
+  GList *timelines;
 };
 
 G_DEFINE_TYPE (ClutterFrameClock, clutter_frame_clock,
                G_TYPE_OBJECT)
 
+void
+clutter_frame_clock_add_timeline (ClutterFrameClock *frame_clock,
+                                  ClutterTimeline   *timeline)
+{
+  gboolean is_first;
+
+  if (g_list_find (frame_clock->timelines, timeline))
+    return;
+
+  is_first = !frame_clock->timelines;
+
+  frame_clock->timelines = g_list_prepend (frame_clock->timelines, timeline);
+
+  if (is_first)
+    clutter_frame_clock_schedule_update (frame_clock);
+}
+
+void
+clutter_frame_clock_remove_timeline (ClutterFrameClock *frame_clock,
+                                     ClutterTimeline   *timeline)
+{
+  frame_clock->timelines = g_list_remove (frame_clock->timelines, timeline);
+}
+
+static void
+advance_timelines (ClutterFrameClock *frame_clock,
+                   int64_t            time_us)
+{
+  GList *timelines;
+  GList *l;
+
+  /* we protect ourselves from timelines being removed during
+   * the advancement by other timelines by copying the list of
+   * timelines, taking a reference on them, iterating over the
+   * copied list and then releasing the reference.
+   *
+   * we cannot simply take a reference on the timelines and still
+   * use the list held by the master clock because the do_tick()
+   * might result in the creation of a new timeline, which gets
+   * added at the end of the list with no reference increase and
+   * thus gets disposed at the end of the iteration.
+   *
+   * this implies that a newly added timeline will not be advanced
+   * by this clock iteration, which is perfectly fine since we're
+   * in its first cycle.
+   *
+   * we also cannot steal the frame clock timelines list because
+   * a timeline might be removed as the direct result of do_tick()
+   * and remove_timeline() would not find the timeline, failing
+   * and leaving a dangling pointer behind.
+   */
+
+  timelines = g_list_copy (frame_clock->timelines);
+  g_list_foreach (timelines, (GFunc) g_object_ref, NULL);
+
+  for (l = timelines; l; l = l->next)
+    {
+      ClutterTimeline *timeline = l->data;
+
+      _clutter_timeline_do_tick (timeline, time_us / 1000);
+    }
+
+  g_list_free_full (timelines, g_object_unref);
+}
+
 static void
 maybe_reschedule_update (ClutterFrameClock *frame_clock)
 {
-  if (frame_clock->pending_reschedule)
+  if (frame_clock->pending_reschedule ||
+      frame_clock->timelines)
     {
       frame_clock->pending_reschedule = FALSE;
 
@@ -330,6 +399,10 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
                                                  frame_clock->listener.user_data);
     }
   COGL_TRACE_END (ClutterFrameClockEvents);
+
+  COGL_TRACE_BEGIN (ClutterFrameClockTimelines, "Frame Clock (timelines)");
+  advance_timelines (frame_clock, time_us);
+  COGL_TRACE_END (ClutterFrameClockTimelines);
 
   COGL_TRACE_BEGIN (ClutterFrameClockFrame, "Frame Clock (frame)");
   result = frame_clock->listener.iface->frame (frame_clock,

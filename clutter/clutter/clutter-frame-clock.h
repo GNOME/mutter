@@ -68,4 +68,10 @@ void clutter_frame_clock_inhibit (ClutterFrameClock *frame_clock);
 CLUTTER_EXPORT
 void clutter_frame_clock_uninhibit (ClutterFrameClock *frame_clock);
 
+void clutter_frame_clock_add_timeline (ClutterFrameClock *frame_clock,
+                                       ClutterTimeline   *timeline);
+
+void clutter_frame_clock_remove_timeline (ClutterFrameClock *frame_clock,
+                                          ClutterTimeline   *timeline);
+
 #endif /* CLUTTER_FRAME_CLOCK_H */

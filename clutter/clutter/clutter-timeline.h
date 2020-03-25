@@ -122,6 +122,10 @@ CLUTTER_EXPORT
 ClutterTimeline *               clutter_timeline_new                            (guint                     duration_ms);
 
 CLUTTER_EXPORT
+ClutterTimeline *               clutter_timeline_new_for_frame_clock            (ClutterFrameClock        *frame_clock,
+                                                                                 unsigned int              duration_ms);
+
+CLUTTER_EXPORT
 guint                           clutter_timeline_get_duration                   (ClutterTimeline          *timeline);
 CLUTTER_EXPORT
 void                            clutter_timeline_set_duration                   (ClutterTimeline          *timeline,
@@ -220,6 +224,13 @@ CLUTTER_EXPORT
 gint64                          clutter_timeline_get_duration_hint              (ClutterTimeline          *timeline);
 CLUTTER_EXPORT
 gint                            clutter_timeline_get_current_repeat             (ClutterTimeline          *timeline);
+
+CLUTTER_EXPORT
+ClutterFrameClock *             clutter_timeline_get_frame_clock                (ClutterTimeline           *timeline);
+
+CLUTTER_EXPORT
+void                            clutter_timeline_set_frame_clock                (ClutterTimeline           *timeline,
+                                                                                 ClutterFrameClock         *frame_clock);
 
 G_END_DECLS
 
