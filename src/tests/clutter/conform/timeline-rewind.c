@@ -1,8 +1,9 @@
+#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include <stdlib.h>
 #include <glib.h>
 #include <clutter/clutter.h>
 
-#include "test-conform-common.h"
+#include "tests/clutter-test-utils.h"
 
 #define TEST_TIMELINE_DURATION 500
 #define TEST_WATCHDOG_KICK_IN_SECONDS 10
@@ -66,7 +67,7 @@ new_frame_cb (ClutterTimeline *timeline,
     }
 }
 
-void
+static void
 timeline_rewind (void)
 {
   TestState state;
@@ -90,3 +91,7 @@ timeline_rewind (void)
 
   g_object_unref (state.timeline);
 }
+
+CLUTTER_TEST_SUITE (
+  CLUTTER_TEST_UNIT ("/timeline/rewind", timeline_rewind)
+)

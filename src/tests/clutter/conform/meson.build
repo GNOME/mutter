@@ -36,6 +36,7 @@ clutter_conform_tests_general_tests = [
   'timeline',
   'timeline-interpolate',
   'timeline-progress',
+  'timeline-rewind',
   'units',
 ]
 
