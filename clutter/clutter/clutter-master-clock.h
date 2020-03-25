@@ -58,12 +58,6 @@ void                    _clutter_master_clock_ensure_next_iteration     (Clutter
 void                    _clutter_master_clock_set_paused                (ClutterMasterClock *master_clock,
                                                                          gboolean            paused);
 
-void                    _clutter_timeline_advance                       (ClutterTimeline    *timeline,
-                                                                         gint64              tick_time);
-gint64                  _clutter_timeline_get_delta                     (ClutterTimeline    *timeline);
-void                    _clutter_timeline_do_tick                       (ClutterTimeline    *timeline,
-                                                                         gint64              tick_time);
-
 G_END_DECLS
 
 #endif /* __CLUTTER_MASTER_CLOCK_H__ */

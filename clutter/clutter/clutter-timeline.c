@@ -104,6 +104,7 @@
 #include "clutter-master-clock.h"
 #include "clutter-private.h"
 #include "clutter-scriptable.h"
+#include "clutter-timeline-private.h"
 
 struct _ClutterTimelinePrivate
 {

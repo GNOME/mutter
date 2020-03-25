@@ -213,6 +213,7 @@ clutter_private_headers = [
   'clutter-stage-private.h',
   'clutter-stage-view-private.h',
   'clutter-stage-window.h',
+  'clutter-timeline-private.h',
 ]
 
 clutter_nonintrospected_sources = [

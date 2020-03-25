@@ -43,6 +43,7 @@
 
 #include "clutter-debug.h"
 #include "clutter-private.h"
+#include "clutter-timeline-private.h"
 
 struct _ClutterTransitionGroupPrivate
 {
