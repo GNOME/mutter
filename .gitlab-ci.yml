@@ -28,6 +28,20 @@ build-mutter:
     - merge_requests
     - /^.*$/
 
+build-without-opengl-and-glx:
+  stage: build
+  script:
+    - meson . build -Dbuildtype=debugoptimized -Dopengl=false -Dglx=false -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
+    - ninja -C build
+    - ninja -C build install
+  artifacts:
+    expire_in: 1 day
+    paths:
+      - build
+  only:
+    - merge_requests
+    - /^.*$/
+
 build-without-native-backend-and-wayland:
   stage: build
   script:
