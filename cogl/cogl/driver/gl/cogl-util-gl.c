@@ -34,6 +34,7 @@
 
 #include "cogl-types.h"
 #include "cogl-context-private.h"
+#include "driver/gl/cogl-pipeline-opengl-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
 
 #ifdef COGL_GL_DEBUG
@@ -73,6 +74,27 @@ _cogl_gl_error_to_string (GLenum error_code)
   return "Unknown GL error";
 }
 #endif /* COGL_GL_DEBUG */
+
+gboolean
+_cogl_driver_gl_context_init (CoglContext *context,
+                              GError **error)
+{
+  context->texture_units =
+    g_array_new (FALSE, FALSE, sizeof (CoglTextureUnit));
+
+  /* See cogl-pipeline.c for more details about why we leave texture unit 1
+   * active by default... */
+  context->active_texture_unit = 1;
+  GE (context, glActiveTexture (GL_TEXTURE1));
+
+  return TRUE;
+}
+
+void
+_cogl_driver_gl_context_deinit (CoglContext *context)
+{
+  _cogl_destroy_texture_units (context);
+}
 
 GLenum
 _cogl_gl_util_get_error (CoglContext *ctx)

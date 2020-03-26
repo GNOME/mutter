@@ -42,19 +42,13 @@
 #include "driver/gl/cogl-attribute-gl-private.h"
 #include "driver/gl/cogl-clip-stack-gl-private.h"
 #include "driver/gl/cogl-buffer-gl-private.h"
-#include "driver/gl/cogl-pipeline-opengl-private.h"
 
-gboolean
-_cogl_driver_gl_context_init (CoglContext *context,
-                              GError **error)
+static gboolean
+_cogl_driver_gl_real_context_init (CoglContext  *context,
+                                   GError      **error)
 {
-  context->texture_units =
-    g_array_new (FALSE, FALSE, sizeof (CoglTextureUnit));
 
-  /* See cogl-pipeline.c for more details about why we leave texture unit 1
-   * active by default... */
-  context->active_texture_unit = 1;
-  GE (context, glActiveTexture (GL_TEXTURE1));
+  _cogl_driver_gl_context_init (context, error);
 
   if ((context->driver == COGL_DRIVER_GL3))
     {
@@ -86,12 +80,6 @@ _cogl_driver_gl_context_init (CoglContext *context,
     GE (context, glEnable (GL_PROGRAM_POINT_SIZE) );
 
   return TRUE;
-}
-
-void
-_cogl_driver_gl_context_deinit (CoglContext *context)
-{
-  _cogl_destroy_texture_units (context);
 }
 
 static gboolean
@@ -543,7 +531,7 @@ _cogl_driver_update_features (CoglContext *ctx,
 const CoglDriverVtable
 _cogl_driver_gl =
   {
-    _cogl_driver_gl_context_init,
+    _cogl_driver_gl_real_context_init,
     _cogl_driver_gl_context_deinit,
     _cogl_driver_pixel_format_from_gl_internal,
     _cogl_driver_pixel_format_to_gl,
