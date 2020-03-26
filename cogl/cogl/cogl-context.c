@@ -211,7 +211,7 @@ cogl_context_new (CoglDisplay *display,
       return NULL;
     }
 
-  if (!context->driver_vtable->context_init (context, error))
+  if (!context->driver_vtable->context_init (context))
     {
       cogl_object_unref (display);
       g_free (context);

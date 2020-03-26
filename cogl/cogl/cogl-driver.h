@@ -41,7 +41,7 @@ typedef struct _CoglDriverVtable CoglDriverVtable;
 struct _CoglDriverVtable
 {
   gboolean
-  (* context_init) (CoglContext *context, GError **error);
+  (* context_init) (CoglContext *context);
 
   void
   (* context_deinit) (CoglContext *context);

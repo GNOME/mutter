@@ -76,8 +76,7 @@ _cogl_gl_error_to_string (GLenum error_code)
 #endif /* COGL_GL_DEBUG */
 
 gboolean
-_cogl_driver_gl_context_init (CoglContext *context,
-                              GError **error)
+_cogl_driver_gl_context_init (CoglContext *context)
 {
   context->texture_units =
     g_array_new (FALSE, FALSE, sizeof (CoglTextureUnit));

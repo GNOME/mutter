@@ -53,8 +53,7 @@ _cogl_driver_update_features (CoglContext *ctx,
 }
 
 static gboolean
-_cogl_driver_nop_context_init( CoglContext *context,
-                               GError **error)
+_cogl_driver_nop_context_init (CoglContext *context)
 {
   return TRUE;
 }

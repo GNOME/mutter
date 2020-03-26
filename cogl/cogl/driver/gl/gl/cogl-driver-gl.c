@@ -44,11 +44,10 @@
 #include "driver/gl/cogl-buffer-gl-private.h"
 
 static gboolean
-_cogl_driver_gl_real_context_init (CoglContext  *context,
-                                   GError      **error)
+_cogl_driver_gl_real_context_init (CoglContext *context)
 {
 
-  _cogl_driver_gl_context_init (context, error);
+  _cogl_driver_gl_context_init (context);
 
   if ((context->driver == COGL_DRIVER_GL3))
     {
