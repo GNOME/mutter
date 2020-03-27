@@ -719,6 +719,7 @@ cogl_pango_renderer_set_color_for_part (PangoRenderer   *renderer,
                                         PangoRenderPart  part)
 {
   PangoColor *pango_color = pango_renderer_get_color (renderer, part);
+  uint16_t alpha = pango_renderer_get_alpha (renderer, part);
   CoglPangoRenderer *priv = COGL_PANGO_RENDERER (renderer);
 
   if (pango_color)
@@ -729,7 +730,7 @@ cogl_pango_renderer_set_color_for_part (PangoRenderer   *renderer,
                                 pango_color->red >> 8,
                                 pango_color->green >> 8,
                                 pango_color->blue >> 8,
-                                0xff);
+                                alpha >> 8);
 
       _cogl_pango_display_list_set_color_override (priv->display_list, &color);
     }
@@ -908,8 +909,11 @@ cogl_pango_renderer_draw_glyphs (PangoRenderer    *renderer,
               if (cache_value->has_color)
                 {
                   CoglColor color;
+                  uint16_t alpha;
 
-                  cogl_color_init_from_4ub (&color, 0xff, 0xff, 0xff, 0xff);
+                  alpha = pango_renderer_get_alpha (renderer,
+                                                    PANGO_RENDER_PART_FOREGROUND);
+                  cogl_color_init_from_4ub (&color, 0xff, 0xff, 0xff, alpha >> 8);
                   _cogl_pango_display_list_set_color_override (priv->display_list, &color);
                 }
 
