@@ -823,22 +823,30 @@ get_common_crtc_sprite_transform_for_logical_monitors (MetaCursorRenderer   *ren
       MetaLogicalMonitor *logical_monitor = l->data;
       graphene_rect_t logical_monitor_rect =
         meta_rectangle_to_graphene_rect (&logical_monitor->rect);
-      MetaMonitorTransform tmp_transform;
+      MetaMonitorTransform logical_transform, tmp_transform;
+      GList *monitors, *l_mon;
 
       if (!graphene_rect_intersection (&cursor_rect,
                                        &logical_monitor_rect,
                                        NULL))
         continue;
 
-      tmp_transform = meta_monitor_transform_relative_transform (
-        meta_cursor_sprite_get_texture_transform (cursor_sprite),
-        meta_logical_monitor_get_transform (logical_monitor));
+      logical_transform = meta_logical_monitor_get_transform (logical_monitor);
+      monitors = meta_logical_monitor_get_monitors (logical_monitor);
+      for (l_mon = monitors; l_mon; l_mon = l_mon->next)
+        {
+          MetaMonitor *monitor = l_mon->data;
 
-      if (has_visible_crtc_sprite && transform != tmp_transform)
-        return FALSE;
+          tmp_transform = meta_monitor_transform_relative_transform (
+            meta_cursor_sprite_get_texture_transform (cursor_sprite),
+            meta_monitor_logical_to_crtc_transform (monitor, logical_transform));
 
-      has_visible_crtc_sprite = TRUE;
-      transform = tmp_transform;
+          if (has_visible_crtc_sprite && transform != tmp_transform)
+            return FALSE;
+
+          has_visible_crtc_sprite = TRUE;
+          transform = tmp_transform;
+        }
     }
 
   if (!has_visible_crtc_sprite)
