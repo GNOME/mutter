@@ -730,7 +730,7 @@ cogl_pango_renderer_set_color_for_part (PangoRenderer   *renderer,
                                 pango_color->red >> 8,
                                 pango_color->green >> 8,
                                 pango_color->blue >> 8,
-                                alpha >> 8);
+                                alpha ? alpha >> 8 : 0xff);
 
       _cogl_pango_display_list_set_color_override (priv->display_list, &color);
     }
