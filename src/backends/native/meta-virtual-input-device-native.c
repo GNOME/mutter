@@ -155,6 +155,8 @@ meta_virtual_input_device_native_notify_relative_motion (ClutterVirtualInputDevi
   MetaVirtualInputDeviceNative *virtual_evdev =
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
 
+  g_return_if_fail (virtual_evdev->device != NULL);
+
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
@@ -173,6 +175,8 @@ meta_virtual_input_device_native_notify_absolute_motion (ClutterVirtualInputDevi
 {
   MetaVirtualInputDeviceNative *virtual_evdev =
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
+
+  g_return_if_fail (virtual_evdev->device != NULL);
 
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
@@ -214,6 +218,8 @@ meta_virtual_input_device_native_notify_button (ClutterVirtualInputDevice *virtu
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   int button_count;
   int evdev_button;
+
+  g_return_if_fail (virtual_evdev->device != NULL);
 
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
@@ -257,6 +263,8 @@ meta_virtual_input_device_native_notify_key (ClutterVirtualInputDevice *virtual_
   MetaVirtualInputDeviceNative *virtual_evdev =
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   int key_count;
+
+  g_return_if_fail (virtual_evdev->device != NULL);
 
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
@@ -395,6 +403,8 @@ meta_virtual_input_device_native_notify_keyval (ClutterVirtualInputDevice *virtu
   int key_count;
   guint keycode = 0, level = 0, evcode = 0;
 
+  g_return_if_fail (virtual_evdev->device != NULL);
+
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
@@ -482,6 +492,8 @@ meta_virtual_input_device_native_notify_discrete_scroll (ClutterVirtualInputDevi
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
   double discrete_dx = 0.0, discrete_dy = 0.0;
 
+  g_return_if_fail (virtual_evdev->device != NULL);
+
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
@@ -504,6 +516,8 @@ meta_virtual_input_device_native_notify_scroll_continuous (ClutterVirtualInputDe
 {
   MetaVirtualInputDeviceNative *virtual_evdev =
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
+
+  g_return_if_fail (virtual_evdev->device != NULL);
 
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
@@ -528,6 +542,8 @@ meta_virtual_input_device_native_notify_touch_down (ClutterVirtualInputDevice *v
   MetaInputDeviceNative *device_evdev =
     META_INPUT_DEVICE_NATIVE (virtual_evdev->device);
   MetaTouchState *touch_state;
+
+  g_return_if_fail (virtual_evdev->device != NULL);
 
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
@@ -562,6 +578,8 @@ meta_virtual_input_device_native_notify_touch_motion (ClutterVirtualInputDevice 
     META_INPUT_DEVICE_NATIVE (virtual_evdev->device);
   MetaTouchState *touch_state;
 
+  g_return_if_fail (virtual_evdev->device != NULL);
+
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
@@ -592,6 +610,8 @@ meta_virtual_input_device_native_notify_touch_up (ClutterVirtualInputDevice *vir
   MetaInputDeviceNative *device_evdev =
     META_INPUT_DEVICE_NATIVE (virtual_evdev->device);
   MetaTouchState *touch_state;
+
+  g_return_if_fail (virtual_evdev->device != NULL);
 
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
@@ -682,24 +702,26 @@ meta_virtual_input_device_native_constructed (GObject *object)
 }
 
 static void
-meta_virtual_input_device_native_finalize (GObject *object)
+meta_virtual_input_device_native_dispose (GObject *object)
 {
   ClutterVirtualInputDevice *virtual_device =
     CLUTTER_VIRTUAL_INPUT_DEVICE (object);
   MetaVirtualInputDeviceNative *virtual_evdev =
     META_VIRTUAL_INPUT_DEVICE_NATIVE (object);
-  GObjectClass *object_class;
-
-  release_pressed_buttons (virtual_device);
-  g_signal_emit_by_name (virtual_evdev->seat,
-                         "device-removed",
-                         virtual_evdev->device);
-
-  g_clear_object (&virtual_evdev->device);
-
-  object_class =
+  GObjectClass *object_class =
     G_OBJECT_CLASS (meta_virtual_input_device_native_parent_class);
-  object_class->finalize (object);
+
+  if (virtual_evdev->device)
+    {
+      release_pressed_buttons (virtual_device);
+      g_signal_emit_by_name (virtual_evdev->seat,
+                             "device-removed",
+                             virtual_evdev->device);
+
+      g_clear_object (&virtual_evdev->device);
+    }
+
+  object_class->dispose (object);
 }
 
 static void
@@ -717,7 +739,7 @@ meta_virtual_input_device_native_class_init (MetaVirtualInputDeviceNativeClass *
   object_class->get_property = meta_virtual_input_device_native_get_property;
   object_class->set_property = meta_virtual_input_device_native_set_property;
   object_class->constructed = meta_virtual_input_device_native_constructed;
-  object_class->finalize = meta_virtual_input_device_native_finalize;
+  object_class->dispose = meta_virtual_input_device_native_dispose;
 
   virtual_input_device_class->notify_relative_motion = meta_virtual_input_device_native_notify_relative_motion;
   virtual_input_device_class->notify_absolute_motion = meta_virtual_input_device_native_notify_absolute_motion;
