@@ -1,3 +1,46 @@
+3.36.1
+======
+* Fix hardware cursor on GPU hotplpug [Pekka; !1097]
+* Fix black areas around XWayland windows when resizing [Robert, Olivier; !1091]
+* Fix applying wrong scale to monitors on X11 [Jonas; !1118]
+* Fix moving/resizing windows via keyboard on wayland [Alynx; !997]
+* Fix locate-pointer feature interfering with keybindings [Carlos; !1014]
+* Add support for middle-click emulation [Andrew; !256]
+* Fix freeze when moving cursor between scaled monitors [Robert; !1125]
+* Fix popup misplacement with focus-follows-mouse [Jonas Å.; !1122]
+* Fix misplaced cursor in preedit strings [Carlos; !1132]
+* Support mirroring with proprietary Nvidia driver [Jonas Å.; !1098]
+* Support tablets with multiple mode switch buttons in a group [Carlos; !970]
+* Ignore foreground color for color glyphs (emojis) [Carlos; !1148]
+* Allow pad mode switches while showing OSD [Carlos; !975]
+* Fix positioning of OSD for display-attached tablets [Carlos; !971]
+* Respect configured RANDR panning on X11 [Jonas Å.; !1085]
+* Use correct texture filtering with scaled displays [Jonas; !1124]
+* Fix cursor hotspots in virtual machines [Jonas Å.; !1136]
+* Fix build with GLES and no GL [Georges; !1151]
+* Work around Firefox bug when copying images on wayland [Robert; !1141]
+* Fix wrong cursor rotation on rotated displays [Hans; !1153]
+* Fix glitches in window screencasts [Georges; !1129]
+* Fix IM support for deleting surrounding text [Takao, Carlos; #539]
+* Fix map animation of maximized windows [Robert; !1164]
+* Fixed crashes [Jonas Å., Carlos, Florian, Robert; !1120, !1121,
+  #917, #1132, #1083, !1147, #1147]
+* Misc. bug fixes and cleanups [Jonas Å., Olivier, Mart, Sebastian, Corentin,
+  Andre, Daniel, Robert, Carlos, Peter, Georges, Jonas D., Florian, Christian;
+  !1115, !1102, !1104, !1106, !1117, !1119, !1101, !1123, #1124, !1130, !1131,
+  !1133, #1065, !1108, !1144, !1145, !1109, !1059, !1107, !999, !1152, #1128,
+  !1155, !1156, !1158, !1157, #1146, !1161, !1163]
+
+Contributors:
+  Jonas Dreßler, Olivier Fourdan, Takao Fujiwara, Carlos Garnacho, Andrew Gaul,
+  Hans de Goede, Peter Hutterer, Sebastian Keller, Robert Mader,
+  Andre Moreira Magalhaes, Florian Müllner, Georges Basile Stavracas Neto,
+  Corentin Noël, Pekka Paalanen, Christian Rauch, Mart Raudsepp,
+  Daniel van Vugt, Alynx Zhou, Jonas Ådahl
+
+Translators:
+  Марко Костић [sr], Daniel Șerbănescu [ro]
+
 3.36.0
 ======
 * Fix placement of popup windows in multi-monitor setups [Jonas; !1110]
