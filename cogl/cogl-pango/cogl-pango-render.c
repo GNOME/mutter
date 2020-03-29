@@ -913,7 +913,8 @@ cogl_pango_renderer_draw_glyphs (PangoRenderer    *renderer,
 
                   alpha = pango_renderer_get_alpha (renderer,
                                                     PANGO_RENDER_PART_FOREGROUND);
-                  cogl_color_init_from_4ub (&color, 0xff, 0xff, 0xff, alpha >> 8);
+                  cogl_color_init_from_4ub (&color, 0xff, 0xff, 0xff,
+					    alpha ? alpha >> 8 : 0xff);
                   _cogl_pango_display_list_set_color_override (priv->display_list, &color);
                 }
 
