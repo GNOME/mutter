@@ -852,7 +852,7 @@ init_pointer_constraint (struct wl_resource                      *resource,
     {
       wl_resource_post_error (resource,
                               WL_DISPLAY_ERROR_INVALID_OBJECT,
-                              "the pointer as already requested to be "
+                              "the pointer was already requested to be "
                               "locked or confined on that surface");
       return;
     }
