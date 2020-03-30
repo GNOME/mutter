@@ -47,7 +47,7 @@ option('native_backend',
 
 option('remote_desktop',
   type: 'boolean',
-  value: true,
+  value: false,
   description: 'Enable remote desktop and screen cast support'
 )
 
