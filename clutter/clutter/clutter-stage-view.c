@@ -33,6 +33,7 @@ enum
   PROP_0,
 
   PROP_NAME,
+  PROP_STAGE,
   PROP_LAYOUT,
   PROP_FRAMEBUFFER,
   PROP_OFFSCREEN,
@@ -47,6 +48,8 @@ static GParamSpec *obj_props[PROP_LAST];
 typedef struct _ClutterStageViewPrivate
 {
   char *name;
+
+  ClutterStage *stage;
 
   cairo_rectangle_int_t layout;
   float scale;
@@ -1003,6 +1006,9 @@ clutter_stage_view_get_property (GObject    *object,
     case PROP_NAME:
       g_value_set_string (value, priv->name);
       break;
+    case PROP_STAGE:
+      g_value_set_boxed (value, &priv->stage);
+      break;
     case PROP_LAYOUT:
       g_value_set_boxed (value, &priv->layout);
       break;
@@ -1038,6 +1044,9 @@ clutter_stage_view_set_property (GObject      *object,
     {
     case PROP_NAME:
       priv->name = g_value_dup_string (value);
+      break;
+    case PROP_STAGE:
+      priv->stage = g_value_get_object (value);
       break;
     case PROP_LAYOUT:
       layout = g_value_get_boxed (value);
@@ -1146,6 +1155,16 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_STAGE] =
+    g_param_spec_object ("stage",
+                         "The stage",
+                         "The ClutterStage",
+                         CLUTTER_TYPE_STAGE,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+
   obj_props[PROP_LAYOUT] =
     g_param_spec_boxed ("layout",
                         "View layout",
