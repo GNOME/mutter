@@ -1745,6 +1745,9 @@ meta_wayland_surface_role_get_window (MetaWaylandSurfaceRole *surface_role)
 MetaWindow *
 meta_wayland_surface_get_window (MetaWaylandSurface *surface)
 {
+  if (!surface->role)
+    return NULL;
+
   return meta_wayland_surface_role_get_window (surface->role);
 }
 
