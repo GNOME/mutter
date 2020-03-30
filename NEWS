@@ -1,3 +1,16 @@
+3.34.5
+======
+* Fix visibility of initially hidden windows [Jonas; !1066]
+* Fix hardware cursor on GPU hotplug [Pekka; !1097]
+* Fix pasting images from wayland [Robert, Carlos; !1141, #1065]
+* Fixed crashes [Florian, Olivier, Jonas; #1029, !1073, !1121, !1120]
+
+Contributors:
+  Olivier Fourdan, Carlos Garnacho, Robert Mader, Florian Müllner,
+  Pekka Paalanen, Jonas Ådahl
+
+Translators:
+  Yi-Jyun Pan [zh_TW]
 3.34.4
 ======
 * Handle mode set race conditions more gracefully [Jonas; !1007]
