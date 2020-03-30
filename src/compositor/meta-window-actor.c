@@ -856,6 +856,9 @@ meta_window_actor_show (MetaWindowActor   *self,
       g_assert_not_reached();
     }
 
+  if (event == META_PLUGIN_MAP)
+    meta_window_actor_sync_actor_geometry (self, TRUE);
+
   if (meta_compositor_is_switching_workspace (compositor) ||
       !start_simple_effect (self, event))
     {
