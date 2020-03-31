@@ -1564,9 +1564,6 @@ _clutter_stage_has_full_redraw_queued (ClutterStage *stage)
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return FALSE;
 
-  if (!stage->priv->redraw_pending)
-    return FALSE;
-
   return is_full_stage_redraw_queued (stage);
 }
 
