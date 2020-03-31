@@ -81,7 +81,7 @@
 struct _ClutterOffscreenEffectPrivate
 {
   CoglHandle offscreen;
-  CoglPipeline *target;
+  CoglPipeline *pipeline;
   CoglHandle texture;
 
   ClutterActor *actor;
@@ -140,7 +140,7 @@ ensure_pipeline_filter_for_scale (ClutterOffscreenEffect *self,
 {
   CoglPipelineFilter filter;
 
-  if (!self->priv->target)
+  if (!self->priv->pipeline)
     return;
 
   /* If no fractional scaling is set, we're always going to render the texture
@@ -154,7 +154,7 @@ ensure_pipeline_filter_for_scale (ClutterOffscreenEffect *self,
   else
     filter = COGL_PIPELINE_FILTER_LINEAR;
 
-  cogl_pipeline_set_layer_filters (self->priv->target, 0 /* layer_index */,
+  cogl_pipeline_set_layer_filters (self->priv->pipeline, 0 /* layer_index */,
                                    filter, filter);
 }
 
@@ -185,12 +185,12 @@ update_fbo (ClutterEffect *effect,
     return TRUE;
   }
 
-  if (priv->target == NULL)
+  if (priv->pipeline == NULL)
     {
       CoglContext *ctx =
         clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
-      priv->target = cogl_pipeline_new (ctx);
+      priv->pipeline = cogl_pipeline_new (ctx);
       ensure_pipeline_filter_for_scale (self, resource_scale);
     }
 
@@ -202,7 +202,7 @@ update_fbo (ClutterEffect *effect,
   if (priv->texture == NULL)
     return FALSE;
 
-  cogl_pipeline_set_layer_texture (priv->target, 0, priv->texture);
+  cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->texture);
 
   priv->target_width = target_width;
   priv->target_height = target_height;
@@ -212,8 +212,8 @@ update_fbo (ClutterEffect *effect,
     {
       g_warning ("%s: Unable to create an Offscreen buffer", G_STRLOC);
 
-      cogl_object_unref (priv->target);
-      priv->target = NULL;
+      cogl_object_unref (priv->pipeline);
+      priv->pipeline = NULL;
 
       priv->target_width = 0;
       priv->target_height = 0;
@@ -380,7 +380,7 @@ clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect,
 
   paint_opacity = clutter_actor_get_paint_opacity (priv->actor);
 
-  cogl_pipeline_set_color4ub (priv->target,
+  cogl_pipeline_set_color4ub (priv->pipeline,
                               paint_opacity,
                               paint_opacity,
                               paint_opacity,
@@ -392,7 +392,7 @@ clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect,
    * hadn't been redirected offscreen.
    */
   cogl_framebuffer_draw_textured_rectangle (framebuffer,
-                                            priv->target,
+                                            priv->pipeline,
                                             0, 0,
                                             cogl_texture_get_width (priv->texture),
                                             cogl_texture_get_height (priv->texture),
@@ -447,7 +447,7 @@ clutter_offscreen_effect_post_paint (ClutterEffect       *effect,
   CoglFramebuffer *framebuffer;
 
   g_warn_if_fail (priv->offscreen);
-  g_warn_if_fail (priv->target);
+  g_warn_if_fail (priv->pipeline);
   g_warn_if_fail (priv->actor);
 
   /* Restore the previous opacity override */
@@ -521,7 +521,7 @@ clutter_offscreen_effect_finalize (GObject *gobject)
 
   g_clear_pointer (&priv->offscreen, cogl_object_unref);
   g_clear_pointer (&priv->texture, cogl_object_unref);
-  g_clear_pointer (&priv->target, cogl_object_unref);
+  g_clear_pointer (&priv->pipeline, cogl_object_unref);
 
   G_OBJECT_CLASS (clutter_offscreen_effect_parent_class)->finalize (gobject);
 }
@@ -603,7 +603,7 @@ clutter_offscreen_effect_get_target (ClutterOffscreenEffect *effect)
   g_return_val_if_fail (CLUTTER_IS_OFFSCREEN_EFFECT (effect),
                         NULL);
 
-  return (CoglMaterial *)effect->priv->target;
+  return (CoglMaterial *)effect->priv->pipeline;
 }
 
 /**
