@@ -446,13 +446,16 @@ clutter_offscreen_effect_post_paint (ClutterEffect       *effect,
   ClutterOffscreenEffectPrivate *priv = self->priv;
   CoglFramebuffer *framebuffer;
 
-  if (priv->offscreen == NULL ||
-      priv->target == NULL ||
-      priv->actor == NULL)
-    return;
+  g_warn_if_fail (priv->offscreen);
+  g_warn_if_fail (priv->target);
+  g_warn_if_fail (priv->actor);
 
   /* Restore the previous opacity override */
-  clutter_actor_set_opacity_override (priv->actor, priv->old_opacity_override);
+  if (priv->actor)
+    {
+      clutter_actor_set_opacity_override (priv->actor,
+                                          priv->old_opacity_override);
+    }
 
   framebuffer = clutter_paint_context_get_framebuffer (paint_context);
   cogl_framebuffer_pop_matrix (framebuffer);
