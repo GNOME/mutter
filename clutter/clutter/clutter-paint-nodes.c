@@ -1426,6 +1426,7 @@ clutter_layer_node_new (const CoglMatrix        *projection,
                         guint8                   opacity)
 {
   ClutterLayerNode *res;
+  CoglContext *context;
   CoglTexture *texture;
   CoglColor color;
 
@@ -1438,10 +1439,12 @@ clutter_layer_node_new (const CoglMatrix        *projection,
   res->opacity = opacity;
 
   /* the texture backing the FBO */
-  texture = cogl_texture_new_with_size (MAX (res->fbo_width, 1),
-                                        MAX (res->fbo_height, 1),
-                                        COGL_TEXTURE_NO_SLICING,
-                                        COGL_PIXEL_FORMAT_RGBA_8888_PRE);
+  context = clutter_backend_get_cogl_context (clutter_get_default_backend ());
+
+  texture = cogl_texture_2d_new_with_size (context,
+                                           MAX (res->fbo_width, 1),
+                                           MAX (res->fbo_height, 1));
+  cogl_texture_set_premultiplied (texture, TRUE);
 
   res->offscreen = COGL_FRAMEBUFFER (cogl_offscreen_new_to_texture (texture));
   if (res->offscreen == NULL)
