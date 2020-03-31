@@ -3172,37 +3172,6 @@ _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
 #undef _DEG_TO_RAD
 
 /**
- * clutter_stage_ensure_redraw:
- * @stage: a #ClutterStage
- *
- * Ensures that @stage is redrawn
- *
- * This function should not be called by applications: it is
- * used when embedding a #ClutterStage into a toolkit with
- * another windowing system, like GTK+.
- *
- * Since: 1.0
- */
-void
-clutter_stage_ensure_redraw (ClutterStage *stage)
-{
-  ClutterMasterClock *master_clock;
-  ClutterStagePrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  priv = stage->priv;
-
-  if (!_clutter_stage_needs_update (stage))
-    clutter_stage_schedule_update (stage);
-
-  priv->redraw_pending = TRUE;
-
-  master_clock = _clutter_master_clock_get_default ();
-  _clutter_master_clock_start_running (master_clock);
-}
-
-/**
  * clutter_stage_is_redraw_queued: (skip)
  */
 gboolean
