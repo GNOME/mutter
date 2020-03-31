@@ -175,10 +175,10 @@ actor_pick (void)
   for (y = 0; y < ACTORS_Y; y++)
     for (x = 0; x < ACTORS_X; x++)
       {
-	ClutterColor color = { x * 255 / (ACTORS_X - 1),
-			       y * 255 / (ACTORS_Y - 1),
-			       128, 255 };
-	ClutterActor *rect = clutter_rectangle_new_with_color (&color);
+        ClutterColor color = { x * 255 / (ACTORS_X - 1),
+                               y * 255 / (ACTORS_Y - 1),
+                               128, 255 };
+        ClutterActor *rect = clutter_rectangle_new_with_color (&color);
 
         clutter_actor_set_position (rect,
                                     x * state.actor_width,
@@ -187,9 +187,9 @@ actor_pick (void)
                                 state.actor_width,
                                 state.actor_height);
 
-	clutter_actor_add_child (state.stage, rect);
+        clutter_actor_add_child (state.stage, rect);
 
-	state.actors[y * ACTORS_X + x] = rect;
+        state.actors[y * ACTORS_X + x] = rect;
       }
 
   clutter_actor_show (state.stage);
