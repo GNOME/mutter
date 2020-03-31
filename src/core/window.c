@@ -3471,7 +3471,7 @@ meta_window_make_fullscreen_internal (MetaWindow  *window)
           meta_window_unshade (window, timestamp);
         }
 
-      meta_window_save_rect (window);
+      window->saved_rect_fullscreen = window->rect;
 
       window->fullscreen = TRUE;
 
@@ -3530,7 +3530,7 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
                   "Unfullscreening %s", window->desc);
 
       window->fullscreen = FALSE;
-      target_rect = window->saved_rect;
+      target_rect = window->saved_rect_fullscreen;
 
       meta_window_frame_size_changed (window);
       meta_window_get_frame_rect (window, &old_frame_rect);
@@ -4074,7 +4074,7 @@ meta_window_move_resize_internal (MetaWindow          *window,
   temporary_rect = window->rect;
   if (flags & (META_MOVE_RESIZE_MOVE_ACTION | META_MOVE_RESIZE_RESIZE_ACTION) &&
       !(flags & META_MOVE_RESIZE_WAYLAND_FINISH_MOVE_RESIZE) &&
-      (unconstrained_rect.width > 0 && unconstrained_rect.height > 0) &&
+      !(flags & (META_MOVE_RESIZE_UNMAXIMIZE | META_MOVE_RESIZE_UNFULLSCREEN)) &&
       window->monitor)
     {
       MetaRectangle old_rect;

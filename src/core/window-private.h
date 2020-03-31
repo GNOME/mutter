@@ -497,6 +497,9 @@ struct _MetaWindow
   /* The geometry to restore when we unmaximize. */
   MetaRectangle saved_rect;
 
+  /* The geometry to restore when we unfullscreen. */
+  MetaRectangle saved_rect_fullscreen;
+
   /* This is the geometry the window will have if no constraints have
    * applied. We use this whenever we are moving implicitly (for example,
    * if we move to avoid a panel, we can snap back to this position if
