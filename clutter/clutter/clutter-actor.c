@@ -2410,6 +2410,7 @@ clutter_actor_should_pick_paint (ClutterActor *self)
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
   if (CLUTTER_ACTOR_IS_MAPPED (self) &&
+      clutter_actor_has_allocation (self) &&
       (_clutter_context_get_pick_mode () == CLUTTER_PICK_ALL ||
        CLUTTER_ACTOR_IS_REACTIVE (self)))
     return TRUE;
