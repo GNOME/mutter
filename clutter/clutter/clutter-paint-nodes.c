@@ -1244,7 +1244,6 @@ struct _ClutterLayerNode
 
   CoglPipeline *pipeline;
   CoglFramebuffer *offscreen;
-  CoglTexture *texture;
 
   guint8 opacity;
 };
@@ -1427,6 +1426,7 @@ clutter_layer_node_new (const CoglMatrix        *projection,
                         guint8                   opacity)
 {
   ClutterLayerNode *res;
+  CoglTexture *texture;
   CoglColor color;
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_LAYER_NODE);
@@ -1438,18 +1438,17 @@ clutter_layer_node_new (const CoglMatrix        *projection,
   res->opacity = opacity;
 
   /* the texture backing the FBO */
-  res->texture = cogl_texture_new_with_size (MAX (res->fbo_width, 1),
-                                             MAX (res->fbo_height, 1),
-                                             COGL_TEXTURE_NO_SLICING,
-                                             COGL_PIXEL_FORMAT_RGBA_8888_PRE);
+  texture = cogl_texture_new_with_size (MAX (res->fbo_width, 1),
+                                        MAX (res->fbo_height, 1),
+                                        COGL_TEXTURE_NO_SLICING,
+                                        COGL_PIXEL_FORMAT_RGBA_8888_PRE);
 
-  res->offscreen = COGL_FRAMEBUFFER (cogl_offscreen_new_to_texture (res->texture));
+  res->offscreen = COGL_FRAMEBUFFER (cogl_offscreen_new_to_texture (texture));
   if (res->offscreen == NULL)
     {
       g_critical ("%s: Unable to create an offscreen buffer", G_STRLOC);
 
-      cogl_object_unref (res->texture);
-      res->texture = NULL;
+      cogl_object_unref (texture);
 
       goto out;
     }
@@ -1464,9 +1463,9 @@ clutter_layer_node_new (const CoglMatrix        *projection,
   cogl_pipeline_set_layer_filters (res->pipeline, 0,
                                    COGL_PIPELINE_FILTER_NEAREST,
                                    COGL_PIPELINE_FILTER_NEAREST);
-  cogl_pipeline_set_layer_texture (res->pipeline, 0, res->texture);
+  cogl_pipeline_set_layer_texture (res->pipeline, 0, texture);
   cogl_pipeline_set_color (res->pipeline, &color);
-  cogl_object_unref (res->texture);
+  cogl_object_unref (texture);
 
 out:
   return (ClutterPaintNode *) res;
