@@ -88,6 +88,10 @@ static void
 clutter_actor_meta_real_set_actor (ClutterActorMeta *meta,
                                    ClutterActor     *actor)
 {
+  g_warn_if_fail (!meta->priv->actor ||
+                  !CLUTTER_ACTOR_IN_PAINT (meta->priv->actor));
+  g_warn_if_fail (!actor || !CLUTTER_ACTOR_IN_PAINT (actor));
+
   if (meta->priv->actor == actor)
     return;
 
@@ -292,6 +296,9 @@ clutter_actor_meta_set_enabled (ClutterActorMeta *meta,
                                 gboolean          is_enabled)
 {
   g_return_if_fail (CLUTTER_IS_ACTOR_META (meta));
+
+  g_warn_if_fail (!meta->priv->actor ||
+                  !CLUTTER_ACTOR_IN_PAINT (meta->priv->actor));
 
   is_enabled = !!is_enabled;
 
