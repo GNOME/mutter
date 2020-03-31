@@ -122,9 +122,9 @@ meta_input_device_x11_is_grouped (ClutterInputDevice *device,
 static void
 meta_input_device_x11_finalize (GObject *object)
 {
-#ifdef HAVE_LIBWACOM
   MetaInputDeviceX11 *device_xi2 = META_INPUT_DEVICE_X11 (object);
 
+#ifdef HAVE_LIBWACOM
   if (device_xi2->group_modes)
     g_array_unref (device_xi2->group_modes);
 #endif
