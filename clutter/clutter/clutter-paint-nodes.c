@@ -1242,7 +1242,7 @@ struct _ClutterLayerNode
   float fbo_width;
   float fbo_height;
 
-  CoglPipeline *state;
+  CoglPipeline *pipeline;
   CoglFramebuffer *offscreen;
   CoglTexture *texture;
 
@@ -1334,7 +1334,7 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
         case PAINT_OP_TEX_RECT:
           /* now we need to paint the texture */
           cogl_framebuffer_draw_textured_rectangle (fb,
-                                                    lnode->state,
+                                                    lnode->pipeline,
                                                     op->op.texrect[0],
                                                     op->op.texrect[1],
                                                     op->op.texrect[2],
@@ -1347,7 +1347,7 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
 
         case PAINT_OP_MULTITEX_RECT:
           cogl_framebuffer_draw_multitextured_rectangle (fb,
-                                                         lnode->state,
+                                                         lnode->pipeline,
                                                          op->op.texrect[0],
                                                          op->op.texrect[1],
                                                          op->op.texrect[2],
@@ -1357,11 +1357,13 @@ clutter_layer_node_post_draw (ClutterPaintNode    *node,
           break;
 
         case PAINT_OP_PATH:
-          cogl_framebuffer_fill_path (fb, lnode->state, op->op.path);
+          cogl_framebuffer_fill_path (fb, lnode->pipeline, op->op.path);
           break;
 
         case PAINT_OP_PRIMITIVE:
-          cogl_framebuffer_draw_primitive (fb, lnode->state, op->op.primitive);
+          cogl_framebuffer_draw_primitive (fb,
+                                           lnode->pipeline,
+                                           op->op.primitive);
           break;
         }
     }
@@ -1372,8 +1374,8 @@ clutter_layer_node_finalize (ClutterPaintNode *node)
 {
   ClutterLayerNode *lnode = CLUTTER_LAYER_NODE (node);
 
-  if (lnode->state != NULL)
-    cogl_object_unref (lnode->state);
+  if (lnode->pipeline != NULL)
+    cogl_object_unref (lnode->pipeline);
 
   if (lnode->offscreen != NULL)
     cogl_object_unref (lnode->offscreen);
@@ -1458,12 +1460,12 @@ clutter_layer_node_new (const CoglMatrix        *projection,
    * interpolation filters because the texture is always
    * going to be painted at a 1:1 texel:pixel ratio
    */
-  res->state = cogl_pipeline_copy (default_texture_pipeline);
-  cogl_pipeline_set_layer_filters (res->state, 0,
+  res->pipeline = cogl_pipeline_copy (default_texture_pipeline);
+  cogl_pipeline_set_layer_filters (res->pipeline, 0,
                                    COGL_PIPELINE_FILTER_NEAREST,
                                    COGL_PIPELINE_FILTER_NEAREST);
-  cogl_pipeline_set_layer_texture (res->state, 0, res->texture);
-  cogl_pipeline_set_color (res->state, &color);
+  cogl_pipeline_set_layer_texture (res->pipeline, 0, res->texture);
+  cogl_pipeline_set_color (res->pipeline, &color);
   cogl_object_unref (res->texture);
 
 out:
