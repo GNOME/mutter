@@ -424,6 +424,9 @@ new_absolute_motion_event (MetaSeatNative     *seat,
   meta_xkb_translate_state (event, seat->xkb, seat->button_state);
   event->motion.x = x;
   event->motion.y = y;
+  meta_input_device_native_translate_coordinates (input_device, stage,
+                                                  &event->motion.x,
+                                                  &event->motion.y);
   event->motion.axes = axes;
   clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);
