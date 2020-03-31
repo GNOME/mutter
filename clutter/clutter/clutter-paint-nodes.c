@@ -1447,9 +1447,6 @@ clutter_layer_node_new (const CoglMatrix        *projection,
   if (res->offscreen == NULL)
     {
       g_critical ("%s: Unable to create an offscreen buffer", G_STRLOC);
-
-      cogl_object_unref (texture);
-
       goto out;
     }
 
@@ -1465,8 +1462,9 @@ clutter_layer_node_new (const CoglMatrix        *projection,
                                    COGL_PIPELINE_FILTER_NEAREST);
   cogl_pipeline_set_layer_texture (res->pipeline, 0, texture);
   cogl_pipeline_set_color (res->pipeline, &color);
-  cogl_object_unref (texture);
 
 out:
+  cogl_object_unref (texture);
+
   return (ClutterPaintNode *) res;
 }
