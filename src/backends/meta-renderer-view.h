@@ -28,4 +28,6 @@ G_DECLARE_FINAL_TYPE (MetaRendererView, meta_renderer_view,
 
 MetaMonitorTransform meta_renderer_view_get_transform (MetaRendererView *view);
 
+MetaCrtc *meta_renderer_view_get_crtc (MetaRendererView *view);
+
 #endif /* META_RENDERER_VIEW_H */
