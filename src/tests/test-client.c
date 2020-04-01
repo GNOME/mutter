@@ -690,6 +690,34 @@ process_line (const char *line)
 
       gtk_window_deiconify (GTK_WINDOW (window));
     }
+  else if (strcmp (argv[0], "maximize") == 0)
+    {
+      if (argc != 2)
+        {
+          g_print ("usage: maximize <id>");
+          goto out;
+        }
+
+      GtkWidget *window = lookup_window (argv[1]);
+      if (!window)
+        goto out;
+
+      gtk_window_maximize (GTK_WINDOW (window));
+    }
+  else if (strcmp (argv[0], "unmaximize") == 0)
+    {
+      if (argc != 2)
+        {
+          g_print ("usage: unmaximize <id>");
+          goto out;
+        }
+
+      GtkWidget *window = lookup_window (argv[1]);
+      if (!window)
+        goto out;
+
+      gtk_window_unmaximize (GTK_WINDOW (window));
+    }
   else
     {
       g_print ("Unknown command %s", argv[0]);
