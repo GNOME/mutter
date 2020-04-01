@@ -510,6 +510,8 @@ test_case_do (TestCase *test,
            strcmp (argv[0], "lower") == 0 ||
            strcmp (argv[0], "minimize") == 0 ||
            strcmp (argv[0], "unminimize") == 0 ||
+           strcmp (argv[0], "maximize") == 0 ||
+           strcmp (argv[0], "unmaximize") == 0 ||
            strcmp (argv[0], "destroy") == 0)
     {
       if (argc != 2)
