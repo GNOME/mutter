@@ -197,7 +197,8 @@ CLUTTER_EXPORT
 void            clutter_stage_ensure_viewport                   (ClutterStage          *stage);
 
 CLUTTER_EXPORT
-gboolean        clutter_stage_is_redraw_queued                  (ClutterStage          *stage);
+gboolean        clutter_stage_is_redraw_queued_on_view          (ClutterStage          *stage,
+                                                                 ClutterStageView      *view);
 
 #ifdef CLUTTER_ENABLE_EXPERIMENTAL_API
 CLUTTER_EXPORT

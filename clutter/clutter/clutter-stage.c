@@ -2951,14 +2951,15 @@ _clutter_stage_maybe_setup_viewport (ClutterStage     *stage,
 #undef _DEG_TO_RAD
 
 /**
- * clutter_stage_is_redraw_queued: (skip)
+ * clutter_stage_is_redraw_queued_on_view: (skip)
  */
 gboolean
-clutter_stage_is_redraw_queued (ClutterStage *stage)
+clutter_stage_is_redraw_queued_on_view (ClutterStage     *stage,
+                                        ClutterStageView *view)
 {
-  ClutterStagePrivate *priv = stage->priv;
+  clutter_stage_maybe_finish_queue_redraws (stage);
 
-  return priv->redraw_pending;
+  return clutter_stage_view_has_redraw_clip (view);
 }
 
 void

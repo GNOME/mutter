@@ -176,16 +176,37 @@ is_cursor_in_stream (MetaScreenCastMonitorStreamSrc *monitor_src)
     }
 }
 
+static gboolean
+is_redraw_queued (MetaScreenCastMonitorStreamSrc *monitor_src)
+{
+  MetaBackend *backend = get_backend (monitor_src);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  ClutterStage *stage = get_stage (monitor_src);
+  MetaMonitor *monitor = get_monitor (monitor_src);
+  g_autoptr (GList) views = NULL;
+  GList *l;
+
+  views = meta_renderer_get_views_for_monitor (renderer, monitor);
+  for (l = views; l; l = l->next)
+    {
+      MetaRendererView *view = l->data;
+
+      if (clutter_stage_is_redraw_queued_on_view (stage, CLUTTER_STAGE_VIEW (view)))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 static void
 sync_cursor_state (MetaScreenCastMonitorStreamSrc *monitor_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
-  ClutterStage *stage = get_stage (monitor_src);
 
   if (!is_cursor_in_stream (monitor_src))
     return;
 
-  if (clutter_stage_is_redraw_queued (stage))
+  if (is_redraw_queued (monitor_src))
     return;
 
   meta_screen_cast_stream_src_maybe_record_frame (src);
@@ -371,12 +392,12 @@ meta_screen_cast_monitor_stream_src_record_frame (MetaScreenCastStreamSrc *src,
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
 
-  stage = get_stage (monitor_src);
-  if (!clutter_stage_is_redraw_queued (stage))
+  if (!is_redraw_queued (monitor_src))
     return FALSE;
 
   monitor = get_monitor (monitor_src);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  stage = get_stage (monitor_src);
   clutter_stage_capture_into (stage, FALSE, &logical_monitor->rect, data);
 
   return TRUE;

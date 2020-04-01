@@ -149,16 +149,32 @@ is_cursor_in_stream (MetaScreenCastAreaStreamSrc *area_src)
     }
 }
 
+static gboolean
+is_redraw_queued (MetaScreenCastAreaStreamSrc *area_src)
+{
+  ClutterStage *stage = get_stage (area_src);
+  GList *l;
+
+  for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+
+      if (clutter_stage_is_redraw_queued_on_view (stage, view))
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
 static void
 sync_cursor_state (MetaScreenCastAreaStreamSrc *area_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (area_src);
-  ClutterStage *stage = get_stage (area_src);
 
   if (!is_cursor_in_stream (area_src))
     return;
 
-  if (clutter_stage_is_redraw_queued (stage))
+  if (is_redraw_queued (area_src))
     return;
 
   meta_screen_cast_stream_src_maybe_record_frame (src);
