@@ -504,6 +504,20 @@ test_case_do (TestCase *test,
 
       test_client_wait_for_window_shown (client, window);
     }
+  else if (strcmp (argv[0], "resize") == 0)
+    {
+      if (argc != 4)
+        BAD_COMMAND("usage: %s <client-id>/<window-id> width height", argv[0]);
+
+      TestClient *client;
+      const char *window_id;
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      if (!test_client_do (client, error, argv[0], window_id,
+                           argv[2], argv[3], NULL))
+        return FALSE;
+    }
   else if (strcmp (argv[0], "hide") == 0 ||
            strcmp (argv[0], "activate") == 0 ||
            strcmp (argv[0], "raise") == 0 ||
