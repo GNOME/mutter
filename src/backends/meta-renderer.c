@@ -172,6 +172,75 @@ meta_renderer_real_rebuild_views (MetaRenderer *renderer)
     }
 }
 
+static MetaRendererView *
+meta_renderer_get_view_for_crtc (MetaRenderer *renderer,
+                                 MetaCrtc     *crtc)
+{
+  MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
+  GList *l;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      MetaRendererView *view = l->data;
+
+      if (meta_renderer_view_get_crtc (view) == crtc)
+        return view;
+    }
+
+  return NULL;
+}
+
+typedef struct _CollectViewsData
+{
+  MetaRenderer *renderer;
+  GList *out_views;
+} CollectViewsData;
+
+static gboolean
+collect_views (MetaMonitor          *monitor,
+               MetaMonitorMode      *mode,
+               MetaMonitorCrtcMode  *monitor_crtc_mode,
+               gpointer              user_data,
+               GError              **error)
+{
+  CollectViewsData *data = user_data;
+  MetaCrtc *crtc;
+  MetaRendererView *view;
+
+  crtc = meta_output_get_assigned_crtc (monitor_crtc_mode->output);
+  view = meta_renderer_get_view_for_crtc (data->renderer, crtc);
+  if (!g_list_find (data->out_views, view))
+    data->out_views = g_list_prepend (data->out_views, view);
+
+  return TRUE;
+}
+
+static GList *
+meta_renderer_real_get_views_for_monitor (MetaRenderer *renderer,
+                                          MetaMonitor  *monitor)
+{
+  CollectViewsData data = { 0 };
+  MetaMonitorMode *monitor_mode;
+
+  data.renderer = renderer;
+
+  monitor_mode = meta_monitor_get_current_mode (monitor);
+  meta_monitor_mode_foreach_crtc (monitor, monitor_mode,
+                                  collect_views,
+                                  &data,
+                                  NULL);
+
+  return data.out_views;
+}
+
+GList *
+meta_renderer_get_views_for_monitor (MetaRenderer *renderer,
+                                     MetaMonitor  *monitor)
+{
+  return META_RENDERER_GET_CLASS (renderer)->get_views_for_monitor (renderer,
+                                                                    monitor);
+}
+
 void
 meta_renderer_add_view (MetaRenderer     *renderer,
                         MetaRendererView *view)
@@ -278,6 +347,7 @@ meta_renderer_class_init (MetaRendererClass *klass)
   object_class->finalize = meta_renderer_finalize;
 
   klass->rebuild_views = meta_renderer_real_rebuild_views;
+  klass->get_views_for_monitor = meta_renderer_real_get_views_for_monitor;
 
   obj_props[PROP_BACKEND] =
     g_param_spec_object ("backend",

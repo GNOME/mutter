@@ -94,6 +94,13 @@ meta_renderer_x11_cm_rebuild_views (MetaRenderer *renderer)
   meta_renderer_add_view (renderer, renderer_x11_cm->screen_view);
 }
 
+static GList *
+meta_renderer_x11_cm_get_views_for_monitor (MetaRenderer *renderer,
+                                            MetaMonitor  *monitor)
+{
+  return g_list_prepend (NULL, meta_renderer_get_views (renderer)->data);
+}
+
 static void
 meta_renderer_x11_cm_init (MetaRendererX11Cm *renderer_x11_cm)
 {
@@ -105,4 +112,6 @@ meta_renderer_x11_cm_class_init (MetaRendererX11CmClass *klass)
   MetaRendererClass *renderer_class = META_RENDERER_CLASS (klass);
 
   renderer_class->rebuild_views = meta_renderer_x11_cm_rebuild_views;
+  renderer_class->get_views_for_monitor =
+    meta_renderer_x11_cm_get_views_for_monitor;
 }
