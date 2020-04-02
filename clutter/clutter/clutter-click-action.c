@@ -346,6 +346,12 @@ on_captured_event (ClutterActor       *stage,
   ClutterModifierType modifier_state;
   gboolean has_button = TRUE;
 
+  if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (action)))
+    {
+      clutter_click_action_release (action);
+      return CLUTTER_EVENT_PROPAGATE;
+    }
+
   actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (action));
 
   switch (clutter_event_type (event))
