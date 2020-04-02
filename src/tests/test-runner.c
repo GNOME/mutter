@@ -592,6 +592,22 @@ test_case_do (TestCase *test,
                            argv[2], argv[3], NULL))
         return FALSE;
     }
+  else if (strcmp (argv[0], "move") == 0)
+    {
+      if (argc != 4)
+        BAD_COMMAND("usage: %s <client-id>/<window-id> x y", argv[0]);
+
+      TestClient *client;
+      const char *window_id;
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      MetaWindow *window = test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      meta_window_move_frame (window, TRUE, atoi (argv[2]), atoi (argv[3]));
+    }
   else if (strcmp (argv[0], "tile") == 0)
     {
       if (argc != 3)
@@ -784,6 +800,37 @@ test_case_do (TestCase *test,
                                   width, height,
                                   error))
         return FALSE;
+    }
+  else if (strcmp (argv[0], "assert_position") == 0)
+    {
+      if (argc != 4)
+        {
+          BAD_COMMAND("usage: %s <client-id>/<window-id> <x> <y>",
+                      argv[0]);
+        }
+
+      TestClient *client;
+      const char *window_id;
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      MetaWindow *window = test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      MetaRectangle frame_rect;
+      meta_window_get_frame_rect (window, &frame_rect);
+      int x = atoi (argv[2]);
+      int y = atoi (argv[3]);
+      if (frame_rect.x != x || frame_rect.y != y)
+        {
+          g_set_error (error,
+                       TEST_RUNNER_ERROR,
+                       TEST_RUNNER_ERROR_ASSERTION_FAILED,
+                       "Expected window position (%d, %d) doesn't match (%d, %d)",
+                       x, y, frame_rect.x, frame_rect.y);
+          return FALSE;
+        }
     }
   else
     {
