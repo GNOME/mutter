@@ -132,8 +132,8 @@ _cogl_framebuffer_gl_flush_viewport_state (CoglFramebuffer *framebuffer)
 {
   float gl_viewport_y;
 
-  g_assert (framebuffer->viewport_width >=0 &&
-            framebuffer->viewport_height >=0);
+  g_return_if_fail (framebuffer->viewport_width >= 0);
+  g_return_if_fail (framebuffer->viewport_height >= 0);
 
   /* Convert the Cogl viewport y offset to an OpenGL viewport y offset
    * NB: OpenGL defines its window and viewport origins to be bottom
