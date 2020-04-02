@@ -1,0 +1,73 @@
+# Tests that the following works, both on Wayland and X11
+#  1. Create a window with a known size
+#  2. Maximize window results in maximized size
+#  3. Fullscreen window results in fullscreen size
+#  4. Unfullscreen window results in maximized size
+#  5. Unmaximize window results in original size
+#  6. Toggling fullscreen ends up with original size
+
+new_client w wayland
+create w/1 csd
+
+resize w/1 500 400
+show w/1
+wait
+
+assert_size w/1 500 400
+
+maximize w/1
+wait_reconfigure
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+fullscreen w/1
+wait_reconfigure
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unfullscreen w/1
+wait_reconfigure
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unmaximize w/1
+wait_reconfigure
+assert_size w/1 500 400
+
+fullscreen w/1
+wait_reconfigure
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unfullscreen w/1
+wait_reconfigure
+assert_size w/1 500 400
+
+new_client x x11
+create x/1 csd
+
+resize x/1 500 400
+show x/1
+wait
+
+assert_size x/1 500 400
+
+maximize x/1
+wait_reconfigure
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+fullscreen x/1
+wait_reconfigure
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unfullscreen x/1
+wait_reconfigure
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unmaximize x/1
+wait_reconfigure
+assert_size x/1 500 400
+
+fullscreen x/1
+wait_reconfigure
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unfullscreen x/1
+wait_reconfigure
+assert_size x/1 500 400
