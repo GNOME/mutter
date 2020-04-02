@@ -142,6 +142,7 @@ stacking_tests = [
   'set-override-redirect-parent',
   'set-parent-exported',
   'restore-size',
+  'unmaximize-new-size',
 ]
 
 foreach stacking_test: stacking_tests
