@@ -592,6 +592,56 @@ test_case_do (TestCase *test,
                            argv[2], argv[3], NULL))
         return FALSE;
     }
+  else if (strcmp (argv[0], "tile") == 0)
+    {
+      if (argc != 3)
+        BAD_COMMAND("usage: %s <client-id>/<window-id> [right|left]", argv[0]);
+
+      TestClient *client;
+      const char *window_id;
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      MetaWindow *window = test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      MetaTileMode tile_mode;
+      if (strcmp (argv[2], "right") == 0)
+        {
+          tile_mode = META_TILE_RIGHT;
+        }
+      else if (strcmp (argv[2], "left") == 0)
+        {
+          tile_mode = META_TILE_LEFT;
+        }
+      else
+        {
+          g_set_error (error,
+                       TEST_RUNNER_ERROR,
+                       TEST_RUNNER_ERROR_ASSERTION_FAILED,
+                       "Invalid tile mode '%s'", argv[2]);
+          return FALSE;
+        }
+
+      meta_window_tile (window, tile_mode);
+    }
+  else if (strcmp (argv[0], "untile") == 0)
+    {
+      if (argc != 2)
+        BAD_COMMAND("usage: %s <client-id>/<window-id>", argv[0]);
+
+      TestClient *client;
+      const char *window_id;
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      MetaWindow *window = test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      meta_window_untile (window);
+    }
   else if (strcmp (argv[0], "hide") == 0 ||
            strcmp (argv[0], "activate") == 0 ||
            strcmp (argv[0], "raise") == 0 ||
