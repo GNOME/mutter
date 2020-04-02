@@ -1,4 +1,5 @@
 # Check that X11 clients restore to their right size after unmaximize
+# or untile
 
 new_client x x11
 create x/1 csd
@@ -25,7 +26,28 @@ wait_reconfigure
 
 assert_size x/1 300 200
 
+tile x/1 right
+wait_reconfigure
+assert_size x/1 MONITOR_WIDTH/2 MONITOR_HEIGHT
+
+untile x/1
+wait_reconfigure
+assert_size x/1 300 200
+
+tile x/1 left
+wait_reconfigure
+assert_size x/1 MONITOR_WIDTH/2 MONITOR_HEIGHT
+
+maximize x/1
+wait_reconfigure
+assert_size x/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unmaximize x/1
+wait_reconfigure
+assert_size x/1 300 200
+
 # Check that Wayland clients restore to their right size after unmaximize
+# or untile
 
 new_client w wayland
 create w/1 csd
@@ -50,4 +72,24 @@ wait_reconfigure
 unmaximize w/1
 wait_reconfigure
 
+assert_size w/1 300 200
+
+tile w/1 right
+wait_reconfigure
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT
+
+untile w/1
+wait_reconfigure
+assert_size w/1 300 200
+
+tile w/1 left
+wait_reconfigure
+assert_size w/1 MONITOR_WIDTH/2 MONITOR_HEIGHT
+
+maximize w/1
+wait_reconfigure
+assert_size w/1 MONITOR_WIDTH MONITOR_HEIGHT
+
+unmaximize w/1
+wait_reconfigure
 assert_size w/1 300 200
