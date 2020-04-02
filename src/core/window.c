@@ -3156,6 +3156,10 @@ meta_window_tile (MetaWindow   *window,
       window->tile_monitor_number = -1;
       return;
     }
+  else
+    {
+      window->tile_monitor_number = window->monitor->number;
+    }
 
   if (window->tile_mode == META_TILE_MAXIMIZED)
     directions = META_MAXIMIZE_BOTH;
