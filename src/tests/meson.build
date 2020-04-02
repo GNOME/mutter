@@ -143,6 +143,7 @@ stacking_tests = [
   'set-parent-exported',
   'restore-size',
   'unmaximize-new-size',
+  'fullscreen-maximize',
 ]
 
 foreach stacking_test: stacking_tests

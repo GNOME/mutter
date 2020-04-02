@@ -246,6 +246,11 @@ static int
 calculate_titlebar_height (GtkWindow *window)
 {
   GtkWidget *titlebar;
+  GdkWindow *gdk_window;
+
+  gdk_window = gtk_widget_get_window (GTK_WIDGET (window));
+  if (gdk_window_get_state (gdk_window) & GDK_WINDOW_STATE_FULLSCREEN)
+    return 0;
 
   titlebar = gtk_window_get_titlebar (window);
   if (!titlebar)
@@ -732,6 +737,34 @@ process_line (const char *line)
         goto out;
 
       gtk_window_unmaximize (GTK_WINDOW (window));
+    }
+  else if (strcmp (argv[0], "fullscreen") == 0)
+    {
+      if (argc != 2)
+        {
+          g_print ("usage: fullscreen <id>\n");
+          goto out;
+        }
+
+      GtkWidget *window = lookup_window (argv[1]);
+      if (!window)
+        goto out;
+
+      gtk_window_fullscreen (GTK_WINDOW (window));
+    }
+  else if (strcmp (argv[0], "unfullscreen") == 0)
+    {
+      if (argc != 2)
+        {
+          g_print ("usage: unfullscreen <id>\n");
+          goto out;
+        }
+
+      GtkWidget *window = lookup_window (argv[1]);
+      if (!window)
+        goto out;
+
+      gtk_window_unfullscreen (GTK_WINDOW (window));
     }
   else if (strcmp (argv[0], "assert_size") == 0)
     {
