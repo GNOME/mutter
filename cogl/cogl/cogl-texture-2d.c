@@ -121,6 +121,9 @@ cogl_texture_2d_new_with_size (CoglContext *ctx,
 {
   CoglTextureLoader *loader;
 
+  g_return_val_if_fail (width >= 1, NULL);
+  g_return_val_if_fail (height >= 1, NULL);
+
   loader = _cogl_texture_create_loader ();
   loader->src_type = COGL_TEXTURE_SOURCE_TYPE_SIZED;
   loader->src.sized.width = width;
