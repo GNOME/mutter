@@ -733,6 +733,36 @@ process_line (const char *line)
 
       gtk_window_unmaximize (GTK_WINDOW (window));
     }
+  else if (strcmp (argv[0], "assert_size") == 0)
+    {
+      int expected_width;
+      int expected_height;
+      int width;
+      int height;
+
+      if (argc != 4)
+        {
+          g_print ("usage: assert_size <id> <width> <height>\n");
+          goto out;
+        }
+
+      GtkWidget *window = lookup_window (argv[1]);
+      if (!window)
+        goto out;
+
+      gtk_window_get_size (GTK_WINDOW (window), &width, &height);
+      height += calculate_titlebar_height (GTK_WINDOW (window));
+
+      expected_width = atoi (argv[2]);
+      expected_height = atoi (argv[3]);
+      if (expected_width != width || expected_height != height)
+        {
+          g_print ("Expected size %dx%d didn't match actual size %dx%d\n",
+                   expected_width, expected_height,
+                   width, height);
+          goto out;
+        }
+    }
   else
     {
       g_print ("Unknown command %s\n", argv[0]);
