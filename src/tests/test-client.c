@@ -242,6 +242,18 @@ handle_take_focus (GtkWidget *window,
     }
 }
 
+static int
+calculate_titlebar_height (GtkWindow *window)
+{
+  GtkWidget *titlebar;
+
+  titlebar = gtk_window_get_titlebar (window);
+  if (!titlebar)
+    return 0;
+
+  return gtk_widget_get_allocated_height (titlebar);
+}
+
 static void
 process_line (const char *line)
 {
@@ -565,7 +577,10 @@ process_line (const char *line)
 
       int width = atoi (argv[2]);
       int height = atoi (argv[3]);
-      gtk_window_resize (GTK_WINDOW (window), width, height);
+      int titlebar_height = calculate_titlebar_height (GTK_WINDOW (window));
+      gtk_window_resize (GTK_WINDOW (window),
+                         width,
+                         height - titlebar_height);
     }
   else if (strcmp (argv[0], "raise") == 0)
     {
