@@ -1,0 +1,73 @@
+# X11
+
+new_client x x11
+create x/1 csd
+show x/1
+
+move x/1 100 100
+assert_position x/1 100 100
+
+maximize x/1
+wait_reconfigure
+assert_position x/1 0 0
+
+unmaximize x/1
+wait_reconfigure
+assert_position x/1 100 100
+
+tile x/1 left
+wait
+assert_position x/1 0 0
+
+untile x/1
+wait
+assert_position x/1 100 100
+
+tile x/1 left
+wait
+assert_position x/1 0 0
+
+maximize x/1
+wait_reconfigure
+assert_position x/1 0 0
+
+unmaximize x/1
+wait_reconfigure
+assert_position x/1 100 100
+
+# Wayland
+
+new_client w wayland
+create w/1 csd
+show w/1
+
+move w/1 100 100
+assert_position w/1 100 100
+
+maximize w/1
+wait_reconfigure
+assert_position w/1 0 0
+
+unmaximize w/1
+wait_reconfigure
+assert_position w/1 100 100
+
+tile w/1 left
+wait_reconfigure
+assert_position w/1 0 0
+
+untile w/1
+wait
+assert_position w/1 100 100
+
+tile w/1 left
+wait
+assert_position w/1 0 0
+
+maximize w/1
+wait_reconfigure
+assert_position w/1 0 0
+
+unmaximize w/1
+wait_reconfigure
+assert_position w/1 100 100
