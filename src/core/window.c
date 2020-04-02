@@ -3125,6 +3125,22 @@ update_edge_constraints (MetaWindow *window)
 }
 
 void
+meta_window_untile (MetaWindow *window)
+{
+  window->tile_monitor_number =
+    window->saved_maximize ? window->monitor->number
+                           : -1;
+  window->tile_mode =
+    window->saved_maximize ? META_TILE_MAXIMIZED
+                           : META_TILE_NONE;
+
+  if (window->saved_maximize)
+    meta_window_maximize (window, META_MAXIMIZE_BOTH);
+  else
+    meta_window_unmaximize (window, META_MAXIMIZE_BOTH);
+}
+
+void
 meta_window_tile (MetaWindow   *window,
                   MetaTileMode  tile_mode)
 {

@@ -3302,15 +3302,7 @@ handle_toggle_tiled (MetaDisplay     *display,
   if ((META_WINDOW_TILED_LEFT (window) && mode == META_TILE_LEFT) ||
       (META_WINDOW_TILED_RIGHT (window) && mode == META_TILE_RIGHT))
     {
-      window->tile_monitor_number = window->saved_maximize ? window->monitor->number
-        : -1;
-      window->tile_mode = window->saved_maximize ? META_TILE_MAXIMIZED
-        : META_TILE_NONE;
-
-      if (window->saved_maximize)
-        meta_window_maximize (window, META_MAXIMIZE_BOTH);
-      else
-        meta_window_unmaximize (window, META_MAXIMIZE_BOTH);
+      meta_window_untile (window);
     }
   else if (meta_window_can_tile_side_by_side (window))
     {
