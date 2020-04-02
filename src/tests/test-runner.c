@@ -636,6 +636,24 @@ test_case_do (TestCase *test,
       if (!test_case_wait (test, error))
         return FALSE;
     }
+  else if (strcmp (argv[0], "wait_reconfigure") == 0)
+    {
+      if (argc != 1)
+        BAD_COMMAND("usage: %s", argv[0]);
+
+      /*
+       * Wait twice, so that we
+       *  1) First wait for any requests to configure has been made
+       *  2) Then wait for the new configuration has been applied
+       */
+
+      if (!test_case_wait (test, error))
+        return FALSE;
+      if (!test_case_dispatch (test, error))
+        return FALSE;
+      if (!test_case_wait (test, error))
+        return FALSE;
+    }
   else if (strcmp (argv[0], "dispatch") == 0)
     {
       if (argc != 1)
