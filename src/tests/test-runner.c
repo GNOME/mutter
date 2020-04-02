@@ -292,6 +292,30 @@ test_case_assert_focused (TestCase    *test,
 }
 
 static gboolean
+test_case_assert_size (TestCase    *test,
+                       MetaWindow  *window,
+                       int          expected_width,
+                       int          expected_height,
+                       GError     **error)
+{
+  MetaRectangle frame_rect;
+
+  meta_window_get_frame_rect (window, &frame_rect);
+
+  if (frame_rect.width != expected_width ||
+      frame_rect.height != expected_height)
+    {
+      g_set_error (error, TEST_RUNNER_ERROR, TEST_RUNNER_ERROR_ASSERTION_FAILED,
+                   "Expected size %dx%d didn't match actual size %dx%d",
+                   expected_width, expected_height,
+                   frame_rect.width, frame_rect.height);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 test_case_check_xserver_stacking (TestCase *test,
                                   GError  **error)
 {
@@ -342,6 +366,55 @@ test_case_check_xserver_stacking (TestCase *test,
   g_string_free (x11_string, TRUE);
 
   return *error == NULL;
+}
+
+static int
+maybe_divide (const char *str,
+              int         value)
+{
+  if (strstr (str, "/") == str)
+    {
+      int divisor;
+
+      str += 1;
+      divisor = atoi (str);
+
+      value /= divisor;
+    }
+
+  return value;
+}
+
+static int
+parse_window_size (const char *size_str)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaLogicalMonitor *logical_monitor =
+    meta_monitor_manager_get_logical_monitors (monitor_manager)->data;
+  MetaRectangle logical_monitor_layout =
+    meta_logical_monitor_get_layout (logical_monitor);
+  int value;
+
+  if (strstr (size_str, "MONITOR_WIDTH") == size_str)
+    {
+      value = logical_monitor_layout.width;
+      size_str += strlen ("MONITOR_WIDTH");
+      value = maybe_divide (size_str, value);
+    }
+  else if (strstr (size_str, "MONITOR_HEIGHT") == size_str)
+    {
+      value = logical_monitor_layout.height;
+      size_str += strlen ("MONITOR_HEIGHT");
+      value = maybe_divide (size_str, value);
+    }
+  else
+    {
+      value = atoi (size_str);
+    }
+
+  return value;
 }
 
 static gboolean
@@ -596,6 +669,49 @@ test_case_do (TestCase *test,
   else if (strcmp (argv[0], "assert_focused") == 0)
     {
       if (!test_case_assert_focused (test, argv[1], error))
+        return FALSE;
+    }
+  else if (strcmp (argv[0], "assert_size") == 0)
+    {
+      if (argc != 4)
+        {
+          BAD_COMMAND("usage: %s <client-id>/<window-id> <width> <height>",
+                      argv[0]);
+        }
+
+      TestClient *client;
+      const char *window_id;
+      if (!test_case_parse_window_id (test, argv[1], &client, &window_id, error))
+        return FALSE;
+
+      MetaWindow *window = test_client_find_window (client, window_id, error);
+      if (!window)
+        return FALSE;
+
+      if (meta_window_get_frame (window))
+        {
+          g_set_error (error,
+                       TEST_RUNNER_ERROR,
+                       TEST_RUNNER_ERROR_ASSERTION_FAILED,
+                       "Can only assert size of CSD window");
+          return FALSE;
+        }
+
+      int width = parse_window_size (argv[2]);
+      int height = parse_window_size (argv[3]);
+      g_autofree char *width_str = g_strdup_printf ("%d", width);
+      g_autofree char *height_str = g_strdup_printf ("%d", height);
+
+      if (!test_client_do (client, error, argv[0],
+                           window_id,
+                           width_str,
+                           height_str,
+                           NULL))
+        return FALSE;
+
+      if (!test_case_assert_size (test, window,
+                                  width, height,
+                                  error))
         return FALSE;
     }
   else

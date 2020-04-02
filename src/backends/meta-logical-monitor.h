@@ -90,6 +90,7 @@ float meta_logical_monitor_get_scale (MetaLogicalMonitor *logical_monitor);
 
 MetaMonitorTransform meta_logical_monitor_get_transform (MetaLogicalMonitor *logical_monitor);
 
+META_EXPORT_TEST
 MetaRectangle meta_logical_monitor_get_layout (MetaLogicalMonitor *logical_monitor);
 
 META_EXPORT_TEST
