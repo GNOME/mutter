@@ -140,9 +140,6 @@ struct _ClutterStagePrivate
 
   ClutterStageState current_state;
 
-  gpointer paint_data;
-  GDestroyNotify paint_notify;
-
   int update_freeze_count;
 
   guint redraw_pending         : 1;
@@ -1958,9 +1955,6 @@ clutter_stage_finalize (GObject *object)
 
   if (priv->fps_timer != NULL)
     g_timer_destroy (priv->fps_timer);
-
-  if (priv->paint_notify != NULL)
-    priv->paint_notify (priv->paint_data);
 
   G_OBJECT_CLASS (clutter_stage_parent_class)->finalize (object);
 }
