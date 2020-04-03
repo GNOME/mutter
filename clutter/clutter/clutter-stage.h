@@ -182,11 +182,6 @@ void            clutter_stage_set_motion_events_enabled         (ClutterStage   
 CLUTTER_EXPORT
 gboolean        clutter_stage_get_motion_events_enabled         (ClutterStage          *stage);
 CLUTTER_EXPORT
-void            clutter_stage_set_accept_focus                  (ClutterStage          *stage,
-                                                                 gboolean               accept_focus);
-CLUTTER_EXPORT
-gboolean        clutter_stage_get_accept_focus                  (ClutterStage          *stage);
-CLUTTER_EXPORT
 gboolean        clutter_stage_event                             (ClutterStage          *stage,
                                                                  ClutterEvent          *event);
 

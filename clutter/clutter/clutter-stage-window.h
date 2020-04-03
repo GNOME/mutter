@@ -49,9 +49,6 @@ struct _ClutterStageWindowInterface
   gint64            (* get_update_time)         (ClutterStageWindow *stage_window);
   void              (* clear_update_time)       (ClutterStageWindow *stage_window);
 
-  void              (* set_accept_focus)        (ClutterStageWindow *stage_window,
-                                                 gboolean            accept_focus);
-
   void              (* redraw)                  (ClutterStageWindow *stage_window);
 
   gboolean          (* can_clip_redraws)        (ClutterStageWindow *stage_window);

@@ -148,7 +148,6 @@ struct _ClutterStagePrivate
   guint redraw_pending         : 1;
   guint throttle_motion_events : 1;
   guint min_size_changed       : 1;
-  guint accept_focus           : 1;
   guint motion_events_enabled  : 1;
   guint has_custom_perspective : 1;
   guint stage_was_relayout     : 1;
@@ -162,7 +161,6 @@ enum
   PROP_PERSPECTIVE,
   PROP_TITLE,
   PROP_KEY_FOCUS,
-  PROP_ACCEPT_FOCUS,
   PROP_LAST
 };
 
@@ -1860,10 +1858,6 @@ clutter_stage_set_property (GObject      *object,
       clutter_stage_set_key_focus (stage, g_value_get_object (value));
       break;
 
-    case PROP_ACCEPT_FOCUS:
-      clutter_stage_set_accept_focus (stage, g_value_get_boolean (value));
-      break;
-
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -1900,10 +1894,6 @@ clutter_stage_get_property (GObject    *gobject,
 
     case PROP_KEY_FOCUS:
       g_value_set_object (value, priv->key_focused_actor);
-      break;
-
-    case PROP_ACCEPT_FOCUS:
-      g_value_set_boolean (value, priv->accept_focus);
       break;
 
     default:
@@ -2074,20 +2064,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
                            P_("The currently key focused actor"),
                            CLUTTER_TYPE_ACTOR,
                            CLUTTER_PARAM_READWRITE);
-
-  /**
-   * ClutterStage:accept-focus:
-   *
-   * Whether the #ClutterStage should accept key focus when shown.
-   *
-   * Since: 1.6
-   */
-  obj_props[PROP_ACCEPT_FOCUS] =
-      g_param_spec_boolean ("accept-focus",
-                            P_("Accept Focus"),
-                            P_("Whether the stage should accept focus on show"),
-                            TRUE,
-                            CLUTTER_PARAM_READWRITE);
 
   g_object_class_install_properties (gobject_class, PROP_LAST, obj_props);
 
@@ -3779,56 +3755,6 @@ clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
         }
       g_list_free (stolen_list);
     }
-}
-
-/**
- * clutter_stage_set_accept_focus:
- * @stage: a #ClutterStage
- * @accept_focus: %TRUE to accept focus on show
- *
- * Sets whether the @stage should accept the key focus when shown.
- *
- * This function should be called before showing @stage using
- * clutter_actor_show().
- *
- * Since: 1.6
- */
-void
-clutter_stage_set_accept_focus (ClutterStage *stage,
-                                gboolean      accept_focus)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  accept_focus = !!accept_focus;
-
-  priv = stage->priv;
-
-  if (priv->accept_focus != accept_focus)
-    {
-      _clutter_stage_window_set_accept_focus (priv->impl, accept_focus);
-      g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_ACCEPT_FOCUS]);
-    }
-}
-
-/**
- * clutter_stage_get_accept_focus:
- * @stage: a #ClutterStage
- *
- * Retrieves the value set with clutter_stage_set_accept_focus().
- *
- * Return value: %TRUE if the #ClutterStage should accept focus, and %FALSE
- *   otherwise
- *
- * Since: 1.6
- */
-gboolean
-clutter_stage_get_accept_focus (ClutterStage *stage)
-{
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), TRUE);
-
-  return stage->priv->accept_focus;
 }
 
 /**

@@ -169,19 +169,6 @@ _clutter_stage_window_clear_update_time (ClutterStageWindow *window)
 }
 
 void
-_clutter_stage_window_set_accept_focus (ClutterStageWindow *window,
-                                        gboolean            accept_focus)
-{
-  ClutterStageWindowInterface *iface;
-
-  g_return_if_fail (CLUTTER_IS_STAGE_WINDOW (window));
-
-  iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
-  if (iface->set_accept_focus)
-    iface->set_accept_focus (window, accept_focus);
-}
-
-void
 _clutter_stage_window_redraw (ClutterStageWindow *window)
 {
   ClutterStageWindowInterface *iface;

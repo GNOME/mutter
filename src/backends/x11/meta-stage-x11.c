@@ -381,19 +381,9 @@ update_wm_hints (MetaStageX11 *stage_x11)
 
   wm_hints.flags = StateHint | InputHint;
   wm_hints.initial_state = NormalState;
-  wm_hints.input = stage_x11->accept_focus ? True : False;
+  wm_hints.input = True;
 
   XSetWMHints (xdisplay, stage_x11->xwin, &wm_hints);
-}
-
-static void
-meta_stage_x11_set_accept_focus (ClutterStageWindow *stage_window,
-                                 gboolean            accept_focus)
-{
-  MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
-
-  stage_x11->accept_focus = !!accept_focus;
-  update_wm_hints (stage_x11);
 }
 
 static void
@@ -543,8 +533,6 @@ meta_stage_x11_init (MetaStageX11 *stage)
 
   stage->wm_state = STAGE_X11_WITHDRAWN;
 
-  stage->accept_focus = TRUE;
-
   stage->title = NULL;
 }
 
@@ -554,7 +542,6 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
   clutter_stage_window_parent_iface = g_type_interface_peek_parent (iface);
 
   iface->set_title = meta_stage_x11_set_title;
-  iface->set_accept_focus = meta_stage_x11_set_accept_focus;
   iface->show = meta_stage_x11_show;
   iface->hide = meta_stage_x11_hide;
   iface->resize = meta_stage_x11_resize;
