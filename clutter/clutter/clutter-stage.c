@@ -1390,6 +1390,21 @@ update_actor_stage_views (ClutterStage *stage)
   g_warn_if_fail (!priv->actor_needs_immediate_relayout);
 }
 
+static void
+clutter_stage_update_devices (ClutterStage *stage,
+                              GSList       *devices)
+{
+  GSList *l;
+
+  COGL_TRACE_BEGIN (ClutterStageUpdateDevices, "UpdateDevices");
+
+  for (l = devices; l; l = l->next)
+    {
+      ClutterInputDevice *device = l->data;
+      clutter_input_device_update (device, NULL, TRUE);
+    }
+}
+
 /**
  * _clutter_stage_do_update:
  * @stage: A #ClutterStage
@@ -1402,7 +1417,7 @@ gboolean
 _clutter_stage_do_update (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
-  GSList *devices = NULL;
+  g_autoptr (GSList) devices = NULL;
 
   priv->needs_update = FALSE;
 
@@ -1452,15 +1467,7 @@ _clutter_stage_do_update (ClutterStage *stage)
     }
 #endif /* CLUTTER_ENABLE_DEBUG */
 
-  COGL_TRACE_BEGIN (ClutterStagePick, "Pick");
-
-  while (devices)
-    {
-      clutter_input_device_update (devices->data, NULL, TRUE);
-      devices = g_slist_delete_link (devices, devices);
-    }
-
-  COGL_TRACE_END (ClutterStagePick);
+  clutter_stage_update_devices (stage, devices);
 
   return TRUE;
 }
