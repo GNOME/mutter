@@ -146,7 +146,6 @@ struct _ClutterStagePrivate
   int update_freeze_count;
 
   guint redraw_pending         : 1;
-  guint is_cursor_visible      : 1;
   guint throttle_motion_events : 1;
   guint min_size_changed       : 1;
   guint accept_focus           : 1;
@@ -160,7 +159,6 @@ enum
   PROP_0,
 
   PROP_COLOR,
-  PROP_CURSOR_VISIBLE,
   PROP_PERSPECTIVE,
   PROP_TITLE,
   PROP_KEY_FOCUS,
@@ -1850,13 +1848,6 @@ clutter_stage_set_property (GObject      *object,
                                           clutter_value_get_color (value));
       break;
 
-    case PROP_CURSOR_VISIBLE:
-      if (g_value_get_boolean (value))
-        clutter_stage_show_cursor (stage);
-      else
-        clutter_stage_hide_cursor (stage);
-      break;
-
     case PROP_PERSPECTIVE:
       clutter_stage_set_perspective (stage, g_value_get_boxed (value));
       break;
@@ -1897,10 +1888,6 @@ clutter_stage_get_property (GObject    *gobject,
                                             &bg_color);
         clutter_value_set_color (value, &bg_color);
       }
-      break;
-
-    case PROP_CURSOR_VISIBLE:
-      g_value_set_boolean (value, priv->is_cursor_visible);
       break;
 
     case PROP_PERSPECTIVE:
@@ -2025,18 +2012,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
   actor_class->apply_transform = clutter_stage_real_apply_transform;
 
   klass->paint_view = clutter_stage_real_paint_view;
-
-  /**
-   * ClutterStage:cursor-visible:
-   *
-   * Whether the mouse pointer should be visible
-   */
-  obj_props[PROP_CURSOR_VISIBLE] =
-      g_param_spec_boolean ("cursor-visible",
-                            P_("Cursor Visible"),
-                            P_("Whether the mouse pointer is visible on the main stage"),
-                            TRUE,
-                            CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterStage:color:
@@ -2288,7 +2263,6 @@ clutter_stage_init (ClutterStage *self)
 
   priv->event_queue = g_queue_new ();
 
-  priv->is_cursor_visible = TRUE;
   priv->throttle_motion_events = TRUE;
   priv->min_size_changed = FALSE;
   priv->sync_delay = -1;
@@ -2655,72 +2629,6 @@ _clutter_stage_get_viewport (ClutterStage *stage,
   *y = priv->viewport[1];
   *width = priv->viewport[2];
   *height = priv->viewport[3];
-}
-
-/**
- * clutter_stage_show_cursor:
- * @stage: a #ClutterStage
- *
- * Shows the cursor on the stage window
- */
-void
-clutter_stage_show_cursor (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  priv = stage->priv;
-  if (!priv->is_cursor_visible)
-    {
-      ClutterStageWindow *impl = CLUTTER_STAGE_WINDOW (priv->impl);
-      ClutterStageWindowInterface *iface;
-
-      iface = CLUTTER_STAGE_WINDOW_GET_IFACE (impl);
-      if (iface->set_cursor_visible)
-        {
-          priv->is_cursor_visible = TRUE;
-
-          iface->set_cursor_visible (impl, TRUE);
-
-          g_object_notify_by_pspec (G_OBJECT (stage),
-                                    obj_props[PROP_CURSOR_VISIBLE]);
-        }
-    }
-}
-
-/**
- * clutter_stage_hide_cursor:
- * @stage: a #ClutterStage
- *
- * Makes the cursor invisible on the stage window
- *
- * Since: 0.4
- */
-void
-clutter_stage_hide_cursor (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  priv = stage->priv;
-  if (priv->is_cursor_visible)
-    {
-      ClutterStageWindow *impl = CLUTTER_STAGE_WINDOW (priv->impl);
-      ClutterStageWindowInterface *iface;
-
-      iface = CLUTTER_STAGE_WINDOW_GET_IFACE (impl);
-      if (iface->set_cursor_visible)
-        {
-          priv->is_cursor_visible = FALSE;
-
-          iface->set_cursor_visible (impl, FALSE);
-
-          g_object_notify_by_pspec (G_OBJECT (stage),
-                                    obj_props[PROP_CURSOR_VISIBLE]);
-        }
-    }
 }
 
 /**

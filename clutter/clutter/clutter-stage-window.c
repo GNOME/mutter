@@ -62,16 +62,6 @@ _clutter_stage_window_set_title (ClutterStageWindow *window,
     iface->set_title (window, title);
 }
 
-void
-_clutter_stage_window_set_cursor_visible (ClutterStageWindow *window,
-                                          gboolean            is_visible)
-{
-  ClutterStageWindowInterface *iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
-
-  if (iface->set_cursor_visible)
-    iface->set_cursor_visible (window, is_visible);
-}
-
 gboolean
 _clutter_stage_window_realize (ClutterStageWindow *window)
 {

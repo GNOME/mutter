@@ -30,8 +30,6 @@ struct _ClutterStageWindowInterface
 
   void              (* set_title)               (ClutterStageWindow *stage_window,
                                                  const gchar        *title);
-  void              (* set_cursor_visible)      (ClutterStageWindow *stage_window,
-                                                 gboolean            cursor_visible);
 
   gboolean          (* realize)                 (ClutterStageWindow *stage_window);
   void              (* unrealize)               (ClutterStageWindow *stage_window);

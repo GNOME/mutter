@@ -291,9 +291,7 @@ meta_stage_new (MetaBackend *backend)
   MetaStage *stage;
   MetaMonitorManager *monitor_manager;
 
-  stage = g_object_new (META_TYPE_STAGE,
-                        "cursor-visible", FALSE,
-                        NULL);
+  stage = g_object_new (META_TYPE_STAGE, NULL);
 
   monitor_manager = meta_backend_get_monitor_manager (backend);
   g_signal_connect (monitor_manager, "power-save-mode-changed",

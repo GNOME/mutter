@@ -227,7 +227,6 @@ test_devices_main (int argc, char **argv)
   stage = clutter_stage_new ();
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_LightSkyBlue);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Devices");
-  clutter_stage_hide_cursor (CLUTTER_STAGE (stage));
   g_signal_connect (stage,
                     "destroy", G_CALLBACK (clutter_main_quit),
                     NULL);

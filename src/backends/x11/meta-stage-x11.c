@@ -234,39 +234,6 @@ set_wm_title (MetaStageX11 *stage_x11)
     }
 }
 
-static inline void
-set_cursor_visible (MetaStageX11 *stage_x11)
-{
-  Display *xdisplay = clutter_x11_get_default_display ();
-
-  if (stage_x11->xwin == None)
-    return;
-
-  g_debug ("setting cursor state ('%s') over stage window (%u)",
-           stage_x11->is_cursor_visible ? "visible" : "invisible",
-           (unsigned int) stage_x11->xwin);
-
-  if (stage_x11->is_cursor_visible)
-    {
-      XUndefineCursor (xdisplay, stage_x11->xwin);
-    }
-  else
-    {
-      XColor col;
-      Pixmap pix;
-      Cursor curs;
-
-      pix = XCreatePixmap (xdisplay, stage_x11->xwin, 1, 1, 1);
-      memset (&col, 0, sizeof (col));
-      curs = XCreatePixmapCursor (xdisplay,
-                                  pix, pix,
-                                  &col, &col,
-                                  1, 1);
-      XFreePixmap (xdisplay, pix);
-      XDefineCursor (xdisplay, stage_x11->xwin, curs);
-    }
-}
-
 static void
 meta_stage_x11_unrealize (ClutterStageWindow *stage_window)
 {
@@ -362,7 +329,6 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
 
   set_wm_pid (stage_x11);
   set_wm_title (stage_x11);
-  set_cursor_visible (stage_x11);
 
   /* we unconditionally select input events even with event retrieval
    * disabled because we need to guarantee that the Clutter internal
@@ -391,16 +357,6 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
   meta_stage_x11_set_wm_protocols (stage_x11);
 
   return TRUE;
-}
-
-static void
-meta_stage_x11_set_cursor_visible (ClutterStageWindow *stage_window,
-                                   gboolean            cursor_visible)
-{
-  MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
-
-  stage_x11->is_cursor_visible = !!cursor_visible;
-  set_cursor_visible (stage_x11);
 }
 
 static void
@@ -587,7 +543,6 @@ meta_stage_x11_init (MetaStageX11 *stage)
 
   stage->wm_state = STAGE_X11_WITHDRAWN;
 
-  stage->is_cursor_visible = TRUE;
   stage->accept_focus = TRUE;
 
   stage->title = NULL;
@@ -599,7 +554,6 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
   clutter_stage_window_parent_iface = g_type_interface_peek_parent (iface);
 
   iface->set_title = meta_stage_x11_set_title;
-  iface->set_cursor_visible = meta_stage_x11_set_cursor_visible;
   iface->set_accept_focus = meta_stage_x11_set_accept_focus;
   iface->show = meta_stage_x11_show;
   iface->hide = meta_stage_x11_hide;

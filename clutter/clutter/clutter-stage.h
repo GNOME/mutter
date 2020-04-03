@@ -147,10 +147,6 @@ CLUTTER_EXPORT
 void            clutter_stage_get_perspective                   (ClutterStage          *stage,
 			                                         ClutterPerspective    *perspective);
 CLUTTER_EXPORT
-void            clutter_stage_show_cursor                       (ClutterStage          *stage);
-CLUTTER_EXPORT
-void            clutter_stage_hide_cursor                       (ClutterStage          *stage);
-CLUTTER_EXPORT
 void            clutter_stage_set_title                         (ClutterStage          *stage,
                                                                  const gchar           *title);
 CLUTTER_EXPORT
