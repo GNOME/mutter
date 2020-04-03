@@ -3866,14 +3866,7 @@ clutter_actor_paint_node (ClutterActor        *actor,
 
       fb = clutter_paint_context_get_base_framebuffer (paint_context);
 
-      if (clutter_stage_get_use_alpha (CLUTTER_STAGE (actor)))
-        {
-          bg_color.alpha = priv->opacity
-                         * priv->bg_color.alpha
-                         / 255;
-        }
-      else
-        bg_color.alpha = 255;
+      bg_color.alpha = 255;
 
       CLUTTER_NOTE (PAINT, "Stage clear color: (%d, %d, %d, %d)",
                     bg_color.red,

@@ -148,7 +148,6 @@ struct _ClutterStagePrivate
   guint redraw_pending         : 1;
   guint is_cursor_visible      : 1;
   guint throttle_motion_events : 1;
-  guint use_alpha              : 1;
   guint min_size_changed       : 1;
   guint accept_focus           : 1;
   guint motion_events_enabled  : 1;
@@ -164,7 +163,6 @@ enum
   PROP_CURSOR_VISIBLE,
   PROP_PERSPECTIVE,
   PROP_TITLE,
-  PROP_USE_ALPHA,
   PROP_KEY_FOCUS,
   PROP_ACCEPT_FOCUS,
   PROP_LAST
@@ -1867,10 +1865,6 @@ clutter_stage_set_property (GObject      *object,
       clutter_stage_set_title (stage, g_value_get_string (value));
       break;
 
-    case PROP_USE_ALPHA:
-      clutter_stage_set_use_alpha (stage, g_value_get_boolean (value));
-      break;
-
     case PROP_KEY_FOCUS:
       clutter_stage_set_key_focus (stage, g_value_get_object (value));
       break;
@@ -1915,10 +1909,6 @@ clutter_stage_get_property (GObject    *gobject,
 
     case PROP_TITLE:
       g_value_set_string (value, priv->title);
-      break;
-
-    case PROP_USE_ALPHA:
-      g_value_set_boolean (value, priv->use_alpha);
       break;
 
     case PROP_KEY_FOCUS:
@@ -2092,23 +2082,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
                            P_("Stage Title"),
                            NULL,
                            CLUTTER_PARAM_READWRITE);
-
-  /**
-   * ClutterStage:use-alpha:
-   *
-   * Whether the #ClutterStage should honour the alpha component of the
-   * #ClutterStage:color property when painting. If Clutter is run under
-   * a compositing manager this will result in the stage being blended
-   * with the underlying window(s)
-   *
-   * Since: 1.2
-   */
-  obj_props[PROP_USE_ALPHA] =
-      g_param_spec_boolean ("use-alpha",
-                            P_("Use Alpha"),
-                            P_("Whether to honour the alpha component of the stage color"),
-                            FALSE,
-                            CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterStage:key-focus:
@@ -3552,56 +3525,6 @@ clutter_stage_get_throttle_motion_events (ClutterStage *stage)
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
 
   return stage->priv->throttle_motion_events;
-}
-
-/**
- * clutter_stage_set_use_alpha:
- * @stage: a #ClutterStage
- * @use_alpha: whether the stage should honour the opacity or the
- *   alpha channel of the stage color
- *
- * Sets whether the @stage should honour the #ClutterActor:opacity and
- * the alpha channel of the #ClutterStage:color
- *
- * Since: 1.2
- */
-void
-clutter_stage_set_use_alpha (ClutterStage *stage,
-                             gboolean      use_alpha)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  priv = stage->priv;
-
-  if (priv->use_alpha != use_alpha)
-    {
-      priv->use_alpha = use_alpha;
-
-      clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
-
-      g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_USE_ALPHA]);
-    }
-}
-
-/**
- * clutter_stage_get_use_alpha:
- * @stage: a #ClutterStage
- *
- * Retrieves the value set using clutter_stage_set_use_alpha()
- *
- * Return value: %TRUE if the stage should honour the opacity and the
- *   alpha channel of the stage color
- *
- * Since: 1.2
- */
-gboolean
-clutter_stage_get_use_alpha (ClutterStage *stage)
-{
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-
-  return stage->priv->use_alpha;
 }
 
 /**
