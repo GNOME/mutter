@@ -1,4 +1,4 @@
-image: registry.gitlab.gnome.org/gnome/mutter/master:v3
+image: registry.gitlab.gnome.org/gnome/mutter/master:v4
 
 stages:
  - review
