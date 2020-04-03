@@ -1218,6 +1218,8 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
   if (priv->pending_relayouts == NULL)
     return;
 
+  COGL_TRACE_BEGIN_SCOPED (ClutterStageRelayout, "Layout");
+
   CLUTTER_NOTE (ACTOR, ">>> Recomputing layout");
 
   stolen_list = g_steal_pointer (&priv->pending_relayouts);
@@ -1265,6 +1267,8 @@ clutter_stage_do_redraw (ClutterStage *stage)
 
   if (priv->impl == NULL)
     return;
+
+  COGL_TRACE_BEGIN_SCOPED (ClutterStagePaint, "Paint");
 
   CLUTTER_NOTE (PAINT, "Redraw started for stage '%s'[%p]",
                 _clutter_actor_get_debug_name (actor),
@@ -1421,11 +1425,7 @@ _clutter_stage_do_update (ClutterStage *stage)
    * check or clear the pending redraws flag since a relayout may
    * queue a redraw.
    */
-  COGL_TRACE_BEGIN (ClutterStageRelayout, "Layout");
-
   _clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
-
-  COGL_TRACE_END (ClutterStageRelayout);
 
   if (!priv->redraw_pending)
     return FALSE;
@@ -1435,12 +1435,8 @@ _clutter_stage_do_update (ClutterStage *stage)
 
   update_actor_stage_views (stage);
 
-  COGL_TRACE_BEGIN (ClutterStagePaint, "Paint");
-
   clutter_stage_maybe_finish_queue_redraws (stage);
   clutter_stage_do_redraw (stage);
-
-  COGL_TRACE_END (ClutterStagePaint);
 
   /* reset the guard, so that new redraws are possible */
   priv->redraw_pending = FALSE;
@@ -3361,6 +3357,8 @@ static void
 clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
+
+  COGL_TRACE_BEGIN_SCOPED (ClutterStageFinishQueueRedraws, "FinishQueueRedraws");
 
   if (!priv->pending_finish_queue_redraws)
     return;
