@@ -103,8 +103,7 @@ struct _ClutterStageClass
  * @z_far: the distance from the viewer to the far clipping
  *   plane (always positive)
  *
- * Stage perspective definition. #ClutterPerspective is only used by
- * the fixed point version of clutter_stage_set_perspective().
+ * Stage perspective definition.
  *
  * Since: 0.4
  */
@@ -140,9 +139,6 @@ GType clutter_stage_get_type (void) G_GNUC_CONST;
 CLUTTER_EXPORT
 ClutterActor *  clutter_stage_new                               (void);
 
-CLUTTER_EXPORT
-void            clutter_stage_set_perspective                   (ClutterStage          *stage,
-			                                         ClutterPerspective    *perspective);
 CLUTTER_EXPORT
 void            clutter_stage_get_perspective                   (ClutterStage          *stage,
 			                                         ClutterPerspective    *perspective);

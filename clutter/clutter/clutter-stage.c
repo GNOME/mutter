@@ -146,7 +146,6 @@ struct _ClutterStagePrivate
   guint throttle_motion_events : 1;
   guint min_size_changed       : 1;
   guint motion_events_enabled  : 1;
-  guint has_custom_perspective : 1;
   guint stage_was_relayout     : 1;
 };
 
@@ -1843,10 +1842,6 @@ clutter_stage_set_property (GObject      *object,
                                           clutter_value_get_color (value));
       break;
 
-    case PROP_PERSPECTIVE:
-      clutter_stage_set_perspective (stage, g_value_get_boxed (value));
-      break;
-
     case PROP_TITLE:
       clutter_stage_set_title (stage, g_value_get_string (value));
       break;
@@ -2026,7 +2021,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
                           P_("Perspective"),
                           P_("Perspective projection parameters"),
                           CLUTTER_TYPE_PERSPECTIVE,
-                          CLUTTER_PARAM_READWRITE);
+                          CLUTTER_PARAM_READABLE);
 
   /**
    * ClutterStage:title:
@@ -2355,8 +2350,8 @@ clutter_stage_get_color (ClutterStage *stage,
 }
 
 static void
-clutter_stage_set_perspective_internal (ClutterStage       *stage,
-                                        ClutterPerspective *perspective)
+clutter_stage_set_perspective (ClutterStage       *stage,
+                               ClutterPerspective *perspective)
 {
   ClutterStagePrivate *priv = stage->priv;
 
@@ -2379,36 +2374,6 @@ clutter_stage_set_perspective_internal (ClutterStage       *stage,
 
   _clutter_stage_dirty_projection (stage);
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
-}
-
-/**
- * clutter_stage_set_perspective:
- * @stage: A #ClutterStage
- * @perspective: A #ClutterPerspective
- *
- * Sets the stage perspective. Using this function is not recommended
- * because it will disable Clutter's attempts to generate an
- * appropriate perspective based on the size of the stage.
- */
-void
-clutter_stage_set_perspective (ClutterStage       *stage,
-                               ClutterPerspective *perspective)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-  g_return_if_fail (perspective != NULL);
-  g_return_if_fail (perspective->z_far - perspective->z_near != 0);
-
-  priv = stage->priv;
-
-  /* If the application ever calls this function then we'll stop
-     automatically updating the perspective when the stage changes
-     size */
-  priv->has_custom_perspective = TRUE;
-
-  clutter_stage_set_perspective_internal (stage, perspective);
-  clutter_stage_update_view_perspective (stage);
 }
 
 /**
@@ -2437,7 +2402,7 @@ clutter_stage_get_perspective (ClutterStage       *stage,
  *              @stage.
  *
  * Retrieves the @stage's projection matrix. This is derived from the
- * current perspective set using clutter_stage_set_perspective().
+ * current perspective.
  *
  * Since: 1.6
  */
@@ -3152,30 +3117,20 @@ clutter_stage_update_view_perspective (ClutterStage *stage)
 
   perspective = priv->perspective;
 
-  /* Ideally we want to regenerate the perspective matrix whenever
-   * the size changes but if the user has provided a custom matrix
-   * then we don't want to override it */
-  if (!priv->has_custom_perspective)
-    {
-      perspective.fovy = 60.0; /* 60 Degrees */
-      perspective.z_near = 0.1;
-      perspective.aspect = priv->viewport[2] / priv->viewport[3];
-      z_2d = calculate_z_translation (perspective.z_near);
+  perspective.fovy = 60.0; /* 60 Degrees */
+  perspective.z_near = 0.1;
+  perspective.aspect = priv->viewport[2] / priv->viewport[3];
+  z_2d = calculate_z_translation (perspective.z_near);
 
-      /* NB: z_2d is only enough room for 85% of the stage_height between
-       * the stage and the z_near plane. For behind the stage plane we
-       * want a more consistent gap of 10 times the stage_height before
-       * hitting the far plane so we calculate that relative to the final
-       * height of the stage plane at the z_2d_distance we got... */
-      perspective.z_far = z_2d +
-        tanf (_DEG_TO_RAD (perspective.fovy / 2.0f)) * z_2d * 20.0f;
+  /* NB: z_2d is only enough room for 85% of the stage_height between
+   * the stage and the z_near plane. For behind the stage plane we
+   * want a more consistent gap of 10 times the stage_height before
+   * hitting the far plane so we calculate that relative to the final
+   * height of the stage plane at the z_2d_distance we got... */
+  perspective.z_far = z_2d +
+    tanf (_DEG_TO_RAD (perspective.fovy / 2.0f)) * z_2d * 20.0f;
 
-      clutter_stage_set_perspective_internal (stage, &perspective);
-    }
-  else
-    {
-      z_2d = calculate_z_translation (perspective.z_near);
-    }
+  clutter_stage_set_perspective (stage, &perspective);
 
   cogl_matrix_init_identity (&priv->view);
   cogl_matrix_view_2d_in_perspective (&priv->view,
