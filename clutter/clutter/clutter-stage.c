@@ -1320,14 +1320,8 @@ clutter_stage_queue_actor_relayout (ClutterStage *stage,
 {
   ClutterStagePrivate *priv = stage->priv;
 
-  if (g_hash_table_contains (priv->pending_relayouts, stage))
-    return;
-
   if (g_hash_table_size (priv->pending_relayouts) == 0)
     _clutter_stage_schedule_update (stage);
-
-  if (actor == (ClutterActor *) stage)
-    g_hash_table_remove_all (priv->pending_relayouts);
 
   g_hash_table_add (priv->pending_relayouts, g_object_ref (actor));
   priv->pending_relayouts_version++;
