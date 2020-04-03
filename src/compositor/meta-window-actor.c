@@ -1300,6 +1300,7 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
   cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
   cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
   cogl_framebuffer_orthographic (framebuffer, 0, 0, width, height, 0, 1.0);
+  cogl_framebuffer_set_viewport (framebuffer, 0, 0, width, height);
 
   meta_rectangle_scale_double (bounds, resource_scale,
                                META_ROUNDING_STRATEGY_GROW,
