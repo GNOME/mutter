@@ -337,35 +337,20 @@ clutter_build_config_h = configure_file(
 )
 clutter_built_private_headers += clutter_build_config_h
 
-clutter_config_defines = []
+cdata = configuration_data()
 if have_wayland
-  clutter_config_defines += [
-    '#define CLUTTER_HAS_WAYLAND_COMPOSITOR_SUPPORT 1',
-  ]
+  cdata.set10('CLUTTER_HAS_WAYLAND_COMPOSITOR_SUPPORT', true)
 endif
 if have_x11
-  clutter_config_defines += [
-    '#define CLUTTER_WINDOWING_X11 "x11"',
-    '#define CLUTTER_INPUT_X11 "x11"',
-    '#define CLUTTER_WINDOWING_GLX "glx"',
-  ]
+  cdata.set_quoted('CLUTTER_WINDOWING_X11', 'x11')
+  cdata.set_quoted('CLUTTER_INPUT_X11', 'x11')
+  cdata.set_quoted('CLUTTER_WINDOWING_GLX', 'glx')
 endif
 if have_native_backend
-  clutter_config_defines += [
-    '#define CLUTTER_WINDOWING_EGL "eglnative"',
-    '#define CLUTTER_INPUT_EVDEV "evdev"',
-  ]
+  cdata.set_quoted('CLUTTER_WINDOWING_EGL', 'eglnative')
+  cdata.set_quoted('CLUTTER_INPUT_EVDEV', 'evdev')
 endif
-clutter_config_defines += [
-  '#define CLUTTER_INPUT_NULL "null"',
-]
-clutter_config_defines_string = ''
-foreach clutter_config_define : clutter_config_defines
-  clutter_config_defines_string += clutter_config_define + '\n'
-endforeach
-
-cdata = configuration_data()
-cdata.set('CLUTTER_CONFIG_DEFINES', clutter_config_defines_string)
+cdata.set_quoted('CLUTTER_INPUT_NULL', 'null')
 
 clutter_config_h = configure_file(
   input: 'clutter-config.h.in',
