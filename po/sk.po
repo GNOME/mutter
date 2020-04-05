@@ -13,8 +13,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2018-02-06 04:14+0000\n"
-"PO-Revision-Date: 2018-03-17 21:52+0100\n"
+"POT-Creation-Date: 2020-03-30 20:11+0000\n"
+"PO-Revision-Date: 2020-04-05 22:21+0200\n"
 "Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
 "Language-Team: Slovak <gnome-sk-list@gnome.org>\n"
 "Language: sk\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.3\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -468,29 +468,47 @@ msgid ""
 "proof. Currently possible keywords: • “scale-monitor-framebuffer” — makes "
 "mutter default to layout logical monitors in a logical pixel coordinate "
 "space, while scaling monitor framebuffers instead of window content, to "
-"manage HiDPI monitors. Does not require a restart. • “remote-desktop” — "
-"enables remote desktop support. To support remote desktop with screen "
-"sharing, “screen-cast” must also be enabled. • “screen-cast” — enables "
-"screen cast support."
+"manage HiDPI monitors. Does not require a restart. • “rt-scheduler” — makes "
+"mutter request a low priority real-time scheduling. The executable or user "
+"must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
+"initializes Xwayland lazily if there are X11 clients. Requires restart."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:134
+msgid "Modifier to use to locate the pointer"
+msgstr "Modifikátor použitý na lokalizovanie ukazovateľa"
+
+#: data/org.gnome.mutter.gschema.xml.in:135
+msgid "This key will initiate the “locate pointer” action."
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "Timeout for check-alive ping"
+msgstr ""
+
+#: data/org.gnome.mutter.gschema.xml.in:143
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
 
 # summary
-#: data/org.gnome.mutter.gschema.xml.in:145
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
 msgstr "Vybrať okno z rozbaľovacej ponuky tabulátora"
 
 # summary
-#: data/org.gnome.mutter.gschema.xml.in:150
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Cancel tab popup"
 msgstr "Zrušit rozbaľovaciu ponuku tabulátora"
 
 # PK: predpokladam ze to prepisane medzi tlacidlami
 # description
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:175
 msgid "Switch monitor configurations"
 msgstr "Prepnúť nastavenia monitorov"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:180
 msgid "Rotates the built-in monitor configuration"
 msgstr "Otočí nastavenie vstavaného monitora"
 
@@ -554,23 +572,27 @@ msgid "Re-enable shortcuts"
 msgstr "Znovu povoliť klávesové skratky"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:64
-msgid "Allow grabs with Xwayland"
+msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr ""
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
 msgid ""
-"Allow keyboard grabs issued by X11 applications running in Xwayland to be "
-"taken into account. For a X11 grab to be taken into account under Wayland, "
-"the client must also either send a specific X11 ClientMessage to the root "
-"window or be among the applications white-listed in key “xwayland-grab-"
-"access-rules”."
+"Allow all keyboard events to be routed to X11 “override redirect” windows "
+"with a grab when running in Xwayland. This option is to support X11 clients "
+"which map an “override redirect” window (which do not receive keyboard "
+"focus) and issue a keyboard grab to force all keyboard events to that "
+"window. This option is seldom used and has no effect on regular X11 windows "
+"which can receive keyboard focus under normal circumstances. For a X11 grab "
+"to be taken into account under Wayland, the client must also either send a "
+"specific X11 ClientMessage to the root window or be among the applications "
+"white-listed in key “xwayland-grab-access-rules”."
 msgstr ""
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:77
+#: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr ""
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:78
+#: data/org.gnome.mutter.wayland.gschema.xml.in:85
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
@@ -587,7 +609,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2260
+#: src/backends/meta-input-settings.c:2631
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Prepínač režimu (skupina č. %d)"
@@ -597,52 +619,60 @@ msgstr "Prepínač režimu (skupina č. %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2283
+#: src/backends/meta-input-settings.c:2654
 msgid "Switch monitor"
 msgstr "Prepnúť monitor"
 
-#: src/backends/meta-input-settings.c:2285
+#: src/backends/meta-input-settings.c:2656
 msgid "Show on-screen help"
 msgstr "Zobraziť pomocníka na obrazovke"
 
-#: src/backends/meta-monitor-manager.c:900
+#: src/backends/meta-monitor.c:226
 msgid "Built-in display"
 msgstr "Vstavaný displej"
 
-#: src/backends/meta-monitor-manager.c:923
+#: src/backends/meta-monitor.c:255
 msgid "Unknown"
 msgstr "Neznámy"
 
-#: src/backends/meta-monitor-manager.c:925
+#: src/backends/meta-monitor.c:257
 msgid "Unknown Display"
 msgstr "Neznámy displej"
 
-#. TRANSLATORS: this is a monitor vendor name, followed by a
-#. * size in inches, like 'Dell 15"'
-#.
-#: src/backends/meta-monitor-manager.c:933
+#: src/backends/meta-monitor.c:265
 #, c-format
+#| msgid "%s %s"
+msgctxt ""
+"This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
+#: src/backends/meta-monitor.c:273
+#, c-format
+#| msgid "%s %s"
+msgctxt ""
+"This is a monitor vendor name followed by product/model name where size in "
+"inches could not be calculated, e.g. Dell U2414H"
+msgid "%s %s"
+msgstr "%s %s"
+
+#. Translators: this string will appear in Sysprof
+#: src/backends/meta-profiler.c:79
+msgid "Compositor"
+msgstr "Kompozítor"
+
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:481
+#: src/compositor/compositor.c:533
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr ""
 "Pre obrazovku č. %i na displeji „%s“ je spustený už iný správca rozloženia."
 
-#: src/core/bell.c:194
+#: src/core/bell.c:192
 msgid "Bell event"
 msgstr "Udalosť zvončeka"
-
-# X window system preloz, napr. system na spravu okien X
-#: src/core/display.c:608
-#, c-format
-msgid "Failed to open X Window System display “%s”\n"
-msgstr "Zlyhalo otvorenie displeja systému na správu okien X „%s“\n"
 
 # cmd desc
 #: src/core/main.c:190
@@ -683,41 +713,45 @@ msgstr "Spustí ako kompozitor protokolu wayland"
 msgid "Run as a nested compositor"
 msgstr "Spustí ako kompozitor s vnoreným režimom"
 
-#: src/core/main.c:240
+#: src/core/main.c:238
+msgid "Run wayland compositor without starting Xwayland"
+msgstr ""
+
+#: src/core/main.c:246
 msgid "Run as a full display server, rather than nested"
 msgstr "Spustí ako plnohodnotný zobrazovací server, namiesto vnoreného režimu"
 
-#: src/core/main.c:246
+#: src/core/main.c:252
 msgid "Run with X11 backend"
 msgstr "Spustí s obslužným programom X11"
 
 # %s is a window title
 #. Translators: %s is a window title
-#: src/core/meta-close-dialog-default.c:147
+#: src/core/meta-close-dialog-default.c:151
 #, c-format
 msgid "“%s” is not responding."
 msgstr "„%s“ neodpovedá."
 
-#: src/core/meta-close-dialog-default.c:149
+#: src/core/meta-close-dialog-default.c:153
 msgid "Application is not responding."
 msgstr "Aplikácia neodpovedá."
 
-#: src/core/meta-close-dialog-default.c:154
+#: src/core/meta-close-dialog-default.c:158
 msgid ""
 "You may choose to wait a short while for it to continue or force the "
 "application to quit entirely."
 msgstr ""
 "Môžete chvíľu počkať na pokračovanie aplikácie, alebo ju môžete ukončiť."
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Force Quit"
 msgstr "_Vynútiť ukončenie"
 
-#: src/core/meta-close-dialog-default.c:161
+#: src/core/meta-close-dialog-default.c:165
 msgid "_Wait"
 msgstr "_Počkať"
 
-#: src/core/mutter.c:39
+#: src/core/mutter.c:38
 #, c-format
 msgid ""
 "mutter %s\n"
@@ -733,21 +767,30 @@ msgstr ""
 "Záruka sa NEPOSKYTUJE; ani na PREDAJNOSŤ alebo VHODNOSŤ PRE URČITÝ ÚČEL.\n"
 
 # cmd desc
-#: src/core/mutter.c:53
+#: src/core/mutter.c:52
 msgid "Print version"
 msgstr "Zobrazí verziu"
 
 # cmd desc
-#: src/core/mutter.c:59
+#: src/core/mutter.c:58
 msgid "Mutter plugin to use"
 msgstr "Použije zásuvný modul Mutter"
 
-#: src/core/prefs.c:1997
+#: src/core/prefs.c:1911
 #, c-format
 msgid "Workspace %d"
 msgstr "Pracovný priestor č. %d"
 
-#: src/core/screen.c:583
+#: src/core/util.c:122
+msgid "Mutter was compiled without support for verbose mode\n"
+msgstr "Mutter bol skompilovaný bez výpisu podrobností pri behu\n"
+
+#: src/wayland/meta-wayland-tablet-pad.c:568
+#, c-format
+msgid "Mode Switch: Mode %d"
+msgstr "Prepínač režimu: Režim č. %d"
+
+#: src/x11/meta-x11-display.c:676
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -756,21 +799,27 @@ msgstr ""
 "Displej „%s“ už má správcu okien. Skúste použiť prepínač --replace, aby sa "
 "aktuálny správca nahradil."
 
-#: src/core/screen.c:668
+#: src/x11/meta-x11-display.c:1089
+msgid "Failed to initialize GDK\n"
+msgstr "Zlyhala inicializácia GDK\n"
+
+# X window system preloz, napr. system na spravu okien X
+#: src/x11/meta-x11-display.c:1113
+#, c-format
+msgid "Failed to open X Window System display “%s”\n"
+msgstr "Zlyhalo otvorenie displeja systému na správu okien X „%s“\n"
+
+#: src/x11/meta-x11-display.c:1196
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Obrazovka č. %d na displeji „%s“ nie je platná\n"
 
-#: src/core/util.c:120
-msgid "Mutter was compiled without support for verbose mode\n"
-msgstr "Mutter bol skompilovaný bez výpisu podrobností pri behu\n"
-
-#: src/wayland/meta-wayland-tablet-pad.c:563
+#: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
-msgid "Mode Switch: Mode %d"
-msgstr "Prepínač režimu: Režim č. %d"
+msgid "Format %s not supported"
+msgstr "Formát %s nie je podporovaný"
 
-#: src/x11/session.c:1818
+#: src/x11/session.c:1821
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
@@ -779,7 +828,7 @@ msgstr ""
 "prihlásení ich budete musieť znovu spustiť ručne."
 
 # window title; wm_client_machine
-#: src/x11/window-props.c:559
+#: src/x11/window-props.c:569
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (na %s)"
