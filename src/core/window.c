@@ -1149,8 +1149,6 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->is_remote = FALSE;
   window->startup_id = NULL;
 
-  window->net_wm_pid = -1;
-
   window->xtransient_for = None;
   window->xclient_leader = None;
 
