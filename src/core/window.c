@@ -1149,6 +1149,8 @@ _meta_window_shared_new (MetaDisplay         *display,
   window->is_remote = FALSE;
   window->startup_id = NULL;
 
+  window->client_pid = 0;
+
   window->xtransient_for = None;
   window->xclient_leader = None;
 
@@ -7595,7 +7597,10 @@ meta_window_get_pid (MetaWindow *window)
 {
   g_return_val_if_fail (META_IS_WINDOW (window), 0);
 
-  return META_WINDOW_GET_CLASS (window)->get_client_pid (window);
+  if (window->client_pid == 0)
+    window->client_pid = META_WINDOW_GET_CLASS (window)->get_client_pid (window);
+
+  return window->client_pid;
 }
 
 /**

@@ -548,6 +548,8 @@ struct _MetaWindow
   } placement;
 
   guint unmanage_idle_id;
+
+  pid_t client_pid;
 };
 
 struct _MetaWindowClass
