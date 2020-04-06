@@ -713,7 +713,7 @@ window_created_cb (MetaDisplay         *display,
 {
   /* Ignore all internal windows */
   if (!window->xwindow ||
-      meta_window_get_client_pid (window) == getpid ())
+      meta_window_get_pid (window) == getpid ())
     return;
 
   manager->x11_windows = g_list_prepend (manager->x11_windows, window);

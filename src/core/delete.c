@@ -95,7 +95,7 @@ meta_window_delete (MetaWindow  *window,
 void
 meta_window_kill (MetaWindow *window)
 {
-  pid_t pid = meta_window_get_client_pid (window);
+  pid_t pid = meta_window_get_pid (window);
 
   if (pid > 0)
     {

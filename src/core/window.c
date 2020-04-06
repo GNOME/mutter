@@ -902,7 +902,7 @@ meta_window_update_sandboxed_app_id (MetaWindow *window)
 
   g_clear_pointer (&window->sandboxed_app_id, g_free);
 
-  pid = meta_window_get_client_pid (window);
+  pid = meta_window_get_pid (window);
 
   if (pid == 0)
     return;
@@ -7584,7 +7584,7 @@ meta_window_get_transient_for (MetaWindow *window)
 }
 
 /**
- * meta_window_get_client_pid:
+ * meta_window_get_pid:
  * @window: a #MetaWindow
  *
  * Returns the pid of the process that created this window, if available
@@ -7593,26 +7593,11 @@ meta_window_get_transient_for (MetaWindow *window)
  * Return value: the pid, or 0 if not known.
  */
 uint32_t
-meta_window_get_client_pid (MetaWindow *window)
-{
-  return META_WINDOW_GET_CLASS (window)->get_client_pid (window);
-}
-
-/**
- * meta_window_get_pid:
- * @window: a #MetaWindow
- *
- * Returns pid of the process that created this window, if known (obtained from
- * the _NET_WM_PID property).
- *
- * Return value: the pid, or -1 if not known.
- */
-int
 meta_window_get_pid (MetaWindow *window)
 {
-  g_return_val_if_fail (META_IS_WINDOW (window), -1);
+  g_return_val_if_fail (META_IS_WINDOW (window), 0);
 
-  return window->net_wm_pid;
+  return META_WINDOW_GET_CLASS (window)->get_client_pid (window);
 }
 
 /**
