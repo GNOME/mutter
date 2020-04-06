@@ -1,0 +1,36 @@
+new_client x x11
+create x/1 csd
+
+resize x/1 300 400
+show x/1
+wait
+
+assert_size x/1 300 400
+
+resize x/1 200 300
+wait_reconfigure
+assert_size x/1 200 300
+
+hide x/1
+show x/1
+wait
+assert_size x/1 200 300
+
+
+new_client w wayland
+create w/1 csd
+
+resize w/1 300 400
+show w/1
+wait
+
+assert_size w/1 300 400
+
+resize w/1 200 300
+wait_reconfigure
+assert_size w/1 200 300
+
+hide w/1
+show w/1
+wait_reconfigure
+assert_size w/1 200 300

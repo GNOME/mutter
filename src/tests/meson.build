@@ -145,6 +145,7 @@ stacking_tests = [
   'unmaximize-new-size',
   'fullscreen-maximize',
   'restore-position',
+  'default-size',
 ]
 
 foreach stacking_test: stacking_tests
