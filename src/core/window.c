@@ -7590,6 +7590,9 @@ meta_window_get_transient_for (MetaWindow *window)
  * Returns the pid of the process that created this window, if available
  * to the windowing system.
  *
+ * Note that the value returned by this is vulnerable to spoofing attacks
+ * by the client.
+ *
  * Return value: the pid, or 0 if not known.
  */
 pid_t
