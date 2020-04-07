@@ -253,7 +253,7 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
       meta_multi_texture_get_height (*texture) == height &&
       meta_multi_texture_get_format (*texture) == multi_format)
     {
-      CoglTexture *cogl_texture = meta_multi_texture_get_plane (*texture, 0);
+      CoglTexture *cogl_texture = meta_multi_texture_get_subtexture (*texture, 0);
       if (cogl_texture_get_components (cogl_texture) == components &&
           _cogl_texture_get_format (cogl_texture) == cogl_format)
         {
@@ -321,8 +321,8 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
   int format, width, height, y_inverted;
   MetaMultiTextureFormat multi_format = META_MULTI_TEXTURE_FORMAT_SIMPLE;
   CoglPixelFormat cogl_format = COGL_PIXEL_FORMAT_ANY;
-  guint i, n_planes;
-  GPtrArray *planes;
+  guint i, n_subtextures;
+  GPtrArray *subtextures;
 
   if (buffer->egl_image.texture)
     {
@@ -361,12 +361,12 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
       cogl_format = COGL_PIXEL_FORMAT_RGBA_8888_PRE;
       break;
     case EGL_TEXTURE_Y_UV_WL:
-      /* Technically it can be anything with a separate Y and UV plane
+      /* Technically it can be anything with a separate Y and UV subtexture
        * but since this is only used for shaders later, it's ok */
       multi_format = META_MULTI_TEXTURE_FORMAT_NV12;
       break;
     case EGL_TEXTURE_Y_U_V_WL:
-      /* Technically it can be anything with a separate Y and UV plane
+      /* Technically it can be anything with a separate Y and UV subtexture
        * but since this is only used for shaders later, it's ok */
       multi_format = META_MULTI_TEXTURE_FORMAT_YUV444;
       break;
@@ -377,20 +377,20 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
       return FALSE;
     }
 
-  /* Each EGLImage is a plane in the final texture */
-  n_planes = meta_multi_texture_format_get_n_planes (multi_format);
-  planes = g_ptr_array_new_full (n_planes, cogl_object_unref);
+  /* Each EGLImage is a subtexture in the final texture */
+  n_subtextures = meta_multi_texture_format_get_n_planes (multi_format);
+  subtextures = g_ptr_array_new_full (n_subtextures, cogl_object_unref);
 
   g_warning ("Got EGL with format %u", multi_format);
 
-  for (i = 0; i < n_planes; i++)
+  for (i = 0; i < n_subtextures; i++)
     {
       EGLint egl_attribs[3];
       EGLImageKHR egl_img;
       CoglEglImageFlags flags;
       CoglTexture2D *texture_2d;
 
-      /* Specify that we want the i'th plane */
+      /* Specify that we want the i'th subtexture */
       egl_attribs[0] = EGL_WAYLAND_PLANE_WL;
       egl_attribs[1] = i;
       egl_attribs[2] = EGL_NONE;
@@ -418,13 +418,13 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
       if (G_UNLIKELY (!texture_2d))
         goto on_error;
 
-      g_ptr_array_add (planes, COGL_TEXTURE (texture_2d));
+      g_ptr_array_add (subtextures, COGL_TEXTURE (texture_2d));
     }
 
   buffer->egl_image.texture =
       meta_multi_texture_new (multi_format,
-                              (CoglTexture**) g_ptr_array_free (planes, FALSE),
-                              n_planes);
+                              (CoglTexture**) g_ptr_array_free (subtextures, FALSE),
+                              n_subtextures);
   buffer->is_y_inverted = !!y_inverted;
 
   g_clear_object (texture);
@@ -433,7 +433,7 @@ egl_image_buffer_attach (MetaWaylandBuffer  *buffer,
   return TRUE;
 
 on_error:
-  g_ptr_array_free (planes, TRUE);
+  g_ptr_array_free (subtextures, TRUE);
   return FALSE;
 }
 
@@ -562,7 +562,7 @@ process_shm_buffer_damage (MetaWaylandBuffer *buffer,
 
   shm_buffer_get_format (shm_buffer, &multi_format, &cogl_format, NULL);
   g_return_val_if_fail (multi_format == META_MULTI_TEXTURE_FORMAT_SIMPLE, FALSE);
-  cogl_texture = meta_multi_texture_get_plane (texture, 0);
+  cogl_texture = meta_multi_texture_get_subtexture (texture, 0);
 
   wl_shm_buffer_begin_access (shm_buffer);
 

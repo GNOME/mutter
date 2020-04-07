@@ -20,7 +20,7 @@
 /**
  * SECTION:meta-multi-texture
  * @title: MetaMultiTexture
- * @short_description: A texture that can have multiple planes.
+ * @short_description: A texture that can have multiple subtextures.
  *
  * #MetaMultiTexture allows one to deal with non-trivial formats that
  * have multiple planes, requires subsampling and/or aren't in RGB. A common
@@ -28,8 +28,8 @@
  * YUV colorspace, combined with subsampling.
  *
  * The basic idea of a #MetaMultiTexture is the following:
- * - Each plane is represented by a separate #CoglTexture. That means that you
- *   should add each of these planes as a layer to your CoglPipeline.
+ * - Each subtextures is represented by a separate #CoglTexture. That means
+ *   that you should add each of these planes as a layer to your #CoglPipeline.
  * - When dealing with a color space that is not RGB, you can ask the
  *   #MetaMultiTexture to create a shader for you that does the conversion
  *   in the GPU.
@@ -47,8 +47,8 @@ struct _MetaMultiTexture
 
   MetaMultiTextureFormat format;
 
-  guint n_planes;
-  CoglTexture **planes;
+  guint n_subtextures;
+  CoglTexture **subtextures;
 };
 
 G_DEFINE_TYPE (MetaMultiTexture, meta_multi_texture, G_TYPE_OBJECT);
@@ -87,41 +87,41 @@ meta_multi_texture_is_simple (MetaMultiTexture *self)
 }
 
 /**
- * meta_multi_texture_get_n_planes:
+ * meta_multi_texture_get_n_subtexture:
  * @self: a #MetaMultiTexture
  *
- * Returns the number of planes for this texture. Note that this is entirely
- * dependent on the #CoglPixelFormat that is used. For example, simple RGB
- * textures will have a single plane, while some more convoluted formats like
- * NV12 and YUV 4:4:4 can have 2 and 3 planes respectively.
+ * Returns the number of subtextures for this texture. For example, simple RGB
+ * textures will have a single subtexture, while some more convoluted formats
+ * like NV12 and YUV 4:4:4 can have 2 and 3 subtextures respectively.
  *
- * Returns: The number of planes in this #MetaMultiTexture.
+ * Returns: The number of subtextures in this #MetaMultiTexture.
  */
 guint
-meta_multi_texture_get_n_planes (MetaMultiTexture *self)
+meta_multi_texture_get_n_subtextures (MetaMultiTexture *self)
 {
   g_return_val_if_fail (META_IS_MULTI_TEXTURE (self), 0);
 
-  return self->n_planes;
+  return self->n_subtextures;
 }
 
 /**
- * meta_multi_texture_get_plane:
+ * meta_multi_texture_get_subtexture:
  * @self: a #MetaMultiTexture
- * @index: the index of the plane
+ * @index: the index of the subtexture
  *
- * Returns the n'th plane of the #MetaMultiTexture. Note that it's a programming
- * error to use with an index larger than meta_multi_texture_get_n_planes().
+ * Returns the n'th subtexture of the #MetaMultiTexture. Note that it's a
+ * programming error to use with an index larger than
+ * meta_multi_texture_get_n_subtextures().
  *
- * Returns: (transfer none): The plane at the given @index.
+ * Returns: (transfer none): The subtexture at the given @index.
  */
 CoglTexture *
-meta_multi_texture_get_plane (MetaMultiTexture *self, guint index)
+meta_multi_texture_get_subtexture (MetaMultiTexture *self, guint index)
 {
   g_return_val_if_fail (META_IS_MULTI_TEXTURE (self), 0);
-  g_return_val_if_fail (index < self->n_planes, NULL);
+  g_return_val_if_fail (index < self->n_subtextures, NULL);
 
-  return self->planes[index];
+  return self->subtextures[index];
 }
 
 /**
@@ -139,7 +139,7 @@ meta_multi_texture_get_width (MetaMultiTexture *self)
 {
   g_return_val_if_fail (META_IS_MULTI_TEXTURE (self), 0);
 
-  return cogl_texture_get_width (self->planes[0]);
+  return cogl_texture_get_width (self->subtextures[0]);
 }
 
 /**
@@ -157,7 +157,7 @@ meta_multi_texture_get_height (MetaMultiTexture *self)
 {
   g_return_val_if_fail (META_IS_MULTI_TEXTURE (self), 0);
 
-  return cogl_texture_get_height (self->planes[0]);
+  return cogl_texture_get_height (self->subtextures[0]);
 }
 
 static void
@@ -166,10 +166,10 @@ meta_multi_texture_finalize (GObject *object)
   MetaMultiTexture *self = META_MULTI_TEXTURE (object);
   int i;
 
-  for (i = 0; i < self->n_planes; i++)
-    cogl_clear_object (&self->planes[i]);
+  for (i = 0; i < self->n_subtextures; i++)
+    cogl_clear_object (&self->subtextures[i]);
 
-  g_free (self->planes);
+  g_free (self->subtextures);
 
   G_OBJECT_CLASS (meta_multi_texture_parent_class)->finalize (object);
 }
@@ -190,55 +190,55 @@ meta_multi_texture_class_init (MetaMultiTextureClass *klass)
 /**
  * meta_multi_texture_new:
  * @format: The format of the #MetaMultiTexture
- * @planes: (transfer full): The actual planes of the texture
- * @n_planes: The number of planes
+ * @subtextures: (transfer full): The actual subtextures of the texture
+ * @n_subtextures: The number of subtextures
  *
  * Creates a #MetaMultiTexture with the given @format. Each of the
- * #CoglTexture<!-- -->s represents a plane.
+ * #CoglTexture<!-- -->s represents a subtexture.
  *
  * Returns: (transfer full): A new #MetaMultiTexture. Use g_object_unref() when
  * you're done with it.
  */
 MetaMultiTexture *
 meta_multi_texture_new (MetaMultiTextureFormat format,
-                        CoglTexture          **planes,
-                        guint                  n_planes)
+                        CoglTexture          **subtextures,
+                        guint                  n_subtextures)
 {
   MetaMultiTexture *self;
 
-  g_return_val_if_fail (planes != NULL, NULL);
-  g_return_val_if_fail (n_planes > 0, NULL);
+  g_return_val_if_fail (subtextures != NULL, NULL);
+  g_return_val_if_fail (n_subtextures > 0, NULL);
 
   self = g_object_new (META_TYPE_MULTI_TEXTURE, NULL);
   self->format = format;
-  self->n_planes = n_planes;
-  self->planes = planes;
+  self->n_subtextures = n_subtextures;
+  self->subtextures = subtextures;
 
   return self;
 }
 
 /**
  * meta_multi_texture_new_simple:
- * @plane: (transfer full): The single plane of the texture
+ * @subtexture: (transfer full): The single subtexture of the texture
  *
  * Creates a #MetaMultiTexture for a "simple" texture, i.e. with only one
- * plane, in a format that can be represented using #CoglPixelFormat.
+ * subtexture, in a format that can be represented using #CoglPixelFormat.
  *
  * Returns: (transfer full): A new #MetaMultiTexture. Use g_object_unref() when
  * you're done with it.
  */
 MetaMultiTexture *
-meta_multi_texture_new_simple (CoglTexture *plane)
+meta_multi_texture_new_simple (CoglTexture *subtexture)
 {
   MetaMultiTexture *self;
 
-  g_return_val_if_fail (plane != NULL, NULL);
+  g_return_val_if_fail (subtexture != NULL, NULL);
 
   self = g_object_new (META_TYPE_MULTI_TEXTURE, NULL);
   self->format = META_MULTI_TEXTURE_FORMAT_SIMPLE;
-  self->n_planes = 1;
-  self->planes = g_malloc (sizeof (CoglTexture *));
-  self->planes[0] = plane;
+  self->n_subtextures = 1;
+  self->subtextures = g_malloc (sizeof (CoglTexture *));
+  self->subtextures[0] = subtexture;
 
   return self;
 }
@@ -264,17 +264,17 @@ meta_multi_texture_to_string (MetaMultiTexture *self)
   g_string_append_printf (str, "MetaMultiTexture (%p) {\n", self);
   format_str = g_enum_to_string (META_TYPE_MULTI_TEXTURE_FORMAT, self->format);
   g_string_append_printf (str, "  .format   =  %s;\n", format_str);
-  g_string_append_printf (str, "  .n_planes =  %u;\n", self->n_planes);
-  g_string_append (str, "  .planes   =  {\n");
+  g_string_append_printf (str, "  .n_subtextures =  %u;\n", self->n_subtextures);
+  g_string_append (str, "  .subtextures   =  {\n");
 
-  for (i = 0; i < self->n_planes; i++)
+  for (i = 0; i < self->n_subtextures; i++)
     {
-      CoglTexture *plane = self->planes[i];
-      CoglPixelFormat plane_format = _cogl_texture_get_format (plane);
+      CoglTexture *subtexture = self->subtextures[i];
+      CoglPixelFormat subtexture_format = _cogl_texture_get_format (subtexture);
 
       g_string_append_printf (str, "    (%p) { .format = %s },\n",
-                              plane,
-                              cogl_pixel_format_to_string (plane_format));
+                              subtexture,
+                              cogl_pixel_format_to_string (subtexture_format));
     }
 
   g_string_append (str, "  }\n");

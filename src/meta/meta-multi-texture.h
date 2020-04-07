@@ -38,34 +38,34 @@ G_DECLARE_FINAL_TYPE (MetaMultiTexture, meta_multi_texture,
 
 
 META_EXPORT
-MetaMultiTexture *     meta_multi_texture_new              (MetaMultiTextureFormat format,
-                                                            CoglTexture          **planes,
-                                                            guint                  n_planes);
+MetaMultiTexture *     meta_multi_texture_new               (MetaMultiTextureFormat format,
+                                                             CoglTexture          **subtextures,
+                                                             guint                  n_subtextures);
 
 META_EXPORT
-MetaMultiTexture *     meta_multi_texture_new_simple       (CoglTexture    *plane);
+MetaMultiTexture *     meta_multi_texture_new_simple        (CoglTexture *subtexture);
 
 META_EXPORT
-MetaMultiTextureFormat meta_multi_texture_get_format       (MetaMultiTexture *self);
+MetaMultiTextureFormat meta_multi_texture_get_format        (MetaMultiTexture *self);
 
 META_EXPORT
-gboolean               meta_multi_texture_is_simple        (MetaMultiTexture *self);
+gboolean               meta_multi_texture_is_simple         (MetaMultiTexture *self);
 
 META_EXPORT
-guint                  meta_multi_texture_get_n_planes     (MetaMultiTexture *self);
+guint                  meta_multi_texture_get_n_subtextures (MetaMultiTexture *self);
 
 META_EXPORT
-CoglTexture *          meta_multi_texture_get_plane        (MetaMultiTexture *self,
-                                                            guint index);
+CoglTexture *          meta_multi_texture_get_subtexture    (MetaMultiTexture *self,
+                                                             guint index);
 
 META_EXPORT
-int                    meta_multi_texture_get_width        (MetaMultiTexture *self);
+int                    meta_multi_texture_get_width         (MetaMultiTexture *self);
 
 META_EXPORT
-int                    meta_multi_texture_get_height       (MetaMultiTexture *self);
+int                    meta_multi_texture_get_height        (MetaMultiTexture *self);
 
 META_EXPORT
-char *                 meta_multi_texture_to_string        (MetaMultiTexture *self);
+char *                 meta_multi_texture_to_string         (MetaMultiTexture *self);
 
 G_END_DECLS
 

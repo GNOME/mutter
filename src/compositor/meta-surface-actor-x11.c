@@ -220,7 +220,7 @@ meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
   if (!meta_multi_texture_is_simple (self->texture))
     return;
 
-  pixmap = COGL_TEXTURE_PIXMAP_X11 (meta_multi_texture_get_plane (self->texture, 0));
+  pixmap = COGL_TEXTURE_PIXMAP_X11 (meta_multi_texture_get_subtexture (self->texture, 0));
   cogl_texture_pixmap_x11_update_area (pixmap, x, y, width, height);
 }
 

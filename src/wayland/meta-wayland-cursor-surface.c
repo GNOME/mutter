@@ -71,7 +71,7 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
       g_return_if_fail (meta_multi_texture_is_simple (texture));
 
       meta_cursor_sprite_set_texture (cursor_sprite,
-                                      meta_multi_texture_get_plane (texture, 0),
+                                      meta_multi_texture_get_subtexture (texture, 0),
                                       priv->hot_x * surface->scale,
                                       priv->hot_y * surface->scale);
     }

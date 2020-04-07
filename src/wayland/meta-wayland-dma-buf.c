@@ -205,7 +205,6 @@ meta_wayland_dma_buf_realize_texture (MetaWaylandBuffer  *buffer,
                                                      flags,
                                                      error);
 
-  G_BREAKPOINT();
   meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
 
   if (cogl_texture == NULL)
