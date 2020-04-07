@@ -3751,6 +3751,8 @@ meta_window_activate_full (MetaWindow     *window,
     meta_window_focus (window, timestamp);
   else
     meta_workspace_activate_with_focus (window->workspace, window, timestamp);
+
+  meta_window_check_alive (window, timestamp);
 }
 
 /* This function exists since most of the functionality in window_activate
@@ -4789,8 +4791,6 @@ meta_window_focus (MetaWindow  *window,
                   window->desc);
       return;
     }
-
-  meta_window_check_alive (window, timestamp);
 
   META_WINDOW_GET_CLASS (window)->focus (window, timestamp);
 
@@ -8349,6 +8349,7 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
                   "Focusing %s due to button %u press (display.c)\n",
                   window->desc, button);
       meta_window_focus (window, event->any.time);
+      meta_window_check_alive (window, event->any.time);
     }
   else
     /* However, do allow terminals to lose focus due to new
