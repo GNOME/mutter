@@ -145,6 +145,8 @@ xdnd_send_enter (MetaXWaylandDnd *dnd,
   gchar **p;
   struct wl_array *source_mime_types;
 
+  meta_x11_error_trap_push (x11_display);
+
   data_source = compositor->seat->data_device.dnd_data_source;
   xev.xclient.type = ClientMessage;
   xev.xclient.message_type = xdnd_atoms[ATOM_DND_ENTER];
@@ -189,6 +191,9 @@ xdnd_send_enter (MetaXWaylandDnd *dnd,
     }
 
   XSendEvent (xdisplay, dest, False, NoEventMask, &xev);
+
+  if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
+    g_critical ("Error sending XdndEnter");
 }
 
 static void
@@ -205,7 +210,9 @@ xdnd_send_leave (MetaXWaylandDnd *dnd,
   xev.xclient.window = dest;
   xev.xclient.data.l[0] = x11_display->selection.xwindow;
 
+  meta_x11_error_trap_push (x11_display);
   XSendEvent (xdisplay, dest, False, NoEventMask, &xev);
+  meta_x11_error_trap_pop (x11_display);
 }
 
 static void
@@ -241,7 +248,11 @@ xdnd_send_position (MetaXWaylandDnd *dnd,
   xev.xclient.data.l[3] = time;
   xev.xclient.data.l[4] = action_to_atom (action);
 
+  meta_x11_error_trap_push (x11_display);
   XSendEvent (xdisplay, dest, False, NoEventMask, &xev);
+
+  if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
+    g_critical ("Error sending XdndPosition");
 }
 
 static void
@@ -261,7 +272,11 @@ xdnd_send_drop (MetaXWaylandDnd *dnd,
   xev.xclient.data.l[0] = x11_display->selection.xwindow;
   xev.xclient.data.l[2] = time;
 
+  meta_x11_error_trap_push (x11_display);
   XSendEvent (xdisplay, dest, False, NoEventMask, &xev);
+
+  if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
+    g_critical ("Error sending XdndDrop");
 }
 
 static void
@@ -289,7 +304,11 @@ xdnd_send_finished (MetaXWaylandDnd *dnd,
       xev.xclient.data.l[2] = action_to_atom (action);
     }
 
+  meta_x11_error_trap_push (x11_display);
   XSendEvent (xdisplay, dest, False, NoEventMask, &xev);
+
+  if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
+    g_critical ("Error sending XdndFinished");
 }
 
 static void
@@ -297,6 +316,7 @@ xdnd_send_status (MetaXWaylandDnd *dnd,
                   Window           dest,
                   uint32_t         action)
 {
+  MetaX11Display *x11_display = meta_get_display ()->x11_display;
   Display *xdisplay = GDK_DISPLAY_XDISPLAY (gdk_display_get_default ());
   XEvent xev = { 0 };
 
@@ -312,7 +332,11 @@ xdnd_send_status (MetaXWaylandDnd *dnd,
   if (xev.xclient.data.l[4])
     xev.xclient.data.l[1] |= 1 << 0; /* Bit 1: dest accepts the drop */
 
+  meta_x11_error_trap_push (x11_display);
   XSendEvent (xdisplay, dest, False, NoEventMask, &xev);
+
+  if (meta_x11_error_trap_pop_with_return (x11_display) != Success)
+    g_critical ("Error sending Xdndstatus");
 }
 
 static void
