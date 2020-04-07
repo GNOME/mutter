@@ -38,7 +38,6 @@ struct _MetaInputDeviceX11
   float current_y;
 
 #ifdef HAVE_LIBWACOM
-  WacomDevice *wacom_device;
   GArray *group_modes;
 #endif
 };
@@ -93,13 +92,16 @@ meta_input_device_x11_is_grouped (ClutterInputDevice *device,
                                   ClutterInputDevice *other_device)
 {
 #ifdef HAVE_LIBWACOM
-  MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
-  MetaInputDeviceX11 *other_device_x11 = META_INPUT_DEVICE_X11 (other_device);
+  WacomDevice *wacom_device, *other_wacom_device;
 
-  if (device_x11->wacom_device &&
-      other_device_x11->wacom_device &&
-      libwacom_compare (device_x11->wacom_device,
-                        other_device_x11->wacom_device,
+  wacom_device =
+    meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
+  other_wacom_device =
+    meta_input_device_get_wacom_device (META_INPUT_DEVICE (other_device));
+
+  if (wacom_device && other_wacom_device &&
+      libwacom_compare (wacom_device,
+                        other_wacom_device,
                         WCOMPARE_NORMAL) == 0)
     return TRUE;
 #endif
@@ -413,9 +415,12 @@ pad_switch_mode (ClutterInputDevice *device,
 {
   MetaInputDeviceX11 *device_x11 = META_INPUT_DEVICE_X11 (device);
   uint32_t n_buttons, n_modes, button_group, next_mode, i;
+  WacomDevice *wacom_device;
   GList *switch_buttons = NULL;
 
-  n_buttons = libwacom_get_num_buttons (device_x11->wacom_device);
+  wacom_device =
+    meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
+  n_buttons = libwacom_get_num_buttons (wacom_device);
 
   for (i = 0; i < n_buttons; i++)
     {
