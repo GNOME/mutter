@@ -603,7 +603,6 @@ meta_wayland_keyboard_disable (MetaWaylandKeyboard *keyboard)
 
   meta_wayland_keyboard_end_grab (keyboard);
   meta_wayland_keyboard_set_focus (keyboard, NULL);
-  meta_wayland_xkb_info_destroy (&keyboard->xkb_info);
 
   wl_list_remove (&keyboard->resource_list);
   wl_list_init (&keyboard->resource_list);
@@ -918,6 +917,17 @@ meta_wayland_keyboard_init (MetaWaylandKeyboard *keyboard)
 }
 
 static void
+meta_wayland_keyboard_finalize (GObject *object)
+{
+  MetaWaylandKeyboard *keyboard = META_WAYLAND_KEYBOARD (object);
+
+  meta_wayland_xkb_info_destroy (&keyboard->xkb_info);
+}
+
+static void
 meta_wayland_keyboard_class_init (MetaWaylandKeyboardClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = meta_wayland_keyboard_finalize;
 }
