@@ -898,13 +898,13 @@ meta_window_update_snap_id (MetaWindow *window,
 static void
 meta_window_update_sandboxed_app_id (MetaWindow *window)
 {
-  uint32_t pid;
+  pid_t pid;
 
   g_clear_pointer (&window->sandboxed_app_id, g_free);
 
   pid = meta_window_get_pid (window);
 
-  if (pid == 0)
+  if (pid < 1)
     return;
 
   if (meta_window_update_flatpak_id (window, pid))
@@ -7590,12 +7590,12 @@ meta_window_get_transient_for (MetaWindow *window)
  *
  * Return value: the pid, or 0 if not known.
  */
-uint32_t
+pid_t
 meta_window_get_pid (MetaWindow *window)
 {
   g_return_val_if_fail (META_IS_WINDOW (window), 0);
 
-  return (uint32_t)META_WINDOW_GET_CLASS (window)->get_client_pid (window);
+  return META_WINDOW_GET_CLASS (window)->get_client_pid (window);
 }
 
 /**
