@@ -501,16 +501,17 @@ clutter_offscreen_effect_paint (ClutterEffect           *effect,
 }
 
 static void
-clutter_offscreen_effect_notify (GObject    *gobject,
-                                 GParamSpec *pspec)
+clutter_offscreen_effect_set_enabled (ClutterActorMeta *meta,
+                                      gboolean          is_enabled)
 {
-  ClutterOffscreenEffect *offscreen_effect = CLUTTER_OFFSCREEN_EFFECT (gobject);
+  ClutterActorMetaClass *parent_class =
+    CLUTTER_ACTOR_META_CLASS (clutter_offscreen_effect_parent_class);
+  ClutterOffscreenEffect *offscreen_effect = CLUTTER_OFFSCREEN_EFFECT (meta);
   ClutterOffscreenEffectPrivate *priv = offscreen_effect->priv;
 
-  if (strcmp (pspec->name, "enabled") == 0)
-    g_clear_pointer (&priv->offscreen, cogl_object_unref);
+  g_clear_pointer (&priv->offscreen, cogl_object_unref);
 
-  G_OBJECT_CLASS (clutter_offscreen_effect_parent_class)->notify (gobject, pspec);
+  parent_class->set_enabled (meta, is_enabled);
 }
 
 static void
@@ -537,13 +538,13 @@ clutter_offscreen_effect_class_init (ClutterOffscreenEffectClass *klass)
   klass->paint_target = clutter_offscreen_effect_real_paint_target;
 
   meta_class->set_actor = clutter_offscreen_effect_set_actor;
+  meta_class->set_enabled = clutter_offscreen_effect_set_enabled;
 
   effect_class->pre_paint = clutter_offscreen_effect_pre_paint;
   effect_class->post_paint = clutter_offscreen_effect_post_paint;
   effect_class->paint = clutter_offscreen_effect_paint;
 
   gobject_class->finalize = clutter_offscreen_effect_finalize;
-  gobject_class->notify = clutter_offscreen_effect_notify;
 }
 
 static void
