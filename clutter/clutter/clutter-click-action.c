@@ -238,6 +238,7 @@ click_action_query_long_press (ClutterClickAction *action)
 
   if (result)
     {
+      g_clear_handle_id (&priv->long_press_id, g_source_remove);
       priv->long_press_id =
         clutter_threads_add_timeout (timeout,
                                      click_action_emit_long_press,
