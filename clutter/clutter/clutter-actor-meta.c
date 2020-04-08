@@ -106,6 +106,18 @@ clutter_actor_meta_real_set_actor (ClutterActorMeta *meta,
 }
 
 static void
+clutter_actor_meta_real_set_enabled (ClutterActorMeta *meta,
+                                     gboolean          is_enabled)
+{
+  g_warn_if_fail (!meta->priv->actor ||
+                  !CLUTTER_ACTOR_IN_PAINT (meta->priv->actor));
+
+  meta->priv->is_enabled = is_enabled;
+
+  g_object_notify_by_pspec (G_OBJECT (meta), obj_props[PROP_ENABLED]);
+}
+
+static void
 clutter_actor_meta_set_property (GObject      *gobject,
                                  guint         prop_id,
                                  const GValue *value,
@@ -176,6 +188,7 @@ clutter_actor_meta_class_init (ClutterActorMetaClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   klass->set_actor = clutter_actor_meta_real_set_actor;
+  klass->set_enabled = clutter_actor_meta_real_set_enabled;
 
   /**
    * ClutterActorMeta:actor:
@@ -297,17 +310,12 @@ clutter_actor_meta_set_enabled (ClutterActorMeta *meta,
 {
   g_return_if_fail (CLUTTER_IS_ACTOR_META (meta));
 
-  g_warn_if_fail (!meta->priv->actor ||
-                  !CLUTTER_ACTOR_IN_PAINT (meta->priv->actor));
-
   is_enabled = !!is_enabled;
 
   if (meta->priv->is_enabled == is_enabled)
     return;
 
-  meta->priv->is_enabled = is_enabled;
-
-  g_object_notify_by_pspec (G_OBJECT (meta), obj_props[PROP_ENABLED]);
+  CLUTTER_ACTOR_META_GET_CLASS (meta)->set_enabled (meta, is_enabled);
 }
 
 /**
