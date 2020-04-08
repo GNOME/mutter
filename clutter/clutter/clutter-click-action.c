@@ -474,6 +474,20 @@ clutter_click_action_set_actor (ClutterActorMeta *meta,
 }
 
 static void
+clutter_click_action_set_enabled (ClutterActorMeta *meta,
+                                  gboolean          is_enabled)
+{
+  ClutterClickAction *click_action = CLUTTER_CLICK_ACTION (meta);
+  ClutterActorMetaClass *parent_class =
+    CLUTTER_ACTOR_META_CLASS (clutter_click_action_parent_class);
+
+  if (!is_enabled)
+    clutter_click_action_release (click_action);
+
+  parent_class->set_enabled (meta, is_enabled);
+}
+
+static void
 clutter_click_action_set_property (GObject      *gobject,
                                    guint         prop_id,
                                    const GValue *value,
@@ -552,6 +566,7 @@ clutter_click_action_class_init (ClutterClickActionClass *klass)
   ClutterActorMetaClass *meta_class = CLUTTER_ACTOR_META_CLASS (klass);
 
   meta_class->set_actor = clutter_click_action_set_actor;
+  meta_class->set_enabled = clutter_click_action_set_enabled;
 
   gobject_class->dispose = clutter_click_action_dispose;
   gobject_class->set_property = clutter_click_action_set_property;
