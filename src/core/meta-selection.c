@@ -21,6 +21,7 @@
 
 #include "config.h"
 
+#include "core/meta-selection-private.h"
 #include "meta/meta-selection.h"
 
 typedef struct TransferRequest TransferRequest;
@@ -401,4 +402,14 @@ meta_selection_transfer_finish (MetaSelection  *selection,
                         meta_selection_transfer_async, FALSE);
 
   return g_task_propagate_boolean (G_TASK (result), error);
+}
+
+MetaSelectionSource *
+meta_selection_get_current_owner (MetaSelection     *selection,
+                                  MetaSelectionType  selection_type)
+{
+  g_return_val_if_fail (META_IS_SELECTION (selection), NULL);
+  g_return_val_if_fail (selection_type < META_N_SELECTION_TYPES, NULL);
+
+  return selection->owners[selection_type];
 }
