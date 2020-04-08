@@ -230,28 +230,26 @@ clutter_effect_real_pick (ClutterEffect      *effect,
 }
 
 static void
-clutter_effect_notify (GObject    *gobject,
-                       GParamSpec *pspec)
+clutter_effect_set_enabled (ClutterActorMeta *meta,
+                            gboolean          is_enabled)
 {
-  if (strcmp (pspec->name, "enabled") == 0)
-    {
-      ClutterActorMeta *meta = CLUTTER_ACTOR_META (gobject);
-      ClutterActor *actor = clutter_actor_meta_get_actor (meta);
+  ClutterActorMetaClass *parent_class =
+    CLUTTER_ACTOR_META_CLASS (clutter_effect_parent_class);
+  ClutterActor *actor;
 
-      if (actor != NULL)
-        clutter_actor_queue_redraw (actor);
-    }
+  actor = clutter_actor_meta_get_actor (meta);
+  if (actor)
+    clutter_actor_queue_redraw (actor);
 
-  if (G_OBJECT_CLASS (clutter_effect_parent_class)->notify != NULL)
-    G_OBJECT_CLASS (clutter_effect_parent_class)->notify (gobject, pspec);
+  parent_class->set_enabled (meta, is_enabled);
 }
 
 static void
 clutter_effect_class_init (ClutterEffectClass *klass)
 {
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  ClutterActorMetaClass *actor_meta_class = CLUTTER_ACTOR_META_CLASS (klass);
 
-  gobject_class->notify = clutter_effect_notify;
+  actor_meta_class->set_enabled = clutter_effect_set_enabled;
 
   klass->pre_paint = clutter_effect_real_pre_paint;
   klass->post_paint = clutter_effect_real_post_paint;
