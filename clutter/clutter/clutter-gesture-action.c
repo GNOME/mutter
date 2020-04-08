@@ -556,6 +556,21 @@ clutter_gesture_action_set_actor (ClutterActorMeta *meta,
   meta_class->set_actor (meta, actor);
 }
 
+static void
+clutter_gesture_action_set_enabled (ClutterActorMeta *meta,
+                                    gboolean          is_enabled)
+{
+  ClutterActorMetaClass *meta_class =
+    CLUTTER_ACTOR_META_CLASS (clutter_gesture_action_parent_class);
+  ClutterGestureAction *gesture_action = CLUTTER_GESTURE_ACTION (meta);
+  ClutterGestureActionPrivate *priv = gesture_action->priv;
+
+  if (!is_enabled && priv->in_gesture)
+    cancel_gesture (gesture_action);
+
+  meta_class->set_enabled (meta, is_enabled);
+}
+
 static gboolean
 default_event_handler (ClutterGestureAction *action,
                        ClutterActor *actor)
@@ -654,6 +669,7 @@ clutter_gesture_action_class_init (ClutterGestureActionClass *klass)
   gobject_class->get_property = clutter_gesture_action_get_property;
 
   meta_class->set_actor = clutter_gesture_action_set_actor;
+  meta_class->set_enabled = clutter_gesture_action_set_enabled;
 
   klass->gesture_begin = default_event_handler;
   klass->gesture_progress = default_event_handler;
