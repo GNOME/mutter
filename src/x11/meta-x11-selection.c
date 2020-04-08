@@ -23,6 +23,7 @@
 
 #include <gdk/gdkx.h>
 
+#include "core/meta-selection-private.h"
 #include "x11/meta-selection-source-x11-private.h"
 #include "x11/meta-x11-selection-output-stream-private.h"
 #include "x11/meta-x11-selection-private.h"
@@ -374,10 +375,9 @@ meta_x11_selection_handle_event (MetaX11Display *x11_display,
 }
 
 static void
-owner_changed_cb (MetaSelection       *selection,
-                  MetaSelectionType    selection_type,
-                  MetaSelectionSource *new_owner,
-                  MetaX11Display      *x11_display)
+notify_selection_owner (MetaX11Display      *x11_display,
+                        MetaSelectionType    selection_type,
+                        MetaSelectionSource *new_owner)
 {
   Display *xdisplay = x11_display->xdisplay;
 
@@ -404,6 +404,7 @@ meta_x11_selection_init (MetaX11Display *x11_display)
 {
   XSetWindowAttributes attributes = { 0 };
   MetaDisplay *display = meta_get_display ();
+  MetaSelection *selection;
   guint mask, i;
 
   attributes.event_mask = PropertyChangeMask | SubstructureNotifyMask;
@@ -424,18 +425,24 @@ meta_x11_selection_init (MetaX11Display *x11_display)
     XFixesSelectionWindowDestroyNotifyMask |
     XFixesSelectionClientCloseNotifyMask;
 
+  selection = meta_display_get_selection (display);
+
   for (i = 0; i < META_N_SELECTION_TYPES; i++)
     {
+      MetaSelectionSource *owner;
+
       XFixesSelectSelectionInput (x11_display->xdisplay,
                                   x11_display->selection.xwindow,
                                   selection_to_atom (i, x11_display->xdisplay),
                                   mask);
+      owner = meta_selection_get_current_owner (selection, i);
+      notify_selection_owner (x11_display, i, owner);
     }
 
-  g_signal_connect (meta_display_get_selection (display),
-                    "owner-changed",
-                    G_CALLBACK (owner_changed_cb),
-                    x11_display);
+  g_signal_connect_swapped (selection,
+                            "owner-changed",
+                            G_CALLBACK (notify_selection_owner),
+                            x11_display);
 }
 
 void
@@ -445,7 +452,7 @@ meta_x11_selection_shutdown (MetaX11Display *x11_display)
   guint i;
 
   g_signal_handlers_disconnect_by_func (meta_display_get_selection (display),
-                                        owner_changed_cb,
+                                        notify_selection_owner,
                                         x11_display);
 
   for (i = 0; i < META_N_SELECTION_TYPES; i++)
