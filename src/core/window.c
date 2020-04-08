@@ -296,7 +296,7 @@ meta_window_real_update_icon (MetaWindow       *window,
   return FALSE;
 }
 
-static uint32_t
+static pid_t
 meta_window_real_get_client_pid (MetaWindow *window)
 {
   return 0;
@@ -7595,7 +7595,7 @@ meta_window_get_pid (MetaWindow *window)
 {
   g_return_val_if_fail (META_IS_WINDOW (window), 0);
 
-  return META_WINDOW_GET_CLASS (window)->get_client_pid (window);
+  return (uint32_t)META_WINDOW_GET_CLASS (window)->get_client_pid (window);
 }
 
 /**

@@ -584,7 +584,7 @@ struct _MetaWindowClass
   gboolean (*update_icon)        (MetaWindow       *window,
                                   cairo_surface_t **icon,
                                   cairo_surface_t **mini_icon);
-  uint32_t (*get_client_pid)     (MetaWindow *window);
+  pid_t (*get_client_pid)        (MetaWindow *window);
   void (*update_main_monitor)    (MetaWindow                   *window,
                                   MetaWindowUpdateMonitorFlags  flags);
   void (*main_monitor_changed)   (MetaWindow *window,

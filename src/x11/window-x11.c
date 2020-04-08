@@ -1779,7 +1779,7 @@ meta_window_x11_main_monitor_changed (MetaWindow               *window,
 {
 }
 
-static uint32_t
+static pid_t
 meta_window_x11_get_client_pid (MetaWindow *window)
 {
   MetaX11Display *x11_display = window->display->x11_display;
@@ -1813,7 +1813,7 @@ meta_window_x11_get_client_pid (MetaWindow *window)
     }
 
   free (reply);
-  return pid;
+  return (pid_t) pid;
 }
 
 static void

@@ -617,7 +617,7 @@ meta_window_wayland_main_monitor_changed (MetaWindow               *window,
   meta_window_emit_size_changed (window);
 }
 
-static uint32_t
+static pid_t
 meta_window_wayland_get_client_pid (MetaWindow *window)
 {
   MetaWaylandSurface *surface = window->surface;
@@ -625,7 +625,7 @@ meta_window_wayland_get_client_pid (MetaWindow *window)
   pid_t pid;
 
   wl_client_get_credentials (wl_resource_get_client (resource), &pid, NULL, NULL);
-  return (uint32_t)pid;
+  return pid;
 }
 
 static void
