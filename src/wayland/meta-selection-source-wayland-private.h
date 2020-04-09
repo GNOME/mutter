@@ -26,7 +26,6 @@
 
 #include "meta/meta-selection-source.h"
 #include "wayland/meta-wayland-data-device.h"
-#include "wayland/meta-wayland-data-device-private.h"
 
 #define META_TYPE_SELECTION_SOURCE_WAYLAND (meta_selection_source_wayland_get_type ())
 
