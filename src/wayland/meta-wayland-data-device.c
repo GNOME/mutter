@@ -25,7 +25,6 @@
 #include "config.h"
 
 #include "wayland/meta-wayland-data-device.h"
-#include "wayland/meta-wayland-data-source-primary.h"
 
 #include <gio/gunixoutputstream.h>
 #include <glib-unix.h>
@@ -38,13 +37,10 @@
 #include "compositor/meta-dnd-actor-private.h"
 #include "meta/meta-selection-source-memory.h"
 #include "wayland/meta-selection-source-wayland-private.h"
-#include "wayland/meta-wayland-data-offer-primary.h"
 #include "wayland/meta-wayland-dnd-surface.h"
 #include "wayland/meta-wayland-pointer.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-seat.h"
-
-#include "gtk-primary-selection-server-protocol.h"
 
 #define ROOTWINDOW_DROP_MIME "application/x-rootwindow-drop"
 
@@ -55,8 +51,6 @@ static void
 drag_grab_data_source_destroyed (gpointer data, GObject *where_the_object_was);
 
 static struct wl_resource * create_and_send_clipboard_offer (MetaWaylandDataDevice *data_device,
-                                                             struct wl_resource    *target);
-static struct wl_resource * create_and_send_primary_offer   (MetaWaylandDataDevice *data_device,
                                                              struct wl_resource    *target);
 
 static void
@@ -927,84 +921,6 @@ static const struct wl_data_device_interface data_device_interface = {
 };
 
 static void
-primary_source_destroyed (gpointer  data,
-                          GObject  *object_was_here)
-{
-  MetaWaylandDataDevice *data_device = data;
-
-  data_device->primary_data_source = NULL;
-  unset_selection_source (data_device, META_SELECTION_PRIMARY);
-}
-
-void
-meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
-                                      MetaWaylandDataSource *source,
-                                      guint32                serial)
-{
-  MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
-  MetaSelectionSource *selection_source;
-
-  g_assert (!source || META_IS_WAYLAND_DATA_SOURCE_PRIMARY (source));
-
-  if (data_device->primary_data_source &&
-      data_device->primary_serial - serial < UINT32_MAX / 2)
-    return;
-
-  if (data_device->primary_data_source)
-    {
-      g_object_weak_unref (G_OBJECT (data_device->primary_data_source),
-                           primary_source_destroyed,
-                           data_device);
-    }
-
-  data_device->primary_data_source = source;
-  data_device->primary_serial = serial;
-
-  if (source)
-    {
-      meta_wayland_data_source_set_seat (source, seat);
-      g_object_weak_ref (G_OBJECT (source),
-                         primary_source_destroyed,
-                         data_device);
-
-      selection_source = meta_selection_source_wayland_new (source);
-    }
-  else
-    {
-      selection_source = g_object_new (META_TYPE_SELECTION_SOURCE_MEMORY, NULL);
-    }
-
-  set_selection_source (data_device, META_SELECTION_PRIMARY,
-                        selection_source);
-  g_object_unref (selection_source);
-}
-
-static void
-primary_device_set_selection (struct wl_client   *client,
-                              struct wl_resource *resource,
-                              struct wl_resource *source_resource,
-                              uint32_t            serial)
-{
-  MetaWaylandDataDevice *data_device = wl_resource_get_user_data (resource);
-  MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
-  MetaWaylandDataSource *source = NULL;
-
-  if (source_resource)
-    source = wl_resource_get_user_data (source_resource);
-
-  if (wl_resource_get_client (resource) !=
-      meta_wayland_keyboard_get_focus_client (seat->keyboard))
-    return;
-
-  meta_wayland_data_device_set_primary (data_device, source, serial);
-}
-
-static const struct gtk_primary_selection_device_interface primary_device_interface = {
-  primary_device_set_selection,
-  default_destructor,
-};
-
-static void
 create_data_source (struct wl_client *client,
                     struct wl_resource *resource, guint32 id)
 {
@@ -1030,26 +946,7 @@ owner_changed_cb (MetaSelection         *selection,
   if (!focus_client)
     return;
 
-  if (selection_type == META_SELECTION_PRIMARY)
-    {
-      data_device_resource =
-        wl_resource_find_for_client (&data_device->primary_resource_list,
-                                     focus_client);
-      if (data_device_resource)
-        {
-          struct wl_resource *offer = NULL;
-
-          if (new_owner)
-            {
-              offer = create_and_send_primary_offer (data_device,
-                                                     data_device_resource);
-            }
-
-          gtk_primary_selection_device_send_selection (data_device_resource,
-                                                       offer);
-        }
-    }
-  else if (selection_type == META_SELECTION_CLIPBOARD)
+  if (selection_type == META_SELECTION_CLIPBOARD)
     {
       data_device_resource =
         wl_resource_find_for_client (&data_device->resource_list, focus_client);
@@ -1102,63 +999,12 @@ static const struct wl_data_device_manager_interface manager_interface = {
 };
 
 static void
-primary_device_manager_create_source (struct wl_client   *client,
-                                      struct wl_resource *manager_resource,
-                                      guint32             id)
-{
-  struct wl_resource *source_resource;
-
-  source_resource =
-    wl_resource_create (client, &gtk_primary_selection_source_interface,
-                        wl_resource_get_version (manager_resource),
-                        id);
-  meta_wayland_data_source_primary_new (source_resource);
-}
-
-static void
-primary_device_manager_get_device (struct wl_client   *client,
-                                   struct wl_resource *manager_resource,
-                                   guint32             id,
-                                   struct wl_resource *seat_resource)
-{
-  MetaWaylandSeat *seat = wl_resource_get_user_data (seat_resource);
-  struct wl_resource *cr;
-
-  cr = wl_resource_create (client, &gtk_primary_selection_device_interface,
-                           wl_resource_get_version (manager_resource), id);
-  wl_resource_set_implementation (cr, &primary_device_interface,
-                                  &seat->data_device, unbind_resource);
-  wl_list_insert (&seat->data_device.primary_resource_list, wl_resource_get_link (cr));
-
-  ensure_owners_changed_handler_connected (&seat->data_device);
-}
-
-static const struct gtk_primary_selection_device_manager_interface primary_manager_interface = {
-  primary_device_manager_create_source,
-  primary_device_manager_get_device,
-  default_destructor,
-};
-
-static void
 bind_manager (struct wl_client *client,
               void *data, guint32 version, guint32 id)
 {
   struct wl_resource *resource;
   resource = wl_resource_create (client, &wl_data_device_manager_interface, version, id);
   wl_resource_set_implementation (resource, &manager_interface, NULL, NULL);
-}
-
-static void
-bind_primary_manager (struct wl_client *client,
-                      void             *data,
-                      uint32_t          version,
-                      uint32_t          id)
-{
-  struct wl_resource *resource;
-
-  resource = wl_resource_create (client, &gtk_primary_selection_device_manager_interface,
-                                 version, id);
-  wl_resource_set_implementation (resource, &primary_manager_interface, NULL, NULL);
 }
 
 void
@@ -1169,18 +1015,12 @@ meta_wayland_data_device_manager_init (MetaWaylandCompositor *compositor)
 			META_WL_DATA_DEVICE_MANAGER_VERSION,
 			NULL, bind_manager) == NULL)
     g_error ("Could not create data_device");
-
-  if (wl_global_create (compositor->wayland_display,
-			&gtk_primary_selection_device_manager_interface,
-			1, NULL, bind_primary_manager) == NULL)
-    g_error ("Could not create data_device");
 }
 
 void
 meta_wayland_data_device_init (MetaWaylandDataDevice *data_device)
 {
   wl_list_init (&data_device->resource_list);
-  wl_list_init (&data_device->primary_resource_list);
 }
 
 static struct wl_resource *
@@ -1210,31 +1050,6 @@ create_and_send_clipboard_offer (MetaWaylandDataDevice *data_device,
   return resource;
 }
 
-static struct wl_resource *
-create_and_send_primary_offer (MetaWaylandDataDevice *data_device,
-                               struct wl_resource    *target)
-{
-  MetaWaylandDataOffer *offer;
-  MetaDisplay *display = meta_get_display ();
-  GList *mimetypes, *l;
-
-  mimetypes = meta_selection_get_mimetypes (meta_display_get_selection (display),
-                                            META_SELECTION_PRIMARY);
-  if (!mimetypes)
-    return NULL;
-
-  offer = meta_wayland_data_offer_primary_new (target);
-
-  gtk_primary_selection_device_send_data_offer (target, offer->resource);
-
-  for (l = mimetypes; l; l = l->next)
-    gtk_primary_selection_offer_send_offer (offer->resource, l->data);
-
-  g_list_free_full (mimetypes, g_free);
-
-  return offer->resource;
-}
-
 void
 meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device)
 {
@@ -1258,14 +1073,6 @@ meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device)
       struct wl_resource *offer;
       offer = create_and_send_clipboard_offer (data_device, data_device_resource);
       wl_data_device_send_selection (data_device_resource, offer);
-    }
-
-  data_device_resource = wl_resource_find_for_client (&data_device->primary_resource_list, focus_client);
-  if (data_device_resource)
-    {
-      struct wl_resource *offer;
-      offer = create_and_send_primary_offer (data_device, data_device_resource);
-      gtk_primary_selection_device_send_selection (data_device_resource, offer);
     }
 }
 

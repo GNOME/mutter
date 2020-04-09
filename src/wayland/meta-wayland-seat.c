@@ -24,6 +24,7 @@
 #include "wayland/meta-wayland-seat.h"
 
 #include "wayland/meta-wayland-data-device.h"
+#include "wayland/meta-wayland-data-device-primary.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-tablet-seat.h"
 #include "wayland/meta-wayland-versions.h"
@@ -231,6 +232,7 @@ meta_wayland_seat_new (MetaWaylandCompositor *compositor,
   seat->gtk_text_input = meta_wayland_gtk_text_input_new (seat);
 
   meta_wayland_data_device_init (&seat->data_device);
+  meta_wayland_data_device_primary_init (&seat->primary_data_device);
 
   clutter_seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
   meta_wayland_seat_update_capabilities (seat, clutter_seat);
@@ -431,6 +433,7 @@ meta_wayland_seat_set_input_focus (MetaWaylandSeat    *seat,
     {
       meta_wayland_keyboard_set_focus (seat->keyboard, surface);
       meta_wayland_data_device_set_keyboard_focus (&seat->data_device);
+      meta_wayland_data_device_primary_set_keyboard_focus (&seat->primary_data_device);
     }
 
   tablet_seat = meta_wayland_tablet_manager_ensure_seat (compositor->tablet_manager, seat);
