@@ -919,6 +919,9 @@ void clutter_actor_pick_box (ClutterActor          *self,
                              ClutterPickContext    *pick_context,
                              const ClutterActorBox *box);
 
+CLUTTER_EXPORT
+GList * clutter_actor_peek_stage_views (ClutterActor *self);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_ACTOR_H__ */

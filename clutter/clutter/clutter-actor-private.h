@@ -321,6 +321,8 @@ gboolean                        _clutter_actor_get_real_resource_scale          
 ClutterPaintNode *              clutter_actor_create_texture_paint_node                 (ClutterActor *self,
                                                                                          CoglTexture  *texture);
 
+void clutter_actor_update_stage_views (ClutterActor *self);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_ACTOR_PRIVATE_H__ */

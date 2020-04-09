@@ -1469,6 +1469,14 @@ _clutter_stage_check_updated_pointers (ClutterStage *stage)
   return updating;
 }
 
+static void
+update_actor_stage_views (ClutterStage *stage)
+{
+  ClutterActor *actor = CLUTTER_ACTOR (stage);
+
+  clutter_actor_update_stage_views (actor);
+}
+
 /**
  * _clutter_stage_do_update:
  * @stage: A #ClutterStage
@@ -1515,6 +1523,10 @@ _clutter_stage_do_update (ClutterStage *stage)
 
   if (stage_was_relayout)
     pointers = _clutter_stage_check_updated_pointers (stage);
+
+  COGL_TRACE_BEGIN (ClutterStageUpdateActorStageViews, "Actor stage-views");
+  update_actor_stage_views (stage);
+  COGL_TRACE_END (ClutterStageUpdateActorStageViews);
 
   COGL_TRACE_BEGIN (ClutterStagePaint, "Paint");
 

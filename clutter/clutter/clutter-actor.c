@@ -813,6 +813,8 @@ struct _ClutterActorPrivate
   gulong font_changed_id;
   gulong layout_changed_id;
 
+  GList *stage_views;
+
   /* bitfields: KEEP AT THE END */
 
   /* fixed position and sizes */
@@ -855,6 +857,7 @@ struct _ClutterActorPrivate
   guint had_effects_on_last_paint_volume_update : 1;
   guint needs_compute_resource_scale : 1;
   guint absolute_origin_changed     : 1;
+  guint needs_update_stage_views    : 1;
 };
 
 enum
@@ -2565,6 +2568,7 @@ static void
 absolute_allocation_changed (ClutterActor *actor)
 {
   actor->priv->needs_compute_resource_scale = TRUE;
+  actor->priv->needs_update_stage_views = TRUE;
 }
 
 static ClutterActorTraverseVisitFlags
@@ -4282,6 +4286,7 @@ typedef enum
   REMOVE_CHILD_FLUSH_QUEUE        = 1 << 4,
   REMOVE_CHILD_NOTIFY_FIRST_LAST  = 1 << 5,
   REMOVE_CHILD_STOP_TRANSITIONS   = 1 << 6,
+  REMOVE_CHILD_CLEAR_STAGE_VIEWS  = 1 << 7,
 
   /* default flags for public API */
   REMOVE_CHILD_DEFAULT_FLAGS      = REMOVE_CHILD_STOP_TRANSITIONS |
@@ -4290,14 +4295,16 @@ typedef enum
                                     REMOVE_CHILD_EMIT_ACTOR_REMOVED |
                                     REMOVE_CHILD_CHECK_STATE |
                                     REMOVE_CHILD_FLUSH_QUEUE |
-                                    REMOVE_CHILD_NOTIFY_FIRST_LAST,
+                                    REMOVE_CHILD_NOTIFY_FIRST_LAST |
+                                    REMOVE_CHILD_CLEAR_STAGE_VIEWS,
 
   /* flags for legacy/deprecated API */
   REMOVE_CHILD_LEGACY_FLAGS       = REMOVE_CHILD_STOP_TRANSITIONS |
                                     REMOVE_CHILD_CHECK_STATE |
                                     REMOVE_CHILD_FLUSH_QUEUE |
                                     REMOVE_CHILD_EMIT_PARENT_SET |
-                                    REMOVE_CHILD_NOTIFY_FIRST_LAST
+                                    REMOVE_CHILD_NOTIFY_FIRST_LAST |
+                                    REMOVE_CHILD_CLEAR_STAGE_VIEWS
 } ClutterActorRemoveChildFlags;
 
 /*< private >
@@ -4319,6 +4326,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
   gboolean notify_first_last;
   gboolean was_mapped;
   gboolean stop_transitions;
+  gboolean clear_stage_views;
   GObject *obj;
 
   if (self == child)
@@ -4335,6 +4343,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
   flush_queue = (flags & REMOVE_CHILD_FLUSH_QUEUE) != 0;
   notify_first_last = (flags & REMOVE_CHILD_NOTIFY_FIRST_LAST) != 0;
   stop_transitions = (flags & REMOVE_CHILD_STOP_TRANSITIONS) != 0;
+  clear_stage_views = (flags & REMOVE_CHILD_CLEAR_STAGE_VIEWS) != 0;
 
   obj = G_OBJECT (self);
   g_object_freeze_notify (obj);
@@ -4407,6 +4416,13 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
     {
       clutter_actor_queue_compute_expand (self);
     }
+
+  /* Only actors which are attached to a stage get notified about changes
+   * to the stage views, so make sure all the stage-views lists are
+   * cleared as the child and its children leave the actor tree.
+   */
+  if (clear_stage_views)
+    clutter_actor_clear_stage_views_recursive (child);
 
   if (emit_parent_set && !CLUTTER_ACTOR_IN_DESTRUCTION (child))
     {
@@ -6079,6 +6095,8 @@ clutter_actor_dispose (GObject *object)
       g_hash_table_unref (priv->clones);
       priv->clones = NULL;
     }
+
+  g_clear_pointer (&priv->stage_views, g_list_free);
 
   G_OBJECT_CLASS (clutter_actor_parent_class)->dispose (object);
 }
@@ -8634,6 +8652,7 @@ clutter_actor_init (ClutterActor *self)
   priv->needs_allocation = TRUE;
   priv->needs_paint_volume_update = TRUE;
   priv->needs_compute_resource_scale = TRUE;
+  priv->needs_update_stage_views = TRUE;
 
   priv->cached_width_age = 1;
   priv->cached_height_age = 1;
@@ -17521,7 +17540,11 @@ clear_stage_views_cb (ClutterActor *actor,
                       int           depth,
                       gpointer      user_data)
 {
+  actor->priv->needs_update_stage_views = TRUE;
   actor->priv->needs_compute_resource_scale = TRUE;
+
+  g_clear_pointer (&actor->priv->stage_views, g_list_free);
+
   return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
 }
 
@@ -17620,6 +17643,93 @@ clutter_actor_get_resource_scale (ClutterActor *self,
     }
 
   return FALSE;
+}
+
+static void
+update_stage_views (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+  ClutterStage *stage;
+  graphene_rect_t bounding_rect;
+
+  g_clear_pointer (&priv->stage_views, g_list_free);
+
+  if (priv->needs_allocation)
+    {
+      g_warning ("Can't update stage views actor %s is on because it needs an "
+                 "allocation.", _clutter_actor_get_debug_name (self));
+      return;
+    }
+
+  stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
+  g_return_if_fail (stage);
+
+  clutter_actor_get_transformed_position (self,
+                                          &bounding_rect.origin.x,
+                                          &bounding_rect.origin.y);
+  clutter_actor_get_transformed_size (self,
+                                      &bounding_rect.size.width,
+                                      &bounding_rect.size.height);
+
+  if (bounding_rect.size.width == 0.0 ||
+      bounding_rect.size.height == 0.0)
+    return;
+
+  priv->stage_views = clutter_stage_get_views_for_rect (stage,
+                                                        &bounding_rect);
+}
+
+void
+clutter_actor_update_stage_views (ClutterActor *self)
+{
+  ClutterActorPrivate *priv = self->priv;
+  ClutterActor *child;
+
+  if (!CLUTTER_ACTOR_IS_MAPPED (self) ||
+      CLUTTER_ACTOR_IN_DESTRUCTION (self))
+    return;
+
+  if (priv->needs_update_stage_views)
+    {
+      update_stage_views (self);
+
+      priv->needs_update_stage_views = FALSE;
+    }
+
+  for (child = priv->first_child; child; child = child->priv->next_sibling)
+    clutter_actor_update_stage_views (child);
+}
+
+/**
+ * clutter_actor_peek_stage_views:
+ * @self: A #ClutterActor
+ *
+ * Retrieves the list of #ClutterStageView<!-- -->s the actor is being
+ * painted on.
+ *
+ * If this function is called during the paint cycle, the list is guaranteed
+ * to be up-to-date, if called outside the paint cycle, the list will
+ * contain the views the actor was painted on last.
+ *
+ * The list returned by this function is not updated when the actors
+ * visibility changes: If an actor gets hidden and is not being painted
+ * anymore, this function will return the list of views the actor was
+ * painted on last.
+ *
+ * If an actor is not attached to a stage (realized), this function will
+ * always return an empty list.
+ *
+ * Returns: (transfer none) (element-type Clutter.StageView): The list of
+ *   #ClutterStageView<!-- -->s the actor is being painted on. The list and
+ *   its contents are owned by the #ClutterActor and the list may not be
+ *   freed or modified.
+ */
+GList *
+clutter_actor_peek_stage_views (ClutterActor *self)
+{
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
+
+  return self->priv->stage_views;
 }
 
 /**
