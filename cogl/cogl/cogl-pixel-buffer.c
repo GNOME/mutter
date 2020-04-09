@@ -51,22 +51,6 @@
 #include "cogl-pixel-buffer.h"
 #include "cogl-gtype-private.h"
 
-/*
- * GL/GLES compatibility defines for the buffer API:
- */
-
-#if defined (HAVE_COGL_GL)
-
-#ifndef GL_PIXEL_UNPACK_BUFFER
-#define GL_PIXEL_UNPACK_BUFFER GL_PIXEL_UNPACK_BUFFER_ARB
-#endif
-
-#ifndef GL_PIXEL_PACK_BUFFER
-#define GL_PIXEL_PACK_BUFFER GL_PIXEL_PACK_BUFFER_ARB
-#endif
-
-#endif
-
 static void
 _cogl_pixel_buffer_free (CoglPixelBuffer *buffer);
 

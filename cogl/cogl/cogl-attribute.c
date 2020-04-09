@@ -51,11 +51,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* This isn't defined in the GLES headers */
-#ifndef GL_UNSIGNED_INT
-#define GL_UNSIGNED_INT 0x1405
-#endif
-
 static void _cogl_attribute_free (CoglAttribute *attribute);
 
 COGL_OBJECT_DEFINE (Attribute, attribute);

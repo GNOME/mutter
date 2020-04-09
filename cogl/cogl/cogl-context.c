@@ -51,11 +51,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-/* These aren't defined in the GLES headers */
-#ifndef GL_POINT_SPRITE
-#define GL_POINT_SPRITE 0x8861
-#endif
-
 static void _cogl_context_free (CoglContext *context);
 
 COGL_OBJECT_DEFINE (Context, context);
