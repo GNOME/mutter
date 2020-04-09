@@ -4404,3 +4404,27 @@ _clutter_stage_get_max_view_scale_factor_for_rect (ClutterStage    *stage,
   *view_scale = scale;
   return TRUE;
 }
+
+GList *
+clutter_stage_get_views_for_rect (ClutterStage          *stage,
+                                  const graphene_rect_t *rect)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  GList *views_for_rect = NULL;
+  GList *l;
+
+  for (l = _clutter_stage_window_get_views (priv->impl); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+      cairo_rectangle_int_t view_layout;
+      graphene_rect_t view_rect;
+
+      clutter_stage_view_get_layout (view, &view_layout);
+      _clutter_util_rect_from_rectangle (&view_layout, &view_rect);
+
+      if (graphene_rect_intersection (&view_rect, rect, NULL))
+        views_for_rect = g_list_prepend (views_for_rect, view);
+    }
+
+  return views_for_rect;
+}

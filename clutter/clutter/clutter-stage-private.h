@@ -136,6 +136,9 @@ void            _clutter_stage_presented                (ClutterStage      *stag
 void            clutter_stage_queue_actor_relayout      (ClutterStage *stage,
                                                          ClutterActor *actor);
 
+GList * clutter_stage_get_views_for_rect (ClutterStage          *stage,
+                                          const graphene_rect_t *rect);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */
