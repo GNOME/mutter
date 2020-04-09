@@ -230,7 +230,7 @@ xdnd_send_position (MetaXWaylandDnd *dnd,
   XEvent xev = { 0 };
 
   user_action = meta_wayland_data_source_get_user_action (source);
-  actions = meta_wayland_data_source_get_actions (source);
+  meta_wayland_data_source_get_actions (source, &actions);
 
   if (user_action & actions)
     action = user_action;

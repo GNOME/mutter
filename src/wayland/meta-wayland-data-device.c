@@ -63,28 +63,11 @@ struct _MetaWaylandDataOffer
   MetaSelectionType selection_type;
 };
 
-typedef struct _MetaWaylandDataSourcePrivate
-{
-  struct wl_resource *resource;
-  MetaWaylandDataOffer *offer;
-  struct wl_array mime_types;
-  gboolean has_target;
-  uint32_t dnd_actions;
-  enum wl_data_device_manager_dnd_action user_dnd_action;
-  enum wl_data_device_manager_dnd_action current_dnd_action;
-  MetaWaylandSeat *seat;
-  guint actions_set : 1;
-  guint in_ask : 1;
-  guint drop_performed : 1;
-} MetaWaylandDataSourcePrivate;
-
 typedef struct _MetaWaylandDataSourcePrimary
 {
   MetaWaylandDataSource parent;
 } MetaWaylandDataSourcePrimary;
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaWaylandDataSource, meta_wayland_data_source,
-                            G_TYPE_OBJECT);
 G_DEFINE_TYPE (MetaWaylandDataSourcePrimary, meta_wayland_data_source_primary,
                META_TYPE_WAYLAND_DATA_SOURCE);
 
@@ -92,12 +75,7 @@ static void unset_selection_source (MetaWaylandDataDevice *data_device,
                                     MetaSelectionType      selection_type);
 
 static MetaWaylandDataSource *
-meta_wayland_data_source_new (struct wl_resource *resource);
-static MetaWaylandDataSource *
 meta_wayland_data_source_primary_new (struct wl_resource *resource);
-
-static void
-meta_wayland_source_cancel (MetaWaylandDataSource *source);
 
 static void
 drag_grab_data_source_destroyed (gpointer data, GObject *where_the_object_was);
@@ -106,31 +84,11 @@ static struct wl_resource * create_and_send_clipboard_offer (MetaWaylandDataDevi
                                                              struct wl_resource    *target);
 static struct wl_resource * create_and_send_primary_offer   (MetaWaylandDataDevice *data_device,
                                                              struct wl_resource    *target);
-static struct wl_resource * meta_wayland_data_source_get_resource (MetaWaylandDataSource *source);
 
 static void
 unbind_resource (struct wl_resource *resource)
 {
   wl_list_remove (wl_resource_get_link (resource));
-}
-
-static gboolean
-meta_wayland_source_get_in_ask (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  return priv->in_ask;
-}
-
-static void
-meta_wayland_source_update_in_ask (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  priv->in_ask =
-    priv->current_dnd_action == WL_DATA_DEVICE_MANAGER_DND_ACTION_ASK;
 }
 
 static enum wl_data_device_manager_dnd_action
@@ -143,7 +101,7 @@ data_offer_choose_action (MetaWaylandDataOffer *offer)
       WL_DATA_OFFER_ACTION_SINCE_VERSION)
     return WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY;
 
-  actions = meta_wayland_data_source_get_actions (source);
+  meta_wayland_data_source_get_actions (source, &actions);
   user_action = meta_wayland_data_source_get_user_action (source);
 
   available_actions = actions & offer->dnd_actions;
@@ -163,8 +121,8 @@ data_offer_choose_action (MetaWaylandDataOffer *offer)
   return 1 << (ffs (available_actions) - 1);
 }
 
-static void
-data_offer_update_action (MetaWaylandDataOffer *offer)
+void
+meta_wayland_data_offer_update_action (MetaWaylandDataOffer *offer)
 {
   enum wl_data_device_manager_dnd_action current_action, action;
   MetaWaylandDataSource *source;
@@ -181,204 +139,13 @@ data_offer_update_action (MetaWaylandDataOffer *offer)
 
   meta_wayland_data_source_set_current_action (source, action);
 
-  if (!meta_wayland_source_get_in_ask (source) &&
+  if (!meta_wayland_data_source_get_in_ask (source) &&
       wl_resource_get_version (offer->resource) >=
       WL_DATA_OFFER_ACTION_SINCE_VERSION)
     {
       wl_data_offer_send_action (offer->resource, action);
       offer->action_sent = TRUE;
     }
-}
-
-static struct wl_resource *
-meta_wayland_data_source_get_resource (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  return priv->resource;
-}
-
-static void
-meta_wayland_data_source_set_resource (MetaWaylandDataSource *source,
-                                       struct wl_resource    *resource)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  priv->resource = resource;
-}
-
-static void
-meta_wayland_data_source_target (MetaWaylandDataSource *source,
-                                 const char *mime_type)
-{
-  if (META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->target)
-    META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->target (source, mime_type);
-}
-
-void
-meta_wayland_data_source_send (MetaWaylandDataSource *source,
-                               const char *mime_type,
-                               int fd)
-{
-  META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->send (source, mime_type, fd);
-}
-
-gboolean
-meta_wayland_data_source_has_target (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  return priv->has_target;
-}
-
-static void
-meta_wayland_data_source_set_seat (MetaWaylandDataSource *source,
-                                   MetaWaylandSeat       *seat)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  priv->seat = seat;
-}
-
-static MetaWaylandSeat *
-meta_wayland_data_source_get_seat (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  return priv->seat;
-}
-
-void
-meta_wayland_data_source_set_has_target (MetaWaylandDataSource *source,
-                                         gboolean has_target)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  priv->has_target = has_target;
-}
-
-struct wl_array *
-meta_wayland_data_source_get_mime_types (const MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private ((MetaWaylandDataSource *)source);
-
-  return &priv->mime_types;
-}
-
-void
-meta_wayland_data_source_cancel (MetaWaylandDataSource *source)
-{
-  META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->cancel (source);
-}
-
-uint32_t
-meta_wayland_data_source_get_actions (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  return priv->dnd_actions;
-}
-
-enum wl_data_device_manager_dnd_action
-meta_wayland_data_source_get_user_action (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  if (!priv->seat)
-    return WL_DATA_DEVICE_MANAGER_DND_ACTION_NONE;
-
-  return priv->user_dnd_action;
-}
-
-enum wl_data_device_manager_dnd_action
-meta_wayland_data_source_get_current_action (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  return priv->current_dnd_action;
-}
-
-static void
-meta_wayland_data_source_set_current_offer (MetaWaylandDataSource *source,
-                                            MetaWaylandDataOffer  *offer)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  priv->offer = offer;
-}
-
-static MetaWaylandDataOffer *
-meta_wayland_data_source_get_current_offer (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  return priv->offer;
-}
-
-void
-meta_wayland_data_source_set_current_action (MetaWaylandDataSource                  *source,
-                                             enum wl_data_device_manager_dnd_action  action)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  if (priv->current_dnd_action == action)
-    return;
-
-  priv->current_dnd_action = action;
-
-  if (!meta_wayland_source_get_in_ask (source))
-    META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->action (source, action);
-}
-
-void
-meta_wayland_data_source_set_actions (MetaWaylandDataSource *source,
-                                      uint32_t               dnd_actions)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  priv->dnd_actions = dnd_actions;
-  priv->actions_set = TRUE;
-}
-
-void
-meta_wayland_data_source_set_user_action (MetaWaylandDataSource *source,
-                                          uint32_t               action)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-  MetaWaylandDataOffer *offer;
-
-  if (priv->user_dnd_action == action)
-    return;
-
-  priv->user_dnd_action = action;
-  offer = meta_wayland_data_source_get_current_offer (source);
-
-  if (offer)
-    data_offer_update_action (offer);
-}
-
-static gboolean
-meta_wayland_data_source_get_drop_performed (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  return priv->drop_performed;
 }
 
 static void
@@ -524,7 +291,7 @@ data_offer_set_actions (struct wl_client   *client,
   offer->dnd_actions = dnd_actions;
   offer->preferred_dnd_action = preferred_action;
 
-  data_offer_update_action (offer);
+  meta_wayland_data_offer_update_action (offer);
 }
 
 static const struct wl_data_offer_interface data_offer_interface = {
@@ -572,18 +339,6 @@ static const struct gtk_primary_selection_offer_interface primary_offer_interfac
 };
 
 static void
-meta_wayland_data_source_notify_drop_performed (MetaWaylandDataSource *source)
-{
-  META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->drop_performed (source);
-}
-
-void
-meta_wayland_data_source_notify_finish (MetaWaylandDataSource *source)
-{
-  META_WAYLAND_DATA_SOURCE_GET_CLASS (source)->drag_finished (source);
-}
-
-static void
 destroy_data_offer (struct wl_resource *resource)
 {
   MetaWaylandDataOffer *offer = wl_resource_get_user_data (resource);
@@ -601,7 +356,7 @@ destroy_data_offer (struct wl_resource *resource)
                   WL_DATA_OFFER_ACTION_SINCE_VERSION)
                 meta_wayland_data_source_notify_finish (offer->source);
               else if (meta_wayland_data_source_get_drop_performed (offer->source))
-                meta_wayland_source_cancel (offer->source);
+                meta_wayland_data_source_cancel (offer->source);
             }
           else
             {
@@ -645,9 +400,8 @@ static struct wl_resource *
 create_and_send_dnd_offer (MetaWaylandDataSource *source,
                            struct wl_resource *target)
 {
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
   MetaWaylandDataOffer *offer = g_slice_new0 (MetaWaylandDataOffer);
+  struct wl_array *mime_types;
   char **p;
 
   offer->selection_type = META_SELECTION_DND;
@@ -663,67 +417,16 @@ create_and_send_dnd_offer (MetaWaylandDataSource *source,
 
   wl_data_device_send_data_offer (target, offer->resource);
 
-  wl_array_for_each (p, &priv->mime_types)
+  mime_types = meta_wayland_data_source_get_mime_types (source);
+
+  wl_array_for_each (p, mime_types)
     wl_data_offer_send_offer (offer->resource, *p);
 
-  data_offer_update_action (offer);
+  meta_wayland_data_offer_update_action (offer);
   meta_wayland_data_source_set_current_offer (source, offer);
 
   return offer->resource;
 }
-
-static void
-data_source_offer (struct wl_client *client,
-                   struct wl_resource *resource, const char *type)
-{
-  MetaWaylandDataSource *source = wl_resource_get_user_data (resource);
-
-  if (!meta_wayland_data_source_add_mime_type (source, type))
-    wl_resource_post_no_memory (resource);
-}
-
-static void
-data_source_set_actions (struct wl_client   *client,
-                         struct wl_resource *resource,
-                         uint32_t            dnd_actions)
-{
-  MetaWaylandDataSource *source = wl_resource_get_user_data (resource);
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  if (priv->actions_set)
-    {
-      wl_resource_post_error (priv->resource,
-                              WL_DATA_SOURCE_ERROR_INVALID_ACTION_MASK,
-                              "cannot set actions more than once");
-      return;
-    }
-
-  if (dnd_actions & ~(ALL_ACTIONS))
-    {
-      wl_resource_post_error (priv->resource,
-                              WL_DATA_SOURCE_ERROR_INVALID_ACTION_MASK,
-                              "invalid actions mask %x", dnd_actions);
-      return;
-    }
-
-  if (meta_wayland_data_source_get_seat (source))
-    {
-      wl_resource_post_error (priv->resource,
-                              WL_DATA_SOURCE_ERROR_INVALID_ACTION_MASK,
-                              "invalid action change after "
-                              "wl_data_device.start_drag");
-      return;
-    }
-
-  meta_wayland_data_source_set_actions (source, dnd_actions);
-}
-
-static struct wl_data_source_interface data_source_interface = {
-  data_source_offer,
-  default_destructor,
-  data_source_set_actions
-};
 
 static void
 primary_source_offer (struct wl_client   *client,
@@ -841,7 +544,7 @@ meta_wayland_drag_source_fake_acceptance (MetaWaylandDataSource *source,
 {
   uint32_t actions, user_action, action = 0;
 
-  actions = meta_wayland_data_source_get_actions (source);
+  meta_wayland_data_source_get_actions (source, &actions);
   user_action = meta_wayland_data_source_get_user_action (source);
 
   /* Pick a suitable action */
@@ -1074,7 +777,7 @@ drag_grab_button (MetaWaylandPointerGrab *grab,
           meta_wayland_surface_drag_dest_drop (drag_grab->drag_focus);
           meta_wayland_data_source_notify_drop_performed (source);
 
-          meta_wayland_source_update_in_ask (source);
+          meta_wayland_data_source_update_in_ask (source);
           success = TRUE;
         }
       else if (!drag_grab->drag_focus && source &&
@@ -1350,129 +1053,6 @@ selection_data_source_destroyed (gpointer data, GObject *object_was_here)
 }
 
 static void
-meta_wayland_source_send (MetaWaylandDataSource *source,
-                          const gchar           *mime_type,
-                          gint                   fd)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  wl_data_source_send_send (priv->resource, mime_type, fd);
-  close (fd);
-}
-
-static void
-meta_wayland_source_target (MetaWaylandDataSource *source,
-                            const gchar           *mime_type)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  wl_data_source_send_target (priv->resource, mime_type);
-}
-
-static void
-meta_wayland_source_cancel (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  if (!priv->resource)
-    return;
-
-  wl_data_source_send_cancelled (priv->resource);
-}
-
-static void
-meta_wayland_source_action (MetaWaylandDataSource                  *source,
-                            enum wl_data_device_manager_dnd_action  action)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  if (wl_resource_get_version (priv->resource) >=
-      WL_DATA_SOURCE_ACTION_SINCE_VERSION)
-    wl_data_source_send_action (priv->resource, action);
-}
-
-static void
-meta_wayland_source_drop_performed (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  if (wl_resource_get_version (priv->resource) >=
-      WL_DATA_SOURCE_DND_DROP_PERFORMED_SINCE_VERSION)
-    {
-      priv->drop_performed = TRUE;
-      wl_data_source_send_dnd_drop_performed (priv->resource);
-    }
-}
-
-static void
-meta_wayland_source_drag_finished (MetaWaylandDataSource *source)
-{
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
-  MetaWaylandDataDevice *data_device = &compositor->seat->data_device;
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-  enum wl_data_device_manager_dnd_action action;
-
-  if (meta_wayland_source_get_in_ask (source))
-    {
-      action = meta_wayland_data_source_get_current_action (source);
-      meta_wayland_source_action (source, action);
-    }
-
-  if (wl_resource_get_version (priv->resource) >=
-      WL_DATA_SOURCE_DND_FINISHED_SINCE_VERSION)
-    wl_data_source_send_dnd_finished (priv->resource);
-
-  unset_selection_source (data_device, META_SELECTION_DND);
-}
-
-static void
-meta_wayland_source_finalize (GObject *object)
-{
-  MetaWaylandDataSource *source = META_WAYLAND_DATA_SOURCE (object);
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-  char **pos;
-
-  wl_array_for_each (pos, &priv->mime_types)
-    g_free (*pos);
-  wl_array_release (&priv->mime_types);
-
-  G_OBJECT_CLASS (meta_wayland_data_source_parent_class)->finalize (object);
-}
-
-static void
-meta_wayland_data_source_init (MetaWaylandDataSource *source)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  wl_array_init (&priv->mime_types);
-  priv->current_dnd_action = -1;
-  priv->drop_performed = FALSE;
-}
-
-static void
-meta_wayland_data_source_class_init (MetaWaylandDataSourceClass *klass)
-{
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  object_class->finalize = meta_wayland_source_finalize;
-
-  klass->send = meta_wayland_source_send;
-  klass->target = meta_wayland_source_target;
-  klass->cancel = meta_wayland_source_cancel;
-  klass->action = meta_wayland_source_action;
-  klass->drop_performed = meta_wayland_source_drop_performed;
-  klass->drag_finished = meta_wayland_source_drag_finished;
-}
-
-static void
 meta_wayland_data_source_primary_send (MetaWaylandDataSource *source,
                                        const gchar           *mime_type,
                                        gint                   fd)
@@ -1531,7 +1111,7 @@ meta_wayland_drag_dest_focus_in (MetaWaylandDataDevice *data_device,
   if (wl_resource_get_version (offer->resource) >=
       WL_DATA_OFFER_SOURCE_ACTIONS_SINCE_VERSION)
     {
-      source_actions = meta_wayland_data_source_get_actions (offer->source);
+      meta_wayland_data_source_get_actions (offer->source, &source_actions);
       wl_data_offer_send_source_actions (offer->resource, source_actions);
     }
 
@@ -1691,7 +1271,6 @@ data_device_set_selection (struct wl_client *client,
 {
   MetaWaylandDataDevice *data_device = wl_resource_get_user_data (resource);
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
-  MetaWaylandDataSourcePrivate *priv;
   MetaWaylandDataSource *source;
 
   if (source_resource)
@@ -1701,9 +1280,7 @@ data_device_set_selection (struct wl_client *client,
 
   if (source)
     {
-      priv = meta_wayland_data_source_get_instance_private (source);
-
-      if (priv->actions_set)
+      if (meta_wayland_data_source_get_actions (source, NULL))
         {
           wl_resource_post_error(source_resource,
                                  WL_DATA_SOURCE_ERROR_INVALID_SOURCE,
@@ -1803,15 +1380,6 @@ static const struct gtk_primary_selection_device_interface primary_device_interf
   primary_device_set_selection,
   default_destructor,
 };
-
-static void
-destroy_data_source (struct wl_resource *resource)
-{
-  MetaWaylandDataSource *source = wl_resource_get_user_data (resource);
-
-  meta_wayland_data_source_set_resource (source, NULL);
-  g_object_unref (source);
-}
 
 static void
 create_data_source (struct wl_client *client,
@@ -2115,44 +1683,6 @@ meta_wayland_data_device_get_current_grab (MetaWaylandDataDevice *data_device)
   return data_device->current_grab;
 }
 
-gboolean
-meta_wayland_data_source_has_mime_type (const MetaWaylandDataSource *source,
-                                        const gchar                 *mime_type)
-{
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private ((MetaWaylandDataSource *)source);
-  gchar **p;
-
-  wl_array_for_each (p, &priv->mime_types)
-    {
-      if (g_strcmp0 (mime_type, *p) == 0)
-        return TRUE;
-    }
-
-  return FALSE;
-}
-
-static MetaWaylandDataSource *
-meta_wayland_data_source_new (struct wl_resource *resource)
-{
-  MetaWaylandDataSource *source =
-   g_object_new (META_TYPE_WAYLAND_DATA_SOURCE, NULL);
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-
-  meta_wayland_data_source_set_resource (source, resource);
-  wl_resource_set_implementation (resource, &data_source_interface,
-                                  source, destroy_data_source);
-
-  if (wl_resource_get_version (resource) < WL_DATA_SOURCE_ACTION_SINCE_VERSION)
-    {
-      priv->dnd_actions = priv->user_dnd_action =
-        WL_DATA_DEVICE_MANAGER_DND_ACTION_COPY;
-    }
-
-  return source;
-}
-
 static MetaWaylandDataSource *
 meta_wayland_data_source_primary_new (struct wl_resource *resource)
 {
@@ -2166,21 +1696,8 @@ meta_wayland_data_source_primary_new (struct wl_resource *resource)
   return source_primary;
 }
 
-gboolean
-meta_wayland_data_source_add_mime_type (MetaWaylandDataSource *source,
-                                        const gchar           *mime_type)
+void
+meta_wayland_data_device_unset_dnd_selection (MetaWaylandDataDevice *data_device)
 {
-  MetaWaylandDataSourcePrivate *priv =
-    meta_wayland_data_source_get_instance_private (source);
-  gchar **pos;
-
-  pos = wl_array_add (&priv->mime_types, sizeof (*pos));
-
-  if (pos)
-    {
-      *pos = g_strdup (mime_type);
-      return *pos != NULL;
-    }
-
-  return FALSE;
+  unset_selection_source (data_device, META_SELECTION_DND);
 }

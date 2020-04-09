@@ -497,6 +497,8 @@ if have_wayland
     'wayland/meta-wayland-data-device.c',
     'wayland/meta-wayland-data-device.h',
     'wayland/meta-wayland-data-device-private.h',
+    'wayland/meta-wayland-data-source.c',
+    'wayland/meta-wayland-data-source.h',
     'wayland/meta-wayland-dma-buf.c',
     'wayland/meta-wayland-dma-buf.h',
     'wayland/meta-wayland-dnd-surface.c',
