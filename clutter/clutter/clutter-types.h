@@ -79,8 +79,6 @@ typedef struct _ClutterKnot                     ClutterKnot;
 typedef struct _ClutterMargin                   ClutterMargin;
 typedef struct _ClutterPerspective              ClutterPerspective;
 
-typedef struct _ClutterAnimation                ClutterAnimation;
-
 typedef struct _ClutterInputDeviceTool          ClutterInputDeviceTool;
 typedef struct _ClutterInputDevice              ClutterInputDevice;
 typedef struct _ClutterVirtualInputDevice       ClutterVirtualInputDevice;

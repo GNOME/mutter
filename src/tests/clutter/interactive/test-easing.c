@@ -53,8 +53,6 @@ static gboolean recenter = FALSE;
 static ClutterActor *main_stage = NULL;
 static ClutterActor *easing_mode_label = NULL;
 
-static ClutterAnimation *last_animation = NULL;
-
 int
 test_easing_main (int argc, char *argv[]);
 
@@ -66,21 +64,23 @@ test_easing_describe (void);
  * repositions (through an animation) the bouncer at the center of the stage
  */
 static void
-recenter_bouncer (ClutterAnimation *animation,
-                  ClutterActor     *rectangle)
+recenter_bouncer (ClutterActor *rectangle)
 {
   gfloat base_x, base_y;
   gint cur_mode;
 
+
+  cur_mode = easing_modes[current_mode].mode;
   base_x = clutter_actor_get_width (main_stage) / 2;
   base_y = clutter_actor_get_height (main_stage) / 2;
 
-  cur_mode = easing_modes[current_mode].mode;
+  clutter_actor_set_easing_duration (rectangle, 250);
+  clutter_actor_set_easing_mode (rectangle, cur_mode);
+  clutter_actor_set_position (rectangle, base_x, base_y);
 
-  clutter_actor_animate (rectangle, cur_mode, 250,
-                         "x", base_x,
-                         "y", base_y,
-                         NULL);
+  g_signal_connect_after (rectangle, "transition-completed",
+                          G_CALLBACK (clutter_actor_restore_easing_state),
+                          NULL);
 }
 
 static gboolean
@@ -108,28 +108,22 @@ on_button_press (ClutterActor       *actor,
     }
   else if (event->button == CLUTTER_BUTTON_PRIMARY)
     {
-      ClutterAnimation *animation;
       ClutterAnimationMode cur_mode;
 
       cur_mode = easing_modes[current_mode].mode;
 
-      /* tween the actor using the current easing mode */
-      animation =
-        clutter_actor_animate (rectangle, cur_mode, duration * 1000,
-                               "x", event->x,
-                               "y", event->y,
-                               NULL);
+      clutter_actor_save_easing_state (rectangle);
+      clutter_actor_set_easing_duration (rectangle, duration * 1000);
+      clutter_actor_set_easing_mode (rectangle, cur_mode);
+      clutter_actor_set_position (rectangle, event->x, event->y);
 
       /* if we were asked to, recenter the bouncer at the end of the
        * animation. we keep track of the animation to avoid connecting
        * the signal handler to the same Animation twice.
        */
-      if (recenter && last_animation != animation)
-        g_signal_connect_after (animation, "completed",
-                                G_CALLBACK (recenter_bouncer),
-                                rectangle);
-
-      last_animation = animation;
+      g_signal_connect_after (rectangle, "transition-completed",
+                              G_CALLBACK (recenter_bouncer),
+                              rectangle);
     }
 
   return TRUE;

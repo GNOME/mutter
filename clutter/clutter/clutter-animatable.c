@@ -27,34 +27,22 @@
  * @short_description: Interface for animatable classes
  *
  * #ClutterAnimatable is an interface that allows a #GObject class
- * to control how a #ClutterAnimation will animate a property.
+ * to control how an actor will animate a property.
  *
  * Each #ClutterAnimatable should implement the
  * #ClutterAnimatableInterface.interpolate_property() virtual function of the
  * interface to compute the animation state between two values of an interval
  * depending on a progress factor, expressed as a floating point value.
  *
- * If a #ClutterAnimatable is animated by a #ClutterAnimation
- * instance, the #ClutterAnimation will call
- * clutter_animatable_interpolate_property() passing the name of the
- * currently animated property; the values interval; and the progress factor.
- * The #ClutterAnimatable implementation should return the computed value for
- * the animated
- * property.
- *
  * #ClutterAnimatable is available since Clutter 1.0
  */
 
 #include "clutter-build-config.h"
 
-#define CLUTTER_DISABLE_DEPRECATION_WARNINGS
-
 #include "clutter-animatable.h"
 #include "clutter-interval.h"
 #include "clutter-debug.h"
 #include "clutter-private.h"
-
-#include "deprecated/clutter-animation.h"
 
 G_DEFINE_INTERFACE (ClutterAnimatable, clutter_animatable, G_TYPE_OBJECT);
 

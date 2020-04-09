@@ -219,7 +219,6 @@ clutter_nonintrospected_sources = [
 
 clutter_deprecated_headers = [
   'deprecated/clutter-actor.h',
-  'deprecated/clutter-animation.h',
   'deprecated/clutter-box.h',
   'deprecated/clutter-container.h',
   'deprecated/clutter-group.h',
@@ -229,7 +228,6 @@ clutter_deprecated_headers = [
 ]
 
 clutter_deprecated_sources = [
-  'deprecated/clutter-animation.c',
   'deprecated/clutter-box.c',
   'deprecated/clutter-group.c',
   'deprecated/clutter-rectangle.c',

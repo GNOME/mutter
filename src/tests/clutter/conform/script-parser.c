@@ -252,28 +252,6 @@ script_named_object (void)
 }
 
 static void
-script_animation (void)
-{
-  ClutterScript *script = clutter_script_new ();
-  GObject *animation = NULL;
-  GError *error = NULL;
-  gchar *test_file;
-
-  test_file = g_test_build_filename (G_TEST_DIST, "scripts", "test-script-animation.json", NULL);
-  clutter_script_load_from_file (script, test_file, &error);
-  if (g_test_verbose () && error)
-    g_print ("Error: %s", error->message);
-
-  g_assert_no_error (error);
-
-  animation = clutter_script_get_object (script, "test");
-  g_assert (CLUTTER_IS_ANIMATION (animation));
-
-  g_object_unref (script);
-  g_free (test_file);
-}
-
-static void
 script_layout_property (void)
 {
   ClutterScript *script = clutter_script_new ();
@@ -383,7 +361,6 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/script/single-object", script_single)
   CLUTTER_TEST_UNIT ("/script/container-child", script_child)
   CLUTTER_TEST_UNIT ("/script/named-object", script_named_object)
-  CLUTTER_TEST_UNIT ("/script/animation", script_animation)
   CLUTTER_TEST_UNIT ("/script/object-property", script_object_property)
   CLUTTER_TEST_UNIT ("/script/layout-property", script_layout_property)
   CLUTTER_TEST_UNIT ("/script/actor-margin", script_margin)

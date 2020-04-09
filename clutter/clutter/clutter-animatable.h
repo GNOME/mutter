@@ -51,9 +51,6 @@ G_DECLARE_INTERFACE (ClutterAnimatable, clutter_animatable,
  * @interpolate_value: virtual function for interpolating the progress
  *   of a property
  *
- * Base interface for #GObject<!-- -->s that can be animated by a
- * a #ClutterAnimation.
- *
  * Since: 1.0
  */
 struct _ClutterAnimatableInterface

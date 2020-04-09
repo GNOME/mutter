@@ -4,7 +4,6 @@
 #define __CLUTTER_DEPRECATED_H_INSIDE__
 
 #include "deprecated/clutter-actor.h"
-#include "deprecated/clutter-animation.h"
 #include "deprecated/clutter-box.h"
 #include "deprecated/clutter-container.h"
 #include "deprecated/clutter-group.h"

@@ -190,7 +190,7 @@ typedef enum /*< prefix=CLUTTER_REQUEST >*/
  * @CLUTTER_ANIMATION_LAST: last animation mode, used as a guard for
  *   registered global alpha functions
  *
- * The animation modes used by #ClutterAnimation. This
+ * The animation modes used by #ClutterAnimatable. This
  * enumeration can be expanded in later versions of Clutter.
  *
  * <figure id="easing-modes">

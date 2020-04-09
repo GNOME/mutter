@@ -110,8 +110,6 @@ gboolean _clutter_script_parse_node        (ClutterScript *script,
 GType    _clutter_script_get_type_from_symbol (const gchar *symbol);
 GType    _clutter_script_get_type_from_class  (const gchar *name);
 
-gulong   _clutter_script_resolve_animation_mode (JsonNode *node);
-
 gboolean _clutter_script_enum_from_string  (GType          gtype,
                                             const gchar   *string,
                                             gint          *enum_value);
