@@ -495,6 +495,8 @@ if have_wayland
     'wayland/meta-wayland-cursor-surface.h',
     'wayland/meta-wayland-data-device.c',
     'wayland/meta-wayland-data-device.h',
+    'wayland/meta-wayland-data-device-primary.c',
+    'wayland/meta-wayland-data-device-primary.h',
     'wayland/meta-wayland-data-offer.c',
     'wayland/meta-wayland-data-offer.h',
     'wayland/meta-wayland-data-offer-primary.c',
