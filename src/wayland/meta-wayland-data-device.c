@@ -25,7 +25,7 @@
 #include "config.h"
 
 #include "wayland/meta-wayland-data-device.h"
-#include "wayland/meta-wayland-data-device-private.h"
+#include "wayland/meta-wayland-data-source-primary.h"
 
 #include <gio/gunixoutputstream.h>
 #include <glib-unix.h>
@@ -63,19 +63,8 @@ struct _MetaWaylandDataOffer
   MetaSelectionType selection_type;
 };
 
-typedef struct _MetaWaylandDataSourcePrimary
-{
-  MetaWaylandDataSource parent;
-} MetaWaylandDataSourcePrimary;
-
-G_DEFINE_TYPE (MetaWaylandDataSourcePrimary, meta_wayland_data_source_primary,
-               META_TYPE_WAYLAND_DATA_SOURCE);
-
 static void unset_selection_source (MetaWaylandDataDevice *data_device,
                                     MetaSelectionType      selection_type);
-
-static MetaWaylandDataSource *
-meta_wayland_data_source_primary_new (struct wl_resource *resource);
 
 static void
 drag_grab_data_source_destroyed (gpointer data, GObject *where_the_object_was);
@@ -427,22 +416,6 @@ create_and_send_dnd_offer (MetaWaylandDataSource *source,
 
   return offer->resource;
 }
-
-static void
-primary_source_offer (struct wl_client   *client,
-                      struct wl_resource *resource,
-                      const char         *type)
-{
-  MetaWaylandDataSource *source = wl_resource_get_user_data (resource);
-
-  if (!meta_wayland_data_source_add_mime_type (source, type))
-    wl_resource_post_no_memory (resource);
-}
-
-static struct gtk_primary_selection_source_interface primary_source_interface = {
-  primary_source_offer,
-  default_destructor,
-};
 
 struct _MetaWaylandDragGrab {
   MetaWaylandPointerGrab  generic;
@@ -1053,41 +1026,6 @@ selection_data_source_destroyed (gpointer data, GObject *object_was_here)
 }
 
 static void
-meta_wayland_data_source_primary_send (MetaWaylandDataSource *source,
-                                       const gchar           *mime_type,
-                                       gint                   fd)
-{
-  struct wl_resource *resource = meta_wayland_data_source_get_resource (source);
-
-  gtk_primary_selection_source_send_send (resource, mime_type, fd);
-  close (fd);
-}
-
-static void
-meta_wayland_data_source_primary_cancel (MetaWaylandDataSource *source)
-{
-  struct wl_resource *resource = meta_wayland_data_source_get_resource (source);
-
-  if (resource)
-    gtk_primary_selection_source_send_cancelled (resource);
-}
-
-static void
-meta_wayland_data_source_primary_init (MetaWaylandDataSourcePrimary *source_primary)
-{
-}
-
-static void
-meta_wayland_data_source_primary_class_init (MetaWaylandDataSourcePrimaryClass *klass)
-{
-  MetaWaylandDataSourceClass *data_source_class =
-    META_WAYLAND_DATA_SOURCE_CLASS (klass);
-
-  data_source_class->send = meta_wayland_data_source_primary_send;
-  data_source_class->cancel = meta_wayland_data_source_primary_cancel;
-}
-
-static void
 meta_wayland_drag_dest_focus_in (MetaWaylandDataDevice *data_device,
                                  MetaWaylandSurface    *surface,
                                  MetaWaylandDataOffer  *offer)
@@ -1479,15 +1417,6 @@ static const struct wl_data_device_manager_interface manager_interface = {
 };
 
 static void
-destroy_primary_source (struct wl_resource *resource)
-{
-  MetaWaylandDataSource *source = wl_resource_get_user_data (resource);
-
-  meta_wayland_data_source_set_resource (source, NULL);
-  g_object_unref (source);
-}
-
-static void
 primary_device_manager_create_source (struct wl_client   *client,
                                       struct wl_resource *manager_resource,
                                       guint32             id)
@@ -1681,19 +1610,6 @@ MetaWaylandDragGrab *
 meta_wayland_data_device_get_current_grab (MetaWaylandDataDevice *data_device)
 {
   return data_device->current_grab;
-}
-
-static MetaWaylandDataSource *
-meta_wayland_data_source_primary_new (struct wl_resource *resource)
-{
-  MetaWaylandDataSource *source_primary =
-    g_object_new (META_TYPE_WAYLAND_DATA_SOURCE_PRIMARY, NULL);
-
-  meta_wayland_data_source_set_resource (source_primary, resource);
-  wl_resource_set_implementation (resource, &primary_source_interface,
-                                  source_primary, destroy_primary_source);
-
-  return source_primary;
 }
 
 void
