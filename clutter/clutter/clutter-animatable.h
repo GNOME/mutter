@@ -42,8 +42,6 @@ G_DECLARE_INTERFACE (ClutterAnimatable, clutter_animatable,
 
 /**
  * ClutterAnimatableInterface:
- * @animate_property: virtual function for custom interpolation of a
- *   property. This virtual function is deprecated
  * @find_property: virtual function for retrieving the #GParamSpec of
  *   an animatable property
  * @get_initial_state: virtual function for retrieving the initial
@@ -64,13 +62,6 @@ struct _ClutterAnimatableInterface
   GTypeInterface parent_iface;
 
   /*< public >*/
-  gboolean    (* animate_property)  (ClutterAnimatable *animatable,
-                                     ClutterAnimation  *animation,
-                                     const gchar       *property_name,
-                                     const GValue      *initial_value,
-                                     const GValue      *final_value,
-                                     gdouble            progress,
-                                     GValue            *value);
   GParamSpec *(* find_property)     (ClutterAnimatable *animatable,
                                      const gchar       *property_name);
   void        (* get_initial_state) (ClutterAnimatable *animatable,
