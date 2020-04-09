@@ -21,31 +21,11 @@
  * OF THIS SOFTWARE.
  */
 
-#ifndef META_WAYLAND_DATA_OFFER_H
-#define META_WAYLAND_DATA_OFFER_H
+#ifndef META_WAYLAND_DATA_OFFER_PRIMARY_H
+#define META_WAYLAND_DATA_OFFER_PRIMARY_H
 
-#include "meta/meta-selection.h"
-#include "wayland/meta-wayland-data-source.h"
+#include "meta-wayland-data-offer.h"
 
-struct _MetaWaylandDataOffer
-{
-  struct wl_resource *resource;
-  MetaWaylandDataSource *source;
-  struct wl_listener source_destroy_listener;
-  gboolean accepted;
-  gboolean action_sent;
-  uint32_t dnd_actions;
-  enum wl_data_device_manager_dnd_action preferred_dnd_action;
-  MetaSelectionType selection_type;
-};
+MetaWaylandDataOffer * meta_wayland_data_offer_primary_new (struct wl_resource *target);
 
-MetaWaylandDataOffer * meta_wayland_data_offer_new (MetaSelectionType      selection_type,
-                                                    MetaWaylandDataSource *source,
-                                                    struct wl_resource    *resource);
-
-void meta_wayland_data_offer_update_action (MetaWaylandDataOffer *offer);
-
-struct wl_resource *    meta_wayland_data_offer_get_resource (MetaWaylandDataOffer *offer);
-MetaWaylandDataSource * meta_wayland_data_offer_get_source   (MetaWaylandDataOffer *offer);
-
-#endif /* META_WAYLAND_DATA_OFFER_H */
+#endif /* META_WAYLAND_DATA_OFFER_PRIMARY_H */

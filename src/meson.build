@@ -497,6 +497,8 @@ if have_wayland
     'wayland/meta-wayland-data-device.h',
     'wayland/meta-wayland-data-offer.c',
     'wayland/meta-wayland-data-offer.h',
+    'wayland/meta-wayland-data-offer-primary.c',
+    'wayland/meta-wayland-data-offer-primary.h',
     'wayland/meta-wayland-data-source.c',
     'wayland/meta-wayland-data-source.h',
     'wayland/meta-wayland-data-source-primary.c',
