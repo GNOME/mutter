@@ -1619,6 +1619,22 @@ clutter_actor_update_map_state (ClutterActor  *self,
 }
 
 static void
+queue_update_stage_views (ClutterActor *actor)
+{
+  while (actor && !actor->priv->needs_update_stage_views)
+    {
+      actor->priv->needs_update_stage_views = TRUE;
+
+      /* We don't really need to update the stage-views of the actors up the
+       * hierarchy, we set the flag anyway though so we can avoid traversing
+       * the whole scenegraph when looking for actors which need an update
+       * in clutter_actor_update_stage_views().
+       */
+      actor = actor->priv->parent;
+    }
+}
+
+static void
 clutter_actor_real_map (ClutterActor *self)
 {
   ClutterActor *iter;
@@ -1631,6 +1647,18 @@ clutter_actor_real_map (ClutterActor *self)
   CLUTTER_ACTOR_SET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
 
   self->priv->needs_paint_volume_update = TRUE;
+
+  /* We skip unmapped actors when updating the stage-views list, so if
+   * an actors list got invalidated while it was unmapped make sure to
+   * set priv->needs_update_stage_views to TRUE for all actors up the
+   * hierarchy now.
+   */
+  if (self->priv->needs_update_stage_views)
+    {
+      /* Avoid the early return in queue_update_stage_views() */
+      self->priv->needs_update_stage_views = FALSE;
+      queue_update_stage_views (self);
+    }
 
   clutter_actor_ensure_resource_scale (self);
 
@@ -2569,7 +2597,7 @@ static void
 absolute_allocation_changed (ClutterActor *actor)
 {
   actor->priv->needs_compute_resource_scale = TRUE;
-  actor->priv->needs_update_stage_views = TRUE;
+  queue_update_stage_views (actor);
 }
 
 static ClutterActorTraverseVisitFlags
@@ -17748,12 +17776,12 @@ clutter_actor_update_stage_views (ClutterActor *self)
       CLUTTER_ACTOR_IN_DESTRUCTION (self))
     return;
 
-  if (priv->needs_update_stage_views)
-    {
-      update_stage_views (self);
+  if (!priv->needs_update_stage_views)
+    return;
 
-      priv->needs_update_stage_views = FALSE;
-    }
+  update_stage_views (self);
+
+  priv->needs_update_stage_views = FALSE;
 
   for (child = priv->first_child; child; child = child->priv->next_sibling)
     clutter_actor_update_stage_views (child);
