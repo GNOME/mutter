@@ -992,6 +992,22 @@ clutter_stage_view_take_scanout (ClutterStageView *view)
 }
 
 static void
+sanity_check_framebuffer (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  G_GNUC_UNUSED int fb_width, fb_height;
+
+  fb_width = cogl_framebuffer_get_width (priv->framebuffer);
+  fb_height = cogl_framebuffer_get_height (priv->framebuffer);
+
+  g_warn_if_fail (fabsf (roundf (fb_width / priv->scale) -
+                         fb_width / priv->scale) < FLT_EPSILON);
+  g_warn_if_fail (fabsf (roundf (fb_height / priv->scale) -
+                         fb_height / priv->scale) < FLT_EPSILON);
+}
+
+static void
 clutter_stage_view_set_framebuffer (ClutterStageView *view,
                                     CoglFramebuffer  *framebuffer)
 {
@@ -1000,20 +1016,8 @@ clutter_stage_view_set_framebuffer (ClutterStageView *view,
 
   priv->framebuffer = cogl_object_ref (framebuffer);
 
-#ifndef G_DISABLE_CHECKS
   if (priv->framebuffer)
-    {
-      int fb_width, fb_height;
-
-      fb_width = cogl_framebuffer_get_width (priv->framebuffer);
-      fb_height = cogl_framebuffer_get_height (priv->framebuffer);
-
-      g_warn_if_fail (fabsf (roundf (fb_width / priv->scale) -
-                             fb_width / priv->scale) < FLT_EPSILON);
-      g_warn_if_fail (fabsf (roundf (fb_height / priv->scale) -
-                             fb_height / priv->scale) < FLT_EPSILON);
-    }
-#endif
+    sanity_check_framebuffer (view);
 }
 
 static void
