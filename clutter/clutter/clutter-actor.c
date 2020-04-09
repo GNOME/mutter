@@ -17421,16 +17421,26 @@ _clutter_actor_get_resource_scale_for_rect (ClutterActor    *self,
                                             float           *resource_scale)
 {
   ClutterActor *stage;
+  g_autoptr (GList) views = NULL;
+  GList *l;
   float max_scale = 0;
 
   stage = _clutter_actor_get_stage_internal (self);
   if (!stage)
     return FALSE;
 
-  if (!_clutter_stage_get_max_view_scale_factor_for_rect (CLUTTER_STAGE (stage),
-                                                          bounding_rect,
-                                                          &max_scale))
+  views = clutter_stage_get_views_for_rect (CLUTTER_STAGE (stage),
+                                            bounding_rect);
+
+  if (!views)
     return FALSE;
+
+  for (l = views; l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+
+      max_scale = MAX (clutter_stage_view_get_scale (view), max_scale);
+    }
 
   *resource_scale = max_scale;
 
