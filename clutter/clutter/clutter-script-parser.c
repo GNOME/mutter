@@ -34,7 +34,6 @@
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #include "deprecated/clutter-container.h"
-#include "deprecated/clutter-alpha.h"
 
 #include "clutter-actor.h"
 #include "clutter-debug.h"
@@ -799,51 +798,6 @@ parse_signals (ClutterScript *script,
   return retval;
 }
 
-static ClutterTimeline *
-construct_timeline (ClutterScript *script,
-                    JsonObject    *object)
-{
-  ClutterTimeline *retval = NULL;
-  ObjectInfo *oinfo;
-  GList *members, *l;
-
-  /* we fake an ObjectInfo so we can reuse clutter_script_construct_object()
-   * here; we do not save it inside the hash table, because if this had
-   * been a named object then we wouldn't have ended up here in the first
-   * place
-   */
-  oinfo = g_slice_new0 (ObjectInfo);
-  oinfo->gtype = CLUTTER_TYPE_TIMELINE;
-  oinfo->id = g_strdup ("dummy");
-
-  members = json_object_get_members (object);
-  for (l = members; l != NULL; l = l->next)
-    {
-      const gchar *name = l->data;
-      JsonNode *node = json_object_get_member (object, name);
-      PropertyInfo *pinfo = g_slice_new0 (PropertyInfo);
-
-      pinfo->name = g_strdelimit (g_strdup (name), G_STR_DELIMITERS, '-');
-      pinfo->node = json_node_copy (node);
-
-      oinfo->properties = g_list_prepend (oinfo->properties, pinfo);
-    }
-
-  g_list_free (members);
-
-  _clutter_script_construct_object (script, oinfo);
-  _clutter_script_apply_properties (script, oinfo);
-  retval = CLUTTER_TIMELINE (oinfo->object);
-
-  /* we transfer ownership to the alpha function, so we ref before
-   * destroying the ObjectInfo to avoid the timeline going away
-   */
-  g_object_ref (retval);
-  object_info_free (oinfo);
-
-  return retval;
-}
-
 /* define the names of the animation modes to match the ones
  * that developers might be more accustomed to
  */
@@ -923,106 +877,6 @@ _clutter_script_resolve_animation_mode (JsonNode *node)
     }
 
   return CLUTTER_CUSTOM_MODE;
-}
-
-static ClutterAlphaFunc
-resolve_alpha_func (const gchar *name)
-{
-  static GModule *module = NULL;
-  ClutterAlphaFunc func;
-
-  CLUTTER_NOTE (SCRIPT, "Looking up '%s' alpha function", name);
-
-  if (G_UNLIKELY (!module))
-    module = g_module_open (NULL, 0);
-
-  if (g_module_symbol (module, name, (gpointer) &func))
-    {
-      CLUTTER_NOTE (SCRIPT, "Found '%s' alpha function in the symbols table",
-                    name);
-      return func;
-    }
-
-  return NULL;
-}
-
-GObject *
-_clutter_script_parse_alpha (ClutterScript *script,
-                             JsonNode      *node)
-{
-  GObject *retval = NULL;
-  JsonObject *object;
-  ClutterTimeline *timeline = NULL;
-  ClutterAlphaFunc alpha_func = NULL;
-  ClutterAnimationMode mode = CLUTTER_CUSTOM_MODE;
-  JsonNode *val;
-  gboolean unref_timeline = FALSE;
-
-  if (JSON_NODE_TYPE (node) != JSON_NODE_OBJECT)
-    return NULL;
-
-  object = json_node_get_object (node);
-
-  val = json_object_get_member (object, "timeline");
-  if (val)
-    {
-      if (JSON_NODE_TYPE (val) == JSON_NODE_VALUE &&
-          json_node_get_string (val) != NULL)
-        {
-          const gchar *id_ = json_node_get_string (val);
-
-          timeline =
-            CLUTTER_TIMELINE (clutter_script_get_object (script, id_));
-        }
-      else if (JSON_NODE_TYPE (val) == JSON_NODE_OBJECT)
-        {
-          timeline = construct_timeline (script, json_node_get_object (val));
-          unref_timeline = TRUE;
-        }
-    }
-
-  val = json_object_get_member (object, "mode");
-  if (val != NULL)
-    mode = _clutter_script_resolve_animation_mode (val);
-
-  if (mode == CLUTTER_CUSTOM_MODE)
-    {
-      val = json_object_get_member (object, "function");
-      if (val && json_node_get_string (val) != NULL)
-        {
-          alpha_func = resolve_alpha_func (json_node_get_string (val));
-          if (!alpha_func)
-            {
-              g_warning ("Unable to find the function '%s' in the "
-                         "Clutter alpha functions or the symbols table",
-                         json_node_get_string (val));
-            }
-        }
-    }
-
-  CLUTTER_NOTE (SCRIPT, "Parsed alpha: %s timeline (%p) (mode:%d, func:%p)",
-                unref_timeline ? "implicit" : "explicit",
-                timeline ? timeline : 0x0,
-                mode != CLUTTER_CUSTOM_MODE ? mode : 0,
-                alpha_func ? alpha_func : 0x0);
-
-  retval = g_object_new (CLUTTER_TYPE_ALPHA, NULL);
-
-  if (mode != CLUTTER_CUSTOM_MODE)
-    clutter_alpha_set_mode (CLUTTER_ALPHA (retval), mode);
-
-  if (alpha_func != NULL)
-    clutter_alpha_set_func (CLUTTER_ALPHA (retval), alpha_func, NULL, NULL);
-
-  clutter_alpha_set_timeline (CLUTTER_ALPHA (retval), timeline);
-
-  /* if we created an implicit timeline, the Alpha has full ownership
-   * of it now, since it won't be accessible from ClutterScript
-   */
-  if (unref_timeline)
-    g_object_unref (timeline);
-
-  return retval;
 }
 
 static void

@@ -141,7 +141,6 @@
 #include "clutter-private.h"
 #include "clutter-debug.h"
 
-#include "deprecated/clutter-alpha.h"
 #include "deprecated/clutter-container.h"
 
 enum

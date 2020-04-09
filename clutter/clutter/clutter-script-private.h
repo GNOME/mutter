@@ -128,8 +128,6 @@ gboolean _clutter_script_parse_rect        (ClutterScript   *script,
 gboolean _clutter_script_parse_color       (ClutterScript   *script,
                                             JsonNode        *node,
                                             ClutterColor    *color);
-GObject *_clutter_script_parse_alpha       (ClutterScript   *script,
-                                            JsonNode        *node);
 gboolean _clutter_script_parse_point       (ClutterScript    *script,
                                             JsonNode         *node,
                                             graphene_point_t *point);

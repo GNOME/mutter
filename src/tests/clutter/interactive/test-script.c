@@ -40,13 +40,7 @@ static const gchar *test_behaviour =
 "    \"type\" : \"ClutterTimeline\","
 "    \"duration\" : 5000,"
 "    \"loop\" : true"
-"  },"
-"  {"
-"    \"id\" : \"sine-alpha\","
-"    \"type\" : \"ClutterAlpha\","
-"    \"function\" : \"sine_alpha\","
-"    \"timeline\" : \"main-timeline\""
-"  },"
+"  }"
 "]";
 
 static gboolean
