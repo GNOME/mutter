@@ -153,10 +153,10 @@ void                    clutter_box_layout_set_use_animations   (ClutterBoxLayou
 CLUTTER_DEPRECATED
 gboolean                clutter_box_layout_get_use_animations   (ClutterBoxLayout    *layout);
 CLUTTER_DEPRECATED
-void                    clutter_box_layout_set_easing_mode      (ClutterBoxLayout    *layout,
-                                                                 gulong               mode);
+void                    clutter_box_layout_set_easing_mode      (ClutterBoxLayout     *layout,
+                                                                 ClutterAnimationMode  mode);
 CLUTTER_DEPRECATED
-gulong                  clutter_box_layout_get_easing_mode      (ClutterBoxLayout    *layout);
+ClutterAnimationMode    clutter_box_layout_get_easing_mode      (ClutterBoxLayout    *layout);
 CLUTTER_DEPRECATED
 void                    clutter_box_layout_set_easing_duration  (ClutterBoxLayout    *layout,
                                                                  guint                msecs);

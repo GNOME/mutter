@@ -77,7 +77,7 @@ struct _ClutterBoxLayoutPrivate
 
   guint spacing;
 
-  gulong easing_mode;
+  ClutterAnimationMode easing_mode;
   guint easing_duration;
 
   ClutterOrientation orientation;
@@ -1266,7 +1266,7 @@ clutter_box_layout_set_property (GObject      *gobject,
       break;
 
     case PROP_EASING_MODE:
-      clutter_box_layout_set_easing_mode (self, g_value_get_ulong (value));
+      clutter_box_layout_set_easing_mode (self, g_value_get_enum (value));
       break;
 
     case PROP_EASING_DURATION:
@@ -1315,7 +1315,7 @@ clutter_box_layout_get_property (GObject    *gobject,
       break;
 
     case PROP_EASING_MODE:
-      g_value_set_ulong (value, priv->easing_mode);
+      g_value_set_enum (value, priv->easing_mode);
       break;
 
     case PROP_EASING_DURATION:
@@ -1448,11 +1448,6 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
    * The easing mode for the animations, in case
    * #ClutterBoxLayout:use-animations is set to %TRUE.
    *
-   * The easing mode has the same semantics of #ClutterAnimation:mode: it can
-   * either be a value from the #ClutterAnimationMode enumeration, like
-   * %CLUTTER_EASE_OUT_CUBIC, or a logical id as returned by
-   * clutter_alpha_register_func().
-   *
    * The default value is %CLUTTER_EASE_OUT_CUBIC.
    *
    * Since: 1.2
@@ -1461,12 +1456,12 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
    *   the children when allocating them.
    */
   obj_props[PROP_EASING_MODE] =
-    g_param_spec_ulong ("easing-mode",
-                        P_("Easing Mode"),
-                        P_("The easing mode of the animations"),
-                        0, G_MAXULONG,
-                        CLUTTER_EASE_OUT_CUBIC,
-                        CLUTTER_PARAM_READWRITE);
+    g_param_spec_enum ("easing-mode",
+                       P_("Easing Mode"),
+                       P_("The easing mode of the animations"),
+                       CLUTTER_TYPE_ANIMATION_MODE,
+                       CLUTTER_EASE_OUT_CUBIC,
+                       CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterBoxLayout:easing-duration:
@@ -2243,8 +2238,7 @@ clutter_box_layout_get_use_animations (ClutterBoxLayout *layout)
 /**
  * clutter_box_layout_set_easing_mode:
  * @layout: a #ClutterBoxLayout
- * @mode: an easing mode, either from #ClutterAnimationMode or a logical id
- *   from clutter_alpha_register_func()
+ * @mode: a #ClutterAnimationMode
  *
  * Sets the easing mode to be used by @layout when animating changes in layout
  * properties.
@@ -2255,8 +2249,8 @@ clutter_box_layout_get_use_animations (ClutterBoxLayout *layout)
  *   of the children when allocating them.
  */
 void
-clutter_box_layout_set_easing_mode (ClutterBoxLayout *layout,
-                                    gulong            mode)
+clutter_box_layout_set_easing_mode (ClutterBoxLayout     *layout,
+                                    ClutterAnimationMode  mode)
 {
   ClutterBoxLayoutPrivate *priv;
 
@@ -2284,7 +2278,7 @@ clutter_box_layout_set_easing_mode (ClutterBoxLayout *layout,
  *
  * Deprecated: 1.12
  */
-gulong
+ClutterAnimationMode
 clutter_box_layout_get_easing_mode (ClutterBoxLayout *layout)
 {
   g_return_val_if_fail (CLUTTER_IS_BOX_LAYOUT (layout),
