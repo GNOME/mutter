@@ -28,6 +28,7 @@
 
 #include "clutter/clutter.h"
 #include "meta/meta-selection-source.h"
+#include "wayland/meta-wayland-data-offer.h"
 #include "wayland/meta-wayland-data-source.h"
 #include "wayland/meta-wayland-types.h"
 
@@ -92,7 +93,5 @@ MetaWaylandSurface *
          meta_wayland_drag_grab_get_focus        (MetaWaylandDragGrab             *drag_grab);
 void     meta_wayland_drag_grab_update_feedback_actor (MetaWaylandDragGrab *drag_grab,
                                                        ClutterEvent        *event);
-
-void     meta_wayland_data_offer_update_action   (MetaWaylandDataOffer *offer);
 
 #endif /* META_WAYLAND_DATA_DEVICE_H */
