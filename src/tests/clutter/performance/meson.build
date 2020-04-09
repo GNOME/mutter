@@ -11,11 +11,6 @@ clutter_tests_performance_c_args += clutter_debug_c_args
 clutter_tests_performance_tests = [
   'test-picking',
   'test-text-perf',
-  'test-state',
-  'test-state-interactive',
-  'test-state-hidden',
-  'test-state-mini',
-  'test-state-pick',
 ]
 
 foreach test : clutter_tests_performance_tests

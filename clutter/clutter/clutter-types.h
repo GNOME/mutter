@@ -81,7 +81,6 @@ typedef struct _ClutterPerspective              ClutterPerspective;
 
 typedef struct _ClutterAlpha            	ClutterAlpha;
 typedef struct _ClutterAnimation                ClutterAnimation;
-typedef struct _ClutterState            	ClutterState;
 
 typedef struct _ClutterInputDeviceTool          ClutterInputDeviceTool;
 typedef struct _ClutterInputDevice              ClutterInputDevice;

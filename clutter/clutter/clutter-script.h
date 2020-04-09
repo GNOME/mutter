@@ -179,15 +179,6 @@ void            clutter_script_unmerge_objects          (ClutterScript          
 CLUTTER_EXPORT
 void            clutter_script_ensure_objects           (ClutterScript             *script);
 
-CLUTTER_DEPRECATED
-void            clutter_script_add_states               (ClutterScript             *script,
-                                                         const gchar               *name,
-                                                         ClutterState              *state);
-
-CLUTTER_DEPRECATED
-ClutterState *  clutter_script_get_states               (ClutterScript             *script,
-                                                         const gchar               *name);
-
 CLUTTER_EXPORT
 void            clutter_script_connect_signals          (ClutterScript             *script,
                                                          gpointer                   user_data);
