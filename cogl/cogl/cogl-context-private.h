@@ -73,6 +73,8 @@ struct _CoglContext
   const CoglDriverVtable *driver_vtable;
   const CoglTextureDriver *texture_driver;
 
+  void *driver_context;
+
   int glsl_major;
   int glsl_minor;
 

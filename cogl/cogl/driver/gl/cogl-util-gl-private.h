@@ -76,6 +76,11 @@ _cogl_gl_error_to_string (GLenum error_code);
 
 #endif /* COGL_GL_DEBUG */
 
+typedef struct _CoglGLContext CoglGLContext; /* opaque for the moment */
+
+CoglGLContext *
+_cogl_driver_gl_context (CoglContext *context);
+
 gboolean
 _cogl_driver_gl_context_init (CoglContext *context);
 
