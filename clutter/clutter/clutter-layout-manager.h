@@ -126,15 +126,6 @@ struct _ClutterLayoutManagerClass
                                                  ClutterContainer       *container,
                                                  ClutterActor           *actor);
 
-  /* deprecated */
-  ClutterAlpha *     (* begin_animation)        (ClutterLayoutManager   *manager,
-                                                 guint                   duration,
-                                                 gulong                  mode);
-  /* deprecated */
-  gdouble            (* get_animation_progress) (ClutterLayoutManager   *manager);
-  /* deprecated */
-  void               (* end_animation)          (ClutterLayoutManager   *manager);
-
   void               (* layout_changed)         (ClutterLayoutManager   *manager);
 
   /*< private >*/

@@ -164,7 +164,6 @@ G_DEFINE_ABSTRACT_TYPE (ClutterLayoutManager,
                         G_TYPE_INITIALLY_UNOWNED)
 
 static GQuark quark_layout_meta  = 0;
-static GQuark quark_layout_alpha = 0;
 
 static guint manager_signals[LAST_SIGNAL] = { 0, };
 
@@ -301,95 +300,11 @@ layout_manager_real_get_child_meta_type (ClutterLayoutManager *manager)
   return G_TYPE_INVALID;
 }
 
-/* XXX:2.0 - Remove */
-static ClutterAlpha *
-layout_manager_real_begin_animation (ClutterLayoutManager *manager,
-                                     guint                 duration,
-                                     gulong                mode)
-{
-  ClutterTimeline *timeline;
-  ClutterAlpha *alpha;
-
-  alpha = g_object_get_qdata (G_OBJECT (manager), quark_layout_alpha);
-  if (alpha != NULL)
-    {
-      clutter_alpha_set_mode (alpha, mode);
-
-      timeline = clutter_alpha_get_timeline (alpha);
-      clutter_timeline_set_duration (timeline, duration);
-      clutter_timeline_rewind (timeline);
-
-      return alpha;
-    };
-
-  timeline = clutter_timeline_new (duration);
-
-  alpha = clutter_alpha_new_full (timeline, mode);
-
-  /* let the alpha take ownership of the timeline */
-  g_object_unref (timeline);
-
-  g_signal_connect_swapped (timeline, "new-frame",
-                            G_CALLBACK (clutter_layout_manager_layout_changed),
-                            manager);
-
-  g_object_set_qdata_full (G_OBJECT (manager),
-                           quark_layout_alpha, alpha,
-                           (GDestroyNotify) g_object_unref);
-
-  clutter_timeline_start (timeline);
-
-  return alpha;
-}
-
-/* XXX:2.0 - Remove */
-static gdouble
-layout_manager_real_get_animation_progress (ClutterLayoutManager *manager)
-{
-  ClutterAlpha *alpha;
-
-  alpha = g_object_get_qdata (G_OBJECT (manager), quark_layout_alpha);
-  if (alpha == NULL)
-    return 1.0;
-
-  return clutter_alpha_get_alpha (alpha);
-}
-
-/* XXX:2.0 - Remove */
-static void
-layout_manager_real_end_animation (ClutterLayoutManager *manager)
-{
-  ClutterTimeline *timeline;
-  ClutterAlpha *alpha;
-
-  alpha = g_object_get_qdata (G_OBJECT (manager), quark_layout_alpha);
-  if (alpha == NULL)
-    return;
-
-  timeline = clutter_alpha_get_timeline (alpha);
-  g_assert (timeline != NULL);
-
-  if (clutter_timeline_is_playing (timeline))
-    clutter_timeline_stop (timeline);
-
-  g_signal_handlers_disconnect_by_func (timeline,
-                                        G_CALLBACK (clutter_layout_manager_layout_changed),
-                                        manager);
-
-  g_object_set_qdata (G_OBJECT (manager), quark_layout_alpha, NULL);
-
-  clutter_layout_manager_layout_changed (manager);
-}
-
 static void
 clutter_layout_manager_class_init (ClutterLayoutManagerClass *klass)
 {
   quark_layout_meta =
     g_quark_from_static_string ("clutter-layout-manager-child-meta");
-
-  /* XXX:2.0 - Remove */
-  quark_layout_alpha =
-    g_quark_from_static_string ("clutter-layout-manager-alpha");
 
   klass->get_preferred_width = layout_manager_real_get_preferred_width;
   klass->get_preferred_height = layout_manager_real_get_preferred_height;
@@ -398,9 +313,6 @@ clutter_layout_manager_class_init (ClutterLayoutManagerClass *klass)
   klass->get_child_meta_type = layout_manager_real_get_child_meta_type;
 
   /* XXX:2.0 - Remove */
-  klass->begin_animation = layout_manager_real_begin_animation;
-  klass->get_animation_progress = layout_manager_real_get_animation_progress;
-  klass->end_animation = layout_manager_real_end_animation;
   klass->set_container = layout_manager_real_set_container;
 
   /**
