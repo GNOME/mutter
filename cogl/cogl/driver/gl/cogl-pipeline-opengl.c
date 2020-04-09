@@ -94,47 +94,51 @@ CoglTextureUnit *
 _cogl_get_texture_unit (int index_)
 {
   _COGL_GET_CONTEXT (ctx, NULL);
+  CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
 
-  if (ctx->texture_units->len < (index_ + 1))
+  if (glctx->texture_units->len < (index_ + 1))
     {
       int i;
-      int prev_len = ctx->texture_units->len;
-      ctx->texture_units = g_array_set_size (ctx->texture_units, index_ + 1);
+      int prev_len = glctx->texture_units->len;
+      glctx->texture_units = g_array_set_size (glctx->texture_units,
+                                               index_ + 1);
       for (i = prev_len; i <= index_; i++)
         {
           CoglTextureUnit *unit =
-            &g_array_index (ctx->texture_units, CoglTextureUnit, i);
+            &g_array_index (glctx->texture_units, CoglTextureUnit, i);
 
           texture_unit_init (ctx, unit, i);
         }
     }
 
-  return &g_array_index (ctx->texture_units, CoglTextureUnit, index_);
+  return &g_array_index (glctx->texture_units, CoglTextureUnit, index_);
 }
 
 void
 _cogl_destroy_texture_units (CoglContext *ctx)
 {
   int i;
+  CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
 
-  for (i = 0; i < ctx->texture_units->len; i++)
+  for (i = 0; i < glctx->texture_units->len; i++)
     {
       CoglTextureUnit *unit =
-        &g_array_index (ctx->texture_units, CoglTextureUnit, i);
+        &g_array_index (glctx->texture_units, CoglTextureUnit, i);
       texture_unit_free (unit);
     }
-  g_array_free (ctx->texture_units, TRUE);
+  g_array_free (glctx->texture_units, TRUE);
 }
 
 void
 _cogl_set_active_texture_unit (int unit_index)
 {
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
 
-  if (ctx->active_texture_unit != unit_index)
+  if (glctx->active_texture_unit != unit_index)
     {
       GE (ctx, glActiveTexture (GL_TEXTURE0 + unit_index));
-      ctx->active_texture_unit = unit_index;
+      glctx->active_texture_unit = unit_index;
     }
 }
 
@@ -190,11 +194,12 @@ _cogl_delete_gl_texture (GLuint gl_texture)
   int i;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
 
-  for (i = 0; i < ctx->texture_units->len; i++)
+  for (i = 0; i < glctx->texture_units->len; i++)
     {
       CoglTextureUnit *unit =
-        &g_array_index (ctx->texture_units, CoglTextureUnit, i);
+        &g_array_index (glctx->texture_units, CoglTextureUnit, i);
 
       if (unit->gl_texture == gl_texture)
         {
@@ -218,11 +223,12 @@ _cogl_pipeline_texture_storage_change_notify (CoglTexture *texture)
   int i;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
 
-  for (i = 0; i < ctx->texture_units->len; i++)
+  for (i = 0; i < glctx->texture_units->len; i++)
     {
       CoglTextureUnit *unit =
-        &g_array_index (ctx->texture_units, CoglTextureUnit, i);
+        &g_array_index (glctx->texture_units, CoglTextureUnit, i);
 
       if (unit->layer &&
           _cogl_pipeline_layer_get_texture (unit->layer) == texture)
@@ -704,11 +710,12 @@ foreach_texture_unit_update_filter_and_wrap_modes (void)
   int i;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
+  CoglGLContext *glctx = _cogl_driver_gl_context(ctx);
 
-  for (i = 0; i < ctx->texture_units->len; i++)
+  for (i = 0; i < glctx->texture_units->len; i++)
     {
       CoglTextureUnit *unit =
-        &g_array_index (ctx->texture_units, CoglTextureUnit, i);
+        &g_array_index (glctx->texture_units, CoglTextureUnit, i);
 
       if (unit->layer)
         {

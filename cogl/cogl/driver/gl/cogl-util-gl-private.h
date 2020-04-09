@@ -76,7 +76,10 @@ _cogl_gl_error_to_string (GLenum error_code);
 
 #endif /* COGL_GL_DEBUG */
 
-typedef struct _CoglGLContext CoglGLContext; /* opaque for the moment */
+typedef struct _CoglGLContext {
+  GArray           *texture_units;
+  int               active_texture_unit;
+} CoglGLContext;
 
 CoglGLContext *
 _cogl_driver_gl_context (CoglContext *context);

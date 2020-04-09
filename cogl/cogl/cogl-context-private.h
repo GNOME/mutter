@@ -121,9 +121,6 @@ struct _CoglContext
 
   CoglMatrixEntry identity_entry;
 
-  GArray           *texture_units;
-  int               active_texture_unit;
-
   /* Only used for comparing other pipelines when reading pixels. */
   CoglPipeline     *opaque_color_pipeline;
 

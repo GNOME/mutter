@@ -84,12 +84,21 @@ _cogl_driver_gl_context (CoglContext *context)
 gboolean
 _cogl_driver_gl_context_init (CoglContext *context)
 {
-  context->texture_units =
+  CoglGLContext *gl_context;
+
+  if (!context->driver_context)
+    context->driver_context = g_new0 (CoglContext, 1);
+
+  gl_context = _cogl_driver_gl_context (context);
+  if (!gl_context)
+    return FALSE;
+
+  gl_context->texture_units =
     g_array_new (FALSE, FALSE, sizeof (CoglTextureUnit));
 
   /* See cogl-pipeline.c for more details about why we leave texture unit 1
    * active by default... */
-  context->active_texture_unit = 1;
+  gl_context->active_texture_unit = 1;
   GE (context, glActiveTexture (GL_TEXTURE1));
 
   return TRUE;
@@ -99,6 +108,7 @@ void
 _cogl_driver_gl_context_deinit (CoglContext *context)
 {
   _cogl_destroy_texture_units (context);
+  g_free (context->driver_context);
 }
 
 GLenum
