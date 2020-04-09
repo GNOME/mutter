@@ -992,6 +992,31 @@ clutter_stage_view_take_scanout (ClutterStageView *view)
 }
 
 static void
+clutter_stage_view_set_framebuffer (ClutterStageView *view,
+                                    CoglFramebuffer  *framebuffer)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  priv->framebuffer = cogl_object_ref (framebuffer);
+
+#ifndef G_DISABLE_CHECKS
+  if (priv->framebuffer)
+    {
+      int fb_width, fb_height;
+
+      fb_width = cogl_framebuffer_get_width (priv->framebuffer);
+      fb_height = cogl_framebuffer_get_height (priv->framebuffer);
+
+      g_warn_if_fail (fabsf (roundf (fb_width / priv->scale) -
+                             fb_width / priv->scale) < FLT_EPSILON);
+      g_warn_if_fail (fabsf (roundf (fb_height / priv->scale) -
+                             fb_height / priv->scale) < FLT_EPSILON);
+    }
+#endif
+}
+
+static void
 clutter_stage_view_get_property (GObject    *object,
                                  guint       prop_id,
                                  GValue     *value,
@@ -1053,21 +1078,7 @@ clutter_stage_view_set_property (GObject      *object,
       priv->layout = *layout;
       break;
     case PROP_FRAMEBUFFER:
-      priv->framebuffer = g_value_dup_boxed (value);
-#ifndef G_DISABLE_CHECKS
-      if (priv->framebuffer)
-        {
-          int fb_width, fb_height;
-
-          fb_width = cogl_framebuffer_get_width (priv->framebuffer);
-          fb_height = cogl_framebuffer_get_height (priv->framebuffer);
-
-          g_warn_if_fail (fabsf (roundf (fb_width / priv->scale) -
-                                 fb_width / priv->scale) < FLT_EPSILON);
-          g_warn_if_fail (fabsf (roundf (fb_height / priv->scale) -
-                                 fb_height / priv->scale) < FLT_EPSILON);
-        }
-#endif
+      clutter_stage_view_set_framebuffer (view, g_value_get_boxed (value));
       break;
     case PROP_OFFSCREEN:
       priv->offscreen = g_value_dup_boxed (value);
