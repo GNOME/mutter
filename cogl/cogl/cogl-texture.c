@@ -62,11 +62,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-/* This isn't defined in the GLES headers */
-#ifndef GL_RED
-#define GL_RED 0x1903
-#endif
-
 COGL_GTYPE_DEFINE_INTERFACE (Texture, texture);
 
 uint32_t
@@ -786,8 +781,6 @@ cogl_texture_get_data (CoglTexture *texture,
       if (texture_format == COGL_PIXEL_FORMAT_A_8)
         {
           closest_format = COGL_PIXEL_FORMAT_A_8;
-          closest_gl_format = GL_RED;
-          closest_gl_type = GL_UNSIGNED_BYTE;
         }
       else if (format == COGL_PIXEL_FORMAT_A_8)
         {
@@ -798,8 +791,6 @@ cogl_texture_get_data (CoglTexture *texture,
            * pre-multiplied here because we're only going to look at
            * the alpha component */
           closest_format = COGL_PIXEL_FORMAT_RGBA_8888;
-          closest_gl_format = GL_RGBA;
-          closest_gl_type = GL_UNSIGNED_BYTE;
         }
     }
 
