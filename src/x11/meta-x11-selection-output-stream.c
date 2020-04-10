@@ -60,6 +60,8 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaX11SelectionOutputStream,
                             meta_x11_selection_output_stream,
                             G_TYPE_OUTPUT_STREAM);
 
+static size_t get_element_size (int format);
+
 static void
 meta_x11_selection_output_stream_notify_selection (MetaX11SelectionOutputStream *stream)
 {
@@ -96,6 +98,9 @@ meta_x11_selection_output_stream_can_flush (MetaX11SelectionOutputStream *stream
     meta_x11_selection_output_stream_get_instance_private (stream);
 
   if (priv->delete_pending)
+    return FALSE;
+  if (!g_output_stream_is_closing (G_OUTPUT_STREAM (stream)) &&
+      priv->data->len < get_element_size (priv->format))
     return FALSE;
 
   return TRUE;
@@ -241,7 +246,7 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
                        priv->data->data,
                        n_elements);
       g_byte_array_remove_range (priv->data, 0, n_elements * element_size);
-      if (priv->data->len < element_size)
+      if (priv->data->len == 0)
         priv->flush_requested = FALSE;
     }
 
@@ -391,7 +396,7 @@ meta_x11_selection_output_request_flush (MetaX11SelectionOutputStream *stream)
 
   g_mutex_lock (&priv->mutex);
 
-  if (priv->data->len >= get_element_size (priv->format))
+  if (priv->data->len > 0)
     priv->flush_requested = TRUE;
 
   needs_flush = meta_x11_selection_output_stream_needs_flush_unlocked (stream);
