@@ -296,6 +296,7 @@ struct _ClutterActorClass
   gboolean (* touch_event)          (ClutterActor         *self,
                                      ClutterTouchEvent    *event);
   gboolean (* has_accessible)       (ClutterActor         *self);
+  void     (* resource_scale_changed) (ClutterActor *self);
 
   /*< private >*/
   /* padding for future expansion */

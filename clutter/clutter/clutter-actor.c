@@ -924,7 +924,6 @@ enum
   PROP_SCALE_X,
   PROP_SCALE_Y,
   PROP_SCALE_Z,
-  PROP_RESOURCE_SCALE,
 
   PROP_ROTATION_ANGLE_X, /* XXX:2.0 rename to rotation-x */
   PROP_ROTATION_ANGLE_Y, /* XXX:2.0 rename to rotation-y */
@@ -1005,6 +1004,7 @@ enum
   TOUCH_EVENT,
   TRANSITION_STOPPED,
   STAGE_VIEWS_CHANGED,
+  RESOURCE_SCALE_CHANGED,
 
   LAST_SIGNAL
 };
@@ -5375,16 +5375,6 @@ clutter_actor_get_property (GObject    *object,
       }
       break;
 
-    case PROP_RESOURCE_SCALE:
-      if (priv->needs_compute_resource_scale)
-        {
-          if (!clutter_actor_update_resource_scale (actor))
-            g_warning ("Getting invalid resource scale property");
-        }
-
-      g_value_set_float (value, priv->resource_scale);
-      break;
-
     case PROP_REACTIVE:
       g_value_set_boolean (value, clutter_actor_get_reactive (actor));
       break;
@@ -6679,19 +6669,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          CLUTTER_PARAM_ANIMATABLE);
 
   /**
-   * ClutterActor:resource-scale:
-   *
-   * The resource-scale of the #ClutterActor if any or -1 if not available
-   */
-  obj_props[PROP_RESOURCE_SCALE] =
-    g_param_spec_float ("resource-scale",
-                        P_("Resource Scale"),
-                        P_("The Scaling factor for resources painting"),
-                        -1.0f, G_MAXFLOAT,
-                        1.0f,
-                        CLUTTER_PARAM_READABLE);
-
-  /**
    * ClutterActor:rotation-angle-x:
    *
    * The rotation angle on the X axis.
@@ -7981,6 +7958,23 @@ clutter_actor_class_init (ClutterActorClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
 
+  /**
+   * ClutterActor::resource-scale-changed:
+   * @actor: a #ClutterActor
+   *
+   * The ::resource-scale-changed signal is emitted when the resource scale
+   * value returned by clutter_actor_get_resource_scale() changes.
+   *
+   * This signal can be used to get notified about the correct resource scale
+   * when the scale had to be queried outside of the paint cycle.
+   */
+  actor_signals[RESOURCE_SCALE_CHANGED] =
+    g_signal_new (I_("resource-scale-changed"),
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  G_STRUCT_OFFSET (ClutterActorClass, resource_scale_changed),
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 }
 
 static void
@@ -16126,7 +16120,7 @@ clutter_actor_ensure_resource_scale (ClutterActor *self)
     return;
 
   if (clutter_actor_update_resource_scale (self))
-    g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_RESOURCE_SCALE]);
+    g_signal_emit (self, actor_signals[RESOURCE_SCALE_CHANGED], 0);
 }
 
 gboolean

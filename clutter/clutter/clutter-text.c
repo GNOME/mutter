@@ -187,9 +187,6 @@ struct _ClutterTextPrivate
   ClutterInputContentHintFlags input_hints;
   ClutterInputContentPurpose input_purpose;
 
-  /* Signal handler for when the :resource-scale changes */
-  gulong resource_scale_changed_id;
-
   /* bitfields */
   guint alignment               : 2;
   guint wrap                    : 1;
@@ -920,18 +917,6 @@ clutter_text_direction_changed_cb (GObject    *gobject,
   clutter_text_dirty_cache (CLUTTER_TEXT (gobject));
 
   /* no need to queue a relayout: set_text_direction() will do that for us */
-}
-
-static void
-clutter_text_resource_scale_changed_cb (GObject    *gobject,
-                                        GParamSpec *pspec)
-{
-  ClutterText *self = CLUTTER_TEXT (gobject);
-  ClutterTextPrivate *priv = self->priv;
-
-  g_clear_pointer (&priv->effective_attrs, pango_attr_list_unref);
-  clutter_text_dirty_cache (self);
-  clutter_actor_queue_relayout (CLUTTER_ACTOR (gobject));
 }
 
 /*
@@ -1776,7 +1761,6 @@ clutter_text_dispose (GObject *gobject)
   clutter_text_dirty_cache (self);
 
   g_clear_signal_handler (&priv->direction_changed_id, self);
-  g_clear_signal_handler (&priv->resource_scale_changed_id, self);
   g_clear_signal_handler (&priv->settings_changed_id,
                           clutter_get_default_backend ());
 
@@ -3067,6 +3051,17 @@ clutter_text_has_overlaps (ClutterActor *self)
 }
 
 static void
+clutter_text_resource_scale_changed (ClutterActor *actor)
+{
+  ClutterText *self = CLUTTER_TEXT (actor);
+  ClutterTextPrivate *priv = self->priv;
+
+  g_clear_pointer (&priv->effective_attrs, pango_attr_list_unref);
+  clutter_text_dirty_cache (self);
+  clutter_actor_queue_relayout (actor);
+}
+
+static void
 clutter_text_im_focus (ClutterText *text)
 {
   ClutterTextPrivate *priv = text->priv;
@@ -3814,6 +3809,7 @@ clutter_text_class_init (ClutterTextClass *klass)
   actor_class->key_focus_in = clutter_text_key_focus_in;
   actor_class->key_focus_out = clutter_text_key_focus_out;
   actor_class->has_overlaps = clutter_text_has_overlaps;
+  actor_class->resource_scale_changed = clutter_text_resource_scale_changed;
 
   /**
    * ClutterText:buffer:
@@ -4621,11 +4617,6 @@ clutter_text_init (ClutterText *self)
                       NULL);
 
   priv->input_focus = clutter_text_input_focus_new (self);
-
-  priv->resource_scale_changed_id =
-    g_signal_connect (self, "notify::resource-scale",
-                      G_CALLBACK (clutter_text_resource_scale_changed_cb),
-                      NULL);
 }
 
 /**
