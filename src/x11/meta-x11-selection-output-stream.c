@@ -110,7 +110,7 @@ get_max_request_size (MetaX11Display *display)
   if (size <= 0)
     size = XMaxRequestSize (display->xdisplay);
 
-  return size - 100;
+  return (size - 100) * 4;
 }
 
 static gboolean
