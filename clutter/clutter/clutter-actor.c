@@ -15968,18 +15968,14 @@ clutter_actor_clear_stage_views_recursive (ClutterActor *self)
                            NULL);
 }
 
-gboolean
-_clutter_actor_get_real_resource_scale (ClutterActor *self,
-                                        gfloat       *resource_scale)
+float
+clutter_actor_get_real_resource_scale (ClutterActor *self)
 {
   ClutterActorPrivate *priv = self->priv;
   float guessed_scale;
 
   if (priv->resource_scale != -1.f)
-    {
-      *resource_scale = priv->resource_scale;
-      return TRUE;
-    }
+    return priv->resource_scale;
 
   /* If the scale hasn't been computed yet, we return a best guess */
 
@@ -15988,7 +15984,7 @@ _clutter_actor_get_real_resource_scale (ClutterActor *self,
       /* If the scale hasn't been calculated yet, assume this actor is located
        * inside its parents box and go up the hierarchy.
        */
-      _clutter_actor_get_real_resource_scale (priv->parent, &guessed_scale);
+      guessed_scale = clutter_actor_get_real_resource_scale (priv->parent);
     }
   else if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
     {
@@ -16023,14 +16019,12 @@ _clutter_actor_get_real_resource_scale (ClutterActor *self,
    */
   priv->resource_scale = guessed_scale;
 
-  *resource_scale = priv->resource_scale;
-  return TRUE;
+  return priv->resource_scale;
 }
 
 /**
  * clutter_actor_get_resource_scale:
  * @self: A #ClutterActor
- * @resource_scale: (out): return location for the resource scale
  *
  * Retrieves the resource scale for this actor.
  *
@@ -16060,22 +16054,14 @@ _clutter_actor_get_real_resource_scale (ClutterActor *self,
  * determine its position and size, this function will return the resource
  * scale of a parent.
  *
- * Returns: TRUE if resource scale is set for the actor, otherwise FALSE
+ * Returns: The resource scale the actor should use for its textures
  */
-gboolean
-clutter_actor_get_resource_scale (ClutterActor *self,
-                                  gfloat       *resource_scale)
+float
+clutter_actor_get_resource_scale (ClutterActor *self)
 {
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
-  g_return_val_if_fail (resource_scale != NULL, FALSE);
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), 1.f);
 
-  if (_clutter_actor_get_real_resource_scale (self, resource_scale))
-    {
-      *resource_scale = ceilf (*resource_scale);
-      return TRUE;
-    }
-
-  return FALSE;
+  return ceilf (clutter_actor_get_real_resource_scale (self));
 }
 
 static gboolean
@@ -16172,7 +16158,7 @@ update_resource_scale (ClutterActor *self)
 
   /* Never notify the initial change, otherwise, to be consistent,
    * we'd also have to notify if we guessed correctly in
-   * _clutter_actor_get_real_resource_scale().
+   * clutter_actor_get_real_resource_scale().
    */
   if (old_resource_scale == -1.f)
     return;

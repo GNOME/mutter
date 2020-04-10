@@ -3822,9 +3822,7 @@ clutter_stage_get_capture_final_size (ClutterStage          *stage,
 
       clutter_actor_get_allocation_box (CLUTTER_ACTOR (stage), &alloc);
       clutter_actor_box_get_size (&alloc, &stage_width, &stage_height);
-      if (!_clutter_actor_get_real_resource_scale (CLUTTER_ACTOR (stage),
-                                                   &max_scale))
-        return FALSE;
+      max_scale = clutter_actor_get_real_resource_scale (CLUTTER_ACTOR (stage));
 
       if (out_width)
         *out_width = (gint) roundf (stage_width * max_scale);
