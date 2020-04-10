@@ -4380,9 +4380,9 @@ clutter_stage_peek_stage_views (ClutterStage *stage)
 }
 
 void
-clutter_stage_update_resource_scales (ClutterStage *stage)
+clutter_stage_clear_stage_views (ClutterStage *stage)
 {
-  _clutter_actor_queue_update_resource_scale_recursive (CLUTTER_ACTOR (stage));
+  clutter_actor_clear_stage_views_recursive (CLUTTER_ACTOR (stage));
 }
 
 GList *

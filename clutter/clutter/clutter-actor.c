@@ -17517,20 +17517,20 @@ _clutter_actor_compute_resource_scale (ClutterActor *self,
 }
 
 static ClutterActorTraverseVisitFlags
-queue_update_resource_scale_cb (ClutterActor *actor,
-                                int           depth,
-                                void         *user_data)
+clear_stage_views_cb (ClutterActor *actor,
+                      int           depth,
+                      gpointer      user_data)
 {
   actor->priv->needs_compute_resource_scale = TRUE;
   return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
 }
 
 void
-_clutter_actor_queue_update_resource_scale_recursive (ClutterActor *self)
+clutter_actor_clear_stage_views_recursive (ClutterActor *self)
 {
   _clutter_actor_traverse (self,
                            CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
-                           queue_update_resource_scale_cb,
+                           clear_stage_views_cb,
                            NULL,
                            NULL);
 }
