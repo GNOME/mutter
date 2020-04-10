@@ -288,7 +288,10 @@ float                           clutter_actor_get_real_resource_scale           
 ClutterPaintNode *              clutter_actor_create_texture_paint_node                 (ClutterActor *self,
                                                                                          CoglTexture  *texture);
 
-void clutter_actor_update_stage_views (ClutterActor *self);
+void clutter_actor_update_stage_views (ClutterActor *self,
+                                       int           phase);
+
+void clutter_actor_queue_immediate_relayout (ClutterActor *self);
 
 G_END_DECLS
 

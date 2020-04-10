@@ -136,6 +136,8 @@ void            clutter_stage_queue_actor_relayout      (ClutterStage *stage,
 GList * clutter_stage_get_views_for_rect (ClutterStage          *stage,
                                           const graphene_rect_t *rect);
 
+void clutter_stage_set_actor_needs_immediate_relayout (ClutterStage *stage);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_STAGE_PRIVATE_H__ */

@@ -146,6 +146,7 @@ struct _ClutterStagePrivate
   guint min_size_changed       : 1;
   guint motion_events_enabled  : 1;
   guint stage_was_relayout     : 1;
+  guint actor_needs_immediate_relayout : 1;
 };
 
 enum
@@ -1354,8 +1355,34 @@ static void
 update_actor_stage_views (ClutterStage *stage)
 {
   ClutterActor *actor = CLUTTER_ACTOR (stage);
+  ClutterStagePrivate *priv = stage->priv;
+  int phase;
 
-  clutter_actor_update_stage_views (actor);
+  COGL_TRACE_BEGIN_SCOPED (ClutterStageUpdateActorStageViews,
+                           "Actor stage-views");
+
+  /* If an actor needs an immediate relayout because its resource scale
+   * changed, we give it another chance to allocate correctly before
+   * the paint.
+   *
+   * We're doing the whole thing twice and pass the phase to
+   * clutter_actor_update_stage_views() to allow actors to detect loops:
+   * If the resource scale changes again after the relayout, the new
+   * allocation of an actor probably moved the actor onto another stage
+   * view, so if an actor sees phase == 1, it can choose a "final" scale.
+   */
+  for (phase = 0; phase < 2; phase++)
+    {
+      clutter_actor_update_stage_views (actor, phase);
+
+      if (!priv->actor_needs_immediate_relayout)
+        break;
+
+      priv->actor_needs_immediate_relayout = FALSE;
+      _clutter_stage_maybe_relayout (actor);
+    }
+
+  g_warn_if_fail (!priv->actor_needs_immediate_relayout);
 }
 
 /**
@@ -1405,9 +1432,7 @@ _clutter_stage_do_update (ClutterStage *stage)
   if (stage_was_relayout)
     pointers = _clutter_stage_check_updated_pointers (stage);
 
-  COGL_TRACE_BEGIN (ClutterStageUpdateActorStageViews, "Actor stage-views");
   update_actor_stage_views (stage);
-  COGL_TRACE_END (ClutterStageUpdateActorStageViews);
 
   COGL_TRACE_BEGIN (ClutterStagePaint, "Paint");
 
@@ -4114,4 +4139,12 @@ clutter_stage_get_views_for_rect (ClutterStage          *stage,
     }
 
   return views_for_rect;
+}
+
+void
+clutter_stage_set_actor_needs_immediate_relayout (ClutterStage *stage)
+{
+  ClutterStagePrivate *priv = stage->priv;
+
+  priv->actor_needs_immediate_relayout = TRUE;
 }

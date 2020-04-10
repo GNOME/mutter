@@ -5903,6 +5903,25 @@ clutter_actor_real_has_overlaps (ClutterActor *self)
   return TRUE;
 }
 
+static float
+clutter_actor_real_calculate_resource_scale (ClutterActor *self,
+                                             int           phase)
+{
+  ClutterActorPrivate *priv = self->priv;
+  GList *l;
+  float new_resource_scale = -1.f;
+
+  for (l = priv->stage_views; l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+
+      new_resource_scale = MAX (clutter_stage_view_get_scale (view),
+                                new_resource_scale);
+    }
+
+  return new_resource_scale;
+}
+
 static void
 clutter_actor_real_destroy (ClutterActor *actor)
 {
@@ -5988,6 +6007,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
   klass->get_accessible = clutter_actor_real_get_accessible;
   klass->get_paint_volume = clutter_actor_real_get_paint_volume;
   klass->has_overlaps = clutter_actor_real_has_overlaps;
+  klass->calculate_resource_scale = clutter_actor_real_calculate_resource_scale;
   klass->paint = clutter_actor_real_paint;
   klass->destroy = clutter_actor_real_destroy;
 
@@ -16131,20 +16151,14 @@ out:
 }
 
 static void
-update_resource_scale (ClutterActor *self)
+update_resource_scale (ClutterActor *self,
+                       int           phase)
 {
   ClutterActorPrivate *priv = self->priv;
-  GList *l;
-  float new_resource_scale = -1.f;
-  float old_resource_scale;
+  float new_resource_scale, old_resource_scale;
 
-  for (l = priv->stage_views; l; l = l->next)
-    {
-      ClutterStageView *view = l->data;
-
-      new_resource_scale = MAX (clutter_stage_view_get_scale (view),
-                                new_resource_scale);
-    }
+  new_resource_scale =
+    CLUTTER_ACTOR_GET_CLASS (self)->calculate_resource_scale (self, phase);
 
   if (priv->resource_scale == new_resource_scale)
     return;
@@ -16168,7 +16182,8 @@ update_resource_scale (ClutterActor *self)
 }
 
 void
-clutter_actor_update_stage_views (ClutterActor *self)
+clutter_actor_update_stage_views (ClutterActor *self,
+                                  gboolean      use_max_scale)
 {
   ClutterActorPrivate *priv = self->priv;
   ClutterActor *child;
@@ -16181,12 +16196,12 @@ clutter_actor_update_stage_views (ClutterActor *self)
     return;
 
   update_stage_views (self);
-  update_resource_scale (self);
+  update_resource_scale (self, use_max_scale);
 
   priv->needs_update_stage_views = FALSE;
 
   for (child = priv->first_child; child; child = child->priv->next_sibling)
-    clutter_actor_update_stage_views (child);
+    clutter_actor_update_stage_views (child, use_max_scale);
 }
 
 /**
@@ -19709,4 +19724,18 @@ clutter_actor_has_accessible (ClutterActor *actor)
     return CLUTTER_ACTOR_GET_CLASS (actor)->has_accessible (actor);
 
   return TRUE;
+}
+
+void
+clutter_actor_queue_immediate_relayout (ClutterActor *self)
+{
+  ClutterStage *stage;
+
+  g_return_if_fail (CLUTTER_IS_ACTOR (self));
+
+  clutter_actor_queue_relayout (self);
+
+  stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
+  if (stage)
+    clutter_stage_set_actor_needs_immediate_relayout (stage);
 }
