@@ -223,7 +223,7 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
   if (!priv->incr)
     first_chunk = TRUE;
 
-  if (!g_output_stream_is_closing (G_OUTPUT_STREAM (stream)))
+  if (!priv->incr && priv->data->len > max_size)
     {
       XWindowAttributes attrs;
 
