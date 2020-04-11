@@ -199,6 +199,7 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
     meta_x11_selection_output_stream_get_instance_private (stream);
   Display *xdisplay;
   size_t element_size, n_elements;
+  gboolean first_chunk = FALSE;
   int error_code;
 
   g_assert (!priv->delete_pending);
@@ -212,6 +213,9 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
 
   element_size = get_element_size (priv->format);
   n_elements = priv->data->len / element_size;
+
+  if (!priv->incr)
+    first_chunk = TRUE;
 
   if (!g_output_stream_is_closing (G_OUTPUT_STREAM (stream)))
     {
@@ -248,7 +252,8 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
       g_byte_array_remove_range (priv->data, 0, n_elements * element_size);
     }
 
-  meta_x11_selection_output_stream_notify_selection (stream);
+  if (first_chunk)
+    meta_x11_selection_output_stream_notify_selection (stream);
 
   priv->delete_pending = TRUE;
   g_cond_broadcast (&priv->cond);
