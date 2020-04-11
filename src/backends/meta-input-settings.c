@@ -818,7 +818,7 @@ update_trackball_scroll_button (MetaInputSettings  *input_settings,
 
       for (l = devices; l; l = l->next)
         {
-          device = devices->data;
+          device = l->data;
 
           if (input_settings_class->is_trackball_device (input_settings, device))
             input_settings_class->set_scroll_button (input_settings, device, button);
