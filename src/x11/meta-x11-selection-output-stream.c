@@ -125,7 +125,12 @@ meta_x11_selection_output_stream_needs_flush_unlocked (MetaX11SelectionOutputStr
     meta_x11_selection_output_stream_get_instance_private (stream);
 
   if (priv->data->len == 0)
-    return FALSE;
+    {
+      if (priv->incr)
+        return g_output_stream_is_closing (G_OUTPUT_STREAM (stream));
+      else
+        return FALSE;
+    }
 
   if (g_output_stream_is_closing (G_OUTPUT_STREAM (stream)))
     return TRUE;
