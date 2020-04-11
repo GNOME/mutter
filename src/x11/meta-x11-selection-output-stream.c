@@ -229,7 +229,7 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
       XChangeProperty (xdisplay,
                        priv->xwindow,
                        priv->xproperty,
-                       XInternAtom (priv->x11_display->xdisplay, "INCR", True),
+                       XInternAtom (priv->x11_display->xdisplay, "INCR", False),
                        32,
                        PropModeReplace,
                        (guchar *) &(long) { n_elements },
