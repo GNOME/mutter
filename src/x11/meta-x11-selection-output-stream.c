@@ -246,8 +246,6 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
                        priv->data->data,
                        n_elements);
       g_byte_array_remove_range (priv->data, 0, n_elements * element_size);
-      if (priv->data->len == 0)
-        priv->flush_requested = FALSE;
     }
 
   meta_x11_selection_output_stream_notify_selection (stream);
@@ -262,6 +260,10 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
     {
       char error_str[100];
 
+      priv->flush_requested = FALSE;
+      priv->delete_pending = FALSE;
+      priv->pipe_error = TRUE;
+
       XGetErrorText (xdisplay, error_code, error_str, sizeof (error_str));
       g_task_return_new_error (priv->pending_task,
                                G_IO_ERROR,
@@ -269,12 +271,12 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
                                "Failed to flush selection output stream: %s",
                                error_str);
       g_clear_object (&priv->pending_task);
-      priv->pipe_error = TRUE;
     }
   else if (priv->pending_task)
     {
       size_t result;
 
+      priv->flush_requested = FALSE;
       result = GPOINTER_TO_SIZE (g_task_get_task_data (priv->pending_task));
       g_task_return_int (priv->pending_task, result);
       g_clear_object (&priv->pending_task);
