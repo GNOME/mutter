@@ -277,7 +277,7 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
                                error_str);
       g_clear_object (&priv->pending_task);
     }
-  else if (priv->pending_task)
+  else if (priv->pending_task && priv->data->len == 0 && !priv->delete_pending)
     {
       size_t result;
 
