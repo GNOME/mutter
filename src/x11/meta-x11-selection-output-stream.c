@@ -243,9 +243,13 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
                        PropModeReplace,
                        (guchar *) &(long) { n_elements },
                        1);
+      priv->delete_pending = TRUE;
     }
   else
     {
+      if (priv->incr && priv->data->len > 0)
+        priv->delete_pending = TRUE;
+
       XChangeProperty (xdisplay,
                        priv->xwindow,
                        priv->xproperty,
@@ -260,7 +264,6 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
   if (first_chunk)
     meta_x11_selection_output_stream_notify_selection (stream);
 
-  priv->delete_pending = TRUE;
   g_cond_broadcast (&priv->cond);
   g_mutex_unlock (&priv->mutex);
 
