@@ -288,12 +288,17 @@ meta_x11_selection_output_stream_invoke_flush (gpointer data)
 {
   MetaX11SelectionOutputStream *stream =
     META_X11_SELECTION_OUTPUT_STREAM (data);
+  MetaX11SelectionOutputStreamPrivate *priv =
+    meta_x11_selection_output_stream_get_instance_private (stream);
 
   if (meta_x11_selection_output_stream_needs_flush (stream) &&
       meta_x11_selection_output_stream_can_flush (stream))
     meta_x11_selection_output_stream_perform_flush (stream);
 
-  return G_SOURCE_REMOVE;
+  if (priv->delete_pending || priv->data->len > 0)
+    return G_SOURCE_CONTINUE;
+  else
+    return G_SOURCE_REMOVE;
 }
 
 static gssize
@@ -473,10 +478,9 @@ meta_x11_selection_output_stream_flush_async (GOutputStream       *output_stream
         }
     }
 
+  g_assert (priv->pending_task == NULL);
+  priv->pending_task = task;
   meta_x11_selection_output_stream_perform_flush (stream);
-  g_task_return_boolean (task, TRUE);
-  g_object_unref (task);
-  return;
 }
 
 static gboolean
