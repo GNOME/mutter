@@ -203,7 +203,7 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
   MetaX11SelectionOutputStreamPrivate *priv =
     meta_x11_selection_output_stream_get_instance_private (stream);
   Display *xdisplay;
-  size_t element_size, n_elements;
+  size_t element_size, n_elements, max_size;
   gboolean first_chunk = FALSE;
   int error_code;
 
@@ -218,6 +218,7 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
 
   element_size = get_element_size (priv->format);
   n_elements = priv->data->len / element_size;
+  max_size = get_max_request_size (priv->x11_display);
 
   if (!priv->incr)
     first_chunk = TRUE;
@@ -247,8 +248,12 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
     }
   else
     {
+      size_t copy_n_elements;
+
       if (priv->incr && priv->data->len > 0)
         priv->delete_pending = TRUE;
+
+      copy_n_elements = MIN (n_elements, max_size / element_size);
 
       XChangeProperty (xdisplay,
                        priv->xwindow,
@@ -257,8 +262,8 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
                        priv->format,
                        PropModeReplace,
                        priv->data->data,
-                       n_elements);
-      g_byte_array_remove_range (priv->data, 0, n_elements * element_size);
+                       copy_n_elements);
+      g_byte_array_remove_range (priv->data, 0, copy_n_elements * element_size);
     }
 
   if (first_chunk)
