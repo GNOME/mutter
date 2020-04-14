@@ -50,6 +50,9 @@ static guint signals[N_SIGNALS] = { 0 };
 
 G_DEFINE_TYPE (MetaSelection, meta_selection, G_TYPE_OBJECT)
 
+static void read_selection_source_async (GTask           *task,
+                                         TransferRequest *request);
+
 static void
 meta_selection_dispose (GObject *object)
 {
@@ -216,6 +219,7 @@ write_cb (GOutputStream *stream,
           GAsyncResult  *result,
           GTask         *task)
 {
+  TransferRequest *request;
   GError *error = NULL;
 
   g_output_stream_write_bytes_finish (stream, result, &error);
@@ -226,8 +230,17 @@ write_cb (GOutputStream *stream,
       return;
     }
 
-  g_task_return_boolean (task, TRUE);
-  g_object_unref (task);
+  request = g_task_get_task_data (task);
+
+  if (request->len > 0)
+    {
+      read_selection_source_async (task, request);
+    }
+  else
+    {
+      g_task_return_boolean (task, TRUE);
+      g_object_unref (task);
+    }
 }
 
 static void
@@ -246,8 +259,26 @@ read_cb (GInputStream *stream,
       g_object_unref (task);
       return;
     }
+  else if (g_bytes_get_size (bytes) == 0)
+    {
+      g_task_return_boolean (task, TRUE);
+      g_object_unref (task);
+      return;
+    }
 
   request = g_task_get_task_data (task);
+
+  if (request->len < g_bytes_get_size (bytes))
+    {
+      GBytes *copy;
+
+      /* Trim content */
+      copy = g_bytes_new_from_bytes (bytes, 0, request->len);
+      g_bytes_unref (bytes);
+      bytes = copy;
+    }
+
+  request->len -= g_bytes_get_size (bytes);
   g_output_stream_write_bytes_async (request->ostream,
                                      bytes,
                                      G_PRIORITY_DEFAULT,
@@ -255,6 +286,18 @@ read_cb (GInputStream *stream,
                                      (GAsyncReadyCallback) write_cb,
                                      task);
   g_bytes_unref (bytes);
+}
+
+static void
+read_selection_source_async (GTask           *task,
+                             TransferRequest *request)
+{
+  g_input_stream_read_bytes_async (request->istream,
+                                   (gsize) request->len,
+                                   G_PRIORITY_DEFAULT,
+                                   g_task_get_cancellable (task),
+                                   (GAsyncReadyCallback) read_cb,
+                                   task);
 }
 
 static void
@@ -290,12 +333,7 @@ source_read_cb (MetaSelectionSource *source,
     }
   else
     {
-      g_input_stream_read_bytes_async (request->istream,
-                                       (gsize) request->len,
-                                       G_PRIORITY_DEFAULT,
-                                       g_task_get_cancellable (task),
-                                       (GAsyncReadyCallback) read_cb,
-                                       task);
+      read_selection_source_async (task, request);
     }
 }
 
