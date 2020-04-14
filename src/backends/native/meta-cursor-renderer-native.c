@@ -407,13 +407,14 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
   else
     scale = 1.0;
 
-  meta_monitor_calculate_crtc_pos (monitor, monitor_mode,
-                                   monitor_crtc_mode->output,
-                                   META_MONITOR_TRANSFORM_NORMAL,
-                                   &crtc_x, &crtc_y);
-
   transform = meta_logical_monitor_get_transform (data->in_logical_monitor);
   transform = meta_monitor_logical_to_crtc_transform (monitor, transform);
+
+  meta_monitor_calculate_crtc_pos (monitor, monitor_mode,
+                                   monitor_crtc_mode->output,
+                                   transform,
+                                   &crtc_x, &crtc_y);
+
   if (meta_monitor_transform_is_rotated (transform))
     {
       crtc_width = monitor_crtc_mode->crtc_mode->height;
