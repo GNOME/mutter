@@ -384,16 +384,11 @@ meta_x11_selection_output_stream_write_async (GOutputStream       *output_stream
       g_object_unref (task);
       return;
     }
-  else if (!meta_x11_selection_output_stream_can_flush (stream))
-    {
-      g_assert (priv->pending_task == NULL);
-      priv->pending_task = task;
-      g_task_set_task_data (task, GSIZE_TO_POINTER (count), NULL);
-      return;
-    }
   else
     {
-      meta_x11_selection_output_stream_perform_flush (stream);
+      if (meta_x11_selection_output_stream_can_flush (stream))
+        meta_x11_selection_output_stream_perform_flush (stream);
+
       g_task_return_int (task, count);
       g_object_unref (task);
       return;
