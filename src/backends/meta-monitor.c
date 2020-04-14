@@ -817,19 +817,19 @@ calculate_tile_coordinate (MetaMonitor         *monitor,
         case META_MONITOR_TRANSFORM_270:
         case META_MONITOR_TRANSFORM_FLIPPED_270:
           if (other_output->tile_info.loc_v_tile == output->tile_info.loc_v_tile &&
-              other_output->tile_info.loc_h_tile < output->tile_info.loc_h_tile)
+              other_output->tile_info.loc_h_tile > output->tile_info.loc_h_tile)
             y += other_output->tile_info.tile_w;
           if (other_output->tile_info.loc_h_tile == output->tile_info.loc_h_tile &&
-              other_output->tile_info.loc_v_tile < output->tile_info.loc_v_tile)
+              other_output->tile_info.loc_v_tile > output->tile_info.loc_v_tile)
             x += other_output->tile_info.tile_h;
           break;
         case META_MONITOR_TRANSFORM_90:
         case META_MONITOR_TRANSFORM_FLIPPED_90:
           if (other_output->tile_info.loc_v_tile == output->tile_info.loc_v_tile &&
-              other_output->tile_info.loc_h_tile > output->tile_info.loc_h_tile)
+              other_output->tile_info.loc_h_tile < output->tile_info.loc_h_tile)
             y += other_output->tile_info.tile_w;
           if (other_output->tile_info.loc_h_tile == output->tile_info.loc_h_tile &&
-              other_output->tile_info.loc_v_tile > output->tile_info.loc_v_tile)
+              other_output->tile_info.loc_v_tile < output->tile_info.loc_v_tile)
             x += other_output->tile_info.tile_h;
           break;
         }

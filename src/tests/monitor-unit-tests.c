@@ -4828,12 +4828,13 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
           .current_mode = 1,
           .transform = META_MONITOR_TRANSFORM_90,
           .x = 1024,
-          .y = 400,
+          .y = 0,
         },
         {
           .current_mode = 1,
           .transform = META_MONITOR_TRANSFORM_90,
           .x = 1024,
+          .y = 400,
         }
       },
       .n_crtcs = 3,
