@@ -3037,6 +3037,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   float scale;
   int onscreen_width;
   int onscreen_height;
+  MetaRectangle view_layout;
   MetaRendererView *view;
   GError *error = NULL;
 
@@ -3108,8 +3109,11 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   else
     scale = 1.0;
 
+  meta_rectangle_from_graphene_rect (&crtc->config->layout,
+                                     META_ROUNDING_STRATEGY_ROUND,
+                                     &view_layout);
   view = g_object_new (META_TYPE_RENDERER_VIEW,
-                       "layout", &logical_monitor->rect,
+                       "layout", &view_layout,
                        "scale", scale,
                        "framebuffer", onscreen,
                        "offscreen", offscreen,
