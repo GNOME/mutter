@@ -446,21 +446,33 @@ MetaMonitorsConfigKey *
 meta_create_monitors_config_key_for_current_state (MetaMonitorManager *monitor_manager)
 {
   MetaMonitorsConfigKey *config_key;
+  MetaMonitorSpec *laptop_monitor_spec;
   GList *l;
   GList *monitor_specs;
 
+  laptop_monitor_spec = NULL;
   monitor_specs = NULL;
   for (l = monitor_manager->monitors; l; l = l->next)
     {
       MetaMonitor *monitor = l->data;
       MetaMonitorSpec *monitor_spec;
 
-      if (meta_monitor_is_laptop_panel (monitor) &&
-          is_lid_closed (monitor_manager))
-        continue;
+      if (meta_monitor_is_laptop_panel (monitor))
+        {
+          laptop_monitor_spec = meta_monitor_get_spec (monitor);
+
+          if (is_lid_closed (monitor_manager))
+            continue;
+        }
 
       monitor_spec = meta_monitor_spec_clone (meta_monitor_get_spec (monitor));
       monitor_specs = g_list_prepend (monitor_specs, monitor_spec);
+    }
+
+  if (!monitor_specs && laptop_monitor_spec)
+    {
+      monitor_specs =
+        g_list_prepend (NULL, meta_monitor_spec_clone (laptop_monitor_spec));
     }
 
   if (!monitor_specs)
