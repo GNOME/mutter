@@ -282,13 +282,16 @@ meta_x11_selection_output_stream_perform_flush (MetaX11SelectionOutputStream *st
       priv->delete_pending = FALSE;
       priv->pipe_error = TRUE;
 
-      XGetErrorText (xdisplay, error_code, error_str, sizeof (error_str));
-      g_task_return_new_error (priv->pending_task,
-                               G_IO_ERROR,
-                               G_IO_ERROR_BROKEN_PIPE,
-                               "Failed to flush selection output stream: %s",
-                               error_str);
-      g_clear_object (&priv->pending_task);
+      if (priv->pending_task)
+        {
+          XGetErrorText (xdisplay, error_code, error_str, sizeof (error_str));
+          g_task_return_new_error (priv->pending_task,
+                                   G_IO_ERROR,
+                                   G_IO_ERROR_BROKEN_PIPE,
+                                   "Failed to flush selection output stream: %s",
+                                   error_str);
+          g_clear_object (&priv->pending_task);
+        }
     }
   else if (priv->pending_task && priv->data->len == 0 && !priv->delete_pending)
     {
