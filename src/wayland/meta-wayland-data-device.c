@@ -1344,20 +1344,8 @@ static void
 selection_data_source_destroyed (gpointer data, GObject *object_was_here)
 {
   MetaWaylandDataDevice *data_device = data;
-  MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
-  struct wl_resource *data_device_resource;
-  struct wl_client *focus_client = NULL;
 
   data_device->selection_data_source = NULL;
-
-  focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
-  if (focus_client)
-    {
-      data_device_resource = wl_resource_find_for_client (&data_device->resource_list, focus_client);
-      if (data_device_resource)
-        wl_data_device_send_selection (data_device_resource, NULL);
-    }
-
   unset_selection_source (data_device, META_SELECTION_CLIPBOARD);
 }
 
@@ -1659,8 +1647,6 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
                                         guint32 serial)
 {
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
-  struct wl_resource *data_device_resource;
-  struct wl_client *focus_client;
   MetaSelectionSource *selection_source;
 
   if (data_device->selection_data_source &&
@@ -1695,18 +1681,6 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
   set_selection_source (data_device, META_SELECTION_CLIPBOARD,
                         selection_source);
   g_object_unref (selection_source);
-
-  focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
-  if (focus_client)
-    {
-      data_device_resource = wl_resource_find_for_client (&data_device->resource_list, focus_client);
-      if (data_device_resource)
-        {
-          struct wl_resource *offer;
-          offer = create_and_send_clipboard_offer (data_device, data_device_resource);
-          wl_data_device_send_selection (data_device_resource, offer);
-        }
-    }
 }
 
 static void
@@ -1757,21 +1731,8 @@ primary_source_destroyed (gpointer  data,
                           GObject  *object_was_here)
 {
   MetaWaylandDataDevice *data_device = data;
-  MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
-  struct wl_client *focus_client = NULL;
 
   data_device->primary_data_source = NULL;
-
-  focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
-  if (focus_client)
-    {
-      struct wl_resource *data_device_resource;
-
-      data_device_resource = wl_resource_find_for_client (&data_device->primary_resource_list, focus_client);
-      if (data_device_resource)
-        gtk_primary_selection_device_send_selection (data_device_resource, NULL);
-    }
-
   unset_selection_source (data_device, META_SELECTION_PRIMARY);
 }
 
@@ -1781,8 +1742,6 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
                                       guint32                serial)
 {
   MetaWaylandSeat *seat = wl_container_of (data_device, seat, data_device);
-  struct wl_resource *data_device_resource;
-  struct wl_client *focus_client;
   MetaSelectionSource *selection_source;
 
   g_assert (!source || META_IS_WAYLAND_DATA_SOURCE_PRIMARY (source));
@@ -1818,18 +1777,6 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
   set_selection_source (data_device, META_SELECTION_PRIMARY,
                         selection_source);
   g_object_unref (selection_source);
-
-  focus_client = meta_wayland_keyboard_get_focus_client (seat->keyboard);
-  if (focus_client)
-    {
-      data_device_resource = wl_resource_find_for_client (&data_device->primary_resource_list, focus_client);
-      if (data_device_resource)
-        {
-          struct wl_resource *offer;
-          offer = create_and_send_primary_offer (data_device, data_device_resource);
-          gtk_primary_selection_device_send_selection (data_device_resource, offer);
-        }
-    }
 }
 
 static void
