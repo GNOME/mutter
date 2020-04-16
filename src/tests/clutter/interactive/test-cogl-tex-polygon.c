@@ -410,7 +410,7 @@ test_cogl_tex_polygon_main (int argc, char *argv[])
 
   /* Timeline for animation */
   timeline = clutter_timeline_new (6000);
-  clutter_timeline_set_loop (timeline, TRUE);
+  clutter_timeline_set_repeat_count (timeline, -1);
   g_signal_connect (timeline, "new-frame", G_CALLBACK (frame_cb), coglbox);
   clutter_timeline_start (timeline);
 
