@@ -567,7 +567,8 @@ _cogl_texture_2d_gl_copy_from_bitmap (CoglTexture2D *tex_2d,
                                           &gl_format,
                                           &gl_type);
 
-  _cogl_texture_gl_maybe_update_max_level (tex, level);
+  if (tex->max_level_set < level)
+    cogl_texture_gl_set_max_level (tex, level);
 
   status = ctx->texture_driver->upload_subregion_to_gl (ctx,
                                                         tex,

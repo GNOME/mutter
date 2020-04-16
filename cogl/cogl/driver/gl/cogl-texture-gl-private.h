@@ -53,8 +53,8 @@ _cogl_texture_gl_flush_legacy_texobj_filters (CoglTexture *texture,
                                               unsigned int mag_filter);
 
 void
-_cogl_texture_gl_maybe_update_max_level (CoglTexture *texture,
-                                         int max_level);
+cogl_texture_gl_set_max_level (CoglTexture *texture,
+                               int max_level);
 
 void
 _cogl_texture_gl_generate_mipmaps (CoglTexture *texture);
