@@ -37,10 +37,12 @@ meta_compositor_server_unmanage (MetaCompositor *compositor)
 }
 
 MetaCompositorServer *
-meta_compositor_server_new (MetaDisplay *display)
+meta_compositor_server_new (MetaDisplay *display,
+                            MetaBackend *backend)
 {
   return g_object_new (META_TYPE_COMPOSITOR_SERVER,
                        "display", display,
+                       "backend", backend,
                        NULL);
 }
 
