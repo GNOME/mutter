@@ -1178,7 +1178,7 @@ _clutter_stage_queue_event (ClutterStage *stage,
     {
       ClutterMasterClock *master_clock = _clutter_master_clock_get_default ();
       _clutter_master_clock_start_running (master_clock);
-      _clutter_stage_schedule_update (stage);
+      clutter_stage_schedule_update (stage);
     }
 }
 
@@ -1322,7 +1322,7 @@ clutter_stage_queue_actor_relayout (ClutterStage *stage,
   ClutterStagePrivate *priv = stage->priv;
 
   if (g_hash_table_size (priv->pending_relayouts) == 0)
-    _clutter_stage_schedule_update (stage);
+    clutter_stage_schedule_update (stage);
 
   g_hash_table_add (priv->pending_relayouts, g_object_ref (actor));
   priv->pending_relayouts_version++;
@@ -3214,7 +3214,7 @@ clutter_stage_ensure_redraw (ClutterStage *stage)
   priv = stage->priv;
 
   if (!_clutter_stage_needs_update (stage))
-    _clutter_stage_schedule_update (stage);
+    clutter_stage_schedule_update (stage);
 
   priv->redraw_pending = TRUE;
 
@@ -3442,13 +3442,13 @@ clutter_stage_get_minimum_size (ClutterStage *stage,
 }
 
 /**
- * _clutter_stage_schedule_update:
- * @window: a #ClutterStage actor
+ * clutter_stage_schedule_update:
+ * @stage: a #ClutterStage actor
  *
  * Schedules a redraw of the #ClutterStage at the next optimal timestamp.
  */
 void
-_clutter_stage_schedule_update (ClutterStage *stage)
+clutter_stage_schedule_update (ClutterStage *stage)
 {
   ClutterStageWindow *stage_window;
 
@@ -3470,7 +3470,7 @@ _clutter_stage_schedule_update (ClutterStage *stage)
  * @stage: a #ClutterStage actor
  *
  * Returns the earliest time in which the stage is ready to update. The update
- * time is set when _clutter_stage_schedule_update() is called. This can then
+ * time is set when clutter_stage_schedule_update() is called. This can then
  * be used by e.g. the #ClutterMasterClock to know when the stage needs to be
  * redrawn.
  *
@@ -3580,7 +3580,7 @@ _clutter_stage_queue_actor_redraw (ClutterStage                 *stage,
 
       CLUTTER_NOTE (PAINT, "First redraw request");
 
-      _clutter_stage_schedule_update (stage);
+      clutter_stage_schedule_update (stage);
       priv->redraw_pending = TRUE;
 
       master_clock = _clutter_master_clock_get_default ();
