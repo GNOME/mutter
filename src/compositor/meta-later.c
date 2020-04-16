@@ -50,7 +50,6 @@ struct _MetaLaters
 
   GSList *laters[META_LATER_N_TYPES];
 
-  ClutterTimeline *timeline;
   gulong pre_paint_handler_id;
 };
 
@@ -171,7 +170,7 @@ on_pre_paint (MetaCompositor *compositor,
 {
   unsigned int i;
   GSList *l;
-  gboolean keep_timeline_running = FALSE;
+  gboolean needs_schedule_update = FALSE;
 
   for (i = 0; i < G_N_ELEMENTS (laters->laters); i++)
     run_repaint_laters (&laters->laters[i]);
@@ -183,18 +182,16 @@ on_pre_paint (MetaCompositor *compositor,
           MetaLater *later = l->data;
 
           if (!later->source_id)
-            keep_timeline_running = TRUE;
+            needs_schedule_update = TRUE;
         }
     }
 
-  if (!keep_timeline_running)
-    clutter_timeline_stop (laters->timeline);
-}
+  if (needs_schedule_update)
+    {
+      ClutterStage *stage = meta_compositor_get_stage (compositor);
 
-static void
-ensure_timeline_running (MetaLaters *laters)
-{
-  clutter_timeline_start (laters->timeline);
+      clutter_stage_schedule_update (stage);
+    }
 }
 
 static gboolean
@@ -221,6 +218,7 @@ meta_laters_add (MetaLaters     *laters,
                  gpointer        user_data,
                  GDestroyNotify  notify)
 {
+  ClutterStage *stage = meta_compositor_get_stage (laters->compositor);
   MetaLater *later = g_slice_new0 (MetaLater);
 
   later->id = ++laters->last_later_id;
@@ -239,13 +237,13 @@ meta_laters_add (MetaLaters     *laters,
                                           invoke_later_idle,
                                           later, NULL);
       g_source_set_name_by_id (later->source_id, "[mutter] invoke_later_idle");
-      ensure_timeline_running (laters);
+      clutter_stage_schedule_update (stage);
       break;
     case META_LATER_CALC_SHOWING:
     case META_LATER_CHECK_FULLSCREEN:
     case META_LATER_SYNC_STACK:
     case META_LATER_BEFORE_REDRAW:
-      ensure_timeline_running (laters);
+      clutter_stage_schedule_update (stage);
       break;
     case META_LATER_IDLE:
       later->source_id = g_idle_add_full (G_PRIORITY_DEFAULT_IDLE,
@@ -326,7 +324,6 @@ meta_laters_new (MetaCompositor *compositor)
 
   laters = g_new0 (MetaLaters, 1);
   laters->compositor = compositor;
-  laters->timeline = clutter_timeline_new (G_MAXUINT);
 
   laters->pre_paint_handler_id = g_signal_connect (compositor, "pre-paint",
                                                    G_CALLBACK (on_pre_paint),
@@ -343,7 +340,6 @@ meta_laters_free (MetaLaters *laters)
   for (i = 0; i < G_N_ELEMENTS (laters->laters); i++)
     g_slist_free_full (laters->laters[i], (GDestroyNotify) meta_later_unref);
 
-  g_clear_object (&laters->timeline);
   g_clear_signal_handler (&laters->pre_paint_handler_id, laters->compositor);
   g_free (laters);
 }
