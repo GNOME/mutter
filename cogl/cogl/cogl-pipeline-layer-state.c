@@ -1361,6 +1361,17 @@ cogl_pipeline_set_layer_filters (CoglPipeline      *pipeline,
                                           sampler_state);
 }
 
+void
+cogl_pipeline_set_layer_max_mipmap_level (CoglPipeline *pipeline,
+                                          int           layer,
+                                          int           max_level)
+{
+  CoglTexture *texture = cogl_pipeline_get_layer_texture (pipeline, layer);
+
+  if (texture != NULL)
+    cogl_texture_set_max_level (texture, max_level);
+}
+
 const CoglSamplerCacheEntry *
 _cogl_pipeline_layer_get_sampler_state (CoglPipelineLayer *layer)
 {

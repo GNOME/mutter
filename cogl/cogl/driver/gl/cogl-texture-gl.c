@@ -137,7 +137,7 @@ _cogl_texture_gl_generate_mipmaps (CoglTexture *texture)
   GLuint gl_handle;
   GLenum gl_target;
 
-  if (texture->max_level_set < n_levels - 1)
+  if (texture->max_level_set != n_levels - 1)
     cogl_texture_gl_set_max_level (texture, n_levels - 1);
 
   cogl_texture_get_gl_texture (texture, &gl_handle, &gl_target);

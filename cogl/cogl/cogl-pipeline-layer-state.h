@@ -568,6 +568,11 @@ cogl_pipeline_add_layer_snippet (CoglPipeline *pipeline,
                                  int layer,
                                  CoglSnippet *snippet);
 
+COGL_EXPORT void
+cogl_pipeline_set_layer_max_mipmap_level (CoglPipeline *pipeline,
+                                          int           layer,
+                                          int           max_level);
+
 G_END_DECLS
 
 #endif /* __COGL_PIPELINE_LAYER_STATE_H__ */

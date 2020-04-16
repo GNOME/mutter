@@ -116,6 +116,7 @@ _cogl_texture_init (CoglTexture *texture,
 {
   texture->context = context;
   texture->max_level_set = 0;
+  texture->max_level_requested = 1000; /* OpenGL default GL_TEXTURE_MAX_LEVEL */
   texture->width = width;
   texture->height = height;
   texture->allocated = FALSE;
@@ -229,8 +230,16 @@ _cogl_texture_get_n_levels (CoglTexture *texture)
   int width = cogl_texture_get_width (texture);
   int height = cogl_texture_get_height (texture);
   int max_dimension = MAX (width, height);
+  int n_levels = _cogl_util_fls (max_dimension);
 
-  return _cogl_util_fls (max_dimension);
+  return MIN (n_levels, texture->max_level_requested + 1);
+}
+
+void
+cogl_texture_set_max_level (CoglTexture *texture,
+                            int          max_level)
+{
+  texture->max_level_requested = max_level;
 }
 
 void
