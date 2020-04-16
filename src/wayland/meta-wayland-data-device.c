@@ -1379,8 +1379,7 @@ meta_wayland_source_cancel (MetaWaylandDataSource *source)
   if (!priv->resource)
     return;
 
-  if (wl_resource_get_version(priv->resource) >= WL_DATA_SOURCE_DND_FINISHED_SINCE_VERSION)
-    wl_data_source_send_cancelled (priv->resource);
+  wl_data_source_send_cancelled (priv->resource);
 }
 
 static void
@@ -1401,11 +1400,12 @@ meta_wayland_source_drop_performed (MetaWaylandDataSource *source)
   MetaWaylandDataSourcePrivate *priv =
     meta_wayland_data_source_get_instance_private (source);
 
-  priv->drop_performed = TRUE;
-
   if (wl_resource_get_version (priv->resource) >=
       WL_DATA_SOURCE_DND_DROP_PERFORMED_SINCE_VERSION)
-    wl_data_source_send_dnd_drop_performed (priv->resource);
+    {
+      priv->drop_performed = TRUE;
+      wl_data_source_send_dnd_drop_performed (priv->resource);
+    }
 }
 
 static void
