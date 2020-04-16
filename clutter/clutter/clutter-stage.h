@@ -223,6 +223,9 @@ void            clutter_stage_skip_sync_delay                   (ClutterStage   
 #endif
 
 CLUTTER_EXPORT
+void clutter_stage_schedule_update (ClutterStage *stage);
+
+CLUTTER_EXPORT
 gboolean clutter_stage_get_capture_final_size (ClutterStage          *stage,
                                                cairo_rectangle_int_t *rect,
                                                int                   *width,

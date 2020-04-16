@@ -219,7 +219,7 @@ master_clock_schedule_stage_updates (ClutterMasterClockDefault *master_clock)
   stages = clutter_stage_manager_peek_stages (stage_manager);
 
   for (l = stages; l != NULL; l = l->next)
-    _clutter_stage_schedule_update (l->data);
+    clutter_stage_schedule_update (l->data);
 }
 
 static GSList *
@@ -272,7 +272,7 @@ master_clock_reschedule_stage_updates (ClutterMasterClockDefault *master_clock,
       if (master_clock->timelines ||
           _clutter_stage_has_queued_events (l->data) ||
           _clutter_stage_needs_update (l->data))
-        _clutter_stage_schedule_update (l->data);
+        clutter_stage_schedule_update (l->data);
     }
 }
 
