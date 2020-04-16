@@ -212,7 +212,7 @@ timeline_base (void)
   g_strfreev (markers);
 
   timeline_data_init (&data_2, 2);
-  timeline_2 = clutter_timeline_clone (timeline_1);
+  timeline_2 = clutter_timeline_new (FRAME_COUNT * 1000 / FPS);
   clutter_timeline_add_marker_at_time (timeline_2, "bar", 2 * 1000 / FPS);
   markers = clutter_timeline_list_markers (timeline_2, -1, &n_markers);
   g_assert (markers != NULL);
@@ -221,7 +221,7 @@ timeline_base (void)
   g_strfreev (markers);
 
   timeline_data_init (&data_3, 3);
-  timeline_3 = clutter_timeline_clone (timeline_1);
+  timeline_3 = clutter_timeline_new (FRAME_COUNT * 1000 / FPS);
   clutter_timeline_set_direction (timeline_3, CLUTTER_TIMELINE_BACKWARD);
   clutter_timeline_add_marker_at_time (timeline_3, "start-marker",
                                        FRAME_COUNT * 1000 / FPS);

@@ -26,9 +26,6 @@
 
 G_BEGIN_DECLS
 
-CLUTTER_DEPRECATED_FOR(clutter_timeline_new)
-ClutterTimeline *               clutter_timeline_clone                  (ClutterTimeline          *timeline);
-
 G_END_DECLS
 
 #endif /* __CLUTTER_TIMELINE_PRIVATE_H__ */

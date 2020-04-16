@@ -1322,43 +1322,6 @@ clutter_timeline_is_playing (ClutterTimeline *timeline)
 }
 
 /**
- * clutter_timeline_clone:
- * @timeline: #ClutterTimeline to duplicate.
- *
- * Create a new #ClutterTimeline instance which has property values
- * matching that of supplied timeline. The cloned timeline will not
- * be started and will not be positioned to the current position of
- * the original @timeline: you will have to start it with
- * clutter_timeline_start().
- *
- * The only cloned properties are:
- *
- *  - #ClutterTimeline:duration
- *  - #ClutterTimeline:delay
- *  - #ClutterTimeline:direction
- *
- * Return value: (transfer full): a new #ClutterTimeline, cloned
- *   from @timeline
- *
- * Since: 0.4
- *
- * Deprecated: 1.10: Use clutter_timeline_new() or g_object_new()
- *   instead
- */
-ClutterTimeline *
-clutter_timeline_clone (ClutterTimeline *timeline)
-{
-  g_return_val_if_fail (CLUTTER_IS_TIMELINE (timeline), NULL);
-
-  return g_object_new (CLUTTER_TYPE_TIMELINE,
-                       "duration", timeline->priv->duration,
-                       "repeat-count", timeline->priv->repeat_count,
-                       "delay", timeline->priv->delay,
-                       "direction", timeline->priv->direction,
-                       NULL);
-}
-
-/**
  * clutter_timeline_new:
  * @duration_ms: Duration of the timeline in milliseconds
  *
