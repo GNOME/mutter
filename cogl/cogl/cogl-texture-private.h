@@ -204,7 +204,7 @@ struct _CoglTexture
   CoglContext *context;
   CoglTextureLoader *loader;
   GList *framebuffers;
-  int max_level;
+  int max_level_set;
   int width;
   int height;
   gboolean allocated;

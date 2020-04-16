@@ -115,7 +115,7 @@ _cogl_texture_init (CoglTexture *texture,
                     const CoglTextureVtable *vtable)
 {
   texture->context = context;
-  texture->max_level = 0;
+  texture->max_level_set = 0;
   texture->width = width;
   texture->height = height;
   texture->allocated = FALSE;
