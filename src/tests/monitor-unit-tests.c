@@ -2869,6 +2869,116 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
 }
 
 static void
+meta_test_monitor_lid_scaled_closed_opened (void)
+{
+  MonitorTestCase test_case = {
+    .setup = {
+      .modes = {
+        {
+          .width = 1920,
+          .height = 1080,
+          .refresh_rate = 60.000495910644531
+        }
+      },
+      .n_modes = 1,
+      .outputs = {
+        {
+          .crtc = 0,
+          .modes = { 0 },
+          .n_modes = 1,
+          .preferred_mode = 0,
+          .possible_crtcs = { 0 },
+          .n_possible_crtcs = 1,
+          .width_mm = 222,
+          .height_mm = 125,
+          .is_laptop_panel = TRUE
+        },
+      },
+      .n_outputs = 1,
+      .crtcs = {
+        {
+          .current_mode = 0
+        },
+      },
+      .n_crtcs = 1
+    },
+
+    .expect = {
+      .monitors = {
+        {
+          .outputs = { 0 },
+          .n_outputs = 1,
+          .modes = {
+            {
+              .width = 1920,
+              .height = 1080,
+              .refresh_rate = 60.000495910644531,
+              .crtc_modes = {
+                {
+                  .output = 0,
+                  .crtc_mode = 0
+                }
+              }
+            }
+          },
+          .n_modes = 1,
+          .current_mode = 0,
+          .width_mm = 222,
+          .height_mm = 125,
+        }
+      },
+      .n_monitors = 1,
+      .logical_monitors = {
+        {
+          .monitors = { 0 },
+          .n_monitors = 1,
+          .layout = { .x = 0, .y = 0, .width = 960, .height = 540 },
+          .scale = 2
+        }
+      },
+      .n_logical_monitors = 1,
+      .primary_logical_monitor = 0,
+      .n_outputs = 1,
+      .crtcs = {
+        {
+          .current_mode = 0,
+        }
+      },
+      .n_crtcs = 1,
+      .n_tiled_monitors = 0,
+      .screen_width = 960,
+      .screen_height = 540
+    }
+  };
+  MetaMonitorTestSetup *test_setup;
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+
+  if (!meta_is_stage_views_enabled ())
+    {
+      g_test_skip ("Not using stage views");
+      return;
+    }
+
+  test_setup = create_monitor_test_setup (&test_case,
+                                          MONITOR_TEST_FLAG_NONE);
+  set_custom_monitor_config ("lid-scale.xml");
+  emulate_hotplug (test_setup);
+  check_monitor_configuration (&test_case);
+
+  meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
+  meta_monitor_manager_lid_is_closed_changed (monitor_manager);
+
+  check_monitor_configuration (&test_case);
+
+  meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
+  meta_monitor_manager_lid_is_closed_changed (monitor_manager);
+
+  check_monitor_configuration (&test_case);
+}
+
+static void
 meta_test_monitor_no_outputs (void)
 {
   MonitorTestCase test_case = {
@@ -6251,6 +6361,8 @@ init_monitor_tests (void)
                     meta_test_monitor_lid_closed_no_external);
   add_monitor_test ("/backends/monitor/lid-closed-with-hotplugged-external",
                     meta_test_monitor_lid_closed_with_hotplugged_external);
+  add_monitor_test ("/backends/monitor/lid-scaled-closed-opened",
+                    meta_test_monitor_lid_scaled_closed_opened);
   add_monitor_test ("/backends/monitor/no-outputs",
                     meta_test_monitor_no_outputs);
   add_monitor_test ("/backends/monitor/underscanning-config",
