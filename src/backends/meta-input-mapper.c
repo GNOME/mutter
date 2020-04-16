@@ -35,6 +35,7 @@ typedef struct _MetaMapperInputInfo MetaMapperInputInfo;
 typedef struct _MetaMapperOutputInfo MetaMapperOutputInfo;
 typedef struct _MappingHelper MappingHelper;
 typedef struct _DeviceCandidates DeviceCandidates;
+typedef struct _DeviceMatch DeviceMatch;
 
 struct _MetaInputMapper
 {
@@ -59,11 +60,11 @@ typedef enum
 
 typedef enum
 {
-  META_MATCH_IS_BUILTIN,   /* Output is builtin, applies mainly to system-integrated devices */
-  META_MATCH_SIZE,         /* Size from input device and output match */
-  META_MATCH_EDID_FULL,    /* Full EDID model match, eg. "Cintiq 12WX" */
-  META_MATCH_EDID_PARTIAL, /* Partial EDID model match, eg. "Cintiq" */
   META_MATCH_EDID_VENDOR,  /* EDID vendor match, eg. "WAC" for Wacom */
+  META_MATCH_EDID_PARTIAL, /* Partial EDID model match, eg. "Cintiq" */
+  META_MATCH_EDID_FULL,    /* Full EDID model match, eg. "Cintiq 12WX" */
+  META_MATCH_SIZE,         /* Size from input device and output match */
+  META_MATCH_IS_BUILTIN,   /* Output is builtin, applies mainly to system-integrated devices */
   N_OUTPUT_MATCHES
 } MetaOutputMatchType;
 
@@ -87,13 +88,19 @@ struct _MappingHelper
   GArray *device_maps;
 };
 
+struct _DeviceMatch
+{
+  MetaMonitor *monitor;
+  uint32_t score;
+};
+
 struct _DeviceCandidates
 {
   MetaMapperInputInfo *input;
 
-  MetaMonitor *candidates[N_OUTPUT_MATCHES];
+  GArray *matches; /* Array of DeviceMatch */
 
-  MetaOutputMatchType best;
+  int best;
 };
 
 enum
@@ -228,9 +235,17 @@ mapper_output_info_clear_inputs (MetaMapperOutputInfo *output)
 }
 
 static void
+clear_candidates (DeviceCandidates *candidates)
+{
+  g_clear_pointer (&candidates->matches, g_array_unref);
+}
+
+static void
 mapping_helper_init (MappingHelper *helper)
 {
   helper->device_maps = g_array_new (FALSE, FALSE, sizeof (DeviceCandidates));
+  g_array_set_clear_func (helper->device_maps,
+                          (GDestroyNotify) clear_candidates);
 }
 
 static void
@@ -305,52 +320,37 @@ input_device_get_physical_size (MetaInputMapper    *mapper,
 }
 
 static gboolean
-find_size_match (MetaMapperInputInfo  *input,
-                 GList                *monitors,
-                 MetaMonitor         **matched_monitor)
+match_size (MetaMapperInputInfo  *input,
+            MetaMonitor          *monitor)
 {
-  double min_w_diff, min_h_diff;
+  double w_diff, h_diff;
+  int o_width, o_height;
   double i_width, i_height;
-  gboolean found = FALSE;
-  GList *l;
-
-  min_w_diff = min_h_diff = MAX_SIZE_MATCH_DIFF;
 
   if (!input_device_get_physical_size (input->mapper, input->device,
                                        &i_width, &i_height))
     return FALSE;
 
-  for (l = monitors; l; l = l->next)
-    {
-      MetaMonitor *monitor = l->data;
-      double w_diff, h_diff;
-      int o_width, o_height;
 
-      meta_monitor_get_physical_dimensions (monitor, &o_width, &o_height);
-      w_diff = ABS (1 - ((double) o_width / i_width));
-      h_diff = ABS (1 - ((double) o_height / i_height));
+  meta_monitor_get_physical_dimensions (monitor, &o_width, &o_height);
+  w_diff = ABS (1 - ((double) o_width / i_width));
+  h_diff = ABS (1 - ((double) o_height / i_height));
 
-      if (w_diff >= min_w_diff || h_diff >= min_h_diff)
-        continue;
-
-      *matched_monitor = monitor;
-      min_w_diff = w_diff;
-      min_h_diff = h_diff;
-      found = TRUE;
-    }
-
-  return found;
+  return w_diff < MAX_SIZE_MATCH_DIFF && h_diff < MAX_SIZE_MATCH_DIFF;
 }
 
 static gboolean
-find_builtin_output (MetaInputMapper  *mapper,
-                     MetaMonitor     **matched_monitor)
+match_builtin (MetaInputMapper *mapper,
+               MetaMonitor     *monitor)
 {
-  MetaMonitor *panel;
+  return monitor == meta_monitor_manager_get_laptop_panel (mapper->monitor_manager);
+}
 
-  panel = meta_monitor_manager_get_laptop_panel (mapper->monitor_manager);
-  *matched_monitor = panel;
-  return panel != NULL;
+static int
+sort_by_score (DeviceMatch *match1,
+               DeviceMatch *match2)
+{
+  return (int) match1->score - match2->score;
 }
 
 static void
@@ -358,36 +358,45 @@ guess_candidates (MetaInputMapper     *mapper,
                   MetaMapperInputInfo *input,
                   DeviceCandidates    *info)
 {
-  MetaOutputMatchType best = N_OUTPUT_MATCHES;
   GList *monitors, *l;
-  MetaMonitor *matched_monitor = NULL;
 
   monitors = meta_monitor_manager_get_monitors (mapper->monitor_manager);
 
   for (l = monitors; l; l = l->next)
     {
       MetaOutputMatchType edid_match;
+      DeviceMatch match = { l->data, 0 };
 
       if (match_edid (input, l->data, &edid_match))
-        {
-          best = MIN (best, edid_match);
-          info->candidates[edid_match] = l->data;
-        }
+        match.score |= 1 << edid_match;
+
+      if (match_size (input, l->data))
+        match.score |= 1 << META_MATCH_SIZE;
+
+      if (input->builtin && match_builtin (mapper, l->data))
+        match.score |= 1 << META_MATCH_IS_BUILTIN;
+
+      if (match.score > 0)
+        g_array_append_val (info->matches, match);
     }
 
-  if (find_size_match (input, monitors, &matched_monitor))
+  if (info->matches->len == 0)
     {
-      best = MIN (best, META_MATCH_SIZE);
-      info->candidates[META_MATCH_SIZE] = matched_monitor;
-    }
+      DeviceMatch match = { 0 };
 
-  if (input->builtin || best == N_OUTPUT_MATCHES)
+      match.monitor =
+        meta_monitor_manager_get_laptop_panel (mapper->monitor_manager);
+      g_array_append_val (info->matches, match);
+      info->best = 0;
+    }
+  else
     {
-      best = MIN (best, META_MATCH_IS_BUILTIN);
-      find_builtin_output (mapper, &info->candidates[META_MATCH_IS_BUILTIN]);
-    }
+      DeviceMatch *best;
 
-  info->best = best;
+      g_array_sort (info->matches, (GCompareFunc) sort_by_score);
+      best = &g_array_index (info->matches, DeviceMatch, 0);
+      info->best = best->score;
+    }
 }
 
 static void
@@ -399,6 +408,7 @@ mapping_helper_add (MappingHelper       *helper,
   guint i, pos = 0;
 
   info.input = input;
+  info.matches = g_array_new (FALSE, TRUE, sizeof (DeviceMatch));
 
   guess_candidates (mapper, input, &info);
 
@@ -408,7 +418,7 @@ mapping_helper_add (MappingHelper       *helper,
 
       elem = &g_array_index (helper->device_maps, DeviceCandidates, i);
 
-      if (elem->best < info.best)
+      if (elem->best > info.best)
         pos = i;
     }
 
@@ -422,26 +432,25 @@ static void
 mapping_helper_apply (MappingHelper   *helper,
                       MetaInputMapper *mapper)
 {
-  guint i;
+  guint i, j;
 
   /* Now, decide which input claims which output */
   for (i = 0; i < helper->device_maps->len; i++)
     {
-      MetaMapperOutputInfo *output;
       DeviceCandidates *info;
-      MetaOutputMatchType j;
 
       info = &g_array_index (helper->device_maps, DeviceCandidates, i);
 
-      for (j = 0; j < N_OUTPUT_MATCHES; j++)
+      for (j = 0; j < info->matches->len; j++)
         {
           MetaLogicalMonitor *logical_monitor;
+          MetaMapperOutputInfo *output;
+          MetaMonitor *monitor;
+          DeviceMatch *match;
 
-          if (!info->candidates[j])
-            continue;
-
-          logical_monitor =
-            meta_monitor_get_logical_monitor (info->candidates[j]);
+          match = &g_array_index (info->matches, DeviceMatch, j);
+          monitor = match->monitor;
+          logical_monitor = meta_monitor_get_logical_monitor (monitor);
           output = g_hash_table_lookup (mapper->output_devices,
                                         logical_monitor);
 
@@ -451,8 +460,7 @@ mapping_helper_apply (MappingHelper   *helper,
           if (output->attached_caps & mapper_input_info_get_caps (info->input))
             continue;
 
-          mapper_output_info_add_input (output, info->input,
-                                        info->candidates[j]);
+          mapper_output_info_add_input (output, info->input, monitor);
           break;
         }
     }
