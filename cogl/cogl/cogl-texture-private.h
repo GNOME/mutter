@@ -205,6 +205,7 @@ struct _CoglTexture
   CoglTextureLoader *loader;
   GList *framebuffers;
   int max_level_set;
+  int max_level_requested;
   int width;
   int height;
   gboolean allocated;
@@ -376,6 +377,10 @@ _cogl_texture_needs_premult_conversion (CoglPixelFormat src_format,
 
 int
 _cogl_texture_get_n_levels (CoglTexture *texture);
+
+void
+cogl_texture_set_max_level (CoglTexture *texture,
+                            int          max_level);
 
 void
 _cogl_texture_get_level_size (CoglTexture *texture,
