@@ -2246,6 +2246,7 @@ meta_input_settings_get_pad_button_action (MetaInputSettings   *input_settings,
 
 static gboolean
 cycle_logical_monitors (MetaInputSettings   *settings,
+                        gboolean             skip_all_monitors,
                         MetaLogicalMonitor  *current_logical_monitor,
                         MetaLogicalMonitor **next_logical_monitor)
 {
@@ -2255,7 +2256,8 @@ cycle_logical_monitors (MetaInputSettings   *settings,
   GList *logical_monitors;
 
   /* We cycle between:
-   * - the span of all monitors (current_output = NULL)
+   * - the span of all monitors (current_logical_monitor = NULL), only for
+   *   non-integrated devices.
    * - each monitor individually.
    */
 
@@ -2273,6 +2275,8 @@ cycle_logical_monitors (MetaInputSettings   *settings,
       l = g_list_find (logical_monitors, current_logical_monitor);
       if (l->next)
         *next_logical_monitor = l->next->data;
+      else if (skip_all_monitors)
+        *next_logical_monitor = logical_monitors->data;
       else
         *next_logical_monitor = NULL;
     }
@@ -2288,6 +2292,7 @@ meta_input_settings_cycle_tablet_output (MetaInputSettings  *input_settings,
   DeviceMappingInfo *info;
   MetaLogicalMonitor *logical_monitor = NULL;
   const gchar *edid[4] = { 0 }, *pretty_name = NULL;
+  gboolean is_integrated_device = FALSE;
 #ifdef HAVE_LIBWACOM
   WacomDevice *wacom_device;
 #endif
@@ -2306,11 +2311,9 @@ meta_input_settings_cycle_tablet_output (MetaInputSettings  *input_settings,
 
   if (wacom_device)
     {
-      /* Output rotation only makes sense on external tablets */
-      if (libwacom_get_integration_flags (wacom_device) != WACOM_DEVICE_INTEGRATED_NONE)
-        return;
-
       pretty_name = libwacom_get_name (wacom_device);
+      is_integrated_device =
+        libwacom_get_integration_flags (wacom_device) != WACOM_DEVICE_INTEGRATED_NONE;
     }
 #endif
 
@@ -2318,6 +2321,7 @@ meta_input_settings_cycle_tablet_output (MetaInputSettings  *input_settings,
                                     NULL, &logical_monitor);
 
   if (!cycle_logical_monitors (input_settings,
+                               is_integrated_device,
                                logical_monitor,
                                &logical_monitor))
     return;
