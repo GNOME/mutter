@@ -108,7 +108,6 @@ _cogl_texture_gl_maybe_update_max_level (CoglTexture *texture,
   if (_cogl_has_private_feature (ctx, COGL_PRIVATE_FEATURE_TEXTURE_MAX_LEVEL) &&
       texture->max_level < max_level)
     {
-      CoglContext *ctx = texture->context;
       GLuint gl_handle;
       GLenum gl_target;
 
