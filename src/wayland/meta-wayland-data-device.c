@@ -1669,7 +1669,6 @@ meta_wayland_data_device_set_selection (MetaWaylandDataDevice *data_device,
 
   if (data_device->selection_data_source)
     {
-      meta_wayland_data_source_cancel (data_device->selection_data_source);
       g_object_weak_unref (G_OBJECT (data_device->selection_data_source),
                            selection_data_source_destroyed,
                            data_device);
@@ -1794,7 +1793,6 @@ meta_wayland_data_device_set_primary (MetaWaylandDataDevice *data_device,
 
   if (data_device->primary_data_source)
     {
-      meta_wayland_data_source_cancel (data_device->primary_data_source);
       g_object_weak_unref (G_OBJECT (data_device->primary_data_source),
                            primary_source_destroyed,
                            data_device);
