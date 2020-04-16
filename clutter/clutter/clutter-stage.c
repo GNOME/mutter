@@ -145,6 +145,8 @@ struct _ClutterStagePrivate
 
   int update_freeze_count;
 
+  gboolean needs_update;
+
   guint redraw_pending         : 1;
   guint is_cursor_visible      : 1;
   guint throttle_motion_events : 1;
@@ -1312,7 +1314,9 @@ _clutter_stage_needs_update (ClutterStage *stage)
 
   priv = stage->priv;
 
-  return priv->redraw_pending || g_hash_table_size (priv->pending_relayouts) > 0;
+  return (priv->redraw_pending ||
+          priv->needs_update ||
+          g_hash_table_size (priv->pending_relayouts) > 0);
 }
 
 void
@@ -1503,6 +1507,8 @@ _clutter_stage_do_update (ClutterStage *stage)
   GSList *pointers = NULL;
 
   priv->stage_was_relayout = FALSE;
+
+  priv->needs_update = FALSE;
 
   /* if the stage is being destroyed, or if the destruction already
    * happened and we don't have an StageWindow any more, then we
@@ -3697,6 +3703,8 @@ _clutter_stage_schedule_update (ClutterStage *stage)
   stage_window = _clutter_stage_get_window (stage);
   if (stage_window == NULL)
     return;
+
+  stage->priv->needs_update = TRUE;
 
   return _clutter_stage_window_schedule_update (stage_window,
                                                 stage->priv->sync_delay);
