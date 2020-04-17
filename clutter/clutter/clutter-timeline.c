@@ -113,6 +113,9 @@ struct _ClutterTimelinePrivate
 
   ClutterFrameClock *frame_clock;
 
+  ClutterActor *actor;
+  gulong actor_destroy_handler_id;
+
   guint delay_id;
 
   /* The total length in milliseconds of this timeline */
@@ -174,6 +177,7 @@ enum
 {
   PROP_0,
 
+  PROP_ACTOR,
   PROP_DELAY,
   PROP_DURATION,
   PROP_DIRECTION,
@@ -290,6 +294,60 @@ clutter_timeline_add_marker_internal (ClutterTimeline *timeline,
     }
 
   g_hash_table_insert (priv->markers_by_name, marker->name, marker);
+}
+
+static void
+on_actor_destroyed (ClutterActor    *actor,
+                    ClutterTimeline *timeline)
+{
+  ClutterTimelinePrivate *priv = timeline->priv;
+
+  priv->actor = NULL;
+}
+
+/**
+ * clutter_timeline_get_actor:
+ * @timeline: a #ClutterTimeline
+ *
+ * Get the actor the timeline is associated with.
+ *
+ * Returns: (transfer none): the associated #ClutterActor
+ */
+ClutterActor *
+clutter_timeline_get_actor (ClutterTimeline *timeline)
+{
+  ClutterTimelinePrivate *priv = timeline->priv;
+
+  return priv->actor;
+}
+
+/**
+ * clutter_timeline_set_actor:
+ * @timeline: a #ClutterTimeline
+ * @actor: (nullable): a #ClutterActor
+ *
+ * Set the actor the timeline is associated with.
+ */
+void
+clutter_timeline_set_actor (ClutterTimeline *timeline,
+                            ClutterActor    *actor)
+{
+  ClutterTimelinePrivate *priv = timeline->priv;
+
+  if (priv->actor)
+    {
+      g_clear_signal_handler (&priv->actor_destroy_handler_id, priv->actor);
+    }
+
+  priv->actor = actor;
+
+  if (priv->actor)
+    {
+      priv->actor_destroy_handler_id =
+        g_signal_connect (priv->actor, "destroy",
+                          G_CALLBACK (on_actor_destroyed),
+                          timeline);
+    }
 }
 
 /* Scriptable */
@@ -433,6 +491,10 @@ clutter_timeline_set_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_ACTOR:
+      clutter_timeline_set_actor (timeline, g_value_get_object (value));
+      break;
+
     case PROP_DELAY:
       clutter_timeline_set_delay (timeline, g_value_get_uint (value));
       break;
@@ -478,6 +540,10 @@ clutter_timeline_get_property (GObject    *object,
 
   switch (prop_id)
     {
+    case PROP_ACTOR:
+      g_value_set_object (value, priv->actor);
+      break;
+
     case PROP_DELAY:
       g_value_set_uint (value, priv->delay);
       break;
@@ -575,6 +641,12 @@ clutter_timeline_dispose (GObject *object)
 
   clutter_timeline_cancel_delay (self);
 
+  if (priv->actor)
+    {
+      g_clear_signal_handler (&priv->actor_destroy_handler_id, priv->actor);
+      priv->actor = NULL;
+    }
+
   if (priv->progress_notify != NULL)
     {
       priv->progress_notify (priv->progress_data);
@@ -591,6 +663,18 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  /**
+   * ClutterTimeline::actor:
+   *
+   * The actor the timeline is associated with. This will determine what frame
+   * clock will drive it.
+   */
+  obj_props[PROP_ACTOR] =
+    g_param_spec_object ("actor",
+                         P_("Actor"),
+                         P_("Associated ClutterActor"),
+                         CLUTTER_TYPE_ACTOR,
+                         G_PARAM_CONSTRUCT | CLUTTER_PARAM_READWRITE);
   /**
    * ClutterTimeline:delay:
    *
@@ -1399,11 +1483,31 @@ clutter_timeline_new (guint duration_ms)
 }
 
 /**
+ * clutter_timeline_new_for_actor:
+ * @actor: The #ClutterActor the timeline is associated with
+ * @duration_ms: Duration of the timeline in milliseconds
+ *
+ * Creates a new #ClutterTimeline with a duration of @duration milli seconds.
+ *
+ * Return value: the newly created #ClutterTimeline instance. Use
+ *   g_object_unref() when done using it
+ */
+ClutterTimeline *
+clutter_timeline_new_for_actor (ClutterActor *actor,
+                                unsigned int  duration_ms)
+{
+  return g_object_new (CLUTTER_TYPE_TIMELINE,
+                       "duration", duration_ms,
+                       "actor", actor,
+                       NULL);
+}
+
+/**
  * clutter_timeline_new_for_frame_clock:
  * @frame_clock: The #ClutterFrameClock the timeline is driven by
  * @duration_ms: Duration of the timeline in milliseconds
  *
- * Creates a new #ClutterTimeline with a duration of @duration milli seconds.
+ * Creates a new #ClutterTimeline with a duration of @duration_ms milli seconds.
  *
  * Return value: the newly created #ClutterTimeline instance. Use
  *   g_object_unref() when done using it

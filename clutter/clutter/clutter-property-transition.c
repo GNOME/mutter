@@ -279,6 +279,26 @@ clutter_property_transition_init (ClutterPropertyTransition *self)
 }
 
 /**
+ * clutter_property_transition_new_for_actor:
+ * @actor: a #ClutterActor
+ * @property_name: (allow-none): a property of @animatable, or %NULL
+ *
+ * Creates a new #ClutterPropertyTransition.
+ *
+ * Return value: (transfer full): the newly created #ClutterPropertyTransition.
+ *   Use g_object_unref() when done
+ */
+ClutterTransition *
+clutter_property_transition_new_for_actor (ClutterActor *actor,
+                                           const char   *property_name)
+{
+  return g_object_new (CLUTTER_TYPE_PROPERTY_TRANSITION,
+                       "actor", actor,
+                       "property-name", property_name,
+                       NULL);
+}
+
+/**
  * clutter_property_transition_new:
  * @property_name: (allow-none): a property of @animatable, or %NULL
  *

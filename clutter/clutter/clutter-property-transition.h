@@ -79,7 +79,11 @@ CLUTTER_EXPORT
 GType clutter_property_transition_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
+ClutterTransition *     clutter_property_transition_new_for_actor       (ClutterActor              *actor,
+                                                                         const char                *property_name);
+
 ClutterTransition *     clutter_property_transition_new                 (const char                *property_name);
+
 CLUTTER_EXPORT
 void                    clutter_property_transition_set_property_name   (ClutterPropertyTransition *transition,
                                                                          const char                *property_name);
