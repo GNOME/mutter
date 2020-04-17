@@ -339,6 +339,7 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
           /* An X client went away, clear the selection */
           meta_selection_unset_owner (selection, selection_type,
                                       x11_display->selection.owners[selection_type]);
+          g_clear_object (&x11_display->selection.owners[selection_type]);
         }
     }
   else if (event->owner != x11_display->selection.xwindow)
