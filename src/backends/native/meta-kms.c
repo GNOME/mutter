@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Red Hat
+ * Copyright 2020 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -383,6 +384,7 @@ meta_kms_add_source_in_impl (MetaKms        *kms,
   simple_impl_source->kms = kms;
 
   g_source_set_callback (source, func, user_data, user_data_destroy);
+  g_source_set_ready_time (source, 0);
   g_source_attach (source, g_main_context_get_thread_default ());
 
   return source;
