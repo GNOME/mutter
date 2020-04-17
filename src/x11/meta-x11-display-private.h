@@ -127,6 +127,7 @@ struct _MetaX11Display
 
   struct {
     Window xwindow;
+    uint32_t ownership_timestamp;
     MetaSelectionSource *owners[META_N_SELECTION_TYPES];
     GCancellable *cancellables[META_N_SELECTION_TYPES];
 

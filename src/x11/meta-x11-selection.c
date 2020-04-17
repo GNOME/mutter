@@ -322,6 +322,7 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
   if (!atom_to_selection_type (xdisplay, event->selection, &selection_type))
     return FALSE;
 
+  x11_display->selection.ownership_timestamp = event->selection_timestamp;
   selection = meta_display_get_selection (meta_get_display ());
 
   if (x11_display->selection.cancellables[selection_type])
@@ -360,6 +361,8 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
                                            data);
     }
 
+  x11_display->selection.ownership_timestamp = 0;
+
   return TRUE;
 }
 
@@ -381,6 +384,7 @@ notify_selection_owner (MetaX11Display      *x11_display,
                         MetaSelectionSource *new_owner)
 {
   Display *xdisplay = x11_display->xdisplay;
+  uint32_t timestamp;
 
   if (new_owner && !META_IS_SELECTION_SOURCE_X11 (new_owner))
     {
@@ -390,13 +394,17 @@ notify_selection_owner (MetaX11Display      *x11_display,
           g_clear_object (&x11_display->selection.cancellables[selection_type]);
         }
 
+      timestamp = x11_display->selection.ownership_timestamp ?
+        x11_display->selection.ownership_timestamp :
+        meta_display_get_current_time (x11_display->display);
+
       /* If the owner is non-X11, claim the selection on our selection
        * window, so X11 apps can interface with it.
        */
       XSetSelectionOwner (xdisplay,
                           selection_to_atom (selection_type, xdisplay),
                           x11_display->selection.xwindow,
-                          META_CURRENT_TIME);
+                          timestamp);
     }
 }
 
