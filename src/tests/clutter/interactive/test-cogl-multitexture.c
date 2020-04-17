@@ -212,7 +212,7 @@ test_cogl_multitexture_main (int argc, char *argv[])
   clutter_container_add_actor (CLUTTER_CONTAINER(stage),
 			       state->group);
 
-  state->timeline = clutter_timeline_new (2812);
+  state->timeline = clutter_timeline_new_for_actor (stage, 2812);
 
   g_signal_connect (state->timeline, "new-frame", G_CALLBACK (frame_cb), state);
 

@@ -369,7 +369,9 @@ clutter_scroll_actor_scroll_to_point (ClutterScrollActor     *actor,
 
   if (priv->transition == NULL)
     {
-      priv->transition = clutter_property_transition_new ("scroll-to");
+      priv->transition =
+        clutter_property_transition_new_for_actor (CLUTTER_ACTOR (actor),
+                                                   "scroll-to");
       clutter_transition_set_animatable (priv->transition,
                                          CLUTTER_ANIMATABLE (actor));
       clutter_transition_set_remove_on_complete (priv->transition, TRUE);

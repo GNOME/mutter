@@ -241,7 +241,7 @@ test_paint_wrapper_main (int argc, char *argv[])
   oh->stage = stage;
 
   /* Create a timeline to manage animation */
-  oh->timeline = clutter_timeline_new (6000);
+  oh->timeline = clutter_timeline_new_for_actor (oh->stage, 6000);
   clutter_timeline_set_repeat_count (oh->timeline, -1);
 
   /* fire a callback for frame change */

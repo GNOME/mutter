@@ -119,9 +119,6 @@ CLUTTER_EXPORT
 GType clutter_timeline_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
-ClutterTimeline *               clutter_timeline_new                            (guint                     duration_ms);
-
-CLUTTER_EXPORT
 ClutterTimeline *               clutter_timeline_new_for_actor                  (ClutterActor             *actor,
                                                                                  unsigned int              duration_ms);
 

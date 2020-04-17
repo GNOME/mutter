@@ -7,9 +7,10 @@
 static void
 timeline_progress_step (void)
 {
+  ClutterActor *stage = clutter_test_get_stage ();
   ClutterTimeline *timeline;
 
-  timeline = clutter_timeline_new (1000);
+  timeline = clutter_timeline_new_for_actor (stage, 1000);
 
   if (!g_test_quiet ())
     g_print ("mode: step(3, end)\n");
@@ -90,9 +91,10 @@ timeline_progress_step (void)
 static void
 timeline_progress_mode (void)
 {
+  ClutterActor *stage = clutter_test_get_stage ();
   ClutterTimeline *timeline;
 
-  timeline = clutter_timeline_new (1000);
+  timeline = clutter_timeline_new_for_actor (stage, 1000);
 
   g_assert (clutter_timeline_get_progress_mode (timeline) == CLUTTER_LINEAR);
   g_assert_cmpfloat (clutter_timeline_get_progress (timeline), ==, 0.0);

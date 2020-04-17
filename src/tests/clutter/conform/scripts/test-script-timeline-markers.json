@@ -1,12 +1,16 @@
-{
-  "id" : "timeline0",
-  "type" : "ClutterTimeline",
-  "duration" : 1000,
+[
+  { "id" : "actor0", "type" : "ClutterActor" },
+  {
+    "id" : "timeline0",
+    "type" : "ClutterTimeline",
+    "duration" : 1000,
+    "actor" : "actor0",
 
-  "markers" : [
-    { "name" : "marker0", "time" : 250 },
-    { "name" : "marker1", "time" : 500 },
-    { "name" : "marker2", "time" : 750 },
-    { "name" : "marker3", "progress" : 0.5 }
-  ]
-}
+    "markers" : [
+      { "name" : "marker0", "time" : 250 },
+      { "name" : "marker1", "time" : 500 },
+      { "name" : "marker2", "time" : 750 },
+      { "name" : "marker3", "progress" : 0.5 }
+    ]
+  }
+]

@@ -607,7 +607,7 @@ test_layout_main (int argc, char *argv[])
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Layout");
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
 
-  main_timeline = clutter_timeline_new (2000);
+  main_timeline = clutter_timeline_new_for_actor (stage, 2000);
   clutter_timeline_set_repeat_count (main_timeline, -1);
   clutter_timeline_set_auto_reverse (main_timeline, TRUE);
   g_signal_connect (main_timeline, "new-frame",

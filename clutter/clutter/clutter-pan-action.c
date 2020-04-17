@@ -326,8 +326,12 @@ gesture_end (ClutterGestureAction *gesture,
   if (ABS (velocity) * priv->acceleration_factor > min_velocity &&
       duration > FLOAT_EPSILON)
     {
+      ClutterActor *pan_actor =
+        clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (gesture));
+
       priv->interpolated_x = priv->interpolated_y = 0.0f;
-      priv->deceleration_timeline = clutter_timeline_new (duration);
+      priv->deceleration_timeline = clutter_timeline_new_for_actor (pan_actor,
+                                                                    duration);
       clutter_timeline_set_progress_mode (priv->deceleration_timeline,
                                           CLUTTER_EASE_OUT_EXPO);
 
@@ -458,6 +462,8 @@ clutter_pan_action_set_actor (ClutterActorMeta *meta,
       /* make sure we reset the state */
       if (priv->state == PAN_STATE_INTERPOLATING)
         g_clear_object (&priv->deceleration_timeline);
+      else if (priv->deceleration_timeline)
+        clutter_timeline_set_actor (priv->deceleration_timeline, actor);
     }
 
   CLUTTER_ACTOR_META_CLASS (clutter_pan_action_parent_class)->set_actor (meta,

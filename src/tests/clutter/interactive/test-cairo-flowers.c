@@ -209,12 +209,12 @@ test_cairo_flowers_main (int argc, char **argv)
   if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
     return 1;
 
-  /* Create a timeline to manage animation */
-  timeline = clutter_timeline_new (6000);
-  clutter_timeline_set_repeat_count (timeline, -1);
-
   stage = clutter_stage_new ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Cairo Flowers");
+
+  /* Create a timeline to manage animation */
+  timeline = clutter_timeline_new_for_actor (stage, 6000);
+  clutter_timeline_set_repeat_count (timeline, -1);
   g_signal_connect (stage, "destroy", G_CALLBACK (stop_and_quit), timeline);
 
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_Black);

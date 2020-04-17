@@ -21,14 +21,14 @@ test_shader_effects_main (int argc, char *argv[])
   if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
     return 1;
 
-  /* Make a timeline */
-  timeline = clutter_timeline_new (7692);
-  clutter_timeline_set_repeat_count (timeline, -1);
-
   stage = clutter_stage_new ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Rotations");
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_Aluminium3);
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+
+  /* Make a timeline */
+  timeline = clutter_timeline_new_for_actor (stage, 7692);
+  clutter_timeline_set_repeat_count (timeline, -1);
 
   /* Make a hand */
   file = g_build_filename (TESTS_DATADIR, "redhand.png", NULL);

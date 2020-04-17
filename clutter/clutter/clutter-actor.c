@@ -311,7 +311,7 @@
  * |[<!-- language="C" -->
  * ClutterTransition *transition;
  *
- * transition = clutter_property_transition_new ("opacity");
+ * transition = clutter_property_transition_new_for_actor (actor, "opacity");
  * clutter_timeline_set_duration (CLUTTER_TIMELINE (transition), 3000);
  * clutter_timeline_set_repeat_count (CLUTTER_TIMELINE (transition), 2);
  * clutter_timeline_set_auto_reverse (CLUTTER_TIMELINE (transition), TRUE);
@@ -344,7 +344,7 @@
  * ClutterTransition *transition;
  * ClutterInterval *interval;
  *
- * transition = clutter_property_transition_new ("opacity");
+ * transition = clutter_property_transition_new_for_actor (actor, "opacity");
  *
  * // we want to animate the opacity between 0 and 255
  * clutter_transition_set_from (transition, G_TYPE_UINT, 0);
@@ -505,7 +505,7 @@
  *   const char *prop = "@constraints.bind-x.offset";
  *
  *   // create a new transition for the given property
- *   transition = clutter_property_transition_new (prop);
+ *   transition = clutter_property_transition_new_for_actor (rect, prop);
  *
  *   // set the easing mode and duration
  *   clutter_timeline_set_progress_mode (CLUTTER_TIMELINE (transition),
@@ -17865,7 +17865,7 @@ _clutter_actor_create_transition (ClutterActor *actor,
   clos = g_hash_table_lookup (info->transitions, pspec->name);
   if (clos == NULL)
     {
-      res = clutter_property_transition_new (pspec->name);
+      res = clutter_property_transition_new_for_actor (actor, pspec->name);
 
       clutter_transition_set_remove_on_complete (res, TRUE);
 

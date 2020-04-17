@@ -139,7 +139,7 @@ timeline_interpolation (void)
   stage = clutter_test_get_stage ();
 
   state.timeline = 
-    clutter_timeline_new (TEST_TIMELINE_DURATION);
+    clutter_timeline_new_for_actor (stage, TEST_TIMELINE_DURATION);
   clutter_timeline_set_repeat_count (state.timeline, -1);
   g_signal_connect (G_OBJECT(state.timeline),
 		    "new-frame",
