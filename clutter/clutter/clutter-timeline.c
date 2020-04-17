@@ -1445,9 +1445,9 @@ clutter_timeline_clone (ClutterTimeline *timeline)
 
 /**
  * clutter_timeline_new:
- * @msecs: Duration of the timeline in milliseconds
+ * @duration_ms: Duration of the timeline in milliseconds
  *
- * Creates a new #ClutterTimeline with a duration of @msecs.
+ * Creates a new #ClutterTimeline with a duration of @duration_ms milli seconds.
  *
  * Return value: the newly created #ClutterTimeline instance. Use
  *   g_object_unref() when done using it
@@ -1455,10 +1455,10 @@ clutter_timeline_clone (ClutterTimeline *timeline)
  * Since: 0.6
  */
 ClutterTimeline *
-clutter_timeline_new (guint msecs)
+clutter_timeline_new (guint duration_ms)
 {
   return g_object_new (CLUTTER_TYPE_TIMELINE,
-                       "duration", msecs,
+                       "duration", duration_ms,
                        NULL);
 }
 
