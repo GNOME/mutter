@@ -140,13 +140,13 @@ struct _ClutterStagePrivate
   int update_freeze_count;
 
   gboolean needs_update;
+  gboolean needs_update_devices;
   gboolean pending_finish_queue_redraws;
 
   guint redraw_pending         : 1;
   guint throttle_motion_events : 1;
   guint min_size_changed       : 1;
   guint motion_events_enabled  : 1;
-  guint stage_was_relayout     : 1;
   guint actor_needs_immediate_relayout : 1;
 };
 
@@ -178,7 +178,6 @@ static guint stage_signals[LAST_SIGNAL] = { 0, };
 
 static const ClutterColor default_stage_color = { 255, 255, 255, 255 };
 
-static void clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage);
 static void free_queue_redraw_entry (ClutterStageQueueRedrawEntry *entry);
 static void capture_view_into (ClutterStage          *stage,
                                gboolean               paint,
@@ -939,7 +938,7 @@ clutter_stage_show (ClutterActor *self)
 
   /* Possibly do an allocation run so that the stage will have the
      right size before we map it */
-  _clutter_stage_maybe_relayout (self);
+  clutter_stage_maybe_relayout (self);
 
   g_assert (priv->impl != NULL);
   _clutter_stage_window_show (priv->impl, TRUE);
@@ -1206,7 +1205,7 @@ clutter_stage_queue_actor_relayout (ClutterStage *stage,
 }
 
 void
-_clutter_stage_maybe_relayout (ClutterActor *actor)
+clutter_stage_maybe_relayout (ClutterActor *actor)
 {
   ClutterStage *stage = CLUTTER_STAGE (actor);
   ClutterStagePrivate *priv = stage->priv;
@@ -1253,7 +1252,7 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
   CLUTTER_NOTE (ACTOR, "<<< Completed recomputing layout of %d subtrees", count);
 
   if (count)
-    priv->stage_was_relayout = TRUE;
+    priv->needs_update_devices = TRUE;
 }
 
 static void
@@ -1302,14 +1301,20 @@ clutter_stage_do_redraw (ClutterStage *stage)
                 stage);
 }
 
-static GSList *
+GSList *
 clutter_stage_find_updated_devices (ClutterStage *stage)
 {
+  ClutterStagePrivate *priv = stage->priv;
   ClutterBackend *backend;
   ClutterSeat *seat;
   GSList *updating = NULL;
   const GList *l, *devices;
   graphene_point_t point;
+
+  if (!priv->needs_update_devices)
+    return NULL;
+
+  priv->needs_update_devices = FALSE;
 
   backend = clutter_get_default_backend ();
   seat = clutter_backend_get_default_seat (backend);
@@ -1356,8 +1361,8 @@ clutter_stage_find_updated_devices (ClutterStage *stage)
   return updating;
 }
 
-static void
-update_actor_stage_views (ClutterStage *stage)
+void
+clutter_stage_update_actor_stage_views (ClutterStage *stage)
 {
   ClutterActor *actor = CLUTTER_ACTOR (stage);
   ClutterStagePrivate *priv = stage->priv;
@@ -1384,13 +1389,13 @@ update_actor_stage_views (ClutterStage *stage)
         break;
 
       priv->actor_needs_immediate_relayout = FALSE;
-      _clutter_stage_maybe_relayout (actor);
+      clutter_stage_maybe_relayout (actor);
     }
 
   g_warn_if_fail (!priv->actor_needs_immediate_relayout);
 }
 
-static void
+void
 clutter_stage_update_devices (ClutterStage *stage,
                               GSList       *devices)
 {
@@ -1437,20 +1442,15 @@ _clutter_stage_do_update (ClutterStage *stage)
    * check or clear the pending redraws flag since a relayout may
    * queue a redraw.
    */
-  _clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
+  clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
 
   if (!priv->redraw_pending)
     return FALSE;
 
-  update_actor_stage_views (stage);
-
+  clutter_stage_update_actor_stage_views (stage);
   clutter_stage_maybe_finish_queue_redraws (stage);
 
-  if (priv->stage_was_relayout)
-    {
-      priv->stage_was_relayout = FALSE;
-      devices = clutter_stage_find_updated_devices (stage);
-    }
+  devices = clutter_stage_find_updated_devices (stage);
 
   clutter_stage_do_redraw (stage);
 
@@ -3361,7 +3361,7 @@ _clutter_stage_queue_redraw_entry_invalidate (ClutterStageQueueRedrawEntry *entr
     }
 }
 
-static void
+void
 clutter_stage_maybe_finish_queue_redraws (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;

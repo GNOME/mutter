@@ -58,7 +58,12 @@ void                _clutter_stage_get_viewport          (ClutterStage          
 void                _clutter_stage_dirty_viewport        (ClutterStage          *stage);
 void                _clutter_stage_maybe_setup_viewport  (ClutterStage          *stage,
                                                           ClutterStageView      *view);
-void                _clutter_stage_maybe_relayout        (ClutterActor          *stage);
+void                clutter_stage_maybe_relayout         (ClutterActor          *stage);
+void                clutter_stage_maybe_finish_queue_redraws (ClutterStage      *stage);
+GSList *            clutter_stage_find_updated_devices   (ClutterStage          *stage);
+void                clutter_stage_update_devices         (ClutterStage          *stage,
+                                                          GSList                *devices);
+void                clutter_stage_update_actor_stage_views (ClutterStage        *stage);
 gboolean            _clutter_stage_needs_update          (ClutterStage          *stage);
 gboolean            _clutter_stage_do_update             (ClutterStage          *stage);
 

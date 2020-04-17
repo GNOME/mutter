@@ -3027,7 +3027,7 @@ clutter_actor_get_abs_allocation_vertices (ClutterActor       *self,
       if (!stage)
         return;
 
-      _clutter_stage_maybe_relayout (stage);
+      clutter_stage_maybe_relayout (stage);
     }
 
   /* NB: _clutter_actor_transform_and_project_box expects a box in the actor's
@@ -9277,7 +9277,7 @@ clutter_actor_get_allocation_box (ClutterActor    *self,
 
       /* do not queue a relayout on an unparented actor */
       if (stage)
-        _clutter_stage_maybe_relayout (stage);
+        clutter_stage_maybe_relayout (stage);
     }
 
   /* commenting out the code above and just keeping this assigment
