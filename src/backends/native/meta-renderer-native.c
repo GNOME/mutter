@@ -3255,6 +3255,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                        "offscreen", offscreen,
                        "use-shadowfb", use_shadowfb,
                        "transform", view_transform,
+                       "refresh-rate", crtc_mode_info->refresh_rate,
                        NULL);
   g_clear_pointer (&offscreen, cogl_object_unref);
 

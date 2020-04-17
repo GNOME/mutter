@@ -39,6 +39,7 @@ enum
   PROP_OFFSCREEN,
   PROP_USE_SHADOWFB,
   PROP_SCALE,
+  PROP_REFRESH_RATE,
 
   PROP_LAST
 };
@@ -73,6 +74,8 @@ typedef struct _ClutterStageViewPrivate
 
   gboolean has_redraw_clip;
   cairo_region_t *redraw_clip;
+
+  float refresh_rate;
 
   guint dirty_viewport   : 1;
   guint dirty_projection : 1;
@@ -1053,6 +1056,9 @@ clutter_stage_view_get_property (GObject    *object,
     case PROP_SCALE:
       g_value_set_float (value, priv->scale);
       break;
+    case PROP_REFRESH_RATE:
+      g_value_set_float (value, priv->refresh_rate);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -1092,6 +1098,9 @@ clutter_stage_view_set_property (GObject      *object,
       break;
     case PROP_SCALE:
       priv->scale = g_value_get_float (value);
+      break;
+    case PROP_REFRESH_RATE:
+      priv->refresh_rate = g_value_get_float (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1147,6 +1156,7 @@ clutter_stage_view_init (ClutterStageView *view)
   priv->dirty_viewport = TRUE;
   priv->dirty_projection = TRUE;
   priv->scale = 1.0;
+  priv->refresh_rate = 60.0;
 }
 
 static void
@@ -1221,6 +1231,15 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
                         "View scale",
                         "The view scale",
                         0.5, G_MAXFLOAT, 1.0,
+                        G_PARAM_READWRITE |
+                        G_PARAM_CONSTRUCT |
+                        G_PARAM_STATIC_STRINGS);
+
+  obj_props[PROP_REFRESH_RATE] =
+    g_param_spec_float ("refresh-rate",
+                        "Refresh rate",
+                        "Update refresh rate",
+                        1.0, G_MAXFLOAT, 60.0,
                         G_PARAM_READWRITE |
                         G_PARAM_CONSTRUCT |
                         G_PARAM_STATIC_STRINGS);

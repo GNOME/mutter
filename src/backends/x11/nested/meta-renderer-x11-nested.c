@@ -191,6 +191,7 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
   CoglOffscreen *fake_onscreen;
   CoglOffscreen *offscreen;
   MetaRectangle view_layout;
+  const MetaCrtcModeInfo *mode_info;
   MetaRendererView *view;
 
   view_transform = calculate_view_transform (monitor_manager, logical_monitor);
@@ -215,11 +216,14 @@ meta_renderer_x11_nested_create_view (MetaRenderer       *renderer,
                                      META_ROUNDING_STRATEGY_ROUND,
                                      &view_layout);
 
+  mode_info = meta_crtc_mode_get_info (crtc_config->mode);
+
   view = g_object_new (META_TYPE_RENDERER_VIEW,
                        "name", meta_output_get_name (output),
                        "stage", meta_backend_get_stage (backend),
                        "layout", &view_layout,
                        "crtc", crtc,
+                       "refresh-rate", mode_info->refresh_rate,
                        "framebuffer", COGL_FRAMEBUFFER (fake_onscreen),
                        "offscreen", COGL_FRAMEBUFFER (offscreen),
                        "transform", view_transform,
