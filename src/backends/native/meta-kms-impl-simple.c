@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2018-2019 Red Hat
- * Copyright (C) 2019 DisplayLink (UK) Ltd.
+ * Copyright (C) 2019-2020 DisplayLink (UK) Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -659,6 +659,9 @@ process_page_flip (MetaKmsImpl    *impl,
                              DRM_MODE_PAGE_FLIP_EVENT,
                              meta_kms_page_flip_data_ref (page_flip_data));
     }
+
+  if (ret != 0)
+    meta_kms_page_flip_data_unref (page_flip_data);
 
   if (ret == -EBUSY)
     {
