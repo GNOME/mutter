@@ -198,17 +198,22 @@ meta_stage_paint (ClutterActor        *actor,
   CLUTTER_ACTOR_CLASS (meta_stage_parent_class)->paint (actor, paint_context);
 
   view = clutter_paint_context_get_stage_view (paint_context);
-
-  notify_watchers_for_mode (stage, view, paint_context,
-                            META_STAGE_WATCH_AFTER_ACTOR_PAINT);
+  if (view)
+    {
+      notify_watchers_for_mode (stage, view, paint_context,
+                                META_STAGE_WATCH_AFTER_ACTOR_PAINT);
+    }
 
   g_signal_emit (stage, signals[ACTORS_PAINTED], 0);
 
   for (l = stage->overlays; l; l = l->next)
     meta_overlay_paint (l->data, paint_context);
 
-  notify_watchers_for_mode (stage, view, paint_context,
-                            META_STAGE_WATCH_AFTER_OVERLAY_PAINT);
+  if (view)
+    {
+      notify_watchers_for_mode (stage, view, paint_context,
+                                META_STAGE_WATCH_AFTER_OVERLAY_PAINT);
+    }
 }
 
 static void
