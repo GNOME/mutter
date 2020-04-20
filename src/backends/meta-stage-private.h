@@ -38,9 +38,10 @@ typedef enum
   META_STAGE_WATCH_AFTER_PAINT,
 } MetaStageWatchPhase;
 
-typedef void (* MetaStageWatchFunc) (MetaStage        *stage,
-                                     ClutterStageView *view,
-                                     gpointer          user_data);
+typedef void (* MetaStageWatchFunc) (MetaStage           *stage,
+                                     ClutterStageView    *view,
+                                     ClutterPaintContext *paint_context,
+                                     gpointer             user_data);
 
 ClutterActor     *meta_stage_new                     (MetaBackend *backend);
 

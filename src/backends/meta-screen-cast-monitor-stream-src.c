@@ -115,9 +115,10 @@ meta_screen_cast_monitor_stream_src_get_specs (MetaScreenCastStreamSrc *src,
 }
 
 static void
-stage_painted (MetaStage        *stage,
-               ClutterStageView *view,
-               gpointer          user_data)
+stage_painted (MetaStage           *stage,
+               ClutterStageView    *view,
+               ClutterPaintContext *paint_context,
+               gpointer             user_data)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (user_data);
 
