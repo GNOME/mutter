@@ -66,7 +66,7 @@ clutter_paint_context_new_for_framebuffer (CoglFramebuffer *framebuffer)
 
   paint_context = g_new0 (ClutterPaintContext, 1);
   g_ref_count_init (&paint_context->ref_count);
-  paint_context->paint_flags = CLUTTER_PAINT_FLAG_NONE;
+  paint_context->paint_flags = CLUTTER_PAINT_FLAG_NO_CURSORS;
 
   clutter_paint_context_push_framebuffer (paint_context, framebuffer);
 

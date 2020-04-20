@@ -23,6 +23,7 @@
 typedef enum _ClutterPaintFlag
 {
   CLUTTER_PAINT_FLAG_NONE = 0,
+  CLUTTER_PAINT_FLAG_NO_CURSORS = 1 << 0,
 } ClutterPaintFlag;
 
 ClutterPaintContext * clutter_paint_context_new_for_view (ClutterStageView     *view,
