@@ -23,6 +23,8 @@ struct _ClutterPaintContext
 {
   grefcount ref_count;
 
+  ClutterPaintFlag paint_flags;
+
   GList *framebuffers;
 
   ClutterStageView *view;
@@ -36,7 +38,8 @@ G_DEFINE_BOXED_TYPE (ClutterPaintContext, clutter_paint_context,
 
 ClutterPaintContext *
 clutter_paint_context_new_for_view (ClutterStageView     *view,
-                                    const cairo_region_t *redraw_clip)
+                                    const cairo_region_t *redraw_clip,
+                                    ClutterPaintFlag      paint_flags)
 {
   ClutterPaintContext *paint_context;
   CoglFramebuffer *framebuffer;
@@ -45,6 +48,7 @@ clutter_paint_context_new_for_view (ClutterStageView     *view,
   g_ref_count_init (&paint_context->ref_count);
   paint_context->view = view;
   paint_context->redraw_clip = cairo_region_copy (redraw_clip);
+  paint_context->paint_flags = paint_flags;
 
   framebuffer = clutter_stage_view_get_framebuffer (view);
   clutter_paint_context_push_framebuffer (paint_context, framebuffer);
@@ -62,6 +66,7 @@ clutter_paint_context_new_for_framebuffer (CoglFramebuffer *framebuffer)
 
   paint_context = g_new0 (ClutterPaintContext, 1);
   g_ref_count_init (&paint_context->ref_count);
+  paint_context->paint_flags = CLUTTER_PAINT_FLAG_NONE;
 
   clutter_paint_context_push_framebuffer (paint_context, framebuffer);
 
@@ -169,4 +174,13 @@ clutter_paint_context_is_drawing_off_stage (ClutterPaintContext *paint_context)
     return TRUE;
 
   return !paint_context->view;
+}
+
+/**
+ * clutter_paint_context_get_paint_flags: (skip)
+ */
+ClutterPaintFlag
+clutter_paint_context_get_paint_flags (ClutterPaintContext *paint_context)
+{
+  return paint_context->paint_flags;
 }

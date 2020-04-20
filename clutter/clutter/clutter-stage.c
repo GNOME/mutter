@@ -934,7 +934,8 @@ clutter_stage_do_paint_view (ClutterStage         *stage,
   ClutterPaintContext *paint_context;
   cairo_rectangle_int_t clip_rect;
 
-  paint_context = clutter_paint_context_new_for_view (view, redraw_clip);
+  paint_context = clutter_paint_context_new_for_view (view, redraw_clip,
+                                                      CLUTTER_PAINT_FLAG_NONE);
 
   cairo_region_get_extents (redraw_clip, &clip_rect);
   setup_view_for_pick_or_paint (stage, view, &clip_rect);
