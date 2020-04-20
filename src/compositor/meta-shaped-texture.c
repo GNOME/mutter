@@ -1270,7 +1270,8 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   root_node = clutter_root_node_new (fb, &clear_color, COGL_BUFFER_BIT_COLOR);
   clutter_paint_node_set_static_name (root_node, "MetaShapedTexture.offscreen");
 
-  paint_context = clutter_paint_context_new_for_framebuffer (fb);
+  paint_context =
+    clutter_paint_context_new_for_framebuffer (fb, CLUTTER_PAINT_FLAG_NONE);
 
   do_paint_content (stex, root_node, paint_context,
                     stex->texture,

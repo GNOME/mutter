@@ -21,7 +21,8 @@
 #include "clutter-paint-context.h"
 
 ClutterPaintContext * clutter_paint_context_new_for_view (ClutterStageView     *view,
-                                                          const cairo_region_t *redraw_clip);
+                                                          const cairo_region_t *redraw_clip,
+                                                          ClutterPaintFlag      paint_flags);
 
 gboolean clutter_paint_context_is_drawing_off_stage (ClutterPaintContext *paint_context);
 
