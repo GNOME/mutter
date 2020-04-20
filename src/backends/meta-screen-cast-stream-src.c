@@ -956,6 +956,15 @@ meta_screen_cast_stream_src_init_initable_iface (GInitableIface *iface)
   iface->init = meta_screen_cast_stream_src_initable_init;
 }
 
+int
+meta_screen_cast_stream_src_get_stride (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  return priv->video_stride;
+}
+
 MetaScreenCastStream *
 meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src)
 {
