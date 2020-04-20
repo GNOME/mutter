@@ -24,12 +24,20 @@
 #include <gdk/gdkx.h>
 
 #include "core/meta-selection-private.h"
+#include "meta/meta-selection-source-memory.h"
 #include "x11/meta-selection-source-x11-private.h"
 #include "x11/meta-x11-selection-output-stream-private.h"
 #include "x11/meta-x11-selection-private.h"
 
 #define UTF8_STRING_MIMETYPE "text/plain;charset=utf-8"
 #define STRING_MIMETYPE "text/plain"
+
+/* Set an arbitrary (although generous) threshold to determine whether a
+ * XFixesSelectionNotify corresponds to a XSetSelectionOwner from another
+ * client. The selection timestamp is not updated if the owner client is
+ * closed.
+ */
+#define SELECTION_CLEARED_BY_CLIENT(e) (e->timestamp - e->selection_timestamp < 50)
 
 static gboolean
 atom_to_selection_type (Display           *xdisplay,
@@ -332,9 +340,19 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
 
   x11_display->selection.cancellables[selection_type] = g_cancellable_new ();
 
-  if (event->owner == None)
+  if (event->owner == None && x11_display->selection.owners[selection_type])
     {
-      if (x11_display->selection.owners[selection_type])
+      if (SELECTION_CLEARED_BY_CLIENT (event))
+        {
+          MetaSelectionSource *source;
+
+          /* Replace with an empty owner */
+          source = g_object_new (META_TYPE_SELECTION_SOURCE_MEMORY, NULL);
+          g_set_object (&x11_display->selection.owners[selection_type], source);
+          meta_selection_set_owner (selection, selection_type, source);
+          g_object_unref (source);
+        }
+      else
         {
           /* An X client went away, clear the selection */
           meta_selection_unset_owner (selection, selection_type,
@@ -342,7 +360,7 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
           g_clear_object (&x11_display->selection.owners[selection_type]);
         }
     }
-  else if (event->owner != x11_display->selection.xwindow)
+  else if (event->owner != None && event->owner != x11_display->selection.xwindow)
     {
       SourceNewData *data;
 
