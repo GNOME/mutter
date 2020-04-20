@@ -60,13 +60,15 @@ clutter_paint_context_new_for_view (ClutterStageView     *view,
  * clutter_paint_context_new_for_framebuffer: (skip)
  */
 ClutterPaintContext *
-clutter_paint_context_new_for_framebuffer (CoglFramebuffer  *framebuffer,
-                                           ClutterPaintFlag  paint_flags)
+clutter_paint_context_new_for_framebuffer (CoglFramebuffer      *framebuffer,
+                                           const cairo_region_t *redraw_clip,
+                                           ClutterPaintFlag      paint_flags)
 {
   ClutterPaintContext *paint_context;
 
   paint_context = g_new0 (ClutterPaintContext, 1);
   g_ref_count_init (&paint_context->ref_count);
+  paint_context->redraw_clip = cairo_region_copy (redraw_clip);
   paint_context->paint_flags = paint_flags;
 
   clutter_paint_context_push_framebuffer (paint_context, framebuffer);

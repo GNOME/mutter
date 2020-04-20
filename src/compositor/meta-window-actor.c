@@ -1322,7 +1322,7 @@ meta_window_actor_blit_to_framebuffer (MetaScreenCastWindow *screen_cast_window,
   cogl_framebuffer_translate (framebuffer, -x, -y, 0);
 
   paint_context =
-    clutter_paint_context_new_for_framebuffer (framebuffer,
+    clutter_paint_context_new_for_framebuffer (framebuffer, NULL,
                                                CLUTTER_PAINT_FLAG_NONE);
   clutter_actor_paint (actor, paint_context);
   clutter_paint_context_destroy (paint_context);
@@ -1482,7 +1482,7 @@ meta_window_actor_get_image (MetaWindowActor *self,
   cogl_framebuffer_translate (framebuffer, -x, -y, 0);
 
   paint_context =
-    clutter_paint_context_new_for_framebuffer (framebuffer,
+    clutter_paint_context_new_for_framebuffer (framebuffer, NULL,
                                                CLUTTER_PAINT_FLAG_NONE);
   clutter_actor_paint (actor, paint_context);
   clutter_paint_context_destroy (paint_context);
