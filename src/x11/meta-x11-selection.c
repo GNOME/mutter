@@ -297,8 +297,8 @@ source_new_cb (GObject      *object,
   source = meta_selection_source_x11_new_finish (res, &error);
   if (source)
     {
-      meta_selection_set_owner (selection, selection_type, source);
       g_set_object (&x11_display->selection.owners[selection_type], source);
+      meta_selection_set_owner (selection, selection_type, source);
       g_object_unref (source);
     }
   else if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_CANCELLED))
@@ -382,7 +382,7 @@ notify_selection_owner (MetaX11Display      *x11_display,
 {
   Display *xdisplay = x11_display->xdisplay;
 
-  if (new_owner && !META_IS_SELECTION_SOURCE_X11 (new_owner))
+  if (new_owner && new_owner != x11_display->selection.owners[selection_type])
     {
       if (x11_display->selection.cancellables[selection_type])
         {
