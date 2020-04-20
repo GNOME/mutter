@@ -30,6 +30,7 @@
 #include "clutter-input-device-private.h"
 #include "clutter-input-pointer-a11y-private.h"
 #include "clutter-macros.h"
+#include "clutter-paint-context-private.h"
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
 #include "clutter-stage-view.h"
@@ -47,6 +48,23 @@ void clutter_stage_capture_into (ClutterStage          *stage,
                                  gboolean               paint,
                                  cairo_rectangle_int_t *rect,
                                  uint8_t               *data);
+
+CLUTTER_EXPORT
+void clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
+                                         CoglFramebuffer             *framebuffer,
+                                         const cairo_rectangle_int_t *rect,
+                                         float                        scale,
+                                         ClutterPaintFlag             paint_flags);
+
+CLUTTER_EXPORT
+gboolean clutter_stage_paint_to_buffer (ClutterStage                 *stage,
+                                        const cairo_rectangle_int_t  *rect,
+                                        float                         scale,
+                                        uint8_t                      *data,
+                                        int                           stride,
+                                        CoglPixelFormat               format,
+                                        ClutterPaintFlag              paint_flags,
+                                        GError                      **error);
 
 CLUTTER_EXPORT
 void clutter_stage_freeze_updates (ClutterStage *stage);
