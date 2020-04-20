@@ -65,7 +65,6 @@ struct _MetaStage
   ClutterStage parent;
 
   GPtrArray *watchers[N_WATCH_MODES];
-  ClutterStageView *current_view;
 
   GList *overlays;
   gboolean is_active;
@@ -169,6 +168,7 @@ meta_stage_finalize (GObject *object)
 static void
 notify_watchers_for_mode (MetaStage           *stage,
                           ClutterStageView    *view,
+                          ClutterPaintContext *paint_context,
                           MetaStageWatchPhase  watch_phase)
 {
   GPtrArray *watchers;
@@ -183,7 +183,7 @@ notify_watchers_for_mode (MetaStage           *stage,
       if (watch->view && view != watch->view)
         continue;
 
-      watch->callback (stage, view, watch->user_data);
+      watch->callback (stage, view, paint_context, watch->user_data);
     }
 }
 
@@ -192,11 +192,14 @@ meta_stage_paint (ClutterActor        *actor,
                   ClutterPaintContext *paint_context)
 {
   MetaStage *stage = META_STAGE (actor);
+  ClutterStageView *view;
   GList *l;
 
   CLUTTER_ACTOR_CLASS (meta_stage_parent_class)->paint (actor, paint_context);
 
-  notify_watchers_for_mode (stage, stage->current_view,
+  view = clutter_paint_context_get_stage_view (paint_context);
+
+  notify_watchers_for_mode (stage, view, paint_context,
                             META_STAGE_WATCH_AFTER_ACTOR_PAINT);
 
   g_signal_emit (stage, signals[ACTORS_PAINTED], 0);
@@ -204,7 +207,7 @@ meta_stage_paint (ClutterActor        *actor,
   for (l = stage->overlays; l; l = l->next)
     meta_overlay_paint (l->data, paint_context);
 
-  notify_watchers_for_mode (stage, stage->current_view,
+  notify_watchers_for_mode (stage, view, paint_context,
                             META_STAGE_WATCH_AFTER_OVERLAY_PAINT);
 }
 
@@ -215,13 +218,14 @@ meta_stage_paint_view (ClutterStage         *stage,
 {
   MetaStage *meta_stage = META_STAGE (stage);
 
-  notify_watchers_for_mode (meta_stage, view, META_STAGE_WATCH_BEFORE_PAINT);
+  notify_watchers_for_mode (meta_stage, view, NULL,
+                            META_STAGE_WATCH_BEFORE_PAINT);
 
-  meta_stage->current_view = view;
   CLUTTER_STAGE_CLASS (meta_stage_parent_class)->paint_view (stage, view,
                                                              redraw_clip);
 
-  notify_watchers_for_mode (meta_stage, view, META_STAGE_WATCH_AFTER_PAINT);
+  notify_watchers_for_mode (meta_stage, view, NULL,
+                            META_STAGE_WATCH_AFTER_PAINT);
 }
 
 static void
