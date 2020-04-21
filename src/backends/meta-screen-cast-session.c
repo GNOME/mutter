@@ -310,6 +310,7 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
     meta_backend_get_monitor_manager (backend);
   MetaMonitor *monitor;
   MetaScreenCastCursorMode cursor_mode;
+  gboolean is_recording;
   MetaScreenCastFlag flags;
   ClutterStage *stage;
   GError *error = NULL;
@@ -357,9 +358,14 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
         }
     }
 
+  if (!g_variant_lookup (properties_variant, "is-recording", "b", &is_recording))
+    is_recording = FALSE;
+
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
   flags = META_SCREEN_CAST_FLAG_NONE;
+  if (is_recording)
+    flags |= META_SCREEN_CAST_FLAG_IS_RECORDING;
 
   monitor_stream = meta_screen_cast_monitor_stream_new (session,
                                                         connection,
@@ -402,6 +408,7 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
   GDBusConnection *connection;
   MetaWindow *window;
   MetaScreenCastCursorMode cursor_mode;
+  gboolean is_recording;
   MetaScreenCastFlag flags;
   GError *error = NULL;
   MetaDisplay *display;
@@ -459,10 +466,15 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
         }
     }
 
+  if (!g_variant_lookup (properties_variant, "is-recording", "b", &is_recording))
+    is_recording = FALSE;
+
   interface_skeleton = G_DBUS_INTERFACE_SKELETON (skeleton);
   connection = g_dbus_interface_skeleton_get_connection (interface_skeleton);
 
   flags = META_SCREEN_CAST_FLAG_NONE;
+  if (is_recording)
+    flags |= META_SCREEN_CAST_FLAG_IS_RECORDING;
 
   window_stream = meta_screen_cast_window_stream_new (session,
                                                       connection,
@@ -509,6 +521,7 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
   MetaBackend *backend;
   ClutterStage *stage;
   MetaScreenCastCursorMode cursor_mode;
+  gboolean is_recording;
   MetaScreenCastFlag flags;
   g_autoptr (GError) error = NULL;
   MetaRectangle rect;
@@ -539,12 +552,17 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
         }
     }
 
+  if (!g_variant_lookup (properties_variant, "is-recording", "b", &is_recording))
+    is_recording = FALSE;
+
   interface_skeleton = G_DBUS_INTERFACE_SKELETON (skeleton);
   connection = g_dbus_interface_skeleton_get_connection (interface_skeleton);
   backend = meta_screen_cast_get_backend (session->screen_cast);
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
   flags = META_SCREEN_CAST_FLAG_NONE;
+  if (is_recording)
+    flags |= META_SCREEN_CAST_FLAG_IS_RECORDING;
 
   rect = (MetaRectangle) {
     .x = x,

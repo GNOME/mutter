@@ -40,6 +40,7 @@ typedef enum _MetaScreenCastCursorMode
 typedef enum _MetaScreenCastFlag
 {
   META_SCREEN_CAST_FLAG_NONE = 0,
+  META_SCREEN_CAST_FLAG_IS_RECORDING = 1 << 0,
 } MetaScreenCastFlag;
 
 #define META_TYPE_SCREEN_CAST (meta_screen_cast_get_type ())

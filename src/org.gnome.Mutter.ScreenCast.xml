@@ -79,6 +79,9 @@
 
 	* "cursor-mode" (u): Cursor mode. Default: 'hidden' (see below)
 	                     Available since API version 2.
+	* "is-recording" (b): Whether this is a screen recording. May be
+			      be used for choosing appropriate visual feedback.
+			      Default: false. Available since API version 4.
 
 	Available cursor mode values:
 
@@ -105,6 +108,9 @@
 
 	* "window-id" (t): Id of the window to record.
 	* "cursor-mode" (u): Cursor mode. Default: 'hidden' (see RecordMonitor).
+	* "is-recording" (b): Whether this is a screen recording. May be
+			      be used for choosing panel icon.
+			      Default: false. Available since API version 4.
 
     -->
     <method name="RecordWindow">
@@ -129,6 +135,9 @@
 
 	* "cursor-mode" (u): Cursor mode. Default: 'hidden' (see below)
 	                     Available since API version 2.
+	* "is-recording" (b): Whether this is a screen recording. May be
+			      be used for choosing panel icon.
+			      Default: false. Available since API version 4.
 
 	Available cursor mode values:
 
