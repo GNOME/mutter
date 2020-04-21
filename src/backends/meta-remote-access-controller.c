@@ -22,6 +22,9 @@
 
 #include "backends/meta-remote-access-controller-private.h"
 
+#include "backends/meta-remote-desktop.h"
+#include "backends/meta-screen-cast.h"
+
 enum
 {
   HANDLE_STOPPED,
@@ -54,6 +57,9 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaRemoteAccessHandle,
 struct _MetaRemoteAccessController
 {
   GObject parent;
+
+  MetaRemoteDesktop *remote_desktop;
+  MetaScreenCast *screen_cast;
 };
 
 G_DEFINE_TYPE (MetaRemoteAccessController,
@@ -120,6 +126,49 @@ meta_remote_access_controller_notify_new_handle (MetaRemoteAccessController *con
 {
   g_signal_emit (controller, controller_signals[CONTROLLER_NEW_HANDLE], 0,
                  handle);
+}
+
+/**
+ * meta_remote_access_controller_inhibit_remote_access:
+ * @controller: a #MetaRemoteAccessController
+ *
+ * Inhibits remote access sessions from being created and running. Any active
+ * remote access session will be terminated.
+ */
+void
+meta_remote_access_controller_inhibit_remote_access (MetaRemoteAccessController *controller)
+{
+  meta_remote_desktop_inhibit (controller->remote_desktop);
+  meta_screen_cast_inhibit (controller->screen_cast);
+}
+
+/**
+ * meta_remote_access_controller_uninhibit_remote_access:
+ * @controller: a #MetaRemoteAccessController
+ *
+ * Uninhibits remote access sessions from being created and running. If this was
+ * the last inhibitation that was inhibited, new remote access sessions can now
+ * be created.
+ */
+void
+meta_remote_access_controller_uninhibit_remote_access (MetaRemoteAccessController *controller)
+{
+  meta_screen_cast_uninhibit (controller->screen_cast);
+  meta_remote_desktop_uninhibit (controller->remote_desktop);
+}
+
+MetaRemoteAccessController *
+meta_remote_access_controller_new (MetaRemoteDesktop *remote_desktop,
+                                   MetaScreenCast    *screen_cast)
+{
+  MetaRemoteAccessController *remote_access_controller;
+
+  remote_access_controller = g_object_new (META_TYPE_REMOTE_ACCESS_CONTROLLER,
+                                           NULL);
+  remote_access_controller->remote_desktop = remote_desktop;
+  remote_access_controller->screen_cast = screen_cast;
+
+  return remote_access_controller;
 }
 
 static void

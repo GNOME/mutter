@@ -40,6 +40,8 @@ struct _MetaScreenCast
 
   int dbus_name_id;
 
+  int inhibit_count;
+
   GList *sessions;
 
   MetaDbusSessionWatcher *session_watcher;
@@ -53,6 +55,29 @@ G_DEFINE_TYPE_WITH_CODE (MetaScreenCast, meta_screen_cast,
                          META_DBUS_TYPE_SCREEN_CAST_SKELETON,
                          G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_SCREEN_CAST,
                                                 meta_screen_cast_init_iface))
+
+void
+meta_screen_cast_inhibit (MetaScreenCast *screen_cast)
+{
+  screen_cast->inhibit_count++;
+  if (screen_cast->inhibit_count == 1)
+    {
+      while (screen_cast->sessions)
+        {
+          MetaScreenCastSession *session = screen_cast->sessions->data;
+
+          meta_screen_cast_session_close (session);
+        }
+    }
+}
+
+void
+meta_screen_cast_uninhibit (MetaScreenCast *screen_cast)
+{
+  g_return_if_fail (screen_cast->inhibit_count > 0);
+
+  screen_cast->inhibit_count--;
+}
 
 GDBusConnection *
 meta_screen_cast_get_connection (MetaScreenCast *screen_cast)
@@ -118,6 +143,15 @@ handle_create_session (MetaDBusScreenCast    *skeleton,
   char *remote_desktop_session_id = NULL;
   gboolean disable_animations;
   MetaScreenCastSessionType session_type;
+
+  if (screen_cast->inhibit_count > 0)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_ACCESS_DENIED,
+                                             "Session creation inhibited");
+
+      return TRUE;
+    }
 
   g_variant_lookup (properties, "remote-desktop-session-id", "s",
                     &remote_desktop_session_id);

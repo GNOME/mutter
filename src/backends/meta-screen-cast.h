@@ -42,6 +42,10 @@ G_DECLARE_FINAL_TYPE (MetaScreenCast, meta_screen_cast,
                       META, SCREEN_CAST,
                       MetaDBusScreenCastSkeleton)
 
+void meta_screen_cast_inhibit (MetaScreenCast *screen_cast);
+
+void meta_screen_cast_uninhibit (MetaScreenCast *screen_cast);
+
 GDBusConnection * meta_screen_cast_get_connection (MetaScreenCast *screen_cast);
 
 MetaBackend * meta_screen_cast_get_backend (MetaScreenCast *screen_cast);

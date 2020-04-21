@@ -54,4 +54,10 @@ G_DECLARE_FINAL_TYPE (MetaRemoteAccessController,
                       META, REMOTE_ACCESS_CONTROLLER,
                       GObject)
 
+META_EXPORT
+void meta_remote_access_controller_inhibit_remote_access (MetaRemoteAccessController *controller);
+
+META_EXPORT
+void meta_remote_access_controller_uninhibit_remote_access (MetaRemoteAccessController *controller);
+
 #endif /* META_REMOTE_ACCESS_CONTROLLER_H */
