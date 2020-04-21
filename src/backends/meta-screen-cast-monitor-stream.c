@@ -110,6 +110,7 @@ meta_screen_cast_monitor_stream_new (MetaScreenCastSession     *session,
                                      MetaMonitor               *monitor,
                                      ClutterStage              *stage,
                                      MetaScreenCastCursorMode   cursor_mode,
+                                     MetaScreenCastFlag         flags,
                                      GError                   **error)
 {
   MetaGpu *gpu = meta_monitor_get_gpu (monitor);
@@ -130,6 +131,7 @@ meta_screen_cast_monitor_stream_new (MetaScreenCastSession     *session,
                                    "session", session,
                                    "connection", connection,
                                    "cursor-mode", cursor_mode,
+                                   "flags", flags,
                                    "monitor", monitor,
                                    NULL);
   if (!monitor_stream)

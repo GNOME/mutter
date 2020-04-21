@@ -40,6 +40,7 @@ MetaScreenCastMonitorStream * meta_screen_cast_monitor_stream_new (MetaScreenCas
                                                                    MetaMonitor               *monitor,
                                                                    ClutterStage              *stage,
                                                                    MetaScreenCastCursorMode   cursor_mode,
+                                                                   MetaScreenCastFlag         flags,
                                                                    GError                   **error);
 
 ClutterStage * meta_screen_cast_monitor_stream_get_stage (MetaScreenCastMonitorStream *monitor_stream);

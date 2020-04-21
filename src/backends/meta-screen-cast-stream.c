@@ -26,6 +26,8 @@
 
 #include "backends/meta-screen-cast-session.h"
 
+#include "meta-private-enum-types.h"
+
 #define META_SCREEN_CAST_STREAM_DBUS_IFACE "org.gnome.Mutter.ScreenCast.Stream"
 #define META_SCREEN_CAST_STREAM_DBUS_PATH "/org/gnome/Mutter/ScreenCast/Stream"
 
@@ -36,6 +38,7 @@ enum
   PROP_SESSION,
   PROP_CONNECTION,
   PROP_CURSOR_MODE,
+  PROP_FLAGS,
 };
 
 enum
@@ -55,6 +58,7 @@ typedef struct _MetaScreenCastStreamPrivate
   char *object_path;
 
   MetaScreenCastCursorMode cursor_mode;
+  MetaScreenCastFlag flags;
 
   MetaScreenCastStreamSrc *src;
 } MetaScreenCastStreamPrivate;
@@ -187,6 +191,15 @@ meta_screen_cast_stream_get_cursor_mode (MetaScreenCastStream *stream)
   return priv->cursor_mode;
 }
 
+MetaScreenCastFlag
+meta_screen_cast_stream_get_flags (MetaScreenCastStream *stream)
+{
+  MetaScreenCastStreamPrivate *priv =
+    meta_screen_cast_stream_get_instance_private (stream);
+
+  return priv->flags;
+}
+
 static void
 meta_screen_cast_stream_set_property (GObject      *object,
                                       guint         prop_id,
@@ -207,6 +220,9 @@ meta_screen_cast_stream_set_property (GObject      *object,
       break;
     case PROP_CURSOR_MODE:
       priv->cursor_mode = g_value_get_uint (value);
+      break;
+    case PROP_FLAGS:
+      priv->flags = g_value_get_flags (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -233,6 +249,9 @@ meta_screen_cast_stream_get_property (GObject    *object,
       break;
     case PROP_CURSOR_MODE:
       g_value_set_uint (value, priv->cursor_mode);
+      break;
+    case PROP_FLAGS:
+      g_value_set_flags (value, priv->flags);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -336,6 +355,17 @@ meta_screen_cast_stream_class_init (MetaScreenCastStreamClass *klass)
                                                       G_PARAM_READWRITE |
                                                       G_PARAM_CONSTRUCT_ONLY |
                                                       G_PARAM_STATIC_STRINGS));
+
+  g_object_class_install_property (object_class,
+                                   PROP_FLAGS,
+                                   g_param_spec_flags ("flags",
+                                                       "flags",
+                                                       "Screen cast flags",
+                                                       META_TYPE_SCREEN_CAST_FLAG,
+                                                       META_SCREEN_CAST_FLAG_NONE,
+                                                       G_PARAM_READWRITE |
+                                                       G_PARAM_CONSTRUCT_ONLY |
+                                                       G_PARAM_STATIC_STRINGS));
 
   signals[CLOSED] = g_signal_new ("closed",
                                   G_TYPE_FROM_CLASS (klass),

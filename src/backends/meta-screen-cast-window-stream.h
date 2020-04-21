@@ -36,6 +36,7 @@ MetaScreenCastWindowStream * meta_screen_cast_window_stream_new (MetaScreenCastS
                                                                  GDBusConnection           *connection,
                                                                  MetaWindow                *window,
                                                                  MetaScreenCastCursorMode   cursor_mode,
+                                                                 MetaScreenCastFlag         flags,
                                                                  GError                   **error);
 
 MetaWindow  * meta_screen_cast_window_stream_get_window (MetaScreenCastWindowStream *window_stream);

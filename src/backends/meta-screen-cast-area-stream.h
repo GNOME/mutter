@@ -37,6 +37,7 @@ MetaScreenCastAreaStream * meta_screen_cast_area_stream_new (MetaScreenCastSessi
                                                              MetaRectangle             *area,
                                                              ClutterStage              *stage,
                                                              MetaScreenCastCursorMode   cursor_mode,
+                                                             MetaScreenCastFlag         flags,
                                                              GError                   **error);
 
 ClutterStage * meta_screen_cast_area_stream_get_stage (MetaScreenCastAreaStream *area_stream);

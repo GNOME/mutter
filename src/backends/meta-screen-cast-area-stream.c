@@ -87,6 +87,7 @@ meta_screen_cast_area_stream_new (MetaScreenCastSession     *session,
                                   MetaRectangle             *area,
                                   ClutterStage              *stage,
                                   MetaScreenCastCursorMode   cursor_mode,
+                                  MetaScreenCastFlag         flags,
                                   GError                   **error)
 {
   MetaScreenCastAreaStream *area_stream;
@@ -105,6 +106,7 @@ meta_screen_cast_area_stream_new (MetaScreenCastSession     *session,
                                 "session", session,
                                 "connection", connection,
                                 "cursor-mode", cursor_mode,
+                                "flags", flags,
                                 NULL);
   if (!area_stream)
     return NULL;

@@ -719,6 +719,18 @@ endif
 
 mutter_built_sources = []
 
+if have_remote_desktop
+  mutter_private_enum_types = gnome.mkenums('meta-private-enum-types',
+    sources: [
+      'backends/meta-screen-cast.h',
+    ],
+    c_template: 'meta-private-enum-types.c.in',
+    h_template: 'meta-private-enum-types.h.in',
+  )
+
+  mutter_built_sources += mutter_private_enum_types
+endif
+
 dbus_display_config_built_sources = gnome.gdbus_codegen('meta-dbus-display-config',
     'org.gnome.Mutter.DisplayConfig.xml',
     interface_prefix: 'org.gnome.Mutter.',

@@ -84,6 +84,7 @@ meta_screen_cast_window_stream_new (MetaScreenCastSession     *session,
                                     GDBusConnection           *connection,
                                     MetaWindow                *window,
                                     MetaScreenCastCursorMode   cursor_mode,
+                                    MetaScreenCastFlag         flags,
                                     GError                   **error)
 {
   return g_initable_new (META_TYPE_SCREEN_CAST_WINDOW_STREAM,
@@ -92,6 +93,7 @@ meta_screen_cast_window_stream_new (MetaScreenCastSession     *session,
                          "session", session,
                          "connection", connection,
                          "cursor-mode", cursor_mode,
+                         "flags", flags,
                          "window", window,
                          NULL);
 }

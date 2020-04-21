@@ -310,6 +310,7 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
     meta_backend_get_monitor_manager (backend);
   MetaMonitor *monitor;
   MetaScreenCastCursorMode cursor_mode;
+  MetaScreenCastFlag flags;
   ClutterStage *stage;
   GError *error = NULL;
   MetaScreenCastMonitorStream *monitor_stream;
@@ -358,11 +359,14 @@ handle_record_monitor (MetaDBusScreenCastSession *skeleton,
 
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
+  flags = META_SCREEN_CAST_FLAG_NONE;
+
   monitor_stream = meta_screen_cast_monitor_stream_new (session,
                                                         connection,
                                                         monitor,
                                                         stage,
                                                         cursor_mode,
+                                                        flags,
                                                         &error);
   if (!monitor_stream)
     {
@@ -398,6 +402,7 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
   GDBusConnection *connection;
   MetaWindow *window;
   MetaScreenCastCursorMode cursor_mode;
+  MetaScreenCastFlag flags;
   GError *error = NULL;
   MetaDisplay *display;
   GVariant *window_id_variant = NULL;
@@ -457,10 +462,13 @@ handle_record_window (MetaDBusScreenCastSession *skeleton,
   interface_skeleton = G_DBUS_INTERFACE_SKELETON (skeleton);
   connection = g_dbus_interface_skeleton_get_connection (interface_skeleton);
 
+  flags = META_SCREEN_CAST_FLAG_NONE;
+
   window_stream = meta_screen_cast_window_stream_new (session,
                                                       connection,
                                                       window,
                                                       cursor_mode,
+                                                      flags,
                                                       &error);
   if (!window_stream)
     {
@@ -501,6 +509,7 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
   MetaBackend *backend;
   ClutterStage *stage;
   MetaScreenCastCursorMode cursor_mode;
+  MetaScreenCastFlag flags;
   g_autoptr (GError) error = NULL;
   MetaRectangle rect;
   MetaScreenCastAreaStream *area_stream;
@@ -535,6 +544,8 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
   backend = meta_screen_cast_get_backend (session->screen_cast);
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
+  flags = META_SCREEN_CAST_FLAG_NONE;
+
   rect = (MetaRectangle) {
     .x = x,
     .y = y,
@@ -546,6 +557,7 @@ handle_record_area (MetaDBusScreenCastSession *skeleton,
                                                   &rect,
                                                   stage,
                                                   cursor_mode,
+                                                  flags,
                                                   &error);
   if (!area_stream)
     {

@@ -37,6 +37,11 @@ typedef enum _MetaScreenCastCursorMode
   META_SCREEN_CAST_CURSOR_MODE_METADATA = 2,
 } MetaScreenCastCursorMode;
 
+typedef enum _MetaScreenCastFlag
+{
+  META_SCREEN_CAST_FLAG_NONE = 0,
+} MetaScreenCastFlag;
+
 #define META_TYPE_SCREEN_CAST (meta_screen_cast_get_type ())
 G_DECLARE_FINAL_TYPE (MetaScreenCast, meta_screen_cast,
                       META, SCREEN_CAST,
