@@ -38,6 +38,17 @@ static int handle_signals[N_HANDLE_SIGNALS];
 
 enum
 {
+  PROP_0,
+
+  PROP_IS_RECORDING,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
+enum
+{
   CONTROLLER_NEW_HANDLE,
 
   N_CONTROLLER_SIGNALS
@@ -50,6 +61,8 @@ typedef struct _MetaRemoteAccessHandlePrivate
   gboolean has_stopped;
 
   gboolean disable_animations;
+
+  gboolean is_recording;
 } MetaRemoteAccessHandlePrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaRemoteAccessHandle,
@@ -178,6 +191,48 @@ meta_remote_access_controller_new (MetaRemoteDesktop *remote_desktop,
 }
 
 static void
+meta_remote_access_handle_get_property (GObject    *object,
+                                        guint       prop_id,
+                                        GValue     *value,
+                                        GParamSpec *pspec)
+{
+  MetaRemoteAccessHandle *handle = META_REMOTE_ACCESS_HANDLE (object);
+  MetaRemoteAccessHandlePrivate *priv =
+    meta_remote_access_handle_get_instance_private (handle);
+
+  switch (prop_id)
+    {
+    case PROP_IS_RECORDING:
+      g_value_set_boolean (value, priv->is_recording);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_remote_access_handle_set_property (GObject      *object,
+                                        guint         prop_id,
+                                        const GValue *value,
+                                        GParamSpec   *pspec)
+{
+  MetaRemoteAccessHandle *handle = META_REMOTE_ACCESS_HANDLE (object);
+  MetaRemoteAccessHandlePrivate *priv =
+    meta_remote_access_handle_get_instance_private (handle);
+
+  switch (prop_id)
+    {
+    case PROP_IS_RECORDING:
+      priv->is_recording = g_value_get_boolean (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_remote_access_handle_init (MetaRemoteAccessHandle *handle)
 {
 }
@@ -185,6 +240,11 @@ meta_remote_access_handle_init (MetaRemoteAccessHandle *handle)
 static void
 meta_remote_access_handle_class_init (MetaRemoteAccessHandleClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->get_property = meta_remote_access_handle_get_property;
+  object_class->set_property = meta_remote_access_handle_set_property;
+
   handle_signals[HANDLE_STOPPED] =
     g_signal_new ("stopped",
                   G_TYPE_FROM_CLASS (klass),
@@ -192,6 +252,16 @@ meta_remote_access_handle_class_init (MetaRemoteAccessHandleClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  obj_props[PROP_IS_RECORDING] =
+    g_param_spec_boolean ("is-recording",
+                          "is-recording",
+                          "Is a screen recording",
+                          FALSE,
+                          G_PARAM_READWRITE |
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
 
 static void

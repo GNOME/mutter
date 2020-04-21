@@ -677,12 +677,37 @@ meta_screen_cast_session_class_init (MetaScreenCastSessionClass *klass)
   object_class->finalize = meta_screen_cast_session_finalize;
 }
 
+static gboolean
+meta_screen_cast_session_is_recording (MetaScreenCastSession *session)
+{
+  GList *l;
+
+  if (!session->streams)
+    return FALSE;
+
+  for (l = session->streams; l; l = l->next)
+    {
+      MetaScreenCastStream *stream = l->data;
+      MetaScreenCastFlag flags;
+
+      flags = meta_screen_cast_stream_get_flags (stream);
+      if (!(flags & META_SCREEN_CAST_FLAG_IS_RECORDING))
+        return FALSE;
+    }
+
+  return TRUE;
+}
+
 static MetaScreenCastSessionHandle *
 meta_screen_cast_session_handle_new (MetaScreenCastSession *session)
 {
   MetaScreenCastSessionHandle *handle;
+  gboolean is_recording;
 
-  handle = g_object_new (META_TYPE_SCREEN_CAST_SESSION_HANDLE, NULL);
+  is_recording = meta_screen_cast_session_is_recording (session);
+  handle = g_object_new (META_TYPE_SCREEN_CAST_SESSION_HANDLE,
+                         "is-recording", is_recording,
+                         NULL);
   handle->session = session;
 
   return handle;
