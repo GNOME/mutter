@@ -63,7 +63,6 @@
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
 #include "compositor/meta-window-actor-x11.h"
-#include "compositor/meta-window-actor-wayland.h"
 #include "compositor/meta-window-actor-private.h"
 #include "compositor/meta-window-group-private.h"
 #include "core/display-private.h"
@@ -82,6 +81,7 @@
 #include "x11/meta-x11-display-private.h"
 
 #ifdef HAVE_WAYLAND
+#include "compositor/meta-window-actor-wayland.h"
 #include "wayland/meta-wayland-private.h"
 #endif
 
