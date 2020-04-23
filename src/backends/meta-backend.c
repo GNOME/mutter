@@ -809,9 +809,6 @@ static MetaMonitorManager *
 meta_backend_create_monitor_manager (MetaBackend *backend,
                                      GError     **error)
 {
-  if (g_getenv ("META_DUMMY_MONITORS"))
-    return g_object_new (META_TYPE_MONITOR_MANAGER_DUMMY, NULL);
-
   return META_BACKEND_GET_CLASS (backend)->create_monitor_manager (backend,
                                                                    error);
 }
