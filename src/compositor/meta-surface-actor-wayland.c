@@ -56,19 +56,12 @@ meta_surface_actor_wayland_process_damage (MetaSurfaceActor *actor,
                                            int               width,
                                            int               height)
 {
+  meta_surface_actor_update_area (actor, x, y, width, height);
 }
 
 static void
 meta_surface_actor_wayland_pre_paint (MetaSurfaceActor *actor)
 {
-}
-
-static gboolean
-meta_surface_actor_wayland_is_visible (MetaSurfaceActor *actor)
-{
-  /* TODO: ensure that the buffer isn't NULL, implement
-   * wayland mapping semantics */
-  return TRUE;
 }
 
 static gboolean
@@ -140,7 +133,6 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
 
   surface_actor_class->process_damage = meta_surface_actor_wayland_process_damage;
   surface_actor_class->pre_paint = meta_surface_actor_wayland_pre_paint;
-  surface_actor_class->is_visible = meta_surface_actor_wayland_is_visible;
   surface_actor_class->is_opaque = meta_surface_actor_wayland_is_opaque;
 
   object_class->dispose = meta_surface_actor_wayland_dispose;

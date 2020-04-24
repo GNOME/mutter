@@ -181,8 +181,8 @@ update_pixmap (MetaSurfaceActorX11 *self)
     }
 }
 
-static gboolean
-is_visible (MetaSurfaceActorX11 *self)
+gboolean
+meta_surface_actor_x11_is_visible (MetaSurfaceActorX11 *self)
 {
   return (self->pixmap != None) && !self->unredirected;
 }
@@ -212,11 +212,12 @@ meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
         self->does_full_damage = TRUE;
     }
 
-  if (!is_visible (self))
+  if (!meta_surface_actor_x11_is_visible (self))
     return;
 
   cogl_texture_pixmap_x11_update_area (COGL_TEXTURE_PIXMAP_X11 (self->texture),
                                        x, y, width, height);
+  meta_surface_actor_update_area (actor, x, y, width, height);
 }
 
 static void
@@ -236,13 +237,6 @@ meta_surface_actor_x11_pre_paint (MetaSurfaceActor *actor)
     }
 
   update_pixmap (self);
-}
-
-static gboolean
-meta_surface_actor_x11_is_visible (MetaSurfaceActor *actor)
-{
-  MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
-  return is_visible (self);
 }
 
 static gboolean
@@ -358,7 +352,6 @@ meta_surface_actor_x11_class_init (MetaSurfaceActorX11Class *klass)
 
   surface_actor_class->process_damage = meta_surface_actor_x11_process_damage;
   surface_actor_class->pre_paint = meta_surface_actor_x11_pre_paint;
-  surface_actor_class->is_visible = meta_surface_actor_x11_is_visible;
   surface_actor_class->is_opaque = meta_surface_actor_x11_is_opaque;
 }
 
