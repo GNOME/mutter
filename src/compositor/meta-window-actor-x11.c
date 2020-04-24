@@ -85,6 +85,8 @@ struct _MetaWindowActorX11
   cairo_region_t *shape_region;
   /* The region we should clip to when painting the shadow */
   cairo_region_t *shadow_clip;
+  /* The frame region */
+  cairo_region_t *frame_bounds;
 
   /* Extracted size-invariant shape used for shadows */
   MetaWindowShape *shadow_shape;
@@ -702,11 +704,8 @@ set_clip_region_beneath (MetaWindowActorX11 *actor_x11,
 
           if (clip_shadow_under_window (actor_x11))
             {
-              cairo_region_t *frame_bounds;
-
-              frame_bounds = meta_window_get_frame_bounds (window);
-              if (frame_bounds)
-                cairo_region_subtract (actor_x11->shadow_clip, frame_bounds);
+              if (actor_x11->frame_bounds)
+                cairo_region_subtract (actor_x11->shadow_clip, actor_x11->frame_bounds);
             }
         }
       else
@@ -1127,6 +1126,17 @@ update_opaque_region (MetaWindowActorX11 *actor_x11)
 }
 
 static void
+update_frame_bounds (MetaWindowActorX11 *actor_x11)
+{
+  MetaWindow *window =
+    meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
+
+  g_clear_pointer (&actor_x11->frame_bounds, cairo_region_destroy);
+  actor_x11->frame_bounds =
+    cairo_region_copy (meta_window_get_frame_bounds (window));
+}
+
+static void
 update_regions (MetaWindowActorX11 *actor_x11)
 {
   if (!actor_x11->needs_reshape)
@@ -1197,6 +1207,7 @@ handle_updates (MetaWindowActorX11 *actor_x11)
   if (!meta_surface_actor_is_visible (surface))
     return;
 
+  update_frame_bounds (actor_x11);
   check_needs_reshape (actor_x11);
   check_needs_shadow (actor_x11);
 }
@@ -1250,15 +1261,13 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
        */
       if (!clip && clip_shadow_under_window (actor_x11))
         {
-          cairo_region_t *frame_bounds;
           cairo_rectangle_int_t bounds;
 
           get_shadow_bounds (actor_x11, appears_focused, &bounds);
           clip = cairo_region_create_rectangle (&bounds);
 
-          frame_bounds = meta_window_get_frame_bounds (window);
-          if (frame_bounds)
-            cairo_region_subtract (clip, frame_bounds);
+          if (actor_x11->frame_bounds)
+            cairo_region_subtract (clip, actor_x11->frame_bounds);
         }
 
       framebuffer = clutter_paint_context_get_framebuffer (paint_context);
@@ -1545,6 +1554,7 @@ meta_window_actor_x11_dispose (GObject *object)
 
   g_clear_pointer (&actor_x11->shape_region, cairo_region_destroy);
   g_clear_pointer (&actor_x11->shadow_clip, cairo_region_destroy);
+  g_clear_pointer (&actor_x11->frame_bounds, cairo_region_destroy);
 
   g_clear_pointer (&actor_x11->shadow_class, g_free);
   g_clear_pointer (&actor_x11->focused_shadow, meta_shadow_unref);
