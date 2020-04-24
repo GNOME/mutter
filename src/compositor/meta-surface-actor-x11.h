@@ -53,6 +53,8 @@ void meta_surface_actor_x11_set_unredirected (MetaSurfaceActorX11 *self,
 
 gboolean meta_surface_actor_x11_is_unredirected (MetaSurfaceActorX11 *self);
 
+gboolean meta_surface_actor_x11_is_visible (MetaSurfaceActorX11 *self);
+
 G_END_DECLS
 
 #endif /* __META_SURFACE_ACTOR_X11_H__ */
