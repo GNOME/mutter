@@ -356,15 +356,6 @@ surface_process_damage (MetaWaylandSurface *surface,
   cairo_region_destroy (transformed_region);
 }
 
-void
-meta_wayland_surface_queue_pending_state_frame_callbacks (MetaWaylandSurface      *surface,
-                                                          MetaWaylandSurfaceState *pending)
-{
-  wl_list_insert_list (&surface->compositor->frame_callbacks,
-                       &pending->frame_callback_list);
-  wl_list_init (&pending->frame_callback_list);
-}
-
 MetaWaylandBuffer *
 meta_wayland_surface_get_buffer (MetaWaylandSurface *surface)
 {
@@ -597,15 +588,6 @@ meta_wayland_surface_state_class_init (MetaWaylandSurfaceStateClass *klass)
                   G_TYPE_NONE, 0);
 }
 
-void
-meta_wayland_surface_cache_pending_frame_callbacks (MetaWaylandSurface      *surface,
-                                                    MetaWaylandSurfaceState *pending)
-{
-  wl_list_insert_list (&surface->pending_frame_callback_list,
-                       &pending->frame_callback_list);
-  wl_list_init (&pending->frame_callback_list);
-}
-
 static void
 meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
                                   MetaWaylandSurfaceState *state)
@@ -735,7 +717,9 @@ meta_wayland_surface_apply_state (MetaWaylandSurface      *surface,
     }
   else
     {
-      meta_wayland_surface_cache_pending_frame_callbacks (surface, state);
+      wl_list_insert_list (surface->unassigned.pending_frame_callback_list.prev,
+                           &state->frame_callback_list);
+      wl_list_init (&state->frame_callback_list);
 
       if (state->newly_attached)
         {
@@ -1295,14 +1279,16 @@ wl_surface_destructor (struct wl_resource *resource)
   if (surface->input_region)
     cairo_region_destroy (surface->input_region);
 
-  meta_wayland_compositor_destroy_frame_callbacks (compositor, surface);
+  meta_wayland_compositor_remove_frame_callback_surface (compositor, surface);
 
   g_hash_table_foreach (surface->outputs_to_destroy_notify_id,
                         surface_output_disconnect_signal,
                         surface);
   g_hash_table_unref (surface->outputs_to_destroy_notify_id);
 
-  wl_list_for_each_safe (cb, next, &surface->pending_frame_callback_list, link)
+  wl_list_for_each_safe (cb, next,
+                         &surface->unassigned.pending_frame_callback_list,
+                         link)
     wl_resource_destroy (cb->resource);
 
   if (surface->resource)
@@ -1349,7 +1335,7 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
                                   surface,
                                   wl_surface_destructor);
 
-  wl_list_init (&surface->pending_frame_callback_list);
+  wl_list_init (&surface->unassigned.pending_frame_callback_list);
 
   surface->outputs_to_destroy_notify_id = g_hash_table_new (NULL, NULL);
   surface->shortcut_inhibited_seats = g_hash_table_new (NULL, NULL);
@@ -1815,14 +1801,6 @@ meta_wayland_surface_role_get_surface (MetaWaylandSurfaceRole *role)
     meta_wayland_surface_role_get_instance_private (role);
 
   return priv->surface;
-}
-
-void
-meta_wayland_surface_queue_pending_frame_callbacks (MetaWaylandSurface *surface)
-{
-  wl_list_insert_list (&surface->compositor->frame_callbacks,
-                       &surface->pending_frame_callback_list);
-  wl_list_init (&surface->pending_frame_callback_list);
 }
 
 cairo_region_t *

@@ -48,4 +48,7 @@ void meta_wayland_actor_surface_reset_actor (MetaWaylandActorSurface *actor_surf
 void meta_wayland_actor_surface_queue_frame_callbacks (MetaWaylandActorSurface *actor_surface,
                                                        MetaWaylandSurfaceState *pending);
 
+void meta_wayland_actor_surface_emit_frame_callbacks (MetaWaylandActorSurface *actor_surface,
+                                                      uint32_t                 timestamp_ms);
+
 #endif /* META_WAYLAND_ACTOR_SURFACE_H */

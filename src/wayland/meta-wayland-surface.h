@@ -166,13 +166,9 @@ struct _MetaWaylandSurface
   /* Buffer renderer state. */
   gboolean buffer_held;
 
-  /* List of pending frame callbacks that needs to stay queued longer than one
-   * commit sequence, such as when it has not yet been assigned a role.
-   */
-  struct wl_list pending_frame_callback_list;
-
   /* Intermediate state for when no role has been assigned. */
   struct {
+    struct wl_list pending_frame_callback_list;
     MetaWaylandBuffer *buffer;
   } unassigned;
 
@@ -285,9 +281,6 @@ MetaWindow *        meta_wayland_surface_get_window (MetaWaylandSurface *surface
 gboolean            meta_wayland_surface_should_cache_state (MetaWaylandSurface *surface);
 
 MetaWindow *        meta_wayland_surface_get_toplevel_window (MetaWaylandSurface *surface);
-
-void                meta_wayland_surface_cache_pending_frame_callbacks (MetaWaylandSurface      *surface,
-                                                                        MetaWaylandSurfaceState *pending);
 
 void                meta_wayland_surface_queue_pending_frame_callbacks (MetaWaylandSurface *surface);
 

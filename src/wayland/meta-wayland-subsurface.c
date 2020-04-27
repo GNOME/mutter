@@ -363,9 +363,6 @@ wl_subsurface_destructor (struct wl_resource *resource)
 {
   MetaWaylandSurface *surface = wl_resource_get_user_data (resource);
 
-  meta_wayland_compositor_destroy_frame_callbacks (surface->compositor,
-                                                   surface);
-
   g_node_unlink (surface->subsurface_branch_node);
   unparent_actor (surface);
 

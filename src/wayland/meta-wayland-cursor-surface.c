@@ -124,8 +124,8 @@ meta_wayland_cursor_surface_assigned (MetaWaylandSurfaceRole *surface_role)
     meta_wayland_cursor_surface_get_instance_private (cursor_surface);
 
   wl_list_insert_list (&priv->frame_callbacks,
-                       &surface->pending_frame_callback_list);
-  wl_list_init (&surface->pending_frame_callback_list);
+                       &surface->unassigned.pending_frame_callback_list);
+  wl_list_init (&surface->unassigned.pending_frame_callback_list);
 }
 
 static void

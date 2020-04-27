@@ -23,6 +23,7 @@
 
 #include "backends/meta-logical-monitor.h"
 #include "compositor/meta-feedback-actor-private.h"
+#include "wayland/meta-wayland.h"
 
 struct _MetaWaylandSurfaceRoleDND
 {
@@ -42,7 +43,11 @@ dnd_surface_assigned (MetaWaylandSurfaceRole *surface_role)
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
 
-  meta_wayland_surface_queue_pending_frame_callbacks (surface);
+  if (wl_list_empty (&surface->unassigned.pending_frame_callback_list))
+    return;
+
+  meta_wayland_compositor_add_frame_callback_surface (surface->compositor,
+                                                      surface);
 }
 
 static void
@@ -56,7 +61,8 @@ dnd_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
   MetaWaylandSurfaceRoleClass *surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_surface_role_dnd_parent_class);
 
-  meta_wayland_surface_queue_pending_state_frame_callbacks (surface, pending);
+  meta_wayland_compositor_add_frame_callback_surface (surface->compositor,
+                                                      surface);
 
   surface_role_dnd->pending_offset_x = pending->dx;
   surface_role_dnd->pending_offset_y = pending->dy;

@@ -104,9 +104,15 @@ meta_wayland_actor_surface_assigned (MetaWaylandSurfaceRole *surface_role)
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
 
-  meta_surface_actor_wayland_add_frame_callbacks (META_SURFACE_ACTOR_WAYLAND (priv->actor),
-                                                  &surface->pending_frame_callback_list);
-  wl_list_init (&surface->pending_frame_callback_list);
+  if (wl_list_empty (&surface->unassigned.pending_frame_callback_list))
+    return;
+
+  wl_list_insert_list (priv->frame_callback_list.prev,
+                       &surface->unassigned.pending_frame_callback_list);
+  wl_list_init (&surface->unassigned.pending_frame_callback_list);
+
+  meta_wayland_compositor_add_frame_callback_surface (surface->compositor,
+                                                      surface);
 }
 
 void
@@ -115,18 +121,37 @@ meta_wayland_actor_surface_queue_frame_callbacks (MetaWaylandActorSurface *actor
 {
   MetaWaylandActorSurfacePrivate *priv =
     meta_wayland_actor_surface_get_instance_private (actor_surface);
-  MetaSurfaceActorWayland *surface_actor_wayland =
-    META_SURFACE_ACTOR_WAYLAND (priv->actor);
+  MetaWaylandSurfaceRole *surface_role =
+    META_WAYLAND_SURFACE_ROLE (actor_surface);
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
 
-  if (!priv->actor)
+  if (wl_list_empty (&pending->frame_callback_list))
     return;
 
-  meta_surface_actor_wayland_add_frame_callbacks (surface_actor_wayland,
-                                                  &priv->frame_callback_list);
-  wl_list_init (&priv->frame_callback_list);
-  meta_surface_actor_wayland_add_frame_callbacks (surface_actor_wayland,
-                                                  &pending->frame_callback_list);
+  wl_list_insert_list (priv->frame_callback_list.prev,
+                       &pending->frame_callback_list);
   wl_list_init (&pending->frame_callback_list);
+
+  meta_wayland_compositor_add_frame_callback_surface (surface->compositor,
+                                                      surface);
+}
+
+void
+meta_wayland_actor_surface_emit_frame_callbacks (MetaWaylandActorSurface *actor_surface,
+                                                 uint32_t                 timestamp_ms)
+{
+  MetaWaylandActorSurfacePrivate *priv =
+    meta_wayland_actor_surface_get_instance_private (actor_surface);
+
+  while (!wl_list_empty (&priv->frame_callback_list))
+    {
+      MetaWaylandFrameCallback *callback =
+        wl_container_of (priv->frame_callback_list.next, callback, link);
+
+      wl_callback_send_done (callback->resource, timestamp_ms);
+      wl_resource_destroy (callback->resource);
+    }
 }
 
 double
@@ -262,18 +287,17 @@ meta_wayland_actor_surface_apply_state (MetaWaylandSurfaceRole  *surface_role,
   MetaWaylandActorSurfacePrivate *priv =
     meta_wayland_actor_surface_get_instance_private (actor_surface);
 
-  if (!priv->actor)
-    {
-      wl_list_insert_list (&priv->frame_callback_list,
-                           &pending->frame_callback_list);
-      wl_list_init (&pending->frame_callback_list);
-      return;
-    }
-
   if (!wl_list_empty (&pending->frame_callback_list) &&
-      cairo_region_is_empty (pending->surface_damage) &&
-      cairo_region_is_empty (pending->buffer_damage))
-    clutter_actor_queue_redraw (CLUTTER_ACTOR (priv->actor));
+      priv->actor &&
+      !meta_surface_actor_is_obscured (priv->actor))
+    {
+      MetaWaylandSurface *surface =
+        meta_wayland_surface_role_get_surface (surface_role);
+      MetaBackend *backend = surface->compositor->backend;
+      ClutterActor *stage = meta_backend_get_stage (backend);
+
+      clutter_stage_schedule_update (CLUTTER_STAGE (stage));
+    }
 
   meta_wayland_actor_surface_queue_frame_callbacks (actor_surface, pending);
 

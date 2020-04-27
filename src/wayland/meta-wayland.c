@@ -197,15 +197,35 @@ meta_wayland_compositor_update (MetaWaylandCompositor *compositor,
 void
 meta_wayland_compositor_paint_finished (MetaWaylandCompositor *compositor)
 {
-  gint64 current_time = g_get_monotonic_time ();
+  GList *l;
+  int64_t now_us;
 
-  while (!wl_list_empty (&compositor->frame_callbacks))
+  now_us = g_get_monotonic_time ();
+
+  l = compositor->frame_callback_surfaces;
+  while (l)
     {
-      MetaWaylandFrameCallback *callback =
-        wl_container_of (compositor->frame_callbacks.next, callback, link);
+      GList *l_cur = l;
+      MetaWaylandSurface *surface = l->data;
+      MetaSurfaceActor *actor;
+      MetaWaylandActorSurface *actor_surface;
 
-      wl_callback_send_done (callback->resource, current_time / 1000);
-      wl_resource_destroy (callback->resource);
+      l = l->next;
+
+      actor = meta_wayland_surface_get_actor (surface);
+      if (!actor)
+        continue;
+
+      if (!clutter_actor_has_mapped_clones (CLUTTER_ACTOR (actor)) &&
+          meta_surface_actor_is_obscured (actor))
+        continue;
+
+      actor_surface = META_WAYLAND_ACTOR_SURFACE (surface->role);
+      meta_wayland_actor_surface_emit_frame_callbacks (actor_surface,
+                                                       now_us / 1000);
+
+      compositor->frame_callback_surfaces =
+        g_list_delete_link (compositor->frame_callback_surfaces, l_cur);
     }
 }
 
@@ -252,16 +272,22 @@ meta_wayland_compositor_update_key_state (MetaWaylandCompositor *compositor,
 }
 
 void
-meta_wayland_compositor_destroy_frame_callbacks (MetaWaylandCompositor *compositor,
-                                                 MetaWaylandSurface    *surface)
+meta_wayland_compositor_add_frame_callback_surface (MetaWaylandCompositor *compositor,
+                                                    MetaWaylandSurface    *surface)
 {
-  MetaWaylandFrameCallback *callback, *next;
+  if (g_list_find (compositor->frame_callback_surfaces, surface))
+    return;
 
-  wl_list_for_each_safe (callback, next, &compositor->frame_callbacks, link)
-    {
-      if (callback->surface == surface)
-        wl_resource_destroy (callback->resource);
-    }
+  compositor->frame_callback_surfaces =
+    g_list_prepend (compositor->frame_callback_surfaces, surface);
+}
+
+void
+meta_wayland_compositor_remove_frame_callback_surface (MetaWaylandCompositor *compositor,
+                                                       MetaWaylandSurface    *surface)
+{
+  compositor->frame_callback_surfaces =
+    g_list_remove (compositor->frame_callback_surfaces, surface);
 }
 
 static void
@@ -313,8 +339,6 @@ meta_wayland_log_func (const char *fmt,
 static void
 meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
 {
-  wl_list_init (&compositor->frame_callbacks);
-
   compositor->scheduled_surface_associations = g_hash_table_new (NULL, NULL);
 
   wl_log_set_handler_server (meta_wayland_log_func);
