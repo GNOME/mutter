@@ -886,7 +886,7 @@ meta_backend_init_wayland_display (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
-  priv->wayland_compositor = meta_wayland_compositor_new ();
+  priv->wayland_compositor = meta_wayland_compositor_new (backend);
 }
 
 void

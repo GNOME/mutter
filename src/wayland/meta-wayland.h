@@ -37,7 +37,7 @@ void                    meta_wayland_init                       (void);
 
 void                    meta_wayland_finalize                   (void);
 
-MetaWaylandCompositor * meta_wayland_compositor_new             (void);
+MetaWaylandCompositor * meta_wayland_compositor_new             (MetaBackend *backend);
 
 void                    meta_wayland_compositor_setup           (MetaWaylandCompositor *compositor);
 
