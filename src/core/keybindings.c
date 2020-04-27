@@ -2129,7 +2129,7 @@ process_special_modifier_key (MetaDisplay          *display,
       return TRUE;
     }
   else if (event->type == CLUTTER_KEY_PRESS &&
-           (event->modifier_state & ~(IGNORED_MODIFIERS)) == 0 &&
+           ((event->modifier_state & ~(IGNORED_MODIFIERS)) & CLUTTER_MODIFIER_MASK) == 0 &&
            resolved_key_combo_has_keycode (resolved_key_combo,
                                            event->hardware_keycode))
     {
