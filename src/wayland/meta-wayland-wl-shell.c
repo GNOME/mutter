@@ -103,9 +103,6 @@ wl_shell_surface_destructor (struct wl_resource *resource)
     surface_from_wl_shell_surface_resource (resource);
   GList *l;
 
-  meta_wayland_compositor_destroy_frame_callbacks (surface->compositor,
-                                                   surface);
-
   if (wl_shell_surface->popup)
     meta_wayland_popup_dismiss (wl_shell_surface->popup);
 
