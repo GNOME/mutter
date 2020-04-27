@@ -366,6 +366,10 @@ meta_backend_native_post_init (MetaBackend *backend)
       if (retval != 0)
         g_warning ("Failed to set RT scheduler: %m");
     }
+
+#ifdef HAVE_WAYLAND
+  meta_backend_init_wayland (backend);
+#endif
 }
 
 static MetaMonitorManager *
@@ -646,6 +650,10 @@ meta_backend_native_initable_init (GInitable     *initable,
   native->launcher = meta_launcher_new (error);
   if (!native->launcher)
     return FALSE;
+
+#ifdef HAVE_WAYLAND
+  meta_backend_init_wayland_display (META_BACKEND (native));
+#endif
 
   native->udev = meta_udev_new (native);
   native->barrier_manager = meta_barrier_manager_native_new ();

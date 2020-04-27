@@ -33,8 +33,16 @@ typedef struct _MetaBackendX11NestedPrivate
   MetaGpu *gpu;
 } MetaBackendX11NestedPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaBackendX11Nested, meta_backend_x11_nested,
-                            META_TYPE_BACKEND_X11)
+static GInitableIface *initable_parent_iface;
+
+static void
+initable_iface_init (GInitableIface *initable_iface);
+
+G_DEFINE_TYPE_WITH_CODE (MetaBackendX11Nested, meta_backend_x11_nested,
+                         META_TYPE_BACKEND_X11,
+                         G_ADD_PRIVATE (MetaBackendX11Nested)
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                initable_iface_init));
 
 static MetaRenderer *
 meta_backend_x11_nested_create_renderer (MetaBackend *backend,
@@ -202,6 +210,39 @@ meta_backend_x11_nested_real_init_gpus (MetaBackendX11Nested *backend_x11_nested
 }
 
 static void
+meta_backend_x11_nested_post_init (MetaBackend *backend)
+{
+  MetaBackendClass *backend_class =
+    META_BACKEND_CLASS (meta_backend_x11_nested_parent_class);
+
+  backend_class->post_init (backend);
+
+#ifdef HAVE_WAYLAND
+  meta_backend_init_wayland (backend);
+#endif
+}
+
+static gboolean
+meta_backend_x11_nested_initable_init (GInitable     *initable,
+                                       GCancellable  *cancellable,
+                                       GError       **error)
+{
+#ifdef HAVE_WAYLAND
+  meta_backend_init_wayland_display (META_BACKEND (initable));
+#endif
+
+  return initable_parent_iface->init (initable, cancellable, error);
+}
+
+static void
+initable_iface_init (GInitableIface *initable_iface)
+{
+  initable_parent_iface = g_type_interface_peek_parent (initable_iface);
+
+  initable_iface->init = meta_backend_x11_nested_initable_init;
+}
+
+static void
 meta_backend_x11_nested_constructed (GObject *object)
 {
   MetaBackendX11Nested *backend_x11_nested = META_BACKEND_X11_NESTED (object);
@@ -229,6 +270,7 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
 
   object_class->constructed = meta_backend_x11_nested_constructed;
 
+  backend_class->post_init = meta_backend_x11_nested_post_init;
   backend_class->create_renderer = meta_backend_x11_nested_create_renderer;
   backend_class->create_monitor_manager = meta_backend_x11_nested_create_monitor_manager;
   backend_class->create_cursor_renderer = meta_backend_x11_nested_create_cursor_renderer;

@@ -53,4 +53,6 @@ typedef struct _MetaScreenCast MetaScreenCast;
 typedef struct _MetaScreenCastSession MetaScreenCastSession;
 typedef struct _MetaScreenCastStream MetaScreenCastStream;
 
+typedef struct _MetaWaylandCompositor MetaWaylandCompositor;
+
 #endif /* META_BACKEND_TYPE_H */
