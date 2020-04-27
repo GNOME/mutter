@@ -362,9 +362,14 @@ meta_wayland_get_xwayland_auth_file (MetaWaylandCompositor *compositor)
 }
 
 MetaWaylandCompositor *
-meta_wayland_compositor_new (void)
+meta_wayland_compositor_new (MetaBackend *backend)
 {
-  return g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
+  MetaWaylandCompositor *compositor;
+
+  compositor = g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
+  compositor->backend = backend;
+
+  return compositor;
 }
 
 void
