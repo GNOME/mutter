@@ -37,8 +37,10 @@ void                    meta_wayland_init                       (void);
 
 void                    meta_wayland_finalize                   (void);
 
-/* We maintain a singleton MetaWaylandCompositor which can be got at via this
- * API after meta_wayland_init() has been called. */
+MetaWaylandCompositor * meta_wayland_compositor_new             (void);
+
+void                    meta_wayland_compositor_setup           (MetaWaylandCompositor *compositor);
+
 META_EXPORT_TEST
 MetaWaylandCompositor  *meta_wayland_compositor_get_default     (void);
 

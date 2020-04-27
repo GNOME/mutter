@@ -586,25 +586,12 @@ meta_init (void)
   g_irepository_prepend_search_path (MUTTER_PKGLIBDIR);
 #endif
 
-#ifdef HAVE_WAYLAND
-  if (meta_is_wayland_compositor ())
-    meta_wayland_pre_clutter_init ();
-#endif
-
   /* NB: When running as a hybrid wayland compositor we run our own headless X
    * server so the user can't control the X display to connect too. */
   if (!meta_is_wayland_compositor ())
     meta_select_display (opt_display_name);
 
   meta_init_backend (backend_gtype);
-
-  meta_clutter_init ();
-
-#ifdef HAVE_WAYLAND
-  /* Bring up Wayland. This also launches Xwayland and sets DISPLAY as well... */
-  if (meta_is_wayland_compositor ())
-    meta_wayland_init ();
-#endif
 
   meta_set_syncing (opt_sync || (g_getenv ("MUTTER_SYNC") != NULL));
 

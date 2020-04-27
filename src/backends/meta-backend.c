@@ -81,6 +81,10 @@
 #include "backends/native/meta-backend-native.h"
 #endif
 
+#ifdef HAVE_WAYLAND
+#include "wayland/meta-wayland.h"
+#endif
+
 enum
 {
   KEYMAP_CHANGED,
@@ -128,6 +132,10 @@ struct _MetaBackendPrivate
   MetaDbusSessionWatcher *dbus_session_watcher;
   MetaScreenCast *screen_cast;
   MetaRemoteDesktop *remote_desktop;
+#endif
+
+#ifdef HAVE_WAYLAND
+  MetaWaylandCompositor *wayland_compositor;
 #endif
 
 #ifdef HAVE_PROFILER
@@ -864,6 +872,120 @@ system_bus_gotten_cb (GObject      *object,
                                         NULL);
 }
 
+#ifdef HAVE_WAYLAND
+MetaWaylandCompositor *
+meta_backend_get_wayland_compositor (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->wayland_compositor;
+}
+
+void
+meta_backend_init_wayland_display (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  priv->wayland_compositor = meta_wayland_compositor_new ();
+}
+
+void
+meta_backend_init_wayland (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  meta_wayland_compositor_setup (priv->wayland_compositor);
+}
+#endif
+
+/* Mutter is responsible for pulling events off the X queue, so Clutter
+ * doesn't need (and shouldn't) run its normal event source which polls
+ * the X fd, but we do have to deal with dispatching events that accumulate
+ * in the clutter queue. This happens, for example, when clutter generate
+ * enter/leave events on mouse motion - several events are queued in the
+ * clutter queue but only one dispatched. It could also happen because of
+ * explicit calls to clutter_event_put(). We add a very simple custom
+ * event loop source which is simply responsible for pulling events off
+ * of the queue and dispatching them before we block for new events.
+ */
+
+static gboolean
+clutter_source_prepare (GSource *source,
+                        int     *timeout)
+{
+  *timeout = -1;
+
+  return clutter_events_pending ();
+}
+
+static gboolean
+clutter_source_check (GSource *source)
+{
+  return clutter_events_pending ();
+}
+
+static gboolean
+clutter_source_dispatch (GSource     *source,
+                         GSourceFunc  callback,
+                         gpointer     user_data)
+{
+  ClutterEvent *event = clutter_event_get ();
+
+  if (event)
+    {
+      clutter_do_event (event);
+      clutter_event_free (event);
+    }
+
+  return TRUE;
+}
+
+static GSourceFuncs clutter_source_funcs = {
+  clutter_source_prepare,
+  clutter_source_check,
+  clutter_source_dispatch
+};
+
+static ClutterBackend *
+meta_get_clutter_backend (void)
+{
+  MetaBackend *backend = meta_get_backend ();
+
+  return meta_backend_get_clutter_backend (backend);
+}
+
+static gboolean
+init_clutter (MetaBackend  *backend,
+              GError      **error)
+{
+  GSource *source;
+
+  clutter_set_custom_backend_func (meta_get_clutter_backend);
+
+  if (clutter_init (NULL, NULL) != CLUTTER_INIT_SUCCESS)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Unable to initialize Clutter");
+      return FALSE;
+    }
+
+  source = g_source_new (&clutter_source_funcs, sizeof (GSource));
+  g_source_attach (source, NULL);
+  g_source_unref (source);
+
+  return TRUE;
+}
+
+static void
+meta_backend_post_init (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  META_BACKEND_GET_CLASS (backend)->post_init (backend);
+
+  meta_settings_post_init (priv->settings);
+}
+
 static gboolean
 meta_backend_initable_init (GInitable     *initable,
                             GCancellable  *cancellable,
@@ -902,6 +1024,11 @@ meta_backend_initable_init (GInitable     *initable,
   priv->profiler = meta_profiler_new ();
 #endif
 
+  if (!init_clutter (backend, error))
+    return FALSE;
+
+  meta_backend_post_init (backend);
+
   return TRUE;
 }
 
@@ -915,16 +1042,6 @@ static void
 meta_backend_init (MetaBackend *backend)
 {
   _backend = backend;
-}
-
-static void
-meta_backend_post_init (MetaBackend *backend)
-{
-  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
-
-  META_BACKEND_GET_CLASS (backend)->post_init (backend);
-
-  meta_settings_post_init (priv->settings);
 }
 
 /**
@@ -1258,54 +1375,6 @@ meta_backend_set_client_pointer_constraint (MetaBackend           *backend,
     priv->client_pointer_constraint = g_object_ref (constraint);
 }
 
-/* Mutter is responsible for pulling events off the X queue, so Clutter
- * doesn't need (and shouldn't) run its normal event source which polls
- * the X fd, but we do have to deal with dispatching events that accumulate
- * in the clutter queue. This happens, for example, when clutter generate
- * enter/leave events on mouse motion - several events are queued in the
- * clutter queue but only one dispatched. It could also happen because of
- * explicit calls to clutter_event_put(). We add a very simple custom
- * event loop source which is simply responsible for pulling events off
- * of the queue and dispatching them before we block for new events.
- */
-
-static gboolean
-event_prepare (GSource    *source,
-               gint       *timeout_)
-{
-  *timeout_ = -1;
-
-  return clutter_events_pending ();
-}
-
-static gboolean
-event_check (GSource *source)
-{
-  return clutter_events_pending ();
-}
-
-static gboolean
-event_dispatch (GSource    *source,
-                GSourceFunc callback,
-                gpointer    user_data)
-{
-  ClutterEvent *event = clutter_event_get ();
-
-  if (event)
-    {
-      clutter_do_event (event);
-      clutter_event_free (event);
-    }
-
-  return TRUE;
-}
-
-static GSourceFuncs event_funcs = {
-  event_prepare,
-  event_check,
-  event_dispatch
-};
-
 ClutterBackend *
 meta_backend_get_clutter_backend (MetaBackend *backend)
 {
@@ -1318,14 +1387,6 @@ meta_backend_get_clutter_backend (MetaBackend *backend)
     }
 
   return priv->clutter_backend;
-}
-
-static ClutterBackend *
-meta_get_clutter_backend (void)
-{
-  MetaBackend *backend = meta_get_backend ();
-
-  return meta_backend_get_clutter_backend (backend);
 }
 
 void
@@ -1342,29 +1403,6 @@ meta_init_backend (GType backend_gtype)
       g_warning ("Failed to create backend: %s", error->message);
       meta_exit (META_EXIT_ERROR);
     }
-}
-
-/**
- * meta_clutter_init: (skip)
- */
-void
-meta_clutter_init (void)
-{
-  GSource *source;
-
-  clutter_set_custom_backend_func (meta_get_clutter_backend);
-
-  if (clutter_init (NULL, NULL) != CLUTTER_INIT_SUCCESS)
-    {
-      g_warning ("Unable to initialize Clutter.\n");
-      exit (1);
-    }
-
-  source = g_source_new (&event_funcs, sizeof (GSource));
-  g_source_attach (source, NULL);
-  g_source_unref (source);
-
-  meta_backend_post_init (_backend);
 }
 
 /**

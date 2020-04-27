@@ -47,7 +47,6 @@
 #include "wayland/meta-xwayland-private.h"
 #include "wayland/meta-xwayland.h"
 
-static MetaWaylandCompositor *_meta_wayland_compositor = NULL;
 static char *_display_name_override;
 
 G_DEFINE_TYPE (MetaWaylandCompositor, meta_wayland_compositor, G_TYPE_OBJECT)
@@ -55,9 +54,14 @@ G_DEFINE_TYPE (MetaWaylandCompositor, meta_wayland_compositor, G_TYPE_OBJECT)
 MetaWaylandCompositor *
 meta_wayland_compositor_get_default (void)
 {
-  g_assert (_meta_wayland_compositor);
+  MetaBackend *backend;
+  MetaWaylandCompositor *wayland_compositor;
 
-  return _meta_wayland_compositor;
+  backend = meta_get_backend ();
+  wayland_compositor = meta_backend_get_wayland_compositor (backend);
+  g_assert (wayland_compositor);
+
+  return wayland_compositor;
 }
 
 typedef struct
@@ -318,24 +322,13 @@ meta_wayland_compositor_init (MetaWaylandCompositor *compositor)
   compositor->wayland_display = wl_display_create ();
   if (compositor->wayland_display == NULL)
     g_error ("Failed to create the global wl_display");
+
+  clutter_wayland_set_compositor_display (compositor->wayland_display);
 }
 
 static void
 meta_wayland_compositor_class_init (MetaWaylandCompositorClass *klass)
 {
-}
-
-void
-meta_wayland_pre_clutter_init (void)
-{
-  MetaWaylandCompositor *compositor;
-
-  g_assert (!_meta_wayland_compositor);
-
-  compositor = g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
-  clutter_wayland_set_compositor_display (compositor->wayland_display);
-
-  _meta_wayland_compositor = compositor;
 }
 
 static bool
@@ -368,8 +361,14 @@ meta_wayland_get_xwayland_auth_file (MetaWaylandCompositor *compositor)
   return compositor->xwayland_manager.auth_file;
 }
 
+MetaWaylandCompositor *
+meta_wayland_compositor_new (void)
+{
+  return g_object_new (META_TYPE_WAYLAND_COMPOSITOR, NULL);
+}
+
 void
-meta_wayland_init (void)
+meta_wayland_compositor_setup (MetaWaylandCompositor *wayland_compositor)
 {
   MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
   GSource *wayland_event_source;
