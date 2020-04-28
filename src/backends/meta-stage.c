@@ -204,7 +204,9 @@ meta_stage_paint (ClutterActor        *actor,
                                 META_STAGE_WATCH_AFTER_ACTOR_PAINT);
     }
 
-  g_signal_emit (stage, signals[ACTORS_PAINTED], 0);
+  if (!(clutter_paint_context_get_paint_flags (paint_context) &
+        CLUTTER_PAINT_FLAG_NO_PAINT_SIGNAL))
+    g_signal_emit (stage, signals[ACTORS_PAINTED], 0);
 
   if (!(clutter_paint_context_get_paint_flags (paint_context) &
         CLUTTER_PAINT_FLAG_NO_CURSORS))

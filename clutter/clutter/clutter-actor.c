@@ -4194,7 +4194,9 @@ clutter_actor_continue_paint (ClutterActor        *self,
       clutter_paint_node_unref (dummy);
 
       /* XXX:2.0 - Call the paint() virtual directly */
-      if (g_signal_has_handler_pending (self, actor_signals[PAINT],
+      if (!(clutter_paint_context_get_paint_flags (paint_context) &
+            CLUTTER_PAINT_FLAG_NO_PAINT_SIGNAL) &&
+          g_signal_has_handler_pending (self, actor_signals[PAINT],
                                         0, TRUE))
         g_signal_emit (self, actor_signals[PAINT], 0, paint_context);
       else

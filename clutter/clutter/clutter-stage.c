@@ -4575,50 +4575,17 @@ capture_view_into (ClutterStage          *stage,
                    uint8_t               *data,
                    int                    stride)
 {
-  CoglFramebuffer *framebuffer;
-  ClutterBackend *backend;
-  CoglContext *context;
-  CoglBitmap *bitmap;
-  cairo_rectangle_int_t view_layout;
+  g_autoptr (GError) error = NULL;
   float view_scale;
-  float texture_width;
-  float texture_height;
 
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
 
-  framebuffer = clutter_stage_view_get_framebuffer (view);
-
-  if (paint)
-    {
-      cairo_region_t *region;
-
-      _clutter_stage_maybe_setup_viewport (stage, view);
-      region = cairo_region_create_rectangle (rect);
-      clutter_stage_do_paint_view (stage, view, region);
-      cairo_region_destroy (region);
-    }
-
   view_scale = clutter_stage_view_get_scale (view);
-  texture_width = roundf (rect->width * view_scale);
-  texture_height = roundf (rect->height * view_scale);
-
-  backend = clutter_get_default_backend ();
-  context = clutter_backend_get_cogl_context (backend);
-  bitmap = cogl_bitmap_new_for_data (context,
-                                     texture_width, texture_height,
-                                     CLUTTER_CAIRO_FORMAT_ARGB32,
-                                     stride,
-                                     data);
-
-  clutter_stage_view_get_layout (view, &view_layout);
-
-  cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
-                                            roundf ((rect->x - view_layout.x) * view_scale),
-                                            roundf ((rect->y - view_layout.y) * view_scale),
-                                            COGL_READ_PIXELS_COLOR_BUFFER,
-                                            bitmap);
-
-  cogl_object_unref (bitmap);
+  if (!clutter_stage_paint_to_buffer (stage, rect, view_scale, data, stride,
+                                      CLUTTER_CAIRO_FORMAT_ARGB32,
+                                      CLUTTER_PAINT_FLAG_NO_CURSORS,
+                                      &error))
+    g_warning ("Failed to capture stage: %s", error->message);
 }
 
 void
