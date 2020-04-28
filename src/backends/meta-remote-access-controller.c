@@ -22,8 +22,10 @@
 
 #include "backends/meta-remote-access-controller-private.h"
 
+#ifdef HAVE_REMOTE_DESKTOP
 #include "backends/meta-remote-desktop.h"
 #include "backends/meta-screen-cast.h"
+#endif
 
 enum
 {
@@ -138,8 +140,10 @@ meta_remote_access_controller_notify_new_handle (MetaRemoteAccessController *con
 void
 meta_remote_access_controller_inhibit_remote_access (MetaRemoteAccessController *controller)
 {
+#ifdef HAVE_REMOTE_DESKTOP
   meta_remote_desktop_inhibit (controller->remote_desktop);
   meta_screen_cast_inhibit (controller->screen_cast);
+#endif
 }
 
 /**
@@ -153,8 +157,10 @@ meta_remote_access_controller_inhibit_remote_access (MetaRemoteAccessController 
 void
 meta_remote_access_controller_uninhibit_remote_access (MetaRemoteAccessController *controller)
 {
+#ifdef HAVE_REMOTE_DESKTOP
   meta_screen_cast_uninhibit (controller->screen_cast);
   meta_remote_desktop_uninhibit (controller->remote_desktop);
+#endif
 }
 
 MetaRemoteAccessController *
