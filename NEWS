@@ -1,3 +1,36 @@
+3.37.1
+======
+* Fix screencasting non-maximized windows [Jonas Å.; !1174]
+* Make window-aliveness checks less aggressive [Jonas Å.; !1182]
+* Fix stylus coordinates when using screen rotation [Jonas T.; #1118]
+* Preserve keyboard state on VT switch [Olivier; !1185]
+* Remove Clutter's drag and drop actions [Jonas D.; !789]
+* Cancel clicks/gestures actions on disable [Georges; !1188]
+* Fix various clipboard issues [Carlos; !1186, !1198, !1203, !1204, !1206]
+* Fix trackball button scrolling [Phillip; #1120]
+* Fix tiled monitor support [Jonas; !1199]
+* Support unredirecting fullscreen wayland surfaces [Jonas Å.; !798]
+* Support area screencasts [Jonas Å.; !1207]
+* Synchronize shadows to server-side decorations [Olivier; !1214]
+* Allow inhibiting remote access [Jonas Å.; !1212]
+* Fix overview key on X11 when using multiple keyboard layouts [Olivier; !1219]
+* Fixed crashes [Jonas, D., Carlos; !1173, !1183, !1012]
+* Misc. bug fixes and cleanups [Andre, Georges, Christian, Jonas Å., Andre,
+  Simon, Florian, Carlos, Adam, Marco, Thomas, Elias, Pekka, Jonas D.,
+  Laurent; !1169, !1168, !1166, !1170, !1167, !1172, !1175, !1176, !1184,
+  !1126, !1187, !1191, !1195, !1179, !1200, !1193, !1209, !1213, !1208,
+  #1074, !1223]
+
+Contributors:
+  Marco Trevisan (Treviño), Elias Aebi, Thomas Hindoe Paaboel Andersen,
+  Laurent Bigonville, Jonas Dreßler, Olivier Fourdan, Carlos Garnacho,
+  Adam Jackson, Andre Moreira Magalhaes, Simon McVittie, Florian Müllner,
+  Georges Basile Stavracas Neto, Pekka Paalanen, Christian Rauch, Jonas Troeger,
+  Phillip Wood, Jonas Ådahl
+
+Translators:
+  Dušan Kazik [sk], Christian Kirbach [de]
+
 3.36.0
 ======
 * Fix placement of popup windows in multi-monitor setups [Jonas; !1110]
