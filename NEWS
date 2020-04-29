@@ -1,3 +1,30 @@
+3.36.2
+======
+* Sync timelines to hardware vsync [Daniel; !724]
+* Fix screencasting non-maximized windows [Jonas; !1174]
+* Make window-aliveness checks less aggressive [Jonas; !1182]
+* Fix stylus coordinates when using screen rotation [Jonas T.; #1118]
+* Preserve keyboard state on VT switch [Olivier; !1185]
+* Fix trackball button scrolling [Phillip; #1120]
+* Fix tiled monitor support [Jonas Å.; !1199]
+* Fix various clipboard issues [Carlos; !1198, !1203, !1204, !1186, !1206]
+* Synchronize shadows to server-side decorations [Olivier; !1214]
+* Fix overview key on X11 when using multiple keyboard layouts [Olivier; !1219]
+* Fix capturing with multiple stage views [Jonas Å.; !1222]
+* Fixed crashes [Jonas D., Carlos; !1173, !1183]
+* Misc. bug fixes and cleanups [Andre, Georges, Simon, Christian, Carlos, Marco,
+  Pekka, Laurent, Jonas D.; !1169, !1170, !1172, !1168, !1184, !1200, !1209,
+  #1074, !1208]
+
+Contributors:
+  Marco Trevisan (Treviño), Laurent Bigonville, Jonas Dreßler, Olivier Fourdan,
+  Carlos Garnacho, Andre Moreira Magalhaes, Simon McVittie,
+  Georges Basile Stavracas Neto, Pekka Paalanen, Christian Rauch, Jonas Troeger,
+  Daniel van Vugt, Phillip Wood, Jonas Ådahl
+
+Translators:
+  Dušan Kazik [sk], Christian Kirbach [de]
+
 3.36.1
 ======
 * Fix hardware cursor on GPU hotplpug [Pekka; !1097]
