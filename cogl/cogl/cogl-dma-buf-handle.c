@@ -40,6 +40,11 @@ struct _CoglDmaBufHandle
 {
   CoglFramebuffer *framebuffer;
   int dmabuf_fd;
+  int width;
+  int height;
+  int stride;
+  int offset;
+  int bpp;
   gpointer user_data;
   GDestroyNotify destroy_func;
 };
@@ -47,6 +52,11 @@ struct _CoglDmaBufHandle
 CoglDmaBufHandle *
 cogl_dma_buf_handle_new (CoglFramebuffer *framebuffer,
                          int              dmabuf_fd,
+                         int              width,
+                         int              height,
+                         int              stride,
+                         int              offset,
+                         int              bpp,
                          gpointer         user_data,
                          GDestroyNotify   destroy_func)
 {
@@ -60,6 +70,12 @@ cogl_dma_buf_handle_new (CoglFramebuffer *framebuffer,
   dmabuf_handle->dmabuf_fd = dmabuf_fd;
   dmabuf_handle->user_data = user_data;
   dmabuf_handle->destroy_func = destroy_func;
+
+  dmabuf_handle->width = width;
+  dmabuf_handle->height = height;
+  dmabuf_handle->stride = stride;
+  dmabuf_handle->offset = offset;
+  dmabuf_handle->bpp = bpp;
 
   return dmabuf_handle;
 }
@@ -92,3 +108,32 @@ cogl_dma_buf_handle_get_fd (CoglDmaBufHandle *dmabuf_handle)
   return dmabuf_handle->dmabuf_fd;
 }
 
+int
+cogl_dma_buf_handle_get_width (CoglDmaBufHandle *dmabuf_handle)
+{
+  return dmabuf_handle->width;
+}
+
+int
+cogl_dma_buf_handle_get_height (CoglDmaBufHandle *dmabuf_handle)
+{
+  return dmabuf_handle->height;
+}
+
+int
+cogl_dma_buf_handle_get_stride (CoglDmaBufHandle *dmabuf_handle)
+{
+  return dmabuf_handle->stride;
+}
+
+int
+cogl_dma_buf_handle_get_offset (CoglDmaBufHandle *dmabuf_handle)
+{
+  return dmabuf_handle->offset;
+}
+
+int
+cogl_dma_buf_handle_get_bpp (CoglDmaBufHandle *dmabuf_handle)
+{
+  return dmabuf_handle->bpp;
+}

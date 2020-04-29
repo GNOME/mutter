@@ -2169,6 +2169,9 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
       {
         CoglFramebuffer *dmabuf_fb;
         struct gbm_bo *new_bo;
+        int stride;
+        int offset;
+        int bpp;
         int dmabuf_fd = -1;
 
         new_bo = gbm_bo_create (renderer_gpu_data->gbm.device,
@@ -2192,11 +2195,14 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
             return NULL;
           }
 
+        stride = gbm_bo_get_stride (new_bo);
+        offset = gbm_bo_get_offset (new_bo, 0);
+        bpp = 4;
         dmabuf_fb = create_dma_buf_framebuffer (renderer_native,
                                                 dmabuf_fd,
                                                 width, height,
-                                                gbm_bo_get_stride (new_bo),
-                                                gbm_bo_get_offset (new_bo, 0),
+                                                stride,
+                                                offset,
                                                 DRM_FORMAT_MOD_LINEAR,
                                                 DRM_FORMAT_XRGB8888,
                                                 error);
@@ -2204,7 +2210,9 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
         if (!dmabuf_fb)
           return NULL;
 
-        return cogl_dma_buf_handle_new (dmabuf_fb, dmabuf_fd, new_bo,
+        return cogl_dma_buf_handle_new (dmabuf_fb, dmabuf_fd,
+                                        width, height, stride, offset, bpp,
+                                        new_bo,
                                         (GDestroyNotify) gbm_bo_destroy);
       }
       break;

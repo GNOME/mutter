@@ -46,7 +46,12 @@
 COGL_EXPORT CoglDmaBufHandle *
 cogl_dma_buf_handle_new (CoglFramebuffer *framebuffer,
                          int              dmabuf_fd,
-                         gpointer         data,
+                         int              width,
+                         int              height,
+                         int              stride,
+                         int              offset,
+                         int              bpp,
+                         gpointer         user_data,
                          GDestroyNotify   destroy_func);
 
 /**
@@ -79,5 +84,44 @@ cogl_dma_buf_handle_get_framebuffer (CoglDmaBufHandle *dmabuf_handle);
 COGL_EXPORT int
 cogl_dma_buf_handle_get_fd (CoglDmaBufHandle *dmabuf_handle);
 
+/**
+ * cogl_dmabuf_handle_get_width: (skip)
+ *
+ * Returns: the buffer width
+ */
+COGL_EXPORT int
+cogl_dma_buf_handle_get_width (CoglDmaBufHandle *dmabuf_handle);
+
+/**
+ * cogl_dmabuf_handle_get_height: (skip)
+ *
+ * Returns: the buffer height
+ */
+COGL_EXPORT int
+cogl_dma_buf_handle_get_height (CoglDmaBufHandle *dmabuf_handle);
+
+/**
+ * cogl_dmabuf_handle_get_stride: (skip)
+ *
+ * Returns: the buffer stride
+ */
+COGL_EXPORT int
+cogl_dma_buf_handle_get_stride (CoglDmaBufHandle *dmabuf_handle);
+
+/**
+ * cogl_dmabuf_handle_get_offset: (skip)
+ *
+ * Returns: the buffer offset
+ */
+COGL_EXPORT int
+cogl_dma_buf_handle_get_offset (CoglDmaBufHandle *dmabuf_handle);
+
+/**
+ * cogl_dmabuf_handle_get_bpp: (skip)
+ *
+ * Returns: the number of bytes per pixel
+ */
+COGL_EXPORT int
+cogl_dma_buf_handle_get_bpp (CoglDmaBufHandle *dmabuf_handle);
 
 #endif /* __COGL_DMA_BUF_HANDLE_H__ */
