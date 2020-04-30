@@ -3150,7 +3150,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
   MetaMonitorTransform view_transform;
   CoglOnscreen *onscreen = NULL;
   CoglOffscreen *offscreen = NULL;
-  CoglOffscreen *shadowfb = NULL;
+  gboolean use_shadowfb;
   float scale;
   int onscreen_width;
   int onscreen_height;
@@ -3202,24 +3202,8 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
         g_error ("Failed to allocate back buffer texture: %s", error->message);
     }
 
-  if (should_force_shadow_fb (renderer_native,
-                              renderer_native->primary_gpu_kms))
-    {
-      int shadow_width;
-      int shadow_height;
-
-      /* The shadowfb must be the same size as the on-screen framebuffer */
-      shadow_width = cogl_framebuffer_get_width (COGL_FRAMEBUFFER (onscreen));
-      shadow_height = cogl_framebuffer_get_height (COGL_FRAMEBUFFER (onscreen));
-
-      shadowfb = meta_renderer_native_create_offscreen (renderer_native,
-                                                        cogl_context,
-                                                        shadow_width,
-                                                        shadow_height,
-                                                        &error);
-      if (!shadowfb)
-        g_error ("Failed to allocate shadow buffer texture: %s", error->message);
-    }
+  use_shadowfb = should_force_shadow_fb (renderer_native,
+                                         renderer_native->primary_gpu_kms);
 
   if (meta_is_stage_views_scaled ())
     scale = meta_logical_monitor_get_scale (logical_monitor);
@@ -3235,11 +3219,10 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                        "scale", scale,
                        "framebuffer", onscreen,
                        "offscreen", offscreen,
-                       "shadowfb", shadowfb,
+                       "use-shadowfb", use_shadowfb,
                        "transform", view_transform,
                        NULL);
   g_clear_pointer (&offscreen, cogl_object_unref);
-  g_clear_pointer (&shadowfb, cogl_object_unref);
 
   meta_onscreen_native_set_view (onscreen, view);
 

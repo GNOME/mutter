@@ -35,7 +35,7 @@ enum
   PROP_LAYOUT,
   PROP_FRAMEBUFFER,
   PROP_OFFSCREEN,
-  PROP_SHADOWFB,
+  PROP_USE_SHADOWFB,
   PROP_SCALE,
 
   PROP_LAST
@@ -54,6 +54,7 @@ typedef struct _ClutterStageViewPrivate
   CoglOffscreen *offscreen;
   CoglPipeline *offscreen_pipeline;
 
+  gboolean use_shadowfb;
   CoglOffscreen *shadowfb;
   CoglPipeline *shadowfb_pipeline;
 
@@ -212,6 +213,80 @@ clutter_stage_view_copy_to_framebuffer (ClutterStageView *view,
                                    0, 0, 1, 1);
 
   cogl_framebuffer_pop_matrix (dst_framebuffer);
+}
+
+static CoglOffscreen *
+create_offscreen_framebuffer (CoglContext  *context,
+                              int           width,
+                              int           height,
+                              GError      **error)
+{
+  CoglOffscreen *framebuffer;
+  CoglTexture2D *texture;
+
+  texture = cogl_texture_2d_new_with_size (context, width, height);
+  cogl_primitive_texture_set_auto_mipmap (COGL_PRIMITIVE_TEXTURE (texture),
+                                          FALSE);
+
+  if (!cogl_texture_allocate (COGL_TEXTURE (texture), error))
+    {
+      cogl_object_unref (texture);
+      return FALSE;
+    }
+
+  framebuffer = cogl_offscreen_new_with_texture (COGL_TEXTURE (texture));
+  cogl_object_unref (texture);
+  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (framebuffer), error))
+    {
+      cogl_object_unref (framebuffer);
+      return FALSE;
+    }
+
+  return framebuffer;
+}
+
+static gboolean
+init_offscreen_shadowfb (ClutterStageView  *view,
+                         CoglContext       *cogl_context,
+                         int                width,
+                         int                height,
+                         GError           **error)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  CoglOffscreen *offscreen;
+
+  offscreen = create_offscreen_framebuffer (cogl_context, width, height, error);
+  if (!offscreen)
+    return FALSE;
+
+  priv->shadowfb = offscreen;
+  return TRUE;
+}
+
+static void
+init_shadowfb (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  g_autoptr (GError) error = NULL;
+  int width;
+  int height;
+  CoglContext *cogl_context;
+
+  width = cogl_framebuffer_get_width (priv->framebuffer);
+  height = cogl_framebuffer_get_height (priv->framebuffer);
+  cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
+
+  if (!init_offscreen_shadowfb (view, cogl_context, width, height, &error))
+    {
+      g_warning ("Failed to initialize single buffered shadow fb for %s: %s",
+                 priv->name, error->message);
+    }
+  else
+    {
+      g_message ("Initialized single buffered shadow fb for %s", priv->name);
+    }
 }
 
 void
@@ -457,8 +532,8 @@ clutter_stage_view_get_property (GObject    *object,
     case PROP_OFFSCREEN:
       g_value_set_boxed (value, priv->offscreen);
       break;
-    case PROP_SHADOWFB:
-      g_value_set_boxed (value, priv->shadowfb);
+    case PROP_USE_SHADOWFB:
+      g_value_set_boolean (value, priv->use_shadowfb);
       break;
     case PROP_SCALE:
       g_value_set_float (value, priv->scale);
@@ -508,8 +583,8 @@ clutter_stage_view_set_property (GObject      *object,
     case PROP_OFFSCREEN:
       priv->offscreen = g_value_dup_boxed (value);
       break;
-    case PROP_SHADOWFB:
-      priv->shadowfb = g_value_dup_boxed (value);
+    case PROP_USE_SHADOWFB:
+      priv->use_shadowfb = g_value_get_boolean (value);
       break;
     case PROP_SCALE:
       priv->scale = g_value_get_float (value);
@@ -517,6 +592,19 @@ clutter_stage_view_set_property (GObject      *object,
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
+}
+
+static void
+clutter_stage_view_constructed (GObject *object)
+{
+  ClutterStageView *view = CLUTTER_STAGE_VIEW (object);
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  if (priv->use_shadowfb)
+    init_shadowfb (view);
+
+  G_OBJECT_CLASS (clutter_stage_view_parent_class)->constructed (object);
 }
 
 static void
@@ -558,6 +646,7 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
 
   object_class->get_property = clutter_stage_view_get_property;
   object_class->set_property = clutter_stage_view_set_property;
+  object_class->constructed = clutter_stage_view_constructed;
   object_class->dispose = clutter_stage_view_dispose;
 
   obj_props[PROP_NAME] =
@@ -595,14 +684,14 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
                         G_PARAM_CONSTRUCT_ONLY |
                         G_PARAM_STATIC_STRINGS);
 
-  obj_props[PROP_SHADOWFB] =
-    g_param_spec_boxed ("shadowfb",
-                        "Shadow framebuffer",
-                        "Framebuffer used as intermediate shadow buffer",
-                        COGL_TYPE_HANDLE,
-                        G_PARAM_READWRITE |
-                        G_PARAM_CONSTRUCT_ONLY |
-                        G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_USE_SHADOWFB] =
+    g_param_spec_boolean ("use-shadowfb",
+                          "Use shadowfb",
+                          "Whether to use one or more shadow framebuffers",
+                          FALSE,
+                          G_PARAM_READWRITE |
+                          G_PARAM_CONSTRUCT_ONLY |
+                          G_PARAM_STATIC_STRINGS);
 
   obj_props[PROP_SCALE] =
     g_param_spec_float ("scale",
