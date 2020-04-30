@@ -3230,6 +3230,7 @@ meta_renderer_native_create_view (MetaRenderer       *renderer,
                                      META_ROUNDING_STRATEGY_ROUND,
                                      &view_layout);
   view = g_object_new (META_TYPE_RENDERER_VIEW,
+                       "name", meta_output_get_name (output),
                        "layout", &view_layout,
                        "scale", scale,
                        "framebuffer", onscreen,

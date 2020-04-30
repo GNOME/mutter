@@ -31,6 +31,7 @@ enum
 {
   PROP_0,
 
+  PROP_NAME,
   PROP_LAYOUT,
   PROP_FRAMEBUFFER,
   PROP_OFFSCREEN,
@@ -44,6 +45,8 @@ static GParamSpec *obj_props[PROP_LAST];
 
 typedef struct _ClutterStageViewPrivate
 {
+  char *name;
+
   cairo_rectangle_int_t layout;
   float scale;
   CoglFramebuffer *framebuffer;
@@ -442,6 +445,9 @@ clutter_stage_view_get_property (GObject    *object,
 
   switch (prop_id)
     {
+    case PROP_NAME:
+      g_value_set_string (value, priv->name);
+      break;
     case PROP_LAYOUT:
       g_value_set_boxed (value, &priv->layout);
       break;
@@ -475,6 +481,9 @@ clutter_stage_view_set_property (GObject      *object,
 
   switch (prop_id)
     {
+    case PROP_NAME:
+      priv->name = g_value_dup_string (value);
+      break;
     case PROP_LAYOUT:
       layout = g_value_get_boxed (value);
       priv->layout = *layout;
@@ -517,6 +526,7 @@ clutter_stage_view_dispose (GObject *object)
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
+  g_clear_pointer (&priv->name, g_free);
   g_clear_pointer (&priv->framebuffer, cogl_object_unref);
   g_clear_pointer (&priv->shadowfb, cogl_object_unref);
   g_clear_pointer (&priv->offscreen, cogl_object_unref);
@@ -550,6 +560,14 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
   object_class->set_property = clutter_stage_view_set_property;
   object_class->dispose = clutter_stage_view_dispose;
 
+  obj_props[PROP_NAME] =
+    g_param_spec_string ("name",
+                         "Name",
+                         "Name of view",
+                         NULL,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
   obj_props[PROP_LAYOUT] =
     g_param_spec_boxed ("layout",
                         "View layout",
