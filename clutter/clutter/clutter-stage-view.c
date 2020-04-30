@@ -55,8 +55,10 @@ typedef struct _ClutterStageViewPrivate
   CoglPipeline *offscreen_pipeline;
 
   gboolean use_shadowfb;
-  CoglOffscreen *shadowfb;
-  CoglPipeline *shadowfb_pipeline;
+  struct {
+    CoglOffscreen *framebuffer;
+    CoglPipeline *pipeline;
+  } shadow;
 
   CoglScanout *next_scanout;
 
@@ -95,8 +97,8 @@ clutter_stage_view_get_framebuffer (ClutterStageView *view)
 
   if (priv->offscreen)
     return priv->offscreen;
-  else if (priv->shadowfb)
-    return priv->shadowfb;
+  else if (priv->shadow.framebuffer)
+    return priv->shadow.framebuffer;
   else
     return priv->framebuffer;
 }
@@ -162,11 +164,11 @@ clutter_stage_view_ensure_shadowfb_blit_pipeline (ClutterStageView *view)
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
-  if (priv->shadowfb_pipeline)
+  if (priv->shadow.pipeline)
     return;
 
-  priv->shadowfb_pipeline =
-    clutter_stage_view_create_framebuffer_pipeline (priv->shadowfb);
+  priv->shadow.pipeline =
+    clutter_stage_view_create_framebuffer_pipeline (priv->shadow.framebuffer);
 }
 
 void
@@ -260,7 +262,7 @@ init_offscreen_shadowfb (ClutterStageView  *view,
   if (!offscreen)
     return FALSE;
 
-  priv->shadowfb = offscreen;
+  priv->shadow.framebuffer = offscreen;
   return TRUE;
 }
 
@@ -304,12 +306,12 @@ clutter_stage_view_after_paint (ClutterStageView *view)
       clutter_stage_view_get_offscreen_transformation_matrix (view, &matrix);
       can_blit = cogl_matrix_is_identity (&matrix);
 
-      if (priv->shadowfb)
+      if (priv->shadow.framebuffer)
         {
           clutter_stage_view_copy_to_framebuffer (view,
                                                   priv->offscreen_pipeline,
                                                   priv->offscreen,
-                                                  priv->shadowfb,
+                                                  priv->shadow.framebuffer,
                                                   can_blit);
         }
       else
@@ -322,12 +324,12 @@ clutter_stage_view_after_paint (ClutterStageView *view)
         }
     }
 
-  if (priv->shadowfb)
+  if (priv->shadow.framebuffer)
     {
       clutter_stage_view_ensure_shadowfb_blit_pipeline (view);
       clutter_stage_view_copy_to_framebuffer (view,
-                                              priv->shadowfb_pipeline,
-                                              priv->shadowfb,
+                                              priv->shadow.pipeline,
+                                              priv->shadow.framebuffer,
                                               priv->framebuffer,
                                               TRUE);
     }
@@ -616,10 +618,10 @@ clutter_stage_view_dispose (GObject *object)
 
   g_clear_pointer (&priv->name, g_free);
   g_clear_pointer (&priv->framebuffer, cogl_object_unref);
-  g_clear_pointer (&priv->shadowfb, cogl_object_unref);
+  g_clear_pointer (&priv->shadow.framebuffer, cogl_object_unref);
+  g_clear_pointer (&priv->shadow.pipeline, cogl_object_unref);
   g_clear_pointer (&priv->offscreen, cogl_object_unref);
   g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
-  g_clear_pointer (&priv->shadowfb_pipeline, cogl_object_unref);
   g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
 
   G_OBJECT_CLASS (clutter_stage_view_parent_class)->dispose (object);
