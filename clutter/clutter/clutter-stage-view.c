@@ -363,6 +363,22 @@ clutter_stage_view_set_dirty_viewport (ClutterStageView *view,
   priv->dirty_viewport = dirty;
 }
 
+void
+clutter_stage_view_set_viewport (ClutterStageView *view,
+                                 float             x,
+                                 float             y,
+                                 float             width,
+                                 float             height)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  CoglFramebuffer *framebuffer;
+
+  priv->dirty_viewport = FALSE;
+  framebuffer = clutter_stage_view_get_framebuffer (view);
+  cogl_framebuffer_set_viewport (framebuffer, x, y, width, height);
+}
+
 gboolean
 clutter_stage_view_is_dirty_projection (ClutterStageView *view)
 {
@@ -380,6 +396,19 @@ clutter_stage_view_set_dirty_projection (ClutterStageView *view,
     clutter_stage_view_get_instance_private (view);
 
   priv->dirty_projection = dirty;
+}
+
+void
+clutter_stage_view_set_projection (ClutterStageView *view,
+                                   const CoglMatrix *matrix)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  CoglFramebuffer *framebuffer;
+
+  priv->dirty_projection = FALSE;
+  framebuffer = clutter_stage_view_get_framebuffer (view);
+  cogl_framebuffer_set_projection_matrix (framebuffer, matrix);
 }
 
 void
