@@ -2434,7 +2434,7 @@ _clutter_stage_dirty_projection (ClutterStage *stage)
     {
       ClutterStageView *view = l->data;
 
-      clutter_stage_view_set_dirty_projection (view, TRUE);
+      clutter_stage_view_invalidate_projection (view);
     }
 }
 
@@ -2524,7 +2524,7 @@ _clutter_stage_dirty_viewport (ClutterStage *stage)
     {
       ClutterStageView *view = l->data;
 
-      clutter_stage_view_set_dirty_viewport (view, TRUE);
+      clutter_stage_view_invalidate_viewport (view);
     }
 }
 

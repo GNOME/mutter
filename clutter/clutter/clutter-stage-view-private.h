@@ -24,8 +24,7 @@ void clutter_stage_view_after_paint (ClutterStageView *view);
 
 gboolean clutter_stage_view_is_dirty_viewport (ClutterStageView *view);
 
-void clutter_stage_view_set_dirty_viewport (ClutterStageView *view,
-                                            gboolean          dirty);
+void clutter_stage_view_invalidate_viewport (ClutterStageView *view);
 
 void clutter_stage_view_set_viewport (ClutterStageView *view,
                                       float             x,
@@ -35,8 +34,7 @@ void clutter_stage_view_set_viewport (ClutterStageView *view,
 
 gboolean clutter_stage_view_is_dirty_projection (ClutterStageView *view);
 
-void clutter_stage_view_set_dirty_projection (ClutterStageView *view,
-                                              gboolean          dirty);
+void clutter_stage_view_invalidate_projection (ClutterStageView *view);
 
 void clutter_stage_view_set_projection (ClutterStageView *view,
                                         const CoglMatrix *matrix);

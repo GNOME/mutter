@@ -354,13 +354,12 @@ clutter_stage_view_is_dirty_viewport (ClutterStageView *view)
 }
 
 void
-clutter_stage_view_set_dirty_viewport (ClutterStageView *view,
-                                       gboolean          dirty)
+clutter_stage_view_invalidate_viewport (ClutterStageView *view)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
-  priv->dirty_viewport = dirty;
+  priv->dirty_viewport = TRUE;
 }
 
 void
@@ -389,13 +388,12 @@ clutter_stage_view_is_dirty_projection (ClutterStageView *view)
 }
 
 void
-clutter_stage_view_set_dirty_projection (ClutterStageView *view,
-                                         gboolean          dirty)
+clutter_stage_view_invalidate_projection (ClutterStageView *view)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
-  priv->dirty_projection = dirty;
+  priv->dirty_projection = TRUE;
 }
 
 void
