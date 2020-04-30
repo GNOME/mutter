@@ -767,10 +767,11 @@ static gboolean
 cally_actor_action_do_action (AtkAction *action,
                              gint       index)
 {
-  CallyActor           *cally_actor = NULL;
-  AtkStateSet          *set         = NULL;
-  CallyActorPrivate    *priv        = NULL;
-  CallyActorActionInfo *info        = NULL;
+  CallyActor *cally_actor = NULL;
+  AtkStateSet *set = NULL;
+  CallyActorPrivate *priv = NULL;
+  CallyActorActionInfo *info = NULL;
+  gboolean did_action = FALSE;
 
   cally_actor = CALLY_ACTOR (action);
   priv = cally_actor->priv;
@@ -778,21 +779,19 @@ cally_actor_action_do_action (AtkAction *action,
   set = atk_object_ref_state_set (ATK_OBJECT (cally_actor));
 
   if (atk_state_set_contains_state (set, ATK_STATE_DEFUNCT))
-    return FALSE;
+    goto out;
 
   if (!atk_state_set_contains_state (set, ATK_STATE_SENSITIVE) ||
       !atk_state_set_contains_state (set, ATK_STATE_SHOWING))
-    return FALSE;
-
-  g_object_unref (set);
+    goto out;
 
   info = _cally_actor_get_action_info (cally_actor, index);
 
   if (info == NULL)
-    return FALSE;
+    goto out;
 
   if (info->do_action_func == NULL)
-    return FALSE;
+    goto out;
 
   if (!priv->action_queue)
     priv->action_queue = g_queue_new ();
@@ -802,7 +801,12 @@ cally_actor_action_do_action (AtkAction *action,
   if (!priv->action_idle_handler)
     priv->action_idle_handler = g_idle_add (idle_do_action, cally_actor);
 
-  return TRUE;
+  did_action = TRUE;
+
+out:
+  g_clear_object (&set);
+
+  return did_action;
 }
 
 static gboolean
