@@ -1,3 +1,17 @@
+3.34.6
+======
+* Fix various clipboard issues [Carlos; !1198, !1203, !1204, !1186, !1206]
+* Fix locate-pointer feature interfering with keybindings [Carlos; !1014]
+* Fix overview key on X11 when using multiple keyboard layouts [Olivier; !1219]
+* Preserve keyboard state on VT switch [Olivier; !1185]
+* Fixed crashes [Florian; #1083]
+* Plugged memory leaks [Sebastian; !1001]
+* Misc. bug fixes and cleanups [Pekka, Laurent; !1209, #1074]
+
+Contributors:
+  Laurent Bigonville, Olivier Fourdan, Carlos Garnacho, Sebastian Keller,
+  Florian Müllner, Pekka Paalanen
+
 3.34.5
 ======
 * Fix visibility of initially hidden windows [Jonas; !1066]
