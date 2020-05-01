@@ -1031,6 +1031,7 @@ find_logical_config_for_builtin_display_rotation (MetaMonitorConfigManager *conf
 
 static MetaMonitorsConfig *
 create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
+                                     MetaMonitorsConfig       *base_config,
                                      gboolean                  rotate,
                                      MetaMonitorTransform      transform)
 {
@@ -1040,10 +1041,9 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
   GList *logical_monitor_configs, *current_configs;
   MetaLogicalMonitorLayoutMode layout_mode;
 
-  if (!config_manager->current_config)
-    return NULL;
+  g_return_val_if_fail (base_config, NULL);
 
-  current_configs = config_manager->current_config->logical_monitor_configs;
+  current_configs = base_config->logical_monitor_configs;
   current_logical_monitor_config =
     find_logical_config_for_builtin_display_rotation (config_manager,
                                                       current_configs);
@@ -1071,7 +1071,7 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
     return NULL;
 
   logical_monitor_configs =
-    clone_logical_monitor_config_list (config_manager->current_config->logical_monitor_configs);
+    clone_logical_monitor_config_list (base_config->logical_monitor_configs);
   logical_monitor_config =
     find_logical_config_for_builtin_display_rotation (config_manager, logical_monitor_configs);
   logical_monitor_config->transform = transform;
@@ -1084,7 +1084,7 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
       logical_monitor_config->layout.height = temp;
     }
 
-  layout_mode = config_manager->current_config->layout_mode;
+  layout_mode = base_config->layout_mode;
   return meta_monitors_config_new (monitor_manager,
                                    logical_monitor_configs,
                                    layout_mode,
@@ -1093,15 +1093,38 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
 
 MetaMonitorsConfig *
 meta_monitor_config_manager_create_for_orientation (MetaMonitorConfigManager *config_manager,
+                                                    MetaMonitorsConfig       *base_config,
                                                     MetaMonitorTransform      transform)
 {
-  return create_for_builtin_display_rotation (config_manager, FALSE, transform);
+  return create_for_builtin_display_rotation (config_manager, base_config,
+                                              FALSE, transform);
+}
+
+MetaMonitorsConfig *
+meta_monitor_config_manager_create_for_builtin_orientation (MetaMonitorConfigManager *config_manager,
+                                                            MetaMonitorsConfig       *base_config)
+{
+  MetaMonitorManager *monitor_manager = config_manager->monitor_manager;
+  MetaMonitorTransform current_transform;
+  MetaMonitor *laptop_panel;
+
+  g_return_val_if_fail (
+    meta_monitor_manager_get_panel_orientation_managed (monitor_manager), NULL);
+
+  laptop_panel = meta_monitor_manager_get_laptop_panel (monitor_manager);
+  current_transform = get_monitor_transform (monitor_manager, laptop_panel);
+
+  return create_for_builtin_display_rotation (config_manager, base_config,
+                                              FALSE, current_transform);
 }
 
 MetaMonitorsConfig *
 meta_monitor_config_manager_create_for_rotate_monitor (MetaMonitorConfigManager *config_manager)
 {
-  return create_for_builtin_display_rotation (config_manager, TRUE, META_MONITOR_TRANSFORM_NORMAL);
+  return create_for_builtin_display_rotation (config_manager,
+                                              config_manager->current_config,
+                                              TRUE,
+                                              META_MONITOR_TRANSFORM_NORMAL);
 }
 
 static MetaMonitorsConfig *

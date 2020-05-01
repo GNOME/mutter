@@ -105,7 +105,12 @@ MetaMonitorsConfig * meta_monitor_config_manager_create_suggested (MetaMonitorCo
 
 META_EXPORT_TEST
 MetaMonitorsConfig * meta_monitor_config_manager_create_for_orientation (MetaMonitorConfigManager *config_manager,
+                                                                         MetaMonitorsConfig       *base_config,
                                                                          MetaMonitorTransform      transform);
+
+META_EXPORT_TEST
+MetaMonitorsConfig * meta_monitor_config_manager_create_for_builtin_orientation (MetaMonitorConfigManager *config_manager,
+                                                                                 MetaMonitorsConfig       *base_config);
 
 META_EXPORT_TEST
 MetaMonitorsConfig * meta_monitor_config_manager_create_for_rotate_monitor (MetaMonitorConfigManager *config_manager);

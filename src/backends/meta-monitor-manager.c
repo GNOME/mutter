@@ -689,6 +689,17 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
       config = meta_monitor_config_manager_get_stored (manager->config_manager);
       if (config)
         {
+          g_autoptr (MetaMonitorsConfig) oriented_config = NULL;
+
+          if (manager->panel_orientation_managed)
+            {
+              oriented_config = meta_monitor_config_manager_create_for_builtin_orientation (
+                manager->config_manager, config);
+
+              if (oriented_config)
+                config = oriented_config;
+            }
+
           if (!meta_monitor_manager_apply_monitors_config (manager,
                                                            config,
                                                            method,
@@ -702,6 +713,39 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
           else
             {
               g_object_ref (config);
+              goto done;
+            }
+        }
+    }
+
+  if (manager->panel_orientation_managed)
+    {
+      MetaMonitorsConfig *current_config =
+        meta_monitor_config_manager_get_current (manager->config_manager);
+
+      if (current_config)
+        {
+          config = meta_monitor_config_manager_create_for_builtin_orientation (
+            manager->config_manager, current_config);
+        }
+    }
+
+  if (config)
+    {
+      if (meta_monitor_manager_is_config_complete (manager, config))
+        {
+          if (!meta_monitor_manager_apply_monitors_config (manager,
+                                                           config,
+                                                           method,
+                                                           &error))
+            {
+              g_clear_object (&config);
+              g_warning ("Failed to use current monitor configuration: %s",
+                         error->message);
+              g_clear_error (&error);
+            }
+          else
+            {
               goto done;
             }
         }
@@ -813,6 +857,7 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
   MetaMonitorsConfig *config;
   MetaMonitor *laptop_panel;
   MetaLogicalMonitor *laptop_logical_monitor;
+  MetaMonitorsConfig *current_config;
 
   laptop_panel = meta_monitor_manager_get_laptop_panel (manager);
   g_return_if_fail (laptop_panel);
@@ -844,8 +889,11 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
   if (meta_logical_monitor_get_transform (laptop_logical_monitor) == transform)
     return;
 
+  current_config =
+    meta_monitor_config_manager_get_current (manager->config_manager);
   config =
     meta_monitor_config_manager_create_for_orientation (manager->config_manager,
+                                                        current_config,
                                                         transform);
   if (!config)
     return;
@@ -1501,6 +1549,18 @@ restore_previous_config (MetaMonitorManager *manager)
   if (previous_config)
     {
       MetaMonitorsConfigMethod method;
+
+      if (manager->panel_orientation_managed)
+        {
+          g_autoptr (MetaMonitorsConfig) oriented_config = NULL;
+
+          oriented_config =
+            meta_monitor_config_manager_create_for_builtin_orientation (
+              manager->config_manager, previous_config);
+
+          if (oriented_config)
+            g_set_object (&previous_config, oriented_config);
+        }
 
       method = META_MONITORS_CONFIG_METHOD_TEMPORARY;
       if (meta_monitor_manager_apply_monitors_config (manager,
