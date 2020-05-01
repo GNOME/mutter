@@ -25,6 +25,44 @@
 #include "tests/meta-sensors-proxy-mock.h"
 
 static void
+on_orientation_changed (gpointer data)
+{
+  gboolean *changed = data;
+
+  *changed = TRUE;
+}
+
+static gboolean
+on_max_wait_timeout (gpointer data)
+{
+  guint *timeout_id = data;
+
+  *timeout_id = 0;
+
+  return G_SOURCE_REMOVE;
+}
+
+void
+wait_for_orientation_changes (MetaOrientationManager *orientation_manager)
+{
+  gboolean changed = FALSE;
+  gulong connection_id;
+  guint timeout_id;
+
+  timeout_id = g_timeout_add (300, on_max_wait_timeout, &timeout_id);
+  connection_id = g_signal_connect_swapped (orientation_manager,
+                                            "orientation-changed",
+                                            G_CALLBACK (on_orientation_changed),
+                                            &changed);
+
+  while (!changed && timeout_id)
+    g_main_context_iteration (NULL, TRUE);
+
+  g_clear_handle_id (&timeout_id, g_source_remove);
+  g_signal_handler_disconnect (orientation_manager, connection_id);
+}
+
+static void
 meta_test_orientation_manager_no_daemon (void)
 {
   g_autoptr (MetaOrientationManager) manager = NULL;
@@ -64,6 +102,7 @@ meta_test_orientation_manager_has_accelerometer (void)
   meta_sensors_proxy_mock_set_property (orientation_mock,
                                         "HasAccelerometer",
                                         g_variant_new_boolean (TRUE));
+  wait_for_orientation_changes (manager);
 
   g_debug ("Checking whether accelerometer is present");
   g_assert_true (meta_orientation_manager_has_accelerometer (manager));
@@ -104,6 +143,7 @@ meta_test_orientation_manager_accelerometer_orientations (void)
     {
       changed_called = FALSE;
       meta_sensors_proxy_mock_set_orientation (orientation_mock, i);
+      wait_for_orientation_changes (manager);
 
       g_debug ("Checking orientation %d", i);
       g_assert_cmpuint (meta_orientation_manager_get_orientation (manager),

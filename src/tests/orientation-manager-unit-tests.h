@@ -21,6 +21,10 @@
 #ifndef ORIENTATION_MANAGER_UNIT_TESTS_H
 #define ORIENTATION_MANAGER_UNIT_TESTS_H
 
+#include "backends/meta-orientation-manager.h"
+
 void init_orientation_manager_tests (void);
+
+void wait_for_orientation_changes (MetaOrientationManager *orientation_manager);
 
 #endif /* ORIENTATION_MANAGER_UNIT_TESTS_H */

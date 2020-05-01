@@ -52,6 +52,7 @@ struct _MetaOrientationManager
   GCancellable *cancellable;
 
   guint iio_watch_id;
+  guint sync_idle_id;
   GDBusProxy *iio_proxy;
   MetaOrientation prev_orientation;
   MetaOrientation curr_orientation;
@@ -135,13 +136,39 @@ sync_state (MetaOrientationManager *self)
   g_signal_emit (self, signals[ORIENTATION_CHANGED], 0);
 }
 
+static gboolean
+changed_idle (gpointer user_data)
+{
+  MetaOrientationManager *self = user_data;
+
+  self->sync_idle_id = 0;
+  sync_state (self);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+queue_sync_state (MetaOrientationManager *self)
+{
+  /* We need this idle to avoid triggering events happening while the session
+   * is not active (under X11), ideally this should be handled by stopping
+   * events if the session is not active, but we'll need a MetaLogind available
+   * in all the backends for having this working.
+   */
+
+  if (self->sync_idle_id)
+    return;
+
+  self->sync_idle_id = g_idle_add (changed_idle, self);
+}
+
 static void
 orientation_lock_changed (GSettings *settings,
                           gchar     *key,
                           gpointer   user_data)
 {
   MetaOrientationManager *self = user_data;
-  sync_state (self);
+  queue_sync_state (self);
 }
 
 static void
@@ -151,7 +178,7 @@ iio_properties_changed (GDBusProxy *proxy,
                         gpointer    user_data)
 {
   MetaOrientationManager *self = user_data;
-  sync_state (self);
+  queue_sync_state (self);
 }
 
 static void
@@ -288,6 +315,7 @@ meta_orientation_manager_finalize (GObject *object)
   g_clear_object (&self->cancellable);
 
   g_bus_unwatch_name (self->iio_watch_id);
+  g_clear_handle_id (&self->sync_idle_id, g_source_remove);
   g_clear_object (&self->iio_proxy);
 
   g_clear_object (&self->settings);
