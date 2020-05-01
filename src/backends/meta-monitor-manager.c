@@ -811,6 +811,14 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
   MetaMonitorTransform transform;
   GError *error = NULL;
   MetaMonitorsConfig *config;
+  MetaMonitor *laptop_panel;
+  MetaLogicalMonitor *laptop_logical_monitor;
+
+  laptop_panel = meta_monitor_manager_get_laptop_panel (manager);
+  g_return_if_fail (laptop_panel);
+
+  if (!meta_monitor_is_active (laptop_panel))
+    return;
 
   switch (meta_orientation_manager_get_orientation (orientation_manager))
     {
@@ -831,6 +839,10 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
     default:
       return;
     }
+
+  laptop_logical_monitor = meta_monitor_get_logical_monitor (laptop_panel);
+  if (meta_logical_monitor_get_transform (laptop_logical_monitor) == transform)
+    return;
 
   config =
     meta_monitor_config_manager_create_for_orientation (manager->config_manager,
