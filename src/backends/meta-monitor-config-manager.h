@@ -62,6 +62,7 @@ struct _MetaMonitorsConfig
 {
   GObject parent;
 
+  MetaMonitorsConfig *parent_config;
   MetaMonitorsConfigKey *key;
   GList *logical_monitor_configs;
 
@@ -156,6 +157,10 @@ MetaMonitorSwitchConfigType meta_monitors_config_get_switch_config (MetaMonitors
 META_EXPORT_TEST
 void meta_monitors_config_set_switch_config (MetaMonitorsConfig          *config,
                                              MetaMonitorSwitchConfigType  switch_config);
+
+META_EXPORT_TEST
+void meta_monitors_config_set_parent_config (MetaMonitorsConfig *config,
+                                             MetaMonitorsConfig *parent_config);
 
 META_EXPORT_TEST
 unsigned int meta_monitors_config_key_hash (gconstpointer config_key);

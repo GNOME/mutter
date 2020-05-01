@@ -773,6 +773,18 @@ meta_monitor_manager_ensure_configured (MetaMonitorManager *manager)
   config = meta_monitor_config_manager_get_previous (manager->config_manager);
   if (config)
     {
+      g_autoptr (MetaMonitorsConfig) oriented_config = NULL;
+
+      if (manager->panel_orientation_managed)
+        {
+          oriented_config =
+            meta_monitor_config_manager_create_for_builtin_orientation (
+              manager->config_manager, config);
+
+          if (oriented_config)
+            config = oriented_config;
+        }
+
       config = g_object_ref (config);
 
       if (meta_monitor_manager_is_config_complete (manager, config))
@@ -891,6 +903,9 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
 
   current_config =
     meta_monitor_config_manager_get_current (manager->config_manager);
+  if (!current_config)
+    return;
+
   config =
     meta_monitor_config_manager_create_for_orientation (manager->config_manager,
                                                         current_config,

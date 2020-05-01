@@ -1038,6 +1038,7 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
   MetaMonitorManager *monitor_manager = config_manager->monitor_manager;
   MetaLogicalMonitorConfig *logical_monitor_config;
   MetaLogicalMonitorConfig *current_logical_monitor_config;
+  MetaMonitorsConfig *config;
   GList *logical_monitor_configs, *current_configs;
   MetaLogicalMonitorLayoutMode layout_mode;
 
@@ -1085,10 +1086,13 @@ create_for_builtin_display_rotation (MetaMonitorConfigManager *config_manager,
     }
 
   layout_mode = base_config->layout_mode;
-  return meta_monitors_config_new (monitor_manager,
-                                   logical_monitor_configs,
-                                   layout_mode,
-                                   META_MONITORS_CONFIG_FLAG_NONE);
+  config = meta_monitors_config_new (monitor_manager,
+                                     logical_monitor_configs,
+                                     layout_mode,
+                                     META_MONITORS_CONFIG_FLAG_NONE);
+  meta_monitors_config_set_parent_config (config, base_config);
+
+  return config;
 }
 
 MetaMonitorsConfig *
@@ -1121,6 +1125,9 @@ meta_monitor_config_manager_create_for_builtin_orientation (MetaMonitorConfigMan
 MetaMonitorsConfig *
 meta_monitor_config_manager_create_for_rotate_monitor (MetaMonitorConfigManager *config_manager)
 {
+  if (!config_manager->current_config)
+    return NULL;
+
   return create_for_builtin_display_rotation (config_manager,
                                               config_manager->current_config,
                                               TRUE,
@@ -1319,11 +1326,37 @@ meta_monitor_config_manager_create_for_switch_config (MetaMonitorConfigManager  
   return config;
 }
 
+static MetaMonitorsConfig *
+get_root_config (MetaMonitorsConfig *config)
+{
+  if (!config->parent_config)
+    return config;
+
+  return get_root_config (config->parent_config);
+}
+
+static gboolean
+has_same_root_config (MetaMonitorsConfig *config_a,
+                      MetaMonitorsConfig *config_b)
+{
+  return get_root_config (config_a) == get_root_config (config_b);
+}
+
 void
 meta_monitor_config_manager_set_current (MetaMonitorConfigManager *config_manager,
                                          MetaMonitorsConfig       *config)
 {
-  if (config_manager->current_config)
+  MetaMonitorsConfig *current_config = config_manager->current_config;
+  gboolean overrides_current = FALSE;
+
+  if (config && current_config &&
+      has_same_root_config (config, current_config))
+    {
+      overrides_current = meta_monitors_config_key_equal (config->key,
+                                                          current_config->key);
+    }
+
+  if (current_config && !overrides_current)
     {
       g_queue_push_head (&config_manager->config_history,
                          g_object_ref (config_manager->current_config));
@@ -1522,6 +1555,16 @@ meta_monitors_config_set_switch_config (MetaMonitorsConfig          *config,
   config->switch_config = switch_config;
 }
 
+void
+meta_monitors_config_set_parent_config (MetaMonitorsConfig *config,
+                                        MetaMonitorsConfig *parent_config)
+{
+  g_assert (config != parent_config);
+  g_assert (!parent_config || parent_config->parent_config != config);
+
+  g_set_object (&config->parent_config, parent_config);
+}
+
 MetaMonitorsConfig *
 meta_monitors_config_new_full (GList                        *logical_monitor_configs,
                                GList                        *disabled_monitor_specs,
@@ -1583,6 +1626,7 @@ meta_monitors_config_finalize (GObject *object)
 {
   MetaMonitorsConfig *config = META_MONITORS_CONFIG (object);
 
+  g_clear_object (&config->parent_config);
   meta_monitors_config_key_free (config->key);
   g_list_free_full (config->logical_monitor_configs,
                     (GDestroyNotify) meta_logical_monitor_config_free);

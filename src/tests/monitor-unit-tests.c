@@ -303,6 +303,107 @@ meta_test_monitor_config_store_set_current_on_empty (void)
 }
 
 static void
+meta_test_monitor_config_store_set_current_with_parent_on_empty (void)
+{
+  g_autoptr (MetaMonitorsConfig) parent_config = NULL;
+  g_autoptr (MetaMonitorsConfig) child_config1 = NULL;
+  g_autoptr (MetaMonitorsConfig) child_config2 = NULL;
+  g_autoptr (MetaMonitorsConfig) child_config3 = NULL;
+  g_autoptr (MetaMonitorsConfig) linear_config = NULL;
+  g_autoptr (MetaMonitorsConfig) fallback_config = NULL;
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
+  MetaMonitorsConfig *old_current;
+
+  parent_config = meta_monitor_config_manager_create_linear (config_manager);
+
+  child_config1 = meta_monitor_config_manager_create_linear (config_manager);
+  meta_monitors_config_set_parent_config (child_config1, parent_config);
+  old_current = meta_monitor_config_manager_get_current (config_manager);
+
+  g_assert_null (old_current);
+  g_assert_nonnull (child_config1);
+
+  meta_monitor_config_manager_set_current (config_manager, child_config1);
+
+  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
+            child_config1);
+  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
+            old_current);
+  g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
+  g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
+
+  child_config2 = meta_monitor_config_manager_create_linear (config_manager);
+  meta_monitors_config_set_parent_config (child_config2, parent_config);
+  g_assert (child_config2->parent_config == parent_config);
+
+  old_current = meta_monitor_config_manager_get_current (config_manager);
+  g_assert_nonnull (old_current->parent_config);
+  meta_monitor_config_manager_set_current (config_manager, child_config2);
+
+  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
+            child_config2);
+  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
+            old_current);
+  g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
+  g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
+
+  child_config3 = meta_monitor_config_manager_create_linear (config_manager);
+  meta_monitors_config_set_parent_config (child_config3, child_config2);
+
+  old_current = meta_monitor_config_manager_get_current (config_manager);
+  g_assert_nonnull (old_current->parent_config);
+  meta_monitor_config_manager_set_current (config_manager, child_config3);
+
+  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
+            child_config3);
+  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
+            old_current);
+  g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
+  g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
+
+  linear_config = meta_monitor_config_manager_create_linear (config_manager);
+  g_assert_null (linear_config->parent_config);
+
+  old_current = meta_monitor_config_manager_get_current (config_manager);
+  g_assert_nonnull (old_current->parent_config);
+  meta_monitor_config_manager_set_current (config_manager, linear_config);
+
+  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
+            linear_config);
+  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
+            old_current);
+  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
+            child_config3);
+
+  fallback_config =
+    meta_monitor_config_manager_create_fallback (config_manager);
+  g_assert_null (fallback_config->parent_config);
+
+  old_current = meta_monitor_config_manager_get_current (config_manager);
+  g_assert_null (old_current->parent_config);
+  meta_monitor_config_manager_set_current (config_manager, fallback_config);
+
+  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
+            fallback_config);
+  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
+            old_current);
+
+  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
+            linear_config);
+  g_assert (meta_monitor_config_manager_pop_previous (config_manager) ==
+            linear_config);
+  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
+            child_config3);
+  g_assert (meta_monitor_config_manager_pop_previous (config_manager) ==
+            child_config3);
+  g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
+  g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
+}
+
+static void
 meta_test_monitor_config_store_set_current (void)
 {
   g_autoptr (MetaMonitorsConfig) linear_config = NULL;
@@ -335,6 +436,88 @@ meta_test_monitor_config_store_set_current (void)
             old_current);
   g_assert (meta_monitor_config_manager_pop_previous (config_manager) ==
             old_current);
+
+  g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
+  g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
+}
+
+static void
+meta_test_monitor_config_store_set_current_with_parent (void)
+{
+  g_autoptr (MetaMonitorsConfig) child_config = NULL;
+  g_autoptr (MetaMonitorsConfig) other_child = NULL;
+  g_autoptr (MetaMonitorsConfig) linear_config = NULL;
+  g_autoptr (MetaMonitorsConfig) fallback_config = NULL;
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorConfigManager *config_manager = monitor_manager->config_manager;
+  MetaMonitorsConfig *old_current;
+
+  linear_config = meta_monitor_config_manager_create_linear (config_manager);
+  g_assert_null (linear_config->parent_config);
+
+  old_current = meta_monitor_config_manager_get_current (config_manager);
+  g_assert_null (old_current);
+  meta_monitor_config_manager_set_current (config_manager, linear_config);
+
+  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
+            linear_config);
+  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
+            old_current);
+  g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
+  g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
+
+  fallback_config = meta_monitor_config_manager_create_fallback (config_manager);
+  g_assert_nonnull (fallback_config);
+  g_assert_null (fallback_config->parent_config);
+
+  old_current = meta_monitor_config_manager_get_current (config_manager);
+  g_assert_nonnull (old_current);
+  g_assert_null (old_current->parent_config);
+  meta_monitor_config_manager_set_current (config_manager, fallback_config);
+
+  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
+            fallback_config);
+  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
+            old_current);
+  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
+            old_current);
+
+  child_config = meta_monitor_config_manager_create_linear (config_manager);
+  old_current = meta_monitor_config_manager_get_current (config_manager);
+  meta_monitors_config_set_parent_config (child_config, old_current);
+
+  g_assert_nonnull (child_config);
+  g_assert_nonnull (old_current);
+  g_assert (old_current == fallback_config);
+  g_assert_null (old_current->parent_config);
+
+  meta_monitor_config_manager_set_current (config_manager, child_config);
+
+  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
+            child_config);
+  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
+            old_current);
+  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
+            linear_config);
+
+  other_child = meta_monitor_config_manager_create_linear (config_manager);
+  meta_monitors_config_set_parent_config (other_child, old_current);
+
+  old_current = meta_monitor_config_manager_get_current (config_manager);
+  g_assert_nonnull (old_current->parent_config);
+  g_assert (old_current == child_config);
+  meta_monitor_config_manager_set_current (config_manager, other_child);
+
+  g_assert (meta_monitor_config_manager_get_current (config_manager) ==
+            other_child);
+  g_assert (meta_monitor_config_manager_get_current (config_manager) !=
+            old_current);
+  g_assert (meta_monitor_config_manager_get_previous (config_manager) ==
+            linear_config);
+  g_assert (meta_monitor_config_manager_pop_previous (config_manager) ==
+            linear_config);
 
   g_assert_null (meta_monitor_config_manager_get_previous (config_manager));
   g_assert_null (meta_monitor_config_manager_pop_previous (config_manager));
@@ -7044,8 +7227,12 @@ init_monitor_tests (void)
 
   add_monitor_test ("/backends/monitor/config-store/set_current-on-empty",
                     meta_test_monitor_config_store_set_current_on_empty);
+  add_monitor_test ("/backends/monitor/config-store/set_current-with-parent-on-empty",
+                    meta_test_monitor_config_store_set_current_with_parent_on_empty);
   add_monitor_test ("/backends/monitor/config-store/set_current",
                     meta_test_monitor_config_store_set_current);
+  add_monitor_test ("/backends/monitor/config-store/set_current-with-parent",
+                    meta_test_monitor_config_store_set_current_with_parent);
   add_monitor_test ("/backends/monitor/config-store/set_current-max-size",
                     meta_test_monitor_config_store_set_current_max_size);
   add_monitor_test ("/backends/monitor/config-store/set_current-null",
