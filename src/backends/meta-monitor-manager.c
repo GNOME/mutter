@@ -1122,6 +1122,8 @@ meta_monitor_manager_dispose (GObject *object)
   g_clear_object (&manager->display_config);
   g_clear_object (&manager->config_manager);
 
+  g_clear_handle_id (&manager->persistent_timeout_id, g_source_remove);
+
   G_OBJECT_CLASS (meta_monitor_manager_parent_class)->dispose (object);
 }
 
