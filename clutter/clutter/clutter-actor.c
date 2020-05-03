@@ -1198,27 +1198,20 @@ clutter_actor_verify_map_state (ClutterActor *self)
 
   if (CLUTTER_ACTOR_IS_REALIZED (self))
     {
-      /* all bets are off during reparent when we're potentially realized,
-       * but should not be according to invariants
-       */
-      if (!CLUTTER_ACTOR_IN_REPARENT (self))
+      if (priv->parent == NULL)
         {
-          if (priv->parent == NULL)
+          if (!CLUTTER_ACTOR_IS_TOPLEVEL (self))
             {
-              if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
-                {
-                }
-              else
-                g_warning ("Realized non-toplevel actor '%s' should "
-                           "have a parent",
-                           _clutter_actor_get_debug_name (self));
+              g_warning ("Realized non-toplevel actor '%s' should "
+                         "have a parent",
+                         _clutter_actor_get_debug_name (self));
             }
-          else if (!CLUTTER_ACTOR_IS_REALIZED (priv->parent))
-            {
-              g_warning ("Realized actor %s has an unrealized parent %s",
-                         _clutter_actor_get_debug_name (self),
-                         _clutter_actor_get_debug_name (priv->parent));
-            }
+        }
+      else if (!CLUTTER_ACTOR_IS_REALIZED (priv->parent))
+        {
+          g_warning ("Realized actor %s has an unrealized parent %s",
+                     _clutter_actor_get_debug_name (self),
+                     _clutter_actor_get_debug_name (priv->parent));
         }
     }
 
@@ -1228,70 +1221,64 @@ clutter_actor_verify_map_state (ClutterActor *self)
         g_warning ("Actor '%s' is mapped but not realized",
                    _clutter_actor_get_debug_name (self));
 
-      /* remaining bets are off during reparent when we're potentially
-       * mapped, but should not be according to invariants
-       */
-      if (!CLUTTER_ACTOR_IN_REPARENT (self))
+      if (priv->parent == NULL)
         {
-          if (priv->parent == NULL)
+          if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
             {
-              if (CLUTTER_ACTOR_IS_TOPLEVEL (self))
+              if (!CLUTTER_ACTOR_IS_VISIBLE (self) &&
+                  !CLUTTER_ACTOR_IN_DESTRUCTION (self))
                 {
-                  if (!CLUTTER_ACTOR_IS_VISIBLE (self) &&
-                      !CLUTTER_ACTOR_IN_DESTRUCTION (self))
-                    {
-                      g_warning ("Toplevel actor '%s' is mapped "
-                                 "but not visible",
-                                 _clutter_actor_get_debug_name (self));
-                    }
-                }
-              else
-                {
-                  g_warning ("Mapped actor '%s' should have a parent",
+                  g_warning ("Toplevel actor '%s' is mapped "
+                             "but not visible",
                              _clutter_actor_get_debug_name (self));
                 }
             }
           else
             {
-              ClutterActor *iter = self;
+              g_warning ("Mapped actor '%s' should have a parent",
+                         _clutter_actor_get_debug_name (self));
+            }
+        }
+      else
+        {
+          ClutterActor *iter = self;
 
-              /* check for the enable_paint_unmapped flag on the actor
-               * and parents; if the flag is enabled at any point of this
-               * branch of the scene graph then all the later checks
-               * become pointless
-               */
-              while (iter != NULL)
-                {
-                  if (iter->priv->enable_paint_unmapped)
-                    return;
+          /* check for the enable_paint_unmapped flag on the actor
+           * and parents; if the flag is enabled at any point of this
+           * branch of the scene graph then all the later checks
+           * become pointless
+           */
+          while (iter != NULL)
+            {
+              if (iter->priv->enable_paint_unmapped)
+                return;
 
-                  iter = iter->priv->parent;
-                }
+              iter = iter->priv->parent;
+            }
 
-              if (!CLUTTER_ACTOR_IS_VISIBLE (priv->parent))
-                {
-                  g_warning ("Actor '%s' should not be mapped if parent '%s'"
-                             "is not visible",
-                             _clutter_actor_get_debug_name (self),
-                             _clutter_actor_get_debug_name (priv->parent));
-                }
+          if (!CLUTTER_ACTOR_IS_VISIBLE (priv->parent))
+            {
+              g_warning ("Actor '%s' should not be mapped if parent '%s'"
+                         "is not visible",
+                         _clutter_actor_get_debug_name (self),
+                         _clutter_actor_get_debug_name (priv->parent));
+            }
 
-              if (!CLUTTER_ACTOR_IS_REALIZED (priv->parent))
-                {
-                  g_warning ("Actor '%s' should not be mapped if parent '%s'"
-                             "is not realized",
-                             _clutter_actor_get_debug_name (self),
-                             _clutter_actor_get_debug_name (priv->parent));
-                }
+          if (!CLUTTER_ACTOR_IS_REALIZED (priv->parent))
+            {
+              g_warning ("Actor '%s' should not be mapped if parent '%s'"
+                         "is not realized",
+                         _clutter_actor_get_debug_name (self),
+                         _clutter_actor_get_debug_name (priv->parent));
+            }
 
-              if (!CLUTTER_ACTOR_IS_TOPLEVEL (priv->parent))
-                {
-                  if (!CLUTTER_ACTOR_IS_MAPPED (priv->parent))
-                    g_warning ("Actor '%s' is mapped but its non-toplevel "
-                               "parent '%s' is not mapped",
-                               _clutter_actor_get_debug_name (self),
-                               _clutter_actor_get_debug_name (priv->parent));
-                }
+          if (!CLUTTER_ACTOR_IS_TOPLEVEL (priv->parent))
+            {
+              if (!CLUTTER_ACTOR_IS_MAPPED (priv->parent))
+                g_warning ("Actor '%s' is mapped but its non-toplevel "
+                           "parent '%s' is not mapped",
+                           _clutter_actor_get_debug_name (self),
+                           _clutter_actor_get_debug_name (priv->parent));
             }
         }
     }
@@ -1586,13 +1573,10 @@ clutter_actor_update_map_state (ClutterActor  *self,
                        _clutter_actor_get_debug_name (priv->parent));
         }
 
-      /* If in reparent, we temporarily suspend unmap and unrealize.
-       *
-       * We want to go in the order "realize, map" and "unmap, unrealize"
-       */
+      /* We want to go in the order "realize, map" and "unmap, unrealize" */
 
       /* Unmap */
-      if (!should_be_mapped && !CLUTTER_ACTOR_IN_REPARENT (self))
+      if (!should_be_mapped)
         clutter_actor_set_mapped (self, FALSE);
 
       /* Realize */
@@ -1603,7 +1587,7 @@ clutter_actor_update_map_state (ClutterActor  *self,
       g_assert (!(must_be_realized && !may_be_realized));
 
       /* Unrealize */
-      if (!may_be_realized && !CLUTTER_ACTOR_IN_REPARENT (self))
+      if (!may_be_realized)
         clutter_actor_unrealize_not_hiding (self);
 
       /* Map */
@@ -4578,8 +4562,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
       clutter_actor_queue_compute_expand (self);
     }
 
-  if (emit_parent_set && !CLUTTER_ACTOR_IN_REPARENT (child) &&
-      !CLUTTER_ACTOR_IN_DESTRUCTION (child))
+  if (emit_parent_set && !CLUTTER_ACTOR_IN_DESTRUCTION (child))
     {
       child->priv->needs_compute_resource_scale = TRUE;
       g_signal_emit (child, actor_signals[PARENT_SET], 0, self);
@@ -13193,7 +13176,7 @@ clutter_actor_add_child_internal (ClutterActor              *self,
       clutter_actor_queue_compute_expand (self);
     }
 
-  if (emit_parent_set && !CLUTTER_ACTOR_IN_REPARENT (child))
+  if (emit_parent_set)
     {
       child->priv->needs_compute_resource_scale = TRUE;
       g_signal_emit (child, actor_signals[PARENT_SET], 0, NULL);
