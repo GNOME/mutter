@@ -27,7 +27,9 @@
 
 #include "wayland-test-client-utils.h"
 
+#if defined(HAVE_MEMFD_CREATE)
 #define READONLY_SEALS (F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_WRITE)
+#endif
 
 static const char *teststring = "test string 1234567890";
 
@@ -67,6 +69,7 @@ test_write_fd (int         fd,
   return TRUE;
 }
 
+#if defined(HAVE_MEMFD_CREATE)
 static int
 test_readonly_seals (int fd)
 {
@@ -81,6 +84,7 @@ test_readonly_seals (int fd)
 
   return TRUE;
 }
+#endif
 
 static int
 test_write_read (int fd)
@@ -224,9 +228,6 @@ main (int    argc,
   other_fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_PRIVATE);
   g_assert (other_fd != -1);
 
-  if (test_readonly_seals (fd))
-    goto fail;
-
   /* Writing and reading the written data should succeed */
   if (!test_write_read (fd))
     goto fail;
@@ -243,9 +244,6 @@ main (int    argc,
   g_assert (fd != -1);
   other_fd = meta_anonymous_file_open_fd (file, META_ANONYMOUS_FILE_MAPMODE_SHARED);
   g_assert (other_fd != -1);
-
-  if (test_readonly_seals (fd))
-    goto fail;
 
   if (!test_read_fd_mmap (fd, teststring))
     goto fail;
