@@ -1613,10 +1613,6 @@ meta_wayland_surface_init (MetaWaylandSurface *surface)
   surface->subsurface_branch_node = g_node_new (surface);
   surface->subsurface_leaf_node =
     g_node_prepend_data (surface->subsurface_branch_node, surface);
-
-  g_signal_connect (surface, "geometry-changed",
-                    G_CALLBACK (meta_wayland_surface_update_outputs_recursively),
-                    NULL);
 }
 
 static void
