@@ -54,8 +54,8 @@ meta_input_device_init (MetaInputDevice *input_device)
 static void
 meta_input_device_constructed (GObject *object)
 {
-  MetaInputDevice *input_device = META_INPUT_DEVICE (object);
 #ifdef HAVE_LIBWACOM
+  MetaInputDevice *input_device;
   WacomDeviceDatabase *wacom_db;
   MetaInputDevicePrivate *priv;
   const char *node;
@@ -64,6 +64,7 @@ meta_input_device_constructed (GObject *object)
   G_OBJECT_CLASS (meta_input_device_parent_class)->constructed (object);
 
 #ifdef HAVE_LIBWACOM
+  input_device = META_INPUT_DEVICE (object);
   priv = meta_input_device_get_instance_private (input_device);
   wacom_db = meta_backend_get_wacom_database (meta_get_backend ());
   node = clutter_input_device_get_device_node (CLUTTER_INPUT_DEVICE (input_device));
