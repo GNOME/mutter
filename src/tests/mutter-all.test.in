@@ -1,6 +1,6 @@
 [Test]
 Description=All Mutter tests
 TestEnvironment=GSETTINGS_BACKEND=memory;
-Exec=sh -c 'env XDG_RUNTIME_DIR="$(mktemp -d -t mutter-@apiversion@-all-tests-XXXXXX)" dbus-run-session -- xvfb-run -a -s "+iglx -noreset" -- @libexecdir@/installed-tests/mutter-@apiversion@/mutter-test-runner --all'
+Exec=sh -c 'env XDG_RUNTIME_DIR="$(mktemp -d -t mutter-@apiversion@-all-tests-XXXXXX)" @libexecdir@/installed-tests/mutter-@apiversion@/meta-dbus-runner.py xvfb-run -a -s "+iglx -noreset" -- @libexecdir@/installed-tests/mutter-@apiversion@/mutter-test-runner --all'
 Type=session
 Output=TAP

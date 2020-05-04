@@ -295,11 +295,22 @@ if have_tests
   have_clutter_tests = get_option('clutter_tests')
   have_installed_tests = get_option('installed_tests')
 
+  meta_dbus_runner = find_program('src/tests/meta-dbus-runner.py')
+  default_test_wrappers = [
+    meta_dbus_runner,
+  ]
+
+  add_test_setup('default',
+    is_default: true,
+    exe_wrapper: default_test_wrappers,
+  )
+
   add_test_setup('CI',
     env: [
       'MUTTER_DEBUG_DUMMY_MODE_SPECS=800x600@10.0',
     ],
     exe_wrapper: [
+      default_test_wrappers,
       find_program('catchsegv'),
       find_program('xvfb-run'), '-a', '-s', '+iglx -noreset',
     ],

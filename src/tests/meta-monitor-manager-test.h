@@ -23,6 +23,7 @@
 #include "backends/meta-crtc.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-output.h"
+#include "core/util-private.h"
 
 typedef struct _MetaMonitorTestSetup
 {
@@ -65,6 +66,7 @@ G_DECLARE_FINAL_TYPE (MetaMonitorManagerTest, meta_monitor_manager_test,
 META_EXPORT
 void meta_monitor_manager_test_init_test_setup (CreateTestSetupFunc func);
 
+META_EXPORT
 void meta_monitor_manager_test_read_current (MetaMonitorManager *manager);
 
 META_EXPORT

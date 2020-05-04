@@ -16,8 +16,16 @@ variables:
 .mutter.fedora:34@common:
   variables:
     FDO_DISTRIBUTION_VERSION: 34
-    BASE_TAG: '2021-08-25.0'
-    FDO_DISTRIBUTION_PACKAGES: 'gdm gnome-shell xorg-x11-server-Xvfb sassc gcovr clang uncrustify'
+    BASE_TAG: '2021-09-04.0'
+    FDO_DISTRIBUTION_PACKAGES:
+      clang
+      gcovr
+      gdm
+      gnome-shell
+      python3-dbusmock
+      sassc
+      uncrustify
+      xorg-x11-server-Xvfb
 
     FDO_DISTRIBUTION_EXEC: |
       dnf install -y 'dnf-command(builddep)' &&

@@ -35,6 +35,8 @@
 #include "tests/monitor-unit-tests.h"
 #include "tests/monitor-store-unit-tests.h"
 #include "tests/monitor-transform-tests.h"
+#include "tests/meta-test-utils.h"
+#include "tests/orientation-manager-unit-tests.h"
 #include "tests/wayland-unit-tests.h"
 
 MetaContext *test_context;
@@ -232,6 +234,7 @@ init_tests (void)
   init_boxes_tests ();
   init_wayland_tests ();
   init_monitor_transform_tests ();
+  init_orientation_manager_tests ();
 }
 
 int

@@ -6,6 +6,8 @@ mutter_test_sources = [
   'meta-gpu-test.h',
   'meta-monitor-manager-test.c',
   'meta-monitor-manager-test.h',
+  'meta-sensors-proxy-mock.c',
+  'meta-sensors-proxy-mock.h',
   'monitor-test-utils.c',
   'monitor-test-utils.h',
   'meta-test-utils.c',
@@ -115,6 +117,15 @@ test_runner = executable('mutter-test-runner',
   install_dir: mutter_installed_tests_libexecdir,
 )
 
+if have_installed_tests
+  install_data('meta-dbus-runner.py',
+    install_dir: mutter_installed_tests_libexecdir,
+  )
+  install_subdir('dbusmock-templates',
+    install_dir: mutter_installed_tests_libexecdir,
+  )
+endif
+
 unit_tests = executable('mutter-test-unit-tests',
   sources: [
     'unit-tests.c',
@@ -122,6 +133,8 @@ unit_tests = executable('mutter-test-unit-tests',
     'boxes-tests.h',
     'meta-wayland-test-driver.c',
     'meta-wayland-test-driver.h',
+    'meta-gpu-test.c',
+    'meta-gpu-test.h',
     'monitor-config-migration-unit-tests.c',
     'monitor-config-migration-unit-tests.h',
     'monitor-store-unit-tests.c',
@@ -131,6 +144,7 @@ unit_tests = executable('mutter-test-unit-tests',
     'monitor-transform-tests.c',
     'monitor-transform-tests.h',
     'monitor-unit-tests.c',
+    'orientation-manager-unit-tests.c',
     'monitor-unit-tests.h',
     'wayland-unit-tests.c',
     'wayland-unit-tests.h',
