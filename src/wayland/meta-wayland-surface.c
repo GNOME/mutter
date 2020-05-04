@@ -506,9 +506,6 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
       if (to->buffer)
         g_clear_signal_handler (&to->buffer_destroy_handler_id, to->buffer);
 
-      if (from->buffer)
-        g_clear_signal_handler (&from->buffer_destroy_handler_id, from->buffer);
-
       to->newly_attached = TRUE;
       to->buffer = from->buffer;
       to->dx = from->dx;
@@ -516,11 +513,10 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
     }
 
   wl_list_insert_list (&to->frame_callback_list, &from->frame_callback_list);
+  wl_list_init (&from->frame_callback_list);
 
   cairo_region_union (to->surface_damage, from->surface_damage);
   cairo_region_union (to->buffer_damage, from->buffer_damage);
-  cairo_region_destroy (from->surface_damage);
-  cairo_region_destroy (from->buffer_damage);
 
   if (from->input_region_set)
     {
@@ -530,7 +526,6 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
         to->input_region = cairo_region_reference (from->input_region);
 
       to->input_region_set = TRUE;
-      cairo_region_destroy (from->input_region);
     }
 
   if (from->opaque_region_set)
@@ -541,7 +536,6 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
         to->opaque_region = cairo_region_reference (from->opaque_region);
 
       to->opaque_region_set = TRUE;
-      cairo_region_destroy (from->opaque_region);
     }
 
   if (from->has_new_geometry)
@@ -603,7 +597,7 @@ meta_wayland_surface_state_merge_into (MetaWaylandSurfaceState *from,
                           to);
     }
 
-  meta_wayland_surface_state_set_default (from);
+  meta_wayland_surface_state_reset (from);
 }
 
 static void
