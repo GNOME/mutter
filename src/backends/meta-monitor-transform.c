@@ -20,6 +20,24 @@
 #include "backends/meta-monitor-transform.h"
 
 MetaMonitorTransform
+meta_monitor_transform_from_orientation (MetaOrientation orientation)
+{
+  switch (orientation)
+    {
+    case META_ORIENTATION_BOTTOM_UP:
+      return META_MONITOR_TRANSFORM_180;
+    case META_ORIENTATION_LEFT_UP:
+      return META_MONITOR_TRANSFORM_90;
+    case META_ORIENTATION_RIGHT_UP:
+      return META_MONITOR_TRANSFORM_270;
+    case META_ORIENTATION_UNDEFINED:
+    case META_ORIENTATION_NORMAL:
+    default:
+      return META_MONITOR_TRANSFORM_NORMAL;
+    }
+}
+
+MetaMonitorTransform
 meta_monitor_transform_invert (MetaMonitorTransform transform)
 {
   switch (transform)

@@ -22,6 +22,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-backend-types.h"
+#include "backends/meta-orientation-manager.h"
 #include "core/util-private.h"
 
 enum _MetaMonitorTransform
@@ -52,6 +53,9 @@ meta_monitor_transform_is_flipped (MetaMonitorTransform transform)
 {
   return (transform >= META_MONITOR_TRANSFORM_FLIPPED);
 }
+
+META_EXPORT_TEST
+MetaMonitorTransform meta_monitor_transform_from_orientation (MetaOrientation orientation);
 
 META_EXPORT_TEST
 MetaMonitorTransform meta_monitor_transform_invert (MetaMonitorTransform transform);

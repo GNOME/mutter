@@ -864,6 +864,7 @@ static void
 handle_orientation_change (MetaOrientationManager *orientation_manager,
                            MetaMonitorManager     *manager)
 {
+  MetaOrientation orientation;
   MetaMonitorTransform transform;
   GError *error = NULL;
   MetaMonitorsConfig *config;
@@ -877,25 +878,8 @@ handle_orientation_change (MetaOrientationManager *orientation_manager,
   if (!meta_monitor_is_active (laptop_panel))
     return;
 
-  switch (meta_orientation_manager_get_orientation (orientation_manager))
-    {
-    case META_ORIENTATION_NORMAL:
-      transform = META_MONITOR_TRANSFORM_NORMAL;
-      break;
-    case META_ORIENTATION_BOTTOM_UP:
-      transform = META_MONITOR_TRANSFORM_180;
-      break;
-    case META_ORIENTATION_LEFT_UP:
-      transform = META_MONITOR_TRANSFORM_90;
-      break;
-    case META_ORIENTATION_RIGHT_UP:
-      transform = META_MONITOR_TRANSFORM_270;
-      break;
-
-    case META_ORIENTATION_UNDEFINED:
-    default:
-      return;
-    }
+  orientation = meta_orientation_manager_get_orientation (orientation_manager);
+  transform = meta_monitor_transform_from_orientation (orientation);
 
   laptop_logical_monitor = meta_monitor_get_logical_monitor (laptop_panel);
   if (meta_logical_monitor_get_transform (laptop_logical_monitor) == transform)

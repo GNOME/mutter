@@ -702,6 +702,7 @@ get_monitor_transform (MetaMonitorManager *monitor_manager,
                        MetaMonitor        *monitor)
 {
   MetaOrientationManager *orientation_manager;
+  MetaOrientation orientation;
   MetaBackend *backend;
 
   if (!meta_monitor_is_laptop_panel (monitor) ||
@@ -710,20 +711,9 @@ get_monitor_transform (MetaMonitorManager *monitor_manager,
 
   backend = meta_monitor_manager_get_backend (monitor_manager);
   orientation_manager = meta_backend_get_orientation_manager (backend);
+  orientation = meta_orientation_manager_get_orientation (orientation_manager);
 
-  switch (meta_orientation_manager_get_orientation (orientation_manager))
-    {
-    case META_ORIENTATION_BOTTOM_UP:
-      return META_MONITOR_TRANSFORM_180;
-    case META_ORIENTATION_LEFT_UP:
-      return META_MONITOR_TRANSFORM_90;
-    case META_ORIENTATION_RIGHT_UP:
-      return META_MONITOR_TRANSFORM_270;
-    case META_ORIENTATION_UNDEFINED:
-    case META_ORIENTATION_NORMAL:
-    default:
-      return META_MONITOR_TRANSFORM_NORMAL;
-    }
+  return meta_monitor_transform_from_orientation (orientation);
 }
 
 static MetaLogicalMonitorConfig *
