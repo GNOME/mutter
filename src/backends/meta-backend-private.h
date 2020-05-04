@@ -112,6 +112,7 @@ void meta_backend_destroy (MetaBackend *backend);
 
 void meta_backend_prepare_shutdown (MetaBackend *backend);
 
+META_EXPORT_TEST
 ClutterBackend * meta_backend_get_clutter_backend (MetaBackend *backend);
 
 ClutterSeat * meta_backend_get_default_seat (MetaBackend *bakcend);
@@ -123,6 +124,7 @@ MetaIdleManager * meta_backend_get_idle_manager (MetaBackend *backend);
 
 META_EXPORT_TEST
 MetaMonitorManager * meta_backend_get_monitor_manager (MetaBackend *backend);
+META_EXPORT_TEST
 MetaOrientationManager * meta_backend_get_orientation_manager (MetaBackend *backend);
 MetaCursorTracker * meta_backend_get_cursor_tracker (MetaBackend *backend);
 MetaCursorRenderer * meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,

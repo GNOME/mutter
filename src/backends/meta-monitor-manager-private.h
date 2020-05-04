@@ -305,6 +305,7 @@ MetaLogicalMonitor *meta_monitor_manager_get_logical_monitor_neighbor (MetaMonit
 
 MetaMonitor *       meta_monitor_manager_get_primary_monitor (MetaMonitorManager *manager);
 
+META_EXPORT_TEST
 MetaMonitor *       meta_monitor_manager_get_laptop_panel (MetaMonitorManager *manager);
 
 MetaMonitor *       meta_monitor_manager_get_monitor_from_spec (MetaMonitorManager *manager,

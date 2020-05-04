@@ -34,4 +34,15 @@ void meta_backend_test_set_is_lid_closed (MetaBackendTest *backend_test,
 META_EXPORT
 MetaGpu * meta_backend_test_get_gpu (MetaBackendTest *backend_test);
 
+META_EXPORT_TEST
+ClutterInputDevice * meta_backend_test_add_test_device (MetaBackendTest        *backend,
+                                                        const char             *name,
+                                                        ClutterInputDeviceType  device_type,
+                                                        int                     n_buttons);
+
+META_EXPORT_TEST
+void meta_backend_test_remove_device (MetaBackendTest    *backend,
+                                      ClutterInputDevice *device);
+
+
 #endif /* META_BACKEND_TEST_H */
