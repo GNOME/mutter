@@ -166,6 +166,22 @@ clutter_stage_view_invalidate_offscreen_blit_pipeline (ClutterStageView *view)
   g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
 }
 
+void
+clutter_stage_view_transform_rect_to_onscreen (ClutterStageView            *view,
+                                               const cairo_rectangle_int_t *src_rect,
+                                               int                          dst_width,
+                                               int                          dst_height,
+                                               cairo_rectangle_int_t       *dst_rect)
+{
+  ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_GET_CLASS (view);
+
+  return view_class->transform_rect_to_onscreen (view,
+                                                 src_rect,
+                                                 dst_width,
+                                                 dst_height,
+                                                 dst_rect);
+}
+
 static void
 paint_transformed_framebuffer (ClutterStageView *view,
                                CoglPipeline     *pipeline,
@@ -469,19 +485,6 @@ clutter_stage_view_take_redraw_clip (ClutterStageView *view)
   priv->has_redraw_clip = FALSE;
 
   return g_steal_pointer (&priv->redraw_clip);
-}
-
-void
-clutter_stage_view_transform_to_onscreen (ClutterStageView *view,
-                                          gfloat           *x,
-                                          gfloat           *y)
-{
-  gfloat z = 0, w = 1;
-  CoglMatrix matrix;
-
-  clutter_stage_view_get_offscreen_transformation_matrix (view, &matrix);
-  cogl_matrix_get_inverse (&matrix, &matrix);
-  cogl_matrix_transform_point (&matrix, x, y, &z, &w);
 }
 
 static void

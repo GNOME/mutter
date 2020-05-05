@@ -536,44 +536,25 @@ static cairo_region_t *
 transform_swap_region_to_onscreen (ClutterStageView *view,
                                    cairo_region_t   *swap_region)
 {
-  CoglFramebuffer *framebuffer;
-  cairo_rectangle_int_t layout;
-  gint width, height;
+  CoglFramebuffer *onscreen = clutter_stage_view_get_onscreen (view);
   int n_rects, i;
   cairo_rectangle_int_t *rects;
   cairo_region_t *transformed_region;
+  int width, height;
 
-  framebuffer = clutter_stage_view_get_onscreen (view);
-  clutter_stage_view_get_layout (view, &layout);
-
-  width = cogl_framebuffer_get_width (framebuffer);
-  height = cogl_framebuffer_get_height (framebuffer);
+  width = cogl_framebuffer_get_width (onscreen);
+  height = cogl_framebuffer_get_height (onscreen);
 
   n_rects = cairo_region_num_rectangles (swap_region);
   rects = g_newa (cairo_rectangle_int_t, n_rects);
   for (i = 0; i < n_rects; i++)
     {
-      gfloat x1, y1, x2, y2;
-
       cairo_region_get_rectangle (swap_region, i, &rects[i]);
-
-      x1 = (float) rects[i].x / layout.width;
-      y1 = (float) rects[i].y / layout.height;
-      x2 = (float) (rects[i].x + rects[i].width) / layout.width;
-      y2 = (float) (rects[i].y + rects[i].height) / layout.height;
-
-      clutter_stage_view_transform_to_onscreen (view, &x1, &y1);
-      clutter_stage_view_transform_to_onscreen (view, &x2, &y2);
-
-      x1 = floor (x1 * width);
-      y1 = floor (height - (y1 * height));
-      x2 = ceil (x2 * width);
-      y2 = ceil (height - (y2 * height));
-
-      rects[i].x = x1;
-      rects[i].y = y1;
-      rects[i].width = x2 - x1;
-      rects[i].height = y2 - y1;
+      clutter_stage_view_transform_rect_to_onscreen (view,
+                                                     &rects[i],
+                                                     width,
+                                                     height,
+                                                     &rects[i]);
     }
   transformed_region = cairo_region_create_rectangles (rects, n_rects);
 
@@ -598,6 +579,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   ClutterStageViewCoglPrivate *view_priv =
     clutter_stage_view_cogl_get_instance_private (view_cogl);
   CoglFramebuffer *fb = clutter_stage_view_get_framebuffer (view);
+  CoglFramebuffer *onscreen = clutter_stage_view_get_onscreen (view);
   cairo_rectangle_int_t view_rect;
   gboolean is_full_redraw;
   gboolean use_clipped_redraw;
@@ -619,10 +601,10 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   fb_height = cogl_framebuffer_get_height (fb);
 
   can_blit_sub_buffer =
-    cogl_is_onscreen (fb) &&
+    cogl_is_onscreen (onscreen) &&
     cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_SWAP_REGION);
 
-  has_buffer_age = cogl_is_onscreen (fb) && is_buffer_age_enabled ();
+  has_buffer_age = cogl_is_onscreen (onscreen) && is_buffer_age_enabled ();
 
   redraw_clip = clutter_stage_view_take_redraw_clip (view);
   if (G_UNLIKELY (clutter_paint_debug_flags & CLUTTER_DEBUG_PAINT_DAMAGE_REGION))
@@ -636,7 +618,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
 
   if (has_buffer_age)
     {
-      buffer_age = cogl_onscreen_get_buffer_age (COGL_ONSCREEN (fb));
+      buffer_age = cogl_onscreen_get_buffer_age (COGL_ONSCREEN (onscreen));
       if (!valid_buffer_age (view_cogl, buffer_age))
         {
           CLUTTER_NOTE (CLIPPING,
@@ -654,7 +636,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
     !is_full_redraw &&
     /* some drivers struggle to get going and produce some junk
      * frames when starting up... */
-    cogl_onscreen_get_frame_counter (COGL_ONSCREEN (fb)) > 3;
+    cogl_onscreen_get_frame_counter (COGL_ONSCREEN (onscreen)) > 3;
 
   if (use_clipped_redraw)
     {
