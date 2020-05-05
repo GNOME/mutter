@@ -32,6 +32,7 @@ typedef enum
   META_ORIENTATION_LEFT_UP,
   META_ORIENTATION_RIGHT_UP
 } MetaOrientation;
+#define META_N_ORIENTATIONS (META_ORIENTATION_RIGHT_UP + 1)
 
 #define META_TYPE_ORIENTATION_MANAGER (meta_orientation_manager_get_type ())
 G_DECLARE_FINAL_TYPE (MetaOrientationManager, meta_orientation_manager,
