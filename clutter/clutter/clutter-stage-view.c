@@ -167,28 +167,13 @@ clutter_stage_view_invalidate_offscreen_blit_pipeline (ClutterStageView *view)
 }
 
 static void
-clutter_stage_view_copy_to_framebuffer (ClutterStageView *view,
-                                        CoglPipeline     *pipeline,
-                                        CoglFramebuffer  *src_framebuffer,
-                                        CoglFramebuffer  *dst_framebuffer,
-                                        gboolean          can_blit)
+paint_transformed_framebuffer (ClutterStageView *view,
+                               CoglPipeline     *pipeline,
+                               CoglFramebuffer  *src_framebuffer,
+                               CoglFramebuffer  *dst_framebuffer)
 {
   CoglMatrix matrix;
 
-  /* First, try with blit */
-  if (can_blit)
-    {
-      if (cogl_blit_framebuffer (src_framebuffer,
-                                 dst_framebuffer,
-                                 0, 0,
-                                 0, 0,
-                                 cogl_framebuffer_get_width (dst_framebuffer),
-                                 cogl_framebuffer_get_height (dst_framebuffer),
-                                 NULL))
-        return;
-    }
-
-  /* If blit fails, fallback to the slower painting method */
   cogl_framebuffer_push_matrix (dst_framebuffer);
 
   cogl_matrix_init_identity (&matrix);
@@ -285,28 +270,21 @@ clutter_stage_view_after_paint (ClutterStageView *view)
 
   if (priv->offscreen)
     {
-      gboolean can_blit;
-      CoglMatrix matrix;
-
       clutter_stage_view_ensure_offscreen_blit_pipeline (view);
-      clutter_stage_view_get_offscreen_transformation_matrix (view, &matrix);
-      can_blit = cogl_matrix_is_identity (&matrix);
 
       if (priv->shadow.framebuffer)
         {
-          clutter_stage_view_copy_to_framebuffer (view,
-                                                  priv->offscreen_pipeline,
-                                                  priv->offscreen,
-                                                  priv->shadow.framebuffer,
-                                                  can_blit);
+          paint_transformed_framebuffer (view,
+                                         priv->offscreen_pipeline,
+                                         priv->offscreen,
+                                         priv->shadow.framebuffer);
         }
       else
         {
-          clutter_stage_view_copy_to_framebuffer (view,
-                                                  priv->offscreen_pipeline,
-                                                  priv->offscreen,
-                                                  priv->framebuffer,
-                                                  can_blit);
+          paint_transformed_framebuffer (view,
+                                         priv->offscreen_pipeline,
+                                         priv->offscreen,
+                                         priv->framebuffer);
         }
     }
 
