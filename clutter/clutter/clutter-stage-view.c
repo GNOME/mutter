@@ -57,7 +57,6 @@ typedef struct _ClutterStageViewPrivate
   gboolean use_shadowfb;
   struct {
     CoglOffscreen *framebuffer;
-    CoglPipeline *pipeline;
   } shadow;
 
   CoglScanout *next_scanout;
@@ -156,19 +155,6 @@ clutter_stage_view_ensure_offscreen_blit_pipeline (ClutterStageView *view)
 
   if (view_class->setup_offscreen_blit_pipeline)
     view_class->setup_offscreen_blit_pipeline (view, priv->offscreen_pipeline);
-}
-
-static void
-clutter_stage_view_ensure_shadowfb_blit_pipeline (ClutterStageView *view)
-{
-  ClutterStageViewPrivate *priv =
-    clutter_stage_view_get_instance_private (view);
-
-  if (priv->shadow.pipeline)
-    return;
-
-  priv->shadow.pipeline =
-    clutter_stage_view_create_framebuffer_pipeline (priv->shadow.framebuffer);
 }
 
 void
@@ -326,12 +312,21 @@ clutter_stage_view_after_paint (ClutterStageView *view)
 
   if (priv->shadow.framebuffer)
     {
-      clutter_stage_view_ensure_shadowfb_blit_pipeline (view);
-      clutter_stage_view_copy_to_framebuffer (view,
-                                              priv->shadow.pipeline,
-                                              priv->shadow.framebuffer,
-                                              priv->framebuffer,
-                                              TRUE);
+      int width, height;
+      g_autoptr (GError) error = NULL;
+
+      width = cogl_framebuffer_get_width (priv->framebuffer);
+      height = cogl_framebuffer_get_height (priv->framebuffer);
+      if (!cogl_blit_framebuffer (priv->shadow.framebuffer,
+                                  priv->framebuffer,
+                                  0, 0,
+                                  0, 0,
+                                  width, height,
+                                  &error))
+        {
+          g_warning ("Failed to blit shadow buffer: %s", error->message);
+          return;
+        }
     }
 }
 
@@ -646,7 +641,6 @@ clutter_stage_view_dispose (GObject *object)
   g_clear_pointer (&priv->name, g_free);
   g_clear_pointer (&priv->framebuffer, cogl_object_unref);
   g_clear_pointer (&priv->shadow.framebuffer, cogl_object_unref);
-  g_clear_pointer (&priv->shadow.pipeline, cogl_object_unref);
   g_clear_pointer (&priv->offscreen, cogl_object_unref);
   g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
   g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
