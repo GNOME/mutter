@@ -49,7 +49,7 @@ meta_monitor_transform_is_rotated (MetaMonitorTransform transform)
 static inline gboolean
 meta_monitor_transform_is_flipped (MetaMonitorTransform transform)
 {
-  return (abs(transform) >= META_MONITOR_TRANSFORM_FLIPPED);
+  return (transform >= META_MONITOR_TRANSFORM_FLIPPED);
 }
 
 MetaMonitorTransform meta_monitor_transform_invert (MetaMonitorTransform transform);
