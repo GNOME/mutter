@@ -512,7 +512,7 @@ paint_stage (ClutterStageCogl *stage_cogl,
   _clutter_stage_maybe_setup_viewport (stage, view);
   clutter_stage_paint_view (stage, view, redraw_clip);
 
-  clutter_stage_view_after_paint (view);
+  clutter_stage_view_after_paint (view, redraw_clip);
 }
 
 static void

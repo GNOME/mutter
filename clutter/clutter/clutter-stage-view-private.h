@@ -20,7 +20,8 @@
 
 #include "clutter/clutter-stage-view.h"
 
-void clutter_stage_view_after_paint (ClutterStageView *view);
+void clutter_stage_view_after_paint (ClutterStageView *view,
+                                     cairo_region_t   *redraw_clip);
 
 gboolean clutter_stage_view_is_dirty_viewport (ClutterStageView *view);
 

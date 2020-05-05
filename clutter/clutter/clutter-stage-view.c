@@ -183,23 +183,87 @@ clutter_stage_view_transform_rect_to_onscreen (ClutterStageView            *view
 }
 
 static void
-paint_transformed_framebuffer (ClutterStageView *view,
-                               CoglPipeline     *pipeline,
-                               CoglFramebuffer  *src_framebuffer,
-                               CoglFramebuffer  *dst_framebuffer)
+paint_transformed_framebuffer (ClutterStageView     *view,
+                               CoglPipeline         *pipeline,
+                               CoglFramebuffer      *src_framebuffer,
+                               CoglFramebuffer      *dst_framebuffer,
+                               const cairo_region_t *redraw_clip)
 {
   CoglMatrix matrix;
+  unsigned int n_rectangles, i;
+  int dst_width, dst_height;
+  cairo_rectangle_int_t view_layout;
+  cairo_rectangle_int_t onscreen_layout;
+  float view_scale;
+  float *coordinates;
+
+  dst_width = cogl_framebuffer_get_width (dst_framebuffer);
+  dst_height = cogl_framebuffer_get_height (dst_framebuffer);
+  clutter_stage_view_get_layout (view, &view_layout);
+  clutter_stage_view_transform_rect_to_onscreen (view,
+                                                 &(cairo_rectangle_int_t) {
+                                                   .width = view_layout.width,
+                                                   .height = view_layout.height,
+                                                 },
+                                                 view_layout.width,
+                                                 view_layout.height,
+                                                 &onscreen_layout);
+  view_scale = clutter_stage_view_get_scale (view);
 
   cogl_framebuffer_push_matrix (dst_framebuffer);
 
   cogl_matrix_init_identity (&matrix);
-  cogl_matrix_translate (&matrix, -1, 1, 0);
-  cogl_matrix_scale (&matrix, 2, -2, 0);
+  cogl_matrix_scale (&matrix,
+                     1.0 / (dst_width / 2.0),
+                     -1.0 / (dst_height / 2.0), 0);
+  cogl_matrix_translate (&matrix,
+                         -(dst_width / 2.0),
+                         -(dst_height / 2.0), 0);
   cogl_framebuffer_set_projection_matrix (dst_framebuffer, &matrix);
+  cogl_framebuffer_set_viewport (dst_framebuffer,
+                                 0, 0, dst_width, dst_height);
 
-  cogl_framebuffer_draw_rectangle (dst_framebuffer,
-                                   pipeline,
-                                   0, 0, 1, 1);
+  n_rectangles = cairo_region_num_rectangles (redraw_clip);
+  coordinates = g_newa (float, 2 * 4 * n_rectangles);
+
+  for (i = 0; i < n_rectangles; i++)
+    {
+      cairo_rectangle_int_t src_rect;
+      cairo_rectangle_int_t dst_rect;
+
+      cairo_region_get_rectangle (redraw_clip, i, &src_rect);
+      _clutter_util_rectangle_offset (&src_rect,
+                                      -view_layout.x,
+                                      -view_layout.y,
+                                      &src_rect);
+
+      clutter_stage_view_transform_rect_to_onscreen (view,
+                                                     &src_rect,
+                                                     onscreen_layout.width,
+                                                     onscreen_layout.height,
+                                                     &dst_rect);
+
+      coordinates[i * 8 + 0] = (float) dst_rect.x * view_scale;
+      coordinates[i * 8 + 1] = (float) dst_rect.y * view_scale;
+      coordinates[i * 8 + 2] = ((float) (dst_rect.x + dst_rect.width) *
+                                view_scale);
+      coordinates[i * 8 + 3] = ((float) (dst_rect.y + dst_rect.height) *
+                                view_scale);
+
+      coordinates[i * 8 + 4] = (((float) dst_rect.x / (float) dst_width) *
+                                view_scale);
+      coordinates[i * 8 + 5] = (((float) dst_rect.y / (float) dst_height) *
+                                view_scale);
+      coordinates[i * 8 + 6] = ((float) (dst_rect.x + dst_rect.width) /
+                                (float) dst_width) * view_scale;
+      coordinates[i * 8 + 7] = ((float) (dst_rect.y + dst_rect.height) /
+                                (float) dst_height) * view_scale;
+    }
+
+  cogl_framebuffer_draw_textured_rectangles (dst_framebuffer,
+                                             pipeline,
+                                             coordinates,
+                                             n_rectangles);
 
   cogl_framebuffer_pop_matrix (dst_framebuffer);
 }
@@ -279,7 +343,8 @@ init_shadowfb (ClutterStageView *view)
 }
 
 void
-clutter_stage_view_after_paint (ClutterStageView *view)
+clutter_stage_view_after_paint (ClutterStageView *view,
+                                cairo_region_t   *redraw_clip)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
@@ -293,14 +358,16 @@ clutter_stage_view_after_paint (ClutterStageView *view)
           paint_transformed_framebuffer (view,
                                          priv->offscreen_pipeline,
                                          priv->offscreen,
-                                         priv->shadow.framebuffer);
+                                         priv->shadow.framebuffer,
+                                         redraw_clip);
         }
       else
         {
           paint_transformed_framebuffer (view,
                                          priv->offscreen_pipeline,
                                          priv->offscreen,
-                                         priv->framebuffer);
+                                         priv->framebuffer,
+                                         redraw_clip);
         }
     }
 
