@@ -379,6 +379,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
 {
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
 
+  clutter_stage_view_before_swap_buffer (view, swap_region);
+
   if (cogl_is_onscreen (framebuffer))
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);

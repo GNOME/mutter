@@ -370,11 +370,22 @@ clutter_stage_view_after_paint (ClutterStageView *view,
                                          redraw_clip);
         }
     }
+}
 
-  if (priv->shadow.framebuffer)
+void
+clutter_stage_view_before_swap_buffer (ClutterStageView     *view,
+                                       const cairo_region_t *swap_region)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  g_autoptr (GError) error = NULL;
+
+  if (!priv->shadow.framebuffer)
+    return;
+
+  if (cairo_region_is_empty (swap_region))
     {
       int width, height;
-      g_autoptr (GError) error = NULL;
 
       width = cogl_framebuffer_get_width (priv->framebuffer);
       height = cogl_framebuffer_get_height (priv->framebuffer);
@@ -384,9 +395,29 @@ clutter_stage_view_after_paint (ClutterStageView *view,
                                   0, 0,
                                   width, height,
                                   &error))
+        g_warning ("Failed to blit shadow buffer: %s", error->message);
+    }
+  else
+    {
+      int n_rects;
+      int i;
+
+      n_rects = cairo_region_num_rectangles (swap_region);
+      for (i = 0; i < n_rects; i++)
         {
-          g_warning ("Failed to blit shadow buffer: %s", error->message);
-          return;
+          cairo_rectangle_int_t rect;
+
+          cairo_region_get_rectangle (swap_region, i, &rect);
+          if (!cogl_blit_framebuffer (priv->shadow.framebuffer,
+                                      priv->framebuffer,
+                                      rect.x, rect.y,
+                                      rect.x, rect.y,
+                                      rect.width, rect.height,
+                                      &error))
+            {
+              g_warning ("Failed to blit shadow buffer: %s", error->message);
+              return;
+            }
         }
     }
 }

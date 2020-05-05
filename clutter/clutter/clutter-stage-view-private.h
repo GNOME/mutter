@@ -23,6 +23,9 @@
 void clutter_stage_view_after_paint (ClutterStageView *view,
                                      cairo_region_t   *redraw_clip);
 
+void clutter_stage_view_before_swap_buffer (ClutterStageView     *view,
+                                            const cairo_region_t *swap_region);
+
 gboolean clutter_stage_view_is_dirty_viewport (ClutterStageView *view);
 
 void clutter_stage_view_invalidate_viewport (ClutterStageView *view);
