@@ -8847,25 +8847,21 @@ _clutter_actor_queue_redraw_full (ClutterActor             *self,
   if (CLUTTER_ACTOR_IN_DESTRUCTION (self))
     return;
 
-  /* we can ignore unmapped actors, unless they have at least one
-   * mapped clone or they are inside a cloned branch of the scene
-   * graph, as unmapped actors will simply be left unpainted.
+  /* we can ignore unmapped actors, unless they are inside a cloned branch
+   * of the scene graph, as unmapped actors will simply be left unpainted.
    *
    * this allows us to ignore redraws queued on leaf nodes when one
    * of their parents has been hidden
    */
   if (!CLUTTER_ACTOR_IS_MAPPED (self) &&
-      self->priv->in_cloned_branch == 0 &&
       !clutter_actor_has_mapped_clones (self))
     {
       CLUTTER_NOTE (PAINT,
                     "Skipping queue_redraw('%s'): mapped=%s, "
-                    "mapped_clones=%s, "
-                    "in_cloned_branch=%s",
+                    "has_mapped_clones=%s",
                     _clutter_actor_get_debug_name (self),
                     CLUTTER_ACTOR_IS_MAPPED (self) ? "yes" : "no",
-                    clutter_actor_has_mapped_clones (self) ? "yes" : "no",
-                    self->priv->in_cloned_branch != 0 ? "yes" : "no");
+                    clutter_actor_has_mapped_clones (self) ? "yes" : "no");
       return;
     }
 
@@ -19084,7 +19080,6 @@ should_skip_implicit_transition (ClutterActor *self,
    * when those transitions happen
    */
   if (!CLUTTER_ACTOR_IS_MAPPED (self) &&
-      priv->in_cloned_branch == 0 &&
       !clutter_actor_has_mapped_clones (self))
     return TRUE;
 
@@ -20704,31 +20699,41 @@ _clutter_actor_queue_relayout_on_clones (ClutterActor *self)
  * clutter_actor_has_mapped_clones:
  * @self: a #ClutterActor
  *
- * Returns whether a #ClutterActor has any mapped clones.
+ * Returns whether a #ClutterActor or any parent actors have mapped clones
+ * that are clone-painting @self.
  *
- * Return: %TRUE if the actor has mapped clones, and %FALSE otherwise
- *
- * Since: 1.16
+ * Returns: %TRUE if the actor has mapped clones, %FALSE otherwise
  */
 gboolean
 clutter_actor_has_mapped_clones (ClutterActor *self)
 {
-  ClutterActorPrivate *priv;
+  ClutterActor *actor;
   GHashTableIter iter;
   gpointer key;
 
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
-  priv = self->priv;
-
-  if (priv->clones == NULL)
+  if (self->priv->in_cloned_branch == 0)
     return FALSE;
 
-  g_hash_table_iter_init (&iter, priv->clones);
-  while (g_hash_table_iter_next (&iter, &key, NULL))
+  for (actor = self; actor; actor = actor->priv->parent)
     {
-      if (CLUTTER_ACTOR_IS_MAPPED (key))
-        return TRUE;
+      if (actor->priv->clones)
+        {
+          g_hash_table_iter_init (&iter, actor->priv->clones);
+          while (g_hash_table_iter_next (&iter, &key, NULL))
+            {
+              if (CLUTTER_ACTOR_IS_MAPPED (key))
+                return TRUE;
+            }
+        }
+
+      /* Clones will force-show their own source actor but not children of
+       * it, so if we're hidden and an actor up the hierarchy has a clone,
+       * we won't be visisble.
+       */
+      if (!CLUTTER_ACTOR_IS_VISIBLE (actor))
+        return FALSE;
     }
 
   return FALSE;
