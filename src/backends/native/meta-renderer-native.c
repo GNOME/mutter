@@ -3105,10 +3105,15 @@ should_force_shadow_fb (MetaRendererNative *renderer_native,
                         MetaGpuKms         *primary_gpu)
 {
   MetaRenderer *renderer = META_RENDERER (renderer_native);
+  CoglContext *cogl_context =
+    cogl_context_from_renderer_native (renderer_native);
   int kms_fd;
   uint64_t prefer_shadow = 0;
 
   if (meta_renderer_is_hardware_accelerated (renderer))
+    return FALSE;
+
+  if (!cogl_has_feature (cogl_context, COGL_FEATURE_ID_BLIT_FRAMEBUFFER))
     return FALSE;
 
   kms_fd = meta_gpu_kms_get_fd (primary_gpu);
