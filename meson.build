@@ -487,6 +487,7 @@ output = [
   '        Cogl tests............... ' + have_cogl_tests.to_string(),
   '        Clutter tests............ ' + have_clutter_tests.to_string(),
   '        Installed tests.......... ' + have_installed_tests.to_string(),
+  '        Coverage................. ' + get_option('b_coverage').to_string(),
   '',
   '  Now type \'ninja -C ' + meson.build_root() + '\' to build ' + meson.project_name(),
   '',
