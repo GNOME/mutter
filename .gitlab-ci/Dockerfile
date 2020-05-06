@@ -16,7 +16,7 @@ RUN dnf -y update && dnf -y upgrade && \
 
     # For running unit tests
     dnf install -y xorg-x11-server-Xvfb mesa-dri-drivers dbus dbus-x11 \
-        '*/xvfb-run' gdm-lib accountsservice-libs gnome-control-center \
+        '*/xvfb-run' gdm-lib accountsservice-libs gnome-control-center gcovr \
         --setopt=install_weak_deps=False && \
 
     # GNOME Shell
