@@ -1052,17 +1052,9 @@ update_tablet_keep_aspect (MetaInputSettings  *input_settings,
 
   input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
 
-  if (clutter_input_device_get_mapping_mode (device) ==
-      CLUTTER_INPUT_DEVICE_MAPPING_ABSOLUTE)
-    {
-      keep_aspect = g_settings_get_boolean (settings, "keep-aspect");
-      meta_input_settings_find_monitor (input_settings, settings, device,
-                                        NULL, &logical_monitor);
-    }
-  else
-    {
-      keep_aspect = FALSE;
-    }
+  keep_aspect = g_settings_get_boolean (settings, "keep-aspect");
+  meta_input_settings_find_monitor (input_settings, settings, device,
+                                    NULL, &logical_monitor);
 
   input_settings_class->set_tablet_keep_aspect (input_settings, device,
                                                 logical_monitor, keep_aspect);
