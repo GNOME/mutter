@@ -171,6 +171,22 @@ ensure_seat_slot_allocated (MetaSeatNative *seat,
 }
 
 MetaTouchState *
+meta_seat_native_lookup_touch_state (MetaSeatNative *seat,
+                                     int             device_slot)
+{
+  int seat_slot;
+
+  for (seat_slot = 0; seat_slot < seat->n_alloc_touch_states; seat_slot++)
+    {
+      if (seat->touch_states[seat_slot] &&
+          seat->touch_states[seat_slot]->device_slot == device_slot)
+        return seat->touch_states[seat_slot];
+    }
+
+  return NULL;
+}
+
+MetaTouchState *
 meta_seat_native_acquire_touch_state (MetaSeatNative *seat,
                                       int             device_slot)
 {
@@ -1986,9 +2002,7 @@ process_device_event (MetaSeatNative        *seat,
         y = libinput_event_touch_get_y_transformed (touch_event,
                                                     stage_height);
 
-        touch_state =
-          meta_input_device_native_acquire_touch_state (device_evdev,
-                                                        device_slot);
+        touch_state = meta_seat_native_acquire_touch_state (seat, device_slot);
         touch_state->coords.x = x;
         touch_state->coords.y = y;
 
@@ -2016,9 +2030,7 @@ process_device_event (MetaSeatNative        *seat,
 
         device_slot = libinput_event_touch_get_slot (touch_event);
         time_us = libinput_event_touch_get_time_usec (touch_event);
-        touch_state =
-          meta_input_device_native_lookup_touch_state (device_evdev,
-                                                       device_slot);
+        touch_state = meta_seat_native_lookup_touch_state (seat, device_slot);
         if (!touch_state)
           break;
 
@@ -2027,8 +2039,7 @@ process_device_event (MetaSeatNative        *seat,
                                              touch_state->seat_slot,
                                              touch_state->coords.x,
                                              touch_state->coords.y);
-        meta_input_device_native_release_touch_state (device_evdev,
-                                                      touch_state);
+        meta_seat_native_release_touch_state (seat, touch_state);
         break;
       }
 
@@ -2062,9 +2073,7 @@ process_device_event (MetaSeatNative        *seat,
         y = libinput_event_touch_get_y_transformed (touch_event,
                                                     stage_height);
 
-        touch_state =
-          meta_input_device_native_lookup_touch_state (device_evdev,
-                                                       device_slot);
+        touch_state = meta_seat_native_lookup_touch_state (seat, device_slot);
         if (!touch_state)
           break;
 
@@ -2094,9 +2103,7 @@ process_device_event (MetaSeatNative        *seat,
         time_us = libinput_event_touch_get_time_usec (touch_event);
 
         device_slot = libinput_event_touch_get_slot (touch_event);
-        touch_state =
-          meta_input_device_native_lookup_touch_state (device_evdev,
-                                                       device_slot);
+        touch_state = meta_seat_native_lookup_touch_state (seat, device_slot);
         if (!touch_state)
           break;
 
@@ -2108,7 +2115,7 @@ process_device_event (MetaSeatNative        *seat,
                                              touch_state->coords.x,
                                              touch_state->coords.y);
 
-        meta_input_device_native_release_touch_state (device_evdev, touch_state);
+        meta_seat_native_release_touch_state (touch_state->seat, touch_state);
         break;
       }
     case LIBINPUT_EVENT_GESTURE_PINCH_BEGIN:

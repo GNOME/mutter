@@ -69,8 +69,6 @@ struct _MetaInputDeviceNative
   double device_aspect_ratio; /* w:h */
   double output_ratio;        /* w:h */
 
-  GHashTable *touches;
-
   /* Keyboard a11y */
   ClutterKeyboardA11yFlags a11y_flags;
   GList *slow_keys_list;
@@ -124,15 +122,6 @@ void                      meta_input_device_native_translate_coordinates (Clutte
 
 void                      meta_input_device_native_apply_kbd_a11y_settings (MetaInputDeviceNative  *device,
                                                                             ClutterKbdA11ySettings *settings);
-
-MetaTouchState *          meta_input_device_native_acquire_touch_state (MetaInputDeviceNative *device,
-                                                                        int                    device_slot);
-
-MetaTouchState *          meta_input_device_native_lookup_touch_state (MetaInputDeviceNative *device,
-                                                                       int                    device_slot);
-
-void                      meta_input_device_native_release_touch_state (MetaInputDeviceNative *device,
-                                                                        MetaTouchState        *touch_state);
 
 void                      meta_input_device_native_a11y_maybe_notify_toggle_keys  (MetaInputDeviceNative *device_evdev);
 

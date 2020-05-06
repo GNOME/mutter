@@ -544,8 +544,6 @@ meta_virtual_input_device_native_notify_touch_down (ClutterVirtualInputDevice *v
 {
   MetaVirtualInputDeviceNative *virtual_evdev =
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
-  MetaInputDeviceNative *device_evdev =
-    META_INPUT_DEVICE_NATIVE (virtual_evdev->device);
   MetaTouchState *touch_state;
 
   g_return_if_fail (virtual_evdev->device != NULL);
@@ -553,8 +551,8 @@ meta_virtual_input_device_native_notify_touch_down (ClutterVirtualInputDevice *v
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
-  touch_state = meta_input_device_native_acquire_touch_state (device_evdev,
-                                                              device_slot);
+  touch_state = meta_seat_native_acquire_touch_state (virtual_evdev->seat,
+                                                      device_slot);
   if (!touch_state)
     return;
 
@@ -579,8 +577,6 @@ meta_virtual_input_device_native_notify_touch_motion (ClutterVirtualInputDevice 
 {
   MetaVirtualInputDeviceNative *virtual_evdev =
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
-  MetaInputDeviceNative *device_evdev =
-    META_INPUT_DEVICE_NATIVE (virtual_evdev->device);
   MetaTouchState *touch_state;
 
   g_return_if_fail (virtual_evdev->device != NULL);
@@ -588,8 +584,8 @@ meta_virtual_input_device_native_notify_touch_motion (ClutterVirtualInputDevice 
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
-  touch_state = meta_input_device_native_lookup_touch_state (device_evdev,
-                                                             device_slot);
+  touch_state = meta_seat_native_lookup_touch_state (virtual_evdev->seat,
+                                                     device_slot);
   if (!touch_state)
     return;
 
@@ -612,8 +608,6 @@ meta_virtual_input_device_native_notify_touch_up (ClutterVirtualInputDevice *vir
 {
   MetaVirtualInputDeviceNative *virtual_evdev =
     META_VIRTUAL_INPUT_DEVICE_NATIVE (virtual_device);
-  MetaInputDeviceNative *device_evdev =
-    META_INPUT_DEVICE_NATIVE (virtual_evdev->device);
   MetaTouchState *touch_state;
 
   g_return_if_fail (virtual_evdev->device != NULL);
@@ -621,8 +615,8 @@ meta_virtual_input_device_native_notify_touch_up (ClutterVirtualInputDevice *vir
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
-  touch_state = meta_input_device_native_lookup_touch_state (device_evdev,
-                                                             device_slot);
+  touch_state = meta_seat_native_lookup_touch_state (virtual_evdev->seat,
+                                                     device_slot);
   if (!touch_state)
     return;
 
@@ -634,7 +628,7 @@ meta_virtual_input_device_native_notify_touch_up (ClutterVirtualInputDevice *vir
                                        touch_state->coords.x,
                                        touch_state->coords.y);
 
-  meta_input_device_native_release_touch_state (device_evdev, touch_state);
+  meta_seat_native_release_touch_state (virtual_evdev->seat, touch_state);
 }
 
 static void

@@ -67,10 +67,6 @@ meta_input_device_native_finalize (GObject *object)
   if (device_evdev->libinput_device)
     libinput_device_unref (device_evdev->libinput_device);
 
-  meta_input_device_native_release_touch_slots (device_evdev,
-                                                g_get_monotonic_time ());
-  g_clear_pointer (&device_evdev->touches, g_hash_table_unref);
-
   backend = clutter_get_default_backend ();
   seat = clutter_backend_get_default_seat (backend);
   meta_seat_native_release_device_id (META_SEAT_NATIVE (seat), device);
@@ -1229,44 +1225,6 @@ meta_input_device_native_a11y_maybe_notify_toggle_keys (MetaInputDeviceNative *d
 }
 
 static void
-release_device_touch_slot (gpointer value)
-{
-  MetaTouchState *touch_state = value;
-
-  meta_seat_native_release_touch_state (touch_state->seat, touch_state);
-}
-
-MetaTouchState *
-meta_input_device_native_acquire_touch_state (MetaInputDeviceNative *device,
-                                              int                    device_slot)
-{
-  MetaTouchState *touch_state;
-
-  touch_state = meta_seat_native_acquire_touch_state (device->seat,
-                                                      device_slot);
-  g_hash_table_insert (device->touches,
-                       GINT_TO_POINTER (device_slot),
-                       touch_state);
-
-  return touch_state;
-}
-
-MetaTouchState *
-meta_input_device_native_lookup_touch_state (MetaInputDeviceNative *device,
-                                             int                    device_slot)
-{
-  return g_hash_table_lookup (device->touches, GINT_TO_POINTER (device_slot));
-}
-
-void
-meta_input_device_native_release_touch_state (MetaInputDeviceNative *device,
-                                              MetaTouchState        *touch_state)
-{
-  g_hash_table_remove (device->touches,
-                       GINT_TO_POINTER (touch_state->device_slot));
-}
-
-static void
 meta_input_device_native_class_init (MetaInputDeviceNativeClass *klass)
 {
   ClutterInputDeviceClass *device_manager_class = CLUTTER_INPUT_DEVICE_CLASS (klass);
@@ -1305,9 +1263,6 @@ meta_input_device_native_init (MetaInputDeviceNative *self)
   cairo_matrix_init_identity (&self->device_matrix);
   self->device_aspect_ratio = 0;
   self->output_ratio = 0;
-
-  self->touches = g_hash_table_new_full (NULL, NULL,
-                                         NULL, release_device_touch_slot);
 }
 
 /*
