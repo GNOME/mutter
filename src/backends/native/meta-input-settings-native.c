@@ -545,6 +545,10 @@ meta_input_settings_native_set_tablet_keep_aspect (MetaInputSettings  *settings,
 {
   double aspect_ratio = 0;
 
+  if (clutter_input_device_get_mapping_mode (device) ==
+      CLUTTER_INPUT_DEVICE_MAPPING_RELATIVE)
+    keep_aspect = FALSE;
+
   if (keep_aspect)
     {
       int width, height;
