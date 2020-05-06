@@ -36,9 +36,8 @@ build-without-opengl-and-glx:
     - ninja -C build
     - ninja -C build install
   artifacts:
-    expire_in: 1 day
     paths:
-      - build
+      - build/meson-logs
   only:
     - merge_requests
     - /^.*$/
@@ -50,9 +49,8 @@ build-without-native-backend-and-wayland:
     - ninja -C build
     - ninja -C build install
   artifacts:
-    expire_in: 1 day
     paths:
-      - build
+      - build/meson-logs
   only:
     - merge_requests
     - /^.*$/
