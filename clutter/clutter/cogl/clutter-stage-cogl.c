@@ -38,6 +38,7 @@
 
 #include "clutter-actor-private.h"
 #include "clutter-backend-private.h"
+#include "clutter-damage-history.h"
 #include "clutter-debug.h"
 #include "clutter-event.h"
 #include "clutter-enum-types.h"
@@ -51,13 +52,9 @@
 
 typedef struct _ClutterStageViewCoglPrivate
 {
-  /*
-   * List of previous damaged areas in stage view framebuffer coordinate space.
+  /* Damage history, in stage view render target framebuffer coordinate space.
    */
-#define DAMAGE_HISTORY_MAX 16
-#define DAMAGE_HISTORY(x) ((x) & (DAMAGE_HISTORY_MAX - 1))
-  cairo_region_t * damage_history[DAMAGE_HISTORY_MAX];
-  unsigned int damage_index;
+  ClutterDamageHistory *damage_history;
 } ClutterStageViewCoglPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterStageViewCogl, clutter_stage_view_cogl,
@@ -295,10 +292,7 @@ valid_buffer_age (ClutterStageViewCogl *view_cogl,
   ClutterStageViewCoglPrivate *view_priv =
     clutter_stage_view_cogl_get_instance_private (view_cogl);
 
-  if (age <= 0)
-    return FALSE;
-
-  return age < MIN (view_priv->damage_index, DAMAGE_HISTORY_MAX);
+  return clutter_damage_history_is_age_valid (view_priv->damage_history, age);
 }
 
 static void
@@ -517,23 +511,6 @@ paint_stage (ClutterStageCogl *stage_cogl,
   clutter_stage_view_after_paint (view, redraw_clip);
 }
 
-static void
-fill_current_damage_history (ClutterStageView *view,
-                             cairo_region_t   *damage)
-{
-  ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (view);
-  ClutterStageViewCoglPrivate *view_priv =
-    clutter_stage_view_cogl_get_instance_private (view_cogl);
-  cairo_region_t **current_fb_damage;
-
-  current_fb_damage =
-    &view_priv->damage_history[DAMAGE_HISTORY (view_priv->damage_index)];
-
-  g_clear_pointer (current_fb_damage, cairo_region_destroy);
-  *current_fb_damage = cairo_region_copy (damage);
-  view_priv->damage_index++;
-}
-
 static cairo_region_t *
 transform_swap_region_to_onscreen (ClutterStageView *view,
                                    cairo_region_t   *swap_region)
@@ -666,23 +643,24 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   swap_with_damage = FALSE;
   if (has_buffer_age)
     {
-      fill_current_damage_history (view, fb_clip_region);
+      clutter_damage_history_record (view_priv->damage_history,
+                                     fb_clip_region);
 
       if (use_clipped_redraw)
         {
           cairo_region_t *fb_damage;
           cairo_region_t *view_damage;
-          int i;
+          int age;
 
           fb_damage = cairo_region_create ();
 
-          for (i = 1; i <= buffer_age; i++)
+          for (age = 1; age <= buffer_age; age++)
             {
-              int damage_index;
+              const cairo_region_t *old_damage;
 
-              damage_index = DAMAGE_HISTORY (view_priv->damage_index - i - 1);
-              cairo_region_union (fb_damage,
-                                  view_priv->damage_history[damage_index]);
+              old_damage =
+                clutter_damage_history_lookup (view_priv->damage_history, age);
+              cairo_region_union (fb_damage, old_damage);
             }
 
           /* Update the fb clip region with the extra damage. */
@@ -705,6 +683,8 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
 
           swap_with_damage = TRUE;
         }
+
+      clutter_damage_history_step (view_priv->damage_history);
     }
 
   if (use_clipped_redraw)
@@ -892,11 +872,30 @@ _clutter_stage_cogl_init (ClutterStageCogl *stage)
 }
 
 static void
+clutter_stage_view_cogl_finalize (GObject *object)
+{
+  ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (object);
+  ClutterStageViewCoglPrivate *view_priv =
+    clutter_stage_view_cogl_get_instance_private (view_cogl);
+
+  clutter_damage_history_free (view_priv->damage_history);
+
+  G_OBJECT_CLASS (clutter_stage_view_cogl_parent_class)->finalize (object);
+}
+
+static void
 clutter_stage_view_cogl_init (ClutterStageViewCogl *view_cogl)
 {
+  ClutterStageViewCoglPrivate *view_priv =
+    clutter_stage_view_cogl_get_instance_private (view_cogl);
+
+  view_priv->damage_history = clutter_damage_history_new ();
 }
 
 static void
 clutter_stage_view_cogl_class_init (ClutterStageViewCoglClass *klass)
 {
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->finalize = clutter_stage_view_cogl_finalize;
 }
