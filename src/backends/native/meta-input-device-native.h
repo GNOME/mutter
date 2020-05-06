@@ -54,6 +54,12 @@
   (G_TYPE_INSTANCE_GET_CLASS ((obj), \
   META_TYPE_INPUT_DEVICE_NATIVE, MetaInputDeviceNativeClass))
 
+typedef enum
+{
+  META_INPUT_DEVICE_MAPPING_ABSOLUTE,
+  META_INPUT_DEVICE_MAPPING_RELATIVE,
+} MetaInputDeviceMapping;
+
 typedef struct _MetaInputDeviceNative MetaInputDeviceNative;
 typedef struct _MetaInputDeviceNativeClass MetaInputDeviceNativeClass;
 
@@ -68,6 +74,7 @@ struct _MetaInputDeviceNative
   cairo_matrix_t device_matrix;
   double device_aspect_ratio; /* w:h */
   double output_ratio;        /* w:h */
+  MetaInputDeviceMapping mapping_mode;
 
   /* Keyboard a11y */
   ClutterKeyboardA11yFlags a11y_flags;
@@ -97,7 +104,6 @@ struct _MetaInputDeviceNativeClass
   ClutterInputDeviceClass parent_class;
 };
 
-
 GType                     meta_input_device_native_get_type        (void) G_GNUC_CONST;
 
 ClutterInputDevice *      meta_input_device_native_new             (MetaSeatNative          *seat,
@@ -119,6 +125,10 @@ void                      meta_input_device_native_translate_coordinates (Clutte
                                                                           ClutterStage       *stage,
                                                                           float              *x,
                                                                           float              *y);
+
+MetaInputDeviceMapping    meta_input_device_native_get_mapping_mode (ClutterInputDevice     *device);
+void                      meta_input_device_native_set_mapping_mode (ClutterInputDevice     *device,
+                                                                     MetaInputDeviceMapping  mapping);
 
 void                      meta_input_device_native_apply_kbd_a11y_settings (MetaInputDeviceNative  *device,
                                                                             ClutterKbdA11ySettings *settings);

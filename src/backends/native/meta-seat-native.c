@@ -1780,7 +1780,7 @@ process_tablet_axis (MetaSeatNative        *seat,
 
   time = libinput_event_tablet_tool_get_time_usec (tablet_event);
 
-  if (clutter_input_device_get_mapping_mode (device) == CLUTTER_INPUT_DEVICE_MAPPING_RELATIVE ||
+  if (meta_input_device_native_get_mapping_mode (device) == META_INPUT_DEVICE_MAPPING_RELATIVE ||
       clutter_input_device_tool_get_tool_type (evdev_device->last_tool) == CLUTTER_INPUT_DEVICE_TOOL_MOUSE ||
       clutter_input_device_tool_get_tool_type (evdev_device->last_tool) == CLUTTER_INPUT_DEVICE_TOOL_LENS)
     {

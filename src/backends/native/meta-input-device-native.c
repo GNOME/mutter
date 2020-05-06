@@ -1472,3 +1472,42 @@ meta_input_device_native_translate_coordinates (ClutterInputDevice *device,
   *x = CLAMP (x_d, MIN (min_x, max_x), MAX (min_x, max_x)) * stage_width;
   *y = CLAMP (y_d, MIN (min_y, max_y), MAX (min_y, max_y)) * stage_height;
 }
+
+MetaInputDeviceMapping
+meta_input_device_native_get_mapping_mode (ClutterInputDevice *device)
+{
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
+  ClutterInputDeviceType device_type;
+
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device),
+                        META_INPUT_DEVICE_MAPPING_ABSOLUTE);
+
+  device_type = clutter_input_device_get_device_type (device);
+  g_return_val_if_fail (device_type == CLUTTER_TABLET_DEVICE ||
+                        device_type == CLUTTER_PEN_DEVICE ||
+                        device_type == CLUTTER_ERASER_DEVICE,
+                        META_INPUT_DEVICE_MAPPING_ABSOLUTE);
+
+  return device_native->mapping_mode;
+}
+
+void
+meta_input_device_native_set_mapping_mode (ClutterInputDevice     *device,
+                                           MetaInputDeviceMapping  mapping)
+{
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
+  ClutterInputDeviceType device_type;
+
+  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
+
+  device_type = clutter_input_device_get_device_type (device);
+  g_return_if_fail (device_type == CLUTTER_TABLET_DEVICE ||
+                    device_type == CLUTTER_PEN_DEVICE ||
+                    device_type == CLUTTER_ERASER_DEVICE);
+
+  if (device_native->mapping_mode == mapping)
+    return;
+
+  device_native->mapping_mode = mapping;
+  g_object_notify (G_OBJECT (device), "mapping-mode");
+}

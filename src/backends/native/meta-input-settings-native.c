@@ -72,8 +72,8 @@ meta_input_settings_native_set_matrix (MetaInputSettings  *settings,
 
   if (clutter_input_device_get_device_type (device) ==
       CLUTTER_TOUCHSCREEN_DEVICE ||
-      clutter_input_device_get_mapping_mode (device) ==
-      CLUTTER_INPUT_DEVICE_MAPPING_ABSOLUTE)
+      meta_input_device_native_get_mapping_mode (device) ==
+      META_INPUT_DEVICE_MAPPING_ABSOLUTE)
     {
       cairo_matrix_init (&dev_matrix, matrix[0], matrix[3], matrix[1],
                          matrix[4], matrix[2], matrix[5]);
@@ -527,16 +527,16 @@ meta_input_settings_native_set_tablet_mapping (MetaInputSettings     *settings,
                                                ClutterInputDevice    *device,
                                                GDesktopTabletMapping  mapping)
 {
-  ClutterInputDeviceMapping dev_mapping;
+  MetaInputDeviceMapping dev_mapping;
 
   if (mapping == G_DESKTOP_TABLET_MAPPING_ABSOLUTE)
-    dev_mapping = CLUTTER_INPUT_DEVICE_MAPPING_ABSOLUTE;
+    dev_mapping = META_INPUT_DEVICE_MAPPING_ABSOLUTE;
   else if (mapping == G_DESKTOP_TABLET_MAPPING_RELATIVE)
-    dev_mapping = CLUTTER_INPUT_DEVICE_MAPPING_RELATIVE;
+    dev_mapping = META_INPUT_DEVICE_MAPPING_RELATIVE;
   else
     return;
 
-  clutter_input_device_set_mapping_mode (device, dev_mapping);
+  meta_input_device_native_set_mapping_mode (device, dev_mapping);
 }
 
 static void
@@ -547,8 +547,8 @@ meta_input_settings_native_set_tablet_keep_aspect (MetaInputSettings  *settings,
 {
   double aspect_ratio = 0;
 
-  if (clutter_input_device_get_mapping_mode (device) ==
-      CLUTTER_INPUT_DEVICE_MAPPING_RELATIVE)
+  if (meta_input_device_native_get_mapping_mode (device) ==
+      META_INPUT_DEVICE_MAPPING_RELATIVE)
     keep_aspect = FALSE;
 
   if (keep_aspect)
