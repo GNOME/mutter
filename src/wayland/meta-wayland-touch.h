@@ -41,10 +41,9 @@ struct _MetaWaylandTouch
 
   struct wl_list resource_list;
 
+  guint queued_frame_id;
   GHashTable *touch_surfaces; /* HT of MetaWaylandSurface->MetaWaylandTouchSurface */
   GHashTable *touches; /* HT of sequence->MetaWaylandTouchInfo */
-
-  guint64 frame_slots;
 };
 
 void meta_wayland_touch_enable (MetaWaylandTouch *touch);
