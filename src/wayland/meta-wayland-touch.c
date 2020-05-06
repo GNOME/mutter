@@ -449,6 +449,10 @@ meta_wayland_touch_handle_event (MetaWaylandTouch   *touch,
       handle_touch_end (touch, event);
       break;
 
+    case CLUTTER_TOUCH_CANCEL:
+      meta_wayland_touch_cancel (touch);
+      break;
+
     default:
       return FALSE;
     }
@@ -510,30 +514,6 @@ meta_wayland_touch_cancel (MetaWaylandTouch *touch)
   g_list_free (surfaces);
 }
 
-#ifdef HAVE_NATIVE_BACKEND
-static gboolean
-evdev_filter_func (struct libinput_event *event,
-                   gpointer               data)
-{
-  MetaWaylandTouch *touch = data;
-
-  switch (libinput_event_get_type (event))
-    {
-    case LIBINPUT_EVENT_TOUCH_CANCEL:
-      /* Clutter translates this into individual CLUTTER_TOUCH_CANCEL events,
-       * which are not so useful when sending a global signal as the protocol
-       * requires.
-       */
-      meta_wayland_touch_cancel (touch);
-      break;
-    default:
-      break;
-    }
-
-  return CLUTTER_EVENT_PROPAGATE;
-}
-#endif
-
 void
 meta_wayland_touch_enable (MetaWaylandTouch *touch)
 {
@@ -545,35 +525,11 @@ meta_wayland_touch_enable (MetaWaylandTouch *touch)
 #endif /* HAVE_NATIVE_BACKEND */
 
   wl_list_init (&touch->resource_list);
-
-#ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
-  if (META_IS_BACKEND_NATIVE (backend))
-    {
-      ClutterBackend *backend = clutter_get_default_backend ();
-      ClutterSeat *seat = clutter_backend_get_default_seat (backend);
-
-      meta_seat_native_add_filter (META_SEAT_NATIVE (seat),
-                                   evdev_filter_func, touch, NULL);
-    }
-#endif
 }
 
 void
 meta_wayland_touch_disable (MetaWaylandTouch *touch)
 {
-#ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
-  if (META_IS_BACKEND_NATIVE (backend))
-    {
-      ClutterBackend *backend = clutter_get_default_backend ();
-      ClutterSeat *seat = clutter_backend_get_default_seat (backend);
-
-      meta_seat_native_remove_filter (META_SEAT_NATIVE (seat),
-                                      evdev_filter_func, touch);
-    }
-#endif
-
   meta_wayland_touch_cancel (touch);
 
   g_clear_pointer (&touch->touch_surfaces, g_hash_table_unref);
