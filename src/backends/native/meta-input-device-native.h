@@ -134,9 +134,6 @@ MetaTouchState *          meta_input_device_native_lookup_touch_state (MetaInput
 void                      meta_input_device_native_release_touch_state (MetaInputDeviceNative *device,
                                                                         MetaTouchState        *touch_state);
 
-void                      meta_input_device_native_release_touch_slots (MetaInputDeviceNative *device_evdev,
-                                                                        uint64_t               time_us);
-
 void                      meta_input_device_native_a11y_maybe_notify_toggle_keys  (MetaInputDeviceNative *device_evdev);
 
 struct libinput_device * meta_input_device_native_get_libinput_device (ClutterInputDevice *device);
