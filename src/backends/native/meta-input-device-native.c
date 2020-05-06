@@ -1517,24 +1517,3 @@ meta_input_device_native_translate_coordinates (ClutterInputDevice *device,
   *x = CLAMP (x_d, MIN (min_x, max_x), MAX (min_x, max_x)) * stage_width;
   *y = CLAMP (y_d, MIN (min_y, max_y), MAX (min_y, max_y)) * stage_height;
 }
-
-void
-meta_input_device_native_release_touch_slots (MetaInputDeviceNative *device_evdev,
-                                              uint64_t               time_us)
-{
-  GHashTableIter iter;
-  MetaTouchState *touch_state;
-
-  g_hash_table_iter_init (&iter, device_evdev->touches);
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &touch_state))
-    {
-      meta_seat_native_notify_touch_event (touch_state->seat,
-                                           CLUTTER_INPUT_DEVICE (device_evdev),
-                                           CLUTTER_TOUCH_CANCEL,
-                                           time_us,
-                                           touch_state->seat_slot,
-                                           touch_state->coords.x,
-                                           touch_state->coords.y);
-      g_hash_table_iter_remove (&iter);
-    }
-}

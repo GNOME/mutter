@@ -2090,16 +2090,34 @@ process_device_event (MetaSeatNative        *seat,
       }
     case LIBINPUT_EVENT_TOUCH_CANCEL:
       {
+        int device_slot;
+        MetaTouchState *touch_state;
         uint64_t time_us;
+        MetaSeatNative *seat;
         struct libinput_event_touch *touch_event =
           libinput_event_get_touch_event (event);
 
         device = libinput_device_get_user_data (libinput_device);
         device_evdev = META_INPUT_DEVICE_NATIVE (device);
+        seat = meta_input_device_native_get_seat (device_evdev);
         time_us = libinput_event_touch_get_time_usec (touch_event);
 
-        meta_input_device_native_release_touch_slots (device_evdev, time_us);
+        device_slot = libinput_event_touch_get_slot (touch_event);
+        touch_state =
+          meta_input_device_native_lookup_touch_state (device_evdev,
+                                                       device_slot);
+        if (!touch_state)
+          break;
 
+        meta_seat_native_notify_touch_event (touch_state->seat,
+                                             CLUTTER_INPUT_DEVICE (device_evdev),
+                                             CLUTTER_TOUCH_CANCEL,
+                                             time_us,
+                                             touch_state->seat_slot,
+                                             touch_state->coords.x,
+                                             touch_state->coords.y);
+
+        meta_input_device_native_release_touch_state (device_evdev, touch_state);
         break;
       }
     case LIBINPUT_EVENT_GESTURE_PINCH_BEGIN:
