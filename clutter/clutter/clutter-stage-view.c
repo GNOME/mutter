@@ -23,6 +23,7 @@
 #include <cairo-gobject.h>
 #include <math.h>
 
+#include "clutter/clutter-damage-history.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
@@ -56,6 +57,12 @@ typedef struct _ClutterStageViewPrivate
 
   gboolean use_shadowfb;
   struct {
+    struct {
+      CoglDmaBufHandle *handles[2];
+      int current_idx;
+      ClutterDamageHistory *damage_history;
+    } dma_buf;
+
     CoglOffscreen *framebuffer;
   } shadow;
 
@@ -268,6 +275,66 @@ paint_transformed_framebuffer (ClutterStageView     *view,
   cogl_framebuffer_pop_matrix (dst_framebuffer);
 }
 
+static gboolean
+is_shadowfb_double_buffered (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  return priv->shadow.dma_buf.handles[0] && priv->shadow.dma_buf.handles[1];
+}
+
+static gboolean
+init_dma_buf_shadowfbs (ClutterStageView  *view,
+                        CoglContext       *cogl_context,
+                        int                width,
+                        int                height,
+                        GError           **error)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
+  CoglFramebuffer *initial_shadowfb;
+
+  if (!cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Buffer age not supported");
+      return FALSE;
+    }
+
+  if (!cogl_is_onscreen (priv->framebuffer))
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Tried to use shadow buffer without onscreen");
+      return FALSE;
+    }
+
+  priv->shadow.dma_buf.handles[0] = cogl_renderer_create_dma_buf (cogl_renderer,
+                                                                  width, height,
+                                                                  error);
+  if (!priv->shadow.dma_buf.handles[0])
+    return FALSE;
+
+  priv->shadow.dma_buf.handles[1] = cogl_renderer_create_dma_buf (cogl_renderer,
+                                                                  width, height,
+                                                                  error);
+  if (!priv->shadow.dma_buf.handles[1])
+    {
+      g_clear_pointer (&priv->shadow.dma_buf.handles[0],
+                       cogl_dma_buf_handle_free);
+      return FALSE;
+    }
+
+  priv->shadow.dma_buf.damage_history = clutter_damage_history_new ();
+
+  initial_shadowfb =
+    cogl_dma_buf_handle_get_framebuffer (priv->shadow.dma_buf.handles[0]);
+  priv->shadow.framebuffer = cogl_object_ref (initial_shadowfb);
+
+  return TRUE;
+}
+
 static CoglOffscreen *
 create_offscreen_framebuffer (CoglContext  *context,
                               int           width,
@@ -299,11 +366,11 @@ create_offscreen_framebuffer (CoglContext  *context,
 }
 
 static gboolean
-init_offscreen_shadowfb (ClutterStageView  *view,
-                         CoglContext       *cogl_context,
-                         int                width,
-                         int                height,
-                         GError           **error)
+init_fallback_shadowfb (ClutterStageView  *view,
+                        CoglContext       *cogl_context,
+                        int                width,
+                        int                height,
+                        GError           **error)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
@@ -331,7 +398,17 @@ init_shadowfb (ClutterStageView *view)
   height = cogl_framebuffer_get_height (priv->framebuffer);
   cogl_context = cogl_framebuffer_get_context (priv->framebuffer);
 
-  if (!init_offscreen_shadowfb (view, cogl_context, width, height, &error))
+  if (init_dma_buf_shadowfbs (view, cogl_context, width, height, &error))
+    {
+      g_message ("Initialized double buffered shadow fb for %s", priv->name);
+      return;
+    }
+
+  g_warning ("Failed to initialize double buffered shadow fb for %s: %s",
+             priv->name, error->message);
+  g_clear_error (&error);
+
+  if (!init_fallback_shadowfb (view, cogl_context, width, height, &error))
     {
       g_warning ("Failed to initialize single buffered shadow fb for %s: %s",
                  priv->name, error->message);
@@ -372,54 +449,287 @@ clutter_stage_view_after_paint (ClutterStageView *view,
     }
 }
 
+static gboolean
+is_tile_dirty (cairo_rectangle_int_t *tile,
+               uint8_t               *current_data,
+               uint8_t               *prev_data,
+               int                    bpp,
+               int                    stride)
+{
+  int y;
+
+  for (y = tile->y; y < tile->y + tile->height; y++)
+    {
+      if (memcmp (prev_data + y * stride + tile->x * bpp,
+                  current_data + y * stride + tile->x * bpp,
+                  tile->width * bpp) != 0)
+        return TRUE;
+    }
+
+  return FALSE;
+}
+
+static int
+flip_dma_buf_idx (int idx)
+{
+  return (idx + 1) % 2;
+}
+
+static cairo_region_t *
+find_damaged_tiles (ClutterStageView      *view,
+                    const cairo_region_t  *damage_region,
+                    GError               **error)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  cairo_region_t *tile_damage_region;
+  cairo_rectangle_int_t damage_extents;
+  cairo_rectangle_int_t fb_rect;
+  int prev_dma_buf_idx;
+  CoglDmaBufHandle *prev_dma_buf_handle;
+  uint8_t *prev_data;
+  int current_dma_buf_idx;
+  CoglDmaBufHandle *current_dma_buf_handle;
+  uint8_t *current_data;
+  int width, height, stride, bpp;
+  int tile_x_min, tile_x_max;
+  int tile_y_min, tile_y_max;
+  int tile_x, tile_y;
+  const int tile_size = 16;
+
+  prev_dma_buf_idx = flip_dma_buf_idx (priv->shadow.dma_buf.current_idx);
+  prev_dma_buf_handle = priv->shadow.dma_buf.handles[prev_dma_buf_idx];
+
+  current_dma_buf_idx = priv->shadow.dma_buf.current_idx;
+  current_dma_buf_handle = priv->shadow.dma_buf.handles[current_dma_buf_idx];
+
+  width = cogl_dma_buf_handle_get_width (current_dma_buf_handle);
+  height = cogl_dma_buf_handle_get_height (current_dma_buf_handle);
+  stride = cogl_dma_buf_handle_get_stride (current_dma_buf_handle);
+  bpp = cogl_dma_buf_handle_get_bpp (current_dma_buf_handle);
+
+  cogl_framebuffer_finish (priv->shadow.framebuffer);
+
+  if (!cogl_dma_buf_handle_sync_read_start (prev_dma_buf_handle, error))
+    return NULL;
+
+  if (!cogl_dma_buf_handle_sync_read_start (current_dma_buf_handle, error))
+    goto err_sync_read_current;
+
+  prev_data = cogl_dma_buf_handle_mmap (prev_dma_buf_handle, error);
+  if (!prev_data)
+    goto err_mmap_prev;
+  current_data = cogl_dma_buf_handle_mmap (current_dma_buf_handle, error);
+  if (!current_data)
+    goto err_mmap_current;
+
+  fb_rect = (cairo_rectangle_int_t) {
+    .width = width,
+    .height = height,
+  };
+
+  cairo_region_get_extents (damage_region, &damage_extents);
+
+  tile_x_min = damage_extents.x / tile_size;
+  tile_x_max = ((damage_extents.x + damage_extents.width + tile_size - 1) /
+                tile_size);
+  tile_y_min = damage_extents.y / tile_size;
+  tile_y_max = ((damage_extents.y + damage_extents.height + tile_size - 1) /
+                tile_size);
+
+  tile_damage_region = cairo_region_create ();
+
+  for (tile_y = tile_y_min; tile_y <= tile_y_max; tile_y++)
+    {
+      for (tile_x = tile_x_min; tile_x <= tile_x_max; tile_x++)
+        {
+          cairo_rectangle_int_t tile = {
+            .x = tile_x * tile_size,
+            .y = tile_y * tile_size,
+            .width = tile_size,
+            .height = tile_size,
+          };
+
+          if (cairo_region_contains_rectangle (damage_region, &tile) ==
+              CAIRO_REGION_OVERLAP_OUT)
+            continue;
+
+          _clutter_util_rectangle_intersection (&tile, &fb_rect, &tile);
+
+          if (is_tile_dirty (&tile, current_data, prev_data, bpp, stride))
+            cairo_region_union_rectangle (tile_damage_region, &tile);
+        }
+    }
+
+  if (!cogl_dma_buf_handle_sync_read_end (prev_dma_buf_handle, error))
+    {
+      g_warning ("Failed to end DMA buffer read synchronization: %s",
+                 (*error)->message);
+      g_clear_error (error);
+    }
+
+  if (!cogl_dma_buf_handle_sync_read_end (current_dma_buf_handle, error))
+    {
+      g_warning ("Failed to end DMA buffer read synchronization: %s",
+                 (*error)->message);
+      g_clear_error (error);
+    }
+
+  cogl_dma_buf_handle_munmap (prev_dma_buf_handle, prev_data, NULL);
+  cogl_dma_buf_handle_munmap (current_dma_buf_handle, current_data, NULL);
+
+  cairo_region_intersect (tile_damage_region, damage_region);
+
+  return tile_damage_region;
+
+err_mmap_current:
+  cogl_dma_buf_handle_munmap (prev_dma_buf_handle, prev_data, NULL);
+
+err_mmap_prev:
+  cogl_dma_buf_handle_sync_read_end (current_dma_buf_handle, NULL);
+
+err_sync_read_current:
+  cogl_dma_buf_handle_sync_read_end (prev_dma_buf_handle, NULL);
+
+  return NULL;
+}
+
+static void
+swap_dma_buf_framebuffer (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  int next_idx;
+  CoglDmaBufHandle *next_dma_buf_handle;
+  CoglOffscreen *next_framebuffer;
+
+  next_idx = ((priv->shadow.dma_buf.current_idx + 1) %
+              G_N_ELEMENTS (priv->shadow.dma_buf.handles));
+  priv->shadow.dma_buf.current_idx = next_idx;
+
+  next_dma_buf_handle = priv->shadow.dma_buf.handles[next_idx];
+  next_framebuffer =
+    cogl_dma_buf_handle_get_framebuffer (next_dma_buf_handle);
+  cogl_clear_object (&priv->shadow.framebuffer);
+  priv->shadow.framebuffer = cogl_object_ref (next_framebuffer);
+}
+
+static void
+copy_shadowfb_to_onscreen (ClutterStageView     *view,
+                           const cairo_region_t *swap_region)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  ClutterDamageHistory *damage_history = priv->shadow.dma_buf.damage_history;
+  cairo_region_t *damage_region;
+  int age;
+  int i;
+
+  if (cairo_region_is_empty (swap_region))
+    {
+      cairo_rectangle_int_t full_damage = {
+        .width = cogl_framebuffer_get_width (priv->framebuffer),
+        .height = cogl_framebuffer_get_height (priv->framebuffer),
+      };
+      damage_region = cairo_region_create_rectangle (&full_damage);
+    }
+  else
+    {
+      damage_region = cairo_region_copy (swap_region);
+    }
+
+  if (is_shadowfb_double_buffered (view))
+    {
+      CoglOnscreen *onscreen = COGL_ONSCREEN (priv->framebuffer);
+      cairo_region_t *changed_region;
+
+      if (cogl_onscreen_get_frame_counter (onscreen) >= 1)
+        {
+          g_autoptr (GError) error = NULL;
+
+          changed_region = find_damaged_tiles (view, damage_region, &error);
+          if (!changed_region)
+            {
+              int other_dma_buf_idx;
+
+              g_warning ("Disabling actual damage detection: %s",
+                         error->message);
+
+              other_dma_buf_idx =
+                flip_dma_buf_idx (priv->shadow.dma_buf.current_idx);
+              g_clear_pointer (&priv->shadow.dma_buf.handles[other_dma_buf_idx],
+                               cogl_dma_buf_handle_free);
+            }
+        }
+      else
+        {
+          changed_region = cairo_region_copy (damage_region);
+        }
+
+      if (changed_region)
+        {
+          int buffer_age;
+
+          clutter_damage_history_record (damage_history, changed_region);
+
+          buffer_age = cogl_onscreen_get_buffer_age (onscreen);
+          if (clutter_damage_history_is_age_valid (damage_history, buffer_age))
+            {
+              for (age = 1; age <= buffer_age; age++)
+                {
+                  const cairo_region_t *old_damage;
+
+                  old_damage = clutter_damage_history_lookup (damage_history, age);
+                  cairo_region_union (changed_region, old_damage);
+                }
+
+              cairo_region_destroy (damage_region);
+              damage_region = g_steal_pointer (&changed_region);
+            }
+          else
+            {
+              cairo_region_destroy (changed_region);
+            }
+
+          clutter_damage_history_step (damage_history);
+        }
+    }
+
+  for (i = 0; i < cairo_region_num_rectangles (damage_region); i++)
+    {
+      g_autoptr (GError) error = NULL;
+      cairo_rectangle_int_t rect;
+
+      cairo_region_get_rectangle (damage_region, i, &rect);
+
+      if (!cogl_blit_framebuffer (priv->shadow.framebuffer,
+                                  priv->framebuffer,
+                                  rect.x, rect.y,
+                                  rect.x, rect.y,
+                                  rect.width, rect.height,
+                                  &error))
+        {
+          g_warning ("Failed to blit shadow buffer: %s", error->message);
+          cairo_region_destroy (damage_region);
+          return;
+        }
+    }
+
+  cairo_region_destroy (damage_region);
+
+  if (is_shadowfb_double_buffered (view))
+    swap_dma_buf_framebuffer (view);
+}
+
 void
 clutter_stage_view_before_swap_buffer (ClutterStageView     *view,
                                        const cairo_region_t *swap_region)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
-  g_autoptr (GError) error = NULL;
 
-  if (!priv->shadow.framebuffer)
-    return;
-
-  if (cairo_region_is_empty (swap_region))
-    {
-      int width, height;
-
-      width = cogl_framebuffer_get_width (priv->framebuffer);
-      height = cogl_framebuffer_get_height (priv->framebuffer);
-      if (!cogl_blit_framebuffer (priv->shadow.framebuffer,
-                                  priv->framebuffer,
-                                  0, 0,
-                                  0, 0,
-                                  width, height,
-                                  &error))
-        g_warning ("Failed to blit shadow buffer: %s", error->message);
-    }
-  else
-    {
-      int n_rects;
-      int i;
-
-      n_rects = cairo_region_num_rectangles (swap_region);
-      for (i = 0; i < n_rects; i++)
-        {
-          cairo_rectangle_int_t rect;
-
-          cairo_region_get_rectangle (swap_region, i, &rect);
-          if (!cogl_blit_framebuffer (priv->shadow.framebuffer,
-                                      priv->framebuffer,
-                                      rect.x, rect.y,
-                                      rect.x, rect.y,
-                                      rect.width, rect.height,
-                                      &error))
-            {
-              g_warning ("Failed to blit shadow buffer: %s", error->message);
-              return;
-            }
-        }
-    }
+  if (priv->shadow.framebuffer)
+    copy_shadowfb_to_onscreen (view, swap_region);
 }
 
 float
@@ -429,6 +739,47 @@ clutter_stage_view_get_scale (ClutterStageView *view)
     clutter_stage_view_get_instance_private (view);
 
   return priv->scale;
+}
+
+typedef void (*FrontBufferCallback) (CoglFramebuffer *framebuffer,
+                                     gconstpointer    user_data);
+
+static void
+clutter_stage_view_foreach_front_buffer (ClutterStageView    *view,
+                                         FrontBufferCallback  callback,
+                                         gconstpointer        user_data)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  if (priv->offscreen)
+    {
+      callback (priv->offscreen, user_data);
+    }
+  else if (priv->shadow.framebuffer)
+    {
+      if (is_shadowfb_double_buffered (view))
+        {
+          int i;
+
+          for (i = 0; i < G_N_ELEMENTS (priv->shadow.dma_buf.handles); i++)
+            {
+              CoglDmaBufHandle *handle = priv->shadow.dma_buf.handles[i];
+              CoglFramebuffer *framebuffer =
+                cogl_dma_buf_handle_get_framebuffer (handle);
+
+              callback (framebuffer, user_data);
+            }
+        }
+      else
+        {
+          callback (priv->shadow.framebuffer, user_data);
+        }
+    }
+  else
+    {
+      callback (priv->framebuffer, user_data);
+    }
 }
 
 gboolean
@@ -449,6 +800,19 @@ clutter_stage_view_invalidate_viewport (ClutterStageView *view)
   priv->dirty_viewport = TRUE;
 }
 
+static void
+set_framebuffer_viewport (CoglFramebuffer *framebuffer,
+                          gconstpointer    user_data)
+{
+  const graphene_rect_t *rect = user_data;
+
+  cogl_framebuffer_set_viewport (framebuffer,
+                                 rect->origin.x,
+                                 rect->origin.y,
+                                 rect->size.width,
+                                 rect->size.height);
+}
+
 void
 clutter_stage_view_set_viewport (ClutterStageView *view,
                                  float             x,
@@ -458,11 +822,17 @@ clutter_stage_view_set_viewport (ClutterStageView *view,
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
-  CoglFramebuffer *framebuffer;
+  graphene_rect_t rect;
 
   priv->dirty_viewport = FALSE;
-  framebuffer = clutter_stage_view_get_framebuffer (view);
-  cogl_framebuffer_set_viewport (framebuffer, x, y, width, height);
+
+  rect = (graphene_rect_t) {
+    .origin = { .x = x, .y = y },
+    .size = { .width = width, .height = height },
+  };
+  clutter_stage_view_foreach_front_buffer (view,
+                                           set_framebuffer_viewport,
+                                           &rect);
 }
 
 gboolean
@@ -472,6 +842,13 @@ clutter_stage_view_is_dirty_projection (ClutterStageView *view)
     clutter_stage_view_get_instance_private (view);
 
   return priv->dirty_projection;
+}
+
+static void
+set_framebuffer_projection_matrix (CoglFramebuffer *framebuffer,
+                                   gconstpointer    user_data)
+{
+  cogl_framebuffer_set_projection_matrix (framebuffer, user_data);
 }
 
 void
@@ -489,11 +866,11 @@ clutter_stage_view_set_projection (ClutterStageView *view,
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
-  CoglFramebuffer *framebuffer;
 
   priv->dirty_projection = FALSE;
-  framebuffer = clutter_stage_view_get_framebuffer (view);
-  cogl_framebuffer_set_projection_matrix (framebuffer, matrix);
+  clutter_stage_view_foreach_front_buffer (view,
+                                           set_framebuffer_projection_matrix,
+                                           matrix);
 }
 
 void
@@ -716,10 +1093,20 @@ clutter_stage_view_dispose (GObject *object)
   ClutterStageView *view = CLUTTER_STAGE_VIEW (object);
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
+  int i;
 
   g_clear_pointer (&priv->name, g_free);
   g_clear_pointer (&priv->framebuffer, cogl_object_unref);
+
   g_clear_pointer (&priv->shadow.framebuffer, cogl_object_unref);
+  for (i = 0; i < G_N_ELEMENTS (priv->shadow.dma_buf.handles); i++)
+    {
+      g_clear_pointer (&priv->shadow.dma_buf.handles[i],
+                       cogl_dma_buf_handle_free);
+    }
+  g_clear_pointer (&priv->shadow.dma_buf.damage_history,
+                   clutter_damage_history_free);
+
   g_clear_pointer (&priv->offscreen, cogl_object_unref);
   g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
   g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
