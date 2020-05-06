@@ -122,11 +122,6 @@ gboolean                clutter_input_device_get_axis_value     (ClutterInputDev
 CLUTTER_EXPORT
 guint                   clutter_input_device_get_n_keys         (ClutterInputDevice  *device);
 CLUTTER_EXPORT
-void                    clutter_input_device_set_key            (ClutterInputDevice  *device,
-                                                                 guint                index_,
-                                                                 guint                keyval,
-                                                                 ClutterModifierType  modifiers);
-CLUTTER_EXPORT
 gboolean                clutter_input_device_get_key            (ClutterInputDevice  *device,
                                                                  guint                index_,
                                                                  guint               *keyval,
@@ -136,11 +131,6 @@ CLUTTER_EXPORT
 ClutterInputDevice *    clutter_input_device_get_associated_device (ClutterInputDevice *device);
 CLUTTER_EXPORT
 GList *                 clutter_input_device_get_physical_devices  (ClutterInputDevice  *device);
-
-CLUTTER_EXPORT
-void                    clutter_input_device_update_from_event  (ClutterInputDevice  *device,
-                                                                 ClutterEvent        *event,
-                                                                 gboolean             update_stage);
 
 CLUTTER_EXPORT
 void                    clutter_input_device_grab               (ClutterInputDevice  *device,
@@ -160,11 +150,6 @@ void                    clutter_input_device_sequence_ungrab    (ClutterInputDev
 CLUTTER_EXPORT
 ClutterActor *          clutter_input_device_sequence_get_grabbed_actor (ClutterInputDevice   *device,
                                                                          ClutterEventSequence *sequence);
-
-CLUTTER_EXPORT
-gboolean                clutter_input_device_keycode_to_evdev   (ClutterInputDevice *device,
-                                                                 guint               hardware_keycode,
-                                                                 guint              *evdev_keycode);
 
 CLUTTER_EXPORT
 const gchar *           clutter_input_device_get_vendor_id      (ClutterInputDevice *device);
