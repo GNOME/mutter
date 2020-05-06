@@ -38,6 +38,7 @@
 #include <gio/gio.h>
 #include <linux/dma-buf.h>
 #include <sys/ioctl.h>
+#include <sys/mman.h>
 #include <unistd.h>
 
 struct _CoglDmaBufHandle
@@ -145,6 +146,46 @@ cogl_dma_buf_handle_sync_read_end (CoglDmaBufHandle  *dmabuf_handle,
                                    GError           **error)
 {
   return sync_read (dmabuf_handle, DMA_BUF_SYNC_END, error);
+}
+
+gpointer
+cogl_dma_buf_handle_mmap (CoglDmaBufHandle  *dmabuf_handle,
+                          GError           **error)
+{
+  size_t size;
+  gpointer data;
+
+  size = dmabuf_handle->height * dmabuf_handle->stride;
+
+  data = mmap (NULL, size, PROT_READ, MAP_PRIVATE,
+               dmabuf_handle->dmabuf_fd,
+               dmabuf_handle->offset);
+  if (data == MAP_FAILED)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "mmap failed: %s", g_strerror (errno));
+      return NULL;
+    }
+
+  return data;
+}
+
+gboolean
+cogl_dma_buf_handle_munmap (CoglDmaBufHandle  *dmabuf_handle,
+                            gpointer           data,
+                            GError           **error)
+{
+  size_t size;
+
+  size = dmabuf_handle->height * dmabuf_handle->stride;
+  if (munmap (data, size) != 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "munmap failed: %s", g_strerror (errno));
+      return FALSE;
+    }
+
+  return TRUE;
 }
 
 CoglFramebuffer *

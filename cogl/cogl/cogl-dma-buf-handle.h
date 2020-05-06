@@ -71,6 +71,15 @@ COGL_EXPORT gboolean
 cogl_dma_buf_handle_sync_read_end (CoglDmaBufHandle  *dmabuf_handle,
                                    GError           **error);
 
+COGL_EXPORT gpointer
+cogl_dma_buf_handle_mmap (CoglDmaBufHandle  *dmabuf_handle,
+                          GError           **error);
+
+COGL_EXPORT gboolean
+cogl_dma_buf_handle_munmap (CoglDmaBufHandle  *dmabuf_handle,
+                            gpointer           data,
+                            GError           **error);
+
 /**
  * cogl_dma_buf_handle_get_framebuffer: (skip)
  *
