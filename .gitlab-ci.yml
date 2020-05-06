@@ -67,7 +67,6 @@ test-mutter:
     G_SLICE: "always-malloc"
     MALLOC_CHECK_: "3"
     NO_AT_BRIDGE: "1"
-    MALLOC_PERTURB_: "123"
   script:
     - dconf update
     - mkdir -m 700 $XDG_RUNTIME_DIR
