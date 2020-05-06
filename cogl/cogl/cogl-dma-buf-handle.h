@@ -63,6 +63,14 @@ cogl_dma_buf_handle_new (CoglFramebuffer *framebuffer,
 COGL_EXPORT void
 cogl_dma_buf_handle_free (CoglDmaBufHandle *dmabuf_handle);
 
+COGL_EXPORT gboolean
+cogl_dma_buf_handle_sync_read_start (CoglDmaBufHandle  *dmabuf_handle,
+                                     GError           **error);
+
+COGL_EXPORT gboolean
+cogl_dma_buf_handle_sync_read_end (CoglDmaBufHandle  *dmabuf_handle,
+                                   GError           **error);
+
 /**
  * cogl_dma_buf_handle_get_framebuffer: (skip)
  *

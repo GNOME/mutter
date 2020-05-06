@@ -34,6 +34,10 @@
 #include "cogl-dma-buf-handle.h"
 #include "cogl-object.h"
 
+#include <errno.h>
+#include <gio/gio.h>
+#include <linux/dma-buf.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 
 struct _CoglDmaBufHandle
@@ -94,6 +98,53 @@ cogl_dma_buf_handle_free (CoglDmaBufHandle *dmabuf_handle)
     close (dmabuf_handle->dmabuf_fd);
 
   g_free (dmabuf_handle);
+}
+
+static gboolean
+sync_read (CoglDmaBufHandle  *dmabuf_handle,
+           uint64_t           start_or_end,
+           GError           **error)
+{
+  struct dma_buf_sync sync = { 0 };
+
+  sync.flags = start_or_end | DMA_BUF_SYNC_READ;
+
+  while (TRUE)
+    {
+      int ret;
+
+      ret = ioctl (dmabuf_handle->dmabuf_fd, DMA_BUF_IOCTL_SYNC, &sync);
+      if (ret == -1 && errno == EINTR)
+        {
+          continue;
+        }
+      else if (ret == -1)
+        {
+          g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                       "ioctl: %s", g_strerror (errno));
+          return FALSE;
+        }
+      else
+        {
+          break;
+        }
+    }
+
+  return TRUE;
+}
+
+gboolean
+cogl_dma_buf_handle_sync_read_start (CoglDmaBufHandle  *dmabuf_handle,
+                                     GError           **error)
+{
+  return sync_read (dmabuf_handle, DMA_BUF_SYNC_START, error);
+}
+
+gboolean
+cogl_dma_buf_handle_sync_read_end (CoglDmaBufHandle  *dmabuf_handle,
+                                   GError           **error)
+{
+  return sync_read (dmabuf_handle, DMA_BUF_SYNC_END, error);
 }
 
 CoglFramebuffer *
