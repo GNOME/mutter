@@ -65,15 +65,6 @@
 #define BTN_STYLUS3 0x149 /* Linux 4.15 */
 #endif
 
-typedef struct _MetaEventFilter MetaEventFilter;
-
-struct _MetaEventFilter
-{
-  MetaEvdevFilterFunc func;
-  gpointer data;
-  GDestroyNotify destroy_notify;
-};
-
 struct _MetaEventSource
 {
   GSource source;
@@ -2384,40 +2375,10 @@ process_device_event (MetaSeatNative        *seat,
   return handled;
 }
 
-static gboolean
-filter_event (MetaSeatNative        *seat,
-              struct libinput_event *event)
-{
-  gboolean retval = CLUTTER_EVENT_PROPAGATE;
-  MetaEventFilter *filter;
-  GSList *tmp_list;
-
-  tmp_list = seat->event_filters;
-
-  while (tmp_list)
-    {
-      filter = tmp_list->data;
-      retval = filter->func (event, filter->data);
-      tmp_list = tmp_list->next;
-
-      if (retval != CLUTTER_EVENT_PROPAGATE)
-        break;
-    }
-
-  return retval;
-}
-
 static void
 process_event (MetaSeatNative        *seat,
                struct libinput_event *event)
 {
-  gboolean retval;
-
-  retval = filter_event (seat, event);
-
-  if (retval != CLUTTER_EVENT_PROPAGATE)
-    return;
-
   if (process_base_event (seat, event))
     return;
   if (process_device_event (seat, event))
@@ -2993,69 +2954,6 @@ meta_seat_native_set_relative_motion_filter (MetaSeatNative           *seat,
 
   seat->relative_motion_filter = filter;
   seat->relative_motion_filter_user_data = user_data;
-}
-
-/**
- * meta_seat_native_add_filter: (skip)
- * @func: (closure data): a filter function
- * @data: (allow-none): user data to be passed to the filter function, or %NULL
- * @destroy_notify: (allow-none): function to call on @data when the filter is removed, or %NULL
- *
- * Adds an event filter function.
- */
-void
-meta_seat_native_add_filter (MetaSeatNative      *seat,
-                             MetaEvdevFilterFunc  func,
-                             gpointer             data,
-                             GDestroyNotify       destroy_notify)
-{
-  MetaEventFilter *filter;
-
-  g_return_if_fail (func != NULL);
-
-  filter = g_new0 (MetaEventFilter, 1);
-  filter->func = func;
-  filter->data = data;
-  filter->destroy_notify = destroy_notify;
-
-  seat->event_filters = g_slist_append (seat->event_filters, filter);
-}
-
-/**
- * meta_seat_native_remove_filter: (skip)
- * @func: a filter function
- * @data: (allow-none): user data to be passed to the filter function, or %NULL
- *
- * Removes the given filter function.
- */
-void
-meta_seat_native_remove_filter (MetaSeatNative      *seat,
-                                MetaEvdevFilterFunc  func,
-                                gpointer             data)
-{
-  MetaEventFilter *filter;
-  GSList *tmp_list;
-
-  g_return_if_fail (func != NULL);
-
-  tmp_list = seat->event_filters;
-
-  while (tmp_list)
-    {
-      filter = tmp_list->data;
-
-      if (filter->func == func && filter->data == data)
-        {
-          if (filter->destroy_notify)
-            filter->destroy_notify (filter->data);
-          g_free (filter);
-          seat->event_filters =
-            g_slist_delete_link (seat->event_filters, tmp_list);
-          return;
-        }
-
-      tmp_list = tmp_list->next;
-    }
 }
 
 void

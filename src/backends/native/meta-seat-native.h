@@ -114,8 +114,6 @@ struct _MetaSeatNative
   MetaRelativeMotionFilter relative_motion_filter;
   gpointer relative_motion_filter_user_data;
 
-  GSList *event_filters;
-
   MetaKeymapNative *keymap;
 
   GUdevClient *udev_client;
@@ -269,17 +267,6 @@ void  meta_seat_native_set_pointer_constrain_callback (MetaSeatNative           
 void meta_seat_native_set_relative_motion_filter (MetaSeatNative           *seat,
                                                   MetaRelativeMotionFilter  filter,
                                                   gpointer                  user_data);
-
-typedef gboolean (* MetaEvdevFilterFunc) (struct libinput_event *event,
-                                          gpointer               data);
-
-void meta_seat_native_add_filter    (MetaSeatNative        *seat,
-                                     MetaEvdevFilterFunc    func,
-                                     gpointer               data,
-                                     GDestroyNotify         destroy_notify);
-void meta_seat_native_remove_filter (MetaSeatNative        *seat,
-                                     MetaEvdevFilterFunc    func,
-                                     gpointer               data);
 
 struct xkb_state * meta_seat_native_get_xkb_state (MetaSeatNative *seat);
 
