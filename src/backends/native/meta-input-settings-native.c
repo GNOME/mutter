@@ -70,8 +70,19 @@ meta_input_settings_native_set_matrix (MetaInputSettings  *settings,
 {
   cairo_matrix_t dev_matrix;
 
-  cairo_matrix_init (&dev_matrix, matrix[0], matrix[3], matrix[1],
-                     matrix[4], matrix[2], matrix[5]);
+  if (clutter_input_device_get_device_type (device) ==
+      CLUTTER_TOUCHSCREEN_DEVICE ||
+      clutter_input_device_get_mapping_mode (device) ==
+      CLUTTER_INPUT_DEVICE_MAPPING_ABSOLUTE)
+    {
+      cairo_matrix_init (&dev_matrix, matrix[0], matrix[3], matrix[1],
+                         matrix[4], matrix[2], matrix[5]);
+    }
+  else
+    {
+      cairo_matrix_init_identity (&dev_matrix);
+    }
+
   g_object_set (device, "device-matrix", &dev_matrix, NULL);
 }
 
