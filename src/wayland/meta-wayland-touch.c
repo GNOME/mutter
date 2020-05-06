@@ -401,35 +401,34 @@ touch_send_frame_event (MetaWaylandTouch *touch)
   g_list_free (surfaces);
 }
 
-static void
-check_send_frame_event (MetaWaylandTouch   *touch,
-                        const ClutterEvent *event)
+static gboolean
+queue_frame_event_cb (MetaWaylandTouch *touch)
 {
-  gboolean send_frame_event;
-#ifdef HAVE_NATIVE_BACKEND
-  MetaBackend *backend = meta_get_backend ();
-  ClutterEventSequence *sequence;
-  gint32 slot;
+  touch_send_frame_event (touch);
+  touch->queued_frame_id = 0;
 
-  if (META_IS_BACKEND_NATIVE (backend))
+  return G_SOURCE_REMOVE;
+}
+
+static void
+send_or_queue_frame_event (MetaWaylandTouch *touch)
+{
+  if (clutter_events_pending ())
     {
-      sequence = clutter_event_get_event_sequence (event);
-      slot = meta_event_native_sequence_get_slot (sequence);
-      touch->frame_slots &= ~(1 << slot);
-
-      if (touch->frame_slots == 0)
-        send_frame_event = TRUE;
-      else
-        send_frame_event = FALSE;
+      if (!touch->queued_frame_id)
+        {
+          touch->queued_frame_id =
+            g_idle_add_full (CLUTTER_PRIORITY_EVENTS + 1,
+                             (GSourceFunc) queue_frame_event_cb,
+                             touch, NULL);
+        }
     }
   else
-#endif /* HAVE_NATIVE_BACKEND */
     {
-      send_frame_event = TRUE;
+      /* There's no more events */
+      g_clear_handle_id (&touch->queued_frame_id, g_source_remove);
+      touch_send_frame_event (touch);
     }
-
-  if (send_frame_event)
-    touch_send_frame_event (touch);
 }
 
 gboolean
@@ -454,7 +453,7 @@ meta_wayland_touch_handle_event (MetaWaylandTouch   *touch,
       return FALSE;
     }
 
-  check_send_frame_event (touch, event);
+  send_or_queue_frame_event (touch);
   return FALSE;
 }
 
@@ -520,21 +519,6 @@ evdev_filter_func (struct libinput_event *event,
 
   switch (libinput_event_get_type (event))
     {
-    case LIBINPUT_EVENT_TOUCH_DOWN:
-    case LIBINPUT_EVENT_TOUCH_UP:
-    case LIBINPUT_EVENT_TOUCH_MOTION: {
-      struct libinput_event_touch *touch_event;
-      int32_t slot;
-
-      touch_event = libinput_event_get_touch_event (event);
-      slot = libinput_event_touch_get_slot (touch_event);
-
-      /* XXX: Could theoretically overflow, 64 slots should be
-       * enough for most hw/usecases though.
-       */
-      touch->frame_slots |= (1 << slot);
-      break;
-    }
     case LIBINPUT_EVENT_TOUCH_CANCEL:
       /* Clutter translates this into individual CLUTTER_TOUCH_CANCEL events,
        * which are not so useful when sending a global signal as the protocol
