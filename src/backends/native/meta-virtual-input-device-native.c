@@ -628,7 +628,8 @@ meta_virtual_input_device_native_notify_touch_up (ClutterVirtualInputDevice *vir
                                        touch_state->coords.x,
                                        touch_state->coords.y);
 
-  meta_seat_native_release_touch_state (virtual_evdev->seat, touch_state);
+  meta_seat_native_release_touch_state (virtual_evdev->seat,
+                                        touch_state->seat_slot);
 }
 
 static void
