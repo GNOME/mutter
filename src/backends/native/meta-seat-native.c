@@ -146,63 +146,58 @@ meta_seat_native_sync_leds (MetaSeatNative *seat)
     }
 }
 
-static void
-clutter_touch_state_free (MetaTouchState *touch_state)
+MetaTouchState *
+meta_seat_native_lookup_touch_state (MetaSeatNative *seat,
+                                     int             seat_slot)
 {
-  g_slice_free (MetaTouchState, touch_state);
+  if (!seat->touch_states)
+    return NULL;
+
+  return g_hash_table_lookup (seat->touch_states, GINT_TO_POINTER (seat_slot));
 }
 
 static void
-ensure_seat_slot_allocated (MetaSeatNative *seat,
-                            int             seat_slot)
+meta_touch_state_free (MetaTouchState *state)
 {
-  if (seat_slot >= seat->n_alloc_touch_states)
-    {
-      const int size_increase = 5;
-      int i;
-
-      seat->n_alloc_touch_states += size_increase;
-      seat->touch_states = g_realloc_n (seat->touch_states,
-                                        seat->n_alloc_touch_states,
-                                        sizeof (MetaTouchState *));
-      for (i = 0; i < size_increase; i++)
-        seat->touch_states[seat->n_alloc_touch_states - (i + 1)] = NULL;
-    }
+  g_slice_free (MetaTouchState, state);
 }
 
 MetaTouchState *
 meta_seat_native_acquire_touch_state (MetaSeatNative *seat,
-                                      int             device_slot)
+                                      int             seat_slot)
 {
   MetaTouchState *touch_state;
-  int seat_slot;
 
-  for (seat_slot = 0; seat_slot < seat->n_alloc_touch_states; seat_slot++)
+  if (!seat->touch_states)
     {
-      if (!seat->touch_states[seat_slot])
-        break;
+      seat->touch_states =
+        g_hash_table_new_full (NULL, NULL, NULL,
+                               (GDestroyNotify) meta_touch_state_free);
     }
 
-  ensure_seat_slot_allocated (seat, seat_slot);
+  g_assert (!g_hash_table_contains (seat->touch_states,
+                                    GINT_TO_POINTER (seat_slot)));
 
   touch_state = g_slice_new0 (MetaTouchState);
   *touch_state = (MetaTouchState) {
     .seat = seat,
     .seat_slot = seat_slot,
-    .device_slot = device_slot,
   };
 
-  seat->touch_states[seat_slot] = touch_state;
+  g_hash_table_insert (seat->touch_states, GINT_TO_POINTER (seat_slot),
+                       touch_state);
 
   return touch_state;
 }
 
 void
 meta_seat_native_release_touch_state (MetaSeatNative *seat,
-                                      MetaTouchState *touch_state)
+                                      int             seat_slot)
 {
-  g_clear_pointer (&seat->touch_states[touch_state->seat_slot],
-                   clutter_touch_state_free);
+  if (!seat->touch_states)
+    return;
+
+  g_hash_table_remove (seat->touch_states, GINT_TO_POINTER (seat_slot));
 }
 
 void
@@ -1980,7 +1975,7 @@ process_device_event (MetaSeatNative        *seat,
 
     case LIBINPUT_EVENT_TOUCH_DOWN:
       {
-        int device_slot;
+        int seat_slot;
         uint64_t time_us;
         double x, y;
         float stage_width, stage_height;
@@ -2001,16 +1996,14 @@ process_device_event (MetaSeatNative        *seat,
         stage_width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
         stage_height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
 
-        device_slot = libinput_event_touch_get_slot (touch_event);
+        seat_slot = libinput_event_touch_get_seat_slot (touch_event);
         time_us = libinput_event_touch_get_time_usec (touch_event);
         x = libinput_event_touch_get_x_transformed (touch_event,
                                                     stage_width);
         y = libinput_event_touch_get_y_transformed (touch_event,
                                                     stage_height);
 
-        touch_state =
-          meta_input_device_native_acquire_touch_state (device_evdev,
-                                                        device_slot);
+        touch_state = meta_seat_native_acquire_touch_state (seat, seat_slot);
         touch_state->coords.x = x;
         touch_state->coords.y = y;
 
@@ -2025,7 +2018,7 @@ process_device_event (MetaSeatNative        *seat,
 
     case LIBINPUT_EVENT_TOUCH_UP:
       {
-        int device_slot;
+        int seat_slot;
         uint64_t time_us;
         MetaSeatNative *seat;
         MetaTouchState *touch_state;
@@ -2036,11 +2029,9 @@ process_device_event (MetaSeatNative        *seat,
         device_evdev = META_INPUT_DEVICE_NATIVE (device);
         seat = meta_input_device_native_get_seat (device_evdev);
 
-        device_slot = libinput_event_touch_get_slot (touch_event);
+        seat_slot = libinput_event_touch_get_seat_slot (touch_event);
         time_us = libinput_event_touch_get_time_usec (touch_event);
-        touch_state =
-          meta_input_device_native_lookup_touch_state (device_evdev,
-                                                       device_slot);
+        touch_state = meta_seat_native_lookup_touch_state (seat, seat_slot);
         if (!touch_state)
           break;
 
@@ -2049,14 +2040,13 @@ process_device_event (MetaSeatNative        *seat,
                                              touch_state->seat_slot,
                                              touch_state->coords.x,
                                              touch_state->coords.y);
-        meta_input_device_native_release_touch_state (device_evdev,
-                                                      touch_state);
+        meta_seat_native_release_touch_state (seat, seat_slot);
         break;
       }
 
     case LIBINPUT_EVENT_TOUCH_MOTION:
       {
-        int device_slot;
+        int seat_slot;
         uint64_t time_us;
         double x, y;
         float stage_width, stage_height;
@@ -2077,16 +2067,14 @@ process_device_event (MetaSeatNative        *seat,
         stage_width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
         stage_height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
 
-        device_slot = libinput_event_touch_get_slot (touch_event);
+        seat_slot = libinput_event_touch_get_seat_slot (touch_event);
         time_us = libinput_event_touch_get_time_usec (touch_event);
         x = libinput_event_touch_get_x_transformed (touch_event,
                                                     stage_width);
         y = libinput_event_touch_get_y_transformed (touch_event,
                                                     stage_height);
 
-        touch_state =
-          meta_input_device_native_lookup_touch_state (device_evdev,
-                                                       device_slot);
+        touch_state = meta_seat_native_lookup_touch_state (seat, seat_slot);
         if (!touch_state)
           break;
 
@@ -2103,7 +2091,7 @@ process_device_event (MetaSeatNative        *seat,
       }
     case LIBINPUT_EVENT_TOUCH_CANCEL:
       {
-        int device_slot;
+        int seat_slot;
         MetaTouchState *touch_state;
         uint64_t time_us;
         MetaSeatNative *seat;
@@ -2115,10 +2103,8 @@ process_device_event (MetaSeatNative        *seat,
         seat = meta_input_device_native_get_seat (device_evdev);
         time_us = libinput_event_touch_get_time_usec (touch_event);
 
-        device_slot = libinput_event_touch_get_slot (touch_event);
-        touch_state =
-          meta_input_device_native_lookup_touch_state (device_evdev,
-                                                       device_slot);
+        seat_slot = libinput_event_touch_get_seat_slot (touch_event);
+        touch_state = meta_seat_native_lookup_touch_state (seat, seat_slot);
         if (!touch_state)
           break;
 
@@ -2130,7 +2116,7 @@ process_device_event (MetaSeatNative        *seat,
                                              touch_state->coords.x,
                                              touch_state->coords.y);
 
-        meta_input_device_native_release_touch_state (device_evdev, touch_state);
+        meta_seat_native_release_touch_state (seat, seat_slot);
         break;
       }
     case LIBINPUT_EVENT_GESTURE_PINCH_BEGIN:
@@ -2602,7 +2588,10 @@ meta_seat_native_finalize (GObject *object)
       g_object_unref (device);
     }
   g_slist_free (seat->devices);
-  g_free (seat->touch_states);
+
+  if (seat->touch_states)
+    g_hash_table_destroy (seat->touch_states);
+
   g_hash_table_destroy (seat->reserved_virtual_slots);
 
   g_object_unref (seat->udev_client);

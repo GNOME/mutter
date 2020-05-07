@@ -1233,7 +1233,8 @@ release_device_touch_slot (gpointer value)
 {
   MetaTouchState *touch_state = value;
 
-  meta_seat_native_release_touch_state (touch_state->seat, touch_state);
+  meta_seat_native_release_touch_state (touch_state->seat,
+                                        touch_state->seat_slot);
 }
 
 MetaTouchState *
