@@ -120,6 +120,11 @@ meta_wayland_surface_role_is_on_logical_monitor (MetaWaylandSurfaceRole *surface
 static MetaWaylandSurface *
 meta_wayland_surface_role_get_toplevel (MetaWaylandSurfaceRole *surface_role);
 
+static void
+set_surface_is_on_output (MetaWaylandSurface *surface,
+                          MetaWaylandOutput  *wayland_output,
+                          gboolean            is_on_output);
+
 static MetaWaylandBufferRef *
 meta_wayland_buffer_ref_new (void)
 {
@@ -1163,6 +1168,13 @@ static const struct wl_surface_interface meta_wayland_wl_surface_interface = {
 };
 
 static void
+handle_output_destroyed (MetaWaylandOutput  *wayland_output,
+                         MetaWaylandSurface *surface)
+{
+  set_surface_is_on_output (surface, wayland_output, FALSE);
+}
+
+static void
 handle_output_bound (MetaWaylandOutput  *wayland_output,
                      struct wl_resource *output_resource,
                      MetaWaylandSurface *surface)
@@ -1178,6 +1190,10 @@ surface_entered_output (MetaWaylandSurface *surface,
 {
   GList *iter;
   struct wl_resource *resource;
+
+  g_signal_connect (wayland_output, "output-destroyed",
+                    G_CALLBACK (handle_output_destroyed),
+                    surface);
 
   for (iter = wayland_output->resources; iter != NULL; iter = iter->next)
     {
@@ -1203,6 +1219,10 @@ surface_left_output (MetaWaylandSurface *surface,
   struct wl_resource *resource;
 
   g_signal_handlers_disconnect_by_func (wayland_output,
+                                        G_CALLBACK (handle_output_destroyed),
+                                        surface);
+
+  g_signal_handlers_disconnect_by_func (wayland_output,
                                         G_CALLBACK (handle_output_bound),
                                         surface);
 
@@ -1221,40 +1241,20 @@ surface_left_output (MetaWaylandSurface *surface,
 static void
 set_surface_is_on_output (MetaWaylandSurface *surface,
                           MetaWaylandOutput *wayland_output,
-                          gboolean is_on_output);
-
-static void
-surface_handle_output_destroy (MetaWaylandOutput *wayland_output,
-                               MetaWaylandSurface *surface)
-{
-  set_surface_is_on_output (surface, wayland_output, FALSE);
-}
-
-static void
-set_surface_is_on_output (MetaWaylandSurface *surface,
-                          MetaWaylandOutput *wayland_output,
                           gboolean is_on_output)
 {
-  gpointer orig_id;
-  gboolean was_on_output = g_hash_table_lookup_extended (surface->outputs_to_destroy_notify_id,
-                                                         wayland_output,
-                                                         NULL, &orig_id);
+  gboolean was_on_output;
+
+  was_on_output = g_hash_table_contains (surface->outputs, wayland_output);
 
   if (!was_on_output && is_on_output)
     {
-      gulong id;
-
-      id = g_signal_connect (wayland_output, "output-destroyed",
-                             G_CALLBACK (surface_handle_output_destroy),
-                             surface);
-      g_hash_table_insert (surface->outputs_to_destroy_notify_id, wayland_output,
-                           GSIZE_TO_POINTER ((gsize)id));
+      g_hash_table_add (surface->outputs, wayland_output);
       surface_entered_output (surface, wayland_output);
     }
   else if (was_on_output && !is_on_output)
     {
-      g_hash_table_remove (surface->outputs_to_destroy_notify_id, wayland_output);
-      g_signal_handler_disconnect (wayland_output, (gulong) GPOINTER_TO_SIZE (orig_id));
+      g_hash_table_remove (surface->outputs, wayland_output);
       surface_left_output (surface, wayland_output);
     }
 }
@@ -1290,8 +1290,10 @@ surface_output_disconnect_signals (gpointer key,
   MetaWaylandOutput *wayland_output = key;
   MetaWaylandSurface *surface = user_data;
 
-  g_signal_handler_disconnect (wayland_output,
-                               (gulong) GPOINTER_TO_SIZE (value));
+  g_signal_handlers_disconnect_by_func (wayland_output,
+                                        G_CALLBACK (handle_output_destroyed),
+                                        surface);
+
   g_signal_handlers_disconnect_by_func (wayland_output,
                                         G_CALLBACK (handle_output_bound),
                                         surface);
@@ -1364,10 +1366,10 @@ wl_surface_destructor (struct wl_resource *resource)
 
   meta_wayland_compositor_destroy_frame_callbacks (compositor, surface);
 
-  g_hash_table_foreach (surface->outputs_to_destroy_notify_id,
+  g_hash_table_foreach (surface->outputs,
                         surface_output_disconnect_signals,
                         surface);
-  g_hash_table_unref (surface->outputs_to_destroy_notify_id);
+  g_hash_table_destroy (surface->outputs);
 
   wl_list_for_each_safe (cb, next, &surface->pending_frame_callback_list, link)
     wl_resource_destroy (cb->resource);
@@ -1418,7 +1420,7 @@ meta_wayland_surface_create (MetaWaylandCompositor *compositor,
 
   wl_list_init (&surface->pending_frame_callback_list);
 
-  surface->outputs_to_destroy_notify_id = g_hash_table_new (NULL, NULL);
+  surface->outputs = g_hash_table_new (NULL, NULL);
   surface->shortcut_inhibited_seats = g_hash_table_new (NULL, NULL);
 
   meta_wayland_compositor_notify_surface_id (compositor, id, surface);

@@ -157,7 +157,7 @@ struct _MetaWaylandSurface
   int32_t offset_x, offset_y;
   GNode *subsurface_branch_node;
   GNode *subsurface_leaf_node;
-  GHashTable *outputs_to_destroy_notify_id;
+  GHashTable *outputs;
   MetaMonitorTransform buffer_transform;
 
   CoglTexture *texture;
