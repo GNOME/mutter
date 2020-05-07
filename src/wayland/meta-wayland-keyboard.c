@@ -881,6 +881,8 @@ meta_wayland_keyboard_finalize (GObject *object)
   MetaWaylandKeyboard *keyboard = META_WAYLAND_KEYBOARD (object);
 
   meta_wayland_xkb_info_destroy (&keyboard->xkb_info);
+
+  G_OBJECT_CLASS (meta_wayland_keyboard_parent_class)->finalize (object);
 }
 
 static void
