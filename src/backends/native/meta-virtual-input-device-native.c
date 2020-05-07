@@ -129,20 +129,25 @@ release_pressed_buttons (ClutterVirtualInputDevice *virtual_device)
       switch (get_button_type (code))
         {
         case EVDEV_BUTTON_TYPE_KEY:
-          clutter_virtual_input_device_notify_key (virtual_device,
-                                                   time_us,
-                                                   code,
-                                                   CLUTTER_KEY_STATE_RELEASED);
+          meta_seat_native_notify_key (virtual_evdev->seat,
+                                       virtual_evdev->device,
+                                       time_us,
+                                       code,
+                                       CLUTTER_KEY_STATE_RELEASED,
+                                       TRUE);
           break;
         case EVDEV_BUTTON_TYPE_BUTTON:
-          clutter_virtual_input_device_notify_button (virtual_device,
-                                                      time_us,
-                                                      code,
-                                                      CLUTTER_BUTTON_STATE_RELEASED);
+          meta_seat_native_notify_button (virtual_evdev->seat,
+                                          virtual_evdev->device,
+                                          time_us,
+                                          code,
+                                          CLUTTER_BUTTON_STATE_RELEASED);
           break;
         case EVDEV_BUTTON_TYPE_NONE:
           g_assert_not_reached ();
         }
+
+      update_button_count (virtual_evdev, code, 0);
     }
 }
 
