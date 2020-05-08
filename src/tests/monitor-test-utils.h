@@ -22,8 +22,182 @@
 
 #include <glib.h>
 
+#include "tests/meta-monitor-manager-test.h"
+#include "backends/meta-crtc.h"
+#include "backends/meta-output.h"
+
+#define ALL_TRANSFORMS ((1 << (META_MONITOR_TRANSFORM_FLIPPED_270 + 1)) - 1)
+
+#define MAX_N_MODES 10
+#define MAX_N_OUTPUTS 10
+#define MAX_N_CRTCS 10
+#define MAX_N_MONITORS 10
+#define MAX_N_LOGICAL_MONITORS 10
+
+/*
+ * The following structures are used to define test cases.
+ *
+ * Each test case consists of a test case setup and a test case expectaction.
+ * and a expected result, consisting
+ * of an array of monitors, logical monitors and a screen size.
+ *
+ * TEST CASE SETUP:
+ *
+ * A test case setup consists of an array of modes, an array of outputs and an
+ * array of CRTCs.
+ *
+ * A mode has a width and height in pixels, and a refresh rate in updates per
+ * second.
+ *
+ * An output has an array of available modes, and a preferred mode. Modes are
+ * defined as indices into the modes array of the test case setup.
+ *
+ * It also has CRTc and an array of possible CRTCs. Crtcs are defined as indices
+ * into the CRTC array. The CRTC value -1 means no CRTC.
+ *
+ * It also has various meta data, such as physical dimension, tile info and
+ * scale.
+ *
+ * A CRTC only has a current mode. A mode is defined as an index into the modes
+ * array.
+ *
+ *
+ * TEST CASE EXPECTS:
+ *
+ * A test case expects consists of an array of monitors, an array of logical
+ * monitors, a output and crtc count, and a screen width.
+ *
+ * A monitor represents a physical monitor (such as an external monitor, or a
+ * laptop panel etc). A monitor consists of an array of outputs, defined by
+ * indices into the setup output array, an array of monitor modes, and the
+ * current mode, defined by an index into the monitor modes array, and the
+ * physical dimensions.
+ *
+ * A logical monitor represents a region of the total screen area. It contains
+ * the expected layout and a scale.
+ */
+
+typedef enum _MonitorTestFlag
+{
+  MONITOR_TEST_FLAG_NONE,
+  MONITOR_TEST_FLAG_NO_STORED
+} MonitorTestFlag;
+
+typedef struct _MonitorTestCaseMode
+{
+  int width;
+  int height;
+  float refresh_rate;
+  MetaCrtcModeFlag flags;
+} MonitorTestCaseMode;
+
+typedef struct _MonitorTestCaseOutput
+{
+  int crtc;
+  int modes[MAX_N_MODES];
+  int n_modes;
+  int preferred_mode;
+  int possible_crtcs[MAX_N_CRTCS];
+  int n_possible_crtcs;
+  int width_mm;
+  int height_mm;
+  MetaTileInfo tile_info;
+  float scale;
+  gboolean is_laptop_panel;
+  gboolean is_underscanning;
+  const char *serial;
+  MetaMonitorTransform panel_orientation_transform;
+} MonitorTestCaseOutput;
+
+typedef struct _MonitorTestCaseCrtc
+{
+  int current_mode;
+} MonitorTestCaseCrtc;
+
+typedef struct _MonitorTestCaseSetup
+{
+  MonitorTestCaseMode modes[MAX_N_MODES];
+  int n_modes;
+
+  MonitorTestCaseOutput outputs[MAX_N_OUTPUTS];
+  int n_outputs;
+
+  MonitorTestCaseCrtc crtcs[MAX_N_CRTCS];
+  int n_crtcs;
+} MonitorTestCaseSetup;
+
+typedef struct _MonitorTestCaseMonitorCrtcMode
+{
+  uint64_t output;
+  int crtc_mode;
+} MetaTestCaseMonitorCrtcMode;
+
+typedef struct _MonitorTestCaseMonitorMode
+{
+  int width;
+  int height;
+  float refresh_rate;
+  MetaCrtcModeFlag flags;
+  MetaTestCaseMonitorCrtcMode crtc_modes[MAX_N_CRTCS];
+} MetaMonitorTestCaseMonitorMode;
+
+typedef struct _MonitorTestCaseMonitor
+{
+  uint64_t outputs[MAX_N_OUTPUTS];
+  int n_outputs;
+  MetaMonitorTestCaseMonitorMode modes[MAX_N_MODES];
+  int n_modes;
+  int current_mode;
+  int width_mm;
+  int height_mm;
+  gboolean is_underscanning;
+} MonitorTestCaseMonitor;
+
+typedef struct _MonitorTestCaseLogicalMonitor
+{
+  MetaRectangle layout;
+  float scale;
+  int monitors[MAX_N_MONITORS];
+  int n_monitors;
+  MetaMonitorTransform transform;
+} MonitorTestCaseLogicalMonitor;
+
+typedef struct _MonitorTestCaseCrtcExpect
+{
+  MetaMonitorTransform transform;
+  int current_mode;
+  float x;
+  float y;
+} MonitorTestCaseCrtcExpect;
+
+typedef struct _MonitorTestCaseExpect
+{
+  MonitorTestCaseMonitor monitors[MAX_N_MONITORS];
+  int n_monitors;
+  MonitorTestCaseLogicalMonitor logical_monitors[MAX_N_LOGICAL_MONITORS];
+  int n_logical_monitors;
+  int primary_logical_monitor;
+  int n_outputs;
+  MonitorTestCaseCrtcExpect crtcs[MAX_N_CRTCS];
+  int n_crtcs;
+  int n_tiled_monitors;
+  int screen_width;
+  int screen_height;
+} MonitorTestCaseExpect;
+
+typedef struct _MonitorTestCase
+{
+  MonitorTestCaseSetup setup;
+  MonitorTestCaseExpect expect;
+} MonitorTestCase;
+
 void set_custom_monitor_config (const char *filename);
 
 char * read_file (const char *file_path);
+
+void check_monitor_configuration (MonitorTestCaseExpect *expect);
+
+MetaMonitorTestSetup * create_monitor_test_setup (MonitorTestCaseSetup *setup,
+                                                  MonitorTestFlag       flags);
 
 #endif /* MONITOR_TEST_UTILS_H */
