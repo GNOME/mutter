@@ -22,8 +22,6 @@
 
 #include <glib.h>
 
-gboolean is_using_monitor_config_manager (void);
-
 void set_custom_monitor_config (const char *filename);
 
 char * read_file (const char *file_path);
