@@ -854,8 +854,6 @@ check_monitor_configuration (MonitorTestCaseExpect *expect)
                                           FLT_EPSILON);
         }
     }
-
-  check_monitor_test_clients_state ();
 }
 
 static void
@@ -1021,6 +1019,7 @@ static void
 meta_test_monitor_initial_linear_config (void)
 {
   check_monitor_configuration (&initial_test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -1097,6 +1096,7 @@ meta_test_monitor_one_disconnected_linear_config (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -1215,6 +1215,7 @@ meta_test_monitor_one_off_linear_config (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -1335,6 +1336,7 @@ meta_test_monitor_preferred_linear_config (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -1464,6 +1466,7 @@ meta_test_monitor_tiled_linear_config (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -1637,6 +1640,7 @@ meta_test_monitor_tiled_non_preferred_linear_config (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -1786,6 +1790,7 @@ meta_test_monitor_tiled_non_main_origin_linear_config (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -1932,6 +1937,7 @@ meta_test_monitor_hidpi_linear_config (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -2090,6 +2096,7 @@ meta_test_monitor_suggested_config (void)
 
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -2216,6 +2223,7 @@ meta_test_monitor_limited_crtcs (void)
   g_test_assert_expected_messages ();
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -2353,6 +2361,7 @@ meta_test_monitor_lid_switch_config (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
@@ -2370,6 +2379,7 @@ meta_test_monitor_lid_switch_config (void)
   test_case.expect.crtcs[1].x = 0;
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
@@ -2390,6 +2400,7 @@ meta_test_monitor_lid_switch_config (void)
   test_case.expect.crtcs[1].x = 1024;
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -2528,6 +2539,7 @@ meta_test_monitor_lid_opened_config (void)
 
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
@@ -2541,6 +2553,7 @@ meta_test_monitor_lid_opened_config (void)
   test_case.expect.crtcs[1].x = 0;
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -2634,6 +2647,7 @@ meta_test_monitor_lid_closed_no_external (void)
 
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -2777,6 +2791,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
 
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   /* External monitor connected */
 
@@ -2792,6 +2807,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   /* Lid closed */
 
@@ -2807,6 +2823,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   /*
    * The second part of this test emulate the following:
@@ -2831,6 +2848,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   /* External monitor disconnected */
 
@@ -2845,6 +2863,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   /* Lid closed */
 
@@ -2857,6 +2876,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   /* Lid opened */
 
@@ -2865,6 +2885,7 @@ meta_test_monitor_lid_closed_with_hotplugged_external (void)
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -2965,16 +2986,19 @@ meta_test_monitor_lid_scaled_closed_opened (void)
   set_custom_monitor_config ("lid-scale.xml");
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), TRUE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   meta_backend_test_set_is_lid_closed (META_BACKEND_TEST (backend), FALSE);
   meta_monitor_manager_lid_is_closed_changed (monitor_manager);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -3006,6 +3030,7 @@ meta_test_monitor_no_outputs (void)
 
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   if (!test_client_do (x11_monitor_test_client, &error,
                        "resize", X11_TEST_CLIENT_WINDOW,
@@ -3027,6 +3052,7 @@ meta_test_monitor_no_outputs (void)
 
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -3117,6 +3143,7 @@ meta_test_monitor_underscanning_config (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -3212,6 +3239,7 @@ meta_test_monitor_preferred_non_first_mode (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -3245,6 +3273,7 @@ meta_test_monitor_non_upright_panel (void)
                                           MONITOR_TEST_FLAG_NO_STORED);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -3385,6 +3414,7 @@ meta_test_monitor_custom_vertical_config (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -3525,6 +3555,7 @@ meta_test_monitor_custom_primary_config (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -3617,6 +3648,7 @@ meta_test_monitor_custom_underscanning_config (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -3714,6 +3746,7 @@ meta_test_monitor_custom_scale_config (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -3811,6 +3844,7 @@ meta_test_monitor_custom_fractional_scale_config (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -3908,6 +3942,7 @@ meta_test_monitor_custom_high_precision_fractional_scale_config (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -4045,6 +4080,7 @@ meta_test_monitor_custom_tiled_config (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -4202,6 +4238,7 @@ meta_test_monitor_custom_tiled_custom_resolution_config (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -4376,6 +4413,7 @@ meta_test_monitor_custom_tiled_non_preferred_config (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -4504,6 +4542,7 @@ meta_test_monitor_custom_mirrored_config (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -4639,6 +4678,7 @@ meta_test_monitor_custom_first_rotated_config (void)
   set_custom_monitor_config ("first-rotated.xml");
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -4775,6 +4815,7 @@ meta_test_monitor_custom_second_rotated_config (void)
   set_custom_monitor_config ("second-rotated.xml");
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -4967,6 +5008,7 @@ meta_test_monitor_custom_second_rotated_tiled_config (void)
   set_custom_monitor_config ("second-rotated-tiled.xml");
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -5159,6 +5201,7 @@ meta_test_monitor_custom_second_rotated_nonnative_tiled_config (void)
   set_custom_monitor_config ("second-rotated-tiled.xml");
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -5309,6 +5352,7 @@ meta_test_monitor_custom_second_rotated_nonnative_config (void)
   set_custom_monitor_config ("second-rotated.xml");
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -5419,6 +5463,7 @@ meta_test_monitor_custom_interlaced_config (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -5548,6 +5593,7 @@ meta_test_monitor_custom_oneoff (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -5684,6 +5730,7 @@ meta_test_monitor_custom_lid_switch_config (void)
   set_custom_monitor_config ("lid-switch.xml");
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   /* External monitor connected */
 
@@ -5705,6 +5752,7 @@ meta_test_monitor_custom_lid_switch_config (void)
                                           MONITOR_TEST_FLAG_NONE);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   /* Lid was closed */
 
@@ -5724,6 +5772,7 @@ meta_test_monitor_custom_lid_switch_config (void)
                                           MONITOR_TEST_FLAG_NONE);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   /* Lid was opened */
 
@@ -5746,6 +5795,7 @@ meta_test_monitor_custom_lid_switch_config (void)
                                           MONITOR_TEST_FLAG_NONE);
   emulate_hotplug (test_setup);
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 }
 
 static void
@@ -5871,6 +5921,7 @@ meta_test_monitor_migrated_rotated (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   expected_path = g_test_get_filename (G_TEST_DIST,
                                        "tests", "migration",
@@ -6015,6 +6066,7 @@ meta_test_monitor_migrated_wiggle_discard (void)
   g_test_assert_expected_messages ();
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   expected_path = g_test_get_filename (G_TEST_DIST,
                                        "tests", "migration",
@@ -6278,6 +6330,7 @@ meta_test_monitor_migrated_wiggle (void)
   emulate_hotplug (test_setup);
 
   check_monitor_configuration (&test_case.expect);
+  check_monitor_test_clients_state ();
 
   expected_path = g_test_get_filename (G_TEST_DIST,
                                        "tests", "migration",
