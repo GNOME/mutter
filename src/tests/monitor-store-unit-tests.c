@@ -31,38 +31,38 @@
 #define MAX_N_LOGICAL_MONITORS 10
 #define MAX_N_CONFIGURATIONS 10
 
-typedef struct _MonitorTestCaseMonitorMode
+typedef struct _MonitorStoreTestCaseMonitorMode
 {
   int width;
   int height;
   float refresh_rate;
   MetaCrtcModeFlag flags;
-} MonitorTestCaseMonitorMode;
+} MonitorStoreTestCaseMonitorMode;
 
-typedef struct _MonitorTestCaseMonitor
+typedef struct _MonitorStoreTestCaseMonitor
 {
   const char *connector;
   const char *vendor;
   const char *product;
   const char *serial;
-  MonitorTestCaseMonitorMode mode;
+  MonitorStoreTestCaseMonitorMode mode;
   gboolean is_underscanning;
-} MonitorTestCaseMonitor;
+} MonitorStoreTestCaseMonitor;
 
-typedef struct _MonitorTestCaseLogicalMonitor
+typedef struct _MonitorStoreTestCaseLogicalMonitor
 {
   MetaRectangle layout;
   float scale;
   MetaMonitorTransform transform;
   gboolean is_primary;
   gboolean is_presentation;
-  MonitorTestCaseMonitor monitors[MAX_N_MONITORS];
+  MonitorStoreTestCaseMonitor monitors[MAX_N_MONITORS];
   int n_monitors;
-} MonitorTestCaseLogicalMonitor;
+} MonitorStoreTestCaseLogicalMonitor;
 
 typedef struct _MonitorStoreTestConfiguration
 {
-  MonitorTestCaseLogicalMonitor logical_monitors[MAX_N_LOGICAL_MONITORS];
+  MonitorStoreTestCaseLogicalMonitor logical_monitors[MAX_N_LOGICAL_MONITORS];
   int n_logical_monitors;
 } MonitorStoreTestConfiguration;
 
@@ -87,7 +87,7 @@ create_config_key_from_expect (MonitorStoreTestConfiguration *expect_config)
       for (j = 0; j < expect_config->logical_monitors[i].n_monitors; j++)
         {
           MetaMonitorSpec *monitor_spec;
-          MonitorTestCaseMonitor *test_monitor =
+          MonitorStoreTestCaseMonitor *test_monitor =
             &expect_config->logical_monitors[i].monitors[j];
 
           monitor_spec = g_new0 (MetaMonitorSpec, 1);
@@ -115,8 +115,8 @@ create_config_key_from_expect (MonitorStoreTestConfiguration *expect_config)
 }
 
 static void
-check_monitor_configuration (MetaMonitorConfigStore        *config_store,
-                             MonitorStoreTestConfiguration *config_expect)
+check_monitor_store_configuration (MetaMonitorConfigStore        *config_store,
+                                   MonitorStoreTestConfiguration *config_expect)
 {
   MetaMonitorsConfigKey *config_key;
   MetaMonitorsConfig *config;
@@ -164,7 +164,7 @@ check_monitor_configuration (MetaMonitorConfigStore        *config_store,
            k = k->next, j++)
         {
           MetaMonitorConfig *monitor_config = k->data;
-          MonitorTestCaseMonitor *test_monitor =
+          MonitorStoreTestCaseMonitor *test_monitor =
             &config_expect->logical_monitors[i].monitors[j];
 
           g_assert_cmpstr (monitor_config->monitor_spec->connector,
@@ -200,7 +200,7 @@ check_monitor_configuration (MetaMonitorConfigStore        *config_store,
 }
 
 static void
-check_monitor_configurations (MonitorStoreTestExpect *expect)
+check_monitor_store_configurations (MonitorStoreTestExpect *expect)
 {
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
@@ -215,7 +215,7 @@ check_monitor_configurations (MonitorStoreTestExpect *expect)
                    expect->n_configurations);
 
   for (i = 0; i < expect->n_configurations; i++)
-    check_monitor_configuration (config_store, &expect->configurations[i]);
+    check_monitor_store_configuration (config_store, &expect->configurations[i]);
 }
 
 static void
@@ -259,7 +259,7 @@ meta_test_monitor_store_single (void)
 
   set_custom_monitor_config ("single.xml");
 
-  check_monitor_configurations (&expect);
+  check_monitor_store_configurations (&expect);
 }
 
 static void
@@ -328,7 +328,7 @@ meta_test_monitor_store_vertical (void)
 
   set_custom_monitor_config ("vertical.xml");
 
-  check_monitor_configurations (&expect);
+  check_monitor_store_configurations (&expect);
 }
 
 static void
@@ -397,7 +397,7 @@ meta_test_monitor_store_primary (void)
 
   set_custom_monitor_config ("primary.xml");
 
-  check_monitor_configurations (&expect);
+  check_monitor_store_configurations (&expect);
 }
 
 static void
@@ -442,7 +442,7 @@ meta_test_monitor_store_underscanning (void)
 
   set_custom_monitor_config ("underscanning.xml");
 
-  check_monitor_configurations (&expect);
+  check_monitor_store_configurations (&expect);
 }
 
 static void
@@ -492,7 +492,7 @@ meta_test_monitor_store_scale (void)
 
   set_custom_monitor_config ("scale.xml");
 
-  check_monitor_configurations (&expect);
+  check_monitor_store_configurations (&expect);
 }
 
 static void
@@ -542,7 +542,7 @@ meta_test_monitor_store_fractional_scale (void)
 
   set_custom_monitor_config ("fractional-scale.xml");
 
-  check_monitor_configurations (&expect);
+  check_monitor_store_configurations (&expect);
 }
 
 static void
@@ -592,7 +592,7 @@ meta_test_monitor_store_high_precision_fractional_scale (void)
 
   set_custom_monitor_config ("high-precision-fractional-scale.xml");
 
-  check_monitor_configurations (&expect);
+  check_monitor_store_configurations (&expect);
 }
 
 static void
@@ -646,7 +646,7 @@ meta_test_monitor_store_mirrored (void)
 
   set_custom_monitor_config ("mirrored.xml");
 
-  check_monitor_configurations (&expect);
+  check_monitor_store_configurations (&expect);
 }
 
 static void
@@ -717,7 +717,7 @@ meta_test_monitor_store_first_rotated (void)
 
   set_custom_monitor_config ("first-rotated.xml");
 
-  check_monitor_configurations (&expect);
+  check_monitor_store_configurations (&expect);
 }
 
 static void
@@ -788,7 +788,7 @@ meta_test_monitor_store_second_rotated (void)
 
   set_custom_monitor_config ("second-rotated.xml");
 
-  check_monitor_configurations (&expect);
+  check_monitor_store_configurations (&expect);
 }
 
 static void
@@ -833,7 +833,7 @@ meta_test_monitor_store_interlaced (void)
 
   set_custom_monitor_config ("interlaced.xml");
 
-  check_monitor_configurations (&expect);
+  check_monitor_store_configurations (&expect);
 }
 
 void
