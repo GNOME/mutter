@@ -619,7 +619,6 @@ clutter_stage_allocate (ClutterActor           *self,
 {
   ClutterStagePrivate *priv = CLUTTER_STAGE (self)->priv;
   ClutterActorBox alloc = CLUTTER_ACTOR_BOX_INIT_ZERO;
-  float old_width, old_height;
   float new_width, new_height;
   float width, height;
   cairo_rectangle_int_t window_size;
@@ -627,10 +626,6 @@ clutter_stage_allocate (ClutterActor           *self,
 
   if (priv->impl == NULL)
     return;
-
-  /* our old allocation */
-  clutter_actor_get_allocation_box (self, &alloc);
-  clutter_actor_box_get_size (&alloc, &old_width, &old_height);
 
   /* the current allocation */
   clutter_actor_box_get_size (box, &width, &height);
@@ -719,27 +714,14 @@ clutter_stage_allocate (ClutterActor           *self,
                                        &override);
     }
 
-  /* reset the viewport if the allocation effectively changed */
+  /* set the viewport to the new allocation */
   clutter_actor_get_allocation_box (self, &alloc);
   clutter_actor_box_get_size (&alloc, &new_width, &new_height);
 
-  if (CLUTTER_NEARBYINT (old_width) != CLUTTER_NEARBYINT (new_width) ||
-      CLUTTER_NEARBYINT (old_height) != CLUTTER_NEARBYINT (new_height))
-    {
-      int real_width = CLUTTER_NEARBYINT (new_width);
-      int real_height = CLUTTER_NEARBYINT (new_height);
-
-      _clutter_stage_set_viewport (CLUTTER_STAGE (self),
-                                   0, 0,
-                                   real_width,
-                                   real_height);
-
-      /* Note: we don't assume that set_viewport will queue a full redraw
-       * since it may bail-out early if something preemptively set the
-       * viewport before the stage was really allocated its new size.
-       */
-      queue_full_redraw (CLUTTER_STAGE (self));
-    }
+  _clutter_stage_set_viewport (CLUTTER_STAGE (self),
+                               0, 0,
+                               new_width,
+                               new_height);
 }
 
 typedef struct _Vector4
@@ -2494,6 +2476,8 @@ _clutter_stage_set_viewport (ClutterStage *stage,
 
   priv = stage->priv;
 
+  width = roundf (width);
+  height = roundf (height);
 
   if (x == priv->viewport[0] &&
       y == priv->viewport[1] &&
