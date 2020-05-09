@@ -175,9 +175,12 @@ struct _ClutterActor
  * @get_preferred_height: virtual function, used when querying the minimum
  *   and natural heights of an actor for a given width; it is used by
  *   clutter_actor_get_preferred_height()
- * @allocate: virtual function, used when settings the coordinates of an
- *   actor; it is used by clutter_actor_allocate(); it must chain up to
- *   the parent's implementation, or call clutter_actor_set_allocation()
+ * @allocate: virtual function, used when setting the coordinates of an
+ *   actor; it is used by clutter_actor_allocate(); when overriding this
+ *   function without chaining up, clutter_actor_set_allocation() must be
+ *   called and children must be allocated by the implementation, when
+ *   chaining up though, those things will be done by the parent's
+ *   implementation.
  * @apply_transform: virtual function, used when applying the transformations
  *   to an actor before painting it or when transforming coordinates or
  *   the allocation; it must chain up to the parent's implementation
