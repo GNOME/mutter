@@ -2638,53 +2638,6 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
   return retval;
 }
 
-static void clutter_actor_real_allocate (ClutterActor           *self,
-                                         const ClutterActorBox  *box,
-                                         ClutterAllocationFlags  flags);
-
-static inline void
-clutter_actor_maybe_layout_children (ClutterActor           *self,
-                                     const ClutterActorBox  *allocation,
-                                     ClutterAllocationFlags  flags)
-{
-  ClutterActorPrivate *priv = self->priv;
-
-  if (CLUTTER_ACTOR_GET_CLASS (self)->allocate == clutter_actor_real_allocate)
-    goto check_layout;
-
-  return;
-
-check_layout:
-  if (priv->n_children != 0 &&
-      priv->layout_manager != NULL)
-    {
-      ClutterContainer *container = CLUTTER_CONTAINER (self);
-      ClutterActorBox children_box;
-
-      /* normalize the box passed to the layout manager */
-      children_box.x1 = children_box.y1 = 0.f;
-      children_box.x2 = (allocation->x2 - allocation->x1);
-      children_box.y2 = (allocation->y2 - allocation->y1);
-
-      CLUTTER_NOTE (LAYOUT,
-                    "Allocating %d children of %s "
-                    "at { %.2f, %.2f - %.2f x %.2f } "
-                    "using %s",
-                    priv->n_children,
-                    _clutter_actor_get_debug_name (self),
-                    allocation->x1,
-                    allocation->y1,
-                    (allocation->x2 - allocation->x1),
-                    (allocation->y2 - allocation->y1),
-                    G_OBJECT_TYPE_NAME (priv->layout_manager));
-
-      clutter_layout_manager_allocate (priv->layout_manager,
-                                       container,
-                                       &children_box,
-                                       flags);
-    }
-}
-
 static void
 clutter_actor_real_allocate (ClutterActor           *self,
                              const ClutterActorBox  *box,
@@ -2702,7 +2655,33 @@ clutter_actor_real_allocate (ClutterActor           *self,
    * data out of the sub-tree of the scene graph that has this actor at
    * the root.
    */
-  clutter_actor_maybe_layout_children (self, box, flags);
+  if (priv->n_children != 0 &&
+      priv->layout_manager != NULL)
+    {
+      ClutterActorBox children_box;
+
+      /* normalize the box passed to the layout manager */
+      children_box.x1 = children_box.y1 = 0.f;
+      children_box.x2 = box->x2 - box->x1;
+      children_box.y2 = box->y2 - box->y1;
+
+      CLUTTER_NOTE (LAYOUT,
+                    "Allocating %d children of %s "
+                    "at { %.2f, %.2f - %.2f x %.2f } "
+                    "using %s",
+                    priv->n_children,
+                    _clutter_actor_get_debug_name (self),
+                    box->x1,
+                    box->y1,
+                    (box->x2 - box->x1),
+                    (box->y2 - box->y1),
+                    G_OBJECT_TYPE_NAME (priv->layout_manager));
+
+      clutter_layout_manager_allocate (priv->layout_manager,
+                                       CLUTTER_CONTAINER (self),
+                                       &children_box,
+                                       flags);
+    }
 
   if (changed)
     {
