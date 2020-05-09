@@ -2603,6 +2603,11 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
   priv->needs_height_request = FALSE;
   priv->needs_allocation = FALSE;
 
+  priv->absolute_origin_changed |= x1_changed || y1_changed;
+
+  if (priv->absolute_origin_changed || x2_changed || y2_changed)
+    priv->needs_compute_resource_scale = TRUE;
+
   if (x1_changed ||
       y1_changed ||
       x2_changed ||
@@ -10146,9 +10151,8 @@ clutter_actor_allocate (ClutterActor          *self,
                                 ? priv->parent->priv->absolute_origin_changed
                                 : FALSE;
 
-  priv->absolute_origin_changed |= origin_changed;
-
-  stage_allocation_changed = priv->absolute_origin_changed || size_changed;
+  stage_allocation_changed =
+    priv->absolute_origin_changed || origin_changed || size_changed;
 
   /* If we get an allocation "out of the blue"
    * (we did not queue relayout), then we want to
@@ -10170,9 +10174,6 @@ clutter_actor_allocate (ClutterActor          *self,
 
   if (CLUTTER_ACTOR_IS_MAPPED (self))
     self->priv->needs_paint_volume_update = TRUE;
-
-  if (stage_allocation_changed)
-    priv->needs_compute_resource_scale = TRUE;
 
   if (!stage_allocation_changed)
     {
