@@ -338,17 +338,8 @@ my_thing_allocate (ClutterActor           *self,
               graphene_point3d_t v1 = { 0, }, v2 = { 0, };
               ClutterActorBox transformed_box = { 0, };
 
-              /* origin */
-              if (!(flags & CLUTTER_ABSOLUTE_ORIGIN_CHANGED))
-                {
-                  v1.x = 0;
-                  v1.y = 0;
-                }
-              else
-                {
-                  v1.x = box->x1;
-                  v1.y = box->y1;
-                }
+              v1.x = box->x1;
+              v1.y = box->y1;
 
               clutter_actor_apply_transform_to_point (child, &v1, &v2);
               transformed_box.x1 = v2.x;
