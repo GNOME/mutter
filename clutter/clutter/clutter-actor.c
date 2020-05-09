@@ -10338,13 +10338,6 @@ clutter_actor_set_allocation (ClutterActor           *self,
 
   changed = clutter_actor_set_allocation_internal (self, box, flags);
 
-  /* we allocate our children before we notify changes in our geometry,
-   * so that people connecting to properties will be able to get valid
-   * data out of the sub-tree of the scene graph that has this actor at
-   * the root.
-   */
-  clutter_actor_maybe_layout_children (self, box, flags);
-
   if (changed)
     {
       ClutterActorBox signal_box = priv->allocation;
