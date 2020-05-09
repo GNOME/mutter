@@ -52,6 +52,7 @@ meta_monitor_transform_is_flipped (MetaMonitorTransform transform)
   return (transform >= META_MONITOR_TRANSFORM_FLIPPED);
 }
 
+META_EXPORT_TEST
 MetaMonitorTransform meta_monitor_transform_invert (MetaMonitorTransform transform);
 
 META_EXPORT_TEST

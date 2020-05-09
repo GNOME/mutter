@@ -62,22 +62,23 @@ test_transform (void)
     },
     {
       .transform = META_MONITOR_TRANSFORM_NORMAL,
-      .other = META_MONITOR_TRANSFORM_270,
+      .other = meta_monitor_transform_invert (META_MONITOR_TRANSFORM_90),
       .expect = META_MONITOR_TRANSFORM_270,
     },
     {
       .transform = META_MONITOR_TRANSFORM_FLIPPED,
-      .other = META_MONITOR_TRANSFORM_270,
+      .other = meta_monitor_transform_invert (META_MONITOR_TRANSFORM_90),
       .expect = META_MONITOR_TRANSFORM_FLIPPED_270,
     },
     {
       .transform = META_MONITOR_TRANSFORM_FLIPPED_180,
-      .other = META_MONITOR_TRANSFORM_90,
+      .other = meta_monitor_transform_invert (META_MONITOR_TRANSFORM_270),
       .expect = META_MONITOR_TRANSFORM_FLIPPED_270,
     },
     {
       .transform = META_MONITOR_TRANSFORM_FLIPPED_180,
-      .other = META_MONITOR_TRANSFORM_FLIPPED_180,
+      .other =
+        meta_monitor_transform_invert (META_MONITOR_TRANSFORM_FLIPPED_180),
       .expect = META_MONITOR_TRANSFORM_NORMAL,
     },
   };
