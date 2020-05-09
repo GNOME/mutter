@@ -651,11 +651,8 @@ clutter_stage_allocate (ClutterActor           *self,
       children_box.y2 = box->y2 - box->y1;
 
       CLUTTER_NOTE (LAYOUT,
-                    "Following allocation to %.2fx%.2f (absolute origin %s)",
-                    width, height,
-                    (flags & CLUTTER_ABSOLUTE_ORIGIN_CHANGED)
-                      ? "changed"
-                      : "not changed");
+                    "Following allocation to %.2fx%.2f",
+                    width, height);
 
       clutter_actor_set_allocation (self, box, flags);
 
@@ -710,12 +707,9 @@ clutter_stage_allocate (ClutterActor           *self,
 
       CLUTTER_NOTE (LAYOUT,
                     "Overriding original allocation of %.2fx%.2f "
-                    "with %.2fx%.2f (absolute origin %s)",
+                    "with %.2fx%.2f",
                     width, height,
-                    override.x2, override.y2,
-                    (flags & CLUTTER_ABSOLUTE_ORIGIN_CHANGED)
-                      ? "changed"
-                      : "not changed");
+                    override.x2, override.y2);
 
       /* and store the overridden allocation */
       clutter_actor_set_allocation (self, &override, flags);
