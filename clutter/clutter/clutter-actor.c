@@ -1013,7 +1013,6 @@ enum
   MOTION_EVENT,
   ENTER_EVENT,
   LEAVE_EVENT,
-  ALLOCATION_CHANGED,
   TRANSITIONS_COMPLETED,
   TOUCH_EVENT,
   TRANSITION_STOPPED,
@@ -2577,14 +2576,13 @@ clutter_actor_notify_if_geometry_changed (ClutterActor          *self,
  * Return value: %TRUE if the allocation of the #ClutterActor has been
  *   changed, and %FALSE otherwise
  */
-static inline gboolean
+static inline void
 clutter_actor_set_allocation_internal (ClutterActor           *self,
                                        const ClutterActorBox  *box)
 {
   ClutterActorPrivate *priv = self->priv;
   GObject *obj;
   gboolean x1_changed, y1_changed, x2_changed, y2_changed;
-  gboolean retval;
   ClutterActorBox old_alloc = { 0, };
 
   obj = G_OBJECT (self);
@@ -2623,17 +2621,11 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
           priv->content_box_valid = FALSE;
           g_object_notify_by_pspec (obj, obj_props[PROP_CONTENT_BOX]);
         }
-
-      retval = TRUE;
     }
-  else
-    retval = FALSE;
 
   clutter_actor_notify_if_geometry_changed (self, &old_alloc);
 
   g_object_thaw_notify (obj);
-
-  return retval;
 }
 
 static void
@@ -2641,11 +2633,10 @@ clutter_actor_real_allocate (ClutterActor           *self,
                              const ClutterActorBox  *box)
 {
   ClutterActorPrivate *priv = self->priv;
-  gboolean changed;
 
   g_object_freeze_notify (G_OBJECT (self));
 
-  changed = clutter_actor_set_allocation_internal (self, box);
+  clutter_actor_set_allocation_internal (self, box);
 
   /* we allocate our children before we notify changes in our geometry,
    * so that people connecting to properties will be able to get valid
@@ -2677,14 +2668,6 @@ clutter_actor_real_allocate (ClutterActor           *self,
       clutter_layout_manager_allocate (priv->layout_manager,
                                        CLUTTER_CONTAINER (self),
                                        &children_box);
-    }
-
-  if (changed)
-    {
-      ClutterActorBox signal_box = priv->allocation;
-
-      g_signal_emit (self, actor_signals[ALLOCATION_CHANGED], 0,
-                     &signal_box);
     }
 
   g_object_thaw_notify (G_OBJECT (self));
@@ -8537,33 +8520,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
                   CLUTTER_TYPE_PICK_CONTEXT);
 
   /**
-   * ClutterActor::allocation-changed:
-   * @actor: the #ClutterActor that emitted the signal
-   * @box: a #ClutterActorBox with the new allocation
-   *
-   * The ::allocation-changed signal is emitted when the
-   * #ClutterActor:allocation property changes. Usually, application
-   * code should just use the notifications for the :allocation property
-   * but if you want to track the allocation flags as well, for instance
-   * to know whether the absolute origin of @actor changed, then you might
-   * want use this signal instead.
-   *
-   * Since: 1.0
-   */
-  actor_signals[ALLOCATION_CHANGED] =
-    g_signal_new (I_("allocation-changed"),
-                  G_TYPE_FROM_CLASS (object_class),
-                  G_SIGNAL_RUN_LAST,
-                  0,
-                  NULL, NULL,
-                  _clutter_marshal_VOID__BOXED_FLAGS,
-                  G_TYPE_NONE, 1,
-                  CLUTTER_TYPE_ACTOR_BOX | G_SIGNAL_TYPE_STATIC_SCOPE);
-  g_signal_set_va_marshaller (actor_signals[ALLOCATION_CHANGED],
-                              G_TYPE_FROM_CLASS (object_class),
-                              _clutter_marshal_VOID__BOXED_FLAGSv);
-
-  /**
    * ClutterActor::transitions-completed:
    * @actor: a #ClutterActor
    *
@@ -10271,9 +10227,6 @@ void
 clutter_actor_set_allocation (ClutterActor           *self,
                               const ClutterActorBox  *box)
 {
-  ClutterActorPrivate *priv;
-  gboolean changed;
-
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
   g_return_if_fail (box != NULL);
 
@@ -10285,19 +10238,9 @@ clutter_actor_set_allocation (ClutterActor           *self,
       return;
     }
 
-  priv = self->priv;
-
   g_object_freeze_notify (G_OBJECT (self));
 
-  changed = clutter_actor_set_allocation_internal (self, box);
-
-  if (changed)
-    {
-      ClutterActorBox signal_box = priv->allocation;
-
-      g_signal_emit (self, actor_signals[ALLOCATION_CHANGED], 0,
-                     &signal_box);
-    }
+  clutter_actor_set_allocation_internal (self, box);
 
   g_object_thaw_notify (G_OBJECT (self));
 }
