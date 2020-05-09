@@ -3037,8 +3037,7 @@ clutter_text_get_preferred_height (ClutterActor *self,
 
 static void
 clutter_text_allocate (ClutterActor           *self,
-                       const ClutterActorBox  *box,
-                       ClutterAllocationFlags  flags)
+                       const ClutterActorBox  *box)
 {
   ClutterText *text = CLUTTER_TEXT (self);
   ClutterActorClass *parent_class;
@@ -3058,7 +3057,7 @@ clutter_text_allocate (ClutterActor           *self,
                                                   box->y2 - box->y1);
 
   parent_class = CLUTTER_ACTOR_CLASS (clutter_text_parent_class);
-  parent_class->allocate (self, box, flags);
+  parent_class->allocate (self, box);
 }
 
 static gboolean

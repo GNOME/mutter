@@ -256,8 +256,7 @@ struct _ClutterActorClass
                                  gfloat                 *min_height_p,
                                  gfloat                 *natural_height_p);
   void (* allocate)             (ClutterActor           *self,
-                                 const ClutterActorBox  *box,
-                                 ClutterAllocationFlags  flags);
+                                 const ClutterActorBox  *box);
 
   /* transformations */
   void (* apply_transform)      (ClutterActor           *actor,
@@ -418,30 +417,25 @@ void                            clutter_actor_get_preferred_size                
                                                                                  gfloat                      *natural_height_p);
 CLUTTER_EXPORT
 void                            clutter_actor_allocate                          (ClutterActor                *self,
-                                                                                 const ClutterActorBox       *box,
-                                                                                 ClutterAllocationFlags       flags);
+                                                                                 const ClutterActorBox       *box);
 CLUTTER_EXPORT
-void                            clutter_actor_allocate_preferred_size           (ClutterActor                *self,
-                                                                                 ClutterAllocationFlags       flags);
+void                            clutter_actor_allocate_preferred_size           (ClutterActor                *self);
 CLUTTER_EXPORT
 void                            clutter_actor_allocate_available_size           (ClutterActor                *self,
                                                                                  gfloat                       x,
                                                                                  gfloat                       y,
                                                                                  gfloat                       available_width,
-                                                                                 gfloat                       available_height,
-                                                                                 ClutterAllocationFlags       flags);
+                                                                                 gfloat                       available_height);
 CLUTTER_EXPORT
 void                            clutter_actor_allocate_align_fill               (ClutterActor                *self,
                                                                                  const ClutterActorBox       *box,
                                                                                  gdouble                      x_align,
                                                                                  gdouble                      y_align,
                                                                                  gboolean                     x_fill,
-                                                                                 gboolean                     y_fill,
-                                                                                 ClutterAllocationFlags       flags);
+                                                                                 gboolean                     y_fill);
 CLUTTER_EXPORT
 void                            clutter_actor_set_allocation                    (ClutterActor                *self,
-                                                                                 const ClutterActorBox       *box,
-                                                                                 ClutterAllocationFlags       flags);
+                                                                                 const ClutterActorBox       *box);
 CLUTTER_EXPORT
 void                            clutter_actor_get_allocation_box                (ClutterActor                *self,
                                                                                  ClutterActorBox             *box);

@@ -130,7 +130,6 @@ clutter_deform_effect_deform_vertex (ClutterDeformEffect *effect,
 static void
 vbo_invalidate (ClutterActor           *actor,
                 const ClutterActorBox  *allocation,
-                ClutterAllocationFlags  flags,
                 ClutterDeformEffect    *effect)
 {
   effect->priv->is_dirty = TRUE;

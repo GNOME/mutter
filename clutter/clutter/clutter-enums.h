@@ -555,20 +555,6 @@ typedef enum /*< prefix=CLUTTER_OFFSCREEN_REDIRECT >*/
 } ClutterOffscreenRedirect;
 
 /**
- * ClutterAllocationFlags:
- * @CLUTTER_ALLOCATION_NONE: No flag set
- *
- * Flags passed to the #ClutterActorClass.allocate() virtual function
- * and to the clutter_actor_allocate() function.
- *
- * Since: 1.0
- */
-typedef enum
-{
-  CLUTTER_ALLOCATION_NONE         = 0,
-} ClutterAllocationFlags;
-
-/**
  * ClutterAlignAxis:
  * @CLUTTER_ALIGN_X_AXIS: Maintain the alignment on the X axis
  * @CLUTTER_ALIGN_Y_AXIS: Maintain the alignment on the Y axis

@@ -613,8 +613,7 @@ stage_is_default (ClutterStage *stage)
 
 static void
 clutter_stage_allocate (ClutterActor           *self,
-                        const ClutterActorBox  *box,
-                        ClutterAllocationFlags  flags)
+                        const ClutterActorBox  *box)
 {
   ClutterStagePrivate *priv = CLUTTER_STAGE (self)->priv;
   ClutterActorBox alloc = CLUTTER_ACTOR_BOX_INIT_ZERO;
@@ -654,12 +653,11 @@ clutter_stage_allocate (ClutterActor           *self,
                     "Following allocation to %.2fx%.2f",
                     width, height);
 
-      clutter_actor_set_allocation (self, box, flags);
+      clutter_actor_set_allocation (self, box);
 
       clutter_layout_manager_allocate (layout_manager,
                                        CLUTTER_CONTAINER (self),
-                                       &children_box,
-                                       flags);
+                                       &children_box);
 
       /* Ensure the window is sized correctly */
       if (priv->min_size_changed)
@@ -712,12 +710,11 @@ clutter_stage_allocate (ClutterActor           *self,
                     override.x2, override.y2);
 
       /* and store the overridden allocation */
-      clutter_actor_set_allocation (self, &override, flags);
+      clutter_actor_set_allocation (self, &override);
 
       clutter_layout_manager_allocate (layout_manager,
                                        CLUTTER_CONTAINER (self),
-                                       &override,
-                                       flags);
+                                       &override);
     }
 
   /* reset the viewport if the allocation effectively changed */
@@ -1368,8 +1365,7 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
       CLUTTER_SET_PRIVATE_FLAGS (queued_actor, CLUTTER_IN_RELAYOUT);
 
       old_version = priv->pending_relayouts_version;
-      clutter_actor_allocate_preferred_size (queued_actor,
-                                             CLUTTER_ALLOCATION_NONE);
+      clutter_actor_allocate_preferred_size (queued_actor);
 
       CLUTTER_UNSET_PRIVATE_FLAGS (queued_actor, CLUTTER_IN_RELAYOUT);
 

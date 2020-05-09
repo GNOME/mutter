@@ -86,7 +86,6 @@ G_DEFINE_TYPE (ClutterAlignConstraint,
 static void
 source_position_changed (ClutterActor           *actor,
                          const ClutterActorBox  *allocation,
-                         ClutterAllocationFlags  flags,
                          ClutterAlignConstraint *align)
 {
   if (align->actor != NULL)
