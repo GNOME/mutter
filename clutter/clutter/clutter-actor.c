@@ -854,6 +854,7 @@ struct _ClutterActorPrivate
   guint needs_paint_volume_update   : 1;
   guint had_effects_on_last_paint_volume_update : 1;
   guint needs_compute_resource_scale : 1;
+  guint absolute_origin_changed     : 1;
 };
 
 enum
@@ -10163,7 +10164,7 @@ clutter_actor_allocate (ClutterActor           *self,
                         ClutterAllocationFlags  flags)
 {
   ClutterActorBox old_allocation, real_allocation;
-  gboolean origin_changed, child_moved, size_changed;
+  gboolean origin_changed, size_changed;
   gboolean stage_allocation_changed;
   ClutterActorPrivate *priv;
 
@@ -10206,18 +10207,19 @@ clutter_actor_allocate (ClutterActor           *self,
   real_allocation.x2 = MAX (real_allocation.x2, real_allocation.x1);
   real_allocation.y2 = MAX (real_allocation.y2, real_allocation.y1);
 
-  origin_changed = (flags & CLUTTER_ABSOLUTE_ORIGIN_CHANGED);
-
-  child_moved = (real_allocation.x1 != old_allocation.x1 ||
-                 real_allocation.y1 != old_allocation.y1);
+  origin_changed = (real_allocation.x1 != old_allocation.x1 ||
+                    real_allocation.y1 != old_allocation.y1);
 
   size_changed = (real_allocation.x2 != old_allocation.x2 ||
                   real_allocation.y2 != old_allocation.y2);
 
-  if (origin_changed || child_moved || size_changed)
-    stage_allocation_changed = TRUE;
-  else
-    stage_allocation_changed = FALSE;
+  priv->absolute_origin_changed = priv->parent
+                                ? priv->parent->priv->absolute_origin_changed
+                                : FALSE;
+
+  priv->absolute_origin_changed |= origin_changed;
+
+  stage_allocation_changed = priv->absolute_origin_changed || size_changed;
 
   /* If we get an allocation "out of the blue"
    * (we did not queue relayout), then we want to
@@ -10250,15 +10252,6 @@ clutter_actor_allocate (ClutterActor           *self,
       clutter_actor_allocate_internal (self, &real_allocation, flags);
       return;
     }
-
-  /* When ABSOLUTE_ORIGIN_CHANGED is passed in to
-   * clutter_actor_allocate(), it indicates whether the parent has its
-   * absolute origin moved; when passed in to ClutterActor::allocate()
-   * virtual method though, it indicates whether the child has its
-   * absolute origin moved.  So we set it when child_moved is TRUE
-   */
-  if (child_moved)
-    flags |= CLUTTER_ABSOLUTE_ORIGIN_CHANGED;
 
   /* store the flags here, so that they can be propagated by the
    * transition code

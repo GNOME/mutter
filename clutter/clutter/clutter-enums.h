@@ -557,9 +557,6 @@ typedef enum /*< prefix=CLUTTER_OFFSCREEN_REDIRECT >*/
 /**
  * ClutterAllocationFlags:
  * @CLUTTER_ALLOCATION_NONE: No flag set
- * @CLUTTER_ABSOLUTE_ORIGIN_CHANGED: Whether the absolute origin of the
- *   actor has changed; this implies that any ancestor of the actor has
- *   been moved.
  *
  * Flags passed to the #ClutterActorClass.allocate() virtual function
  * and to the clutter_actor_allocate() function.
@@ -569,7 +566,6 @@ typedef enum /*< prefix=CLUTTER_OFFSCREEN_REDIRECT >*/
 typedef enum
 {
   CLUTTER_ALLOCATION_NONE         = 0,
-  CLUTTER_ABSOLUTE_ORIGIN_CHANGED = 1 << 1,
 } ClutterAllocationFlags;
 
 /**
