@@ -622,6 +622,7 @@ clutter_stage_allocate (ClutterActor           *self,
   float new_width, new_height;
   float width, height;
   cairo_rectangle_int_t window_size;
+  ClutterLayoutManager *layout_manager = clutter_actor_get_layout_manager (self);
 
   if (priv->impl == NULL)
     return;
@@ -643,6 +644,12 @@ clutter_stage_allocate (ClutterActor           *self,
    */
   if (!clutter_feature_available (CLUTTER_FEATURE_STAGE_STATIC))
     {
+      ClutterActorBox children_box;
+
+      children_box.x1 = children_box.y1 = 0.f;
+      children_box.x2 = box->x2 - box->x1;
+      children_box.y2 = box->y2 - box->y1;
+
       CLUTTER_NOTE (LAYOUT,
                     "Following allocation to %.2fx%.2f (absolute origin %s)",
                     width, height,
@@ -650,8 +657,12 @@ clutter_stage_allocate (ClutterActor           *self,
                       ? "changed"
                       : "not changed");
 
-      clutter_actor_set_allocation (self, box,
-                                    flags | CLUTTER_DELEGATE_LAYOUT);
+      clutter_actor_set_allocation (self, box, flags);
+
+      clutter_layout_manager_allocate (layout_manager,
+                                       CLUTTER_CONTAINER (self),
+                                       &children_box,
+                                       flags);
 
       /* Ensure the window is sized correctly */
       if (priv->min_size_changed)
@@ -707,8 +718,12 @@ clutter_stage_allocate (ClutterActor           *self,
                       : "not changed");
 
       /* and store the overridden allocation */
-      clutter_actor_set_allocation (self, &override,
-                                    flags | CLUTTER_DELEGATE_LAYOUT);
+      clutter_actor_set_allocation (self, &override, flags);
+
+      clutter_layout_manager_allocate (layout_manager,
+                                       CLUTTER_CONTAINER (self),
+                                       &override,
+                                       flags);
     }
 
   /* reset the viewport if the allocation effectively changed */
