@@ -2560,6 +2560,22 @@ clutter_actor_notify_if_geometry_changed (ClutterActor          *self,
   g_object_thaw_notify (obj);
 }
 
+static void
+absolute_allocation_changed (ClutterActor *actor)
+{
+  actor->priv->needs_compute_resource_scale = TRUE;
+}
+
+static ClutterActorTraverseVisitFlags
+absolute_allocation_changed_cb (ClutterActor *actor,
+                                int           depth,
+                                gpointer      user_data)
+{
+  absolute_allocation_changed (actor);
+
+  return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
+}
+
 /*< private >
  * clutter_actor_set_allocation_internal:
  * @self: a #ClutterActor
@@ -2606,7 +2622,7 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
   priv->absolute_origin_changed |= x1_changed || y1_changed;
 
   if (priv->absolute_origin_changed || x2_changed || y2_changed)
-    priv->needs_compute_resource_scale = TRUE;
+    absolute_allocation_changed (self);
 
   if (x1_changed ||
       y1_changed ||
@@ -10111,10 +10127,25 @@ clutter_actor_allocate (ClutterActor          *self,
       return;
     }
 
-  if (!clutter_actor_is_visible (self))
-    return;
-
   priv = self->priv;
+
+  priv->absolute_origin_changed = priv->parent
+                                ? priv->parent->priv->absolute_origin_changed
+                                : FALSE;
+
+  if (!CLUTTER_ACTOR_IS_VISIBLE (self))
+    {
+      if (priv->absolute_origin_changed)
+        {
+          _clutter_actor_traverse (self,
+                                   CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
+                                   absolute_allocation_changed_cb,
+                                   NULL,
+                                   NULL);
+        }
+
+      goto out;
+    }
 
   old_allocation = priv->allocation;
   real_allocation = *box;
@@ -10146,10 +10177,6 @@ clutter_actor_allocate (ClutterActor          *self,
 
   size_changed = (real_allocation.x2 != old_allocation.x2 ||
                   real_allocation.y2 != old_allocation.y2);
-
-  priv->absolute_origin_changed = priv->parent
-                                ? priv->parent->priv->absolute_origin_changed
-                                : FALSE;
 
   stage_allocation_changed =
     priv->absolute_origin_changed || origin_changed || size_changed;
