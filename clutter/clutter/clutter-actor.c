@@ -10115,7 +10115,6 @@ clutter_actor_allocate (ClutterActor          *self,
 {
   ClutterActorBox old_allocation, real_allocation;
   gboolean origin_changed, size_changed;
-  gboolean stage_allocation_changed;
   ClutterActorPrivate *priv;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
@@ -10178,23 +10177,25 @@ clutter_actor_allocate (ClutterActor          *self,
   size_changed = (real_allocation.x2 != old_allocation.x2 ||
                   real_allocation.y2 != old_allocation.y2);
 
-  stage_allocation_changed =
-    priv->absolute_origin_changed || origin_changed || size_changed;
-
-  /* If we get an allocation "out of the blue"
-   * (we did not queue relayout), then we want to
-   * ignore it. But if we have needs_allocation set,
-   * we want to guarantee that allocate() virtual
-   * method is always called, i.e. that queue_relayout()
-   * always results in an allocate() invocation on
-   * an actor.
+  /* When needs_allocation is set but we didn't move nor resize, we still
+   * want to call the allocate() vfunc because a child probably called
+   * queue_relayout() and needs a new allocation.
    *
-   * The optimization here is to avoid re-allocating
-   * actors that did not queue relayout and were
-   * not moved.
+   * In case needs_allocation isn't set and we didn't move nor resize, we
+   * can safely stop allocating, but we need to notify the sub-tree in case
+   * our absolute origin changed.
    */
-  if (!priv->needs_allocation && !stage_allocation_changed)
+  if (!priv->needs_allocation && !origin_changed && !size_changed)
     {
+      if (priv->absolute_origin_changed)
+        {
+          _clutter_actor_traverse (self,
+                                   CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
+                                   absolute_allocation_changed_cb,
+                                   NULL,
+                                   NULL);
+        }
+
       CLUTTER_NOTE (LAYOUT, "No allocation needed");
       goto out;
     }
@@ -10202,10 +10203,10 @@ clutter_actor_allocate (ClutterActor          *self,
   if (CLUTTER_ACTOR_IS_MAPPED (self))
     self->priv->needs_paint_volume_update = TRUE;
 
-  if (!stage_allocation_changed)
+  if (!origin_changed && !size_changed)
     {
       /* If the actor didn't move but needs_allocation is set, we just
-       * need to allocate the children */
+       * need to allocate the children (see comment above) */
       clutter_actor_allocate_internal (self, &real_allocation);
       goto out;
     }
