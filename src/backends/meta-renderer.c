@@ -160,14 +160,12 @@ meta_renderer_real_rebuild_views (MetaRenderer *renderer)
 }
 
 void
-meta_renderer_set_legacy_view (MetaRenderer     *renderer,
-                               MetaRendererView *legacy_view)
+meta_renderer_add_view (MetaRenderer     *renderer,
+                        MetaRendererView *view)
 {
   MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
 
-  g_assert (!priv->views);
-
-  priv->views = g_list_append (priv->views, legacy_view);
+  priv->views = g_list_append (priv->views, view);
 }
 
 /**
