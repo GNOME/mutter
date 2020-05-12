@@ -68,6 +68,7 @@ typedef struct _MetaPipeWireSource
 {
   GSource base;
 
+  MetaScreenCastStreamSrc *src;
   struct pw_loop *pipewire_loop;
 } MetaPipeWireSource;
 
@@ -81,6 +82,7 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   struct spa_hook pipewire_core_listener;
 
   gboolean is_enabled;
+  gboolean emit_closed_after_dispatch;
 
   struct pw_stream *pipewire_stream;
   struct spa_hook pipewire_stream_listener;
@@ -541,12 +543,6 @@ meta_screen_cast_stream_src_disable (MetaScreenCastStreamSrc *src)
 }
 
 static void
-meta_screen_cast_stream_src_notify_closed (MetaScreenCastStreamSrc *src)
-{
-  g_signal_emit (src, signals[CLOSED], 0);
-}
-
-static void
 on_stream_state_changed (void                 *data,
                          enum pw_stream_state  old,
                          enum pw_stream_state  state,
@@ -560,7 +556,9 @@ on_stream_state_changed (void                 *data,
     {
     case PW_STREAM_STATE_ERROR:
       g_warning ("pipewire stream error: %s", error_message);
-      meta_screen_cast_stream_src_notify_closed (src);
+      if (meta_screen_cast_stream_src_is_enabled (src))
+        meta_screen_cast_stream_src_disable (src);
+      priv->emit_closed_after_dispatch = TRUE;
       break;
     case PW_STREAM_STATE_PAUSED:
       if (priv->node_id == SPA_ID_INVALID && priv->pipewire_stream)
@@ -828,11 +826,17 @@ on_core_error (void       *data,
 	       const char *message)
 {
   MetaScreenCastStreamSrc *src = data;
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
 
   g_warning ("pipewire remote error: id:%u %s", id, message);
 
   if (id == PW_ID_CORE && res == -EPIPE)
-    meta_screen_cast_stream_src_notify_closed (src);
+    {
+      if (meta_screen_cast_stream_src_is_enabled (src))
+        meta_screen_cast_stream_src_disable (src);
+      priv->emit_closed_after_dispatch = TRUE;
+    }
 }
 
 static gboolean
@@ -849,11 +853,17 @@ pipewire_loop_source_dispatch (GSource     *source,
                                gpointer     user_data)
 {
   MetaPipeWireSource *pipewire_source = (MetaPipeWireSource *) source;
+  MetaScreenCastStreamSrc *src = pipewire_source->src;
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
   int result;
 
   result = pw_loop_iterate (pipewire_source->pipewire_loop, 0);
   if (result < 0)
     g_warning ("pipewire_loop_iterate failed: %s", spa_strerror (result));
+
+  if (priv->emit_closed_after_dispatch)
+    g_signal_emit (src, signals[CLOSED], 0);
 
   return TRUE;
 }
@@ -876,13 +886,14 @@ static GSourceFuncs pipewire_source_funcs =
 };
 
 static MetaPipeWireSource *
-create_pipewire_source (void)
+create_pipewire_source (MetaScreenCastStreamSrc *src)
 {
   MetaPipeWireSource *pipewire_source;
 
   pipewire_source =
     (MetaPipeWireSource *) g_source_new (&pipewire_source_funcs,
                                          sizeof (MetaPipeWireSource));
+  pipewire_source->src = src;
   pipewire_source->pipewire_loop = pw_loop_new (NULL);
   if (!pipewire_source->pipewire_loop)
     {
@@ -914,7 +925,7 @@ meta_screen_cast_stream_src_initable_init (GInitable     *initable,
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
 
-  priv->pipewire_source = create_pipewire_source ();
+  priv->pipewire_source = create_pipewire_source (src);
   if (!priv->pipewire_source)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
