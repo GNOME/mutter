@@ -792,9 +792,6 @@ meta_window_actor_sync_actor_geometry (MetaWindowActor *self,
   if (meta_window_actor_is_frozen (self) && !did_placement)
     return META_WINDOW_ACTOR_CHANGE_POSITION | META_WINDOW_ACTOR_CHANGE_SIZE;
 
-  if (meta_window_actor_effect_in_progress (self))
-    return META_WINDOW_ACTOR_CHANGE_POSITION | META_WINDOW_ACTOR_CHANGE_SIZE;
-
   if (clutter_actor_has_allocation (actor))
     {
       ClutterActorBox box;
