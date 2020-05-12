@@ -30,4 +30,15 @@ G_DECLARE_FINAL_TYPE (MetaRendererX11Cm, meta_renderer_x11_cm,
                       META, RENDERER_X11_CM,
                       MetaRendererX11)
 
+void meta_renderer_x11_cm_ensure_screen_view (MetaRendererX11Cm *renderer_x11_cm,
+                                              int                width,
+                                              int                height);
+
+void meta_renderer_x11_cm_resize (MetaRendererX11Cm *renderer_x11_cm,
+                                  int                width,
+                                  int                height);
+
+void meta_renderer_x11_cm_set_onscreen (MetaRendererX11Cm *renderer_x11_cm,
+                                        CoglOnscreen      *onscreen);
+
 #endif /* META_RENDERER_X11_CM_H */

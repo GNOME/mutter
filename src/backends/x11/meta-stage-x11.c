@@ -26,6 +26,8 @@
 #include <unistd.h>
 #endif
 
+#include "backends/x11/cm/meta-backend-x11-cm.h"
+#include "backends/x11/cm/meta-renderer-x11-cm.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-seat-x11.h"
 #include "backends/x11/meta-stage-x11.h"
@@ -254,8 +256,6 @@ meta_stage_x11_unrealize (ClutterStageWindow *stage_window)
 
   clutter_stage_window_parent_iface->unrealize (stage_window);
 
-  g_list_free (stage_x11->legacy_views);
-  g_clear_object (&stage_x11->legacy_view);
   g_clear_pointer (&stage_x11->onscreen, cogl_object_unref);
 }
 
@@ -297,10 +297,13 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
                                       stage_cogl,
                                       NULL);
 
-  if (stage_x11->legacy_view)
-    g_object_set (G_OBJECT (stage_x11->legacy_view),
-                  "framebuffer", stage_x11->onscreen,
-                  NULL);
+  if (META_IS_BACKEND_X11_CM (stage_x11->backend))
+    {
+      MetaRenderer *renderer = meta_backend_get_renderer (stage_x11->backend);
+      MetaRendererX11Cm *renderer_x11_cm = META_RENDERER_X11_CM (renderer);
+
+      meta_renderer_x11_cm_set_onscreen (renderer_x11_cm, stage_x11->onscreen);
+    }
 
   /* We just created a window of the size of the actor. No need to fix
      the size of the stage, just update it. */
@@ -468,34 +471,13 @@ meta_stage_x11_can_clip_redraws (ClutterStageWindow *stage_window)
   return stage_x11->clipped_redraws_cool_off == 0;
 }
 
-static void
-ensure_legacy_view (ClutterStageWindow *stage_window)
-{
-  MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
-  cairo_rectangle_int_t view_layout;
-  CoglFramebuffer *framebuffer;
-
-  if (stage_x11->legacy_view)
-    return;
-
-  _clutter_stage_window_get_geometry (stage_window, &view_layout);
-  framebuffer = COGL_FRAMEBUFFER (stage_x11->onscreen);
-  stage_x11->legacy_view = g_object_new (CLUTTER_TYPE_STAGE_VIEW_COGL,
-                                         "layout", &view_layout,
-                                         "framebuffer", framebuffer,
-                                         NULL);
-  stage_x11->legacy_views = g_list_append (stage_x11->legacy_views,
-                                           stage_x11->legacy_view);
-}
-
 static GList *
 meta_stage_x11_get_views (ClutterStageWindow *stage_window)
 {
   MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
+  MetaRenderer *renderer = meta_backend_get_renderer (stage_x11->backend);
 
-  ensure_legacy_view (stage_window);
-
-  return stage_x11->legacy_views;
+  return meta_renderer_get_views (renderer);
 }
 
 static int64_t
@@ -527,6 +509,9 @@ meta_stage_x11_class_init (MetaStageX11Class *klass)
 static void
 meta_stage_x11_init (MetaStageX11 *stage)
 {
+  MetaRenderer *renderer;
+  MetaRendererX11Cm *renderer_x11_cm;
+
   stage->xwin = None;
   stage->xwin_width = 640;
   stage->xwin_height = 480;
@@ -534,6 +519,19 @@ meta_stage_x11_init (MetaStageX11 *stage)
   stage->wm_state = STAGE_X11_WITHDRAWN;
 
   stage->title = NULL;
+
+  stage->backend = meta_get_backend ();
+  g_assert (stage->backend);
+
+  if (META_IS_BACKEND_X11_CM (stage->backend))
+    {
+      renderer = meta_backend_get_renderer (stage->backend);
+      renderer_x11_cm = META_RENDERER_X11_CM (renderer);
+
+      meta_renderer_x11_cm_ensure_screen_view (renderer_x11_cm,
+                                               stage->xwin_width,
+                                               stage->xwin_height);
+    }
 }
 
 static void
@@ -719,16 +717,16 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
                * X11 compositing manager, we need to reset the legacy
                * stage view, now that it has a new size.
                */
-              if (stage_x11->legacy_view)
+              if (META_IS_BACKEND_X11_CM (stage_x11->backend))
                 {
-                  cairo_rectangle_int_t view_layout = {
-                    .width = stage_width,
-                    .height = stage_height
-                  };
+                  MetaBackend *backend = stage_x11->backend;
+                  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+                  MetaRendererX11Cm *renderer_x11_cm =
+                    META_RENDERER_X11_CM (renderer);
 
-                  g_object_set (G_OBJECT (stage_x11->legacy_view),
-                                "layout", &view_layout,
-                                NULL);
+                  meta_renderer_x11_cm_resize (renderer_x11_cm,
+                                               stage_width,
+                                               stage_height);
                 }
             }
         }

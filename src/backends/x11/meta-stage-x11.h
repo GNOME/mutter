@@ -25,6 +25,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 
+#include "backends/meta-backend-private.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
 
@@ -51,13 +52,12 @@ struct _MetaStageX11
 {
   ClutterStageCogl parent_instance;
 
+  MetaBackend *backend;
+
   CoglOnscreen *onscreen;
   Window xwin;
   gint xwin_width;
   gint xwin_height; /* FIXME target_width / height */
-
-  ClutterStageView *legacy_view;
-  GList *legacy_views;
 
   CoglFrameClosure *frame_closure;
 

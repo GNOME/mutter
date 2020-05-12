@@ -24,13 +24,74 @@
 
 #include "backends/x11/cm/meta-renderer-x11-cm.h"
 
+#include "backends/meta-renderer-view.h"
+
 struct _MetaRendererX11Cm
 {
   MetaRendererX11 parent;
+
+  MetaRendererView *screen_view;
 };
 
 G_DEFINE_TYPE (MetaRendererX11Cm, meta_renderer_x11_cm,
                META_TYPE_RENDERER_X11)
+
+void
+meta_renderer_x11_cm_ensure_screen_view (MetaRendererX11Cm *renderer_x11_cm,
+                                         int                width,
+                                         int                height)
+{
+  cairo_rectangle_int_t view_layout;
+
+  if (renderer_x11_cm->screen_view)
+    return;
+
+  view_layout = (cairo_rectangle_int_t) {
+    .width = width,
+    .height = height,
+  };
+  renderer_x11_cm->screen_view = g_object_new (META_TYPE_RENDERER_VIEW,
+                                               "layout", &view_layout,
+                                               NULL);
+  meta_renderer_add_view (META_RENDERER (renderer_x11_cm),
+                          renderer_x11_cm->screen_view);
+}
+
+void
+meta_renderer_x11_cm_resize (MetaRendererX11Cm *renderer_x11_cm,
+                             int                width,
+                             int                height)
+{
+  cairo_rectangle_int_t view_layout;
+
+  view_layout = (cairo_rectangle_int_t) {
+    .width = width,
+    .height = height,
+  };
+
+  g_object_set (G_OBJECT (renderer_x11_cm->screen_view),
+                "layout", &view_layout,
+                NULL);
+}
+
+void
+meta_renderer_x11_cm_set_onscreen (MetaRendererX11Cm *renderer_x11_cm,
+                                   CoglOnscreen      *onscreen)
+{
+  g_object_set (G_OBJECT (renderer_x11_cm->screen_view),
+                "framebuffer", onscreen,
+                NULL);
+}
+
+static void
+meta_renderer_x11_cm_rebuild_views (MetaRenderer *renderer)
+{
+  MetaRendererX11Cm *renderer_x11_cm = META_RENDERER_X11_CM (renderer);
+
+  g_return_if_fail (!meta_renderer_get_views (renderer));
+
+  meta_renderer_add_view (renderer, renderer_x11_cm->screen_view);
+}
 
 static void
 meta_renderer_x11_cm_init (MetaRendererX11Cm *renderer_x11_cm)
@@ -40,4 +101,7 @@ meta_renderer_x11_cm_init (MetaRendererX11Cm *renderer_x11_cm)
 static void
 meta_renderer_x11_cm_class_init (MetaRendererX11CmClass *klass)
 {
+  MetaRendererClass *renderer_class = META_RENDERER_CLASS (klass);
+
+  renderer_class->rebuild_views = meta_renderer_x11_cm_rebuild_views;
 }
