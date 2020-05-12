@@ -589,7 +589,6 @@ is_freeze_thaw_effect (MetaPluginEffect event)
   switch (event)
   {
   case META_PLUGIN_DESTROY:
-  case META_PLUGIN_SIZE_CHANGE:
     return TRUE;
     break;
   default:
@@ -937,14 +936,10 @@ meta_window_actor_size_change (MetaWindowActor    *self,
     meta_compositor_get_plugin_manager (compositor);
 
   priv->size_change_in_progress++;
-  meta_window_actor_freeze (self);
 
   if (!meta_plugin_manager_event_size_change (plugin_mgr, self,
                                               which_change, old_frame_rect, old_buffer_rect))
-    {
-      priv->size_change_in_progress--;
-      meta_window_actor_thaw (self);
-    }
+    priv->size_change_in_progress--;
 }
 
 #if 0
