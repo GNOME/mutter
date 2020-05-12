@@ -445,7 +445,8 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
   uint64_t now_us;
 
   now_us = g_get_monotonic_time ();
-  if (priv->last_frame_timestamp_us != 0 &&
+  if (priv->video_format.max_framerate.num > 0 &&
+      priv->last_frame_timestamp_us != 0 &&
       (now_us - priv->last_frame_timestamp_us <
        ((1000000 * priv->video_format.max_framerate.denom) /
         priv->video_format.max_framerate.num)))
