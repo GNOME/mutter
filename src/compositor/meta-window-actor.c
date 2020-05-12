@@ -272,11 +272,23 @@ meta_window_actor_set_frozen (MetaWindowActor *self,
   META_WINDOW_ACTOR_GET_CLASS (self)->set_frozen (self, frozen);
 }
 
-static void
+/**
+ * meta_window_actor_freeze:
+ * @self: The #MetaWindowActor
+ *
+ * Freezes the #MetaWindowActor, which inhibits updates and geometry
+ * changes of the window. This property is refcounted, so make sure
+ * to call meta_window_actor_thaw() the exact same amount of times
+ * as this function to allow updates again.
+ */
+void
 meta_window_actor_freeze (MetaWindowActor *self)
 {
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
+  MetaWindowActorPrivate *priv;
+
+  g_return_if_fail (META_IS_WINDOW_ACTOR (self));
+
+  priv = meta_window_actor_get_instance_private (self);
 
   if (priv->freeze_count == 0 && priv->surface)
     meta_window_actor_set_frozen (self, TRUE);
@@ -300,11 +312,21 @@ meta_window_actor_sync_thawed_state (MetaWindowActor *self)
   meta_window_actor_sync_actor_geometry (self, FALSE);
 }
 
-static void
+/**
+ * meta_window_actor_thaw:
+ * @self: The #MetaWindowActor
+ *
+ * Thaws/unfreezes the #MetaWindowActor to allow updates and geometry
+ * changes after a window was frozen using meta_window_actor_freeze().
+ */
+void
 meta_window_actor_thaw (MetaWindowActor *self)
 {
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
+  MetaWindowActorPrivate *priv;
+
+  g_return_if_fail (META_IS_WINDOW_ACTOR (self));
+
+  priv = meta_window_actor_get_instance_private (self);
 
   if (priv->freeze_count <= 0)
     g_error ("Error in freeze/thaw accounting");
