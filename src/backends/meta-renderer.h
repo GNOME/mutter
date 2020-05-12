@@ -54,8 +54,8 @@ CoglRenderer * meta_renderer_create_cogl_renderer (MetaRenderer *renderer);
 
 void meta_renderer_rebuild_views (MetaRenderer *renderer);
 
-void meta_renderer_set_legacy_view (MetaRenderer     *renderer,
-                                    MetaRendererView *legacy_view);
+void meta_renderer_add_view (MetaRenderer     *renderer,
+                             MetaRendererView *view);
 
 META_EXPORT_TEST
 GList * meta_renderer_get_views (MetaRenderer *renderer);

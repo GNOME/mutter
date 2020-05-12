@@ -167,7 +167,8 @@ meta_renderer_x11_nested_ensure_legacy_view (MetaRendererX11Nested *renderer_x11
                               "framebuffer", COGL_FRAMEBUFFER (fake_onscreen),
                               NULL);
 
-  meta_renderer_set_legacy_view (renderer, legacy_view);
+  g_assert (!meta_renderer_get_views (renderer));
+  meta_renderer_add_view (renderer, legacy_view);
 }
 
 static MetaRendererView *
