@@ -26,15 +26,15 @@
 #include <unistd.h>
 #endif
 
+#include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-seat-x11.h"
+#include "backends/x11/meta-stage-x11.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
 #include "clutter/x11/clutter-backend-x11.h"
 #include "cogl/cogl.h"
 #include "core/display-private.h"
 #include "meta/meta-x11-errors.h"
-#include "meta-backend-x11.h"
-#include "meta-seat-x11.h"
-#include "meta-stage-x11.h"
 
 #define STAGE_X11_IS_MAPPED(s)  ((((MetaStageX11 *) (s))->wm_state & STAGE_X11_WITHDRAWN) == 0)
 
