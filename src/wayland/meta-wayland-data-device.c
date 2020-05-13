@@ -54,6 +54,30 @@ static struct wl_resource * create_and_send_clipboard_offer (MetaWaylandDataDevi
                                                              struct wl_resource    *target);
 
 static void
+move_resources (struct wl_list *destination,
+                struct wl_list *source)
+{
+  wl_list_insert_list (destination, source);
+  wl_list_init (source);
+}
+
+static void
+move_resources_for_client (struct wl_list   *destination,
+			   struct wl_list   *source,
+			   struct wl_client *client)
+{
+  struct wl_resource *resource, *tmp;
+  wl_resource_for_each_safe (resource, tmp, source)
+    {
+      if (wl_resource_get_client (resource) == client)
+        {
+          wl_list_remove (wl_resource_get_link (resource));
+          wl_list_insert (destination, wl_resource_get_link (resource));
+        }
+    }
+}
+
+static void
 unbind_resource (struct wl_resource *resource)
 {
   wl_list_remove (wl_resource_get_link (resource));
@@ -251,6 +275,12 @@ meta_wayland_drag_grab_set_focus (MetaWaylandDragGrab *drag_grab,
   client = wl_resource_get_client (surface->resource);
 
   data_device_resource = wl_resource_find_for_client (&seat->data_device.resource_list, client);
+  if (!data_device_resource)
+    {
+      data_device_resource =
+        wl_resource_find_for_client (&seat->data_device.focus_resource_list,
+                                     client);
+    }
 
   if (source && data_device_resource)
     offer = create_and_send_dnd_offer (source, data_device_resource);
@@ -948,10 +978,7 @@ owner_changed_cb (MetaSelection         *selection,
 
   if (selection_type == META_SELECTION_CLIPBOARD)
     {
-      data_device_resource =
-        wl_resource_find_for_client (&data_device->resource_list, focus_client);
-
-      if (data_device_resource)
+      wl_resource_for_each (data_device_resource, &data_device->focus_resource_list)
         {
           struct wl_resource *offer = NULL;
 
@@ -1021,6 +1048,7 @@ void
 meta_wayland_data_device_init (MetaWaylandDataDevice *data_device)
 {
   wl_list_init (&data_device->resource_list);
+  wl_list_init (&data_device->focus_resource_list);
 }
 
 static struct wl_resource *
@@ -1063,14 +1091,20 @@ meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device)
     return;
 
   data_device->focus_client = focus_client;
+  move_resources (&data_device->resource_list,
+                  &data_device->focus_resource_list);
 
   if (!focus_client)
     return;
 
-  data_device_resource = wl_resource_find_for_client (&data_device->resource_list, focus_client);
-  if (data_device_resource)
+  move_resources_for_client (&data_device->focus_resource_list,
+                             &data_device->resource_list,
+                             focus_client);
+
+  wl_resource_for_each (data_device_resource, &data_device->focus_resource_list)
     {
       struct wl_resource *offer;
+
       offer = create_and_send_clipboard_offer (data_device, data_device_resource);
       wl_data_device_send_selection (data_device_resource, offer);
     }
