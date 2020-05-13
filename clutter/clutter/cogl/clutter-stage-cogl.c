@@ -451,16 +451,16 @@ offset_scale_and_clamp_region (const cairo_region_t *region,
     rects = freeme = g_new (cairo_rectangle_int_t, n_rects);
 
   for (i = 0; i < n_rects; i++)
-    cairo_region_get_rectangle (region, i, &rects[i]);
-
-  for (i = 0; i < n_rects; i++)
     {
+      cairo_rectangle_int_t *rect = &rects[i];
       graphene_rect_t tmp;
 
-      _clutter_util_rect_from_rectangle (&rects[i], &tmp);
+      cairo_region_get_rectangle (region, i, rect);
+
+      _clutter_util_rect_from_rectangle (rect, &tmp);
       graphene_rect_offset (&tmp, offset_x, offset_y);
       graphene_rect_scale (&tmp, scale, scale, &tmp);
-      _clutter_util_rectangle_int_extents (&tmp, &rects[i]);
+      _clutter_util_rectangle_int_extents (&tmp, rect);
     }
 
   return cairo_region_create_rectangles (rects, n_rects);
