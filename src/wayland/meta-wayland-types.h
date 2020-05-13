@@ -37,7 +37,7 @@ typedef struct _MetaWaylandTouch MetaWaylandTouch;
 typedef struct _MetaWaylandDragDestFuncs MetaWaylandDragDestFuncs;
 typedef struct _MetaWaylandDataOffer MetaWaylandDataOffer;
 typedef struct _MetaWaylandDataDevice MetaWaylandDataDevice;
-typedef struct _MetaWaylandDataDevicePrimary MetaWaylandDataDevicePrimary;
+typedef struct _MetaWaylandDataDevicePrimaryLegacy MetaWaylandDataDevicePrimaryLegacy;
 
 typedef struct _MetaWaylandTabletManager MetaWaylandTabletManager;
 typedef struct _MetaWaylandTabletSeat MetaWaylandTabletSeat;

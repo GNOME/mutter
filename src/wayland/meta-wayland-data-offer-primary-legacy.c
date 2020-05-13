@@ -23,7 +23,7 @@
 
 #include "config.h"
 
-#include "meta-wayland-data-offer-primary.h"
+#include "meta-wayland-data-offer-primary-legacy.h"
 
 #include <gio/gunixoutputstream.h>
 #include <glib-unix.h>
@@ -121,7 +121,7 @@ destroy_primary_offer (struct wl_resource *resource)
 }
 
 MetaWaylandDataOffer *
-meta_wayland_data_offer_primary_new (struct wl_resource *target)
+meta_wayland_data_offer_primary_legacy_new (struct wl_resource *target)
 {
   MetaWaylandDataOffer *offer;
 
