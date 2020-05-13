@@ -1,5 +1,5 @@
 /*
- * Copyright © 2011 Kristian Høgsberg
+ * Copyright © 2008 Kristian Høgsberg
  *             2020 Red Hat Inc.
  *
  * Permission to use, copy, modify, distribute, and sell this software and its
@@ -21,11 +21,35 @@
  * OF THIS SOFTWARE.
  */
 
-#ifndef META_WAYLAND_DATA_OFFER_PRIMARY_H
-#define META_WAYLAND_DATA_OFFER_PRIMARY_H
+#ifndef META_WAYLAND_DATA_DEVICE_PRIMARY_LEGACY_H
+#define META_WAYLAND_DATA_DEVICE_PRIMARY_LEGACY_H
 
-#include "meta-wayland-data-offer.h"
+#include <glib-object.h>
+#include <wayland-server.h>
 
-MetaWaylandDataOffer * meta_wayland_data_offer_primary_new (struct wl_resource *target);
+#include "clutter/clutter.h"
+#include "meta/meta-selection-source.h"
+#include "wayland/meta-wayland-data-offer.h"
+#include "wayland/meta-wayland-data-source.h"
+#include "wayland/meta-wayland-types.h"
 
-#endif /* META_WAYLAND_DATA_OFFER_PRIMARY_H */
+struct _MetaWaylandDataDevicePrimaryLegacy
+{
+  uint32_t serial;
+  MetaWaylandDataSource *data_source;
+  struct wl_list resource_list;
+  struct wl_list focus_resource_list;
+  struct wl_client *focus_client;
+
+  guint selection_owner_signal_id;
+
+  MetaSelectionSource *owner;
+};
+
+void meta_wayland_data_device_primary_legacy_manager_init (MetaWaylandCompositor *compositor);
+
+void meta_wayland_data_device_primary_legacy_init (MetaWaylandDataDevicePrimaryLegacy *data_device);
+
+void meta_wayland_data_device_primary_legacy_set_keyboard_focus (MetaWaylandDataDevicePrimaryLegacy *data_device);
+
+#endif /* META_WAYLAND_DATA_DEVICE_PRIMARY_LEGACY_H */

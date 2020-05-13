@@ -26,14 +26,14 @@
 #include <unistd.h>
 
 #include "gtk-primary-selection-server-protocol.h"
-#include "wayland/meta-wayland-data-source-primary.h"
+#include "wayland/meta-wayland-data-source-primary-legacy.h"
 
-typedef struct _MetaWaylandDataSourcePrimary
+typedef struct _MetaWaylandDataSourcePrimaryLegacy
 {
   MetaWaylandDataSource parent;
-} MetaWaylandDataSourcePrimary;
+} MetaWaylandDataSourcePrimaryLegacy;
 
-G_DEFINE_TYPE (MetaWaylandDataSourcePrimary, meta_wayland_data_source_primary,
+G_DEFINE_TYPE (MetaWaylandDataSourcePrimaryLegacy, meta_wayland_data_source_primary_legacy,
                META_TYPE_WAYLAND_DATA_SOURCE);
 
 static void
@@ -69,9 +69,9 @@ destroy_primary_source (struct wl_resource *resource)
 }
 
 static void
-meta_wayland_data_source_primary_send (MetaWaylandDataSource *source,
-                                       const gchar           *mime_type,
-                                       gint                   fd)
+meta_wayland_data_source_primary_legacy_send (MetaWaylandDataSource *source,
+                                              const gchar           *mime_type,
+                                              gint                   fd)
 {
   struct wl_resource *resource = meta_wayland_data_source_get_resource (source);
 
@@ -80,7 +80,7 @@ meta_wayland_data_source_primary_send (MetaWaylandDataSource *source,
 }
 
 static void
-meta_wayland_data_source_primary_cancel (MetaWaylandDataSource *source)
+meta_wayland_data_source_primary_legacy_cancel (MetaWaylandDataSource *source)
 {
   struct wl_resource *resource = meta_wayland_data_source_get_resource (source);
 
@@ -89,25 +89,25 @@ meta_wayland_data_source_primary_cancel (MetaWaylandDataSource *source)
 }
 
 static void
-meta_wayland_data_source_primary_init (MetaWaylandDataSourcePrimary *source_primary)
+meta_wayland_data_source_primary_legacy_init (MetaWaylandDataSourcePrimaryLegacy *source_primary)
 {
 }
 
 static void
-meta_wayland_data_source_primary_class_init (MetaWaylandDataSourcePrimaryClass *klass)
+meta_wayland_data_source_primary_legacy_class_init (MetaWaylandDataSourcePrimaryLegacyClass *klass)
 {
   MetaWaylandDataSourceClass *data_source_class =
     META_WAYLAND_DATA_SOURCE_CLASS (klass);
 
-  data_source_class->send = meta_wayland_data_source_primary_send;
-  data_source_class->cancel = meta_wayland_data_source_primary_cancel;
+  data_source_class->send = meta_wayland_data_source_primary_legacy_send;
+  data_source_class->cancel = meta_wayland_data_source_primary_legacy_cancel;
 }
 
 MetaWaylandDataSource *
-meta_wayland_data_source_primary_new (struct wl_resource *resource)
+meta_wayland_data_source_primary_legacy_new (struct wl_resource *resource)
 {
   MetaWaylandDataSource *source_primary =
-    g_object_new (META_TYPE_WAYLAND_DATA_SOURCE_PRIMARY, NULL);
+    g_object_new (META_TYPE_WAYLAND_DATA_SOURCE_PRIMARY_LEGACY, NULL);
 
   meta_wayland_data_source_set_resource (source_primary, resource);
   wl_resource_set_implementation (resource, &primary_source_interface,
