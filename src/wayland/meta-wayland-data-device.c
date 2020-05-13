@@ -1871,10 +1871,7 @@ owner_changed_cb (MetaSelection         *selection,
 
   if (selection_type == META_SELECTION_PRIMARY)
     {
-      data_device_resource =
-        wl_resource_find_for_client (&data_device->primary_resource_list,
-                                     focus_client);
-      if (data_device_resource)
+      wl_resource_for_each (data_device_resource, &data_device->primary_focus_resource_list)
         {
           struct wl_resource *offer = NULL;
 
@@ -2027,6 +2024,7 @@ meta_wayland_data_device_init (MetaWaylandDataDevice *data_device)
   wl_list_init (&data_device->resource_list);
   wl_list_init (&data_device->focus_resource_list);
   wl_list_init (&data_device->primary_resource_list);
+  wl_list_init (&data_device->primary_focus_resource_list);
 }
 
 static struct wl_resource *
@@ -2110,6 +2108,8 @@ meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device)
   data_device->focus_client = focus_client;
   move_resources (&data_device->resource_list,
                   &data_device->focus_resource_list);
+  move_resources (&data_device->primary_resource_list,
+                  &data_device->primary_focus_resource_list);
 
   if (!focus_client)
     return;
@@ -2126,10 +2126,14 @@ meta_wayland_data_device_set_keyboard_focus (MetaWaylandDataDevice *data_device)
       wl_data_device_send_selection (data_device_resource, offer);
     }
 
-  data_device_resource = wl_resource_find_for_client (&data_device->primary_resource_list, focus_client);
-  if (data_device_resource)
+  move_resources_for_client (&data_device->primary_focus_resource_list,
+                             &data_device->primary_resource_list,
+                             focus_client);
+
+  wl_resource_for_each (data_device_resource, &data_device->primary_focus_resource_list)
     {
       struct wl_resource *offer;
+
       offer = create_and_send_primary_offer (data_device, data_device_resource);
       gtk_primary_selection_device_send_selection (data_device_resource, offer);
     }
