@@ -378,24 +378,24 @@ swap_framebuffer (ClutterStageWindow *stage_window,
                   gboolean            swap_with_damage)
 {
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
-  int *damage, n_rects, i;
-
-  n_rects = cairo_region_num_rectangles (swap_region);
-  damage = g_newa (int, n_rects * 4);
-  for (i = 0; i < n_rects; i++)
-    {
-      cairo_rectangle_int_t rect;
-
-      cairo_region_get_rectangle (swap_region, i, &rect);
-      damage[i * 4] = rect.x;
-      damage[i * 4 + 1] = rect.y;
-      damage[i * 4 + 2] = rect.width;
-      damage[i * 4 + 3] = rect.height;
-    }
 
   if (cogl_is_onscreen (framebuffer))
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
+      int *damage, n_rects, i;
+
+      n_rects = cairo_region_num_rectangles (swap_region);
+      damage = g_newa (int, n_rects * 4);
+      for (i = 0; i < n_rects; i++)
+        {
+          cairo_rectangle_int_t rect;
+
+          cairo_region_get_rectangle (swap_region, i, &rect);
+          damage[i * 4] = rect.x;
+          damage[i * 4 + 1] = rect.y;
+          damage[i * 4 + 2] = rect.width;
+          damage[i * 4 + 3] = rect.height;
+        }
 
       /* push on the screen */
       if (n_rects > 0 && !swap_with_damage)
