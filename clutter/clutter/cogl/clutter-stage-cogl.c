@@ -466,6 +466,42 @@ offset_scale_and_clamp_region (const cairo_region_t *region,
   return cairo_region_create_rectangles (rects, n_rects);
 }
 
+static cairo_region_t *
+scale_offset_and_clamp_region (const cairo_region_t *region,
+                               float                 scale,
+                               int                   offset_x,
+                               int                   offset_y)
+{
+  int n_rects, i;
+  cairo_rectangle_int_t *rects;
+  g_autofree cairo_rectangle_int_t *freeme = NULL;
+
+  n_rects = cairo_region_num_rectangles (region);
+
+  if (n_rects == 0)
+    return cairo_region_create ();
+
+  if (n_rects < MAX_STACK_RECTS)
+    rects = g_newa (cairo_rectangle_int_t, n_rects);
+  else
+    rects = freeme = g_new (cairo_rectangle_int_t, n_rects);
+
+  for (i = 0; i < n_rects; i++)
+    {
+      cairo_rectangle_int_t *rect = &rects[i];
+      graphene_rect_t tmp;
+
+      cairo_region_get_rectangle (region, i, rect);
+
+      _clutter_util_rect_from_rectangle (rect, &tmp);
+      graphene_rect_scale (&tmp, scale, scale, &tmp);
+      graphene_rect_offset (&tmp, offset_x, offset_y);
+      _clutter_util_rectangle_int_extents (&tmp, rect);
+    }
+
+  return cairo_region_create_rectangles (rects, n_rects);
+}
+
 static void
 paint_stage (ClutterStageCogl *stage_cogl,
              ClutterStageView *view,
@@ -668,12 +704,12 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
           /* Update the fb clip region with the extra damage. */
           cairo_region_union (fb_clip_region, fb_damage);
 
-          view_damage = offset_scale_and_clamp_region (fb_damage,
-                                                       0, 0,
-                                                       1.0f / fb_scale);
-          cairo_region_translate (view_damage, view_rect.x, view_rect.y);
+          /* Update the redraw clip with the extra damage done to the view */
+          view_damage = scale_offset_and_clamp_region (fb_damage,
+                                                       1.0f / fb_scale,
+                                                       view_rect.x,
+                                                       view_rect.y);
 
-          /* Update the redraw clip region with the extra damage. */
           cairo_region_union (redraw_clip, view_damage);
 
           cairo_region_destroy (view_damage);
