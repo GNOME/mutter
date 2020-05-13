@@ -38,6 +38,7 @@ struct _MetaWaylandDataDevicePrimary
   uint32_t serial;
   MetaWaylandDataSource *data_source;
   struct wl_list resource_list;
+  struct wl_list focus_resource_list;
   struct wl_client *focus_client;
 
   guint selection_owner_signal_id;
