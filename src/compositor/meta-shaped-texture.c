@@ -1177,7 +1177,7 @@ meta_shaped_texture_reset_viewport_src_rect (MetaShapedTexture *stex)
  * meta_shaped_texture_set_viewport_dst_size:
  * @stex: #MetaShapedTexture
  * @dst_width: The final viewport width (> 0)
- * @dst_width: The final viewport height (> 0)
+ * @dst_height: The final viewport height (> 0)
  *
  * Sets a viewport size on @stex of the given @width and @height, which may
  * lead to scaling the texture. If you need to have cropping, use
