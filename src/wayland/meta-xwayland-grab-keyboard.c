@@ -164,14 +164,26 @@ static gboolean
 application_is_in_pattern_array (MetaWindow *window,
                                  GPtrArray  *pattern_array)
 {
+  const char *class;
+  const char *name;
   guint i;
+
+  if (window->res_class)
+    class = window->res_class;
+  else
+    class = "";
+
+  if (window->res_name)
+    name = window->res_name;
+  else
+    name = "";
 
   for (i = 0; pattern_array && i < pattern_array->len; i++)
     {
       GPatternSpec *pattern = (GPatternSpec *) g_ptr_array_index (pattern_array, i);
 
-      if ((window->res_class && g_pattern_match_string (pattern, window->res_class)) ||
-          (window->res_name && g_pattern_match_string (pattern, window->res_name)))
+      if (g_pattern_match_string (pattern, class) ||
+          g_pattern_match_string (pattern, name))
         return TRUE;
     }
 
