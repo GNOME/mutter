@@ -285,16 +285,6 @@ clutter_stage_cogl_resize (ClutterStageWindow *stage_window,
 {
 }
 
-static inline gboolean
-valid_buffer_age (ClutterStageViewCogl *view_cogl,
-                  int                   age)
-{
-  ClutterStageViewCoglPrivate *view_priv =
-    clutter_stage_view_cogl_get_instance_private (view_cogl);
-
-  return clutter_damage_history_is_age_valid (view_priv->damage_history, age);
-}
-
 static void
 paint_damage_region (ClutterStageWindow *stage_window,
                      ClutterStageView   *view,
@@ -598,7 +588,8 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   if (has_buffer_age)
     {
       buffer_age = cogl_onscreen_get_buffer_age (COGL_ONSCREEN (onscreen));
-      if (!valid_buffer_age (view_cogl, buffer_age))
+      if (!clutter_damage_history_is_age_valid (view_priv->damage_history,
+                                                buffer_age))
         {
           CLUTTER_NOTE (CLIPPING,
                         "Invalid back buffer(age=%d): forcing full redraw\n",
