@@ -855,6 +855,7 @@ meta_backend_x11_class_init (MetaBackendX11Class *klass)
 static void
 meta_backend_x11_init (MetaBackendX11 *x11)
 {
+  XInitThreads ();
 }
 
 Display *
