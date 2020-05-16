@@ -55,6 +55,7 @@ struct _MetaRemoteDesktopSession
 
   MetaScreenCastSession *screen_cast_session;
   gulong screen_cast_session_closed_handler_id;
+  guint started : 1;
 
   ClutterVirtualInputDevice *virtual_pointer;
   ClutterVirtualInputDevice *virtual_keyboard;
@@ -119,7 +120,7 @@ meta_remote_desktop_session_start (MetaRemoteDesktopSession *session,
   ClutterBackend *backend = clutter_get_default_backend ();
   ClutterSeat *seat = clutter_backend_get_default_seat (backend);
 
-  g_assert (!session->virtual_pointer && !session->virtual_keyboard);
+  g_assert (!session->started);
 
   if (session->screen_cast_session)
     {
@@ -135,6 +136,7 @@ meta_remote_desktop_session_start (MetaRemoteDesktopSession *session,
     clutter_seat_create_virtual_device (seat, CLUTTER_TOUCHSCREEN_DEVICE);
 
   init_remote_access_handle (session);
+  session->started = TRUE;
 
   return TRUE;
 }
@@ -144,6 +146,8 @@ meta_remote_desktop_session_close (MetaRemoteDesktopSession *session)
 {
   MetaDBusRemoteDesktopSession *skeleton =
     META_DBUS_REMOTE_DESKTOP_SESSION (session);
+
+  session->started = FALSE;
 
   if (session->screen_cast_session)
     {
@@ -256,6 +260,14 @@ handle_start (MetaDBusRemoteDesktopSession *skeleton,
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
   GError *error = NULL;
 
+  if (session->started)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Already started");
+      return TRUE;
+    }
+
   if (!check_permission (session, invocation))
     {
       g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
@@ -287,6 +299,14 @@ handle_stop (MetaDBusRemoteDesktopSession *skeleton,
              GDBusMethodInvocation        *invocation)
 {
   MetaRemoteDesktopSession *session = META_REMOTE_DESKTOP_SESSION (skeleton);
+
+  if (!session->started)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "Session not started");
+      return TRUE;
+    }
 
   if (!check_permission (session, invocation))
     {
