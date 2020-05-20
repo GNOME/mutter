@@ -10,7 +10,13 @@ timeline_frame_clock_frame (ClutterFrameClock *frame_clock,
                             int64_t            time_us,
                             gpointer           user_data)
 {
-  clutter_frame_clock_notify_presented (frame_clock, g_get_monotonic_time ());
+  ClutterFrameInfo frame_info;
+
+  frame_info = (ClutterFrameInfo) {
+    .presentation_time = g_get_monotonic_time (),
+    .refresh_rate = refresh_rate,
+  };
+  clutter_frame_clock_notify_presented (frame_clock, &frame_info);
   clutter_frame_clock_schedule_update (frame_clock);
 
   return CLUTTER_FRAME_RESULT_PENDING_PRESENTED;

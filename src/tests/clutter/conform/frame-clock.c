@@ -25,6 +25,16 @@ typedef struct _FrameClockTest
   GMainLoop *main_loop;
 } FrameClockTest;
 
+static void
+init_frame_info (ClutterFrameInfo *frame_info,
+                 int64_t           presentation_time_us)
+{
+  *frame_info = (ClutterFrameInfo) {
+    .presentation_time = presentation_time_us,
+    .refresh_rate = refresh_rate,
+  };
+}
+
 static gboolean
 fake_hw_clock_source_dispatch (GSource     *source,
                                GSourceFunc  callback,
@@ -35,9 +45,11 @@ fake_hw_clock_source_dispatch (GSource     *source,
 
   if (fake_hw_clock->has_pending_present)
     {
+      ClutterFrameInfo frame_info;
+
       fake_hw_clock->has_pending_present = FALSE;
-      clutter_frame_clock_notify_presented (frame_clock,
-                                            g_source_get_time (source));
+      init_frame_info (&frame_info, g_source_get_time (source));
+      clutter_frame_clock_notify_presented (frame_clock, &frame_info);
       if (callback)
         callback (user_data);
     }
@@ -176,6 +188,7 @@ immediate_frame_clock_frame (ClutterFrameClock *frame_clock,
                              gpointer           user_data)
 {
   GMainLoop *main_loop = user_data;
+  ClutterFrameInfo frame_info;
 
   g_assert_cmpint (frame_count, ==, expected_frame_count);
 
@@ -189,7 +202,8 @@ immediate_frame_clock_frame (ClutterFrameClock *frame_clock,
 
   test_frame_count--;
 
-  clutter_frame_clock_notify_presented (frame_clock, g_get_monotonic_time ());
+  init_frame_info (&frame_info, g_get_monotonic_time ());
+  clutter_frame_clock_notify_presented (frame_clock, &frame_info);
   g_idle_add (schedule_update_idle, frame_clock);
 
   return CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
@@ -480,12 +494,14 @@ before_frame_frame_clock_frame (ClutterFrameClock *frame_clock,
                                 gpointer           user_data)
 {
   int64_t *expected_frame_count = user_data;
+  ClutterFrameInfo frame_info;
 
   g_assert_cmpint (*expected_frame_count, ==, frame_count);
 
   (*expected_frame_count)++;
 
-  clutter_frame_clock_notify_presented (frame_clock, g_get_monotonic_time ());
+  init_frame_info (&frame_info, g_get_monotonic_time ());
+  clutter_frame_clock_notify_presented (frame_clock, &frame_info);
   clutter_frame_clock_schedule_update (frame_clock);
 
   return CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
@@ -547,12 +563,14 @@ inhibit_frame_clock_frame (ClutterFrameClock *frame_clock,
                            gpointer           user_data)
 {
   InhibitTest *test = user_data;
+  ClutterFrameInfo frame_info;
 
   g_assert_cmpint (frame_count, ==, test->frame_count);
 
   test->frame_count++;
 
-  clutter_frame_clock_notify_presented (frame_clock, g_get_monotonic_time ());
+  init_frame_info (&frame_info, g_get_monotonic_time ());
+  clutter_frame_clock_notify_presented (frame_clock, &frame_info);
   clutter_frame_clock_schedule_update (frame_clock);
 
   if (test->pending_inhibit)

@@ -54,7 +54,7 @@ ClutterFrameClock * clutter_frame_clock_new (float                            re
 
 CLUTTER_EXPORT
 void clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
-                                           int64_t            presentation_time_us);
+                                           ClutterFrameInfo  *frame_info);
 
 CLUTTER_EXPORT
 void clutter_frame_clock_schedule_update (ClutterFrameClock *frame_clock);

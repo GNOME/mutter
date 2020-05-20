@@ -164,8 +164,10 @@ maybe_reschedule_update (ClutterFrameClock *frame_clock)
 
 void
 clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
-                                      int64_t            presentation_time_us)
+                                      ClutterFrameInfo  *frame_info)
 {
+  int64_t presentation_time_us = frame_info->presentation_time;
+
   if (presentation_time_us > frame_clock->last_presentation_time_us ||
       ((presentation_time_us - frame_clock->last_presentation_time_us) >
        INT64_MAX / 2))
