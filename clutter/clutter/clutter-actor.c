@@ -10165,7 +10165,7 @@ clutter_actor_allocate (ClutterActor          *self,
   if (!priv->needs_allocation && !stage_allocation_changed)
     {
       CLUTTER_NOTE (LAYOUT, "No allocation needed");
-      return;
+      goto out;
     }
 
   if (CLUTTER_ACTOR_IS_MAPPED (self))
@@ -10179,12 +10179,15 @@ clutter_actor_allocate (ClutterActor          *self,
       /* If the actor didn't move but needs_allocation is set, we just
        * need to allocate the children */
       clutter_actor_allocate_internal (self, &real_allocation);
-      return;
+      goto out;
     }
 
   _clutter_actor_create_transition (self, obj_props[PROP_ALLOCATION],
                                     &priv->allocation,
                                     &real_allocation);
+
+out:
+  priv->absolute_origin_changed = FALSE;
 }
 
 /**
