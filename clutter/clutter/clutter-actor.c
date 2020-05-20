@@ -8750,26 +8750,15 @@ static void
 _clutter_actor_get_allocation_clip (ClutterActor *self,
                                     ClutterActorBox *clip)
 {
-  ClutterActorBox allocation;
-
-  /* XXX: we don't care if we get an out of date allocation here
-   * because clutter_actor_queue_redraw_with_clip knows to ignore
-   * the clip if the actor's allocation is invalid.
-   *
-   * This is noted because clutter_actor_get_allocation_box does some
-   * unnecessary work to support buggy code with a comment suggesting
-   * that it could be changed later which would be good for this use
-   * case!
-   */
-  clutter_actor_get_allocation_box (self, &allocation);
+  ClutterActorPrivate *priv = self->priv;
 
   /* NB: clutter_actor_queue_redraw_with_clip expects a box in the
    * actor's own coordinate space but the allocation is in parent
    * coordinates */
   clip->x1 = 0;
   clip->y1 = 0;
-  clip->x2 = allocation.x2 - allocation.x1;
-  clip->y2 = allocation.y2 - allocation.y1;
+  clip->x2 = priv->allocation.x2 - priv->allocation.x1;
+  clip->y2 = priv->allocation.y2 - priv->allocation.y1;
 }
 
 void
