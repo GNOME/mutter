@@ -147,24 +147,6 @@ struct _MetaSeatNative
 G_DECLARE_FINAL_TYPE (MetaSeatNative, meta_seat_native,
                       META, SEAT_NATIVE, ClutterSeat)
 
-static inline uint64_t
-us (uint64_t us)
-{
-  return us;
-}
-
-static inline uint64_t
-ms2us (uint64_t ms)
-{
-  return us (ms * 1000);
-}
-
-static inline uint32_t
-us2ms (uint64_t us)
-{
-  return (uint32_t) (us / 1000);
-}
-
 void meta_seat_native_notify_key (MetaSeatNative     *seat,
                                   ClutterInputDevice *device,
                                   uint64_t            time_us,

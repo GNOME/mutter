@@ -316,6 +316,30 @@ gboolean        _clutter_run_progress_function  (GType gtype,
 
 void            clutter_timeline_cancel_delay (ClutterTimeline *timeline);
 
+static inline uint64_t
+us (uint64_t us)
+{
+  return us;
+}
+
+static inline uint64_t
+ms2us (uint64_t ms)
+{
+  return us (ms * 1000);
+}
+
+static inline uint32_t
+us2ms (uint64_t us)
+{
+  return (uint32_t) (us / 1000);
+}
+
+static inline uint64_t
+ns2us (uint64_t ns)
+{
+  return us (ns / 1000);
+}
+
 G_END_DECLS
 
 #endif /* __CLUTTER_PRIVATE_H__ */

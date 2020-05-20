@@ -168,18 +168,6 @@ gboolean        clutter_test_check_color_at_point       (ClutterActor           
                                                          const ClutterColor     *color,
                                                          ClutterColor           *result);
 
-static inline uint64_t
-us (uint64_t us)
-{
-  return us;
-}
-
-static inline uint64_t
-ms2us (uint64_t ms)
-{
-  return us (ms * 1000);
-}
-
 G_END_DECLS
 
 #endif /* __CLUTTER_TEST_UTILS_H__ */

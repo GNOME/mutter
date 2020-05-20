@@ -20,20 +20,9 @@
 #include "clutter/clutter-frame-clock.h"
 
 #include "clutter/clutter-main.h"
+#include "clutter/clutter-private.h"
 #include "clutter/clutter-timeline-private.h"
 #include "cogl/cogl-trace.h"
-
-static inline uint64_t
-us (uint64_t us)
-{
-  return us;
-}
-
-static inline uint64_t
-ms2us (uint64_t ms)
-{
-  return us (ms * 1000);
-}
 
 /* Wait 2ms after vblank before starting to draw next frame */
 #define SYNC_DELAY_US ms2us (2)
