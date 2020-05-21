@@ -64,13 +64,6 @@
 #include "clutter-private.h"
 #include "clutter-types.h"
 
-#define CLUTTER_TYPE_BOX_CHILD          (clutter_box_child_get_type ())
-#define CLUTTER_BOX_CHILD(obj)          (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BOX_CHILD, ClutterBoxChild))
-#define CLUTTER_IS_BOX_CHILD(obj)       (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_BOX_CHILD))
-
-typedef struct _ClutterBoxChild         ClutterBoxChild;
-typedef struct _ClutterLayoutMetaClass  ClutterBoxChildClass;
-
 struct _ClutterBoxLayoutPrivate
 {
   ClutterContainer *container;
@@ -86,31 +79,6 @@ struct _ClutterBoxLayoutPrivate
   guint is_homogeneous : 1;
 };
 
-struct _ClutterBoxChild
-{
-  ClutterLayoutMeta parent_instance;
-
-  ClutterBoxAlignment x_align;
-  ClutterBoxAlignment y_align;
-
-  guint x_fill              : 1;
-  guint y_fill              : 1;
-  guint expand              : 1;
-};
-
-enum
-{
-  PROP_CHILD_0,
-
-  PROP_CHILD_X_ALIGN,
-  PROP_CHILD_Y_ALIGN,
-  PROP_CHILD_X_FILL,
-  PROP_CHILD_Y_FILL,
-  PROP_CHILD_EXPAND,
-
-  PROP_CHILD_LAST
-};
-
 enum
 {
   PROP_0,
@@ -124,12 +92,6 @@ enum
 };
 
 static GParamSpec *obj_props[PROP_LAST] = { NULL, };
-
-GType clutter_box_child_get_type (void);
-
-G_DEFINE_TYPE (ClutterBoxChild,
-               clutter_box_child,
-               CLUTTER_TYPE_LAYOUT_META)
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterBoxLayout,
                             clutter_box_layout,
@@ -151,270 +113,6 @@ static void count_expand_children         (ClutterLayoutManager *layout,
 					   ClutterContainer     *container,
 					   gint                 *visible_children,
 					   gint                 *expand_children);
-
-/*
- * ClutterBoxChild
- */
-
-static void
-box_child_set_align (ClutterBoxChild     *self,
-                     ClutterBoxAlignment  x_align,
-                     ClutterBoxAlignment  y_align)
-{
-  gboolean x_changed = FALSE, y_changed = FALSE;
-
-  if (self->x_align != x_align)
-    {
-      self->x_align = x_align;
-
-      x_changed = TRUE;
-    }
-
-  if (self->y_align != y_align)
-    {
-      self->y_align = y_align;
-
-      y_changed = TRUE;
-    }
-
-  if (x_changed || y_changed)
-    {
-      ClutterLayoutManager *layout;
-
-      layout = clutter_layout_meta_get_manager (CLUTTER_LAYOUT_META (self));
-
-      clutter_layout_manager_layout_changed (layout);
-
-      if (x_changed)
-        g_object_notify (G_OBJECT (self), "x-align");
-
-      if (y_changed)
-        g_object_notify (G_OBJECT (self), "y-align");
-    }
-}
-
-static void
-box_child_set_fill (ClutterBoxChild *self,
-                    gboolean         x_fill,
-                    gboolean         y_fill)
-{
-  gboolean x_changed = FALSE, y_changed = FALSE;
-
-  if (self->x_fill != x_fill)
-    {
-      self->x_fill = x_fill;
-
-      x_changed = TRUE;
-    }
-
-  if (self->y_fill != y_fill)
-    {
-      self->y_fill = y_fill;
-
-      y_changed = TRUE;
-    }
-
-  if (x_changed || y_changed)
-    {
-      ClutterLayoutManager *layout;
-
-      layout = clutter_layout_meta_get_manager (CLUTTER_LAYOUT_META (self));
-
-      clutter_layout_manager_layout_changed (layout);
-
-      if (x_changed)
-        g_object_notify (G_OBJECT (self), "x-fill");
-
-      if (y_changed)
-        g_object_notify (G_OBJECT (self), "y-fill");
-    }
-}
-
-static void
-box_child_set_expand (ClutterBoxChild *self,
-                      gboolean         expand)
-{
-  if (self->expand != expand)
-    {
-      ClutterLayoutManager *layout;
-
-      self->expand = expand;
-
-      layout = clutter_layout_meta_get_manager (CLUTTER_LAYOUT_META (self));
-
-      clutter_layout_manager_layout_changed (layout);
-
-      g_object_notify (G_OBJECT (self), "expand");
-    }
-}
-
-static void
-clutter_box_child_set_property (GObject      *gobject,
-                                guint         prop_id,
-                                const GValue *value,
-                                GParamSpec   *pspec)
-{
-  ClutterBoxChild *self = CLUTTER_BOX_CHILD (gobject);
-
-  switch (prop_id)
-    {
-    case PROP_CHILD_X_ALIGN:
-      box_child_set_align (self,
-                           g_value_get_enum (value),
-                           self->y_align);
-      break;
-
-    case PROP_CHILD_Y_ALIGN:
-      box_child_set_align (self,
-                           self->x_align,
-                           g_value_get_enum (value));
-      break;
-
-    case PROP_CHILD_X_FILL:
-      box_child_set_fill (self,
-                          g_value_get_boolean (value),
-                          self->y_fill);
-      break;
-
-    case PROP_CHILD_Y_FILL:
-      box_child_set_fill (self,
-                          self->x_fill,
-                          g_value_get_boolean (value));
-      break;
-
-    case PROP_CHILD_EXPAND:
-      box_child_set_expand (self, g_value_get_boolean (value));
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-clutter_box_child_get_property (GObject    *gobject,
-                                guint       prop_id,
-                                GValue     *value,
-                                GParamSpec *pspec)
-{
-  ClutterBoxChild *self = CLUTTER_BOX_CHILD (gobject);
-
-  switch (prop_id)
-    {
-    case PROP_CHILD_X_ALIGN:
-      g_value_set_enum (value, self->x_align);
-      break;
-
-    case PROP_CHILD_Y_ALIGN:
-      g_value_set_enum (value, self->y_align);
-      break;
-
-    case PROP_CHILD_X_FILL:
-      g_value_set_boolean (value, self->x_fill);
-      break;
-
-    case PROP_CHILD_Y_FILL:
-      g_value_set_boolean (value, self->y_fill);
-      break;
-
-    case PROP_CHILD_EXPAND:
-      g_value_set_boolean (value, self->expand);
-      break;
-
-    default:
-      G_OBJECT_WARN_INVALID_PROPERTY_ID (gobject, prop_id, pspec);
-      break;
-    }
-}
-
-static void
-clutter_box_child_class_init (ClutterBoxChildClass *klass)
-{
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GParamSpec *pspec;
-
-  gobject_class->set_property = clutter_box_child_set_property;
-  gobject_class->get_property = clutter_box_child_get_property;
-
-  pspec = g_param_spec_boolean ("expand",
-                                P_("Expand"),
-                                P_("Allocate extra space for the child"),
-                                FALSE,
-                                CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class, PROP_CHILD_EXPAND, pspec);
-
-  pspec = g_param_spec_boolean ("x-fill",
-                                P_("Horizontal Fill"),
-                                P_("Whether the child should receive priority "
-                                   "when the container is allocating spare space "
-                                   "on the horizontal axis"),
-                                FALSE,
-                                CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class, PROP_CHILD_X_FILL, pspec);
-
-  pspec = g_param_spec_boolean ("y-fill",
-                                P_("Vertical Fill"),
-                                P_("Whether the child should receive priority "
-                                   "when the container is allocating spare space "
-                                   "on the vertical axis"),
-                                FALSE,
-                                CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class, PROP_CHILD_Y_FILL, pspec);
-
-  pspec = g_param_spec_enum ("x-align",
-                             P_("Horizontal Alignment"),
-                             P_("Horizontal alignment of the actor within "
-                                "the cell"),
-                             CLUTTER_TYPE_BOX_ALIGNMENT,
-                             CLUTTER_BOX_ALIGNMENT_CENTER,
-                             CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class, PROP_CHILD_X_ALIGN, pspec);
-
-  pspec = g_param_spec_enum ("y-align",
-                             P_("Vertical Alignment"),
-                             P_("Vertical alignment of the actor within "
-                                "the cell"),
-                             CLUTTER_TYPE_BOX_ALIGNMENT,
-                             CLUTTER_BOX_ALIGNMENT_CENTER,
-                             CLUTTER_PARAM_READWRITE);
-  g_object_class_install_property (gobject_class, PROP_CHILD_Y_ALIGN, pspec);
-}
-
-static void
-clutter_box_child_init (ClutterBoxChild *self)
-{
-  self->x_align = CLUTTER_BOX_ALIGNMENT_CENTER;
-  self->y_align = CLUTTER_BOX_ALIGNMENT_CENTER;
-
-  self->x_fill = self->y_fill = FALSE;
-
-  self->expand = FALSE;
-}
-
-static gdouble
-get_box_alignment_factor (ClutterBoxAlignment alignment)
-{
-  switch (alignment)
-    {
-    case CLUTTER_BOX_ALIGNMENT_CENTER:
-      return 0.5;
-
-    case CLUTTER_BOX_ALIGNMENT_START:
-      return 0.0;
-
-    case CLUTTER_BOX_ALIGNMENT_END:
-      return 1.0;
-    }
-
-  return 0.0;
-}
-
-static GType
-clutter_box_layout_get_child_meta_type (ClutterLayoutManager *manager)
-{
-  return CLUTTER_TYPE_BOX_CHILD;
-}
 
 static void
 clutter_box_layout_set_container (ClutterLayoutManager *layout,
@@ -647,15 +345,9 @@ get_preferred_size_for_opposite_orientation (ClutterBoxLayout   *self,
   clutter_actor_iter_init (&iter, container);
   while (clutter_actor_iter_next (&iter, &child))
     {
-      ClutterLayoutMeta *meta;
-      ClutterBoxChild   *box_child;
-
       /* If widget is not visible, skip it. */
       if (!clutter_actor_is_visible (child))
         continue;
-
-      meta      = clutter_layout_manager_get_child_meta (layout, real_container, child);
-      box_child = CLUTTER_BOX_CHILD (meta);
 
       if (priv->is_homogeneous)
 	{
@@ -669,7 +361,7 @@ get_preferred_size_for_opposite_orientation (ClutterBoxLayout   *self,
 	}
       else
 	{
-          if (clutter_actor_needs_expand (child, priv->orientation) || box_child->expand)
+          if (clutter_actor_needs_expand (child, priv->orientation))
             {
               sizes[i].minimum_size += extra;
 
@@ -717,32 +409,13 @@ allocate_box_child (ClutterBoxLayout       *self,
                     ClutterActor           *child,
                     ClutterActorBox        *child_box)
 {
-  ClutterBoxChild *box_child;
-  ClutterLayoutMeta *meta;
-
-  meta = clutter_layout_manager_get_child_meta (CLUTTER_LAYOUT_MANAGER (self),
-                                                container,
-                                                child);
-  box_child = CLUTTER_BOX_CHILD (meta);
-
   CLUTTER_NOTE (LAYOUT, "Allocation for %s { %.2f, %.2f, %.2f, %.2f }",
                 _clutter_actor_get_debug_name (child),
                 child_box->x1, child_box->y1,
                 child_box->x2 - child_box->x1,
                 child_box->y2 - child_box->y1);
 
-  /* call allocate() instead of allocate_align_fill() if the actor needs
-   * expand in either direction. this will honour the actors alignment settings
-   */
-  if (clutter_actor_needs_expand (child, CLUTTER_ORIENTATION_HORIZONTAL) ||
-      clutter_actor_needs_expand (child, CLUTTER_ORIENTATION_VERTICAL))
-    clutter_actor_allocate (child, child_box);
-  else
-    clutter_actor_allocate_align_fill (child, child_box,
-                                       get_box_alignment_factor (box_child->x_align),
-                                       get_box_alignment_factor (box_child->y_align),
-                                       box_child->x_fill,
-                                       box_child->y_fill);
+  clutter_actor_allocate (child, child_box);
 }
 
 static void
@@ -812,16 +485,9 @@ count_expand_children (ClutterLayoutManager *layout,
     {
       if (clutter_actor_is_visible (child))
         {
-          ClutterLayoutMeta *meta;
-
           *visible_children += 1;
 
-          meta = clutter_layout_manager_get_child_meta (layout,
-                                                        container,
-                                                        child);
-
-          if (clutter_actor_needs_expand (child, priv->orientation) ||
-              CLUTTER_BOX_CHILD (meta)->expand)
+          if (clutter_actor_needs_expand (child, priv->orientation))
             *expand_children += 1;
         }
     }
@@ -1099,17 +765,9 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
   clutter_actor_iter_init (&iter, actor);
   while (clutter_actor_iter_next (&iter, &child))
     {
-      ClutterLayoutMeta *meta;
-      ClutterBoxChild *box_child;
-
       /* If widget is not visible, skip it. */
       if (!clutter_actor_is_visible (child))
         continue;
-
-      meta = clutter_layout_manager_get_child_meta (layout,
-                                                    container,
-                                                    child);
-      box_child = CLUTTER_BOX_CHILD (meta);
 
       /* Assign the child's size. */
       if (priv->is_homogeneous)
@@ -1126,8 +784,7 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
         {
           child_size = sizes[i].minimum_size;
 
-          if (clutter_actor_needs_expand (child, priv->orientation) ||
-              box_child->expand)
+          if (clutter_actor_needs_expand (child, priv->orientation))
             {
               child_size += extra;
 
@@ -1142,8 +799,7 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
       /* Assign the child's position. */
       if (priv->orientation == CLUTTER_ORIENTATION_VERTICAL)
         {
-          if (clutter_actor_needs_expand (child, priv->orientation) ||
-              box_child->expand)
+          if (clutter_actor_needs_expand (child, priv->orientation))
             {
               child_allocation.y1 = y;
               child_allocation.y2 = child_allocation.y1 + MAX (1.0, child_size);
@@ -1168,8 +824,7 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
         }
       else /* CLUTTER_ORIENTATION_HORIZONTAL */
         {
-          if (clutter_actor_needs_expand (child, priv->orientation) ||
-              box_child->expand)
+          if (clutter_actor_needs_expand (child, priv->orientation))
             {
               child_allocation.x1 = x;
               child_allocation.x2 = child_allocation.x1 + MAX (1.0, child_size);
@@ -1287,7 +942,6 @@ clutter_box_layout_class_init (ClutterBoxLayoutClass *klass)
   layout_class->get_preferred_height = clutter_box_layout_get_preferred_height;
   layout_class->allocate = clutter_box_layout_allocate;
   layout_class->set_container = clutter_box_layout_set_container;
-  layout_class->get_child_meta_type = clutter_box_layout_get_child_meta_type;
 
   /**
    * ClutterBoxLayout:orientation:
