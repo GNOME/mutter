@@ -245,7 +245,7 @@ script_named_object (void)
 
   manager = clutter_box_get_layout_manager (CLUTTER_BOX (actor));
   g_assert (CLUTTER_IS_BOX_LAYOUT (manager));
-  g_assert (clutter_box_layout_get_vertical (CLUTTER_BOX_LAYOUT (manager)));
+  g_assert (clutter_box_layout_get_orientation (CLUTTER_BOX_LAYOUT (manager)) == CLUTTER_ORIENTATION_VERTICAL);
 
   g_object_unref (script);
   g_free (test_file);
