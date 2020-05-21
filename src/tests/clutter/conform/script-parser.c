@@ -252,69 +252,6 @@ script_named_object (void)
 }
 
 static void
-script_layout_property (void)
-{
-  ClutterScript *script = clutter_script_new ();
-  GObject *manager, *container, *actor1, *actor2;
-  GError *error = NULL;
-  gchar *test_file;
-  gboolean x_fill, expand;
-  ClutterBoxAlignment y_align;
-
-  test_file = g_test_build_filename (G_TEST_DIST, "scripts", "test-script-layout-property.json", NULL);
-  clutter_script_load_from_file (script, test_file, &error);
-  if (g_test_verbose () && error)
-    g_print ("Error: %s", error->message);
-
-  g_assert_no_error (error);
-
-  manager = container = actor1 = actor2 = NULL;
-  clutter_script_get_objects (script,
-                              "manager", &manager,
-                              "container", &container,
-                              "actor-1", &actor1,
-                              "actor-2", &actor2,
-                              NULL);
-
-  g_assert (CLUTTER_IS_LAYOUT_MANAGER (manager));
-  g_assert (CLUTTER_IS_CONTAINER (container));
-  g_assert (CLUTTER_IS_ACTOR (actor1));
-  g_assert (CLUTTER_IS_ACTOR (actor2));
-
-  x_fill = FALSE;
-  y_align = CLUTTER_BOX_ALIGNMENT_START;
-  expand = FALSE;
-  clutter_layout_manager_child_get (CLUTTER_LAYOUT_MANAGER (manager),
-                                    CLUTTER_CONTAINER (container),
-                                    CLUTTER_ACTOR (actor1),
-                                    "x-fill", &x_fill,
-                                    "y-align", &y_align,
-                                    "expand", &expand,
-                                    NULL);
-
-  g_assert (x_fill);
-  g_assert (y_align == CLUTTER_BOX_ALIGNMENT_CENTER);
-  g_assert (expand);
-
-  x_fill = TRUE;
-  y_align = CLUTTER_BOX_ALIGNMENT_START;
-  expand = TRUE;
-  clutter_layout_manager_child_get (CLUTTER_LAYOUT_MANAGER (manager),
-                                    CLUTTER_CONTAINER (container),
-                                    CLUTTER_ACTOR (actor2),
-                                    "x-fill", &x_fill,
-                                    "y-align", &y_align,
-                                    "expand", &expand,
-                                    NULL);
-
-  g_assert (x_fill == FALSE);
-  g_assert (y_align == CLUTTER_BOX_ALIGNMENT_END);
-  g_assert (expand == FALSE);
-
-  g_object_unref (script);
-}
-
-static void
 script_margin (void)
 {
   ClutterScript *script = clutter_script_new ();
@@ -362,6 +299,5 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/script/container-child", script_child)
   CLUTTER_TEST_UNIT ("/script/named-object", script_named_object)
   CLUTTER_TEST_UNIT ("/script/object-property", script_object_property)
-  CLUTTER_TEST_UNIT ("/script/layout-property", script_layout_property)
   CLUTTER_TEST_UNIT ("/script/actor-margin", script_margin)
 )
