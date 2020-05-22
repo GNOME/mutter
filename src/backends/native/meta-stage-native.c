@@ -186,16 +186,6 @@ meta_stage_native_get_views (ClutterStageWindow *stage_window)
   return meta_renderer_get_views (renderer);
 }
 
-static int64_t
-meta_stage_native_get_frame_counter (ClutterStageWindow *stage_window)
-{
-  MetaBackend *backend = meta_get_backend ();
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
-
-  return meta_renderer_native_get_frame_counter (renderer_native);
-}
-
 static void
 meta_stage_native_finish_frame (ClutterStageWindow *stage_window)
 {
@@ -225,6 +215,5 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
   iface->can_clip_redraws = meta_stage_native_can_clip_redraws;
   iface->get_geometry = meta_stage_native_get_geometry;
   iface->get_views = meta_stage_native_get_views;
-  iface->get_frame_counter = meta_stage_native_get_frame_counter;
   iface->finish_frame = meta_stage_native_finish_frame;
 }

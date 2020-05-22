@@ -480,14 +480,6 @@ meta_stage_x11_get_views (ClutterStageWindow *stage_window)
   return meta_renderer_get_views (renderer);
 }
 
-static int64_t
-meta_stage_x11_get_frame_counter (ClutterStageWindow *stage_window)
-{
-  MetaStageX11 *stage_x11 = META_STAGE_X11 (stage_window);
-
-  return cogl_onscreen_get_frame_counter (stage_x11->onscreen);
-}
-
 static void
 meta_stage_x11_finalize (GObject *object)
 {
@@ -548,7 +540,6 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
   iface->unrealize = meta_stage_x11_unrealize;
   iface->can_clip_redraws = meta_stage_x11_can_clip_redraws;
   iface->get_views = meta_stage_x11_get_views;
-  iface->get_frame_counter = meta_stage_x11_get_frame_counter;
 }
 
 static inline void

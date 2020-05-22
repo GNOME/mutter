@@ -60,12 +60,18 @@ typedef struct _ClutterStageViewCoglPrivate
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterStageViewCogl, clutter_stage_view_cogl,
                             CLUTTER_TYPE_STAGE_VIEW)
 
+typedef struct _ClutterStageCoglPrivate
+{
+  int64_t global_frame_counter;
+} ClutterStageCoglPrivate;
+
 static void
 clutter_stage_window_iface_init (ClutterStageWindowInterface *iface);
 
 G_DEFINE_TYPE_WITH_CODE (ClutterStageCogl,
                          _clutter_stage_cogl,
                          G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (ClutterStageCogl)
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_STAGE_WINDOW,
                                                 clutter_stage_window_iface_init));
 
@@ -156,6 +162,16 @@ clutter_stage_cogl_realize (ClutterStageWindow *stage_window)
     }
 
   return TRUE;
+}
+
+static int64_t
+clutter_stage_cogl_get_frame_counter (ClutterStageWindow *stage_window)
+{
+  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  ClutterStageCoglPrivate *priv =
+    _clutter_stage_cogl_get_instance_private (stage_cogl);
+
+  return priv->global_frame_counter;
 }
 
 static void
@@ -361,6 +377,9 @@ swap_framebuffer (ClutterStageWindow *stage_window,
                   cairo_region_t     *swap_region,
                   gboolean            swap_with_damage)
 {
+  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  ClutterStageCoglPrivate *priv =
+    _clutter_stage_cogl_get_instance_private (stage_cogl);
   CoglFramebuffer *framebuffer = clutter_stage_view_get_onscreen (view);
 
   clutter_stage_view_before_swap_buffer (view, swap_region);
@@ -384,7 +403,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
           damage[i * 4 + 3] = rect.height;
         }
 
-      frame_info = cogl_frame_info_new ();
+      frame_info = cogl_frame_info_new (priv->global_frame_counter);
+      priv->global_frame_counter++;
 
       /* push on the screen */
       if (n_rects > 0 && !swap_with_damage)
@@ -750,6 +770,8 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl *stage_cogl,
                                  ClutterStageView *view,
                                  CoglScanout      *scanout)
 {
+  ClutterStageCoglPrivate *priv =
+    _clutter_stage_cogl_get_instance_private (stage_cogl);
   CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
   CoglOnscreen *onscreen;
   CoglFrameInfo *frame_info;
@@ -758,7 +780,8 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl *stage_cogl,
 
   onscreen = COGL_ONSCREEN (framebuffer);
 
-  frame_info = cogl_frame_info_new ();
+  frame_info = cogl_frame_info_new (priv->global_frame_counter);
+  priv->global_frame_counter++;
 
   cogl_onscreen_direct_scanout (onscreen, scanout, frame_info);
 }
@@ -821,6 +844,7 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
   iface->resize = clutter_stage_cogl_resize;
   iface->show = clutter_stage_cogl_show;
   iface->hide = clutter_stage_cogl_hide;
+  iface->get_frame_counter = clutter_stage_cogl_get_frame_counter;
   iface->schedule_update = clutter_stage_cogl_schedule_update;
   iface->get_update_time = clutter_stage_cogl_get_update_time;
   iface->clear_update_time = clutter_stage_cogl_clear_update_time;

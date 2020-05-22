@@ -194,7 +194,7 @@ meta_stage_x11_nested_finish_frame (ClutterStageWindow *stage_window)
       draw_view (stage_nested, renderer_view, texture);
     }
 
-  frame_info = cogl_frame_info_new ();
+  frame_info = cogl_frame_info_new (0);
   cogl_onscreen_swap_buffers (stage_x11->onscreen, frame_info);
 }
 

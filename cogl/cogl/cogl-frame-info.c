@@ -39,11 +39,12 @@ COGL_OBJECT_DEFINE (FrameInfo, frame_info);
 COGL_GTYPE_DEFINE_CLASS (FrameInfo, frame_info);
 
 CoglFrameInfo *
-cogl_frame_info_new (void)
+cogl_frame_info_new (int64_t global_frame_counter)
 {
   CoglFrameInfo *info;
 
   info = g_slice_new0 (CoglFrameInfo);
+  info->global_frame_counter = global_frame_counter;
 
   return _cogl_frame_info_object_new (info);
 }

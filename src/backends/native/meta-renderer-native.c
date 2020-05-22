@@ -224,7 +224,6 @@ struct _MetaRendererNative
 
   CoglClosure *swap_notify_idle;
 
-  int64_t frame_counter;
   gboolean pending_unset_disabled_crtcs;
 
   GList *power_save_page_flip_onscreens;
@@ -2105,9 +2104,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   wait_for_pending_flips (onscreen);
   COGL_TRACE_END (MetaRendererNativeSwapBuffersWait);
 
-  frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
-  frame_info->global_frame_counter = renderer_native->frame_counter;
-
   update_secondary_gpu_state_pre_swap_buffers (onscreen);
 
   parent_vtable->onscreen_swap_buffers_with_damage (onscreen,
@@ -2148,7 +2144,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
 
   ensure_crtc_modes (onscreen, kms_update);
 
-  onscreen_native->pending_queue_swap_notify_frame_count = renderer_native->frame_counter;
+  onscreen_native->pending_queue_swap_notify_frame_count =
+    cogl_frame_info_get_global_frame_counter (frame_info);
   meta_onscreen_native_flip_crtcs (onscreen, kms_update);
 
   /*
@@ -2320,9 +2317,6 @@ meta_onscreen_native_direct_scanout (CoglOnscreen  *onscreen,
 
   wait_for_pending_flips (onscreen);
 
-  frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
-  frame_info->global_frame_counter = renderer_native->frame_counter;
-
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
 
@@ -2334,7 +2328,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen  *onscreen,
   ensure_crtc_modes (onscreen, kms_update);
 
   onscreen_native->pending_queue_swap_notify_frame_count =
-    renderer_native->frame_counter;
+    cogl_frame_info_get_global_frame_counter (frame_info);
   meta_onscreen_native_flip_crtcs (onscreen, kms_update);
 
   meta_kms_post_pending_update_sync (kms);
@@ -3309,8 +3303,6 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaKmsUpdate *kms_update = NULL;
 
-  renderer_native->frame_counter++;
-
   if (renderer_native->pending_unset_disabled_crtcs)
     {
       GList *l;
@@ -3348,12 +3340,6 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
             g_warning ("Failed to post KMS update: %s", error->message);
         }
     }
-}
-
-int64_t
-meta_renderer_native_get_frame_counter (MetaRendererNative *renderer_native)
-{
-  return renderer_native->frame_counter;
 }
 
 static gboolean
