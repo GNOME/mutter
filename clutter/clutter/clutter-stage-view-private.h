@@ -19,6 +19,7 @@
 #define __CLUTTER_STAGE_VIEW_PRIVATE_H__
 
 #include "clutter/clutter-stage-view.h"
+#include "clutter/clutter-types.h"
 
 void clutter_stage_view_after_paint (ClutterStageView *view,
                                      cairo_region_t   *redraw_clip);
@@ -61,5 +62,7 @@ void clutter_stage_view_transform_rect_to_onscreen (ClutterStageView            
                                                     int                          dst_width,
                                                     int                          dst_height,
                                                     cairo_rectangle_int_t       *dst_rect);
+
+ClutterFrameClock * clutter_stage_view_get_frame_clock (ClutterStageView *view);
 
 #endif /* __CLUTTER_STAGE_VIEW_PRIVATE_H__ */

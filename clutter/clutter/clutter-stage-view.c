@@ -24,6 +24,7 @@
 #include <math.h>
 
 #include "clutter/clutter-damage-history.h"
+#include "clutter/clutter-frame-clock.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
@@ -76,6 +77,7 @@ typedef struct _ClutterStageViewPrivate
   cairo_region_t *redraw_clip;
 
   float refresh_rate;
+  ClutterFrameClock *frame_clock;
 
   guint dirty_viewport   : 1;
   guint dirty_projection : 1;
@@ -999,6 +1001,41 @@ clutter_stage_view_take_scanout (ClutterStageView *view)
   return g_steal_pointer (&priv->next_scanout);
 }
 
+ClutterFrameClock *
+clutter_stage_view_get_frame_clock (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  return priv->frame_clock;
+}
+
+static void
+handle_frame_clock_before_frame (ClutterFrameClock *frame_clock,
+                                 int64_t            frame_count,
+                                 gpointer           user_data)
+{
+  ClutterStageView *view = user_data;
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  _clutter_stage_process_queued_events (priv->stage);
+}
+
+static ClutterFrameResult
+handle_frame_clock_frame (ClutterFrameClock *frame_clock,
+                          int64_t            frame_count,
+                          int64_t            time_us,
+                          gpointer           user_data)
+{
+  return CLUTTER_FRAME_RESULT_IDLE;
+}
+
+static const ClutterFrameListenerIface frame_clock_listener_iface = {
+  .before_frame = handle_frame_clock_before_frame,
+  .frame = handle_frame_clock_frame,
+};
+
 static void
 sanity_check_framebuffer (ClutterStageView *view)
 {
@@ -1122,6 +1159,10 @@ clutter_stage_view_constructed (GObject *object)
   if (priv->use_shadowfb)
     init_shadowfb (view);
 
+  priv->frame_clock = clutter_frame_clock_new (priv->refresh_rate,
+                                               &frame_clock_listener_iface,
+                                               view);
+
   G_OBJECT_CLASS (clutter_stage_view_parent_class)->constructed (object);
 }
 
@@ -1148,6 +1189,7 @@ clutter_stage_view_dispose (GObject *object)
   g_clear_pointer (&priv->offscreen, cogl_object_unref);
   g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
   g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
+  g_clear_object (&priv->frame_clock);
 
   G_OBJECT_CLASS (clutter_stage_view_parent_class)->dispose (object);
 }
