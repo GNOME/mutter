@@ -652,6 +652,7 @@
 #include "clutter-scriptable.h"
 #include "clutter-script-private.h"
 #include "clutter-stage-private.h"
+#include "clutter-stage-view-private.h"
 #include "clutter-timeline.h"
 #include "clutter-transition.h"
 #include "clutter-units.h"
@@ -16248,6 +16249,40 @@ clutter_actor_peek_stage_views (ClutterActor *self)
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
 
   return self->priv->stage_views;
+}
+
+/**
+ * clutter_actor_pick_frame_clock:
+ * @self: a #ClutterActor
+ *
+ * Pick the most suitable frame clock for driving animations for this actor.
+ *
+ * Returns: (transfer none): a #ClutterFrameClock
+ */
+ClutterFrameClock *
+clutter_actor_pick_frame_clock (ClutterActor *self)
+{
+  float max_refresh_rate = 0.0;
+  ClutterStageView *best_view = NULL;
+  GList *l;
+
+  for (l = self->priv->stage_views; l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
+      float refresh_rate;
+
+      refresh_rate = clutter_stage_view_get_refresh_rate (view);
+      if (refresh_rate > max_refresh_rate)
+        {
+          best_view = view;
+          max_refresh_rate = refresh_rate;
+        }
+    }
+
+  if (best_view)
+    return clutter_stage_view_get_frame_clock (best_view);
+  else
+    return NULL;
 }
 
 /**
