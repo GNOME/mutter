@@ -1001,6 +1001,15 @@ clutter_stage_view_take_scanout (ClutterStageView *view)
   return g_steal_pointer (&priv->next_scanout);
 }
 
+float
+clutter_stage_view_get_refresh_rate (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  return priv->refresh_rate;
+}
+
 ClutterFrameClock *
 clutter_stage_view_get_frame_clock (ClutterStageView *view)
 {
