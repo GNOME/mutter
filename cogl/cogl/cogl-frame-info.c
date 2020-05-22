@@ -39,7 +39,7 @@ COGL_OBJECT_DEFINE (FrameInfo, frame_info);
 COGL_GTYPE_DEFINE_CLASS (FrameInfo, frame_info);
 
 CoglFrameInfo *
-_cogl_frame_info_new (void)
+cogl_frame_info_new (void)
 {
   CoglFrameInfo *info;
 

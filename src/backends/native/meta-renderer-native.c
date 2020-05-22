@@ -2067,9 +2067,10 @@ ensure_crtc_modes (CoglOnscreen  *onscreen,
 }
 
 static void
-meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
-                                               const int    *rectangles,
-                                               int           n_rectangles)
+meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+                                               const int     *rectangles,
+                                               int            n_rectangles,
+                                               CoglFrameInfo *frame_info)
 {
   CoglContext *cogl_context = COGL_FRAMEBUFFER (onscreen)->context;
   CoglDisplay *cogl_display = cogl_context_get_display (cogl_context);
@@ -2084,7 +2085,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
-  CoglFrameInfo *frame_info;
   gboolean egl_context_changed = FALSE;
   MetaKmsUpdate *kms_update;
   g_autoptr (GError) error = NULL;
@@ -2112,7 +2112,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen *onscreen,
 
   parent_vtable->onscreen_swap_buffers_with_damage (onscreen,
                                                     rectangles,
-                                                    n_rectangles);
+                                                    n_rectangles,
+                                                    frame_info);
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
@@ -2296,8 +2297,9 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
 }
 
 static void
-meta_onscreen_native_direct_scanout (CoglOnscreen *onscreen,
-                                     CoglScanout  *scanout)
+meta_onscreen_native_direct_scanout (CoglOnscreen  *onscreen,
+                                     CoglScanout   *scanout,
+                                     CoglFrameInfo *frame_info)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -2311,7 +2313,6 @@ meta_onscreen_native_direct_scanout (CoglOnscreen *onscreen,
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
-  CoglFrameInfo *frame_info;
   MetaKmsUpdate *kms_update;
   g_autoptr (GError) error = NULL;
 

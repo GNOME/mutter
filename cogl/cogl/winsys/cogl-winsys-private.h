@@ -116,11 +116,13 @@ typedef struct _CoglWinsysVtable
   void
   (*onscreen_swap_buffers_with_damage) (CoglOnscreen *onscreen,
                                         const int *rectangles,
-                                        int n_rectangles);
+                                        int n_rectangles,
+                                        CoglFrameInfo *info);
 
   void
-  (*onscreen_direct_scanout) (CoglOnscreen *onscreen,
-                              CoglScanout  *scanout);
+  (*onscreen_direct_scanout) (CoglOnscreen  *onscreen,
+                              CoglScanout   *scanout,
+                              CoglFrameInfo *info);
 
   void
   (*onscreen_set_visibility) (CoglOnscreen *onscreen,
@@ -134,7 +136,8 @@ typedef struct _CoglWinsysVtable
   void
   (*onscreen_swap_region) (CoglOnscreen *onscreen,
                            const int *rectangles,
-                           int n_rectangles);
+                           int n_rectangles,
+                           CoglFrameInfo *info);
 
   void
   (*onscreen_set_resizable) (CoglOnscreen *onscreen, gboolean resizable);

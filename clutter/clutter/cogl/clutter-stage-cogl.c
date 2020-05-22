@@ -369,6 +369,7 @@ swap_framebuffer (ClutterStageWindow *stage_window,
     {
       CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
       int *damage, n_rects, i;
+      CoglFrameInfo *frame_info;
 
       n_rects = cairo_region_num_rectangles (swap_region);
       damage = g_newa (int, n_rects * 4);
@@ -383,6 +384,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
           damage[i * 4 + 3] = rect.height;
         }
 
+      frame_info = cogl_frame_info_new ();
+
       /* push on the screen */
       if (n_rects > 0 && !swap_with_damage)
         {
@@ -391,7 +394,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
                         onscreen);
 
           cogl_onscreen_swap_region (onscreen,
-                                     damage, n_rects);
+                                     damage, n_rects,
+                                     frame_info);
 
           return FALSE;
         }
@@ -401,7 +405,8 @@ swap_framebuffer (ClutterStageWindow *stage_window,
                         onscreen);
 
           cogl_onscreen_swap_buffers_with_damage (onscreen,
-                                                  damage, n_rects);
+                                                  damage, n_rects,
+                                                  frame_info);
 
           return TRUE;
         }
@@ -747,11 +752,15 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl *stage_cogl,
 {
   CoglFramebuffer *framebuffer = clutter_stage_view_get_framebuffer (view);
   CoglOnscreen *onscreen;
+  CoglFrameInfo *frame_info;
 
   g_return_if_fail (cogl_is_onscreen (framebuffer));
 
   onscreen = COGL_ONSCREEN (framebuffer);
-  cogl_onscreen_direct_scanout (onscreen, scanout);
+
+  frame_info = cogl_frame_info_new ();
+
+  cogl_onscreen_direct_scanout (onscreen, scanout, frame_info);
 }
 
 static void
