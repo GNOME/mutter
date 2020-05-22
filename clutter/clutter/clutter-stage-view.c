@@ -108,9 +108,9 @@ clutter_stage_view_get_framebuffer (ClutterStageView *view)
     clutter_stage_view_get_instance_private (view);
 
   if (priv->offscreen)
-    return priv->offscreen;
+    return COGL_FRAMEBUFFER (priv->offscreen);
   else if (priv->shadow.framebuffer)
-    return priv->shadow.framebuffer;
+    return COGL_FRAMEBUFFER (priv->shadow.framebuffer);
   else
     return priv->framebuffer;
 }
@@ -133,8 +133,9 @@ clutter_stage_view_get_onscreen (ClutterStageView *view)
 }
 
 static CoglPipeline *
-clutter_stage_view_create_framebuffer_pipeline (CoglFramebuffer *framebuffer)
+clutter_stage_view_create_offscreen_pipeline (CoglOffscreen *offscreen)
 {
+  CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (offscreen);
   CoglPipeline *pipeline;
 
   pipeline = cogl_pipeline_new (cogl_framebuffer_get_context (framebuffer));
@@ -143,7 +144,7 @@ clutter_stage_view_create_framebuffer_pipeline (CoglFramebuffer *framebuffer)
                                    COGL_PIPELINE_FILTER_NEAREST,
                                    COGL_PIPELINE_FILTER_NEAREST);
   cogl_pipeline_set_layer_texture (pipeline, 0,
-                                   cogl_offscreen_get_texture (framebuffer));
+                                   cogl_offscreen_get_texture (offscreen));
   cogl_pipeline_set_layer_wrap_mode (pipeline, 0,
                                      COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
 
@@ -164,7 +165,7 @@ clutter_stage_view_ensure_offscreen_blit_pipeline (ClutterStageView *view)
     return;
 
   priv->offscreen_pipeline =
-    clutter_stage_view_create_framebuffer_pipeline (priv->offscreen);
+    clutter_stage_view_create_offscreen_pipeline (priv->offscreen);
 
   if (view_class->setup_offscreen_blit_pipeline)
     view_class->setup_offscreen_blit_pipeline (view, priv->offscreen_pipeline);
@@ -198,7 +199,7 @@ clutter_stage_view_transform_rect_to_onscreen (ClutterStageView            *view
 static void
 paint_transformed_framebuffer (ClutterStageView     *view,
                                CoglPipeline         *pipeline,
-                               CoglFramebuffer      *src_framebuffer,
+                               CoglOffscreen        *src_framebuffer,
                                CoglFramebuffer      *dst_framebuffer,
                                const cairo_region_t *redraw_clip)
 {
@@ -438,10 +439,13 @@ clutter_stage_view_after_paint (ClutterStageView *view,
 
       if (priv->shadow.framebuffer)
         {
+          CoglFramebuffer *shadowfb =
+            COGL_FRAMEBUFFER (priv->shadow.framebuffer);
+
           paint_transformed_framebuffer (view,
                                          priv->offscreen_pipeline,
                                          priv->offscreen,
-                                         priv->shadow.framebuffer,
+                                         shadowfb,
                                          redraw_clip);
         }
       else
@@ -514,7 +518,7 @@ find_damaged_tiles (ClutterStageView      *view,
   stride = cogl_dma_buf_handle_get_stride (current_dma_buf_handle);
   bpp = cogl_dma_buf_handle_get_bpp (current_dma_buf_handle);
 
-  cogl_framebuffer_finish (priv->shadow.framebuffer);
+  cogl_framebuffer_finish (COGL_FRAMEBUFFER (priv->shadow.framebuffer));
 
   if (!cogl_dma_buf_handle_sync_read_start (prev_dma_buf_handle, error))
     return NULL;
@@ -607,7 +611,7 @@ swap_dma_buf_framebuffer (ClutterStageView *view)
     clutter_stage_view_get_instance_private (view);
   int next_idx;
   CoglDmaBufHandle *next_dma_buf_handle;
-  CoglOffscreen *next_framebuffer;
+  CoglFramebuffer *next_framebuffer;
 
   next_idx = ((priv->shadow.dma_buf.current_idx + 1) %
               G_N_ELEMENTS (priv->shadow.dma_buf.handles));
@@ -703,12 +707,13 @@ copy_shadowfb_to_onscreen (ClutterStageView     *view,
 
   for (i = 0; i < cairo_region_num_rectangles (damage_region); i++)
     {
+      CoglFramebuffer *shadowfb = COGL_FRAMEBUFFER (priv->shadow.framebuffer);
       g_autoptr (GError) error = NULL;
       cairo_rectangle_int_t rect;
 
       cairo_region_get_rectangle (damage_region, i, &rect);
 
-      if (!cogl_blit_framebuffer (priv->shadow.framebuffer,
+      if (!cogl_blit_framebuffer (shadowfb,
                                   priv->framebuffer,
                                   rect.x, rect.y,
                                   rect.x, rect.y,
@@ -760,7 +765,7 @@ clutter_stage_view_foreach_front_buffer (ClutterStageView    *view,
 
   if (priv->offscreen)
     {
-      callback (priv->offscreen, user_data);
+      callback (COGL_FRAMEBUFFER (priv->offscreen), user_data);
     }
   else if (priv->shadow.framebuffer)
     {
@@ -779,7 +784,7 @@ clutter_stage_view_foreach_front_buffer (ClutterStageView    *view,
         }
       else
         {
-          callback (priv->shadow.framebuffer, user_data);
+          callback (COGL_FRAMEBUFFER (priv->shadow.framebuffer), user_data);
         }
     }
   else

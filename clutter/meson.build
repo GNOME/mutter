@@ -8,6 +8,7 @@ clutter_c_args = [
   '-DCLUTTER_SYSCONFDIR="@0@"'.format(join_paths(prefix, sysconfdir)),
   '-DCLUTTER_COMPILATION=1',
   '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
+  '-DCOGL_ENABLE_MUTTER_API',
   '-DG_LOG_DOMAIN="Clutter"',
 ]
 
