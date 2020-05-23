@@ -83,10 +83,6 @@
 
 /* main context */
 static ClutterMainContext *ClutterCntx       = NULL;
-G_LOCK_DEFINE_STATIC (ClutterCntx);
-
-/* main lock and locking/unlocking functions */
-static GMutex clutter_threads_mutex;
 
 /* command line options */
 static gboolean clutter_is_initialized       = FALSE;
@@ -144,12 +140,6 @@ static const GDebugKey clutter_paint_debug_keys[] = {
   { "paint-deform-tiles", CLUTTER_DEBUG_PAINT_DEFORM_TILES },
   { "damage-region", CLUTTER_DEBUG_PAINT_DAMAGE_REGION },
 };
-
-static inline void
-clutter_threads_init_default (void)
-{
-  g_mutex_init (&clutter_threads_mutex);
-}
 
 #define ENVIRONMENT_GROUP       "Environment"
 #define DEBUG_GROUP             "Debug"
@@ -519,11 +509,7 @@ clutter_main (void)
   main_loops = g_slist_prepend (main_loops, loop);
 
   if (g_main_loop_is_running (main_loops->data))
-    {
-      _clutter_threads_release_lock ();
-      g_main_loop_run (loop);
-      _clutter_threads_acquire_lock ();
-    }
+    g_main_loop_run (loop);
 
   main_loops = g_slist_remove (main_loops, loop);
 
@@ -540,12 +526,8 @@ _clutter_threads_dispatch (gpointer data)
   ClutterThreadsDispatch *dispatch = data;
   gboolean ret = FALSE;
 
-  _clutter_threads_acquire_lock ();
-
   if (!g_source_is_destroyed (g_main_current_source ()))
     ret = dispatch->func (dispatch->data);
-
-  _clutter_threads_release_lock ();
 
   return ret;
 }
@@ -771,40 +753,6 @@ clutter_threads_add_timeout (guint       interval,
                                            NULL);
 }
 
-void
-_clutter_threads_acquire_lock (void)
-{
-  g_mutex_lock (&clutter_threads_mutex);
-}
-
-void
-_clutter_threads_release_lock (void)
-{
-  /* we need to trylock here, in case the lock hasn't been acquired; on
-   * various systems trying to release a mutex that hasn't been acquired
-   * will cause a run-time error. trylock() will either fail, in which
-   * case we can release the lock we own; or it will succeeds, in which
-   * case we need to release the lock we just acquired. so we ignore the
-   * returned value.
-   *
-   * see: https://bugs.gnome.org/679439
-   */
-  g_mutex_trylock (&clutter_threads_mutex);
-  g_mutex_unlock (&clutter_threads_mutex);
-}
-
-void
-_clutter_context_lock (void)
-{
-  G_LOCK (ClutterCntx);
-}
-
-void
-_clutter_context_unlock (void)
-{
-  G_UNLOCK (ClutterCntx);
-}
-
 gboolean
 _clutter_context_is_initialized (void)
 {
@@ -814,8 +762,8 @@ _clutter_context_is_initialized (void)
   return ClutterCntx->is_initialized;
 }
 
-static ClutterMainContext *
-clutter_context_get_default_unlocked (void)
+ClutterMainContext *
+_clutter_context_get_default (void)
 {
   if (G_UNLIKELY (ClutterCntx == NULL))
     {
@@ -844,20 +792,6 @@ clutter_context_get_default_unlocked (void)
     }
 
   return ClutterCntx;
-}
-
-ClutterMainContext *
-_clutter_context_get_default (void)
-{
-  ClutterMainContext *retval;
-
-  _clutter_context_lock ();
-
-  retval = clutter_context_get_default_unlocked ();
-
-  _clutter_context_unlock ();
-
-  return retval;
 }
 
 static gboolean
@@ -2170,9 +2104,6 @@ clutter_base_init (void)
       g_type_init ();
 #endif
 
-      /* initialise the Big Clutter Lock™ if necessary */
-      clutter_threads_init_default ();
-
       clutter_graphene_init ();
     }
 }
@@ -2240,9 +2171,7 @@ clutter_threads_remove_repaint_func (guint handle_id)
 
   g_return_if_fail (handle_id > 0);
 
-  _clutter_context_lock ();
-
-  context = clutter_context_get_default_unlocked ();
+  context = _clutter_context_get_default ();
   l = context->repaint_funcs;
   while (l != NULL)
     {
@@ -2265,8 +2194,6 @@ clutter_threads_remove_repaint_func (guint handle_id)
 
       l = l->next;
     }
-
-  _clutter_context_unlock ();
 }
 
 /**
@@ -2365,9 +2292,7 @@ clutter_threads_add_repaint_func_full (ClutterRepaintFlags flags,
 
   g_return_val_if_fail (func != NULL, 0);
 
-  _clutter_context_lock ();
-
-  context = clutter_context_get_default_unlocked ();
+  context = _clutter_context_get_default ();
 
   repaint_func = g_slice_new (ClutterRepaintFunction);
 
@@ -2380,8 +2305,6 @@ clutter_threads_add_repaint_func_full (ClutterRepaintFlags flags,
 
   context->repaint_funcs = g_list_prepend (context->repaint_funcs,
                                            repaint_func);
-
-  _clutter_context_unlock ();
 
   return repaint_func->id;
 }

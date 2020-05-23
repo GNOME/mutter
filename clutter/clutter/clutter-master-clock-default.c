@@ -413,8 +413,6 @@ clutter_clock_prepare (GSource *source,
   ClutterMasterClockDefault *master_clock = clock_source->master_clock;
   int delay;
 
-  _clutter_threads_acquire_lock ();
-
   if (G_UNLIKELY (clutter_paint_debug_flags &
                   CLUTTER_DEBUG_CONTINUOUS_REDRAW))
     {
@@ -430,8 +428,6 @@ clutter_clock_prepare (GSource *source,
 
   delay = master_clock_next_frame_delay (master_clock);
 
-  _clutter_threads_release_lock ();
-
   *timeout = delay;
 
   return delay == 0;
@@ -444,9 +440,7 @@ clutter_clock_check (GSource *source)
   ClutterMasterClockDefault *master_clock = clock_source->master_clock;
   int delay;
 
-  _clutter_threads_acquire_lock ();
   delay = master_clock_next_frame_delay (master_clock);
-  _clutter_threads_release_lock ();
 
   return delay == 0;
 }
@@ -461,8 +455,6 @@ clutter_clock_dispatch (GSource     *source,
   GSList *stages;
 
   CLUTTER_NOTE (SCHEDULER, "Master clock [tick]");
-
-  _clutter_threads_acquire_lock ();
 
   COGL_TRACE_BEGIN (ClutterMasterClockTick, "Master Clock (tick)");
 
@@ -498,8 +490,6 @@ clutter_clock_dispatch (GSource     *source,
   g_slist_free_full (stages, g_object_unref);
 
   COGL_TRACE_END (ClutterMasterClockTick);
-
-  _clutter_threads_release_lock ();
 
   return TRUE;
 }

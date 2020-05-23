@@ -92,8 +92,6 @@ meta_x11_handle_event (XEvent *xevent)
 
   result = CLUTTER_X11_FILTER_CONTINUE;
 
-  _clutter_threads_acquire_lock ();
-
   backend = clutter_get_default_backend ();
 
   event = clutter_event_new (CLUTTER_NOTHING);
@@ -134,8 +132,6 @@ meta_x11_handle_event (XEvent *xevent)
 out:
   if (allocated_event)
     XFreeEventData (xdisplay, &xevent->xcookie);
-
-  _clutter_threads_release_lock ();
 
   return result;
 }
