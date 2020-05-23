@@ -119,8 +119,7 @@ struct _ClutterStagePrivate
 
   ClutterPlane current_clip_planes[4];
 
-  GHashTable *pending_relayouts;
-  unsigned int pending_relayouts_version;
+  GSList *pending_relayouts;
   GList *pending_queue_redraws;
 
   gint sync_delay;
@@ -1295,7 +1294,7 @@ _clutter_stage_needs_update (ClutterStage *stage)
 
   return (priv->redraw_pending ||
           priv->needs_update ||
-          g_hash_table_size (priv->pending_relayouts) > 0);
+          priv->pending_relayouts != NULL);
 }
 
 void
@@ -1304,11 +1303,11 @@ clutter_stage_queue_actor_relayout (ClutterStage *stage,
 {
   ClutterStagePrivate *priv = stage->priv;
 
-  if (g_hash_table_size (priv->pending_relayouts) == 0)
+  if (priv->pending_relayouts == NULL)
     clutter_stage_schedule_update (stage);
 
-  g_hash_table_add (priv->pending_relayouts, g_object_ref (actor));
-  priv->pending_relayouts_version++;
+  priv->pending_relayouts = g_slist_prepend (priv->pending_relayouts,
+                                             g_object_ref (actor));
 }
 
 void
@@ -1316,24 +1315,20 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
 {
   ClutterStage *stage = CLUTTER_STAGE (actor);
   ClutterStagePrivate *priv = stage->priv;
-  GHashTableIter iter;
-  gpointer key;
+  g_autoptr (GSList) stolen_list = NULL;
+  GSList *l;
   int count = 0;
 
   /* No work to do? Avoid the extraneous debug log messages too. */
-  if (g_hash_table_size (priv->pending_relayouts) == 0)
+  if (priv->pending_relayouts == NULL)
     return;
 
   CLUTTER_NOTE (ACTOR, ">>> Recomputing layout");
 
-  g_hash_table_iter_init (&iter, priv->pending_relayouts);
-  while (g_hash_table_iter_next (&iter, &key, NULL))
+  stolen_list = g_steal_pointer (&priv->pending_relayouts);
+  for (l = stolen_list; l; l = l->next)
     {
-      g_autoptr (ClutterActor) queued_actor = key;
-      unsigned int old_version;
-
-      g_hash_table_iter_steal (&iter);
-      priv->pending_relayouts_version++;
+      g_autoptr (ClutterActor) queued_actor = l->data;
 
       if (CLUTTER_ACTOR_IN_RELAYOUT (queued_actor))  /* avoid reentrancy */
         continue;
@@ -1351,16 +1346,11 @@ _clutter_stage_maybe_relayout (ClutterActor *actor)
 
       CLUTTER_SET_PRIVATE_FLAGS (queued_actor, CLUTTER_IN_RELAYOUT);
 
-      old_version = priv->pending_relayouts_version;
       clutter_actor_allocate_preferred_size (queued_actor);
 
       CLUTTER_UNSET_PRIVATE_FLAGS (queued_actor, CLUTTER_IN_RELAYOUT);
 
       count++;
-
-      /* Prevent using an iterator that's been invalidated */
-      if (old_version != priv->pending_relayouts_version)
-        g_hash_table_iter_init (&iter, priv->pending_relayouts);
     }
 
   CLUTTER_NOTE (ACTOR, "<<< Completed recomputing layout of %d subtrees", count);
@@ -1923,7 +1913,9 @@ clutter_stage_dispose (GObject *object)
                     (GDestroyNotify) free_queue_redraw_entry);
   priv->pending_queue_redraws = NULL;
 
-  g_clear_pointer (&priv->pending_relayouts, g_hash_table_destroy);
+  g_slist_free_full (priv->pending_relayouts,
+                     (GDestroyNotify) g_object_unref);
+  priv->pending_relayouts = NULL;
 
   /* this will release the reference on the stage */
   stage_manager = clutter_stage_manager_get_default ();
@@ -2237,10 +2229,6 @@ clutter_stage_init (ClutterStage *self)
   clutter_actor_set_background_color (CLUTTER_ACTOR (self),
                                       &default_stage_color);
 
-  priv->pending_relayouts = g_hash_table_new_full (NULL,
-                                                   NULL,
-                                                   g_object_unref,
-                                                   NULL);
   clutter_stage_queue_actor_relayout (self, CLUTTER_ACTOR (self));
 
   clutter_actor_set_reactive (CLUTTER_ACTOR (self), TRUE);
