@@ -628,6 +628,68 @@ frame_clock_inhibit (void)
   g_object_unref (test.frame_clock);
 }
 
+typedef struct _RescheduleOnIdleFrameClockTest
+{
+  FrameClockTest base;
+} RescheduleOnIdleFrameClockTest;
+
+static ClutterFrameResult
+reschedule_on_idle_clock_frame (ClutterFrameClock *frame_clock,
+                                int64_t            frame_count,
+                                int64_t            time_us,
+                                gpointer           user_data)
+{
+  RescheduleOnIdleFrameClockTest *test = user_data;
+  GMainLoop *main_loop = test->base.main_loop;
+
+  g_assert_cmpint (frame_count, ==, expected_frame_count);
+
+  expected_frame_count++;
+
+  if (test_frame_count == 0)
+    {
+      g_main_loop_quit (main_loop);
+      return CLUTTER_FRAME_RESULT_IDLE;
+    }
+
+  test_frame_count--;
+
+  clutter_frame_clock_schedule_update (frame_clock);
+
+  return CLUTTER_FRAME_RESULT_IDLE;
+}
+
+static const ClutterFrameListenerIface reschedule_on_idle_listener_iface = {
+  .frame = reschedule_on_idle_clock_frame,
+};
+
+static void
+frame_clock_reschedule_on_idle (void)
+{
+  RescheduleOnIdleFrameClockTest test;
+  ClutterFrameClock *frame_clock;
+  FakeHwClock *fake_hw_clock;
+  GSource *source;
+
+  test_frame_count = 10;
+  expected_frame_count = 0;
+
+  test.base.main_loop = g_main_loop_new (NULL, FALSE);
+  frame_clock = clutter_frame_clock_new (refresh_rate,
+                                         &reschedule_on_idle_listener_iface,
+                                         &test);
+  fake_hw_clock = fake_hw_clock_new (frame_clock, NULL, NULL);
+  source = &fake_hw_clock->source;
+  g_source_attach (source, NULL);
+  test.base.fake_hw_clock = fake_hw_clock;
+
+  clutter_frame_clock_schedule_update (frame_clock);
+  g_main_loop_run (test.base.main_loop);
+
+  g_main_loop_unref (test.base.main_loop);
+  g_object_unref (frame_clock);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/frame-clock/schedule-update", frame_clock_schedule_update)
   CLUTTER_TEST_UNIT ("/frame-clock/immediate-present", frame_clock_immediate_present)
@@ -636,4 +698,5 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/frame-clock/schedule-update-now", frame_clock_schedule_update_now)
   CLUTTER_TEST_UNIT ("/frame-clock/before-frame", frame_clock_before_frame)
   CLUTTER_TEST_UNIT ("/frame-clock/inhibit", frame_clock_inhibit)
+  CLUTTER_TEST_UNIT ("/frame-clock/reschedule-on-idle", frame_clock_reschedule_on_idle)
 )

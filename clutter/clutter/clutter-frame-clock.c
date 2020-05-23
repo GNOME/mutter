@@ -419,6 +419,7 @@ clutter_frame_clock_dispatch (ClutterFrameClock *frame_clock,
           break;
         case CLUTTER_FRAME_RESULT_IDLE:
           frame_clock->state = CLUTTER_FRAME_CLOCK_STATE_IDLE;
+          maybe_reschedule_update (frame_clock);
           break;
         }
       break;
