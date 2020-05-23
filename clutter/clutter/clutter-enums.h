@@ -1317,8 +1317,6 @@ typedef enum
  *   painting the stages
  * @CLUTTER_REPAINT_FLAGS_POST_PAINT: Run the repaint function after
  *   painting the stages
- * @CLUTTER_REPAINT_FLAGS_QUEUE_REDRAW_ON_ADD: Ensure that a new frame
- *   is queued after adding the repaint function
  *
  * Flags to pass to clutter_threads_add_repaint_func_full().
  *
@@ -1328,7 +1326,6 @@ typedef enum
 {
   CLUTTER_REPAINT_FLAGS_PRE_PAINT = 1 << 0,
   CLUTTER_REPAINT_FLAGS_POST_PAINT = 1 << 1,
-  CLUTTER_REPAINT_FLAGS_QUEUE_REDRAW_ON_ADD = 1 << 2
 } ClutterRepaintFlags;
 
 /**
