@@ -6421,6 +6421,9 @@ end_grab_op (MetaWindow *window,
       if (modifiers & CLUTTER_SHIFT_MASK)
         flags |= META_EDGE_RESISTANCE_SNAP;
 
+      if (modifiers & CLUTTER_CONTROL_MASK)
+        flags |= META_EDGE_RESISTANCE_WINDOWS;
+
       if (meta_grab_op_is_moving (window->display->grab_op))
         {
           if (window->display->preview_tile_mode != META_TILE_NONE)
@@ -6431,7 +6434,7 @@ end_grab_op (MetaWindow *window,
       else if (meta_grab_op_is_resizing (window->display->grab_op))
         {
           if (window->tile_match != NULL)
-            flags |= META_EDGE_RESISTANCE_SNAP;
+            flags |= (META_EDGE_RESISTANCE_SNAP | META_EDGE_RESISTANCE_WINDOWS);
 
           update_resize (window, flags, x, y, TRUE);
           maybe_maximize_tiled_window (window);
@@ -6503,6 +6506,9 @@ meta_window_handle_mouse_grab_op_event  (MetaWindow         *window,
       if (modifier_state & CLUTTER_SHIFT_MASK)
         flags |= META_EDGE_RESISTANCE_SNAP;
 
+      if (modifier_state & CLUTTER_CONTROL_MASK)
+        flags |= META_EDGE_RESISTANCE_WINDOWS;
+
       meta_display_check_threshold_reached (window->display, x, y);
       if (meta_grab_op_is_moving (window->display->grab_op))
         {
@@ -6511,7 +6517,7 @@ meta_window_handle_mouse_grab_op_event  (MetaWindow         *window,
       else if (meta_grab_op_is_resizing (window->display->grab_op))
         {
           if (window->tile_match != NULL)
-            flags |= META_EDGE_RESISTANCE_SNAP;
+            flags |= (META_EDGE_RESISTANCE_SNAP | META_EDGE_RESISTANCE_WINDOWS);
 
           update_resize (window, flags, x, y, FALSE);
         }

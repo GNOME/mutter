@@ -334,6 +334,7 @@ apply_edge_resistance (MetaWindow                *window,
                        ResistanceDataForAnEdge   *resistance_data,
                        GSourceFunc                timeout_func,
                        gboolean                   xdir,
+                       gboolean                   include_windows,
                        gboolean                   keyboard_op)
 {
   int i, begin, end;
@@ -420,7 +421,8 @@ apply_edge_resistance (MetaWindow                *window,
               switch (edge->edge_type)
                 {
                 case META_EDGE_WINDOW:
-                  timeout_length_ms = TIMEOUT_RESISTANCE_LENGTH_MS_WINDOW;
+                  if (include_windows)
+                    timeout_length_ms = TIMEOUT_RESISTANCE_LENGTH_MS_WINDOW;
                   break;
                 case META_EDGE_MONITOR:
                   timeout_length_ms = TIMEOUT_RESISTANCE_LENGTH_MS_MONITOR;
@@ -464,6 +466,8 @@ apply_edge_resistance (MetaWindow                *window,
           switch (edge->edge_type)
             {
             case META_EDGE_WINDOW:
+              if (!include_windows)
+                break;
               if (movement_towards_edge (edge->side_type, increment))
                 threshold = PIXEL_DISTANCE_THRESHOLD_TOWARDS_WINDOW;
               else
@@ -640,6 +644,8 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
     }
   else
     {
+      gboolean include_windows = flags & META_EDGE_RESISTANCE_WINDOWS;
+
       /* Disable edge resistance for resizes when windows have size
        * increment hints; see #346782.  For all other cases, apply
        * them.
@@ -656,6 +662,7 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
                                               &edge_data->left_data,
                                               timeout_func,
                                               TRUE,
+                                              include_windows,
                                               keyboard_op);
           new_right  = apply_edge_resistance (window,
                                               BOX_RIGHT (*old_outer),
@@ -666,6 +673,7 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
                                               &edge_data->right_data,
                                               timeout_func,
                                               TRUE,
+                                              include_windows,
                                               keyboard_op);
         }
       else
@@ -685,6 +693,7 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
                                               &edge_data->top_data,
                                               timeout_func,
                                               FALSE,
+                                              include_windows,
                                               keyboard_op);
           new_bottom = apply_edge_resistance (window,
                                               BOX_BOTTOM (*old_outer),
@@ -695,6 +704,7 @@ apply_edge_resistance_to_each_side (MetaDisplay             *display,
                                               &edge_data->bottom_data,
                                               timeout_func,
                                               FALSE,
+                                              include_windows,
                                               keyboard_op);
         }
       else

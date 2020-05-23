@@ -2420,7 +2420,7 @@ process_keyboard_move_grab (MetaDisplay     *display,
   x = frame_rect.x;
   y = frame_rect.y;
 
-  flags = META_EDGE_RESISTANCE_KEYBOARD_OP;
+  flags = META_EDGE_RESISTANCE_KEYBOARD_OP | META_EDGE_RESISTANCE_WINDOWS;
 
   if ((event->modifier_state & CLUTTER_SHIFT_MASK) != 0)
     flags |= META_EDGE_RESISTANCE_SNAP;

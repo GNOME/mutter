@@ -162,6 +162,7 @@ typedef enum
   META_EDGE_RESISTANCE_DEFAULT     = 0,
   META_EDGE_RESISTANCE_SNAP        = 1 << 0,
   META_EDGE_RESISTANCE_KEYBOARD_OP = 1 << 1,
+  META_EDGE_RESISTANCE_WINDOWS     = 1 << 2,
 } MetaEdgeResistanceFlags;
 
 struct _MetaWindow
