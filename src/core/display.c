@@ -1903,7 +1903,7 @@ meta_display_begin_grab_op (MetaDisplay *display,
   display->grab_latest_motion_x = root_x;
   display->grab_latest_motion_y = root_y;
   display->grab_last_moveresize_time = 0;
-  display->grab_last_user_action_was_snap = FALSE;
+  display->grab_last_edge_resistance_flags = META_EDGE_RESISTANCE_DEFAULT;
   display->grab_frame_action = frame_action;
 
   meta_display_update_cursor (display);

@@ -537,19 +537,22 @@ apply_edge_snapping (int                  old_pos,
  * function will cause a crash.
  */
 static gboolean
-apply_edge_resistance_to_each_side (MetaDisplay         *display,
-                                    MetaWindow          *window,
-                                    const MetaRectangle *old_outer,
-                                    MetaRectangle       *new_outer,
-                                    GSourceFunc          timeout_func,
-                                    gboolean             auto_snap,
-                                    gboolean             keyboard_op,
-                                    gboolean             is_resize)
+apply_edge_resistance_to_each_side (MetaDisplay             *display,
+                                    MetaWindow              *window,
+                                    const MetaRectangle     *old_outer,
+                                    MetaRectangle           *new_outer,
+                                    GSourceFunc              timeout_func,
+                                    MetaEdgeResistanceFlags  flags,
+                                    gboolean                 is_resize)
 {
   MetaEdgeResistanceData *edge_data;
   MetaRectangle           modified_rect;
   gboolean                modified;
   int new_left, new_right, new_top, new_bottom;
+  gboolean auto_snap, keyboard_op;
+
+  auto_snap = flags & META_EDGE_RESISTANCE_SNAP;
+  keyboard_op = flags & META_EDGE_RESISTANCE_KEYBOARD_OP;
 
   if (display->grab_edge_resistance_data == NULL)
     compute_resistance_and_snapping_edges (display);
@@ -1174,15 +1177,15 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
 }
 
 void
-meta_window_edge_resistance_for_move (MetaWindow  *window,
-                                      int         *new_x,
-                                      int         *new_y,
-                                      GSourceFunc  timeout_func,
-                                      gboolean     snap,
-                                      gboolean     is_keyboard_op)
+meta_window_edge_resistance_for_move (MetaWindow              *window,
+                                      int                     *new_x,
+                                      int                     *new_y,
+                                      GSourceFunc              timeout_func,
+                                      MetaEdgeResistanceFlags  flags)
 {
   MetaRectangle old_outer, proposed_outer, new_outer;
-  gboolean is_resize;
+  MetaEdgeResistanceFlags saved_flags;
+  gboolean is_resize, is_keyboard_op, snap;
 
   meta_window_get_frame_rect (window, &old_outer);
 
@@ -1191,15 +1194,18 @@ meta_window_edge_resistance_for_move (MetaWindow  *window,
   proposed_outer.y = *new_y;
   new_outer = proposed_outer;
 
-  window->display->grab_last_user_action_was_snap = snap;
+  snap = flags & META_EDGE_RESISTANCE_SNAP;
+  is_keyboard_op = flags & META_EDGE_RESISTANCE_KEYBOARD_OP;
+  saved_flags = flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
+
+  window->display->grab_last_edge_resistance_flags = saved_flags;
   is_resize = FALSE;
   if (apply_edge_resistance_to_each_side (window->display,
                                           window,
                                           &old_outer,
                                           &new_outer,
                                           timeout_func,
-                                          snap,
-                                          is_keyboard_op,
+                                          flags,
                                           is_resize))
     {
       /* apply_edge_resistance_to_each_side independently applies
@@ -1252,15 +1258,15 @@ meta_window_edge_resistance_for_move (MetaWindow  *window,
 }
 
 void
-meta_window_edge_resistance_for_resize (MetaWindow  *window,
-                                        int         *new_width,
-                                        int         *new_height,
-                                        MetaGravity  gravity,
-                                        GSourceFunc  timeout_func,
-                                        gboolean     snap,
-                                        gboolean     is_keyboard_op)
+meta_window_edge_resistance_for_resize (MetaWindow              *window,
+                                        int                     *new_width,
+                                        int                     *new_height,
+                                        MetaGravity              gravity,
+                                        GSourceFunc              timeout_func,
+                                        MetaEdgeResistanceFlags  flags)
 {
   MetaRectangle old_outer, new_outer;
+  MetaEdgeResistanceFlags saved_flags;
   int proposed_outer_width, proposed_outer_height;
 
   meta_window_get_frame_rect (window, &old_outer);
@@ -1272,14 +1278,15 @@ meta_window_edge_resistance_for_resize (MetaWindow  *window,
                                       proposed_outer_width,
                                       proposed_outer_height);
 
-  window->display->grab_last_user_action_was_snap = snap;
+  saved_flags = flags & ~META_EDGE_RESISTANCE_KEYBOARD_OP;
+  window->display->grab_last_edge_resistance_flags = saved_flags;
+
   if (apply_edge_resistance_to_each_side (window->display,
                                           window,
                                           &old_outer,
                                           &new_outer,
                                           timeout_func,
-                                          snap,
-                                          is_keyboard_op,
+                                          flags,
                                           TRUE))
     {
       *new_width = new_outer.width;

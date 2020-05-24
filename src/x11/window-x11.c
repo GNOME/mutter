@@ -1226,7 +1226,7 @@ sync_request_timeout (gpointer data)
       meta_grab_op_is_resizing (window->display->grab_op))
     {
       meta_window_update_resize (window,
-                                 window->display->grab_last_user_action_was_snap,
+                                 window->display->grab_last_edge_resistance_flags,
                                  window->display->grab_latest_motion_x,
                                  window->display->grab_latest_motion_y,
                                  TRUE);
@@ -4028,7 +4028,7 @@ meta_window_x11_update_sync_request_counter (MetaWindow *window,
           /* This means we are ready for another configure;
            * no pointer round trip here, to keep in sync */
           meta_window_update_resize (window,
-                                     window->display->grab_last_user_action_was_snap,
+                                     window->display->grab_last_edge_resistance_flags,
                                      window->display->grab_latest_motion_x,
                                      window->display->grab_latest_motion_y,
                                      TRUE);

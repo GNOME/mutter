@@ -192,7 +192,7 @@ struct _MetaDisplay
   gboolean    grab_threshold_movement_reached; /* raise_on_click == FALSE.    */
   int64_t     grab_last_moveresize_time;
   MetaEdgeResistanceData *grab_edge_resistance_data;
-  unsigned int grab_last_user_action_was_snap;
+  unsigned int grab_last_edge_resistance_flags;
 
   int	      grab_resize_timeout_id;
 

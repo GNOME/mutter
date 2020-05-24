@@ -131,16 +131,16 @@ static void meta_window_move_resize_now (MetaWindow  *window);
 
 static void meta_window_unqueue (MetaWindow *window, guint queuebits);
 
-static void     update_move           (MetaWindow   *window,
-                                       gboolean      snap,
-                                       int           x,
-                                       int           y);
+static void     update_move           (MetaWindow              *window,
+                                       MetaEdgeResistanceFlags  flags,
+                                       int                      x,
+                                       int                      y);
 static gboolean update_move_timeout   (gpointer data);
-static void     update_resize         (MetaWindow   *window,
-                                       gboolean      snap,
-                                       int           x,
-                                       int           y,
-                                       gboolean      force);
+static void     update_resize         (MetaWindow              *window,
+                                       MetaEdgeResistanceFlags  flags,
+                                       int                      x,
+                                       int                      y,
+                                       gboolean                 force);
 static gboolean update_resize_timeout (gpointer data);
 static gboolean should_be_on_all_workspaces (MetaWindow *window);
 
@@ -5980,7 +5980,7 @@ update_move_timeout (gpointer data)
   MetaWindow *window = data;
 
   update_move (window,
-               window->display->grab_last_user_action_was_snap,
+               window->display->grab_last_edge_resistance_flags,
                window->display->grab_latest_motion_x,
                window->display->grab_latest_motion_y);
 
@@ -6043,10 +6043,10 @@ update_move_maybe_tile (MetaWindow *window,
 }
 
 static void
-update_move (MetaWindow  *window,
-             gboolean     snap,
-             int          x,
-             int          y)
+update_move (MetaWindow              *window,
+             MetaEdgeResistanceFlags  flags,
+             int                      x,
+             int                      y)
 {
   int dx, dy;
   int new_x, new_y;
@@ -6086,7 +6086,7 @@ update_move (MetaWindow  *window,
   shake_threshold = meta_prefs_get_drag_threshold () *
     DRAG_THRESHOLD_TO_SHAKE_THRESHOLD_FACTOR;
 
-  if (snap)
+  if (flags & META_EDGE_RESISTANCE_SNAP)
     {
       /* We don't want to tile while snapping. Also, clear any previous tile
          request. */
@@ -6222,8 +6222,7 @@ update_move (MetaWindow  *window,
                                         &new_x,
                                         &new_y,
                                         update_move_timeout,
-                                        snap,
-                                        FALSE);
+                                        flags);
 
   meta_window_move_frame (window, TRUE, new_x, new_y);
 }
@@ -6234,7 +6233,7 @@ update_resize_timeout (gpointer data)
   MetaWindow *window = data;
 
   update_resize (window,
-                 window->display->grab_last_user_action_was_snap,
+                 window->display->grab_last_edge_resistance_flags,
                  window->display->grab_latest_motion_x,
                  window->display->grab_latest_motion_y,
                  TRUE);
@@ -6242,10 +6241,11 @@ update_resize_timeout (gpointer data)
 }
 
 static void
-update_resize (MetaWindow *window,
-               gboolean    snap,
-               int x, int y,
-               gboolean force)
+update_resize (MetaWindow              *window,
+               MetaEdgeResistanceFlags  flags,
+               int                      x,
+               int                      y,
+               gboolean                 force)
 {
   int dx, dy;
   int new_w, new_h;
@@ -6359,8 +6359,7 @@ update_resize (MetaWindow *window,
                                           &new_h,
                                           gravity,
                                           update_resize_timeout,
-                                          snap,
-                                          FALSE);
+                                          flags);
 
   meta_window_resize_frame_with_gravity (window, TRUE, new_w, new_h, gravity);
 
@@ -6389,11 +6388,11 @@ maybe_maximize_tiled_window (MetaWindow *window)
 
 void
 meta_window_update_resize (MetaWindow *window,
-                           gboolean    snap,
+                           MetaEdgeResistanceFlags flags,
                            int x, int y,
                            gboolean force)
 {
-  update_resize (window, snap, x, y, force);
+  update_resize (window, flags, x, y, force);
 }
 
 static void
@@ -6401,6 +6400,7 @@ end_grab_op (MetaWindow *window,
              const ClutterEvent *event)
 {
   ClutterModifierType modifiers;
+  MetaEdgeResistanceFlags last_flags;
   gfloat x, y;
 
   clutter_event_get_coords (event, &x, &y);
@@ -6413,23 +6413,27 @@ end_grab_op (MetaWindow *window,
    * not want a non-snapped movement to occur from the button
    * release.
    */
-  if (!window->display->grab_last_user_action_was_snap)
+  last_flags = window->display->grab_last_edge_resistance_flags;
+  if ((last_flags & META_EDGE_RESISTANCE_SNAP) == 0)
     {
+      MetaEdgeResistanceFlags flags = META_EDGE_RESISTANCE_DEFAULT;
+
+      if (modifiers & CLUTTER_SHIFT_MASK)
+        flags |= META_EDGE_RESISTANCE_SNAP;
+
       if (meta_grab_op_is_moving (window->display->grab_op))
         {
           if (window->display->preview_tile_mode != META_TILE_NONE)
             meta_window_tile (window, window->display->preview_tile_mode);
           else
-            update_move (window,
-                         modifiers & CLUTTER_SHIFT_MASK,
-                         x, y);
+            update_move (window, flags, x, y);
         }
       else if (meta_grab_op_is_resizing (window->display->grab_op))
         {
-          update_resize (window,
-                         modifiers & CLUTTER_SHIFT_MASK || window->tile_match != NULL,
-                         x, y,
-                         TRUE);
+          if (window->tile_match != NULL)
+            flags |= META_EDGE_RESISTANCE_SNAP;
+
+          update_resize (window, flags, x, y, TRUE);
           maybe_maximize_tiled_window (window);
         }
     }
@@ -6443,6 +6447,7 @@ meta_window_handle_mouse_grab_op_event  (MetaWindow         *window,
 {
   ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
   ClutterModifierType modifier_state;
+  MetaEdgeResistanceFlags flags;
   gfloat x, y;
 
   switch (event->type)
@@ -6493,20 +6498,22 @@ meta_window_handle_mouse_grab_op_event  (MetaWindow         *window,
     case CLUTTER_MOTION:
       modifier_state = clutter_event_get_state (event);
       clutter_event_get_coords (event, &x, &y);
+      flags = META_EDGE_RESISTANCE_DEFAULT;
+
+      if (modifier_state & CLUTTER_SHIFT_MASK)
+        flags |= META_EDGE_RESISTANCE_SNAP;
 
       meta_display_check_threshold_reached (window->display, x, y);
       if (meta_grab_op_is_moving (window->display->grab_op))
         {
-          update_move (window,
-                       modifier_state & CLUTTER_SHIFT_MASK,
-                       x, y);
+          update_move (window, flags, x, y);
         }
       else if (meta_grab_op_is_resizing (window->display->grab_op))
         {
-          update_resize (window,
-                         modifier_state & CLUTTER_SHIFT_MASK || window->tile_match != NULL,
-                         x, y,
-                         FALSE);
+          if (window->tile_match != NULL)
+            flags |= META_EDGE_RESISTANCE_SNAP;
+
+          update_resize (window, flags, x, y, FALSE);
         }
       return TRUE;
 

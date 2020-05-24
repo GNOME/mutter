@@ -2400,11 +2400,11 @@ process_keyboard_move_grab (MetaDisplay     *display,
                             MetaWindow      *window,
                             ClutterKeyEvent *event)
 {
+  MetaEdgeResistanceFlags flags;
   gboolean handled;
   MetaRectangle frame_rect;
   int x, y;
   int incr;
-  gboolean smart_snap;
 
   handled = FALSE;
 
@@ -2420,12 +2420,15 @@ process_keyboard_move_grab (MetaDisplay     *display,
   x = frame_rect.x;
   y = frame_rect.y;
 
-  smart_snap = (event->modifier_state & CLUTTER_SHIFT_MASK) != 0;
+  flags = META_EDGE_RESISTANCE_KEYBOARD_OP;
+
+  if ((event->modifier_state & CLUTTER_SHIFT_MASK) != 0)
+    flags |= META_EDGE_RESISTANCE_SNAP;
 
 #define SMALL_INCREMENT 1
 #define NORMAL_INCREMENT 10
 
-  if (smart_snap)
+  if (flags & META_EDGE_RESISTANCE_SNAP)
     incr = 1;
   else if (event->modifier_state & CLUTTER_CONTROL_MASK)
     incr = SMALL_INCREMENT;
@@ -2501,8 +2504,7 @@ process_keyboard_move_grab (MetaDisplay     *display,
                                             &x,
                                             &y,
                                             NULL,
-                                            smart_snap,
-                                            TRUE);
+                                            flags);
 
       meta_window_move_frame (window, TRUE, x, y);
       meta_window_update_keyboard_move (window);
@@ -2641,7 +2643,7 @@ process_keyboard_resize_grab (MetaDisplay     *display,
   int height_inc;
   int width_inc;
   int width, height;
-  gboolean smart_snap;
+  MetaEdgeResistanceFlags flags;
   MetaGravity gravity;
 
   handled = FALSE;
@@ -2679,12 +2681,15 @@ process_keyboard_resize_grab (MetaDisplay     *display,
 
   gravity = meta_resize_gravity_from_grab_op (display->grab_op);
 
-  smart_snap = (event->modifier_state & CLUTTER_SHIFT_MASK) != 0;
+  flags = META_EDGE_RESISTANCE_KEYBOARD_OP;
+
+  if ((event->modifier_state & CLUTTER_SHIFT_MASK) != 0)
+    flags |= META_EDGE_RESISTANCE_SNAP;
 
 #define SMALL_INCREMENT 1
 #define NORMAL_INCREMENT 10
 
-  if (smart_snap)
+  if (flags & META_EDGE_RESISTANCE_SNAP)
     {
       height_inc = 1;
       width_inc = 1;
@@ -2853,8 +2858,7 @@ process_keyboard_resize_grab (MetaDisplay     *display,
                                               &height,
                                               gravity,
                                               NULL,
-                                              smart_snap,
-                                              TRUE);
+                                              flags);
 
       meta_window_resize_frame_with_gravity (window,
                                              TRUE,
