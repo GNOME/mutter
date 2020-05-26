@@ -1268,24 +1268,6 @@ meta_backend_get_stage (MetaBackend *backend)
   return priv->stage;
 }
 
-void
-meta_backend_freeze_updates (MetaBackend *backend)
-{
-  ClutterStage *stage;
-
-  stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-  clutter_stage_freeze_updates (stage);
-}
-
-void
-meta_backend_thaw_updates (MetaBackend *backend)
-{
-  ClutterStage *stage;
-
-  stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
-  clutter_stage_thaw_updates (stage);
-}
-
 static gboolean
 update_last_device (MetaBackend *backend)
 {
