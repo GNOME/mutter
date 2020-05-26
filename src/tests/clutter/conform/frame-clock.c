@@ -1,4 +1,4 @@
-#include "clutter/clutter-frame-clock.h"
+#include "clutter/clutter.h"
 #include "tests/clutter-test-utils.h"
 
 static const float refresh_rate = 60.0;

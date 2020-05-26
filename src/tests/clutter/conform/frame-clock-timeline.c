@@ -1,4 +1,3 @@
-#include "clutter-frame-clock.h"
 #include "clutter/clutter.h"
 #include "tests/clutter-test-utils.h"
 
