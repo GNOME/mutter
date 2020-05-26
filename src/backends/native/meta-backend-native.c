@@ -340,7 +340,7 @@ meta_backend_native_create_clutter_backend (MetaBackend *backend)
 static void
 meta_backend_native_post_init (MetaBackend *backend)
 {
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   MetaSettings *settings = meta_backend_get_settings (backend);
 
@@ -425,6 +425,7 @@ meta_backend_native_set_keymap (MetaBackend *backend,
                                 const char  *variants,
                                 const char  *options)
 {
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   struct xkb_rule_names names;
   struct xkb_keymap *keymap;
   struct xkb_context *context;
@@ -440,7 +441,7 @@ meta_backend_native_set_keymap (MetaBackend *backend,
   keymap = xkb_keymap_new_from_names (context, &names, XKB_KEYMAP_COMPILE_NO_FLAGS);
   xkb_context_unref (context);
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  seat = clutter_backend_get_default_seat (clutter_backend);
   meta_seat_native_set_keyboard_map (META_SEAT_NATIVE (seat), keymap);
 
   meta_backend_notify_keymap_changed (backend);
@@ -451,18 +452,20 @@ meta_backend_native_set_keymap (MetaBackend *backend,
 static struct xkb_keymap *
 meta_backend_native_get_keymap (MetaBackend *backend)
 {
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat;
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  seat = clutter_backend_get_default_seat (clutter_backend);
   return meta_seat_native_get_keyboard_map (META_SEAT_NATIVE (seat));
 }
 
 static xkb_layout_index_t
 meta_backend_native_get_keymap_layout_group (MetaBackend *backend)
 {
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat;
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  seat = clutter_backend_get_default_seat (clutter_backend);
   return meta_seat_native_get_keyboard_layout_index (META_SEAT_NATIVE (seat));
 }
 
@@ -470,6 +473,7 @@ static void
 meta_backend_native_lock_layout_group (MetaBackend *backend,
                                        guint        idx)
 {
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   xkb_layout_index_t old_idx;
   ClutterSeat *seat;
 
@@ -477,7 +481,7 @@ meta_backend_native_lock_layout_group (MetaBackend *backend,
   if (old_idx == idx)
     return;
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  seat = clutter_backend_get_default_seat (clutter_backend);
   meta_seat_native_set_keyboard_layout_index (META_SEAT_NATIVE (seat), idx);
   meta_backend_notify_keymap_layout_group_changed (backend, idx);
 }
@@ -486,9 +490,10 @@ static void
 meta_backend_native_set_numlock (MetaBackend *backend,
                                  gboolean     numlock_state)
 {
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   ClutterSeat *seat;
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  seat = clutter_backend_get_default_seat (clutter_backend);
   meta_seat_native_set_keyboard_numlock (META_SEAT_NATIVE (seat),
                                          numlock_state);
 }
@@ -780,7 +785,7 @@ meta_backend_native_pause (MetaBackendNative *native)
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerKms *monitor_manager_kms =
     META_MONITOR_MANAGER_KMS (monitor_manager);
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaSeatNative *seat =
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
 
@@ -805,7 +810,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
     META_MONITOR_MANAGER_KMS (monitor_manager);
   MetaInputSettings *input_settings;
   MetaIdleMonitor *idle_monitor;
-  ClutterBackend *clutter_backend = clutter_get_default_backend ();
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaSeatNative *seat =
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
 
