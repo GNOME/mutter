@@ -65,6 +65,4 @@ void clutter_stage_view_transform_rect_to_onscreen (ClutterStageView            
 
 float clutter_stage_view_get_refresh_rate (ClutterStageView *view);
 
-ClutterFrameClock * clutter_stage_view_get_frame_clock (ClutterStageView *view);
-
 #endif /* __CLUTTER_STAGE_VIEW_PRIVATE_H__ */

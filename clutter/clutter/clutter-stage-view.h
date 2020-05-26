@@ -27,6 +27,7 @@
 #include <cogl/cogl.h>
 
 #include "clutter-macros.h"
+#include "clutter-frame-clock.h"
 
 #define CLUTTER_TYPE_STAGE_VIEW (clutter_stage_view_get_type ())
 CLUTTER_EXPORT
@@ -68,5 +69,8 @@ float clutter_stage_view_get_scale (ClutterStageView *view);
 CLUTTER_EXPORT
 void clutter_stage_view_get_offscreen_transformation_matrix (ClutterStageView *view,
                                                              CoglMatrix       *matrix);
+
+CLUTTER_EXPORT
+ClutterFrameClock * clutter_stage_view_get_frame_clock (ClutterStageView *view);
 
 #endif /* __CLUTTER_STAGE_VIEW_H__ */

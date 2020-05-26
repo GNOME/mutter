@@ -1010,6 +1010,9 @@ clutter_stage_view_get_refresh_rate (ClutterStageView *view)
   return priv->refresh_rate;
 }
 
+/**
+ * clutter_stage_view_get_frame_clock: (skip)
+ */
 ClutterFrameClock *
 clutter_stage_view_get_frame_clock (ClutterStageView *view)
 {
