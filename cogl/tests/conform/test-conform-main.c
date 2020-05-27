@@ -15,10 +15,17 @@
   G_STMT_START {                                                        \
     if (strcmp (#FUNC, argv[1]) == 0)                                   \
       {                                                                 \
-        test_utils_init (REQUIREMENTS, KNOWN_FAIL_REQUIREMENTS);        \
-        FUNC ();                                                        \
-        test_utils_fini ();                                             \
-        exit (0);                                                       \
+        if (test_utils_init (REQUIREMENTS, KNOWN_FAIL_REQUIREMENTS)     \
+            || g_getenv ("COGL_TEST_TRY_EVERYTHING") != NULL)           \
+          {                                                             \
+            FUNC ();                                                    \
+            test_utils_fini ();                                         \
+            exit (0);                                                   \
+          }                                                             \
+        else                                                            \
+          {                                                             \
+            exit (1);                                                   \
+          }                                                             \
       }                                                                 \
   } G_STMT_END
 

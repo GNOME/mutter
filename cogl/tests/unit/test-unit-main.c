@@ -36,10 +36,16 @@ main (int argc, char **argv)
       return 1;
     }
 
-  test_utils_init (unit_test->requirement_flags,
-                   unit_test->known_failure_flags);
-  unit_test->run ();
-  test_utils_fini ();
-
-  return 0;
+  if (test_utils_init (unit_test->requirement_flags,
+                       unit_test->known_failure_flags)
+      || g_getenv ("COGL_TEST_TRY_EVERYTHING") != NULL)
+    {
+      unit_test->run ();
+      test_utils_fini ();
+      return 0;
+    }
+  else
+    {
+      return 1;
+    }
 }
