@@ -102,6 +102,7 @@ popup_grab_focus (MetaWaylandPointerGrab *grab,
 {
   MetaWaylandPopupGrab *popup_grab = (MetaWaylandPopupGrab*)grab;
   MetaWaylandSeat *seat = meta_wayland_pointer_get_seat (grab->pointer);
+  MetaWaylandPointer *pointer = grab->pointer;
 
   /*
    * We rely on having a pointer grab even when the seat doesn't have
@@ -110,6 +111,9 @@ popup_grab_focus (MetaWaylandPointerGrab *grab,
    * capability.
    */
   if (!meta_wayland_seat_has_pointer (seat))
+    return;
+
+  if (pointer->button_count > 0)
     return;
 
   /* Popup grabs are in owner-events mode (ie, events for the same client
