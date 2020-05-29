@@ -634,8 +634,8 @@ clutter_seat_create_virtual_device (ClutterSeat            *seat,
 }
 
 /**
- * clutter_seat_supported_virtual_device_types: (skip)
- */
+ * clutter_seat_get_supported_virtual_device_types: (skip)
+ **/
 ClutterVirtualDeviceType
 clutter_seat_get_supported_virtual_device_types (ClutterSeat *seat)
 {
