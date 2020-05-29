@@ -1380,35 +1380,6 @@ has_touchscreen (MetaSeatNative *seat)
   return FALSE;
 }
 
-static gboolean
-has_external_keyboard (MetaSeatNative *seat)
-{
-  GList *devices, *l;
-  gboolean has_external = FALSE;
-
-  devices = g_udev_client_query_by_subsystem (seat->udev_client, "input");
-
-  for (l = devices; l; l = l->next)
-    {
-      if (!g_udev_device_has_property (l->data, "ID_INPUT_KEYBOARD"))
-        continue;
-
-      /* May be "hid" or something else, we don't care. This property
-       * will not be present in virtual "AT Translated Set 2 keyboard"
-       * devices.
-       */
-      if (!g_udev_device_has_property (l->data, "ID_TYPE"))
-        break;
-
-      has_external = TRUE;
-      break;
-    }
-
-  g_list_free_full (devices, g_object_unref);
-
-  return has_external;
-}
-
 static void
 update_touch_mode (MetaSeatNative *seat)
 {
@@ -1421,10 +1392,10 @@ update_touch_mode (MetaSeatNative *seat)
   else if (seat->has_tablet_switch && !seat->tablet_mode_switch_state)
     touch_mode = FALSE;
   /* If tablet mode is enabled, or if there is no tablet mode switch
-   * (eg. kiosk machines), check availability of external keyboards.
+   * (eg. kiosk machines), assume touch-mode.
    */
   else
-    touch_mode = !seat->has_external_keyboard;
+    touch_mode = TRUE;
 
   if (seat->touch_mode != touch_mode)
     {
@@ -1465,12 +1436,7 @@ evdev_add_device (MetaSeatNative         *seat,
 
   g_signal_emit_by_name (seat, "device-added", device);
 
-  if (type == CLUTTER_KEYBOARD_DEVICE)
-    {
-      seat->has_external_keyboard = has_external_keyboard (seat);
-      check_touch_mode = TRUE;
-    }
-  else if (type == CLUTTER_TOUCHSCREEN_DEVICE)
+  if (type == CLUTTER_TOUCHSCREEN_DEVICE)
     {
       seat->has_touchscreen = TRUE;
       check_touch_mode = TRUE;
@@ -1503,12 +1469,7 @@ evdev_remove_device (MetaSeatNative        *seat,
 
   device_type = clutter_input_device_get_device_type (device);
 
-  if (device_type == CLUTTER_KEYBOARD_DEVICE)
-    {
-      seat->has_external_keyboard = has_external_keyboard (seat);
-      update_touch_mode (seat);
-    }
-  else if (device_type == CLUTTER_TOUCHSCREEN_DEVICE)
+  if (device_type == CLUTTER_TOUCHSCREEN_DEVICE)
     {
       seat->has_touchscreen = has_touchscreen (seat);
       update_touch_mode (seat);
@@ -2553,7 +2514,6 @@ meta_seat_native_constructed (GObject *object)
         xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_SCROLL);
     }
 
-  seat->has_external_keyboard = has_external_keyboard (seat);
   seat->has_touchscreen = has_touchscreen (seat);
   update_touch_mode (seat);
 

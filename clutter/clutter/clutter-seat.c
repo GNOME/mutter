@@ -682,7 +682,6 @@ clutter_seat_warp_pointer (ClutterSeat *seat,
  * requirements are fulfilled:
  *
  *  - A touchscreen is available
- *  - No external keyboard is attached to the device
  *  - A tablet mode switch, if present, is enabled
  *
  * Returns: %TRUE if the device is a tablet that doesn't have an external
