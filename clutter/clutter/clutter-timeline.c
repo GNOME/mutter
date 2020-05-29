@@ -103,7 +103,6 @@
 #include "clutter-frame-clock.h"
 #include "clutter-main.h"
 #include "clutter-marshal.h"
-#include "clutter-master-clock.h"
 #include "clutter-private.h"
 #include "clutter-scriptable.h"
 #include "clutter-timeline-private.h"
@@ -112,10 +111,12 @@ struct _ClutterTimelinePrivate
 {
   ClutterTimelineDirection direction;
 
+  ClutterFrameClock *custom_frame_clock;
   ClutterFrameClock *frame_clock;
 
   ClutterActor *actor;
   gulong actor_destroy_handler_id;
+  gulong actor_stage_views_handler_id;
 
   guint delay_id;
 
@@ -322,6 +323,70 @@ clutter_timeline_get_actor (ClutterTimeline *timeline)
   return priv->actor;
 }
 
+static void
+maybe_add_timeline (ClutterTimeline *timeline)
+{
+  ClutterTimelinePrivate *priv = timeline->priv;
+
+  if (!priv->frame_clock)
+    return;
+
+  clutter_frame_clock_add_timeline (priv->frame_clock, timeline);
+}
+
+static void
+maybe_remove_timeline (ClutterTimeline *timeline)
+{
+  ClutterTimelinePrivate *priv = timeline->priv;
+
+  if (!priv->frame_clock)
+    return;
+
+  clutter_frame_clock_remove_timeline (priv->frame_clock, timeline);
+}
+
+static void
+set_frame_clock_internal (ClutterTimeline   *timeline,
+                          ClutterFrameClock *frame_clock)
+{
+  ClutterTimelinePrivate *priv = timeline->priv;
+
+  if (priv->frame_clock == frame_clock)
+    return;
+
+  if (priv->frame_clock && priv->is_playing)
+    maybe_remove_timeline (timeline);
+
+  g_set_object (&priv->frame_clock, frame_clock);
+
+  g_object_notify_by_pspec (G_OBJECT (timeline),
+                            obj_props[PROP_FRAME_CLOCK]);
+
+  if (priv->is_playing)
+    maybe_add_timeline (timeline);
+}
+
+static void
+update_frame_clock (ClutterTimeline *timeline)
+{
+  ClutterTimelinePrivate *priv = timeline->priv;
+  ClutterFrameClock *frame_clock;
+
+  if (priv->actor)
+    frame_clock = clutter_actor_pick_frame_clock (priv->actor);
+  else
+    frame_clock = NULL;
+
+  set_frame_clock_internal (timeline, frame_clock);
+}
+
+static void
+on_actor_stage_views_changed (ClutterActor    *actor,
+                              ClutterTimeline *timeline)
+{
+  update_frame_clock (timeline);
+}
+
 /**
  * clutter_timeline_set_actor:
  * @timeline: a #ClutterTimeline
@@ -335,9 +400,18 @@ clutter_timeline_set_actor (ClutterTimeline *timeline,
 {
   ClutterTimelinePrivate *priv = timeline->priv;
 
+  g_return_if_fail (!actor || (actor && !priv->custom_frame_clock));
+
   if (priv->actor)
     {
       g_clear_signal_handler (&priv->actor_destroy_handler_id, priv->actor);
+      g_clear_signal_handler (&priv->actor_stage_views_handler_id, priv->actor);
+      priv->actor = NULL;
+
+      if (priv->is_playing)
+        maybe_remove_timeline (timeline);
+
+      priv->frame_clock = NULL;
     }
 
   priv->actor = actor;
@@ -348,7 +422,13 @@ clutter_timeline_set_actor (ClutterTimeline *timeline,
         g_signal_connect (priv->actor, "destroy",
                           G_CALLBACK (on_actor_destroyed),
                           timeline);
+      priv->actor_stage_views_handler_id =
+        g_signal_connect (priv->actor, "stage-views-changed",
+                          G_CALLBACK (on_actor_stage_views_changed),
+                          timeline);
     }
+
+  update_frame_clock (timeline);
 }
 
 /* Scriptable */
@@ -580,42 +660,6 @@ clutter_timeline_get_property (GObject    *object,
 }
 
 static void
-add_timeline (ClutterTimeline *timeline)
-{
-  ClutterTimelinePrivate *priv = timeline->priv;
-
-  if (priv->frame_clock)
-    {
-      clutter_frame_clock_add_timeline (priv->frame_clock, timeline);
-    }
-  else
-    {
-      ClutterMasterClock *master_clock;
-
-      master_clock = _clutter_master_clock_get_default ();
-      _clutter_master_clock_add_timeline (master_clock, timeline);
-    }
-}
-
-static void
-remove_timeline (ClutterTimeline *timeline)
-{
-  ClutterTimelinePrivate *priv = timeline->priv;
-
-  if (priv->frame_clock)
-    {
-      clutter_frame_clock_remove_timeline (priv->frame_clock, timeline);
-    }
-  else
-    {
-      ClutterMasterClock *master_clock;
-
-      master_clock = _clutter_master_clock_get_default ();
-      _clutter_master_clock_remove_timeline (master_clock, timeline);
-    }
-}
-
-static void
 clutter_timeline_constructed (GObject *object)
 {
   ClutterTimeline *timeline = CLUTTER_TIMELINE (object);
@@ -636,7 +680,7 @@ clutter_timeline_finalize (GObject *object)
     g_hash_table_destroy (priv->markers_by_name);
 
   if (priv->is_playing)
-    remove_timeline (self);
+    maybe_remove_timeline (self);
 
   g_clear_object (&priv->frame_clock);
 
@@ -656,6 +700,7 @@ clutter_timeline_dispose (GObject *object)
   if (priv->actor)
     {
       g_clear_signal_handler (&priv->actor_destroy_handler_id, priv->actor);
+      g_clear_signal_handler (&priv->actor_stage_views_handler_id, priv->actor);
       priv->actor = NULL;
     }
 
@@ -1093,11 +1138,11 @@ set_is_playing (ClutterTimeline *timeline,
       priv->waiting_first_tick = TRUE;
       priv->current_repeat = 0;
 
-      add_timeline (timeline);
+      maybe_add_timeline (timeline);
     }
   else
     {
-      remove_timeline (timeline);
+      maybe_remove_timeline (timeline);
     }
 }
 
@@ -1797,7 +1842,7 @@ _clutter_timeline_do_tick (ClutterTimeline *timeline,
 
   /* Check the is_playing variable before performing the timeline tick.
    * This is necessary, as if a timeline is stopped in response to a
-   * master-clock generated signal of a different timeline, this code can
+   * frame clock generated signal of a different timeline, this code can
    * still be reached.
    */
   if (!priv->is_playing)
@@ -2637,17 +2682,10 @@ clutter_timeline_set_frame_clock (ClutterTimeline   *timeline,
 
   priv = timeline->priv;
 
-  if (priv->frame_clock == frame_clock)
-    return;
+  g_assert (!frame_clock || (frame_clock && !priv->actor));
+  g_return_if_fail (!frame_clock || (frame_clock && !priv->actor));
 
-  if (priv->frame_clock && priv->is_playing)
-    remove_timeline (timeline);
-
-  g_set_object (&priv->frame_clock, frame_clock);
-
-  g_object_notify_by_pspec (G_OBJECT (timeline),
-                            obj_props[PROP_FRAME_CLOCK]);
-
-  if (priv->is_playing)
-    add_timeline (timeline);
+  priv->custom_frame_clock = frame_clock;
+  if (!priv->actor)
+    set_frame_clock_internal (timeline, frame_clock);
 }

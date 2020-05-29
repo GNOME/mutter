@@ -7,6 +7,7 @@
 
 static void
 on_presented (ClutterStage     *stage,
+              ClutterStageView *view,
               ClutterFrameInfo *frame_info,
               gboolean         *was_presented)
 {

@@ -62,6 +62,7 @@
 #include "clutter-gesture-action-private.h"
 #include "clutter-marshal.h"
 #include "clutter-private.h"
+#include "clutter-timeline.h"
 #include <math.h>
 
 #define FLOAT_EPSILON   (1e-15)

@@ -116,14 +116,15 @@ maybe_assign_primary_plane (MetaCompositor *compositor)
 }
 
 static void
-meta_compositor_native_before_paint (MetaCompositor *compositor)
+meta_compositor_native_before_paint (MetaCompositor   *compositor,
+                                     ClutterStageView *stage_view)
 {
   MetaCompositorClass *parent_class;
 
   maybe_assign_primary_plane (compositor);
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_native_parent_class);
-  parent_class->before_paint (compositor);
+  parent_class->before_paint (compositor, stage_view);
 }
 
 MetaCompositorNative *

@@ -64,6 +64,7 @@ typedef struct _MetaRendererPrivate
 {
   MetaBackend *backend;
   GList *views;
+  gboolean is_paused;
 } MetaRendererPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaRenderer, meta_renderer, G_TYPE_OBJECT)
@@ -247,6 +248,14 @@ meta_renderer_add_view (MetaRenderer     *renderer,
   MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
 
   priv->views = g_list_append (priv->views, view);
+
+  if (priv->is_paused)
+    {
+      ClutterFrameClock *frame_clock =
+        clutter_stage_view_get_frame_clock (CLUTTER_STAGE_VIEW (view));
+
+      clutter_frame_clock_inhibit (frame_clock);
+    }
 }
 
 /**
@@ -265,6 +274,44 @@ meta_renderer_get_views (MetaRenderer *renderer)
   MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
 
   return priv->views;
+}
+
+void
+meta_renderer_pause (MetaRenderer *renderer)
+{
+  MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
+  GList *l;
+
+  g_return_if_fail (!priv->is_paused);
+  priv->is_paused = TRUE;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      ClutterStageView *stage_view = l->data;
+      ClutterFrameClock *frame_clock =
+        clutter_stage_view_get_frame_clock (stage_view);
+
+      clutter_frame_clock_inhibit (frame_clock);
+    }
+}
+
+void
+meta_renderer_resume (MetaRenderer *renderer)
+{
+  MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
+  GList *l;
+
+  g_return_if_fail (priv->is_paused);
+  priv->is_paused = FALSE;
+
+  for (l = priv->views; l; l = l->next)
+    {
+      ClutterStageView *stage_view = l->data;
+      ClutterFrameClock *frame_clock =
+        clutter_stage_view_get_frame_clock (stage_view);
+
+      clutter_frame_clock_uninhibit (frame_clock);
+    }
 }
 
 gboolean

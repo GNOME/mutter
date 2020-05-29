@@ -47,6 +47,7 @@
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
 #include "clutter-stage-view-private.h"
+#include "cogl.h"
 
 #define MAX_STACK_RECTS 256
 
@@ -55,6 +56,8 @@ typedef struct _ClutterStageViewCoglPrivate
   /* Damage history, in stage view render target framebuffer coordinate space.
    */
   ClutterDamageHistory *damage_history;
+
+  guint notify_presented_handle_id;
 } ClutterStageViewCoglPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterStageViewCogl, clutter_stage_view_cogl,
@@ -84,64 +87,9 @@ enum
 };
 
 static void
-clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
-                                    gint                sync_delay);
-
-static void
 clutter_stage_cogl_unrealize (ClutterStageWindow *stage_window)
 {
   CLUTTER_NOTE (BACKEND, "Unrealizing Cogl stage [%p]", stage_window);
-}
-
-void
-_clutter_stage_cogl_presented (ClutterStageCogl *stage_cogl,
-                               CoglFrameEvent    frame_event,
-                               ClutterFrameInfo *frame_info)
-{
-
-  if (frame_event == COGL_FRAME_EVENT_SYNC)
-    {
-      /* Early versions of the swap_event implementation in Mesa
-       * deliver BufferSwapComplete event when not selected for,
-       * so if we get a swap event we aren't expecting, just ignore it.
-       *
-       * https://bugs.freedesktop.org/show_bug.cgi?id=27962
-       *
-       * FIXME: This issue can be hidden inside Cogl so we shouldn't
-       * need to care about this bug here.
-       */
-      if (stage_cogl->pending_swaps > 0)
-        stage_cogl->pending_swaps--;
-    }
-  else if (frame_event == COGL_FRAME_EVENT_COMPLETE)
-    {
-      gint64 presentation_time_cogl = frame_info->presentation_time;
-
-      if (presentation_time_cogl != 0)
-        {
-          ClutterBackend *backend = stage_cogl->backend;
-          CoglContext *context = clutter_backend_get_cogl_context (backend);
-          gint64 current_time_cogl = cogl_get_clock_time (context);
-          gint64 now = g_get_monotonic_time ();
-
-          stage_cogl->last_presentation_time =
-            now + (presentation_time_cogl - current_time_cogl) / 1000;
-        }
-
-      stage_cogl->refresh_rate = frame_info->refresh_rate;
-    }
-
-  clutter_stage_presented (stage_cogl->wrapper, frame_info);
-
-  if (frame_event == COGL_FRAME_EVENT_COMPLETE &&
-      stage_cogl->update_time != -1)
-    {
-      ClutterStageWindow *stage_window = CLUTTER_STAGE_WINDOW (stage_cogl);
-
-      stage_cogl->update_time = -1;
-      clutter_stage_cogl_schedule_update (stage_window,
-                                          stage_cogl->last_sync_delay);
-    }
 }
 
 static gboolean
@@ -172,103 +120,6 @@ clutter_stage_cogl_get_frame_counter (ClutterStageWindow *stage_window)
     _clutter_stage_cogl_get_instance_private (stage_cogl);
 
   return priv->global_frame_counter;
-}
-
-static void
-clutter_stage_cogl_schedule_update (ClutterStageWindow *stage_window,
-                                    gint                sync_delay)
-{
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-  gint64 now;
-  float refresh_rate;
-  gint64 refresh_interval;
-  int64_t min_render_time_allowed;
-  int64_t max_render_time_allowed;
-  int64_t next_presentation_time;
-
-  if (stage_cogl->update_time != -1)
-    return;
-
-  stage_cogl->last_sync_delay = sync_delay;
-
-  now = g_get_monotonic_time ();
-
-  if (sync_delay < 0)
-    {
-      stage_cogl->update_time = now;
-      return;
-    }
-
-  refresh_rate = stage_cogl->refresh_rate;
-  if (refresh_rate <= 0.0)
-    refresh_rate = clutter_get_default_frame_rate ();
-
-  refresh_interval = (gint64) (0.5 + G_USEC_PER_SEC / refresh_rate);
-  if (refresh_interval == 0)
-    {
-      stage_cogl->update_time = now;
-      return;
-    }
-
-  min_render_time_allowed = refresh_interval / 2;
-  max_render_time_allowed = refresh_interval - 1000 * sync_delay;
-
-  /* Be robust in the case of incredibly bogus refresh rate */
-  if (max_render_time_allowed <= 0)
-    {
-      g_warning ("Unsupported monitor refresh rate detected. "
-                 "(Refresh rate: %.3f, refresh interval: %" G_GINT64_FORMAT ")",
-                 refresh_rate,
-                 refresh_interval);
-      stage_cogl->update_time = now;
-      return;
-    }
-
-  if (min_render_time_allowed > max_render_time_allowed)
-    min_render_time_allowed = max_render_time_allowed;
-
-  next_presentation_time = stage_cogl->last_presentation_time + refresh_interval;
-
-  /* Get next_presentation_time closer to its final value, to reduce
-   * the number of while iterations below.
-   */
-  if (next_presentation_time < now)
-    {
-      int64_t last_virtual_presentation_time = now - now % refresh_interval;
-      int64_t hardware_clock_phase =
-        stage_cogl->last_presentation_time % refresh_interval;
-
-      next_presentation_time =
-        last_virtual_presentation_time + hardware_clock_phase;
-    }
-
-  while (next_presentation_time < now + min_render_time_allowed)
-    next_presentation_time += refresh_interval;
-
-  stage_cogl->update_time = next_presentation_time - max_render_time_allowed;
-
-  if (stage_cogl->update_time == stage_cogl->last_update_time)
-    stage_cogl->update_time = stage_cogl->last_update_time + refresh_interval;
-}
-
-static gint64
-clutter_stage_cogl_get_update_time (ClutterStageWindow *stage_window)
-{
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-
-  if (stage_cogl->pending_swaps)
-    return -1; /* in the future, indefinite */
-
-  return stage_cogl->update_time;
-}
-
-static void
-clutter_stage_cogl_clear_update_time (ClutterStageWindow *stage_window)
-{
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-
-  stage_cogl->last_update_time = stage_cogl->update_time;
-  stage_cogl->update_time = -1;
 }
 
 static ClutterActor *
@@ -371,7 +222,27 @@ paint_damage_region (ClutterStageWindow *stage_window,
   cogl_framebuffer_pop_matrix (framebuffer);
 }
 
+typedef struct _NotifyPresentedClosure
+{
+  ClutterStageView *view;
+  ClutterFrameInfo frame_info;
+} NotifyPresentedClosure;
+
 static gboolean
+notify_presented_idle (gpointer user_data)
+{
+  NotifyPresentedClosure *closure = user_data;
+  ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (closure->view);
+  ClutterStageViewCoglPrivate *view_priv =
+    clutter_stage_view_cogl_get_instance_private (view_cogl);
+
+  view_priv->notify_presented_handle_id = 0;
+  clutter_stage_view_notify_presented (closure->view, &closure->frame_info);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
 swap_framebuffer (ClutterStageWindow *stage_window,
                   ClutterStageView   *view,
                   cairo_region_t     *swap_region,
@@ -416,8 +287,6 @@ swap_framebuffer (ClutterStageWindow *stage_window,
           cogl_onscreen_swap_region (onscreen,
                                      damage, n_rects,
                                      frame_info);
-
-          return FALSE;
         }
       else
         {
@@ -427,17 +296,33 @@ swap_framebuffer (ClutterStageWindow *stage_window,
           cogl_onscreen_swap_buffers_with_damage (onscreen,
                                                   damage, n_rects,
                                                   frame_info);
-
-          return TRUE;
         }
     }
   else
     {
+      ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (view);
+      ClutterStageViewCoglPrivate *view_priv =
+        clutter_stage_view_cogl_get_instance_private (view_cogl);
+      NotifyPresentedClosure *closure;
+
       CLUTTER_NOTE (BACKEND, "cogl_framebuffer_finish (framebuffer: %p)",
                     framebuffer);
       cogl_framebuffer_finish (framebuffer);
 
-      return FALSE;
+      closure = g_new0 (NotifyPresentedClosure, 1);
+      closure->view = view;
+      closure->frame_info = (ClutterFrameInfo) {
+        .frame_counter = priv->global_frame_counter,
+        .refresh_rate = clutter_stage_view_get_refresh_rate (view),
+        .presentation_time = g_get_monotonic_time (),
+      };
+      priv->global_frame_counter++;
+
+      g_warn_if_fail (view_priv->notify_presented_handle_id == 0);
+      view_priv->notify_presented_handle_id =
+        g_idle_add_full (G_PRIORITY_DEFAULT,
+                         notify_presented_idle,
+                         closure, g_free);
     }
 }
 
@@ -564,11 +449,11 @@ is_buffer_age_enabled (void)
          cogl_clutter_winsys_has_feature (COGL_WINSYS_FEATURE_BUFFER_AGE);
 }
 
-static gboolean
-clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
-                                ClutterStageView   *view)
+static void
+clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
+                                        ClutterStageView *view)
 {
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
+  ClutterStageWindow *stage_window = CLUTTER_STAGE_WINDOW (stage_cogl);
   ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (view);
   ClutterStageViewCoglPrivate *view_priv =
     clutter_stage_view_cogl_get_instance_private (view_cogl);
@@ -587,7 +472,6 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
   float fb_scale;
   int fb_width, fb_height;
   int buffer_age = 0;
-  gboolean res;
 
   clutter_stage_view_get_layout (view, &view_rect);
   fb_scale = clutter_stage_view_get_scale (view);
@@ -654,7 +538,7 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
       redraw_clip = cairo_region_create_rectangle (&view_rect);
     }
 
-  g_return_val_if_fail (!cairo_region_is_empty (fb_clip_region), FALSE);
+  g_return_if_fail (!cairo_region_is_empty (fb_clip_region));
 
   swap_with_damage = FALSE;
   if (has_buffer_age)
@@ -755,14 +639,12 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
       cairo_region_destroy (queued_redraw_clip);
     }
 
-  res = swap_framebuffer (stage_window,
-                          view,
-                          swap_region,
-                          swap_with_damage);
+  swap_framebuffer (stage_window,
+                    view,
+                    swap_region,
+                    swap_with_damage);
 
   cairo_region_destroy (swap_region);
-
-  return res;
 }
 
 static void
@@ -787,68 +669,17 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl *stage_cogl,
 }
 
 static void
-clutter_stage_cogl_redraw (ClutterStageWindow *stage_window)
+clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
+                                ClutterStageView   *view)
 {
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
-  gboolean has_redraw_clip = FALSE;
-  gboolean swap_event = FALSE;
-  GList *l;
+  g_autoptr (CoglScanout) scanout = NULL;
 
-  COGL_TRACE_BEGIN (ClutterStageCoglRedraw, "Paint (Cogl Redraw)");
-
-  for (l = _clutter_stage_window_get_views (stage_window); l; l = l->next)
-    {
-      ClutterStageView *view = l->data;
-
-      if (!clutter_stage_view_has_redraw_clip (view))
-        continue;
-
-      has_redraw_clip = TRUE;
-      break;
-    }
-
-  if (has_redraw_clip)
-    clutter_stage_emit_before_paint (stage_cogl->wrapper);
-
-  for (l = _clutter_stage_window_get_views (stage_window); l; l = l->next)
-    {
-      ClutterStageView *view = l->data;
-      g_autoptr (CoglScanout) scanout = NULL;
-
-      if (!clutter_stage_view_has_redraw_clip (view))
-        continue;
-
-      scanout = clutter_stage_view_take_scanout (view);
-      if (scanout)
-        {
-          clutter_stage_cogl_scanout_view (stage_cogl,
-                                           view,
-                                           scanout);
-          swap_event = TRUE;
-        }
-      else
-        {
-          swap_event |= clutter_stage_cogl_redraw_view (stage_window, view);
-        }
-    }
-
-  if (has_redraw_clip)
-    clutter_stage_emit_after_paint (stage_cogl->wrapper);
-
-  _clutter_stage_window_finish_frame (stage_window);
-
-  if (swap_event)
-    {
-      /* If we have swap buffer events then cogl_onscreen_swap_buffers
-       * will return immediately and we need to track that there is a
-       * swap in progress... */
-      if (clutter_feature_available (CLUTTER_FEATURE_SWAP_EVENTS))
-        stage_cogl->pending_swaps++;
-    }
-
-  stage_cogl->frame_count++;
-
-  COGL_TRACE_END (ClutterStageCoglRedraw);
+  scanout = clutter_stage_view_take_scanout (view);
+  if (scanout)
+    clutter_stage_cogl_scanout_view (stage_cogl, view, scanout);
+  else
+    clutter_stage_cogl_redraw_view_primary (stage_cogl, view);
 }
 
 static void
@@ -861,10 +692,7 @@ clutter_stage_window_iface_init (ClutterStageWindowInterface *iface)
   iface->show = clutter_stage_cogl_show;
   iface->hide = clutter_stage_cogl_hide;
   iface->get_frame_counter = clutter_stage_cogl_get_frame_counter;
-  iface->schedule_update = clutter_stage_cogl_schedule_update;
-  iface->get_update_time = clutter_stage_cogl_get_update_time;
-  iface->clear_update_time = clutter_stage_cogl_clear_update_time;
-  iface->redraw = clutter_stage_cogl_redraw;
+  iface->redraw_view = clutter_stage_cogl_redraw_view;
 }
 
 static void
@@ -905,10 +733,43 @@ _clutter_stage_cogl_class_init (ClutterStageCoglClass *klass)
 static void
 _clutter_stage_cogl_init (ClutterStageCogl *stage)
 {
-  stage->last_presentation_time = 0;
-  stage->refresh_rate = 0.0;
+}
 
-  stage->update_time = -1;
+static void
+frame_cb (CoglOnscreen  *onscreen,
+          CoglFrameEvent frame_event,
+          CoglFrameInfo *frame_info,
+          void          *user_data)
+{
+  ClutterStageView *view = user_data;
+  ClutterFrameInfo clutter_frame_info;
+
+  if (frame_event == COGL_FRAME_EVENT_SYNC)
+    return;
+
+  clutter_frame_info = (ClutterFrameInfo) {
+    .frame_counter = cogl_frame_info_get_global_frame_counter (frame_info),
+    .refresh_rate = cogl_frame_info_get_refresh_rate (frame_info),
+    .presentation_time = ns2us (cogl_frame_info_get_presentation_time (frame_info)),
+  };
+
+  clutter_stage_view_notify_presented (view, &clutter_frame_info);
+}
+
+static void
+on_framebuffer_set (ClutterStageView *view)
+{
+  CoglFramebuffer *framebuffer;
+
+  framebuffer = clutter_stage_view_get_onscreen (view);
+
+  if (framebuffer && cogl_is_onscreen (framebuffer))
+    {
+      cogl_onscreen_add_frame_callback (COGL_ONSCREEN (framebuffer),
+                                        frame_cb,
+                                        view,
+                                        NULL);
+    }
 }
 
 static void
@@ -918,6 +779,7 @@ clutter_stage_view_cogl_finalize (GObject *object)
   ClutterStageViewCoglPrivate *view_priv =
     clutter_stage_view_cogl_get_instance_private (view_cogl);
 
+  g_clear_handle_id (&view_priv->notify_presented_handle_id, g_source_remove);
   clutter_damage_history_free (view_priv->damage_history);
 
   G_OBJECT_CLASS (clutter_stage_view_cogl_parent_class)->finalize (object);
@@ -930,6 +792,9 @@ clutter_stage_view_cogl_init (ClutterStageViewCogl *view_cogl)
     clutter_stage_view_cogl_get_instance_private (view_cogl);
 
   view_priv->damage_history = clutter_damage_history_new ();
+
+  g_signal_connect (view_cogl, "notify::framebuffer",
+                    G_CALLBACK (on_framebuffer_set), NULL);
 }
 
 static void

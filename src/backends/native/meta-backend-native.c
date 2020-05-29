@@ -781,7 +781,6 @@ void
 meta_backend_native_pause (MetaBackendNative *native)
 {
   MetaBackend *backend = META_BACKEND (native);
-  ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerKms *monitor_manager_kms =
@@ -789,12 +788,13 @@ meta_backend_native_pause (MetaBackendNative *native)
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaSeatNative *seat =
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
   COGL_TRACE_BEGIN_SCOPED (MetaBackendNativePause,
                            "Backend (pause)");
 
   meta_seat_native_release_devices (seat);
-  clutter_stage_freeze_updates (stage);
+  meta_renderer_pause (renderer);
 
   disconnect_udev_device_added_handler (native);
 
@@ -814,6 +814,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaSeatNative *seat =
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
 
   COGL_TRACE_BEGIN_SCOPED (MetaBackendNativeResume,
                            "Backend (resume)");
@@ -823,7 +824,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
   connect_udev_device_added_handler (native);
 
   meta_seat_native_reclaim_devices (seat);
-  clutter_stage_thaw_updates (stage);
+  meta_renderer_resume (renderer);
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
 

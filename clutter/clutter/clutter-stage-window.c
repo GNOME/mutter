@@ -103,81 +103,12 @@ _clutter_stage_window_get_geometry (ClutterStageWindow    *window,
 }
 
 void
-_clutter_stage_window_schedule_update  (ClutterStageWindow *window,
-                                        int                 sync_delay)
+_clutter_stage_window_redraw_view (ClutterStageWindow *window,
+                                   ClutterStageView   *view)
 {
-  ClutterStageWindowInterface *iface;
-
   g_return_if_fail (CLUTTER_IS_STAGE_WINDOW (window));
 
-  iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
-  if (iface->schedule_update == NULL)
-    {
-      g_assert (!clutter_feature_available (CLUTTER_FEATURE_SWAP_EVENTS));
-      return;
-    }
-
-  iface->schedule_update (window, sync_delay);
-}
-
-/**
- * _clutter_stage_window_get_update_time:
- * @window: a #ClutterStageWindow object
- *
- * See _clutter_stage_get_update_time() for more info.
- *
- * Returns: The timestamp of the update time
- */
-gint64
-_clutter_stage_window_get_update_time (ClutterStageWindow *window)
-{
-  ClutterStageWindowInterface *iface;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE_WINDOW (window), 0);
-
-  iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
-  if (iface->get_update_time == NULL)
-    {
-      g_assert (!clutter_feature_available (CLUTTER_FEATURE_SWAP_EVENTS));
-      return 0;
-    }
-
-  return iface->get_update_time (window);
-}
-
-/**
- * _clutter_stage_window_clear_update_time:
- * @window: a #ClutterStageWindow object
- *
- * Clears the update time. See _clutter_stage_clear_update_time() for more info.
- */
-void
-_clutter_stage_window_clear_update_time (ClutterStageWindow *window)
-{
-  ClutterStageWindowInterface *iface;
-
-  g_return_if_fail (CLUTTER_IS_STAGE_WINDOW (window));
-
-  iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
-  if (iface->clear_update_time == NULL)
-    {
-      g_assert (!clutter_feature_available (CLUTTER_FEATURE_SWAP_EVENTS));
-      return;
-    }
-
-  iface->clear_update_time (window);
-}
-
-void
-_clutter_stage_window_redraw (ClutterStageWindow *window)
-{
-  ClutterStageWindowInterface *iface;
-
-  g_return_if_fail (CLUTTER_IS_STAGE_WINDOW (window));
-
-  iface = CLUTTER_STAGE_WINDOW_GET_IFACE (window);
-  if (iface->redraw)
-    iface->redraw (window);
+  CLUTTER_STAGE_WINDOW_GET_IFACE (window)->redraw_view (window, view);
 }
 
 gboolean

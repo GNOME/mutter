@@ -169,8 +169,6 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
     MetaDumbBuffer dumb_fbs[2];
   } cpu;
 
-  int pending_flips;
-
   gboolean noted_primary_gpu_copy_ok;
   gboolean noted_primary_gpu_copy_failed;
   MetaSharedFramebufferImportStatus import_status;
@@ -199,15 +197,9 @@ typedef struct _MetaOnscreenNative
   } egl;
 #endif
 
-  gboolean pending_swap_notify;
-
   gboolean pending_set_crtc;
 
-  int64_t pending_queue_swap_notify_frame_count;
-  int64_t pending_swap_notify_frame_count;
-
   MetaRendererView *view;
-  int total_pending_flips;
 } MetaOnscreenNative;
 
 struct _MetaRendererNative
@@ -721,60 +713,6 @@ meta_renderer_native_disconnect (CoglRenderer *cogl_renderer)
 }
 
 static void
-flush_pending_swap_notify (CoglFramebuffer *framebuffer)
-{
-  if (framebuffer->type == COGL_FRAMEBUFFER_TYPE_ONSCREEN)
-    {
-      CoglOnscreen *onscreen = COGL_ONSCREEN (framebuffer);
-      CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
-      MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-
-      if (onscreen_native->pending_swap_notify)
-        {
-          CoglFrameInfo *info;
-
-          while ((info = g_queue_peek_head (&onscreen->pending_frame_infos)) &&
-                 info->global_frame_counter <= onscreen_native->pending_swap_notify_frame_count)
-            {
-              _cogl_onscreen_notify_frame_sync (onscreen, info);
-              _cogl_onscreen_notify_complete (onscreen, info);
-              cogl_object_unref (info);
-              g_queue_pop_head (&onscreen->pending_frame_infos);
-            }
-
-          onscreen_native->pending_swap_notify = FALSE;
-          cogl_object_unref (onscreen);
-        }
-    }
-}
-
-static void
-flush_pending_swap_notify_idle (void *user_data)
-{
-  CoglContext *cogl_context = user_data;
-  CoglRendererEGL *cogl_renderer_egl = cogl_context->display->renderer->winsys;
-  MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
-  MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
-  GList *l;
-
-  /* This needs to be disconnected before invoking the callbacks in
-   * case the callbacks cause it to be queued again */
-  _cogl_closure_disconnect (renderer_native->swap_notify_idle);
-  renderer_native->swap_notify_idle = NULL;
-
-  l = cogl_context->framebuffers;
-  while (l)
-    {
-      GList *next = l->next;
-      CoglFramebuffer *framebuffer = l->data;
-
-      flush_pending_swap_notify (framebuffer);
-
-      l = next;
-    }
-}
-
-static void
 free_current_secondary_bo (CoglOnscreen *onscreen)
 {
   CoglOnscreenEGL *onscreen_egl =  onscreen->winsys;
@@ -801,40 +739,14 @@ free_current_bo (CoglOnscreen *onscreen)
 static void
 meta_onscreen_native_queue_swap_notify (CoglOnscreen *onscreen)
 {
-  CoglOnscreenEGL *onscreen_egl =  onscreen->winsys;
-  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaRendererNative *renderer_native = onscreen_native->renderer_native;
+  CoglFrameInfo *info;
 
-  onscreen_native->pending_swap_notify_frame_count =
-    onscreen_native->pending_queue_swap_notify_frame_count;
+  g_assert (onscreen->pending_frame_infos.length == 1);
 
-  if (onscreen_native->pending_swap_notify)
-    return;
-
-  /* We only want to notify that the swap is complete when the
-   * application calls cogl_context_dispatch so instead of
-   * immediately notifying we queue an idle callback */
-  if (!renderer_native->swap_notify_idle)
-    {
-      CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
-      CoglContext *cogl_context = framebuffer->context;
-      CoglRenderer *cogl_renderer = cogl_context->display->renderer;
-
-      renderer_native->swap_notify_idle =
-        _cogl_poll_renderer_add_idle (cogl_renderer,
-                                      flush_pending_swap_notify_idle,
-                                      cogl_context,
-                                      NULL);
-    }
-
-  /*
-   * The framebuffer will have its own referenc while the swap notify is
-   * pending. Otherwise when destroying the view would drop the pending
-   * notification with if the destruction happens before the idle callback
-   * is invoked.
-   */
-  cogl_object_ref (onscreen);
-  onscreen_native->pending_swap_notify = TRUE;
+  info = g_queue_pop_head (&onscreen->pending_frame_infos);
+  _cogl_onscreen_notify_frame_sync (onscreen, info);
+  _cogl_onscreen_notify_complete (onscreen, info);
+  cogl_object_unref (info);
 }
 
 static gboolean
@@ -1147,10 +1059,9 @@ notify_view_crtc_presented (MetaRendererView *view,
   CoglOnscreenEGL *onscreen_egl =  onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
-  MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   CoglFrameInfo *frame_info;
   MetaCrtc *crtc;
-  MetaGpuKms *gpu_kms;
+  MetaRendererNativeGpuData *renderer_gpu_data;
 
   /* Only keep the frame info for the fastest CRTC in use, which may not be
    * the first one to complete a flip. By only telling the compositor about the
@@ -1162,35 +1073,21 @@ notify_view_crtc_presented (MetaRendererView *view,
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
   maybe_update_frame_info (crtc, frame_info, time_ns);
 
-  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
-  if (gpu_kms != render_gpu)
+
+  meta_onscreen_native_queue_swap_notify (onscreen);
+
+  renderer_gpu_data =
+    meta_renderer_native_get_gpu_data (renderer_native,
+                                       onscreen_native->render_gpu);
+  switch (renderer_gpu_data->mode)
     {
-      MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state =
-        onscreen_native->secondary_gpu_state;
-
-      secondary_gpu_state->pending_flips--;
-    }
-
-  onscreen_native->total_pending_flips--;
-  if (onscreen_native->total_pending_flips == 0)
-    {
-      MetaRendererNativeGpuData *renderer_gpu_data;
-
-      meta_onscreen_native_queue_swap_notify (onscreen);
-
-      renderer_gpu_data =
-        meta_renderer_native_get_gpu_data (renderer_native,
-                                           onscreen_native->render_gpu);
-      switch (renderer_gpu_data->mode)
-        {
-        case META_RENDERER_NATIVE_MODE_GBM:
-          meta_onscreen_native_swap_drm_fb (onscreen);
-          break;
+    case META_RENDERER_NATIVE_MODE_GBM:
+      meta_onscreen_native_swap_drm_fb (onscreen);
+      break;
 #ifdef HAVE_EGL_DEVICE
-        case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-          break;
+    case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
+      break;
 #endif
-        }
     }
 }
 
@@ -1404,10 +1301,6 @@ meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
                                g_object_ref (view),
                                kms_update);
 
-      onscreen_native->total_pending_flips++;
-      if (secondary_gpu_state)
-        secondary_gpu_state->pending_flips++;
-
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
@@ -1417,7 +1310,6 @@ meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
                                         g_object_ref (view),
                                         custom_egl_stream_page_flip,
                                         onscreen_native);
-      onscreen_native->total_pending_flips++;
       break;
 #endif
     }
@@ -1482,40 +1374,6 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen  *onscreen,
   else
     {
       queue_dummy_power_save_page_flip (onscreen);
-    }
-}
-
-static void
-wait_for_pending_flips (CoglOnscreen *onscreen)
-{
-  CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
-  MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
-  MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
-  GError *error = NULL;
-
-  secondary_gpu_state = onscreen_native->secondary_gpu_state;
-  if (secondary_gpu_state)
-    {
-      while (secondary_gpu_state->pending_flips)
-        {
-          if (!meta_gpu_kms_wait_for_flip (secondary_gpu_state->gpu_kms, &error))
-            {
-              g_warning ("Failed to wait for flip on secondary GPU: %s",
-                         error->message);
-              g_clear_error (&error);
-              break;
-            }
-        }
-    }
-
-  while (onscreen_native->total_pending_flips)
-    {
-      if (!meta_gpu_kms_wait_for_flip (onscreen_native->render_gpu, &error))
-        {
-          g_warning ("Failed to wait for flip: %s", error->message);
-          g_clear_error (&error);
-          break;
-        }
     }
 }
 
@@ -2095,15 +1953,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
 
   kms_update = meta_kms_ensure_pending_update (kms);
 
-  /*
-   * Wait for the flip callback before continuing, as we might have started the
-   * animation earlier due to the animation being driven by some other monitor.
-   */
-  COGL_TRACE_BEGIN (MetaRendererNativeSwapBuffersWait,
-                    "Onscreen (waiting for page flips)");
-  wait_for_pending_flips (onscreen);
-  COGL_TRACE_END (MetaRendererNativeSwapBuffersWait);
-
   update_secondary_gpu_state_pre_swap_buffers (onscreen);
 
   parent_vtable->onscreen_swap_buffers_with_damage (onscreen,
@@ -2143,9 +1992,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   update_secondary_gpu_state_post_swap_buffers (onscreen, &egl_context_changed);
 
   ensure_crtc_modes (onscreen, kms_update);
-
-  onscreen_native->pending_queue_swap_notify_frame_count =
-    cogl_frame_info_get_global_frame_counter (frame_info);
   meta_onscreen_native_flip_crtcs (onscreen, kms_update);
 
   /*
@@ -2315,8 +2161,6 @@ meta_onscreen_native_direct_scanout (CoglOnscreen  *onscreen,
 
   kms_update = meta_kms_ensure_pending_update (kms);
 
-  wait_for_pending_flips (onscreen);
-
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
 
@@ -2326,9 +2170,6 @@ meta_onscreen_native_direct_scanout (CoglOnscreen  *onscreen,
   g_set_object (&onscreen_native->gbm.next_fb, META_DRM_BUFFER (scanout));
 
   ensure_crtc_modes (onscreen, kms_update);
-
-  onscreen_native->pending_queue_swap_notify_frame_count =
-    cogl_frame_info_get_global_frame_counter (frame_info);
   meta_onscreen_native_flip_crtcs (onscreen, kms_update);
 
   meta_kms_post_pending_update_sync (kms);

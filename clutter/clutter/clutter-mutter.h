@@ -69,12 +69,6 @@ gboolean clutter_stage_paint_to_buffer (ClutterStage                 *stage,
                                         GError                      **error);
 
 CLUTTER_EXPORT
-void clutter_stage_freeze_updates (ClutterStage *stage);
-
-CLUTTER_EXPORT
-void clutter_stage_thaw_updates (ClutterStage *stage);
-
-CLUTTER_EXPORT
 void clutter_stage_clear_stage_views (ClutterStage *stage);
 
 CLUTTER_EXPORT

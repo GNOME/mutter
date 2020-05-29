@@ -32,6 +32,7 @@
 #include "clutter/clutter.h"
 #include "clutter/clutter-mutter.h"
 #include "cogl/cogl.h"
+#include "core/boxes-private.h"
 #include "meta/meta-backend.h"
 #include "meta/util.h"
 
@@ -155,13 +156,25 @@ queue_redraw (MetaCursorRenderer *renderer,
 
 static void
 meta_cursor_renderer_after_paint (ClutterStage       *stage,
+                                  ClutterStageView   *stage_view,
                                   MetaCursorRenderer *renderer)
 {
   MetaCursorRendererPrivate *priv =
     meta_cursor_renderer_get_instance_private (renderer);
 
   if (priv->displayed_cursor && !priv->handled_by_backend)
-    meta_cursor_renderer_emit_painted (renderer, priv->displayed_cursor);
+    {
+      graphene_rect_t rect;
+      MetaRectangle view_layout;
+      graphene_rect_t view_rect;
+
+      rect = meta_cursor_renderer_calculate_rect (renderer,
+                                                  priv->displayed_cursor);
+      clutter_stage_view_get_layout (stage_view, &view_layout);
+      view_rect = meta_rectangle_to_graphene_rect (&view_layout);
+      if (graphene_rect_intersection (&rect, &view_rect, NULL))
+        meta_cursor_renderer_emit_painted (renderer, priv->displayed_cursor);
+    }
 }
 
 static gboolean

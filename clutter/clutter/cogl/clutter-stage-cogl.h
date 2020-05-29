@@ -41,20 +41,6 @@ struct _ClutterStageCogl
 
   /* back pointer to the backend */
   ClutterBackend *backend;
-
-  float refresh_rate;
-  int pending_swaps;
-
-  gint64 last_presentation_time;
-  gint64 update_time;
-  int64_t last_update_time;
-
-  /* We only enable clipped redraws after 2 frames, since we've seen
-   * a lot of drivers can struggle to get going and may output some
-   * junk frames to start with. */
-  unsigned int frame_count;
-
-  gint last_sync_delay;
 };
 
 struct _ClutterStageCoglClass

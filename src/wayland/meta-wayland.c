@@ -196,6 +196,7 @@ meta_wayland_compositor_update (MetaWaylandCompositor *compositor,
 
 static void
 on_after_update (ClutterStage          *stage,
+                 ClutterStageView      *stage_view,
                  MetaWaylandCompositor *compositor)
 {
   GList *l;
@@ -209,6 +210,7 @@ on_after_update (ClutterStage          *stage,
       GList *l_cur = l;
       MetaWaylandSurface *surface = l->data;
       MetaSurfaceActor *actor;
+      GList *stage_views;
       MetaWaylandActorSurface *actor_surface;
 
       l = l->next;
@@ -219,6 +221,10 @@ on_after_update (ClutterStage          *stage,
 
       if (!clutter_actor_has_mapped_clones (CLUTTER_ACTOR (actor)) &&
           meta_surface_actor_is_obscured (actor))
+        continue;
+
+      stage_views = clutter_actor_peek_stage_views (CLUTTER_ACTOR (actor));
+      if (!g_list_find (stage_views, stage_view))
         continue;
 
       actor_surface = META_WAYLAND_ACTOR_SURFACE (surface->role);

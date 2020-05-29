@@ -52,86 +52,6 @@ G_DEFINE_TYPE_WITH_CODE (MetaStageNative, meta_stage_native,
                          G_IMPLEMENT_INTERFACE (CLUTTER_TYPE_STAGE_WINDOW,
                                                 clutter_stage_window_iface_init))
 
-static void
-frame_cb (CoglOnscreen  *onscreen,
-          CoglFrameEvent frame_event,
-          CoglFrameInfo *frame_info,
-          void          *user_data)
-
-{
-  MetaStageNative *stage_native = user_data;
-  ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_native);
-  int64_t global_frame_counter;
-  int64_t presented_frame_counter;
-  ClutterFrameInfo clutter_frame_info;
-
-  global_frame_counter = cogl_frame_info_get_global_frame_counter (frame_info);
-
-  switch (frame_event)
-    {
-    case COGL_FRAME_EVENT_SYNC:
-      presented_frame_counter = stage_native->presented_frame_counter_sync;
-      stage_native->presented_frame_counter_sync = global_frame_counter;
-      break;
-    case COGL_FRAME_EVENT_COMPLETE:
-      presented_frame_counter = stage_native->presented_frame_counter_complete;
-      stage_native->presented_frame_counter_complete = global_frame_counter;
-      break;
-    default:
-      g_assert_not_reached ();
-    }
-
-  if (global_frame_counter <= presented_frame_counter)
-    return;
-
-  clutter_frame_info = (ClutterFrameInfo) {
-    .frame_counter = global_frame_counter,
-    .refresh_rate = cogl_frame_info_get_refresh_rate (frame_info),
-    .presentation_time = cogl_frame_info_get_presentation_time (frame_info)
-  };
-
-  _clutter_stage_cogl_presented (stage_cogl, frame_event, &clutter_frame_info);
-}
-
-static void
-ensure_frame_callback (MetaStageNative  *stage_native,
-                       ClutterStageView *stage_view)
-{
-  CoglFramebuffer *framebuffer;
-  CoglOnscreen *onscreen;
-  CoglClosure *closure;
-
-  closure = g_object_get_qdata (G_OBJECT (stage_view),
-                                quark_view_frame_closure);
-  if (closure)
-    return;
-
-  framebuffer = clutter_stage_view_get_onscreen (stage_view);
-  onscreen = COGL_ONSCREEN (framebuffer);
-  closure = cogl_onscreen_add_frame_callback (onscreen,
-                                              frame_cb,
-                                              stage_native,
-                                              NULL);
-  g_object_set_qdata (G_OBJECT (stage_view),
-                      quark_view_frame_closure,
-                      closure);
-}
-
-static void
-ensure_frame_callbacks (MetaStageNative *stage_native)
-{
-  MetaBackend *backend = meta_get_backend ();
-  MetaRenderer *renderer = meta_backend_get_renderer (backend);
-  GList *l;
-
-  for (l = meta_renderer_get_views (renderer); l; l = l->next)
-    {
-      ClutterStageView *stage_view = l->data;
-
-      ensure_frame_callback (stage_native, stage_view);
-    }
-}
-
 void
 meta_stage_native_rebuild_views (MetaStageNative *stage_native)
 {
@@ -141,7 +61,6 @@ meta_stage_native_rebuild_views (MetaStageNative *stage_native)
 
   meta_renderer_rebuild_views (renderer);
   clutter_stage_clear_stage_views (CLUTTER_STAGE (stage));
-  ensure_frame_callbacks (stage_native);
 }
 
 static gboolean

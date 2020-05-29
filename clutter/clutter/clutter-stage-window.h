@@ -44,12 +44,8 @@ struct _ClutterStageWindowInterface
   void              (* get_geometry)            (ClutterStageWindow *stage_window,
                                                  cairo_rectangle_int_t *geometry);
 
-  void              (* schedule_update)         (ClutterStageWindow *stage_window,
-                                                 int                 sync_delay);
-  gint64            (* get_update_time)         (ClutterStageWindow *stage_window);
-  void              (* clear_update_time)       (ClutterStageWindow *stage_window);
-
-  void              (* redraw)                  (ClutterStageWindow *stage_window);
+  void              (* redraw_view)             (ClutterStageWindow *stage_window,
+                                                 ClutterStageView   *view);
 
   gboolean          (* can_clip_redraws)        (ClutterStageWindow *stage_window);
 
@@ -78,15 +74,12 @@ void              _clutter_stage_window_resize                  (ClutterStageWin
 CLUTTER_EXPORT
 void              _clutter_stage_window_get_geometry            (ClutterStageWindow *window,
                                                                  cairo_rectangle_int_t *geometry);
-void              _clutter_stage_window_schedule_update         (ClutterStageWindow *window,
-                                                                 int                 sync_delay);
-gint64            _clutter_stage_window_get_update_time         (ClutterStageWindow *window);
-void              _clutter_stage_window_clear_update_time       (ClutterStageWindow *window);
 
 void              _clutter_stage_window_set_accept_focus        (ClutterStageWindow *window,
                                                                  gboolean            accept_focus);
 
-void              _clutter_stage_window_redraw                  (ClutterStageWindow *window);
+void               _clutter_stage_window_redraw_view            (ClutterStageWindow *window,
+                                                                 ClutterStageView   *view);
 
 gboolean          _clutter_stage_window_can_clip_redraws        (ClutterStageWindow *window);
 

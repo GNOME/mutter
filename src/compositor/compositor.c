@@ -139,6 +139,7 @@ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaCompositor, meta_compositor,
 
 static void
 on_presented (ClutterStage     *stage,
+              ClutterStageView *stage_view,
               ClutterFrameInfo *frame_info,
               MetaCompositor   *compositor);
 
@@ -1034,6 +1035,7 @@ meta_compositor_sync_window_geometry (MetaCompositor *compositor,
 
 static void
 on_presented (ClutterStage     *stage,
+              ClutterStageView *stage_view,
               ClutterFrameInfo *frame_info,
               MetaCompositor   *compositor)
 {
@@ -1072,34 +1074,42 @@ on_presented (ClutterStage     *stage,
   for (l = priv->windows; l; l = l->next)
     {
       ClutterActor *actor = l->data;
+      GList *actor_stage_views;
 
-      meta_window_actor_frame_complete (META_WINDOW_ACTOR (actor),
-                                        frame_info,
-                                        presentation_time);
+      actor_stage_views = clutter_actor_peek_stage_views (actor);
+      if (g_list_find (actor_stage_views, stage_view))
+        {
+          meta_window_actor_frame_complete (META_WINDOW_ACTOR (actor),
+                                            frame_info,
+                                            presentation_time);
+        }
     }
 }
 
 static void
-meta_compositor_real_before_paint (MetaCompositor *compositor)
+meta_compositor_real_before_paint (MetaCompositor   *compositor,
+                                   ClutterStageView *stage_view)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
   GList *l;
 
   for (l = priv->windows; l; l = l->next)
-    meta_window_actor_before_paint (l->data);
+    meta_window_actor_before_paint (l->data, stage_view);
 }
 
 static void
-meta_compositor_before_paint (MetaCompositor *compositor)
+meta_compositor_before_paint (MetaCompositor   *compositor,
+                              ClutterStageView *stage_view)
 {
   COGL_TRACE_BEGIN_SCOPED (MetaCompositorPrePaint,
                            "Compositor (before-paint)");
-  META_COMPOSITOR_GET_CLASS (compositor)->before_paint (compositor);
+  META_COMPOSITOR_GET_CLASS (compositor)->before_paint (compositor, stage_view);
 }
 
 static void
-meta_compositor_real_after_paint (MetaCompositor *compositor)
+meta_compositor_real_after_paint (MetaCompositor   *compositor,
+                                  ClutterStageView *stage_view)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
@@ -1132,31 +1142,37 @@ meta_compositor_real_after_paint (MetaCompositor *compositor)
   for (l = priv->windows; l; l = l->next)
     {
       ClutterActor *actor = l->data;
+      GList *actor_stage_views;
 
-      meta_window_actor_after_paint (META_WINDOW_ACTOR (actor));
+      actor_stage_views = clutter_actor_peek_stage_views (actor);
+      if (g_list_find (actor_stage_views, stage_view))
+        meta_window_actor_after_paint (META_WINDOW_ACTOR (actor), stage_view);
     }
 }
 
 static void
-meta_compositor_after_paint (MetaCompositor *compositor)
+meta_compositor_after_paint (MetaCompositor   *compositor,
+                             ClutterStageView *stage_view)
 {
   COGL_TRACE_BEGIN_SCOPED (MetaCompositorPostPaint,
                            "Compositor (after-paint)");
-  META_COMPOSITOR_GET_CLASS (compositor)->after_paint (compositor);
+  META_COMPOSITOR_GET_CLASS (compositor)->after_paint (compositor, stage_view);
 }
 
 static void
-on_before_paint (ClutterStage   *stage,
-                 MetaCompositor *compositor)
+on_before_paint (ClutterStage     *stage,
+                 ClutterStageView *stage_view,
+                 MetaCompositor   *compositor)
 {
-  meta_compositor_before_paint (compositor);
+  meta_compositor_before_paint (compositor, stage_view);
 }
 
 static void
-on_after_paint (ClutterStage   *stage,
-                MetaCompositor *compositor)
+on_after_paint (ClutterStage     *stage,
+                ClutterStageView *stage_view,
+                MetaCompositor   *compositor)
 {
-  meta_compositor_after_paint (compositor);
+  meta_compositor_after_paint (compositor, stage_view);
 }
 
 static void

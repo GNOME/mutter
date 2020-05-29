@@ -27,6 +27,7 @@
 #include "clutter/clutter-frame-clock.h"
 #include "clutter/clutter-private.h"
 #include "clutter/clutter-mutter.h"
+#include "clutter/clutter-stage-private.h"
 #include "cogl/cogl.h"
 
 enum
@@ -1001,6 +1002,15 @@ clutter_stage_view_take_scanout (ClutterStageView *view)
   return g_steal_pointer (&priv->next_scanout);
 }
 
+void
+clutter_stage_view_schedule_update (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  clutter_frame_clock_schedule_update (priv->frame_clock);
+}
+
 float
 clutter_stage_view_get_refresh_rate (ClutterStageView *view)
 {
@@ -1040,13 +1050,74 @@ handle_frame_clock_frame (ClutterFrameClock *frame_clock,
                           int64_t            time_us,
                           gpointer           user_data)
 {
-  return CLUTTER_FRAME_RESULT_IDLE;
+  ClutterStageView *view = user_data;
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+  ClutterStage *stage = priv->stage;
+  g_autoptr (GSList) devices = NULL;
+  ClutterFrameResult result;
+
+  if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
+    return CLUTTER_FRAME_RESULT_IDLE;
+
+  if (!clutter_actor_is_realized (CLUTTER_ACTOR (stage)))
+    return CLUTTER_FRAME_RESULT_IDLE;
+
+  if (!clutter_actor_is_mapped (CLUTTER_ACTOR (stage)))
+    return CLUTTER_FRAME_RESULT_IDLE;
+
+  _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_PRE_PAINT);
+  clutter_stage_emit_before_update (stage, view);
+
+  clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
+  clutter_stage_update_actor_stage_views (stage);
+  clutter_stage_maybe_finish_queue_redraws (stage);
+
+  devices = clutter_stage_find_updated_devices (stage);
+
+  if (clutter_stage_view_has_redraw_clip (view))
+    {
+      ClutterStageWindow *stage_window;
+
+      clutter_stage_emit_before_paint (stage, view);
+
+      stage_window = _clutter_stage_get_window (stage);
+      _clutter_stage_window_redraw_view (stage_window, view);
+
+      clutter_stage_emit_after_paint (stage, view);
+
+      _clutter_stage_window_finish_frame (stage_window);
+
+      result = CLUTTER_FRAME_RESULT_PENDING_PRESENTED;
+    }
+  else
+    {
+      result = CLUTTER_FRAME_RESULT_IDLE;
+    }
+
+  clutter_stage_update_devices (stage, devices);
+
+  _clutter_run_repaint_functions (CLUTTER_REPAINT_FLAGS_POST_PAINT);
+  clutter_stage_emit_after_update (stage, view);
+
+  return result;
 }
 
 static const ClutterFrameListenerIface frame_clock_listener_iface = {
   .before_frame = handle_frame_clock_before_frame,
   .frame = handle_frame_clock_frame,
 };
+
+void
+clutter_stage_view_notify_presented (ClutterStageView *view,
+                                     ClutterFrameInfo *frame_info)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  clutter_stage_presented (priv->stage, view, frame_info);
+  clutter_frame_clock_notify_presented (priv->frame_clock, frame_info);
+}
 
 static void
 sanity_check_framebuffer (ClutterStageView *view)
@@ -1071,10 +1142,12 @@ clutter_stage_view_set_framebuffer (ClutterStageView *view,
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
 
-  priv->framebuffer = cogl_object_ref (framebuffer);
-
-  if (priv->framebuffer)
-    sanity_check_framebuffer (view);
+  g_warn_if_fail (!priv->framebuffer);
+  if (framebuffer)
+    {
+      priv->framebuffer = cogl_object_ref (framebuffer);
+      sanity_check_framebuffer (view);
+    }
 }
 
 static void

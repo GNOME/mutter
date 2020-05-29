@@ -40,10 +40,14 @@ void                clutter_stage_paint_view             (ClutterStage          
                                                           ClutterStageView      *view,
                                                           const cairo_region_t  *redraw_clip);
 
-void                clutter_stage_emit_before_update     (ClutterStage          *stage);
-void                clutter_stage_emit_before_paint      (ClutterStage          *stage);
-void                clutter_stage_emit_after_paint       (ClutterStage          *stage);
-void                clutter_stage_emit_after_update      (ClutterStage          *stage);
+void                clutter_stage_emit_before_update     (ClutterStage          *stage,
+                                                          ClutterStageView      *view);
+void                clutter_stage_emit_before_paint      (ClutterStage          *stage,
+                                                          ClutterStageView      *view);
+void                clutter_stage_emit_after_paint       (ClutterStage          *stage,
+                                                          ClutterStageView      *view);
+void                clutter_stage_emit_after_update      (ClutterStage          *stage,
+                                                          ClutterStageView      *view);
 
 CLUTTER_EXPORT
 void                _clutter_stage_set_window            (ClutterStage          *stage,
@@ -67,8 +71,6 @@ GSList *            clutter_stage_find_updated_devices   (ClutterStage          
 void                clutter_stage_update_devices         (ClutterStage          *stage,
                                                           GSList                *devices);
 void                clutter_stage_update_actor_stage_views (ClutterStage        *stage);
-gboolean            _clutter_stage_needs_update          (ClutterStage          *stage);
-gboolean            _clutter_stage_do_update             (ClutterStage          *stage);
 
 CLUTTER_EXPORT
 void     _clutter_stage_queue_event                       (ClutterStage *stage,
@@ -77,8 +79,6 @@ void     _clutter_stage_queue_event                       (ClutterStage *stage,
 gboolean _clutter_stage_has_queued_events                 (ClutterStage *stage);
 void     _clutter_stage_process_queued_events             (ClutterStage *stage);
 void     _clutter_stage_update_input_devices              (ClutterStage *stage);
-gint64    _clutter_stage_get_update_time                  (ClutterStage *stage);
-void     _clutter_stage_clear_update_time                 (ClutterStage *stage);
 gboolean _clutter_stage_has_full_redraw_queued            (ClutterStage *stage);
 
 void clutter_stage_log_pick (ClutterStage           *stage,
@@ -135,6 +135,7 @@ void                    _clutter_stage_set_scale_factor (ClutterStage      *stag
                                                          int                factor);
 
 void            clutter_stage_presented                 (ClutterStage      *stage,
+                                                         ClutterStageView  *view,
                                                          ClutterFrameInfo  *frame_info);
 
 void            clutter_stage_queue_actor_relayout      (ClutterStage *stage,

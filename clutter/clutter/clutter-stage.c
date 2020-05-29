@@ -60,11 +60,11 @@
 #include "clutter-debug.h"
 #include "clutter-enum-types.h"
 #include "clutter-event-private.h"
+#include "clutter-frame-clock.h"
 #include "clutter-id-pool.h"
 #include "clutter-input-device-private.h"
 #include "clutter-main.h"
 #include "clutter-marshal.h"
-#include "clutter-master-clock.h"
 #include "clutter-mutter.h"
 #include "clutter-paint-context-private.h"
 #include "clutter-paint-volume-private.h"
@@ -139,7 +139,6 @@ struct _ClutterStagePrivate
 
   int update_freeze_count;
 
-  gboolean needs_update;
   gboolean needs_update_devices;
   gboolean pending_finish_queue_redraws;
 
@@ -893,27 +892,31 @@ clutter_stage_paint_view (ClutterStage         *stage,
 }
 
 void
-clutter_stage_emit_before_update (ClutterStage *stage)
+clutter_stage_emit_before_update (ClutterStage     *stage,
+                                  ClutterStageView *view)
 {
-  g_signal_emit (stage, stage_signals[BEFORE_UPDATE], 0);
+  g_signal_emit (stage, stage_signals[BEFORE_UPDATE], 0, view);
 }
 
 void
-clutter_stage_emit_before_paint (ClutterStage *stage)
+clutter_stage_emit_before_paint (ClutterStage     *stage,
+                                 ClutterStageView *view)
 {
-  g_signal_emit (stage, stage_signals[BEFORE_PAINT], 0);
+  g_signal_emit (stage, stage_signals[BEFORE_PAINT], 0, view);
 }
 
 void
-clutter_stage_emit_after_paint (ClutterStage *stage)
+clutter_stage_emit_after_paint (ClutterStage     *stage,
+                                ClutterStageView *view)
 {
-  g_signal_emit (stage, stage_signals[AFTER_PAINT], 0);
+  g_signal_emit (stage, stage_signals[AFTER_PAINT], 0, view);
 }
 
 void
-clutter_stage_emit_after_update (ClutterStage *stage)
+clutter_stage_emit_after_update (ClutterStage     *stage,
+                                 ClutterStageView *view)
 {
-  g_signal_emit (stage, stage_signals[AFTER_UPDATE], 0);
+  g_signal_emit (stage, stage_signals[AFTER_UPDATE], 0, view);
 }
 
 static gboolean
@@ -1072,11 +1075,7 @@ _clutter_stage_queue_event (ClutterStage *stage,
   g_queue_push_tail (priv->event_queue, event);
 
   if (first_event)
-    {
-      ClutterMasterClock *master_clock = _clutter_master_clock_get_default ();
-      _clutter_master_clock_start_running (master_clock);
-      clutter_stage_schedule_update (stage);
-    }
+    clutter_stage_schedule_update (stage);
 }
 
 gboolean
@@ -1190,28 +1189,6 @@ _clutter_stage_process_queued_events (ClutterStage *stage)
   g_object_unref (stage);
 }
 
-/**
- * _clutter_stage_needs_update:
- * @stage: A #ClutterStage
- *
- * Determines if _clutter_stage_do_update() needs to be called.
- *
- * Return value: %TRUE if the stage need layout or painting
- */
-gboolean
-_clutter_stage_needs_update (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv;
-
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-
-  priv = stage->priv;
-
-  return (priv->redraw_pending ||
-          priv->needs_update ||
-          priv->pending_relayouts != NULL);
-}
-
 void
 clutter_stage_queue_actor_relayout (ClutterStage *stage,
                                     ClutterActor *actor)
@@ -1274,52 +1251,6 @@ clutter_stage_maybe_relayout (ClutterActor *actor)
 
   if (count)
     priv->needs_update_devices = TRUE;
-}
-
-static void
-clutter_stage_do_redraw (ClutterStage *stage)
-{
-  ClutterActor *actor = CLUTTER_ACTOR (stage);
-  ClutterStagePrivate *priv = stage->priv;
-
-  if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
-    return;
-
-  if (priv->impl == NULL)
-    return;
-
-  COGL_TRACE_BEGIN_SCOPED (ClutterStagePaint, "Paint");
-
-  CLUTTER_NOTE (PAINT, "Redraw started for stage '%s'[%p]",
-                _clutter_actor_get_debug_name (actor),
-                stage);
-
-  if (_clutter_context_get_show_fps ())
-    {
-      if (priv->fps_timer == NULL)
-        priv->fps_timer = g_timer_new ();
-    }
-
-  _clutter_stage_window_redraw (priv->impl);
-
-  if (_clutter_context_get_show_fps ())
-    {
-      priv->timer_n_frames += 1;
-
-      if (g_timer_elapsed (priv->fps_timer, NULL) >= 1.0)
-        {
-          g_print ("*** FPS for %s: %i ***\n",
-                   _clutter_actor_get_debug_name (actor),
-                   priv->timer_n_frames);
-
-          priv->timer_n_frames = 0;
-          g_timer_start (priv->fps_timer);
-        }
-    }
-
-  CLUTTER_NOTE (PAINT, "Redraw finished for stage '%s'[%p]",
-                _clutter_actor_get_debug_name (actor),
-                stage);
 }
 
 GSList *
@@ -1429,75 +1360,6 @@ clutter_stage_update_devices (ClutterStage *stage,
       ClutterInputDevice *device = l->data;
       clutter_input_device_update (device, NULL, TRUE);
     }
-}
-
-/**
- * _clutter_stage_do_update:
- * @stage: A #ClutterStage
- *
- * Handles per-frame layout and repaint for the stage.
- *
- * Return value: %TRUE if the stage was updated
- */
-gboolean
-_clutter_stage_do_update (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv = stage->priv;
-  g_autoptr (GSList) devices = NULL;
-
-  priv->needs_update = FALSE;
-
-  /* if the stage is being destroyed, or if the destruction already
-   * happened and we don't have an StageWindow any more, then we
-   * should bail out
-   */
-  if (CLUTTER_ACTOR_IN_DESTRUCTION (stage) || priv->impl == NULL)
-    return FALSE;
-
-  if (!CLUTTER_ACTOR_IS_REALIZED (stage))
-    return FALSE;
-
-  COGL_TRACE_BEGIN_SCOPED (ClutterStageDoUpdate, "Update");
-
-  clutter_stage_emit_before_update (stage);
-
-  /* NB: We need to ensure we have an up to date layout *before* we
-   * check or clear the pending redraws flag since a relayout may
-   * queue a redraw.
-   */
-  clutter_stage_maybe_relayout (CLUTTER_ACTOR (stage));
-
-  if (!priv->redraw_pending)
-    {
-      clutter_stage_emit_after_update (stage);
-      return FALSE;
-    }
-
-  clutter_stage_update_actor_stage_views (stage);
-  clutter_stage_maybe_finish_queue_redraws (stage);
-
-  devices = clutter_stage_find_updated_devices (stage);
-
-  clutter_stage_do_redraw (stage);
-
-  /* reset the guard, so that new redraws are possible */
-  priv->redraw_pending = FALSE;
-
-#ifdef CLUTTER_ENABLE_DEBUG
-  if (priv->redraw_count > 0)
-    {
-      CLUTTER_NOTE (SCHEDULER, "Queued %lu redraws during the last cycle",
-                    priv->redraw_count);
-
-      priv->redraw_count = 0;
-    }
-#endif /* CLUTTER_ENABLE_DEBUG */
-
-  clutter_stage_update_devices (stage, devices);
-
-  clutter_stage_emit_after_update (stage);
-
-  return TRUE;
 }
 
 static void
@@ -2028,6 +1890,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
   /**
    * ClutterStage::before-update:
    * @stage: the #ClutterStage
+   * @view: a #ClutterStageView
    */
   stage_signals[BEFORE_UPDATE] =
     g_signal_new (I_("before-update"),
@@ -2035,11 +1898,13 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_STAGE_VIEW);
 
   /**
    * ClutterStage::before-paint:
    * @stage: the stage that received the event
+   * @view: a #ClutterStageView
    *
    * The ::before-paint signal is emitted before the stage is painted.
    */
@@ -2049,11 +1914,12 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_STAGE_VIEW);
   /**
    * ClutterStage::after-paint:
    * @stage: the stage that received the event
-   * @paint_Context: the paint context
+   * @view: a #ClutterStageView
    *
    * The ::after-paint signal is emitted after the stage is painted,
    * but before the results are displayed on the screen.
@@ -2066,11 +1932,13 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0, /* no corresponding vfunc */
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_STAGE_VIEW);
 
   /**
    * ClutterStage::after-update:
    * @stage: the #ClutterStage
+   * @view: a #ClutterStageView
    */
   stage_signals[AFTER_UPDATE] =
     g_signal_new (I_("after-update"),
@@ -2078,7 +1946,8 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
+                  G_TYPE_NONE, 1,
+                  CLUTTER_TYPE_STAGE_VIEW);
 
   /**
    * ClutterStage::paint-view:
@@ -2106,6 +1975,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
   /**
    * ClutterStage::presented: (skip)
    * @stage: the stage that received the event
+   * @view: the #ClutterStageView presented
    * @frame_info: a #ClutterFrameInfo
    *
    * Signals that the #ClutterStage was presented on the screen to the user.
@@ -2116,7 +1986,8 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 1,
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_STAGE_VIEW,
                   G_TYPE_POINTER);
 
   klass->activate = clutter_stage_real_activate;
@@ -3204,6 +3075,7 @@ void
 clutter_stage_schedule_update (ClutterStage *stage)
 {
   ClutterStageWindow *stage_window;
+  GList *l;
 
   if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
     return;
@@ -3212,54 +3084,12 @@ clutter_stage_schedule_update (ClutterStage *stage)
   if (stage_window == NULL)
     return;
 
-  stage->priv->needs_update = TRUE;
+  for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
+    {
+      ClutterStageView *view = l->data;
 
-  return _clutter_stage_window_schedule_update (stage_window,
-                                                stage->priv->sync_delay);
-}
-
-/**
- * _clutter_stage_get_update_time:
- * @stage: a #ClutterStage actor
- *
- * Returns the earliest time in which the stage is ready to update. The update
- * time is set when clutter_stage_schedule_update() is called. This can then
- * be used by e.g. the #ClutterMasterClock to know when the stage needs to be
- * redrawn.
- *
- * Returns: -1 if no redraw is needed; 0 if the backend doesn't know, or the
- * timestamp (in microseconds) otherwise.
- */
-gint64
-_clutter_stage_get_update_time (ClutterStage *stage)
-{
-  ClutterStageWindow *stage_window;
-
-  if (CLUTTER_ACTOR_IN_DESTRUCTION (stage))
-    return 0;
-
-  stage_window = _clutter_stage_get_window (stage);
-  if (stage_window == NULL)
-    return 0;
-
-  return _clutter_stage_window_get_update_time (stage_window);
-}
-
-/**
- * _clutter_stage_clear_update_time:
- * @stage: a #ClutterStage actor
- *
- * Resets the update time. Call this after a redraw, so that the update time
- * can again be updated.
- */
-void
-_clutter_stage_clear_update_time (ClutterStage *stage)
-{
-  ClutterStageWindow *stage_window;
-
-  stage_window = _clutter_stage_get_window (stage);
-  if (stage_window)
-    _clutter_stage_window_clear_update_time (stage_window);
+      clutter_stage_view_schedule_update (view);
+    }
 }
 
 ClutterPaintVolume *
@@ -3327,19 +3157,26 @@ _clutter_stage_queue_actor_redraw (ClutterStage                 *stage,
    */
   priv->cached_pick_mode = CLUTTER_PICK_NONE;
 
-  priv->pending_finish_queue_redraws = TRUE;
+  if (!priv->pending_finish_queue_redraws)
+    {
+      GList *l;
+
+      for (l = clutter_stage_peek_stage_views (stage); l; l = l->next)
+        {
+          ClutterStageView *view = l->data;
+
+          clutter_stage_view_schedule_update (view);
+        }
+
+      priv->pending_finish_queue_redraws = TRUE;
+    }
 
   if (!priv->redraw_pending)
     {
-      ClutterMasterClock *master_clock;
-
       CLUTTER_NOTE (PAINT, "First redraw request");
 
       clutter_stage_schedule_update (stage);
       priv->redraw_pending = TRUE;
-
-      master_clock = _clutter_master_clock_get_default ();
-      _clutter_master_clock_start_running (master_clock);
     }
 #ifdef CLUTTER_ENABLE_DEBUG
   else
@@ -3749,27 +3586,6 @@ clutter_stage_set_sync_delay (ClutterStage *stage,
   stage->priv->sync_delay = sync_delay;
 }
 
-/**
- * clutter_stage_skip_sync_delay:
- * @stage: a #ClutterStage
- *
- * Causes the next frame for the stage to be drawn as quickly as
- * possible, ignoring any delay that clutter_stage_set_sync_delay()
- * would normally cause.
- *
- * Since: 1.14
- * Stability: unstable
- */
-void
-clutter_stage_skip_sync_delay (ClutterStage *stage)
-{
-  ClutterStageWindow *stage_window;
-
-  stage_window = _clutter_stage_get_window (stage);
-  if (stage_window)
-    _clutter_stage_window_schedule_update (stage_window, -1);
-}
-
 int64_t
 clutter_stage_get_frame_counter (ClutterStage          *stage)
 {
@@ -3781,9 +3597,10 @@ clutter_stage_get_frame_counter (ClutterStage          *stage)
 
 void
 clutter_stage_presented (ClutterStage     *stage,
+                         ClutterStageView *view,
                          ClutterFrameInfo *frame_info)
 {
-  g_signal_emit (stage, stage_signals[PRESENTED], 0, frame_info);
+  g_signal_emit (stage, stage_signals[PRESENTED], 0, view, frame_info);
 }
 
 static void
@@ -4120,61 +3937,6 @@ clutter_stage_capture_into (ClutterStage          *stage,
                          &capture_rect,
                          data + (x_offset * bpp) + (y_offset * stride),
                          stride);
-    }
-}
-
-/**
- * clutter_stage_freeze_updates:
- *
- * Freezing updates makes Clutter stop processing events,
- * redrawing, and advancing timelines, by pausing the master clock. This is
- * necessary when implementing a display server, to ensure that Clutter doesn't
- * keep trying to page flip when DRM master has been dropped, e.g. when VT
- * switched away.
- *
- * The master clock starts out running, so if you are VT switched away on
- * startup, you need to call this immediately.
- *
- * To thaw updates, use clutter_stage_thaw_updates().
- */
-void
-clutter_stage_freeze_updates (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv = stage->priv;
-
-  priv->update_freeze_count++;
-  if (priv->update_freeze_count == 1)
-    {
-      ClutterMasterClock *master_clock;
-
-      master_clock = _clutter_master_clock_get_default ();
-      _clutter_master_clock_set_paused (master_clock, TRUE);
-    }
-}
-
-/**
- * clutter_stage_thaw_updates:
- *
- * Resumes a master clock that has previously been frozen with
- * clutter_stage_freeze_updates(), and start pumping the master clock
- * again at the next iteration. Note that if you're switching back to your
- * own VT, you should probably also queue a stage redraw with
- * clutter_stage_ensure_redraw().
- */
-void
-clutter_stage_thaw_updates (ClutterStage *stage)
-{
-  ClutterStagePrivate *priv = stage->priv;
-
-  g_assert (priv->update_freeze_count > 0);
-
-  priv->update_freeze_count--;
-  if (priv->update_freeze_count == 0)
-    {
-      ClutterMasterClock *master_clock;
-
-      master_clock = _clutter_master_clock_get_default ();
-      _clutter_master_clock_set_paused (master_clock, FALSE);
     }
 }
 

@@ -25,6 +25,7 @@
 #include "compositor/meta-window-actor-x11.h"
 
 #include "backends/meta-logical-monitor.h"
+#include "clutter/clutter-frame-clock.h"
 #include "compositor/compositor-private.h"
 #include "compositor/meta-cullable.h"
 #include "compositor/meta-shaped-texture-private.h"
@@ -58,6 +59,8 @@ struct _MetaWindowActorX11
 
   guint send_frame_messages_timer;
   int64_t frame_drawn_time;
+  gboolean pending_schedule_update_now;
+  ClutterFrameClock *frame_clock;
 
   gulong repaint_scheduled_id;
   gulong size_changed_id;
@@ -372,8 +375,8 @@ meta_window_actor_x11_frame_complete (MetaWindowActor  *actor,
             g_warning ("%s: Frame has assigned frame counter but no frame drawn time",
                        window->desc);
           if (G_UNLIKELY (frame->frame_counter < frame_counter))
-            g_warning ("%s: frame_complete callback never occurred for frame %" G_GINT64_FORMAT,
-                       window->desc, frame->frame_counter);
+            g_debug ("%s: frame_complete callback never occurred for frame %" G_GINT64_FORMAT,
+                     window->desc, frame->frame_counter);
 
           actor_x11->frames = g_list_delete_link (actor_x11->frames, l);
           send_frame_timings (actor_x11, frame, frame_info, presentation_time);
@@ -451,8 +454,10 @@ meta_window_actor_x11_queue_frame_drawn (MetaWindowActor *actor,
 
   if (skip_sync_delay)
     {
-      ClutterActor *stage = clutter_actor_get_stage (CLUTTER_ACTOR (actor_x11));
-      clutter_stage_skip_sync_delay (CLUTTER_STAGE (stage));
+      if (actor_x11->frame_clock)
+        clutter_frame_clock_schedule_update_now (actor_x11->frame_clock);
+      else
+        actor_x11->pending_schedule_update_now = TRUE;
     }
 
   if (!actor_x11->repaint_scheduled)
@@ -473,9 +478,11 @@ meta_window_actor_x11_queue_frame_drawn (MetaWindowActor *actor,
        * before_paint/after_paint functions get called, enabling us to
        * send a _NET_WM_FRAME_DRAWN. We do a 1-pixel redraw to get
        * consistent timing with non-empty frames. If the window
-       * is completely obscured we fire off the send_frame_messages timeout.
+       * is completely obscured, or completely off screen we fire off the
+       * send_frame_messages timeout.
        */
-      if (is_obscured)
+      if (is_obscured ||
+          !clutter_actor_peek_stage_views (CLUTTER_ACTOR (actor)))
         {
           queue_send_frame_messages_timeout (actor_x11);
         }
@@ -1226,7 +1233,21 @@ handle_updates (MetaWindowActorX11 *actor_x11)
 }
 
 static void
-meta_window_actor_x11_before_paint (MetaWindowActor *actor)
+handle_stage_views_changed (MetaWindowActorX11 *actor_x11)
+{
+  ClutterActor *actor = CLUTTER_ACTOR (actor_x11);
+
+  actor_x11->frame_clock = clutter_actor_pick_frame_clock (actor);
+  if (actor_x11->frame_clock && actor_x11->pending_schedule_update_now)
+    {
+      clutter_frame_clock_schedule_update_now (actor_x11->frame_clock);
+      actor_x11->pending_schedule_update_now = FALSE;
+    }
+}
+
+static void
+meta_window_actor_x11_before_paint (MetaWindowActor  *actor,
+                                    ClutterStageView *stage_view)
 {
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (actor);
 
@@ -1304,7 +1325,8 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
 }
 
 static void
-meta_window_actor_x11_after_paint (MetaWindowActor *actor)
+meta_window_actor_x11_after_paint (MetaWindowActor  *actor,
+                                   ClutterStageView *stage_view)
 {
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (actor);
   MetaWindow *window;
@@ -1640,6 +1662,9 @@ meta_window_actor_x11_init (MetaWindowActorX11 *self)
 {
   /* We do this now since we might be going right back into the frozen state. */
   g_signal_connect (self, "thawed", G_CALLBACK (handle_updates), NULL);
+
+  g_signal_connect (self, "stage-views-changed",
+                    G_CALLBACK (handle_stage_views_changed), NULL);
 
   self->shadow_factory = meta_shadow_factory_get_default ();
   self->shadow_factory_changed_handler_id =

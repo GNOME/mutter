@@ -119,12 +119,14 @@ meta_window_actor_wayland_queue_frame_drawn (MetaWindowActor *actor,
 }
 
 static void
-meta_window_actor_wayland_before_paint (MetaWindowActor *actor)
+meta_window_actor_wayland_before_paint (MetaWindowActor  *actor,
+                                        ClutterStageView *stage_view)
 {
 }
 
 static void
-meta_window_actor_wayland_after_paint (MetaWindowActor *actor)
+meta_window_actor_wayland_after_paint (MetaWindowActor  *actor,
+                                       ClutterStageView *stage_view)
 {
 }
 

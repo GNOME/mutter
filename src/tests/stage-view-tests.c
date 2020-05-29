@@ -121,8 +121,9 @@ meta_test_stage_views_exist (void)
 }
 
 static void
-on_after_paint (ClutterStage *stage,
-                gboolean     *was_painted)
+on_after_paint (ClutterStage     *stage,
+                ClutterStageView *view,
+                gboolean         *was_painted)
 {
   *was_painted = TRUE;
 }

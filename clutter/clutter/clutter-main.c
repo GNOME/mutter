@@ -61,7 +61,6 @@
 #include "clutter-input-pointer-a11y-private.h"
 #include "clutter-graphene.h"
 #include "clutter-main.h"
-#include "clutter-master-clock.h"
 #include "clutter-mutter.h"
 #include "clutter-paint-node-private.h"
 #include "clutter-private.h"

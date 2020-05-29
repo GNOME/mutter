@@ -63,6 +63,11 @@ void clutter_stage_view_transform_rect_to_onscreen (ClutterStageView            
                                                     int                          dst_height,
                                                     cairo_rectangle_int_t       *dst_rect);
 
+void clutter_stage_view_schedule_update (ClutterStageView *view);
+
 float clutter_stage_view_get_refresh_rate (ClutterStageView *view);
+
+void clutter_stage_view_notify_presented (ClutterStageView *view,
+                                          ClutterFrameInfo *frame_info);
 
 #endif /* __CLUTTER_STAGE_VIEW_PRIVATE_H__ */

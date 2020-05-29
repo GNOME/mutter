@@ -293,8 +293,9 @@ out:
 }
 
 static void
-on_before_update (ClutterStage   *stage,
-                  MetaCompositor *compositor)
+on_before_update (ClutterStage     *stage,
+                  ClutterStageView *stage_view,
+                  MetaCompositor   *compositor)
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
 
@@ -330,7 +331,8 @@ on_before_update (ClutterStage   *stage,
 }
 
 static void
-meta_compositor_x11_before_paint (MetaCompositor *compositor)
+meta_compositor_x11_before_paint (MetaCompositor   *compositor,
+                                  ClutterStageView *stage_view)
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
   MetaCompositorClass *parent_class;
@@ -338,11 +340,12 @@ meta_compositor_x11_before_paint (MetaCompositor *compositor)
   maybe_unredirect_top_window (compositor_x11);
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
-  parent_class->before_paint (compositor);
+  parent_class->before_paint (compositor, stage_view);
 }
 
 static void
-meta_compositor_x11_after_paint (MetaCompositor *compositor)
+meta_compositor_x11_after_paint (MetaCompositor   *compositor,
+                                 ClutterStageView *stage_view)
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
   MetaCompositorClass *parent_class;
@@ -356,7 +359,7 @@ meta_compositor_x11_after_paint (MetaCompositor *compositor)
     }
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
-  parent_class->after_paint (compositor);
+  parent_class->after_paint (compositor, stage_view);
 }
 
 static void

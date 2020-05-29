@@ -165,8 +165,9 @@ run_repaint_laters (GSList **laters_list)
 }
 
 static void
-on_before_update (ClutterStage *stage,
-                  MetaLaters   *laters)
+on_before_update (ClutterStage     *stage,
+                  ClutterStageView *stage_view,
+                  MetaLaters       *laters)
 {
   unsigned int i;
   GSList *l;

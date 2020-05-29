@@ -247,33 +247,9 @@ meta_stage_x11_unrealize (ClutterStageWindow *stage_window)
                            GINT_TO_POINTER (stage_x11->xwin));
     }
 
-  if (stage_x11->frame_closure)
-    {
-      cogl_onscreen_remove_frame_callback (stage_x11->onscreen,
-                                           stage_x11->frame_closure);
-      stage_x11->frame_closure = NULL;
-    }
-
   clutter_stage_window_parent_iface->unrealize (stage_window);
 
   g_clear_pointer (&stage_x11->onscreen, cogl_object_unref);
-}
-
-static void
-frame_cb (CoglOnscreen  *onscreen,
-          CoglFrameEvent frame_event,
-          CoglFrameInfo *frame_info,
-          void          *user_data)
-
-{
-  ClutterStageCogl *stage_cogl = user_data;
-  ClutterFrameInfo clutter_frame_info = {
-    .frame_counter = cogl_frame_info_get_frame_counter (frame_info),
-    .presentation_time = cogl_frame_info_get_presentation_time (frame_info),
-    .refresh_rate = cogl_frame_info_get_refresh_rate (frame_info)
-  };
-
-  _clutter_stage_cogl_presented (stage_cogl, frame_event, &clutter_frame_info);
 }
 
 static gboolean
@@ -290,12 +266,6 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
   clutter_actor_get_size (CLUTTER_ACTOR (stage_cogl->wrapper), &width, &height);
 
   stage_x11->onscreen = cogl_onscreen_new (backend->cogl_context, width, height);
-
-  stage_x11->frame_closure =
-    cogl_onscreen_add_frame_callback (stage_x11->onscreen,
-                                      frame_cb,
-                                      stage_cogl,
-                                      NULL);
 
   if (META_IS_BACKEND_X11_CM (stage_x11->backend))
     {
