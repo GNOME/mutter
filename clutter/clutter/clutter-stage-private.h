@@ -134,8 +134,7 @@ gboolean                _clutter_stage_update_state     (ClutterStage      *stag
 void                    _clutter_stage_set_scale_factor (ClutterStage      *stage,
                                                          int                factor);
 
-void            _clutter_stage_presented                (ClutterStage      *stage,
-                                                         CoglFrameEvent     frame_event,
+void            clutter_stage_presented                 (ClutterStage      *stage,
                                                          ClutterFrameInfo  *frame_info);
 
 void            clutter_stage_queue_actor_relayout      (ClutterStage *stage,

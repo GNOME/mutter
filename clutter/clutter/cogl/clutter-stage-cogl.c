@@ -131,7 +131,7 @@ _clutter_stage_cogl_presented (ClutterStageCogl *stage_cogl,
       stage_cogl->refresh_rate = frame_info->refresh_rate;
     }
 
-  _clutter_stage_presented (stage_cogl->wrapper, frame_event, frame_info);
+  clutter_stage_presented (stage_cogl->wrapper, frame_info);
 
   if (frame_event == COGL_FRAME_EVENT_COMPLETE &&
       stage_cogl->update_time != -1)

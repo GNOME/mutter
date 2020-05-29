@@ -2106,7 +2106,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
   /**
    * ClutterStage::presented: (skip)
    * @stage: the stage that received the event
-   * @frame_event: a #CoglFrameEvent
    * @frame_info: a #ClutterFrameInfo
    *
    * Signals that the #ClutterStage was presented on the screen to the user.
@@ -2115,10 +2114,10 @@ clutter_stage_class_init (ClutterStageClass *klass)
     g_signal_new (I_("presented"),
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
-                  0, NULL, NULL,
-                  _clutter_marshal_VOID__INT_POINTER,
-                  G_TYPE_NONE, 2,
-                  G_TYPE_INT, G_TYPE_POINTER);
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_POINTER);
 
   klass->activate = clutter_stage_real_activate;
   klass->deactivate = clutter_stage_real_deactivate;
@@ -3781,12 +3780,10 @@ clutter_stage_get_frame_counter (ClutterStage          *stage)
 }
 
 void
-_clutter_stage_presented (ClutterStage     *stage,
-                          CoglFrameEvent    frame_event,
-                          ClutterFrameInfo *frame_info)
+clutter_stage_presented (ClutterStage     *stage,
+                         ClutterFrameInfo *frame_info)
 {
-  g_signal_emit (stage, stage_signals[PRESENTED], 0,
-                 (int) frame_event, frame_info);
+  g_signal_emit (stage, stage_signals[PRESENTED], 0, frame_info);
 }
 
 static void
