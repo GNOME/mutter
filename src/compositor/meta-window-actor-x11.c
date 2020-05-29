@@ -1209,7 +1209,12 @@ handle_updates (MetaWindowActorX11 *actor_x11)
       return;
     }
 
-  meta_surface_actor_pre_paint (surface);
+  if (META_IS_SURFACE_ACTOR_X11 (surface))
+    {
+      MetaSurfaceActorX11 *surface_x11 = META_SURFACE_ACTOR_X11 (surface);
+
+      meta_surface_actor_x11_handle_updates (surface_x11);
+    }
 
   if (!META_IS_SURFACE_ACTOR_X11 (surface) ||
       !meta_surface_actor_x11_is_visible (META_SURFACE_ACTOR_X11 (surface)))

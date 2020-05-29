@@ -24,7 +24,6 @@ struct _MetaSurfaceActorClass
 
   void     (* process_damage)    (MetaSurfaceActor *actor,
                                   int x, int y, int width, int height);
-  void     (* pre_paint)         (MetaSurfaceActor *actor);
   gboolean (* is_opaque)         (MetaSurfaceActor *actor);
 };
 
@@ -49,7 +48,7 @@ cairo_region_t * meta_surface_actor_get_opaque_region (MetaSurfaceActor *self);
 
 void meta_surface_actor_process_damage (MetaSurfaceActor *actor,
                                         int x, int y, int width, int height);
-void meta_surface_actor_pre_paint (MetaSurfaceActor *actor);
+
 gboolean meta_surface_actor_is_opaque (MetaSurfaceActor *actor);
 
 gboolean meta_surface_actor_is_frozen (MetaSurfaceActor *actor);

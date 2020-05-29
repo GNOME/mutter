@@ -58,11 +58,6 @@ meta_surface_actor_wayland_process_damage (MetaSurfaceActor *actor,
   meta_surface_actor_update_area (actor, x, y, width, height);
 }
 
-static void
-meta_surface_actor_wayland_pre_paint (MetaSurfaceActor *actor)
-{
-}
-
 static gboolean
 meta_surface_actor_wayland_is_opaque (MetaSurfaceActor *actor)
 {
@@ -113,7 +108,6 @@ meta_surface_actor_wayland_class_init (MetaSurfaceActorWaylandClass *klass)
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
   surface_actor_class->process_damage = meta_surface_actor_wayland_process_damage;
-  surface_actor_class->pre_paint = meta_surface_actor_wayland_pre_paint;
   surface_actor_class->is_opaque = meta_surface_actor_wayland_is_opaque;
 
   object_class->dispose = meta_surface_actor_wayland_dispose;

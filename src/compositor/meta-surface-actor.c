@@ -556,12 +556,6 @@ meta_surface_actor_process_damage (MetaSurfaceActor *self,
 }
 
 void
-meta_surface_actor_pre_paint (MetaSurfaceActor *self)
-{
-  META_SURFACE_ACTOR_GET_CLASS (self)->pre_paint (self);
-}
-
-void
 meta_surface_actor_set_frozen (MetaSurfaceActor *self,
                                gboolean          frozen)
 {

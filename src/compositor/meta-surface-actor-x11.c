@@ -220,10 +220,9 @@ meta_surface_actor_x11_process_damage (MetaSurfaceActor *actor,
   meta_surface_actor_update_area (actor, x, y, width, height);
 }
 
-static void
-meta_surface_actor_x11_pre_paint (MetaSurfaceActor *actor)
+void
+meta_surface_actor_x11_handle_updates (MetaSurfaceActorX11 *self)
 {
-  MetaSurfaceActorX11 *self = META_SURFACE_ACTOR_X11 (actor);
   MetaDisplay *display = self->display;
   Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
 
@@ -332,7 +331,6 @@ meta_surface_actor_x11_class_init (MetaSurfaceActorX11Class *klass)
   object_class->dispose = meta_surface_actor_x11_dispose;
 
   surface_actor_class->process_damage = meta_surface_actor_x11_process_damage;
-  surface_actor_class->pre_paint = meta_surface_actor_x11_pre_paint;
   surface_actor_class->is_opaque = meta_surface_actor_x11_is_opaque;
 }
 
