@@ -23,8 +23,8 @@ struct _MetaCompositorClass
   gboolean (* manage) (MetaCompositor  *compositor,
                        GError         **error);
   void (* unmanage) (MetaCompositor *compositor);
-  void (* pre_paint) (MetaCompositor *compositor);
-  void (* post_paint) (MetaCompositor *compositor);
+  void (* before_paint) (MetaCompositor *compositor);
+  void (* after_paint) (MetaCompositor *compositor);
   void (* remove_window) (MetaCompositor *compositor,
                           MetaWindow     *window);
 };

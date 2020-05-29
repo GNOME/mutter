@@ -116,14 +116,14 @@ maybe_assign_primary_plane (MetaCompositor *compositor)
 }
 
 static void
-meta_compositor_native_pre_paint (MetaCompositor *compositor)
+meta_compositor_native_before_paint (MetaCompositor *compositor)
 {
   MetaCompositorClass *parent_class;
 
   maybe_assign_primary_plane (compositor);
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_native_parent_class);
-  parent_class->pre_paint (compositor);
+  parent_class->before_paint (compositor);
 }
 
 MetaCompositorNative *
@@ -146,5 +146,5 @@ meta_compositor_native_class_init (MetaCompositorNativeClass *klass)
 {
   MetaCompositorClass *compositor_class = META_COMPOSITOR_CLASS (klass);
 
-  compositor_class->pre_paint = meta_compositor_native_pre_paint;
+  compositor_class->before_paint = meta_compositor_native_before_paint;
 }

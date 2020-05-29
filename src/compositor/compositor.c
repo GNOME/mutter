@@ -105,11 +105,9 @@ typedef struct _MetaCompositorPrivate
   MetaDisplay *display;
   MetaBackend *backend;
 
-  guint pre_paint_func_id;
-  guint post_paint_func_id;
-
   gulong stage_presented_id;
-  gulong stage_after_paint_id;
+  gulong before_paint_handler_id;
+  gulong after_paint_handler_id;
 
   int64_t server_time_query_time;
   int64_t server_time_offset;
@@ -482,19 +480,6 @@ meta_end_modal_for_plugin (MetaCompositor *compositor,
 }
 
 static void
-after_stage_paint (ClutterStage *stage,
-                   gpointer      data)
-{
-  MetaCompositor *compositor = data;
-  MetaCompositorPrivate *priv =
-    meta_compositor_get_instance_private (compositor);
-  GList *l;
-
-  for (l = priv->windows; l; l = l->next)
-    meta_window_actor_post_paint (l->data);
-}
-
-static void
 redirect_windows (MetaX11Display *x11_display)
 {
   Display *xdisplay = meta_x11_display_get_xdisplay (x11_display);
@@ -561,18 +546,6 @@ meta_compositor_do_manage (MetaCompositor  *compositor,
     g_signal_connect (stage, "presented",
                       G_CALLBACK (on_presented),
                       compositor);
-
-  /* We use connect_after() here to accomodate code in GNOME Shell that,
-   * when benchmarking drawing performance, connects to ::after-paint
-   * and calls glFinish(). The timing information from that will be
-   * more accurate if we hold off until that completes before we signal
-   * apps to begin drawing the next frame. If there are no other
-   * connections to ::after-paint, connect() vs. connect_after() doesn't
-   * matter.
-   */
-  priv->stage_after_paint_id =
-    g_signal_connect_after (stage, "after-paint",
-                            G_CALLBACK (after_stage_paint), compositor);
 
   clutter_stage_set_sync_delay (CLUTTER_STAGE (stage), META_SYNC_DELAY);
 
@@ -1107,40 +1080,31 @@ on_presented (ClutterStage     *stage,
 }
 
 static void
-meta_compositor_real_pre_paint (MetaCompositor *compositor)
+meta_compositor_real_before_paint (MetaCompositor *compositor)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
   GList *l;
 
   for (l = priv->windows; l; l = l->next)
-    meta_window_actor_pre_paint (l->data);
+    meta_window_actor_before_paint (l->data);
 }
 
 static void
-meta_compositor_pre_paint (MetaCompositor *compositor)
+meta_compositor_before_paint (MetaCompositor *compositor)
 {
   COGL_TRACE_BEGIN_SCOPED (MetaCompositorPrePaint,
-                           "Compositor (pre-paint)");
-  META_COMPOSITOR_GET_CLASS (compositor)->pre_paint (compositor);
-}
-
-static gboolean
-meta_pre_paint_func (gpointer data)
-{
-  MetaCompositor *compositor = data;
-
-  meta_compositor_pre_paint (compositor);
-
-  return TRUE;
+                           "Compositor (before-paint)");
+  META_COMPOSITOR_GET_CLASS (compositor)->before_paint (compositor);
 }
 
 static void
-meta_compositor_real_post_paint (MetaCompositor *compositor)
+meta_compositor_real_after_paint (MetaCompositor *compositor)
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
   CoglGraphicsResetStatus status;
+  GList *l;
 
   status = cogl_get_graphics_reset_status (priv->context);
   switch (status)
@@ -1164,24 +1128,35 @@ meta_compositor_real_post_paint (MetaCompositor *compositor)
       meta_restart (NULL);
       break;
     }
+
+  for (l = priv->windows; l; l = l->next)
+    {
+      ClutterActor *actor = l->data;
+
+      meta_window_actor_after_paint (META_WINDOW_ACTOR (actor));
+    }
 }
 
 static void
-meta_compositor_post_paint (MetaCompositor *compositor)
+meta_compositor_after_paint (MetaCompositor *compositor)
 {
   COGL_TRACE_BEGIN_SCOPED (MetaCompositorPostPaint,
-                           "Compositor (post-paint)");
-  META_COMPOSITOR_GET_CLASS (compositor)->post_paint (compositor);
+                           "Compositor (after-paint)");
+  META_COMPOSITOR_GET_CLASS (compositor)->after_paint (compositor);
 }
 
-static gboolean
-meta_post_paint_func (gpointer data)
+static void
+on_before_paint (ClutterStage   *stage,
+                 MetaCompositor *compositor)
 {
-  MetaCompositor *compositor = data;
+  meta_compositor_before_paint (compositor);
+}
 
-  meta_compositor_post_paint (compositor);
-
-  return TRUE;
+static void
+on_after_paint (ClutterStage   *stage,
+                MetaCompositor *compositor)
+{
+  meta_compositor_after_paint (compositor);
 }
 
 static void
@@ -1243,19 +1218,20 @@ meta_compositor_constructed (GObject *object)
     meta_compositor_get_instance_private (compositor);
   ClutterBackend *clutter_backend =
     meta_backend_get_clutter_backend (priv->backend);
+  ClutterActor *stage = meta_backend_get_stage (priv->backend);
 
   priv->context = clutter_backend->cogl_context;
 
-  priv->pre_paint_func_id =
-    clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_PRE_PAINT,
-                                           meta_pre_paint_func,
-                                           compositor,
-                                           NULL);
-  priv->post_paint_func_id =
-    clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_POST_PAINT,
-                                           meta_post_paint_func,
-                                           compositor,
-                                           NULL);
+  priv->before_paint_handler_id =
+    g_signal_connect (stage,
+                      "before-paint",
+                      G_CALLBACK (on_before_paint),
+                      compositor);
+  priv->after_paint_handler_id =
+    g_signal_connect_after (stage,
+                            "after-paint",
+                            G_CALLBACK (on_after_paint),
+                            compositor);
 
   priv->laters = meta_laters_new (compositor);
 
@@ -1272,13 +1248,9 @@ meta_compositor_dispose (GObject *object)
 
   g_clear_pointer (&priv->laters, meta_laters_free);
 
-  g_clear_signal_handler (&priv->stage_after_paint_id, stage);
   g_clear_signal_handler (&priv->stage_presented_id, stage);
-
-  g_clear_handle_id (&priv->pre_paint_func_id,
-                     clutter_threads_remove_repaint_func);
-  g_clear_handle_id (&priv->post_paint_func_id,
-                     clutter_threads_remove_repaint_func);
+  g_clear_signal_handler (&priv->before_paint_handler_id, stage);
+  g_clear_signal_handler (&priv->after_paint_handler_id, stage);
 
   g_clear_signal_handler (&priv->top_window_actor_destroy_id,
                           priv->top_window_actor);
@@ -1302,8 +1274,8 @@ meta_compositor_class_init (MetaCompositorClass *klass)
   object_class->dispose = meta_compositor_dispose;
 
   klass->remove_window = meta_compositor_real_remove_window;
-  klass->pre_paint = meta_compositor_real_pre_paint;
-  klass->post_paint = meta_compositor_real_post_paint;
+  klass->before_paint = meta_compositor_real_before_paint;
+  klass->after_paint = meta_compositor_real_after_paint;
 
   obj_props[PROP_DISPLAY] =
     g_param_spec_object ("display",

@@ -119,12 +119,12 @@ meta_window_actor_wayland_queue_frame_drawn (MetaWindowActor *actor,
 }
 
 static void
-meta_window_actor_wayland_pre_paint (MetaWindowActor *actor)
+meta_window_actor_wayland_before_paint (MetaWindowActor *actor)
 {
 }
 
 static void
-meta_window_actor_wayland_post_paint (MetaWindowActor *actor)
+meta_window_actor_wayland_after_paint (MetaWindowActor *actor)
 {
 }
 
@@ -178,8 +178,8 @@ meta_window_actor_wayland_class_init (MetaWindowActorWaylandClass *klass)
   window_actor_class->assign_surface_actor = meta_window_actor_wayland_assign_surface_actor;
   window_actor_class->frame_complete = meta_window_actor_wayland_frame_complete;
   window_actor_class->queue_frame_drawn = meta_window_actor_wayland_queue_frame_drawn;
-  window_actor_class->pre_paint = meta_window_actor_wayland_pre_paint;
-  window_actor_class->post_paint = meta_window_actor_wayland_post_paint;
+  window_actor_class->before_paint = meta_window_actor_wayland_before_paint;
+  window_actor_class->after_paint = meta_window_actor_wayland_after_paint;
   window_actor_class->queue_destroy = meta_window_actor_wayland_queue_destroy;
   window_actor_class->set_frozen = meta_window_actor_wayland_set_frozen;
   window_actor_class->update_regions = meta_window_actor_wayland_update_regions;

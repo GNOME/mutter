@@ -330,7 +330,7 @@ on_before_update (ClutterStage   *stage,
 }
 
 static void
-meta_compositor_x11_pre_paint (MetaCompositor *compositor)
+meta_compositor_x11_before_paint (MetaCompositor *compositor)
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
   MetaCompositorClass *parent_class;
@@ -338,11 +338,11 @@ meta_compositor_x11_pre_paint (MetaCompositor *compositor)
   maybe_unredirect_top_window (compositor_x11);
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
-  parent_class->pre_paint (compositor);
+  parent_class->before_paint (compositor);
 }
 
 static void
-meta_compositor_x11_post_paint (MetaCompositor *compositor)
+meta_compositor_x11_after_paint (MetaCompositor *compositor)
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
   MetaCompositorClass *parent_class;
@@ -356,7 +356,7 @@ meta_compositor_x11_post_paint (MetaCompositor *compositor)
     }
 
   parent_class = META_COMPOSITOR_CLASS (meta_compositor_x11_parent_class);
-  parent_class->post_paint (compositor);
+  parent_class->after_paint (compositor);
 }
 
 static void
@@ -437,7 +437,7 @@ meta_compositor_x11_class_init (MetaCompositorX11Class *klass)
 
   compositor_class->manage = meta_compositor_x11_manage;
   compositor_class->unmanage = meta_compositor_x11_unmanage;
-  compositor_class->pre_paint = meta_compositor_x11_pre_paint;
-  compositor_class->post_paint = meta_compositor_x11_post_paint;
+  compositor_class->before_paint = meta_compositor_x11_before_paint;
+  compositor_class->after_paint = meta_compositor_x11_after_paint;
   compositor_class->remove_window = meta_compositor_x11_remove_window;
 }

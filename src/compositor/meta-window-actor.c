@@ -1021,21 +1021,21 @@ meta_window_actor_sync_visibility (MetaWindowActor *self)
 }
 
 void
-meta_window_actor_pre_paint (MetaWindowActor *self)
+meta_window_actor_before_paint (MetaWindowActor *self)
 {
   if (meta_window_actor_is_destroyed (self))
     return;
 
-  META_WINDOW_ACTOR_GET_CLASS (self)->pre_paint (self);
+  META_WINDOW_ACTOR_GET_CLASS (self)->before_paint (self);
 }
 
 void
-meta_window_actor_post_paint (MetaWindowActor *self)
+meta_window_actor_after_paint (MetaWindowActor *self)
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (self);
 
-  META_WINDOW_ACTOR_GET_CLASS (self)->post_paint (self);
+  META_WINDOW_ACTOR_GET_CLASS (self)->after_paint (self);
 
   if (meta_window_actor_is_destroyed (self))
     return;

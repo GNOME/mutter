@@ -470,7 +470,7 @@ meta_window_actor_x11_queue_frame_drawn (MetaWindowActor *actor,
       /* A frame was marked by the client without actually doing any
        * damage or any unobscured, or while we had the window frozen
        * (e.g. during an interactive resize.) We need to make sure that the
-       * pre_paint/post_paint functions get called, enabling us to
+       * before_paint/after_paint functions get called, enabling us to
        * send a _NET_WM_FRAME_DRAWN. We do a 1-pixel redraw to get
        * consistent timing with non-empty frames. If the window
        * is completely obscured we fire off the send_frame_messages timeout.
@@ -1226,7 +1226,7 @@ handle_updates (MetaWindowActorX11 *actor_x11)
 }
 
 static void
-meta_window_actor_x11_pre_paint (MetaWindowActor *actor)
+meta_window_actor_x11_before_paint (MetaWindowActor *actor)
 {
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (actor);
 
@@ -1304,7 +1304,7 @@ meta_window_actor_x11_paint (ClutterActor        *actor,
 }
 
 static void
-meta_window_actor_x11_post_paint (MetaWindowActor *actor)
+meta_window_actor_x11_after_paint (MetaWindowActor *actor)
 {
   MetaWindowActorX11 *actor_x11 = META_WINDOW_ACTOR_X11 (actor);
   MetaWindow *window;
@@ -1598,8 +1598,8 @@ meta_window_actor_x11_class_init (MetaWindowActorX11Class *klass)
   window_actor_class->frame_complete = meta_window_actor_x11_frame_complete;
   window_actor_class->assign_surface_actor = meta_window_actor_x11_assign_surface_actor;
   window_actor_class->queue_frame_drawn = meta_window_actor_x11_queue_frame_drawn;
-  window_actor_class->pre_paint = meta_window_actor_x11_pre_paint;
-  window_actor_class->post_paint = meta_window_actor_x11_post_paint;
+  window_actor_class->before_paint = meta_window_actor_x11_before_paint;
+  window_actor_class->after_paint = meta_window_actor_x11_after_paint;
   window_actor_class->queue_destroy = meta_window_actor_x11_queue_destroy;
   window_actor_class->set_frozen = meta_window_actor_x11_set_frozen;
   window_actor_class->update_regions = meta_window_actor_x11_update_regions;

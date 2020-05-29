@@ -23,8 +23,9 @@ struct _MetaWindowActorClass
   void (*queue_frame_drawn) (MetaWindowActor *actor,
                              gboolean         skip_sync_delay);
 
-  void (*pre_paint) (MetaWindowActor *actor);
-  void (*post_paint) (MetaWindowActor *actor);
+  void (*before_paint) (MetaWindowActor *actor);
+  void (*after_paint) (MetaWindowActor *actor);
+
   void (*queue_destroy) (MetaWindowActor *actor);
   void (*set_frozen) (MetaWindowActor *actor,
                       gboolean         frozen);
@@ -49,8 +50,8 @@ void meta_window_actor_size_change   (MetaWindowActor *self,
                                       MetaRectangle   *old_frame_rect,
                                       MetaRectangle   *old_buffer_rect);
 
-void meta_window_actor_pre_paint      (MetaWindowActor    *self);
-void meta_window_actor_post_paint     (MetaWindowActor    *self);
+void meta_window_actor_before_paint   (MetaWindowActor    *self);
+void meta_window_actor_after_paint    (MetaWindowActor    *self);
 void meta_window_actor_frame_complete (MetaWindowActor    *self,
                                        ClutterFrameInfo   *frame_info,
                                        gint64              presentation_time);
