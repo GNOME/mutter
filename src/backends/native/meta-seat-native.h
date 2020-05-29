@@ -120,7 +120,6 @@ struct _MetaSeatNative
 
   GUdevClient *udev_client;
   guint tablet_mode_switch_state : 1;
-  guint has_external_keyboard    : 1;
   guint has_touchscreen          : 1;
   guint has_tablet_switch        : 1;
   guint touch_mode               : 1;
