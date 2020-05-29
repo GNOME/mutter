@@ -16,11 +16,11 @@ wait_reconfigure
 assert_position x/1 100 100
 
 tile x/1 left
-wait
+wait_reconfigure
 assert_position x/1 0 0
 
 untile x/1
-wait
+wait_reconfigure
 assert_position x/1 100 100
 
 tile x/1 left
@@ -57,11 +57,11 @@ wait_reconfigure
 assert_position w/1 0 0
 
 untile w/1
-wait
+wait_reconfigure
 assert_position w/1 100 100
 
 tile w/1 left
-wait
+wait_reconfigure
 assert_position w/1 0 0
 
 maximize w/1
