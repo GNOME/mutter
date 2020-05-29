@@ -3041,15 +3041,31 @@ clutter_text_has_overlaps (ClutterActor *self)
   return clutter_text_should_draw_cursor ((ClutterText *) self);
 }
 
+static float
+clutter_text_calculate_resource_scale (ClutterActor *actor,
+                                       int           phase)
+{
+  ClutterActorClass *parent_class = CLUTTER_ACTOR_CLASS (clutter_text_parent_class);
+  float new_resource_scale;
+
+  new_resource_scale = parent_class->calculate_resource_scale (actor, phase);
+
+  if (phase == 1)
+    return MAX (new_resource_scale, clutter_actor_get_real_resource_scale (actor));
+
+  return new_resource_scale;
+}
+
 static void
 clutter_text_resource_scale_changed (ClutterActor *actor)
 {
-  ClutterText *self = CLUTTER_TEXT (actor);
-  ClutterTextPrivate *priv = self->priv;
+  ClutterText *text = CLUTTER_TEXT (actor);
+  ClutterTextPrivate *priv = text->priv;
 
   g_clear_pointer (&priv->effective_attrs, pango_attr_list_unref);
-  clutter_text_dirty_cache (self);
-  clutter_actor_queue_relayout (actor);
+  clutter_text_dirty_cache (text);
+
+  clutter_actor_queue_immediate_relayout (actor);
 }
 
 static void
@@ -3800,6 +3816,7 @@ clutter_text_class_init (ClutterTextClass *klass)
   actor_class->key_focus_in = clutter_text_key_focus_in;
   actor_class->key_focus_out = clutter_text_key_focus_out;
   actor_class->has_overlaps = clutter_text_has_overlaps;
+  actor_class->calculate_resource_scale = clutter_text_calculate_resource_scale;
   actor_class->resource_scale_changed = clutter_text_resource_scale_changed;
 
   /**
