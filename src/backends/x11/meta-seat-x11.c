@@ -38,7 +38,10 @@ enum
   PROP_OPCODE,
   PROP_POINTER_ID,
   PROP_KEYBOARD_ID,
-  N_PROPS
+  N_PROPS,
+
+  /* This property is overridden */
+  PROP_TOUCH_MODE,
 };
 
 struct _MetaSeatX11
@@ -54,6 +57,8 @@ struct _MetaSeatX11
   int pointer_id;
   int keyboard_id;
   int opcode;
+  guint has_touchscreens : 1;
+  guint touch_mode : 1;
 };
 
 static GParamSpec *props[N_PROPS] = { 0 };
@@ -605,6 +610,20 @@ pad_passive_button_grab (ClutterInputDevice *device)
   g_free (xi_event_mask.mask);
 }
 
+static void
+update_touch_mode (MetaSeatX11 *seat_x11)
+{
+  gboolean touch_mode;
+
+  touch_mode = seat_x11->has_touchscreens;
+
+  if (seat_x11->touch_mode == touch_mode)
+    return;
+
+  seat_x11->touch_mode = touch_mode;
+  g_object_notify (G_OBJECT (seat_x11), "touch-mode");
+}
+
 static ClutterInputDevice *
 add_device (MetaSeatX11    *seat_x11,
             ClutterBackend *backend,
@@ -635,6 +654,8 @@ add_device (MetaSeatX11    *seat_x11,
             info->attachment == seat_x11->keyboard_id))
     {
       seat_x11->devices = g_list_prepend (seat_x11->devices, device);
+      seat_x11->has_touchscreens |=
+        clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE;
     }
   else
     {
@@ -663,7 +684,23 @@ add_device (MetaSeatX11    *seat_x11,
         }
     }
 
+  update_touch_mode (seat_x11);
+
   return device;
+}
+
+static gboolean
+has_touchscreens (MetaSeatX11 *seat_x11)
+{
+  GList *l;
+
+  for (l = seat_x11->devices; l; l = l->next)
+    {
+      if (clutter_input_device_get_device_type (l->data) == CLUTTER_TOUCHSCREEN_DEVICE)
+        return TRUE;
+    }
+
+  return FALSE;
 }
 
 static void
@@ -671,9 +708,13 @@ remove_device (MetaSeatX11 *seat_x11,
                int          device_id)
 {
   ClutterInputDevice *device;
+  gboolean check_touchscreens = FALSE;
 
   device = g_hash_table_lookup (seat_x11->devices_by_id,
                                 GINT_TO_POINTER (device_id));
+
+  if (clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE)
+    check_touchscreens = TRUE;
 
   if (device != NULL)
     {
@@ -694,6 +735,12 @@ remove_device (MetaSeatX11 *seat_x11,
       g_object_run_dispose (G_OBJECT (device));
       g_hash_table_remove (seat_x11->devices_by_id,
                            GINT_TO_POINTER (device_id));
+    }
+
+  if (check_touchscreens)
+    {
+      seat_x11->has_touchscreens = has_touchscreens (seat_x11);
+      update_touch_mode (seat_x11);
     }
 }
 
@@ -1272,6 +1319,7 @@ meta_seat_x11_set_property (GObject      *object,
     case PROP_KEYBOARD_ID:
       seat_x11->keyboard_id = g_value_get_int (value);
       break;
+    case PROP_TOUCH_MODE:
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
     }
@@ -1295,6 +1343,9 @@ meta_seat_x11_get_property (GObject    *object,
       break;
     case PROP_KEYBOARD_ID:
       g_value_set_int (value, seat_x11->keyboard_id);
+      break;
+    case PROP_TOUCH_MODE:
+      g_value_set_boolean (value, seat_x11->touch_mode);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -1547,6 +1598,9 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
                       G_PARAM_CONSTRUCT_ONLY);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
+
+  g_object_class_override_property (object_class, PROP_TOUCH_MODE,
+                                    "touch-mode");
 }
 
 static void
