@@ -116,8 +116,6 @@ typedef struct _MetaCompositorPrivate
 
   gboolean server_time_is_monotonic_time;
 
-  ClutterActor *stage;
-
   ClutterActor *window_group;
   ClutterActor *top_window_group;
   ClutterActor *feedback_group;
