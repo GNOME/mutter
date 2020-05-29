@@ -5,8 +5,6 @@
 #include <clutter/clutter.h>
 
 typedef struct {
-  ClutterActor *stage;
-
   guint no_display : 1;
 } ClutterTestEnvironment;
 
@@ -98,18 +96,9 @@ out:
 ClutterActor *
 clutter_test_get_stage (void)
 {
-  g_assert (test_environ != NULL);
+  MetaBackend *backend = meta_get_backend ();
 
-  if (test_environ->stage == NULL)
-    {
-      /* create a stage, and ensure that it goes away at the end */
-      test_environ->stage = clutter_stage_new ();
-      clutter_actor_set_name (test_environ->stage, "Test Stage");
-      g_object_add_weak_pointer (G_OBJECT (test_environ->stage),
-                                 (gpointer *) &test_environ->stage);
-    }
-
-  return test_environ->stage;
+  return meta_backend_get_stage (backend);
 }
 
 typedef struct {
@@ -122,11 +111,13 @@ static void
 clutter_test_func_wrapper (gconstpointer data_)
 {
   const ClutterTestData *data = data_;
+  ClutterActor *stage;
 
   g_test_log_set_fatal_handler (log_func, NULL);
 
   /* ensure that the previous test state has been cleaned up */
-  g_assert_null (test_environ->stage);
+  stage = clutter_test_get_stage ();
+  g_assert_false (clutter_actor_is_mapped (stage));
 
   if (test_environ->no_display)
     {
@@ -151,11 +142,8 @@ out:
   if (data->test_notify != NULL)
     data->test_notify (data->test_data);
 
-  if (test_environ->stage != NULL)
-    {
-      clutter_actor_destroy (test_environ->stage);
-      g_assert_null (test_environ->stage);
-    }
+  clutter_actor_remove_all_children (stage);
+  clutter_actor_hide (stage);
 }
 
 /**

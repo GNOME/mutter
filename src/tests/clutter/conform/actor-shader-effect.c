@@ -260,7 +260,7 @@ actor_shader_effect (void)
   if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
     return;
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
 
   rect = make_actor (foo_old_shader_effect_get_type ());
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), rect);

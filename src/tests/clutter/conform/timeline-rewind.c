@@ -70,7 +70,10 @@ new_frame_cb (ClutterTimeline *timeline,
 static void
 timeline_rewind (void)
 {
+  ClutterActor *stage;
   TestState state;
+
+  stage = clutter_test_get_stage ();
 
   state.timeline = 
     clutter_timeline_new (TEST_TIMELINE_DURATION);
@@ -84,6 +87,8 @@ timeline_rewind (void)
                                watchdog_timeout,
                                &state);
   state.rewind_count = 0;
+
+  clutter_actor_show (stage);
 
   clutter_timeline_start (state.timeline);
   

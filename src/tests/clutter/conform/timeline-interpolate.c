@@ -132,7 +132,10 @@ completed_cb (ClutterTimeline *timeline,
 static void
 timeline_interpolation (void)
 {
+  ClutterActor *stage;
   TestState state;
+
+  stage = clutter_test_get_stage ();
 
   state.timeline = 
     clutter_timeline_new (TEST_TIMELINE_DURATION);
@@ -150,6 +153,8 @@ timeline_interpolation (void)
   state.new_frame_counter = 0;
   state.passed = TRUE;
   state.expected_frame = 0;
+
+  clutter_actor_show (stage);
 
   state.start_time = g_get_real_time ();
   clutter_timeline_start (state.timeline);

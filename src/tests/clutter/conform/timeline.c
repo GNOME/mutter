@@ -184,6 +184,7 @@ delay_cb (gpointer data)
 static void
 timeline_base (void)
 {
+  ClutterActor *stage;
   ClutterTimeline *timeline_1;
   TimelineData data_1;
   ClutterTimeline *timeline_2;
@@ -193,6 +194,8 @@ timeline_base (void)
   gchar **markers;
   gsize n_markers;
   guint delay_tag;
+
+  stage = clutter_test_get_stage ();
 
   timeline_data_init (&data_1, 1);
   timeline_1 = clutter_timeline_new (FRAME_COUNT * 1000 / FPS);
@@ -262,6 +265,8 @@ timeline_base (void)
   g_signal_connect (timeline_3,
                     "completed", G_CALLBACK (timeline_complete_cb),
                     &data_3);
+
+  clutter_actor_show (stage);
 
   if (!g_test_quiet ())
     g_print ("Without delay...\n");
