@@ -1246,10 +1246,16 @@ meta_compositor_get_property (GObject    *object,
 static void
 meta_compositor_init (MetaCompositor *compositor)
 {
+}
+
+static void
+meta_compositor_constructed (GObject *object)
+{
+  MetaCompositor *compositor = META_COMPOSITOR (object);
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
-  MetaBackend *backend = meta_get_backend ();
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (priv->backend);
 
   priv->context = clutter_backend->cogl_context;
 
@@ -1265,6 +1271,8 @@ meta_compositor_init (MetaCompositor *compositor)
                                            NULL);
 
   priv->laters = meta_laters_new (compositor);
+
+  G_OBJECT_CLASS (meta_compositor_parent_class)->constructed (object);
 }
 
 static void
@@ -1303,6 +1311,7 @@ meta_compositor_class_init (MetaCompositorClass *klass)
 
   object_class->set_property = meta_compositor_set_property;
   object_class->get_property = meta_compositor_get_property;
+  object_class->constructed = meta_compositor_constructed;
   object_class->dispose = meta_compositor_dispose;
 
   klass->remove_window = meta_compositor_real_remove_window;

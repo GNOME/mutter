@@ -50,7 +50,7 @@ struct _MetaLaters
 
   GSList *laters[META_LATER_N_TYPES];
 
-  gulong pre_paint_handler_id;
+  gulong before_update_handler_id;
 };
 
 static MetaLater *
@@ -165,8 +165,8 @@ run_repaint_laters (GSList **laters_list)
 }
 
 static void
-on_pre_paint (MetaCompositor *compositor,
-              MetaLaters     *laters)
+on_before_update (ClutterStage *stage,
+                  MetaLaters   *laters)
 {
   unsigned int i;
   GSList *l;
@@ -187,11 +187,7 @@ on_pre_paint (MetaCompositor *compositor,
     }
 
   if (needs_schedule_update)
-    {
-      ClutterStage *stage = meta_compositor_get_stage (compositor);
-
-      clutter_stage_schedule_update (stage);
-    }
+    clutter_stage_schedule_update (stage);
 }
 
 static gboolean
@@ -320,14 +316,16 @@ meta_later_remove (unsigned int later_id)
 MetaLaters *
 meta_laters_new (MetaCompositor *compositor)
 {
+  ClutterStage *stage = meta_compositor_get_stage (compositor);
   MetaLaters *laters;
 
   laters = g_new0 (MetaLaters, 1);
   laters->compositor = compositor;
 
-  laters->pre_paint_handler_id = g_signal_connect (compositor, "pre-paint",
-                                                   G_CALLBACK (on_pre_paint),
-                                                   laters);
+  laters->before_update_handler_id =
+    g_signal_connect (stage, "before-update",
+                      G_CALLBACK (on_before_update),
+                      laters);
 
   return laters;
 }
@@ -335,11 +333,12 @@ meta_laters_new (MetaCompositor *compositor)
 void
 meta_laters_free (MetaLaters *laters)
 {
+  ClutterStage *stage = meta_compositor_get_stage (laters->compositor);
   unsigned int i;
 
   for (i = 0; i < G_N_ELEMENTS (laters->laters); i++)
     g_slist_free_full (laters->laters[i], (GDestroyNotify) meta_later_unref);
 
-  g_clear_signal_handler (&laters->pre_paint_handler_id, laters->compositor);
+  g_clear_signal_handler (&laters->before_update_handler_id, stage);
   g_free (laters);
 }
