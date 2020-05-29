@@ -59,7 +59,7 @@ struct _MetaCursorRendererPrivate
   MetaCursorSprite *displayed_cursor;
   MetaOverlay *stage_overlay;
   gboolean handled_by_backend;
-  guint post_paint_func_id;
+  gulong after_paint_handler_id;
 
   GList *hw_cursor_inhibitors;
 };
@@ -153,17 +153,15 @@ queue_redraw (MetaCursorRenderer *renderer,
                                     texture, &rect);
 }
 
-static gboolean
-meta_cursor_renderer_post_paint (gpointer data)
+static void
+meta_cursor_renderer_after_paint (ClutterStage       *stage,
+                                  MetaCursorRenderer *renderer)
 {
-  MetaCursorRenderer *renderer = META_CURSOR_RENDERER (data);
   MetaCursorRendererPrivate *priv =
     meta_cursor_renderer_get_instance_private (renderer);
 
   if (priv->displayed_cursor && !priv->handled_by_backend)
     meta_cursor_renderer_emit_painted (renderer, priv->displayed_cursor);
-
-  return TRUE;
 }
 
 static gboolean
@@ -228,9 +226,26 @@ meta_cursor_renderer_finalize (GObject *object)
   if (priv->stage_overlay)
     meta_stage_remove_cursor_overlay (META_STAGE (stage), priv->stage_overlay);
 
-  clutter_threads_remove_repaint_func (priv->post_paint_func_id);
+  g_clear_signal_handler (&priv->after_paint_handler_id, stage);
 
   G_OBJECT_CLASS (meta_cursor_renderer_parent_class)->finalize (object);
+}
+
+static void
+meta_cursor_renderer_constructed (GObject *object)
+{
+  MetaCursorRenderer *renderer = META_CURSOR_RENDERER (object);
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+  ClutterActor *stage;
+
+  stage = meta_backend_get_stage (priv->backend);
+  priv->after_paint_handler_id =
+    g_signal_connect (stage, "after-paint",
+                      G_CALLBACK (meta_cursor_renderer_after_paint),
+                      renderer);
+
+  G_OBJECT_CLASS (meta_cursor_renderer_parent_class)->constructed (object);
 }
 
 static void
@@ -241,6 +256,7 @@ meta_cursor_renderer_class_init (MetaCursorRendererClass *klass)
   object_class->get_property = meta_cursor_renderer_get_property;
   object_class->set_property = meta_cursor_renderer_set_property;
   object_class->finalize = meta_cursor_renderer_finalize;
+  object_class->constructed = meta_cursor_renderer_constructed;
   klass->update_cursor = meta_cursor_renderer_real_update_cursor;
 
   obj_props[PROP_BACKEND] =
@@ -265,14 +281,6 @@ meta_cursor_renderer_class_init (MetaCursorRendererClass *klass)
 static void
 meta_cursor_renderer_init (MetaCursorRenderer *renderer)
 {
-  MetaCursorRendererPrivate *priv =
-    meta_cursor_renderer_get_instance_private (renderer);
-
-  priv->post_paint_func_id =
-    clutter_threads_add_repaint_func_full (CLUTTER_REPAINT_FLAGS_POST_PAINT,
-                                           meta_cursor_renderer_post_paint,
-                                           renderer,
-                                           NULL);
 }
 
 graphene_rect_t
