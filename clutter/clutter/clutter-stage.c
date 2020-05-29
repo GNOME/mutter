@@ -1071,6 +1071,7 @@ clutter_stage_hide (ClutterActor *self)
   ClutterStagePrivate *priv = CLUTTER_STAGE (self)->priv;
 
   g_assert (priv->impl != NULL);
+  _clutter_stage_clear_pick_stack (CLUTTER_STAGE (self));
   _clutter_stage_window_hide (priv->impl);
 
   CLUTTER_ACTOR_CLASS (clutter_stage_parent_class)->hide (self);
