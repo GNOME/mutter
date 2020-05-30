@@ -2604,6 +2604,9 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
   gboolean retval;
   ClutterActorBox old_alloc = { 0, };
 
+  g_return_val_if_fail (!isnan (box->x1) && !isnan (box->x2) &&
+                        !isnan (box->y1) && !isnan (box->y2), FALSE);
+
   obj = G_OBJECT (self);
 
   g_object_freeze_notify (obj);
@@ -10365,6 +10368,11 @@ clutter_actor_allocate (ClutterActor           *self,
 
   old_allocation = priv->allocation;
   real_allocation = *box;
+
+  g_return_if_fail (!isnan (real_allocation.x1) &&
+                    !isnan (real_allocation.x2) &&
+                    !isnan (real_allocation.y1) &&
+                    !isnan (real_allocation.y2));
 
   /* constraints are allowed to modify the allocation only here; we do
    * this prior to all the other checks so that we can bail out if the
