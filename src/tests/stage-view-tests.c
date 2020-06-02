@@ -666,6 +666,150 @@ meta_test_actor_stage_views_frame_clock (void)
   clutter_actor_destroy (actor_3);
 }
 
+typedef struct _TimelineTest
+{
+  GMainLoop *main_loop;
+  ClutterFrameClock *frame_clock_1;
+  ClutterFrameClock *frame_clock_2;
+  int phase;
+
+  int frame_counter[2];
+} TimelineTest;
+
+static void
+on_transition_stopped (ClutterTransition *transition,
+                       gboolean           is_finished,
+                       TimelineTest      *test)
+{
+  g_assert_true (is_finished);
+
+  g_assert_cmpint (test->phase, ==, 2);
+
+  test->phase = 3;
+
+  g_main_loop_quit (test->main_loop);
+}
+
+static void
+on_transition_new_frame (ClutterTransition *transition,
+                         int                elapsed_time_ms,
+                         TimelineTest      *test)
+{
+  ClutterTimeline *timeline = CLUTTER_TIMELINE (transition);
+
+  if (test->phase == 1)
+    {
+      g_assert (clutter_timeline_get_frame_clock (timeline) ==
+                test->frame_clock_1);
+      test->frame_counter[0]++;
+    }
+  else if (test->phase == 2)
+    {
+      g_assert (clutter_timeline_get_frame_clock (timeline) ==
+                test->frame_clock_2);
+      test->frame_counter[1]++;
+    }
+  else
+    {
+      g_assert_not_reached ();
+    }
+}
+
+static void
+on_transition_frame_clock_changed (ClutterTimeline    *timeline,
+                                   GParamSpec         *pspec,
+                                   TimelineTest       *test)
+{
+  ClutterFrameClock *frame_clock;
+
+  frame_clock = clutter_timeline_get_frame_clock (timeline);
+  g_assert (frame_clock == test->frame_clock_2);
+  g_assert_cmpint (test->phase, ==, 1);
+
+  test->phase = 2;
+}
+
+static void
+meta_test_actor_stage_views_timeline (void)
+{
+  TimelineTest test = { 0 };
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  MonitorTestCaseSetup frame_clock_test_setup;
+  ClutterActor *actor;
+  GList *stage_views;
+  ClutterStageView *stage_view_1;
+  ClutterStageView *stage_view_2;
+  MetaMonitorTestSetup *test_setup;
+  ClutterTransition *transition;
+
+  frame_clock_test_setup = initial_test_case_setup;
+  frame_clock_test_setup.modes[1].width = 1024;
+  frame_clock_test_setup.modes[1].height = 768;
+  frame_clock_test_setup.modes[1].refresh_rate = 30.0;
+  frame_clock_test_setup.n_modes = 2;
+  frame_clock_test_setup.outputs[1].modes[0] = 1;
+  frame_clock_test_setup.outputs[1].preferred_mode = 1;
+  test_setup = create_monitor_test_setup (&frame_clock_test_setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  stage_view_1 = stage_views->data;
+  stage_view_2 = stage_views->next->data;
+  g_assert_nonnull (stage_view_1);
+  g_assert_nonnull (stage_view_2);
+  test.frame_clock_1 = clutter_stage_view_get_frame_clock (stage_view_1);
+  test.frame_clock_2 = clutter_stage_view_get_frame_clock (stage_view_2);
+  g_assert_nonnull (test.frame_clock_1);
+  g_assert_nonnull (test.frame_clock_2);
+
+  actor = clutter_actor_new ();
+  clutter_actor_set_size (actor, 100, 100);
+  clutter_actor_set_position (actor, 100, 100);
+  clutter_actor_add_child (stage, actor);
+
+  clutter_actor_show (stage);
+
+  wait_for_paint (stage);
+
+  is_on_stage_views (actor, 1, stage_views->data);
+
+  clutter_actor_set_easing_duration (actor, 1000);
+  clutter_actor_set_position (actor, 1200, 300);
+
+  transition = clutter_actor_get_transition (actor, "position");
+  g_assert_nonnull (transition);
+  g_assert (clutter_timeline_get_frame_clock (CLUTTER_TIMELINE (transition)) ==
+            test.frame_clock_1);
+
+  test.main_loop = g_main_loop_new (NULL, FALSE);
+  g_signal_connect (transition, "stopped",
+                    G_CALLBACK (on_transition_stopped),
+                    &test);
+  g_signal_connect (transition, "new-frame",
+                    G_CALLBACK (on_transition_new_frame),
+                    &test);
+  g_signal_connect (transition, "notify::frame-clock",
+                    G_CALLBACK (on_transition_frame_clock_changed),
+                    &test);
+
+  test.phase = 1;
+
+  g_main_loop_run (test.main_loop);
+
+  g_assert_cmpint (test.phase, ==, 3);
+  g_assert_cmpint (test.frame_counter[0], >, 0);
+  g_assert_cmpint (test.frame_counter[1], >, 0);
+
+  clutter_actor_destroy (actor);
+  g_main_loop_unref (test.main_loop);
+}
+
 static void
 init_tests (int argc, char **argv)
 {
@@ -685,6 +829,8 @@ init_tests (int argc, char **argv)
                    meta_test_actor_stage_views_hot_plug);
   g_test_add_func ("/stage-views/actor-stage-views-frame-clock",
                    meta_test_actor_stage_views_frame_clock);
+  g_test_add_func ("/stage-views/actor-stage-views-timeline",
+                   meta_test_actor_stage_views_timeline);
 }
 
 int
