@@ -811,6 +811,7 @@ struct _ClutterActorPrivate
 
   gulong resolution_changed_id;
   gulong font_changed_id;
+  gulong layout_changed_id;
 
   /* bitfields: KEEP AT THE END */
 
@@ -6062,6 +6063,7 @@ clutter_actor_dispose (GObject *object)
 
   if (priv->layout_manager != NULL)
     {
+      g_clear_signal_handler (&priv->layout_changed_id, priv->layout_manager);
       clutter_layout_manager_set_container (priv->layout_manager, NULL);
       g_clear_object (&priv->layout_manager);
     }
@@ -17971,9 +17973,7 @@ clutter_actor_set_layout_manager (ClutterActor         *self,
 
   if (priv->layout_manager != NULL)
     {
-      g_signal_handlers_disconnect_by_func (priv->layout_manager,
-                                            G_CALLBACK (on_layout_manager_changed),
-                                            self);
+      g_clear_signal_handler (&priv->layout_changed_id, priv->layout_manager);
       clutter_layout_manager_set_container (priv->layout_manager, NULL);
       g_clear_object (&priv->layout_manager);
     }
@@ -17985,9 +17985,10 @@ clutter_actor_set_layout_manager (ClutterActor         *self,
       g_object_ref_sink (priv->layout_manager);
       clutter_layout_manager_set_container (priv->layout_manager,
                                             CLUTTER_CONTAINER (self));
-      g_signal_connect (priv->layout_manager, "layout-changed",
-                        G_CALLBACK (on_layout_manager_changed),
-                        self);
+      priv->layout_changed_id =
+        g_signal_connect (priv->layout_manager, "layout-changed",
+                          G_CALLBACK (on_layout_manager_changed),
+                          self);
     }
 
   clutter_actor_queue_relayout (self);
