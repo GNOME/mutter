@@ -189,6 +189,9 @@ static void capture_view_into (ClutterStage          *stage,
                                uint8_t               *data,
                                int                    stride);
 static void clutter_stage_update_view_perspective (ClutterStage *stage);
+static void clutter_stage_set_viewport (ClutterStage *stage,
+                                        float         width,
+                                        float         height);
 
 static void clutter_container_iface_init (ClutterContainerIface *iface);
 
@@ -718,10 +721,7 @@ clutter_stage_allocate (ClutterActor           *self,
   clutter_actor_get_allocation_box (self, &alloc);
   clutter_actor_box_get_size (&alloc, &new_width, &new_height);
 
-  _clutter_stage_set_viewport (CLUTTER_STAGE (self),
-                               0, 0,
-                               new_width,
-                               new_height);
+  clutter_stage_set_viewport (CLUTTER_STAGE (self), new_width, new_height);
 }
 
 typedef struct _Vector4
@@ -2239,10 +2239,7 @@ clutter_stage_init (ClutterStage *self)
   g_signal_connect (self, "notify::min-height",
                     G_CALLBACK (clutter_stage_notify_min_size), NULL);
 
-  _clutter_stage_set_viewport (self,
-                               0, 0,
-                               geom.width,
-                               geom.height);
+  clutter_stage_set_viewport (self, geom.width, geom.height);
 
   priv->paint_volume_stack =
     g_array_new (FALSE, FALSE, sizeof (ClutterPaintVolume));
@@ -2429,8 +2426,6 @@ _clutter_stage_dirty_projection (ClutterStage *stage)
 /*
  * clutter_stage_set_viewport:
  * @stage: A #ClutterStage
- * @x: The X postition to render the stage at, in window coordinates
- * @y: The Y position to render the stage at, in window coordinates
  * @width: The width to render the stage at, in window coordinates
  * @height: The height to render the stage at, in window coordinates
  *
@@ -2463,19 +2458,20 @@ _clutter_stage_dirty_projection (ClutterStage *stage)
  *
  * Since: 1.6
  */
-void
-_clutter_stage_set_viewport (ClutterStage *stage,
-                             float         x,
-                             float         y,
-                             float         width,
-                             float         height)
+static void
+clutter_stage_set_viewport (ClutterStage *stage,
+                            float         width,
+                            float         height)
 {
   ClutterStagePrivate *priv;
+  float x, y;
 
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
 
   priv = stage->priv;
 
+  x = 0.f;
+  y = 0.f;
   width = roundf (width);
   height = roundf (height);
 
