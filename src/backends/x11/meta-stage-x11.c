@@ -302,7 +302,10 @@ meta_stage_x11_realize (ClutterStageWindow *stage_window)
       MetaRenderer *renderer = meta_backend_get_renderer (stage_x11->backend);
       MetaRendererX11Cm *renderer_x11_cm = META_RENDERER_X11_CM (renderer);
 
-      meta_renderer_x11_cm_set_onscreen (renderer_x11_cm, stage_x11->onscreen);
+      meta_renderer_x11_cm_init_screen_view (renderer_x11_cm,
+                                             stage_x11->onscreen,
+                                             stage_x11->xwin_width,
+                                             stage_x11->xwin_height);
     }
 
   /* We just created a window of the size of the actor. No need to fix
@@ -501,9 +504,6 @@ meta_stage_x11_class_init (MetaStageX11Class *klass)
 static void
 meta_stage_x11_init (MetaStageX11 *stage)
 {
-  MetaRenderer *renderer;
-  MetaRendererX11Cm *renderer_x11_cm;
-
   stage->xwin = None;
   stage->xwin_width = 640;
   stage->xwin_height = 480;
@@ -514,16 +514,6 @@ meta_stage_x11_init (MetaStageX11 *stage)
 
   stage->backend = meta_get_backend ();
   g_assert (stage->backend);
-
-  if (META_IS_BACKEND_X11_CM (stage->backend))
-    {
-      renderer = meta_backend_get_renderer (stage->backend);
-      renderer_x11_cm = META_RENDERER_X11_CM (renderer);
-
-      meta_renderer_x11_cm_ensure_screen_view (renderer_x11_cm,
-                                               stage->xwin_width,
-                                               stage->xwin_height);
-    }
 }
 
 static void
