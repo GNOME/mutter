@@ -17,6 +17,8 @@
 
 #include "config.h"
 
+#include "clutter/clutter.h"
+#include "clutter/clutter-stage-view-private.h"
 #include "compositor/meta-plugin-manager.h"
 #include "core/main-private.h"
 #include "meta/main.h"
@@ -586,6 +588,85 @@ meta_test_actor_stage_views_hot_plug (void)
 }
 
 static void
+meta_test_actor_stage_views_frame_clock (void)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  ClutterActor *actor_1;
+  ClutterActor *actor_2;
+  ClutterActor *actor_3;
+  GList *stage_views;
+  MonitorTestCaseSetup frame_clock_test_setup = initial_test_case_setup;
+  MetaMonitorTestSetup *test_setup;
+  ClutterFrameClock *frame_clock;
+
+  frame_clock_test_setup.modes[1].width = 1024;
+  frame_clock_test_setup.modes[1].height = 768;
+  frame_clock_test_setup.modes[1].refresh_rate = 30.0;
+  frame_clock_test_setup.n_modes = 2;
+  frame_clock_test_setup.outputs[1].modes[0] = 1;
+  frame_clock_test_setup.outputs[1].preferred_mode = 1;
+  test_setup = create_monitor_test_setup (&frame_clock_test_setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+
+  g_assert_cmpfloat (clutter_stage_view_get_refresh_rate (stage_views->data),
+                     ==,
+                     60.0);
+  g_assert_cmpfloat (clutter_stage_view_get_refresh_rate (stage_views->next->data),
+                     ==,
+                     30.0);
+
+  actor_1 = clutter_actor_new ();
+  clutter_actor_set_size (actor_1, 100, 100);
+  clutter_actor_set_position (actor_1, 100, 100);
+  clutter_actor_add_child (stage, actor_1);
+
+  actor_2 = clutter_actor_new ();
+  clutter_actor_set_size (actor_2, 100, 100);
+  clutter_actor_set_position (actor_2, 1100, 100);
+  clutter_actor_add_child (stage, actor_2);
+
+  actor_3 = clutter_actor_new ();
+  clutter_actor_set_size (actor_3, 100, 100);
+  clutter_actor_set_position (actor_3, 1000, 400);
+  clutter_actor_add_child (stage, actor_3);
+
+  clutter_actor_show (stage);
+
+  wait_for_paint (stage);
+
+  is_on_stage_views (actor_1, 1, stage_views->data);
+  is_on_stage_views (actor_2, 1, stage_views->next->data);
+  is_on_stage_views (actor_3, 2,
+                     stage_views->data,
+                     stage_views->next->data);
+
+  frame_clock = clutter_actor_pick_frame_clock (actor_1);
+  g_assert_cmpfloat (clutter_frame_clock_get_refresh_rate (frame_clock),
+                     ==,
+                     60.0);
+  frame_clock = clutter_actor_pick_frame_clock (actor_2);
+  g_assert_cmpfloat (clutter_frame_clock_get_refresh_rate (frame_clock),
+                     ==,
+                     30.0);
+  frame_clock = clutter_actor_pick_frame_clock (actor_3);
+  g_assert_cmpfloat (clutter_frame_clock_get_refresh_rate (frame_clock),
+                     ==,
+                     60.0);
+
+  clutter_actor_destroy (actor_1);
+  clutter_actor_destroy (actor_2);
+  clutter_actor_destroy (actor_3);
+}
+
+static void
 init_tests (int argc, char **argv)
 {
   meta_monitor_manager_test_init_test_setup (create_stage_view_test_setup);
@@ -602,6 +683,8 @@ init_tests (int argc, char **argv)
                    meta_test_actor_stage_views_hide_parent);
   g_test_add_func ("/stage-views/actor-stage-views-hot-plug",
                    meta_test_actor_stage_views_hot_plug);
+  g_test_add_func ("/stage-views/actor-stage-views-frame-clock",
+                   meta_test_actor_stage_views_frame_clock);
 }
 
 int
