@@ -2146,6 +2146,7 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
     case META_RENDERER_NATIVE_MODE_GBM:
       {
         CoglFramebuffer *dmabuf_fb;
+        CoglDmaBufHandle *dmabuf_handle;
         struct gbm_bo *new_bo;
         int dmabuf_fd = -1;
 
@@ -2182,8 +2183,11 @@ meta_renderer_native_create_dma_buf (CoglRenderer  *cogl_renderer,
         if (!dmabuf_fb)
           return NULL;
 
-        return cogl_dma_buf_handle_new (dmabuf_fb, dmabuf_fd, new_bo,
-                                        (GDestroyNotify) gbm_bo_destroy);
+        dmabuf_handle =
+          cogl_dma_buf_handle_new (dmabuf_fb, dmabuf_fd, new_bo,
+                                   (GDestroyNotify) gbm_bo_destroy);
+        cogl_object_unref (dmabuf_fb);
+        return dmabuf_handle;
       }
       break;
 #ifdef HAVE_EGL_DEVICE
