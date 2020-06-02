@@ -1,3 +1,30 @@
+3.37.2
+======
+* Fix move-to-center keybinding with multiple monitors [Sergey; #1073]
+* Fix stuck buttons when a virtual device is destroyed [Carlos; !1239]
+* Use workarea when centering new windows [Akatsuki; #964]
+* Limit mipmap levels when rendering background [Daniel; !1003]
+* Broadcast clipboard/primary offers [Carlos; !1253]
+* Support primary-selection protocol from wayland-protocols [Carlos; !1255]
+* Fix monitor screen cast on X11 [Jonas Å.; !1251]
+* Support a "blank" cursor type [Florian; !1244]
+* Improve stage view damage tracking [Jonas Å.; !1237]
+* Implement touch-mode detecation for the X11 backend [Carlos; !1278]
+* Drop external keyboard detection from touch-mode heuristics [Carlos; !1277]
+* Optimize actor allocations [Jonas D.; !1247]
+* Fixed crashes [Daniel, Carlos, Jonas Å., Jonas D.; !1256, !1258, !1217, !1280]
+* Misc. bug fixes and cleanups [Christian, Jonas D., Olivier, Ting-Wei,
+  Jonas Å., Marco, Corentin, Daniel, Robert, Niels, Florian, Simon; !1231,
+  !1228, !1238, !1229, !1192, !1236, !1171, !1134, #1126, !1234, !1230, !1210,
+  !1242, !1243, !1252, !1113, !1232, !1259, !1245, !1265, !1180, !1261, !788,
+  !1264, !1235, !1218, !1150, !1274, !1271, !1279, !1283, !1272]
+
+Contributors:
+  Marco Trevisan (Treviño), Akatsuki, Jonas Dreßler, Olivier Fourdan,
+  Carlos Garnacho, Niels De Graef, Ting-Wei Lan, Robert Mader, Simon McVittie,
+  Florian Müllner, Corentin Noël, Christian Rauch, Daniel van Vugt,
+  Sergey Zigachev, Jonas Ådahl
+
 3.37.1
 ======
 * Fix screencasting non-maximized windows [Jonas Å.; !1174]
