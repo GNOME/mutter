@@ -503,6 +503,89 @@ create_stage_view_test_setup (void)
 }
 
 static void
+assert_is_stage_view (ClutterStageView *stage_view,
+                      int               x,
+                      int               y,
+                      int               width,
+                      int               height)
+{
+  cairo_rectangle_int_t layout;
+
+  g_assert_nonnull (stage_view);
+  g_assert_true (CLUTTER_IS_STAGE_VIEW (stage_view));
+
+  clutter_stage_view_get_layout (stage_view, &layout);
+  g_assert_cmpint (layout.x, ==, x);
+  g_assert_cmpint (layout.y, ==, y);
+  g_assert_cmpint (layout.width, ==, width);
+  g_assert_cmpint (layout.height, ==, height);
+}
+
+static void
+meta_test_actor_stage_views_hot_plug (void)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  ClutterActor *stage = meta_backend_get_stage (backend);
+  ClutterActor *actor_1;
+  ClutterActor *actor_2;
+  GList *stage_views;
+  GList *prev_stage_views;
+  MonitorTestCaseSetup hotplug_test_case_setup = initial_test_case_setup;
+  MetaMonitorTestSetup *test_setup;
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert_cmpint (g_list_length (stage_views), ==, 2);
+  assert_is_stage_view (stage_views->data, 0, 0, 1024, 768);
+  assert_is_stage_view (stage_views->next->data, 1024, 0, 1024, 768);
+
+  actor_1 = clutter_actor_new ();
+  clutter_actor_set_size (actor_1, 100, 100);
+  clutter_actor_set_position (actor_1, 100, 100);
+  clutter_actor_add_child (stage, actor_1);
+
+  actor_2 = clutter_actor_new ();
+  clutter_actor_set_size (actor_2, 100, 100);
+  clutter_actor_set_position (actor_2, 1100, 100);
+  clutter_actor_add_child (stage, actor_2);
+
+  clutter_actor_show (stage);
+
+  wait_for_paint (stage);
+
+  is_on_stage_views (actor_1, 1, stage_views->data);
+  is_on_stage_views (actor_2, 1, stage_views->next->data);
+
+  test_setup = create_monitor_test_setup (&hotplug_test_case_setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  prev_stage_views = stage_views;
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+
+  g_assert (stage_views != prev_stage_views);
+  g_assert_cmpint (g_list_length (stage_views), ==, 2);
+  g_assert (prev_stage_views->data != stage_views->data);
+  g_assert (prev_stage_views->next->data != stage_views->next->data);
+  assert_is_stage_view (stage_views->data, 0, 0, 1024, 768);
+  assert_is_stage_view (stage_views->next->data, 1024, 0, 1024, 768);
+
+  is_on_stage_views (actor_1, 0);
+  is_on_stage_views (actor_2, 0);
+
+  wait_for_paint (stage);
+
+  is_on_stage_views (actor_1, 1, stage_views->data);
+  is_on_stage_views (actor_2, 1, stage_views->next->data);
+
+  clutter_actor_destroy (actor_1);
+  clutter_actor_destroy (actor_2);
+}
+
+static void
 init_tests (int argc, char **argv)
 {
   meta_monitor_manager_test_init_test_setup (create_stage_view_test_setup);
@@ -517,6 +600,8 @@ init_tests (int argc, char **argv)
                    meta_test_actor_stage_views_reparent);
   g_test_add_func ("/stage-views/actor-stage-views-hide-parent",
                    meta_test_actor_stage_views_hide_parent);
+  g_test_add_func ("/stage-views/actor-stage-views-hot-plug",
+                   meta_test_actor_stage_views_hot_plug);
 }
 
 int
