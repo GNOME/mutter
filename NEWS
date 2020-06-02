@@ -1,3 +1,15 @@
+3.36.3
+======
+* Broadcast clipboard/primary offers [Carlos; !1262]
+* Fix monitor screen cast on X11 [Jonas Å.; !1251]
+* Implement touch-mode detecation for the X11 backend [Carlos; !1278]
+* Drop external keyboard detection from touch-mode heuristics [Carlos; !1277]
+* Fix leaked DMA buffers in screencasts [Jonas; !1283]
+* Fixed crashes [Daniel, Carlos, Jonas D.; !1256, !1258, !1280]
+
+Contributors:
+  Carlos Garnacho, Daniel van Vugt, Jonas Ådahl
+
 3.36.2
 ======
 * Sync timelines to hardware vsync [Daniel; !724]
