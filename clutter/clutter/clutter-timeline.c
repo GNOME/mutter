@@ -2523,8 +2523,14 @@ clutter_timeline_set_frame_clock (ClutterTimeline   *timeline,
   if (priv->frame_clock == frame_clock)
     return;
 
+  if (priv->frame_clock && priv->is_playing)
+    remove_timeline (timeline);
+
   g_set_object (&priv->frame_clock, frame_clock);
 
   g_object_notify_by_pspec (G_OBJECT (timeline),
                             obj_props[PROP_FRAME_CLOCK]);
+
+  if (priv->is_playing)
+    add_timeline (timeline);
 }
