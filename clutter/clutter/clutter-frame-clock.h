@@ -78,4 +78,7 @@ void clutter_frame_clock_add_timeline (ClutterFrameClock *frame_clock,
 void clutter_frame_clock_remove_timeline (ClutterFrameClock *frame_clock,
                                           ClutterTimeline   *timeline);
 
+CLUTTER_EXPORT
+float clutter_frame_clock_get_refresh_rate (ClutterFrameClock *frame_clock);
+
 #endif /* CLUTTER_FRAME_CLOCK_H */

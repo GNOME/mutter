@@ -77,6 +77,12 @@ struct _ClutterFrameClock
 G_DEFINE_TYPE (ClutterFrameClock, clutter_frame_clock,
                G_TYPE_OBJECT)
 
+float
+clutter_frame_clock_get_refresh_rate (ClutterFrameClock *frame_clock)
+{
+  return frame_clock->refresh_rate;
+}
+
 void
 clutter_frame_clock_add_timeline (ClutterFrameClock *frame_clock,
                                   ClutterTimeline   *timeline)
