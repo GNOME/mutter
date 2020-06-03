@@ -1142,11 +1142,6 @@ meta_compositor_real_post_paint (MetaCompositor *compositor)
     meta_compositor_get_instance_private (compositor);
   CoglGraphicsResetStatus status;
 
-#ifdef HAVE_WAYLAND
-  if (meta_is_wayland_compositor ())
-    meta_wayland_compositor_paint_finished (meta_wayland_compositor_get_default ());
-#endif
-
   status = cogl_get_graphics_reset_status (priv->context);
   switch (status)
     {

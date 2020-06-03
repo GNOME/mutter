@@ -194,8 +194,9 @@ meta_wayland_compositor_update (MetaWaylandCompositor *compositor,
     meta_wayland_seat_update (compositor->seat, event);
 }
 
-void
-meta_wayland_compositor_paint_finished (MetaWaylandCompositor *compositor)
+static void
+on_after_update (ClutterStage          *stage,
+                 MetaWaylandCompositor *compositor)
 {
   GList *l;
   int64_t now_us;
@@ -397,9 +398,9 @@ meta_wayland_compositor_new (MetaBackend *backend)
 }
 
 void
-meta_wayland_compositor_setup (MetaWaylandCompositor *wayland_compositor)
+meta_wayland_compositor_setup (MetaWaylandCompositor *compositor)
 {
-  MetaWaylandCompositor *compositor = meta_wayland_compositor_get_default ();
+  ClutterActor *stage = meta_backend_get_stage (compositor->backend);
   GSource *wayland_event_source;
 
   wayland_event_source = wayland_event_source_new (compositor->wayland_display);
@@ -412,6 +413,9 @@ meta_wayland_compositor_setup (MetaWaylandCompositor *wayland_compositor)
    */
   g_source_set_priority (wayland_event_source, GDK_PRIORITY_EVENTS + 1);
   g_source_attach (wayland_event_source, NULL);
+
+  g_signal_connect (stage, "after-update",
+                    G_CALLBACK (on_after_update), compositor);
 
   if (!wl_global_create (compositor->wayland_display,
 			 &wl_compositor_interface,
