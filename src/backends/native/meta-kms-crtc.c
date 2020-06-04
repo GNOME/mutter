@@ -27,6 +27,11 @@
 #include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-update-private.h"
 
+typedef struct _MetaKmsCrtcPropTable
+{
+  MetaKmsProp props[META_KMS_CRTC_N_PROPS];
+} MetaKmsCrtcPropTable;
+
 struct _MetaKmsCrtc
 {
   GObject parent;
@@ -37,6 +42,8 @@ struct _MetaKmsCrtc
   int idx;
 
   MetaKmsCrtcState current_state;
+
+  MetaKmsCrtcPropTable prop_table;
 };
 
 G_DEFINE_TYPE (MetaKmsCrtc, meta_kms_crtc, G_TYPE_OBJECT)
@@ -74,6 +81,20 @@ int
 meta_kms_crtc_get_idx (MetaKmsCrtc *crtc)
 {
   return crtc->idx;
+}
+
+uint32_t
+meta_kms_crtc_get_prop_id (MetaKmsCrtc     *crtc,
+                           MetaKmsCrtcProp  prop)
+{
+  return crtc->prop_table.props[prop].prop_id;
+}
+
+const char *
+meta_kms_crtc_get_prop_name (MetaKmsCrtc     *crtc,
+                             MetaKmsCrtcProp  prop)
+{
+  return crtc->prop_table.props[prop].name;
 }
 
 static void
@@ -214,6 +235,44 @@ meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
     }
 }
 
+static void
+init_proporties (MetaKmsCrtc       *crtc,
+                 MetaKmsImplDevice *impl_device,
+                 drmModeCrtc       *drm_crtc)
+{
+  MetaKmsCrtcPropTable *prop_table = &crtc->prop_table;
+  int fd;
+  drmModeObjectProperties *drm_props;
+
+  *prop_table = (MetaKmsCrtcPropTable) {
+    .props = {
+      [META_KMS_CRTC_PROP_MODE_ID] =
+        {
+          .name = "MODE_ID",
+          .type = DRM_MODE_PROP_BLOB,
+        },
+      [META_KMS_CRTC_PROP_ACTIVE] =
+        {
+          .name = "ACTIVE",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+    }
+  };
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+  drm_props = drmModeObjectGetProperties (fd,
+                                          drm_crtc->crtc_id,
+                                          DRM_MODE_OBJECT_CRTC);
+
+  meta_kms_impl_device_init_prop_table (impl_device,
+                                        drm_props->props,
+                                        drm_props->count_props,
+                                        crtc->prop_table.props,
+                                        META_KMS_CRTC_N_PROPS);
+
+  drmModeFreeObjectProperties (drm_props);
+}
+
 MetaKmsCrtc *
 meta_kms_crtc_new (MetaKmsImplDevice *impl_device,
                    drmModeCrtc       *drm_crtc,
@@ -225,6 +284,8 @@ meta_kms_crtc_new (MetaKmsImplDevice *impl_device,
   crtc->device = meta_kms_impl_device_get_device (impl_device);
   crtc->id = drm_crtc->crtc_id;
   crtc->idx = idx;
+
+  init_proporties (crtc, impl_device, drm_crtc);
 
   meta_kms_crtc_read_state (crtc, impl_device, drm_crtc);
 
