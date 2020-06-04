@@ -135,7 +135,6 @@ clutter_align_constraint_update_allocation (ClutterConstraint *constraint,
   ClutterAlignConstraint *align = CLUTTER_ALIGN_CONSTRAINT (constraint);
   gfloat source_width, source_height;
   gfloat actor_width, actor_height;
-  gfloat source_x, source_y;
   gfloat offset_x_start, offset_y_start;
   gfloat pivot_x, pivot_y;
 
@@ -144,7 +143,6 @@ clutter_align_constraint_update_allocation (ClutterConstraint *constraint,
 
   clutter_actor_box_get_size (allocation, &actor_width, &actor_height);
 
-  clutter_actor_get_position (align->source, &source_x, &source_y);
   clutter_actor_get_size (align->source, &source_width, &source_height);
 
   pivot_x = align->pivot.x == -1.f
@@ -160,18 +158,18 @@ clutter_align_constraint_update_allocation (ClutterConstraint *constraint,
   switch (align->align_axis)
     {
     case CLUTTER_ALIGN_X_AXIS:
-      allocation->x1 = source_x + offset_x_start + (source_width * align->factor);
+      allocation->x1 += offset_x_start + (source_width * align->factor);
       allocation->x2 = allocation->x1 + actor_width;
       break;
 
     case CLUTTER_ALIGN_Y_AXIS:
-      allocation->y1 = source_y + offset_y_start + (source_height * align->factor);
+      allocation->y1 += offset_y_start + (source_height * align->factor);
       allocation->y2 = allocation->y1 + actor_height;
       break;
 
     case CLUTTER_ALIGN_BOTH:
-      allocation->x1 = source_x + offset_x_start + (source_width * align->factor);
-      allocation->y1 = source_y + offset_y_start + (source_height * align->factor);
+      allocation->x1 += offset_x_start + (source_width * align->factor);
+      allocation->y1 += offset_y_start + (source_height * align->factor);
       allocation->x2 = allocation->x1 + actor_width;
       allocation->y2 = allocation->y1 + actor_height;
       break;
