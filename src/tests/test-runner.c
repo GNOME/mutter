@@ -572,6 +572,9 @@ test_case_do (TestCase *test,
       if (!test_client_do (client, error, argv[0], window_id, NULL))
         return FALSE;
 
+      if (!test_case_wait (test, error))
+        return FALSE;
+
       MetaWindow *window = test_client_find_window (client, window_id, error);
       if (!window)
         return FALSE;
