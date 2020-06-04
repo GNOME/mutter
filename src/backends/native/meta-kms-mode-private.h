@@ -22,6 +22,9 @@
 
 #include "backends/native/meta-kms-mode.h"
 
+uint32_t meta_kms_mode_ensure_blob_id (MetaKmsMode  *mode,
+                                       GError      **error);
+
 void meta_kms_mode_free (MetaKmsMode *mode);
 
 MetaKmsMode * meta_kms_mode_new (MetaKmsImplDevice     *impl_device,
