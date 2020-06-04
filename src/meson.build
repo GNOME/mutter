@@ -684,6 +684,8 @@ if have_native_backend
     'backends/native/meta-kms-impl-simple.h',
     'backends/native/meta-kms-impl.c',
     'backends/native/meta-kms-impl.h',
+    'backends/native/meta-kms-mode.c',
+    'backends/native/meta-kms-mode.h',
     'backends/native/meta-kms-page-flip.c',
     'backends/native/meta-kms-page-flip-private.h',
     'backends/native/meta-kms-plane.c',

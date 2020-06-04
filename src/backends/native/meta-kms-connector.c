@@ -27,6 +27,7 @@
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl-device.h"
+#include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-update-private.h"
 
 struct _MetaKmsConnector
@@ -354,12 +355,19 @@ state_set_physical_dimensions (MetaKmsConnectorState *state,
 
 static void
 state_set_modes (MetaKmsConnectorState *state,
+                 MetaKmsImplDevice     *impl_device,
                  drmModeConnector      *drm_connector)
 {
-  state->modes =
-    g_memdup (drm_connector->modes,
-              drm_connector->count_modes * sizeof (drmModeModeInfo));
-  state->n_modes = drm_connector->count_modes;
+  int i;
+
+  for (i = 0; i < drm_connector->count_modes; i++)
+    {
+      MetaKmsMode *mode;
+
+      mode = meta_kms_mode_new (impl_device, &drm_connector->modes[i]);
+      state->modes = g_list_prepend (state->modes, mode);
+    }
+  state->modes = g_list_reverse (state->modes);
 }
 
 static void
@@ -452,7 +460,7 @@ static void
 meta_kms_connector_state_free (MetaKmsConnectorState *state)
 {
   g_clear_pointer (&state->edid_data, g_bytes_unref);
-  g_free (state->modes);
+  g_list_free_full (state->modes, (GDestroyNotify) meta_kms_mode_free);
   g_free (state);
 }
 
@@ -480,7 +488,7 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
 
   state_set_physical_dimensions (state, drm_connector);
 
-  state_set_modes (state, drm_connector);
+  state_set_modes (state, impl_device, drm_connector);
 
   state_set_crtc_state (state, drm_connector, impl_device, drm_resources);
 

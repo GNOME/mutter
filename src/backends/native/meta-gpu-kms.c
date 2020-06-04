@@ -41,6 +41,7 @@
 #include "backends/native/meta-crtc-mode-kms.h"
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-kms.h"
@@ -410,13 +411,20 @@ init_modes (MetaGpuKms *gpu_kms)
     {
       MetaKmsConnector *kms_connector = l->data;
       const MetaKmsConnectorState *state;
+      GList *l_mode;
 
       state = meta_kms_connector_get_current_state (kms_connector);
       if (!state)
         continue;
 
-      for (i = 0; i < state->n_modes; i++)
-        g_hash_table_add (modes_table, &state->modes[i]);
+      for (l_mode = state->modes; l_mode; l_mode = l_mode->next)
+        {
+          MetaKmsMode *kms_mode = l_mode->data;
+          const drmModeModeInfo *drm_mode =
+            meta_kms_mode_get_drm_mode (kms_mode);
+
+          g_hash_table_add (modes_table, (drmModeModeInfo *) drm_mode);
+        }
     }
 
   modes = NULL;

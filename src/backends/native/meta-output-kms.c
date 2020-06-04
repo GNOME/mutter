@@ -30,6 +30,7 @@
 
 #include "backends/meta-crtc.h"
 #include "backends/native/meta-kms-connector.h"
+#include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-crtc-mode-kms.h"
@@ -240,17 +241,19 @@ init_output_modes (MetaOutputInfo    *output_info,
                    GError           **error)
 {
   const MetaKmsConnectorState *connector_state;
+  GList *l;
   int i;
 
   connector_state = meta_kms_connector_get_current_state (kms_connector);
 
   output_info->preferred_mode = NULL;
 
-  output_info->n_modes = connector_state->n_modes;
+  output_info->n_modes = g_list_length (connector_state->modes);
   output_info->modes = g_new0 (MetaCrtcMode *, output_info->n_modes);
-  for (i = 0; i < connector_state->n_modes; i++)
+  for (l = connector_state->modes, i = 0; l; l = l->next, i++)
     {
-      drmModeModeInfo *drm_mode = &connector_state->modes[i];
+      MetaKmsMode *kms_mode = l->data;
+      const drmModeModeInfo *drm_mode = meta_kms_mode_get_drm_mode (kms_mode);
       MetaCrtcMode *crtc_mode;
 
       crtc_mode = meta_gpu_kms_get_mode_from_drm_mode (gpu_kms, drm_mode);

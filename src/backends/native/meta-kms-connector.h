@@ -39,8 +39,7 @@ typedef struct _MetaKmsConnectorState
   uint32_t common_possible_clones;
   uint32_t encoder_device_idxs;
 
-  drmModeModeInfo *modes;
-  int n_modes;
+  GList *modes;
 
   uint32_t width_mm;
   uint32_t height_mm;

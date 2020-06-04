@@ -83,6 +83,12 @@
  * should be presented on a CRTC. Planes can either be primary planes, used as
  * a backdrop for CRTCs, overlay planes, and cursor planes.
  *
+ * #MetaKmsMode:
+ *
+ * Represents a mode a CRTC and connector can be configured with.
+ * Represents both modes directly derived from the devices, as well as
+ * fall back modes when the CRTC supports scaling.
+ *
  * #MetaKmsUpdate:
  *
  * A KMS transaction object, meant to be processed potentially atomically when
