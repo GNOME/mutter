@@ -858,6 +858,8 @@ int
 main(int argc, char **argv)
 {
   GOptionContext *context = g_option_context_new (NULL);
+  GdkScreen *screen;
+  GtkCssProvider *provider;
   GError *error = NULL;
 
   g_option_context_add_main_entries (context, options, NULL);
@@ -876,31 +878,25 @@ main(int argc, char **argv)
 
   gtk_init (NULL, NULL);
 
-  if (!wayland)
+  screen = gdk_screen_get_default ();
+  provider = gtk_css_provider_new ();
+  static const char *no_decoration_css =
+    "decoration {"
+    "  border-radius: 0 0 0 0;"
+    "  border-width: 0;"
+    "  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);"
+    "  margin: 0px;"
+    "}";
+  if (!gtk_css_provider_load_from_data (provider,
+                                        no_decoration_css,
+                                        strlen (no_decoration_css),
+                                        &error))
     {
-      GdkScreen *screen;
-      GtkCssProvider *provider;
-
-      screen = gdk_screen_get_default ();
-      provider = gtk_css_provider_new ();
-      static const char *no_decoration_css =
-        "decoration {"
-        "  border-radius: 0 0 0 0;"
-        "  border-width: 0;"
-        "  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0), 0 0 0 0 rgba(0, 0, 0, 0);"
-        "  margin: 0px;"
-        "}";
-      if (!gtk_css_provider_load_from_data (provider,
-                                            no_decoration_css,
-                                            strlen (no_decoration_css),
-                                            &error))
-        {
-          g_printerr ("%s", error->message);
-          return 1;
-        }
-      gtk_style_context_add_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider),
-                                                 GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+      g_printerr ("%s", error->message);
+      return 1;
     }
+  gtk_style_context_add_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider),
+                                             GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
   windows = g_hash_table_new_full (g_str_hash, g_str_equal,
                                    g_free, NULL);
