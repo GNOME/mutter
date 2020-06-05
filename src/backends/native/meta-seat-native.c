@@ -1347,20 +1347,6 @@ meta_event_dispatch (GSource     *g_source,
 
   if (event)
     {
-      ClutterModifierType event_state;
-      ClutterInputDevice *input_device =
-        clutter_event_get_source_device (event);
-      MetaInputDeviceNative *device_evdev =
-        META_INPUT_DEVICE_NATIVE (input_device);
-      MetaSeatNative *seat =
-        meta_input_device_native_get_seat (device_evdev);
-
-      /* update the device states *before* the event */
-      event_state = seat->button_state |
-        xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_EFFECTIVE);
-      _clutter_input_device_set_state (seat->core_pointer, event_state);
-      _clutter_input_device_set_state (seat->core_keyboard, event_state);
-
       /* forward the event into clutter for emission etc. */
       _clutter_stage_queue_event (event->any.stage, event, FALSE);
     }

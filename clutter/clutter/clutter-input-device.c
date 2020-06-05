@@ -515,7 +515,6 @@ clutter_input_device_init (ClutterInputDevice *self)
   self->current_x = self->previous_x = -1;
   self->current_y = self->previous_y = -1;
   self->current_button_number = self->previous_button_number = -1;
-  self->current_state = 0;
 
   self->touch_sequences_info =
     g_hash_table_new_full (NULL, NULL,
@@ -573,22 +572,6 @@ _clutter_input_device_set_coords (ClutterInputDevice   *device,
       info->current_x = x;
       info->current_y = y;
     }
-}
-
-/*< private >
- * clutter_input_device_set_state:
- * @device: a #ClutterInputDevice
- * @state: a bitmask of modifiers
- *
- * Stores the last known modifiers state of the device
- */
-void
-_clutter_input_device_set_state (ClutterInputDevice  *device,
-                                 ClutterModifierType  state)
-{
-  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
-
-  device->current_state = state;
 }
 
 /**
@@ -1147,19 +1130,16 @@ void
 clutter_input_device_update_from_event (ClutterInputDevice *device,
                                         ClutterEvent       *event)
 {
-  ClutterModifierType event_state;
   ClutterEventSequence *sequence;
   gfloat event_x, event_y;
 
   g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
   g_return_if_fail (event != NULL);
 
-  event_state = clutter_event_get_state (event);
   sequence = clutter_event_get_event_sequence (event);
   clutter_event_get_coords (event, &event_x, &event_y);
 
   _clutter_input_device_set_coords (device, sequence, event_x, event_y);
-  _clutter_input_device_set_state (device, event_state);
 }
 
 /*< private >

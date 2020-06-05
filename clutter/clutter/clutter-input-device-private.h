@@ -178,9 +178,6 @@ void _clutter_input_device_set_coords (ClutterInputDevice   *device,
                                        gfloat                x,
                                        gfloat                y);
 CLUTTER_EXPORT
-void _clutter_input_device_set_state (ClutterInputDevice  *device,
-                                      ClutterModifierType  state);
-CLUTTER_EXPORT
 ClutterActor * clutter_input_device_update (ClutterInputDevice   *device,
                                             ClutterEventSequence *sequence,
                                             ClutterStage         *stage,
