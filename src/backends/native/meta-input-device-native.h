@@ -76,6 +76,10 @@ struct _MetaInputDeviceNative
   double output_ratio;        /* w:h */
   MetaInputDeviceMapping mapping_mode;
 
+  /* Pointer position */
+  double pointer_x;
+  double pointer_y;
+
   /* Keyboard a11y */
   ClutterKeyboardA11yFlags a11y_flags;
   GList *slow_keys_list;
@@ -136,5 +140,9 @@ void                      meta_input_device_native_apply_kbd_a11y_settings (Meta
 void                      meta_input_device_native_a11y_maybe_notify_toggle_keys  (MetaInputDeviceNative *device_evdev);
 
 struct libinput_device * meta_input_device_native_get_libinput_device (ClutterInputDevice *device);
+
+void                     meta_input_device_native_update_coords (MetaInputDeviceNative *device_native,
+                                                                 double                 x,
+                                                                 double                 y);
 
 #endif /* META_INPUT_DEVICE_NATIVE_H */

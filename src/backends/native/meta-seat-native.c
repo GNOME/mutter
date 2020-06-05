@@ -422,10 +422,14 @@ new_absolute_motion_event (MetaSeatNative     *seat,
 
       clutter_event_set_device_tool (event, device_evdev->last_tool);
       clutter_event_set_device (event, input_device);
+      meta_input_device_native_update_coords (META_INPUT_DEVICE_NATIVE (input_device),
+                                              x, y);
     }
   else
     {
       clutter_event_set_device (event, seat->core_pointer);
+      meta_input_device_native_update_coords (META_INPUT_DEVICE_NATIVE (seat->core_pointer),
+                                              x, y);
     }
 
   if (clutter_input_device_get_device_type (input_device) != CLUTTER_TABLET_DEVICE)
@@ -1096,8 +1100,8 @@ notify_relative_tool_motion (ClutterInputDevice *input_device,
 
   device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
   seat = meta_input_device_native_get_seat (device_evdev);
-  x = input_device->current_x + dx;
-  y = input_device->current_y + dy;
+  x = device_evdev->pointer_x + dx;
+  y = device_evdev->pointer_y + dy;
 
   meta_seat_native_filter_relative_motion (seat,
                                            input_device,
@@ -2477,8 +2481,8 @@ meta_seat_native_constructed (GObject *object)
       CLUTTER_INPUT_MODE_LOGICAL);
   seat->pointer_x = INITIAL_POINTER_X;
   seat->pointer_y = INITIAL_POINTER_Y;
-  _clutter_input_device_set_coords (device, NULL,
-                                    seat->pointer_x, seat->pointer_y);
+  meta_input_device_native_update_coords (META_INPUT_DEVICE_NATIVE (device),
+                                          seat->pointer_x, seat->pointer_y);
   seat->core_pointer = device;
 
   device = meta_input_device_native_new_virtual (
@@ -2780,6 +2784,7 @@ meta_seat_native_query_state (ClutterSeat          *seat,
                               graphene_point_t     *coords,
                               ClutterModifierType  *modifiers)
 {
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
   MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
 
   if (sequence)
@@ -2807,8 +2812,8 @@ meta_seat_native_query_state (ClutterSeat          *seat,
     {
       if (coords)
         {
-          coords->x = device->current_x;
-          coords->y = device->current_y;
+          coords->x = device_native->pointer_x;
+          coords->y = device_native->pointer_y;
         }
 
       if (modifiers)
