@@ -19381,7 +19381,8 @@ should_skip_implicit_transition (ClutterActor *self,
    * skip all transitions on the :allocation, to avoid actors "flying in"
    * into their new position and size
    */
-  if (pspec == obj_props[PROP_ALLOCATION] && priv->needs_allocation)
+  if (pspec == obj_props[PROP_ALLOCATION] &&
+      !clutter_actor_box_is_initialized (&priv->allocation))
     return TRUE;
 
   /* if the actor is not mapped and is not part of a branch of the scene
