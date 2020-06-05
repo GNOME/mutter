@@ -1801,10 +1801,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                       GINT_TO_POINTER (xev->deviceid));
         clutter_event_set_device (event, device);
 
-        if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL &&
-            stage != NULL)
-          _clutter_input_device_set_stage (device, stage);
-
         /* XXX keep this in sync with the evdev device manager */
         n = print_keysym (event->key.keyval, buffer, sizeof (buffer));
         if (n == 0)
@@ -1848,11 +1844,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
         device = g_hash_table_lookup (seat->devices_by_id,
                                       GINT_TO_POINTER (xev->deviceid));
-
-        /* Set the stage for core events coming out of nowhere (see bug #684509) */
-        if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL &&
-            stage != NULL)
-          _clutter_input_device_set_stage (device, stage);
 
 	if (clutter_input_device_get_device_type (source_device) == CLUTTER_PAD_DEVICE)
           {
@@ -2011,9 +2002,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
             break;
           }
 
-        if (device->stage != NULL)
-          _clutter_input_device_set_stage (source_device, device->stage);
-
         if (xev->flags & XIPointerEmulated)
           _clutter_event_set_pointer_emulated (event, TRUE);
 
@@ -2044,11 +2032,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
               retval = TRUE;
             break;
           }
-
-        /* Set the stage for core events coming out of nowhere (see bug #684509) */
-        if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL &&
-            stage != NULL)
-          _clutter_input_device_set_stage (device, stage);
 
         if (scroll_valuators_changed (source_device,
                                       &xev->valuators,
@@ -2102,9 +2085,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                              event->motion.y,
                                              &xev->valuators);
 
-        if (device->stage != NULL)
-          _clutter_input_device_set_stage (source_device, device->stage);
-
         if (xev->flags & XIPointerEmulated)
           _clutter_event_set_pointer_emulated (event, TRUE);
 
@@ -2125,7 +2105,6 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
         XIDeviceEvent *xev = (XIDeviceEvent *) xi_event;
         device = g_hash_table_lookup (seat->devices_by_id,
                                       GINT_TO_POINTER (xev->deviceid));
-        _clutter_input_device_set_stage (device, stage);
       }
       /* Fall through */
     case XI_TouchEnd:
