@@ -26,6 +26,8 @@
 
 #include "config.h"
 
+#include "backends/native/meta-seat-native.h"
+
 #include <errno.h>
 #include <fcntl.h>
 #include <libinput.h>
@@ -33,7 +35,7 @@
 #include <math.h>
 
 #include "backends/meta-cursor-tracker-private.h"
-#include "backends/native/meta-seat-native.h"
+#include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-event-native.h"
 #include "backends/native/meta-input-device-native.h"
 #include "backends/native/meta-input-device-tool-native.h"
@@ -887,6 +889,19 @@ meta_event_check (GSource *source)
   return retval;
 }
 
+static void
+constrain_to_barriers (MetaSeatNative     *seat,
+                       ClutterInputDevice *device,
+                       uint32_t            time,
+                       float              *new_x,
+                       float              *new_y)
+{
+  meta_barrier_manager_native_process (seat->barrier_manager,
+                                       device,
+                                       time,
+                                       new_x, new_y);
+}
+
 void
 meta_seat_native_constrain_pointer (MetaSeatNative     *seat,
                                     ClutterInputDevice *core_pointer,
@@ -896,6 +911,11 @@ meta_seat_native_constrain_pointer (MetaSeatNative     *seat,
                                     float              *new_x,
                                     float              *new_y)
 {
+  /* Constrain to barriers */
+  constrain_to_barriers (seat, core_pointer,
+                         us2ms (time_us),
+                         new_x, new_y);
+
   if (seat->constrain_callback)
     {
       seat->constrain_callback (core_pointer,
@@ -2817,6 +2837,8 @@ meta_seat_native_init (MetaSeatNative *seat)
   seat->repeat = TRUE;
   seat->repeat_delay = 250;     /* ms */
   seat->repeat_interval = 33;   /* ms */
+
+  seat->barrier_manager = meta_barrier_manager_native_new ();
 }
 
 void
@@ -3202,4 +3224,10 @@ struct xkb_state *
 meta_seat_native_get_xkb_state (MetaSeatNative *seat)
 {
   return seat->xkb;
+}
+
+MetaBarrierManagerNative *
+meta_seat_native_get_barrier_manager (MetaSeatNative *seat)
+{
+  return seat->barrier_manager;
 }

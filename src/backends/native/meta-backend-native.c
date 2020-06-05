@@ -48,7 +48,6 @@
 #include "backends/meta-pointer-constraint.h"
 #include "backends/meta-settings-private.h"
 #include "backends/meta-stage-private.h"
-#include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-event-native.h"
@@ -75,7 +74,6 @@ struct _MetaBackendNative
   MetaLauncher *launcher;
   MetaUdev *udev;
   MetaKms *kms;
-  MetaBarrierManagerNative *barrier_manager;
 
   gulong udev_device_added_handler_id;
 };
@@ -105,20 +103,6 @@ meta_backend_native_finalize (GObject *object)
   meta_launcher_free (native->launcher);
 
   G_OBJECT_CLASS (meta_backend_native_parent_class)->finalize (object);
-}
-
-static void
-constrain_to_barriers (ClutterInputDevice *device,
-                       guint32             time,
-                       float              *new_x,
-                       float              *new_y)
-{
-  MetaBackendNative *native = META_BACKEND_NATIVE (meta_get_backend ());
-
-  meta_barrier_manager_native_process (native->barrier_manager,
-                                       device,
-                                       time,
-                                       new_x, new_y);
 }
 
 static void
@@ -206,9 +190,6 @@ pointer_constrain_callback (ClutterInputDevice *device,
   MetaBackend *backend = meta_get_backend ();
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-
-  /* Constrain to barriers */
-  constrain_to_barriers (device, time, new_x, new_y);
 
   /* Constrain to pointer lock */
   constrain_to_client_constraint (device, time, prev_x, prev_y, new_x, new_y);
@@ -709,7 +690,6 @@ meta_backend_native_initable_init (GInitable     *initable,
 #endif
 
   native->udev = meta_udev_new (native);
-  native->barrier_manager = meta_barrier_manager_native_new ();
 
   native->kms = meta_kms_new (META_BACKEND (native), error);
   if (!native->kms)
@@ -787,12 +767,6 @@ meta_activate_vt (int vt, GError **error)
   MetaLauncher *launcher = meta_backend_native_get_launcher (native);
 
   return meta_launcher_activate_vt (launcher, vt, error);
-}
-
-MetaBarrierManagerNative *
-meta_backend_native_get_barrier_manager (MetaBackendNative *native)
-{
-  return native->barrier_manager;
 }
 
 /**

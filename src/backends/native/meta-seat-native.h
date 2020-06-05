@@ -27,6 +27,7 @@
 #include <libinput.h>
 #include <linux/input-event-codes.h>
 
+#include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-keymap-native.h"
 #include "backends/native/meta-xkb-utils.h"
 #include "clutter/clutter.h"
@@ -105,6 +106,8 @@ struct _MetaSeatNative
 
   int device_id_next;
   GList *free_device_ids;
+
+  MetaBarrierManagerNative *barrier_manager;
 
   MetaPointerConstrainCallback constrain_callback;
   gpointer constrain_data;
@@ -288,5 +291,7 @@ void meta_seat_native_set_keyboard_repeat (MetaSeatNative *seat,
                                            gboolean        repeat,
                                            uint32_t        delay,
                                            uint32_t        interval);
+
+MetaBarrierManagerNative * meta_seat_native_get_barrier_manager (MetaSeatNative *seat);
 
 #endif /* META_SEAT_NATIVE_H */

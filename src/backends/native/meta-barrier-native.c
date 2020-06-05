@@ -36,8 +36,7 @@
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-barrier-private.h"
-#include "backends/native/meta-backend-native.h"
-#include "backends/native/meta-backend-native-private.h"
+#include "backends/native/meta-seat-native.h"
 #include "meta/barrier.h"
 #include "meta/util.h"
 
@@ -558,16 +557,16 @@ MetaBarrierImpl *
 meta_barrier_impl_native_new (MetaBarrier *barrier)
 {
   MetaBarrierImplNative *self;
-  MetaBackendNative *native;
   MetaBarrierManagerNative *manager;
+  ClutterBackend *backend = clutter_get_default_backend ();
+  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
 
   self = g_object_new (META_TYPE_BARRIER_IMPL_NATIVE, NULL);
 
   self->barrier = barrier;
   self->is_active = TRUE;
 
-  native = META_BACKEND_NATIVE (meta_get_backend ());
-  manager = meta_backend_native_get_barrier_manager (native);
+  manager = meta_seat_native_get_barrier_manager (META_SEAT_NATIVE (seat));
   self->manager = manager;
   g_hash_table_add (manager->barriers, self);
 
