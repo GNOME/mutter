@@ -785,9 +785,21 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
                                  gboolean              emit_crossing)
 {
   ClutterActor *old_actor = clutter_input_device_get_actor (device, sequence);
+  ClutterStage *stage = NULL;
 
   if (old_actor == actor)
     return;
+
+  if (emit_crossing)
+    {
+      if (actor)
+        stage = CLUTTER_STAGE (clutter_actor_get_stage (actor));
+      else if (old_actor)
+        stage = CLUTTER_STAGE (clutter_actor_get_stage (old_actor));
+
+      if (!stage)
+        return;
+    }
 
   if (old_actor != NULL)
     {
@@ -800,7 +812,7 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
           event = clutter_event_new (CLUTTER_LEAVE);
           event->crossing.time = device->current_time;
           event->crossing.flags = 0;
-          event->crossing.stage = device->stage;
+          event->crossing.stage = stage;
           event->crossing.source = old_actor;
           event->crossing.x = device->current_x;
           event->crossing.y = device->current_y;
@@ -837,7 +849,7 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
           event = clutter_event_new (CLUTTER_ENTER);
           event->crossing.time = device->current_time;
           event->crossing.flags = 0;
-          event->crossing.stage = device->stage;
+          event->crossing.stage = stage;
           event->crossing.x = device->current_x;
           event->crossing.y = device->current_y;
           event->crossing.source = actor;
