@@ -45,7 +45,7 @@ static void
 timeline_complete_cb (ClutterTimeline *timeline,
                       TimelineData    *data)
 {
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("%i: Completed\n", data->timeline_num);
 
   data->completed_count++;
@@ -61,7 +61,7 @@ timeline_new_frame_cb (ClutterTimeline *timeline,
   int frame_no = ((msec * FRAME_COUNT + (FRAME_COUNT * 1000 / FPS) / 2)
                   / (FRAME_COUNT * 1000 / FPS));
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("%i: Doing frame %d, delta = %i\n",
              data->timeline_num, frame_no,
              clutter_timeline_get_delta (timeline));
@@ -77,7 +77,7 @@ timeline_marker_reached_cb (ClutterTimeline *timeline,
                             guint            frame_num,
                             TimelineData    *data)
 {
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("%i: Marker '%s' (%d) reached, delta = %i\n",
              data->timeline_num, marker_name, frame_num,
              clutter_timeline_get_delta (timeline));
@@ -117,7 +117,7 @@ check_timeline (ClutterTimeline *timeline,
         marker_reached_count[i]++;
       else
         {
-          if (g_test_verbose ())
+          if (!g_test_quiet ())
             g_print ("FAIL: unknown marker '%s' hit for timeline %i\n",
                      (char *) node->data, data->timeline_num);
           succeeded = FALSE;
@@ -127,7 +127,7 @@ check_timeline (ClutterTimeline *timeline,
   for (i = 0; i < n_markers; i++)
     if (marker_reached_count[i] != 1)
       {
-        if (g_test_verbose ())
+        if (!g_test_quiet ())
           g_print ("FAIL: marker '%s' hit %i times for timeline %i\n",
                    markers[i], marker_reached_count[i], data->timeline_num);
         succeeded = FALSE;
@@ -141,7 +141,7 @@ check_timeline (ClutterTimeline *timeline,
 
       if (missed_frame_count)
         {
-          if (g_test_verbose ())
+          if (!g_test_quiet ())
             g_print ("FAIL: missed %i frame%s for timeline %i\n",
                      missed_frame_count, missed_frame_count == 1 ? "" : "s",
                      data->timeline_num);
@@ -151,7 +151,7 @@ check_timeline (ClutterTimeline *timeline,
 
   if (data->completed_count != 1)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("FAIL: timeline %i completed %i times\n",
                  data->timeline_num, data->completed_count);
       succeeded = FALSE;
@@ -267,7 +267,7 @@ timeline_base (TestConformSimpleFixture *fixture,
                     "completed", G_CALLBACK (timeline_complete_cb),
                     &data_3);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Without delay...\n");
 
   clutter_timeline_start (timeline_1);
@@ -282,7 +282,7 @@ timeline_base (TestConformSimpleFixture *fixture,
   g_assert (check_timeline (timeline_2, &data_2, TRUE));
   g_assert (check_timeline (timeline_3, &data_3, TRUE));
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("With delay...\n");
 
   timeline_data_destroy (&data_1);
@@ -331,7 +331,7 @@ timeline_markers_from_script (TestConformSimpleFixture *fixture,
 
   test_file = clutter_test_get_data_file ("test-script-timeline-markers.json");
   clutter_script_load_from_file (script, test_file, &error);
-  if (g_test_verbose () && error != NULL)
+  if (!g_test_quiet () && error != NULL)
     g_print ("Error: %s", error->message);
 
   g_assert_no_error (error);

@@ -18,7 +18,7 @@ color_hls_roundtrip (void)
   g_assert_cmpfloat (hue, ==, 0.0);
   g_assert (luminance >= 0.0 && luminance <= 1.0);
   g_assert_cmpfloat (saturation, ==, 0.0);
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       g_print ("RGB = { %x, %x, %x }, HLS = { %.2f, %.2f, %.2f }\n",
                color.red,
@@ -48,7 +48,7 @@ color_hls_roundtrip (void)
   g_assert (hue >= 0.0 && hue < 360.0);
   g_assert (luminance >= 0.0 && luminance <= 1.0);
   g_assert (saturation >= 0.0 && saturation <= 1.0);
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       g_print ("RGB = { %x, %x, %x }, HLS = { %.2f, %.2f, %.2f }\n",
                color.red,
@@ -92,7 +92,7 @@ color_from_string_valid (void)
   ClutterColor color;
 
   g_assert (clutter_color_from_string (&color, "#ff0000ff"));
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 0xff, 0, 0, 0xff }\n",
                color.red,
@@ -106,7 +106,7 @@ color_from_string_valid (void)
   g_assert_cmpuint (color.alpha, ==, 0xff);
 
   g_assert (clutter_color_from_string (&color, "#0f0f"));
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 0, 0xff, 0, 0xff }\n",
                color.red,
@@ -120,7 +120,7 @@ color_from_string_valid (void)
   g_assert_cmpuint (color.alpha, ==, 0xff);
 
   g_assert (clutter_color_from_string (&color, "#0000ff"));
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 0, 0, 0xff, 0xff }\n",
                color.red,
@@ -134,7 +134,7 @@ color_from_string_valid (void)
   g_assert_cmpuint (color.alpha, ==, 0xff);
 
   g_assert (clutter_color_from_string (&color, "#abc"));
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 0xaa, 0xbb, 0xcc, 0xff }\n",
                color.red,
@@ -148,7 +148,7 @@ color_from_string_valid (void)
   g_assert_cmpuint (color.alpha, ==, 0xff);
 
   g_assert (clutter_color_from_string (&color, "#123abc"));
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 0x12, 0x3a, 0xbc, 0xff }\n",
                color.red,
@@ -162,7 +162,7 @@ color_from_string_valid (void)
   g_assert (color.alpha == 0xff);
 
   g_assert (clutter_color_from_string (&color, "rgb(255, 128, 64)"));
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 255, 128, 64, 255 }\n",
                color.red,
@@ -176,7 +176,7 @@ color_from_string_valid (void)
   g_assert_cmpuint (color.alpha, ==, 255);
 
   g_assert (clutter_color_from_string (&color, "rgba ( 30%, 0,    25%,  0.5 )   "));
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { %.1f, 0, %.1f, 128 }\n",
                color.red,
@@ -192,7 +192,7 @@ color_from_string_valid (void)
   g_assert_cmpuint (color.alpha, ==, 127);
 
   g_assert (clutter_color_from_string (&color, "rgb( 50%, -50%, 150% )"));
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 127, 0, 255, 255 }\n",
                color.red,
@@ -206,7 +206,7 @@ color_from_string_valid (void)
   g_assert_cmpuint (color.alpha, ==, 255);
 
   g_assert (clutter_color_from_string (&color, "hsl( 0, 100%, 50% )"));
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 255, 0, 0, 255 }\n",
                color.red,
@@ -222,7 +222,7 @@ color_from_string_valid (void)
   g_assert (clutter_color_from_string (&color, "hsl( 0, 100%, 50%     )"));
 
   g_assert (clutter_color_from_string (&color, "hsla( 0, 100%, 50%, 0.5 )"));
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       g_print ("color = { %x, %x, %x, %x }, expected = { 255, 0, 0, 127 }\n",
                color.red,
@@ -274,7 +274,7 @@ color_operators (void)
   g_assert_cmpuint (op2.blue, ==, 0);
   g_assert_cmpuint (op2.alpha, ==, 0xff);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Adding %x, %x; expected result: %x\n",
              clutter_color_to_pixel (&op1),
              clutter_color_to_pixel (&op2),
@@ -283,7 +283,7 @@ color_operators (void)
   clutter_color_add (&op1, &op2, &res);
   g_assert_cmpuint (clutter_color_to_pixel (&res), ==, 0xffff00ff);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Checking alpha channel on color add\n");
 
   op1.alpha = 0xdd;
@@ -294,7 +294,7 @@ color_operators (void)
   clutter_color_from_pixel (&op1, 0xffffffff);
   clutter_color_from_pixel (&op2, 0xff00ffff);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Subtracting %x, %x; expected result: %x\n",
              clutter_color_to_pixel (&op1),
              clutter_color_to_pixel (&op2),
@@ -303,7 +303,7 @@ color_operators (void)
   clutter_color_subtract (&op1, &op2, &res);
   g_assert_cmpuint (clutter_color_to_pixel (&res), ==, 0x00ff00ff);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Checking alpha channel on color subtract\n");
 
   op1.alpha = 0xdd;

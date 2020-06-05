@@ -214,12 +214,12 @@ text_delete_chars (void)
       for (j = 0; j < 4; j++)
         clutter_text_insert_unichar (text, t->unichar);
 
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("text: %s\n", clutter_text_get_text (text));
 
       clutter_text_set_cursor_position (text, 2);
       clutter_text_delete_chars (text, 1);
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("text: %s (cursor at: %d)\n",
                  clutter_text_get_text (text),
                  clutter_text_get_cursor_position (text));
@@ -229,7 +229,7 @@ text_delete_chars (void)
 
       clutter_text_set_cursor_position (text, 2);
       clutter_text_delete_chars (text, 1);
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("text: %s (cursor at: %d)\n",
                  clutter_text_get_text (text),
                  clutter_text_get_cursor_position (text));
@@ -503,7 +503,7 @@ text_idempotent_use_markup (void)
   int bar_end_index = bar_start_index + strlen ("bar");
 
   /* case 1: text -> use_markup */
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("text: '%s' -> use-markup: TRUE\n", contents);
 
   text = g_object_new (CLUTTER_TYPE_TEXT,
@@ -511,7 +511,7 @@ text_idempotent_use_markup (void)
                        NULL);
   g_object_ref_sink (text);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Contents: '%s' (expected: '%s')\n",
              clutter_text_get_text (text),
              display);
@@ -526,14 +526,14 @@ text_idempotent_use_markup (void)
   clutter_actor_destroy (CLUTTER_ACTOR (text));
 
   /* case 2: use_markup -> text */
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("use-markup: TRUE -> text: '%s'\n", contents);
 
   text = g_object_new (CLUTTER_TYPE_TEXT,
                        "use-markup", TRUE, "text", contents,
                        NULL);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Contents: '%s' (expected: '%s')\n",
              clutter_text_get_text (text),
              display);

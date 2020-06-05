@@ -131,7 +131,7 @@ script_child (void)
 
   test_file = g_test_build_filename (G_TEST_DIST, "scripts", "test-script-child.json", NULL);
   clutter_script_load_from_file (script, test_file, &error);
-  if (g_test_verbose () && error)
+  if (!g_test_quiet () && error)
     g_print ("Error: %s", error->message);
 
   g_assert_no_error (error);
@@ -177,7 +177,7 @@ script_single (void)
 
   test_file = g_test_build_filename (G_TEST_DIST, "scripts", "test-script-single.json", NULL);
   clutter_script_load_from_file (script, test_file, &error);
-  if (g_test_verbose () && error)
+  if (!g_test_quiet () && error)
     g_print ("Error: %s", error->message);
 
   g_assert_no_error (error);
@@ -209,7 +209,7 @@ script_object_property (void)
 
   test_file = g_test_build_filename (G_TEST_DIST, "scripts", "test-script-object-property.json", NULL);
   clutter_script_load_from_file (script, test_file, &error);
-  if (g_test_verbose () && error)
+  if (!g_test_quiet () && error)
     g_print ("Error: %s", error->message);
 
   g_assert_no_error (error);
@@ -235,7 +235,7 @@ script_named_object (void)
 
   test_file = g_test_build_filename (G_TEST_DIST, "scripts", "test-script-named-object.json", NULL);
   clutter_script_load_from_file (script, test_file, &error);
-  if (g_test_verbose () && error)
+  if (!g_test_quiet () && error)
     g_print ("Error: %s", error->message);
 
   g_assert_no_error (error);
@@ -261,7 +261,7 @@ script_margin (void)
 
   test_file = g_test_build_filename (G_TEST_DIST, "scripts", "test-script-margin.json", NULL);
   clutter_script_load_from_file (script, test_file, &error);
-  if (g_test_verbose () && error)
+  if (!g_test_quiet () && error)
     g_print ("Error: %s", error->message);
 
   g_assert_no_error (error);

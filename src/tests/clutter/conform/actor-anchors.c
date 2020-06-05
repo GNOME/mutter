@@ -132,7 +132,7 @@ check_coords (TestState *state,
               gint y_2,
               const graphene_point3d_t *verts)
 {
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("checking that (%i,%i,%i,%i) \xe2\x89\x88 (%i,%i,%i,%i): %s\n",
              x_1, y_1, x_2, y_2,
              (int) (verts[0].x),
@@ -200,7 +200,7 @@ test_anchor_point (TestState *state)
   /* Change the anchor point with each of the gravities */
   for (i = 0; i < G_N_ELEMENTS (gravities); i++)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         {
           GEnumClass *gravity_class = g_type_class_ref (CLUTTER_TYPE_GRAVITY);
           GEnumValue *value = g_enum_get_value (gravity_class,
@@ -356,7 +356,7 @@ test_scale_center (TestState *state)
   /* Change the anchor point with each of the gravities */
   for (i = 0; i < G_N_ELEMENTS (gravities); i++)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         {
           GEnumClass *gravity_class = g_type_class_ref (CLUTTER_TYPE_GRAVITY);
           GEnumValue *value = g_enum_get_value (gravity_class,
@@ -472,7 +472,7 @@ test_rotate_center (TestState *state)
       char prop_name[] = "rotation-angle- ";
       prop_name[sizeof (prop_name) - 2] = i - CLUTTER_X_AXIS + 'x';
 
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("Setting %s to 90 degrees\n", prop_name);
 
       g_object_set (rect, prop_name, 90.0, NULL);
@@ -531,7 +531,7 @@ test_rotate_center (TestState *state)
       char prop_name[] = "rotation-angle- ";
       prop_name[sizeof (prop_name) - 2] = i - CLUTTER_X_AXIS + 'x';
 
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("Setting %s to 90 degrees with center 10,20,0\n", prop_name);
 
       clutter_actor_set_rotation (rect, i, 90.0, 10, 20, 0);
@@ -605,7 +605,7 @@ test_rotate_center (TestState *state)
   /* Try rotating the z with all of the gravities */
   for (i = 0; i < G_N_ELEMENTS (gravities); i++)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         {
           GEnumClass *gravity_class = g_type_class_ref (CLUTTER_TYPE_GRAVITY);
           GEnumValue *value = g_enum_get_value (gravity_class,

@@ -116,24 +116,24 @@ validate_result (TestState *state)
 {
   int ypos = 0;
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Testing onscreen clone...\n");
   validate_part (state, SOURCE_SIZE, ypos * SOURCE_SIZE, 0);
   ypos++;
 
 #if 0 /* this doesn't work */
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Testing offscreen clone...\n");
   validate_part (state, SOURCE_SIZE, ypos * SOURCE_SIZE, 0);
 #endif
   ypos++;
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Testing onscreen clone with rectangular clip...\n");
   validate_part (state, SOURCE_SIZE, ypos * SOURCE_SIZE, ~1);
   ypos++;
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Testing onscreen clone with path clip...\n");
   validate_part (state, SOURCE_SIZE, ypos * SOURCE_SIZE, 1);
   ypos++;

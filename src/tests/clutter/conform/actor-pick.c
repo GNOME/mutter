@@ -49,7 +49,7 @@ on_timeout (gpointer data)
     {
       if (test_num == 0)
         {
-          if (g_test_verbose ())
+          if (!g_test_quiet ())
             g_print ("No covering actor:\n");
         }
       if (test_num == 1)
@@ -62,7 +62,7 @@ on_timeout (gpointer data)
           clutter_actor_add_child (state->stage, over_actor);
           clutter_actor_hide (over_actor);
 
-          if (g_test_verbose ())
+          if (!g_test_quiet ())
             g_print ("Invisible covering actor:\n");
         }
       else if (test_num == 2)
@@ -84,7 +84,7 @@ on_timeout (gpointer data)
            */
           clutter_actor_allocate (over_actor, &over_actor_box);
 
-          if (g_test_verbose ())
+          if (!g_test_quiet ())
             g_print ("Clipped covering actor:\n");
         }
       else if (test_num == 3)
@@ -98,7 +98,7 @@ on_timeout (gpointer data)
                                               "blur",
                                               clutter_blur_effect_new ());
 
-          if (g_test_verbose ())
+          if (!g_test_quiet ())
             g_print ("With blur effect:\n");
         }
 
@@ -121,13 +121,13 @@ on_timeout (gpointer data)
                                                 y * state->actor_height
                                                 + state->actor_height / 2);
 
-              if (g_test_verbose ())
+              if (!g_test_quiet ())
                 g_print ("% 3i,% 3i / %p -> ",
                          x, y, state->actors[y * ACTORS_X + x]);
 
               if (actor == NULL)
                 {
-                  if (g_test_verbose ())
+                  if (!g_test_quiet ())
                     g_print ("NULL:       FAIL\n");
                 }
               else if (actor == over_actor)
@@ -137,7 +137,7 @@ on_timeout (gpointer data)
                       && y >= 2 && y < ACTORS_Y - 2)
                     pass = TRUE;
 
-                  if (g_test_verbose ())
+                  if (!g_test_quiet ())
                     g_print ("over_actor: %s\n", pass ? "pass" : "FAIL");
                 }
               else
@@ -148,7 +148,7 @@ on_timeout (gpointer data)
                           || y < 2 || y >= ACTORS_Y - 2))
                     pass = TRUE;
 
-                  if (g_test_verbose ())
+                  if (!g_test_quiet ())
                     g_print ("%p: %s\n", actor, pass ? "pass" : "FAIL");
                 }
 
@@ -206,7 +206,7 @@ actor_pick (void)
 
   clutter_main ();
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       if (!state.pass)
         g_test_message ("Failed pass: %s[%d], actor index: %d [%p]\n",

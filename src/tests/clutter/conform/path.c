@@ -556,7 +556,7 @@ path_test_get_length (CallbackData *data)
 
   if (!(fabs (approx_length - 46340.f) / 46340.f <= 0.15f))
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("M 0 0 L 46340 0 - Expected 46340, got %d instead.", approx_length);
 
       return FALSE;
@@ -567,7 +567,7 @@ path_test_get_length (CallbackData *data)
 
   if (!(fabs (approx_length - 46341.f) / 46341.f <= 0.15f))
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("M 0 0 L 46341 0 - Expected 46341, got %d instead.", approx_length);
 
       return FALSE;
@@ -580,7 +580,7 @@ path_test_get_length (CallbackData *data)
   /* Allow 15% margin of error */
   if (!(fabs (approx_length - actual_length) / (float) actual_length <= 0.15f))
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("Expected %g, got %d instead.\n", actual_length, approx_length);
 
       return FALSE;
@@ -724,12 +724,12 @@ path_base (TestConformSimpleFixture *fixture,
     {
       gboolean succeeded;
 
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("%s... ", path_tests[i].desc);
 
       succeeded = path_tests[i].func (&data) && compare_nodes (&data);
 
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("%s\n", succeeded ? "ok" : "FAIL");
 
       g_assert (succeeded);

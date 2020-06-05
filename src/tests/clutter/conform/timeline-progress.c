@@ -10,7 +10,7 @@ timeline_progress_step (TestConformSimpleFixture *fixture G_GNUC_UNUSED,
 
   timeline = clutter_timeline_new (1000);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("mode: step(3, end)\n");
 
   clutter_timeline_rewind (timeline);
@@ -45,7 +45,7 @@ timeline_progress_step (TestConformSimpleFixture *fixture G_GNUC_UNUSED,
   clutter_timeline_advance (timeline, 1000);
   g_assert_cmpfloat (clutter_timeline_get_progress (timeline), ==, 1.0);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("mode: step-start\n");
 
   clutter_timeline_rewind (timeline);
@@ -64,7 +64,7 @@ timeline_progress_step (TestConformSimpleFixture *fixture G_GNUC_UNUSED,
   clutter_timeline_advance (timeline, 1000);
   g_assert_cmpfloat (clutter_timeline_get_progress (timeline), ==, 1.0);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("mode: step-end\n");
 
   clutter_timeline_rewind (timeline);

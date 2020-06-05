@@ -81,21 +81,21 @@ interval_from_script (void)
                                      "test-script-interval.json",
                                      NULL);
   clutter_script_load_from_file (script, test_file, &error);
-  if (g_test_verbose () && error)
+  if (!g_test_quiet () && error)
     g_printerr ("\tError: %s", error->message);
 
   g_assert_no_error (error);
 
   interval = CLUTTER_INTERVAL (clutter_script_get_object (script, "int-1"));
   initial = clutter_interval_peek_initial_value (interval);
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_test_message ("\tinitial ['%s'] = '%.2f'",
                     g_type_name (G_VALUE_TYPE (initial)),
                     g_value_get_float (initial));
   g_assert (G_VALUE_HOLDS (initial, G_TYPE_FLOAT));
   g_assert_cmpfloat (g_value_get_float (initial), ==, 23.3f);
   final = clutter_interval_peek_final_value (interval);
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_test_message ("\tfinal ['%s'] = '%.2f'",
                     g_type_name (G_VALUE_TYPE (final)),
                     g_value_get_float (final));

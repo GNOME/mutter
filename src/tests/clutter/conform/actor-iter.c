@@ -40,7 +40,7 @@ actor_iter_traverse_children (void)
       g_assert (CLUTTER_IS_ACTOR (child));
       g_assert (clutter_actor_get_parent (child) == actor);
 
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("actor %d = '%s'\n", i, clutter_actor_get_name (child));
 
       if (i == 0)
@@ -63,7 +63,7 @@ actor_iter_traverse_children (void)
       g_assert (CLUTTER_IS_ACTOR (child));
       g_assert (clutter_actor_get_parent (child) == actor);
 
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("actor %d = '%s'\n", i, clutter_actor_get_name (child));
 
       if (i == 0)
@@ -115,7 +115,7 @@ actor_iter_traverse_remove (void)
       g_assert (CLUTTER_IS_ACTOR (child));
       g_assert (clutter_actor_get_parent (child) == actor);
 
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("actor %d = '%s'\n", i, clutter_actor_get_name (child));
 
       if (i == 0)
@@ -176,7 +176,7 @@ actor_iter_assignment (void)
       g_assert (CLUTTER_IS_ACTOR (child));
       g_assert (clutter_actor_get_parent (child) == actor);
 
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("actor %2d = '%s'\n", i, clutter_actor_get_name (child));
 
       if (i == 0)
@@ -196,7 +196,7 @@ actor_iter_assignment (void)
     {
       g_assert (clutter_actor_get_parent (child) == actor);
 
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("actor %2d = '%s'\n", i, clutter_actor_get_name (child));
 
       if (i == n_actors - 1)

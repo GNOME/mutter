@@ -15,7 +15,7 @@ actor_initial_state (void)
   g_object_ref_sink (actor);
   g_object_add_weak_pointer (G_OBJECT (actor), (gpointer *) &actor);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("initial state - visible: %s, realized: %s, mapped: %s\n",
              CLUTTER_ACTOR_IS_VISIBLE (actor) ? "yes" : "no",
              CLUTTER_ACTOR_IS_REALIZED (actor) ? "yes" : "no",
@@ -40,7 +40,7 @@ actor_shown_not_parented (void)
 
   clutter_actor_show (actor);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("show without a parent - visible: %s, realized: %s, mapped: %s\n",
              CLUTTER_ACTOR_IS_VISIBLE (actor) ? "yes" : "no",
              CLUTTER_ACTOR_IS_REALIZED (actor) ? "yes" : "no",
@@ -92,7 +92,7 @@ actor_mapped (void)
 
   clutter_actor_add_child (stage, actor);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("adding to a container should map - "
              "visible: %s, realized: %s, mapped: %s\n",
              CLUTTER_ACTOR_IS_VISIBLE (actor) ? "yes" : "no",
@@ -105,7 +105,7 @@ actor_mapped (void)
 
   clutter_actor_hide (actor);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("hiding should unmap - "
              "visible: %s, realized: %s, mapped: %s\n",
              CLUTTER_ACTOR_IS_VISIBLE (actor) ? "yes" : "no",

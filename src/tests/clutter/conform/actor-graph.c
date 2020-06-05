@@ -408,7 +408,7 @@ actor_added (ClutterContainer *container,
   int *counter = data;
   ClutterActor *old_child;
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Adding actor '%s'\n", clutter_actor_get_name (child));
 
   old_child = clutter_actor_get_child_at_index (actor, 0);
@@ -425,7 +425,7 @@ actor_removed (ClutterContainer *container,
 {
   int *counter = data;
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Removing actor '%s'\n", clutter_actor_get_name (child));
 
   *counter += 1;

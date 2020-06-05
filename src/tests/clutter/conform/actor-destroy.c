@@ -39,7 +39,7 @@ test_destroy_add (ClutterContainer *container,
 {
   TestDestroy *self = TEST_DESTROY (container);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Adding '%s' (type:%s)\n",
              clutter_actor_get_name (actor),
              G_OBJECT_TYPE_NAME (actor));
@@ -54,7 +54,7 @@ test_destroy_remove (ClutterContainer *container,
 {
   TestDestroy *self = TEST_DESTROY (container);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Removing '%s' (type:%s)\n",
              clutter_actor_get_name (actor),
              G_OBJECT_TYPE_NAME (actor));
@@ -81,7 +81,7 @@ test_destroy_destroy (ClutterActor *self)
 
   if (test->bg != NULL)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("Destroying '%s' (type:%s)\n",
                  clutter_actor_get_name (test->bg),
                  G_OBJECT_TYPE_NAME (test->bg));
@@ -92,7 +92,7 @@ test_destroy_destroy (ClutterActor *self)
 
   if (test->label != NULL)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("Destroying '%s' (type:%s)\n",
                  clutter_actor_get_name (test->label),
                  G_OBJECT_TYPE_NAME (test->label));
@@ -174,7 +174,7 @@ actor_destruction (void)
   g_object_add_weak_pointer (G_OBJECT (test), (gpointer *) &test);
   g_object_add_weak_pointer (G_OBJECT (child), (gpointer *) &child);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Adding external child...\n");
 
   clutter_actor_set_name (child, "Child");
@@ -184,7 +184,7 @@ actor_destruction (void)
   g_signal_connect (child, "notify", G_CALLBACK (on_notify), &property_changed);
   g_signal_connect (child, "destroy", G_CALLBACK (on_destroy), &destroy_called);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("Calling destroy()...\n");
 
   clutter_actor_destroy (test);

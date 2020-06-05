@@ -107,7 +107,7 @@ check_result (CallbackData *data)
 
   if (g_strcmp0 (expected_text, text) != 0)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("text value differs %s vs %s\n", expected_text, text);
       fail = TRUE;
     }
@@ -116,7 +116,7 @@ check_result (CallbackData *data)
   expected_char = g_utf8_get_char (g_utf8_offset_to_pointer (text,  data->offset));
   if (expected_char != unichar)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("text af offset differs\n");
       fail = TRUE;
     }
@@ -125,25 +125,25 @@ check_result (CallbackData *data)
                                   ATK_XY_WINDOW);
   if (x != data->extents_x)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("extents x position at index 0 differs (current value=%d)\n", x);
       fail = TRUE;
     }
   if (y != data->extents_y)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("extents y position at index 0 differs (current value=%d)\n", y);
       fail = TRUE;
     }
   if (width != data->extents_width)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("extents width at index 0 differs (current value=%d)\n", width);
       fail = TRUE;
     }
   if (height != data->extents_height)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("extents height at index 0 differs (current value=%d)\n", height);
       fail = TRUE;
     }
@@ -151,7 +151,7 @@ check_result (CallbackData *data)
   pos = atk_text_get_offset_at_point (cally_text, x, y, ATK_XY_WINDOW);
   if (pos != data->offset)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("offset at position (%d, %d) differs (current value=%d)\n", x,
                  y, pos);
       fail = TRUE;
@@ -161,20 +161,20 @@ check_result (CallbackData *data)
                                         &start, &end);
   if (start != 0)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
           g_print ("run attributes start offset is not 0: %d\n", start);
       fail = TRUE;
     }
   if (end != g_utf8_strlen (text, -1))
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
           g_print ("run attributes end offset is not text length: %d\n", end);
       fail = TRUE;
     }
 
   attrs = (GSList*) at_set;
   fail = compare_lists (attrs, data->run_attributes);
-  if (fail && g_test_verbose ())
+  if (fail && !g_test_quiet ())
     {
       g_print ("run attributes mismatch\n");
       dump_attribute_set (attrs);
@@ -183,7 +183,7 @@ check_result (CallbackData *data)
   at_set = atk_text_get_default_attributes (cally_text);
   attrs = (GSList*) at_set;
   fail = compare_lists (attrs, data->default_attributes);
-  if (fail && g_test_verbose ())
+  if (fail && !g_test_quiet ())
     {
       g_print ("default attributes mismatch\n");
       dump_attribute_set (attrs);
@@ -194,11 +194,11 @@ check_result (CallbackData *data)
 
   if (fail)
     {
-      if (g_test_verbose ())
+      if (!g_test_quiet ())
         g_print ("FAIL\n");
       data->test_failed = TRUE;
     }
-  else if (g_test_verbose ())
+  else if (!g_test_quiet ())
     g_print ("pass\n");
 
   return fail;
@@ -319,10 +319,10 @@ cally_text (void)
 
   clutter_actor_destroy (data.stage);
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     g_print ("\nOverall result: ");
 
-  if (g_test_verbose ())
+  if (!g_test_quiet ())
     {
       if (data.test_failed)
         g_print ("FAIL\n");
