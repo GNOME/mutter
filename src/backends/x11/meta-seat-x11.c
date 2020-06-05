@@ -19,7 +19,9 @@
 #include "config.h"
 
 #include <X11/extensions/XInput2.h>
+#include <X11/extensions/XKB.h>
 
+#include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
 #include "backends/x11/meta-input-device-tool-x11.h"
 #include "backends/x11/meta-input-device-x11.h"
@@ -44,6 +46,15 @@ enum
   PROP_TOUCH_MODE,
 };
 
+typedef struct _MetaTouchInfo MetaTouchInfo;
+
+struct _MetaTouchInfo
+{
+  ClutterEventSequence *sequence;
+  double x;
+  double y;
+};
+
 struct _MetaSeatX11
 {
   ClutterSeat parent_instance;
@@ -52,6 +63,7 @@ struct _MetaSeatX11
   GList *devices;
   GHashTable *devices_by_id;
   GHashTable *tools_by_serial;
+  GHashTable *touch_coords;
   MetaKeymapX11 *keymap;
 
   int pointer_id;
@@ -1500,6 +1512,7 @@ meta_seat_x11_finalize (GObject *object)
 
   g_hash_table_unref (seat_x11->devices_by_id);
   g_hash_table_unref (seat_x11->tools_by_serial);
+  g_hash_table_unref (seat_x11->touch_coords);
   g_list_free (seat_x11->devices);
 
   G_OBJECT_CLASS (meta_seat_x11_parent_class)->finalize (object);
@@ -1598,6 +1611,140 @@ meta_seat_x11_warp_pointer (ClutterSeat *seat,
                  x, y);
 }
 
+static uint32_t
+translate_state (XIButtonState   *button_state,
+                 XIModifierState *modifier_state,
+                 XIGroupState    *group_state)
+{
+  uint32_t state = 0;
+  int i;
+
+  if (modifier_state)
+    state |= modifier_state->effective;
+
+  if (button_state)
+    {
+      for (i = 1; i < XIMaskLen (button_state->mask_len); i++)
+        {
+          if (!XIMaskIsSet (button_state->mask, i))
+            continue;
+
+          switch (i)
+            {
+            case 1:
+              state |= CLUTTER_BUTTON1_MASK;
+              break;
+            case 2:
+              state |= CLUTTER_BUTTON2_MASK;
+              break;
+            case 3:
+              state |= CLUTTER_BUTTON3_MASK;
+              break;
+            case 8:
+              state |= CLUTTER_BUTTON4_MASK;
+              break;
+            case 9:
+              state |= CLUTTER_BUTTON5_MASK;
+              break;
+            default:
+              break;
+            }
+        }
+    }
+
+  if (group_state)
+    state = XkbBuildCoreState (group_state->effective, state);
+
+  return state;
+}
+
+static gboolean
+meta_seat_x11_query_state (ClutterSeat          *seat,
+                           ClutterInputDevice   *device,
+                           ClutterEventSequence *sequence,
+                           graphene_point_t     *coords,
+                           ClutterModifierType  *modifiers)
+{
+  MetaBackendX11 *backend_x11 = META_BACKEND_X11 (meta_get_backend ());
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  Window root_ret, child_ret;
+  double root_x, root_y, win_x, win_y;
+  XIButtonState button_state;
+  XIModifierState modifier_state;
+  XIGroupState group_state;
+
+  clutter_x11_trap_x_errors ();
+  XIQueryPointer (clutter_x11_get_default_display (),
+                  seat_x11->pointer_id,
+                  meta_backend_x11_get_xwindow (backend_x11),
+                  &root_ret, &child_ret,
+                  &root_x, &root_y, &win_x, &win_y,
+                  &button_state, &modifier_state, &group_state);
+  if (clutter_x11_untrap_x_errors ())
+    return FALSE;
+
+  if (sequence)
+    {
+      MetaTouchInfo *touch_info;
+
+      touch_info = g_hash_table_lookup (seat_x11->touch_coords, sequence);
+      if (!touch_info)
+        return FALSE;
+
+      if (coords)
+        {
+          coords->x = touch_info->x;
+          coords->y = touch_info->y;
+        }
+    }
+  else
+    {
+      if (coords)
+        {
+          coords->x = win_x;
+          coords->y = win_y;
+        }
+    }
+
+  if (modifiers)
+    *modifiers = translate_state (&button_state, &modifier_state, &group_state);
+
+  return TRUE;
+}
+
+static void
+meta_seat_x11_update_touchpoint (MetaSeatX11          *seat,
+                                 ClutterEventSequence *sequence,
+                                 double                x,
+                                 double                y)
+{
+  MetaTouchInfo *touch_info;
+
+  touch_info = g_hash_table_lookup (seat->touch_coords, sequence);
+  if (!touch_info)
+    {
+      touch_info = g_new0 (MetaTouchInfo, 1);
+      touch_info->sequence = sequence;
+      g_hash_table_insert (seat->touch_coords, sequence, touch_info);
+    }
+
+  touch_info->x = x;
+  touch_info->y = y;
+}
+
+static void
+meta_seat_x11_remove_touchpoint (MetaSeatX11          *seat,
+                                 ClutterEventSequence *sequence)
+{
+  g_hash_table_remove (seat->touch_coords, sequence);
+}
+
+static void
+meta_touch_info_free (MetaTouchInfo *touch_info)
+{
+  g_free (touch_info);
+}
+
 static void
 meta_seat_x11_class_init (MetaSeatX11Class *klass)
 {
@@ -1621,6 +1768,7 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->get_supported_virtual_device_types = meta_seat_x11_get_supported_virtual_device_types;
   seat_class->warp_pointer = meta_seat_x11_warp_pointer;
   seat_class->handle_device_event = meta_seat_x11_handle_device_event;
+  seat_class->query_state = meta_seat_x11_query_state;
 
   props[PROP_OPCODE] =
     g_param_spec_int ("opcode",
@@ -1658,6 +1806,8 @@ meta_seat_x11_init (MetaSeatX11 *seat)
                                                (GDestroyNotify) g_object_unref);
   seat->tools_by_serial = g_hash_table_new_full (NULL, NULL, NULL,
                                                  (GDestroyNotify) g_object_unref);
+  seat->touch_coords = g_hash_table_new_full (NULL, NULL, NULL,
+                                              (GDestroyNotify) meta_touch_info_free);
 }
 
 MetaSeatX11 *
@@ -2162,6 +2312,15 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
             event->touch.modifier_state |= CLUTTER_BUTTON1_MASK;
 
             meta_stage_x11_set_user_time (stage_x11, event->touch.time);
+            meta_seat_x11_update_touchpoint (seat,
+                                             GUINT_TO_POINTER (xev->detail),
+                                             xev->root_x,
+                                             xev->root_y);
+          }
+        else if (xi_event->evtype == XI_TouchEnd)
+          {
+            meta_seat_x11_remove_touchpoint (seat,
+                                             GUINT_TO_POINTER (xev->detail));
           }
 
         event->touch.sequence = GUINT_TO_POINTER (xev->detail);
@@ -2215,6 +2374,11 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
 
         if (xev->flags & XITouchEmulatingPointer)
           _clutter_event_set_pointer_emulated (event, TRUE);
+
+        meta_seat_x11_update_touchpoint (seat,
+                                         event->touch.sequence,
+                                         xev->root_x,
+                                         xev->root_y);
 
         g_debug ("touch update: win:0x%x device:%d '%s' (seq:%d, x:%.2f, y:%.2f, axes:%s)",
                  (unsigned int) stage_x11->xwin,
