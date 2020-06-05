@@ -59,12 +59,6 @@ typedef void (* MetaPointerConstrainCallback) (ClutterInputDevice *device,
                                                float              *x,
                                                float              *y,
                                                gpointer            user_data);
-typedef void (* MetaRelativeMotionFilter) (ClutterInputDevice *device,
-                                           float               x,
-                                           float               y,
-                                           float              *dx,
-                                           float              *dy,
-                                           gpointer            user_data);
 
 struct _MetaTouchState
 {
@@ -114,9 +108,6 @@ struct _MetaSeatNative
   MetaPointerConstrainCallback constrain_callback;
   gpointer constrain_data;
   GDestroyNotify constrain_data_notify;
-
-  MetaRelativeMotionFilter relative_motion_filter;
-  gpointer relative_motion_filter_user_data;
 
   MetaKeymapNative *keymap;
 
@@ -269,10 +260,6 @@ void  meta_seat_native_set_pointer_constrain_callback (MetaSeatNative           
                                                        MetaPointerConstrainCallback  callback,
                                                        gpointer                      user_data,
                                                        GDestroyNotify                user_data_notify);
-
-void meta_seat_native_set_relative_motion_filter (MetaSeatNative           *seat,
-                                                  MetaRelativeMotionFilter  filter,
-                                                  gpointer                  user_data);
 
 struct xkb_state * meta_seat_native_get_xkb_state (MetaSeatNative *seat);
 
