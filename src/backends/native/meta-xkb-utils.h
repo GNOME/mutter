@@ -35,5 +35,7 @@ ClutterEvent *    meta_key_event_new_from_evdev (ClutterInputDevice *device,
 void               meta_xkb_translate_state     (ClutterEvent       *event,
                                                  struct xkb_state   *xkb_state,
                                                  uint32_t            button_state);
+uint32_t           meta_xkb_translate_modifiers (struct xkb_state *state,
+                                                 uint32_t          button_state);
 
 #endif /* META_XKB_UTILS_H */

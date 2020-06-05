@@ -106,3 +106,10 @@ meta_xkb_translate_state (ClutterEvent     *event,
                                  xkb_state_serialize_mods (state, XKB_STATE_MODS_LOCKED),
                                  xkb_state_serialize_mods (state, XKB_STATE_MODS_EFFECTIVE) | button_state);
 }
+
+uint32_t
+meta_xkb_translate_modifiers (struct xkb_state *state,
+                              uint32_t          button_state)
+{
+  return xkb_state_serialize_mods (state, XKB_STATE_MODS_EFFECTIVE) | button_state;
+}
