@@ -15,10 +15,11 @@
 /* We are at the mercy of the system scheduler so this
  * may not be a very reliable tolerance.
  *
- * It's set as very tolerable as otherwise CI, which are
- * very prone to not get CPU time scheduled, tend to often fail.
+ * It's set as very tolerable (1 ms shorter than the frame interval) as
+ * otherwise CI, which are very prone to not get CPU time scheduled, tend to
+ * often fail.
  */
-#define TEST_ERROR_TOLERANCE 150
+#define TEST_ERROR_TOLERANCE ((TEST_TIMELINE_FPS / 4) - 1)
 
 typedef struct _TestState
 {
