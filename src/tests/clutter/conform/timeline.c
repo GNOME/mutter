@@ -6,7 +6,7 @@
 
 #include "tests/clutter-test-utils.h"
 
-/* This test runs three timelines at 10 fps with 10 frames. Some of
+/* This test runs three timelines at 6 fps with 10 frames. Some of
    the timelines have markers. Once the timelines are run it then
    checks that all of the frames were hit, all of the markers were hit
    and that the completed signal was fired. The timelines are then run
@@ -16,7 +16,7 @@
    for. */
 
 #define FRAME_COUNT 10
-#define FPS         10
+#define FPS         6
 
 typedef struct _TimelineData TimelineData;
 
