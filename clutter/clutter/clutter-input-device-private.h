@@ -120,9 +120,6 @@ struct _ClutterInputDevice
   /* the current click count */
   int click_count;
 
-  /* the stage the device is on */
-  ClutterStage *stage;
-
   /* the current state */
   float current_x;
   float current_y;
@@ -178,14 +175,10 @@ CLUTTER_EXPORT
 void clutter_input_device_update_from_tool (ClutterInputDevice     *device,
                                             ClutterInputDeviceTool *tool);
 CLUTTER_EXPORT
-void _clutter_input_device_set_stage (ClutterInputDevice *device,
-                                      ClutterStage       *stage);
-CLUTTER_EXPORT
 void _clutter_input_device_set_coords (ClutterInputDevice   *device,
                                        ClutterEventSequence *sequence,
                                        gfloat                x,
-                                       gfloat                y,
-                                       ClutterStage         *stage);
+                                       gfloat                y);
 CLUTTER_EXPORT
 void _clutter_input_device_set_state (ClutterInputDevice  *device,
                                       ClutterModifierType  state);
@@ -257,8 +250,7 @@ ClutterInputDeviceTool *
 
 CLUTTER_EXPORT
 void clutter_input_device_update_from_event (ClutterInputDevice  *device,
-                                             ClutterEvent        *event,
-                                             gboolean             update_stage);
+                                             ClutterEvent        *event);
 CLUTTER_EXPORT
 gboolean clutter_input_device_keycode_to_evdev (ClutterInputDevice *device,
                                                 guint               hardware_keycode,
