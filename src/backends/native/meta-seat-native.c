@@ -1478,11 +1478,8 @@ evdev_add_device (MetaSeatNative         *seat,
 {
   ClutterInputDeviceType type;
   ClutterInputDevice *device, *logical = NULL;
-  ClutterActor *stage;
 
   device = meta_input_device_native_new (seat, libinput_device);
-  stage = CLUTTER_ACTOR (meta_seat_native_get_stage (seat));
-  _clutter_input_device_set_stage (device, CLUTTER_STAGE (stage));
 
   seat->devices = g_slist_prepend (seat->devices, device);
 
@@ -2495,7 +2492,6 @@ meta_seat_native_constructed (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
   ClutterInputDevice *device;
-  ClutterStage *stage;
   MetaEventSource *source;
   struct udev *udev;
   struct xkb_keymap *xkb_keymap;
@@ -2503,8 +2499,6 @@ meta_seat_native_constructed (GObject *object)
   device = meta_input_device_native_new_virtual (
       seat, CLUTTER_POINTER_DEVICE,
       CLUTTER_INPUT_MODE_LOGICAL);
-  stage = meta_seat_native_get_stage (seat);
-  _clutter_input_device_set_stage (device, stage);
   seat->pointer_x = INITIAL_POINTER_X;
   seat->pointer_y = INITIAL_POINTER_Y;
   _clutter_input_device_set_coords (device, NULL,
@@ -2515,7 +2509,6 @@ meta_seat_native_constructed (GObject *object)
   device = meta_input_device_native_new_virtual (
       seat, CLUTTER_KEYBOARD_DEVICE,
       CLUTTER_INPUT_MODE_LOGICAL);
-  _clutter_input_device_set_stage (device, stage);
   seat->core_keyboard = device;
 
   udev = udev_new ();
@@ -2956,14 +2949,10 @@ meta_seat_native_set_stage (MetaSeatNative *seat,
     return;
 
   seat->stage = stage;
-  _clutter_input_device_set_stage (seat->core_pointer, stage);
-  _clutter_input_device_set_stage (seat->core_keyboard, stage);
 
   for (l = seat->devices; l; l = l->next)
     {
       ClutterInputDevice *device = l->data;
-
-      _clutter_input_device_set_stage (device, stage);
 
       if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_PHYSICAL)
         {
