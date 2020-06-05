@@ -1001,9 +1001,9 @@ clutter_input_device_get_coords (ClutterInputDevice   *device,
 ClutterActor *
 clutter_input_device_update (ClutterInputDevice   *device,
                              ClutterEventSequence *sequence,
+                             ClutterStage         *stage,
                              gboolean              emit_crossing)
 {
-  ClutterStage *stage;
   ClutterActor *new_cursor_actor;
   ClutterActor *old_cursor_actor;
   graphene_point_t point = GRAPHENE_POINT_INIT (-1.0f, -1.0f);
@@ -1011,15 +1011,6 @@ clutter_input_device_update (ClutterInputDevice   *device,
 
   g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
             device_type != CLUTTER_PAD_DEVICE);
-
-  stage = device->stage;
-  if (G_UNLIKELY (stage == NULL))
-    {
-      CLUTTER_NOTE (EVENT, "No stage defined for device %d '%s'",
-                    clutter_input_device_get_device_id (device),
-                    clutter_input_device_get_device_name (device));
-      return NULL;
-    }
 
   clutter_input_device_get_coords (device, sequence, &point);
 

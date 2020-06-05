@@ -1281,7 +1281,7 @@ clutter_stage_update_devices (ClutterStage *stage,
   for (l = devices; l; l = l->next)
     {
       ClutterInputDevice *device = l->data;
-      clutter_input_device_update (device, NULL, TRUE);
+      clutter_input_device_update (device, NULL, stage, TRUE);
     }
 }
 
