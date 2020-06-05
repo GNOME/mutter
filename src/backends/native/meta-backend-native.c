@@ -137,120 +137,6 @@ pointer_constrain_callback (ClutterInputDevice *device,
   constrain_to_client_constraint (device, time, prev_x, prev_y, new_x, new_y);
 }
 
-static void
-relative_motion_across_outputs (MetaMonitorManager *monitor_manager,
-                                MetaLogicalMonitor *current,
-                                float               cur_x,
-                                float               cur_y,
-                                float              *dx_inout,
-                                float              *dy_inout)
-{
-  MetaLogicalMonitor *cur = current;
-  float x = cur_x, y = cur_y;
-  float target_x = cur_x, target_y = cur_y;
-  float dx = *dx_inout, dy = *dy_inout;
-  MetaDisplayDirection direction = -1;
-
-  while (cur)
-    {
-      MetaLine2 left, right, top, bottom, motion;
-      MetaVector2 intersection;
-
-      motion = (MetaLine2) {
-          .a = { x, y },
-            .b = { x + (dx * cur->scale), y + (dy * cur->scale) }
-      };
-      left = (MetaLine2) {
-            { cur->rect.x, cur->rect.y },
-              { cur->rect.x, cur->rect.y + cur->rect.height }
-      };
-      right = (MetaLine2) {
-            { cur->rect.x + cur->rect.width, cur->rect.y },
-              { cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height }
-      };
-      top = (MetaLine2) {
-            { cur->rect.x, cur->rect.y },
-              { cur->rect.x + cur->rect.width, cur->rect.y }
-      };
-      bottom = (MetaLine2) {
-            { cur->rect.x, cur->rect.y + cur->rect.height },
-              { cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height }
-      };
-
-      target_x = motion.b.x;
-      target_y = motion.b.y;
-
-      if (direction != META_DISPLAY_RIGHT &&
-          meta_line2_intersects_with (&motion, &left, &intersection))
-        direction = META_DISPLAY_LEFT;
-      else if (direction != META_DISPLAY_LEFT &&
-               meta_line2_intersects_with (&motion, &right, &intersection))
-        direction = META_DISPLAY_RIGHT;
-      else if (direction != META_DISPLAY_DOWN &&
-               meta_line2_intersects_with (&motion, &top, &intersection))
-        direction = META_DISPLAY_UP;
-      else if (direction != META_DISPLAY_UP &&
-               meta_line2_intersects_with (&motion, &bottom, &intersection))
-        direction = META_DISPLAY_DOWN;
-      else
-        /* We reached the dest logical monitor */
-        break;
-
-      x = intersection.x;
-      y = intersection.y;
-      dx -= intersection.x - motion.a.x;
-      dy -= intersection.y - motion.a.y;
-
-      cur = meta_monitor_manager_get_logical_monitor_neighbor (monitor_manager,
-                                                               cur, direction);
-    }
-
-  *dx_inout = target_x - cur_x;
-  *dy_inout = target_y - cur_y;
-}
-
-static void
-relative_motion_filter (ClutterInputDevice *device,
-                        float               x,
-                        float               y,
-                        float              *dx,
-                        float              *dy,
-                        gpointer            user_data)
-{
-  MetaMonitorManager *monitor_manager = user_data;
-  MetaLogicalMonitor *logical_monitor, *dest_logical_monitor;
-  float new_dx, new_dy;
-
-  if (meta_is_stage_views_scaled ())
-    return;
-
-  logical_monitor = meta_monitor_manager_get_logical_monitor_at (monitor_manager,
-                                                                 x, y);
-  if (!logical_monitor)
-    return;
-
-  new_dx = (*dx) * logical_monitor->scale;
-  new_dy = (*dy) * logical_monitor->scale;
-
-  dest_logical_monitor = meta_monitor_manager_get_logical_monitor_at (monitor_manager,
-                                                                      x + new_dx,
-                                                                      y + new_dy);
-  if (dest_logical_monitor &&
-      dest_logical_monitor != logical_monitor)
-    {
-      /* If we are crossing monitors, attempt to bisect the distance on each
-       * axis and apply the relative scale for each of them.
-       */
-      new_dx = *dx;
-      new_dy = *dy;
-      relative_motion_across_outputs (monitor_manager, logical_monitor,
-                                      x, y, &new_dx, &new_dy);
-    }
-
-  *dx = new_dx;
-  *dy = new_dy;
-}
-
 static ClutterBackend *
 meta_backend_native_create_clutter_backend (MetaBackend *backend)
 {
@@ -302,9 +188,6 @@ meta_backend_native_post_init (MetaBackend *backend)
   meta_seat_native_set_pointer_constrain_callback (META_SEAT_NATIVE (seat),
                                                    pointer_constrain_callback,
                                                    NULL, NULL);
-  meta_seat_native_set_relative_motion_filter (META_SEAT_NATIVE (seat),
-                                               relative_motion_filter,
-                                               meta_backend_get_monitor_manager (backend));
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
 
