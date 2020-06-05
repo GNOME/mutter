@@ -749,3 +749,20 @@ clutter_seat_get_touch_mode (ClutterSeat *seat)
 
   return touch_mode;
 }
+
+gboolean
+clutter_seat_query_state (ClutterSeat          *seat,
+                          ClutterInputDevice   *device,
+                          ClutterEventSequence *sequence,
+                          graphene_point_t     *coords,
+                          ClutterModifierType  *modifiers)
+{
+  g_return_val_if_fail (CLUTTER_IS_SEAT (seat), FALSE);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
+
+  return CLUTTER_SEAT_GET_CLASS (seat)->query_state (seat,
+                                                     device,
+                                                     sequence,
+                                                     coords,
+                                                     modifiers);
+}
