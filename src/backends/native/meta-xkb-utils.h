@@ -27,7 +27,6 @@
 
 ClutterEvent *    meta_key_event_new_from_evdev (ClutterInputDevice *device,
                                                  ClutterInputDevice *core_keyboard,
-                                                 ClutterStage       *stage,
                                                  struct xkb_state   *xkb_state,
                                                  uint32_t            button_state,
                                                  uint32_t            _time,
