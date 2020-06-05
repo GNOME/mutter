@@ -152,6 +152,7 @@ owner_changed_cb (MetaSelection       *selection,
                                                     display->saved_clipboard);
       g_set_object (&display->selection_source, new_owner);
       meta_selection_set_owner (selection, selection_type, new_owner);
+      g_object_unref (new_owner);
     }
 }
 
