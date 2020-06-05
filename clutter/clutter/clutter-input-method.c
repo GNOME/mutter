@@ -286,14 +286,14 @@ clutter_input_method_put_im_event (ClutterInputMethod *im,
 {
   ClutterInputDevice *keyboard;
   ClutterSeat *seat;
+  ClutterStageManager *stage_manager;
   ClutterStage *stage;
   ClutterEvent *event;
 
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
   keyboard = clutter_seat_get_keyboard (seat);
-  stage = _clutter_input_device_get_stage (keyboard);
-  if (stage == NULL)
-    return;
+  stage_manager = clutter_stage_manager_get_default ();
+  stage = clutter_stage_manager_get_default_stage (stage_manager);
 
   event = clutter_event_new (event_type);
   event->im.text = g_strdup (text);
@@ -474,6 +474,7 @@ clutter_input_method_forward_key (ClutterInputMethod *im,
   ClutterInputMethodPrivate *priv;
   ClutterInputDevice *keyboard;
   ClutterSeat *seat;
+  ClutterStageManager *stage_manager;
   ClutterStage *stage;
   ClutterEvent *event;
 
@@ -484,10 +485,9 @@ clutter_input_method_forward_key (ClutterInputMethod *im,
     return;
 
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  stage_manager = clutter_stage_manager_get_default ();
+  stage = clutter_stage_manager_get_default_stage (stage_manager);
   keyboard = clutter_seat_get_keyboard (seat);
-  stage = _clutter_input_device_get_stage (keyboard);
-  if (stage == NULL)
-    return;
 
   event = clutter_event_new (press ? CLUTTER_KEY_PRESS : CLUTTER_KEY_RELEASE);
   event->key.time = time_;
