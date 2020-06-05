@@ -113,6 +113,12 @@ struct _ClutterSeatClass
                          int          x,
                          int          y);
 
+  gboolean (* query_state) (ClutterSeat          *seat,
+                            ClutterInputDevice   *device,
+                            ClutterEventSequence *sequence,
+                            graphene_point_t     *coords,
+                            ClutterModifierType  *modifiers);
+
   /* Event platform data */
   void (* copy_event_data) (ClutterSeat        *seat,
                             const ClutterEvent *src,
@@ -196,5 +202,12 @@ gboolean clutter_seat_get_touch_mode (ClutterSeat *seat);
 
 CLUTTER_EXPORT
 gboolean clutter_seat_has_touchscreen (ClutterSeat *seat);
+
+CLUTTER_EXPORT
+gboolean clutter_seat_query_state (ClutterSeat          *seat,
+                                   ClutterInputDevice   *device,
+                                   ClutterEventSequence *sequence,
+                                   graphene_point_t     *coords,
+                                   ClutterModifierType  *modifiers);
 
 #endif /* CLUTTER_SEAT_H */
