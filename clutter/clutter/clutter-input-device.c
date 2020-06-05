@@ -655,20 +655,6 @@ _clutter_input_device_set_stage (ClutterInputDevice *device,
    */
 }
 
-/*< private >
- * clutter_input_device_get_stage:
- * @device: a #ClutterInputDevice
- *
- * Retrieves the stage currently associated with @device.
- *
- * Return value: The stage currently associated with @device.
- */
-ClutterStage *
-_clutter_input_device_get_stage (ClutterInputDevice *device)
-{
-  return device->stage;
-}
-
 static void
 _clutter_input_device_free_touch_info (gpointer data)
 {
@@ -1084,25 +1070,6 @@ clutter_input_device_get_actor (ClutterInputDevice   *device,
   g_return_val_if_fail (info != NULL, NULL);
 
   return info->actor;
-}
-
-/**
- * clutter_input_device_get_pointer_stage:
- * @device: a #ClutterInputDevice of type %CLUTTER_POINTER_DEVICE
- *
- * Retrieves the #ClutterStage underneath the pointer of @device
- *
- * Return value: (transfer none): a pointer to the #ClutterStage or %NULL
- *
- * Since: 1.2
- */
-ClutterStage *
-clutter_input_device_get_pointer_stage (ClutterInputDevice *device)
-{
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-  g_return_val_if_fail (device->device_type == CLUTTER_POINTER_DEVICE, NULL);
-
-  return device->stage;
 }
 
 /**

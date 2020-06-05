@@ -178,8 +178,6 @@ CLUTTER_EXPORT
 void clutter_input_device_update_from_tool (ClutterInputDevice     *device,
                                             ClutterInputDeviceTool *tool);
 CLUTTER_EXPORT
-ClutterStage * _clutter_input_device_get_stage (ClutterInputDevice *device);
-CLUTTER_EXPORT
 void _clutter_input_device_set_stage (ClutterInputDevice *device,
                                       ClutterStage       *stage);
 CLUTTER_EXPORT
