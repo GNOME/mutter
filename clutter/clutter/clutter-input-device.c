@@ -515,7 +515,7 @@ clutter_input_device_init (ClutterInputDevice *self)
   self->current_x = self->previous_x = -1;
   self->current_y = self->previous_y = -1;
   self->current_button_number = self->previous_button_number = -1;
-  self->current_state = self->previous_state = 0;
+  self->current_state = 0;
 
   self->touch_sequences_info =
     g_hash_table_new_full (NULL, NULL,
