@@ -204,8 +204,7 @@ CLUTTER_EXPORT
 gboolean clutter_seat_query_state (ClutterSeat          *seat,
                                    ClutterInputDevice   *device,
                                    ClutterEventSequence *sequence,
-                                   double               *x,
-                                   double               *y,
+                                   graphene_point_t     *coords,
                                    ClutterModifierType  *modifiers);
 
 #endif /* CLUTTER_SEAT_H */
