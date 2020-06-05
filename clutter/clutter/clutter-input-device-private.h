@@ -196,6 +196,7 @@ void _clutter_input_device_set_time (ClutterInputDevice *device,
                                      guint32             time_);
 void _clutter_input_device_set_actor (ClutterInputDevice   *device,
                                       ClutterEventSequence *sequence,
+                                      ClutterStage         *stage,
                                       ClutterActor         *actor,
                                       gboolean              emit_crossing);
 CLUTTER_EXPORT

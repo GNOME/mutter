@@ -781,6 +781,7 @@ on_cursor_actor_reactive_changed (ClutterActor       *actor,
 void
 _clutter_input_device_set_actor (ClutterInputDevice   *device,
                                  ClutterEventSequence *sequence,
+                                 ClutterStage         *stage,
                                  ClutterActor         *actor,
                                  gboolean              emit_crossing)
 {
@@ -800,7 +801,7 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
           event = clutter_event_new (CLUTTER_LEAVE);
           event->crossing.time = device->current_time;
           event->crossing.flags = 0;
-          event->crossing.stage = device->stage;
+          event->crossing.stage = stage;
           event->crossing.source = old_actor;
           event->crossing.x = device->current_x;
           event->crossing.y = device->current_y;
@@ -837,7 +838,7 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
           event = clutter_event_new (CLUTTER_ENTER);
           event->crossing.time = device->current_time;
           event->crossing.flags = 0;
-          event->crossing.stage = device->stage;
+          event->crossing.stage = stage;
           event->crossing.x = device->current_x;
           event->crossing.y = device->current_y;
           event->crossing.source = actor;
@@ -1038,6 +1039,7 @@ clutter_input_device_update (ClutterInputDevice   *device,
     return old_cursor_actor;
 
   _clutter_input_device_set_actor (device, sequence,
+                                   stage,
                                    new_cursor_actor,
                                    emit_crossing);
 
@@ -1667,12 +1669,14 @@ _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
     {
       GList *sequences =
         g_hash_table_lookup (device->inv_touch_sequence_actors, info->actor);
+      ClutterStage *stage =
+        CLUTTER_STAGE (clutter_actor_get_stage (info->actor));
 
       sequences = g_list_remove (sequences, sequence);
 
       g_hash_table_replace (device->inv_touch_sequence_actors,
                             info->actor, sequences);
-      _clutter_input_device_set_actor (device, sequence, NULL, TRUE);
+      _clutter_input_device_set_actor (device, sequence, stage, NULL, TRUE);
     }
 
   g_hash_table_remove (device->touch_sequences_info, sequence);
