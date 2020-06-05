@@ -511,7 +511,7 @@ clutter_input_device_init (ClutterInputDevice *self)
 
   self->click_count = 0;
 
-  self->current_time = self->previous_time = CLUTTER_CURRENT_TIME;
+  self->previous_time = CLUTTER_CURRENT_TIME;
   self->current_x = self->previous_x = -1;
   self->current_y = self->previous_y = -1;
   self->current_button_number = self->previous_button_number = -1;
@@ -608,23 +608,6 @@ clutter_input_device_get_modifier_state (ClutterInputDevice *device)
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), 0);
 
   return device->current_state;
-}
-
-/*< private >
- * clutter_input_device_set_time:
- * @device: a #ClutterInputDevice
- * @time_: the time
- *
- * Stores the last known event time of the device
- */
-void
-_clutter_input_device_set_time (ClutterInputDevice *device,
-                                guint32             time_)
-{
-  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
-
-  if (device->current_time != time_)
-    device->current_time = time_;
 }
 
 static void
@@ -1172,19 +1155,16 @@ clutter_input_device_update_from_event (ClutterInputDevice *device,
   ClutterModifierType event_state;
   ClutterEventSequence *sequence;
   gfloat event_x, event_y;
-  guint32 event_time;
 
   g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
   g_return_if_fail (event != NULL);
 
   event_state = clutter_event_get_state (event);
-  event_time = clutter_event_get_time (event);
   sequence = clutter_event_get_event_sequence (event);
   clutter_event_get_coords (event, &event_x, &event_y);
 
   _clutter_input_device_set_coords (device, sequence, event_x, event_y);
   _clutter_input_device_set_state (device, event_state);
-  _clutter_input_device_set_time (device, event_time);
 }
 
 /*< private >

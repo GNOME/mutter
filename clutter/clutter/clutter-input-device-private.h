@@ -123,7 +123,6 @@ struct _ClutterInputDevice
   /* the current state */
   float current_x;
   float current_y;
-  uint32_t current_time;
   int current_button_number;
   ClutterModifierType current_state;
 
@@ -182,9 +181,6 @@ void _clutter_input_device_set_coords (ClutterInputDevice   *device,
 CLUTTER_EXPORT
 void _clutter_input_device_set_state (ClutterInputDevice  *device,
                                       ClutterModifierType  state);
-CLUTTER_EXPORT
-void _clutter_input_device_set_time (ClutterInputDevice *device,
-                                     guint32             time_);
 CLUTTER_EXPORT
 ClutterActor * clutter_input_device_update (ClutterInputDevice   *device,
                                             ClutterEventSequence *sequence,

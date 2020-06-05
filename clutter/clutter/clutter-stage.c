@@ -1037,13 +1037,11 @@ _clutter_stage_queue_event (ClutterStage *stage,
       event->type != CLUTTER_PROXIMITY_OUT)
     {
       ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-      guint32 event_time = clutter_event_get_time (event);
       gfloat event_x, event_y;
 
       clutter_event_get_coords (event, &event_x, &event_y);
 
       _clutter_input_device_set_coords (device, sequence, event_x, event_y, stage);
-      _clutter_input_device_set_time (device, event_time);
     }
 
   if (first_event)
