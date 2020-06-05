@@ -171,6 +171,7 @@ meta_clipboard_manager_shutdown (MetaDisplay *display)
 {
   MetaSelection *selection;
 
+  g_clear_object (&display->selection_source);
   g_clear_pointer (&display->saved_clipboard, g_bytes_unref);
   g_clear_pointer (&display->saved_clipboard_mimetype, g_free);
   selection = meta_display_get_selection (display);
