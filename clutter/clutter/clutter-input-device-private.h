@@ -134,7 +134,6 @@ struct _ClutterInputDevice
   int previous_y;
   uint32_t previous_time;
   int previous_button_number;
-  ClutterModifierType previous_state;
 
   GArray *axes;
 
