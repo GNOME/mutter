@@ -2833,6 +2833,54 @@ meta_seat_native_warp_pointer (ClutterSeat *seat,
   meta_cursor_tracker_update_position (cursor_tracker, x, y);
 }
 
+static gboolean
+meta_seat_native_query_state (ClutterSeat          *seat,
+                              ClutterInputDevice   *device,
+                              ClutterEventSequence *sequence,
+                              graphene_point_t     *coords,
+                              ClutterModifierType  *modifiers)
+{
+  MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
+
+  if (sequence)
+    {
+      MetaTouchState *touch_state;
+      int slot;
+
+      slot = meta_event_native_sequence_get_slot (sequence);
+      touch_state = meta_seat_native_lookup_touch_state (seat_native, slot);
+      if (!touch_state)
+        return FALSE;
+
+      if (coords)
+        {
+          coords->x = touch_state->coords.x;
+          coords->y = touch_state->coords.y;
+        }
+
+      if (modifiers)
+        *modifiers = meta_xkb_translate_modifiers (seat_native->xkb, 0);
+
+      return TRUE;
+    }
+  else
+    {
+      if (coords)
+        {
+          coords->x = device->current_x;
+          coords->y = device->current_y;
+        }
+
+      if (modifiers)
+        {
+          *modifiers = meta_xkb_translate_modifiers (seat_native->xkb,
+                                                     seat_native->button_state);
+        }
+
+      return TRUE;
+    }
+}
+
 static void
 meta_seat_native_class_init (MetaSeatNativeClass *klass)
 {
@@ -2858,6 +2906,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->compress_motion = meta_seat_native_compress_motion;
   seat_class->warp_pointer = meta_seat_native_warp_pointer;
   seat_class->handle_device_event = meta_seat_native_handle_device_event;
+  seat_class->query_state = meta_seat_native_query_state;
 
   props[PROP_SEAT_ID] =
     g_param_spec_string ("seat-id",
