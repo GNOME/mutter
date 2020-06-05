@@ -735,12 +735,13 @@ on_cursor_actor_reactive_changed (ClutterActor       *actor,
  *   - set to %TRUE the :has-pointer property of the new pointer
  *     actor
  */
-void
+static void
 _clutter_input_device_set_actor (ClutterInputDevice   *device,
                                  ClutterEventSequence *sequence,
                                  ClutterStage         *stage,
                                  ClutterActor         *actor,
-                                 gboolean              emit_crossing)
+                                 gboolean              emit_crossing,
+                                 uint32_t              time_ms)
 {
   ClutterActor *old_actor = clutter_input_device_get_actor (device, sequence);
 
@@ -756,7 +757,7 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
           ClutterEvent *event;
 
           event = clutter_event_new (CLUTTER_LEAVE);
-          event->crossing.time = device->current_time;
+          event->crossing.time = time_ms;
           event->crossing.flags = 0;
           event->crossing.stage = stage;
           event->crossing.source = old_actor;
@@ -793,7 +794,7 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
           ClutterEvent *event;
 
           event = clutter_event_new (CLUTTER_ENTER);
-          event->crossing.time = device->current_time;
+          event->crossing.time = time_ms;
           event->crossing.flags = 0;
           event->crossing.stage = stage;
           event->crossing.x = device->current_x;
@@ -960,7 +961,8 @@ ClutterActor *
 clutter_input_device_update (ClutterInputDevice   *device,
                              ClutterEventSequence *sequence,
                              ClutterStage         *stage,
-                             gboolean              emit_crossing)
+                             gboolean              emit_crossing,
+                             uint32_t              time_ms)
 {
   ClutterActor *new_cursor_actor;
   ClutterActor *old_cursor_actor;
@@ -998,7 +1000,8 @@ clutter_input_device_update (ClutterInputDevice   *device,
   _clutter_input_device_set_actor (device, sequence,
                                    stage,
                                    new_cursor_actor,
-                                   emit_crossing);
+                                   emit_crossing,
+                                   time_ms);
 
   return new_cursor_actor;
 }
@@ -1603,7 +1606,8 @@ _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
 
       g_hash_table_replace (device->inv_touch_sequence_actors,
                             info->actor, sequences);
-      _clutter_input_device_set_actor (device, sequence, stage, NULL, TRUE);
+      _clutter_input_device_set_actor (device, sequence, stage, NULL, TRUE,
+                                       clutter_event_get_time (event));
     }
 
   g_hash_table_remove (device->touch_sequences_info, sequence);
