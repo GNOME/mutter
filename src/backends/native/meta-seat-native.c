@@ -902,6 +902,60 @@ constrain_to_barriers (MetaSeatNative     *seat,
                                        new_x, new_y);
 }
 
+/*
+ * The pointer constrain code is mostly a rip-off of the XRandR code from Xorg.
+ * (from xserver/randr/rrcrtc.c, RRConstrainCursorHarder)
+ *
+ * Copyright © 2006 Keith Packard
+ * Copyright 2010 Red Hat, Inc
+ *
+ */
+
+static void
+constrain_all_screen_monitors (ClutterInputDevice *device,
+                               MetaMonitorManager *monitor_manager,
+                               float              *x,
+                               float              *y)
+{
+  graphene_point_t current;
+  float cx, cy;
+  GList *logical_monitors, *l;
+
+  clutter_input_device_get_coords (device, NULL, &current);
+
+  cx = current.x;
+  cy = current.y;
+
+  /* if we're trying to escape, clamp to the CRTC we're coming from */
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  for (l = logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+      int left, right, top, bottom;
+
+      left = logical_monitor->rect.x;
+      right = left + logical_monitor->rect.width;
+      top = logical_monitor->rect.y;
+      bottom = top + logical_monitor->rect.height;
+
+      if ((cx >= left) && (cx < right) && (cy >= top) && (cy < bottom))
+        {
+          if (*x < left)
+            *x = left;
+          if (*x >= right)
+            *x = right - 1;
+          if (*y < top)
+            *y = top;
+          if (*y >= bottom)
+            *y = bottom - 1;
+
+          return;
+        }
+    }
+}
+
 void
 meta_seat_native_constrain_pointer (MetaSeatNative     *seat,
                                     ClutterInputDevice *core_pointer,
@@ -911,6 +965,10 @@ meta_seat_native_constrain_pointer (MetaSeatNative     *seat,
                                     float              *new_x,
                                     float              *new_y)
 {
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+
   /* Constrain to barriers */
   constrain_to_barriers (seat, core_pointer,
                          us2ms (time_us),
@@ -924,15 +982,14 @@ meta_seat_native_constrain_pointer (MetaSeatNative     *seat,
                                 new_x, new_y,
                                 seat->constrain_data);
     }
-  else
-    {
-      ClutterActor *stage = CLUTTER_ACTOR (meta_seat_native_get_stage (seat));
-      float stage_width = clutter_actor_get_width (stage);
-      float stage_height = clutter_actor_get_height (stage);
 
-      *new_x = CLAMP (*new_x, 0.f, stage_width - 1);
-      *new_y = CLAMP (*new_y, 0.f, stage_height - 1);
-    }
+  /* if we're moving inside a monitor, we're fine */
+  if (meta_monitor_manager_get_logical_monitor_at (monitor_manager,
+                                                   *new_x, *new_y))
+    return;
+
+  /* if we're trying to escape, clamp to the CRTC we're coming from */
+  constrain_all_screen_monitors (core_pointer, monitor_manager, new_x, new_y);
 }
 
 void

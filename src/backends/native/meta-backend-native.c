@@ -124,60 +124,6 @@ constrain_to_client_constraint (ClutterInputDevice *device,
                                      time, prev_x, prev_y, x, y);
 }
 
-/*
- * The pointer constrain code is mostly a rip-off of the XRandR code from Xorg.
- * (from xserver/randr/rrcrtc.c, RRConstrainCursorHarder)
- *
- * Copyright © 2006 Keith Packard
- * Copyright 2010 Red Hat, Inc
- *
- */
-
-static void
-constrain_all_screen_monitors (ClutterInputDevice *device,
-                               MetaMonitorManager *monitor_manager,
-                               float              *x,
-                               float              *y)
-{
-  graphene_point_t current;
-  float cx, cy;
-  GList *logical_monitors, *l;
-
-  clutter_input_device_get_coords (device, NULL, &current);
-
-  cx = current.x;
-  cy = current.y;
-
-  /* if we're trying to escape, clamp to the CRTC we're coming from */
-
-  logical_monitors =
-    meta_monitor_manager_get_logical_monitors (monitor_manager);
-  for (l = logical_monitors; l; l = l->next)
-    {
-      MetaLogicalMonitor *logical_monitor = l->data;
-      int left, right, top, bottom;
-
-      left = logical_monitor->rect.x;
-      right = left + logical_monitor->rect.width;
-      top = logical_monitor->rect.y;
-      bottom = top + logical_monitor->rect.height;
-
-      if ((cx >= left) && (cx < right) && (cy >= top) && (cy < bottom))
-        {
-          if (*x < left)
-            *x = left;
-          if (*x >= right)
-            *x = right - 1;
-          if (*y < top)
-            *y = top;
-          if (*y >= bottom)
-            *y = bottom - 1;
-
-          return;
-        }
-    }
-}
-
 static void
 pointer_constrain_callback (ClutterInputDevice *device,
                             guint32             time,
@@ -187,20 +133,8 @@ pointer_constrain_callback (ClutterInputDevice *device,
                             float              *new_y,
                             gpointer            user_data)
 {
-  MetaBackend *backend = meta_get_backend ();
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-
   /* Constrain to pointer lock */
   constrain_to_client_constraint (device, time, prev_x, prev_y, new_x, new_y);
-
-  /* if we're moving inside a monitor, we're fine */
-  if (meta_monitor_manager_get_logical_monitor_at (monitor_manager,
-                                                   *new_x, *new_y))
-    return;
-
-  /* if we're trying to escape, clamp to the CRTC we're coming from */
-  constrain_all_screen_monitors (device, monitor_manager, new_x, new_y);
 }
 
 static void
