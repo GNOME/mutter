@@ -245,8 +245,19 @@ keyboard_repeat (gpointer data)
 }
 
 static void
-queue_event (ClutterEvent *event)
+queue_event (MetaSeatNative *seat,
+             ClutterEvent   *event)
 {
+  ClutterStage *stage = meta_seat_native_get_stage (seat);
+
+  if (!stage)
+    {
+      /* No stage yet, drop this event on the floor */
+      clutter_event_free (event);
+      return;
+    }
+
+  event->any.stage = stage;
   _clutter_event_push (event, FALSE);
 }
 
@@ -282,7 +293,6 @@ meta_seat_native_notify_key (MetaSeatNative     *seat,
                              uint32_t            state,
                              gboolean            update_keys)
 {
-  ClutterStage *stage;
   ClutterEvent *event = NULL;
   enum xkb_state_component changed_state;
 
@@ -300,18 +310,8 @@ meta_seat_native_notify_key (MetaSeatNative     *seat,
         }
     }
 
-  /* We can drop the event on the floor if no stage has been
-   * associated with the device yet. */
-  stage = _clutter_input_device_get_stage (device);
-  if (stage == NULL)
-    {
-      meta_seat_native_clear_repeat_timer (seat);
-      return;
-    }
-
   event = meta_key_event_new_from_evdev (device,
                                          seat->core_keyboard,
-                                         stage,
                                          seat->xkb,
                                          seat->button_state,
                                          us2ms (time_us), key, state);
@@ -331,7 +331,7 @@ meta_seat_native_notify_key (MetaSeatNative     *seat,
       clutter_event_set_flags (event, CLUTTER_EVENT_FLAG_REPEATED);
     }
 
-  queue_event (event);
+  queue_event (seat, event);
 
   if (update_keys && (changed_state & XKB_STATE_LEDS))
     {
@@ -391,7 +391,7 @@ new_absolute_motion_event (MetaSeatNative     *seat,
                            float               y,
                            double             *axes)
 {
-  ClutterStage *stage = _clutter_input_device_get_stage (input_device);
+  ClutterStage *stage = meta_seat_native_get_stage (seat);
   ClutterEvent *event;
 
   event = clutter_event_new (CLUTTER_MOTION);
@@ -408,7 +408,6 @@ new_absolute_motion_event (MetaSeatNative     *seat,
 
   meta_event_native_set_time_usec (event, time_us);
   event->motion.time = us2ms (time_us);
-  event->motion.stage = stage;
   meta_xkb_translate_state (event, seat->xkb, seat->button_state);
   event->motion.x = x;
   event->motion.y = y;
@@ -432,8 +431,6 @@ new_absolute_motion_event (MetaSeatNative     *seat,
       clutter_event_set_device (event, seat->core_pointer);
     }
 
-  _clutter_input_device_set_stage (seat->core_pointer, stage);
-
   if (clutter_input_device_get_device_type (input_device) != CLUTTER_TABLET_DEVICE)
     {
       seat->pointer_x = x;
@@ -455,11 +452,6 @@ meta_seat_native_notify_relative_motion (MetaSeatNative     *seat,
   float new_x, new_y;
   ClutterEvent *event;
 
-  /* We can drop the event on the floor if no stage has been
-   * associated with the device yet. */
-  if (!_clutter_input_device_get_stage (input_device))
-    return;
-
   meta_seat_native_filter_relative_motion (seat,
                                            input_device,
                                            seat->pointer_x,
@@ -476,7 +468,7 @@ meta_seat_native_notify_relative_motion (MetaSeatNative     *seat,
                                          dx, dy,
                                          dx_unaccel, dy_unaccel);
 
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 void
@@ -491,7 +483,7 @@ meta_seat_native_notify_absolute_motion (MetaSeatNative     *seat,
 
   event = new_absolute_motion_event (seat, input_device, time_us, x, y, axes);
 
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 void
@@ -502,7 +494,6 @@ meta_seat_native_notify_button (MetaSeatNative     *seat,
                                 uint32_t            state)
 {
   MetaInputDeviceNative *device_evdev = (MetaInputDeviceNative *) input_device;
-  ClutterStage *stage;
   ClutterEvent *event = NULL;
   int button_nr;
   static int maskmap[8] =
@@ -522,12 +513,6 @@ meta_seat_native_notify_button (MetaSeatNative     *seat,
                   state ? "press" : "release", button, button_count);
       return;
     }
-
-  /* We can drop the event on the floor if no stage has been
-   * associated with the device yet. */
-  stage = _clutter_input_device_get_stage (input_device);
-  if (stage == NULL)
-    return;
 
   /* The evdev button numbers don't map sequentially to clutter button
    * numbers (the right and middle mouse buttons are in the opposite
@@ -584,7 +569,6 @@ meta_seat_native_notify_button (MetaSeatNative     *seat,
 
   meta_event_native_set_time_usec (event, time_us);
   event->button.time = us2ms (time_us);
-  event->button.stage = CLUTTER_STAGE (stage);
   meta_xkb_translate_state (event, seat->xkb, seat->button_state);
   event->button.button = button_nr;
 
@@ -628,9 +612,7 @@ meta_seat_native_notify_button (MetaSeatNative     *seat,
       clutter_event_set_device (event, seat->core_pointer);
     }
 
-  _clutter_input_device_set_stage (seat->core_pointer, stage);
-
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 static void
@@ -644,15 +626,8 @@ notify_scroll (ClutterInputDevice       *input_device,
 {
   MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
-  ClutterStage *stage;
   ClutterEvent *event = NULL;
   double scroll_factor;
-
-  /* We can drop the event on the floor if no stage has been
-   * associated with the device yet. */
-  stage = _clutter_input_device_get_stage (input_device);
-  if (stage == NULL)
-    return;
 
   device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
   seat = meta_input_device_native_get_seat (device_evdev);
@@ -661,7 +636,6 @@ notify_scroll (ClutterInputDevice       *input_device,
 
   meta_event_native_set_time_usec (event, time_us);
   event->scroll.time = us2ms (time_us);
-  event->scroll.stage = CLUTTER_STAGE (stage);
   meta_xkb_translate_state (event, seat->xkb, seat->button_state);
 
   /* libinput pointer axis events are in pointer motion coordinate space.
@@ -682,7 +656,7 @@ notify_scroll (ClutterInputDevice       *input_device,
 
   _clutter_event_set_pointer_emulated (event, emulated);
 
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 static void
@@ -694,16 +668,9 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
 {
   MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
-  ClutterStage *stage;
   ClutterEvent *event = NULL;
 
   if (direction == CLUTTER_SCROLL_SMOOTH)
-    return;
-
-  /* We can drop the event on the floor if no stage has been
-   * associated with the device yet. */
-  stage = _clutter_input_device_get_stage (input_device);
-  if (stage == NULL)
     return;
 
   device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
@@ -713,7 +680,6 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
 
   meta_event_native_set_time_usec (event, time_us);
   event->scroll.time = us2ms (time_us);
-  event->scroll.stage = CLUTTER_STAGE (stage);
   meta_xkb_translate_state (event, seat->xkb, seat->button_state);
 
   event->scroll.direction = direction;
@@ -726,7 +692,7 @@ notify_discrete_scroll (ClutterInputDevice     *input_device,
 
   _clutter_event_set_pointer_emulated (event, emulated);
 
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 static void
@@ -829,20 +795,13 @@ meta_seat_native_notify_touch_event (MetaSeatNative     *seat,
                                      double              x,
                                      double              y)
 {
-  ClutterStage *stage;
+  ClutterStage *stage = meta_seat_native_get_stage (seat);
   ClutterEvent *event = NULL;
-
-  /* We can drop the event on the floor if no stage has been
-   * associated with the device yet. */
-  stage = _clutter_input_device_get_stage (input_device);
-  if (stage == NULL)
-    return;
 
   event = clutter_event_new (evtype);
 
   meta_event_native_set_time_usec (event, time_us);
   event->touch.time = us2ms (time_us);
-  event->touch.stage = CLUTTER_STAGE (stage);
   event->touch.x = x;
   event->touch.y = y;
   meta_input_device_native_translate_coordinates (input_device, stage,
@@ -860,7 +819,7 @@ meta_seat_native_notify_touch_event (MetaSeatNative     *seat,
   clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);
 
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 
@@ -1122,7 +1081,7 @@ notify_absolute_motion (ClutterInputDevice *input_device,
   seat = meta_input_device_native_get_seat (META_INPUT_DEVICE_NATIVE (input_device));
   event = new_absolute_motion_event (seat, input_device, time_us, x, y, axes);
 
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 static void
@@ -1152,7 +1111,7 @@ notify_relative_tool_motion (ClutterInputDevice *input_device,
   event = new_absolute_motion_event (seat, input_device, time_us, x, y, axes);
   meta_event_native_set_relative_motion (event, dx, dy, 0, 0);
 
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 static void
@@ -1167,15 +1126,8 @@ notify_pinch_gesture_event (ClutterInputDevice          *input_device,
 {
   MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
-  ClutterStage *stage;
   ClutterEvent *event = NULL;
   graphene_point_t pos;
-
-  /* We can drop the event on the floor if no stage has been
-   * associated with the device yet. */
-  stage = _clutter_input_device_get_stage (input_device);
-  if (stage == NULL)
-    return;
 
   device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
   seat = meta_input_device_native_get_seat (device_evdev);
@@ -1187,7 +1139,6 @@ notify_pinch_gesture_event (ClutterInputDevice          *input_device,
   meta_event_native_set_time_usec (event, time_us);
   event->touchpad_pinch.phase = phase;
   event->touchpad_pinch.time = us2ms (time_us);
-  event->touchpad_pinch.stage = CLUTTER_STAGE (stage);
   event->touchpad_pinch.x = pos.x;
   event->touchpad_pinch.y = pos.y;
   event->touchpad_pinch.dx = dx;
@@ -1201,7 +1152,7 @@ notify_pinch_gesture_event (ClutterInputDevice          *input_device,
   clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);
 
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 static void
@@ -1214,15 +1165,8 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
 {
   MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
-  ClutterStage *stage;
   ClutterEvent *event = NULL;
   graphene_point_t pos;
-
-  /* We can drop the event on the floor if no stage has been
-   * associated with the device yet. */
-  stage = _clutter_input_device_get_stage (input_device);
-  if (stage == NULL)
-    return;
 
   device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
   seat = meta_input_device_native_get_seat (device_evdev);
@@ -1232,7 +1176,6 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
   meta_event_native_set_time_usec (event, time_us);
   event->touchpad_swipe.phase = phase;
   event->touchpad_swipe.time = us2ms (time_us);
-  event->touchpad_swipe.stage = CLUTTER_STAGE (stage);
 
   clutter_input_device_get_coords (seat->core_pointer, NULL, &pos);
   event->touchpad_swipe.x = pos.x;
@@ -1246,7 +1189,7 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
   clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);
 
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 static void
@@ -1256,14 +1199,7 @@ notify_proximity (ClutterInputDevice *input_device,
 {
   MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
-  ClutterStage *stage;
   ClutterEvent *event = NULL;
-
-  /* We can drop the event on the floor if no stage has been
-   * associated with the device yet. */
-  stage = _clutter_input_device_get_stage (input_device);
-  if (stage == NULL)
-    return;
 
   device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
   seat = meta_input_device_native_get_seat (device_evdev);
@@ -1276,14 +1212,11 @@ notify_proximity (ClutterInputDevice *input_device,
   meta_event_native_set_time_usec (event, time_us);
 
   event->proximity.time = us2ms (time_us);
-  event->proximity.stage = CLUTTER_STAGE (stage);
   clutter_event_set_device_tool (event, device_evdev->last_tool);
   clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);
 
-  _clutter_input_device_set_stage (seat->core_pointer, stage);
-
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 static void
@@ -1296,25 +1229,17 @@ notify_pad_button (ClutterInputDevice *input_device,
 {
   MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
-  ClutterStage *stage;
   ClutterEvent *event;
 
-  /* We can drop the event on the floor if no stage has been
-   * associated with the device yet. */
-  stage = _clutter_input_device_get_stage (input_device);
-  if (stage == NULL)
-    return;
+  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
+  seat = meta_input_device_native_get_seat (device_evdev);
 
   if (pressed)
     event = clutter_event_new (CLUTTER_PAD_BUTTON_PRESS);
   else
     event = clutter_event_new (CLUTTER_PAD_BUTTON_RELEASE);
 
-  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
-  seat = meta_input_device_native_get_seat (device_evdev);
-
   meta_event_native_set_time_usec (event, time_us);
-  event->pad_button.stage = stage;
   event->pad_button.button = button;
   event->pad_button.group = mode_group;
   event->pad_button.mode = mode;
@@ -1322,9 +1247,7 @@ notify_pad_button (ClutterInputDevice *input_device,
   clutter_event_set_source_device (event, input_device);
   clutter_event_set_time (event, us2ms (time_us));
 
-  _clutter_input_device_set_stage (seat->core_pointer, stage);
-
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 static void
@@ -1336,30 +1259,22 @@ notify_pad_strip (ClutterInputDevice *input_device,
                   uint32_t            mode,
                   double              value)
 {
-  MetaInputDeviceNative *device_evdev;
   ClutterInputDevicePadSource source;
+  MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
-  ClutterStage *stage;
   ClutterEvent *event;
 
-  /* We can drop the event on the floor if no stage has been
-   * associated with the device yet. */
-  stage = _clutter_input_device_get_stage (input_device);
-  if (stage == NULL)
-    return;
+  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
+  seat = meta_input_device_native_get_seat (device_evdev);
 
   if (strip_source == LIBINPUT_TABLET_PAD_STRIP_SOURCE_FINGER)
     source = CLUTTER_INPUT_DEVICE_PAD_SOURCE_FINGER;
   else
     source = CLUTTER_INPUT_DEVICE_PAD_SOURCE_UNKNOWN;
 
-  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
-  seat = meta_input_device_native_get_seat (device_evdev);
-
   event = clutter_event_new (CLUTTER_PAD_STRIP);
   meta_event_native_set_time_usec (event, time_us);
   event->pad_strip.strip_source = source;
-  event->pad_strip.stage = stage;
   event->pad_strip.strip_number = strip_number;
   event->pad_strip.value = value;
   event->pad_strip.group = mode_group;
@@ -1368,9 +1283,7 @@ notify_pad_strip (ClutterInputDevice *input_device,
   clutter_event_set_source_device (event, input_device);
   clutter_event_set_time (event, us2ms (time_us));
 
-  _clutter_input_device_set_stage (seat->core_pointer, stage);
-
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 static void
@@ -1382,30 +1295,22 @@ notify_pad_ring (ClutterInputDevice *input_device,
                  uint32_t            mode,
                  double              angle)
 {
-  MetaInputDeviceNative *device_evdev;
   ClutterInputDevicePadSource source;
+  MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
-  ClutterStage *stage;
   ClutterEvent *event;
 
-  /* We can drop the event on the floor if no stage has been
-   * associated with the device yet. */
-  stage = _clutter_input_device_get_stage (input_device);
-  if (stage == NULL)
-    return;
+  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
+  seat = meta_input_device_native_get_seat (device_evdev);
 
   if (ring_source == LIBINPUT_TABLET_PAD_RING_SOURCE_FINGER)
     source = CLUTTER_INPUT_DEVICE_PAD_SOURCE_FINGER;
   else
     source = CLUTTER_INPUT_DEVICE_PAD_SOURCE_UNKNOWN;
 
-  device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
-  seat = meta_input_device_native_get_seat (device_evdev);
-
   event = clutter_event_new (CLUTTER_PAD_RING);
   meta_event_native_set_time_usec (event, time_us);
   event->pad_ring.ring_source = source;
-  event->pad_ring.stage = stage;
   event->pad_ring.ring_number = ring_number;
   event->pad_ring.angle = angle;
   event->pad_ring.group = mode_group;
@@ -1414,9 +1319,7 @@ notify_pad_ring (ClutterInputDevice *input_device,
   clutter_event_set_source_device (event, input_device);
   clutter_event_set_time (event, us2ms (time_us));
 
-  _clutter_input_device_set_stage (seat->core_pointer, stage);
-
-  queue_event (event);
+  queue_event (seat, event);
 }
 
 static gboolean
@@ -1449,10 +1352,6 @@ meta_event_dispatch (GSource     *g_source,
         META_INPUT_DEVICE_NATIVE (input_device);
       MetaSeatNative *seat =
         meta_input_device_native_get_seat (device_evdev);
-
-      /* Drop events if we don't have any stage to forward them to */
-      if (!_clutter_input_device_get_stage (input_device))
-        return TRUE;
 
       /* update the device states *before* the event */
       event_state = seat->button_state |
@@ -1710,8 +1609,7 @@ process_base_event (MetaSeatNative        *seat,
 
   if (device_event)
     {
-      device_event->device.stage = _clutter_input_device_get_stage (device);
-      queue_event (device_event);
+      queue_event (seat, device_event);
       return TRUE;
     }
 
@@ -1932,10 +1830,10 @@ process_tablet_axis (MetaSeatNative        *seat,
                      struct libinput_event *event)
 {
   struct libinput_device *libinput_device = libinput_event_get_device (event);
+  ClutterStage *stage = meta_seat_native_get_stage (seat);
   uint64_t time;
   double x, y, dx, dy, *axes;
   float stage_width, stage_height;
-  ClutterStage *stage;
   ClutterInputDevice *device;
   struct libinput_event_tablet_tool *tablet_event =
     libinput_event_get_tablet_tool_event (event);
@@ -1943,10 +1841,6 @@ process_tablet_axis (MetaSeatNative        *seat,
 
   device = libinput_device_get_user_data (libinput_device);
   evdev_device = META_INPUT_DEVICE_NATIVE (device);
-
-  stage = _clutter_input_device_get_stage (device);
-  if (!stage)
-    return;
 
   axes = translate_tablet_axes (tablet_event,
                                 evdev_device->last_tool);
@@ -2052,14 +1946,10 @@ process_device_event (MetaSeatNative        *seat,
         uint64_t time_us;
         double x, y;
         float stage_width, stage_height;
-        ClutterStage *stage;
+        ClutterStage *stage = meta_seat_native_get_stage (seat);
         struct libinput_event_pointer *motion_event =
           libinput_event_get_pointer_event (event);
         device = libinput_device_get_user_data (libinput_device);
-
-        stage = _clutter_input_device_get_stage (device);
-        if (stage == NULL)
-          break;
 
         stage_width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
         stage_height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
@@ -2165,10 +2055,7 @@ process_device_event (MetaSeatNative        *seat,
         device = libinput_device_get_user_data (libinput_device);
         device_evdev = META_INPUT_DEVICE_NATIVE (device);
         seat = meta_input_device_native_get_seat (device_evdev);
-
-        stage = _clutter_input_device_get_stage (device);
-        if (stage == NULL)
-          break;
+        stage = meta_seat_native_get_stage (seat);
 
         stage_width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
         stage_height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
@@ -2236,10 +2123,7 @@ process_device_event (MetaSeatNative        *seat,
         device = libinput_device_get_user_data (libinput_device);
         device_evdev = META_INPUT_DEVICE_NATIVE (device);
         seat = meta_input_device_native_get_seat (device_evdev);
-
-        stage = _clutter_input_device_get_stage (device);
-        if (stage == NULL)
-          break;
+        stage = meta_seat_native_get_stage (seat);
 
         stage_width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
         stage_height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
@@ -3088,7 +2972,7 @@ meta_seat_native_set_stage (MetaSeatNative *seat,
           device_event = clutter_event_new (CLUTTER_DEVICE_ADDED);
           clutter_event_set_device (device_event, device);
           device_event->device.stage = stage;
-          queue_event (device_event);
+          queue_event (seat, device_event);
         }
     }
 }

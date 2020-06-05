@@ -28,7 +28,6 @@
 /*
  * _clutter_event_new_from_evdev: Create a new Clutter ClutterKeyEvent
  * @device: a ClutterInputDevice
- * @stage: the stage the event should be delivered to
  * @xkb: XKB rules to translate the event
  * @_time: timestamp of the event
  * @key: a key code coming from a Linux input device
@@ -42,7 +41,6 @@
 ClutterEvent *
 meta_key_event_new_from_evdev (ClutterInputDevice *device,
                                ClutterInputDevice *core_device,
-                               ClutterStage       *stage,
                                struct xkb_state   *xkb_state,
                                uint32_t            button_state,
                                uint32_t            _time,
@@ -72,7 +70,6 @@ meta_key_event_new_from_evdev (ClutterInputDevice *device,
   else
     sym = XKB_KEY_NoSymbol;
 
-  event->key.stage = stage;
   event->key.time = _time;
   meta_xkb_translate_state (event, xkb_state, button_state);
   event->key.hardware_keycode = key;
