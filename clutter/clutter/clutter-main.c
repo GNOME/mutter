@@ -1774,25 +1774,9 @@ _clutter_process_event_details (ClutterActor        *stage,
                   break;
                 }
 
-              /* if the backend provides a device then we should
-               * already have everything we need to update it and
-               * get the actor underneath
-               */
-              if (device != NULL)
-                {
-                  actor = clutter_input_device_update (device, NULL,
-                                                       CLUTTER_STAGE (stage),
-                                                       TRUE);
-                }
-              else
-                {
-                  CLUTTER_NOTE (EVENT, "No device found: picking");
-
-                  actor = _clutter_stage_do_pick (CLUTTER_STAGE (stage),
-                                                  x, y,
-                                                  CLUTTER_PICK_REACTIVE);
-                }
-
+              actor = clutter_input_device_update (device, NULL,
+                                                   CLUTTER_STAGE (stage),
+                                                   TRUE);
               if (actor == NULL)
                 break;
 
@@ -1900,21 +1884,9 @@ _clutter_process_event_details (ClutterActor        *stage,
                   break;
                 }
 
-              if (device != NULL)
-                {
-                  actor = clutter_input_device_update (device, sequence,
-                                                       CLUTTER_STAGE (stage),
-                                                       TRUE);
-                }
-              else
-                {
-                  CLUTTER_NOTE (EVENT, "No device found: picking");
-
-                  actor = _clutter_stage_do_pick (CLUTTER_STAGE (stage),
-                                                  x, y,
-                                                  CLUTTER_PICK_REACTIVE);
-                }
-
+              actor = clutter_input_device_update (device, sequence,
+                                                   CLUTTER_STAGE (stage),
+                                                   TRUE);
               if (actor == NULL)
                 break;
 
