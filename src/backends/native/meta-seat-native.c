@@ -2502,8 +2502,7 @@ meta_seat_native_constructed (GObject *object)
   seat->pointer_x = INITIAL_POINTER_X;
   seat->pointer_y = INITIAL_POINTER_Y;
   _clutter_input_device_set_coords (device, NULL,
-                                    seat->pointer_x, seat->pointer_y,
-                                    NULL);
+                                    seat->pointer_x, seat->pointer_y);
   seat->core_pointer = device;
 
   device = meta_input_device_native_new_virtual (
