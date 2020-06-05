@@ -1625,7 +1625,8 @@ _clutter_process_event_details (ClutterActor        *stage,
             emit_crossing_event (event, device);
 
             actor = clutter_input_device_update (device, NULL,
-                                                 CLUTTER_STAGE (stage), FALSE);
+                                                 CLUTTER_STAGE (stage), FALSE,
+                                                 clutter_event_get_time (event));
             if (actor != stage)
               {
                 ClutterEvent *crossing;
@@ -1776,7 +1777,8 @@ _clutter_process_event_details (ClutterActor        *stage,
 
               actor = clutter_input_device_update (device, NULL,
                                                    CLUTTER_STAGE (stage),
-                                                   TRUE);
+                                                   TRUE,
+                                                   clutter_event_get_time (event));
               if (actor == NULL)
                 break;
 
@@ -1886,7 +1888,8 @@ _clutter_process_event_details (ClutterActor        *stage,
 
               actor = clutter_input_device_update (device, sequence,
                                                    CLUTTER_STAGE (stage),
-                                                   TRUE);
+                                                   TRUE,
+                                                   clutter_event_get_time (event));
               if (actor == NULL)
                 break;
 

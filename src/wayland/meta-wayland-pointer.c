@@ -1047,7 +1047,8 @@ meta_wayland_pointer_repick (MetaWaylandPointer *pointer)
   MetaBackend *backend = meta_get_backend ();
   ClutterStage *stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
 
-  clutter_input_device_update (pointer->device, NULL, stage, FALSE);
+  clutter_input_device_update (pointer->device, NULL, stage, FALSE,
+                               CLUTTER_CURRENT_TIME);
   repick_for_event (pointer, NULL);
 }
 
