@@ -1495,3 +1495,23 @@ meta_input_device_native_set_mapping_mode (ClutterInputDevice     *device,
 
   device_native->mapping_mode = mapping;
 }
+
+void
+meta_input_device_native_set_coords (MetaInputDeviceNative *device_native,
+                                     float                  x,
+                                     float                  y)
+{
+  device_native->pointer_x = x;
+  device_native->pointer_y = y;
+}
+
+void
+meta_input_device_native_get_coords (MetaInputDeviceNative *device_native,
+                                     float                 *x,
+                                     float                 *y)
+{
+  if (x)
+    *x = device_native->pointer_x;
+  if (y)
+    *y = device_native->pointer_y;
+}

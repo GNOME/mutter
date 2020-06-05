@@ -425,10 +425,14 @@ new_absolute_motion_event (MetaSeatNative     *seat,
 
       clutter_event_set_device_tool (event, device_evdev->last_tool);
       clutter_event_set_device (event, input_device);
+      meta_input_device_native_set_coords (META_INPUT_DEVICE_NATIVE (input_device),
+                                           x, y);
     }
   else
     {
       clutter_event_set_device (event, seat->core_pointer);
+      meta_input_device_native_set_coords (META_INPUT_DEVICE_NATIVE (seat->core_pointer),
+                                           x, y);
     }
 
   if (clutter_input_device_get_device_type (input_device) != CLUTTER_TABLET_DEVICE)
@@ -574,16 +578,15 @@ meta_seat_native_notify_button (MetaSeatNative     *seat,
 
   if (clutter_input_device_get_device_type (input_device) == CLUTTER_TABLET_DEVICE)
     {
-      graphene_point_t point;
-
-      clutter_input_device_get_coords (input_device, NULL, &point);
-      event->button.x = point.x;
-      event->button.y = point.y;
+      meta_input_device_native_get_coords (device_evdev,
+                                           &event->button.x,
+                                           &event->button.y);
     }
   else
     {
-      event->button.x = seat->pointer_x;
-      event->button.y = seat->pointer_y;
+      meta_input_device_native_get_coords (META_INPUT_DEVICE_NATIVE (seat->core_pointer),
+                                           &event->button.x,
+                                           &event->button.y);
     }
 
   clutter_event_set_device (event, seat->core_pointer);
@@ -878,14 +881,11 @@ constrain_all_screen_monitors (ClutterInputDevice *device,
                                float              *x,
                                float              *y)
 {
-  graphene_point_t current;
   float cx, cy;
   GList *logical_monitors, *l;
 
-  clutter_input_device_get_coords (device, NULL, &current);
-
-  cx = current.x;
-  cy = current.y;
+  meta_input_device_native_get_coords (META_INPUT_DEVICE_NATIVE (device),
+                                       &cx, &cy);
 
   /* if we're trying to escape, clamp to the CRTC we're coming from */
 
@@ -1098,8 +1098,8 @@ notify_relative_tool_motion (ClutterInputDevice *input_device,
 
   device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
   seat = meta_input_device_native_get_seat (device_evdev);
-  x = input_device->current_x + dx;
-  y = input_device->current_y + dy;
+  x = device_evdev->pointer_x + dx;
+  y = device_evdev->pointer_y + dy;
 
   meta_seat_native_filter_relative_motion (seat,
                                            input_device,
@@ -1127,20 +1127,19 @@ notify_pinch_gesture_event (ClutterInputDevice          *input_device,
   MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
   ClutterEvent *event = NULL;
-  graphene_point_t pos;
 
   device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
   seat = meta_input_device_native_get_seat (device_evdev);
 
   event = clutter_event_new (CLUTTER_TOUCHPAD_PINCH);
 
-  clutter_input_device_get_coords (seat->core_pointer, NULL, &pos);
+  meta_input_device_native_get_coords (META_INPUT_DEVICE_NATIVE (seat->core_pointer),
+                                       &event->touchpad_pinch.x,
+                                       &event->touchpad_pinch.y);
 
   meta_event_native_set_time_usec (event, time_us);
   event->touchpad_pinch.phase = phase;
   event->touchpad_pinch.time = us2ms (time_us);
-  event->touchpad_pinch.x = pos.x;
-  event->touchpad_pinch.y = pos.y;
   event->touchpad_pinch.dx = dx;
   event->touchpad_pinch.dy = dy;
   event->touchpad_pinch.angle_delta = angle_delta;
@@ -1166,7 +1165,6 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
   MetaInputDeviceNative *device_evdev;
   MetaSeatNative *seat;
   ClutterEvent *event = NULL;
-  graphene_point_t pos;
 
   device_evdev = META_INPUT_DEVICE_NATIVE (input_device);
   seat = meta_input_device_native_get_seat (device_evdev);
@@ -1177,9 +1175,9 @@ notify_swipe_gesture_event (ClutterInputDevice          *input_device,
   event->touchpad_swipe.phase = phase;
   event->touchpad_swipe.time = us2ms (time_us);
 
-  clutter_input_device_get_coords (seat->core_pointer, NULL, &pos);
-  event->touchpad_swipe.x = pos.x;
-  event->touchpad_swipe.y = pos.y;
+  meta_input_device_native_get_coords (META_INPUT_DEVICE_NATIVE (seat->core_pointer),
+                                       &event->touchpad_swipe.x,
+                                       &event->touchpad_swipe.y);
   event->touchpad_swipe.dx = dx;
   event->touchpad_swipe.dy = dy;
   event->touchpad_swipe.n_fingers = n_fingers;
@@ -2501,8 +2499,8 @@ meta_seat_native_constructed (GObject *object)
       CLUTTER_INPUT_MODE_LOGICAL);
   seat->pointer_x = INITIAL_POINTER_X;
   seat->pointer_y = INITIAL_POINTER_Y;
-  _clutter_input_device_set_coords (device, NULL,
-                                    seat->pointer_x, seat->pointer_y);
+  meta_input_device_native_set_coords (META_INPUT_DEVICE_NATIVE (device),
+                                       seat->pointer_x, seat->pointer_y);
   seat->core_pointer = device;
 
   device = meta_input_device_native_new_virtual (
@@ -2840,6 +2838,7 @@ meta_seat_native_query_state (ClutterSeat          *seat,
                               graphene_point_t     *coords,
                               ClutterModifierType  *modifiers)
 {
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
   MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
 
   if (sequence)
@@ -2867,8 +2866,8 @@ meta_seat_native_query_state (ClutterSeat          *seat,
     {
       if (coords)
         {
-          coords->x = device->current_x;
-          coords->y = device->current_y;
+          coords->x = device_native->pointer_x;
+          coords->y = device_native->pointer_y;
         }
 
       if (modifiers)
