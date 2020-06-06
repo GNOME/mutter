@@ -1853,9 +1853,6 @@ _clutter_process_event_details (ClutterActor        *stage,
           sequence =
             clutter_event_get_event_sequence (event);
 
-          if (event->type == CLUTTER_TOUCH_BEGIN)
-            _clutter_input_device_add_event_sequence (device, event);
-
           clutter_event_get_coords (event, &x, &y);
 
           /* Only do a pick to find the source if source is not already set

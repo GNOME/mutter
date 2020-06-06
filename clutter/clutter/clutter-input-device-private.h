@@ -61,15 +61,6 @@ typedef struct _ClutterScrollInfo
   guint last_value_valid : 1;
 } ClutterScrollInfo;
 
-typedef struct _ClutterTouchInfo
-{
-  ClutterEventSequence *sequence;
-  ClutterActor *actor;
-
-  float current_x;
-  float current_y;
-} ClutterTouchInfo;
-
 typedef struct _ClutterPtrA11yData
 {
   int n_btn_pressed;
@@ -122,8 +113,8 @@ struct _ClutterInputDevice
   int current_button_number;
   ClutterModifierType current_state;
 
-  /* the current touch points states */
-  GHashTable *touch_sequences_info;
+  /* the current touch points targets */
+  GHashTable *touch_sequence_actors;
 
   /* the previous state, used for click count generation */
   int previous_x;
@@ -174,9 +165,6 @@ ClutterActor * clutter_input_device_update (ClutterInputDevice   *device,
                                             ClutterStage         *stage,
                                             gboolean              emit_crossing,
                                             ClutterEvent         *for_event);
-CLUTTER_EXPORT
-void _clutter_input_device_add_event_sequence (ClutterInputDevice *device,
-                                               ClutterEvent       *event);
 CLUTTER_EXPORT
 void _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
                                                   ClutterEvent       *event);
