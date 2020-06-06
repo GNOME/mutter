@@ -110,7 +110,6 @@ static gboolean perf_fake_mouse_cb (gpointer stage)
       event2->crossing.related = NULL;
 
       clutter_event_set_device (event2, device);
-      clutter_input_device_update_from_event (device, event2);
 
       clutter_event_put (event2);
       clutter_event_free (event2);
