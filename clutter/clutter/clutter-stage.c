@@ -1016,7 +1016,6 @@ _clutter_stage_queue_event (ClutterStage *stage,
 {
   ClutterStagePrivate *priv;
   gboolean first_event;
-  ClutterInputDevice *device;
 
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
 
@@ -1026,23 +1025,6 @@ _clutter_stage_queue_event (ClutterStage *stage,
 
   if (copy_event)
     event = clutter_event_copy (event);
-
-  /* if needed, update the state of the input device of the event.
-   * we do it here to avoid calling the same code from every backend
-   * event processing function
-   */
-  device = clutter_event_get_device (event);
-  if (device != NULL &&
-      event->type != CLUTTER_PROXIMITY_IN &&
-      event->type != CLUTTER_PROXIMITY_OUT)
-    {
-      ClutterEventSequence *sequence = clutter_event_get_event_sequence (event);
-      gfloat event_x, event_y;
-
-      clutter_event_get_coords (event, &event_x, &event_y);
-
-      _clutter_input_device_set_coords (device, sequence, event_x, event_y, stage);
-    }
 
   if (first_event)
     {

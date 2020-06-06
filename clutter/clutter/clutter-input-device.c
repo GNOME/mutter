@@ -512,8 +512,8 @@ clutter_input_device_init (ClutterInputDevice *self)
   self->click_count = 0;
 
   self->previous_time = CLUTTER_CURRENT_TIME;
-  self->current_x = self->previous_x = -1;
-  self->current_y = self->previous_y = -1;
+  self->previous_x = -1;
+  self->previous_y = -1;
   self->current_button_number = self->previous_button_number = -1;
 
   self->touch_sequences_info =
@@ -538,40 +538,6 @@ _clutter_input_device_ensure_touch_info (ClutterInputDevice *device,
     }
 
   return info;
-}
-
-/*< private >
- * clutter_input_device_set_coords:
- * @device: a #ClutterInputDevice
- * @sequence: a #ClutterEventSequence or NULL
- * @x: X coordinate of the device
- * @y: Y coordinate of the device
- *
- * Stores the last known coordinates of the device
- */
-void
-_clutter_input_device_set_coords (ClutterInputDevice   *device,
-                                  ClutterEventSequence *sequence,
-                                  gfloat                x,
-                                  gfloat                y)
-{
-  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
-
-  if (sequence == NULL)
-    {
-      if (device->current_x != x)
-        device->current_x = x;
-
-      if (device->current_y != y)
-        device->current_y = y;
-    }
-  else
-    {
-      ClutterTouchInfo *info;
-      info = _clutter_input_device_ensure_touch_info (device, sequence);
-      info->current_x = x;
-      info->current_y = y;
-    }
 }
 
 /**
