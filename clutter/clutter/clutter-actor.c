@@ -8694,6 +8694,8 @@ clutter_actor_init (ClutterActor *self)
 
   self->priv = priv = clutter_actor_get_instance_private (self);
 
+  priv->allocation = (ClutterActorBox) CLUTTER_ACTOR_BOX_UNINITIALIZED;
+
   priv->opacity = 0xff;
   priv->show_on_set_parent = TRUE;
   priv->resource_scale = -1.0f;
