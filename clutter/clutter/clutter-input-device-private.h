@@ -119,8 +119,6 @@ struct _ClutterInputDevice
   int click_count;
 
   /* the current state */
-  float current_x;
-  float current_y;
   int current_button_number;
   ClutterModifierType current_state;
 
@@ -170,11 +168,6 @@ void _clutter_input_device_remove_physical_device (ClutterInputDevice *logical,
 CLUTTER_EXPORT
 void clutter_input_device_update_from_tool (ClutterInputDevice     *device,
                                             ClutterInputDeviceTool *tool);
-CLUTTER_EXPORT
-void _clutter_input_device_set_coords (ClutterInputDevice   *device,
-                                       ClutterEventSequence *sequence,
-                                       gfloat                x,
-                                       gfloat                y);
 CLUTTER_EXPORT
 ClutterActor * clutter_input_device_update (ClutterInputDevice   *device,
                                             ClutterEventSequence *sequence,
