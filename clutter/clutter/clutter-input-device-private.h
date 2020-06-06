@@ -238,9 +238,6 @@ ClutterInputDeviceTool *
                                      ClutterInputDeviceToolType  type);
 
 CLUTTER_EXPORT
-void clutter_input_device_update_from_event (ClutterInputDevice  *device,
-                                             ClutterEvent        *event);
-CLUTTER_EXPORT
 gboolean clutter_input_device_keycode_to_evdev (ClutterInputDevice *device,
                                                 guint               hardware_keycode,
                                                 guint              *evdev_keycode);
