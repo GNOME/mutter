@@ -182,7 +182,7 @@ ClutterActor * clutter_input_device_update (ClutterInputDevice   *device,
                                             ClutterEventSequence *sequence,
                                             ClutterStage         *stage,
                                             gboolean              emit_crossing,
-                                            uint32_t              time_);
+                                            ClutterEvent         *for_event);
 CLUTTER_EXPORT
 void _clutter_input_device_add_event_sequence (ClutterInputDevice *device,
                                                ClutterEvent       *event);

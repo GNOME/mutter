@@ -714,6 +714,7 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
                                  ClutterEventSequence *sequence,
                                  ClutterActor         *actor,
                                  gboolean              emit_crossing,
+                                 graphene_point_t      coords,
                                  uint32_t              time_)
 {
   ClutterActor *old_actor = clutter_input_device_get_actor (device, sequence);
@@ -746,8 +747,8 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
           event->crossing.flags = 0;
           event->crossing.stage = stage;
           event->crossing.source = old_actor;
-          event->crossing.x = device->current_x;
-          event->crossing.y = device->current_y;
+          event->crossing.x = coords.x;
+          event->crossing.y = coords.y;
           event->crossing.related = actor;
           event->crossing.sequence = sequence;
           clutter_event_set_device (event, device);
@@ -782,8 +783,8 @@ _clutter_input_device_set_actor (ClutterInputDevice   *device,
           event->crossing.time = time_;
           event->crossing.flags = 0;
           event->crossing.stage = stage;
-          event->crossing.x = device->current_x;
-          event->crossing.y = device->current_y;
+          event->crossing.x = coords.x;
+          event->crossing.y = coords.y;
           event->crossing.source = actor;
           event->crossing.related = old_actor;
           event->crossing.sequence = sequence;
@@ -934,17 +935,27 @@ clutter_input_device_update (ClutterInputDevice   *device,
                              ClutterEventSequence *sequence,
                              ClutterStage         *stage,
                              gboolean              emit_crossing,
-                             uint32_t              time_)
+                             ClutterEvent         *for_event)
 {
   ClutterActor *new_cursor_actor;
   ClutterActor *old_cursor_actor;
   graphene_point_t point = GRAPHENE_POINT_INIT (-1.0f, -1.0f);
   ClutterInputDeviceType device_type = device->device_type;
+  uint32_t time_;
 
   g_assert (device_type != CLUTTER_KEYBOARD_DEVICE &&
             device_type != CLUTTER_PAD_DEVICE);
 
-  clutter_input_device_get_coords (device, sequence, &point);
+  if (for_event)
+    {
+      clutter_event_get_coords (for_event, &point.x, &point.y);
+      time_ = clutter_event_get_time (for_event);
+    }
+  else
+    {
+      clutter_input_device_get_coords (device, sequence, &point);
+      time_ = CLUTTER_CURRENT_TIME;
+    }
 
   old_cursor_actor = clutter_input_device_get_actor (device, sequence);
   new_cursor_actor =
@@ -972,7 +983,7 @@ clutter_input_device_update (ClutterInputDevice   *device,
   _clutter_input_device_set_actor (device, sequence,
                                    new_cursor_actor,
                                    emit_crossing,
-                                   time_);
+                                   point, time_);
 
   return new_cursor_actor;
 }
@@ -1564,12 +1575,14 @@ _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
     {
       GList *sequences =
         g_hash_table_lookup (device->inv_touch_sequence_actors, info->actor);
+      graphene_point_t point;
 
       sequences = g_list_remove (sequences, sequence);
 
       g_hash_table_replace (device->inv_touch_sequence_actors,
                             info->actor, sequences);
-      _clutter_input_device_set_actor (device, sequence, NULL, TRUE,
+      clutter_event_get_coords (event, &point.x, &point.y);
+      _clutter_input_device_set_actor (device, sequence, NULL, TRUE, point,
                                        clutter_event_get_time (event));
     }
 
