@@ -51,6 +51,7 @@ transfer_cb (MetaSelection *selection,
     }
 
   g_output_stream_close (stream, NULL, NULL);
+  g_object_unref (stream);
 }
 
 static void
