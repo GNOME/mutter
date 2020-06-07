@@ -94,7 +94,7 @@ static struct wl_resource *
 create_and_send_dnd_offer (MetaWaylandDataSource *source,
                            struct wl_resource *target)
 {
-  MetaWaylandDataOffer *offer = g_slice_new0 (MetaWaylandDataOffer);
+  MetaWaylandDataOffer *offer;
   struct wl_array *mime_types;
   struct wl_resource *resource;
   char **p;
