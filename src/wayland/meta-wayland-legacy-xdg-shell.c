@@ -662,8 +662,6 @@ meta_wayland_zxdg_toplevel_v6_apply_state (MetaWaylandSurfaceRole  *surface_role
   MetaWaylandSurface *surface =
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWindow *window;
-  MetaRectangle old_geometry;
-  gboolean geometry_changed;
 
   window = meta_wayland_surface_get_window (surface);
   if (!window)
@@ -671,8 +669,6 @@ meta_wayland_zxdg_toplevel_v6_apply_state (MetaWaylandSurfaceRole  *surface_role
       meta_wayland_surface_cache_pending_frame_callbacks (surface, pending);
       return;
     }
-
-  old_geometry = xdg_surface_priv->geometry;
 
   surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_zxdg_toplevel_v6_parent_class);
@@ -688,13 +684,37 @@ meta_wayland_zxdg_toplevel_v6_apply_state (MetaWaylandSurfaceRole  *surface_role
       meta_wayland_window_configuration_free (configuration);
       return;
     }
+}
+
+static void
+meta_wayland_zxdg_toplevel_v6_post_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                                MetaWaylandSurfaceState *pending)
+{
+  MetaWaylandZxdgToplevelV6 *xdg_toplevel =
+    META_WAYLAND_ZXDG_TOPLEVEL_V6 (surface_role);
+  MetaWaylandZxdgSurfaceV6 *xdg_surface =
+    META_WAYLAND_ZXDG_SURFACE_V6 (xdg_toplevel);
+  MetaWaylandZxdgSurfaceV6Private *xdg_surface_priv =
+    meta_wayland_zxdg_surface_v6_get_instance_private (xdg_surface);
+  MetaWaylandSurfaceRoleClass *surface_role_class;
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWindow *window;
+  MetaRectangle old_geometry;
+  gboolean geometry_changed;
+
+  window = meta_wayland_surface_get_window (surface);
+  if (!window)
+    return;
 
   if (!pending->newly_attached)
     return;
 
-  /* If the window disappeared the surface is not coming back. */
-  if (!window)
-    return;
+  old_geometry = xdg_surface_priv->geometry;
+
+  surface_role_class =
+    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_zxdg_toplevel_v6_parent_class);
+  surface_role_class->post_apply_state (surface_role, pending);
 
   geometry_changed = !meta_rectangle_equal (&old_geometry, &xdg_surface_priv->geometry);
 
@@ -831,6 +851,8 @@ meta_wayland_zxdg_toplevel_v6_class_init (MetaWaylandZxdgToplevelV6Class *klass)
 
   surface_role_class = META_WAYLAND_SURFACE_ROLE_CLASS (klass);
   surface_role_class->apply_state = meta_wayland_zxdg_toplevel_v6_apply_state;
+  surface_role_class->post_apply_state =
+    meta_wayland_zxdg_toplevel_v6_post_apply_state;
   surface_role_class->get_toplevel = meta_wayland_zxdg_toplevel_v6_get_toplevel;
 
   shell_surface_class = META_WAYLAND_SHELL_SURFACE_CLASS (klass);
@@ -963,12 +985,7 @@ meta_wayland_zxdg_popup_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
                                         MetaWaylandSurfaceState *pending)
 {
   MetaWaylandZxdgPopupV6 *xdg_popup = META_WAYLAND_ZXDG_POPUP_V6 (surface_role);
-  MetaWaylandZxdgSurfaceV6 *xdg_surface =
-    META_WAYLAND_ZXDG_SURFACE_V6 (surface_role);
   MetaWaylandSurfaceRoleClass *surface_role_class;
-  MetaWaylandSurface *surface =
-    meta_wayland_surface_role_get_surface (surface_role);
-  MetaWindow *window;
 
   if (xdg_popup->setup.parent_surface)
     finish_popup_setup (xdg_popup);
@@ -976,11 +993,26 @@ meta_wayland_zxdg_popup_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
   surface_role_class =
     META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_zxdg_popup_v6_parent_class);
   surface_role_class->apply_state (surface_role, pending);
+}
 
-  /* If the window disappeared the surface is not coming back. */
+static void
+meta_wayland_zxdg_popup_v6_post_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                             MetaWaylandSurfaceState *pending)
+{
+  MetaWaylandZxdgSurfaceV6 *xdg_surface =
+    META_WAYLAND_ZXDG_SURFACE_V6 (surface_role);
+  MetaWaylandSurfaceRoleClass *surface_role_class;
+  MetaWaylandSurface *surface =
+    meta_wayland_surface_role_get_surface (surface_role);
+  MetaWindow *window;
+
   window = meta_wayland_surface_get_window (surface);
   if (!window)
     return;
+
+  surface_role_class =
+    META_WAYLAND_SURFACE_ROLE_CLASS (meta_wayland_zxdg_popup_v6_parent_class);
+  surface_role_class->post_apply_state (surface_role, pending);
 
   if (!pending->newly_attached)
     return;
@@ -1164,6 +1196,8 @@ meta_wayland_zxdg_popup_v6_class_init (MetaWaylandZxdgPopupV6Class *klass)
 
   surface_role_class = META_WAYLAND_SURFACE_ROLE_CLASS (klass);
   surface_role_class->apply_state = meta_wayland_zxdg_popup_v6_apply_state;
+  surface_role_class->post_apply_state =
+    meta_wayland_zxdg_popup_v6_post_apply_state;
   surface_role_class->get_toplevel = meta_wayland_zxdg_popup_v6_get_toplevel;
 
   shell_surface_class = META_WAYLAND_SHELL_SURFACE_CLASS (klass);
@@ -1330,8 +1364,6 @@ meta_wayland_zxdg_surface_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
 {
   MetaWaylandZxdgSurfaceV6 *xdg_surface =
     META_WAYLAND_ZXDG_SURFACE_V6 (surface_role);
-  MetaWaylandShellSurface *shell_surface =
-    META_WAYLAND_SHELL_SURFACE (xdg_surface);
   MetaWaylandZxdgSurfaceV6Private *priv =
     meta_wayland_zxdg_surface_v6_get_instance_private (xdg_surface);
   MetaWaylandSurface *surface =
@@ -1369,8 +1401,18 @@ meta_wayland_zxdg_surface_v6_apply_state (MetaWaylandSurfaceRole  *surface_role,
 
   if (surface->buffer_ref.buffer)
     priv->first_buffer_attached = TRUE;
-  else
-    return;
+}
+
+static void
+meta_wayland_zxdg_surface_v6_post_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                               MetaWaylandSurfaceState *pending)
+{
+  MetaWaylandZxdgSurfaceV6 *xdg_surface =
+    META_WAYLAND_ZXDG_SURFACE_V6 (surface_role);
+  MetaWaylandZxdgSurfaceV6Private *priv =
+    meta_wayland_zxdg_surface_v6_get_instance_private (xdg_surface);
+  MetaWaylandShellSurface *shell_surface =
+    META_WAYLAND_SHELL_SURFACE (xdg_surface);
 
   if (pending->has_new_geometry)
     {
@@ -1525,6 +1567,8 @@ meta_wayland_zxdg_surface_v6_class_init (MetaWaylandZxdgSurfaceV6Class *klass)
 
   surface_role_class = META_WAYLAND_SURFACE_ROLE_CLASS (klass);
   surface_role_class->apply_state = meta_wayland_zxdg_surface_v6_apply_state;
+  surface_role_class->post_apply_state =
+    meta_wayland_zxdg_surface_v6_post_apply_state;
   surface_role_class->assigned = meta_wayland_zxdg_surface_v6_assigned;
 
   shell_surface_class = META_WAYLAND_SHELL_SURFACE_CLASS (klass);
