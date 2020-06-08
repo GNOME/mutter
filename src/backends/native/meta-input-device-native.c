@@ -69,6 +69,7 @@ meta_input_device_native_finalize (GObject *object)
 
   meta_input_device_native_release_touch_slots (device_evdev,
                                                 g_get_monotonic_time ());
+  g_clear_pointer (&device_evdev->touches, g_hash_table_unref);
 
   backend = clutter_get_default_backend ();
   seat = clutter_backend_get_default_seat (backend);
