@@ -84,12 +84,11 @@ G_DEFINE_TYPE (ClutterAlignConstraint,
                CLUTTER_TYPE_CONSTRAINT);
 
 static void
-source_position_changed (ClutterActor           *actor,
-                         GParamSpec             *pspec,
-                         ClutterAlignConstraint *align)
+source_queue_relayout (ClutterActor           *actor,
+                       ClutterAlignConstraint *align)
 {
   if (align->actor != NULL)
-    clutter_actor_queue_relayout (align->actor);
+    _clutter_actor_queue_only_relayout (align->actor);
 }
 
 static void
@@ -186,7 +185,7 @@ clutter_align_constraint_dispose (GObject *gobject)
                                             G_CALLBACK (source_destroyed),
                                             align);
       g_signal_handlers_disconnect_by_func (align->source,
-                                            G_CALLBACK (source_position_changed),
+                                            G_CALLBACK (source_queue_relayout),
                                             align);
       align->source = NULL;
     }
@@ -402,15 +401,15 @@ clutter_align_constraint_set_source (ClutterAlignConstraint *align,
                                             G_CALLBACK (source_destroyed),
                                             align);
       g_signal_handlers_disconnect_by_func (old_source,
-                                            G_CALLBACK (source_position_changed),
+                                            G_CALLBACK (source_queue_relayout),
                                             align);
     }
 
   align->source = source;
   if (align->source != NULL)
     {
-      g_signal_connect (align->source, "notify::allocation",
-                        G_CALLBACK (source_position_changed),
+      g_signal_connect (align->source, "queue-relayout",
+                        G_CALLBACK (source_queue_relayout),
                         align);
       g_signal_connect (align->source, "destroy",
                         G_CALLBACK (source_destroyed),
