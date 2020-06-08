@@ -113,6 +113,10 @@ static void
 meta_wayland_surface_role_apply_state (MetaWaylandSurfaceRole  *surface_role,
                                        MetaWaylandSurfaceState *pending);
 
+static void
+meta_wayland_surface_role_post_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                            MetaWaylandSurfaceState *pending);
+
 static gboolean
 meta_wayland_surface_role_is_on_logical_monitor (MetaWaylandSurfaceRole *surface_role,
                                                  MetaLogicalMonitor     *logical_monitor);
@@ -787,8 +791,6 @@ cleanup:
                  surface_state_signals[SURFACE_STATE_SIGNAL_APPLIED],
                  0);
 
-  meta_wayland_surface_state_reset (state);
-
   META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
     {
       MetaWaylandSubsurface *subsurface;
@@ -812,6 +814,11 @@ cleanup:
             meta_window_actor_notify_damaged (toplevel_window_actor);
         }
     }
+
+  if (surface->role)
+    meta_wayland_surface_role_post_apply_state (surface->role, state);
+
+  meta_wayland_surface_state_reset (state);
 }
 
 void
@@ -1753,6 +1760,17 @@ meta_wayland_surface_role_pre_apply_state (MetaWaylandSurfaceRole  *surface_role
   klass = META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface_role);
   if (klass->pre_apply_state)
     klass->pre_apply_state (surface_role, pending);
+}
+
+static void
+meta_wayland_surface_role_post_apply_state (MetaWaylandSurfaceRole  *surface_role,
+                                            MetaWaylandSurfaceState *pending)
+{
+  MetaWaylandSurfaceRoleClass *klass;
+
+  klass = META_WAYLAND_SURFACE_ROLE_GET_CLASS (surface_role);
+  if (klass->post_apply_state)
+    klass->post_apply_state (surface_role, pending);
 }
 
 static void
