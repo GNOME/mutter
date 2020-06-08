@@ -734,7 +734,6 @@ meta_wayland_zxdg_toplevel_v6_apply_state (MetaWaylandSurfaceRole  *surface_role
           wl_resource_post_error (surface->resource,
                                   ZXDG_SHELL_V6_ERROR_INVALID_SURFACE_STATE,
                                   "Invalid min/max size");
-
         }
     }
 }
