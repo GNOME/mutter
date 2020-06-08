@@ -790,6 +790,8 @@ meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_rol
   MetaWaylandSurfaceRoleClass *surface_role_class;
   MetaWindow *window;
   MetaRectangle old_geometry;
+  MetaRectangle window_geometry;
+
   gboolean geometry_changed;
 
   window = meta_wayland_surface_get_window (surface);
@@ -805,13 +807,11 @@ meta_wayland_xdg_toplevel_post_apply_state (MetaWaylandSurfaceRole  *surface_rol
   if (!pending->newly_attached)
     return;
 
-  geometry_changed = !meta_rectangle_equal (&old_geometry, &xdg_surface_priv->geometry);
+  window_geometry = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);
+  geometry_changed = !meta_rectangle_equal (&old_geometry, &window_geometry);
 
   if (geometry_changed || pending->has_acked_configure_serial)
     {
-      MetaRectangle window_geometry;
-
-      window_geometry = meta_wayland_xdg_surface_get_window_geometry (xdg_surface);
       meta_window_wayland_finish_move_resize (window, window_geometry, pending);
     }
   else if (pending->dx != 0 || pending->dy != 0)
