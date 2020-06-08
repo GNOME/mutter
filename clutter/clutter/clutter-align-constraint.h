@@ -67,6 +67,12 @@ void               clutter_align_constraint_set_align_axis (ClutterAlignConstrai
 CLUTTER_EXPORT
 ClutterAlignAxis   clutter_align_constraint_get_align_axis (ClutterAlignConstraint *align);
 CLUTTER_EXPORT
+void               clutter_align_constraint_set_pivot_point (ClutterAlignConstraint *align,
+                                                             const graphene_point_t *pivot_point);
+CLUTTER_EXPORT
+void               clutter_align_constraint_get_pivot_point (ClutterAlignConstraint *align,
+                                                             graphene_point_t       *pivot_point);
+CLUTTER_EXPORT
 void               clutter_align_constraint_set_factor     (ClutterAlignConstraint *align,
                                                             gfloat                  factor);
 CLUTTER_EXPORT

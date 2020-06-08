@@ -58,6 +58,7 @@ struct _ClutterAlignConstraint
   ClutterActor *actor;
   ClutterActor *source;
   ClutterAlignAxis align_axis;
+  graphene_point_t pivot;
   gfloat factor;
 };
 
@@ -72,6 +73,7 @@ enum
 
   PROP_SOURCE,
   PROP_ALIGN_AXIS,
+  PROP_PIVOT_POINT,
   PROP_FACTOR,
 
   PROP_LAST
@@ -134,6 +136,8 @@ clutter_align_constraint_update_allocation (ClutterConstraint *constraint,
   gfloat source_width, source_height;
   gfloat actor_width, actor_height;
   gfloat source_x, source_y;
+  gfloat offset_x_start, offset_y_start;
+  gfloat pivot_x, pivot_y;
 
   if (align->source == NULL)
     return;
@@ -143,25 +147,31 @@ clutter_align_constraint_update_allocation (ClutterConstraint *constraint,
   clutter_actor_get_position (align->source, &source_x, &source_y);
   clutter_actor_get_size (align->source, &source_width, &source_height);
 
+  pivot_x = align->pivot.x == -1.f
+    ? align->factor
+    : align->pivot.x;
+  pivot_y = align->pivot.y == -1.f
+    ? align->factor
+    : align->pivot.y;
+
+  offset_x_start = pivot_x * -actor_width;
+  offset_y_start = pivot_y * -actor_height;
+
   switch (align->align_axis)
     {
     case CLUTTER_ALIGN_X_AXIS:
-      allocation->x1 = ((source_width - actor_width) * align->factor)
-                     + source_x;
+      allocation->x1 = source_x + offset_x_start + (source_width * align->factor);
       allocation->x2 = allocation->x1 + actor_width;
       break;
 
     case CLUTTER_ALIGN_Y_AXIS:
-      allocation->y1 = ((source_height - actor_height) * align->factor)
-                     + source_y;
+      allocation->y1 = source_y + offset_y_start + (source_height * align->factor);
       allocation->y2 = allocation->y1 + actor_height;
       break;
 
     case CLUTTER_ALIGN_BOTH:
-      allocation->x1 = ((source_width - actor_width) * align->factor)
-                     + source_x;
-      allocation->y1 = ((source_height - actor_height) * align->factor)
-                     + source_y;
+      allocation->x1 = source_x + offset_x_start + (source_width * align->factor);
+      allocation->y1 = source_y + offset_y_start + (source_height * align->factor);
       allocation->x2 = allocation->x1 + actor_width;
       allocation->y2 = allocation->y1 + actor_height;
       break;
@@ -211,6 +221,10 @@ clutter_align_constraint_set_property (GObject      *gobject,
       clutter_align_constraint_set_align_axis (align, g_value_get_enum (value));
       break;
 
+    case PROP_PIVOT_POINT:
+      clutter_align_constraint_set_pivot_point (align, g_value_get_boxed (value));
+      break;
+
     case PROP_FACTOR:
       clutter_align_constraint_set_factor (align, g_value_get_float (value));
       break;
@@ -237,6 +251,16 @@ clutter_align_constraint_get_property (GObject    *gobject,
 
     case PROP_ALIGN_AXIS:
       g_value_set_enum (value, align->align_axis);
+      break;
+
+    case PROP_PIVOT_POINT:
+      {
+        graphene_point_t point;
+
+        clutter_align_constraint_get_pivot_point (align, &point);
+
+        g_value_set_boxed (value, &point);
+      }
       break;
 
     case PROP_FACTOR:
@@ -293,6 +317,30 @@ clutter_align_constraint_class_init (ClutterAlignConstraintClass *klass)
                        CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT);
 
   /**
+   * ClutterAlignConstraint:pivot-point:
+   *
+   * The pivot point used by the constraint. The pivot point is the
+   * point in the constraint actor around which the aligning is applied,
+   * with (0, 0) being the top left corner of the actor and (1, 1) the
+   * bottom right corner of the actor.
+   *
+   * For example, setting the pivot point to (0.5, 0.5) and using a factor
+   * of 1 for both axes will align the actors horizontal and vertical
+   * center point with the bottom right corner of the source actor.
+   *
+   * By default, the pivot point is set to (-1, -1), which means it's not
+   * used and the constrained actor will be aligned to always stay inside
+   * the source actor.
+   */
+  obj_props[PROP_PIVOT_POINT] =
+    g_param_spec_boxed ("pivot-point",
+                       P_("Pivot point"),
+                       P_("The pivot point"),
+                       GRAPHENE_TYPE_POINT,
+                       G_PARAM_READWRITE |
+                       G_PARAM_STATIC_STRINGS);
+
+  /**
    * ClutterAlignConstraint:factor:
    *
    * The alignment factor, as a normalized value between 0.0 and 1.0
@@ -324,6 +372,8 @@ clutter_align_constraint_init (ClutterAlignConstraint *self)
   self->actor = NULL;
   self->source = NULL;
   self->align_axis = CLUTTER_ALIGN_X_AXIS;
+  self->pivot.x = -1.f;
+  self->pivot.y = -1.f;
   self->factor = 0.0f;
 }
 
@@ -484,6 +534,60 @@ clutter_align_constraint_get_align_axis (ClutterAlignConstraint *align)
                         CLUTTER_ALIGN_X_AXIS);
 
   return align->align_axis;
+}
+
+/**
+ * clutter_align_constraint_set_pivot_point:
+ * @align: a #ClutterAlignConstraint
+ * @pivot_point: A #GraphenePoint
+ *
+ * Sets the pivot point used by the constraint, the pivot point is the
+ * point in the constraint actor around which the aligning is applied,
+ * with (0, 0) being the top left corner of the actor and (1, 1) the
+ * bottom right corner of the actor.
+ *
+ * If -1 is used, the pivot point is unset and the constrained actor
+ * will be aligned to always stay inside the source actor.
+ */
+void
+clutter_align_constraint_set_pivot_point (ClutterAlignConstraint *align,
+                                          const graphene_point_t *pivot_point)
+{
+  g_return_if_fail (CLUTTER_IS_ALIGN_CONSTRAINT (align));
+  g_return_if_fail (pivot_point != NULL);
+  g_return_if_fail (pivot_point->x == -1.f ||
+                    (pivot_point->x >= 0.f && pivot_point->x <= 1.f));
+  g_return_if_fail (pivot_point->y == -1.f ||
+                    (pivot_point->y >= 0.f && pivot_point->y <= 1.f));
+
+  if (graphene_point_equal (&align->pivot, pivot_point))
+    return;
+
+  align->pivot = *pivot_point;
+
+  if (align->actor != NULL)
+    clutter_actor_queue_relayout (align->actor);
+
+  g_object_notify_by_pspec (G_OBJECT (align), obj_props[PROP_PIVOT_POINT]);
+}
+
+/**
+ * clutter_align_constraint_get_pivot_point
+ * @align: a #ClutterAlignConstraint
+ * @pivot_point: (out caller-allocates): return location for a #GraphenePoint
+ *
+ * Gets the pivot point used by the constraint set with
+ * clutter_align_constraint_set_pivot_point(). If no custom pivot
+ * point is set, -1 is set.
+ */
+void
+clutter_align_constraint_get_pivot_point (ClutterAlignConstraint *align,
+                                          graphene_point_t       *pivot_point)
+{
+  g_return_if_fail (CLUTTER_IS_ALIGN_CONSTRAINT (align));
+  g_return_if_fail (pivot_point != NULL);
+
+  *pivot_point = align->pivot;
 }
 
 /**
