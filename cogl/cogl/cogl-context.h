@@ -186,14 +186,9 @@ cogl_is_context (void *object);
  *     supported with CoglBufferAccess including read support.
  * @COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE: Whether cogl_buffer_map() is
  *     supported with CoglBufferAccess including write support.
- * @COGL_FEATURE_ID_SWAP_BUFFERS_EVENT:
- *     Available if the window system supports reporting an event
- *     for swap buffer completions.
  * @COGL_FEATURE_ID_BUFFER_AGE: Available if the age of #CoglOnscreen back
  *    buffers are tracked and so cogl_onscreen_get_buffer_age() can be
  *    expected to return age values other than 0.
- * @COGL_FEATURE_ID_PRESENTATION_TIME: Whether frame presentation
- *    time stamps will be recorded in #CoglFrameInfo objects.
  * @COGL_FEATURE_ID_BLIT_FRAMEBUFFER: Whether blitting using
  *    cogl_blit_framebuffer() is supported.
  *
@@ -208,8 +203,6 @@ typedef enum _CoglFeatureID
   COGL_FEATURE_ID_UNSIGNED_INT_INDICES,
   COGL_FEATURE_ID_MAP_BUFFER_FOR_READ,
   COGL_FEATURE_ID_MAP_BUFFER_FOR_WRITE,
-  COGL_FEATURE_ID_SWAP_BUFFERS_EVENT,
-  COGL_FEATURE_ID_PRESENTATION_TIME,
   COGL_FEATURE_ID_FENCE,
   COGL_FEATURE_ID_TEXTURE_RG,
   COGL_FEATURE_ID_BUFFER_AGE,
