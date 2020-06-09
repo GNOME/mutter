@@ -12,7 +12,7 @@ option('opengl_libname',
 
 option('gles2_libname',
   type: 'string',
-  value: 'libGLESv2.so',
+  value: 'libGLESv2.so.2',
   description: 'GLESv2 library file name'
 )
 
