@@ -11,6 +11,7 @@ mutter_public_headers = [
   'meta-backend.h',
   'meta-background.h',
   'meta-background-actor.h',
+  'meta-background-content.h',
   'meta-background-group.h',
   'meta-background-image.h',
   'meta-close-dialog.h',

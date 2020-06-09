@@ -289,6 +289,8 @@ mutter_sources = [
   'compositor/compositor-private.h',
   'compositor/meta-background-actor.c',
   'compositor/meta-background-actor-private.h',
+  'compositor/meta-background-content.c',
+  'compositor/meta-background-content-private.h',
   'compositor/meta-background.c',
   'compositor/meta-background-group.c',
   'compositor/meta-background-image.c',
