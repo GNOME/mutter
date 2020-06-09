@@ -442,10 +442,9 @@ set_glsl_parameters (MetaBackgroundContent *self,
 }
 
 static void
-paint_clipped_rectangle (ClutterPaintNode      *node,
-                         CoglPipeline          *pipeline,
-                         cairo_rectangle_int_t *rect,
-                         cairo_rectangle_int_t *texture_area)
+paint_clipped_rectangle (MetaBackgroundContent *self,
+                         ClutterPaintNode      *node,
+                         cairo_rectangle_int_t *rect)
 {
   g_autoptr (ClutterPaintNode) pipeline_node = NULL;
   float x1, y1, x2, y2;
@@ -456,12 +455,12 @@ paint_clipped_rectangle (ClutterPaintNode      *node,
   x2 = rect->x + rect->width;
   y2 = rect->y + rect->height;
 
-  tx1 = (x1 - texture_area->x) / texture_area->width;
-  ty1 = (y1 - texture_area->y) / texture_area->height;
-  tx2 = (x2 - texture_area->x) / texture_area->width;
-  ty2 = (y2 - texture_area->y) / texture_area->height;
+  tx1 = (x1 - self->texture_area.x) / (float)self->texture_area.width;
+  ty1 = (y1 - self->texture_area.y) / (float)self->texture_area.height;
+  tx2 = (x2 - self->texture_area.x) / (float)self->texture_area.width;
+  ty2 = (y2 - self->texture_area.y) / (float)self->texture_area.height;
 
-  pipeline_node = clutter_pipeline_node_new (pipeline);
+  pipeline_node = clutter_pipeline_node_new (self->pipeline);
   clutter_paint_node_set_name (pipeline_node, "MetaBackgroundContent (Slice)");
   clutter_paint_node_add_texture_rectangle (pipeline_node,
                                             &(ClutterActorBox) {
@@ -531,16 +530,14 @@ meta_background_content_paint_content (ClutterContent      *content,
         {
           cairo_rectangle_int_t rect;
           cairo_region_get_rectangle (region, i, &rect);
-          paint_clipped_rectangle (node, self->pipeline, &rect,
-                                   &self->texture_area);
+          paint_clipped_rectangle (self, node, &rect);
         }
     }
   else
     {
       cairo_rectangle_int_t rect;
       cairo_region_get_extents (region, &rect);
-      paint_clipped_rectangle (node, self->pipeline, &rect,
-                               &self->texture_area);
+      paint_clipped_rectangle (self, node, &rect);
     }
 
   cairo_region_destroy (region);
