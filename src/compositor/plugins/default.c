@@ -30,6 +30,7 @@
 #include "clutter/clutter.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-background-actor.h"
+#include "meta/meta-background-content.h"
 #include "meta/meta-background-group.h"
 #include "meta/meta-monitor-manager.h"
 #include "meta/meta-plugin.h"
@@ -332,6 +333,8 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
   n = meta_display_get_n_monitors (display);
   for (i = 0; i < n; i++)
     {
+      MetaBackgroundContent *background_content;
+      ClutterContent *content;
       MetaRectangle rect;
       ClutterActor *background_actor;
       MetaBackground *background;
@@ -340,6 +343,8 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
       meta_display_get_monitor_geometry (display, i, &rect);
 
       background_actor = meta_background_actor_new (display, i);
+      content = clutter_actor_get_content (background_actor);
+      background_content = META_BACKGROUND_CONTENT (content);
 
       clutter_actor_set_position (background_actor, rect.x, rect.y);
       clutter_actor_set_size (background_actor, rect.width, rect.height);
@@ -356,13 +361,10 @@ on_monitors_changed (MetaMonitorManager *monitor_manager,
 
       background = meta_background_new (display);
       meta_background_set_color (background, &color);
-      meta_background_actor_set_background (META_BACKGROUND_ACTOR (background_actor), background);
+      meta_background_content_set_background (background_content, background);
       g_object_unref (background);
 
-      meta_background_actor_set_vignette (META_BACKGROUND_ACTOR (background_actor),
-                                          TRUE,
-                                          0.5,
-                                          0.5);
+      meta_background_content_set_vignette (background_content, TRUE, 0.5, 0.5);
 
       clutter_actor_add_child (self->priv->background_group, background_actor);
     }
