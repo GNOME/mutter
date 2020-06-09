@@ -381,8 +381,9 @@ meta_stack_op_apply (MetaStackTracker *tracker,
         old_pos = find_window (stack, op->add.window);
         if (old_pos >= 0)
           {
-            g_warning ("STACK_OP_ADD: window %s already in stack",
-                       get_window_desc (tracker, op->add.window));
+            meta_topic (META_DEBUG_STACK,
+                        "STACK_OP_ADD: window %s already in stack",
+                        get_window_desc (tracker, op->add.window));
             return FALSE;
           }
 
@@ -400,8 +401,9 @@ meta_stack_op_apply (MetaStackTracker *tracker,
         old_pos = find_window (stack, op->remove.window);
         if (old_pos < 0)
           {
-            g_warning ("STACK_OP_REMOVE: window %s not in stack",
-                       get_window_desc (tracker, op->remove.window));
+            meta_topic (META_DEBUG_STACK,
+                        "STACK_OP_REMOVE: window %s not in stack",
+                        get_window_desc (tracker, op->remove.window));
             return FALSE;
           }
 
@@ -416,8 +418,9 @@ meta_stack_op_apply (MetaStackTracker *tracker,
         old_pos = find_window (stack, op->raise_above.window);
         if (old_pos < 0)
           {
-            g_warning ("STACK_OP_RAISE_ABOVE: window %s not in stack",
-                       get_window_desc (tracker, op->raise_above.window));
+            meta_topic (META_DEBUG_STACK,
+                        "STACK_OP_RAISE_ABOVE: window %s not in stack",
+                        get_window_desc (tracker, op->raise_above.window));
             return FALSE;
           }
 
@@ -426,8 +429,9 @@ meta_stack_op_apply (MetaStackTracker *tracker,
             above_pos = find_window (stack, op->raise_above.sibling);
             if (above_pos < 0)
               {
-                g_warning ("STACK_OP_RAISE_ABOVE: sibling window %s not in stack",
-                           get_window_desc (tracker, op->raise_above.sibling));
+                meta_topic (META_DEBUG_STACK,
+                            "STACK_OP_RAISE_ABOVE: sibling window %s not in stack",
+                            get_window_desc (tracker, op->raise_above.sibling));
                 return FALSE;
               }
           }
@@ -447,8 +451,9 @@ meta_stack_op_apply (MetaStackTracker *tracker,
         old_pos = find_window (stack, op->raise_above.window);
         if (old_pos < 0)
           {
-            g_warning ("STACK_OP_LOWER_BELOW: window %s not in stack",
-                       get_window_desc (tracker, op->lower_below.window));
+            meta_topic (META_DEBUG_STACK,
+                        "STACK_OP_LOWER_BELOW: window %s not in stack",
+                        get_window_desc (tracker, op->lower_below.window));
             return FALSE;
           }
 
@@ -459,8 +464,9 @@ meta_stack_op_apply (MetaStackTracker *tracker,
             below_pos = find_window (stack, op->lower_below.sibling);
             if (below_pos < 0)
               {
-                g_warning ("STACK_OP_LOWER_BELOW: sibling window %s not in stack",
-                           get_window_desc (tracker, op->lower_below.sibling));
+                meta_topic (META_DEBUG_STACK,
+                            "STACK_OP_LOWER_BELOW: sibling window %s not in stack",
+                            get_window_desc (tracker, op->lower_below.sibling));
                 return FALSE;
               }
 
