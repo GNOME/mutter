@@ -365,103 +365,113 @@ move_window_above (GArray    *stack,
 static gboolean
 meta_stack_op_apply (MetaStackTracker *tracker,
                      MetaStackOp      *op,
-		     GArray           *stack,
+                     GArray           *stack,
                      ApplyFlags        apply_flags)
 {
   switch (op->any.type)
     {
     case STACK_OP_ADD:
       {
+        int old_pos;
+
         if (META_STACK_ID_IS_X11 (op->add.window) &&
             (apply_flags & NO_RESTACK_X_WINDOWS) != 0)
           return FALSE;
 
-	int old_pos = find_window (stack, op->add.window);
-	if (old_pos >= 0)
-	  {
-	    g_warning ("STACK_OP_ADD: window %s already in stack",
-		       get_window_desc (tracker, op->add.window));
-	    return FALSE;
-	  }
+        old_pos = find_window (stack, op->add.window);
+        if (old_pos >= 0)
+          {
+            g_warning ("STACK_OP_ADD: window %s already in stack",
+                       get_window_desc (tracker, op->add.window));
+            return FALSE;
+          }
 
-	g_array_append_val (stack, op->add.window);
-	return TRUE;
+        g_array_append_val (stack, op->add.window);
+        return TRUE;
       }
     case STACK_OP_REMOVE:
       {
+        int old_pos;
+
         if (META_STACK_ID_IS_X11 (op->remove.window) &&
             (apply_flags & NO_RESTACK_X_WINDOWS) != 0)
           return FALSE;
 
-	int old_pos = find_window (stack, op->remove.window);
-	if (old_pos < 0)
-	  {
-	    g_warning ("STACK_OP_REMOVE: window %s not in stack",
-		       get_window_desc (tracker, op->remove.window));
-	    return FALSE;
-	  }
+        old_pos = find_window (stack, op->remove.window);
+        if (old_pos < 0)
+          {
+            g_warning ("STACK_OP_REMOVE: window %s not in stack",
+                       get_window_desc (tracker, op->remove.window));
+            return FALSE;
+          }
 
-	g_array_remove_index (stack, old_pos);
-	return TRUE;
+        g_array_remove_index (stack, old_pos);
+        return TRUE;
       }
     case STACK_OP_RAISE_ABOVE:
       {
-	int old_pos = find_window (stack, op->raise_above.window);
-	int above_pos;
-	if (old_pos < 0)
-	  {
-	    g_warning ("STACK_OP_RAISE_ABOVE: window %s not in stack",
-		       get_window_desc (tracker, op->raise_above.window));
-	    return FALSE;
-	  }
+        int old_pos;
+        int above_pos;
+
+        old_pos = find_window (stack, op->raise_above.window);
+        if (old_pos < 0)
+          {
+            g_warning ("STACK_OP_RAISE_ABOVE: window %s not in stack",
+                       get_window_desc (tracker, op->raise_above.window));
+            return FALSE;
+          }
 
         if (op->raise_above.sibling)
-	  {
-	    above_pos = find_window (stack, op->raise_above.sibling);
-	    if (above_pos < 0)
-	      {
-		g_warning ("STACK_OP_RAISE_ABOVE: sibling window %s not in stack",
+          {
+            above_pos = find_window (stack, op->raise_above.sibling);
+            if (above_pos < 0)
+              {
+                g_warning ("STACK_OP_RAISE_ABOVE: sibling window %s not in stack",
                            get_window_desc (tracker, op->raise_above.sibling));
-		return FALSE;
-	      }
-	  }
-	else
-	  {
-	    above_pos = -1;
-	  }
+                return FALSE;
+              }
+          }
+        else
+          {
+            above_pos = -1;
+          }
 
-	return move_window_above (stack, op->raise_above.window, old_pos, above_pos,
+        return move_window_above (stack, op->raise_above.window, old_pos, above_pos,
                                   apply_flags);
       }
     case STACK_OP_LOWER_BELOW:
       {
-	int old_pos = find_window (stack, op->lower_below.window);
-	int above_pos;
-	if (old_pos < 0)
-	  {
-	    g_warning ("STACK_OP_LOWER_BELOW: window %s not in stack",
-		       get_window_desc (tracker, op->lower_below.window));
-	    return FALSE;
-	  }
+        int old_pos;
+        int above_pos;
+
+        old_pos = find_window (stack, op->raise_above.window);
+        if (old_pos < 0)
+          {
+            g_warning ("STACK_OP_LOWER_BELOW: window %s not in stack",
+                       get_window_desc (tracker, op->lower_below.window));
+            return FALSE;
+          }
 
         if (op->lower_below.sibling)
-	  {
-	    int below_pos = find_window (stack, op->lower_below.sibling);
-	    if (below_pos < 0)
-	      {
-		g_warning ("STACK_OP_LOWER_BELOW: sibling window %s not in stack",
-			   get_window_desc (tracker, op->lower_below.sibling));
-		return FALSE;
-	      }
+          {
+            int below_pos;
 
-	    above_pos = below_pos - 1;
-	  }
-	else
-	  {
-	    above_pos = stack->len - 1;
-	  }
+            below_pos = find_window (stack, op->lower_below.sibling);
+            if (below_pos < 0)
+              {
+                g_warning ("STACK_OP_LOWER_BELOW: sibling window %s not in stack",
+                           get_window_desc (tracker, op->lower_below.sibling));
+                return FALSE;
+              }
 
-	return move_window_above (stack, op->lower_below.window, old_pos, above_pos,
+            above_pos = below_pos - 1;
+          }
+        else
+          {
+            above_pos = stack->len - 1;
+          }
+
+        return move_window_above (stack, op->lower_below.window, old_pos, above_pos,
                                   apply_flags);
       }
     }
