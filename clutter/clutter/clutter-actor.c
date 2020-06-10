@@ -16269,11 +16269,20 @@ clutter_actor_peek_stage_views (ClutterActor *self)
 ClutterFrameClock *
 clutter_actor_pick_frame_clock (ClutterActor *self)
 {
+  ClutterActorPrivate *priv = self->priv;
   float max_refresh_rate = 0.0;
   ClutterStageView *best_view = NULL;
   GList *l;
 
-  for (l = self->priv->stage_views; l; l = l->next)
+  if (!priv->stage_views)
+    {
+     if (priv->parent)
+       return clutter_actor_pick_frame_clock (priv->parent);
+     else
+       return NULL;
+    }
+
+  for (l = priv->stage_views; l; l = l->next)
     {
       ClutterStageView *view = l->data;
       float refresh_rate;
