@@ -807,7 +807,7 @@ meta_background_content_init (MetaBackgroundContent *self)
  *
  * Creates a new actor to draw the background for the given monitor.
  *
- * Return value: the newly created background actor
+ * Return value: (transfer full): the newly created background actor
  */
 ClutterContent *
 meta_background_content_new (MetaDisplay *display,
