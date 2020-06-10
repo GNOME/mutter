@@ -690,6 +690,63 @@ frame_clock_reschedule_on_idle (void)
   clutter_frame_clock_destroy (frame_clock);
 }
 
+static const ClutterFrameListenerIface dummy_frame_listener_iface = {
+  .frame = NULL,
+};
+
+static void
+on_destroy (ClutterFrameClock *frame_clock,
+            gboolean          *destroy_signalled)
+{
+  g_assert_false (*destroy_signalled);
+  *destroy_signalled = TRUE;
+}
+
+static void
+frame_clock_destroy_signal (void)
+{
+  ClutterFrameClock *frame_clock;
+  ClutterFrameClock *frame_clock_backup;
+  gboolean destroy_signalled;
+
+  /* Test that the destroy signal is emitted when removing last reference. */
+
+  frame_clock = clutter_frame_clock_new (refresh_rate,
+                                         &dummy_frame_listener_iface,
+                                         NULL);
+
+  destroy_signalled = FALSE;
+  g_signal_connect (frame_clock, "destroy",
+                    G_CALLBACK (on_destroy),
+                    &destroy_signalled);
+  g_object_add_weak_pointer (G_OBJECT (frame_clock), (gpointer *) &frame_clock);
+
+  g_object_unref (frame_clock);
+  g_assert_true (destroy_signalled);
+  g_assert_null (frame_clock);
+
+  /* Test that destroy signal is emitted when destroying with references still
+   * left.
+   */
+
+  frame_clock = clutter_frame_clock_new (refresh_rate,
+                                         &dummy_frame_listener_iface,
+                                         NULL);
+  frame_clock_backup = frame_clock;
+
+  destroy_signalled = FALSE;
+  g_signal_connect (frame_clock, "destroy",
+                    G_CALLBACK (on_destroy),
+                    &destroy_signalled);
+  g_object_add_weak_pointer (G_OBJECT (frame_clock), (gpointer *) &frame_clock);
+  g_object_ref (frame_clock);
+
+  clutter_frame_clock_destroy (frame_clock);
+  g_assert_true (destroy_signalled);
+  g_assert_null (frame_clock);
+  g_object_unref (frame_clock_backup);
+}
+
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/frame-clock/schedule-update", frame_clock_schedule_update)
   CLUTTER_TEST_UNIT ("/frame-clock/immediate-present", frame_clock_immediate_present)
@@ -699,4 +756,5 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/frame-clock/before-frame", frame_clock_before_frame)
   CLUTTER_TEST_UNIT ("/frame-clock/inhibit", frame_clock_inhibit)
   CLUTTER_TEST_UNIT ("/frame-clock/reschedule-on-idle", frame_clock_reschedule_on_idle)
+  CLUTTER_TEST_UNIT ("/frame-clock/destroy-signal", frame_clock_destroy_signal)
 )
