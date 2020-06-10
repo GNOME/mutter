@@ -24,6 +24,15 @@
 #include "clutter/clutter-timeline-private.h"
 #include "cogl/cogl-trace.h"
 
+enum
+{
+  DESTROY,
+
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS];
+
 /* Wait 2ms after vblank before starting to draw next frame */
 #define SYNC_DELAY_US ms2us (2)
 
@@ -495,18 +504,26 @@ clutter_frame_clock_new (float                            refresh_rate,
   return frame_clock;
 }
 
-static void
-clutter_frame_clock_finalize (GObject *object)
+void
+clutter_frame_clock_destroy (ClutterFrameClock *frame_clock)
 {
-  ClutterFrameClock *frame_clock = CLUTTER_FRAME_CLOCK (object);
+  g_object_run_dispose (G_OBJECT (frame_clock));
+  g_object_unref (frame_clock);
+}
+
+static void
+clutter_frame_clock_dispose (GObject *object)
+{
+ClutterFrameClock *frame_clock = CLUTTER_FRAME_CLOCK (object);
 
   if (frame_clock->source)
     {
+      g_signal_emit (frame_clock, signals[DESTROY], 0);
       g_source_destroy (frame_clock->source);
-      g_source_unref (frame_clock->source);
+      g_clear_pointer (&frame_clock->source, g_source_unref);
     }
 
-  G_OBJECT_CLASS (clutter_frame_clock_parent_class)->finalize (object);
+  G_OBJECT_CLASS (clutter_frame_clock_parent_class)->dispose (object);
 }
 
 static void
@@ -520,5 +537,14 @@ clutter_frame_clock_class_init (ClutterFrameClockClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->finalize = clutter_frame_clock_finalize;
+  object_class->dispose = clutter_frame_clock_dispose;
+
+  signals[DESTROY] =
+    g_signal_new (I_("destroy"),
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE,
+                  0);
 }

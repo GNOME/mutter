@@ -166,7 +166,7 @@ frame_clock_schedule_update (void)
 
   g_main_loop_unref (test.main_loop);
 
-  g_object_unref (frame_clock);
+  clutter_frame_clock_destroy (frame_clock);
   g_source_destroy (source);
   g_source_unref (source);
 }
@@ -242,7 +242,7 @@ frame_clock_immediate_present (void)
   g_assert_cmpint (after_us - before_us, >, 9 * refresh_interval_us);
 
   g_main_loop_unref (main_loop);
-  g_object_unref (frame_clock);
+  clutter_frame_clock_destroy (frame_clock);
 }
 
 static gboolean
@@ -323,7 +323,7 @@ frame_clock_delayed_damage (void)
   g_assert_cmpint (after_us - before_us, >, 100000 + refresh_interval_us);
 
   g_main_loop_unref (test.main_loop);
-  g_object_unref (frame_clock);
+  clutter_frame_clock_destroy (frame_clock);
   g_source_destroy (source);
   g_source_unref (source);
 }
@@ -372,7 +372,7 @@ frame_clock_no_damage (void)
   g_main_loop_run (main_loop);
 
   g_main_loop_unref (main_loop);
-  g_object_unref (frame_clock);
+  clutter_frame_clock_destroy (frame_clock);
 }
 
 typedef struct _UpdateNowFrameClockTest
@@ -472,7 +472,7 @@ frame_clock_schedule_update_now (void)
 
   g_main_loop_unref (test.base.main_loop);
 
-  g_object_unref (frame_clock);
+  clutter_frame_clock_destroy (frame_clock);
   g_source_destroy (source);
   g_source_unref (source);
 }
@@ -543,7 +543,7 @@ frame_clock_before_frame (void)
   g_assert_cmpint (expected_frame_count, >, 2);
 
   g_main_loop_unref (main_loop);
-  g_object_unref (frame_clock);
+  clutter_frame_clock_destroy (frame_clock);
 }
 
 typedef struct _InhibitTest
@@ -625,7 +625,7 @@ frame_clock_inhibit (void)
   g_assert_cmpint (test.frame_count, ==, 2);
 
   g_main_loop_unref (test.main_loop);
-  g_object_unref (test.frame_clock);
+  clutter_frame_clock_destroy (test.frame_clock);
 }
 
 typedef struct _RescheduleOnIdleFrameClockTest
@@ -687,7 +687,7 @@ frame_clock_reschedule_on_idle (void)
   g_main_loop_run (test.base.main_loop);
 
   g_main_loop_unref (test.base.main_loop);
-  g_object_unref (frame_clock);
+  clutter_frame_clock_destroy (frame_clock);
 }
 
 CLUTTER_TEST_SUITE (

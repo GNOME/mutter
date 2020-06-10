@@ -109,7 +109,7 @@ frame_clock_timeline_basic (void)
   g_main_loop_unref (main_loop);
   g_object_unref (timeline);
   g_assert_null (timeline);
-  g_object_unref (frame_clock);
+  clutter_frame_clock_destroy (frame_clock);
   g_assert_null (frame_clock);
 }
 
@@ -192,9 +192,9 @@ frame_clock_timeline_switch (void)
   g_main_loop_unref (main_loop);
   g_object_unref (timeline);
   g_assert_null (timeline);
-  g_object_unref (frame_clock1);
+  clutter_frame_clock_destroy (frame_clock1);
   g_assert_null (frame_clock1);
-  g_object_unref (frame_clock2);
+  clutter_frame_clock_destroy (frame_clock2);
   g_assert_null (frame_clock2);
 }
 

@@ -1274,7 +1274,7 @@ clutter_stage_view_dispose (GObject *object)
   g_clear_pointer (&priv->offscreen, cogl_object_unref);
   g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
   g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
-  g_clear_object (&priv->frame_clock);
+  g_clear_pointer (&priv->frame_clock, clutter_frame_clock_destroy);
 
   G_OBJECT_CLASS (clutter_stage_view_parent_class)->dispose (object);
 }

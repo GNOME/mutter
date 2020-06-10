@@ -57,6 +57,9 @@ ClutterFrameClock * clutter_frame_clock_new (float                            re
                                              gpointer                         user_data);
 
 CLUTTER_EXPORT
+void clutter_frame_clock_destroy (ClutterFrameClock *frame_clock);
+
+CLUTTER_EXPORT
 void clutter_frame_clock_notify_presented (ClutterFrameClock *frame_clock,
                                            ClutterFrameInfo  *frame_info);
 
