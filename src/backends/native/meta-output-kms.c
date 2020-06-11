@@ -32,7 +32,6 @@
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-crtc-kms.h"
-#include "backends/native/meta-crtc-mode-kms.h"
 
 #include "meta-default-modes.h"
 
@@ -154,10 +153,7 @@ add_common_modes (MetaOutputInfo *output_info,
 
   for (i = 0; i < output_info->n_modes; i++)
     {
-      MetaCrtcMode *crtc_mode = output_info->modes[i];
-      MetaCrtcModeKms *crtc_mode_kms = META_CRTC_MODE_KMS (crtc_mode);
-
-      drm_mode = meta_crtc_mode_kms_get_drm_mode (crtc_mode_kms);
+      drm_mode = output_info->modes[i]->driver_private;
       refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
       max_hdisplay = MAX (max_hdisplay, drm_mode->hdisplay);
       max_vdisplay = MAX (max_vdisplay, drm_mode->vdisplay);
