@@ -45,7 +45,7 @@
 #include "clutter-build-config.h"
 
 #include <math.h>
-#include <cairo.h>
+#include <cairo-gobject.h>
 
 #define CLUTTER_DISABLE_DEPRECATION_WARNINGS
 #define CLUTTER_ENABLE_EXPERIMENTAL_API
@@ -2160,7 +2160,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 2,
                   CLUTTER_TYPE_STAGE_VIEW,
-                  G_TYPE_POINTER);
+                  CAIRO_GOBJECT_TYPE_REGION);
 
   /**
    * ClutterStage::presented: (skip)
