@@ -37,6 +37,8 @@
 
 struct _MetaCrtcKms
 {
+  MetaCrtc parent;
+
   MetaKmsCrtc *kms_crtc;
 
   MetaKmsPlane *primary_plane;
