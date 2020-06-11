@@ -685,6 +685,9 @@ orientation_changed (MetaOrientationManager *orientation_manager,
   GError *error = NULL;
   MetaMonitorsConfig *config;
 
+  if (!manager->panel_orientation_managed)
+    return;
+
   switch (meta_orientation_manager_get_orientation (orientation_manager))
     {
     case META_ORIENTATION_NORMAL:
