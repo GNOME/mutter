@@ -249,7 +249,6 @@ meta_crtc_xrandr_new (MetaGpuXrandr      *gpu_xrandr,
                               "all-transforms", all_transforms,
                               NULL);
 
-  crtc_xrandr = g_new0 (MetaCrtcXrandr, 1);
   crtc_xrandr->transform =
     meta_monitor_transform_from_xrandr (xrandr_crtc->rotation);
 
