@@ -1630,8 +1630,8 @@ meta_window_actor_x11_init (MetaWindowActorX11 *self)
 
   self->shadow_factory = meta_shadow_factory_get_default ();
   self->shadow_factory_changed_handler_id =
-    g_signal_connect (self->shadow_factory,
-                      "changed",
-                      G_CALLBACK (invalidate_shadow),
-                      self);
+    g_signal_connect_swapped (self->shadow_factory,
+                              "changed",
+                              G_CALLBACK (invalidate_shadow),
+                              self);
 }
