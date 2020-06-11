@@ -129,6 +129,8 @@ struct _MetaMonitorManager
 
   int persistent_timeout_id;
 
+  guint panel_orientation_managed : 1;
+
   MetaMonitorConfigManager *config_manager;
 
   GnomePnpIds *pnp_ids;

@@ -283,6 +283,14 @@
     <property name="PowerSaveMode" type="i" access="readwrite" />
 
     <!--
+        PanelOrientationManaged:
+
+        Whether the built-in panel orientation is automatically managed
+        by mutter.
+    -->
+    <property name="PanelOrientationManaged" type="b" access="read" />
+
+    <!--
         MonitorsChanged:
 
 	The signal is emitted every time the screen configuration
