@@ -756,12 +756,18 @@ static void
 update_panel_orientation_managed (MetaMonitorManager *manager)
 {
   MetaOrientationManager *orientation_manager;
+  ClutterBackend *clutter_backend;
+  ClutterSeat *seat;
   gboolean panel_orientation_managed;
+
+  clutter_backend = meta_backend_get_clutter_backend (manager->backend);
+  seat = clutter_backend_get_default_seat (clutter_backend);
 
   orientation_manager = meta_backend_get_orientation_manager (manager->backend);
 
   panel_orientation_managed =
-    meta_orientation_manager_has_accelerometer (orientation_manager);
+    (clutter_seat_get_touch_mode (seat) &&
+     meta_orientation_manager_has_accelerometer (orientation_manager));
 
   if (manager->panel_orientation_managed == panel_orientation_managed)
     return;
@@ -3226,4 +3232,18 @@ meta_monitor_manager_get_panel_orientation_managed (MetaMonitorManager *manager)
   g_return_val_if_fail (META_IS_MONITOR_MANAGER (manager), FALSE);
 
   return manager->panel_orientation_managed;
+}
+
+void
+meta_monitor_manager_post_init (MetaMonitorManager *manager)
+{
+  ClutterBackend *clutter_backend;
+  ClutterSeat *seat;
+
+  clutter_backend = meta_backend_get_clutter_backend (manager->backend);
+  seat = clutter_backend_get_default_seat (clutter_backend);
+
+  g_signal_connect_object (seat, "notify::touch-mode",
+                           G_CALLBACK (update_panel_orientation_managed), manager,
+                           G_CONNECT_SWAPPED);
 }

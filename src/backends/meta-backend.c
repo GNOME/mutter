@@ -560,6 +560,8 @@ meta_backend_real_post_init (MetaBackend *backend)
       reset_pointer_position (backend);
       priv->is_pointer_position_initialized = TRUE;
     }
+
+  meta_monitor_manager_post_init (priv->monitor_manager);
 }
 
 static gboolean

@@ -407,4 +407,6 @@ meta_find_output_assignment (MetaOutputAssignment **outputs,
   return NULL;
 }
 
+void meta_monitor_manager_post_init (MetaMonitorManager *manager);
+
 #endif /* META_MONITOR_MANAGER_PRIVATE_H */
