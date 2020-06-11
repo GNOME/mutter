@@ -39,4 +39,6 @@ G_DECLARE_FINAL_TYPE (MetaOrientationManager, meta_orientation_manager,
 
 MetaOrientation meta_orientation_manager_get_orientation (MetaOrientationManager *self);
 
+gboolean meta_orientation_manager_has_accelerometer (MetaOrientationManager *self);
+
 #endif  /* META_ORIENTATION_MANAGER_H */

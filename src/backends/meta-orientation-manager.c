@@ -34,6 +34,17 @@ enum
 
 static guint signals[N_SIGNALS];
 
+enum
+{
+  PROP_0,
+
+  PROP_HAS_ACCELEROMETER,
+
+  PROP_LAST
+};
+
+static GParamSpec *props[PROP_LAST];
+
 struct _MetaOrientationManager
 {
   GObject parent_instance;
@@ -44,6 +55,7 @@ struct _MetaOrientationManager
   GDBusProxy *iio_proxy;
   MetaOrientation prev_orientation;
   MetaOrientation curr_orientation;
+  guint has_accel : 1;
 
   GSettings *settings;
 };
@@ -71,22 +83,24 @@ orientation_from_string (const char *orientation)
 static void
 read_iio_proxy (MetaOrientationManager *self)
 {
-  gboolean has_accel = FALSE;
   GVariant *v;
 
   self->curr_orientation = META_ORIENTATION_UNDEFINED;
 
   if (!self->iio_proxy)
-    return;
+    {
+      self->has_accel = FALSE;
+      return;
+    }
 
   v = g_dbus_proxy_get_cached_property (self->iio_proxy, "HasAccelerometer");
   if (v)
     {
-      has_accel = g_variant_get_boolean (v);
+      self->has_accel = !!g_variant_get_boolean (v);
       g_variant_unref (v);
     }
 
-  if (has_accel)
+  if (self->has_accel)
     {
       v = g_dbus_proxy_get_cached_property (self->iio_proxy, "AccelerometerOrientation");
       if (v)
@@ -100,10 +114,15 @@ read_iio_proxy (MetaOrientationManager *self)
 static void
 sync_state (MetaOrientationManager *self)
 {
-  if (g_settings_get_boolean (self->settings, ORIENTATION_LOCK_KEY))
-    return;
+  gboolean had_accel = self->has_accel;
 
   read_iio_proxy (self);
+
+  if (had_accel != self->has_accel)
+    g_object_notify_by_pspec (G_OBJECT (self), props[PROP_HAS_ACCELEROMETER]);
+
+  if (g_settings_get_boolean (self->settings, ORIENTATION_LOCK_KEY))
+    return;
 
   if (self->prev_orientation == self->curr_orientation)
     return;
@@ -242,6 +261,25 @@ meta_orientation_manager_init (MetaOrientationManager *self)
 }
 
 static void
+meta_orientation_manager_get_property (GObject    *object,
+                                       guint       prop_id,
+                                       GValue     *value,
+                                       GParamSpec *pspec)
+{
+  MetaOrientationManager *self = META_ORIENTATION_MANAGER (object);
+
+  switch (prop_id)
+    {
+    case PROP_HAS_ACCELEROMETER:
+      g_value_set_boolean (value, self->has_accel);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_orientation_manager_finalize (GObject *object)
 {
   MetaOrientationManager *self = META_ORIENTATION_MANAGER (object);
@@ -263,6 +301,7 @@ meta_orientation_manager_class_init (MetaOrientationManagerClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   gobject_class->finalize = meta_orientation_manager_finalize;
+  gobject_class->get_property = meta_orientation_manager_get_property;
 
   signals[ORIENTATION_CHANGED] =
     g_signal_new ("orientation-changed",
@@ -271,10 +310,26 @@ meta_orientation_manager_class_init (MetaOrientationManagerClass *klass)
                   0,
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 0);
+
+  props[PROP_HAS_ACCELEROMETER] =
+    g_param_spec_boolean ("has-accelerometer",
+                          "Has accelerometer",
+                          "Has accelerometer",
+                          FALSE,
+                          G_PARAM_READABLE |
+                          G_PARAM_EXPLICIT_NOTIFY |
+                          G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (gobject_class, PROP_LAST, props);
 }
 
 MetaOrientation
 meta_orientation_manager_get_orientation (MetaOrientationManager *self)
 {
   return self->curr_orientation;
+}
+
+gboolean
+meta_orientation_manager_has_accelerometer (MetaOrientationManager *self)
+{
+  return self->has_accel;
 }
