@@ -843,12 +843,16 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
       g_debug ("Client message for stage, win:0x%x",
                (unsigned int) xevent->xany.window);
 
-      if (handle_wm_protocols_event (backend_x11, stage_x11, xevent))
+      if (xevent->xclient.message_type == backend_x11->atom_WM_PROTOCOLS)
         {
-          event->any.type = CLUTTER_DELETE;
-          event->any.stage = stage;
-          res = TRUE;
+          if (handle_wm_protocols_event (backend_x11, stage_x11, xevent))
+            {
+              event->any.type = CLUTTER_DELETE;
+              event->any.stage = stage;
+              res = TRUE;
+            }
         }
+
       break;
 
     default:
