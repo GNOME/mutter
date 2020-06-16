@@ -55,9 +55,15 @@ struct _MetaInputSettingsClass
   void (* set_tap_enabled)   (MetaInputSettings  *settings,
                               ClutterInputDevice *device,
                               gboolean            enabled);
+  void (* set_tap_button_map) (MetaInputSettings            *settings,
+                               ClutterInputDevice           *device,
+                               GDesktopTouchpadTapButtonMap  mode);
   void (* set_tap_and_drag_enabled) (MetaInputSettings  *settings,
                                      ClutterInputDevice *device,
                                      gboolean            enabled);
+  void (* set_tap_and_drag_lock_enabled) (MetaInputSettings  *settings,
+                                          ClutterInputDevice *device,
+                                          gboolean            enabled);
   void (* set_disable_while_typing) (MetaInputSettings  *settings,
                                      ClutterInputDevice *device,
                                      gboolean            enabled);

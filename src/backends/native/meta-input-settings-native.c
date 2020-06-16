@@ -141,6 +141,24 @@ meta_input_settings_native_set_tap_and_drag_enabled (MetaInputSettings  *setting
 }
 
 static void
+meta_input_settings_native_set_tap_and_drag_lock_enabled (MetaInputSettings  *settings,
+                                                          ClutterInputDevice *device,
+                                                          gboolean            enabled)
+{
+  struct libinput_device *libinput_device;
+
+  libinput_device = meta_input_device_native_get_libinput_device (device);
+  if (!libinput_device)
+    return;
+
+  if (libinput_device_config_tap_get_finger_count (libinput_device) > 0)
+    libinput_device_config_tap_set_drag_lock_enabled (libinput_device,
+                                                      enabled ?
+                                                      LIBINPUT_CONFIG_DRAG_LOCK_ENABLED :
+                                                      LIBINPUT_CONFIG_DRAG_LOCK_DISABLED);
+}
+
+static void
 meta_input_settings_native_set_disable_while_typing (MetaInputSettings  *settings,
                                                      ClutterInputDevice *device,
                                                      gboolean            enabled)
@@ -190,6 +208,15 @@ device_set_click_method (struct libinput_device            *libinput_device,
 {
   enum libinput_config_status status =
     libinput_device_config_click_set_method (libinput_device, method);
+  return status == LIBINPUT_CONFIG_STATUS_SUCCESS;
+}
+
+static gboolean
+device_set_tap_button_map (struct libinput_device              *libinput_device,
+                           enum libinput_config_tap_button_map  map)
+{
+  enum libinput_config_status status =
+    libinput_device_config_tap_set_button_map (libinput_device, map);
   return status == LIBINPUT_CONFIG_STATUS_SUCCESS;
 }
 
@@ -307,6 +334,40 @@ meta_input_settings_native_set_click_method (MetaInputSettings           *settin
   }
 
   device_set_click_method (libinput_device, click_method);
+}
+
+static void
+meta_input_settings_native_set_tap_button_map (MetaInputSettings            *settings,
+                                               ClutterInputDevice           *device,
+                                               GDesktopTouchpadTapButtonMap  mode)
+{
+  enum libinput_config_tap_button_map button_map = 0;
+  struct libinput_device *libinput_device;
+
+  libinput_device = meta_input_device_native_get_libinput_device (device);
+  if (!libinput_device)
+    return;
+
+  if (libinput_device_config_tap_get_finger_count (libinput_device) == 0)
+    return;
+
+  switch (mode)
+    {
+    case G_DESKTOP_TOUCHPAD_BUTTON_TAP_MAP_DEFAULT:
+      button_map = libinput_device_config_tap_get_default_button_map (libinput_device);
+      break;
+    case G_DESKTOP_TOUCHPAD_BUTTON_TAP_MAP_LRM:
+      button_map = LIBINPUT_CONFIG_TAP_MAP_LRM;
+      break;
+    case G_DESKTOP_TOUCHPAD_BUTTON_TAP_MAP_LMR:
+      button_map = LIBINPUT_CONFIG_TAP_MAP_LMR;
+      break;
+    default:
+      g_assert_not_reached ();
+      return;
+  }
+
+  device_set_tap_button_map (libinput_device, button_map);
 }
 
 static void
@@ -633,7 +694,10 @@ meta_input_settings_native_class_init (MetaInputSettingsNativeClass *klass)
   input_settings_class->set_speed = meta_input_settings_native_set_speed;
   input_settings_class->set_left_handed = meta_input_settings_native_set_left_handed;
   input_settings_class->set_tap_enabled = meta_input_settings_native_set_tap_enabled;
+  input_settings_class->set_tap_button_map = meta_input_settings_native_set_tap_button_map;
   input_settings_class->set_tap_and_drag_enabled = meta_input_settings_native_set_tap_and_drag_enabled;
+  input_settings_class->set_tap_and_drag_lock_enabled =
+    meta_input_settings_native_set_tap_and_drag_lock_enabled;
   input_settings_class->set_invert_scroll = meta_input_settings_native_set_invert_scroll;
   input_settings_class->set_edge_scroll = meta_input_settings_native_set_edge_scroll;
   input_settings_class->set_two_finger_scroll = meta_input_settings_native_set_two_finger_scroll;

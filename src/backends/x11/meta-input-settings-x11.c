@@ -290,6 +290,17 @@ meta_input_settings_x11_set_tap_and_drag_enabled (MetaInputSettings  *settings,
 }
 
 static void
+meta_input_settings_x11_set_tap_and_drag_lock_enabled (MetaInputSettings  *settings,
+                                                       ClutterInputDevice *device,
+                                                       gboolean            enabled)
+{
+  guchar value = (enabled) ? 1 : 0;
+
+  change_property (device, "libinput Tapping Drag Lock Enabled",
+                   XA_INTEGER, 8, &value, 1);
+}
+
+static void
 meta_input_settings_x11_set_invert_scroll (MetaInputSettings  *settings,
                                            ClutterInputDevice *device,
                                            gboolean            inverted)
@@ -427,6 +438,40 @@ meta_input_settings_x11_set_click_method (MetaInputSettings           *settings,
                      XA_INTEGER, 8, &values, 2);
 
   meta_XFree(available);
+}
+
+static void
+meta_input_settings_x11_set_tap_button_map (MetaInputSettings            *settings,
+                                            ClutterInputDevice           *device,
+                                            GDesktopTouchpadTapButtonMap  mode)
+{
+  guchar values[2] = { 0 }; /* lrm, lmr */
+  guchar *defaults;
+
+  switch (mode)
+    {
+    case G_DESKTOP_TOUCHPAD_BUTTON_TAP_MAP_DEFAULT:
+      defaults = get_property (device, "libinput Tapping Button Mapping Default",
+                               XA_INTEGER, 8, 2);
+      if (!defaults)
+        break;
+      memcpy (values, defaults, 2);
+      meta_XFree (defaults);
+      break;
+    case G_DESKTOP_TOUCHPAD_BUTTON_TAP_MAP_LRM:
+      values[0] = 1;
+      break;
+    case G_DESKTOP_TOUCHPAD_BUTTON_TAP_MAP_LMR:
+      values[1] = 1;
+      break;
+    default:
+      g_assert_not_reached ();
+      return;
+  }
+
+  if (values[0] || values[1])
+    change_property (device, "libinput Tapping Button Mapping Enabled",
+                     XA_INTEGER, 8, &values, 2);
 }
 
 static void
@@ -894,7 +939,10 @@ meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
   input_settings_class->set_speed = meta_input_settings_x11_set_speed;
   input_settings_class->set_left_handed = meta_input_settings_x11_set_left_handed;
   input_settings_class->set_tap_enabled = meta_input_settings_x11_set_tap_enabled;
+  input_settings_class->set_tap_button_map = meta_input_settings_x11_set_tap_button_map;
   input_settings_class->set_tap_and_drag_enabled = meta_input_settings_x11_set_tap_and_drag_enabled;
+  input_settings_class->set_tap_and_drag_lock_enabled =
+    meta_input_settings_x11_set_tap_and_drag_lock_enabled;
   input_settings_class->set_disable_while_typing = meta_input_settings_x11_set_disable_while_typing;
   input_settings_class->set_invert_scroll = meta_input_settings_x11_set_invert_scroll;
   input_settings_class->set_edge_scroll = meta_input_settings_x11_set_edge_scroll;

@@ -621,6 +621,36 @@ update_touchpad_tap_enabled (MetaInputSettings  *input_settings,
 }
 
 static void
+update_touchpad_tap_button_map (MetaInputSettings  *input_settings,
+                                ClutterInputDevice *device)
+{
+  MetaInputSettingsClass *input_settings_class;
+  GDesktopTouchpadTapButtonMap method;
+  MetaInputSettingsPrivate *priv;
+
+  if (device &&
+      clutter_input_device_get_device_type (device) != CLUTTER_TOUCHPAD_DEVICE)
+    return;
+
+  priv = meta_input_settings_get_instance_private (input_settings);
+  input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
+  method = g_settings_get_enum (priv->touchpad_settings, "tap-button-map");
+
+  if (device)
+    {
+      settings_device_set_uint_setting (input_settings, device,
+                                        input_settings_class->set_tap_button_map,
+                                        method);
+    }
+  else
+    {
+      settings_set_uint_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
+                                 (ConfigUintFunc) input_settings_class->set_tap_button_map,
+                                 method);
+    }
+}
+
+static void
 update_touchpad_tap_and_drag_enabled (MetaInputSettings  *input_settings,
                                       ClutterInputDevice *device)
 {
@@ -648,6 +678,37 @@ update_touchpad_tap_and_drag_enabled (MetaInputSettings  *input_settings,
       settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
                                  force_enable_on_tablet,
                                  input_settings_class->set_tap_and_drag_enabled,
+                                 enabled);
+    }
+}
+
+static void
+update_touchpad_tap_and_drag_lock_enabled (MetaInputSettings  *input_settings,
+                                           ClutterInputDevice *device)
+{
+  MetaInputSettingsClass *input_settings_class;
+  MetaInputSettingsPrivate *priv;
+  gboolean enabled;
+
+  if (device &&
+      clutter_input_device_get_device_type (device) != CLUTTER_TOUCHPAD_DEVICE)
+    return;
+
+  priv = meta_input_settings_get_instance_private (input_settings);
+  input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
+  enabled = g_settings_get_boolean (priv->touchpad_settings, "tap-and-drag-lock");
+
+  if (device)
+    {
+      settings_device_set_bool_setting (input_settings, device,
+                                        input_settings_class->set_tap_and_drag_lock_enabled,
+                                        enabled);
+    }
+  else
+    {
+      settings_set_bool_setting (input_settings, CLUTTER_TOUCHPAD_DEVICE,
+                                 NULL,
+                                 input_settings_class->set_tap_and_drag_lock_enabled,
                                  enabled);
     }
 }
@@ -1198,8 +1259,12 @@ meta_input_settings_changed_cb (GSettings  *settings,
         update_device_natural_scroll (input_settings, NULL);
       else if (strcmp (key, "tap-to-click") == 0)
         update_touchpad_tap_enabled (input_settings, NULL);
+      else if (strcmp (key, "tap-button-map") == 0)
+        update_touchpad_tap_button_map (input_settings, NULL);
       else if (strcmp (key, "tap-and-drag") == 0)
         update_touchpad_tap_and_drag_enabled (input_settings, NULL);
+      else if (strcmp (key, "tap-and-drag-lock") == 0)
+        update_touchpad_tap_and_drag_lock_enabled (input_settings, NULL);
       else if (strcmp(key, "disable-while-typing") == 0)
         update_touchpad_disable_while_typing (input_settings, NULL);
       else if (strcmp (key, "send-events") == 0)
@@ -1700,7 +1765,9 @@ apply_device_settings (MetaInputSettings  *input_settings,
 
   update_touchpad_left_handed (input_settings, device);
   update_touchpad_tap_enabled (input_settings, device);
+  update_touchpad_tap_button_map (input_settings, device);
   update_touchpad_tap_and_drag_enabled (input_settings, device);
+  update_touchpad_tap_and_drag_lock_enabled (input_settings, device);
   update_touchpad_disable_while_typing (input_settings, device);
   update_touchpad_send_events (input_settings, device);
   update_touchpad_two_finger_scroll (input_settings, device);
