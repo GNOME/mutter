@@ -3662,8 +3662,7 @@ clutter_text_set_color_animated (ClutterText        *self,
 
   if (transition == NULL)
     {
-      transition = clutter_property_transition_new_for_actor (actor,
-                                                              pspec->name);
+      transition = clutter_property_transition_new (pspec->name);
       clutter_transition_set_animatable (transition,
                                          CLUTTER_ANIMATABLE (self));
       clutter_transition_set_remove_on_complete (transition, TRUE);

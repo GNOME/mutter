@@ -660,17 +660,6 @@ clutter_timeline_get_property (GObject    *object,
 }
 
 static void
-clutter_timeline_constructed (GObject *object)
-{
-  ClutterTimeline *timeline = CLUTTER_TIMELINE (object);
-  ClutterTimelinePrivate *priv = timeline->priv;
-
-  g_warn_if_fail (priv->actor || priv->frame_clock);
-
-  G_OBJECT_CLASS (clutter_timeline_parent_class)->constructed (object);
-}
-
-static void
 clutter_timeline_finalize (GObject *object)
 {
   ClutterTimeline *self = CLUTTER_TIMELINE (object);
@@ -844,7 +833,6 @@ clutter_timeline_class_init (ClutterTimelineClass *klass)
 
   object_class->dispose = clutter_timeline_dispose;
   object_class->finalize = clutter_timeline_finalize;
-  object_class->constructed = clutter_timeline_constructed;
   object_class->set_property = clutter_timeline_set_property;
   object_class->get_property = clutter_timeline_get_property;
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
@@ -1339,6 +1327,8 @@ clutter_timeline_start (ClutterTimeline *timeline)
 
   if (priv->duration == 0)
     return;
+
+  g_warn_if_fail (priv->actor || priv->frame_clock);
 
   if (priv->delay)
     priv->delay_id = clutter_threads_add_timeout (priv->delay,

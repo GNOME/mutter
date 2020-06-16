@@ -17916,7 +17916,7 @@ _clutter_actor_create_transition (ClutterActor *actor,
   clos = g_hash_table_lookup (info->transitions, pspec->name);
   if (clos == NULL)
     {
-      res = clutter_property_transition_new_for_actor (actor, pspec->name);
+      res = clutter_property_transition_new (pspec->name);
 
       clutter_transition_set_remove_on_complete (res, TRUE);
 

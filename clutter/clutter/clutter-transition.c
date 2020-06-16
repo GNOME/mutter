@@ -364,6 +364,7 @@ clutter_transition_set_animatable (ClutterTransition *transition,
                                    ClutterAnimatable *animatable)
 {
   ClutterTransitionPrivate *priv;
+  ClutterActor *actor;
 
   g_return_if_fail (CLUTTER_IS_TRANSITION (transition));
   g_return_if_fail (animatable == NULL || CLUTTER_IS_ANIMATABLE (animatable));
@@ -383,6 +384,9 @@ clutter_transition_set_animatable (ClutterTransition *transition,
       priv->animatable = g_object_ref (animatable);
       clutter_transition_attach (transition, priv->animatable);
     }
+
+  actor = clutter_animatable_get_actor (animatable);
+  clutter_timeline_set_actor (CLUTTER_TIMELINE (transition), actor);
 }
 
 /**

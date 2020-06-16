@@ -82,7 +82,7 @@ CLUTTER_EXPORT
 ClutterTransition *     clutter_property_transition_new_for_actor       (ClutterActor              *actor,
                                                                          const char                *property_name);
 
-CLUTTER_DEPRECATED_FOR(clutter_transition_new_for_actor)
+CLUTTER_EXPORT
 ClutterTransition *     clutter_property_transition_new                 (const char                *property_name);
 
 CLUTTER_EXPORT
