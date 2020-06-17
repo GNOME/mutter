@@ -46,6 +46,8 @@ struct _MetaScreenCast
 
   MetaDbusSessionWatcher *session_watcher;
   MetaBackend *backend;
+
+  gboolean disable_dma_bufs;
 };
 
 static void
@@ -94,6 +96,12 @@ meta_screen_cast_get_backend (MetaScreenCast *screen_cast)
   return screen_cast->backend;
 }
 
+void
+meta_screen_cast_disable_dma_bufs (MetaScreenCast *screen_cast)
+{
+  screen_cast->disable_dma_bufs = TRUE;
+}
+
 CoglDmaBufHandle *
 meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
                                         int             width,
@@ -106,6 +114,9 @@ meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
   CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
   g_autoptr (GError) error = NULL;
   CoglDmaBufHandle *dmabuf_handle;
+
+  if (screen_cast->disable_dma_bufs)
+    return NULL;
 
   dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
                                                 width, height,

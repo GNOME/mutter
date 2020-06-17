@@ -64,6 +64,10 @@
 #include "core/meta-border.h"
 #include "meta/main.h"
 
+#ifdef HAVE_REMOTE_DESKTOP
+#include "backends/meta-screen-cast.h"
+#endif
+
 struct _MetaBackendNative
 {
   MetaBackend parent;
@@ -338,6 +342,38 @@ meta_backend_native_create_clutter_backend (MetaBackend *backend)
   return g_object_new (META_TYPE_CLUTTER_BACKEND_NATIVE, NULL);
 }
 
+#ifdef HAVE_REMOTE_DESKTOP
+static void
+maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
+{
+  MetaBackend *backend = META_BACKEND (native);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  MetaGpuKms *primary_gpu;
+  MetaKmsDevice *kms_device;
+  const char *driver_name;
+  static const char *disable_dma_buf_drivers[] = {
+    "qxl",
+    NULL,
+  };
+
+  primary_gpu = meta_renderer_native_get_primary_gpu (renderer_native);
+  kms_device = meta_gpu_kms_get_kms_device (primary_gpu);
+  driver_name = meta_kms_device_get_driver_name (kms_device);
+
+  if (g_strv_contains (disable_dma_buf_drivers, driver_name))
+    {
+      MetaScreenCast *screen_cast = meta_backend_get_screen_cast (backend);
+
+      g_message ("The '%s' driver doesn't support DMA buffer screen sharing, disabling.",
+                 driver_name);
+
+      meta_screen_cast_disable_dma_bufs (screen_cast);
+      return;
+    }
+}
+#endif /* HAVE_REMOTE_DESKTOP */
+
 static void
 meta_backend_native_post_init (MetaBackend *backend)
 {
@@ -367,6 +403,10 @@ meta_backend_native_post_init (MetaBackend *backend)
       if (retval != 0)
         g_warning ("Failed to set RT scheduler: %m");
     }
+
+#ifdef HAVE_REMOTE_DESKTOP
+  maybe_disable_screen_cast_dma_bufs (META_BACKEND_NATIVE (backend));
+#endif
 
 #ifdef HAVE_WAYLAND
   meta_backend_init_wayland (backend);
