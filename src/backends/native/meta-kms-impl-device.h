@@ -50,6 +50,10 @@ GList * meta_kms_impl_device_copy_planes (MetaKmsImplDevice *impl_device);
 
 const MetaKmsDeviceCaps * meta_kms_impl_device_get_caps (MetaKmsImplDevice *impl_device);
 
+const char * meta_kms_impl_device_get_driver_name (MetaKmsImplDevice *impl_device);
+
+const char * meta_kms_impl_device_get_driver_description (MetaKmsImplDevice *impl_device);
+
 gboolean meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
                                         GError            **error);
 

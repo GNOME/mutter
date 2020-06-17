@@ -39,6 +39,8 @@ struct _MetaKmsDevice
 
   MetaKmsDeviceFlag flags;
   char *path;
+  char *driver_name;
+  char *driver_description;
 
   GList *crtcs;
   GList *connectors;
@@ -65,6 +67,18 @@ const char *
 meta_kms_device_get_path (MetaKmsDevice *device)
 {
   return device->path;
+}
+
+const char *
+meta_kms_device_get_driver_name (MetaKmsDevice *device)
+{
+  return device->driver_name;
+}
+
+const char *
+meta_kms_device_get_driver_description (MetaKmsDevice *device)
+{
+  return device->driver_description;
 }
 
 MetaKmsDeviceFlag
@@ -200,6 +214,8 @@ typedef struct _CreateImplDeviceData
   GList *out_connectors;
   GList *out_planes;
   MetaKmsDeviceCaps out_caps;
+  char *out_driver_name;
+  char *out_driver_description;
 } CreateImplDeviceData;
 
 static gpointer
@@ -219,6 +235,10 @@ create_impl_device_in_impl (MetaKmsImpl  *impl,
   data->out_connectors = meta_kms_impl_device_copy_connectors (impl_device);
   data->out_planes = meta_kms_impl_device_copy_planes (impl_device);
   data->out_caps = *meta_kms_impl_device_get_caps (impl_device);
+  data->out_driver_name =
+    g_strdup (meta_kms_impl_device_get_driver_name (impl_device));
+  data->out_driver_description =
+    g_strdup (meta_kms_impl_device_get_driver_description (impl_device));
 
   return GINT_TO_POINTER (TRUE);
 }
@@ -262,6 +282,8 @@ meta_kms_device_new (MetaKms            *kms,
   device->connectors = data.out_connectors;
   device->planes = data.out_planes;
   device->caps = data.out_caps;
+  device->driver_name = data.out_driver_name;
+  device->driver_description = data.out_driver_description;
 
   return device;
 }

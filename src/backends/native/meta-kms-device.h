@@ -33,6 +33,10 @@ int meta_kms_device_leak_fd (MetaKmsDevice *device);
 
 const char * meta_kms_device_get_path (MetaKmsDevice *device);
 
+const char * meta_kms_device_get_driver_name (MetaKmsDevice *device);
+
+const char * meta_kms_device_get_driver_description (MetaKmsDevice *device);
+
 MetaKmsDeviceFlag meta_kms_device_get_flags (MetaKmsDevice *device);
 
 gboolean meta_kms_device_get_cursor_size (MetaKmsDevice *device,

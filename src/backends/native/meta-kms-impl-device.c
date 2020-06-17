@@ -45,6 +45,9 @@ struct _MetaKmsImplDevice
   int fd;
   GSource *fd_source;
 
+  char *driver_name;
+  char *driver_description;
+
   GList *crtcs;
   GList *connectors;
   GList *planes;
@@ -82,6 +85,18 @@ const MetaKmsDeviceCaps *
 meta_kms_impl_device_get_caps (MetaKmsImplDevice *impl_device)
 {
   return &impl_device->caps;
+}
+
+const char *
+meta_kms_impl_device_get_driver_name (MetaKmsImplDevice *impl_device)
+{
+  return impl_device->driver_name;
+}
+
+const char *
+meta_kms_impl_device_get_driver_description (MetaKmsImplDevice *impl_device)
+{
+  return impl_device->driver_description;
 }
 
 static void
@@ -357,6 +372,22 @@ init_planes (MetaKmsImplDevice *impl_device)
   impl_device->planes = g_list_reverse (impl_device->planes);
 }
 
+static void
+init_info (MetaKmsImplDevice *impl_device)
+{
+  drmVersion *drm_version;
+
+  drm_version = drmGetVersion (impl_device->fd);
+  if (!drm_version)
+    return;
+
+  impl_device->driver_name = g_strndup (drm_version->name,
+                                        drm_version->name_len);
+  impl_device->driver_description = g_strndup (drm_version->desc,
+                                               drm_version->desc_len);
+  drmFreeVersion (drm_version);
+}
+
 void
 meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
 {
@@ -435,6 +466,7 @@ meta_kms_impl_device_new (MetaKmsDevice  *device,
 
   init_crtcs (impl_device, drm_resources);
   init_planes (impl_device);
+  init_info (impl_device);
 
   update_connectors (impl_device, drm_resources);
 
@@ -484,6 +516,8 @@ meta_kms_impl_device_finalize (GObject *object)
   g_list_free_full (impl_device->planes, g_object_unref);
   g_list_free_full (impl_device->crtcs, g_object_unref);
   g_list_free_full (impl_device->connectors, g_object_unref);
+  g_free (impl_device->driver_name);
+  g_free (impl_device->driver_description);
 
   G_OBJECT_CLASS (meta_kms_impl_device_parent_class)->finalize (object);
 }
