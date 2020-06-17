@@ -56,6 +56,10 @@ GDBusConnection * meta_screen_cast_get_connection (MetaScreenCast *screen_cast);
 
 MetaBackend * meta_screen_cast_get_backend (MetaScreenCast *screen_cast);
 
+CoglDmaBufHandle * meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
+                                                           int             width,
+                                                           int             height);
+
 MetaScreenCast * meta_screen_cast_new (MetaBackend            *backend,
                                        MetaDbusSessionWatcher *session_watcher);
 

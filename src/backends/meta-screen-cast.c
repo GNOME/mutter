@@ -94,6 +94,34 @@ meta_screen_cast_get_backend (MetaScreenCast *screen_cast)
   return screen_cast->backend;
 }
 
+CoglDmaBufHandle *
+meta_screen_cast_create_dma_buf_handle (MetaScreenCast *screen_cast,
+                                        int             width,
+                                        int             height)
+{
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (screen_cast->backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglRenderer *cogl_renderer = cogl_context_get_renderer (cogl_context);
+  g_autoptr (GError) error = NULL;
+  CoglDmaBufHandle *dmabuf_handle;
+
+  dmabuf_handle = cogl_renderer_create_dma_buf (cogl_renderer,
+                                                width, height,
+                                                &error);
+  if (!dmabuf_handle)
+    {
+      g_warning ("Failed to allocate DMA buffer, "
+                 "disabling DMA buffer based screen casting: %s",
+                 error->message);
+      screen_cast->disable_dma_bufs = TRUE;
+      return NULL;
+    }
+
+  return dmabuf_handle;
+}
+
 static gboolean
 register_remote_desktop_screen_cast_session (MetaScreenCastSession  *session,
                                              const char             *remote_desktop_session_id,
