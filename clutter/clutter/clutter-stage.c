@@ -4526,8 +4526,8 @@ clutter_stage_paint_to_buffer (ClutterStage                 *stage,
   CoglFramebuffer *framebuffer;
   CoglBitmap *bitmap;
 
-  texture_width = (int) ceilf (rect->width * scale);
-  texture_height = (int) ceilf (rect->height * scale);
+  texture_width = (int) roundf (rect->width * scale);
+  texture_height = (int) roundf (rect->height * scale);
   texture = cogl_texture_2d_new_with_size (cogl_context,
                                            texture_width,
                                            texture_height);
