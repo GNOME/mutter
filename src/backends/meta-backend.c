@@ -1133,6 +1133,17 @@ meta_backend_get_remote_desktop (MetaBackend *backend)
 
   return priv->remote_desktop;
 }
+
+/**
+ * meta_backend_get_screen_cast: (skip)
+ */
+MetaScreenCast *
+meta_backend_get_screen_cast (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->screen_cast;
+}
 #endif /* HAVE_REMOTE_DESKTOP */
 
 /**

@@ -136,6 +136,8 @@ MetaEgl * meta_backend_get_egl (MetaBackend *backend);
 
 #ifdef HAVE_REMOTE_DESKTOP
 MetaRemoteDesktop * meta_backend_get_remote_desktop (MetaBackend *backend);
+
+MetaScreenCast * meta_backend_get_screen_cast (MetaBackend *backend);
 #endif
 
 gboolean meta_backend_grab_device (MetaBackend *backend,
