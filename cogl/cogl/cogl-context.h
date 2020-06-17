@@ -357,6 +357,16 @@ typedef enum _CoglGraphicsResetStatus
 COGL_EXPORT CoglGraphicsResetStatus
 cogl_get_graphics_reset_status (CoglContext *context);
 
+/**
+ * cogl_context_is_hardware_accelerated:
+ * @context: a #CoglContext pointer
+ *
+ * Returns: %TRUE if the @context is hardware accelerated, or %FALSE if
+ * not.
+ */
+COGL_EXPORT gboolean
+cogl_context_is_hardware_accelerated (CoglContext *context);
+
 G_END_DECLS
 
 #endif /* __COGL_CONTEXT_H__ */

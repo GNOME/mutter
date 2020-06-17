@@ -593,3 +593,9 @@ cogl_get_graphics_reset_status (CoglContext *context)
       return COGL_GRAPHICS_RESET_STATUS_NO_ERROR;
     }
 }
+
+gboolean
+cogl_context_is_hardware_accelerated (CoglContext *context)
+{
+  return context->driver_vtable->is_hardware_accelerated (context);
+}
