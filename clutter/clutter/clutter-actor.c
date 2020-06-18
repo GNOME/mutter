@@ -2443,8 +2443,7 @@ clutter_actor_real_get_preferred_width (ClutterActor *self,
 {
   ClutterActorPrivate *priv = self->priv;
 
-  if (priv->n_children != 0 &&
-      priv->layout_manager != NULL)
+  if (priv->layout_manager != NULL)
     {
       ClutterContainer *container = CLUTTER_CONTAINER (self);
 
@@ -2483,8 +2482,7 @@ clutter_actor_real_get_preferred_height (ClutterActor *self,
 {
   ClutterActorPrivate *priv = self->priv;
 
-  if (priv->n_children != 0 &&
-      priv->layout_manager != NULL)
+  if (priv->layout_manager != NULL)
     {
       ClutterContainer *container = CLUTTER_CONTAINER (self);
 
