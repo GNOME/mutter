@@ -1245,6 +1245,8 @@ clutter_stage_maybe_relayout (ClutterActor *actor)
   for (l = stolen_list; l; l = l->next)
     {
       g_autoptr (ClutterActor) queued_actor = l->data;
+      float x = 0.f;
+      float y = 0.f;
 
       if (CLUTTER_ACTOR_IN_RELAYOUT (queued_actor))  /* avoid reentrancy */
         continue;
@@ -1258,7 +1260,8 @@ clutter_stage_maybe_relayout (ClutterActor *actor)
 
       CLUTTER_SET_PRIVATE_FLAGS (queued_actor, CLUTTER_IN_RELAYOUT);
 
-      clutter_actor_allocate_preferred_size (queued_actor);
+      clutter_actor_get_fixed_position (queued_actor, &x, &y);
+      clutter_actor_allocate_preferred_size (queued_actor, x, y);
 
       CLUTTER_UNSET_PRIVATE_FLAGS (queued_actor, CLUTTER_IN_RELAYOUT);
 

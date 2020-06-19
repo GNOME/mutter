@@ -245,7 +245,13 @@ clutter_clone_allocate (ClutterActor           *self,
    */
   if (clutter_actor_get_parent (priv->clone_source) != NULL &&
       !clutter_actor_has_allocation (priv->clone_source))
-    clutter_actor_allocate_preferred_size (priv->clone_source);
+    {
+      float x = 0.f;
+      float y = 0.f;
+
+      clutter_actor_get_fixed_position (priv->clone_source, &x, &y);
+      clutter_actor_allocate_preferred_size (priv->clone_source, x, y);
+    }
 
   clutter_actor_get_allocation_box (priv->clone_source, &source_box);
 

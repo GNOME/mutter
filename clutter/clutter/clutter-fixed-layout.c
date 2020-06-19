@@ -139,7 +139,11 @@ clutter_fixed_layout_allocate (ClutterLayoutManager   *manager,
        child != NULL;
        child = clutter_actor_get_next_sibling (child))
     {
-      clutter_actor_allocate_preferred_size (child);
+      float x = 0.f;
+      float y = 0.f;
+
+      clutter_actor_get_fixed_position (child, &x, &y);
+      clutter_actor_allocate_preferred_size (child, x, y);
     }
 }
 

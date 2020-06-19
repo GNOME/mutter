@@ -419,7 +419,9 @@ CLUTTER_EXPORT
 void                            clutter_actor_allocate                          (ClutterActor                *self,
                                                                                  const ClutterActorBox       *box);
 CLUTTER_EXPORT
-void                            clutter_actor_allocate_preferred_size           (ClutterActor                *self);
+void                            clutter_actor_allocate_preferred_size           (ClutterActor                *self,
+                                                                                 float                        x,
+                                                                                 float                        y);
 CLUTTER_EXPORT
 void                            clutter_actor_allocate_available_size           (ClutterActor                *self,
                                                                                  gfloat                       x,
