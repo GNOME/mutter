@@ -165,6 +165,9 @@ clutter_bind_constraint_update_preferred_size (ClutterConstraint  *constraint,
         bind->coordinate == CLUTTER_BIND_ALL))
     return;
 
+  if (clutter_actor_contains (bind->source, actor))
+    return;
+
   switch (direction)
     {
     case CLUTTER_ORIENTATION_HORIZONTAL:
