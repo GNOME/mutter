@@ -10259,6 +10259,43 @@ clutter_actor_get_position (ClutterActor *self,
 }
 
 /**
+ * clutter_actor_get_fixed_position:
+ * @self: a #ClutterActor
+ * @x: (out) (allow-none): return location for the X coordinate, or %NULL
+ * @y: (out) (allow-none): return location for the Y coordinate, or %NULL
+ *
+ * This function gets the fixed position of the actor, if set. If there
+ * is no fixed position set, this function returns %FALSE and doesn't set
+ * the x and y coordinates.
+ *
+ * Returns: %TRUE if the fixed position is set, %FALSE if it isn't
+ */
+gboolean
+clutter_actor_get_fixed_position (ClutterActor *self,
+                                  float        *x,
+                                  float        *y)
+{
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
+
+  if (self->priv->position_set)
+    {
+      const ClutterLayoutInfo *info;
+
+      info = _clutter_actor_get_layout_info_or_defaults (self);
+
+      if (x)
+        *x = info->fixed_pos.x;
+
+      if (y)
+        *y = info->fixed_pos.y;
+
+      return TRUE;
+    }
+
+  return FALSE;
+}
+
+/**
  * clutter_actor_get_transformed_position:
  * @self: A #ClutterActor
  * @x: (out) (allow-none): return location for the X coordinate, or %NULL

@@ -454,6 +454,10 @@ void                            clutter_actor_set_position                      
                                                                                  gfloat                       x,
                                                                                  gfloat                       y);
 CLUTTER_EXPORT
+gboolean clutter_actor_get_fixed_position (ClutterActor *self,
+                                           float        *x,
+                                           float        *y);
+CLUTTER_EXPORT
 void                            clutter_actor_get_position                      (ClutterActor                *self,
                                                                                  gfloat                      *x,
                                                                                  gfloat                      *y);
