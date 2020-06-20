@@ -833,6 +833,18 @@ focus_candidates_maybe_take_and_focus_next (GQueue  **focus_candidates_ptr,
   meta_window_x11_maybe_focus_delayed (focus_window, focus_candidates, timestamp);
 }
 
+static void
+focus_window_delayed_unmanaged (gpointer user_data)
+{
+  MetaWindowX11DelayedFocusData *data = user_data;
+  uint32_t timestamp = data->timestamp;
+
+  focus_candidates_maybe_take_and_focus_next (&data->pending_focus_candidates,
+                                              timestamp);
+
+  meta_window_x11_delayed_focus_data_free (data);
+}
+
 static gboolean
 focus_window_delayed_timeout (gpointer user_data)
 {
@@ -868,7 +880,7 @@ meta_window_x11_maybe_focus_delayed (MetaWindow *window,
 
   data->unmanaged_id =
     g_signal_connect_swapped (window, "unmanaged",
-                              G_CALLBACK (meta_window_x11_delayed_focus_data_free),
+                              G_CALLBACK (focus_window_delayed_unmanaged),
                               data);
 
   data->focused_changed_id =
