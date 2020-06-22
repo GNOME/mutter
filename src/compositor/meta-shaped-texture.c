@@ -87,6 +87,9 @@ struct _MetaShapedTexture
   /* The region containing only fully opaque pixels */
   cairo_region_t *opaque_region;
 
+  /* MetaCullable regions, see that documentation for more details */
+  cairo_region_t *clip_region;
+
   gboolean size_invalid;
   MetaMonitorTransform transform;
   gboolean has_viewport_src_rect;
@@ -214,6 +217,15 @@ ensure_size_valid (MetaShapedTexture *stex)
     update_size (stex);
 }
 
+void
+meta_shaped_texture_set_clip_region (MetaShapedTexture *stex,
+                                     cairo_region_t    *clip_region)
+{
+  g_clear_pointer (&stex->clip_region, cairo_region_destroy);
+  if (clip_region)
+    stex->clip_region = cairo_region_reference (clip_region);
+}
+
 static void
 meta_shaped_texture_reset_pipelines (MetaShapedTexture *stex)
 {
@@ -239,6 +251,7 @@ meta_shaped_texture_dispose (GObject *object)
   meta_shaped_texture_reset_pipelines (stex);
 
   g_clear_pointer (&stex->opaque_region, cairo_region_destroy);
+  g_clear_pointer (&stex->clip_region, cairo_region_destroy);
 
   g_clear_pointer (&stex->snippet, cogl_object_unref);
 
@@ -585,12 +598,19 @@ do_paint_content (MetaShapedTexture   *stex,
 
   if (use_opaque_region)
     {
-      blended_tex_region = cairo_region_create_rectangle (&content_rect);
+      if (stex->clip_region)
+        blended_tex_region = cairo_region_copy (stex->clip_region);
+      else
+        blended_tex_region = cairo_region_create_rectangle (&content_rect);
+
       cairo_region_subtract (blended_tex_region, stex->opaque_region);
     }
   else
     {
-      blended_tex_region = NULL;
+      if (stex->clip_region)
+        blended_tex_region = cairo_region_reference (stex->clip_region);
+      else
+        blended_tex_region = NULL;
     }
 
   /* Limit to how many separate rectangles we'll draw; beyond this just
@@ -612,10 +632,21 @@ do_paint_content (MetaShapedTexture   *stex,
   /* First, paint the unblended parts, which are part of the opaque region. */
   if (use_opaque_region)
     {
+      cairo_region_t *region;
       int n_rects;
       int i;
 
-      if (!cairo_region_is_empty (stex->opaque_region))
+      if (stex->clip_region)
+        {
+          region = cairo_region_copy (stex->clip_region);
+          cairo_region_intersect (region, stex->opaque_region);
+        }
+      else
+        {
+          region = cairo_region_reference (stex->opaque_region);
+        }
+
+      if (!cairo_region_is_empty (region))
         {
           CoglPipeline *opaque_pipeline;
 
@@ -623,16 +654,18 @@ do_paint_content (MetaShapedTexture   *stex,
           cogl_pipeline_set_layer_texture (opaque_pipeline, 0, paint_tex);
           cogl_pipeline_set_layer_filters (opaque_pipeline, 0, filter, filter);
 
-          n_rects = cairo_region_num_rectangles (stex->opaque_region);
+          n_rects = cairo_region_num_rectangles (region);
           for (i = 0; i < n_rects; i++)
             {
               cairo_rectangle_int_t rect;
-              cairo_region_get_rectangle (stex->opaque_region, i, &rect);
+              cairo_region_get_rectangle (region, i, &rect);
               paint_clipped_rectangle_node (stex, root_node,
                                             opaque_pipeline,
                                             &rect, alloc);
             }
         }
+
+      cairo_region_destroy (region);
     }
 
   /* Now, go ahead and paint the blended parts. */
@@ -756,6 +789,9 @@ meta_shaped_texture_paint_content (ClutterContent      *content,
   ClutterActorBox alloc;
   CoglTexture *paint_tex = NULL;
   uint8_t opacity;
+
+  if (stex->clip_region && cairo_region_is_empty (stex->clip_region))
+    return;
 
   /* The GL EXT_texture_from_pixmap extension does allow for it to be
    * used together with SGIS_generate_mipmap, however this is very

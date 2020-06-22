@@ -34,7 +34,6 @@ typedef struct _MetaSurfaceActorPrivate
   cairo_region_t *input_region;
 
   /* MetaCullable regions, see that documentation for more details */
-  cairo_region_t *clip_region;
   cairo_region_t *unobscured_region;
 
   /* Freeze/thaw accounting */
@@ -134,30 +133,21 @@ set_clip_region (MetaSurfaceActor *surface_actor,
 {
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (surface_actor);
+  MetaShapedTexture *stex = priv->texture;
 
-  g_clear_pointer (&priv->clip_region, cairo_region_destroy);
-  if (clip_region)
+  if (clip_region && !cairo_region_is_empty (clip_region))
     {
-      if (cairo_region_is_empty (clip_region))
-        priv->clip_region = cairo_region_reference (clip_region);
-      else
-        priv->clip_region = get_scaled_region (surface_actor, clip_region);
+      cairo_region_t *region;
+
+      region = get_scaled_region (surface_actor, clip_region);
+      meta_shaped_texture_set_clip_region (stex, region);
+
+      cairo_region_destroy (region);
     }
-}
-
-static void
-meta_surface_actor_paint (ClutterActor        *actor,
-                          ClutterPaintContext *paint_context)
-{
-  MetaSurfaceActor *surface_actor = META_SURFACE_ACTOR (actor);
-  MetaSurfaceActorPrivate *priv =
-    meta_surface_actor_get_instance_private (surface_actor);
-
-  if (priv->clip_region && cairo_region_is_empty (priv->clip_region))
-    return;
-
-  CLUTTER_ACTOR_CLASS (meta_surface_actor_parent_class)->paint (actor,
-                                                                paint_context);
+  else
+    {
+      meta_shaped_texture_set_clip_region (stex, clip_region);
+    }
 }
 
 static void
@@ -227,7 +217,6 @@ meta_surface_actor_dispose (GObject *object)
   g_clear_object (&priv->texture);
 
   set_unobscured_region (self, NULL);
-  set_clip_region (self, NULL);
 
   G_OBJECT_CLASS (meta_surface_actor_parent_class)->dispose (object);
 }
@@ -239,7 +228,6 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
   ClutterActorClass *actor_class = CLUTTER_ACTOR_CLASS (klass);
 
   object_class->dispose = meta_surface_actor_dispose;
-  actor_class->paint = meta_surface_actor_paint;
   actor_class->pick = meta_surface_actor_pick;
   actor_class->get_paint_volume = meta_surface_actor_get_paint_volume;
 
