@@ -194,3 +194,25 @@ clutter_animatable_interpolate_value (ClutterAnimatable *animatable,
   else
     return clutter_interval_compute_value (interval, progress, value);
 }
+
+/**
+ * clutter_animatable_get_actor:
+ * @animatable: a #ClutterAnimatable
+ *
+ * Get animated actor.
+ *
+ * Return value: (transfer none): a #ClutterActor
+ */
+ClutterActor *
+clutter_animatable_get_actor (ClutterAnimatable *animatable)
+{
+  ClutterAnimatableInterface *iface;
+
+  g_return_val_if_fail (CLUTTER_IS_ANIMATABLE (animatable), NULL);
+
+  iface = CLUTTER_ANIMATABLE_GET_IFACE (animatable);
+
+  g_return_val_if_fail (iface->get_actor, NULL);
+
+  return iface->get_actor (animatable);
+}

@@ -13589,12 +13589,19 @@ clutter_actor_set_final_state (ClutterAnimatable *animatable,
   g_free (p_name);
 }
 
+static ClutterActor *
+clutter_actor_get_actor (ClutterAnimatable *animatable)
+{
+  return CLUTTER_ACTOR (animatable);
+}
+
 static void
 clutter_animatable_iface_init (ClutterAnimatableInterface *iface)
 {
   iface->find_property = clutter_actor_find_property;
   iface->get_initial_state = clutter_actor_get_initial_state;
   iface->set_final_state = clutter_actor_set_final_state;
+  iface->get_actor = clutter_actor_get_actor;
 }
 
 /**
