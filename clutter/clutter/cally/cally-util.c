@@ -60,17 +60,6 @@ static const gchar *         cally_util_get_toolkit_name		    (void);
 static const gchar *         cally_util_get_toolkit_version          (void);
 
 /* private */
-static void                  cally_util_simulate_snooper_install     (void);
-static void                  cally_util_simulate_snooper_remove      (void);
-static gboolean              cally_key_snooper                       (ClutterActor *actor,
-                                                                      ClutterEvent *event,
-                                                                      gpointer      user_data);
-static void                  cally_util_stage_added_cb               (ClutterStageManager *stage_manager,
-                                                                      ClutterStage *stage,
-                                                                      gpointer data);
-static void                  cally_util_stage_removed_cb             (ClutterStageManager *stage_manager,
-                                                                      ClutterStage *stage,
-                                                                      gpointer data);
 static gboolean              notify_hf                               (gpointer key,
                                                                       gpointer value,
                                                                       gpointer data);
@@ -153,11 +142,7 @@ cally_util_add_key_event_listener (AtkKeySnoopFunc  listener,
   CallyKeyEventInfo *event_info = NULL;
 
   if (!key_listener_list)
-  {
     key_listener_list = g_hash_table_new_full (NULL, NULL, NULL, g_free);
-
-    cally_util_simulate_snooper_install ();
-  }
 
   event_info = g_new (CallyKeyEventInfo, 1);
   event_info->listener = listener;
@@ -179,74 +164,10 @@ cally_util_remove_key_event_listener (guint remove_listener)
     {
       g_hash_table_destroy (key_listener_list);
       key_listener_list = NULL;
-      cally_util_simulate_snooper_remove ();
     }
 }
 
 /* ------------------------------ PRIVATE FUNCTIONS ------------------------- */
-
-/* Trying to emulate gtk_key_snooper install (a kind of wrapper). This
-   could be implemented without it, but I will maintain it in this
-   way, so if in the future clutter implements it natively it would be
-   easier the transition */
-static void
-cally_util_simulate_snooper_install (void)
-{
-  ClutterStageManager *stage_manager = NULL;
-  ClutterStage *stage = NULL;
-  GSList *stage_list = NULL;
-  GSList *iter = NULL;
-
-  stage_manager = clutter_stage_manager_get_default ();
-  stage_list = clutter_stage_manager_list_stages (stage_manager);
-
-  for (iter = stage_list; iter != NULL; iter = g_slist_next (iter))
-    {
-      stage = CLUTTER_STAGE (iter->data);
-
-      g_signal_connect (G_OBJECT (stage), "captured-event",
-                        G_CALLBACK (cally_key_snooper), NULL);
-    }
-
-  g_signal_connect (G_OBJECT (stage_manager), "stage-added",
-                    G_CALLBACK (cally_util_stage_added_cb), cally_key_snooper);
-  g_signal_connect (G_OBJECT (stage_manager), "stage-removed",
-                    G_CALLBACK (cally_util_stage_removed_cb), cally_key_snooper);
-
-  g_slist_free (stage_list);
-}
-
-static void
-cally_util_simulate_snooper_remove (void)
-{
-  ClutterStageManager *stage_manager = NULL;
-  ClutterStage *stage = NULL;
-  GSList *stage_list = NULL;
-  GSList *iter = NULL;
-  gint num = 0;
-
-  stage_manager = clutter_stage_manager_get_default ();
-  stage_list = clutter_stage_manager_list_stages (stage_manager);
-
-  for (iter = stage_list; iter != NULL; iter = g_slist_next (iter))
-    {
-      stage = CLUTTER_STAGE (iter->data);
-
-      num += g_signal_handlers_disconnect_by_func (stage, cally_key_snooper, NULL);
-    }
-
-  g_signal_handlers_disconnect_by_func (G_OBJECT (stage_manager),
-                                        G_CALLBACK (cally_util_stage_added_cb),
-                                        cally_key_snooper);
-
-  g_signal_handlers_disconnect_by_func (G_OBJECT (stage_manager),
-                                        G_CALLBACK (cally_util_stage_removed_cb),
-                                        cally_key_snooper);
-
-#ifdef CALLY_DEBUG
-  g_print ("Number of snooper callbacks disconnected: %i\n", num);
-#endif
-}
 
 static AtkKeyEventStruct *
 atk_key_event_from_clutter_event_key (ClutterKeyEvent *clutter_event,
@@ -384,59 +305,34 @@ check_key_visibility (ClutterEvent *event)
     return DEFAULT_PASSWORD_CHAR;
 }
 
-static gboolean
-cally_key_snooper (ClutterActor *actor,
-                   ClutterEvent *event,
-                   gpointer      user_data)
+gboolean
+cally_snoop_key_event (ClutterKeyEvent *key)
 {
+  ClutterEvent *event = (ClutterEvent *) key;
   AtkKeyEventStruct *key_event = NULL;
-  gint consumed = 0;
+  gboolean consumed = FALSE;
   gunichar password_char = 0;
 
   /* filter key events */
   if ((event->type != CLUTTER_KEY_PRESS) && (event->type != CLUTTER_KEY_RELEASE))
-    {
-      return FALSE;
-    }
-
-  password_char = check_key_visibility (event);
+    return FALSE;
 
   if (key_listener_list)
     {
       GHashTable *new_hash = g_hash_table_new (NULL, NULL);
 
       g_hash_table_foreach (key_listener_list, insert_hf, new_hash);
-      key_event = atk_key_event_from_clutter_event_key ((ClutterKeyEvent *)event,
-                                                        password_char);
+      password_char = check_key_visibility (event);
+      key_event = atk_key_event_from_clutter_event_key (key, password_char);
       /* func data is inside the hash table */
-      consumed = g_hash_table_foreach_steal (new_hash, notify_hf, key_event);
+      consumed = g_hash_table_foreach_steal (new_hash, notify_hf, key_event) > 0;
       g_hash_table_destroy (new_hash);
 
       g_free (key_event->string);
       g_free (key_event);
     }
 
-  return (consumed ? 1 : 0);
-}
-
-static void
-cally_util_stage_added_cb (ClutterStageManager *stage_manager,
-                           ClutterStage *stage,
-                           gpointer data)
-{
-  GCallback cally_key_snooper_cb = G_CALLBACK (data);
-
-  g_signal_connect (G_OBJECT (stage), "captured-event", cally_key_snooper_cb, NULL);
-}
-
-static void
-cally_util_stage_removed_cb (ClutterStageManager *stage_manager,
-                             ClutterStage *stage,
-                             gpointer data)
-{
-  GCallback cally_key_snooper_cb = G_CALLBACK (data);
-
-  g_signal_handlers_disconnect_by_func (stage, cally_key_snooper_cb, NULL);
+  return consumed;
 }
 
 void
