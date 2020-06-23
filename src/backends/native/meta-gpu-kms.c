@@ -247,10 +247,10 @@ meta_gpu_kms_set_power_save_mode (MetaGpuKms    *gpu_kms,
       /* Turn off CRTCs for DPMS */
       for (l = meta_gpu_get_crtcs (gpu); l; l = l->next)
         {
-          MetaCrtcKms *crtc_kms = META_CRTC_KMS (l->data);
+          MetaCrtc *crtc = META_CRTC (l->data);
 
           meta_kms_update_mode_set (kms_update,
-                                    meta_crtc_kms_get_kms_crtc (crtc_kms),
+                                    meta_crtc_kms_get_kms_crtc (crtc),
                                     NULL, NULL);
         }
     }
