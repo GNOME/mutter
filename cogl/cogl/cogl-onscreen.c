@@ -315,6 +315,9 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
 
   _cogl_framebuffer_flush_journal (framebuffer);
 
+  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
+    cogl_framebuffer_finish (framebuffer);
+
   winsys = _cogl_framebuffer_get_winsys (framebuffer);
   winsys->onscreen_swap_buffers_with_damage (onscreen,
                                              rectangles, n_rectangles,
@@ -363,6 +366,9 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
   g_queue_push_tail (&onscreen->pending_frame_infos, info);
 
   _cogl_framebuffer_flush_journal (framebuffer);
+
+  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
+    cogl_framebuffer_finish (framebuffer);
 
   winsys = _cogl_framebuffer_get_winsys (framebuffer);
 

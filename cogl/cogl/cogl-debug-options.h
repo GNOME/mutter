@@ -171,3 +171,16 @@ OPT (PERFORMANCE,
      "performance",
      N_("Trace performance concerns"),
      N_("Tries to highlight sub-optimal Cogl usage."))
+OPT (SYNC_PRIMITIVE,
+     N_("Root Cause"),
+     "sync-primitive",
+     N_("Render primitives synchronously"),
+     N_("Call glFinish after rendering each primitive, so profilers can see "
+        "the call stack of what's incurring most of the render time."))
+OPT (SYNC_FRAME,
+     N_("Root Cause"),
+     "sync-frame",
+     N_("Render frames synchronously"),
+     N_("Call glFinish after rendering each frame, so profilers can measure "
+        "the total render time (as a portion of the stage update time) more "
+        "accurately."))

@@ -1629,8 +1629,15 @@ _cogl_journal_log_quad (CoglJournal  *journal,
                                          add_framebuffer_deps_cb,
                                          framebuffer);
 
-  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_BATCHING)))
-    _cogl_journal_flush (journal);
+  if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_PRIMITIVE)))
+    {
+      _cogl_journal_flush (journal);
+      cogl_framebuffer_finish (framebuffer);
+    }
+  else if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_DISABLE_BATCHING)))
+    {
+      _cogl_journal_flush (journal);
+    }
 
   COGL_TIMER_STOP (_cogl_uprof_context, log_timer);
 }
