@@ -63,7 +63,6 @@ struct _MetaWaylandDataDevice
   MetaWaylandDataSource *primary_data_source;
   struct wl_listener selection_data_source_listener;
   struct wl_list resource_list;
-  struct wl_list focus_resource_list;
   struct wl_list primary_resource_list;
   MetaWaylandDragGrab *current_grab;
   struct wl_client *focus_client;
