@@ -408,17 +408,14 @@ get_unblended_pipeline (MetaShapedTexture *stex,
                         CoglContext       *ctx)
 {
   CoglPipeline *pipeline;
-  CoglColor color;
 
   if (stex->unblended_pipeline)
     return stex->unblended_pipeline;
 
   pipeline = cogl_pipeline_copy (get_base_pipeline (stex, ctx));
-  cogl_color_init_from_4ub (&color, 255, 255, 255, 255);
-  cogl_pipeline_set_blend (pipeline,
-                           "RGBA = ADD (SRC_COLOR, 0)",
-                           NULL);
-  cogl_pipeline_set_color (pipeline, &color);
+  cogl_pipeline_set_layer_combine (pipeline, 0,
+                                   "RGBA = REPLACE (TEXTURE)",
+                                   NULL);
 
   stex->unblended_pipeline = pipeline;
 
