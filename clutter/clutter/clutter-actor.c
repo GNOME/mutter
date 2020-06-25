@@ -16258,6 +16258,40 @@ clutter_actor_peek_stage_views (ClutterActor *self)
   return self->priv->stage_views;
 }
 
+gboolean
+clutter_actor_is_effectively_on_stage_view (ClutterActor     *self,
+                                            ClutterStageView *view)
+{
+  ClutterActor *actor;
+
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
+
+  if (g_list_find (self->priv->stage_views, view))
+    return TRUE;
+
+  for (actor = self; actor; actor = actor->priv->parent)
+    {
+      if (actor->priv->clones)
+        {
+          GHashTableIter iter;
+          gpointer key;
+
+          g_hash_table_iter_init (&iter, actor->priv->clones);
+          while (g_hash_table_iter_next (&iter, &key, NULL))
+            {
+              ClutterActor *clone = key;
+              GList *clone_views;
+
+              clone_views = clutter_actor_peek_stage_views (clone);
+              if (g_list_find (clone_views, view))
+                return TRUE;
+            }
+        }
+    }
+
+  return FALSE;
+}
+
 /**
  * clutter_actor_pick_frame_clock:
  * @self: a #ClutterActor
