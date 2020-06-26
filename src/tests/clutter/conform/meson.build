@@ -9,7 +9,6 @@ clutter_tests_conform_link_args = [
 ]
 
 clutter_conform_tests_actor_tests = [
-  'actor-anchors',
   'actor-clone',
   'actor-destroy',
   'actor-graph',
@@ -20,6 +19,7 @@ clutter_conform_tests_actor_tests = [
   'actor-offscreen-redirect',
   'actor-paint-opacity',
   'actor-pick',
+  'actor-pivot-point',
   'actor-shader-effect',
   'actor-size',
 ]
