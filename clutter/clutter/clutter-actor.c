@@ -12698,12 +12698,6 @@ typedef enum
                                ADD_CHILD_CHECK_STATE |
                                ADD_CHILD_NOTIFY_FIRST_LAST |
                                ADD_CHILD_SHOW_ON_SET_PARENT,
-
-  /* flags for legacy/deprecated API */
-  ADD_CHILD_LEGACY_FLAGS     = ADD_CHILD_EMIT_PARENT_SET |
-                               ADD_CHILD_CHECK_STATE |
-                               ADD_CHILD_NOTIFY_FIRST_LAST |
-                               ADD_CHILD_SHOW_ON_SET_PARENT
 } ClutterActorAddChildFlags;
 
 /*< private >
@@ -13082,43 +13076,6 @@ clutter_actor_insert_child_below (ClutterActor *self,
                                     ADD_CHILD_DEFAULT_FLAGS,
                                     insert_child_below,
                                     sibling);
-}
-
-/**
- * clutter_actor_set_parent:
- * @self: A #ClutterActor
- * @parent: A new #ClutterActor parent
- *
- * Sets the parent of @self to @parent.
- *
- * This function will result in @parent acquiring a reference on @self,
- * eventually by sinking its floating reference first. The reference
- * will be released by clutter_actor_unparent().
- *
- * This function should only be called by legacy #ClutterActor<!-- -->s
- * implementing the #ClutterContainer interface.
- *
- * Deprecated: 1.10: Use clutter_actor_add_child() instead.
- */
-void
-clutter_actor_set_parent (ClutterActor *self,
-		          ClutterActor *parent)
-{
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-  g_return_if_fail (CLUTTER_IS_ACTOR (parent));
-  g_return_if_fail (self != parent);
-  g_return_if_fail (self->priv->parent == NULL);
-
-  /* as this function will be called inside ClutterContainer::add
-   * implementations or when building up a composite actor, we have
-   * to preserve the old behaviour, and not create child meta or
-   * emit the ::actor-added signal, to avoid recursion or double
-   * emissions
-   */
-  clutter_actor_add_child_internal (parent, self,
-                                    ADD_CHILD_LEGACY_FLAGS,
-                                    insert_child_at_depth,
-                                    NULL);
 }
 
 /**

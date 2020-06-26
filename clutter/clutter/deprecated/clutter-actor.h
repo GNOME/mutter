@@ -33,10 +33,6 @@
 
 G_BEGIN_DECLS
 
-CLUTTER_DEPRECATED_FOR(clutter_actor_add_child)
-void            clutter_actor_set_parent                        (ClutterActor          *self,
-                                                                 ClutterActor          *parent);
-
 CLUTTER_DEPRECATED_FOR(clutter_actor_remove_child)
 void            clutter_actor_unparent                          (ClutterActor          *self);
 

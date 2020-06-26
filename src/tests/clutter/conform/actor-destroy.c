@@ -45,7 +45,7 @@ test_destroy_add (ClutterContainer *container,
              G_OBJECT_TYPE_NAME (actor));
 
   self->children = g_list_prepend (self->children, actor);
-  clutter_actor_set_parent (actor, CLUTTER_ACTOR (container));
+  clutter_actor_add_child (CLUTTER_ACTOR (container), actor);
 }
 
 static void

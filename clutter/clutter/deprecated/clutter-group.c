@@ -105,11 +105,7 @@ clutter_group_real_add (ClutterContainer *container,
   g_object_ref (actor);
 
   priv->children = g_list_append (priv->children, actor);
-  clutter_actor_set_parent (actor, CLUTTER_ACTOR (container));
-
-  clutter_actor_queue_relayout (CLUTTER_ACTOR (container));
-
-  g_signal_emit_by_name (container, "actor-added", actor);
+  clutter_actor_add_child (CLUTTER_ACTOR (container), actor);
 
   clutter_container_sort_depth_order (container);
 
