@@ -1,6 +1,6 @@
 {
   "id" : "test",
-  "type" : "ClutterBox",
+  "type" : "ClutterActor",
   "layout-manager" : { "id" : "layout", "type" : "ClutterBinLayout" },
   "children" : [
     {

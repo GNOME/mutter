@@ -12,7 +12,7 @@
     "children" : [
       {
         "id" : "test",
-        "type" : "ClutterBox",
+        "type" : "ClutterActor",
         "layout-manager" : "layout",
         "children" : [
           {

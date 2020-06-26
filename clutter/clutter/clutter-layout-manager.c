@@ -32,8 +32,7 @@
  * it has been paired, and it controls the allocation of its children.
  *
  * Any composite or container #ClutterActor subclass can delegate the
- * layouting of its children to a #ClutterLayoutManager. Clutter provides
- * a generic container using #ClutterLayoutManager called #ClutterBox.
+ * layouting of its children to a #ClutterLayoutManager.
  *
  * Clutter provides some simple #ClutterLayoutManager sub-classes, like
  * #ClutterFlowLayout and #ClutterBinLayout.
@@ -97,7 +96,7 @@
  *
  * |[
  * {
- *   "type" : "ClutterBox",
+ *   "type" : "ClutterActor",
  *   "layout-manager" : { "type" : "ClutterGridLayout" },
  *   "children" : [
  *     {

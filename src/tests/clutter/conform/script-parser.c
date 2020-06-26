@@ -215,9 +215,9 @@ script_object_property (void)
   g_assert_no_error (error);
 
   actor = clutter_script_get_object (script, "test");
-  g_assert (CLUTTER_IS_BOX (actor));
+  g_assert (CLUTTER_IS_ACTOR (actor));
 
-  manager = clutter_box_get_layout_manager (CLUTTER_BOX (actor));
+  manager = clutter_actor_get_layout_manager (CLUTTER_ACTOR (actor));
   g_assert (CLUTTER_IS_BIN_LAYOUT (manager));
 
   g_object_unref (script);
@@ -241,9 +241,9 @@ script_named_object (void)
   g_assert_no_error (error);
 
   actor = clutter_script_get_object (script, "test");
-  g_assert (CLUTTER_IS_BOX (actor));
+  g_assert (CLUTTER_IS_ACTOR (actor));
 
-  manager = clutter_box_get_layout_manager (CLUTTER_BOX (actor));
+  manager = clutter_actor_get_layout_manager (CLUTTER_ACTOR (actor));
   g_assert (CLUTTER_IS_BOX_LAYOUT (manager));
   g_assert (clutter_box_layout_get_orientation (CLUTTER_BOX_LAYOUT (manager)) == CLUTTER_ORIENTATION_VERTICAL);
 
