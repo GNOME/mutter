@@ -149,6 +149,7 @@ stacking_tests = [
   'basic-wayland',
   'client-side-decorated',
   'closed-transient',
+  'closed-transient-no-default-focus',
   'closed-transient-no-input-no-take-focus-parent',
   'closed-transient-no-input-no-take-focus-parents',
   'closed-transient-no-input-parent',
