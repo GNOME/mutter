@@ -115,7 +115,7 @@ test_texture_mipmaps (TestUtilsGTestFixture *fixture,
 
   stage = clutter_stage_get_default ();
 
-  clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
+  clutter_actor_set_background_color (CLUTTER_ACTOR (stage), &stage_color);
 
   group = clutter_actor_new ();
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), group);

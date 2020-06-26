@@ -217,7 +217,7 @@ test_texture_pixmap_x11 (TestUtilsGTestFixture *fixture,
   state.pixmap = create_pixmap (&state);
   state.tfp = cogl_texture_pixmap_x11_new (state.pixmap, TRUE);
 
-  clutter_stage_set_color (CLUTTER_STAGE (state.stage), &stage_color);
+  clutter_actor_set_background_color (CLUTTER_ACTOR (state.stage), &stage_color);
 
   paint_handler = g_signal_connect_after (state.stage, "paint",
                                           G_CALLBACK (on_paint), &state);

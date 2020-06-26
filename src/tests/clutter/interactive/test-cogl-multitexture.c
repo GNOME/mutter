@@ -130,7 +130,7 @@ test_cogl_multitexture_main (int argc, char *argv[])
   clutter_actor_get_size (stage, &stage_w, &stage_h);
 
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Cogl: Multi-texturing");
-  clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
+  clutter_actor_set_background_color (CLUTTER_ACTOR (stage), &stage_color);
 
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
 

@@ -74,15 +74,6 @@ gboolean        clutter_stage_is_default        (ClutterStage       *stage);
 CLUTTER_DEPRECATED_FOR(clutter_actor_queue_redraw)
 void            clutter_stage_queue_redraw      (ClutterStage       *stage);
 
-
-CLUTTER_DEPRECATED_FOR(clutter_actor_set_background_color)
-void            clutter_stage_set_color         (ClutterStage       *stage,
-                                                 const ClutterColor *color);
-
-CLUTTER_DEPRECATED_FOR(clutter_actor_get_background_color)
-void            clutter_stage_get_color         (ClutterStage       *stage,
-                                                 ClutterColor       *color);
-
 CLUTTER_DEPRECATED
 void            clutter_stage_ensure_current    (ClutterStage       *stage);
 

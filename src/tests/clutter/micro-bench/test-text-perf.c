@@ -131,7 +131,7 @@ main (int argc, char *argv[])
 
   stage = clutter_stage_new ();
   clutter_actor_set_size (stage, STAGE_WIDTH, STAGE_HEIGHT);
-  clutter_stage_set_color (CLUTTER_STAGE (stage), CLUTTER_COLOR_Black);
+  clutter_actor_set_background_color (CLUTTER_ACTOR (stage), CLUTTER_COLOR_Black);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Text Performance");
 
   g_signal_connect (stage, "paint", G_CALLBACK (on_paint), NULL);

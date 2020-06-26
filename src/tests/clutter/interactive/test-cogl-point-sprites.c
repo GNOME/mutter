@@ -254,7 +254,7 @@ test_cogl_point_sprites_main (int argc, char *argv[])
     }
 
   stage = clutter_stage_new ();
-  clutter_stage_set_color (CLUTTER_STAGE (stage), CLUTTER_COLOR_Black);
+  clutter_actor_set_background_color (CLUTTER_ACTOR (stage), CLUTTER_COLOR_Black);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Cogl Point Sprites");
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
   g_signal_connect_after (stage, "paint", G_CALLBACK (paint_cb), &data);

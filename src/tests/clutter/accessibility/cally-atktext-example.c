@@ -180,7 +180,7 @@ make_ui (ClutterActor *stage)
   ClutterActor *rectangle   = NULL;
   ClutterActor *label       = NULL;
 
-  clutter_stage_set_color (CLUTTER_STAGE (stage), &color_stage);
+  clutter_actor_set_background_color (CLUTTER_ACTOR (stage), &color_stage);
   clutter_actor_set_size (stage, WIDTH, HEIGHT);
 
   /* text */

@@ -394,7 +394,7 @@ test_viewport (TestUtilsGTestFixture *fixture,
   ClutterActor *stage;
 
   stage = clutter_stage_get_default ();
-  clutter_stage_set_color (CLUTTER_STAGE (stage), &stage_color);
+  clutter_actor_set_background_color (CLUTTER_ACTOR (stage), &stage_color);
 
   /* We force continuous redrawing of the stage, since we need to skip
    * the first few frames, and we wont be doing anything else that

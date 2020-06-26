@@ -57,7 +57,6 @@
 #include "clutter-actor-private.h"
 #include "clutter-backend-private.h"
 #include "clutter-cairo.h"
-#include "clutter-color.h"
 #include "clutter-container.h"
 #include "clutter-debug.h"
 #include "clutter-enum-types.h"
@@ -154,7 +153,6 @@ enum
 {
   PROP_0,
 
-  PROP_COLOR,
   PROP_PERSPECTIVE,
   PROP_TITLE,
   PROP_KEY_FOCUS,
@@ -1722,11 +1720,6 @@ clutter_stage_set_property (GObject      *object,
 
   switch (prop_id)
     {
-    case PROP_COLOR:
-      clutter_actor_set_background_color (CLUTTER_ACTOR (stage),
-                                          clutter_value_get_color (value));
-      break;
-
     case PROP_TITLE:
       clutter_stage_set_title (stage, g_value_get_string (value));
       break;
@@ -1751,16 +1744,6 @@ clutter_stage_get_property (GObject    *gobject,
 
   switch (prop_id)
     {
-    case PROP_COLOR:
-      {
-        ClutterColor bg_color;
-
-        clutter_actor_get_background_color (CLUTTER_ACTOR (gobject),
-                                            &bg_color);
-        clutter_value_set_color (value, &bg_color);
-      }
-      break;
-
     case PROP_PERSPECTIVE:
       g_value_set_boxed (value, &priv->perspective);
       break;
@@ -1875,22 +1858,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
   actor_class->apply_transform = clutter_stage_real_apply_transform;
 
   klass->paint_view = clutter_stage_real_paint_view;
-
-  /**
-   * ClutterStage:color:
-   *
-   * The background color of the main stage.
-   *
-   * Deprecated: 1.10: Use the #ClutterActor:background-color property of
-   *   #ClutterActor instead.
-   */
-  obj_props[PROP_COLOR] =
-      clutter_param_spec_color ("color",
-                                P_("Color"),
-                                P_("The color of the stage"),
-                                &default_stage_color,
-                                CLUTTER_PARAM_READWRITE |
-                                G_PARAM_DEPRECATED);
 
   /**
    * ClutterStage:perspective:
@@ -2190,40 +2157,6 @@ clutter_stage_get_default (void)
     }
 
   return CLUTTER_ACTOR (stage);
-}
-
-/**
- * clutter_stage_set_color:
- * @stage: A #ClutterStage
- * @color: A #ClutterColor
- *
- * Sets the stage color.
- *
- * Deprecated: 1.10: Use clutter_actor_set_background_color() instead.
- */
-void
-clutter_stage_set_color (ClutterStage       *stage,
-			 const ClutterColor *color)
-{
-  clutter_actor_set_background_color (CLUTTER_ACTOR (stage), color);
-
-  g_object_notify_by_pspec (G_OBJECT (stage), obj_props[PROP_COLOR]);
-}
-
-/**
- * clutter_stage_get_color:
- * @stage: A #ClutterStage
- * @color: (out caller-allocates): return location for a #ClutterColor
- *
- * Retrieves the stage color.
- *
- * Deprecated: 1.10: Use clutter_actor_get_background_color() instead.
- */
-void
-clutter_stage_get_color (ClutterStage *stage,
-			 ClutterColor *color)
-{
-  clutter_actor_get_background_color (CLUTTER_ACTOR (stage), color);
 }
 
 static void
