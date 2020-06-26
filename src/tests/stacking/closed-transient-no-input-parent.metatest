@@ -22,7 +22,6 @@ assert_stacking 2/1 1/1 1/2 1/3
 destroy 1/3
 wait
 
-assert_focused none
 assert_stacking 2/1 1/1 1/2
 
 sleep 150
