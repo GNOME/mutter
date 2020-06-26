@@ -33,9 +33,6 @@
 
 G_BEGIN_DECLS
 
-CLUTTER_DEPRECATED
-ClutterActor *  clutter_get_actor_by_gid                        (guint32                id_);
-
 CLUTTER_DEPRECATED_FOR(clutter_actor_add_child)
 void            clutter_actor_set_parent                        (ClutterActor          *self,
                                                                  ClutterActor          *parent);

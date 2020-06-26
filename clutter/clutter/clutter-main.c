@@ -2156,27 +2156,6 @@ _clutter_process_event (ClutterEvent *event)
   context->current_event = g_slist_delete_link (context->current_event, context->current_event);
 }
 
-/**
- * clutter_get_actor_by_gid:
- * @id_: a #ClutterActor unique id.
- *
- * Retrieves the #ClutterActor with @id_.
- *
- * Return value: (transfer none): the actor with the passed id or %NULL.
- *   The returned actor does not have its reference count increased.
- *
- * Since: 0.6
- *
- * Deprecated: 1.8: The id is deprecated, and this function always returns
- *   %NULL. Use the proper scene graph API in #ClutterActor to find a child
- *   of the stage.
- */
-ClutterActor *
-clutter_get_actor_by_gid (guint32 id_)
-{
-  return NULL;
-}
-
 void
 clutter_base_init (void)
 {
