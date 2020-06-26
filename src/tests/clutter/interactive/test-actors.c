@@ -247,9 +247,7 @@ test_actors_main (int argc, char *argv[])
 	- h / 2;
 
       clutter_actor_set_position (oh->hand[i], x, y);
-
-      clutter_actor_move_anchor_point_from_gravity (oh->hand[i],
-						   CLUTTER_GRAVITY_CENTER);
+      clutter_actor_set_translation (oh->hand[i], -100.f, -106.5, 0);
 
       /* Add to our group group */
       clutter_container_add_actor (CLUTTER_CONTAINER (oh->group), oh->hand[i]);

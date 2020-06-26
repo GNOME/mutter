@@ -208,7 +208,7 @@ test_cogl_multitexture_main (int argc, char *argv[])
   cogl_matrix_rotate (&state->rot_matrix1, -10.0, 0, 0, 1.0);
   cogl_matrix_translate (&state->rot_matrix1, -0.5, -0.5, 0);
 
-  clutter_actor_set_anchor_point (state->group, 86, 125);
+  clutter_actor_set_translation (data->parent_container, -86.f, -125.f, 0.f);
   clutter_container_add_actor (CLUTTER_CONTAINER(stage),
 			       state->group);
 

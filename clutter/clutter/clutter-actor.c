@@ -43,8 +43,7 @@
  *  5. rotation around the #ClutterActor:rotation-angle-x and #ClutterActor:rotation-center-x
  *  6. rotation around the #ClutterActor:rotation-angle-y and #ClutterActor:rotation-center-y
  *  7. rotation around the #ClutterActor:rotation-angle-z and #ClutterActor:rotation-center-z
- *  8. negative translation by the #ClutterActor:anchor-x and #ClutterActor:anchor-y point.
- *  9. negative translation by the actor's #ClutterActor:pivot-point
+ *  8. negative translation by the actor's #ClutterActor:pivot-point
  *
  * ## Modifying an actor's geometry ## {#clutter-actor-geometry}
  *
@@ -657,7 +656,6 @@
 #include "clutter-transition.h"
 #include "clutter-units.h"
 
-#include "deprecated/clutter-actor.h"
 #include "deprecated/clutter-container.h"
 
 /* Internal enum used to control mapped state update.  This is a hint
@@ -932,10 +930,6 @@ enum
   PROP_ROTATION_ANGLE_Y, /* XXX:2.0 rename to rotation-y */
   PROP_ROTATION_ANGLE_Z, /* XXX:2.0 rename to rotation-z */
 
-  PROP_ANCHOR_X, /* XXX:2.0 remove */
-  PROP_ANCHOR_Y, /* XXX:2.0 remove */
-  PROP_ANCHOR_GRAVITY, /*XXX:2.0 remove */
-
   PROP_TRANSLATION_X,
   PROP_TRANSLATION_Y,
   PROP_TRANSLATION_Z,
@@ -1053,23 +1047,6 @@ static void clutter_actor_set_natural_height_set (ClutterActor *self,
 static void clutter_actor_update_map_state       (ClutterActor  *self,
                                                   MapStateChange change);
 static void clutter_actor_unrealize_not_hiding   (ClutterActor *self);
-
-/* Helper routines for managing anchor coords */
-static void clutter_anchor_coord_get_units (ClutterActor      *self,
-                                            const AnchorCoord *coord,
-                                            gfloat            *x,
-                                            gfloat            *y,
-                                            gfloat            *z);
-static void clutter_anchor_coord_set_units (AnchorCoord       *coord,
-                                            gfloat             x,
-                                            gfloat             y,
-                                            gfloat             z);
-
-static ClutterGravity clutter_anchor_coord_get_gravity (const AnchorCoord *coord);
-static void           clutter_anchor_coord_set_gravity (AnchorCoord       *coord,
-                                                        ClutterGravity     gravity);
-
-static gboolean clutter_anchor_coord_is_zero (const AnchorCoord *coord);
 
 static void _clutter_actor_get_relative_transformation_matrix (ClutterActor *self,
                                                                ClutterActor *ancestor,
@@ -3148,15 +3125,6 @@ clutter_actor_real_apply_transform (ClutterActor  *self,
   if (info->rx_angle)
     cogl_matrix_rotate (transform, info->rx_angle, 1.0, 0, 0);
 
-  /* XXX:2.0 remove anchor point translation */
-  if (!clutter_anchor_coord_is_zero (&info->anchor))
-    {
-      gfloat x, y, z;
-
-      clutter_anchor_coord_get_units (self, &info->anchor, &x, &y, &z);
-      cogl_matrix_translate (transform, -x, -y, -z);
-    }
-
 roll_back_pivot:
   /* roll back the pivot translation */
   if (pivot_x != 0.f || pivot_y != 0.f || info->pivot_z != 0.f)
@@ -4411,8 +4379,6 @@ static const ClutterTransformInfo default_transform_info = {
 
   1.0, 1.0, 1.0,                /* scale */
 
-  { 0, },                       /* anchor XXX:2.0 - remove*/
-
   GRAPHENE_POINT3D_INIT_ZERO,   /* translation */
 
   0.f,                          /* z-position */
@@ -4852,57 +4818,6 @@ clutter_actor_set_scale_factor (ClutterActor      *self,
     _clutter_actor_create_transition (self, pspec, *scale_p, factor);
 }
 
-/* XXX:2.0 - remove */
-static inline void
-clutter_actor_set_anchor_coord (ClutterActor      *self,
-                                ClutterRotateAxis  axis,
-                                gfloat             coord)
-{
-  GObject *obj = G_OBJECT (self);
-  ClutterTransformInfo *info;
-  gfloat anchor_x, anchor_y;
-
-  info = _clutter_actor_get_transform_info (self);
-
-  g_object_freeze_notify (obj);
-
-  clutter_anchor_coord_get_units (self, &info->anchor,
-                                  &anchor_x,
-                                  &anchor_y,
-                                  NULL);
-
-  if (info->anchor.is_fractional)
-    g_object_notify_by_pspec (obj, obj_props[PROP_ANCHOR_GRAVITY]);
-
-  switch (axis)
-    {
-    case CLUTTER_X_AXIS:
-      clutter_anchor_coord_set_units (&info->anchor,
-                                      coord,
-                                      anchor_y,
-                                      0.0);
-      g_object_notify_by_pspec (obj, obj_props[PROP_ANCHOR_X]);
-      break;
-
-    case CLUTTER_Y_AXIS:
-      clutter_anchor_coord_set_units (&info->anchor,
-                                      anchor_x,
-                                      coord,
-                                      0.0);
-      g_object_notify_by_pspec (obj, obj_props[PROP_ANCHOR_Y]);
-      break;
-
-    default:
-      g_assert_not_reached ();
-    }
-
-  self->priv->transform_valid = FALSE;
-
-  clutter_actor_queue_redraw (self);
-
-  g_object_thaw_notify (obj);
-}
-
 static void
 clutter_actor_set_clip_rect (ClutterActor          *self,
                              const graphene_rect_t *clip)
@@ -5117,21 +5032,6 @@ clutter_actor_set_property (GObject      *object,
       clutter_actor_set_rotation_angle (actor,
                                         CLUTTER_Z_AXIS,
                                         g_value_get_double (value));
-      break;
-
-    case PROP_ANCHOR_X: /* XXX:2.0 - remove */
-      clutter_actor_set_anchor_coord (actor, CLUTTER_X_AXIS,
-                                      g_value_get_float (value));
-      break;
-
-    case PROP_ANCHOR_Y: /* XXX:2.0 - remove */
-      clutter_actor_set_anchor_coord (actor, CLUTTER_Y_AXIS,
-                                      g_value_get_float (value));
-      break;
-
-    case PROP_ANCHOR_GRAVITY: /* XXX:2.0 - remove */
-      clutter_actor_set_anchor_point_from_gravity (actor,
-                                                   g_value_get_enum (value));
       break;
 
     case PROP_TRANSFORM:
@@ -5514,38 +5414,6 @@ clutter_actor_get_property (GObject    *object,
         info = _clutter_actor_get_transform_info_or_defaults (actor);
         g_value_set_double (value, info->rz_angle);
       }
-      break;
-
-    case PROP_ANCHOR_X: /* XXX:2.0 - remove */
-      {
-        const ClutterTransformInfo *info;
-        gfloat anchor_x;
-
-        info = _clutter_actor_get_transform_info_or_defaults (actor);
-        clutter_anchor_coord_get_units (actor, &info->anchor,
-                                        &anchor_x,
-                                        NULL,
-                                        NULL);
-        g_value_set_float (value, anchor_x);
-      }
-      break;
-
-    case PROP_ANCHOR_Y: /* XXX:2.0 - remove */
-      {
-        const ClutterTransformInfo *info;
-        gfloat anchor_y;
-
-        info = _clutter_actor_get_transform_info_or_defaults (actor);
-        clutter_anchor_coord_get_units (actor, &info->anchor,
-                                        NULL,
-                                        &anchor_y,
-                                        NULL);
-        g_value_set_float (value, anchor_y);
-      }
-      break;
-
-    case PROP_ANCHOR_GRAVITY: /* XXX:2.0 - remove */
-      g_value_set_enum (value, clutter_actor_get_anchor_point_gravity (actor));
       break;
 
     case PROP_TRANSFORM:
@@ -6879,92 +6747,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS |
                          CLUTTER_PARAM_ANIMATABLE);
-
-  /**
-   * ClutterActor:anchor-x:
-   *
-   * The X coordinate of an actor's anchor point, relative to
-   * the actor coordinate space, in pixels.
-   *
-   * It is highly recommended not to use #ClutterActor:anchor-x,
-   * #ClutterActor:anchor-y, and #ClutterActor:anchor-gravity in newly
-   * written code; the anchor point adds an additional translation that
-   * will affect the actor's relative position with regards to its
-   * parent, as well as the position of its children. This change needs
-   * to always be taken into account when positioning the actor. It is
-   * recommended to use the #ClutterActor:pivot-point property instead,
-   * as it will affect only the transformations.
-   *
-   * Since: 0.8
-   *
-   * Deprecated: 1.12: Use #ClutterActor:pivot-point instead
-   */
-  obj_props[PROP_ANCHOR_X] = /* XXX:2.0 - remove */
-    g_param_spec_float ("anchor-x",
-                        P_("Anchor X"),
-                        P_("X coordinate of the anchor point"),
-                        -G_MAXFLOAT, G_MAXFLOAT,
-                        0,
-                        G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS |
-                        G_PARAM_DEPRECATED);
-
-  /**
-   * ClutterActor:anchor-y:
-   *
-   * The Y coordinate of an actor's anchor point, relative to
-   * the actor coordinate space, in pixels
-   *
-   * It is highly recommended not to use #ClutterActor:anchor-x,
-   * #ClutterActor:anchor-y, and #ClutterActor:anchor-gravity in newly
-   * written code; the anchor point adds an additional translation that
-   * will affect the actor's relative position with regards to its
-   * parent, as well as the position of its children. This change needs
-   * to always be taken into account when positioning the actor. It is
-   * recommended to use the #ClutterActor:pivot-point property instead,
-   * as it will affect only the transformations.
-   *
-   * Since: 0.8
-   *
-   * Deprecated: 1.12: Use #ClutterActor:pivot-point instead
-   */
-  obj_props[PROP_ANCHOR_Y] = /* XXX:2.0 - remove */
-    g_param_spec_float ("anchor-y",
-                        P_("Anchor Y"),
-                        P_("Y coordinate of the anchor point"),
-                        -G_MAXFLOAT, G_MAXFLOAT,
-                        0,
-                        G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS |
-                        G_PARAM_DEPRECATED);
-
-  /**
-   * ClutterActor:anchor-gravity:
-   *
-   * The anchor point expressed as a #ClutterGravity
-   *
-   * It is highly recommended not to use #ClutterActor:anchor-x,
-   * #ClutterActor:anchor-y, and #ClutterActor:anchor-gravity in newly
-   * written code; the anchor point adds an additional translation that
-   * will affect the actor's relative position with regards to its
-   * parent, as well as the position of its children. This change needs
-   * to always be taken into account when positioning the actor. It is
-   * recommended to use the #ClutterActor:pivot-point property instead,
-   * as it will affect only the transformations.
-   *
-   * Since: 1.0
-   *
-   * Deprecated: 1.12: Use #ClutterActor:pivot-point instead
-   */
-  obj_props[PROP_ANCHOR_GRAVITY] = /* XXX:2.0 - remove */
-    g_param_spec_enum ("anchor-gravity",
-                       P_("Anchor Gravity"),
-                       P_("The anchor point as a ClutterGravity"),
-                       CLUTTER_TYPE_GRAVITY,
-                       CLUTTER_GRAVITY_NONE,
-                       G_PARAM_READWRITE |
-                       G_PARAM_STATIC_STRINGS |
-                       G_PARAM_DEPRECATED);
 
   /**
    * ClutterActor:translation-x:
@@ -9126,7 +8908,7 @@ clutter_actor_update_preferred_size_for_constraints (ClutterActor *self,
  * An actor may not get its request - depending on the layout
  * manager that's in effect.
  *
- * A request should not incorporate the actor's scale or anchor point;
+ * A request should not incorporate the actor's scaleor translation;
  * those transformations do not affect layout, only rendering.
  *
  * Since: 0.8
@@ -9291,7 +9073,7 @@ clutter_actor_get_preferred_width (ClutterActor *self,
  * An actor may not get its request - depending on the layout
  * manager that's in effect.
  *
- * A request should not incorporate the actor's scale or anchor point;
+ * A request should not incorporate the actor's scale or translation;
  * those transformations do not affect layout, only rendering.
  *
  * Since: 0.8
@@ -9448,7 +9230,7 @@ clutter_actor_get_preferred_height (ClutterActor *self,
  * only be assumed valid inside a paint() method; anywhere else, it
  * may be out-of-date.
  *
- * An allocation does not incorporate the actor's scale or anchor point;
+ * An allocation does not incorporate the actor's scale or translation;
  * those transformations do not affect layout, only rendering.
  *
  * Do not call any of the clutter_actor_get_allocation_*() family
@@ -9957,8 +9739,7 @@ clutter_actor_set_fixed_position_set (ClutterActor *self,
  *
  * This function modifies the fixed position of an actor and thus removes
  * it from any layout management. Another way to move an actor is with an
- * anchor point, see clutter_actor_set_anchor_point(), or with an additional
- * translation, using clutter_actor_set_translation().
+ * additional translation, using clutter_actor_set_translation().
  *
  * Since: 0.2
  */
@@ -11570,8 +11351,7 @@ clutter_actor_get_pivot_point_z (ClutterActor *self)
  * @height: Height of the clip rectangle
  *
  * Sets clip area for @self. The clip area is always computed from the
- * upper left corner of the actor, even if the anchor point is set
- * otherwise.
+ * upper left corner of the actor.
  *
  * Since: 0.6
  */
@@ -12913,242 +12693,6 @@ clutter_actor_get_reactive (ClutterActor *actor)
   return CLUTTER_ACTOR_IS_REACTIVE (actor) ? TRUE : FALSE;
 }
 
-/**
- * clutter_actor_set_anchor_point:
- * @self: a #ClutterActor
- * @anchor_x: X coordinate of the anchor point
- * @anchor_y: Y coordinate of the anchor point
- *
- * Sets an anchor point for @self. The anchor point is a point in the
- * coordinate space of an actor to which the actor position within its
- * parent is relative; the default is (0, 0), i.e. the top-left corner
- * of the actor.
- *
- * Since: 0.6
- *
- * Deprecated: 1.12: Use #ClutterActor:pivot-point instead.
- */
-void
-clutter_actor_set_anchor_point (ClutterActor *self,
-                                gfloat        anchor_x,
-                                gfloat        anchor_y)
-{
-  ClutterTransformInfo *info;
-  ClutterActorPrivate *priv;
-  gboolean changed = FALSE;
-  gfloat old_anchor_x, old_anchor_y;
-  GObject *obj;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  obj = G_OBJECT (self);
-  priv = self->priv;
-  info = _clutter_actor_get_transform_info (self);
-
-  g_object_freeze_notify (obj);
-
-  clutter_anchor_coord_get_units (self, &info->anchor,
-                                  &old_anchor_x,
-                                  &old_anchor_y,
-                                  NULL);
-
-  if (info->anchor.is_fractional)
-    g_object_notify_by_pspec (obj, obj_props[PROP_ANCHOR_GRAVITY]);
-
-  if (old_anchor_x != anchor_x)
-    {
-      g_object_notify_by_pspec (obj, obj_props[PROP_ANCHOR_X]);
-      changed = TRUE;
-    }
-
-  if (old_anchor_y != anchor_y)
-    {
-      g_object_notify_by_pspec (obj, obj_props[PROP_ANCHOR_Y]);
-      changed = TRUE;
-    }
-
-  clutter_anchor_coord_set_units (&info->anchor, anchor_x, anchor_y, 0);
-
-  if (changed)
-    {
-      priv->transform_valid = FALSE;
-      clutter_actor_queue_redraw (self);
-    }
-
-  g_object_thaw_notify (obj);
-}
-
-/**
- * clutter_actor_get_anchor_point_gravity:
- * @self: a #ClutterActor
- *
- * Retrieves the anchor position expressed as a #ClutterGravity. If
- * the anchor point was specified using pixels or units this will
- * return %CLUTTER_GRAVITY_NONE.
- *
- * Return value: the #ClutterGravity used by the anchor point
- *
- * Since: 1.0
- *
- * Deprecated: 1.12: Use #ClutterActor:pivot-point instead.
- */
-ClutterGravity
-clutter_actor_get_anchor_point_gravity (ClutterActor *self)
-{
-  const ClutterTransformInfo *info;
-
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), CLUTTER_GRAVITY_NONE);
-
-  info = _clutter_actor_get_transform_info_or_defaults (self);
-
-  return clutter_anchor_coord_get_gravity (&info->anchor);
-}
-
-/**
- * clutter_actor_move_anchor_point:
- * @self: a #ClutterActor
- * @anchor_x: X coordinate of the anchor point
- * @anchor_y: Y coordinate of the anchor point
- *
- * Sets an anchor point for the actor, and adjusts the actor postion so that
- * the relative position of the actor toward its parent remains the same.
- *
- * Since: 0.6
- *
- * Deprecated: 1.12: Use #ClutterActor:pivot-point and 
- * clutter_actor_set_translation() instead.
- */
-void
-clutter_actor_move_anchor_point (ClutterActor *self,
-                                 gfloat        anchor_x,
-                                 gfloat        anchor_y)
-{
-  gfloat old_anchor_x, old_anchor_y;
-  const ClutterTransformInfo *info;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  info = _clutter_actor_get_transform_info (self);
-  clutter_anchor_coord_get_units (self, &info->anchor,
-                                  &old_anchor_x,
-                                  &old_anchor_y,
-                                  NULL);
-
-  g_object_freeze_notify (G_OBJECT (self));
-
-  clutter_actor_set_anchor_point (self, anchor_x, anchor_y);
-
-  if (self->priv->position_set)
-    clutter_actor_move_by (self,
-                           anchor_x - old_anchor_x,
-                           anchor_y - old_anchor_y);
-
-  g_object_thaw_notify (G_OBJECT (self));
-}
-
-/**
- * clutter_actor_move_anchor_point_from_gravity:
- * @self: a #ClutterActor
- * @gravity: #ClutterGravity.
- *
- * Sets an anchor point on the actor based on the given gravity, adjusting the
- * actor postion so that its relative position within its parent remains
- * unchanged.
- *
- * Since version 1.0 the anchor point will be stored as a gravity so
- * that if the actor changes size then the anchor point will move. For
- * example, if you set the anchor point to %CLUTTER_GRAVITY_SOUTH_EAST
- * and later double the size of the actor, the anchor point will move
- * to the bottom right.
- *
- * Since: 0.6
- *
- * Deprecated: 1.12: Use #ClutterActor:pivot-point and 
- * clutter_actor_set_translation() instead.
- */
-void
-clutter_actor_move_anchor_point_from_gravity (ClutterActor   *self,
-					      ClutterGravity  gravity)
-{
-  gfloat old_anchor_x, old_anchor_y, new_anchor_x, new_anchor_y;
-  const ClutterTransformInfo *info;
-  ClutterActorPrivate *priv;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  priv = self->priv;
-  info = _clutter_actor_get_transform_info (self);
-
-  g_object_freeze_notify (G_OBJECT (self));
-
-  clutter_anchor_coord_get_units (self, &info->anchor,
-                                  &old_anchor_x,
-                                  &old_anchor_y,
-                                  NULL);
-  clutter_actor_set_anchor_point_from_gravity (self, gravity);
-  clutter_anchor_coord_get_units (self, &info->anchor,
-                                  &new_anchor_x,
-                                  &new_anchor_y,
-                                  NULL);
-
-  if (priv->position_set)
-    clutter_actor_move_by (self,
-                           new_anchor_x - old_anchor_x,
-                           new_anchor_y - old_anchor_y);
-
-  g_object_thaw_notify (G_OBJECT (self));
-}
-
-/**
- * clutter_actor_set_anchor_point_from_gravity:
- * @self: a #ClutterActor
- * @gravity: #ClutterGravity.
- *
- * Sets an anchor point on the actor, based on the given gravity (this is a
- * convenience function wrapping clutter_actor_set_anchor_point()).
- *
- * Since version 1.0 the anchor point will be stored as a gravity so
- * that if the actor changes size then the anchor point will move. For
- * example, if you set the anchor point to %CLUTTER_GRAVITY_SOUTH_EAST
- * and later double the size of the actor, the anchor point will move
- * to the bottom right.
- *
- * Since: 0.6
- *
- * Deprecated: 1.12: Use #ClutterActor:pivot-point and 
- * clutter_actor_set_translation() instead. E.g. For %CLUTTER_GRAVITY_CENTER set
- * pivot_point to (0.5,0.5) and the translation to (width/2,height/2).
- */
-void
-clutter_actor_set_anchor_point_from_gravity (ClutterActor   *self,
-					     ClutterGravity  gravity)
-{
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  if (gravity == CLUTTER_GRAVITY_NONE)
-    clutter_actor_set_anchor_point (self, 0, 0);
-  else
-    {
-      GObject *obj = G_OBJECT (self);
-      ClutterTransformInfo *info;
-
-      g_object_freeze_notify (obj);
-
-      info = _clutter_actor_get_transform_info (self);
-      clutter_anchor_coord_set_gravity (&info->anchor, gravity);
-
-      g_object_notify_by_pspec (obj, obj_props[PROP_ANCHOR_GRAVITY]);
-      g_object_notify_by_pspec (obj, obj_props[PROP_ANCHOR_X]);
-      g_object_notify_by_pspec (obj, obj_props[PROP_ANCHOR_Y]);
-
-      self->priv->transform_valid = FALSE;
-
-      clutter_actor_queue_redraw (self);
-
-      g_object_thaw_notify (obj);
-    }
-}
-
 static void
 clutter_actor_store_content_box (ClutterActor *self,
                                  const ClutterActorBox *box)
@@ -13180,8 +12724,6 @@ typedef enum
   PARSE_Y,
   PARSE_WIDTH,
   PARSE_HEIGHT,
-  PARSE_ANCHOR_X,
-  PARSE_ANCHOR_Y
 } ParseDimension;
 
 static gfloat
@@ -13226,8 +12768,8 @@ parse_units (ClutterActor   *self,
   else
     {
       g_warning ("Invalid value of type '%s': integers, strings of floating "
-                 "point values can be used for the x, y, width, height "
-                 "anchor-x and anchor-y properties.",
+                 "point values can be used for the x, y, width, and height "
+                 "properties.",
                  g_type_name (G_VALUE_TYPE (&value)));
     }
 
@@ -13497,9 +13039,7 @@ clutter_actor_parse_custom_node (ClutterScriptable *scriptable,
   if ((name[0] == 'x' && name[1] == '\0') ||
       (name[0] == 'y' && name[1] == '\0') ||
       (strcmp (name, "width") == 0) ||
-      (strcmp (name, "height") == 0) ||
-      (strcmp (name, "anchor_x") == 0) ||
-      (strcmp (name, "anchor_y") == 0))
+      (strcmp (name, "height") == 0))
     {
       ParseDimension dimension;
       gfloat units;
@@ -13512,10 +13052,6 @@ clutter_actor_parse_custom_node (ClutterScriptable *scriptable,
         dimension = PARSE_WIDTH;
       else if (name[0] == 'h')
         dimension = PARSE_HEIGHT;
-      else if (name[0] == 'a' && name[7] == 'x')
-        dimension = PARSE_ANCHOR_X;
-      else if (name[0] == 'a' && name[7] == 'y')
-        dimension = PARSE_ANCHOR_Y;
       else
         return FALSE;
 
@@ -14969,169 +14505,6 @@ _clutter_actor_set_enable_paint_unmapped (ClutterActor *self,
     {
       clutter_actor_update_map_state (self, MAP_STATE_CHECK);
     }
-}
-
-static void
-clutter_anchor_coord_get_units (ClutterActor      *self,
-                                const AnchorCoord *coord,
-                                gfloat            *x,
-                                gfloat            *y,
-                                gfloat            *z)
-{
-  if (coord->is_fractional)
-    {
-      gfloat actor_width, actor_height;
-
-      clutter_actor_get_size (self, &actor_width, &actor_height);
-
-      if (x)
-        *x = actor_width * coord->v.fraction.x;
-
-      if (y)
-        *y = actor_height * coord->v.fraction.y;
-
-      if (z)
-        *z = 0;
-    }
-  else
-    {
-      if (x)
-        *x = coord->v.units.x;
-
-      if (y)
-        *y = coord->v.units.y;
-
-      if (z)
-        *z = coord->v.units.z;
-    }
-}
-
-static void
-clutter_anchor_coord_set_units (AnchorCoord *coord,
-                                gfloat       x,
-                                gfloat       y,
-                                gfloat       z)
-{
-  coord->is_fractional = FALSE;
-  coord->v.units.x = x;
-  coord->v.units.y = y;
-  coord->v.units.z = z;
-}
-
-static ClutterGravity
-clutter_anchor_coord_get_gravity (const AnchorCoord *coord)
-{
-  if (coord->is_fractional)
-    {
-      if (coord->v.fraction.x == 0.0)
-        {
-          if (coord->v.fraction.y == 0.0)
-            return CLUTTER_GRAVITY_NORTH_WEST;
-          else if (coord->v.fraction.y == 0.5)
-            return CLUTTER_GRAVITY_WEST;
-          else if (coord->v.fraction.y == 1.0)
-            return CLUTTER_GRAVITY_SOUTH_WEST;
-          else
-            return CLUTTER_GRAVITY_NONE;
-        }
-      else if (coord->v.fraction.x == 0.5)
-        {
-          if (coord->v.fraction.y == 0.0)
-            return CLUTTER_GRAVITY_NORTH;
-          else if (coord->v.fraction.y == 0.5)
-            return CLUTTER_GRAVITY_CENTER;
-          else if (coord->v.fraction.y == 1.0)
-            return CLUTTER_GRAVITY_SOUTH;
-          else
-            return CLUTTER_GRAVITY_NONE;
-        }
-      else if (coord->v.fraction.x == 1.0)
-        {
-          if (coord->v.fraction.y == 0.0)
-            return CLUTTER_GRAVITY_NORTH_EAST;
-          else if (coord->v.fraction.y == 0.5)
-            return CLUTTER_GRAVITY_EAST;
-          else if (coord->v.fraction.y == 1.0)
-            return CLUTTER_GRAVITY_SOUTH_EAST;
-          else
-            return CLUTTER_GRAVITY_NONE;
-        }
-      else
-        return CLUTTER_GRAVITY_NONE;
-    }
-  else
-    return CLUTTER_GRAVITY_NONE;
-}
-
-static void
-clutter_anchor_coord_set_gravity (AnchorCoord    *coord,
-                                  ClutterGravity  gravity)
-{
-  switch (gravity)
-    {
-    case CLUTTER_GRAVITY_NORTH:
-      coord->v.fraction.x = 0.5;
-      coord->v.fraction.y = 0.0;
-      break;
-
-    case CLUTTER_GRAVITY_NORTH_EAST:
-      coord->v.fraction.x = 1.0;
-      coord->v.fraction.y = 0.0;
-      break;
-
-    case CLUTTER_GRAVITY_EAST:
-      coord->v.fraction.x = 1.0;
-      coord->v.fraction.y = 0.5;
-      break;
-
-    case CLUTTER_GRAVITY_SOUTH_EAST:
-      coord->v.fraction.x = 1.0;
-      coord->v.fraction.y = 1.0;
-      break;
-
-    case CLUTTER_GRAVITY_SOUTH:
-      coord->v.fraction.x = 0.5;
-      coord->v.fraction.y = 1.0;
-      break;
-
-    case CLUTTER_GRAVITY_SOUTH_WEST:
-      coord->v.fraction.x = 0.0;
-      coord->v.fraction.y = 1.0;
-      break;
-
-    case CLUTTER_GRAVITY_WEST:
-      coord->v.fraction.x = 0.0;
-      coord->v.fraction.y = 0.5;
-      break;
-
-    case CLUTTER_GRAVITY_NORTH_WEST:
-      coord->v.fraction.x = 0.0;
-      coord->v.fraction.y = 0.0;
-      break;
-
-    case CLUTTER_GRAVITY_CENTER:
-      coord->v.fraction.x = 0.5;
-      coord->v.fraction.y = 0.5;
-      break;
-
-    default:
-      coord->v.fraction.x = 0.0;
-      coord->v.fraction.y = 0.0;
-      break;
-    }
-
-  coord->is_fractional = TRUE;
-}
-
-static gboolean
-clutter_anchor_coord_is_zero (const AnchorCoord *coord)
-{
-  if (coord->is_fractional)
-    return coord->v.fraction.x == 0.0 && coord->v.fraction.y == 0.0;
-  else
-    return (coord->v.units.x == 0.0
-            && coord->v.units.y == 0.0
-            && coord->v.units.z == 0.0);
 }
 
 /**

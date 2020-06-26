@@ -297,9 +297,7 @@ test_paint_wrapper_main (int argc, char *argv[])
 	- h / 2;
 
       clutter_actor_set_position (oh->hand[i], x, y);
-
-      clutter_actor_move_anchor_point_from_gravity (oh->hand[i],
-						   CLUTTER_GRAVITY_CENTER);
+      clutter_actor_set_translation (oh->hand[i], -100.f, -106.5, 0);
 
       g_signal_connect (oh->hand[i], "button-press-event",
                         G_CALLBACK (on_button_press_event),

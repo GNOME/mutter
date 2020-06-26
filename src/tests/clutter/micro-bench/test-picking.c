@@ -115,8 +115,7 @@ main (int argc, char **argv)
       rect = clutter_actor_new ();
       clutter_actor_set_background_color (rect, &color);
       clutter_actor_set_size (rect, 100, 100);
-      clutter_actor_set_anchor_point_from_gravity (rect,
-                                                   CLUTTER_GRAVITY_CENTER);
+      clutter_actor_set_translation (rect, -50.f, -50.f, 0.f);
       clutter_actor_set_position (rect,
                                   256 + 206 * cos (angle),
                                   256 + 206 * sin (angle));

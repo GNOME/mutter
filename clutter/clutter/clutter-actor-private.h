@@ -110,34 +110,11 @@ typedef ClutterActorTraverseVisitFlags (*ClutterTraverseCallback) (ClutterActor 
 typedef gboolean (*ClutterForeachCallback) (ClutterActor *actor,
                                             gpointer      user_data);
 
-typedef struct _AnchorCoord             AnchorCoord;
 typedef struct _SizeRequest             SizeRequest;
 
 typedef struct _ClutterLayoutInfo       ClutterLayoutInfo;
 typedef struct _ClutterTransformInfo    ClutterTransformInfo;
 typedef struct _ClutterAnimationInfo    ClutterAnimationInfo;
-
-/* Internal helper struct to represent a point that can be stored in
-   either direct pixel coordinates or as a fraction of the actor's
-   size. It is used for the anchor point, scale center and rotation
-   centers. */
-struct _AnchorCoord
-{
-  gboolean is_fractional;
-
-  union
-  {
-    /* Used when is_fractional == TRUE */
-    struct
-    {
-      gdouble x;
-      gdouble y;
-    } fraction;
-
-    /* Use when is_fractional == FALSE */
-    graphene_point3d_t units;
-  } v;
-};
 
 struct _SizeRequest
 {
@@ -192,9 +169,6 @@ struct _ClutterTransformInfo
   gdouble scale_x;
   gdouble scale_y;
   gdouble scale_z;
-
-  /* anchor point */
-  AnchorCoord anchor;
 
   /* translation */
   graphene_point3d_t translation;
