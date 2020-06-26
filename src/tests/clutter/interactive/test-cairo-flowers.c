@@ -157,6 +157,7 @@ make_flower_actor (void)
                        "width", (gfloat) size,
                        "height", (gfloat) size,
                        NULL);
+  clutter_actor_set_pivot_point (ctex, 0.5, 0.5);
 
   g_object_unref (canvas);
 
@@ -182,12 +183,9 @@ tick (ClutterTimeline *timeline,
       clutter_actor_set_position (flowers[i]->ctex,
 				  flowers[i]->x, flowers[i]->y);
 
-      clutter_actor_set_rotation (flowers[i]->ctex,
-                                  CLUTTER_Z_AXIS,
-                                  flowers[i]->rot,
-                                  clutter_actor_get_width (flowers[i]->ctex)/2,
-                                  clutter_actor_get_height (flowers[i]->ctex)/2,
-                                  0);
+      clutter_actor_set_rotation_angle (flowers[i]->ctex,
+                                        CLUTTER_Z_AXIS,
+                                        flowers[i]->rot);
     }
 }
 

@@ -33,26 +33,6 @@
 
 G_BEGIN_DECLS
 
-CLUTTER_DEPRECATED_FOR(clutter_actor_set_rotation_angle)
-void            clutter_actor_set_rotation                      (ClutterActor          *self,
-                                                                 ClutterRotateAxis      axis,
-                                                                 gdouble                angle,
-                                                                 gfloat                 x,
-                                                                 gfloat                 y,
-                                                                 gfloat                 z);
-CLUTTER_DEPRECATED_FOR(clutter_actor_set_rotation_angle and clutter_actor_set_pivot_point)
-void            clutter_actor_set_z_rotation_from_gravity       (ClutterActor          *self,
-                                                                 gdouble                angle,
-                                                                 ClutterGravity         gravity);
-CLUTTER_DEPRECATED_FOR(clutter_actor_get_rotation_angle)
-gdouble         clutter_actor_get_rotation                      (ClutterActor          *self,
-                                                                 ClutterRotateAxis      axis,
-                                                                 gfloat                *x,
-                                                                 gfloat                *y,
-                                                                 gfloat                *z);
-CLUTTER_DEPRECATED
-ClutterGravity  clutter_actor_get_z_rotation_gravity            (ClutterActor          *self);
-
 CLUTTER_DEPRECATED_FOR(clutter_actor_set_scale and clutter_actor_set_pivot_point)
 void            clutter_actor_set_scale_full                    (ClutterActor          *self,
                                                                  gdouble                scale_x,

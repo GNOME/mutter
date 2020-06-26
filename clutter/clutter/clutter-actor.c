@@ -934,13 +934,6 @@ enum
   PROP_ROTATION_ANGLE_X, /* XXX:2.0 rename to rotation-x */
   PROP_ROTATION_ANGLE_Y, /* XXX:2.0 rename to rotation-y */
   PROP_ROTATION_ANGLE_Z, /* XXX:2.0 rename to rotation-z */
-  PROP_ROTATION_CENTER_X, /* XXX:2.0 remove */
-  PROP_ROTATION_CENTER_Y, /* XXX:2.0 remove */
-  PROP_ROTATION_CENTER_Z, /* XXX:2.0 remove */
-  /* This property only makes sense for the z rotation because the
-     others would depend on the actor having a size along the
-     z-axis */
-  PROP_ROTATION_CENTER_Z_GRAVITY, /* XXX:2.0 remove */
 
   PROP_ANCHOR_X, /* XXX:2.0 remove */
   PROP_ANCHOR_Y, /* XXX:2.0 remove */
@@ -3167,34 +3160,13 @@ clutter_actor_real_apply_transform (ClutterActor  *self,
     }
 
   if (info->rz_angle)
-    {
-      /* XXX:2.0 remove anchor coord */
-      TRANSFORM_ABOUT_ANCHOR_COORD (self, transform,
-                                    &info->rz_center,
-                                    cogl_matrix_rotate (transform,
-                                                        info->rz_angle,
-                                                        0, 0, 1.0));
-    }
+    cogl_matrix_rotate (transform, info->rz_angle, 0, 0, 1.0);
 
   if (info->ry_angle)
-    {
-      /* XXX:2.0 remove anchor coord */
-      TRANSFORM_ABOUT_ANCHOR_COORD (self, transform,
-                                    &info->ry_center,
-                                    cogl_matrix_rotate (transform,
-                                                        info->ry_angle,
-                                                        0, 1.0, 0));
-    }
+    cogl_matrix_rotate (transform, info->ry_angle, 0, 1.0, 0);
 
   if (info->rx_angle)
-    {
-      /* XXX:2.0 remove anchor coord */
-      TRANSFORM_ABOUT_ANCHOR_COORD (self, transform,
-                                    &info->rx_center,
-                                    cogl_matrix_rotate (transform,
-                                                        info->rx_angle,
-                                                        1.0, 0, 0));
-    }
+    cogl_matrix_rotate (transform, info->rx_angle, 1.0, 0, 0);
 
   /* XXX:2.0 remove anchor point translation */
   if (!clutter_anchor_coord_is_zero (&info->anchor))
@@ -4453,9 +4425,9 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
 }
 
 static const ClutterTransformInfo default_transform_info = {
-  0.0, { 0, },                  /* rotation-x */
-  0.0, { 0, },                  /* rotation-y */
-  0.0, { 0, },                  /* rotation-z */
+  0.0,                          /* rotation-x */
+  0.0,                          /* rotation-y */
+  0.0,                          /* rotation-z */
 
   1.0, 1.0, 1.0, { 0, },        /* scale */
 
@@ -4838,63 +4810,6 @@ clutter_actor_get_rotation_angle (ClutterActor      *self,
     }
 
   return retval;
-}
-
-/*< private >
- * clutter_actor_set_rotation_center_internal:
- * @self: a #ClutterActor
- * @axis: the axis of the center to change
- * @center: the coordinates of the rotation center
- *
- * Sets the rotation center on the given axis without affecting the
- * rotation angle.
- */
-static inline void
-clutter_actor_set_rotation_center_internal (ClutterActor             *self,
-                                            ClutterRotateAxis         axis,
-                                            const graphene_point3d_t *center)
-{
-  graphene_point3d_t v = GRAPHENE_POINT3D_INIT_ZERO;
-  GObject *obj = G_OBJECT (self);
-  ClutterTransformInfo *info;
-
-  info = _clutter_actor_get_transform_info (self);
-
-  if (center != NULL)
-    v = *center;
-
-  g_object_freeze_notify (obj);
-
-  switch (axis)
-    {
-    case CLUTTER_X_AXIS:
-      clutter_anchor_coord_set_units (&info->rx_center, v.x, v.y, v.z);
-      g_object_notify_by_pspec (obj, obj_props[PROP_ROTATION_CENTER_X]);
-      break;
-
-    case CLUTTER_Y_AXIS:
-      clutter_anchor_coord_set_units (&info->ry_center, v.x, v.y, v.z);
-      g_object_notify_by_pspec (obj, obj_props[PROP_ROTATION_CENTER_Y]);
-      break;
-
-    case CLUTTER_Z_AXIS:
-      /* if the previously set rotation center was fractional, then
-       * setting explicit coordinates will have to notify the
-       * :rotation-center-z-gravity property as well
-       */
-      if (info->rz_center.is_fractional)
-        g_object_notify_by_pspec (obj, obj_props[PROP_ROTATION_CENTER_Z_GRAVITY]);
-
-      clutter_anchor_coord_set_units (&info->rz_center, v.x, v.y, v.z);
-      g_object_notify_by_pspec (obj, obj_props[PROP_ROTATION_CENTER_Z]);
-      break;
-    }
-
-  self->priv->transform_valid = FALSE;
-
-  g_object_thaw_notify (obj);
-
-  clutter_actor_queue_redraw (self);
 }
 
 static void
@@ -5308,34 +5223,6 @@ clutter_actor_set_property (GObject      *object,
       clutter_actor_set_rotation_angle (actor,
                                         CLUTTER_Z_AXIS,
                                         g_value_get_double (value));
-      break;
-
-    case PROP_ROTATION_CENTER_X: /* XXX:2.0 - remove */
-      clutter_actor_set_rotation_center_internal (actor,
-                                                  CLUTTER_X_AXIS,
-                                                  g_value_get_boxed (value));
-      break;
-
-    case PROP_ROTATION_CENTER_Y: /* XXX:2.0 - remove */
-      clutter_actor_set_rotation_center_internal (actor,
-                                                  CLUTTER_Y_AXIS,
-                                                  g_value_get_boxed (value));
-      break;
-
-    case PROP_ROTATION_CENTER_Z: /* XXX:2.0 - remove */
-      clutter_actor_set_rotation_center_internal (actor,
-                                                  CLUTTER_Z_AXIS,
-                                                  g_value_get_boxed (value));
-      break;
-
-    case PROP_ROTATION_CENTER_Z_GRAVITY: /* XXX:2.0 - remove */
-      {
-        const ClutterTransformInfo *info;
-
-        info = _clutter_actor_get_transform_info_or_defaults (actor);
-        clutter_actor_set_z_rotation_from_gravity (actor, info->rz_angle,
-                                                   g_value_get_enum (value));
-      }
       break;
 
     case PROP_ANCHOR_X: /* XXX:2.0 - remove */
@@ -5757,49 +5644,6 @@ clutter_actor_get_property (GObject    *object,
         info = _clutter_actor_get_transform_info_or_defaults (actor);
         g_value_set_double (value, info->rz_angle);
       }
-      break;
-
-    case PROP_ROTATION_CENTER_X: /* XXX:2.0 - remove */
-      {
-        graphene_point3d_t center;
-
-        clutter_actor_get_rotation (actor, CLUTTER_X_AXIS,
-                                    &center.x,
-                                    &center.y,
-                                    &center.z);
-
-        g_value_set_boxed (value, &center);
-      }
-      break;
-
-    case PROP_ROTATION_CENTER_Y: /* XXX:2.0 - remove */
-      {
-        graphene_point3d_t center;
-
-        clutter_actor_get_rotation (actor, CLUTTER_Y_AXIS,
-                                    &center.x,
-                                    &center.y,
-                                    &center.z);
-
-        g_value_set_boxed (value, &center);
-      }
-      break;
-
-    case PROP_ROTATION_CENTER_Z: /* XXX:2.0 - remove */
-      {
-        graphene_point3d_t center;
-
-        clutter_actor_get_rotation (actor, CLUTTER_Z_AXIS,
-                                    &center.x,
-                                    &center.y,
-                                    &center.z);
-
-        g_value_set_boxed (value, &center);
-      }
-      break;
-
-    case PROP_ROTATION_CENTER_Z_GRAVITY: /* XXX:2.0 - remove */
-      g_value_set_enum (value, clutter_actor_get_z_rotation_gravity (actor));
       break;
 
     case PROP_ANCHOR_X: /* XXX:2.0 - remove */
@@ -7222,79 +7066,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS |
                          CLUTTER_PARAM_ANIMATABLE);
-
-  /**
-   * ClutterActor:rotation-center-x:
-   *
-   * The rotation center on the X axis.
-   *
-   * Since: 0.6
-   *
-   * Deprecated: 1.12: Use #ClutterActor:pivot-point instead
-   */
-  obj_props[PROP_ROTATION_CENTER_X] = /* XXX:2.0 - remove */
-    g_param_spec_boxed ("rotation-center-x",
-                        P_("Rotation Center X"),
-                        P_("The rotation center on the X axis"),
-                        GRAPHENE_TYPE_POINT3D,
-                        G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS |
-                        G_PARAM_DEPRECATED);
-
-  /**
-   * ClutterActor:rotation-center-y:
-   *
-   * The rotation center on the Y axis.
-   *
-   * Since: 0.6
-   *
-   * Deprecated: 1.12: Use #ClutterActor:pivot-point instead
-   */
-  obj_props[PROP_ROTATION_CENTER_Y] = /* XXX:2.0 - remove */
-    g_param_spec_boxed ("rotation-center-y",
-                        P_("Rotation Center Y"),
-                        P_("The rotation center on the Y axis"),
-                        GRAPHENE_TYPE_POINT3D,
-                        G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS |
-                        G_PARAM_DEPRECATED);
-
-  /**
-   * ClutterActor:rotation-center-z:
-   *
-   * The rotation center on the Z axis.
-   *
-   * Since: 0.6
-   *
-   * Deprecated: 1.12: Use #ClutterActor:pivot-point instead
-   */
-  obj_props[PROP_ROTATION_CENTER_Z] = /* XXX:2.0 - remove */
-    g_param_spec_boxed ("rotation-center-z",
-                        P_("Rotation Center Z"),
-                        P_("The rotation center on the Z axis"),
-                        GRAPHENE_TYPE_POINT3D,
-                        G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS |
-                        G_PARAM_DEPRECATED);
-
-  /**
-   * ClutterActor:rotation-center-z-gravity:
-   *
-   * The rotation center on the Z axis expressed as a #ClutterGravity.
-   *
-   * Since: 1.0
-   *
-   * Deprecated: 1.12: Use #ClutterActor:pivot-point instead
-   */
-  obj_props[PROP_ROTATION_CENTER_Z_GRAVITY] = /* XXX:2.0 - remove */
-    g_param_spec_enum ("rotation-center-z-gravity",
-                       P_("Rotation Center Z Gravity"),
-                       P_("Center point for rotation around the Z axis"),
-                       CLUTTER_TYPE_GRAVITY,
-                       CLUTTER_GRAVITY_NONE,
-                       G_PARAM_READWRITE |
-                       G_PARAM_STATIC_STRINGS |
-                       G_PARAM_DEPRECATED);
 
   /**
    * ClutterActor:anchor-x:
@@ -12077,191 +11848,6 @@ clutter_actor_get_pivot_point_z (ClutterActor *self)
 }
 
 /**
- * clutter_actor_set_rotation:
- * @self: a #ClutterActor
- * @axis: the axis of rotation
- * @angle: the angle of rotation
- * @x: X coordinate of the rotation center
- * @y: Y coordinate of the rotation center
- * @z: Z coordinate of the rotation center
- *
- * Sets the rotation angle of @self around the given axis.
- *
- * The rotation center coordinates used depend on the value of @axis:
- *
- *  - %CLUTTER_X_AXIS requires @y and @z
- *  - %CLUTTER_Y_AXIS requires @x and @z
- *  - %CLUTTER_Z_AXIS requires @x and @y
- *
- * The rotation coordinates are relative to the anchor point of the
- * actor, set using clutter_actor_set_anchor_point(). If no anchor
- * point is set, the upper left corner is assumed as the origin.
- *
- * Since: 0.8
- *
- * Deprecated: 1.12: Use clutter_actor_set_rotation_angle() and
- *   clutter_actor_set_pivot_point() instead.
- */
-void
-clutter_actor_set_rotation (ClutterActor      *self,
-                            ClutterRotateAxis  axis,
-                            gdouble            angle,
-                            gfloat             x,
-                            gfloat             y,
-                            gfloat             z)
-{
-  graphene_point3d_t v;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  v.x = x;
-  v.y = y;
-  v.z = z;
-
-  g_object_freeze_notify (G_OBJECT (self));
-
-  clutter_actor_set_rotation_angle (self, axis, angle);
-  clutter_actor_set_rotation_center_internal (self, axis, &v);
-
-  g_object_thaw_notify (G_OBJECT (self));
-}
-
-/**
- * clutter_actor_set_z_rotation_from_gravity:
- * @self: a #ClutterActor
- * @angle: the angle of rotation
- * @gravity: the center point of the rotation
- *
- * Sets the rotation angle of @self around the Z axis using the center
- * point specified as a compass point. For example to rotate such that
- * the center of the actor remains static you can use
- * %CLUTTER_GRAVITY_CENTER. If the actor changes size the center point
- * will move accordingly.
- *
- * Since: 1.0
- *
- * Deprecated: 1.12: Use clutter_actor_set_rotation_angle() and
- *   clutter_actor_set_pivot_point() instead.
- */
-void
-clutter_actor_set_z_rotation_from_gravity (ClutterActor   *self,
-                                           gdouble         angle,
-                                           ClutterGravity  gravity)
-{
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  if (gravity == CLUTTER_GRAVITY_NONE)
-    clutter_actor_set_rotation (self, CLUTTER_Z_AXIS, angle, 0, 0, 0);
-  else
-    {
-      GObject *obj = G_OBJECT (self);
-      ClutterTransformInfo *info;
-      GParamSpec *pspec;
-
-      pspec = obj_props[PROP_ROTATION_ANGLE_Z];
-      info = _clutter_actor_get_transform_info (self);
-
-      g_object_freeze_notify (obj);
-
-      clutter_actor_set_rotation_angle_internal (self, angle, pspec);
-
-      clutter_anchor_coord_set_gravity (&info->rz_center, gravity);
-      g_object_notify_by_pspec (obj, obj_props[PROP_ROTATION_CENTER_Z_GRAVITY]);
-      g_object_notify_by_pspec (obj, obj_props[PROP_ROTATION_CENTER_Z]);
-
-      g_object_thaw_notify (obj);
-    }
-}
-
-/**
- * clutter_actor_get_rotation:
- * @self: a #ClutterActor
- * @axis: the axis of rotation
- * @x: (out): return value for the X coordinate of the center of rotation
- * @y: (out): return value for the Y coordinate of the center of rotation
- * @z: (out): return value for the Z coordinate of the center of rotation
- *
- * Retrieves the angle and center of rotation on the given axis,
- * set using clutter_actor_set_rotation().
- *
- * Return value: the angle of rotation
- *
- * Since: 0.8
- *
- * Deprecated: 1.12: Use clutter_actor_get_rotation_angle() and
- *   clutter_actor_get_pivot_point() instead.
- */
-gdouble
-clutter_actor_get_rotation (ClutterActor      *self,
-                            ClutterRotateAxis  axis,
-                            gfloat            *x,
-                            gfloat            *y,
-                            gfloat            *z)
-{
-  const ClutterTransformInfo *info;
-  const AnchorCoord *anchor_coord;
-  gdouble retval = 0;
-
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), 0);
-
-  info = _clutter_actor_get_transform_info_or_defaults (self);
-
-  switch (axis)
-    {
-    case CLUTTER_X_AXIS:
-      anchor_coord = &info->rx_center;
-      retval = info->rx_angle;
-      break;
-
-    case CLUTTER_Y_AXIS:
-      anchor_coord = &info->ry_center;
-      retval = info->ry_angle;
-      break;
-
-    case CLUTTER_Z_AXIS:
-      anchor_coord = &info->rz_center;
-      retval = info->rz_angle;
-      break;
-
-    default:
-      anchor_coord = NULL;
-      retval = 0.0;
-      break;
-    }
-
-  clutter_anchor_coord_get_units (self, anchor_coord, x, y, z);
-
-  return retval;
-}
-
-/**
- * clutter_actor_get_z_rotation_gravity:
- * @self: A #ClutterActor
- *
- * Retrieves the center for the rotation around the Z axis as a
- * compass direction. If the center was specified in pixels or units
- * this will return %CLUTTER_GRAVITY_NONE.
- *
- * Return value: the Z rotation center
- *
- * Since: 1.0
- *
- * Deprecated: 1.12: Use the #ClutterActor:pivot-point instead of
- *   a #ClutterGravity
- */
-ClutterGravity
-clutter_actor_get_z_rotation_gravity (ClutterActor *self)
-{
-  const ClutterTransformInfo *info;
-
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), CLUTTER_GRAVITY_NONE);
-
-  info = _clutter_actor_get_transform_info_or_defaults (self);
-
-  return clutter_anchor_coord_get_gravity (&info->rz_center);
-}
-
-/**
  * clutter_actor_set_clip:
  * @self: A #ClutterActor
  * @xoff: X offset of the clip rectangle
@@ -14301,11 +13887,7 @@ clutter_actor_set_custom_property (ClutterScriptable *scriptable,
 
       info = g_value_get_pointer (value);
 
-      clutter_actor_set_rotation (actor,
-                                  info->axis, info->angle,
-                                  info->center_x,
-                                  info->center_y,
-                                  info->center_z);
+      clutter_actor_set_rotation_angle (actor, info->axis, info->angle);
 
       g_slice_free (RotationInfo, info);
 
@@ -19631,7 +19213,7 @@ clutter_actor_get_easing_delay (ClutterActor *self)
  *
  * |[<!-- language="C" -->
  *   clutter_actor_set_easing_duration (actor, 1000);
- *   clutter_actor_set_rotation (actor, CLUTTER_Y_AXIS, 360.0, x, y, z);
+ *   clutter_actor_set_rotation_angle (actor, CLUTTER_Y_AXIS, 360.0);
  *
  *   transition = clutter_actor_get_transition (actor, "rotation-angle-y");
  *   g_signal_connect (transition, "stopped",

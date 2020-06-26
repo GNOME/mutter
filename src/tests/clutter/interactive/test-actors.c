@@ -126,12 +126,7 @@ frame_cb (ClutterTimeline *timeline,
 
   /* Rotate everything clockwise about stage center*/
   if (oh->group != NULL)
-    clutter_actor_set_rotation (oh->group,
-                                CLUTTER_Z_AXIS,
-                                rotation,
-                                oh->stage_width / 2,
-                                oh->stage_height / 2,
-                                0);
+    clutter_actor_set_rotation_angle (oh->group, CLUTTER_Z_AXIS, rotation);
 
   for (i = 0; i < n_hands; i++)
     {
@@ -139,10 +134,9 @@ frame_cb (ClutterTimeline *timeline,
        * to take into account any scaling.
        */
       if (oh->hand[i] != NULL)
-        clutter_actor_set_rotation (oh->hand[i],
-                                    CLUTTER_Z_AXIS,
-                                    -6.0 * rotation,
-                                    0, 0, 0);
+        clutter_actor_set_rotation_angle (oh->hand[i],
+                                          CLUTTER_Z_AXIS,
+                                          -6.0 * rotation);
     }
 }
 
@@ -205,6 +199,7 @@ test_actors_main (int argc, char *argv[])
 
   /* create a new actor to hold other actors */
   oh->group = clutter_actor_new ();
+  clutter_actor_set_pivot_point (oh->group, 0.5, 0.5);
   clutter_actor_set_layout_manager (oh->group, clutter_fixed_layout_new ());
   clutter_actor_set_name (oh->group, "Group");
   g_signal_connect (oh->group, "destroy", G_CALLBACK (on_group_destroy), oh);

@@ -117,22 +117,18 @@ frame_cb (ClutterTimeline *timeline,
 
   /* Rotate everything clockwise about stage center*/
 
-  clutter_actor_set_rotation (oh->group,
-                              CLUTTER_Z_AXIS,
-                              rotation,
-			      oh->stage_width / 2,
-                              oh->stage_height / 2,
-			      0);
+  clutter_actor_set_rotation_angle (oh->group,
+                                    CLUTTER_Z_AXIS,
+                                    rotation);
 
   for (i = 0; i < n_hands; i++)
     {
       /* Rotate each hand around there centers - to get this we need
        * to take into account any scaling.
        */
-      clutter_actor_set_rotation (oh->hand[i],
-                                  CLUTTER_Z_AXIS,
-                                  -6.0 * rotation,
-                                  0, 0, 0);
+      clutter_actor_set_rotation_angle (oh->hand[i],
+                                        CLUTTER_Z_AXIS,
+                                        -6.0 * rotation);
     }
 }
 
@@ -264,6 +260,7 @@ test_paint_wrapper_main (int argc, char *argv[])
 
   /* create a new group to hold multiple actors in a group */
   oh->group = clutter_actor_new();
+  clutter_actor_set_pivot_point (oh->group, 0.5, 0.5);
 
   oh->hand = g_new (ClutterActor*, n_hands);
 

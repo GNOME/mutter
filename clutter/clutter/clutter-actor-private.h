@@ -183,15 +183,10 @@ ClutterLayoutInfo *             _clutter_actor_peek_layout_info                 
 
 struct _ClutterTransformInfo
 {
-  /* rotation (angle and center) */
+  /* rotation */
   gdouble rx_angle;
-  AnchorCoord rx_center;
-
   gdouble ry_angle;
-  AnchorCoord ry_center;
-
   gdouble rz_angle;
-  AnchorCoord rz_center;
 
   /* scaling */
   gdouble scale_x;
