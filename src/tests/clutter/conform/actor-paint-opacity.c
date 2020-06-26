@@ -50,20 +50,21 @@ opacity_rectangle (void)
 
   stage = clutter_test_get_stage ();
 
-  rect = clutter_rectangle_new_with_color (&rect_color);
+  rect = clutter_actor_new ();
+  clutter_actor_set_background_color (rect, &rect_color);
   clutter_actor_set_size (rect, 128, 128);
   clutter_actor_set_position (rect, 150, 90);
 
   if (!g_test_quiet ())
     g_print ("rect 100%%.get_color()/1\n");
-  clutter_rectangle_get_color (CLUTTER_RECTANGLE (rect), &color_check);
+  clutter_actor_get_background_color (rect, &color_check);
   g_assert (color_check.alpha == rect_color.alpha);
 
   clutter_actor_add_child (stage, rect);
 
   if (!g_test_quiet ())
     g_print ("rect 100%%.get_color()/2\n");
-  clutter_rectangle_get_color (CLUTTER_RECTANGLE (rect), &color_check);
+  clutter_actor_set_background_color (rect, &color_check);
   g_assert (color_check.alpha == rect_color.alpha);
 
   if (!g_test_quiet ())
@@ -115,19 +116,20 @@ opacity_paint (void)
   clutter_container_add (CLUTTER_CONTAINER (group1), group2, NULL);
   clutter_actor_set_position (group2, 10, 60);
 
-  rect = clutter_rectangle_new_with_color (&rect_color);
+  rect = clutter_actor_new ();
+  clutter_actor_set_background_color (rect, &rect_color);
   clutter_actor_set_size (rect, 128, 128);
 
   if (!g_test_quiet ())
     g_print ("rect 100%% + group 100%% + group 50%%.get_color()/1\n");
-  clutter_rectangle_get_color (CLUTTER_RECTANGLE (rect), &color_check);
+  clutter_actor_get_background_color (rect, &color_check);
   g_assert (color_check.alpha == rect_color.alpha);
 
   clutter_container_add (CLUTTER_CONTAINER (group2), rect, NULL);
 
   if (!g_test_quiet ())
     g_print ("rect 100%% + group 100%% + group 50%%.get_color()/2\n");
-  clutter_rectangle_get_color (CLUTTER_RECTANGLE (rect), &color_check);
+  clutter_actor_get_background_color (rect, &color_check);
   g_assert (color_check.alpha == rect_color.alpha);
 
   if (!g_test_quiet ())

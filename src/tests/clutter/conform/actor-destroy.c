@@ -120,7 +120,7 @@ test_destroy_class_init (TestDestroyClass *klass)
 static void
 test_destroy_init (TestDestroy *self)
 {
-  self->bg = clutter_rectangle_new ();
+  self->bg = clutter_actor_new ();
   clutter_container_add_actor (CLUTTER_CONTAINER (self), self->bg);
   clutter_actor_set_name (self->bg, "Background");
 
@@ -164,7 +164,7 @@ static void
 actor_destruction (void)
 {
   ClutterActor *test = g_object_new (TEST_TYPE_DESTROY, NULL);
-  ClutterActor *child = clutter_rectangle_new ();
+  ClutterActor *child = clutter_actor_new ();
   gboolean destroy_called = FALSE;
   gboolean parent_set_called = FALSE;
   gboolean property_changed = FALSE;

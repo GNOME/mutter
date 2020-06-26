@@ -142,7 +142,7 @@ script_child (void)
                               "test-rect-1", &actor,
                               NULL);
   g_assert (TEST_IS_GROUP (container));
-  g_assert (CLUTTER_IS_RECTANGLE (actor));
+  g_assert (CLUTTER_IS_ACTOR (actor));
 
   focus_ret = FALSE;
   clutter_container_child_get (CLUTTER_CONTAINER (container),
@@ -152,7 +152,7 @@ script_child (void)
   g_assert (focus_ret);
 
   actor = clutter_script_get_object (script, "test-rect-2");
-  g_assert (CLUTTER_IS_RECTANGLE (actor));
+  g_assert (CLUTTER_IS_ACTOR (actor));
 
   focus_ret = FALSE;
   clutter_container_child_get (CLUTTER_CONTAINER (container),
@@ -183,13 +183,13 @@ script_single (void)
   g_assert_no_error (error);
 
   actor = clutter_script_get_object (script, "test");
-  g_assert (CLUTTER_IS_RECTANGLE (actor));
+  g_assert (CLUTTER_IS_ACTOR (actor));
 
   rect = CLUTTER_ACTOR (actor);
   g_assert_cmpfloat (clutter_actor_get_width (rect), ==, 50.0);
   g_assert_cmpfloat (clutter_actor_get_y (rect), ==, 100.0);
 
-  clutter_rectangle_get_color (CLUTTER_RECTANGLE (rect), &color);
+  clutter_actor_get_background_color (rect, &color);
   g_assert_cmpint (color.red, ==, 255);
   g_assert_cmpint (color.green, ==, 0xcc);
   g_assert_cmpint (color.alpha, ==, 0xff);

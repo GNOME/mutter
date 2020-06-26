@@ -5,7 +5,7 @@
   "children" : [
     {
       "id" : "child-1",
-      "type" : "ClutterRectangle",
+      "type" : "ClutterActor",
       "width" : "3 em",
       "height" : "3 em"
     }

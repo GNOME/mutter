@@ -123,7 +123,8 @@ test_swipe_action_main (int argc, char *argv[])
   clutter_actor_set_size (stage, 640, 480);
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
 
-  rect = clutter_rectangle_new_with_color (CLUTTER_COLOR_Red);
+  rect = clutter_actor_new ();
+  clutter_actor_set_background_color (rect, CLUTTER_COLOR_Red);
   clutter_actor_set_name (rect, "Vertical swipes");
   clutter_actor_set_size (rect, 150, 150);
   clutter_actor_set_position (rect, 10, 100);
@@ -131,7 +132,8 @@ test_swipe_action_main (int argc, char *argv[])
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), rect);
   attach_action (rect, VERTICAL);
 
-  rect = clutter_rectangle_new_with_color (CLUTTER_COLOR_Blue);
+  rect = clutter_actor_new ();
+  clutter_actor_set_background_color (rect, CLUTTER_COLOR_Blue);
   clutter_actor_set_name (rect, "Horizontal swipes");
   clutter_actor_set_size (rect, 150, 150);
   clutter_actor_set_position (rect, 170, 100);
@@ -139,7 +141,8 @@ test_swipe_action_main (int argc, char *argv[])
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), rect);
   attach_action (rect, HORIZONTAL);
 
-  rect = clutter_rectangle_new_with_color (CLUTTER_COLOR_Green);
+  rect = clutter_actor_new ();
+  clutter_actor_set_background_color (rect, CLUTTER_COLOR_Green);
   clutter_actor_set_name (rect, "All swipes");
   clutter_actor_set_size (rect, 150, 150);
   clutter_actor_set_position (rect, 330, 100);

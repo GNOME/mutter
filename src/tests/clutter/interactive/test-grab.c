@@ -235,7 +235,8 @@ test_grab_main (int argc, char *argv[])
   g_signal_connect (stage, "deactivate", 
 		    G_CALLBACK (stage_state_cb), (char *) "deactivate");
 
-  actor = clutter_rectangle_new_with_color (&rcol);
+  actor = clutter_actor_new ();
+  clutter_actor_set_background_color (actor, &rcol);
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_position (actor, 100, 100);
   clutter_actor_set_reactive (actor, TRUE);
@@ -246,7 +247,8 @@ test_grab_main (int argc, char *argv[])
   g_signal_connect (actor, "button-release-event",
                     G_CALLBACK (red_release_cb), NULL);
 
-  actor = clutter_rectangle_new_with_color (&ycol);
+  actor = clutter_actor_new ();
+  clutter_actor_set_background_color (actor, &ycol);
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_position (actor, 100, 300);
   clutter_actor_set_reactive (actor, TRUE);
@@ -255,7 +257,8 @@ test_grab_main (int argc, char *argv[])
   g_signal_connect (actor, "button-press-event",
                     G_CALLBACK (toggle_grab_pointer_cb), NULL);
 
-  actor = clutter_rectangle_new_with_color (&bcol);
+  actor = clutter_actor_new ();
+  clutter_actor_set_background_color (actor, &bcol);
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_position (actor, 300, 100);
   clutter_actor_set_reactive (actor, TRUE);
@@ -267,7 +270,8 @@ test_grab_main (int argc, char *argv[])
   g_signal_connect (actor, "button-release-event",
                     G_CALLBACK (blue_release_cb), NULL);
 
-  actor = clutter_rectangle_new_with_color (&gcol);
+  actor = clutter_actor_new ();
+  clutter_actor_set_background_color (actor, &gcol);
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_position (actor, 300, 300);
   clutter_actor_set_reactive (actor, TRUE);
@@ -278,7 +282,8 @@ test_grab_main (int argc, char *argv[])
                     G_CALLBACK (green_press_cb), NULL);
 
 
-  actor = clutter_rectangle_new_with_color (&ccol);
+  actor = clutter_actor_new ();
+  clutter_actor_set_background_color (actor, &ccol);
   clutter_actor_set_size (actor, 100, 100);
   clutter_actor_set_position (actor, 500, 100);
   clutter_actor_set_reactive (actor, TRUE);

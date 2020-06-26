@@ -150,7 +150,8 @@ _create_button (const gchar *text)
   ClutterActor *label      = NULL;
 
   button = clutter_actor_new ();
-  rectangle = clutter_rectangle_new_with_color (CLUTTER_COLOR_Magenta);
+  rectangle = clutter_actor_new ();
+  clutter_actor_set_background_color (rectangle, CLUTTER_COLOR_Magenta);
   clutter_actor_set_size (rectangle, 375, 35);
 
   label = clutter_text_new_full ("Sans Bold 32px",

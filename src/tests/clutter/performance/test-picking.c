@@ -107,7 +107,8 @@ main (int argc, char **argv)
                    fmod ((i + (n_actors/3.0)), n_actors)))) /
                    (gdouble)(n_actors/4.0) - 1.0)) * 255.0;
 
-      rect = clutter_rectangle_new_with_color (&color);
+      rect = clutter_actor_new ();
+      clutter_actor_set_background_color (rect, &color);
       clutter_actor_set_size (rect, 100, 100);
       clutter_actor_set_anchor_point_from_gravity (rect,
                                                    CLUTTER_GRAVITY_CENTER);

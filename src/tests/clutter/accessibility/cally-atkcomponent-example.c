@@ -53,21 +53,25 @@ main (int argc, char *argv[])
 
   g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
 
-  button1 = clutter_rectangle_new_with_color (CLUTTER_COLOR_Yellow);
+  button1 = clutter_actor_new ();
+  clutter_actor_set_background_color (button1, CLUTTER_COLOR_Yellow);
   clutter_actor_set_size (button1, SIZE, SIZE);
 
-  button2 = clutter_rectangle_new_with_color (CLUTTER_COLOR_Green);
+  button2 = clutter_actor_new ();
+  clutter_actor_set_background_color (button2, CLUTTER_COLOR_Green);
   clutter_actor_set_position (button2, 2 * SIZE, 0);
   clutter_actor_set_size (button2, SIZE, SIZE);
 
-  button3 = clutter_rectangle_new_with_color (CLUTTER_COLOR_Blue);
+  button3 = clutter_actor_new ();
+  clutter_actor_set_background_color (button3, CLUTTER_COLOR_Blue);
   clutter_actor_set_position (button3, 0, 2 * SIZE);
   clutter_actor_set_size (button3, SIZE, SIZE);
   clutter_actor_set_z_position (button3, DEPTH);
 
   /* a nested hierarchy, to check that the relative positions are
      computed properly */
-  button4 = clutter_rectangle_new_with_color (CLUTTER_COLOR_Magenta);
+  button4 = clutter_actor_new ();
+  clutter_actor_set_background_color (button4, CLUTTER_COLOR_Magenta);
   clutter_actor_set_position (button4, SIZE / 2, SIZE / 2);
   clutter_actor_set_size (button4, SIZE, SIZE);
 

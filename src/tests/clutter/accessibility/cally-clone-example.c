@@ -66,7 +66,8 @@ make_ui (ClutterActor *stage)
   clutter_actor_set_reactive (editable, TRUE);
 
   /* rectangle: to create a entry "feeling" */
-  rectangle = clutter_rectangle_new_with_color (&color_rect);
+  rectangle = clutter_actor_new ();
+  clutter_actor_set_background_color (rectangle, &color_rect);
   clutter_actor_set_position (rectangle, 150, 50);
   clutter_actor_add_constraint (rectangle, clutter_bind_constraint_new (editable, CLUTTER_BIND_SIZE, 0));
 

@@ -57,7 +57,8 @@ on_timeout (gpointer data)
           static const ClutterColor red = { 0xff, 0x00, 0x00, 0xff };
           /* Create an actor that covers the whole stage but that
              isn't visible so it shouldn't affect the picking */
-          over_actor = clutter_rectangle_new_with_color (&red);
+          over_actor = clutter_actor_new ();
+          clutter_actor_set_background_color (over_actor, &red);
           clutter_actor_set_size (over_actor, STAGE_WIDTH, STAGE_HEIGHT);
           clutter_actor_add_child (state->stage, over_actor);
           clutter_actor_hide (over_actor);
@@ -186,8 +187,9 @@ actor_pick (void)
         ClutterColor color = { x * 255 / (ACTORS_X - 1),
                                y * 255 / (ACTORS_Y - 1),
                                128, 255 };
-        ClutterActor *rect = clutter_rectangle_new_with_color (&color);
+        ClutterActor *rect = clutter_actor_new ();
 
+        clutter_actor_set_background_color (rect, &color);
         clutter_actor_set_position (rect,
                                     x * state.actor_width,
                                     y * state.actor_height);

@@ -112,7 +112,7 @@ rect_event_cb (ClutterActor *actor, ClutterEvent *event, gpointer data)
     return FALSE;
 
   color = static_colors[g_random_int_range (0, NUM_COLORS)];
-  clutter_rectangle_set_color (CLUTTER_RECTANGLE (actor), &color);
+  clutter_actor_set_background_color (actor, &color);
 
   return TRUE;
 }
@@ -152,7 +152,9 @@ test_touch_events_main (int argc, char *argv[])
     {
       gfloat size = STAGE_HEIGHT / NUM_ACTORS;
       ClutterColor color = static_colors[i % NUM_COLORS];
-      ClutterActor *rectangle = clutter_rectangle_new_with_color (&color);
+      ClutterActor *rectangle = clutter_actor_new ();
+
+      clutter_actor_set_background_color (rectangle, &color);
 
       /* Test that event delivery to actors work */
       g_signal_connect (rectangle, "event", G_CALLBACK (rect_event_cb), NULL);

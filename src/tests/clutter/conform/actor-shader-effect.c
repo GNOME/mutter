@@ -203,8 +203,8 @@ make_actor (GType shader_type)
   ClutterActor *rect;
   const ClutterColor white = { 0xff, 0xff, 0xff, 0xff };
 
-  rect = clutter_rectangle_new ();
-  clutter_rectangle_set_color (CLUTTER_RECTANGLE (rect), &white);
+  rect = clutter_actor_new ();
+  clutter_actor_set_background_color (rect, &white);
   clutter_actor_set_size (rect, 50, 50);
 
   clutter_actor_add_effect (rect, g_object_new (shader_type, NULL));

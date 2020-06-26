@@ -210,7 +210,8 @@ make_ui (ClutterActor *stage)
 
   /* test button */
   button = clutter_actor_new ();
-  rectangle = clutter_rectangle_new_with_color (&color_rect);
+  rectangle = clutter_actor_new ();
+  clutter_actor_set_background_color (rectangle, &color_rect);
   clutter_actor_set_size (rectangle, 75, 35);
 
   label = clutter_text_new_full ("Sans Bold 32px",

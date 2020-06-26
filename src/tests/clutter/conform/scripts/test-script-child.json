@@ -3,19 +3,19 @@
   "id" : "test-group",
   "children" : [
     {
-      "type" : "ClutterRectangle",
+      "type" : "ClutterActor",
       "id" : "test-rect-1",
       "width" : 100.0,
       "height" : 100.0,
-      "color" : [ 255, 0, 0, 255 ],
+      "background-color" : [ 255, 0, 0, 255 ],
       "child::focus" : true
     },
     {
-      "type" : "ClutterRectangle",
+      "type" : "ClutterActor",
       "id" : "test-rect-2",
       "width" : 100.0,
       "height" : 100.0,
-      "color" : [ 0, 255, 0, 255 ]
+      "background-color" : [ 0, 255, 0, 255 ]
     }
   ]
 }
