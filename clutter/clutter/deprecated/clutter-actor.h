@@ -33,19 +33,6 @@
 
 G_BEGIN_DECLS
 
-CLUTTER_DEPRECATED_FOR(clutter_actor_set_scale and clutter_actor_set_pivot_point)
-void            clutter_actor_set_scale_full                    (ClutterActor          *self,
-                                                                 gdouble                scale_x,
-                                                                 gdouble                scale_y,
-                                                                 gfloat                 center_x,
-                                                                 gfloat                 center_y);
-CLUTTER_DEPRECATED_FOR(clutter_actor_get_pivot_point)
-void            clutter_actor_get_scale_center                  (ClutterActor          *self,
-                                                                 gfloat                *center_x,
-                                                                 gfloat                *center_y);
-CLUTTER_DEPRECATED_FOR(clutter_actor_get_pivot_point)
-ClutterGravity  clutter_actor_get_scale_gravity                 (ClutterActor          *self);
-
 CLUTTER_DEPRECATED
 void            clutter_actor_set_anchor_point                  (ClutterActor          *self,
                                                                  gfloat                 anchor_x,

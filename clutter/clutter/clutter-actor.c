@@ -926,9 +926,6 @@ enum
   PROP_SCALE_X,
   PROP_SCALE_Y,
   PROP_SCALE_Z,
-  PROP_SCALE_CENTER_X, /* XXX:2.0 remove */
-  PROP_SCALE_CENTER_Y, /* XXX:2.0 remove */
-  PROP_SCALE_GRAVITY, /* XXX:2.0 remove */
   PROP_RESOURCE_SCALE,
 
   PROP_ROTATION_ANGLE_X, /* XXX:2.0 rename to rotation-x */
@@ -1108,15 +1105,6 @@ static void clutter_actor_push_in_cloned_branch (ClutterActor *self,
                                                  gulong        count);
 static void clutter_actor_pop_in_cloned_branch (ClutterActor *self,
                                                 gulong        count);
-
-/* Helper macro which translates by the anchor coord, applies the
-   given transformation and then translates back */
-#define TRANSFORM_ABOUT_ANCHOR_COORD(a,m,c,_transform)  G_STMT_START { \
-  gfloat _tx, _ty, _tz;                                                \
-  clutter_anchor_coord_get_units ((a), (c), &_tx, &_ty, &_tz);         \
-  cogl_matrix_translate ((m), _tx, _ty, _tz);                          \
-  { _transform; }                                                      \
-  cogl_matrix_translate ((m), -_tx, -_ty, -_tz);        } G_STMT_END
 
 static GQuark quark_actor_layout_info = 0;
 static GQuark quark_actor_transform_info = 0;
@@ -3149,15 +3137,7 @@ clutter_actor_real_apply_transform (ClutterActor  *self,
    * code we use when interpolating transformations
    */
   if (info->scale_x != 1.0 || info->scale_y != 1.0 || info->scale_z != 1.0)
-    {
-      /* XXX:2.0 remove anchor coord */
-      TRANSFORM_ABOUT_ANCHOR_COORD (self, transform,
-                                    &info->scale_center,
-                                    cogl_matrix_scale (transform,
-                                                       info->scale_x,
-                                                       info->scale_y,
-                                                       info->scale_z));
-    }
+    cogl_matrix_scale (transform, info->scale_x, info->scale_y, info->scale_z);
 
   if (info->rz_angle)
     cogl_matrix_rotate (transform, info->rz_angle, 0, 0, 1.0);
@@ -4429,7 +4409,7 @@ static const ClutterTransformInfo default_transform_info = {
   0.0,                          /* rotation-y */
   0.0,                          /* rotation-z */
 
-  1.0, 1.0, 1.0, { 0, },        /* scale */
+  1.0, 1.0, 1.0,                /* scale */
 
   { 0, },                       /* anchor XXX:2.0 - remove*/
 
@@ -4872,78 +4852,6 @@ clutter_actor_set_scale_factor (ClutterActor      *self,
     _clutter_actor_create_transition (self, pspec, *scale_p, factor);
 }
 
-static inline void
-clutter_actor_set_scale_center (ClutterActor      *self,
-                                ClutterRotateAxis  axis,
-                                gfloat             coord)
-{
-  GObject *obj = G_OBJECT (self);
-  ClutterTransformInfo *info;
-  gfloat center_x, center_y;
-
-  info = _clutter_actor_get_transform_info (self);
-
-  g_object_freeze_notify (obj);
-
-  /* get the current scale center coordinates */
-  clutter_anchor_coord_get_units (self, &info->scale_center,
-                                  &center_x,
-                                  &center_y,
-                                  NULL);
-
-  /* we need to notify this too, because setting explicit coordinates will
-   * change the gravity as a side effect
-   */
-  if (info->scale_center.is_fractional)
-    g_object_notify_by_pspec (obj, obj_props[PROP_SCALE_GRAVITY]);
-
-  switch (axis)
-    {
-    case CLUTTER_X_AXIS:
-      clutter_anchor_coord_set_units (&info->scale_center, coord, center_y, 0);
-      g_object_notify_by_pspec (obj, obj_props[PROP_SCALE_CENTER_X]);
-      break;
-
-    case CLUTTER_Y_AXIS:
-      clutter_anchor_coord_set_units (&info->scale_center, center_x, coord, 0);
-      g_object_notify_by_pspec (obj, obj_props[PROP_SCALE_CENTER_Y]);
-      break;
-
-    default:
-      g_assert_not_reached ();
-    }
-
-  self->priv->transform_valid = FALSE;
-
-  clutter_actor_queue_redraw (self);
-
-  g_object_thaw_notify (obj);
-}
-
-static inline void
-clutter_actor_set_scale_gravity (ClutterActor   *self,
-                                 ClutterGravity  gravity)
-{
-  ClutterTransformInfo *info;
-  GObject *obj;
-
-  info = _clutter_actor_get_transform_info (self);
-  obj = G_OBJECT (self);
-
-  if (gravity == CLUTTER_GRAVITY_NONE)
-    clutter_anchor_coord_set_units (&info->scale_center, 0, 0, 0);
-  else
-    clutter_anchor_coord_set_gravity (&info->scale_center, gravity);
-
-  self->priv->transform_valid = FALSE;
-
-  g_object_notify_by_pspec (obj, obj_props[PROP_SCALE_CENTER_X]);
-  g_object_notify_by_pspec (obj, obj_props[PROP_SCALE_CENTER_Y]);
-  g_object_notify_by_pspec (obj, obj_props[PROP_SCALE_GRAVITY]);
-
-  clutter_actor_queue_redraw (self);
-}
-
 /* XXX:2.0 - remove */
 static inline void
 clutter_actor_set_anchor_coord (ClutterActor      *self,
@@ -5179,20 +5087,6 @@ clutter_actor_set_property (GObject      *object,
     case PROP_SCALE_Z:
       clutter_actor_set_scale_factor (actor, CLUTTER_Z_AXIS,
                                       g_value_get_double (value));
-      break;
-
-    case PROP_SCALE_CENTER_X: /* XXX:2.0 - remove */
-      clutter_actor_set_scale_center (actor, CLUTTER_X_AXIS,
-                                      g_value_get_float (value));
-      break;
-
-    case PROP_SCALE_CENTER_Y: /* XXX:2.0 - remove */
-      clutter_actor_set_scale_center (actor, CLUTTER_Y_AXIS,
-                                      g_value_get_float (value));
-      break;
-
-    case PROP_SCALE_GRAVITY: /* XXX:2.0 - remove */
-      clutter_actor_set_scale_gravity (actor, g_value_get_enum (value));
       break;
 
     case PROP_CLIP_RECT:
@@ -5579,30 +5473,6 @@ clutter_actor_get_property (GObject    *object,
         info = _clutter_actor_get_transform_info_or_defaults (actor);
         g_value_set_double (value, info->scale_z);
       }
-      break;
-
-    case PROP_SCALE_CENTER_X: /* XXX:2.0 - remove */
-      {
-        gfloat center;
-
-        clutter_actor_get_scale_center (actor, &center, NULL);
-
-        g_value_set_float (value, center);
-      }
-      break;
-
-    case PROP_SCALE_CENTER_Y: /* XXX:2.0 - remove */
-      {
-        gfloat center;
-
-        clutter_actor_get_scale_center (actor, NULL, &center);
-
-        g_value_set_float (value, center);
-      }
-      break;
-
-    case PROP_SCALE_GRAVITY: /* XXX:2.0 - remove */
-      g_value_set_enum (value, clutter_actor_get_scale_gravity (actor));
       break;
 
     case PROP_RESOURCE_SCALE:
@@ -6939,63 +6809,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_STATIC_STRINGS |
                          CLUTTER_PARAM_ANIMATABLE);
-
-  /**
-   * ClutterActor:scale-center-x:
-   *
-   * The horizontal center point for scaling
-   *
-   * Since: 1.0
-   *
-   * Deprecated: 1.12: Use #ClutterActor:pivot-point instead
-   */
-  obj_props[PROP_SCALE_CENTER_X] = /* XXX:2.0 - remove */
-    g_param_spec_float ("scale-center-x",
-                        P_("Scale Center X"),
-                        P_("Horizontal scale center"),
-                        -G_MAXFLOAT, G_MAXFLOAT,
-                        0.0,
-                        G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS |
-                        G_PARAM_DEPRECATED);
-
-  /**
-   * ClutterActor:scale-center-y:
-   *
-   * The vertical center point for scaling
-   *
-   * Since: 1.0
-   *
-   * Deprecated: 1.12: Use #ClutterActor:pivot-point instead
-   */
-  obj_props[PROP_SCALE_CENTER_Y] = /* XXX:2.0 - remove */
-    g_param_spec_float ("scale-center-y",
-                        P_("Scale Center Y"),
-                        P_("Vertical scale center"),
-                        -G_MAXFLOAT, G_MAXFLOAT,
-                        0.0,
-                        G_PARAM_READWRITE |
-                        G_PARAM_STATIC_STRINGS |
-                        G_PARAM_DEPRECATED);
-
-  /**
-   * ClutterActor:scale-gravity:
-   *
-   * The center point for scaling expressed as a #ClutterGravity
-   *
-   * Since: 1.0
-   *
-   * Deprecated: 1.12: Use #ClutterActor:pivot-point instead
-   */
-  obj_props[PROP_SCALE_GRAVITY] = /* XXX:2.0 - remove */
-    g_param_spec_enum ("scale-gravity",
-                       P_("Scale Gravity"),
-                       P_("The center of scaling"),
-                       CLUTTER_TYPE_GRAVITY,
-                       CLUTTER_GRAVITY_NONE,
-                       G_PARAM_READWRITE |
-                       G_PARAM_STATIC_STRINGS |
-                       G_PARAM_DEPRECATED);
 
   /**
    * ClutterActor:resource-scale:
@@ -11252,45 +11065,6 @@ clutter_actor_set_scale_z (ClutterActor *self,
 }
 
 /**
- * clutter_actor_set_scale_full:
- * @self: A #ClutterActor
- * @scale_x: double factor to scale actor by horizontally.
- * @scale_y: double factor to scale actor by vertically.
- * @center_x: X coordinate of the center of the scaling
- * @center_y: Y coordinate of the center of the scaling
- *
- * Scales an actor with the given factors around the given center
- * point. The center point is specified in pixels relative to the
- * anchor point (usually the top left corner of the actor).
- *
- * The #ClutterActor:scale-x and #ClutterActor:scale-y properties
- * are animatable.
- *
- * Since: 1.0
- *
- * Deprecated: 1.12: Use clutter_actor_set_pivot_point() to control
- *   the scale center
- */
-void
-clutter_actor_set_scale_full (ClutterActor *self,
-                              gdouble       scale_x,
-                              gdouble       scale_y,
-                              gfloat        center_x,
-                              gfloat        center_y)
-{
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  g_object_freeze_notify (G_OBJECT (self));
-
-  clutter_actor_set_scale_factor (self, CLUTTER_X_AXIS, scale_x);
-  clutter_actor_set_scale_factor (self, CLUTTER_Y_AXIS, scale_y);
-  clutter_actor_set_scale_center (self, CLUTTER_X_AXIS, center_x);
-  clutter_actor_set_scale_center (self, CLUTTER_Y_AXIS, center_y);
-
-  g_object_thaw_notify (G_OBJECT (self));
-}
-
-/**
  * clutter_actor_get_scale:
  * @self: A #ClutterActor
  * @scale_x: (out) (allow-none): Location to store horizonal
@@ -11337,66 +11111,6 @@ clutter_actor_get_scale_z (ClutterActor *self)
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), 1.0);
 
   return _clutter_actor_get_transform_info_or_defaults (self)->scale_z;
-}
-
-/**
- * clutter_actor_get_scale_center:
- * @self: A #ClutterActor
- * @center_x: (out) (allow-none): Location to store the X position
- *   of the scale center, or %NULL.
- * @center_y: (out) (allow-none): Location to store the Y position
- *   of the scale center, or %NULL.
- *
- * Retrieves the scale center coordinate in pixels relative to the top
- * left corner of the actor. If the scale center was specified using a
- * #ClutterGravity this will calculate the pixel offset using the
- * current size of the actor.
- *
- * Since: 1.0
- *
- * Deprecated: 1.12: Use clutter_actor_get_pivot_point() instead.
- */
-void
-clutter_actor_get_scale_center (ClutterActor *self,
-                                gfloat       *center_x,
-                                gfloat       *center_y)
-{
-  const ClutterTransformInfo *info;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  info = _clutter_actor_get_transform_info_or_defaults (self);
-
-  clutter_anchor_coord_get_units (self, &info->scale_center,
-                                  center_x,
-                                  center_y,
-                                  NULL);
-}
-
-/**
- * clutter_actor_get_scale_gravity:
- * @self: A #ClutterActor
- *
- * Retrieves the scale center as a compass direction. If the scale
- * center was specified in pixels or units this will return
- * %CLUTTER_GRAVITY_NONE.
- *
- * Return value: the scale gravity
- *
- * Since: 1.0
- *
- * Deprecated: 1.12: Use clutter_actor_get_pivot_point() instead.
- */
-ClutterGravity
-clutter_actor_get_scale_gravity (ClutterActor *self)
-{
-  const ClutterTransformInfo *info;
-
-  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), CLUTTER_GRAVITY_NONE);
-
-  info = _clutter_actor_get_transform_info_or_defaults (self);
-
-  return clutter_anchor_coord_get_gravity (&info->scale_center);
 }
 
 static inline void
