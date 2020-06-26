@@ -4324,14 +4324,6 @@ typedef enum
                                     REMOVE_CHILD_FLUSH_QUEUE |
                                     REMOVE_CHILD_NOTIFY_FIRST_LAST |
                                     REMOVE_CHILD_CLEAR_STAGE_VIEWS,
-
-  /* flags for legacy/deprecated API */
-  REMOVE_CHILD_LEGACY_FLAGS       = REMOVE_CHILD_STOP_TRANSITIONS |
-                                    REMOVE_CHILD_CHECK_STATE |
-                                    REMOVE_CHILD_FLUSH_QUEUE |
-                                    REMOVE_CHILD_EMIT_PARENT_SET |
-                                    REMOVE_CHILD_NOTIFY_FIRST_LAST |
-                                    REMOVE_CHILD_CLEAR_STAGE_VIEWS
 } ClutterActorRemoveChildFlags;
 
 /*< private >
@@ -13305,36 +13297,6 @@ clutter_actor_replace_child (ClutterActor *self,
                                     ADD_CHILD_DEFAULT_FLAGS,
                                     insert_child_between,
                                     &clos);
-}
-
-/**
- * clutter_actor_unparent:
- * @self: a #ClutterActor
- *
- * Removes the parent of @self.
- *
- * This will cause the parent of @self to release the reference
- * acquired when calling clutter_actor_set_parent(), so if you
- * want to keep @self you will have to acquire a reference of
- * your own, through g_object_ref().
- *
- * This function should only be called by legacy #ClutterActor<!-- -->s
- * implementing the #ClutterContainer interface.
- *
- * Since: 0.2
- *
- * Deprecated: 1.10: Use clutter_actor_remove_child() instead.
- */
-void
-clutter_actor_unparent (ClutterActor *self)
-{
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  if (self->priv->parent == NULL)
-    return;
-
-  clutter_actor_remove_child_internal (self->priv->parent, self,
-                                       REMOVE_CHILD_LEGACY_FLAGS);
 }
 
 /**

@@ -62,7 +62,7 @@ test_destroy_remove (ClutterContainer *container,
   g_assert_true (g_list_find (self->children, actor));
   self->children = g_list_remove (self->children, actor);
 
-  clutter_actor_unparent (actor);
+  clutter_actor_remove_child (CLUTTER_ACTOR (container), actor);
 }
 
 static void

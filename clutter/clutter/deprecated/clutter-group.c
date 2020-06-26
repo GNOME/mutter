@@ -142,13 +142,7 @@ clutter_group_real_remove (ClutterContainer *container,
   g_object_ref (actor);
 
   priv->children = g_list_remove (priv->children, actor);
-  clutter_actor_unparent (actor);
-
-  clutter_actor_queue_relayout (CLUTTER_ACTOR (container));
-
-  g_signal_emit_by_name (container, "actor-removed", actor);
-
-  clutter_actor_queue_redraw (CLUTTER_ACTOR (container));
+  clutter_actor_remove_child (CLUTTER_ACTOR (container), actor);
 
   g_object_unref (actor);
 }
