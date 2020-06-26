@@ -109,7 +109,7 @@ main (int argc, char *argv[])
           clutter_container_add_actor (CLUTTER_CONTAINER (group), label);
         }
   }
-  clutter_actor_show_all (stage);
+  clutter_actor_show (stage);
 
   g_signal_connect (stage, "key-press-event",
 		    G_CALLBACK (clutter_main_quit), NULL);

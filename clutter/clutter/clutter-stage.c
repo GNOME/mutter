@@ -1018,22 +1018,6 @@ clutter_stage_unrealize (ClutterActor *self)
 }
 
 static void
-clutter_stage_show_all (ClutterActor *self)
-{
-  ClutterActorIter iter;
-  ClutterActor *child;
-
-  /* we don't do a recursive show_all(), to maintain the old
-   * invariants from ClutterGroup
-   */
-  clutter_actor_iter_init (&iter, self);
-  while (clutter_actor_iter_next (&iter, &child))
-    clutter_actor_show (child);
-
-  clutter_actor_show (self);
-}
-
-static void
 clutter_stage_show (ClutterActor *self)
 {
   ClutterStagePrivate *priv = CLUTTER_STAGE (self)->priv;
@@ -1972,7 +1956,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
   actor_class->realize = clutter_stage_realize;
   actor_class->unrealize = clutter_stage_unrealize;
   actor_class->show = clutter_stage_show;
-  actor_class->show_all = clutter_stage_show_all;
   actor_class->hide = clutter_stage_hide;
   actor_class->hide_all = clutter_stage_hide_all;
   actor_class->queue_relayout = clutter_stage_real_queue_relayout;

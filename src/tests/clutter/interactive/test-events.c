@@ -467,7 +467,6 @@ test_events_main (int argc, char *argv[])
   clutter_container_add (CLUTTER_CONTAINER (group), actor, NULL);
   clutter_container_add (CLUTTER_CONTAINER (stage), group, NULL);
   clutter_actor_set_position (group, 100, 350);
-  clutter_actor_show_all (group);
 
   /* border actor */
   actor = clutter_rectangle_new_with_color (CLUTTER_COLOR_Magenta);
@@ -480,7 +479,7 @@ test_events_main (int argc, char *argv[])
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), actor);
   g_signal_connect (actor, "event", G_CALLBACK (input_cb), NULL);
 
-  clutter_actor_show_all (CLUTTER_ACTOR (stage));
+  clutter_actor_show (CLUTTER_ACTOR (stage));
 
   clutter_main();
 

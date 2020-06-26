@@ -224,7 +224,7 @@ test_texture_pixmap_x11 (TestUtilsGTestFixture *fixture,
 
   idle_handler = g_idle_add (queue_redraw, state.stage);
 
-  clutter_actor_show_all (state.stage);
+  clutter_actor_show (state.stage);
 
   clutter_main ();
 

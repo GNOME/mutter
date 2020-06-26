@@ -227,7 +227,7 @@ test_cogl_multitexture_main (int argc, char *argv[])
   /* start the timeline and thus the animations */
   clutter_timeline_start (state->timeline);
 
-  clutter_actor_show_all (stage);
+  clutter_actor_show (stage);
 
   clutter_main();
 

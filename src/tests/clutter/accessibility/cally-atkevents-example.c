@@ -178,7 +178,7 @@ main (int argc, char *argv[])
   g_signal_connect (stage_main, "destroy", G_CALLBACK (clutter_main_quit), NULL);
   make_ui (stage_main);
 
-  clutter_actor_show_all (stage_main);
+  clutter_actor_show (stage_main);
 
   if (clutter_feature_available (CLUTTER_FEATURE_STAGE_MULTIPLE))
     {
@@ -187,7 +187,7 @@ main (int argc, char *argv[])
       g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
 
       make_ui (stage);
-      clutter_actor_show_all (stage);
+      clutter_actor_show (stage);
     }
 
   clutter_main ();

@@ -288,7 +288,7 @@ test_grab_main (int argc, char *argv[])
   g_signal_connect (actor, "button-press-event",
                     G_CALLBACK (cyan_press_cb), NULL);
 
-  clutter_actor_show_all (CLUTTER_ACTOR (stage));
+  clutter_actor_show (CLUTTER_ACTOR (stage));
 
   clutter_main();
 

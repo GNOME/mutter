@@ -142,11 +142,6 @@ struct _ClutterActor
  * ClutterActorClass:
  * @show: signal class handler for #ClutterActor::show; it must chain
  *   up to the parent's implementation
- * @show_all: virtual function for containers and composite actors, to
- *   determine which children should be shown when calling
- *   clutter_actor_show_all() on the actor. Defaults to calling
- *   clutter_actor_show(). This virtual function is deprecated and it
- *   should not be overridden.
  * @hide: signal class handler for #ClutterActor::hide; it must chain
  *   up to the parent's implementation
  * @hide_all: virtual function for containers and composite actors, to
@@ -226,7 +221,6 @@ struct _ClutterActorClass
 
   /*< public >*/
   void (* show)                 (ClutterActor          *self);
-  void (* show_all)             (ClutterActor          *self);
   void (* hide)                 (ClutterActor          *self);
   void (* hide_all)             (ClutterActor          *self);
   void (* realize)              (ClutterActor          *self);

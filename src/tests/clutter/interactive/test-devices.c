@@ -238,7 +238,7 @@ test_devices_main (int argc, char **argv)
                     app);
   app->stage = stage;
 
-  clutter_actor_show_all (stage);
+  clutter_actor_show (stage);
 
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
   g_signal_connect (seat,

@@ -1973,28 +1973,6 @@ clutter_actor_is_visible (ClutterActor *self)
   return CLUTTER_ACTOR_IS_VISIBLE (self);
 }
 
-/**
- * clutter_actor_show_all:
- * @self: a #ClutterActor
- *
- * Calls clutter_actor_show() on all children of an actor (if any).
- *
- * Since: 0.2
- *
- * Deprecated: 1.10: Actors are visible by default
- */
-void
-clutter_actor_show_all (ClutterActor *self)
-{
-  ClutterActorClass *klass;
-
-  g_return_if_fail (CLUTTER_IS_ACTOR (self));
-
-  klass = CLUTTER_ACTOR_GET_CLASS (self);
-  if (klass->show_all)
-    klass->show_all (self);
-}
-
 static void
 clutter_actor_real_hide (ClutterActor *self)
 {
@@ -6436,7 +6414,6 @@ clutter_actor_class_init (ClutterActorClass *klass)
   object_class->finalize = clutter_actor_finalize;
 
   klass->show = clutter_actor_real_show;
-  klass->show_all = clutter_actor_show;
   klass->hide = clutter_actor_real_hide;
   klass->hide_all = clutter_actor_hide;
   klass->map = clutter_actor_real_map;

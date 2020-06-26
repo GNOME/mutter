@@ -77,7 +77,7 @@ test_shader_effects_main (int argc, char *argv[])
   /* start the timeline and thus the animations */
   clutter_timeline_start (timeline);
 
-  clutter_actor_show_all (stage);
+  clutter_actor_show (stage);
 
   clutter_main();
 

@@ -366,19 +366,6 @@ clutter_group_dispose (GObject *object)
 }
 
 static void
-clutter_group_real_show_all (ClutterActor *self)
-{
-  ClutterActorIter iter;
-  ClutterActor *actor;
-
-  clutter_actor_iter_init (&iter, self);
-  while (clutter_actor_iter_next (&iter, &actor))
-    clutter_actor_show (actor);
-
-  clutter_actor_show (self);
-}
-
-static void
 clutter_group_real_hide_all (ClutterActor *actor)
 {
   ClutterActorIter iter;
@@ -428,7 +415,6 @@ clutter_group_class_init (ClutterGroupClass *klass)
   actor_class->allocate = clutter_group_real_allocate;
   actor_class->paint = clutter_group_real_paint;
   actor_class->pick = clutter_group_real_pick;
-  actor_class->show_all = clutter_group_real_show_all;
   actor_class->hide_all = clutter_group_real_hide_all;
   actor_class->get_paint_volume = clutter_group_real_get_paint_volume;
 

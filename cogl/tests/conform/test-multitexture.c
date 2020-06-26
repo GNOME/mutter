@@ -197,7 +197,7 @@ test_multitexture (TestUtilsGTestFixture *fixture,
 
   g_signal_connect (group, "paint", G_CALLBACK (on_paint), &state);
 
-  clutter_actor_show_all (stage);
+  clutter_actor_show (stage);
 
   clutter_main ();
 

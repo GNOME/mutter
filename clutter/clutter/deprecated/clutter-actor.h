@@ -33,9 +33,6 @@
 
 G_BEGIN_DECLS
 
-CLUTTER_DEPRECATED
-void            clutter_actor_show_all                          (ClutterActor          *self);
-
 CLUTTER_DEPRECATED_FOR(clutter_actor_set_rotation_angle)
 void            clutter_actor_set_rotation                      (ClutterActor          *self,
                                                                  ClutterRotateAxis      axis,

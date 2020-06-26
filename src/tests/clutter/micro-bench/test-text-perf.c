@@ -179,7 +179,7 @@ main (int argc, char *argv[])
 	clutter_container_add_actor (CLUTTER_CONTAINER (stage), label);
       }
 
-  clutter_actor_show_all (stage);
+  clutter_actor_show (stage);
 
   clutter_threads_add_idle (queue_redraw, stage);
 

@@ -181,7 +181,7 @@ test_swipe_action_main (int argc, char *argv[])
                                                                     offset));
   }
 
-  clutter_actor_show_all (stage);
+  clutter_actor_show (stage);
 
   clutter_main ();
 

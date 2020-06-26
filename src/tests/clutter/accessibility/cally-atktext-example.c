@@ -244,7 +244,7 @@ main (int argc, char *argv[])
 
   make_ui (stage);
 
-  clutter_actor_show_all (stage);
+  clutter_actor_show (stage);
 
   test_atk_text (text_actor);
   test_atk_text (text_editable_actor);
