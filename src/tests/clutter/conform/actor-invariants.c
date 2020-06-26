@@ -341,24 +341,6 @@ clone_no_map (void)
   clutter_actor_destroy (CLUTTER_ACTOR (group));
 }
 
-G_GNUC_BEGIN_IGNORE_DEPRECATIONS
-static void
-default_stage (void)
-{
-  ClutterActor *stage, *def_stage;
-
-  stage = clutter_test_get_stage ();
-  def_stage = clutter_stage_get_default ();
-
-  if (clutter_feature_available (CLUTTER_FEATURE_STAGE_MULTIPLE))
-    g_assert (stage != def_stage);
-  else
-    g_assert (stage == def_stage);
-
-  g_assert (CLUTTER_ACTOR_IS_REALIZED (def_stage));
-}
-G_GNUC_END_IGNORE_DEPRECATIONS
-
 CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/actor/invariants/initial-state", actor_initial_state)
   CLUTTER_TEST_UNIT ("/actor/invariants/show-not-parented", actor_shown_not_parented)
@@ -369,5 +351,4 @@ CLUTTER_TEST_SUITE (
   CLUTTER_TEST_UNIT ("/actor/invariants/map-recursive", actor_map_recursive)
   CLUTTER_TEST_UNIT ("/actor/invariants/show-on-set-parent", actor_show_on_set_parent)
   CLUTTER_TEST_UNIT ("/actor/invariants/clone-no-map", clone_no_map)
-  CLUTTER_TEST_UNIT ("/actor/invariants/default-stage", default_stage)
 )

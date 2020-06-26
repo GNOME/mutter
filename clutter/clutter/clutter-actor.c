@@ -8700,9 +8700,6 @@ clutter_actor_new (void)
  * container, the actor will be removed.
  *
  * When you destroy a container, its children will be destroyed as well.
- *
- * Note: you cannot destroy the #ClutterStage returned by
- * clutter_stage_get_default().
  */
 void
 clutter_actor_destroy (ClutterActor *self)

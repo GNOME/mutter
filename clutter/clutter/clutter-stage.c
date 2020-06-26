@@ -51,7 +51,6 @@
 #define CLUTTER_ENABLE_EXPERIMENTAL_API
 
 #include "clutter-stage.h"
-#include "deprecated/clutter-stage.h"
 #include "deprecated/clutter-container.h"
 
 #include "clutter-actor-private.h"
@@ -2109,56 +2108,6 @@ clutter_stage_init (ClutterStage *self)
   priv->cached_pick_mode = CLUTTER_PICK_NONE;
 }
 
-/**
- * clutter_stage_get_default:
- *
- * Retrieves a #ClutterStage singleton.
- *
- * This function is not as useful as it sounds, and will most likely
- * by deprecated in the future. Application code should only create
- * a #ClutterStage instance using clutter_stage_new(), and manage the
- * lifetime of the stage manually.
- *
- * The default stage singleton has a platform-specific behaviour: on
- * platforms without the %CLUTTER_FEATURE_STAGE_MULTIPLE feature flag
- * set, the first #ClutterStage instance will also be set to be the
- * default stage instance, and this function will always return a
- * pointer to it.
- *
- * On platforms with the %CLUTTER_FEATURE_STAGE_MULTIPLE feature flag
- * set, the default stage will be created by the first call to this
- * function, and every following call will return the same pointer to
- * it.
- *
- * Return value: (transfer none) (type Clutter.Stage): the main
- *   #ClutterStage. You should never destroy or unref the returned
- *   actor.
- *
- * Deprecated: 1.10: Use clutter_stage_new() instead.
- */
-ClutterActor *
-clutter_stage_get_default (void)
-{
-  ClutterStageManager *stage_manager = clutter_stage_manager_get_default ();
-  ClutterStage *stage;
-
-  stage = clutter_stage_manager_get_default_stage (stage_manager);
-  if (G_UNLIKELY (stage == NULL))
-    {
-      /* This will take care of automatically adding the stage to the
-       * stage manager and setting it as the default. Its floating
-       * reference will be claimed by the stage manager.
-       */
-      stage = g_object_new (CLUTTER_TYPE_STAGE, NULL);
-      _clutter_stage_manager_set_default_stage (stage_manager, stage);
-
-      /* the default stage is realized by default */
-      clutter_actor_realize (CLUTTER_ACTOR (stage));
-    }
-
-  return CLUTTER_ACTOR (stage);
-}
-
 static void
 clutter_stage_set_perspective (ClutterStage       *stage,
                                ClutterPerspective *perspective)
@@ -2719,10 +2668,7 @@ G_DEFINE_BOXED_TYPE (ClutterPerspective, clutter_perspective,
  * clutter_stage_new:
  *
  * Creates a new, non-default stage. A non-default stage is a new
- * top-level actor which can be used as another container. It works
- * exactly like the default stage, but while clutter_stage_get_default()
- * will always return the same instance, you will have to keep a pointer
- * to any #ClutterStage returned by clutter_stage_new().
+ * top-level actor which can be used as another container.
  *
  * The ability to support multiple stages depends on the current
  * backend. Use clutter_feature_available() and
@@ -2739,23 +2685,6 @@ ClutterActor *
 clutter_stage_new (void)
 {
   return g_object_new (CLUTTER_TYPE_STAGE, NULL);
-}
-
-/**
- * clutter_stage_ensure_current:
- * @stage: the #ClutterStage
- *
- * This function essentially makes sure the right GL context is
- * current for the passed stage. It is not intended to
- * be used by applications.
- *
- * Since: 0.8
- * Deprecated: mutter: This function does not do anything.
- */
-void
-clutter_stage_ensure_current (ClutterStage *stage)
-{
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
 }
 
 /**
@@ -3005,50 +2934,6 @@ clutter_stage_is_redraw_queued (ClutterStage *stage)
   ClutterStagePrivate *priv = stage->priv;
 
   return priv->redraw_pending;
-}
-
-/**
- * clutter_stage_queue_redraw:
- * @stage: the #ClutterStage
- *
- * Queues a redraw for the passed stage.
- *
- * Applications should call clutter_actor_queue_redraw() and not
- * this function.
- *
- * Since: 0.8
- *
- * Deprecated: 1.10: Use clutter_actor_queue_redraw() instead.
- */
-void
-clutter_stage_queue_redraw (ClutterStage *stage)
-{
-  g_return_if_fail (CLUTTER_IS_STAGE (stage));
-
-  clutter_actor_queue_redraw (CLUTTER_ACTOR (stage));
-}
-
-/**
- * clutter_stage_is_default:
- * @stage: a #ClutterStage
- *
- * Checks if @stage is the default stage, or an instance created using
- * clutter_stage_new() but internally using the same implementation.
- *
- * Return value: %TRUE if the passed stage is the default one
- *
- * Since: 0.8
- *
- * Deprecated: 1.10: Track the stage pointer inside your application
- *   code, or use clutter_actor_get_stage() to retrieve the stage for
- *   a given actor.
- */
-gboolean
-clutter_stage_is_default (ClutterStage *stage)
-{
-  g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
-
-  return stage_is_default (stage);
 }
 
 void
