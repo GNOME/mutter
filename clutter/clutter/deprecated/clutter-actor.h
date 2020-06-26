@@ -41,12 +41,6 @@ CLUTTER_DEPRECATED_FOR(clutter_actor_remove_child)
 void            clutter_actor_unparent                          (ClutterActor          *self);
 
 CLUTTER_DEPRECATED
-void            clutter_actor_push_internal                     (ClutterActor          *self);
-
-CLUTTER_DEPRECATED
-void            clutter_actor_pop_internal                      (ClutterActor          *self);
-
-CLUTTER_DEPRECATED
 void            clutter_actor_show_all                          (ClutterActor          *self);
 
 CLUTTER_DEPRECATED_FOR(clutter_actor_set_rotation_angle)
