@@ -63,7 +63,7 @@ main (int argc, char *argv[])
   button3 = clutter_rectangle_new_with_color (CLUTTER_COLOR_Blue);
   clutter_actor_set_position (button3, 0, 2 * SIZE);
   clutter_actor_set_size (button3, SIZE, SIZE);
-  clutter_actor_set_depth( button3, DEPTH);
+  clutter_actor_set_z_position (button3, DEPTH);
 
   /* a nested hierarchy, to check that the relative positions are
      computed properly */

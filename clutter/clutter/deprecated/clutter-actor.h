@@ -52,13 +52,6 @@ void            clutter_actor_pop_internal                      (ClutterActor   
 CLUTTER_DEPRECATED
 void            clutter_actor_show_all                          (ClutterActor          *self);
 
-CLUTTER_DEPRECATED_FOR(clutter_actor_set_z_position)
-void            clutter_actor_set_depth                         (ClutterActor          *self,
-                                                                 gfloat                 depth);
-
-CLUTTER_DEPRECATED_FOR(clutter_actor_get_z_position)
-gfloat          clutter_actor_get_depth                         (ClutterActor          *self);
-
 CLUTTER_DEPRECATED_FOR(clutter_actor_set_rotation_angle)
 void            clutter_actor_set_rotation                      (ClutterActor          *self,
                                                                  ClutterRotateAxis      axis,

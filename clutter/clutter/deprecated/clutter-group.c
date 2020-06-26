@@ -84,8 +84,8 @@ static gint
 sort_by_depth (gconstpointer a,
                gconstpointer b)
 {
-  gfloat depth_a = clutter_actor_get_depth (CLUTTER_ACTOR(a));
-  gfloat depth_b = clutter_actor_get_depth (CLUTTER_ACTOR(b));
+  gfloat depth_a = clutter_actor_get_z_position (CLUTTER_ACTOR(a));
+  gfloat depth_b = clutter_actor_get_z_position (CLUTTER_ACTOR(b));
 
   if (depth_a < depth_b)
     return -1;
@@ -207,9 +207,9 @@ clutter_group_real_raise (ClutterContainer *container,
    * we can break API and remove Group for good.
    */
   if (sibling &&
-      clutter_actor_get_depth (sibling) != clutter_actor_get_depth (actor))
+      clutter_actor_get_z_position (sibling) != clutter_actor_get_z_position (actor))
     {
-      clutter_actor_set_depth (actor, clutter_actor_get_depth (sibling));
+      clutter_actor_set_z_position (actor, clutter_actor_get_z_position (sibling));
     }
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (container));
@@ -246,9 +246,9 @@ clutter_group_real_lower (ClutterContainer *container,
 
   /* See comment in group_raise for this */
   if (sibling &&
-      clutter_actor_get_depth (sibling) != clutter_actor_get_depth (actor))
+      clutter_actor_get_z_position (sibling) != clutter_actor_get_z_position (actor))
     {
-      clutter_actor_set_depth (actor, clutter_actor_get_depth (sibling));
+      clutter_actor_set_z_position (actor, clutter_actor_get_z_position (sibling));
     }
 
   clutter_actor_queue_redraw (CLUTTER_ACTOR (container));

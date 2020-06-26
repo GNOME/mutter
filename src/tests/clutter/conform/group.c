@@ -16,7 +16,7 @@ group_depth_sorting (void)
 
   child = clutter_rectangle_new ();
   clutter_actor_set_size (child, 20, 20);
-  clutter_actor_set_depth (child, 0);
+  clutter_actor_set_z_position (child, 0);
   clutter_actor_set_name (child, "zero");
   clutter_container_add_actor (CLUTTER_CONTAINER (group), child);
 
@@ -27,7 +27,7 @@ group_depth_sorting (void)
 
   child = clutter_rectangle_new ();
   clutter_actor_set_size (child, 20, 20);
-  clutter_actor_set_depth (child, 10);
+  clutter_actor_set_z_position (child, 10);
   clutter_actor_set_name (child, "plus-ten");
   clutter_container_add_actor (CLUTTER_CONTAINER (group), child);
 
@@ -39,7 +39,7 @@ group_depth_sorting (void)
 
   child = clutter_rectangle_new ();
   clutter_actor_set_size (child, 20, 20);
-  clutter_actor_set_depth (child, -10);
+  clutter_actor_set_z_position (child, -10);
   clutter_actor_set_name (child, "minus-ten");
   clutter_container_add_actor (CLUTTER_CONTAINER (group), child);
 
