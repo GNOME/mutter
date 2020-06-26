@@ -25,7 +25,7 @@
 #error "Only <cally/cally.h> can be included directly."
 #endif
 
-#include <cally/cally-group.h>
+#include <cally/cally-actor.h>
 #include <clutter/clutter.h>
 
 G_BEGIN_DECLS
@@ -52,7 +52,7 @@ typedef struct _CallyStagePrivate CallyStagePrivate;
 struct _CallyStage
 {
   /*< private >*/
-  CallyGroup parent;
+  CallyActor parent;
 
   CallyStagePrivate *priv;
 };
@@ -68,7 +68,7 @@ struct _CallyStage
 struct _CallyStageClass
 {
   /*< private >*/
-  CallyGroupClass parent_class;
+  CallyActorClass parent_class;
 
   /* padding for future expansion */
   gpointer _padding_dummy[16];

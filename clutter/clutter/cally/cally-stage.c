@@ -63,7 +63,7 @@ struct _CallyStagePrivate
 
 G_DEFINE_TYPE_WITH_CODE (CallyStage,
                          cally_stage,
-                         CALLY_TYPE_GROUP,
+                         CALLY_TYPE_ACTOR,
                          G_ADD_PRIVATE (CallyStage)
                          G_IMPLEMENT_INTERFACE (ATK_TYPE_WINDOW,
                                                 cally_stage_window_interface_init));
