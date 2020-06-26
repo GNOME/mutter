@@ -5,7 +5,6 @@
 
 #include "deprecated/clutter-actor.h"
 #include "deprecated/clutter-container.h"
-#include "deprecated/clutter-rectangle.h"
 
 #undef __CLUTTER_DEPRECATED_H_INSIDE__
 

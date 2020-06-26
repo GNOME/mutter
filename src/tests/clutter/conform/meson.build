@@ -40,15 +40,10 @@ clutter_conform_tests_general_tests = [
   'units',
 ]
 
-clutter_conform_tests_deprecated_tests = [
-  'rectangle',
-]
-
 clutter_conform_tests = []
 clutter_conform_tests +=  clutter_conform_tests_actor_tests
 clutter_conform_tests += clutter_conform_tests_classes_tests
 clutter_conform_tests += clutter_conform_tests_general_tests
-clutter_conform_tests += clutter_conform_tests_deprecated_tests
 
 test_env = environment()
 test_env.set('G_TEST_SRCDIR', meson.current_source_dir())

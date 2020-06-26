@@ -38,12 +38,14 @@
  *
  * |[<!-- language="C" -->
  * // source
- * rect[0] = clutter_rectangle_new_with_color (&red_color);
+ * rect[0] = clutter_actor_new ();
+ * clutter_actor_set_background_color (rect[0], &red_color);
  * clutter_actor_set_position (rect[0], x_pos, y_pos);
  * clutter_actor_set_size (rect[0], 100, 100);
  *
  * // second rectangle
- * rect[1] = clutter_rectangle_new_with_color (&green_color);
+ * rect[1] = clutter_actor_new ();
+ * clutter_actor_set_background_color (rect[1], &green_color);
  * clutter_actor_set_size (rect[1], 100, 100);
  * clutter_actor_set_opacity (rect[1], 0);
  *
@@ -53,7 +55,8 @@
  * clutter_actor_add_constraint_with_name (rect[1], "green-y", constraint);
  *
  * // third rectangle
- * rect[2] = clutter_rectangle_new_with_color (&blue_color);
+ * rect[2] = clutter_actor_new ();
+ * clutter_actor_set_background_color (rect[2], &blue_color);
  * clutter_actor_set_size (rect[2], 100, 100);
  * clutter_actor_set_opacity (rect[2], 0);
  *

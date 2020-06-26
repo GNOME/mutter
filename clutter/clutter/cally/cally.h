@@ -27,7 +27,6 @@
 #include "cally-clone.h"
 #include "cally-factory.h"
 #include "cally-main.h"
-#include "cally-rectangle.h"
 #include "cally-root.h"
 #include "cally-stage.h"
 #include "cally-text.h"

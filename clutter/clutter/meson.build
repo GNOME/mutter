@@ -221,11 +221,6 @@ clutter_nonintrospected_sources = [
 clutter_deprecated_headers = [
   'deprecated/clutter-actor.h',
   'deprecated/clutter-container.h',
-  'deprecated/clutter-rectangle.h',
-]
-
-clutter_deprecated_sources = [
-  'deprecated/clutter-rectangle.c',
 ]
 
 clutter_backend_sources = []
@@ -283,7 +278,6 @@ cally_headers = [
     'cally/cally-factory.h',
     'cally/cally.h',
     'cally/cally-main.h',
-    'cally/cally-rectangle.h',
     'cally/cally-root.h',
     'cally/cally-stage.h',
     'cally/cally-text.h',
@@ -294,7 +288,6 @@ cally_sources = [
     'cally/cally-actor.c',
     'cally/cally.c',
     'cally/cally-clone.c',
-    'cally/cally-rectangle.c',
     'cally/cally-root.c',
     'cally/cally-stage.c',
     'cally/cally-text.c',
@@ -376,7 +369,6 @@ libmutter_clutter = shared_library(libmutter_clutter_name,
     clutter_headers,
     clutter_private_headers,
     clutter_nonintrospected_sources,
-    clutter_deprecated_sources,
     clutter_deprecated_headers,
     clutter_backend_sources,
     clutter_backend_nonintrospected_sources,
@@ -422,7 +414,6 @@ if have_introspection
       clutter_built_headers,
       clutter_sources,
       clutter_headers,
-      clutter_deprecated_sources,
       clutter_deprecated_headers,
     ],
     nsversion: libmutter_api_version,

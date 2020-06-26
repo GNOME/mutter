@@ -50,14 +50,14 @@
  * <informalexample><programlisting><![CDATA[
  * {
  *   "id"     : "red-button",
- *   "type"   : "ClutterRectangle",
+ *   "type"   : "ClutterActor",
  *   "width"  : 100,
  *   "height" : 100,
- *   "color"  : "&num;ff0000ff"
+ *   "background-color" : "&num;ff0000ff"
  * }
  * ]]></programlisting></informalexample>
  *
- * This will produce a red #ClutterRectangle, 100x100 pixels wide, and
+ * This will produce a red #ClutterActor, 100x100 pixels wide, and
  * with a ClutterScript id of "red-button"; it can be retrieved by calling:
  *
  * |[
