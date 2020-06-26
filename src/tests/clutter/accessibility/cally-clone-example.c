@@ -70,7 +70,7 @@ make_ui (ClutterActor *stage)
   clutter_actor_set_position (rectangle, 150, 50);
   clutter_actor_add_constraint (rectangle, clutter_bind_constraint_new (editable, CLUTTER_BIND_SIZE, 0));
 
-  full_entry = clutter_group_new ();
+  full_entry = clutter_actor_new ();
   clutter_actor_set_position (full_entry, 0, 50);
   clutter_actor_set_size (full_entry, 100, 75);
   clutter_container_add_actor (CLUTTER_CONTAINER (full_entry), label);

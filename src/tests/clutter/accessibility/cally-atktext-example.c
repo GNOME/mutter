@@ -209,7 +209,7 @@ make_ui (ClutterActor *stage)
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), text_editable_actor);
 
   /* test button */
-  button = clutter_group_new ();
+  button = clutter_actor_new ();
   rectangle = clutter_rectangle_new_with_color (&color_rect);
   clutter_actor_set_size (rectangle, 75, 35);
 

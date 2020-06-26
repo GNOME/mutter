@@ -41,7 +41,6 @@ clutter_conform_tests_general_tests = [
 ]
 
 clutter_conform_tests_deprecated_tests = [
-  'group',
   'rectangle',
 ]
 

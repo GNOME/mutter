@@ -38,7 +38,6 @@ clutter_headers = [
   'clutter-flow-layout.h',
   'clutter-gesture-action.h',
   'clutter-grid-layout.h',
-  'clutter-group.h',
   'clutter-image.h',
   'clutter-input-device.h',
   'clutter-input-device-tool.h',
@@ -223,7 +222,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-actor.h',
   'deprecated/clutter-box.h',
   'deprecated/clutter-container.h',
-  'deprecated/clutter-group.h',
   'deprecated/clutter-rectangle.h',
   'deprecated/clutter-stage.h',
   'deprecated/clutter-timeline.h',
@@ -231,7 +229,6 @@ clutter_deprecated_headers = [
 
 clutter_deprecated_sources = [
   'deprecated/clutter-box.c',
-  'deprecated/clutter-group.c',
   'deprecated/clutter-rectangle.c',
 ]
 
@@ -288,7 +285,6 @@ cally_headers = [
     'cally/cally-actor.h',
     'cally/cally-clone.h',
     'cally/cally-factory.h',
-    'cally/cally-group.h',
     'cally/cally.h',
     'cally/cally-main.h',
     'cally/cally-rectangle.h',
@@ -302,7 +298,6 @@ cally_sources = [
     'cally/cally-actor.c',
     'cally/cally.c',
     'cally/cally-clone.c',
-    'cally/cally-group.c',
     'cally/cally-rectangle.c',
     'cally/cally-root.c',
     'cally/cally-stage.c',

@@ -36,7 +36,6 @@
 #include "cally.h"
 
 #include "cally-actor.h"
-#include "cally-group.h"
 #include "cally-stage.h"
 #include "cally-text.h"
 #include "cally-rectangle.h"
@@ -52,7 +51,6 @@
 
 /* factories initialization*/
 CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_ACTOR, cally_actor, cally_actor_new)
-CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_GROUP, cally_group, cally_group_new)
 CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_STAGE, cally_stage, cally_stage_new)
 CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_TEXT, cally_text, cally_text_new)
 CALLY_ACCESSIBLE_FACTORY (CALLY_TYPE_RECTANGLE, cally_rectangle, cally_rectangle_new)
@@ -73,7 +71,6 @@ cally_accessibility_init (void)
 {
   /* setting the factories */
   CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_ACTOR, cally_actor);
-  CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_GROUP, cally_group);
   CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_STAGE, cally_stage);
   CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_TEXT, cally_text);
   CALLY_ACTOR_SET_FACTORY (CLUTTER_TYPE_RECTANGLE, cally_rectangle);
