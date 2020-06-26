@@ -105,8 +105,6 @@
 #include "clutter-private.h"
 #include "clutter-scriptable.h"
 
-#include "deprecated/clutter-timeline.h"
-
 struct _ClutterTimelinePrivate
 {
   ClutterTimelineDirection direction;

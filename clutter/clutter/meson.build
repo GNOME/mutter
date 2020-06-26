@@ -223,7 +223,6 @@ clutter_deprecated_headers = [
   'deprecated/clutter-box.h',
   'deprecated/clutter-container.h',
   'deprecated/clutter-rectangle.h',
-  'deprecated/clutter-timeline.h',
 ]
 
 clutter_deprecated_sources = [
