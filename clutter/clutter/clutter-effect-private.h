@@ -5,10 +5,6 @@
 
 G_BEGIN_DECLS
 
-gboolean        _clutter_effect_pre_paint               (ClutterEffect           *effect,
-                                                         ClutterPaintContext     *paint_context);
-void            _clutter_effect_post_paint              (ClutterEffect           *effect,
-                                                         ClutterPaintContext     *paint_context);
 gboolean        _clutter_effect_modify_paint_volume     (ClutterEffect           *effect,
                                                          ClutterPaintVolume      *volume);
 gboolean        _clutter_effect_has_custom_paint_volume (ClutterEffect           *effect);
