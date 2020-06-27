@@ -169,6 +169,8 @@
 #include "clutter-effect-private.h"
 #include "clutter-enum-types.h"
 #include "clutter-marshal.h"
+#include "clutter-paint-node-private.h"
+#include "clutter-paint-nodes.h"
 #include "clutter-private.h"
 #include "clutter-actor-private.h"
 
@@ -197,13 +199,28 @@ clutter_effect_real_modify_paint_volume (ClutterEffect      *effect,
 }
 
 static void
+clutter_effect_real_paint_node (ClutterEffect           *effect,
+                                ClutterPaintNode        *node,
+                                ClutterPaintContext     *paint_context,
+                                ClutterEffectPaintFlags  flags)
+{
+  ClutterPaintNode *actor_node;
+  ClutterActor *actor;
+
+  actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (effect));
+
+  actor_node = clutter_actor_node_new (actor);
+  clutter_paint_node_add_child (node, actor_node);
+  clutter_paint_node_unref (actor_node);
+}
+
+static void
 clutter_effect_real_paint (ClutterEffect           *effect,
                            ClutterPaintContext     *paint_context,
                            ClutterEffectPaintFlags  flags)
 {
   ClutterEffectClass *effect_class = CLUTTER_EFFECT_GET_CLASS (effect);
-  ClutterActorMeta *actor_meta = CLUTTER_ACTOR_META (effect);
-  ClutterActor *actor;
+  ClutterPaintNode *node;
   gboolean pre_paint_succeeded;
 
   /* The default implementation provides a compatibility wrapper for
@@ -212,11 +229,15 @@ clutter_effect_real_paint (ClutterEffect           *effect,
 
   pre_paint_succeeded = effect_class->pre_paint (effect, paint_context);
 
-  actor = clutter_actor_meta_get_actor (actor_meta);
-  clutter_actor_continue_paint (actor, paint_context);
+  node = clutter_effect_node_new (effect);
+
+  effect_class->paint_node (effect, node, paint_context, flags);
+  clutter_paint_node_paint (node, paint_context);
 
   if (pre_paint_succeeded)
     effect_class->post_paint (effect, paint_context);
+
+  clutter_paint_node_unref (node);
 }
 
 static void
@@ -256,6 +277,7 @@ clutter_effect_class_init (ClutterEffectClass *klass)
   klass->post_paint = clutter_effect_real_post_paint;
   klass->modify_paint_volume = clutter_effect_real_modify_paint_volume;
   klass->paint = clutter_effect_real_paint;
+  klass->paint_node = clutter_effect_real_paint_node;
   klass->pick = clutter_effect_real_pick;
 }
 
