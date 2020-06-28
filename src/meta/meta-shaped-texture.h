@@ -52,10 +52,6 @@ void meta_shaped_texture_set_mask_texture (MetaShapedTexture *stex,
                                            CoglTexture       *mask_texture);
 
 META_EXPORT
-void meta_shaped_texture_set_opaque_region (MetaShapedTexture *stex,
-                                            cairo_region_t    *opaque_region);
-
-META_EXPORT
 cairo_surface_t * meta_shaped_texture_get_image (MetaShapedTexture     *stex,
                                                  cairo_rectangle_int_t *clip);
 
