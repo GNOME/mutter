@@ -62,6 +62,7 @@ enum
 
   PROP_N_WINDOWS,
   PROP_WORKSPACE_INDEX,
+  PROP_ACTIVE,
 
   PROP_LAST,
 };
@@ -179,6 +180,9 @@ meta_workspace_get_property (GObject      *object,
     case PROP_WORKSPACE_INDEX:
       g_value_set_uint (value, meta_workspace_index (ws));
       break;
+    case PROP_ACTIVE:
+      g_value_set_boolean (value, ws->manager->active_workspace == ws);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -218,6 +222,11 @@ meta_workspace_class_init (MetaWorkspaceClass *klass)
                                                        "The workspace's index",
                                                        0, G_MAXUINT, 0,
                                                        G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_ACTIVE] = g_param_spec_boolean ("active",
+                                                 "Active",
+                                                 "Whether the workspace is currently active",
+                                                 FALSE,
+                                                 G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (object_class, PROP_LAST, obj_props);
 }
@@ -551,8 +560,12 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
 
   g_signal_emit_by_name (workspace->manager, "active-workspace-changed");
 
+  g_object_notify_by_pspec (G_OBJECT (workspace), obj_props[PROP_ACTIVE]);
+
   if (old == NULL)
     return;
+
+  g_object_notify_by_pspec (G_OBJECT (old), obj_props[PROP_ACTIVE]);
 
   /* If the "show desktop" mode is active for either the old workspace
    * or the new one *but not both*, then update the
