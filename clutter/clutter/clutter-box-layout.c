@@ -315,6 +315,8 @@ get_preferred_size_for_opposite_orientation (ClutterBoxLayout   *self,
     }
   else
     {
+      size -= (nvis_children - 1) * priv->spacing;
+
       /* Bring children up to size first */
       if (isnormal (size) || size == 0)
         {
