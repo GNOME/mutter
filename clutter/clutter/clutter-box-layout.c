@@ -475,8 +475,10 @@ get_preferred_size_for_orientation (ClutterBoxLayout   *self,
   ClutterActor *child;
   gint n_children = 0;
   gfloat minimum, natural;
+  float largest_min_size, largest_nat_size;
 
   minimum = natural = 0;
+  largest_min_size = largest_nat_size = 0;
 
   clutter_actor_iter_init (&iter, container);
   while (clutter_actor_iter_next (&iter, &child))
@@ -491,8 +493,22 @@ get_preferred_size_for_orientation (ClutterBoxLayout   *self,
       get_child_size (child, priv->orientation,
 		      for_size, &child_min, &child_nat);
 
-      minimum += child_min;
-      natural += child_nat;
+      if (priv->is_homogeneous)
+        {
+          largest_min_size = MAX (largest_min_size, child_min);
+          largest_nat_size = MAX (largest_nat_size, child_nat);
+        }
+      else
+        {
+          minimum += child_min;
+          natural += child_nat;
+        }
+    }
+
+  if (priv->is_homogeneous)
+    {
+      minimum = largest_min_size * n_children;
+      natural = largest_nat_size * n_children;
     }
 
   if (n_children > 1)
