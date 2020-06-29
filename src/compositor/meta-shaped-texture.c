@@ -1076,15 +1076,9 @@ void
 meta_shaped_texture_set_opaque_region (MetaShapedTexture *stex,
                                        cairo_region_t    *opaque_region)
 {
-  g_return_if_fail (META_IS_SHAPED_TEXTURE (stex));
-
-  if (stex->opaque_region)
-    cairo_region_destroy (stex->opaque_region);
-
+  g_clear_pointer (&stex->opaque_region, cairo_region_destroy);
   if (opaque_region)
     stex->opaque_region = cairo_region_reference (opaque_region);
-  else
-    stex->opaque_region = NULL;
 }
 
 cairo_region_t *
