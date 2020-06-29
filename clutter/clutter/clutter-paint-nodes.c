@@ -551,7 +551,7 @@ clutter_pipeline_node_init (ClutterPipelineNode *self)
 }
 
 /**
- * clutter_pipeline_node_new: (skip)
+ * clutter_pipeline_node_new:
  * @pipeline: (allow-none): a Cogl pipeline state object, or %NULL
  *
  * Creates a new #ClutterPaintNode that will use the @pipeline to
