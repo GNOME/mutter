@@ -261,13 +261,15 @@ static void
 meta_window_actor_set_frozen (MetaWindowActor *self,
                               gboolean         frozen)
 {
-  MetaWindowActorPrivate *priv =
-    meta_window_actor_get_instance_private (self);
+  ClutterActor *child;
+  ClutterActorIter iter;
 
-  if (meta_surface_actor_is_frozen (priv->surface) == frozen)
-    return;
-
-  meta_surface_actor_set_frozen (priv->surface, frozen);
+  clutter_actor_iter_init (&iter, CLUTTER_ACTOR (self));
+  while (clutter_actor_iter_next (&iter, &child))
+    {
+      if (META_IS_SURFACE_ACTOR (child))
+        meta_surface_actor_set_frozen (META_SURFACE_ACTOR (child), frozen);
+    }
 
   META_WINDOW_ACTOR_GET_CLASS (self)->set_frozen (self, frozen);
 }

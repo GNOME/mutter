@@ -545,6 +545,9 @@ meta_surface_actor_set_frozen (MetaSurfaceActor *self,
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
 
+  if (priv->frozen == frozen)
+    return;
+
   priv->frozen = frozen;
 
   if (!frozen && priv->pending_damage)
