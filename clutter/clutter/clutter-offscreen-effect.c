@@ -505,15 +505,10 @@ clutter_offscreen_effect_paint (ClutterEffect           *effect,
    */
   if (priv->offscreen == NULL || (flags & CLUTTER_EFFECT_PAINT_ACTOR_DIRTY))
     {
-      ClutterEffectClass *effect_class = CLUTTER_EFFECT_GET_CLASS (effect);
-      gboolean pre_paint_succeeded;
+      ClutterEffectClass *parent_class =
+        CLUTTER_EFFECT_CLASS (clutter_offscreen_effect_parent_class);
 
-      pre_paint_succeeded = effect_class->pre_paint (effect, paint_context);
-
-      clutter_actor_continue_paint (priv->actor, paint_context);
-
-      if (pre_paint_succeeded)
-        effect_class->post_paint (effect, paint_context);
+      parent_class->paint (effect, paint_context, flags);
     }
   else
     clutter_offscreen_effect_paint_texture (self, paint_context);
