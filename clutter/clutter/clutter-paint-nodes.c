@@ -1338,6 +1338,8 @@ struct _ClutterLayerNode
   CoglFramebuffer *offscreen;
 
   guint8 opacity;
+
+  gboolean needs_fbo_setup : 1;
 };
 
 struct _ClutterLayerNodeClass
@@ -1365,24 +1367,26 @@ clutter_layer_node_pre_draw (ClutterPaintNode *node,
   if (node->operations == NULL)
     return FALSE;
 
-  /* copy the same modelview from the current framebuffer to the one we
-   * are going to use
-   */
-  framebuffer = clutter_paint_context_get_framebuffer (paint_context);
-  cogl_framebuffer_get_modelview_matrix (framebuffer, &matrix);
+  if (lnode->needs_fbo_setup)
+    {
+      /* copy the same modelview from the current framebuffer to the one we
+       * are going to use
+       */
+      framebuffer = clutter_paint_context_get_framebuffer (paint_context);
+      cogl_framebuffer_get_modelview_matrix (framebuffer, &matrix);
+      cogl_framebuffer_set_modelview_matrix (lnode->offscreen, &matrix);
+
+      cogl_framebuffer_set_viewport (lnode->offscreen,
+                                     lnode->viewport.x,
+                                     lnode->viewport.y,
+                                     lnode->viewport.width,
+                                     lnode->viewport.height);
+
+      cogl_framebuffer_set_projection_matrix (lnode->offscreen,
+                                              &lnode->projection);
+    }
 
   clutter_paint_context_push_framebuffer (paint_context, lnode->offscreen);
-
-  cogl_framebuffer_set_modelview_matrix (lnode->offscreen, &matrix);
-
-  cogl_framebuffer_set_viewport (lnode->offscreen,
-                                 lnode->viewport.x,
-                                 lnode->viewport.y,
-                                 lnode->viewport.width,
-                                 lnode->viewport.height);
-
-  cogl_framebuffer_set_projection_matrix (lnode->offscreen,
-                                          &lnode->projection);
 
   /* clear out the target framebuffer */
   cogl_framebuffer_clear4f (lnode->offscreen,
@@ -1522,6 +1526,7 @@ clutter_layer_node_new (const graphene_matrix_t *projection,
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_LAYER_NODE);
 
+  res->needs_fbo_setup = TRUE;
   res->projection = *projection;
   res->viewport = *viewport;
   res->fbo_width = width;
@@ -1563,6 +1568,42 @@ clutter_layer_node_new (const graphene_matrix_t *projection,
 
 out:
   cogl_object_unref (texture);
+
+  return (ClutterPaintNode *) res;
+}
+
+/**
+ * clutter_layer_node_new_to_framebuffer:
+ * @framebuffer: a #CoglFramebuffer
+ * @pipeline: a #CoglPipeline
+ *
+ * Creates a new #ClutterLayerNode that will redirect drawing at
+ * @framebuffer. It will then use @pipeline to paint the stored
+ * operations.
+ *
+ * When using this constructor, the caller is reponsible for setting
+ * up @framebuffer, including its modelview and projection matrices,
+ * and the viewport, and the @pipeline as well.
+ *
+ * Return value: (transfer full): the newly created #ClutterLayerNode.
+ *   Use clutter_paint_node_unref() when done.
+ */
+ClutterPaintNode *
+clutter_layer_node_new_to_framebuffer (CoglFramebuffer *framebuffer,
+                                       CoglPipeline    *pipeline)
+{
+  ClutterLayerNode *res;
+
+  g_return_val_if_fail (COGL_IS_FRAMEBUFFER (framebuffer), NULL);
+  g_return_val_if_fail (cogl_is_pipeline (pipeline), NULL);
+
+  res = _clutter_paint_node_create (CLUTTER_TYPE_LAYER_NODE);
+
+  res->needs_fbo_setup = FALSE;
+  res->fbo_width = cogl_framebuffer_get_width (framebuffer);
+  res->fbo_height = cogl_framebuffer_get_height (framebuffer);
+  res->offscreen = g_object_ref (framebuffer);
+  res->pipeline = cogl_pipeline_copy (pipeline);
 
   return (ClutterPaintNode *) res;
 }
