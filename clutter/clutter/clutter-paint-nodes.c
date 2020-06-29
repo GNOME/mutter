@@ -1473,6 +1473,25 @@ clutter_layer_node_finalize (ClutterPaintNode *node)
   CLUTTER_PAINT_NODE_CLASS (clutter_layer_node_parent_class)->finalize (node);
 }
 
+static JsonNode *
+clutter_layer_node_serialize (ClutterPaintNode *node)
+{
+  ClutterLayerNode *layer_node = CLUTTER_LAYER_NODE (node);
+  g_autoptr (JsonBuilder) builder = NULL;
+  g_autofree char *framebuffer_ptr = NULL;
+
+  builder = json_builder_new ();
+
+  framebuffer_ptr = g_strdup_printf ("%p", layer_node->offscreen);
+
+  json_builder_begin_object (builder);
+  json_builder_set_member_name (builder, "framebuffer");
+  json_builder_add_string_value (builder, framebuffer_ptr);
+  json_builder_end_object (builder);
+
+  return json_builder_get_root (builder);
+}
+
 static void
 clutter_layer_node_class_init (ClutterLayerNodeClass *klass)
 {
@@ -1482,6 +1501,7 @@ clutter_layer_node_class_init (ClutterLayerNodeClass *klass)
   node_class->pre_draw = clutter_layer_node_pre_draw;
   node_class->post_draw = clutter_layer_node_post_draw;
   node_class->finalize = clutter_layer_node_finalize;
+  node_class->serialize = clutter_layer_node_serialize;
 }
 
 static void
