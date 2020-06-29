@@ -235,6 +235,34 @@ GType clutter_transform_node_get_type (void) G_GNUC_CONST;
 CLUTTER_EXPORT
 ClutterPaintNode *      clutter_transform_node_new          (const graphene_matrix_t *projection);
 
+#define CLUTTER_TYPE_BLIT_NODE                  (clutter_blit_node_get_type ())
+#define CLUTTER_BLIT_NODE(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_BLIT_NODE, ClutterBlitNode))
+#define CLUTTER_IS_BLIT_NODE(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_BLIT_NODE))
+
+/*
+ * ClutterBlitNode:
+ *
+ * The #ClutterBlitNode structure is an opaque
+ * type whose members cannot be directly accessed.
+ */
+typedef struct _ClutterBlitNode                 ClutterBlitNode;
+typedef struct _ClutterPaintNodeClass           ClutterBlitNodeClass;
+
+CLUTTER_EXPORT
+GType clutter_blit_node_get_type (void) G_GNUC_CONST;
+
+CLUTTER_EXPORT
+ClutterPaintNode * clutter_blit_node_new (CoglFramebuffer *src);
+
+CLUTTER_EXPORT
+void clutter_blit_node_add_blit_rectangle (ClutterBlitNode *blit_node,
+                                           int              src_x,
+                                           int              src_y,
+                                           int              dst_x,
+                                           int              dst_y,
+                                           int              width,
+                                           int              height);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_PAINT_NODES_H__ */

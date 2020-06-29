@@ -1627,3 +1627,184 @@ clutter_layer_node_new_to_framebuffer (CoglFramebuffer *framebuffer,
 
   return (ClutterPaintNode *) res;
 }
+
+/*
+ * ClutterBlitNode
+ */
+
+struct _ClutterBlitNode
+{
+  ClutterPaintNode parent_instance;
+
+  CoglFramebuffer *src;
+};
+
+G_DEFINE_TYPE (ClutterBlitNode, clutter_blit_node, CLUTTER_TYPE_PAINT_NODE)
+
+static gboolean
+clutter_blit_node_pre_draw (ClutterPaintNode    *node,
+                            ClutterPaintContext *paint_context)
+{
+  return TRUE;
+}
+
+static void
+clutter_blit_node_draw (ClutterPaintNode    *node,
+                        ClutterPaintContext *paint_context)
+{
+  ClutterBlitNode *blit_node = CLUTTER_BLIT_NODE (node);
+  g_autoptr (GError) error = NULL;
+  CoglFramebuffer *framebuffer;
+  unsigned int i;
+
+  if (node->operations == NULL)
+    return;
+
+  framebuffer = get_target_framebuffer (node, paint_context);
+
+  for (i = 0; i < node->operations->len; i++)
+    {
+      const ClutterPaintOperation *op;
+      float op_width, op_height;
+
+      op = &g_array_index (node->operations, ClutterPaintOperation, i);
+
+      switch (op->opcode)
+        {
+        case PAINT_OP_INVALID:
+          break;
+
+        case PAINT_OP_TEX_RECT:
+          op_width = op->op.texrect[6] - op->op.texrect[4];
+          op_height = op->op.texrect[7] - op->op.texrect[5];
+
+          cogl_blit_framebuffer (blit_node->src,
+                                 framebuffer,
+                                 op->op.texrect[0],
+                                 op->op.texrect[1],
+                                 op->op.texrect[4],
+                                 op->op.texrect[5],
+                                 op_width,
+                                 op_height,
+                                 &error);
+
+          if (error)
+            {
+              g_warning ("Error blitting framebuffers: %s", error->message);
+              return;
+            }
+          break;
+
+        case PAINT_OP_MULTITEX_RECT:
+        case PAINT_OP_PRIMITIVE:
+          break;
+        }
+    }
+}
+
+static void
+clutter_blit_node_finalize (ClutterPaintNode *node)
+{
+  ClutterBlitNode *blit_node = CLUTTER_BLIT_NODE (node);
+
+  g_clear_object (&blit_node->src);
+
+  CLUTTER_PAINT_NODE_CLASS (clutter_blit_node_parent_class)->finalize (node);
+}
+
+static JsonNode *
+clutter_blit_node_serialize (ClutterPaintNode *node)
+{
+  ClutterBlitNode *blit_node = CLUTTER_BLIT_NODE (node);
+  g_autoptr (JsonBuilder) builder = NULL;
+  g_autofree char *src_ptr = NULL;
+
+  src_ptr = g_strdup_printf ("%p", blit_node->src);
+
+  builder = json_builder_new ();
+  json_builder_begin_object (builder);
+  json_builder_set_member_name (builder, "source");
+  json_builder_add_string_value (builder, src_ptr);
+  json_builder_end_object (builder);
+
+  return json_builder_get_root (builder);
+}
+
+static void
+clutter_blit_node_class_init (ClutterTransformNodeClass *klass)
+{
+  ClutterPaintNodeClass *node_class;
+
+  node_class = CLUTTER_PAINT_NODE_CLASS (klass);
+  node_class->pre_draw = clutter_blit_node_pre_draw;
+  node_class->draw = clutter_blit_node_draw;
+  node_class->finalize = clutter_blit_node_finalize;
+  node_class->serialize = clutter_blit_node_serialize;
+}
+
+static void
+clutter_blit_node_init (ClutterBlitNode *self)
+{
+}
+
+/**
+ * clutter_blit_node_new:
+ * @src: the source #CoglFramebuffer
+ *
+ * Creates a new #ClutterBlitNode that blits @src into the current
+ * draw framebuffer.
+ *
+ * You must only add rectangles using clutter_blit_node_add_blit_rectangle().
+ *
+ * Return value: (transfer full): the newly created #ClutterBlitNode.
+ *   Use clutter_paint_node_unref() when done.
+ */
+ClutterPaintNode *
+clutter_blit_node_new (CoglFramebuffer *src)
+{
+  ClutterBlitNode *res;
+
+  g_return_val_if_fail (COGL_IS_FRAMEBUFFER (src), NULL);
+
+  res = _clutter_paint_node_create (CLUTTER_TYPE_BLIT_NODE);
+  res->src = cogl_object_ref (src);
+
+  return (ClutterPaintNode *) res;
+}
+
+/**
+ * clutter_blit_node_add_blit_rectangle:
+ * @blit_node: a #ClutterBlitNode
+ * @src_x: Source x position
+ * @src_y: Source y position
+ * @dst_x: Destination x position
+ * @dst_y: Destination y position
+ * @width: Width of region to copy
+ * @height: Height of region to copy
+ *
+ * Adds a new blit rectangle to the stack of rectangles. All the
+ * constraints of cogl_blit_framebuffer() apply here.
+ */
+void
+clutter_blit_node_add_blit_rectangle (ClutterBlitNode *blit_node,
+                                      int              src_x,
+                                      int              src_y,
+                                      int              dst_x,
+                                      int              dst_y,
+                                      int              width,
+                                      int              height)
+{
+  g_return_if_fail (CLUTTER_IS_BLIT_NODE (blit_node));
+
+  clutter_paint_node_add_texture_rectangle (CLUTTER_PAINT_NODE (blit_node),
+                                            &(ClutterActorBox) {
+                                              .x1 = src_x,
+                                              .y1 = src_y,
+                                              .x2 = src_x + width,
+                                              .y2 = src_y + height,
+                                            },
+                                            dst_x,
+                                            dst_y,
+                                            dst_x + width,
+                                            dst_y + height);
+}
