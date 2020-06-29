@@ -273,14 +273,6 @@ meta_remote_desktop_session_check_can_notify (MetaRemoteDesktopSession *session,
       return FALSE;
     }
 
-  if (!session->screen_cast_session)
-    {
-      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
-                                             G_DBUS_ERROR_FAILED,
-                                             "No screen cast active");
-      return FALSE;
-    }
-
   return TRUE;
 }
 
@@ -591,6 +583,15 @@ handle_notify_pointer_motion_absolute (MetaDBusRemoteDesktopSession *skeleton,
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
     return TRUE;
 
+
+  if (!session->screen_cast_session)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "No screen cast active");
+      return TRUE;
+    }
+
   stream = meta_screen_cast_session_get_stream (session->screen_cast_session,
                                                 stream_path);
   if (!stream)
@@ -627,6 +628,14 @@ handle_notify_touch_down (MetaDBusRemoteDesktopSession *skeleton,
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
     return TRUE;
+
+  if (!session->screen_cast_session)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "No screen cast active");
+      return TRUE;
+    }
 
   stream = meta_screen_cast_session_get_stream (session->screen_cast_session,
                                                 stream_path);
@@ -665,6 +674,15 @@ handle_notify_touch_motion (MetaDBusRemoteDesktopSession *skeleton,
 
   if (!meta_remote_desktop_session_check_can_notify (session, invocation))
     return TRUE;
+
+
+  if (!session->screen_cast_session)
+    {
+      g_dbus_method_invocation_return_error (invocation, G_DBUS_ERROR,
+                                             G_DBUS_ERROR_FAILED,
+                                             "No screen cast active");
+      return TRUE;
+    }
 
   stream = meta_screen_cast_session_get_stream (session->screen_cast_session,
                                                 stream_path);
