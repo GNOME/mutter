@@ -9599,9 +9599,10 @@ clutter_actor_allocate (ClutterActor          *self,
       goto out;
     }
 
-  _clutter_actor_create_transition (self, obj_props[PROP_ALLOCATION],
-                                    &priv->allocation,
-                                    &real_allocation);
+  if (_clutter_actor_create_transition (self, obj_props[PROP_ALLOCATION],
+                                        &priv->allocation,
+                                        &real_allocation))
+    clutter_actor_allocate_internal (self, &priv->allocation);
 
 out:
   priv->absolute_origin_changed = FALSE;

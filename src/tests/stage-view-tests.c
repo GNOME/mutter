@@ -251,6 +251,52 @@ meta_test_actor_stage_views (void)
 }
 
 static void
+on_relayout_actor_frame (ClutterTimeline *timeline,
+                         int              msec,
+                         ClutterActor    *actor)
+{
+  MetaBackend *backend = meta_get_backend ();
+  ClutterActor *stage = meta_backend_get_stage (backend);
+
+  clutter_stage_clear_stage_views (CLUTTER_STAGE (stage));
+}
+
+static void
+meta_test_actor_stage_views_relayout (void)
+{
+  MetaBackend *backend = meta_get_backend ();
+  ClutterActor *stage, *actor;
+  ClutterTransition *transition;
+  GMainLoop *main_loop;
+
+  stage = meta_backend_get_stage (backend);
+
+  actor = clutter_actor_new ();
+  clutter_actor_set_size (actor, 100, 100);
+  clutter_actor_set_easing_duration (actor, 100);
+  clutter_actor_add_child (stage, actor);
+
+  clutter_actor_show (stage);
+
+  wait_for_paint (stage);
+  clutter_actor_set_position (actor, 1000.0, 0.0);
+  transition = clutter_actor_get_transition (actor, "position");
+  g_signal_connect_after (transition, "new-frame",
+                          G_CALLBACK (on_relayout_actor_frame),
+                          actor);
+
+  main_loop = g_main_loop_new (NULL, FALSE);
+  g_signal_connect_swapped (transition, "stopped",
+                            G_CALLBACK (g_main_loop_quit),
+                            main_loop);
+
+  g_main_loop_run (main_loop);
+
+  clutter_actor_destroy (actor);
+  g_main_loop_unref (main_loop);
+}
+
+static void
 meta_test_actor_stage_views_reparent (void)
 {
   MetaBackend *backend = meta_get_backend ();
@@ -478,6 +524,8 @@ init_tests (int argc, char **argv)
                    meta_test_stage_views_exist);
   g_test_add_func ("/stage-views/actor-stage-views",
                    meta_test_actor_stage_views);
+  g_test_add_func ("/stage-views/actor-stage-views-relayout",
+                   meta_test_actor_stage_views_relayout);
   g_test_add_func ("/stage-views/actor-stage-views-reparent",
                    meta_test_actor_stage_views_reparent);
   g_test_add_func ("/stage-views/actor-stage-views-hide-parent",
