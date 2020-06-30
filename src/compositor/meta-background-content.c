@@ -497,7 +497,7 @@ meta_background_content_paint_content (ClutterContent      *content,
 
   clutter_actor_get_content_box (actor, &actor_box);
   actor_pixel_rect.x = actor_box.x1;
-  actor_pixel_rect.y = actor_box.x1;
+  actor_pixel_rect.y = actor_box.y1;
   actor_pixel_rect.width = actor_box.x2 - actor_box.x1;
   actor_pixel_rect.height = actor_box.y2 - actor_box.y1;
 
