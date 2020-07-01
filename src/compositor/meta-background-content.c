@@ -309,7 +309,7 @@ setup_pipeline (MetaBackgroundContent *self,
   guint8 opacity;
   float color_component;
   CoglFramebuffer *fb;
-  CoglPipelineFilter filter;
+  CoglPipelineFilter min_filter, mag_filter;
 
   opacity = clutter_actor_get_paint_opacity (actor);
   if (opacity < 255)
@@ -408,11 +408,17 @@ setup_pipeline (MetaBackgroundContent *self,
                                          actor_pixel_rect->width,
                                          actor_pixel_rect->height,
                                          NULL, NULL))
-    filter = COGL_PIPELINE_FILTER_NEAREST;
+    {
+      min_filter = COGL_PIPELINE_FILTER_NEAREST;
+      mag_filter = COGL_PIPELINE_FILTER_NEAREST;
+    }
   else
-    filter = COGL_PIPELINE_FILTER_LINEAR;
+    {
+      min_filter = COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST;
+      mag_filter = COGL_PIPELINE_FILTER_LINEAR;
+    }
 
-  cogl_pipeline_set_layer_filters (self->pipeline, 0, filter, filter);
+  cogl_pipeline_set_layer_filters (self->pipeline, 0, min_filter, mag_filter);
 }
 
 static void
