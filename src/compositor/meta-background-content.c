@@ -163,7 +163,7 @@ struct _MetaBackgroundContent
   CoglPipeline *pipeline;
   PipelineFlags pipeline_flags;
   cairo_rectangle_int_t texture_area;
-  gboolean force_bilinear;
+  int texture_width, texture_height;
 
   cairo_region_t *clip_region;
   cairo_region_t *unobscured_region;
@@ -336,9 +336,17 @@ setup_pipeline (MetaBackgroundContent *self,
                                                           self->monitor,
                                                           &self->texture_area,
                                                           &wrap_mode);
-      self->force_bilinear = texture &&
-        (self->texture_area.width != (int)cogl_texture_get_width (texture) ||
-         self->texture_area.height != (int)cogl_texture_get_height (texture));
+
+      if (texture)
+        {
+          self->texture_width = cogl_texture_get_width (texture);
+          self->texture_height = cogl_texture_get_height (texture);
+        }
+      else
+        {
+          self->texture_width = 0;
+          self->texture_height = 0;
+        }
 
       cogl_pipeline_set_layer_texture (self->pipeline, 0, texture);
       cogl_pipeline_set_layer_wrap_mode (self->pipeline, 0, wrap_mode);
@@ -401,12 +409,11 @@ setup_pipeline (MetaBackgroundContent *self,
                              opacity / 255.);
 
   fb = clutter_paint_context_get_framebuffer (paint_context);
-  if (!self->force_bilinear &&
-      meta_actor_painting_untransformed (fb,
+  if (meta_actor_painting_untransformed (fb,
                                          actor_pixel_rect->width,
                                          actor_pixel_rect->height,
-                                         actor_pixel_rect->width,
-                                         actor_pixel_rect->height,
+                                         self->texture_width,
+                                         self->texture_height,
                                          NULL, NULL))
     {
       min_filter = COGL_PIPELINE_FILTER_NEAREST;
