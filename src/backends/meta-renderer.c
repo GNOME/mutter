@@ -127,11 +127,10 @@ create_crtc_view (MetaLogicalMonitor *logical_monitor,
                   gpointer            user_data)
 {
   MetaRenderer *renderer = user_data;
-  MetaRendererPrivate *priv = meta_renderer_get_instance_private (renderer);
   MetaRendererView *view;
 
   view = meta_renderer_create_view (renderer, logical_monitor, output, crtc);
-  priv->views = g_list_append (priv->views, view);
+  meta_renderer_add_view (renderer, view);
 }
 
 static void
