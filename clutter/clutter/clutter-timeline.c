@@ -117,6 +117,8 @@ struct _ClutterTimelinePrivate
   ClutterActor *actor;
   gulong actor_destroy_handler_id;
   gulong actor_stage_views_handler_id;
+  gulong stage_stage_views_handler_id;
+  ClutterActor *stage;
 
   guint delay_id;
 
@@ -206,6 +208,8 @@ enum
 };
 
 static guint timeline_signals[LAST_SIGNAL] = { 0, };
+
+static void update_frame_clock (ClutterTimeline *timeline);
 
 static void clutter_scriptable_iface_init (ClutterScriptableIface *iface);
 
@@ -367,16 +371,52 @@ set_frame_clock_internal (ClutterTimeline   *timeline,
 }
 
 static void
+on_stage_stage_views_changed (ClutterActor    *stage,
+                              ClutterTimeline *timeline)
+{
+  ClutterTimelinePrivate *priv = timeline->priv;
+
+  g_clear_signal_handler (&priv->stage_stage_views_handler_id, priv->stage);
+  priv->stage = NULL;
+
+  update_frame_clock (timeline);
+}
+
+static void
 update_frame_clock (ClutterTimeline *timeline)
 {
   ClutterTimelinePrivate *priv = timeline->priv;
-  ClutterFrameClock *frame_clock;
+  ClutterFrameClock *frame_clock = NULL;
+  ClutterActor *stage;
 
-  if (priv->actor)
-    frame_clock = clutter_actor_pick_frame_clock (priv->actor);
-  else
-    frame_clock = NULL;
+  if (!priv->actor)
+    goto out;
 
+  frame_clock = clutter_actor_pick_frame_clock (priv->actor);
+  if (frame_clock)
+    {
+      g_clear_signal_handler (&priv->stage_stage_views_handler_id, priv->stage);
+      goto out;
+    }
+
+  stage = clutter_actor_get_stage (priv->actor);
+  if (!stage)
+    {
+      if (priv->is_playing)
+        g_warning ("Timelines with detached actors are not supported");
+      goto out;
+    }
+
+  if (priv->stage_stage_views_handler_id > 0)
+    goto out;
+
+  priv->stage_stage_views_handler_id =
+    g_signal_connect (stage, "stage-views-changed",
+                      G_CALLBACK (on_stage_stage_views_changed),
+                      timeline);
+  priv->stage = stage;
+
+out:
   set_frame_clock_internal (timeline, frame_clock);
 }
 
@@ -406,6 +446,8 @@ clutter_timeline_set_actor (ClutterTimeline *timeline,
     {
       g_clear_signal_handler (&priv->actor_destroy_handler_id, priv->actor);
       g_clear_signal_handler (&priv->actor_stage_views_handler_id, priv->actor);
+      g_clear_signal_handler (&priv->stage_stage_views_handler_id, priv->stage);
+      priv->stage = NULL;
       priv->actor = NULL;
 
       if (priv->is_playing)
@@ -690,6 +732,7 @@ clutter_timeline_dispose (GObject *object)
     {
       g_clear_signal_handler (&priv->actor_destroy_handler_id, priv->actor);
       g_clear_signal_handler (&priv->actor_stage_views_handler_id, priv->actor);
+      g_clear_signal_handler (&priv->stage_stage_views_handler_id, priv->stage);
       priv->actor = NULL;
     }
 
