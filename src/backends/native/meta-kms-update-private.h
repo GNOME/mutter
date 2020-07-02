@@ -63,7 +63,7 @@ typedef struct _MetaKmsModeSet
 {
   MetaKmsCrtc *crtc;
   GList *connectors;
-  drmModeModeInfo *drm_mode;
+  MetaKmsMode *mode;
 } MetaKmsModeSet;
 
 typedef struct _MetaKmsConnectorProperty

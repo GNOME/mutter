@@ -176,7 +176,7 @@ meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
   MetaCrtc *crtc = META_CRTC (crtc_kms);
   MetaGpu *gpu = meta_crtc_get_gpu (crtc);
   GList *connectors;
-  const drmModeModeInfo *mode;
+  MetaKmsMode *kms_mode;
 
   connectors = generate_crtc_connector_list (gpu, crtc);
 
@@ -184,17 +184,15 @@ meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
     {
       const MetaCrtcConfig *crtc_config = meta_crtc_get_config (crtc);
       MetaCrtcModeKms *crtc_mode_kms = META_CRTC_MODE_KMS (crtc_config->mode);
-      MetaKmsMode *kms_mode;
 
       kms_mode = meta_crtc_mode_kms_get_kms_mode (crtc_mode_kms);
-      mode = meta_kms_mode_get_drm_mode (kms_mode);
 
       g_debug ("Setting CRTC (%" G_GUINT64_FORMAT ") mode to %s",
-               meta_crtc_get_id (crtc), mode->name);
+               meta_crtc_get_id (crtc), meta_kms_mode_get_name (kms_mode));
     }
   else
     {
-      mode = NULL;
+      kms_mode = NULL;
 
       g_debug ("Unsetting CRTC (%" G_GUINT64_FORMAT ") mode",
                meta_crtc_get_id (crtc));
@@ -203,7 +201,7 @@ meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
   meta_kms_update_mode_set (kms_update,
                             meta_crtc_kms_get_kms_crtc (crtc_kms),
                             g_steal_pointer (&connectors),
-                            mode);
+                            kms_mode);
 }
 
 void

@@ -24,6 +24,7 @@
 
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl-device.h"
+#include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-update-private.h"
 
 struct _MetaKmsCrtc
@@ -168,17 +169,19 @@ meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
       if (mode_set->crtc != crtc)
         continue;
 
-      if (mode_set->drm_mode)
+      if (mode_set->mode)
         {
           MetaKmsPlaneAssignment *plane_assignment;
+          const drmModeModeInfo *drm_mode;
 
           plane_assignment =
             meta_kms_update_get_primary_plane_assignment (update, crtc);
+          drm_mode = meta_kms_mode_get_drm_mode (mode_set->mode);
 
           crtc->current_state.rect =
             meta_fixed_16_rectangle_to_rectangle (plane_assignment->src_rect);
           crtc->current_state.is_drm_mode_valid = TRUE;
-          crtc->current_state.drm_mode = *mode_set->drm_mode;
+          crtc->current_state.drm_mode = *drm_mode;
         }
       else
         {

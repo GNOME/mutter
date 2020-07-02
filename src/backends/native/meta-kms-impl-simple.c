@@ -29,6 +29,7 @@
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device-private.h"
+#include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-page-flip-private.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-private.h"
@@ -192,6 +193,7 @@ process_mode_set (MetaKmsImpl     *impl,
   g_autofree uint32_t *connectors = NULL;
   int n_connectors;
   MetaKmsPlaneAssignment *plane_assignment;
+  drmModeModeInfo *drm_mode;
   uint32_t x, y;
   uint32_t fb_id;
   int fd;
@@ -199,9 +201,12 @@ process_mode_set (MetaKmsImpl     *impl,
 
   crtc = mode_set->crtc;
 
-  if (mode_set->drm_mode)
+  if (mode_set->mode)
     {
       GList *l;
+
+      drm_mode = g_alloca (sizeof *drm_mode);
+      *drm_mode = *meta_kms_mode_get_drm_mode (mode_set->mode);
 
       fill_connector_ids_array (mode_set->connectors,
                                 &connectors,
@@ -233,6 +238,7 @@ process_mode_set (MetaKmsImpl     *impl,
     }
   else
     {
+      drm_mode = NULL;
       x = y = 0;
       n_connectors = 0;
       connectors = NULL;
@@ -245,23 +251,23 @@ process_mode_set (MetaKmsImpl     *impl,
                         fb_id,
                         x, y,
                         connectors, n_connectors,
-                        mode_set->drm_mode);
+                        drm_mode);
   if (ret != 0)
     {
       g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
                    "Failed to set mode %s on CRTC %u: %s",
-                   mode_set->drm_mode ? mode_set->drm_mode->name : "off",
+                   drm_mode ? drm_mode->name : "off",
                    meta_kms_crtc_get_id (crtc),
                    g_strerror (-ret));
       return FALSE;
     }
 
-  if (mode_set->drm_mode)
+  if (drm_mode)
     {
       g_hash_table_replace (impl_simple->cached_mode_sets,
                             crtc,
                             cached_mode_set_new (mode_set->connectors,
-                                                 mode_set->drm_mode));
+                                                 drm_mode));
     }
   else
     {

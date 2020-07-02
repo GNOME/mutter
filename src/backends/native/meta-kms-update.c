@@ -23,6 +23,7 @@
 #include "backends/native/meta-kms-update-private.h"
 
 #include "backends/meta-display-config-shared.h"
+#include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-plane.h"
 
 struct _MetaKmsUpdate
@@ -149,7 +150,6 @@ meta_kms_plane_assignment_free (MetaKmsPlaneAssignment *plane_assignment)
 static void
 meta_kms_mode_set_free (MetaKmsModeSet *mode_set)
 {
-  g_free (mode_set->drm_mode);
   g_list_free (mode_set->connectors);
   g_free (mode_set);
 }
@@ -208,10 +208,10 @@ meta_kms_update_unassign_plane (MetaKmsUpdate *update,
 }
 
 void
-meta_kms_update_mode_set (MetaKmsUpdate         *update,
-                          MetaKmsCrtc           *crtc,
-                          GList                 *connectors,
-                          const drmModeModeInfo *drm_mode)
+meta_kms_update_mode_set (MetaKmsUpdate *update,
+                          MetaKmsCrtc   *crtc,
+                          GList         *connectors,
+                          MetaKmsMode   *mode)
 {
   MetaKmsModeSet *mode_set;
 
@@ -221,7 +221,7 @@ meta_kms_update_mode_set (MetaKmsUpdate         *update,
   *mode_set = (MetaKmsModeSet) {
     .crtc = crtc,
     .connectors = connectors,
-    .drm_mode = drm_mode ? g_memdup (drm_mode, sizeof *drm_mode) : NULL,
+    .mode = mode,
   };
 
   update->mode_sets = g_list_prepend (update->mode_sets, mode_set);
