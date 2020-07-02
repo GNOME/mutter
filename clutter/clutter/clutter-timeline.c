@@ -1371,7 +1371,8 @@ clutter_timeline_start (ClutterTimeline *timeline)
   if (priv->duration == 0)
     return;
 
-  g_warn_if_fail (priv->actor || priv->frame_clock);
+  g_warn_if_fail ((priv->actor && clutter_actor_get_stage (priv->actor)) ||
+                  priv->frame_clock);
 
   if (priv->delay)
     priv->delay_id = clutter_threads_add_timeout (priv->delay,
