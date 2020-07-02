@@ -402,6 +402,11 @@ _cogl_texture_2d_pre_paint (CoglTexture *tex, CoglTexturePrePaintFlags flags)
     {
       CoglContext *ctx = tex->context;
 
+      /* Since we are about to ask the GPU to generate mipmaps of tex, we
+       * better make sure tex is up-to-date.
+       */
+      _cogl_texture_flush_journal_rendering (tex);
+
       ctx->driver_vtable->texture_2d_generate_mipmap (tex_2d);
 
       tex_2d->mipmaps_dirty = FALSE;
