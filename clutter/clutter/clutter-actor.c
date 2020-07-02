@@ -2201,6 +2201,7 @@ unrealize_actor_after_children_cb (ClutterActor *self,
                                    int depth,
                                    void *user_data)
 {
+  ClutterActorPrivate *priv = self->priv;
   ClutterActor *stage = user_data;
 
   /* We want to unset the realized flag only _after_
@@ -2210,9 +2211,12 @@ unrealize_actor_after_children_cb (ClutterActor *self,
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_REALIZED]);
 
   if (stage != NULL &&
-      self->priv->parent != NULL &&
-      self->priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)
+      priv->parent != NULL &&
+      priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)
     clutter_stage_dequeue_actor_relayout (CLUTTER_STAGE (stage), self);
+
+  if (priv->unmapped_paint_branch_counter == 0)
+    priv->allocation = (ClutterActorBox) CLUTTER_ACTOR_BOX_UNINITIALIZED;
 
   return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
 }
