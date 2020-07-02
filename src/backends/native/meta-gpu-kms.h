@@ -63,8 +63,8 @@ void meta_gpu_kms_set_power_save_mode (MetaGpuKms    *gpu_kms,
                                        uint64_t       state,
                                        MetaKmsUpdate *kms_update);
 
-MetaCrtcMode * meta_gpu_kms_get_mode_from_drm_mode (MetaGpuKms            *gpu_kms,
-                                                    const drmModeModeInfo *drm_mode);
+MetaCrtcMode * meta_gpu_kms_get_mode_from_kms_mode (MetaGpuKms  *gpu_kms,
+                                                    MetaKmsMode *kms_mode);
 
 gboolean meta_drm_mode_equal (const drmModeModeInfo *one,
                               const drmModeModeInfo *two);

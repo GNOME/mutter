@@ -21,28 +21,30 @@
 
 #include "backends/native/meta-crtc-mode-kms.h"
 
+#include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-utils.h"
 
 struct _MetaCrtcModeKms
 {
   MetaCrtcMode parent;
 
-  drmModeModeInfo *drm_mode;
+  MetaKmsMode *kms_mode;
 };
 
 G_DEFINE_TYPE (MetaCrtcModeKms, meta_crtc_mode_kms,
                META_TYPE_CRTC_MODE)
 
-const drmModeModeInfo *
-meta_crtc_mode_kms_get_drm_mode (MetaCrtcModeKms *mode_kms)
+MetaKmsMode *
+meta_crtc_mode_kms_get_kms_mode (MetaCrtcModeKms *mode_kms)
 {
-  return mode_kms->drm_mode;
+  return mode_kms->kms_mode;
 }
 
 MetaCrtcModeKms *
-meta_crtc_mode_kms_new (const drmModeModeInfo *drm_mode,
-                        uint64_t               id)
+meta_crtc_mode_kms_new (MetaKmsMode *kms_mode,
+                        uint64_t     id)
 {
+  const drmModeModeInfo *drm_mode = meta_kms_mode_get_drm_mode (kms_mode);
   g_autoptr (MetaCrtcModeInfo) crtc_mode_info = NULL;
   g_autofree char *crtc_mode_name = NULL;
   MetaCrtcModeKms *mode_kms;
@@ -61,19 +63,9 @@ meta_crtc_mode_kms_new (const drmModeModeInfo *drm_mode,
                            "info", crtc_mode_info,
                            NULL);
 
-  mode_kms->drm_mode = g_slice_dup (drmModeModeInfo, drm_mode);
+  mode_kms->kms_mode = kms_mode;
 
   return mode_kms;
-}
-
-static void
-meta_crtc_mode_kms_finalize (GObject *object)
-{
-  MetaCrtcModeKms *mode_kms = META_CRTC_MODE_KMS (object);
-
-  g_slice_free (drmModeModeInfo, mode_kms->drm_mode);
-
-  G_OBJECT_CLASS (meta_crtc_mode_kms_parent_class)->finalize (object);
 }
 
 static void
@@ -84,7 +76,4 @@ meta_crtc_mode_kms_init (MetaCrtcModeKms *mode_kms)
 static void
 meta_crtc_mode_kms_class_init (MetaCrtcModeKmsClass *klass)
 {
-  GObjectClass *object_class = G_OBJECT_CLASS (klass);
-
-  object_class->finalize = meta_crtc_mode_kms_finalize;
 }

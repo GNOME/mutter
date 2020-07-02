@@ -24,15 +24,16 @@
 #include <xf86drmMode.h>
 
 #include "backends/meta-crtc-mode.h"
+#include "backends/native/meta-kms-types.h"
 
 #define META_TYPE_CRTC_MODE_KMS (meta_crtc_mode_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaCrtcModeKms, meta_crtc_mode_kms,
                       META, CRTC_MODE_KMS,
                       MetaCrtcMode)
 
-const drmModeModeInfo * meta_crtc_mode_kms_get_drm_mode (MetaCrtcModeKms *crtc_mode_kms);
+MetaKmsMode * meta_crtc_mode_kms_get_kms_mode (MetaCrtcModeKms *mode_kms);
 
-MetaCrtcModeKms * meta_crtc_mode_kms_new (const drmModeModeInfo *drm_mode,
-                                          uint64_t               id);
+MetaCrtcModeKms * meta_crtc_mode_kms_new (MetaKmsMode *kms_mode,
+                                          uint64_t     id);
 
 #endif /* META_CRTC_MODE_KMS_H */

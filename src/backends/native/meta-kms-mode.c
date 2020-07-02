@@ -73,6 +73,54 @@ meta_kms_mode_get_drm_mode (MetaKmsMode *mode)
   return &mode->drm_mode;
 }
 
+static gboolean
+meta_drm_mode_equal (const drmModeModeInfo *one,
+                     const drmModeModeInfo *two)
+{
+  return (one->clock == two->clock &&
+          one->hdisplay == two->hdisplay &&
+          one->hsync_start == two->hsync_start &&
+          one->hsync_end == two->hsync_end &&
+          one->htotal == two->htotal &&
+          one->hskew == two->hskew &&
+          one->vdisplay == two->vdisplay &&
+          one->vsync_start == two->vsync_start &&
+          one->vsync_end == two->vsync_end &&
+          one->vtotal == two->vtotal &&
+          one->vscan == two->vscan &&
+          one->vrefresh == two->vrefresh &&
+          one->flags == two->flags &&
+          one->type == two->type &&
+          strncmp (one->name, two->name, DRM_DISPLAY_MODE_LEN) == 0);
+}
+
+gboolean
+meta_kms_mode_equal (MetaKmsMode *mode,
+                     MetaKmsMode *other_mode)
+{
+  return meta_drm_mode_equal (&mode->drm_mode, &other_mode->drm_mode);
+}
+
+unsigned int
+meta_kms_mode_hash (MetaKmsMode *mode)
+{
+  const drmModeModeInfo *drm_mode = &mode->drm_mode;
+  unsigned int hash = 0;
+
+  /*
+   * We don't include the name in the hash because it's generally
+   * derived from the other fields (hdisplay, vdisplay and flags)
+   */
+
+  hash ^= drm_mode->clock;
+  hash ^= drm_mode->hdisplay ^ drm_mode->hsync_start ^ drm_mode->hsync_end;
+  hash ^= drm_mode->vdisplay ^ drm_mode->vsync_start ^ drm_mode->vsync_end;
+  hash ^= drm_mode->vrefresh;
+  hash ^= drm_mode->flags ^ drm_mode->type;
+
+  return hash;
+}
+
 void
 meta_kms_mode_free (MetaKmsMode *mode)
 {

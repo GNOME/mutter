@@ -143,7 +143,6 @@ static void
 add_common_modes (MetaOutputInfo *output_info,
                   MetaGpuKms     *gpu_kms)
 {
-  const drmModeModeInfo *drm_mode;
   MetaCrtcMode *crtc_mode;
   GPtrArray *array;
   float refresh_rate;
@@ -159,8 +158,9 @@ add_common_modes (MetaOutputInfo *output_info,
     {
       MetaCrtcMode *crtc_mode = output_info->modes[i];
       MetaCrtcModeKms *crtc_mode_kms = META_CRTC_MODE_KMS (crtc_mode);
+      MetaKmsMode *kms_mode = meta_crtc_mode_kms_get_kms_mode (crtc_mode_kms);
+      const drmModeModeInfo *drm_mode = meta_kms_mode_get_drm_mode (kms_mode);
 
-      drm_mode = meta_crtc_mode_kms_get_drm_mode (crtc_mode_kms);
       refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
       max_hdisplay = MAX (max_hdisplay, drm_mode->hdisplay);
       max_vdisplay = MAX (max_vdisplay, drm_mode->vdisplay);
@@ -194,7 +194,7 @@ add_common_modes (MetaOutputInfo *output_info,
           refresh_rate > max_refresh_rate)
         continue;
 
-      crtc_mode = meta_gpu_kms_get_mode_from_drm_mode (gpu_kms, drm_mode);
+      crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms, fallback_mode);
       g_ptr_array_add (array, crtc_mode);
     }
 
@@ -252,7 +252,7 @@ init_output_modes (MetaOutputInfo    *output_info,
       const drmModeModeInfo *drm_mode = meta_kms_mode_get_drm_mode (kms_mode);
       MetaCrtcMode *crtc_mode;
 
-      crtc_mode = meta_gpu_kms_get_mode_from_drm_mode (gpu_kms, drm_mode);
+      crtc_mode = meta_gpu_kms_get_mode_from_kms_mode (gpu_kms, kms_mode);
       output_info->modes[i] = crtc_mode;
       if (drm_mode->type & DRM_MODE_TYPE_PREFERRED)
         output_info->preferred_mode = output_info->modes[i];

@@ -286,50 +286,9 @@ compare_outputs (gconstpointer one,
   return strcmp (output_info_one->name, output_info_two->name);
 }
 
-gboolean
-meta_drm_mode_equal (const drmModeModeInfo *one,
-                     const drmModeModeInfo *two)
-{
-  return (one->clock == two->clock &&
-          one->hdisplay == two->hdisplay &&
-          one->hsync_start == two->hsync_start &&
-          one->hsync_end == two->hsync_end &&
-          one->htotal == two->htotal &&
-          one->hskew == two->hskew &&
-          one->vdisplay == two->vdisplay &&
-          one->vsync_start == two->vsync_start &&
-          one->vsync_end == two->vsync_end &&
-          one->vtotal == two->vtotal &&
-          one->vscan == two->vscan &&
-          one->vrefresh == two->vrefresh &&
-          one->flags == two->flags &&
-          one->type == two->type &&
-          strncmp (one->name, two->name, DRM_DISPLAY_MODE_LEN) == 0);
-}
-
-static guint
-drm_mode_hash (gconstpointer ptr)
-{
-  const drmModeModeInfo *mode = ptr;
-  guint hash = 0;
-
-  /*
-   * We don't include the name in the hash because it's generally
-   * derived from the other fields (hdisplay, vdisplay and flags)
-   */
-
-  hash ^= mode->clock;
-  hash ^= mode->hdisplay ^ mode->hsync_start ^ mode->hsync_end;
-  hash ^= mode->vdisplay ^ mode->vsync_start ^ mode->vsync_end;
-  hash ^= mode->vrefresh;
-  hash ^= mode->flags ^ mode->type;
-
-  return hash;
-}
-
 MetaCrtcMode *
-meta_gpu_kms_get_mode_from_drm_mode (MetaGpuKms            *gpu_kms,
-                                     const drmModeModeInfo *drm_mode)
+meta_gpu_kms_get_mode_from_kms_mode (MetaGpuKms  *gpu_kms,
+                                     MetaKmsMode *kms_mode)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
   GList *l;
@@ -338,8 +297,8 @@ meta_gpu_kms_get_mode_from_drm_mode (MetaGpuKms            *gpu_kms,
     {
       MetaCrtcModeKms *crtc_mode_kms = l->data;
 
-      if (meta_drm_mode_equal (drm_mode,
-                               meta_crtc_mode_kms_get_drm_mode (crtc_mode_kms)))
+      if (meta_kms_mode_equal (kms_mode,
+                               meta_crtc_mode_kms_get_kms_mode (crtc_mode_kms)))
         return META_CRTC_MODE (crtc_mode_kms);
     }
 
@@ -398,14 +357,15 @@ init_modes (MetaGpuKms *gpu_kms)
   GList *l;
   GList *modes;
   GHashTableIter iter;
-  drmModeModeInfo *drm_mode;
+  gpointer value;
   uint64_t mode_id;
 
   /*
    * Gather all modes on all connected connectors.
    */
-  modes_table = g_hash_table_new (drm_mode_hash, (GEqualFunc) meta_drm_mode_equal);
-  for (l = meta_kms_device_get_connectors (gpu_kms->kms_device); l; l = l->next)
+  modes_table = g_hash_table_new ((GHashFunc) meta_kms_mode_hash,
+                                  (GEqualFunc) meta_kms_mode_equal);
+  for (l = meta_kms_device_get_connectors (kms_device); l; l = l->next)
     {
       MetaKmsConnector *kms_connector = l->data;
       const MetaKmsConnectorState *state;
@@ -418,31 +378,28 @@ init_modes (MetaGpuKms *gpu_kms)
       for (l_mode = state->modes; l_mode; l_mode = l_mode->next)
         {
           MetaKmsMode *kms_mode = l_mode->data;
-          const drmModeModeInfo *drm_mode =
-            meta_kms_mode_get_drm_mode (kms_mode);
 
-          g_hash_table_add (modes_table, (drmModeModeInfo *) drm_mode);
+          g_hash_table_add (modes_table, kms_mode);
         }
     }
 
   for (l = meta_kms_device_get_fallback_modes (kms_device); l; l = l->next)
     {
       MetaKmsMode *fallback_mode = l->data;
-      const drmModeModeInfo *drm_mode;
 
-      drm_mode = meta_kms_mode_get_drm_mode (fallback_mode);
-      g_hash_table_add (modes_table, (drmModeModeInfo *) drm_mode);
+      g_hash_table_add (modes_table, fallback_mode);
     }
 
   modes = NULL;
 
   g_hash_table_iter_init (&iter, modes_table);
   mode_id = 0;
-  while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &drm_mode))
+  while (g_hash_table_iter_next (&iter, NULL, &value))
     {
+      MetaKmsMode *kms_mode = value;
       MetaCrtcModeKms *mode;
 
-      mode = meta_crtc_mode_kms_new (drm_mode, mode_id);
+      mode = meta_crtc_mode_kms_new (kms_mode, mode_id);
       modes = g_list_append (modes, mode);
 
       mode_id++;

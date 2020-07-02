@@ -30,6 +30,7 @@
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-output-kms.h"
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-update.h"
 
@@ -183,8 +184,10 @@ meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
     {
       const MetaCrtcConfig *crtc_config = meta_crtc_get_config (crtc);
       MetaCrtcModeKms *crtc_mode_kms = META_CRTC_MODE_KMS (crtc_config->mode);
+      MetaKmsMode *kms_mode;
 
-      mode = meta_crtc_mode_kms_get_drm_mode (crtc_mode_kms);
+      kms_mode = meta_crtc_mode_kms_get_kms_mode (crtc_mode_kms);
+      mode = meta_kms_mode_get_drm_mode (kms_mode);
 
       g_debug ("Setting CRTC (%" G_GUINT64_FORMAT ") mode to %s",
                meta_crtc_get_id (crtc), mode->name);

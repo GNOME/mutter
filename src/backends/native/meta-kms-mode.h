@@ -39,4 +39,9 @@ MetaKmsModeFlag meta_kms_mode_get_flags (MetaKmsMode *mode);
 
 const drmModeModeInfo * meta_kms_mode_get_drm_mode (MetaKmsMode *mode);
 
+gboolean meta_kms_mode_equal (MetaKmsMode *mode,
+                              MetaKmsMode *other_mode);
+
+unsigned int meta_kms_mode_hash (MetaKmsMode *mode);
+
 #endif /* META_KMS_MODE_H */
