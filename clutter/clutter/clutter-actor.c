@@ -1788,28 +1788,12 @@ clutter_actor_real_show (ClutterActor *self)
    */
   clutter_actor_update_map_state (self, MAP_STATE_CHECK);
 
-  /* we queue a relayout unless the actor is inside a
-   * container that explicitly told us not to
-   */
-  if (priv->parent != NULL &&
-      (!(priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)))
-    {
-      /* While an actor is hidden the parent may not have
-       * allocated/requested so we need to start from scratch
-       * and avoid the short-circuiting in
-       * clutter_actor_queue_relayout().
-       */
-      priv->needs_width_request  = FALSE;
-      priv->needs_height_request = FALSE;
-      priv->needs_allocation     = FALSE;
+  /* Avoid the early return in clutter_actor_queue_relayout() */
+  priv->needs_width_request = FALSE;
+  priv->needs_height_request = FALSE;
+  priv->needs_allocation = FALSE;
 
-      clutter_actor_queue_relayout (self);
-    }
-  else  /* but still don't leave the actor un-allocated before showing it */
-    {
-      clutter_actor_queue_shallow_relayout (self);
-      clutter_actor_queue_redraw (self);
-    }
+  clutter_actor_queue_relayout (self);
 }
 
 static inline void
