@@ -29,11 +29,14 @@
 #include "backends/native/meta-kms-crtc-private.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-impl.h"
+#include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-page-flip-private.h"
 #include "backends/native/meta-kms-plane-private.h"
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-private.h"
 #include "backends/native/meta-kms-update.h"
+
+#include "meta-default-modes.h"
 
 struct _MetaKmsImplDevice
 {
@@ -53,6 +56,8 @@ struct _MetaKmsImplDevice
   GList *planes;
 
   MetaKmsDeviceCaps caps;
+
+  GList *fallback_modes;
 };
 
 G_DEFINE_TYPE (MetaKmsImplDevice, meta_kms_impl_device, G_TYPE_OBJECT)
@@ -85,6 +90,12 @@ const MetaKmsDeviceCaps *
 meta_kms_impl_device_get_caps (MetaKmsImplDevice *impl_device)
 {
   return &impl_device->caps;
+}
+
+GList *
+meta_kms_impl_device_copy_fallback_modes (MetaKmsImplDevice *impl_device)
+{
+  return g_list_copy (impl_device->fallback_modes);
 }
 
 const char *
@@ -373,6 +384,35 @@ init_planes (MetaKmsImplDevice *impl_device)
 }
 
 static void
+init_fallback_modes (MetaKmsImplDevice *impl_device)
+{
+  GList *modes = NULL;
+  int i;
+
+  for (i = 0; i < G_N_ELEMENTS (meta_default_landscape_drm_mode_infos); i++)
+    {
+      MetaKmsMode *mode;
+
+      mode = meta_kms_mode_new (impl_device,
+                                &meta_default_landscape_drm_mode_infos[i],
+                                META_KMS_MODE_FLAG_FALLBACK_LANDSCAPE);
+      modes = g_list_prepend (modes, mode);
+    }
+
+  for (i = 0; i < G_N_ELEMENTS (meta_default_portrait_drm_mode_infos); i++)
+    {
+      MetaKmsMode *mode;
+
+      mode = meta_kms_mode_new (impl_device,
+                                &meta_default_portrait_drm_mode_infos[i],
+                                META_KMS_MODE_FLAG_FALLBACK_PORTRAIT);
+      modes = g_list_prepend (modes, mode);
+    }
+
+  impl_device->fallback_modes = g_list_reverse (modes);
+}
+
+static void
 init_info (MetaKmsImplDevice *impl_device)
 {
   drmVersion *drm_version;
@@ -468,6 +508,8 @@ meta_kms_impl_device_new (MetaKmsDevice  *device,
   init_planes (impl_device);
   init_info (impl_device);
 
+  init_fallback_modes (impl_device);
+
   update_connectors (impl_device, drm_resources);
 
   drmModeFreeResources (drm_resources);
@@ -516,6 +558,8 @@ meta_kms_impl_device_finalize (GObject *object)
   g_list_free_full (impl_device->planes, g_object_unref);
   g_list_free_full (impl_device->crtcs, g_object_unref);
   g_list_free_full (impl_device->connectors, g_object_unref);
+  g_list_free_full (impl_device->fallback_modes,
+                    (GDestroyNotify) meta_kms_mode_free);
   g_free (impl_device->driver_name);
   g_free (impl_device->driver_description);
 

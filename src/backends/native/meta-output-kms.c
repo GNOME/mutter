@@ -30,12 +30,11 @@
 
 #include "backends/meta-crtc.h"
 #include "backends/native/meta-kms-connector.h"
+#include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-crtc-mode-kms.h"
-
-#include "meta-default-modes.h"
 
 #define SYNC_TOLERANCE 0.01    /* 1 percent */
 
@@ -152,6 +151,9 @@ add_common_modes (MetaOutputInfo *output_info,
   unsigned max_hdisplay = 0;
   unsigned max_vdisplay = 0;
   float max_refresh_rate = 0.0;
+  MetaKmsDevice *kms_device;
+  MetaKmsModeFlag flag_filter;
+  GList *l;
 
   for (i = 0; i < output_info->n_modes; i++)
     {
@@ -168,38 +170,32 @@ add_common_modes (MetaOutputInfo *output_info,
   max_refresh_rate = MAX (max_refresh_rate, 60.0);
   max_refresh_rate *= (1 + SYNC_TOLERANCE);
 
+  kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+
   array = g_ptr_array_new ();
+
   if (max_hdisplay > max_vdisplay)
-    {
-      for (i = 0; i < G_N_ELEMENTS (meta_default_landscape_drm_mode_infos); i++)
-        {
-          drm_mode = &meta_default_landscape_drm_mode_infos[i];
-          refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
-          if (drm_mode->hdisplay > max_hdisplay ||
-              drm_mode->vdisplay > max_vdisplay ||
-              refresh_rate > max_refresh_rate)
-            continue;
-
-          crtc_mode = meta_gpu_kms_get_mode_from_drm_mode (gpu_kms,
-                                                           drm_mode);
-          g_ptr_array_add (array, crtc_mode);
-        }
-    }
+    flag_filter = META_KMS_MODE_FLAG_FALLBACK_LANDSCAPE;
   else
-    {
-      for (i = 0; i < G_N_ELEMENTS (meta_default_portrait_drm_mode_infos); i++)
-        {
-          drm_mode = &meta_default_portrait_drm_mode_infos[i];
-          refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
-          if (drm_mode->hdisplay > max_hdisplay ||
-              drm_mode->vdisplay > max_vdisplay ||
-              refresh_rate > max_refresh_rate)
-            continue;
+    flag_filter = META_KMS_MODE_FLAG_FALLBACK_PORTRAIT;
 
-          crtc_mode = meta_gpu_kms_get_mode_from_drm_mode (gpu_kms,
-                                                           drm_mode);
-          g_ptr_array_add (array, crtc_mode);
-        }
+  for (l = meta_kms_device_get_fallback_modes (kms_device); l; l = l->next)
+    {
+      MetaKmsMode *fallback_mode = l->data;
+      const drmModeModeInfo *drm_mode;
+
+      if (!(meta_kms_mode_get_flags (fallback_mode) & flag_filter))
+        continue;
+
+      drm_mode = meta_kms_mode_get_drm_mode (fallback_mode);
+      refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
+      if (drm_mode->hdisplay > max_hdisplay ||
+          drm_mode->vdisplay > max_vdisplay ||
+          refresh_rate > max_refresh_rate)
+        continue;
+
+      crtc_mode = meta_gpu_kms_get_mode_from_drm_mode (gpu_kms, drm_mode);
+      g_ptr_array_add (array, crtc_mode);
     }
 
   output_info->modes = g_renew (MetaCrtcMode *, output_info->modes,

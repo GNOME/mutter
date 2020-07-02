@@ -47,6 +47,8 @@ struct _MetaKmsDevice
   GList *planes;
 
   MetaKmsDeviceCaps caps;
+
+  GList *fallback_modes;
 };
 
 G_DEFINE_TYPE (MetaKmsDevice, meta_kms_device, G_TYPE_OBJECT);
@@ -157,6 +159,12 @@ meta_kms_device_get_cursor_plane_for (MetaKmsDevice *device,
   return get_plane_with_type_for (device, crtc, META_KMS_PLANE_TYPE_CURSOR);
 }
 
+GList *
+meta_kms_device_get_fallback_modes (MetaKmsDevice *device)
+{
+  return device->fallback_modes;
+}
+
 void
 meta_kms_device_update_states_in_impl (MetaKmsDevice *device)
 {
@@ -214,6 +222,7 @@ typedef struct _CreateImplDeviceData
   GList *out_connectors;
   GList *out_planes;
   MetaKmsDeviceCaps out_caps;
+  GList *out_fallback_modes;
   char *out_driver_name;
   char *out_driver_description;
 } CreateImplDeviceData;
@@ -235,6 +244,8 @@ create_impl_device_in_impl (MetaKmsImpl  *impl,
   data->out_connectors = meta_kms_impl_device_copy_connectors (impl_device);
   data->out_planes = meta_kms_impl_device_copy_planes (impl_device);
   data->out_caps = *meta_kms_impl_device_get_caps (impl_device);
+  data->out_fallback_modes =
+    meta_kms_impl_device_copy_fallback_modes (impl_device);
   data->out_driver_name =
     g_strdup (meta_kms_impl_device_get_driver_name (impl_device));
   data->out_driver_description =
@@ -282,6 +293,7 @@ meta_kms_device_new (MetaKms            *kms,
   device->connectors = data.out_connectors;
   device->planes = data.out_planes;
   device->caps = data.out_caps;
+  device->fallback_modes = data.out_fallback_modes;
   device->driver_name = data.out_driver_name;
   device->driver_description = data.out_driver_description;
 

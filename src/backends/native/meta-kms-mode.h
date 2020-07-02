@@ -29,6 +29,8 @@
 typedef enum _MetaKmsModeFlag
 {
   META_KMS_MODE_FLAG_NONE = 0,
+  META_KMS_MODE_FLAG_FALLBACK_LANDSCAPE = 1 << 0,
+  META_KMS_MODE_FLAG_FALLBACK_PORTRAIT = 1 << 1,
 } MetaKmsModeFlag;
 
 const char * meta_kms_mode_get_name (MetaKmsMode *mode);

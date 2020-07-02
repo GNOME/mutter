@@ -53,6 +53,8 @@ MetaKmsPlane * meta_kms_device_get_primary_plane_for (MetaKmsDevice *device,
 MetaKmsPlane * meta_kms_device_get_cursor_plane_for (MetaKmsDevice *device,
                                                      MetaKmsCrtc   *crtc);
 
+GList * meta_kms_device_get_fallback_modes (MetaKmsDevice *device);
+
 MetaKmsDevice * meta_kms_device_new (MetaKms            *kms,
                                      const char         *path,
                                      MetaKmsDeviceFlag   flags,

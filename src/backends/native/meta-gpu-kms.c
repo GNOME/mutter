@@ -48,8 +48,6 @@
 #include "backends/native/meta-launcher.h"
 #include "backends/native/meta-output-kms.h"
 
-#include "meta-default-modes.h"
-
 struct _MetaGpuKms
 {
   MetaGpu parent;
@@ -395,12 +393,12 @@ static void
 init_modes (MetaGpuKms *gpu_kms)
 {
   MetaGpu *gpu = META_GPU (gpu_kms);
+  MetaKmsDevice *kms_device = gpu_kms->kms_device;
   GHashTable *modes_table;
   GList *l;
   GList *modes;
   GHashTableIter iter;
   drmModeModeInfo *drm_mode;
-  int i;
   long mode_id;
 
   /*
@@ -427,6 +425,15 @@ init_modes (MetaGpuKms *gpu_kms)
         }
     }
 
+  for (l = meta_kms_device_get_fallback_modes (kms_device); l; l = l->next)
+    {
+      MetaKmsMode *fallback_mode = l->data;
+      const drmModeModeInfo *drm_mode;
+
+      drm_mode = meta_kms_mode_get_drm_mode (fallback_mode);
+      g_hash_table_add (modes_table, (drmModeModeInfo *) drm_mode);
+    }
+
   modes = NULL;
 
   g_hash_table_iter_init (&iter, modes_table);
@@ -442,28 +449,6 @@ init_modes (MetaGpuKms *gpu_kms)
     }
 
   g_hash_table_destroy (modes_table);
-
-  for (i = 0; i < G_N_ELEMENTS (meta_default_landscape_drm_mode_infos); i++)
-    {
-      MetaCrtcModeKms *mode;
-
-      mode = meta_crtc_mode_kms_new (&meta_default_landscape_drm_mode_infos[i],
-                                     mode_id);
-      modes = g_list_append (modes, mode);
-
-      mode_id++;
-    }
-
-  for (i = 0; i < G_N_ELEMENTS (meta_default_portrait_drm_mode_infos); i++)
-    {
-      MetaCrtcModeKms *mode;
-
-      mode = meta_crtc_mode_kms_new (&meta_default_portrait_drm_mode_infos[i],
-                                     mode_id);
-      modes = g_list_append (modes, mode);
-
-      mode_id++;
-    }
 
   meta_gpu_take_modes (gpu, modes);
 }
