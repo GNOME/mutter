@@ -55,6 +55,12 @@ meta_kms_mode_ensure_blob_id (MetaKmsMode  *mode,
   return mode->blob_id;
 }
 
+const char *
+meta_kms_mode_get_name (MetaKmsMode *mode)
+{
+  return mode->drm_mode.name;
+}
+
 MetaKmsModeFlag
 meta_kms_mode_get_flags (MetaKmsMode *mode)
 {

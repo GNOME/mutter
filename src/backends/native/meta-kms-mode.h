@@ -31,6 +31,8 @@ typedef enum _MetaKmsModeFlag
   META_KMS_MODE_FLAG_NONE = 0,
 } MetaKmsModeFlag;
 
+const char * meta_kms_mode_get_name (MetaKmsMode *mode);
+
 MetaKmsModeFlag meta_kms_mode_get_flags (MetaKmsMode *mode);
 
 const drmModeModeInfo * meta_kms_mode_get_drm_mode (MetaKmsMode *mode);
