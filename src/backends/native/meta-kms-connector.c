@@ -364,7 +364,8 @@ state_set_modes (MetaKmsConnectorState *state,
     {
       MetaKmsMode *mode;
 
-      mode = meta_kms_mode_new (impl_device, &drm_connector->modes[i]);
+      mode = meta_kms_mode_new (impl_device, &drm_connector->modes[i],
+                                META_KMS_MODE_FLAG_NONE);
       state->modes = g_list_prepend (state->modes, mode);
     }
   state->modes = g_list_reverse (state->modes);

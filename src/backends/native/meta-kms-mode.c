@@ -26,6 +26,7 @@
 struct _MetaKmsMode
 {
   MetaKmsImplDevice *impl_device;
+  MetaKmsModeFlag flags;
   drmModeModeInfo drm_mode;
   uint32_t blob_id;
 };
@@ -54,6 +55,12 @@ meta_kms_mode_ensure_blob_id (MetaKmsMode  *mode,
   return mode->blob_id;
 }
 
+MetaKmsModeFlag
+meta_kms_mode_get_flags (MetaKmsMode *mode)
+{
+  return mode->flags;
+}
+
 const drmModeModeInfo *
 meta_kms_mode_get_drm_mode (MetaKmsMode *mode)
 {
@@ -77,12 +84,14 @@ meta_kms_mode_free (MetaKmsMode *mode)
 
 MetaKmsMode *
 meta_kms_mode_new (MetaKmsImplDevice     *impl_device,
-                   const drmModeModeInfo *drm_mode)
+                   const drmModeModeInfo *drm_mode,
+                   MetaKmsModeFlag        flags)
 {
   MetaKmsMode *mode;
 
   mode = g_new0 (MetaKmsMode, 1);
   mode->impl_device = impl_device;
+  mode->flags = flags;
   mode->drm_mode = *drm_mode;
 
   return mode;

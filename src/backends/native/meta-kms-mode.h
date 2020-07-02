@@ -26,6 +26,13 @@
 
 #include "backends/native/meta-kms-types.h"
 
+typedef enum _MetaKmsModeFlag
+{
+  META_KMS_MODE_FLAG_NONE = 0,
+} MetaKmsModeFlag;
+
+MetaKmsModeFlag meta_kms_mode_get_flags (MetaKmsMode *mode);
+
 const drmModeModeInfo * meta_kms_mode_get_drm_mode (MetaKmsMode *mode);
 
 #endif /* META_KMS_MODE_H */

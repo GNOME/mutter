@@ -28,6 +28,7 @@ uint32_t meta_kms_mode_ensure_blob_id (MetaKmsMode  *mode,
 void meta_kms_mode_free (MetaKmsMode *mode);
 
 MetaKmsMode * meta_kms_mode_new (MetaKmsImplDevice     *impl_device,
-                                 const drmModeModeInfo *drm_mode);
+                                 const drmModeModeInfo *drm_mode,
+                                 MetaKmsModeFlag        flags);
 
 #endif /* META_KMS_MODE_PRIVATE_H */
