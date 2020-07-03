@@ -510,6 +510,15 @@ meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSr
 }
 
 static void
+meta_screen_cast_window_stream_record_follow_up (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastRecordFlag flags;
+
+  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
+}
+
+static void
 meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *src,
                                                         struct spa_meta_cursor  *spa_meta_cursor)
 {
@@ -596,6 +605,8 @@ meta_screen_cast_window_stream_src_class_init (MetaScreenCastWindowStreamSrcClas
     meta_screen_cast_window_stream_src_record_to_buffer;
   src_class->record_to_framebuffer =
     meta_screen_cast_window_stream_src_record_to_framebuffer;
+  src_class->record_follow_up =
+    meta_screen_cast_window_stream_record_follow_up;
   src_class->get_videocrop = meta_screen_cast_window_stream_src_get_videocrop;
   src_class->set_cursor_metadata = meta_screen_cast_window_stream_src_set_cursor_metadata;
 }
