@@ -366,8 +366,9 @@ meta_screen_cast_monitor_stream_src_disable (MetaScreenCastStreamSrc *src)
 }
 
 static gboolean
-meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc *src,
-                                                      uint8_t                 *data)
+meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src,
+                                                      uint8_t                  *data,
+                                                      GError                  **error)
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
@@ -384,8 +385,9 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc *s
 }
 
 static gboolean
-meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc *src,
-                                                           CoglFramebuffer         *framebuffer)
+meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc  *src,
+                                                           CoglFramebuffer          *framebuffer,
+                                                           GError                  **error)
 {
   MetaScreenCastMonitorStreamSrc *monitor_src =
     META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
@@ -409,7 +411,6 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
   for (l = meta_renderer_get_views (renderer); l; l = l->next)
     {
       ClutterStageView *view = CLUTTER_STAGE_VIEW (l->data);
-      g_autoptr (GError) error = NULL;
       CoglFramebuffer *view_framebuffer;
       MetaRectangle view_layout;
       int x, y;
@@ -430,12 +431,8 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
                                   x, y,
                                   cogl_framebuffer_get_width (view_framebuffer),
                                   cogl_framebuffer_get_height (view_framebuffer),
-                                  &error))
-        {
-          g_warning ("Error blitting view into DMABuf framebuffer: %s",
-                     error->message);
-          return FALSE;
-        }
+                                  error))
+        return FALSE;
     }
 
   cogl_framebuffer_finish (framebuffer);
