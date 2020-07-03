@@ -477,8 +477,8 @@ meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSr
   stream_rect.height = get_stream_height (window_src);
 
   if (!meta_screen_cast_window_blit_to_framebuffer (window_src->screen_cast_window,
-                                                     &stream_rect,
-                                                     framebuffer))
+                                                    &stream_rect,
+                                                    framebuffer))
     return FALSE;
 
   stream = meta_screen_cast_stream_src_get_stream (src);
