@@ -4281,7 +4281,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
   gboolean destroy_meta, emit_parent_set, emit_actor_removed, check_state;
   gboolean flush_queue;
   gboolean notify_first_last;
-  gboolean was_mapped;
   gboolean stop_transitions;
   gboolean clear_stage_views;
   GObject *obj;
@@ -4313,8 +4312,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
 
   if (check_state)
     {
-      was_mapped = CLUTTER_ACTOR_IS_MAPPED (child);
-
       /* we need to unrealize *before* we set parent_actor to NULL,
        * because in an unrealize method actors are dissociating from the
        * stage, which means they need to be able to
@@ -4324,8 +4321,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
        */
       clutter_actor_update_map_state (child, MAP_STATE_MAKE_UNREALIZED);
     }
-  else
-    was_mapped = FALSE;
 
   if (flush_queue)
     {
@@ -4386,12 +4381,6 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
 
   if (emit_parent_set && !CLUTTER_ACTOR_IN_DESTRUCTION (child))
     g_signal_emit (child, actor_signals[PARENT_SET], 0, self);
-
-  /* if the child was mapped then we need to relayout ourselves to account
-   * for the removed child
-   */
-  if (was_mapped)
-    clutter_actor_queue_relayout (self);
 
   /* we need to emit the signal before dropping the reference */
   if (emit_actor_removed)
@@ -12061,29 +12050,6 @@ clutter_actor_add_child_internal (ClutterActor              *self,
   if (CLUTTER_ACTOR_IS_MAPPED (child))
     clutter_actor_queue_redraw (child);
 
-  /* maintain the invariant that if an actor needs layout,
-   * its parents do as well
-   */
-  if (clutter_actor_needs_relayout (child))
-    {
-      /* we work around the short-circuiting we do
-       * in clutter_actor_queue_relayout() since we
-       * want to force a relayout
-       */
-      child->priv->needs_width_request = TRUE;
-      child->priv->needs_height_request = TRUE;
-      child->priv->needs_allocation = TRUE;
-
-      if (CLUTTER_ACTOR_IS_MAPPED (child))
-        child->priv->needs_paint_volume_update = TRUE;
-
-      /* we only queue a relayout here, because any possible
-       * redraw has already been queued either by show() or
-       * by our call to queue_redraw() above
-       */
-      _clutter_actor_queue_only_relayout (child->priv->parent);
-    }
-
   if (emit_actor_added)
     _clutter_container_emit_actor_added (CLUTTER_CONTAINER (self), child);
 
@@ -12558,7 +12524,7 @@ clutter_actor_set_child_above_sibling (ClutterActor *self,
                                     sibling);
   g_object_unref(child);
 
-  clutter_actor_queue_redraw_on_parent (child);
+  clutter_actor_queue_relayout (self);
 }
 
 /**
@@ -12605,7 +12571,7 @@ clutter_actor_set_child_below_sibling (ClutterActor *self,
                                     sibling);
   g_object_unref(child);
 
-  clutter_actor_queue_redraw_on_parent (child);
+  clutter_actor_queue_relayout (self);
 }
 
 /**
