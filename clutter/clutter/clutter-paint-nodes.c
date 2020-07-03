@@ -1217,6 +1217,90 @@ clutter_actor_node_new (ClutterActor *actor)
 
 
 /*
+ * ClutterEffectNode
+ */
+
+struct _ClutterEffectNode
+{
+  ClutterPaintNode parent_instance;
+
+  ClutterEffect *effect;
+};
+
+struct _ClutterEffectNodeClass
+{
+  ClutterPaintNodeClass parent_class;
+};
+
+G_DEFINE_TYPE (ClutterEffectNode, clutter_effect_node, CLUTTER_TYPE_PAINT_NODE)
+
+static JsonNode *
+clutter_effect_node_serialize (ClutterPaintNode *node)
+{
+  ClutterEffectNode *effect_node = CLUTTER_EFFECT_NODE (node);
+  ClutterActorMeta *effect_meta = CLUTTER_ACTOR_META (effect_node->effect);
+  g_autoptr (JsonBuilder) builder = NULL;
+  g_autoptr (GString) string = NULL;
+  const char *meta_name;
+
+  meta_name = clutter_actor_meta_get_name (effect_meta);
+
+  string = g_string_new (NULL);
+  g_string_append (string, G_OBJECT_TYPE_NAME (effect_node->effect));
+  g_string_append (string, " (");
+  if (meta_name)
+    g_string_append_printf (string, "\"%s\"", meta_name);
+  else
+    g_string_append (string, "unnamed");
+  g_string_append (string, ")");
+
+  builder = json_builder_new ();
+
+  json_builder_begin_object (builder);
+  json_builder_set_member_name (builder, "effect");
+  json_builder_add_string_value (builder, string->str);
+  json_builder_end_object (builder);
+
+  return json_builder_get_root (builder);
+}
+
+static void
+clutter_effect_node_class_init (ClutterEffectNodeClass *klass)
+{
+  ClutterPaintNodeClass *node_class;
+
+  node_class = CLUTTER_PAINT_NODE_CLASS (klass);
+  node_class->serialize = clutter_effect_node_serialize;
+}
+
+static void
+clutter_effect_node_init (ClutterEffectNode *self)
+{
+}
+
+/**
+ * clutter_effect_node_new:
+ * @effect: the actor to paint
+ *
+ * Creates a new #ClutterEffectNode.
+ *
+ * Return value: (transfer full): the newly created #ClutterEffectNode.
+ *   Use clutter_paint_node_unref() when done.
+ */
+ClutterPaintNode *
+clutter_effect_node_new (ClutterEffect *effect)
+{
+  ClutterEffectNode *res;
+
+  g_assert (CLUTTER_IS_EFFECT (effect));
+
+  res = _clutter_paint_node_create (CLUTTER_TYPE_EFFECT_NODE);
+  res->effect = effect;
+
+  return (ClutterPaintNode *) res;
+}
+
+/*
  * ClutterLayerNode
  */
 

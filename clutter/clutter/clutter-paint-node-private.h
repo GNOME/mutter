@@ -141,6 +141,26 @@ ClutterPaintNode *      clutter_paint_node_get_last_child               (Clutter
 G_GNUC_INTERNAL
 ClutterPaintNode *      clutter_paint_node_get_parent                   (ClutterPaintNode      *node);
 
+
+#define CLUTTER_TYPE_EFFECT_NODE                (clutter_effect_node_get_type ())
+#define CLUTTER_EFFECT_NODE(obj)                (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_EFFECT_NODE, ClutterEffectNode))
+#define CLUTTER_IS_EFFECT_NODE(obj)             (G_TYPE_CHECK_INSTANCE_TYPE ((obj), CLUTTER_TYPE_EFFECT_NODE))
+
+/**
+ * ClutterEffectNode:
+ *
+ * The #ClutterEffectNode structure is an opaque
+ * type whose members cannot be directly accessed.
+ */
+typedef struct _ClutterEffectNode ClutterEffectNode;
+typedef struct _ClutterEffectNode ClutterEffectNodeClass;
+
+CLUTTER_EXPORT
+GType clutter_effect_node_get_type (void) G_GNUC_CONST;
+
+CLUTTER_EXPORT
+ClutterPaintNode * clutter_effect_node_new (ClutterEffect *effect);
+
 G_END_DECLS
 
 #endif /* __CLUTTER_PAINT_NODE_PRIVATE_H__ */
