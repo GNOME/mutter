@@ -135,23 +135,23 @@ meta_screen_cast_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
 }
 
 static gboolean
-meta_screen_cast_stream_src_record_frame (MetaScreenCastStreamSrc *src,
-                                          uint8_t                 *data)
+meta_screen_cast_stream_src_record_to_buffer (MetaScreenCastStreamSrc *src,
+                                              uint8_t                 *data)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  return klass->record_frame (src, data);
+  return klass->record_to_buffer (src, data);
 }
 
 static gboolean
-meta_screen_cast_stream_src_blit_to_framebuffer (MetaScreenCastStreamSrc *src,
-                                                 CoglFramebuffer         *framebuffer)
+meta_screen_cast_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc *src,
+                                                   CoglFramebuffer         *framebuffer)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  return klass->blit_to_framebuffer (src, framebuffer);
+  return klass->record_to_framebuffer (src, framebuffer);
 }
 
 static void
@@ -419,7 +419,7 @@ do_record_frame (MetaScreenCastStreamSrc *src,
   if (spa_buffer->datas[0].data ||
       spa_buffer->datas[0].type == SPA_DATA_MemFd)
     {
-      return meta_screen_cast_stream_src_record_frame (src, data);
+      return meta_screen_cast_stream_src_record_to_buffer (src, data);
     }
   else if (spa_buffer->datas[0].type == SPA_DATA_DmaBuf)
     {
@@ -429,7 +429,8 @@ do_record_frame (MetaScreenCastStreamSrc *src,
       CoglFramebuffer *dmabuf_fbo =
         cogl_dma_buf_handle_get_framebuffer (dmabuf_handle);
 
-      return meta_screen_cast_stream_src_blit_to_framebuffer (src, dmabuf_fbo);
+      return meta_screen_cast_stream_src_record_to_framebuffer (src,
+                                                                dmabuf_fbo);
     }
 
   return FALSE;
