@@ -65,6 +65,8 @@ struct _MetaScreenCastStreamSrcClass
   gboolean (* record_to_framebuffer) (MetaScreenCastStreamSrc  *src,
                                       CoglFramebuffer          *framebuffer,
                                       GError                  **error);
+  void (* record_follow_up) (MetaScreenCastStreamSrc *src);
+
   gboolean (* get_videocrop) (MetaScreenCastStreamSrc *src,
                               MetaRectangle           *crop_rect);
   void (* set_cursor_metadata) (MetaScreenCastStreamSrc *src,
@@ -73,6 +75,8 @@ struct _MetaScreenCastStreamSrcClass
 
 void meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                                                      MetaScreenCastRecordFlag  flags);
+
+gboolean meta_screen_cast_stream_src_pending_follow_up_frame (MetaScreenCastStreamSrc *src);
 
 MetaScreenCastStream * meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src);
 

@@ -191,6 +191,9 @@ sync_cursor_state (MetaScreenCastMonitorStreamSrc *monitor_src)
   if (clutter_stage_is_redraw_queued (stage))
     return;
 
+  if (meta_screen_cast_stream_src_pending_follow_up_frame (src))
+    return;
+
   flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
   meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
@@ -441,6 +444,44 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
 }
 
 static void
+meta_screen_cast_monitor_stream_record_follow_up (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastMonitorStreamSrc *monitor_src =
+    META_SCREEN_CAST_MONITOR_STREAM_SRC (src);
+  MetaBackend *backend = get_backend (monitor_src);
+  MetaRenderer *renderer = meta_backend_get_renderer (backend);
+  ClutterStage *stage = get_stage (monitor_src);
+  MetaMonitor *monitor;
+  MetaLogicalMonitor *logical_monitor;
+  MetaRectangle logical_monitor_layout;
+  GList *l;
+
+  monitor = get_monitor (monitor_src);
+  logical_monitor = meta_monitor_get_logical_monitor (monitor);
+  logical_monitor_layout = meta_logical_monitor_get_layout (logical_monitor);
+
+  for (l = meta_renderer_get_views (renderer); l; l = l->next)
+    {
+      MetaRendererView *view = l->data;
+      MetaRectangle view_layout;
+      MetaRectangle damage;
+
+      clutter_stage_view_get_layout (CLUTTER_STAGE_VIEW (view), &view_layout);
+
+      if (!meta_rectangle_overlap (&logical_monitor_layout, &view_layout))
+        continue;
+
+      damage = (cairo_rectangle_int_t) {
+        .x = view_layout.x,
+        .y = view_layout.y,
+        .width = 1,
+        .height = 1,
+      };
+      clutter_actor_queue_redraw_with_clip (CLUTTER_ACTOR (stage), &damage);
+    }
+}
+
+static void
 meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *src,
                                                          struct spa_meta_cursor  *spa_meta_cursor)
 {
@@ -564,6 +605,8 @@ meta_screen_cast_monitor_stream_src_class_init (MetaScreenCastMonitorStreamSrcCl
     meta_screen_cast_monitor_stream_src_record_to_buffer;
   src_class->record_to_framebuffer =
     meta_screen_cast_monitor_stream_src_record_to_framebuffer;
+  src_class->record_follow_up =
+    meta_screen_cast_monitor_stream_record_follow_up;
   src_class->set_cursor_metadata =
     meta_screen_cast_monitor_stream_src_set_cursor_metadata;
 }

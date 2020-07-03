@@ -92,6 +92,7 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   int video_stride;
 
   int64_t last_frame_timestamp_us;
+  guint follow_up_frame_source_id;
 
   GHashTable *dmabuf_handles;
 
@@ -108,6 +109,12 @@ G_DEFINE_TYPE_WITH_CODE (MetaScreenCastStreamSrc,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 meta_screen_cast_stream_src_init_initable_iface)
                          G_ADD_PRIVATE (MetaScreenCastStreamSrc))
+
+static inline uint32_t
+us2ms (uint64_t us)
+{
+  return (uint32_t) (us / 1000);
+}
 
 static void
 meta_screen_cast_stream_src_get_specs (MetaScreenCastStreamSrc *src,
@@ -154,6 +161,15 @@ meta_screen_cast_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc  *src
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
   return klass->record_to_framebuffer (src, framebuffer, error);
+}
+
+static void
+meta_screen_cast_stream_src_record_follow_up (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcClass *klass =
+    META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
+
+  klass->record_follow_up (src);
 }
 
 static void
@@ -442,6 +458,43 @@ do_record_frame (MetaScreenCastStreamSrc  *src,
   return FALSE;
 }
 
+gboolean
+meta_screen_cast_stream_src_pending_follow_up_frame (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  return priv->follow_up_frame_source_id != 0;
+}
+
+static gboolean
+follow_up_frame_cb (gpointer user_data)
+{
+  MetaScreenCastStreamSrc *src = user_data;
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  priv->follow_up_frame_source_id = 0;
+  meta_screen_cast_stream_src_record_follow_up (src);
+
+  return G_SOURCE_REMOVE;
+}
+
+static void
+maybe_schedule_follow_up_frame (MetaScreenCastStreamSrc *src,
+                                int64_t                  timeout_us)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  if (priv->follow_up_frame_source_id)
+    return;
+
+  priv->follow_up_frame_source_id = g_timeout_add (us2ms (timeout_us),
+                                                   follow_up_frame_cb,
+                                                   src);
+}
+
 void
 meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
                                                 MetaScreenCastRecordFlag  flags)
@@ -457,11 +510,24 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
 
   now_us = g_get_monotonic_time ();
   if (priv->video_format.max_framerate.num > 0 &&
-      priv->last_frame_timestamp_us != 0 &&
-      (now_us - priv->last_frame_timestamp_us <
-       ((1000000 * priv->video_format.max_framerate.denom) /
-        priv->video_format.max_framerate.num)))
-    return;
+      priv->last_frame_timestamp_us != 0)
+    {
+      int64_t min_interval_us;
+      int64_t time_since_last_frame_us;
+
+      min_interval_us = ((1000000 * priv->video_format.max_framerate.denom) /
+                         priv->video_format.max_framerate.num);
+
+      time_since_last_frame_us = now_us - priv->last_frame_timestamp_us;
+      if (time_since_last_frame_us < min_interval_us)
+        {
+          int64_t timeout_us;
+
+          timeout_us = min_interval_us - time_since_last_frame_us;
+          maybe_schedule_follow_up_frame (src, timeout_us);
+          return;
+        }
+    }
 
   if (!priv->pipewire_stream)
     return;
@@ -481,6 +547,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
 
   if (!(flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
     {
+      g_clear_handle_id (&priv->follow_up_frame_source_id, g_source_remove);
       if (do_record_frame (src, spa_buffer, data, &error))
         {
           struct spa_meta_region *spa_meta_video_crop;
