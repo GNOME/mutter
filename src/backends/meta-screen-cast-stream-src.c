@@ -91,7 +91,7 @@ typedef struct _MetaScreenCastStreamSrcPrivate
   struct spa_video_info_raw video_format;
   int video_stride;
 
-  uint64_t last_frame_timestamp_us;
+  int64_t last_frame_timestamp_us;
 
   GHashTable *dmabuf_handles;
 
