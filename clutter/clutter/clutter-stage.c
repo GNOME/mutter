@@ -121,9 +121,6 @@ struct _ClutterStagePrivate
 
   gint sync_delay;
 
-  GTimer *fps_timer;
-  gint32 timer_n_frames;
-
   ClutterStageState current_state;
 
   int update_freeze_count;
@@ -1305,9 +1302,6 @@ clutter_stage_finalize (GObject *object)
   g_free (priv->title);
 
   g_array_free (priv->paint_volume_stack, TRUE);
-
-  if (priv->fps_timer != NULL)
-    g_timer_destroy (priv->fps_timer);
 
   G_OBJECT_CLASS (clutter_stage_parent_class)->finalize (object);
 }
