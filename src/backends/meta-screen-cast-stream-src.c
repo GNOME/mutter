@@ -472,33 +472,40 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
       return;
     }
 
-  if (do_record_frame (src, spa_buffer, data))
+  if (!(flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
     {
-      struct spa_meta_region *spa_meta_video_crop;
-
-      spa_buffer->datas[0].chunk->size = spa_buffer->datas[0].maxsize;
-      spa_buffer->datas[0].chunk->stride = priv->video_stride;
-
-      /* Update VideoCrop if needed */
-      spa_meta_video_crop =
-        spa_buffer_find_meta_data (spa_buffer, SPA_META_VideoCrop,
-                                   sizeof (*spa_meta_video_crop));
-      if (spa_meta_video_crop)
+      if (do_record_frame (src, spa_buffer, data))
         {
-          if (meta_screen_cast_stream_src_get_videocrop (src, &crop_rect))
+          struct spa_meta_region *spa_meta_video_crop;
+
+          spa_buffer->datas[0].chunk->size = spa_buffer->datas[0].maxsize;
+          spa_buffer->datas[0].chunk->stride = priv->video_stride;
+
+          /* Update VideoCrop if needed */
+          spa_meta_video_crop =
+            spa_buffer_find_meta_data (spa_buffer, SPA_META_VideoCrop,
+                                       sizeof (*spa_meta_video_crop));
+          if (spa_meta_video_crop)
             {
-              spa_meta_video_crop->region.position.x = crop_rect.x;
-              spa_meta_video_crop->region.position.y = crop_rect.y;
-              spa_meta_video_crop->region.size.width = crop_rect.width;
-              spa_meta_video_crop->region.size.height = crop_rect.height;
+              if (meta_screen_cast_stream_src_get_videocrop (src, &crop_rect))
+                {
+                  spa_meta_video_crop->region.position.x = crop_rect.x;
+                  spa_meta_video_crop->region.position.y = crop_rect.y;
+                  spa_meta_video_crop->region.size.width = crop_rect.width;
+                  spa_meta_video_crop->region.size.height = crop_rect.height;
+                }
+              else
+                {
+                  spa_meta_video_crop->region.position.x = 0;
+                  spa_meta_video_crop->region.position.y = 0;
+                  spa_meta_video_crop->region.size.width = priv->stream_width;
+                  spa_meta_video_crop->region.size.height = priv->stream_height;
+                }
             }
-          else
-            {
-              spa_meta_video_crop->region.position.x = 0;
-              spa_meta_video_crop->region.position.y = 0;
-              spa_meta_video_crop->region.size.width = priv->stream_width;
-              spa_meta_video_crop->region.size.height = priv->stream_height;
-            }
+        }
+      else
+        {
+          spa_buffer->datas[0].chunk->size = 0;
         }
     }
   else

@@ -40,6 +40,7 @@ typedef struct _MetaScreenCastStream MetaScreenCastStream;
 typedef enum _MetaScreenCastRecordFlag
 {
   META_SCREEN_CAST_RECORD_FLAG_NONE = 0,
+  META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY = 1 << 0,
 } MetaScreenCastRecordFlag;
 
 #define META_TYPE_SCREEN_CAST_STREAM_SRC (meta_screen_cast_stream_src_get_type ())

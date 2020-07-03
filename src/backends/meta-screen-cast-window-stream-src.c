@@ -329,7 +329,7 @@ screen_cast_window_damaged (MetaWindowActor               *actor,
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
   MetaScreenCastRecordFlag flags;
 
-  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
   meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
@@ -375,7 +375,7 @@ sync_cursor_state (MetaScreenCastWindowStreamSrc *window_src)
   if (meta_screen_cast_window_has_damage (window_src->screen_cast_window))
     return;
 
-  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
   meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
