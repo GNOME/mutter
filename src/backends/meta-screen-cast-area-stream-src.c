@@ -170,6 +170,7 @@ static void
 sync_cursor_state (MetaScreenCastAreaStreamSrc *area_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (area_src);
+  MetaScreenCastRecordFlag flags;
 
   if (!is_cursor_in_stream (area_src))
     return;
@@ -177,7 +178,8 @@ sync_cursor_state (MetaScreenCastAreaStreamSrc *area_src)
   if (is_redraw_queued (area_src))
     return;
 
-  meta_screen_cast_stream_src_maybe_record_frame (src);
+  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
 static void
@@ -233,10 +235,12 @@ maybe_record_frame_on_idle (gpointer user_data)
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (user_data);
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (area_src);
+  MetaScreenCastRecordFlag flags;
 
   area_src->maybe_record_idle_id = 0;
 
-  meta_screen_cast_stream_src_maybe_record_frame (src);
+  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 
   return G_SOURCE_REMOVE;
 }

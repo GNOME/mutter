@@ -121,8 +121,10 @@ stage_painted (MetaStage           *stage,
                gpointer             user_data)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (user_data);
+  MetaScreenCastRecordFlag flags;
 
-  meta_screen_cast_stream_src_maybe_record_frame (src);
+  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
 static MetaBackend *
@@ -202,6 +204,7 @@ static void
 sync_cursor_state (MetaScreenCastMonitorStreamSrc *monitor_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
+  MetaScreenCastRecordFlag flags;
 
   if (!is_cursor_in_stream (monitor_src))
     return;
@@ -209,7 +212,8 @@ sync_cursor_state (MetaScreenCastMonitorStreamSrc *monitor_src)
   if (is_redraw_queued (monitor_src))
     return;
 
-  meta_screen_cast_stream_src_maybe_record_frame (src);
+  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
 static void
