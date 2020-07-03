@@ -457,8 +457,9 @@ meta_screen_cast_window_stream_src_disable (MetaScreenCastStreamSrc *src)
 }
 
 static gboolean
-meta_screen_cast_window_stream_src_record_to_buffer (MetaScreenCastStreamSrc *src,
-                                                     uint8_t                 *data)
+meta_screen_cast_window_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src,
+                                                     uint8_t                  *data,
+                                                     GError                  **error)
 {
   MetaScreenCastWindowStreamSrc *window_src =
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
@@ -469,8 +470,9 @@ meta_screen_cast_window_stream_src_record_to_buffer (MetaScreenCastStreamSrc *sr
 }
 
 static gboolean
-meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc *src,
-                                                          CoglFramebuffer         *framebuffer)
+meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc  *src,
+                                                          CoglFramebuffer          *framebuffer,
+                                                          GError                  **error)
 {
   MetaScreenCastWindowStreamSrc *window_src =
     META_SCREEN_CAST_WINDOW_STREAM_SRC (src);
@@ -485,7 +487,11 @@ meta_screen_cast_window_stream_src_record_to_framebuffer (MetaScreenCastStreamSr
   if (!meta_screen_cast_window_blit_to_framebuffer (window_src->screen_cast_window,
                                                     &stream_rect,
                                                     framebuffer))
-    return FALSE;
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                   "Failed to blit window content to framebuffer");
+      return FALSE;
+    }
 
   stream = meta_screen_cast_stream_src_get_stream (src);
   switch (meta_screen_cast_stream_get_cursor_mode (stream))

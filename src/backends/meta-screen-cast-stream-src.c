@@ -135,23 +135,25 @@ meta_screen_cast_stream_src_get_videocrop (MetaScreenCastStreamSrc *src,
 }
 
 static gboolean
-meta_screen_cast_stream_src_record_to_buffer (MetaScreenCastStreamSrc *src,
-                                              uint8_t                 *data)
+meta_screen_cast_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src,
+                                              uint8_t                  *data,
+                                              GError                  **error)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  return klass->record_to_buffer (src, data);
+  return klass->record_to_buffer (src, data, error);
 }
 
 static gboolean
-meta_screen_cast_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc *src,
-                                                   CoglFramebuffer         *framebuffer)
+meta_screen_cast_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc  *src,
+                                                   CoglFramebuffer          *framebuffer,
+                                                   GError                  **error)
 {
   MetaScreenCastStreamSrcClass *klass =
     META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src);
 
-  return klass->record_to_framebuffer (src, framebuffer);
+  return klass->record_to_framebuffer (src, framebuffer, error);
 }
 
 static void
@@ -409,9 +411,10 @@ maybe_record_cursor (MetaScreenCastStreamSrc *src,
 }
 
 static gboolean
-do_record_frame (MetaScreenCastStreamSrc *src,
-                 struct spa_buffer       *spa_buffer,
-                 uint8_t                 *data)
+do_record_frame (MetaScreenCastStreamSrc  *src,
+                 struct spa_buffer        *spa_buffer,
+                 uint8_t                  *data,
+                 GError                  **error)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);
@@ -419,7 +422,7 @@ do_record_frame (MetaScreenCastStreamSrc *src,
   if (spa_buffer->datas[0].data ||
       spa_buffer->datas[0].type == SPA_DATA_MemFd)
     {
-      return meta_screen_cast_stream_src_record_to_buffer (src, data);
+      return meta_screen_cast_stream_src_record_to_buffer (src, data, error);
     }
   else if (spa_buffer->datas[0].type == SPA_DATA_DmaBuf)
     {
@@ -430,9 +433,12 @@ do_record_frame (MetaScreenCastStreamSrc *src,
         cogl_dma_buf_handle_get_framebuffer (dmabuf_handle);
 
       return meta_screen_cast_stream_src_record_to_framebuffer (src,
-                                                                dmabuf_fbo);
+                                                                dmabuf_fbo,
+                                                                error);
     }
 
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+               "Unknown SPA buffer type %u", spa_buffer->datas[0].type);
   return FALSE;
 }
 
@@ -447,6 +453,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
   struct spa_buffer *spa_buffer;
   uint8_t *data = NULL;
   uint64_t now_us;
+  g_autoptr (GError) error = NULL;
 
   now_us = g_get_monotonic_time ();
   if (priv->video_format.max_framerate.num > 0 &&
@@ -474,7 +481,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
 
   if (!(flags & META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY))
     {
-      if (do_record_frame (src, spa_buffer, data))
+      if (do_record_frame (src, spa_buffer, data, &error))
         {
           struct spa_meta_region *spa_meta_video_crop;
 
@@ -505,6 +512,7 @@ meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
         }
       else
         {
+          g_warning ("Failed to record screen cast frame: %s", error->message);
           spa_buffer->datas[0].chunk->size = 0;
         }
     }

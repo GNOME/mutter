@@ -59,10 +59,12 @@ struct _MetaScreenCastStreamSrcClass
                       float                   *frame_rate);
   void (* enable) (MetaScreenCastStreamSrc *src);
   void (* disable) (MetaScreenCastStreamSrc *src);
-  gboolean (* record_to_buffer) (MetaScreenCastStreamSrc *src,
-                                 uint8_t                 *data);
-  gboolean (* record_to_framebuffer) (MetaScreenCastStreamSrc *src,
-                                      CoglFramebuffer         *framebuffer);
+  gboolean (* record_to_buffer) (MetaScreenCastStreamSrc  *src,
+                                 uint8_t                  *data,
+                                 GError                  **error);
+  gboolean (* record_to_framebuffer) (MetaScreenCastStreamSrc  *src,
+                                      CoglFramebuffer          *framebuffer,
+                                      GError                  **error);
   gboolean (* get_videocrop) (MetaScreenCastStreamSrc *src,
                               MetaRectangle           *crop_rect);
   void (* set_cursor_metadata) (MetaScreenCastStreamSrc *src,

@@ -392,8 +392,9 @@ meta_screen_cast_area_stream_src_disable (MetaScreenCastStreamSrc *src)
 }
 
 static gboolean
-meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc *src,
-                                                   uint8_t                 *data)
+meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src,
+                                                   uint8_t                  *data,
+                                                   GError                  **error)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (src);
@@ -404,7 +405,6 @@ meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc *src,
   float scale;
   int stride;
   ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_NONE;
-  g_autoptr (GError) error = NULL;
 
   stage = get_stage (area_src);
   area = meta_screen_cast_area_stream_get_area (area_stream);
@@ -426,18 +426,16 @@ meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc *src,
                                       stride,
                                       CLUTTER_CAIRO_FORMAT_ARGB32,
                                       paint_flags,
-                                      &error))
-    {
-      g_warning ("Failed to record area: %s", error->message);
-      return FALSE;
-    }
+                                      error))
+    return FALSE;
 
   return TRUE;
 }
 
 static gboolean
-meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc *src,
-                                                        CoglFramebuffer         *framebuffer)
+meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc  *src,
+                                                        CoglFramebuffer          *framebuffer,
+                                                        GError                  **error)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (src);
