@@ -388,8 +388,8 @@ meta_screen_cast_area_stream_src_disable (MetaScreenCastStreamSrc *src)
 }
 
 static gboolean
-meta_screen_cast_area_stream_src_record_frame (MetaScreenCastStreamSrc *src,
-                                               uint8_t                 *data)
+meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc *src,
+                                                   uint8_t                 *data)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (src);
@@ -432,8 +432,8 @@ meta_screen_cast_area_stream_src_record_frame (MetaScreenCastStreamSrc *src,
 }
 
 static gboolean
-meta_screen_cast_area_stream_src_blit_to_framebuffer (MetaScreenCastStreamSrc *src,
-                                                      CoglFramebuffer         *framebuffer)
+meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc *src,
+                                                        CoglFramebuffer         *framebuffer)
 {
   MetaScreenCastAreaStreamSrc *area_src =
     META_SCREEN_CAST_AREA_STREAM_SRC (src);
@@ -578,9 +578,10 @@ meta_screen_cast_area_stream_src_class_init (MetaScreenCastAreaStreamSrcClass *k
   src_class->get_specs = meta_screen_cast_area_stream_src_get_specs;
   src_class->enable = meta_screen_cast_area_stream_src_enable;
   src_class->disable = meta_screen_cast_area_stream_src_disable;
-  src_class->record_frame = meta_screen_cast_area_stream_src_record_frame;
-  src_class->blit_to_framebuffer =
-    meta_screen_cast_area_stream_src_blit_to_framebuffer;
+  src_class->record_to_buffer =
+    meta_screen_cast_area_stream_src_record_to_buffer;
+  src_class->record_to_framebuffer =
+    meta_screen_cast_area_stream_src_record_to_framebuffer;
   src_class->set_cursor_metadata =
     meta_screen_cast_area_stream_src_set_cursor_metadata;
 }
