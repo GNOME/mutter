@@ -858,7 +858,6 @@ struct _ClutterActorPrivate
   guint needs_y_expand              : 1;
   guint needs_paint_volume_update   : 1;
   guint had_effects_on_last_paint_volume_update : 1;
-  guint absolute_origin_changed     : 1;
   guint needs_update_stage_views    : 1;
   guint has_inverse_transform       : 1;
 };
@@ -2608,11 +2607,6 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
   priv->needs_height_request = FALSE;
   priv->needs_allocation = FALSE;
 
-  priv->absolute_origin_changed |= x1_changed || y1_changed;
-
-  if (priv->absolute_origin_changed || x2_changed || y2_changed)
-    absolute_geometry_changed (self);
-
   if (x1_changed ||
       y1_changed ||
       x2_changed ||
@@ -2621,6 +2615,7 @@ clutter_actor_set_allocation_internal (ClutterActor           *self,
       CLUTTER_NOTE (LAYOUT, "Allocation for '%s' changed",
                     _clutter_actor_get_debug_name (self));
 
+      /* This will also call absolute_geometry_changed() on the subtree */
       transform_changed (self);
 
       g_object_notify_by_pspec (obj, obj_props[PROP_ALLOCATION]);
@@ -9554,25 +9549,10 @@ clutter_actor_allocate (ClutterActor          *self,
 
   priv = self->priv;
 
-  priv->absolute_origin_changed = priv->parent
-                                ? priv->parent->priv->absolute_origin_changed
-                                : FALSE;
-
   if (!CLUTTER_ACTOR_IS_TOPLEVEL (self) &&
       !CLUTTER_ACTOR_IS_MAPPED (self) &&
       !clutter_actor_has_mapped_clones (self))
-    {
-      if (priv->absolute_origin_changed)
-        {
-          _clutter_actor_traverse (self,
-                                   CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
-                                   absolute_geometry_changed_cb,
-                                   NULL,
-                                   NULL);
-        }
-
-      goto out;
-    }
+    return;
 
   old_allocation = priv->allocation;
   real_allocation = *box;
@@ -9615,22 +9595,12 @@ clutter_actor_allocate (ClutterActor          *self,
    * queue_relayout() and needs a new allocation.
    *
    * In case needs_allocation isn't set and we didn't move nor resize, we
-   * can safely stop allocating, but we need to notify the sub-tree in case
-   * our absolute origin changed.
+   * can safely stop allocating.
    */
   if (!priv->needs_allocation && !origin_changed && !size_changed)
     {
-      if (priv->absolute_origin_changed)
-        {
-          _clutter_actor_traverse (self,
-                                   CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
-                                   absolute_geometry_changed_cb,
-                                   NULL,
-                                   NULL);
-        }
-
       CLUTTER_NOTE (LAYOUT, "No allocation needed");
-      goto out;
+      return;
     }
 
   if (CLUTTER_ACTOR_IS_MAPPED (self))
@@ -9641,16 +9611,13 @@ clutter_actor_allocate (ClutterActor          *self,
       /* If the actor didn't move but needs_allocation is set, we just
        * need to allocate the children (see comment above) */
       clutter_actor_allocate_internal (self, &real_allocation);
-      goto out;
+      return;
     }
 
   if (_clutter_actor_create_transition (self, obj_props[PROP_ALLOCATION],
                                         &priv->allocation,
                                         &real_allocation))
     clutter_actor_allocate_internal (self, &priv->allocation);
-
-out:
-  priv->absolute_origin_changed = FALSE;
 }
 
 /**
