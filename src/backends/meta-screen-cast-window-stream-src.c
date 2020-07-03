@@ -327,8 +327,10 @@ screen_cast_window_damaged (MetaWindowActor               *actor,
                             MetaScreenCastWindowStreamSrc *window_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
+  MetaScreenCastRecordFlag flags;
 
-  meta_screen_cast_stream_src_maybe_record_frame (src);
+  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
 static void
@@ -365,6 +367,7 @@ static void
 sync_cursor_state (MetaScreenCastWindowStreamSrc *window_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
+  MetaScreenCastRecordFlag flags;
 
   if (!is_cursor_in_stream (window_src))
     return;
@@ -372,7 +375,8 @@ sync_cursor_state (MetaScreenCastWindowStreamSrc *window_src)
   if (meta_screen_cast_window_has_damage (window_src->screen_cast_window))
     return;
 
-  meta_screen_cast_stream_src_maybe_record_frame (src);
+  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
 static void
@@ -401,6 +405,7 @@ meta_screen_cast_window_stream_src_enable (MetaScreenCastStreamSrc *src)
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
   MetaWindowActor *window_actor;
   MetaScreenCastStream *stream;
+  MetaScreenCastRecordFlag flags;
 
   window_actor = meta_window_actor_from_window (get_window (window_src));
   if (!window_actor)
@@ -438,7 +443,8 @@ meta_screen_cast_window_stream_src_enable (MetaScreenCastStreamSrc *src)
       break;
     }
 
-  meta_screen_cast_stream_src_maybe_record_frame (src);
+  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
 static void

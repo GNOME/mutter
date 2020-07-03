@@ -437,7 +437,8 @@ do_record_frame (MetaScreenCastStreamSrc *src,
 }
 
 void
-meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src)
+meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
+                                                MetaScreenCastRecordFlag  flags)
 {
   MetaScreenCastStreamSrcPrivate *priv =
     meta_screen_cast_stream_src_get_instance_private (src);

@@ -37,6 +37,11 @@
 
 typedef struct _MetaScreenCastStream MetaScreenCastStream;
 
+typedef enum _MetaScreenCastRecordFlag
+{
+  META_SCREEN_CAST_RECORD_FLAG_NONE = 0,
+} MetaScreenCastRecordFlag;
+
 #define META_TYPE_SCREEN_CAST_STREAM_SRC (meta_screen_cast_stream_src_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaScreenCastStreamSrc,
                           meta_screen_cast_stream_src,
@@ -63,7 +68,8 @@ struct _MetaScreenCastStreamSrcClass
                                 struct spa_meta_cursor  *spa_meta_cursor);
 };
 
-void meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc *src);
+void meta_screen_cast_stream_src_maybe_record_frame (MetaScreenCastStreamSrc  *src,
+                                                     MetaScreenCastRecordFlag  flags);
 
 MetaScreenCastStream * meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src);
 
