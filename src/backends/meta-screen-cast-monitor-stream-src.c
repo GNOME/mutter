@@ -212,7 +212,7 @@ sync_cursor_state (MetaScreenCastMonitorStreamSrc *monitor_src)
   if (is_redraw_queued (monitor_src))
     return;
 
-  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
   meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
@@ -395,9 +395,6 @@ meta_screen_cast_monitor_stream_src_record_to_buffer (MetaScreenCastStreamSrc *s
   ClutterStage *stage;
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
-
-  if (!is_redraw_queued (monitor_src))
-    return FALSE;
 
   monitor = get_monitor (monitor_src);
   logical_monitor = meta_monitor_get_logical_monitor (monitor);

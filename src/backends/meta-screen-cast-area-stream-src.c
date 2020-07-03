@@ -178,7 +178,7 @@ sync_cursor_state (MetaScreenCastAreaStreamSrc *area_src)
   if (is_redraw_queued (area_src))
     return;
 
-  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+  flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
   meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
