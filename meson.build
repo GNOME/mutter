@@ -1,6 +1,6 @@
 project('mutter', 'c',
   version: '3.37.3',
-  meson_version: '>= 0.50.0',
+  meson_version: '>= 0.51.0',
   license: 'GPLv2+'
 )
 
@@ -53,7 +53,7 @@ gbm_req = '>= 10.3'
 libpipewire_req = '>= 0.3.0'
 
 # profiler requirements
-sysprof_req = '>= 3.35.2'
+sysprof_req = '>= 3.37.2'
 
 gnome = import('gnome')
 pkg = import('pkgconfig')
@@ -279,7 +279,20 @@ endif
 
 have_profiler = get_option('profiler')
 if have_profiler
-  sysprof_dep = dependency('sysprof-capture-3', version: sysprof_req)
+  # libsysprof-capture support
+  sysprof_dep = dependency('sysprof-capture-4',
+    required: true,
+    default_options: [
+      'enable_examples=false',
+      'enable_gtk=false',
+      'enable_tests=false',
+      'enable_tools=false',
+      'libsysprof=false',
+      'with_sysprofd=none',
+      'help=false',
+    ],
+    fallback: ['sysprof', 'libsysprof_capture_dep'],
+  )
 endif
 
 required_functions = [

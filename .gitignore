@@ -103,3 +103,4 @@ doc/reference/meta.types
 .dirstamp
 **/tags.*
 build/
+subprojects/sysprof/
