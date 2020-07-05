@@ -60,6 +60,30 @@
  * #ClutterOffscreenEffectClass.create_texture() virtual function; no chain up
  * to the #ClutterOffscreenEffect implementation is required in this
  * case.
+ *
+ * ## Paint nodes
+ *
+ * #ClutterOffscreenEffect generates the following paint node tree:
+ *
+ * |[<!-- language="plain" -->
+ * Effect
+ *  ├─────────┐
+ * Layer   Pipeline
+ *  │
+ * Actor
+ * ]|
+ *
+ * When the actor contents are cached, the generated paint node tree
+ * looks like this:
+ *
+ * |[<!-- language="plain" -->
+ * Effect
+ *  │
+ * Pipeline
+ * ]|
+ *
+ * In both cases, the "Pipeline" node is created with the return value
+ * of #ClutterOffscreenEffectClass.create_pipeline().
  */
 
 #include "clutter-build-config.h"
