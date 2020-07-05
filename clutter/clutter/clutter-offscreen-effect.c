@@ -597,28 +597,28 @@ clutter_offscreen_effect_get_texture (ClutterOffscreenEffect *effect)
 }
 
 /**
- * clutter_offscreen_effect_get_target: (skip)
+ * clutter_offscreen_effect_get_pipeline:
  * @effect: a #ClutterOffscreenEffect
  *
- * Retrieves the material used as a render target for the offscreen
+ * Retrieves the pipeline used as a render target for the offscreen
  * buffer created by @effect
  *
- * You should only use the returned #CoglMaterial when painting. The
- * returned material might change between different frames.
+ * You should only use the returned #CoglPipeline when painting. The
+ * returned pipeline might change between different frames.
  *
- * Return value: (transfer none): a #CoglMaterial or %NULL. The
- *   returned material is owned by Clutter and it should not be
- *   modified or freed
+ * Return value: (transfer none)(nullable): a #CoglPipeline. The
+ *   pipeline is owned by Clutter and it should not be modified
+ *   or freed
  *
  * Since: 1.4
  */
-CoglMaterial *
-clutter_offscreen_effect_get_target (ClutterOffscreenEffect *effect)
+CoglPipeline *
+clutter_offscreen_effect_get_pipeline (ClutterOffscreenEffect *effect)
 {
   g_return_val_if_fail (CLUTTER_IS_OFFSCREEN_EFFECT (effect),
                         NULL);
 
-  return (CoglMaterial *)effect->priv->pipeline;
+  return effect->priv->pipeline;
 }
 
 /**

@@ -96,7 +96,7 @@ CLUTTER_EXPORT
 GType clutter_offscreen_effect_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
-CoglMaterial *  clutter_offscreen_effect_get_target             (ClutterOffscreenEffect *effect);
+CoglPipeline *  clutter_offscreen_effect_get_pipeline           (ClutterOffscreenEffect *effect);
 
 CLUTTER_EXPORT
 CoglHandle      clutter_offscreen_effect_get_texture            (ClutterOffscreenEffect *effect);

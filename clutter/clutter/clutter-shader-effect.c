@@ -389,7 +389,7 @@ clutter_shader_effect_paint_target (ClutterOffscreenEffect *effect,
   ClutterShaderEffect *self = CLUTTER_SHADER_EFFECT (effect);
   ClutterShaderEffectPrivate *priv = self->priv;
   ClutterOffscreenEffectClass *parent;
-  CoglHandle material;
+  CoglPipeline *pipeline;
 
   /* If the source hasn't been set then we'll try to get it from the
      static source instead */
@@ -407,9 +407,9 @@ clutter_shader_effect_paint_target (ClutterOffscreenEffect *effect,
 
   clutter_shader_effect_update_uniforms (CLUTTER_SHADER_EFFECT (effect));
 
-  /* associate the program to the offscreen target material */
-  material = clutter_offscreen_effect_get_target (effect);
-  cogl_pipeline_set_user_program (material, priv->program);
+  /* associate the program to the offscreen target pipeline */
+  pipeline = clutter_offscreen_effect_get_pipeline (effect);
+  cogl_pipeline_set_user_program (pipeline, priv->program);
 
 out:
   /* paint the offscreen buffer */
