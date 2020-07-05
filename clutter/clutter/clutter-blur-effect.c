@@ -81,9 +81,6 @@ struct _ClutterBlurEffect
 
   gint pixel_step_uniform;
 
-  gint tex_width;
-  gint tex_height;
-
   CoglPipeline *pipeline;
 };
 
@@ -98,19 +95,40 @@ G_DEFINE_TYPE (ClutterBlurEffect,
                clutter_blur_effect,
                CLUTTER_TYPE_OFFSCREEN_EFFECT);
 
+static CoglPipeline *
+clutter_blur_effect_create_pipeline (ClutterOffscreenEffect *effect,
+                                     CoglTexture            *texture)
+{
+  ClutterBlurEffect *blur_effect = CLUTTER_BLUR_EFFECT (effect);
+
+  if (blur_effect->pixel_step_uniform > -1)
+    {
+      float pixel_step[2];
+      int tex_width, tex_height;
+
+      tex_width = cogl_texture_get_width (texture);
+      tex_height = cogl_texture_get_height (texture);
+
+      pixel_step[0] = 1.0f / tex_width;
+      pixel_step[1] = 1.0f / tex_height;
+
+      cogl_pipeline_set_uniform_float (blur_effect->pipeline,
+                                       blur_effect->pixel_step_uniform,
+                                       2, /* n_components */
+                                       1, /* count */
+                                       pixel_step);
+    }
+
+  cogl_pipeline_set_layer_texture (blur_effect->pipeline, 0, texture);
+
+  return cogl_object_ref (blur_effect->pipeline);
+}
+
 static gboolean
 clutter_blur_effect_pre_paint (ClutterEffect       *effect,
                                ClutterPaintContext *paint_context)
 {
-  ClutterBlurEffect *self = CLUTTER_BLUR_EFFECT (effect);
   ClutterEffectClass *parent_class;
-
-  if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (effect)))
-    return FALSE;
-
-  self->actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (effect));
-  if (self->actor == NULL)
-    return FALSE;
 
   if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
     {
@@ -125,59 +143,7 @@ clutter_blur_effect_pre_paint (ClutterEffect       *effect,
     }
 
   parent_class = CLUTTER_EFFECT_CLASS (clutter_blur_effect_parent_class);
-  if (parent_class->pre_paint (effect, paint_context))
-    {
-      ClutterOffscreenEffect *offscreen_effect =
-        CLUTTER_OFFSCREEN_EFFECT (effect);
-      CoglHandle texture;
-
-      texture = clutter_offscreen_effect_get_texture (offscreen_effect);
-      self->tex_width = cogl_texture_get_width (texture);
-      self->tex_height = cogl_texture_get_height (texture);
-
-      if (self->pixel_step_uniform > -1)
-        {
-          gfloat pixel_step[2];
-
-          pixel_step[0] = 1.0f / self->tex_width;
-          pixel_step[1] = 1.0f / self->tex_height;
-
-          cogl_pipeline_set_uniform_float (self->pipeline,
-                                           self->pixel_step_uniform,
-                                           2, /* n_components */
-                                           1, /* count */
-                                           pixel_step);
-        }
-
-      cogl_pipeline_set_layer_texture (self->pipeline, 0, texture);
-
-      return TRUE;
-    }
-  else
-    return FALSE;
-}
-
-static void
-clutter_blur_effect_paint_target (ClutterOffscreenEffect *effect,
-                                  ClutterPaintContext    *paint_context)
-{
-  ClutterBlurEffect *self = CLUTTER_BLUR_EFFECT (effect);
-  CoglFramebuffer *framebuffer =
-    clutter_paint_context_get_framebuffer (paint_context);
-  guint8 paint_opacity;
-
-  paint_opacity = clutter_actor_get_paint_opacity (self->actor);
-
-  cogl_pipeline_set_color4ub (self->pipeline,
-                              paint_opacity,
-                              paint_opacity,
-                              paint_opacity,
-                              paint_opacity);
-
-  cogl_framebuffer_draw_rectangle (framebuffer,
-                                   self->pipeline,
-                                   0, 0,
-                                   self->tex_width, self->tex_height);
+  return parent_class->pre_paint (effect, paint_context);
 }
 
 static gboolean
@@ -229,7 +195,7 @@ clutter_blur_effect_class_init (ClutterBlurEffectClass *klass)
   effect_class->modify_paint_volume = clutter_blur_effect_modify_paint_volume;
 
   offscreen_class = CLUTTER_OFFSCREEN_EFFECT_CLASS (klass);
-  offscreen_class->paint_target = clutter_blur_effect_paint_target;
+  offscreen_class->create_pipeline = clutter_blur_effect_create_pipeline;
 }
 
 static void
