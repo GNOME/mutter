@@ -87,8 +87,6 @@ struct _ClutterOffscreenEffectPrivate
   ClutterActor *actor;
   ClutterActor *stage;
 
-  graphene_point3d_t position;
-
   int fbo_offset_x;
   int fbo_offset_y;
 
@@ -258,18 +256,13 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   ClutterOffscreenEffectPrivate *priv = self->priv;
   ClutterActorBox raw_box, box;
   ClutterActor *stage;
-  graphene_matrix_t projection, old_modelview, modelview;
+  graphene_matrix_t projection, modelview;
   const ClutterPaintVolume *volume;
   CoglColor transparent;
   gfloat stage_width, stage_height;
   gfloat target_width = -1, target_height = -1;
-  CoglFramebuffer *framebuffer;
   float resource_scale;
   float ceiled_resource_scale;
-  graphene_point3d_t local_offset;
-  gfloat old_viewport[4];
-
-  local_offset = GRAPHENE_POINT3D_INIT (0.0f, 0.0f, 0.0f);
 
   if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (effect)))
     goto disable_effect;
@@ -322,9 +315,6 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   if (!update_fbo (effect, target_width, target_height, resource_scale))
     goto disable_effect;
 
-  framebuffer = clutter_paint_context_get_framebuffer (paint_context);
-  cogl_framebuffer_get_modelview_matrix (framebuffer, &old_modelview);
-
   clutter_paint_context_push_framebuffer (paint_context, priv->offscreen);
 
   /* We don't want the FBO contents to be transformed. That could waste memory
@@ -336,13 +326,6 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
    */
   clutter_actor_get_transform (priv->stage, &modelview);
   cogl_framebuffer_set_modelview_matrix (priv->offscreen, &modelview);
-
-  /* Save the original viewport for calculating priv->position */
-  _clutter_stage_get_viewport (CLUTTER_STAGE (priv->stage),
-                               &old_viewport[0],
-                               &old_viewport[1],
-                               &old_viewport[2],
-                               &old_viewport[3]);
 
   /* Set up the viewport so that it has the same size as the stage (avoid
    * distortion), but translated to account for the FBO offset...
@@ -356,17 +339,6 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   /* Copy the stage's projection matrix across to the framebuffer */
   _clutter_stage_get_projection_matrix (CLUTTER_STAGE (priv->stage),
                                         &projection);
-
-  /* Now save the global position of the effect (not just of the actor).
-   * It doesn't appear anyone actually uses this yet, but get_target_rect is
-   * documented as returning it. So we should...
-   */
-  _clutter_util_fully_transform_vertices (&old_modelview,
-                                          &projection,
-                                          old_viewport,
-                                          &local_offset,
-                                          &priv->position,
-                                          1);
 
   cogl_framebuffer_set_projection_matrix (priv->offscreen, &projection);
 
@@ -704,46 +676,6 @@ clutter_offscreen_effect_get_target_size (ClutterOffscreenEffect *effect,
 
   if (height)
     *height = cogl_texture_get_height (priv->texture);
-
-  return TRUE;
-}
-
-/**
- * clutter_offscreen_effect_get_target_rect:
- * @effect: a #ClutterOffscreenEffect
- * @rect: (out caller-allocates): return location for the target area
- *
- * Retrieves the origin and size of the offscreen buffer used by @effect to
- * paint the actor to which it has been applied.
- *
- * This function should only be called by #ClutterOffscreenEffect
- * implementations, from within the #ClutterOffscreenEffectClass.paint_target()
- * virtual function.
- *
- * Return value: %TRUE if the offscreen buffer has a valid rectangle,
- *   and %FALSE otherwise
- *
- * Since: 1.14
- */
-gboolean
-clutter_offscreen_effect_get_target_rect (ClutterOffscreenEffect *effect,
-                                          graphene_rect_t        *rect)
-{
-  ClutterOffscreenEffectPrivate *priv;
-
-  g_return_val_if_fail (CLUTTER_IS_OFFSCREEN_EFFECT (effect), FALSE);
-  g_return_val_if_fail (rect != NULL, FALSE);
-
-  priv = effect->priv;
-
-  if (priv->texture == NULL)
-    return FALSE;
-
-  graphene_rect_init (rect,
-                      priv->position.x,
-                      priv->position.y,
-                      cogl_texture_get_width (priv->texture),
-                      cogl_texture_get_height (priv->texture));
 
   return TRUE;
 }
