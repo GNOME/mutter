@@ -69,9 +69,6 @@ struct _ClutterBrightnessContrastEffect
   gint brightness_offset_uniform;
   gint contrast_uniform;
 
-  gint tex_width;
-  gint tex_height;
-
   CoglPipeline *pipeline;
 };
 
@@ -129,15 +126,24 @@ will_have_no_effect (ClutterBrightnessContrastEffect *self)
           G_APPROX_VALUE (self->contrast_blue, no_change, FLT_EPSILON));
 }
 
+static CoglPipeline *
+clutter_brightness_contrast_effect_create_pipeline (ClutterOffscreenEffect *effect,
+                                                    CoglTexture            *texture)
+{
+  ClutterBrightnessContrastEffect *self =
+    CLUTTER_BRIGHTNESS_CONTRAST_EFFECT (effect);
+
+  cogl_pipeline_set_layer_texture (self->pipeline, 0, texture);
+
+  return cogl_object_ref (self->pipeline);
+}
+
 static gboolean
 clutter_brightness_contrast_effect_pre_paint (ClutterEffect       *effect,
                                               ClutterPaintContext *paint_context)
 {
   ClutterBrightnessContrastEffect *self = CLUTTER_BRIGHTNESS_CONTRAST_EFFECT (effect);
   ClutterEffectClass *parent_class;
-
-  if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (effect)))
-    return FALSE;
 
   if (will_have_no_effect (self))
     return FALSE;
@@ -157,47 +163,8 @@ clutter_brightness_contrast_effect_pre_paint (ClutterEffect       *effect,
 
   parent_class =
     CLUTTER_EFFECT_CLASS (clutter_brightness_contrast_effect_parent_class);
-  if (parent_class->pre_paint (effect, paint_context))
-    {
-      ClutterOffscreenEffect *offscreen_effect =
-        CLUTTER_OFFSCREEN_EFFECT (effect);
-      CoglHandle texture;
 
-      texture = clutter_offscreen_effect_get_texture (offscreen_effect);
-      self->tex_width = cogl_texture_get_width (texture);
-      self->tex_height = cogl_texture_get_height (texture);
-
-      cogl_pipeline_set_layer_texture (self->pipeline, 0, texture);
-
-      return TRUE;
-    }
-  else
-    return FALSE;
-}
-
-static void
-clutter_brightness_contrast_effect_paint_target (ClutterOffscreenEffect *effect,
-                                                 ClutterPaintContext    *paint_context)
-{
-  ClutterBrightnessContrastEffect *self = CLUTTER_BRIGHTNESS_CONTRAST_EFFECT (effect);
-  CoglFramebuffer *framebuffer =
-   clutter_paint_context_get_framebuffer (paint_context);
-  ClutterActor *actor;
-  guint8 paint_opacity;
-
-  actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (effect));
-  paint_opacity = clutter_actor_get_paint_opacity (actor);
-
-  cogl_pipeline_set_color4ub (self->pipeline,
-                              paint_opacity,
-                              paint_opacity,
-                              paint_opacity,
-                              paint_opacity);
-
-  cogl_framebuffer_draw_rectangle (framebuffer,
-                                   self->pipeline,
-                                   0, 0,
-                                   self->tex_width, self->tex_height);
+  return parent_class->pre_paint (effect, paint_context);
 }
 
 static void
@@ -297,7 +264,7 @@ clutter_brightness_contrast_effect_class_init (ClutterBrightnessContrastEffectCl
   ClutterOffscreenEffectClass *offscreen_class;
 
   offscreen_class = CLUTTER_OFFSCREEN_EFFECT_CLASS (klass);
-  offscreen_class->paint_target = clutter_brightness_contrast_effect_paint_target;
+  offscreen_class->create_pipeline = clutter_brightness_contrast_effect_create_pipeline;
 
   effect_class->pre_paint = clutter_brightness_contrast_effect_pre_paint;
 
