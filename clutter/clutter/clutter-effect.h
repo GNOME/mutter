@@ -77,14 +77,17 @@ struct _ClutterEffectClass
 
   /*< public >*/
   gboolean (* pre_paint)           (ClutterEffect           *effect,
+                                    ClutterPaintNode        *node,
                                     ClutterPaintContext     *paint_context);
   void     (* post_paint)          (ClutterEffect           *effect,
+                                    ClutterPaintNode        *node,
                                     ClutterPaintContext     *paint_context);
 
   gboolean (* modify_paint_volume) (ClutterEffect           *effect,
                                     ClutterPaintVolume      *volume);
 
   void     (* paint)               (ClutterEffect           *effect,
+                                    ClutterPaintNode        *node,
                                     ClutterPaintContext     *paint_context,
                                     ClutterEffectPaintFlags  flags);
   void     (* paint_node)          (ClutterEffect           *effect,

@@ -180,6 +180,7 @@ G_DEFINE_ABSTRACT_TYPE (ClutterEffect,
 
 static gboolean
 clutter_effect_real_pre_paint (ClutterEffect       *effect,
+                               ClutterPaintNode    *node,
                                ClutterPaintContext *paint_context)
 {
   return TRUE;
@@ -187,6 +188,7 @@ clutter_effect_real_pre_paint (ClutterEffect       *effect,
 
 static void
 clutter_effect_real_post_paint (ClutterEffect       *effect,
+                                ClutterPaintNode    *node,
                                 ClutterPaintContext *paint_context)
 {
 }
@@ -216,28 +218,23 @@ clutter_effect_real_paint_node (ClutterEffect           *effect,
 
 static void
 clutter_effect_real_paint (ClutterEffect           *effect,
+                           ClutterPaintNode        *node,
                            ClutterPaintContext     *paint_context,
                            ClutterEffectPaintFlags  flags)
 {
   ClutterEffectClass *effect_class = CLUTTER_EFFECT_GET_CLASS (effect);
-  ClutterPaintNode *node;
   gboolean pre_paint_succeeded;
 
   /* The default implementation provides a compatibility wrapper for
      effects that haven't migrated to use the 'paint' virtual yet. This
      just calls the old pre and post virtuals before chaining on */
 
-  pre_paint_succeeded = effect_class->pre_paint (effect, paint_context);
-
-  node = clutter_effect_node_new (effect);
+  pre_paint_succeeded = effect_class->pre_paint (effect, node,paint_context);
 
   effect_class->paint_node (effect, node, paint_context, flags);
-  clutter_paint_node_paint (node, paint_context);
 
   if (pre_paint_succeeded)
-    effect_class->post_paint (effect, paint_context);
-
-  clutter_paint_node_unref (node);
+    effect_class->post_paint (effect, node, paint_context);
 }
 
 static void
@@ -291,9 +288,19 @@ _clutter_effect_paint (ClutterEffect           *effect,
                        ClutterPaintContext     *paint_context,
                        ClutterEffectPaintFlags  flags)
 {
+  ClutterPaintNode *node;
+
   g_return_if_fail (CLUTTER_IS_EFFECT (effect));
 
-  CLUTTER_EFFECT_GET_CLASS (effect)->paint (effect, paint_context, flags);
+  node = clutter_effect_node_new (effect);
+
+  CLUTTER_EFFECT_GET_CLASS (effect)->paint (effect,
+                                            node,
+                                            paint_context,
+                                            flags);
+
+  clutter_paint_node_paint (node, paint_context);
+  clutter_paint_node_unref (node);
 }
 
 void

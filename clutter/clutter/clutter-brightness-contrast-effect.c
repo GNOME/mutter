@@ -140,6 +140,7 @@ clutter_brightness_contrast_effect_create_pipeline (ClutterOffscreenEffect *effe
 
 static gboolean
 clutter_brightness_contrast_effect_pre_paint (ClutterEffect       *effect,
+                                              ClutterPaintNode    *node,
                                               ClutterPaintContext *paint_context)
 {
   ClutterBrightnessContrastEffect *self = CLUTTER_BRIGHTNESS_CONTRAST_EFFECT (effect);
@@ -164,7 +165,7 @@ clutter_brightness_contrast_effect_pre_paint (ClutterEffect       *effect,
   parent_class =
     CLUTTER_EFFECT_CLASS (clutter_brightness_contrast_effect_parent_class);
 
-  return parent_class->pre_paint (effect, paint_context);
+  return parent_class->pre_paint (effect, node, paint_context);
 }
 
 static void

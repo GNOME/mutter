@@ -99,8 +99,6 @@ struct _ClutterOffscreenEffectPrivate
   int target_width;
   int target_height;
 
-  gint old_opacity_override;
-
   gulong purge_handler_id;
 };
 
@@ -270,6 +268,7 @@ update_fbo (ClutterEffect *effect,
 
 static gboolean
 clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
+                                    ClutterPaintNode    *node,
                                     ClutterPaintContext *paint_context)
 {
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
@@ -279,7 +278,6 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   ClutterActor *stage;
   graphene_matrix_t projection, modelview;
   const ClutterPaintVolume *volume;
-  CoglColor transparent;
   gfloat stage_width, stage_height;
   gfloat target_width = -1, target_height = -1;
   float resource_scale;
@@ -336,7 +334,6 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
     goto disable_effect;
 
   offscreen = COGL_FRAMEBUFFER (priv->offscreen);
-  clutter_paint_context_push_framebuffer (paint_context, offscreen);
 
   /* We don't want the FBO contents to be transformed. That could waste memory
    * (e.g. during zoom), or result in something that's not rectangular (clipped
@@ -362,22 +359,6 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
                                         &projection);
 
   cogl_framebuffer_set_projection_matrix (offscreen, &projection);
-
-  cogl_color_init_from_4ub (&transparent, 0, 0, 0, 0);
-  cogl_framebuffer_clear (offscreen,
-                          COGL_BUFFER_BIT_COLOR |
-                          COGL_BUFFER_BIT_DEPTH,
-                          &transparent);
-
-  cogl_framebuffer_push_matrix (offscreen);
-
-  /* Override the actor's opacity to fully opaque - we paint the offscreen
-   * texture with the actor's paint opacity, so we need to do this to avoid
-   * multiplying the opacity twice.
-   */
-  priv->old_opacity_override =
-    clutter_actor_get_opacity_override (priv->actor);
-  clutter_actor_set_opacity_override (priv->actor, 0xff);
 
   return TRUE;
 
@@ -425,63 +406,57 @@ clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect,
 
 static void
 clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect,
+                                        ClutterPaintNode       *node,
                                         ClutterPaintContext    *paint_context)
 {
   ClutterOffscreenEffectPrivate *priv = effect->priv;
-  CoglFramebuffer *framebuffer =
-    clutter_paint_context_get_framebuffer (paint_context);
+  graphene_matrix_t transform;
   float resource_scale;
 
-  cogl_framebuffer_push_matrix (framebuffer);
+  graphene_matrix_init_translate (&transform,
+                                  &GRAPHENE_POINT3D_INIT (priv->fbo_offset_x,
+                                                          priv->fbo_offset_y,
+                                                          0.0f));
 
-  /* The current modelview matrix is *almost* perfect already. It's only
-   * missing a correction for the expanded FBO and offset rendering within...
-   */
   resource_scale = clutter_actor_get_resource_scale (priv->actor);
-
   if (resource_scale != 1.0f)
     {
       float paint_scale = 1.0f / resource_scale;
-      cogl_framebuffer_scale (framebuffer, paint_scale, paint_scale, 1.f);
+      graphene_matrix_scale (&transform, paint_scale, paint_scale, 1.f);
     }
 
-  cogl_framebuffer_translate (framebuffer,
-                              priv->fbo_offset_x,
-                              priv->fbo_offset_y,
-                              0.0f);
+  if (!graphene_matrix_is_identity (&transform))
+    {
+      ClutterPaintNode *transform_node;
+
+      transform_node = clutter_transform_node_new (&transform);
+      clutter_paint_node_set_static_name (transform_node,
+                                          "ClutterOffscreenEffect (transform)");
+      clutter_paint_node_add_child (node, transform_node);
+      clutter_paint_node_unref (transform_node);
+
+      node = transform_node;
+    }
 
   /* paint the target material; this is virtualized for
    * sub-classes that require special hand-holding
    */
-  clutter_offscreen_effect_paint_target (effect, paint_context);
-
-  cogl_framebuffer_pop_matrix (framebuffer);
+  clutter_offscreen_effect_paint_target (effect, node, paint_context);
 }
 
 static void
 clutter_offscreen_effect_post_paint (ClutterEffect       *effect,
+                                     ClutterPaintNode    *node,
                                      ClutterPaintContext *paint_context)
 {
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
   ClutterOffscreenEffectPrivate *priv = self->priv;
-  CoglFramebuffer *framebuffer;
 
   g_warn_if_fail (priv->offscreen);
   g_warn_if_fail (priv->pipeline);
   g_warn_if_fail (priv->actor);
 
-  /* Restore the previous opacity override */
-  if (priv->actor)
-    {
-      clutter_actor_set_opacity_override (priv->actor,
-                                          priv->old_opacity_override);
-    }
-
-  framebuffer = clutter_paint_context_get_framebuffer (paint_context);
-  cogl_framebuffer_pop_matrix (framebuffer);
-  clutter_paint_context_pop_framebuffer (paint_context);
-
-  clutter_offscreen_effect_paint_texture (self, paint_context);
+  clutter_offscreen_effect_paint_texture (self, node, paint_context);
 }
 
 static void
@@ -520,15 +495,18 @@ clutter_offscreen_effect_paint_node (ClutterEffect           *effect,
 
 static void
 clutter_offscreen_effect_paint (ClutterEffect           *effect,
+                                ClutterPaintNode        *node,
                                 ClutterPaintContext     *paint_context,
                                 ClutterEffectPaintFlags  flags)
 {
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
   ClutterOffscreenEffectPrivate *priv = self->priv;
+  ClutterEffectClass *parent_class =
+    CLUTTER_EFFECT_CLASS (clutter_offscreen_effect_parent_class);
 
   if (flags & CLUTTER_EFFECT_PAINT_BYPASS_EFFECT)
     {
-      clutter_actor_continue_paint (priv->actor, paint_context);
+      add_actor_node (self, node, -1);
       g_clear_object (&priv->offscreen);
       return;
     }
@@ -537,14 +515,9 @@ clutter_offscreen_effect_paint (ClutterEffect           *effect,
    * then we can just use the cached image in the FBO.
    */
   if (priv->offscreen == NULL || (flags & CLUTTER_EFFECT_PAINT_ACTOR_DIRTY))
-    {
-      ClutterEffectClass *parent_class =
-        CLUTTER_EFFECT_CLASS (clutter_offscreen_effect_parent_class);
-
-      parent_class->paint (effect, paint_context, flags);
-    }
+    parent_class->paint (effect, node, paint_context, flags);
   else
-    clutter_offscreen_effect_paint_texture (self, paint_context);
+    clutter_offscreen_effect_paint_texture (self, node, paint_context);
 }
 
 static void
@@ -659,6 +632,7 @@ clutter_offscreen_effect_get_pipeline (ClutterOffscreenEffect *effect)
 /**
  * clutter_offscreen_effect_paint_target:
  * @effect: a #ClutterOffscreenEffect
+ * @node: a #ClutterPaintNode
  * @paint_context: a #ClutterPaintContext
  *
  * Calls the paint_target() virtual function of the @effect
@@ -667,19 +641,14 @@ clutter_offscreen_effect_get_pipeline (ClutterOffscreenEffect *effect)
  */
 void
 clutter_offscreen_effect_paint_target (ClutterOffscreenEffect *effect,
+                                       ClutterPaintNode       *node,
                                        ClutterPaintContext    *paint_context)
 {
-  ClutterPaintNode *node;
-
   g_return_if_fail (CLUTTER_IS_OFFSCREEN_EFFECT (effect));
-
-  node = clutter_effect_node_new (CLUTTER_EFFECT (effect));
 
   CLUTTER_OFFSCREEN_EFFECT_GET_CLASS (effect)->paint_target (effect,
                                                              node,
                                                              paint_context);
-  clutter_paint_node_paint (node, paint_context);
-  clutter_paint_node_unref (node);
 }
 
 /**

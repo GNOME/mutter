@@ -125,6 +125,7 @@ clutter_desaturate_effect_create_pipeline (ClutterOffscreenEffect *effect,
 
 static gboolean
 clutter_desaturate_effect_pre_paint (ClutterEffect       *effect,
+                                     ClutterPaintNode    *node,
                                      ClutterPaintContext *paint_context)
 {
   ClutterEffectClass *parent_class;
@@ -142,7 +143,7 @@ clutter_desaturate_effect_pre_paint (ClutterEffect       *effect,
     }
 
   parent_class = CLUTTER_EFFECT_CLASS (clutter_desaturate_effect_parent_class);
-  return parent_class->pre_paint (effect, paint_context);
+  return parent_class->pre_paint (effect, node, paint_context);
 }
 
 static void
