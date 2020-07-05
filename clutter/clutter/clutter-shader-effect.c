@@ -384,6 +384,7 @@ clutter_shader_effect_try_static_source (ClutterShaderEffect *self)
 
 static void
 clutter_shader_effect_paint_target (ClutterOffscreenEffect *effect,
+                                    ClutterPaintNode       *node,
                                     ClutterPaintContext    *paint_context)
 {
   ClutterShaderEffect *self = CLUTTER_SHADER_EFFECT (effect);
@@ -414,7 +415,7 @@ clutter_shader_effect_paint_target (ClutterOffscreenEffect *effect,
 out:
   /* paint the offscreen buffer */
   parent = CLUTTER_OFFSCREEN_EFFECT_CLASS (clutter_shader_effect_parent_class);
-  parent->paint_target (effect, paint_context);
+  parent->paint_target (effect, node, paint_context);
 
 }
 

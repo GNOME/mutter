@@ -82,6 +82,7 @@ struct _ClutterOffscreenEffectClass
   CoglPipeline* (* create_pipeline) (ClutterOffscreenEffect *effect,
                                      CoglTexture            *texture);
   void       (* paint_target)   (ClutterOffscreenEffect *effect,
+                                 ClutterPaintNode       *node,
                                  ClutterPaintContext    *paint_context);
 
   /*< private >*/

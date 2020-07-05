@@ -75,6 +75,8 @@
 #include "clutter-private.h"
 #include "clutter-stage-private.h"
 #include "clutter-paint-context-private.h"
+#include "clutter-paint-node-private.h"
+#include "clutter-paint-nodes.h"
 #include "clutter-paint-volume-private.h"
 #include "clutter-actor-box-private.h"
 
@@ -386,11 +388,11 @@ disable_effect:
 
 static void
 clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect,
+                                            ClutterPaintNode       *node,
                                             ClutterPaintContext    *paint_context)
 {
   ClutterOffscreenEffectPrivate *priv = effect->priv;
-  CoglFramebuffer *framebuffer =
-    clutter_paint_context_get_framebuffer (paint_context);
+  ClutterPaintNode *pipeline_node;
   guint8 paint_opacity;
 
   paint_opacity = clutter_actor_get_paint_opacity (priv->actor);
@@ -401,18 +403,24 @@ clutter_offscreen_effect_real_paint_target (ClutterOffscreenEffect *effect,
                               paint_opacity,
                               paint_opacity);
 
+  pipeline_node = clutter_pipeline_node_new (priv->pipeline);
+  clutter_paint_node_set_static_name (pipeline_node,
+                                      "ClutterOffscreenEffect (pipeline)");
+  clutter_paint_node_add_child (node, pipeline_node);
+
   /* At this point we are in stage coordinates translated so if
    * we draw our texture using a textured quad the size of the paint
    * box then we will overlay where the actor would have drawn if it
    * hadn't been redirected offscreen.
    */
-  cogl_framebuffer_draw_textured_rectangle (framebuffer,
-                                            priv->pipeline,
-                                            0, 0,
-                                            cogl_texture_get_width (priv->texture),
-                                            cogl_texture_get_height (priv->texture),
-                                            0.0, 0.0,
-                                            1.0, 1.0);
+  clutter_paint_node_add_rectangle (pipeline_node,
+                                    &(ClutterActorBox) {
+                                        0.f, 0.f,
+                                        cogl_texture_get_width (priv->texture),
+                                        cogl_texture_get_height (priv->texture),
+                                    });
+
+  clutter_paint_node_unref (pipeline_node);
 }
 
 static void
@@ -626,10 +634,17 @@ void
 clutter_offscreen_effect_paint_target (ClutterOffscreenEffect *effect,
                                        ClutterPaintContext    *paint_context)
 {
+  ClutterPaintNode *node;
+
   g_return_if_fail (CLUTTER_IS_OFFSCREEN_EFFECT (effect));
 
+  node = clutter_effect_node_new (CLUTTER_EFFECT (effect));
+
   CLUTTER_OFFSCREEN_EFFECT_GET_CLASS (effect)->paint_target (effect,
+                                                             node,
                                                              paint_context);
+  clutter_paint_node_paint (node, paint_context);
+  clutter_paint_node_unref (node);
 }
 
 /**
