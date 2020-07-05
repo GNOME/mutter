@@ -414,6 +414,10 @@ struct _ClutterTouchEvent
  * @y: the Y coordinate of the pointer, relative to the stage
  * @dx: movement delta of the pinch focal point in the X axis
  * @dy: movement delta of the pinch focal point in the Y axis
+ * @dx_unaccel: unaccelerated movement delta of the pinch focal
+ *   point in the X axis
+ * @dy_unaccel: unaccelerated movement delta of the pinch focal
+ *   point in the Y axis
  * @angle_delta: angle delta in degrees, clockwise rotations are
  *   represented by positive deltas
  * @scale: the current scale
@@ -441,6 +445,8 @@ struct _ClutterTouchpadPinchEvent
   gfloat y;
   gfloat dx;
   gfloat dy;
+  gfloat dx_unaccel;
+  gfloat dy_unaccel;
   gfloat angle_delta;
   gfloat scale;
   guint n_fingers;
@@ -457,8 +463,12 @@ struct _ClutterTouchpadPinchEvent
  * @n_fingers: the number of fingers triggering the swipe
  * @x: the X coordinate of the pointer, relative to the stage
  * @y: the Y coordinate of the pointer, relative to the stage
- * @dx: movement delta of the pinch focal point in the X axis
- * @dy: movement delta of the pinch focal point in the Y axis
+ * @dx: movement delta of the swipe center point in the X axis
+ * @dy: movement delta of the swipe center point in the Y axis
+ * @dx_unaccel: unaccelerated movement delta of the swipe center
+ *   point in the X axis
+ * @dy_unaccel: unaccelerated movement delta of the swipe center
+ *   point in the Y axis
  *
  * Used for touchpad swipe gesture events. The current state of the
  * gesture will be determined by the @phase field.
@@ -479,6 +489,8 @@ struct _ClutterTouchpadSwipeEvent
   gfloat y;
   gfloat dx;
   gfloat dy;
+  gfloat dx_unaccel;
+  gfloat dy_unaccel;
 };
 
 struct _ClutterPadButtonEvent
@@ -776,6 +788,11 @@ CLUTTER_EXPORT
 void                    clutter_event_get_gesture_motion_delta       (const ClutterEvent     *event,
                                                                       gdouble                *dx,
                                                                       gdouble                *dy);
+
+CLUTTER_EXPORT
+void                    clutter_event_get_gesture_motion_delta_unaccelerated (const ClutterEvent     *event,
+                                                                              gdouble                *dx,
+                                                                              gdouble                *dy);
 
 CLUTTER_EXPORT
 ClutterScrollSource      clutter_event_get_scroll_source             (const ClutterEvent     *event);
