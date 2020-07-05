@@ -209,7 +209,7 @@ clutter_effect_real_paint_node (ClutterEffect           *effect,
 
   actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (effect));
 
-  actor_node = clutter_actor_node_new (actor);
+  actor_node = clutter_actor_node_new (actor, -1);
   clutter_paint_node_add_child (node, actor_node);
   clutter_paint_node_unref (actor_node);
 }

@@ -3669,7 +3669,7 @@ clutter_actor_paint (ClutterActor        *self,
   if (!CLUTTER_ACTOR_IS_MAPPED (self))
     return;
 
-  actor_node = clutter_actor_node_new (self);
+  actor_node = clutter_actor_node_new (self, -1);
   root_node = clutter_paint_node_ref (actor_node);
 
   if (priv->has_clip)

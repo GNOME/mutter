@@ -1115,6 +1115,8 @@ struct _ClutterActorNode
   ClutterPaintNode parent_instance;
 
   ClutterActor *actor;
+  int opacity_override;
+  int saved_opacity_override;
 };
 
 struct _ClutterActorNodeClass
@@ -1129,6 +1131,14 @@ clutter_actor_node_pre_draw (ClutterPaintNode    *node,
                              ClutterPaintContext *paint_context)
 {
   ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
+
+  if (actor_node->opacity_override != -1)
+    {
+      actor_node->saved_opacity_override =
+        clutter_actor_get_opacity_override (actor_node->actor);
+      clutter_actor_set_opacity_override (actor_node->actor,
+                                          actor_node->opacity_override);
+    }
 
   CLUTTER_SET_PRIVATE_FLAGS (actor_node->actor, CLUTTER_IN_PAINT);
 
@@ -1151,6 +1161,12 @@ clutter_actor_node_post_draw (ClutterPaintNode    *node,
   ClutterActorNode *actor_node = CLUTTER_ACTOR_NODE (node);
 
   CLUTTER_UNSET_PRIVATE_FLAGS (actor_node->actor, CLUTTER_IN_PAINT);
+
+ if (actor_node->opacity_override != -1)
+    {
+      clutter_actor_set_opacity_override (actor_node->actor,
+                                          actor_node->saved_opacity_override);
+    }
 }
 
 static JsonNode *
@@ -1192,6 +1208,7 @@ clutter_actor_node_init (ClutterActorNode *self)
 /*
  * clutter_actor_node_new:
  * @actor: the actor to paint
+ * @opacity: opacity to draw the actor with, or -1 to use the actor's opacity
  *
  * Creates a new #ClutterActorNode.
  *
@@ -1203,7 +1220,8 @@ clutter_actor_node_init (ClutterActorNode *self)
  *   Use clutter_paint_node_unref() when done.
  */
 ClutterPaintNode *
-clutter_actor_node_new (ClutterActor *actor)
+clutter_actor_node_new (ClutterActor *actor,
+                        int           opacity)
 {
   ClutterActorNode *res;
 
@@ -1211,6 +1229,7 @@ clutter_actor_node_new (ClutterActor *actor)
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_ACTOR_NODE);
   res->actor = actor;
+  res->opacity_override = CLAMP (opacity, -1, 255);
 
   return (ClutterPaintNode *) res;
 }

@@ -160,7 +160,8 @@ CLUTTER_EXPORT
 GType clutter_actor_node_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
-ClutterPaintNode * clutter_actor_node_new (ClutterActor *actor);
+ClutterPaintNode * clutter_actor_node_new (ClutterActor *actor,
+                                           int           opacity);
 
 #define CLUTTER_TYPE_ROOT_NODE                  (clutter_root_node_get_type ())
 #define CLUTTER_ROOT_NODE(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), CLUTTER_TYPE_ROOT_NODE, ClutterRootNode))
