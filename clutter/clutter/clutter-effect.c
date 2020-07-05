@@ -285,22 +285,16 @@ clutter_effect_init (ClutterEffect *self)
 
 void
 _clutter_effect_paint (ClutterEffect           *effect,
+                       ClutterPaintNode        *node,
                        ClutterPaintContext     *paint_context,
                        ClutterEffectPaintFlags  flags)
 {
-  ClutterPaintNode *node;
-
   g_return_if_fail (CLUTTER_IS_EFFECT (effect));
-
-  node = clutter_effect_node_new (effect);
 
   CLUTTER_EFFECT_GET_CLASS (effect)->paint (effect,
                                             node,
                                             paint_context,
                                             flags);
-
-  clutter_paint_node_paint (node, paint_context);
-  clutter_paint_node_unref (node);
 }
 
 void

@@ -3895,6 +3895,7 @@ clutter_actor_continue_paint (ClutterActor        *self,
     }
   else
     {
+      g_autoptr (ClutterPaintNode) effect_node = NULL;
       ClutterEffect *old_current_effect;
       ClutterEffectPaintFlags run_flags = 0;
 
@@ -3923,7 +3924,14 @@ clutter_actor_continue_paint (ClutterActor        *self,
           run_flags & CLUTTER_EFFECT_PAINT_ACTOR_DIRTY)
         run_flags |= CLUTTER_EFFECT_PAINT_BYPASS_EFFECT;
 
-      _clutter_effect_paint (priv->current_effect, paint_context, run_flags);
+      effect_node = clutter_effect_node_new (priv->current_effect);
+
+      _clutter_effect_paint (priv->current_effect,
+                             effect_node,
+                             paint_context,
+                             run_flags);
+
+      clutter_paint_node_paint (effect_node, paint_context);
 
       priv->current_effect = old_current_effect;
     }
