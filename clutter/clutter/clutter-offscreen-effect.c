@@ -684,8 +684,6 @@ clutter_offscreen_effect_create_texture (ClutterOffscreenEffect *effect,
  *   and %FALSE otherwise
  *
  * Since: 1.8
- *
- * Deprecated: 1.14: Use clutter_offscreen_effect_get_target_rect() instead
  */
 gboolean
 clutter_offscreen_effect_get_target_size (ClutterOffscreenEffect *effect,
