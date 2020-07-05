@@ -158,6 +158,25 @@ ensure_pipeline_filter_for_scale (ClutterOffscreenEffect *self,
                                    filter, filter);
 }
 
+static CoglPipeline *
+clutter_offscreen_effect_real_create_pipeline (ClutterOffscreenEffect *effect,
+                                               CoglTexture            *texture)
+{
+  ClutterOffscreenEffectPrivate *priv = effect->priv;
+  CoglContext *ctx =
+    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+  CoglPipeline *pipeline;
+  float resource_scale;
+
+  resource_scale = clutter_actor_get_real_resource_scale (priv->actor);
+
+  pipeline = cogl_pipeline_new (ctx);
+  ensure_pipeline_filter_for_scale (effect, resource_scale);
+  cogl_pipeline_set_layer_texture (pipeline, 0, texture);
+
+  return pipeline;
+}
+
 static void
 video_memory_purged (ClutterOffscreenEffect *self)
 {
@@ -171,6 +190,8 @@ update_fbo (ClutterEffect *effect,
             float          resource_scale)
 {
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
+  ClutterOffscreenEffectClass *offscreen_class =
+    CLUTTER_OFFSCREEN_EFFECT_GET_CLASS (self);
   ClutterOffscreenEffectPrivate *priv = self->priv;
   ClutterActor *stage_actor;
   CoglOffscreen *offscreen;
@@ -211,15 +232,6 @@ update_fbo (ClutterEffect *effect,
     return TRUE;
   }
 
-  if (priv->pipeline == NULL)
-    {
-      CoglContext *ctx =
-        clutter_backend_get_cogl_context (clutter_get_default_backend ());
-
-      priv->pipeline = cogl_pipeline_new (ctx);
-      ensure_pipeline_filter_for_scale (self, resource_scale);
-    }
-
   g_clear_pointer (&priv->texture, cogl_object_unref);
   g_clear_object (&priv->offscreen);
 
@@ -227,8 +239,6 @@ update_fbo (ClutterEffect *effect,
     clutter_offscreen_effect_create_texture (self, target_width, target_height);
   if (priv->texture == NULL)
     return FALSE;
-
-  cogl_pipeline_set_layer_texture (priv->pipeline, 0, priv->texture);
 
   priv->target_width = target_width;
   priv->target_height = target_height;
@@ -249,6 +259,9 @@ update_fbo (ClutterEffect *effect,
     }
 
   priv->offscreen = offscreen;
+
+  cogl_clear_object (&priv->pipeline);
+  priv->pipeline = offscreen_class->create_pipeline (self, priv->texture);
 
   return TRUE;
 }
@@ -527,6 +540,7 @@ clutter_offscreen_effect_class_init (ClutterOffscreenEffectClass *klass)
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
   klass->create_texture = clutter_offscreen_effect_real_create_texture;
+  klass->create_pipeline = clutter_offscreen_effect_real_create_pipeline;
   klass->paint_target = clutter_offscreen_effect_real_paint_target;
 
   meta_class->set_actor = clutter_offscreen_effect_set_actor;
