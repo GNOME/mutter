@@ -485,6 +485,40 @@ clutter_offscreen_effect_post_paint (ClutterEffect       *effect,
 }
 
 static void
+add_actor_node (ClutterOffscreenEffect *offscreen_effect,
+                ClutterPaintNode       *node,
+                int                     paint_opacity)
+{
+  ClutterOffscreenEffectPrivate *priv = offscreen_effect->priv;
+  ClutterPaintNode *actor_node;
+
+  actor_node = clutter_actor_node_new (priv->actor, paint_opacity);
+  clutter_paint_node_add_child (node, actor_node);
+  clutter_paint_node_unref (actor_node);
+}
+
+static void
+clutter_offscreen_effect_paint_node (ClutterEffect           *effect,
+                                     ClutterPaintNode        *node,
+                                     ClutterPaintContext     *paint_context,
+                                     ClutterEffectPaintFlags  flags)
+{
+  ClutterOffscreenEffect *offscreen_effect = CLUTTER_OFFSCREEN_EFFECT (effect);
+  ClutterOffscreenEffectPrivate *priv = offscreen_effect->priv;
+  ClutterPaintNode *layer_node;
+  CoglFramebuffer *fb;
+
+  fb = COGL_FRAMEBUFFER (priv->offscreen);
+  layer_node = clutter_layer_node_new_to_framebuffer (fb, priv->pipeline);
+  clutter_paint_node_set_static_name (layer_node,
+                                      "ClutterOffscreenEffect (actor offscreen)");
+  clutter_paint_node_add_child (node, layer_node);
+  clutter_paint_node_unref (layer_node);
+
+  add_actor_node (offscreen_effect, layer_node, 255);
+}
+
+static void
 clutter_offscreen_effect_paint (ClutterEffect           *effect,
                                 ClutterPaintContext     *paint_context,
                                 ClutterEffectPaintFlags  flags)
@@ -557,6 +591,7 @@ clutter_offscreen_effect_class_init (ClutterOffscreenEffectClass *klass)
   effect_class->pre_paint = clutter_offscreen_effect_pre_paint;
   effect_class->post_paint = clutter_offscreen_effect_post_paint;
   effect_class->paint = clutter_offscreen_effect_paint;
+  effect_class->paint_node = clutter_offscreen_effect_paint_node;
 
   gobject_class->finalize = clutter_offscreen_effect_finalize;
 }
