@@ -111,15 +111,23 @@ G_DEFINE_TYPE (ClutterDesaturateEffect,
                clutter_desaturate_effect,
                CLUTTER_TYPE_OFFSCREEN_EFFECT);
 
+static CoglPipeline *
+clutter_desaturate_effect_create_pipeline (ClutterOffscreenEffect *effect,
+                                           CoglTexture            *texture)
+{
+  ClutterDesaturateEffect *desaturate_effect =
+    CLUTTER_DESATURATE_EFFECT (effect);
+
+  cogl_pipeline_set_layer_texture (desaturate_effect->pipeline, 0, texture);
+
+  return cogl_object_ref (desaturate_effect->pipeline);
+}
+
 static gboolean
 clutter_desaturate_effect_pre_paint (ClutterEffect       *effect,
                                      ClutterPaintContext *paint_context)
 {
-  ClutterDesaturateEffect *self = CLUTTER_DESATURATE_EFFECT (effect);
   ClutterEffectClass *parent_class;
-
-  if (!clutter_actor_meta_get_enabled (CLUTTER_ACTOR_META (effect)))
-    return FALSE;
 
   if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
     {
@@ -134,52 +142,7 @@ clutter_desaturate_effect_pre_paint (ClutterEffect       *effect,
     }
 
   parent_class = CLUTTER_EFFECT_CLASS (clutter_desaturate_effect_parent_class);
-  if (parent_class->pre_paint (effect, paint_context))
-    {
-      ClutterOffscreenEffect *offscreen_effect =
-        CLUTTER_OFFSCREEN_EFFECT (effect);
-      CoglHandle texture;
-
-      texture = clutter_offscreen_effect_get_texture (offscreen_effect);
-      self->tex_width = cogl_texture_get_width (texture);
-      self->tex_height = cogl_texture_get_height (texture);
-
-      cogl_pipeline_set_layer_texture (self->pipeline, 0, texture);
-
-      return TRUE;
-    }
-  else
-    return FALSE;
-}
-
-static void
-clutter_desaturate_effect_paint_target (ClutterOffscreenEffect *effect,
-                                        ClutterPaintContext    *paint_context)
-{
-  ClutterDesaturateEffect *self = CLUTTER_DESATURATE_EFFECT (effect);
-  CoglFramebuffer *framebuffer =
-   clutter_paint_context_get_framebuffer (paint_context);
-  ClutterActor *actor;
-  CoglHandle texture;
-  guint8 paint_opacity;
-
-  texture = clutter_offscreen_effect_get_texture (effect);
-  cogl_pipeline_set_layer_texture (self->pipeline, 0, texture);
-
-  actor = clutter_actor_meta_get_actor (CLUTTER_ACTOR_META (effect));
-  paint_opacity = clutter_actor_get_paint_opacity (actor);
-
-  cogl_pipeline_set_color4ub (self->pipeline,
-                              paint_opacity,
-                              paint_opacity,
-                              paint_opacity,
-                              paint_opacity);
-
-  cogl_framebuffer_draw_rectangle (framebuffer,
-                                   self->pipeline,
-                                   0, 0,
-                                   cogl_texture_get_width (texture),
-                                   cogl_texture_get_height (texture));
+  return parent_class->pre_paint (effect, paint_context);
 }
 
 static void
@@ -254,7 +217,7 @@ clutter_desaturate_effect_class_init (ClutterDesaturateEffectClass *klass)
   ClutterOffscreenEffectClass *offscreen_class;
 
   offscreen_class = CLUTTER_OFFSCREEN_EFFECT_CLASS (klass);
-  offscreen_class->paint_target = clutter_desaturate_effect_paint_target;
+  offscreen_class->create_pipeline = clutter_desaturate_effect_create_pipeline;
 
   effect_class->pre_paint = clutter_desaturate_effect_pre_paint;
 
