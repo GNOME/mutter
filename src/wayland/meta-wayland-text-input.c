@@ -156,20 +156,17 @@ meta_wayland_text_input_focus_defer_done (ClutterInputFocus *focus)
   if (text_input->done_idle_id != 0)
     return;
 
-  /* This operates on 3 principles:
-   * - GDBus uses G_PRIORITY_DEFAULT to put messages in the thread default main
-   *   context.
-   * - All relevant ClutterInputFocus methods are ultimately backed by
-   *   DBus methods inside IBus.
+  /* This operates on 2 principles:
+   * - IM operations come as individual ClutterEvents
    * - We want to run .done after them all. The slightly lower
    *   G_PRIORITY_DEFAULT + 1 priority should ensure we at least group
-   *   all messages seen so far.
+   *   all events seen so far.
    *
    * FIXME: .done may be delayed indefinitely if there's a high enough
    *        priority idle source in the main loop. It's unlikely that
    *        recurring idles run at this high priority though.
    */
-  text_input->done_idle_id = g_idle_add_full (G_PRIORITY_DEFAULT + 1,
+  text_input->done_idle_id = g_idle_add_full (CLUTTER_PRIORITY_EVENTS + 1,
                                               done_idle_cb, focus, NULL);
 }
 
