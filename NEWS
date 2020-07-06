@@ -1,3 +1,30 @@
+3.37.3
+======
+* Support custom keyboard layouts in $XDG_CONFIG_HOME/xkb [Peter; !936]
+* Optimize resource scale computation [Jonas D.; !1196, !1276, !1343]
+* Allow animating ClutterActor's content property [Georges; !1301]
+* Implement backgrounds as ClutterContent [Georges; !1302]
+* Add ClutterAlignContraint:pivot-point property [Jonas D.; !737]
+* Fix crash on area screenshots with fractional scaling [Sebastian; !1320]
+* Do not paint textures of fully obscured windows [Robert; !1326]
+* Use a more appropriate combine function on opaque areas [Daniel; !1331]
+* Fix remote desktop being broken without screencast session [Olivier; #1307]
+* Remove more long-deprecated Clutter APIs [Adam, Georges; !1194, !1332]
+* Drive each monitor by its own frame clock [Jonas Å.; !1285]
+* Fix copy/paste failures on X11 [Carlos; !1350]
+* Mipmap background texture rendering [Daniel; !1347]
+* Plugged memory leaks [Sebastian, Jonas D.; !1293, !1281, !1304]
+* Misc. bug fixes and cleanups [Jonas Å., Jonas D., Daniel, Corentin, Carlos,
+  Sebastian, Michel, Robert, Florian; !1288, !1289, !1291, !1296, !1292, !1298,
+  !1300, !1303, !1290, !1287, !1306, !1305, !1308, !1313, !1250, !1314, !1267,
+  !1275, !1317, !1270, !1322, !1181, !1282, !1325, !1323, !1240, !1295, !1329,
+  !1333, !1334, !1336, !1341, #1312, !1345, !1349, !1356, #873, !1310, !1357]
+
+Contributors:
+  Jonas Dreßler, Michel Dänzer, Olivier Fourdan, Carlos Garnacho,
+  Peter Hutterer, Adam Jackson, Sebastian Keller, Robert Mader, Florian Müllner,
+  Georges Basile Stavracas Neto, Corentin Noël, Daniel van Vugt, Jonas Ådahl
+
 3.37.2
 ======
 * Fix move-to-center keybinding with multiple monitors [Sergey; #1073]
