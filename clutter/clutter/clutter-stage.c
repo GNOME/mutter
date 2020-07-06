@@ -1203,6 +1203,28 @@ clutter_stage_queue_actor_relayout (ClutterStage *stage,
 }
 
 void
+clutter_stage_dequeue_actor_relayout (ClutterStage *stage,
+                                      ClutterActor *actor)
+{
+  ClutterStagePrivate *priv = stage->priv;
+  GSList *l;
+
+  for (l = priv->pending_relayouts; l; l = l->next)
+    {
+      ClutterActor *relayout_actor = l->data;
+
+      if (relayout_actor == actor)
+        {
+          g_object_unref (relayout_actor);
+          priv->pending_relayouts =
+            g_slist_delete_link (priv->pending_relayouts, l);
+
+          return;
+        }
+    }
+}
+
+void
 clutter_stage_maybe_relayout (ClutterActor *actor)
 {
   ClutterStage *stage = CLUTTER_STAGE (actor);
@@ -1225,10 +1247,6 @@ clutter_stage_maybe_relayout (ClutterActor *actor)
       g_autoptr (ClutterActor) queued_actor = l->data;
 
       if (CLUTTER_ACTOR_IN_RELAYOUT (queued_actor))  /* avoid reentrancy */
-        continue;
-
-      /* An actor may have been destroyed or hidden between queuing and now */
-      if (clutter_actor_get_stage (queued_actor) != actor)
         continue;
 
       if (queued_actor == actor)

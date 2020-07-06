@@ -2201,11 +2201,19 @@ unrealize_actor_after_children_cb (ClutterActor *self,
                                    int depth,
                                    void *user_data)
 {
+  ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+
   /* We want to unset the realized flag only _after_
    * child actors are unrealized, to maintain invariants.
    */
   CLUTTER_ACTOR_UNSET_FLAGS (self, CLUTTER_ACTOR_REALIZED);
   g_object_notify_by_pspec (G_OBJECT (self), obj_props[PROP_REALIZED]);
+
+  if (stage != NULL &&
+      self->priv->parent != NULL &&
+      self->priv->parent->flags & CLUTTER_ACTOR_NO_LAYOUT)
+    clutter_stage_dequeue_actor_relayout (CLUTTER_STAGE (stage), self);
+
   return CLUTTER_ACTOR_TRAVERSE_VISIT_CONTINUE;
 }
 
