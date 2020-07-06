@@ -1813,7 +1813,7 @@ msgstr ""
 msgid ""
 "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/>"
 msgstr ""
-"Wanda ya ɓata <halin firam=\"%s\" sake girma=\"%s\" zura ido=\"%s\" salo="
+"Wanda ya ɓata <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style="
 "\"komene ne\"/>"
 
 #: ../src/ui/theme.c:4704
@@ -1834,7 +1834,7 @@ msgid ""
 "type=\"%s\" style_set=\"whatever\"/> element"
 msgstr ""
 "Babu salon firam da aka daidaita wa nau'in taga \"%s\" cikin jigon \"%s\", "
-"ƙara wata ƙanshi na <nau'in taga=\"%s\" salon_daidaita=\"komene ne\"/>"
+"ƙara wata ƙanshi na <window type=\"%s\" style_set=\"komene ne\"/>"
 
 #: ../src/ui/theme.c:5295 ../src/ui/theme.c:5357 ../src/ui/theme.c:5420
 #, c-format
