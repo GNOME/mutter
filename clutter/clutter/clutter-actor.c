@@ -2201,7 +2201,7 @@ unrealize_actor_after_children_cb (ClutterActor *self,
                                    int depth,
                                    void *user_data)
 {
-  ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+  ClutterActor *stage = user_data;
 
   /* We want to unset the realized flag only _after_
    * child actors are unrealized, to maintain invariants.
@@ -2244,11 +2244,13 @@ unrealize_actor_after_children_cb (ClutterActor *self,
 static void
 clutter_actor_unrealize_not_hiding (ClutterActor *self)
 {
+  ClutterActor *stage = _clutter_actor_get_stage_internal (self);
+
   _clutter_actor_traverse (self,
                            CLUTTER_ACTOR_TRAVERSE_DEPTH_FIRST,
                            unrealize_actor_before_children_cb,
                            unrealize_actor_after_children_cb,
-                           NULL);
+                           stage);
 }
 
 /*
