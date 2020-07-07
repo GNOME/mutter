@@ -1296,17 +1296,6 @@ meta_wayland_surface_update_outputs (MetaWaylandSurface *surface)
 }
 
 void
-meta_wayland_surface_update_outputs_recursively (MetaWaylandSurface *surface)
-{
-  MetaWaylandSurface *subsurface_surface;
-
-  meta_wayland_surface_update_outputs (surface);
-
-  META_WAYLAND_SURFACE_FOREACH_SUBSURFACE (surface, subsurface_surface)
-    meta_wayland_surface_update_outputs_recursively (subsurface_surface);
-}
-
-void
 meta_wayland_surface_notify_unmapped (MetaWaylandSurface *surface)
 {
   g_signal_emit (surface, surface_signals[SURFACE_UNMAPPED], 0);

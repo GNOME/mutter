@@ -336,8 +336,6 @@ void                meta_wayland_surface_notify_subsurface_state_changed (MetaWa
 
 void                meta_wayland_surface_notify_unmapped (MetaWaylandSurface *surface);
 
-void                meta_wayland_surface_update_outputs_recursively (MetaWaylandSurface *surface);
-
 int                 meta_wayland_surface_get_width (MetaWaylandSurface *surface);
 int                 meta_wayland_surface_get_height (MetaWaylandSurface *surface);
 
