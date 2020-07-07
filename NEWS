@@ -1,3 +1,23 @@
+3.36.4
+======
+* Fix crash on area screenshots with fractional scaling [Sebastian; !1320]
+* Do not paint textures of fully obscured windows [Robert; !1326]
+* Turn off CRTCs as well when enabling DPMS [Michel; !1240]
+* Improve selection support
+  [Robert, Carlos, Sebastian; !1330, !1193, !1253, !1255, !1293, !1350]
+* Use a more appropriate combine function on opaque areas [Daniel; !1331]
+* Fix remote desktop being broken without screencast session [Olivier; #1307]
+* Fix popovers disappearing on wayland and HiDPI [Robert; #1312]
+* Fixed crashes [Jonas Å.; !1317]
+* Plugged memory leaks [Jonas Å.; !1283]
+* Misc. bug fixes and cleanups
+  [Corentin, Sebastian, Jonas Å., Jonas D.; !1314, !1321, !1295, !1333]
+
+Contributors:
+  Jonas Dreßler, Michel Dänzer, Olivier Fourdan, Carlos Garnacho,
+  Sebastian Keller, Robert Mader, Corentin Noël, Daniel van Vugt, Jonas Ådahl
+
+
 3.36.3
 ======
 * Broadcast clipboard/primary offers [Carlos; !1262]
