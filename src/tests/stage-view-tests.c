@@ -561,11 +561,13 @@ meta_test_actor_stage_views_hot_plug (void)
   is_on_stage_views (actor_1, 1, stage_views->data);
   is_on_stage_views (actor_2, 1, stage_views->next->data);
 
+  prev_stage_views = g_list_copy_deep (stage_views,
+                                       (GCopyFunc) g_object_ref, NULL);
+
   test_setup = create_monitor_test_setup (&hotplug_test_case_setup,
                                           MONITOR_TEST_FLAG_NO_STORED);
   meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
 
-  prev_stage_views = stage_views;
   stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
 
   g_assert (stage_views != prev_stage_views);
@@ -574,6 +576,8 @@ meta_test_actor_stage_views_hot_plug (void)
   g_assert (prev_stage_views->next->data != stage_views->next->data);
   assert_is_stage_view (stage_views->data, 0, 0, 1024, 768);
   assert_is_stage_view (stage_views->next->data, 1024, 0, 1024, 768);
+
+  g_list_free_full (prev_stage_views, (GDestroyNotify) g_object_unref);
 
   is_on_stage_views (actor_1, 0);
   is_on_stage_views (actor_2, 0);
