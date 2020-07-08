@@ -1313,11 +1313,8 @@ meta_backend_set_client_pointer_constraint (MetaBackend           *backend,
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
-  g_assert (!constraint || !priv->client_pointer_constraint);
-
-  g_clear_object (&priv->client_pointer_constraint);
-  if (constraint)
-    priv->client_pointer_constraint = g_object_ref (constraint);
+  META_BACKEND_GET_CLASS (backend)->set_pointer_constraint (backend, constraint);
+  g_set_object (&priv->client_pointer_constraint, constraint);
 }
 
 ClutterBackend *

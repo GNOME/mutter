@@ -934,13 +934,14 @@ meta_seat_native_constrain_pointer (MetaSeatNative     *seat,
                          us2ms (time_us),
                          new_x, new_y);
 
-  if (seat->constrain_callback)
+  /* Bar to constraints */
+  if (seat->pointer_constraint)
     {
-      seat->constrain_callback (core_pointer,
-                                us2ms (time_us),
-                                x, y,
-                                new_x, new_y,
-                                seat->constrain_data);
+      meta_pointer_constraint_impl_constrain (seat->pointer_constraint,
+                                              core_pointer,
+                                              us2ms (time_us),
+                                              x, y,
+                                              new_x, new_y);
     }
 
   /* if we're moving inside a monitor, we're fine */
@@ -2642,9 +2643,6 @@ meta_seat_native_finalize (GObject *object)
 
   g_list_free (seat->free_device_ids);
 
-  if (seat->constrain_data_notify != NULL)
-    seat->constrain_data_notify (seat->constrain_data);
-
   g_free (seat->seat_id);
 
   G_OBJECT_CLASS (meta_seat_native_parent_class)->finalize (object);
@@ -3028,33 +3026,6 @@ meta_seat_native_set_device_callbacks (MetaOpenDeviceCallback  open_callback,
   device_callback_data = user_data;
 }
 
-/**
- * meta_seat_native_set_pointer_constrain_callback:
- * @seat: the #ClutterSeat created by the evdev backend
- * @callback: the callback
- * @user_data: data to pass to the callback
- * @user_data_notify: function to be called when removing the callback
- *
- * Sets a callback to be invoked for every pointer motion. The callback
- * can then modify the new pointer coordinates to constrain movement within
- * a specific region.
- */
-void
-meta_seat_native_set_pointer_constrain_callback (MetaSeatNative               *seat,
-                                                 MetaPointerConstrainCallback  callback,
-                                                 gpointer                      user_data,
-                                                 GDestroyNotify                user_data_notify)
-{
-  g_return_if_fail (META_IS_SEAT_NATIVE (seat));
-
-  if (seat->constrain_data_notify)
-    seat->constrain_data_notify (seat->constrain_data);
-
-  seat->constrain_callback = callback;
-  seat->constrain_data = user_data;
-  seat->constrain_data_notify = user_data_notify;
-}
-
 void
 meta_seat_native_update_xkb_state (MetaSeatNative *seat)
 {
@@ -3302,4 +3273,18 @@ MetaBarrierManagerNative *
 meta_seat_native_get_barrier_manager (MetaSeatNative *seat)
 {
   return seat->barrier_manager;
+}
+
+void
+meta_seat_native_set_pointer_constraint (MetaSeatNative            *seat,
+                                         MetaPointerConstraintImpl *constraint_impl)
+{
+  if (!g_set_object (&seat->pointer_constraint, constraint_impl))
+    return;
+
+  if (constraint_impl)
+    {
+      meta_pointer_constraint_impl_ensure_constrained (constraint_impl,
+                                                       seat->core_pointer);
+    }
 }

@@ -32,34 +32,45 @@
 G_BEGIN_DECLS
 
 #define META_TYPE_POINTER_CONSTRAINT (meta_pointer_constraint_get_type ())
-G_DECLARE_DERIVABLE_TYPE (MetaPointerConstraint, meta_pointer_constraint,
-                          META, POINTER_CONSTRAINT, GObject);
+G_DECLARE_FINAL_TYPE (MetaPointerConstraint, meta_pointer_constraint,
+                      META, POINTER_CONSTRAINT, GObject);
+
+MetaPointerConstraint * meta_pointer_constraint_new (const cairo_region_t *region);
+cairo_region_t * meta_pointer_constraint_get_region (MetaPointerConstraint *constraint);
+
+#define META_TYPE_POINTER_CONSTRAINT_IMPL (meta_pointer_constraint_impl_get_type ())
+G_DECLARE_DERIVABLE_TYPE (MetaPointerConstraintImpl, meta_pointer_constraint_impl,
+                          META, POINTER_CONSTRAINT_IMPL, GObject);
 
 /**
- * MetaPointerConstraintClass:
+ * MetaPointerConstraintImplClass:
  * @constrain: the virtual function pointer for
- *             meta_pointer_constraint_constrain().
+ *             meta_pointer_constraint_impl_constrain().
  */
-struct _MetaPointerConstraintClass
+struct _MetaPointerConstraintImplClass
 {
   GObjectClass parent_class;
 
-  void (*constrain) (MetaPointerConstraint *constraint,
-                     ClutterInputDevice *device,
-                     guint32 time,
-                     float prev_x,
-                     float prev_y,
-                     float *x,
-                     float *y);
+  void (* constrain) (MetaPointerConstraintImpl *constraint_impl,
+                      ClutterInputDevice        *device,
+                      uint32_t                   time,
+                      float                      prev_x,
+                      float                      prev_y,
+                      float                     *x,
+                      float                     *y);
+  void (* ensure_constrained) (MetaPointerConstraintImpl *constraint_impl,
+                               ClutterInputDevice        *device);
 };
 
-void meta_pointer_constraint_constrain (MetaPointerConstraint *constraint,
-                                        ClutterInputDevice    *device,
-                                        guint32                time,
-                                        float                  prev_x,
-                                        float                  prev_y,
-                                        float                 *x,
-                                        float                 *y);
+void meta_pointer_constraint_impl_constrain (MetaPointerConstraintImpl *constraint_impl,
+                                             ClutterInputDevice        *device,
+                                             uint32_t                   time,
+                                             float                      prev_x,
+                                             float                      prev_y,
+                                             float                     *x,
+                                             float                     *y);
+void meta_pointer_constraint_impl_ensure_constrained (MetaPointerConstraintImpl *constraint_impl,
+                                                      ClutterInputDevice        *device);
 
 G_END_DECLS
 

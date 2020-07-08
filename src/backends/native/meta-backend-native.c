@@ -105,38 +105,6 @@ meta_backend_native_finalize (GObject *object)
   G_OBJECT_CLASS (meta_backend_native_parent_class)->finalize (object);
 }
 
-static void
-constrain_to_client_constraint (ClutterInputDevice *device,
-                                guint32             time,
-                                float               prev_x,
-                                float               prev_y,
-                                float              *x,
-                                float              *y)
-{
-  MetaBackend *backend = meta_get_backend ();
-  MetaPointerConstraint *constraint =
-    meta_backend_get_client_pointer_constraint (backend);
-
-  if (!constraint)
-    return;
-
-  meta_pointer_constraint_constrain (constraint, device,
-                                     time, prev_x, prev_y, x, y);
-}
-
-static void
-pointer_constrain_callback (ClutterInputDevice *device,
-                            guint32             time,
-                            float               prev_x,
-                            float               prev_y,
-                            float              *new_x,
-                            float              *new_y,
-                            gpointer            user_data)
-{
-  /* Constrain to pointer lock */
-  constrain_to_client_constraint (device, time, prev_x, prev_y, new_x, new_y);
-}
-
 static ClutterBackend *
 meta_backend_native_create_clutter_backend (MetaBackend *backend)
 {
@@ -181,13 +149,7 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
 static void
 meta_backend_native_post_init (MetaBackend *backend)
 {
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
   MetaSettings *settings = meta_backend_get_settings (backend);
-
-  meta_seat_native_set_pointer_constrain_callback (META_SEAT_NATIVE (seat),
-                                                   pointer_constrain_callback,
-                                                   NULL, NULL);
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
 
@@ -347,6 +309,26 @@ meta_backend_native_set_numlock (MetaBackend *backend,
   seat = clutter_backend_get_default_seat (clutter_backend);
   meta_seat_native_set_keyboard_numlock (META_SEAT_NATIVE (seat),
                                          numlock_state);
+}
+
+static void
+meta_backend_native_set_pointer_constraint (MetaBackend           *backend,
+                                            MetaPointerConstraint *constraint)
+{
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+  MetaPointerConstraintImpl *constraint_impl = NULL;
+  cairo_region_t *region;
+
+  if (constraint)
+    {
+      region = meta_pointer_constraint_get_region (constraint);
+      constraint_impl = meta_pointer_constraint_impl_native_new (constraint,
+                                                                 region);
+    }
+
+  meta_seat_native_set_pointer_constraint (META_SEAT_NATIVE (seat),
+                                           constraint_impl);
 }
 
 static void
@@ -562,6 +544,8 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->lock_layout_group = meta_backend_native_lock_layout_group;
   backend_class->update_screen_size = meta_backend_native_update_screen_size;
   backend_class->set_numlock = meta_backend_native_set_numlock;
+
+  backend_class->set_pointer_constraint = meta_backend_native_set_pointer_constraint;
 }
 
 static void

@@ -68,7 +68,7 @@ struct _MetaWaylandPointerConstraint
   wl_fixed_t x_hint;
   wl_fixed_t y_hint;
 
-  MetaPointerConstraint *constraint;
+  MetaPointerConfinementWayland *confinement;
 };
 
 typedef struct _MetaWaylandSurfacePointerConstraintsData
@@ -375,7 +375,7 @@ meta_wayland_pointer_constraint_notify_deactivated (MetaWaylandPointerConstraint
     zwp_confined_pointer_v1_send_unconfined (resource);
 }
 
-static MetaPointerConstraint *
+static MetaPointerConfinementWayland *
 meta_wayland_pointer_constraint_create_pointer_constraint (MetaWaylandPointerConstraint *constraint)
 {
   struct wl_resource *resource = constraint->resource;
@@ -384,7 +384,7 @@ meta_wayland_pointer_constraint_create_pointer_constraint (MetaWaylandPointerCon
                                &zwp_locked_pointer_v1_interface,
                                &locked_pointer_interface))
     {
-      return meta_pointer_lock_wayland_new ();
+      return meta_pointer_lock_wayland_new (constraint);
     }
   else if (wl_resource_instance_of (resource,
                                     &zwp_confined_pointer_v1_interface,
@@ -399,8 +399,6 @@ meta_wayland_pointer_constraint_create_pointer_constraint (MetaWaylandPointerCon
 static void
 meta_wayland_pointer_constraint_enable (MetaWaylandPointerConstraint *constraint)
 {
-  MetaBackend *backend = meta_get_backend ();
-
   g_assert (!constraint->is_enabled);
 
   constraint->is_enabled = TRUE;
@@ -408,20 +406,25 @@ meta_wayland_pointer_constraint_enable (MetaWaylandPointerConstraint *constraint
   meta_wayland_pointer_start_grab (constraint->seat->pointer,
                                    &constraint->grab);
 
-  constraint->constraint =
+  constraint->confinement =
     meta_wayland_pointer_constraint_create_pointer_constraint (constraint);
-  meta_backend_set_client_pointer_constraint (backend, constraint->constraint);
-  g_object_add_weak_pointer (G_OBJECT (constraint->constraint),
-                             (gpointer *) &constraint->constraint);
-  g_object_unref (constraint->constraint);
+  meta_pointer_confinement_wayland_enable (constraint->confinement);
+  g_object_add_weak_pointer (G_OBJECT (constraint->confinement),
+                             (gpointer *) &constraint->confinement);
 }
 
 static void
 meta_wayland_pointer_constraint_disable (MetaWaylandPointerConstraint *constraint)
 {
   constraint->is_enabled = FALSE;
+
+  if (constraint->confinement)
+    {
+      meta_pointer_confinement_wayland_disable (constraint->confinement);
+      g_object_unref (constraint->confinement);
+    }
+
   meta_wayland_pointer_constraint_notify_deactivated (constraint);
-  meta_backend_set_client_pointer_constraint (meta_get_backend (), NULL);
   meta_wayland_pointer_end_grab (constraint->grab.pointer);
 }
 
