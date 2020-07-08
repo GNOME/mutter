@@ -43,6 +43,10 @@ struct _MetaCompositorX11
   gboolean have_x11_sync_object;
 
   MetaWindow *unredirected_window;
+
+  gboolean xserver_uses_monotonic_clock;
+  int64_t xserver_time_query_time_us;
+  int64_t xserver_time_offset_us;
 };
 
 G_DEFINE_TYPE (MetaCompositorX11, meta_compositor_x11, META_TYPE_COMPOSITOR)
@@ -101,6 +105,32 @@ meta_compositor_x11_process_xevent (MetaCompositorX11 *compositor_x11,
 }
 
 static void
+determine_server_clock_source (MetaCompositorX11 *compositor_x11)
+{
+  MetaCompositor *compositor = META_COMPOSITOR (compositor_x11);
+  MetaDisplay *display = meta_compositor_get_display (compositor);
+  MetaX11Display *x11_display = display->x11_display;
+  uint32_t server_time_ms;
+  int64_t server_time_us;
+  int64_t translated_monotonic_now_us;
+
+  server_time_ms = meta_x11_display_get_current_time_roundtrip (x11_display);
+  server_time_us = ms2us (server_time_ms);
+  translated_monotonic_now_us =
+    meta_translate_to_high_res_xserver_time (g_get_monotonic_time ());
+
+  /* If the server time offset is within a second of the monotonic time, we
+   * assume that they are identical. This seems like a big margin, but we want
+   * to be as robust as possible even if the system is under load and our
+   * processing of the server response is delayed.
+   */
+  if (ABS (server_time_us - translated_monotonic_now_us) < s2us (1))
+    compositor_x11->xserver_uses_monotonic_clock = TRUE;
+  else
+    compositor_x11->xserver_uses_monotonic_clock = FALSE;
+}
+
+static void
 meta_compositor_x11_manage (MetaCompositor *compositor)
 {
   MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
@@ -108,6 +138,8 @@ meta_compositor_x11_manage (MetaCompositor *compositor)
   Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
   MetaBackend *backend = meta_get_backend ();
   Window xwindow;
+
+  determine_server_clock_source (compositor_x11);
 
   meta_x11_display_set_cm_selection (display->x11_display);
 
@@ -338,6 +370,37 @@ meta_compositor_x11_remove_window (MetaCompositor *compositor,
   parent_class->remove_window (compositor, window);
 }
 
+static int64_t
+meta_compositor_x11_monotonic_to_high_res_xserver_time (MetaCompositor *compositor,
+                                                        int64_t         monotonic_time_us)
+{
+  MetaCompositorX11 *compositor_x11 = META_COMPOSITOR_X11 (compositor);
+  int64_t now_us;
+
+  if (compositor_x11->xserver_uses_monotonic_clock)
+    return meta_translate_to_high_res_xserver_time (monotonic_time_us);
+
+  now_us = g_get_monotonic_time ();
+
+  if (compositor_x11->xserver_time_query_time_us == 0 ||
+      now_us > (compositor_x11->xserver_time_query_time_us + s2us (10)))
+    {
+      MetaDisplay *display = meta_compositor_get_display (compositor);
+      MetaX11Display *x11_display = display->x11_display;
+      uint32_t xserver_time_ms;
+      int64_t xserver_time_us;
+
+      compositor_x11->xserver_time_query_time_us = now_us;
+
+      xserver_time_ms =
+        meta_x11_display_get_current_time_roundtrip (x11_display);
+      xserver_time_us = ms2us (xserver_time_ms);
+      compositor_x11->xserver_time_offset_us = xserver_time_us - now_us;
+    }
+
+  return monotonic_time_us + compositor_x11->xserver_time_offset_us;
+}
+
 Window
 meta_compositor_x11_get_output_xwindow (MetaCompositorX11 *compositor_x11)
 {
@@ -384,4 +447,6 @@ meta_compositor_x11_class_init (MetaCompositorX11Class *klass)
   compositor_class->pre_paint = meta_compositor_x11_pre_paint;
   compositor_class->post_paint = meta_compositor_x11_post_paint;
   compositor_class->remove_window = meta_compositor_x11_remove_window;
+  compositor_class->monotonic_to_high_res_xserver_time =
+   meta_compositor_x11_monotonic_to_high_res_xserver_time;
 }
