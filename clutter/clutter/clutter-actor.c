@@ -1609,18 +1609,21 @@ clutter_actor_real_map (ClutterActor *self)
 
   CLUTTER_ACTOR_SET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
 
-  self->priv->needs_paint_volume_update = TRUE;
-
-  /* We skip unmapped actors when updating the stage-views list, so if
-   * an actors list got invalidated while it was unmapped make sure to
-   * set priv->needs_update_stage_views to TRUE for all actors up the
-   * hierarchy now.
-   */
-  if (self->priv->needs_update_stage_views)
+  if (self->priv->unmapped_paint_branch_counter == 0)
     {
-      /* Avoid the early return in queue_update_stage_views() */
-      self->priv->needs_update_stage_views = FALSE;
-      queue_update_stage_views (self);
+      self->priv->needs_paint_volume_update = TRUE;
+
+      /* We skip unmapped actors when updating the stage-views list, so if
+       * an actors list got invalidated while it was unmapped make sure to
+       * set priv->needs_update_stage_views to TRUE for all actors up the
+       * hierarchy now.
+       */
+      if (self->priv->needs_update_stage_views)
+        {
+          /* Avoid the early return in queue_update_stage_views() */
+          self->priv->needs_update_stage_views = FALSE;
+          queue_update_stage_views (self);
+        }
     }
 
   /* notify on parent mapped before potentially mapping
@@ -1721,11 +1724,14 @@ clutter_actor_real_unmap (ClutterActor *self)
 
   CLUTTER_ACTOR_UNSET_FLAGS (self, CLUTTER_ACTOR_MAPPED);
 
-  /* clear the contents of the last paint volume, so that hiding + moving +
-   * showing will not result in the wrong area being repainted
-   */
-  _clutter_paint_volume_init_static (&priv->last_paint_volume, NULL);
-  priv->last_paint_volume_valid = TRUE;
+  if (self->priv->unmapped_paint_branch_counter == 0)
+    {
+      /* clear the contents of the last paint volume, so that hiding + moving +
+       * showing will not result in the wrong area being repainted
+       */
+     _clutter_paint_volume_init_static (&priv->last_paint_volume, NULL);
+      priv->last_paint_volume_valid = TRUE;
+    }
 
   /* notify on parent mapped after potentially unmapping
    * children, so apps see a bottom-up notification.
