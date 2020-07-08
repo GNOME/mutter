@@ -39,7 +39,18 @@
 
 #include "backends/meta-pointer-constraint.h"
 
+#ifdef HAVE_NATIVE_BACKEND
+#include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-pointer-constraint-native.h"
+#endif
+
 #include <glib-object.h>
+
+struct _MetaPointerConstraint
+{
+  GObject parent_instance;
+  cairo_region_t *region;
+};
 
 G_DEFINE_TYPE (MetaPointerConstraint, meta_pointer_constraint, G_TYPE_OBJECT);
 
@@ -53,9 +64,40 @@ meta_pointer_constraint_class_init (MetaPointerConstraintClass *klass)
 {
 }
 
+
+MetaPointerConstraint *
+meta_pointer_constraint_new (const cairo_region_t *region)
+{
+  MetaPointerConstraint *constraint;
+
+  constraint = g_object_new (META_TYPE_POINTER_CONSTRAINT, NULL);
+  constraint->region = cairo_region_copy (region);
+
+  return constraint;
+}
+
+cairo_region_t *
+meta_pointer_constraint_get_region (MetaPointerConstraint *constraint)
+{
+  return constraint->region;
+}
+
+G_DEFINE_TYPE (MetaPointerConstraintImpl, meta_pointer_constraint_impl,
+               G_TYPE_OBJECT);
+
+static void
+meta_pointer_constraint_impl_init (MetaPointerConstraintImpl *impl)
+{
+}
+
+static void
+meta_pointer_constraint_impl_class_init (MetaPointerConstraintImplClass *klass)
+{
+}
+
 /**
- * meta_pointer_constraint_constrain:
- * @constraint: a #MetaPointerConstraint.
+ * meta_pointer_constraint_impl_constrain:
+ * @impl: a #MetaPointerConstraintImpl.
  * @device; the device of the pointer.
  * @time: the timestamp (in ms) of the event.
  * @prev_x: X-coordinate of the previous pointer position.
@@ -67,17 +109,25 @@ meta_pointer_constraint_class_init (MetaPointerConstraintClass *klass)
  * if needed.
  */
 void
-meta_pointer_constraint_constrain (MetaPointerConstraint *constraint,
-                                   ClutterInputDevice    *device,
-                                   guint32                time,
-                                   float                  prev_x,
-                                   float                  prev_y,
-                                   float                  *x,
-                                   float                  *y)
+meta_pointer_constraint_impl_constrain (MetaPointerConstraintImpl *impl,
+                                        ClutterInputDevice        *device,
+                                        uint32_t                   time,
+                                        float                      prev_x,
+                                        float                      prev_y,
+                                        float                     *x,
+                                        float                     *y)
 {
-  META_POINTER_CONSTRAINT_GET_CLASS (constraint)->constrain (constraint,
-                                                             device,
-                                                             time,
-                                                             prev_x, prev_y,
-                                                             x, y);
+  META_POINTER_CONSTRAINT_IMPL_GET_CLASS (impl)->constrain (impl,
+                                                            device,
+                                                            time,
+                                                            prev_x, prev_y,
+                                                            x, y);
+}
+
+void
+meta_pointer_constraint_impl_ensure_constrained (MetaPointerConstraintImpl *impl,
+                                                 ClutterInputDevice        *device)
+{
+  META_POINTER_CONSTRAINT_IMPL_GET_CLASS (impl)->ensure_constrained (impl,
+                                                                     device);
 }

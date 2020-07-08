@@ -29,36 +29,13 @@
 
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-keymap-native.h"
+#include "backends/native/meta-pointer-constraint-native.h"
 #include "backends/native/meta-xkb-utils.h"
 #include "clutter/clutter.h"
 
 typedef struct _MetaTouchState MetaTouchState;
 typedef struct _MetaSeatNative MetaSeatNative;
 typedef struct _MetaEventSource  MetaEventSource;
-
-/**
- * MetaPointerConstrainCallback:
- * @device: the core pointer device
- * @time: the event time in milliseconds
- * @x: (inout): the new X coordinate
- * @y: (inout): the new Y coordinate
- * @user_data: user data passed to this function
- *
- * This callback will be called for all pointer motion events, and should
- * update (@x, @y) to constrain the pointer position appropriately.
- * The subsequent motion event will use the updated values as the new coordinates.
- * Note that the coordinates are not clamped to the stage size, and the callback
- * must make sure that this happens before it returns.
- * Also note that the event will be emitted even if the pointer is constrained
- * to be in the same position.
- */
-typedef void (* MetaPointerConstrainCallback) (ClutterInputDevice *device,
-                                               uint32_t            time,
-                                               float               prev_x,
-                                               float               prev_y,
-                                               float              *x,
-                                               float              *y,
-                                               gpointer            user_data);
 
 struct _MetaTouchState
 {
@@ -102,10 +79,7 @@ struct _MetaSeatNative
   GList *free_device_ids;
 
   MetaBarrierManagerNative *barrier_manager;
-
-  MetaPointerConstrainCallback constrain_callback;
-  gpointer constrain_data;
-  GDestroyNotify constrain_data_notify;
+  MetaPointerConstraintImpl *pointer_constraint;
 
   MetaKeymapNative *keymap;
 
@@ -254,11 +228,6 @@ void  meta_seat_native_set_device_callbacks (MetaOpenDeviceCallback  open_callba
 void  meta_seat_native_release_devices (MetaSeatNative *seat);
 void  meta_seat_native_reclaim_devices (MetaSeatNative *seat);
 
-void  meta_seat_native_set_pointer_constrain_callback (MetaSeatNative               *seat,
-                                                       MetaPointerConstrainCallback  callback,
-                                                       gpointer                      user_data,
-                                                       GDestroyNotify                user_data_notify);
-
 struct xkb_state * meta_seat_native_get_xkb_state (MetaSeatNative *seat);
 
 void               meta_seat_native_set_keyboard_map   (MetaSeatNative    *seat,
@@ -280,5 +249,8 @@ void meta_seat_native_set_keyboard_repeat (MetaSeatNative *seat,
                                            uint32_t        interval);
 
 MetaBarrierManagerNative * meta_seat_native_get_barrier_manager (MetaSeatNative *seat);
+
+void meta_seat_native_set_pointer_constraint (MetaSeatNative            *seat,
+                                              MetaPointerConstraintImpl *impl);
 
 #endif /* META_SEAT_NATIVE_H */

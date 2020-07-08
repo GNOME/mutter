@@ -33,12 +33,23 @@
 G_BEGIN_DECLS
 
 #define META_TYPE_POINTER_CONFINEMENT_WAYLAND (meta_pointer_confinement_wayland_get_type ())
-G_DECLARE_FINAL_TYPE (MetaPointerConfinementWayland,
-                      meta_pointer_confinement_wayland,
-                      META, POINTER_CONFINEMENT_WAYLAND,
-                      MetaPointerConstraint);
+G_DECLARE_DERIVABLE_TYPE (MetaPointerConfinementWayland,
+                          meta_pointer_confinement_wayland,
+                          META, POINTER_CONFINEMENT_WAYLAND,
+                          GObject)
 
-MetaPointerConstraint *meta_pointer_confinement_wayland_new (MetaWaylandPointerConstraint *constraint);
+struct _MetaPointerConfinementWaylandClass
+{
+  GObjectClass parent_class;
+
+  MetaPointerConstraint * (*create_constraint) (MetaPointerConfinementWayland *confinement);
+};
+
+MetaPointerConfinementWayland *meta_pointer_confinement_wayland_new (MetaWaylandPointerConstraint *constraint);
+MetaWaylandPointerConstraint *
+  meta_pointer_confinement_wayland_get_wayland_pointer_constraint (MetaPointerConfinementWayland *confinement);
+void meta_pointer_confinement_wayland_enable (MetaPointerConfinementWayland *confinement);
+void meta_pointer_confinement_wayland_disable (MetaPointerConfinementWayland *confinement);
 
 G_END_DECLS
 

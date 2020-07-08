@@ -697,6 +697,8 @@ if have_native_backend
     'backends/native/meta-kms-utils.h',
     'backends/native/meta-kms.c',
     'backends/native/meta-kms.h',
+    'backends/native/meta-pointer-constraint-native.c',
+    'backends/native/meta-pointer-constraint-native.h',
     'backends/native/meta-renderer-native-gles3.c',
     'backends/native/meta-renderer-native-gles3.h',
     'backends/native/meta-renderer-native.h',

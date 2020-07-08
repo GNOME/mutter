@@ -1,7 +1,7 @@
 /* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 
 /*
- * Copyright (C) 2015 Red Hat
+ * Copyright (C) 2020 Red Hat
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -19,24 +19,28 @@
  * 02111-1307, USA.
  *
  * Written by:
- *     Jonas Ådahl <jadahl@gmail.com>
+ *     Carlos Garnacho <carlosg@gnome.org>
  */
 
-#ifndef META_POINTER_LOCK_WAYLAND_H
-#define META_POINTER_LOCK_WAYLAND_H
+#ifndef META_POINTER_CONSTRAINT_NATIVE_H
+#define META_POINTER_CONSTRAINT_NATIVE_H
 
 #include <glib-object.h>
 
-#include "wayland/meta-pointer-confinement-wayland.h"
+#include "clutter/clutter.h"
+#include "backends/meta-pointer-constraint.h"
 
 G_BEGIN_DECLS
 
-#define META_TYPE_POINTER_LOCK_WAYLAND (meta_pointer_lock_wayland_get_type ())
-G_DECLARE_FINAL_TYPE (MetaPointerLockWayland, meta_pointer_lock_wayland,
-                      META, POINTER_LOCK_WAYLAND, MetaPointerConfinementWayland)
+#define META_TYPE_POINTER_CONSTRAINT_IMPL_NATIVE (meta_pointer_constraint_impl_native_get_type ())
+G_DECLARE_FINAL_TYPE (MetaPointerConstraintImplNative,
+                      meta_pointer_constraint_impl_native,
+                      META, POINTER_CONSTRAINT_IMPL_NATIVE,
+                      MetaPointerConstraintImpl)
 
-MetaPointerConfinementWayland *meta_pointer_lock_wayland_new (MetaWaylandPointerConstraint *constraint);
+MetaPointerConstraintImpl * meta_pointer_constraint_impl_native_new (MetaPointerConstraint *constraint,
+                                                                     const cairo_region_t  *region);
 
 G_END_DECLS
 
-#endif /* META_LOCK_WAYLAND_H */
+#endif /* META_POINTER_CONSTRAINT_NATIVE_H */
