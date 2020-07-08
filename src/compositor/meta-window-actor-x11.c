@@ -163,12 +163,14 @@ do_send_frame_drawn (MetaWindowActorX11 *actor_x11,
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   MetaDisplay *display = meta_window_get_display (window);
   Display *xdisplay = meta_x11_display_get_xdisplay (display->x11_display);
+  int64_t now_us;
 
   XClientMessageEvent ev = { 0, };
 
+  now_us = g_get_monotonic_time ();
   frame->frame_drawn_time =
-    meta_compositor_monotonic_time_to_server_time (display,
-                                                   g_get_monotonic_time ());
+    meta_compositor_monotonic_to_high_res_xserver_time (display->compositor,
+                                                        now_us);
   actor_x11->frame_drawn_time = frame->frame_drawn_time;
 
   ev.type = ClientMessage;
@@ -208,9 +210,12 @@ do_send_frame_timings (MetaWindowActorX11 *actor_x11,
 
   if (presentation_time != 0)
     {
-      int64_t presentation_time_server =
-        meta_compositor_monotonic_time_to_server_time (display,
-                                                       presentation_time);
+      MetaCompositor *compositor = display->compositor;
+      int64_t presentation_time_server;
+
+      presentation_time_server =
+        meta_compositor_monotonic_to_high_res_xserver_time (compositor,
+                                                            presentation_time);
       int64_t presentation_time_offset = presentation_time_server - frame->frame_drawn_time;
       if (presentation_time_offset == 0)
         presentation_time_offset = 1;
@@ -283,6 +288,7 @@ queue_send_frame_messages_timeout (MetaWindowActorX11 *actor_x11)
     meta_window_actor_get_meta_window (META_WINDOW_ACTOR (actor_x11));
   MetaDisplay *display = meta_window_get_display (window);
   MetaLogicalMonitor *logical_monitor;
+  int64_t now_us;
   int64_t current_time;
   float refresh_rate;
   int interval, offset;
@@ -307,9 +313,10 @@ queue_send_frame_messages_timeout (MetaWindowActorX11 *actor_x11)
       refresh_rate = 60.0f;
     }
 
+  now_us = g_get_monotonic_time ();
   current_time =
-    meta_compositor_monotonic_time_to_server_time (display,
-                                                   g_get_monotonic_time ());
+    meta_compositor_monotonic_to_high_res_xserver_time (display->compositor,
+                                                        now_us);
   interval = (int) (1000000 / refresh_rate) * 6;
   offset = MAX (0, actor_x11->frame_drawn_time + interval - current_time) / 1000;
 

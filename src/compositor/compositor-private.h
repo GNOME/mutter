@@ -5,6 +5,7 @@
 
 #include <X11/extensions/Xfixes.h>
 
+#include "clutter/clutter-mutter.h"
 #include "clutter/clutter.h"
 #include "compositor/meta-plugin-manager.h"
 #include "compositor/meta-window-actor-private.h"
@@ -29,6 +30,8 @@ struct _MetaCompositorClass
                         ClutterStageView *stage_view);
   void (* remove_window) (MetaCompositor *compositor,
                           MetaWindow     *window);
+  int64_t (* monotonic_to_high_res_xserver_time) (MetaCompositor *compositor,
+                                                  int64_t         time_us);
 };
 
 gboolean meta_compositor_do_manage (MetaCompositor  *compositor,
@@ -49,8 +52,8 @@ void     meta_end_modal_for_plugin   (MetaCompositor   *compositor,
 
 MetaPluginManager * meta_compositor_get_plugin_manager (MetaCompositor *compositor);
 
-gint64 meta_compositor_monotonic_time_to_server_time (MetaDisplay *display,
-                                                      gint64       monotonic_time);
+int64_t meta_compositor_monotonic_to_high_res_xserver_time (MetaCompositor *compositor,
+                                                            int64_t         monotonic_time_us);
 
 void meta_compositor_flash_window (MetaCompositor *compositor,
                                    MetaWindow     *window);
@@ -76,5 +79,21 @@ ClutterStage * meta_compositor_get_stage (MetaCompositor *compositor);
 gboolean meta_compositor_is_switching_workspace (MetaCompositor *compositor);
 
 MetaLaters * meta_compositor_get_laters (MetaCompositor *compositor);
+
+/*
+ * This function takes a 64 bit time stamp from the monotonic clock, and clamps
+ * it to the scope of the X server clock, without losing the granularity.
+ */
+static inline int64_t
+meta_translate_to_high_res_xserver_time (int64_t time_us)
+{
+  int64_t us;
+  int64_t ms;
+
+  us = time_us % 1000;
+  ms = time_us / 1000;
+
+  return ms2us (ms & 0xffffffff) + us;
+}
 
 #endif /* META_COMPOSITOR_PRIVATE_H */
