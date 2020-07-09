@@ -544,7 +544,18 @@ meta_background_content_paint_content (ClutterContent      *content,
         }
       else
         {
-          region = cairo_region_create_rectangle (&rect_within_stage);
+          const cairo_region_t *redraw_clip;
+
+          redraw_clip = clutter_paint_context_get_redraw_clip (paint_context);
+          if (redraw_clip)
+            {
+              region = cairo_region_copy (redraw_clip);
+              cairo_region_intersect_rectangle (region, &rect_within_stage);
+            }
+          else
+            {
+              region = cairo_region_create_rectangle (&rect_within_stage);
+            }
         }
 
       if (self->unobscured_region)
