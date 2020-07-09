@@ -514,13 +514,6 @@ meta_background_content_paint_content (ClutterContent      *content,
   actor_pixel_rect.width = actor_box.x2 - actor_box.x1;
   actor_pixel_rect.height = actor_box.y2 - actor_box.y1;
 
-  setup_pipeline (self, actor, paint_context, &actor_pixel_rect);
-  set_glsl_parameters (self, &actor_pixel_rect);
-
-  /* Limit to how many separate rectangles we'll draw; beyond this just
-   * fall back and draw the whole thing */
-#define MAX_RECTS 64
-
   /* Now figure out what to actually paint */
   if (self->clip_region)
     {
@@ -540,6 +533,13 @@ meta_background_content_paint_content (ClutterContent      *content,
       cairo_region_destroy (region);
       return;
     }
+
+  setup_pipeline (self, actor, paint_context, &actor_pixel_rect);
+  set_glsl_parameters (self, &actor_pixel_rect);
+
+  /* Limit to how many separate rectangles we'll draw; beyond this just
+   * fall back and draw the whole thing */
+#define MAX_RECTS 64
 
   n_rects = cairo_region_num_rectangles (region);
   if (n_rects <= MAX_RECTS)
