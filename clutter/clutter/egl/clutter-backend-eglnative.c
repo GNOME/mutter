@@ -45,10 +45,6 @@
 #include "clutter-main.h"
 #include "clutter-stage-private.h"
 
-#ifdef COGL_HAS_EGL_SUPPORT
-#include "clutter-egl.h"
-#endif
-
 G_DEFINE_TYPE (ClutterBackendEglNative, clutter_backend_egl_native, CLUTTER_TYPE_BACKEND);
 
 static void
@@ -65,40 +61,4 @@ ClutterBackend *
 clutter_backend_egl_native_new (void)
 {
   return g_object_new (CLUTTER_TYPE_BACKEND_EGL_NATIVE, NULL);
-}
-
-/**
- * clutter_egl_get_egl_display:
- *
- * Retrieves the EGL display used by Clutter, if it supports the
- * EGL windowing system and if it is running using an EGL backend.
- *
- * Return value: the EGL display used by Clutter, or 0
- *
- * Since: 1.6
- */
-EGLDisplay
-clutter_egl_get_egl_display (void)
-{
-  ClutterBackend *backend;
-
-  if (!_clutter_context_is_initialized ())
-    {
-      g_critical ("The Clutter backend has not been initialized yet");
-      return 0;
-    }
-
-  backend = clutter_get_default_backend ();
-
-  if (!CLUTTER_IS_BACKEND_EGL_NATIVE (backend))
-    {
-      g_critical ("The Clutter backend is not an EGL backend");
-      return 0;
-    }
-
-#ifdef COGL_HAS_EGL_SUPPORT
-  return cogl_egl_context_get_egl_display (backend->cogl_context);
-#else
-  return 0;
-#endif
 }
