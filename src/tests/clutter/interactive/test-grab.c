@@ -66,9 +66,6 @@ debug_event_cb (ClutterActor *actor,
     case CLUTTER_CLIENT_MESSAGE:
       printf("[%s] CLIENT MESSAGE\n", source);
       break;
-    case CLUTTER_DELETE:
-      printf("[%s] DELETE", source);
-      break;
     case CLUTTER_TOUCH_BEGIN:
       g_print ("[%s] TOUCH BEGIN", source);
       break;

@@ -31,11 +31,13 @@
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-seat-x11.h"
 #include "backends/x11/meta-stage-x11.h"
+#include "backends/x11/nested/meta-stage-x11-nested.h"
 #include "clutter/clutter-mutter.h"
 #include "clutter/x11/clutter-x11.h"
 #include "clutter/x11/clutter-backend-x11.h"
 #include "cogl/cogl.h"
 #include "core/display-private.h"
+#include "meta/main.h"
 #include "meta/meta-x11-errors.h"
 
 #define STAGE_X11_IS_MAPPED(s)  ((((MetaStageX11 *) (s))->wm_state & STAGE_X11_WITHDRAWN) == 0)
@@ -745,9 +747,10 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
         {
           if (handle_wm_protocols_event (backend_x11, stage_x11, xevent))
             {
-              event->any.type = CLUTTER_DELETE;
-              event->any.stage = stage;
-              res = TRUE;
+              g_return_val_if_fail (META_IS_STAGE_X11_NESTED (stage_x11),
+                                    FALSE);
+              meta_quit (META_EXIT_SUCCESS);
+              res = FALSE;
             }
         }
 

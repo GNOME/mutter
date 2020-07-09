@@ -111,8 +111,7 @@ handle_idletime_for_event (const ClutterEvent *event)
       event->type == CLUTTER_LEAVE ||
       event->type == CLUTTER_STAGE_STATE ||
       event->type == CLUTTER_DESTROY_NOTIFY ||
-      event->type == CLUTTER_CLIENT_MESSAGE ||
-      event->type == CLUTTER_DELETE)
+      event->type == CLUTTER_CLIENT_MESSAGE)
     return;
 
   core_monitor = meta_idle_monitor_get_core ();

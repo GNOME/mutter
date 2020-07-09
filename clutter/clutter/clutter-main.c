@@ -1760,7 +1760,6 @@ _clutter_process_event_details (ClutterActor        *stage,
         break;
 
       case CLUTTER_DESTROY_NOTIFY:
-      case CLUTTER_DELETE:
         event->any.source = stage;
 
         if (_clutter_event_process_filters (event))

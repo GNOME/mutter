@@ -545,23 +545,6 @@ queue_full_redraw (ClutterStage *stage)
   clutter_stage_add_redraw_clip (stage, NULL);
 }
 
-static gboolean
-stage_is_default (ClutterStage *stage)
-{
-  ClutterStageManager *stage_manager;
-  ClutterStageWindow *impl;
-
-  stage_manager = clutter_stage_manager_get_default ();
-  if (stage != clutter_stage_manager_get_default_stage (stage_manager))
-    return FALSE;
-
-  impl = _clutter_stage_get_window (stage);
-  if (impl != _clutter_stage_get_default_window ())
-    return FALSE;
-
-  return TRUE;
-}
-
 static void
 clutter_stage_allocate (ClutterActor           *self,
                         const ClutterActorBox  *box)
@@ -1591,18 +1574,6 @@ _clutter_stage_do_pick (ClutterStage   *stage,
   return actor;
 }
 
-static gboolean
-clutter_stage_real_delete_event (ClutterStage *stage,
-                                 ClutterEvent *event)
-{
-  if (stage_is_default (stage))
-    clutter_main_quit ();
-  else
-    clutter_actor_destroy (CLUTTER_ACTOR (stage));
-
-  return CLUTTER_EVENT_STOP;
-}
-
 static void
 clutter_stage_real_apply_transform (ClutterActor *stage,
                                     CoglMatrix   *matrix)
@@ -1879,37 +1850,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
 		  G_TYPE_NONE, 0);
 
   /**
-   * ClutterStage::delete-event:
-   * @stage: the stage that received the event
-   * @event: a #ClutterEvent of type %CLUTTER_DELETE
-   *
-   * The ::delete-event signal is emitted when the user closes a
-   * #ClutterStage window using the window controls.
-   *
-   * Clutter by default will call clutter_main_quit() if @stage is
-   * the default stage, and clutter_actor_destroy() for any other
-   * stage.
-   *
-   * It is possible to override the default behaviour by connecting
-   * a new handler and returning %TRUE there.
-   *
-   * This signal is emitted only on Clutter backends that
-   * embed #ClutterStage in native windows. It is not emitted for
-   * backends that use a static frame buffer.
-   *
-   * Since: 1.2
-   */
-  stage_signals[DELETE_EVENT] =
-    g_signal_new (I_("delete-event"),
-                  G_TYPE_FROM_CLASS (gobject_class),
-                  G_SIGNAL_RUN_LAST,
-                  G_STRUCT_OFFSET (ClutterStageClass, delete_event),
-                  _clutter_boolean_handled_accumulator, NULL,
-                  _clutter_marshal_BOOLEAN__BOXED,
-                  G_TYPE_BOOLEAN, 1,
-                  CLUTTER_TYPE_EVENT | G_SIGNAL_TYPE_STATIC_SCOPE);
-
-  /**
    * ClutterStage::before-update:
    * @stage: the #ClutterStage
    * @view: a #ClutterStageView
@@ -2030,7 +1970,6 @@ clutter_stage_class_init (ClutterStageClass *klass)
 
   klass->activate = clutter_stage_real_activate;
   klass->deactivate = clutter_stage_real_deactivate;
-  klass->delete_event = clutter_stage_real_delete_event;
 }
 
 static void
@@ -2476,18 +2415,6 @@ clutter_stage_event (ClutterStage *stage,
 {
   g_return_val_if_fail (CLUTTER_IS_STAGE (stage), FALSE);
   g_return_val_if_fail (event != NULL, FALSE);
-
-  if (event->type == CLUTTER_DELETE)
-    {
-      gboolean retval = FALSE;
-
-      g_signal_emit_by_name (stage, "event", event, &retval);
-
-      if (!retval)
-        g_signal_emit_by_name (stage, "delete-event", event, &retval);
-
-      return retval;
-    }
 
   if (event->type != CLUTTER_STAGE_STATE)
     return FALSE;

@@ -407,7 +407,6 @@ clutter_event_get_position (const ClutterEvent *event,
     case CLUTTER_STAGE_STATE:
     case CLUTTER_DESTROY_NOTIFY:
     case CLUTTER_CLIENT_MESSAGE:
-    case CLUTTER_DELETE:
     case CLUTTER_EVENT_LAST:
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_PROXIMITY_OUT:
@@ -481,7 +480,6 @@ clutter_event_set_coords (ClutterEvent *event,
     case CLUTTER_STAGE_STATE:
     case CLUTTER_DESTROY_NOTIFY:
     case CLUTTER_CLIENT_MESSAGE:
-    case CLUTTER_DELETE:
     case CLUTTER_EVENT_LAST:
     case CLUTTER_PROXIMITY_IN:
     case CLUTTER_PROXIMITY_OUT:
@@ -1105,7 +1103,6 @@ clutter_event_set_device (ClutterEvent       *event,
     case CLUTTER_STAGE_STATE:
     case CLUTTER_DESTROY_NOTIFY:
     case CLUTTER_CLIENT_MESSAGE:
-    case CLUTTER_DELETE:
     case CLUTTER_EVENT_LAST:
       break;
 
@@ -1202,7 +1199,6 @@ clutter_event_get_device (const ClutterEvent *event)
     case CLUTTER_STAGE_STATE:
     case CLUTTER_DESTROY_NOTIFY:
     case CLUTTER_CLIENT_MESSAGE:
-    case CLUTTER_DELETE:
     case CLUTTER_EVENT_LAST:
       break;
 
@@ -1725,7 +1721,6 @@ clutter_event_get_axes (const ClutterEvent *event,
     case CLUTTER_STAGE_STATE:
     case CLUTTER_DESTROY_NOTIFY:
     case CLUTTER_CLIENT_MESSAGE:
-    case CLUTTER_DELETE:
     case CLUTTER_ENTER:
     case CLUTTER_LEAVE:
     case CLUTTER_KEY_PRESS:

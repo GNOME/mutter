@@ -36,9 +36,6 @@ get_event_type_name (const ClutterEvent *event)
     case CLUTTER_MOTION:
       return "MOTION";
 
-    case CLUTTER_DELETE:
-      return "DELETE";
-
     case CLUTTER_TOUCH_BEGIN:
       return "TOUCH BEGIN";
 
@@ -351,9 +348,6 @@ input_cb (ClutterActor *actor,
       break;
     case CLUTTER_CLIENT_MESSAGE:
       g_print ("[%s] CLIENT MESSAGE", clutter_actor_get_name (source_actor));
-      break;
-    case CLUTTER_DELETE:
-      g_print ("[%s] DELETE", clutter_actor_get_name (source_actor));
       break;
     case CLUTTER_TOUCHPAD_PINCH:
       g_print ("[%s] TOUCHPAD PINCH", clutter_actor_get_name (source_actor));

@@ -64,7 +64,6 @@ struct _ClutterStage
  * ClutterStageClass:
  * @activate: handler for the #ClutterStage::activate signal
  * @deactivate: handler for the #ClutterStage::deactivate signal
- * @delete_event: handler for the #ClutterStage::delete-event signal
  *
  * The #ClutterStageClass structure contains only private data
  *
@@ -81,16 +80,13 @@ struct _ClutterStageClass
   void (* activate)     (ClutterStage *stage);
   void (* deactivate)   (ClutterStage *stage);
 
-  gboolean (* delete_event) (ClutterStage *stage,
-                             ClutterEvent *event);
-
   void (* paint_view) (ClutterStage         *stage,
                        ClutterStageView     *view,
                        const cairo_region_t *redraw_clip);
 
   /*< private >*/
   /* padding for future expansion */
-  gpointer _padding_dummy[30];
+  gpointer _padding_dummy[31];
 };
 
 /**
