@@ -52,9 +52,6 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC (ClutterBackendEglNative, g_object_unref)
 struct _ClutterBackendEglNative
 {
   ClutterBackend parent_instance;
-
-  /* event source */
-  GSource *event_source;
 };
 
 struct _ClutterBackendEglNativeClass
