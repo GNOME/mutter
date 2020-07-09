@@ -58,13 +58,6 @@
 
 #include <cogl/cogl.h>
 
-#ifdef CLUTTER_INPUT_X11
-#include "x11/clutter-backend-x11.h"
-#endif
-#ifdef CLUTTER_WINDOWING_EGL
-#include "egl/clutter-backend-eglnative.h"
-#endif
-
 #ifdef CLUTTER_HAS_WAYLAND_COMPOSITOR_SUPPORT
 #include <cogl/cogl-wayland-server.h>
 #include <wayland-server.h>
@@ -431,22 +424,7 @@ clutter_backend_real_get_features (ClutterBackend *backend)
   return flags;
 }
 
-static const char *allowed_backends;
-
 static ClutterBackend * (* custom_backend_func) (void);
-
-static const struct {
-  const char *name;
-  ClutterBackend * (* create_backend) (void);
-} available_backends[] = {
-#ifdef CLUTTER_WINDOWING_X11
-  { CLUTTER_WINDOWING_X11, clutter_backend_x11_new },
-#endif
-#ifdef CLUTTER_WINDOWING_EGL
-  { CLUTTER_WINDOWING_EGL, clutter_backend_egl_native_new },
-#endif
-  { NULL, NULL },
-};
 
 void
 clutter_set_custom_backend_func (ClutterBackend *(* func) (void))
@@ -457,58 +435,13 @@ clutter_set_custom_backend_func (ClutterBackend *(* func) (void))
 ClutterBackend *
 _clutter_create_backend (void)
 {
-  const char *backends_list;
   ClutterBackend *retval;
-  gboolean allow_any;
-  char **backends;
-  int i;
 
-  if (custom_backend_func)
-    {
-      retval = custom_backend_func ();
+  g_return_val_if_fail (custom_backend_func, NULL);
 
-      if (!retval)
-        g_error ("Failed to create custom backend.");
-
-      return retval;
-    }
-
-  if (allowed_backends == NULL)
-    allowed_backends = "*";
-
-  allow_any = strstr (allowed_backends, "*") != NULL;
-
-  backends_list = g_getenv ("CLUTTER_BACKEND");
-  if (backends_list == NULL)
-    backends_list = allowed_backends;
-
-  backends = g_strsplit (backends_list, ",", 0);
-
-  retval = NULL;
-
-  for (i = 0; retval == NULL && backends[i] != NULL; i++)
-    {
-      const char *backend = backends[i];
-      gboolean is_any = g_str_equal (backend, "*");
-      int j;
-
-      for (j = 0; available_backends[j].name != NULL; j++)
-        {
-          if ((is_any && allow_any) ||
-              (is_any && strstr (allowed_backends, available_backends[j].name)) ||
-              g_str_equal (backend, available_backends[j].name))
-            {
-              retval = available_backends[j].create_backend ();
-              if (retval != NULL)
-                break;
-            }
-        }
-    }
-
-  g_strfreev (backends);
-
-  if (retval == NULL)
-    g_error ("No default Clutter backend found.");
+  retval = custom_backend_func ();
+  if (!retval)
+    g_error ("Failed to create custom backend.");
 
   return retval;
 }
