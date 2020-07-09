@@ -257,13 +257,6 @@ if have_x11
   clutter_backend_nonintrospected_sources += clutter_x11_nonintrospected_sources
 endif
 
-if have_native_backend
-  clutter_native_nonintrospected_sources = [
-    'egl/clutter-backend-eglnative.c',
-  ]
-  clutter_backend_nonintrospected_sources += clutter_native_nonintrospected_sources
-endif
-
 if have_wayland
   clutter_wayland_private_headers = [
     'wayland/clutter-wayland-compositor.h',

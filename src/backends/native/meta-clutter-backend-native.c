@@ -52,7 +52,7 @@
 
 struct _MetaClutterBackendNative
 {
-  ClutterBackendEglNative parent;
+  ClutterBackend parent;
 
   MetaSeatNative *main_seat;
   MetaStageNative *stage_native;
@@ -61,7 +61,7 @@ struct _MetaClutterBackendNative
 static gchar *evdev_seat_id;
 
 G_DEFINE_TYPE (MetaClutterBackendNative, meta_clutter_backend_native,
-               CLUTTER_TYPE_BACKEND_EGL_NATIVE)
+               CLUTTER_TYPE_BACKEND)
 
 MetaStageNative *
 meta_clutter_backend_native_get_stage_native (ClutterBackend *backend)
