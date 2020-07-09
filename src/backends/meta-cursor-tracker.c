@@ -579,16 +579,6 @@ meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
 
   g_signal_emit (tracker, signals[VISIBILITY_CHANGED], 0);
 }
-
-MetaCursorSprite *
-meta_cursor_tracker_get_displayed_cursor (MetaCursorTracker *tracker)
-{
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-
-  return priv->displayed_cursor;
-}
-
 MetaBackend *
 meta_cursor_tracker_get_backend (MetaCursorTracker *tracker)
 {
