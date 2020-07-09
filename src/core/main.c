@@ -642,6 +642,22 @@ meta_register_with_session (void)
   g_free (opt_client_id);
 }
 
+void
+meta_start (void)
+{
+  meta_prefs_init ();
+  meta_prefs_add_listener (prefs_changed_callback, NULL);
+
+  if (!meta_display_open ())
+    meta_exit (META_EXIT_ERROR);
+}
+
+void
+meta_run_main_loop (void)
+{
+  g_main_loop_run (meta_main_loop);
+}
+
 /**
  * meta_run: (skip)
  *
@@ -653,15 +669,8 @@ meta_register_with_session (void)
 int
 meta_run (void)
 {
-  /* Load prefs */
-  meta_prefs_init ();
-  meta_prefs_add_listener (prefs_changed_callback, NULL);
-
-  if (!meta_display_open ())
-    meta_exit (META_EXIT_ERROR);
-
-  g_main_loop_run (meta_main_loop);
-
+  meta_start ();
+  meta_run_main_loop ();
   meta_finalize ();
 
   return meta_exit_code;

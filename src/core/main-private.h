@@ -51,4 +51,10 @@ void meta_override_compositor_configuration (MetaCompositorType compositor_type,
 
 MetaDisplayPolicy meta_get_x11_display_policy (void);
 
+META_EXPORT_TEST
+void meta_start (void);
+
+META_EXPORT_TEST
+void meta_run_main_loop (void);
+
 #endif /* META_MAIN_PRIVATE_H */
