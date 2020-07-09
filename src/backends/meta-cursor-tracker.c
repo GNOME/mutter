@@ -37,7 +37,6 @@
 #include "cogl/cogl.h"
 #include "core/display-private.h"
 #include "clutter/clutter.h"
-#include "meta-marshal.h"
 #include "meta/main.h"
 #include "meta/util.h"
 
@@ -301,14 +300,8 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
                                         G_TYPE_FROM_CLASS (klass),
                                         G_SIGNAL_RUN_LAST,
                                         0,
-                                        NULL, NULL,
-                                        meta_marshal_VOID__FLOAT_FLOAT,
-                                        G_TYPE_NONE, 2,
-                                        G_TYPE_FLOAT,
-                                        G_TYPE_FLOAT);
-  g_signal_set_va_marshaller (signals[CURSOR_MOVED],
-                              G_TYPE_FROM_CLASS (klass),
-                              meta_marshal_VOID__FLOAT_FLOATv);
+                                        NULL, NULL, NULL,
+                                        G_TYPE_NONE, 0);
 
   signals[VISIBILITY_CHANGED] = g_signal_new ("visibility-changed",
                                               G_TYPE_FROM_CLASS (klass),
@@ -459,7 +452,7 @@ meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
   meta_cursor_renderer_set_position (cursor_renderer, new_x, new_y);
 
   if (position_changed)
-    g_signal_emit (tracker, signals[CURSOR_MOVED], 0, new_x, new_y);
+    g_signal_emit (tracker, signals[CURSOR_MOVED], 0);
 }
 
 void

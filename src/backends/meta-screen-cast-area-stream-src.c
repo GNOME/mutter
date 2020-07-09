@@ -181,8 +181,6 @@ sync_cursor_state (MetaScreenCastAreaStreamSrc *area_src)
 
 static void
 cursor_moved (MetaCursorTracker           *cursor_tracker,
-              float                        x,
-              float                        y,
               MetaScreenCastAreaStreamSrc *area_src)
 {
   sync_cursor_state (area_src);
