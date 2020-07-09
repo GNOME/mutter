@@ -50,7 +50,6 @@ typedef struct _CoglGLXDisplay
   CoglGLXCachedConfig glx_cached_configs[COGL_GLX_N_CACHED_CONFIGS];
 
   gboolean found_fbconfig;
-  gboolean fbconfig_has_rgba_visual;
   gboolean is_direct;
   gboolean have_vblank_counter;
   gboolean can_vblank_wait;

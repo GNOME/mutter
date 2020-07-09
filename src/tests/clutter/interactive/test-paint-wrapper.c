@@ -212,10 +212,6 @@ test_paint_wrapper_main (int argc, char *argv[])
 
   error = NULL;
 
-#ifdef CLUTTER_WINDOWING_X11
-  clutter_x11_set_use_argb_visual (TRUE);
-#endif
-
   if (clutter_init_with_args (&argc, &argv,
                               NULL,
                               super_oh_entries,

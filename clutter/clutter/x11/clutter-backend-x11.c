@@ -98,7 +98,6 @@ static const gchar *atom_names[] = {
 
 /* various flags corresponding to pre init setup calls */
 static gboolean clutter_enable_xinput = TRUE;
-static gboolean clutter_enable_argb = FALSE;
 static gboolean clutter_enable_stereo = FALSE;
 static Display  *_foreign_dpy = NULL;
 
@@ -237,13 +236,6 @@ clutter_backend_x11_pre_parse (ClutterBackend  *backend,
   if (env_string)
     {
       clutter_display_name = g_strdup (env_string);
-      env_string = NULL;
-    }
-
-  env_string = g_getenv ("CLUTTER_DISABLE_ARGB_VISUAL");
-  if (env_string)
-    {
-      clutter_enable_argb = FALSE;
       env_string = NULL;
     }
 
@@ -550,15 +542,12 @@ clutter_backend_x11_get_renderer (ClutterBackend  *backend,
 
 static gboolean
 check_onscreen_template (CoglRenderer         *renderer,
-                         CoglSwapChain        *swap_chain,
                          CoglOnscreenTemplate *onscreen_template,
-                         gboolean              enable_argb,
                          gboolean              enable_stereo,
                          GError              **error)
 {
   GError *internal_error = NULL;
 
-  cogl_swap_chain_set_has_alpha (swap_chain, enable_argb);
   cogl_onscreen_template_set_stereo_enabled (onscreen_template,
 					     clutter_enable_stereo);
 
@@ -573,17 +562,15 @@ check_onscreen_template (CoglRenderer         *renderer,
    */
   if (cogl_renderer_check_onscreen_template (renderer, onscreen_template, &internal_error))
     {
-      clutter_enable_argb = enable_argb;
       clutter_enable_stereo = enable_stereo;
 
       return TRUE;
     }
   else
     {
-      if (enable_argb || enable_stereo) /* More possibilities to try */
+      if (enable_stereo) /* More possibilities to try */
         CLUTTER_NOTE (BACKEND,
-                      "Creation of a CoglDisplay with alpha=%s, stereo=%s failed: %s",
-                      enable_argb ? "enabled" : "disabled",
+                      "Creation of a CoglDisplay with, stereo=%s failed: %s",
                       enable_stereo ? "enabled" : "disabled",
                       internal_error != NULL
                         ?  internal_error->message
@@ -611,8 +598,7 @@ clutter_backend_x11_get_display (ClutterBackend  *backend,
   CoglDisplay *display = NULL;
   gboolean res = FALSE;
 
-  CLUTTER_NOTE (BACKEND, "Creating CoglDisplay, alpha=%s, stereo=%s",
-                clutter_enable_argb ? "enabled" : "disabled",
+  CLUTTER_NOTE (BACKEND, "Creating CoglDisplay, stereo=%s",
                 clutter_enable_stereo ? "enabled" : "disabled");
 
   onscreen_template = cogl_onscreen_template_new (swap_chain);
@@ -620,22 +606,13 @@ clutter_backend_x11_get_display (ClutterBackend  *backend,
   /* It's possible that the current renderer doesn't support transparency
    * or doesn't support stereo, so we try the different combinations.
    */
-  if (clutter_enable_argb && clutter_enable_stereo)
-    res = check_onscreen_template (renderer, swap_chain, onscreen_template,
-                                  TRUE, TRUE, error);
-
-  /* Prioritize stereo over alpha */
-  if (!res && clutter_enable_stereo)
-    res = check_onscreen_template (renderer, swap_chain, onscreen_template,
-                                  FALSE, TRUE, error);
-
-  if (!res && clutter_enable_argb)
-    res = check_onscreen_template (renderer, swap_chain, onscreen_template,
-                                  TRUE, FALSE, error);
+  if (clutter_enable_stereo)
+    res = check_onscreen_template (renderer, onscreen_template,
+                                   TRUE, error);
 
   if (!res)
-    res = check_onscreen_template (renderer, swap_chain, onscreen_template,
-                                  FALSE, FALSE, error);
+    res = check_onscreen_template (renderer, onscreen_template,
+                                   FALSE, error);
 
   if (res)
     display = cogl_display_new (renderer, onscreen_template);
@@ -970,56 +947,6 @@ clutter_x11_has_composite_extension (void)
   done_check = TRUE;
 
   return have_composite;
-}
-
-/**
- * clutter_x11_set_use_argb_visual:
- * @use_argb: %TRUE if ARGB visuals should be requested by default
- *
- * Sets whether the Clutter X11 backend should request ARGB visuals by default
- * or not.
- *
- * By default, Clutter requests RGB visuals.
- *
- * If no ARGB visuals are found, the X11 backend will fall back to
- * requesting a RGB visual instead.
- *
- * ARGB visuals are required for the #ClutterStage:use-alpha property to work.
- *
- * This function can only be called once, and before clutter_init() is
- * called.
- *
- * Since: 1.2
- */
-void
-clutter_x11_set_use_argb_visual (gboolean use_argb)
-{
-  if (_clutter_context_is_initialized ())
-    {
-      g_warning ("%s() can only be used before calling clutter_init()",
-                 G_STRFUNC);
-      return;
-    }
-
-  CLUTTER_NOTE (BACKEND, "ARGB visuals are %s",
-                use_argb ? "enabled" : "disabled");
-
-  clutter_enable_argb = use_argb;
-}
-
-/**
- * clutter_x11_get_use_argb_visual:
- *
- * Retrieves whether the Clutter X11 backend is using ARGB visuals by default
- *
- * Return value: %TRUE if ARGB visuals are queried by default
- *
- * Since: 1.2
- */
-gboolean
-clutter_x11_get_use_argb_visual (void)
-{
-  return clutter_enable_argb;
 }
 
 /**

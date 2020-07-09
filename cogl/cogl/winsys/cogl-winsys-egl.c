@@ -223,7 +223,7 @@ egl_attributes_from_framebuffer_config (CoglDisplay *display,
   attributes[i++] = 1;
 
   attributes[i++] = EGL_ALPHA_SIZE;
-  attributes[i++] = config->swap_chain->has_alpha ? 1 : EGL_DONT_CARE;
+  attributes[i++] = EGL_DONT_CARE;
 
   attributes[i++] = EGL_DEPTH_SIZE;
   attributes[i++] = 1;

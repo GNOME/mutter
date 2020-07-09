@@ -885,7 +885,7 @@ glx_attributes_from_framebuffer_config (CoglDisplay *display,
   attributes[i++] = GLX_BLUE_SIZE;
   attributes[i++] = 1;
   attributes[i++] = GLX_ALPHA_SIZE;
-  attributes[i++] = config->swap_chain->has_alpha ? 1 : GLX_DONT_CARE;
+  attributes[i++] = GLX_DONT_CARE;
   attributes[i++] = GLX_DEPTH_SIZE;
   attributes[i++] = 1;
   attributes[i++] = GLX_STENCIL_SIZE;
@@ -944,40 +944,8 @@ find_fbconfig (CoglDisplay *display,
       goto done;
     }
 
-  if (config->swap_chain->has_alpha)
-    {
-      int i;
-
-      for (i = 0; i < n_configs; i++)
-        {
-          XVisualInfo *vinfo;
-
-          vinfo = glx_renderer->glXGetVisualFromFBConfig (xlib_renderer->xdpy,
-                                                          configs[i]);
-          if (vinfo == NULL)
-            continue;
-
-          if (vinfo->depth == 32 &&
-              (vinfo->red_mask | vinfo->green_mask | vinfo->blue_mask)
-              != 0xffffffff)
-            {
-              COGL_NOTE (WINSYS, "Found an ARGB FBConfig [index:%d]", i);
-              *config_ret = configs[i];
-              goto done;
-            }
-        }
-
-      g_set_error_literal (error, COGL_WINSYS_ERROR,
-                           COGL_WINSYS_ERROR_CREATE_CONTEXT,
-                           "Unable to find fbconfig with rgba visual");
-      ret = FALSE;
-      goto done;
-    }
-  else
-    {
-      COGL_NOTE (WINSYS, "Using the first available FBConfig");
-      *config_ret = configs[0];
-    }
+  COGL_NOTE (WINSYS, "Using the first available FBConfig");
+  *config_ret = configs[0];
 
 done:
   XFree (configs);
@@ -1059,8 +1027,6 @@ create_context (CoglDisplay *display, GError **error)
   CoglXlibRenderer *xlib_renderer =
     _cogl_xlib_renderer_get_data (display->renderer);
   CoglGLXRenderer *glx_renderer = display->renderer->winsys;
-  gboolean support_transparent_windows =
-    display->onscreen_template->config.swap_chain->has_alpha;
   GLXFBConfig config;
   GError *fbconfig_error = NULL;
   XSetWindowAttributes attrs;
@@ -1084,7 +1050,6 @@ create_context (CoglDisplay *display, GError **error)
     }
 
   glx_display->fbconfig = config;
-  glx_display->fbconfig_has_rgba_visual = support_transparent_windows;
 
   COGL_NOTE (WINSYS, "Creating GLX Context (display: %p)",
              xlib_renderer->xdpy);
