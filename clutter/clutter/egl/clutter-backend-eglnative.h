@@ -55,9 +55,6 @@ struct _ClutterBackendEglNative
 
   /* event source */
   GSource *event_source;
-
-  /* event timer */
-  GTimer *event_timer;
 };
 
 struct _ClutterBackendEglNativeClass

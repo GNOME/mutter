@@ -52,31 +52,13 @@
 G_DEFINE_TYPE (ClutterBackendEglNative, clutter_backend_egl_native, CLUTTER_TYPE_BACKEND);
 
 static void
-clutter_backend_egl_native_dispose (GObject *gobject)
-{
-  ClutterBackendEglNative *backend_egl_native = CLUTTER_BACKEND_EGL_NATIVE (gobject);
-
-  if (backend_egl_native->event_timer != NULL)
-    {
-      g_timer_destroy (backend_egl_native->event_timer);
-      backend_egl_native->event_timer = NULL;
-    }
-
-  G_OBJECT_CLASS (clutter_backend_egl_native_parent_class)->dispose (gobject);
-}
-
-static void
 clutter_backend_egl_native_class_init (ClutterBackendEglNativeClass *klass)
 {
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-  gobject_class->dispose = clutter_backend_egl_native_dispose;
 }
 
 static void
 clutter_backend_egl_native_init (ClutterBackendEglNative *backend_egl_native)
 {
-  backend_egl_native->event_timer = g_timer_new ();
 }
 
 ClutterBackend *
