@@ -69,13 +69,6 @@
 #include "clutter-stage-private.h"
 #include "clutter-backend-private.h"
 
-#ifdef CLUTTER_WINDOWING_X11
-#include "x11/clutter-backend-x11.h"
-#endif
-#ifdef CLUTTER_WINDOWING_EGL
-#include "egl/clutter-backend-eglnative.h"
-#endif
-
 #include <cogl/cogl.h>
 #include <cogl-pango/cogl-pango.h>
 
@@ -2441,58 +2434,6 @@ _clutter_context_get_pick_mode (void)
   ClutterMainContext *context = _clutter_context_get_default ();
 
   return context->pick_mode;
-}
-
-/**
- * clutter_check_windowing_backend:
- * @backend_type: the name of the backend to check
- *
- * Checks the run-time name of the Clutter windowing system backend, using
- * the symbolic macros like %CLUTTER_WINDOWING_X11.
- *
- * This function should be used in conjuction with the compile-time macros
- * inside applications and libraries that are using the platform-specific
- * windowing system API, to ensure that they are running on the correct
- * windowing system; for instance:
- *
- * |[
- * #ifdef CLUTTER_WINDOWING_X11
- *   if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
- *     {
- *       // it is safe to use the clutter_x11_* API
- *     }
- *   else
- * #endif
- *     g_error ("Unknown Clutter backend.");
- * ]|
- *
- * Return value: %TRUE if the current Clutter windowing system backend is
- *   the one checked, and %FALSE otherwise
- *
- * Since: 1.10
- */
-gboolean
-clutter_check_windowing_backend (const char *backend_type)
-{
-  ClutterMainContext *context = _clutter_context_get_default ();
-
-  g_return_val_if_fail (backend_type != NULL, FALSE);
-
-  backend_type = g_intern_string (backend_type);
-
-#ifdef CLUTTER_WINDOWING_EGL
-  if (backend_type == I_(CLUTTER_WINDOWING_EGL) &&
-      CLUTTER_IS_BACKEND_EGL_NATIVE (context->backend))
-    return TRUE;
-  else
-#endif
-#ifdef CLUTTER_WINDOWING_X11
-  if (backend_type == I_(CLUTTER_WINDOWING_X11) &&
-      CLUTTER_IS_BACKEND_X11 (context->backend))
-    return TRUE;
-  else
-#endif
-  return FALSE;
 }
 
 /**

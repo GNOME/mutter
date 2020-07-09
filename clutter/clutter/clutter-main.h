@@ -195,9 +195,6 @@ CLUTTER_EXPORT
 guint                   clutter_get_default_frame_rate          (void);
 
 CLUTTER_EXPORT
-gboolean                clutter_check_windowing_backend         (const char *backend_type);
-
-CLUTTER_EXPORT
 void                    clutter_add_debug_flags                 (ClutterDebugFlag     debug_flags,
                                                                  ClutterDrawDebugFlag draw_flags,
                                                                  ClutterPickDebugFlag pick_flags);
