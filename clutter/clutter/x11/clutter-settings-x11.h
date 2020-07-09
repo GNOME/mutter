@@ -8,12 +8,6 @@ static const struct {
 } _clutter_settings_map[] = {
   { "Net/DoubleClickDistance", "double-click-distance" },
   { "Net/DndDragThreshold",    "dnd-drag-threshold" },
-  { "Gtk/FontName",            "font-name" },
-  { "Xft/Antialias",           "font-antialias" },
-  { "Xft/Hinting",             "font-hinting" },
-  { "Xft/HintStyle",           "font-hint-style" },
-  { "Xft/RGBA",                "font-subpixel-order" },
-  { "Fontconfig/Timestamp",    "fontconfig-timestamp" },
 };
 
 static const gint _n_clutter_settings_map = G_N_ELEMENTS (_clutter_settings_map);

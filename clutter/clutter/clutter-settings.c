@@ -40,6 +40,18 @@
 #define CLUTTER_IS_SETTINGS_CLASS(klass)        (G_TYPE_CHECK_CLASS_TYPE ((klass), CLUTTER_TYPE_SETTINGS))
 #define CLUTTER_SETTINGS_GET_CLASS(obj)         (G_TYPE_INSTANCE_GET_CLASS ((obj), CLUTTER_TYPE_SETTINGS, ClutterSettingsClass))
 
+typedef struct
+{
+  cairo_antialias_t cairo_antialias;
+  gint clutter_font_antialias;
+
+  cairo_hint_style_t cairo_hint_style;
+  const char *clutter_font_hint_style;
+
+  cairo_subpixel_order_t cairo_subpixel_order;
+  const char *clutter_font_subpixel_order;
+} FontSettings;
+
 /**
  * ClutterSettings:
  *
@@ -53,6 +65,7 @@ struct _ClutterSettings
   GObject parent_instance;
 
   ClutterBackend *backend;
+  GSettings *xsettings;
 
   gint double_click_time;
   gint double_click_distance;
@@ -268,6 +281,159 @@ settings_update_fontmap (ClutterSettings *self,
 }
 
 static void
+get_font_gsettings (GSettings    *xsettings,
+                    FontSettings *output)
+{
+  /* org.gnome.settings-daemon.GsdFontAntialiasingMode */
+  static const struct
+  {
+    cairo_antialias_t cairo_antialias;
+    gint clutter_font_antialias;
+  }
+  antialiasings[] =
+  {
+    /* none=0      */ {CAIRO_ANTIALIAS_NONE,     0},
+    /* grayscale=1 */ {CAIRO_ANTIALIAS_GRAY,     1},
+    /* rgba=2      */ {CAIRO_ANTIALIAS_SUBPIXEL, 1},
+  };
+
+  /* org.gnome.settings-daemon.GsdFontHinting */
+  static const struct
+  {
+    cairo_hint_style_t cairo_hint_style;
+    const char *clutter_font_hint_style;
+  }
+  hintings[] =
+  {
+    /* none=0   */ {CAIRO_HINT_STYLE_NONE,   "hintnone"},
+    /* slight=1 */ {CAIRO_HINT_STYLE_SLIGHT, "hintslight"},
+    /* medium=2 */ {CAIRO_HINT_STYLE_MEDIUM, "hintmedium"},
+    /* full=3   */ {CAIRO_HINT_STYLE_FULL,   "hintfull"},
+  };
+
+  /* org.gnome.settings-daemon.GsdFontRgbaOrder */
+  static const struct
+  {
+    cairo_subpixel_order_t cairo_subpixel_order;
+    const char *clutter_font_subpixel_order;
+  }
+  rgba_orders[] =
+  {
+    /* rgba=0 */ {CAIRO_SUBPIXEL_ORDER_RGB,  "rgb"}, /* XXX what is 'rgba'? */
+    /* rgb=1  */ {CAIRO_SUBPIXEL_ORDER_RGB,  "rgb"},
+    /* bgr=2  */ {CAIRO_SUBPIXEL_ORDER_BGR,  "bgr"},
+    /* vrgb=3 */ {CAIRO_SUBPIXEL_ORDER_VRGB, "vrgb"},
+    /* vbgr=4 */ {CAIRO_SUBPIXEL_ORDER_VBGR, "vbgr"},
+  };
+  guint i;
+
+  i = g_settings_get_enum (xsettings, "hinting");
+  if (i < G_N_ELEMENTS (hintings))
+    {
+      output->cairo_hint_style = hintings[i].cairo_hint_style;
+      output->clutter_font_hint_style = hintings[i].clutter_font_hint_style;
+    }
+  else
+    {
+      output->cairo_hint_style = CAIRO_HINT_STYLE_DEFAULT;
+      output->clutter_font_hint_style = NULL;
+    }
+
+  i = g_settings_get_enum (xsettings, "antialiasing");
+  if (i < G_N_ELEMENTS (antialiasings))
+    {
+      output->cairo_antialias = antialiasings[i].cairo_antialias;
+      output->clutter_font_antialias = antialiasings[i].clutter_font_antialias;
+    }
+  else
+    {
+      output->cairo_antialias = CAIRO_ANTIALIAS_DEFAULT;
+      output->clutter_font_antialias = -1;
+    }
+
+  i = g_settings_get_enum (xsettings, "rgba-order");
+  if (i < G_N_ELEMENTS (rgba_orders))
+    {
+      output->cairo_subpixel_order = rgba_orders[i].cairo_subpixel_order;
+      output->clutter_font_subpixel_order = rgba_orders[i].clutter_font_subpixel_order;
+    }
+  else
+    {
+      output->cairo_subpixel_order = CAIRO_SUBPIXEL_ORDER_DEFAULT;
+      output->clutter_font_subpixel_order = NULL;
+    }
+
+  if (output->cairo_antialias == CAIRO_ANTIALIAS_GRAY)
+    output->clutter_font_subpixel_order = "none";
+}
+
+static void
+init_font_options (ClutterSettings *self)
+{
+  GSettings *xsettings = self->xsettings;
+  cairo_font_options_t *options = cairo_font_options_create ();
+  FontSettings fs;
+
+  get_font_gsettings (xsettings, &fs);
+
+  cairo_font_options_set_hint_style (options, fs.cairo_hint_style);
+  cairo_font_options_set_antialias (options, fs.cairo_antialias);
+  cairo_font_options_set_subpixel_order (options, fs.cairo_subpixel_order);
+
+  clutter_backend_set_font_options (self->backend, options);
+
+  cairo_font_options_destroy (options);
+}
+
+static gboolean
+on_xsettings_change_event (GSettings *xsettings,
+                           gpointer   keys,
+                           gint       n_keys,
+                           gpointer   user_data)
+{
+  ClutterSettings *self = CLUTTER_SETTINGS (user_data);
+  FontSettings fs;
+  gint hinting;
+
+  get_font_gsettings (xsettings, &fs);
+  hinting = fs.cairo_hint_style == CAIRO_HINT_STYLE_NONE ? 0 : 1;
+  g_object_set (self,
+                "font-hinting",        hinting,
+                "font-hint-style",     fs.clutter_font_hint_style,
+                "font-antialias",      fs.clutter_font_antialias,
+                "font-subpixel-order", fs.clutter_font_subpixel_order,
+                NULL);
+
+  return FALSE;
+}
+
+static void
+load_initial_settings (ClutterSettings *self)
+{
+  static const gchar xsettings_path[] =
+    "org.gnome.settings-daemon.plugins.xsettings";
+  GSettingsSchemaSource *source = g_settings_schema_source_get_default ();
+  GSettingsSchema *schema;
+
+  schema = g_settings_schema_source_lookup (source, xsettings_path, TRUE);
+  if (!schema)
+    {
+      g_warning ("Failed to find schema: %s", xsettings_path);
+    }
+  else
+    {
+      self->xsettings = g_settings_new_full (schema, NULL, NULL);
+      if (self->xsettings)
+        {
+          init_font_options (self);
+          g_signal_connect (self->xsettings, "change-event",
+                            G_CALLBACK (on_xsettings_change_event),
+                            self);
+        }
+    }
+}
+
+static void
 clutter_settings_finalize (GObject *gobject)
 {
   ClutterSettings *self = CLUTTER_SETTINGS (gobject);
@@ -275,6 +441,8 @@ clutter_settings_finalize (GObject *gobject)
   g_free (self->font_name);
   g_free (self->xft_hint_style);
   g_free (self->xft_rgba);
+
+  g_clear_object (&self->xsettings);
 
   G_OBJECT_CLASS (clutter_settings_parent_class)->finalize (gobject);
 }
@@ -740,6 +908,8 @@ _clutter_settings_set_backend (ClutterSettings *settings,
   g_assert (CLUTTER_IS_BACKEND (backend));
 
   settings->backend = backend;
+
+  load_initial_settings (settings);
 }
 
 #define SETTINGS_GROUP  "Settings"
