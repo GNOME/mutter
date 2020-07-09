@@ -82,7 +82,6 @@ static gboolean clutter_is_initialized       = FALSE;
 static gboolean clutter_show_fps             = FALSE;
 static gboolean clutter_fatal_warnings       = FALSE;
 static gboolean clutter_disable_mipmap_text  = FALSE;
-static gboolean clutter_use_fuzzy_picking    = FALSE;
 static gboolean clutter_enable_accessibility = TRUE;
 static gboolean clutter_sync_to_vblank       = TRUE;
 
@@ -175,16 +174,6 @@ clutter_config_read_from_key_file (GKeyFile *keyfile)
     g_clear_error (&key_error);
   else
     clutter_disable_mipmap_text = bool_value;
-
-  bool_value =
-    g_key_file_get_boolean (keyfile, ENVIRONMENT_GROUP,
-                            "UseFuzzyPicking",
-                            &key_error);
-
-  if (key_error != NULL)
-    g_clear_error (&key_error);
-  else
-    clutter_use_fuzzy_picking = bool_value;
 
   bool_value =
     g_key_file_get_boolean (keyfile, ENVIRONMENT_GROUP,
@@ -844,9 +833,6 @@ static GOptionEntry clutter_args[] = {
   { "clutter-disable-mipmapped-text", 0, 0, G_OPTION_ARG_NONE,
     &clutter_disable_mipmap_text,
     N_("Disable mipmapping on text"), NULL },
-  { "clutter-use-fuzzy-picking", 0, 0, G_OPTION_ARG_NONE,
-    &clutter_use_fuzzy_picking,
-    N_("Use 'fuzzy' picking"), NULL },
 #ifdef CLUTTER_ENABLE_DEBUG
   { "clutter-debug", 0, 0, G_OPTION_ARG_CALLBACK, clutter_arg_debug_cb,
     N_("Clutter debugging flags to set"), "FLAGS" },
@@ -927,10 +913,6 @@ pre_parse_hook (GOptionContext  *context,
   env_string = g_getenv ("CLUTTER_DISABLE_MIPMAPPED_TEXT");
   if (env_string)
     clutter_disable_mipmap_text = TRUE;
-
-  env_string = g_getenv ("CLUTTER_FUZZY_PICK");
-  if (env_string)
-    clutter_use_fuzzy_picking = TRUE;
 
   return _clutter_backend_pre_parse (backend, error);
 }
