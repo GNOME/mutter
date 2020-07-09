@@ -501,41 +501,69 @@ meta_background_content_paint_content (ClutterContent      *content,
 {
   MetaBackgroundContent *self = META_BACKGROUND_CONTENT (content);
   ClutterActorBox actor_box;
-  cairo_rectangle_int_t actor_pixel_rect;
+  cairo_rectangle_int_t rect_within_actor;
+  cairo_rectangle_int_t rect_within_stage;
   cairo_region_t *region;
   int i, n_rects;
+  float transformed_x, transformed_y, transformed_width, transformed_height;
+  gboolean untransformed;
 
   if ((self->clip_region && cairo_region_is_empty (self->clip_region)))
     return;
 
+  clutter_actor_get_transformed_position (actor,
+                                          &transformed_x,
+                                          &transformed_y);
+  rect_within_stage.x = floorf (transformed_x);
+  rect_within_stage.y = floorf (transformed_y);
+
+  clutter_actor_get_transformed_size (actor,
+                                      &transformed_width,
+                                      &transformed_height);
+  rect_within_stage.width = roundf (transformed_width);
+  rect_within_stage.height = roundf (transformed_height);
+
   clutter_actor_get_content_box (actor, &actor_box);
-  actor_pixel_rect.x = actor_box.x1;
-  actor_pixel_rect.y = actor_box.y1;
-  actor_pixel_rect.width = actor_box.x2 - actor_box.x1;
-  actor_pixel_rect.height = actor_box.y2 - actor_box.y1;
+  rect_within_actor.x = actor_box.x1;
+  rect_within_actor.y = actor_box.y1;
+  rect_within_actor.width = actor_box.x2 - actor_box.x1;
+  rect_within_actor.height = actor_box.y2 - actor_box.y1;
 
-  /* Now figure out what to actually paint */
-  if (self->clip_region)
+  untransformed =
+    rect_within_actor.x == rect_within_stage.x &&
+    rect_within_actor.y == rect_within_stage.y &&
+    rect_within_actor.width == rect_within_stage.width &&
+    rect_within_actor.height == rect_within_stage.height;
+
+  if (untransformed) /* actor and stage space are the same */
     {
-      region = cairo_region_copy (self->clip_region);
-      cairo_region_intersect_rectangle (region, &actor_pixel_rect);
+      if (self->clip_region)
+        {
+          region = cairo_region_copy (self->clip_region);
+          cairo_region_intersect_rectangle (region, &rect_within_stage);
+        }
+      else
+        {
+          region = cairo_region_create_rectangle (&rect_within_stage);
+        }
+
+      if (self->unobscured_region)
+        cairo_region_intersect (region, self->unobscured_region);
     }
-  else
+  else /* actor and stage space are different but we need actor space */
     {
-      region = cairo_region_create_rectangle (&actor_pixel_rect);
+      region = cairo_region_create_rectangle (&rect_within_actor);
     }
 
-  if (self->unobscured_region)
-    cairo_region_intersect (region, self->unobscured_region);
-
+  /* region is now in actor space */
   if (cairo_region_is_empty (region))
     {
       cairo_region_destroy (region);
       return;
     }
 
-  setup_pipeline (self, actor, paint_context, &actor_pixel_rect);
-  set_glsl_parameters (self, &actor_pixel_rect);
+  setup_pipeline (self, actor, paint_context, &rect_within_actor);
+  set_glsl_parameters (self, &rect_within_actor);
 
   /* Limit to how many separate rectangles we'll draw; beyond this just
    * fall back and draw the whole thing */
