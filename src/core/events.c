@@ -296,8 +296,6 @@ meta_display_handle_event (MetaDisplay        *display,
                                                event->motion.x,
                                                event->motion.y);
         }
-
-      display->monitor_cache_invalidated = TRUE;
     }
 #endif
 
