@@ -5,7 +5,7 @@
 #include <clutter/clutter.h>
 
 typedef struct {
-  guint no_display : 1;
+  gpointer dummy_field;
 } ClutterTestEnvironment;
 
 static ClutterTestEnvironment *test_environ = NULL;
@@ -39,33 +39,19 @@ void
 clutter_test_init (int    *argc,
                    char ***argv)
 {
-  gboolean no_display = FALSE;
+  const char *display = g_getenv ("DISPLAY");
 
   if (G_UNLIKELY (test_environ != NULL))
     g_error ("Attempting to initialize the test suite more than once, "
              "aborting...\n");
 
-#ifdef CLUTTER_WINDOWING_X11
-  /* on X11 backends we need the DISPLAY environment set.
-   *
-   * check_windowing_backend() will pre-initialize the Clutter
-   * backend object.
-   */
-  if (clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
+  display = g_getenv ("DISPLAY");
+  if (!display || *display == '\0')
     {
-      const char *display = g_getenv ("DISPLAY");
-
-      if (display == NULL || *display == '\0')
-        {
-          g_test_message ("No DISPLAY environment variable found, but we require a "
-                          "DISPLAY set in order to run the conformance test suite.\n"
-                          "Skipping all tests.\n");
-          no_display = TRUE;
-
-          goto out;
-        }
+      g_error ("No DISPLAY environment variable found, but we require a "
+               "DISPLAY set in order to run the conformance test suite.\n"
+               "Skipping all tests.\n");
     }
-#endif
 
   /* we explicitly disable the synchronisation to the vertical refresh
    * rate, and run the master clock using a 60 fps timer instead.
@@ -75,13 +61,11 @@ clutter_test_init (int    *argc,
   /* perform the actual initialization */
   g_assert (clutter_init (NULL, NULL) == CLUTTER_INIT_SUCCESS);
 
-out:
   g_test_init (argc, argv, NULL);
   g_test_bug_base ("https://bugzilla.gnome.org/show_bug.cgi?id=%s");
 
   /* our global state, accessible from each test unit */
   test_environ = g_new0 (ClutterTestEnvironment, 1);
-  test_environ->no_display = no_display;
 }
 
 /**
@@ -119,12 +103,6 @@ clutter_test_func_wrapper (gconstpointer data_)
   stage = clutter_test_get_stage ();
   g_assert_false (clutter_actor_is_mapped (stage));
 
-  if (test_environ->no_display)
-    {
-      g_test_skip ("No DISPLAY set");
-      goto out;
-    }
-
   if (data->test_data != NULL)
     {
       GTestDataFunc test_func = data->test_func;
@@ -138,7 +116,6 @@ clutter_test_func_wrapper (gconstpointer data_)
       test_func ();
     }
 
-out:
   if (data->test_notify != NULL)
     data->test_notify (data->test_data);
 
