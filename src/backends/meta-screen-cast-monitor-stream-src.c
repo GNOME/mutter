@@ -237,8 +237,6 @@ sync_cursor_state (MetaScreenCastMonitorStreamSrc *monitor_src)
 
 static void
 cursor_moved (MetaCursorTracker              *cursor_tracker,
-              float                           x,
-              float                           y,
               MetaScreenCastMonitorStreamSrc *monitor_src)
 {
   sync_cursor_state (monitor_src);

@@ -369,8 +369,6 @@ sync_cursor_state (MetaScreenCastWindowStreamSrc *window_src)
 
 static void
 cursor_moved (MetaCursorTracker             *cursor_tracker,
-              float                          x,
-              float                          y,
               MetaScreenCastWindowStreamSrc *window_src)
 {
   sync_cursor_state (window_src);
