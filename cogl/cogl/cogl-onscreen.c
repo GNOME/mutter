@@ -304,8 +304,7 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
   info->frame_counter = onscreen->frame_counter;
   g_queue_push_tail (&onscreen->pending_frame_infos, info);
 
-  /* FIXME: we shouldn't need to flush *all* journals here! */
-  cogl_flush ();
+  _cogl_framebuffer_flush_journal (framebuffer);
 
   winsys = _cogl_framebuffer_get_winsys (framebuffer);
   winsys->onscreen_swap_buffers_with_damage (onscreen,
@@ -354,8 +353,7 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
   info->frame_counter = onscreen->frame_counter;
   g_queue_push_tail (&onscreen->pending_frame_infos, info);
 
-  /* FIXME: we shouldn't need to flush *all* journals here! */
-  cogl_flush ();
+  _cogl_framebuffer_flush_journal (framebuffer);
 
   winsys = _cogl_framebuffer_get_winsys (framebuffer);
 
