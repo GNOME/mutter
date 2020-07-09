@@ -119,6 +119,12 @@ meta_clutter_backend_native_get_default_seat (ClutterBackend *backend)
   return CLUTTER_SEAT (backend_native->main_seat);
 }
 
+static gboolean
+meta_clutter_backend_native_is_display_server (ClutterBackend *backend)
+{
+  return TRUE;
+}
+
 static void
 meta_clutter_backend_native_init (MetaClutterBackendNative *clutter_backend_nativen)
 {
@@ -133,6 +139,7 @@ meta_clutter_backend_native_class_init (MetaClutterBackendNativeClass *klass)
   clutter_backend_class->create_stage = meta_clutter_backend_native_create_stage;
   clutter_backend_class->init_events = meta_clutter_backend_native_init_events;
   clutter_backend_class->get_default_seat = meta_clutter_backend_native_get_default_seat;
+  clutter_backend_class->is_display_server = meta_clutter_backend_native_is_display_server;
 }
 
 /**

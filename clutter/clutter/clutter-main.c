@@ -67,6 +67,7 @@
 #include "clutter-settings-private.h"
 #include "clutter-stage-manager.h"
 #include "clutter-stage-private.h"
+#include "clutter-backend-private.h"
 
 #ifdef CLUTTER_WINDOWING_X11
 #include "x11/clutter-backend-x11.h"
@@ -1669,6 +1670,11 @@ _clutter_process_event_details (ClutterActor        *stage,
                                 ClutterEvent        *event)
 {
   ClutterInputDevice *device = clutter_event_get_device (event);
+  ClutterMainContext *clutter_context;
+  ClutterBackend *backend;
+
+  clutter_context = _clutter_context_get_default ();
+  backend = clutter_context->backend;
 
   switch (event->type)
     {
@@ -1765,8 +1771,7 @@ _clutter_process_event_details (ClutterActor        *stage,
         break;
 
       case CLUTTER_MOTION:
-#ifdef CLUTTER_WINDOWING_X11
-        if (!clutter_check_windowing_backend (CLUTTER_WINDOWING_X11) &&
+        if (clutter_backend_is_display_server (backend) &&
             !(event->any.flags & CLUTTER_EVENT_FLAG_SYNTHETIC))
           {
             if (_clutter_is_input_pointer_a11y_enabled (device))
@@ -1777,7 +1782,6 @@ _clutter_process_event_details (ClutterActor        *stage,
                 _clutter_input_pointer_a11y_on_motion_event (device, x, y);
               }
           }
-#endif /* CLUTTER_WINDOWING_X11 */
         /* only the stage gets motion events if they are enabled */
         if (!clutter_stage_get_motion_events_enabled (CLUTTER_STAGE (stage)) &&
             event->any.source == NULL)
@@ -1808,8 +1812,7 @@ _clutter_process_event_details (ClutterActor        *stage,
         G_GNUC_FALLTHROUGH;
       case CLUTTER_BUTTON_PRESS:
       case CLUTTER_BUTTON_RELEASE:
-#ifdef CLUTTER_WINDOWING_X11
-        if (!clutter_check_windowing_backend (CLUTTER_WINDOWING_X11))
+        if (clutter_backend_is_display_server (backend))
           {
             if (_clutter_is_input_pointer_a11y_enabled (device) && (event->type != CLUTTER_MOTION))
               {
@@ -1818,7 +1821,6 @@ _clutter_process_event_details (ClutterActor        *stage,
                                                              event->type == CLUTTER_BUTTON_PRESS);
               }
           }
-#endif /* CLUTTER_WINDOWING_X11 */
       case CLUTTER_SCROLL:
       case CLUTTER_TOUCHPAD_PINCH:
       case CLUTTER_TOUCHPAD_SWIPE:

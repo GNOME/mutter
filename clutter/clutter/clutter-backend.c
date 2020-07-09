@@ -1038,3 +1038,9 @@ clutter_backend_get_fallback_resource_scale (ClutterBackend *backend)
 {
   return backend->fallback_resource_scale;
 }
+
+gboolean
+clutter_backend_is_display_server (ClutterBackend *backend)
+{
+  return CLUTTER_BACKEND_GET_CLASS (backend)->is_display_server (backend);
+}

@@ -93,6 +93,8 @@ struct _ClutterBackendClass
 
   ClutterSeat *         (* get_default_seat)   (ClutterBackend *backend);
 
+  gboolean              (* is_display_server)  (ClutterBackend *backend);
+
   /* signals */
   void (* resolution_changed) (ClutterBackend *backend);
   void (* font_changed)       (ClutterBackend *backend);
@@ -141,6 +143,8 @@ void clutter_backend_set_fallback_resource_scale (ClutterBackend *backend,
                                                   float           fallback_resource_scale);
 
 float clutter_backend_get_fallback_resource_scale (ClutterBackend *backend);
+
+gboolean clutter_backend_is_display_server (ClutterBackend *backend);
 
 G_END_DECLS
 
