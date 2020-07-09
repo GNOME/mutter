@@ -2592,29 +2592,6 @@ G_DEFINE_BOXED_TYPE (ClutterPerspective, clutter_perspective,
                      clutter_perspective_free);
 
 /**
- * clutter_stage_new:
- *
- * Creates a new, non-default stage. A non-default stage is a new
- * top-level actor which can be used as another container.
- *
- * The ability to support multiple stages depends on the current
- * backend. Use clutter_feature_available() and
- * %CLUTTER_FEATURE_STAGE_MULTIPLE to check at runtime whether a
- * backend supports multiple stages.
- *
- * Return value: a new stage, or %NULL if the default backend does
- *   not support multiple stages. Use clutter_actor_destroy() to
- *   programmatically close the returned stage.
- *
- * Since: 0.8
- */
-ClutterActor *
-clutter_stage_new (void)
-{
-  return g_object_new (CLUTTER_TYPE_STAGE, NULL);
-}
-
-/**
  * clutter_stage_ensure_viewport:
  * @stage: a #ClutterStage
  *

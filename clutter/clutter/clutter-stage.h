@@ -133,9 +133,6 @@ CLUTTER_EXPORT
 GType clutter_stage_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
-ClutterActor *  clutter_stage_new                               (void);
-
-CLUTTER_EXPORT
 void            clutter_stage_get_perspective                   (ClutterStage          *stage,
 			                                         ClutterPerspective    *perspective);
 CLUTTER_EXPORT
