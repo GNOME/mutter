@@ -90,9 +90,6 @@ static guint clutter_default_fps             = 60;
 
 static ClutterTextDirection clutter_text_direction = CLUTTER_TEXT_DIRECTION_LTR;
 
-static guint clutter_main_loop_level         = 0;
-static GSList *main_loops                    = NULL;
-
 /* debug flags */
 guint clutter_debug_flags       = 0;
 guint clutter_paint_debug_flags = 0;
@@ -441,76 +438,6 @@ clutter_get_text_direction (void)
                 dir == CLUTTER_TEXT_DIRECTION_RTL ? "rtl" : "ltr");
 
   return dir;
-}
-
-/**
- * clutter_main_quit:
- *
- * Terminates the Clutter mainloop.
- */
-void
-clutter_main_quit (void)
-{
-  if (main_loops == NULL)
-    {
-      g_critical ("Calling clutter_main_quit() without calling clutter_main() "
-                  "is not allowed. If you are using another main loop, use the "
-                  "appropriate API to terminate it.");
-      return;
-    }
-
-  CLUTTER_NOTE (MISC, "Terminating main loop level %d", clutter_main_loop_level);
-
-  g_main_loop_quit (main_loops->data);
-}
-
-/**
- * clutter_main_level:
- *
- * Retrieves the depth of the Clutter mainloop.
- *
- * Return value: The level of the mainloop.
- */
-gint
-clutter_main_level (void)
-{
-  return clutter_main_loop_level;
-}
-
-/**
- * clutter_main:
- *
- * Starts the Clutter mainloop.
- */
-void
-clutter_main (void)
-{
-  GMainLoop *loop;
-
-  if (!_clutter_context_is_initialized ())
-    {
-      g_warning ("Called clutter_main() but Clutter wasn't initialised. "
-		 "You must call clutter_init() first.");
-      return;
-    }
-
-  clutter_main_loop_level++;
-
-  CLUTTER_NOTE (MISC, "Entering main loop level %d", clutter_main_loop_level);
-
-  loop = g_main_loop_new (NULL, TRUE);
-  main_loops = g_slist_prepend (main_loops, loop);
-
-  if (g_main_loop_is_running (main_loops->data))
-    g_main_loop_run (loop);
-
-  main_loops = g_slist_remove (main_loops, loop);
-
-  g_main_loop_unref (loop);
-
-  CLUTTER_NOTE (MISC, "Leaving main loop level %d", clutter_main_loop_level);
-
-  clutter_main_loop_level--;
 }
 
 gboolean

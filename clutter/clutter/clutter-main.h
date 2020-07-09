@@ -136,14 +136,6 @@ GOptionGroup *          clutter_get_option_group                (void);
 CLUTTER_EXPORT
 GOptionGroup *          clutter_get_option_group_without_init   (void);
 
-/* Mainloop */
-CLUTTER_EXPORT
-void                    clutter_main                            (void);
-CLUTTER_EXPORT
-void                    clutter_main_quit                       (void);
-CLUTTER_EXPORT
-gint                    clutter_main_level                      (void);
-
 CLUTTER_EXPORT
 void                    clutter_do_event                        (ClutterEvent *event);
 
