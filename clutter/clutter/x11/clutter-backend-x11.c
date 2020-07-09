@@ -907,49 +907,6 @@ clutter_x11_remove_filter (ClutterX11FilterFunc func,
 }
 
 /**
- * clutter_x11_has_composite_extension:
- *
- * Retrieves whether Clutter is running on an X11 server with the
- * XComposite extension
- *
- * Return value: %TRUE if the XComposite extension is available
- */
-gboolean
-clutter_x11_has_composite_extension (void)
-{
-  static gboolean have_composite = FALSE, done_check = FALSE;
-  int error = 0, event = 0;
-  Display *dpy;
-
-  if (done_check)
-    return have_composite;
-
-  if (!_clutter_context_is_initialized ())
-    {
-      g_critical ("X11 backend has not been initialised");
-      return FALSE;
-    }
-
-  dpy = clutter_x11_get_default_display();
-  if (dpy == NULL)
-    return FALSE;
-
-  if (XCompositeQueryExtension (dpy, &event, &error))
-    {
-      int major = 0, minor = 0;
-      if (XCompositeQueryVersion (dpy, &major, &minor))
-        {
-          if (major >= 0 && minor >= 3)
-            have_composite = TRUE;
-        }
-    }
-
-  done_check = TRUE;
-
-  return have_composite;
-}
-
-/**
  * clutter_x11_set_use_stereo_stage:
  * @use_stereo: %TRUE if the stereo stages should be used if possible.
  *
