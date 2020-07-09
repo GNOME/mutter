@@ -5,8 +5,8 @@
     "title" : { "translatable" : true, "string" : "ClutterScript test" },
     "color" : "white",
     "signals" : [
-      { "name" : "key-press-event", "handler" : "clutter_main_quit" },
-      { "name" : "destroy", "handler" : "clutter_main_quit" }
+      { "name" : "key-press-event", "handler" : "clutter_test_quit" },
+      { "name" : "destroy", "handler" : "clutter_test_quit" }
     ],
     "children" : [
       {
@@ -30,7 +30,7 @@
         "depth" : -200.0,
         "reactive" : true,
         "signals" : [
-          { "name" : "button-press-event", "handler" : "clutter_main_quit" }
+          { "name" : "button-press-event", "handler" : "clutter_test_quit" }
         ]
       }, 
       {

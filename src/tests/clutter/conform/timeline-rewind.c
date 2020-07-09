@@ -30,7 +30,7 @@ watchdog_timeout (gpointer data)
   else
     {
       g_test_message ("Passed");
-      clutter_main_quit ();
+      clutter_test_quit ();
     }
 
   return G_SOURCE_REMOVE;
@@ -92,7 +92,7 @@ timeline_rewind (void)
 
   clutter_timeline_start (state.timeline);
   
-  clutter_main();
+  clutter_test_main ();
 
   g_object_unref (state.timeline);
 }

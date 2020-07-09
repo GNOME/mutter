@@ -2,6 +2,8 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 static const ClutterColor colors[] = {
   { 255,   0,   0, 255 },
   {   0, 255,   0, 255 },
@@ -40,12 +42,11 @@ test_keyframe_transition_main (int argc, char *argv[])
   ClutterActor *stage;
   int i;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return EXIT_FAILURE;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Keyframe Transitions");
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   for (i = 0; i < 3; i++)
     {
@@ -108,7 +109,7 @@ test_keyframe_transition_main (int argc, char *argv[])
 
   clutter_actor_show (stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return EXIT_SUCCESS;
 }

@@ -7,6 +7,8 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 static ClutterScript *script = NULL;
 static guint merge_id = 0;
 
@@ -84,8 +86,7 @@ test_script_main (int argc, char *argv[])
   gchar *file;
   gint res;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
   script = clutter_script_new ();
   g_assert (CLUTTER_IS_SCRIPT (script));
@@ -145,7 +146,7 @@ test_script_main (int argc, char *argv[])
                     G_CALLBACK (blue_button_press),
                     NULL);
 
-  clutter_main ();
+  clutter_test_main ();
 
   g_object_unref (script);
 

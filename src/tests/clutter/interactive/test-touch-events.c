@@ -22,6 +22,8 @@
 #include <glib.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define STAGE_WIDTH 800
 #define STAGE_HEIGHT 550
 #define NUM_COLORS 10
@@ -125,12 +127,11 @@ test_touch_events_main (int argc, char *argv[])
   int i;
 
   /* initialize Clutter */
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return EXIT_FAILURE;
+  clutter_test_init (&argc, &argv);
 
   /* create a resizable stage */
-  stage = clutter_stage_new ();
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  stage = clutter_test_get_stage ();
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Touch events");
   clutter_actor_set_size (stage, STAGE_WIDTH, STAGE_HEIGHT);
   clutter_actor_set_reactive (stage, TRUE);
@@ -167,7 +168,7 @@ test_touch_events_main (int argc, char *argv[])
 
   sequence_to_color = g_hash_table_new (NULL, NULL);
 
-  clutter_main ();
+  clutter_test_main ();
 
   g_queue_foreach (&all_events, (GFunc) clutter_event_free, NULL);
   g_queue_clear (&events);

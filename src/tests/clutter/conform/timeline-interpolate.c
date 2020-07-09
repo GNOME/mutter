@@ -124,7 +124,7 @@ completed_cb (ClutterTimeline *timeline,
   if (state->completion_count == 2)
     {
       if (state->passed)
-        clutter_main_quit ();
+        clutter_test_quit ();
       else
         g_assert_not_reached ();
     }
@@ -160,7 +160,7 @@ timeline_interpolation (void)
   state.start_time = g_get_real_time ();
   clutter_timeline_start (state.timeline);
   
-  clutter_main();
+  clutter_test_main ();
 
   g_object_unref (state.timeline);
 }

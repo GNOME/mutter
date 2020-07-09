@@ -2,6 +2,8 @@
 #include <clutter/clutter.h>
 #include <stdlib.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define MAX_TEXT_LEN  10
 #define MIN_FONT_SIZE 10
 #define MAX_FONT_SIZE 30
@@ -87,17 +89,16 @@ main (int argc, char *argv[])
 {
   ClutterActor *stage;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Random Text");
 
   clutter_actor_show (stage);
 
   clutter_threads_add_idle (on_idle, stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   clutter_actor_destroy (stage);
 

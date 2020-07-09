@@ -40,18 +40,15 @@ main (int argc, char *argv[])
   ClutterActor *group[4];
   int i = 0;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
-
   cally_util_a11y_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
 
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Cally - AtkComponent Test");
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), CLUTTER_COLOR_White);
   clutter_actor_set_size (stage, WIDTH, HEIGHT);
 
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   button1 = clutter_actor_new ();
   clutter_actor_set_background_color (button1, CLUTTER_COLOR_Yellow);
@@ -92,7 +89,7 @@ main (int argc, char *argv[])
 
   clutter_actor_show (stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return 0;
 }

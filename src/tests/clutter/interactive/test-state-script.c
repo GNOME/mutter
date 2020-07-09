@@ -4,6 +4,8 @@
 
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define TEST_STATE_SCRIPT_FILE  "test-script-signals.json"
 
 int
@@ -16,8 +18,7 @@ test_state_script_main (int argc, char *argv[])
   ClutterScript *script;
   GError *error = NULL;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return EXIT_FAILURE;
+  clutter_test_init (&argc, &argv);
 
   script = clutter_script_new ();
   clutter_script_load_from_file (script, TEST_STATE_SCRIPT_FILE, &error);
@@ -26,9 +27,9 @@ test_state_script_main (int argc, char *argv[])
              TEST_STATE_SCRIPT_FILE,
              error->message);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "State Script");
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   clutter_actor_show (stage);
 
   button = CLUTTER_ACTOR (clutter_script_get_object (script, "button"));
@@ -37,7 +38,7 @@ test_state_script_main (int argc, char *argv[])
 
   clutter_script_connect_signals (script, NULL);
 
-  clutter_main ();
+  clutter_test_main ();
 
   g_object_unref (script);
 

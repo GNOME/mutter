@@ -89,8 +89,7 @@ main (int argc, char *argv[])
 
   clutter_perf_fps_init ();
 
-  if (CLUTTER_INIT_SUCCESS != clutter_init (&argc, &argv))
-    g_error ("Failed to initialize Clutter");
+  clutter_test_init (&argc, &argv);
 
   if (argc != 3)
     {
@@ -107,11 +106,11 @@ main (int argc, char *argv[])
 
   g_print ("Monospace %dpx, string length = %d\n", font_size, n_chars);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_actor_set_size (stage, STAGE_WIDTH, STAGE_HEIGHT);
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), &stage_color);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Text Performance");
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   label = create_label ();
   w = clutter_actor_get_width (label);
@@ -160,7 +159,7 @@ main (int argc, char *argv[])
 
   clutter_perf_fps_start (CLUTTER_STAGE (stage));
   clutter_threads_add_idle (queue_redraw, stage);
-  clutter_main ();
+  clutter_test_main ();
   clutter_perf_fps_report ("test-text-perf");
 
   return 0;

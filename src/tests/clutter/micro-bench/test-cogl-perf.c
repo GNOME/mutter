@@ -6,6 +6,8 @@
 #include <cogl/cogl.h>
 #include <math.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define STAGE_WIDTH 800
 #define STAGE_HEIGHT 600
 
@@ -130,27 +132,18 @@ main (int argc, char *argv[])
 {
   TestState state;
   ClutterActor *stage;
-  GError *error = NULL;
 
   g_setenv ("CLUTTER_VBLANK", "none", FALSE);
   g_setenv ("CLUTTER_SHOW_FPS", "1", FALSE);
 
-  if (clutter_init_with_args (&argc, &argv,
-                              NULL,
-                              entries,
-                              NULL,
-                              &error) != CLUTTER_INIT_SUCCESS)
-    {
-      g_warning ("Unable to initialise Clutter:\n%s",
-                 error->message);
-      g_error_free (error);
-
-      return EXIT_FAILURE;
-    }
+  clutter_test_init_with_args (&argc, &argv,
+                               NULL,
+                               entries,
+                               NULL);
 
   state.current_test = 0;
 
-  state.stage = stage = clutter_stage_new ();
+  state.stage = stage = clutter_test_get_stage ();
 
   clutter_actor_set_size (stage, STAGE_WIDTH, STAGE_HEIGHT);
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), CLUTTER_COLOR_White);
@@ -163,7 +156,7 @@ main (int argc, char *argv[])
 
   clutter_actor_show (stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   clutter_actor_destroy (stage);
 

@@ -3,6 +3,8 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define FONT "Mono Bold 24px"
 
 static const gchar *runes =
@@ -27,13 +29,12 @@ test_text_main (gint    argc,
   ClutterColor  cursor_color = { 0xff, 0x33, 0x33, 0xff };
   ClutterTextBuffer *buffer;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Text Editing");
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_Black);
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   buffer = clutter_text_buffer_new_with_text ("·", -1);
 
@@ -89,7 +90,7 @@ test_text_main (gint    argc,
   clutter_actor_set_size (stage, 1024, 768);
   clutter_actor_show (stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return EXIT_SUCCESS;
 }

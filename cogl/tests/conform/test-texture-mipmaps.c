@@ -92,7 +92,7 @@ on_paint (ClutterActor        *actor,
 
   /* Comment this out if you want visual feedback for what this test paints */
 #if 1
-  clutter_main_quit ();
+  clutter_test_quit ();
 #endif
 }
 
@@ -129,7 +129,7 @@ test_texture_mipmaps (TestUtilsGTestFixture *fixture,
 
   clutter_actor_show (stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   g_clear_handle_id (&idle_source, g_source_remove);
 

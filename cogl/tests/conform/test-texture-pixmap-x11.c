@@ -183,7 +183,7 @@ on_paint (ClutterActor        *actor,
         update_pixmap (state);
       else if (big_updated)
         /* If we successfully got the update then the test is over */
-        clutter_main_quit ();
+        clutter_test_quit ();
     }
 
   state->frame_count++;
@@ -226,7 +226,7 @@ test_texture_pixmap_x11 (TestUtilsGTestFixture *fixture,
 
   clutter_actor_show (state.stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   g_clear_signal_handler (&paint_handler, state.stage);
 

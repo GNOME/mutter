@@ -167,7 +167,7 @@ check_timeline (ClutterTimeline *timeline,
 static gboolean
 timeout_cb (gpointer data G_GNUC_UNUSED)
 {
-  clutter_main_quit ();
+  clutter_test_quit ();
 
   return FALSE;
 }
@@ -179,6 +179,14 @@ delay_cb (gpointer data)
   g_usleep (G_USEC_PER_SEC * 66 / 1000);
 
   return TRUE;
+}
+
+static gboolean
+add_timeout_idle (gpointer user_data)
+{
+  clutter_threads_add_timeout (2000, timeout_cb, NULL);
+
+  return G_SOURCE_REMOVE;
 }
 
 static void
@@ -275,9 +283,9 @@ timeline_base (void)
   clutter_timeline_start (timeline_2);
   clutter_timeline_start (timeline_3);
 
-  clutter_threads_add_timeout (2000, timeout_cb, NULL);
+  g_idle_add (add_timeout_idle, NULL);
 
-  clutter_main ();
+  clutter_test_main ();
 
   g_assert (check_timeline (timeline_1, &data_1, TRUE));
   g_assert (check_timeline (timeline_2, &data_2, TRUE));
@@ -300,7 +308,7 @@ timeline_base (void)
   clutter_threads_add_timeout (2000, timeout_cb, NULL);
   delay_tag = clutter_threads_add_timeout (99, delay_cb, NULL);
 
-  clutter_main ();
+  clutter_test_main ();
 
   g_assert (check_timeline (timeline_1, &data_1, FALSE));
   g_assert (check_timeline (timeline_2, &data_2, FALSE));

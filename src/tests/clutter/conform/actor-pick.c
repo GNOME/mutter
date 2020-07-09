@@ -165,7 +165,7 @@ on_timeout (gpointer data)
         }
     }
 
-  clutter_main_quit ();
+  clutter_test_quit ();
 
   return G_SOURCE_REMOVE;
 }
@@ -209,7 +209,7 @@ actor_pick (void)
 
   clutter_threads_add_idle (on_timeout, &state);
 
-  clutter_main ();
+  clutter_test_main ();
 
   if (!g_test_quiet ())
     {

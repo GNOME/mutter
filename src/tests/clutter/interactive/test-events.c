@@ -2,6 +2,8 @@
 #include <clutter/clutter.h>
 #include <string.h>
 
+#include "tests/clutter-test-utils.h"
+
 gboolean IsMotion = TRUE;
 
 int
@@ -393,13 +395,12 @@ test_events_main (int argc, char *argv[])
 {
   ClutterActor *stage, *actor, *focus_box, *group;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Events");
   clutter_actor_set_name (stage, "Stage");
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   g_signal_connect (stage, "event", G_CALLBACK (input_cb), (char *) "stage");
   g_signal_connect (stage, "activate", 
 		    G_CALLBACK (stage_state_cb), (char *) "activate");
@@ -481,7 +482,7 @@ test_events_main (int argc, char *argv[])
 
   clutter_actor_show (CLUTTER_ACTOR (stage));
 
-  clutter_main();
+  clutter_test_main ();
 
   return 0;
 }

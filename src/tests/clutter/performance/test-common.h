@@ -2,6 +2,8 @@
 #include <glib.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 static GTimer *testtimer = NULL;
 static gint testframes = 0;
 static float testmaxtime = 1.0;
@@ -59,7 +61,7 @@ perf_stage_paint_cb (ClutterStage        *stage,
   testframes ++;
   if (g_timer_elapsed (testtimer, NULL) > testmaxtime)
     {
-      clutter_main_quit ();
+      clutter_test_quit ();
     }
 }
 

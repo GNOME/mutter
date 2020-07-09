@@ -54,6 +54,7 @@ test_env.set('G_TEST_BUILDDIR', meson.current_build_dir())
 test_env.set('G_ENABLE_DIAGNOSTIC', '0')
 test_env.set('CLUTTER_ENABLE_DIAGNOSTIC', '0')
 test_env.set('CLUTTER_SCALE', '1')
+test_env.set('MUTTER_TEST_PLUGIN_PATH', '@0@'.format(default_plugin.full_path()))
 
 foreach test : clutter_conform_tests
   test_executable = executable('@0@'.format(test),

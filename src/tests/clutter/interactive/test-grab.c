@@ -1,6 +1,8 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 int
 test_grab_main (int argc, char *argv[]);
 
@@ -213,8 +215,7 @@ test_grab_main (int argc, char *argv[])
 		  ccol = { 0, 0xff, 0xff, 0xff },
 		  ycol = { 0xff, 0xff, 0, 0xff };
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
   g_print ("Red box:    aquire grab on press, releases it on next button release\n");
   g_print ("Blue box:   aquire grab on press, destroys the blue box actor on release\n");
@@ -222,9 +223,9 @@ test_grab_main (int argc, char *argv[])
   g_print ("Green box:  toggle per actor motion events.\n\n");
   g_print ("Cyan  box:  toggle grab (from cyan box) for keyboard events.\n\n");
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Grabs");
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   g_signal_connect (stage, "event",
                     G_CALLBACK (debug_event_cb), (char *) "stage");
   g_signal_connect (stage, "activate", 
@@ -292,7 +293,7 @@ test_grab_main (int argc, char *argv[])
 
   clutter_actor_show (CLUTTER_ACTOR (stage));
 
-  clutter_main();
+  clutter_test_main ();
 
   return 0;
 }

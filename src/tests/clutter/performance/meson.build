@@ -4,6 +4,7 @@ clutter_tests_performance_c_args = [
   '-DGLIB_DISABLE_DEPRECATION_WARNINGS',
   '-DCOGL_DISABLE_DEPRECATION_WARNINGS',
   '-DCLUTTER_DISABLE_DEPRECATION_WARNINGS',
+  '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
 ]
 
 clutter_tests_performance_c_args += clutter_debug_c_args
@@ -18,6 +19,7 @@ foreach test : clutter_tests_performance_tests
     sources: [
       '@0@.c'.format(test),
       'test-common.h',
+      clutter_test_utils,
     ],
     include_directories: [
       clutter_includes,
@@ -27,6 +29,7 @@ foreach test : clutter_tests_performance_tests
     dependencies: [
       clutter_deps,
       libmutter_clutter_dep,
+      libmutter_dep,
     ],
     install: false,
   )

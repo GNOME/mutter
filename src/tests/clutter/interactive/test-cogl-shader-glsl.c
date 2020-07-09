@@ -5,6 +5,8 @@
 #include <glib.h>
 #include <gmodule.h>
 
+#include "tests/clutter-test-utils.h"
+
 typedef struct
 {
   const char *name;
@@ -261,7 +263,7 @@ key_release_cb (ClutterActor *actor,
 
   if (keysym == CLUTTER_KEY_q ||
       ((mods & CLUTTER_SHIFT_MASK) && keysym == CLUTTER_KEY_q))
-    clutter_main_quit ();
+    clutter_test_quit ();
 
   return CLUTTER_EVENT_STOP;
 }
@@ -291,7 +293,7 @@ destroy_window_cb (ClutterStage *stage,
                    ClutterEvent *event,
                    gpointer user_data)
 {
-  clutter_main_quit ();
+  clutter_test_quit ();
 
   return CLUTTER_EVENT_STOP;
 }
@@ -304,10 +306,9 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
   GError *error;
   ClutterColor stage_color = { 0x61, 0x64, 0x8c, 0xff };
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
 
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Assembly Shader Test");
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), &stage_color);
@@ -342,7 +343,7 @@ test_cogl_shader_glsl_main (int argc, char *argv[])
 
   clutter_actor_show (stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return EXIT_SUCCESS;
 }

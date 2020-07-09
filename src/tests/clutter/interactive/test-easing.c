@@ -2,6 +2,8 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 /* all the easing modes provided by Clutter */
 static const struct {
   const gchar *name;
@@ -222,19 +224,16 @@ test_easing_main (int argc, char *argv[])
   ClutterActor *stage, *rect, *label;
   gchar *text;
   gfloat stage_width, stage_height;
-  GError *error = NULL;
 
-  if (clutter_init_with_args (&argc, &argv,
-                              NULL,
-                              test_easing_entries,
-                              NULL,
-                              &error) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init_with_args (&argc, &argv,
+                               NULL,
+                               test_easing_entries,
+                               NULL);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Easing Modes");
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_LightSkyBlue);
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   main_stage = stage;
 
   clutter_actor_get_size (stage, &stage_width, &stage_height);
@@ -264,7 +263,7 @@ test_easing_main (int argc, char *argv[])
 
   clutter_actor_show (stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return EXIT_SUCCESS;
 }

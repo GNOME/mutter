@@ -7,6 +7,7 @@
 
 #include <clutter/clutter.h>
 #include "test-utils.h"
+#include "tests/clutter-test-utils.h"
 
 int
 test_shader_effects_main (int argc, char *argv[]);
@@ -18,13 +19,12 @@ test_shader_effects_main (int argc, char *argv[])
   ClutterActor *stage, *hand, *label, *rect;
   gchar *file;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Rotations");
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_Aluminium3);
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   /* Make a timeline */
   timeline = clutter_timeline_new_for_actor (stage, 7692);
@@ -80,7 +80,7 @@ test_shader_effects_main (int argc, char *argv[])
 
   clutter_actor_show (stage);
 
-  clutter_main();
+  clutter_test_main ();
 
   g_object_unref (timeline);
 

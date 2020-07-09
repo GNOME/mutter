@@ -86,8 +86,6 @@ G_BEGIN_DECLS
 int \
 main (int argc, char *argv[]) \
 { \
-  meta_test_init ();\
-\
   clutter_test_init (&argc, &argv); \
 \
   { \
@@ -100,8 +98,22 @@ main (int argc, char *argv[]) \
 CLUTTER_EXPORT
 void            clutter_test_init               (int            *argc,
                                                  char         ***argv);
+
+CLUTTER_EXPORT
+void            clutter_test_init_with_args     (int            *argc,
+                                                 char         ***argv,
+                                                 const char     *parameter_string,
+                                                 GOptionEntry   *entries,
+                                                 const char     *translation_domain);
+
 CLUTTER_EXPORT
 int             clutter_test_run                (void);
+
+CLUTTER_EXPORT
+void            clutter_test_main               (void);
+
+CLUTTER_EXPORT
+void            clutter_test_quit               (void);
 
 CLUTTER_EXPORT
 void            clutter_test_add                (const char     *test_path,

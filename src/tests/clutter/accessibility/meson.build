@@ -7,6 +7,7 @@ clutter_test_accessibility_c_args = [
   '-DPREFIXDIR="@0@"'.format(libdir),
   '-DCLUTTER_DISABLE_DEPRECATION_WARNINGS',
   '-DGLIB_DISABLE_DEPRECATION_WARNINGS',
+  '-DGETTEXT_PACKAGE="@0@"'.format(meson.project_name()),
 ]
 
 clutter_test_accessibility_c_args += clutter_debug_c_args
@@ -14,6 +15,7 @@ clutter_test_accessibility_c_args += clutter_debug_c_args
 clutter_accessibility_tests_dependencies = [
   clutter_deps,
   libmutter_clutter_dep,
+  libmutter_dep,
 ]
 
 clutter_accessibility_tests = [
@@ -29,6 +31,7 @@ foreach test : clutter_accessibility_tests
     sources: [
       clutter_test_accessibility_common_sources,
       test + '.c',
+      clutter_test_utils,
     ],
     include_directories: clutter_includes,
     c_args: clutter_test_accessibility_c_args,

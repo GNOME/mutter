@@ -55,7 +55,8 @@ clutter_interactive_test_unit_names_h = custom_target('gen-test-unit-names',
 clutter_tests_interactive_sources = [
   'test-main.c',
   clutter_interactive_test_unit_names_h,
-  clutter_tests_interactive_test_sources 
+  clutter_tests_interactive_test_sources,
+  clutter_test_utils,
 ]
 
 executable('test-interactive',

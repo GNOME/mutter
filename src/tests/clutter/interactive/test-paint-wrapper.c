@@ -16,6 +16,7 @@
 #endif
 
 #include "test-utils.h"
+#include "tests/clutter-test-utils.h"
 
 #define NHANDS  6
 
@@ -87,7 +88,7 @@ input_cb (ClutterActor *stage,
 
       if (clutter_event_get_key_symbol (event) == CLUTTER_KEY_q)
         {
-	  clutter_main_quit ();
+	  clutter_test_quit ();
 
           return TRUE;
         }
@@ -197,7 +198,7 @@ stop_and_quit (ClutterActor *actor,
   g_clear_signal_handler (&oh->frame_id, oh->timeline);
   clutter_timeline_stop (oh->timeline);
 
-  clutter_main_quit ();
+  clutter_test_quit ();
 }
 
 G_MODULE_EXPORT int
@@ -212,22 +213,14 @@ test_paint_wrapper_main (int argc, char *argv[])
 
   error = NULL;
 
-  if (clutter_init_with_args (&argc, &argv,
-                              NULL,
-                              super_oh_entries,
-                              NULL,
-                              &error) != CLUTTER_INIT_SUCCESS)
-    {
-      g_warning ("Unable to initialise Clutter:\n%s",
-                 error->message);
-      g_error_free (error);
-
-      return EXIT_FAILURE;
-    }
+  clutter_test_init_with_args (&argc, &argv,
+                               NULL,
+                               super_oh_entries,
+                               NULL);
 
   oh = g_new(SuperOH, 1);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_actor_set_size (stage, 800, 600);
 
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Paint Test");
@@ -329,7 +322,7 @@ test_paint_wrapper_main (int argc, char *argv[])
   /* and start it */
   clutter_timeline_start (oh->timeline);
 
-  clutter_main ();
+  clutter_test_main ();
 
   g_object_unref (oh->timeline);
   g_free (oh->paint_guards);

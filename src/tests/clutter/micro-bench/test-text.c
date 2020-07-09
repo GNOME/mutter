@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define STAGE_WIDTH  640
 #define STAGE_HEIGHT 480
 
@@ -50,10 +52,9 @@ main (int argc, char *argv[])
   g_setenv ("CLUTTER_VBLANK", "none", FALSE);
   g_setenv ("CLUTTER_DEFAULT_FPS", "1000", FALSE);
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_actor_set_size (stage, STAGE_WIDTH, STAGE_HEIGHT);
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), CLUTTER_COLOR_Black);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Text");
@@ -112,9 +113,9 @@ main (int argc, char *argv[])
   clutter_actor_show (stage);
 
   g_signal_connect (stage, "key-press-event",
-		    G_CALLBACK (clutter_main_quit), NULL);
+		    G_CALLBACK (clutter_test_quit), NULL);
 
-  clutter_main();
+  clutter_test_main ();
 
   clutter_actor_destroy (stage);
 

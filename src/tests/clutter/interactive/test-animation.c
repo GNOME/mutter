@@ -2,6 +2,8 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 static gboolean is_expanded = FALSE;
 
 int
@@ -89,13 +91,12 @@ test_animation_main (int argc, char *argv[])
   ClutterActor *stage, *rect;
   ClutterAction *action;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_LightSkyBlue);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Animation");
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   rect = clutter_actor_new ();
   clutter_actor_set_background_color (rect, CLUTTER_COLOR_LightOrange);
@@ -118,7 +119,7 @@ test_animation_main (int argc, char *argv[])
 
   clutter_actor_show (stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return EXIT_SUCCESS;
 }

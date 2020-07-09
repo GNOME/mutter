@@ -9,6 +9,8 @@
 #include <clutter/clutter.h>
 #include <cogl/cogl.h>
 
+#include "tests/clutter-test-utils.h"
+
 typedef struct _TestMultiLayerMaterialState
 {
   ClutterActor    *group;
@@ -123,16 +125,15 @@ test_cogl_multitexture_main (int argc, char *argv[])
          0,   0,   1,   1
     };
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_actor_get_size (stage, &stage_w, &stage_h);
 
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Cogl: Multi-texturing");
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), &stage_color);
 
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   /* We create a non-descript actor that we know doesn't have a
    * default paint handler, so that we can easily control
@@ -229,7 +230,7 @@ test_cogl_multitexture_main (int argc, char *argv[])
 
   clutter_actor_show (stage);
 
-  clutter_main();
+  clutter_test_main ();
 
   cogl_object_unref (state->material1);
   cogl_object_unref (state->material0);

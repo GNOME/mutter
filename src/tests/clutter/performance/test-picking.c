@@ -72,22 +72,16 @@ main (int argc, char **argv)
 
   clutter_perf_fps_init ();
 
-  if (CLUTTER_INIT_SUCCESS !=
-        clutter_init_with_args (&argc, &argv,
-                                NULL,
-                                entries,
-                                NULL,
-                                NULL))
-    {
-      g_warning ("Failed to initialize clutter");
-      return -1;
-    }
+  clutter_test_init_with_args (&argc, &argv,
+                               NULL,
+                               entries,
+                               NULL);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_actor_set_size (stage, 512, 512);
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), CLUTTER_COLOR_Black);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Picking Performance");
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   printf ("Picking performance test with "
           "%d actors and %d events per frame\n",
@@ -125,7 +119,7 @@ main (int argc, char **argv)
 
   clutter_perf_fps_start (CLUTTER_STAGE (stage));
   clutter_threads_add_idle (queue_redraw, stage);
-  clutter_main ();
+  clutter_test_main ();
   clutter_perf_fps_report ("test-picking");
 
   return 0;

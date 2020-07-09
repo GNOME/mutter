@@ -3,6 +3,8 @@
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 typedef struct _SolidContent {
   GObject parent_instance;
 
@@ -184,13 +186,12 @@ test_image_main (int argc, char *argv[])
   GdkPixbuf *pixbuf;
   int i, n_rects;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return EXIT_FAILURE;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_actor_set_name (stage, "Stage");
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Content");
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   clutter_actor_show (stage);
 
   grid = clutter_actor_new ();
@@ -251,7 +252,7 @@ test_image_main (int argc, char *argv[])
       clutter_actor_add_child (grid, box);
     }
 
-  clutter_main ();
+  clutter_test_main ();
 
   g_object_unref (color);
   g_object_unref (image);

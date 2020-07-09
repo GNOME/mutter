@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define STAGE_WIDTH  800
 #define STAGE_HEIGHT 600
 
@@ -115,8 +117,7 @@ main (int argc, char *argv[])
   g_setenv ("CLUTTER_VBLANK", "none", FALSE);
   g_setenv ("CLUTTER_DEFAULT_FPS", "1000", FALSE);
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
   if (argc != 3)
     {
@@ -129,7 +130,7 @@ main (int argc, char *argv[])
 
   g_print ("Monospace %dpx, string length = %d\n", font_size, n_chars);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_actor_set_size (stage, STAGE_WIDTH, STAGE_HEIGHT);
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), CLUTTER_COLOR_Black);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Text Performance");
@@ -183,7 +184,7 @@ main (int argc, char *argv[])
 
   clutter_threads_add_idle (queue_redraw, stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return 0;
 }

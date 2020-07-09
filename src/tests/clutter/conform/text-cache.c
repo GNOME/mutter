@@ -234,7 +234,7 @@ do_tests (CallbackData *data)
   pango_layout_set_alignment (data->test_layout, PANGO_ALIGN_RIGHT);
   g_assert (check_result (data, "Change alignment", TRUE) == FALSE);
 
-  clutter_main_quit ();
+  clutter_test_quit ();
 
   return FALSE;
 }
@@ -265,7 +265,7 @@ text_cache (void)
 
   memset (&data, 0, sizeof (data));
 
-  data.stage = clutter_stage_new ();
+  data.stage = clutter_test_get_stage ();
 
   data.label = clutter_text_new_with_text (TEST_FONT, "");
 
@@ -279,7 +279,7 @@ text_cache (void)
 
   clutter_threads_add_idle ((GSourceFunc) do_tests, &data);
 
-  clutter_main ();
+  clutter_test_main ();
 
   clutter_actor_destroy (data.stage);
 

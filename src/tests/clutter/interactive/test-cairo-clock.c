@@ -3,6 +3,8 @@
 #include <cairo.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 int
 test_cairo_clock_main (int argc, char *argv[]);
 
@@ -85,11 +87,10 @@ test_cairo_clock_main (int argc, char *argv[])
   ClutterContent *canvas;
 
   /* initialize Clutter */
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return EXIT_FAILURE;
+  clutter_test_init (&argc, &argv);
 
   /* create a resizable stage */
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "2D Clock");
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_LightSkyBlue);
   clutter_actor_set_size (stage, 300, 300);
@@ -101,7 +102,7 @@ test_cairo_clock_main (int argc, char *argv[])
   clutter_actor_set_content (stage, canvas);
 
   /* quit on destroy */
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   /* connect our drawing code */
   g_signal_connect (canvas, "draw", G_CALLBACK (draw_clock), NULL);
@@ -112,7 +113,7 @@ test_cairo_clock_main (int argc, char *argv[])
   /* set up a timer that invalidates the canvas every second */
   clutter_threads_add_timeout (1000, invalidate_clock, canvas);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return EXIT_SUCCESS;
 }

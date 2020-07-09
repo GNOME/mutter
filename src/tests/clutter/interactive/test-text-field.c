@@ -2,6 +2,8 @@
 #include <gmodule.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 gint
 test_text_field_main (gint    argc,
                       gchar **argv);
@@ -257,13 +259,12 @@ test_text_field_main (gint    argc,
   ClutterLayoutManager *grid;
   PangoAttrList *entry_attrs;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return EXIT_FAILURE;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Text Fields");
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_Black);
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   grid = clutter_grid_layout_new ();
   clutter_grid_layout_set_column_spacing (CLUTTER_GRID_LAYOUT (grid), 6);
@@ -321,7 +322,7 @@ test_text_field_main (gint    argc,
 
   clutter_actor_show (stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return EXIT_SUCCESS;
 }

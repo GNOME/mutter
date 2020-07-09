@@ -167,7 +167,7 @@ texture_fbo (TestConformSimpleFixture *fixture,
 
   state.frame = 0;
 
-  state.stage = clutter_stage_new ();
+  state.stage = clutter_test_get_stage ();
 
   clutter_actor_set_background_color (CLUTTER_ACTOR (state.stage), &stage_color);
 

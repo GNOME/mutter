@@ -3,6 +3,8 @@
  */
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 #ifndef _MSC_VER
 #include <unistd.h> 		/* for sleep(), used for screenshots */
 #endif
@@ -194,7 +196,7 @@ stop_and_quit (ClutterActor    *actor,
                ClutterTimeline *timeline)
 {
   clutter_timeline_stop (timeline);
-  clutter_main_quit ();
+  clutter_test_quit ();
 }
 
 G_MODULE_EXPORT int
@@ -206,10 +208,9 @@ test_cairo_flowers_main (int argc, char **argv)
 
   srand (time (NULL));
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Cairo Flowers");
 
   /* Create a timeline to manage animation */
@@ -243,10 +244,10 @@ test_cairo_flowers_main (int argc, char **argv)
   clutter_timeline_start (timeline);
 
   g_signal_connect (stage, "key-press-event",
-		    G_CALLBACK (clutter_main_quit),
+		    G_CALLBACK (clutter_test_quit),
 		    NULL);
 
-  clutter_main();
+  clutter_test_main ();
 
   g_object_unref (timeline);
 

@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 enum
 {
   VERTICAL      = 0,
@@ -115,13 +117,12 @@ test_swipe_action_main (int argc, char *argv[])
 {
   ClutterActor *stage, *rect;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Swipe action");
   clutter_actor_set_size (stage, 640, 480);
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   rect = clutter_actor_new ();
   clutter_actor_set_background_color (rect, CLUTTER_COLOR_Red);
@@ -186,7 +187,7 @@ test_swipe_action_main (int argc, char *argv[])
 
   clutter_actor_show (stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return EXIT_SUCCESS;
 }

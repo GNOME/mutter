@@ -248,13 +248,10 @@ main (int argc, char *argv[])
 
   g_set_application_name ("AtkEditableText");
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
-
   cally_util_a11y_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  stage = clutter_test_get_stage ();
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
   make_ui (stage);
 
@@ -263,7 +260,7 @@ main (int argc, char *argv[])
   test_atk_text (text_actor);
   test_atk_text (text_editable_actor);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return 0;
 }

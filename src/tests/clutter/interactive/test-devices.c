@@ -7,6 +7,7 @@
 #endif
 
 #include "test-utils.h"
+#include "tests/clutter-test-utils.h"
 
 typedef struct {
   ClutterActor *stage;
@@ -218,17 +219,16 @@ test_devices_main (int argc, char **argv)
   ClutterSeat *seat;
   GList *stage_devices, *l;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
   app = g_new0 (TestDevicesApp, 1);
   app->devices = g_hash_table_new (g_direct_hash, g_direct_equal) ;
 
-  stage = clutter_stage_new ();
+  stage = clutter_test_get_stage ();
   clutter_actor_set_background_color (stage, CLUTTER_COLOR_LightSkyBlue);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Devices");
   g_signal_connect (stage,
-                    "destroy", G_CALLBACK (clutter_main_quit),
+                    "destroy", G_CALLBACK (clutter_test_quit),
                     NULL);
   g_signal_connect (stage, 
                     "motion-event", G_CALLBACK (stage_motion_event_cb),
@@ -286,7 +286,7 @@ test_devices_main (int argc, char **argv)
 
   g_list_free (stage_devices);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return EXIT_SUCCESS;
 } 

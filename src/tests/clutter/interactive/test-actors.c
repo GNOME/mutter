@@ -7,6 +7,7 @@
 #include <gmodule.h>
 
 #include "test-utils.h"
+#include "tests/clutter-test-utils.h"
 
 #define NHANDS  6
 
@@ -93,7 +94,7 @@ input_cb (ClutterActor *stage,
 
       if (clutter_event_get_key_symbol (event) == CLUTTER_KEY_q)
         {
-	  clutter_main_quit ();
+	  clutter_test_quit ();
 
           return TRUE;
         }
@@ -146,7 +147,7 @@ stop_and_quit (ClutterActor *stage,
 {
   clutter_timeline_stop (data->timeline);
 
-  clutter_main_quit ();
+  clutter_test_quit ();
 }
 
 G_MODULE_EXPORT int
@@ -160,22 +161,14 @@ test_actors_main (int argc, char *argv[])
 
   error = NULL;
 
-  if (clutter_init_with_args (&argc, &argv,
-                              NULL,
-                              super_oh_entries,
-                              NULL,
-                              &error) != CLUTTER_INIT_SUCCESS)
-    {
-      g_warning ("Unable to initialise Clutter:\n%s",
-                 error->message);
-      g_error_free (error);
-
-      return EXIT_FAILURE;
-    }
+  clutter_test_init_with_args (&argc, &argv,
+                               NULL,
+                               super_oh_entries,
+                               NULL);
 
   oh = g_new (SuperOH, 1);
 
-  oh->stage = clutter_stage_new ();
+  oh->stage = clutter_test_get_stage ();
   clutter_actor_set_size (oh->stage, 800, 600);
   clutter_actor_set_name (oh->stage, "Default Stage");
   clutter_actor_set_background_color (oh->stage, CLUTTER_COLOR_LightSkyBlue);
@@ -274,7 +267,7 @@ test_actors_main (int argc, char *argv[])
   /* and start it */
   clutter_timeline_start (oh->timeline);
 
-  clutter_main ();
+  clutter_test_main ();
 
   clutter_timeline_stop (oh->timeline);
 

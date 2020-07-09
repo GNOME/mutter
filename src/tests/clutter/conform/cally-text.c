@@ -214,7 +214,7 @@ do_tests (CallbackData *data)
         data = data->next;
     }
 
-  clutter_main_quit ();
+  clutter_test_quit ();
 
   return FALSE;
 }
@@ -279,7 +279,7 @@ cally_text (void)
 
   memset (&data, 0, sizeof (data));
 
-  data.stage = clutter_stage_new ();
+  data.stage = clutter_test_get_stage ();
 
   data.default_attributes = default_attributes;
   data.run_attributes = build_attribute_set ("fg-color", "0,0,0", NULL);
@@ -315,7 +315,7 @@ cally_text (void)
 
   clutter_actor_show (data.stage);
   clutter_threads_add_idle ((GSourceFunc) do_tests, &data);
-  clutter_main ();
+  clutter_test_main ();
 
   clutter_actor_destroy (data.stage);
 

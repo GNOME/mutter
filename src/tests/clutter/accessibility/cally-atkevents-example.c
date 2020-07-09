@@ -144,9 +144,6 @@ main (int argc, char *argv[])
 
   g_set_application_name ("AtkText");
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
-
   if (cally_util_a11y_init (&argc, &argv) == FALSE)
     {
       g_error ("This example requires the accessibility support, "
@@ -174,24 +171,24 @@ main (int argc, char *argv[])
   atk_add_global_event_listener (window_event_listener, "Atk:AtkWindow:activate");
   atk_add_global_event_listener (window_event_listener, "Atk:AtkWindow:deactivate");
 
-  stage_main = clutter_stage_new ();
+  stage_main = clutter_test_get_stage ();
   clutter_stage_set_title (CLUTTER_STAGE (stage_main), "Cally - AtkEvents/1");
-  g_signal_connect (stage_main, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  g_signal_connect (stage_main, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   make_ui (stage_main);
 
   clutter_actor_show (stage_main);
 
   if (clutter_feature_available (CLUTTER_FEATURE_STAGE_MULTIPLE))
     {
-      stage = clutter_stage_new ();
+      stage = clutter_test_get_stage ();
       clutter_stage_set_title (CLUTTER_STAGE (stage), "Cally - AtkEvents/2");
-      g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+      g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
 
       make_ui (stage);
       clutter_actor_show (stage);
     }
 
-  clutter_main ();
+  clutter_test_main ();
 
   return 0;
 }

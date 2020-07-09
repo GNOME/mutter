@@ -124,6 +124,8 @@ cally_util_a11y_init (int *argc, char ***argv)
   gchar *bridge_path = NULL;
   gboolean result = FALSE;
 
+  clutter_test_init (argc, argv);
+
   if (clutter_get_accessibility_enabled () == FALSE)
     {
       g_warning ("Accessibility: clutter has no accessibility enabled"

@@ -20,5 +20,7 @@
  * Boston, MA 02111-1307, USA.
  */
 
+#include "tests/clutter-test-utils.h"
+
 gboolean
 cally_util_a11y_init (int *argc, char ***argv);

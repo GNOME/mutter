@@ -375,7 +375,7 @@ on_paint (ClutterActor        *actor,
   /* Comment this out if you want visual feedback of what this test
    * paints.
    */
-  clutter_main_quit ();
+  clutter_test_quit ();
 }
 
 static gboolean
@@ -403,7 +403,7 @@ test_viewport (TestUtilsGTestFixture *fixture,
   g_signal_connect_after (stage, "paint", G_CALLBACK (on_paint), NULL);
 
   clutter_actor_show (stage);
-  clutter_main ();
+  clutter_test_main ();
 
   g_clear_handle_id (&idle_source, g_source_remove);
 

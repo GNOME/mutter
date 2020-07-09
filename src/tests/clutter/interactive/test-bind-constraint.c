@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <clutter/clutter.h>
 
+#include "tests/clutter-test-utils.h"
+
 #define RECT_SIZE       128
 
 #define H_PADDING       32
@@ -175,11 +177,10 @@ test_bind_constraint_main (int argc, char *argv[])
   ClutterColor rect_color;
   gint i;
 
-  if (clutter_init (&argc, &argv) != CLUTTER_INIT_SUCCESS)
-    return 1;
+  clutter_test_init (&argc, &argv);
 
-  stage = clutter_stage_new ();
-  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_main_quit), NULL);
+  stage = clutter_test_get_stage ();
+  g_signal_connect (stage, "destroy", G_CALLBACK (clutter_test_quit), NULL);
   clutter_stage_set_title (CLUTTER_STAGE (stage), "Constraints");
   clutter_actor_set_size (stage, 800, 600);
 
@@ -251,7 +252,7 @@ test_bind_constraint_main (int argc, char *argv[])
 
   clutter_actor_show (stage);
 
-  clutter_main ();
+  clutter_test_main ();
 
   return EXIT_SUCCESS;
 }
