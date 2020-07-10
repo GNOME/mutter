@@ -31,6 +31,7 @@
 typedef struct _MetaBackendX11NestedPrivate
 {
   MetaGpu *gpu;
+  MetaCursorRenderer *cursor_renderer;
 } MetaBackendX11NestedPrivate;
 
 static GInitableIface *initable_parent_iface;
@@ -63,11 +64,22 @@ meta_backend_x11_nested_create_monitor_manager (MetaBackend *backend,
 }
 
 static MetaCursorRenderer *
-meta_backend_x11_nested_create_cursor_renderer (MetaBackend *backend)
+meta_backend_x11_nested_get_cursor_renderer (MetaBackend        *backend,
+                                             ClutterInputDevice *device)
 {
-  return g_object_new (META_TYPE_CURSOR_RENDERER_X11_NESTED,
-                       "backend", backend,
-                       NULL);
+  MetaBackendX11Nested *backend_x11_nested = META_BACKEND_X11_NESTED (backend);
+  MetaBackendX11NestedPrivate *priv =
+    meta_backend_x11_nested_get_instance_private (backend_x11_nested);
+
+  if (!priv->cursor_renderer)
+    {
+      priv->cursor_renderer =
+        g_object_new (META_TYPE_CURSOR_RENDERER_X11_NESTED,
+                      "backend", backend,
+                      NULL);
+    }
+
+  return priv->cursor_renderer;
 }
 
 static MetaInputSettings *
@@ -275,7 +287,7 @@ meta_backend_x11_nested_class_init (MetaBackendX11NestedClass *klass)
   backend_class->post_init = meta_backend_x11_nested_post_init;
   backend_class->create_renderer = meta_backend_x11_nested_create_renderer;
   backend_class->create_monitor_manager = meta_backend_x11_nested_create_monitor_manager;
-  backend_class->create_cursor_renderer = meta_backend_x11_nested_create_cursor_renderer;
+  backend_class->get_cursor_renderer = meta_backend_x11_nested_get_cursor_renderer;
   backend_class->create_input_settings = meta_backend_x11_nested_create_input_settings;
   backend_class->update_screen_size = meta_backend_x11_nested_update_screen_size;
   backend_class->select_stage_events = meta_backend_x11_nested_select_stage_events;

@@ -41,6 +41,7 @@ struct _MetaBackendX11Cm
 {
   MetaBackendX11 parent;
 
+  MetaCursorRenderer *cursor_renderer;
   char *keymap_layouts;
   char *keymap_variants;
   char *keymap_options;
@@ -116,11 +117,20 @@ meta_backend_x11_cm_create_monitor_manager (MetaBackend *backend,
 }
 
 static MetaCursorRenderer *
-meta_backend_x11_cm_create_cursor_renderer (MetaBackend *backend)
+meta_backend_x11_cm_get_cursor_renderer (MetaBackend        *backend,
+                                         ClutterInputDevice *device)
 {
-  return g_object_new (META_TYPE_CURSOR_RENDERER_X11,
-                       "backend", backend,
-                       NULL);
+  MetaBackendX11Cm *x11_cm = META_BACKEND_X11_CM (backend);
+
+  if (!x11_cm->cursor_renderer)
+    {
+      x11_cm->cursor_renderer =
+        g_object_new (META_TYPE_CURSOR_RENDERER_X11,
+                      "backend", backend,
+                      NULL);
+    }
+
+  return x11_cm->cursor_renderer;
 }
 
 static MetaCursorTracker *
@@ -444,7 +454,7 @@ meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
   backend_class->post_init = meta_backend_x11_cm_post_init;
   backend_class->create_renderer = meta_backend_x11_cm_create_renderer;
   backend_class->create_monitor_manager = meta_backend_x11_cm_create_monitor_manager;
-  backend_class->create_cursor_renderer = meta_backend_x11_cm_create_cursor_renderer;
+  backend_class->get_cursor_renderer = meta_backend_x11_cm_get_cursor_renderer;
   backend_class->create_cursor_tracker = meta_backend_x11_cm_create_cursor_tracker;
   backend_class->create_input_settings = meta_backend_x11_cm_create_input_settings;
   backend_class->update_screen_size = meta_backend_x11_cm_update_screen_size;

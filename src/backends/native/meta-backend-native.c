@@ -49,7 +49,6 @@
 #include "backends/meta-settings-private.h"
 #include "backends/meta-stage-private.h"
 #include "backends/native/meta-clutter-backend-native.h"
-#include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-event-native.h"
 #include "backends/native/meta-input-settings-native.h"
 #include "backends/native/meta-kms.h"
@@ -186,9 +185,14 @@ meta_backend_native_create_monitor_manager (MetaBackend *backend,
 }
 
 static MetaCursorRenderer *
-meta_backend_native_create_cursor_renderer (MetaBackend *backend)
+meta_backend_native_get_cursor_renderer (MetaBackend        *backend,
+                                         ClutterInputDevice *device)
 {
-  return META_CURSOR_RENDERER (meta_cursor_renderer_native_new (backend));
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  MetaSeatNative *seat_native =
+    META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
+
+  return meta_seat_native_maybe_ensure_cursor_renderer (seat_native, device);
 }
 
 static MetaRenderer *
@@ -532,7 +536,7 @@ meta_backend_native_class_init (MetaBackendNativeClass *klass)
   backend_class->post_init = meta_backend_native_post_init;
 
   backend_class->create_monitor_manager = meta_backend_native_create_monitor_manager;
-  backend_class->create_cursor_renderer = meta_backend_native_create_cursor_renderer;
+  backend_class->get_cursor_renderer = meta_backend_native_get_cursor_renderer;
   backend_class->create_renderer = meta_backend_native_create_renderer;
   backend_class->create_input_settings = meta_backend_native_create_input_settings;
 

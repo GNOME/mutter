@@ -28,6 +28,7 @@
 #include <linux/input-event-codes.h>
 
 #include "backends/native/meta-barrier-native.h"
+#include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-keymap-native.h"
 #include "backends/native/meta-pointer-constraint-native.h"
 #include "backends/native/meta-xkb-utils.h"
@@ -63,6 +64,7 @@ struct _MetaSeatNative
   GHashTable *touch_states;
   guint virtual_touch_slot_base;
   GHashTable *reserved_virtual_slots;
+  GHashTable *cursor_renderers;
 
   struct xkb_state *xkb;
   xkb_led_index_t caps_lock_led;
@@ -84,6 +86,7 @@ struct _MetaSeatNative
   MetaPointerConstraintImpl *pointer_constraint;
 
   MetaKeymapNative *keymap;
+  MetaCursorRenderer *cursor_renderer;
 
   GUdevClient *udev_client;
   guint tablet_mode_switch_state : 1;
@@ -257,5 +260,7 @@ MetaBarrierManagerNative * meta_seat_native_get_barrier_manager (MetaSeatNative 
 
 void meta_seat_native_set_pointer_constraint (MetaSeatNative            *seat,
                                               MetaPointerConstraintImpl *constraint_impl);
+MetaCursorRenderer * meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative     *seat,
+                                                                    ClutterInputDevice *device);
 
 #endif /* META_SEAT_NATIVE_H */
