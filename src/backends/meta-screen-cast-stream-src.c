@@ -624,6 +624,8 @@ meta_screen_cast_stream_src_disable (MetaScreenCastStreamSrc *src)
 
   META_SCREEN_CAST_STREAM_SRC_GET_CLASS (src)->disable (src);
 
+  g_clear_handle_id (&priv->follow_up_frame_source_id, g_source_remove);
+
   priv->is_enabled = FALSE;
 }
 
