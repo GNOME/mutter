@@ -813,6 +813,8 @@ if have_native_backend
     'backends/native/meta-renderer-native-private.h',
     'backends/native/meta-renderer-native.c',
     'backends/native/meta-renderer-native.h',
+    'backends/native/meta-renderer-view-native.c',
+    'backends/native/meta-renderer-view-native.h',
     'backends/native/meta-seat-impl.c',
     'backends/native/meta-seat-impl.h',
     'backends/native/meta-seat-native.c',
