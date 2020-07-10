@@ -3144,9 +3144,6 @@ static void
 on_monitors_changed_internal (MetaMonitorManager *monitor_manager,
                               MetaDisplay        *display)
 {
-  MetaBackend *backend;
-  MetaCursorRenderer *cursor_renderer;
-
   meta_workspace_manager_reload_work_areas (display->workspace_manager);
 
   /* Fix up monitor for all windows on this display */
@@ -3159,10 +3156,6 @@ on_monitors_changed_internal (MetaMonitorManager *monitor_manager,
                                meta_display_resize_func, 0);
 
   meta_display_queue_check_fullscreen (display);
-
-  backend = meta_get_backend ();
-  cursor_renderer = meta_backend_get_cursor_renderer (backend);
-  meta_cursor_renderer_force_update (cursor_renderer);
 }
 
 void
