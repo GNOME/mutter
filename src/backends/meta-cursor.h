@@ -43,6 +43,7 @@ struct _MetaCursorSpriteClass
 };
 
 void meta_cursor_sprite_prepare_at (MetaCursorSprite *sprite,
+                                    float             best_scale,
                                     int               x,
                                     int               y);
 
