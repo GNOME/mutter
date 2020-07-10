@@ -46,7 +46,6 @@
 #include "backends/meta-idle-monitor-dbus.h"
 #include "backends/meta-input-device-private.h"
 #include "backends/meta-input-settings-private.h"
-#include "backends/meta-logical-monitor.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
@@ -1629,43 +1628,9 @@ meta_cursor_for_grab_op (MetaGrabOp op)
   return META_CURSOR_DEFAULT;
 }
 
-static float
-find_highest_logical_monitor_scale (MetaBackend      *backend,
-                                    MetaCursorSprite *cursor_sprite)
-{
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (backend);
-  graphene_rect_t cursor_rect;
-  GList *logical_monitors;
-  GList *l;
-  float highest_scale = 0.0;
-
-  cursor_rect = meta_cursor_renderer_calculate_rect (cursor_renderer,
-                                                     cursor_sprite);
-
-  logical_monitors =
-    meta_monitor_manager_get_logical_monitors (monitor_manager);
-  for (l = logical_monitors; l; l = l->next)
-    {
-      MetaLogicalMonitor *logical_monitor = l->data;
-      graphene_rect_t logical_monitor_rect =
-        meta_rectangle_to_graphene_rect (&logical_monitor->rect);
-
-      if (!graphene_rect_intersection (&cursor_rect,
-                                       &logical_monitor_rect,
-                                       NULL))
-        continue;
-
-      highest_scale = MAX (highest_scale, logical_monitor->scale);
-    }
-
-  return highest_scale;
-}
-
 static void
 root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
+                        float                    best_scale,
                         int                      x,
                         int                      y,
                         MetaDisplay             *display)
@@ -1675,14 +1640,11 @@ root_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
 
   if (meta_is_stage_views_scaled ())
     {
-      float scale;
-
-      scale = find_highest_logical_monitor_scale (backend, cursor_sprite);
-      if (scale != 0.0)
+      if (best_scale != 0.0f)
         {
           float ceiled_scale;
 
-          ceiled_scale = ceilf (scale);
+          ceiled_scale = ceilf (best_scale);
           meta_cursor_sprite_xcursor_set_theme_scale (sprite_xcursor,
                                                       (int) ceiled_scale);
           meta_cursor_sprite_set_texture_scale (cursor_sprite,

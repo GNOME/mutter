@@ -179,11 +179,12 @@ meta_cursor_sprite_get_texture_transform (MetaCursorSprite *sprite)
 }
 
 void
-meta_cursor_sprite_prepare_at (MetaCursorSprite *sprite,
-                               int               x,
-                               int               y)
+meta_cursor_sprite_prepare_at (MetaCursorSprite   *sprite,
+                               float               best_scale,
+                               int                 x,
+                               int                 y)
 {
-  g_signal_emit (sprite, signals[PREPARE_AT], 0, x, y);
+  g_signal_emit (sprite, signals[PREPARE_AT], 0, best_scale, x, y);
 }
 
 void
@@ -226,7 +227,8 @@ meta_cursor_sprite_class_init (MetaCursorSpriteClass *klass)
                                       G_SIGNAL_RUN_LAST,
                                       0,
                                       NULL, NULL, NULL,
-                                      G_TYPE_NONE, 2,
+                                      G_TYPE_NONE, 3,
+                                      G_TYPE_FLOAT,
                                       G_TYPE_INT,
                                       G_TYPE_INT);
   signals[TEXTURE_CHANGED] = g_signal_new ("texture-changed",

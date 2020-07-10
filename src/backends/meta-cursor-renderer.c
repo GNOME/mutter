@@ -28,6 +28,8 @@
 
 #include <math.h>
 
+#include "backends/meta-backend-private.h"
+#include "backends/meta-logical-monitor.h"
 #include "backends/meta-stage-private.h"
 #include "clutter/clutter.h"
 #include "clutter/clutter-mutter.h"
@@ -332,6 +334,41 @@ meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
   };
 }
 
+static float
+find_highest_logical_monitor_scale (MetaBackend      *backend,
+                                    MetaCursorSprite *cursor_sprite)
+{
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaCursorRenderer *cursor_renderer =
+    meta_backend_get_cursor_renderer (backend);
+  graphene_rect_t cursor_rect;
+  GList *logical_monitors;
+  GList *l;
+  float highest_scale = 0.0f;
+
+  cursor_rect = meta_cursor_renderer_calculate_rect (cursor_renderer,
+                                                     cursor_sprite);
+
+  logical_monitors =
+    meta_monitor_manager_get_logical_monitors (monitor_manager);
+  for (l = logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+      graphene_rect_t logical_monitor_rect =
+        meta_rectangle_to_graphene_rect (&logical_monitor->rect);
+
+      if (!graphene_rect_intersection (&cursor_rect,
+                                       &logical_monitor_rect,
+                                       NULL))
+        continue;
+
+      highest_scale = MAX (highest_scale, logical_monitor->scale);
+    }
+
+  return highest_scale;
+}
+
 static void
 meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
                                     MetaCursorSprite   *cursor_sprite)
@@ -340,9 +377,14 @@ meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
   gboolean handled_by_backend;
 
   if (cursor_sprite)
-    meta_cursor_sprite_prepare_at (cursor_sprite,
-                                   (int) priv->current_x,
-                                   (int) priv->current_y);
+    {
+      float scale = find_highest_logical_monitor_scale (priv->backend,
+                                                        cursor_sprite);
+      meta_cursor_sprite_prepare_at (cursor_sprite,
+                                     MAX (1, scale),
+                                     (int) priv->current_x,
+                                     (int) priv->current_y);
+    }
 
   handled_by_backend =
     META_CURSOR_RENDERER_GET_CLASS (renderer)->update_cursor (renderer,

@@ -395,6 +395,7 @@ tablet_tool_handle_cursor_surface_destroy (struct wl_listener *listener,
 
 static void
 tool_cursor_prepare_at (MetaCursorSpriteXcursor *sprite_xcursor,
+                        float                    best_scale,
                         int                      x,
                         int                      y,
                         MetaWaylandTabletTool   *tool)

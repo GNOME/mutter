@@ -81,6 +81,7 @@ update_cursor_sprite_texture (MetaWaylandCursorSurface *cursor_surface)
 
 static void
 cursor_sprite_prepare_at (MetaCursorSprite         *cursor_sprite,
+                          float                     best_scale,
                           int                       x,
                           int                       y,
                           MetaWaylandCursorSurface *cursor_surface)
