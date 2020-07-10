@@ -120,7 +120,6 @@ struct _MetaBackendPrivate
   MetaMonitorManager *monitor_manager;
   MetaOrientationManager *orientation_manager;
   MetaCursorTracker *cursor_tracker;
-  MetaCursorRenderer *cursor_renderer;
   MetaInputSettings *input_settings;
   MetaRenderer *renderer;
 #ifdef HAVE_EGL
@@ -264,6 +263,40 @@ reset_pointer_position (MetaBackend *backend)
                              primary->rect.y + primary->rect.height * 0.9);
 }
 
+static void
+update_cursors (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (priv->clutter_backend);
+  MetaCursorRenderer *renderer;
+  ClutterInputDevice *device;
+  GList *devices, *l;
+
+  device = clutter_seat_get_pointer (seat);
+  devices = clutter_seat_list_devices (seat);
+
+  if (device)
+    {
+      renderer = meta_backend_get_cursor_renderer_for_device (backend, device);
+      if (renderer)
+        meta_cursor_renderer_force_update (renderer);
+    }
+
+  for (l = devices; l; l = l->next)
+    {
+      device = l->data;
+      if (clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
+        {
+          renderer = meta_backend_get_cursor_renderer_for_device (backend,
+                                                                  device);
+          if (renderer)
+            meta_cursor_renderer_force_update (renderer);
+        }
+    }
+
+  g_list_free (devices);
+}
+
 void
 meta_backend_monitors_changed (MetaBackend *backend)
 {
@@ -289,7 +322,7 @@ meta_backend_monitors_changed (MetaBackend *backend)
         }
     }
 
-  meta_cursor_renderer_force_update (priv->cursor_renderer);
+  update_cursors (backend);
 }
 
 void
@@ -522,8 +555,6 @@ meta_backend_real_post_init (MetaBackend *backend)
   meta_monitor_manager_setup (priv->monitor_manager);
 
   meta_backend_sync_screen_size (backend);
-
-  priv->cursor_renderer = META_BACKEND_GET_CLASS (backend)->create_cursor_renderer (backend);
 
   priv->device_monitors =
     g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) g_object_unref);
@@ -1088,8 +1119,26 @@ MetaCursorRenderer *
 meta_backend_get_cursor_renderer (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  ClutterInputDevice *pointer;
+  ClutterSeat *seat;
 
-  return priv->cursor_renderer;
+  seat = clutter_backend_get_default_seat (priv->clutter_backend);
+  pointer = clutter_seat_get_pointer (seat);
+
+  return meta_backend_get_cursor_renderer_for_device (backend, pointer);
+}
+
+MetaCursorRenderer *
+meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,
+                                             ClutterInputDevice *device)
+{
+  g_return_val_if_fail (META_IS_BACKEND (backend), NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
+  g_return_val_if_fail (clutter_input_device_get_device_type (device) !=
+                        CLUTTER_KEYBOARD_DEVICE, NULL);
+
+  return META_BACKEND_GET_CLASS (backend)->get_cursor_renderer (backend,
+                                                                device);
 }
 
 /**

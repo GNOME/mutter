@@ -63,7 +63,8 @@ struct _MetaBackendClass
 
   MetaMonitorManager * (* create_monitor_manager) (MetaBackend *backend,
                                                    GError     **error);
-  MetaCursorRenderer * (* create_cursor_renderer) (MetaBackend *backend);
+  MetaCursorRenderer * (* get_cursor_renderer) (MetaBackend        *backend,
+                                                ClutterInputDevice *device);
   MetaCursorTracker * (* create_cursor_tracker) (MetaBackend *backend);
   MetaRenderer * (* create_renderer) (MetaBackend *backend,
                                       GError     **error);
@@ -128,6 +129,8 @@ META_EXPORT_TEST
 MetaMonitorManager * meta_backend_get_monitor_manager (MetaBackend *backend);
 MetaOrientationManager * meta_backend_get_orientation_manager (MetaBackend *backend);
 MetaCursorTracker * meta_backend_get_cursor_tracker (MetaBackend *backend);
+MetaCursorRenderer * meta_backend_get_cursor_renderer_for_device (MetaBackend        *backend,
+                                                                  ClutterInputDevice *device);
 MetaCursorRenderer * meta_backend_get_cursor_renderer (MetaBackend *backend);
 META_EXPORT_TEST
 MetaRenderer * meta_backend_get_renderer (MetaBackend *backend);
