@@ -14910,6 +14910,14 @@ clutter_actor_is_in_clone_paint (ClutterActor *self)
 }
 
 gboolean
+clutter_actor_is_painting_unmapped (ClutterActor *self)
+{
+  g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
+
+  return self->priv->unmapped_paint_branch_counter > 0;
+}
+
+gboolean
 clutter_actor_has_damage (ClutterActor *actor)
 {
   return actor->priv->is_dirty;
