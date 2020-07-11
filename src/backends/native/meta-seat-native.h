@@ -85,6 +85,7 @@ struct _MetaSeatNative
 
   MetaKeymapNative *keymap;
   MetaCursorRenderer *cursor_renderer;
+  GHashTable *tablet_cursors;
 
   GUdevClient *udev_client;
   guint tablet_mode_switch_state : 1;
