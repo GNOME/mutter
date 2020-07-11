@@ -805,6 +805,8 @@ struct _ClutterActorPrivate
    */
   gulong in_cloned_branch;
 
+  guint unmapped_paint_branch_counter;
+
   GListModel *child_model;
   ClutterActorCreateChildFunc create_child_func;
   gpointer create_child_data;
@@ -1083,6 +1085,11 @@ static void clutter_actor_push_in_cloned_branch (ClutterActor *self,
 static void clutter_actor_pop_in_cloned_branch (ClutterActor *self,
                                                 gulong        count);
 static void ensure_valid_actor_transform (ClutterActor *actor);
+
+static void push_in_paint_unmapped_branch (ClutterActor *self,
+                                           guint         count);
+static void pop_in_paint_unmapped_branch (ClutterActor *self,
+                                          guint         count);
 
 static GQuark quark_actor_layout_info = 0;
 static GQuark quark_actor_transform_info = 0;
@@ -4350,6 +4357,9 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
 
   if (self->priv->in_cloned_branch)
     clutter_actor_pop_in_cloned_branch (child, self->priv->in_cloned_branch);
+
+  if (self->priv->unmapped_paint_branch_counter)
+    pop_in_paint_unmapped_branch (child, self->priv->unmapped_paint_branch_counter);
 
   /* if the child that got removed was visible and set to
    * expand then we want to reset the parent's state in
@@ -12010,6 +12020,9 @@ clutter_actor_add_child_internal (ClutterActor              *self,
   if (self->priv->in_cloned_branch)
     clutter_actor_push_in_cloned_branch (child, self->priv->in_cloned_branch);
 
+  if (self->priv->unmapped_paint_branch_counter)
+    push_in_paint_unmapped_branch (child, self->priv->unmapped_paint_branch_counter);
+
   /* children may cause their parent to expand, if they are set
    * to expand; if a child is not expanded then it cannot change
    * its parent's state. any further change later on will queue
@@ -14607,10 +14620,15 @@ _clutter_actor_set_enable_paint_unmapped (ClutterActor *self,
 
   priv = self->priv;
 
+  if (priv->enable_paint_unmapped == enable)
+    return;
+
   priv->enable_paint_unmapped = enable;
 
-  if (priv->enable_paint_unmapped)
+  if (enable)
     {
+      push_in_paint_unmapped_branch (self, 1);
+
       /* Make sure that the parents of the widget are realized first;
        * otherwise checks in clutter_actor_update_map_state() will
        * fail.
@@ -14626,6 +14644,7 @@ _clutter_actor_set_enable_paint_unmapped (ClutterActor *self,
   else
     {
       clutter_actor_update_map_state (self, MAP_STATE_CHECK);
+      pop_in_paint_unmapped_branch (self, 1);
     }
 }
 
@@ -19610,6 +19629,34 @@ clutter_actor_has_mapped_clones (ClutterActor *self)
     }
 
   return FALSE;
+}
+
+static void
+push_in_paint_unmapped_branch (ClutterActor *self,
+                               guint         count)
+{
+  ClutterActor *iter;
+
+  for (iter = self->priv->first_child;
+       iter != NULL;
+       iter = iter->priv->next_sibling)
+    push_in_paint_unmapped_branch (iter, count);
+
+  self->priv->unmapped_paint_branch_counter += count;
+}
+
+static void
+pop_in_paint_unmapped_branch (ClutterActor *self,
+                              guint         count)
+{
+  ClutterActor *iter;
+
+  self->priv->unmapped_paint_branch_counter -= count;
+
+  for (iter = self->priv->first_child;
+       iter != NULL;
+       iter = iter->priv->next_sibling)
+    pop_in_paint_unmapped_branch (iter, count);
 }
 
 static void
