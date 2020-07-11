@@ -1850,6 +1850,32 @@ process_tablet_axis (MetaSeatNative        *seat,
     }
 }
 
+static void
+update_tablet_cursor_state (MetaSeatNative     *seat_native,
+                            ClutterInputDevice *device,
+                            gboolean            in)
+{
+  if (in)
+    {
+      MetaCursorRenderer *cursor_renderer;
+
+      if (!seat_native->tablet_cursors)
+        {
+          seat_native->tablet_cursors = g_hash_table_new_full (NULL, NULL, NULL,
+                                                               g_object_unref);
+        }
+
+      cursor_renderer = meta_cursor_renderer_new (meta_get_backend ());
+      g_hash_table_insert (seat_native->tablet_cursors,
+                           device, cursor_renderer);
+    }
+  else
+    {
+      if (seat_native->tablet_cursors)
+        g_hash_table_remove (seat_native->tablet_cursors, device);
+    }
+}
+
 static gboolean
 process_device_event (MetaSeatNative        *seat,
                       struct libinput_event *event)
@@ -2257,18 +2283,22 @@ process_device_event (MetaSeatNative        *seat,
           libinput_event_get_tablet_tool_event (event);
         struct libinput_tablet_tool *libinput_tool = NULL;
         enum libinput_tablet_tool_proximity_state state;
+        gboolean in;
 
         state = libinput_event_tablet_tool_get_proximity_state (tablet_event);
         time = libinput_event_tablet_tool_get_time_usec (tablet_event);
         device = libinput_device_get_user_data (libinput_device);
+        in = state == LIBINPUT_TABLET_TOOL_PROXIMITY_STATE_IN;
 
         libinput_tool = libinput_event_tablet_tool_get_tool (tablet_event);
 
-        if (state == LIBINPUT_TABLET_TOOL_PROXIMITY_STATE_IN)
+        if (in)
           input_device_update_tool (device, libinput_tool);
-        notify_proximity (device, time, state == LIBINPUT_TABLET_TOOL_PROXIMITY_STATE_IN);
-        if (state == LIBINPUT_TABLET_TOOL_PROXIMITY_STATE_OUT)
+        notify_proximity (device, time, in);
+        if (!in)
           input_device_update_tool (device, NULL);
+
+        update_tablet_cursor_state (seat, device, in);
         break;
       }
     case LIBINPUT_EVENT_TABLET_TOOL_BUTTON:
@@ -2630,6 +2660,7 @@ meta_seat_native_finalize (GObject *object)
 
   g_hash_table_destroy (seat->reserved_virtual_slots);
 
+  g_clear_pointer (&seat->tablet_cursors, g_hash_table_unref);
   g_object_unref (seat->cursor_renderer);
   g_object_unref (seat->udev_client);
 
@@ -3308,6 +3339,10 @@ meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative     *seat_native,
 
       return seat_native->cursor_renderer;
     }
+
+  if (seat_native->tablet_cursors &&
+      clutter_input_device_get_device_type (device) == CLUTTER_TABLET_DEVICE)
+    return g_hash_table_lookup (seat_native->tablet_cursors, device);
 
   return NULL;
 }
