@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-08-06 00:49+0000\n"
-"PO-Revision-Date: 2019-09-03 09:53+0200\n"
+"POT-Creation-Date: 2020-05-26 13:44+0000\n"
+"PO-Revision-Date: 2020-07-12 18:34+0200\n"
 "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
 "Language-Team: Friulian <fur@li.org>\n"
 "Language: fur\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2.3\n"
+"X-Generator: Poedit 2.3.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -420,19 +420,32 @@ msgstr "Modificadôr di doprâ par localizâ il pontadôr"
 msgid "This key will initiate the “locate pointer” action."
 msgstr "Cheste clâf e inizializerâ la azion “localize pontadôr”."
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "Timeout for check-alive ping"
+msgstr "Timp scjadût pal control di sorevivence dal ping"
+
+#: data/org.gnome.mutter.gschema.xml.in:143
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"Numar di miliseconts jenfri di chei che un client al à di rispuindi a une "
+"richieste di ping, par fâ in mût che nol vegni identificât tant che "
+"inglaçât. Doprant 0 si disabilitarà dal dut il control di sorevivence."
+
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
 msgstr "Selezione barcon dal tab popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Cancel tab popup"
 msgstr "Anule tab popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:175
 msgid "Switch monitor configurations"
 msgstr "Cambie configurazions visôr"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:180
 msgid "Rotates the built-in monitor configuration"
 msgstr "Al volte la configurazion dal visôr integrât"
 
@@ -546,7 +559,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2531
+#: src/backends/meta-input-settings.c:2631
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Cambie mût (Grup %d)"
@@ -554,34 +567,34 @@ msgstr "Cambie mût (Grup %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2554
+#: src/backends/meta-input-settings.c:2654
 msgid "Switch monitor"
 msgstr "Cambie visôr"
 
-#: src/backends/meta-input-settings.c:2556
+#: src/backends/meta-input-settings.c:2656
 msgid "Show on-screen help"
 msgstr "Mostre jutori a schermi"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:226
 msgid "Built-in display"
 msgstr "Display integrât"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:255
 msgid "Unknown"
 msgstr "No cognossût"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:257
 msgid "Unknown Display"
 msgstr "Display no cognossût"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:265
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:273
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -590,13 +603,13 @@ msgid "%s %s"
 msgstr "%s %s"
 
 #. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:82
+#: src/backends/meta-profiler.c:79
 msgid "Compositor"
 msgstr "Composidôr"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:510
+#: src/compositor/compositor.c:545
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -608,47 +621,47 @@ msgstr ""
 msgid "Bell event"
 msgstr "Event cjampane"
 
-#: src/core/main.c:185
+#: src/core/main.c:190
 msgid "Disable connection to session manager"
 msgstr "Disabilite la conession al gjestôr de session"
 
-#: src/core/main.c:191
+#: src/core/main.c:196
 msgid "Replace the running window manager"
 msgstr "Rimplace il window manager in vore"
 
-#: src/core/main.c:197
+#: src/core/main.c:202
 msgid "Specify session management ID"
 msgstr "Specifiche il ID di gjestion session"
 
-#: src/core/main.c:202
+#: src/core/main.c:207
 msgid "X Display to use"
 msgstr "Display X di doprâ"
 
-#: src/core/main.c:208
+#: src/core/main.c:213
 msgid "Initialize session from savefile"
 msgstr "Inizialize session da file salvât"
 
-#: src/core/main.c:214
+#: src/core/main.c:219
 msgid "Make X calls synchronous"
 msgstr "Fâs lis clamadis X sincronis"
 
-#: src/core/main.c:221
+#: src/core/main.c:226
 msgid "Run as a wayland compositor"
 msgstr "Eseguìs come compositor wayland"
 
-#: src/core/main.c:227
+#: src/core/main.c:232
 msgid "Run as a nested compositor"
 msgstr "Eseguìs come compositor nidiât"
 
-#: src/core/main.c:233
+#: src/core/main.c:238
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "Eseguìs il compositôr di wayland cence inviâ Xwayland"
 
-#: src/core/main.c:241
+#: src/core/main.c:246
 msgid "Run as a full display server, rather than nested"
 msgstr "Eseguìs come servidôr display complet, invezit che nidiât"
 
-#: src/core/main.c:247
+#: src/core/main.c:252
 msgid "Run with X11 backend"
 msgstr "Eseguìs cul backend X11"
 
@@ -701,21 +714,21 @@ msgstr "Stampe version"
 msgid "Mutter plugin to use"
 msgstr "Plugin Mutter di doprâ"
 
-#: src/core/prefs.c:1849
+#: src/core/prefs.c:1911
 #, c-format
 msgid "Workspace %d"
 msgstr "Spazi di lavôr %d"
 
-#: src/core/util.c:121
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter al è stât compilât cence supuart pe modalitât fetose\n"
 
-#: src/wayland/meta-wayland-tablet-pad.c:567
+#: src/wayland/meta-wayland-tablet-pad.c:568
 #, c-format
 msgid "Mode Switch: Mode %d"
 msgstr "Cambie mût: mût %d"
 
-#: src/x11/meta-x11-display.c:671
+#: src/x11/meta-x11-display.c:676
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -724,21 +737,21 @@ msgstr ""
 "Il display “%s” al à za un window manager; prove dopre la opzion --replace "
 "par rimplaçâ chel atuâl."
 
-#: src/x11/meta-x11-display.c:1032
+#: src/x11/meta-x11-display.c:1089
 msgid "Failed to initialize GDK\n"
 msgstr "No si è rivâts a inizializâ GDK\n"
 
-#: src/x11/meta-x11-display.c:1056
+#: src/x11/meta-x11-display.c:1113
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Impussibil vierzi il display “%s” di X Window System\n"
 
-#: src/x11/meta-x11-display.c:1140
+#: src/x11/meta-x11-display.c:1196
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Schermi %d su display “%s” no valit\n"
 
-#: src/x11/meta-x11-selection-input-stream.c:445
+#: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "Il formât %s nol è supuartât"
@@ -751,7 +764,7 @@ msgstr ""
 "Chescj barcons no supuartin la funzion “salve impostazions atuâls” e si "
 "scugnarà tornâ a inviâlis a man tal prossim acès."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (su %s)"
