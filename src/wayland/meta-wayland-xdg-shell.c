@@ -351,6 +351,9 @@ xdg_toplevel_resize (struct wl_client   *client,
   if (!window)
     return;
 
+  if (!window->has_resize_func)
+    return;
+
   if (!meta_wayland_seat_get_grab_info (seat, surface, serial, TRUE, &x, &y))
     return;
 
