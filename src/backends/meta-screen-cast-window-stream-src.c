@@ -110,6 +110,8 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
   MetaBackend *backend = get_backend (window_src);
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
+  MetaCursorTracker *cursor_tracker =
+    meta_backend_get_cursor_tracker (backend);
   MetaCursorSprite *cursor_sprite;
   CoglTexture *cursor_texture;
   MetaScreenCastWindow *screen_cast_window;
@@ -133,7 +135,7 @@ maybe_draw_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
     return;
 
   screen_cast_window = window_src->screen_cast_window;
-  cursor_position = meta_cursor_renderer_get_position (cursor_renderer);
+  meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);
   if (!meta_screen_cast_window_transform_cursor_position (screen_cast_window,
                                                           cursor_sprite,
                                                           &cursor_position,
@@ -189,6 +191,8 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
     clutter_backend_get_cogl_context (clutter_get_default_backend ());
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
+  MetaCursorTracker *cursor_tracker =
+    meta_backend_get_cursor_tracker (backend);
   MetaScreenCastWindow *screen_cast_window;
   MetaCursorSprite *cursor_sprite;
   graphene_point_t relative_cursor_position;
@@ -209,7 +213,7 @@ maybe_blit_cursor_sprite (MetaScreenCastWindowStreamSrc *window_src,
     return;
 
   screen_cast_window = window_src->screen_cast_window;
-  cursor_position = meta_cursor_renderer_get_position (cursor_renderer);
+  meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);
   if (!meta_screen_cast_window_transform_cursor_position (screen_cast_window,
                                                           cursor_sprite,
                                                           &cursor_position,
@@ -524,7 +528,7 @@ meta_screen_cast_window_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc 
   int x, y;
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
-  cursor_position = meta_cursor_renderer_get_position (cursor_renderer);
+  meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);
 
   if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) ||
       !meta_screen_cast_window_transform_cursor_position (screen_cast_window,

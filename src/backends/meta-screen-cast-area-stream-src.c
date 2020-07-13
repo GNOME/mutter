@@ -142,9 +142,11 @@ is_cursor_in_stream (MetaScreenCastAreaStreamSrc *area_src)
     }
   else
     {
+      MetaCursorTracker *cursor_tracker =
+        meta_backend_get_cursor_tracker (backend);
       graphene_point_t cursor_position;
 
-      cursor_position = meta_cursor_renderer_get_position (cursor_renderer);
+      meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);
       return graphene_rect_contains_point (&area_rect, &cursor_position);
     }
 }
@@ -524,7 +526,7 @@ meta_screen_cast_area_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc *s
   area = meta_screen_cast_area_stream_get_area (area_stream);
   scale = meta_screen_cast_area_stream_get_scale (area_stream);
 
-  cursor_position = meta_cursor_renderer_get_position (cursor_renderer);
+  meta_cursor_tracker_get_pointer (cursor_tracker, &cursor_position, NULL);
   cursor_position.x -= area->x;
   cursor_position.y -= area->y;
   cursor_position.x *= scale;
