@@ -22,7 +22,7 @@
 #ifndef META_INPUT_SETTINGS_PRIVATE_H
 #define META_INPUT_SETTINGS_PRIVATE_H
 
-#include <gsettings-desktop-schemas/gdesktop-enums.h>
+#include <gdesktop-enums.h>
 
 #ifdef HAVE_LIBWACOM
 #include <libwacom/libwacom.h>
