@@ -41,6 +41,8 @@ struct _MetaHwCursorInhibitorInterface
   gboolean (* is_cursor_inhibited) (MetaHwCursorInhibitor *inhibitor);
 };
 
+gboolean meta_hw_cursor_inhibitor_is_cursor_inhibited (MetaHwCursorInhibitor *inhibitor);
+
 #define META_TYPE_CURSOR_RENDERER (meta_cursor_renderer_get_type ())
 G_DECLARE_DERIVABLE_TYPE (MetaCursorRenderer, meta_cursor_renderer,
                           META, CURSOR_RENDERER, GObject);
@@ -65,14 +67,6 @@ void meta_cursor_renderer_force_update (MetaCursorRenderer *renderer);
 MetaCursorSprite * meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer);
 
 gboolean meta_cursor_renderer_is_overlay_visible (MetaCursorRenderer *renderer);
-
-void meta_cursor_renderer_add_hw_cursor_inhibitor (MetaCursorRenderer    *renderer,
-                                                   MetaHwCursorInhibitor *inhibitor);
-
-void meta_cursor_renderer_remove_hw_cursor_inhibitor (MetaCursorRenderer    *renderer,
-                                                      MetaHwCursorInhibitor *inhibitor);
-
-gboolean meta_cursor_renderer_is_hw_cursors_inhibited (MetaCursorRenderer *renderer);
 
 graphene_rect_t meta_cursor_renderer_calculate_rect (MetaCursorRenderer *renderer,
                                                      MetaCursorSprite   *cursor_sprite);

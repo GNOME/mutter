@@ -872,6 +872,10 @@ should_have_hw_cursor (MetaCursorRenderer *renderer,
                        MetaCursorSprite   *cursor_sprite,
                        GList              *gpus)
 {
+  MetaCursorRendererNative *cursor_renderer_native =
+    META_CURSOR_RENDERER_NATIVE (renderer);
+  MetaCursorRendererNativePrivate *priv =
+    meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
   CoglTexture *texture;
   MetaMonitorTransform transform;
   float scale;
@@ -880,7 +884,7 @@ should_have_hw_cursor (MetaCursorRenderer *renderer,
   if (!cursor_sprite)
     return FALSE;
 
-  if (meta_cursor_renderer_is_hw_cursors_inhibited (renderer))
+  if (meta_backend_is_hw_cursors_inhibited (priv->backend))
     return FALSE;
 
   for (l = gpus; l; l = l->next)

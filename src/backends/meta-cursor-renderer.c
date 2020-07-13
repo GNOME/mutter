@@ -81,7 +81,7 @@ static guint signals[LAST_SIGNAL];
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorRenderer, meta_cursor_renderer, G_TYPE_OBJECT);
 
-static gboolean
+gboolean
 meta_hw_cursor_inhibitor_is_cursor_inhibited (MetaHwCursorInhibitor *inhibitor)
 {
   MetaHwCursorInhibitorInterface *iface =
@@ -473,46 +473,6 @@ meta_cursor_renderer_is_overlay_visible (MetaCursorRenderer *renderer)
     return FALSE;
 
   return meta_overlay_is_visible (priv->stage_overlay);
-}
-
-void
-meta_cursor_renderer_add_hw_cursor_inhibitor (MetaCursorRenderer    *renderer,
-                                              MetaHwCursorInhibitor *inhibitor)
-{
-  MetaCursorRendererPrivate *priv =
-    meta_cursor_renderer_get_instance_private (renderer);
-
-  priv->hw_cursor_inhibitors = g_list_prepend (priv->hw_cursor_inhibitors,
-                                               inhibitor);
-}
-
-void
-meta_cursor_renderer_remove_hw_cursor_inhibitor (MetaCursorRenderer    *renderer,
-                                                 MetaHwCursorInhibitor *inhibitor)
-{
-  MetaCursorRendererPrivate *priv =
-    meta_cursor_renderer_get_instance_private (renderer);
-
-  priv->hw_cursor_inhibitors = g_list_remove (priv->hw_cursor_inhibitors,
-                                              inhibitor);
-}
-
-gboolean
-meta_cursor_renderer_is_hw_cursors_inhibited (MetaCursorRenderer *renderer)
-{
-  MetaCursorRendererPrivate *priv =
-    meta_cursor_renderer_get_instance_private (renderer);
-  GList *l;
-
-  for (l = priv->hw_cursor_inhibitors; l; l = l->next)
-    {
-      MetaHwCursorInhibitor *inhibitor = l->data;
-
-      if (meta_hw_cursor_inhibitor_is_cursor_inhibited (inhibitor))
-        return TRUE;
-    }
-
-  return FALSE;
 }
 
 ClutterInputDevice *

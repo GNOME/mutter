@@ -195,4 +195,12 @@ GList * meta_backend_get_gpus (MetaBackend *backend);
 WacomDeviceDatabase * meta_backend_get_wacom_database (MetaBackend *backend);
 #endif
 
+void meta_backend_add_hw_cursor_inhibitor (MetaBackend           *backend,
+                                           MetaHwCursorInhibitor *inhibitor);
+
+void meta_backend_remove_hw_cursor_inhibitor (MetaBackend           *backend,
+                                              MetaHwCursorInhibitor *inhibitor);
+
+gboolean meta_backend_is_hw_cursors_inhibited (MetaBackend *backend);
+
 #endif /* META_BACKEND_PRIVATE_H */

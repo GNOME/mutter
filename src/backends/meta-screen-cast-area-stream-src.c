@@ -83,19 +83,6 @@ get_backend (MetaScreenCastAreaStreamSrc *area_src)
   return meta_screen_cast_get_backend (screen_cast);
 }
 
-static MetaCursorRenderer *
-get_cursor_renderer (MetaScreenCastAreaStreamSrc *area_src)
-{
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (area_src);
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
-  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
-  MetaScreenCast *screen_cast =
-    meta_screen_cast_session_get_screen_cast (session);
-  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
-
-  return meta_backend_get_cursor_renderer (backend);
-}
-
 static void
 meta_screen_cast_area_stream_src_get_specs (MetaScreenCastStreamSrc *src,
                                             int                     *width,
@@ -199,14 +186,14 @@ cursor_changed (MetaCursorTracker           *cursor_tracker,
 static void
 inhibit_hw_cursor (MetaScreenCastAreaStreamSrc *area_src)
 {
-  MetaCursorRenderer *cursor_renderer;
   MetaHwCursorInhibitor *inhibitor;
+  MetaBackend *backend;
 
   g_return_if_fail (!area_src->hw_cursor_inhibited);
 
-  cursor_renderer = get_cursor_renderer (area_src);
+  backend = get_backend (area_src);
   inhibitor = META_HW_CURSOR_INHIBITOR (area_src);
-  meta_cursor_renderer_add_hw_cursor_inhibitor (cursor_renderer, inhibitor);
+  meta_backend_add_hw_cursor_inhibitor (backend, inhibitor);
 
   area_src->hw_cursor_inhibited = TRUE;
 }
@@ -214,14 +201,14 @@ inhibit_hw_cursor (MetaScreenCastAreaStreamSrc *area_src)
 static void
 uninhibit_hw_cursor (MetaScreenCastAreaStreamSrc *area_src)
 {
-  MetaCursorRenderer *cursor_renderer;
   MetaHwCursorInhibitor *inhibitor;
+  MetaBackend *backend;
 
   g_return_if_fail (area_src->hw_cursor_inhibited);
 
-  cursor_renderer = get_cursor_renderer (area_src);
+  backend = get_backend (area_src);
   inhibitor = META_HW_CURSOR_INHIBITOR (area_src);
-  meta_cursor_renderer_remove_hw_cursor_inhibitor (cursor_renderer, inhibitor);
+  meta_backend_remove_hw_cursor_inhibitor (backend, inhibitor);
 
   area_src->hw_cursor_inhibited = FALSE;
 }
