@@ -984,15 +984,6 @@ meta_wayland_tablet_tool_handle_event (MetaWaylandTabletTool *tool,
   return CLUTTER_EVENT_STOP;
 }
 
-void
-meta_wayland_tablet_tool_set_cursor_position (MetaWaylandTabletTool *tool,
-                                              float                  new_x,
-                                              float                  new_y)
-{
-  if (tool->cursor_renderer)
-    meta_cursor_renderer_set_position (tool->cursor_renderer, new_x, new_y);
-}
-
 static gboolean
 tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
                               MetaWaylandSurface    *surface)

@@ -78,10 +78,6 @@ void     meta_wayland_tablet_tool_update              (MetaWaylandTabletTool  *t
 gboolean meta_wayland_tablet_tool_handle_event        (MetaWaylandTabletTool  *tool,
                                                        const ClutterEvent     *event);
 
-void     meta_wayland_tablet_tool_set_cursor_position (MetaWaylandTabletTool  *tool,
-                                                       float                   new_x,
-                                                       float                   new_y);
-
 gboolean meta_wayland_tablet_tool_can_grab_surface (MetaWaylandTabletTool *tool,
                                                     MetaWaylandSurface    *surface,
                                                     uint32_t               serial);
