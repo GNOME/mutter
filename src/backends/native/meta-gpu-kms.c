@@ -399,7 +399,7 @@ init_modes (MetaGpuKms *gpu_kms)
   GList *modes;
   GHashTableIter iter;
   drmModeModeInfo *drm_mode;
-  long mode_id;
+  uint64_t mode_id;
 
   /*
    * Gather all modes on all connected connectors.
@@ -442,7 +442,7 @@ init_modes (MetaGpuKms *gpu_kms)
     {
       MetaCrtcModeKms *mode;
 
-      mode = meta_crtc_mode_kms_new (drm_mode, (long) mode_id);
+      mode = meta_crtc_mode_kms_new (drm_mode, mode_id);
       modes = g_list_append (modes, mode);
 
       mode_id++;
