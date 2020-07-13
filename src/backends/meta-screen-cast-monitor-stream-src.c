@@ -252,30 +252,17 @@ cursor_changed (MetaCursorTracker              *cursor_tracker,
   sync_cursor_state (monitor_src);
 }
 
-static MetaCursorRenderer *
-get_cursor_renderer (MetaScreenCastMonitorStreamSrc *monitor_src)
-{
-  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
-  MetaScreenCastStream *stream = meta_screen_cast_stream_src_get_stream (src);
-  MetaScreenCastSession *session = meta_screen_cast_stream_get_session (stream);
-  MetaScreenCast *screen_cast =
-    meta_screen_cast_session_get_screen_cast (session);
-  MetaBackend *backend = meta_screen_cast_get_backend (screen_cast);
-
-  return meta_backend_get_cursor_renderer (backend);
-}
-
 static void
 inhibit_hw_cursor (MetaScreenCastMonitorStreamSrc *monitor_src)
 {
-  MetaCursorRenderer *cursor_renderer;
   MetaHwCursorInhibitor *inhibitor;
+  MetaBackend *backend;
 
   g_return_if_fail (!monitor_src->hw_cursor_inhibited);
 
-  cursor_renderer = get_cursor_renderer (monitor_src);
+  backend = get_backend (monitor_src);
   inhibitor = META_HW_CURSOR_INHIBITOR (monitor_src);
-  meta_cursor_renderer_add_hw_cursor_inhibitor (cursor_renderer, inhibitor);
+  meta_backend_add_hw_cursor_inhibitor (backend, inhibitor);
 
   monitor_src->hw_cursor_inhibited = TRUE;
 }
@@ -283,14 +270,14 @@ inhibit_hw_cursor (MetaScreenCastMonitorStreamSrc *monitor_src)
 static void
 uninhibit_hw_cursor (MetaScreenCastMonitorStreamSrc *monitor_src)
 {
-  MetaCursorRenderer *cursor_renderer;
   MetaHwCursorInhibitor *inhibitor;
+  MetaBackend *backend;
 
   g_return_if_fail (monitor_src->hw_cursor_inhibited);
 
-  cursor_renderer = get_cursor_renderer (monitor_src);
+  backend = get_backend (monitor_src);
   inhibitor = META_HW_CURSOR_INHIBITOR (monitor_src);
-  meta_cursor_renderer_remove_hw_cursor_inhibitor (cursor_renderer, inhibitor);
+  meta_backend_remove_hw_cursor_inhibitor (backend, inhibitor);
 
   monitor_src->hw_cursor_inhibited = FALSE;
 }

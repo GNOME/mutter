@@ -53,6 +53,7 @@
 
 #include <stdlib.h>
 
+#include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-monitor-private.h"
 #include "backends/meta-input-settings-private.h"
@@ -149,6 +150,7 @@ struct _MetaBackendPrivate
   ClutterActor *stage;
 
   GList *gpus;
+  GList *hw_cursor_inhibitors;
 
   gboolean is_pointer_position_initialized;
 
@@ -1514,3 +1516,40 @@ meta_backend_get_wacom_database (MetaBackend *backend)
   return priv->wacom_db;
 }
 #endif
+
+void
+meta_backend_add_hw_cursor_inhibitor (MetaBackend           *backend,
+                                      MetaHwCursorInhibitor *inhibitor)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  priv->hw_cursor_inhibitors = g_list_prepend (priv->hw_cursor_inhibitors,
+                                               inhibitor);
+}
+
+void
+meta_backend_remove_hw_cursor_inhibitor (MetaBackend           *backend,
+                                         MetaHwCursorInhibitor *inhibitor)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  priv->hw_cursor_inhibitors = g_list_remove (priv->hw_cursor_inhibitors,
+                                              inhibitor);
+}
+
+gboolean
+meta_backend_is_hw_cursors_inhibited (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  GList *l;
+
+  for (l = priv->hw_cursor_inhibitors; l; l = l->next)
+    {
+      MetaHwCursorInhibitor *inhibitor = l->data;
+
+      if (meta_hw_cursor_inhibitor_is_cursor_inhibited (inhibitor))
+        return TRUE;
+    }
+
+  return FALSE;
+}
