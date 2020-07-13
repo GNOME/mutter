@@ -69,10 +69,10 @@ static void
 update_position (MetaCursorTrackerX11 *tracker_x11)
 {
   MetaCursorTracker *tracker = META_CURSOR_TRACKER (tracker_x11);
-  int x, y;
+  graphene_point_t point;
 
-  meta_cursor_tracker_get_pointer (tracker, &x, &y, NULL);
-  meta_cursor_tracker_update_position (tracker, x, y);
+  meta_cursor_tracker_get_pointer (tracker, &point, NULL);
+  meta_cursor_tracker_update_position (tracker, point.x, point.y);
 }
 
 static gboolean
