@@ -82,13 +82,12 @@ static guint signals[LAST_SIGNAL];
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorRenderer, meta_cursor_renderer, G_TYPE_OBJECT);
 
 static gboolean
-meta_hw_cursor_inhibitor_is_cursor_sprite_inhibited (MetaHwCursorInhibitor *inhibitor,
-                                                     MetaCursorSprite      *cursor_sprite)
+meta_hw_cursor_inhibitor_is_cursor_inhibited (MetaHwCursorInhibitor *inhibitor)
 {
   MetaHwCursorInhibitorInterface *iface =
     META_HW_CURSOR_INHIBITOR_GET_IFACE (inhibitor);
 
-  return iface->is_cursor_sprite_inhibited (inhibitor, cursor_sprite);
+  return iface->is_cursor_inhibited (inhibitor);
 }
 
 static void
@@ -499,8 +498,7 @@ meta_cursor_renderer_remove_hw_cursor_inhibitor (MetaCursorRenderer    *renderer
 }
 
 gboolean
-meta_cursor_renderer_is_hw_cursors_inhibited (MetaCursorRenderer *renderer,
-                                              MetaCursorSprite   *cursor_sprite)
+meta_cursor_renderer_is_hw_cursors_inhibited (MetaCursorRenderer *renderer)
 {
   MetaCursorRendererPrivate *priv =
     meta_cursor_renderer_get_instance_private (renderer);
@@ -510,8 +508,7 @@ meta_cursor_renderer_is_hw_cursors_inhibited (MetaCursorRenderer *renderer,
     {
       MetaHwCursorInhibitor *inhibitor = l->data;
 
-      if (meta_hw_cursor_inhibitor_is_cursor_sprite_inhibited (inhibitor,
-                                                               cursor_sprite))
+      if (meta_hw_cursor_inhibitor_is_cursor_inhibited (inhibitor))
         return TRUE;
     }
 
