@@ -54,7 +54,8 @@ struct _MetaCursorRendererClass
                               MetaCursorSprite   *cursor_sprite);
 };
 
-MetaCursorRenderer * meta_cursor_renderer_new (MetaBackend *backend);
+MetaCursorRenderer * meta_cursor_renderer_new (MetaBackend        *backend,
+                                               ClutterInputDevice *device);
 
 void meta_cursor_renderer_set_cursor (MetaCursorRenderer *renderer,
                                       MetaCursorSprite   *cursor_sprite);
@@ -83,6 +84,7 @@ graphene_rect_t meta_cursor_renderer_calculate_rect (MetaCursorRenderer *rendere
 
 void meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
                                         MetaCursorSprite   *cursor_sprite);
+ClutterInputDevice * meta_cursor_renderer_get_input_device (MetaCursorRenderer *renderer);
 
 void meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
                                                 MetaCursorSprite   *cursor_sprite);

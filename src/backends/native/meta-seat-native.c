@@ -1865,7 +1865,7 @@ update_tablet_cursor_state (MetaSeatNative     *seat_native,
                                                                g_object_unref);
         }
 
-      cursor_renderer = meta_cursor_renderer_new (meta_get_backend ());
+      cursor_renderer = meta_cursor_renderer_new (meta_get_backend (), device);
       g_hash_table_insert (seat_native->tablet_cursors,
                            device, cursor_renderer);
     }
@@ -3332,7 +3332,8 @@ meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative     *seat_native,
           MetaCursorRendererNative *cursor_renderer_native;
 
           cursor_renderer_native =
-            meta_cursor_renderer_native_new (meta_get_backend ());
+            meta_cursor_renderer_native_new (meta_get_backend (),
+                                             seat_native->core_pointer);
           seat_native->cursor_renderer =
             META_CURSOR_RENDERER (cursor_renderer_native);
         }

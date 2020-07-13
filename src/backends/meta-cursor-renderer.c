@@ -46,6 +46,7 @@ enum
   PROP_0,
 
   PROP_BACKEND,
+  PROP_DEVICE,
 
   N_PROPS
 };
@@ -59,6 +60,7 @@ struct _MetaCursorRendererPrivate
   float current_x;
   float current_y;
 
+  ClutterInputDevice *device;
   MetaCursorSprite *displayed_cursor;
   MetaCursorSprite *overlay_cursor;
 
@@ -205,6 +207,9 @@ meta_cursor_renderer_get_property (GObject    *object,
     case PROP_BACKEND:
       g_value_set_object (value, priv->backend);
       break;
+    case PROP_DEVICE:
+      g_value_set_object (value, priv->device);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -225,6 +230,9 @@ meta_cursor_renderer_set_property (GObject      *object,
     {
     case PROP_BACKEND:
       priv->backend = g_value_get_object (value);
+      break;
+    case PROP_DEVICE:
+      priv->device = g_value_get_object (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -283,6 +291,14 @@ meta_cursor_renderer_class_init (MetaCursorRendererClass *klass)
                          "backend",
                          "MetaBackend",
                          META_TYPE_BACKEND,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_DEVICE] =
+    g_param_spec_object ("device",
+                         "device",
+                         "Input device",
+                         CLUTTER_TYPE_INPUT_DEVICE,
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY |
                          G_PARAM_STATIC_STRINGS);
@@ -396,10 +412,12 @@ meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
 }
 
 MetaCursorRenderer *
-meta_cursor_renderer_new (MetaBackend *backend)
+meta_cursor_renderer_new (MetaBackend        *backend,
+                          ClutterInputDevice *device)
 {
   return g_object_new (META_TYPE_CURSOR_RENDERER,
                        "backend", backend,
+                       "device", device,
                        NULL);
 }
 
@@ -510,4 +528,13 @@ meta_cursor_renderer_is_hw_cursors_inhibited (MetaCursorRenderer *renderer,
     }
 
   return FALSE;
+}
+
+ClutterInputDevice *
+meta_cursor_renderer_get_input_device (MetaCursorRenderer *renderer)
+{
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+
+  return priv->device;
 }

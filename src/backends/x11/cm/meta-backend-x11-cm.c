@@ -127,6 +127,7 @@ meta_backend_x11_cm_get_cursor_renderer (MetaBackend        *backend,
       x11_cm->cursor_renderer =
         g_object_new (META_TYPE_CURSOR_RENDERER_X11,
                       "backend", backend,
+                      "device", device,
                       NULL);
     }
 
