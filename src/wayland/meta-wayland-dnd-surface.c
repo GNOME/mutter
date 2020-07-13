@@ -78,10 +78,11 @@ dnd_surface_find_logical_monitor (MetaWaylandActorSurface *actor_surface)
     meta_backend_get_cursor_tracker (backend);
   MetaMonitorManager *monitor_manager =
      meta_backend_get_monitor_manager (backend);
-  int x, y;
+  graphene_point_t point;
 
-  meta_cursor_tracker_get_pointer (cursor_tracker, &x, &y, NULL);
-  return meta_monitor_manager_get_logical_monitor_at (monitor_manager, x, y);
+  meta_cursor_tracker_get_pointer (cursor_tracker, &point, NULL);
+  return meta_monitor_manager_get_logical_monitor_at (monitor_manager,
+                                                      point.x, point.y);
 }
 
 static double
