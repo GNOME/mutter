@@ -76,6 +76,7 @@ meta_backend_x11_nested_get_cursor_renderer (MetaBackend        *backend,
       priv->cursor_renderer =
         g_object_new (META_TYPE_CURSOR_RENDERER_X11_NESTED,
                       "backend", backend,
+                      "device", device,
                       NULL);
     }
 

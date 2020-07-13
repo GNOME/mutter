@@ -1847,7 +1847,7 @@ update_tablet_cursor_state (MetaSeatNative     *seat,
                                                         g_object_unref);
         }
 
-      renderer = meta_cursor_renderer_new (meta_get_backend ());
+      renderer = meta_cursor_renderer_new (meta_get_backend (), device);
       g_hash_table_insert (seat->tablet_cursors, device, renderer);
     }
   else
@@ -3311,7 +3311,8 @@ meta_seat_native_get_cursor_renderer (MetaSeatNative     *seat,
           MetaCursorRendererNative *renderer_native;
 
           renderer_native =
-            meta_cursor_renderer_native_new (meta_get_backend ());
+            meta_cursor_renderer_native_new (meta_get_backend (),
+                                             seat->core_pointer);
           seat->cursor_renderer = META_CURSOR_RENDERER (renderer_native);
         }
 
