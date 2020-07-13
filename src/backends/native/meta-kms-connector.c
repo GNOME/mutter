@@ -30,6 +30,20 @@
 #include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-update-private.h"
 
+typedef enum _MetaKmsConnectorProp
+{
+  META_KMS_CONNECTOR_PROP_DPMS = 0,
+  META_KMS_CONNECTOR_PROP_UNDERSCAN,
+  META_KMS_CONNECTOR_PROP_UNDERSCAN_HBORDER,
+  META_KMS_CONNECTOR_PROP_UNDERSCAN_VBORDER,
+  META_KMS_CONNECTOR_N_PROPS
+} MetaKmsConnectorProp;
+
+typedef struct _MetaKmsConnectorPropTable
+{
+  MetaKmsProp props[META_KMS_CONNECTOR_N_PROPS];
+} MetaKmsConnectorPropTable;
+
 struct _MetaKmsConnector
 {
   GObject parent;
@@ -43,10 +57,8 @@ struct _MetaKmsConnector
 
   MetaKmsConnectorState *current_state;
 
-  uint32_t dpms_prop_id;
-  uint32_t underscan_prop_id;
-  uint32_t underscan_hborder_prop_id;
-  uint32_t underscan_vborder_prop_id;
+  MetaKmsConnectorPropTable prop_table;
+
   uint32_t edid_blob_id;
   uint32_t tile_blob_id;
 };
@@ -64,9 +76,12 @@ meta_kms_connector_update_set_dpms_state (MetaKmsConnector *connector,
                                           MetaKmsUpdate    *update,
                                           uint64_t          state)
 {
+  uint32_t prop_id;
+
+  prop_id = connector->prop_table.props[META_KMS_CONNECTOR_PROP_DPMS].prop_id;
   meta_kms_update_set_connector_property (update,
                                           connector,
-                                          connector->dpms_prop_id,
+                                          prop_id,
                                           state);
 }
 
@@ -76,17 +91,29 @@ meta_kms_connector_set_underscanning (MetaKmsConnector *connector,
                                       uint64_t          hborder,
                                       uint64_t          vborder)
 {
+  MetaKmsProp *props = connector->prop_table.props;
+  uint32_t underscan_prop_id;
+  uint32_t underscan_hborder_prop_id;
+  uint32_t underscan_vborder_prop_id;
+
+  underscan_prop_id =
+    props[META_KMS_CONNECTOR_PROP_UNDERSCAN].prop_id;
+  underscan_hborder_prop_id =
+    props[META_KMS_CONNECTOR_PROP_UNDERSCAN_HBORDER].prop_id;
+  underscan_vborder_prop_id =
+    props[META_KMS_CONNECTOR_PROP_UNDERSCAN_VBORDER].prop_id;
+
   meta_kms_update_set_connector_property (update,
                                           connector,
-                                          connector->underscan_prop_id,
+                                          underscan_prop_id,
                                           1);
   meta_kms_update_set_connector_property (update,
                                           connector,
-                                          connector->underscan_hborder_prop_id,
+                                          underscan_hborder_prop_id,
                                           hborder);
   meta_kms_update_set_connector_property (update,
                                           connector,
-                                          connector->underscan_vborder_prop_id,
+                                          underscan_vborder_prop_id,
                                           vborder);
 }
 
@@ -94,9 +121,13 @@ void
 meta_kms_connector_unset_underscanning (MetaKmsConnector *connector,
                                         MetaKmsUpdate    *update)
 {
+  MetaKmsProp *props = connector->prop_table.props;
+  uint32_t underscan_prop_id;
+
+  underscan_prop_id = props[META_KMS_CONNECTOR_PROP_UNDERSCAN].prop_id;
   meta_kms_update_set_connector_property (update,
                                           connector,
-                                          connector->underscan_prop_id,
+                                          underscan_prop_id,
                                           0);
 }
 
@@ -144,7 +175,12 @@ meta_kms_connector_get_current_state (MetaKmsConnector *connector)
 gboolean
 meta_kms_connector_is_underscanning_supported (MetaKmsConnector *connector)
 {
-  return connector->underscan_prop_id != 0;
+  uint32_t underscan_prop_id;
+
+  underscan_prop_id =
+    connector->prop_table.props[META_KMS_CONNECTOR_PROP_UNDERSCAN].prop_id;
+
+  return underscan_prop_id != 0;
 }
 
 static void
@@ -543,38 +579,42 @@ meta_kms_connector_predict_state (MetaKmsConnector *connector,
 }
 
 static void
-find_property_ids (MetaKmsConnector  *connector,
-                   MetaKmsImplDevice *impl_device,
-                   drmModeConnector  *drm_connector)
+init_properties (MetaKmsConnector  *connector,
+                 MetaKmsImplDevice *impl_device,
+                 drmModeConnector  *drm_connector)
 {
-  int fd;
-  int i;
+  MetaKmsConnectorPropTable *prop_table = &connector->prop_table;
 
-  fd = meta_kms_impl_device_get_fd (impl_device);
-
-  for (i = 0; i < drm_connector->count_props; i++)
-    {
-      drmModePropertyPtr prop;
-
-      prop = drmModeGetProperty (fd, drm_connector->props[i]);
-      if (!prop)
-        continue;
-
-      if ((prop->flags & DRM_MODE_PROP_ENUM) &&
-          strcmp (prop->name, "DPMS") == 0)
-        connector->dpms_prop_id = prop->prop_id;
-      else if ((prop->flags & DRM_MODE_PROP_ENUM) &&
-               strcmp (prop->name, "underscan") == 0)
-        connector->underscan_prop_id = prop->prop_id;
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "underscan hborder") == 0)
-        connector->underscan_hborder_prop_id = prop->prop_id;
-      else if ((prop->flags & DRM_MODE_PROP_RANGE) &&
-               strcmp (prop->name, "underscan vborder") == 0)
-        connector->underscan_vborder_prop_id = prop->prop_id;
-
-      drmModeFreeProperty (prop);
+  *prop_table = (MetaKmsConnectorPropTable) {
+    .props = {
+      [META_KMS_CONNECTOR_PROP_DPMS] =
+        {
+          .name = "DPMS",
+          .type = DRM_MODE_PROP_ENUM,
+        },
+      [META_KMS_CONNECTOR_PROP_UNDERSCAN] =
+        {
+          .name = "underscan",
+          .type = DRM_MODE_PROP_ENUM,
+        },
+      [META_KMS_CONNECTOR_PROP_UNDERSCAN_HBORDER] =
+        {
+          .name = "underscan hborder",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_CONNECTOR_PROP_UNDERSCAN_VBORDER] =
+        {
+          .name = "underscan vborder",
+          .type = DRM_MODE_PROP_RANGE,
+        },
     }
+  };
+
+  meta_kms_impl_device_init_prop_table (impl_device,
+                                        drm_connector->props,
+                                        drm_connector->count_props,
+                                        connector->prop_table.props,
+                                        META_KMS_CONNECTOR_N_PROPS);
 }
 
 static char *
@@ -633,7 +673,7 @@ meta_kms_connector_new (MetaKmsImplDevice *impl_device,
   connector->type_id = drm_connector->connector_type_id;
   connector->name = make_connector_name (drm_connector);
 
-  find_property_ids (connector, impl_device, drm_connector);
+  init_properties (connector, impl_device, drm_connector);
 
   meta_kms_connector_read_state (connector, impl_device,
                                  drm_connector,

@@ -337,6 +337,69 @@ meta_kms_impl_device_add_fake_plane (MetaKmsImplDevice *impl_device,
   return plane;
 }
 
+static MetaKmsProp *
+find_prop (MetaKmsProp *props,
+           int          n_props,
+           const char  *name)
+{
+  int i;
+
+  for (i = 0; i < n_props; i++)
+    {
+      MetaKmsProp *prop = &props[i];
+
+      g_warn_if_fail (prop->name);
+
+      if (g_strcmp0 (prop->name, name) == 0)
+        return prop;
+    }
+
+  return NULL;
+}
+
+void
+meta_kms_impl_device_init_prop_table (MetaKmsImplDevice *impl_device,
+                                      uint32_t          *drm_props,
+                                      int                n_drm_props,
+                                      MetaKmsProp       *props,
+                                      int                n_props)
+{
+  int fd;
+  uint32_t i;
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+
+  for (i = 0; i < n_drm_props; i++)
+    {
+      drmModePropertyRes *drm_prop;
+      MetaKmsProp *prop;
+
+      drm_prop = drmModeGetProperty (fd, drm_props[i]);
+      if (!drm_prop)
+        continue;
+
+      prop = find_prop (props, n_props, drm_prop->name);
+      if (!prop)
+        {
+          drmModeFreeProperty (drm_prop);
+          continue;
+        }
+
+      if (!(drm_prop->flags & prop->type))
+        {
+          g_warning ("DRM property '%s' (%u) had unexpected flags (0x%x), "
+                     "ignoring",
+                     drm_prop->name, drm_props[i], drm_prop->flags);
+          drmModeFreeProperty (drm_prop);
+          continue;
+        }
+
+      prop->prop_id = drm_props[i];
+
+      drmModeFreeProperty (drm_prop);
+    }
+}
+
 static void
 init_planes (MetaKmsImplDevice *impl_device)
 {
