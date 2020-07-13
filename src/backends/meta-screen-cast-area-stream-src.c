@@ -42,7 +42,7 @@ struct _MetaScreenCastAreaStreamSrc
 
   GList *watches;
 
-  gulong cursor_moved_handler_id;
+  gulong position_invalidated_handler_id;
   gulong cursor_changed_handler_id;
 
   guint maybe_record_idle_id;
@@ -182,8 +182,8 @@ sync_cursor_state (MetaScreenCastAreaStreamSrc *area_src)
 }
 
 static void
-cursor_moved (MetaCursorTracker           *cursor_tracker,
-              MetaScreenCastAreaStreamSrc *area_src)
+pointer_position_invalidated (MetaCursorTracker           *cursor_tracker,
+                              MetaScreenCastAreaStreamSrc *area_src)
 {
   sync_cursor_state (area_src);
 }
@@ -332,9 +332,9 @@ meta_screen_cast_area_stream_src_enable (MetaScreenCastStreamSrc *src)
   switch (meta_screen_cast_stream_get_cursor_mode (stream))
     {
     case META_SCREEN_CAST_CURSOR_MODE_METADATA:
-      area_src->cursor_moved_handler_id =
-        g_signal_connect_after (cursor_tracker, "cursor-moved",
-                                G_CALLBACK (cursor_moved),
+      area_src->position_invalidated_handler_id =
+        g_signal_connect_after (cursor_tracker, "position-invalidated",
+                                G_CALLBACK (pointer_position_invalidated),
                                 area_src);
       area_src->cursor_changed_handler_id =
         g_signal_connect_after (cursor_tracker, "cursor-changed",
@@ -383,7 +383,7 @@ meta_screen_cast_area_stream_src_disable (MetaScreenCastStreamSrc *src)
   if (area_src->hw_cursor_inhibited)
     uninhibit_hw_cursor (area_src);
 
-  g_clear_signal_handler (&area_src->cursor_moved_handler_id,
+  g_clear_signal_handler (&area_src->position_invalidated_handler_id,
                           cursor_tracker);
   g_clear_signal_handler (&area_src->cursor_changed_handler_id,
                           cursor_tracker);

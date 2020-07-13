@@ -60,9 +60,7 @@ MetaCursorRenderer * meta_cursor_renderer_new (MetaBackend        *backend,
 void meta_cursor_renderer_set_cursor (MetaCursorRenderer *renderer,
                                       MetaCursorSprite   *cursor_sprite);
 
-void meta_cursor_renderer_set_position (MetaCursorRenderer *renderer,
-                                        float               x,
-                                        float               y);
+void meta_cursor_renderer_update_position (MetaCursorRenderer *renderer);
 void meta_cursor_renderer_force_update (MetaCursorRenderer *renderer);
 
 MetaCursorSprite * meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer);

@@ -444,14 +444,14 @@ meta_cursor_renderer_force_update (MetaCursorRenderer *renderer)
 }
 
 void
-meta_cursor_renderer_set_position (MetaCursorRenderer *renderer,
-                                   float               x,
-                                   float               y)
+meta_cursor_renderer_update_position (MetaCursorRenderer *renderer)
 {
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
+  graphene_point_t pos;
 
-  priv->current_x = x;
-  priv->current_y = y;
+  clutter_input_device_get_coords (priv->device, NULL, &pos);
+  priv->current_x = pos.x;
+  priv->current_y = pos.y;
 
   meta_cursor_renderer_update_cursor (renderer, priv->displayed_cursor);
 }

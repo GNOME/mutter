@@ -82,7 +82,7 @@ G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorTracker, meta_cursor_tracker,
 enum
 {
   CURSOR_CHANGED,
-  CURSOR_MOVED,
+  POSITION_INVALIDATED,
   VISIBILITY_CHANGED,
   LAST_SIGNAL
 };
@@ -288,20 +288,12 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
                                           NULL, NULL, NULL,
                                           G_TYPE_NONE, 0);
 
-  /**
-   * MetaCursorTracker::cursor-moved:
-   * @cursor: The #MetaCursorTracker
-   * @x: The new X coordinate of the cursor
-   * @y: The new Y coordinate of the cursor
-   *
-   * Notifies when the cursor has moved to a new location.
-   */
-  signals[CURSOR_MOVED] = g_signal_new ("cursor-moved",
-                                        G_TYPE_FROM_CLASS (klass),
-                                        G_SIGNAL_RUN_LAST,
-                                        0,
-                                        NULL, NULL, NULL,
-                                        G_TYPE_NONE, 0);
+  signals[POSITION_INVALIDATED] = g_signal_new ("position-invalidated",
+                                                G_TYPE_FROM_CLASS (klass),
+                                                G_SIGNAL_RUN_LAST,
+                                                0,
+                                                NULL, NULL, NULL,
+                                                G_TYPE_NONE, 0);
 
   signals[VISIBILITY_CHANGED] = g_signal_new ("visibility-changed",
                                               G_TYPE_FROM_CLASS (klass),
@@ -428,31 +420,9 @@ meta_cursor_tracker_set_root_cursor (MetaCursorTracker *tracker,
 }
 
 void
-meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
-                                     float              new_x,
-                                     float              new_y)
+meta_cursor_tracker_invalidate_position (MetaCursorTracker *tracker)
 {
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-  MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (priv->backend);
-  gboolean position_changed;
-
-  if (priv->x != new_x || priv->y != new_y)
-    {
-      position_changed = TRUE;
-      priv->x = new_x;
-      priv->y = new_y;
-    }
-  else
-    {
-      position_changed = FALSE;
-    }
-
-  meta_cursor_renderer_set_position (cursor_renderer, new_x, new_y);
-
-  if (position_changed)
-    g_signal_emit (tracker, signals[CURSOR_MOVED], 0);
+  g_signal_emit (tracker, signals[POSITION_INVALIDATED], 0);
 }
 
 void

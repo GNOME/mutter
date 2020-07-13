@@ -288,22 +288,21 @@ meta_display_handle_event (MetaDisplay        *display,
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor () && event->type == CLUTTER_MOTION)
     {
-      MetaWaylandCompositor *compositor;
+      MetaCursorRenderer *cursor_renderer;
+      ClutterInputDevice *device;
 
-      compositor = meta_wayland_compositor_get_default ();
+      device = clutter_event_get_device (event);
+      cursor_renderer = meta_backend_get_cursor_renderer_for_device (backend,
+                                                                     device);
+      if (cursor_renderer)
+        meta_cursor_renderer_update_position (cursor_renderer);
 
-      if (meta_wayland_tablet_manager_consumes_event (compositor->tablet_manager, event))
-        {
-          meta_wayland_tablet_manager_update_cursor_position (compositor->tablet_manager, event);
-        }
-      else
+      if (device == clutter_seat_get_pointer (clutter_input_device_get_seat (device)))
         {
           MetaCursorTracker *cursor_tracker =
             meta_backend_get_cursor_tracker (backend);
 
-          meta_cursor_tracker_update_position (cursor_tracker,
-                                               event->motion.x,
-                                               event->motion.y);
+          meta_cursor_tracker_invalidate_position (cursor_tracker);
         }
     }
 #endif

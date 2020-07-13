@@ -2840,11 +2840,14 @@ meta_seat_native_warp_pointer (ClutterSeat *seat,
 {
   MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
   MetaBackend *backend = meta_get_backend ();
+  MetaCursorRenderer *cursor_renderer =
+    meta_backend_get_cursor_renderer (backend);
   MetaCursorTracker *cursor_tracker = meta_backend_get_cursor_tracker (backend);
 
   notify_absolute_motion (seat_native->core_pointer, 0, x, y, NULL);
 
-  meta_cursor_tracker_update_position (cursor_tracker, x, y);
+  meta_cursor_renderer_update_position (cursor_renderer);
+  meta_cursor_tracker_invalidate_position (cursor_tracker);
 }
 
 static gboolean
