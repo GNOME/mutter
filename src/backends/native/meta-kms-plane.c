@@ -30,6 +30,11 @@
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-update-private.h"
 
+typedef struct _MetaKmsPlanePropTable
+{
+  MetaKmsProp props[META_KMS_PLANE_N_PROPS];
+} MetaKmsPlanePropTable;
+
 struct _MetaKmsPlane
 {
   GObject parent;
@@ -51,6 +56,8 @@ struct _MetaKmsPlane
    * value: owned GArray* (uint64_t modifier), or NULL
    */
   GHashTable *formats_modifiers;
+
+  MetaKmsPlanePropTable prop_table;
 
   MetaKmsDevice *device;
 };
@@ -75,6 +82,20 @@ MetaKmsPlaneType
 meta_kms_plane_get_plane_type (MetaKmsPlane *plane)
 {
   return plane->type;
+}
+
+uint32_t
+meta_kms_plane_get_prop_id (MetaKmsPlane     *plane,
+                            MetaKmsPlaneProp  prop)
+{
+  return plane->prop_table.props[prop].prop_id;
+}
+
+const char *
+meta_kms_plane_get_prop_name (MetaKmsPlane     *plane,
+                              MetaKmsPlaneProp  prop)
+{
+  return plane->prop_table.props[prop].name;
 }
 
 void
@@ -363,6 +384,81 @@ init_formats (MetaKmsPlane            *plane,
     }
 }
 
+static void
+init_properties (MetaKmsPlane            *plane,
+                 MetaKmsImplDevice       *impl_device,
+                 drmModePlane            *drm_plane,
+                 drmModeObjectProperties *drm_plane_props)
+{
+  MetaKmsPlanePropTable *prop_table = &plane->prop_table;
+
+  *prop_table = (MetaKmsPlanePropTable) {
+    .props = {
+      [META_KMS_PLANE_PROP_TYPE] =
+        {
+          .name = "type",
+          .type = DRM_MODE_PROP_ENUM,
+        },
+      [META_KMS_PLANE_PROP_SRC_X] =
+        {
+          .name = "SRC_X",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_PLANE_PROP_SRC_Y] =
+        {
+          .name = "SRC_Y",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_PLANE_PROP_SRC_W] =
+        {
+          .name = "SRC_W",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_PLANE_PROP_SRC_H] =
+        {
+          .name = "SRC_H",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_PLANE_PROP_CRTC_X] =
+        {
+          .name = "CRTC_X",
+          .type = DRM_MODE_PROP_SIGNED_RANGE,
+        },
+      [META_KMS_PLANE_PROP_CRTC_Y] =
+        {
+          .name = "CRTC_Y",
+          .type = DRM_MODE_PROP_SIGNED_RANGE,
+        },
+      [META_KMS_PLANE_PROP_CRTC_W] =
+        {
+          .name = "CRTC_W",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_PLANE_PROP_CRTC_H] =
+        {
+          .name = "CRTC_H",
+          .type = DRM_MODE_PROP_RANGE,
+        },
+      [META_KMS_PLANE_PROP_FB_ID] =
+        {
+          .name = "FB_ID",
+          .type = DRM_MODE_PROP_OBJECT,
+        },
+      [META_KMS_PLANE_PROP_CRTC_ID] =
+        {
+          .name = "CRTC_ID",
+          .type = DRM_MODE_PROP_OBJECT,
+        },
+    }
+  };
+
+  meta_kms_impl_device_init_prop_table (impl_device,
+                                        drm_plane_props->props,
+                                        drm_plane_props->count_props,
+                                        plane->prop_table.props,
+                                        META_KMS_PLANE_N_PROPS);
+}
+
 MetaKmsPlane *
 meta_kms_plane_new (MetaKmsPlaneType         type,
                     MetaKmsImplDevice       *impl_device,
@@ -379,6 +475,8 @@ meta_kms_plane_new (MetaKmsPlaneType         type,
 
   init_rotations (plane, impl_device, drm_plane_props);
   init_formats (plane, impl_device, drm_plane, drm_plane_props);
+
+  init_properties (plane, impl_device, drm_plane, drm_plane_props);
 
   return plane;
 }

@@ -26,6 +26,22 @@
 #include "backends/native/meta-kms-plane.h"
 #include "backends/native/meta-kms-types.h"
 
+typedef enum _MetaKmsPlaneProp
+{
+  META_KMS_PLANE_PROP_TYPE = 0,
+  META_KMS_PLANE_PROP_SRC_X,
+  META_KMS_PLANE_PROP_SRC_Y,
+  META_KMS_PLANE_PROP_SRC_W,
+  META_KMS_PLANE_PROP_SRC_H,
+  META_KMS_PLANE_PROP_CRTC_X,
+  META_KMS_PLANE_PROP_CRTC_Y,
+  META_KMS_PLANE_PROP_CRTC_W,
+  META_KMS_PLANE_PROP_CRTC_H,
+  META_KMS_PLANE_PROP_FB_ID,
+  META_KMS_PLANE_PROP_CRTC_ID,
+  META_KMS_PLANE_N_PROPS
+} MetaKmsPlaneProp;
+
 MetaKmsPlane * meta_kms_plane_new (MetaKmsPlaneType         type,
                                    MetaKmsImplDevice       *impl_device,
                                    drmModePlane            *drm_plane,
@@ -33,5 +49,11 @@ MetaKmsPlane * meta_kms_plane_new (MetaKmsPlaneType         type,
 
 MetaKmsPlane * meta_kms_plane_new_fake (MetaKmsPlaneType  type,
                                         MetaKmsCrtc      *crtc);
+
+uint32_t meta_kms_plane_get_prop_id (MetaKmsPlane     *plane,
+                                     MetaKmsPlaneProp  prop);
+
+const char * meta_kms_plane_get_prop_name (MetaKmsPlane     *plane,
+                                           MetaKmsPlaneProp  prop);
 
 #endif /* META_KMS_PLANE_PRIVATE_H */
