@@ -429,8 +429,7 @@ meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
   kms_update = meta_kms_ensure_pending_update (kms);
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
-  meta_kms_crtc_set_gamma (kms_crtc, kms_update,
-                           size, red, green, blue);
+  meta_kms_update_set_crtc_gamma (kms_update, kms_crtc, size, red, green, blue);
 
   kms_feedback = meta_kms_post_pending_update_sync (kms);
   if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)

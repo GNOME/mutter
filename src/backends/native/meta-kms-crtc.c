@@ -48,17 +48,6 @@ struct _MetaKmsCrtc
 
 G_DEFINE_TYPE (MetaKmsCrtc, meta_kms_crtc, G_TYPE_OBJECT)
 
-void
-meta_kms_crtc_set_gamma (MetaKmsCrtc    *crtc,
-                         MetaKmsUpdate  *update,
-                         int             size,
-                         const uint16_t *red,
-                         const uint16_t *green,
-                         const uint16_t *blue)
-{
-  meta_kms_update_set_crtc_gamma (update, crtc, size, red, green, blue);
-}
-
 MetaKmsDevice *
 meta_kms_crtc_get_device (MetaKmsCrtc *crtc)
 {

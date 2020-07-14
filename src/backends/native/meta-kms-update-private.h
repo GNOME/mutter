@@ -111,13 +111,6 @@ void meta_kms_update_seal (MetaKmsUpdate *update);
 
 gboolean meta_kms_update_is_sealed (MetaKmsUpdate *update);
 
-void meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
-                                     MetaKmsCrtc    *crtc,
-                                     int             size,
-                                     const uint16_t *red,
-                                     const uint16_t *green,
-                                     const uint16_t *blue);
-
 void meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
                                              uint64_t                rotation);
 

@@ -47,13 +47,6 @@ G_DECLARE_FINAL_TYPE (MetaKmsCrtc, meta_kms_crtc,
                       META, KMS_CRTC,
                       GObject)
 
-void meta_kms_crtc_set_gamma (MetaKmsCrtc    *crtc,
-                              MetaKmsUpdate  *update,
-                              int             size,
-                              const uint16_t *red,
-                              const uint16_t *green,
-                              const uint16_t *blue);
-
 MetaKmsDevice * meta_kms_crtc_get_device (MetaKmsCrtc *crtc);
 
 const MetaKmsCrtcState * meta_kms_crtc_get_current_state (MetaKmsCrtc *crtc);
