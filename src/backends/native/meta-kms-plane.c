@@ -46,7 +46,6 @@ struct _MetaKmsPlane
 
   uint32_t possible_crtcs;
 
-  uint32_t rotation_prop_id;
   uint32_t rotation_map[META_MONITOR_N_TRANSFORMS];
   uint32_t all_hw_transforms;
 
@@ -105,9 +104,8 @@ meta_kms_plane_update_set_rotation (MetaKmsPlane           *plane,
 {
   g_return_if_fail (meta_kms_plane_is_transform_handled (plane, transform));
 
-  meta_kms_plane_assignment_set_plane_property (plane_assignment,
-                                                plane->rotation_prop_id,
-                                                plane->rotation_map[transform]);
+  meta_kms_plane_assignment_set_rotation (plane_assignment,
+                                          plane->rotation_map[transform]);
 }
 
 gboolean
@@ -184,48 +182,33 @@ meta_kms_plane_is_usable_with (MetaKmsPlane *plane,
 }
 
 static void
-parse_rotations (MetaKmsPlane       *plane,
-                 MetaKmsImplDevice  *impl_device,
-                 drmModePropertyPtr  prop)
+parse_rotations (MetaKmsImplDevice  *impl_device,
+                 MetaKmsProp        *prop,
+                 drmModePropertyPtr  drm_prop,
+                 uint64_t            drm_prop_value,
+                 gpointer            user_data)
 {
+  MetaKmsPlane *plane = user_data;
   int i;
 
-  for (i = 0; i < prop->count_enums; i++)
+  for (i = 0; i < drm_prop->count_enums; i++)
     {
       MetaMonitorTransform transform = -1;
 
-      if (strcmp (prop->enums[i].name, "rotate-0") == 0)
+      if (strcmp (drm_prop->enums[i].name, "rotate-0") == 0)
         transform = META_MONITOR_TRANSFORM_NORMAL;
-      else if (strcmp (prop->enums[i].name, "rotate-90") == 0)
+      else if (strcmp (drm_prop->enums[i].name, "rotate-90") == 0)
         transform = META_MONITOR_TRANSFORM_90;
-      else if (strcmp (prop->enums[i].name, "rotate-180") == 0)
+      else if (strcmp (drm_prop->enums[i].name, "rotate-180") == 0)
         transform = META_MONITOR_TRANSFORM_180;
-      else if (strcmp (prop->enums[i].name, "rotate-270") == 0)
+      else if (strcmp (drm_prop->enums[i].name, "rotate-270") == 0)
         transform = META_MONITOR_TRANSFORM_270;
 
       if (transform != -1)
         {
           plane->all_hw_transforms |= 1 << transform;
-          plane->rotation_map[transform] = 1 << prop->enums[i].value;
+          plane->rotation_map[transform] = 1 << drm_prop->enums[i].value;
         }
-    }
-}
-
-static void
-init_rotations (MetaKmsPlane            *plane,
-                MetaKmsImplDevice       *impl_device,
-                drmModeObjectProperties *drm_plane_props)
-{
-  drmModePropertyPtr prop;
-  int idx;
-
-  prop = meta_kms_impl_device_find_property (impl_device, drm_plane_props,
-                                             "rotation", &idx);
-  if (prop)
-    {
-      plane->rotation_prop_id = drm_plane_props->props[idx];
-      parse_rotations (plane, impl_device, prop);
-      drmModeFreeProperty (prop);
     }
 }
 
@@ -390,6 +373,12 @@ init_properties (MetaKmsPlane            *plane,
           .name = "type",
           .type = DRM_MODE_PROP_ENUM,
         },
+      [META_KMS_PLANE_PROP_ROTATION] =
+        {
+          .name = "rotation",
+          .type = DRM_MODE_PROP_BITMASK,
+          .parse = parse_rotations,
+        },
       [META_KMS_PLANE_PROP_IN_FORMATS] =
         {
           .name = "IN_FORMATS",
@@ -471,8 +460,6 @@ meta_kms_plane_new (MetaKmsPlaneType         type,
   plane->id = drm_plane->plane_id;
   plane->possible_crtcs = drm_plane->possible_crtcs;
   plane->device = meta_kms_impl_device_get_device (impl_device);
-
-  init_rotations (plane, impl_device, drm_plane_props);
 
   init_properties (plane, impl_device, drm_plane, drm_plane_props);
   init_legacy_formats (plane, impl_device, drm_plane, drm_plane_props);

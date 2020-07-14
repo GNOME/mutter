@@ -118,32 +118,9 @@ meta_kms_feedback_get_error (MetaKmsFeedback *feedback)
   return feedback->error;
 }
 
-static MetaKmsProperty *
-meta_kms_property_new (uint32_t prop_id,
-                       uint64_t value)
-{
-  MetaKmsProperty *prop;
-
-  prop = g_new0 (MetaKmsProperty, 1);
-  *prop = (MetaKmsProperty) {
-    .prop_id = prop_id,
-    .value = value,
-  };
-
-  return prop;
-}
-
-static void
-meta_kms_property_free (MetaKmsProperty *prop)
-{
-  g_free (prop);
-}
-
 static void
 meta_kms_plane_assignment_free (MetaKmsPlaneAssignment *plane_assignment)
 {
-  g_list_free_full (plane_assignment->plane_properties,
-                    (GDestroyNotify) meta_kms_property_free);
   g_free (plane_assignment);
 }
 
@@ -328,18 +305,13 @@ meta_kms_update_custom_page_flip (MetaKmsUpdate                 *update,
 }
 
 void
-meta_kms_plane_assignment_set_plane_property (MetaKmsPlaneAssignment *plane_assignment,
-                                              uint32_t                prop_id,
-                                              uint64_t                value)
+meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
+                                        uint64_t                rotation)
 {
-  MetaKmsProperty *plane_prop;
-
   g_assert (!meta_kms_update_is_sealed (plane_assignment->update));
+  g_warn_if_fail (rotation);
 
-  plane_prop = meta_kms_property_new (prop_id, value);
-
-  plane_assignment->plane_properties =
-    g_list_prepend (plane_assignment->plane_properties, plane_prop);
+  plane_assignment->rotation = rotation;
 }
 
 void

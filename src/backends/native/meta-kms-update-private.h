@@ -34,12 +34,6 @@ typedef struct _MetaKmsFeedback
   GError *error;
 } MetaKmsFeedback;
 
-typedef struct _MetaKmsProperty
-{
-  uint32_t prop_id;
-  uint64_t value;
-} MetaKmsProperty;
-
 typedef struct _MetaKmsPlaneAssignment
 {
   MetaKmsUpdate *update;
@@ -50,7 +44,7 @@ typedef struct _MetaKmsPlaneAssignment
   MetaFixed16Rectangle dst_rect;
   MetaKmsAssignPlaneFlag flags;
 
-  GList *plane_properties;
+  uint64_t rotation;
 
   struct {
     gboolean is_valid;
@@ -120,9 +114,8 @@ void meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
                                      const uint16_t *green,
                                      const uint16_t *blue);
 
-void meta_kms_plane_assignment_set_plane_property (MetaKmsPlaneAssignment *plane_assignment,
-                                                   uint32_t                prop_id,
-                                                   uint64_t                value);
+void meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
+                                             uint64_t                rotation);
 
 MetaKmsPlaneAssignment * meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,
                                                                        MetaKmsCrtc   *crtc);

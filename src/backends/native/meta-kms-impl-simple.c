@@ -31,7 +31,7 @@
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-mode.h"
 #include "backends/native/meta-kms-page-flip-private.h"
-#include "backends/native/meta-kms-plane.h"
+#include "backends/native/meta-kms-plane-private.h"
 #include "backends/native/meta-kms-private.h"
 #include "backends/native/meta-kms-update-private.h"
 #include "backends/native/meta-kms-utils.h"
@@ -106,37 +106,6 @@ process_connector_property (MetaKmsImpl    *impl,
   return TRUE;
 }
 
-static gboolean
-process_plane_property (MetaKmsImpl      *impl,
-                        MetaKmsPlane     *plane,
-                        MetaKmsProperty  *prop,
-                        GError          **error)
-{
-  MetaKmsDevice *device = meta_kms_plane_get_device (plane);
-  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
-  int fd;
-  int ret;
-
-  fd = meta_kms_impl_device_get_fd (impl_device);
-
-  ret = drmModeObjectSetProperty (fd,
-                                  meta_kms_plane_get_id (plane),
-                                  DRM_MODE_OBJECT_PLANE,
-                                  prop->prop_id,
-                                  prop->value);
-  if (ret != 0)
-    {
-      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
-                   "Failed to set plane %u property %u: %s",
-                   meta_kms_plane_get_id (plane),
-                   prop->prop_id,
-                   g_strerror (-ret));
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
 static CachedModeSet *
 cached_mode_set_new (GList                 *connectors,
                      const drmModeModeInfo *drm_mode)
@@ -180,6 +149,42 @@ fill_connector_ids_array (GList     *connectors,
 }
 
 static gboolean
+set_plane_rotation (MetaKmsImpl   *impl,
+                    MetaKmsPlane  *plane,
+                    uint64_t       rotation,
+                    GError       **error)
+{
+  MetaKmsDevice *device = meta_kms_plane_get_device (plane);
+  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  int fd;
+  uint32_t rotation_prop_id;
+  int ret;
+
+  fd = meta_kms_impl_device_get_fd (impl_device);
+
+  rotation_prop_id = meta_kms_plane_get_prop_id (plane,
+                                                 META_KMS_PLANE_PROP_ROTATION);
+  ret = drmModeObjectSetProperty (fd,
+                                  meta_kms_plane_get_id (plane),
+                                  DRM_MODE_OBJECT_PLANE,
+                                  rotation_prop_id,
+                                  rotation);
+  if (ret != 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
+                   "Failed to rotation property (%u) to %" G_GUINT64_FORMAT
+                   " on plane %u: %s",
+                   rotation_prop_id,
+                   rotation,
+                   meta_kms_plane_get_id (plane),
+                   g_strerror (-ret));
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
 process_mode_set (MetaKmsImpl     *impl,
                   MetaKmsUpdate   *update,
                   gpointer         update_entry,
@@ -203,8 +208,6 @@ process_mode_set (MetaKmsImpl     *impl,
 
   if (mode_set->mode)
     {
-      GList *l;
-
       drm_mode = g_alloca (sizeof *drm_mode);
       *drm_mode = *meta_kms_mode_get_drm_mode (mode_set->mode);
 
@@ -225,12 +228,12 @@ process_mode_set (MetaKmsImpl     *impl,
       x = meta_fixed_16_to_int (plane_assignment->src_rect.x);
       y = meta_fixed_16_to_int (plane_assignment->src_rect.y);
 
-      for (l = plane_assignment->plane_properties; l; l = l->next)
+      if (plane_assignment->rotation)
         {
-          MetaKmsProperty *prop = l->data;
-
-          if (!process_plane_property (impl, plane_assignment->plane,
-                                       prop, error))
+          if (!set_plane_rotation (impl,
+                                   plane_assignment->plane,
+                                   plane_assignment->rotation,
+                                   error))
             return FALSE;
         }
 
