@@ -612,9 +612,11 @@ init_properties (MetaKmsConnector  *connector,
 
   meta_kms_impl_device_init_prop_table (impl_device,
                                         drm_connector->props,
+                                        drm_connector->prop_values,
                                         drm_connector->count_props,
                                         connector->prop_table.props,
-                                        META_KMS_CONNECTOR_N_PROPS);
+                                        META_KMS_CONNECTOR_N_PROPS,
+                                        NULL);
 }
 
 static char *

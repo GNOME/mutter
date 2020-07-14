@@ -454,9 +454,11 @@ init_properties (MetaKmsPlane            *plane,
 
   meta_kms_impl_device_init_prop_table (impl_device,
                                         drm_plane_props->props,
+                                        drm_plane_props->prop_values,
                                         drm_plane_props->count_props,
                                         plane->prop_table.props,
-                                        META_KMS_PLANE_N_PROPS);
+                                        META_KMS_PLANE_N_PROPS,
+                                        NULL);
 }
 
 MetaKmsPlane *

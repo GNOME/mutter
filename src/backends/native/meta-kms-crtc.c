@@ -266,9 +266,11 @@ init_proporties (MetaKmsCrtc       *crtc,
 
   meta_kms_impl_device_init_prop_table (impl_device,
                                         drm_props->props,
+                                        drm_props->prop_values,
                                         drm_props->count_props,
                                         crtc->prop_table.props,
-                                        META_KMS_CRTC_N_PROPS);
+                                        META_KMS_CRTC_N_PROPS,
+                                        NULL);
 
   drmModeFreeObjectProperties (drm_props);
 }

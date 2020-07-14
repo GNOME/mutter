@@ -35,13 +35,20 @@ typedef struct _MetaKmsDeviceCaps
   uint64_t cursor_height;
 } MetaKmsDeviceCaps;
 
-typedef struct _MetaKmsProp
+typedef struct _MetaKmsProp MetaKmsProp;
+
+struct _MetaKmsProp
 {
   const char *name;
   uint32_t type;
+  void (* parse) (MetaKmsImplDevice  *impl_device,
+                  MetaKmsProp        *prop,
+                  drmModePropertyPtr  drm_prop,
+                  uint64_t            value,
+                  gpointer            user_data);
 
   uint32_t prop_id;
-} MetaKmsProp;
+};
 
 #define META_TYPE_KMS_IMPL_DEVICE (meta_kms_impl_device_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKmsImplDevice, meta_kms_impl_device,
@@ -87,9 +94,11 @@ MetaKmsPlane * meta_kms_impl_device_add_fake_plane (MetaKmsImplDevice *impl_devi
 
 void meta_kms_impl_device_init_prop_table (MetaKmsImplDevice *impl_device,
                                            uint32_t          *drm_props,
+                                           uint64_t          *drm_props_values,
                                            int                n_drm_props,
                                            MetaKmsProp       *props,
-                                           int                n_props);
+                                           int                n_props,
+                                           gpointer           user_data);
 
 int meta_kms_impl_device_close (MetaKmsImplDevice *impl_device);
 

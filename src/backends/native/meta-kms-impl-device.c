@@ -360,9 +360,11 @@ find_prop (MetaKmsProp *props,
 void
 meta_kms_impl_device_init_prop_table (MetaKmsImplDevice *impl_device,
                                       uint32_t          *drm_props,
+                                      uint64_t          *drm_prop_values,
                                       int                n_drm_props,
                                       MetaKmsProp       *props,
-                                      int                n_props)
+                                      int                n_props,
+                                      gpointer           user_data)
 {
   int fd;
   uint32_t i;
@@ -395,6 +397,13 @@ meta_kms_impl_device_init_prop_table (MetaKmsImplDevice *impl_device,
         }
 
       prop->prop_id = drm_props[i];
+
+      if (prop->parse)
+        {
+          prop->parse (impl_device, prop,
+                       drm_prop, drm_prop_values[i],
+                       user_data);
+        }
 
       drmModeFreeProperty (drm_prop);
     }
