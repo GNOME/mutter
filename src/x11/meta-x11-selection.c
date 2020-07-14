@@ -312,6 +312,22 @@ source_new_cb (GObject      *object,
 }
 
 static gboolean
+unset_clipboard_owner (gpointer data)
+{
+  MetaDisplay *display = meta_get_display ();
+  MetaSelection *selection = meta_display_get_selection (display);
+  MetaX11Display *x11_display = meta_display_get_x11_display (display);
+
+  meta_selection_unset_owner (selection, META_SELECTION_CLIPBOARD,
+                              x11_display->selection.owners[META_SELECTION_CLIPBOARD]);
+  g_clear_object (&x11_display->selection.owners[META_SELECTION_CLIPBOARD]);
+
+  x11_display->selection.timeout_id = 0;
+
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean
 meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
                                                    XEvent         *xevent)
 {
@@ -324,6 +340,9 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
     return FALSE;
 
   selection = meta_display_get_selection (meta_get_display ());
+
+  if (selection_type == META_SELECTION_CLIPBOARD)
+    g_clear_handle_id (&x11_display->selection.timeout_id, g_source_remove);
 
   if (x11_display->selection.cancellables[selection_type])
     {
@@ -344,6 +363,19 @@ meta_x11_selection_handle_xfixes_selection_notify (MetaX11Display *x11_display,
           g_set_object (&x11_display->selection.owners[selection_type], source);
           meta_selection_set_owner (selection, selection_type, source);
           g_object_unref (source);
+        }
+      else if (event->subtype == XFixesSelectionWindowDestroyNotify &&
+               selection_type == META_SELECTION_CLIPBOARD)
+        {
+          /* Selection window might have gotten destroyed as part of application
+           * shutdown. Trigger restoring clipboard, but wait a bit, because some
+           * clients, like wine, destroy the old window immediately before a new
+           * selection. Restoring the clipboard in this case would overwrite the
+           * new selection, so this will be cancelled when a new selection
+           * arrives. */
+          x11_display->selection.timeout_id = g_timeout_add (10,
+                                                             unset_clipboard_owner,
+                                                             NULL);
         }
       else
         {
@@ -422,6 +454,7 @@ meta_x11_selection_init (MetaX11Display *x11_display)
   attributes.event_mask = PropertyChangeMask | SubstructureNotifyMask;
   attributes.override_redirect = True;
 
+  x11_display->selection.timeout_id = 0;
   x11_display->selection.xwindow =
     XCreateWindow (x11_display->xdisplay,
                    x11_display->xroot,
@@ -482,4 +515,6 @@ meta_x11_selection_shutdown (MetaX11Display *x11_display)
       XDestroyWindow (x11_display->xdisplay, x11_display->selection.xwindow);
       x11_display->selection.xwindow = None;
     }
+
+  g_clear_handle_id (&x11_display->selection.timeout_id, g_source_remove);
 }
