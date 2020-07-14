@@ -32,6 +32,7 @@
 #include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-device.h"
 #include "backends/native/meta-kms-mode.h"
+#include "backends/native/meta-kms-update.h"
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-crtc-mode-kms.h"
@@ -81,18 +82,17 @@ meta_output_kms_set_underscan (MetaOutputKms *output_kms,
                meta_kms_connector_get_name (output_kms->kms_connector),
                hborder, vborder);
 
-      meta_kms_connector_set_underscanning (output_kms->kms_connector,
-                                            kms_update,
-                                            hborder,
-                                            vborder);
+      meta_kms_update_set_underscanning (kms_update,
+                                         output_kms->kms_connector,
+                                         hborder, vborder);
     }
   else
     {
       g_debug ("Unsetting underscan of connector %s",
                meta_kms_connector_get_name (output_kms->kms_connector));
 
-      meta_kms_connector_unset_underscanning (output_kms->kms_connector,
-                                              kms_update);
+      meta_kms_update_unset_underscanning (kms_update,
+                                           output_kms->kms_connector);
     }
 }
 
@@ -111,9 +111,9 @@ meta_output_kms_set_power_save_mode (MetaOutputKms *output_kms,
            meta_kms_connector_get_name (output_kms->kms_connector),
            dpms_state);
 
-  meta_kms_connector_update_set_dpms_state (output_kms->kms_connector,
-                                            kms_update,
-                                            dpms_state);
+  meta_kms_update_set_dpms_state (kms_update,
+                                  output_kms->kms_connector,
+                                  dpms_state);
 }
 
 gboolean

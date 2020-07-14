@@ -26,7 +26,7 @@
 #include <gbm.h>
 #include <xf86drmMode.h>
 
-#include "backends/native/meta-kms-connector.h"
+#include "backends/native/meta-kms-connector-private.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-mode.h"
@@ -74,33 +74,91 @@ meta_kms_impl_simple_new (MetaKms  *kms,
 }
 
 static gboolean
-process_connector_property (MetaKmsImpl    *impl,
-                            MetaKmsUpdate  *update,
-                            gpointer        update_entry,
-                            GError        **error)
+set_connector_property (MetaKmsConnector      *connector,
+                        MetaKmsConnectorProp   prop,
+                        uint64_t               value,
+                        GError               **error)
 {
-  MetaKmsConnectorProperty *connector_property = update_entry;
-  MetaKmsConnector *connector = connector_property->connector;
   MetaKmsDevice *device = meta_kms_connector_get_device (connector);
   MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  uint32_t prop_id;
   int fd;
   int ret;
+
+  prop_id = meta_kms_connector_get_prop_id (connector, prop);
+  if (!prop_id)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+                   "Property (%s) not found on connector %u",
+                   meta_kms_connector_get_prop_name (connector, prop),
+                   meta_kms_connector_get_id (connector));
+      return FALSE;
+    }
 
   fd = meta_kms_impl_device_get_fd (impl_device);
 
   ret = drmModeObjectSetProperty (fd,
                                   meta_kms_connector_get_id (connector),
                                   DRM_MODE_OBJECT_CONNECTOR,
-                                  connector_property->prop_id,
-                                  connector_property->value);
+                                  prop_id,
+                                  value);
   if (ret != 0)
     {
       g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
                    "Failed to set connector %u property %u: %s",
                    meta_kms_connector_get_id (connector),
-                   connector_property->prop_id,
+                   prop_id,
                    g_strerror (-ret));
       return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
+process_connector_update (MetaKmsImpl    *impl,
+                          MetaKmsUpdate  *update,
+                          gpointer        update_entry,
+                          GError        **error)
+{
+  MetaKmsConnectorUpdate *connector_update = update_entry;
+  MetaKmsConnector *connector = connector_update->connector;
+
+  if (connector_update->dpms.has_update)
+    {
+      if (!set_connector_property (connector,
+                                   META_KMS_CONNECTOR_PROP_DPMS,
+                                   connector_update->dpms.state,
+                                   error))
+        return FALSE;
+    }
+
+  if (connector_update->underscanning.has_update &&
+      connector_update->underscanning.is_active)
+    {
+      if (!set_connector_property (connector,
+                                   META_KMS_CONNECTOR_PROP_UNDERSCAN,
+                                   1,
+                                   error))
+        return FALSE;
+      if (!set_connector_property (connector,
+                                   META_KMS_CONNECTOR_PROP_UNDERSCAN_HBORDER,
+                                   connector_update->underscanning.hborder,
+                                   error))
+        return FALSE;
+      if (!set_connector_property (connector,
+                                   META_KMS_CONNECTOR_PROP_UNDERSCAN_VBORDER,
+                                   connector_update->underscanning.vborder,
+                                   error))
+        return FALSE;
+    }
+  else if (connector_update->underscanning.has_update)
+    {
+      if (!set_connector_property (connector,
+                                   META_KMS_CONNECTOR_PROP_UNDERSCAN,
+                                   0,
+                                   error))
+        return FALSE;
     }
 
   return TRUE;
@@ -953,8 +1011,8 @@ meta_kms_impl_simple_process_update (MetaKmsImpl   *impl,
 
   if (!process_entries (impl,
                         update,
-                        meta_kms_update_get_connector_properties (update),
-                        process_connector_property,
+                        meta_kms_update_get_connector_updates (update),
+                        process_connector_update,
                         &error))
     goto err_planes_not_assigned;
 

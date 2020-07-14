@@ -85,6 +85,18 @@ MetaKmsUpdate * meta_kms_update_new (void);
 
 void meta_kms_update_free (MetaKmsUpdate *update);
 
+void meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
+                                        MetaKmsConnector *connector,
+                                        uint64_t          hborder,
+                                        uint64_t          vborder);
+
+void meta_kms_update_unset_underscanning (MetaKmsUpdate    *update,
+                                          MetaKmsConnector *connector);
+
+void meta_kms_update_set_dpms_state (MetaKmsUpdate    *update,
+                                     MetaKmsConnector *connector,
+                                     uint64_t          state);
+
 void meta_kms_update_mode_set (MetaKmsUpdate *update,
                                MetaKmsCrtc   *crtc,
                                GList         *connectors,

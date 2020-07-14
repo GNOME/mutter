@@ -60,13 +60,22 @@ typedef struct _MetaKmsModeSet
   MetaKmsMode *mode;
 } MetaKmsModeSet;
 
-typedef struct _MetaKmsConnectorProperty
+typedef struct _MetaKmsConnectorUpdate
 {
-  MetaKmsDevice *device;
   MetaKmsConnector *connector;
-  uint32_t prop_id;
-  uint64_t value;
-} MetaKmsConnectorProperty;
+
+  struct {
+    gboolean has_update;
+    gboolean is_active;
+    uint64_t hborder;
+    uint64_t vborder;
+  } underscanning;
+
+  struct {
+    gboolean has_update;
+    uint64_t state;
+  } dpms;
+} MetaKmsConnectorUpdate;
 
 typedef struct _MetaKmsCrtcGamma
 {
@@ -102,11 +111,6 @@ void meta_kms_update_seal (MetaKmsUpdate *update);
 
 gboolean meta_kms_update_is_sealed (MetaKmsUpdate *update);
 
-void meta_kms_update_set_connector_property (MetaKmsUpdate    *update,
-                                             MetaKmsConnector *connector,
-                                             uint32_t          prop_id,
-                                             uint64_t          value);
-
 void meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
                                      MetaKmsCrtc    *crtc,
                                      int             size,
@@ -126,7 +130,7 @@ GList * meta_kms_update_get_mode_sets (MetaKmsUpdate *update);
 
 GList * meta_kms_update_get_page_flips (MetaKmsUpdate *update);
 
-GList * meta_kms_update_get_connector_properties (MetaKmsUpdate *update);
+GList * meta_kms_update_get_connector_updates (MetaKmsUpdate *update);
 
 GList * meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update);
 

@@ -30,15 +30,6 @@
 #include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-update-private.h"
 
-typedef enum _MetaKmsConnectorProp
-{
-  META_KMS_CONNECTOR_PROP_DPMS = 0,
-  META_KMS_CONNECTOR_PROP_UNDERSCAN,
-  META_KMS_CONNECTOR_PROP_UNDERSCAN_HBORDER,
-  META_KMS_CONNECTOR_PROP_UNDERSCAN_VBORDER,
-  META_KMS_CONNECTOR_N_PROPS
-} MetaKmsConnectorProp;
-
 typedef struct _MetaKmsConnectorPropTable
 {
   MetaKmsProp props[META_KMS_CONNECTOR_N_PROPS];
@@ -71,64 +62,18 @@ meta_kms_connector_get_device (MetaKmsConnector *connector)
   return connector->device;
 }
 
-void
-meta_kms_connector_update_set_dpms_state (MetaKmsConnector *connector,
-                                          MetaKmsUpdate    *update,
-                                          uint64_t          state)
+uint32_t
+meta_kms_connector_get_prop_id (MetaKmsConnector     *connector,
+                                MetaKmsConnectorProp  prop)
 {
-  uint32_t prop_id;
-
-  prop_id = connector->prop_table.props[META_KMS_CONNECTOR_PROP_DPMS].prop_id;
-  meta_kms_update_set_connector_property (update,
-                                          connector,
-                                          prop_id,
-                                          state);
+  return connector->prop_table.props[prop].prop_id;
 }
 
-void
-meta_kms_connector_set_underscanning (MetaKmsConnector *connector,
-                                      MetaKmsUpdate    *update,
-                                      uint64_t          hborder,
-                                      uint64_t          vborder)
+const char *
+meta_kms_connector_get_prop_name (MetaKmsConnector     *connector,
+                                  MetaKmsConnectorProp  prop)
 {
-  MetaKmsProp *props = connector->prop_table.props;
-  uint32_t underscan_prop_id;
-  uint32_t underscan_hborder_prop_id;
-  uint32_t underscan_vborder_prop_id;
-
-  underscan_prop_id =
-    props[META_KMS_CONNECTOR_PROP_UNDERSCAN].prop_id;
-  underscan_hborder_prop_id =
-    props[META_KMS_CONNECTOR_PROP_UNDERSCAN_HBORDER].prop_id;
-  underscan_vborder_prop_id =
-    props[META_KMS_CONNECTOR_PROP_UNDERSCAN_VBORDER].prop_id;
-
-  meta_kms_update_set_connector_property (update,
-                                          connector,
-                                          underscan_prop_id,
-                                          1);
-  meta_kms_update_set_connector_property (update,
-                                          connector,
-                                          underscan_hborder_prop_id,
-                                          hborder);
-  meta_kms_update_set_connector_property (update,
-                                          connector,
-                                          underscan_vborder_prop_id,
-                                          vborder);
-}
-
-void
-meta_kms_connector_unset_underscanning (MetaKmsConnector *connector,
-                                        MetaKmsUpdate    *update)
-{
-  MetaKmsProp *props = connector->prop_table.props;
-  uint32_t underscan_prop_id;
-
-  underscan_prop_id = props[META_KMS_CONNECTOR_PROP_UNDERSCAN].prop_id;
-  meta_kms_update_set_connector_property (update,
-                                          connector,
-                                          underscan_prop_id,
-                                          0);
+  return connector->prop_table.props[prop].name;
 }
 
 MetaConnectorType

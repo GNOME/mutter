@@ -34,7 +34,7 @@ struct _MetaKmsUpdate
   GList *mode_sets;
   GList *plane_assignments;
   GList *page_flips;
-  GList *connector_properties;
+  GList *connector_updates;
   GList *crtc_gammas;
 };
 
@@ -204,25 +204,72 @@ meta_kms_update_mode_set (MetaKmsUpdate *update,
   update->mode_sets = g_list_prepend (update->mode_sets, mode_set);
 }
 
-void
-meta_kms_update_set_connector_property (MetaKmsUpdate    *update,
-                                        MetaKmsConnector *connector,
-                                        uint32_t          prop_id,
-                                        uint64_t          value)
+static MetaKmsConnectorUpdate *
+ensure_connector_update (MetaKmsUpdate    *update,
+                        MetaKmsConnector *connector)
 {
-  MetaKmsConnectorProperty *prop;
+  GList *l;
+  MetaKmsConnectorUpdate *connector_update;
+
+  for (l = update->connector_updates; l; l = l->next)
+    {
+      connector_update = l->data;
+
+      if (connector_update->connector == connector)
+        return connector_update;
+    }
+
+  connector_update = g_new0 (MetaKmsConnectorUpdate, 1);
+  connector_update->connector = connector;
+
+  update->connector_updates = g_list_prepend (update->connector_updates,
+                                              connector_update);
+
+  return connector_update;
+}
+
+void
+meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
+                                   MetaKmsConnector *connector,
+                                   uint64_t          hborder,
+                                   uint64_t          vborder)
+{
+  MetaKmsConnectorUpdate *connector_update;
 
   g_assert (!meta_kms_update_is_sealed (update));
 
-  prop = g_new0 (MetaKmsConnectorProperty, 1);
-  *prop = (MetaKmsConnectorProperty) {
-    .connector = connector,
-    .prop_id = prop_id,
-    .value = value,
-  };
+  connector_update = ensure_connector_update (update, connector);
+  connector_update->underscanning.has_update = TRUE;
+  connector_update->underscanning.is_active = TRUE;
+  connector_update->underscanning.hborder = hborder;
+  connector_update->underscanning.vborder = vborder;
+}
 
-  update->connector_properties = g_list_prepend (update->connector_properties,
-                                                 prop);
+void
+meta_kms_update_unset_underscanning (MetaKmsUpdate    *update,
+                                     MetaKmsConnector *connector)
+{
+  MetaKmsConnectorUpdate *connector_update;
+
+  g_assert (!meta_kms_update_is_sealed (update));
+
+  connector_update = ensure_connector_update (update, connector);
+  connector_update->underscanning.has_update = TRUE;
+  connector_update->underscanning.is_active = FALSE;
+}
+
+void
+meta_kms_update_set_dpms_state (MetaKmsUpdate    *update,
+                                MetaKmsConnector *connector,
+                                uint64_t          state)
+{
+  MetaKmsConnectorUpdate *connector_update;
+
+  g_assert (!meta_kms_update_is_sealed (update));
+
+  connector_update = ensure_connector_update (update, connector);
+  connector_update->dpms.has_update = TRUE;
+  connector_update->dpms.state = state;
 }
 
 static void
@@ -360,9 +407,9 @@ meta_kms_update_get_page_flips (MetaKmsUpdate *update)
 }
 
 GList *
-meta_kms_update_get_connector_properties (MetaKmsUpdate *update)
+meta_kms_update_get_connector_updates (MetaKmsUpdate *update)
 {
-  return update->connector_properties;
+  return update->connector_updates;
 }
 
 GList *
@@ -397,7 +444,7 @@ meta_kms_update_free (MetaKmsUpdate *update)
   g_list_free_full (update->mode_sets,
                     (GDestroyNotify) meta_kms_mode_set_free);
   g_list_free_full (update->page_flips, g_free);
-  g_list_free_full (update->connector_properties, g_free);
+  g_list_free_full (update->connector_updates, g_free);
   g_list_free_full (update->crtc_gammas, (GDestroyNotify) meta_kms_crtc_gamma_free);
 
   g_free (update);

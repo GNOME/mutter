@@ -20,7 +20,22 @@
 #ifndef META_KMS_CONNECTOR_PRIVATE_H
 #define META_KMS_CONNECTOR_PRIVATE_H
 
-#include "backends/native/meta-kms-types.h"
+#include "backends/native/meta-kms-connector.h"
+
+typedef enum _MetaKmsConnectorProp
+{
+  META_KMS_CONNECTOR_PROP_DPMS = 0,
+  META_KMS_CONNECTOR_PROP_UNDERSCAN,
+  META_KMS_CONNECTOR_PROP_UNDERSCAN_HBORDER,
+  META_KMS_CONNECTOR_PROP_UNDERSCAN_VBORDER,
+  META_KMS_CONNECTOR_N_PROPS
+} MetaKmsConnectorProp;
+
+uint32_t meta_kms_connector_get_prop_id (MetaKmsConnector     *connector,
+                                         MetaKmsConnectorProp  prop);
+
+const char * meta_kms_connector_get_prop_name (MetaKmsConnector     *connector,
+                                               MetaKmsConnectorProp  prop);
 
 void meta_kms_connector_update_state (MetaKmsConnector *connector,
                                       drmModeRes       *drm_resources);

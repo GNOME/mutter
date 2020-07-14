@@ -61,18 +61,6 @@ typedef struct _MetaKmsConnectorState
 
 MetaKmsDevice * meta_kms_connector_get_device (MetaKmsConnector *connector);
 
-void meta_kms_connector_update_set_dpms_state (MetaKmsConnector *connector,
-                                               MetaKmsUpdate    *update,
-                                               uint64_t          state);
-
-void meta_kms_connector_set_underscanning (MetaKmsConnector *connector,
-                                           MetaKmsUpdate    *update,
-                                           uint64_t          hborder,
-                                           uint64_t          vborder);
-
-void meta_kms_connector_unset_underscanning (MetaKmsConnector *connector,
-                                             MetaKmsUpdate    *update);
-
 MetaConnectorType meta_kms_connector_get_connector_type (MetaKmsConnector *connector);
 
 uint32_t meta_kms_connector_get_id (MetaKmsConnector *connector);
