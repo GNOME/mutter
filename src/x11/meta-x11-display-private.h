@@ -127,6 +127,7 @@ struct _MetaX11Display
 
   struct {
     Window xwindow;
+    guint timeout_id;
     MetaSelectionSource *owners[META_N_SELECTION_TYPES];
     GCancellable *cancellables[META_N_SELECTION_TYPES];
 
