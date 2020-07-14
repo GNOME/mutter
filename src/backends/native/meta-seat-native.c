@@ -2506,6 +2506,9 @@ meta_seat_native_constructed (GObject *object)
       CLUTTER_INPUT_MODE_LOGICAL);
   seat->core_keyboard = device;
 
+  seat->kms_cursor_renderer =
+    meta_kms_cursor_renderer_new (meta_get_backend ());
+
   udev = udev_new ();
   if (G_UNLIKELY (udev == NULL))
     {
@@ -3317,6 +3320,8 @@ meta_seat_native_get_cursor_renderer (MetaSeatNative     *seat,
             meta_cursor_renderer_native_new (meta_get_backend (),
                                              seat->core_pointer);
           seat->cursor_renderer = META_CURSOR_RENDERER (renderer_native);
+          meta_cursor_renderer_native_set_kms_cursor_renderer (renderer_native,
+                                                               seat->kms_cursor_renderer);
         }
 
       return seat->cursor_renderer;

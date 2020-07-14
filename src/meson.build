@@ -674,6 +674,8 @@ if have_native_backend
     'backends/native/meta-kms-crtc-private.h',
     'backends/native/meta-kms-crtc.c',
     'backends/native/meta-kms-crtc.h',
+    'backends/native/meta-kms-cursor-renderer.c',
+    'backends/native/meta-kms-cursor-renderer.h',
     'backends/native/meta-kms-device-private.h',
     'backends/native/meta-kms-device.c',
     'backends/native/meta-kms-device.h',

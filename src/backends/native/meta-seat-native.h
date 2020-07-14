@@ -85,6 +85,7 @@ struct _MetaSeatNative
 
   MetaKeymapNative *keymap;
   MetaCursorRenderer *cursor_renderer;
+  MetaKmsCursorRenderer *kms_cursor_renderer;
   GHashTable *tablet_cursors;
 
   GUdevClient *udev_client;

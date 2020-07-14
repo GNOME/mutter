@@ -22,22 +22,22 @@
  *     Jasper St. Pierre <jstpierre@mecheye.net>
  */
 
-#ifndef META_CURSOR_RENDERER_NATIVE_H
-#define META_CURSOR_RENDERER_NATIVE_H
+#ifndef META_KMS_CURSOR_RENDERER_H
+#define META_KMS_CURSOR_RENDERER_H
 
 #include "backends/meta-cursor-renderer.h"
-#include "backends/native/meta-kms-cursor-renderer.h"
 #include "meta/meta-backend.h"
 
-#define META_TYPE_CURSOR_RENDERER_NATIVE (meta_cursor_renderer_native_get_type ())
-G_DECLARE_FINAL_TYPE (MetaCursorRendererNative, meta_cursor_renderer_native,
-                      META, CURSOR_RENDERER_NATIVE,
-                      MetaCursorRenderer)
+#define META_TYPE_KMS_CURSOR_RENDERER (meta_kms_cursor_renderer_get_type ())
+G_DECLARE_FINAL_TYPE (MetaKmsCursorRenderer, meta_kms_cursor_renderer,
+                      META, KMS_CURSOR_RENDERER,
+                      GObject)
 
-MetaCursorRendererNative * meta_cursor_renderer_native_new (MetaBackend        *backend,
-                                                            ClutterInputDevice *device);
+MetaKmsCursorRenderer * meta_kms_cursor_renderer_new (MetaBackend *backend);
+void meta_kms_cursor_renderer_invalidate_state (MetaKmsCursorRenderer *kms_renderer);
+gboolean meta_kms_cursor_renderer_update_cursor (MetaKmsCursorRenderer *kms_cursor_renderer,
+                                                 MetaCursorSprite      *sprite);
+void meta_kms_cursor_renderer_set_cursor_renderer (MetaKmsCursorRenderer *kms_renderer,
+                                                   MetaCursorRenderer    *renderer);
 
-void meta_cursor_renderer_native_set_kms_cursor_renderer (MetaCursorRendererNative *native,
-                                                          MetaKmsCursorRenderer    *kms_cursor_renderer);
-
-#endif /* META_CURSOR_RENDERER_NATIVE_H */
+#endif /* META_KMS_CURSOR_RENDERER_H */
