@@ -445,6 +445,7 @@ on_device_removed (ClutterSeat        *seat,
       ClutterInputDeviceType device_type;
 
       priv->current_device = NULL;
+      g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
 
       device_type = clutter_input_device_get_device_type (device);
       has_touchscreen = check_has_slave_touchscreen (seat);
