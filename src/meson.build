@@ -374,6 +374,7 @@ mutter_sources = [
   'core/meta-inhibit-shortcuts-dialog-default.c',
   'core/meta-inhibit-shortcuts-dialog-default-private.h',
   'core/meta-launch-context.c',
+  'core/meta-pad-action-mapper.c',
   'core/meta-selection.c',
   'core/meta-selection-source.c',
   'core/meta-selection-source-memory.c',

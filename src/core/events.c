@@ -265,8 +265,7 @@ meta_display_handle_event (MetaDisplay        *display,
       handle_pad_event = !display->current_pad_osd || is_mode_switch;
 
       if (handle_pad_event &&
-          meta_input_settings_handle_pad_event (meta_backend_get_input_settings (backend),
-                                                event))
+          meta_pad_action_mapper_handle_event (display->pad_action_mapper, event))
         {
           bypass_wayland = bypass_clutter = TRUE;
           goto out;

@@ -38,6 +38,7 @@
 #include "clutter/clutter.h"
 #include "core/keybindings-private.h"
 #include "core/meta-gesture-tracker-private.h"
+#include "core/meta-pad-action-mapper.h"
 #include "core/stack-tracker.h"
 #include "core/startup-notification-private.h"
 #include "meta/barrier.h"
@@ -211,6 +212,7 @@ struct _MetaDisplay
   ClutterEventSequence *pointer_emulating_sequence;
 
   ClutterActor *current_pad_osd;
+  MetaPadActionMapper *pad_action_mapper;
 
   MetaStartupNotification *startup_notification;
 
