@@ -142,9 +142,6 @@ GSettings *           meta_input_settings_get_tablet_settings (MetaInputSettings
 MetaLogicalMonitor *  meta_input_settings_get_tablet_logical_monitor (MetaInputSettings  *settings,
                                                                       ClutterInputDevice *device);
 
-GDesktopTabletMapping meta_input_settings_get_tablet_mapping (MetaInputSettings  *settings,
-                                                              ClutterInputDevice *device);
-
 gboolean                   meta_input_settings_is_pad_button_grabbed     (MetaInputSettings  *input_settings,
                                                                           ClutterInputDevice *pad,
                                                                           guint               button);

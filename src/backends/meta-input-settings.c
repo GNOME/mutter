@@ -2204,25 +2204,6 @@ meta_input_settings_get_tablet_logical_monitor (MetaInputSettings  *settings,
   return logical_monitor;
 }
 
-GDesktopTabletMapping
-meta_input_settings_get_tablet_mapping (MetaInputSettings  *settings,
-                                        ClutterInputDevice *device)
-{
-  MetaInputSettingsPrivate *priv;
-  DeviceMappingInfo *info;
-
-  g_return_val_if_fail (META_IS_INPUT_SETTINGS (settings),
-                        G_DESKTOP_TABLET_MAPPING_ABSOLUTE);
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device),
-                        G_DESKTOP_TABLET_MAPPING_ABSOLUTE);
-
-  priv = meta_input_settings_get_instance_private (settings);
-  info = g_hash_table_lookup (priv->mappable_devices, device);
-  g_return_val_if_fail (info != NULL, G_DESKTOP_TABLET_MAPPING_ABSOLUTE);
-
-  return g_settings_get_enum (info->settings, "mapping");
-}
-
 static GDesktopPadButtonAction
 meta_input_settings_get_pad_button_action (MetaInputSettings   *input_settings,
                                            ClutterInputDevice  *pad,
