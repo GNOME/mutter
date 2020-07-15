@@ -73,6 +73,11 @@ enum
 
 static guint signals[LAST_SIGNAL];
 
+static CoglPipelineKey opaque_overlay_pipeline_key =
+  "meta-shaped-texture-opaque-pipeline-key";
+static CoglPipelineKey blended_overlay_pipeline_key =
+  "meta-shaped-texture-blended-pipeline-key";
+
 struct _MetaShapedTexture
 {
   GObject parent;
@@ -422,6 +427,46 @@ get_unblended_pipeline (MetaShapedTexture *stex,
   return pipeline;
 }
 
+static CoglPipeline *
+get_opaque_overlay_pipeline (CoglContext *ctx)
+{
+  CoglPipeline *pipeline;
+
+  pipeline = cogl_context_get_named_pipeline (ctx,
+                                              &opaque_overlay_pipeline_key);
+  if (!pipeline)
+    {
+      pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_color4ub (pipeline, 0x00, 0x33, 0x00, 0x33);
+
+      cogl_context_set_named_pipeline (ctx,
+                                       &opaque_overlay_pipeline_key,
+                                       pipeline);
+    }
+
+  return pipeline;
+}
+
+static CoglPipeline *
+get_blended_overlay_pipeline (CoglContext *ctx)
+{
+  CoglPipeline *pipeline;
+
+  pipeline = cogl_context_get_named_pipeline (ctx,
+                                              &blended_overlay_pipeline_key);
+  if (!pipeline)
+    {
+      pipeline = cogl_pipeline_new (ctx);
+      cogl_pipeline_set_color4ub (pipeline, 0x33, 0x00, 0x33, 0x33);
+
+      cogl_context_set_named_pipeline (ctx,
+                                       &blended_overlay_pipeline_key,
+                                       pipeline);
+    }
+
+  return pipeline;
+}
+
 static void
 paint_clipped_rectangle_node (MetaShapedTexture     *stex,
                               ClutterPaintNode      *root_node,
@@ -549,6 +594,7 @@ do_paint_content (MetaShapedTexture   *stex,
   CoglPipelineFilter filter;
   CoglFramebuffer *framebuffer;
   int sample_width, sample_height;
+  gboolean debug_paint_opaque_region;
 
   ensure_size_valid (stex);
 
@@ -564,6 +610,9 @@ do_paint_content (MetaShapedTexture   *stex,
     .width = dst_width,
     .height = dst_height,
   };
+
+  debug_paint_opaque_region =
+    meta_get_debug_paint_flags() & META_DEBUG_PAINT_OPAQUE_REGION;
 
   /* Use nearest-pixel interpolation if the texture is unscaled. This
    * improves performance, especially with software rendering.
@@ -664,6 +713,16 @@ do_paint_content (MetaShapedTexture   *stex,
               paint_clipped_rectangle_node (stex, root_node,
                                             opaque_pipeline,
                                             &rect, alloc);
+
+              if (G_UNLIKELY (debug_paint_opaque_region))
+                {
+                  CoglPipeline *opaque_overlay_pipeline;
+
+                  opaque_overlay_pipeline = get_opaque_overlay_pipeline (ctx);
+                  paint_clipped_rectangle_node (stex, root_node,
+                                                opaque_overlay_pipeline,
+                                                &rect, alloc);
+                }
             }
         }
 
@@ -719,6 +778,16 @@ do_paint_content (MetaShapedTexture   *stex,
               paint_clipped_rectangle_node (stex, root_node,
                                             blended_pipeline,
                                             &rect, alloc);
+
+              if (G_UNLIKELY (debug_paint_opaque_region))
+                {
+                  CoglPipeline *blended_overlay_pipeline;
+
+                  blended_overlay_pipeline = get_blended_overlay_pipeline (ctx);
+                  paint_clipped_rectangle_node (stex, root_node,
+                                                blended_overlay_pipeline,
+                                                &rect, alloc);
+                }
             }
         }
       else
@@ -731,6 +800,20 @@ do_paint_content (MetaShapedTexture   *stex,
 
           /* 3) blended_tex_region is NULL. Do a full paint. */
           clutter_paint_node_add_rectangle (node, alloc);
+
+          if (G_UNLIKELY (debug_paint_opaque_region))
+            {
+              CoglPipeline *blended_overlay_pipeline;
+              g_autoptr (ClutterPaintNode) node_overlay = NULL;
+
+              blended_overlay_pipeline = get_blended_overlay_pipeline (ctx);
+
+              node_overlay = clutter_pipeline_node_new (blended_overlay_pipeline);
+              clutter_paint_node_set_static_name (node_overlay,
+                                                  "MetaShapedTexture (unclipped overlay)");
+              clutter_paint_node_add_child (root_node, node_overlay);
+              clutter_paint_node_add_rectangle (node_overlay, alloc);
+            }
         }
     }
 
