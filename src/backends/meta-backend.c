@@ -530,7 +530,8 @@ meta_backend_real_post_init (MetaBackend *backend)
   g_signal_connect_object (seat, "device-added",
                            G_CALLBACK (on_device_added), backend, 0);
   g_signal_connect_object (seat, "device-removed",
-                           G_CALLBACK (on_device_removed), backend, 0);
+                           G_CALLBACK (on_device_removed), backend,
+                           G_CONNECT_AFTER);
 
   set_initial_pointer_visibility (backend, seat);
 
