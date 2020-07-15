@@ -854,6 +854,8 @@ meta_display_open (void)
   g_signal_connect (monitor_manager, "monitors-changed-internal",
                     G_CALLBACK (on_monitors_changed_internal), display);
 
+  display->pad_action_mapper = meta_pad_action_mapper_new (monitor_manager);
+
   settings = meta_backend_get_settings (backend);
   g_signal_connect (settings, "ui-scaling-factor-changed",
                     G_CALLBACK (on_ui_scaling_factor_changed), display);
@@ -1119,6 +1121,7 @@ meta_display_close (MetaDisplay *display,
 
   meta_clipboard_manager_shutdown (display);
   g_clear_object (&display->selection);
+  g_clear_object (&display->pad_action_mapper);
 
   g_object_unref (display);
   the_display = NULL;
@@ -2961,12 +2964,12 @@ meta_display_get_pad_action_label (MetaDisplay        *display,
                                    MetaPadActionType   action_type,
                                    guint               action_number)
 {
-  MetaInputSettings *settings;
   gchar *label;
 
   /* First, lookup the action, as imposed by settings */
-  settings = meta_backend_get_input_settings (meta_get_backend ());
-  label = meta_input_settings_get_pad_action_label (settings, pad, action_type, action_number);
+  label = meta_pad_action_mapper_get_action_label (display->pad_action_mapper,
+                                                   pad, action_type,
+                                                   action_number);
   if (label)
     return label;
 

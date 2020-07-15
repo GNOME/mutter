@@ -28,6 +28,7 @@
 #include <wayland-server.h>
 
 #include "backends/meta-input-settings-private.h"
+#include "core/display-private.h"
 #include "compositor/meta-surface-actor-wayland.h"
 #include "wayland/meta-wayland-private.h"
 #include "wayland/meta-wayland-tablet-pad-group.h"
@@ -244,15 +245,14 @@ tablet_pad_set_feedback (struct wl_client   *client,
 {
   MetaWaylandTabletPad *pad = wl_resource_get_user_data (resource);
   MetaWaylandTabletPadGroup *group = tablet_pad_lookup_button_group (pad, button);
-  MetaInputSettings *input_settings;
+  MetaPadActionMapper *mapper;
 
   if (!group || group->mode_switch_serial != serial)
     return;
 
-  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  mapper = meta_get_display ()->pad_action_mapper;
 
-  if (input_settings &&
-      meta_input_settings_is_pad_button_grabbed (input_settings, pad->device, button))
+  if (meta_pad_action_mapper_is_button_grabbed (mapper, pad->device, button))
     return;
 
   if (meta_wayland_tablet_pad_group_is_mode_switch_button (group, button))
@@ -367,15 +367,14 @@ static gboolean
 meta_wayland_tablet_pad_handle_event_action (MetaWaylandTabletPad *pad,
                                              const ClutterEvent   *event)
 {
-  MetaInputSettings *input_settings;
+  MetaPadActionMapper *mapper;
   ClutterInputDevice *device;
 
   device = clutter_event_get_source_device (event);
-  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  mapper = meta_get_display ()->pad_action_mapper;
 
-  if (input_settings &&
-      meta_input_settings_is_pad_button_grabbed (input_settings, device,
-                                                 event->pad_button.button))
+  if (meta_pad_action_mapper_is_button_grabbed (mapper, device,
+                                                event->pad_button.button))
     return TRUE;
 
   return FALSE;

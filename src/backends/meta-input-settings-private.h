@@ -142,17 +142,6 @@ GSettings *           meta_input_settings_get_tablet_settings (MetaInputSettings
 MetaLogicalMonitor *  meta_input_settings_get_tablet_logical_monitor (MetaInputSettings  *settings,
                                                                       ClutterInputDevice *device);
 
-gboolean                   meta_input_settings_is_pad_button_grabbed     (MetaInputSettings  *input_settings,
-                                                                          ClutterInputDevice *pad,
-                                                                          guint               button);
-
-gboolean                   meta_input_settings_handle_pad_event          (MetaInputSettings    *input_settings,
-                                                                          const ClutterEvent   *event);
-gchar *                    meta_input_settings_get_pad_action_label      (MetaInputSettings  *input_settings,
-                                                                          ClutterInputDevice *pad,
-                                                                          MetaPadActionType   action,
-                                                                          guint               number);
-
 void meta_input_settings_maybe_save_numlock_state    (MetaInputSettings *input_settings);
 void meta_input_settings_maybe_restore_numlock_state (MetaInputSettings *input_settings);
 
