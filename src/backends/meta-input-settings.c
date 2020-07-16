@@ -1903,16 +1903,18 @@ static void
 power_save_mode_changed_cb (MetaMonitorManager *manager,
                             gpointer            user_data)
 {
+  MetaInputSettings *input_settings = user_data;
   MetaInputSettingsPrivate *priv;
   ClutterInputDevice *device;
   MetaLogicalMonitor *logical_monitor;
   MetaMonitor *builtin;
   MetaPowerSave power_save_mode;
+  GDesktopDeviceSendEvents send_events;
   gboolean on;
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (manager);
   on = power_save_mode == META_POWER_SAVE_ON;
-  priv = meta_input_settings_get_instance_private (user_data);
+  priv = meta_input_settings_get_instance_private (input_settings);
 
   builtin = meta_monitor_manager_get_laptop_panel (manager);
   if (!builtin)
@@ -1929,7 +1931,13 @@ power_save_mode_changed_cb (MetaMonitorManager *manager,
   if (!device)
     return;
 
-  clutter_input_device_set_enabled (device, on);
+  send_events = on ?
+    G_DESKTOP_DEVICE_SEND_EVENTS_ENABLED :
+    G_DESKTOP_DEVICE_SEND_EVENTS_DISABLED;
+
+  META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_send_events (input_settings,
+                                                                   device,
+                                                                   send_events);
 }
 
 static void
