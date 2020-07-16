@@ -875,13 +875,13 @@ constrain_to_barriers (MetaSeatNative     *seat,
 
 static void
 constrain_all_screen_monitors (ClutterInputDevice *device,
-                               MetaMonitorManager *monitor_manager,
+                               MetaViewportInfo   *viewports,
                                float              *x,
                                float              *y)
 {
   graphene_point_t current;
   float cx, cy;
-  GList *logical_monitors, *l;
+  int i, n_views;
 
   clutter_input_device_get_coords (device, NULL, &current);
 
@@ -890,17 +890,19 @@ constrain_all_screen_monitors (ClutterInputDevice *device,
 
   /* if we're trying to escape, clamp to the CRTC we're coming from */
 
-  logical_monitors =
-    meta_monitor_manager_get_logical_monitors (monitor_manager);
-  for (l = logical_monitors; l; l = l->next)
-    {
-      MetaLogicalMonitor *logical_monitor = l->data;
-      int left, right, top, bottom;
+  n_views = meta_viewport_info_get_num_views (viewports);
 
-      left = logical_monitor->rect.x;
-      right = left + logical_monitor->rect.width;
-      top = logical_monitor->rect.y;
-      bottom = top + logical_monitor->rect.height;
+  for (i = 0; i < n_views; i++)
+    {
+      int left, right, top, bottom;
+      cairo_rectangle_int_t rect;
+
+      meta_viewport_info_get_view (viewports, i, &rect, NULL);
+
+      left = rect.x;
+      right = left + rect.width;
+      top = rect.y;
+      bottom = top + rect.height;
 
       if ((cx >= left) && (cx < right) && (cy >= top) && (cy < bottom))
         {
@@ -927,10 +929,6 @@ meta_seat_native_constrain_pointer (MetaSeatNative     *seat,
                                     float              *new_x,
                                     float              *new_y)
 {
-  MetaBackend *backend = meta_get_backend ();
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-
   /* Constrain to barriers */
   constrain_to_barriers (seat, core_pointer,
                          us2ms (time_us),
@@ -946,53 +944,59 @@ meta_seat_native_constrain_pointer (MetaSeatNative     *seat,
                                               new_x, new_y);
     }
 
-  /* if we're moving inside a monitor, we're fine */
-  if (meta_monitor_manager_get_logical_monitor_at (monitor_manager,
-                                                   *new_x, *new_y))
-    return;
+  if (seat->viewports)
+    {
+      /* if we're moving inside a monitor, we're fine */
+      if (meta_viewport_info_get_view_at (seat->viewports, *new_x, *new_y) >= 0)
+        return;
 
-  /* if we're trying to escape, clamp to the CRTC we're coming from */
-  constrain_all_screen_monitors (core_pointer, monitor_manager, new_x, new_y);
+      /* if we're trying to escape, clamp to the CRTC we're coming from */
+      constrain_all_screen_monitors (core_pointer, seat->viewports, new_x, new_y);
+    }
 }
 
 static void
-relative_motion_across_outputs (MetaMonitorManager *monitor_manager,
-                                MetaLogicalMonitor *current,
+relative_motion_across_outputs (MetaViewportInfo   *viewports,
+                                int                 view,
                                 float               cur_x,
                                 float               cur_y,
                                 float              *dx_inout,
                                 float              *dy_inout)
 {
-  MetaLogicalMonitor *cur = current;
+  int cur_view = view;
   float x = cur_x, y = cur_y;
   float target_x = cur_x, target_y = cur_y;
   float dx = *dx_inout, dy = *dy_inout;
   MetaDisplayDirection direction = -1;
 
-  while (cur)
+  while (cur_view >= 0)
     {
       MetaLine2 left, right, top, bottom, motion;
       MetaVector2 intersection;
+      cairo_rectangle_int_t rect;
+      float scale;
+
+      meta_viewport_info_get_view (viewports, cur_view, &rect, &scale);
 
       motion = (MetaLine2) {
-          .a = { x, y },
-            .b = { x + (dx * cur->scale), y + (dy * cur->scale) }
+        .a = { x, y },
+        .b = { x + (dx * scale), y + (dy * scale) }
       };
       left = (MetaLine2) {
-            { cur->rect.x, cur->rect.y },
-              { cur->rect.x, cur->rect.y + cur->rect.height }
+        { rect.x, rect.y },
+        { rect.x, rect.y + rect.height }
       };
       right = (MetaLine2) {
-            { cur->rect.x + cur->rect.width, cur->rect.y },
-              { cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height }
+        { rect.x + rect.width, rect.y },
+        { rect.x + rect.width, rect.y + rect.height }
       };
       top = (MetaLine2) {
-            { cur->rect.x, cur->rect.y },
-              { cur->rect.x + cur->rect.width, cur->rect.y }
+        { rect.x, rect.y },
+        { rect.x + rect.width, rect.y }
       };
       bottom = (MetaLine2) {
-            { cur->rect.x, cur->rect.y + cur->rect.height },
-              { cur->rect.x + cur->rect.width, cur->rect.y + cur->rect.height }
+        { rect.x, rect.y + rect.height },
+        { rect.x + rect.width, rect.y + rect.height }
       };
 
       target_x = motion.b.x;
@@ -1019,8 +1023,8 @@ relative_motion_across_outputs (MetaMonitorManager *monitor_manager,
       dx -= intersection.x - motion.a.x;
       dy -= intersection.y - motion.a.y;
 
-      cur = meta_monitor_manager_get_logical_monitor_neighbor (monitor_manager,
-                                                               cur, direction);
+      cur_view = meta_viewport_info_get_neighbor (viewports, cur_view,
+                                                  direction);
     }
 
   *dx_inout = target_x - cur_x;
@@ -1035,35 +1039,32 @@ meta_seat_native_filter_relative_motion (MetaSeatNative     *seat,
                                          float              *dx,
                                          float              *dy)
 {
-  MetaBackend *backend = meta_get_backend ();
-  MetaMonitorManager *monitor_manager =
-    meta_backend_get_monitor_manager (backend);
-  MetaLogicalMonitor *logical_monitor, *dest_logical_monitor;
-  float new_dx, new_dy;
+  int view = -1, dest_view;
+  float new_dx, new_dy, scale;
 
   if (meta_is_stage_views_scaled ())
     return;
 
-  logical_monitor = meta_monitor_manager_get_logical_monitor_at (monitor_manager,
-                                                                 x, y);
-  if (!logical_monitor)
+  if (seat->viewports)
+    view = meta_viewport_info_get_view_at (seat->viewports, x, y);
+  if (view < 0)
     return;
 
-  new_dx = (*dx) * logical_monitor->scale;
-  new_dy = (*dy) * logical_monitor->scale;
+  meta_viewport_info_get_view (seat->viewports, view, NULL, &scale);
+  new_dx = (*dx) * scale;
+  new_dy = (*dy) * scale;
 
-  dest_logical_monitor = meta_monitor_manager_get_logical_monitor_at (monitor_manager,
-                                                                      x + new_dx,
-                                                                      y + new_dy);
-  if (dest_logical_monitor &&
-      dest_logical_monitor != logical_monitor)
+  dest_view = meta_viewport_info_get_view_at (seat->viewports,
+                                              x + new_dx,
+                                              y + new_dy);
+  if (dest_view >= 0 && dest_view != view)
     {
       /* If we are crossing monitors, attempt to bisect the distance on each
        * axis and apply the relative scale for each of them.
        */
       new_dx = *dx;
       new_dy = *dy;
-      relative_motion_across_outputs (monitor_manager, logical_monitor,
+      relative_motion_across_outputs (seat->viewports, view,
                                       x, y, &new_dx, &new_dy);
     }
 
@@ -3332,4 +3333,11 @@ meta_seat_native_get_cursor_renderer (MetaSeatNative     *seat,
     return g_hash_table_lookup (seat->tablet_cursors, device);
 
   return NULL;
+}
+
+void
+meta_seat_native_set_viewports (MetaSeatNative   *seat,
+                                MetaViewportInfo *viewports)
+{
+  g_set_object (&seat->viewports, viewports);
 }
