@@ -51,9 +51,14 @@ struct _MetaKmsProp
 };
 
 #define META_TYPE_KMS_IMPL_DEVICE (meta_kms_impl_device_get_type ())
-G_DECLARE_FINAL_TYPE (MetaKmsImplDevice, meta_kms_impl_device,
-                      META, KMS_IMPL_DEVICE,
-                      GObject)
+G_DECLARE_DERIVABLE_TYPE (MetaKmsImplDevice, meta_kms_impl_device,
+                          META, KMS_IMPL_DEVICE,
+                          GObject)
+
+struct _MetaKmsImplDeviceClass
+{
+  GObjectClass parent_class;
+};
 
 MetaKmsDevice * meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device);
 
