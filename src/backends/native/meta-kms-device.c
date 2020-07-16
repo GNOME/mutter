@@ -270,6 +270,8 @@ create_impl_device_in_impl (MetaKmsImpl  *impl,
   if (!impl_device)
     return FALSE;
 
+  meta_kms_impl_add_impl_device (impl, impl_device);
+
   data->out_impl_device = impl_device;
   data->out_crtcs = meta_kms_impl_device_copy_crtcs (impl_device);
   data->out_connectors = meta_kms_impl_device_copy_connectors (impl_device);

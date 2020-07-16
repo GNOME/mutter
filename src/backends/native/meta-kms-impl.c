@@ -22,6 +22,8 @@
 
 #include "backends/native/meta-kms-impl.h"
 
+#include "backends/native/meta-kms-private.h"
+
 enum
 {
   PROP_0,
@@ -32,6 +34,8 @@ enum
 typedef struct _MetaKmsImplPrivate
 {
   MetaKms *kms;
+
+  GList *impl_devices;
 } MetaKmsImplPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (MetaKmsImpl, meta_kms_impl, G_TYPE_OBJECT)
@@ -42,6 +46,28 @@ meta_kms_impl_get_kms (MetaKmsImpl *impl)
   MetaKmsImplPrivate *priv = meta_kms_impl_get_instance_private (impl);
 
   return priv->kms;
+}
+
+void
+meta_kms_impl_add_impl_device (MetaKmsImpl       *impl,
+                               MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplPrivate *priv = meta_kms_impl_get_instance_private (impl);
+
+  meta_assert_in_kms_impl (priv->kms);
+
+  priv->impl_devices = g_list_append (priv->impl_devices, impl_device);
+}
+
+void
+meta_kms_impl_remove_impl_device (MetaKmsImpl       *impl,
+                                  MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplPrivate *priv = meta_kms_impl_get_instance_private (impl);
+
+  meta_assert_in_kms_impl (priv->kms);
+
+  priv->impl_devices = g_list_remove (priv->impl_devices, impl_device);
 }
 
 MetaKmsFeedback *

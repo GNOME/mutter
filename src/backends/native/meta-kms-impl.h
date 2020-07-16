@@ -47,6 +47,12 @@ MetaKms * meta_kms_impl_get_kms (MetaKmsImpl *impl);
 MetaKmsFeedback * meta_kms_impl_process_update (MetaKmsImpl   *impl,
                                                 MetaKmsUpdate *update);
 
+void meta_kms_impl_add_impl_device (MetaKmsImpl       *impl,
+                                    MetaKmsImplDevice *impl_device);
+
+void meta_kms_impl_remove_impl_device (MetaKmsImpl       *impl,
+                                       MetaKmsImplDevice *impl_device);
+
 void meta_kms_impl_handle_page_flip_callback (MetaKmsImpl         *impl,
                                               MetaKmsPageFlipData *page_flip_data);
 

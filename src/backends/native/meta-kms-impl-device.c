@@ -703,6 +703,8 @@ meta_kms_impl_device_finalize (GObject *object)
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
 
+  meta_kms_impl_remove_impl_device (priv->impl, impl_device);
+
   g_list_free_full (priv->planes, g_object_unref);
   g_list_free_full (priv->crtcs, g_object_unref);
   g_list_free_full (priv->connectors, g_object_unref);
