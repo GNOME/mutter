@@ -23,6 +23,8 @@
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-device.h"
 
+#include <xf86drm.h>
+
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-impl.h"
@@ -227,6 +229,32 @@ typedef struct _CreateImplDeviceData
   char *out_driver_description;
 } CreateImplDeviceData;
 
+static MetaKmsImplDevice *
+meta_create_kms_impl_device (MetaKmsDevice  *device,
+                             MetaKmsImpl    *impl,
+                             int             fd,
+                             GError        **error)
+{
+  int ret;
+
+  meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
+
+  ret = drmSetClientCap (fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
+  if (ret != 0)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
+                   "Failed to activate universal planes: %s",
+                   g_strerror (-ret));
+      return NULL;
+    }
+
+  return g_initable_new (META_TYPE_KMS_IMPL_DEVICE, NULL, error,
+                         "device", device,
+                         "impl", impl,
+                         "fd", fd,
+                         NULL);
+}
+
 static gpointer
 create_impl_device_in_impl (MetaKmsImpl  *impl,
                             gpointer      user_data,
@@ -235,7 +263,10 @@ create_impl_device_in_impl (MetaKmsImpl  *impl,
   CreateImplDeviceData *data = user_data;
   MetaKmsImplDevice *impl_device;
 
-  impl_device = meta_kms_impl_device_new (data->device, impl, data->fd, error);
+  impl_device = meta_create_kms_impl_device (data->device,
+                                             impl,
+                                             data->fd,
+                                             error);
   if (!impl_device)
     return FALSE;
 

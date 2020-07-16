@@ -38,6 +38,19 @@
 
 #include "meta-default-modes.h"
 
+enum
+{
+  PROP_0,
+
+  PROP_DEVICE,
+  PROP_IMPL,
+  PROP_FD,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 typedef struct _MetaKmsImplDevicePrivate
 {
   MetaKmsDevice *device;
@@ -58,8 +71,14 @@ typedef struct _MetaKmsImplDevicePrivate
   GList *fallback_modes;
 } MetaKmsImplDevicePrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE (MetaKmsImplDevice, meta_kms_impl_device,
-                            G_TYPE_OBJECT)
+static void
+initable_iface_init (GInitableIface *iface);
+
+G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDevice, meta_kms_impl_device,
+                         G_TYPE_OBJECT,
+                         G_ADD_PRIVATE (MetaKmsImplDevice)
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                initable_iface_init))
 
 MetaKmsDevice *
 meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device)
@@ -587,64 +606,6 @@ meta_kms_impl_device_predict_states (MetaKmsImplDevice *impl_device,
                   update);
 }
 
-MetaKmsImplDevice *
-meta_kms_impl_device_new (MetaKmsDevice  *device,
-                          MetaKmsImpl    *impl,
-                          int             fd,
-                          GError        **error)
-{
-  MetaKms *kms = meta_kms_impl_get_kms (impl);
-  MetaKmsImplDevice *impl_device;
-  MetaKmsImplDevicePrivate *priv;
-  int ret;
-  drmModeRes *drm_resources;
-
-  meta_assert_in_kms_impl (kms);
-
-  ret = drmSetClientCap (fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
-  if (ret != 0)
-    {
-      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (-ret),
-                   "Failed to activate universal planes: %s",
-                   g_strerror (-ret));
-      return NULL;
-    }
-
-  drm_resources = drmModeGetResources (fd);
-  if (!drm_resources)
-    {
-      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
-                   "Failed to activate universal planes: %s",
-                   g_strerror (errno));
-      return NULL;
-    }
-
-  impl_device = g_object_new (META_TYPE_KMS_IMPL_DEVICE, NULL);
-  priv = meta_kms_impl_device_get_instance_private (impl_device);
-  priv->device = device;
-  priv->impl = impl;
-  priv->fd = fd;
-
-  init_caps (impl_device);
-
-  init_crtcs (impl_device, drm_resources);
-  init_planes (impl_device);
-  init_info (impl_device);
-
-  init_fallback_modes (impl_device);
-
-  update_connectors (impl_device, drm_resources);
-
-  drmModeFreeResources (drm_resources);
-
-  priv->fd_source =
-    meta_kms_register_fd_in_impl (kms, fd,
-                                  kms_event_dispatch_in_impl,
-                                  impl_device);
-
-  return impl_device;
-}
-
 int
 meta_kms_impl_device_get_fd (MetaKmsImplDevice *impl_device)
 {
@@ -682,6 +643,60 @@ meta_kms_impl_device_close (MetaKmsImplDevice *impl_device)
 }
 
 static void
+meta_kms_impl_device_get_property (GObject    *object,
+                                   guint       prop_id,
+                                   GValue     *value,
+                                   GParamSpec *pspec)
+{
+  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (object);
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  switch (prop_id)
+    {
+    case PROP_DEVICE:
+      g_value_set_object (value, priv->device);
+      break;
+    case PROP_IMPL:
+      g_value_set_object (value, priv->impl);
+      break;
+    case PROP_FD:
+      g_value_set_int (value, priv->fd);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_kms_impl_device_set_property (GObject      *object,
+                                   guint         prop_id,
+                                   const GValue *value,
+                                   GParamSpec   *pspec)
+{
+  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (object);
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  switch (prop_id)
+    {
+    case PROP_DEVICE:
+      priv->device = g_value_get_object (value);
+      break;
+    case PROP_IMPL:
+      priv->impl = g_value_get_object (value);
+      break;
+    case PROP_FD:
+      priv->fd = g_value_get_int (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_kms_impl_device_finalize (GObject *object)
 {
   MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (object);
@@ -699,9 +714,54 @@ meta_kms_impl_device_finalize (GObject *object)
   G_OBJECT_CLASS (meta_kms_impl_device_parent_class)->finalize (object);
 }
 
+static gboolean
+meta_kms_impl_device_initable_init (GInitable     *initable,
+                                    GCancellable  *cancellable,
+                                    GError       **error)
+{
+  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (initable);
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+  drmModeRes *drm_resources;
+
+  drm_resources = drmModeGetResources (priv->fd);
+  if (!drm_resources)
+    {
+      g_set_error (error, G_IO_ERROR, g_io_error_from_errno (errno),
+                   "Failed to activate universal planes: %s",
+                   g_strerror (errno));
+      return FALSE;
+    }
+
+  init_caps (impl_device);
+
+  init_crtcs (impl_device, drm_resources);
+  init_planes (impl_device);
+  init_info (impl_device);
+
+  init_fallback_modes (impl_device);
+
+  update_connectors (impl_device, drm_resources);
+
+  drmModeFreeResources (drm_resources);
+
+  priv->fd_source =
+    meta_kms_register_fd_in_impl (meta_kms_impl_get_kms (priv->impl), priv->fd,
+                                  kms_event_dispatch_in_impl,
+                                  impl_device);
+
+  return TRUE;
+}
+
 static void
 meta_kms_impl_device_init (MetaKmsImplDevice *device)
 {
+}
+
+static void
+initable_iface_init (GInitableIface *initable_iface)
+{
+  initable_iface->init = meta_kms_impl_device_initable_init;
 }
 
 static void
@@ -709,6 +769,33 @@ meta_kms_impl_device_class_init (MetaKmsImplDeviceClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->get_property = meta_kms_impl_device_get_property;
+  object_class->set_property = meta_kms_impl_device_set_property;
   object_class->finalize = meta_kms_impl_device_finalize;
-}
 
+  obj_props[PROP_DEVICE] =
+    g_param_spec_object ("device",
+                         "device",
+                         "MetaKmsDevice",
+                         META_TYPE_KMS_DEVICE,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_IMPL] =
+    g_param_spec_object ("impl",
+                         "impl",
+                         "MetaKmsImpl",
+                         META_TYPE_KMS_IMPL,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_FD] =
+    g_param_spec_int ("fd",
+                      "fd",
+                      "DRM device file descriptor",
+                      INT_MIN, INT_MAX, 0,
+                      G_PARAM_READWRITE |
+                      G_PARAM_CONSTRUCT_ONLY |
+                      G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
+}
