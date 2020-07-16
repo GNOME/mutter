@@ -27,6 +27,7 @@
 #include <libinput.h>
 #include <linux/input-event-codes.h>
 
+#include "backends/meta-viewport-info.h"
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-keymap-native.h"
@@ -88,6 +89,8 @@ struct _MetaSeatNative
   MetaKeymapNative *keymap;
   MetaCursorRenderer *cursor_renderer;
   GHashTable *tablet_cursors;
+
+  MetaViewportInfo *viewports;
 
   GUdevClient *udev_client;
   guint tablet_mode_switch_state : 1;
@@ -263,5 +266,8 @@ void meta_seat_native_set_pointer_constraint (MetaSeatNative            *seat,
                                               MetaPointerConstraintImpl *constraint_impl);
 MetaCursorRenderer * meta_seat_native_maybe_ensure_cursor_renderer (MetaSeatNative     *seat,
                                                                     ClutterInputDevice *device);
+
+void meta_seat_native_set_viewports (MetaSeatNative   *seat,
+                                     MetaViewportInfo *viewports);
 
 #endif /* META_SEAT_NATIVE_H */
