@@ -233,6 +233,8 @@ mutter_sources = [
   'backends/meta-settings-private.h',
   'backends/meta-stage.c',
   'backends/meta-stage-private.h',
+  'backends/meta-viewport-info.c',
+  'backends/meta-viewport-info.h',
   'backends/x11/cm/meta-backend-x11-cm.c',
   'backends/x11/cm/meta-backend-x11-cm.h',
   'backends/x11/cm/meta-cursor-sprite-xfixes.c',

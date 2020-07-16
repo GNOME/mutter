@@ -3250,3 +3250,37 @@ meta_monitor_manager_post_init (MetaMonitorManager *manager)
                            G_CALLBACK (update_panel_orientation_managed), manager,
                            G_CONNECT_SWAPPED);
 }
+
+MetaViewportInfo *
+meta_monitor_manager_get_viewports (MetaMonitorManager *manager)
+{
+  MetaViewportInfo *info;
+  GArray *views, *scales;
+  GList *logical_monitors, *l;
+
+  views = g_array_new (FALSE, FALSE, sizeof (cairo_rectangle_int_t));
+  scales = g_array_new (FALSE, FALSE, sizeof (float));
+
+  logical_monitors = meta_monitor_manager_get_logical_monitors (manager);
+
+  for (l = logical_monitors; l; l = l->next)
+    {
+      MetaLogicalMonitor *logical_monitor = l->data;
+      cairo_rectangle_int_t rect;
+      float scale;
+
+      rect = logical_monitor->rect;
+      g_array_append_val (views, rect);
+
+      scale = logical_monitor->scale;
+      g_array_append_val (scales, scale);
+    }
+
+  info = meta_viewport_info_new ((cairo_rectangle_int_t *) views->data,
+                                 (float *) scales->data,
+                                 views->len);
+  g_array_unref (views);
+  g_array_unref (scales);
+
+  return info;
+}
