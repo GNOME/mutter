@@ -31,6 +31,7 @@
 #include "backends/meta-cursor.h"
 #include "backends/meta-display-config-shared.h"
 #include "backends/meta-monitor-transform.h"
+#include "backends/meta-viewport-info.h"
 #include "core/util-private.h"
 #include "meta/display.h"
 #include "meta/meta-monitor-manager.h"
@@ -408,5 +409,7 @@ meta_find_output_assignment (MetaOutputAssignment **outputs,
 }
 
 void meta_monitor_manager_post_init (MetaMonitorManager *manager);
+
+MetaViewportInfo * meta_monitor_manager_get_viewports (MetaMonitorManager *manager);
 
 #endif /* META_MONITOR_MANAGER_PRIVATE_H */
