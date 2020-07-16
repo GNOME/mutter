@@ -1121,15 +1121,6 @@ meta_kms_impl_simple_discard_pending_page_flips (MetaKmsImpl *impl)
 }
 
 static void
-meta_kms_impl_simple_dispatch_idle (MetaKmsImpl *impl)
-{
-  MetaKmsImplSimple *impl_simple = META_KMS_IMPL_SIMPLE (impl);
-
-  if (impl_simple->mode_set_fallback_feedback_source)
-    mode_set_fallback_feedback_idle (impl_simple);
-}
-
-static void
 meta_kms_impl_simple_notify_device_created (MetaKmsImpl   *impl,
                                             MetaKmsDevice *device)
 {
@@ -1189,6 +1180,5 @@ meta_kms_impl_simple_class_init (MetaKmsImplSimpleClass *klass)
   impl_class->process_update = meta_kms_impl_simple_process_update;
   impl_class->handle_page_flip_callback = meta_kms_impl_simple_handle_page_flip_callback;
   impl_class->discard_pending_page_flips = meta_kms_impl_simple_discard_pending_page_flips;
-  impl_class->dispatch_idle = meta_kms_impl_simple_dispatch_idle;
   impl_class->notify_device_created = meta_kms_impl_simple_notify_device_created;
 }

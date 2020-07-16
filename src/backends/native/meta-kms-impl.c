@@ -66,12 +66,6 @@ meta_kms_impl_discard_pending_page_flips (MetaKmsImpl *impl)
 }
 
 void
-meta_kms_impl_dispatch_idle (MetaKmsImpl *impl)
-{
-  META_KMS_IMPL_GET_CLASS (impl)->dispatch_idle (impl);
-}
-
-void
 meta_kms_impl_notify_device_created (MetaKmsImpl   *impl,
                                      MetaKmsDevice *device)
 {

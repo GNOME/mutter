@@ -38,7 +38,6 @@ struct _MetaKmsImplClass
   void (* handle_page_flip_callback) (MetaKmsImpl         *impl,
                                       MetaKmsPageFlipData *page_flip_data);
   void (* discard_pending_page_flips) (MetaKmsImpl *impl);
-  void (* dispatch_idle) (MetaKmsImpl *impl);
   void (* notify_device_created) (MetaKmsImpl   *impl,
                                   MetaKmsDevice *impl_device);
 };
@@ -52,8 +51,6 @@ void meta_kms_impl_handle_page_flip_callback (MetaKmsImpl         *impl,
                                               MetaKmsPageFlipData *page_flip_data);
 
 void meta_kms_impl_discard_pending_page_flips (MetaKmsImpl *impl);
-
-void meta_kms_impl_dispatch_idle (MetaKmsImpl *impl);
 
 void meta_kms_impl_notify_device_created (MetaKmsImpl   *impl,
                                           MetaKmsDevice *impl_device);
