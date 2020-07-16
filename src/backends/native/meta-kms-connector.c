@@ -532,6 +532,11 @@ init_properties (MetaKmsConnector  *connector,
 
   *prop_table = (MetaKmsConnectorPropTable) {
     .props = {
+      [META_KMS_CONNECTOR_PROP_CRTC_ID] =
+        {
+          .name = "CRTC_ID",
+          .type = DRM_MODE_PROP_OBJECT,
+        },
       [META_KMS_CONNECTOR_PROP_DPMS] =
         {
           .name = "DPMS",
