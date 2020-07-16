@@ -100,11 +100,6 @@ CLUTTER_EXPORT
 ClutterInputMode        clutter_input_device_get_device_mode    (ClutterInputDevice  *device);
 CLUTTER_EXPORT
 gboolean                clutter_input_device_get_has_cursor     (ClutterInputDevice  *device);
-CLUTTER_EXPORT
-void                    clutter_input_device_set_enabled        (ClutterInputDevice  *device,
-                                                                 gboolean             enabled);
-CLUTTER_EXPORT
-gboolean                clutter_input_device_get_enabled        (ClutterInputDevice  *device);
 
 CLUTTER_EXPORT
 guint                   clutter_input_device_get_n_axes         (ClutterInputDevice  *device);

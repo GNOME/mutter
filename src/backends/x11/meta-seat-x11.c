@@ -473,7 +473,6 @@ create_device (MetaSeatX11    *seat_x11,
   ClutterInputDeviceType source, touch_source;
   ClutterInputDevice *retval;
   ClutterInputMode mode;
-  gboolean is_enabled;
   uint32_t num_touches = 0, num_rings = 0, num_strips = 0;
   char *vendor_id = NULL, *product_id = NULL, *node_path = NULL;
 
@@ -519,19 +518,16 @@ create_device (MetaSeatX11    *seat_x11,
     case XIMasterKeyboard:
     case XIMasterPointer:
       mode = CLUTTER_INPUT_MODE_LOGICAL;
-      is_enabled = TRUE;
       break;
 
     case XISlaveKeyboard:
     case XISlavePointer:
       mode = CLUTTER_INPUT_MODE_PHYSICAL;
-      is_enabled = FALSE;
       break;
 
     case XIFloatingSlave:
     default:
       mode = CLUTTER_INPUT_MODE_FLOATING;
-      is_enabled = FALSE;
       break;
     }
 
@@ -543,10 +539,7 @@ create_device (MetaSeatX11    *seat_x11,
     }
 
   if (source == CLUTTER_PAD_DEVICE)
-    {
-      is_enabled = TRUE;
-      get_pad_features (info, &num_rings, &num_strips);
-    }
+    get_pad_features (info, &num_rings, &num_strips);
 
   retval = g_object_new (META_TYPE_INPUT_DEVICE_X11,
                          "name", info->name,
@@ -555,7 +548,6 @@ create_device (MetaSeatX11    *seat_x11,
                          "device-type", source,
                          "device-mode", mode,
                          "backend", backend,
-                         "enabled", is_enabled,
                          "vendor-id", vendor_id,
                          "product-id", product_id,
                          "device-node", node_path,

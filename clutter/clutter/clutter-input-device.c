@@ -61,7 +61,6 @@ enum
   PROP_DEVICE_MODE,
 
   PROP_HAS_CURSOR,
-  PROP_ENABLED,
 
   PROP_N_AXES,
 
@@ -189,10 +188,6 @@ clutter_input_device_set_property (GObject      *gobject,
       self->has_cursor = g_value_get_boolean (value);
       break;
 
-    case PROP_ENABLED:
-      clutter_input_device_set_enabled (self, g_value_get_boolean (value));
-      break;
-
     case PROP_VENDOR_ID:
       self->vendor_id = g_value_dup_string (value);
       break;
@@ -263,10 +258,6 @@ clutter_input_device_get_property (GObject    *gobject,
 
     case PROP_N_AXES:
       g_value_set_uint (value, clutter_input_device_get_n_axes (self));
-      break;
-
-    case PROP_ENABLED:
-      g_value_set_boolean (value, self->is_enabled);
       break;
 
     case PROP_VENDOR_ID:
@@ -391,25 +382,6 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
                           P_("Whether the device has a cursor"),
                           FALSE,
                           CLUTTER_PARAM_READWRITE | G_PARAM_CONSTRUCT_ONLY);
-
-  /**
-   * ClutterInputDevice:enabled:
-   *
-   * Whether the device is enabled.
-   *
-   * A device with the #ClutterInputDevice:device-mode property set
-   * to %CLUTTER_INPUT_MODE_LOGICAL cannot be disabled.
-   *
-   * A device must be enabled in order to receive events from it.
-   *
-   * Since: 1.6
-   */
-  obj_props[PROP_ENABLED] =
-    g_param_spec_boolean ("enabled",
-                          P_("Enabled"),
-                          P_("Whether the device is enabled"),
-                          FALSE,
-                          CLUTTER_PARAM_READWRITE);
 
   /**
    * ClutterInputDevice:n-axes:
@@ -763,56 +735,6 @@ clutter_input_device_get_device_id (ClutterInputDevice *device)
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), -1);
 
   return device->id;
-}
-
-/**
- * clutter_input_device_set_enabled:
- * @device: a #ClutterInputDevice
- * @enabled: %TRUE to enable the @device
- *
- * Enables or disables a #ClutterInputDevice.
- *
- * Only devices with a #ClutterInputDevice:device-mode property set
- * to %CLUTTER_INPUT_MODE_PHYSICAL or %CLUTTER_INPUT_MODE_FLOATING can
- * be disabled.
- *
- * Since: 1.6
- */
-void
-clutter_input_device_set_enabled (ClutterInputDevice *device,
-                                  gboolean            enabled)
-{
-  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
-
-  enabled = !!enabled;
-
-  if (!enabled && device->device_mode == CLUTTER_INPUT_MODE_LOGICAL)
-    return;
-
-  if (device->is_enabled == enabled)
-    return;
-
-  device->is_enabled = enabled;
-
-  g_object_notify_by_pspec (G_OBJECT (device), obj_props[PROP_ENABLED]);
-}
-
-/**
- * clutter_input_device_get_enabled:
- * @device: a #ClutterInputDevice
- *
- * Retrieves whether @device is enabled.
- *
- * Return value: %TRUE if the device is enabled
- *
- * Since: 1.6
- */
-gboolean
-clutter_input_device_get_enabled (ClutterInputDevice *device)
-{
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), FALSE);
-
-  return device->is_enabled;
 }
 
 /**
