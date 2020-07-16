@@ -28,6 +28,7 @@ typedef enum _MetaKmsCrtcProp
 {
   META_KMS_CRTC_PROP_MODE_ID = 0,
   META_KMS_CRTC_PROP_ACTIVE,
+  META_KMS_CRTC_PROP_GAMMA_LUT,
   META_KMS_CRTC_N_PROPS
 } MetaKmsCrtcProp;
 
