@@ -23,11 +23,15 @@
 #include "backends/native/meta-kms-update-private.h"
 
 #include "backends/meta-display-config-shared.h"
+#include "backends/native/meta-kms-crtc.h"
+#include "backends/native/meta-kms-connector.h"
 #include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-plane.h"
 
 struct _MetaKmsUpdate
 {
+  MetaKmsDevice *device;
+
   gboolean is_sealed;
 
   MetaPowerSave power_save;
@@ -143,6 +147,8 @@ meta_kms_update_assign_plane (MetaKmsUpdate          *update,
   MetaKmsPlaneAssignment *plane_assignment;
 
   g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (meta_kms_crtc_get_device (crtc) == update->device);
+  g_assert (meta_kms_plane_get_device (plane) == update->device);
 
   plane_assignment = g_new0 (MetaKmsPlaneAssignment, 1);
   *plane_assignment = (MetaKmsPlaneAssignment) {
@@ -169,6 +175,8 @@ meta_kms_update_unassign_plane (MetaKmsUpdate *update,
   MetaKmsPlaneAssignment *plane_assignment;
 
   g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (meta_kms_crtc_get_device (crtc) == update->device);
+  g_assert (meta_kms_plane_get_device (plane) == update->device);
 
   plane_assignment = g_new0 (MetaKmsPlaneAssignment, 1);
   *plane_assignment = (MetaKmsPlaneAssignment) {
@@ -193,6 +201,7 @@ meta_kms_update_mode_set (MetaKmsUpdate *update,
   MetaKmsModeSet *mode_set;
 
   g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   mode_set = g_new0 (MetaKmsModeSet, 1);
   *mode_set = (MetaKmsModeSet) {
@@ -237,6 +246,7 @@ meta_kms_update_set_underscanning (MetaKmsUpdate    *update,
   MetaKmsConnectorUpdate *connector_update;
 
   g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (meta_kms_connector_get_device (connector) == update->device);
 
   connector_update = ensure_connector_update (update, connector);
   connector_update->underscanning.has_update = TRUE;
@@ -252,6 +262,7 @@ meta_kms_update_unset_underscanning (MetaKmsUpdate    *update,
   MetaKmsConnectorUpdate *connector_update;
 
   g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (meta_kms_connector_get_device (connector) == update->device);
 
   connector_update = ensure_connector_update (update, connector);
   connector_update->underscanning.has_update = TRUE;
@@ -266,6 +277,7 @@ meta_kms_update_set_dpms_state (MetaKmsUpdate    *update,
   MetaKmsConnectorUpdate *connector_update;
 
   g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (meta_kms_connector_get_device (connector) == update->device);
 
   connector_update = ensure_connector_update (update, connector);
   connector_update->dpms.has_update = TRUE;
@@ -292,6 +304,7 @@ meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
   MetaKmsCrtcGamma *gamma;
 
   g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   gamma = g_new0 (MetaKmsCrtcGamma, 1);
   *gamma = (MetaKmsCrtcGamma) {
@@ -315,6 +328,7 @@ meta_kms_update_page_flip (MetaKmsUpdate                 *update,
   MetaKmsPageFlip *page_flip;
 
   g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   page_flip = g_new0 (MetaKmsPageFlip, 1);
   *page_flip = (MetaKmsPageFlip) {
@@ -338,6 +352,7 @@ meta_kms_update_custom_page_flip (MetaKmsUpdate                 *update,
   MetaKmsPageFlip *page_flip;
 
   g_assert (!meta_kms_update_is_sealed (update));
+  g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
   page_flip = g_new0 (MetaKmsPageFlip, 1);
   *page_flip = (MetaKmsPageFlip) {
@@ -430,10 +445,21 @@ meta_kms_update_is_sealed (MetaKmsUpdate *update)
   return update->is_sealed;
 }
 
-MetaKmsUpdate *
-meta_kms_update_new (void)
+MetaKmsDevice *
+meta_kms_update_get_device (MetaKmsUpdate *update)
 {
-  return g_new0 (MetaKmsUpdate, 1);
+  return update->device;
+}
+
+MetaKmsUpdate *
+meta_kms_update_new (MetaKmsDevice *device)
+{
+  MetaKmsUpdate *update;
+
+  update = g_new0 (MetaKmsUpdate, 1);
+  update->device = device;
+
+  return update;
 }
 
 void

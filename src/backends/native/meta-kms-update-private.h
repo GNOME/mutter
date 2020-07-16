@@ -111,6 +111,8 @@ void meta_kms_update_seal (MetaKmsUpdate *update);
 
 gboolean meta_kms_update_is_sealed (MetaKmsUpdate *update);
 
+MetaKmsDevice * meta_kms_update_get_device (MetaKmsUpdate *update);
+
 void meta_kms_plane_assignment_set_rotation (MetaKmsPlaneAssignment *plane_assignment,
                                              uint64_t                rotation);
 

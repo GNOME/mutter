@@ -81,7 +81,7 @@ GList * meta_kms_feedback_get_failed_planes (MetaKmsFeedback *feedback);
 
 const GError * meta_kms_feedback_get_error (MetaKmsFeedback *feedback);
 
-MetaKmsUpdate * meta_kms_update_new (void);
+MetaKmsUpdate * meta_kms_update_new (MetaKmsDevice *device);
 
 void meta_kms_update_free (MetaKmsUpdate *update);
 

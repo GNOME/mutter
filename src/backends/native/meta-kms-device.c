@@ -55,6 +55,12 @@ struct _MetaKmsDevice
 
 G_DEFINE_TYPE (MetaKmsDevice, meta_kms_device, G_TYPE_OBJECT);
 
+MetaKms *
+meta_kms_device_get_kms (MetaKmsDevice *device)
+{
+  return device->kms;
+}
+
 MetaKmsImplDevice *
 meta_kms_device_get_impl_device (MetaKmsDevice *device)
 {

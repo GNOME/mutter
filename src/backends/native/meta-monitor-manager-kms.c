@@ -120,7 +120,6 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
   MetaBackend *backend = meta_monitor_manager_get_backend (manager);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
-  MetaKmsUpdate *kms_update;
   uint64_t state;
   GList *l;
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
@@ -142,15 +141,17 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
     return;
   }
 
-  kms_update = meta_kms_ensure_pending_update (kms);
   for (l = meta_backend_get_gpus (backend); l; l = l->next)
     {
       MetaGpuKms *gpu_kms = l->data;
+      MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+      MetaKmsUpdate *kms_update;
 
+      kms_update = meta_kms_ensure_pending_update (kms, kms_device);
       meta_gpu_kms_set_power_save_mode (gpu_kms, state, kms_update);
     }
 
-  kms_feedback = meta_kms_post_pending_update_sync (kms);
+  kms_feedback = meta_kms_post_pending_updates_sync (kms);
   if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
     {
       g_warning ("Failed to set DPMS: %s",
@@ -418,20 +419,21 @@ meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaKmsCrtc *kms_crtc;
-  g_autofree char *gamma_ramp_string = NULL;
+  MetaKmsDevice *kms_device;
   MetaKmsUpdate *kms_update;
+  g_autofree char *gamma_ramp_string = NULL;
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
+  kms_update = meta_kms_ensure_pending_update (kms, kms_device);
+  meta_kms_update_set_crtc_gamma (kms_update, kms_crtc, size, red, green, blue);
 
   gamma_ramp_string = generate_gamma_ramp_string (size, red, green, blue);
   g_debug ("Setting CRTC (%" G_GUINT64_FORMAT ") gamma to %s",
            meta_crtc_get_id (crtc), gamma_ramp_string);
 
-  kms_update = meta_kms_ensure_pending_update (kms);
-
-  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
-  meta_kms_update_set_crtc_gamma (kms_update, kms_crtc, size, red, green, blue);
-
-  kms_feedback = meta_kms_post_pending_update_sync (kms);
+  kms_feedback = meta_kms_post_pending_updates_sync (kms);
   if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
     {
       g_warning ("Failed to set CRTC gamma: %s",

@@ -383,7 +383,6 @@ typedef struct
   MetaLogicalMonitor *in_logical_monitor;
   graphene_rect_t in_local_cursor_rect;
   MetaCursorSprite *in_cursor_sprite;
-  MetaKmsUpdate *in_kms_update;
 
   gboolean out_painted;
 } UpdateCrtcCursorData;
@@ -401,6 +400,10 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
   MetaCursorRendererNativePrivate *priv =
     meta_cursor_renderer_native_get_instance_private (cursor_renderer_native);
   MetaCrtc *crtc;
+  MetaGpuKms *gpu_kms;
+  MetaKmsDevice *kms_device;
+  MetaKms *kms;
+  MetaKmsUpdate *kms_update;
   MetaMonitorTransform transform;
   const MetaCrtcModeInfo *crtc_mode_info;
   graphene_rect_t scaled_crtc_rect;
@@ -446,6 +449,10 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
   };
 
   crtc = meta_output_get_assigned_crtc (monitor_crtc_mode->output);
+  gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
+  kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+  kms = meta_kms_device_get_kms (kms_device);
+  kms_update = meta_kms_ensure_pending_update (kms, kms_device);
 
   if (priv->has_hw_cursor &&
       graphene_rect_intersection (&scaled_crtc_rect,
@@ -487,7 +494,7 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
                                 &cursor_rect);
 
       set_crtc_cursor (data->in_cursor_renderer_native,
-                       data->in_kms_update,
+                       kms_update,
                        META_CRTC_KMS (crtc),
                        cursor_rect.x,
                        cursor_rect.y,
@@ -498,7 +505,7 @@ update_monitor_crtc_cursor (MetaMonitor         *monitor,
   else
     {
       unset_crtc_cursor (data->in_cursor_renderer_native,
-                         data->in_kms_update,
+                         kms_update,
                          META_CRTC_KMS (crtc));
     }
 
@@ -533,14 +540,11 @@ update_hw_cursor (MetaCursorRendererNative *native,
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
-  MetaKmsUpdate *kms_update;
   GList *logical_monitors;
   GList *l;
   graphene_rect_t rect;
   gboolean painted = FALSE;
   g_autoptr (MetaKmsFeedback) feedback = NULL;
-
-  kms_update = meta_kms_ensure_pending_update (kms);
 
   if (cursor_sprite)
     rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
@@ -567,7 +571,6 @@ update_hw_cursor (MetaCursorRendererNative *native,
           .size = rect.size
         },
         .in_cursor_sprite = cursor_sprite,
-        .in_kms_update = kms_update,
       };
 
       monitors = meta_logical_monitor_get_monitors (logical_monitor);
@@ -586,7 +589,7 @@ update_hw_cursor (MetaCursorRendererNative *native,
       painted = painted || data.out_painted;
     }
 
-  feedback = meta_kms_post_pending_update_sync (kms);
+  feedback = meta_kms_post_pending_updates_sync (kms);
   if (meta_kms_feedback_get_result (feedback) != META_KMS_FEEDBACK_PASSED)
     {
       for (l = meta_kms_feedback_get_failed_planes (feedback); l; l = l->next)
