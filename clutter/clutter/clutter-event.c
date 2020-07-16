@@ -1460,22 +1460,11 @@ _clutter_event_push (const ClutterEvent *event,
                      gboolean            do_copy)
 {
   ClutterMainContext *context = _clutter_context_get_default ();
-  ClutterInputDevice *device;
 
   g_assert (context != NULL);
 
   if (context->events_queue == NULL)
     context->events_queue = g_queue_new ();
-
-  /* disabled devices don't propagate events */
-  device = clutter_event_get_device (event);
-  if (device != NULL)
-    {
-      if (event->type != CLUTTER_DEVICE_ADDED &&
-          event->type != CLUTTER_DEVICE_REMOVED &&
-          !clutter_input_device_get_enabled (device))
-        return;
-    }
 
   if (do_copy)
     {

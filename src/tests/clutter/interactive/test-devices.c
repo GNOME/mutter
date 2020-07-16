@@ -171,8 +171,6 @@ seat_device_added_cb (ClutterSeat        *seat,
       g_print ("*** enabling device '%s' ***\n",
                clutter_input_device_get_device_name (device));
 
-      clutter_input_device_set_enabled (device, TRUE);
-
       hand = clutter_test_utils_create_texture_from_file (TESTS_DATADIR
                                                           G_DIR_SEPARATOR_S
                                                           "redhand.png",
@@ -267,8 +265,6 @@ test_devices_main (int argc, char **argv)
         {
           g_print ("*** enabling device '%s' ***\n",
                    clutter_input_device_get_device_name (device));
-
-          clutter_input_device_set_enabled (device, TRUE);
 
           hand = clutter_test_utils_create_texture_from_file (TESTS_DATADIR
                                                               G_DIR_SEPARATOR_S
