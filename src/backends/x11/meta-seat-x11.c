@@ -654,8 +654,6 @@ add_device (MetaSeatX11    *seat_x11,
             info->attachment == seat_x11->keyboard_id))
     {
       seat_x11->devices = g_list_prepend (seat_x11->devices, device);
-      seat_x11->has_touchscreens |=
-        clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE;
     }
   else
     {
@@ -679,12 +677,8 @@ add_device (MetaSeatX11    *seat_x11,
                                         GINT_TO_POINTER (info->attachment));
           _clutter_input_device_set_associated_device (device, master);
           _clutter_input_device_add_slave (master, device);
-
-          g_signal_emit_by_name (seat_x11, "device-added", device);
         }
     }
-
-  update_touch_mode (seat_x11);
 
   return device;
 }
@@ -704,44 +698,51 @@ has_touchscreens (MetaSeatX11 *seat_x11)
 }
 
 static void
-remove_device (MetaSeatX11 *seat_x11,
-               int          device_id)
+remove_device (MetaSeatX11        *seat_x11,
+               ClutterInputDevice *device)
 {
-  ClutterInputDevice *device;
-  gboolean check_touchscreens = FALSE;
-
-  device = g_hash_table_lookup (seat_x11->devices_by_id,
-                                GINT_TO_POINTER (device_id));
-
-  if (clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE)
-    check_touchscreens = TRUE;
-
-  if (device != NULL)
+  if (seat_x11->core_pointer == device)
     {
-      if (seat_x11->core_pointer == device)
-        {
-          seat_x11->core_pointer = NULL;
-        }
-      else if (seat_x11->core_keyboard == device)
-        {
-          seat_x11->core_keyboard = NULL;
-        }
-      else
-        {
-          seat_x11->devices = g_list_remove (seat_x11->devices, device);
-          g_signal_emit_by_name (seat_x11, "device-removed", device);
-        }
+      seat_x11->core_pointer = NULL;
+    }
+  else if (seat_x11->core_keyboard == device)
+    {
+      seat_x11->core_keyboard = NULL;
+    }
+  else
+    {
+      seat_x11->devices = g_list_remove (seat_x11->devices, device);
+    }
+}
 
-      g_object_run_dispose (G_OBJECT (device));
-      g_hash_table_remove (seat_x11->devices_by_id,
-                           GINT_TO_POINTER (device_id));
+static gboolean
+meta_seat_x11_handle_device_event (ClutterSeat  *seat,
+                                   ClutterEvent *event)
+{
+  MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
+  ClutterInputDevice *device = event->device.device;
+  gboolean is_touch;
+
+  is_touch =
+    clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE;
+
+  switch (event->type)
+    {
+      case CLUTTER_DEVICE_ADDED:
+        seat_x11->has_touchscreens |= is_touch;
+        break;
+      case CLUTTER_DEVICE_REMOVED:
+        if (is_touch)
+          seat_x11->has_touchscreens = has_touchscreens (seat_x11);
+        break;
+      default:
+        break;
     }
 
-  if (check_touchscreens)
-    {
-      seat_x11->has_touchscreens = has_touchscreens (seat_x11);
-      update_touch_mode (seat_x11);
-    }
+  if (is_touch)
+    update_touch_mode (seat_x11);
+
+  return TRUE;
 }
 
 static void
@@ -803,12 +804,14 @@ device_get_tool_serial (ClutterInputDevice *device)
   return serial_id;
 }
 
-static void
+static gboolean
 translate_hierarchy_event (ClutterBackend   *backend,
                            MetaSeatX11      *seat_x11,
-                           XIHierarchyEvent *ev)
+                           XIHierarchyEvent *ev,
+                           ClutterEvent     *event)
 {
   int i;
+  gboolean retval = FALSE;
 
   for (i = 0; i < ev->num_info; i++)
     {
@@ -828,15 +831,38 @@ translate_hierarchy_event (ClutterBackend   *backend,
           clutter_x11_untrap_x_errors ();
           if (info != NULL)
             {
-              add_device (seat_x11, backend, &info[0], FALSE);
+              ClutterInputDevice *device;
+
+              device = add_device (seat_x11, backend, &info[0], FALSE);
+
+              event->any.type = CLUTTER_DEVICE_ADDED;
+              event->any.time = ev->time;
+              clutter_event_set_device (event, device);
+
+              retval = TRUE;
               XIFreeDeviceInfo (info);
             }
         }
       else if (ev->info[i].flags & XIDeviceDisabled)
         {
+          g_autoptr (ClutterInputDevice) device = NULL;
           g_debug ("Hierarchy event: device disabled");
 
-          remove_device (seat_x11, ev->info[i].deviceid);
+          g_hash_table_steal_extended (seat_x11->devices_by_id,
+                                       GINT_TO_POINTER (ev->info[i].deviceid),
+                                       NULL,
+                                       (gpointer) &device);
+
+          if (device != NULL)
+            {
+              remove_device (seat_x11, device);
+
+              event->any.type = CLUTTER_DEVICE_REMOVED;
+              event->any.time = ev->time;
+              clutter_event_set_device (event, device);
+
+              retval = TRUE;
+            }
         }
       else if ((ev->info[i].flags & XISlaveAttached) ||
                (ev->info[i].flags & XISlaveDetached))
@@ -883,6 +909,8 @@ translate_hierarchy_event (ClutterBackend   *backend,
             }
         }
     }
+
+  return retval;
 }
 
 static void
@@ -1114,6 +1142,9 @@ get_event_stage (MetaSeatX11 *seat_x11,
         xwindow = xev->event;
       }
       break;
+
+    case XI_HierarchyChanged:
+      return CLUTTER_STAGE (meta_backend_get_stage (meta_get_backend ()));
 
     default:
       break;
@@ -1570,6 +1601,7 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->create_virtual_device = meta_seat_x11_create_virtual_device;
   seat_class->get_supported_virtual_device_types = meta_seat_x11_get_supported_virtual_device_types;
   seat_class->warp_pointer = meta_seat_x11_warp_pointer;
+  seat_class->handle_device_event = meta_seat_x11_handle_device_event;
 
   props[PROP_OPCODE] =
     g_param_spec_int ("opcode",
@@ -1672,8 +1704,7 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
       return FALSE;
     }
 
-  if (!(xi_event->evtype == XI_HierarchyChanged ||
-        xi_event->evtype == XI_DeviceChanged ||
+  if (!(xi_event->evtype == XI_DeviceChanged ||
         xi_event->evtype == XI_PropertyEvent))
     {
       stage = get_event_stage (seat, xi_event);
@@ -1691,9 +1722,8 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
       {
         XIHierarchyEvent *xev = (XIHierarchyEvent *) xi_event;
 
-        translate_hierarchy_event (backend, seat, xev);
+        retval = translate_hierarchy_event (backend, seat, xev, event);
       }
-      retval = FALSE;
       break;
 
     case XI_DeviceChanged:
