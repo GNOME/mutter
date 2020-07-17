@@ -21,8 +21,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-02-24 06:39-0300\n"
+"POT-Creation-Date: 2020-04-27 14:06+0000\n"
+"PO-Revision-Date: 2020-07-17 17:56-0300\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -30,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
-"X-Generator: Gtranslator 3.32.0\n"
+"X-Generator: Gtranslator 3.36.0\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -59,35 +59,35 @@ msgstr "Mover a janela para o último espaço de trabalho"
 
 #: data/50-mutter-navigation.xml:24
 msgid "Move window one workspace up"
-msgstr "Mover a janela um espaço de trabalho acima"
+msgstr "Mover a janela para um espaço de trabalho acima"
 
 #: data/50-mutter-navigation.xml:27
 msgid "Move window one workspace down"
-msgstr "Mover a janela um espaço de trabalho abaixo"
+msgstr "Mover a janela para um espaço de trabalho abaixo"
 
 # Em conformidade com a tradução do gsettings-desktop-schemas --Enrico
 #: data/50-mutter-navigation.xml:30
 msgid "Move window one monitor to the left"
-msgstr "Mover janela para o monitor da esquerda"
+msgstr "Mover a janela para o monitor da esquerda"
 
 # Em conformidade com a tradução do gsettings-desktop-schemas --Enrico
 #: data/50-mutter-navigation.xml:33
 msgid "Move window one monitor to the right"
-msgstr "Mover janela para o monitor da direita"
+msgstr "Mover a janela para o monitor da direita"
 
 # Em conformidade com a tradução do gsettings-desktop-schemas --Enrico
 #: data/50-mutter-navigation.xml:36
 msgid "Move window one monitor up"
-msgstr "Mover janela para o monitor acima"
+msgstr "Mover a janela para o monitor acima"
 
 # Em conformidade com a tradução do gsettings-desktop-schemas --Enrico
 #: data/50-mutter-navigation.xml:39
 msgid "Move window one monitor down"
-msgstr "Mover janela para o monitor abaixo"
+msgstr "Mover a janela para o monitor abaixo"
 
 #: data/50-mutter-navigation.xml:43
 msgid "Switch applications"
-msgstr "Alternar aplicativos"
+msgstr "Alternar entre aplicativos"
 
 #: data/50-mutter-navigation.xml:48
 msgid "Switch to previous application"
@@ -95,7 +95,7 @@ msgstr "Alternar para o aplicativo anterior"
 
 #: data/50-mutter-navigation.xml:52
 msgid "Switch windows"
-msgstr "Alternar janelas"
+msgstr "Alternar entre janelas"
 
 #: data/50-mutter-navigation.xml:57
 msgid "Switch to previous window"
@@ -111,7 +111,7 @@ msgstr "Alternar para a janela anterior de um aplicativo"
 
 #: data/50-mutter-navigation.xml:70
 msgid "Switch system controls"
-msgstr "Alternar controles do sistema"
+msgstr "Alternar os controles do sistema"
 
 #: data/50-mutter-navigation.xml:75
 msgid "Switch to previous system control"
@@ -167,11 +167,11 @@ msgstr "Trocar para o último espaço de trabalho"
 
 #: data/50-mutter-navigation.xml:123
 msgid "Move to workspace above"
-msgstr "Mover para o espaço de trabalho acima"
+msgstr "Mover a visualização para o espaço de trabalho acima"
 
 #: data/50-mutter-navigation.xml:126
 msgid "Move to workspace below"
-msgstr "Mover para o espaço de trabalho abaixo"
+msgstr "Mover a visualização para o espaço de trabalho abaixo"
 
 #: data/50-mutter-system.xml:6 data/50-mutter-wayland.xml:6
 msgid "System"
@@ -199,11 +199,11 @@ msgstr "Ativar o menu da janela"
 
 #: data/50-mutter-windows.xml:10
 msgid "Toggle fullscreen mode"
-msgstr "Alternar modo de tela inteira"
+msgstr "Alternar o modo de tela inteira"
 
 #: data/50-mutter-windows.xml:12
 msgid "Toggle maximization state"
-msgstr "Alternar estado de maximização"
+msgstr "Alternar o estado de maximização"
 
 #: data/50-mutter-windows.xml:14
 msgid "Maximize window"
@@ -211,35 +211,35 @@ msgstr "Maximizar a janela"
 
 #: data/50-mutter-windows.xml:16
 msgid "Restore window"
-msgstr "Restaurar janela"
+msgstr "Restaurar a anela"
 
 #: data/50-mutter-windows.xml:18
 msgid "Close window"
-msgstr "Fechar janela"
+msgstr "Fechar a janela"
 
 #: data/50-mutter-windows.xml:20
 msgid "Hide window"
-msgstr "Ocultar janela"
+msgstr "Ocultar a janela"
 
 #: data/50-mutter-windows.xml:22
 msgid "Move window"
-msgstr "Mover janela"
+msgstr "Mover a janela"
 
 #: data/50-mutter-windows.xml:24
 msgid "Resize window"
-msgstr "Redimensionar janela"
+msgstr "Redimensionar a janela"
 
 #: data/50-mutter-windows.xml:27
 msgid "Toggle window on all workspaces or one"
-msgstr "Alternar a janela em todos os espaços de trabalho ou em apenas um"
+msgstr "Alternar a janela em todos os espaços de trabalho ou apenas em um"
 
 #: data/50-mutter-windows.xml:29
 msgid "Raise window if covered, otherwise lower it"
-msgstr "Elevar a janela se estiver coberta; caso contrário, a abaixa"
+msgstr "Trazer a janela se estiver coberta; caso contrário, coloca atrás"
 
 #: data/50-mutter-windows.xml:31
 msgid "Raise window above other windows"
-msgstr "Elevar a janela para frente das outras"
+msgstr "Trazer a janela para frente das outras"
 
 #: data/50-mutter-windows.xml:33
 msgid "Lower window below other windows"
@@ -255,11 +255,11 @@ msgstr "Maximizar a janela horizontalmente"
 
 #: data/50-mutter-windows.xml:41
 msgid "View split on left"
-msgstr "Visualizar divisão à esquerda"
+msgstr "Visualizar a divisão à esquerda"
 
 #: data/50-mutter-windows.xml:45
 msgid "View split on right"
-msgstr "Visualizar divisão à direita"
+msgstr "Visualizar a divisão à direita"
 
 #: data/mutter.desktop.in:4
 msgid "Mutter"
@@ -580,7 +580,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2567
+#: src/backends/meta-input-settings.c:2631
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Alternador de modo (Grupo %d)"
@@ -588,34 +588,34 @@ msgstr "Alternador de modo (Grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2590
+#: src/backends/meta-input-settings.c:2654
 msgid "Switch monitor"
 msgstr "Trocar monitor"
 
-#: src/backends/meta-input-settings.c:2592
+#: src/backends/meta-input-settings.c:2656
 msgid "Show on-screen help"
 msgstr "Mostrar ajuda na tela"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:226
 msgid "Built-in display"
 msgstr "Tela embutida"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:255
 msgid "Unknown"
 msgstr "Desconhecido"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:257
 msgid "Unknown Display"
 msgstr "Monitor desconhecido"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:265
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:273
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
