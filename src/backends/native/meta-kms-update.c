@@ -23,8 +23,8 @@
 #include "backends/native/meta-kms-update-private.h"
 
 #include "backends/meta-display-config-shared.h"
-#include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-connector.h"
+#include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-plane.h"
 
@@ -215,7 +215,7 @@ meta_kms_update_mode_set (MetaKmsUpdate *update,
 
 static MetaKmsConnectorUpdate *
 ensure_connector_update (MetaKmsUpdate    *update,
-                        MetaKmsConnector *connector)
+                         MetaKmsConnector *connector)
 {
   GList *l;
   MetaKmsConnectorUpdate *connector_update;
