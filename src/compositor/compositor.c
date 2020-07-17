@@ -1113,6 +1113,7 @@ meta_compositor_real_after_paint (MetaCompositor   *compositor,
 {
   MetaCompositorPrivate *priv =
     meta_compositor_get_instance_private (compositor);
+  ClutterActor *stage_actor = meta_backend_get_stage (priv->backend);
   CoglGraphicsResetStatus status;
   GList *l;
 
@@ -1124,7 +1125,8 @@ meta_compositor_real_after_paint (MetaCompositor   *compositor,
 
     case COGL_GRAPHICS_RESET_STATUS_PURGED_CONTEXT_RESET:
       g_signal_emit_by_name (priv->display, "gl-video-memory-purged");
-      clutter_actor_queue_redraw (meta_backend_get_stage (priv->backend));
+      g_signal_emit_by_name (stage_actor, "gl-video-memory-purged");
+      clutter_actor_queue_redraw (stage_actor);
       break;
 
     default:
