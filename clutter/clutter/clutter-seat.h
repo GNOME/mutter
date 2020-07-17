@@ -106,6 +106,9 @@ struct _ClutterSeatClass
                             ClutterEvent       *event,
                             const ClutterEvent *to_discard);
 
+  gboolean (* handle_device_event) (ClutterSeat  *seat,
+                                    ClutterEvent *event);
+
   void (* warp_pointer) (ClutterSeat *seat,
                          int          x,
                          int          y);
@@ -180,6 +183,9 @@ ClutterVirtualDeviceType clutter_seat_get_supported_virtual_device_types (Clutte
 void clutter_seat_compress_motion (ClutterSeat        *seat,
                                    ClutterEvent       *event,
                                    const ClutterEvent *to_discard);
+
+gboolean clutter_seat_handle_device_event (ClutterSeat  *seat,
+                                           ClutterEvent *event);
 
 CLUTTER_EXPORT
 void clutter_seat_warp_pointer (ClutterSeat *seat,

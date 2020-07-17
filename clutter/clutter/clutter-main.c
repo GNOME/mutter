@@ -1954,6 +1954,17 @@ _clutter_process_event_details (ClutterActor        *stage,
       case CLUTTER_CLIENT_MESSAGE:
         break;
 
+      case CLUTTER_DEVICE_ADDED:
+      case CLUTTER_DEVICE_REMOVED:
+        if (!_clutter_event_process_filters (event))
+          {
+            ClutterSeat *seat;
+
+            seat = clutter_backend_get_default_seat (context->backend);
+            clutter_seat_handle_device_event (seat, event);
+          }
+        break;
+
       case CLUTTER_EVENT_LAST:
         break;
     }
