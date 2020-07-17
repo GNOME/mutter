@@ -1404,14 +1404,13 @@ update_touch_mode (MetaSeatNative *seat)
     }
 }
 
-static void
+static ClutterInputDevice *
 evdev_add_device (MetaSeatNative         *seat,
                   struct libinput_device *libinput_device)
 {
   ClutterInputDeviceType type;
   ClutterInputDevice *device, *master = NULL;
   ClutterActor *stage;
-  gboolean check_touch_mode = FALSE;
 
   device = meta_input_device_native_new (seat, libinput_device);
   stage = CLUTTER_ACTOR (meta_seat_native_get_stage (seat));
@@ -1434,25 +1433,7 @@ evdev_add_device (MetaSeatNative         *seat,
       _clutter_input_device_add_slave (master, device);
     }
 
-  g_signal_emit_by_name (seat, "device-added", device);
-
-  if (type == CLUTTER_TOUCHSCREEN_DEVICE)
-    {
-      seat->has_touchscreen = TRUE;
-      check_touch_mode = TRUE;
-    }
-
-  if (libinput_device_has_capability (libinput_device,
-                                      LIBINPUT_DEVICE_CAP_SWITCH) &&
-      libinput_device_switch_has_switch (libinput_device,
-                                         LIBINPUT_SWITCH_TABLET_MODE))
-    {
-      seat->has_tablet_switch = TRUE;
-      check_touch_mode = TRUE;
-    }
-
-  if (check_touch_mode)
-    update_touch_mode (seat);
+  return device;
 }
 
 static void
@@ -1460,74 +1441,98 @@ evdev_remove_device (MetaSeatNative        *seat,
                      MetaInputDeviceNative *device_evdev)
 {
   ClutterInputDevice *device;
-  ClutterInputDeviceType device_type;
 
   device = CLUTTER_INPUT_DEVICE (device_evdev);
   seat->devices = g_slist_remove (seat->devices, device);
 
-  g_signal_emit_by_name (seat, "device-removed", device);
-
-  device_type = clutter_input_device_get_device_type (device);
-
-  if (device_type == CLUTTER_TOUCHSCREEN_DEVICE)
-    {
-      seat->has_touchscreen = has_touchscreen (seat);
-      update_touch_mode (seat);
-    }
-
-  if (seat->repeat_timer && seat->repeat_device == device)
-    meta_seat_native_clear_repeat_timer (seat);
-
-  g_object_run_dispose (G_OBJECT (device));
   g_object_unref (device);
 }
 
-static void
-flush_event_queue (void)
+static gboolean
+meta_seat_native_handle_device_event (ClutterSeat  *seat,
+                                      ClutterEvent *event)
 {
-  ClutterEvent *event;
+  MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
+  ClutterInputDevice *device = event->device.device;
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
+  gboolean check_touch_mode;
 
-  while ((event = clutter_event_get ()) != NULL)
+  check_touch_mode =
+    clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE;
+
+  switch (event->type)
     {
-      _clutter_process_event (event);
-      clutter_event_free (event);
+      case CLUTTER_DEVICE_ADDED:
+        seat_native->has_touchscreen = check_touch_mode;
+
+        if (libinput_device_has_capability (device_native->libinput_device,
+                                            LIBINPUT_DEVICE_CAP_SWITCH) &&
+            libinput_device_switch_has_switch (device_native->libinput_device,
+                                               LIBINPUT_SWITCH_TABLET_MODE))
+          {
+            seat_native->has_tablet_switch = TRUE;
+            check_touch_mode = TRUE;
+          }
+        break;
+
+      case CLUTTER_DEVICE_REMOVED:
+        if (check_touch_mode)
+          seat_native->has_touchscreen = has_touchscreen (seat_native);
+
+        if (seat_native->repeat_timer && seat_native->repeat_device == device)
+          meta_seat_native_clear_repeat_timer (seat_native);
+        break;
+
+      default:
+        break;
     }
+
+  if (check_touch_mode)
+    update_touch_mode (seat_native);
+
+  return TRUE;
 }
 
 static gboolean
 process_base_event (MetaSeatNative        *seat,
                     struct libinput_event *event)
 {
-  ClutterInputDevice *device;
+  ClutterInputDevice *device = NULL;
+  ClutterEvent *device_event;
   struct libinput_device *libinput_device;
-  gboolean handled = TRUE;
 
   switch (libinput_event_get_type (event))
     {
     case LIBINPUT_EVENT_DEVICE_ADDED:
       libinput_device = libinput_event_get_device (event);
 
-      evdev_add_device (seat, libinput_device);
+      device = evdev_add_device (seat, libinput_device);
+      device_event = clutter_event_new (CLUTTER_DEVICE_ADDED);
+      clutter_event_set_device (device_event, device);
       break;
 
     case LIBINPUT_EVENT_DEVICE_REMOVED:
-      /* Flush all queued events, there
-       * might be some from this device.
-       */
-      flush_event_queue ();
-
       libinput_device = libinput_event_get_device (event);
 
       device = libinput_device_get_user_data (libinput_device);
+      device_event = clutter_event_new (CLUTTER_DEVICE_REMOVED);
+      clutter_event_set_device (device_event, device);
       evdev_remove_device (seat,
                            META_INPUT_DEVICE_NATIVE (device));
       break;
 
     default:
-      handled = FALSE;
+      device_event = NULL;
     }
 
-  return handled;
+  if (device_event)
+    {
+      device_event->device.stage = _clutter_input_device_get_stage (device);
+      queue_event (device_event);
+      return TRUE;
+    }
+
+  return FALSE;
 }
 
 static ClutterScrollSource
@@ -2781,6 +2786,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->get_supported_virtual_device_types = meta_seat_native_get_supported_virtual_device_types;
   seat_class->compress_motion = meta_seat_native_compress_motion;
   seat_class->warp_pointer = meta_seat_native_warp_pointer;
+  seat_class->handle_device_event = meta_seat_native_handle_device_event;
 
   props[PROP_SEAT_ID] =
     g_param_spec_string ("seat-id",
