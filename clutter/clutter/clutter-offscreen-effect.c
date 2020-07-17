@@ -100,6 +100,8 @@ struct _ClutterOffscreenEffectPrivate
   int target_height;
 
   gint old_opacity_override;
+
+  gulong purge_handler_id;
 };
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE (ClutterOffscreenEffect,
@@ -158,6 +160,12 @@ ensure_pipeline_filter_for_scale (ClutterOffscreenEffect *self,
                                    filter, filter);
 }
 
+static void
+video_memory_purged (ClutterOffscreenEffect *self)
+{
+  g_clear_pointer (&self->priv->offscreen, cogl_object_unref);
+}
+
 static gboolean
 update_fbo (ClutterEffect *effect,
             int            target_width,
@@ -166,8 +174,26 @@ update_fbo (ClutterEffect *effect,
 {
   ClutterOffscreenEffect *self = CLUTTER_OFFSCREEN_EFFECT (effect);
   ClutterOffscreenEffectPrivate *priv = self->priv;
+  ClutterActor *stage_actor;
 
-  priv->stage = clutter_actor_get_stage (priv->actor);
+  stage_actor = clutter_actor_get_stage (priv->actor);
+  if (stage_actor != priv->stage)
+    {
+      g_clear_signal_handler (&priv->purge_handler_id, priv->stage);
+
+      priv->stage = stage_actor;
+
+      if (priv->stage)
+        {
+          priv->purge_handler_id =
+            g_signal_connect_object (priv->stage,
+                                     "gl-video-memory-purged",
+                                     G_CALLBACK (video_memory_purged),
+                                     self,
+                                     G_CONNECT_SWAPPED);
+        }
+    }
+
   if (priv->stage == NULL)
     {
       CLUTTER_NOTE (MISC, "The actor '%s' is not part of a stage",
