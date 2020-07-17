@@ -25,7 +25,6 @@
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-impl.h"
-#include "backends/native/meta-kms-impl-simple.h"
 #include "backends/native/meta-kms-update-private.h"
 #include "backends/native/meta-udev.h"
 #include "cogl/cogl.h"
@@ -103,21 +102,16 @@
  *
  * #MetaKmsImpl:
  *
- * The KMS backend implementation, running in the impl context. #MetaKmsImpl
- * itself is an abstract object, with potentially multiple implementations.
- * Currently only #MetaKmsImplSimple exists.
- *
- * #MetaKmsImplSimple:
- *
- * A KMS backend implementation using the non-atomic drmMode* API. While it's
- * interacted with using the transactional API, the #MetaKmsUpdate is processed
- * non-atomically.
+ * The KMS impl context object, managing things in the impl context.
  *
  * #MetaKmsImplDevice:
  *
  * An object linked to a #MetaKmsDevice, but where it is executed in the impl
  * context. It takes care of the updating of the various KMS object (CRTC,
  * connector, ..) states.
+ *
+ * This is an abstract type, with currently #MetaKmsImplDeviceSimple,
+ * implementing mode setting and page flipping using legacy DRM API.
  *
  * #MetaKmsPageFlip:
  *
@@ -590,18 +584,6 @@ meta_kms_get_backend (MetaKms *kms)
   return kms->backend;
 }
 
-static gpointer
-notify_device_created_in_impl (MetaKmsImpl  *impl,
-                               gpointer      user_data,
-                               GError      **error)
-{
-  MetaKmsDevice *device = user_data;
-
-  meta_kms_impl_notify_device_created (impl, device);
-
-  return GINT_TO_POINTER (TRUE);
-}
-
 MetaKmsDevice *
 meta_kms_create_device (MetaKms            *kms,
                         const char         *path,
@@ -613,9 +595,6 @@ meta_kms_create_device (MetaKms            *kms,
   device = meta_kms_device_new (kms, path, flags, error);
   if (!device)
     return NULL;
-
-  meta_kms_run_impl_task_sync (kms, notify_device_created_in_impl,
-                               device, NULL);
 
   kms->devices = g_list_append (kms->devices, device);
 
@@ -632,7 +611,7 @@ meta_kms_new (MetaBackend  *backend,
 
   kms = g_object_new (META_TYPE_KMS, NULL);
   kms->backend = backend;
-  kms->impl = META_KMS_IMPL (meta_kms_impl_simple_new (kms, error));
+  kms->impl = meta_kms_impl_new (kms);
   if (!kms->impl)
     {
       g_object_unref (kms);

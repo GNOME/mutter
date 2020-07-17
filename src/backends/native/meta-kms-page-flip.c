@@ -29,7 +29,7 @@ struct _MetaKmsPageFlipData
 {
   int ref_count;
 
-  MetaKmsImpl *impl;
+  MetaKmsImplDevice *impl_device;
   MetaKmsCrtc *crtc;
 
   const MetaKmsPageFlipFeedback *feedback;
@@ -43,7 +43,7 @@ struct _MetaKmsPageFlipData
 };
 
 MetaKmsPageFlipData *
-meta_kms_page_flip_data_new (MetaKmsImpl                   *impl,
+meta_kms_page_flip_data_new (MetaKmsImplDevice             *impl_device,
                              MetaKmsCrtc                   *crtc,
                              const MetaKmsPageFlipFeedback *feedback,
                              gpointer                       user_data)
@@ -53,7 +53,7 @@ meta_kms_page_flip_data_new (MetaKmsImpl                   *impl,
   page_flip_data = g_new0 (MetaKmsPageFlipData , 1);
   *page_flip_data = (MetaKmsPageFlipData) {
     .ref_count = 1,
-    .impl = impl,
+    .impl_device = impl_device,
     .crtc = crtc,
     .feedback = feedback,
     .user_data = user_data,
@@ -82,10 +82,10 @@ meta_kms_page_flip_data_unref (MetaKmsPageFlipData *page_flip_data)
     }
 }
 
-MetaKmsImpl *
-meta_kms_page_flip_data_get_kms_impl (MetaKmsPageFlipData *page_flip_data)
+MetaKmsImplDevice *
+meta_kms_page_flip_data_get_impl_device (MetaKmsPageFlipData *page_flip_data)
 {
-  return page_flip_data->impl;
+  return page_flip_data->impl_device;
 }
 
 static void
@@ -103,13 +103,21 @@ meta_kms_page_flip_data_flipped (MetaKms  *kms,
                                      page_flip_data->user_data);
 }
 
+static MetaKms *
+meta_kms_from_impl_device (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
+
+  return meta_kms_device_get_kms (device);
+}
+
 void
 meta_kms_page_flip_data_set_timings_in_impl (MetaKmsPageFlipData *page_flip_data,
                                              unsigned int         sequence,
                                              unsigned int         sec,
                                              unsigned int         usec)
 {
-  MetaKms *kms = meta_kms_impl_get_kms (page_flip_data->impl);
+  MetaKms *kms = meta_kms_from_impl_device (page_flip_data->impl_device);
 
   meta_assert_in_kms_impl (kms);
 
@@ -121,7 +129,7 @@ meta_kms_page_flip_data_set_timings_in_impl (MetaKmsPageFlipData *page_flip_data
 void
 meta_kms_page_flip_data_flipped_in_impl (MetaKmsPageFlipData *page_flip_data)
 {
-  MetaKms *kms = meta_kms_impl_get_kms (page_flip_data->impl);
+  MetaKms *kms = meta_kms_from_impl_device (page_flip_data->impl_device);
 
   meta_assert_in_kms_impl (kms);
 
@@ -146,7 +154,7 @@ meta_kms_page_flip_data_mode_set_fallback (MetaKms  *kms,
 void
 meta_kms_page_flip_data_mode_set_fallback_in_impl (MetaKmsPageFlipData *page_flip_data)
 {
-  MetaKms *kms = meta_kms_impl_get_kms (page_flip_data->impl);
+  MetaKms *kms = meta_kms_from_impl_device (page_flip_data->impl_device);
 
   meta_assert_in_kms_impl (kms);
 
@@ -182,7 +190,7 @@ void
 meta_kms_page_flip_data_discard_in_impl (MetaKmsPageFlipData *page_flip_data,
                                          const GError        *error)
 {
-  MetaKms *kms = meta_kms_impl_get_kms (page_flip_data->impl);
+  MetaKms *kms = meta_kms_from_impl_device (page_flip_data->impl_device);
 
   meta_assert_in_kms_impl (kms);
 

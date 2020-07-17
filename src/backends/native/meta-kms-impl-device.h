@@ -25,6 +25,7 @@
 #include <xf86drmMode.h>
 
 #include "backends/native/meta-kms-device.h"
+#include "backends/native/meta-kms-page-flip-private.h"
 #include "backends/native/meta-kms-types.h"
 #include "backends/native/meta-kms-update.h"
 
@@ -58,6 +59,12 @@ G_DECLARE_DERIVABLE_TYPE (MetaKmsImplDevice, meta_kms_impl_device,
 struct _MetaKmsImplDeviceClass
 {
   GObjectClass parent_class;
+
+  MetaKmsFeedback * (* process_update) (MetaKmsImplDevice *impl,
+                                        MetaKmsUpdate     *update);
+  void (* handle_page_flip_callback) (MetaKmsImplDevice   *impl,
+                                      MetaKmsPageFlipData *page_flip_data);
+  void (* discard_pending_page_flips) (MetaKmsImplDevice *impl);
 };
 
 MetaKmsDevice * meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device);
@@ -104,6 +111,11 @@ void meta_kms_impl_device_init_prop_table (MetaKmsImplDevice *impl_device,
                                            MetaKmsProp       *props,
                                            int                n_props,
                                            gpointer           user_data);
+
+MetaKmsFeedback * meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
+                                                       MetaKmsUpdate     *update);
+
+void meta_kms_impl_device_discard_pending_page_flips (MetaKmsImplDevice *impl_device);
 
 int meta_kms_impl_device_close (MetaKmsImplDevice *impl_device);
 

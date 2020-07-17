@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2018-2019 Red Hat
- * Copyright (C) 2019-2020 DisplayLink (UK) Ltd.
+ * Copyright (C) 2019-2020 Red Hat
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -20,17 +19,12 @@
 
 #include "config.h"
 
-#include "backends/native/meta-kms-impl-simple.h"
-
-#include <errno.h>
-#include <gbm.h>
-#include <xf86drmMode.h>
+#include "backends/native/meta-kms-impl-device-simple.h"
 
 #include "backends/native/meta-kms-connector-private.h"
-#include "backends/native/meta-kms-crtc.h"
+#include "backends/native/meta-kms-crtc-private.h"
 #include "backends/native/meta-kms-device-private.h"
-#include "backends/native/meta-kms-mode.h"
-#include "backends/native/meta-kms-page-flip-private.h"
+#include "backends/native/meta-kms-mode-private.h"
 #include "backends/native/meta-kms-plane-private.h"
 #include "backends/native/meta-kms-private.h"
 #include "backends/native/meta-kms-update-private.h"
@@ -42,9 +36,9 @@ typedef struct _CachedModeSet
   drmModeModeInfo *drm_mode;
 } CachedModeSet;
 
-struct _MetaKmsImplSimple
+struct _MetaKmsImplDeviceSimple
 {
-  MetaKmsImpl parent;
+  MetaKmsImplDevice parent;
 
   GSource *mode_set_fallback_feedback_source;
   GList *mode_set_fallback_page_flip_datas;
@@ -58,29 +52,26 @@ struct _MetaKmsImplSimple
   GHashTable *cached_mode_sets;
 };
 
-G_DEFINE_TYPE (MetaKmsImplSimple, meta_kms_impl_simple,
-               META_TYPE_KMS_IMPL)
+static GInitableIface *initable_parent_iface;
 
 static void
-flush_postponed_page_flip_datas (MetaKmsImplSimple *impl_simple);
+initable_iface_init (GInitableIface *iface);
 
-MetaKmsImplSimple *
-meta_kms_impl_simple_new (MetaKms  *kms,
-                          GError  **error)
-{
-  return g_object_new (META_TYPE_KMS_IMPL_SIMPLE,
-                       "kms", kms,
-                       NULL);
-}
+G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDeviceSimple, meta_kms_impl_device_simple,
+                         META_TYPE_KMS_IMPL_DEVICE,
+                         G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
+                                                initable_iface_init))
+
+static void
+flush_postponed_page_flip_datas (MetaKmsImplDeviceSimple *impl_device_simple);
 
 static gboolean
-set_connector_property (MetaKmsConnector      *connector,
+set_connector_property (MetaKmsImplDevice     *impl_device,
+                        MetaKmsConnector      *connector,
                         MetaKmsConnectorProp   prop,
                         uint64_t               value,
                         GError               **error)
 {
-  MetaKmsDevice *device = meta_kms_connector_get_device (connector);
-  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
   uint32_t prop_id;
   int fd;
   int ret;
@@ -116,17 +107,18 @@ set_connector_property (MetaKmsConnector      *connector,
 }
 
 static gboolean
-process_connector_update (MetaKmsImpl    *impl,
-                          MetaKmsUpdate  *update,
-                          gpointer        update_entry,
-                          GError        **error)
+process_connector_update (MetaKmsImplDevice  *impl_device,
+                          MetaKmsUpdate      *update,
+                          gpointer            update_entry,
+                          GError            **error)
 {
   MetaKmsConnectorUpdate *connector_update = update_entry;
   MetaKmsConnector *connector = connector_update->connector;
 
   if (connector_update->dpms.has_update)
     {
-      if (!set_connector_property (connector,
+      if (!set_connector_property (impl_device,
+                                   connector,
                                    META_KMS_CONNECTOR_PROP_DPMS,
                                    connector_update->dpms.state,
                                    error))
@@ -136,17 +128,20 @@ process_connector_update (MetaKmsImpl    *impl,
   if (connector_update->underscanning.has_update &&
       connector_update->underscanning.is_active)
     {
-      if (!set_connector_property (connector,
+      if (!set_connector_property (impl_device,
+                                   connector,
                                    META_KMS_CONNECTOR_PROP_UNDERSCAN,
                                    1,
                                    error))
         return FALSE;
-      if (!set_connector_property (connector,
+      if (!set_connector_property (impl_device,
+                                   connector,
                                    META_KMS_CONNECTOR_PROP_UNDERSCAN_HBORDER,
                                    connector_update->underscanning.hborder,
                                    error))
         return FALSE;
-      if (!set_connector_property (connector,
+      if (!set_connector_property (impl_device,
+                                   connector,
                                    META_KMS_CONNECTOR_PROP_UNDERSCAN_VBORDER,
                                    connector_update->underscanning.vborder,
                                    error))
@@ -154,7 +149,8 @@ process_connector_update (MetaKmsImpl    *impl,
     }
   else if (connector_update->underscanning.has_update)
     {
-      if (!set_connector_property (connector,
+      if (!set_connector_property (impl_device,
+                                   connector,
                                    META_KMS_CONNECTOR_PROP_UNDERSCAN,
                                    0,
                                    error))
@@ -207,13 +203,11 @@ fill_connector_ids_array (GList     *connectors,
 }
 
 static gboolean
-set_plane_rotation (MetaKmsImpl   *impl,
-                    MetaKmsPlane  *plane,
-                    uint64_t       rotation,
-                    GError       **error)
+set_plane_rotation (MetaKmsImplDevice  *impl_device,
+                    MetaKmsPlane       *plane,
+                    uint64_t            rotation,
+                    GError            **error)
 {
-  MetaKmsDevice *device = meta_kms_plane_get_device (plane);
-  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
   int fd;
   uint32_t rotation_prop_id;
   int ret;
@@ -243,16 +237,15 @@ set_plane_rotation (MetaKmsImpl   *impl,
 }
 
 static gboolean
-process_mode_set (MetaKmsImpl     *impl,
-                  MetaKmsUpdate   *update,
-                  gpointer         update_entry,
-                  GError         **error)
+process_mode_set (MetaKmsImplDevice  *impl_device,
+                  MetaKmsUpdate      *update,
+                  gpointer            update_entry,
+                  GError            **error)
 {
+  MetaKmsImplDeviceSimple *impl_device_simple =
+    META_KMS_IMPL_DEVICE_SIMPLE (impl_device);
   MetaKmsModeSet *mode_set = update_entry;
-  MetaKmsImplSimple *impl_simple = META_KMS_IMPL_SIMPLE (impl);
   MetaKmsCrtc *crtc = mode_set->crtc;
-  MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
-  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
   g_autofree uint32_t *connectors = NULL;
   int n_connectors;
   MetaKmsPlaneAssignment *plane_assignment;
@@ -288,7 +281,7 @@ process_mode_set (MetaKmsImpl     *impl,
 
       if (plane_assignment->rotation)
         {
-          if (!set_plane_rotation (impl,
+          if (!set_plane_rotation (impl_device,
                                    plane_assignment->plane,
                                    plane_assignment->rotation,
                                    error))
@@ -325,29 +318,27 @@ process_mode_set (MetaKmsImpl     *impl,
 
   if (drm_mode)
     {
-      g_hash_table_replace (impl_simple->cached_mode_sets,
+      g_hash_table_replace (impl_device_simple->cached_mode_sets,
                             crtc,
                             cached_mode_set_new (mode_set->connectors,
                                                  drm_mode));
     }
   else
     {
-      g_hash_table_remove (impl_simple->cached_mode_sets, crtc);
+      g_hash_table_remove (impl_device_simple->cached_mode_sets, crtc);
     }
 
   return TRUE;
 }
 
 static gboolean
-process_crtc_gamma (MetaKmsImpl    *impl,
-                    MetaKmsUpdate  *update,
-                    gpointer        update_entry,
-                    GError        **error)
+process_crtc_gamma (MetaKmsImplDevice  *impl_device,
+                    MetaKmsUpdate      *update,
+                    gpointer            update_entry,
+                    GError            **error)
 {
   MetaKmsCrtcGamma *gamma = update_entry;
   MetaKmsCrtc *crtc = gamma->crtc;
-  MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
-  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
   int fd;
   int ret;
 
@@ -398,43 +389,44 @@ retry_page_flip_data_free (RetryPageFlipData *retry_page_flip_data)
 }
 
 static CachedModeSet *
-get_cached_mode_set (MetaKmsImplSimple *impl_simple,
-                     MetaKmsCrtc       *crtc)
+get_cached_mode_set (MetaKmsImplDeviceSimple *impl_device_simple,
+                     MetaKmsCrtc             *crtc)
 {
-  return g_hash_table_lookup (impl_simple->cached_mode_sets, crtc);
+  return g_hash_table_lookup (impl_device_simple->cached_mode_sets, crtc);
 }
 
 static float
-get_cached_crtc_refresh_rate (MetaKmsImplSimple *impl_simple,
-                              MetaKmsCrtc       *crtc)
+get_cached_crtc_refresh_rate (MetaKmsImplDeviceSimple *impl_device_simple,
+                              MetaKmsCrtc             *crtc)
 {
   CachedModeSet *cached_mode_set;
 
-  cached_mode_set = g_hash_table_lookup (impl_simple->cached_mode_sets,
+  cached_mode_set = g_hash_table_lookup (impl_device_simple->cached_mode_sets,
                                          crtc);
   g_assert (cached_mode_set);
 
   return meta_calculate_drm_mode_refresh_rate (cached_mode_set->drm_mode);
 }
 
+#define meta_assert_in_kms_impl(kms) \
+  g_assert (meta_kms_in_impl_task (kms))
+
 static gboolean
 retry_page_flips (gpointer user_data)
 {
-  MetaKmsImplSimple *impl_simple = META_KMS_IMPL_SIMPLE (user_data);
+  MetaKmsImplDeviceSimple *impl_device_simple =
+    META_KMS_IMPL_DEVICE_SIMPLE (user_data);
+  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (impl_device_simple);
   uint64_t now_us;
   GList *l;
 
-  meta_assert_in_kms_impl (meta_kms_impl_get_kms (META_KMS_IMPL (impl_simple)));
+  now_us = g_source_get_time (impl_device_simple->retry_page_flips_source);
 
-  now_us = g_source_get_time (impl_simple->retry_page_flips_source);
-
-  l = impl_simple->pending_page_flip_retries;
+  l = impl_device_simple->pending_page_flip_retries;
   while (l)
     {
       RetryPageFlipData *retry_page_flip_data = l->data;
       MetaKmsCrtc *crtc = retry_page_flip_data->crtc;
-      MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
-      MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
       GList *l_next = l->next;
       int fd;
       int ret;
@@ -468,15 +460,16 @@ retry_page_flips (gpointer user_data)
         {
           float refresh_rate;
 
-          refresh_rate = get_cached_crtc_refresh_rate (impl_simple, crtc);
+          refresh_rate =
+            get_cached_crtc_refresh_rate (impl_device_simple, crtc);
           retry_page_flip_data->retry_time_us +=
             (uint64_t) (G_USEC_PER_SEC / refresh_rate);
           l = l_next;
           continue;
         }
 
-      impl_simple->pending_page_flip_retries =
-        g_list_remove_link (impl_simple->pending_page_flip_retries, l);
+      impl_device_simple->pending_page_flip_retries =
+        g_list_remove_link (impl_device_simple->pending_page_flip_retries, l);
 
       page_flip_data = g_steal_pointer (&retry_page_flip_data->page_flip_data);
       if (ret != 0)
@@ -500,38 +493,38 @@ retry_page_flips (gpointer user_data)
       l = l_next;
     }
 
-  if (impl_simple->pending_page_flip_retries)
+  if (impl_device_simple->pending_page_flip_retries)
     {
       GList *l;
       uint64_t earliest_retry_time_us = 0;
 
-      for (l = impl_simple->pending_page_flip_retries; l; l = l->next)
+      for (l = impl_device_simple->pending_page_flip_retries; l; l = l->next)
         {
           RetryPageFlipData *retry_page_flip_data = l->data;
 
-          if (l == impl_simple->pending_page_flip_retries ||
+          if (l == impl_device_simple->pending_page_flip_retries ||
               is_timestamp_earlier_than (retry_page_flip_data->retry_time_us,
                                          earliest_retry_time_us))
             earliest_retry_time_us = retry_page_flip_data->retry_time_us;
         }
 
-      g_source_set_ready_time (impl_simple->retry_page_flips_source,
+      g_source_set_ready_time (impl_device_simple->retry_page_flips_source,
                                earliest_retry_time_us);
       return G_SOURCE_CONTINUE;
     }
   else
     {
-      g_clear_pointer (&impl_simple->retry_page_flips_source,
+      g_clear_pointer (&impl_device_simple->retry_page_flips_source,
                        g_source_unref);
 
-      flush_postponed_page_flip_datas (impl_simple);
+      flush_postponed_page_flip_datas (impl_device_simple);
 
       return G_SOURCE_REMOVE;
     }
 }
 
 static void
-schedule_retry_page_flip (MetaKmsImplSimple         *impl_simple,
+schedule_retry_page_flip (MetaKmsImplDeviceSimple   *impl_device_simple,
                           MetaKmsCrtc               *crtc,
                           uint32_t                   fb_id,
                           float                      refresh_rate,
@@ -557,22 +550,25 @@ schedule_retry_page_flip (MetaKmsImplSimple         *impl_simple,
     .custom_page_flip_user_data = custom_page_flip_user_data,
   };
 
-  if (!impl_simple->retry_page_flips_source)
+  if (!impl_device_simple->retry_page_flips_source)
     {
-      MetaKms *kms = meta_kms_impl_get_kms (META_KMS_IMPL (impl_simple));
+      MetaKmsImplDevice *impl_device =
+        META_KMS_IMPL_DEVICE (impl_device_simple);
+      MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
+      MetaKms *kms = meta_kms_device_get_kms (device);
       GSource *source;
 
       source = meta_kms_add_source_in_impl (kms, retry_page_flips,
-                                            impl_simple, NULL);
+                                            impl_device_simple, NULL);
       g_source_set_ready_time (source, retry_time_us);
 
-      impl_simple->retry_page_flips_source = source;
+      impl_device_simple->retry_page_flips_source = source;
     }
   else
     {
       GList *l;
 
-      for (l = impl_simple->pending_page_flip_retries; l; l = l->next)
+      for (l = impl_device_simple->pending_page_flip_retries; l; l = l->next)
         {
           RetryPageFlipData *pending_retry_page_flip_data = l->data;
           uint64_t pending_retry_time_us =
@@ -580,15 +576,15 @@ schedule_retry_page_flip (MetaKmsImplSimple         *impl_simple,
 
           if (is_timestamp_earlier_than (retry_time_us, pending_retry_time_us))
             {
-              g_source_set_ready_time (impl_simple->retry_page_flips_source,
+              g_source_set_ready_time (impl_device_simple->retry_page_flips_source,
                                        retry_time_us);
               break;
             }
         }
     }
 
-  impl_simple->pending_page_flip_retries =
-    g_list_append (impl_simple->pending_page_flip_retries,
+  impl_device_simple->pending_page_flip_retries =
+    g_list_append (impl_device_simple->pending_page_flip_retries,
                    retry_page_flip_data);
 }
 
@@ -610,38 +606,38 @@ clear_page_flip_datas (GList **page_flip_datas)
 static gboolean
 mode_set_fallback_feedback_idle (gpointer user_data)
 {
-  MetaKmsImplSimple *impl_simple = user_data;
+  MetaKmsImplDeviceSimple *impl_device_simple = user_data;
 
-  g_clear_pointer (&impl_simple->mode_set_fallback_feedback_source,
+  g_clear_pointer (&impl_device_simple->mode_set_fallback_feedback_source,
                    g_source_unref);
 
-  if (impl_simple->pending_page_flip_retries)
+  if (impl_device_simple->pending_page_flip_retries)
     {
-      impl_simple->postponed_mode_set_fallback_datas =
-        g_steal_pointer (&impl_simple->mode_set_fallback_page_flip_datas);
+      impl_device_simple->postponed_mode_set_fallback_datas =
+        g_steal_pointer (&impl_device_simple->mode_set_fallback_page_flip_datas);
     }
   else
     {
-      invoke_page_flip_datas (impl_simple->mode_set_fallback_page_flip_datas,
+      invoke_page_flip_datas (impl_device_simple->mode_set_fallback_page_flip_datas,
                               meta_kms_page_flip_data_mode_set_fallback_in_impl);
-      clear_page_flip_datas (&impl_simple->mode_set_fallback_page_flip_datas);
+      clear_page_flip_datas (&impl_device_simple->mode_set_fallback_page_flip_datas);
     }
 
   return G_SOURCE_REMOVE;
 }
 
 static gboolean
-mode_set_fallback (MetaKmsImplSimple       *impl_simple,
-                   MetaKmsUpdate           *update,
-                   MetaKmsPageFlip         *page_flip,
-                   MetaKmsPlaneAssignment  *plane_assignment,
-                   MetaKmsPageFlipData     *page_flip_data,
-                   GError                 **error)
+mode_set_fallback (MetaKmsImplDeviceSimple  *impl_device_simple,
+                   MetaKmsUpdate            *update,
+                   MetaKmsPageFlip          *page_flip,
+                   MetaKmsPlaneAssignment   *plane_assignment,
+                   MetaKmsPageFlipData      *page_flip_data,
+                   GError                  **error)
 {
-  MetaKms *kms = meta_kms_impl_get_kms (META_KMS_IMPL (impl_simple));
+  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (impl_device_simple);
+  MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
+  MetaKms *kms = meta_kms_device_get_kms (device);
   MetaKmsCrtc *crtc = page_flip->crtc;
-  MetaKmsDevice *device = meta_kms_crtc_get_device (crtc);
-  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
   CachedModeSet *cached_mode_set;
   g_autofree uint32_t *connectors = NULL;
   int n_connectors;
@@ -649,7 +645,7 @@ mode_set_fallback (MetaKmsImplSimple       *impl_simple,
   int fd;
   int ret;
 
-  cached_mode_set = g_hash_table_lookup (impl_simple->cached_mode_sets,
+  cached_mode_set = g_hash_table_lookup (impl_device_simple->cached_mode_sets,
                                          crtc);
   if (!cached_mode_set)
     {
@@ -682,35 +678,34 @@ mode_set_fallback (MetaKmsImplSimple       *impl_simple,
       return FALSE;
     }
 
-  if (!impl_simple->mode_set_fallback_feedback_source)
+  if (!impl_device_simple->mode_set_fallback_feedback_source)
     {
       GSource *source;
 
       source = meta_kms_add_source_in_impl (kms,
                                             mode_set_fallback_feedback_idle,
-                                            impl_simple,
+                                            impl_device_simple,
                                             NULL);
-      impl_simple->mode_set_fallback_feedback_source = source;
+      impl_device_simple->mode_set_fallback_feedback_source = source;
     }
 
-  impl_simple->mode_set_fallback_page_flip_datas =
-    g_list_prepend (impl_simple->mode_set_fallback_page_flip_datas,
+  impl_device_simple->mode_set_fallback_page_flip_datas =
+    g_list_prepend (impl_device_simple->mode_set_fallback_page_flip_datas,
                     meta_kms_page_flip_data_ref (page_flip_data));
 
   return TRUE;
 }
 
 static gboolean
-process_page_flip (MetaKmsImpl    *impl,
-                   MetaKmsUpdate  *update,
-                   gpointer        update_entry,
-                   GError        **error)
+process_page_flip (MetaKmsImplDevice  *impl_device,
+                   MetaKmsUpdate      *update,
+                   gpointer            update_entry,
+                   GError            **error)
 {
+  MetaKmsImplDeviceSimple *impl_device_simple =
+    META_KMS_IMPL_DEVICE_SIMPLE (impl_device);
   MetaKmsPageFlip *page_flip = update_entry;
-  MetaKmsImplSimple *impl_simple = META_KMS_IMPL_SIMPLE (impl);
   MetaKmsCrtc *crtc;
-  MetaKmsDevice *device;
-  MetaKmsImplDevice *impl_device;
   MetaKmsPlaneAssignment *plane_assignment;
   MetaKmsPageFlipData *page_flip_data;
   MetaKmsCustomPageFlipFunc custom_page_flip_func;
@@ -721,13 +716,11 @@ process_page_flip (MetaKmsImpl    *impl,
   plane_assignment = meta_kms_update_get_primary_plane_assignment (update,
                                                                    crtc);
 
-  page_flip_data = meta_kms_page_flip_data_new (impl,
+  page_flip_data = meta_kms_page_flip_data_new (impl_device,
                                                 crtc,
                                                 page_flip->feedback,
                                                 page_flip->user_data);
 
-  device = meta_kms_crtc_get_device (crtc);
-  impl_device = meta_kms_device_get_impl_device (device);
   fd = meta_kms_impl_device_get_fd (impl_device);
   custom_page_flip_func = page_flip->custom_page_flip_func;
   if (custom_page_flip_func)
@@ -751,7 +744,7 @@ process_page_flip (MetaKmsImpl    *impl,
     {
       CachedModeSet *cached_mode_set;
 
-      cached_mode_set = get_cached_mode_set (impl_simple, crtc);
+      cached_mode_set = get_cached_mode_set (impl_device_simple, crtc);
       if (cached_mode_set)
         {
           drmModeModeInfo *drm_mode;
@@ -759,7 +752,7 @@ process_page_flip (MetaKmsImpl    *impl,
 
           drm_mode = cached_mode_set->drm_mode;
           refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
-          schedule_retry_page_flip (impl_simple,
+          schedule_retry_page_flip (impl_device_simple,
                                     crtc,
                                     plane_assignment ?
                                         plane_assignment->fb_id : 0,
@@ -779,7 +772,7 @@ process_page_flip (MetaKmsImpl    *impl,
     }
   else if (ret == -EINVAL)
     {
-      if (!mode_set_fallback (impl_simple,
+      if (!mode_set_fallback (impl_device_simple,
                               update,
                               page_flip,
                               plane_assignment,
@@ -805,15 +798,15 @@ process_page_flip (MetaKmsImpl    *impl,
 }
 
 static void
-discard_page_flip (MetaKmsImpl     *impl,
-                   MetaKmsUpdate   *update,
-                   MetaKmsPageFlip *page_flip)
+discard_page_flip (MetaKmsImplDevice *impl_device,
+                   MetaKmsUpdate     *update,
+                   MetaKmsPageFlip   *page_flip)
 {
   MetaKmsCrtc *crtc;
   MetaKmsPageFlipData *page_flip_data;
 
   crtc = page_flip->crtc;
-  page_flip_data = meta_kms_page_flip_data_new (impl,
+  page_flip_data = meta_kms_page_flip_data_new (impl_device,
                                                 crtc,
                                                 page_flip->feedback,
                                                 page_flip->user_data);
@@ -822,20 +815,20 @@ discard_page_flip (MetaKmsImpl     *impl,
 }
 
 static gboolean
-process_entries (MetaKmsImpl     *impl,
-                 MetaKmsUpdate   *update,
-                 GList           *entries,
-                 gboolean      (* func) (MetaKmsImpl    *impl,
-                                         MetaKmsUpdate  *update,
-                                         gpointer        entry_data,
-                                         GError        **error),
-                 GError         **error)
+process_entries (MetaKmsImplDevice  *impl_device,
+                 MetaKmsUpdate      *update,
+                 GList              *entries,
+                 gboolean         (* func) (MetaKmsImplDevice  *impl_device,
+                                            MetaKmsUpdate      *update,
+                                            gpointer            entry_data,
+                                            GError            **error),
+                 GError            **error)
 {
   GList *l;
 
   for (l = entries; l; l = l->next)
     {
-      if (!func (impl, update, l->data, error))
+      if (!func (impl_device, update, l->data, error))
         return FALSE;
     }
 
@@ -843,19 +836,15 @@ process_entries (MetaKmsImpl     *impl,
 }
 
 static gboolean
-process_cursor_plane_assignment (MetaKmsImpl             *impl,
+process_cursor_plane_assignment (MetaKmsImplDevice       *impl_device,
                                  MetaKmsUpdate           *update,
                                  MetaKmsPlaneAssignment  *plane_assignment,
                                  GError                 **error)
 {
-  MetaKmsPlane *plane;
-  MetaKmsDevice *device;
-  MetaKmsImplDevice *impl_device;
+  uint32_t crtc_id;
   int fd;
 
-  plane = plane_assignment->plane;
-  device = meta_kms_plane_get_device (plane);
-  impl_device = meta_kms_device_get_impl_device (device);
+  crtc_id = meta_kms_crtc_get_id (plane_assignment->crtc),
   fd = meta_kms_impl_device_get_fd (impl_device);
 
   if (!(plane_assignment->flags & META_KMS_ASSIGN_PLANE_FLAG_FB_UNCHANGED))
@@ -868,7 +857,8 @@ process_cursor_plane_assignment (MetaKmsImpl             *impl,
 
       if (plane_assignment->cursor_hotspot.is_valid)
         {
-          ret = drmModeSetCursor2 (fd, meta_kms_crtc_get_id (plane_assignment->crtc),
+          ret = drmModeSetCursor2 (fd,
+                                   crtc_id,
                                    plane_assignment->fb_id,
                                    width, height,
                                    plane_assignment->cursor_hotspot.x,
@@ -877,7 +867,7 @@ process_cursor_plane_assignment (MetaKmsImpl             *impl,
 
       if (ret != 0)
         {
-          ret = drmModeSetCursor (fd, meta_kms_crtc_get_id (plane_assignment->crtc),
+          ret = drmModeSetCursor (fd, crtc_id,
                                   plane_assignment->fb_id,
                                   width, height);
         }
@@ -891,7 +881,7 @@ process_cursor_plane_assignment (MetaKmsImpl             *impl,
     }
 
   drmModeMoveCursor (fd,
-                     meta_kms_crtc_get_id (plane_assignment->crtc),
+                     crtc_id,
                      meta_fixed_16_to_int (plane_assignment->dst_rect.x),
                      meta_fixed_16_to_int (plane_assignment->dst_rect.y));
 
@@ -899,7 +889,7 @@ process_cursor_plane_assignment (MetaKmsImpl             *impl,
 }
 
 static gboolean
-process_plane_assignment (MetaKmsImpl             *impl,
+process_plane_assignment (MetaKmsImplDevice       *impl_device,
                           MetaKmsUpdate           *update,
                           MetaKmsPlaneAssignment  *plane_assignment,
                           MetaKmsPlaneFeedback   **plane_feedback)
@@ -916,7 +906,7 @@ process_plane_assignment (MetaKmsImpl             *impl,
       /* Handled as part of the mode-set and page flip. */
       return TRUE;
     case META_KMS_PLANE_TYPE_CURSOR:
-      if (!process_cursor_plane_assignment (impl, update,
+      if (!process_cursor_plane_assignment (impl_device, update,
                                             plane_assignment,
                                             &error))
         {
@@ -944,8 +934,8 @@ process_plane_assignment (MetaKmsImpl             *impl,
 }
 
 static GList *
-process_plane_assignments (MetaKmsImpl   *impl,
-                           MetaKmsUpdate *update)
+process_plane_assignments (MetaKmsImplDevice *impl_device,
+                           MetaKmsUpdate     *update)
 {
   GList *failed_planes = NULL;
   GList *l;
@@ -955,7 +945,7 @@ process_plane_assignments (MetaKmsImpl   *impl,
       MetaKmsPlaneAssignment *plane_assignment = l->data;
       MetaKmsPlaneFeedback *plane_feedback;
 
-      if (!process_plane_assignment (impl, update, plane_assignment,
+      if (!process_plane_assignment (impl_device, update, plane_assignment,
                                      &plane_feedback))
         failed_planes = g_list_prepend (failed_planes, plane_feedback);
     }
@@ -1000,37 +990,35 @@ generate_all_failed_feedbacks (MetaKmsUpdate *update)
 }
 
 static MetaKmsFeedback *
-meta_kms_impl_simple_process_update (MetaKmsImpl   *impl,
-                                     MetaKmsUpdate *update)
+meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
+                                            MetaKmsUpdate     *update)
 {
   GError *error = NULL;
   GList *failed_planes;
   GList *l;
 
-  meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
-
-  if (!process_entries (impl,
+  if (!process_entries (impl_device,
                         update,
                         meta_kms_update_get_connector_updates (update),
                         process_connector_update,
                         &error))
     goto err_planes_not_assigned;
 
-  if (!process_entries (impl,
+  if (!process_entries (impl_device,
                         update,
                         meta_kms_update_get_mode_sets (update),
                         process_mode_set,
                         &error))
     goto err_planes_not_assigned;
 
-  if (!process_entries (impl,
+  if (!process_entries (impl_device,
                         update,
                         meta_kms_update_get_crtc_gammas (update),
                         process_crtc_gamma,
                         &error))
     goto err_planes_not_assigned;
 
-  failed_planes = process_plane_assignments (impl, update);
+  failed_planes = process_plane_assignments (impl_device, update);
   if (failed_planes)
     {
       g_set_error (&error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -1038,7 +1026,7 @@ meta_kms_impl_simple_process_update (MetaKmsImpl   *impl,
       goto err_planes_assigned;
     }
 
-  if (!process_entries (impl,
+  if (!process_entries (impl_device,
                         update,
                         meta_kms_update_get_page_flips (update),
                         process_page_flip,
@@ -1058,34 +1046,35 @@ err_planes_assigned:
       if (page_flip->flags & META_KMS_PAGE_FLIP_FLAG_NO_DISCARD_FEEDBACK)
         continue;
 
-      discard_page_flip (impl, update, page_flip);
+      discard_page_flip (impl_device, update, page_flip);
     }
 
   return meta_kms_feedback_new_failed (failed_planes, error);
 }
 
 static void
-flush_postponed_page_flip_datas (MetaKmsImplSimple *impl_simple)
+flush_postponed_page_flip_datas (MetaKmsImplDeviceSimple *impl_device_simple)
 {
-  invoke_page_flip_datas (impl_simple->postponed_page_flip_datas,
+  invoke_page_flip_datas (impl_device_simple->postponed_page_flip_datas,
                           meta_kms_page_flip_data_flipped_in_impl);
-  clear_page_flip_datas (&impl_simple->postponed_page_flip_datas);
+  clear_page_flip_datas (&impl_device_simple->postponed_page_flip_datas);
 
-  invoke_page_flip_datas (impl_simple->postponed_mode_set_fallback_datas,
+  invoke_page_flip_datas (impl_device_simple->postponed_mode_set_fallback_datas,
                           meta_kms_page_flip_data_mode_set_fallback_in_impl);
-  clear_page_flip_datas (&impl_simple->postponed_mode_set_fallback_datas);
+  clear_page_flip_datas (&impl_device_simple->postponed_mode_set_fallback_datas);
 }
 
 static void
-meta_kms_impl_simple_handle_page_flip_callback (MetaKmsImpl         *impl,
-                                                MetaKmsPageFlipData *page_flip_data)
+meta_kms_impl_device_simple_handle_page_flip_callback (MetaKmsImplDevice   *impl_device,
+                                                       MetaKmsPageFlipData *page_flip_data)
 {
-  MetaKmsImplSimple *impl_simple = META_KMS_IMPL_SIMPLE (impl);
+  MetaKmsImplDeviceSimple *impl_device_simple =
+    META_KMS_IMPL_DEVICE_SIMPLE (impl_device);
 
-  if (impl_simple->pending_page_flip_retries)
+  if (impl_device_simple->pending_page_flip_retries)
     {
-      impl_simple->postponed_page_flip_datas =
-        g_list_append (impl_simple->postponed_page_flip_datas,
+      impl_device_simple->postponed_page_flip_datas =
+        g_list_append (impl_device_simple->postponed_page_flip_datas,
                        meta_kms_page_flip_data_ref (page_flip_data));
     }
   else
@@ -1097,15 +1086,16 @@ meta_kms_impl_simple_handle_page_flip_callback (MetaKmsImpl         *impl,
 }
 
 static void
-meta_kms_impl_simple_discard_pending_page_flips (MetaKmsImpl *impl)
+meta_kms_impl_device_simple_discard_pending_page_flips (MetaKmsImplDevice *impl_device)
 {
-  MetaKmsImplSimple *impl_simple = META_KMS_IMPL_SIMPLE (impl);
+  MetaKmsImplDeviceSimple *impl_device_simple =
+    META_KMS_IMPL_DEVICE_SIMPLE (impl_device);
   GList *l;
 
-  if (!impl_simple->pending_page_flip_retries)
+  if (!impl_device_simple->pending_page_flip_retries)
     return;
 
-  for (l = impl_simple->pending_page_flip_retries; l; l = l->next)
+  for (l = impl_device_simple->pending_page_flip_retries; l; l = l->next)
     {
       RetryPageFlipData *retry_page_flip_data = l->data;
       MetaKmsPageFlipData *page_flip_data;
@@ -1114,17 +1104,51 @@ meta_kms_impl_simple_discard_pending_page_flips (MetaKmsImpl *impl)
       meta_kms_page_flip_data_discard_in_impl (page_flip_data, NULL);
       retry_page_flip_data_free (retry_page_flip_data);
     }
-  g_clear_pointer (&impl_simple->pending_page_flip_retries, g_list_free);
+  g_clear_pointer (&impl_device_simple->pending_page_flip_retries, g_list_free);
 
-  g_clear_pointer (&impl_simple->retry_page_flips_source,
+  g_clear_pointer (&impl_device_simple->retry_page_flips_source,
                    g_source_destroy);
 }
 
 static void
-meta_kms_impl_simple_notify_device_created (MetaKmsImpl   *impl,
-                                            MetaKmsDevice *device)
+meta_kms_impl_device_simple_finalize (GObject *object)
 {
+  MetaKmsImplDeviceSimple *impl_device_simple =
+    META_KMS_IMPL_DEVICE_SIMPLE (object);
+
+  g_list_free_full (impl_device_simple->pending_page_flip_retries,
+                    (GDestroyNotify) retry_page_flip_data_free);
+  g_list_free_full (impl_device_simple->postponed_page_flip_datas,
+                    (GDestroyNotify) meta_kms_page_flip_data_unref);
+  g_list_free_full (impl_device_simple->postponed_mode_set_fallback_datas,
+                    (GDestroyNotify) meta_kms_page_flip_data_unref);
+
+  g_clear_pointer (&impl_device_simple->mode_set_fallback_feedback_source,
+                   g_source_destroy);
+  g_hash_table_destroy (impl_device_simple->cached_mode_sets);
+
+  G_OBJECT_CLASS (meta_kms_impl_device_simple_parent_class)->finalize (object);
+}
+
+static gboolean
+meta_kms_impl_device_simple_initable_init (GInitable     *initable,
+                                           GCancellable  *cancellable,
+                                           GError       **error)
+{
+  MetaKmsImplDeviceSimple *impl_device_simple =
+    META_KMS_IMPL_DEVICE_SIMPLE (initable);
+  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (impl_device_simple);
+  MetaKmsDevice *device = meta_kms_impl_device_get_device (impl_device);
   GList *l;
+
+  if (!initable_parent_iface->init (initable, cancellable, error))
+    return FALSE;
+
+  impl_device_simple->cached_mode_sets =
+    g_hash_table_new_full (NULL,
+                           NULL,
+                           NULL,
+                           (GDestroyNotify) cached_mode_set_free);
 
   for (l = meta_kms_device_get_crtcs (device); l; l = l->next)
     {
@@ -1139,46 +1163,36 @@ meta_kms_impl_simple_notify_device_created (MetaKmsImpl   *impl,
                                               META_KMS_PLANE_TYPE_CURSOR,
                                               crtc);
     }
+
+  return TRUE;
 }
 
 static void
-meta_kms_impl_simple_finalize (GObject *object)
+meta_kms_impl_device_simple_init (MetaKmsImplDeviceSimple *impl_device_simple)
 {
-  MetaKmsImplSimple *impl_simple = META_KMS_IMPL_SIMPLE (object);
-
-  g_list_free_full (impl_simple->pending_page_flip_retries,
-                    (GDestroyNotify) retry_page_flip_data_free);
-  g_list_free_full (impl_simple->postponed_page_flip_datas,
-                    (GDestroyNotify) meta_kms_page_flip_data_unref);
-  g_list_free_full (impl_simple->postponed_mode_set_fallback_datas,
-                    (GDestroyNotify) meta_kms_page_flip_data_unref);
-  g_clear_pointer (&impl_simple->mode_set_fallback_feedback_source,
-                   g_source_destroy);
-  g_hash_table_destroy (impl_simple->cached_mode_sets);
-
-  G_OBJECT_CLASS (meta_kms_impl_simple_parent_class)->finalize (object);
 }
 
 static void
-meta_kms_impl_simple_init (MetaKmsImplSimple *impl_simple)
+initable_iface_init (GInitableIface *iface)
 {
-  impl_simple->cached_mode_sets =
-    g_hash_table_new_full (NULL,
-                           NULL,
-                           NULL,
-                           (GDestroyNotify) cached_mode_set_free);
+  initable_parent_iface = g_type_interface_peek_parent (iface);
+
+  iface->init = meta_kms_impl_device_simple_initable_init;
 }
 
 static void
-meta_kms_impl_simple_class_init (MetaKmsImplSimpleClass *klass)
+meta_kms_impl_device_simple_class_init (MetaKmsImplDeviceSimpleClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
-  MetaKmsImplClass *impl_class = META_KMS_IMPL_CLASS (klass);
+  MetaKmsImplDeviceClass *impl_device_class =
+    META_KMS_IMPL_DEVICE_CLASS (klass);
 
-  object_class->finalize = meta_kms_impl_simple_finalize;
+  object_class->finalize = meta_kms_impl_device_simple_finalize;
 
-  impl_class->process_update = meta_kms_impl_simple_process_update;
-  impl_class->handle_page_flip_callback = meta_kms_impl_simple_handle_page_flip_callback;
-  impl_class->discard_pending_page_flips = meta_kms_impl_simple_discard_pending_page_flips;
-  impl_class->notify_device_created = meta_kms_impl_simple_notify_device_created;
+  impl_device_class->process_update =
+    meta_kms_impl_device_simple_process_update;
+  impl_device_class->handle_page_flip_callback =
+    meta_kms_impl_device_simple_handle_page_flip_callback;
+  impl_device_class->discard_pending_page_flips =
+    meta_kms_impl_device_simple_discard_pending_page_flips;
 }

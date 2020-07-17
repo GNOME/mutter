@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Red Hat
+ * Copyright (C) 2018-2020 Red Hat
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -17,16 +17,13 @@
  * 02111-1307, USA.
  */
 
-#ifndef META_KMS_IMPL_SIMPLE_H
-#define META_KMS_IMPL_SIMPLE_H
+#ifndef META_KMS_IMPL_DEVICE_SIMPLE_H
+#define META_KMS_IMPL_DEVICE_SIMPLE_H
 
-#include "backends/native/meta-kms-impl.h"
+#include "backends/native/meta-kms-impl-device.h"
 
-#define META_TYPE_KMS_IMPL_SIMPLE meta_kms_impl_simple_get_type ()
-G_DECLARE_FINAL_TYPE (MetaKmsImplSimple, meta_kms_impl_simple,
-                      META, KMS_IMPL_SIMPLE, MetaKmsImpl)
+#define META_TYPE_KMS_IMPL_DEVICE_SIMPLE (meta_kms_impl_device_simple_get_type ())
+G_DECLARE_FINAL_TYPE (MetaKmsImplDeviceSimple, meta_kms_impl_device_simple,
+                      META, KMS_IMPL_DEVICE_SIMPLE, MetaKmsImplDevice)
 
-MetaKmsImplSimple * meta_kms_impl_simple_new (MetaKms  *kms,
-                                              GError  **error);
-
-#endif /* META_KMS_IMPL_SIMPLE_H */
+#endif /* META_KMS_IMPL_DEVICE_SIMPLE_H */

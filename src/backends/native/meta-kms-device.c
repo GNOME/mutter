@@ -26,6 +26,7 @@
 #include <xf86drm.h>
 
 #include "backends/native/meta-backend-native.h"
+#include "backends/native/meta-kms-impl-device-simple.h"
 #include "backends/native/meta-kms-impl-device.h"
 #include "backends/native/meta-kms-impl.h"
 #include "backends/native/meta-kms-plane.h"
@@ -254,7 +255,7 @@ meta_create_kms_impl_device (MetaKmsDevice  *device,
       return NULL;
     }
 
-  return g_initable_new (META_TYPE_KMS_IMPL_DEVICE, NULL, error,
+  return g_initable_new (META_TYPE_KMS_IMPL_DEVICE_SIMPLE, NULL, error,
                          "device", device,
                          "impl", impl,
                          "fd", fd,

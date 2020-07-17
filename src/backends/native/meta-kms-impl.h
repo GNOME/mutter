@@ -26,21 +26,8 @@
 #include "backends/native/meta-kms.h"
 
 #define META_TYPE_KMS_IMPL (meta_kms_impl_get_type ())
-G_DECLARE_DERIVABLE_TYPE (MetaKmsImpl, meta_kms_impl,
-                          META, KMS_IMPL, GObject)
-
-struct _MetaKmsImplClass
-{
-  GObjectClass parent_class;
-
-  MetaKmsFeedback * (* process_update) (MetaKmsImpl   *impl,
-                                        MetaKmsUpdate *update);
-  void (* handle_page_flip_callback) (MetaKmsImpl         *impl,
-                                      MetaKmsPageFlipData *page_flip_data);
-  void (* discard_pending_page_flips) (MetaKmsImpl *impl);
-  void (* notify_device_created) (MetaKmsImpl   *impl,
-                                  MetaKmsDevice *impl_device);
-};
+G_DECLARE_FINAL_TYPE (MetaKmsImpl, meta_kms_impl,
+                      META, KMS_IMPL, GObject)
 
 MetaKms * meta_kms_impl_get_kms (MetaKmsImpl *impl);
 
@@ -53,12 +40,8 @@ void meta_kms_impl_add_impl_device (MetaKmsImpl       *impl,
 void meta_kms_impl_remove_impl_device (MetaKmsImpl       *impl,
                                        MetaKmsImplDevice *impl_device);
 
-void meta_kms_impl_handle_page_flip_callback (MetaKmsImpl         *impl,
-                                              MetaKmsPageFlipData *page_flip_data);
-
 void meta_kms_impl_discard_pending_page_flips (MetaKmsImpl *impl);
 
-void meta_kms_impl_notify_device_created (MetaKmsImpl   *impl,
-                                          MetaKmsDevice *impl_device);
+MetaKmsImpl * meta_kms_impl_new (MetaKms *kms);
 
 #endif /* META_KMS_IMPL_H */

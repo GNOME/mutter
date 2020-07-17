@@ -22,7 +22,7 @@
 
 #include <xf86drmMode.h>
 
-#include "backends/native/meta-kms-types.h"
+#include "backends/native/meta-kms-crtc.h"
 
 typedef enum _MetaKmsCrtcProp
 {

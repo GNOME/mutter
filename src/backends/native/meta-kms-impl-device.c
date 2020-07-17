@@ -80,6 +80,10 @@ G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDevice, meta_kms_impl_device,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 initable_iface_init))
 
+static void
+meta_kms_impl_device_handle_page_flip_callback (MetaKmsImplDevice   *impl_device,
+                                                MetaKmsPageFlipData *page_flip_data);
+
 MetaKmsDevice *
 meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device)
 {
@@ -160,13 +164,13 @@ page_flip_handler (int           fd,
                    void         *user_data)
 {
   MetaKmsPageFlipData *page_flip_data = user_data;
-  MetaKmsImpl *impl;
+  MetaKmsImplDevice *impl_device;
 
   meta_kms_page_flip_data_set_timings_in_impl (page_flip_data,
                                                sequence, sec, usec);
 
-  impl = meta_kms_page_flip_data_get_kms_impl (page_flip_data);
-  meta_kms_impl_handle_page_flip_callback (impl, page_flip_data);
+  impl_device = meta_kms_page_flip_data_get_impl_device (page_flip_data);
+  meta_kms_impl_device_handle_page_flip_callback (impl_device, page_flip_data);
 }
 
 gboolean
@@ -624,6 +628,32 @@ meta_kms_impl_device_leak_fd (MetaKmsImplDevice *impl_device)
     meta_kms_impl_device_get_instance_private (impl_device);
 
   return priv->fd;
+}
+
+MetaKmsFeedback *
+meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
+                                     MetaKmsUpdate     *update)
+{
+  MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
+
+  return klass->process_update (impl_device, update);
+}
+
+static void
+meta_kms_impl_device_handle_page_flip_callback (MetaKmsImplDevice   *impl_device,
+                                                MetaKmsPageFlipData *page_flip_data)
+{
+  MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
+
+  klass->handle_page_flip_callback (impl_device, page_flip_data);
+}
+
+void
+meta_kms_impl_device_discard_pending_page_flips (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
+
+  klass->discard_pending_page_flips (impl_device);
 }
 
 int
