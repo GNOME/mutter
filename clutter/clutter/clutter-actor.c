@@ -12715,6 +12715,9 @@ clutter_actor_event (ClutterActor       *actor,
       signal_num = -1;
       detail = quark_stage;
       break;
+    case CLUTTER_DEVICE_ADDED:
+    case CLUTTER_DEVICE_REMOVED:
+      break;
     case CLUTTER_EVENT_LAST:  /* Just keep compiler warnings quiet */
       break;
     }

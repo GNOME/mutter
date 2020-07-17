@@ -906,6 +906,8 @@ typedef enum /*< prefix=CLUTTER >*/
   CLUTTER_PAD_BUTTON_RELEASE,
   CLUTTER_PAD_STRIP,
   CLUTTER_PAD_RING,
+  CLUTTER_DEVICE_ADDED,
+  CLUTTER_DEVICE_REMOVED,
 
   CLUTTER_EVENT_LAST            /* helper */
 } ClutterEventType;
