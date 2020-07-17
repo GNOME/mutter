@@ -13995,6 +13995,9 @@ clutter_actor_event (ClutterActor       *actor,
         case CLUTTER_IM_PREEDIT:
           detail = quark_im;
           break;
+        case CLUTTER_DEVICE_ADDED:
+        case CLUTTER_DEVICE_REMOVED:
+          break;
         case CLUTTER_EVENT_LAST:  /* Just keep compiler warnings quiet */
           break;
         }

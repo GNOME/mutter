@@ -122,6 +122,7 @@ typedef struct _ClutterPadButtonEvent   ClutterPadButtonEvent;
 typedef struct _ClutterPadStripEvent    ClutterPadStripEvent;
 typedef struct _ClutterPadRingEvent     ClutterPadRingEvent;
 typedef struct _ClutterIMEvent          ClutterIMEvent;
+typedef struct _ClutterDeviceEvent      ClutterDeviceEvent;
 
 /**
  * ClutterAnyEvent:
@@ -558,6 +559,17 @@ struct _ClutterIMEvent
   uint32_t len;
 };
 
+struct _ClutterDeviceEvent
+{
+  ClutterEventType type;
+  guint32 time;
+  ClutterEventFlags flags;
+  ClutterStage *stage;
+  ClutterActor *source;
+
+  ClutterInputDevice *device;
+};
+
 /**
  * ClutterEvent:
  *
@@ -585,6 +597,7 @@ union _ClutterEvent
   ClutterPadStripEvent pad_strip;
   ClutterPadRingEvent pad_ring;
   ClutterIMEvent im;
+  ClutterDeviceEvent device;
 };
 
 /**

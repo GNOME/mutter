@@ -2119,6 +2119,10 @@ _clutter_process_event_details (ClutterActor        *stage,
       case CLUTTER_CLIENT_MESSAGE:
         break;
 
+      case CLUTTER_DEVICE_ADDED:
+      case CLUTTER_DEVICE_REMOVED:
+        break;
+
       case CLUTTER_EVENT_LAST:
         break;
     }
