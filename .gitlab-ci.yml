@@ -18,7 +18,7 @@ check-commit-log:
 build-mutter:
   stage: build
   script:
-    - meson . build -Dbuildtype=debugoptimized -Db_coverage=true -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
+    - meson . build -Dbuildtype=debugoptimized -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
     - ninja -C build
     - ninja -C build install
   artifacts:
@@ -85,11 +85,12 @@ test-mutter-coverage:
   dependencies:
     - test-mutter
   script:
-    - ninja -C build coverage
-    - cat build/meson-logs/coverage.txt
+    - meson . coverage-build -Dbuildtype=debugoptimized -Db_coverage=true -Degl_device=true -Dwayland_eglstream=true --werror --prefix /usr
+    - ninja -C coverage-build coverage
+    - cat coverage-build/meson-logs/coverage.txt
   artifacts:
     paths:
-      - build/meson-logs
+      - coverage-build/meson-logs
   when: manual
   except:
     refs:
