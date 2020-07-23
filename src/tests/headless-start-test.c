@@ -137,14 +137,14 @@ meta_test_headless_monitor_connect (void)
   crtc_mode_info->refresh_rate = 60.0;
 
   crtc_mode = g_object_new (META_TYPE_CRTC_MODE,
-                            "id", 1,
+                            "id", (uint64_t) 1,
                             "info", crtc_mode_info,
                             NULL);
   test_setup->modes = g_list_append (NULL, crtc_mode);
 
   gpu = META_GPU (meta_backend_get_gpus (meta_get_backend ())->data);
   crtc = g_object_new (META_TYPE_CRTC_TEST,
-                       "id", 1,
+                       "id", (uint64_t) 1,
                        "gpu", gpu,
                        NULL);
   test_setup->crtcs = g_list_append (NULL, crtc);
@@ -169,7 +169,7 @@ meta_test_headless_monitor_connect (void)
   output_info->connector_type = META_CONNECTOR_TYPE_DisplayPort;
 
   output = g_object_new (META_TYPE_OUTPUT_TEST,
-                         "id", 1,
+                         "id", (uint64_t) 1,
                          "gpu", gpu,
                          "info", output_info,
                          NULL);

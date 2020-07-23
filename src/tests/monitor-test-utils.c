@@ -556,7 +556,7 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
       crtc_mode_info->flags = setup->modes[i].flags;
 
       mode = g_object_new (META_TYPE_CRTC_MODE,
-                           "id", i,
+                           "id", (uint64_t) i,
                            "info", crtc_mode_info,
                            NULL);
 
@@ -569,7 +569,7 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
       MetaCrtc *crtc;
 
       crtc = g_object_new (META_TYPE_CRTC_TEST,
-                           "id", i + 1,
+                           "id", (uint64_t) i + 1,
                            "gpu", test_get_gpu (),
                            NULL);
 
@@ -676,7 +676,7 @@ create_monitor_test_setup (MonitorTestCaseSetup *setup,
         setup->outputs[i].panel_orientation_transform;
 
       output = g_object_new (META_TYPE_OUTPUT_TEST,
-                             "id", i,
+                             "id", (uint64_t) i,
                              "gpu", test_get_gpu (),
                              "info", output_info,
                              NULL);

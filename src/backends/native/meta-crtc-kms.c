@@ -291,7 +291,7 @@ meta_crtc_kms_new (MetaGpuKms  *gpu_kms,
   primary_plane = meta_kms_device_get_primary_plane_for (kms_device,
                                                          kms_crtc);
   crtc_kms = g_object_new (META_TYPE_CRTC_KMS,
-                           "id", meta_kms_crtc_get_id (kms_crtc),
+                           "id", (uint64_t) meta_kms_crtc_get_id (kms_crtc),
                            "gpu", gpu,
                            NULL);
 

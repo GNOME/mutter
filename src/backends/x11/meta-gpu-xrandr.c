@@ -154,7 +154,7 @@ meta_gpu_xrandr_read_current (MetaGpu  *gpu,
 
       crtc_mode_name = get_xmode_name (xmode);
       mode = g_object_new (META_TYPE_CRTC_MODE,
-                           "id", xmode->id,
+                           "id", (uint64_t) xmode->id,
                            "name", crtc_mode_name,
                            "info", crtc_mode_info,
                            NULL);

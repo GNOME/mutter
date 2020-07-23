@@ -96,7 +96,7 @@ create_mode (CrtcModeSpec *spec,
   crtc_mode_info->refresh_rate = spec->refresh_rate;
 
   return g_object_new (META_TYPE_CRTC_MODE,
-                       "id", mode_id,
+                       "id", (uint64_t) mode_id,
                        "info", crtc_mode_info,
                        NULL);
 }
@@ -205,7 +205,7 @@ append_monitor (MetaMonitorManager *manager,
   *modes = g_list_concat (*modes, new_modes);
 
   crtc = g_object_new (META_TYPE_CRTC_DUMMY,
-                       "id", g_list_length (*crtcs) + 1,
+                       "id", (uint64_t) g_list_length (*crtcs) + 1,
                        "gpu", gpu,
                        NULL);
   *crtcs = g_list_append (*crtcs, crtc);
@@ -237,7 +237,7 @@ append_monitor (MetaMonitorManager *manager,
   output_info->n_possible_crtcs = 1;
 
   output = g_object_new (META_TYPE_OUTPUT_DUMMY,
-                         "id", number,
+                         "id", (uint64_t) number,
                          "gpu", gpu,
                          "info", output_info,
                          NULL);
@@ -291,7 +291,7 @@ append_tiled_monitor (MetaMonitorManager *manager,
       MetaCrtc *crtc;
 
       crtc = g_object_new (META_TYPE_CRTC_DUMMY,
-                           "id", g_list_length (*crtcs) + i + 1,
+                           "id", (uint64_t) g_list_length (*crtcs) + i + 1,
                            "gpu", gpu,
                            NULL);
       new_crtcs = g_list_append (new_crtcs, crtc);
@@ -358,7 +358,7 @@ append_tiled_monitor (MetaMonitorManager *manager,
       output_info->n_possible_crtcs = n_tiles;
 
       output = g_object_new (META_TYPE_OUTPUT_DUMMY,
-                             "id", number,
+                             "id", (uint64_t) number,
                              "gpu", gpu,
                              "info", output_info,
                              NULL);
