@@ -79,18 +79,49 @@ static GBytes *
 mimetypes_to_bytes (GList   *mimetypes,
                     Display *xdisplay)
 {
-  gint i = 0, len = g_list_length (mimetypes) + 2;
-  Atom *atoms = g_new0 (Atom, len);
+  GArray *atoms = g_array_new (FALSE, FALSE, sizeof (Atom));
   GList *l;
+  char *mimetype;
+  Atom atom;
+  gboolean utf8_string_found = FALSE, utf8_string_mimetype_found = FALSE;
+  gboolean string_found = FALSE, string_mimetype_found = FALSE;
+  GBytes *bytes;
 
   for (l = mimetypes; l; l = l->next)
-    atoms[i++] = XInternAtom (xdisplay, l->data, False);
+    {
+      mimetype = l->data;
+      atom = XInternAtom (xdisplay, mimetype, False);
+      g_array_append_val (atoms, atom);
+      utf8_string_mimetype_found |= strcmp (mimetype, UTF8_STRING_MIMETYPE) == 0;
+      utf8_string_found |= strcmp (mimetype, "UTF8_STRING") == 0;
+      string_mimetype_found |= strcmp (mimetype, STRING_MIMETYPE) == 0;
+      string_found |= strcmp (mimetype, "STRING") == 0;
+    }
 
-  atoms[i++] = XInternAtom (xdisplay, "TARGETS", False);
-  atoms[i++] = XInternAtom (xdisplay, "TIMESTAMP", False);
-  g_assert (i == len);
+  /* Some X11 clients can only handle STRING/UTF8_STRING but not the
+   * corresponding mimetypes. */
+  if (utf8_string_mimetype_found && !utf8_string_found)
+    {
+      atom = XInternAtom (xdisplay, "UTF8_STRING", False);
+      g_array_append_val (atoms, atom);
+    }
 
-  return g_bytes_new_take (atoms, len * sizeof (Atom));
+  if (string_mimetype_found && !string_found)
+    {
+      atom = XInternAtom (xdisplay, "STRING", False);
+      g_array_append_val (atoms, atom);
+    }
+
+  atom = XInternAtom (xdisplay, "TARGETS", False);
+  g_array_append_val (atoms, atom);
+
+  atom = XInternAtom (xdisplay, "TIMESTAMP", False);
+  g_array_append_val (atoms, atom);
+
+  bytes = g_bytes_new_take (atoms->data, atoms->len * sizeof (Atom));
+  g_array_free (atoms, FALSE);
+
+  return bytes;
 }
 
 static void
