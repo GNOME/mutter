@@ -45,6 +45,29 @@
 #include "meta/util.h"
 #include "x11/meta-x11-display-private.h"
 
+struct _MetaCursorTracker
+{
+  GObject parent;
+
+  gboolean is_showing;
+
+  MetaCursorSprite *effective_cursor; /* May be NULL when hidden */
+  MetaCursorSprite *displayed_cursor;
+
+  /* Wayland clients can set a NULL buffer as their cursor
+   * explicitly, which means that we shouldn't display anything.
+   * So, we can't simply store a NULL in window_cursor to
+   * determine an unset window cursor; we need an extra boolean.
+   */
+  gboolean has_window_cursor;
+  MetaCursorSprite *window_cursor;
+
+  MetaCursorSprite *root_cursor;
+
+  /* The cursor from the X11 server. */
+  MetaCursorSpriteXfixes *xfixes_cursor;
+};
+
 G_DEFINE_TYPE (MetaCursorTracker, meta_cursor_tracker, G_TYPE_OBJECT);
 
 enum
