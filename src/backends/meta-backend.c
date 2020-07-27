@@ -988,7 +988,9 @@ meta_backend_initable_init (GInitable     *initable,
   if (!priv->renderer)
     return FALSE;
 
-  priv->cursor_tracker = g_object_new (META_TYPE_CURSOR_TRACKER, NULL);
+  priv->cursor_tracker = g_object_new (META_TYPE_CURSOR_TRACKER,
+                                       "backend", backend,
+                                       NULL);
 
   priv->dnd = g_object_new (META_TYPE_DND, NULL);
 

@@ -45,6 +45,17 @@
 #include "meta/util.h"
 #include "x11/meta-x11-display-private.h"
 
+enum
+{
+  PROP_0,
+
+  PROP_BACKEND,
+
+  N_PROPS
+};
+
+static GParamSpec *obj_props[N_PROPS];
+
 struct _MetaCursorTracker
 {
   GObject parent;
@@ -52,6 +63,8 @@ struct _MetaCursorTracker
 
 typedef struct _MetaCursorTrackerPrivate
 {
+  MetaBackend *backend;
+
   gboolean is_showing;
 
   MetaCursorSprite *effective_cursor; /* May be NULL when hidden */
@@ -144,9 +157,8 @@ change_cursor_renderer (MetaCursorTracker *tracker)
 {
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
-  MetaBackend *backend = meta_get_backend ();
   MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (backend);
+    meta_backend_get_cursor_renderer (priv->backend);
 
   meta_cursor_renderer_set_cursor (cursor_renderer, priv->effective_cursor);
 }
@@ -175,6 +187,48 @@ meta_cursor_tracker_init (MetaCursorTracker *tracker)
 }
 
 static void
+meta_cursor_tracker_get_property (GObject    *object,
+                                  guint       prop_id,
+                                  GValue     *value,
+                                  GParamSpec *pspec)
+{
+  MetaCursorTracker *tracker = META_CURSOR_TRACKER (object);
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  switch (prop_id)
+    {
+    case PROP_BACKEND:
+      g_value_set_object (value, priv->backend);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_cursor_tracker_set_property (GObject      *object,
+                                  guint         prop_id,
+                                  const GValue *value,
+                                  GParamSpec   *pspec)
+{
+  MetaCursorTracker *tracker = META_CURSOR_TRACKER (object);
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  switch (prop_id)
+    {
+    case PROP_BACKEND:
+      priv->backend = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
 meta_cursor_tracker_finalize (GObject *object)
 {
   MetaCursorTracker *tracker = META_CURSOR_TRACKER (object);
@@ -193,7 +247,19 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->get_property = meta_cursor_tracker_get_property;
+  object_class->set_property = meta_cursor_tracker_set_property;
   object_class->finalize = meta_cursor_tracker_finalize;
+
+  obj_props[PROP_BACKEND] =
+    g_param_spec_object ("backend",
+                         "backend",
+                         "MetaBackend",
+                         META_TYPE_BACKEND,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
+  g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
   signals[CURSOR_CHANGED] = g_signal_new ("cursor-changed",
                                           G_TYPE_FROM_CLASS (klass),
@@ -419,9 +485,10 @@ meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
                                      float              new_x,
                                      float              new_y)
 {
-  MetaBackend *backend = meta_get_backend ();
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
   MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (backend);
+    meta_backend_get_cursor_renderer (priv->backend);
 
   g_assert (meta_is_wayland_compositor ());
 
