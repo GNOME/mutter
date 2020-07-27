@@ -48,7 +48,10 @@
 struct _MetaCursorTracker
 {
   GObject parent;
+};
 
+typedef struct _MetaCursorTrackerPrivate
+{
   gboolean is_showing;
 
   MetaCursorSprite *effective_cursor; /* May be NULL when hidden */
@@ -66,9 +69,10 @@ struct _MetaCursorTracker
 
   /* The cursor from the X11 server. */
   MetaCursorSpriteXfixes *xfixes_cursor;
-};
+} MetaCursorTrackerPrivate;
 
-G_DEFINE_TYPE (MetaCursorTracker, meta_cursor_tracker, G_TYPE_OBJECT);
+G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorTracker, meta_cursor_tracker,
+                            G_TYPE_OBJECT)
 
 enum
 {
@@ -90,26 +94,28 @@ cursor_texture_updated (MetaCursorSprite  *cursor,
 static gboolean
 update_displayed_cursor (MetaCursorTracker *tracker)
 {
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
   MetaDisplay *display = meta_get_display ();
   MetaCursorSprite *cursor = NULL;
 
   if (display && meta_display_windows_are_interactable (display) &&
-      tracker->has_window_cursor)
-    cursor = tracker->window_cursor;
+      priv->has_window_cursor)
+    cursor = priv->window_cursor;
   else
-    cursor = tracker->root_cursor;
+    cursor = priv->root_cursor;
 
-  if (tracker->displayed_cursor == cursor)
+  if (priv->displayed_cursor == cursor)
     return FALSE;
 
-  if (tracker->displayed_cursor)
+  if (priv->displayed_cursor)
     {
-      g_signal_handlers_disconnect_by_func (tracker->displayed_cursor,
+      g_signal_handlers_disconnect_by_func (priv->displayed_cursor,
                                             cursor_texture_updated,
                                             tracker);
     }
 
-  g_set_object (&tracker->displayed_cursor, cursor);
+  g_set_object (&priv->displayed_cursor, cursor);
 
   if (cursor)
     {
@@ -123,22 +129,26 @@ update_displayed_cursor (MetaCursorTracker *tracker)
 static gboolean
 update_effective_cursor (MetaCursorTracker *tracker)
 {
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
   MetaCursorSprite *cursor = NULL;
 
-  if (tracker->is_showing)
-    cursor = tracker->displayed_cursor;
+  if (priv->is_showing)
+    cursor = priv->displayed_cursor;
 
-  return g_set_object (&tracker->effective_cursor, cursor);
+  return g_set_object (&priv->effective_cursor, cursor);
 }
 
 static void
 change_cursor_renderer (MetaCursorTracker *tracker)
 {
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
   MetaBackend *backend = meta_get_backend ();
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
 
-  meta_cursor_renderer_set_cursor (cursor_renderer, tracker->effective_cursor);
+  meta_cursor_renderer_set_cursor (cursor_renderer, priv->effective_cursor);
 }
 
 static void
@@ -156,22 +166,24 @@ sync_cursor (MetaCursorTracker *tracker)
 }
 
 static void
-meta_cursor_tracker_init (MetaCursorTracker *self)
+meta_cursor_tracker_init (MetaCursorTracker *tracker)
 {
-  self->is_showing = TRUE;
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  priv->is_showing = TRUE;
 }
 
 static void
 meta_cursor_tracker_finalize (GObject *object)
 {
-  MetaCursorTracker *self = META_CURSOR_TRACKER (object);
+  MetaCursorTracker *tracker = META_CURSOR_TRACKER (object);
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
 
-  if (self->effective_cursor)
-    g_object_unref (self->effective_cursor);
-  if (self->displayed_cursor)
-    g_object_unref (self->displayed_cursor);
-  if (self->root_cursor)
-    g_object_unref (self->root_cursor);
+  g_clear_object (&priv->effective_cursor);
+  g_clear_object (&priv->displayed_cursor);
+  g_clear_object (&priv->root_cursor);
 
   G_OBJECT_CLASS (meta_cursor_tracker_parent_class)->finalize (object);
 }
@@ -242,10 +254,13 @@ set_window_cursor (MetaCursorTracker *tracker,
                    gboolean           has_cursor,
                    MetaCursorSprite  *cursor_sprite)
 {
-  g_clear_object (&tracker->window_cursor);
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  g_clear_object (&priv->window_cursor);
   if (cursor_sprite)
-    tracker->window_cursor = g_object_ref (cursor_sprite);
-  tracker->has_window_cursor = has_cursor;
+    priv->window_cursor = g_object_ref (cursor_sprite);
+  priv->has_window_cursor = has_cursor;
   sync_cursor (tracker);
 }
 
@@ -253,6 +268,8 @@ gboolean
 meta_cursor_tracker_handle_xevent (MetaCursorTracker *tracker,
                                    XEvent            *xevent)
 {
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
   MetaX11Display *x11_display = meta_get_display ()->x11_display;
   XFixesCursorNotifyEvent *notify_event;
 
@@ -266,7 +283,7 @@ meta_cursor_tracker_handle_xevent (MetaCursorTracker *tracker,
   if (notify_event->subtype != XFixesDisplayCursorNotify)
     return FALSE;
 
-  g_clear_object (&tracker->xfixes_cursor);
+  g_clear_object (&priv->xfixes_cursor);
   g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
 
   return TRUE;
@@ -275,14 +292,16 @@ meta_cursor_tracker_handle_xevent (MetaCursorTracker *tracker,
 static void
 ensure_xfixes_cursor (MetaCursorTracker *tracker)
 {
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
   MetaDisplay *display = meta_get_display ();
   g_autoptr (GError) error = NULL;
 
-  if (tracker->xfixes_cursor)
+  if (priv->xfixes_cursor)
     return;
 
-  tracker->xfixes_cursor = meta_cursor_sprite_xfixes_new (display, &error);
-  if (!tracker->xfixes_cursor)
+  priv->xfixes_cursor = meta_cursor_sprite_xfixes_new (display, &error);
+  if (!priv->xfixes_cursor)
     g_warning ("Failed to create XFIXES cursor: %s", error->message);
 }
 
@@ -294,18 +313,20 @@ ensure_xfixes_cursor (MetaCursorTracker *tracker)
 CoglTexture *
 meta_cursor_tracker_get_sprite (MetaCursorTracker *tracker)
 {
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
   MetaCursorSprite *cursor_sprite;
 
   g_return_val_if_fail (META_IS_CURSOR_TRACKER (tracker), NULL);
 
   if (meta_is_wayland_compositor ())
     {
-      cursor_sprite = tracker->displayed_cursor;
+      cursor_sprite = priv->displayed_cursor;
     }
   else
     {
       ensure_xfixes_cursor (tracker);
-      cursor_sprite = META_CURSOR_SPRITE (tracker->xfixes_cursor);
+      cursor_sprite = META_CURSOR_SPRITE (priv->xfixes_cursor);
     }
 
   if (cursor_sprite)
@@ -331,18 +352,20 @@ meta_cursor_tracker_get_hot (MetaCursorTracker *tracker,
                              int               *x,
                              int               *y)
 {
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
   MetaCursorSprite *cursor_sprite;
 
   g_return_if_fail (META_IS_CURSOR_TRACKER (tracker));
 
   if (meta_is_wayland_compositor ())
     {
-      cursor_sprite = tracker->displayed_cursor;
+      cursor_sprite = priv->displayed_cursor;
     }
   else
     {
       ensure_xfixes_cursor (tracker);
-      cursor_sprite = META_CURSOR_SPRITE (tracker->xfixes_cursor);
+      cursor_sprite = META_CURSOR_SPRITE (priv->xfixes_cursor);
     }
 
   if (cursor_sprite)
@@ -381,9 +404,12 @@ void
 meta_cursor_tracker_set_root_cursor (MetaCursorTracker *tracker,
                                      MetaCursorSprite  *cursor_sprite)
 {
-  g_clear_object (&tracker->root_cursor);
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  g_clear_object (&priv->root_cursor);
   if (cursor_sprite)
-    tracker->root_cursor = g_object_ref (cursor_sprite);
+    priv->root_cursor = g_object_ref (cursor_sprite);
 
   sync_cursor (tracker);
 }
@@ -464,16 +490,22 @@ meta_cursor_tracker_get_pointer (MetaCursorTracker   *tracker,
 gboolean
 meta_cursor_tracker_get_pointer_visible (MetaCursorTracker *tracker)
 {
-  return tracker->is_showing;
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  return priv->is_showing;
 }
 
 void
 meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
                                          gboolean           visible)
 {
-  if (visible == tracker->is_showing)
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  if (visible == priv->is_showing)
     return;
-  tracker->is_showing = visible;
+  priv->is_showing = visible;
 
   sync_cursor (tracker);
 
@@ -483,5 +515,8 @@ meta_cursor_tracker_set_pointer_visible (MetaCursorTracker *tracker,
 MetaCursorSprite *
 meta_cursor_tracker_get_displayed_cursor (MetaCursorTracker *tracker)
 {
-  return tracker->displayed_cursor;
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  return priv->displayed_cursor;
 }
