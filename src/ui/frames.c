@@ -495,7 +495,7 @@ meta_ui_frame_attach_style (MetaUIFrame *frame)
 
   variant = frame->meta_window->gtk_theme_variant;
   if (variant == NULL)
-    variant = get_global_theme_variant (frame->frames);;
+    variant = get_global_theme_variant (frame->frames);
 
   if (variant == NULL || *variant == '\0')
     frame->style_info = meta_style_info_ref (frames->normal_style);

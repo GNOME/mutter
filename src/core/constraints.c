@@ -758,7 +758,7 @@ try_flip_window_position (MetaWindow                       *window,
                           int                              *rel_y,
                           MetaRectangle                    *intersection)
 {
-  MetaPlacementRule flipped_rule = *placement_rule;;
+  MetaPlacementRule flipped_rule = *placement_rule;
   MetaRectangle flipped_rect;
   MetaRectangle flipped_intersection;
   int flipped_rel_x;

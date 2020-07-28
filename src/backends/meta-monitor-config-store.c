@@ -317,7 +317,7 @@ handle_start_element (GMarkupParseContext  *context,
           }
         else if (g_str_equal (element_name, "monitor"))
           {
-            parser->current_monitor_config = g_new0 (MetaMonitorConfig, 1);;
+            parser->current_monitor_config = g_new0 (MetaMonitorConfig, 1);
 
             parser->state = STATE_MONITOR;
           }

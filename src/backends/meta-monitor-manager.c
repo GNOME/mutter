@@ -1186,7 +1186,7 @@ meta_monitor_manager_handle_get_resources (MetaDBusDisplayConfig *skeleton,
     {
       MetaCrtcMode *mode = l->data;
       const MetaCrtcModeInfo *crtc_mode_info =
-        meta_crtc_mode_get_info (mode);;
+        meta_crtc_mode_get_info (mode);
 
       g_variant_builder_add (&mode_builder, "(uxuudu)",
                              i, /* ID */

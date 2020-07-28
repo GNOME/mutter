@@ -483,7 +483,7 @@ update_states_in_impl (MetaKmsImpl  *impl,
                        gpointer      user_data,
                        GError      **error)
 {
-  MetaKms *kms = meta_kms_impl_get_kms (impl);;
+  MetaKms *kms = meta_kms_impl_get_kms (impl);
 
   meta_kms_update_states_in_impl (kms);
 

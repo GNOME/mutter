@@ -5326,7 +5326,7 @@ clutter_text_set_selection_bound (ClutterText *self,
 
   if (priv->selection_bound != selection_bound)
     {
-      gint len = clutter_text_buffer_get_length (get_buffer (self));;
+      gint len = clutter_text_buffer_get_length (get_buffer (self));
 
       if (selection_bound < 0 || selection_bound >= len)
         priv->selection_bound = -1;

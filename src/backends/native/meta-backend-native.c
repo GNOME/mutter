@@ -554,7 +554,7 @@ on_udev_device_added (MetaUdev          *udev,
 
   device_path = g_udev_device_get_device_file (device);
 
-  gpus = meta_backend_get_gpus (backend);;
+  gpus = meta_backend_get_gpus (backend);
   for (l = gpus; l; l = l->next)
     {
       MetaGpuKms *gpu_kms = l->data;

@@ -325,7 +325,7 @@ foreach_clamped_region (CoglMetaTexture *meta_texture,
       if (*tx_1 < 0)
         {
           clamp_data.start = *tx_1;
-          clamp_data.end = MIN (0, *tx_2);;
+          clamp_data.end = MIN (0, *tx_2);
           cogl_meta_texture_foreach_in_region (meta_texture,
                                                half_texel_width, *ty_1,
                                                half_texel_width, *ty_2,
@@ -377,7 +377,7 @@ foreach_clamped_region (CoglMetaTexture *meta_texture,
       if (*ty_1 < 0)
         {
           clamp_data.start = *ty_1;
-          clamp_data.end = MIN (0, *ty_2);;
+          clamp_data.end = MIN (0, *ty_2);
           cogl_meta_texture_foreach_in_region (meta_texture,
                                                *tx_1, half_texel_height,
                                                *tx_2, half_texel_height,
@@ -396,7 +396,7 @@ foreach_clamped_region (CoglMetaTexture *meta_texture,
       /* Handle any bottom clamped region */
       if (*ty_2 > max_t_coord)
         {
-          clamp_data.start = MAX (max_t_coord, *ty_1);;
+          clamp_data.start = MAX (max_t_coord, *ty_1);
           clamp_data.end = *ty_2;
           cogl_meta_texture_foreach_in_region (meta_texture,
                                                *tx_1,
