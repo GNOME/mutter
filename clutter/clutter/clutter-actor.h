@@ -813,6 +813,11 @@ void                            clutter_actor_set_child_transform               
 CLUTTER_EXPORT
 void                            clutter_actor_get_child_transform               (ClutterActor               *self,
                                                                                  ClutterMatrix              *transform);
+
+CLUTTER_EXPORT
+void                            clutter_actor_get_transformed_extents          (ClutterActor               *self,
+                                                                                graphene_rect_t            *rect);
+
 CLUTTER_EXPORT
 void                            clutter_actor_get_transformed_position          (ClutterActor               *self,
                                                                                  gfloat                     *x,

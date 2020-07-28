@@ -10296,6 +10296,38 @@ clutter_actor_get_fixed_position (ClutterActor *self,
 }
 
 /**
+ * clutter_actor_get_transformed_extents:
+ * @self: A #ClutterActor
+ * @rect: (out): return location for the transformed bounding rect
+ *
+ * Gets the transformed bounding rect of an actor, in pixels relative to the stage.
+ */
+void
+clutter_actor_get_transformed_extents (ClutterActor    *self,
+                                       graphene_rect_t *rect)
+{
+  graphene_quad_t quad;
+  graphene_point3d_t v[4];
+  ClutterActorBox box;
+
+  box.x1 = 0;
+  box.y1 = 0;
+  box.x2 = clutter_actor_box_get_width (&self->priv->allocation);
+  box.y2 = clutter_actor_box_get_height (&self->priv->allocation);
+  if (_clutter_actor_transform_and_project_box (self, &box, v))
+    {
+      graphene_quad_init (&quad,
+                          (graphene_point_t *) &v[0],
+                          (graphene_point_t *) &v[1],
+                          (graphene_point_t *) &v[2],
+                          (graphene_point_t *) &v[3]);
+
+      if (rect)
+        graphene_quad_bounds (&quad, rect);
+    }
+}
+
+/**
  * clutter_actor_get_transformed_position:
  * @self: A #ClutterActor
  * @x: (out) (allow-none): return location for the X coordinate, or %NULL
@@ -16183,12 +16215,7 @@ update_stage_views (ClutterActor *self)
   stage = CLUTTER_STAGE (_clutter_actor_get_stage_internal (self));
   g_return_if_fail (stage);
 
-  clutter_actor_get_transformed_position (self,
-                                          &bounding_rect.origin.x,
-                                          &bounding_rect.origin.y);
-  clutter_actor_get_transformed_size (self,
-                                      &bounding_rect.size.width,
-                                      &bounding_rect.size.height);
+  clutter_actor_get_transformed_extents (self, &bounding_rect);
 
   if (bounding_rect.size.width == 0.0 ||
       bounding_rect.size.height == 0.0)
