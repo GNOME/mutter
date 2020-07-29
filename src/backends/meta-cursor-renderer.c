@@ -132,10 +132,6 @@ update_stage_overlay (MetaCursorRenderer *renderer,
   CoglTexture *texture;
   graphene_rect_t rect = GRAPHENE_RECT_INIT_ZERO;
 
-  /* During early initialization, we can have no stage */
-  if (!stage)
-    return;
-
   if (cursor_sprite)
     {
       rect = meta_cursor_renderer_calculate_rect (renderer, cursor_sprite);
