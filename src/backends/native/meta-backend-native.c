@@ -354,6 +354,7 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
   const char *driver_name;
   static const char *disable_dma_buf_drivers[] = {
     "qxl",
+    "vmwgfx",
     NULL,
   };
 
