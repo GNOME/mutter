@@ -67,6 +67,8 @@ void meta_cursor_renderer_force_update (MetaCursorRenderer *renderer);
 
 MetaCursorSprite * meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer);
 
+gboolean meta_cursor_renderer_is_overlay_visible (MetaCursorRenderer *renderer);
+
 void meta_cursor_renderer_add_hw_cursor_inhibitor (MetaCursorRenderer    *renderer,
                                                    MetaHwCursorInhibitor *inhibitor);
 

@@ -25,6 +25,7 @@
 #include "backends/meta-stage-private.h"
 
 #include "backends/meta-backend-private.h"
+#include "backends/meta-cursor-tracker-private.h"
 #include "clutter/clutter-mutter.h"
 #include "meta/meta-backend.h"
 #include "meta/meta-monitor-manager.h"
@@ -127,7 +128,9 @@ meta_overlay_paint (MetaOverlay         *overlay,
   if (!overlay->texture)
     return;
 
-  if (!overlay->is_visible)
+  if (!overlay->is_visible &&
+      !(clutter_paint_context_get_paint_flags (paint_context) &
+        CLUTTER_PAINT_FLAG_FORCE_CURSORS))
     return;
 
   framebuffer = clutter_paint_context_get_framebuffer (paint_context);
@@ -207,9 +210,27 @@ meta_stage_paint (ClutterActor        *actor,
 
   g_signal_emit (stage, signals[ACTORS_PAINTED], 0);
 
+  if ((clutter_paint_context_get_paint_flags (paint_context) &
+       CLUTTER_PAINT_FLAG_FORCE_CURSORS))
+    {
+      MetaCursorTracker *cursor_tracker =
+        meta_backend_get_cursor_tracker (stage->backend);
+
+      meta_cursor_tracker_track_position (cursor_tracker);
+    }
+
   if (!(clutter_paint_context_get_paint_flags (paint_context) &
         CLUTTER_PAINT_FLAG_NO_CURSORS))
     g_list_foreach (stage->overlays, (GFunc) meta_overlay_paint, paint_context);
+
+  if ((clutter_paint_context_get_paint_flags (paint_context) &
+       CLUTTER_PAINT_FLAG_FORCE_CURSORS))
+    {
+      MetaCursorTracker *cursor_tracker =
+        meta_backend_get_cursor_tracker (stage->backend);
+
+      meta_cursor_tracker_untrack_position (cursor_tracker);
+    }
 
   if (view)
     {

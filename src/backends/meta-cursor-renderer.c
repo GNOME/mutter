@@ -409,6 +409,18 @@ meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer)
   return priv->displayed_cursor;
 }
 
+gboolean
+meta_cursor_renderer_is_overlay_visible (MetaCursorRenderer *renderer)
+{
+  MetaCursorRendererPrivate *priv =
+    meta_cursor_renderer_get_instance_private (renderer);
+
+  if (!priv->stage_overlay)
+    return FALSE;
+
+  return meta_overlay_is_visible (priv->stage_overlay);
+}
+
 void
 meta_cursor_renderer_add_hw_cursor_inhibitor (MetaCursorRenderer    *renderer,
                                               MetaHwCursorInhibitor *inhibitor)

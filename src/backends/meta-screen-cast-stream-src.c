@@ -1058,6 +1058,24 @@ meta_screen_cast_stream_src_get_stride (MetaScreenCastStreamSrc *src)
   return priv->video_stride;
 }
 
+int
+meta_screen_cast_stream_src_get_width (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  return priv->stream_width;
+}
+
+int
+meta_screen_cast_stream_src_get_height (MetaScreenCastStreamSrc *src)
+{
+  MetaScreenCastStreamSrcPrivate *priv =
+    meta_screen_cast_stream_src_get_instance_private (src);
+
+  return priv->stream_height;
+}
+
 MetaScreenCastStream *
 meta_screen_cast_stream_src_get_stream (MetaScreenCastStreamSrc *src)
 {
