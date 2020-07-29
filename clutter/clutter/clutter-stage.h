@@ -224,6 +224,24 @@ gboolean clutter_stage_capture (ClutterStage          *stage,
                                 cairo_rectangle_int_t *rect,
                                 ClutterCapture       **out_captures,
                                 int                   *out_n_captures);
+
+CLUTTER_EXPORT
+void clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
+                                         CoglFramebuffer             *framebuffer,
+                                         const cairo_rectangle_int_t *rect,
+                                         float                        scale,
+                                         ClutterPaintFlag             paint_flags);
+
+CLUTTER_EXPORT
+gboolean clutter_stage_paint_to_buffer (ClutterStage                 *stage,
+                                        const cairo_rectangle_int_t  *rect,
+                                        float                         scale,
+                                        uint8_t                      *data,
+                                        int                           stride,
+                                        CoglPixelFormat               format,
+                                        ClutterPaintFlag              paint_flags,
+                                        GError                      **error);
+
 CLUTTER_EXPORT
 ClutterStageView * clutter_stage_get_view_at (ClutterStage *stage,
                                               float         x,
