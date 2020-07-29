@@ -29,6 +29,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/meta-dnd-private.h"
 #include "backends/x11/meta-cursor-renderer-x11.h"
+#include "backends/x11/meta-cursor-tracker-x11.h"
 #include "backends/x11/meta-gpu-xrandr.h"
 #include "backends/x11/meta-input-settings-x11.h"
 #include "backends/x11/meta-monitor-manager-xrandr.h"
@@ -118,6 +119,14 @@ static MetaCursorRenderer *
 meta_backend_x11_cm_create_cursor_renderer (MetaBackend *backend)
 {
   return g_object_new (META_TYPE_CURSOR_RENDERER_X11,
+                       "backend", backend,
+                       NULL);
+}
+
+static MetaCursorTracker *
+meta_backend_x11_cm_create_cursor_tracker (MetaBackend *backend)
+{
+  return g_object_new (META_TYPE_CURSOR_TRACKER_X11,
                        "backend", backend,
                        NULL);
 }
@@ -436,6 +445,7 @@ meta_backend_x11_cm_class_init (MetaBackendX11CmClass *klass)
   backend_class->create_renderer = meta_backend_x11_cm_create_renderer;
   backend_class->create_monitor_manager = meta_backend_x11_cm_create_monitor_manager;
   backend_class->create_cursor_renderer = meta_backend_x11_cm_create_cursor_renderer;
+  backend_class->create_cursor_tracker = meta_backend_x11_cm_create_cursor_tracker;
   backend_class->create_input_settings = meta_backend_x11_cm_create_input_settings;
   backend_class->update_screen_size = meta_backend_x11_cm_update_screen_size;
   backend_class->select_stage_events = meta_backend_x11_cm_select_stage_events;

@@ -68,6 +68,7 @@ struct _MetaBackendClass
   MetaMonitorManager * (* create_monitor_manager) (MetaBackend *backend,
                                                    GError     **error);
   MetaCursorRenderer * (* create_cursor_renderer) (MetaBackend *backend);
+  MetaCursorTracker * (* create_cursor_tracker) (MetaBackend *backend);
   MetaRenderer * (* create_renderer) (MetaBackend *backend,
                                       GError     **error);
   MetaInputSettings * (* create_input_settings) (MetaBackend *backend);

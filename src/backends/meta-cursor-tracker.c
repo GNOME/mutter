@@ -56,11 +56,6 @@ enum
 
 static GParamSpec *obj_props[N_PROPS];
 
-struct _MetaCursorTracker
-{
-  GObject parent;
-};
-
 typedef struct _MetaCursorTrackerPrivate
 {
   MetaBackend *backend;

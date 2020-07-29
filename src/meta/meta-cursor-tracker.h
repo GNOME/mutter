@@ -32,11 +32,10 @@
 #define META_TYPE_CURSOR_TRACKER (meta_cursor_tracker_get_type ())
 
 META_EXPORT
-G_DECLARE_FINAL_TYPE (MetaCursorTracker,
-                      meta_cursor_tracker,
-                      META, CURSOR_TRACKER,
-                      GObject)
-
+G_DECLARE_DERIVABLE_TYPE (MetaCursorTracker,
+                          meta_cursor_tracker,
+                          META, CURSOR_TRACKER,
+                          GObject)
 
 META_EXPORT
 MetaCursorTracker *meta_cursor_tracker_get_for_display (MetaDisplay *display);

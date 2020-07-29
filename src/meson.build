@@ -249,6 +249,8 @@ mutter_sources = [
   'backends/x11/meta-crtc-xrandr.h',
   'backends/x11/meta-cursor-renderer-x11.c',
   'backends/x11/meta-cursor-renderer-x11.h',
+  'backends/x11/meta-cursor-tracker-x11.c',
+  'backends/x11/meta-cursor-tracker-x11.h',
   'backends/x11/meta-event-x11.c',
   'backends/x11/meta-event-x11.h',
   'backends/x11/meta-gpu-xrandr.c',

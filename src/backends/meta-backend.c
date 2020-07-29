@@ -592,6 +592,14 @@ meta_backend_real_is_lid_closed (MetaBackend *backend)
   return priv->lid_is_closed;
 }
 
+static MetaCursorTracker *
+meta_backend_real_create_cursor_tracker (MetaBackend *backend)
+{
+  return g_object_new (META_TYPE_CURSOR_TRACKER,
+                       "backend", backend,
+                       NULL);
+}
+
 gboolean
 meta_backend_is_lid_closed (MetaBackend *backend)
 {
@@ -745,6 +753,7 @@ meta_backend_class_init (MetaBackendClass *klass)
   klass->ungrab_device = meta_backend_real_ungrab_device;
   klass->select_stage_events = meta_backend_real_select_stage_events;
   klass->is_lid_closed = meta_backend_real_is_lid_closed;
+  klass->create_cursor_tracker = meta_backend_real_create_cursor_tracker;
 
   signals[KEYMAP_CHANGED] =
     g_signal_new ("keymap-changed",
@@ -988,9 +997,8 @@ meta_backend_initable_init (GInitable     *initable,
   if (!priv->renderer)
     return FALSE;
 
-  priv->cursor_tracker = g_object_new (META_TYPE_CURSOR_TRACKER,
-                                       "backend", backend,
-                                       NULL);
+  priv->cursor_tracker =
+    META_BACKEND_GET_CLASS (backend)->create_cursor_tracker (backend);
 
   priv->dnd = g_object_new (META_TYPE_DND, NULL);
 
