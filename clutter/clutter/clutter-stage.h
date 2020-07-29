@@ -219,13 +219,6 @@ gboolean clutter_stage_get_capture_final_size (ClutterStage          *stage,
                                                float                 *scale);
 
 CLUTTER_EXPORT
-gboolean clutter_stage_capture (ClutterStage          *stage,
-                                gboolean               paint,
-                                cairo_rectangle_int_t *rect,
-                                ClutterCapture       **out_captures,
-                                int                   *out_n_captures);
-
-CLUTTER_EXPORT
 void clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
                                          CoglFramebuffer             *framebuffer,
                                          const cairo_rectangle_int_t *rect,
