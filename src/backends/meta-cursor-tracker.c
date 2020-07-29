@@ -62,6 +62,9 @@ typedef struct _MetaCursorTrackerPrivate
 
   gboolean is_showing;
 
+  float x;
+  float y;
+
   MetaCursorSprite *effective_cursor; /* May be NULL when hidden */
   MetaCursorSprite *displayed_cursor;
 
@@ -179,6 +182,8 @@ meta_cursor_tracker_init (MetaCursorTracker *tracker)
     meta_cursor_tracker_get_instance_private (tracker);
 
   priv->is_showing = TRUE;
+  priv->x = -1.0;
+  priv->y = -1.0;
 }
 
 static void
@@ -484,12 +489,25 @@ meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
     meta_cursor_tracker_get_instance_private (tracker);
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (priv->backend);
+  gboolean position_changed;
 
   g_assert (meta_is_wayland_compositor ());
 
+  if (priv->x != new_x || priv->y != new_y)
+    {
+      position_changed = TRUE;
+      priv->x = new_x;
+      priv->y = new_y;
+    }
+  else
+    {
+      position_changed = FALSE;
+    }
+
   meta_cursor_renderer_set_position (cursor_renderer, new_x, new_y);
 
-  g_signal_emit (tracker, signals[CURSOR_MOVED], 0, new_x, new_y);
+  if (position_changed)
+    g_signal_emit (tracker, signals[CURSOR_MOVED], 0, new_x, new_y);
 }
 
 static void
