@@ -124,8 +124,8 @@ align_cursor_position (MetaCursorRenderer *renderer,
 }
 
 static void
-queue_redraw (MetaCursorRenderer *renderer,
-              MetaCursorSprite   *cursor_sprite)
+update_stage_overlay (MetaCursorRenderer *renderer,
+                      MetaCursorSprite   *cursor_sprite)
 {
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
   ClutterActor *stage = meta_backend_get_stage (priv->backend);
@@ -145,11 +145,12 @@ queue_redraw (MetaCursorRenderer *renderer,
   if (!priv->stage_overlay)
     priv->stage_overlay = meta_stage_create_cursor_overlay (META_STAGE (stage));
 
-  if (cursor_sprite && !priv->handled_by_backend)
+  if (cursor_sprite)
     texture = meta_cursor_sprite_get_cogl_texture (cursor_sprite);
   else
     texture = NULL;
 
+  meta_overlay_set_visible (priv->stage_overlay, !priv->handled_by_backend);
   meta_stage_update_cursor_overlay (META_STAGE (stage), priv->stage_overlay,
                                     texture, &rect);
 }
@@ -334,7 +335,6 @@ meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
 {
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
   gboolean handled_by_backend;
-  gboolean should_redraw = FALSE;
 
   if (cursor_sprite)
     meta_cursor_sprite_prepare_at (cursor_sprite,
@@ -345,16 +345,9 @@ meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
     META_CURSOR_RENDERER_GET_CLASS (renderer)->update_cursor (renderer,
                                                               cursor_sprite);
   if (handled_by_backend != priv->handled_by_backend)
-    {
-      priv->handled_by_backend = handled_by_backend;
-      should_redraw = TRUE;
-    }
+    priv->handled_by_backend = handled_by_backend;
 
-  if (!handled_by_backend)
-    should_redraw = TRUE;
-
-  if (should_redraw)
-    queue_redraw (renderer, cursor_sprite);
+  update_stage_overlay (renderer, cursor_sprite);
 }
 
 MetaCursorRenderer *

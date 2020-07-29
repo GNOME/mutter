@@ -50,7 +50,9 @@ struct _MetaStageWatch
 
 struct _MetaOverlay
 {
-  gboolean enabled;
+  MetaStage *stage;
+
+  gboolean is_visible;
 
   CoglPipeline *pipeline;
   CoglTexture *texture;
@@ -75,12 +77,15 @@ struct _MetaStage
 G_DEFINE_TYPE (MetaStage, meta_stage, CLUTTER_TYPE_STAGE);
 
 static MetaOverlay *
-meta_overlay_new (void)
+meta_overlay_new (MetaStage *stage)
 {
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (stage->backend);
+  CoglContext *ctx = clutter_backend_get_cogl_context (clutter_backend);
   MetaOverlay *overlay;
-  CoglContext *ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
 
   overlay = g_slice_new0 (MetaOverlay);
+  overlay->stage = stage;
   overlay->pipeline = cogl_pipeline_new (ctx);
 
   return overlay;
@@ -105,15 +110,9 @@ meta_overlay_set (MetaOverlay     *overlay,
       overlay->texture = texture;
 
       if (texture)
-        {
-          cogl_pipeline_set_layer_texture (overlay->pipeline, 0, texture);
-          overlay->enabled = TRUE;
-        }
+        cogl_pipeline_set_layer_texture (overlay->pipeline, 0, texture);
       else
-        {
-          cogl_pipeline_set_layer_texture (overlay->pipeline, 0, NULL);
-          overlay->enabled = FALSE;
-        }
+        cogl_pipeline_set_layer_texture (overlay->pipeline, 0, NULL);
     }
 
   overlay->current_rect = *rect;
@@ -125,10 +124,11 @@ meta_overlay_paint (MetaOverlay         *overlay,
 {
   CoglFramebuffer *framebuffer;
 
-  if (!overlay->enabled)
+  if (!overlay->texture)
     return;
 
-  g_assert (meta_is_wayland_compositor ());
+  if (!overlay->is_visible)
+    return;
 
   framebuffer = clutter_paint_context_get_framebuffer (paint_context);
   cogl_framebuffer_draw_rectangle (framebuffer,
@@ -345,7 +345,7 @@ queue_redraw_for_overlay (MetaStage   *stage,
     }
 
   /* Draw the overlay at the new position */
-  if (overlay->enabled)
+  if (overlay->is_visible && overlay->texture)
     queue_redraw_clutter_rect (stage, overlay, &overlay->current_rect);
 }
 
@@ -354,7 +354,7 @@ meta_stage_create_cursor_overlay (MetaStage *stage)
 {
   MetaOverlay *overlay;
 
-  overlay = meta_overlay_new ();
+  overlay = meta_overlay_new (stage);
   stage->overlays = g_list_prepend (stage->overlays, overlay);
 
   return overlay;
@@ -380,10 +380,25 @@ meta_stage_update_cursor_overlay (MetaStage       *stage,
                                   CoglTexture     *texture,
                                   graphene_rect_t *rect)
 {
-  g_assert (meta_is_wayland_compositor () || texture == NULL);
-
   meta_overlay_set (overlay, texture, rect);
   queue_redraw_for_overlay (stage, overlay);
+}
+
+void
+meta_overlay_set_visible (MetaOverlay *overlay,
+                          gboolean     is_visible)
+{
+  if (overlay->is_visible == is_visible)
+    return;
+
+  overlay->is_visible = is_visible;
+  queue_redraw_for_overlay (overlay->stage, overlay);
+}
+
+gboolean
+meta_overlay_is_visible (MetaOverlay *overlay)
+{
+  return overlay->is_visible;
 }
 
 void

@@ -90,7 +90,7 @@ meta_cursor_renderer_x11_update_cursor (MetaCursorRenderer *renderer,
       priv->server_cursor_visible = has_server_cursor;
     }
 
-  if (!priv->server_cursor_visible && cursor_sprite)
+  if (cursor_sprite)
     meta_cursor_sprite_realize_texture (cursor_sprite);
 
   return priv->server_cursor_visible;
