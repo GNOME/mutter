@@ -189,10 +189,7 @@ meta_cursor_sprite_prepare_at (MetaCursorSprite *sprite,
 void
 meta_cursor_sprite_realize_texture (MetaCursorSprite *sprite)
 {
-  MetaCursorSpriteClass *klass = META_CURSOR_SPRITE_GET_CLASS (sprite);
-
-  if (klass->realize_texture)
-    klass->realize_texture (sprite);
+  META_CURSOR_SPRITE_GET_CLASS (sprite)->realize_texture (sprite);
 }
 
 static void
