@@ -195,7 +195,6 @@ meta_stage_paint (ClutterActor        *actor,
 {
   MetaStage *stage = META_STAGE (actor);
   ClutterStageView *view;
-  GList *l;
 
   CLUTTER_ACTOR_CLASS (meta_stage_parent_class)->paint (actor, paint_context);
 
@@ -210,10 +209,7 @@ meta_stage_paint (ClutterActor        *actor,
 
   if (!(clutter_paint_context_get_paint_flags (paint_context) &
         CLUTTER_PAINT_FLAG_NO_CURSORS))
-    {
-      for (l = stage->overlays; l; l = l->next)
-        meta_overlay_paint (l->data, paint_context);
-    }
+    g_list_foreach (stage->overlays, (GFunc) meta_overlay_paint, paint_context);
 
   if (view)
     {
