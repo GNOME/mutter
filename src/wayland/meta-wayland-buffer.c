@@ -61,6 +61,7 @@
 
 #ifdef HAVE_NATIVE_BACKEND
 #include "backends/native/meta-drm-buffer-gbm.h"
+#include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-renderer-native.h"
 #endif
 
@@ -282,6 +283,28 @@ shm_buffer_get_cogl_pixel_format (struct wl_shm_buffer  *shm_buffer,
   return TRUE;
 }
 
+static const char *
+shm_format_to_string (MetaDrmFormatBuf *format_buf,
+                      uint32_t          shm_format)
+{
+  const char *result;
+
+  switch (shm_format)
+    {
+    case WL_SHM_FORMAT_ARGB8888:
+      result = "ARGB8888";
+      break;
+    case WL_SHM_FORMAT_XRGB8888:
+      result = "XRGB8888";
+      break;
+    default:
+      result = meta_drm_format_to_string (format_buf, shm_format);
+      break;
+    }
+
+  return result;
+}
+
 static gboolean
 shm_buffer_attach (MetaWaylandBuffer  *buffer,
                    CoglTexture       **texture,
@@ -296,6 +319,7 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
   CoglTextureComponents components;
   CoglBitmap *bitmap;
   CoglTexture *new_texture;
+  MetaDrmFormatBuf format_buf;
 
   shm_buffer = wl_shm_buffer_get (buffer->resource);
   stride = wl_shm_buffer_get_stride (shm_buffer);
@@ -307,6 +331,13 @@ shm_buffer_attach (MetaWaylandBuffer  *buffer,
                    "Invalid shm pixel format");
       return FALSE;
     }
+
+  meta_topic (META_DEBUG_WAYLAND,
+              "[wl-shm] wl_buffer@%u wl_shm_format %s -> CoglPixelFormat %s",
+              wl_resource_get_id (meta_wayland_buffer_get_resource (buffer)),
+              shm_format_to_string (&format_buf,
+                                    wl_shm_buffer_get_format (shm_buffer)),
+              cogl_pixel_format_to_string (format));
 
   if (*texture &&
       cogl_texture_get_width (*texture) == width &&
