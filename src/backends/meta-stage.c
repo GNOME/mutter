@@ -64,6 +64,8 @@ struct _MetaStage
 {
   ClutterStage parent;
 
+  MetaBackend *backend;
+
   GPtrArray *watchers[N_WATCH_MODES];
 
   GList *overlays;
@@ -305,6 +307,7 @@ meta_stage_new (MetaBackend *backend)
   MetaMonitorManager *monitor_manager;
 
   stage = g_object_new (META_TYPE_STAGE, NULL);
+  stage->backend = backend;
 
   monitor_manager = meta_backend_get_monitor_manager (backend);
   g_signal_connect (monitor_manager, "power-save-mode-changed",
