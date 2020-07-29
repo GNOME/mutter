@@ -30,6 +30,9 @@
 struct _MetaCursorTrackerClass
 {
   GObjectClass parent_class;
+
+  void (* set_force_track_position) (MetaCursorTracker *tracker,
+                                     gboolean           is_enabled);
 };
 
 gboolean meta_cursor_tracker_handle_xevent (MetaCursorTracker *tracker,
@@ -44,6 +47,10 @@ void     meta_cursor_tracker_set_root_cursor     (MetaCursorTracker *tracker,
 void     meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
                                               float              new_x,
                                               float              new_y);
+
+void meta_cursor_tracker_track_position (MetaCursorTracker *tracker);
+
+void meta_cursor_tracker_untrack_position (MetaCursorTracker *tracker);
 
 MetaCursorSprite * meta_cursor_tracker_get_displayed_cursor (MetaCursorTracker *tracker);
 

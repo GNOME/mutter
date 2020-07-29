@@ -313,6 +313,12 @@ us (uint64_t us)
   return us;
 }
 
+static inline uint32_t
+ms (uint32_t ms)
+{
+  return ms;
+}
+
 static inline uint64_t
 ms2us (uint64_t ms)
 {

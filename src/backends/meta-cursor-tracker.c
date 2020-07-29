@@ -62,6 +62,8 @@ typedef struct _MetaCursorTrackerPrivate
 
   gboolean is_showing;
 
+  int track_position_count;
+
   float x;
   float y;
 
@@ -176,6 +178,12 @@ sync_cursor (MetaCursorTracker *tracker)
 }
 
 static void
+meta_cursor_tracker_real_set_force_track_position (MetaCursorTracker *tracker,
+                                                   gboolean           is_enabled)
+{
+}
+
+static void
 meta_cursor_tracker_init (MetaCursorTracker *tracker)
 {
   MetaCursorTrackerPrivate *priv =
@@ -250,6 +258,9 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
   object_class->get_property = meta_cursor_tracker_get_property;
   object_class->set_property = meta_cursor_tracker_set_property;
   object_class->finalize = meta_cursor_tracker_finalize;
+
+  klass->set_force_track_position =
+    meta_cursor_tracker_real_set_force_track_position;
 
   obj_props[PROP_BACKEND] =
     g_param_spec_object ("backend",
@@ -491,8 +502,6 @@ meta_cursor_tracker_update_position (MetaCursorTracker *tracker,
     meta_backend_get_cursor_renderer (priv->backend);
   gboolean position_changed;
 
-  g_assert (meta_is_wayland_compositor ());
-
   if (priv->x != new_x || priv->y != new_y)
     {
       position_changed = TRUE;
@@ -565,6 +574,40 @@ meta_cursor_tracker_get_pointer (MetaCursorTracker   *tracker,
     get_pointer_position_clutter (x, y, (int*)mods);
   else
     get_pointer_position_gdk (x, y, (int*)mods);
+}
+
+void
+meta_cursor_tracker_track_position (MetaCursorTracker *tracker)
+{
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  priv->track_position_count++;
+  if (priv->track_position_count == 1)
+    {
+      MetaCursorTrackerClass *klass =
+        META_CURSOR_TRACKER_GET_CLASS (tracker);
+
+      klass->set_force_track_position (tracker, TRUE);
+    }
+}
+
+void
+meta_cursor_tracker_untrack_position (MetaCursorTracker *tracker)
+{
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  g_return_if_fail (priv->track_position_count <= 0);
+
+  priv->track_position_count--;
+  if (priv->track_position_count == 0)
+    {
+      MetaCursorTrackerClass *klass =
+        META_CURSOR_TRACKER_GET_CLASS (tracker);
+
+      klass->set_force_track_position (tracker, FALSE);
+    }
 }
 
 gboolean
