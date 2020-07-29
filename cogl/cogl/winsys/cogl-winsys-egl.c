@@ -309,6 +309,45 @@ cleanup_context (CoglDisplay *display)
     egl_renderer->platform_vtable->cleanup_context (display);
 }
 
+static void
+print_attribs (EGLDisplay egl_display,
+               EGLConfig  egl_config)
+{
+  const EGLint names[] =
+    {
+      EGL_BUFFER_SIZE,
+      EGL_RED_SIZE,
+      EGL_GREEN_SIZE,
+      EGL_BLUE_SIZE,
+      EGL_ALPHA_SIZE,
+    };
+  struct
+    {
+      EGLint buffer_size;
+      EGLint red_size;
+      EGLint green_size;
+      EGLint blue_size;
+      EGLint alpha_size;
+    } values;
+  int i;
+
+  for (i = 0; i < G_N_ELEMENTS (names); i++)
+    {
+      if (!eglGetConfigAttrib (egl_display,
+                               egl_config,
+                               names[i],
+                               (EGLint *) &values + i))
+        ((EGLint *) &values)[i] = -1;
+    }
+
+  COGL_NOTE (WINSYS, "EGL color depth is %d-bit (R:G:B:A = %d:%d:%d:%d)",
+             (int) values.buffer_size,
+             (int) values.red_size,
+             (int) values.green_size,
+             (int) values.blue_size,
+             (int) values.alpha_size);
+}
+
 static gboolean
 try_create_context (CoglDisplay *display,
                     GError **error)
@@ -414,6 +453,8 @@ try_create_context (CoglDisplay *display,
   if (egl_renderer->platform_vtable->context_created &&
       !egl_renderer->platform_vtable->context_created (display, error))
     return FALSE;
+
+  print_attribs (egl_renderer->edpy, config);
 
   return TRUE;
 
