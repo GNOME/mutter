@@ -355,7 +355,7 @@ meta_x11_startup_notification_launch (MetaX11Display *x11_display,
                            (gpointer *) &func);
         }
 
-      if (func)
+      if (func && application_id)
         func (sn_launcher, application_id);
 
       g_module_close (self);
