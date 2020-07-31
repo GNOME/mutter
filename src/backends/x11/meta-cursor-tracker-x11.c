@@ -143,6 +143,7 @@ meta_cursor_tracker_x11_dispose (GObject *object)
   MetaCursorTrackerX11 *tracker_x11 = META_CURSOR_TRACKER_X11 (object);
 
   g_clear_handle_id (&tracker_x11->update_position_timeout_id, g_source_remove);
+  g_clear_object (&tracker_x11->xfixes_cursor);
 
   G_OBJECT_CLASS (meta_cursor_tracker_x11_parent_class)->dispose (object);
 }
