@@ -1351,13 +1351,6 @@ meta_event_dispatch (GSource     *g_source,
   dispatch_libinput (seat);
 
  queue_event:
-  event = clutter_event_get ();
-
-  if (event)
-    {
-      /* forward the event into clutter for emission etc. */
-      _clutter_stage_queue_event (event->any.stage, event, FALSE);
-    }
 
   return TRUE;
 }
