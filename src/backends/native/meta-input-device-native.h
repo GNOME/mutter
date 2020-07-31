@@ -126,7 +126,7 @@ ClutterInputDeviceType    meta_input_device_native_determine_type  (struct libin
 
 
 void                      meta_input_device_native_translate_coordinates (ClutterInputDevice *device,
-                                                                          ClutterStage       *stage,
+                                                                          MetaViewportInfo   *viewports,
                                                                           float              *x,
                                                                           float              *y);
 

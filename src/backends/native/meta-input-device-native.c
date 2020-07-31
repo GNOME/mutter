@@ -1437,17 +1437,16 @@ meta_input_device_native_get_libinput_device (ClutterInputDevice *device)
 
 void
 meta_input_device_native_translate_coordinates (ClutterInputDevice *device,
-                                                ClutterStage       *stage,
+                                                MetaViewportInfo   *viewports,
                                                 float              *x,
                                                 float              *y)
 {
   MetaInputDeviceNative *device_evdev = META_INPUT_DEVICE_NATIVE (device);
   double min_x = 0, min_y = 0, max_x = 1, max_y = 1;
-  double stage_width, stage_height;
+  float stage_width, stage_height;
   double x_d, y_d;
 
-  stage_width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
-  stage_height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
+  meta_viewport_info_get_extents (viewports, &stage_width, &stage_height);
   x_d = *x / stage_width;
   y_d = *y / stage_height;
 

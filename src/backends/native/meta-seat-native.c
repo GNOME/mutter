@@ -388,7 +388,6 @@ new_absolute_motion_event (MetaSeatNative     *seat,
                            float               y,
                            double             *axes)
 {
-  ClutterStage *stage = meta_seat_native_get_stage (seat);
   ClutterEvent *event;
 
   event = clutter_event_new (CLUTTER_MOTION);
@@ -408,9 +407,16 @@ new_absolute_motion_event (MetaSeatNative     *seat,
   meta_xkb_translate_state (event, seat->xkb, seat->button_state);
   event->motion.x = x;
   event->motion.y = y;
-  meta_input_device_native_translate_coordinates (input_device, stage,
-                                                  &event->motion.x,
-                                                  &event->motion.y);
+
+  /* This may happen early at startup */
+  if (seat->viewports)
+    {
+      meta_input_device_native_translate_coordinates (input_device,
+                                                      seat->viewports,
+                                                      &event->motion.x,
+                                                      &event->motion.y);
+    }
+
   event->motion.axes = axes;
   clutter_event_set_device (event, seat->core_pointer);
   clutter_event_set_source_device (event, input_device);
@@ -796,7 +802,6 @@ meta_seat_native_notify_touch_event (MetaSeatNative     *seat,
                                      double              x,
                                      double              y)
 {
-  ClutterStage *stage = meta_seat_native_get_stage (seat);
   ClutterEvent *event = NULL;
 
   event = clutter_event_new (evtype);
@@ -805,7 +810,8 @@ meta_seat_native_notify_touch_event (MetaSeatNative     *seat,
   event->touch.time = us2ms (time_us);
   event->touch.x = x;
   event->touch.y = y;
-  meta_input_device_native_translate_coordinates (input_device, stage,
+  meta_input_device_native_translate_coordinates (input_device,
+                                                  seat->viewports,
                                                   &event->touch.x,
                                                   &event->touch.y);
 
@@ -1795,7 +1801,6 @@ process_tablet_axis (MetaSeatNative        *seat,
                      struct libinput_event *event)
 {
   struct libinput_device *libinput_device = libinput_event_get_device (event);
-  ClutterStage *stage = meta_seat_native_get_stage (seat);
   uint64_t time;
   double x, y, dx, dy, *axes;
   float stage_width, stage_height;
@@ -1812,8 +1817,7 @@ process_tablet_axis (MetaSeatNative        *seat,
   if (!axes)
     return;
 
-  stage_width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
-  stage_height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
+  meta_viewport_info_get_extents (seat->viewports, &stage_width, &stage_height);
 
   time = libinput_event_tablet_tool_get_time_usec (tablet_event);
 
@@ -1936,13 +1940,12 @@ process_device_event (MetaSeatNative        *seat,
         uint64_t time_us;
         double x, y;
         float stage_width, stage_height;
-        ClutterStage *stage = meta_seat_native_get_stage (seat);
         struct libinput_event_pointer *motion_event =
           libinput_event_get_pointer_event (event);
         device = libinput_device_get_user_data (libinput_device);
 
-        stage_width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
-        stage_height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
+        meta_viewport_info_get_extents (seat->viewports,
+                                        &stage_width, &stage_height);
 
         time_us = libinput_event_pointer_get_time_usec (motion_event);
         x = libinput_event_pointer_get_absolute_x_transformed (motion_event,
@@ -2037,7 +2040,6 @@ process_device_event (MetaSeatNative        *seat,
         double x, y;
         float stage_width, stage_height;
         MetaSeatNative *seat;
-        ClutterStage *stage;
         MetaTouchState *touch_state;
         struct libinput_event_touch *touch_event =
           libinput_event_get_touch_event (event);
@@ -2045,10 +2047,9 @@ process_device_event (MetaSeatNative        *seat,
         device = libinput_device_get_user_data (libinput_device);
         device_evdev = META_INPUT_DEVICE_NATIVE (device);
         seat = meta_input_device_native_get_seat (device_evdev);
-        stage = meta_seat_native_get_stage (seat);
 
-        stage_width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
-        stage_height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
+        meta_viewport_info_get_extents (seat->viewports,
+                                        &stage_width, &stage_height);
 
         seat_slot = libinput_event_touch_get_seat_slot (touch_event);
         time_us = libinput_event_touch_get_time_usec (touch_event);
@@ -2105,7 +2106,6 @@ process_device_event (MetaSeatNative        *seat,
         double x, y;
         float stage_width, stage_height;
         MetaSeatNative *seat;
-        ClutterStage *stage;
         MetaTouchState *touch_state;
         struct libinput_event_touch *touch_event =
           libinput_event_get_touch_event (event);
@@ -2113,10 +2113,9 @@ process_device_event (MetaSeatNative        *seat,
         device = libinput_device_get_user_data (libinput_device);
         device_evdev = META_INPUT_DEVICE_NATIVE (device);
         seat = meta_input_device_native_get_seat (device_evdev);
-        stage = meta_seat_native_get_stage (seat);
 
-        stage_width = clutter_actor_get_width (CLUTTER_ACTOR (stage));
-        stage_height = clutter_actor_get_height (CLUTTER_ACTOR (stage));
+        meta_viewport_info_get_extents (seat->viewports,
+                                        &stage_width, &stage_height);
 
         seat_slot = libinput_event_touch_get_seat_slot (touch_event);
         time_us = libinput_event_touch_get_time_usec (touch_event);
