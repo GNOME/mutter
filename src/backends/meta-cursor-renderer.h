@@ -84,4 +84,7 @@ graphene_rect_t meta_cursor_renderer_calculate_rect (MetaCursorRenderer *rendere
 void meta_cursor_renderer_emit_painted (MetaCursorRenderer *renderer,
                                         MetaCursorSprite   *cursor_sprite);
 
+void meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
+                                                MetaCursorSprite   *cursor_sprite);
+
 #endif /* META_CURSOR_RENDERER_H */

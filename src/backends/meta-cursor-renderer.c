@@ -58,6 +58,8 @@ struct _MetaCursorRendererPrivate
   float current_y;
 
   MetaCursorSprite *displayed_cursor;
+  MetaCursorSprite *overlay_cursor;
+
   MetaOverlay *stage_overlay;
   gboolean handled_by_backend;
   gulong after_paint_handler_id;
@@ -123,14 +125,16 @@ align_cursor_position (MetaCursorRenderer *renderer,
   graphene_rect_offset (rect, view_layout.x, view_layout.y);
 }
 
-static void
-update_stage_overlay (MetaCursorRenderer *renderer,
-                      MetaCursorSprite   *cursor_sprite)
+void
+meta_cursor_renderer_update_stage_overlay (MetaCursorRenderer *renderer,
+                                           MetaCursorSprite   *cursor_sprite)
 {
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
   ClutterActor *stage = meta_backend_get_stage (priv->backend);
   CoglTexture *texture;
   graphene_rect_t rect = GRAPHENE_RECT_INIT_ZERO;
+
+  g_set_object (&priv->overlay_cursor, cursor_sprite);
 
   if (cursor_sprite)
     {
@@ -239,6 +243,7 @@ meta_cursor_renderer_finalize (GObject *object)
   g_clear_signal_handler (&priv->after_paint_handler_id, stage);
 
   g_clear_object (&priv->displayed_cursor);
+  g_clear_object (&priv->overlay_cursor);
 
   G_OBJECT_CLASS (meta_cursor_renderer_parent_class)->finalize (object);
 }
@@ -345,7 +350,7 @@ meta_cursor_renderer_update_cursor (MetaCursorRenderer *renderer,
   if (handled_by_backend != priv->handled_by_backend)
     priv->handled_by_backend = handled_by_backend;
 
-  update_stage_overlay (renderer, cursor_sprite);
+  meta_cursor_renderer_update_stage_overlay (renderer, cursor_sprite);
 }
 
 MetaCursorRenderer *
@@ -408,7 +413,7 @@ meta_cursor_renderer_get_cursor (MetaCursorRenderer *renderer)
 {
   MetaCursorRendererPrivate *priv = meta_cursor_renderer_get_instance_private (renderer);
 
-  return priv->displayed_cursor;
+  return priv->overlay_cursor;
 }
 
 gboolean
