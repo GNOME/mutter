@@ -36,8 +36,6 @@ void meta_kms_queue_callback (MetaKms         *kms,
                               gpointer         user_data,
                               GDestroyNotify   user_data_destroy);
 
-int meta_kms_flush_callbacks (MetaKms *kms);
-
 gpointer meta_kms_run_impl_task_sync (MetaKms              *kms,
                                       MetaKmsImplTaskFunc   func,
                                       gpointer              user_data,

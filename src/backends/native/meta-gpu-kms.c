@@ -183,16 +183,6 @@ timespec_to_nanoseconds (const struct timespec *ts)
   return ((int64_t) ts->tv_sec) * one_billion + ts->tv_nsec;
 }
 
-gboolean
-meta_gpu_kms_wait_for_flip (MetaGpuKms *gpu_kms,
-                            GError    **error)
-{
-  if (meta_kms_device_dispatch_sync (gpu_kms->kms_device, error) < 0)
-    return FALSE;
-
-  return TRUE;
-}
-
 MetaKmsDevice *
 meta_gpu_kms_get_kms_device (MetaGpuKms *gpu_kms)
 {

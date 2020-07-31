@@ -318,17 +318,6 @@ meta_kms_queue_callback (MetaKms         *kms,
     kms->callback_source_id = g_idle_add (callback_idle, kms);
 }
 
-int
-meta_kms_flush_callbacks (MetaKms *kms)
-{
-  int callback_count;
-
-  callback_count = flush_callbacks (kms);
-  g_clear_handle_id (&kms->callback_source_id, g_source_remove);
-
-  return callback_count;
-}
-
 gpointer
 meta_kms_run_impl_task_sync (MetaKms              *kms,
                              MetaKmsImplTaskFunc   func,

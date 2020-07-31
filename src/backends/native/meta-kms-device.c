@@ -174,53 +174,6 @@ meta_kms_device_predict_states_in_impl (MetaKmsDevice *device,
   meta_kms_impl_device_predict_states (impl_device, update);
 }
 
-static gpointer
-dispatch_in_impl (MetaKmsImpl  *impl,
-                  gpointer      user_data,
-                  GError      **error)
-{
-  MetaKmsImplDevice *impl_device = META_KMS_IMPL_DEVICE (user_data);
-  gboolean ret;
-
-  ret = meta_kms_impl_device_dispatch (impl_device, error);
-  return GINT_TO_POINTER (ret);
-}
-
-static gpointer
-dispatch_idle_in_impl (MetaKmsImpl  *impl,
-                       gpointer      user_data,
-                       GError      **error)
-{
-  meta_kms_impl_dispatch_idle (impl);
-
-  return GINT_TO_POINTER (TRUE);
-}
-
-int
-meta_kms_device_dispatch_sync (MetaKmsDevice  *device,
-                               GError        **error)
-{
-  int callback_count;
-
-  if (!meta_kms_run_impl_task_sync (device->kms,
-                                    dispatch_idle_in_impl,
-                                    device->impl_device,
-                                    error))
-    return -1;
-
-  callback_count = meta_kms_flush_callbacks (device->kms);
-  if (callback_count > 0)
-    return TRUE;
-
-  if (!meta_kms_run_impl_task_sync (device->kms,
-                                    dispatch_in_impl,
-                                    device->impl_device,
-                                    error))
-    return -1;
-
-  return meta_kms_flush_callbacks (device->kms);
-}
-
 void
 meta_kms_device_add_fake_plane_in_impl (MetaKmsDevice    *device,
                                         MetaKmsPlaneType  plane_type,
