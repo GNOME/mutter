@@ -174,6 +174,14 @@ struct _MetaBackendPrivate
 };
 typedef struct _MetaBackendPrivate MetaBackendPrivate;
 
+typedef struct _MetaBackendSource MetaBackendSource;
+
+struct _MetaBackendSource
+{
+  GSource parent;
+  MetaBackend *backend;
+};
+
 static void
 initable_iface_init (GInitableIface *initable_iface);
 
@@ -956,10 +964,13 @@ clutter_source_dispatch (GSource     *source,
                          GSourceFunc  callback,
                          gpointer     user_data)
 {
+  MetaBackendSource *backend_source = (MetaBackendSource *) source;
   ClutterEvent *event = clutter_event_get ();
 
   if (event)
     {
+      event->any.stage =
+        CLUTTER_STAGE (meta_backend_get_stage (backend_source->backend));
       clutter_do_event (event);
       clutter_event_free (event);
     }
@@ -985,6 +996,7 @@ static gboolean
 init_clutter (MetaBackend  *backend,
               GError      **error)
 {
+  MetaBackendSource *backend_source;
   GSource *source;
 
   clutter_set_custom_backend_func (meta_get_clutter_backend);
@@ -996,7 +1008,9 @@ init_clutter (MetaBackend  *backend,
       return FALSE;
     }
 
-  source = g_source_new (&clutter_source_funcs, sizeof (GSource));
+  source = g_source_new (&clutter_source_funcs, sizeof (MetaBackendSource));
+  backend_source = (MetaBackendSource *) source;
+  backend_source->backend = backend;
   g_source_attach (source, NULL);
   g_source_unref (source);
 

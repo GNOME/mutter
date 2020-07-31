@@ -246,15 +246,6 @@ static void
 queue_event (MetaSeatNative *seat,
              ClutterEvent   *event)
 {
-  ClutterStage *stage = meta_seat_native_get_stage (seat);
-
-  if (!stage)
-    {
-      /* No stage yet, drop this event on the floor */
-      return;
-    }
-
-  event->any.stage = stage;
   _clutter_event_push (event, FALSE);
 }
 
@@ -1339,7 +1330,6 @@ meta_event_dispatch (GSource     *g_source,
 {
   MetaEventSource *source = (MetaEventSource *) g_source;
   MetaSeatNative *seat;
-  ClutterEvent *event;
 
   seat = source->seat;
 
