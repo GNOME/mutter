@@ -51,4 +51,8 @@ int meta_viewport_info_get_neighbor (MetaViewportInfo     *info,
 
 int meta_viewport_info_get_num_views (MetaViewportInfo *info);
 
+void meta_viewport_info_get_extents (MetaViewportInfo *info,
+                                     float            *width,
+                                     float            *height);
+
 #endif /* META_VIEWPORT_INFO_H */
