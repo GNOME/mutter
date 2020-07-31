@@ -75,11 +75,6 @@ struct _MetaSeatNative
   uint32_t button_state;
   int button_count[KEY_CNT];
 
-  ClutterStage *stage;
-  ClutterStageManager *stage_manager;
-  gulong stage_added_handler;
-  gulong stage_removed_handler;
-
   int device_id_next;
   GList *free_device_ids;
 
@@ -184,10 +179,6 @@ MetaTouchState * meta_seat_native_lookup_touch_state  (MetaSeatNative *seat,
 
 void meta_seat_native_release_touch_state (MetaSeatNative *seat,
                                            int             seat_slot);
-
-void meta_seat_native_set_stage (MetaSeatNative *seat,
-                                 ClutterStage   *stage);
-ClutterStage * meta_seat_native_get_stage (MetaSeatNative *seat);
 
 void meta_seat_native_clear_repeat_timer (MetaSeatNative *seat);
 

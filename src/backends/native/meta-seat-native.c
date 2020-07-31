@@ -1542,34 +1542,22 @@ process_base_event (MetaSeatNative        *seat,
   ClutterInputDevice *device = NULL;
   ClutterEvent *device_event = NULL;
   struct libinput_device *libinput_device;
-  ClutterStage *stage;
-
-  stage = meta_seat_native_get_stage (seat);
 
   switch (libinput_event_get_type (event))
     {
     case LIBINPUT_EVENT_DEVICE_ADDED:
       libinput_device = libinput_event_get_device (event);
       device = evdev_add_device (seat, libinput_device);
-
-      if (stage)
-        {
-          device_event = clutter_event_new (CLUTTER_DEVICE_ADDED);
-          clutter_event_set_device (device_event, device);
-        }
+      device_event = clutter_event_new (CLUTTER_DEVICE_ADDED);
+      clutter_event_set_device (device_event, device);
       break;
 
     case LIBINPUT_EVENT_DEVICE_REMOVED:
       libinput_device = libinput_event_get_device (event);
 
       device = libinput_device_get_user_data (libinput_device);
-
-      if (stage)
-        {
-          device_event = clutter_event_new (CLUTTER_DEVICE_REMOVED);
-          clutter_event_set_device (device_event, device);
-        }
-
+      device_event = clutter_event_new (CLUTTER_DEVICE_REMOVED);
+      clutter_event_set_device (device_event, device);
       evdev_remove_device (seat,
                            META_INPUT_DEVICE_NATIVE (device));
       break;
@@ -2606,15 +2594,6 @@ meta_seat_native_dispose (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
 
-  g_clear_signal_handler (&seat->stage_added_handler, seat->stage_manager);
-  g_clear_signal_handler (&seat->stage_removed_handler, seat->stage_manager);
-
-  if (seat->stage_manager)
-    {
-      g_object_unref (seat->stage_manager);
-      seat->stage_manager = NULL;
-    }
-
   if (seat->libinput)
     {
       libinput_unref (seat->libinput);
@@ -2924,57 +2903,8 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
 }
 
 static void
-meta_seat_native_stage_added_cb (ClutterStageManager *manager,
-                                 ClutterStage        *stage,
-                                 MetaSeatNative      *seat)
-{
-  /* NB: Currently we can only associate a single stage with all evdev
-   * devices.
-   *
-   * We save a pointer to the stage so if we release/reclaim input
-   * devices due to switching virtual terminals then we know what
-   * stage to re associate the devices with.
-   */
-  meta_seat_native_set_stage (seat, stage);
-
-  /* We only want to do this once so we can catch the default
-     stage. If the application has multiple stages then it will need
-     to manage the stage of the input devices itself */
-  g_clear_signal_handler (&seat->stage_added_handler, seat->stage_manager);
-}
-
-static void
-meta_seat_native_stage_removed_cb (ClutterStageManager *manager,
-                                   ClutterStage        *stage,
-                                   MetaSeatNative      *seat)
-{
-  meta_seat_native_set_stage (seat, NULL);
-}
-
-static void
 meta_seat_native_init (MetaSeatNative *seat)
 {
-  seat->stage_manager = clutter_stage_manager_get_default ();
-  g_object_ref (seat->stage_manager);
-
-  /* evdev doesn't have any way to link an event to a particular stage
-     so we'll have to leave it up to applications to set the
-     corresponding stage for an input device. However to make it
-     easier for applications that are only using one fullscreen stage
-     (which is probably the most frequent use-case for the evdev
-     backend) we'll associate any input devices that don't have a
-     stage with the first stage created. */
-  seat->stage_added_handler =
-    g_signal_connect (seat->stage_manager,
-                      "stage-added",
-                      G_CALLBACK (meta_seat_native_stage_added_cb),
-                      seat);
-  seat->stage_removed_handler =
-    g_signal_connect (seat->stage_manager,
-                      "stage-removed",
-                      G_CALLBACK (meta_seat_native_stage_removed_cb),
-                      seat);
-
   seat->device_id_next = INITIAL_DEVICE_ID;
 
   seat->repeat = TRUE;
@@ -2984,39 +2914,6 @@ meta_seat_native_init (MetaSeatNative *seat)
   seat->barrier_manager = meta_barrier_manager_native_new ();
 
   seat->reserved_virtual_slots = g_hash_table_new (NULL, NULL);
-}
-
-void
-meta_seat_native_set_stage (MetaSeatNative *seat,
-                            ClutterStage   *stage)
-{
-  GSList *l;
-
-  if (seat->stage == stage)
-    return;
-
-  seat->stage = stage;
-
-  for (l = seat->devices; l; l = l->next)
-    {
-      ClutterInputDevice *device = l->data;
-
-      if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_PHYSICAL)
-        {
-          ClutterEvent *device_event;
-
-          device_event = clutter_event_new (CLUTTER_DEVICE_ADDED);
-          clutter_event_set_device (device_event, device);
-          device_event->device.stage = stage;
-          queue_event (seat, device_event);
-        }
-    }
-}
-
-ClutterStage *
-meta_seat_native_get_stage (MetaSeatNative *seat)
-{
-  return seat->stage;
 }
 
 /**
