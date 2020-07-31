@@ -238,6 +238,8 @@ meta_cursor_renderer_finalize (GObject *object)
 
   g_clear_signal_handler (&priv->after_paint_handler_id, stage);
 
+  g_clear_object (&priv->displayed_cursor);
+
   G_OBJECT_CLASS (meta_cursor_renderer_parent_class)->finalize (object);
 }
 
@@ -362,7 +364,7 @@ meta_cursor_renderer_set_cursor (MetaCursorRenderer *renderer,
 
   if (priv->displayed_cursor == cursor_sprite)
     return;
-  priv->displayed_cursor = cursor_sprite;
+  g_set_object (&priv->displayed_cursor, cursor_sprite);
 
   meta_cursor_renderer_update_cursor (renderer, cursor_sprite);
 }
