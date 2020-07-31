@@ -51,6 +51,8 @@ void meta_cursor_tracker_untrack_position (MetaCursorTracker *tracker);
 
 MetaCursorSprite * meta_cursor_tracker_get_displayed_cursor (MetaCursorTracker *tracker);
 
+MetaBackend * meta_cursor_tracker_get_backend (MetaCursorTracker *tracker);
+
 void meta_cursor_tracker_notify_cursor_changed (MetaCursorTracker *tracker);
 
 #endif

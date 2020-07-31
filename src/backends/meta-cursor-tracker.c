@@ -543,7 +543,7 @@ meta_cursor_tracker_untrack_position (MetaCursorTracker *tracker)
   MetaCursorTrackerPrivate *priv =
     meta_cursor_tracker_get_instance_private (tracker);
 
-  g_return_if_fail (priv->track_position_count <= 0);
+  g_return_if_fail (priv->track_position_count > 0);
 
   priv->track_position_count--;
   if (priv->track_position_count == 0)
@@ -587,4 +587,13 @@ meta_cursor_tracker_get_displayed_cursor (MetaCursorTracker *tracker)
     meta_cursor_tracker_get_instance_private (tracker);
 
   return priv->displayed_cursor;
+}
+
+MetaBackend *
+meta_cursor_tracker_get_backend (MetaCursorTracker *tracker)
+{
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  return priv->backend;
 }

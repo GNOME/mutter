@@ -42,7 +42,7 @@ struct _MetaCursorTrackerX11
 G_DEFINE_TYPE (MetaCursorTrackerX11, meta_cursor_tracker_x11,
                META_TYPE_CURSOR_TRACKER)
 
-static void
+static gboolean
 ensure_xfixes_cursor (MetaCursorTrackerX11 *tracker_x11);
 
 gboolean
@@ -75,26 +75,46 @@ update_position (MetaCursorTrackerX11 *tracker_x11)
   meta_cursor_tracker_update_position (tracker, x, y);
 }
 
-static void
+static gboolean
 ensure_xfixes_cursor (MetaCursorTrackerX11 *tracker_x11)
 {
   MetaDisplay *display = meta_get_display ();
   g_autoptr (GError) error = NULL;
 
   if (tracker_x11->xfixes_cursor)
-    return;
+    return FALSE;
 
   tracker_x11->xfixes_cursor = meta_cursor_sprite_xfixes_new (display, &error);
   if (!tracker_x11->xfixes_cursor)
     g_warning ("Failed to create XFIXES cursor: %s", error->message);
+
+  return TRUE;
 }
 
 static gboolean
-update_position_timeout (gpointer user_data)
+update_cursor_timeout (gpointer user_data)
 {
   MetaCursorTrackerX11 *tracker_x11 = user_data;
+  MetaCursorTracker *tracker = META_CURSOR_TRACKER (tracker_x11);
+  MetaBackend *backend = meta_cursor_tracker_get_backend (tracker);
+  MetaCursorRenderer *cursor_renderer =
+    meta_backend_get_cursor_renderer (backend);
+  gboolean cursor_changed;
+  MetaCursorSprite *cursor_sprite;
 
   update_position (tracker_x11);
+
+  cursor_changed = ensure_xfixes_cursor (tracker_x11);
+
+  if (tracker_x11->xfixes_cursor)
+    cursor_sprite = META_CURSOR_SPRITE (tracker_x11->xfixes_cursor);
+  else
+    cursor_sprite = NULL;
+
+  meta_cursor_renderer_update_stage_overlay (cursor_renderer, cursor_sprite);
+
+  if (cursor_changed)
+    meta_cursor_tracker_notify_cursor_changed (tracker);
 
   return G_SOURCE_CONTINUE;
 }
@@ -114,7 +134,7 @@ meta_cursor_tracker_x11_set_force_track_position (MetaCursorTracker *tracker,
     {
       tracker_x11->update_position_timeout_id =
         g_timeout_add (UPDATE_POSITION_TIMEOUT_MS,
-                       update_position_timeout,
+                       update_cursor_timeout,
                        tracker_x11);
       update_position (tracker_x11);
     }
