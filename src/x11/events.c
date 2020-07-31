@@ -31,6 +31,7 @@
 
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/x11/meta-backend-x11.h"
+#include "backends/x11/meta-cursor-tracker-x11.h"
 #include "compositor/meta-compositor-x11.h"
 #include "cogl/cogl.h"
 #include "core/bell.h"
@@ -1829,10 +1830,16 @@ meta_x11_display_handle_xevent (MetaX11Display *x11_display,
   if (event->xany.window == x11_display->xroot)
     {
       cursor_tracker = meta_backend_get_cursor_tracker (backend);
-      if (meta_cursor_tracker_handle_xevent (cursor_tracker, event))
+      if (META_IS_CURSOR_TRACKER_X11 (cursor_tracker))
         {
-          bypass_gtk = bypass_compositor = TRUE;
-          goto out;
+          MetaCursorTrackerX11 *cursor_tracker_x11 =
+            META_CURSOR_TRACKER_X11 (cursor_tracker);
+
+          if (meta_cursor_tracker_x11_handle_xevent (cursor_tracker_x11, event))
+            {
+              bypass_gtk = bypass_compositor = TRUE;
+              goto out;
+            }
         }
     }
 

@@ -22,7 +22,10 @@
 
 #include "backends/x11/meta-cursor-tracker-x11.h"
 
+#include "backends/x11/cm/meta-cursor-sprite-xfixes.h"
 #include "clutter/clutter-private.h"
+#include "meta/meta-x11-errors.h"
+#include "x11/meta-x11-display-private.h"
 
 #define UPDATE_POSITION_TIMEOUT_MS (ms (100))
 
@@ -32,10 +35,35 @@ struct _MetaCursorTrackerX11
 
   gboolean is_force_track_position_enabled;
   guint update_position_timeout_id;
+
+  MetaCursorSpriteXfixes *xfixes_cursor;
 };
 
 G_DEFINE_TYPE (MetaCursorTrackerX11, meta_cursor_tracker_x11,
                META_TYPE_CURSOR_TRACKER)
+
+static void
+ensure_xfixes_cursor (MetaCursorTrackerX11 *tracker_x11);
+
+gboolean
+meta_cursor_tracker_x11_handle_xevent (MetaCursorTrackerX11 *tracker_x11,
+                                       XEvent               *xevent)
+{
+  MetaX11Display *x11_display = meta_get_display ()->x11_display;
+  XFixesCursorNotifyEvent *notify_event;
+
+  if (xevent->xany.type != x11_display->xfixes_event_base + XFixesCursorNotify)
+    return FALSE;
+
+  notify_event = (XFixesCursorNotifyEvent *)xevent;
+  if (notify_event->subtype != XFixesDisplayCursorNotify)
+    return FALSE;
+
+  g_clear_object (&tracker_x11->xfixes_cursor);
+  meta_cursor_tracker_notify_cursor_changed (META_CURSOR_TRACKER (tracker_x11));
+
+  return TRUE;
+}
 
 static void
 update_position (MetaCursorTrackerX11 *tracker_x11)
@@ -45,6 +73,20 @@ update_position (MetaCursorTrackerX11 *tracker_x11)
 
   meta_cursor_tracker_get_pointer (tracker, &x, &y, NULL);
   meta_cursor_tracker_update_position (tracker, x, y);
+}
+
+static void
+ensure_xfixes_cursor (MetaCursorTrackerX11 *tracker_x11)
+{
+  MetaDisplay *display = meta_get_display ();
+  g_autoptr (GError) error = NULL;
+
+  if (tracker_x11->xfixes_cursor)
+    return;
+
+  tracker_x11->xfixes_cursor = meta_cursor_sprite_xfixes_new (display, &error);
+  if (!tracker_x11->xfixes_cursor)
+    g_warning ("Failed to create XFIXES cursor: %s", error->message);
 }
 
 static gboolean
@@ -83,6 +125,18 @@ meta_cursor_tracker_x11_set_force_track_position (MetaCursorTracker *tracker,
     }
 }
 
+static MetaCursorSprite *
+meta_cursor_tracker_x11_get_sprite (MetaCursorTracker *tracker)
+{
+  MetaCursorTrackerX11 *tracker_x11 = META_CURSOR_TRACKER_X11 (tracker);
+
+  ensure_xfixes_cursor (META_CURSOR_TRACKER_X11 (tracker));
+  if (tracker_x11->xfixes_cursor)
+    return META_CURSOR_SPRITE (tracker_x11->xfixes_cursor);
+  else
+    return NULL;
+}
+
 static void
 meta_cursor_tracker_x11_dispose (GObject *object)
 {
@@ -108,4 +162,6 @@ meta_cursor_tracker_x11_class_init (MetaCursorTrackerX11Class *klass)
 
   tracker_class->set_force_track_position =
     meta_cursor_tracker_x11_set_force_track_position;
+  tracker_class->get_sprite =
+    meta_cursor_tracker_x11_get_sprite;
 }

@@ -36,14 +36,12 @@
 #include <string.h>
 
 #include "backends/meta-backend-private.h"
-#include "backends/x11/cm/meta-cursor-sprite-xfixes.h"
 #include "cogl/cogl.h"
+#include "core/display-private.h"
 #include "clutter/clutter.h"
 #include "meta-marshal.h"
 #include "meta/main.h"
-#include "meta/meta-x11-errors.h"
 #include "meta/util.h"
-#include "x11/meta-x11-display-private.h"
 
 enum
 {
@@ -79,9 +77,6 @@ typedef struct _MetaCursorTrackerPrivate
   MetaCursorSprite *window_cursor;
 
   MetaCursorSprite *root_cursor;
-
-  /* The cursor from the X11 server. */
-  MetaCursorSpriteXfixes *xfixes_cursor;
 } MetaCursorTrackerPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaCursorTracker, meta_cursor_tracker,
@@ -96,6 +91,12 @@ enum
 };
 
 static guint signals[LAST_SIGNAL];
+
+void
+meta_cursor_tracker_notify_cursor_changed (MetaCursorTracker *tracker)
+{
+  g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
+}
 
 static void
 cursor_texture_updated (MetaCursorSprite  *cursor,
@@ -183,6 +184,15 @@ meta_cursor_tracker_real_set_force_track_position (MetaCursorTracker *tracker,
 {
 }
 
+static MetaCursorSprite *
+meta_cursor_tracker_real_get_sprite (MetaCursorTracker *tracker)
+{
+  MetaCursorTrackerPrivate *priv =
+    meta_cursor_tracker_get_instance_private (tracker);
+
+  return priv->displayed_cursor;
+}
+
 static void
 meta_cursor_tracker_init (MetaCursorTracker *tracker)
 {
@@ -261,6 +271,8 @@ meta_cursor_tracker_class_init (MetaCursorTrackerClass *klass)
 
   klass->set_force_track_position =
     meta_cursor_tracker_real_set_force_track_position;
+  klass->get_sprite =
+    meta_cursor_tracker_real_get_sprite;
 
   obj_props[PROP_BACKEND] =
     g_param_spec_object ("backend",
@@ -341,47 +353,6 @@ set_window_cursor (MetaCursorTracker *tracker,
   sync_cursor (tracker);
 }
 
-gboolean
-meta_cursor_tracker_handle_xevent (MetaCursorTracker *tracker,
-                                   XEvent            *xevent)
-{
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-  MetaX11Display *x11_display = meta_get_display ()->x11_display;
-  XFixesCursorNotifyEvent *notify_event;
-
-  if (meta_is_wayland_compositor ())
-    return FALSE;
-
-  if (xevent->xany.type != x11_display->xfixes_event_base + XFixesCursorNotify)
-    return FALSE;
-
-  notify_event = (XFixesCursorNotifyEvent *)xevent;
-  if (notify_event->subtype != XFixesDisplayCursorNotify)
-    return FALSE;
-
-  g_clear_object (&priv->xfixes_cursor);
-  g_signal_emit (tracker, signals[CURSOR_CHANGED], 0);
-
-  return TRUE;
-}
-
-static void
-ensure_xfixes_cursor (MetaCursorTracker *tracker)
-{
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
-  MetaDisplay *display = meta_get_display ();
-  g_autoptr (GError) error = NULL;
-
-  if (priv->xfixes_cursor)
-    return;
-
-  priv->xfixes_cursor = meta_cursor_sprite_xfixes_new (display, &error);
-  if (!priv->xfixes_cursor)
-    g_warning ("Failed to create XFIXES cursor: %s", error->message);
-}
-
 /**
  * meta_cursor_tracker_get_sprite:
  *
@@ -390,31 +361,15 @@ ensure_xfixes_cursor (MetaCursorTracker *tracker)
 CoglTexture *
 meta_cursor_tracker_get_sprite (MetaCursorTracker *tracker)
 {
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
   MetaCursorSprite *cursor_sprite;
 
-  g_return_val_if_fail (META_IS_CURSOR_TRACKER (tracker), NULL);
+  cursor_sprite = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
 
-  if (meta_is_wayland_compositor ())
-    {
-      cursor_sprite = priv->displayed_cursor;
-    }
-  else
-    {
-      ensure_xfixes_cursor (tracker);
-      cursor_sprite = META_CURSOR_SPRITE (priv->xfixes_cursor);
-    }
+  if (!cursor_sprite)
+    return NULL;
 
-  if (cursor_sprite)
-    {
-      meta_cursor_sprite_realize_texture (cursor_sprite);
-      return meta_cursor_sprite_get_cogl_texture (cursor_sprite);
-    }
-  else
-    {
-      return NULL;
-    }
+  meta_cursor_sprite_realize_texture (cursor_sprite);
+  return meta_cursor_sprite_get_cogl_texture (cursor_sprite);
 }
 
 /**
@@ -429,21 +384,11 @@ meta_cursor_tracker_get_hot (MetaCursorTracker *tracker,
                              int               *x,
                              int               *y)
 {
-  MetaCursorTrackerPrivate *priv =
-    meta_cursor_tracker_get_instance_private (tracker);
   MetaCursorSprite *cursor_sprite;
 
   g_return_if_fail (META_IS_CURSOR_TRACKER (tracker));
 
-  if (meta_is_wayland_compositor ())
-    {
-      cursor_sprite = priv->displayed_cursor;
-    }
-  else
-    {
-      ensure_xfixes_cursor (tracker);
-      cursor_sprite = META_CURSOR_SPRITE (priv->xfixes_cursor);
-    }
+  cursor_sprite = META_CURSOR_TRACKER_GET_CLASS (tracker)->get_sprite (tracker);
 
   if (cursor_sprite)
     meta_cursor_sprite_get_hotspot (cursor_sprite, x, y);

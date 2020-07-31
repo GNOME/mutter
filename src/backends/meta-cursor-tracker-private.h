@@ -24,7 +24,6 @@
 
 #include "backends/meta-cursor.h"
 #include "backends/meta-cursor-renderer.h"
-#include "backends/x11/cm/meta-cursor-sprite-xfixes.h"
 #include "meta/meta-cursor-tracker.h"
 
 struct _MetaCursorTrackerClass
@@ -33,10 +32,8 @@ struct _MetaCursorTrackerClass
 
   void (* set_force_track_position) (MetaCursorTracker *tracker,
                                      gboolean           is_enabled);
+  MetaCursorSprite * (* get_sprite) (MetaCursorTracker *tracker);
 };
-
-gboolean meta_cursor_tracker_handle_xevent (MetaCursorTracker *tracker,
-					    XEvent            *xevent);
 
 void     meta_cursor_tracker_set_window_cursor   (MetaCursorTracker *tracker,
                                                   MetaCursorSprite  *cursor_sprite);
@@ -53,5 +50,7 @@ void meta_cursor_tracker_track_position (MetaCursorTracker *tracker);
 void meta_cursor_tracker_untrack_position (MetaCursorTracker *tracker);
 
 MetaCursorSprite * meta_cursor_tracker_get_displayed_cursor (MetaCursorTracker *tracker);
+
+void meta_cursor_tracker_notify_cursor_changed (MetaCursorTracker *tracker);
 
 #endif
