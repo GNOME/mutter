@@ -428,10 +428,6 @@ typedef enum _CoglWinsysFeature
    * framebuffers at the same time. */
   COGL_WINSYS_FEATURE_MULTIPLE_ONSCREEN,
 
-  /* Available if onscreen framebuffer swaps can be automatically
-   * throttled to the vblank frequency. */
-  COGL_WINSYS_FEATURE_SWAP_THROTTLE,
-
   /* Available if its possible to query a counter that
    * increments at each vblank. */
   COGL_WINSYS_FEATURE_VBLANK_COUNTER,

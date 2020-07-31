@@ -130,7 +130,7 @@ COGL_WINSYS_FEATURE_BEGIN (255, 255,
                            "SGI\0",
                            "swap_control\0",
                            0,
-                           COGL_WINSYS_FEATURE_SWAP_THROTTLE)
+                           0)
 COGL_WINSYS_FEATURE_FUNCTION (int, glXSwapInterval,
                               (int interval))
 COGL_WINSYS_FEATURE_END ()
