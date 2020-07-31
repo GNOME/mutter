@@ -508,9 +508,12 @@ handle_hotplug_event (MetaMonitorManager *manager)
 }
 
 static void
-on_kms_resources_changed (MetaKms            *kms,
-                          MetaMonitorManager *manager)
+on_kms_resources_changed (MetaKms              *kms,
+                          MetaKmsUpdateChanges  changes,
+                          MetaMonitorManager   *manager)
 {
+  g_assert (changes != META_KMS_UPDATE_CHANGE_NONE);
+
   handle_hotplug_event (manager);
 }
 

@@ -21,10 +21,11 @@
 #define META_KMS_DEVICE_PRIVATE_H
 
 #include "backends/native/meta-kms-types.h"
+#include "backends/native/meta-kms-update-private.h"
 
 MetaKmsImplDevice * meta_kms_device_get_impl_device (MetaKmsDevice *device);
 
-void meta_kms_device_update_states_in_impl (MetaKmsDevice *device);
+MetaKmsUpdateChanges meta_kms_device_update_states_in_impl (MetaKmsDevice *device);
 
 void meta_kms_device_predict_states_in_impl (MetaKmsDevice *device,
                                              MetaKmsUpdate *update);

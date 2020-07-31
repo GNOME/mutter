@@ -73,7 +73,7 @@ meta_kms_mode_get_drm_mode (MetaKmsMode *mode)
   return &mode->drm_mode;
 }
 
-static gboolean
+gboolean
 meta_drm_mode_equal (const drmModeModeInfo *one,
                      const drmModeModeInfo *two)
 {

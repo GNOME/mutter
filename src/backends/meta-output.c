@@ -463,3 +463,37 @@ meta_output_class_init (MetaOutputClass *klass)
                         G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 }
+
+gboolean
+meta_tile_info_equal (MetaTileInfo *a,
+                      MetaTileInfo *b)
+{
+  if (a == b)
+    return TRUE;
+
+  if (a->group_id != b->group_id)
+    return FALSE;
+
+  if (a->flags != b->flags)
+    return FALSE;
+
+  if (a->max_h_tiles != b->max_h_tiles)
+    return FALSE;
+
+  if (a->max_v_tiles != b->max_v_tiles)
+    return FALSE;
+
+  if (a->loc_h_tile != b->loc_h_tile)
+    return FALSE;
+
+  if (a->loc_v_tile != b->loc_v_tile)
+    return FALSE;
+
+  if (a->tile_w != b->tile_w)
+    return FALSE;
+
+  if (a->tile_h != b->tile_h)
+    return FALSE;
+
+  return TRUE;
+}

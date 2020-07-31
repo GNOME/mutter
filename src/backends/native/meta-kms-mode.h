@@ -42,6 +42,9 @@ const drmModeModeInfo * meta_kms_mode_get_drm_mode (MetaKmsMode *mode);
 gboolean meta_kms_mode_equal (MetaKmsMode *mode,
                               MetaKmsMode *other_mode);
 
+gboolean meta_drm_mode_equal (const drmModeModeInfo *one,
+                              const drmModeModeInfo *two);
+
 unsigned int meta_kms_mode_hash (MetaKmsMode *mode);
 
 #endif /* META_KMS_MODE_H */

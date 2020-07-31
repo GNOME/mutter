@@ -94,32 +94,62 @@ meta_kms_crtc_is_active (MetaKmsCrtc *crtc)
 
 static void
 read_gamma_state (MetaKmsCrtc       *crtc,
+                  MetaKmsCrtcState  *crtc_state,
                   MetaKmsImplDevice *impl_device,
                   drmModeCrtc       *drm_crtc)
 {
-  MetaKmsCrtcState *current_state = &crtc->current_state;
-
-  if (current_state->gamma.size != drm_crtc->gamma_size)
+  if (crtc_state->gamma.size != drm_crtc->gamma_size)
     {
-      current_state->gamma.size = drm_crtc->gamma_size;
+      crtc_state->gamma.size = drm_crtc->gamma_size;
 
-      current_state->gamma.red = g_realloc_n (current_state->gamma.red,
-                                              drm_crtc->gamma_size,
-                                              sizeof (uint16_t));
-      current_state->gamma.green = g_realloc_n (current_state->gamma.green,
-                                                drm_crtc->gamma_size,
-                                                sizeof (uint16_t));
-      current_state->gamma.blue = g_realloc_n (current_state->gamma.blue,
-                                               drm_crtc->gamma_size,
-                                               sizeof (uint16_t));
+      crtc_state->gamma.red = g_realloc_n (crtc_state->gamma.red,
+                                           drm_crtc->gamma_size,
+                                           sizeof (uint16_t));
+      crtc_state->gamma.green = g_realloc_n (crtc_state->gamma.green,
+                                             drm_crtc->gamma_size,
+                                             sizeof (uint16_t));
+      crtc_state->gamma.blue = g_realloc_n (crtc_state->gamma.blue,
+                                            drm_crtc->gamma_size,
+                                            sizeof (uint16_t));
     }
 
   drmModeCrtcGetGamma (meta_kms_impl_device_get_fd (impl_device),
                        crtc->id,
-                       current_state->gamma.size,
-                       current_state->gamma.red,
-                       current_state->gamma.green,
-                       current_state->gamma.blue);
+                       crtc_state->gamma.size,
+                       crtc_state->gamma.red,
+                       crtc_state->gamma.green,
+                       crtc_state->gamma.blue);
+}
+
+static MetaKmsUpdateChanges
+meta_kms_crtc_state_changes (MetaKmsCrtcState *state,
+                             MetaKmsCrtcState *other_state)
+{
+  if (!meta_rectangle_equal (&state->rect, &other_state->rect))
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->is_drm_mode_valid != other_state->is_drm_mode_valid)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (!meta_drm_mode_equal (&state->drm_mode, &other_state->drm_mode))
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->gamma.size != other_state->gamma.size)
+    return META_KMS_UPDATE_CHANGE_GAMMA;
+
+  if (memcmp (state->gamma.blue, other_state->gamma.blue,
+              state->gamma.size * sizeof (uint16_t)) != 0)
+    return META_KMS_UPDATE_CHANGE_GAMMA;
+
+  if (memcmp (state->gamma.green, other_state->gamma.green,
+              state->gamma.size * sizeof (uint16_t)) != 0)
+    return META_KMS_UPDATE_CHANGE_GAMMA;
+
+  if (memcmp (state->gamma.red, other_state->gamma.red,
+              state->gamma.size * sizeof (uint16_t)) != 0)
+    return META_KMS_UPDATE_CHANGE_GAMMA;
+
+  return META_KMS_UPDATE_CHANGE_NONE;
 }
 
 static int
@@ -141,23 +171,35 @@ find_prop_idx (MetaKmsProp *prop,
 }
 
 static void
+clear_gamma_state (MetaKmsCrtcState *crtc_state)
+{
+  crtc_state->gamma.size = 0;
+  g_clear_pointer (&crtc_state->gamma.red, g_free);
+  g_clear_pointer (&crtc_state->gamma.green, g_free);
+  g_clear_pointer (&crtc_state->gamma.blue, g_free);
+}
+
+static MetaKmsUpdateChanges
 meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
                           MetaKmsImplDevice       *impl_device,
                           drmModeCrtc             *drm_crtc,
                           drmModeObjectProperties *drm_props)
 {
+  MetaKmsCrtcState crtc_state = {0};
+  MetaKmsUpdateChanges changes = META_KMS_UPDATE_CHANGE_NONE;
   MetaKmsProp *active_prop;
   int active_idx;
 
-  crtc->current_state.rect = (MetaRectangle) {
+  crtc_state.rect = (MetaRectangle) {
     .x = drm_crtc->x,
     .y = drm_crtc->y,
     .width = drm_crtc->width,
     .height = drm_crtc->height,
   };
 
-  crtc->current_state.is_drm_mode_valid = drm_crtc->mode_valid;
-  crtc->current_state.drm_mode = drm_crtc->mode;
+  crtc_state.is_drm_mode_valid = drm_crtc->mode_valid;
+  crtc_state.drm_mode = drm_crtc->mode;
+  crtc_state.gamma.size = 0;
 
   active_prop = &crtc->prop_table.props[META_KMS_CRTC_PROP_ACTIVE];
   if (active_prop->prop_id)
@@ -165,12 +207,35 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
       active_idx = find_prop_idx (active_prop,
                                   drm_props->props,
                                   drm_props->count_props);
-      crtc->current_state.is_active = !!drm_props->prop_values[active_idx];
+      crtc_state.is_active = !!drm_props->prop_values[active_idx];
     }
   else
     {
-      crtc->current_state.is_active = drm_crtc->mode_valid;
+      crtc_state.is_active = drm_crtc->mode_valid;
     }
+
+  if (crtc_state.is_active != crtc->current_state.is_active)
+    {
+      changes |= META_KMS_UPDATE_CHANGE_FULL;
+    }
+  else if (!crtc_state.is_active)
+    {
+      clear_gamma_state (&crtc_state);
+      return changes;
+    }
+
+  read_gamma_state (crtc, &crtc_state, impl_device, drm_crtc);
+
+  changes |= meta_kms_crtc_state_changes (&crtc->current_state, &crtc_state);
+
+  if (changes == META_KMS_UPDATE_CHANGE_NONE)
+    {
+      clear_gamma_state (&crtc_state);
+      return changes;
+    }
+
+  clear_gamma_state (&crtc->current_state);
+  crtc->current_state = crtc_state;
 
   meta_topic (META_DEBUG_KMS,
               "Read CRTC %u state: active: %d, mode: %s",
@@ -179,13 +244,14 @@ meta_kms_crtc_read_state (MetaKmsCrtc             *crtc,
                 ? crtc->current_state.drm_mode.name
                 : "(nil)");
 
-  read_gamma_state (crtc, impl_device, drm_crtc);
+  return changes;
 }
 
-void
+MetaKmsUpdateChanges
 meta_kms_crtc_update_state (MetaKmsCrtc *crtc)
 {
   MetaKmsImplDevice *impl_device;
+  MetaKmsUpdateChanges changes;
   int fd;
   drmModeCrtc *drm_crtc;
   drmModeObjectProperties *drm_props;
@@ -201,23 +267,17 @@ meta_kms_crtc_update_state (MetaKmsCrtc *crtc)
       crtc->current_state.is_active = FALSE;
       crtc->current_state.rect = (MetaRectangle) { };
       crtc->current_state.is_drm_mode_valid = FALSE;
+      changes = META_KMS_UPDATE_CHANGE_FULL;
       goto out;
     }
 
-  meta_kms_crtc_read_state (crtc, impl_device, drm_crtc, drm_props);
+  changes = meta_kms_crtc_read_state (crtc, impl_device, drm_crtc, drm_props);
 
 out:
   g_clear_pointer (&drm_props, drmModeFreeObjectProperties);
   g_clear_pointer (&drm_crtc, drmModeFreeCrtc);
-}
 
-static void
-clear_gamma_state (MetaKmsCrtc *crtc)
-{
-  crtc->current_state.gamma.size = 0;
-  g_clear_pointer (&crtc->current_state.gamma.red, g_free);
-  g_clear_pointer (&crtc->current_state.gamma.green, g_free);
-  g_clear_pointer (&crtc->current_state.gamma.blue, g_free);
+  return changes;
 }
 
 void
@@ -270,7 +330,7 @@ meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
       if (gamma->crtc != crtc)
         continue;
 
-      clear_gamma_state (crtc);
+      clear_gamma_state (&crtc->current_state);
       crtc->current_state.gamma.size = gamma->size;
       crtc->current_state.gamma.red =
         g_memdup2 (gamma->red, gamma->size * sizeof (uint16_t));
@@ -380,7 +440,7 @@ meta_kms_crtc_finalize (GObject *object)
 {
   MetaKmsCrtc *crtc = META_KMS_CRTC (object);
 
-  clear_gamma_state (crtc);
+  clear_gamma_state (&crtc->current_state);
 
   G_OBJECT_CLASS (meta_kms_crtc_parent_class)->finalize (object);
 }
@@ -388,6 +448,7 @@ meta_kms_crtc_finalize (GObject *object)
 static void
 meta_kms_crtc_init (MetaKmsCrtc *crtc)
 {
+  crtc->current_state.gamma.size = 0;
 }
 
 static void

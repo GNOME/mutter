@@ -23,6 +23,7 @@
 #include <xf86drmMode.h>
 
 #include "backends/native/meta-kms-crtc.h"
+#include "backends/native/meta-kms-update-private.h"
 
 typedef enum _MetaKmsCrtcProp
 {
@@ -37,7 +38,7 @@ MetaKmsCrtc * meta_kms_crtc_new (MetaKmsImplDevice  *impl_device,
                                  int                 idx,
                                  GError            **error);
 
-void meta_kms_crtc_update_state (MetaKmsCrtc *crtc);
+MetaKmsUpdateChanges meta_kms_crtc_update_state (MetaKmsCrtc *crtc);
 
 void meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
                                   MetaKmsUpdate *update);

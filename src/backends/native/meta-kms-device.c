@@ -186,15 +186,19 @@ meta_kms_device_get_fallback_modes (MetaKmsDevice *device)
   return device->fallback_modes;
 }
 
-void
+MetaKmsUpdateChanges
 meta_kms_device_update_states_in_impl (MetaKmsDevice *device)
 {
   MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  MetaKmsUpdateChanges changes;
 
   meta_assert_in_kms_impl (device->kms);
   meta_assert_is_waiting_for_kms_impl_task (device->kms);
 
-  meta_kms_impl_device_update_states (impl_device);
+  changes = meta_kms_impl_device_update_states (impl_device);
+
+  if (changes == META_KMS_UPDATE_CHANGE_NONE)
+    return changes;
 
   g_list_free (device->crtcs);
   device->crtcs = meta_kms_impl_device_copy_crtcs (impl_device);
@@ -204,6 +208,8 @@ meta_kms_device_update_states_in_impl (MetaKmsDevice *device)
 
   g_list_free (device->planes);
   device->planes = meta_kms_impl_device_copy_planes (impl_device);
+
+  return changes;
 }
 
 void

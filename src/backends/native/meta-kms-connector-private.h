@@ -38,8 +38,8 @@ uint32_t meta_kms_connector_get_prop_id (MetaKmsConnector     *connector,
 const char * meta_kms_connector_get_prop_name (MetaKmsConnector     *connector,
                                                MetaKmsConnectorProp  prop);
 
-void meta_kms_connector_update_state (MetaKmsConnector *connector,
-                                      drmModeRes       *drm_resources);
+MetaKmsUpdateChanges meta_kms_connector_update_state (MetaKmsConnector *connector,
+                                                      drmModeRes       *drm_resources);
 
 void meta_kms_connector_predict_state (MetaKmsConnector *connector,
                                        MetaKmsUpdate    *update);

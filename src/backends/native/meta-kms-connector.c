@@ -46,6 +46,7 @@ struct _MetaKmsConnector
   uint32_t type_id;
   char *name;
 
+  drmModeConnection connection;
   MetaKmsConnectorState *current_state;
 
   MetaKmsConnectorPropTable prop_table;
@@ -467,18 +468,116 @@ meta_kms_connector_state_free (MetaKmsConnectorState *state)
   g_free (state);
 }
 
-static void
+G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsConnectorState,
+                               meta_kms_connector_state_free);
+
+static gboolean
+kms_modes_equal (GList *modes,
+                 GList *other_modes)
+{
+  GList *l;
+
+  if (g_list_length (modes) != g_list_length (other_modes))
+    return FALSE;
+
+  for (l = modes; l; l = l->next)
+    {
+      GList *k;
+      MetaKmsMode *mode = l->data;
+
+      for (k = other_modes; k; k = k->next)
+        {
+          MetaKmsMode *other_mode = k->data;
+
+          if (!meta_kms_mode_equal (mode, other_mode))
+            return FALSE;
+        }
+    }
+
+  return TRUE;
+}
+
+static MetaKmsUpdateChanges
+meta_kms_connector_state_changes (MetaKmsConnectorState *state,
+                                  MetaKmsConnectorState *new_state)
+{
+  if (state->current_crtc_id != new_state->current_crtc_id)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->common_possible_crtcs != new_state->common_possible_crtcs)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->common_possible_clones != new_state->common_possible_clones)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->encoder_device_idxs != new_state->encoder_device_idxs)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->width_mm != new_state->width_mm)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->height_mm != new_state->height_mm)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->has_scaling != new_state->has_scaling)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->non_desktop != new_state->non_desktop)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->subpixel_order != new_state->subpixel_order)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->suggested_x != new_state->suggested_x)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->suggested_y != new_state->suggested_y)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->hotplug_mode_update != new_state->hotplug_mode_update)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (state->panel_orientation_transform !=
+      new_state->panel_orientation_transform)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (!meta_tile_info_equal (&state->tile_info, &new_state->tile_info))
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if ((state->edid_data && !new_state->edid_data) || !state->edid_data ||
+      !g_bytes_equal (state->edid_data, new_state->edid_data))
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  if (!kms_modes_equal (state->modes, new_state->modes))
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  return META_KMS_UPDATE_CHANGE_NONE;
+}
+
+static MetaKmsUpdateChanges
 meta_kms_connector_read_state (MetaKmsConnector  *connector,
                                MetaKmsImplDevice *impl_device,
                                drmModeConnector  *drm_connector,
                                drmModeRes        *drm_resources)
 {
-  MetaKmsConnectorState *state;
+  g_autoptr (MetaKmsConnectorState) state = NULL;
+  g_autoptr (MetaKmsConnectorState) current_state = NULL;
+  MetaKmsUpdateChanges connector_changes;
+  MetaKmsUpdateChanges changes;
 
-  g_clear_pointer (&connector->current_state, meta_kms_connector_state_free);
+  current_state = g_steal_pointer (&connector->current_state);
+  changes = META_KMS_UPDATE_CHANGE_NONE;
 
-  if (!drm_connector || drm_connector->connection != DRM_MODE_CONNECTED)
-    return;
+  if (drm_connector->connection != DRM_MODE_CONNECTED)
+    {
+      if (drm_connector->connection != connector->connection)
+        {
+          connector->connection = drm_connector->connection;
+          changes |= META_KMS_UPDATE_CHANGE_FULL;
+        }
+
+      return changes;
+    }
 
   state = meta_kms_connector_state_new ();
 
@@ -495,26 +594,54 @@ meta_kms_connector_read_state (MetaKmsConnector  *connector,
 
   state_set_crtc_state (state, drm_connector, impl_device, drm_resources);
 
-  connector->current_state = state;
+  if (drm_connector->connection != connector->connection)
+    {
+      connector->connection = drm_connector->connection;
+      changes |= META_KMS_UPDATE_CHANGE_FULL;
+    }
 
-  sync_fd_held (connector, impl_device);
+  if (!current_state)
+    connector_changes = META_KMS_UPDATE_CHANGE_FULL;
+  else
+    connector_changes = meta_kms_connector_state_changes (current_state, state);
+
+  if (connector_changes == META_KMS_UPDATE_CHANGE_NONE)
+    {
+      connector->current_state = g_steal_pointer (&current_state);
+    }
+  else
+    {
+      connector->current_state = g_steal_pointer (&state);
+      changes |= connector_changes;
+    }
+
+  if (changes != META_KMS_UPDATE_CHANGE_NONE)
+    sync_fd_held (connector, impl_device);
+
+  return changes;
 }
 
-void
+MetaKmsUpdateChanges
 meta_kms_connector_update_state (MetaKmsConnector *connector,
                                  drmModeRes       *drm_resources)
 {
   MetaKmsImplDevice *impl_device;
   drmModeConnector *drm_connector;
+  MetaKmsUpdateChanges changes;
 
   impl_device = meta_kms_device_get_impl_device (connector->device);
   drm_connector = drmModeGetConnector (meta_kms_impl_device_get_fd (impl_device),
                                        connector->id);
-  meta_kms_connector_read_state (connector, impl_device,
-                                 drm_connector,
-                                 drm_resources);
-  if (drm_connector)
-    drmModeFreeConnector (drm_connector);
+
+  if (!drm_connector)
+    return META_KMS_UPDATE_CHANGE_FULL;
+
+  changes = meta_kms_connector_read_state (connector, impl_device,
+                                           drm_connector,
+                                           drm_resources);
+  drmModeFreeConnector (drm_connector);
+
+  return changes;
 }
 
 void
@@ -651,6 +778,7 @@ meta_kms_connector_new (MetaKmsImplDevice *impl_device,
 {
   MetaKmsConnector *connector;
 
+  g_assert (drm_connector);
   connector = g_object_new (META_TYPE_KMS_CONNECTOR, NULL);
   connector->device = meta_kms_impl_device_get_device (impl_device);
   connector->id = drm_connector->connector_id;

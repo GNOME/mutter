@@ -29,6 +29,8 @@
 #include "backends/native/meta-udev.h"
 #include "cogl/cogl.h"
 
+#include "meta-private-enum-types.h"
+
 /**
  * SECTION:kms
  * @short description: KMS abstraction
@@ -563,17 +565,25 @@ meta_kms_is_waiting_for_impl_task (MetaKms *kms)
   return kms->waiting_for_impl_task;
 }
 
-static void
-meta_kms_update_states_in_impl (MetaKms *kms)
+static MetaKmsUpdateChanges
+meta_kms_update_states_in_impl (MetaKms  *kms)
 {
+  MetaKmsUpdateChanges changes = META_KMS_UPDATE_CHANGE_NONE;
+  GList *l;
+
   COGL_TRACE_BEGIN_SCOPED (MetaKmsUpdateStates,
                            "KMS (update states)");
 
   meta_assert_in_kms_impl (kms);
 
-  g_list_foreach (kms->devices,
-                  (GFunc) meta_kms_device_update_states_in_impl,
-                  NULL);
+  for (l = kms->devices; l; l = l->next)
+    {
+      MetaKmsDevice *kms_device = META_KMS_DEVICE (l->data);
+
+      changes |= meta_kms_device_update_states_in_impl (kms_device);
+    }
+
+  return changes;
 }
 
 static gpointer
@@ -583,30 +593,27 @@ update_states_in_impl (MetaKmsImpl  *impl,
 {
   MetaKms *kms = meta_kms_impl_get_kms (impl);
 
-  meta_kms_update_states_in_impl (kms);
-
-  return GINT_TO_POINTER (TRUE);
+  return GUINT_TO_POINTER (meta_kms_update_states_in_impl (kms));
 }
 
-static gboolean
-meta_kms_update_states_sync (MetaKms  *kms,
-                             GError  **error)
+static MetaKmsUpdateChanges
+meta_kms_update_states_sync (MetaKms  *kms)
 {
   gpointer ret;
 
-  ret = meta_kms_run_impl_task_sync (kms, update_states_in_impl, NULL, error);
-  return GPOINTER_TO_INT (ret);
+  ret = meta_kms_run_impl_task_sync (kms, update_states_in_impl, NULL, NULL);
+  return GPOINTER_TO_UINT (ret);
 }
 
 static void
 handle_hotplug_event (MetaKms *kms)
 {
-  g_autoptr (GError) error = NULL;
+  MetaKmsUpdateChanges changes;
 
-  if (!meta_kms_update_states_sync (kms, &error))
-    g_warning ("Updating KMS state failed: %s", error->message);
+  changes = meta_kms_update_states_sync (kms);
 
-  g_signal_emit (kms, signals[RESOURCES_CHANGED], 0);
+  if (changes != META_KMS_UPDATE_CHANGE_NONE)
+    g_signal_emit (kms, signals[RESOURCES_CHANGED], 0, changes);
 }
 
 void
@@ -750,5 +757,6 @@ meta_kms_class_init (MetaKmsClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 0);
+                  G_TYPE_NONE, 1,
+                  META_TYPE_KMS_UPDATE_CHANGES);
 }

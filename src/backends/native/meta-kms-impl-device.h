@@ -135,7 +135,7 @@ void meta_kms_impl_device_hold_fd (MetaKmsImplDevice *impl_device);
 
 void meta_kms_impl_device_unhold_fd (MetaKmsImplDevice *impl_device);
 
-void meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device);
+MetaKmsUpdateChanges meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device);
 
 void meta_kms_impl_device_predict_states (MetaKmsImplDevice *impl_device,
                                           MetaKmsUpdate     *update);

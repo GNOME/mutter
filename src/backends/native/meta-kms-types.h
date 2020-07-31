@@ -64,6 +64,13 @@ typedef enum _MetaKmsDeviceFlag
   META_KMS_DEVICE_FLAG_NO_MODE_SETTING = 1 << 4,
 } MetaKmsDeviceFlag;
 
+typedef enum _MetaKmsUpdateChanges
+{
+  META_KMS_UPDATE_CHANGE_NONE = 0,
+  META_KMS_UPDATE_CHANGE_GAMMA = 1 << 0,
+  META_KMS_UPDATE_CHANGE_FULL = -1,
+} MetaKmsUpdateChanges;
+
 typedef enum _MetaKmsPlaneType MetaKmsPlaneType;
 
 typedef enum _MetaKmsPropType

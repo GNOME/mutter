@@ -106,6 +106,10 @@ typedef struct _MetaOutputInfo
   MetaTileInfo tile_info;
 } MetaOutputInfo;
 
+gboolean
+meta_tile_info_equal (MetaTileInfo *a,
+                      MetaTileInfo *b);
+
 #define META_TYPE_OUTPUT_INFO (meta_output_info_get_type ())
 META_EXPORT_TEST
 GType meta_output_info_get_type (void);
