@@ -187,3 +187,26 @@ meta_viewport_info_get_num_views (MetaViewportInfo *info)
 {
   return info->views->len;
 }
+
+void
+meta_viewport_info_get_extents (MetaViewportInfo *viewport_info,
+                                float            *width,
+                                float            *height)
+{
+  int min_x = G_MAXINT, min_y = G_MAXINT, max_x = G_MININT, max_y = G_MININT, i;
+
+  for (i = 0; i < viewport_info->views->len; i++)
+    {
+      ViewInfo *info = &g_array_index (viewport_info->views, ViewInfo, i);
+
+      min_x = MIN (min_x, info->rect.x);
+      max_x = MAX (max_x, info->rect.x + info->rect.width);
+      min_y = MIN (min_y, info->rect.y);
+      max_y = MAX (max_y, info->rect.y + info->rect.height);
+    }
+
+  if (width)
+    *width = (float) max_x - min_x;
+  if (height)
+    *height = (float) max_y - min_y;
+}
