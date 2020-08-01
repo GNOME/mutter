@@ -49,6 +49,7 @@ typedef struct _MetaKmsConnectorState
   GBytes *edid_data;
 
   gboolean has_scaling;
+  gboolean non_desktop;
 
   CoglSubpixelOrder subpixel_order;
 

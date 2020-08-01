@@ -206,6 +206,9 @@ state_set_properties (MetaKmsConnectorState *state,
       else if ((prop->flags & DRM_MODE_PROP_ENUM) &&
                strcmp (prop->name, "panel orientation") == 0)
         set_panel_orientation (state, prop, drm_connector->prop_values[i]);
+      if ((prop->flags & DRM_MODE_PROP_RANGE) &&
+          strcmp (prop->name, "non-desktop") == 0)
+        state->non_desktop = drm_connector->prop_values[i];
 
       drmModeFreeProperty (prop);
     }

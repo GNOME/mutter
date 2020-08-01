@@ -506,7 +506,7 @@ init_outputs (MetaGpuKms *gpu_kms)
       GError *error = NULL;
 
       connector_state = meta_kms_connector_get_current_state (kms_connector);
-      if (!connector_state)
+      if (!connector_state || connector_state->non_desktop)
         continue;
 
       old_output =
