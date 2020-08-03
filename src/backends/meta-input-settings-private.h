@@ -92,10 +92,9 @@ struct _MetaInputSettingsClass
   void (* set_tablet_mapping)        (MetaInputSettings      *settings,
                                       ClutterInputDevice     *device,
                                       GDesktopTabletMapping   mapping);
-  void (* set_tablet_keep_aspect)    (MetaInputSettings      *settings,
+  void (* set_tablet_aspect_ratio)   (MetaInputSettings      *settings,
                                       ClutterInputDevice     *device,
-                                      MetaLogicalMonitor     *logical_monitor,
-                                      gboolean                keep_aspect);
+                                      double                  ratio);
   void (* set_tablet_area)           (MetaInputSettings      *settings,
                                       ClutterInputDevice     *device,
                                       gdouble                 padding_left,

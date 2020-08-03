@@ -35,7 +35,6 @@
 #include <gudev/gudev.h>
 #endif
 
-#include "backends/meta-logical-monitor.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "core/display-private.h"
 #include "meta/meta-x11-errors.h"
@@ -729,37 +728,19 @@ meta_input_settings_x11_set_tablet_area (MetaInputSettings  *settings,
 }
 
 static void
-meta_input_settings_x11_set_tablet_keep_aspect (MetaInputSettings  *settings,
-                                                ClutterInputDevice *device,
-                                                MetaLogicalMonitor *logical_monitor,
-                                                gboolean            keep_aspect)
+meta_input_settings_x11_set_tablet_aspect_ratio (MetaInputSettings  *settings,
+                                                 ClutterInputDevice *device,
+                                                 gdouble             aspect_ratio)
 {
-  gint32 width, height, dev_x, dev_y, dev_width, dev_height, area[4] = { 0 };
+  gint32 dev_x, dev_y, dev_width, dev_height, area[4] = { 0 };
 
   if (!device_query_area (device, &dev_x, &dev_y, &dev_width, &dev_height))
     return;
 
-  if (keep_aspect)
+  if (aspect_ratio > 0)
     {
-      double aspect_ratio, dev_aspect;
+      double dev_aspect;
 
-      if (logical_monitor)
-        {
-          width = logical_monitor->rect.width;
-          height = logical_monitor->rect.height;
-        }
-      else
-        {
-          MetaMonitorManager *monitor_manager;
-          MetaBackend *backend;
-
-          backend = meta_get_backend ();
-          monitor_manager = meta_backend_get_monitor_manager (backend);
-          meta_monitor_manager_get_screen_size (monitor_manager,
-                                                &width, &height);
-        }
-
-      aspect_ratio = (double) width / height;
       dev_aspect = (double) dev_width / dev_height;
 
       if (dev_aspect > aspect_ratio)
@@ -931,7 +912,7 @@ meta_input_settings_x11_class_init (MetaInputSettingsX11Class *klass)
   input_settings_class->set_keyboard_repeat = meta_input_settings_x11_set_keyboard_repeat;
 
   input_settings_class->set_tablet_mapping = meta_input_settings_x11_set_tablet_mapping;
-  input_settings_class->set_tablet_keep_aspect = meta_input_settings_x11_set_tablet_keep_aspect;
+  input_settings_class->set_tablet_aspect_ratio = meta_input_settings_x11_set_tablet_aspect_ratio;
   input_settings_class->set_tablet_area = meta_input_settings_x11_set_tablet_area;
 
   input_settings_class->set_mouse_accel_profile = meta_input_settings_x11_set_mouse_accel_profile;
