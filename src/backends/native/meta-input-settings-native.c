@@ -26,7 +26,6 @@
 #include <linux/input-event-codes.h>
 #include <libinput.h>
 
-#include "backends/meta-logical-monitor.h"
 #include "backends/native/meta-backend-native.h"
 #include "backends/native/meta-input-device-native.h"
 #include "backends/native/meta-input-device-tool-native.h"
@@ -549,40 +548,13 @@ meta_input_settings_native_set_tablet_mapping (MetaInputSettings     *settings,
 }
 
 static void
-meta_input_settings_native_set_tablet_keep_aspect (MetaInputSettings  *settings,
-                                                   ClutterInputDevice *device,
-                                                   MetaLogicalMonitor *logical_monitor,
-                                                   gboolean            keep_aspect)
+meta_input_settings_native_set_tablet_aspect_ratio (MetaInputSettings  *settings,
+                                                    ClutterInputDevice *device,
+                                                    gdouble             aspect_ratio)
 {
-  double aspect_ratio = 0;
-
   if (meta_input_device_native_get_mapping_mode (device) ==
       META_INPUT_DEVICE_MAPPING_RELATIVE)
-    keep_aspect = FALSE;
-
-  if (keep_aspect)
-    {
-      int width, height;
-
-      if (logical_monitor)
-        {
-          width = logical_monitor->rect.width;
-          height = logical_monitor->rect.height;
-        }
-      else
-        {
-          MetaMonitorManager *monitor_manager;
-          MetaBackend *backend;
-
-          backend = meta_get_backend ();
-          monitor_manager = meta_backend_get_monitor_manager (backend);
-          meta_monitor_manager_get_screen_size (monitor_manager,
-                                                &width,
-                                                &height);
-        }
-
-      aspect_ratio = (double) width / height;
-    }
+    aspect_ratio = 0;
 
   g_object_set (device, "output-aspect-ratio", aspect_ratio, NULL);
 }
@@ -745,7 +717,7 @@ meta_input_settings_native_class_init (MetaInputSettingsNativeClass *klass)
   input_settings_class->set_disable_while_typing = meta_input_settings_native_set_disable_while_typing;
 
   input_settings_class->set_tablet_mapping = meta_input_settings_native_set_tablet_mapping;
-  input_settings_class->set_tablet_keep_aspect = meta_input_settings_native_set_tablet_keep_aspect;
+  input_settings_class->set_tablet_aspect_ratio = meta_input_settings_native_set_tablet_aspect_ratio;
   input_settings_class->set_tablet_area = meta_input_settings_native_set_tablet_area;
 
   input_settings_class->set_mouse_accel_profile = meta_input_settings_native_set_mouse_accel_profile;

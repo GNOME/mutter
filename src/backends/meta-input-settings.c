@@ -1012,6 +1012,7 @@ update_tablet_keep_aspect (MetaInputSettings  *input_settings,
   MetaInputSettingsClass *input_settings_class;
   MetaLogicalMonitor *logical_monitor = NULL;
   gboolean keep_aspect;
+  double aspect_ratio;
 
   if (clutter_input_device_get_device_type (device) != CLUTTER_TABLET_DEVICE &&
       clutter_input_device_get_device_type (device) != CLUTTER_PEN_DEVICE &&
@@ -1037,8 +1038,34 @@ update_tablet_keep_aspect (MetaInputSettings  *input_settings,
   meta_input_settings_find_monitor (input_settings, settings, device,
                                     NULL, &logical_monitor);
 
-  input_settings_class->set_tablet_keep_aspect (input_settings, device,
-                                                logical_monitor, keep_aspect);
+  if (keep_aspect)
+    {
+      int width, height;
+
+      if (logical_monitor)
+        {
+          width = logical_monitor->rect.width;
+          height = logical_monitor->rect.height;
+        }
+      else
+        {
+          MetaMonitorManager *monitor_manager;
+          MetaBackend *backend;
+
+          backend = meta_get_backend ();
+          monitor_manager = meta_backend_get_monitor_manager (backend);
+          meta_monitor_manager_get_screen_size (monitor_manager,
+                                                &width, &height);
+        }
+
+      aspect_ratio = (double) width / height;
+    }
+  else
+    {
+      aspect_ratio = 0;
+    }
+
+  input_settings_class->set_tablet_aspect_ratio (input_settings, device, aspect_ratio);
 }
 
 static void
