@@ -23,7 +23,8 @@
 #define META_INPUT_MAPPER_H
 
 #include <clutter/clutter.h>
-#include "meta-monitor-manager-private.h"
+
+#include "backends/meta-backend-types.h"
 
 #define META_TYPE_INPUT_MAPPER (meta_input_mapper_get_type ())
 

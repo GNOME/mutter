@@ -73,6 +73,7 @@ struct _MetaBackendNative
   MetaLauncher *launcher;
   MetaUdev *udev;
   MetaKms *kms;
+  MetaInputSettings *input_settings;
 
   gulong udev_device_added_handler_id;
 };
@@ -100,6 +101,7 @@ meta_backend_native_finalize (GObject *object)
   g_clear_object (&native->udev);
   g_clear_object (&native->kms);
   meta_launcher_free (native->launcher);
+  g_clear_object (&native->input_settings);
 
   G_OBJECT_CLASS (meta_backend_native_parent_class)->finalize (object);
 }
@@ -235,7 +237,15 @@ meta_backend_native_create_renderer (MetaBackend *backend,
 static MetaInputSettings *
 meta_backend_native_create_input_settings (MetaBackend *backend)
 {
-  return g_object_new (META_TYPE_INPUT_SETTINGS_NATIVE, NULL);
+  MetaBackendNative *native = META_BACKEND_NATIVE (backend);
+
+  if (!native->input_settings)
+    {
+      native->input_settings = g_object_new (META_TYPE_INPUT_SETTINGS_NATIVE,
+                                             NULL);
+    }
+
+  return native->input_settings;
 }
 
 static MetaLogicalMonitor *
@@ -657,7 +667,6 @@ void meta_backend_native_resume (MetaBackendNative *native)
     meta_backend_get_monitor_manager (backend);
   MetaMonitorManagerKms *monitor_manager_kms =
     META_MONITOR_MANAGER_KMS (monitor_manager);
-  MetaInputSettings *input_settings;
   MetaIdleMonitor *idle_monitor;
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
   MetaSeatNative *seat =
@@ -679,8 +688,7 @@ void meta_backend_native_resume (MetaBackendNative *native)
   idle_monitor = meta_idle_monitor_get_core ();
   meta_idle_monitor_reset_idletime (idle_monitor);
 
-  input_settings = meta_backend_get_input_settings (backend);
-  meta_input_settings_maybe_restore_numlock_state (input_settings);
+  meta_input_settings_maybe_restore_numlock_state (native->input_settings);
 
   clutter_seat_ensure_a11y_state (CLUTTER_SEAT (seat));
 }

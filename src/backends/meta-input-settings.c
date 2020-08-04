@@ -82,9 +82,6 @@ struct _MetaInputSettingsPrivate
   GHashTable *current_tools;
 
   GHashTable *two_finger_devices;
-
-  /* For absolute devices with no mapping in settings */
-  MetaInputMapper *input_mapper;
 };
 
 typedef gboolean (* ConfigBoolMappingFunc) (MetaInputSettings  *input_settings,
@@ -143,7 +140,6 @@ meta_input_settings_dispose (GObject *object)
   g_clear_object (&priv->gsd_settings);
   g_clear_object (&priv->keyboard_a11y_settings);
   g_clear_object (&priv->mouse_a11y_settings);
-  g_clear_object (&priv->input_mapper);
   g_clear_pointer (&priv->mappable_devices, g_hash_table_unref);
   g_clear_pointer (&priv->current_tools, g_hash_table_unref);
 
@@ -1409,33 +1405,6 @@ lookup_tool_settings (ClutterInputDeviceTool *tool,
 }
 
 static void
-input_mapper_device_mapped_cb (MetaInputMapper    *mapper,
-                               ClutterInputDevice *device,
-                               float               matrix[6],
-                               MetaInputSettings  *input_settings)
-{
-  meta_input_settings_set_device_matrix (input_settings, device, matrix);
-}
-
-static void
-input_mapper_device_enabled_cb (MetaInputMapper    *mapper,
-                                ClutterInputDevice *device,
-                                gboolean            enabled,
-                                MetaInputSettings  *input_settings)
-{
-  meta_input_settings_set_device_enabled (input_settings, device, enabled);
-}
-
-static void
-input_mapper_device_aspect_ratio_cb (MetaInputMapper    *mapper,
-                                     ClutterInputDevice *device,
-                                     double              aspect_ratio,
-                                     MetaInputSettings  *input_settings)
-{
-  meta_input_settings_set_device_aspect_ratio (input_settings, device, aspect_ratio);
-}
-
-static void
 device_mapping_info_free (DeviceMappingInfo *info)
 {
   g_clear_signal_handler (&info->changed_id, info->settings);
@@ -1466,8 +1435,6 @@ check_add_mappable_device (MetaInputSettings  *input_settings,
 
   if (!settings)
     return FALSE;
-
-  meta_input_mapper_add_device (priv->input_mapper, device);
 
   priv = meta_input_settings_get_instance_private (input_settings);
 
@@ -1642,7 +1609,6 @@ meta_input_settings_device_removed (ClutterSeat        *seat,
   MetaInputSettingsPrivate *priv;
 
   priv = meta_input_settings_get_instance_private (input_settings);
-  meta_input_mapper_remove_device (priv->input_mapper, device);
   g_hash_table_remove (priv->mappable_devices, device);
   g_hash_table_remove (priv->current_tools, device);
 
@@ -1815,44 +1781,6 @@ meta_input_settings_init (MetaInputSettings *settings)
     g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) current_tool_info_free);
 
   priv->two_finger_devices = g_hash_table_new (NULL, NULL);
-
-  priv->input_mapper = meta_input_mapper_new ();
-  g_signal_connect (priv->input_mapper, "device-mapped",
-                    G_CALLBACK (input_mapper_device_mapped_cb), settings);
-  g_signal_connect (priv->input_mapper, "device-enabled",
-                    G_CALLBACK (input_mapper_device_enabled_cb), settings);
-  g_signal_connect (priv->input_mapper, "device-aspect-ratio",
-                    G_CALLBACK (input_mapper_device_aspect_ratio_cb), settings);
-}
-
-GSettings *
-meta_input_settings_get_tablet_settings (MetaInputSettings  *settings,
-                                         ClutterInputDevice *device)
-{
-  MetaInputSettingsPrivate *priv;
-  DeviceMappingInfo *info;
-
-  g_return_val_if_fail (META_IS_INPUT_SETTINGS (settings), NULL);
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-
-  priv = meta_input_settings_get_instance_private (settings);
-  info = g_hash_table_lookup (priv->mappable_devices, device);
-
-  return info ? g_object_ref (info->settings) : NULL;
-}
-
-MetaLogicalMonitor *
-meta_input_settings_get_tablet_logical_monitor (MetaInputSettings  *settings,
-                                                ClutterInputDevice *device)
-{
-  MetaInputSettingsPrivate *priv;
-
-  g_return_val_if_fail (META_IS_INPUT_SETTINGS (settings), NULL);
-  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-
-  priv = meta_input_settings_get_instance_private (settings);
-
-  return meta_input_mapper_get_device_logical_monitor (priv->input_mapper, device);
 }
 
 void

@@ -136,11 +136,6 @@ struct _MetaInputSettingsClass
                                     ClutterInputDevice *device);
 };
 
-GSettings *           meta_input_settings_get_tablet_settings (MetaInputSettings  *settings,
-                                                               ClutterInputDevice *device);
-MetaLogicalMonitor *  meta_input_settings_get_tablet_logical_monitor (MetaInputSettings  *settings,
-                                                                      ClutterInputDevice *device);
-
 void meta_input_settings_maybe_save_numlock_state    (MetaInputSettings *input_settings);
 void meta_input_settings_maybe_restore_numlock_state (MetaInputSettings *input_settings);
 

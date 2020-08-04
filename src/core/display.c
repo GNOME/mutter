@@ -45,7 +45,7 @@
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-monitor-dbus.h"
 #include "backends/meta-input-device-private.h"
-#include "backends/meta-input-settings-private.h"
+#include "backends/meta-input-mapper-private.h"
 #include "backends/meta-stage-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
@@ -2909,7 +2909,7 @@ meta_display_request_pad_osd (MetaDisplay        *display,
                               gboolean            edition_mode)
 {
   MetaBackend *backend = meta_get_backend ();
-  MetaInputSettings *input_settings;
+  MetaInputMapper *input_mapper;
   const gchar *layout_path = NULL;
   ClutterActor *osd;
   MetaLogicalMonitor *logical_monitor;
@@ -2925,13 +2925,13 @@ meta_display_request_pad_osd (MetaDisplay        *display,
   if (display->current_pad_osd)
     return;
 
-  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  input_mapper = meta_backend_get_input_mapper (meta_get_backend ());
 
-  if (input_settings)
+  if (input_mapper)
     {
-      settings = meta_input_settings_get_tablet_settings (input_settings, pad);
+      settings = meta_input_mapper_get_tablet_settings (input_mapper, pad);
       logical_monitor =
-        meta_input_settings_get_tablet_logical_monitor (input_settings, pad);
+        meta_input_mapper_get_device_logical_monitor (input_mapper, pad);
 #ifdef HAVE_LIBWACOM
       wacom_device = meta_input_device_get_wacom_device (META_INPUT_DEVICE (pad));
       layout_path = libwacom_get_layout_filename (wacom_device);
@@ -3015,15 +3015,15 @@ static gint
 lookup_tablet_monitor (MetaDisplay        *display,
                        ClutterInputDevice *device)
 {
-  MetaInputSettings *input_settings;
+  MetaInputMapper *input_mapper;
   MetaLogicalMonitor *monitor;
   gint monitor_idx = -1;
 
-  input_settings = meta_backend_get_input_settings (meta_get_backend ());
-  if (!input_settings)
+  input_mapper = meta_backend_get_input_mapper (meta_get_backend ());
+  if (!input_mapper)
     return -1;
 
-  monitor = meta_input_settings_get_tablet_logical_monitor (input_settings, device);
+  monitor = meta_input_mapper_get_device_logical_monitor (input_mapper, device);
 
   if (monitor)
     {
