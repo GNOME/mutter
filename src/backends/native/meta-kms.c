@@ -626,8 +626,9 @@ meta_kms_resume (MetaKms *kms)
 }
 
 static void
-on_udev_hotplug (MetaUdev *udev,
-                 MetaKms  *kms)
+on_udev_hotplug (MetaUdev    *udev,
+                 GUdevDevice *udev_device,
+                 MetaKms     *kms)
 {
   handle_hotplug_event (kms);
 }
