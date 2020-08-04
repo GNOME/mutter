@@ -34,4 +34,10 @@ void meta_kms_device_add_fake_plane_in_impl (MetaKmsDevice    *device,
                                              MetaKmsPlaneType  plane_type,
                                              MetaKmsCrtc      *crtc);
 
+MetaKmsCrtc * meta_kms_device_find_crtc_in_impl (MetaKmsDevice *device,
+                                                 uint32_t       crtc_id);
+
+MetaKmsConnector * meta_kms_device_find_connector_in_impl (MetaKmsDevice *device,
+                                                           uint32_t       connector_id);
+
 #endif /* META_KMS_DEVICE_PRIVATE_H */

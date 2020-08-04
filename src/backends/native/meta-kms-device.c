@@ -20,6 +20,8 @@
 
 #include "config.h"
 
+#include "backends/native/meta-kms-connector.h"
+#include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-device-private.h"
 #include "backends/native/meta-kms-device.h"
 
@@ -131,6 +133,48 @@ GList *
 meta_kms_device_get_connectors (MetaKmsDevice *device)
 {
   return device->connectors;
+}
+
+MetaKmsCrtc *
+meta_kms_device_find_crtc_in_impl (MetaKmsDevice *device,
+                                   uint32_t       crtc_id)
+{
+  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  GList *l;
+
+  meta_assert_in_kms_impl (device->kms);
+  meta_assert_is_waiting_for_kms_impl_task (device->kms);
+
+  for (l = meta_kms_impl_device_peek_crtcs (impl_device); l; l = l->next)
+    {
+      MetaKmsCrtc *crtc = META_KMS_CRTC (l->data);
+
+      if (meta_kms_crtc_get_id (crtc) == crtc_id)
+        return crtc;
+    }
+
+  return NULL;
+}
+
+MetaKmsConnector *
+meta_kms_device_find_connector_in_impl (MetaKmsDevice *device,
+                                        uint32_t       connector_id)
+{
+  MetaKmsImplDevice *impl_device = meta_kms_device_get_impl_device (device);
+  GList *l;
+
+  meta_assert_in_kms_impl (device->kms);
+  meta_assert_is_waiting_for_kms_impl_task (device->kms);
+
+  for (l = meta_kms_impl_device_peek_connectors (impl_device); l; l = l->next)
+    {
+      MetaKmsConnector *connector = META_KMS_CONNECTOR (l->data);
+
+      if (meta_kms_connector_get_id (connector) == connector_id)
+        return connector;
+    }
+
+  return NULL;
 }
 
 GList *
