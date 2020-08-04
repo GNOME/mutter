@@ -144,4 +144,14 @@ MetaLogicalMonitor *  meta_input_settings_get_tablet_logical_monitor (MetaInputS
 void meta_input_settings_maybe_save_numlock_state    (MetaInputSettings *input_settings);
 void meta_input_settings_maybe_restore_numlock_state (MetaInputSettings *input_settings);
 
+void meta_input_settings_set_device_matrix (MetaInputSettings  *input_settings,
+                                            ClutterInputDevice *device,
+                                            float               matrix[6]);
+void meta_input_settings_set_device_enabled (MetaInputSettings  *input_settings,
+                                             ClutterInputDevice *device,
+                                             gboolean            enabled);
+void meta_input_settings_set_device_aspect_ratio (MetaInputSettings  *input_settings,
+                                                  ClutterInputDevice *device,
+                                                  double              aspect_ratio);
+
 #endif /* META_INPUT_SETTINGS_PRIVATE_H */

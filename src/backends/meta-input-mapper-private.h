@@ -33,10 +33,9 @@ G_DECLARE_FINAL_TYPE (MetaInputMapper, meta_input_mapper,
 MetaInputMapper * meta_input_mapper_new      (void);
 
 void meta_input_mapper_add_device    (MetaInputMapper    *mapper,
-				      ClutterInputDevice *device,
-                                      gboolean            builtin);
+                                      ClutterInputDevice *device);
 void meta_input_mapper_remove_device (MetaInputMapper    *mapper,
-				      ClutterInputDevice *device);
+                                      ClutterInputDevice *device);
 
 ClutterInputDevice *
 meta_input_mapper_get_logical_monitor_device (MetaInputMapper        *mapper,
@@ -45,5 +44,8 @@ meta_input_mapper_get_logical_monitor_device (MetaInputMapper        *mapper,
 MetaLogicalMonitor *
 meta_input_mapper_get_device_logical_monitor (MetaInputMapper *mapper,
                                               ClutterInputDevice *device);
+
+GSettings * meta_input_mapper_get_tablet_settings (MetaInputMapper    *mapper,
+                                                   ClutterInputDevice *device);
 
 #endif /* META_INPUT_MAPPER_H */
