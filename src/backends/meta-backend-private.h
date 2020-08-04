@@ -34,6 +34,7 @@
 #include "backends/meta-backend-types.h"
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-egl.h"
+#include "backends/meta-input-mapper-private.h"
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-monitor-manager-private.h"
 #include "backends/meta-orientation-manager.h"
@@ -175,6 +176,7 @@ gboolean meta_is_stage_views_enabled (void);
 
 gboolean meta_is_stage_views_scaled (void);
 
+MetaInputMapper *meta_backend_get_input_mapper (MetaBackend *backend);
 MetaInputSettings *meta_backend_get_input_settings (MetaBackend *backend);
 
 void meta_backend_notify_keymap_changed (MetaBackend *backend);

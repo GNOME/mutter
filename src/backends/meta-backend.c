@@ -56,6 +56,7 @@
 #include "backends/meta-cursor-renderer.h"
 #include "backends/meta-cursor-tracker-private.h"
 #include "backends/meta-idle-monitor-private.h"
+#include "backends/meta-input-mapper-private.h"
 #include "backends/meta-input-settings-private.h"
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-monitor-manager-dummy.h"
@@ -122,6 +123,7 @@ struct _MetaBackendPrivate
   MetaOrientationManager *orientation_manager;
   MetaCursorTracker *cursor_tracker;
   MetaInputSettings *input_settings;
+  MetaInputMapper *input_mapper;
   MetaRenderer *renderer;
 #ifdef HAVE_EGL
   MetaEgl *egl;
@@ -447,11 +449,22 @@ on_device_added (ClutterSeat        *seat,
 {
   MetaBackend *backend = META_BACKEND (user_data);
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  ClutterInputDeviceType device_type;
 
   create_device_monitor (backend, device);
 
   if (device_is_physical_touchscreen (device))
     meta_cursor_tracker_set_pointer_visible (priv->cursor_tracker, FALSE);
+
+  device_type = clutter_input_device_get_device_type (device);
+
+  if (device_type == CLUTTER_TOUCHSCREEN_DEVICE ||
+      device_type == CLUTTER_TABLET_DEVICE ||
+      device_type == CLUTTER_PEN_DEVICE ||
+      device_type == CLUTTER_ERASER_DEVICE ||
+      device_type == CLUTTER_CURSOR_DEVICE ||
+      device_type == CLUTTER_PAD_DEVICE)
+    meta_input_mapper_add_device (priv->input_mapper, device);
 }
 
 static void
@@ -463,6 +476,8 @@ on_device_removed (ClutterSeat        *seat,
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
 
   destroy_device_monitor (backend, device);
+
+  meta_input_mapper_remove_device (priv->input_mapper, device);
 
   /* If the device the user last interacted goes away, check again pointer
    * visibility.
@@ -524,6 +539,42 @@ meta_backend_create_input_settings (MetaBackend *backend)
 }
 
 static void
+input_mapper_device_mapped_cb (MetaInputMapper    *mapper,
+                               ClutterInputDevice *device,
+                               float               matrix[6],
+                               MetaBackend        *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  MetaInputSettings *input_settings = priv->input_settings;
+
+  meta_input_settings_set_device_matrix (input_settings, device, matrix);
+}
+
+static void
+input_mapper_device_enabled_cb (MetaInputMapper    *mapper,
+                                ClutterInputDevice *device,
+                                gboolean            enabled,
+                                MetaBackend        *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  MetaInputSettings *input_settings = priv->input_settings;
+
+  meta_input_settings_set_device_enabled (input_settings, device, enabled);
+}
+
+static void
+input_mapper_device_aspect_ratio_cb (MetaInputMapper    *mapper,
+                                     ClutterInputDevice *device,
+                                     double              aspect_ratio,
+                                     MetaBackend        *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+  MetaInputSettings *input_settings = priv->input_settings;
+
+  meta_input_settings_set_device_aspect_ratio (input_settings, device, aspect_ratio);
+}
+
+static void
 meta_backend_real_post_init (MetaBackend *backend)
 {
   MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
@@ -559,6 +610,14 @@ meta_backend_real_post_init (MetaBackend *backend)
                                   priv->input_settings);
       meta_input_settings_maybe_restore_numlock_state (priv->input_settings);
     }
+
+  priv->input_mapper = meta_input_mapper_new ();
+  g_signal_connect (priv->input_mapper, "device-mapped",
+                    G_CALLBACK (input_mapper_device_mapped_cb), backend);
+  g_signal_connect (priv->input_mapper, "device-enabled",
+                    G_CALLBACK (input_mapper_device_enabled_cb), backend);
+  g_signal_connect (priv->input_mapper, "device-aspect-ratio",
+                    G_CALLBACK (input_mapper_device_aspect_ratio_cb), backend);
 
 #ifdef HAVE_REMOTE_DESKTOP
   priv->dbus_session_watcher = g_object_new (META_TYPE_DBUS_SESSION_WATCHER, NULL);
@@ -1462,6 +1521,14 @@ meta_is_stage_views_scaled (void)
   layout_mode = monitor_manager->layout_mode;
 
   return layout_mode == META_LOGICAL_MONITOR_LAYOUT_MODE_LOGICAL;
+}
+
+MetaInputMapper *
+meta_backend_get_input_mapper (MetaBackend *backend)
+{
+  MetaBackendPrivate *priv = meta_backend_get_instance_private (backend);
+
+  return priv->input_mapper;
 }
 
 MetaInputSettings *
