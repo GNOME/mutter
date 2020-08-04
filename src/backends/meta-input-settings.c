@@ -61,12 +61,12 @@ struct _DeviceMappingInfo
   GSettings *settings;
   gulong changed_id;
   guint *group_modes;
+  double aspect_ratio;
 };
 
 struct _MetaInputSettingsPrivate
 {
   ClutterSeat *seat;
-  MetaMonitorManager *monitor_manager;
   gulong monitors_changed_id;
 
   GSettings *mouse_settings;
@@ -146,11 +146,6 @@ meta_input_settings_dispose (GObject *object)
   g_clear_object (&priv->input_mapper);
   g_clear_pointer (&priv->mappable_devices, g_hash_table_unref);
   g_clear_pointer (&priv->current_tools, g_hash_table_unref);
-
-  if (priv->monitor_manager)
-    g_clear_signal_handler (&priv->monitors_changed_id, priv->monitor_manager);
-
-  g_clear_object (&priv->monitor_manager);
 
   g_clear_pointer (&priv->two_finger_devices, g_hash_table_destroy);
 
@@ -893,130 +888,26 @@ update_keyboard_repeat (MetaInputSettings *input_settings)
                                              repeat, delay, interval);
 }
 
-static MetaMonitor *
-logical_monitor_find_monitor (MetaLogicalMonitor *logical_monitor,
-                              const char         *vendor,
-                              const char         *product,
-                              const char         *serial)
-{
-  GList *monitors;
-  GList *l;
-
-  monitors = meta_logical_monitor_get_monitors (logical_monitor);
-  for (l = monitors; l; l = l->next)
-    {
-      MetaMonitor *monitor = l->data;
-
-      if (g_strcmp0 (meta_monitor_get_vendor (monitor), vendor) == 0 &&
-          g_strcmp0 (meta_monitor_get_product (monitor), product) == 0 &&
-          g_strcmp0 (meta_monitor_get_serial (monitor), serial) == 0)
-        return monitor;
-    }
-
-  return NULL;
-}
-
-static void
-meta_input_settings_find_monitor (MetaInputSettings   *input_settings,
-                                  GSettings           *settings,
-                                  ClutterInputDevice  *device,
-                                  MetaMonitor        **out_monitor,
-                                  MetaLogicalMonitor **out_logical_monitor)
-{
-  MetaInputSettingsPrivate *priv;
-  MetaMonitorManager *monitor_manager;
-  MetaMonitor *monitor;
-  guint n_values;
-  GList *logical_monitors;
-  GList *l;
-  gchar **edid;
-
-  priv = meta_input_settings_get_instance_private (input_settings);
-  edid = g_settings_get_strv (settings, "output");
-  n_values = g_strv_length (edid);
-
-  if (n_values != 3)
-    {
-      g_warning ("EDID configuration for device '%s' "
-                 "is incorrect, must have 3 values",
-                 clutter_input_device_get_device_name (device));
-      goto out;
-    }
-
-  if (!*edid[0] && !*edid[1] && !*edid[2])
-    goto out;
-
-  monitor_manager = priv->monitor_manager;
-  logical_monitors =
-    meta_monitor_manager_get_logical_monitors (monitor_manager);
-  for (l = logical_monitors; l; l = l->next)
-    {
-      MetaLogicalMonitor *logical_monitor = l->data;
-
-      monitor = logical_monitor_find_monitor (logical_monitor,
-                                              edid[0], edid[1], edid[2]);
-      if (monitor)
-        {
-          if (out_monitor)
-            *out_monitor = monitor;
-          if (out_logical_monitor)
-            *out_logical_monitor = logical_monitor;
-          break;
-        }
-    }
-
-out:
-  g_strfreev (edid);
-}
-
-static gboolean
-meta_input_settings_delegate_on_mapper (MetaInputSettings  *input_settings,
-                                        ClutterInputDevice *device)
-{
-  MetaInputSettingsPrivate *priv;
-  gboolean builtin = FALSE;
-
-  priv = meta_input_settings_get_instance_private (input_settings);
-
-#ifdef HAVE_LIBWACOM
-  if (clutter_input_device_get_device_type (device) != CLUTTER_TOUCHSCREEN_DEVICE)
-    {
-      WacomDevice *wacom_device;
-      WacomIntegrationFlags flags = 0;
-
-      wacom_device =
-        meta_input_device_get_wacom_device (META_INPUT_DEVICE (device));
-
-      if (wacom_device)
-        {
-          flags = libwacom_get_integration_flags (wacom_device);
-
-          if ((flags & (WACOM_DEVICE_INTEGRATED_SYSTEM |
-                        WACOM_DEVICE_INTEGRATED_DISPLAY)) == 0)
-            return FALSE;
-
-          builtin = (flags & WACOM_DEVICE_INTEGRATED_SYSTEM) != 0;
-        }
-    }
-#endif
-
-  meta_input_mapper_add_device (priv->input_mapper, device, builtin);
-  return TRUE;
-}
-
 static void
 update_tablet_keep_aspect (MetaInputSettings  *input_settings,
                            GSettings          *settings,
                            ClutterInputDevice *device)
 {
+  MetaInputSettingsPrivate *priv;
   MetaInputSettingsClass *input_settings_class;
-  MetaLogicalMonitor *logical_monitor = NULL;
+  DeviceMappingInfo *info;
   gboolean keep_aspect;
   double aspect_ratio;
 
   if (clutter_input_device_get_device_type (device) != CLUTTER_TABLET_DEVICE &&
       clutter_input_device_get_device_type (device) != CLUTTER_PEN_DEVICE &&
       clutter_input_device_get_device_type (device) != CLUTTER_ERASER_DEVICE)
+    return;
+
+  priv = meta_input_settings_get_instance_private (input_settings);
+
+  info = g_hash_table_lookup (priv->mappable_devices, device);
+  if (!info)
     return;
 
 #ifdef HAVE_LIBWACOM
@@ -1032,81 +923,15 @@ update_tablet_keep_aspect (MetaInputSettings  *input_settings,
   }
 #endif
 
-  input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
-
   keep_aspect = g_settings_get_boolean (settings, "keep-aspect");
-  meta_input_settings_find_monitor (input_settings, settings, device,
-                                    NULL, &logical_monitor);
 
   if (keep_aspect)
-    {
-      int width, height;
-
-      if (logical_monitor)
-        {
-          width = logical_monitor->rect.width;
-          height = logical_monitor->rect.height;
-        }
-      else
-        {
-          MetaMonitorManager *monitor_manager;
-          MetaBackend *backend;
-
-          backend = meta_get_backend ();
-          monitor_manager = meta_backend_get_monitor_manager (backend);
-          meta_monitor_manager_get_screen_size (monitor_manager,
-                                                &width, &height);
-        }
-
-      aspect_ratio = (double) width / height;
-    }
+    aspect_ratio = info->aspect_ratio;
   else
-    {
-      aspect_ratio = 0;
-    }
+    aspect_ratio = 0;
 
-  input_settings_class->set_tablet_aspect_ratio (input_settings, device, aspect_ratio);
-}
-
-static void
-update_device_display (MetaInputSettings  *input_settings,
-                       GSettings          *settings,
-                       ClutterInputDevice *device)
-{
-  MetaInputSettingsClass *input_settings_class;
-  MetaInputSettingsPrivate *priv;
-  gfloat matrix[6] = { 1, 0, 0, 0, 1, 0 };
-  MetaMonitor *monitor = NULL;
-  MetaLogicalMonitor *logical_monitor = NULL;
-
-  if (clutter_input_device_get_device_type (device) != CLUTTER_TABLET_DEVICE &&
-      clutter_input_device_get_device_type (device) != CLUTTER_PEN_DEVICE &&
-      clutter_input_device_get_device_type (device) != CLUTTER_ERASER_DEVICE &&
-      clutter_input_device_get_device_type (device) != CLUTTER_TOUCHSCREEN_DEVICE)
-    return;
-
-  priv = meta_input_settings_get_instance_private (input_settings);
   input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
-
-  meta_input_settings_find_monitor (input_settings, settings, device,
-                                    &monitor, &logical_monitor);
-  if (monitor)
-    {
-      meta_input_mapper_remove_device (priv->input_mapper, device);
-      meta_monitor_manager_get_monitor_matrix (priv->monitor_manager,
-                                               monitor, logical_monitor,
-                                               matrix);
-    }
-  else
-    {
-      if (meta_input_settings_delegate_on_mapper (input_settings, device))
-        return;
-    }
-
-  input_settings_class->set_matrix (input_settings, device, matrix);
-
-  /* Ensure the keep-aspect mapping is updated */
-  update_tablet_keep_aspect (input_settings, settings, device);
+  input_settings_class->set_tablet_aspect_ratio (input_settings, device, aspect_ratio);
 }
 
 static void
@@ -1141,10 +966,6 @@ update_tablet_mapping (MetaInputSettings  *input_settings,
   settings_device_set_uint_setting (input_settings, device,
                                     input_settings_class->set_tablet_mapping,
                                     mapping);
-
-  /* Relative mapping disables keep-aspect/display */
-  update_tablet_keep_aspect (input_settings, settings, device);
-  update_device_display (input_settings, settings, device);
 }
 
 static void
@@ -1301,9 +1122,7 @@ mapped_device_changed_cb (GSettings         *settings,
                           const gchar       *key,
                           DeviceMappingInfo *info)
 {
-  if (strcmp (key, "output") == 0)
-    update_device_display (info->input_settings, settings, info->device);
-  else if (strcmp (key, "mapping") == 0)
+  if (strcmp (key, "mapping") == 0)
     update_tablet_mapping (info->input_settings, settings, info->device);
   else if (strcmp (key, "area") == 0)
     update_tablet_area (info->input_settings, settings, info->device);
@@ -1319,7 +1138,6 @@ apply_mappable_device_settings (MetaInputSettings *input_settings,
 {
   ClutterInputDeviceType device_type;
 
-  update_device_display (input_settings, info->settings, info->device);
   device_type = clutter_input_device_get_device_type (info->device);
 
   if (device_type == CLUTTER_TABLET_DEVICE ||
@@ -1594,43 +1412,30 @@ lookup_tool_settings (ClutterInputDeviceTool *tool,
 }
 
 static void
-monitors_changed_cb (MetaMonitorManager *monitor_manager,
-                     MetaInputSettings  *input_settings)
+input_mapper_device_mapped_cb (MetaInputMapper    *mapper,
+                               ClutterInputDevice *device,
+                               float               matrix[6],
+                               MetaInputSettings  *input_settings)
 {
-  MetaInputSettingsPrivate *priv;
-  ClutterInputDevice *device;
-  DeviceMappingInfo *info;
-  GHashTableIter iter;
-
-  priv = meta_input_settings_get_instance_private (input_settings);
-  g_hash_table_iter_init (&iter, priv->mappable_devices);
-
-  while (g_hash_table_iter_next (&iter, (gpointer *) &device,
-                                 (gpointer *) &info))
-    update_device_display (input_settings, info->settings, device);
+  meta_input_settings_set_device_matrix (input_settings, device, matrix);
 }
 
 static void
-input_mapper_device_mapped_cb (MetaInputMapper    *mapper,
-                               ClutterInputDevice *device,
-                               MetaLogicalMonitor *logical_monitor,
-                               MetaMonitor        *monitor,
-                               MetaInputSettings  *input_settings)
+input_mapper_device_enabled_cb (MetaInputMapper    *mapper,
+                                ClutterInputDevice *device,
+                                gboolean            enabled,
+                                MetaInputSettings  *input_settings)
 {
-  MetaInputSettingsPrivate *priv;
-  float matrix[6] = { 1, 0, 0, 0, 1, 0 };
+  meta_input_settings_set_device_enabled (input_settings, device, enabled);
+}
 
-  priv = meta_input_settings_get_instance_private (input_settings);
-
-  if (monitor && logical_monitor)
-    {
-      meta_monitor_manager_get_monitor_matrix (priv->monitor_manager,
-                                               monitor, logical_monitor,
-                                               matrix);
-    }
-
-  META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_matrix (input_settings,
-                                                              device, matrix);
+static void
+input_mapper_device_aspect_ratio_cb (MetaInputMapper    *mapper,
+                                     ClutterInputDevice *device,
+                                     double              aspect_ratio,
+                                     MetaInputSettings  *input_settings)
+{
+  meta_input_settings_set_device_aspect_ratio (input_settings, device, aspect_ratio);
 }
 
 static void
@@ -1664,6 +1469,8 @@ check_add_mappable_device (MetaInputSettings  *input_settings,
 
   if (!settings)
     return FALSE;
+
+  meta_input_mapper_add_device (priv->input_mapper, device);
 
   priv = meta_input_settings_get_instance_private (input_settings);
 
@@ -1930,47 +1737,6 @@ check_mappable_devices (MetaInputSettings *input_settings)
 }
 
 static void
-power_save_mode_changed_cb (MetaMonitorManager *manager,
-                            gpointer            user_data)
-{
-  MetaInputSettings *input_settings = user_data;
-  MetaInputSettingsPrivate *priv;
-  ClutterInputDevice *device;
-  MetaLogicalMonitor *logical_monitor;
-  MetaMonitor *builtin;
-  MetaPowerSave power_save_mode;
-  GDesktopDeviceSendEvents send_events;
-  gboolean on;
-
-  power_save_mode = meta_monitor_manager_get_power_save_mode (manager);
-  on = power_save_mode == META_POWER_SAVE_ON;
-  priv = meta_input_settings_get_instance_private (input_settings);
-
-  builtin = meta_monitor_manager_get_laptop_panel (manager);
-  if (!builtin)
-    return;
-
-  logical_monitor = meta_monitor_get_logical_monitor (builtin);
-  if (!logical_monitor)
-    return;
-
-  device =
-    meta_input_mapper_get_logical_monitor_device (priv->input_mapper,
-                                                  logical_monitor,
-                                                  CLUTTER_TOUCHSCREEN_DEVICE);
-  if (!device)
-    return;
-
-  send_events = on ?
-    G_DESKTOP_DEVICE_SEND_EVENTS_ENABLED :
-    G_DESKTOP_DEVICE_SEND_EVENTS_DISABLED;
-
-  META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_send_events (input_settings,
-                                                                   device,
-                                                                   send_events);
-}
-
-static void
 meta_input_settings_constructed (GObject *object)
 {
   MetaInputSettings *input_settings = META_INPUT_SETTINGS (object);
@@ -2051,17 +1817,15 @@ meta_input_settings_init (MetaInputSettings *settings)
   priv->current_tools =
     g_hash_table_new_full (NULL, NULL, NULL, (GDestroyNotify) current_tool_info_free);
 
-  priv->monitor_manager = g_object_ref (meta_monitor_manager_get ());
-  g_signal_connect (priv->monitor_manager, "monitors-changed-internal",
-                    G_CALLBACK (monitors_changed_cb), settings);
-  g_signal_connect (priv->monitor_manager, "power-save-mode-changed",
-                    G_CALLBACK (power_save_mode_changed_cb), settings);
-
   priv->two_finger_devices = g_hash_table_new (NULL, NULL);
 
   priv->input_mapper = meta_input_mapper_new ();
   g_signal_connect (priv->input_mapper, "device-mapped",
                     G_CALLBACK (input_mapper_device_mapped_cb), settings);
+  g_signal_connect (priv->input_mapper, "device-enabled",
+                    G_CALLBACK (input_mapper_device_enabled_cb), settings);
+  g_signal_connect (priv->input_mapper, "device-aspect-ratio",
+                    G_CALLBACK (input_mapper_device_aspect_ratio_cb), settings);
 }
 
 GSettings *
@@ -2080,77 +1844,18 @@ meta_input_settings_get_tablet_settings (MetaInputSettings  *settings,
   return info ? g_object_ref (info->settings) : NULL;
 }
 
-static ClutterInputDevice *
-find_grouped_pen (MetaInputSettings  *settings,
-                  ClutterInputDevice *device)
-{
-  MetaInputSettingsPrivate *priv;
-  GList *l, *devices;
-  ClutterInputDeviceType device_type;
-  ClutterInputDevice *pen = NULL;
-
-  device_type = clutter_input_device_get_device_type (device);
-
-  if (device_type == CLUTTER_TABLET_DEVICE ||
-      device_type == CLUTTER_PEN_DEVICE)
-    return device;
-
-  priv = meta_input_settings_get_instance_private (settings);
-  devices = clutter_seat_list_devices (priv->seat);
-
-  for (l = devices; l; l = l->next)
-    {
-      ClutterInputDevice *other_device = l->data;
-
-      device_type = clutter_input_device_get_device_type (other_device);
-
-      if ((device_type == CLUTTER_TABLET_DEVICE ||
-           device_type == CLUTTER_PEN_DEVICE) &&
-          clutter_input_device_is_grouped (device, other_device))
-        {
-          pen = other_device;
-          break;
-        }
-    }
-
-  g_list_free (devices);
-
-  return pen;
-}
-
 MetaLogicalMonitor *
 meta_input_settings_get_tablet_logical_monitor (MetaInputSettings  *settings,
                                                 ClutterInputDevice *device)
 {
-  MetaLogicalMonitor *logical_monitor = NULL;
   MetaInputSettingsPrivate *priv;
-  DeviceMappingInfo *info;
 
   g_return_val_if_fail (META_IS_INPUT_SETTINGS (settings), NULL);
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
 
-  if (clutter_input_device_get_device_type (device) == CLUTTER_PAD_DEVICE)
-    {
-      device = find_grouped_pen (settings, device);
-      if (!device)
-        return NULL;
-    }
-
   priv = meta_input_settings_get_instance_private (settings);
-  info = g_hash_table_lookup (priv->mappable_devices, device);
-  if (!info)
-    return NULL;
 
-  logical_monitor =
-    meta_input_mapper_get_device_logical_monitor (priv->input_mapper, device);
-
-  if (!logical_monitor)
-    {
-      meta_input_settings_find_monitor (settings, info->settings, device,
-                                        NULL, &logical_monitor);
-    }
-
-  return logical_monitor;
+  return meta_input_mapper_get_device_logical_monitor (priv->input_mapper, device);
 }
 
 void
@@ -2189,4 +1894,57 @@ meta_input_settings_maybe_restore_numlock_state (MetaInputSettings *input_settin
 
   numlock_state = g_settings_get_boolean (priv->keyboard_settings, "numlock-state");
   meta_backend_set_numlock (meta_get_backend (), numlock_state);
+}
+
+void
+meta_input_settings_set_device_matrix (MetaInputSettings  *input_settings,
+                                       ClutterInputDevice *device,
+                                       float               matrix[6])
+{
+  g_return_if_fail (META_IS_INPUT_SETTINGS (input_settings));
+  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
+
+  META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_matrix (input_settings,
+                                                              device,
+                                                              matrix);
+}
+
+void
+meta_input_settings_set_device_enabled (MetaInputSettings  *input_settings,
+                                        ClutterInputDevice *device,
+                                        gboolean            enabled)
+{
+  GDesktopDeviceSendEvents mode;
+
+  g_return_if_fail (META_IS_INPUT_SETTINGS (input_settings));
+  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
+
+  mode = enabled ?
+    G_DESKTOP_DEVICE_SEND_EVENTS_ENABLED :
+    G_DESKTOP_DEVICE_SEND_EVENTS_DISABLED;
+
+  META_INPUT_SETTINGS_GET_CLASS (input_settings)->set_send_events (input_settings,
+                                                                   device,
+                                                                   mode);
+}
+
+void
+meta_input_settings_set_device_aspect_ratio (MetaInputSettings  *input_settings,
+                                             ClutterInputDevice *device,
+                                             double              aspect_ratio)
+{
+  MetaInputSettingsPrivate *priv;
+  DeviceMappingInfo *info;
+
+  g_return_if_fail (META_IS_INPUT_SETTINGS (input_settings));
+  g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
+
+  priv = meta_input_settings_get_instance_private (input_settings);
+
+  info = g_hash_table_lookup (priv->mappable_devices, device);
+  if (!info)
+    return;
+
+  info->aspect_ratio = aspect_ratio;
+  update_tablet_keep_aspect (input_settings, info->settings, device);
 }

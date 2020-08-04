@@ -24,6 +24,7 @@
 #include <gudev/gudev.h>
 #endif
 
+#include "backends/meta-input-device-private.h"
 #include "meta-input-mapper-private.h"
 #include "meta-monitor-manager-private.h"
 #include "meta-logical-monitor.h"
@@ -65,6 +66,7 @@ typedef enum
   META_MATCH_EDID_FULL,    /* Full EDID model match, eg. "Cintiq 12WX" */
   META_MATCH_SIZE,         /* Size from input device and output match */
   META_MATCH_IS_BUILTIN,   /* Output is builtin, applies mainly to system-integrated devices */
+  META_MATCH_CONFIG,       /* Specified by config */
   N_OUTPUT_MATCHES
 } MetaOutputMatchType;
 
@@ -73,6 +75,7 @@ struct _MetaMapperInputInfo
   ClutterInputDevice *device;
   MetaInputMapper *mapper;
   MetaMapperOutputInfo *output;
+  GSettings *settings;
   guint builtin : 1;
 };
 
@@ -106,24 +109,79 @@ struct _DeviceCandidates
 enum
 {
   DEVICE_MAPPED,
+  DEVICE_ENABLED,
+  DEVICE_ASPECT_RATIO,
   N_SIGNALS
 };
 
 static guint signals[N_SIGNALS] = { 0, };
 
+static void mapper_recalculate_input (MetaInputMapper     *mapper,
+                                      MetaMapperInputInfo *input);
+
 G_DEFINE_TYPE (MetaInputMapper, meta_input_mapper, G_TYPE_OBJECT)
+
+static GSettings *
+get_device_settings (ClutterInputDevice *device)
+{
+  const char *group, *schema, *vendor, *product;
+  ClutterInputDeviceType type;
+  GSettings *settings;
+  char *path;
+
+  type = clutter_input_device_get_device_type (device);
+
+  if (type == CLUTTER_TOUCHSCREEN_DEVICE)
+    {
+      group = "touchscreens";
+      schema = "org.gnome.desktop.peripherals.touchscreen";
+    }
+  else if (type == CLUTTER_TABLET_DEVICE ||
+           type == CLUTTER_PEN_DEVICE ||
+           type == CLUTTER_ERASER_DEVICE ||
+           type == CLUTTER_CURSOR_DEVICE ||
+           type == CLUTTER_PAD_DEVICE)
+    {
+      group = "tablets";
+      schema = "org.gnome.desktop.peripherals.tablet";
+    }
+  else
+    {
+      return NULL;
+    }
+
+  vendor = clutter_input_device_get_vendor_id (device);
+  product = clutter_input_device_get_product_id (device);
+  path = g_strdup_printf ("/org/gnome/desktop/peripherals/%s/%s:%s/",
+                          group, vendor, product);
+
+  settings = g_settings_new_with_path (schema, path);
+  g_free (path);
+
+  return settings;
+}
+
+static void
+settings_output_changed_cb (GSettings           *settings,
+                            const char          *key,
+                            MetaMapperInputInfo *info)
+{
+  mapper_recalculate_input (info->mapper, info);
+}
 
 static MetaMapperInputInfo *
 mapper_input_info_new (ClutterInputDevice *device,
-                       MetaInputMapper    *mapper,
-                       gboolean            builtin)
+                       MetaInputMapper    *mapper)
 {
   MetaMapperInputInfo *info;
 
   info = g_new0 (MetaMapperInputInfo, 1);
   info->mapper = mapper;
   info->device = device;
-  info->builtin = builtin;
+  info->settings = get_device_settings (device);
+
+  g_signal_connect (info->settings, "changed::output",
+                    G_CALLBACK (settings_output_changed_cb), info);
 
   return info;
 }
@@ -131,6 +189,7 @@ mapper_input_info_new (ClutterInputDevice *device,
 static void
 mapper_input_info_free (MetaMapperInputInfo *info)
 {
+  g_object_unref (info->settings);
   g_free (info);
 }
 
@@ -181,13 +240,36 @@ mapper_input_info_set_output (MetaMapperInputInfo  *input,
                               MetaMapperOutputInfo *output,
                               MetaMonitor          *monitor)
 {
+  MetaInputMapper *mapper = input->mapper;
+  float matrix[6] = { 1, 0, 0, 0, 1, 0 };
+  double aspect_ratio;
+  int width, height;
+
   if (input->output == output)
     return;
 
   input->output = output;
+
+  if (output && monitor)
+    {
+      meta_monitor_manager_get_monitor_matrix (mapper->monitor_manager,
+                                               monitor,
+                                               output->logical_monitor,
+                                               matrix);
+      meta_monitor_get_current_resolution (monitor, &width, &height);
+    }
+  else
+    {
+      meta_monitor_manager_get_screen_size (mapper->monitor_manager,
+                                            &width, &height);
+    }
+
+  aspect_ratio = (double) width / height;
+
   g_signal_emit (input->mapper, signals[DEVICE_MAPPED], 0,
-                 input->device,
-                 output ? output->logical_monitor : NULL, monitor);
+                 input->device, matrix);
+  g_signal_emit (input->mapper, signals[DEVICE_ASPECT_RATIO], 0,
+                 input->device, aspect_ratio);
 }
 
 static void
@@ -346,6 +428,38 @@ match_builtin (MetaInputMapper *mapper,
   return monitor == meta_monitor_manager_get_laptop_panel (mapper->monitor_manager);
 }
 
+static gboolean
+match_config (MetaMapperInputInfo *info,
+              MetaMonitor         *monitor)
+{
+  gboolean match = FALSE;
+  char **edid;
+  guint n_values;
+
+  edid = g_settings_get_strv (info->settings, "output");
+  n_values = g_strv_length (edid);
+
+  if (n_values != 3)
+    {
+      g_warning ("EDID configuration for device '%s' "
+                 "is incorrect, must have 3 values",
+                 clutter_input_device_get_device_name (info->device));
+      goto out;
+    }
+
+  if (!*edid[0] && !*edid[1] && !*edid[2])
+    goto out;
+
+  match = (g_strcmp0 (meta_monitor_get_vendor (monitor), edid[0]) == 0 &&
+           g_strcmp0 (meta_monitor_get_product (monitor), edid[1]) == 0 &&
+           g_strcmp0 (meta_monitor_get_serial (monitor), edid[2]) == 0);
+
+ out:
+  g_strfreev (edid);
+
+  return match;
+}
+
 static int
 sort_by_score (DeviceMatch *match1,
                DeviceMatch *match2)
@@ -359,6 +473,32 @@ guess_candidates (MetaInputMapper     *mapper,
                   DeviceCandidates    *info)
 {
   GList *monitors, *l;
+  gboolean builtin = FALSE;
+  gboolean integrated = TRUE;
+
+#ifdef HAVE_LIBWACOM
+  if (clutter_input_device_get_device_type (input->device) != CLUTTER_TOUCHSCREEN_DEVICE)
+    {
+      WacomDevice *wacom_device;
+      WacomIntegrationFlags flags = 0;
+
+      wacom_device =
+        meta_input_device_get_wacom_device (META_INPUT_DEVICE (input->device));
+
+      if (wacom_device)
+        {
+          flags = libwacom_get_integration_flags (wacom_device);
+
+          if ((flags & (WACOM_DEVICE_INTEGRATED_SYSTEM |
+                        WACOM_DEVICE_INTEGRATED_DISPLAY)) == 0)
+            return;
+
+          integrated = (flags & (WACOM_DEVICE_INTEGRATED_SYSTEM |
+                                 WACOM_DEVICE_INTEGRATED_DISPLAY)) != 0;
+          builtin = (flags & WACOM_DEVICE_INTEGRATED_SYSTEM) != 0;
+        }
+    }
+#endif
 
   monitors = meta_monitor_manager_get_monitors (mapper->monitor_manager);
 
@@ -372,11 +512,14 @@ guess_candidates (MetaInputMapper     *mapper,
       if (match_edid (input, l->data, &edid_match))
         match.score |= 1 << edid_match;
 
-      if (match_size (input, l->data))
+      if (integrated && match_size (input, l->data))
         match.score |= 1 << META_MATCH_SIZE;
 
-      if (input->builtin && match_builtin (mapper, l->data))
+      if (builtin && match_builtin (mapper, l->data))
         match.score |= 1 << META_MATCH_IS_BUILTIN;
+
+      if (match_config (input, l->data))
+        match.score |= 1 << META_MATCH_CONFIG;
 
       if (match.score > 0)
         g_array_append_val (info->matches, match);
@@ -548,6 +691,38 @@ input_mapper_monitors_changed_cb (MetaMonitorManager *monitor_manager,
 }
 
 static void
+input_mapper_power_save_mode_changed_cb (MetaMonitorManager *monitor_manager,
+                                         MetaInputMapper    *mapper)
+{
+  ClutterInputDevice *device;
+  MetaLogicalMonitor *logical_monitor;
+  MetaMonitor *builtin;
+  MetaPowerSave power_save_mode;
+  gboolean on;
+
+  power_save_mode =
+    meta_monitor_manager_get_power_save_mode (mapper->monitor_manager);
+  on = power_save_mode == META_POWER_SAVE_ON;
+
+  builtin = meta_monitor_manager_get_laptop_panel (monitor_manager);
+  if (!builtin)
+    return;
+
+  logical_monitor = meta_monitor_get_logical_monitor (builtin);
+  if (!logical_monitor)
+    return;
+
+  device =
+    meta_input_mapper_get_logical_monitor_device (mapper,
+                                                  logical_monitor,
+                                                  CLUTTER_TOUCHSCREEN_DEVICE);
+  if (!device)
+    return;
+
+  g_signal_emit (mapper, signals[DEVICE_ENABLED], 0, device, on);
+}
+
+static void
 input_mapper_device_removed_cb (ClutterSeat        *seat,
                                 ClutterInputDevice *device,
                                 MetaInputMapper    *mapper)
@@ -599,6 +774,9 @@ meta_input_mapper_constructed (GObject *object)
   mapper->monitor_manager = meta_backend_get_monitor_manager (backend);
   g_signal_connect (mapper->monitor_manager, "monitors-changed-internal",
                     G_CALLBACK (input_mapper_monitors_changed_cb), mapper);
+  g_signal_connect (mapper->monitor_manager, "power-save-mode-changed",
+                    G_CALLBACK (input_mapper_power_save_mode_changed_cb),
+                    mapper);
 
   mapper_update_outputs (mapper);
 }
@@ -617,9 +795,27 @@ meta_input_mapper_class_init (MetaInputMapperClass *klass)
                   G_SIGNAL_RUN_LAST,
                   0,
                   NULL, NULL, NULL,
-                  G_TYPE_NONE, 3,
+                  G_TYPE_NONE, 2,
                   CLUTTER_TYPE_INPUT_DEVICE,
-                  G_TYPE_POINTER, G_TYPE_POINTER);
+                  G_TYPE_POINTER);
+  signals[DEVICE_ENABLED] =
+    g_signal_new ("device-enabled",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_INPUT_DEVICE,
+                  G_TYPE_BOOLEAN);
+  signals[DEVICE_ASPECT_RATIO] =
+    g_signal_new ("device-aspect-ratio",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0,
+                  NULL, NULL, NULL,
+                  G_TYPE_NONE, 2,
+                  CLUTTER_TYPE_INPUT_DEVICE,
+                  G_TYPE_DOUBLE);
 }
 
 static void
@@ -641,8 +837,7 @@ meta_input_mapper_new (void)
 
 void
 meta_input_mapper_add_device (MetaInputMapper    *mapper,
-                              ClutterInputDevice *device,
-                              gboolean            builtin)
+                              ClutterInputDevice *device)
 {
   MetaMapperInputInfo *info;
 
@@ -652,7 +847,7 @@ meta_input_mapper_add_device (MetaInputMapper    *mapper,
   if (g_hash_table_contains (mapper->input_devices, device))
     return;
 
-  info = mapper_input_info_new (device, mapper, builtin);
+  info = mapper_input_info_new (device, mapper);
   g_hash_table_insert (mapper->input_devices, device, info);
   mapper_recalculate_input (mapper, info);
 }
@@ -699,6 +894,43 @@ meta_input_mapper_get_logical_monitor_device (MetaInputMapper        *mapper,
   return NULL;
 }
 
+static ClutterInputDevice *
+find_grouped_pen (ClutterInputDevice *device)
+{
+  GList *l, *devices;
+  ClutterInputDeviceType device_type;
+  ClutterInputDevice *pen = NULL;
+  ClutterSeat *seat;
+
+  device_type = clutter_input_device_get_device_type (device);
+
+  if (device_type == CLUTTER_TABLET_DEVICE ||
+      device_type == CLUTTER_PEN_DEVICE)
+    return device;
+
+  seat = clutter_input_device_get_seat (device);
+  devices = clutter_seat_list_devices (seat);
+
+  for (l = devices; l; l = l->next)
+    {
+      ClutterInputDevice *other_device = l->data;
+
+      device_type = clutter_input_device_get_device_type (other_device);
+
+      if ((device_type == CLUTTER_TABLET_DEVICE ||
+           device_type == CLUTTER_PEN_DEVICE) &&
+          clutter_input_device_is_grouped (device, other_device))
+        {
+          pen = other_device;
+          break;
+        }
+    }
+
+  g_list_free (devices);
+
+  return pen;
+}
+
 MetaLogicalMonitor *
 meta_input_mapper_get_device_logical_monitor (MetaInputMapper    *mapper,
                                               ClutterInputDevice *device)
@@ -707,6 +939,13 @@ meta_input_mapper_get_device_logical_monitor (MetaInputMapper    *mapper,
   MetaLogicalMonitor *logical_monitor;
   GHashTableIter iter;
   GList *l;
+
+  if (clutter_input_device_get_device_type (device) == CLUTTER_PAD_DEVICE)
+    {
+      device = find_grouped_pen (device);
+      if (!device)
+        return NULL;
+    }
 
   g_hash_table_iter_init (&iter, mapper->output_devices);
 
@@ -723,4 +962,20 @@ meta_input_mapper_get_device_logical_monitor (MetaInputMapper    *mapper,
     }
 
   return NULL;
+}
+
+GSettings *
+meta_input_mapper_get_tablet_settings (MetaInputMapper    *mapper,
+                                       ClutterInputDevice *device)
+{
+  MetaMapperInputInfo *input;
+
+  g_return_val_if_fail (META_IS_INPUT_MAPPER (mapper), NULL);
+  g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
+
+  input = g_hash_table_lookup (mapper->input_devices, device);
+  if (!input)
+    return NULL;
+
+  return input->settings;
 }
