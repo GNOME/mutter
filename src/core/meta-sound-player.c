@@ -48,7 +48,7 @@ struct _MetaPlayRequest
   MetaSoundPlayer *player;
 };
 
-const char * const cache_whitelist[] = {
+const char * const cache_allow_list[] = {
   "bell-window-system",
   "desktop-switch-left",
   "desktop-switch-right",
@@ -251,7 +251,7 @@ meta_sound_player_play_from_theme (MetaSoundPlayer *player,
   ca_proplist_create (&props);
   build_ca_proplist (props, CA_PROP_EVENT_ID, name, description);
 
-  if (g_strv_contains (cache_whitelist, name))
+  if (g_strv_contains (cache_allow_list, name))
     ca_proplist_sets (props, CA_PROP_CANBERRA_CACHE_CONTROL, "permanent");
   else
     ca_proplist_sets (props, CA_PROP_CANBERRA_CACHE_CONTROL, "volatile");

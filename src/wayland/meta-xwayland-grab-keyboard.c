@@ -183,26 +183,26 @@ meta_xwayland_grab_is_granted (MetaWindow *window)
 {
   MetaBackend *backend;
   MetaSettings *settings;
-  GPtrArray *whitelist;
-  GPtrArray *blacklist;
+  GPtrArray *allow_list;
+  GPtrArray *deny_list;
   gboolean may_grab;
 
   backend = meta_get_backend ();
   settings = meta_backend_get_settings (backend);
 
-  /* Check whether the window is blacklisted */
-  meta_settings_get_xwayland_grab_patterns (settings, &whitelist, &blacklist);
+  /* Check whether the window is in the deny list */
+  meta_settings_get_xwayland_grab_patterns (settings, &allow_list, &deny_list);
 
-  if (blacklist && application_is_in_pattern_array (window, blacklist))
+  if (deny_list && application_is_in_pattern_array (window, deny_list))
     return FALSE;
 
-  /* Check if we are dealing with good citizen Xwayland client whitelisting itself. */
+  /* Check if we are dealing with good citizen Xwayland client allowing itself. */
   g_object_get (G_OBJECT (window), "xwayland-may-grab-keyboard", &may_grab, NULL);
   if (may_grab)
     return TRUE;
 
-  /* Last resort, is it white listed. */
-  if (whitelist && application_is_in_pattern_array (window, whitelist))
+  /* Last resort, is it in the grant list. */
+  if (allow_list && application_is_in_pattern_array (window, allow_list))
     return TRUE;
 
   return FALSE;

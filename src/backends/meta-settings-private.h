@@ -64,8 +64,8 @@ void meta_settings_enable_experimental_feature (MetaSettings           *settings
                                                 MetaExperimentalFeature feature);
 
 void meta_settings_get_xwayland_grab_patterns (MetaSettings  *settings,
-                                               GPtrArray    **whitelist_patterns,
-                                               GPtrArray    **blacklist_patterns);
+                                               GPtrArray    **allow_list_patterns,
+                                               GPtrArray    **deny_list_patterns);
 
 gboolean meta_settings_are_xwayland_grabs_allowed (MetaSettings *settings);
 

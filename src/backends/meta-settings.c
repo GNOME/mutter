@@ -66,8 +66,8 @@ struct _MetaSettings
   gboolean experimental_features_overridden;
 
   gboolean xwayland_allow_grabs;
-  GPtrArray *xwayland_grab_whitelist_patterns;
-  GPtrArray *xwayland_grab_blacklist_patterns;
+  GPtrArray *xwayland_grab_allow_list_patterns;
+  GPtrArray *xwayland_grab_deny_list_patterns;
 };
 
 G_DEFINE_TYPE (MetaSettings, meta_settings, G_TYPE_OBJECT)
@@ -321,12 +321,12 @@ static void
 xwayland_grab_list_add_item (MetaSettings *settings,
                              char         *item)
 {
-  /* If first character is '!', it's a blacklisted item */
+  /* If first character is '!', it's a denied value */
   if (item[0] != '!')
-    g_ptr_array_add (settings->xwayland_grab_whitelist_patterns,
+    g_ptr_array_add (settings->xwayland_grab_allow_list_patterns,
                      g_pattern_spec_new (item));
   else if (item[1] != 0)
-    g_ptr_array_add (settings->xwayland_grab_blacklist_patterns,
+    g_ptr_array_add (settings->xwayland_grab_deny_list_patterns,
                      g_pattern_spec_new (&item[1]));
 }
 
@@ -356,14 +356,14 @@ update_xwayland_grab_access_rules (MetaSettings *settings)
   int i;
 
   /* Free previous patterns and create new arrays */
-  g_clear_pointer (&settings->xwayland_grab_whitelist_patterns,
+  g_clear_pointer (&settings->xwayland_grab_allow_list_patterns,
                    g_ptr_array_unref);
-  settings->xwayland_grab_whitelist_patterns =
+  settings->xwayland_grab_allow_list_patterns =
     g_ptr_array_new_with_free_func ((GDestroyNotify) g_pattern_spec_free);
 
-  g_clear_pointer (&settings->xwayland_grab_blacklist_patterns,
+  g_clear_pointer (&settings->xwayland_grab_deny_list_patterns,
                    g_ptr_array_unref);
-  settings->xwayland_grab_blacklist_patterns =
+  settings->xwayland_grab_deny_list_patterns =
     g_ptr_array_new_with_free_func ((GDestroyNotify) g_pattern_spec_free);
 
   /* Add system defaults values */
@@ -405,11 +405,11 @@ wayland_settings_changed (GSettings    *wayland_settings,
 
 void
 meta_settings_get_xwayland_grab_patterns (MetaSettings  *settings,
-                                          GPtrArray    **whitelist_patterns,
-                                          GPtrArray    **blacklist_patterns)
+                                          GPtrArray    **allow_list_patterns,
+                                          GPtrArray    **deny_list_patterns)
 {
-  *whitelist_patterns = settings->xwayland_grab_whitelist_patterns;
-  *blacklist_patterns = settings->xwayland_grab_blacklist_patterns;
+  *allow_list_patterns = settings->xwayland_grab_allow_list_patterns;
+  *deny_list_patterns = settings->xwayland_grab_deny_list_patterns;
 }
 
 gboolean
@@ -437,9 +437,9 @@ meta_settings_dispose (GObject *object)
   g_clear_object (&settings->mutter_settings);
   g_clear_object (&settings->interface_settings);
   g_clear_object (&settings->wayland_settings);
-  g_clear_pointer (&settings->xwayland_grab_whitelist_patterns,
+  g_clear_pointer (&settings->xwayland_grab_allow_list_patterns,
                    g_ptr_array_unref);
-  g_clear_pointer (&settings->xwayland_grab_blacklist_patterns,
+  g_clear_pointer (&settings->xwayland_grab_deny_list_patterns,
                    g_ptr_array_unref);
 
   G_OBJECT_CLASS (meta_settings_parent_class)->dispose (object);
