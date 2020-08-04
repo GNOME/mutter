@@ -1063,11 +1063,6 @@ notify_view_crtc_presented (MetaRendererView *view,
   MetaCrtc *crtc;
   MetaRendererNativeGpuData *renderer_gpu_data;
 
-  /* Only keep the frame info for the fastest CRTC in use, which may not be
-   * the first one to complete a flip. By only telling the compositor about the
-   * fastest monitor(s) we direct it to produce new frames fast enough to
-   * satisfy all monitors.
-   */
   frame_info = g_queue_peek_tail (&onscreen->pending_frame_infos);
 
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
