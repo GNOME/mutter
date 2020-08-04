@@ -362,6 +362,7 @@ struct _MetaWindow
   /* Computed whether to skip taskbar or not */
   guint skip_taskbar : 1;
   guint skip_pager : 1;
+  guint skip_from_window_list : 1;
 
   /* TRUE if client set these */
   guint wm_state_above : 1;

@@ -504,6 +504,7 @@ if have_wayland
     'wayland/meta-wayland-buffer.c',
     'wayland/meta-wayland-buffer.h',
     'wayland/meta-wayland.c',
+    'wayland/meta-wayland-client.c',
     'wayland/meta-wayland-cursor-surface.c',
     'wayland/meta-wayland-cursor-surface.h',
     'wayland/meta-wayland-data-device.c',

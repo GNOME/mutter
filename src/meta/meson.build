@@ -45,6 +45,12 @@ mutter_public_headers = [
   'workspace.h',
 ]
 
+if have_wayland
+  mutter_public_headers += [
+    'meta-wayland-client.h',
+  ]
+endif
+
 if have_x11
   mutter_public_headers += [
     'meta-x11-display.h',

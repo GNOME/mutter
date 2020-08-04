@@ -730,7 +730,8 @@ is_desktop_or_dock_foreach (MetaWindow *window,
 
   *result =
     window->type == META_WINDOW_DESKTOP ||
-    window->type == META_WINDOW_DOCK;
+    window->type == META_WINDOW_DOCK ||
+    window->skip_from_window_list;
   if (*result)
     return FALSE; /* stop as soon as we find one */
   else
@@ -1137,6 +1138,7 @@ _meta_window_shared_new (MetaDisplay         *display,
 
   window->skip_taskbar = FALSE;
   window->skip_pager = FALSE;
+  window->skip_from_window_list = FALSE;
   window->wm_state_above = FALSE;
   window->wm_state_below = FALSE;
   window->wm_state_demands_attention = FALSE;
@@ -5609,15 +5611,15 @@ meta_window_recalc_skip_features (MetaWindow *window)
       if (window->transient_for != NULL)
         window->skip_taskbar = TRUE;
       else
-        window->skip_taskbar = FALSE;
+        window->skip_taskbar = window->skip_from_window_list;
       break;
 
     case META_WINDOW_NORMAL:
       {
         gboolean skip_taskbar_hint, skip_pager_hint;
         meta_window_get_default_skip_hints (window, &skip_taskbar_hint, &skip_pager_hint);
-        window->skip_taskbar = skip_taskbar_hint;
-        window->skip_pager = skip_pager_hint;
+        window->skip_taskbar = skip_taskbar_hint | window->skip_from_window_list;
+        window->skip_pager = skip_pager_hint | window->skip_from_window_list;
       }
       break;
     }
