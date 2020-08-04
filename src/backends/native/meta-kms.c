@@ -605,7 +605,10 @@ meta_kms_update_states_in_impl (MetaKms          *kms,
                                                    update_data->connector_id))
         continue;
 
-      changes |= meta_kms_device_update_states_in_impl (kms_device);
+      changes |=
+        meta_kms_device_update_states_in_impl (kms_device,
+                                               update_data->crtc_id,
+                                               update_data->connector_id);
     }
 
   return changes;

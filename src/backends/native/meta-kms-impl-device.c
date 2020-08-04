@@ -702,7 +702,9 @@ clear_latched_fd_hold (MetaKmsImplDevice *impl_device)
 }
 
 MetaKmsUpdateChanges
-meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
+meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device,
+                                    uint32_t           crtc_id,
+                                    uint32_t           connector_id)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
@@ -736,11 +738,26 @@ meta_kms_impl_device_update_states (MetaKmsImplDevice *impl_device)
   changes = update_connectors (impl_device, drm_resources);
 
   for (l = priv->crtcs; l; l = l->next)
-    changes |= meta_kms_crtc_update_state (META_KMS_CRTC (l->data));
+    {
+      MetaKmsCrtc *crtc = META_KMS_CRTC (l->data);
+
+      if (crtc_id > 0 &&
+          meta_kms_crtc_get_id (crtc) != crtc_id)
+        continue;
+
+      changes |= meta_kms_crtc_update_state (crtc);
+    }
 
   for (l = priv->connectors; l; l = l->next)
-    changes |= meta_kms_connector_update_state (META_KMS_CONNECTOR (l->data),
-                                                drm_resources);
+    {
+      MetaKmsConnector *connector = META_KMS_CONNECTOR (l->data);
+
+      if (connector_id > 0 &&
+          meta_kms_connector_get_id (connector) != connector_id)
+        continue;
+
+      changes |= meta_kms_connector_update_state (connector, drm_resources);
+    }
 
   drmModeFreeResources (drm_resources);
 
