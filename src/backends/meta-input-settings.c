@@ -82,6 +82,8 @@ struct _MetaInputSettingsPrivate
   GHashTable *current_tools;
 
   GHashTable *two_finger_devices;
+
+  MetaKbdA11ySettings kbd_a11y_settings;
 };
 
 typedef gboolean (* ConfigBoolMappingFunc) (MetaInputSettings  *input_settings,
@@ -99,6 +101,14 @@ typedef void (*ConfigUintFunc)   (MetaInputSettings  *input_settings,
                                   guint               value);
 
 G_DEFINE_TYPE_WITH_PRIVATE (MetaInputSettings, meta_input_settings, G_TYPE_OBJECT)
+
+enum
+{
+  KBD_A11Y_CHANGED,
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS] = { 0 };
 
 static GSList *
 meta_input_settings_get_devices (MetaInputSettings      *settings,
@@ -1147,38 +1157,30 @@ apply_mappable_device_settings (MetaInputSettings *input_settings,
 
 struct _keyboard_a11y_settings_flags_pair {
   const char *name;
-  ClutterKeyboardA11yFlags flag;
+  MetaKeyboardA11yFlags flag;
 } keyboard_a11y_settings_flags_pair[] = {
-  { "enable",                    CLUTTER_A11Y_KEYBOARD_ENABLED },
-  { "timeout-enable",            CLUTTER_A11Y_TIMEOUT_ENABLED },
-  { "mousekeys-enable",          CLUTTER_A11Y_MOUSE_KEYS_ENABLED },
-  { "slowkeys-enable",           CLUTTER_A11Y_SLOW_KEYS_ENABLED },
-  { "slowkeys-beep-press",       CLUTTER_A11Y_SLOW_KEYS_BEEP_PRESS },
-  { "slowkeys-beep-accept",      CLUTTER_A11Y_SLOW_KEYS_BEEP_ACCEPT },
-  { "slowkeys-beep-reject",      CLUTTER_A11Y_SLOW_KEYS_BEEP_REJECT },
-  { "bouncekeys-enable",         CLUTTER_A11Y_BOUNCE_KEYS_ENABLED },
-  { "bouncekeys-beep-reject",    CLUTTER_A11Y_BOUNCE_KEYS_BEEP_REJECT },
-  { "togglekeys-enable",         CLUTTER_A11Y_TOGGLE_KEYS_ENABLED },
-  { "stickykeys-enable",         CLUTTER_A11Y_STICKY_KEYS_ENABLED },
-  { "stickykeys-modifier-beep",  CLUTTER_A11Y_STICKY_KEYS_BEEP },
-  { "stickykeys-two-key-off",    CLUTTER_A11Y_STICKY_KEYS_TWO_KEY_OFF },
-  { "feature-state-change-beep", CLUTTER_A11Y_FEATURE_STATE_CHANGE_BEEP },
+  { "enable",                    META_A11Y_KEYBOARD_ENABLED },
+  { "timeout-enable",            META_A11Y_TIMEOUT_ENABLED },
+  { "mousekeys-enable",          META_A11Y_MOUSE_KEYS_ENABLED },
+  { "slowkeys-enable",           META_A11Y_SLOW_KEYS_ENABLED },
+  { "slowkeys-beep-press",       META_A11Y_SLOW_KEYS_BEEP_PRESS },
+  { "slowkeys-beep-accept",      META_A11Y_SLOW_KEYS_BEEP_ACCEPT },
+  { "slowkeys-beep-reject",      META_A11Y_SLOW_KEYS_BEEP_REJECT },
+  { "bouncekeys-enable",         META_A11Y_BOUNCE_KEYS_ENABLED },
+  { "bouncekeys-beep-reject",    META_A11Y_BOUNCE_KEYS_BEEP_REJECT },
+  { "togglekeys-enable",         META_A11Y_TOGGLE_KEYS_ENABLED },
+  { "stickykeys-enable",         META_A11Y_STICKY_KEYS_ENABLED },
+  { "stickykeys-modifier-beep",  META_A11Y_STICKY_KEYS_BEEP },
+  { "stickykeys-two-key-off",    META_A11Y_STICKY_KEYS_TWO_KEY_OFF },
+  { "feature-state-change-beep", META_A11Y_FEATURE_STATE_CHANGE_BEEP },
 };
 
 static void
-load_keyboard_a11y_settings (MetaInputSettings  *input_settings,
-                             ClutterInputDevice *device)
+load_keyboard_a11y_settings (MetaInputSettings *input_settings)
 {
   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
-  ClutterKbdA11ySettings kbd_a11y_settings = { 0 };
-  ClutterInputDevice *core_keyboard;
-  ClutterBackend *backend = clutter_get_default_backend ();
-  ClutterSeat *seat = clutter_backend_get_default_seat (backend);
+  MetaKbdA11ySettings kbd_a11y_settings = { 0 };
   guint i;
-
-  core_keyboard = clutter_seat_get_keyboard (priv->seat);
-  if (device && device != core_keyboard)
-    return;
 
   kbd_a11y_settings.controls = 0;
   for (i = 0; i < G_N_ELEMENTS (keyboard_a11y_settings_flags_pair); i++)
@@ -1200,13 +1202,14 @@ load_keyboard_a11y_settings (MetaInputSettings  *input_settings,
   kbd_a11y_settings.mousekeys_accel_time = g_settings_get_int (priv->keyboard_a11y_settings,
                                                                "mousekeys-accel-time");
 
-  clutter_seat_set_kbd_a11y_settings (seat, &kbd_a11y_settings);
+  priv->kbd_a11y_settings = kbd_a11y_settings;
+  g_signal_emit (input_settings, signals[KBD_A11Y_CHANGED], 0, &priv->kbd_a11y_settings);
 }
 
 static void
 on_keyboard_a11y_settings_changed (ClutterSeat              *seat,
-                                   ClutterKeyboardA11yFlags  new_flags,
-                                   ClutterKeyboardA11yFlags  what_changed,
+                                   MetaKeyboardA11yFlags     new_flags,
+                                   MetaKeyboardA11yFlags     what_changed,
                                    MetaInputSettings        *input_settings)
 {
   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
@@ -1228,7 +1231,7 @@ meta_input_keyboard_a11y_settings_changed (GSettings  *settings,
 {
   MetaInputSettings *input_settings = META_INPUT_SETTINGS (user_data);
 
-  load_keyboard_a11y_settings (input_settings, NULL);
+  load_keyboard_a11y_settings (input_settings);
 }
 
 struct _pointer_a11y_settings_flags_pair {
@@ -1490,7 +1493,6 @@ apply_device_settings (MetaInputSettings  *input_settings,
   update_pointer_accel_profile (input_settings,
                                 priv->trackball_settings,
                                 device);
-  load_keyboard_a11y_settings (input_settings, device);
   load_pointer_a11y_settings (input_settings, device);
 
   update_middle_click_emulation (input_settings, priv->mouse_settings, device);
@@ -1714,6 +1716,8 @@ meta_input_settings_constructed (GObject *object)
   apply_device_settings (input_settings, NULL);
   update_keyboard_repeat (input_settings);
   check_mappable_devices (input_settings);
+
+  load_keyboard_a11y_settings (input_settings);
 }
 
 static void
@@ -1726,6 +1730,14 @@ meta_input_settings_class_init (MetaInputSettingsClass *klass)
 
   quark_tool_settings =
     g_quark_from_static_string ("meta-input-settings-tool-settings");
+
+  signals[KBD_A11Y_CHANGED] =
+    g_signal_new ("kbd-a11y-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 1,
+                  G_TYPE_POINTER);
 }
 
 static void
@@ -1872,4 +1884,17 @@ meta_input_settings_set_device_aspect_ratio (MetaInputSettings  *input_settings,
 
   info->aspect_ratio = aspect_ratio;
   update_tablet_keep_aspect (input_settings, info->settings, device);
+}
+
+void
+meta_input_settings_get_kbd_a11y_settings (MetaInputSettings   *input_settings,
+                                           MetaKbdA11ySettings *a11y_settings)
+{
+  MetaInputSettingsPrivate *priv;
+
+  g_return_if_fail (META_IS_INPUT_SETTINGS (input_settings));
+
+  priv = meta_input_settings_get_instance_private (input_settings);
+
+  *a11y_settings = priv->kbd_a11y_settings;
 }

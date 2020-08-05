@@ -38,24 +38,6 @@ G_DECLARE_DERIVABLE_TYPE (ClutterSeat, clutter_seat,
 			  CLUTTER, SEAT, GObject)
 
 /**
- * ClutterKbdA11ySettings:
- *
- * The #ClutterKbdA11ySettings structure contains keyboard accessibility
- * settings
- *
- */
-typedef struct _ClutterKbdA11ySettings
-{
-  ClutterKeyboardA11yFlags controls;
-  gint slowkeys_delay;
-  gint debounce_delay;
-  gint timeout_delay;
-  gint mousekeys_init_delay;
-  gint mousekeys_max_speed;
-  gint mousekeys_accel_time;
-} ClutterKbdA11ySettings;
-
-/**
  * ClutterPointerA11ySettings:
  *
  * The #ClutterPointerA11ySettings structure contains pointer accessibility
@@ -126,10 +108,6 @@ struct _ClutterSeatClass
   void (* free_event_data) (ClutterSeat        *seat,
                             ClutterEvent       *event);
 
-  /* Keyboard accessibility */
-  void (* apply_kbd_a11y_settings) (ClutterSeat            *seat,
-                                    ClutterKbdA11ySettings *settings);
-
   /* Virtual devices */
   ClutterVirtualInputDevice * (* create_virtual_device) (ClutterSeat            *seat,
                                                          ClutterInputDeviceType  device_type);
@@ -149,12 +127,6 @@ void clutter_seat_bell_notify (ClutterSeat *seat);
 CLUTTER_EXPORT
 ClutterKeymap * clutter_seat_get_keymap (ClutterSeat *seat);
 
-CLUTTER_EXPORT
-void clutter_seat_set_kbd_a11y_settings (ClutterSeat            *seat,
-                                         ClutterKbdA11ySettings *settings);
-CLUTTER_EXPORT
-void clutter_seat_get_kbd_a11y_settings (ClutterSeat            *seat,
-                                         ClutterKbdA11ySettings *settings);
 CLUTTER_EXPORT
 void clutter_seat_ensure_a11y_state     (ClutterSeat            *seat);
 

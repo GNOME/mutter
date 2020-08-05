@@ -65,9 +65,6 @@ struct _ClutterSeatPrivate
 
   unsigned int inhibit_unfocus_count;
 
-  /* Keyboard a11y */
-  ClutterKbdA11ySettings kbd_a11y_settings;
-
   /* Pointer a11y */
   ClutterPointerA11ySettings pointer_a11y_settings;
 };
@@ -402,43 +399,6 @@ ClutterKeymap *
 clutter_seat_get_keymap (ClutterSeat *seat)
 {
   return CLUTTER_SEAT_GET_CLASS (seat)->get_keymap (seat);
-}
-
-static gboolean
-are_kbd_a11y_settings_equal (ClutterKbdA11ySettings *a,
-                             ClutterKbdA11ySettings *b)
-{
-  return (memcmp (a, b, sizeof (ClutterKbdA11ySettings)) == 0);
-}
-
-void
-clutter_seat_set_kbd_a11y_settings (ClutterSeat            *seat,
-                                    ClutterKbdA11ySettings *settings)
-{
-  ClutterSeatClass *seat_class;
-  ClutterSeatPrivate *priv = clutter_seat_get_instance_private (seat);
-
-  g_return_if_fail (CLUTTER_IS_SEAT (seat));
-
-  if (are_kbd_a11y_settings_equal (&priv->kbd_a11y_settings, settings))
-    return;
-
-  priv->kbd_a11y_settings = *settings;
-
-  seat_class = CLUTTER_SEAT_GET_CLASS (seat);
-  if (seat_class->apply_kbd_a11y_settings)
-    seat_class->apply_kbd_a11y_settings (seat, settings);
-}
-
-void
-clutter_seat_get_kbd_a11y_settings (ClutterSeat            *seat,
-                                    ClutterKbdA11ySettings *settings)
-{
-  ClutterSeatPrivate *priv = clutter_seat_get_instance_private (seat);
-
-  g_return_if_fail (CLUTTER_IS_SEAT (seat));
-
-  *settings = priv->kbd_a11y_settings;
 }
 
 void

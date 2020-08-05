@@ -2688,18 +2688,6 @@ meta_seat_native_free_event_data (ClutterSeat  *seat,
     meta_event_native_free (event_evdev);
 }
 
-static void
-meta_seat_native_apply_kbd_a11y_settings (ClutterSeat            *seat,
-                                          ClutterKbdA11ySettings *settings)
-{
-  ClutterInputDevice *device;
-
-  device = clutter_seat_get_keyboard (seat);
-  if (device)
-    meta_input_device_native_apply_kbd_a11y_settings (META_INPUT_DEVICE_NATIVE (device),
-                                                      settings);
-}
-
 static ClutterVirtualInputDevice *
 meta_seat_native_create_virtual_device (ClutterSeat            *seat,
                                         ClutterInputDeviceType  device_type)
@@ -2828,7 +2816,6 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->get_keymap = meta_seat_native_get_keymap;
   seat_class->copy_event_data = meta_seat_native_copy_event_data;
   seat_class->free_event_data = meta_seat_native_free_event_data;
-  seat_class->apply_kbd_a11y_settings = meta_seat_native_apply_kbd_a11y_settings;
   seat_class->create_virtual_device = meta_seat_native_create_virtual_device;
   seat_class->get_supported_virtual_device_types = meta_seat_native_get_supported_virtual_device_types;
   seat_class->compress_motion = meta_seat_native_compress_motion;

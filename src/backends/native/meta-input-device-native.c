@@ -24,6 +24,7 @@
 #include <math.h>
 #include <cairo-gobject.h>
 
+#include "backends/meta-backend-private.h"
 #include "backends/native/meta-input-device-tool-native.h"
 #include "backends/native/meta-input-device-native.h"
 #include "backends/native/meta-seat-native.h"
@@ -245,11 +246,11 @@ clear_slow_keys (MetaInputDeviceNative *device)
 static guint
 get_slow_keys_delay (ClutterInputDevice *device)
 {
-  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
-  ClutterKbdA11ySettings a11y_settings;
+  MetaKbdA11ySettings a11y_settings;
+  MetaInputSettings *input_settings;
 
-  clutter_seat_get_kbd_a11y_settings (CLUTTER_SEAT (device_native->seat),
-                                      &a11y_settings);
+  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  meta_input_settings_get_kbd_a11y_settings (input_settings, &a11y_settings);
   /* Settings use int, we use uint, make sure we dont go negative */
   return MAX (0, a11y_settings.slowkeys_delay);
 }
@@ -270,7 +271,7 @@ trigger_slow_keys (gpointer data)
   device->slow_keys_list = g_list_remove (device->slow_keys_list, slow_keys_event);
   meta_input_device_native_free_pending_slow_key (slow_keys_event);
 
-  if (device->a11y_flags & CLUTTER_A11Y_SLOW_KEYS_BEEP_ACCEPT)
+  if (device->a11y_flags & META_A11Y_SLOW_KEYS_BEEP_ACCEPT)
     meta_input_device_native_bell_notify (device);
 
   return G_SOURCE_REMOVE;
@@ -308,7 +309,7 @@ start_slow_keys (ClutterEvent                *event,
                                  slow_keys_event);
   device->slow_keys_list = g_list_append (device->slow_keys_list, slow_keys_event);
 
-  if (device->a11y_flags & CLUTTER_A11Y_SLOW_KEYS_BEEP_PRESS)
+  if (device->a11y_flags & META_A11Y_SLOW_KEYS_BEEP_PRESS)
     meta_input_device_native_bell_notify (device);
 }
 
@@ -328,7 +329,7 @@ stop_slow_keys (ClutterEvent                *event,
       device->slow_keys_list = g_list_delete_link (device->slow_keys_list, item);
       meta_input_device_native_free_pending_slow_key (slow_keys_event);
 
-      if (device->a11y_flags & CLUTTER_A11Y_SLOW_KEYS_BEEP_REJECT)
+      if (device->a11y_flags & META_A11Y_SLOW_KEYS_BEEP_REJECT)
         meta_input_device_native_bell_notify (device);
 
       return;
@@ -341,11 +342,11 @@ stop_slow_keys (ClutterEvent                *event,
 static guint
 get_debounce_delay (ClutterInputDevice *device)
 {
-  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
-  ClutterKbdA11ySettings a11y_settings;
+  MetaKbdA11ySettings a11y_settings;
+  MetaInputSettings *input_settings;
 
-  clutter_seat_get_kbd_a11y_settings (CLUTTER_SEAT (device_native->seat),
-                                      &a11y_settings);
+  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  meta_input_settings_get_kbd_a11y_settings (input_settings, &a11y_settings);
   /* Settings use int, we use uint, make sure we dont go negative */
   return MAX (0, a11y_settings.debounce_delay);
 }
@@ -383,7 +384,7 @@ stop_bounce_keys (MetaInputDeviceNative *device)
 static void
 notify_bounce_keys_reject (MetaInputDeviceNative *device)
 {
-  if (device->a11y_flags & CLUTTER_A11Y_BOUNCE_KEYS_BEEP_REJECT)
+  if (device->a11y_flags & META_A11Y_BOUNCE_KEYS_BEEP_REJECT)
     meta_input_device_native_bell_notify (device);
 }
 
@@ -497,20 +498,20 @@ notify_stickykeys_change (MetaInputDeviceNative *device)
   g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->seat,
                          "kbd-a11y-flags-changed",
                          device->a11y_flags,
-                         CLUTTER_A11Y_STICKY_KEYS_ENABLED);
+                         META_A11Y_STICKY_KEYS_ENABLED);
 }
 
 static void
 set_stickykeys_off (MetaInputDeviceNative *device)
 {
-  device->a11y_flags &= ~CLUTTER_A11Y_STICKY_KEYS_ENABLED;
+  device->a11y_flags &= ~META_A11Y_STICKY_KEYS_ENABLED;
   notify_stickykeys_change (device);
 }
 
 static void
 set_stickykeys_on (MetaInputDeviceNative *device)
 {
-  device->a11y_flags |= CLUTTER_A11Y_STICKY_KEYS_ENABLED;
+  device->a11y_flags |= META_A11Y_STICKY_KEYS_ENABLED;
   notify_stickykeys_change (device);
 }
 
@@ -525,23 +526,23 @@ clear_stickykeys_event (ClutterEvent          *event,
 static void
 set_slowkeys_off (MetaInputDeviceNative *device)
 {
-  device->a11y_flags &= ~CLUTTER_A11Y_SLOW_KEYS_ENABLED;
+  device->a11y_flags &= ~META_A11Y_SLOW_KEYS_ENABLED;
 
   g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->seat,
                          "kbd-a11y-flags-changed",
                          device->a11y_flags,
-                         CLUTTER_A11Y_SLOW_KEYS_ENABLED);
+                         META_A11Y_SLOW_KEYS_ENABLED);
 }
 
 static void
 set_slowkeys_on (MetaInputDeviceNative *device)
 {
-  device->a11y_flags |= CLUTTER_A11Y_SLOW_KEYS_ENABLED;
+  device->a11y_flags |= META_A11Y_SLOW_KEYS_ENABLED;
 
   g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->seat,
                          "kbd-a11y-flags-changed",
                          device->a11y_flags,
-                         CLUTTER_A11Y_SLOW_KEYS_ENABLED);
+                         META_A11Y_SLOW_KEYS_ENABLED);
 }
 
 static void
@@ -557,7 +558,7 @@ handle_stickykeys_press (ClutterEvent          *event,
     return;
 
   if (device->stickykeys_depressed_mask &&
-      (device->a11y_flags & CLUTTER_A11Y_STICKY_KEYS_TWO_KEY_OFF))
+      (device->a11y_flags & META_A11Y_STICKY_KEYS_TWO_KEY_OFF))
     {
       clear_stickykeys_event (event, device);
       return;
@@ -603,7 +604,7 @@ handle_stickykeys_release (ClutterEvent          *event,
 
   if (key_event_is_modifier (event))
     {
-      if (device->a11y_flags & CLUTTER_A11Y_STICKY_KEYS_BEEP)
+      if (device->a11y_flags & META_A11Y_STICKY_KEYS_BEEP)
         meta_input_device_native_bell_notify (device);
 
       return;
@@ -622,10 +623,10 @@ trigger_toggle_slowkeys (gpointer data)
 
   device->toggle_slowkeys_timer = 0;
 
-  if (device->a11y_flags & CLUTTER_A11Y_FEATURE_STATE_CHANGE_BEEP)
+  if (device->a11y_flags & META_A11Y_FEATURE_STATE_CHANGE_BEEP)
     meta_input_device_native_bell_notify (device);
 
-  if (device->a11y_flags & CLUTTER_A11Y_SLOW_KEYS_ENABLED)
+  if (device->a11y_flags & META_A11Y_SLOW_KEYS_ENABLED)
     set_slowkeys_off (device);
   else
     set_slowkeys_on (device);
@@ -684,10 +685,10 @@ handle_enablekeys_release (ClutterEvent          *event,
         {
           device->shift_count = 0;
 
-          if (device->a11y_flags & CLUTTER_A11Y_FEATURE_STATE_CHANGE_BEEP)
+          if (device->a11y_flags & META_A11Y_FEATURE_STATE_CHANGE_BEEP)
             meta_input_device_native_bell_notify (device);
 
-          if (device->a11y_flags & CLUTTER_A11Y_STICKY_KEYS_ENABLED)
+          if (device->a11y_flags & META_A11Y_STICKY_KEYS_ENABLED)
             set_stickykeys_off (device);
           else
             set_stickykeys_on (device);
@@ -754,8 +755,8 @@ emulate_button_click (MetaInputDeviceNative *device)
 #define MOUSEKEYS_CURVE (1.0 + (((double) 50.0) * 0.001))
 
 static void
-update_mousekeys_params (MetaInputDeviceNative  *device,
-                         ClutterKbdA11ySettings *settings)
+update_mousekeys_params (MetaInputDeviceNative *device,
+                         MetaKbdA11ySettings   *settings)
 {
   /* Prevent us from broken settings values */
   device->mousekeys_max_speed = MAX (1, settings->mousekeys_max_speed);
@@ -1124,7 +1125,7 @@ meta_input_device_native_process_kbd_a11y_event (ClutterEvent               *eve
   if (event->key.flags & CLUTTER_EVENT_FLAG_INPUT_METHOD)
     goto emit_event;
 
-  if (device_evdev->a11y_flags & CLUTTER_A11Y_KEYBOARD_ENABLED)
+  if (device_evdev->a11y_flags & META_A11Y_KEYBOARD_ENABLED)
     {
       if (event->type == CLUTTER_KEY_PRESS)
         handle_enablekeys_press (event, device_evdev);
@@ -1132,7 +1133,7 @@ meta_input_device_native_process_kbd_a11y_event (ClutterEvent               *eve
         handle_enablekeys_release (event, device_evdev);
     }
 
-  if (device_evdev->a11y_flags & CLUTTER_A11Y_MOUSE_KEYS_ENABLED)
+  if (device_evdev->a11y_flags & META_A11Y_MOUSE_KEYS_ENABLED)
     {
       if (event->type == CLUTTER_KEY_PRESS &&
           handle_mousekeys_press (event, device_evdev))
@@ -1142,7 +1143,7 @@ meta_input_device_native_process_kbd_a11y_event (ClutterEvent               *eve
         return; /* swallow event */
     }
 
-  if ((device_evdev->a11y_flags & CLUTTER_A11Y_BOUNCE_KEYS_ENABLED) &&
+  if ((device_evdev->a11y_flags & META_A11Y_BOUNCE_KEYS_ENABLED) &&
       (get_debounce_delay (device) != 0))
     {
       if ((event->type == CLUTTER_KEY_PRESS) && debounce_key (event, device_evdev))
@@ -1155,7 +1156,7 @@ meta_input_device_native_process_kbd_a11y_event (ClutterEvent               *eve
         start_bounce_keys (event, device_evdev);
     }
 
-  if ((device_evdev->a11y_flags & CLUTTER_A11Y_SLOW_KEYS_ENABLED) &&
+  if ((device_evdev->a11y_flags & META_A11Y_SLOW_KEYS_ENABLED) &&
       (get_slow_keys_delay (device) != 0))
     {
       if (event->type == CLUTTER_KEY_PRESS)
@@ -1166,7 +1167,7 @@ meta_input_device_native_process_kbd_a11y_event (ClutterEvent               *eve
       return;
     }
 
-  if (device_evdev->a11y_flags & CLUTTER_A11Y_STICKY_KEYS_ENABLED)
+  if (device_evdev->a11y_flags & META_A11Y_STICKY_KEYS_ENABLED)
     {
       if (event->type == CLUTTER_KEY_PRESS)
         handle_stickykeys_press (event, device_evdev);
@@ -1179,34 +1180,34 @@ emit_event:
 }
 
 void
-meta_input_device_native_apply_kbd_a11y_settings (MetaInputDeviceNative  *device,
-                                                  ClutterKbdA11ySettings *settings)
+meta_input_device_native_apply_kbd_a11y_settings (MetaInputDeviceNative *device,
+                                                  MetaKbdA11ySettings   *settings)
 {
-  ClutterKeyboardA11yFlags changed_flags = (device->a11y_flags ^ settings->controls);
+  MetaKeyboardA11yFlags changed_flags = (device->a11y_flags ^ settings->controls);
 
-  if (changed_flags & (CLUTTER_A11Y_KEYBOARD_ENABLED | CLUTTER_A11Y_SLOW_KEYS_ENABLED))
+  if (changed_flags & (META_A11Y_KEYBOARD_ENABLED | META_A11Y_SLOW_KEYS_ENABLED))
     clear_slow_keys (device);
 
-  if (changed_flags & (CLUTTER_A11Y_KEYBOARD_ENABLED | CLUTTER_A11Y_BOUNCE_KEYS_ENABLED))
+  if (changed_flags & (META_A11Y_KEYBOARD_ENABLED | META_A11Y_BOUNCE_KEYS_ENABLED))
     device->debounce_key = 0;
 
-  if (changed_flags & (CLUTTER_A11Y_KEYBOARD_ENABLED | CLUTTER_A11Y_STICKY_KEYS_ENABLED))
+  if (changed_flags & (META_A11Y_KEYBOARD_ENABLED | META_A11Y_STICKY_KEYS_ENABLED))
     {
       device->stickykeys_depressed_mask = 0;
       update_internal_xkb_state (device, 0, 0);
     }
 
-  if (changed_flags & CLUTTER_A11Y_KEYBOARD_ENABLED)
+  if (changed_flags & META_A11Y_KEYBOARD_ENABLED)
     {
       device->toggle_slowkeys_timer = 0;
       device->shift_count = 0;
       device->last_shift_time = 0;
     }
 
-  if (changed_flags & (CLUTTER_A11Y_KEYBOARD_ENABLED | CLUTTER_A11Y_MOUSE_KEYS_ENABLED))
+  if (changed_flags & (META_A11Y_KEYBOARD_ENABLED | META_A11Y_MOUSE_KEYS_ENABLED))
     {
       if (settings->controls &
-          (CLUTTER_A11Y_KEYBOARD_ENABLED | CLUTTER_A11Y_MOUSE_KEYS_ENABLED))
+          (META_A11Y_KEYBOARD_ENABLED | META_A11Y_MOUSE_KEYS_ENABLED))
         enable_mousekeys (device);
       else
         disable_mousekeys (device);
@@ -1220,7 +1221,7 @@ meta_input_device_native_apply_kbd_a11y_settings (MetaInputDeviceNative  *device
 void
 meta_input_device_native_a11y_maybe_notify_toggle_keys (MetaInputDeviceNative *device)
 {
-  if (device->a11y_flags & CLUTTER_A11Y_TOGGLE_KEYS_ENABLED)
+  if (device->a11y_flags & META_A11Y_TOGGLE_KEYS_ENABLED)
     meta_input_device_native_bell_notify (device);
 }
 

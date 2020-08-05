@@ -29,6 +29,7 @@
 #include <glib-object.h>
 
 #include "backends/meta-input-device-private.h"
+#include "backends/meta-input-settings-private.h"
 #include "backends/native/meta-seat-native.h"
 #include "clutter/clutter-mutter.h"
 
@@ -81,7 +82,7 @@ struct _MetaInputDeviceNative
   double pointer_y;
 
   /* Keyboard a11y */
-  ClutterKeyboardA11yFlags a11y_flags;
+  MetaKeyboardA11yFlags a11y_flags;
   GList *slow_keys_list;
   guint debounce_timer;
   uint16_t debounce_key;
@@ -134,8 +135,8 @@ MetaInputDeviceMapping    meta_input_device_native_get_mapping_mode (ClutterInpu
 void                      meta_input_device_native_set_mapping_mode (ClutterInputDevice     *device,
                                                                      MetaInputDeviceMapping  mapping);
 
-void                      meta_input_device_native_apply_kbd_a11y_settings (MetaInputDeviceNative  *device,
-                                                                            ClutterKbdA11ySettings *settings);
+void                      meta_input_device_native_apply_kbd_a11y_settings (MetaInputDeviceNative *device,
+                                                                            MetaKbdA11ySettings   *settings);
 
 void                      meta_input_device_native_a11y_maybe_notify_toggle_keys  (MetaInputDeviceNative *device_evdev);
 

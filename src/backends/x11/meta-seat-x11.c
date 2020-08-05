@@ -1324,13 +1324,15 @@ static void
 on_keymap_state_change (MetaKeymapX11 *keymap_x11,
                         gpointer       data)
 {
-  ClutterSeat *seat = CLUTTER_SEAT (data);
-  ClutterKbdA11ySettings kbd_a11y_settings;
+  ClutterSeat *seat = data;
+  MetaInputSettings *input_settings;
+  MetaKbdA11ySettings kbd_a11y_settings;
 
   /* On keymaps state change, just reapply the current settings, it'll
    * take care of enabling/disabling mousekeys based on NumLock state.
    */
-  clutter_seat_get_kbd_a11y_settings (seat, &kbd_a11y_settings);
+  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  meta_input_settings_get_kbd_a11y_settings (input_settings, &kbd_a11y_settings);
   meta_seat_x11_apply_kbd_a11y_settings (seat, &kbd_a11y_settings);
 }
 
@@ -1735,7 +1737,6 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->get_keymap = meta_seat_x11_get_keymap;
   seat_class->copy_event_data = meta_seat_x11_copy_event_data;
   seat_class->free_event_data = meta_seat_x11_free_event_data;
-  seat_class->apply_kbd_a11y_settings = meta_seat_x11_apply_kbd_a11y_settings;
   seat_class->create_virtual_device = meta_seat_x11_create_virtual_device;
   seat_class->get_supported_virtual_device_types = meta_seat_x11_get_supported_virtual_device_types;
   seat_class->warp_pointer = meta_seat_x11_warp_pointer;

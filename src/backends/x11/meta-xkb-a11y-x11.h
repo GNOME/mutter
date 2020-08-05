@@ -26,11 +26,12 @@
 
 #include <X11/Xlib.h>
 
+#include "backends/meta-input-settings-private.h"
 #include "clutter/clutter.h"
 
 void
-meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat            *seat,
-                                       ClutterKbdA11ySettings *kbd_a11y_settings);
+meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat         *seat,
+                                       MetaKbdA11ySettings *kbd_a11y_settings);
 
 gboolean
 meta_seat_x11_a11y_init               (ClutterSeat            *seat);
