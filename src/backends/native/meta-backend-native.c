@@ -50,6 +50,7 @@
 #include "backends/meta-stage-private.h"
 #include "backends/native/meta-clutter-backend-native.h"
 #include "backends/native/meta-event-native.h"
+#include "backends/native/meta-input-device-native.h"
 #include "backends/native/meta-input-settings-native.h"
 #include "backends/native/meta-kms.h"
 #include "backends/native/meta-kms-device.h"
@@ -234,6 +235,21 @@ meta_backend_native_create_renderer (MetaBackend *backend,
   return META_RENDERER (renderer_native);
 }
 
+static void
+kbd_a11y_changed_cb (MetaInputSettings   *input_settings,
+                     MetaKbdA11ySettings *a11y_settings,
+                     MetaBackend         *backend)
+{
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+  ClutterInputDevice *device;
+
+  device = clutter_seat_get_keyboard (seat);
+  if (device)
+    meta_input_device_native_apply_kbd_a11y_settings (META_INPUT_DEVICE_NATIVE (device),
+                                                      a11y_settings);
+}
+
 static MetaInputSettings *
 meta_backend_native_create_input_settings (MetaBackend *backend)
 {
@@ -243,6 +259,8 @@ meta_backend_native_create_input_settings (MetaBackend *backend)
     {
       backend_native->input_settings =
         g_object_new (META_TYPE_INPUT_SETTINGS_NATIVE, NULL);
+      g_signal_connect_object (backend_native->input_settings, "kbd-a11y-changed",
+                               G_CALLBACK (kbd_a11y_changed_cb), backend, 0);
     }
 
   return backend_native->input_settings;

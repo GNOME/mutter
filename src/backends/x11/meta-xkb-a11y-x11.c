@@ -78,40 +78,43 @@ static void
 check_settings_changed (ClutterSeat *seat)
 {
   Display *xdisplay = clutter_x11_get_default_display ();
-  ClutterKbdA11ySettings kbd_a11y_settings;
-  ClutterKeyboardA11yFlags what_changed = 0;
+  MetaKbdA11ySettings kbd_a11y_settings;
+  MetaKeyboardA11yFlags what_changed = 0;
+  MetaInputSettings *input_settings;
   XkbDescRec *desc;
 
   desc = get_xkb_desc_rec (xdisplay);
   if (!desc)
     return;
 
-  clutter_seat_get_kbd_a11y_settings (seat, &kbd_a11y_settings);
+  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  meta_input_settings_get_kbd_a11y_settings (input_settings,
+                                             &kbd_a11y_settings);
 
   if (desc->ctrls->enabled_ctrls & XkbSlowKeysMask &&
-      !(kbd_a11y_settings.controls & CLUTTER_A11Y_SLOW_KEYS_ENABLED))
+      !(kbd_a11y_settings.controls & META_A11Y_SLOW_KEYS_ENABLED))
     {
-      what_changed |= CLUTTER_A11Y_SLOW_KEYS_ENABLED;
-      kbd_a11y_settings.controls |= CLUTTER_A11Y_SLOW_KEYS_ENABLED;
+      what_changed |= META_A11Y_SLOW_KEYS_ENABLED;
+      kbd_a11y_settings.controls |= META_A11Y_SLOW_KEYS_ENABLED;
     }
   else if (!(desc->ctrls->enabled_ctrls & XkbSlowKeysMask) &&
-           kbd_a11y_settings.controls & CLUTTER_A11Y_SLOW_KEYS_ENABLED)
+           kbd_a11y_settings.controls & META_A11Y_SLOW_KEYS_ENABLED)
     {
-      what_changed |= CLUTTER_A11Y_SLOW_KEYS_ENABLED;
-      kbd_a11y_settings.controls &= ~CLUTTER_A11Y_SLOW_KEYS_ENABLED;
+      what_changed |= META_A11Y_SLOW_KEYS_ENABLED;
+      kbd_a11y_settings.controls &= ~META_A11Y_SLOW_KEYS_ENABLED;
     }
 
   if (desc->ctrls->enabled_ctrls & XkbStickyKeysMask &&
-      !(kbd_a11y_settings.controls & CLUTTER_A11Y_STICKY_KEYS_ENABLED))
+      !(kbd_a11y_settings.controls & META_A11Y_STICKY_KEYS_ENABLED))
     {
-      what_changed |= CLUTTER_A11Y_STICKY_KEYS_ENABLED;
-      kbd_a11y_settings.controls |= CLUTTER_A11Y_STICKY_KEYS_ENABLED;
+      what_changed |= META_A11Y_STICKY_KEYS_ENABLED;
+      kbd_a11y_settings.controls |= META_A11Y_STICKY_KEYS_ENABLED;
     }
   else if (!(desc->ctrls->enabled_ctrls & XkbStickyKeysMask) &&
-           kbd_a11y_settings.controls & CLUTTER_A11Y_STICKY_KEYS_ENABLED)
+           kbd_a11y_settings.controls & META_A11Y_STICKY_KEYS_ENABLED)
     {
-      what_changed |= CLUTTER_A11Y_STICKY_KEYS_ENABLED;
-      kbd_a11y_settings.controls &= ~CLUTTER_A11Y_STICKY_KEYS_ENABLED;
+      what_changed |= META_A11Y_STICKY_KEYS_ENABLED;
+      kbd_a11y_settings.controls &= ~META_A11Y_STICKY_KEYS_ENABLED;
     }
 
   if (what_changed)
@@ -182,10 +185,10 @@ set_value_mask (gboolean      flag,
 }
 
 static gboolean
-set_xkb_ctrl (XkbDescRec               *desc,
-              ClutterKeyboardA11yFlags settings,
-              ClutterKeyboardA11yFlags flag,
-              unsigned long            mask)
+set_xkb_ctrl (XkbDescRec            *desc,
+              MetaKeyboardA11yFlags  settings,
+              MetaKeyboardA11yFlags  flag,
+              unsigned long          mask)
 {
   gboolean result = (settings & flag) == flag;
   desc->ctrls->enabled_ctrls = set_value_mask (result, desc->ctrls->enabled_ctrls, mask);
@@ -194,8 +197,8 @@ set_xkb_ctrl (XkbDescRec               *desc,
 }
 
 void
-meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat            *seat,
-                                       ClutterKbdA11ySettings *kbd_a11y_settings)
+meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat         *seat,
+                                       MetaKbdA11ySettings *kbd_a11y_settings)
 {
   Display *xdisplay = clutter_x11_get_default_display ();
   XkbDescRec *desc;
@@ -206,13 +209,13 @@ meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat            *seat,
     return;
 
   /* general */
-  enable_accessX = kbd_a11y_settings->controls & CLUTTER_A11Y_KEYBOARD_ENABLED;
+  enable_accessX = kbd_a11y_settings->controls & META_A11Y_KEYBOARD_ENABLED;
 
   desc->ctrls->enabled_ctrls = set_value_mask (enable_accessX,
                                                desc->ctrls->enabled_ctrls,
                                                XkbAccessXKeysMask);
 
-  if (set_xkb_ctrl (desc, kbd_a11y_settings->controls, CLUTTER_A11Y_TIMEOUT_ENABLED,
+  if (set_xkb_ctrl (desc, kbd_a11y_settings->controls, META_A11Y_TIMEOUT_ENABLED,
                     XkbAccessXTimeoutMask))
     {
       desc->ctrls->ax_timeout = kbd_a11y_settings->timeout_delay;
@@ -226,17 +229,17 @@ meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat            *seat,
     }
 
   desc->ctrls->ax_options =
-    set_value_mask (kbd_a11y_settings->controls & CLUTTER_A11Y_FEATURE_STATE_CHANGE_BEEP,
+    set_value_mask (kbd_a11y_settings->controls & META_A11Y_FEATURE_STATE_CHANGE_BEEP,
                     desc->ctrls->ax_options,
                     XkbAccessXFeedbackMask | XkbAX_FeatureFBMask | XkbAX_SlowWarnFBMask);
 
   /* bounce keys */
   if (set_xkb_ctrl (desc, kbd_a11y_settings->controls,
-                    CLUTTER_A11Y_BOUNCE_KEYS_ENABLED, XkbBounceKeysMask))
+                    META_A11Y_BOUNCE_KEYS_ENABLED, XkbBounceKeysMask))
     {
       desc->ctrls->debounce_delay = kbd_a11y_settings->debounce_delay;
       desc->ctrls->ax_options =
-        set_value_mask (kbd_a11y_settings->controls & CLUTTER_A11Y_BOUNCE_KEYS_BEEP_REJECT,
+        set_value_mask (kbd_a11y_settings->controls & META_A11Y_BOUNCE_KEYS_BEEP_REJECT,
                         desc->ctrls->ax_options,
                         XkbAccessXFeedbackMask | XkbAX_BKRejectFBMask);
     }
@@ -248,7 +251,7 @@ meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat            *seat,
       desc->ctrls->enabled_ctrls &= ~(XkbMouseKeysMask | XkbMouseKeysAccelMask);
     }
   else if (set_xkb_ctrl (desc, kbd_a11y_settings->controls,
-                         CLUTTER_A11Y_MOUSE_KEYS_ENABLED, XkbMouseKeysMask | XkbMouseKeysAccelMask))
+                         META_A11Y_MOUSE_KEYS_ENABLED, XkbMouseKeysMask | XkbMouseKeysAccelMask))
     {
       int mk_max_speed;
       int mk_accel_time;
@@ -273,16 +276,16 @@ meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat            *seat,
 
   /* slow keys */
   if (set_xkb_ctrl (desc, kbd_a11y_settings->controls,
-                    CLUTTER_A11Y_SLOW_KEYS_ENABLED, XkbSlowKeysMask))
+                    META_A11Y_SLOW_KEYS_ENABLED, XkbSlowKeysMask))
     {
       desc->ctrls->ax_options =
-        set_value_mask (kbd_a11y_settings->controls & CLUTTER_A11Y_SLOW_KEYS_BEEP_PRESS,
+        set_value_mask (kbd_a11y_settings->controls & META_A11Y_SLOW_KEYS_BEEP_PRESS,
                         desc->ctrls->ax_options, XkbAccessXFeedbackMask | XkbAX_SKPressFBMask);
       desc->ctrls->ax_options =
-        set_value_mask (kbd_a11y_settings->controls & CLUTTER_A11Y_SLOW_KEYS_BEEP_ACCEPT,
+        set_value_mask (kbd_a11y_settings->controls & META_A11Y_SLOW_KEYS_BEEP_ACCEPT,
                         desc->ctrls->ax_options, XkbAccessXFeedbackMask | XkbAX_SKAcceptFBMask);
       desc->ctrls->ax_options =
-        set_value_mask (kbd_a11y_settings->controls & CLUTTER_A11Y_SLOW_KEYS_BEEP_REJECT,
+        set_value_mask (kbd_a11y_settings->controls & META_A11Y_SLOW_KEYS_BEEP_REJECT,
                         desc->ctrls->ax_options, XkbAccessXFeedbackMask | XkbAX_SKRejectFBMask);
       desc->ctrls->slow_keys_delay = kbd_a11y_settings->slowkeys_delay;
       /* anything larger than 500 seems to loose all keyboard input */
@@ -292,20 +295,20 @@ meta_seat_x11_apply_kbd_a11y_settings (ClutterSeat            *seat,
 
   /* sticky keys */
   if (set_xkb_ctrl (desc, kbd_a11y_settings->controls,
-                    CLUTTER_A11Y_STICKY_KEYS_ENABLED, XkbStickyKeysMask))
+                    META_A11Y_STICKY_KEYS_ENABLED, XkbStickyKeysMask))
   {
     desc->ctrls->ax_options |= XkbAX_LatchToLockMask;
     desc->ctrls->ax_options =
-      set_value_mask (kbd_a11y_settings->controls & CLUTTER_A11Y_STICKY_KEYS_TWO_KEY_OFF,
+      set_value_mask (kbd_a11y_settings->controls & META_A11Y_STICKY_KEYS_TWO_KEY_OFF,
                       desc->ctrls->ax_options, XkbAccessXFeedbackMask | XkbAX_TwoKeysMask);
     desc->ctrls->ax_options =
-      set_value_mask (kbd_a11y_settings->controls &  CLUTTER_A11Y_STICKY_KEYS_BEEP,
+      set_value_mask (kbd_a11y_settings->controls &  META_A11Y_STICKY_KEYS_BEEP,
                       desc->ctrls->ax_options, XkbAccessXFeedbackMask | XkbAX_StickyKeysFBMask);
   }
 
   /* toggle keys */
   desc->ctrls->ax_options =
-    set_value_mask (kbd_a11y_settings->controls & CLUTTER_A11Y_TOGGLE_KEYS_ENABLED,
+    set_value_mask (kbd_a11y_settings->controls & META_A11Y_TOGGLE_KEYS_ENABLED,
                     desc->ctrls->ax_options, XkbAccessXFeedbackMask | XkbAX_IndicatorFBMask);
 
   set_xkb_desc_rec (xdisplay, desc);

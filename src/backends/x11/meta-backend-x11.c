@@ -50,6 +50,7 @@
 #include "backends/x11/meta-seat-x11.h"
 #include "backends/x11/meta-stage-x11.h"
 #include "backends/x11/meta-renderer-x11.h"
+#include "backends/x11/meta-xkb-a11y-x11.h"
 #include "clutter/clutter.h"
 #include "clutter/x11/clutter-x11.h"
 #include "compositor/compositor-private.h"
@@ -520,6 +521,17 @@ on_monitors_changed (MetaMonitorManager *manager,
 }
 
 static void
+on_kbd_a11y_changed (MetaInputSettings   *input_settings,
+                     MetaKbdA11ySettings *a11y_settings,
+                     MetaBackend         *backend)
+{
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+
+  meta_seat_x11_apply_kbd_a11y_settings (seat, a11y_settings);
+}
+
+static void
 meta_backend_x11_post_init (MetaBackend *backend)
 {
   MetaBackendX11 *x11 = META_BACKEND_X11 (backend);
@@ -527,6 +539,7 @@ meta_backend_x11_post_init (MetaBackend *backend)
   MetaMonitorManager *monitor_manager;
   ClutterBackend *clutter_backend;
   ClutterSeat *seat;
+  MetaInputSettings *input_settings;
   int major, minor;
   gboolean has_xi = FALSE;
 
@@ -584,6 +597,15 @@ meta_backend_x11_post_init (MetaBackend *backend)
   seat = clutter_backend_get_default_seat (clutter_backend);
   meta_seat_x11_notify_devices (META_SEAT_X11 (seat),
                                 CLUTTER_STAGE (meta_backend_get_stage (backend)));
+
+  input_settings = meta_backend_get_input_settings (backend);
+
+  if (input_settings)
+    {
+      g_signal_connect_object (meta_backend_get_input_settings (backend),
+                               "kbd-a11y-changed",
+                               G_CALLBACK (on_kbd_a11y_changed), backend, 0);
+    }
 }
 
 static ClutterBackend *
