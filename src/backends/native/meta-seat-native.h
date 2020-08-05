@@ -203,9 +203,6 @@ void meta_seat_native_set_libinput_seat (MetaSeatNative       *seat,
 
 void meta_seat_native_sync_leds (MetaSeatNative *seat);
 
-ClutterInputDevice * meta_seat_native_get_device (MetaSeatNative *seat,
-                                                  int             id);
-
 MetaTouchState * meta_seat_native_acquire_touch_state (MetaSeatNative *seat,
                                                        int             device_slot);
 

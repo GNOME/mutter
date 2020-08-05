@@ -2843,24 +2843,6 @@ meta_seat_native_init (MetaSeatNative *seat)
   seat->repeat_interval = 33;   /* ms */
 }
 
-ClutterInputDevice *
-meta_seat_native_get_device (MetaSeatNative *seat,
-                             int             id)
-{
-  ClutterInputDevice *device;
-  GSList *l;
-
-  for (l = seat->devices; l; l = l->next)
-    {
-      device = l->data;
-
-      if (clutter_input_device_get_device_id (device) == id)
-        return device;
-    }
-
-  return NULL;
-}
-
 void
 meta_seat_native_set_stage (MetaSeatNative *seat,
                             ClutterStage   *stage)
