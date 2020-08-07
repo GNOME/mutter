@@ -129,19 +129,19 @@ release_pressed_buttons (ClutterVirtualInputDevice *virtual_device)
       switch (get_button_type (code))
         {
         case EVDEV_BUTTON_TYPE_KEY:
-          meta_seat_native_notify_key (virtual_evdev->seat,
-                                       virtual_evdev->device,
-                                       time_us,
-                                       code,
-                                       CLUTTER_KEY_STATE_RELEASED,
-                                       TRUE);
+          meta_seat_impl_notify_key (virtual_evdev->seat->impl,
+                                     virtual_evdev->device,
+                                     time_us,
+                                     code,
+                                     CLUTTER_KEY_STATE_RELEASED,
+                                     TRUE);
           break;
         case EVDEV_BUTTON_TYPE_BUTTON:
-          meta_seat_native_notify_button (virtual_evdev->seat,
-                                          virtual_evdev->device,
-                                          time_us,
-                                          code,
-                                          CLUTTER_BUTTON_STATE_RELEASED);
+          meta_seat_impl_notify_button (virtual_evdev->seat->impl,
+                                        virtual_evdev->device,
+                                        time_us,
+                                        code,
+                                        CLUTTER_BUTTON_STATE_RELEASED);
           break;
         case EVDEV_BUTTON_TYPE_NONE:
           g_assert_not_reached ();
@@ -165,11 +165,11 @@ meta_virtual_input_device_native_notify_relative_motion (ClutterVirtualInputDevi
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
-  meta_seat_native_notify_relative_motion (virtual_evdev->seat,
-                                           virtual_evdev->device,
-                                           time_us,
-                                           dx, dy,
-                                           dx, dy);
+  meta_seat_impl_notify_relative_motion (virtual_evdev->seat->impl,
+                                         virtual_evdev->device,
+                                         time_us,
+                                         dx, dy,
+                                         dx, dy);
 }
 
 static void
@@ -186,11 +186,11 @@ meta_virtual_input_device_native_notify_absolute_motion (ClutterVirtualInputDevi
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
-  meta_seat_native_notify_absolute_motion (virtual_evdev->seat,
-                                           virtual_evdev->device,
-                                           time_us,
-                                           x, y,
-                                           NULL);
+  meta_seat_impl_notify_absolute_motion (virtual_evdev->seat->impl,
+                                         virtual_evdev->device,
+                                         time_us,
+                                         x, y,
+                                         NULL);
 }
 
 static int
@@ -252,11 +252,11 @@ meta_virtual_input_device_native_notify_button (ClutterVirtualInputDevice *virtu
               button_state == CLUTTER_BUTTON_STATE_PRESSED ? "press" : "release",
               evdev_button, virtual_device);
 
-  meta_seat_native_notify_button (virtual_evdev->seat,
-                                  virtual_evdev->device,
-                                  time_us,
-                                  evdev_button,
-                                  button_state);
+  meta_seat_impl_notify_button (virtual_evdev->seat->impl,
+                                virtual_evdev->device,
+                                time_us,
+                                evdev_button,
+                                button_state);
 }
 
 static void
@@ -294,12 +294,12 @@ meta_virtual_input_device_native_notify_key (ClutterVirtualInputDevice *virtual_
               key_state == CLUTTER_KEY_STATE_PRESSED ? "press" : "release",
               key, virtual_device);
 
-  meta_seat_native_notify_key (virtual_evdev->seat,
-                               virtual_evdev->device,
-                               time_us,
-                               key,
-                               key_state,
-                               TRUE);
+  meta_seat_impl_notify_key (virtual_evdev->seat->impl,
+                             virtual_evdev->device,
+                             time_us,
+                             key,
+                             key_state,
+                             TRUE);
 }
 
 static gboolean
@@ -320,7 +320,7 @@ pick_keycode_for_keyval_in_current_group (ClutterVirtualInputDevice *virtual_dev
   backend = clutter_get_default_backend ();
   keymap = clutter_seat_get_keymap (clutter_backend_get_default_seat (backend));
   xkb_keymap = meta_keymap_native_get_keyboard_map (META_KEYMAP_NATIVE (keymap));
-  state = virtual_evdev->seat->xkb;
+  state = meta_seat_impl_get_xkb_state (virtual_evdev->seat->impl);
 
   layout = xkb_state_serialize_layout (state, XKB_STATE_LAYOUT_EFFECTIVE);
   min_keycode = xkb_keymap_min_keycode (xkb_keymap);
@@ -389,12 +389,12 @@ apply_level_modifiers (ClutterVirtualInputDevice *virtual_device,
               key_state == CLUTTER_KEY_STATE_PRESSED ? "press" : "release",
               evcode, virtual_device);
 
-  meta_seat_native_notify_key (virtual_evdev->seat,
-                               virtual_evdev->device,
-                               time_us,
-                               evcode,
-                               key_state,
-                               TRUE);
+  meta_seat_impl_notify_key (virtual_evdev->seat->impl,
+                             virtual_evdev->device,
+                             time_us,
+                             evcode,
+                             key_state,
+                             TRUE);
 }
 
 static void
@@ -447,12 +447,12 @@ meta_virtual_input_device_native_notify_keyval (ClutterVirtualInputDevice *virtu
   if (key_state)
     apply_level_modifiers (virtual_device, time_us, level, key_state);
 
-  meta_seat_native_notify_key (virtual_evdev->seat,
-                               virtual_evdev->device,
-                               time_us,
-                               evcode,
-                               key_state,
-                               TRUE);
+  meta_seat_impl_notify_key (virtual_evdev->seat->impl,
+                             virtual_evdev->device,
+                             time_us,
+                             evcode,
+                             key_state,
+                             TRUE);
 
   if (!key_state)
     apply_level_modifiers (virtual_device, time_us, level, key_state);
@@ -504,11 +504,11 @@ meta_virtual_input_device_native_notify_discrete_scroll (ClutterVirtualInputDevi
 
   direction_to_discrete (direction, &discrete_dx, &discrete_dy);
 
-  meta_seat_native_notify_discrete_scroll (virtual_evdev->seat,
-                                           virtual_evdev->device,
-                                           time_us,
-                                           discrete_dx, discrete_dy,
-                                           scroll_source);
+  meta_seat_impl_notify_discrete_scroll (virtual_evdev->seat->impl,
+                                         virtual_evdev->device,
+                                         time_us,
+                                         discrete_dx, discrete_dy,
+                                         scroll_source);
 }
 
 static void
@@ -527,12 +527,12 @@ meta_virtual_input_device_native_notify_scroll_continuous (ClutterVirtualInputDe
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
-  meta_seat_native_notify_scroll_continuous (virtual_evdev->seat,
-                                             virtual_evdev->device,
-                                             time_us,
-                                             dx, dy,
-                                             scroll_source,
-                                             CLUTTER_SCROLL_FINISHED_NONE);
+  meta_seat_impl_notify_scroll_continuous (virtual_evdev->seat->impl,
+                                           virtual_evdev->device,
+                                           time_us,
+                                           dx, dy,
+                                           scroll_source,
+                                           CLUTTER_SCROLL_FINISHED_NONE);
 }
 
 static void
@@ -551,21 +551,21 @@ meta_virtual_input_device_native_notify_touch_down (ClutterVirtualInputDevice *v
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
-  touch_state = meta_seat_native_acquire_touch_state (virtual_evdev->seat,
-                                                      device_slot);
+  touch_state = meta_seat_impl_acquire_touch_state (virtual_evdev->seat->impl,
+                                                    device_slot);
   if (!touch_state)
     return;
 
   touch_state->coords.x = x;
   touch_state->coords.y = y;
 
-  meta_seat_native_notify_touch_event (virtual_evdev->seat,
-                                       virtual_evdev->device,
-                                       CLUTTER_TOUCH_BEGIN,
-                                       time_us,
-                                       touch_state->seat_slot,
-                                       touch_state->coords.x,
-                                       touch_state->coords.y);
+  meta_seat_impl_notify_touch_event (virtual_evdev->seat->impl,
+                                     virtual_evdev->device,
+                                     CLUTTER_TOUCH_BEGIN,
+                                     time_us,
+                                     touch_state->seat_slot,
+                                     touch_state->coords.x,
+                                     touch_state->coords.y);
 }
 
 static void
@@ -584,21 +584,21 @@ meta_virtual_input_device_native_notify_touch_motion (ClutterVirtualInputDevice 
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
-  touch_state = meta_seat_native_lookup_touch_state (virtual_evdev->seat,
-                                                     device_slot);
+  touch_state = meta_seat_impl_lookup_touch_state (virtual_evdev->seat->impl,
+                                                   device_slot);
   if (!touch_state)
     return;
 
   touch_state->coords.x = x;
   touch_state->coords.y = y;
 
-  meta_seat_native_notify_touch_event (virtual_evdev->seat,
-                                       virtual_evdev->device,
-                                       CLUTTER_TOUCH_BEGIN,
-                                       time_us,
-                                       touch_state->seat_slot,
-                                       touch_state->coords.x,
-                                       touch_state->coords.y);
+  meta_seat_impl_notify_touch_event (virtual_evdev->seat->impl,
+                                     virtual_evdev->device,
+                                     CLUTTER_TOUCH_BEGIN,
+                                     time_us,
+                                     touch_state->seat_slot,
+                                     touch_state->coords.x,
+                                     touch_state->coords.y);
 }
 
 static void
@@ -615,21 +615,21 @@ meta_virtual_input_device_native_notify_touch_up (ClutterVirtualInputDevice *vir
   if (time_us == CLUTTER_CURRENT_TIME)
     time_us = g_get_monotonic_time ();
 
-  touch_state = meta_seat_native_lookup_touch_state (virtual_evdev->seat,
-                                                     device_slot);
+  touch_state = meta_seat_impl_lookup_touch_state (virtual_evdev->seat->impl,
+                                                   device_slot);
   if (!touch_state)
     return;
 
-  meta_seat_native_notify_touch_event (virtual_evdev->seat,
-                                       virtual_evdev->device,
-                                       CLUTTER_TOUCH_BEGIN,
-                                       time_us,
-                                       touch_state->seat_slot,
-                                       touch_state->coords.x,
-                                       touch_state->coords.y);
+  meta_seat_impl_notify_touch_event (virtual_evdev->seat->impl,
+                                     virtual_evdev->device,
+                                     CLUTTER_TOUCH_BEGIN,
+                                     time_us,
+                                     touch_state->seat_slot,
+                                     touch_state->coords.x,
+                                     touch_state->coords.y);
 
-  meta_seat_native_release_touch_state (virtual_evdev->seat,
-                                        touch_state->seat_slot);
+  meta_seat_impl_release_touch_state (virtual_evdev->seat->impl,
+                                      touch_state->seat_slot);
 }
 
 static void
@@ -688,7 +688,7 @@ meta_virtual_input_device_native_constructed (GObject *object)
               device_type, virtual_device);
 
   virtual_evdev->device =
-    meta_input_device_native_new_virtual (virtual_evdev->seat,
+    meta_input_device_native_new_virtual (virtual_evdev->seat->impl,
                                           device_type,
                                           CLUTTER_INPUT_MODE_PHYSICAL);
 

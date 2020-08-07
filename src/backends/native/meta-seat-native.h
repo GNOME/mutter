@@ -32,81 +32,28 @@
 #include "backends/native/meta-cursor-renderer-native.h"
 #include "backends/native/meta-keymap-native.h"
 #include "backends/native/meta-pointer-constraint-native.h"
+#include "backends/native/meta-seat-impl.h"
 #include "backends/native/meta-xkb-utils.h"
 #include "clutter/clutter.h"
 
-typedef struct _MetaTouchState MetaTouchState;
 typedef struct _MetaSeatNative MetaSeatNative;
-typedef struct _MetaEventSource  MetaEventSource;
-
-struct _MetaTouchState
-{
-  MetaSeatNative *seat;
-
-  int device_slot;
-  int seat_slot;
-  graphene_point_t coords;
-};
 
 struct _MetaSeatNative
 {
   ClutterSeat parent_instance;
 
+  MetaSeatImpl *impl;
   char *seat_id;
-  MetaEventSource *event_source;
-  struct libinput *libinput;
-  struct libinput_seat *libinput_seat;
 
-  GSList *devices;
+  GList *devices;
 
   ClutterInputDevice *core_pointer;
   ClutterInputDevice *core_keyboard;
-
-  GHashTable *touch_states;
-  GHashTable *cursor_renderers;
-
-  struct xkb_state *xkb;
-  xkb_led_index_t caps_lock_led;
-  xkb_led_index_t num_lock_led;
-  xkb_led_index_t scroll_lock_led;
-  xkb_layout_index_t layout_idx;
-  uint32_t button_state;
-  int button_count[KEY_CNT];
-
-  int device_id_next;
-  GList *free_device_ids;
-
-  MetaBarrierManagerNative *barrier_manager;
-  MetaPointerConstraintImpl *pointer_constraint;
 
   MetaKeymapNative *keymap;
   MetaCursorRenderer *cursor_renderer;
   MetaKmsCursorRenderer *kms_cursor_renderer;
   GHashTable *tablet_cursors;
-
-  MetaViewportInfo *viewports;
-
-  GUdevClient *udev_client;
-  guint tablet_mode_switch_state : 1;
-  guint has_touchscreen          : 1;
-  guint has_tablet_switch        : 1;
-  guint touch_mode               : 1;
-
-  /* keyboard repeat */
-  gboolean repeat;
-  uint32_t repeat_delay;
-  uint32_t repeat_interval;
-  uint32_t repeat_key;
-  uint32_t repeat_count;
-  uint32_t repeat_timer;
-  ClutterInputDevice *repeat_device;
-
-  float pointer_x;
-  float pointer_y;
-
-  /* Emulation of discrete scroll events out of smooth ones */
-  float accum_scroll_dx;
-  float accum_scroll_dy;
 
   gboolean released;
 };
@@ -115,94 +62,10 @@ struct _MetaSeatNative
 G_DECLARE_FINAL_TYPE (MetaSeatNative, meta_seat_native,
                       META, SEAT_NATIVE, ClutterSeat)
 
-void meta_seat_native_notify_key (MetaSeatNative     *seat,
-                                  ClutterInputDevice *device,
-                                  uint64_t            time_us,
-                                  uint32_t            key,
-                                  uint32_t            state,
-                                  gboolean            update_keys);
-
-void meta_seat_native_notify_relative_motion (MetaSeatNative     *seat_evdev,
-                                              ClutterInputDevice *input_device,
-                                              uint64_t            time_us,
-                                              float               dx,
-                                              float               dy,
-                                              float               dx_unaccel,
-                                              float               dy_unaccel);
-
-void meta_seat_native_notify_absolute_motion (MetaSeatNative     *seat_evdev,
-                                              ClutterInputDevice *input_device,
-                                              uint64_t            time_us,
-                                              float               x,
-                                              float               y,
-                                              double             *axes);
-
-void meta_seat_native_notify_button (MetaSeatNative     *seat,
-                                     ClutterInputDevice *input_device,
-                                     uint64_t            time_us,
-                                     uint32_t            button,
-                                     uint32_t            state);
-
-void meta_seat_native_notify_scroll_continuous (MetaSeatNative           *seat,
-                                                ClutterInputDevice       *input_device,
-                                                uint64_t                  time_us,
-                                                double                    dx,
-                                                double                    dy,
-                                                ClutterScrollSource       source,
-                                                ClutterScrollFinishFlags  flags);
-
-void meta_seat_native_notify_discrete_scroll (MetaSeatNative      *seat,
-                                              ClutterInputDevice  *input_device,
-                                              uint64_t             time_us,
-                                              double               discrete_dx,
-                                              double               discrete_dy,
-                                              ClutterScrollSource  source);
-
-void meta_seat_native_notify_touch_event (MetaSeatNative     *seat,
-                                          ClutterInputDevice *input_device,
-                                          ClutterEventType    evtype,
-                                          uint64_t            time_us,
-                                          int                 slot,
-                                          double              x,
-                                          double              y);
-
 void meta_seat_native_set_libinput_seat (MetaSeatNative       *seat,
                                          struct libinput_seat *libinput_seat);
 
 void meta_seat_native_sync_leds (MetaSeatNative *seat);
-
-MetaTouchState * meta_seat_native_acquire_touch_state (MetaSeatNative *seat,
-                                                       int             seat_slot);
-MetaTouchState * meta_seat_native_lookup_touch_state  (MetaSeatNative *seat,
-                                                       int             seat_slot);
-
-void meta_seat_native_release_touch_state (MetaSeatNative *seat,
-                                           int             seat_slot);
-
-void meta_seat_native_clear_repeat_timer (MetaSeatNative *seat);
-
-gint meta_seat_native_acquire_device_id (MetaSeatNative     *seat);
-void meta_seat_native_release_device_id (MetaSeatNative     *seat,
-                                         ClutterInputDevice *device);
-
-void meta_seat_native_update_xkb_state (MetaSeatNative *seat);
-
-void meta_seat_native_constrain_pointer (MetaSeatNative     *seat,
-                                         ClutterInputDevice *core_pointer,
-                                         uint64_t            time_us,
-                                         float               x,
-                                         float               y,
-                                         float              *new_x,
-                                         float              *new_y);
-
-void meta_seat_native_filter_relative_motion (MetaSeatNative     *seat,
-                                              ClutterInputDevice *device,
-                                              float               x,
-                                              float               y,
-                                              float              *dx,
-                                              float              *dy);
-
-void meta_seat_native_dispatch (MetaSeatNative *seat);
 
 /**
  * MetaOpenDeviceCallback:
@@ -226,8 +89,6 @@ void  meta_seat_native_set_device_callbacks (MetaOpenDeviceCallback  open_callba
 
 void  meta_seat_native_release_devices (MetaSeatNative *seat);
 void  meta_seat_native_reclaim_devices (MetaSeatNative *seat);
-
-struct xkb_state * meta_seat_native_get_xkb_state (MetaSeatNative *seat);
 
 void               meta_seat_native_set_keyboard_map   (MetaSeatNative    *seat,
                                                         struct xkb_keymap *keymap);

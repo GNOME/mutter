@@ -528,9 +528,9 @@ meta_launcher_new (GError **error)
 
   meta_clutter_backend_native_set_seat_id (self->seat_id);
 
-  meta_seat_native_set_device_callbacks (on_evdev_device_open,
-                                         on_evdev_device_close,
-                                         self);
+  meta_seat_impl_set_device_callbacks (on_evdev_device_open,
+                                       on_evdev_device_close,
+                                       self);
 
   g_signal_connect (self->session_proxy, "notify::active", G_CALLBACK (on_active_changed), self);
 

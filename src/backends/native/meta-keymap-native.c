@@ -58,7 +58,7 @@ meta_keymap_native_get_num_lock_state (ClutterKeymap *keymap)
   ClutterSeat *seat;
 
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  xkb_state = meta_seat_native_get_xkb_state (META_SEAT_NATIVE (seat));
+  xkb_state = meta_seat_impl_get_xkb_state (META_SEAT_NATIVE (seat)->impl);
 
   return xkb_state_mod_name_is_active (xkb_state,
                                        XKB_MOD_NAME_NUM,
@@ -73,7 +73,7 @@ meta_keymap_native_get_caps_lock_state (ClutterKeymap *keymap)
   ClutterSeat *seat;
 
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  xkb_state = meta_seat_native_get_xkb_state (META_SEAT_NATIVE (seat));
+  xkb_state = meta_seat_impl_get_xkb_state (META_SEAT_NATIVE (seat)->impl);
 
   return xkb_state_mod_name_is_active (xkb_state,
                                        XKB_MOD_NAME_CAPS,

@@ -403,8 +403,8 @@ meta_input_settings_native_set_keyboard_repeat (MetaInputSettings *settings,
   ClutterSeat *seat;
 
   seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  meta_seat_native_set_keyboard_repeat (META_SEAT_NATIVE (seat),
-                                        enabled, delay, interval);
+  meta_seat_impl_set_keyboard_repeat (META_SEAT_NATIVE (seat)->impl,
+                                      enabled, delay, interval);
 }
 
 static void

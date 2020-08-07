@@ -22,5 +22,6 @@
 #define META_BACKEND_NATIVE_TYPES_H
 
 typedef struct _MetaBackendNative MetaBackendNative;
+typedef struct _MetaSeatNative MetaSeatNative;
 
 #endif /* META_BACKEND_NATIVE_TYPES_H */
