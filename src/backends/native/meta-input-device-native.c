@@ -215,7 +215,7 @@ meta_input_device_native_is_grouped (ClutterInputDevice *device,
 static void
 meta_input_device_native_bell_notify (MetaInputDeviceNative *device)
 {
-  clutter_seat_bell_notify (CLUTTER_SEAT (device->seat));
+  clutter_seat_bell_notify (CLUTTER_SEAT (device->seat_impl->seat_native));
 }
 
 static void
@@ -416,7 +416,7 @@ key_event_is_modifier (ClutterEvent *event)
 static void
 notify_stickykeys_mask (MetaInputDeviceNative *device)
 {
-  g_signal_emit_by_name (device->seat,
+  g_signal_emit_by_name (device->seat_impl->seat_native,
                          "kbd-a11y-mods-state-changed",
                          device->stickykeys_latched_mask,
                          device->stickykeys_locked_mask);
@@ -427,15 +427,17 @@ update_internal_xkb_state (MetaInputDeviceNative *device,
                            xkb_mod_mask_t         new_latched_mask,
                            xkb_mod_mask_t         new_locked_mask)
 {
-  MetaSeatNative *seat = device->seat;
+  MetaSeatImpl *seat_impl = device->seat_impl;
   xkb_mod_mask_t depressed_mods;
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
   xkb_mod_mask_t group_mods;
+  struct xkb_state *xkb_state;
 
-  depressed_mods = xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_DEPRESSED);
-  latched_mods = xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_LATCHED);
-  locked_mods = xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_LOCKED);
+  xkb_state = meta_seat_impl_get_xkb_state (seat_impl);
+  depressed_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_DEPRESSED);
+  latched_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LATCHED);
+  locked_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LOCKED);
 
   latched_mods &= ~device->stickykeys_latched_mask;
   locked_mods &= ~device->stickykeys_locked_mask;
@@ -446,9 +448,9 @@ update_internal_xkb_state (MetaInputDeviceNative *device,
   latched_mods |= device->stickykeys_latched_mask;
   locked_mods |= device->stickykeys_locked_mask;
 
-  group_mods = xkb_state_serialize_layout (seat->xkb, XKB_STATE_LAYOUT_EFFECTIVE);
+  group_mods = xkb_state_serialize_layout (xkb_state, XKB_STATE_LAYOUT_EFFECTIVE);
 
-  xkb_state_update_mask (seat->xkb,
+  xkb_state_update_mask (xkb_state,
                          depressed_mods,
                          latched_mods,
                          locked_mods,
@@ -462,23 +464,25 @@ update_stickykeys_event (ClutterEvent          *event,
                          xkb_mod_mask_t         new_latched_mask,
                          xkb_mod_mask_t         new_locked_mask)
 {
-  MetaSeatNative *seat = device->seat;
+  MetaSeatImpl *seat_impl = device->seat_impl;
   xkb_mod_mask_t effective_mods;
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
+  struct xkb_state *xkb_state;
 
   update_internal_xkb_state (device, new_latched_mask, new_locked_mask);
 
-  effective_mods = xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_EFFECTIVE);
-  latched_mods = xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_LATCHED);
-  locked_mods = xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_LOCKED);
+  xkb_state = meta_seat_impl_get_xkb_state (seat_impl);
+  effective_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_EFFECTIVE);
+  latched_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LATCHED);
+  locked_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LOCKED);
 
   _clutter_event_set_state_full (event,
-                                 seat->button_state,
+                                 seat_impl->button_state,
                                  device->stickykeys_depressed_mask,
                                  latched_mods,
                                  locked_mods,
-                                 effective_mods | seat->button_state);
+                                 effective_mods | seat_impl->button_state);
 }
 
 static void
@@ -542,10 +546,11 @@ static void
 handle_stickykeys_press (ClutterEvent          *event,
                          MetaInputDeviceNative *device)
 {
-  MetaSeatNative *seat = device->seat;
+  MetaSeatImpl *seat_impl = device->seat_impl;
   xkb_mod_mask_t depressed_mods;
   xkb_mod_mask_t new_latched_mask;
   xkb_mod_mask_t new_locked_mask;
+  struct xkb_state *xkb_state;
 
   if (!key_event_is_modifier (event))
     return;
@@ -557,7 +562,8 @@ handle_stickykeys_press (ClutterEvent          *event,
       return;
     }
 
-  depressed_mods = xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_DEPRESSED);
+  xkb_state = meta_seat_impl_get_xkb_state (seat_impl);
+  depressed_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_DEPRESSED);
   /* Ignore the lock modifier mask, that one cannot be sticky, yet the
    * CAPS_LOCK key itself counts as a modifier as it might be remapped
    * to some other modifier which can be sticky.
@@ -590,10 +596,12 @@ static void
 handle_stickykeys_release (ClutterEvent          *event,
                            MetaInputDeviceNative *device)
 {
-  MetaSeatNative *seat = device->seat;
+  MetaSeatImpl *seat_impl = device->seat_impl;
+  struct xkb_state *xkb_state;
 
+  xkb_state = meta_seat_impl_get_xkb_state (seat_impl);
   device->stickykeys_depressed_mask =
-    xkb_state_serialize_mods (seat->xkb, XKB_STATE_MODS_DEPRESSED);
+    xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_DEPRESSED);
 
   if (key_event_is_modifier (event))
     {
@@ -831,8 +839,12 @@ emulate_pointer_motion (MetaInputDeviceNative *device_evdev,
 static gboolean
 is_numlock_active (MetaInputDeviceNative *device)
 {
-  MetaSeatNative *seat = device->seat;
-  return xkb_state_mod_name_is_active (seat->xkb,
+  MetaSeatImpl *seat_impl = device->seat_impl;
+  struct xkb_state *xkb_state;
+
+  xkb_state = meta_seat_impl_get_xkb_state (seat_impl);
+
+  return xkb_state_mod_name_is_active (xkb_state,
                                        "Mod2",
                                        XKB_STATE_MODS_LOCKED);
 }
@@ -852,7 +864,7 @@ enable_mousekeys (MetaInputDeviceNative *device_evdev)
     return;
 
   device->accessibility_virtual_device =
-    clutter_seat_create_virtual_device (CLUTTER_SEAT (device_evdev->seat),
+    clutter_seat_create_virtual_device (clutter_input_device_get_seat (device),
                                         CLUTTER_POINTER_DEVICE);
 }
 
@@ -1269,7 +1281,7 @@ meta_input_device_native_init (MetaInputDeviceNative *self)
  * it with the provided seat.
  */
 ClutterInputDevice *
-meta_input_device_native_new (MetaSeatNative         *seat,
+meta_input_device_native_new (MetaSeatImpl           *seat_impl,
                               struct libinput_device *libinput_device)
 {
   MetaInputDeviceNative *device;
@@ -1302,10 +1314,10 @@ meta_input_device_native_new (MetaSeatNative         *seat,
                          "n-strips", n_strips,
                          "n-mode-groups", n_groups,
                          "device-node", node_path,
-                         "seat", seat,
+                         "seat", seat_impl->seat_native,
                          NULL);
 
-  device->seat = seat;
+  device->seat_impl = seat_impl;
   device->libinput_device = libinput_device;
 
   libinput_device_set_user_data (libinput_device, device);
@@ -1328,7 +1340,7 @@ meta_input_device_native_new (MetaSeatNative         *seat,
  * Create a new virtual ClutterInputDevice of the given type.
  */
 ClutterInputDevice *
-meta_input_device_native_new_virtual (MetaSeatNative         *seat,
+meta_input_device_native_new_virtual (MetaSeatImpl           *seat_impl,
                                       ClutterInputDeviceType  type,
                                       ClutterInputMode        mode)
 {
@@ -1355,18 +1367,18 @@ meta_input_device_native_new_virtual (MetaSeatNative         *seat,
                          "name", name,
                          "device-type", type,
                          "device-mode", mode,
-                         "seat", seat,
+                         "seat", seat_impl->seat_native,
                          NULL);
 
-  device->seat = seat;
+  device->seat_impl = seat_impl;
 
   return CLUTTER_INPUT_DEVICE (device);
 }
 
-MetaSeatNative *
-meta_input_device_native_get_seat (MetaInputDeviceNative *device)
+MetaSeatImpl *
+meta_input_device_native_get_seat_impl (MetaInputDeviceNative *device)
 {
-  return device->seat;
+  return device->seat_impl;
 }
 
 void

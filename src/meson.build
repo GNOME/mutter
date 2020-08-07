@@ -705,6 +705,8 @@ if have_native_backend
     'backends/native/meta-renderer-native-gles3.c',
     'backends/native/meta-renderer-native-gles3.h',
     'backends/native/meta-renderer-native.h',
+    'backends/native/meta-seat-impl.c',
+    'backends/native/meta-seat-impl.h',
     'backends/native/meta-seat-native.c',
     'backends/native/meta-seat-native.h',
     'backends/native/meta-stage-native.c',

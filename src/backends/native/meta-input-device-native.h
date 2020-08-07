@@ -69,7 +69,7 @@ struct _MetaInputDeviceNative
   ClutterInputDevice parent;
 
   struct libinput_device *libinput_device;
-  MetaSeatNative *seat;
+  MetaSeatImpl *seat_impl;
   ClutterInputDeviceTool *last_tool;
 
   cairo_matrix_t device_matrix;
@@ -111,14 +111,14 @@ struct _MetaInputDeviceNativeClass
 
 GType                     meta_input_device_native_get_type        (void) G_GNUC_CONST;
 
-ClutterInputDevice *      meta_input_device_native_new             (MetaSeatNative          *seat,
+ClutterInputDevice *      meta_input_device_native_new             (MetaSeatImpl            *seat_impl,
                                                                     struct libinput_device  *libinput_device);
 
-ClutterInputDevice *      meta_input_device_native_new_virtual     (MetaSeatNative          *seat,
+ClutterInputDevice *      meta_input_device_native_new_virtual     (MetaSeatImpl            *seat_impl,
                                                                     ClutterInputDeviceType   type,
                                                                     ClutterInputMode         mode);
 
-MetaSeatNative *          meta_input_device_native_get_seat        (MetaInputDeviceNative   *device);
+MetaSeatImpl *            meta_input_device_native_get_seat_impl   (MetaInputDeviceNative   *device);
 
 void                      meta_input_device_native_update_leds     (MetaInputDeviceNative   *device,
                                                                     enum libinput_led        leds);
