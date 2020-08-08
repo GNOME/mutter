@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-03-03 19:30+0200\n"
+"POT-Creation-Date: 2020-08-04 08:31+0000\n"
+"PO-Revision-Date: 2020-08-08 18:00+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <kde-i18n-uk@kde.org>\n"
 "Language: uk\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<"
 "=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Lokalize 20.03.70\n"
+"X-Generator: Lokalize 20.07.70\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -255,11 +255,6 @@ msgstr ""
 "Модифікатор, що використовується для розширених дій віконного менеджера"
 
 #: data/org.gnome.mutter.gschema.xml.in:8
-#| msgid ""
-#| "This key will initiate the \"overlay\", which is a combination window "
-#| "overview and application launching system. The default is intended to be "
-#| "the \"Windows key\" on PC hardware. It's expected that this binding "
-#| "either the default or set to the empty string."
 msgid ""
 "This key will initiate the “overlay”, which is a combination window overview "
 "and application launching system. The default is intended to be the “Windows "
@@ -303,10 +298,6 @@ msgid "Workspaces are managed dynamically"
 msgstr "Робочі простори організовуються динамічно"
 
 #: data/org.gnome.mutter.gschema.xml.in:41
-#| msgid ""
-#| "Determines whether workspaces are managed dynamically or whether there's "
-#| "a static number of workspaces (determined by the num-workspaces key in "
-#| "org.gnome.desktop.wm.preferences)."
 msgid ""
 "Determines whether workspaces are managed dynamically or whether there’s a "
 "static number of workspaces (determined by the num-workspaces key in org."
@@ -345,10 +336,6 @@ msgid "Delay focus changes until the pointer stops moving"
 msgstr "Затримувати зміни фокусу, поки вказівник не перестане рухатись"
 
 #: data/org.gnome.mutter.gschema.xml.in:69
-#| msgid ""
-#| "If set to true, and the focus mode is either \"sloppy\" or \"mouse\" then "
-#| "the focus will not be changed immediately when entering a window, but "
-#| "only after the pointer stops moving."
 msgid ""
 "If set to true, and the focus mode is either “sloppy” or “mouse” then the "
 "focus will not be changed immediately when entering a window, but only after "
@@ -363,9 +350,6 @@ msgid "Draggable border width"
 msgstr "Перетяжна ширина меж"
 
 #: data/org.gnome.mutter.gschema.xml.in:80
-#| msgid ""
-#| "The amount of total draggable borders. If the theme's visible borders are "
-#| "not enough, invisible borders will be added to meet this value."
 msgid ""
 "The amount of total draggable borders. If the theme’s visible borders are "
 "not enough, invisible borders will be added to meet this value."
@@ -413,21 +397,21 @@ msgid ""
 "must have CAP_SYS_NICE. Requires a restart. • “autostart-xwayland” — "
 "initializes Xwayland lazily if there are X11 clients. Requires restart."
 msgstr ""
-"Щоб увімкнути експериментальну можливість, додайте до списку ключове слово"
-" можливості. Те, чи потребуватиме вмикання можливості перезапуску"
-" композитора, залежить від типу можливості. Експериментальні можливості не"
-" обов'язково завжди доступні чи придатні до налаштовування. Не слід"
-" очікувати, що у майбутніх версіях обов'язково буде збережено якусь із"
-" експериментальних можливостей. У поточній версії передбачено такі ключові"
-" слова: • «scale-monitor-framebuffer» — наказує mutter типово розташовувати"
-" логічні монітори у координатному просторі логічних пікселів, масштабуючи"
-" буфери кадрів моніторів, замість вмісту вікон. Призначено для роботи із"
-" моніторами із високою роздільною здатністю. Не потребує перезапуску"
-" композитора. • «rt-scheduler» — наказати mutter надсилати до системи запит"
-" щодо низькопріоритетного планування режиму реального часу. Для виконуваного"
-" файла або запису користувача має бути встановлено CAP_SYS_NICE. Потребує"
-" перезапуску композитора. • «autostart-xwayland» — лінива ініціалізація"
-" Xwayland, якщо виявлено клієнти X11. Потребує перезапуску композитора."
+"Щоб увімкнути експериментальну можливість, додайте до списку ключове слово "
+"можливості. Те, чи потребуватиме вмикання можливості перезапуску "
+"композитора, залежить від типу можливості. Експериментальні можливості не "
+"обов'язково завжди доступні чи придатні до налаштовування. Не слід "
+"очікувати, що у майбутніх версіях обов'язково буде збережено якусь із "
+"експериментальних можливостей. У поточній версії передбачено такі ключові "
+"слова: • «scale-monitor-framebuffer» — наказує mutter типово розташовувати "
+"логічні монітори у координатному просторі логічних пікселів, масштабуючи "
+"буфери кадрів моніторів, замість вмісту вікон. Призначено для роботи із "
+"моніторами із високою роздільною здатністю. Не потребує перезапуску "
+"композитора. • «rt-scheduler» — наказати mutter надсилати до системи запит "
+"щодо низькопріоритетного планування режиму реального часу. Для виконуваного "
+"файла або запису користувача має бути встановлено CAP_SYS_NICE. Потребує "
+"перезапуску композитора. • «autostart-xwayland» — лінива ініціалізація "
+"Xwayland, якщо виявлено клієнти X11. Потребує перезапуску композитора."
 
 #: data/org.gnome.mutter.gschema.xml.in:134
 msgid "Modifier to use to locate the pointer"
@@ -446,9 +430,9 @@ msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
-"Проміжок часу у мілісекундах, протягом якого клієнт має відповісти на"
-" луна-запит, щоб вважатися працездатним. Скористайтеся значенням 0, щоб"
-" повністю вимкнути перевірку працездатності."
+"Проміжок часу у мілісекундах, протягом якого клієнт має відповісти на луна-"
+"запит, щоб вважатися працездатним. Скористайтеся значенням 0, щоб повністю "
+"вимкнути перевірку працездатності."
 
 #: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
@@ -459,7 +443,6 @@ msgid "Cancel tab popup"
 msgstr "Скасувати контекстні вкладки"
 
 #: data/org.gnome.mutter.gschema.xml.in:175
-#| msgid "Switch applications"
 msgid "Switch monitor configurations"
 msgstr "Перемкнути налаштування монітора"
 
@@ -525,6 +508,16 @@ msgstr ""
 "Дозволити захопленням у X11 блокувати зміну фокусування клавіатури з Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#| msgid ""
+#| "Allow all keyboard events to be routed to X11 “override redirect” windows "
+#| "with a grab when running in Xwayland. This option is to support X11 "
+#| "clients which map an “override redirect” window (which do not receive "
+#| "keyboard focus) and issue a keyboard grab to force all keyboard events to "
+#| "that window. This option is seldom used and has no effect on regular X11 "
+#| "windows which can receive keyboard focus under normal circumstances. For "
+#| "a X11 grab to be taken into account under Wayland, the client must also "
+#| "either send a specific X11 ClientMessage to the root window or be among "
+#| "the applications white-listed in key “xwayland-grab-access-rules”."
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -534,20 +527,20 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
-"Дозволяє маршрутизацію усіх подій клавіатури до вікон X11 із «перевизначенням"
-" переспрямовування», які захоплюють клавіатуру, коли їх запущено у Xwayland."
-" Цей параметр призначено для реалізації підтримки клієнтів X11, які"
-" здійснюють відображення вікна із «перевизначенням переспрямовування» (вікна,"
-" яке не отримує фокусування клавіатури) і видають сигнал щодо захоплення"
-" клавіатури, щоб примусово переспрямувати усі події з клавіатури у відповідне"
-" вікно. Використання цього параметра є рідкісним. Воно не впливає на звичайні"
-" вікна X11, які можуть отримувати фокусування клавіатури за звичних обставин."
-" Щоб захоплення клавіатури X11 бралося до уваги у Wayland, клієнтська"
-" програма також має або надіслати специфічне ClientMessage X11 до кореневого"
-" вікна, або мати свій пункт у «білому» списку ключа"
-" «xwayland-grab-access-rules»."
+"Дозволяє маршрутизацію усіх подій клавіатури до вікон X11 із "
+"«перевизначенням переспрямовування», які захоплюють клавіатуру, коли їх "
+"запущено у Xwayland. Цей параметр призначено для реалізації підтримки "
+"клієнтів X11, які здійснюють відображення вікна із «перевизначенням "
+"переспрямовування» (вікна, яке не отримує фокусування клавіатури) і видають "
+"сигнал щодо захоплення клавіатури, щоб примусово переспрямувати усі події з "
+"клавіатури у відповідне вікно. Використання цього параметра є рідкісним. "
+"Воно не впливає на звичайні вікна X11, які можуть отримувати фокусування "
+"клавіатури за звичних обставин. Щоб захоплення клавіатури X11 бралося до "
+"уваги у Wayland, клієнтська програма також має або надіслати специфічне "
+"ClientMessage X11 до кореневого вікна, або мати свій пункт у списку"
+" дозволених програм ключа «xwayland-grab-access-rules»."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -555,35 +548,46 @@ msgstr ""
 "Програми Xwayland, яким дозволено надсилати запит щодо захоплення клавіатури"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#| msgid ""
+#| "List the resource names or resource class of X11 windows either allowed "
+#| "or not allowed to issue X11 keyboard grabs under Xwayland. The resource "
+#| "name or resource class of a given X11 window can be obtained using the "
+#| "command “xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are "
+#| "supported. Values starting with “!” are blacklisted, which has precedence "
+#| "over the whitelist, to revoke applications from the default system list. "
+#| "The default system list includes the following applications: "
+#| "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab "
+#| "by using the specific keyboard shortcut defined by the keybinding key "
+#| "“restore-shortcuts”."
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
 msgstr ""
-"Список назв ресурсів або клас ресурсів вікон X11, яким дозволено або"
-" заборонено видавати запити на захоплення фокусу клавіатури X11 у Xwayland."
-" Назву ресурсу або клас ресурсу певного вікна X11 можна визначити за"
-" допомогою команди «xprop WM_CLASS». Передбачено підтримку"
-" символів-замінників «*» і «?» у записах. Значення, які починатимуться з «!»,"
-" буде додано до «чорного» списку, який матиме пріоритет над «білим» списком,"
-" щоб програми можна було вилучати із типового загальносистемного списку."
-" Типовий загальносистемний список містить записи таких програм:"
-" «@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@». Користувачі можуть усувати наявне"
-" захоплення фокуса за допомогою певного клавіатурного скорочення, яке"
-" визначається ключем «restore-"
-"shortcuts»."
+"Список назв ресурсів або клас ресурсів вікон X11, яким дозволено або "
+"заборонено видавати запити на захоплення фокусу клавіатури X11 у Xwayland. "
+"Назву ресурсу або клас ресурсу певного вікна X11 можна визначити за "
+"допомогою команди «xprop WM_CLASS». Передбачено підтримку символів-"
+"замінників «*» і «?» у записах. Значення, які починатимуться з «!», буде "
+"додано до списку заборонених, який матиме пріоритет над списком дозволених"
+" значень, щоб "
+"програми можна було вилучати із типового загальносистемного списку. Типовий "
+"загальносистемний список містить записи таких програм: "
+"«@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@». Користувачі можуть усувати наявне "
+"захоплення фокуса за допомогою певного клавіатурного скорочення, яке "
+"визначається ключем «restore-shortcuts»."
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2567
+#: src/backends/meta-input-settings.c:2698
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Перемкнути режим (група %d)"
@@ -591,38 +595,35 @@ msgstr "Перемкнути режим (група %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2590
-#| msgid "Switch system controls"
+#: src/backends/meta-input-settings.c:2721
 msgid "Switch monitor"
 msgstr "Перемкнути монітор"
 
-#: src/backends/meta-input-settings.c:2592
+#: src/backends/meta-input-settings.c:2723
 msgid "Show on-screen help"
 msgstr "Показати довідку на екрані"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Вбудований екран"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Невідомо"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Невідомий екран"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
-#| msgid "%s %s"
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
-#| msgid "%s %s"
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
 "inches could not be calculated, e.g. Dell U2414H"
@@ -631,17 +632,13 @@ msgstr "%s %s"
 
 #. Translators: this string will appear in Sysprof
 #: src/backends/meta-profiler.c:79
-#| msgid "Compositing Manager"
 msgid "Compositor"
 msgstr "Композитор"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
-#| msgid ""
-#| "Another compositing manager is already running on screen %i on display "
-#| "\"%s\"."
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
 msgstr "Уже запущено інший композитний менеджер на екрані %i через показ «%s»."
@@ -679,7 +676,6 @@ msgid "Run as a wayland compositor"
 msgstr "запустити як композитор wayland"
 
 #: src/core/main.c:232
-#| msgid "Run as a wayland compositor"
 msgid "Run as a nested compositor"
 msgstr "Запустити як вкладений композитор"
 
@@ -722,12 +718,6 @@ msgstr "_Зачекати"
 
 #: src/core/mutter.c:38
 #, c-format
-#| msgid ""
-#| "mutter %s\n"
-#| "Copyright (C) 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
-#| "This is free software; see the source for copying conditions.\n"
-#| "There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A "
-#| "PARTICULAR PURPOSE.\n"
 msgid ""
 "mutter %s\n"
 "Copyright © 2001-%d Havoc Pennington, Red Hat, Inc., and others\n"
@@ -754,7 +744,7 @@ msgstr "Додатки Clutter для використання"
 msgid "Workspace %d"
 msgstr "Робочий простір %d"
 
-#: src/core/util.c:122
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter зібрано без підтримки докладного режиму\n"
 
@@ -765,9 +755,6 @@ msgstr "Перемикання режимів: режим %d"
 
 #: src/x11/meta-x11-display.c:676
 #, c-format
-#| msgid ""
-#| "Display \"%s\" already has a window manager; try using the --replace "
-#| "option to replace the current window manager."
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
@@ -781,13 +768,11 @@ msgstr "Не вдалося ініціалізувати GDK\n"
 
 #: src/x11/meta-x11-display.c:1113
 #, c-format
-#| msgid "Failed to open X Window System display '%s'\n"
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Не вдалось відкрити дисплей віконної системи X «%s»\n"
 
 #: src/x11/meta-x11-display.c:1196
 #, c-format
-#| msgid "Screen %d on display '%s' is invalid\n"
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Екран %d на дисплеї «%s» не правильний\n"
 
@@ -797,17 +782,14 @@ msgid "Format %s not supported"
 msgstr "Підтримки формату %s не передбачено"
 
 #: src/x11/session.c:1821
-#| msgid ""
-#| "These windows do not support &quot;save current setup&quot; and will have "
-#| "to be restarted manually next time you log in."
 msgid ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
 msgstr ""
-"Ці вікна не підтримують «збереження поточних параметрів», і при "
-"наступному входженні їх треба запустити власноруч."
+"Ці вікна не підтримують «збереження поточних параметрів», і при наступному "
+"входженні їх треба запустити власноруч."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
