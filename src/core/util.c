@@ -1,5 +1,3 @@
-/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
-
 /*
  * Copyright (C) 2001 Havoc Pennington
  * Copyright (C) 2005 Elijah Newren
@@ -266,9 +264,7 @@ meta_debug_spew_real (const char *format, ...)
 
   g_free (str);
 }
-#endif /* WITH_VERBOSE_MODE */
 
-#ifdef WITH_VERBOSE_MODE
 void
 meta_verbose_real (const char *format, ...)
 {
@@ -278,9 +274,7 @@ meta_verbose_real (const char *format, ...)
   meta_topic_real_valist (META_DEBUG_VERBOSE, format, args);
   va_end (args);
 }
-#endif /* WITH_VERBOSE_MODE */
 
-#ifdef WITH_VERBOSE_MODE
 static const char*
 topic_name (MetaDebugTopic topic)
 {
@@ -759,6 +753,3 @@ meta_remove_clutter_debug_flags (ClutterDebugFlag     debug_flags,
 {
   clutter_remove_debug_flags (debug_flags, draw_flags, pick_flags);
 }
-
-/* eof util.c */
-
