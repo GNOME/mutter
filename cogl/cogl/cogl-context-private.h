@@ -256,6 +256,8 @@ struct _CoglContext
   CoglPollSource *fences_poll_source;
   CoglList fences;
 
+  GHashTable *named_pipelines;
+
   /* This defines a list of function pointers that Cogl uses from
      either GL or GLES. All functions are accessed indirectly through
      these pointers rather than linking to them directly */

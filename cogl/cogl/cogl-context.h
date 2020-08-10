@@ -44,6 +44,7 @@ typedef struct _CoglContext CoglContext;
 
 #include <cogl/cogl-defines.h>
 #include <cogl/cogl-display.h>
+#include <cogl/cogl-pipeline.h>
 #include <cogl/cogl-primitive.h>
 
 #include <glib-object.h>
@@ -366,6 +367,38 @@ cogl_get_graphics_reset_status (CoglContext *context);
  */
 COGL_EXPORT gboolean
 cogl_context_is_hardware_accelerated (CoglContext *context);
+
+typedef const char * const CoglPipelineKey;
+
+/**
+ * cogl_context_set_named_pipeline:
+ * @context: a #CoglContext pointer
+ * @key: a #CoglPipelineKey pointer
+ * @pipeline: (nullable): a #CoglPipeline to associate with the @context and
+ *            @key
+ *
+ * Associate a #CoglPipeline with a @context and @key. This will not take a new
+ * reference to the @pipeline, but will unref all associated pipelines when
+ * the @context gets destroyed. Similarly, if a pipeline gets overwritten,
+ * it will get unreffed as well.
+ */
+COGL_EXPORT void
+cogl_context_set_named_pipeline (CoglContext     *context,
+                                 CoglPipelineKey *key,
+                                 CoglPipeline    *pipeline);
+
+/**
+ * cogl_context_get_named_pipeline:
+ * @context: a #CoglContext pointer
+ * @key: a #CoglPipelineKey pointer
+ *
+ * Return value: (transfer none): The #CoglPipeline associated with the
+ *               given @context and @key, or %NULL if no such #CoglPipeline
+ *               was found.
+ */
+COGL_EXPORT CoglPipeline *
+cogl_context_get_named_pipeline (CoglContext     *context,
+                                 CoglPipelineKey *key);
 
 G_END_DECLS
 

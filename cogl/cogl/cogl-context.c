@@ -308,6 +308,9 @@ cogl_context_new (CoglDisplay *display,
 
   _cogl_list_init (&context->fences);
 
+  context->named_pipelines =
+    g_hash_table_new_full (NULL, NULL, NULL, cogl_object_unref);
+
   return context;
 }
 
@@ -381,6 +384,9 @@ _cogl_context_free (CoglContext *context)
   driver->context_deinit (context);
 
   cogl_object_unref (context->display);
+
+  g_hash_table_remove_all (context->named_pipelines);
+  g_hash_table_destroy (context->named_pipelines);
 
   g_free (context);
 }
@@ -471,4 +477,28 @@ cogl_context_format_supports_upload (CoglContext *ctx,
                                      CoglPixelFormat format)
 {
   return ctx->texture_driver->format_supports_upload (ctx, format);
+}
+
+void
+cogl_context_set_named_pipeline (CoglContext     *context,
+                                 CoglPipelineKey *key,
+                                 CoglPipeline    *pipeline)
+{
+  if (pipeline)
+    {
+      g_debug ("Adding named pipeline %s", *key);
+      g_hash_table_insert (context->named_pipelines, (gpointer) key, pipeline);
+    }
+  else
+    {
+      g_debug ("Removing named pipeline %s", *key);
+      g_hash_table_remove (context->named_pipelines, (gpointer) key);
+    }
+}
+
+CoglPipeline *
+cogl_context_get_named_pipeline (CoglContext     *context,
+                                 CoglPipelineKey *key)
+{
+  return g_hash_table_lookup (context->named_pipelines, key);
 }
