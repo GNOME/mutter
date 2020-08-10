@@ -53,6 +53,7 @@ static gboolean is_debugging = FALSE;
 static gboolean replace_current = FALSE;
 static int no_prefix = 0;
 static gboolean is_wayland_compositor = FALSE;
+static int debug_paint_flags = 0;
 
 #ifdef WITH_VERBOSE_MODE
 static FILE* logfile = NULL;
@@ -752,4 +753,22 @@ meta_remove_clutter_debug_flags (ClutterDebugFlag     debug_flags,
                                  ClutterPickDebugFlag pick_flags)
 {
   clutter_remove_debug_flags (debug_flags, draw_flags, pick_flags);
+}
+
+void
+meta_add_debug_paint_flag (MetaDebugPaintFlag flag)
+{
+  debug_paint_flags |= flag;
+}
+
+void
+meta_remove_debug_paint_flag (MetaDebugPaintFlag flag)
+{
+  debug_paint_flags &= ~flag;
+}
+
+MetaDebugPaintFlag
+meta_get_debug_paint_flags (void)
+{
+  return debug_paint_flags;
 }

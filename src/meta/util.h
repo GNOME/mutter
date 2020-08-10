@@ -116,6 +116,17 @@ typedef enum
   META_DEBUG_INPUT           = 1 << 23
 } MetaDebugTopic;
 
+/**
+ * MetaDebugPaintFlag:
+ * @META_DEBUG_PAINT_NONE: default
+ * @META_DEBUG_PAINT_OPAQUE_REGION: paint opaque regions
+ */
+typedef enum
+{
+  META_DEBUG_PAINT_NONE          = 0,
+  META_DEBUG_PAINT_OPAQUE_REGION = 1 << 0,
+} MetaDebugPaintFlag;
+
 META_EXPORT
 void meta_topic_real      (MetaDebugTopic topic,
                            const char    *format,
@@ -204,5 +215,14 @@ META_EXPORT
 void meta_remove_clutter_debug_flags (ClutterDebugFlag     debug_flags,
                                       ClutterDrawDebugFlag draw_flags,
                                       ClutterPickDebugFlag pick_flags);
+
+META_EXPORT
+void meta_add_debug_paint_flag (MetaDebugPaintFlag flag);
+
+META_EXPORT
+void meta_remove_debug_paint_flag (MetaDebugPaintFlag flag);
+
+META_EXPORT
+MetaDebugPaintFlag meta_get_debug_paint_flags (void);
 
 #endif /* META_UTIL_H */
