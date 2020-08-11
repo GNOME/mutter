@@ -1530,6 +1530,9 @@ process_base_event (MetaSeatImpl          *seat,
   ClutterInputDevice *device;
   ClutterEvent *device_event = NULL;
   struct libinput_device *libinput_device;
+  MetaInputSettings *input_settings;
+
+  input_settings = meta_backend_get_input_settings (meta_get_backend ());
 
   switch (libinput_event_get_type (event))
     {
@@ -1539,6 +1542,7 @@ process_base_event (MetaSeatImpl          *seat,
       device = evdev_add_device (seat, libinput_device);
       device_event = clutter_event_new (CLUTTER_DEVICE_ADDED);
       clutter_event_set_device (device_event, device);
+      meta_input_settings_add_device (input_settings, device);
       break;
 
     case LIBINPUT_EVENT_DEVICE_REMOVED:
@@ -1549,6 +1553,7 @@ process_base_event (MetaSeatImpl          *seat,
       clutter_event_set_device (device_event, device);
       evdev_remove_device (seat,
                            META_INPUT_DEVICE_NATIVE (device));
+      meta_input_settings_remove_device (input_settings, device);
       break;
 
     default:
@@ -1613,9 +1618,9 @@ input_device_update_tool (ClutterInputDevice          *input_device,
                           struct libinput_tablet_tool *libinput_tool)
 {
   MetaInputDeviceNative *evdev_device = META_INPUT_DEVICE_NATIVE (input_device);
-  MetaSeatImpl *seat = seat_from_device (input_device);
   ClutterInputDeviceTool *tool = NULL;
   ClutterInputDeviceToolType tool_type;
+  MetaInputSettings *input_settings;
   uint64_t tool_serial;
 
   if (libinput_tool)
@@ -1636,7 +1641,8 @@ input_device_update_tool (ClutterInputDevice          *input_device,
   if (evdev_device->last_tool != tool)
     {
       evdev_device->last_tool = tool;
-      g_signal_emit_by_name (seat->seat, "tool-changed", input_device, tool);
+      input_settings = meta_backend_get_input_settings (meta_get_backend ());
+      meta_input_settings_notify_tool_change (input_settings, input_device, tool);
     }
 }
 
@@ -3118,6 +3124,11 @@ meta_seat_impl_notify_kbd_a11y_flags_changed (MetaSeatImpl          *impl,
                                               MetaKeyboardA11yFlags  new_flags,
                                               MetaKeyboardA11yFlags  what_changed)
 {
+  MetaInputSettings *input_settings;
+
+  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  meta_input_settings_notify_kbd_a11y_change (input_settings,
+                                              new_flags, what_changed);
   g_signal_emit (impl, signals[KBD_A11Y_FLAGS_CHANGED], 0,
                  new_flags, what_changed);
 }

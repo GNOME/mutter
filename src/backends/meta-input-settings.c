@@ -1206,11 +1206,10 @@ load_keyboard_a11y_settings (MetaInputSettings *input_settings)
   g_signal_emit (input_settings, signals[KBD_A11Y_CHANGED], 0, &priv->kbd_a11y_settings);
 }
 
-static void
-on_keyboard_a11y_settings_changed (ClutterSeat              *seat,
-                                   MetaKeyboardA11yFlags     new_flags,
-                                   MetaKeyboardA11yFlags     what_changed,
-                                   MetaInputSettings        *input_settings)
+void
+meta_input_settings_notify_kbd_a11y_change (MetaInputSettings     *input_settings,
+                                            MetaKeyboardA11yFlags  new_flags,
+                                            MetaKeyboardA11yFlags  what_changed)
 {
   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
   guint i;
@@ -1582,10 +1581,9 @@ evaluate_two_finger_scrolling (MetaInputSettings  *input_settings,
     g_hash_table_add (priv->two_finger_devices, device);
 }
 
-static void
-meta_input_settings_device_added (ClutterSeat        *seat,
-                                  ClutterInputDevice *device,
-                                  MetaInputSettings  *input_settings)
+void
+meta_input_settings_add_device (MetaInputSettings  *input_settings,
+                                ClutterInputDevice *device)
 {
   if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
     return;
@@ -1596,10 +1594,9 @@ meta_input_settings_device_added (ClutterSeat        *seat,
   check_add_mappable_device (input_settings, device);
 }
 
-static void
-meta_input_settings_device_removed (ClutterSeat        *seat,
-                                    ClutterInputDevice *device,
-                                    MetaInputSettings  *input_settings)
+void
+meta_input_settings_remove_device (MetaInputSettings  *input_settings,
+                                   ClutterInputDevice *device)
 {
   MetaInputSettingsPrivate *priv;
 
@@ -1648,11 +1645,10 @@ current_tool_info_free (CurrentToolInfo *info)
   g_free (info);
 }
 
-static void
-meta_input_settings_tool_changed (ClutterSeat            *seat,
-                                  ClutterInputDevice     *device,
-                                  ClutterInputDeviceTool *tool,
-                                  MetaInputSettings      *input_settings)
+void
+meta_input_settings_notify_tool_change (MetaInputSettings      *input_settings,
+                                        ClutterInputDevice     *device,
+                                        ClutterInputDeviceTool *tool)
 {
   MetaInputSettingsPrivate *priv;
 
@@ -1741,12 +1737,6 @@ meta_input_settings_init (MetaInputSettings *settings)
 
   priv = meta_input_settings_get_instance_private (settings);
   priv->seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  g_signal_connect (priv->seat, "device-added",
-                    G_CALLBACK (meta_input_settings_device_added), settings);
-  g_signal_connect (priv->seat, "device-removed",
-                    G_CALLBACK (meta_input_settings_device_removed), settings);
-  g_signal_connect (priv->seat, "tool-changed",
-                    G_CALLBACK (meta_input_settings_tool_changed), settings);
 
   priv->mouse_settings = g_settings_new ("org.gnome.desktop.peripherals.mouse");
   g_signal_connect (priv->mouse_settings, "changed",
@@ -1773,8 +1763,6 @@ meta_input_settings_init (MetaInputSettings *settings)
   priv->keyboard_a11y_settings = g_settings_new ("org.gnome.desktop.a11y.keyboard");
   g_signal_connect (priv->keyboard_a11y_settings, "changed",
                     G_CALLBACK (meta_input_keyboard_a11y_settings_changed), settings);
-  g_signal_connect (priv->seat, "kbd-a11y-flags-changed",
-                    G_CALLBACK (on_keyboard_a11y_settings_changed), settings);
 
   priv->mouse_a11y_settings = g_settings_new ("org.gnome.desktop.a11y.mouse");
   g_signal_connect (priv->mouse_a11y_settings, "changed",

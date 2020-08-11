@@ -208,4 +208,15 @@ void meta_input_settings_set_device_aspect_ratio (MetaInputSettings  *input_sett
 void meta_input_settings_get_kbd_a11y_settings (MetaInputSettings   *input_settings,
                                                 MetaKbdA11ySettings *a11y_settings);
 
+void meta_input_settings_add_device (MetaInputSettings  *input_settings,
+                                     ClutterInputDevice *device);
+void meta_input_settings_remove_device (MetaInputSettings  *input_settings,
+                                        ClutterInputDevice *device);
+void meta_input_settings_notify_tool_change (MetaInputSettings      *input_settings,
+                                             ClutterInputDevice     *device,
+                                             ClutterInputDeviceTool *tool);
+void meta_input_settings_notify_kbd_a11y_change (MetaInputSettings     *input_settings,
+                                                 MetaKeyboardA11yFlags  new_flags,
+                                                 MetaKeyboardA11yFlags  what_changed);
+
 #endif /* META_INPUT_SETTINGS_PRIVATE_H */
