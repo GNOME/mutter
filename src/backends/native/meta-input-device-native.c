@@ -62,15 +62,11 @@ meta_input_device_native_finalize (GObject *object)
 {
   ClutterInputDevice *device = CLUTTER_INPUT_DEVICE (object);
   MetaInputDeviceNative *device_evdev = META_INPUT_DEVICE_NATIVE (object);
-  ClutterBackend *backend;
-  ClutterSeat *seat;
 
   if (device_evdev->libinput_device)
     libinput_device_unref (device_evdev->libinput_device);
 
-  backend = clutter_get_default_backend ();
-  seat = clutter_backend_get_default_seat (backend);
-  meta_seat_impl_release_device_id (META_SEAT_NATIVE (seat)->impl, device);
+  meta_seat_impl_release_device_id (device_evdev->seat_impl, device);
 
   clear_slow_keys (device_evdev);
   stop_bounce_keys (device_evdev);
