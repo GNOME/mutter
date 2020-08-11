@@ -111,6 +111,15 @@ enum
 
 static guint signals[N_SIGNALS] = { 0 };
 
+enum
+{
+  PROP_0,
+  PROP_SEAT,
+  N_PROPS,
+};
+
+static GParamSpec *props[N_PROPS] = { 0 };
+
 static GSList *
 meta_input_settings_get_devices (MetaInputSettings      *settings,
                                  ClutterInputDeviceType  type)
@@ -152,8 +161,51 @@ meta_input_settings_dispose (GObject *object)
   g_clear_pointer (&priv->current_tools, g_hash_table_unref);
 
   g_clear_pointer (&priv->two_finger_devices, g_hash_table_destroy);
+  g_clear_object (&priv->seat);
 
   G_OBJECT_CLASS (meta_input_settings_parent_class)->dispose (object);
+}
+
+static void
+meta_input_settings_set_property (GObject      *object,
+                                  guint         prop_id,
+                                  const GValue *value,
+                                  GParamSpec   *pspec)
+{
+  MetaInputSettings *input_settings = META_INPUT_SETTINGS (object);
+  MetaInputSettingsPrivate *priv =
+    meta_input_settings_get_instance_private (input_settings);
+
+  switch (prop_id)
+    {
+    case PROP_SEAT:
+      priv->seat = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_input_settings_get_property (GObject    *object,
+                                  guint       prop_id,
+                                  GValue     *value,
+                                  GParamSpec *pspec)
+{
+  MetaInputSettings *input_settings = META_INPUT_SETTINGS (object);
+  MetaInputSettingsPrivate *priv =
+    meta_input_settings_get_instance_private (input_settings);
+
+  switch (prop_id)
+    {
+    case PROP_SEAT:
+      g_value_set_object (value, priv->seat);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
 }
 
 static void
@@ -1714,6 +1766,8 @@ meta_input_settings_class_init (MetaInputSettingsClass *klass)
 
   object_class->dispose = meta_input_settings_dispose;
   object_class->constructed = meta_input_settings_constructed;
+  object_class->set_property = meta_input_settings_set_property;
+  object_class->get_property = meta_input_settings_get_property;
 
   quark_tool_settings =
     g_quark_from_static_string ("meta-input-settings-tool-settings");
@@ -1725,6 +1779,16 @@ meta_input_settings_class_init (MetaInputSettingsClass *klass)
                   0, NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   G_TYPE_POINTER);
+
+  props[PROP_SEAT] =
+    g_param_spec_object ("seat",
+                         "Seat",
+                         "Seat",
+                         CLUTTER_TYPE_SEAT,
+                         CLUTTER_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY);
+
+  g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
 static void
@@ -1733,7 +1797,6 @@ meta_input_settings_init (MetaInputSettings *settings)
   MetaInputSettingsPrivate *priv;
 
   priv = meta_input_settings_get_instance_private (settings);
-  priv->seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
 
   priv->mouse_settings = g_settings_new ("org.gnome.desktop.peripherals.mouse");
   g_signal_connect (priv->mouse_settings, "changed",

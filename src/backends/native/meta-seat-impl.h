@@ -79,6 +79,7 @@ struct _MetaSeatImpl
   MetaPointerConstraintImpl *pointer_constraint;
 
   MetaKeymapNative *keymap;
+  MetaInputSettings *input_settings;
 
   MetaViewportInfo *viewports;
 
@@ -247,5 +248,7 @@ void meta_seat_impl_notify_kbd_a11y_mods_state_changed (MetaSeatImpl   *seat_imp
                                                         xkb_mod_mask_t  new_latched_mods,
                                                         xkb_mod_mask_t  new_locked_mods);
 void meta_seat_impl_notify_bell (MetaSeatImpl *seat_impl);
+
+MetaInputSettings * meta_seat_impl_get_input_settings (MetaSeatImpl *seat_impl);
 
 #endif /* META_SEAT_IMPL_H */

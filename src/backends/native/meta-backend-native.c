@@ -164,11 +164,34 @@ update_viewports (MetaBackend *backend)
 }
 
 static void
+kbd_a11y_changed_cb (MetaInputSettings   *input_settings,
+                     MetaKbdA11ySettings *a11y_settings,
+                     MetaBackend         *backend)
+{
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
+  ClutterInputDevice *device;
+
+  device = clutter_seat_get_keyboard (seat);
+  if (device)
+    meta_input_device_native_apply_kbd_a11y_settings (META_INPUT_DEVICE_NATIVE (device),
+                                                      a11y_settings);
+}
+
+static void
 meta_backend_native_post_init (MetaBackend *backend)
 {
+  MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaSettings *settings = meta_backend_get_settings (backend);
+  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
+  MetaSeatNative *seat =
+    META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
 
   META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
+
+  backend_native->input_settings = meta_seat_impl_get_input_settings (seat->impl);
+  g_signal_connect_object (backend_native->input_settings, "kbd-a11y-changed",
+                           G_CALLBACK (kbd_a11y_changed_cb), backend, 0);
 
   if (meta_settings_is_experimental_feature_enabled (settings,
                                                      META_EXPERIMENTAL_FEATURE_RT_SCHEDULER))
@@ -235,33 +258,10 @@ meta_backend_native_create_renderer (MetaBackend *backend,
   return META_RENDERER (renderer_native);
 }
 
-static void
-kbd_a11y_changed_cb (MetaInputSettings   *input_settings,
-                     MetaKbdA11ySettings *a11y_settings,
-                     MetaBackend         *backend)
-{
-  ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  ClutterSeat *seat = clutter_backend_get_default_seat (clutter_backend);
-  ClutterInputDevice *device;
-
-  device = clutter_seat_get_keyboard (seat);
-  if (device)
-    meta_input_device_native_apply_kbd_a11y_settings (META_INPUT_DEVICE_NATIVE (device),
-                                                      a11y_settings);
-}
-
 static MetaInputSettings *
 meta_backend_native_create_input_settings (MetaBackend *backend)
 {
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
-
-  if (!backend_native->input_settings)
-    {
-      backend_native->input_settings =
-        g_object_new (META_TYPE_INPUT_SETTINGS_NATIVE, NULL);
-      g_signal_connect_object (backend_native->input_settings, "kbd-a11y-changed",
-                               G_CALLBACK (kbd_a11y_changed_cb), backend, 0);
-    }
 
   return backend_native->input_settings;
 }

@@ -33,6 +33,55 @@
 
 G_DEFINE_TYPE (MetaInputSettingsNative, meta_input_settings_native, META_TYPE_INPUT_SETTINGS)
 
+enum
+{
+  PROP_0,
+  PROP_SEAT_IMPL,
+  N_PROPS,
+};
+
+static GParamSpec *props[N_PROPS] = { 0 };
+
+static void
+meta_input_settings_native_set_property (GObject      *object,
+                                         guint         prop_id,
+                                         const GValue *value,
+                                         GParamSpec   *pspec)
+{
+  MetaInputSettingsNative *input_settings_native =
+    META_INPUT_SETTINGS_NATIVE (object);
+
+  switch (prop_id)
+    {
+    case PROP_SEAT_IMPL:
+      input_settings_native->seat_impl = g_value_get_object (value);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
+static void
+meta_input_settings_native_get_property (GObject    *object,
+                                         guint       prop_id,
+                                         GValue     *value,
+                                         GParamSpec *pspec)
+{
+  MetaInputSettingsNative *input_settings_native =
+    META_INPUT_SETTINGS_NATIVE (object);
+
+  switch (prop_id)
+    {
+    case PROP_SEAT_IMPL:
+      g_value_set_object (value, input_settings_native->seat_impl);
+      break;
+    default:
+      G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
+      break;
+    }
+}
+
 static void
 meta_input_settings_native_set_send_events (MetaInputSettings        *settings,
                                             ClutterInputDevice       *device,
@@ -409,10 +458,10 @@ meta_input_settings_native_set_keyboard_repeat (MetaInputSettings *settings,
                                                 guint              delay,
                                                 guint              interval)
 {
-  ClutterSeat *seat;
+  MetaInputSettingsNative *input_settings_native;
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  meta_seat_impl_set_keyboard_repeat (META_SEAT_NATIVE (seat)->impl,
+  input_settings_native = META_INPUT_SETTINGS_NATIVE (settings);
+  meta_seat_impl_set_keyboard_repeat (input_settings_native->seat_impl,
                                       enabled, delay, interval);
 }
 
@@ -698,6 +747,10 @@ static void
 meta_input_settings_native_class_init (MetaInputSettingsNativeClass *klass)
 {
   MetaInputSettingsClass *input_settings_class = META_INPUT_SETTINGS_CLASS (klass);
+  GObjectClass *object_class = G_OBJECT_CLASS (klass);
+
+  object_class->set_property = meta_input_settings_native_set_property;
+  object_class->get_property = meta_input_settings_native_get_property;
 
   input_settings_class->set_send_events = meta_input_settings_native_set_send_events;
   input_settings_class->set_matrix = meta_input_settings_native_set_matrix;
@@ -732,9 +785,28 @@ meta_input_settings_native_class_init (MetaInputSettingsNativeClass *klass)
 
   input_settings_class->has_two_finger_scroll = meta_input_settings_native_has_two_finger_scroll;
   input_settings_class->is_trackball_device = meta_input_settings_native_is_trackball_device;
+
+  props[PROP_SEAT_IMPL] =
+    g_param_spec_object ("seat-impl",
+                         "Seat Impl",
+                         "Seat Impl",
+                         META_TYPE_SEAT_IMPL,
+                         CLUTTER_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY);
+
+  g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
 static void
 meta_input_settings_native_init (MetaInputSettingsNative *settings)
 {
+}
+
+MetaInputSettings *
+meta_input_settings_native_new (MetaSeatImpl *seat_impl)
+{
+  return g_object_new (META_TYPE_INPUT_SETTINGS_NATIVE,
+                       "seat-impl", seat_impl,
+                       "seat", seat_impl->seat_native,
+                       NULL);
 }
