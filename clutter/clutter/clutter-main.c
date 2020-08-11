@@ -697,6 +697,8 @@ _clutter_context_get_default (void)
       ctx->settings = clutter_settings_get_default ();
       _clutter_settings_set_backend (ctx->settings, ctx->backend);
 
+      ctx->events_queue = g_async_queue_new ();
+
       ctx->last_repaint_id = 1;
     }
 
@@ -2286,15 +2288,22 @@ void
 _clutter_clear_events_queue (void)
 {
   ClutterMainContext *context = _clutter_context_get_default ();
+  ClutterEvent *event;
+  GAsyncQueue *events_queue;
 
-  if (context->events_queue != NULL)
-    {
-      g_queue_foreach (context->events_queue,
-                       (GFunc) clutter_event_free,
-                       NULL);
-      g_queue_free (context->events_queue);
-      context->events_queue = NULL;
-    }
+  if (!context->events_queue)
+    return;
+
+  g_async_queue_lock (context->events_queue);
+
+  while ((event = g_async_queue_try_pop_unlocked (context->events_queue)))
+    clutter_event_free (event);
+
+  events_queue = context->events_queue;
+  context->events_queue = NULL;
+
+  g_async_queue_unlock (events_queue);
+  g_async_queue_unref (events_queue);
 }
 
 /**
