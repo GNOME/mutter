@@ -1,3 +1,30 @@
+3.37.90
+=======
+* Fix using NEAREST filter for backgrounds on scaled monitors [Daniel V.; !1346]
+* Screencast fixes and improvements [Jonas; !1361, !1377, !1391]
+* Support tap-button-map and tap-drag-lock touchpad settings [Giusy; !1319]
+* Fix wine copy & paste [Sebastian; !1369]
+* Fix shadows of server-side decorated XWayland windows [Olivier; #1358]
+* Replace some loaded terms with more descriptive ones [Olivier; !1396]
+* Add API to launch trusted wayland clients [Sergio; #741]
+* Skip displays with 'non-desktop' property set [Philipp; !1393]
+* Invalidate offscreen effect cache on video memory purge [Daniel V.; !1374]
+* Add wl_shm support for 10 bpc and 16 bpc half float formats [Jonas; !804]
+* Fixed crashes [Jonas, Erik, Martin; !1365, !1375, #1343]
+* Misc. bug fixes and cleanups [Daniel V., Carlos, Olivier, Christian,
+  Daniel * G., Jonas, Florian; !1370, !1376, !1385, !1352, !1386, !1390,
+  !1388, !1397, !1398, !1401]
+
+Contributors:
+  Jonas Ådahl, Sergio Costas, Olivier Fourdan, Carlos Garnacho,
+  Christian Hergert, Sebastian Keller, Erik Kurzinger, Giusy Margarita,
+  Daniel García Moreno, Florian Müllner, Daniel van Vugt, Martin Whitaker,
+  Philipp Zabel
+
+Translators:
+  Fabio Tomat [fur], Rafael Fontenelle [pt_BR], Jordi Mas [ca],
+  Yuri Chornoivan [uk], Alexandre Franke [fr]
+
 3.37.3
 ======
 * Support custom keyboard layouts in $XDG_CONFIG_HOME/xkb [Peter; !936]
