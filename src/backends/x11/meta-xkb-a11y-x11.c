@@ -118,10 +118,15 @@ check_settings_changed (ClutterSeat *seat)
     }
 
   if (what_changed)
-    g_signal_emit_by_name (seat,
-                           "kbd-a11y-flags-changed",
-                           kbd_a11y_settings.controls,
-                           what_changed);
+    {
+      meta_input_settings_notify_kbd_a11y_change (input_settings,
+                                                  kbd_a11y_settings.controls,
+                                                  what_changed);
+      g_signal_emit_by_name (seat,
+                             "kbd-a11y-flags-changed",
+                             kbd_a11y_settings.controls,
+                             what_changed);
+    }
 
   XkbFreeKeyboard (desc, XkbAllComponentsMask, TRUE);
 }

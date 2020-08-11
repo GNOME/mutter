@@ -21,6 +21,7 @@
 #include <X11/extensions/XInput2.h>
 #include <X11/extensions/XKB.h>
 
+#include "backends/meta-input-settings-private.h"
 #include "backends/x11/meta-backend-x11.h"
 #include "backends/x11/meta-event-x11.h"
 #include "backends/x11/meta-input-device-tool-x11.h"
@@ -725,6 +726,7 @@ meta_seat_x11_handle_event_post (ClutterSeat        *seat,
 {
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
   ClutterInputDevice *device;
+  MetaInputSettings *input_settings;
   gboolean is_touch;
 
   if (event->type != CLUTTER_DEVICE_ADDED &&
@@ -734,15 +736,18 @@ meta_seat_x11_handle_event_post (ClutterSeat        *seat,
   device = clutter_event_get_device (event);
   is_touch =
     clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE;
+  input_settings = meta_backend_get_input_settings (meta_get_backend ());
 
   switch (event->type)
     {
       case CLUTTER_DEVICE_ADDED:
+        meta_input_settings_add_device (input_settings, device);
         seat_x11->has_touchscreens |= is_touch;
         break;
       case CLUTTER_DEVICE_REMOVED:
         if (is_touch)
           seat_x11->has_touchscreens = has_touchscreens (seat_x11);
+        meta_input_settings_remove_device (input_settings, device);
         break;
       default:
         break;
@@ -939,6 +944,7 @@ translate_property_event (MetaSeatX11 *seat_x11,
     {
       ClutterInputDeviceTool *tool = NULL;
       ClutterInputDeviceToolType type;
+      MetaInputSettings *input_settings;
       int serial_id;
 
       serial_id = device_get_tool_serial (device);
@@ -959,7 +965,8 @@ translate_property_event (MetaSeatX11 *seat_x11,
         }
 
       meta_input_device_x11_update_tool (device, tool);
-      g_signal_emit_by_name (seat_x11, "tool-changed", device, tool);
+      input_settings = meta_backend_get_input_settings (meta_get_backend ());
+      meta_input_settings_notify_tool_change (input_settings, device, tool);
 
       if (tool)
         clutter_input_device_update_from_tool (device, tool);

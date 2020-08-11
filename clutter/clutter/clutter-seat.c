@@ -36,7 +36,6 @@ enum
 {
   DEVICE_ADDED,
   DEVICE_REMOVED,
-  TOOL_CHANGED,
   KBD_A11Y_MASK_CHANGED,
   KBD_A11Y_FLAGS_CHANGED,
   PTR_A11Y_DWELL_CLICK_TYPE_CHANGED,
@@ -149,18 +148,6 @@ clutter_seat_class_init (ClutterSeatClass *klass)
                   0, NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   CLUTTER_TYPE_INPUT_DEVICE);
-  signals[TOOL_CHANGED] =
-    g_signal_new (I_("tool-changed"),
-                  G_TYPE_FROM_CLASS (klass),
-                  G_SIGNAL_RUN_LAST,
-                  0, NULL, NULL,
-                  _clutter_marshal_VOID__OBJECT_OBJECT,
-                  G_TYPE_NONE, 2,
-                  CLUTTER_TYPE_INPUT_DEVICE,
-                  CLUTTER_TYPE_INPUT_DEVICE_TOOL);
-  g_signal_set_va_marshaller (signals[TOOL_CHANGED],
-                              G_TYPE_FROM_CLASS (object_class),
-                              _clutter_marshal_VOID__OBJECT_OBJECTv);
 
   /**
    * ClutterSeat::kbd-a11y-mods-state-changed:
