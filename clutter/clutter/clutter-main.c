@@ -2327,30 +2327,6 @@ _clutter_clear_events_queue (void)
     }
 }
 
-void
-_clutter_clear_events_queue_for_stage (ClutterStage *stage)
-{
-  ClutterMainContext *context = _clutter_context_get_default ();
-  GList *l, *next;
-
-  if (context->events_queue == NULL)
-    return;
-
-  /* Remove any pending events for this stage from the event queue */
-  for (l = context->events_queue->head; l; l = next)
-    {
-      ClutterEvent *event = l->data;
-
-      next = l->next;
-
-      if (event->any.stage == stage)
-        {
-          g_queue_delete_link (context->events_queue, l);
-          clutter_event_free (event);
-        }
-    }
-}
-
 ClutterPickMode
 _clutter_context_get_pick_mode (void)
 {
