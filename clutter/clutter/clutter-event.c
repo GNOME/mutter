@@ -1535,32 +1535,6 @@ clutter_event_get (void)
   return g_queue_pop_tail (context->events_queue);
 }
 
-/**
- * clutter_event_peek:
- * 
- * Returns a pointer to the first event from the event queue but 
- * does not remove it. 
- *
- * Return value: (transfer none): A #ClutterEvent or NULL if queue empty.
- *
- * Since: 0.4
- */
-ClutterEvent *
-clutter_event_peek (void)
-{
-  ClutterMainContext *context = _clutter_context_get_default ();
-
-  g_return_val_if_fail (context != NULL, NULL);
-  
-  if (context->events_queue == NULL)
-    return NULL;
-
-  if (g_queue_is_empty (context->events_queue))
-    return NULL;
-
-  return g_queue_peek_tail (context->events_queue);
-}
-
 void
 _clutter_event_push (const ClutterEvent *event,
                      gboolean            do_copy)
