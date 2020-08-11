@@ -2482,8 +2482,6 @@ meta_seat_impl_constructed (GObject *object)
 
   seat->udev_client = g_udev_client_new ((const char *[]) { "input", NULL });
 
-  dispatch_libinput (seat);
-
   source = meta_event_source_new (seat);
   seat->event_source = source;
 
