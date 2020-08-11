@@ -27,7 +27,7 @@
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-input-device-tool-native.h"
 #include "backends/native/meta-input-device-native.h"
-#include "backends/native/meta-seat-native.h"
+#include "backends/native/meta-seat-impl.h"
 #include "clutter/clutter-mutter.h"
 
 G_DEFINE_TYPE (MetaInputDeviceNative,
@@ -423,10 +423,9 @@ key_event_is_modifier (ClutterEvent *event)
 static void
 notify_stickykeys_mask (MetaInputDeviceNative *device)
 {
-  g_signal_emit_by_name (device->seat_impl->seat,
-                         "kbd-a11y-mods-state-changed",
-                         device->stickykeys_latched_mask,
-                         device->stickykeys_locked_mask);
+  meta_seat_impl_notify_kbd_a11y_mods_state_changed (device->seat_impl,
+                                                     device->stickykeys_latched_mask,
+                                                     device->stickykeys_locked_mask);
 }
 
 static void
@@ -499,10 +498,9 @@ notify_stickykeys_change (MetaInputDeviceNative *device)
   device->stickykeys_depressed_mask = 0;
   update_internal_xkb_state (device, 0, 0);
 
-  g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->seat,
-                         "kbd-a11y-flags-changed",
-                         device->a11y_flags,
-                         META_A11Y_STICKY_KEYS_ENABLED);
+  meta_seat_impl_notify_kbd_a11y_flags_changed (device->seat_impl,
+                                                device->a11y_flags,
+                                                META_A11Y_STICKY_KEYS_ENABLED);
 }
 
 static void
@@ -532,10 +530,9 @@ set_slowkeys_off (MetaInputDeviceNative *device)
 {
   device->a11y_flags &= ~META_A11Y_SLOW_KEYS_ENABLED;
 
-  g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->seat,
-                         "kbd-a11y-flags-changed",
-                         device->a11y_flags,
-                         META_A11Y_SLOW_KEYS_ENABLED);
+  meta_seat_impl_notify_kbd_a11y_flags_changed (device->seat_impl,
+                                                device->a11y_flags,
+                                                META_A11Y_SLOW_KEYS_ENABLED);
 }
 
 static void
@@ -543,10 +540,9 @@ set_slowkeys_on (MetaInputDeviceNative *device)
 {
   device->a11y_flags |= META_A11Y_SLOW_KEYS_ENABLED;
 
-  g_signal_emit_by_name (CLUTTER_INPUT_DEVICE (device)->seat,
-                         "kbd-a11y-flags-changed",
-                         device->a11y_flags,
-                         META_A11Y_SLOW_KEYS_ENABLED);
+  meta_seat_impl_notify_kbd_a11y_flags_changed (device->seat_impl,
+                                                device->a11y_flags,
+                                                META_A11Y_SLOW_KEYS_ENABLED);
 }
 
 static void

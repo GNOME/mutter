@@ -27,6 +27,7 @@
 #include <libinput.h>
 #include <linux/input-event-codes.h>
 
+#include "backends/meta-input-settings-private.h"
 #include "backends/meta-viewport-info.h"
 #include "backends/native/meta-backend-native-types.h"
 #include "backends/native/meta-barrier-native.h"
@@ -253,5 +254,12 @@ ClutterInputDevice * meta_seat_impl_get_keyboard (MetaSeatImpl *seat);
 GSList * meta_seat_impl_get_devices (MetaSeatImpl *seat);
 
 MetaKeymapNative * meta_seat_impl_get_keymap (MetaSeatImpl *seat);
+
+void meta_seat_impl_notify_kbd_a11y_flags_changed (MetaSeatImpl          *impl,
+                                                   MetaKeyboardA11yFlags  new_flags,
+                                                   MetaKeyboardA11yFlags  what_changed);
+void meta_seat_impl_notify_kbd_a11y_mods_state_changed (MetaSeatImpl   *impl,
+                                                        xkb_mod_mask_t  new_latched_mods,
+                                                        xkb_mod_mask_t  new_locked_mods);
 
 #endif /* META_SEAT_IMPL_H */

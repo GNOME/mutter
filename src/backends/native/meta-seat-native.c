@@ -106,11 +106,38 @@ meta_seat_native_handle_event_post (ClutterSeat        *seat,
 }
 
 static void
+proxy_kbd_a11y_flags_changed (MetaSeatImpl          *impl,
+                              MetaKeyboardA11yFlags  new_flags,
+                              MetaKeyboardA11yFlags  what_changed,
+                              MetaSeatNative        *seat_native)
+{
+  g_signal_emit_by_name (seat_native,
+                         "kbd-a11y-flags-changed",
+                         new_flags, what_changed);
+}
+
+static void
+proxy_kbd_a11y_mods_state_changed (MetaSeatImpl   *impl,
+                                   xkb_mod_mask_t  new_latched_mods,
+                                   xkb_mod_mask_t  new_locked_mods,
+                                   MetaSeatNative *seat_native)
+{
+  g_signal_emit_by_name (seat_native,
+                         "kbd-a11y-mods-state-changed",
+                         new_latched_mods,
+                         new_locked_mods);
+}
+
+static void
 meta_seat_native_constructed (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
 
   seat->impl = meta_seat_impl_new (seat, seat->seat_id);
+  g_signal_connect (seat->impl, "kbd-a11y-flags-changed",
+                    G_CALLBACK (proxy_kbd_a11y_flags_changed), seat);
+  g_signal_connect (seat->impl, "kbd-a11y-mods-state-changed",
+                    G_CALLBACK (proxy_kbd_a11y_mods_state_changed), seat);
 
   seat->core_pointer = meta_seat_impl_get_pointer (seat->impl);
   seat->core_keyboard = meta_seat_impl_get_keyboard (seat->impl);
