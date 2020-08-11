@@ -1271,18 +1271,12 @@ pointer_a11y_dwell_direction_from_setting (MetaInputSettings *input_settings,
 }
 
 static void
-load_pointer_a11y_settings (MetaInputSettings  *input_settings,
-                            ClutterInputDevice *device)
+load_pointer_a11y_settings (MetaInputSettings  *input_settings)
 {
   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (input_settings);
   ClutterPointerA11ySettings pointer_a11y_settings;
-  ClutterInputDevice *core_pointer;
   GDesktopMouseDwellMode dwell_mode;
   guint i;
-
-  core_pointer = clutter_seat_get_pointer (priv->seat);
-  if (device && device != core_pointer)
-    return;
 
   clutter_seat_get_pointer_a11y_settings (CLUTTER_SEAT (priv->seat),
                                           &pointer_a11y_settings);
@@ -1328,7 +1322,7 @@ meta_input_mouse_a11y_settings_changed (GSettings  *settings,
 {
   MetaInputSettings *input_settings = META_INPUT_SETTINGS (user_data);
 
-  load_pointer_a11y_settings (input_settings, NULL);
+  load_pointer_a11y_settings (input_settings);
 }
 
 static GSettings *
@@ -1493,7 +1487,6 @@ apply_device_settings (MetaInputSettings  *input_settings,
   update_pointer_accel_profile (input_settings,
                                 priv->trackball_settings,
                                 device);
-  load_pointer_a11y_settings (input_settings, device);
 
   update_middle_click_emulation (input_settings, priv->mouse_settings, device);
   update_middle_click_emulation (input_settings, priv->touchpad_settings, device);
@@ -1718,6 +1711,7 @@ meta_input_settings_constructed (GObject *object)
   check_mappable_devices (input_settings);
 
   load_keyboard_a11y_settings (input_settings);
+  load_pointer_a11y_settings (input_settings);
 }
 
 static void
