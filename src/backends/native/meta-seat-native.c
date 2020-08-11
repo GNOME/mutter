@@ -141,6 +141,16 @@ proxy_bell (MetaSeatImpl   *seat_impl,
 }
 
 static void
+proxy_mods_state_changed (MetaSeatImpl   *seat_impl,
+                          ClutterSeat    *seat)
+{
+  ClutterKeymap *keymap;
+
+  keymap = clutter_seat_get_keymap (seat);
+  g_signal_emit_by_name (keymap, "state-changed");
+}
+
+static void
 meta_seat_native_constructed (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
@@ -154,6 +164,8 @@ meta_seat_native_constructed (GObject *object)
                     G_CALLBACK (proxy_touch_mode_changed), seat);
   g_signal_connect (seat->impl, "bell",
                     G_CALLBACK (proxy_bell), seat);
+  g_signal_connect (seat->impl, "mods-state-changed",
+                    G_CALLBACK (proxy_mods_state_changed), seat);
 
   seat->core_pointer = meta_seat_impl_get_pointer (seat->impl);
   seat->core_keyboard = meta_seat_impl_get_keyboard (seat->impl);

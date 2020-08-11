@@ -112,6 +112,7 @@ enum
   KBD_A11Y_MODS_STATE_CHANGED,
   TOUCH_MODE,
   BELL,
+  MODS_STATE_CHANGED,
   N_SIGNALS
 };
 
@@ -343,7 +344,7 @@ meta_seat_impl_notify_key (MetaSeatImpl       *seat_impl,
     {
       MetaInputDeviceNative *keyboard_native;
 
-      g_signal_emit_by_name (seat_impl->keymap, "state-changed");
+      g_signal_emit (seat_impl, signals[MODS_STATE_CHANGED], 0);
       meta_seat_impl_sync_leds (seat_impl);
       keyboard_native = META_INPUT_DEVICE_NATIVE (seat_impl->core_keyboard);
       meta_input_device_native_a11y_maybe_notify_toggle_keys (keyboard_native);
@@ -2734,6 +2735,12 @@ meta_seat_impl_class_init (MetaSeatImplClass *klass)
                   G_TYPE_NONE, 1, G_TYPE_BOOLEAN);
   signals[BELL] =
     g_signal_new ("bell",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
+  signals[MODS_STATE_CHANGED] =
+    g_signal_new ("mods-state-changed",
                   G_TYPE_FROM_CLASS (object_class),
                   G_SIGNAL_RUN_LAST,
                   0, NULL, NULL, NULL,
