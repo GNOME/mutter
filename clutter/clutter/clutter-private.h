@@ -121,7 +121,7 @@ struct _ClutterMainContext
   ClutterStageManager *stage_manager;
 
   /* the main event queue */
-  GQueue *events_queue;
+  GAsyncQueue *events_queue;
 
   /* the event filters added via clutter_event_add_filter. these are
    * ordered from least recently added to most recently added */
