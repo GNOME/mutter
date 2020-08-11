@@ -1024,12 +1024,17 @@ clutter_source_dispatch (GSource     *source,
                          gpointer     user_data)
 {
   MetaBackendSource *backend_source = (MetaBackendSource *) source;
+  MetaBackendPrivate *priv =
+    meta_backend_get_instance_private (backend_source->backend);
   ClutterEvent *event = clutter_event_get ();
+  ClutterSeat *seat;
 
   if (event)
     {
       event->any.stage =
         CLUTTER_STAGE (meta_backend_get_stage (backend_source->backend));
+      seat = clutter_backend_get_default_seat (priv->clutter_backend);
+      clutter_seat_handle_event_post (seat, event);
       clutter_do_event (event);
       clutter_event_free (event);
     }

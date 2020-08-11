@@ -27,6 +27,7 @@
 #include "clutter-input-device-tool.h"
 #include "clutter-input-pointer-a11y-private.h"
 #include "clutter-marshal.h"
+#include "clutter-mutter.h"
 #include "clutter-private.h"
 #include "clutter-seat.h"
 #include "clutter-virtual-input-device.h"
@@ -635,8 +636,8 @@ clutter_seat_compress_motion (ClutterSeat        *seat,
 }
 
 gboolean
-clutter_seat_handle_device_event (ClutterSeat  *seat,
-                                  ClutterEvent *event)
+clutter_seat_handle_event_post (ClutterSeat        *seat,
+                                const ClutterEvent *event)
 {
   ClutterSeatClass *seat_class;
   ClutterInputDevice *device;
@@ -644,16 +645,10 @@ clutter_seat_handle_device_event (ClutterSeat  *seat,
   g_return_val_if_fail (CLUTTER_IS_SEAT (seat), FALSE);
   g_return_val_if_fail (event, FALSE);
 
-  g_assert (event->type == CLUTTER_DEVICE_ADDED ||
-            event->type == CLUTTER_DEVICE_REMOVED);
-
   seat_class = CLUTTER_SEAT_GET_CLASS (seat);
 
-  if (seat_class->handle_device_event)
-    {
-      if (!seat_class->handle_device_event (seat, event))
-        return FALSE;
-    }
+  if (seat_class->handle_event_post)
+    seat_class->handle_event_post (seat, event);
 
   device = clutter_event_get_source_device (event);
   g_assert_true (CLUTTER_IS_INPUT_DEVICE (device));

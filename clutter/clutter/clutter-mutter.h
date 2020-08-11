@@ -71,6 +71,9 @@ gboolean clutter_actor_has_transitions (ClutterActor *actor);
 CLUTTER_EXPORT
 ClutterFrameClock * clutter_actor_pick_frame_clock (ClutterActor  *self,
                                                     ClutterActor **out_actor);
+CLUTTER_EXPORT
+gboolean clutter_seat_handle_event_post (ClutterSeat        *seat,
+                                         const ClutterEvent *event);
 
 #undef __CLUTTER_H_INSIDE__
 

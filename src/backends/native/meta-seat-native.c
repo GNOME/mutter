@@ -1474,8 +1474,8 @@ evdev_remove_device (MetaSeatNative        *seat,
 }
 
 static gboolean
-meta_seat_native_handle_device_event (ClutterSeat  *seat,
-                                      ClutterEvent *event)
+meta_seat_native_handle_event_post (ClutterSeat        *seat,
+                                    const ClutterEvent *event)
 {
   MetaSeatNative *seat_native = META_SEAT_NATIVE (seat);
   ClutterInputDevice *device = event->device.device;
@@ -2820,7 +2820,7 @@ meta_seat_native_class_init (MetaSeatNativeClass *klass)
   seat_class->get_supported_virtual_device_types = meta_seat_native_get_supported_virtual_device_types;
   seat_class->compress_motion = meta_seat_native_compress_motion;
   seat_class->warp_pointer = meta_seat_native_warp_pointer;
-  seat_class->handle_device_event = meta_seat_native_handle_device_event;
+  seat_class->handle_event_post = meta_seat_native_handle_event_post;
   seat_class->query_state = meta_seat_native_query_state;
 
   props[PROP_SEAT_ID] =

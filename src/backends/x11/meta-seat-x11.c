@@ -719,8 +719,8 @@ remove_device (MetaSeatX11        *seat_x11,
 }
 
 static gboolean
-meta_seat_x11_handle_device_event (ClutterSeat  *seat,
-                                   ClutterEvent *event)
+meta_seat_x11_handle_event_post (ClutterSeat        *seat,
+                                 const ClutterEvent *event)
 {
   MetaSeatX11 *seat_x11 = META_SEAT_X11 (seat);
   ClutterInputDevice *device = event->device.device;
@@ -1740,7 +1740,7 @@ meta_seat_x11_class_init (MetaSeatX11Class *klass)
   seat_class->create_virtual_device = meta_seat_x11_create_virtual_device;
   seat_class->get_supported_virtual_device_types = meta_seat_x11_get_supported_virtual_device_types;
   seat_class->warp_pointer = meta_seat_x11_warp_pointer;
-  seat_class->handle_device_event = meta_seat_x11_handle_device_event;
+  seat_class->handle_event_post = meta_seat_x11_handle_event_post;
   seat_class->query_state = meta_seat_x11_query_state;
 
   props[PROP_OPCODE] =
