@@ -1,3 +1,18 @@
+3.36.5
+======
+* Screencast fixes and improvements [Jonas; !1351, !1365]
+* Fix glitches when subsurfaces extend outside the toplevel [Robert; #1316]
+* Mipmap background texture rendering [Daniel; !1347]
+* Fix wine copy & paste [Sebastian; !1369]
+* Plugged memory leaks [Marco, Thomas; !1195]
+
+Contributors:
+  Jonas Ådahl, Thomas Hindoe Paaboel Andersen, Sebastian Keller, Robert Mader,
+  Marco Trevisan (Treviño), Daniel van Vugt
+
+Translators:
+  Rafael Fontenelle [pt_BR]
+
 3.36.4
 ======
 * Fix crash on area screenshots with fractional scaling [Sebastian; !1320]
