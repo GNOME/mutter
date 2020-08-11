@@ -129,6 +129,15 @@ proxy_kbd_a11y_mods_state_changed (MetaSeatImpl   *impl,
 }
 
 static void
+proxy_touch_mode_changed (MetaSeatImpl   *impl,
+                          gboolean        enabled,
+                          MetaSeatNative *seat_native)
+{
+  seat_native->touch_mode = enabled;
+  g_object_notify (G_OBJECT (seat_native), "touch-mode");
+}
+
+static void
 meta_seat_native_constructed (GObject *object)
 {
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
@@ -138,6 +147,8 @@ meta_seat_native_constructed (GObject *object)
                     G_CALLBACK (proxy_kbd_a11y_flags_changed), seat);
   g_signal_connect (seat->impl, "kbd-a11y-mods-state-changed",
                     G_CALLBACK (proxy_kbd_a11y_mods_state_changed), seat);
+  g_signal_connect (seat->impl, "touch-mode",
+                    G_CALLBACK (proxy_touch_mode_changed), seat);
 
   seat->core_pointer = meta_seat_impl_get_pointer (seat->impl);
   seat->core_keyboard = meta_seat_impl_get_keyboard (seat->impl);
@@ -181,7 +192,7 @@ meta_seat_native_get_property (GObject    *object,
       g_value_set_string (value, seat_native->seat_id);
       break;
     case PROP_TOUCH_MODE:
-      g_value_set_boolean (value, seat_native->impl->touch_mode);
+      g_value_set_boolean (value, seat_native->touch_mode);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);

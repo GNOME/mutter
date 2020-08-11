@@ -56,6 +56,7 @@ struct _MetaSeatNative
   GHashTable *tablet_cursors;
 
   gboolean released;
+  gboolean touch_mode;
 };
 
 #define META_TYPE_SEAT_NATIVE meta_seat_native_get_type ()
@@ -117,5 +118,8 @@ MetaCursorRenderer * meta_seat_native_get_cursor_renderer (MetaSeatNative     *s
 
 void meta_seat_native_set_viewports (MetaSeatNative   *seat,
                                      MetaViewportInfo *viewports);
+void meta_seat_native_notify_kbd_a11y_change (MetaSeatNative        *seat,
+                                              MetaKeyboardA11yFlags  new_flags,
+                                              MetaKeyboardA11yFlags  what_changed);
 
 #endif /* META_SEAT_NATIVE_H */

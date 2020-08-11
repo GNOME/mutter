@@ -109,6 +109,7 @@ enum
 {
   KBD_A11Y_FLAGS_CHANGED,
   KBD_A11Y_MODS_STATE_CHANGED,
+  TOUCH_MODE,
   N_SIGNALS
 };
 
@@ -1443,7 +1444,7 @@ update_touch_mode (MetaSeatImpl *seat)
   if (seat->touch_mode != touch_mode)
     {
       seat->touch_mode = touch_mode;
-      g_object_notify (G_OBJECT (seat->seat), "touch-mode");
+      g_signal_emit (seat, signals[TOUCH_MODE], 0, touch_mode);
     }
 }
 
@@ -2732,6 +2733,13 @@ meta_seat_impl_class_init (MetaSeatImplClass *klass)
                   0, NULL, NULL, NULL,
                   G_TYPE_NONE, 2,
                   G_TYPE_UINT, G_TYPE_UINT);
+  signals[TOUCH_MODE] =
+    g_signal_new ("touch-mode",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL,
+                  g_cclosure_marshal_VOID__BOOLEAN,
+                  G_TYPE_NONE, 1, G_TYPE_BOOLEAN);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 }
