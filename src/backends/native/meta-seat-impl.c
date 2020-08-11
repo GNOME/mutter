@@ -110,6 +110,7 @@ enum
   KBD_A11Y_FLAGS_CHANGED,
   KBD_A11Y_MODS_STATE_CHANGED,
   TOUCH_MODE,
+  BELL,
   N_SIGNALS
 };
 
@@ -2740,6 +2741,12 @@ meta_seat_impl_class_init (MetaSeatImplClass *klass)
                   0, NULL, NULL,
                   g_cclosure_marshal_VOID__BOOLEAN,
                   G_TYPE_NONE, 1, G_TYPE_BOOLEAN);
+  signals[BELL] =
+    g_signal_new ("bell",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 0);
 
   g_object_class_install_properties (object_class, N_PROPS, props);
 }
@@ -3115,4 +3122,10 @@ meta_seat_impl_notify_kbd_a11y_mods_state_changed (MetaSeatImpl   *impl,
 {
   g_signal_emit (impl, signals[KBD_A11Y_MODS_STATE_CHANGED], 0,
                  new_latched_mods, new_locked_mods);
+}
+
+void
+meta_seat_impl_notify_bell (MetaSeatImpl *impl)
+{
+  g_signal_emit (impl, signals[BELL], 0);
 }

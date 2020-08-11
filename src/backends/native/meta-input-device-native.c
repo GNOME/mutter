@@ -222,7 +222,7 @@ meta_input_device_native_is_grouped (ClutterInputDevice *device,
 static void
 meta_input_device_native_bell_notify (MetaInputDeviceNative *device)
 {
-  clutter_seat_bell_notify (CLUTTER_SEAT (device->seat_impl->seat));
+  meta_seat_impl_notify_bell (device->seat_impl);
 }
 
 static void
