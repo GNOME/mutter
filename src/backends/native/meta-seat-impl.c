@@ -106,6 +106,15 @@ enum
 
 static GParamSpec *props[N_PROPS] = { NULL };
 
+enum
+{
+  KBD_A11Y_FLAGS_CHANGED,
+  KBD_A11Y_MODS_STATE_CHANGED,
+  N_SIGNALS
+};
+
+static guint signals[N_SIGNALS] = { 0 };
+
 G_DEFINE_TYPE (MetaSeatImpl, meta_seat_impl, G_TYPE_OBJECT)
 
 static void process_events (MetaSeatImpl *seat_impl);
@@ -2700,6 +2709,21 @@ meta_seat_impl_class_init (MetaSeatImplClass *klass)
                          G_PARAM_READWRITE |
                          G_PARAM_CONSTRUCT_ONLY);
 
+  signals[KBD_A11Y_FLAGS_CHANGED] =
+    g_signal_new ("kbd-a11y-flags-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_UINT, G_TYPE_UINT);
+  signals[KBD_A11Y_MODS_STATE_CHANGED] =
+    g_signal_new ("kbd-a11y-mods-state-changed",
+                  G_TYPE_FROM_CLASS (object_class),
+                  G_SIGNAL_RUN_LAST,
+                  0, NULL, NULL, NULL,
+                  G_TYPE_NONE, 2,
+                  G_TYPE_UINT, G_TYPE_UINT);
+
   g_object_class_install_properties (object_class, N_PROPS, props);
 }
 
@@ -3019,4 +3043,22 @@ meta_seat_impl_new (MetaSeatNative *seat_native,
                        "seat", seat_native,
                        "seat-id", seat_id,
                        NULL);
+}
+
+void
+meta_seat_impl_notify_kbd_a11y_flags_changed (MetaSeatImpl          *seat_impl,
+                                              MetaKeyboardA11yFlags  new_flags,
+                                              MetaKeyboardA11yFlags  what_changed)
+{
+  g_signal_emit (seat_impl, signals[KBD_A11Y_FLAGS_CHANGED], 0,
+                 new_flags, what_changed);
+}
+
+void
+meta_seat_impl_notify_kbd_a11y_mods_state_changed (MetaSeatImpl   *seat_impl,
+                                                   xkb_mod_mask_t  new_latched_mods,
+                                                   xkb_mod_mask_t  new_locked_mods)
+{
+  g_signal_emit (seat_impl, signals[KBD_A11Y_MODS_STATE_CHANGED], 0,
+                 new_latched_mods, new_locked_mods);
 }
