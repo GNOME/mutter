@@ -246,10 +246,11 @@ clear_slow_keys (MetaInputDeviceNative *device)
 static guint
 get_slow_keys_delay (ClutterInputDevice *device)
 {
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
   MetaKbdA11ySettings a11y_settings;
   MetaInputSettings *input_settings;
 
-  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  input_settings = meta_seat_impl_get_input_settings (device_native->seat_impl);
   meta_input_settings_get_kbd_a11y_settings (input_settings, &a11y_settings);
   /* Settings use int, we use uint, make sure we dont go negative */
   return MAX (0, a11y_settings.slowkeys_delay);
@@ -342,10 +343,11 @@ stop_slow_keys (ClutterEvent                *event,
 static guint
 get_debounce_delay (ClutterInputDevice *device)
 {
+  MetaInputDeviceNative *device_native = META_INPUT_DEVICE_NATIVE (device);
   MetaKbdA11ySettings a11y_settings;
   MetaInputSettings *input_settings;
 
-  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  input_settings = meta_seat_impl_get_input_settings (device_native->seat_impl);
   meta_input_settings_get_kbd_a11y_settings (input_settings, &a11y_settings);
   /* Settings use int, we use uint, make sure we dont go negative */
   return MAX (0, a11y_settings.debounce_delay);

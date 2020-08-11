@@ -39,6 +39,7 @@
 #include "backends/native/meta-event-native.h"
 #include "backends/native/meta-input-device-native.h"
 #include "backends/native/meta-input-device-tool-native.h"
+#include "backends/native/meta-input-settings-native.h"
 #include "backends/native/meta-keymap-native.h"
 #include "backends/native/meta-virtual-input-device-native.h"
 #include "clutter/clutter-mutter.h"
@@ -1532,7 +1533,7 @@ process_base_event (MetaSeatImpl          *seat,
   struct libinput_device *libinput_device;
   MetaInputSettings *input_settings;
 
-  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  input_settings = seat->input_settings;
 
   switch (libinput_event_get_type (event))
     {
@@ -1614,7 +1615,8 @@ translate_tool_type (struct libinput_tablet_tool *libinput_tool)
 }
 
 static void
-input_device_update_tool (ClutterInputDevice          *input_device,
+input_device_update_tool (MetaSeatImpl                *seat,
+                          ClutterInputDevice          *input_device,
                           struct libinput_tablet_tool *libinput_tool)
 {
   MetaInputDeviceNative *evdev_device = META_INPUT_DEVICE_NATIVE (input_device);
@@ -1641,7 +1643,7 @@ input_device_update_tool (ClutterInputDevice          *input_device,
   if (evdev_device->last_tool != tool)
     {
       evdev_device->last_tool = tool;
-      input_settings = meta_backend_get_input_settings (meta_get_backend ());
+      input_settings = seat->input_settings;
       meta_input_settings_notify_tool_change (input_settings, input_device, tool);
     }
 }
@@ -2224,10 +2226,10 @@ process_device_event (MetaSeatImpl          *seat,
         libinput_tool = libinput_event_tablet_tool_get_tool (tablet_event);
 
         if (in)
-          input_device_update_tool (device, libinput_tool);
+          input_device_update_tool (seat, device, libinput_tool);
         notify_proximity (device, time, in);
         if (!in)
-          input_device_update_tool (device, NULL);
+          input_device_update_tool (seat, device, NULL);
 
         break;
       }
@@ -2479,6 +2481,8 @@ meta_seat_impl_constructed (GObject *object)
     }
 
   udev_unref (udev);
+
+  seat->input_settings = meta_input_settings_native_new (seat);
 
   seat->udev_client = g_udev_client_new ((const char *[]) { "input", NULL });
 
@@ -3124,7 +3128,7 @@ meta_seat_impl_notify_kbd_a11y_flags_changed (MetaSeatImpl          *impl,
 {
   MetaInputSettings *input_settings;
 
-  input_settings = meta_backend_get_input_settings (meta_get_backend ());
+  input_settings = impl->input_settings;
   meta_input_settings_notify_kbd_a11y_change (input_settings,
                                               new_flags, what_changed);
   g_signal_emit (impl, signals[KBD_A11Y_FLAGS_CHANGED], 0,
@@ -3144,4 +3148,10 @@ void
 meta_seat_impl_notify_bell (MetaSeatImpl *impl)
 {
   g_signal_emit (impl, signals[BELL], 0);
+}
+
+MetaInputSettings *
+meta_seat_impl_get_input_settings (MetaSeatImpl *impl)
+{
+  return impl->input_settings;
 }

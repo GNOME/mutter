@@ -37,6 +37,7 @@ typedef struct _MetaInputSettingsNativeClass MetaInputSettingsNativeClass;
 struct _MetaInputSettingsNative
 {
   MetaInputSettings parent_instance;
+  MetaSeatImpl *seat_impl;
 };
 
 struct _MetaInputSettingsNativeClass
@@ -45,5 +46,7 @@ struct _MetaInputSettingsNativeClass
 };
 
 GType meta_input_settings_native_get_type (void) G_GNUC_CONST;
+
+MetaInputSettings * meta_input_settings_native_new (MetaSeatImpl *seat);
 
 #endif /* META_INPUT_SETTINGS_NATIVE_H */
