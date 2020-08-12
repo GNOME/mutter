@@ -36,6 +36,8 @@ struct _MetaKeymapNative
   ClutterKeymap parent_instance;
 
   struct xkb_keymap *keymap;
+  gboolean num_lock;
+  gboolean caps_lock;
 };
 
 G_DEFINE_TYPE (MetaKeymapNative, meta_keymap_native,
@@ -54,31 +56,17 @@ meta_keymap_native_finalize (GObject *object)
 static gboolean
 meta_keymap_native_get_num_lock_state (ClutterKeymap *keymap)
 {
-  struct xkb_state *xkb_state;
-  ClutterSeat *seat;
+  MetaKeymapNative *keymap_native = META_KEYMAP_NATIVE (keymap);
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  xkb_state = meta_seat_impl_get_xkb_state (META_SEAT_NATIVE (seat)->impl);
-
-  return xkb_state_mod_name_is_active (xkb_state,
-                                       XKB_MOD_NAME_NUM,
-                                       XKB_STATE_MODS_LATCHED |
-                                       XKB_STATE_MODS_LOCKED);
+  return keymap_native->num_lock;
 }
 
 static gboolean
 meta_keymap_native_get_caps_lock_state (ClutterKeymap *keymap)
 {
-  struct xkb_state *xkb_state;
-  ClutterSeat *seat;
+  MetaKeymapNative *keymap_native = META_KEYMAP_NATIVE (keymap);
 
-  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
-  xkb_state = meta_seat_impl_get_xkb_state (META_SEAT_NATIVE (seat)->impl);
-
-  return xkb_state_mod_name_is_active (xkb_state,
-                                       XKB_MOD_NAME_CAPS,
-                                       XKB_STATE_MODS_LATCHED |
-                                       XKB_STATE_MODS_LOCKED);
+  return keymap_native->caps_lock;
 }
 
 static PangoDirection
@@ -131,4 +119,25 @@ struct xkb_keymap *
 meta_keymap_native_get_keyboard_map (MetaKeymapNative *keymap)
 {
   return keymap->keymap;
+}
+
+void
+meta_keymap_native_update (MetaKeymapNative *keymap)
+{
+  struct xkb_state *xkb_state;
+  ClutterSeat *seat;
+
+  seat = clutter_backend_get_default_seat (clutter_get_default_backend ());
+  xkb_state = meta_seat_impl_get_xkb_state (META_SEAT_NATIVE (seat)->impl);
+
+  keymap->num_lock =
+    xkb_state_mod_name_is_active (xkb_state,
+                                  XKB_MOD_NAME_NUM,
+                                  XKB_STATE_MODS_LATCHED |
+                                  XKB_STATE_MODS_LOCKED);
+  keymap->caps_lock =
+    xkb_state_mod_name_is_active (xkb_state,
+                                  XKB_MOD_NAME_CAPS,
+                                  XKB_STATE_MODS_LATCHED |
+                                  XKB_STATE_MODS_LOCKED);
 }

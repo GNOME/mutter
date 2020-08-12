@@ -2863,6 +2863,7 @@ meta_seat_impl_update_xkb_state (MetaSeatImpl *seat)
   seat->scroll_lock_led = xkb_keymap_led_get_index (xkb_keymap, XKB_LED_NAME_SCROLL);
 
   meta_seat_impl_sync_leds (seat);
+  meta_keymap_native_update (seat->keymap);
 
   g_rw_lock_writer_unlock (&seat->state_lock);
 }
@@ -3034,6 +3035,7 @@ meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat,
   locked_mods = xkb_state_serialize_mods (state, XKB_STATE_MODS_LOCKED);
 
   xkb_state_update_mask (state, depressed_mods, latched_mods, locked_mods, 0, 0, idx);
+  meta_keymap_native_update (seat->keymap);
 
   seat->layout_idx = idx;
 
@@ -3095,6 +3097,7 @@ meta_seat_impl_set_keyboard_numlock (MetaSeatImpl *seat,
                          group_mods);
 
   meta_seat_impl_sync_leds (seat);
+  meta_keymap_native_update (seat->keymap);
 
   g_rw_lock_writer_unlock (&seat->state_lock);
 }
