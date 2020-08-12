@@ -815,6 +815,90 @@ meta_test_actor_stage_views_timeline (void)
 }
 
 static void
+meta_test_actor_stage_views_parent_views_rebuilt (void)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MonitorTestCaseSetup frame_clock_test_setup;
+  MetaMonitorTestSetup *test_setup;
+  ClutterActor *stage, *container, *test_actor;
+  GList *stage_views;
+  ClutterTimeline *timeline;
+  ClutterFrameClock *timeline_frame_clock;
+  ClutterFrameClock *view_frame_clock;
+  ClutterStageView *old_stage_view;
+  ClutterFrameClock *old_frame_clock;
+
+  stage = meta_backend_get_stage (backend);
+
+  frame_clock_test_setup = initial_test_case_setup;
+  frame_clock_test_setup.n_outputs = 1;
+  frame_clock_test_setup.n_crtcs = 1;
+  test_setup = create_monitor_test_setup (&frame_clock_test_setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert_cmpint (g_list_length (stage_views), ==, 1);
+
+  container = clutter_actor_new ();
+  clutter_actor_set_size (container, 100, 100);
+  clutter_actor_set_position (container, 0, 0);
+  clutter_actor_add_child (stage, container);
+
+  test_actor = clutter_actor_new ();
+  clutter_actor_set_size (test_actor, 0, 0);
+  clutter_actor_add_child (container, test_actor);
+
+  clutter_actor_show (stage);
+  wait_for_paint (stage);
+
+  is_on_stage_views (test_actor, 0);
+  is_on_stage_views (container, 1, stage_views->data);
+  is_on_stage_views (stage, 1, stage_views->data);
+
+  timeline = clutter_timeline_new_for_actor (test_actor, 100);
+  clutter_timeline_start (timeline);
+
+  timeline_frame_clock = clutter_timeline_get_frame_clock (timeline);
+  view_frame_clock = clutter_stage_view_get_frame_clock (stage_views->data);
+  g_assert_nonnull (timeline_frame_clock);
+  g_assert_nonnull (view_frame_clock);
+  g_assert (timeline_frame_clock == view_frame_clock);
+
+  /* Keep the stage view alive so it can be used to compare with later. */
+  old_stage_view = g_object_ref (stage_views->data);
+  old_frame_clock =
+    g_object_ref (clutter_stage_view_get_frame_clock (old_stage_view));
+
+  test_setup = create_monitor_test_setup (&frame_clock_test_setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+  wait_for_paint (stage);
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert_cmpint (g_list_length (stage_views), ==, 1);
+
+  g_assert (stage_views->data != old_stage_view);
+  view_frame_clock = clutter_stage_view_get_frame_clock (stage_views->data);
+  g_assert_nonnull (view_frame_clock);
+  g_assert (view_frame_clock != old_frame_clock);
+
+  timeline_frame_clock = clutter_timeline_get_frame_clock (timeline);
+  g_assert_nonnull (timeline_frame_clock);
+  g_assert (timeline_frame_clock == view_frame_clock);
+
+  g_object_unref (old_stage_view);
+  g_object_unref (old_frame_clock);
+
+  clutter_actor_destroy (test_actor);
+  clutter_actor_destroy (container);
+}
+
+static void
 init_tests (int argc, char **argv)
 {
   meta_monitor_manager_test_init_test_setup (create_stage_view_test_setup);
@@ -835,6 +919,8 @@ init_tests (int argc, char **argv)
                    meta_test_actor_stage_views_frame_clock);
   g_test_add_func ("/stage-views/actor-stage-views-timeline",
                    meta_test_actor_stage_views_timeline);
+  g_test_add_func ("/stage-views/actor-stage-views-parent-rebuilt",
+                   meta_test_actor_stage_views_parent_views_rebuilt);
 }
 
 int
