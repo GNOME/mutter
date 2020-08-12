@@ -602,7 +602,13 @@ meta_stage_x11_translate_event (MetaStageX11 *stage_x11,
 
           stage_width = xevent->xconfigure.width;
           stage_height = xevent->xconfigure.height;
-          clutter_actor_set_size (CLUTTER_ACTOR (stage), stage_width, stage_height);
+
+          if (META_IS_BACKEND_X11_CM (stage_x11->backend))
+            {
+              clutter_actor_set_size (CLUTTER_ACTOR (stage),
+                                      stage_width,
+                                      stage_height);
+            }
 
           if (size_changed)
             {
