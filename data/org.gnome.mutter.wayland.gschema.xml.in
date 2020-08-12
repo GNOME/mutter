@@ -1,4 +1,10 @@
 <schemalist>
+
+  <flags id="org.gnome.mutter.MetaXwaylandDisableExtension">
+    <value nick="Security" value="1"/>
+    <value nick="Xtest" value="2"/>
+  </flags>
+
   <schema id="org.gnome.mutter.wayland.keybindings" path="/org/gnome/mutter/wayland/keybindings/"
 	  gettext-domain="@GETTEXT_DOMAIN@">
     <key name="switch-to-session-1" type="as">
@@ -101,6 +107,21 @@
 
         Users can break an existing grab by using the specific keyboard
         shortcut defined by the keybinding key “restore-shortcuts”.
+      </description>
+    </key>
+
+    <key name="xwayland-disable-extension"
+        flags='org.gnome.mutter.MetaXwaylandDisableExtension'>
+      <default>["Security"]</default>
+      <summary>Disable selected X extensions in Xwayland</summary>
+      <description>
+        This option disables the selected X extensions in Xwayland if
+        Xwayland was built with support for those X extensions.
+
+        This option has no effect if Xwayland was built without support
+        for the selected extensions.
+
+        Xwayland needs to be restarted for this setting to take effect.
       </description>
     </key>
 
