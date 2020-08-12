@@ -652,15 +652,15 @@ meta_test_actor_stage_views_frame_clock (void)
                      stage_views->data,
                      stage_views->next->data);
 
-  frame_clock = clutter_actor_pick_frame_clock (actor_1);
+  frame_clock = clutter_actor_pick_frame_clock (actor_1, NULL);
   g_assert_cmpfloat (clutter_frame_clock_get_refresh_rate (frame_clock),
                      ==,
                      60.0);
-  frame_clock = clutter_actor_pick_frame_clock (actor_2);
+  frame_clock = clutter_actor_pick_frame_clock (actor_2, NULL);
   g_assert_cmpfloat (clutter_frame_clock_get_refresh_rate (frame_clock),
                      ==,
                      30.0);
-  frame_clock = clutter_actor_pick_frame_clock (actor_3);
+  frame_clock = clutter_actor_pick_frame_clock (actor_3, NULL);
   g_assert_cmpfloat (clutter_frame_clock_get_refresh_rate (frame_clock),
                      ==,
                      60.0);

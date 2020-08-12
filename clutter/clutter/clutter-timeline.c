@@ -393,7 +393,7 @@ update_frame_clock (ClutterTimeline *timeline)
   if (!priv->actor)
     goto out;
 
-  frame_clock = clutter_actor_pick_frame_clock (priv->actor);
+  frame_clock = clutter_actor_pick_frame_clock (priv->actor, NULL);
   if (frame_clock)
     {
       g_clear_signal_handler (&priv->stage_stage_views_handler_id, priv->stage);

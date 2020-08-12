@@ -16356,13 +16356,17 @@ clutter_actor_is_effectively_on_stage_view (ClutterActor     *self,
 /**
  * clutter_actor_pick_frame_clock: (skip)
  * @self: a #ClutterActor
+ * @out_actor: (nullable): a pointer to an #ClutterActor
  *
  * Pick the most suitable frame clock for driving animations for this actor.
+ *
+ * The #ClutterActor used for picking the frame clock is written @out_actor.
  *
  * Returns: (transfer none): a #ClutterFrameClock
  */
 ClutterFrameClock *
-clutter_actor_pick_frame_clock (ClutterActor *self)
+clutter_actor_pick_frame_clock (ClutterActor  *self,
+                                ClutterActor **out_actor)
 {
   ClutterActorPrivate *priv = self->priv;
   float max_refresh_rate = 0.0;
@@ -16372,7 +16376,7 @@ clutter_actor_pick_frame_clock (ClutterActor *self)
   if (!priv->stage_views)
     {
      if (priv->parent)
-       return clutter_actor_pick_frame_clock (priv->parent);
+       return clutter_actor_pick_frame_clock (priv->parent, out_actor);
      else
        return NULL;
     }
@@ -16391,9 +16395,15 @@ clutter_actor_pick_frame_clock (ClutterActor *self)
     }
 
   if (best_view)
-    return clutter_stage_view_get_frame_clock (best_view);
+    {
+      if (out_actor)
+        *out_actor = self;
+      return clutter_stage_view_get_frame_clock (best_view);
+    }
   else
-    return NULL;
+    {
+      return NULL;
+    }
 }
 
 /**

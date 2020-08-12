@@ -1237,7 +1237,7 @@ handle_stage_views_changed (MetaWindowActorX11 *actor_x11)
 {
   ClutterActor *actor = CLUTTER_ACTOR (actor_x11);
 
-  actor_x11->frame_clock = clutter_actor_pick_frame_clock (actor);
+  actor_x11->frame_clock = clutter_actor_pick_frame_clock (actor, NULL);
   if (actor_x11->frame_clock && actor_x11->pending_schedule_update_now)
     {
       clutter_frame_clock_schedule_update_now (actor_x11->frame_clock);
