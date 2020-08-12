@@ -514,7 +514,7 @@ clutter_frame_clock_destroy (ClutterFrameClock *frame_clock)
 static void
 clutter_frame_clock_dispose (GObject *object)
 {
-ClutterFrameClock *frame_clock = CLUTTER_FRAME_CLOCK (object);
+  ClutterFrameClock *frame_clock = CLUTTER_FRAME_CLOCK (object);
 
   if (frame_clock->source)
     {
