@@ -899,6 +899,81 @@ meta_test_actor_stage_views_parent_views_rebuilt (void)
 }
 
 static void
+meta_test_actor_stage_views_parent_views_changed (void)
+{
+  MetaBackend *backend = meta_get_backend ();
+  MetaMonitorManager *monitor_manager =
+    meta_backend_get_monitor_manager (backend);
+  MetaMonitorManagerTest *monitor_manager_test =
+    META_MONITOR_MANAGER_TEST (monitor_manager);
+  MonitorTestCaseSetup frame_clock_test_setup;
+  MetaMonitorTestSetup *test_setup;
+  ClutterActor *stage, *container, *test_actor;
+  GList *stage_views;
+  ClutterTimeline *timeline;
+  ClutterFrameClock *timeline_frame_clock;
+  ClutterFrameClock *first_view_frame_clock;
+  ClutterFrameClock *second_view_frame_clock;
+
+  stage = meta_backend_get_stage (backend);
+
+  frame_clock_test_setup = initial_test_case_setup;
+  test_setup = create_monitor_test_setup (&frame_clock_test_setup,
+                                          MONITOR_TEST_FLAG_NO_STORED);
+  meta_monitor_manager_test_emulate_hotplug (monitor_manager_test, test_setup);
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert_cmpint (g_list_length (stage_views), ==, 2);
+
+  container = clutter_actor_new ();
+  clutter_actor_set_size (container, 100, 100);
+  clutter_actor_set_position (container, 0, 0);
+  clutter_actor_add_child (stage, container);
+
+  test_actor = clutter_actor_new ();
+  clutter_actor_set_size (test_actor, 0, 0);
+  clutter_actor_add_child (container, test_actor);
+
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert_cmpint (g_list_length (stage_views), ==, 2);
+  clutter_actor_show (stage);
+  wait_for_paint (stage);
+  stage_views = clutter_stage_peek_stage_views (CLUTTER_STAGE (stage));
+  g_assert_cmpint (g_list_length (stage_views), ==, 2);
+
+  is_on_stage_views (test_actor, 0);
+  is_on_stage_views (container, 1, stage_views->data);
+  is_on_stage_views (stage, 2,
+                     stage_views->data,
+                     stage_views->next->data);
+
+  timeline = clutter_timeline_new_for_actor (test_actor, 100);
+  clutter_timeline_start (timeline);
+
+  first_view_frame_clock =
+    clutter_stage_view_get_frame_clock (stage_views->data);
+  second_view_frame_clock =
+    clutter_stage_view_get_frame_clock (stage_views->next->data);
+  g_assert_nonnull (first_view_frame_clock);
+  g_assert_nonnull (second_view_frame_clock);
+
+  timeline_frame_clock = clutter_timeline_get_frame_clock (timeline);
+
+  g_assert_nonnull (timeline_frame_clock);
+  g_assert (timeline_frame_clock == first_view_frame_clock);
+
+  clutter_actor_set_x (container, 1200);
+  wait_for_paint (stage);
+
+  timeline_frame_clock = clutter_timeline_get_frame_clock (timeline);
+  g_assert_nonnull (timeline_frame_clock);
+  g_assert (timeline_frame_clock == second_view_frame_clock);
+
+  clutter_actor_destroy (test_actor);
+  clutter_actor_destroy (container);
+}
+
+static void
 init_tests (int argc, char **argv)
 {
   meta_monitor_manager_test_init_test_setup (create_stage_view_test_setup);
@@ -921,6 +996,8 @@ init_tests (int argc, char **argv)
                    meta_test_actor_stage_views_timeline);
   g_test_add_func ("/stage-views/actor-stage-views-parent-rebuilt",
                    meta_test_actor_stage_views_parent_views_rebuilt);
+  g_test_add_func ("/stage-views/actor-stage-views-parent-changed",
+                   meta_test_actor_stage_views_parent_views_changed);
 }
 
 int
