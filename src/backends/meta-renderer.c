@@ -143,7 +143,7 @@ meta_renderer_real_rebuild_views (MetaRenderer *renderer)
     meta_backend_get_monitor_manager (backend);
   GList *logical_monitors, *l;
 
-  g_list_free_full (priv->views, g_object_unref);
+  g_list_free_full (priv->views, (GDestroyNotify) clutter_stage_view_destroy);
   priv->views = NULL;
 
   logical_monitors =

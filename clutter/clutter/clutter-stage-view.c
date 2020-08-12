@@ -87,6 +87,13 @@ typedef struct _ClutterStageViewPrivate
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterStageView, clutter_stage_view, G_TYPE_OBJECT)
 
 void
+clutter_stage_view_destroy (ClutterStageView *view)
+{
+  g_object_run_dispose (G_OBJECT (view));
+  g_object_unref (view);
+}
+
+void
 clutter_stage_view_get_layout (ClutterStageView      *view,
                                cairo_rectangle_int_t *rect)
 {

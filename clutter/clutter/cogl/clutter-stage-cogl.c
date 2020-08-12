@@ -773,16 +773,16 @@ on_framebuffer_set (ClutterStageView *view)
 }
 
 static void
-clutter_stage_view_cogl_finalize (GObject *object)
+clutter_stage_view_cogl_dispose (GObject *object)
 {
   ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (object);
   ClutterStageViewCoglPrivate *view_priv =
     clutter_stage_view_cogl_get_instance_private (view_cogl);
 
   g_clear_handle_id (&view_priv->notify_presented_handle_id, g_source_remove);
-  clutter_damage_history_free (view_priv->damage_history);
+  g_clear_pointer (&view_priv->damage_history, clutter_damage_history_free);
 
-  G_OBJECT_CLASS (clutter_stage_view_cogl_parent_class)->finalize (object);
+  G_OBJECT_CLASS (clutter_stage_view_cogl_parent_class)->dispose (object);
 }
 
 static void
@@ -802,5 +802,5 @@ clutter_stage_view_cogl_class_init (ClutterStageViewCoglClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
-  object_class->finalize = clutter_stage_view_cogl_finalize;
+  object_class->dispose = clutter_stage_view_cogl_dispose;
 }

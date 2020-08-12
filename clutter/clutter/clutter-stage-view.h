@@ -53,6 +53,9 @@ struct _ClutterStageViewClass
 };
 
 CLUTTER_EXPORT
+void clutter_stage_view_destroy (ClutterStageView *view);
+
+CLUTTER_EXPORT
 void clutter_stage_view_get_layout (ClutterStageView      *view,
                                     cairo_rectangle_int_t *rect);
 
