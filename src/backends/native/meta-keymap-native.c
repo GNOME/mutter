@@ -25,10 +25,6 @@
 #include "backends/native/meta-keymap-native.h"
 #include "backends/native/meta-seat-native.h"
 
-static const char *option_xkb_layout = "us";
-static const char *option_xkb_variant = "";
-static const char *option_xkb_options = "";
-
 typedef struct _MetaKeymapNative MetaKeymapNative;
 
 struct _MetaKeymapNative
@@ -91,19 +87,6 @@ meta_keymap_native_class_init (MetaKeymapNativeClass *klass)
 static void
 meta_keymap_native_init (MetaKeymapNative *keymap)
 {
-  struct xkb_context *ctx;
-  struct xkb_rule_names names;
-
-  names.rules = "evdev";
-  names.model = "pc105";
-  names.layout = option_xkb_layout;
-  names.variant = option_xkb_variant;
-  names.options = option_xkb_options;
-
-  ctx = meta_create_xkb_context ();
-  g_assert (ctx);
-  keymap->keymap = xkb_keymap_new_from_names (ctx, &names, 0);
-  xkb_context_unref (ctx);
 }
 
 void

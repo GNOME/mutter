@@ -218,12 +218,8 @@ struct xkb_state * meta_seat_impl_get_xkb_state (MetaSeatImpl *seat);
 void               meta_seat_impl_set_keyboard_map   (MetaSeatImpl      *seat,
                                                       struct xkb_keymap *keymap);
 
-struct xkb_keymap * meta_seat_impl_get_keyboard_map (MetaSeatImpl *seat);
-
 void meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat,
                                                xkb_layout_index_t  idx);
-
-xkb_layout_index_t meta_seat_impl_get_keyboard_layout_index (MetaSeatImpl *seat);
 
 void meta_seat_impl_set_keyboard_numlock (MetaSeatImpl *seat,
                                           gboolean      numlock_state);

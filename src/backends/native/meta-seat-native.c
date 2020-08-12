@@ -35,6 +35,7 @@
 #include <math.h>
 
 #include "backends/meta-cursor-tracker-private.h"
+#include "backends/meta-keymap-utils.h"
 #include "backends/native/meta-barrier-native.h"
 #include "backends/native/meta-event-native.h"
 #include "backends/native/meta-input-device-native.h"
@@ -176,6 +177,8 @@ meta_seat_native_constructed (GObject *object)
   seat->kms_cursor_renderer =
     meta_kms_cursor_renderer_new (meta_get_backend ());
 
+  meta_seat_native_set_keyboard_map (seat, "us", "", "");
+
   if (G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed)
     G_OBJECT_CLASS (meta_seat_native_parent_class)->constructed (object);
 }
@@ -226,6 +229,8 @@ meta_seat_native_finalize (GObject *object)
   MetaSeatNative *seat = META_SEAT_NATIVE (object);
   GList *iter;
 
+  if (seat->xkb_keymap)
+    xkb_keymap_unref (seat->xkb_keymap);
   g_clear_object (&seat->core_pointer);
   g_clear_object (&seat->core_keyboard);
   g_clear_object (&seat->impl);
@@ -480,6 +485,28 @@ meta_seat_native_reclaim_devices (MetaSeatNative *seat)
   seat->released = FALSE;
 }
 
+static struct xkb_keymap *
+create_keymap (const char *layouts,
+               const char *variants,
+               const char *options)
+{
+  struct xkb_rule_names names;
+  struct xkb_keymap *keymap;
+  struct xkb_context *context;
+
+  names.rules = DEFAULT_XKB_RULES_FILE;
+  names.model = DEFAULT_XKB_MODEL;
+  names.layout = layouts;
+  names.variant = variants;
+  names.options = options;
+
+  context = meta_create_xkb_context ();
+  keymap = xkb_keymap_new_from_names (context, &names, XKB_KEYMAP_COMPILE_NO_FLAGS);
+  xkb_context_unref (context);
+
+  return keymap;
+}
+
 /**
  * meta_seat_native_set_keyboard_map: (skip)
  * @seat: the #ClutterSeat created by the evdev backend
@@ -491,12 +518,22 @@ meta_seat_native_reclaim_devices (MetaSeatNative *seat)
  * is pressed when calling this function.
  */
 void
-meta_seat_native_set_keyboard_map (MetaSeatNative    *seat,
-                                   struct xkb_keymap *xkb_keymap)
+meta_seat_native_set_keyboard_map (MetaSeatNative *seat,
+                                   const char     *layouts,
+                                   const char     *variants,
+                                   const char     *options)
 {
-  g_return_if_fail (META_IS_SEAT_NATIVE (seat));
+  struct xkb_keymap *keymap, *impl_keymap;
 
-  meta_seat_impl_set_keyboard_map (seat->impl, xkb_keymap);
+  keymap = create_keymap (layouts, variants, options);
+  impl_keymap = create_keymap (layouts, variants, options);
+
+  if (seat->xkb_keymap)
+    xkb_keymap_unref (seat->xkb_keymap);
+  seat->xkb_keymap = keymap;
+
+  meta_seat_impl_set_keyboard_map (seat->impl, impl_keymap);
+  xkb_keymap_unref (impl_keymap);
 }
 
 /**
@@ -512,7 +549,7 @@ meta_seat_native_get_keyboard_map (MetaSeatNative *seat)
 {
   g_return_val_if_fail (META_IS_SEAT_NATIVE (seat), NULL);
 
-  return meta_seat_impl_get_keyboard_map (seat->impl);
+  return seat->xkb_keymap;
 }
 
 /**
@@ -528,6 +565,7 @@ meta_seat_native_set_keyboard_layout_index (MetaSeatNative     *seat,
 {
   g_return_if_fail (META_IS_SEAT_NATIVE (seat));
 
+  seat->xkb_layout_index = idx;
   meta_seat_impl_set_keyboard_layout_index (seat->impl, idx);
 }
 
@@ -537,7 +575,7 @@ meta_seat_native_set_keyboard_layout_index (MetaSeatNative     *seat,
 xkb_layout_index_t
 meta_seat_native_get_keyboard_layout_index (MetaSeatNative *seat)
 {
-  return meta_seat_impl_get_keyboard_layout_index (seat->impl);
+  return seat->xkb_layout_index;
 }
 
 /**

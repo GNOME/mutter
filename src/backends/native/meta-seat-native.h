@@ -46,6 +46,8 @@ struct _MetaSeatNative
   char *seat_id;
 
   GList *devices;
+  struct xkb_keymap *xkb_keymap;
+  xkb_layout_index_t xkb_layout_index;
 
   ClutterInputDevice *core_pointer;
   ClutterInputDevice *core_keyboard;
@@ -91,8 +93,10 @@ void  meta_seat_native_set_device_callbacks (MetaOpenDeviceCallback  open_callba
 void  meta_seat_native_release_devices (MetaSeatNative *seat);
 void  meta_seat_native_reclaim_devices (MetaSeatNative *seat);
 
-void               meta_seat_native_set_keyboard_map   (MetaSeatNative    *seat,
-                                                        struct xkb_keymap *keymap);
+void meta_seat_native_set_keyboard_map (MetaSeatNative *seat,
+                                        const char     *layouts,
+                                        const char     *variants,
+                                        const char     *options);
 
 struct xkb_keymap * meta_seat_native_get_keyboard_map (MetaSeatNative *seat);
 

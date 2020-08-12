@@ -2837,19 +2837,23 @@ meta_seat_impl_set_device_callbacks (MetaOpenDeviceCallback  open_callback,
 void
 meta_seat_impl_update_xkb_state (MetaSeatImpl *seat)
 {
-  xkb_mod_mask_t latched_mods;
-  xkb_mod_mask_t locked_mods;
+  xkb_mod_mask_t latched_mods = 0;
+  xkb_mod_mask_t locked_mods = 0;
   struct xkb_keymap *xkb_keymap;
 
   g_rw_lock_writer_lock (&seat->state_lock);
 
   xkb_keymap = meta_keymap_native_get_keyboard_map (seat->keymap);
 
-  latched_mods = xkb_state_serialize_mods (seat->xkb,
-                                           XKB_STATE_MODS_LATCHED);
-  locked_mods = xkb_state_serialize_mods (seat->xkb,
-                                          XKB_STATE_MODS_LOCKED);
-  xkb_state_unref (seat->xkb);
+  if (seat->xkb)
+    {
+      latched_mods = xkb_state_serialize_mods (seat->xkb,
+                                               XKB_STATE_MODS_LATCHED);
+      locked_mods = xkb_state_serialize_mods (seat->xkb,
+                                              XKB_STATE_MODS_LOCKED);
+      xkb_state_unref (seat->xkb);
+    }
+
   seat->xkb = xkb_state_new (xkb_keymap);
 
   xkb_state_update_mask (seat->xkb,
@@ -2993,22 +2997,6 @@ meta_seat_impl_set_keyboard_map (MetaSeatImpl      *seat,
 }
 
 /**
- * meta_seat_impl_get_keyboard_map: (skip)
- * @seat: the #ClutterSeat created by the evdev backend
- *
- * Retrieves the #xkb_keymap in use by the evdev backend.
- *
- * Return value: the #xkb_keymap.
- */
-struct xkb_keymap *
-meta_seat_impl_get_keyboard_map (MetaSeatImpl *seat)
-{
-  g_return_val_if_fail (META_IS_SEAT_IMPL (seat), NULL);
-
-  return xkb_state_get_keymap (seat->xkb);
-}
-
-/**
  * meta_seat_impl_set_keyboard_layout_index: (skip)
  * @seat: the #ClutterSeat created by the evdev backend
  * @idx: the xkb layout index to set
@@ -3040,15 +3028,6 @@ meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat,
   seat->layout_idx = idx;
 
   g_rw_lock_writer_unlock (&seat->state_lock);
-}
-
-/**
- * meta_seat_impl_get_keyboard_layout_index: (skip)
- */
-xkb_layout_index_t
-meta_seat_impl_get_keyboard_layout_index (MetaSeatImpl *seat)
-{
-  return seat->layout_idx;
 }
 
 /**
