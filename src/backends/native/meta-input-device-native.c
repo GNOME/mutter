@@ -438,6 +438,8 @@ update_internal_xkb_state (MetaInputDeviceNative *device,
   xkb_mod_mask_t group_mods;
   struct xkb_state *xkb_state;
 
+  g_rw_lock_writer_lock (&seat_impl->state_lock);
+
   xkb_state = meta_seat_impl_get_xkb_state (seat_impl);
   depressed_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_DEPRESSED);
   latched_mods = xkb_state_serialize_mods (xkb_state, XKB_STATE_MODS_LATCHED);
@@ -460,6 +462,8 @@ update_internal_xkb_state (MetaInputDeviceNative *device,
                          locked_mods,
                          0, 0, group_mods);
   notify_stickykeys_mask (device);
+
+  g_rw_lock_writer_unlock (&seat_impl->state_lock);
 }
 
 static void

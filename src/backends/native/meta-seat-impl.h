@@ -59,6 +59,7 @@ struct _MetaSeatImpl
   MetaEventSource *event_source;
   struct libinput *libinput;
   struct libinput_seat *libinput_seat;
+  GRWLock state_lock;
 
   GSList *devices;
 
