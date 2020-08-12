@@ -54,6 +54,7 @@ struct _MetaSeatImpl
 {
   GObject parent_instance;
 
+  GMainContext *input_context;
   MetaSeatNative *seat;
   char *seat_id;
   MetaEventSource *event_source;
@@ -119,6 +120,10 @@ G_DECLARE_FINAL_TYPE (MetaSeatImpl, meta_seat_impl,
 
 MetaSeatImpl * meta_seat_impl_new (MetaSeatNative *seat,
                                    const char     *seat_id);
+
+void meta_seat_impl_run_input_task (MetaSeatImpl *impl,
+                                    GTask        *task,
+                                    GSourceFunc   dispatch_func);
 
 void meta_seat_impl_notify_key (MetaSeatImpl       *seat,
                                 ClutterInputDevice *device,

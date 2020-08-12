@@ -137,6 +137,22 @@ void meta_seat_impl_filter_relative_motion (MetaSeatImpl       *seat,
 void meta_seat_impl_clear_repeat_timer (MetaSeatImpl *seat);
 
 void
+meta_seat_impl_run_input_task (MetaSeatImpl *impl,
+                               GTask        *task,
+                               GSourceFunc   dispatch_func)
+{
+  GSource *source;
+
+  source = g_idle_source_new ();
+  g_source_set_priority (source, G_PRIORITY_HIGH);
+  g_source_set_callback (source,
+                         dispatch_func,
+                         g_object_ref (task),
+                         g_object_unref);
+  g_source_attach (source, impl->input_context);
+}
+
+void
 meta_seat_impl_set_libinput_seat (MetaSeatImpl         *seat,
                                   struct libinput_seat *libinput_seat)
 {
@@ -2666,12 +2682,35 @@ meta_seat_impl_create_virtual_device (MetaSeatImpl           *seat,
                        NULL);
 }
 
+static gboolean
+warp_pointer (GTask *task)
+{
+  MetaSeatImpl *seat = g_task_get_source_object (task);
+  graphene_point_t *point;
+
+  point = g_task_get_task_data (task);
+  notify_absolute_motion (seat->core_pointer, 0,
+                          point->x, point->y, NULL);
+  g_task_return_boolean (task, TRUE);
+  return G_SOURCE_REMOVE;
+}
+
 void
 meta_seat_impl_warp_pointer (MetaSeatImpl *seat,
                              int           x,
                              int           y)
 {
-  notify_absolute_motion (seat->core_pointer, 0, x, y, NULL);
+  graphene_point_t *point;
+  GTask *task;
+
+  point = graphene_point_alloc ();
+  point->x = x;
+  point->y = y;
+
+  task = g_task_new (seat, NULL, NULL, NULL);
+  g_task_set_task_data (task, point, (GDestroyNotify) graphene_point_free);
+  meta_seat_impl_run_input_task (seat, task, (GSourceFunc) warp_pointer);
+  g_object_unref (task);
 }
 
 gboolean
@@ -2915,6 +2954,29 @@ meta_seat_impl_release_device_id (MetaSeatImpl       *seat,
                                                 compare_ids);
 }
 
+static gboolean
+release_devices (GTask *task)
+{
+  MetaSeatImpl *seat = g_task_get_source_object (task);
+
+  if (seat->released)
+    {
+      g_warning ("meta_seat_impl_release_devices() shouldn't be called "
+                 "multiple times without a corresponding call to "
+                 "meta_seat_impl_reclaim_devices() first");
+    }
+  else
+    {
+      libinput_suspend (seat->libinput);
+      process_events (seat);
+
+      seat->released = TRUE;
+    }
+
+  g_task_return_boolean (task, TRUE);
+  return G_SOURCE_REMOVE;
+}
+
 /**
  * meta_seat_impl_release_devices:
  *
@@ -2928,20 +2990,36 @@ meta_seat_impl_release_device_id (MetaSeatImpl       *seat,
 void
 meta_seat_impl_release_devices (MetaSeatImpl *seat)
 {
+  GTask *task;
+
   g_return_if_fail (META_IS_SEAT_IMPL (seat));
+
+  task = g_task_new (seat, NULL, NULL, NULL);
+  meta_seat_impl_run_input_task (seat, task, (GSourceFunc) release_devices);
+  g_object_unref (task);
+}
+
+static gboolean
+reclaim_devices (GTask *task)
+{
+  MetaSeatImpl *seat = g_task_get_source_object (task);
 
   if (seat->released)
     {
-      g_warning ("meta_seat_impl_release_devices() shouldn't be called "
-                 "multiple times without a corresponding call to "
-                 "meta_seat_impl_reclaim_devices() first");
-      return;
+      libinput_resume (seat->libinput);
+      meta_seat_impl_update_xkb_state (seat);
+      process_events (seat);
+
+      seat->released = FALSE;
+    }
+  else
+    {
+      g_warning ("Spurious call to meta_seat_impl_reclaim_devices() without "
+                 "previous call to meta_seat_impl_release_devices");
     }
 
-  libinput_suspend (seat->libinput);
-  process_events (seat);
-
-  seat->released = TRUE;
+  g_task_return_boolean (task, TRUE);
+  return G_SOURCE_REMOVE;
 }
 
 /**
@@ -2958,18 +3036,28 @@ meta_seat_impl_release_devices (MetaSeatImpl *seat)
 void
 meta_seat_impl_reclaim_devices (MetaSeatImpl *seat)
 {
-  if (!seat->released)
-    {
-      g_warning ("Spurious call to meta_seat_impl_reclaim_devices() without "
-                 "previous call to meta_seat_impl_release_devices");
-      return;
-    }
+  GTask *task;
 
-  libinput_resume (seat->libinput);
+  g_return_if_fail (META_IS_SEAT_IMPL (seat));
+
+  task = g_task_new (seat, NULL, NULL, NULL);
+  meta_seat_impl_run_input_task (seat, task, (GSourceFunc) reclaim_devices);
+  g_object_unref (task);
+}
+
+static gboolean
+set_keyboard_map (GTask *task)
+{
+  MetaSeatImpl *seat = g_task_get_source_object (task);
+  struct xkb_keymap *xkb_keymap = g_task_get_task_data (task);
+  MetaKeymapNative *keymap;
+
+  keymap = seat->keymap;
+  meta_keymap_native_set_keyboard_map (keymap, xkb_keymap);
+
   meta_seat_impl_update_xkb_state (seat);
-  process_events (seat);
-
-  seat->released = FALSE;
+  g_task_return_boolean (task, TRUE);
+  return G_SOURCE_REMOVE;
 }
 
 /**
@@ -2986,33 +3074,27 @@ void
 meta_seat_impl_set_keyboard_map (MetaSeatImpl      *seat,
                                  struct xkb_keymap *xkb_keymap)
 {
-  MetaKeymapNative *keymap;
+  GTask *task;
 
   g_return_if_fail (META_IS_SEAT_IMPL (seat));
 
-  keymap = seat->keymap;
-  meta_keymap_native_set_keyboard_map (keymap, xkb_keymap);
-
-  meta_seat_impl_update_xkb_state (seat);
+  task = g_task_new (seat, NULL, NULL, NULL);
+  g_task_set_task_data (task,
+                        xkb_keymap_ref (xkb_keymap),
+                        (GDestroyNotify) xkb_keymap_unref);
+  meta_seat_impl_run_input_task (seat, task, (GSourceFunc) set_keyboard_map);
+  g_object_unref (task);
 }
 
-/**
- * meta_seat_impl_set_keyboard_layout_index: (skip)
- * @seat: the #ClutterSeat created by the evdev backend
- * @idx: the xkb layout index to set
- *
- * Sets the xkb layout index on the backend's #xkb_state .
- */
-void
-meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat,
-                                          xkb_layout_index_t  idx)
+static gboolean
+set_keyboard_layout_index (GTask *task)
 {
+  MetaSeatImpl *seat = g_task_get_source_object (task);
+  xkb_layout_index_t idx = GPOINTER_TO_UINT (g_task_get_task_data (task));
   xkb_mod_mask_t depressed_mods;
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
   struct xkb_state *state;
-
-  g_return_if_fail (META_IS_SEAT_IMPL (seat));
 
   g_rw_lock_writer_lock (&seat->state_lock);
 
@@ -3028,19 +3110,38 @@ meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat,
   seat->layout_idx = idx;
 
   g_rw_lock_writer_unlock (&seat->state_lock);
+
+  g_task_return_boolean (task, TRUE);
+  return G_SOURCE_REMOVE;
 }
 
 /**
- * meta_seat_impl_set_keyboard_numlock: (skip)
+ * meta_seat_impl_set_keyboard_layout_index: (skip)
  * @seat: the #ClutterSeat created by the evdev backend
- * @numlock_set: TRUE to set NumLock ON, FALSE otherwise.
+ * @idx: the xkb layout index to set
  *
- * Sets the NumLock state on the backend's #xkb_state .
+ * Sets the xkb layout index on the backend's #xkb_state .
  */
 void
-meta_seat_impl_set_keyboard_numlock (MetaSeatImpl *seat,
-                                     gboolean      numlock_state)
+meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat,
+                                          xkb_layout_index_t  idx)
 {
+  GTask *task;
+
+  g_return_if_fail (META_IS_SEAT_IMPL (seat));
+
+  task = g_task_new (seat, NULL, NULL, NULL);
+  g_task_set_task_data (task, GUINT_TO_POINTER (idx), NULL);
+  meta_seat_impl_run_input_task (seat, task,
+                                 (GSourceFunc) set_keyboard_layout_index);
+  g_object_unref (task);
+}
+
+static gboolean
+set_keyboard_numlock (GTask *task)
+{
+  MetaSeatImpl *seat = g_task_get_source_object (task);
+  gboolean numlock_state = GPOINTER_TO_UINT (g_task_get_task_data (task));
   xkb_mod_mask_t depressed_mods;
   xkb_mod_mask_t latched_mods;
   xkb_mod_mask_t locked_mods;
@@ -3048,8 +3149,6 @@ meta_seat_impl_set_keyboard_numlock (MetaSeatImpl *seat,
   xkb_mod_mask_t numlock;
   struct xkb_keymap *xkb_keymap;
   MetaKeymapNative *keymap;
-
-  g_return_if_fail (META_IS_SEAT_IMPL (seat));
 
   g_rw_lock_writer_lock (&seat->state_lock);
 
@@ -3079,6 +3178,31 @@ meta_seat_impl_set_keyboard_numlock (MetaSeatImpl *seat,
   meta_keymap_native_update (seat->keymap);
 
   g_rw_lock_writer_unlock (&seat->state_lock);
+
+  g_task_return_boolean (task, TRUE);
+  return G_SOURCE_REMOVE;
+}
+
+/**
+ * meta_seat_impl_set_keyboard_numlock: (skip)
+ * @seat: the #ClutterSeat created by the evdev backend
+ * @numlock_set: TRUE to set NumLock ON, FALSE otherwise.
+ *
+ * Sets the NumLock state on the backend's #xkb_state .
+ */
+void
+meta_seat_impl_set_keyboard_numlock (MetaSeatImpl *seat,
+                                     gboolean      numlock_state)
+{
+  GTask *task;
+
+  g_return_if_fail (META_IS_SEAT_IMPL (seat));
+
+  task = g_task_new (seat, NULL, NULL, NULL);
+  g_task_set_task_data (task, GUINT_TO_POINTER (numlock_state), NULL);
+  meta_seat_impl_run_input_task (seat, task,
+                                 (GSourceFunc) set_keyboard_numlock);
+  g_object_unref (task);
 }
 
 /**
@@ -3118,22 +3242,62 @@ meta_seat_impl_get_barrier_manager (MetaSeatImpl *seat)
   return seat->barrier_manager;
 }
 
-void
-meta_seat_impl_set_pointer_constraint (MetaSeatImpl              *seat,
-                                       MetaPointerConstraintImpl *impl)
+static gboolean
+set_pointer_constraint (GTask *task)
 {
+  MetaSeatImpl *seat = g_task_get_source_object (task);
+  MetaPointerConstraintImpl *impl = g_task_get_task_data (task);
+
   if (g_set_object (&seat->pointer_constraint, impl))
     {
       if (impl)
         meta_pointer_constraint_impl_ensure_constrained (impl, seat->core_pointer);
     }
+
+  g_task_return_boolean (task, TRUE);
+  return G_SOURCE_REMOVE;
+}
+
+void
+meta_seat_impl_set_pointer_constraint (MetaSeatImpl              *seat,
+                                       MetaPointerConstraintImpl *impl)
+{
+  GTask *task;
+
+  g_return_if_fail (META_IS_SEAT_IMPL (seat));
+
+  task = g_task_new (seat, NULL, NULL, NULL);
+  g_task_set_task_data (task, g_object_ref (impl), g_object_unref);
+  meta_seat_impl_run_input_task (seat, task,
+                                 (GSourceFunc) set_pointer_constraint);
+  g_object_unref (task);
+}
+
+static gboolean
+set_viewports (GTask *task)
+{
+  MetaSeatImpl *seat = g_task_get_source_object (task);
+  MetaViewportInfo *viewports = g_task_get_task_data (task);
+
+  g_set_object (&seat->viewports, viewports);
+
+  g_task_return_boolean (task, TRUE);
+  return G_SOURCE_REMOVE;
 }
 
 void
 meta_seat_impl_set_viewports (MetaSeatImpl     *seat,
                               MetaViewportInfo *viewports)
 {
-  g_set_object (&seat->viewports, viewports);
+  GTask *task;
+
+  g_return_if_fail (META_IS_SEAT_IMPL (seat));
+
+  task = g_task_new (seat, NULL, NULL, NULL);
+  g_task_set_task_data (task, g_object_ref (viewports), g_object_unref);
+  meta_seat_impl_run_input_task (seat, task,
+                                 (GSourceFunc) set_viewports);
+  g_object_unref (task);
 }
 
 MetaSeatImpl *
