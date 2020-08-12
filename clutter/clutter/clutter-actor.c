@@ -16354,7 +16354,7 @@ clutter_actor_is_effectively_on_stage_view (ClutterActor     *self,
 }
 
 /**
- * clutter_actor_pick_frame_clock:
+ * clutter_actor_pick_frame_clock: (skip)
  * @self: a #ClutterActor
  *
  * Pick the most suitable frame clock for driving animations for this actor.

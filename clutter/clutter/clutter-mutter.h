@@ -68,6 +68,9 @@ gboolean clutter_actor_has_damage (ClutterActor *actor);
 CLUTTER_EXPORT
 gboolean clutter_actor_has_transitions (ClutterActor *actor);
 
+CLUTTER_EXPORT
+ClutterFrameClock * clutter_actor_pick_frame_clock (ClutterActor *self);
+
 #undef __CLUTTER_H_INSIDE__
 
 #endif /* __CLUTTER_MUTTER_H__ */

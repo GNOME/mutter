@@ -935,9 +935,6 @@ GList * clutter_actor_peek_stage_views (ClutterActor *self);
 CLUTTER_EXPORT
 void clutter_actor_invalidate_transform (ClutterActor *self);
 
-CLUTTER_EXPORT
-ClutterFrameClock * clutter_actor_pick_frame_clock (ClutterActor *self);
-
 G_END_DECLS
 
 #endif /* __CLUTTER_ACTOR_H__ */

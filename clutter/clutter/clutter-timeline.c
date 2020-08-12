@@ -103,6 +103,7 @@
 #include "clutter-frame-clock.h"
 #include "clutter-main.h"
 #include "clutter-marshal.h"
+#include "clutter-mutter.h"
 #include "clutter-private.h"
 #include "clutter-scriptable.h"
 #include "clutter-timeline-private.h"
