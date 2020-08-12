@@ -2826,19 +2826,23 @@ meta_seat_impl_set_device_callbacks (MetaOpenDeviceCallback  open_callback,
 void
 meta_seat_impl_update_xkb_state (MetaSeatImpl *seat_impl)
 {
-  xkb_mod_mask_t latched_mods;
-  xkb_mod_mask_t locked_mods;
+  xkb_mod_mask_t latched_mods = 0;
+  xkb_mod_mask_t locked_mods = 0;
   struct xkb_keymap *xkb_keymap;
 
   g_rw_lock_writer_lock (&seat_impl->state_lock);
 
   xkb_keymap = meta_keymap_native_get_keyboard_map (seat_impl->keymap);
 
-  latched_mods = xkb_state_serialize_mods (seat_impl->xkb,
-                                           XKB_STATE_MODS_LATCHED);
-  locked_mods = xkb_state_serialize_mods (seat_impl->xkb,
-                                          XKB_STATE_MODS_LOCKED);
-  xkb_state_unref (seat_impl->xkb);
+  if (seat_impl->xkb)
+    {
+      latched_mods = xkb_state_serialize_mods (seat_impl->xkb,
+                                               XKB_STATE_MODS_LATCHED);
+      locked_mods = xkb_state_serialize_mods (seat_impl->xkb,
+                                              XKB_STATE_MODS_LOCKED);
+      xkb_state_unref (seat_impl->xkb);
+    }
+
   seat_impl->xkb = xkb_state_new (xkb_keymap);
 
   xkb_state_update_mask (seat_impl->xkb,
@@ -2932,27 +2936,12 @@ meta_seat_impl_set_keyboard_map (MetaSeatImpl      *seat_impl,
   MetaKeymapNative *keymap;
 
   g_return_if_fail (META_IS_SEAT_IMPL (seat_impl));
+  g_return_if_fail (xkb_keymap != NULL);
 
   keymap = seat_impl->keymap;
   meta_keymap_native_set_keyboard_map (keymap, xkb_keymap);
 
   meta_seat_impl_update_xkb_state (seat_impl);
-}
-
-/**
- * meta_seat_impl_get_keyboard_map: (skip)
- * @seat: the #ClutterSeat created by the evdev backend
- *
- * Retrieves the #xkb_keymap in use by the evdev backend.
- *
- * Return value: the #xkb_keymap.
- */
-struct xkb_keymap *
-meta_seat_impl_get_keyboard_map (MetaSeatImpl *seat_impl)
-{
-  g_return_val_if_fail (META_IS_SEAT_IMPL (seat_impl), NULL);
-
-  return xkb_state_get_keymap (seat_impl->xkb);
 }
 
 /**
@@ -2987,15 +2976,6 @@ meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat_impl,
   seat_impl->layout_idx = idx;
 
   g_rw_lock_writer_unlock (&seat_impl->state_lock);
-}
-
-/**
- * meta_seat_impl_get_keyboard_layout_index: (skip)
- */
-xkb_layout_index_t
-meta_seat_impl_get_keyboard_layout_index (MetaSeatImpl *seat_impl)
-{
-  return seat_impl->layout_idx;
 }
 
 /**

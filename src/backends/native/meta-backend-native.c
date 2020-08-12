@@ -187,11 +187,11 @@ meta_backend_native_post_init (MetaBackend *backend)
   MetaSeatNative *seat =
     META_SEAT_NATIVE (clutter_backend_get_default_seat (clutter_backend));
 
-  META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
-
   backend_native->input_settings = meta_seat_impl_get_input_settings (seat->impl);
   g_signal_connect_object (backend_native->input_settings, "kbd-a11y-changed",
                            G_CALLBACK (kbd_a11y_changed_cb), backend, 0);
+
+  META_BACKEND_CLASS (meta_backend_native_parent_class)->post_init (backend);
 
   if (meta_settings_is_experimental_feature_enabled (settings,
                                                      META_EXPERIMENTAL_FEATURE_RT_SCHEDULER))
@@ -286,35 +286,13 @@ meta_backend_native_set_keymap (MetaBackend *backend,
                                 const char  *options)
 {
   ClutterBackend *clutter_backend = meta_backend_get_clutter_backend (backend);
-  struct xkb_rule_names names;
-  struct xkb_keymap *keymap;
-  struct xkb_context *context;
   ClutterSeat *seat;
 
-  names.rules = DEFAULT_XKB_RULES_FILE;
-  names.model = DEFAULT_XKB_MODEL;
-  names.layout = layouts;
-  names.variant = variants;
-  names.options = options;
-
-  context = meta_create_xkb_context ();
-  keymap = xkb_keymap_new_from_names (context, &names, XKB_KEYMAP_COMPILE_NO_FLAGS);
-  xkb_context_unref (context);
-
-  if (keymap == NULL)
-    {
-      g_warning ("Unable to load configured keymap: rules=%s, model=%s, layout=%s, variant=%s, options=%s",
-                 DEFAULT_XKB_RULES_FILE, DEFAULT_XKB_MODEL, layouts,
-                 variants, options);
-      return;
-    }
-
   seat = clutter_backend_get_default_seat (clutter_backend);
-  meta_seat_native_set_keyboard_map (META_SEAT_NATIVE (seat), keymap);
+  meta_seat_native_set_keyboard_map (META_SEAT_NATIVE (seat),
+                                     layouts, variants, options);
 
   meta_backend_notify_keymap_changed (backend);
-
-  xkb_keymap_unref (keymap);
 }
 
 static struct xkb_keymap *

@@ -206,12 +206,8 @@ struct xkb_state * meta_seat_impl_get_xkb_state (MetaSeatImpl *seat_impl);
 void               meta_seat_impl_set_keyboard_map   (MetaSeatImpl      *seat_impl,
                                                       struct xkb_keymap *keymap);
 
-struct xkb_keymap * meta_seat_impl_get_keyboard_map (MetaSeatImpl *seat_impl);
-
 void meta_seat_impl_set_keyboard_layout_index (MetaSeatImpl       *seat_impl,
                                                xkb_layout_index_t  idx);
-
-xkb_layout_index_t meta_seat_impl_get_keyboard_layout_index (MetaSeatImpl *seat_impl);
 
 void meta_seat_impl_set_keyboard_numlock (MetaSeatImpl *seat_impl,
                                           gboolean      numlock_state);
