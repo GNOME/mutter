@@ -114,6 +114,8 @@ struct _ClutterTimelinePrivate
 
   ClutterFrameClock *custom_frame_clock;
   ClutterFrameClock *frame_clock;
+  ClutterActor *frame_clock_actor;
+  gulong frame_clock_actor_stage_views_handler_id;
 
   ClutterActor *actor;
   gulong actor_destroy_handler_id;
@@ -384,18 +386,39 @@ on_stage_stage_views_changed (ClutterActor    *stage,
 }
 
 static void
+on_frame_clock_actor_stage_views_changed (ClutterActor    *frame_clock_actor,
+                                          ClutterTimeline *timeline)
+{
+  update_frame_clock (timeline);
+}
+
+static void
 update_frame_clock (ClutterTimeline *timeline)
 {
   ClutterTimelinePrivate *priv = timeline->priv;
   ClutterFrameClock *frame_clock = NULL;
   ClutterActor *stage;
+  ClutterActor *frame_clock_actor;
 
   if (!priv->actor)
     goto out;
 
-  frame_clock = clutter_actor_pick_frame_clock (priv->actor, NULL);
+  if (priv->frame_clock_actor)
+    {
+      g_clear_signal_handler (&priv->frame_clock_actor_stage_views_handler_id,
+                              priv->frame_clock_actor);
+      g_clear_weak_pointer (&priv->frame_clock_actor);
+    }
+
+  frame_clock = clutter_actor_pick_frame_clock (priv->actor, &frame_clock_actor);
   if (frame_clock)
     {
+      g_set_weak_pointer (&priv->frame_clock_actor, frame_clock_actor);
+      priv->frame_clock_actor_stage_views_handler_id =
+        g_signal_connect (frame_clock_actor, "stage-views-changed",
+                          G_CALLBACK (on_frame_clock_actor_stage_views_changed),
+                          timeline);
+
       g_clear_signal_handler (&priv->stage_stage_views_handler_id, priv->stage);
       goto out;
     }
@@ -735,6 +758,13 @@ clutter_timeline_dispose (GObject *object)
       g_clear_signal_handler (&priv->actor_stage_views_handler_id, priv->actor);
       g_clear_signal_handler (&priv->stage_stage_views_handler_id, priv->stage);
       priv->actor = NULL;
+    }
+
+  if (priv->frame_clock_actor)
+    {
+      g_clear_signal_handler (&priv->frame_clock_actor_stage_views_handler_id,
+                              priv->frame_clock_actor);
+      g_clear_weak_pointer (&priv->frame_clock_actor);
     }
 
   if (priv->progress_notify != NULL)
