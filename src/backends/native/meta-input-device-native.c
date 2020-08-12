@@ -48,7 +48,7 @@ typedef struct _SlowKeysEventPending
 {
   MetaInputDeviceNative *device;
   ClutterEvent *event;
-  guint timer;
+  GSource *timer;
 } SlowKeysEventPending;
 
 typedef struct _PadFeature PadFeature;
@@ -207,7 +207,7 @@ meta_input_device_native_free_pending_slow_key (gpointer data)
   SlowKeysEventPending *slow_keys_event = data;
 
   clutter_event_free (slow_keys_event->event);
-  g_clear_handle_id (&slow_keys_event->timer, g_source_remove);
+  g_clear_pointer (&slow_keys_event->timer, g_source_destroy);
   g_free (slow_keys_event);
 }
 
@@ -264,6 +264,24 @@ find_pending_event_by_keycode (gconstpointer a,
   return kb->hardware_keycode - ka->hardware_keycode;
 }
 
+static GSource *
+timeout_source_new (MetaSeatImpl *seat_impl,
+                    guint         interval,
+                    GSourceFunc   func,
+                    gpointer      user_data)
+{
+  GSource *source;
+
+  source = g_timeout_source_new (interval);
+  g_source_set_callback (source,
+                         func,
+                         user_data, NULL);
+  g_source_attach (source, seat_impl->input_context);
+  g_source_unref (source);
+
+  return source;
+}
+
 static gboolean
 start_slow_keys (ClutterEvent          *event,
                  MetaInputDeviceNative *device)
@@ -278,9 +296,10 @@ start_slow_keys (ClutterEvent          *event,
   slow_keys_event->device = device;
   slow_keys_event->event = clutter_event_copy (event);
   slow_keys_event->timer =
-    clutter_threads_add_timeout (get_slow_keys_delay (CLUTTER_INPUT_DEVICE (device)),
-                                 trigger_slow_keys,
-                                 slow_keys_event);
+    timeout_source_new (device->seat_impl,
+                        get_slow_keys_delay (CLUTTER_INPUT_DEVICE (device)),
+                        trigger_slow_keys,
+                        slow_keys_event);
   device->slow_keys_list = g_list_append (device->slow_keys_list, slow_keys_event);
 
   if (device->a11y_flags & META_A11Y_SLOW_KEYS_BEEP_PRESS)
@@ -346,15 +365,16 @@ start_bounce_keys (ClutterEvent          *event,
 
   device->debounce_key = ((ClutterKeyEvent *) event)->hardware_keycode;
   device->debounce_timer =
-    clutter_threads_add_timeout (get_debounce_delay (CLUTTER_INPUT_DEVICE (device)),
-                                 clear_bounce_keys,
-                                 device);
+    timeout_source_new (device->seat_impl,
+                        get_debounce_delay (CLUTTER_INPUT_DEVICE (device)),
+                        clear_bounce_keys,
+                        device);
 }
 
 static void
 stop_bounce_keys (MetaInputDeviceNative *device)
 {
-  g_clear_handle_id (&device->debounce_timer, g_source_remove);
+  g_clear_pointer (&device->debounce_timer, g_source_destroy);
 }
 
 static void
@@ -625,15 +645,16 @@ start_toggle_slowkeys (MetaInputDeviceNative *device)
     return;
 
   device->toggle_slowkeys_timer =
-    clutter_threads_add_timeout (8 * 1000 /* 8 secs */,
-                                 trigger_toggle_slowkeys,
-                                 device);
+    timeout_source_new (device->seat_impl,
+                        8 * 1000 /* 8 secs */,
+                        trigger_toggle_slowkeys,
+                        device);
 }
 
 static void
 stop_toggle_slowkeys (MetaInputDeviceNative *device)
 {
-  g_clear_handle_id (&device->toggle_slowkeys_timer, g_source_remove);
+  g_clear_pointer (&device->toggle_slowkeys_timer, g_source_destroy);
 }
 
 static void
@@ -892,18 +913,20 @@ trigger_mousekeys_move (gpointer data)
     {
       /* This is the first move, Secdule at mk_init_delay */
       device->move_mousekeys_timer =
-        clutter_threads_add_timeout (device->mousekeys_init_delay,
-                                     trigger_mousekeys_move,
-                                     device);
+        timeout_source_new (device->seat_impl,
+                            device->mousekeys_init_delay,
+                            trigger_mousekeys_move,
+                            device);
 
     }
   else
     {
       /* More moves, reschedule at mk_interval */
       device->move_mousekeys_timer =
-        clutter_threads_add_timeout (100, /* msec between mousekey events */
-                                     trigger_mousekeys_move,
-                                     device);
+        timeout_source_new (device->seat_impl,
+                            100, /* msec between mousekey events */
+                            trigger_mousekeys_move,
+                            device);
     }
 
   /* Pointer motion */
@@ -964,7 +987,7 @@ stop_mousekeys_move (MetaInputDeviceNative *device)
   device->mousekeys_first_motion_time = 0;
   device->mousekeys_last_motion_time = 0;
 
-  g_clear_handle_id (&device->move_mousekeys_timer, g_source_remove);
+  g_clear_pointer (&device->move_mousekeys_timer, g_source_destroy);
 }
 
 static void

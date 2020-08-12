@@ -54,7 +54,13 @@ struct _MetaSeatImpl
 {
   GObject parent_instance;
 
+  GMainContext *main_context;
   GMainContext *input_context;
+  GMainLoop *input_loop;
+  GThread *input_thread;
+  GMutex init_mutex;
+  GCond init_cond;
+
   MetaSeatNative *seat_native;
   char *seat_id;
   MetaEventSource *event_source;
@@ -91,6 +97,7 @@ struct _MetaSeatImpl
   gboolean has_touchscreen;
   gboolean has_tablet_switch;
   gboolean touch_mode;
+  gboolean input_thread_initialized;
 
   /* keyboard repeat */
   gboolean repeat;
@@ -98,8 +105,8 @@ struct _MetaSeatImpl
   uint32_t repeat_interval;
   uint32_t repeat_key;
   uint32_t repeat_count;
-  uint32_t repeat_timer;
   ClutterInputDevice *repeat_device;
+  GSource *repeat_source;
 
   float pointer_x;
   float pointer_y;

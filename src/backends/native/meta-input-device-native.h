@@ -85,12 +85,12 @@ struct _MetaInputDeviceNative
   /* Keyboard a11y */
   MetaKeyboardA11yFlags a11y_flags;
   GList *slow_keys_list;
-  guint debounce_timer;
+  GSource *debounce_timer;
   uint16_t debounce_key;
   xkb_mod_mask_t stickykeys_depressed_mask;
   xkb_mod_mask_t stickykeys_latched_mask;
   xkb_mod_mask_t stickykeys_locked_mask;
-  guint toggle_slowkeys_timer;
+  GSource *toggle_slowkeys_timer;
   uint16_t shift_count;
   uint32_t last_shift_time;
   int mousekeys_btn;
@@ -101,7 +101,7 @@ struct _MetaInputDeviceNative
   guint mousekeys_accel_time;
   guint mousekeys_max_speed;
   double mousekeys_curve_factor;
-  guint move_mousekeys_timer;
+  GSource *move_mousekeys_timer;
   uint16_t last_mousekeys_key;
 };
 
