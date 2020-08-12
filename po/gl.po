@@ -9,21 +9,22 @@
 # Mancomún - Centro de Referencia e Servizos de Software Libre <g11n@mancomun.org>, 2009.
 # Fran Diéguez <frandieguez@gnome.org>, 2009, 2010, 2011, 2012.
 # Leandro Regueiro <leandro.regueiro@gmail.com>, 2012.
-# Fran Dieguez <frandieguez@gnome.org>, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019.
+# Fran Dieguez <frandieguez@gnome.org>, 2012-2020.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: gl\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-02-26 21:56+0100\n"
+"POT-Creation-Date: 2020-08-04 08:31+0000\n"
+"PO-Revision-Date: 2020-08-13 00:46+0200\n"
 "Last-Translator: Fran Dieguez <frandieguez@gnome.org>\n"
-"Language-Team: Galician\n"
+"Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.3\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"X-Generator: Gtranslator 3.36.0\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -514,6 +515,16 @@ msgstr ""
 "Permitir os capturadores de X11 bloquear o foco do teclado con Xwayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#| msgid ""
+#| "Allow all keyboard events to be routed to X11 “override redirect” windows "
+#| "with a grab when running in Xwayland. This option is to support X11 "
+#| "clients which map an “override redirect” window (which do not receive "
+#| "keyboard focus) and issue a keyboard grab to force all keyboard events to "
+#| "that window. This option is seldom used and has no effect on regular X11 "
+#| "windows which can receive keyboard focus under normal circumstances. For "
+#| "a X11 grab to be taken into account under Wayland, the client must also "
+#| "either send a specific X11 ClientMessage to the root window or be among "
+#| "the applications white-listed in key “xwayland-grab-access-rules”."
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -523,7 +534,7 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Permite que todos os eventos de teclado se redirixan a xanelas X11 "
 "«invalidar redirección» con un capturador ao executarse en Xwayland. Esta "
@@ -533,7 +544,7 @@ msgstr ""
 "esta xanela. Esta opción é rara vez usada e non ten efecto en xanelas X11 "
 "normais que poden recibir o foco do teclado baixo circunstancias normais. "
 "Para que a captura de X11 se leve a cabo baixo Wayland, o cliente debe "
-"enviar un ClienteMessage de X11 específico á xanela pai ou estar na lista "
+"enviar un ClientMessage de X11 específico á xanela pai ou estar na lista "
 "branca de aplicacións na chave «xwayland-grab-access-rules»."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
@@ -541,14 +552,25 @@ msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Aplicaciones de Xwayland que poden capturar o teclado"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#| msgid ""
+#| "List the resource names or resource class of X11 windows either allowed "
+#| "or not allowed to issue X11 keyboard grabs under Xwayland. The resource "
+#| "name or resource class of a given X11 window can be obtained using the "
+#| "command “xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are "
+#| "supported. Values starting with “!” are blacklisted, which has precedence "
+#| "over the whitelist, to revoke applications from the default system list. "
+#| "The default system list includes the following applications: "
+#| "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab "
+#| "by using the specific keyboard shortcut defined by the keybinding key "
+#| "“restore-shortcuts”."
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -567,7 +589,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2567
+#: src/backends/meta-input-settings.c:2698
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Modo conmutador (Grupo %d)"
@@ -575,34 +597,34 @@ msgstr "Modo conmutador (Grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2590
+#: src/backends/meta-input-settings.c:2721
 msgid "Switch monitor"
 msgstr "Cambiar monitor"
 
-#: src/backends/meta-input-settings.c:2592
+#: src/backends/meta-input-settings.c:2723
 msgid "Show on-screen help"
 msgstr "Mostrar axuda en pantalla"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Pantalla embebida"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Descoñecido"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Pantalla descoñecida"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -617,7 +639,7 @@ msgstr "Compositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -727,7 +749,7 @@ msgstr "Engadido de mutter que usar"
 msgid "Workspace %d"
 msgstr "Espazo de traballo %d"
 
-#: src/core/util.c:122
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter foi compilado sen compatibilidade para o modo detallado\n"
 
@@ -772,7 +794,7 @@ msgstr ""
 "Estas xanelas non soportan «save current setup» e terán que reiniciarse "
 "manualmente a próxima vez que inicie a sesión."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (en %s)"
