@@ -37,6 +37,8 @@ opacity_label (void)
     g_print ("label 50%%.get_paint_opacity()/2\n");
   clutter_actor_set_opacity (label, 128);
   g_assert (clutter_actor_get_paint_opacity (label) == 128);
+
+  clutter_actor_destroy (label);
 }
 
 G_GNUC_BEGIN_IGNORE_DEPRECATIONS
@@ -70,6 +72,8 @@ opacity_rectangle (void)
   if (!g_test_quiet ())
     g_print ("rect 100%%.get_paint_opacity()\n");
   g_assert (clutter_actor_get_paint_opacity (rect) == 255);
+
+  clutter_actor_destroy (rect);
 }
 G_GNUC_END_IGNORE_DEPRECATIONS
 
@@ -135,6 +139,8 @@ opacity_paint (void)
   if (!g_test_quiet ())
     g_print ("rect 100%%.get_paint_opacity()\n");
   g_assert (clutter_actor_get_paint_opacity (rect) == 128);
+
+  clutter_actor_destroy (group1);
 }
 G_GNUC_END_IGNORE_DEPRECATIONS
 

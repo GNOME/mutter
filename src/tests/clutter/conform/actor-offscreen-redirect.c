@@ -442,6 +442,9 @@ actor_offscreen_redirect (void)
 
   while (!data.was_painted)
     g_main_context_iteration (NULL, FALSE);
+
+  clutter_actor_destroy (data.parent_container);
+  clutter_actor_destroy (data.unrelated_actor);
 }
 
 CLUTTER_TEST_SUITE (

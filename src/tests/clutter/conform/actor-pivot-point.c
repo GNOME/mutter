@@ -41,6 +41,9 @@ actor_pivot (void)
   clutter_actor_get_transform (actor_explicit, &result_explicit);
 
   g_assert (cogl_matrix_equal (&result_implicit, &result_explicit));
+
+  clutter_actor_destroy (actor_implicit);
+  clutter_actor_destroy (actor_explicit);
 }
 
 CLUTTER_TEST_SUITE (

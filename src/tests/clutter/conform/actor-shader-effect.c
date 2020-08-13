@@ -256,6 +256,7 @@ actor_shader_effect (void)
   ClutterActor *stage;
   ClutterActor *rect;
   gboolean was_painted;
+  GList *actors = NULL;
 
   if (!clutter_feature_available (CLUTTER_FEATURE_SHADERS_GLSL))
     return;
@@ -264,18 +265,22 @@ actor_shader_effect (void)
 
   rect = make_actor (foo_old_shader_effect_get_type ());
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), rect);
+  actors = g_list_prepend (actors, rect);
 
   rect = make_actor (foo_new_shader_effect_get_type ());
   clutter_actor_set_x (rect, 100);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), rect);
+  actors = g_list_prepend (actors, rect);
 
   rect = make_actor (foo_another_new_shader_effect_get_type ());
   clutter_actor_set_x (rect, 200);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), rect);
+  actors = g_list_prepend (actors, rect);
 
   rect = make_actor (foo_new_shader_effect_get_type ());
   clutter_actor_set_x (rect, 300);
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), rect);
+  actors = g_list_prepend (actors, rect);
 
   clutter_actor_show (stage);
 
@@ -286,6 +291,8 @@ actor_shader_effect (void)
 
   while (!was_painted)
     g_main_context_iteration (NULL, FALSE);
+
+  g_list_free_full (actors, (GDestroyNotify) clutter_actor_destroy);
 }
 
 CLUTTER_TEST_SUITE (

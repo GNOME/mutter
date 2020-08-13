@@ -74,6 +74,8 @@ actor_realized (void)
 
   g_assert (!(CLUTTER_ACTOR_IS_MAPPED (actor)));
   g_assert (!(CLUTTER_ACTOR_IS_VISIBLE (actor)));
+
+  clutter_actor_destroy (actor);
 }
 
 static void
@@ -115,6 +117,8 @@ actor_mapped (void)
   g_assert (CLUTTER_ACTOR_IS_REALIZED (actor));
   g_assert (!CLUTTER_ACTOR_IS_MAPPED (actor));
   g_assert (!CLUTTER_ACTOR_IS_VISIBLE (actor));
+
+  clutter_actor_destroy (actor);
 }
 
 static void
@@ -155,6 +159,9 @@ actor_visibility_not_recursive (void)
 
   clutter_actor_show (stage);
   g_assert (!CLUTTER_ACTOR_IS_VISIBLE (actor));
+
+  clutter_actor_destroy (actor);
+  clutter_actor_destroy (group);
 }
 
 static void
@@ -190,6 +197,9 @@ actor_realize_not_recursive (void)
   g_assert (!CLUTTER_ACTOR_IS_REALIZED (actor));
   g_assert (!(CLUTTER_ACTOR_IS_MAPPED (actor)));
   g_assert (!(CLUTTER_ACTOR_IS_VISIBLE (actor)));
+
+  clutter_actor_destroy (actor);
+  clutter_actor_destroy (group);
 }
 
 static void
@@ -235,6 +245,9 @@ actor_map_recursive (void)
   g_assert (CLUTTER_ACTOR_IS_MAPPED (actor));
   g_assert (CLUTTER_ACTOR_IS_VISIBLE (group));
   g_assert (CLUTTER_ACTOR_IS_VISIBLE (actor));
+
+  clutter_actor_destroy (actor);
+  clutter_actor_destroy (group);
 }
 
 static void
@@ -337,6 +350,7 @@ clone_no_map (void)
   g_assert (!(CLUTTER_ACTOR_IS_MAPPED (group)));
   g_assert (!(CLUTTER_ACTOR_IS_MAPPED (actor)));
 
+  clutter_actor_destroy (actor);
   clutter_actor_destroy (CLUTTER_ACTOR (clone));
   clutter_actor_destroy (CLUTTER_ACTOR (group));
 }
