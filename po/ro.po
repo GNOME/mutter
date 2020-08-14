@@ -9,9 +9,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: metacity.HEAD.ro\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-03-19 11:58+0100\n"
-"Last-Translator: Daniel Șerbănescu <daniel [at] serbanescu [dot] dk>\n"
+"POT-Creation-Date: 2020-08-04 08:31+0000\n"
+"PO-Revision-Date: 2020-08-14 15:47+0300\n"
+"Last-Translator: Florentina Mușat <florentina.musat.28@gmail.com>\n"
 "Language-Team: Gnome Romanian Translation Team <gnomero-list@lists."
 "sourceforge.net>\n"
 "Language: ro\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n==0 || (n!=1 && n%100>=1 && n"
 "%100<=19) ? 1 : 2);\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.4\n"
 "X-Project-Style: gnome\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
@@ -527,7 +527,7 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Permite ca toate evenimentele de tastatură să fie rutate la ferestrele de "
 "„redirecționare suprascriere” X11 cu o blocare când se rulează Xwayland. "
@@ -551,9 +551,9 @@ msgid ""
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -562,18 +562,17 @@ msgstr ""
 "sau nepermise să emită capturi de tastatură X11 în Xwayland. Numele resursei "
 "sau clasa resursei a unei ferestre X11 date pot fi obținute utilizând "
 "comanda „xprop WM_CLASS*. Metacaracterele „*” și jokerii „?” în valori sunt "
-"suportați. Valorile care încep cu „!” sunt adăugate în lista de interziceri, "
-"care are prioritate peste lista de permisiuni, pentru a revoca aplicații din "
-"lista de sistem implicită. Lista de sistem implicită include următoarele "
-"aplicații: „@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Utilizatorii pot să "
-"întrerupă o captură existentă prin utilizarea scurtăturii de tastatură "
-"specifice definite de tasta de stabilire a combinațiilor de taste „restore-"
-"shortcuts”."
+"suportați. Valorile care încep cu „!” sunt respinse, care are prioritate "
+"peste lista de valori permise, pentru a revoca aplicații din lista de sistem "
+"implicită. Lista de sistem implicită include următoarele aplicații: "
+"„@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Utilizatorii pot să întrerupă o "
+"captură existentă prin utilizarea scurtăturii de tastatură specifice "
+"definite de tasta de stabilire a combinațiilor de taste „restore-shortcuts”."
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2567
+#: src/backends/meta-input-settings.c:2698
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Comutator de mod (grupul %d)"
@@ -581,34 +580,34 @@ msgstr "Comutator de mod (grupul %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2590
+#: src/backends/meta-input-settings.c:2721
 msgid "Switch monitor"
 msgstr "Comută monitorul"
 
-#: src/backends/meta-input-settings.c:2592
+#: src/backends/meta-input-settings.c:2723
 msgid "Show on-screen help"
 msgstr "Arată ajutorul virtual"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Afișaj integrat"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Necunoscut"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Afișaj necunoscut"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -623,7 +622,7 @@ msgstr "Compunător"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -734,7 +733,7 @@ msgstr "Modul Mutter de utilizat"
 msgid "Workspace %d"
 msgstr "Spațiu de lucru %d"
 
-#: src/core/util.c:122
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter a fost compilat fără suport pentru modul detaliat\n"
 
@@ -780,7 +779,7 @@ msgstr ""
 "Aceste ferestre nu suportă „salvează configurarea curentă” și vor trebui "
 "repornite manual următoarea dată când vă veți autentifica."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (pe %s)"
