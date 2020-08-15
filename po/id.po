@@ -11,15 +11,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:44+0000\n"
-"PO-Revision-Date: 2020-02-25 17:48+0700\n"
+"POT-Creation-Date: 2020-08-04 08:31+0000\n"
+"PO-Revision-Date: 2020-08-14 18:32+0700\n"
 "Last-Translator: Kukuh Syafaat <kukuhsyafaat@gnome.org>\n"
 "Language-Team: Indonesian <gnome-l10n-id@googlegroups.com>\n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.4.1\n"
 "Plural-Forms: nplurals=2; plural= n!=1;\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -517,7 +517,7 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Izinkan semua peristiwa papan tik dialihkan ke jendela X11 \"override "
 "redirect\" dengan perambanan saat berjalan di Xwayland. Opsi ini adalah "
@@ -527,8 +527,7 @@ msgstr ""
 "dan tidak berpengaruh pada jendela X11 biasa yang dapat menerima fokus papan "
 "tik dalam keadaan normal. Agar pengambilan X11 diperhitungkan di bawah "
 "Wayland, klien juga harus mengirim PesanKlien X11 tertentu ke jendela root "
-"atau di antara aplikasi yang masuk dalam daftar putih “xwayland-grab-access-"
-"rules”."
+"atau di antara aplikasi yang diizinkan di kunci “xwayland-grab-access-rules”."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -542,9 +541,9 @@ msgid ""
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -554,7 +553,7 @@ msgstr ""
 "X11 di bawah Xwayland. Nama sumber daya atau kelas sumber daya dari jendela "
 "X11 yang diberikan dapat diperoleh memakai perintah \"xprop WM_CLASS\". "
 "Wildcard \"*\" dan joker \"?\" dalam nilai didukung. Nilai yang dimulai "
-"dengan \"!\" masuk daftar hitam, yang punya preseden atas daftar putih, "
+"dengan \"!\" ditolak, yang punya preseden atas daftar nilai yang diizinkan, "
 "untuk mencabut aplikasi dari daftar sistem bawaan. Daftar sistem bawaan "
 "termasuk aplikasi-aplikasi berikut: \"@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@"
 "\". Pengguna dapat memutus pengambilalihan yang ada dengan memakai pintasan "
@@ -564,7 +563,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2567
+#: src/backends/meta-input-settings.c:2698
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Tukar Mode: (Grup %d)"
@@ -572,34 +571,34 @@ msgstr "Tukar Mode: (Grup %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2590
+#: src/backends/meta-input-settings.c:2721
 msgid "Switch monitor"
 msgstr "Berpindah monitor"
 
-#: src/backends/meta-input-settings.c:2592
+#: src/backends/meta-input-settings.c:2723
 msgid "Show on-screen help"
 msgstr "Tampilkan bantuan pada layar"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Tampilan bawaan"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Tak Dikenal"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Tampilan Tak Dikenal"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -614,7 +613,7 @@ msgstr "Kompositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -723,7 +722,7 @@ msgstr "Pengaya Mutter yang dipakai"
 msgid "Workspace %d"
 msgstr "Area kerja %d"
 
-#: src/core/util.c:122
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Muter dikompilasi tanpa dukungan mode riuh\n"
 
@@ -768,7 +767,7 @@ msgstr ""
 "Jendela ini tidak mendukung \"menyimpan setelan aktif saat ini\" dan mesti "
 "dijalankan ulang secara manual kala berikut Anda log masuk."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (pada %s)"
