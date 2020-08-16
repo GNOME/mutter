@@ -1068,7 +1068,6 @@ notify_view_crtc_presented (MetaRendererView *view,
   crtc = META_CRTC (meta_crtc_kms_from_kms_crtc (kms_crtc));
   maybe_update_frame_info (crtc, frame_info, time_ns);
 
-
   meta_onscreen_native_queue_swap_notify (onscreen);
 
   renderer_gpu_data =
