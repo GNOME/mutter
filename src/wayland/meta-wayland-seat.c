@@ -74,10 +74,18 @@ seat_get_touch (struct wl_client *client,
     meta_wayland_touch_create_new_resource (touch, client, resource, id);
 }
 
+static void
+seat_release (struct wl_client   *client,
+              struct wl_resource *resource)
+{
+  wl_resource_destroy (resource);
+}
+
 static const struct wl_seat_interface seat_interface = {
   seat_get_pointer,
   seat_get_keyboard,
-  seat_get_touch
+  seat_get_touch,
+  seat_release
 };
 
 static void
