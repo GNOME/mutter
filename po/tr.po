@@ -14,8 +14,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-02-24 17:57+0300\n"
+"POT-Creation-Date: 2020-08-04 08:31+0000\n"
+"PO-Revision-Date: 2020-08-16 21:04+0300\n"
 "Last-Translator: Emin Tufan Çetin <etcetin@gmail.com>\n"
 "Language-Team: Türkçe <gnome-turk@gnome.org>\n"
 "Language: tr\n"
@@ -442,7 +442,8 @@ msgid ""
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
 "İstemcinin donuk olarak saptanmaması için ping istemini yanıtlaması gereken "
-"milisaniye sayısı. 0 kullanmak canlılık denetimini tümüyle devre dışı bırakır."
+"milisaniye sayısı. 0 kullanmak canlılık denetimini tümüyle devre dışı "
+"bırakır."
 
 #: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
@@ -526,7 +527,7 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Xwayland içinde çalışırken tüm klavye etkinlikleri yakalamalı X11 “override "
 "redirect” pencerelerine yönlendirilecek. Bu seçenek, “override redirect” "
@@ -536,7 +537,7 @@ msgstr ""
 "koşullar altında klavye odağı alan sıradan X11 pencerelerinde etkisi yoktur. "
 "Bir X11 yakalamasının Wayland altında hesaba katılması için istemci ya kök "
 "pencereye belirli X11 ClientMessage’ı göndermeli ya da “xwayland-grab-access-"
-"rules” anahtarındaki beyaz listeli uygulamalar arasında olmalıdır."
+"rules” anahtarındaki izin verilen uygulamalar arasında olmalıdır."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -548,9 +549,9 @@ msgid ""
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -560,8 +561,8 @@ msgstr ""
 "listele. Verilen bir X11 penceresinin kaynak adı veya kaynak sınıfı “xprop "
 "WM_CLASS” komutuyla elde edilebilir. Değerlerde “*” joker karakteri ve “?” "
 "değiştirilebilir damga kullanımı desteklenmektedir. “!” ile başlayan "
-"değerler, uygulamaları öntanımlı sistem listesinden feshetmek için beyaz "
-"listeden önceliği olan kara listeye alınmıştır. Öntanımlı sistem listesi şu "
+"değerler engellenmiştir; bunların, uygulamaları öntanımlı sistem listesinden "
+"kaldırmada, izinli listesinden üstünlüğü vardır. Öntanımlı sistem listesi şu "
 "uygulamaları içerir: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Kullanıcılar, "
 "“restore-shortcuts” anahtar bağlama anahtarıyla tanımlanmış özel klavye "
 "kısayolunu kullanarak var olan yakalamayı kırabilir."
@@ -569,7 +570,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2567
+#: src/backends/meta-input-settings.c:2698
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Kip anahtarı (Küme %d)"
@@ -577,34 +578,34 @@ msgstr "Kip anahtarı (Küme %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2590
+#: src/backends/meta-input-settings.c:2721
 msgid "Switch monitor"
 msgstr "Monitör değiştir"
 
-#: src/backends/meta-input-settings.c:2592
+#: src/backends/meta-input-settings.c:2723
 msgid "Show on-screen help"
 msgstr "Ekranda yardımı göster"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Yerleşik ekran"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Bilinmiyor"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Bilinmeyen Ekran"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -619,7 +620,7 @@ msgstr "Dizgici"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -669,7 +670,7 @@ msgstr "Xwayland’i çalıştırmadan Wayland dizgici çalıştır"
 
 #: src/core/main.c:246
 msgid "Run as a full display server, rather than nested"
-msgstr "İç içe değil tam ekran sunucusu olarak çalıştır"
+msgstr "İç içe değil, tam ekran sunucusu olarak çalıştır"
 
 #: src/core/main.c:252
 msgid "Run with X11 backend"
@@ -729,7 +730,7 @@ msgstr "Kullanılacak Mutter eklentisi"
 msgid "Workspace %d"
 msgstr "Çalışma Alanı %d"
 
-#: src/core/util.c:122
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter, ayrıntılı kip desteği olmadan derlenmiş\n"
 
@@ -775,7 +776,7 @@ msgstr ""
 "Bu pencereler, “geçerli ayarları kaydet” özelliğini desteklemiyor ve bir "
 "dahaki girişinizde elle yeniden başlatılmak zorundadır."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s üzerinde)"
