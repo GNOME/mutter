@@ -1872,6 +1872,15 @@ xdg_surface_constructor_get_popup (struct wl_client   *client,
       return;
     }
 
+  parent_window = meta_wayland_surface_get_window (parent_surface);
+  if (!parent_window)
+    {
+      wl_resource_post_error (xdg_wm_base_resource,
+                              XDG_WM_BASE_ERROR_INVALID_POPUP_PARENT,
+                              "Invalid popup parent window");
+      return;
+    }
+
   xdg_popup = META_WAYLAND_XDG_POPUP (surface->role);
 
   xdg_popup->resource = wl_resource_create (client,
@@ -1885,8 +1894,6 @@ xdg_surface_constructor_get_popup (struct wl_client   *client,
 
   xdg_surface = META_WAYLAND_XDG_SURFACE (xdg_popup);
   meta_wayland_xdg_surface_constructor_finalize (constructor, xdg_surface);
-
-  parent_window = meta_wayland_surface_get_window (parent_surface);
 
   xdg_positioner = wl_resource_get_user_data (positioner_resource);
   xdg_popup->setup.placement_rule =
