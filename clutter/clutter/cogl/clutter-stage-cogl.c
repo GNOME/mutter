@@ -757,22 +757,6 @@ frame_cb (CoglOnscreen  *onscreen,
 }
 
 static void
-on_framebuffer_set (ClutterStageView *view)
-{
-  CoglFramebuffer *framebuffer;
-
-  framebuffer = clutter_stage_view_get_onscreen (view);
-
-  if (framebuffer && cogl_is_onscreen (framebuffer))
-    {
-      cogl_onscreen_add_frame_callback (COGL_ONSCREEN (framebuffer),
-                                        frame_cb,
-                                        view,
-                                        NULL);
-    }
-}
-
-static void
 clutter_stage_view_cogl_dispose (GObject *object)
 {
   ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (object);
@@ -786,15 +770,31 @@ clutter_stage_view_cogl_dispose (GObject *object)
 }
 
 static void
+clutter_stage_view_cogl_constructed (GObject *object)
+{
+  ClutterStageView *view = CLUTTER_STAGE_VIEW (view_cogl);
+  CoglFramebuffer *framebuffer;
+
+  framebuffer = clutter_stage_view_get_onscreen (view);
+
+  if (framebuffer && cogl_is_onscreen (framebuffer))
+    {
+      cogl_onscreen_add_frame_callback (COGL_ONSCREEN (framebuffer),
+                                        frame_cb,
+                                        view,
+                                        NULL);
+    }
+
+  G_OBJECT_CLASS (clutter_stage_view_cogl_parent_class)->constructed (object);
+}
+
+static void
 clutter_stage_view_cogl_init (ClutterStageViewCogl *view_cogl)
 {
   ClutterStageViewCoglPrivate *view_priv =
     clutter_stage_view_cogl_get_instance_private (view_cogl);
 
   view_priv->damage_history = clutter_damage_history_new ();
-
-  g_signal_connect (view_cogl, "notify::framebuffer",
-                    G_CALLBACK (on_framebuffer_set), NULL);
 }
 
 static void
@@ -802,5 +802,6 @@ clutter_stage_view_cogl_class_init (ClutterStageViewCoglClass *klass)
 {
   GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
+  object_class->constructed = clutter_stage_view_cogl_constructed;
   object_class->dispose = clutter_stage_view_cogl_dispose;
 }
