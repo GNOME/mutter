@@ -1267,7 +1267,6 @@ clutter_stage_view_dispose (GObject *object)
   int i;
 
   g_clear_pointer (&priv->name, g_free);
-  g_clear_pointer (&priv->framebuffer, cogl_object_unref);
 
   g_clear_pointer (&priv->shadow.framebuffer, cogl_object_unref);
   for (i = 0; i < G_N_ELEMENTS (priv->shadow.dma_buf.handles); i++)
@@ -1282,6 +1281,18 @@ clutter_stage_view_dispose (GObject *object)
   g_clear_pointer (&priv->offscreen_pipeline, cogl_object_unref);
   g_clear_pointer (&priv->redraw_clip, cairo_region_destroy);
   g_clear_pointer (&priv->frame_clock, clutter_frame_clock_destroy);
+
+  G_OBJECT_CLASS (clutter_stage_view_parent_class)->dispose (object);
+}
+
+static void
+clutter_stage_view_finalize (GObject *object)
+{
+  ClutterStageView *view = CLUTTER_STAGE_VIEW (object);
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  g_clear_pointer (&priv->framebuffer, cogl_object_unref);
 
   G_OBJECT_CLASS (clutter_stage_view_parent_class)->dispose (object);
 }
@@ -1310,6 +1321,7 @@ clutter_stage_view_class_init (ClutterStageViewClass *klass)
   object_class->set_property = clutter_stage_view_set_property;
   object_class->constructed = clutter_stage_view_constructed;
   object_class->dispose = clutter_stage_view_dispose;
+  object_class->finalize = clutter_stage_view_finalize;
 
   obj_props[PROP_NAME] =
     g_param_spec_string ("name",

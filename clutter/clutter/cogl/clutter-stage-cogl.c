@@ -58,6 +58,8 @@ typedef struct _ClutterStageViewCoglPrivate
   ClutterDamageHistory *damage_history;
 
   guint notify_presented_handle_id;
+
+  CoglFrameClosure *frame_cb_closure;
 } ClutterStageViewCoglPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE (ClutterStageViewCogl, clutter_stage_view_cogl,
@@ -762,9 +764,20 @@ clutter_stage_view_cogl_dispose (GObject *object)
   ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (object);
   ClutterStageViewCoglPrivate *view_priv =
     clutter_stage_view_cogl_get_instance_private (view_cogl);
+  ClutterStageView *view = CLUTTER_STAGE_VIEW (view_cogl);
 
   g_clear_handle_id (&view_priv->notify_presented_handle_id, g_source_remove);
   g_clear_pointer (&view_priv->damage_history, clutter_damage_history_free);
+
+  if (view_priv->frame_cb_closure)
+    {
+      CoglFramebuffer *framebuffer;
+
+      framebuffer = clutter_stage_view_get_onscreen (view);
+      cogl_onscreen_remove_frame_callback (COGL_ONSCREEN (framebuffer),
+                                           view_priv->frame_cb_closure);
+      view_priv->frame_cb_closure = NULL;
+    }
 
   G_OBJECT_CLASS (clutter_stage_view_cogl_parent_class)->dispose (object);
 }
@@ -772,17 +785,20 @@ clutter_stage_view_cogl_dispose (GObject *object)
 static void
 clutter_stage_view_cogl_constructed (GObject *object)
 {
+  ClutterStageViewCogl *view_cogl = CLUTTER_STAGE_VIEW_COGL (object);
+  ClutterStageViewCoglPrivate *view_priv =
+    clutter_stage_view_cogl_get_instance_private (view_cogl);
   ClutterStageView *view = CLUTTER_STAGE_VIEW (view_cogl);
   CoglFramebuffer *framebuffer;
 
   framebuffer = clutter_stage_view_get_onscreen (view);
-
   if (framebuffer && cogl_is_onscreen (framebuffer))
     {
-      cogl_onscreen_add_frame_callback (COGL_ONSCREEN (framebuffer),
-                                        frame_cb,
-                                        view,
-                                        NULL);
+      view_priv->frame_cb_closure =
+        cogl_onscreen_add_frame_callback (COGL_ONSCREEN (framebuffer),
+                                          frame_cb,
+                                          view,
+                                          NULL);
     }
 
   G_OBJECT_CLASS (clutter_stage_view_cogl_parent_class)->constructed (object);
