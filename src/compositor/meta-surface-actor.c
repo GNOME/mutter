@@ -31,6 +31,7 @@ enum
   PROP_0,
 
   PROP_IS_OBSCURED,
+  PROP_IS_FROZEN,
 
   N_PROPS
 };
@@ -49,7 +50,7 @@ typedef struct _MetaSurfaceActorPrivate
 
   /* Freeze/thaw accounting */
   MtkRegion *pending_damage;
-  guint frozen : 1;
+  gboolean is_frozen;
 } MetaSurfaceActorPrivate;
 
 static void cullable_iface_init (MetaCullableInterface *iface);
@@ -239,6 +240,9 @@ meta_surface_actor_get_property (GObject      *object,
     case PROP_IS_OBSCURED:
       g_value_set_boolean (value, priv->is_obscured);
       break;
+    case PROP_IS_FROZEN:
+      g_value_set_boolean (value, priv->is_frozen);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -275,6 +279,10 @@ meta_surface_actor_class_init (MetaSurfaceActorClass *klass)
   obj_props[PROP_IS_OBSCURED] =
     g_param_spec_boolean ("is-obscured", NULL, NULL,
                           TRUE,
+                          G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_IS_FROZEN] =
+    g_param_spec_boolean ("is-frozen", NULL, NULL,
+                          FALSE,
                           G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
   g_object_class_install_properties (object_class, N_PROPS, obj_props);
 
@@ -607,10 +615,12 @@ meta_surface_actor_set_frozen (MetaSurfaceActor *self,
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
 
-  if (priv->frozen == frozen)
+  if (priv->is_frozen == frozen)
     return;
 
-  priv->frozen = frozen;
+  priv->is_frozen = frozen;
+  g_object_notify_by_pspec (G_OBJECT (self),
+                            obj_props[PROP_IS_FROZEN]);
 
   if (!frozen && priv->pending_damage)
     {
@@ -636,5 +646,5 @@ meta_surface_actor_is_frozen (MetaSurfaceActor *self)
   MetaSurfaceActorPrivate *priv =
     meta_surface_actor_get_instance_private (self);
 
-  return priv->frozen;
+  return priv->is_frozen;
 }
