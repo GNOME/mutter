@@ -6,22 +6,24 @@
 # Данило Шеган <danilo@prevod.org>, 2005.
 # Милош Поповић <gpopac@gmail.com>, 2010.
 # Мирослав Николић <miroslavnikolic@rocketmail.com>, 2011—2017.
+# Марко М. Костић <marko.m.kostic@gmail.com>, 2020.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-03-08 21:20+0100\n"
+"POT-Creation-Date: 2020-08-04 08:31+0000\n"
+"PO-Revision-Date: 2020-08-19 07:28+0200\n"
 "Last-Translator: Марко М. Костић <marko.m.kostic@gmail.com>\n"
-"Language-Team: српски <gnome-sr@googlegroups.org>\n"
+"Language-Team: Serbian <gnome-sr@googlegroups.org>\n"
 "Language: sr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=n==1? 3 : n%10==1 && n%100!=11 ? 0 : n"
-"%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2\n"
 "X-Project-Style: gnome\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Gtranslator 3.36.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -509,6 +511,16 @@ msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr "Дозволи Икс11 грабљења да закључају фокус тастатуре у Икс-вејланду"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#| msgid ""
+#| "Allow all keyboard events to be routed to X11 “override redirect” windows "
+#| "with a grab when running in Xwayland. This option is to support X11 "
+#| "clients which map an “override redirect” window (which do not receive "
+#| "keyboard focus) and issue a keyboard grab to force all keyboard events to "
+#| "that window. This option is seldom used and has no effect on regular X11 "
+#| "windows which can receive keyboard focus under normal circumstances. For "
+#| "a X11 grab to be taken into account under Wayland, the client must also "
+#| "either send a specific X11 ClientMessage to the root window or be among "
+#| "the applications white-listed in key “xwayland-grab-access-rules”."
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -518,7 +530,7 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Дозволи да се сви догађаји тастатуре преусмере на Икс11 \"override redirect"
 "\" прозоре са грабљењем када се извршавају унутар Икс-вејленда. Ова опција "
@@ -527,23 +539,34 @@ msgstr ""
 "које присили све догађаје са тастатуре на овај прозор. Ова опција се ретко "
 "користи и нема утицаја на обичне Икс11 прозоре који могу бити у фокусу "
 "тастатуре у обичним околностима. Да би се Икс11 грабљење узело у обзир под "
-"Вејлендом, клијент такође мра или послати одређену Икс11 клијентску поруку у "
-"корени прозор или мора бити одобрени програм у кључу \"xwayland-grab-access-"
-"rules\"."
+"Вејлендом, клијент такође мора или послати одређену Икс11 клијентску поруку "
+"у корени прозор или мора бити одобрени програм у кључу \"xwayland-grab-"
+"access-rules\"."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Икс-вејленд програми којима је дозвољено да раде грабљења на тастатури"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#| msgid ""
+#| "List the resource names or resource class of X11 windows either allowed "
+#| "or not allowed to issue X11 keyboard grabs under Xwayland. The resource "
+#| "name or resource class of a given X11 window can be obtained using the "
+#| "command “xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are "
+#| "supported. Values starting with “!” are blacklisted, which has precedence "
+#| "over the whitelist, to revoke applications from the default system list. "
+#| "The default system list includes the following applications: "
+#| "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab "
+#| "by using the specific keyboard shortcut defined by the keybinding key "
+#| "“restore-shortcuts”."
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -552,9 +575,9 @@ msgstr ""
 "или забрањено да раде грабљења на тастатури под Икс-вејлендом. Назив ресурса "
 "или класа ресурса датог Икс11 прозора се може наћи преко наредбе \"xprop "
 "WM_CLASS\". Џокер знакови „*“ и „?“ унутар вредности су подржани. Вредности "
-"које почињу са „!“ се стављају на црни списак, који има предност у односу на "
-"бели списак, за опозив програма за подразумеваног системског списка. "
-"Подразумевани системски списак садржи следеће програме: "
+"које почињу са „!“ се одбацују, овај списак има предност у односу на списак "
+"дозвољених вредности, за опозив програма за подразумеваног системског "
+"списка. Подразумевани системски списак садржи следеће програме: "
 "\"@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@\" Корисници могу сломити постојеће "
 "грабљење тако што ће употребити посебну пречицу на тастатури која је "
 "наведена у кључу за везивање тастера са називом \"restore-shortcuts\"."
@@ -562,7 +585,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2567
+#: src/backends/meta-input-settings.c:2698
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Режим прекидача (група %d)"
@@ -570,34 +593,34 @@ msgstr "Режим прекидача (група %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2590
+#: src/backends/meta-input-settings.c:2721
 msgid "Switch monitor"
 msgstr "Промени монитор"
 
-#: src/backends/meta-input-settings.c:2592
+#: src/backends/meta-input-settings.c:2723
 msgid "Show on-screen help"
 msgstr "Прикажи помоћ на екрану"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Уграђени дисплеј"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Непознато"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Непознат дисплеј"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -612,7 +635,7 @@ msgstr "Састављач"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -721,7 +744,7 @@ msgstr "Прикључци Матера за коришћење"
 msgid "Workspace %d"
 msgstr "%d. радни простор"
 
-#: src/core/util.c:122
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Матер је преведен без подршке за опширан режим\n"
 
@@ -766,7 +789,7 @@ msgstr ""
 "Ови прозори не подржавају могућност „сачувај тренутна подешавања“ па ћете "
 "морати ручно да их поново покренете када се следећи пут пријавите."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (на %s)"
