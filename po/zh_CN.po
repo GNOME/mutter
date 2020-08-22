@@ -20,8 +20,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-08-31 12:39+0000\n"
-"PO-Revision-Date: 2019-09-11 00:10+0800\n"
+"POT-Creation-Date: 2020-08-04 08:31+0000\n"
+"PO-Revision-Date: 2020-08-16 11:50+0800\n"
 "Last-Translator: Dingzhong Chen <wsxy162@gmail.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
 "Language: zh_CN\n"
@@ -29,7 +29,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Gtranslator 3.32.1\n"
+"X-Generator: Poedit 2.4.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -412,19 +412,31 @@ msgstr "用来定位指针的修饰键"
 msgid "This key will initiate the “locate pointer” action."
 msgstr "此按键将启动“定位指针”操作。"
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "Timeout for check-alive ping"
+msgstr "检测活动的 ping 超时"
+
+#: data/org.gnome.mutter.gschema.xml.in:143
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"为了不被检测为冻结，客户端必须响应 ping 请求的毫秒数。使用 0 将完全禁用活动检"
+"测。"
+
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
 msgstr "从 Tab 轮换弹出界面选择窗口"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Cancel tab popup"
 msgstr "取消 Tab 轮换弹出"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:175
 msgid "Switch monitor configurations"
 msgstr "切换显示器配置"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:180
 msgid "Rotates the built-in monitor configuration"
 msgstr "旋转内置显示器配置"
 
@@ -494,14 +506,14 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "当运行在 Xwayland 下时，允许通过捕获，发送所有的键盘事件到 X11“覆盖重定向”窗"
 "口。此选项是为了支持（收不到键盘焦点的）“覆盖重定向”窗口所映射的 X11 客户端，"
 "并发起键盘捕获强制所有键盘事件进到那个窗口。此选项比较少用，并且对常规 X11 窗"
 "口没有影响，这些窗口在正常情况下可以收到键盘焦点。在 Wayland 下，为了 X11 捕"
 "获能够工作，客户端也必须发送一个指定的 X11 ClientMessage 到根窗口，或是包含"
-"进“xwayland-grab-access-rules”键成为其中一个白名单应用程序。"
+"进“xwayland-grab-access-rules”键成为其中一个允许的应用程序。"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -513,24 +525,24 @@ msgid ""
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
 msgstr ""
 "Xwayland 下允许或不允许发起 X11 键盘捕获的 X11 窗口，其资源名或资源类的列表。"
 "给定 X11 窗口的资源名或资源类可以使用“xprop WM_CLASS”命令获取。支持在键值中使"
-"用通配符“*”和“?”。以“!”开头的键值会列入黑名单，它们的优先级高于白名单，用来撤"
-"销默认系统列表中的应用程序。默认系统列表包含了下列应用程"
+"用通配符“*”和“?”。以“!”开头的键值会被拒绝，它们的优先级高于允许的值列表，用来"
+"撤销默认系统列表中的应用程序。默认系统列表包含了下列应用程"
 "序：“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” 用户可以使用键绑定键“restore-"
 "shortcuts”定义的键盘快捷键来中断进行中的捕获。"
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2531
+#: src/backends/meta-input-settings.c:2698
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "模式切换（组别 %d）"
@@ -538,34 +550,34 @@ msgstr "模式切换（组别 %d）"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2554
+#: src/backends/meta-input-settings.c:2721
 msgid "Switch monitor"
 msgstr "切换显示器"
 
-#: src/backends/meta-input-settings.c:2556
+#: src/backends/meta-input-settings.c:2723
 msgid "Show on-screen help"
 msgstr "显示在屏帮助"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "内置显示器"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "未知"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "未知的 Display"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -574,13 +586,13 @@ msgid "%s %s"
 msgstr "%s %s"
 
 #. Translators: this string will appear in Sysprof
-#: src/backends/meta-profiler.c:82
+#: src/backends/meta-profiler.c:79
 msgid "Compositor"
 msgstr "合成器"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:509
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -590,47 +602,47 @@ msgstr "显示器 %2$s 的屏幕 %1$i 上已有另外一个混成窗口管理器
 msgid "Bell event"
 msgstr "响铃事件"
 
-#: src/core/main.c:186
+#: src/core/main.c:190
 msgid "Disable connection to session manager"
 msgstr "禁止连接到会话管理器"
 
-#: src/core/main.c:192
+#: src/core/main.c:196
 msgid "Replace the running window manager"
 msgstr "替换正在运行的窗口管理器"
 
-#: src/core/main.c:198
+#: src/core/main.c:202
 msgid "Specify session management ID"
 msgstr "指定会话管理 ID"
 
-#: src/core/main.c:203
+#: src/core/main.c:207
 msgid "X Display to use"
 msgstr "要使用的 X Display"
 
-#: src/core/main.c:209
+#: src/core/main.c:213
 msgid "Initialize session from savefile"
 msgstr "从保存文件中初始化会话"
 
-#: src/core/main.c:215
+#: src/core/main.c:219
 msgid "Make X calls synchronous"
 msgstr "使 X 调用同步"
 
-#: src/core/main.c:222
+#: src/core/main.c:226
 msgid "Run as a wayland compositor"
 msgstr "以 wayland 合成器运行"
 
-#: src/core/main.c:228
+#: src/core/main.c:232
 msgid "Run as a nested compositor"
 msgstr "以嵌套合成器运行"
 
-#: src/core/main.c:234
+#: src/core/main.c:238
 msgid "Run wayland compositor without starting Xwayland"
 msgstr "运行 wayland 合成器但不启动 Xwayland"
 
-#: src/core/main.c:242
+#: src/core/main.c:246
 msgid "Run as a full display server, rather than nested"
 msgstr "以完整显示服务器方式运行，而不是以嵌套方式"
 
-#: src/core/main.c:248
+#: src/core/main.c:252
 msgid "Run with X11 backend"
 msgstr "以 X11 后端运行"
 
@@ -680,12 +692,12 @@ msgstr "打印版本"
 msgid "Mutter plugin to use"
 msgstr "要使用的 Mutter 插件"
 
-#: src/core/prefs.c:1849
+#: src/core/prefs.c:1911
 #, c-format
 msgid "Workspace %d"
 msgstr "工作区 %d"
 
-#: src/core/util.c:122
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter 编译的时候没有加入详细模式的支持\n"
 
@@ -694,7 +706,7 @@ msgstr "Mutter 编译的时候没有加入详细模式的支持\n"
 msgid "Mode Switch: Mode %d"
 msgstr "模式切换：%d 模式"
 
-#: src/x11/meta-x11-display.c:679
+#: src/x11/meta-x11-display.c:676
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -703,21 +715,21 @@ msgstr ""
 "Display“%s”已经有一个窗口管理器；请尝试使用 --replace 选项替换当前的窗口管理"
 "器。"
 
-#: src/x11/meta-x11-display.c:1040
+#: src/x11/meta-x11-display.c:1089
 msgid "Failed to initialize GDK\n"
 msgstr "初始化 GDK 失败\n"
 
-#: src/x11/meta-x11-display.c:1064
+#: src/x11/meta-x11-display.c:1113
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "无法打开 X Window System 显示器“%s”\n"
 
-#: src/x11/meta-x11-display.c:1147
+#: src/x11/meta-x11-display.c:1196
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "显示“%2$s”上的屏幕 %1$d 无效\n"
 
-#: src/x11/meta-x11-selection-input-stream.c:445
+#: src/x11/meta-x11-selection-input-stream.c:460
 #, c-format
 msgid "Format %s not supported"
 msgstr "不支持 %s 格式"
@@ -728,7 +740,7 @@ msgid ""
 "restarted manually next time you log in."
 msgstr "这些窗口不支持“保存当前设置”，并且在您下次登录时，必须手动重启它们。"
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s（于 %s）"
