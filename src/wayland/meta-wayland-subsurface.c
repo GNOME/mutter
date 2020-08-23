@@ -275,7 +275,8 @@ meta_wayland_subsurface_notify_subsurface_state_changed (MetaWaylandSurfaceRole 
     meta_wayland_surface_role_get_surface (surface_role);
   MetaWaylandSurface *parent = surface->sub.parent;
 
-  return meta_wayland_surface_notify_subsurface_state_changed (parent);
+  if (parent)
+    return meta_wayland_surface_notify_subsurface_state_changed (parent);
 }
 
 static double
