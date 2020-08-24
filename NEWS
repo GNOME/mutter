@@ -1,3 +1,18 @@
+3.37.91
+=======
+* Fix initial state of display mode OSD [Jian-Hong; #1362]
+* Fixed crashes [Jonas Å., Robert; !1407, !1411]
+* Misc. bug fixes and cleanups [Jonas Å., Christian; !1404, !1364, #1331]
+
+Contributors:
+  Jonas Ådahl, Robert Mader, Jian-Hong Pan, Christian Rauch
+
+Translators:
+  Fran Dieguez [gl], Daniel Mustieles [es], Florentina Mușat [ro],
+  Kukuh Syafaat [id], Piotr Drąg [pl], Emin Tufan Çetin [tr], Марко Костић [sr],
+  Akarshan Biswas [bn_IN], Matej Urbančič [sl], Boyuan Yang [zh_CN],
+  Goran Vidović [hr], Rafael Fontenelle [pt_BR]
+
 3.37.90
 =======
 * Fix using NEAREST filter for backgrounds on scaled monitors [Daniel V.; !1346]
