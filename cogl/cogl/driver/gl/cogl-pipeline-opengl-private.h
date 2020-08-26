@@ -45,7 +45,7 @@
  *
  * Roughly speaking the members in this structure are of two kinds:
  * either they are a low level reflection of the state we send to
- * OpenGL or they are for high level meta data assoicated with the
+ * OpenGL or they are for high level meta data associated with the
  * texture unit when flushing CoglPipelineLayers that is typically
  * used to optimize subsequent re-flushing of the same layer.
  *
@@ -92,7 +92,7 @@ typedef struct _CoglTextureUnit
    * Higher level layer state associated with the unit...
    */
 
-  /* The CoglPipelineLayer whos state was flushed to update this
+  /* The CoglPipelineLayer whose state was flushed to update this
    * texture unit last.
    *
    * This will be set to NULL if the layer is modified or freed which
@@ -102,7 +102,7 @@ typedef struct _CoglTextureUnit
   CoglPipelineLayer *layer;
 
   /* To help minimize the state changes required we track the
-   * difference flags associated with the layer whos state was last
+   * difference flags associated with the layer whose state was last
    * flushed to update this texture unit.
    *
    * Note: we track this explicitly because .layer may get invalidated

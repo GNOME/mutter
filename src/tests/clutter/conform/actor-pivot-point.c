@@ -29,10 +29,10 @@ actor_pivot (void)
   clutter_actor_set_pivot_point (actor_implicit, 0.5, 0.5);
   clutter_actor_set_pivot_point (actor_explicit, 0.5, 0.5);
 
-  /* Implict transformation */
+  /* Implicit transformation */
   clutter_actor_set_rotation_angle (actor_implicit, CLUTTER_Z_AXIS, angle);
 
-  /* Explict transformation */
+  /* Explicit transformation */
   clutter_matrix_init_identity(&transform);
   cogl_matrix_rotate (&transform, angle, 0, 0, 1.0);
   clutter_actor_set_transform (actor_explicit, &transform);

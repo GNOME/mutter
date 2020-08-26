@@ -827,7 +827,7 @@ _clutter_paint_volume_project (ClutterPaintVolume *pv,
     }
 
   /* All the vertices must be up to date, since after the projection
-   * it wont be trivial to derive the other vertices. */
+   * it won't be trivial to derive the other vertices. */
   _clutter_paint_volume_complete (pv);
 
   /* Most actors are 2D so we only have to transform the front 4
@@ -866,7 +866,7 @@ _clutter_paint_volume_transform (ClutterPaintVolume *pv,
     }
 
   /* All the vertices must be up to date, since after the transform
-   * it wont be trivial to derive the other vertices. */
+   * it won't be trivial to derive the other vertices. */
   _clutter_paint_volume_complete (pv);
 
   /* Most actors are 2D so we only have to transform the front 4
@@ -1057,9 +1057,9 @@ clutter_paint_volume_set_from_allocation (ClutterPaintVolume *pv,
 }
 
 /* Currently paint volumes are defined relative to a given actor, but
- * in some cases it is desireable to be able to change the actor that
+ * in some cases it is desirable to be able to change the actor that
  * a volume relates too (For instance for ClutterClone actors where we
- * need to masquarade the source actors volume as the volume for the
+ * need to masquerade the source actors volume as the volume for the
  * clone). */
 void
 _clutter_paint_volume_set_reference_actor (ClutterPaintVolume *pv,

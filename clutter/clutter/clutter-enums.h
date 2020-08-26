@@ -127,7 +127,7 @@ typedef enum /*< prefix=CLUTTER_REQUEST >*/
  * @CLUTTER_EASE_IN_OUT_QUAD: quadratic tweening, combininig
  *    %CLUTTER_EASE_IN_QUAD and %CLUTTER_EASE_OUT_QUAD
  * @CLUTTER_EASE_IN_CUBIC: cubic tweening
- * @CLUTTER_EASE_OUT_CUBIC: cubic tweening, invers of
+ * @CLUTTER_EASE_OUT_CUBIC: cubic tweening, inverse of
  *    %CLUTTER_EASE_IN_CUBIC
  * @CLUTTER_EASE_IN_OUT_CUBIC: cubic tweening, combining
  *    %CLUTTER_EASE_IN_CUBIC and %CLUTTER_EASE_OUT_CUBIC
@@ -513,7 +513,7 @@ typedef enum {
  *   a toplevel, and all parents visible)
  * @CLUTTER_ACTOR_REALIZED: the resources associated to the actor have been
  *   allocated
- * @CLUTTER_ACTOR_REACTIVE: the actor 'reacts' to mouse events emmitting event
+ * @CLUTTER_ACTOR_REACTIVE: the actor 'reacts' to mouse events emitting event
  *   signals
  * @CLUTTER_ACTOR_VISIBLE: the actor has been shown by the application program
  * @CLUTTER_ACTOR_NO_LAYOUT: the actor provides an explicit layout management
@@ -1196,7 +1196,7 @@ typedef enum /*< prefix=CLUTTER_TEXTURE >*/
  *
  * Since: 0.8
  *
- * Deprecated: 1.22: The #ClutterTexture class was the only used ot
+ * Deprecated: 1.22: The #ClutterTexture class was the only user of
  *   this API; use #ClutterImage and clutter_actor_set_content_scaling_filters()
  *   instead.
  */

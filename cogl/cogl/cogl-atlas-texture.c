@@ -531,7 +531,7 @@ _cogl_atlas_texture_convert_bitmap_for_upload (CoglAtlasTexture *atlas_tex,
      format specified when the texture was created. However we'll
      preserve the premult status of the internal format because the
      images are all stored in the original premult format of the
-     orignal format so we do need to trigger the conversion */
+     original format so we do need to trigger the conversion */
 
   internal_format = (COGL_PIXEL_FORMAT_RGBA_8888 |
                      (internal_format & COGL_PREMULT_BIT));

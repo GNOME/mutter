@@ -456,14 +456,14 @@ void meta_frame_borders_clear (MetaFrameBorders *self);
 #define META_DEFAULT_ICON_NAME "window"
 
 /* Main loop priorities determine when activity in the GLib
- * will take precendence over the others. Priorities are sometimes
+ * will take precedence over the others. Priorities are sometimes
  * used to enforce ordering: give A a higher priority than B if
  * A must occur before B. But that poses a problem since then
  * if A occurs frequently enough, B will never occur.
  *
  * Anything we want to occur more or less immediately should
  * have a priority of G_PRIORITY_DEFAULT. When we want to
- * coelesce multiple things together, the appropriate place to
+ * coalesce multiple things together, the appropriate place to
  * do it is usually META_PRIORITY_BEFORE_REDRAW.
  *
  * Note that its usually better to use meta_later_add() rather
@@ -476,7 +476,7 @@ void meta_frame_borders_clear (MetaFrameBorders *self);
  * delayed. This happens if the screen is updating rapidly: we
  * are spending all our time either redrawing or waiting for a
  * vblank-synced buffer swap. (When X is improved to allow
- * clutter to do the buffer-swap asychronously, this will get
+ * clutter to do the buffer-swap asynchronously, this will get
  * better.)
  */
 

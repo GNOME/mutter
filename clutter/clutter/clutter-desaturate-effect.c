@@ -28,7 +28,7 @@
  * @see_also: #ClutterEffect, #ClutterOffscreenEffect
  *
  * #ClutterDesaturateEffect is a sub-class of #ClutterEffect that
- * desaturates the color of an actor and its contents. The strenght
+ * desaturates the color of an actor and its contents. The strength
  * of the desaturation effect is controllable and animatable through
  * the #ClutterDesaturateEffect:factor property.
  *

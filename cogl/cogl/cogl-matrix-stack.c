@@ -808,7 +808,7 @@ cogl_matrix_entry_equal (CoglMatrixEntry *entry0,
             CoglMatrixEntryTranslate *translate1 =
               (CoglMatrixEntryTranslate *)entry1;
             /* We could perhaps use an epsilon to compare here?
-             * I expect the false negatives are probaly never going to
+             * I expect the false negatives are probably never going to
              * be a problem and this is a bit cheaper. */
             if (!graphene_point3d_equal (&translate0->translate,
                                          &translate1->translate))

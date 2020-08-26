@@ -959,7 +959,7 @@ maybe_software_clip_entries (CoglJournalEntry      *batch_start,
      entry in the journal. We store it in a separate buffer because
      it's expensive to calculate but at this point we still don't know
      whether we can clip all of the entries so we don't want to do the
-     rest of the dependant calculations until we're sure we can. */
+     rest of the dependent calculations until we're sure we can. */
   if (ctx->journal_clip_bounds == NULL)
     ctx->journal_clip_bounds = g_array_new (FALSE, FALSE, sizeof (ClipBounds));
   g_array_set_size (ctx->journal_clip_bounds, batch_len);
@@ -1700,7 +1700,7 @@ entry_to_screen_polygon (CoglFramebuffer *framebuffer,
 #define VIEWPORT_TRANSFORM_X(x, vp_origin_x, vp_width) \
     (  ( ((x) + 1.0) * ((vp_width) / 2.0) ) + (vp_origin_x)  )
 /* Note: for Y we first flip all coordinates around the X axis while in
- * normalized device coodinates */
+ * normalized device coordinates */
 #define VIEWPORT_TRANSFORM_Y(y, vp_origin_y, vp_height) \
     (  ( ((-(y)) + 1.0) * ((vp_height) / 2.0) ) + (vp_origin_y)  )
 

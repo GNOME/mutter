@@ -150,7 +150,7 @@ option('xwayland_path',
 option('xwayland_grab_default_access_rules',
   type: 'string',
   value: 'gnome-boxes,remote-viewer,virt-viewer,virt-manager,vinagre,vncviewer,Xephyr',
-  description: 'Comma delimited list of applications ressources or class allowed to issue X11 grabs in Xwayland'
+  description: 'Comma delimited list of applications resources or class allowed to issue X11 grabs in Xwayland'
 )
 
 option('xwayland_initfd',

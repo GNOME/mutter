@@ -1176,7 +1176,7 @@ clutter_interval_compute_value (ClutterInterval *interval,
  * g_object_set_property()
  *
  * Return value: (transfer none): a pointer to the computed value,
- *   or %NULL if the computation was not successfull
+ *   or %NULL if the computation was not successful
  *
  * Since: 1.4
  */

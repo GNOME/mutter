@@ -958,7 +958,7 @@ translate_raw_event (MetaSeatX11 *seat_x11,
       /* We don't get actual pointer location with raw events, and we cannot
        * rely on `clutter_input_device_get_coords()` either because of
        * unreparented toplevels (like all client-side decoration windows),
-       * so we need to explicitely query the pointer here...
+       * so we need to explicitly query the pointer here...
        */
       if (meta_input_device_x11_get_pointer_location (device, &x, &y))
         _clutter_input_pointer_a11y_on_motion_event (device, x, y);

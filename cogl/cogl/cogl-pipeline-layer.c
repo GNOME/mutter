@@ -377,9 +377,9 @@ _cogl_pipeline_layer_pre_change_notify (CoglPipeline *required_owner,
       goto init_layer_state;
     }
 
-  /* Note: At this point we know there is only one pipeline dependant on
+  /* Note: At this point we know there is only one pipeline dependent on
    * this layer (required_owner), and there are no other layers
-   * dependant on this layer so it's ok to modify it. */
+   * dependent on this layer so it's ok to modify it. */
 
   /* NB: Although layers can have private state associated with them
    * by multiple backends we know that a layer can't be *changed* if
@@ -796,7 +796,7 @@ _cogl_pipeline_init_default_layers (void)
   /* Since we passed a newly allocated layer we don't expect that
    * _set_layer_unit() will have to allocate *another* layer. */
 
-  /* Finally we create a dummy dependant for ->default_layer_n which
+  /* Finally we create a dummy dependent for ->default_layer_n which
    * effectively ensures that ->default_layer_n and ->default_layer_0
    * remain immutable.
    */

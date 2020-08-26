@@ -238,7 +238,7 @@ meta_workspace_manager_new (MetaDisplay *display)
 
   /* This is the default layout extracted from default
    * variable values in update_num_workspaces ()
-   * This can be overriden using _NET_DESKTOP_LAYOUT in
+   * This can be overridden using _NET_DESKTOP_LAYOUT in
    * meta_x11_display_new (), if it's specified */
   meta_workspace_manager_update_workspace_layout (workspace_manager,
                                                   META_DISPLAY_TOPLEFT,
@@ -497,7 +497,7 @@ meta_workspace_manager_update_num_workspaces (MetaWorkspaceManager *workspace_ma
  * @new_index: the new index of the passed workspace
  *
  * Reorder a workspace to a new index. If the workspace is currently active
- * the "active-workspace-changed" signal will be emited.
+ * the "active-workspace-changed" signal will be emitted.
  * If the workspace's index is the same as @new_index or the workspace
  * will not be found in the list, this function will return.
  * 

@@ -19,7 +19,7 @@
 /**
  * SECTION:meta-shadow-factory
  * @title: MetaShadowFactory
- * @short_description: Create and cache shadow textures for abritrary window shapes
+ * @short_description: Create and cache shadow textures for arbitrary window shapes
  */
 
 #include "config.h"

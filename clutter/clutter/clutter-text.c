@@ -4124,7 +4124,7 @@ clutter_text_class_init (ClutterTextClass *klass)
    *
    * Whether the text includes Pango markup.
    *
-   * For more informations about the Pango markup format, see
+   * For more information about the Pango markup format, see
    * pango_layout_set_markup() in the Pango documentation.
    *
    * It is not possible to round-trip this property between

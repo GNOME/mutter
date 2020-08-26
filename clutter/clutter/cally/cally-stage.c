@@ -47,7 +47,7 @@ static AtkStateSet*          cally_stage_ref_state_set   (AtkObject *obj);
 /* AtkWindow */
 static void                  cally_stage_window_interface_init (AtkWindowIface *iface);
 
-/* Auxiliar */
+/* Auxiliary */
 static void                  cally_stage_activate_cb     (ClutterStage *stage,
                                                           gpointer      data);
 static void                  cally_stage_deactivate_cb   (ClutterStage *stage,
@@ -222,7 +222,7 @@ cally_stage_window_interface_init (AtkWindowIface *iface)
   /* At this moment AtkWindow is just about signals */
 }
 
-/* Auxiliar */
+/* Auxiliary */
 static void
 cally_stage_activate_cb     (ClutterStage *stage,
                              gpointer      data)

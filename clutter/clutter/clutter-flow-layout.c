@@ -913,7 +913,7 @@ clutter_flow_layout_class_init (ClutterFlowLayoutClass *klass)
    * ClutterFlowLayout:orientation:
    *
    * The orientation of the #ClutterFlowLayout. The children
-   * of the layout will be layed out following the orientation.
+   * of the layout will be laid out following the orientation.
    *
    * This property also controls the overflowing directions
    *

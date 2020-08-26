@@ -73,7 +73,7 @@ typedef struct _MetaMonitorPrivate
    * It can be matched to a winsys_id of a MetaOutput.
    *
    * This is used as an opaque token on reconfiguration when switching from
-   * clone to extened, to decide on what output the windows should go next
+   * clone to extended, to decide on what output the windows should go next
    * (it's an attempt to keep windows on the same monitor, and preferably on
    * the primary one).
    */

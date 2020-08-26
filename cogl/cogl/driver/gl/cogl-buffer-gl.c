@@ -363,7 +363,7 @@ _cogl_buffer_gl_set_data (CoglBuffer *buffer,
   _cogl_buffer_gl_bind (buffer, target, &internal_error);
 
   /* NB: _cogl_buffer_gl_bind() may return NULL in non-error
-   * conditions so we have to explicity check internal_error
+   * conditions so we have to explicitly check internal_error
    * to see if an exception was thrown.
    */
   if (internal_error)

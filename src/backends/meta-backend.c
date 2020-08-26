@@ -34,7 +34,7 @@
  * - Input device configuration (using the #ClutterDeviceManager)
  * - Creating the #MetaRenderer
  * - Setting up the stage of the scene graph (using #MetaStage)
- * - Creating the object that deals wih the cursor (using #MetaCursorTracker)
+ * - Creating the object that deals with the cursor (using #MetaCursorTracker)
  *     and its possible pointer constraint (using #MetaPointerConstraint)
  * - Setting the cursor sprite (using #MetaCursorRenderer)
  * - Interacting with logind (using the appropriate D-Bus interface)
@@ -1329,7 +1329,7 @@ meta_backend_get_client_pointer_constraint (MetaBackend *backend)
  * @constraint: (nullable): the client constraint to follow.
  *
  * Sets the current pointer constraint and removes (and unrefs) the previous
- * one. If @constrant is %NULL, this means that there is no
+ * one. If @constraint is %NULL, this means that there is no
  * #MetaPointerConstraint active.
  */
 void

@@ -329,12 +329,12 @@ _cogl_buffer_unmap_for_fill_or_fallback (CoglBuffer *buffer)
     {
       /* Note: don't try to catch OOM errors here since the use cases
        * we currently have for this api (the journal and path stroke
-       * tesselator) don't have anything particularly sensible they
+       * tessellator) don't have anything particularly sensible they
        * can do in response to a failure anyway so it seems better to
        * simply abort instead.
        *
        * If we find this is a problem for real world applications
-       * then in the path tesselation case we could potentially add an
+       * then in the path tessellation case we could potentially add an
        * explicit cogl_path_tesselate_stroke() api that can throw an
        * error for the app to cache. For the journal we could
        * potentially flush the journal in smaller batches so we use

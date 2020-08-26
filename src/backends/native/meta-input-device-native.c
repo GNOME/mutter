@@ -494,7 +494,7 @@ update_stickykeys_event (ClutterEvent          *event,
 static void
 notify_stickykeys_change (MetaInputDeviceNative *device)
 {
-  /* Everytime sticky keys setting is changed, clear the masks */
+  /* Every time sticky keys setting is changed, clear the masks */
   device->stickykeys_depressed_mask = 0;
   update_internal_xkb_state (device, 0, 0);
 

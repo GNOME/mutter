@@ -1515,9 +1515,9 @@ meta_shaped_texture_new (void)
  * @stex: A #MetaShapedTexture
  * @buffer_scale: The scale that should be applied to coorsinate space
  *
- * Instructs @stex to intepret the geometry of the input texture by scaling it
+ * Instructs @stex to interpret the geometry of the input texture by scaling it
  * with @buffer_scale. This means that the #CoglTexture that is provided by a
- * client is alreay scaled by that factor.
+ * client is already scaled by that factor.
  */
 void
 meta_shaped_texture_set_buffer_scale (MetaShapedTexture *stex,

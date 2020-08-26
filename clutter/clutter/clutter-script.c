@@ -36,7 +36,7 @@
  * parse it and build all the objects defined into it. Each object must
  * have an "id" and a "type" properties defining the name to be used
  * to retrieve it from #ClutterScript with clutter_script_get_object(),
- * and the class type to be instanciated. Every other attribute will
+ * and the class type to be instantiated. Every other attribute will
  * be mapped to the class properties.
  *
  * A #ClutterScript holds a reference on every object it creates from
@@ -852,7 +852,7 @@ clutter_script_default_connect (ClutterScript *script,
     }
 
   CLUTTER_NOTE (SCRIPT,
-                "connecting %s::%s to %s (afetr:%s, swapped:%s, object:%s)",
+                "connecting %s::%s to %s (after:%s, swapped:%s, object:%s)",
                 (connect_gobject ? G_OBJECT_TYPE_NAME (connect_gobject)
                                  : G_OBJECT_TYPE_NAME (gobject)),
                 signal_name,

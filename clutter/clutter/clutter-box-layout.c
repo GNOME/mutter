@@ -39,7 +39,7 @@
  *  #ClutterActor:y-expand are set, the available size
  *  - honours the #ClutterActor's #ClutterActor:x-align and #ClutterActor:y-align properties
  *  to fill the available size
- *  - if the #ClutterBoxLayout:homogeneous boolean propert is set, then all widgets will
+ *  - if the #ClutterBoxLayout:homogeneous boolean property is set, then all widgets will
  *  get the same size, ignoring expand settings and the preferred sizes
  *
  * It is possible to control the spacing between children of a
@@ -719,7 +719,7 @@ clutter_box_layout_allocate (ClutterLayoutManager   *layout,
 
   if (priv->is_homogeneous)
     {
-      /* If were homogenous we still need to run the above loop to get the
+      /* If were homogeneous we still need to run the above loop to get the
        * minimum sizes for children that are not going to fill
        */
       if (priv->orientation == CLUTTER_ORIENTATION_VERTICAL)
@@ -1218,7 +1218,7 @@ clutter_box_layout_get_homogeneous (ClutterBoxLayout *layout)
  * @pack_start: %TRUE if the @layout should pack children at the
  *   beginning of the layout
  *
- * Sets whether children of @layout should be layed out by appending
+ * Sets whether children of @layout should be laid out by appending
  * them or by prepending them
  *
  * Since: 1.2

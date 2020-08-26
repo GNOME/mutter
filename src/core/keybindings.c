@@ -1049,7 +1049,7 @@ meta_display_add_keybinding (MetaDisplay         *display,
  * Remove keybinding @name; the function will fail if @name is not a known
  * keybinding or has not been added with meta_display_add_keybinding().
  *
- * Returns: %TRUE if the binding has been removed sucessfully,
+ * Returns: %TRUE if the binding has been removed successfully,
  *          otherwise %FALSE
  */
 gboolean

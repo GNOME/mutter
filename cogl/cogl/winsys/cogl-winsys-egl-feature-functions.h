@@ -41,7 +41,7 @@
  * COGL_WINSYS_FEATURE_END ()
  *
  * Note: You can list multiple namespace and extension names if the
- * corresponding _FEATURE_FUNCTIONS have the same semantics accross
+ * corresponding _FEATURE_FUNCTIONS have the same semantics across
  * the different extension variants.
  *
  * XXX: NB: Don't add a trailing semicolon when using these macros

@@ -1636,7 +1636,7 @@ clutter_actor_real_map (ClutterActor *self)
  * and realizes its children if they are visible. Does nothing if the
  * actor is not visible.
  *
- * Calling this function is strongly disencouraged: the default
+ * Calling this function is strongly discouraged: the default
  * implementation of #ClutterActorClass.map() will map all the children
  * of an actor when mapping its parent.
  *
@@ -9289,7 +9289,7 @@ clutter_actor_get_allocation_box (ClutterActor    *self,
         clutter_stage_maybe_relayout (stage);
     }
 
-  /* commenting out the code above and just keeping this assigment
+  /* commenting out the code above and just keeping this assignment
    * implements 3)
    */
   *box = self->priv->allocation;
@@ -10940,7 +10940,7 @@ clutter_actor_set_scale_z (ClutterActor *self,
 /**
  * clutter_actor_get_scale:
  * @self: A #ClutterActor
- * @scale_x: (out) (allow-none): Location to store horizonal
+ * @scale_x: (out) (allow-none): Location to store horizontal
  *   scale factor, or %NULL.
  * @scale_y: (out) (allow-none): Location to store vertical
  *   scale factor, or %NULL.
@@ -12239,7 +12239,7 @@ clutter_actor_get_parent (ClutterActor *self)
  *
  * This is by definition the same as %CLUTTER_ACTOR_IS_MAPPED.
  *
- * Return Value: %TRUE if the actor is visibile and will be painted.
+ * Return Value: %TRUE if the actor is visible and will be painted.
  *
  * Since: 0.8
  */
@@ -14444,7 +14444,7 @@ clutter_actor_create_pango_layout (ClutterActor *self,
  * Allows overriding the calculated paint opacity (as returned by
  * clutter_actor_get_paint_opacity()). This is used internally by
  * ClutterClone and ClutterOffscreenEffect, and should be used by
- * actors that need to mimick those.
+ * actors that need to mimic those.
  *
  * In almost all cases this should not used by applications.
  *
@@ -16544,7 +16544,7 @@ clutter_actor_get_child_at_index (ClutterActor *self,
 
 /*< private >
  * _clutter_actor_foreach_child:
- * @actor: The actor whos children you want to iterate
+ * @actor: The actor whose children you want to iterate
  * @callback: The function to call for each child
  * @user_data: Private data to pass to @callback
  *
@@ -19560,7 +19560,7 @@ clutter_actor_has_mapped_clones (ClutterActor *self)
 
       /* Clones will force-show their own source actor but not children of
        * it, so if we're hidden and an actor up the hierarchy has a clone,
-       * we won't be visisble.
+       * we won't be visible.
        */
       if (!CLUTTER_ACTOR_IS_VISIBLE (actor))
         return FALSE;

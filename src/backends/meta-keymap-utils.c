@@ -34,7 +34,7 @@ meta_create_xkb_context (void)
 
   /*
    * We can only append search paths in libxkbcommon, so we start with an
-   * emtpy set, then add the XDG dir, then add the default search paths.
+   * empty set, then add the XDG dir, then add the default search paths.
    */
   ctx = xkb_context_new (XKB_CONTEXT_NO_DEFAULT_INCLUDES);
 

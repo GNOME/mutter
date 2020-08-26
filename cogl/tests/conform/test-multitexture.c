@@ -190,9 +190,9 @@ test_multitexture (TestUtilsGTestFixture *fixture,
   group = clutter_actor_new ();
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), group);
 
-  /* We force continuous redrawing incase someone comments out the
+  /* We force continuous redrawing in case someone comments out the
    * clutter_test_quit and wants visual feedback for the test since we
-   * wont be doing anything else that will trigger redrawing. */
+   * won't be doing anything else that will trigger redrawing. */
   idle_source = g_idle_add (queue_redraw, stage);
 
   g_signal_connect (group, "paint", G_CALLBACK (on_paint), &state);

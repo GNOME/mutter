@@ -159,7 +159,7 @@ test_readpixels (TestUtilsGTestFixture *fixture,
   clutter_actor_set_background_color (CLUTTER_ACTOR (stage), &stage_color);
 
   /* We force continuous redrawing of the stage, since we need to skip
-   * the first few frames, and we wont be doing anything else that
+   * the first few frames, and we won't be doing anything else that
    * will trigger redrawing. */
   idle_source = g_idle_add (queue_redraw, stage);
   g_signal_connect_after (stage, "paint", G_CALLBACK (on_paint), NULL);

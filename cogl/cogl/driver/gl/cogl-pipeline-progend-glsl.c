@@ -129,7 +129,7 @@ typedef struct
 
   /* The 'flip' uniform is used to flip the geometry upside-down when
      the framebuffer requires it only when there are vertex
-     snippets. Otherwise this is acheived using the projection
+     snippets. Otherwise this is achieved using the projection
      matrix */
   GLint flip_uniform;
   int flushed_flip_state;

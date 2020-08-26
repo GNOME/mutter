@@ -611,7 +611,7 @@ parse_hsla (ClutterColor *color,
 /**
  * clutter_color_from_string:
  * @color: (out caller-allocates): return location for a #ClutterColor
- * @str: a string specifiying a color
+ * @str: a string specifying a color
  *
  * Parses a string definition of a color, filling the #ClutterColor.red,
  * #ClutterColor.green, #ClutterColor.blue and #ClutterColor.alpha fields 

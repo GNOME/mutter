@@ -277,7 +277,7 @@ cogl_texture_is_sliced (CoglTexture *texture)
 }
 
 /* If this returns FALSE, that implies _foreach_sub_texture_in_region
- * will be needed to iterate over multiple sub textures for regions whos
+ * will be needed to iterate over multiple sub textures for regions whose
  * texture coordinates extend out of the range [0,1]
  */
 gboolean
@@ -331,7 +331,7 @@ _cogl_texture_pre_paint (CoglTexture *texture, CoglTexturePrePaintFlags flags)
    *
    * XXX: Maybe it could even be considered a programmer error if the
    * texture hasn't been allocated by this point since it implies we
-   * are abount to paint with undefined texture contents?
+   * are about to paint with undefined texture contents?
    */
   cogl_texture_allocate (texture, NULL);
 

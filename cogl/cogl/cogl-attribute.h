@@ -139,12 +139,12 @@ GType cogl_attribute_get_gtype (void);
  * position may be comprised of 2 x and y @components. You should aim
  * to keep the number of components to a minimum as more components
  * means more data needs to be mapped into the GPU which can be a
- * bottlneck when dealing with a large number of vertices.
+ * bottleneck when dealing with a large number of vertices.
  *
  * Finally you need to specify the component data type. Here you
  * should aim to use the smallest type that meets your precision
  * requirements. Again the larger the type then more data needs to be
- * mapped into the GPU which can be a bottlneck when dealing with
+ * mapped into the GPU which can be a bottleneck when dealing with
  * a large number of vertices.
  *
  * Return value: (transfer full): A newly allocated #CoglAttribute

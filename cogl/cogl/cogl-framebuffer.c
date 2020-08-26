@@ -203,7 +203,7 @@ _cogl_framebuffer_get_winsys (CoglFramebuffer *framebuffer)
 
 /* This version of cogl_clear can be used internally as an alternative
  * to avoid flushing the journal or the framebuffer state. This is
- * needed when doing operations that may be called whiling flushing
+ * needed when doing operations that may be called while flushing
  * the journal */
 void
 _cogl_framebuffer_clear_without_flush4f (CoglFramebuffer *framebuffer,
@@ -1263,7 +1263,7 @@ cogl_framebuffer_read_pixels (CoglFramebuffer *framebuffer,
                                      pixels);
 
   /* Note: we don't try and catch errors here since we created the
-   * bitmap storage up-front and can assume we wont hit an
+   * bitmap storage up-front and can assume we won't hit an
    * out-of-memory error which should be the only exception
    * this api throws.
    */

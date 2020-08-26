@@ -64,7 +64,7 @@ meta_ui_new (MetaX11Display *x11_display)
    * handle style changes. This means that the dummy widget we create
    * to get the style for title bars actually needs to be mapped
    * and fully tracked as a MetaWindow. Horrible, but mostly harmless -
-   * the window is a 1x1 overide redirect window positioned offscreen.
+   * the window is a 1x1 override redirect window positioned offscreen.
    */
   gtk_widget_show (GTK_WIDGET (ui->frames));
 

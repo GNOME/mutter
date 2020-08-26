@@ -85,7 +85,7 @@ test_utils_fini (void);
  *
  * Creates a new #CoglTexture with the specified dimensions and pixel format.
  *
- * The storage for the texture is not necesarily created before this
+ * The storage for the texture is not necessarily created before this
  * function returns. The storage can be explicitly allocated using
  * cogl_texture_allocate() or preferably you can let Cogl
  * automatically allocate the storage lazily when uploading data when
@@ -156,8 +156,8 @@ test_utils_texture_new_from_bitmap (CoglBitmap *bitmap,
 /*
  * test_utils_check_pixel:
  * @framebuffer: The #CoglFramebuffer to read from
- * @x: x co-ordinate of the pixel to test
- * @y: y co-ordinate of the pixel to test
+ * @x: x coordinate of the pixel to test
+ * @y: y coordinate of the pixel to test
  * @pixel: An integer of the form 0xRRGGBBAA representing the expected
  *         pixel value
  *
@@ -173,8 +173,8 @@ test_utils_check_pixel (CoglFramebuffer *framebuffer,
 
 /**
  * @framebuffer: The #CoglFramebuffer to read from
- * @x: x co-ordinate of the pixel to test
- * @y: y co-ordinate of the pixel to test
+ * @x: x coordinate of the pixel to test
+ * @y: y coordinate of the pixel to test
  * @pixel: An integer of the form 0xRRGGBBAA representing the expected
  *         pixel value
  *
@@ -192,8 +192,8 @@ test_utils_check_pixel_and_alpha (CoglFramebuffer *fb,
 /*
  * test_utils_check_pixel:
  * @framebuffer: The #CoglFramebuffer to read from
- * @x: x co-ordinate of the pixel to test
- * @y: y co-ordinate of the pixel to test
+ * @x: x coordinate of the pixel to test
+ * @y: y coordinate of the pixel to test
  * @pixel: An integer of the form 0xrrggbb representing the expected pixel value
  *
  * This performs reads a pixel on the given cogl @framebuffer and
@@ -209,8 +209,8 @@ test_utils_check_pixel_rgb (CoglFramebuffer *framebuffer,
 /*
  * test_utils_check_region:
  * @framebuffer: The #CoglFramebuffer to read from
- * @x: x co-ordinate of the region to test
- * @y: y co-ordinate of the region to test
+ * @x: x coordinate of the region to test
+ * @y: y coordinate of the region to test
  * @width: width of the region to test
  * @height: height of the region to test
  * @pixel: An integer of the form 0xrrggbb representing the expected region color

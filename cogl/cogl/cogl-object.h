@@ -129,8 +129,8 @@ typedef struct {
 
 /**
  * CoglUserDataDestroyCallback:
- * @user_data: The data whos association with a #CoglObject has been
- *             destoyed.
+ * @user_data: The data whose association with a #CoglObject has been
+ *             destroyed.
  *
  * When associating private data with a #CoglObject a callback can be
  * given which will be called either if the object is destroyed or if

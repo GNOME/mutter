@@ -74,7 +74,7 @@ typedef struct _ClutterContainerIface   ClutterContainerIface;
  *   fields in the instance and add the record to a data structure for
  *   subsequent access for #ClutterContainerIface::get_child_meta
  * @destroy_child_meta: virtual function that gets called when a child is
- *   removed; it shuld release all resources held by the record
+ *   removed; it should release all resources held by the record
  * @get_child_meta: return the record for a container child
  * @actor_added: class handler for #ClutterContainer::actor-added
  * @actor_removed: class handler for #ClutterContainer::actor-removed

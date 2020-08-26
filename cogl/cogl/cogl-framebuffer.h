@@ -435,7 +435,7 @@ cogl_framebuffer_set_modelview_matrix (CoglFramebuffer *framebuffer,
  *
  * <note>You should be careful not to have to great a @z_far / @z_near
  * ratio since that will reduce the effectiveness of depth testing
- * since there wont be enough precision to identify the depth of
+ * since there won't be enough precision to identify the depth of
  * objects near to each other.</note>
  *
  * Since: 1.10
@@ -1388,7 +1388,7 @@ cogl_framebuffer_finish (CoglFramebuffer *framebuffer);
  * @framebuffer: A #CoglFramebuffer
  * @x: The x position to read from
  * @y: The y position to read from
- * @source: Identifies which auxillary buffer you want to read
+ * @source: Identifies which auxiliary buffer you want to read
  *          (only COGL_READ_PIXELS_COLOR_BUFFER supported currently)
  * @bitmap: The bitmap to store the results in.
  *

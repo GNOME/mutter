@@ -681,7 +681,7 @@ get_size_limits (MetaWindow    *window,
                  MetaRectangle *min_size,
                  MetaRectangle *max_size)
 {
-  /* We pack the results into MetaRectangle structs just for convienience; we
+  /* We pack the results into MetaRectangle structs just for convenience; we
    * don't actually use the position of those rects.
    */
   min_size->x = min_size->y = max_size->x = max_size->y = 0;

@@ -5361,7 +5361,7 @@ meta_window_set_focused_internal (MetaWindow *window,
  * will be provided set by the task bar or other user interface element
  * displaying the icon, and is relative to the root window.
  *
- * Return value: %TRUE if the icon geometry was succesfully retrieved.
+ * Return value: %TRUE if the icon geometry was successfully retrieved.
  */
 gboolean
 meta_window_get_icon_geometry (MetaWindow    *window,

@@ -1,7 +1,7 @@
 #!/usr/bin/env perl
 
 # Author  : Simos Xenitellis <simos at gnome dot org>.
-# Authos  : Bastien Nocera <hadess@hadess.net>
+# Author  : Bastien Nocera <hadess@hadess.net>
 # Version : 1.2
 #
 # Notes   : It downloads keysymdef.h from the Internet, if not found locally,

@@ -764,7 +764,7 @@ meta_compositor_switch_workspace (MetaCompositor     *compositor,
     {
       priv->switch_workspace_in_progress--;
 
-      /* We have to explicitely call this to fix up stacking order of the
+      /* We have to explicitly call this to fix up stacking order of the
        * actors; this is because the abs stacking position of actors does not
        * necessarily change during the window hiding/unhiding, only their
        * relative position toward the destkop window.
@@ -1057,7 +1057,7 @@ on_presented (ClutterStage     *stage,
        * clock_gettime(CLOCK_MONOTONIC), so the same as g_get_monotonic_time),
        * but there's no exposure of that through the API. clock_gettime()
        * is fairly fast, so calling it twice and subtracting to get a
-       * nearly-zero number is acceptable, if a litle ugly.
+       * nearly-zero number is acceptable, if a little ugly.
        */
       current_cogl_time = cogl_get_clock_time (priv->context);
       current_monotonic_time = g_get_monotonic_time ();
@@ -1318,8 +1318,8 @@ meta_compositor_class_init (MetaCompositorClass *klass)
  * meta_disable_unredirect_for_display:
  * @display: a #MetaDisplay
  *
- * Disables unredirection, can be usefull in situations where having
- * unredirected windows is undesireable like when recording a video.
+ * Disables unredirection, can be useful in situations where having
+ * unredirected windows is undesirable like when recording a video.
  *
  */
 void

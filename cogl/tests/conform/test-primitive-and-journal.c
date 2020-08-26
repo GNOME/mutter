@@ -87,7 +87,7 @@ test_primitive_and_journal (void)
   /* Draw a rectangle using the journal in-between the two primitives.
    * This should test that the journal gets flushed correctly and that
    * the modelview matrix is restored. Half of the rectangle should be
-   * overriden by the second primitive */
+   * overridden by the second primitive */
   cogl_framebuffer_draw_rectangle (test_fb,
                                    pipeline,
                                    100, 0, /* x1/y1 */

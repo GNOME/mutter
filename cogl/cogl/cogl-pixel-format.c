@@ -354,7 +354,7 @@ _cogl_pixel_format_is_endian_dependant (CoglPixelFormat format)
   /* NB: currently checking whether the format components are aligned
    * or not determines whether the format is endian dependent or not.
    * In the future though we might consider adding formats with
-   * aligned components that are also endian independant. */
+   * aligned components that are also endian independent. */
 
   for (i = 0; i < G_N_ELEMENTS (format_info_table); i++)
     {

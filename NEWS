@@ -572,7 +572,7 @@ Contributors:
 3.31.92
 =======
 * Fix flicker of apps that use multiple SHM buffers [Jonas Å.; #199]
-* Don't disable page flips after temporary failues [Jonas Å.; #460]
+* Don't disable page flips after temporary failures [Jonas Å.; #460]
 * Improve redraw performance [Carlos; !196]
 * Add cursor-mode support to window screencasting [Jonas Å.; !413]
 * Add back support for system-wide monitor configurations [Jonas Å.; !253]
@@ -984,7 +984,7 @@ Translations:
 =======
 * Reduce memory use of suspended instances [Jonas; #786299]
 * Make supported scales determination saner [Rui; #786474]
-* Fix crash on inhibit-shortcuts dialog reponse [Jonas; #786385]
+* Fix crash on inhibit-shortcuts dialog response [Jonas; #786385]
 * Support libinput's tag-and-drag setting [freeroot; #775755]
 * Avoid overlapping keybindings with multiple layouts [Jonas; #786408]
 * Fix non-transformed cursor on rotated monitors [Jonas; #786023]
@@ -1303,7 +1303,7 @@ Translations:
 * Consider XDG_SESSION_TYPE when determining session type [Jouke; #759388]
 * Re-add support for edge scrolling on some touchpads [Bastien; #768245]
 * Support mouse and trackball acceleration profile [Jonas; #769179]
-* Draw monitor contentn to individual framebuffer [Jonas; #768976]
+* Draw monitor content to individual framebuffer [Jonas; #768976]
 * Support virtual input devices [Jonas, Carlos; #765009]
 * Set correct output scale on hotplug [Jonas; #769505]
 * Misc. bug fixes and cleanups [Florian, Jonas, Thomas, Bastien, Carlos;
@@ -2128,7 +2128,7 @@ Translations:
 * Ignore skip-taskbar hints on parentless dialogs [Giovanni; #673399]
 * Don't save pixbuf data in user data [Tim; #706777]
 * Don't queue redraws for obscured regions [Adel; #703332]
-* Suppor the opaque region hints for wayland clients [Jasper; #707019]
+* Support the opaque region hints for wayland clients [Jasper; #707019]
 * Turn blending off when drawing entirely opaque regions [Jasper; #707019]
 * Check event timestamps before reconfiguring [Giovanni; #706735]
 * Merge the DBus API for display configuration in the wayland branch [Giovanni]
@@ -2613,7 +2613,7 @@ Translations:
 ======
 * Automaximize large windows on map [Adel; #671677]
 * When unmaximizing windows, make sure the unminimized size
-  is signficantly less than the maximized size [Adel; #671677]
+  is significantly less than the maximized size [Adel; #671677]
 * Don't offer maximize option for windows larger than the screen
   [Jasper; #643606]
 * Always focus the window immediately underneath without restacking
@@ -2713,7 +2713,7 @@ Translations:
 * Move from GConf to GSettings for preferences [Florian; #635378]
 * Add meta_display_add_keybinding()/meta_display_remove_keybinding()
   to allow creating new keybindings at runtime [Florian; #663428]
-* Add suport for new _NET_WM_STATE_FOCUSED atom in _NET_WM_STATE
+* Add support for new _NET_WM_STATE_FOCUSED atom in _NET_WM_STATE
   to allow applications to draw unfocused windows differently
   [Rui; #661427]
 * Add meta_window_move_resize_frame() to allow specifying the
@@ -2825,7 +2825,7 @@ Contributors:
   for easy resizing with thin borders. (New draggable_border_width GConf key
   controls the total width of visible and invisible borders.)
   [Jasper; #644930]
-* Draw rounded window corners with antialising [Jasper; #628195]
+* Draw rounded window corners with antialiasing [Jasper; #628195]
 * Unredirect override-redirect fullscreen windows, such as full-screen
   3D games to avoid any performance impact [Adel; #597014]
 * Add :resizable and :above properties to MetaWindow. [Tim; #653858]
@@ -2918,7 +2918,7 @@ Translations:
 3.0.2.1
 =======
 * When saving the session, use the "program name" rather than
-  harcoding mutter, fixing session saving for gnome-shell [Matthias]
+  hardcoding mutter, fixing session saving for gnome-shell [Matthias]
   https://bugzilla.gnome.org/show_bug.cgi?id=648828
 
 Contributors:
@@ -3236,7 +3236,7 @@ Bugs fixed:
  634779 MetaWindowGroup: further optimize paints by using current scissor
  634833 Draw the root window background
  592382 improve shadow effect
- 628199 Add antialising to arc and line drawing operations
+ 628199 Add antialiasing to arc and line drawing operations
  633002 meta-actor-window: Use G_UNLIKELY for TFP check
  634771 MetaStackTracker: Avoid queueing resync for obvious no-ops
  635421 Fix crash in check_needs_shadow
@@ -3433,7 +3433,7 @@ Fixed Bugs:
   - Allow a theme to turn on title ellipsization
 * Performance enhancements:
   - Stream raw damage updates to ClutterX11TexturePixmap
-    to enable partial stage updates when windos change [Robert]
+    to enable partial stage updates when windows change [Robert]
   - Don't trap XErrors in meta_compositor_process_event [Adel]
 * Add meta_prefs_override_preference_location(); this allows
   a plugin like GNOME Shell to redirect preferences to a
@@ -3478,7 +3478,7 @@ Fixed Bugs:
  613136 - remove over-restrictive assert from meta_prefs_get_workspace_name()
  613398 - Don't trap XErrors in meta_compositor_process_event
  615586 - Allow redirecting preferences to a different GConf key
- 615672 - cant' compile mutter error: dereferencing pointer ‘p’ does break
+ 615672 - can't compile mutter error: dereferencing pointer ‘p’ does break
           strict-aliasing rules
  616050 - alt-tab infrastructure patches
  616274 - mutter from git fails with gcc 4.5 (on new warning)
@@ -4424,7 +4424,7 @@ Arthur Taylor, Elijah Newren, Josselin Mouette, Havoc Pennington,
 Benjamin Berg, and Carlo Wood for improvements in this release.
 
   - new icon for the force-quit dialog (Jaap) [#396655]
-  - add configureable mouse click action abilities, and clean up lots of
+  - add configurable mouse click action abilities, and clean up lots of
     related code (Linus) [#408899, #408902, others]
   - add schemeas for middle and right click titlebar actions (Charlie)
     [#408903]
@@ -4978,7 +4978,7 @@ this release.
    running with --disable-gconf.  Make --disable-gconf actually work.
    (Elijah) [#326661]
  - fix some reading-from-free'd-data errors (Søren) [#327575]
- - fix an unitialized value problem when in raise-on-click mode
+ - fix an uninitialized value problem when in raise-on-click mode
    (Søren) [#327572]
  - avoid flashing original-sized window when closing a maximized
    window (Elijah) [#317254]

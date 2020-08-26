@@ -72,7 +72,7 @@ char* meta_rectangle_edge_list_to_string (
 
 /* Resize old_rect to the given new_width and new_height, but store the
  * result in rect.  NOTE THAT THIS IS RESIZE ONLY SO IT CANNOT BE USED FOR
- * A MOVERESIZE OPERATION (that simplies the routine a little bit as it
+ * A MOVERESIZE OPERATION (that simplifies the routine a little bit as it
  * means there's no difference between META_GRAVITY_NORTH_WEST and
  * META_GRAVITY_STATIC. Also, I lied a little bit--technically, you could use
  * it in a MoveResize operation if you muck with old_rect just right).
@@ -119,7 +119,7 @@ GList*   meta_rectangle_expand_region_conditionally (
                                          const int            min_y);
 
 /* Expand rect in direction to the size of expand_to, and then clip out any
- * overlapping struts oriented orthognal to the expansion direction.  (Think
+ * overlapping struts oriented orthogonal to the expansion direction.  (Think
  * horizontal or vertical maximization)
  */
 META_EXPORT_TEST

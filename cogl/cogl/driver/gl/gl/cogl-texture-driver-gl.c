@@ -202,7 +202,7 @@ _cogl_texture_driver_upload_subregion_to_gl (CoglContext *ctx,
 
   data = _cogl_bitmap_gl_bind (source_bmp, COGL_BUFFER_ACCESS_READ, 0, &internal_error);
 
-  /* NB: _cogl_bitmap_gl_bind() may return NULL when successfull so we
+  /* NB: _cogl_bitmap_gl_bind() may return NULL when successful so we
    * have to explicitly check the cogl error pointer to catch
    * problems... */
   if (internal_error)

@@ -199,7 +199,7 @@ clutter_clone_get_paint_volume (ClutterActor       *actor,
   if (priv->clone_source == NULL)
     return TRUE;
 
-  /* query the volume of the source actor and simply masquarade it as
+  /* query the volume of the source actor and simply masquerade it as
    * the clones volume... */
   source_volume = clutter_actor_get_paint_volume (priv->clone_source);
   if (source_volume == NULL)

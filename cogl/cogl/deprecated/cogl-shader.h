@@ -43,7 +43,7 @@ G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-shaders
- * @short_description: Fuctions for accessing the programmable GL pipeline
+ * @short_description: Functions for accessing the programmable GL pipeline
  *
  * Cogl allows accessing the GL programmable pipeline in order to create
  * vertex and fragment shaders.
@@ -222,7 +222,7 @@ G_BEGIN_DECLS
 
 /**
  * CoglShaderType:
- * @COGL_SHADER_TYPE_VERTEX: A program for proccessing vertices
+ * @COGL_SHADER_TYPE_VERTEX: A program for processing vertices
  * @COGL_SHADER_TYPE_FRAGMENT: A program for processing fragments
  *
  * Types of shaders

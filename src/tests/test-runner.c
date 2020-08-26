@@ -175,7 +175,7 @@ test_case_parse_window_id (TestCase    *test,
   const char *slash = strchr (client_and_window_id, '/');
   char *tmp;
   if (slash == NULL)
-    BAD_COMMAND ("client/window ID %s doesnt' contain a /", client_and_window_id);
+    BAD_COMMAND ("client/window ID %s doesn't contain a /", client_and_window_id);
 
   *window_id = slash + 1;
 
@@ -1131,7 +1131,7 @@ main (int argc, char **argv)
       g_free (curdir);
     }
 
-  /* Then initalize mutter with a different set of arguments */
+  /* Then initialize mutter with a different set of arguments */
 
   char *fake_args[] = { NULL, (char *)"--wayland", (char *)"--nested" };
   fake_args[0] = argv[0];

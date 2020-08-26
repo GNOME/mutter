@@ -84,7 +84,7 @@ struct _ClutterLayoutManager
  *   in newly written code.
  * @end_animation: virtual function; override to end an animation started
  *   by clutter_layout_manager_begin_animation(). This virtual function is
- *   deprecated, and it should not be overriden in newly written code.
+ *   deprecated, and it should not be overridden in newly written code.
  * @get_animation_progress: virtual function; override to control the
  *   progress of the animation of a #ClutterLayoutManager. This virtual
  *   function is deprecated, and it should not be overridden in newly written

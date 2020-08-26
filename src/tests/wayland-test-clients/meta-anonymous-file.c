@@ -207,7 +207,7 @@ main (int    argc,
   meta_anonymous_file_close_fd (other_fd);
 
 
-  /* Test an artificial out-of-space situation by setting the maximium file
+  /* Test an artificial out-of-space situation by setting the maximum file
    * size this process may create to 2 bytes, if memfd_create with
    * MAPMODE_PRIVATE is used, everything should still work (the existing FD
    * should be used). */

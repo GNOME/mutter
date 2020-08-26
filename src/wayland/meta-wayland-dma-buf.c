@@ -695,7 +695,7 @@ dma_buf_bind (struct wl_client *client,
  *
  * Creates the global Wayland object that exposes the linux-dmabuf protocol.
  *
- * Returns: Whether the initialization was succesfull. If this is %FALSE,
+ * Returns: Whether the initialization was successful. If this is %FALSE,
  * clients won't be able to use the linux-dmabuf protocol to pass buffers.
  */
 gboolean

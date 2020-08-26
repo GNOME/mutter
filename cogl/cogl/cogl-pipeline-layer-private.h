@@ -207,7 +207,7 @@ struct _CoglPipelineLayer
   /* Layers represent their state in a tree structure where some of
    * the state relating to a given pipeline or layer may actually be
    * owned by one if is ancestors in the tree. We have a common data
-   * type to track the tree heirachy so we can share code... */
+   * type to track the tree hierarchy so we can share code... */
   CoglNode _parent;
 
   /* Some layers have a pipeline owner, which is to say that the layer

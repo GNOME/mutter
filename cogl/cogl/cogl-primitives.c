@@ -265,7 +265,7 @@ _cogl_texture_quad_multiple_primitives (CoglFramebuffer *framebuffer,
   state.v_to_q_scale_x = fabs (state.quad_len_x / (tx_2 - tx_1));
   state.v_to_q_scale_y = fabs (state.quad_len_y / (ty_2 - ty_1));
 
-  /* For backwards compatablity the default wrap mode for cogl_rectangle() is
+  /* For backwards compatibility the default wrap mode for cogl_rectangle() is
    * _REPEAT... */
   if (wrap_s == COGL_PIPELINE_WRAP_MODE_AUTOMATIC)
     wrap_s = COGL_PIPELINE_WRAP_MODE_REPEAT;

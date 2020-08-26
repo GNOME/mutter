@@ -85,8 +85,8 @@ struct _ClutterPaintVolume
    * TRUE) */
   guint is_2d:1;
 
-  /* Set to TRUE initialy but cleared if the paint volume is
-   * transfomed by a matrix. */
+  /* Set to TRUE initially but cleared if the paint volume is
+   * transformed by a matrix. */
   guint is_axis_aligned:1;
 
 

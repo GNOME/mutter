@@ -286,7 +286,7 @@ _cogl_context_get_winsys (CoglContext *context);
 
 /* Query the GL extensions and lookup the corresponding function
  * pointers. Theoretically the list of extensions can change for
- * different GL contexts so it is the winsys backend's responsiblity
+ * different GL contexts so it is the winsys backend's responsibility
  * to know when to re-query the GL extensions. The backend should also
  * check whether the GL context is supported by Cogl. If not it should
  * return FALSE and set @error */

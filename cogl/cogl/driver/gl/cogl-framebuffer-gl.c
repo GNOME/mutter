@@ -452,7 +452,7 @@ attach_depth_texture (CoglContext *ctx,
   if (flags & COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH_STENCIL)
     {
       /* attach a GL_DEPTH_STENCIL texture to the GL_DEPTH_ATTACHMENT and
-       * GL_STENCIL_ATTACHMENT attachement points */
+       * GL_STENCIL_ATTACHMENT attachment points */
       g_assert (_cogl_texture_get_format (depth_texture) ==
                 COGL_PIXEL_FORMAT_DEPTH_24_STENCIL_8);
 
@@ -471,7 +471,7 @@ attach_depth_texture (CoglContext *ctx,
   else if (flags & COGL_OFFSCREEN_ALLOCATE_FLAG_DEPTH)
     {
       /* attach a newly created GL_DEPTH_COMPONENT16 texture to the
-       * GL_DEPTH_ATTACHMENT attachement point */
+       * GL_DEPTH_ATTACHMENT attachment point */
       g_assert (_cogl_texture_get_format (depth_texture) ==
                 COGL_PIXEL_FORMAT_DEPTH_16);
 
@@ -1187,7 +1187,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                  framebuffer,
                                  COGL_FRAMEBUFFER_STATE_BIND);
 
-  /* The y co-ordinate should be given in OpenGL's coordinate system
+  /* The y coordinate should be given in OpenGL's coordinate system
    * so 0 is the bottom row
    *
    * NB: all offscreen rendering is done upside down so no conversion
@@ -1330,7 +1330,7 @@ _cogl_framebuffer_gl_read_pixels_into_bitmap (CoglFramebuffer *framebuffer,
                                      COGL_BUFFER_ACCESS_WRITE,
                                      0, /* hints */
                                      &internal_error);
-      /* NB: _cogl_bitmap_gl_bind() can return NULL in sucessfull
+      /* NB: _cogl_bitmap_gl_bind() can return NULL in successful
        * cases so we have to explicitly check the cogl error pointer
        * to know if there was a problem */
       if (internal_error)

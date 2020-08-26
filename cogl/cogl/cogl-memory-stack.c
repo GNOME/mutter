@@ -44,9 +44,9 @@
  *   rewind the entire stack back to the start. There is no
  *   the concept of stack frames to allow partial rewinds.
  *
- * For example; we plan to use this in our tesselator which has to
+ * For example; we plan to use this in our tessellator which has to
  * allocate lots of small vertex, edge and face structures because
- * when tesselation has been finished we just want to free the whole
+ * when tessellation has been finished we just want to free the whole
  * lot in one go.
  *
  *

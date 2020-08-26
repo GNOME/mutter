@@ -3142,7 +3142,7 @@ meta_seat_native_reclaim_devices (MetaSeatNative *seat)
  * @seat: the #ClutterSeat created by the evdev backend
  * @keymap: the new keymap
  *
- * Instructs @evdev to use the speficied keyboard map. This will cause
+ * Instructs @evdev to use the specified keyboard map. This will cause
  * the backend to drop the state and create a new one with the new
  * map. To avoid state being lost, callers should ensure that no key
  * is pressed when calling this function.

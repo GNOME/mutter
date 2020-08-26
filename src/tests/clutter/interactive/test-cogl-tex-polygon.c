@@ -218,7 +218,7 @@ test_coglbox_paint (ClutterActor        *self,
   cogl_framebuffer_rotate (framebuffer, priv->frame, 0, 1, 0);
   cogl_framebuffer_translate (framebuffer, -tex_width / 2, 0, 0);
 
-  /* Draw a hand and refect it */
+  /* Draw a hand and reflect it */
   cogl_framebuffer_draw_textured_rectangle (framebuffer, material,
                                             0, 0, tex_width, tex_height,
                                             0, 0, 1, 1);

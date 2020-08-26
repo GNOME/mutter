@@ -561,7 +561,7 @@ validate_layer_cb (CoglPipeline *pipeline,
                  "with waste\n", layer_index);
 
       /* XXX: maybe we can add a mechanism for users to forcibly use
-       * textures with waste where it would be their responsability to use
+       * textures with waste where it would be their responsibility to use
        * texture coords in the range [0,1] such that sampling outside isn't
        * required. We can then use a texture matrix (or a modification of
        * the users own matrix) to map 1 to the edge of the texture data.

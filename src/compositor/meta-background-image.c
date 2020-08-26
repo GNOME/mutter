@@ -222,7 +222,7 @@ out:
  *
  * Loads an image to use as a background, or returns a reference to an
  * image that is already in the process of loading or loaded. In either
- * case, what is returned is a #MetaBackgroundImage which can be derefenced
+ * case, what is returned is a #MetaBackgroundImage which can be dereferenced
  * to get a #CoglTexture. If meta_background_image_is_loaded() returns %TRUE,
  * the background is loaded, otherwise the MetaBackgroundImage::loaded
  * signal will be emitted exactly once. The 'loaded' state means that the

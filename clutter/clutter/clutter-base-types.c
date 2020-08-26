@@ -259,7 +259,7 @@ clutter_matrix_init_identity (ClutterMatrix *matrix)
  * Initializes @matrix with the contents of a C array of floating point
  * values.
  *
- * Return value: (transfer none): the initialzed #ClutterMatrix
+ * Return value: (transfer none): the initialized #ClutterMatrix
  *
  * Since: 1.12
  */

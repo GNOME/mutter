@@ -51,7 +51,7 @@
 #include <string.h>
 
 /*
- * GL/GLES compatability defines for pipeline thingies:
+ * GL/GLES compatibility defines for pipeline thingies:
  */
 
 /* These aren't defined in the GLES headers */
@@ -883,7 +883,7 @@ fragend_add_layer_cb (CoglPipelineLayer *layer,
  * Details of override options:
  * ->fallback_mask: is a bitmask of the pipeline layers that need to be
  *    replaced with the default, fallback textures. The fallback textures are
- *    fully transparent textures so they hopefully wont contribute to the
+ *    fully transparent textures so they hopefully won't contribute to the
  *    texture combining.
  *
  *    The intention of fallbacks is to try and preserve
@@ -918,7 +918,7 @@ fragend_add_layer_cb (CoglPipelineLayer *layer,
  * XXX: It might also help if we could specify a texture matrix for code
  *    dealing with slicing that would be multiplied with the users own matrix.
  *
- *    Normaly texture coords in the range [0, 1] refer to the extents of the
+ *    Normally texture coords in the range [0, 1] refer to the extents of the
  *    texture, but when your GL texture represents a slice of the real texture
  *    (from the users POV) then a texture matrix would be a neat way of
  *    transforming the mapping for each slice.

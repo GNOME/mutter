@@ -1104,7 +1104,7 @@ cally_actor_add_action_full (CallyActor          *cally_actor,
  *
  * Removes a action, using the @action_id returned by cally_actor_add_action()
  *
- * Return value: %TRUE if the operation was succesful, %FALSE otherwise
+ * Return value: %TRUE if the operation was successful, %FALSE otherwise
  *
  * Since: 1.4
  */
@@ -1138,7 +1138,7 @@ cally_actor_remove_action (CallyActor *cally_actor,
  * Removes an action, using the @action_name used when the action was added
  * with cally_actor_add_action()
  *
- * Return value: %TRUE if the operation was succesful, %FALSE otherwise
+ * Return value: %TRUE if the operation was successful, %FALSE otherwise
  *
  * Since: 1.4
  */

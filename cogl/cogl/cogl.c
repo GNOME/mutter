@@ -167,7 +167,7 @@ _cogl_driver_error_quark (void)
 #define VIEWPORT_TRANSFORM_X(x, vp_origin_x, vp_width) \
     (  ( ((x) + 1.0) * ((vp_width) / 2.0) ) + (vp_origin_x)  )
 /* Note: for Y we first flip all coordinates around the X axis while in
- * normalized device coodinates */
+ * normalized device coordinates */
 #define VIEWPORT_TRANSFORM_Y(y, vp_origin_y, vp_height) \
     (  ( ((-(y)) + 1.0) * ((vp_height) / 2.0) ) + (vp_origin_y)  )
 

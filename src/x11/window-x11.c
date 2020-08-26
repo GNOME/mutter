@@ -1505,7 +1505,7 @@ meta_window_x11_move_resize_internal (MetaWindow                *window,
    * we grow the frame more than we shrink. The idea is to avoid
    * messing up the window contents by having a temporary situation
    * where the frame is smaller than the window. However, if we're
-   * cooperating with the client to create an atomic frame upate,
+   * cooperating with the client to create an atomic frame update,
    * and the window is redirected, then we should always update
    * the frame first, since updating the frame will force a new
    * backing pixmap to be allocated, and the old backing pixmap

@@ -41,7 +41,7 @@
  * The implementation of a layout manager does not differ from  the
  * implementation of the size requisition and allocation bits of
  * #ClutterActor, so you should read the relative documentation
- * forr subclassing #ClutterActor.
+ * for subclassing #ClutterActor.
  *
  * The layout manager implementation can hold a back pointer to the
  * #ClutterContainer by implementing the #ClutterLayoutManagerClass.set_container()

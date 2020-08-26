@@ -373,7 +373,7 @@ cogl_matrix_stack_frustum (CoglMatrixStack *stack,
  *
  * <note>You should be careful not to have too great a @z_far / @z_near
  * ratio since that will reduce the effectiveness of depth testing
- * since there wont be enough precision to identify the depth of
+ * since there won't be enough precision to identify the depth of
  * objects near to each other.</note>
  */
 COGL_EXPORT void

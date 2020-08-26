@@ -173,7 +173,7 @@ meta_workspace_get_property (GObject      *object,
     case PROP_N_WINDOWS:
       /*
        * This is reliable, but not very efficient; should we store
-       * the list lenth ?
+       * the list length ?
        */
       g_value_set_uint (value, g_list_length (ws->windows));
       break;
@@ -1207,7 +1207,7 @@ meta_motion_direction_to_string (MetaMotionDirection direction)
  * @workspace: a #MetaWorkspace
  * @direction: a #MetaMotionDirection, relative to @workspace
  *
- * Calculate and retrive the workspace that is next to @workspace,
+ * Calculate and retrieve the workspace that is next to @workspace,
  * according to @direction and the current workspace layout, as set
  * by meta_screen_override_workspace_layout().
  *

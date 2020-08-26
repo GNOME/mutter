@@ -424,7 +424,7 @@ cogl_primitive_set_attributes (CoglPrimitive *primitive,
 
   /* NB: we don't unref the previous attributes before refing the new
    * in case we would end up releasing the last reference for an
-   * attribute thats actually in the new list too. */
+   * attribute that's actually in the new list too. */
   for (i = 0; i < n_attributes; i++)
     {
       g_return_if_fail (cogl_is_attribute (attributes[i]));
@@ -434,7 +434,7 @@ cogl_primitive_set_attributes (CoglPrimitive *primitive,
   for (i = 0; i < primitive->n_attributes; i++)
     cogl_object_unref (primitive->attributes[i]);
 
-  /* First try to use the embedded storage assocated with the
+  /* First try to use the embedded storage associated with the
    * primitive, else fallback to slice allocating separate storage for
    * the attribute pointers... */
 

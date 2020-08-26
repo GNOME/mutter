@@ -229,7 +229,7 @@ cogl_pipeline_get_alpha_test_reference (CoglPipeline *pipeline);
  *
  * This is the list of source-names usable as blend factors:
  * <itemizedlist>
- *   <listitem><para>SRC_COLOR: The color of the in comming fragment</para></listitem>
+ *   <listitem><para>SRC_COLOR: The color of the incoming fragment</para></listitem>
  *   <listitem><para>DST_COLOR: The color of the framebuffer</para></listitem>
  *   <listitem><para>CONSTANT: The constant set via cogl_pipeline_set_blend_constant()</para></listitem>
  * </itemizedlist>
@@ -363,7 +363,7 @@ cogl_pipeline_get_point_size (CoglPipeline *pipeline);
  *
  * Since: 2.0
  * Stability: Unstable
- * Return value: %TRUE if the change suceeded or %FALSE otherwise
+ * Return value: %TRUE if the change succeeded or %FALSE otherwise
  */
 COGL_EXPORT gboolean
 cogl_pipeline_set_per_vertex_point_size (CoglPipeline *pipeline,
@@ -513,7 +513,7 @@ typedef enum
  * get overridden. For example, if a model has gaps so that it is
  * impossible to see the inside then faces which are facing away from
  * the screen will never be seen so there is no point in drawing
- * them. This can be acheived by setting the cull face mode to
+ * them. This can be achieved by setting the cull face mode to
  * %COGL_PIPELINE_CULL_FACE_MODE_BACK.
  *
  * Face culling relies on the primitives being drawn with a specific

@@ -45,7 +45,7 @@ G_BEGIN_DECLS
 
 /**
  * SECTION:cogl-material
- * @short_description: Fuctions for creating and manipulating materials
+ * @short_description: Functions for creating and manipulating materials
  *
  * COGL allows creating and manipulating materials used to fill in
  * geometry. Materials may simply be lighting attributes (such as an
@@ -287,7 +287,7 @@ cogl_material_set_alpha_test_function (CoglMaterial         *material,
  *
  * This is the list of source-names usable as blend factors:
  * <itemizedlist>
- *   <listitem><para>SRC_COLOR: The color of the in comming fragment</para></listitem>
+ *   <listitem><para>SRC_COLOR: The color of the incoming fragment</para></listitem>
  *   <listitem><para>DST_COLOR: The color of the framebuffer</para></listitem>
  *   <listitem><para>CONSTANT: The constant set via cogl_material_set_blend_constant()</para></listitem>
  * </itemizedlist>

@@ -448,7 +448,7 @@ query_xi_extension (MetaX11Display *x11_display)
 }
 
 /*
- * Initialises the bell subsystem. This involves intialising
+ * Initialises the bell subsystem. This involves initialising
  * XKB (which, despite being a keyboard extension, is the
  * place to look for bell notifications), then asking it
  * to send us bell notifications, and then also switching

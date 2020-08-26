@@ -33,7 +33,7 @@
  * in visual mode and calls through to bell_visual_notify(). That
  * function then checks what kind of visual flash you like, and calls either
  * bell_flash_fullscreen()-- which calls bell_flash_screen() to do
- * its work-- or bell_flash_frame(), which flashes the focussed window
+ * its work-- or bell_flash_frame(), which flashes the focused window
  * using bell_flash_window(), unless there is no such window, in
  * which case it flashes the screen instead.
  *

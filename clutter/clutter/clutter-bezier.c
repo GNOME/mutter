@@ -35,7 +35,7 @@
 #undef CBZ_L2T_INTERPOLATION
 
 /****************************************************************************
- * ClutterBezier -- represenation of a cubic bezier curve                   *
+ * ClutterBezier -- representation of a cubic bezier curve                   *
  * (private; a building block for the public bspline object)                *
  ****************************************************************************/
 
@@ -213,7 +213,7 @@ sqrti (int number)
      * algorithm does not calculate the square root, but its reciprocal ('y'
      * below), which is only at the end turned to the inverse value. In order
      * for the algorithm to produce satisfactory results, the reciprocal value
-     * must be represented with sufficient precission; the 16.16 we use
+     * must be represented with sufficient precision; the 16.16 we use
      * elsewhere in clutter is not good enough, and 10.22 is used instead.
      */
     _FixedT x;
@@ -236,7 +236,7 @@ sqrti (int number)
     /* Now, we convert the float to 10.22 fixed. We exploit the mechanism
      * described at http://www.d6.com/users/checker/pdfs/gdmfp.pdf.
      *
-     * We want 22 bit fraction; a single precission float uses 23 bit
+     * We want 22 bit fraction; a single precision float uses 23 bit
      * mantisa, so we only need to add 2^(23-22) (no need for the 1.5
      * multiplier as we are only dealing with positive numbers).
      *
@@ -256,7 +256,7 @@ sqrti (int number)
     flt2.i = (flt2.i >> 11) * (y_1 >> 11);
 
     /* If the original argument is less than 342, we do another
-     * iteration to improve precission (for arguments >= 342, the single
+     * iteration to improve precision (for arguments >= 342, the single
      * iteration produces generally better results).
      */
     if (x < 171)

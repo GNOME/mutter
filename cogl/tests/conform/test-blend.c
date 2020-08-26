@@ -38,7 +38,7 @@ paint (void)
    * attribute with an alpha component which implies blending is
    * required.
    *
-   * If Cogl gets this wrong then then in all likelyhood the second
+   * If Cogl gets this wrong then then in all likelihood the second
    * primitive will be drawn with blending still disabled.
    */
 

@@ -125,7 +125,7 @@ _cogl_context_get_gl_version (CoglContext *context);
  * the "OpenGL ES" part on GLES). The version number can be followed
  * by the end of the string, a space or a full stop. Anything else
  * will be treated as invalid. Returns TRUE and sets major_out and
- * minor_out if it is succesfully parsed or FALSE otherwise. */
+ * minor_out if it is successfully parsed or FALSE otherwise. */
 gboolean
 _cogl_gl_util_parse_gl_version (const char *version_string,
                                 int *major_out,

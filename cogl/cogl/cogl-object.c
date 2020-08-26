@@ -114,7 +114,7 @@ cogl_handle_get_type (void)
 {
   static GType our_type = 0;
 
-  /* XXX: We are keeping the "CoglHandle" name for now incase it would
+  /* XXX: We are keeping the "CoglHandle" name for now in case it would
    * break bindings to change to "CoglObject" */
   if (G_UNLIKELY (our_type == 0))
     our_type = g_boxed_type_register_static (g_intern_static_string ("CoglHandle"),

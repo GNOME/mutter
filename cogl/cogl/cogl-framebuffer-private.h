@@ -147,7 +147,7 @@ struct _CoglFramebuffer
   CoglStereoMode      stereo_mode;
 
   /* We journal the textured rectangles we want to submit to OpenGL so
-   * we have an oppertunity to batch them together into less draw
+   * we have an opportunity to batch them together into less draw
    * calls. */
   CoglJournal        *journal;
 

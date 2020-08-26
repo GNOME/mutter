@@ -143,7 +143,7 @@ do { \
  */
 #define MAT_FLAG_IDENTITY       0     /*< is an identity matrix flag.
                                        *   (Not actually used - the identity
-                                       *   matrix is identified by the absense
+                                       *   matrix is identified by the absence
                                        *   of all other flags.)
                                        */
 #define MAT_FLAG_GENERAL        0x1   /*< is a general matrix flag */
@@ -1294,7 +1294,7 @@ _cogl_matrix_rotate (CoglMatrix *matrix,
        *  ...etc.  Because of those relations and the standard trigonometric
        *  relations, it is pssible to reduce the transforms down to what
        *  is used below.  It may be that any primary axis chosen will give the
-       *  same results (modulo a sign convention) using thie method.
+       *  same results (modulo a sign convention) using this method.
        *
        *  Particularly nice is to notice that all divisions that might
        *  have caused trouble when parallel to certain planes or
@@ -1606,7 +1606,7 @@ cogl_matrix_init_identity (CoglMatrix *matrix)
 /*
  * Set a matrix to the (tx, ty, tz) translation matrix.
  *
- * @matix matrix.
+ * @matrix matrix.
  * @tx x coordinate of the translation vector
  * @ty y coordinate of the translation vector
  * @tz z coordinate of the translation vector
@@ -1878,13 +1878,13 @@ cogl_matrix_equal (const void *v1, const void *v2)
   g_return_val_if_fail (v2 != NULL, FALSE);
 
   /* We want to avoid having a fuzzy _equal() function (e.g. that uses
-   * an arbitrary epsilon value) since this function noteably conforms
+   * an arbitrary epsilon value) since this function notably conforms
    * to the prototype suitable for use with g_hash_table_new() and a
    * fuzzy hash function isn't really appropriate for comparing hash
    * table keys since it's possible that you could end up fetching
    * different values if you end up with multiple similar keys in use
    * at the same time. If you consider that fuzzyness allows cases
-   * such as A == B == C but A != C then you could also end up loosing
+   * such as A == B == C but A != C then you could also end up losing
    * values in a hash table.
    *
    * We do at least use the == operator to compare values though so

@@ -32,7 +32,7 @@
  *
  * #ClutterShaderEffect creates an offscreen buffer and then applies the
  * GLSL shader (after checking whether the compilation and linking were
- * successfull) to the buffer before painting it on screen.
+ * successful) to the buffer before painting it on screen.
  *
  * #ClutterShaderEffect is available since Clutter 1.4
  *
@@ -788,7 +788,7 @@ add_uniform:
  * values; and %CLUTTER_TYPE_SHADER_MATRIX, for a pointer to an array of
  * floating point values mapping a matrix
  *
- * The number of values interepreted is defined by the @n_value
+ * The number of values interpreted is defined by the @n_value
  * argument, and by the @gtype argument. For instance, a uniform named
  * "sampler0" and containing a single integer value is set using:
  *

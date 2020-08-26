@@ -1651,7 +1651,7 @@ _clutter_input_device_remove_slave (ClutterInputDevice *master,
  * @device: a #ClutterInputDevice
  * @sequence: a #ClutterEventSequence
  *
- * Start tracking informations related to a touch point (position,
+ * Start tracking information related to a touch point (position,
  * actor underneath the touch point).
  */
 void
@@ -1676,7 +1676,7 @@ _clutter_input_device_add_event_sequence (ClutterInputDevice *device,
  * @device: a #ClutterInputDevice
  * @sequence: a #ClutterEventSequence
  *
- * Stop tracking informations related to a touch point.
+ * Stop tracking information related to a touch point.
  */
 void
 _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,

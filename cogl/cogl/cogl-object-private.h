@@ -38,7 +38,7 @@
 #include "cogl-object.h"
 #include "cogl-debug.h"
 
-/* For compatability until all components have been converted */
+/* For compatibility until all components have been converted */
 typedef struct _CoglObjectClass CoglHandleClass;
 typedef struct _CoglObject      CoglHandleObject;
 
@@ -249,7 +249,7 @@ _cogl_is_##type_name (void *object)                                     \
 #define COGL_OBJECT_INTERNAL_DEFINE(TypeName, type_name)         \
   COGL_OBJECT_INTERNAL_DEFINE_WITH_CODE (TypeName, type_name, (void) 0)
 
-/* For temporary compatability */
+/* For temporary compatibility */
 #define COGL_HANDLE_INTERNAL_DEFINE_WITH_CODE(TypeName, type_name, code) \
                                                                          \
 COGL_OBJECT_INTERNAL_DEFINE_WITH_CODE (TypeName, type_name, code)        \

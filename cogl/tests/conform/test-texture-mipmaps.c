@@ -121,7 +121,7 @@ test_texture_mipmaps (TestUtilsGTestFixture *fixture,
   clutter_container_add_actor (CLUTTER_CONTAINER (stage), group);
 
   /* We force continuous redrawing of the stage, since we need to skip
-   * the first few frames, and we wont be doing anything else that
+   * the first few frames, and we won't be doing anything else that
    * will trigger redrawing. */
   idle_source = g_idle_add (queue_redraw, stage);
 

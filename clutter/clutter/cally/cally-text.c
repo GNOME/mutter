@@ -1513,7 +1513,7 @@ cally_text_get_offset_at_point (AtkText *text,
 }
 
 
-/******** Auxiliar private methods ******/
+/******** Auxiliary private methods ******/
 
 /* ClutterText only maintains the current cursor position and a extra selection
    bound, but this could be before or after the cursor. This method returns
@@ -1552,7 +1552,7 @@ _cally_text_delete_text_cb (ClutterText *clutter_text,
 
   g_return_if_fail (CALLY_IS_TEXT (data));
 
-  /* Ignore zero lengh deletions */
+  /* Ignore zero length deletions */
   if (end_pos - start_pos == 0)
     return;
 
@@ -1653,7 +1653,7 @@ cally_text_insert_text (AtkEditableText *text,
   clutter_text_insert_text (CLUTTER_TEXT (actor),
                             string, *position);
 
-  /* we suppose that the text insertion will be succesful,
+  /* we suppose that the text insertion will be successful,
      clutter-text doesn't warn about it. A option would be search for
      the text, but it seems not really required */
   *position += length;

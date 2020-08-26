@@ -120,7 +120,7 @@ cogl_x11_onscreen_get_window_xid (CoglOnscreen *onscreen);
  * client API via cogl_wayland_onscreen_get_surface().
  *
  * <note>Since Cogl doesn't explicitly track the visibility status of
- * onscreen framebuffers it wont try to avoid redundant window system
+ * onscreen framebuffers it won't try to avoid redundant window system
  * requests e.g. to show an already visible window. This also means
  * that it's acceptable to alternatively use native APIs to show and
  * hide windows without confusing Cogl.</note>
@@ -145,7 +145,7 @@ cogl_onscreen_show (CoglOnscreen *onscreen);
  * framebuffer before hiding it.
  *
  * <note>Since Cogl doesn't explicitly track the visibility status of
- * onscreen framebuffers it wont try to avoid redundant window system
+ * onscreen framebuffers it won't try to avoid redundant window system
  * requests e.g. to show an already visible window. This also means
  * that it's acceptable to alternatively use native APIs to show and
  * hide windows without confusing Cogl.</note>
@@ -420,7 +420,7 @@ GType cogl_frame_closure_get_gtype (void);
  * ready for this application to render a new frame. In this case
  * %COGL_FRAME_EVENT_SYNC will be passed as the event argument to the
  * given @callback in addition to the #CoglFrameInfo corresponding to
- * the frame beeing acknowledged by the compositor.
+ * the frame being acknowledged by the compositor.
  *
  * The @callback will also be called to notify when the frame has
  * ended. In this case %COGL_FRAME_EVENT_COMPLETE will be passed as
@@ -709,7 +709,7 @@ GType cogl_onscreen_dirty_closure_get_gtype (void);
  * been moved causing a region of the onscreen to be exposed.
  *
  * The @callback will be passed a #CoglOnscreenDirtyInfo struct which
- * decribes a rectangle containing the newly dirtied region. Note that
+ * describes a rectangle containing the newly dirtied region. Note that
  * this may be called multiple times to describe a non-rectangular
  * region composed of multiple smaller rectangles.
  *

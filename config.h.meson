@@ -49,7 +49,7 @@
 /* Building with startup notification support */
 #mesondefine HAVE_STARTUP_NOTIFICATION
 
-/* Building with Sysprof profiling suport */
+/* Building with Sysprof profiling support */
 #mesondefine HAVE_PROFILER
 
 /* Path to Xwayland executable */

@@ -217,9 +217,9 @@ test_grab_main (int argc, char *argv[])
 
   clutter_test_init (&argc, &argv);
 
-  g_print ("Red box:    aquire grab on press, releases it on next button release\n");
-  g_print ("Blue box:   aquire grab on press, destroys the blue box actor on release\n");
-  g_print ("Yellow box: aquire grab on press, releases grab on next press on yellow box\n");
+  g_print ("Red box:    acquire grab on press, releases it on next button release\n");
+  g_print ("Blue box:   acquire grab on press, destroys the blue box actor on release\n");
+  g_print ("Yellow box: acquire grab on press, releases grab on next press on yellow box\n");
   g_print ("Green box:  toggle per actor motion events.\n\n");
   g_print ("Cyan  box:  toggle grab (from cyan box) for keyboard events.\n\n");
 

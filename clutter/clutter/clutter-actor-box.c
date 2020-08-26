@@ -320,7 +320,7 @@ clutter_actor_box_get_area (const ClutterActorBox *box)
  * @y: Y coordinate of the point
  *
  * Checks whether a point with @x, @y coordinates is contained
- * withing @box
+ * within @box
  *
  * Return value: %TRUE if the point is contained by the #ClutterActorBox
  *
@@ -554,7 +554,7 @@ _clutter_actor_box_enlarge_for_effects (ClutterActorBox *box)
    *
    * The reason this is important is because effects will use this
    * API to determine the size of offscreen framebuffers and so for
-   * a fixed-size object that may be animated accross the screen we
+   * a fixed-size object that may be animated across the screen we
    * want to make sure that the stage paint-box has an equally stable
    * size so that effects aren't made to continuously re-allocate
    * a corresponding fbo.
@@ -583,7 +583,7 @@ _clutter_actor_box_enlarge_for_effects (ClutterActorBox *box)
 
   /* Now we redefine the top-left relative to the bottom right based on the
    * rounded width/height determined above + a constant so that the overall
-   * size of the box will be stable and not dependant on the box's
+   * size of the box will be stable and not dependent on the box's
    * position.
    *
    * Adding 3px to the width/height will ensure we cover the maximum of

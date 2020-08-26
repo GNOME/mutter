@@ -113,7 +113,7 @@ _cogl_bitmap_from_file (CoglContext *ctx,
     }
 
   /* We just use the data directly from the pixbuf so that we don't
-     have to copy to a seperate buffer. Note that Cogl is expected not
+     have to copy to a separate buffer. Note that Cogl is expected not
      to read past the end of bpp*width on the last row even if the
      rowstride is much larger so we don't need to worry about
      GdkPixbuf's semantics that it may under-allocate the buffer. */

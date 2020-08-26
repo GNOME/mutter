@@ -1546,7 +1546,7 @@ meta_display_lookup_stack_id (MetaDisplay *display,
 }
 
 /* We return a pointer into a ring of static buffers. This is to make
- * using this function for debug-logging convenient and avoid tempory
+ * using this function for debug-logging convenient and avoid temporary
  * strings that must be freed. */
 const char *
 meta_display_describe_stack_id (MetaDisplay *display,
@@ -2215,7 +2215,7 @@ meta_display_ping_window (MetaWindow *window,
 /**
  * meta_display_pong_for_serial:
  * @display: the display we got the pong from
- * @serial: the serial in the pong repsonse
+ * @serial: the serial in the pong response
  *
  * Process the pong (the response message) from the ping we sent
  * to the window. This involves removing the timeout, calling the
@@ -2371,7 +2371,7 @@ mru_cmp (gconstpointer a,
  *
  * Determine the list of windows that should be displayed for Alt-TAB
  * functionality.  The windows are returned in most recently used order.
- * If @workspace is not %NULL, the list only conains windows that are on
+ * If @workspace is not %NULL, the list only contains windows that are on
  * @workspace or have the demands-attention hint set; otherwise it contains
  * all windows.
  *

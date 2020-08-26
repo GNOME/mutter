@@ -55,7 +55,7 @@
 #include <glib.h>
 
 /*
- * GL/GLES compatability defines for pipeline thingies:
+ * GL/GLES compatibility defines for pipeline thingies:
  */
 
 /* This might not be defined on GLES */

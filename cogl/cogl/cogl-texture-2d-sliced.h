@@ -62,7 +62,7 @@
  * texel wide texture, leaving 3 texels unallocated so we'd then
  * create a 4 texel wide texture - now there is only one texel of
  * waste. The algorithm continues to slice the right most textures
- * until the amount of waste is less than or equal to a specfied
+ * until the amount of waste is less than or equal to a specified
  * max-waste threshold. The same logic for slicing from left to right
  * is also applied from top to bottom.
  */

@@ -161,7 +161,7 @@ _clutter_script_get_type_from_class (const gchar *name)
  * The enumeration value can be an integer, the enumeration nick
  * or the enumeration name, as part of the #GEnumValue structure.
  *
- * Return value: %TRUE if the conversion was successfull.
+ * Return value: %TRUE if the conversion was successful.
  */
 gboolean
 _clutter_script_enum_from_string (GType        type,

@@ -506,7 +506,7 @@ has_shadow (MetaWindowActorX11 *actor_x11)
   if (actor_x11->shadow_mode == META_SHADOW_MODE_FORCED_ON)
     return TRUE;
 
-  /* Leaving out shadows for maximized and fullscreen windows is an effeciency
+  /* Leaving out shadows for maximized and fullscreen windows is an efficiency
    * win and also prevents the unsightly effect of the shadow of maximized
    * window appearing on an adjacent window */
   if ((meta_window_get_maximized (window) == META_MAXIMIZE_BOTH) ||

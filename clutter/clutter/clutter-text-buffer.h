@@ -69,7 +69,7 @@ struct _ClutterTextBuffer
 /**
  * ClutterTextBufferClass:
  * @inserted_text: default handler for the #ClutterTextBuffer::inserted-text signal
- * @deleted_text: default hanlder for the #ClutterTextBuffer::deleted-text signal
+ * @deleted_text: default handler for the #ClutterTextBuffer::deleted-text signal
  * @get_text: virtual function
  * @get_length: virtual function
  * @insert_text: virtual function

@@ -1386,7 +1386,7 @@ handle_other_xevent (MetaX11Display *x11_display,
         }
       break;
     case MapNotify:
-      /* NB: override redirect windows wont cause a map request so we
+      /* NB: override redirect windows won't cause a map request so we
        * watch out for map notifies against any root windows too if a
        * compositor is enabled: */
       if (window == NULL && event->xmap.event == x11_display->xroot)

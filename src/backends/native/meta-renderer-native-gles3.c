@@ -38,7 +38,7 @@
 #include "backends/meta-gles3-table.h"
 
 /*
- * GL/gl.h being included may conflit with gl3.h on some architectures.
+ * GL/gl.h being included may conflict with gl3.h on some architectures.
  * Make sure that hasn't happened on any architecture.
  */
 #ifdef GL_VERSION_1_1

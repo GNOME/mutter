@@ -23,7 +23,7 @@ class Database
           [1,0,1, 0.8],
           [1,1,0, 0.8],
           #[0.5,0.5,0.5,0.8],
-          # gray doesnt have sufficient contrast against background
+          # gray doesn't have sufficient contrast against background
           [0.5,0.5,1, 0.8],
           [0.5,1,0.5, 0.8],
           [0.5,1,1, 0.8],

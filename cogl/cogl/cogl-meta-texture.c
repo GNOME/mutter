@@ -509,7 +509,7 @@ cogl_meta_texture_foreach_in_region (CoglMetaTexture *meta_texture,
   tx_2 *= width;
   ty_2 *= height;
 
-  /* XXX: at some point this wont be routed through the CoglTexture
+  /* XXX: at some point this won't be routed through the CoglTexture
    * vtable, instead there will be a separate CoglMetaTexture
    * interface vtable. */
 

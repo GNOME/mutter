@@ -728,7 +728,7 @@ ensure_above (MetaWindow *above,
   if (is_transient && above->layer < below->layer)
     {
       meta_topic (META_DEBUG_STACK,
-		  "Promoting window %s from layer %u to %u due to contraint\n",
+		  "Promoting window %s from layer %u to %u due to constraint\n",
 		  above->desc, above->layer, below->layer);
       above->layer = below->layer;
     }

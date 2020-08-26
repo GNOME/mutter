@@ -263,7 +263,7 @@ cogl_matrix_scale (CoglMatrix *matrix,
  * vector, which is normally simply (0, 1, 0) to map up to the
  * positive direction of the y axis.
  *
- * Because there is a lot of missleading documentation online for
+ * Because there is a lot of misleading documentation online for
  * gluLookAt regarding the up vector we want to try and be a bit
  * clearer here.
  *
@@ -271,7 +271,7 @@ cogl_matrix_scale (CoglMatrix *matrix,
  * and does not need to change as you move the eye and object
  * positions.  Many online sources may claim that the up vector needs
  * to be perpendicular to the vector between the eye and object
- * position (partly because the man page is somewhat missleading) but
+ * position (partly because the man page is somewhat misleading) but
  * that is not necessary for this function.
  *
  * <note>You should never look directly along the world-up
@@ -336,7 +336,7 @@ cogl_matrix_frustum (CoglMatrix *matrix,
  *
  * <note>You should be careful not to have to great a @z_far / @z_near
  * ratio since that will reduce the effectiveness of depth testing
- * since there wont be enough precision to identify the depth of
+ * since there won't be enough precision to identify the depth of
  * objects near to each other.</note>
  */
 COGL_EXPORT void
@@ -563,7 +563,7 @@ cogl_matrix_get_inverse (const CoglMatrix *matrix,
  * @z: (inout): The Z component of your points position
  * @w: (inout): The W component of your points position
  *
- * Transforms a point whos position is given and returned as four float
+ * Transforms a point whose position is given and returned as four float
  * components.
  */
 COGL_EXPORT void
@@ -645,7 +645,7 @@ cogl_matrix_transform_points (const CoglMatrix *matrix,
  * Projects an array of input points and writes the result to another
  * array of output points. The input points can either have 2, 3 or 4
  * components each. The output points always have 4 components (known
- * as homogenous coordinates). The output array can simply point to
+ * as homogeneous coordinates). The output array can simply point to
  * the input array to do the transform in-place.
  *
  * Here's an example with differing input/output strides:

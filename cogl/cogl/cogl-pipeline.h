@@ -125,7 +125,7 @@ cogl_is_pipeline (void *object);
 
 /**
  * CoglPipelineLayerCallback:
- * @pipeline: The #CoglPipeline whos layers are being iterated
+ * @pipeline: The #CoglPipeline whose layers are being iterated
  * @layer_index: The current layer index
  * @user_data: The private data passed to cogl_pipeline_foreach_layer()
  *

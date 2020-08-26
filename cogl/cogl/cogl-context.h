@@ -80,14 +80,14 @@ G_BEGIN_DECLS
  * context.
  *
  * One a context has been destroyed then all directly or indirectly
- * dependant resources will be in an inconsistent state and should not
+ * dependent resources will be in an inconsistent state and should not
  * be manipulated or queried in any way.
  *
  * For applications that rely on the operating system to clean up
  * resources this policy shouldn't affect them, but for applications
  * that need to carefully destroy and re-create Cogl contexts multiple
  * times throughout their lifetime (such as Android applications) they
- * should be careful to destroy all context dependant resources, such as
+ * should be careful to destroy all context dependent resources, such as
  * framebuffers or textures etc before unrefing and destroying the
  * context.</para></note>
  */

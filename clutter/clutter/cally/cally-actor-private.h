@@ -28,7 +28,7 @@
 #include "cally-actor.h"
 
 /*
- * Auxiliar define, in order to get the clutter actor from the AtkObject using
+ * Auxiliary define, in order to get the clutter actor from the AtkObject using
  * AtkGObject methods
  *
  */

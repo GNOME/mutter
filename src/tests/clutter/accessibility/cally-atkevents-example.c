@@ -147,7 +147,7 @@ main (int argc, char *argv[])
   if (cally_util_a11y_init (&argc, &argv) == FALSE)
     {
       g_error ("This example requires the accessibility support, "
-               "especifically AtkUtil implementation loaded, "
+               "specifically AtkUtil implementation loaded, "
                "as it tries to register and remove event listeners");
     }
 

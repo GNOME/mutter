@@ -16,7 +16,7 @@ clutter_perf_fps_init (void)
   g_setenv ("vblank_mode", "0", FALSE);
   g_setenv ("CLUTTER_VBLANK", "none", FALSE);
 
-  /* also overrride internal default FPS */
+  /* also override internal default FPS */
   g_setenv ("CLUTTER_DEFAULT_FPS", "1000", FALSE);
 
   if (g_getenv ("CLUTTER_PERFORMANCE_TEST_DURATION"))
@@ -89,7 +89,7 @@ static gboolean perf_fake_mouse_cb (gpointer stage)
   if (!inited) /* XXX:
                   force clutter to do handle our motion events,
                   by forcibly updating the input device's state
-                  this shoudl be possible to do in a better
+                  this should be possible to do in a better
                   manner in the future, a versioning check
                   will have to be added when this is possible
                   without a hack... and the means to do the

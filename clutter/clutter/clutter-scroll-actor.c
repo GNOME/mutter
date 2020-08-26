@@ -173,7 +173,7 @@ clutter_scroll_actor_class_init (ClutterScrollActorClass *klass)
   /**
    * ClutterScrollActor:scroll-mode:
    *
-   * The scrollin direction.
+   * The scrolling direction.
    *
    * Since: 1.12
    */

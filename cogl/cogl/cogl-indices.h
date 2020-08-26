@@ -72,7 +72,7 @@ G_BEGIN_DECLS
  * For example, to describe a quadrilateral as 2 triangles for the GPU
  * you could either provide data with 6 vertices or instead with
  * indices you can provide vertex data for just 4 vertices and an
- * index buffer that specfies the 6 vertices by indexing the shared
+ * index buffer that specifies the 6 vertices by indexing the shared
  * vertices multiple times.
  *
  * |[
@@ -94,7 +94,7 @@ G_BEGIN_DECLS
  * Something else to consider is that often indices can be defined
  * once and remain static while the vertex data may change for
  * animations perhaps. That means you may be able to ignore the
- * negligable cost of mapping your indices into the GPU if they don't
+ * negligible cost of mapping your indices into the GPU if they don't
  * ever change.
  *
  * The above illustration is actually a good example of static indices

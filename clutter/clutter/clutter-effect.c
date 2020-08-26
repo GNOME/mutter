@@ -349,7 +349,7 @@ _clutter_effect_has_custom_paint_volume (ClutterEffect *effect)
  * the actor itself so the %CLUTTER_EFFECT_PAINT_ACTOR_DIRTY would still
  * not be set. The effect can detect this case by keeping track of the
  * last modelview matrix that was used to render the actor and
- * veryifying that it remains the same in the next paint.
+ * verifying that it remains the same in the next paint.
  *
  * Any other effects that are layered on top of the passed in effect
  * will still be passed the %CLUTTER_EFFECT_PAINT_ACTOR_DIRTY flag. If

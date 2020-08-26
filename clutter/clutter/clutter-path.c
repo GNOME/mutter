@@ -314,7 +314,7 @@ clutter_path_add_node_full (ClutterPath         *path,
   priv->nodes_dirty = TRUE;
 }
 
-/* Helper function to make the rest of teh add_* functions shorter */
+/* Helper function to make the rest of the add_* functions shorter */
 static void
 clutter_path_add_node_helper (ClutterPath         *path,
                               ClutterPathNodeType  type,

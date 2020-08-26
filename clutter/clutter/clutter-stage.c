@@ -1580,7 +1580,7 @@ clutter_stage_real_apply_transform (ClutterActor *stage,
 {
   ClutterStagePrivate *priv = CLUTTER_STAGE (stage)->priv;
 
-  /* FIXME: we probably shouldn't be explicitly reseting the matrix
+  /* FIXME: we probably shouldn't be explicitly resetting the matrix
    * here... */
   cogl_matrix_init_identity (matrix);
   cogl_matrix_multiply (matrix, matrix, &priv->view);
@@ -2270,9 +2270,9 @@ _clutter_stage_get_viewport (ClutterStage *stage,
  * @stage: A #ClutterStage
  * @x: x coordinate of the first pixel that is read from stage
  * @y: y coordinate of the first pixel that is read from stage
- * @width: Width dimention of pixels to be read, or -1 for the
+ * @width: Width dimension of pixels to be read, or -1 for the
  *   entire stage width
- * @height: Height dimention of pixels to be read, or -1 for the
+ * @height: Height dimension of pixels to be read, or -1 for the
  *   entire stage height
  *
  * Makes a screenshot of the stage in RGBA 8bit data, returns a
@@ -2634,7 +2634,7 @@ clutter_stage_ensure_viewport (ClutterStage *stage)
  *      can never converge with the two corners of our triangle no
  *      matter what size the triangle has.
  * - With a fov > 53° there is a trade off between maximizing the gap
- *   size relative to the stage size but not loosing depth precision.
+ *   size relative to the stage size but not losing depth precision.
  * - Perhaps ideally we wouldn't just consider the fov on the y-axis
  *   that is usually used to define a perspective, we would consider
  *   the fov of the axis with the largest stage size so the gap would
@@ -3063,7 +3063,7 @@ _clutter_stage_paint_volume_stack_free_all (ClutterStage *stage)
   g_array_set_size (paint_volume_stack, 0);
 }
 
-/* The is an out-of-band paramater available while painting that
+/* The is an out-of-band parameter available while painting that
  * can be used to cull actors. */
 const ClutterPlane *
 _clutter_stage_get_clip (ClutterStage *stage)

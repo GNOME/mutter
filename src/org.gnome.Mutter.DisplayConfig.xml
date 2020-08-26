@@ -101,7 +101,7 @@
 			                     or not
 			    - "presentation" (b): whether this output is
 			                          for presentation only
-			    Note: properties might be ignored if not consistenly
+			    Note: properties might be ignored if not consistently
 			    applied to all outputs in the same clone group. In
 			    general, it's expected that presentation or primary
 			    outputs will not be cloned.
@@ -360,7 +360,7 @@
 
 
 	@layout_mode current layout mode represents the way logical monitors
-	are layed out on the screen. Possible modes include:
+	are laid out on the screen. Possible modes include:
 
 	  1 : physical
 	  2 : logical

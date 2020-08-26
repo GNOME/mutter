@@ -107,7 +107,7 @@ G_BEGIN_DECLS
  * The snippets can be added to a pipeline with
  * cogl_pipeline_add_snippet() or
  * cogl_pipeline_add_layer_snippet(). Which function to use depends on
- * which hook the snippet is targetting. The snippets are all
+ * which hook the snippet is targeting. The snippets are all
  * generated in the order they are added to the pipeline. That is, the
  * post strings are executed in the order they are added to the
  * pipeline and the pre strings are executed in reverse order. If any
@@ -645,7 +645,7 @@ GType cogl_snippet_get_gtype (void);
  * </para>
  * <para>
  * The ‘post’ string in @snippet will be inserted after texture lookup
- * has been preformed. Here the snippet can modify the cogl_texel
+ * has been performed. Here the snippet can modify the cogl_texel
  * variable to alter the returned texel.
  * </para>
  *   </glossdef>
