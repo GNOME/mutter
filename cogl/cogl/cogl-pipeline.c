@@ -2206,7 +2206,7 @@ void
 _cogl_pipeline_update_authority (CoglPipeline *pipeline,
                                  CoglPipeline *authority,
                                  CoglPipelineState state,
-                                 CoglPipelineStateComparitor comparitor)
+                                 CoglPipelineStateComparator comparator)
 {
   /* If we are the current authority see if we can revert to one of
    * our ancestors being the authority */
@@ -2217,7 +2217,7 @@ _cogl_pipeline_update_authority (CoglPipeline *pipeline,
       CoglPipeline *old_authority =
         _cogl_pipeline_get_authority (parent, state);
 
-      if (comparitor (authority, old_authority))
+      if (comparator (authority, old_authority))
         pipeline->differences &= ~state;
     }
   else if (pipeline != authority)

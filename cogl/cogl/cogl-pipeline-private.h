@@ -457,14 +457,14 @@ _cogl_pipeline_get_authority (CoglPipeline *pipeline,
   return authority;
 }
 
-typedef gboolean (*CoglPipelineStateComparitor) (CoglPipeline *authority0,
+typedef gboolean (*CoglPipelineStateComparator) (CoglPipeline *authority0,
                                                  CoglPipeline *authority1);
 
 void
 _cogl_pipeline_update_authority (CoglPipeline *pipeline,
                                  CoglPipeline *authority,
                                  CoglPipelineState state,
-                                 CoglPipelineStateComparitor comparitor);
+                                 CoglPipelineStateComparator comparator);
 
 void
 _cogl_pipeline_pre_change_notify (CoglPipeline     *pipeline,

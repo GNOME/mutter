@@ -253,7 +253,7 @@ struct _CoglPipelineLayer
 };
 
 typedef gboolean
-(*CoglPipelineLayerStateComparitor) (CoglPipelineLayer *authority0,
+(*CoglPipelineLayerStateComparator) (CoglPipelineLayer *authority0,
                                      CoglPipelineLayer *authority1);
 
 

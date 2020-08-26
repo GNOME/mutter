@@ -575,9 +575,9 @@ static gboolean
 layer_state_equal (CoglPipelineLayerStateIndex state_index,
                    CoglPipelineLayer **authorities0,
                    CoglPipelineLayer **authorities1,
-                   CoglPipelineLayerStateComparitor comparitor)
+                   CoglPipelineLayerStateComparator comparator)
 {
-  return comparitor (authorities0[state_index], authorities1[state_index]);
+  return comparator (authorities0[state_index], authorities1[state_index]);
 }
 
 void
