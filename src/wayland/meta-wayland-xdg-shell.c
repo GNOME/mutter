@@ -1845,8 +1845,7 @@ xdg_surface_constructor_get_popup (struct wl_client   *client,
   MetaWaylandSurface *surface = constructor->surface;
   struct wl_resource *xdg_wm_base_resource = constructor->shell_client->resource;
   struct wl_resource *xdg_surface_resource = constructor->resource;
-  MetaWaylandSurface *parent_surface =
-    surface_from_xdg_surface_resource (parent_resource);
+  MetaWaylandSurface *parent_surface;
   MetaWindow *parent_window;
   MetaWaylandXdgPositioner *xdg_positioner;
   MetaWaylandXdgPopup *xdg_popup;
@@ -1864,6 +1863,16 @@ xdg_surface_constructor_get_popup (struct wl_client   *client,
       return;
     }
 
+  if (!parent_resource)
+    {
+      wl_resource_post_error (xdg_wm_base_resource,
+                              XDG_WM_BASE_ERROR_INVALID_POPUP_PARENT,
+                              "Parent surface is null but Mutter does not yet "
+                              "support specifying parent surfaces via other "
+                              "protocols");
+    }
+
+  parent_surface = surface_from_xdg_surface_resource (parent_resource);
   if (!META_IS_WAYLAND_XDG_SURFACE (parent_surface->role))
     {
       wl_resource_post_error (xdg_wm_base_resource,
