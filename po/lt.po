@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: lt\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-03-01 14:47+0200\n"
+"POT-Creation-Date: 2020-08-04 08:31+0000\n"
+"PO-Revision-Date: 2020-08-26 22:39+0300\n"
 "Last-Translator: Aurimas Černius <aurisc4@gmail.com>\n"
 "Language-Team: Lietuvių <gnome-lt@lists.akl.lt>\n"
 "Language: lt\n"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && (n"
 "%100<10 || n%100>=20) ? 1 : 2)\n"
-"X-Generator: Gtranslator 3.34.0\n"
+"X-Generator: Gtranslator 3.36.0\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -509,6 +509,16 @@ msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr "Leisti X11 pagriebimams užrakinti klaviatūros fokusą su XWayland"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#| msgid ""
+#| "Allow all keyboard events to be routed to X11 “override redirect” windows "
+#| "with a grab when running in Xwayland. This option is to support X11 "
+#| "clients which map an “override redirect” window (which do not receive "
+#| "keyboard focus) and issue a keyboard grab to force all keyboard events to "
+#| "that window. This option is seldom used and has no effect on regular X11 "
+#| "windows which can receive keyboard focus under normal circumstances. For "
+#| "a X11 grab to be taken into account under Wayland, the client must also "
+#| "either send a specific X11 ClientMessage to the root window or be among "
+#| "the applications white-listed in key “xwayland-grab-access-rules”."
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -518,14 +528,14 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Leisti visus klaviatūros įvykius nukreipti į X11 „override redirect“ langus "
 "su pagriebimu naudojant Xwayland. Šis parametras yra skirtas X11 klientams, "
 "kurie rodo „override redirect“ langą (kuris negauna klaviatūros fokuso) ir "
 "įvykdo klaviatūros pagriebimą, kad visi klaviatūros įvykiai priverstinai "
 "keliautų į tą langą. Šis parametras yra retai naudojamas ir neturi poveikio "
-"X11 langams, kurie gali įprastai gayti klaviatūros fokusą. Kad X11 "
+"X11 langams, kurie gali įprastai gauti klaviatūros fokusą. Kad X11 "
 "pagriebimas būtų įvertintas Wayland aplinkoje, klientas taip pat turi arba "
 "atsiųsti specialią ClientMessage į šakninį langą, arba būti tarp programų, "
 "kurioms tai yra leidžiama rakte „xwayland-grab-access-rules“."
@@ -535,33 +545,44 @@ msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Xwayland programos, kurioms leidžiama išduoti klaviatūros pagriebimus"
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#| msgid ""
+#| "List the resource names or resource class of X11 windows either allowed "
+#| "or not allowed to issue X11 keyboard grabs under Xwayland. The resource "
+#| "name or resource class of a given X11 window can be obtained using the "
+#| "command “xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are "
+#| "supported. Values starting with “!” are blacklisted, which has precedence "
+#| "over the whitelist, to revoke applications from the default system list. "
+#| "The default system list includes the following applications: "
+#| "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab "
+#| "by using the specific keyboard shortcut defined by the keybinding key "
+#| "“restore-shortcuts”."
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
 msgstr ""
-"Išvardyti X11 langų, kuriems naudojant Wayland leidžiama ar neleidžiama "
+"Išvardyti X11 langų, kuriems naudojant Xwayland leidžiama ar neleidžiama "
 "išduoti X11 klaviatūros pagriebimus, išteklių pavadinimus ar išteklių "
-"klases. Nurodyto lango ištekliaus pavadinimas ar ištekliaus klasė gali būti "
-"gauta naudojant komandą „xprop WM_CLASS“. Reikšmėse yra palaikomi pakaitos "
-"simboliai „*“ ir „?“. Reikšmės prasidedančios „!“ yra įtraukiamos į juodąjį "
-"sąrašą (tam, kad būtų panaikintos iš numatytojo sistemos sąrašo) ir turi "
-"pirmumo teisę baltojo sąrašo atžvilgiu. Į numatytąjį sistemos sąrašą įeina "
-"šios programos: „@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@“. Naudotojai gali "
-"panaikinti esamą pagriebimą, naudodami tam tikrą klaviatūros trumpinį, kuris "
-"apibrėžtas rakto susiejimo raktu „restore-shortcuts“."
+"klases. Nurodyto X11 lango ištekliaus pavadinimas ar ištekliaus klasė gali "
+"būti gauta naudojant komandą „xprop WM_CLASS“. Reikšmėse yra palaikomi "
+"pakaitos simboliai „*“ ir „?“. Reikšmės prasidedančios „!“ yra įtraukiamos į "
+"juodąjį sąrašą (tam, kad būtų panaikintos iš numatytojo sistemos sąrašo) ir "
+"turi pirmumo teisę baltojo sąrašo atžvilgiu. Į numatytąjį sistemos sąrašą "
+"įeina šios programos: „@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@“. Naudotojai "
+"gali panaikinti esamą pagriebimą, naudodami tam tikrą klaviatūros trumpinį, "
+"kuris apibrėžtas rakto susiejimo raktu „restore-shortcuts“."
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2567
+#: src/backends/meta-input-settings.c:2698
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Veiksenos perjungimas (Grupė %d)"
@@ -569,34 +590,34 @@ msgstr "Veiksenos perjungimas (Grupė %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2590
+#: src/backends/meta-input-settings.c:2721
 msgid "Switch monitor"
 msgstr "Perjungti monitorių"
 
-#: src/backends/meta-input-settings.c:2592
+#: src/backends/meta-input-settings.c:2723
 msgid "Show on-screen help"
 msgstr "Rodyti pagalbą ekrane"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Integruotas vaizduoklis"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Nežinomas"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Nežinomas vaizduoklis"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -611,7 +632,7 @@ msgstr "Komponuotojas"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -718,7 +739,7 @@ msgstr "Naudojamas Mutter įskiepis"
 msgid "Workspace %d"
 msgstr "Darbo sritis %d"
 
-#: src/core/util.c:122
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter buvo sukompiliuota be išsamaus veikimo veiksenos\n"
 
@@ -763,7 +784,7 @@ msgstr ""
 "Šie langai nepalaiko „išsaugoti esamus nustatymus“ komandos ir, kai kitą "
 "kartą prisijungsite, turės būti paleisti rankiniu būdu."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (kompiuteryje %s)"
