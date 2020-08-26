@@ -65,7 +65,7 @@ struct _ClutterSettings
   GObject parent_instance;
 
   ClutterBackend *backend;
-  GSettings *xsettings;
+  GSettings *settings;
 
   gint double_click_time;
   gint double_click_distance;
@@ -281,10 +281,10 @@ settings_update_fontmap (ClutterSettings *self,
 }
 
 static void
-get_font_gsettings (GSettings    *xsettings,
+get_font_gsettings (GSettings    *settings,
                     FontSettings *output)
 {
-  /* org.gnome.settings-daemon.GsdFontAntialiasingMode */
+  /* org.gnome.desktop.GDesktopFontAntialiasingMode */
   static const struct
   {
     cairo_antialias_t cairo_antialias;
@@ -297,7 +297,7 @@ get_font_gsettings (GSettings    *xsettings,
     /* rgba=2      */ {CAIRO_ANTIALIAS_SUBPIXEL, 1},
   };
 
-  /* org.gnome.settings-daemon.GsdFontHinting */
+  /* org.gnome.desktop.GDesktopFontHinting */
   static const struct
   {
     cairo_hint_style_t cairo_hint_style;
@@ -311,7 +311,7 @@ get_font_gsettings (GSettings    *xsettings,
     /* full=3   */ {CAIRO_HINT_STYLE_FULL,   "hintfull"},
   };
 
-  /* org.gnome.settings-daemon.GsdFontRgbaOrder */
+  /* org.gnome.desktop.GDesktopFontRgbaOrder */
   static const struct
   {
     cairo_subpixel_order_t cairo_subpixel_order;
@@ -327,7 +327,7 @@ get_font_gsettings (GSettings    *xsettings,
   };
   guint i;
 
-  i = g_settings_get_enum (xsettings, "hinting");
+  i = g_settings_get_enum (settings, "font-hinting");
   if (i < G_N_ELEMENTS (hintings))
     {
       output->cairo_hint_style = hintings[i].cairo_hint_style;
@@ -339,7 +339,7 @@ get_font_gsettings (GSettings    *xsettings,
       output->clutter_font_hint_style = NULL;
     }
 
-  i = g_settings_get_enum (xsettings, "antialiasing");
+  i = g_settings_get_enum (settings, "font-antialiasing");
   if (i < G_N_ELEMENTS (antialiasings))
     {
       output->cairo_antialias = antialiasings[i].cairo_antialias;
@@ -351,7 +351,7 @@ get_font_gsettings (GSettings    *xsettings,
       output->clutter_font_antialias = -1;
     }
 
-  i = g_settings_get_enum (xsettings, "rgba-order");
+  i = g_settings_get_enum (settings, "font-rgba-order");
   if (i < G_N_ELEMENTS (rgba_orders))
     {
       output->cairo_subpixel_order = rgba_orders[i].cairo_subpixel_order;
@@ -370,11 +370,11 @@ get_font_gsettings (GSettings    *xsettings,
 static void
 init_font_options (ClutterSettings *self)
 {
-  GSettings *xsettings = self->xsettings;
+  GSettings *settings = self->settings;
   cairo_font_options_t *options = cairo_font_options_create ();
   FontSettings fs;
 
-  get_font_gsettings (xsettings, &fs);
+  get_font_gsettings (settings, &fs);
 
   cairo_font_options_set_hint_style (options, fs.cairo_hint_style);
   cairo_font_options_set_antialias (options, fs.cairo_antialias);
@@ -386,16 +386,16 @@ init_font_options (ClutterSettings *self)
 }
 
 static gboolean
-on_xsettings_change_event (GSettings *xsettings,
-                           gpointer   keys,
-                           gint       n_keys,
-                           gpointer   user_data)
+on_settings_change_event (GSettings *settings,
+                          gpointer   keys,
+                          gint       n_keys,
+                          gpointer   user_data)
 {
   ClutterSettings *self = CLUTTER_SETTINGS (user_data);
   FontSettings fs;
   gint hinting;
 
-  get_font_gsettings (xsettings, &fs);
+  get_font_gsettings (settings, &fs);
   hinting = fs.cairo_hint_style == CAIRO_HINT_STYLE_NONE ? 0 : 1;
   g_object_set (self,
                 "font-hinting",        hinting,
@@ -410,24 +410,23 @@ on_xsettings_change_event (GSettings *xsettings,
 static void
 load_initial_settings (ClutterSettings *self)
 {
-  static const gchar xsettings_path[] =
-    "org.gnome.settings-daemon.plugins.xsettings";
+  static const gchar *settings_path = "org.gnome.desktop.interface";
   GSettingsSchemaSource *source = g_settings_schema_source_get_default ();
   GSettingsSchema *schema;
 
-  schema = g_settings_schema_source_lookup (source, xsettings_path, TRUE);
+  schema = g_settings_schema_source_lookup (source, settings_path, TRUE);
   if (!schema)
     {
-      g_warning ("Failed to find schema: %s", xsettings_path);
+      g_warning ("Failed to find schema: %s", settings_path);
     }
   else
     {
-      self->xsettings = g_settings_new_full (schema, NULL, NULL);
-      if (self->xsettings)
+      self->settings = g_settings_new_full (schema, NULL, NULL);
+      if (self->settings)
         {
           init_font_options (self);
-          g_signal_connect (self->xsettings, "change-event",
-                            G_CALLBACK (on_xsettings_change_event),
+          g_signal_connect (self->settings, "change-event",
+                            G_CALLBACK (on_settings_change_event),
                             self);
         }
     }
@@ -442,7 +441,7 @@ clutter_settings_finalize (GObject *gobject)
   g_free (self->xft_hint_style);
   g_free (self->xft_rgba);
 
-  g_clear_object (&self->xsettings);
+  g_clear_object (&self->settings);
 
   G_OBJECT_CLASS (clutter_settings_parent_class)->finalize (gobject);
 }
