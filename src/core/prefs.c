@@ -68,8 +68,7 @@
 #define SCHEMA_MUTTER          "org.gnome.mutter"
 #define SCHEMA_INTERFACE       "org.gnome.desktop.interface"
 #define SCHEMA_INPUT_SOURCES   "org.gnome.desktop.input-sources"
-#define SCHEMA_XSETTINGS       "org.gnome.settings-daemon.plugins.xsettings"
-#define SCHEMA_MOUSE           "org.gnome.settings-daemon.peripherals.mouse"
+#define SCHEMA_MOUSE           "org.gnome.desktop.peripherals.mouse"
 
 #define SETTINGS(s) g_hash_table_lookup (settings_schemas, (s))
 

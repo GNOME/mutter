@@ -73,7 +73,6 @@ struct _MetaInputSettingsPrivate
   GSettings *touchpad_settings;
   GSettings *trackball_settings;
   GSettings *keyboard_settings;
-  GSettings *gsd_settings;
   GSettings *keyboard_a11y_settings;
   GSettings *mouse_a11y_settings;
 
@@ -154,7 +153,6 @@ meta_input_settings_dispose (GObject *object)
   g_clear_object (&priv->touchpad_settings);
   g_clear_object (&priv->trackball_settings);
   g_clear_object (&priv->keyboard_settings);
-  g_clear_object (&priv->gsd_settings);
   g_clear_object (&priv->keyboard_a11y_settings);
   g_clear_object (&priv->mouse_a11y_settings);
   g_clear_pointer (&priv->mappable_devices, g_hash_table_unref);
@@ -1800,6 +1798,10 @@ meta_input_settings_init (MetaInputSettings *settings)
   g_signal_connect (priv->mouse_settings, "changed",
                     G_CALLBACK (meta_input_settings_changed_cb), settings);
 
+  g_settings_bind (priv->mouse_settings, "double-click",
+                   clutter_settings_get_default(), "double-click-time",
+                   G_SETTINGS_BIND_GET);
+
   priv->touchpad_settings = g_settings_new ("org.gnome.desktop.peripherals.touchpad");
   g_signal_connect (priv->touchpad_settings, "changed",
                     G_CALLBACK (meta_input_settings_changed_cb), settings);
@@ -1811,12 +1813,6 @@ meta_input_settings_init (MetaInputSettings *settings)
   priv->keyboard_settings = g_settings_new ("org.gnome.desktop.peripherals.keyboard");
   g_signal_connect (priv->keyboard_settings, "changed",
                     G_CALLBACK (meta_input_settings_changed_cb), settings);
-
-  priv->gsd_settings = g_settings_new ("org.gnome.settings-daemon.peripherals.mouse");
-
-  g_settings_bind (priv->gsd_settings, "double-click",
-                   clutter_settings_get_default(), "double-click-time",
-                   G_SETTINGS_BIND_GET);
 
   priv->keyboard_a11y_settings = g_settings_new ("org.gnome.desktop.a11y.keyboard");
   g_signal_connect (priv->keyboard_a11y_settings, "changed",
