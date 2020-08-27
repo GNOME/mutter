@@ -341,36 +341,11 @@ screen_cast_window_destroyed (MetaWindowActor               *actor,
   window_src->screen_cast_window = NULL;
 }
 
-static gboolean
-is_cursor_in_stream (MetaScreenCastWindowStreamSrc *window_src)
-{
-  MetaBackend *backend = get_backend (window_src);
-  MetaCursorRenderer *cursor_renderer =
-    meta_backend_get_cursor_renderer (backend);
-  MetaCursorSprite *cursor_sprite;
-  graphene_point_t cursor_position;
-  MetaScreenCastWindow *screen_cast_window;
-
-  cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
-
-  cursor_position = meta_cursor_renderer_get_position (cursor_renderer);
-
-  screen_cast_window = window_src->screen_cast_window;
-  return meta_screen_cast_window_transform_cursor_position (screen_cast_window,
-                                                            cursor_sprite,
-                                                            &cursor_position,
-                                                            NULL,
-                                                            NULL);
-}
-
 static void
 sync_cursor_state (MetaScreenCastWindowStreamSrc *window_src)
 {
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
   MetaScreenCastRecordFlag flags;
-
-  if (!is_cursor_in_stream (window_src))
-    return;
 
   if (meta_screen_cast_window_has_damage (window_src->screen_cast_window))
     return;

@@ -185,9 +185,6 @@ sync_cursor_state (MetaScreenCastMonitorStreamSrc *monitor_src)
   ClutterStage *stage = get_stage (monitor_src);
   MetaScreenCastRecordFlag flags;
 
-  if (!is_cursor_in_stream (monitor_src))
-    return;
-
   if (clutter_stage_is_redraw_queued (stage))
     return;
 
