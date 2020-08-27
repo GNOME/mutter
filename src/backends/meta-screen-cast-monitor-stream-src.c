@@ -206,9 +206,6 @@ sync_cursor_state (MetaScreenCastMonitorStreamSrc *monitor_src)
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (monitor_src);
   MetaScreenCastRecordFlag flags;
 
-  if (!is_cursor_in_stream (monitor_src))
-    return;
-
   if (is_redraw_queued (monitor_src))
     return;
 
