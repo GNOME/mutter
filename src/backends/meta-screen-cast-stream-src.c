@@ -286,7 +286,7 @@ void
 meta_screen_cast_stream_src_unset_cursor_metadata (MetaScreenCastStreamSrc *src,
                                                    struct spa_meta_cursor  *spa_meta_cursor)
 {
-  spa_meta_cursor->id = 1;
+  spa_meta_cursor->id = 0;
 }
 
 void
