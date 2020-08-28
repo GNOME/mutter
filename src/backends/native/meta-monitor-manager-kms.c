@@ -414,7 +414,7 @@ meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
   gamma_ramp_string = generate_gamma_ramp_string (size, red, green, blue);
-  g_debug ("Setting CRTC (%ld) gamma to %s",
+  g_debug ("Setting CRTC (%" G_GUINT64_FORMAT ") gamma to %s",
            meta_crtc_get_id (crtc), gamma_ramp_string);
 
   kms_update = meta_kms_ensure_pending_update (kms);

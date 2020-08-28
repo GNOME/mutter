@@ -186,14 +186,14 @@ meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
 
       mode = meta_crtc_mode_kms_get_drm_mode (crtc_mode_kms);
 
-      g_debug ("Setting CRTC (%ld) mode to %s",
+      g_debug ("Setting CRTC (%" G_GUINT64_FORMAT ") mode to %s",
                meta_crtc_get_id (crtc), mode->name);
     }
   else
     {
       mode = NULL;
 
-      g_debug ("Unsetting CRTC (%ld) mode",
+      g_debug ("Unsetting CRTC (%" G_GUINT64_FORMAT ") mode",
                meta_crtc_get_id (crtc));
     }
 
