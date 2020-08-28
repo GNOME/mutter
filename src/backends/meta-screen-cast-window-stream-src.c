@@ -342,7 +342,7 @@ screen_cast_window_damaged (MetaWindowActor               *actor,
   MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (window_src);
   MetaScreenCastRecordFlag flags;
 
-  flags = META_SCREEN_CAST_RECORD_FLAG_CURSOR_ONLY;
+  flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
   meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
