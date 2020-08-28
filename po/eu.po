@@ -5,14 +5,14 @@
 # Hizkuntza Politikarako Sailburuordetza <hizpol@ej-gv.es>, 2004.
 # Iñaki Larrañaga Murgoitio <dooteo@zundan.com>, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011.
 # Iñaki Larrañaga Murgoitio <dooteo@zundan.com>, 2012, 2013, 2014, 2015, 2016, 2017.
-# Asier Sarasua Garmendia  <asier.sarasua@gmail.com>, 2019, 2020.
+# Asier Sarasua Garmendia  <asiersarasua@ni.eus>, 2019, 2020.
 #
 msgid ""
 msgstr "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-02-24 10:00+0100\n"
-"Last-Translator: Asier Sarasua Garmendia <asier.sarasua@gmail.com>\n"
+"POT-Creation-Date: 2020-08-04 08:31+0000\n"
+"PO-Revision-Date: 2020-08-28 10:00+0100\n"
+"Last-Translator: Asier Sarasua Garmendia <asiersarasua@ni.eus>\n"
 "Language-Team: Basque <librezale@librezale.eus>\n"
 "Language: eu\n"
 "MIME-Version: 1.0\n"
@@ -473,8 +473,8 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
-msgstr "Onartu teklatu-gertaera guztiak X11 “override redirect” leihoetara bidera daitezen Xwayland-en exekutatzean. Aukera honek “override redirect” leiho bat (teklatu-fokua jasotzen ez duena) mapatzen duten eta teklatu-gertaera guztiak leiho horretara behartzen dituen teklatu-harrapatze bat bidaltzen duten X11 bezeroei euskarria emateko da. Aukera hori gutxitan erabiltzen da eta ez du eraginik X11 leiho arruntetan, horiek teklatuaren fokua modu normalean jasotzen baitute. X11 harrapatze bat Wayland pean kontuan har dadin, bezeroak ere X11 ClientMessage mezu espezifiko bat bidali behar dio erro-leihoari edo “xwayland-grab-access-rules” gakoaren zerrenda zurian dauden aplikazioen artean egon behar du."
+"allowed in key “xwayland-grab-access-rules”."
+msgstr "Onartu teklatu-gertaera guztiak X11 “override redirect” leihoetara bidera daitezen Xwayland-en exekutatzean. Aukera honek “override redirect” leiho bat (teklatu-fokua jasotzen ez duena) mapatzen duten eta teklatu-gertaera guztiak leiho horretara behartzen dituen teklatu-harrapatze bat bidaltzen duten X11 bezeroei euskarria emateko da. Aukera hori gutxitan erabiltzen da eta ez du eraginik X11 leiho arruntetan, horiek teklatuaren fokua modu normalean jasotzen baitute. X11 harrapatze bat Wayland pean kontuan har dadin, bezeroak ere X11 ClientMessage mezu espezifiko bat bidali behar dio erro-leihoari edo “xwayland-grab-access-rules” gakoan onartuta dauden aplikazioen artean egon behar du."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -486,18 +486,18 @@ msgid ""
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
-msgstr "Zerrendatu Xwayland pean X11 teklatu-kapturak bidaltzea onartuta duten edo ez duten X11 leihoen baliabide-izenak edo baliabide-klaseak. X11 leiho baten baliabide-izena edo baliabide-klasea “xprop WM_CLASS” komandoa erabilita eskuratu daiteke. “*” eta “?” komodinak onartzen diren balioetan. Hasieran “!” duten balioak zerrenda beltzean sartuta daude, eta horrek lehentasuna du zerrenda zuriaren aurretik sistema-zerrenda lehenetsiko aplikazioak bertan behera uzteko. Sistema-zerrenda lehenetsiak honako aplikazioak ditu: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Erabiltzaileek edozein kaptura hautsi dezakete “restore-shortcuts” lotura-teklan definitutako lasterbideak erabilita."
+msgstr "Zerrendatu Xwayland pean X11 teklatu-kapturak bidaltzea onartuta duten edo ez duten X11 leihoen baliabide-izenak edo baliabide-klaseak. X11 leiho baten baliabide-izena edo baliabide-klasea “xprop WM_CLASS” komandoa erabilita eskuratu daiteke. “*” eta “?” komodinak onartzen diren balioetan. Hasieran “!” duten balioak ukatuta daude, eta horrek lehentasuna du onartutakoen aurretik sistema-zerrenda lehenetsiko aplikazioak bertan behera uzteko. Sistema-zerrenda lehenetsiak honako aplikazioak ditu: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Erabiltzaileek edozein kaptura hautsi dezakete “restore-shortcuts” lotura-teklan definitutako lasterbideak erabilita."
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2567
+#: src/backends/meta-input-settings.c:2698
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Modu aldaketa (%d taldea)"
@@ -505,34 +505,34 @@ msgstr "Modu aldaketa (%d taldea)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2590
+#: src/backends/meta-input-settings.c:2721
 msgid "Switch monitor"
 msgstr "Aldatu monitorea"
 
-#: src/backends/meta-input-settings.c:2592
+#: src/backends/meta-input-settings.c:2723
 msgid "Show on-screen help"
 msgstr "Erakutsi pantailako laguntzan"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Bertako pantaila"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Ezezaguna"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Pantaila ezezaguna"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -547,7 +547,7 @@ msgstr "Konposatzailea"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -651,7 +651,7 @@ msgstr "Mutter-en osagaia erabiltzeko"
 msgid "Workspace %d"
 msgstr "%d. laneko area"
 
-#: src/core/util.c:122
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter modu xehearen euskarririk gabe konpilatu da\n"
 
@@ -692,7 +692,7 @@ msgid ""
 "restarted manually next time you log in."
 msgstr "Leiho hauek ez dute onartzen “gorde uneko konfigurazioa“; eta eskuz berrabiarazi beharko dituzu hurrengo saioa hasten duzunean."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s)"
