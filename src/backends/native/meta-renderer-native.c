@@ -2151,7 +2151,6 @@ meta_onscreen_native_direct_scanout (CoglOnscreen  *onscreen,
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaKmsUpdate *kms_update;
-  g_autoptr (GError) error = NULL;
 
   kms_update = meta_kms_ensure_pending_update (kms);
 
