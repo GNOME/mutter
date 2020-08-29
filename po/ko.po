@@ -7,7 +7,7 @@
 #
 # Updated in mutter:
 # Changwoo Ryu <cwryu@debian.org>, 2011-2017.
-# Gwan-gyeong Mun <elongbug@gmail.com>, 2018-2019.
+# Gwan-gyeong Mun <elongbug@gmail.com>, 2018-2020.
 #
 #
 # 주의:
@@ -18,8 +18,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-02-24 14:09+0200\n"
+"POT-Creation-Date: 2020-08-04 08:31+0000\n"
+"PO-Revision-Date: 2020-08-27 13:57+0300\n"
 "Last-Translator: Gwan-gyeong Mun <elongbug@gmail.com>\n"
 "Language-Team: GNOME Korea <gnome-kr@googlegroups.com>\n"
 "Language: ko\n"
@@ -513,7 +513,7 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "X웨일랜드 환경에서 X11 “override redirect” 창이 잡기를 할 때 모든 키보드 이벤"
 "트가 전달되도록 허용합니다. 이 옵션은 X11 클라이언트의 “override redirect”(키"
@@ -521,7 +521,7 @@ msgstr ""
 "기를 지원합니다. 이 옵션은 거의 사용되지 않으며 일반적인 상황에서 키보드 포커"
 "스를 받을 수 있는 일반 X11 창에는 영향을 미치지 않습니다. 웨일랜드에서 X11 잡"
 "기를 고려하려면, 클라이언트는 특정 X11 클라이언트메시지를 루트 창에 보내거나 "
-"“xwayland-grab-access-rules”의 허용 목록에 있는 프로그램 중 하나여야 합니다."
+"“xwayland-grab-access-rules”에서 허용하는 프로그램 중 하나여야 합니다."
 
 #: data/org.gnome.mutter.wayland.gschema.xml.in:84
 msgid "Xwayland applications allowed to issue keyboard grabs"
@@ -533,9 +533,9 @@ msgid ""
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -543,8 +543,8 @@ msgstr ""
 "X웨일랜드에서 X11 키보드 잡기를 허용하거나 허용하지 않는 X11 창의 리소스 이"
 "름 또는 리소스 클래스를 나열하세요. X11 창의 리소스 이름 또는 리소스 클래스"
 "는 “xprop WM_CLASS\" 명령을 사용하여 얻을 수 있습니다. 와일드카드 \"*\"와 \"?"
-"\"를 값에서 사용할 수 있습니다. \"!\"로 시작하는 값은 허용 목록보다 높은 우선"
-"순위로 블랙리스트 처리되어, 프로그램이 기본 시스템 목록에서 빠지게 됩니다. 기"
+"\"를 값에서 사용할 수 있습니다. \"!\"로 시작하는 값은 허용하는 값의 목록보다 "
+"높은 우선순위로 거부되고, 프로그램이 기본 시스템 목록에서 빠지게 됩니다. 기"
 "본 시스템 목록에 포함된 프로그램: “@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” 사용"
 "자는 “restore-shortcuts” 키 바인딩에 정의된 특정 키보드 바로 가기를 사용하여 "
 "기존 잡기를 중단할 수 있습니다."
@@ -552,7 +552,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2567
+#: src/backends/meta-input-settings.c:2698
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "모드 전환 (그룹 %d)"
@@ -560,34 +560,34 @@ msgstr "모드 전환 (그룹 %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2590
+#: src/backends/meta-input-settings.c:2721
 msgid "Switch monitor"
 msgstr "모니터 전환"
 
-#: src/backends/meta-input-settings.c:2592
+#: src/backends/meta-input-settings.c:2723
 msgid "Show on-screen help"
 msgstr "화면 도움말 표시"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "내장 디스플레이"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "알 수 없음"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "알 수 없는 디스플레이"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -602,7 +602,7 @@ msgstr "컴포지터"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -710,7 +710,7 @@ msgstr "사용할 머터 플러그인"
 msgid "Workspace %d"
 msgstr "작업 공간 %d"
 
-#: src/core/util.c:122
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "머터가 자세한 모드 지원 없이 컴파일 되었습니다\n"
 
@@ -756,7 +756,7 @@ msgstr ""
 "로 다시 시작해야 합니다."
 
 # <창제목> (on <기계>)
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (%s에서)"
