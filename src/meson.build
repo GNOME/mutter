@@ -633,6 +633,8 @@ if have_native_backend
     'backends/native/meta-barrier-native.h',
     'backends/native/meta-clutter-backend-native.c',
     'backends/native/meta-clutter-backend-native.h',
+    'backends/native/meta-cogl-utils.c',
+    'backends/native/meta-cogl-utils.h',
     'backends/native/meta-crtc-kms.c',
     'backends/native/meta-crtc-kms.h',
     'backends/native/meta-crtc-mode-kms.c',

@@ -57,6 +57,7 @@
 #include "backends/meta-logical-monitor.h"
 #include "backends/meta-output.h"
 #include "backends/meta-renderer-view.h"
+#include "backends/native/meta-cogl-utils.h"
 #include "backends/native/meta-crtc-kms.h"
 #include "backends/native/meta-drm-buffer-dumb.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
@@ -255,11 +256,6 @@ meta_renderer_native_get_egl (MetaRendererNative *renderer_native);
 
 static void
 free_current_secondary_bo (CoglOnscreen *onscreen);
-
-static gboolean
-cogl_pixel_format_from_drm_format (uint32_t               drm_format,
-                                   CoglPixelFormat       *out_format,
-                                   CoglTextureComponents *out_components);
 
 static void
 meta_renderer_native_queue_modes_reset (MetaRendererNative *renderer_native);
@@ -568,9 +564,9 @@ pick_secondary_gpu_framebuffer_format_for_cpu (CoglOnscreen *onscreen)
   /* Check if any of our preferred formats are supported. */
   for (k = 0; k < G_N_ELEMENTS (preferred_formats); k++)
     {
-      g_assert (cogl_pixel_format_from_drm_format (preferred_formats[k],
-                                                   NULL,
-                                                   NULL));
+      g_assert (meta_cogl_pixel_format_from_drm_format (preferred_formats[k],
+                                                        NULL,
+                                                        NULL));
 
       for (i = 0; i < formats->len; i++)
         {
@@ -590,7 +586,7 @@ pick_secondary_gpu_framebuffer_format_for_cpu (CoglOnscreen *onscreen)
     {
       drm_format = g_array_index (formats, uint32_t, i);
 
-      if (cogl_pixel_format_from_drm_format (drm_format, NULL, NULL))
+      if (meta_cogl_pixel_format_from_drm_format (drm_format, NULL, NULL))
         return drm_format;
     }
 
@@ -1563,7 +1559,9 @@ create_dma_buf_framebuffer (MetaRendererNative  *renderer_native,
   CoglOffscreen *cogl_fbo;
   int ret;
 
-  ret = cogl_pixel_format_from_drm_format (drm_format, &cogl_format, NULL);
+  ret = meta_cogl_pixel_format_from_drm_format (drm_format,
+                                                &cogl_format,
+                                                NULL);
   g_assert (ret);
 
   strides[0] = stride;
@@ -1641,9 +1639,9 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   g_assert (cogl_framebuffer_get_width (framebuffer) == dumb_fb->width);
   g_assert (cogl_framebuffer_get_height (framebuffer) == dumb_fb->height);
 
-  ret = cogl_pixel_format_from_drm_format (dumb_fb->drm_format,
-                                           &cogl_format,
-                                           NULL);
+  ret = meta_cogl_pixel_format_from_drm_format (dumb_fb->drm_format,
+                                                &cogl_format,
+                                                NULL);
   g_assert (ret);
 
   dmabuf_fd = meta_dumb_buffer_ensure_dmabuf_fd (dumb_fb,
@@ -1687,65 +1685,6 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   return TRUE;
 }
 
-typedef struct _PixelFormatMap {
-  uint32_t drm_format;
-  CoglPixelFormat cogl_format;
-  CoglTextureComponents cogl_components;
-} PixelFormatMap;
-
-static const PixelFormatMap pixel_format_map[] = {
-/* DRM formats are defined as little-endian, not machine endian. */
-#if G_BYTE_ORDER == G_LITTLE_ENDIAN
-  { DRM_FORMAT_RGB565,   COGL_PIXEL_FORMAT_RGB_565,       COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_ABGR8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_XBGR8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_ARGB8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_XRGB8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_BGRA8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_BGRX8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_RGBA8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_RGBX8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-#elif G_BYTE_ORDER == G_BIG_ENDIAN
-  /* DRM_FORMAT_RGB565 cannot be expressed. */
-  { DRM_FORMAT_ABGR8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_XBGR8888, COGL_PIXEL_FORMAT_ABGR_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_ARGB8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_XRGB8888, COGL_PIXEL_FORMAT_ARGB_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_BGRA8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_BGRX8888, COGL_PIXEL_FORMAT_BGRA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-  { DRM_FORMAT_RGBA8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGBA },
-  { DRM_FORMAT_RGBX8888, COGL_PIXEL_FORMAT_RGBA_8888_PRE, COGL_TEXTURE_COMPONENTS_RGB  },
-#else
-#error "unexpected G_BYTE_ORDER"
-#endif
-};
-
-static gboolean
-cogl_pixel_format_from_drm_format (uint32_t               drm_format,
-                                   CoglPixelFormat       *out_format,
-                                   CoglTextureComponents *out_components)
-{
-  const size_t n = G_N_ELEMENTS (pixel_format_map);
-  size_t i;
-
-  for (i = 0; i < n; i++)
-    {
-      if (pixel_format_map[i].drm_format == drm_format)
-        break;
-    }
-
-  if (i == n)
-    return FALSE;
-
-  if (out_format)
-    *out_format = pixel_format_map[i].cogl_format;
-
-  if (out_components)
-    *out_components = pixel_format_map[i].cogl_components;
-
-  return TRUE;
-}
-
 static void
 copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
                              MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state,
@@ -1767,9 +1706,9 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   g_assert (cogl_framebuffer_get_width (framebuffer) == dumb_fb->width);
   g_assert (cogl_framebuffer_get_height (framebuffer) == dumb_fb->height);
 
-  ret = cogl_pixel_format_from_drm_format (dumb_fb->drm_format,
-                                           &cogl_format,
-                                           NULL);
+  ret = meta_cogl_pixel_format_from_drm_format (dumb_fb->drm_format,
+                                                &cogl_format,
+                                                NULL);
   g_assert (ret);
 
   dumb_bitmap = cogl_bitmap_new_for_data (cogl_context,
