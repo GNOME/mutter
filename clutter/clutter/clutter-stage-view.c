@@ -1009,6 +1009,18 @@ clutter_stage_view_take_scanout (ClutterStageView *view)
   return g_steal_pointer (&priv->next_scanout);
 }
 
+/**
+ * clutter_stage_view_peek_scanout: (skip)
+ */
+CoglScanout *
+clutter_stage_view_peek_scanout (ClutterStageView *view)
+{
+  ClutterStageViewPrivate *priv =
+    clutter_stage_view_get_instance_private (view);
+
+  return priv->next_scanout;
+}
+
 void
 clutter_stage_view_schedule_update (ClutterStageView *view)
 {

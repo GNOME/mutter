@@ -76,4 +76,7 @@ void clutter_stage_view_get_offscreen_transformation_matrix (ClutterStageView *v
 CLUTTER_EXPORT
 ClutterFrameClock * clutter_stage_view_get_frame_clock (ClutterStageView *view);
 
+CLUTTER_EXPORT
+CoglScanout * clutter_stage_view_peek_scanout (ClutterStageView *view);
+
 #endif /* __CLUTTER_STAGE_VIEW_H__ */
