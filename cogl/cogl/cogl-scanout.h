@@ -19,6 +19,7 @@
 #define COGL_SCANOUT_H
 
 #include "cogl/cogl-types.h"
+#include "cogl/cogl-framebuffer.h"
 
 #include <glib-object.h>
 
@@ -30,6 +31,19 @@ G_DECLARE_INTERFACE (CoglScanout, cogl_scanout,
 struct _CoglScanoutInterface
 {
   GTypeInterface parent_iface;
+
+  gboolean (*blit_to_framebuffer) (CoglScanout      *scanout,
+                                   CoglFramebuffer  *framebuffer,
+                                   int               x,
+                                   int               y,
+                                   GError          **error);
 };
+
+COGL_EXPORT
+gboolean cogl_scanout_blit_to_framebuffer (CoglScanout      *scanout,
+                                           CoglFramebuffer  *framebuffer,
+                                           int               x,
+                                           int               y,
+                                           GError          **error);
 
 #endif /* COGL_SCANOUT_H */

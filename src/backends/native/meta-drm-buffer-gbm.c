@@ -23,6 +23,7 @@
 
 #include "config.h"
 
+#include "backends/native/meta-cogl-utils.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
 
 #include <drm_fourcc.h>
@@ -166,9 +167,140 @@ meta_drm_buffer_gbm_get_fb_id (MetaDrmBuffer *buffer)
   return META_DRM_BUFFER_GBM (buffer)->fb_id;
 }
 
+static gboolean
+meta_drm_buffer_gbm_blit_to_framebuffer (CoglScanout      *scanout,
+                                         CoglFramebuffer  *framebuffer,
+                                         int               x,
+                                         int               y,
+                                         GError          **error)
+{
+  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (scanout);
+  MetaBackend *backend = meta_get_backend ();
+  MetaEgl *egl = meta_backend_get_egl (backend);
+  ClutterBackend *clutter_backend =
+    meta_backend_get_clutter_backend (backend);
+  CoglContext *cogl_context =
+    clutter_backend_get_cogl_context (clutter_backend);
+  CoglDisplay *cogl_display = cogl_context->display;
+  CoglRenderer *cogl_renderer = cogl_display->renderer;
+  CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
+  EGLDisplay egl_display = cogl_renderer_egl->edpy;
+  EGLImageKHR egl_image;
+  CoglPixelFormat cogl_format;
+  CoglEglImageFlags flags;
+  CoglOffscreen *cogl_fbo = NULL;
+  CoglTexture2D *cogl_tex;
+  uint32_t n_planes;
+  uint64_t *modifiers;
+  uint32_t *strides;
+  uint32_t *offsets;
+  uint32_t width;
+  uint32_t height;
+  uint32_t drm_format;
+  int *fds;
+  gboolean result;
+  int dmabuf_fd = -1;
+  uint32_t i;
+
+  if (!buffer_gbm->bo)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                   "No gbm_bo available");
+      return FALSE;
+    }
+
+  dmabuf_fd = gbm_bo_get_fd (buffer_gbm->bo);
+  if (dmabuf_fd == -1)
+    {
+      g_set_error (error, G_IO_ERROR, G_IO_ERROR_EXISTS,
+                   "Failed to export buffer's DMA fd: %s",
+                   g_strerror (errno));
+      return FALSE;
+    }
+
+  drm_format = gbm_bo_get_format (buffer_gbm->bo);
+  result = meta_cogl_pixel_format_from_drm_format (drm_format,
+                                                   &cogl_format,
+                                                   NULL);
+  g_assert (result);
+
+  width = gbm_bo_get_width (buffer_gbm->bo);
+  height = gbm_bo_get_height (buffer_gbm->bo);
+  n_planes = gbm_bo_get_plane_count (buffer_gbm->bo);
+  fds = g_alloca (sizeof (int) * n_planes);
+  strides = g_alloca (sizeof (uint32_t) * n_planes);
+  offsets = g_alloca (sizeof (uint32_t) * n_planes);
+  modifiers = g_alloca (sizeof (uint64_t) * n_planes);
+
+  for (i = 0; i < n_planes; i++)
+    {
+      fds[i] = dmabuf_fd;
+      strides[i] = gbm_bo_get_stride_for_plane (buffer_gbm->bo, i);
+      offsets[i] = gbm_bo_get_offset (buffer_gbm->bo, i);
+      modifiers[i] = gbm_bo_get_modifier (buffer_gbm->bo);
+    }
+
+  egl_image = meta_egl_create_dmabuf_image (egl,
+                                            egl_display,
+                                            width,
+                                            height,
+                                            drm_format,
+                                            n_planes,
+                                            fds,
+                                            strides,
+                                            offsets,
+                                            modifiers,
+                                            error);
+  if (egl_image == EGL_NO_IMAGE_KHR)
+    {
+      result = FALSE;
+      goto out;
+    }
+
+  flags = COGL_EGL_IMAGE_FLAG_NO_GET_DATA;
+  cogl_tex = cogl_egl_texture_2d_new_from_image (cogl_context,
+                                                 width,
+                                                 height,
+                                                 cogl_format,
+                                                 egl_image,
+                                                 flags,
+                                                 error);
+
+  meta_egl_destroy_image (egl, egl_display, egl_image, NULL);
+
+  if (!cogl_tex)
+    {
+      result = FALSE;
+      goto out;
+    }
+
+  cogl_fbo = cogl_offscreen_new_with_texture (COGL_TEXTURE (cogl_tex));
+  cogl_object_unref (cogl_tex);
+
+  if (!cogl_framebuffer_allocate (COGL_FRAMEBUFFER (cogl_fbo), error))
+    {
+      result = FALSE;
+      goto out;
+    }
+
+  result = cogl_blit_framebuffer (COGL_FRAMEBUFFER (cogl_fbo),
+                                  framebuffer,
+                                  0, 0,
+                                  x, y,
+                                  width, height,
+                                  error);
+
+out:
+  cogl_clear_object (&cogl_fbo);
+  close (dmabuf_fd);
+
+  return result;
+}
+
 static void
 cogl_scanout_iface_init (CoglScanoutInterface *iface)
 {
+  iface->blit_to_framebuffer = meta_drm_buffer_gbm_blit_to_framebuffer;
 }
 
 static void

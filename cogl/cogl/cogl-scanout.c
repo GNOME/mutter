@@ -25,3 +25,22 @@ static void
 cogl_scanout_default_init (CoglScanoutInterface *iface)
 {
 }
+
+gboolean
+cogl_scanout_blit_to_framebuffer (CoglScanout      *scanout,
+                                  CoglFramebuffer  *framebuffer,
+                                  int               x,
+                                  int               y,
+                                  GError          **error)
+{
+  CoglScanoutInterface *iface;
+
+  g_return_val_if_fail (COGL_IS_SCANOUT (scanout), FALSE);
+
+  iface = COGL_SCANOUT_GET_IFACE (scanout);
+
+  if (iface->blit_to_framebuffer)
+    return iface->blit_to_framebuffer (scanout, framebuffer, x, y, error);
+  else
+    return FALSE;
+}
