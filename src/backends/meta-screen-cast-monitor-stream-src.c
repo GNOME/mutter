@@ -127,6 +127,25 @@ stage_painted (MetaStage           *stage,
   meta_screen_cast_stream_src_maybe_record_frame (src, flags);
 }
 
+static void
+before_stage_painted (MetaStage           *stage,
+                      ClutterStageView    *view,
+                      ClutterPaintContext *paint_context,
+                      gpointer             user_data)
+{
+  MetaScreenCastStreamSrc *src = META_SCREEN_CAST_STREAM_SRC (user_data);
+  CoglScanout *scanout;
+
+  scanout = clutter_stage_view_peek_scanout (view);
+  if (scanout)
+    {
+      MetaScreenCastRecordFlag flags;
+
+      flags = META_SCREEN_CAST_RECORD_FLAG_NONE;
+      meta_screen_cast_stream_src_maybe_record_frame (src, flags);
+    }
+}
+
 static MetaBackend *
 get_backend (MetaScreenCastMonitorStreamSrc *monitor_src)
 {
@@ -344,6 +363,9 @@ meta_screen_cast_monitor_stream_src_enable (MetaScreenCastStreamSrc *src)
       meta_cursor_tracker_track_position (cursor_tracker);
       G_GNUC_FALLTHROUGH;
     case META_SCREEN_CAST_CURSOR_MODE_HIDDEN:
+      add_view_watches (monitor_src,
+                        META_STAGE_WATCH_BEFORE_PAINT,
+                        before_stage_painted);
       add_view_watches (monitor_src,
                         META_STAGE_WATCH_AFTER_ACTOR_PAINT,
                         stage_painted);
