@@ -520,6 +520,7 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
     {
       ClutterStageView *view = CLUTTER_STAGE_VIEW (l->data);
       CoglFramebuffer *view_framebuffer;
+      CoglScanout *scanout;
       MetaRectangle view_layout;
       int x, y;
 
@@ -528,19 +529,30 @@ meta_screen_cast_monitor_stream_src_record_to_framebuffer (MetaScreenCastStreamS
       if (!meta_rectangle_overlap (&logical_monitor_layout, &view_layout))
         continue;
 
-      view_framebuffer = clutter_stage_view_get_framebuffer (view);
-
       x = (int) roundf ((view_layout.x - logical_monitor_layout.x) * view_scale);
       y = (int) roundf ((view_layout.y - logical_monitor_layout.y) * view_scale);
 
-      if (!cogl_blit_framebuffer (view_framebuffer,
-                                  framebuffer,
-                                  0, 0,
-                                  x, y,
-                                  cogl_framebuffer_get_width (view_framebuffer),
-                                  cogl_framebuffer_get_height (view_framebuffer),
-                                  error))
-        return FALSE;
+      scanout = clutter_stage_view_peek_scanout (view);
+      if (scanout)
+        {
+          if (!cogl_scanout_blit_to_framebuffer (scanout,
+                                                 framebuffer,
+                                                 x, y,
+                                                 error))
+            return FALSE;
+        }
+      else
+        {
+          view_framebuffer = clutter_stage_view_get_framebuffer (view);
+          if (!cogl_blit_framebuffer (view_framebuffer,
+                                      framebuffer,
+                                      0, 0,
+                                      x, y,
+                                      cogl_framebuffer_get_width (view_framebuffer),
+                                      cogl_framebuffer_get_height (view_framebuffer),
+                                      error))
+            return FALSE;
+        }
     }
 
   cogl_framebuffer_finish (framebuffer);
