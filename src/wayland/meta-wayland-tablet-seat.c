@@ -173,7 +173,7 @@ is_tablet_device (ClutterInputDevice *device)
 {
   ClutterInputDeviceType device_type;
 
-  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
+  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
     return FALSE;
 
   device_type = clutter_input_device_get_device_type (device);
@@ -189,7 +189,7 @@ is_pad_device (ClutterInputDevice *device)
 {
   ClutterInputDeviceType device_type;
 
-  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
+  if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
     return FALSE;
 
   device_type = clutter_input_device_get_device_type (device);

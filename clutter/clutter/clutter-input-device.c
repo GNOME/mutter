@@ -100,8 +100,8 @@ clutter_input_device_dispose (GObject *gobject)
 
   if (device->associated != NULL)
     {
-      if (device->device_mode == CLUTTER_INPUT_MODE_SLAVE)
-        _clutter_input_device_remove_slave (device->associated, device);
+      if (device->device_mode == CLUTTER_INPUT_MODE_PHYSICAL)
+        _clutter_input_device_remove_physical_device (device->associated, device);
 
       _clutter_input_device_set_associated_device (device->associated, NULL);
       g_object_unref (device->associated);
@@ -408,7 +408,7 @@ clutter_input_device_class_init (ClutterInputDeviceClass *klass)
    * Whether the device is enabled.
    *
    * A device with the #ClutterInputDevice:device-mode property set
-   * to %CLUTTER_INPUT_MODE_MASTER cannot be disabled.
+   * to %CLUTTER_INPUT_MODE_LOGICAL cannot be disabled.
    *
    * A device must be enabled in order to receive events from it.
    *
@@ -915,7 +915,7 @@ clutter_input_device_get_device_id (ClutterInputDevice *device)
  * Enables or disables a #ClutterInputDevice.
  *
  * Only devices with a #ClutterInputDevice:device-mode property set
- * to %CLUTTER_INPUT_MODE_SLAVE or %CLUTTER_INPUT_MODE_FLOATING can
+ * to %CLUTTER_INPUT_MODE_PHYSICAL or %CLUTTER_INPUT_MODE_FLOATING can
  * be disabled.
  *
  * Since: 1.6
@@ -928,7 +928,7 @@ clutter_input_device_set_enabled (ClutterInputDevice *device,
 
   enabled = !!enabled;
 
-  if (!enabled && device->device_mode == CLUTTER_INPUT_MODE_MASTER)
+  if (!enabled && device->device_mode == CLUTTER_INPUT_MODE_LOGICAL)
     return;
 
   if (device->is_enabled == enabled)
@@ -1611,39 +1611,39 @@ clutter_input_device_get_key (ClutterInputDevice  *device,
 }
 
 /*< private >
- * clutter_input_device_add_slave:
- * @master: a #ClutterInputDevice
- * @slave: a #ClutterInputDevice
+ * clutter_input_device_add_physical_device:
+ * @logical: a #ClutterInputDevice
+ * @physical: a #ClutterInputDevice
  *
- * Adds @slave to the list of slave devices of @master
+ * Adds @physical to the list of physical devices of @logical
  *
- * This function does not increase the reference count of either @master
- * or @slave.
+ * This function does not increase the reference count of either @logical
+ * or @physical.
  */
 void
-_clutter_input_device_add_slave (ClutterInputDevice *master,
-                                 ClutterInputDevice *slave)
+_clutter_input_device_add_physical_device (ClutterInputDevice *logical,
+                                           ClutterInputDevice *physical)
 {
-  if (g_list_find (master->slaves, slave) == NULL)
-    master->slaves = g_list_prepend (master->slaves, slave);
+  if (g_list_find (logical->physical_devices, physical) == NULL)
+    logical->physical_devices = g_list_prepend (logical->physical_devices, physical);
 }
 
 /*< private >
- * clutter_input_device_remove_slave:
- * @master: a #ClutterInputDevice
- * @slave: a #ClutterInputDevice
+ * clutter_input_device_remove_physical_device:
+ * @logical: a #ClutterInputDevice
+ * @physical: a #ClutterInputDevice
  *
- * Removes @slave from the list of slave devices of @master.
+ * Removes @physical from the list of physical devices of @logical.
  *
- * This function does not decrease the reference count of either @master
- * or @slave.
+ * This function does not decrease the reference count of either @logical
+ * or @physical.
  */
 void
-_clutter_input_device_remove_slave (ClutterInputDevice *master,
-                                    ClutterInputDevice *slave)
+_clutter_input_device_remove_physical_device (ClutterInputDevice *logical,
+                                              ClutterInputDevice *physical)
 {
-  if (g_list_find (master->slaves, slave) != NULL)
-    master->slaves = g_list_remove (master->slaves, slave);
+  if (g_list_find (logical->physical_devices, physical) != NULL)
+    logical->physical_devices = g_list_remove (logical->physical_devices, physical);
 }
 
 /*< private >
@@ -1705,10 +1705,10 @@ _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
 }
 
 /**
- * clutter_input_device_get_slave_devices:
+ * clutter_input_device_get_physical_devices:
  * @device: a #ClutterInputDevice
  *
- * Retrieves the slave devices attached to @device.
+ * Retrieves the physical devices attached to @device.
  *
  * Return value: (transfer container) (element-type Clutter.InputDevice): a
  *   list of #ClutterInputDevice, or %NULL. The contents of the list are
@@ -1717,11 +1717,11 @@ _clutter_input_device_remove_event_sequence (ClutterInputDevice *device,
  * Since: 1.6
  */
 GList *
-clutter_input_device_get_slave_devices (ClutterInputDevice *device)
+clutter_input_device_get_physical_devices (ClutterInputDevice *device)
 {
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
 
-  return g_list_copy (device->slaves);
+  return g_list_copy (device->physical_devices);
 }
 
 /*< internal >
@@ -1757,10 +1757,10 @@ _clutter_input_device_set_associated_device (ClutterInputDevice *device,
                   ? clutter_input_device_get_device_name (device->associated)
                   : "(none)");
 
-  if (device->device_mode != CLUTTER_INPUT_MODE_MASTER)
+  if (device->device_mode != CLUTTER_INPUT_MODE_LOGICAL)
     {
       if (device->associated != NULL)
-        device->device_mode = CLUTTER_INPUT_MODE_SLAVE;
+        device->device_mode = CLUTTER_INPUT_MODE_PHYSICAL;
       else
         device->device_mode = CLUTTER_INPUT_MODE_FLOATING;
 
@@ -1776,7 +1776,7 @@ _clutter_input_device_set_associated_device (ClutterInputDevice *device,
  * associated to @device.
  *
  * If the #ClutterInputDevice:device-mode property of @device is
- * set to %CLUTTER_INPUT_MODE_MASTER, this function will return
+ * set to %CLUTTER_INPUT_MODE_LOGICAL, this function will return
  * %NULL.
  *
  * Return value: (transfer none): a #ClutterInputDevice, or %NULL
@@ -2210,7 +2210,7 @@ clutter_input_device_sequence_get_grabbed_actor (ClutterInputDevice   *device,
 
 /**
  * clutter_input_device_get_vendor_id:
- * @device: a slave #ClutterInputDevice
+ * @device: a physical #ClutterInputDevice
  *
  * Gets the vendor ID of this device.
  *
@@ -2222,14 +2222,14 @@ const gchar *
 clutter_input_device_get_vendor_id (ClutterInputDevice *device)
 {
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_MASTER, NULL);
+  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, NULL);
 
   return device->vendor_id;
 }
 
 /**
  * clutter_input_device_get_product_id:
- * @device: a slave #ClutterInputDevice
+ * @device: a physical #ClutterInputDevice
  *
  * Gets the product ID of this device.
  *
@@ -2241,7 +2241,7 @@ const gchar *
 clutter_input_device_get_product_id (ClutterInputDevice *device)
 {
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_MASTER, NULL);
+  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, NULL);
 
   return device->product_id;
 }
@@ -2251,7 +2251,7 @@ clutter_input_device_add_tool (ClutterInputDevice     *device,
                                ClutterInputDeviceTool *tool)
 {
   g_return_if_fail (CLUTTER_IS_INPUT_DEVICE (device));
-  g_return_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_MASTER);
+  g_return_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL);
   g_return_if_fail (CLUTTER_IS_INPUT_DEVICE_TOOL (tool));
 
   if (!device->tools)
@@ -2269,7 +2269,7 @@ clutter_input_device_lookup_tool (ClutterInputDevice         *device,
   guint i;
 
   g_return_val_if_fail (CLUTTER_IS_INPUT_DEVICE (device), NULL);
-  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_MASTER, NULL);
+  g_return_val_if_fail (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL, NULL);
 
   if (!device->tools)
     return NULL;

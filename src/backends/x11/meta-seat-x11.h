@@ -27,8 +27,8 @@ G_BEGIN_DECLS
 G_DECLARE_FINAL_TYPE (MetaSeatX11, meta_seat_x11, META, SEAT_X11, ClutterSeat)
 
 MetaSeatX11 * meta_seat_x11_new (int opcode,
-                                 int master_pointer,
-				 int master_keyboard);
+                                 int logical_pointer,
+                                 int logical_keyboard);
 gboolean meta_seat_x11_translate_event (MetaSeatX11  *seat,
 					XEvent       *xevent,
 					ClutterEvent *event);

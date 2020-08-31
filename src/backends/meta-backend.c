@@ -360,9 +360,9 @@ on_device_added (ClutterSeat        *seat,
 }
 
 static inline gboolean
-device_is_slave_touchscreen (ClutterInputDevice *device)
+device_is_physical_touchscreen (ClutterInputDevice *device)
 {
-  return (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_MASTER &&
+  return (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL &&
           clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE);
 }
 
@@ -378,7 +378,7 @@ check_has_pointing_device (ClutterSeat *seat)
     {
       ClutterInputDevice *device = l->data;
 
-      if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
+      if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
         continue;
       if (clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE ||
           clutter_input_device_get_device_type (device) == CLUTTER_KEYBOARD_DEVICE)
@@ -394,7 +394,7 @@ check_has_pointing_device (ClutterSeat *seat)
 }
 
 static inline gboolean
-check_has_slave_touchscreen (ClutterSeat *seat)
+check_has_physical_touchscreen (ClutterSeat *seat)
 {
   GList *l, *devices;
   gboolean found = FALSE;
@@ -405,7 +405,7 @@ check_has_slave_touchscreen (ClutterSeat *seat)
     {
       ClutterInputDevice *device = l->data;
 
-      if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_MASTER &&
+      if (clutter_input_device_get_device_mode (device) != CLUTTER_INPUT_MODE_LOGICAL &&
           clutter_input_device_get_device_type (device) == CLUTTER_TOUCHSCREEN_DEVICE)
         {
           found = TRUE;
@@ -441,7 +441,7 @@ on_device_removed (ClutterSeat        *seat,
       g_clear_handle_id (&priv->device_update_idle_id, g_source_remove);
 
       device_type = clutter_input_device_get_device_type (device);
-      has_touchscreen = check_has_slave_touchscreen (seat);
+      has_touchscreen = check_has_physical_touchscreen (seat);
 
       if (device_type == CLUTTER_TOUCHSCREEN_DEVICE && has_touchscreen)
         {
@@ -491,7 +491,7 @@ set_initial_pointer_visibility (MetaBackend *backend,
     {
       ClutterInputDevice *device = l->data;
 
-      has_touchscreen |= device_is_slave_touchscreen (device);
+      has_touchscreen |= device_is_physical_touchscreen (device);
     }
 
   g_list_free (devices);
@@ -1314,7 +1314,7 @@ meta_backend_update_last_device (MetaBackend        *backend,
     return;
 
   if (!device ||
-      clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER)
+      clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL)
     return;
 
   priv->current_device = device;

@@ -119,11 +119,11 @@ lookup_device_capabilities (ClutterSeat *seat)
     {
       ClutterInputDeviceType device_type;
 
-      /* Only look for physical devices, master devices have rather generic
+      /* Only look for physical devices, logical devices have rather generic
        * keyboard/pointer device types, which is not truly representative of
-       * the slave devices connected to them.
+       * the physical devices connected to them.
        */
-      if (clutter_input_device_get_device_mode (l->data) == CLUTTER_INPUT_MODE_MASTER)
+      if (clutter_input_device_get_device_mode (l->data) == CLUTTER_INPUT_MODE_LOGICAL)
         continue;
 
       device_type = clutter_input_device_get_device_type (l->data);
@@ -291,7 +291,7 @@ event_is_synthesized_crossing (const ClutterEvent *event)
     return FALSE;
 
   device = clutter_event_get_source_device (event);
-  return clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_MASTER;
+  return clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL;
 }
 
 static gboolean
@@ -311,7 +311,7 @@ event_from_supported_hardware_device (MetaWaylandSeat    *seat,
 
   input_mode = clutter_input_device_get_device_mode (input_device);
 
-  if (input_mode != CLUTTER_INPUT_MODE_SLAVE)
+  if (input_mode != CLUTTER_INPUT_MODE_PHYSICAL)
     goto out;
 
   hardware_device = TRUE;

@@ -135,7 +135,7 @@ gboolean                clutter_input_device_get_key            (ClutterInputDev
 CLUTTER_EXPORT
 ClutterInputDevice *    clutter_input_device_get_associated_device (ClutterInputDevice *device);
 CLUTTER_EXPORT
-GList *                 clutter_input_device_get_slave_devices  (ClutterInputDevice  *device);
+GList *                 clutter_input_device_get_physical_devices  (ClutterInputDevice  *device);
 
 CLUTTER_EXPORT
 void                    clutter_input_device_update_from_event  (ClutterInputDevice  *device,

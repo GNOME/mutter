@@ -1284,7 +1284,7 @@ clutter_stage_find_updated_devices (ClutterStage *stage)
       const cairo_region_t *clip;
 
       if (clutter_input_device_get_device_mode (dev) !=
-          CLUTTER_INPUT_MODE_MASTER)
+          CLUTTER_INPUT_MODE_LOGICAL)
         continue;
 
       switch (clutter_input_device_get_device_type (dev))

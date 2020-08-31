@@ -1035,11 +1035,11 @@ typedef enum
 
 /**
  * ClutterInputMode:
- * @CLUTTER_INPUT_MODE_MASTER: A master, virtual device
- * @CLUTTER_INPUT_MODE_SLAVE: A slave, physical device, attached to
- *   a master device
- * @CLUTTER_INPUT_MODE_FLOATING: A slave, physical device, not attached
- *   to a master device
+ * @CLUTTER_INPUT_MODE_LOGICAL: A logical, virtual device
+ * @CLUTTER_INPUT_MODE_PHYSICAL: A physical device, attached to
+ *   a logical device
+ * @CLUTTER_INPUT_MODE_FLOATING: A physical device, not attached
+ *   to a logical device
  *
  * The mode for input devices available.
  *
@@ -1047,8 +1047,8 @@ typedef enum
  */
 typedef enum
 {
-  CLUTTER_INPUT_MODE_MASTER,
-  CLUTTER_INPUT_MODE_SLAVE,
+  CLUTTER_INPUT_MODE_LOGICAL,
+  CLUTTER_INPUT_MODE_PHYSICAL,
   CLUTTER_INPUT_MODE_FLOATING
 } ClutterInputMode;
 

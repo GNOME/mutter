@@ -105,7 +105,7 @@ struct _ClutterInputDevice
   /* the associated device */
   ClutterInputDevice *associated;
 
-  GList *slaves;
+  GList *physical_devices;
 
   /* the actor underneath the pointer */
   ClutterActor *cursor_actor;
@@ -171,11 +171,11 @@ CLUTTER_EXPORT
 void _clutter_input_device_set_associated_device (ClutterInputDevice *device,
                                                   ClutterInputDevice *associated);
 CLUTTER_EXPORT
-void _clutter_input_device_add_slave (ClutterInputDevice *master,
-                                      ClutterInputDevice *slave);
+void _clutter_input_device_add_physical_device (ClutterInputDevice *logical,
+                                                ClutterInputDevice *physical);
 CLUTTER_EXPORT
-void _clutter_input_device_remove_slave (ClutterInputDevice *master,
-                                         ClutterInputDevice *slave);
+void _clutter_input_device_remove_physical_device (ClutterInputDevice *logical,
+                                                   ClutterInputDevice *physical);
 CLUTTER_EXPORT
 void clutter_input_device_update_from_tool (ClutterInputDevice     *device,
                                             ClutterInputDeviceTool *tool);

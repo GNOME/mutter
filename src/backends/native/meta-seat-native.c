@@ -1396,7 +1396,7 @@ evdev_add_device (MetaSeatNative         *seat,
                   struct libinput_device *libinput_device)
 {
   ClutterInputDeviceType type;
-  ClutterInputDevice *device, *master = NULL;
+  ClutterInputDevice *device, *logical = NULL;
   ClutterActor *stage;
 
   device = meta_input_device_native_new (seat, libinput_device);
@@ -1410,14 +1410,14 @@ evdev_add_device (MetaSeatNative         *seat,
   type = meta_input_device_native_determine_type (libinput_device);
 
   if (type == CLUTTER_KEYBOARD_DEVICE)
-    master = seat->core_keyboard;
+    logical = seat->core_keyboard;
   else if (type == CLUTTER_POINTER_DEVICE)
-    master = seat->core_pointer;
+    logical = seat->core_pointer;
 
-  if (master)
+  if (logical)
     {
-      _clutter_input_device_set_associated_device (device, master);
-      _clutter_input_device_add_slave (master, device);
+      _clutter_input_device_set_associated_device (device, logical);
+      _clutter_input_device_add_physical_device (logical, device);
     }
 
   return device;
@@ -2443,7 +2443,7 @@ meta_seat_native_constructed (GObject *object)
 
   device = meta_input_device_native_new_virtual (
       seat, CLUTTER_POINTER_DEVICE,
-      CLUTTER_INPUT_MODE_MASTER);
+      CLUTTER_INPUT_MODE_LOGICAL);
   stage = meta_seat_native_get_stage (seat);
   _clutter_input_device_set_stage (device, stage);
   seat->pointer_x = INITIAL_POINTER_X;
@@ -2455,7 +2455,7 @@ meta_seat_native_constructed (GObject *object)
 
   device = meta_input_device_native_new_virtual (
       seat, CLUTTER_KEYBOARD_DEVICE,
-      CLUTTER_INPUT_MODE_MASTER);
+      CLUTTER_INPUT_MODE_LOGICAL);
   _clutter_input_device_set_stage (device, stage);
   seat->core_keyboard = device;
 
