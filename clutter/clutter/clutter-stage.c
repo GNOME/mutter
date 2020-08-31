@@ -1874,7 +1874,7 @@ clutter_stage_class_init (ClutterStageClass *klass)
     g_signal_new (I_("before-paint"),
                   G_TYPE_FROM_CLASS (gobject_class),
                   G_SIGNAL_RUN_LAST,
-                  0,
+                  G_STRUCT_OFFSET (ClutterStageClass, before_paint),
                   NULL, NULL, NULL,
                   G_TYPE_NONE, 1,
                   CLUTTER_TYPE_STAGE_VIEW);

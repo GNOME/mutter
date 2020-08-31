@@ -80,6 +80,9 @@ struct _ClutterStageClass
   void (* activate)     (ClutterStage *stage);
   void (* deactivate)   (ClutterStage *stage);
 
+  void (* before_paint) (ClutterStage     *stage,
+                         ClutterStageView *view);
+
   void (* paint_view) (ClutterStage         *stage,
                        ClutterStageView     *view,
                        const cairo_region_t *redraw_clip);
