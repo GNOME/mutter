@@ -193,6 +193,16 @@ notify_watchers_for_mode (MetaStage           *stage,
 }
 
 static void
+meta_stage_before_paint (ClutterStage     *stage,
+                         ClutterStageView *view)
+{
+  MetaStage *meta_stage = META_STAGE (stage);
+
+  notify_watchers_for_mode (meta_stage, view, NULL,
+                            META_STAGE_WATCH_BEFORE_PAINT);
+}
+
+static void
 meta_stage_paint (ClutterActor        *actor,
                   ClutterPaintContext *paint_context)
 {
@@ -246,9 +256,6 @@ meta_stage_paint_view (ClutterStage         *stage,
 {
   MetaStage *meta_stage = META_STAGE (stage);
 
-  notify_watchers_for_mode (meta_stage, view, NULL,
-                            META_STAGE_WATCH_BEFORE_PAINT);
-
   CLUTTER_STAGE_CLASS (meta_stage_parent_class)->paint_view (stage, view,
                                                              redraw_clip);
 
@@ -298,6 +305,7 @@ meta_stage_class_init (MetaStageClass *klass)
 
   stage_class->activate = meta_stage_activate;
   stage_class->deactivate = meta_stage_deactivate;
+  stage_class->before_paint = meta_stage_before_paint;
   stage_class->paint_view = meta_stage_paint_view;
 
   signals[ACTORS_PAINTED] = g_signal_new ("actors-painted",
