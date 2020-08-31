@@ -48,7 +48,6 @@
 
 typedef struct _MetaBell       MetaBell;
 typedef struct _MetaStack      MetaStack;
-typedef struct _MetaUISlave    MetaUISlave;
 
 typedef struct MetaEdgeResistanceData MetaEdgeResistanceData;
 
