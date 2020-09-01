@@ -632,6 +632,8 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
   MetaBackend *backend = get_backend (monitor_src);
   MetaCursorRenderer *cursor_renderer =
     meta_backend_get_cursor_renderer (backend);
+  MetaCursorTracker *cursor_tracker =
+    meta_backend_get_cursor_tracker (backend);
   MetaCursorSprite *cursor_sprite;
   MetaMonitor *monitor;
   MetaLogicalMonitor *logical_monitor;
@@ -643,7 +645,8 @@ meta_screen_cast_monitor_stream_src_set_cursor_metadata (MetaScreenCastStreamSrc
 
   cursor_sprite = meta_cursor_renderer_get_cursor (cursor_renderer);
 
-  if (!is_cursor_in_stream (monitor_src))
+  if (!meta_cursor_tracker_get_pointer_visible (cursor_tracker) ||
+      !is_cursor_in_stream (monitor_src))
     {
       meta_screen_cast_stream_src_unset_cursor_metadata (src,
                                                          spa_meta_cursor);
