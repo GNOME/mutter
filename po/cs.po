@@ -12,8 +12,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-08-04 08:31+0000\n"
-"PO-Revision-Date: 2020-08-25 10:45+0200\n"
+"POT-Creation-Date: 2020-09-01 07:41+0000\n"
+"PO-Revision-Date: 2020-09-01 12:51+0200\n"
 "Last-Translator: Marek Černocký <marek@manet.cz>\n"
 "Language-Team: čeština <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -451,64 +451,64 @@ msgstr "Přepnout nastavení monitoru"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Postupně mění vestavěná nastavení monitoru"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Přepnout na VT 1"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "Přepnout na VT 2"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "Přepnout na VT 3"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "Přepnout na VT 4"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "Přepnout na VT 5"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "Přepnout na VT 6"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "Přepnout na VT 7"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "Přepnout na VT 8"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "Přepnout na VT 9"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "Přepnout na VT 10"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "Přepnout na VT 11"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "Přepnout na VT 12"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
 msgstr "Znovu povolit klávesové zkratky"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr ""
 "Povolit X11 zachytávání, aby mohl zabrat zaměření klávesnice pomocí Xwaylandu"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -528,15 +528,15 @@ msgstr ""
 "zřídka a nemá žádný vliv na běžná okna X11, která mohou přijímat zaměření "
 "klávesnice za normálních podmínek. Aby bylo pod Waylandem zachytávání bráno "
 "v úvahu, musí klient navíc buď poslat specifickou zprávu X11 ClientMessage "
-"do kořenového okna, nebo být mezi aplikacemi povolenými v klíči "
-"„xwayland-grab-access-rules“."
+"do kořenového okna, nebo být mezi aplikacemi povolenými v klíči „xwayland-"
+"grab-access-rules“."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:84
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr ""
 "Aplikace pod Xwaylandem mají povoleno se starat o zachytávání klávesnice"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
@@ -558,6 +558,22 @@ msgstr ""
 "seznamu patří následující aplikace: „@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@“. "
 "Uživatel může přerušit existující zachytávání pomocí speciální klávesové "
 "zkratky definované klíčem „restore-shortcuts“."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "Zakázat v Xwaylandu vybraná rozšíření X"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+"Tato volba zakáže v Xwaylandu vybraná rozšíření X, pokud byl Xwayland "
+"sestaven s podporou pro tato rošíření. Volba nemá žádný vliv, pokud byl "
+"Xwayland sestaven bez podpory pro vybraná rozšíření. Aby se nastavení "
+"projevilo, je zapotřebí Xwayland restartovat."
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
@@ -721,7 +737,7 @@ msgstr "Zásuvný modul Mutter, který se má použít"
 msgid "Workspace %d"
 msgstr "Plocha %d"
 
-#: src/core/util.c:119
+#: src/core/util.c:118
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter bylo přeloženo bez podpory podrobného režimu\n"
 
