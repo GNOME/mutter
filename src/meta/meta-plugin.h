@@ -26,11 +26,16 @@
 #include <gmodule.h>
 
 #include "clutter/clutter.h"
+#include "cogl/cogl-defines.h"
 #include "meta/compositor-mutter.h"
 #include "meta/compositor.h"
 #include "meta/meta-close-dialog.h"
 #include "meta/meta-inhibit-shortcuts-dialog.h"
 #include "meta/types.h"
+
+#ifdef COGL_HAS_TRACING
+#include <sysprof-capture.h>
+#endif
 
 #define META_TYPE_PLUGIN (meta_plugin_get_type ())
 
@@ -247,6 +252,23 @@ struct _MetaPluginClass
    * on screen to draw user attention on the pointer location.
    */
   void (*locate_pointer) (MetaPlugin      *plugin);
+
+#ifdef COGL_HAS_TRACING
+  /**
+   * MetaPluginClass::start_profiler:
+   *
+   * Virtual function called when profiling starts.
+   */
+  void (*start_profiler) (MetaPlugin           *plugin,
+                          SysprofCaptureWriter *writer);
+
+  /**
+   * MetaPluginClass::stop_profiler:
+   *
+   * Virtual function called when profiling stops.
+   */
+  void (*stop_profiler)  (MetaPlugin *plugin);
+#endif
 };
 
 /**

@@ -104,4 +104,11 @@ MetaInhibitShortcutsDialog *
 
 void meta_plugin_manager_locate_pointer (MetaPluginManager *mgr);
 
+#ifdef COGL_HAS_TRACING
+void meta_plugin_manager_start_profiler (MetaPluginManager    *plugin_mgr,
+                                         SysprofCaptureWriter *writer);
+
+void meta_plugin_manager_stop_profiler (MetaPluginManager *plugin_mgr);
+#endif
+
 #endif

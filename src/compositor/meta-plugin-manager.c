@@ -420,3 +420,26 @@ meta_plugin_manager_locate_pointer (MetaPluginManager *plugin_mgr)
   if (klass->locate_pointer)
     klass->locate_pointer (plugin);
 }
+
+#ifdef COGL_HAS_TRACING
+void
+meta_plugin_manager_start_profiler (MetaPluginManager    *plugin_mgr,
+                                    SysprofCaptureWriter *writer)
+{
+  MetaPlugin *plugin = plugin_mgr->plugin;
+  MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
+
+  if (klass->start_profiler)
+    klass->start_profiler (plugin, writer);
+}
+
+void
+meta_plugin_manager_stop_profiler (MetaPluginManager *plugin_mgr)
+{
+  MetaPlugin *plugin = plugin_mgr->plugin;
+  MetaPluginClass *klass = META_PLUGIN_GET_CLASS (plugin);
+
+  if (klass->stop_profiler)
+    klass->stop_profiler (plugin);
+}
+#endif
