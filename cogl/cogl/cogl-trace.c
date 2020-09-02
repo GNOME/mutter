@@ -31,8 +31,6 @@
 
 #ifdef HAVE_TRACING
 
-#include <sysprof-capture.h>
-#include <sysprof-capture-writer.h>
 #include <sysprof-clock.h>
 #include <syscall.h>
 #include <sys/types.h>
@@ -283,6 +281,33 @@ cogl_trace_end_with_description (CoglTraceHead *head,
   g_mutex_unlock (&cogl_trace_mutex);
 }
 
+/**
+ * cogl_acquire_capture_writer: (skip)
+ */
+SysprofCaptureWriter *
+cogl_acquire_capture_writer (void)
+{
+  CoglTraceContext *trace_context;
+
+  g_mutex_lock (&cogl_trace_mutex);
+  trace_context = cogl_trace_context;
+  sysprof_capture_writer_flush (trace_context->writer);
+
+  if (!trace_context)
+    return NULL;
+
+  return trace_context->writer;
+}
+
+/**
+ * cogl_release_capture_writer: (skip)
+ */
+void
+cogl_release_capture_writer (void)
+{
+  g_mutex_unlock (&cogl_trace_mutex);
+}
+
 void
 cogl_trace_end (CoglTraceHead *head)
 {
@@ -322,6 +347,17 @@ void
 cogl_set_tracing_disabled_on_thread (void *data)
 {
   fprintf (stderr, "Tracing not enabled");
+}
+
+void *
+cogl_acquire_capture_writer (void)
+{
+  return NULL;
+}
+
+void
+cogl_release_capture_writer (void)
+{
 }
 
 #endif /* HAVE_TRACING */

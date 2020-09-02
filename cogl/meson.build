@@ -30,7 +30,7 @@ cogl_pkg_private_deps = [
 ]
 
 if have_profiler
-  cogl_pkg_private_deps += [
+  cogl_pkg_deps += [
     sysprof_dep,
   ]
 endif
