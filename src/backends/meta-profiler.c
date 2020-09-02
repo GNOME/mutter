@@ -20,18 +20,25 @@
 #include "config.h"
 
 #include "src/backends/meta-profiler.h"
+#include "src/compositor/compositor-private.h"
+#include "src/core/display-private.h"
 
 #include <glib-unix.h>
-#include <glib/gi18n.h>
+#include <glib/gstdio.h>
 #include <gio/gunixfdlist.h>
 
 #include "cogl/cogl.h"
+
+#include <sysprof-capture.h>
 
 #define META_SYSPROF_PROFILER_DBUS_PATH "/org/gnome/Sysprof3/Profiler"
 
 struct _MetaProfiler
 {
   MetaDBusSysprof3ProfilerSkeleton parent_instance;
+
+  SysprofCaptureWriter *plugin_capture;
+  char *plugin_capture_filename;
 
   GDBusConnection *connection;
   GCancellable *cancellable;
@@ -47,6 +54,64 @@ G_DEFINE_TYPE_WITH_CODE (MetaProfiler,
                          META_DBUS_TYPE_SYSPROF3_PROFILER_SKELETON,
                          G_IMPLEMENT_INTERFACE (META_DBUS_TYPE_SYSPROF3_PROFILER,
                                                 meta_sysprof_capturer_init_iface))
+
+static MetaPluginManager *
+get_plugin_manager (void)
+{
+  MetaCompositor *compositor;
+
+  compositor = meta_display_get_compositor (meta_get_display ());
+  return meta_compositor_get_plugin_manager (compositor);
+}
+
+static void
+setup_plugin_capture_writer (MetaProfiler *profiler)
+{
+  g_autofree char *tmpname = NULL;
+  int fd;
+
+  fd = g_file_open_tmp (".mutter-sysprof-plugin-XXXXXX", &tmpname, NULL);
+
+  if (fd == -1)
+    return;
+
+  profiler->plugin_capture = sysprof_capture_writer_new_from_fd (fd, 4096 * 4);
+  profiler->plugin_capture_filename = g_steal_pointer (&tmpname);
+
+  meta_plugin_manager_start_profiler (get_plugin_manager (),
+                                      profiler->plugin_capture);
+}
+
+static void
+teardown_plugin_capture_writer (MetaProfiler *profiler)
+{
+  SysprofCaptureReader *plugin_capture_reader = NULL;
+  SysprofCaptureWriter *cogl_capture;
+
+  if (!profiler->plugin_capture)
+    return;
+
+  meta_plugin_manager_stop_profiler (get_plugin_manager ());
+
+  cogl_capture = cogl_acquire_capture_writer ();
+
+  if (!cogl_capture)
+    goto out;
+
+  sysprof_capture_writer_flush (profiler->plugin_capture);
+
+  plugin_capture_reader =
+    sysprof_capture_writer_create_reader (profiler->plugin_capture);
+  sysprof_capture_writer_cat (cogl_capture, plugin_capture_reader);
+
+out:
+  g_unlink (profiler->plugin_capture_filename);
+
+  g_clear_pointer (&plugin_capture_reader, sysprof_capture_reader_unref);
+  g_clear_pointer (&profiler->plugin_capture_filename, g_free);
+
+  cogl_release_capture_writer ();
+}
 
 static gboolean
 handle_start (MetaDBusSysprof3Profiler *dbus_profiler,
@@ -95,6 +160,8 @@ handle_start (MetaDBusSysprof3Profiler *dbus_profiler,
 
   g_debug ("Profiler running");
 
+  setup_plugin_capture_writer (profiler);
+
   meta_dbus_sysprof3_profiler_complete_start (dbus_profiler, invocation, NULL);
   return TRUE;
 }
@@ -113,6 +180,8 @@ handle_stop (MetaDBusSysprof3Profiler *dbus_profiler,
                                              "Profiler not running");
       return TRUE;
     }
+
+  teardown_plugin_capture_writer (profiler);
 
   cogl_set_tracing_disabled_on_thread (g_main_context_default ());
   profiler->running = FALSE;
