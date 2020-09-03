@@ -916,6 +916,7 @@ msgstr "\"%2$s\" ପ୍ରସଙ୍ଗ ପାଇଁ କୌଣସି <%1$s> ବ�
 
 #: ../src/ui/theme.c:5213
 #, c-format
+#, fuzzy
 msgid ""
 "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
 "type=\"%s\" style_set=\"whatever\"/> element"
