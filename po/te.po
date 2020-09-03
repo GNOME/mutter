@@ -887,6 +887,7 @@ msgstr "వైఖరిని కలిగివిన్న వైవిద్�
 
 #: ../src/ui/theme.c:4455
 #, c-format
+#, fuzzy
 msgid ""
 "<button function=\"%s\" state=\"%s\" draw_ops=\"whatever\"/> must be "
 "specified for this frame style"
@@ -897,6 +898,7 @@ msgstr ""
 
 #: ../src/ui/theme.c:4970 ../src/ui/theme.c:4995
 #, c-format
+#, fuzzy
 msgid ""
 "Missing <frame state=\"%s\" resize=\"%s\" focus=\"%s\" style=\"whatever\"/>"
 msgstr ""
@@ -915,6 +917,7 @@ msgstr "\"%s\"వైవిధ్యాంశము కొఱకు ఏ <%s>న�
 
 #: ../src/ui/theme.c:5213
 #, c-format
+#, fuzzy
 msgid ""
 "No frame style set for window type \"%s\" in theme \"%s\", add a <window "
 "type=\"%s\" style_set=\"whatever\"/> element"
