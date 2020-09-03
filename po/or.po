@@ -922,7 +922,7 @@ msgid ""
 msgstr ""
 "\"%2$s\" ପ୍ରସଙ୍ଗରେ ୱିଣ୍ଡୋ ପ୍ରକାର \"%1$s\" ପାଇଁ କୌଣସି ବନ୍ଧେଇ ଶୈଳୀ ବିନ୍ଯାସ "
 "କରାଯାଇ ନାହିଁ, "
-"ଗୋଟିଏ <windowtype=\"%3$s\" style_set=\"whatever\"/> ଉପାଦାନ ଯୋଗ କରନ୍ତୁ"
+"ଗୋଟିଏ <window type=\"%3$s\" style_set=\"whatever\"/> ଉପାଦାନ ଯୋଗ କରନ୍ତୁ"
 
 #: ../src/ui/theme.c:5620 ../src/ui/theme.c:5682 ../src/ui/theme.c:5745
 #, c-format
