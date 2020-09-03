@@ -531,24 +531,6 @@ static const struct zwp_tablet_tool_v2_interface tool_interface = {
   tool_destroy
 };
 
-static void
-emit_proximity_in (MetaWaylandTabletTool *tool,
-                   struct wl_resource    *resource)
-{
-  struct wl_resource *tablet_resource;
-  struct wl_client *client;
-
-  if (!tool->focus_surface)
-    return;
-
-  client = wl_resource_get_client (resource);
-  tablet_resource = meta_wayland_tablet_lookup_resource (tool->current_tablet,
-                                                         client);
-
-  zwp_tablet_tool_v2_send_proximity_in (resource, tool->proximity_serial,
-                                        tablet_resource, tool->focus_surface->resource);
-}
-
 struct wl_resource *
 meta_wayland_tablet_tool_create_new_resource (MetaWaylandTabletTool *tool,
                                               struct wl_client      *client,
@@ -567,7 +549,6 @@ meta_wayland_tablet_tool_create_new_resource (MetaWaylandTabletTool *tool,
       wl_resource_get_client (tool->focus_surface->resource) == client)
     {
       wl_list_insert (&tool->focus_resource_list, wl_resource_get_link (resource));
-      emit_proximity_in (tool, resource);
     }
   else
     {
