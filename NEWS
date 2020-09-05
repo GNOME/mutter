@@ -1,3 +1,35 @@
+3.37.92
+=======
+* Fix stale cursor positions in remote desktop sessions [Georges; !1417]
+* xwayland: Add a setting to disable selected X extensions [Olivier; !1405]
+* Fix screencasting when using QXL [Jonas Å., Grey; !1318]
+* Cull actors that don't intersect with the redraw clip [Daniel; !1359]
+* Optimize painting of backgrounds when culling is unavailable [Daniel; !1363]
+* Improve support for Hangul input method [Carlos; !1286]
+* Support debug paint overlay for opaque regions [Robert; !1372]
+* Fix launching flatpak applications when autostarting Xwayland [Carlos; !1424]
+* Add support for capture scanouts in screencasts [Georges; !1421]
+* Allow integrated tablet devices to cycle outputs [Carlos; !1201]
+* Improve mapping input devices to the most relevant output [Carlos; !1202]
+* Only enable auto-rotation in touch mode [Carlos; !1311]
+* Fixed crashes [Pascal, Robert, Carlos, Benjamin, Marco; !1414, !1409, !1408,
+  !1415, #1395, !1392, !1371, #1345]
+* Misc. bug fixes and cleanups [Björn, Jonas D., Florian; !1410, !1358, !1425]
+
+Contributors:
+  Marco Trevisan (Treviño), Benjamin Berg, Grey Christoforo, Björn Daase,
+  Jonas Dreßler, Olivier Fourdan, Carlos Garnacho, Robert Mader,
+  Florian Müllner, Georges Basile Stavracas Neto, Pascal Nowack,
+  Daniel van Vugt, Jonas Ådahl
+
+Translators:
+  Marek Černocký [cs], Aurimas Černius [lt], Asier Sarasua Garmendia [eu],
+  Gwan-gyeong Mun [ko], Yuri Chornoivan [uk], Boyuan Yang [zh_CN],
+  Kukuh Syafaat [id], Piotr Drąg [pl], Rafael Fontenelle [pt_BR],
+  Марко Костић [sr], Matej Urbančič [sl], Fabio Tomat [fur],
+  Daniel Mustieles [es], Fran Dieguez [gl], Goran Vidović [hr],
+  Claude Paroz [fr], Andre Klapper [or, ug, te], Emin Tufan Çetin [tr]
+
 3.37.91
 =======
 * Fix initial state of display mode OSD [Jian-Hong; #1362]
