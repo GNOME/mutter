@@ -1,24 +1,24 @@
 # Swedish messages for mutter.
-# Copyright © 2001-2019 Free Software Foundation, Inc.
+# Copyright © 2001-2020 Free Software Foundation, Inc.
 # Christian Rose <menthos@menthos.com>, 2001, 2002, 2003, 2004, 2005.
 # Daniel Nylander <po@danielnylander.se>, 2006, 2007, 2008, 2009, 2010, 2011, 2012.
 # Mattias Eriksson <snaggen@gmail.com>, 2014.
-# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019.
+# Anders Jonsson <anders.jonsson@norsjovallen.se>, 2015, 2016, 2017, 2018, 2019, 2020.
 # Sebastian Rasmussen <sebras@gmail.com>, 2016.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-03-02 19:49+0100\n"
+"POT-Creation-Date: 2020-08-29 10:31+0000\n"
+"PO-Revision-Date: 2020-09-06 18:08+0200\n"
 "Last-Translator: Anders Jonsson <anders.jonsson@norsjovallen.se>\n"
 "Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.4.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -450,63 +450,63 @@ msgstr "Växla skärmkonfiguration"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Roterar den inbyggda skärmkonfigurationen"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Växla till VT 1"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "Växla till VT 2"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "Växla till VT 3"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "Växla till VT 4"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "Växla till VT 5"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "Växla till VT 6"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "Växla till VT 7"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "Växla till VT 8"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "Växla till VT 9"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "Växla till VT 10"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "Växla till VT 11"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "Växla till VT 12"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
 msgstr "Återaktivera genvägar"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr "Tillåt X11-fångster att låsa tangentbordsfokus med Xwayland"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -516,7 +516,7 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Tillåt alla tangentbordshändelser att ledas till ”override redirect”-fönster "
 "i X11 med en fångst vid körning i Xwayland. Detta alternativ är för att "
@@ -527,21 +527,21 @@ msgstr ""
 "tangentbordsfokus under normala förhållanden. För att en X11-fångst ska tas "
 "i beräkning under Wayland måste klienten också antingen sända ett specifikt "
 "X11-ClientMessage till root-fönstret eller finnas bland programmen som "
-"vitlistats i nyckeln ”xwayland-grab-access-rules”."
+"tillåtits i nyckeln ”xwayland-grab-access-rules”."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:84
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Xwayland-program tillåts utfärda tangentbordsfångster"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -550,17 +550,33 @@ msgstr ""
 "eller inte tillåts att utfärda X11-tangentbordsfångster under Xwayland. "
 "Resursnamnet eller resursklassen för ett givet X11-fönster kan erhållas "
 "genom att använda kommandot ”xprop WM_CLASS”. Stöd finns för att använda "
-"jokertecknen ”*” och ”?” i värdena. Värden som startar med ”!” svartlistas, "
-"vilket företräde över vitlistan, för att upphäva program i "
+"jokertecknen ”*” och ”?” i värdena. Värden som startar med ”!” nekas, vilket "
+"har företräde över listan över tillåtna värden, för att upphäva program i "
 "standardsystemlistan. Standardsystemlistan innehåller följande program: "
 "”@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Användare kan bryta en befintlig "
 "fångst genom att använda den specifika tangentbordsgenvägen som definieras "
 "av tangentbindningsnyckeln ”restore-shortcuts”."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "Inaktivera valda X-tillägg i Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+"Detta alternativ inaktiverar de valda X-tilläggen i Xwayland om Xwayland "
+"byggdes med stöd för dessa X-tillägg. Detta alternativ har ingen effekt om "
+"Xwayland byggdes utan stöd för de valda tilläggen. Xwayland behöver startas "
+"om för att denna inställning ska börja gälla."
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2567
+#: src/backends/meta-input-settings.c:2698
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Lägesväxel (grupp %d)"
@@ -568,34 +584,34 @@ msgstr "Lägesväxel (grupp %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2590
+#: src/backends/meta-input-settings.c:2721
 msgid "Switch monitor"
 msgstr "Växla skärm"
 
-#: src/backends/meta-input-settings.c:2592
+#: src/backends/meta-input-settings.c:2723
 msgid "Show on-screen help"
 msgstr "Visa hjälp på skärmen"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Inbyggd display"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Okänd"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Okänd display"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -610,7 +626,7 @@ msgstr "Kompositionshanterare"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -718,7 +734,7 @@ msgstr "Mutter-insticksmodul att använda"
 msgid "Workspace %d"
 msgstr "Arbetsyta %d"
 
-#: src/core/util.c:122
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter kompilerades utan stöd för utförligt läge\n"
 
@@ -763,7 +779,7 @@ msgstr ""
 "Dessa fönster saknar stöd för ”spara nuvarande inställningar” och kommer att "
 "behöva startas om manuellt nästa gång du loggar in."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (på %s)"
