@@ -255,6 +255,8 @@ meta_kms_crtc_new (MetaKmsImplDevice *impl_device,
   crtc->id = drm_crtc->crtc_id;
   crtc->idx = idx;
 
+  meta_kms_crtc_read_state (crtc, impl_device, drm_crtc);
+
   return crtc;
 }
 
