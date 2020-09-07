@@ -11,15 +11,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-02-23 17:41+0000\n"
-"PO-Revision-Date: 2020-02-25 07:30+0100\n"
+"POT-Creation-Date: 2020-08-29 10:31+0000\n"
+"PO-Revision-Date: 2020-09-08 00:06+0200\n"
 "Last-Translator: Balázs Úr <ur.balazs at fsf dot hu>\n"
 "Language-Team: Hungarian <gnome-hu-list at gnome dot org>\n"
 "Language: hu\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 19.04.3\n"
+"X-Generator: Lokalize 19.12.3\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -432,9 +432,9 @@ msgid ""
 "Number of milliseconds a client has to respond to a ping request in order to "
 "not be detected as frozen. Using 0 will disable the alive check completely."
 msgstr ""
-"Ezredmásodpercek száma, amely alatt az ügyfélnek válaszolnia kell egy ping"
-" kérésre, hogy ne lefagyottként legyen azonosítva. A 0 használata teljesen"
-" letiltja annak ellenőrzését, hogy életben van-e."
+"Ezredmásodpercek száma, amely alatt az ügyfélnek válaszolnia kell egy ping "
+"kérésre, hogy ne lefagyottként legyen azonosítva. A 0 használata teljesen "
+"letiltja annak ellenőrzését, hogy életben van-e."
 
 #: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
@@ -452,65 +452,75 @@ msgstr "Monitorkonfiguráció átváltása"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Cserélgeti a beépített monitorkonfigurációkat"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Váltás az 1. VT-re"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "Váltás a 2. VT-re"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "Váltás a 3. VT-re"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "Váltás a 4. VT-re"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "Váltás az 5. VT-re"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "Váltás a 6. VT-re"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "Váltás a 7. VT-re"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "Váltás a 8. VT-re"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "Váltás a 9. VT-re"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "Váltás a 10. VT-re"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "Váltás a 11. VT-re"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "Váltás a 12. VT-re"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
 msgstr "Gyorsbillentyűk újraengedélyezése"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr ""
 "X11 megragadások lehetővé tétele a billentyűzetfókusz zárolásához az "
 "Xwayland használatával"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
+#| msgid ""
+#| "Allow all keyboard events to be routed to X11 “override redirect” windows "
+#| "with a grab when running in Xwayland. This option is to support X11 "
+#| "clients which map an “override redirect” window (which do not receive "
+#| "keyboard focus) and issue a keyboard grab to force all keyboard events to "
+#| "that window. This option is seldom used and has no effect on regular X11 "
+#| "windows which can receive keyboard focus under normal circumstances. For "
+#| "a X11 grab to be taken into account under Wayland, the client must also "
+#| "either send a specific X11 ClientMessage to the root window or be among "
+#| "the applications white-listed in key “xwayland-grab-access-rules”."
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -520,7 +530,7 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Lehetővé teszi az összes billentyűzeteseménynek, hogy át legyenek irányítva "
 "az X11 „felülbírálási átirányítás” ablakokhoz egy megragadással, ha az "
@@ -533,21 +543,32 @@ msgstr ""
 "körülmények között. Ahhoz, hogy Wayland alatt figyelembe legyenek véve az "
 "X11 megragadások, a kliensnek vagy küldenie kell egy meghatározott X11 "
 "ClientMessage üzenetet a gyökérablaknak, vagy az „xwayland-grab-access-"
-"rules” kulcsban megadott fehérlistában kell szerepelnie."
+"rules” kulcsban engedélyezettek között kell szerepelnie."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:84
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Xwayland alkalmazások, amelyek kérhetnek billentyűzet megragadást"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
+#| msgid ""
+#| "List the resource names or resource class of X11 windows either allowed "
+#| "or not allowed to issue X11 keyboard grabs under Xwayland. The resource "
+#| "name or resource class of a given X11 window can be obtained using the "
+#| "command “xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are "
+#| "supported. Values starting with “!” are blacklisted, which has precedence "
+#| "over the whitelist, to revoke applications from the default system list. "
+#| "The default system list includes the following applications: "
+#| "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab "
+#| "by using the specific keyboard shortcut defined by the keybinding key "
+#| "“restore-shortcuts”."
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -556,17 +577,34 @@ msgstr ""
 "amelyek Xwayland alatt vagy kiadhatnak X11 billentyűzet megragadásokat, vagy "
 "sem. A megadott X11 ablak erőforrásneve vagy erőforrásosztálya az „xprop "
 "WM_CLASS” paranccsal kérhető le. Az értékekben a „*” vagy „?” helyettesítő "
-"karakterek támogatottak. A „!” karakterrel kezdődő értékek feketelistára "
-"kerülnek, és a fehérlista előtt lesznek figyelembe véve, így felülbírálva az "
-"alapértelmezett rendszerlistát. Az alapértelmezett rendszerlistán a "
+"karakterek támogatottak. A „!” karakterrel kezdődő értékek tiltva lesznek, "
+"és az engedélyezett értékek előtt lesznek figyelembe véve, így felülbírálva "
+"az alapértelmezett rendszerlistát. Az alapértelmezett rendszerlistán a "
 "következő alkalmazások szerepelnek: „@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@”. "
 "A felhasználók megszakíthatják a létező megragadásokat a „restore-shortcuts” "
 "kulcsban megadott gyorsbillentyűvel."
 
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "A kiválasztott X kiterjesztések letiltása Xwaylandben"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+"Ez a beállítás letiltja a kiválasztott X kiterjesztéseket Xwaylandben, ha az "
+"Xwayland úgy lett összeállítva, hogy támogatja ezeket. A beállításnak nincs "
+"hatása, ha az Xwayland a kiválasztott kiterjesztések támogatása nélkül lett "
+"összeállítva. A beállítás érvénybe lépéséhez újra kell indítani az "
+"Xwaylandet."
+
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2567
+#: src/backends/meta-input-settings.c:2698
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Módkapcsoló (%d. csoport)"
@@ -574,34 +612,34 @@ msgstr "Módkapcsoló (%d. csoport)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2590
+#: src/backends/meta-input-settings.c:2721
 msgid "Switch monitor"
 msgstr "Monitorváltás"
 
-#: src/backends/meta-input-settings.c:2592
+#: src/backends/meta-input-settings.c:2723
 msgid "Show on-screen help"
 msgstr "Képernyősúgó megjelenítése"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Beépített kijelző"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Ismeretlen"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Ismeretlen kijelző"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -616,7 +654,7 @@ msgstr "Betűszedő"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -727,7 +765,7 @@ msgstr "Használandó Mutter bővítmény"
 msgid "Workspace %d"
 msgstr "%d. munkaterület"
 
-#: src/core/util.c:122
+#: src/core/util.c:119
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "A Mutter ablakkezelőt a részletes mód támogatása nélkül fordították\n"
 
@@ -772,7 +810,7 @@ msgstr ""
 "Az alábbi ablakok nem támogatják az „aktuális beállítások mentését”, emiatt "
 "ezeket a legközelebbi bejelentkezéskor manuálisan újra kell indítania."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (ezen: %s)"
