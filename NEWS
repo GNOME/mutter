@@ -1,3 +1,16 @@
+3.36.6
+======
+* Fix stale cursor positions in remote desktop sessions [Georges; !1417]
+* Limit mipmap levels when rendering background [Daniel; !1003]
+* Improve support for Hangul input method [Carlos; !1423]
+* Fixed crashes [Robert, Benjamin; !1411, !1409, !1408, !1415, !1392]
+* Plugged memory leaks [Robert; #1292]
+* Misc. bug fixes and cleanups [Daniel; !1298, !983]
+
+Contributors:
+  Benjamin Berg, Carlos Garnacho, Robert Mader, Georges Basile Stavracas Neto,
+  Daniel van Vugt
+
 3.36.5
 ======
 * Screencast fixes and improvements [Jonas; !1351, !1365]
