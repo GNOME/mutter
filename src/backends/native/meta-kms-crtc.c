@@ -156,12 +156,9 @@ void
 meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
                              MetaKmsUpdate *update)
 {
-  gboolean is_gamma_valid;
   GList *mode_sets;
   GList *crtc_gammas;
   GList *l;
-
-  is_gamma_valid = TRUE;
 
   mode_sets = meta_kms_update_get_mode_sets (update);
   for (l = mode_sets; l; l = l->next)
@@ -190,8 +187,6 @@ meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
           crtc->current_state.drm_mode = (drmModeModeInfo) { 0 };
         }
 
-      is_gamma_valid = FALSE;
-
       break;
     }
 
@@ -212,34 +207,7 @@ meta_kms_crtc_predict_state (MetaKmsCrtc   *crtc,
       crtc->current_state.gamma.blue =
         g_memdup (gamma->blue, gamma->size * sizeof (uint16_t));
 
-      is_gamma_valid = TRUE;
       break;
-    }
-
-  if (!is_gamma_valid)
-    {
-      if (crtc->current_state.is_drm_mode_valid)
-        {
-          MetaKmsImplDevice *impl_device;
-          drmModeCrtc *drm_crtc;
-
-          impl_device = meta_kms_device_get_impl_device (crtc->device);
-          drm_crtc = drmModeGetCrtc (meta_kms_impl_device_get_fd (impl_device),
-                                     crtc->id);
-          if (drm_crtc)
-            {
-              read_gamma_state (crtc, impl_device, drm_crtc);
-              drmModeFreeCrtc (drm_crtc);
-            }
-          else
-            {
-              clear_gamma_state (crtc);
-            }
-        }
-      else
-        {
-          clear_gamma_state (crtc);
-        }
     }
 }
 
