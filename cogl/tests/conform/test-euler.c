@@ -15,24 +15,19 @@
       g_assert_cmpfloat ((a), ==, (b));         \
   } while (0)
 
+#define COMPARE_ELEMENT(a, b, idx)        \
+  do {                                          \
+    COMPARE_FLOATS (a[idx], b[idx]);            \
+  } while (0)
+
 #define COMPARE_MATRICES(a, b) \
   do {                                          \
-    COMPARE_FLOATS ((a)->xx, (b)->xx);          \
-    COMPARE_FLOATS ((a)->yx, (b)->yx);          \
-    COMPARE_FLOATS ((a)->zx, (b)->zx);          \
-    COMPARE_FLOATS ((a)->wx, (b)->wx);          \
-    COMPARE_FLOATS ((a)->xy, (b)->xy);          \
-    COMPARE_FLOATS ((a)->yy, (b)->yy);          \
-    COMPARE_FLOATS ((a)->zy, (b)->zy);          \
-    COMPARE_FLOATS ((a)->wy, (b)->wy);          \
-    COMPARE_FLOATS ((a)->xz, (b)->xz);          \
-    COMPARE_FLOATS ((a)->yz, (b)->yz);          \
-    COMPARE_FLOATS ((a)->zz, (b)->zz);          \
-    COMPARE_FLOATS ((a)->wz, (b)->wz);          \
-    COMPARE_FLOATS ((a)->xw, (b)->xw);          \
-    COMPARE_FLOATS ((a)->yw, (b)->yw);          \
-    COMPARE_FLOATS ((a)->zw, (b)->zw);          \
-    COMPARE_FLOATS ((a)->ww, (b)->ww);          \
+    const float *af = cogl_matrix_get_array (a);\
+    const float *bf = cogl_matrix_get_array (b);\
+    int i;                                      \
+                                                \
+    for (i = 0; i < 16; i++)                    \
+      COMPARE_ELEMENT (af, bf, i);              \
   } while (0)
 
 void
