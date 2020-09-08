@@ -31,6 +31,7 @@
 
 #include "cogl-config.h"
 
+#include <gio/gio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -767,6 +768,9 @@ cogl_renderer_create_dma_buf (CoglRenderer  *renderer,
 
   if (winsys->renderer_create_dma_buf)
     return winsys->renderer_create_dma_buf (renderer, width, height, error);
+
+  g_set_error (error, G_IO_ERROR, G_IO_ERROR_NOT_SUPPORTED,
+               "CoglRenderer doesn't support creating DMA buffers");
 
   return NULL;
 }
