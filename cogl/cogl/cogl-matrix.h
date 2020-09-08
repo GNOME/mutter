@@ -464,6 +464,17 @@ cogl_matrix_init_from_array (CoglMatrix *matrix,
                              const float *array);
 
 /**
+ * cogl_matrix_init_from_matrix:
+ * @matrix: A 4x4 transformation matrix
+ * @source: the #CoglMatrix to copy
+ *
+ * Initializes @matrix with the contents of @source
+ */
+COGL_EXPORT void
+cogl_matrix_init_from_matrix (CoglMatrix       *matrix,
+                              const CoglMatrix *source);
+
+/**
  * cogl_matrix_get_array:
  * @matrix: A 4x4 transformation matrix
  *

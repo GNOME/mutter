@@ -1701,6 +1701,13 @@ cogl_matrix_init_from_array (CoglMatrix *matrix, const float *array)
 }
 
 void
+cogl_matrix_init_from_matrix (CoglMatrix       *matrix,
+                              const CoglMatrix *source)
+{
+  memcpy (matrix, source, sizeof (CoglMatrix));
+}
+
+void
 _cogl_matrix_init_from_matrix_without_inverse (CoglMatrix *matrix,
                                                const CoglMatrix *src)
 {
