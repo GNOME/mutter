@@ -50,13 +50,13 @@ typedef struct _MetaInputSettingsX11Private
 G_DEFINE_TYPE_WITH_PRIVATE (MetaInputSettingsX11, meta_input_settings_x11,
                             META_TYPE_INPUT_SETTINGS)
 
-enum
+typedef enum
 {
   SCROLL_METHOD_FIELD_2FG,
   SCROLL_METHOD_FIELD_EDGE,
   SCROLL_METHOD_FIELD_BUTTON,
   SCROLL_METHOD_NUM_FIELDS
-};
+} ScrollMethod;
 
 static void
 device_free_xdevice (gpointer user_data)
@@ -312,9 +312,9 @@ meta_input_settings_x11_set_invert_scroll (MetaInputSettings  *settings,
 }
 
 static void
-meta_input_settings_x11_set_edge_scroll (MetaInputSettings            *settings,
-                                         ClutterInputDevice           *device,
-                                         gboolean                      edge_scroll_enabled)
+change_scroll_method (ClutterInputDevice           *device,
+                      ScrollMethod                 method,
+                      gboolean                     enabled)
 {
   guchar values[SCROLL_METHOD_NUM_FIELDS] = { 0 }; /* 2fg, edge, button. The last value is unused */
   guchar *current = NULL;
@@ -322,7 +322,7 @@ meta_input_settings_x11_set_edge_scroll (MetaInputSettings            *settings,
 
   available = get_property (device, "libinput Scroll Methods Available",
                             XA_INTEGER, 8, SCROLL_METHOD_NUM_FIELDS);
-  if (!available || !available[SCROLL_METHOD_FIELD_EDGE])
+  if (!available || !available[method])
     goto out;
 
   current = get_property (device, "libinput Scroll Method Enabled",
@@ -332,7 +332,7 @@ meta_input_settings_x11_set_edge_scroll (MetaInputSettings            *settings,
 
   memcpy (values, current, SCROLL_METHOD_NUM_FIELDS);
 
-  values[SCROLL_METHOD_FIELD_EDGE] = !!edge_scroll_enabled;
+  values[method] = !!enabled;
   change_property (device, "libinput Scroll Method Enabled",
                    XA_INTEGER, 8, &values, SCROLL_METHOD_NUM_FIELDS);
  out:
@@ -341,32 +341,19 @@ meta_input_settings_x11_set_edge_scroll (MetaInputSettings            *settings,
 }
 
 static void
+meta_input_settings_x11_set_edge_scroll (MetaInputSettings            *settings,
+                                         ClutterInputDevice           *device,
+                                         gboolean                      edge_scroll_enabled)
+{
+  change_scroll_method (device, SCROLL_METHOD_FIELD_EDGE, edge_scroll_enabled);
+}
+
+static void
 meta_input_settings_x11_set_two_finger_scroll (MetaInputSettings            *settings,
                                                ClutterInputDevice           *device,
                                                gboolean                      two_finger_scroll_enabled)
 {
-  guchar values[SCROLL_METHOD_NUM_FIELDS] = { 0 }; /* 2fg, edge, button. The last value is unused */
-  guchar *current = NULL;
-  guchar *available = NULL;
-
-  available = get_property (device, "libinput Scroll Methods Available",
-                            XA_INTEGER, 8, SCROLL_METHOD_NUM_FIELDS);
-  if (!available || !available[SCROLL_METHOD_FIELD_2FG])
-    goto out;
-
-  current = get_property (device, "libinput Scroll Method Enabled",
-                          XA_INTEGER, 8, SCROLL_METHOD_NUM_FIELDS);
-  if (!current)
-    goto out;
-
-  memcpy (values, current, SCROLL_METHOD_NUM_FIELDS);
-
-  values[SCROLL_METHOD_FIELD_2FG] = !!two_finger_scroll_enabled;
-  change_property (device, "libinput Scroll Method Enabled",
-                   XA_INTEGER, 8, &values, SCROLL_METHOD_NUM_FIELDS);
- out:
-  meta_XFree (current);
-  meta_XFree (available);
+  change_scroll_method (device, SCROLL_METHOD_FIELD_2FG, two_finger_scroll_enabled);
 }
 
 static gboolean
