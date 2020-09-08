@@ -270,10 +270,12 @@ meta_input_settings_native_has_two_finger_scroll (MetaInputSettings  *settings,
 static void
 meta_input_settings_native_set_scroll_button (MetaInputSettings  *settings,
                                               ClutterInputDevice *device,
-                                              guint               button)
+                                              guint               button,
+                                              gboolean            button_lock)
 {
   struct libinput_device *libinput_device;
   enum libinput_config_scroll_method method;
+  enum libinput_config_scroll_button_lock_state lock_state;
   guint evcode;
 
   libinput_device = meta_input_device_native_get_libinput_device (device);
@@ -314,6 +316,13 @@ meta_input_settings_native_set_scroll_button (MetaInputSettings  *settings,
     return;
 
   libinput_device_config_scroll_set_button (libinput_device, evcode);
+
+  if (button_lock)
+    lock_state = LIBINPUT_CONFIG_SCROLL_BUTTON_LOCK_ENABLED;
+  else
+    lock_state = LIBINPUT_CONFIG_SCROLL_BUTTON_LOCK_DISABLED;
+
+  libinput_device_config_scroll_set_button_lock (libinput_device, lock_state);
 }
 
 static void

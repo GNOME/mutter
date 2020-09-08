@@ -858,6 +858,7 @@ update_trackball_scroll_button (MetaInputSettings  *input_settings,
   MetaInputSettingsClass *input_settings_class;
   MetaInputSettingsPrivate *priv;
   guint button;
+  gboolean button_lock;
 
   priv = meta_input_settings_get_instance_private (input_settings);
   input_settings_class = META_INPUT_SETTINGS_GET_CLASS (input_settings);
@@ -868,10 +869,11 @@ update_trackball_scroll_button (MetaInputSettings  *input_settings,
   /* This key is 'i' in the schema but it also specifies a minimum
    * range of 0 so the cast here is safe. */
   button = (guint) g_settings_get_int (priv->trackball_settings, "scroll-wheel-emulation-button");
+  button_lock = g_settings_get_boolean (priv->trackball_settings, "scroll-wheel-emulation-button-lock");
 
   if (device)
     {
-      input_settings_class->set_scroll_button (input_settings, device, button);
+      input_settings_class->set_scroll_button (input_settings, device, button, button_lock);
     }
   else if (!device)
     {
@@ -884,7 +886,7 @@ update_trackball_scroll_button (MetaInputSettings  *input_settings,
           device = l->data;
 
           if (input_settings_class->is_trackball_device (input_settings, device))
-            input_settings_class->set_scroll_button (input_settings, device, button);
+            input_settings_class->set_scroll_button (input_settings, device, button, button_lock);
         }
 
       g_list_free (devices);
@@ -1282,7 +1284,8 @@ meta_input_settings_changed_cb (GSettings  *settings,
     }
   else if (settings == priv->trackball_settings)
     {
-      if (strcmp (key, "scroll-wheel-emulation-button") == 0)
+      if (strcmp (key, "scroll-wheel-emulation-button") == 0 ||
+          strcmp (key, "scroll-wheel-emulation-button-lock") == 0)
         update_trackball_scroll_button (input_settings, NULL);
       else if (strcmp (key, "accel-profile") == 0)
         update_pointer_accel_profile (input_settings, settings, NULL);

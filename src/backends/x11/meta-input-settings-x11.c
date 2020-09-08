@@ -375,11 +375,16 @@ meta_input_settings_x11_has_two_finger_scroll (MetaInputSettings  *settings,
 static void
 meta_input_settings_x11_set_scroll_button (MetaInputSettings  *settings,
                                            ClutterInputDevice *device,
-                                           guint               button)
+                                           guint               button,
+                                           gboolean            button_lock)
 {
+  gchar lock = button_lock;
+
   change_scroll_method (device, SCROLL_METHOD_FIELD_BUTTON, button != 0);
   change_property (device, "libinput Button Scrolling Button",
                    XA_CARDINAL, 32, &button, 1);
+  change_property (device, "libinput Button Scrolling Button Lock Enabled",
+                   XA_INTEGER, 8, &lock, 1);
 }
 
 static void

@@ -78,7 +78,8 @@ struct _MetaInputSettingsClass
                                   gboolean            enabled);
   void (* set_scroll_button) (MetaInputSettings  *settings,
                               ClutterInputDevice *device,
-                              guint               button);
+                              guint               button,
+                              gboolean            button_lock);
 
   void (* set_click_method)  (MetaInputSettings            *settings,
                               ClutterInputDevice           *device,
