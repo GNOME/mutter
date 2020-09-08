@@ -53,6 +53,7 @@
 
 #include "clutter-actor-private.h"
 #include "clutter-backend-private.h"
+#include "clutter-cogl.h"
 #include "clutter-config.h"
 #include "clutter-debug.h"
 #include "clutter-event-private.h"
@@ -2020,6 +2021,7 @@ clutter_base_init (void)
       g_type_init ();
 #endif
 
+      clutter_cogl_init ();
       clutter_graphene_init ();
     }
 }
