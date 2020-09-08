@@ -391,7 +391,7 @@ meta_input_settings_x11_set_scroll_button (MetaInputSettings  *settings,
                                            guint               button)
 {
   change_property (device, "libinput Button Scrolling Button",
-                   XA_INTEGER, 32, &button, 1);
+                   XA_CARDINAL, 32, &button, 1);
 }
 
 static void
