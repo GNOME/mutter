@@ -47,6 +47,8 @@
 #define MTX_GL_SCALE_Y(y,w,v1,v2) ((v1) - (((((y) / (w)) + 1.0f) / 2.0f) * (v1)) + (v2))
 #define MTX_GL_SCALE_Z(z,w,v1,v2) (MTX_GL_SCALE_X ((z), (w), (v1), (v2)))
 
+#define ROUND_TO_256THS(x) (roundf ((x) * 256) / 256)
+
 void
 _clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
                                         const CoglMatrix *projection,
@@ -99,10 +101,14 @@ _clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
       ClutterVertex4 vertex_tmp = vertices_tmp[i];
       graphene_point3d_t *vertex_out = &vertices_out[i];
       /* Finally translate from OpenGL coords to window coords */
-      vertex_out->x = MTX_GL_SCALE_X (vertex_tmp.x, vertex_tmp.w,
-                                      viewport[2], viewport[0]);
-      vertex_out->y = MTX_GL_SCALE_Y (vertex_tmp.y, vertex_tmp.w,
-                                      viewport[3], viewport[1]);
+      vertex_out->x = ROUND_TO_256THS (MTX_GL_SCALE_X (vertex_tmp.x,
+                                                       vertex_tmp.w,
+                                                       viewport[2],
+                                                       viewport[0]));
+      vertex_out->y = ROUND_TO_256THS (MTX_GL_SCALE_Y (vertex_tmp.y,
+                                                       vertex_tmp.w,
+                                                       viewport[3],
+                                                       viewport[1]));
     }
 }
 
