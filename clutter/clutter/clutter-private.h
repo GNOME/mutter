@@ -239,15 +239,6 @@ gboolean _clutter_util_rectangle_intersection (const cairo_rectangle_int_t *src1
 gboolean clutter_util_rectangle_equal (const cairo_rectangle_int_t *src1,
                                        const cairo_rectangle_int_t *src2);
 
-float   _clutter_util_matrix_determinant        (const CoglMatrix *matrix);
-
-gboolean        _clutter_util_matrix_decompose  (const CoglMatrix *src,
-                                                 graphene_point3d_t  *scale_p,
-                                                 float                shear_p[3],
-                                                 graphene_point3d_t  *rotate_p,
-                                                 graphene_point3d_t  *translate_p,
-                                                 graphene_vec4_t     *perspective_p);
-
 CLUTTER_EXPORT
 PangoDirection _clutter_pango_unichar_direction (gunichar ch);
 
