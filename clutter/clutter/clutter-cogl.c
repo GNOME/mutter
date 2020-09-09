@@ -41,17 +41,17 @@ cogl_matrix_progress (const GValue *a,
   float shear1[3] = { 0.f, 0.f, 0.f };
   graphene_point3d_t rotate1 = GRAPHENE_POINT3D_INIT_ZERO;
   graphene_point3d_t translate1 = GRAPHENE_POINT3D_INIT_ZERO;
-  ClutterVertex4 perspective1 = { 0.f, 0.f, 0.f, 0.f };
+  graphene_vec4_t perspective1;
   graphene_point3d_t scale2 = GRAPHENE_POINT3D_INIT (1.f, 1.f, 1.f);
   float shear2[3] = { 0.f, 0.f, 0.f };
   graphene_point3d_t rotate2 = GRAPHENE_POINT3D_INIT_ZERO;
   graphene_point3d_t translate2 = GRAPHENE_POINT3D_INIT_ZERO;
-  ClutterVertex4 perspective2 = { 0.f, 0.f, 0.f, 0.f };
+  graphene_vec4_t perspective2;
   graphene_point3d_t scale_res = GRAPHENE_POINT3D_INIT (1.f, 1.f, 1.f);
   float shear_res = 0.f;
   graphene_point3d_t rotate_res = GRAPHENE_POINT3D_INIT_ZERO;
   graphene_point3d_t translate_res = GRAPHENE_POINT3D_INIT_ZERO;
-  ClutterVertex4 perspective_res = { 0.f, 0.f, 0.f, 0.f };
+  graphene_vec4_t perspective_res;
   CoglMatrix res;
 
   cogl_matrix_init_identity (&res);
@@ -64,11 +64,11 @@ cogl_matrix_progress (const GValue *a,
                                   &perspective2);
 
   /* perspective */
-  _clutter_util_vertex4_interpolate (&perspective1, &perspective2, progress, &perspective_res);
-  res.wx = perspective_res.x;
-  res.wy = perspective_res.y;
-  res.wz = perspective_res.z;
-  res.ww = perspective_res.w;
+  graphene_vec4_interpolate (&perspective1, &perspective2, progress, &perspective_res);
+  res.wx = graphene_vec4_get_x (&perspective_res);
+  res.wy = graphene_vec4_get_y (&perspective_res);
+  res.wz = graphene_vec4_get_z (&perspective_res);
+  res.ww = graphene_vec4_get_w (&perspective_res);
 
   /* translation */
   graphene_point3d_interpolate (&translate1, &translate2, progress, &translate_res);

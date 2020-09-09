@@ -260,29 +260,39 @@ _clutter_util_matrix_determinant (const CoglMatrix *matrix)
 }
 
 static void
-_clutter_util_matrix_transpose_vector4_transform (const CoglMatrix     *matrix,
-                                                  const ClutterVertex4 *point,
-                                                  ClutterVertex4       *res)
+_clutter_util_matrix_transpose_vector4_transform (const CoglMatrix      *matrix,
+                                                  const graphene_vec4_t *point,
+                                                  graphene_vec4_t       *res)
 {
-  res->x = matrix->xx * point->x
-         + matrix->xy * point->y
-         + matrix->xz * point->z
-         + matrix->xw * point->w;
+  float point_x, point_y, point_z, point_w;
+  float x, y, z, w;
 
-  res->y = matrix->yx * point->x
-         + matrix->yy * point->y
-         + matrix->yz * point->z
-         + matrix->yw * point->w;
+  point_x = graphene_vec4_get_x (point);
+  point_y = graphene_vec4_get_y (point);
+  point_z = graphene_vec4_get_z (point);
+  point_w = graphene_vec4_get_w (point);
 
-  res->z = matrix->zx * point->x
-         + matrix->zy * point->y
-         + matrix->zz * point->z
-         + matrix->zw * point->w;
+  x = matrix->xx * point_x
+    + matrix->xy * point_y
+    + matrix->xz * point_z
+    + matrix->xw * point_w;
 
-  res->w = matrix->wz * point->x
-         + matrix->wy * point->w
-         + matrix->wz * point->z
-         + matrix->ww * point->w;
+  y = matrix->yx * point_x
+    + matrix->yy * point_y
+    + matrix->yz * point_z
+    + matrix->yw * point_w;
+
+  z = matrix->zx * point_x
+    + matrix->zy * point_y
+    + matrix->zz * point_z
+    + matrix->zw * point_w;
+
+  w = matrix->wz * point_x
+    + matrix->wy * point_w
+    + matrix->wz * point_z
+    + matrix->ww * point_w;
+
+  graphene_vec4_init (res, x, y, z, w);
 }
 
 static void
@@ -342,11 +352,11 @@ _clutter_util_matrix_decompose (const CoglMatrix    *src,
                                 float                shear_p[3],
                                 graphene_point3d_t  *rotate_p,
                                 graphene_point3d_t  *translate_p,
-                                ClutterVertex4      *perspective_p)
+                                graphene_vec4_t     *perspective_p)
 {
   CoglMatrix matrix = *src;
   CoglMatrix perspective;
-  ClutterVertex4 vertex_tmp;
+  graphene_vec4_t vertex_tmp;
   graphene_point3d_t row[3], pdum;
   int i, j;
 
@@ -386,12 +396,13 @@ _clutter_util_matrix_decompose (const CoglMatrix    *src,
       MAT (&matrix, 3, 2) != 0.f)
     {
       CoglMatrix perspective_inv;
-      ClutterVertex4 p;
+      graphene_vec4_t p;
 
-      vertex_tmp.x = MAT (&matrix, 3, 0);
-      vertex_tmp.y = MAT (&matrix, 3, 1);
-      vertex_tmp.z = MAT (&matrix, 3, 2);
-      vertex_tmp.w = MAT (&matrix, 3, 3);
+      graphene_vec4_init (&vertex_tmp,
+                          MAT (&matrix, 3, 0),
+                          MAT (&matrix, 3, 1),
+                          MAT (&matrix, 3, 2),
+                          MAT (&matrix, 3, 3));
 
       /* solve the equation by inverting perspective... */
       cogl_matrix_get_inverse (&perspective, &perspective_inv);
@@ -412,10 +423,7 @@ _clutter_util_matrix_decompose (const CoglMatrix    *src,
   else
     {
       /* no perspective */
-      perspective_p->x = 0.0f;
-      perspective_p->y = 0.0f;
-      perspective_p->z = 0.0f;
-      perspective_p->w = 1.0f;
+      graphene_vec4_init_from_vec4 (perspective_p, graphene_vec4_zero ());
     }
 
   /* translation */

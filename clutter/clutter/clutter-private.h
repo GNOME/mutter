@@ -262,7 +262,7 @@ gboolean        _clutter_util_matrix_decompose  (const CoglMatrix *src,
                                                  float                shear_p[3],
                                                  graphene_point3d_t  *rotate_p,
                                                  graphene_point3d_t  *translate_p,
-                                                 ClutterVertex4      *perspective_p);
+                                                 graphene_vec4_t     *perspective_p);
 
 CLUTTER_EXPORT
 PangoDirection _clutter_pango_unichar_direction (gunichar ch);
