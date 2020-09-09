@@ -121,6 +121,12 @@ struct _CoglMatrix
 };
 COGL_STRUCT_SIZE_ASSERT (CoglMatrix, 128 + sizeof (unsigned long) * 3);
 
+#define COGL_MATRIX_INIT_IDENTITY (CoglMatrix) { \
+  1.0f, 0.0f, 0.0f, 0.0f, \
+  0.0f, 1.0f, 0.0f, 0.0f, \
+  0.0f, 0.0f, 1.0f, 0.0f, \
+  0.0f, 0.0f, 0.0f, 1.0f, \
+}
 
 /**
  * cogl_matrix_init_identity:
