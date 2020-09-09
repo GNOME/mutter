@@ -99,7 +99,7 @@ clutter_scroll_actor_set_scroll_to_internal (ClutterScrollActor     *self,
 {
   ClutterScrollActorPrivate *priv = self->priv;
   ClutterActor *actor = CLUTTER_ACTOR (self);
-  ClutterMatrix m = CLUTTER_MATRIX_INIT_IDENTITY;
+  CoglMatrix m = COGL_MATRIX_INIT_IDENTITY;
   float dx, dy;
 
   if (graphene_point_equal (&priv->scroll_to, point))

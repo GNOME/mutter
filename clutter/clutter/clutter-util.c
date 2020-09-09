@@ -231,7 +231,7 @@ clutter_util_rectangle_equal (const cairo_rectangle_int_t *src1,
 }
 
 float
-_clutter_util_matrix_determinant (const ClutterMatrix *matrix)
+_clutter_util_matrix_determinant (const CoglMatrix *matrix)
 {
   return matrix->xw * matrix->yz * matrix->zy * matrix->wz
        - matrix->xz * matrix->yw * matrix->zy * matrix->wz
@@ -260,7 +260,7 @@ _clutter_util_matrix_determinant (const ClutterMatrix *matrix)
 }
 
 static void
-_clutter_util_matrix_transpose_vector4_transform (const ClutterMatrix  *matrix,
+_clutter_util_matrix_transpose_vector4_transform (const CoglMatrix     *matrix,
                                                   const ClutterVertex4 *point,
                                                   ClutterVertex4       *res)
 {
@@ -286,8 +286,8 @@ _clutter_util_matrix_transpose_vector4_transform (const ClutterMatrix  *matrix,
 }
 
 void
-_clutter_util_matrix_skew_xy (ClutterMatrix *matrix,
-                              float          factor)
+_clutter_util_matrix_skew_xy (CoglMatrix *matrix,
+                              float       factor)
 {
   matrix->yx += matrix->xx * factor;
   matrix->yy += matrix->xy * factor;
@@ -296,8 +296,8 @@ _clutter_util_matrix_skew_xy (ClutterMatrix *matrix,
 }
 
 void
-_clutter_util_matrix_skew_xz (ClutterMatrix *matrix,
-                              float          factor)
+_clutter_util_matrix_skew_xz (CoglMatrix *matrix,
+                              float       factor)
 {
   matrix->zx += matrix->xx * factor;
   matrix->zy += matrix->xy * factor;
@@ -306,8 +306,8 @@ _clutter_util_matrix_skew_xz (ClutterMatrix *matrix,
 }
 
 void
-_clutter_util_matrix_skew_yz (ClutterMatrix *matrix,
-                              float          factor)
+_clutter_util_matrix_skew_yz (CoglMatrix *matrix,
+                              float       factor)
 {
   matrix->zx += matrix->yx * factor;
   matrix->zy += matrix->yy * factor;
@@ -353,7 +353,7 @@ _clutter_util_vertex4_interpolate (const ClutterVertex4 *a,
  * @perspective_p: (out caller-allocates: return location for a 4D vertex
  *   containing the perspective
  *
- * Decomposes a #ClutterMatrix into the transformations that compose it.
+ * Decomposes a #CoglMatrix into the transformations that compose it.
  *
  * This code is based on the matrix decomposition algorithm as published in
  * the CSS Transforms specification by the W3C CSS working group, available
@@ -367,7 +367,7 @@ _clutter_util_vertex4_interpolate (const ClutterVertex4 *a,
  *   if the matrix is singular
  */
 gboolean
-_clutter_util_matrix_decompose (const ClutterMatrix *src,
+_clutter_util_matrix_decompose (const CoglMatrix    *src,
                                 graphene_point3d_t  *scale_p,
                                 float                shear_p[3],
                                 graphene_point3d_t  *rotate_p,

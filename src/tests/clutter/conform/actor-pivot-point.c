@@ -10,7 +10,7 @@ static void
 actor_pivot (void)
 {
   ClutterActor *stage, *actor_implicit, *actor_explicit;
-  ClutterMatrix transform, result_implicit, result_explicit;
+  CoglMatrix transform, result_implicit, result_explicit;
   ClutterActorBox allocation = CLUTTER_ACTOR_BOX_INIT (0, 0, 90, 30);
   gfloat angle = 30;
 
@@ -33,7 +33,7 @@ actor_pivot (void)
   clutter_actor_set_rotation_angle (actor_implicit, CLUTTER_Z_AXIS, angle);
 
   /* Explicit transformation */
-  clutter_matrix_init_identity(&transform);
+  cogl_matrix_init_identity (&transform);
   cogl_matrix_rotate (&transform, angle, 0, 0, 1.0);
   clutter_actor_set_transform (actor_explicit, &transform);
 

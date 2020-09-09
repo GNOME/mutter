@@ -1068,10 +1068,10 @@ static inline void clutter_actor_set_margin_internal (ClutterActor *self,
                                                       gfloat        margin,
                                                       GParamSpec   *pspec);
 
-static void clutter_actor_set_transform_internal (ClutterActor        *self,
-                                                  const ClutterMatrix *transform);
-static void clutter_actor_set_child_transform_internal (ClutterActor        *self,
-                                                        const ClutterMatrix *transform);
+static void clutter_actor_set_transform_internal (ClutterActor     *self,
+                                                  const CoglMatrix *transform);
+static void clutter_actor_set_child_transform_internal (ClutterActor     *self,
+                                                        const CoglMatrix *transform);
 
 static void     clutter_actor_realize_internal          (ClutterActor *self);
 static void     clutter_actor_unrealize_internal        (ClutterActor *self);
@@ -3053,8 +3053,8 @@ clutter_actor_get_abs_allocation_vertices (ClutterActor       *self,
 }
 
 static void
-clutter_actor_real_apply_transform (ClutterActor  *self,
-                                    ClutterMatrix *matrix)
+clutter_actor_real_apply_transform (ClutterActor *self,
+                                    CoglMatrix   *matrix)
 {
   ClutterActorPrivate *priv = self->priv;
   const ClutterTransformInfo *info;
@@ -3085,10 +3085,10 @@ clutter_actor_real_apply_transform (ClutterActor  *self,
       const ClutterTransformInfo *parent_info;
 
       parent_info = _clutter_actor_get_transform_info_or_defaults (priv->parent);
-      clutter_matrix_init_from_matrix (matrix, &(parent_info->child_transform));
+      cogl_matrix_init_from_matrix (matrix, &(parent_info->child_transform));
     }
   else
-    clutter_matrix_init_identity (matrix);
+    cogl_matrix_init_identity (matrix);
 
   /* if we have an overriding transformation, we use that, and get out */
   if (info->transform_set)
@@ -3146,8 +3146,8 @@ roll_back_pivot:
 /* Applies the transforms associated with this actor to the given
  * matrix. */
 void
-_clutter_actor_apply_modelview_transform (ClutterActor  *self,
-                                          ClutterMatrix *matrix)
+_clutter_actor_apply_modelview_transform (ClutterActor *self,
+                                          CoglMatrix   *matrix)
 {
   ClutterActorPrivate *priv = self->priv;
 
@@ -3167,7 +3167,7 @@ out:
  * @self: The actor whose coordinate space you want to transform from.
  * @ancestor: The ancestor actor whose coordinate space you want to transform too
  *            or %NULL if you want to transform all the way to eye coordinates.
- * @matrix: A #ClutterMatrix to apply the transformation too.
+ * @matrix: A #CoglMatrix to apply the transformation too.
  *
  * This multiplies a transform with @matrix that will transform coordinates
  * from the coordinate space of @self into the coordinate space of @ancestor.
@@ -4432,9 +4432,9 @@ static const ClutterTransformInfo default_transform_info = {
   GRAPHENE_POINT_INIT_ZERO,     /* pivot */
   0.f,                          /* pivot-z */
 
-  CLUTTER_MATRIX_INIT_IDENTITY,
+  COGL_MATRIX_INIT_IDENTITY,
   FALSE,                        /* transform */
-  CLUTTER_MATRIX_INIT_IDENTITY,
+  COGL_MATRIX_INIT_IDENTITY,
   FALSE,                        /* child-transform */
 };
 
@@ -5456,7 +5456,7 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_TRANSFORM:
       {
-        ClutterMatrix m;
+        CoglMatrix m;
 
         clutter_actor_get_transform (actor, &m);
         g_value_set_boxed (value, &m);
@@ -5474,7 +5474,7 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_CHILD_TRANSFORM:
       {
-        ClutterMatrix m;
+        CoglMatrix m;
 
         clutter_actor_get_child_transform (actor, &m);
         g_value_set_boxed (value, &m);
@@ -6865,7 +6865,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * Application code should rarely need to use this function directly.
    *
-   * Setting this property with a #ClutterMatrix will set the
+   * Setting this property with a #CoglMatrix will set the
    * #ClutterActor:transform-set property to %TRUE as a side effect;
    * setting this property with %NULL will set the
    * #ClutterActor:transform-set property to %FALSE.
@@ -6878,7 +6878,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("transform",
                         P_("Transform"),
                         P_("Transformation matrix"),
-                        CLUTTER_TYPE_MATRIX,
+                        COGL_GTYPE_TYPE_MATRIX,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         CLUTTER_PARAM_ANIMATABLE);
@@ -6903,7 +6903,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * Applies a transformation matrix on each child of an actor.
    *
-   * Setting this property with a #ClutterMatrix will set the
+   * Setting this property with a #CoglMatrix will set the
    * #ClutterActor:child-transform-set property to %TRUE as a side effect;
    * setting this property with %NULL will set the
    * #ClutterActor:child-transform-set property to %FALSE.
@@ -6916,7 +6916,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("child-transform",
                         P_("Child Transform"),
                         P_("Children transformation matrix"),
-                        CLUTTER_TYPE_MATRIX,
+                        COGL_GTYPE_TYPE_MATRIX,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         CLUTTER_PARAM_ANIMATABLE);
@@ -14772,8 +14772,8 @@ clutter_actor_unset_flags (ClutterActor      *self,
 }
 
 static void
-clutter_actor_set_transform_internal (ClutterActor        *self,
-                                      const ClutterMatrix *transform)
+clutter_actor_set_transform_internal (ClutterActor     *self,
+                                      const CoglMatrix *transform)
 {
   ClutterTransformInfo *info;
   gboolean was_set;
@@ -14801,7 +14801,7 @@ clutter_actor_set_transform_internal (ClutterActor        *self,
 /**
  * clutter_actor_set_transform:
  * @self: a #ClutterActor
- * @transform: (allow-none): a #ClutterMatrix, or %NULL to
+ * @transform: (allow-none): a #CoglMatrix, or %NULL to
  *   unset a custom transformation
  *
  * Overrides the transformations of a #ClutterActor with a custom
@@ -14813,20 +14813,20 @@ clutter_actor_set_transform_internal (ClutterActor        *self,
  * Since: 1.12
  */
 void
-clutter_actor_set_transform (ClutterActor        *self,
-                             const ClutterMatrix *transform)
+clutter_actor_set_transform (ClutterActor     *self,
+                             const CoglMatrix *transform)
 {
   const ClutterTransformInfo *info;
-  ClutterMatrix new_transform;
+  CoglMatrix new_transform;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
   info = _clutter_actor_get_transform_info_or_defaults (self);
 
   if (transform != NULL)
-    clutter_matrix_init_from_matrix (&new_transform, transform);
+    cogl_matrix_init_from_matrix (&new_transform, transform);
   else
-    clutter_matrix_init_identity (&new_transform);
+    cogl_matrix_init_identity (&new_transform);
 
   _clutter_actor_create_transition (self, obj_props[PROP_TRANSFORM],
                                     &info->transform,
@@ -14836,15 +14836,15 @@ clutter_actor_set_transform (ClutterActor        *self,
 /**
  * clutter_actor_get_transform:
  * @self: a #ClutterActor
- * @transform: (out caller-allocates): a #ClutterMatrix
+ * @transform: (out caller-allocates): a #CoglMatrix
  *
  * Retrieves the current transformation matrix of a #ClutterActor.
  *
  * Since: 1.12
  */
 void
-clutter_actor_get_transform (ClutterActor  *self,
-                             ClutterMatrix *transform)
+clutter_actor_get_transform (ClutterActor *self,
+                             CoglMatrix   *transform)
 {
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
   g_return_if_fail (transform != NULL);
@@ -19383,8 +19383,8 @@ done:
 }
 
 static void
-clutter_actor_set_child_transform_internal (ClutterActor        *self,
-                                            const ClutterMatrix *transform)
+clutter_actor_set_child_transform_internal (ClutterActor     *self,
+                                            const CoglMatrix *transform)
 {
   ClutterTransformInfo *info = _clutter_actor_get_transform_info (self);
   ClutterActorIter iter;
@@ -19392,7 +19392,7 @@ clutter_actor_set_child_transform_internal (ClutterActor        *self,
   GObject *obj;
   gboolean was_set = info->child_transform_set;
 
-  clutter_matrix_init_from_matrix (&info->child_transform, transform);
+  cogl_matrix_init_from_matrix (&info->child_transform, transform);
 
   /* if it's the identity matrix, we need to toggle the boolean flag */
   info->child_transform_set = !cogl_matrix_is_identity (transform);
@@ -19414,7 +19414,7 @@ clutter_actor_set_child_transform_internal (ClutterActor        *self,
 /**
  * clutter_actor_set_child_transform:
  * @self: a #ClutterActor
- * @transform: (allow-none): a #ClutterMatrix, or %NULL
+ * @transform: (allow-none): a #CoglMatrix, or %NULL
  *
  * Sets the transformation matrix to be applied to all the children
  * of @self prior to their own transformations. The default child
@@ -19427,20 +19427,20 @@ clutter_actor_set_child_transform_internal (ClutterActor        *self,
  * Since: 1.12
  */
 void
-clutter_actor_set_child_transform (ClutterActor        *self,
-                                   const ClutterMatrix *transform)
+clutter_actor_set_child_transform (ClutterActor     *self,
+                                   const CoglMatrix *transform)
 {
   const ClutterTransformInfo *info;
-  ClutterMatrix new_transform;
+  CoglMatrix new_transform;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
   info = _clutter_actor_get_transform_info_or_defaults (self);
 
   if (transform != NULL)
-    clutter_matrix_init_from_matrix (&new_transform, transform);
+    cogl_matrix_init_from_matrix (&new_transform, transform);
   else
-    clutter_matrix_init_identity (&new_transform);
+    cogl_matrix_init_identity (&new_transform);
 
   _clutter_actor_create_transition (self, obj_props[PROP_CHILD_TRANSFORM],
                                     &info->child_transform,
@@ -19450,7 +19450,7 @@ clutter_actor_set_child_transform (ClutterActor        *self,
 /**
  * clutter_actor_get_child_transform:
  * @self: a #ClutterActor
- * @transform: (out caller-allocates): a #ClutterMatrix
+ * @transform: (out caller-allocates): a #CoglMatrix
  *
  * Retrieves the child transformation matrix set using
  * clutter_actor_set_child_transform(); if none is currently set,
@@ -19459,8 +19459,8 @@ clutter_actor_set_child_transform (ClutterActor        *self,
  * Since: 1.12
  */
 void
-clutter_actor_get_child_transform (ClutterActor  *self,
-                                   ClutterMatrix *transform)
+clutter_actor_get_child_transform (ClutterActor *self,
+                                   CoglMatrix   *transform)
 {
   const ClutterTransformInfo *info;
 
@@ -19470,9 +19470,9 @@ clutter_actor_get_child_transform (ClutterActor  *self,
   info = _clutter_actor_get_transform_info_or_defaults (self);
 
   if (info->child_transform_set)
-    clutter_matrix_init_from_matrix (transform, &info->child_transform);
+    cogl_matrix_init_from_matrix (transform, &info->child_transform);
   else
-    clutter_matrix_init_identity (transform);
+    cogl_matrix_init_identity (transform);
 }
 
 static void

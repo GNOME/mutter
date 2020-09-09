@@ -255,23 +255,16 @@ _clutter_util_vertex4_interpolate (const ClutterVertex4 *a,
                                    double                progress,
                                    ClutterVertex4       *res);
 
-#define CLUTTER_MATRIX_INIT_IDENTITY { \
-  1.0f, 0.0f, 0.0f, 0.0f, \
-  0.0f, 1.0f, 0.0f, 0.0f, \
-  0.0f, 0.0f, 1.0f, 0.0f, \
-  0.0f, 0.0f, 0.0f, 1.0f, \
-}
+float   _clutter_util_matrix_determinant        (const CoglMatrix *matrix);
 
-float   _clutter_util_matrix_determinant        (const ClutterMatrix *matrix);
+void    _clutter_util_matrix_skew_xy            (CoglMatrix *matrix,
+                                                 float       factor);
+void    _clutter_util_matrix_skew_xz            (CoglMatrix *matrix,
+                                                 float       factor);
+void    _clutter_util_matrix_skew_yz            (CoglMatrix *matrix,
+                                                 float       factor);
 
-void    _clutter_util_matrix_skew_xy            (ClutterMatrix *matrix,
-                                                 float          factor);
-void    _clutter_util_matrix_skew_xz            (ClutterMatrix *matrix,
-                                                 float          factor);
-void    _clutter_util_matrix_skew_yz            (ClutterMatrix *matrix,
-                                                 float          factor);
-
-gboolean        _clutter_util_matrix_decompose  (const ClutterMatrix *src,
+gboolean        _clutter_util_matrix_decompose  (const CoglMatrix *src,
                                                  graphene_point3d_t  *scale_p,
                                                  float                shear_p[3],
                                                  graphene_point3d_t  *rotate_p,

@@ -40,7 +40,6 @@ G_BEGIN_DECLS
 #define CLUTTER_TYPE_ACTOR_BOX          (clutter_actor_box_get_type ())
 #define CLUTTER_TYPE_KNOT               (clutter_knot_get_type ())
 #define CLUTTER_TYPE_MARGIN             (clutter_margin_get_type ())
-#define CLUTTER_TYPE_MATRIX             (clutter_matrix_get_type ())
 #define CLUTTER_TYPE_PAINT_VOLUME       (clutter_paint_volume_get_type ())
 #define CLUTTER_TYPE_PERSPECTIVE        (clutter_perspective_get_type ())
 
@@ -86,8 +85,6 @@ typedef struct _ClutterVirtualInputDevice       ClutterVirtualInputDevice;
 
 typedef struct _ClutterInputMethod              ClutterInputMethod;
 typedef struct _ClutterInputFocus               ClutterInputFocus;
-
-typedef CoglMatrix                              ClutterMatrix;
 
 typedef union _ClutterEvent                     ClutterEvent;
 
@@ -431,22 +428,6 @@ typedef gboolean (* ClutterProgressFunc) (const GValue *a,
 CLUTTER_EXPORT
 void clutter_interval_register_progress_func (GType               value_type,
                                               ClutterProgressFunc func);
-
-CLUTTER_EXPORT
-GType clutter_matrix_get_type (void) G_GNUC_CONST;
-
-CLUTTER_EXPORT
-ClutterMatrix * clutter_matrix_alloc            (void);
-CLUTTER_EXPORT
-ClutterMatrix * clutter_matrix_init_identity    (ClutterMatrix       *matrix);
-CLUTTER_EXPORT
-ClutterMatrix * clutter_matrix_init_from_array  (ClutterMatrix       *matrix,
-                                                 const float          values[16]);
-CLUTTER_EXPORT
-ClutterMatrix * clutter_matrix_init_from_matrix (ClutterMatrix       *a,
-                                                 const ClutterMatrix *b);
-CLUTTER_EXPORT
-void            clutter_matrix_free             (ClutterMatrix       *matrix);
 
 G_END_DECLS
 

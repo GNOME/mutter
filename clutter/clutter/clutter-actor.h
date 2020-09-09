@@ -257,7 +257,7 @@ struct _ClutterActorClass
 
   /* transformations */
   void (* apply_transform)      (ClutterActor           *actor,
-                                 ClutterMatrix          *matrix);
+                                 CoglMatrix             *matrix);
 
   /* event signals */
   gboolean (* event)                (ClutterActor         *actor,
@@ -803,16 +803,16 @@ void                            clutter_actor_get_translation                   
                                                                                  gfloat                     *translate_z);
 CLUTTER_EXPORT
 void                            clutter_actor_set_transform                     (ClutterActor               *self,
-                                                                                 const ClutterMatrix        *transform);
+                                                                                 const CoglMatrix        *transform);
 CLUTTER_EXPORT
 void                            clutter_actor_get_transform                     (ClutterActor               *self,
-                                                                                 ClutterMatrix              *transform);
+                                                                                 CoglMatrix                 *transform);
 CLUTTER_EXPORT
 void                            clutter_actor_set_child_transform               (ClutterActor               *self,
-                                                                                 const ClutterMatrix        *transform);
+                                                                                 const CoglMatrix           *transform);
 CLUTTER_EXPORT
 void                            clutter_actor_get_child_transform               (ClutterActor               *self,
-                                                                                 ClutterMatrix              *transform);
+                                                                                 CoglMatrix                 *transform);
 
 CLUTTER_EXPORT
 void                            clutter_actor_get_transformed_extents          (ClutterActor               *self,

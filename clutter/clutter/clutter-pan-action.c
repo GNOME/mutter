@@ -354,7 +354,7 @@ clutter_pan_action_real_pan (ClutterPanAction *self,
                              gboolean          is_interpolated)
 {
   gfloat dx, dy;
-  ClutterMatrix transform;
+  CoglMatrix transform;
 
   clutter_pan_action_get_constrained_motion_delta (self, 0, &dx, &dy);
 
