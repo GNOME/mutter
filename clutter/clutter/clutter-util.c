@@ -49,6 +49,14 @@
 
 #define ROUND_TO_256THS(x) (roundf ((x) * 256) / 256)
 
+typedef struct
+{
+  float x;
+  float y;
+  float z;
+  float w;
+} ClutterVertex4;
+
 void
 _clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
                                         const CoglMatrix *projection,
@@ -305,18 +313,6 @@ _clutter_util_vertex_combine (const graphene_point3d_t *a,
   res->x = (ascl * a->x) + (bscl * b->x);
   res->y = (ascl * a->y) + (bscl * b->y);
   res->z = (ascl * a->z) + (bscl * b->z);
-}
-
-void
-_clutter_util_vertex4_interpolate (const ClutterVertex4 *a,
-                                   const ClutterVertex4 *b,
-                                   double                progress,
-                                   ClutterVertex4       *res)
-{
-  res->x = a->x + (b->x - a->x) * progress;
-  res->y = a->y + (b->y - a->y) * progress;
-  res->z = a->z + (b->z - a->z) * progress;
-  res->w = a->w + (b->w - a->w) * progress;
 }
 
 /*< private >
