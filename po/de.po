@@ -7,22 +7,22 @@
 # Christian Kirbach <Christian.Kirbach@googlemail.com>, 2009, 2011-2012.
 # Wolfgang Stöggl <c72578@yahoo.de> 2011, 2017.
 # Tobias Endrigkeit <tobiasendrigkeit@googlemail.com>, 2012.
-# Tim Sabsch <timæsabsch.com>, 2018-2019.
+# Tim Sabsch <timæsabsch.com>, 2018-2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-03-30 20:11+0000\n"
-"PO-Revision-Date: 2020-04-06 23:13+0200\n"
-"Last-Translator: Christian Kirbach <christian.kirbach@gmail.com>\n"
+"POT-Creation-Date: 2020-09-09 13:46+0000\n"
+"PO-Revision-Date: 2020-09-09 19:09+0200\n"
+"Last-Translator: Tim Sabsch <tim@sabsch.com>\n"
 "Language-Team: Deutsch <gnome-de@gnome.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.3\n"
+"X-Generator: Poedit 2.4.1\n"
 
 #: data/50-mutter-navigation.xml:6
 msgid "Navigation"
@@ -465,59 +465,59 @@ msgstr "Bildschirmkonfigurationen wechseln"
 msgid "Rotates the built-in monitor configuration"
 msgstr "Wechselt die Konfiguration des eingebauten Bildschirms"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Zum virtuellen Terminal 1 wechseln"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "Zum virtuellen Terminal 2 wechseln"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "Zum virtuellen Terminal 3 wechseln"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "Zum virtuellen Terminal 4 wechseln"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "Zum virtuellen Terminal 5 wechseln"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "Zum virtuellen Terminal 6 wechseln"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "Zum virtuellen Terminal 7 wechseln"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "Zum virtuellen Terminal 8 wechseln"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "Zum virtuellen Terminal 9 wechseln"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "Zum virtuellen Terminal 10 wechseln"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "Zum virtuellen Terminal 11 wechseln"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "Zum virtuellen Terminal 12 wechseln"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
 msgstr "Tastenkombinationen erneut aktivieren"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr ""
 "X11-Tastatur-Kontrollübernahmen zum Festlegen des Tastaturfokus in Xwayland "
@@ -525,7 +525,7 @@ msgstr ""
 
 # https://tronche.com/gui/x/xlib/window/attributes/override-redirect.html
 # Ich halte es nicht für sinnvoll, diesen Term zu übersetzen.
-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -535,7 +535,7 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Erlauben, dass in Xwayland alle Tastaturevents mittels Kontrollübernahme auf "
 "X11-»override redirect«-Fenster überführt werden können. Diese Einstellung "
@@ -545,23 +545,23 @@ msgstr ""
 "nur selten genutzt und hat keinen Einfluss auf normale X11-Fenster, die "
 "einen Tastaturfokus erhalten können. Damit eine X11-Kontrollübernahme unter "
 "Wayland durchgeführt werden kann, muss der Client auch entweder eine "
-"spezifische X11-ClientMessage an das Root-Fenster senden oder in den als "
-"»whitelisted« im Schlüssel »xwayland-grab-access-rules« aufgelisteten "
+"spezifische X11-ClientMessage an das Root-Fenster senden oder in den im "
+"Schlüssel »xwayland-grab-access-rules« aufgelisteten und damit erlaubten "
 "Anwendungen enthalten sein."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:84
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Xwayland-Anwendungen mit Erlaubnis zur Kontrollübernahme der Tastatur"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -571,18 +571,34 @@ msgstr ""
 "oder -klasse eines bestimmten X11-Fensters kann mit dem Befehl »xprop "
 "WM_CLASS« ermittelt werden. Dabei werden »*« als Platzhalter und »?« als "
 "Joker in den Wertangaben unterstützt. Mit »!« beginnende Werte gelten als "
-"»blacklisted« und werden gegenüber den als »whitelisted« markierten Werten "
-"bevorzugt, um in der Standardliste des Systems aufgeführte Anwendungen außer "
-"Kraft zu setzen. Die Standardliste des Systems enthält die folgenden "
-"Anwendungen: »@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@« Benutzer können eine "
-"existierende Kontrollübernahme unterbrechen, indem sie das spezifische "
-"Tastenkürzel verwenden, wie es im Schlüssel »restore-shortcuts« angegeben "
-"ist."
+"abgelehnt und werden gegenüber den erlaubten Werten bevorzugt, um in der "
+"Standardliste des Systems aufgeführte Anwendungen außer Kraft zu setzen. Die "
+"Standardliste des Systems enthält die folgenden Anwendungen: "
+"»@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@« Benutzer können eine existierende "
+"Kontrollübernahme unterbrechen, indem sie das spezifische Tastenkürzel "
+"verwenden, wie es im Schlüssel »restore-shortcuts« angegeben ist."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "Ausgewählte X-Erweiterungen in Xwayland deaktivieren"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+"Diese Einstellung deaktiviert die ausgewählten X-Erweiterungen in Xwayland, "
+"sofern Xwayland mit Unterstützung für diese X-Erweiterungen gebaut wurde. "
+"Diese Einstellung hat keinen Effekt, wenn Xwayland ohne Unterstützung für "
+"die ausgewählten X-Erweiterungen gebaut wurde. Damit diese Einstellung "
+"wirksam werden kann, muss Xwayland neu gestartet werden."
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2631
+#: src/backends/meta-input-settings.c:2702
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Moduswechsel (Gruppe %d)"
@@ -590,34 +606,34 @@ msgstr "Moduswechsel (Gruppe %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2654
+#: src/backends/meta-input-settings.c:2725
 msgid "Switch monitor"
 msgstr "Bildschirm wechseln"
 
-#: src/backends/meta-input-settings.c:2656
+#: src/backends/meta-input-settings.c:2727
 msgid "Show on-screen help"
 msgstr "Bildschirmhilfe anzeigen"
 
-#: src/backends/meta-monitor.c:226
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Eingebaute Anzeige"
 
-#: src/backends/meta-monitor.c:255
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: src/backends/meta-monitor.c:257
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Unbekannte Anzeige"
 
-#: src/backends/meta-monitor.c:265
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:273
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -633,7 +649,7 @@ msgstr "Compositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -746,7 +762,7 @@ msgstr "Zu benutzendes Mutter-Plugin"
 msgid "Workspace %d"
 msgstr "Arbeitsfläche %d"
 
-#: src/core/util.c:122
+#: src/core/util.c:118
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter wurde ohne Unterstützung für den redseligen Modus kompiliert\n"
 
@@ -791,7 +807,7 @@ msgstr ""
 "Diese Fenster unterstützen das Speichern der aktuellen Einstellungen nicht "
 "und müssen bei der nächsten Anmeldung manuell neu gestartet werden."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (auf %s)"
