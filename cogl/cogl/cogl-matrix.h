@@ -760,6 +760,51 @@ GType cogl_matrix_get_gtype (void);
 COGL_EXPORT GType
 cogl_gtype_matrix_get_type (void);
 
+
+/**
+ * cogl_matrix_determinant:
+ * @matrix: a #CoglMatrix
+ *
+ * Computes the determinant of the @matrix.
+ *
+ * Returns: the value of the determinant
+ */
+COGL_EXPORT float
+cogl_matrix_determinant (const CoglMatrix *matrix);
+
+/**
+ * cogl_matrix_skew_xy:
+ * @matrix: a #CoglMatrix
+ * @factor: skew factor
+ *
+ * Adds a skew of factor on the X and Y axis to @matrix.
+ */
+COGL_EXPORT void
+cogl_matrix_skew_xy (CoglMatrix *matrix,
+                     float       factor);
+
+/**
+ * cogl_matrix_skew_xz:
+ * @matrix: a #CoglMatrix
+ * @factor: skew factor
+ *
+ * Adds a skew of factor on the X and Z axis to @matrix.
+ */
+COGL_EXPORT void
+cogl_matrix_skew_xz (CoglMatrix *matrix,
+                     float       factor);
+
+/**
+ * cogl_matrix_skew_yz:
+ * @matrix: a #CoglMatrix
+ * @factor: skew factor
+ *
+ * Adds a skew of factor on the Y and Z axis to @matrix.
+ */
+COGL_EXPORT void
+cogl_matrix_skew_yz (CoglMatrix *matrix,
+                     float       factor);
+
 G_END_DECLS
 
 #endif /* __COGL_MATRIX_H */

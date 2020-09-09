@@ -257,13 +257,6 @@ _clutter_util_vertex4_interpolate (const ClutterVertex4 *a,
 
 float   _clutter_util_matrix_determinant        (const CoglMatrix *matrix);
 
-void    _clutter_util_matrix_skew_xy            (CoglMatrix *matrix,
-                                                 float       factor);
-void    _clutter_util_matrix_skew_xz            (CoglMatrix *matrix,
-                                                 float       factor);
-void    _clutter_util_matrix_skew_yz            (CoglMatrix *matrix,
-                                                 float       factor);
-
 gboolean        _clutter_util_matrix_decompose  (const CoglMatrix *src,
                                                  graphene_point3d_t  *scale_p,
                                                  float                shear_p[3],

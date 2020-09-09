@@ -2246,3 +2246,42 @@ cogl_gtype_matrix_get_type (void)
 {
   return cogl_matrix_get_gtype ();
 }
+
+void
+cogl_matrix_skew_xy (CoglMatrix *matrix,
+                     float       factor)
+{
+  matrix->yx += matrix->xx * factor;
+  matrix->yy += matrix->xy * factor;
+  matrix->yz += matrix->xz * factor;
+  matrix->yw += matrix->xw * factor;
+
+  matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
+  _COGL_MATRIX_DEBUG_PRINT (matrix);
+}
+
+void
+cogl_matrix_skew_xz (CoglMatrix *matrix,
+                     float       factor)
+{
+  matrix->zx += matrix->xx * factor;
+  matrix->zy += matrix->xy * factor;
+  matrix->zz += matrix->xz * factor;
+  matrix->zw += matrix->xw * factor;
+
+  matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
+  _COGL_MATRIX_DEBUG_PRINT (matrix);
+}
+
+void
+cogl_matrix_skew_yz (CoglMatrix *matrix,
+                     float       factor)
+{
+  matrix->zx += matrix->yx * factor;
+  matrix->zy += matrix->yy * factor;
+  matrix->zz += matrix->yz * factor;
+  matrix->zw += matrix->yw * factor;
+
+  matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
+  _COGL_MATRIX_DEBUG_PRINT (matrix);
+}

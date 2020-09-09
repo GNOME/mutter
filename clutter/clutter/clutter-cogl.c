@@ -83,15 +83,15 @@ cogl_matrix_progress (const GValue *a,
   /* skew */
   shear_res = shear1[2] + (shear2[2] - shear1[2]) * progress; /* YZ */
   if (shear_res != 0.f)
-    _clutter_util_matrix_skew_yz (&res, shear_res);
+    cogl_matrix_skew_yz (&res, shear_res);
 
   shear_res = shear1[1] + (shear2[1] - shear1[1]) * progress; /* XZ */
   if (shear_res != 0.f)
-    _clutter_util_matrix_skew_xz (&res, shear_res);
+    cogl_matrix_skew_xz (&res, shear_res);
 
   shear_res = shear1[0] + (shear2[0] - shear1[0]) * progress; /* XY */
   if (shear_res != 0.f)
-    _clutter_util_matrix_skew_xy (&res, shear_res);
+    cogl_matrix_skew_xy (&res, shear_res);
 
   /* scale */
   graphene_point3d_interpolate (&scale1, &scale2, progress, &scale_res);

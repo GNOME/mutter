@@ -285,36 +285,6 @@ _clutter_util_matrix_transpose_vector4_transform (const CoglMatrix     *matrix,
          + matrix->ww * point->w;
 }
 
-void
-_clutter_util_matrix_skew_xy (CoglMatrix *matrix,
-                              float       factor)
-{
-  matrix->yx += matrix->xx * factor;
-  matrix->yy += matrix->xy * factor;
-  matrix->yz += matrix->xz * factor;
-  matrix->yw += matrix->xw * factor;
-}
-
-void
-_clutter_util_matrix_skew_xz (CoglMatrix *matrix,
-                              float       factor)
-{
-  matrix->zx += matrix->xx * factor;
-  matrix->zy += matrix->xy * factor;
-  matrix->zz += matrix->xz * factor;
-  matrix->zw += matrix->xw * factor;
-}
-
-void
-_clutter_util_matrix_skew_yz (CoglMatrix *matrix,
-                              float       factor)
-{
-  matrix->zx += matrix->yx * factor;
-  matrix->zy += matrix->yy * factor;
-  matrix->zz += matrix->yz * factor;
-  matrix->zw += matrix->yw * factor;
-}
-
 static void
 _clutter_util_vertex_combine (const graphene_point3d_t *a,
                               const graphene_point3d_t *b,
