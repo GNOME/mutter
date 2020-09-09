@@ -37,65 +37,16 @@ cogl_matrix_progress (const GValue *a,
 {
   const CoglMatrix *matrix1 = g_value_get_boxed (a);
   const CoglMatrix *matrix2 = g_value_get_boxed (b);
-  graphene_point3d_t scale1 = GRAPHENE_POINT3D_INIT (1.f, 1.f, 1.f);
-  float shear1[3] = { 0.f, 0.f, 0.f };
-  graphene_point3d_t rotate1 = GRAPHENE_POINT3D_INIT_ZERO;
-  graphene_point3d_t translate1 = GRAPHENE_POINT3D_INIT_ZERO;
-  graphene_vec4_t perspective1;
-  graphene_point3d_t scale2 = GRAPHENE_POINT3D_INIT (1.f, 1.f, 1.f);
-  float shear2[3] = { 0.f, 0.f, 0.f };
-  graphene_point3d_t rotate2 = GRAPHENE_POINT3D_INIT_ZERO;
-  graphene_point3d_t translate2 = GRAPHENE_POINT3D_INIT_ZERO;
-  graphene_vec4_t perspective2;
-  graphene_point3d_t scale_res = GRAPHENE_POINT3D_INIT (1.f, 1.f, 1.f);
-  float shear_res = 0.f;
-  graphene_point3d_t rotate_res = GRAPHENE_POINT3D_INIT_ZERO;
-  graphene_point3d_t translate_res = GRAPHENE_POINT3D_INIT_ZERO;
-  graphene_vec4_t perspective_res;
+  graphene_matrix_t m1, m2, interpolated;
   CoglMatrix res;
+  float v[16];
 
-  cogl_matrix_init_identity (&res);
+  graphene_matrix_init_from_float (&m1, cogl_matrix_get_array (matrix1));
+  graphene_matrix_init_from_float (&m2, cogl_matrix_get_array (matrix2));
+  graphene_matrix_interpolate (&m1, &m2, progress, &interpolated);
+  graphene_matrix_to_float (&interpolated, v);
 
-  _clutter_util_matrix_decompose (matrix1,
-                                  &scale1, shear1, &rotate1, &translate1,
-                                  &perspective1);
-  _clutter_util_matrix_decompose (matrix2,
-                                  &scale2, shear2, &rotate2, &translate2,
-                                  &perspective2);
-
-  /* perspective */
-  graphene_vec4_interpolate (&perspective1, &perspective2, progress, &perspective_res);
-  res.wx = graphene_vec4_get_x (&perspective_res);
-  res.wy = graphene_vec4_get_y (&perspective_res);
-  res.wz = graphene_vec4_get_z (&perspective_res);
-  res.ww = graphene_vec4_get_w (&perspective_res);
-
-  /* translation */
-  graphene_point3d_interpolate (&translate1, &translate2, progress, &translate_res);
-  cogl_matrix_translate (&res, translate_res.x, translate_res.y, translate_res.z);
-
-  /* rotation */
-  graphene_point3d_interpolate (&rotate1, &rotate2, progress, &rotate_res);
-  cogl_matrix_rotate (&res, rotate_res.x, 1.0f, 0.0f, 0.0f);
-  cogl_matrix_rotate (&res, rotate_res.y, 0.0f, 1.0f, 0.0f);
-  cogl_matrix_rotate (&res, rotate_res.z, 0.0f, 0.0f, 1.0f);
-
-  /* skew */
-  shear_res = shear1[2] + (shear2[2] - shear1[2]) * progress; /* YZ */
-  if (shear_res != 0.f)
-    cogl_matrix_skew_yz (&res, shear_res);
-
-  shear_res = shear1[1] + (shear2[1] - shear1[1]) * progress; /* XZ */
-  if (shear_res != 0.f)
-    cogl_matrix_skew_xz (&res, shear_res);
-
-  shear_res = shear1[0] + (shear2[0] - shear1[0]) * progress; /* XY */
-  if (shear_res != 0.f)
-    cogl_matrix_skew_xy (&res, shear_res);
-
-  /* scale */
-  graphene_point3d_interpolate (&scale1, &scale2, progress, &scale_res);
-  cogl_matrix_scale (&res, scale_res.x, scale_res.y, scale_res.z);
+  cogl_matrix_init_from_array (&res, v);
 
   g_value_set_boxed (retval, &res);
 
