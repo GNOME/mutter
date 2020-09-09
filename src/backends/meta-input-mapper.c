@@ -367,6 +367,8 @@ guess_candidates (MetaInputMapper     *mapper,
       MetaOutputMatchType edid_match;
       DeviceMatch match = { l->data, 0 };
 
+      g_assert (META_IS_MONITOR (l->data));
+
       if (match_edid (input, l->data, &edid_match))
         match.score |= 1 << edid_match;
 
@@ -386,7 +388,10 @@ guess_candidates (MetaInputMapper     *mapper,
 
       match.monitor =
         meta_monitor_manager_get_laptop_panel (mapper->monitor_manager);
-      g_array_append_val (info->matches, match);
+
+      if (match.monitor != NULL)
+        g_array_append_val (info->matches, match);
+
       info->best = 0;
     }
   else
