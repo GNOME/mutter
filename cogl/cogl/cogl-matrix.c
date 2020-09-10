@@ -1946,12 +1946,15 @@ void
 cogl_matrix_skew_xy (CoglMatrix *matrix,
                      float       factor)
 {
-  matrix->yx += matrix->xx * factor;
-  matrix->yy += matrix->xy * factor;
-  matrix->yz += matrix->xz * factor;
-  matrix->yw += matrix->xw * factor;
+  graphene_matrix_t skew;
+  graphene_matrix_t m;
 
-  matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_init_identity (&skew);
+  graphene_matrix_skew_xy (&skew, factor);
+  graphene_matrix_multiply (&skew, &m, &m);
+  graphene_matrix_to_cogl_matrix (&m, matrix);
+
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
@@ -1959,12 +1962,15 @@ void
 cogl_matrix_skew_xz (CoglMatrix *matrix,
                      float       factor)
 {
-  matrix->zx += matrix->xx * factor;
-  matrix->zy += matrix->xy * factor;
-  matrix->zz += matrix->xz * factor;
-  matrix->zw += matrix->xw * factor;
+  graphene_matrix_t skew;
+  graphene_matrix_t m;
 
-  matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_init_identity (&skew);
+  graphene_matrix_skew_xz (&skew, factor);
+  graphene_matrix_multiply (&skew, &m, &m);
+  graphene_matrix_to_cogl_matrix (&m, matrix);
+
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
@@ -1972,11 +1978,14 @@ void
 cogl_matrix_skew_yz (CoglMatrix *matrix,
                      float       factor)
 {
-  matrix->zx += matrix->yx * factor;
-  matrix->zy += matrix->yy * factor;
-  matrix->zz += matrix->yz * factor;
-  matrix->zw += matrix->yw * factor;
+  graphene_matrix_t skew;
+  graphene_matrix_t m;
 
-  matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_init_identity (&skew);
+  graphene_matrix_skew_yz (&skew, factor);
+  graphene_matrix_multiply (&skew, &m, &m);
+  graphene_matrix_to_cogl_matrix (&m, matrix);
+
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
