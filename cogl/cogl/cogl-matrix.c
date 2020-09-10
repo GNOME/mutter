@@ -97,21 +97,6 @@ COGL_GTYPE_DEFINE_BOXED (Matrix, matrix,
 #define MAT_TY 13
 #define MAT_TZ 14
 
-/*
- * These identify different kinds of 4x4 transformation matrices and we use
- * this information to find fast-paths when available.
- */
-enum CoglMatrixType {
-   COGL_MATRIX_TYPE_GENERAL,	/**< general 4x4 matrix */
-   COGL_MATRIX_TYPE_IDENTITY,	/**< identity matrix */
-   COGL_MATRIX_TYPE_3D_NO_ROT,	/**< orthogonal projection and others... */
-   COGL_MATRIX_TYPE_PERSPECTIVE,	/**< perspective projection matrix */
-   COGL_MATRIX_TYPE_2D,		/**< 2-D transformation */
-   COGL_MATRIX_TYPE_2D_NO_ROT,	/**< 2-D scale & translate only */
-   COGL_MATRIX_TYPE_3D,		/**< 3-D transformation */
-   COGL_MATRIX_N_TYPES
-} ;
-
 #define LEN_SQUARED_3FV( V ) ((V)[0]*(V)[0]+(V)[1]*(V)[1]+(V)[2]*(V)[2])
 
 /*
@@ -167,21 +152,6 @@ enum CoglMatrixType {
 #define MAT_DIRTY_ALL      (MAT_DIRTY_TYPE | \
 			    MAT_DIRTY_FLAGS | \
 			    MAT_DIRTY_INVERSE)
-
-
-
-/*
- * Names of the corresponding CoglMatrixType values.
- */
-static const char *types[] = {
-   "COGL_MATRIX_TYPE_GENERAL",
-   "COGL_MATRIX_TYPE_IDENTITY",
-   "COGL_MATRIX_TYPE_3D_NO_ROT",
-   "COGL_MATRIX_TYPE_PERSPECTIVE",
-   "COGL_MATRIX_TYPE_2D",
-   "COGL_MATRIX_TYPE_2D_NO_ROT",
-   "COGL_MATRIX_TYPE_3D"
-};
 
 
 /*
@@ -246,16 +216,6 @@ print_matrix_floats (const char *prefix, const float m[16])
 void
 _cogl_matrix_prefix_print (const char *prefix, const CoglMatrix *matrix)
 {
-  if (!(matrix->flags & MAT_DIRTY_TYPE))
-    {
-      g_return_if_fail (matrix->type < COGL_MATRIX_N_TYPES);
-      g_print ("%sMatrix type: %s, flags: %x\n",
-               prefix, types[matrix->type], (int)matrix->flags);
-    }
-  else
-    g_print ("%sMatrix type: DIRTY, flags: %x\n",
-             prefix, (int)matrix->flags);
-
   print_matrix_floats (prefix, (float *)matrix);
   g_print ("%sInverse: \n", prefix);
   if (!(matrix->flags & MAT_DIRTY_INVERSE))
@@ -537,7 +497,6 @@ _cogl_matrix_init_identity (CoglMatrix *matrix)
 {
   memcpy (matrix, identity, 16 * sizeof (float));
 
-  matrix->type = COGL_MATRIX_TYPE_IDENTITY;
   matrix->flags = MAT_DIRTY_INVERSE;
 }
 
@@ -559,7 +518,6 @@ cogl_matrix_init_translation (CoglMatrix *matrix,
   graphene_matrix_init_translate (&m, &GRAPHENE_POINT3D_INIT (tx, ty, tz));
   graphene_matrix_to_cogl_matrix (&m, matrix);
 
-  matrix->type = COGL_MATRIX_TYPE_3D;
   matrix->flags = MAT_FLAG_TRANSLATION | MAT_DIRTY_INVERSE;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
@@ -601,7 +559,6 @@ _cogl_matrix_init_from_matrix_without_inverse (CoglMatrix *matrix,
                                                const CoglMatrix *src)
 {
   memcpy (matrix, src, 16 * sizeof (float));
-  matrix->type = src->type;
   matrix->flags = src->flags | MAT_DIRTY_INVERSE;
 }
 
