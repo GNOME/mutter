@@ -28,45 +28,7 @@
  *
  * Authors:
  *   Robert Bragg <robert@linux.intel.com>
- */
-/*
- * Copyright (C) 1999-2005  Brian Paul   All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
- * BRIAN PAUL BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN
- * AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
-/*
- * Note: a lot of this code is based on code that was taken from Mesa.
- *
- * Changes compared to the original code from Mesa:
- *
- * - instead of allocating matrix->m and matrix->inv using malloc, our
- *   public CoglMatrix typedef is large enough to directly contain the
- *   matrix, its inverse, a type and a set of flags.
- * - instead of having a _cogl_matrix_analyse which updates the type,
- *   flags and inverse, we have _cogl_matrix_update_inverse which
- *   essentially does the same thing (internally making use of
- *   _cogl_matrix_update_type_and_flags()) but with additional guards in
- *   place to bail out when the inverse matrix is still valid.
- * - when initializing a matrix with the identity matrix we don't
- *   immediately initialize the inverse matrix; rather we just set the
- *   dirty flag for the inverse (since it's likely the user won't request
- *   the inverse of the identity matrix)
+ *   Georges Basile Stavracas Neto <georges.stavracas@gmail.com>
  */
 
 #include "cogl-config.h"
