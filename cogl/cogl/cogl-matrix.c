@@ -1191,41 +1191,6 @@ cogl_matrix_rotate_euler (CoglMatrix *matrix,
   cogl_matrix_multiply (matrix, matrix, &rotation_transform);
 }
 
-/*
- * Apply a perspective projection matrix.
- *
- * Creates the projection matrix and multiplies it with matrix, marking the
- * MAT_FLAG_PERSPECTIVE flag.
- */
-static void
-_cogl_matrix_frustum (CoglMatrix *matrix,
-                      float left,
-                      float right,
-                      float bottom,
-                      float top,
-                      float nearval,
-                      float farval)
-{
-  float x, y, a, b, c, d;
-  float m[16];
-
-  x = (2.0f * nearval) / (right - left);
-  y = (2.0f * nearval) / (top - bottom);
-  a = (right + left) / (right - left);
-  b = (top + bottom) / (top - bottom);
-  c = -(farval + nearval) / ( farval - nearval);
-  d = -(2.0f * farval * nearval) / (farval - nearval);  /* error? */
-
-#define M(row,col)  m[col*4+row]
-  M (0,0) = x;     M (0,1) = 0.0f;  M (0,2) = a;      M (0,3) = 0.0f;
-  M (1,0) = 0.0f;  M (1,1) = y;     M (1,2) = b;      M (1,3) = 0.0f;
-  M (2,0) = 0.0f;  M (2,1) = 0.0f;  M (2,2) = c;      M (2,3) = d;
-  M (3,0) = 0.0f;  M (3,1) = 0.0f;  M (3,2) = -1.0f;  M (3,3) = 0.0f;
-#undef M
-
-  matrix_multiply_array_with_flags (matrix, m, MAT_FLAG_PERSPECTIVE);
-}
-
 void
 cogl_matrix_frustum (CoglMatrix *matrix,
                      float       left,
@@ -1235,7 +1200,23 @@ cogl_matrix_frustum (CoglMatrix *matrix,
                      float       z_near,
                      float       z_far)
 {
-  _cogl_matrix_frustum (matrix, left, right, bottom, top, z_near, z_far);
+  graphene_matrix_t frustum;
+  graphene_matrix_t m;
+  unsigned long flags;
+
+  flags = matrix->flags;
+
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_init_frustum (&frustum,
+                                left, right,
+                                bottom, top,
+                                z_near, z_far);
+  graphene_matrix_multiply (&frustum, &m, &m);
+  graphene_matrix_to_cogl_matrix (&m, matrix);
+
+  flags |= MAT_FLAG_PERSPECTIVE | MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE;
+  matrix->flags = flags;
+
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
