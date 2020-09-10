@@ -85,60 +85,12 @@ COGL_GTYPE_DEFINE_BOXED (Matrix, matrix,
                          cogl_matrix_copy,
                          cogl_matrix_free);
 
-/*
- * \defgroup MatFlags MAT_FLAG_XXX-flags
- *
- * Bitmasks to indicate different kinds of 4x4 matrices in CoglMatrix::flags
- */
-#define MAT_FLAG_IDENTITY       0     /*< is an identity matrix flag.
-                                       *   (Not actually used - the identity
-                                       *   matrix is identified by the absence
-                                       *   of all other flags.)
-                                       */
-#define MAT_FLAG_GENERAL        0x1   /*< is a general matrix flag */
-#define MAT_FLAG_ROTATION       0x2   /*< is a rotation matrix flag */
-#define MAT_FLAG_TRANSLATION    0x4   /*< is a translation matrix flag */
-#define MAT_FLAG_UNIFORM_SCALE  0x8   /*< is an uniform scaling matrix flag */
-#define MAT_FLAG_GENERAL_SCALE  0x10  /*< is a general scaling matrix flag */
-#define MAT_FLAG_GENERAL_3D     0x20  /*< general 3D matrix flag */
-#define MAT_FLAG_PERSPECTIVE    0x40  /*< is a perspective proj matrix flag */
-#define MAT_FLAG_SINGULAR       0x80  /*< is a singular matrix flag */
-#define MAT_DIRTY_TYPE          0x100  /*< matrix type is dirty */
-#define MAT_DIRTY_FLAGS         0x200  /*< matrix flags are dirty */
-#define MAT_DIRTY_INVERSE       0x400  /*< matrix inverse is dirty */
-
-/* angle preserving matrix flags mask */
-#define MAT_FLAGS_ANGLE_PRESERVING (MAT_FLAG_ROTATION | \
-				    MAT_FLAG_TRANSLATION | \
-				    MAT_FLAG_UNIFORM_SCALE)
-
-/* geometry related matrix flags mask */
-#define MAT_FLAGS_GEOMETRY (MAT_FLAG_GENERAL | \
-			    MAT_FLAG_ROTATION | \
-			    MAT_FLAG_TRANSLATION | \
-			    MAT_FLAG_UNIFORM_SCALE | \
-			    MAT_FLAG_GENERAL_SCALE | \
-			    MAT_FLAG_GENERAL_3D | \
-			    MAT_FLAG_PERSPECTIVE | \
-	                    MAT_FLAG_SINGULAR)
-
-/* length preserving matrix flags mask */
-#define MAT_FLAGS_LENGTH_PRESERVING (MAT_FLAG_ROTATION | \
-				     MAT_FLAG_TRANSLATION)
-
-
-/* 3D (non-perspective) matrix flags mask */
-#define MAT_FLAGS_3D (MAT_FLAG_ROTATION | \
-		      MAT_FLAG_TRANSLATION | \
-		      MAT_FLAG_UNIFORM_SCALE | \
-		      MAT_FLAG_GENERAL_SCALE | \
-		      MAT_FLAG_GENERAL_3D)
-
-/* dirty matrix flags mask */
-#define MAT_DIRTY_ALL      (MAT_DIRTY_TYPE | \
-			    MAT_DIRTY_FLAGS | \
-			    MAT_DIRTY_INVERSE)
-
+enum CoglMatrixFlags
+{
+  COGL_MATRIX_FLAG_NONE = 0,
+  COGL_MATRIX_FLAG_SINGULAR = 1 << 0,
+  COGL_MATRIX_FLAG_DIRTY_INVERSE = 1 << 1,
+};
 
 /*
  * Identity matrix.
@@ -181,7 +133,7 @@ cogl_matrix_multiply (CoglMatrix *result,
   graphene_matrix_multiply (&mb, &ma, &res);
   graphene_matrix_to_cogl_matrix (&res, result);
 
-  result->flags = a->flags | b->flags | MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE;
+  result->flags = a->flags | b->flags | COGL_MATRIX_FLAG_DIRTY_INVERSE;
 
   _COGL_MATRIX_DEBUG_PRINT (result);
 }
@@ -204,7 +156,7 @@ _cogl_matrix_prefix_print (const char *prefix, const CoglMatrix *matrix)
 {
   print_matrix_floats (prefix, (float *)matrix);
   g_print ("%sInverse: \n", prefix);
-  if (!(matrix->flags & MAT_DIRTY_INVERSE))
+  if (!(matrix->flags & COGL_MATRIX_FLAG_DIRTY_INVERSE))
     print_matrix_floats (prefix, matrix->inv);
   else
     g_print ("%s  - not available\n", prefix);
@@ -272,20 +224,17 @@ calculate_inverse (CoglMatrix *matrix)
 static gboolean
 _cogl_matrix_update_inverse (CoglMatrix *matrix)
 {
-  if (matrix->flags & MAT_DIRTY_FLAGS ||
-      matrix->flags & MAT_DIRTY_INVERSE)
+  if (matrix->flags & COGL_MATRIX_FLAG_DIRTY_INVERSE)
     {
       if (calculate_inverse (matrix))
-        matrix->flags &= ~MAT_FLAG_SINGULAR;
+        matrix->flags &= ~COGL_MATRIX_FLAG_SINGULAR;
       else
-        matrix->flags |= MAT_FLAG_SINGULAR;
+        matrix->flags |= COGL_MATRIX_FLAG_SINGULAR;
 
-      matrix->flags &= ~(MAT_DIRTY_FLAGS |
-                         MAT_DIRTY_TYPE |
-                         MAT_DIRTY_INVERSE);
+      matrix->flags &= ~COGL_MATRIX_FLAG_DIRTY_INVERSE;
     }
 
-  if (matrix->flags & MAT_FLAG_SINGULAR)
+  if (matrix->flags & COGL_MATRIX_FLAG_SINGULAR)
     return FALSE;
   else
     return TRUE;
@@ -326,8 +275,7 @@ cogl_matrix_rotate (CoglMatrix *matrix,
   graphene_matrix_multiply (&rotation, &m, &m);
   graphene_matrix_to_cogl_matrix (&m, matrix);
 
-  flags |= MAT_FLAG_ROTATION | MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE;
-  matrix->flags = flags;
+  matrix->flags = flags |= COGL_MATRIX_FLAG_DIRTY_INVERSE;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -365,7 +313,7 @@ cogl_matrix_frustum (CoglMatrix *matrix,
   graphene_matrix_multiply (&frustum, &m, &m);
   graphene_matrix_to_cogl_matrix (&m, matrix);
 
-  flags |= MAT_FLAG_PERSPECTIVE | MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE;
+  flags |= COGL_MATRIX_FLAG_DIRTY_INVERSE;
   matrix->flags = flags;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
@@ -413,11 +361,7 @@ cogl_matrix_orthographic (CoglMatrix *matrix,
   graphene_matrix_multiply (&ortho, &m, &m);
   graphene_matrix_to_cogl_matrix (&m, matrix);
 
-  matrix->flags = (flags |
-                   MAT_FLAG_GENERAL_SCALE |
-                   MAT_FLAG_TRANSLATION |
-                   MAT_DIRTY_TYPE |
-                   MAT_DIRTY_INVERSE);
+  matrix->flags = flags | COGL_MATRIX_FLAG_DIRTY_INVERSE;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -439,13 +383,7 @@ cogl_matrix_scale (CoglMatrix *matrix,
   graphene_matrix_multiply (&scale, &m, &m);
   graphene_matrix_to_cogl_matrix (&m, matrix);
 
-  if (fabsf (sx - sy) < 1e-8 && fabsf (sx - sz) < 1e-8)
-    flags |= MAT_FLAG_UNIFORM_SCALE;
-  else
-    flags |= MAT_FLAG_GENERAL_SCALE;
-
-  flags |= (MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE);
-  matrix->flags = flags;
+  matrix->flags = flags | COGL_MATRIX_FLAG_DIRTY_INVERSE;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -464,7 +402,7 @@ cogl_matrix_translate (CoglMatrix *matrix,
                                   &GRAPHENE_POINT3D_INIT (x, y, z));
   graphene_matrix_multiply (&translation, &m, &m);
   graphene_matrix_to_cogl_matrix (&m, matrix);
-  matrix->flags |= MAT_FLAG_TRANSLATION | MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE;
+  matrix->flags |= COGL_MATRIX_FLAG_DIRTY_INVERSE;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -483,7 +421,7 @@ _cogl_matrix_init_identity (CoglMatrix *matrix)
 {
   memcpy (matrix, identity, 16 * sizeof (float));
 
-  matrix->flags = MAT_DIRTY_INVERSE;
+  matrix->flags = COGL_MATRIX_FLAG_DIRTY_INVERSE;
 }
 
 void
@@ -504,7 +442,7 @@ cogl_matrix_init_translation (CoglMatrix *matrix,
   graphene_matrix_init_translate (&m, &GRAPHENE_POINT3D_INIT (tx, ty, tz));
   graphene_matrix_to_cogl_matrix (&m, matrix);
 
-  matrix->flags = MAT_FLAG_TRANSLATION | MAT_DIRTY_INVERSE;
+  matrix->flags = COGL_MATRIX_FLAG_DIRTY_INVERSE;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -523,7 +461,7 @@ static void
 _cogl_matrix_init_from_array (CoglMatrix *matrix, const float *array)
 {
   memcpy (matrix, array, 16 * sizeof (float));
-  matrix->flags = (MAT_FLAG_GENERAL | MAT_DIRTY_ALL);
+  matrix->flags = COGL_MATRIX_FLAG_DIRTY_INVERSE;
 }
 
 void
@@ -545,7 +483,7 @@ _cogl_matrix_init_from_matrix_without_inverse (CoglMatrix *matrix,
                                                const CoglMatrix *src)
 {
   memcpy (matrix, src, 16 * sizeof (float));
-  matrix->flags = src->flags | MAT_DIRTY_INVERSE;
+  matrix->flags = src->flags | COGL_MATRIX_FLAG_DIRTY_INVERSE;
 }
 
 void
@@ -952,7 +890,7 @@ cogl_matrix_look_at (CoglMatrix *matrix,
   graphene_matrix_init_look_at (&m, &eye, &center, &up);
 
   graphene_matrix_to_cogl_matrix (&m, &look_at);
-  look_at.flags = MAT_FLAG_GENERAL_3D | MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE;
+  look_at.flags = COGL_MATRIX_FLAG_DIRTY_INVERSE;
 
   cogl_matrix_multiply (matrix, matrix, &look_at);
 }
