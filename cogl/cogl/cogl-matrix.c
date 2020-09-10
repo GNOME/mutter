@@ -988,11 +988,10 @@ cogl_matrix_project_points (const CoglMatrix *matrix,
 gboolean
 cogl_matrix_is_identity (const CoglMatrix *matrix)
 {
-  if (!(matrix->flags & MAT_DIRTY_TYPE) &&
-      matrix->type == COGL_MATRIX_TYPE_IDENTITY)
-    return TRUE;
-  else
-    return memcmp (matrix, identity, sizeof (float) * 16) == 0;
+  graphene_matrix_t m;
+
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  return graphene_matrix_is_identity (&m);
 }
 
 void
