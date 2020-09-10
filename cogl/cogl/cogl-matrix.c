@@ -229,6 +229,22 @@ static float identity[16] = {
    0.0, 0.0, 0.0, 1.0
 };
 
+static inline void
+graphene_matrix_to_cogl_matrix (const graphene_matrix_t *m,
+                                CoglMatrix              *matrix)
+{
+  float v[16] = { 0.f, };
+
+  graphene_matrix_to_float (m, v);
+  cogl_matrix_init_from_array (matrix, v);
+}
+
+static inline void
+cogl_matrix_to_graphene_matrix (const CoglMatrix  *matrix,
+                                graphene_matrix_t *m)
+{
+  graphene_matrix_init_from_float (m, (float*)matrix);
+}
 
 #define A(row,col)  a[(col<<2)+row]
 #define B(row,col)  b[(col<<2)+row]
@@ -1524,34 +1540,22 @@ cogl_matrix_scale (CoglMatrix *matrix,
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
-/*
- * Multiply a matrix with a translation matrix.
- *
- * Adds the translation coordinates to the elements of matrix in-place.  Marks
- * the MAT_FLAG_TRANSLATION flag, and the MAT_DIRTY_TYPE and MAT_DIRTY_INVERSE
- * dirty flags.
- */
-static void
-_cogl_matrix_translate (CoglMatrix *matrix, float x, float y, float z)
-{
-  float *m = (float *)matrix;
-  m[12] = m[0] * x + m[4] * y + m[8]  * z + m[12];
-  m[13] = m[1] * x + m[5] * y + m[9]  * z + m[13];
-  m[14] = m[2] * x + m[6] * y + m[10] * z + m[14];
-  m[15] = m[3] * x + m[7] * y + m[11] * z + m[15];
-
-  matrix->flags |= (MAT_FLAG_TRANSLATION |
-                    MAT_DIRTY_TYPE |
-                    MAT_DIRTY_INVERSE);
-}
-
 void
 cogl_matrix_translate (CoglMatrix *matrix,
 		       float x,
 		       float y,
 		       float z)
 {
-  _cogl_matrix_translate (matrix, x, y, z);
+  graphene_matrix_t translation;
+  graphene_matrix_t m;
+
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_init_translate (&translation,
+                                  &GRAPHENE_POINT3D_INIT (x, y, z));
+  graphene_matrix_multiply (&translation, &m, &m);
+  graphene_matrix_to_cogl_matrix (&m, matrix);
+  matrix->flags |= MAT_FLAG_TRANSLATION | MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE;
+
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
@@ -1603,37 +1607,20 @@ cogl_matrix_init_identity (CoglMatrix *matrix)
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
-/*
- * Set a matrix to the (tx, ty, tz) translation matrix.
- *
- * @matrix matrix.
- * @tx x coordinate of the translation vector
- * @ty y coordinate of the translation vector
- * @tz z coordinate of the translation vector
- */
-static void
-_cogl_matrix_init_translation (CoglMatrix *matrix,
-                               float       tx,
-                               float       ty,
-                               float       tz)
-{
-  memcpy (matrix, identity, 16 * sizeof (float));
-
-  matrix->xw = tx;
-  matrix->yw = ty;
-  matrix->zw = tz;
-
-  matrix->type = COGL_MATRIX_TYPE_3D;
-  matrix->flags = MAT_FLAG_TRANSLATION | MAT_DIRTY_INVERSE;
-}
-
 void
 cogl_matrix_init_translation (CoglMatrix *matrix,
                               float       tx,
                               float       ty,
                               float       tz)
 {
-  _cogl_matrix_init_translation (matrix, tx, ty, tz);
+  graphene_matrix_t m;
+
+  graphene_matrix_init_translate (&m, &GRAPHENE_POINT3D_INIT (tx, ty, tz));
+  graphene_matrix_to_cogl_matrix (&m, matrix);
+
+  matrix->type = COGL_MATRIX_TYPE_3D;
+  matrix->flags = MAT_FLAG_TRANSLATION | MAT_DIRTY_INVERSE;
+
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
