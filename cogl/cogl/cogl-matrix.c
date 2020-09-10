@@ -390,13 +390,7 @@ _cogl_matrix_prefix_print (const char *prefix, const CoglMatrix *matrix)
   print_matrix_floats (prefix, (float *)matrix);
   g_print ("%sInverse: \n", prefix);
   if (!(matrix->flags & MAT_DIRTY_INVERSE))
-    {
-      float prod[16];
-      print_matrix_floats (prefix, matrix->inv);
-      matrix_multiply4x4 (prod, (float *)matrix, matrix->inv);
-      g_print ("%sMat * Inverse:\n", prefix);
-      print_matrix_floats (prefix, prod);
-    }
+    print_matrix_floats (prefix, matrix->inv);
   else
     g_print ("%s  - not available\n", prefix);
 }
