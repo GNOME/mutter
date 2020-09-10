@@ -87,45 +87,14 @@ G_BEGIN_DECLS
 struct _CoglMatrix
 {
   /*< private >*/
-
-  /* column 0 */
-  float xx;
-  float yx;
-  float zx;
-  float wx;
-
-  /* column 1 */
-  float xy;
-  float yy;
-  float zy;
-  float wy;
-
-  /* column 2 */
-  float xz;
-  float yz;
-  float zz;
-  float wz;
-
-  /* column 3 */
-  float xw;
-  float yw;
-  float zw;
-  float ww;
+  graphene_matrix_t m;
 
   /* Note: we may want to extend this later with private flags
    * and a cache of the inverse transform matrix. */
-  float          COGL_PRIVATE (inv)[16];
+  graphene_matrix_t COGL_PRIVATE (inv);
   unsigned long  COGL_PRIVATE (flags);
   unsigned long  COGL_PRIVATE (_padding3);
 };
-COGL_STRUCT_SIZE_ASSERT (CoglMatrix, 128 + sizeof (unsigned long) * 2);
-
-#define COGL_MATRIX_INIT_IDENTITY (CoglMatrix) { \
-  1.0f, 0.0f, 0.0f, 0.0f, \
-  0.0f, 1.0f, 0.0f, 0.0f, \
-  0.0f, 0.0f, 1.0f, 0.0f, \
-  0.0f, 0.0f, 0.0f, 1.0f, \
-}
 
 /**
  * cogl_matrix_init_identity:
