@@ -249,6 +249,9 @@ get_paint_level (ClutterPaintContext *paint_context,
 {
   CoglFramebuffer *framebuffer;
   CoglMatrix projection, modelview, pm;
+  float xx, xy, xw;
+  float yx, yy, yw;
+  float wx, wy, ww;
   float v[4];
   double viewport_width, viewport_height;
   double u0, v0;
@@ -280,6 +283,16 @@ get_paint_level (ClutterPaintContext *paint_context,
 
   cogl_matrix_multiply (&pm, &projection, &modelview);
 
+  xx = cogl_matrix_get_value (&pm, 0, 0);
+  xy = cogl_matrix_get_value (&pm, 0, 1);
+  xw = cogl_matrix_get_value (&pm, 0, 3);
+  yx = cogl_matrix_get_value (&pm, 1, 0);
+  yy = cogl_matrix_get_value (&pm, 1, 1);
+  yw = cogl_matrix_get_value (&pm, 1, 3);
+  wx = cogl_matrix_get_value (&pm, 3, 0);
+  wy = cogl_matrix_get_value (&pm, 3, 1);
+  ww = cogl_matrix_get_value (&pm, 3, 3);
+
   cogl_framebuffer_get_viewport4fv (framebuffer, v);
   viewport_width = v[2];
   viewport_height = v[3];
@@ -287,9 +300,9 @@ get_paint_level (ClutterPaintContext *paint_context,
   u0 = width / 2.;
   v0 = height / 2.;
 
-  xc = pm.xx * u0 + pm.xy * v0 + pm.xw;
-  yc = pm.yx * u0 + pm.yy * v0 + pm.yw;
-  wc = pm.wx * u0 + pm.wy * v0 + pm.ww;
+  xc = xx * u0 + xy * v0 + xw;
+  yc = yx * u0 + yy * v0 + yw;
+  wc = wx * u0 + wy * v0 + ww;
 
   /* We'll simplify the equations below for a bit of micro-optimization.
    * The commented out code is the unsimplified version.
@@ -302,10 +315,10 @@ get_paint_level (ClutterPaintContext *paint_context,
   // with respect to u, v, using
   // d(a/b)/dx = da/dx * (1/b) - a * db/dx / (b^2)
 
-  dxdu = 0.5 * viewport_width * (pm.xx - pm.wx * (xc/wc)) / wc;
-  dxdv = 0.5 * viewport_width * (pm.xy - pm.wy * (xc/wc)) / wc;
-  dydu = 0.5 * viewport_height * (pm.yx - pm.wx * (yc/wc)) / wc;
-  dydv = 0.5 * viewport_height * (pm.yy - pm.wy * (yc/wc)) / wc;
+  dxdu = 0.5 * viewport_width * (xx - wx * (xc/wc)) / wc;
+  dxdv = 0.5 * viewport_width * (xy - wy * (xc/wc)) / wc;
+  dydu = 0.5 * viewport_height * (yx - wx * (yc/wc)) / wc;
+  dydv = 0.5 * viewport_height * (yy - wy * (yc/wc)) / wc;
 
   // Compute the inverse partials as the matrix inverse
   det = dxdu * dydv - dxdv * dydu;
@@ -324,10 +337,10 @@ get_paint_level (ClutterPaintContext *paint_context,
   */
 
   /* dxdu * wc, etc */
-  dxdu_ = 0.5 * viewport_width * (pm.xx - pm.wx * (xc/wc));
-  dxdv_ = 0.5 * viewport_width * (pm.xy - pm.wy * (xc/wc));
-  dydu_ = 0.5 * viewport_height * (pm.yx - pm.wx * (yc/wc));
-  dydv_ = 0.5 * viewport_height * (pm.yy - pm.wy * (yc/wc));
+  dxdu_ = 0.5 * viewport_width * (xx - wx * (xc/wc));
+  dxdv_ = 0.5 * viewport_width * (xy - wy * (xc/wc));
+  dydu_ = 0.5 * viewport_height * (yx - wx * (yc/wc));
+  dydv_ = 0.5 * viewport_height * (yy - wy * (yc/wc));
 
   /* det * wc^2 */
   det_ = dxdu_ * dydv_ - dxdv_ * dydu_;
@@ -340,7 +353,7 @@ get_paint_level (ClutterPaintContext *paint_context,
   lambda = 0.5 * M_LOG2E * log (rho_sq * wc * wc / det_sq) + LOD_BIAS;
 
 #if 0
-  g_print ("%g %g %g\n", 0.5 * viewport_width * pm.xx / pm.ww, 0.5 * viewport_height * pm.yy / pm.ww, lambda);
+  g_print ("%g %g %g\n", 0.5 * viewport_width * xx / ww, 0.5 * viewport_height * yy / ww, lambda);
 #endif
 
   if (lambda <= 0.)

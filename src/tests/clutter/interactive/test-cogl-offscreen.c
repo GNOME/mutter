@@ -232,7 +232,7 @@ setup_viewport (CoglFramebuffer *framebuffer,
    */
 
   cogl_framebuffer_get_projection_matrix (framebuffer, &projection_matrix);
-  z_camera = 0.5 * projection_matrix.xx;
+  z_camera = 0.5 * cogl_matrix_get_value (&projection_matrix, 0, 0);
 
   cogl_matrix_init_identity (&mv_matrix);
   cogl_matrix_translate (&mv_matrix, -0.5f, -0.5f, -z_camera);

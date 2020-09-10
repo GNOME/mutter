@@ -673,6 +673,7 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
   Vector4 *poly;
   graphene_vec3_t b;
   graphene_vec3_t c;
+  float wz, ww;
   int count;
 
   tmp_poly = g_alloca (sizeof (Vector4) * n_vertices * 2);
@@ -693,7 +694,9 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
    * frustum; coordinates range from [-Wc,Wc] left to right on the
    * x-axis and [Wc,-Wc] top to bottom on the y-axis.
    */
-  Wc = DEPTH * projection->wz + projection->ww;
+  wz = cogl_matrix_get_value (projection, 3, 2);
+  ww = cogl_matrix_get_value (projection, 3, 3);
+  Wc = DEPTH * wz + ww;
 
 #define CLIP_X(X) ((((float)X - viewport[0]) * (2.0 / viewport[2])) - 1) * Wc
 #define CLIP_Y(Y) ((((float)Y - viewport[1]) * (2.0 / viewport[3])) - 1) * -Wc
@@ -706,7 +709,7 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
       tmp_poly[i].w = Wc;
     }
 
-  Wc = DEPTH * 2 * projection->wz + projection->ww;
+  Wc = DEPTH * 2 * wz + ww;
 
   /* FIXME: technically we don't need to project all of the points
    * twice, it would be enough project every other point since
