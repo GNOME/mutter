@@ -326,32 +326,22 @@ matrix_multiply_array_with_flags (CoglMatrix *result,
     matrix_multiply4x4 ((float *)result, (float *)result, array);
 }
 
-/* Joins both flags and marks the type and inverse as dirty.  Calls
- * matrix_multiply3x4() if both matrices are 3D, or matrix_multiply4x4()
- * otherwise.
- */
-static void
-_cogl_matrix_multiply (CoglMatrix *result,
-                       const CoglMatrix *a,
-                       const CoglMatrix *b)
-{
-  result->flags = (a->flags |
-                   b->flags |
-                   MAT_DIRTY_TYPE |
-                   MAT_DIRTY_INVERSE);
-
-  if (TEST_MAT_FLAGS(result, MAT_FLAGS_3D))
-    matrix_multiply3x4 ((float *)result, (float *)a, (float *)b);
-  else
-    matrix_multiply4x4 ((float *)result, (float *)a, (float *)b);
-}
-
 void
 cogl_matrix_multiply (CoglMatrix *result,
 		      const CoglMatrix *a,
 		      const CoglMatrix *b)
 {
-  _cogl_matrix_multiply (result, a, b);
+  graphene_matrix_t res;
+  graphene_matrix_t ma;
+  graphene_matrix_t mb;
+
+  cogl_matrix_to_graphene_matrix (a, &ma);
+  cogl_matrix_to_graphene_matrix (b, &mb);
+  graphene_matrix_multiply (&mb, &ma, &res);
+  graphene_matrix_to_cogl_matrix (&res, result);
+
+  result->flags = a->flags | b->flags | MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE;
+
   _COGL_MATRIX_DEBUG_PRINT (result);
 }
 
