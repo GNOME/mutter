@@ -86,20 +86,6 @@ COGL_GTYPE_DEFINE_BOXED (Matrix, matrix,
                          cogl_matrix_free);
 
 /*
- * Symbolic names to some of the entries in the matrix
- *
- * These are handy for the viewport mapping, which is expressed as a matrix.
- */
-#define MAT_SX 0
-#define MAT_SY 5
-#define MAT_SZ 10
-#define MAT_TX 12
-#define MAT_TY 13
-#define MAT_TZ 14
-
-#define LEN_SQUARED_3FV( V ) ((V)[0]*(V)[0]+(V)[1]*(V)[1]+(V)[2]*(V)[2])
-
-/*
  * \defgroup MatFlags MAT_FLAG_XXX-flags
  *
  * Bitmasks to indicate different kinds of 4x4 matrices in CoglMatrix::flags
