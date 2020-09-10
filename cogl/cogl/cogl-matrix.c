@@ -274,19 +274,6 @@ cogl_debug_matrix_print (const CoglMatrix *matrix)
 }
 
 /*
- * References an element of 4x4 matrix.
- *
- * @m matrix array.
- * @c column of the desired element.
- * @r row of the desired element.
- *
- * Returns: value of the desired element.
- *
- * Calculate the linear storage index of the element and references it.
- */
-#define MAT(m,r,c) (m)[(c)*4+(r)]
-
-/*
  * Compute inverse of a transformation matrix.
  *
  * @mat pointer to a CoglMatrix structure. The matrix inverse will be
@@ -729,7 +716,10 @@ cogl_matrix_get_value (const CoglMatrix *matrix,
                        unsigned int      row,
                        unsigned int      column)
 {
-  return MAT ((float *)matrix, row, column);
+  graphene_matrix_t m;
+
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  return graphene_matrix_get_value (&m, column, row);
 }
 
 void
