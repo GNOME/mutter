@@ -1315,38 +1315,31 @@ cogl_matrix_orthographic (CoglMatrix *matrix,
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
-/*
- * Multiply a matrix with a general scaling matrix.
- *
- * Multiplies in-place the elements of matrix by the scale factors. Checks if
- * the scales factors are roughly the same, marking the MAT_FLAG_UNIFORM_SCALE
- * flag, or MAT_FLAG_GENERAL_SCALE. Marks the MAT_DIRTY_TYPE and
- * MAT_DIRTY_INVERSE dirty flags.
- */
-static void
-_cogl_matrix_scale (CoglMatrix *matrix, float x, float y, float z)
-{
-  float *m = (float *)matrix;
-  m[0] *= x;   m[4] *= y;   m[8]  *= z;
-  m[1] *= x;   m[5] *= y;   m[9]  *= z;
-  m[2] *= x;   m[6] *= y;   m[10] *= z;
-  m[3] *= x;   m[7] *= y;   m[11] *= z;
-
-  if (fabsf (x - y) < 1e-8 && fabsf (x - z) < 1e-8)
-    matrix->flags |= MAT_FLAG_UNIFORM_SCALE;
-  else
-    matrix->flags |= MAT_FLAG_GENERAL_SCALE;
-
-  matrix->flags |= (MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE);
-}
-
 void
 cogl_matrix_scale (CoglMatrix *matrix,
 		   float sx,
 		   float sy,
 		   float sz)
 {
-  _cogl_matrix_scale (matrix, sx, sy, sz);
+  graphene_matrix_t scale;
+  graphene_matrix_t m;
+  unsigned long flags;
+
+  flags = matrix->flags;
+
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_init_scale (&scale, sx, sy, sz);
+  graphene_matrix_multiply (&scale, &m, &m);
+  graphene_matrix_to_cogl_matrix (&m, matrix);
+
+  if (fabsf (sx - sy) < 1e-8 && fabsf (sx - sz) < 1e-8)
+    flags |= MAT_FLAG_UNIFORM_SCALE;
+  else
+    flags |= MAT_FLAG_GENERAL_SCALE;
+
+  flags |= (MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE);
+  matrix->flags = flags;
+
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
