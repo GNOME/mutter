@@ -30,6 +30,7 @@
 #include "backends/meta-crtc.h"
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-kms-crtc.h"
+#include "backends/native/meta-kms-update.h"
 
 #define META_TYPE_CRTC_KMS (meta_crtc_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaCrtcKms, meta_crtc_kms,
@@ -56,6 +57,7 @@ void meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
 
 void meta_crtc_kms_page_flip (MetaCrtcKms                   *crtc_kms,
                               const MetaKmsPageFlipFeedback *page_flip_feedback,
+                              MetaKmsPageFlipFlag            flags,
                               gpointer                       user_data,
                               MetaKmsUpdate                 *kms_update);
 

@@ -291,10 +291,11 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
 /**
  * cogl_onscreen_direct_scanout: (skip)
  */
-COGL_EXPORT void
-cogl_onscreen_direct_scanout (CoglOnscreen  *onscreen,
-                              CoglScanout   *scanout,
-                              CoglFrameInfo *info);
+COGL_EXPORT gboolean
+cogl_onscreen_direct_scanout (CoglOnscreen   *onscreen,
+                              CoglScanout    *scanout,
+                              CoglFrameInfo  *info,
+                              GError        **error);
 
 /**
  * cogl_onscreen_swap_region:

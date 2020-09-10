@@ -1251,10 +1251,11 @@ queue_dummy_power_save_page_flip (CoglOnscreen *onscreen)
 }
 
 static void
-meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
-                                MetaRendererView *view,
-                                MetaCrtc         *crtc,
-                                MetaKmsUpdate    *kms_update)
+meta_onscreen_native_flip_crtc (CoglOnscreen        *onscreen,
+                                MetaRendererView    *view,
+                                MetaCrtc            *crtc,
+                                MetaKmsPageFlipFlag  flags,
+                                MetaKmsUpdate       *kms_update)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -1288,6 +1289,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
       meta_crtc_kms_assign_primary_plane (crtc_kms, fb_id, kms_update);
       meta_crtc_kms_page_flip (crtc_kms,
                                &page_flip_feedback,
+                               flags,
                                g_object_ref (view),
                                kms_update);
 
@@ -1340,8 +1342,9 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
 }
 
 static void
-meta_onscreen_native_flip_crtcs (CoglOnscreen  *onscreen,
-                                 MetaKmsUpdate *kms_update)
+meta_onscreen_native_flip_crtcs (CoglOnscreen        *onscreen,
+                                 MetaKmsPageFlipFlag  flags,
+                                 MetaKmsUpdate       *kms_update)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -1359,6 +1362,7 @@ meta_onscreen_native_flip_crtcs (CoglOnscreen  *onscreen,
   if (power_save_mode == META_POWER_SAVE_ON)
     {
       meta_onscreen_native_flip_crtc (onscreen, view, onscreen_native->crtc,
+                                      flags,
                                       kms_update);
     }
   else
@@ -1925,7 +1929,9 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   update_secondary_gpu_state_post_swap_buffers (onscreen, &egl_context_changed);
 
   ensure_crtc_modes (onscreen, kms_update);
-  meta_onscreen_native_flip_crtcs (onscreen, kms_update);
+  meta_onscreen_native_flip_crtcs (onscreen,
+                                   META_KMS_PAGE_FLIP_FLAG_NONE,
+                                   kms_update);
 
   /*
    * If we changed EGL context, cogl will have the wrong idea about what is
@@ -2072,10 +2078,11 @@ meta_onscreen_native_is_buffer_scanout_compatible (CoglOnscreen *onscreen,
   return TRUE;
 }
 
-static void
-meta_onscreen_native_direct_scanout (CoglOnscreen  *onscreen,
-                                     CoglScanout   *scanout,
-                                     CoglFrameInfo *frame_info)
+static gboolean
+meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
+                                     CoglScanout    *scanout,
+                                     CoglFrameInfo  *frame_info,
+                                     GError        **error)
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
@@ -2090,21 +2097,38 @@ meta_onscreen_native_direct_scanout (CoglOnscreen  *onscreen,
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
   MetaKmsUpdate *kms_update;
+  g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
   kms_update = meta_kms_ensure_pending_update (kms);
 
   renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                          render_gpu);
 
-  g_return_if_fail (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_GBM);
-
+  g_warn_if_fail (renderer_gpu_data->mode == META_RENDERER_NATIVE_MODE_GBM);
   g_warn_if_fail (!onscreen_native->gbm.next_fb);
+
   g_set_object (&onscreen_native->gbm.next_fb, META_DRM_BUFFER (scanout));
 
   ensure_crtc_modes (onscreen, kms_update);
-  meta_onscreen_native_flip_crtcs (onscreen, kms_update);
+  meta_onscreen_native_flip_crtcs (onscreen,
+                                   META_KMS_PAGE_FLIP_FLAG_NO_DISCARD_FEEDBACK,
+                                   kms_update);
 
-  meta_kms_post_pending_update_sync (kms);
+  kms_feedback = meta_kms_post_pending_update_sync (kms);
+  if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
+    {
+      const GError *feedback_error = meta_kms_feedback_get_error (kms_feedback);
+
+      if (g_error_matches (feedback_error,
+                           G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
+        return TRUE;
+
+      g_clear_object (&onscreen_native->gbm.next_fb);
+      g_propagate_error (error, g_error_copy (feedback_error));
+      return FALSE;
+    }
+
+  return TRUE;
 }
 
 static gboolean

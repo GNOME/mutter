@@ -649,10 +649,11 @@ clutter_stage_cogl_redraw_view_primary (ClutterStageCogl *stage_cogl,
   cairo_region_destroy (swap_region);
 }
 
-static void
-clutter_stage_cogl_scanout_view (ClutterStageCogl *stage_cogl,
-                                 ClutterStageView *view,
-                                 CoglScanout      *scanout)
+static gboolean
+clutter_stage_cogl_scanout_view (ClutterStageCogl  *stage_cogl,
+                                 ClutterStageView  *view,
+                                 CoglScanout       *scanout,
+                                 GError           **error)
 {
   ClutterStageCoglPrivate *priv =
     _clutter_stage_cogl_get_instance_private (stage_cogl);
@@ -660,14 +661,21 @@ clutter_stage_cogl_scanout_view (ClutterStageCogl *stage_cogl,
   CoglOnscreen *onscreen;
   CoglFrameInfo *frame_info;
 
-  g_return_if_fail (cogl_is_onscreen (framebuffer));
+  g_assert (cogl_is_onscreen (framebuffer));
 
   onscreen = COGL_ONSCREEN (framebuffer);
 
   frame_info = cogl_frame_info_new (priv->global_frame_counter);
+
+  if (!cogl_onscreen_direct_scanout (onscreen, scanout, frame_info, error))
+    {
+      cogl_object_unref (frame_info);
+      return FALSE;
+    }
+
   priv->global_frame_counter++;
 
-  cogl_onscreen_direct_scanout (onscreen, scanout, frame_info);
+  return TRUE;
 }
 
 static void
@@ -679,9 +687,16 @@ clutter_stage_cogl_redraw_view (ClutterStageWindow *stage_window,
 
   scanout = clutter_stage_view_take_scanout (view);
   if (scanout)
-    clutter_stage_cogl_scanout_view (stage_cogl, view, scanout);
-  else
-    clutter_stage_cogl_redraw_view_primary (stage_cogl, view);
+    {
+      g_autoptr (GError) error = NULL;
+
+      if (clutter_stage_cogl_scanout_view (stage_cogl, view, scanout, &error))
+        return;
+
+      g_warning ("Failed to scan out client buffer: %s", error->message);
+    }
+
+  clutter_stage_cogl_redraw_view_primary (stage_cogl, view);
 }
 
 static void

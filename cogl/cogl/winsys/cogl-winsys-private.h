@@ -119,10 +119,11 @@ typedef struct _CoglWinsysVtable
                                         int n_rectangles,
                                         CoglFrameInfo *info);
 
-  void
-  (*onscreen_direct_scanout) (CoglOnscreen  *onscreen,
-                              CoglScanout   *scanout,
-                              CoglFrameInfo *info);
+  gboolean
+  (*onscreen_direct_scanout) (CoglOnscreen   *onscreen,
+                              CoglScanout    *scanout,
+                              CoglFrameInfo  *info,
+                              GError        **error);
 
   void
   (*onscreen_set_visibility) (CoglOnscreen *onscreen,

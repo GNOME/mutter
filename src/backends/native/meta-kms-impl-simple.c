@@ -988,6 +988,9 @@ err_planes_assigned:
     {
       MetaKmsPageFlip *page_flip = l->data;
 
+      if (page_flip->flags & META_KMS_PAGE_FLIP_FLAG_NO_DISCARD_FEEDBACK)
+        continue;
+
       discard_page_flip (impl, update, page_flip);
     }
 

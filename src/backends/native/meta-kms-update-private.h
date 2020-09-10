@@ -87,6 +87,7 @@ typedef struct _MetaKmsPageFlip
 {
   MetaKmsCrtc *crtc;
   const MetaKmsPageFlipFeedback *feedback;
+  MetaKmsPageFlipFlag flags;
   gpointer user_data;
   MetaKmsCustomPageFlipFunc custom_page_flip_func;
   gpointer custom_page_flip_user_data;

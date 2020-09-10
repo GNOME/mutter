@@ -206,12 +206,14 @@ meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
 void
 meta_crtc_kms_page_flip (MetaCrtcKms                   *crtc_kms,
                          const MetaKmsPageFlipFeedback *page_flip_feedback,
+                         MetaKmsPageFlipFlag            flags,
                          gpointer                       user_data,
                          MetaKmsUpdate                 *kms_update)
 {
   meta_kms_update_page_flip (kms_update,
                              meta_crtc_kms_get_kms_crtc (crtc_kms),
                              page_flip_feedback,
+                             flags,
                              user_data);
 }
 

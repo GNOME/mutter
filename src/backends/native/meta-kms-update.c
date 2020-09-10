@@ -285,6 +285,7 @@ void
 meta_kms_update_page_flip (MetaKmsUpdate                 *update,
                            MetaKmsCrtc                   *crtc,
                            const MetaKmsPageFlipFeedback *feedback,
+                           MetaKmsPageFlipFlag            flags,
                            gpointer                       user_data)
 {
   MetaKmsPageFlip *page_flip;
@@ -295,6 +296,7 @@ meta_kms_update_page_flip (MetaKmsUpdate                 *update,
   *page_flip = (MetaKmsPageFlip) {
     .crtc = crtc,
     .feedback = feedback,
+    .flags = flags,
     .user_data = user_data,
   };
 
