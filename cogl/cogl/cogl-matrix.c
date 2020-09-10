@@ -1675,12 +1675,18 @@ cogl_matrix_transform_point (const CoglMatrix *matrix,
                              float *z,
                              float *w)
 {
-  float _x = *x, _y = *y, _z = *z, _w = *w;
+  graphene_matrix_t m;
+  graphene_vec4_t p;
 
-  *x = matrix->xx * _x + matrix->xy * _y + matrix->xz * _z + matrix->xw * _w;
-  *y = matrix->yx * _x + matrix->yy * _y + matrix->yz * _z + matrix->yw * _w;
-  *z = matrix->zx * _x + matrix->zy * _y + matrix->zz * _z + matrix->zw * _w;
-  *w = matrix->wx * _x + matrix->wy * _y + matrix->wz * _z + matrix->ww * _w;
+  graphene_vec4_init (&p, *x, *y, *z, *w);
+
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_transform_vec4 (&m, &p, &p);
+
+  *x = graphene_vec4_get_x (&p);
+  *y = graphene_vec4_get_y (&p);
+  *z = graphene_vec4_get_z (&p);
+  *w = graphene_vec4_get_w (&p);
 }
 
 typedef struct _Point2f
@@ -1705,6 +1711,21 @@ typedef struct _Point4f
 } Point4f;
 
 static void
+init_matrix_rows (const CoglMatrix *matrix,
+                  unsigned int      n_rows,
+                  graphene_vec4_t  *rows)
+{
+  graphene_matrix_t m;
+  unsigned int i;
+
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_transpose (&m, &m);
+
+  for (i = 0; i < n_rows; i++)
+    graphene_matrix_get_row (&m, i, &rows[i]);
+}
+
+static void
 _cogl_matrix_transform_points_f2 (const CoglMatrix *matrix,
                                   size_t stride_in,
                                   const void *points_in,
@@ -1712,16 +1733,22 @@ _cogl_matrix_transform_points_f2 (const CoglMatrix *matrix,
                                   void *points_out,
                                   int n_points)
 {
+  graphene_vec4_t rows[3];
   int i;
+
+  init_matrix_rows (matrix, G_N_ELEMENTS (rows), rows);
 
   for (i = 0; i < n_points; i++)
     {
       Point2f p = *(Point2f *)((uint8_t *)points_in + i * stride_in);
       Point3f *o = (Point3f *)((uint8_t *)points_out + i * stride_out);
+      graphene_vec4_t point;
 
-      o->x = matrix->xx * p.x + matrix->xy * p.y + matrix->xw;
-      o->y = matrix->yx * p.x + matrix->yy * p.y + matrix->yw;
-      o->z = matrix->zx * p.x + matrix->zy * p.y + matrix->zw;
+      graphene_vec4_init (&point, p.x, p.y, 0.f, 1.f);
+
+      o->x = graphene_vec4_dot (&rows[0], &point);
+      o->y = graphene_vec4_dot (&rows[1], &point);
+      o->z = graphene_vec4_dot (&rows[2], &point);
     }
 }
 
@@ -1733,17 +1760,23 @@ _cogl_matrix_project_points_f2 (const CoglMatrix *matrix,
                                 void *points_out,
                                 int n_points)
 {
+  graphene_vec4_t rows[4];
   int i;
+
+  init_matrix_rows (matrix, G_N_ELEMENTS (rows), rows);
 
   for (i = 0; i < n_points; i++)
     {
       Point2f p = *(Point2f *)((uint8_t *)points_in + i * stride_in);
       Point4f *o = (Point4f *)((uint8_t *)points_out + i * stride_out);
+      graphene_vec4_t point;
 
-      o->x = matrix->xx * p.x + matrix->xy * p.y + matrix->xw;
-      o->y = matrix->yx * p.x + matrix->yy * p.y + matrix->yw;
-      o->z = matrix->zx * p.x + matrix->zy * p.y + matrix->zw;
-      o->w = matrix->wx * p.x + matrix->wy * p.y + matrix->ww;
+      graphene_vec4_init (&point, p.x, p.y, 0.f, 1.f);
+
+      o->x = graphene_vec4_dot (&rows[0], &point);
+      o->y = graphene_vec4_dot (&rows[1], &point);
+      o->z = graphene_vec4_dot (&rows[2], &point);
+      o->w = graphene_vec4_dot (&rows[3], &point);
     }
 }
 
@@ -1755,19 +1788,22 @@ _cogl_matrix_transform_points_f3 (const CoglMatrix *matrix,
                                   void *points_out,
                                   int n_points)
 {
+  graphene_vec4_t rows[3];
   int i;
+
+  init_matrix_rows (matrix, G_N_ELEMENTS (rows), rows);
 
   for (i = 0; i < n_points; i++)
     {
       Point3f p = *(Point3f *)((uint8_t *)points_in + i * stride_in);
       Point3f *o = (Point3f *)((uint8_t *)points_out + i * stride_out);
+      graphene_vec4_t point;
 
-      o->x = matrix->xx * p.x + matrix->xy * p.y +
-             matrix->xz * p.z + matrix->xw;
-      o->y = matrix->yx * p.x + matrix->yy * p.y +
-             matrix->yz * p.z + matrix->yw;
-      o->z = matrix->zx * p.x + matrix->zy * p.y +
-             matrix->zz * p.z + matrix->zw;
+      graphene_vec4_init (&point, p.x, p.y, p.z, 1.f);
+
+      o->x = graphene_vec4_dot (&rows[0], &point);
+      o->y = graphene_vec4_dot (&rows[1], &point);
+      o->z = graphene_vec4_dot (&rows[2], &point);
     }
 }
 
@@ -1779,21 +1815,23 @@ _cogl_matrix_project_points_f3 (const CoglMatrix *matrix,
                                 void *points_out,
                                 int n_points)
 {
+  graphene_vec4_t rows[4];
   int i;
+
+  init_matrix_rows (matrix, G_N_ELEMENTS (rows), rows);
 
   for (i = 0; i < n_points; i++)
     {
       Point3f p = *(Point3f *)((uint8_t *)points_in + i * stride_in);
       Point4f *o = (Point4f *)((uint8_t *)points_out + i * stride_out);
+      graphene_vec4_t point;
 
-      o->x = matrix->xx * p.x + matrix->xy * p.y +
-             matrix->xz * p.z + matrix->xw;
-      o->y = matrix->yx * p.x + matrix->yy * p.y +
-             matrix->yz * p.z + matrix->yw;
-      o->z = matrix->zx * p.x + matrix->zy * p.y +
-             matrix->zz * p.z + matrix->zw;
-      o->w = matrix->wx * p.x + matrix->wy * p.y +
-             matrix->wz * p.z + matrix->ww;
+      graphene_vec4_init (&point, p.x, p.y, p.z, 1.f);
+
+      o->x = graphene_vec4_dot (&rows[0], &point);
+      o->y = graphene_vec4_dot (&rows[1], &point);
+      o->z = graphene_vec4_dot (&rows[2], &point);
+      o->w = graphene_vec4_dot (&rows[3], &point);
     }
 }
 
@@ -1805,21 +1843,23 @@ _cogl_matrix_project_points_f4 (const CoglMatrix *matrix,
                                 void *points_out,
                                 int n_points)
 {
+  graphene_vec4_t rows[4];
   int i;
+
+  init_matrix_rows (matrix, G_N_ELEMENTS (rows), rows);
 
   for (i = 0; i < n_points; i++)
     {
       Point4f p = *(Point4f *)((uint8_t *)points_in + i * stride_in);
       Point4f *o = (Point4f *)((uint8_t *)points_out + i * stride_out);
+      graphene_vec4_t point;
 
-      o->x = matrix->xx * p.x + matrix->xy * p.y +
-             matrix->xz * p.z + matrix->xw * p.w;
-      o->y = matrix->yx * p.x + matrix->yy * p.y +
-             matrix->yz * p.z + matrix->yw * p.w;
-      o->z = matrix->zx * p.x + matrix->zy * p.y +
-             matrix->zz * p.z + matrix->zw * p.w;
-      o->w = matrix->wx * p.x + matrix->wy * p.y +
-             matrix->wz * p.z + matrix->ww * p.w;
+      graphene_vec4_init (&point, p.x, p.y, p.z, p.w);
+
+      o->x = graphene_vec4_dot (&rows[0], &point);
+      o->y = graphene_vec4_dot (&rows[1], &point);
+      o->z = graphene_vec4_dot (&rows[2], &point);
+      o->w = graphene_vec4_dot (&rows[3], &point);
     }
 }
 
