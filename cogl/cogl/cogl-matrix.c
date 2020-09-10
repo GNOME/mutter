@@ -246,86 +246,6 @@ cogl_matrix_to_graphene_matrix (const CoglMatrix  *matrix,
   graphene_matrix_init_from_float (m, (float*)matrix);
 }
 
-#define A(row,col)  a[(col<<2)+row]
-#define B(row,col)  b[(col<<2)+row]
-#define R(row,col)  result[(col<<2)+row]
-
-/*
- * Perform a full 4x4 matrix multiplication.
- *
- * <note>It's assumed that @result != @b. @product == @a is allowed.</note>
- *
- * <note>KW: 4*16 = 64 multiplications</note>
- */
-static void
-matrix_multiply4x4 (float *result, const float *a, const float *b)
-{
-  int i;
-  for (i = 0; i < 4; i++)
-    {
-      const float ai0 = A(i,0),  ai1=A(i,1),  ai2=A(i,2),  ai3=A(i,3);
-      R(i,0) = ai0 * B(0,0) + ai1 * B(1,0) + ai2 * B(2,0) + ai3 * B(3,0);
-      R(i,1) = ai0 * B(0,1) + ai1 * B(1,1) + ai2 * B(2,1) + ai3 * B(3,1);
-      R(i,2) = ai0 * B(0,2) + ai1 * B(1,2) + ai2 * B(2,2) + ai3 * B(3,2);
-      R(i,3) = ai0 * B(0,3) + ai1 * B(1,3) + ai2 * B(2,3) + ai3 * B(3,3);
-    }
-}
-
-/*
- * Multiply two matrices known to occupy only the top three rows, such
- * as typical model matrices, and orthogonal matrices.
- *
- * @a matrix.
- * @b matrix.
- * @product will receive the product of \p a and \p b.
- */
-static void
-matrix_multiply3x4 (float *result, const float *a, const float *b)
-{
-  int i;
-  for (i = 0; i < 3; i++)
-    {
-      const float ai0 = A(i,0), ai1 = A(i,1), ai2 = A(i,2), ai3 = A(i,3);
-      R(i,0) = ai0 * B(0,0) + ai1 * B(1,0) + ai2 * B(2,0);
-      R(i,1) = ai0 * B(0,1) + ai1 * B(1,1) + ai2 * B(2,1);
-      R(i,2) = ai0 * B(0,2) + ai1 * B(1,2) + ai2 * B(2,2);
-      R(i,3) = ai0 * B(0,3) + ai1 * B(1,3) + ai2 * B(2,3) + ai3;
-    }
-  R(3,0) = 0;
-  R(3,1) = 0;
-  R(3,2) = 0;
-  R(3,3) = 1;
-}
-
-#undef A
-#undef B
-#undef R
-
-/*
- * Multiply a matrix by an array of floats with known properties.
- *
- * @mat pointer to a CoglMatrix structure containing the left multiplication
- * matrix, and that will receive the product result.
- * @m right multiplication matrix array.
- * @flags flags of the matrix \p m.
- *
- * Joins both flags and marks the type and inverse as dirty.  Calls
- * matrix_multiply3x4() if both matrices are 3D, or matrix_multiply4x4()
- * otherwise.
- */
-static void
-matrix_multiply_array_with_flags (CoglMatrix *result,
-                                  const float *array,
-                                  unsigned int flags)
-{
-  result->flags |= (flags | MAT_DIRTY_TYPE | MAT_DIRTY_INVERSE);
-
-  if (TEST_MAT_FLAGS (result, MAT_FLAGS_3D))
-    matrix_multiply3x4 ((float *)result, (float *)result, array);
-  else
-    matrix_multiply4x4 ((float *)result, (float *)result, array);
-}
-
 void
 cogl_matrix_multiply (CoglMatrix *result,
 		      const CoglMatrix *a,
@@ -1233,60 +1153,35 @@ cogl_matrix_perspective (CoglMatrix *matrix,
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
-/*
- * Apply an orthographic projection matrix.
- *
- * Creates the projection matrix and multiplies it with matrix, marking the
- * MAT_FLAG_GENERAL_SCALE and MAT_FLAG_TRANSLATION flags.
- */
-static void
-_cogl_matrix_orthographic (CoglMatrix *matrix,
-                           float x_1,
-                           float y_1,
-                           float x_2,
-                           float y_2,
-                           float nearval,
-                           float farval)
-{
-  float m[16];
-
-#define M(row, col)  m[col * 4 + row]
-  M (0,0) = 2.0f / (x_2 - x_1);
-  M (0,1) = 0.0f;
-  M (0,2) = 0.0f;
-  M (0,3) = -(x_2 + x_1) / (x_2 - x_1);
-
-  M (1,0) = 0.0f;
-  M (1,1) = 2.0f / (y_1 - y_2);
-  M (1,2) = 0.0f;
-  M (1,3) = -(y_1 + y_2) / (y_1 - y_2);
-
-  M (2,0) = 0.0f;
-  M (2,1) = 0.0f;
-  M (2,2) = -2.0f / (farval - nearval);
-  M (2,3) = -(farval + nearval) / (farval - nearval);
-
-  M (3,0) = 0.0f;
-  M (3,1) = 0.0f;
-  M (3,2) = 0.0f;
-  M (3,3) = 1.0f;
-#undef M
-
-  matrix_multiply_array_with_flags (matrix, m,
-                                    (MAT_FLAG_GENERAL_SCALE |
-                                     MAT_FLAG_TRANSLATION));
-}
-
 void
 cogl_matrix_orthographic (CoglMatrix *matrix,
-                          float x_1,
-                          float y_1,
-                          float x_2,
-                          float y_2,
+                          float left,
+                          float bottom,
+                          float right,
+                          float top,
                           float near,
                           float far)
 {
-  _cogl_matrix_orthographic (matrix, x_1, y_1, x_2, y_2, near, far);
+  graphene_matrix_t ortho;
+  graphene_matrix_t m;
+  unsigned long flags;
+
+  flags = matrix->flags;
+
+  cogl_matrix_to_graphene_matrix (matrix, &m);
+  graphene_matrix_init_ortho (&ortho,
+                              left, right,
+                              top, bottom,
+                              near, far);
+  graphene_matrix_multiply (&ortho, &m, &m);
+  graphene_matrix_to_cogl_matrix (&m, matrix);
+
+  matrix->flags = (flags |
+                   MAT_FLAG_GENERAL_SCALE |
+                   MAT_FLAG_TRANSLATION |
+                   MAT_DIRTY_TYPE |
+                   MAT_DIRTY_INVERSE);
+
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
