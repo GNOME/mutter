@@ -1941,6 +1941,14 @@ cogl_matrix_get_array (const CoglMatrix *matrix)
   return (float *)matrix;
 }
 
+float
+cogl_matrix_get_value (const CoglMatrix *matrix,
+                       unsigned int      row,
+                       unsigned int      column)
+{
+  return MAT ((float *)matrix, row, column);
+}
+
 void
 cogl_matrix_transform_point (const CoglMatrix *matrix,
                              float *x,

@@ -86,6 +86,8 @@ G_BEGIN_DECLS
  */
 struct _CoglMatrix
 {
+  /*< private >*/
+
   /* column 0 */
   float xx;
   float yx;
@@ -109,8 +111,6 @@ struct _CoglMatrix
   float yw;
   float zw;
   float ww;
-
-  /*< private >*/
 
   /* Note: we may want to extend this later with private flags
    * and a cache of the inverse transform matrix. */
@@ -490,6 +490,17 @@ cogl_matrix_init_from_matrix (CoglMatrix       *matrix,
  */
 COGL_EXPORT const float *
 cogl_matrix_get_array (const CoglMatrix *matrix);
+
+/**
+ * cogl_matrix_get_value:
+ * @matrix: A 4x4 transformation matrix
+ *
+ *
+ */
+COGL_EXPORT float
+cogl_matrix_get_value (const CoglMatrix *matrix,
+                       unsigned int      row,
+                       unsigned int      column);
 
 /**
  * cogl_matrix_init_from_euler:
