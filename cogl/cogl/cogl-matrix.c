@@ -169,19 +169,6 @@ enum CoglMatrixType {
 			    MAT_DIRTY_INVERSE)
 
 
-/*
- * Test geometry related matrix flags.
- *
- * @mat a pointer to a CoglMatrix structure.
- * @a flags mask.
- *
- * Returns: non-zero if all geometry related matrix flags are contained within
- * the mask, or zero otherwise.
- */
-#define TEST_MAT_FLAGS(mat, a)  \
-    ((MAT_FLAGS_GEOMETRY & (~(a)) & ((mat)->flags) ) == 0)
-
-
 
 /*
  * Names of the corresponding CoglMatrixType values.
@@ -242,22 +229,6 @@ cogl_matrix_multiply (CoglMatrix *result,
 
   _COGL_MATRIX_DEBUG_PRINT (result);
 }
-
-#if 0
-/* Marks the matrix flags with general flag, and type and inverse dirty flags.
- * Calls matrix_multiply4x4() for the multiplication.
- */
-static void
-_cogl_matrix_multiply_array (CoglMatrix *result, const float *array)
-{
-  result->flags |= (MAT_FLAG_GENERAL |
-                  MAT_DIRTY_TYPE |
-                  MAT_DIRTY_INVERSE |
-                  MAT_DIRTY_FLAGS);
-
-  matrix_multiply4x4 ((float *)result, (float *)result, (float *)array);
-}
-#endif
 
 /*
  * Print a matrix array.
@@ -565,29 +536,6 @@ cogl_matrix_translate (CoglMatrix *matrix,
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
-#if 0
-/*
- * Set matrix to do viewport and depthrange mapping.
- * Transforms Normalized Device Coords to window/Z values.
- */
-static void
-_cogl_matrix_viewport (CoglMatrix *matrix,
-                       float x, float y,
-                       float width, float height,
-                       float zNear, float zFar, float depthMax)
-{
-  float *m = (float *)matrix;
-  m[MAT_SX] = width / 2.0f;
-  m[MAT_TX] = m[MAT_SX] + x;
-  m[MAT_SY] = height / 2.0f;
-  m[MAT_TY] = m[MAT_SY] + y;
-  m[MAT_SZ] = depthMax * ((zFar - zNear) / 2.0f);
-  m[MAT_TZ] = depthMax * ((zFar - zNear) / 2.0f + zNear);
-  matrix->flags = MAT_FLAG_GENERAL_SCALE | MAT_FLAG_TRANSLATION;
-  matrix->type = COGL_MATRIX_TYPE_3D_NO_ROT;
-}
-#endif
-
 /*
  * Set a matrix to the identity matrix.
  *
@@ -629,45 +577,6 @@ cogl_matrix_init_translation (CoglMatrix *matrix,
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
-
-#if 0
-/*
- * Test if the given matrix preserves vector lengths.
- */
-static gboolean
-_cogl_matrix_is_length_preserving (const CoglMatrix *m)
-{
-  return TEST_MAT_FLAGS (m, MAT_FLAGS_LENGTH_PRESERVING);
-}
-
-/*
- * Test if the given matrix does any rotation.
- * (or perhaps if the upper-left 3x3 is non-identity)
- */
-static gboolean
-_cogl_matrix_has_rotation (const CoglMatrix *matrix)
-{
-  if (matrix->flags & (MAT_FLAG_GENERAL |
-                       MAT_FLAG_ROTATION |
-                       MAT_FLAG_GENERAL_3D |
-                       MAT_FLAG_PERSPECTIVE))
-    return TRUE;
-  else
-    return FALSE;
-}
-
-static gboolean
-_cogl_matrix_is_general_scale (const CoglMatrix *matrix)
-{
-  return (matrix->flags & MAT_FLAG_GENERAL_SCALE) ? TRUE : FALSE;
-}
-
-static gboolean
-_cogl_matrix_is_dirty (const CoglMatrix *matrix)
-{
-  return (matrix->flags & MAT_DIRTY_ALL) ? TRUE : FALSE;
-}
-#endif
 
 /*
  * Loads a matrix array into CoglMatrix.
