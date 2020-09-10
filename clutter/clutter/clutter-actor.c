@@ -4418,7 +4418,7 @@ clutter_actor_remove_child_internal (ClutterActor                 *self,
   g_object_unref (child);
 }
 
-static const ClutterTransformInfo default_transform_info = {
+static ClutterTransformInfo default_transform_info = {
   0.0,                          /* rotation-x */
   0.0,                          /* rotation-y */
   0.0,                          /* rotation-z */
@@ -4432,11 +4432,26 @@ static const ClutterTransformInfo default_transform_info = {
   GRAPHENE_POINT_INIT_ZERO,     /* pivot */
   0.f,                          /* pivot-z */
 
-  COGL_MATRIX_INIT_IDENTITY,
+  { },
   FALSE,                        /* transform */
-  COGL_MATRIX_INIT_IDENTITY,
+  { },
   FALSE,                        /* child-transform */
 };
+
+static inline const ClutterTransformInfo *
+get_default_transform_info (void)
+{
+  static gsize initialized = FALSE;
+
+  if (G_UNLIKELY (g_once_init_enter (&initialized)))
+    {
+      cogl_matrix_init_identity (&default_transform_info.transform);
+      cogl_matrix_init_identity (&default_transform_info.child_transform);
+      g_once_init_leave (&initialized, TRUE);
+    }
+
+  return &default_transform_info;
+}
 
 /*< private >
  * _clutter_actor_get_transform_info_or_defaults:
@@ -4460,7 +4475,7 @@ _clutter_actor_get_transform_info_or_defaults (ClutterActor *self)
   if (info != NULL)
     return info;
 
-  return &default_transform_info;
+  return get_default_transform_info ();
 }
 
 static void
@@ -4497,7 +4512,7 @@ _clutter_actor_get_transform_info (ClutterActor *self)
     {
       info = g_slice_new (ClutterTransformInfo);
 
-      *info = default_transform_info;
+      *info = *get_default_transform_info ();
 
       g_object_set_qdata_full (G_OBJECT (self), quark_actor_transform_info,
                                info,
