@@ -238,10 +238,10 @@ cogl_matrix_stack_frustum (CoglMatrixStack *stack,
     _cogl_matrix_stack_push_replacement_entry (stack,
                                                COGL_MATRIX_OP_LOAD);
 
-  cogl_matrix_init_identity (&entry->matrix);
-  cogl_matrix_frustum (&entry->matrix,
-                       left, right, bottom, top,
-                       z_near, z_far);
+  graphene_matrix_init_frustum (&entry->matrix,
+                                left, right,
+                                bottom, top,
+                                z_near, z_far);
 }
 
 void
@@ -256,9 +256,9 @@ cogl_matrix_stack_perspective (CoglMatrixStack *stack,
   entry =
     _cogl_matrix_stack_push_replacement_entry (stack,
                                                COGL_MATRIX_OP_LOAD);
-  cogl_matrix_init_identity (&entry->matrix);
-  cogl_matrix_perspective (&entry->matrix,
-                           fov_y, aspect, z_near, z_far);
+  graphene_matrix_init_perspective (&entry->matrix,
+                                    fov_y, aspect,
+                                    z_near, z_far);
 }
 
 void
@@ -275,9 +275,10 @@ cogl_matrix_stack_orthographic (CoglMatrixStack *stack,
   entry =
     _cogl_matrix_stack_push_replacement_entry (stack,
                                                COGL_MATRIX_OP_LOAD);
-  cogl_matrix_init_identity (&entry->matrix);
-  cogl_matrix_orthographic (&entry->matrix,
-                            x_1, y_1, x_2, y_2, near, far);
+  graphene_matrix_init_ortho (&entry->matrix,
+                              x_1, x_2,
+                              y_2, y_1,
+                              near, far);
 }
 
 void
@@ -372,44 +373,94 @@ graphene_matrix_t *
 cogl_matrix_entry_get (CoglMatrixEntry   *entry,
                        graphene_matrix_t *matrix)
 {
-  int depth;
   CoglMatrixEntry *current;
-  CoglMatrixEntry **children;
-  int i;
+  int depth;
 
-  for (depth = 0, current = entry;
+  graphene_matrix_init_identity (matrix);
+
+  for (current = entry, depth = 0;
        current;
        current = current->parent, depth++)
     {
       switch (current->op)
         {
+        case COGL_MATRIX_OP_TRANSLATE:
+          {
+            CoglMatrixEntryTranslate *translate =
+              (CoglMatrixEntryTranslate *) current;
+            graphene_matrix_translate (matrix, &translate->translate);
+            break;
+          }
+        case COGL_MATRIX_OP_ROTATE:
+          {
+            CoglMatrixEntryRotate *rotate =
+              (CoglMatrixEntryRotate *) current;
+            graphene_matrix_rotate (matrix, rotate->angle, &rotate->axis);
+            break;
+          }
+        case COGL_MATRIX_OP_ROTATE_EULER:
+          {
+            CoglMatrixEntryRotateEuler *rotate =
+              (CoglMatrixEntryRotateEuler *) current;
+            graphene_matrix_rotate_euler (matrix, &rotate->euler);
+            break;
+          }
+        case COGL_MATRIX_OP_SCALE:
+          {
+            CoglMatrixEntryScale *scale =
+              (CoglMatrixEntryScale *) current;
+            graphene_matrix_scale (matrix, scale->x, scale->y, scale->z);
+            break;
+          }
+        case COGL_MATRIX_OP_MULTIPLY:
+          {
+            CoglMatrixEntryMultiply *multiply =
+              (CoglMatrixEntryMultiply *) current;
+            graphene_matrix_multiply (matrix, &multiply->matrix, matrix);
+            break;
+          }
+
         case COGL_MATRIX_OP_LOAD_IDENTITY:
-          cogl_matrix_init_identity (matrix);
-          goto initialized;
+          goto applied;
+
         case COGL_MATRIX_OP_LOAD:
           {
-            CoglMatrixEntryLoad *load = (CoglMatrixEntryLoad *)current;
-            _cogl_matrix_init_from_matrix_without_inverse (matrix,
-                                                           &load->matrix);
-            goto initialized;
+            CoglMatrixEntryLoad *load = (CoglMatrixEntryLoad *) current;
+            graphene_matrix_multiply (matrix, &load->matrix, matrix);
+            goto applied;
           }
         case COGL_MATRIX_OP_SAVE:
           {
-            CoglMatrixEntrySave *save = (CoglMatrixEntrySave *)current;
+            CoglMatrixEntrySave *save = (CoglMatrixEntrySave *) current;
             if (!save->cache_valid)
               {
                 cogl_matrix_entry_get (current->parent, &save->cache);
                 save->cache_valid = TRUE;
               }
-            _cogl_matrix_init_from_matrix_without_inverse (matrix, &save->cache);
-            goto initialized;
+            graphene_matrix_multiply (matrix, &save->cache, matrix);
+            goto applied;
           }
-        default:
-          continue;
         }
     }
 
-initialized:
+applied:
+
+#ifdef COGL_ENABLE_DEBUG
+  if (!current)
+    {
+      g_warning ("Inconsistent matrix stack");
+      return NULL;
+    }
+
+  entry->composite_gets++;
+
+  if (COGL_DEBUG_ENABLED (COGL_DEBUG_PERFORMANCE) &&
+      entry->composite_gets >= 2)
+    {
+      COGL_NOTE (PERFORMANCE,
+                 "Re-composing a matrix stack entry multiple times");
+    }
+#endif
 
   if (depth == 0)
     {
@@ -436,97 +487,6 @@ initialized:
         }
       g_warn_if_reached ();
       return NULL;
-    }
-
-#ifdef COGL_ENABLE_DEBUG
-  if (!current)
-    {
-      g_warning ("Inconsistent matrix stack");
-      return NULL;
-    }
-
-  entry->composite_gets++;
-#endif
-
-  children = g_alloca (sizeof (CoglMatrixEntry) * depth);
-
-  /* We need walk the list of entries from the init/load/save entry
-   * back towards the leaf node but the nodes don't link to their
-   * children so we need to re-walk them here to add to a separate
-   * array. */
-  for (i = depth - 1, current = entry;
-       i >= 0 && current;
-       i--, current = current->parent)
-    {
-      children[i] = current;
-    }
-
-#ifdef COGL_ENABLE_DEBUG
-  if (COGL_DEBUG_ENABLED (COGL_DEBUG_PERFORMANCE) &&
-      entry->composite_gets >= 2)
-    {
-      COGL_NOTE (PERFORMANCE,
-                 "Re-composing a matrix stack entry multiple times");
-    }
-#endif
-
-  for (i = 0; i < depth; i++)
-    {
-      switch (children[i]->op)
-        {
-        case COGL_MATRIX_OP_TRANSLATE:
-          {
-            CoglMatrixEntryTranslate *translate =
-              (CoglMatrixEntryTranslate *)children[i];
-            cogl_matrix_translate (matrix,
-                                   translate->translate.x,
-                                   translate->translate.y,
-                                   translate->translate.z);
-            continue;
-          }
-        case COGL_MATRIX_OP_ROTATE:
-          {
-            CoglMatrixEntryRotate *rotate=
-              (CoglMatrixEntryRotate *)children[i];
-            cogl_matrix_rotate (matrix,
-                                rotate->angle,
-                                graphene_vec3_get_x (&rotate->axis),
-                                graphene_vec3_get_y (&rotate->axis),
-                                graphene_vec3_get_z (&rotate->axis));
-            continue;
-          }
-        case COGL_MATRIX_OP_ROTATE_EULER:
-          {
-            CoglMatrixEntryRotateEuler *rotate =
-              (CoglMatrixEntryRotateEuler *)children[i];
-            cogl_matrix_rotate_euler (matrix,
-                                      &rotate->euler);
-            continue;
-          }
-        case COGL_MATRIX_OP_SCALE:
-          {
-            CoglMatrixEntryScale *scale =
-              (CoglMatrixEntryScale *)children[i];
-            cogl_matrix_scale (matrix,
-                               scale->x,
-                               scale->y,
-                               scale->z);
-            continue;
-          }
-        case COGL_MATRIX_OP_MULTIPLY:
-          {
-            CoglMatrixEntryMultiply *multiply =
-              (CoglMatrixEntryMultiply *)children[i];
-            cogl_matrix_multiply (matrix, matrix, &multiply->matrix);
-            continue;
-          }
-
-        case COGL_MATRIX_OP_LOAD_IDENTITY:
-        case COGL_MATRIX_OP_LOAD:
-        case COGL_MATRIX_OP_SAVE:
-          g_warn_if_reached ();
-          continue;
-        }
     }
 
   return NULL;
@@ -793,7 +753,7 @@ cogl_matrix_entry_equal (CoglMatrixEntry *entry0,
           {
             CoglMatrixEntryMultiply *mult0 = (CoglMatrixEntryMultiply *)entry0;
             CoglMatrixEntryMultiply *mult1 = (CoglMatrixEntryMultiply *)entry1;
-            if (!cogl_matrix_equal (&mult0->matrix, &mult1->matrix))
+            if (!graphene_matrix_equal (&mult0->matrix, &mult1->matrix))
               return FALSE;
           }
           break;
@@ -804,7 +764,7 @@ cogl_matrix_entry_equal (CoglMatrixEntry *entry0,
             /* There's no need to check any further since an
              * _OP_LOAD makes all the ancestors redundant as far as
              * the final matrix value is concerned. */
-            return cogl_matrix_equal (&load0->matrix, &load1->matrix);
+            return graphene_matrix_equal (&load0->matrix, &load1->matrix);
           }
         case COGL_MATRIX_OP_SAVE:
           /* We skip over saves above so we shouldn't see save entries */
@@ -890,14 +850,14 @@ cogl_debug_matrix_entry_print (CoglMatrixEntry *entry)
           {
             CoglMatrixEntryMultiply *mult = (CoglMatrixEntryMultiply *)entry;
             g_print ("  MULT:\n");
-            _cogl_matrix_prefix_print ("    ", &mult->matrix);
+            graphene_matrix_print (&mult->matrix);
             continue;
           }
         case COGL_MATRIX_OP_LOAD:
           {
             CoglMatrixEntryLoad *load = (CoglMatrixEntryLoad *)entry;
             g_print ("  LOAD:\n");
-            _cogl_matrix_prefix_print ("    ", &load->matrix);
+            graphene_matrix_print (&load->matrix);
             continue;
           }
         case COGL_MATRIX_OP_SAVE:
