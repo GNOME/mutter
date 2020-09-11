@@ -5,23 +5,23 @@
 # Gareth Owen <gowen72@yahoo.com>, 2004.
 # Philip Withnall <philip@tecnocode.co.uk>, 2010.
 # Chris Leonard <cjlhomeaddress@gmail.com>, 2012.
-# Bruce Cowan <bruce@bcowan.me.uk>, 2011, 2012, 2013, 2018.
-# Zander Brown <zbrown@gnome.org>, 2019.
+# Zander Brown <zbrown@gnome.org>, 2019-2020.
+# Bruce Cowan <bruce@bcowan.me.uk>, 2011-2020.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2019-11-22 01:35+0000\n"
-"PO-Revision-Date: 2019-08-25 15:11+0100\n"
-"Last-Translator: Zander Brown <zbrown@gnome.org>\n"
-"Language-Team: English - United Kingdom <en_GB@li.org>\n"
+"POT-Creation-Date: 2020-09-04 22:07+0000\n"
+"PO-Revision-Date: 2020-09-11 13:30+0100\n"
+"Last-Translator: Bruce Cowan <bruce@bcowan.me.uk>\n"
+"Language-Team: English - United Kingdom <en@li.org>\n"
 "Language: en_GB\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Gtranslator 3.32.1\n"
+"X-Generator: Gtranslator 3.36.0\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -422,79 +422,101 @@ msgstr "Modifier to use to locate the pointer"
 msgid "This key will initiate the “locate pointer” action."
 msgstr "This key will initiate the “locate pointer” action."
 
-#: data/org.gnome.mutter.gschema.xml.in:155
+#: data/org.gnome.mutter.gschema.xml.in:142
+msgid "Timeout for check-alive ping"
+msgstr "Timeout for check-alive ping"
+
+#: data/org.gnome.mutter.gschema.xml.in:143
+msgid ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+msgstr ""
+"Number of milliseconds a client has to respond to a ping request in order to "
+"not be detected as frozen. Using 0 will disable the alive check completely."
+
+#: data/org.gnome.mutter.gschema.xml.in:165
 msgid "Select window from tab popup"
 msgstr "Select window from tab popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:160
+#: data/org.gnome.mutter.gschema.xml.in:170
 msgid "Cancel tab popup"
 msgstr "Cancel tab popup"
 
-#: data/org.gnome.mutter.gschema.xml.in:165
+#: data/org.gnome.mutter.gschema.xml.in:175
 msgid "Switch monitor configurations"
 msgstr "Switch monitor configurations"
 
-#: data/org.gnome.mutter.gschema.xml.in:170
+#: data/org.gnome.mutter.gschema.xml.in:180
 msgid "Rotates the built-in monitor configuration"
 msgstr "Rotates the built-in monitor configuration"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:6
+#: data/org.gnome.mutter.wayland.gschema.xml.in:12
 msgid "Switch to VT 1"
 msgstr "Switch to VT 1"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:10
+#: data/org.gnome.mutter.wayland.gschema.xml.in:16
 msgid "Switch to VT 2"
 msgstr "Switch to VT 2"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:14
+#: data/org.gnome.mutter.wayland.gschema.xml.in:20
 msgid "Switch to VT 3"
 msgstr "Switch to VT 3"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:18
+#: data/org.gnome.mutter.wayland.gschema.xml.in:24
 msgid "Switch to VT 4"
 msgstr "Switch to VT 4"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:22
+#: data/org.gnome.mutter.wayland.gschema.xml.in:28
 msgid "Switch to VT 5"
 msgstr "Switch to VT 5"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:26
+#: data/org.gnome.mutter.wayland.gschema.xml.in:32
 msgid "Switch to VT 6"
 msgstr "Switch to VT 6"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:30
+#: data/org.gnome.mutter.wayland.gschema.xml.in:36
 msgid "Switch to VT 7"
 msgstr "Switch to VT 7"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:34
+#: data/org.gnome.mutter.wayland.gschema.xml.in:40
 msgid "Switch to VT 8"
 msgstr "Switch to VT 8"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:38
+#: data/org.gnome.mutter.wayland.gschema.xml.in:44
 msgid "Switch to VT 9"
 msgstr "Switch to VT 9"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:42
+#: data/org.gnome.mutter.wayland.gschema.xml.in:48
 msgid "Switch to VT 10"
 msgstr "Switch to VT 10"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:46
+#: data/org.gnome.mutter.wayland.gschema.xml.in:52
 msgid "Switch to VT 11"
 msgstr "Switch to VT 11"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:50
+#: data/org.gnome.mutter.wayland.gschema.xml.in:56
 msgid "Switch to VT 12"
 msgstr "Switch to VT 12"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:54
+#: data/org.gnome.mutter.wayland.gschema.xml.in:60
 msgid "Re-enable shortcuts"
 msgstr "Re-enable shortcuts"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:64
+#: data/org.gnome.mutter.wayland.gschema.xml.in:70
 msgid "Allow X11 grabs to lock keyboard focus with Xwayland"
 msgstr "Allow X11 grabs to lock keyboard focus with Xwayland"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:65
+#: data/org.gnome.mutter.wayland.gschema.xml.in:71
+#| msgid ""
+#| "Allow all keyboard events to be routed to X11 “override redirect” windows "
+#| "with a grab when running in Xwayland. This option is to support X11 "
+#| "clients which map an “override redirect” window (which do not receive "
+#| "keyboard focus) and issue a keyboard grab to force all keyboard events to "
+#| "that window. This option is seldom used and has no effect on regular X11 "
+#| "windows which can receive keyboard focus under normal circumstances. For "
+#| "a X11 grab to be taken into account under Wayland, the client must also "
+#| "either send a specific X11 ClientMessage to the root window or be among "
+#| "the applications white-listed in key “xwayland-grab-access-rules”."
 msgid ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -504,7 +526,7 @@ msgid ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 msgstr ""
 "Allow all keyboard events to be routed to X11 “override redirect” windows "
 "with a grab when running in Xwayland. This option is to support X11 clients "
@@ -514,21 +536,32 @@ msgstr ""
 "which can receive keyboard focus under normal circumstances. For a X11 grab "
 "to be taken into account under Wayland, the client must also either send a "
 "specific X11 ClientMessage to the root window or be among the applications "
-"white-listed in key “xwayland-grab-access-rules”."
+"allowed in key “xwayland-grab-access-rules”."
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:84
+#: data/org.gnome.mutter.wayland.gschema.xml.in:90
 msgid "Xwayland applications allowed to issue keyboard grabs"
 msgstr "Xwayland applications allowed to issue keyboard grabs"
 
-#: data/org.gnome.mutter.wayland.gschema.xml.in:85
+#: data/org.gnome.mutter.wayland.gschema.xml.in:91
+#| msgid ""
+#| "List the resource names or resource class of X11 windows either allowed "
+#| "or not allowed to issue X11 keyboard grabs under Xwayland. The resource "
+#| "name or resource class of a given X11 window can be obtained using the "
+#| "command “xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are "
+#| "supported. Values starting with “!” are blacklisted, which has precedence "
+#| "over the whitelist, to revoke applications from the default system list. "
+#| "The default system list includes the following applications: "
+#| "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab "
+#| "by using the specific keyboard shortcut defined by the keybinding key "
+#| "“restore-shortcuts”."
 msgid ""
 "List the resource names or resource class of X11 windows either allowed or "
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
@@ -537,17 +570,33 @@ msgstr ""
 "not allowed to issue X11 keyboard grabs under Xwayland. The resource name or "
 "resource class of a given X11 window can be obtained using the command "
 "“xprop WM_CLASS”. Wildcards “*” and jokers “?” in the values are supported. "
-"Values starting with “!” are blacklisted, which has precedence over the "
-"whitelist, to revoke applications from the default system list. The default "
-"system list includes the following applications: "
+"Values starting with “!” are denied, which has precedence over the list of "
+"values allowed, to revoke applications from the default system list. The "
+"default system list includes the following applications: "
 "“@XWAYLAND_GRAB_DEFAULT_ACCESS_RULES@” Users can break an existing grab by "
 "using the specific keyboard shortcut defined by the keybinding key “restore-"
 "shortcuts”."
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:116
+msgid "Disable selected X extensions in Xwayland"
+msgstr "Disable selected X extensions in Xwayland"
+
+#: data/org.gnome.mutter.wayland.gschema.xml.in:117
+msgid ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
+msgstr ""
+"This option disables the selected X extensions in Xwayland if Xwayland was "
+"built with support for those X extensions. This option has no effect if "
+"Xwayland was built without support for the selected extensions. Xwayland "
+"needs to be restarted for this setting to take effect."
 
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2528
+#: src/backends/meta-input-settings.c:2702
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Mode Switch (Group %d)"
@@ -555,34 +604,34 @@ msgstr "Mode Switch (Group %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2551
+#: src/backends/meta-input-settings.c:2725
 msgid "Switch monitor"
 msgstr "Switch monitor"
 
-#: src/backends/meta-input-settings.c:2553
+#: src/backends/meta-input-settings.c:2727
 msgid "Show on-screen help"
 msgstr "Show on-screen help"
 
-#: src/backends/meta-monitor.c:223
+#: src/backends/meta-monitor.c:235
 msgid "Built-in display"
 msgstr "Built-in display"
 
-#: src/backends/meta-monitor.c:252
+#: src/backends/meta-monitor.c:264
 msgid "Unknown"
 msgstr "Unknown"
 
-#: src/backends/meta-monitor.c:254
+#: src/backends/meta-monitor.c:266
 msgid "Unknown Display"
 msgstr "Unknown Display"
 
-#: src/backends/meta-monitor.c:262
+#: src/backends/meta-monitor.c:274
 #, c-format
 msgctxt ""
 "This is a monitor vendor name, followed by a size in inches, like 'Dell 15\"'"
 msgid "%s %s"
 msgstr "%s %s"
 
-#: src/backends/meta-monitor.c:270
+#: src/backends/meta-monitor.c:282
 #, c-format
 msgctxt ""
 "This is a monitor vendor name followed by product/model name where size in "
@@ -597,7 +646,7 @@ msgstr "Compositor"
 
 #. This probably means that a non-WM compositor like xcompmgr is running;
 #. * we have no way to get it to exit
-#: src/compositor/compositor.c:533
+#: src/compositor/compositor.c:516
 #, c-format
 msgid ""
 "Another compositing manager is already running on screen %i on display “%s”."
@@ -699,14 +748,14 @@ msgstr "Print version"
 
 #: src/core/mutter.c:58
 msgid "Mutter plugin to use"
-msgstr "Mutter plugin to use"
+msgstr "Mutter plug-in to use"
 
-#: src/core/prefs.c:1849
+#: src/core/prefs.c:1911
 #, c-format
 msgid "Workspace %d"
 msgstr "Workspace %d"
 
-#: src/core/util.c:122
+#: src/core/util.c:118
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "Mutter was compiled without support for verbose mode\n"
 
@@ -715,7 +764,7 @@ msgstr "Mutter was compiled without support for verbose mode\n"
 msgid "Mode Switch: Mode %d"
 msgstr "Mode Switch: Mode %d"
 
-#: src/x11/meta-x11-display.c:675
+#: src/x11/meta-x11-display.c:676
 #, c-format
 msgid ""
 "Display “%s” already has a window manager; try using the --replace option to "
@@ -724,16 +773,16 @@ msgstr ""
 "Display “%s” already has a window manager; try using the --replace option to "
 "replace the current window manager."
 
-#: src/x11/meta-x11-display.c:1036
+#: src/x11/meta-x11-display.c:1089
 msgid "Failed to initialize GDK\n"
 msgstr "Failed to initialise GDK\n"
 
-#: src/x11/meta-x11-display.c:1060
+#: src/x11/meta-x11-display.c:1113
 #, c-format
 msgid "Failed to open X Window System display “%s”\n"
 msgstr "Failed to open X Window System display “%s”\n"
 
-#: src/x11/meta-x11-display.c:1143
+#: src/x11/meta-x11-display.c:1196
 #, c-format
 msgid "Screen %d on display “%s” is invalid\n"
 msgstr "Screen %d on display “%s” is invalid\n"
@@ -751,7 +800,7 @@ msgstr ""
 "These windows do not support “save current setup” and will have to be "
 "restarted manually next time you log in."
 
-#: src/x11/window-props.c:569
+#: src/x11/window-props.c:548
 #, c-format
 msgid "%s (on %s)"
 msgstr "%s (on %s)"
