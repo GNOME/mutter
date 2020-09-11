@@ -59,8 +59,8 @@ G_BEGIN_DECLS
 /**
  * CoglMatrix:
  *
- * A CoglMatrix holds a 4x4 transform matrix. This is a single precision,
- * column-major matrix which means it is compatible with what OpenGL expects.
+ * A CoglMatrix holds a 4x4 transform matrix. It uses #graphene_matrix_t
+ * internally which means it is compatible with what OpenGL expects.
  *
  * A CoglMatrix can represent transforms such as, rotations, scaling,
  * translation, sheering, and linear projections. You can combine these
@@ -77,20 +77,12 @@ G_BEGIN_DECLS
  * ]|
  *
  * Where w is normally 1
- *
- * <note>You must consider the members of the CoglMatrix structure read only,
- * and all matrix modifications must be done via the cogl_matrix API. This
- * allows Cogl to annotate the matrices internally. Violation of this will give
- * undefined results. If you need to initialize a matrix with a constant other
- * than the identity matrix you can use cogl_matrix_init_from_array().</note>
  */
 struct _CoglMatrix
 {
   /*< private >*/
   graphene_matrix_t m;
 
-  /* Note: we may want to extend this later with private flags
-   * and a cache of the inverse transform matrix. */
   graphene_matrix_t COGL_PRIVATE (inv);
   unsigned long  COGL_PRIVATE (flags);
   unsigned long  COGL_PRIVATE (_padding3);
