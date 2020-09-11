@@ -108,6 +108,7 @@ struct _MetaBackendClass
 };
 
 void meta_init_backend (GType backend_gtype);
+void meta_release_backend (void);
 
 #ifdef HAVE_WAYLAND
 MetaWaylandCompositor * meta_backend_get_wayland_compositor (MetaBackend *backend);

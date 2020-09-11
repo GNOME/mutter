@@ -1393,6 +1393,12 @@ meta_init_backend (GType backend_gtype)
     }
 }
 
+void
+meta_release_backend (void)
+{
+  g_clear_object (&_backend);
+}
+
 /**
  * meta_is_stage_views_enabled:
  *
