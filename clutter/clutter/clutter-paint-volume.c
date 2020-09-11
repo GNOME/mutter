@@ -1136,7 +1136,7 @@ _clutter_paint_volume_get_stage_paint_box (ClutterPaintVolume *pv,
 
   _clutter_paint_volume_copy_static (pv, &projected_pv);
 
-  cogl_matrix_init_identity (&modelview);
+  graphene_matrix_init_identity (&modelview);
 
   /* If the paint volume isn't already in eye coordinates... */
   if (pv->actor)
@@ -1190,7 +1190,7 @@ _clutter_paint_volume_transform_relative (ClutterPaintVolume *pv,
 
   _clutter_paint_volume_set_reference_actor (pv, relative_to_ancestor);
 
-  cogl_matrix_init_identity (&matrix);
+  graphene_matrix_init_identity (&matrix);
   _clutter_actor_apply_relative_transformation_matrix (actor,
                                                        relative_to_ancestor,
                                                       &matrix);
