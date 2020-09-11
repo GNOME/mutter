@@ -153,6 +153,8 @@ meta_input_settings_dispose (GObject *object)
   MetaInputSettings *settings = META_INPUT_SETTINGS (object);
   MetaInputSettingsPrivate *priv = meta_input_settings_get_instance_private (settings);
 
+  g_signal_handlers_disconnect_by_data (priv->seat, settings);
+
   g_clear_object (&priv->virtual_pad_keyboard);
 
   g_clear_object (&priv->mouse_settings);
