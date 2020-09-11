@@ -704,6 +704,7 @@ struct _ClutterActorPrivate
 
   /* the cached transformation matrix; see apply_transform() */
   CoglMatrix transform;
+  CoglMatrix inverse_transform;
 
   float resource_scale;
 
@@ -857,6 +858,7 @@ struct _ClutterActorPrivate
   guint had_effects_on_last_paint_volume_update : 1;
   guint absolute_origin_changed     : 1;
   guint needs_update_stage_views    : 1;
+  guint has_inverse_transform       : 1;
 };
 
 enum
@@ -1080,6 +1082,7 @@ static void clutter_actor_push_in_cloned_branch (ClutterActor *self,
                                                  gulong        count);
 static void clutter_actor_pop_in_cloned_branch (ClutterActor *self,
                                                 gulong        count);
+static void ensure_valid_actor_transform (ClutterActor *actor);
 
 static GQuark quark_actor_layout_info = 0;
 static GQuark quark_actor_transform_info = 0;
@@ -1253,17 +1256,21 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
                                              const ClutterActorBox *box,
                                              graphene_point_t       vertices[4])
 {
+  ClutterActor *stage_actor = CLUTTER_ACTOR (stage);
+  ClutterActorPrivate *stage_priv = stage_actor->priv;
   CoglFramebuffer *fb =
    clutter_pick_context_get_framebuffer (pick_context);
-  CoglMatrix stage_transform, inv_stage_transform;
   CoglMatrix modelview, transform_to_stage;
   int v;
 
-  clutter_actor_get_transform (CLUTTER_ACTOR (stage), &stage_transform);
-  if (!cogl_matrix_get_inverse (&stage_transform, &inv_stage_transform))
+  ensure_valid_actor_transform (stage_actor);
+
+  if (!stage_priv->has_inverse_transform)
     return FALSE;
   cogl_framebuffer_get_modelview_matrix (fb, &modelview);
-  cogl_matrix_multiply (&transform_to_stage, &inv_stage_transform, &modelview);
+  cogl_matrix_multiply (&transform_to_stage,
+                        &stage_priv->inverse_transform,
+                        &modelview);
 
   vertices[0].x = box->x1;
   vertices[0].y = box->y1;
