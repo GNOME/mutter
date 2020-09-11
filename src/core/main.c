@@ -312,6 +312,8 @@ meta_finalize (void)
   if (meta_is_wayland_compositor ())
     meta_wayland_finalize ();
 #endif
+
+  meta_release_backend ();
 }
 
 static gboolean
