@@ -236,13 +236,14 @@ paint_transformed_framebuffer (ClutterStageView     *view,
 
   cogl_framebuffer_push_matrix (dst_framebuffer);
 
-  cogl_matrix_init_identity (&matrix);
-  cogl_matrix_scale (&matrix,
-                     1.0 / (dst_width / 2.0),
-                     -1.0 / (dst_height / 2.0), 0);
-  cogl_matrix_translate (&matrix,
-                         -(dst_width / 2.0),
-                         -(dst_height / 2.0), 0);
+  graphene_matrix_init_translate (&matrix,
+                                  &GRAPHENE_POINT3D_INIT (-dst_width / 2.0,
+                                                          -dst_height / 2.0,
+                                                          0.f));
+  graphene_matrix_scale (&matrix,
+                         1.0 / (dst_width / 2.0),
+                         -1.0 / (dst_height / 2.0),
+                         0.f);
   cogl_framebuffer_set_projection_matrix (dst_framebuffer, &matrix);
   cogl_framebuffer_set_viewport (dst_framebuffer,
                                  0, 0, dst_width, dst_height);
@@ -987,7 +988,7 @@ static void
 clutter_stage_default_get_offscreen_transformation_matrix (ClutterStageView  *view,
                                                            graphene_matrix_t *matrix)
 {
-  cogl_matrix_init_identity (matrix);
+  graphene_matrix_init_identity (matrix);
 }
 
 void
