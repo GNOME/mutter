@@ -121,7 +121,8 @@ clutter_clone_get_preferred_height (ClutterActor *self,
 }
 
 static void
-clutter_clone_apply_transform (ClutterActor *self, CoglMatrix *matrix)
+clutter_clone_apply_transform (ClutterActor      *self,
+                               graphene_matrix_t *matrix)
 {
   ClutterClonePrivate *priv = CLUTTER_CLONE (self)->priv;
 

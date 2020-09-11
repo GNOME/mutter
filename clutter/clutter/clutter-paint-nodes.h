@@ -202,7 +202,7 @@ CLUTTER_EXPORT
 GType clutter_layer_node_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
-ClutterPaintNode *      clutter_layer_node_new          (const CoglMatrix        *projection,
+ClutterPaintNode *      clutter_layer_node_new          (const graphene_matrix_t *projection,
                                                          const cairo_rectangle_t *viewport,
                                                          float                    width,
                                                          float                    height,
@@ -228,7 +228,7 @@ CLUTTER_EXPORT
 GType clutter_transform_node_get_type (void) G_GNUC_CONST;
 
 CLUTTER_EXPORT
-ClutterPaintNode *      clutter_transform_node_new          (const CoglMatrix *projection);
+ClutterPaintNode *      clutter_transform_node_new          (const graphene_matrix_t *projection);
 
 G_END_DECLS
 

@@ -110,8 +110,8 @@ draw_view (MetaStageX11Nested *stage_nested,
   ClutterStageView *stage_view = CLUTTER_STAGE_VIEW (renderer_view);
   MetaCrtc *crtc;
   const MetaCrtcConfig *crtc_config;
-  CoglMatrix projection_matrix;
-  CoglMatrix transform;
+  graphene_matrix_t projection_matrix;
+  graphene_matrix_t transform;
   float texture_width, texture_height;
   float sample_x, sample_y, sample_width, sample_height;
   float s_1, t_1, s_2, t_2;

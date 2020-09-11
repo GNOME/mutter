@@ -103,7 +103,7 @@ paint_cb (ClutterActor        *stage,
 {
   CoglFramebuffer *framebuffer =
     clutter_paint_context_get_framebuffer (paint_context);
-  CoglMatrix old_matrix, new_matrix;
+  graphene_matrix_t old_matrix, new_matrix;
   int i;
   float diff_time;
 

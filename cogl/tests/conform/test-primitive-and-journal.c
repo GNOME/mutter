@@ -8,7 +8,7 @@ typedef CoglVertexP2C4 Vertex;
 static void
 setup_orthographic_modelview (void)
 {
-  CoglMatrix matrix;
+  graphene_matrix_t matrix;
   int fb_width = cogl_framebuffer_get_width (test_fb);
   int fb_height = cogl_framebuffer_get_height (test_fb);
 

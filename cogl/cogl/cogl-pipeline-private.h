@@ -732,7 +732,7 @@ _cogl_pipeline_journal_ref (CoglPipeline *pipeline);
 void
 _cogl_pipeline_journal_unref (CoglPipeline *pipeline);
 
-const CoglMatrix *
+const graphene_matrix_t *
 _cogl_pipeline_get_layer_matrix (CoglPipeline *pipeline,
                                  int layer_index);
 

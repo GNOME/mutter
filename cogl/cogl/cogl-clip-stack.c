@@ -69,14 +69,14 @@ _cogl_clip_stack_push_entry (CoglClipStack *clip_stack,
 }
 
 static void
-get_transformed_corners (float x_1,
-                         float y_1,
-                         float x_2,
-                         float y_2,
-                         CoglMatrix *modelview,
-                         CoglMatrix *projection,
-                         const float *viewport,
-                         float *transformed_corners)
+get_transformed_corners (float              x_1,
+                         float              y_1,
+                         float              x_2,
+                         float              y_2,
+                         graphene_matrix_t *modelview,
+                         graphene_matrix_t *projection,
+                         const float       *viewport,
+                         float             *transformed_corners)
 {
   int i;
 
@@ -160,9 +160,9 @@ _cogl_clip_stack_push_rectangle (CoglClipStack *stack,
                                  const float *viewport)
 {
   CoglClipStackRect *entry;
-  CoglMatrix modelview;
-  CoglMatrix projection;
-  CoglMatrix modelview_projection;
+  graphene_matrix_t modelview;
+  graphene_matrix_t projection;
+  graphene_matrix_t modelview_projection;
 
   /* Corners of the given rectangle in an clockwise order:
    *  (0, 1)     (2, 3)
@@ -260,8 +260,8 @@ _cogl_clip_stack_push_primitive (CoglClipStack *stack,
                                  const float *viewport)
 {
   CoglClipStackPrimitive *entry;
-  CoglMatrix modelview;
-  CoglMatrix projection;
+  graphene_matrix_t modelview;
+  graphene_matrix_t projection;
   float transformed_corners[8];
 
   entry = _cogl_clip_stack_push_entry (stack,

@@ -58,14 +58,14 @@ typedef struct
 } ClutterVertex4;
 
 void
-_clutter_util_fully_transform_vertices (const CoglMatrix *modelview,
-                                        const CoglMatrix *projection,
-                                        const float *viewport,
+_clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
+                                        const graphene_matrix_t  *projection,
+                                        const float              *viewport,
                                         const graphene_point3d_t *vertices_in,
-                                        graphene_point3d_t *vertices_out,
-                                        int n_vertices)
+                                        graphene_point3d_t       *vertices_out,
+                                        int                       n_vertices)
 {
-  CoglMatrix modelview_projection;
+  graphene_matrix_t modelview_projection;
   ClutterVertex4 *vertices_tmp;
   int i;
 

@@ -46,11 +46,11 @@ G_BEGIN_DECLS
     }
 
 void
-_cogl_matrix_prefix_print (const char *prefix, const CoglMatrix *matrix);
+_cogl_matrix_prefix_print (const char *prefix, const graphene_matrix_t *matrix);
 
 void
-_cogl_matrix_init_from_matrix_without_inverse (CoglMatrix *matrix,
-                                               const CoglMatrix *src);
+_cogl_matrix_init_from_matrix_without_inverse (graphene_matrix_t *matrix,
+                                               const graphene_matrix_t *src);
 
 G_END_DECLS
 

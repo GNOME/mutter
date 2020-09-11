@@ -431,7 +431,7 @@ update_constants_cb (CoglPipeline *pipeline,
   if (unit_state->texture_matrix_uniform != -1 &&
       (state->update_all || unit_state->dirty_texture_matrix))
     {
-      const CoglMatrix *matrix;
+      const graphene_matrix_t *matrix;
       float array[16];
 
       matrix = _cogl_pipeline_get_layer_matrix (pipeline, layer_index);
@@ -1001,7 +1001,7 @@ _cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
   gboolean projection_changed;
   gboolean need_modelview;
   gboolean need_projection;
-  CoglMatrix modelview, projection;
+  graphene_matrix_t modelview, projection;
 
   _COGL_GET_CONTEXT (ctx, NO_RETVAL);
 
@@ -1051,7 +1051,7 @@ _cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
         {
           if (needs_flip && program_state->flip_uniform == -1)
             {
-              CoglMatrix tmp_matrix;
+              graphene_matrix_t tmp_matrix;
               cogl_matrix_entry_get (projection_entry, &tmp_matrix);
               cogl_matrix_multiply (&projection,
                                     &ctx->y_flip_matrix,
@@ -1095,7 +1095,7 @@ _cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
             }
           else
             {
-              CoglMatrix combined;
+              graphene_matrix_t combined;
 
               cogl_matrix_multiply (&combined,
                                     &projection,

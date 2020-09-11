@@ -1161,7 +1161,7 @@ upload_vertices (CoglJournal *journal,
   int entry_num;
   int i;
   CoglMatrixEntry *last_modelview_entry = NULL;
-  CoglMatrix modelview;
+  graphene_matrix_t modelview;
 
   g_assert (needed_vbo_len);
 
@@ -1643,8 +1643,8 @@ entry_to_screen_polygon (CoglFramebuffer *framebuffer,
   size_t array_stride =
     GET_JOURNAL_ARRAY_STRIDE_FOR_N_LAYERS (entry->n_layers);
   CoglMatrixStack *projection_stack;
-  CoglMatrix projection;
-  CoglMatrix modelview;
+  graphene_matrix_t projection;
+  graphene_matrix_t modelview;
   int i;
   const float *viewport = entry->viewport;
 

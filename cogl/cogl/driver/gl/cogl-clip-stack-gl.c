@@ -133,7 +133,7 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
 {
   CoglContext *ctx = cogl_framebuffer_get_context (framebuffer);
   CoglMatrixEntry *old_projection_entry, *old_modelview_entry;
-  CoglMatrix matrix;
+  graphene_matrix_t matrix;
   int num_rectangles = cairo_region_num_rectangles (region);
   int i;
   CoglVertexP2 *vertices;

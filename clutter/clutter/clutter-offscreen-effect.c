@@ -258,7 +258,7 @@ clutter_offscreen_effect_pre_paint (ClutterEffect       *effect,
   ClutterOffscreenEffectPrivate *priv = self->priv;
   ClutterActorBox raw_box, box;
   ClutterActor *stage;
-  CoglMatrix projection, old_modelview, modelview;
+  graphene_matrix_t projection, old_modelview, modelview;
   const ClutterPaintVolume *volume;
   CoglColor transparent;
   gfloat stage_width, stage_height;
@@ -427,7 +427,7 @@ clutter_offscreen_effect_paint_texture (ClutterOffscreenEffect *effect,
   ClutterOffscreenEffectPrivate *priv = effect->priv;
   CoglFramebuffer *framebuffer =
     clutter_paint_context_get_framebuffer (paint_context);
-  CoglMatrix modelview;
+  graphene_matrix_t modelview;
   float resource_scale;
 
   cogl_framebuffer_push_matrix (framebuffer);

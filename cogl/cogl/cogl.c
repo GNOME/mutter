@@ -175,11 +175,11 @@ _cogl_driver_error_quark (void)
 /* Transform a homogeneous vertex position from model space to Cogl
  * window coordinates (with 0,0 being top left) */
 void
-_cogl_transform_point (const CoglMatrix *matrix_mv,
-                       const CoglMatrix *matrix_p,
-                       const float *viewport,
-                       float *x,
-                       float *y)
+_cogl_transform_point (const graphene_matrix_t *matrix_mv,
+                       const graphene_matrix_t *matrix_p,
+                       const float             *viewport,
+                       float                   *x,
+                       float                   *y)
 {
   float z = 0;
   float w = 1;

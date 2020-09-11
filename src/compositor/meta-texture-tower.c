@@ -248,7 +248,7 @@ get_paint_level (ClutterPaintContext *paint_context,
                  int                  height)
 {
   CoglFramebuffer *framebuffer;
-  CoglMatrix projection, modelview, pm;
+  graphene_matrix_t projection, modelview, pm;
   float xx, xy, xw;
   float yx, yy, yw;
   float wx, wy, ww;

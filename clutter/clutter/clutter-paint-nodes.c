@@ -191,7 +191,7 @@ struct _ClutterTransformNode
 {
   ClutterPaintNode parent_instance;
 
-  CoglMatrix transform;
+  graphene_matrix_t transform;
 };
 
 struct _ClutterTransformNodeClass
@@ -249,7 +249,7 @@ clutter_transform_node_init (ClutterTransformNode *self)
  *   Use clutter_paint_node_unref() when done.
  */
 ClutterPaintNode *
-clutter_transform_node_new (const CoglMatrix *transform)
+clutter_transform_node_new (const graphene_matrix_t *transform)
 {
   ClutterTransformNode *res;
 
@@ -1226,7 +1226,7 @@ struct _ClutterLayerNode
 
   cairo_rectangle_t viewport;
 
-  CoglMatrix projection;
+  graphene_matrix_t projection;
 
   float fbo_width;
   float fbo_height;
@@ -1250,7 +1250,7 @@ clutter_layer_node_pre_draw (ClutterPaintNode *node,
 {
   ClutterLayerNode *lnode = (ClutterLayerNode *) node;
   CoglFramebuffer *framebuffer;
-  CoglMatrix matrix;
+  graphene_matrix_t matrix;
 
   /* if we were unable to create an offscreen buffer for this node, then
    * we simply ignore it
@@ -1404,7 +1404,7 @@ clutter_layer_node_init (ClutterLayerNode *self)
  * Since: 1.10
  */
 ClutterPaintNode *
-clutter_layer_node_new (const CoglMatrix        *projection,
+clutter_layer_node_new (const graphene_matrix_t *projection,
                         const cairo_rectangle_t *viewport,
                         float                    width,
                         float                    height,

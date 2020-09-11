@@ -703,8 +703,8 @@ struct _ClutterActorPrivate
   graphene_rect_t clip;
 
   /* the cached transformation matrix; see apply_transform() */
-  CoglMatrix transform;
-  CoglMatrix inverse_transform;
+  graphene_matrix_t transform;
+  graphene_matrix_t inverse_transform;
 
   float resource_scale;
 
@@ -1050,9 +1050,9 @@ static void clutter_actor_update_map_state       (ClutterActor  *self,
                                                   MapStateChange change);
 static void clutter_actor_unrealize_not_hiding   (ClutterActor *self);
 
-static void _clutter_actor_get_relative_transformation_matrix (ClutterActor *self,
-                                                               ClutterActor *ancestor,
-                                                               CoglMatrix *matrix);
+static void _clutter_actor_get_relative_transformation_matrix (ClutterActor      *self,
+                                                               ClutterActor      *ancestor,
+                                                               graphene_matrix_t *matrix);
 
 static ClutterPaintVolume *_clutter_actor_get_paint_volume_mutable (ClutterActor *self);
 
@@ -1070,10 +1070,10 @@ static inline void clutter_actor_set_margin_internal (ClutterActor *self,
                                                       gfloat        margin,
                                                       GParamSpec   *pspec);
 
-static void clutter_actor_set_transform_internal (ClutterActor     *self,
-                                                  const CoglMatrix *transform);
-static void clutter_actor_set_child_transform_internal (ClutterActor     *self,
-                                                        const CoglMatrix *transform);
+static void clutter_actor_set_transform_internal (ClutterActor            *self,
+                                                  const graphene_matrix_t *transform);
+static void clutter_actor_set_child_transform_internal (ClutterActor            *self,
+                                                        const graphene_matrix_t *transform);
 
 static void     clutter_actor_realize_internal          (ClutterActor *self);
 static void     clutter_actor_unrealize_internal        (ClutterActor *self);
@@ -1260,7 +1260,7 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
   ClutterActorPrivate *stage_priv = stage_actor->priv;
   CoglFramebuffer *fb =
    clutter_pick_context_get_framebuffer (pick_context);
-  CoglMatrix modelview, transform_to_stage;
+  graphene_matrix_t modelview, transform_to_stage;
   int v;
 
   ensure_valid_actor_transform (stage_actor);
@@ -2853,7 +2853,7 @@ clutter_actor_apply_relative_transform_to_point (ClutterActor             *self,
                                                  graphene_point3d_t       *vertex)
 {
   gfloat w;
-  CoglMatrix matrix;
+  graphene_matrix_t matrix;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
   g_return_if_fail (ancestor == NULL || CLUTTER_IS_ACTOR (ancestor));
@@ -2887,8 +2887,8 @@ _clutter_actor_fully_transform_vertices (ClutterActor             *self,
                                          int                       n_vertices)
 {
   ClutterActor *stage;
-  CoglMatrix modelview;
-  CoglMatrix projection;
+  graphene_matrix_t modelview;
+  graphene_matrix_t projection;
   float viewport[4];
 
   g_return_val_if_fail (CLUTTER_IS_ACTOR (self), FALSE);
@@ -2950,7 +2950,7 @@ clutter_actor_apply_transform_to_point (ClutterActor             *self,
  * @self: The actor whose coordinate space you want to transform from.
  * @ancestor: The ancestor actor whose coordinate space you want to transform too
  *            or %NULL if you want to transform all the way to eye coordinates.
- * @matrix: A #CoglMatrix to store the transformation
+ * @matrix: A #graphene_matrix_t to store the transformation
  *
  * This gets a transformation @matrix that will transform coordinates from the
  * coordinate space of @self into the coordinate space of @ancestor.
@@ -2975,9 +2975,9 @@ clutter_actor_apply_transform_to_point (ClutterActor             *self,
 /* XXX: We should consider caching the stage relative modelview along with
  * the actor itself */
 static void
-_clutter_actor_get_relative_transformation_matrix (ClutterActor *self,
-                                                   ClutterActor *ancestor,
-                                                   CoglMatrix *matrix)
+_clutter_actor_get_relative_transformation_matrix (ClutterActor      *self,
+                                                   ClutterActor      *ancestor,
+                                                   graphene_matrix_t *matrix)
 {
   cogl_matrix_init_identity (matrix);
 
@@ -3064,8 +3064,8 @@ clutter_actor_get_abs_allocation_vertices (ClutterActor       *self,
 }
 
 static void
-clutter_actor_real_apply_transform (ClutterActor *self,
-                                    CoglMatrix   *matrix)
+clutter_actor_real_apply_transform (ClutterActor      *self,
+                                    graphene_matrix_t *matrix)
 {
   ClutterActorPrivate *priv = self->priv;
   const ClutterTransformInfo *info;
@@ -3172,8 +3172,8 @@ ensure_valid_actor_transform (ClutterActor *actor)
 }
 
 void
-_clutter_actor_apply_modelview_transform (ClutterActor *self,
-                                          CoglMatrix   *matrix)
+_clutter_actor_apply_modelview_transform (ClutterActor      *self,
+                                          graphene_matrix_t *matrix)
 {
   ClutterActorPrivate *priv = self->priv;
 
@@ -3186,7 +3186,7 @@ _clutter_actor_apply_modelview_transform (ClutterActor *self,
  * @self: The actor whose coordinate space you want to transform from.
  * @ancestor: The ancestor actor whose coordinate space you want to transform too
  *            or %NULL if you want to transform all the way to eye coordinates.
- * @matrix: A #CoglMatrix to apply the transformation too.
+ * @matrix: A #graphene_matrix_t to apply the transformation too.
  *
  * This multiplies a transform with @matrix that will transform coordinates
  * from the coordinate space of @self into the coordinate space of @ancestor.
@@ -3209,9 +3209,9 @@ _clutter_actor_apply_modelview_transform (ClutterActor *self,
  * clutter_actor_get_relative_transformation_matrix() instead.
  */
 void
-_clutter_actor_apply_relative_transformation_matrix (ClutterActor *self,
-                                                     ClutterActor *ancestor,
-                                                     CoglMatrix *matrix)
+_clutter_actor_apply_relative_transformation_matrix (ClutterActor      *self,
+                                                     ClutterActor      *ancestor,
+                                                     graphene_matrix_t *matrix)
 {
   /* Note we terminate before ever calling stage->apply_transform()
    * since that would conceptually be relative to the underlying
@@ -3838,7 +3838,7 @@ clutter_actor_paint (ClutterActor        *self,
   if (priv->enable_model_view_transform)
     {
       ClutterPaintNode *transform_node;
-      CoglMatrix transform;
+      graphene_matrix_t transform;
 
       clutter_actor_get_transform (self, &transform);
 
@@ -3856,7 +3856,7 @@ clutter_actor_paint (ClutterActor        *self,
        * of an apply_transform vfunc... */
       if (G_UNLIKELY (clutter_debug_flags & CLUTTER_DEBUG_OOB_TRANSFORMS))
         {
-          CoglMatrix expected_matrix;
+          graphene_matrix_t expected_matrix;
 
           _clutter_actor_get_relative_transformation_matrix (self, NULL,
                                                              &expected_matrix);
@@ -4092,7 +4092,7 @@ clutter_actor_pick (ClutterActor       *actor,
 
   if (priv->enable_model_view_transform)
     {
-      CoglMatrix matrix;
+      graphene_matrix_t matrix;
 
       cogl_framebuffer_get_modelview_matrix (framebuffer, &matrix);
       _clutter_actor_apply_modelview_transform (actor, &matrix);
@@ -5490,7 +5490,7 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_TRANSFORM:
       {
-        CoglMatrix m;
+        graphene_matrix_t m;
 
         clutter_actor_get_transform (actor, &m);
         g_value_set_boxed (value, &m);
@@ -5508,7 +5508,7 @@ clutter_actor_get_property (GObject    *object,
 
     case PROP_CHILD_TRANSFORM:
       {
-        CoglMatrix m;
+        graphene_matrix_t m;
 
         clutter_actor_get_child_transform (actor, &m);
         g_value_set_boxed (value, &m);
@@ -6899,7 +6899,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * Application code should rarely need to use this function directly.
    *
-   * Setting this property with a #CoglMatrix will set the
+   * Setting this property with a #graphene_matrix_t will set the
    * #ClutterActor:transform-set property to %TRUE as a side effect;
    * setting this property with %NULL will set the
    * #ClutterActor:transform-set property to %FALSE.
@@ -6937,7 +6937,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
    *
    * Applies a transformation matrix on each child of an actor.
    *
-   * Setting this property with a #CoglMatrix will set the
+   * Setting this property with a #graphene_matrix_t will set the
    * #ClutterActor:child-transform-set property to %TRUE as a side effect;
    * setting this property with %NULL will set the
    * #ClutterActor:child-transform-set property to %FALSE.
@@ -14806,8 +14806,8 @@ clutter_actor_unset_flags (ClutterActor      *self,
 }
 
 static void
-clutter_actor_set_transform_internal (ClutterActor     *self,
-                                      const CoglMatrix *transform)
+clutter_actor_set_transform_internal (ClutterActor            *self,
+                                      const graphene_matrix_t *transform)
 {
   ClutterTransformInfo *info;
   gboolean was_set;
@@ -14835,7 +14835,7 @@ clutter_actor_set_transform_internal (ClutterActor     *self,
 /**
  * clutter_actor_set_transform:
  * @self: a #ClutterActor
- * @transform: (allow-none): a #CoglMatrix, or %NULL to
+ * @transform: (allow-none): a #graphene_matrix_t, or %NULL to
  *   unset a custom transformation
  *
  * Overrides the transformations of a #ClutterActor with a custom
@@ -14847,11 +14847,11 @@ clutter_actor_set_transform_internal (ClutterActor     *self,
  * Since: 1.12
  */
 void
-clutter_actor_set_transform (ClutterActor     *self,
-                             const CoglMatrix *transform)
+clutter_actor_set_transform (ClutterActor            *self,
+                             const graphene_matrix_t *transform)
 {
   const ClutterTransformInfo *info;
-  CoglMatrix new_transform;
+  graphene_matrix_t new_transform;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
@@ -14870,15 +14870,15 @@ clutter_actor_set_transform (ClutterActor     *self,
 /**
  * clutter_actor_get_transform:
  * @self: a #ClutterActor
- * @transform: (out caller-allocates): a #CoglMatrix
+ * @transform: (out caller-allocates): a #graphene_matrix_t
  *
  * Retrieves the current transformation matrix of a #ClutterActor.
  *
  * Since: 1.12
  */
 void
-clutter_actor_get_transform (ClutterActor *self,
-                             CoglMatrix   *transform)
+clutter_actor_get_transform (ClutterActor      *self,
+                             graphene_matrix_t *transform)
 {
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
   g_return_if_fail (transform != NULL);
@@ -19417,8 +19417,8 @@ done:
 }
 
 static void
-clutter_actor_set_child_transform_internal (ClutterActor     *self,
-                                            const CoglMatrix *transform)
+clutter_actor_set_child_transform_internal (ClutterActor            *self,
+                                            const graphene_matrix_t *transform)
 {
   ClutterTransformInfo *info = _clutter_actor_get_transform_info (self);
   ClutterActorIter iter;
@@ -19448,7 +19448,7 @@ clutter_actor_set_child_transform_internal (ClutterActor     *self,
 /**
  * clutter_actor_set_child_transform:
  * @self: a #ClutterActor
- * @transform: (allow-none): a #CoglMatrix, or %NULL
+ * @transform: (allow-none): a #graphene_matrix_t, or %NULL
  *
  * Sets the transformation matrix to be applied to all the children
  * of @self prior to their own transformations. The default child
@@ -19461,11 +19461,11 @@ clutter_actor_set_child_transform_internal (ClutterActor     *self,
  * Since: 1.12
  */
 void
-clutter_actor_set_child_transform (ClutterActor     *self,
-                                   const CoglMatrix *transform)
+clutter_actor_set_child_transform (ClutterActor            *self,
+                                   const graphene_matrix_t *transform)
 {
   const ClutterTransformInfo *info;
-  CoglMatrix new_transform;
+  graphene_matrix_t new_transform;
 
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
 
@@ -19484,7 +19484,7 @@ clutter_actor_set_child_transform (ClutterActor     *self,
 /**
  * clutter_actor_get_child_transform:
  * @self: a #ClutterActor
- * @transform: (out caller-allocates): a #CoglMatrix
+ * @transform: (out caller-allocates): a #graphene_matrix_t
  *
  * Retrieves the child transformation matrix set using
  * clutter_actor_set_child_transform(); if none is currently set,
@@ -19493,8 +19493,8 @@ clutter_actor_set_child_transform (ClutterActor     *self,
  * Since: 1.12
  */
 void
-clutter_actor_get_child_transform (ClutterActor *self,
-                                   CoglMatrix   *transform)
+clutter_actor_get_child_transform (ClutterActor      *self,
+                                   graphene_matrix_t *transform)
 {
   const ClutterTransformInfo *info;
 

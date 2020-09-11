@@ -1124,7 +1124,7 @@ _cogl_pipeline_get_layer_combine_constant (CoglPipeline *pipeline,
 /* We should probably make a public API version of this that has a
    matrix out-param. For an internal API it's good to be able to avoid
    copying the matrix */
-const CoglMatrix *
+const graphene_matrix_t *
 _cogl_pipeline_get_layer_matrix (CoglPipeline *pipeline, int layer_index)
 {
   CoglPipelineLayerState       change =
@@ -1143,7 +1143,7 @@ _cogl_pipeline_get_layer_matrix (CoglPipeline *pipeline, int layer_index)
 void
 cogl_pipeline_set_layer_matrix (CoglPipeline *pipeline,
 				int layer_index,
-                                const CoglMatrix *matrix)
+                                const graphene_matrix_t *matrix)
 {
   CoglPipelineLayerState state = COGL_PIPELINE_LAYER_STATE_USER_MATRIX;
   CoglPipelineLayer     *layer;

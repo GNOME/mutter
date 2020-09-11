@@ -42,8 +42,8 @@ struct _ClutterStageViewClass
   void (* setup_offscreen_blit_pipeline) (ClutterStageView *view,
                                           CoglPipeline     *pipeline);
 
-  void (* get_offscreen_transformation_matrix) (ClutterStageView *view,
-                                                CoglMatrix       *matrix);
+  void (* get_offscreen_transformation_matrix) (ClutterStageView  *view,
+                                                graphene_matrix_t *matrix);
 
   void (* transform_rect_to_onscreen) (ClutterStageView            *view,
                                        const cairo_rectangle_int_t *src_rect,
@@ -70,8 +70,8 @@ CLUTTER_EXPORT
 float clutter_stage_view_get_scale (ClutterStageView *view);
 
 CLUTTER_EXPORT
-void clutter_stage_view_get_offscreen_transformation_matrix (ClutterStageView *view,
-                                                             CoglMatrix       *matrix);
+void clutter_stage_view_get_offscreen_transformation_matrix (ClutterStageView  *view,
+                                                             graphene_matrix_t *matrix);
 
 CLUTTER_EXPORT
 ClutterFrameClock * clutter_stage_view_get_frame_clock (ClutterStageView *view);

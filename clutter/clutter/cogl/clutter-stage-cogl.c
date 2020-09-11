@@ -165,7 +165,7 @@ paint_damage_region (ClutterStageWindow *stage_window,
   static CoglPipeline *overlay_blue = NULL;
   ClutterStageCogl *stage_cogl = CLUTTER_STAGE_COGL (stage_window);
   ClutterActor *actor = CLUTTER_ACTOR (stage_cogl->wrapper);
-  CoglMatrix transform;
+  graphene_matrix_t transform;
   int n_rects, i;
 
   cogl_framebuffer_push_matrix (framebuffer);

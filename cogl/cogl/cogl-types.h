@@ -86,10 +86,6 @@ typedef void * CoglHandle;
 COGL_EXPORT GType
 cogl_handle_get_type (void) G_GNUC_CONST;
 
-/* We forward declare this in cogl-types to avoid circular dependencies
- * between cogl-matrix.h and cogl-quaterion.h */
-typedef graphene_matrix_t CoglMatrix;
-
 /**
  * CoglAngle:
  *

@@ -210,8 +210,8 @@ void _clutter_run_repaint_functions (ClutterRepaintFlags flags);
 
 GType _clutter_layout_manager_get_child_meta_type (ClutterLayoutManager *manager);
 
-void  _clutter_util_fully_transform_vertices (const CoglMatrix         *modelview,
-                                              const CoglMatrix         *projection,
+void  _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
+                                              const graphene_matrix_t  *projection,
                                               const float              *viewport,
                                               const graphene_point3d_t *vertices_in,
                                               graphene_point3d_t       *vertices_out,

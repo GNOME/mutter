@@ -10,7 +10,7 @@ static void
 actor_pivot (void)
 {
   ClutterActor *stage, *actor_implicit, *actor_explicit;
-  CoglMatrix transform, result_implicit, result_explicit;
+  graphene_matrix_t transform, result_implicit, result_explicit;
   ClutterActorBox allocation = CLUTTER_ACTOR_BOX_INIT (0, 0, 90, 30);
   gfloat angle = 30;
 

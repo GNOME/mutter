@@ -390,8 +390,8 @@ cogl_framebuffer_rotate_euler (CoglFramebuffer *framebuffer,
  * Stability: unstable
  */
 COGL_EXPORT void
-cogl_framebuffer_transform (CoglFramebuffer *framebuffer,
-                            const CoglMatrix *matrix);
+cogl_framebuffer_transform (CoglFramebuffer         *framebuffer,
+                            const graphene_matrix_t *matrix);
 
 /**
  * cogl_framebuffer_get_modelview_matrix:
@@ -404,8 +404,8 @@ cogl_framebuffer_transform (CoglFramebuffer *framebuffer,
  * Stability: unstable
  */
 COGL_EXPORT void
-cogl_framebuffer_get_modelview_matrix (CoglFramebuffer *framebuffer,
-                                       CoglMatrix *matrix);
+cogl_framebuffer_get_modelview_matrix (CoglFramebuffer   *framebuffer,
+                                       graphene_matrix_t *matrix);
 
 /**
  * cogl_framebuffer_set_modelview_matrix:
@@ -418,8 +418,8 @@ cogl_framebuffer_get_modelview_matrix (CoglFramebuffer *framebuffer,
  * Stability: unstable
  */
 COGL_EXPORT void
-cogl_framebuffer_set_modelview_matrix (CoglFramebuffer *framebuffer,
-                                       const CoglMatrix *matrix);
+cogl_framebuffer_set_modelview_matrix (CoglFramebuffer         *framebuffer,
+                                       const graphene_matrix_t *matrix);
 
 /**
  * cogl_framebuffer_perspective:
@@ -518,8 +518,8 @@ cogl_framebuffer_orthographic (CoglFramebuffer *framebuffer,
  * Stability: unstable
  */
 COGL_EXPORT void
-cogl_framebuffer_get_projection_matrix (CoglFramebuffer *framebuffer,
-                                        CoglMatrix *matrix);
+cogl_framebuffer_get_projection_matrix (CoglFramebuffer   *framebuffer,
+                                        graphene_matrix_t *matrix);
 
 /**
  * cogl_framebuffer_set_projection_matrix:
@@ -532,8 +532,8 @@ cogl_framebuffer_get_projection_matrix (CoglFramebuffer *framebuffer,
  * Stability: unstable
  */
 COGL_EXPORT void
-cogl_framebuffer_set_projection_matrix (CoglFramebuffer *framebuffer,
-                                        const CoglMatrix *matrix);
+cogl_framebuffer_set_projection_matrix (CoglFramebuffer         *framebuffer,
+                                        const graphene_matrix_t *matrix);
 
 /**
  * cogl_framebuffer_push_scissor_clip:

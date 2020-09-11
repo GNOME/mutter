@@ -257,7 +257,7 @@ struct _ClutterActorClass
 
   /* transformations */
   void (* apply_transform)      (ClutterActor           *actor,
-                                 CoglMatrix             *matrix);
+                                 graphene_matrix_t      *matrix);
 
   /* event signals */
   gboolean (* event)                (ClutterActor         *actor,
@@ -803,16 +803,16 @@ void                            clutter_actor_get_translation                   
                                                                                  gfloat                     *translate_z);
 CLUTTER_EXPORT
 void                            clutter_actor_set_transform                     (ClutterActor               *self,
-                                                                                 const CoglMatrix        *transform);
+                                                                                 const graphene_matrix_t    *transform);
 CLUTTER_EXPORT
 void                            clutter_actor_get_transform                     (ClutterActor               *self,
-                                                                                 CoglMatrix                 *transform);
+                                                                                 graphene_matrix_t          *transform);
 CLUTTER_EXPORT
 void                            clutter_actor_set_child_transform               (ClutterActor               *self,
-                                                                                 const CoglMatrix           *transform);
+                                                                                 const graphene_matrix_t    *transform);
 CLUTTER_EXPORT
 void                            clutter_actor_get_child_transform               (ClutterActor               *self,
-                                                                                 CoglMatrix                 *transform);
+                                                                                 graphene_matrix_t          *transform);
 
 CLUTTER_EXPORT
 void                            clutter_actor_get_transformed_extents          (ClutterActor               *self,

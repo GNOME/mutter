@@ -181,8 +181,8 @@ setup_viewport (CoglFramebuffer *framebuffer,
                 float            z_far)
 {
   float z_camera;
-  CoglMatrix projection_matrix;
-  CoglMatrix mv_matrix;
+  graphene_matrix_t projection_matrix;
+  graphene_matrix_t mv_matrix;
 
   cogl_framebuffer_set_viewport (framebuffer, 0, 0, width, height);
 

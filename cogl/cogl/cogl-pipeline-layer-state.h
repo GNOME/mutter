@@ -336,7 +336,7 @@ cogl_pipeline_set_layer_combine_constant (CoglPipeline    *pipeline,
 COGL_EXPORT void
 cogl_pipeline_set_layer_matrix (CoglPipeline     *pipeline,
 				int               layer_index,
-				const CoglMatrix *matrix);
+				const graphene_matrix_t *matrix);
 
 /**
  * cogl_pipeline_get_n_layers:

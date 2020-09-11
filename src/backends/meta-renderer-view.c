@@ -74,8 +74,8 @@ meta_renderer_view_get_crtc (MetaRendererView *view)
 }
 
 static void
-meta_renderer_view_get_offscreen_transformation_matrix (ClutterStageView *view,
-                                                        CoglMatrix       *matrix)
+meta_renderer_view_get_offscreen_transformation_matrix (ClutterStageView  *view,
+                                                        graphene_matrix_t *matrix)
 {
   MetaRendererView *renderer_view = META_RENDERER_VIEW (view);
 
@@ -122,7 +122,7 @@ static void
 meta_renderer_view_setup_offscreen_blit_pipeline (ClutterStageView *view,
                                                   CoglPipeline     *pipeline)
 {
-  CoglMatrix matrix;
+  graphene_matrix_t matrix;
 
   meta_renderer_view_get_offscreen_transformation_matrix (view, &matrix);
   cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);

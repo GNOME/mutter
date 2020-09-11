@@ -79,11 +79,11 @@ typedef enum _CoglPipelineEvalFlags
 } CoglPipelineEvalFlags;
 
 void
-_cogl_transform_point (const CoglMatrix *matrix_mv,
-                       const CoglMatrix *matrix_p,
-                       const float *viewport,
-                       float *x,
-                       float *y);
+_cogl_transform_point (const graphene_matrix_t *matrix_mv,
+                       const graphene_matrix_t *matrix_p,
+                       const float             *viewport,
+                       float                   *x,
+                       float                   *y);
 
 gboolean
 _cogl_check_extension (const char *name, char * const *ext);

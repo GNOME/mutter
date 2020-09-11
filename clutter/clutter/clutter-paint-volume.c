@@ -808,8 +808,8 @@ _clutter_paint_volume_get_bounding_box (ClutterPaintVolume *pv,
 
 void
 _clutter_paint_volume_project (ClutterPaintVolume *pv,
-                               const CoglMatrix *modelview,
-                               const CoglMatrix *projection,
+                               const graphene_matrix_t *modelview,
+                               const graphene_matrix_t *projection,
                                const float *viewport)
 {
   int transform_count;
@@ -849,7 +849,7 @@ _clutter_paint_volume_project (ClutterPaintVolume *pv,
 
 void
 _clutter_paint_volume_transform (ClutterPaintVolume *pv,
-                                 const CoglMatrix *matrix)
+                                 const graphene_matrix_t *matrix)
 {
   int transform_count;
 
@@ -1130,8 +1130,8 @@ _clutter_paint_volume_get_stage_paint_box (ClutterPaintVolume *pv,
                                            ClutterActorBox *box)
 {
   ClutterPaintVolume projected_pv;
-  CoglMatrix modelview;
-  CoglMatrix projection;
+  graphene_matrix_t modelview;
+  graphene_matrix_t projection;
   float viewport[4];
 
   _clutter_paint_volume_copy_static (pv, &projected_pv);
@@ -1181,7 +1181,7 @@ void
 _clutter_paint_volume_transform_relative (ClutterPaintVolume *pv,
                                           ClutterActor *relative_to_ancestor)
 {
-  CoglMatrix matrix;
+  graphene_matrix_t matrix;
   ClutterActor *actor;
 
   actor = pv->actor;

@@ -202,8 +202,8 @@ cogl_matrix_stack_scale (CoglMatrixStack *stack,
 }
 
 void
-cogl_matrix_stack_multiply (CoglMatrixStack *stack,
-                            const CoglMatrix *matrix)
+cogl_matrix_stack_multiply (CoglMatrixStack         *stack,
+                            const graphene_matrix_t *matrix)
 {
   CoglMatrixEntryMultiply *entry;
 
@@ -216,8 +216,8 @@ cogl_matrix_stack_multiply (CoglMatrixStack *stack,
 }
 
 void
-cogl_matrix_stack_set (CoglMatrixStack *stack,
-                       const CoglMatrix *matrix)
+cogl_matrix_stack_set (CoglMatrixStack         *stack,
+                       const graphene_matrix_t *matrix)
 {
   CoglMatrixEntryLoad *entry;
 
@@ -404,11 +404,11 @@ cogl_matrix_stack_pop (CoglMatrixStack *stack)
 }
 
 gboolean
-cogl_matrix_stack_get_inverse (CoglMatrixStack *stack,
-                                CoglMatrix *inverse)
+cogl_matrix_stack_get_inverse (CoglMatrixStack   *stack,
+                               graphene_matrix_t *inverse)
 {
-  CoglMatrix matrix;
-  CoglMatrix *internal = cogl_matrix_stack_get (stack, &matrix);
+  graphene_matrix_t matrix;
+  graphene_matrix_t *internal = cogl_matrix_stack_get (stack, &matrix);
 
   if (internal)
     return cogl_matrix_get_inverse (internal, inverse);
@@ -421,9 +421,9 @@ cogl_matrix_stack_get_inverse (CoglMatrixStack *stack,
  * to a matrix too so if we are querying the inverse matrix we
  * should query from the return matrix so that the result can
  * be cached within the stack. */
-CoglMatrix *
-cogl_matrix_entry_get (CoglMatrixEntry *entry,
-                        CoglMatrix *matrix)
+graphene_matrix_t *
+cogl_matrix_entry_get (CoglMatrixEntry   *entry,
+                       graphene_matrix_t *matrix)
 {
   int depth;
   CoglMatrixEntry *current;
@@ -599,9 +599,9 @@ cogl_matrix_stack_get_entry (CoglMatrixStack *stack)
  * to a matrix too so if we are querying the inverse matrix we
  * should query from the return matrix so that the result can
  * be cached within the stack. */
-CoglMatrix *
-cogl_matrix_stack_get (CoglMatrixStack *stack,
-                       CoglMatrix *matrix)
+graphene_matrix_t *
+cogl_matrix_stack_get (CoglMatrixStack   *stack,
+                       graphene_matrix_t *matrix)
 {
   return cogl_matrix_entry_get (stack->last_entry, matrix);
 }
@@ -623,7 +623,7 @@ cogl_matrix_stack_new (CoglContext *ctx)
       cogl_matrix_stack_magazine =
         _cogl_magazine_new (sizeof (CoglMatrixEntryFull), 20);
       cogl_matrix_stack_matrices_magazine =
-        _cogl_magazine_new (sizeof (CoglMatrix), 20);
+        _cogl_magazine_new (sizeof (graphene_matrix_t), 20);
     }
 
   stack->context = ctx;

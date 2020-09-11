@@ -20,9 +20,9 @@ on_paint (ClutterActor        *actor,
           void                *state)
 {
   float saved_viewport[4];
-  CoglMatrix saved_projection;
-  CoglMatrix projection;
-  CoglMatrix modelview;
+  graphene_matrix_t saved_projection;
+  graphene_matrix_t projection;
+  graphene_matrix_t modelview;
   guchar *data;
   CoglHandle tex;
   CoglHandle offscreen;

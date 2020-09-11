@@ -180,10 +180,10 @@ struct _ClutterTransformInfo
   graphene_point_t pivot;
   gfloat pivot_z;
 
-  CoglMatrix transform;
+  graphene_matrix_t transform;
   guint transform_set : 1;
 
-  CoglMatrix child_transform;
+  graphene_matrix_t child_transform;
   guint child_transform_set : 1;
 };
 
@@ -220,11 +220,11 @@ void                            _clutter_actor_traverse                         
                                                                                          gpointer user_data);
 ClutterActor *                  _clutter_actor_get_stage_internal                       (ClutterActor *actor);
 
-void                            _clutter_actor_apply_modelview_transform                (ClutterActor *self,
-                                                                                         CoglMatrix   *matrix);
-void                            _clutter_actor_apply_relative_transformation_matrix     (ClutterActor *self,
-                                                                                         ClutterActor *ancestor,
-                                                                                         CoglMatrix   *matrix);
+void                            _clutter_actor_apply_modelview_transform                (ClutterActor      *self,
+                                                                                         graphene_matrix_t *matrix);
+void                            _clutter_actor_apply_relative_transformation_matrix     (ClutterActor      *self,
+                                                                                         ClutterActor      *ancestor,
+                                                                                         graphene_matrix_t *matrix);
 
 void                            _clutter_actor_rerealize                                (ClutterActor    *self,
                                                                                          ClutterCallback  callback,

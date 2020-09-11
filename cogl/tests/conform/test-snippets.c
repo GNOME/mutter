@@ -431,7 +431,7 @@ test_modify_vertex_layer (TestState *state)
 {
   CoglPipeline *pipeline;
   CoglSnippet *snippet;
-  CoglMatrix matrix;
+  graphene_matrix_t matrix;
 
   /* Test modifying the vertex layer code */
   pipeline = create_texture_pipeline (state);
@@ -460,7 +460,7 @@ test_replace_vertex_layer (TestState *state)
 {
   CoglPipeline *pipeline;
   CoglSnippet *snippet;
-  CoglMatrix matrix;
+  graphene_matrix_t matrix;
 
   /* Test replacing the vertex layer code */
   pipeline = create_texture_pipeline (state);
@@ -490,8 +490,8 @@ test_vertex_transform_hook (TestState *state)
 {
   CoglPipeline *pipeline;
   CoglSnippet *snippet;
-  CoglMatrix identity_matrix;
-  CoglMatrix matrix;
+  graphene_matrix_t identity_matrix;
+  graphene_matrix_t matrix;
   float v[16];
   int location;
 

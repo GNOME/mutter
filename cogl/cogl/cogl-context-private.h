@@ -111,8 +111,8 @@ struct _CoglContext
   gboolean          legacy_backface_culling_enabled;
 
   /* A few handy matrix constants */
-  CoglMatrix        identity_matrix;
-  CoglMatrix        y_flip_matrix;
+  graphene_matrix_t identity_matrix;
+  graphene_matrix_t y_flip_matrix;
 
   /* The matrix stack entries that should be flushed during the next
    * pipeline state flush */

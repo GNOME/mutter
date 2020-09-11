@@ -180,7 +180,7 @@ typedef struct
   float texture_combine_constant[4];
 
   /* The texture matrix dscribes how to transform texture coordinates */
-  CoglMatrix matrix;
+  graphene_matrix_t matrix;
 
   CoglPipelineSnippetList vertex_snippets;
   CoglPipelineSnippetList fragment_snippets;

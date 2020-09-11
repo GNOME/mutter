@@ -1503,8 +1503,8 @@ cogl_framebuffer_rotate_euler (CoglFramebuffer *framebuffer,
 }
 
 void
-cogl_framebuffer_transform (CoglFramebuffer *framebuffer,
-                            const CoglMatrix *matrix)
+cogl_framebuffer_transform (CoglFramebuffer         *framebuffer,
+                            const graphene_matrix_t *matrix)
 {
   CoglMatrixStack *modelview_stack =
     _cogl_framebuffer_get_modelview_stack (framebuffer);
@@ -1577,7 +1577,7 @@ cogl_framebuffer_orthographic (CoglFramebuffer *framebuffer,
                                float near,
                                float far)
 {
-  CoglMatrix ortho;
+  graphene_matrix_t ortho;
   CoglMatrixStack *projection_stack =
     _cogl_framebuffer_get_projection_stack (framebuffer);
 
@@ -1595,8 +1595,8 @@ cogl_framebuffer_orthographic (CoglFramebuffer *framebuffer,
 }
 
 void
-cogl_framebuffer_get_modelview_matrix (CoglFramebuffer *framebuffer,
-                                       CoglMatrix *matrix)
+cogl_framebuffer_get_modelview_matrix (CoglFramebuffer   *framebuffer,
+                                       graphene_matrix_t *matrix)
 {
   CoglMatrixEntry *modelview_entry =
     _cogl_framebuffer_get_modelview_entry (framebuffer);
@@ -1605,8 +1605,8 @@ cogl_framebuffer_get_modelview_matrix (CoglFramebuffer *framebuffer,
 }
 
 void
-cogl_framebuffer_set_modelview_matrix (CoglFramebuffer *framebuffer,
-                                       const CoglMatrix *matrix)
+cogl_framebuffer_set_modelview_matrix (CoglFramebuffer         *framebuffer,
+                                       const graphene_matrix_t *matrix)
 {
   CoglMatrixStack *modelview_stack =
     _cogl_framebuffer_get_modelview_stack (framebuffer);
@@ -1620,8 +1620,8 @@ cogl_framebuffer_set_modelview_matrix (CoglFramebuffer *framebuffer,
 }
 
 void
-cogl_framebuffer_get_projection_matrix (CoglFramebuffer *framebuffer,
-                                        CoglMatrix *matrix)
+cogl_framebuffer_get_projection_matrix (CoglFramebuffer   *framebuffer,
+                                        graphene_matrix_t *matrix)
 {
   CoglMatrixEntry *projection_entry =
     _cogl_framebuffer_get_projection_entry (framebuffer);
@@ -1630,8 +1630,8 @@ cogl_framebuffer_get_projection_matrix (CoglFramebuffer *framebuffer,
 }
 
 void
-cogl_framebuffer_set_projection_matrix (CoglFramebuffer *framebuffer,
-                                        const CoglMatrix *matrix)
+cogl_framebuffer_set_projection_matrix (CoglFramebuffer         *framebuffer,
+                                        const graphene_matrix_t *matrix)
 {
   CoglMatrixStack *projection_stack =
     _cogl_framebuffer_get_projection_stack (framebuffer);

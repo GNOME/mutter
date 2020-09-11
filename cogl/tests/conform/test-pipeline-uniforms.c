@@ -218,7 +218,7 @@ paint_color_pipelines (TestState *state)
 static void
 paint_matrix_pipeline (CoglPipeline *pipeline)
 {
-  CoglMatrix matrices[4];
+  graphene_matrix_t matrices[4];
   float matrix_floats[16 * 4];
   int uniform_location;
   int i;

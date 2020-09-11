@@ -140,7 +140,7 @@ meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                    int             *x_origin,
                                    int             *y_origin)
 {
-  CoglMatrix modelview, projection, modelview_projection;
+  graphene_matrix_t modelview, projection, modelview_projection;
   graphene_point3d_t vertices[4];
   float viewport[4];
   int i;

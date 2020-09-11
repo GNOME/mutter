@@ -21,13 +21,13 @@ typedef struct _TestMultiLayerMaterialState
   ClutterTimeline *timeline;
 
   CoglHandle       material0;
-  CoglMatrix       tex_matrix0;
-  CoglMatrix       rot_matrix0;
+  graphene_matrix_t tex_matrix0;
+  graphene_matrix_t rot_matrix0;
   CoglHandle       light_tex0;
 
   CoglHandle       material1;
-  CoglMatrix       tex_matrix1;
-  CoglMatrix       rot_matrix1;
+  graphene_matrix_t tex_matrix1;
+  graphene_matrix_t rot_matrix1;
   CoglHandle       light_tex1;
 
 } TestMultiLayerMaterialState;

@@ -213,7 +213,7 @@ paint_transformed_framebuffer (ClutterStageView     *view,
                                CoglFramebuffer      *dst_framebuffer,
                                const cairo_region_t *redraw_clip)
 {
-  CoglMatrix matrix;
+  graphene_matrix_t matrix;
   unsigned int n_rectangles, i;
   int dst_width, dst_height;
   cairo_rectangle_int_t view_layout;
@@ -882,8 +882,8 @@ clutter_stage_view_invalidate_projection (ClutterStageView *view)
 }
 
 void
-clutter_stage_view_set_projection (ClutterStageView *view,
-                                   const CoglMatrix *matrix)
+clutter_stage_view_set_projection (ClutterStageView        *view,
+                                   const graphene_matrix_t *matrix)
 {
   ClutterStageViewPrivate *priv =
     clutter_stage_view_get_instance_private (view);
@@ -895,8 +895,8 @@ clutter_stage_view_set_projection (ClutterStageView *view,
 }
 
 void
-clutter_stage_view_get_offscreen_transformation_matrix (ClutterStageView *view,
-                                                        CoglMatrix       *matrix)
+clutter_stage_view_get_offscreen_transformation_matrix (ClutterStageView  *view,
+                                                        graphene_matrix_t *matrix)
 {
   ClutterStageViewClass *view_class = CLUTTER_STAGE_VIEW_GET_CLASS (view);
 
@@ -984,8 +984,8 @@ clutter_stage_view_take_redraw_clip (ClutterStageView *view)
 }
 
 static void
-clutter_stage_default_get_offscreen_transformation_matrix (ClutterStageView *view,
-                                                           CoglMatrix       *matrix)
+clutter_stage_default_get_offscreen_transformation_matrix (ClutterStageView  *view,
+                                                           graphene_matrix_t *matrix)
 {
   cogl_matrix_init_identity (matrix);
 }

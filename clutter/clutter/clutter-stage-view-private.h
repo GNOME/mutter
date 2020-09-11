@@ -41,8 +41,8 @@ gboolean clutter_stage_view_is_dirty_projection (ClutterStageView *view);
 
 void clutter_stage_view_invalidate_projection (ClutterStageView *view);
 
-void clutter_stage_view_set_projection (ClutterStageView *view,
-                                        const CoglMatrix *matrix);
+void clutter_stage_view_set_projection (ClutterStageView        *view,
+                                        const graphene_matrix_t *matrix);
 
 void clutter_stage_view_add_redraw_clip (ClutterStageView            *view,
                                          const cairo_rectangle_int_t *clip);

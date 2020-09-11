@@ -1111,7 +1111,7 @@ meta_window_actor_set_geometry_scale (MetaWindowActor *window_actor,
 {
   MetaWindowActorPrivate *priv =
     meta_window_actor_get_instance_private (window_actor);
-  CoglMatrix child_transform;
+  graphene_matrix_t child_transform;
 
   if (priv->geometry_scale == geometry_scale)
     return;

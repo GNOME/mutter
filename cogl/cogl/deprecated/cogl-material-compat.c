@@ -129,9 +129,9 @@ cogl_material_set_layer_combine_constant (CoglMaterial    *material,
 }
 
 void
-cogl_material_set_layer_matrix (CoglMaterial     *material,
-				int               layer_index,
-				const CoglMatrix *matrix)
+cogl_material_set_layer_matrix (CoglMaterial            *material,
+                                int                      layer_index,
+                                const graphene_matrix_t *matrix)
 {
   cogl_pipeline_set_layer_matrix (COGL_PIPELINE (material),
                                   layer_index, matrix);

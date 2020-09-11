@@ -53,11 +53,11 @@
  * transforms of objects, texture transforms, and projective
  * transforms.
  *
- * The #CoglMatrix api provides a good way to manipulate individual
+ * The #graphene_matrix_t api provides a good way to manipulate individual
  * matrices representing a single transformation but if you need to
  * track many-many such transformations for many objects that are
  * organized in a scenegraph for example then using a separate
- * #CoglMatrix for each object may not be the most efficient way.
+ * #graphene_matrix_t for each object may not be the most efficient way.
  *
  * A #CoglMatrixStack enables applications to track lots of
  * transformations that are related to each other in some kind of
@@ -70,7 +70,7 @@
  * transformation. The #CoglMatrixStack API is suited to tracking lots
  * of transformations that fit this kind of model.
  *
- * Compared to using the #CoglMatrix api directly to track many
+ * Compared to using the #graphene_matrix_t api directly to track many
  * related transforms, these can be some advantages to using a
  * #CoglMatrixStack:
  * <itemizedlist>
@@ -83,14 +83,14 @@
  * </itemizedlist>
  *
  * For reference (to give an idea of when a #CoglMatrixStack can
- * provide a space saving) a #CoglMatrix can be expected to take 72
+ * provide a space saving) a #graphene_matrix_t can be expected to take 72
  * bytes whereas a single #CoglMatrixEntry in a #CoglMatrixStack is
  * currently around 32 bytes on a 32bit CPU or 36 bytes on a 64bit
  * CPU. An entry is needed for each individual operation applied to
  * the stack (such as rotate, scale, translate) so if most of your
  * leaf node transformations only need one or two simple operations
  * relative to their parent then a matrix stack will likely take less
- * space than having a #CoglMatrix for each node.
+ * space than having a #graphene_matrix_t for each node.
  *
  * Even without any space saving though the ability to perform fast
  * comparisons and avoid redundant arithmetic (especially sine and
@@ -329,8 +329,8 @@ cogl_matrix_stack_rotate_euler (CoglMatrixStack *stack,
  * Multiplies the current matrix by the given matrix.
  */
 COGL_EXPORT void
-cogl_matrix_stack_multiply (CoglMatrixStack *stack,
-                            const CoglMatrix *matrix);
+cogl_matrix_stack_multiply (CoglMatrixStack         *stack,
+                            const graphene_matrix_t *matrix);
 
 /**
  * cogl_matrix_stack_frustum:
@@ -414,15 +414,15 @@ cogl_matrix_stack_orthographic (CoglMatrixStack *stack,
  * @inverse: (out): The destination for a 4x4 inverse transformation matrix
  *
  * Gets the inverse transform of the current matrix and uses it to
- * initialize a new #CoglMatrix.
+ * initialize a new #graphene_matrix_t.
  *
  * Return value: %TRUE if the inverse was successfully calculated or %FALSE
  *   for degenerate transformations that can't be inverted (in this case the
  *   @inverse matrix will simply be initialized with the identity matrix)
  */
 COGL_EXPORT gboolean
-cogl_matrix_stack_get_inverse (CoglMatrixStack *stack,
-                               CoglMatrix *inverse);
+cogl_matrix_stack_get_inverse (CoglMatrixStack   *stack,
+                               graphene_matrix_t *inverse);
 
 /**
  * cogl_matrix_stack_get_entry:
@@ -450,13 +450,13 @@ cogl_matrix_stack_get_entry (CoglMatrixStack *stack);
  * @stack: A #CoglMatrixStack
  * @matrix: (out): The potential destination for the current matrix
  *
- * Resolves the current @stack transform into a #CoglMatrix by
+ * Resolves the current @stack transform into a #graphene_matrix_t by
  * combining the operations that have been applied to build up the
  * current transform.
  *
  * There are two possible ways that this function may return its
  * result depending on whether the stack is able to directly point
- * to an internal #CoglMatrix or whether the result needs to be
+ * to an internal #graphene_matrix_t or whether the result needs to be
  * composed of multiple operations.
  *
  * If an internal matrix contains the required result then this
@@ -471,9 +471,9 @@ cogl_matrix_stack_get_entry (CoglMatrixStack *stack);
  *               and in that case @matrix will be initialized with
  *               the value of the current transform.
  */
-COGL_EXPORT CoglMatrix *
-cogl_matrix_stack_get (CoglMatrixStack *stack,
-                       CoglMatrix *matrix);
+COGL_EXPORT graphene_matrix_t *
+cogl_matrix_stack_get (CoglMatrixStack   *stack,
+                       graphene_matrix_t *matrix);
 
 /**
  * cogl_matrix_entry_get:
@@ -481,13 +481,13 @@ cogl_matrix_stack_get (CoglMatrixStack *stack,
  * @matrix: (out): The potential destination for the transform as
  *                 a matrix
  *
- * Resolves the current @entry transform into a #CoglMatrix by
+ * Resolves the current @entry transform into a #graphene_matrix_t by
  * combining the sequence of operations that have been applied to
  * build up the current transform.
  *
  * There are two possible ways that this function may return its
  * result depending on whether it's possible to directly point
- * to an internal #CoglMatrix or whether the result needs to be
+ * to an internal #graphene_matrix_t or whether the result needs to be
  * composed of multiple operations.
  *
  * If an internal matrix contains the required result then this
@@ -498,18 +498,18 @@ cogl_matrix_stack_get (CoglMatrixStack *stack,
  * <note>@matrix will be left untouched if a direct pointer is
  * returned.</note>
  *
- * Return value: A direct pointer to a #CoglMatrix transform or %NULL
+ * Return value: A direct pointer to a #graphene_matrix_t transform or %NULL
  *               and in that case @matrix will be initialized with
  *               the effective transform represented by @entry.
  */
-COGL_EXPORT CoglMatrix *
-cogl_matrix_entry_get (CoglMatrixEntry *entry,
-                       CoglMatrix *matrix);
+COGL_EXPORT graphene_matrix_t *
+cogl_matrix_entry_get (CoglMatrixEntry   *entry,
+                       graphene_matrix_t *matrix);
 
 /**
  * cogl_matrix_stack_set:
  * @stack: A #CoglMatrixStack
- * @matrix: A #CoglMatrix replace the current matrix value with
+ * @matrix: A #graphene_matrix_t replace the current matrix value with
  *
  * Replaces the current @stack matrix value with the value of @matrix.
  * This effectively discards any other operations that were applied
@@ -517,8 +517,8 @@ cogl_matrix_entry_get (CoglMatrixEntry *entry,
  * the stack was initialized.
  */
 COGL_EXPORT void
-cogl_matrix_stack_set (CoglMatrixStack *stack,
-                       const CoglMatrix *matrix);
+cogl_matrix_stack_set (CoglMatrixStack         *stack,
+                       const graphene_matrix_t *matrix);
 
 /**
  * cogl_is_matrix_stack:

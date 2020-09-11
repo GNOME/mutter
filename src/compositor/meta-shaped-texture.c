@@ -273,7 +273,7 @@ get_base_pipeline (MetaShapedTexture *stex,
                    CoglContext       *ctx)
 {
   CoglPipeline *pipeline;
-  CoglMatrix matrix;
+  graphene_matrix_t matrix;
 
   if (stex->base_pipeline)
     return stex->base_pipeline;
@@ -1364,7 +1364,7 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
   GError *error = NULL;
   CoglOffscreen *offscreen;
   CoglFramebuffer *fb;
-  CoglMatrix projection_matrix;
+  graphene_matrix_t projection_matrix;
   cairo_rectangle_int_t fallback_clip;
   ClutterColor clear_color;
   ClutterPaintContext *paint_context;

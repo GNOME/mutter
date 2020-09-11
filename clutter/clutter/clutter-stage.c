@@ -103,9 +103,9 @@ struct _ClutterStagePrivate
   ClutterStageWindow *impl;
 
   ClutterPerspective perspective;
-  CoglMatrix projection;
-  CoglMatrix inverse_projection;
-  CoglMatrix view;
+  graphene_matrix_t projection;
+  graphene_matrix_t inverse_projection;
+  graphene_matrix_t view;
   float viewport[4];
 
   gchar *title;
@@ -662,8 +662,8 @@ static void
 _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
                                            int n_vertices,
                                            float *viewport,
-                                           const CoglMatrix *projection,
-                                           const CoglMatrix *inverse_project,
+                                           const graphene_matrix_t *projection,
+                                           const graphene_matrix_t *inverse_project,
                                            ClutterPlane *planes)
 {
   float Wc;
@@ -1578,8 +1578,8 @@ _clutter_stage_do_pick (ClutterStage   *stage,
 }
 
 static void
-clutter_stage_real_apply_transform (ClutterActor *stage,
-                                    CoglMatrix   *matrix)
+clutter_stage_real_apply_transform (ClutterActor      *stage,
+                                    graphene_matrix_t *matrix)
 {
   ClutterStagePrivate *priv = CLUTTER_STAGE (stage)->priv;
 
@@ -2098,7 +2098,7 @@ clutter_stage_get_perspective (ClutterStage       *stage,
 /*
  * clutter_stage_get_projection_matrix:
  * @stage: A #ClutterStage
- * @projection: return location for a #CoglMatrix representing the
+ * @projection: return location for a #graphene_matrix_t representing the
  *              perspective projection applied to actors on the given
  *              @stage.
  *
@@ -2108,8 +2108,8 @@ clutter_stage_get_perspective (ClutterStage       *stage,
  * Since: 1.6
  */
 void
-_clutter_stage_get_projection_matrix (ClutterStage *stage,
-                                      CoglMatrix *projection)
+_clutter_stage_get_projection_matrix (ClutterStage      *stage,
+                                      graphene_matrix_t *projection)
 {
   g_return_if_fail (CLUTTER_IS_STAGE (stage));
   g_return_if_fail (projection != NULL);
