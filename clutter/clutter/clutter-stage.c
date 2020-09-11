@@ -2756,6 +2756,40 @@ calculate_z_translation (float z_near)
 }
 
 static void
+view_2d_in_perspective (graphene_matrix_t *matrix,
+                        float              fov_y,
+                        float              aspect,
+                        float              z_near,
+                        float              z_2d,
+                        float              width_2d,
+                        float              height_2d)
+{
+  float top = z_near * tan (fov_y * G_PI / 360.0);
+  float left = -top * aspect;
+  float right = top * aspect;
+  float bottom = -top;
+
+  float left_2d_plane = left / z_near * z_2d;
+  float right_2d_plane = right / z_near * z_2d;
+  float bottom_2d_plane = bottom / z_near * z_2d;
+  float top_2d_plane = top / z_near * z_2d;
+
+  float width_2d_start = right_2d_plane - left_2d_plane;
+  float height_2d_start = top_2d_plane - bottom_2d_plane;
+
+  /* Factors to scale from framebuffer geometry to frustum
+   * cross-section geometry. */
+  float width_scale = width_2d_start / width_2d;
+  float height_scale = height_2d_start / height_2d;
+
+  graphene_matrix_init_scale (matrix, width_scale, -height_scale, width_scale);
+  graphene_matrix_translate (matrix,
+                             &GRAPHENE_POINT3D_INIT (left_2d_plane,
+                                                     top_2d_plane,
+                                                     -z_2d));
+}
+
+static void
 clutter_stage_update_view_perspective (ClutterStage *stage)
 {
   ClutterStagePrivate *priv = stage->priv;
@@ -2779,14 +2813,13 @@ clutter_stage_update_view_perspective (ClutterStage *stage)
 
   clutter_stage_set_perspective (stage, &perspective);
 
-  cogl_matrix_init_identity (&priv->view);
-  cogl_matrix_view_2d_in_perspective (&priv->view,
-                                      perspective.fovy,
-                                      perspective.aspect,
-                                      perspective.z_near,
-                                      z_2d,
-                                      priv->viewport[2],
-                                      priv->viewport[3]);
+  view_2d_in_perspective (&priv->view,
+                          perspective.fovy,
+                          perspective.aspect,
+                          perspective.z_near,
+                          z_2d,
+                          priv->viewport[2],
+                          priv->viewport[3]);
 
   clutter_actor_invalidate_transform (CLUTTER_ACTOR (stage));
 }
