@@ -18,13 +18,10 @@ setup_orthographic_modelview (void)
    * matrix we asked for. The matrix sets up an orthographic transform
    * in the modelview matrix */
 
-  cogl_matrix_init_identity (&matrix);
-  cogl_matrix_orthographic (&matrix,
-                            0.0f, 0.0f, /* x_1 y_1 */
-                            fb_width,
-                            fb_height,
-                            -1.0f, /* nearval */
-                            1.0f /* farval */);
+  graphene_matrix_init_ortho (&matrix,
+                              0.f, fb_width,
+                              fb_height, 0.f,
+                              -1.f, 1.f);
   cogl_framebuffer_set_modelview_matrix (test_fb, &matrix);
 }
 

@@ -66,7 +66,7 @@ paint (TestState *state)
 
   cogl_framebuffer_clear4f (test_fb, COGL_BUFFER_BIT_COLOR, 0, 0, 0, 1);
 
-  cogl_matrix_init_identity (&matrix);
+  graphene_matrix_init_identity (&matrix);
   cogl_framebuffer_set_modelview_matrix (test_fb, &matrix);
 
   tex0 = cogl_texture_new_from_data (2, 2,
@@ -104,15 +104,15 @@ paint (TestState *state)
     }
 
   /* Set a matrix on the first layer so that it will mirror about the y-axis */
-  cogl_matrix_init_identity (&matrix);
-  cogl_matrix_translate (&matrix, 0.0f, 1.0f, 0.0f);
-  cogl_matrix_scale (&matrix, 1.0f, -1.0f, 1.0f);
+  graphene_matrix_init_scale (&matrix, 1.0f, -1.0f, 1.0f);
+  graphene_matrix_translate (&matrix,
+                             &GRAPHENE_POINT3D_INIT (0.0f, 1.0f, 0.0f));
   cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
 
   /* Set a matrix on the second layer so that it will mirror about the x-axis */
-  cogl_matrix_init_identity (&matrix);
-  cogl_matrix_translate (&matrix, 1.0f, 0.0f, 0.0f);
-  cogl_matrix_scale (&matrix, -1.0f, 1.0f, 1.0f);
+  graphene_matrix_init_scale (&matrix, -1.0f, 1.0f, 1.0f);
+  graphene_matrix_translate (&matrix,
+                             &GRAPHENE_POINT3D_INIT (1.0f, 0.0f, 0.0f));
   cogl_pipeline_set_layer_matrix (pipeline, 1, &matrix);
 
   cogl_framebuffer_draw_rectangle (test_fb,

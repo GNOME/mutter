@@ -35,8 +35,8 @@ on_paint (ClutterActor        *actor,
   cogl_get_projection_matrix (&saved_projection);
   cogl_push_matrix ();
 
-  cogl_matrix_init_identity (&projection);
-  cogl_matrix_init_identity (&modelview);
+  graphene_matrix_init_identity (&projection);
+  graphene_matrix_init_identity (&modelview);
 
   cogl_set_projection_matrix (&projection);
   cogl_set_modelview_matrix (&modelview);

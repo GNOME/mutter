@@ -72,6 +72,7 @@ test_paint (TestState *state)
    * verify it gets restored when we call cogl_pop_framebuffer () */
   cogl_framebuffer_scale (test_fb, 2, 2, 1);
 
+
   opaque_pipeline = cogl_pipeline_new (test_ctx);
   /* red, top left */
   cogl_pipeline_set_color4ub (opaque_pipeline, 0xff, 0x00, 0x00, 0xff);

@@ -436,8 +436,8 @@ test_modify_vertex_layer (TestState *state)
   /* Test modifying the vertex layer code */
   pipeline = create_texture_pipeline (state);
 
-  cogl_matrix_init_identity (&matrix);
-  cogl_matrix_translate (&matrix, 0.0f, 1.0f, 0.0f);
+  graphene_matrix_init_translate (&matrix,
+                                  &GRAPHENE_POINT3D_INIT (0.0f, 1.0f, 0.0f));
   cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
 
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_TEXTURE_COORD_TRANSFORM,
@@ -465,8 +465,8 @@ test_replace_vertex_layer (TestState *state)
   /* Test replacing the vertex layer code */
   pipeline = create_texture_pipeline (state);
 
-  cogl_matrix_init_identity (&matrix);
-  cogl_matrix_translate (&matrix, 0.0f, 1.0f, 0.0f);
+  graphene_matrix_init_translate (&matrix,
+                                  &GRAPHENE_POINT3D_INIT (0.0f, 1.0f, 0.0f));
   cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
 
   snippet = cogl_snippet_new (COGL_SNIPPET_HOOK_TEXTURE_COORD_TRANSFORM,
@@ -497,7 +497,7 @@ test_vertex_transform_hook (TestState *state)
 
   /* Test the vertex transform hook */
 
-  cogl_matrix_init_identity (&identity_matrix);
+  graphene_matrix_init_identity (&identity_matrix);
 
   pipeline = cogl_pipeline_new (test_ctx);
 
@@ -514,7 +514,7 @@ test_vertex_transform_hook (TestState *state)
   /* Copy the current projection matrix to a uniform */
   cogl_framebuffer_get_projection_matrix (test_fb, &matrix);
   location = cogl_pipeline_get_uniform_location (pipeline, "pmat");
-  cogl_matrix_to_float (&matrix, v);
+  graphene_matrix_to_float (&matrix, v);
   cogl_pipeline_set_uniform_matrix (pipeline,
                                     location,
                                     4, /* dimensions */
