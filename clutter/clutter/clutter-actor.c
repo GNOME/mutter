@@ -1268,9 +1268,9 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
   if (!stage_priv->has_inverse_transform)
     return FALSE;
   cogl_framebuffer_get_modelview_matrix (fb, &modelview);
-  cogl_matrix_multiply (&transform_to_stage,
-                        &stage_priv->inverse_transform,
-                        &modelview);
+  graphene_matrix_multiply (&modelview,
+                            &stage_priv->inverse_transform,
+                            &transform_to_stage);
 
   vertices[0].x = box->x1;
   vertices[0].y = box->y1;
@@ -2979,7 +2979,7 @@ _clutter_actor_get_relative_transformation_matrix (ClutterActor      *self,
                                                    ClutterActor      *ancestor,
                                                    graphene_matrix_t *matrix)
 {
-  cogl_matrix_init_identity (matrix);
+  graphene_matrix_init_identity (matrix);
 
   _clutter_actor_apply_relative_transformation_matrix (self, ancestor, matrix);
 }
@@ -3069,6 +3069,7 @@ clutter_actor_real_apply_transform (ClutterActor      *self,
 {
   ClutterActorPrivate *priv = self->priv;
   const ClutterTransformInfo *info;
+  graphene_point3d_t p;
   float pivot_x = 0.f, pivot_y = 0.f;
 
   info = _clutter_actor_get_transform_info_or_defaults (self);
@@ -3090,72 +3091,66 @@ clutter_actor_real_apply_transform (ClutterActor      *self,
                 priv->allocation.x1 + pivot_x + info->translation.x,
                 priv->allocation.y1 + pivot_y + info->translation.y);
 
+  /* roll back the pivot translation */
+  if (pivot_x != 0.f || pivot_y != 0.f || info->pivot_z != 0.f)
+    {
+      graphene_point3d_init (&p, -pivot_x, -pivot_y, -info->pivot_z);
+      graphene_matrix_translate (matrix, &p);
+    }
+
+  /* if we have an overriding transformation, we use that, and get out */
+  if (info->transform_set)
+    {
+      graphene_matrix_multiply (matrix, &info->transform, matrix);
+
+      /* we still need to apply the :allocation's origin and :pivot-point
+       * translations, since :transform is relative to the actor's coordinate
+       * space, and to the pivot point
+       */
+      graphene_point3d_init (&p,
+                             priv->allocation.x1 + pivot_x,
+                             priv->allocation.y1 + pivot_y,
+                             info->pivot_z);
+      graphene_matrix_translate (matrix, &p);
+      goto roll_back;
+    }
+
+  if (info->rx_angle)
+    graphene_matrix_rotate (matrix, info->rx_angle, graphene_vec3_x_axis ());
+
+  if (info->ry_angle)
+    graphene_matrix_rotate (matrix, info->ry_angle, graphene_vec3_y_axis ());
+
+  if (info->rz_angle)
+    graphene_matrix_rotate (matrix, info->rz_angle, graphene_vec3_z_axis ());
+
+  if (info->scale_x != 1.0 || info->scale_y != 1.0 || info->scale_z != 1.0)
+    graphene_matrix_scale (matrix, info->scale_x, info->scale_y, info->scale_z);
+
+  /* basic translation: :allocation's origin and :z-position; instead
+   * of decomposing the pivot and translation info separate operations,
+   * we just compose everything into a single translation
+   */
+  graphene_point3d_init (&p,
+                         priv->allocation.x1 + pivot_x + info->translation.x,
+                         priv->allocation.y1 + pivot_y + info->translation.y,
+                         info->z_position + info->pivot_z + info->translation.z);
+  graphene_matrix_translate (matrix, &p);
+
+roll_back:
   /* we apply the :child-transform from the parent actor, if we have one */
   if (priv->parent != NULL)
     {
       const ClutterTransformInfo *parent_info;
 
       parent_info = _clutter_actor_get_transform_info_or_defaults (priv->parent);
-      cogl_matrix_init_from_matrix (matrix, &(parent_info->child_transform));
+      graphene_matrix_multiply (matrix, &parent_info->child_transform, matrix);
     }
-  else
-    cogl_matrix_init_identity (matrix);
-
-  /* if we have an overriding transformation, we use that, and get out */
-  if (info->transform_set)
-    {
-      /* we still need to apply the :allocation's origin and :pivot-point
-       * translations, since :transform is relative to the actor's coordinate
-       * space, and to the pivot point
-       */
-      cogl_matrix_translate (matrix,
-                             priv->allocation.x1 + pivot_x,
-                             priv->allocation.y1 + pivot_y,
-                             info->pivot_z);
-      cogl_matrix_multiply (matrix, matrix, &info->transform);
-      goto roll_back_pivot;
-    }
-
-  /* basic translation: :allocation's origin and :z-position; instead
-   * of decomposing the pivot and translation info separate operations,
-   * we just compose everything into a single translation
-   */
-  cogl_matrix_translate (matrix,
-                         priv->allocation.x1 + pivot_x + info->translation.x,
-                         priv->allocation.y1 + pivot_y + info->translation.y,
-                         info->z_position + info->pivot_z + info->translation.z);
-
-  /* because the rotation involves translations, we must scale
-   * before applying the rotations (if we apply the scale after
-   * the rotations, the translations included in the rotation are
-   * not scaled and so the entire object will move on the screen
-   * as a result of rotating it).
-   *
-   * XXX:2.0 the comment has to be reworded once we remove the
-   * per-transformation centers; we also may want to apply rotation
-   * first and scaling after, to match the matrix decomposition
-   * code we use when interpolating transformations
-   */
-  if (info->scale_x != 1.0 || info->scale_y != 1.0 || info->scale_z != 1.0)
-    cogl_matrix_scale (matrix, info->scale_x, info->scale_y, info->scale_z);
-
-  if (info->rz_angle)
-    cogl_matrix_rotate (matrix, info->rz_angle, 0, 0, 1.0);
-
-  if (info->ry_angle)
-    cogl_matrix_rotate (matrix, info->ry_angle, 0, 1.0, 0);
-
-  if (info->rx_angle)
-    cogl_matrix_rotate (matrix, info->rx_angle, 1.0, 0, 0);
-
-roll_back_pivot:
-  /* roll back the pivot translation */
-  if (pivot_x != 0.f || pivot_y != 0.f || info->pivot_z != 0.f)
-    cogl_matrix_translate (matrix, -pivot_x, -pivot_y, -info->pivot_z);
 }
 
 /* Applies the transforms associated with this actor to the given
  * matrix. */
+
 static void
 ensure_valid_actor_transform (ClutterActor *actor)
 {
@@ -3163,6 +3158,8 @@ ensure_valid_actor_transform (ClutterActor *actor)
 
   if (priv->transform_valid)
     return;
+
+  graphene_matrix_init_identity (&priv->transform);
 
   CLUTTER_ACTOR_GET_CLASS (actor)->apply_transform (actor, &priv->transform);
   priv->has_inverse_transform =
@@ -3179,7 +3176,7 @@ _clutter_actor_apply_modelview_transform (ClutterActor      *self,
   ClutterActorPrivate *priv = self->priv;
 
   ensure_valid_actor_transform (self);
-  cogl_matrix_multiply (matrix, matrix, &priv->transform);
+  graphene_matrix_multiply (&priv->transform, matrix, matrix);
 }
 
 /*
@@ -3205,7 +3202,7 @@ _clutter_actor_apply_modelview_transform (ClutterActor      *self,
  *
  * This function doesn't initialize the given @matrix, it simply
  * multiplies the requested transformation matrix with the existing contents of
- * @matrix. You can use cogl_matrix_init_identity() to initialize the @matrix
+ * @matrix. You can use graphene_matrix_init_identity() to initialize the @matrix
  * before calling this function, or you can use
  * clutter_actor_get_relative_transformation_matrix() instead.
  */
@@ -3843,7 +3840,7 @@ clutter_actor_paint (ClutterActor        *self,
 
       clutter_actor_get_transform (self, &transform);
 
-      if (!cogl_matrix_is_identity (&transform))
+      if (!graphene_matrix_is_identity (&transform))
         {
           transform_node = clutter_transform_node_new (&transform);
           clutter_paint_node_add_child (transform_node, root_node);
@@ -3862,7 +3859,7 @@ clutter_actor_paint (ClutterActor        *self,
           _clutter_actor_get_relative_transformation_matrix (self, NULL,
                                                              &expected_matrix);
 
-          if (!cogl_matrix_equal (&transform, &expected_matrix))
+          if (!graphene_matrix_equal_fast (&transform, &expected_matrix))
             {
               GString *buf = g_string_sized_new (1024);
               ClutterActor *parent;
@@ -4465,8 +4462,8 @@ get_default_transform_info (void)
 
   if (G_UNLIKELY (g_once_init_enter (&initialized)))
     {
-      cogl_matrix_init_identity (&default_transform_info.transform);
-      cogl_matrix_init_identity (&default_transform_info.child_transform);
+      graphene_matrix_init_identity (&default_transform_info.transform);
+      graphene_matrix_init_identity (&default_transform_info.child_transform);
       g_once_init_leave (&initialized, TRUE);
     }
 
@@ -14821,7 +14818,7 @@ clutter_actor_set_transform_internal (ClutterActor            *self,
   was_set = info->transform_set;
 
   info->transform = *transform;
-  info->transform_set = !cogl_matrix_is_identity (&info->transform);
+  info->transform_set = !graphene_matrix_is_identity (&info->transform);
 
   transform_changed (self);
 
@@ -14859,9 +14856,9 @@ clutter_actor_set_transform (ClutterActor            *self,
   info = _clutter_actor_get_transform_info_or_defaults (self);
 
   if (transform != NULL)
-    cogl_matrix_init_from_matrix (&new_transform, transform);
+    graphene_matrix_init_from_matrix (&new_transform, transform);
   else
-    cogl_matrix_init_identity (&new_transform);
+    graphene_matrix_init_identity (&new_transform);
 
   _clutter_actor_create_transition (self, obj_props[PROP_TRANSFORM],
                                     &info->transform,
@@ -14884,7 +14881,7 @@ clutter_actor_get_transform (ClutterActor      *self,
   g_return_if_fail (CLUTTER_IS_ACTOR (self));
   g_return_if_fail (transform != NULL);
 
-  cogl_matrix_init_identity (transform);
+  graphene_matrix_init_identity (transform);
   _clutter_actor_apply_modelview_transform (self, transform);
 }
 
@@ -19427,10 +19424,10 @@ clutter_actor_set_child_transform_internal (ClutterActor            *self,
   GObject *obj;
   gboolean was_set = info->child_transform_set;
 
-  cogl_matrix_init_from_matrix (&info->child_transform, transform);
+  graphene_matrix_init_from_matrix (&info->child_transform, transform);
 
   /* if it's the identity matrix, we need to toggle the boolean flag */
-  info->child_transform_set = !cogl_matrix_is_identity (transform);
+  info->child_transform_set = !graphene_matrix_is_identity (transform);
 
   /* we need to reset the transform_valid flag on each child */
   clutter_actor_iter_init (&iter, self);
@@ -19473,9 +19470,9 @@ clutter_actor_set_child_transform (ClutterActor            *self,
   info = _clutter_actor_get_transform_info_or_defaults (self);
 
   if (transform != NULL)
-    cogl_matrix_init_from_matrix (&new_transform, transform);
+    graphene_matrix_init_from_matrix (&new_transform, transform);
   else
-    cogl_matrix_init_identity (&new_transform);
+    graphene_matrix_init_identity (&new_transform);
 
   _clutter_actor_create_transition (self, obj_props[PROP_CHILD_TRANSFORM],
                                     &info->child_transform,
@@ -19505,9 +19502,9 @@ clutter_actor_get_child_transform (ClutterActor      *self,
   info = _clutter_actor_get_transform_info_or_defaults (self);
 
   if (info->child_transform_set)
-    cogl_matrix_init_from_matrix (transform, &info->child_transform);
+    graphene_matrix_init_from_matrix (transform, &info->child_transform);
   else
-    cogl_matrix_init_identity (transform);
+    graphene_matrix_init_identity (transform);
 }
 
 static void
