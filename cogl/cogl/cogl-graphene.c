@@ -274,3 +274,38 @@ cogl_graphene_matrix_project_points (const graphene_matrix_t *matrix,
                          n_points);
     }
 }
+
+gboolean
+cogl_graphene_matrix_get_inverse (const graphene_matrix_t *matrix,
+                                  graphene_matrix_t       *inverse)
+{
+  graphene_matrix_t scaled;
+  graphene_matrix_t m;
+  gboolean invertible;
+  float pivot = G_MAXFLOAT;
+  float v[16];
+  float scale;
+
+  graphene_matrix_init_from_matrix (&m, matrix);
+  graphene_matrix_to_float (&m, v);
+
+  pivot = MIN (pivot, v[0]);
+  pivot = MIN (pivot, v[5]);
+  pivot = MIN (pivot, v[10]);
+  pivot = MIN (pivot, v[15]);
+  scale = 1.f / pivot;
+
+  graphene_matrix_init_scale (&scaled, scale, scale, scale);
+
+  /* Float precision is a limiting factor */
+  graphene_matrix_multiply (&m, &scaled, &m);
+
+  invertible = graphene_matrix_inverse (&m, inverse);
+
+  if (invertible)
+    graphene_matrix_multiply (&scaled, inverse, inverse);
+  else
+    graphene_matrix_init_identity (inverse);
+
+  return invertible;
+}

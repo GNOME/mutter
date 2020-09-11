@@ -34,6 +34,7 @@
 #include "cogl-config.h"
 
 #include "cogl-context-private.h"
+#include "cogl-graphene.h"
 #include "cogl-matrix-stack.h"
 #include "cogl-framebuffer-private.h"
 #include "cogl-object-private.h"
@@ -411,9 +412,9 @@ cogl_matrix_stack_get_inverse (CoglMatrixStack   *stack,
   graphene_matrix_t *internal = cogl_matrix_stack_get (stack, &matrix);
 
   if (internal)
-    return cogl_matrix_get_inverse (internal, inverse);
+    return cogl_graphene_matrix_get_inverse (internal, inverse);
   else
-    return cogl_matrix_get_inverse (&matrix, inverse);
+    return cogl_graphene_matrix_get_inverse (&matrix, inverse);
 }
 
 /* In addition to writing the stack matrix into the give @matrix

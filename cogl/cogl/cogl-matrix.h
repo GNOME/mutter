@@ -486,24 +486,6 @@ COGL_EXPORT void
 cogl_matrix_free (graphene_matrix_t *matrix);
 
 /**
- * cogl_matrix_get_inverse:
- * @matrix: A 4x4 transformation matrix
- * @inverse: (out): The destination for a 4x4 inverse transformation matrix
- *
- * Gets the inverse transform of a given matrix and uses it to initialize
- * a new #graphene_matrix_t.
- *
- * Return value: %TRUE if the inverse was successfully calculated or %FALSE
- *   for degenerate transformations that can't be inverted (in this case the
- *   @inverse matrix will simply be initialized with the identity matrix)
- *
- * Since: 1.2
- */
-COGL_EXPORT gboolean
-cogl_matrix_get_inverse (const graphene_matrix_t *matrix,
-                         graphene_matrix_t       *inverse);
-
-/**
  * cogl_matrix_is_identity:
  * @matrix: A #graphene_matrix_t
  *

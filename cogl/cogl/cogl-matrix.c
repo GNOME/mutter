@@ -67,61 +67,6 @@ cogl_debug_matrix_print (const graphene_matrix_t *matrix)
   _cogl_matrix_prefix_print ("", matrix);
 }
 
-/*
- * Compute inverse of a transformation matrix.
- *
- * @mat pointer to a graphene_matrix_t structure. The matrix inverse will be
- * stored in the graphene_matrix_t::inv attribute.
- *
- * Returns: %TRUE for success, %FALSE for failure (\p singular matrix).
- *
- * Calls the matrix inversion function in inv_mat_tab corresponding to the
- * given matrix type.  In case of failure, updates the MAT_FLAG_SINGULAR flag,
- * and copies the identity matrix into graphene_matrix_t::inv.
- */
-
-static inline gboolean
-calculate_inverse (const graphene_matrix_t *matrix,
-                   graphene_matrix_t       *inverse)
-{
-  graphene_matrix_t scaled;
-  graphene_matrix_t m;
-  gboolean invertible;
-  float pivot = G_MAXFLOAT;
-  float v[16];
-  float scale;
-
-  graphene_matrix_init_from_matrix (&m, matrix);
-  graphene_matrix_to_float (&m, v);
-
-  pivot = MIN (pivot, v[0]);
-  pivot = MIN (pivot, v[5]);
-  pivot = MIN (pivot, v[10]);
-  pivot = MIN (pivot, v[15]);
-  scale = 1.f / pivot;
-
-  graphene_matrix_init_scale (&scaled, scale, scale, scale);
-
-  /* Float precision is a limiting factor */
-  graphene_matrix_multiply (&m, &scaled, &m);
-
-  invertible = graphene_matrix_inverse (&m, inverse);
-
-  if (invertible)
-    graphene_matrix_multiply (&scaled, inverse, inverse);
-  else
-    graphene_matrix_init_identity (inverse);
-
-  return invertible;
-}
-
-gboolean
-cogl_matrix_get_inverse (const graphene_matrix_t *matrix,
-                         graphene_matrix_t       *inverse)
-{
-  return calculate_inverse (matrix, inverse);
-}
-
 void
 cogl_matrix_rotate (graphene_matrix_t *matrix,
                     float              angle,
