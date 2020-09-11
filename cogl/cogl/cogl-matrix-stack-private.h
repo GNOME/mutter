@@ -102,7 +102,7 @@ typedef struct _CoglMatrixEntryMultiply
 {
   CoglMatrixEntry _parent_data;
 
-  graphene_matrix_t *matrix;
+  graphene_matrix_t matrix;
 
 } CoglMatrixEntryMultiply;
 
@@ -110,7 +110,7 @@ typedef struct _CoglMatrixEntryLoad
 {
   CoglMatrixEntry _parent_data;
 
-  graphene_matrix_t *matrix;
+  graphene_matrix_t matrix;
 
 } CoglMatrixEntryLoad;
 
@@ -118,7 +118,7 @@ typedef struct _CoglMatrixEntrySave
 {
   CoglMatrixEntry _parent_data;
 
-  graphene_matrix_t *cache;
+  graphene_matrix_t cache;
   gboolean cache_valid;
 
 } CoglMatrixEntrySave;

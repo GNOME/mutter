@@ -52,7 +52,6 @@ COGL_GTYPE_DEFINE_BOXED (MatrixEntry, matrix_entry,
                          cogl_matrix_entry_unref);
 
 static CoglMagazine *cogl_matrix_stack_magazine;
-static CoglMagazine *cogl_matrix_stack_matrices_magazine;
 
 /* XXX: Note: this leaves entry->parent uninitialized! */
 static CoglMatrixEntry *
@@ -209,11 +208,7 @@ cogl_matrix_stack_multiply (CoglMatrixStack         *stack,
   CoglMatrixEntryMultiply *entry;
 
   entry = _cogl_matrix_stack_push_operation (stack, COGL_MATRIX_OP_MULTIPLY);
-
-  entry->matrix =
-    _cogl_magazine_chunk_alloc (cogl_matrix_stack_matrices_magazine);
-
-  cogl_matrix_init_from_array (entry->matrix, (float *)matrix);
+  graphene_matrix_init_from_matrix (&entry->matrix, matrix);
 }
 
 void
@@ -225,11 +220,7 @@ cogl_matrix_stack_set (CoglMatrixStack         *stack,
   entry =
     _cogl_matrix_stack_push_replacement_entry (stack,
                                                COGL_MATRIX_OP_LOAD);
-
-  entry->matrix =
-    _cogl_magazine_chunk_alloc (cogl_matrix_stack_matrices_magazine);
-
-  cogl_matrix_init_from_array (entry->matrix, (float *)matrix);
+  graphene_matrix_init_from_matrix (&entry->matrix, matrix);
 }
 
 void
@@ -247,11 +238,8 @@ cogl_matrix_stack_frustum (CoglMatrixStack *stack,
     _cogl_matrix_stack_push_replacement_entry (stack,
                                                COGL_MATRIX_OP_LOAD);
 
-  entry->matrix =
-    _cogl_magazine_chunk_alloc (cogl_matrix_stack_matrices_magazine);
-
-  cogl_matrix_init_identity (entry->matrix);
-  cogl_matrix_frustum (entry->matrix,
+  cogl_matrix_init_identity (&entry->matrix);
+  cogl_matrix_frustum (&entry->matrix,
                        left, right, bottom, top,
                        z_near, z_far);
 }
@@ -268,12 +256,8 @@ cogl_matrix_stack_perspective (CoglMatrixStack *stack,
   entry =
     _cogl_matrix_stack_push_replacement_entry (stack,
                                                COGL_MATRIX_OP_LOAD);
-
-  entry->matrix =
-    _cogl_magazine_chunk_alloc (cogl_matrix_stack_matrices_magazine);
-
-  cogl_matrix_init_identity (entry->matrix);
-  cogl_matrix_perspective (entry->matrix,
+  cogl_matrix_init_identity (&entry->matrix);
+  cogl_matrix_perspective (&entry->matrix,
                            fov_y, aspect, z_near, z_far);
 }
 
@@ -291,12 +275,8 @@ cogl_matrix_stack_orthographic (CoglMatrixStack *stack,
   entry =
     _cogl_matrix_stack_push_replacement_entry (stack,
                                                COGL_MATRIX_OP_LOAD);
-
-  entry->matrix =
-    _cogl_magazine_chunk_alloc (cogl_matrix_stack_matrices_magazine);
-
-  cogl_matrix_init_identity (entry->matrix);
-  cogl_matrix_orthographic (entry->matrix,
+  cogl_matrix_init_identity (&entry->matrix);
+  cogl_matrix_orthographic (&entry->matrix,
                             x_1, y_1, x_2, y_2, near, far);
 }
 
@@ -329,40 +309,6 @@ cogl_matrix_entry_unref (CoglMatrixEntry *entry)
   for (; entry && --entry->ref_count <= 0; entry = parent)
     {
       parent = entry->parent;
-
-      switch (entry->op)
-        {
-        case COGL_MATRIX_OP_LOAD_IDENTITY:
-        case COGL_MATRIX_OP_TRANSLATE:
-        case COGL_MATRIX_OP_ROTATE:
-        case COGL_MATRIX_OP_ROTATE_EULER:
-        case COGL_MATRIX_OP_SCALE:
-          break;
-        case COGL_MATRIX_OP_MULTIPLY:
-          {
-            CoglMatrixEntryMultiply *multiply =
-              (CoglMatrixEntryMultiply *)entry;
-            _cogl_magazine_chunk_free (cogl_matrix_stack_matrices_magazine,
-                                       multiply->matrix);
-            break;
-          }
-        case COGL_MATRIX_OP_LOAD:
-          {
-            CoglMatrixEntryLoad *load = (CoglMatrixEntryLoad *)entry;
-            _cogl_magazine_chunk_free (cogl_matrix_stack_matrices_magazine,
-                                       load->matrix);
-            break;
-          }
-        case COGL_MATRIX_OP_SAVE:
-          {
-            CoglMatrixEntrySave *save = (CoglMatrixEntrySave *)entry;
-            if (save->cache_valid)
-              _cogl_magazine_chunk_free (cogl_matrix_stack_matrices_magazine,
-                                         save->cache);
-            break;
-          }
-        }
-
       _cogl_magazine_chunk_free (cogl_matrix_stack_magazine, entry);
     }
 }
@@ -444,7 +390,7 @@ cogl_matrix_entry_get (CoglMatrixEntry   *entry,
           {
             CoglMatrixEntryLoad *load = (CoglMatrixEntryLoad *)current;
             _cogl_matrix_init_from_matrix_without_inverse (matrix,
-                                                           load->matrix);
+                                                           &load->matrix);
             goto initialized;
           }
         case COGL_MATRIX_OP_SAVE:
@@ -452,13 +398,10 @@ cogl_matrix_entry_get (CoglMatrixEntry   *entry,
             CoglMatrixEntrySave *save = (CoglMatrixEntrySave *)current;
             if (!save->cache_valid)
               {
-                CoglMagazine *matrices_magazine =
-                  cogl_matrix_stack_matrices_magazine;
-                save->cache = _cogl_magazine_chunk_alloc (matrices_magazine);
-                cogl_matrix_entry_get (current->parent, save->cache);
+                cogl_matrix_entry_get (current->parent, &save->cache);
                 save->cache_valid = TRUE;
               }
-            _cogl_matrix_init_from_matrix_without_inverse (matrix, save->cache);
+            _cogl_matrix_init_from_matrix_without_inverse (matrix, &save->cache);
             goto initialized;
           }
         default:
@@ -483,12 +426,12 @@ initialized:
         case COGL_MATRIX_OP_LOAD:
           {
             CoglMatrixEntryLoad *load = (CoglMatrixEntryLoad *)entry;
-            return load->matrix;
+            return &load->matrix;
           }
         case COGL_MATRIX_OP_SAVE:
           {
             CoglMatrixEntrySave *save = (CoglMatrixEntrySave *)entry;
-            return save->cache;
+            return &save->cache;
           }
         }
       g_warn_if_reached ();
@@ -574,7 +517,7 @@ initialized:
           {
             CoglMatrixEntryMultiply *multiply =
               (CoglMatrixEntryMultiply *)children[i];
-            cogl_matrix_multiply (matrix, matrix, multiply->matrix);
+            cogl_matrix_multiply (matrix, matrix, &multiply->matrix);
             continue;
           }
 
@@ -623,8 +566,6 @@ cogl_matrix_stack_new (CoglContext *ctx)
     {
       cogl_matrix_stack_magazine =
         _cogl_magazine_new (sizeof (CoglMatrixEntryFull), 20);
-      cogl_matrix_stack_matrices_magazine =
-        _cogl_magazine_new (sizeof (graphene_matrix_t), 20);
     }
 
   stack->context = ctx;
@@ -852,7 +793,7 @@ cogl_matrix_entry_equal (CoglMatrixEntry *entry0,
           {
             CoglMatrixEntryMultiply *mult0 = (CoglMatrixEntryMultiply *)entry0;
             CoglMatrixEntryMultiply *mult1 = (CoglMatrixEntryMultiply *)entry1;
-            if (!cogl_matrix_equal (mult0->matrix, mult1->matrix))
+            if (!cogl_matrix_equal (&mult0->matrix, &mult1->matrix))
               return FALSE;
           }
           break;
@@ -863,7 +804,7 @@ cogl_matrix_entry_equal (CoglMatrixEntry *entry0,
             /* There's no need to check any further since an
              * _OP_LOAD makes all the ancestors redundant as far as
              * the final matrix value is concerned. */
-            return cogl_matrix_equal (load0->matrix, load1->matrix);
+            return cogl_matrix_equal (&load0->matrix, &load1->matrix);
           }
         case COGL_MATRIX_OP_SAVE:
           /* We skip over saves above so we shouldn't see save entries */
@@ -949,14 +890,14 @@ cogl_debug_matrix_entry_print (CoglMatrixEntry *entry)
           {
             CoglMatrixEntryMultiply *mult = (CoglMatrixEntryMultiply *)entry;
             g_print ("  MULT:\n");
-            _cogl_matrix_prefix_print ("    ", mult->matrix);
+            _cogl_matrix_prefix_print ("    ", &mult->matrix);
             continue;
           }
         case COGL_MATRIX_OP_LOAD:
           {
             CoglMatrixEntryLoad *load = (CoglMatrixEntryLoad *)entry;
             g_print ("  LOAD:\n");
-            _cogl_matrix_prefix_print ("    ", load->matrix);
+            _cogl_matrix_prefix_print ("    ", &load->matrix);
             continue;
           }
         case COGL_MATRIX_OP_SAVE:
