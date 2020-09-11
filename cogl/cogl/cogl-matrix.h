@@ -777,6 +777,18 @@ COGL_EXPORT void
 cogl_matrix_skew_yz (CoglMatrix *matrix,
                      float       factor);
 
+/**
+ * cogl_matrix_get_graphene_matrix:
+ * @matrix: a #CoglMatrix
+ *
+ * Retrieves the internal #graphene_matrix_t of @matrix. It should not
+ * be modified, and must be considered read-only.
+ *
+ * Returns: (transfer none): a #graphene_matrix_t
+ */
+COGL_EXPORT const graphene_matrix_t *
+cogl_matrix_get_graphene_matrix (const CoglMatrix *matrix);
+
 G_END_DECLS
 
 #endif /* __COGL_MATRIX_H */

@@ -37,18 +37,14 @@ cogl_matrix_progress (const GValue *a,
 {
   const CoglMatrix *matrix1 = g_value_get_boxed (a);
   const CoglMatrix *matrix2 = g_value_get_boxed (b);
-  graphene_matrix_t m1, m2, interpolated;
+  graphene_matrix_t interpolated;
   CoglMatrix res;
-  float fm1[16];
-  float fm2[16];
   float v[16];
 
-  cogl_matrix_to_float (matrix1, fm1);
-  cogl_matrix_to_float (matrix2, fm2);
-
-  graphene_matrix_init_from_float (&m1, fm1);
-  graphene_matrix_init_from_float (&m2, fm2);
-  graphene_matrix_interpolate (&m1, &m2, progress, &interpolated);
+  graphene_matrix_interpolate (cogl_matrix_get_graphene_matrix (matrix1),
+                               cogl_matrix_get_graphene_matrix (matrix2),
+                               progress,
+                               &interpolated);
   graphene_matrix_to_float (&interpolated, v);
 
   cogl_matrix_init_from_array (&res, v);

@@ -810,3 +810,9 @@ cogl_matrix_skew_yz (CoglMatrix *matrix,
   matrix->flags |= COGL_MATRIX_FLAG_DIRTY_INVERSE;
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
+
+const graphene_matrix_t *
+cogl_matrix_get_graphene_matrix (const CoglMatrix *matrix)
+{
+  return &matrix->m;
+}
