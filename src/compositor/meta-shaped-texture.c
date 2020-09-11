@@ -288,20 +288,14 @@ get_base_pipeline (MetaShapedTexture *stex,
   cogl_pipeline_set_layer_wrap_mode_t (pipeline, 1,
                                        COGL_PIPELINE_WRAP_MODE_CLAMP_TO_EDGE);
 
-  cogl_matrix_init_identity (&matrix);
-
-  if (!stex->is_y_inverted)
-    {
-      cogl_matrix_scale (&matrix, 1, -1, 1);
-      cogl_matrix_translate (&matrix, 0, -1, 0);
-      cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
-    }
+  graphene_matrix_init_identity (&matrix);
 
   if (stex->transform != META_MONITOR_TRANSFORM_NORMAL)
     {
       graphene_euler_t euler;
 
-      cogl_matrix_translate (&matrix, 0.5, 0.5, 0.0);
+      graphene_matrix_translate (&matrix,
+                                 &GRAPHENE_POINT3D_INIT (-0.5, -0.5, 0.0));
       switch (stex->transform)
         {
         case META_MONITOR_TRANSFORM_90:
@@ -335,40 +329,50 @@ get_base_pipeline (MetaShapedTexture *stex,
         case META_MONITOR_TRANSFORM_NORMAL:
           g_assert_not_reached ();
         }
-      cogl_matrix_rotate_euler (&matrix, &euler);
-      cogl_matrix_translate (&matrix, -0.5, -0.5, 0.0);
+      graphene_matrix_rotate_euler (&matrix, &euler);
+      graphene_matrix_translate (&matrix,
+                                 &GRAPHENE_POINT3D_INIT (0.5, 0.5, 0.0));
     }
 
   if (stex->has_viewport_src_rect)
     {
       float scaled_tex_width = stex->tex_width / (float) stex->buffer_scale;
       float scaled_tex_height = stex->tex_height / (float) stex->buffer_scale;
+      graphene_point3d_t p;
 
-      if (meta_monitor_transform_is_rotated (stex->transform))
-        {
-          cogl_matrix_scale (&matrix,
-                             stex->viewport_src_rect.size.width /
-                             scaled_tex_height,
-                             stex->viewport_src_rect.size.height /
-                             scaled_tex_width,
-                             1);
-        }
-      else
-        {
-          cogl_matrix_scale (&matrix,
-                             stex->viewport_src_rect.size.width /
-                             scaled_tex_width,
-                             stex->viewport_src_rect.size.height /
-                             scaled_tex_height,
-                             1);
-        }
-
-      cogl_matrix_translate (&matrix,
+      graphene_point3d_init (&p,
                              stex->viewport_src_rect.origin.x /
                              stex->viewport_src_rect.size.width,
                              stex->viewport_src_rect.origin.y /
                              stex->viewport_src_rect.size.height,
                              0);
+      graphene_matrix_translate (&matrix, &p);
+
+      if (meta_monitor_transform_is_rotated (stex->transform))
+        {
+          graphene_matrix_scale (&matrix,
+                                 stex->viewport_src_rect.size.width /
+                                 scaled_tex_height,
+                                 stex->viewport_src_rect.size.height /
+                                 scaled_tex_width,
+                                 1);
+        }
+      else
+        {
+          graphene_matrix_scale (&matrix,
+                                 stex->viewport_src_rect.size.width /
+                                 scaled_tex_width,
+                                 stex->viewport_src_rect.size.height /
+                                 scaled_tex_height,
+                                 1);
+        }
+    }
+
+  if (!stex->is_y_inverted)
+    {
+      graphene_matrix_translate (&matrix, &GRAPHENE_POINT3D_INIT (0, -1, 0));
+      graphene_matrix_scale (&matrix, 1, -1, 1);
+      cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
     }
 
   cogl_pipeline_set_layer_matrix (pipeline, 0, &matrix);
@@ -1403,13 +1407,13 @@ get_image_via_offscreen (MetaShapedTexture     *stex,
     }
 
   cogl_framebuffer_push_matrix (fb);
-  cogl_matrix_init_identity (&projection_matrix);
-  cogl_matrix_scale (&projection_matrix,
-                     1.0 / (image_width / 2.0),
-                     -1.0 / (image_height / 2.0), 0);
-  cogl_matrix_translate (&projection_matrix,
-                         -(image_width / 2.0),
-                         -(image_height / 2.0), 0);
+  graphene_matrix_init_translate (&projection_matrix,
+                                  &GRAPHENE_POINT3D_INIT (-(image_width / 2.0),
+                                                          -(image_height / 2.0),
+                                                          0));
+  graphene_matrix_scale (&projection_matrix,
+                         1.0 / (image_width / 2.0),
+                         -1.0 / (image_height / 2.0), 0);
 
   cogl_framebuffer_set_projection_matrix (fb, &projection_matrix);
 
