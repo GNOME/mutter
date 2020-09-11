@@ -1118,8 +1118,10 @@ meta_window_actor_set_geometry_scale (MetaWindowActor *window_actor,
 
   priv->geometry_scale = geometry_scale;
 
-  cogl_matrix_init_identity (&child_transform);
-  cogl_matrix_scale (&child_transform, geometry_scale, geometry_scale, 1);
+  graphene_matrix_init_scale (&child_transform,
+                              geometry_scale,
+                              geometry_scale,
+                              1);
   clutter_actor_set_child_transform (CLUTTER_ACTOR (window_actor),
                                      &child_transform);
 }

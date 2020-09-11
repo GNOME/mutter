@@ -148,9 +148,9 @@ meta_actor_painting_untransformed (CoglFramebuffer *fb,
   cogl_framebuffer_get_modelview_matrix (fb, &modelview);
   cogl_framebuffer_get_projection_matrix (fb, &projection);
 
-  cogl_matrix_multiply (&modelview_projection,
-                        &projection,
-                        &modelview);
+  graphene_matrix_multiply (&modelview,
+                            &projection,
+                            &modelview_projection);
 
   vertices[0].x = 0;
   vertices[0].y = 0;

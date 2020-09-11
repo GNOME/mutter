@@ -131,11 +131,10 @@ draw_view (MetaStageX11Nested *stage_nested,
                                                           &transform);
 
   cogl_framebuffer_push_matrix (onscreen);
-  cogl_matrix_init_identity (&projection_matrix);
-  cogl_matrix_translate (&projection_matrix, -1, 1, 0);
-  cogl_matrix_scale (&projection_matrix, 2, -2, 0);
-
-  cogl_matrix_multiply (&projection_matrix, &projection_matrix, &transform);
+  graphene_matrix_init_scale (&projection_matrix, 2, -2, 0);
+  graphene_matrix_translate (&projection_matrix,
+                             &GRAPHENE_POINT3D_INIT (-1, 1, 0));
+  graphene_matrix_multiply (&transform, &projection_matrix, &projection_matrix);
   cogl_framebuffer_set_projection_matrix (onscreen, &projection_matrix);
 
   s_1 = sample_x / texture_width;
