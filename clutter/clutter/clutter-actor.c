@@ -3145,20 +3145,28 @@ roll_back_pivot:
 
 /* Applies the transforms associated with this actor to the given
  * matrix. */
+static void
+ensure_valid_actor_transform (ClutterActor *actor)
+{
+  ClutterActorPrivate *priv = actor->priv;
+
+  if (priv->transform_valid)
+    return;
+
+  CLUTTER_ACTOR_GET_CLASS (actor)->apply_transform (actor, &priv->transform);
+  priv->has_inverse_transform =
+    cogl_matrix_get_inverse (&priv->transform, &priv->inverse_transform);
+
+  priv->transform_valid = TRUE;
+}
+
 void
 _clutter_actor_apply_modelview_transform (ClutterActor *self,
                                           CoglMatrix   *matrix)
 {
   ClutterActorPrivate *priv = self->priv;
 
-  if (priv->transform_valid)
-    goto out;
-
-  CLUTTER_ACTOR_GET_CLASS (self)->apply_transform (self, &priv->transform);
-
-  priv->transform_valid = TRUE;
-
-out:
+  ensure_valid_actor_transform (self);
   cogl_matrix_multiply (matrix, matrix, &priv->transform);
 }
 
