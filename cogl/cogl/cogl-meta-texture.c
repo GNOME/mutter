@@ -33,7 +33,6 @@
 #include "cogl-config.h"
 
 #include "cogl-texture.h"
-#include "cogl-matrix.h"
 #include "cogl-spans.h"
 #include "cogl-meta-texture.h"
 #include "cogl-texture-private.h"

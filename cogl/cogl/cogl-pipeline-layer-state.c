@@ -37,7 +37,6 @@
 #include "cogl-pipeline-private.h"
 #include "cogl-blend-string.h"
 #include "cogl-util.h"
-#include "cogl-matrix.h"
 #include "cogl-snippet-private.h"
 #include "cogl-texture-private.h"
 #include "cogl-pipeline-layer-state-private.h"

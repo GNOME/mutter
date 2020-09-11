@@ -37,7 +37,6 @@
 
 #include <cogl/cogl-pipeline.h>
 #include <cogl/cogl-color.h>
-#include <cogl/cogl-matrix.h>
 #include <cogl/cogl-texture.h>
 
 G_BEGIN_DECLS

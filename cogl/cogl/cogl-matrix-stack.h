@@ -39,7 +39,6 @@
 #error "Only <cogl/cogl.h> can be included directly."
 #endif
 
-#include "cogl-matrix.h"
 #include "cogl-context.h"
 
 #include <graphene.h>

@@ -39,7 +39,6 @@
 #include "cogl-framebuffer-private.h"
 #include "cogl-object-private.h"
 #include "cogl-offscreen.h"
-#include "cogl-matrix-private.h"
 #include "cogl-magazine-private.h"
 #include "cogl-gtype-private.h"
 

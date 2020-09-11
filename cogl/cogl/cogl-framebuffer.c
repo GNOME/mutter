@@ -45,7 +45,6 @@
 #include "cogl-clip-stack.h"
 #include "cogl-journal-private.h"
 #include "cogl-pipeline-state-private.h"
-#include "cogl-matrix-private.h"
 #include "cogl-primitive-private.h"
 #include "cogl-offscreen.h"
 #include "cogl1-context.h"
@@ -1600,7 +1599,6 @@ cogl_framebuffer_get_modelview_matrix (CoglFramebuffer   *framebuffer,
   CoglMatrixEntry *modelview_entry =
     _cogl_framebuffer_get_modelview_entry (framebuffer);
   cogl_matrix_entry_get (modelview_entry, matrix);
-  _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
 void
@@ -1614,8 +1612,6 @@ cogl_framebuffer_set_modelview_matrix (CoglFramebuffer         *framebuffer,
   if (framebuffer->context->current_draw_buffer == framebuffer)
     framebuffer->context->current_draw_buffer_changes |=
       COGL_FRAMEBUFFER_STATE_MODELVIEW;
-
-  _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
 void
@@ -1625,7 +1621,6 @@ cogl_framebuffer_get_projection_matrix (CoglFramebuffer   *framebuffer,
   CoglMatrixEntry *projection_entry =
     _cogl_framebuffer_get_projection_entry (framebuffer);
   cogl_matrix_entry_get (projection_entry, matrix);
-  _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
 void
@@ -1644,8 +1639,6 @@ cogl_framebuffer_set_projection_matrix (CoglFramebuffer         *framebuffer,
   if (framebuffer->context->current_draw_buffer == framebuffer)
     framebuffer->context->current_draw_buffer_changes |=
       COGL_FRAMEBUFFER_STATE_PROJECTION;
-
-  _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
 void

@@ -36,7 +36,6 @@
 #define __COGL_MATERIAL_H__
 
 #include <cogl/cogl-types.h>
-#include <cogl/cogl-matrix.h>
 #include <cogl/cogl-depth-state.h>
 #include <cogl/cogl-macros.h>
 #include <cogl/cogl-object.h>

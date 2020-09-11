@@ -34,7 +34,6 @@
 #include <cogl-pipeline.h>
 #include <cogl-pipeline-private.h>
 #include <cogl-types.h>
-#include <cogl-matrix.h>
 #include <cogl-context-private.h>
 #include <deprecated/cogl-material-compat.h>
 

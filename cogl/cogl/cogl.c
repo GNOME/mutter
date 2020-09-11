@@ -41,7 +41,6 @@
 #include "cogl-context-private.h"
 #include "cogl-pipeline-private.h"
 #include "cogl-framebuffer-private.h"
-#include "cogl-matrix-private.h"
 #include "cogl-journal-private.h"
 #include "cogl-bitmap-private.h"
 #include "cogl-texture-private.h"

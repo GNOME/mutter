@@ -40,7 +40,6 @@
 #include "cogl-framebuffer-private.h"
 #include "cogl-journal-private.h"
 #include "cogl-util.h"
-#include "cogl-matrix-private.h"
 #include "cogl-primitives-private.h"
 #include "cogl-private.h"
 #include "cogl-attribute-private.h"
