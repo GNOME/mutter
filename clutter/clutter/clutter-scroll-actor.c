@@ -102,8 +102,6 @@ clutter_scroll_actor_set_scroll_to_internal (ClutterScrollActor     *self,
   graphene_matrix_t m;
   float dx, dy;
 
-  cogl_matrix_init_identity (&m);
-
   if (graphene_point_equal (&priv->scroll_to, point))
     return;
 
@@ -122,7 +120,8 @@ clutter_scroll_actor_set_scroll_to_internal (ClutterScrollActor     *self,
   else
     dy = 0.f;
 
-  cogl_matrix_translate (&m, dx, dy, 0.f);
+  graphene_matrix_init_translate (&m,
+                                  &GRAPHENE_POINT3D_INIT (dx, dy, 0.f));
   clutter_actor_set_child_transform (actor, &m);
 }
 
