@@ -126,16 +126,12 @@ clutter_clone_apply_transform (ClutterActor      *self,
 {
   ClutterClonePrivate *priv = CLUTTER_CLONE (self)->priv;
 
-  /* First chain up and apply all the standard ClutterActor
-   * transformations... */
+
+  if (priv->clone_source)
+    graphene_matrix_scale (matrix, priv->x_scale, priv->y_scale, 1.f);
+
   CLUTTER_ACTOR_CLASS (clutter_clone_parent_class)->apply_transform (self,
                                                                      matrix);
-
-  /* if we don't have a source, nothing else to do */
-  if (priv->clone_source == NULL)
-    return;
-
-  cogl_matrix_scale (matrix, priv->x_scale, priv->y_scale, 1.f);
 }
 
 static void
