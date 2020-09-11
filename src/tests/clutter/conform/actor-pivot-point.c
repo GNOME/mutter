@@ -33,14 +33,13 @@ actor_pivot (void)
   clutter_actor_set_rotation_angle (actor_implicit, CLUTTER_Z_AXIS, angle);
 
   /* Explicit transformation */
-  cogl_matrix_init_identity (&transform);
-  cogl_matrix_rotate (&transform, angle, 0, 0, 1.0);
+  graphene_matrix_init_rotate (&transform, angle, graphene_vec3_z_axis ());
   clutter_actor_set_transform (actor_explicit, &transform);
 
   clutter_actor_get_transform (actor_implicit, &result_implicit);
   clutter_actor_get_transform (actor_explicit, &result_explicit);
 
-  g_assert (cogl_matrix_equal (&result_implicit, &result_explicit));
+  g_assert (graphene_matrix_equal (&result_implicit, &result_explicit));
 
   clutter_actor_destroy (actor_implicit);
   clutter_actor_destroy (actor_explicit);

@@ -232,12 +232,15 @@ setup_viewport (CoglFramebuffer *framebuffer,
    */
 
   cogl_framebuffer_get_projection_matrix (framebuffer, &projection_matrix);
-  z_camera = 0.5 * cogl_matrix_get_value (&projection_matrix, 0, 0);
+  z_camera = 0.5 * graphene_matrix_get_value (&projection_matrix, 0, 0);
 
-  cogl_matrix_init_identity (&mv_matrix);
-  cogl_matrix_translate (&mv_matrix, -0.5f, -0.5f, -z_camera);
-  cogl_matrix_scale (&mv_matrix, 1.0f / width, -1.0f / height, 1.0f / width);
-  cogl_matrix_translate (&mv_matrix, 0.0f, -1.0 * height, 0.0f);
+  graphene_matrix_init_translate (&mv_matrix,
+                                  &GRAPHENE_POINT3D_INIT (0.0f,
+                                                          -1.0 * height,
+                                                          0.0f));
+  graphene_matrix_scale (&mv_matrix, 1.0f / width, -1.0f / height, 1.0f / width);
+  graphene_matrix_translate (&mv_matrix,
+                             &GRAPHENE_POINT3D_INIT (-0.5f, -0.5f, -z_camera));
   cogl_framebuffer_set_modelview_matrix (framebuffer, &mv_matrix);
 }
 

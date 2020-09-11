@@ -109,7 +109,7 @@ paint_cb (ClutterActor        *stage,
 
   cogl_framebuffer_get_projection_matrix (framebuffer, &old_matrix);
   /* Use an orthogonal projection from -1 -> 1 in both axes */
-  cogl_matrix_init_identity (&new_matrix);
+  graphene_matrix_init_identity (&new_matrix);
   cogl_framebuffer_set_projection_matrix (framebuffer, &new_matrix);
 
   cogl_framebuffer_push_matrix (framebuffer);

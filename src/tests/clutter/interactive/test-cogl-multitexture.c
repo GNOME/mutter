@@ -45,14 +45,14 @@ frame_cb (ClutterTimeline  *timeline,
 {
   TestMultiLayerMaterialState *state = data;
 
-  cogl_matrix_multiply (&state->tex_matrix0,
-			&state->tex_matrix0,
-			&state->rot_matrix0);
+  graphene_matrix_multiply (&state->rot_matrix0,
+                            &state->tex_matrix0,
+                            &state->tex_matrix0);
   cogl_material_set_layer_matrix (state->material0, 2, &state->tex_matrix0);
 
-  cogl_matrix_multiply (&state->tex_matrix1,
-			&state->tex_matrix1,
-			&state->rot_matrix1);
+  graphene_matrix_multiply (&state->rot_matrix1,
+                            &state->tex_matrix1,
+                            &state->tex_matrix1);
   cogl_material_set_layer_matrix (state->material1, 2, &state->tex_matrix1);
 }
 
@@ -196,18 +196,22 @@ test_cogl_multitexture_main (int argc, char *argv[])
 
   state->tex_coords = tex_coords;
 
-  cogl_matrix_init_identity (&state->tex_matrix0);
-  cogl_matrix_init_identity (&state->tex_matrix1);
-  cogl_matrix_init_identity (&state->rot_matrix0);
-  cogl_matrix_init_identity (&state->rot_matrix1);
+  graphene_matrix_init_identity (&state->tex_matrix0);
+  graphene_matrix_init_identity (&state->tex_matrix1);
+  graphene_matrix_init_identity (&state->rot_matrix0);
+  graphene_matrix_init_identity (&state->rot_matrix1);
 
-  cogl_matrix_translate (&state->rot_matrix0, 0.5, 0.5, 0);
-  cogl_matrix_rotate (&state->rot_matrix0, 10.0, 0, 0, 1.0);
-  cogl_matrix_translate (&state->rot_matrix0, -0.5, -0.5, 0);
+  graohene_matrix_translate (&state->rot_matrix0,
+                             &GRAPHENE_POINT3D_INIT (-0.5, -0.5, 0));
+  graohene_matrix_rotate (&state->rot_matrix0, 10.0, graphene_vec3_z_axis ());
+  graphene_matrix_translate (&state->rot_matrix0,
+                             &GRAPHENE_POINT3D_INIT (0.5, 0.5, 0));
 
-  cogl_matrix_translate (&state->rot_matrix1, 0.5, 0.5, 0);
-  cogl_matrix_rotate (&state->rot_matrix1, -10.0, 0, 0, 1.0);
-  cogl_matrix_translate (&state->rot_matrix1, -0.5, -0.5, 0);
+  graphene_matrix_translate (&state->rot_matrix1,
+                             &GRAPHENE_POINT3D_INIT (-0.5, -0.5, 0));
+  graohene_matrix_rotate (&state->rot_matrix1, -10.0, graphene_vec3_z_axis ());
+  graphene_matrix_translate (&state->rot_matrix1,
+                             &GRAPHENE_POINT3D_INIT (0.5, 0.5, 0));
 
   clutter_actor_set_translation (data->parent_container, -86.f, -125.f, 0.f);
   clutter_container_add_actor (CLUTTER_CONTAINER(stage),
