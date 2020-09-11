@@ -492,6 +492,7 @@ test_vertex_transform_hook (TestState *state)
   CoglSnippet *snippet;
   CoglMatrix identity_matrix;
   CoglMatrix matrix;
+  float v[16];
   int location;
 
   /* Test the vertex transform hook */
@@ -513,12 +514,13 @@ test_vertex_transform_hook (TestState *state)
   /* Copy the current projection matrix to a uniform */
   cogl_framebuffer_get_projection_matrix (test_fb, &matrix);
   location = cogl_pipeline_get_uniform_location (pipeline, "pmat");
+  cogl_matrix_to_float (&matrix, v);
   cogl_pipeline_set_uniform_matrix (pipeline,
                                     location,
                                     4, /* dimensions */
                                     1, /* count */
                                     FALSE, /* don't transpose */
-                                    cogl_matrix_get_array (&matrix));
+                                    v);
 
   /* Replace the real projection matrix with the identity. This should
      mess up the drawing unless the snippet replacement is working */

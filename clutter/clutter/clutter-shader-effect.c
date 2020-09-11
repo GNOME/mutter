@@ -824,9 +824,12 @@ add_uniform:
  * Finally, a uniform named "map" and containing a matrix can be set using:
  *
  * |[<!-- language="C" -->
+ *   float v[16];
+ *
+ *   cogl_matrix_to_float (&matrix, v);
  *   clutter_shader_effect_set_uniform (effect, "map",
- *                                      CLUTTER_TYPE_SHADER_MATRIX, 1,
- *                                      cogl_matrix_get_array (&matrix));
+ *                                      CLUTTER_TYPE_SHADER_MATRIX,
+ *                                      1, v);
  * ]|
  *
  * Since: 1.4

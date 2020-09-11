@@ -242,9 +242,7 @@ paint_matrix_pipeline (CoglPipeline *pipeline)
   cogl_matrix_transpose (matrices + 3);
 
   for (i = 0; i < 4; i++)
-    memcpy (matrix_floats + i * 16,
-            cogl_matrix_get_array (matrices + i),
-            sizeof (float) * 16);
+    cogl_matrix_to_float (&matrices[i], &matrix_floats[i * 16]);
 
   /* Set the first three matrices as transposed */
   uniform_location =

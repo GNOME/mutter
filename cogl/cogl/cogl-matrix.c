@@ -586,10 +586,11 @@ cogl_matrix_free (CoglMatrix *matrix)
   g_slice_free (CoglMatrix, matrix);
 }
 
-const float *
-cogl_matrix_get_array (const CoglMatrix *matrix)
+void
+cogl_matrix_to_float (const CoglMatrix *matrix,
+                      float            *out_array)
 {
-  return (float *)matrix;
+  memcpy ((CoglMatrix *) matrix, out_array, 16 * sizeof (float));
 }
 
 float

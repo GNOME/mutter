@@ -480,15 +480,17 @@ cogl_matrix_init_from_matrix (CoglMatrix       *matrix,
                               const CoglMatrix *source);
 
 /**
- * cogl_matrix_get_array:
+ * cogl_matrix_to_float:
  * @matrix: A 4x4 transformation matrix
+ * @out_array: (array fixed-size=16) (out caller-allocates): return location
+ *   for an array of floating point values. The array must be capable of
+ *   holding at least 16 values.
  *
  * Casts @matrix to a float array which can be directly passed to OpenGL.
- *
- * Return value: a pointer to the float array
  */
-COGL_EXPORT const float *
-cogl_matrix_get_array (const CoglMatrix *matrix);
+COGL_EXPORT void
+cogl_matrix_to_float (const CoglMatrix *matrix,
+                      float            *out_array);
 
 /**
  * cogl_matrix_get_value:
