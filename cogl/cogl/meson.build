@@ -123,6 +123,7 @@ cogl_nonintrospected_headers = [
   'cogl-gtype-private.h',
   'cogl-glib-source.h',
   'cogl-scanout.h',
+  'cogl-graphene.h',
 ]
 
 cogl_nodist_headers = [
@@ -354,6 +355,7 @@ cogl_sources = [
   'deprecated/cogl-clutter.c',
   'cogl-glib-source.c',
   'cogl-mutter.h',
+  'cogl-graphene.c',
 ]
 
 if have_x11

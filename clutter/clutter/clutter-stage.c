@@ -725,13 +725,13 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
 #undef CLIP_X
 #undef CLIP_Y
 
-  cogl_matrix_project_points (inverse_project,
-                              4,
-                              sizeof (Vector4),
-                              tmp_poly,
-                              sizeof (Vector4),
-                              tmp_poly,
-                              n_vertices * 2);
+  cogl_graphene_matrix_project_points (inverse_project,
+                                       4,
+                                       sizeof (Vector4),
+                                       tmp_poly,
+                                       sizeof (Vector4),
+                                       tmp_poly,
+                                       n_vertices * 2);
 
   /* XXX: It's quite ugly that we end up with these casts between
    * Vector4 types and CoglVector3s, it might be better if the

@@ -32,6 +32,7 @@
 
 #include "cogl-debug.h"
 #include "cogl-context-private.h"
+#include "cogl-graphene.h"
 #include "cogl-journal-private.h"
 #include "cogl-texture-private.h"
 #include "cogl-pipeline-private.h"
@@ -1212,14 +1213,14 @@ upload_vertices (CoglJournal *journal,
 
           if (entry->modelview_entry != last_modelview_entry)
             cogl_matrix_entry_get (entry->modelview_entry, &modelview);
-          cogl_matrix_transform_points (&modelview,
-                                        2, /* n_components */
-                                        sizeof (float) * 2, /* stride_in */
-                                        v, /* points_in */
-                                        /* strideout */
-                                        vb_stride * sizeof (float),
-                                        vout, /* points_out */
-                                        4 /* n_points */);
+          cogl_graphene_matrix_transform_points (&modelview,
+                                                 2, /* n_components */
+                                                 sizeof (float) * 2, /* stride_in */
+                                                 v, /* points_in */
+                                                 /* strideout */
+                                                 vb_stride * sizeof (float),
+                                                 vout, /* points_out */
+                                                 4 /* n_points */);
         }
 
       for (i = 0; i < entry->n_layers; i++)
@@ -1672,27 +1673,27 @@ entry_to_screen_polygon (CoglFramebuffer *framebuffer,
    */
 
   cogl_matrix_entry_get (entry->modelview_entry, &modelview);
-  cogl_matrix_transform_points (&modelview,
-                                2, /* n_components */
-                                sizeof (float) * 4, /* stride_in */
-                                poly, /* points_in */
-                                /* strideout */
-                                sizeof (float) * 4,
-                                poly, /* points_out */
-                                4 /* n_points */);
+  cogl_graphene_matrix_transform_points (&modelview,
+                                         2, /* n_components */
+                                         sizeof (float) * 4, /* stride_in */
+                                         poly, /* points_in */
+                                         /* strideout */
+                                         sizeof (float) * 4,
+                                         poly, /* points_out */
+                                         4 /* n_points */);
 
   projection_stack =
     _cogl_framebuffer_get_projection_stack (framebuffer);
   cogl_matrix_stack_get (projection_stack, &projection);
 
-  cogl_matrix_project_points (&projection,
-                              3, /* n_components */
-                              sizeof (float) * 4, /* stride_in */
-                              poly, /* points_in */
-                              /* strideout */
-                              sizeof (float) * 4,
-                              poly, /* points_out */
-                              4 /* n_points */);
+  cogl_graphene_matrix_transform_points (&projection,
+                                         3, /* n_components */
+                                         sizeof (float) * 4, /* stride_in */
+                                         poly, /* points_in */
+                                         /* strideout */
+                                         sizeof (float) * 4,
+                                         poly, /* points_out */
+                                         4 /* n_points */);
 
 /* Scale from OpenGL normalized device coordinates (ranging from -1 to 1)
  * to Cogl window/framebuffer coordinates (ranging from 0 to buffer-size) with

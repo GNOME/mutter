@@ -36,6 +36,7 @@
 
 #include "cogl-i18n-private.h"
 #include "cogl-debug.h"
+#include "cogl-graphene.h"
 #include "cogl-util.h"
 #include "cogl-context-private.h"
 #include "cogl-pipeline-private.h"
@@ -184,10 +185,10 @@ _cogl_transform_point (const CoglMatrix *matrix_mv,
   float w = 1;
 
   /* Apply the modelview matrix transform */
-  cogl_matrix_transform_point (matrix_mv, x, y, &z, &w);
+  cogl_graphene_matrix_project_point (matrix_mv, x, y, &z, &w);
 
   /* Apply the projection matrix transform */
-  cogl_matrix_transform_point (matrix_p, x, y, &z, &w);
+  cogl_graphene_matrix_project_point (matrix_p, x, y, &z, &w);
 
   /* Perform perspective division */
   *x /= w;

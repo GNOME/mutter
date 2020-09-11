@@ -35,6 +35,7 @@
 #include "cogl-config.h"
 
 #include "cogl-context-private.h"
+#include "cogl-graphene.h"
 #include "cogl-primitives-private.h"
 #include "cogl-primitive-private.h"
 #include "driver/gl/cogl-util-gl-private.h"
@@ -204,8 +205,8 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
       z2 = 0.f;
       w2 = 1.f;
 
-      cogl_matrix_transform_point (&matrix, &x1, &y1, &z1, &w1);
-      cogl_matrix_transform_point (&matrix, &x2, &y2, &z2, &w2);
+      cogl_graphene_matrix_project_point (&matrix, &x1, &y1, &z1, &w1);
+      cogl_graphene_matrix_project_point (&matrix, &x2, &y2, &z2, &w2);
 
       v[0].x = x1;
       v[0].y = y1;

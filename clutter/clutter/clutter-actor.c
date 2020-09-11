@@ -1289,11 +1289,11 @@ _clutter_actor_transform_local_box_to_stage (ClutterActor          *self,
       float z = 0.f;
       float w = 1.f;
 
-      cogl_matrix_transform_point (&transform_to_stage,
-                                   &vertices[v].x,
-                                   &vertices[v].y,
-                                   &z,
-                                   &w);
+      cogl_graphene_matrix_project_point (&transform_to_stage,
+                                          &vertices[v].x,
+                                          &vertices[v].y,
+                                          &z,
+                                          &w);
     }
 
   return TRUE;
@@ -2873,7 +2873,11 @@ clutter_actor_apply_relative_transform_to_point (ClutterActor             *self,
     }
 
   _clutter_actor_get_relative_transformation_matrix (self, ancestor, &matrix);
-  cogl_matrix_transform_point (&matrix, &vertex->x, &vertex->y, &vertex->z, &w);
+  cogl_graphene_matrix_project_point (&matrix,
+                                      &vertex->x,
+                                      &vertex->y,
+                                      &vertex->z,
+                                      &w);
 }
 
 static gboolean

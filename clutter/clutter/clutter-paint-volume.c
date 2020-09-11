@@ -857,11 +857,11 @@ _clutter_paint_volume_transform (ClutterPaintVolume *pv,
     {
       gfloat w = 1;
       /* Just transform the origin */
-      cogl_matrix_transform_point (matrix,
-                                   &pv->vertices[0].x,
-                                   &pv->vertices[0].y,
-                                   &pv->vertices[0].z,
-                                   &w);
+      cogl_graphene_matrix_project_point (matrix,
+                                          &pv->vertices[0].x,
+                                          &pv->vertices[0].y,
+                                          &pv->vertices[0].z,
+                                          &w);
       return;
     }
 
@@ -876,13 +876,13 @@ _clutter_paint_volume_transform (ClutterPaintVolume *pv,
   else
     transform_count = 8;
 
-  cogl_matrix_transform_points (matrix,
-                                3,
-                                sizeof (graphene_point3d_t),
-                                pv->vertices,
-                                sizeof (graphene_point3d_t),
-                                pv->vertices,
-                                transform_count);
+  cogl_graphene_matrix_transform_points (matrix,
+                                         3,
+                                         sizeof (graphene_point3d_t),
+                                         pv->vertices,
+                                         sizeof (graphene_point3d_t),
+                                         pv->vertices,
+                                         transform_count);
 
   pv->is_axis_aligned = FALSE;
 }
