@@ -355,11 +355,14 @@ clutter_pan_action_real_pan (ClutterPanAction *self,
 {
   gfloat dx, dy;
   graphene_matrix_t transform;
+  graphene_matrix_t translate;
 
   clutter_pan_action_get_constrained_motion_delta (self, 0, &dx, &dy);
 
   clutter_actor_get_child_transform (actor, &transform);
-  cogl_matrix_translate (&transform, dx, dy, 0.0f);
+  graphene_matrix_init_translate (&translate,
+                                  &GRAPHENE_POINT3D_INIT (dx, dy, 0.0f));
+  graphene_matrix_multiply (&translate, &transform, &transform);
   clutter_actor_set_child_transform (actor, &transform);
   return TRUE;
 }
