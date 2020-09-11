@@ -85,7 +85,6 @@ struct _CoglMatrix
 
   graphene_matrix_t COGL_PRIVATE (inv);
   unsigned long  COGL_PRIVATE (flags);
-  unsigned long  COGL_PRIVATE (_padding3);
 };
 
 /**
