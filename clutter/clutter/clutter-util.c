@@ -74,9 +74,8 @@ _clutter_util_fully_transform_vertices (const graphene_matrix_t  *modelview,
   if (n_vertices >= 4)
     {
       /* XXX: we should find a way to cache this per actor */
-      cogl_matrix_multiply (&modelview_projection,
-                            projection,
-                            modelview);
+      graphene_matrix_multiply (modelview, projection, &modelview_projection);
+
       cogl_graphene_matrix_project_points (&modelview_projection,
                                            3,
                                            sizeof (graphene_point3d_t),
