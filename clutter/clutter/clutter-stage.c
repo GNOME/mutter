@@ -673,7 +673,7 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
   Vector4 *poly;
   graphene_vec3_t b;
   graphene_vec3_t c;
-  float wz, ww;
+  float zw, ww;
   int count;
 
   tmp_poly = g_alloca (sizeof (Vector4) * n_vertices * 2);
@@ -694,9 +694,9 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
    * frustum; coordinates range from [-Wc,Wc] left to right on the
    * x-axis and [Wc,-Wc] top to bottom on the y-axis.
    */
-  wz = cogl_matrix_get_value (projection, 3, 2);
-  ww = cogl_matrix_get_value (projection, 3, 3);
-  Wc = DEPTH * wz + ww;
+  zw = graphene_matrix_get_value (projection, 2, 3);
+  ww = graphene_matrix_get_value (projection, 3, 3);
+  Wc = DEPTH * zw + ww;
 
 #define CLIP_X(X) ((((float)X - viewport[0]) * (2.0 / viewport[2])) - 1) * Wc
 #define CLIP_Y(Y) ((((float)Y - viewport[1]) * (2.0 / viewport[3])) - 1) * -Wc
@@ -709,7 +709,7 @@ _cogl_util_get_eye_planes_for_screen_poly (float *polygon,
       tmp_poly[i].w = Wc;
     }
 
-  Wc = DEPTH * 2 * wz + ww;
+  Wc = DEPTH * 2 * zw + ww;
 
   /* FIXME: technically we don't need to project all of the points
    * twice, it would be enough project every other point since
@@ -1585,8 +1585,7 @@ clutter_stage_real_apply_transform (ClutterActor      *stage,
 
   /* FIXME: we probably shouldn't be explicitly resetting the matrix
    * here... */
-  cogl_matrix_init_identity (matrix);
-  cogl_matrix_multiply (matrix, matrix, &priv->view);
+  graphene_matrix_init_from_matrix (matrix, &priv->view);
 }
 
 static void
@@ -2064,12 +2063,11 @@ clutter_stage_set_perspective (ClutterStage       *stage,
 
   priv->perspective = *perspective;
 
-  cogl_matrix_init_identity (&priv->projection);
-  cogl_matrix_perspective (&priv->projection,
-                           priv->perspective.fovy,
-                           priv->perspective.aspect,
-                           priv->perspective.z_near,
-                           priv->perspective.z_far);
+  graphene_matrix_init_perspective (&priv->projection,
+                                    priv->perspective.fovy,
+                                    priv->perspective.aspect,
+                                    priv->perspective.z_near,
+                                    priv->perspective.z_far);
   cogl_graphene_matrix_get_inverse (&priv->projection,
                                     &priv->inverse_projection);
 
