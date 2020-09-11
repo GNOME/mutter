@@ -21,8 +21,9 @@ struct _MetaCompositor
   guint           stage_presented_id;
   guint           stage_after_paint_id;
 
-  gint64          server_time_query_time;
-  gint64          server_time_offset;
+  gboolean xserver_uses_monotonic_clock;
+  int64_t xserver_time_query_time_us;
+  int64_t xserver_time_offset_us;
 
   guint           server_time_is_monotonic_time : 1;
   guint           no_mipmaps  : 1;
@@ -61,8 +62,8 @@ void     meta_end_modal_for_plugin   (MetaCompositor   *compositor,
                                       MetaPlugin       *plugin,
                                       guint32           timestamp);
 
-gint64 meta_compositor_monotonic_time_to_server_time (MetaDisplay *display,
-                                                      gint64       monotonic_time);
+int64_t meta_compositor_monotonic_to_high_res_xserver_time (MetaCompositor *compositor,
+                                                            int64_t         monotonic_time);
 
 void meta_compositor_flash_window (MetaCompositor *compositor,
                                    MetaWindow     *window);
@@ -74,5 +75,39 @@ MetaInhibitShortcutsDialog * meta_compositor_create_inhibit_shortcuts_dialog (Me
                                                                               MetaWindow     *window);
 
 void meta_compositor_unmanage_window_actors (MetaCompositor *compositor);
+
+static inline int64_t
+us (int64_t us)
+{
+  return us;
+}
+
+static inline int64_t
+ms2us (int64_t ms)
+{
+  return us (ms * 1000);
+}
+
+static inline int64_t
+s2us (int64_t s)
+{
+  return ms2us(s * 1000);
+}
+
+/*
+ * This function takes a 64 bit time stamp from the monotonic clock, and clamps
+ * it to the scope of the X server clock, without losing the granularity.
+ */
+static inline int64_t
+meta_translate_to_high_res_xserver_time (int64_t time_us)
+{
+  int64_t us;
+  int64_t ms;
+
+  us = time_us % 1000;
+  ms = time_us / 1000;
+
+  return ms2us (ms & 0xffffffff) + us;
+}
 
 #endif /* META_COMPOSITOR_PRIVATE_H */

@@ -965,6 +965,7 @@ queue_send_frame_messages_timeout (MetaWindowActor *self)
   MetaWindow *window = priv->window;
   MetaDisplay *display = meta_window_get_display (priv->window);
   MetaLogicalMonitor *logical_monitor;
+  int64_t now_us;
   int64_t current_time;
   float refresh_rate;
   int interval, offset;
@@ -989,9 +990,10 @@ queue_send_frame_messages_timeout (MetaWindowActor *self)
       refresh_rate = 60.0f;
     }
 
+  now_us = g_get_monotonic_time ();
   current_time =
-    meta_compositor_monotonic_time_to_server_time (display,
-                                                   g_get_monotonic_time ());
+    meta_compositor_monotonic_to_high_res_xserver_time (display->compositor,
+                                                        now_us);
   interval = (int)(1000000 / refresh_rate) * 6;
   offset = MAX (0, priv->frame_drawn_time + interval - current_time) / 1000;
 
@@ -1972,11 +1974,14 @@ do_send_frame_drawn (MetaWindowActor *self, FrameData *frame)
   MetaWindowActorPrivate *priv = self->priv;
   MetaDisplay *display = meta_window_get_display (priv->window);
   Display *xdisplay = meta_display_get_xdisplay (display);
+  int64_t now_us;
 
   XClientMessageEvent ev = { 0, };
 
-  frame->frame_drawn_time = meta_compositor_monotonic_time_to_server_time (display,
-                                                                           g_get_monotonic_time ());
+  now_us = g_get_monotonic_time ();
+  frame->frame_drawn_time =
+    meta_compositor_monotonic_to_high_res_xserver_time (display->compositor, now_us);
+
   priv->frame_drawn_time = frame->frame_drawn_time;
 
   ev.type = ClientMessage;
@@ -2052,8 +2057,13 @@ do_send_frame_timings (MetaWindowActor  *self,
 
   if (presentation_time != 0)
     {
-      gint64 presentation_time_server = meta_compositor_monotonic_time_to_server_time (display,
-                                                                                       presentation_time);
+      MetaCompositor *compositor = display->compositor;
+      int64_t presentation_time_server;
+
+      presentation_time_server =
+        meta_compositor_monotonic_to_high_res_xserver_time (compositor,
+                                                            presentation_time);
+
       gint64 presentation_time_offset = presentation_time_server - frame->frame_drawn_time;
       if (presentation_time_offset == 0)
         presentation_time_offset = 1;
