@@ -238,7 +238,7 @@ clutter_transform_node_class_init (ClutterTransformNodeClass *klass)
 static void
 clutter_transform_node_init (ClutterTransformNode *self)
 {
-  cogl_matrix_init_identity (&self->transform);
+  graphene_matrix_init_identity (&self->transform);
 }
 
 /*
@@ -255,7 +255,7 @@ clutter_transform_node_new (const graphene_matrix_t *transform)
 
   res = _clutter_paint_node_create (CLUTTER_TYPE_TRANSFORM_NODE);
   if (transform)
-    res->transform = *transform;
+    graphene_matrix_init_from_matrix (&res->transform, transform);
 
   return (ClutterPaintNode *) res;
 }
@@ -1381,7 +1381,7 @@ clutter_layer_node_class_init (ClutterLayerNodeClass *klass)
 static void
 clutter_layer_node_init (ClutterLayerNode *self)
 {
-  cogl_matrix_init_identity (&self->projection);
+  graphene_matrix_init_identity (&self->projection);
 }
 
 /*
