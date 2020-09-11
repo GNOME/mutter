@@ -47,21 +47,12 @@ COGL_GTYPE_DEFINE_BOXED (Matrix, matrix,
                          cogl_matrix_copy,
                          cogl_matrix_free);
 
-enum CoglMatrixFlags
-{
-  COGL_MATRIX_FLAG_NONE = 0,
-  COGL_MATRIX_FLAG_SINGULAR = 1 << 0,
-  COGL_MATRIX_FLAG_DIRTY_INVERSE = 1 << 1,
-};
-
 void
 cogl_matrix_multiply (CoglMatrix *result,
 		      const CoglMatrix *a,
 		      const CoglMatrix *b)
 {
   graphene_matrix_multiply (&b->m, &a->m, &result->m);
-  result->flags = a->flags | b->flags | COGL_MATRIX_FLAG_DIRTY_INVERSE;
-
   _COGL_MATRIX_DEBUG_PRINT (result);
 }
 
@@ -69,11 +60,6 @@ void
 _cogl_matrix_prefix_print (const char *prefix, const CoglMatrix *matrix)
 {
   graphene_matrix_print (&matrix->m);
-  g_print ("%sInverse: \n", prefix);
-  if (!(matrix->flags & COGL_MATRIX_FLAG_DIRTY_INVERSE))
-    graphene_matrix_print (&matrix->inv);
-  else
-    g_print ("%s  - not available\n", prefix);
 }
 
 /*
@@ -99,7 +85,8 @@ cogl_debug_matrix_print (const CoglMatrix *matrix)
  */
 
 static inline gboolean
-calculate_inverse (CoglMatrix *matrix)
+calculate_inverse (const CoglMatrix *matrix,
+                   CoglMatrix       *inverse)
 {
   graphene_matrix_t scaled;
   graphene_matrix_t m;
@@ -122,50 +109,20 @@ calculate_inverse (CoglMatrix *matrix)
   /* Float precision is a limiting factor */
   graphene_matrix_multiply (&m, &scaled, &m);
 
-  invertible = graphene_matrix_inverse (&m, &matrix->inv);
+  invertible = graphene_matrix_inverse (&m, &inverse->m);
 
   if (invertible)
-    graphene_matrix_multiply (&scaled, &matrix->inv, &matrix->inv);
+    graphene_matrix_multiply (&scaled, &inverse->m, &inverse->m);
   else
-    graphene_matrix_init_identity (&matrix->inv);
+    graphene_matrix_init_identity (&inverse->m);
 
   return invertible;
-}
-
-static gboolean
-_cogl_matrix_update_inverse (CoglMatrix *matrix)
-{
-  if (matrix->flags & COGL_MATRIX_FLAG_DIRTY_INVERSE)
-    {
-      if (calculate_inverse (matrix))
-        matrix->flags &= ~COGL_MATRIX_FLAG_SINGULAR;
-      else
-        matrix->flags |= COGL_MATRIX_FLAG_SINGULAR;
-
-      matrix->flags &= ~COGL_MATRIX_FLAG_DIRTY_INVERSE;
-    }
-
-  if (matrix->flags & COGL_MATRIX_FLAG_SINGULAR)
-    return FALSE;
-  else
-    return TRUE;
 }
 
 gboolean
 cogl_matrix_get_inverse (const CoglMatrix *matrix, CoglMatrix *inverse)
 {
-  if (_cogl_matrix_update_inverse ((CoglMatrix *)matrix))
-    {
-      graphene_matrix_init_from_matrix (&inverse->m, &matrix->inv);
-      graphene_matrix_init_from_matrix (&inverse->inv, &matrix->m);
-      inverse->flags = COGL_MATRIX_FLAG_NONE;
-      return TRUE;
-    }
-  else
-    {
-      cogl_matrix_init_identity (inverse);
-      return FALSE;
-    }
+  return calculate_inverse (matrix, inverse);
 }
 
 void
@@ -177,15 +134,10 @@ cogl_matrix_rotate (CoglMatrix *matrix,
 {
   graphene_matrix_t rotation;
   graphene_vec3_t axis;
-  unsigned long flags;
-
-  flags = matrix->flags;
 
   graphene_vec3_init (&axis, x, y, z);
   graphene_matrix_init_rotate (&rotation, angle, &axis);
   graphene_matrix_multiply (&rotation, &matrix->m, &matrix->m);
-
-  matrix->flags = flags |= COGL_MATRIX_FLAG_DIRTY_INVERSE;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -210,18 +162,12 @@ cogl_matrix_frustum (CoglMatrix *matrix,
                      float       z_far)
 {
   graphene_matrix_t frustum;
-  unsigned long flags;
-
-  flags = matrix->flags;
 
   graphene_matrix_init_frustum (&frustum,
                                 left, right,
                                 bottom, top,
                                 z_near, z_far);
   graphene_matrix_multiply (&frustum, &matrix->m, &matrix->m);
-
-  flags |= COGL_MATRIX_FLAG_DIRTY_INVERSE;
-  matrix->flags = flags;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -255,17 +201,12 @@ cogl_matrix_orthographic (CoglMatrix *matrix,
                           float far)
 {
   graphene_matrix_t ortho;
-  unsigned long flags;
-
-  flags = matrix->flags;
 
   graphene_matrix_init_ortho (&ortho,
                               left, right,
                               top, bottom,
                               near, far);
   graphene_matrix_multiply (&ortho, &matrix->m, &matrix->m);
-
-  matrix->flags = flags | COGL_MATRIX_FLAG_DIRTY_INVERSE;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -277,14 +218,9 @@ cogl_matrix_scale (CoglMatrix *matrix,
 		   float sz)
 {
   graphene_matrix_t scale;
-  unsigned long flags;
-
-  flags = matrix->flags;
 
   graphene_matrix_init_scale (&scale, sx, sy, sz);
   graphene_matrix_multiply (&scale, &matrix->m, &matrix->m);
-
-  matrix->flags = flags | COGL_MATRIX_FLAG_DIRTY_INVERSE;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -300,7 +236,6 @@ cogl_matrix_translate (CoglMatrix *matrix,
   graphene_matrix_init_translate (&translation,
                                   &GRAPHENE_POINT3D_INIT (x, y, z));
   graphene_matrix_multiply (&translation, &matrix->m, &matrix->m);
-  matrix->flags |= COGL_MATRIX_FLAG_DIRTY_INVERSE;
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -309,7 +244,6 @@ void
 cogl_matrix_init_identity (CoglMatrix *matrix)
 {
   graphene_matrix_init_identity (&matrix->m);
-  matrix->flags = COGL_MATRIX_FLAG_DIRTY_INVERSE;
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
@@ -320,8 +254,6 @@ cogl_matrix_init_translation (CoglMatrix *matrix,
                               float       tz)
 {
   graphene_matrix_init_translate (&matrix->m, &GRAPHENE_POINT3D_INIT (tx, ty, tz));
-  matrix->flags = COGL_MATRIX_FLAG_DIRTY_INVERSE;
-
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
@@ -339,7 +271,6 @@ static void
 _cogl_matrix_init_from_array (CoglMatrix *matrix, const float *array)
 {
   graphene_matrix_init_from_float (&matrix->m, array);
-  matrix->flags = COGL_MATRIX_FLAG_DIRTY_INVERSE;
 }
 
 void
@@ -361,7 +292,6 @@ _cogl_matrix_init_from_matrix_without_inverse (CoglMatrix *matrix,
                                                const CoglMatrix *src)
 {
   graphene_matrix_init_from_matrix (&matrix->m, &src->m);
-  matrix->flags = src->flags | COGL_MATRIX_FLAG_DIRTY_INVERSE;
 }
 
 void
@@ -748,7 +678,6 @@ cogl_matrix_look_at (CoglMatrix *matrix,
   graphene_vec3_init (&up, world_up_x, world_up_y, world_up_z);
 
   graphene_matrix_init_look_at (&look_at.m, &eye, &center, &up);
-  look_at.flags = COGL_MATRIX_FLAG_DIRTY_INVERSE;
 
   cogl_matrix_multiply (matrix, matrix, &look_at);
 }
@@ -779,7 +708,6 @@ cogl_matrix_skew_xy (CoglMatrix *matrix,
   graphene_matrix_skew_xy (&skew, factor);
   graphene_matrix_multiply (&skew, &matrix->m, &matrix->m);
 
-  matrix->flags |= COGL_MATRIX_FLAG_DIRTY_INVERSE;
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
@@ -793,7 +721,6 @@ cogl_matrix_skew_xz (CoglMatrix *matrix,
   graphene_matrix_skew_xz (&skew, factor);
   graphene_matrix_multiply (&skew, &matrix->m, &matrix->m);
 
-  matrix->flags |= COGL_MATRIX_FLAG_DIRTY_INVERSE;
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
@@ -807,7 +734,6 @@ cogl_matrix_skew_yz (CoglMatrix *matrix,
   graphene_matrix_skew_yz (&skew, factor);
   graphene_matrix_multiply (&skew, &matrix->m, &matrix->m);
 
-  matrix->flags |= COGL_MATRIX_FLAG_DIRTY_INVERSE;
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 

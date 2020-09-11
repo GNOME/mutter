@@ -82,9 +82,6 @@ struct _CoglMatrix
 {
   /*< private >*/
   graphene_matrix_t m;
-
-  graphene_matrix_t COGL_PRIVATE (inv);
-  unsigned long  COGL_PRIVATE (flags);
 };
 
 /**
@@ -523,12 +520,6 @@ cogl_matrix_free (CoglMatrix *matrix);
  *
  * Gets the inverse transform of a given matrix and uses it to initialize
  * a new #CoglMatrix.
- *
- * <note>Although the first parameter is annotated as const to indicate
- * that the transform it represents isn't modified this function may
- * technically save a copy of the inverse transform within the given
- * #CoglMatrix so that subsequent requests for the inverse transform may
- * avoid costly inversion calculations.</note>
  *
  * Return value: %TRUE if the inverse was successfully calculated or %FALSE
  *   for degenerate transformations that can't be inverted (in this case the
