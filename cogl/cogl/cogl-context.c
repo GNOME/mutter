@@ -221,9 +221,9 @@ cogl_context_new (CoglDisplay *display,
 
   context->legacy_backface_culling_enabled = FALSE;
 
-  cogl_matrix_init_identity (&context->identity_matrix);
-  cogl_matrix_init_identity (&context->y_flip_matrix);
-  cogl_matrix_scale (&context->y_flip_matrix, 1, -1, 1);
+  graphene_matrix_init_identity (&context->identity_matrix);
+  graphene_matrix_init_identity (&context->y_flip_matrix);
+  graphene_matrix_scale (&context->y_flip_matrix, 1, -1, 1);
 
   context->opaque_color_pipeline = cogl_pipeline_new (context);
 

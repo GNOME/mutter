@@ -768,7 +768,7 @@ _cogl_pipeline_init_default_layers (void)
 
   big_state->point_sprite_coords = FALSE;
 
-  cogl_matrix_init_identity (&big_state->matrix);
+  graphene_matrix_init_identity (&big_state->matrix);
 
   ctx->default_layer_0 = _cogl_pipeline_layer_object_new (layer);
 

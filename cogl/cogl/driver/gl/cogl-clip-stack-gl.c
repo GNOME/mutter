@@ -137,6 +137,7 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
   int num_rectangles = cairo_region_num_rectangles (region);
   int i;
   CoglVertexP2 *vertices;
+  graphene_point3d_t p;
 
   /* NB: This can be called while flushing the journal so we need
    * to be very conservative with what state we change.
@@ -151,16 +152,17 @@ add_stencil_clip_region (CoglFramebuffer *framebuffer,
    * make a matrix that translates those across the viewport, and into
    * the default [-1, -1, 1, 1] range.
    */
-  cogl_matrix_init_identity (&matrix);
-  cogl_matrix_translate (&matrix, -1, 1, 0);
-  cogl_matrix_scale (&matrix,
-                     2.0 / framebuffer->viewport_width,
-                     - 2.0 / framebuffer->viewport_height,
-                     1);
-  cogl_matrix_translate (&matrix,
+  graphene_point3d_init (&p,
                          - framebuffer->viewport_x,
                          - framebuffer->viewport_y,
                          0);
+
+  graphene_matrix_init_translate (&matrix, &p);
+  graphene_matrix_scale (&matrix,
+                         2.0 / framebuffer->viewport_width,
+                         - 2.0 / framebuffer->viewport_height,
+                         1);
+  graphene_matrix_translate (&matrix, &GRAPHENE_POINT3D_INIT (-1.f, 1.f, 0.f));
 
   GE( ctx, glColorMask (FALSE, FALSE, FALSE, FALSE) );
   GE( ctx, glDepthMask (FALSE) );

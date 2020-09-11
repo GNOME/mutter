@@ -789,7 +789,7 @@ _cogl_pipeline_layer_user_matrix_equal (CoglPipelineLayer *authority0,
   CoglPipelineLayerBigState *big_state0 = authority0->big_state;
   CoglPipelineLayerBigState *big_state1 = authority1->big_state;
 
-  if (!cogl_matrix_equal (&big_state0->matrix, &big_state1->matrix))
+  if (!graphene_matrix_equal (&big_state0->matrix, &big_state1->matrix))
     return FALSE;
 
   return TRUE;
@@ -1164,7 +1164,7 @@ cogl_pipeline_set_layer_matrix (CoglPipeline *pipeline,
    * state we want to change */
   authority = _cogl_pipeline_layer_get_authority (layer, state);
 
-  if (cogl_matrix_equal (matrix, &authority->big_state->matrix))
+  if (graphene_matrix_equal (matrix, &authority->big_state->matrix))
     return;
 
   new = _cogl_pipeline_layer_pre_change_notify (pipeline, layer, state);
@@ -1183,7 +1183,7 @@ cogl_pipeline_set_layer_matrix (CoglPipeline *pipeline,
           CoglPipelineLayer *old_authority =
             _cogl_pipeline_layer_get_authority (parent, state);
 
-          if (cogl_matrix_equal (matrix, &old_authority->big_state->matrix))
+          if (graphene_matrix_equal (matrix, &old_authority->big_state->matrix))
             {
               layer->differences &= ~state;
 

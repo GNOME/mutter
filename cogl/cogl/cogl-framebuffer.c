@@ -1585,8 +1585,7 @@ cogl_framebuffer_orthographic (CoglFramebuffer *framebuffer,
    * so we need to flush all journaled primitives first... */
   _cogl_framebuffer_flush_journal (framebuffer);
 
-  cogl_matrix_init_identity (&ortho);
-  cogl_matrix_orthographic (&ortho, x_1, y_1, x_2, y_2, near, far);
+  graphene_matrix_init_ortho (&ortho, x_1, x_2, y_2, y_1, near, far);
   cogl_matrix_stack_set (projection_stack, &ortho);
 
   if (framebuffer->context->current_draw_buffer == framebuffer)

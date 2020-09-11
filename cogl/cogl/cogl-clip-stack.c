@@ -193,9 +193,7 @@ _cogl_clip_stack_push_rectangle (CoglClipStack *stack,
   cogl_matrix_entry_get (modelview_entry, &modelview);
   cogl_matrix_entry_get (projection_entry, &projection);
 
-  cogl_matrix_multiply (&modelview_projection,
-                        &projection,
-                        &modelview);
+  graphene_matrix_multiply (&modelview, &projection, &modelview_projection);
 
   /* Technically we could avoid the viewport transform at this point
    * if we want to make this a bit faster. */

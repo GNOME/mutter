@@ -435,7 +435,7 @@ update_constants_cb (CoglPipeline *pipeline,
       float array[16];
 
       matrix = _cogl_pipeline_get_layer_matrix (pipeline, layer_index);
-      cogl_matrix_to_float (matrix, array);
+      graphene_matrix_to_float (matrix, array);
       GE (ctx, glUniformMatrix4fv (unit_state->texture_matrix_uniform,
                                    1, FALSE, array));
       unit_state->dirty_texture_matrix = FALSE;
@@ -1053,9 +1053,9 @@ _cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
             {
               graphene_matrix_t tmp_matrix;
               cogl_matrix_entry_get (projection_entry, &tmp_matrix);
-              cogl_matrix_multiply (&projection,
-                                    &ctx->y_flip_matrix,
-                                    &tmp_matrix);
+              graphene_matrix_multiply (&tmp_matrix,
+                                        &ctx->y_flip_matrix,
+                                        &projection);
             }
           else
             cogl_matrix_entry_get (projection_entry, &projection);
@@ -1063,7 +1063,7 @@ _cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
 
       if (projection_changed && program_state->projection_uniform != -1)
         {
-          cogl_matrix_to_float (&projection, v);
+          graphene_matrix_to_float (&projection, v);
           GE (ctx, glUniformMatrix4fv (program_state->projection_uniform,
                                        1, /* count */
                                        FALSE, /* transpose */
@@ -1072,7 +1072,7 @@ _cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
 
       if (modelview_changed && program_state->modelview_uniform != -1)
         {
-          cogl_matrix_to_float (&modelview,v);
+          graphene_matrix_to_float (&modelview,v);
           GE (ctx, glUniformMatrix4fv (program_state->modelview_uniform,
                                        1, /* count */
                                        FALSE, /* transpose */
@@ -1086,7 +1086,7 @@ _cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
              avoiding the matrix multiplication */
           if (cogl_matrix_entry_is_identity (modelview_entry))
             {
-              cogl_matrix_to_float (&projection, v);
+              graphene_matrix_to_float (&projection, v);
               GE (ctx,
                   glUniformMatrix4fv (program_state->mvp_uniform,
                                       1, /* count */
@@ -1097,10 +1097,8 @@ _cogl_pipeline_progend_glsl_pre_paint (CoglPipeline *pipeline,
             {
               graphene_matrix_t combined;
 
-              cogl_matrix_multiply (&combined,
-                                    &projection,
-                                    &modelview);
-              cogl_matrix_to_float (&combined, v);
+              graphene_matrix_multiply (&modelview, &projection, &combined);
+              graphene_matrix_to_float (&combined, v);
 
               GE (ctx,
                   glUniformMatrix4fv (program_state->mvp_uniform,
