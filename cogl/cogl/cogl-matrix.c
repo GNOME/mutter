@@ -42,11 +42,6 @@
 #include <math.h>
 #include <string.h>
 
-#include <cogl-gtype-private.h>
-COGL_GTYPE_DEFINE_BOXED (Matrix, matrix,
-                         cogl_matrix_copy,
-                         cogl_matrix_free);
-
 void
 cogl_matrix_multiply (CoglMatrix *result,
 		      const CoglMatrix *a,
@@ -692,12 +687,6 @@ cogl_matrix_transpose (CoglMatrix *matrix)
   graphene_matrix_transpose (matrix, matrix);
 }
 
-GType
-cogl_gtype_matrix_get_type (void)
-{
-  return cogl_matrix_get_gtype ();
-}
-
 void
 cogl_matrix_skew_xy (CoglMatrix *matrix,
                      float       factor)
@@ -735,10 +724,4 @@ cogl_matrix_skew_yz (CoglMatrix *matrix,
   graphene_matrix_multiply (&skew, matrix, matrix);
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
-}
-
-const graphene_matrix_t *
-cogl_matrix_get_graphene_matrix (const CoglMatrix *matrix)
-{
-  return matrix;
 }

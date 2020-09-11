@@ -6908,7 +6908,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("transform",
                         P_("Transform"),
                         P_("Transformation matrix"),
-                        COGL_GTYPE_TYPE_MATRIX,
+                        GRAPHENE_TYPE_MATRIX,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         CLUTTER_PARAM_ANIMATABLE);
@@ -6946,7 +6946,7 @@ clutter_actor_class_init (ClutterActorClass *klass)
     g_param_spec_boxed ("child-transform",
                         P_("Child Transform"),
                         P_("Children transformation matrix"),
-                        COGL_GTYPE_TYPE_MATRIX,
+                        GRAPHENE_TYPE_MATRIX,
                         G_PARAM_READWRITE |
                         G_PARAM_STATIC_STRINGS |
                         CLUTTER_PARAM_ANIMATABLE);

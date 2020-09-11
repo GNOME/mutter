@@ -673,29 +673,6 @@ cogl_matrix_transpose (CoglMatrix *matrix);
 COGL_EXPORT void
 cogl_debug_matrix_print (const CoglMatrix *matrix);
 
-#define COGL_GTYPE_TYPE_MATRIX (cogl_matrix_get_gtype ())
-
-/**
- * cogl_matrix_get_gtype:
- *
- * Returns: a #GType that can be used with the GLib type system.
- */
-COGL_EXPORT
-GType cogl_matrix_get_gtype (void);
-
-/**
- * cogl_gtype_matrix_get_type:
- *
- * Returns: the GType for the registered "CoglMatrix" boxed type. This
- * can be used for example to define GObject properties that accept a
- * #CoglMatrix value.
- *
- * Deprecated: 1.18: Use cogl_matrix_get_gtype() instead.
- */
-COGL_EXPORT GType
-cogl_gtype_matrix_get_type (void);
-
-
 /**
  * cogl_matrix_determinant:
  * @matrix: a #CoglMatrix
@@ -739,18 +716,6 @@ cogl_matrix_skew_xz (CoglMatrix *matrix,
 COGL_EXPORT void
 cogl_matrix_skew_yz (CoglMatrix *matrix,
                      float       factor);
-
-/**
- * cogl_matrix_get_graphene_matrix:
- * @matrix: a #CoglMatrix
- *
- * Retrieves the internal #graphene_matrix_t of @matrix. It should not
- * be modified, and must be considered read-only.
- *
- * Returns: (transfer none): a #graphene_matrix_t
- */
-COGL_EXPORT const graphene_matrix_t *
-cogl_matrix_get_graphene_matrix (const CoglMatrix *matrix);
 
 G_END_DECLS
 
