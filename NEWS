@@ -1,3 +1,15 @@
+3.38.0
+======
+* screencast: Only use DMA buffers for i915 [Jonas; !1442]
+* Fixed crashes [Jonas, Simon; !1430, #1414]
+
+Contributors:
+  Simon McVittie, Jonas Ådahl
+
+Translators:
+  Anders Jonsson [sv], Gil Forcada [ca], Balázs Meskó [hu], Tim Sabsch [de],
+  Milo Casagrande [it], Bruce Cowan [en_GB], Rūdolfs Mazurs [lv]
+
 3.37.92
 =======
 * Fix stale cursor positions in remote desktop sessions [Georges; !1417]
