@@ -347,6 +347,7 @@ static void
 maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
 {
   MetaBackend *backend = META_BACKEND (native);
+  MetaSettings *settings = meta_backend_get_settings (backend);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
   MetaScreenCast *screen_cast = meta_backend_get_screen_cast (backend);
@@ -363,6 +364,10 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
   driver_name = meta_kms_device_get_driver_name (kms_device);
 
   if (g_strv_contains (enable_dma_buf_drivers, driver_name))
+    return;
+
+  if (meta_settings_is_experimental_feature_enabled (settings,
+        META_EXPERIMENTAL_FEATURE_DMA_BUF_SCREEN_SHARING))
     return;
 
   g_message ("Disabling DMA buffer screen sharing for driver '%s'.",

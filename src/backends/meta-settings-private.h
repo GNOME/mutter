@@ -35,6 +35,7 @@ typedef enum _MetaExperimentalFeature
   META_EXPERIMENTAL_FEATURE_KMS_MODIFIERS  = (1 << 1),
   META_EXPERIMENTAL_FEATURE_RT_SCHEDULER = (1 << 2),
   META_EXPERIMENTAL_FEATURE_AUTOSTART_XWAYLAND  = (1 << 3),
+  META_EXPERIMENTAL_FEATURE_DMA_BUF_SCREEN_SHARING = (1 << 4),
 } MetaExperimentalFeature;
 
 typedef enum _MetaXwaylandExtension
