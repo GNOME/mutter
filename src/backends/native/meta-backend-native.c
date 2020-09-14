@@ -349,12 +349,12 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
   MetaBackend *backend = META_BACKEND (native);
   MetaRenderer *renderer = meta_backend_get_renderer (backend);
   MetaRendererNative *renderer_native = META_RENDERER_NATIVE (renderer);
+  MetaScreenCast *screen_cast = meta_backend_get_screen_cast (backend);
   MetaGpuKms *primary_gpu;
   MetaKmsDevice *kms_device;
   const char *driver_name;
-  static const char *disable_dma_buf_drivers[] = {
-    "qxl",
-    "vmwgfx",
+  static const char *enable_dma_buf_drivers[] = {
+    "i915",
     NULL,
   };
 
@@ -362,16 +362,13 @@ maybe_disable_screen_cast_dma_bufs (MetaBackendNative *native)
   kms_device = meta_gpu_kms_get_kms_device (primary_gpu);
   driver_name = meta_kms_device_get_driver_name (kms_device);
 
-  if (g_strv_contains (disable_dma_buf_drivers, driver_name))
-    {
-      MetaScreenCast *screen_cast = meta_backend_get_screen_cast (backend);
+  if (g_strv_contains (enable_dma_buf_drivers, driver_name))
+    return;
 
-      g_message ("The '%s' driver doesn't support DMA buffer screen sharing, disabling.",
-                 driver_name);
+  g_message ("Disabling DMA buffer screen sharing for driver '%s'.",
+             driver_name);
 
-      meta_screen_cast_disable_dma_bufs (screen_cast);
-      return;
-    }
+  meta_screen_cast_disable_dma_bufs (screen_cast);
 }
 #endif /* HAVE_REMOTE_DESKTOP */
 
