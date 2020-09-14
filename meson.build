@@ -182,6 +182,8 @@ have_libgudev = get_option('udev')
 if have_libgudev
   libudev_dep = dependency('libudev', version: udev_req)
   gudev_dep = dependency('gudev-1.0', version: gudev_req)
+  udev_dep = dependency('udev')
+  udevdir = udev_dep.get_pkgconfig_variable('udevdir')
 endif
 
 have_native_backend = get_option('native_backend')
