@@ -254,9 +254,7 @@ clutter_backend_x11_post_parse (ClutterBackend  *backend,
                                 GError         **error)
 {
   ClutterBackendX11 *backend_x11 = CLUTTER_BACKEND_X11 (backend);
-  ClutterSettings *settings;
   Atom atoms[N_ATOM_NAMES];
-  double dpi;
 
   if (_foreign_dpy)
     backend_x11->xdpy = _foreign_dpy;
@@ -296,8 +294,6 @@ clutter_backend_x11_post_parse (ClutterBackend  *backend,
 
   CLUTTER_NOTE (BACKEND, "Getting the X screen");
 
-  settings = clutter_settings_get_default ();
-
   /* add event filter for Cogl events */
   clutter_x11_add_filter (cogl_xlib_filter, backend);
 
@@ -315,11 +311,6 @@ clutter_backend_x11_post_parse (ClutterBackend  *backend,
                                        backend_x11->xscreen_num);
 
   backend_x11->display_name = g_strdup (clutter_display_name);
-
-  dpi = (((double) DisplayHeight (backend_x11->xdpy, backend_x11->xscreen_num) * 25.4)
-      / (double) DisplayHeightMM (backend_x11->xdpy, backend_x11->xscreen_num));
-
-  g_object_set (settings, "font-dpi", (int) dpi * 1024, NULL);
 
   /* create XSETTINGS client */
   backend_x11->xsettings =
