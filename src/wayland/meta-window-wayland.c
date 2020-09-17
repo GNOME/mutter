@@ -192,7 +192,8 @@ surface_state_changed (MetaWindow *window)
   g_return_if_fail (wl_window->has_last_sent_configuration);
 
   configuration =
-    meta_wayland_window_configuration_new (wl_window->last_sent_x,
+    meta_wayland_window_configuration_new (window,
+                                           wl_window->last_sent_x,
                                            wl_window->last_sent_y,
                                            wl_window->last_sent_width,
                                            wl_window->last_sent_height,
@@ -372,7 +373,8 @@ meta_window_wayland_move_resize_internal (MetaWindow                *window,
             return;
 
           configuration =
-            meta_wayland_window_configuration_new (configured_x,
+            meta_wayland_window_configuration_new (window,
+                                                   configured_x,
                                                    configured_y,
                                                    configured_width,
                                                    configured_height,
@@ -952,6 +954,13 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
   is_window_being_resized = (meta_grab_op_is_resizing (display->grab_op) &&
                              display->grab_window == window);
 
+  rect = (MetaRectangle) {
+    .x = window->rect.x,
+    .y = window->rect.y,
+    .width = new_geom.width,
+    .height = new_geom.height
+  };
+
   if (!is_window_being_resized)
     {
       if (acked_configuration)
@@ -964,25 +973,20 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
               rect.x = parent->rect.x + acked_configuration->rel_x;
               rect.y = parent->rect.y + acked_configuration->rel_y;
             }
-          else
+          else if (acked_configuration->has_position)
             {
               calculate_offset (acked_configuration, &new_geom, &rect);
             }
         }
-      else
-        {
-          rect.x = window->rect.x;
-          rect.y = window->rect.y;
-        }
-
-      rect.x += dx;
-      rect.y += dy;
     }
   else
     {
-      if (acked_configuration)
+      if (acked_configuration && acked_configuration->has_position)
         calculate_offset (acked_configuration, &new_geom, &rect);
     }
+
+  rect.x += dx;
+  rect.y += dy;
 
   if (rect.x != window->rect.x || rect.y != window->rect.y)
     flags |= META_MOVE_RESIZE_MOVE_ACTION;
@@ -992,9 +996,6 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
       flags |= META_MOVE_RESIZE_WAYLAND_STATE_CHANGED;
       wl_window->has_pending_state_change = FALSE;
     }
-
-  rect.width = new_geom.width;
-  rect.height = new_geom.height;
 
   if (rect.width != window->rect.width || rect.height != window->rect.height)
     flags |= META_MOVE_RESIZE_RESIZE_ACTION;
