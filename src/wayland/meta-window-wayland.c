@@ -951,9 +951,6 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
 
       rect.x += dx;
       rect.y += dy;
-
-      if (rect.x != window->rect.x || rect.y != window->rect.y)
-        flags |= META_MOVE_RESIZE_MOVE_ACTION;
     }
   else
     {
@@ -963,6 +960,9 @@ meta_window_wayland_finish_move_resize (MetaWindow              *window,
           rect.y = acked_configuration->y;
         }
     }
+
+  if (rect.x != window->rect.x || rect.y != window->rect.y)
+    flags |= META_MOVE_RESIZE_MOVE_ACTION;
 
   if (wl_window->has_pending_state_change && acked_configuration)
     {
