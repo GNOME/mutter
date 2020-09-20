@@ -15,7 +15,7 @@ libmutter_api_version = '@0@'.format(api_version)
 fribidi_req = '>= 1.0.0'
 glib_req = '>= 2.61.1'
 gi_req = '>= 0.9.5'
-graphene_req = '>= 1.9.3'
+graphene_req = '>= 1.10.2'
 gtk3_req = '>= 3.19.8'
 gdk_pixbuf_req = '>= 2.0'
 uprof_req = '>= 0.3'
