@@ -169,10 +169,12 @@ apply_allow_commits_x11_property (MetaWindowXwayland *xwayland_window,
   MetaWindow *window = META_WINDOW (xwayland_window);
   MetaDisplay *display = window->display;
   MetaX11Display *x11_display = display->x11_display;
-  Display *xdisplay = x11_display->xdisplay;
   MetaFrame *frame;
   Window xwin;
   guint32 property[1];
+
+  if (!x11_display)
+    return;
 
   frame = meta_window_get_frame (window);
   if (!frame)
@@ -186,12 +188,12 @@ apply_allow_commits_x11_property (MetaWindowXwayland *xwayland_window,
   property[0] = !!allow_commits;
 
   meta_x11_error_trap_push (x11_display);
-  XChangeProperty (xdisplay, xwin,
+  XChangeProperty (x11_display->xdisplay, xwin,
                    x11_display->atom__XWAYLAND_ALLOW_COMMITS,
                    XA_CARDINAL, 32, PropModeReplace,
                    (guchar*) &property, 1);
   meta_x11_error_trap_pop (x11_display);
-  XFlush (xdisplay);
+  XFlush (x11_display->xdisplay);
 }
 
 static void
