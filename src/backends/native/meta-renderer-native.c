@@ -1266,7 +1266,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen        *onscreen,
   MetaKms *kms;
   MetaKmsUpdate *kms_update;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state = NULL;
-  uint32_t fb_id;
+  MetaDrmBuffer *buffer;
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (crtc));
   kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
@@ -1282,15 +1282,15 @@ meta_onscreen_native_flip_crtc (CoglOnscreen        *onscreen,
     case META_RENDERER_NATIVE_MODE_GBM:
       if (gpu_kms == render_gpu)
         {
-          fb_id = meta_drm_buffer_get_fb_id (onscreen_native->gbm.next_fb);
+          buffer = onscreen_native->gbm.next_fb;
         }
       else
         {
           secondary_gpu_state = onscreen_native->secondary_gpu_state;
-          fb_id = meta_drm_buffer_get_fb_id (secondary_gpu_state->gbm.next_fb);
+          buffer = secondary_gpu_state->gbm.next_fb;
         }
 
-      meta_crtc_kms_assign_primary_plane (crtc_kms, fb_id, kms_update);
+      meta_crtc_kms_assign_primary_plane (crtc_kms, buffer, kms_update);
       meta_crtc_kms_page_flip (crtc_kms,
                                &page_flip_feedback,
                                flags,
@@ -1338,9 +1338,7 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
         MetaDrmBuffer *buffer;
 
         buffer = META_DRM_BUFFER (onscreen_native->egl.dumb_fb);
-        meta_crtc_kms_assign_primary_plane (crtc_kms,
-                                            meta_drm_buffer_get_fb_id (buffer),
-                                            kms_update);
+        meta_crtc_kms_assign_primary_plane (crtc_kms, buffer, kms_update);
         break;
       }
 #endif

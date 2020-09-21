@@ -39,7 +39,7 @@ typedef struct _MetaKmsPlaneAssignment
   MetaKmsUpdate *update;
   MetaKmsCrtc *crtc;
   MetaKmsPlane *plane;
-  uint32_t fb_id;
+  MetaDrmBuffer *buffer;
   MetaFixed16Rectangle src_rect;
   MetaRectangle dst_rect;
   MetaKmsAssignPlaneFlag flags;

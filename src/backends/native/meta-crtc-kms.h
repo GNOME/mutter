@@ -28,6 +28,7 @@
 
 #include "backends/meta-backend-types.h"
 #include "backends/meta-crtc.h"
+#include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-gpu-kms.h"
 #include "backends/native/meta-kms-crtc.h"
 #include "backends/native/meta-kms-update.h"
@@ -49,7 +50,7 @@ void meta_crtc_kms_apply_transform (MetaCrtcKms            *crtc_kms,
                                     MetaKmsPlaneAssignment *kms_plane_assignment);
 
 void meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
-                                         uint32_t       fb_id,
+                                         MetaDrmBuffer *buffer,
                                          MetaKmsUpdate *kms_update);
 
 void meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,

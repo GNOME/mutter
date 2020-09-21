@@ -98,7 +98,7 @@ meta_crtc_kms_apply_transform (MetaCrtcKms            *crtc_kms,
 
 void
 meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
-                                    uint32_t       fb_id,
+                                    MetaDrmBuffer *buffer,
                                     MetaKmsUpdate *kms_update)
 {
   MetaCrtc *crtc = META_CRTC (crtc_kms);
@@ -137,7 +137,7 @@ meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
   plane_assignment = meta_kms_update_assign_plane (kms_update,
                                                    kms_crtc,
                                                    primary_kms_plane,
-                                                   fb_id,
+                                                   buffer,
                                                    src_rect,
                                                    dst_rect,
                                                    flags);

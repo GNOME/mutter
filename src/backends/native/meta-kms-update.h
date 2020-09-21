@@ -26,6 +26,7 @@
 #include <xf86drmMode.h>
 
 #include "backends/meta-monitor-transform.h"
+#include "backends/native/meta-drm-buffer.h"
 #include "backends/native/meta-kms-types.h"
 #include "meta/boxes.h"
 
@@ -112,7 +113,7 @@ void meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
 MetaKmsPlaneAssignment * meta_kms_update_assign_plane (MetaKmsUpdate          *update,
                                                        MetaKmsCrtc            *crtc,
                                                        MetaKmsPlane           *plane,
-                                                       uint32_t                fb_id,
+                                                       MetaDrmBuffer          *buffer,
                                                        MetaFixed16Rectangle    src_rect,
                                                        MetaRectangle           dst_rect,
                                                        MetaKmsAssignPlaneFlag  flags);

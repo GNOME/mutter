@@ -21,6 +21,7 @@
 
 #include "backends/native/meta-kms-impl-device-simple.h"
 
+#include "backends/native/meta-drm-buffer-gbm.h"
 #include "backends/native/meta-kms-connector-private.h"
 #include "backends/native/meta-kms-crtc-private.h"
 #include "backends/native/meta-kms-device-private.h"
@@ -259,6 +260,8 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
 
   if (mode_set->mode)
     {
+      MetaDrmBuffer *buffer;
+
       drm_mode = g_alloca (sizeof *drm_mode);
       *drm_mode = *meta_kms_mode_get_drm_mode (mode_set->mode);
 
@@ -288,7 +291,8 @@ process_mode_set (MetaKmsImplDevice  *impl_device,
             return FALSE;
         }
 
-      fb_id = plane_assignment->fb_id;
+      buffer = plane_assignment->buffer;
+      fb_id = meta_drm_buffer_get_fb_id (buffer);
     }
   else
     {
@@ -641,6 +645,7 @@ mode_set_fallback (MetaKmsImplDeviceSimple  *impl_device_simple,
   CachedModeSet *cached_mode_set;
   g_autofree uint32_t *connectors = NULL;
   int n_connectors;
+  uint32_t fb_id;
   uint32_t x, y;
   int fd;
   int ret;
@@ -658,13 +663,15 @@ mode_set_fallback (MetaKmsImplDeviceSimple  *impl_device_simple,
                             &connectors,
                             &n_connectors);
 
+  fb_id = meta_drm_buffer_get_fb_id (plane_assignment->buffer);
+
   x = meta_fixed_16_to_int (plane_assignment->src_rect.x);
   y = meta_fixed_16_to_int (plane_assignment->src_rect.y);
 
   fd = meta_kms_impl_device_get_fd (impl_device);
   ret = drmModeSetCrtc (fd,
                         meta_kms_crtc_get_id (crtc),
-                        plane_assignment->fb_id,
+                        fb_id,
                         x, y,
                         connectors, n_connectors,
                         cached_mode_set->drm_mode);
@@ -730,9 +737,12 @@ process_page_flip (MetaKmsImplDevice  *impl_device,
     }
   else
     {
+      uint32_t fb_id;
+
+      fb_id = meta_drm_buffer_get_fb_id (plane_assignment->buffer);
       ret = drmModePageFlip (fd,
                              meta_kms_crtc_get_id (crtc),
-                             plane_assignment->fb_id,
+                             fb_id,
                              DRM_MODE_PAGE_FLIP_EVENT,
                              meta_kms_page_flip_data_ref (page_flip_data));
     }
@@ -747,15 +757,19 @@ process_page_flip (MetaKmsImplDevice  *impl_device,
       cached_mode_set = get_cached_mode_set (impl_device_simple, crtc);
       if (cached_mode_set)
         {
+          uint32_t fb_id;
           drmModeModeInfo *drm_mode;
           float refresh_rate;
 
+          if (plane_assignment)
+            fb_id = meta_drm_buffer_get_fb_id (plane_assignment->buffer);
+          else
+            fb_id = 0;
           drm_mode = cached_mode_set->drm_mode;
           refresh_rate = meta_calculate_drm_mode_refresh_rate (drm_mode);
           schedule_retry_page_flip (impl_device_simple,
                                     crtc,
-                                    plane_assignment ?
-                                        plane_assignment->fb_id : 0,
+                                    fb_id,
                                     refresh_rate,
                                     page_flip_data,
                                     custom_page_flip_func,
@@ -851,15 +865,32 @@ process_cursor_plane_assignment (MetaKmsImplDevice       *impl_device,
     {
       int width, height;
       int ret = -1;
+      uint32_t handle_u32;
 
       width = plane_assignment->dst_rect.width;
       height = plane_assignment->dst_rect.height;
+
+      if (plane_assignment->buffer)
+        {
+          MetaDrmBufferGbm *buffer_gbm =
+            META_DRM_BUFFER_GBM (plane_assignment->buffer);
+          struct gbm_bo *bo;
+          union gbm_bo_handle handle;
+
+          bo = meta_drm_buffer_gbm_get_bo (buffer_gbm);
+          handle = gbm_bo_get_handle (bo);
+          handle_u32 = handle.u32;
+        }
+      else
+        {
+          handle_u32 = 0;
+        }
 
       if (plane_assignment->cursor_hotspot.is_valid)
         {
           ret = drmModeSetCursor2 (fd,
                                    crtc_id,
-                                   plane_assignment->fb_id,
+                                   handle_u32,
                                    width, height,
                                    plane_assignment->cursor_hotspot.x,
                                    plane_assignment->cursor_hotspot.y);
@@ -868,7 +899,7 @@ process_cursor_plane_assignment (MetaKmsImplDevice       *impl_device,
       if (ret != 0)
         {
           ret = drmModeSetCursor (fd, crtc_id,
-                                  plane_assignment->fb_id,
+                                  handle_u32,
                                   width, height);
         }
 
