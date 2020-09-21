@@ -110,7 +110,7 @@ typedef enum _MetaCursorGbmBoState
 typedef struct _MetaCursorNativeGpuState
 {
   MetaGpu *gpu;
-  guint active_bo;
+  unsigned int active_bo;
   MetaCursorGbmBoState pending_bo_state;
   struct gbm_bo *bos[HW_CURSOR_BUFFER_COUNT];
 } MetaCursorNativeGpuState;
@@ -185,7 +185,7 @@ meta_cursor_renderer_native_finalize (GObject *object)
   G_OBJECT_CLASS (meta_cursor_renderer_native_parent_class)->finalize (object);
 }
 
-static guint
+static unsigned int
 get_pending_cursor_sprite_gbm_bo_index (MetaCursorNativeGpuState *cursor_gpu_state)
 {
   return (cursor_gpu_state->active_bo + 1) % HW_CURSOR_BUFFER_COUNT;
@@ -194,7 +194,7 @@ get_pending_cursor_sprite_gbm_bo_index (MetaCursorNativeGpuState *cursor_gpu_sta
 static struct gbm_bo *
 get_pending_cursor_sprite_gbm_bo (MetaCursorNativeGpuState *cursor_gpu_state)
 {
-  guint pending_bo;
+  unsigned int pending_bo;
 
   pending_bo = get_pending_cursor_sprite_gbm_bo_index (cursor_gpu_state);
   return cursor_gpu_state->bos[pending_bo];
@@ -213,7 +213,7 @@ set_pending_cursor_sprite_gbm_bo (MetaCursorSprite *cursor_sprite,
 {
   MetaCursorNativePrivate *cursor_priv;
   MetaCursorNativeGpuState *cursor_gpu_state;
-  guint pending_bo;
+  unsigned int pending_bo;
 
   cursor_priv = ensure_cursor_priv (cursor_sprite);
   cursor_gpu_state = ensure_cursor_gpu_state (cursor_priv, gpu_kms);
@@ -1123,7 +1123,7 @@ invalidate_cursor_gpu_state (MetaCursorSprite *cursor_sprite)
   g_hash_table_iter_init (&iter, cursor_priv->gpu_states);
   while (g_hash_table_iter_next (&iter, NULL, (gpointer *) &cursor_gpu_state))
     {
-      guint pending_bo;
+      unsigned int pending_bo;
       pending_bo = get_pending_cursor_sprite_gbm_bo_index (cursor_gpu_state);
       g_clear_pointer (&cursor_gpu_state->bos[pending_bo],
                        gbm_bo_destroy);
