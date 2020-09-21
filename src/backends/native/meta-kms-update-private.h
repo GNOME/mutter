@@ -41,7 +41,7 @@ typedef struct _MetaKmsPlaneAssignment
   MetaKmsPlane *plane;
   uint32_t fb_id;
   MetaFixed16Rectangle src_rect;
-  MetaFixed16Rectangle dst_rect;
+  MetaRectangle dst_rect;
   MetaKmsAssignPlaneFlag flags;
 
   uint64_t rotation;

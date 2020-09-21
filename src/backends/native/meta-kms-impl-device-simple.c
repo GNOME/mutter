@@ -852,8 +852,8 @@ process_cursor_plane_assignment (MetaKmsImplDevice       *impl_device,
       int width, height;
       int ret = -1;
 
-      width = meta_fixed_16_to_int (plane_assignment->dst_rect.width);
-      height = meta_fixed_16_to_int (plane_assignment->dst_rect.height);
+      width = plane_assignment->dst_rect.width;
+      height = plane_assignment->dst_rect.height;
 
       if (plane_assignment->cursor_hotspot.is_valid)
         {
@@ -882,8 +882,8 @@ process_cursor_plane_assignment (MetaKmsImplDevice       *impl_device,
 
   drmModeMoveCursor (fd,
                      crtc_id,
-                     meta_fixed_16_to_int (plane_assignment->dst_rect.x),
-                     meta_fixed_16_to_int (plane_assignment->dst_rect.y));
+                     plane_assignment->dst_rect.x,
+                     plane_assignment->dst_rect.y);
 
   return TRUE;
 }

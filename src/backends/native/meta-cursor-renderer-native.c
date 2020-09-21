@@ -272,7 +272,7 @@ set_crtc_cursor (MetaCursorRendererNative *native,
   union gbm_bo_handle handle;
   int cursor_width, cursor_height;
   MetaFixed16Rectangle src_rect;
-  MetaFixed16Rectangle dst_rect;
+  MetaRectangle dst_rect;
   struct gbm_bo *crtc_bo;
   MetaKmsAssignPlaneFlag flags;
   int cursor_hotspot_x;
@@ -299,11 +299,11 @@ set_crtc_cursor (MetaCursorRendererNative *native,
     .width = meta_fixed_16_from_int (cursor_width),
     .height = meta_fixed_16_from_int (cursor_height),
   };
-  dst_rect = (MetaFixed16Rectangle) {
-    .x = meta_fixed_16_from_int (x),
-    .y = meta_fixed_16_from_int (y),
-    .width = meta_fixed_16_from_int (cursor_width),
-    .height = meta_fixed_16_from_int (cursor_height),
+  dst_rect = (MetaRectangle) {
+    .x = x,
+    .y = y,
+    .width = cursor_width,
+    .height = cursor_height,
   };
 
   flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;

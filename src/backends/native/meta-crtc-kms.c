@@ -105,7 +105,7 @@ meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
   const MetaCrtcConfig *crtc_config;
   const MetaCrtcModeInfo *crtc_mode_info;
   MetaFixed16Rectangle src_rect;
-  MetaFixed16Rectangle dst_rect;
+  MetaRectangle dst_rect;
   MetaKmsAssignPlaneFlag flags;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
@@ -121,11 +121,11 @@ meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
     .width = meta_fixed_16_from_int (crtc_mode_info->width),
     .height = meta_fixed_16_from_int (crtc_mode_info->height),
   };
-  dst_rect = (MetaFixed16Rectangle) {
-    .x = meta_fixed_16_from_int (0),
-    .y = meta_fixed_16_from_int (0),
-    .width = meta_fixed_16_from_int (crtc_mode_info->width),
-    .height = meta_fixed_16_from_int (crtc_mode_info->height),
+  dst_rect = (MetaRectangle) {
+    .x = 0,
+    .y = 0,
+    .width = crtc_mode_info->width,
+    .height = crtc_mode_info->height,
   };
 
   flags = META_KMS_ASSIGN_PLANE_FLAG_NONE;
