@@ -132,7 +132,6 @@ main (int argc, char **argv)
 
   UNPORTED_TEST (test_viewport);
 
-  ADD_TEST (test_euler, 0, 0);
   ADD_TEST (test_color_hsl, 0, 0);
 
   ADD_TEST (test_fence, TEST_REQUIREMENT_FENCE, 0);
