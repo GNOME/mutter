@@ -40,6 +40,7 @@
 
 #include <cogl/cogl-defines.h>
 #include <cogl/cogl-macros.h>
+#include <graphene.h>
 
 #include <glib.h>
 #include <glib-object.h>
@@ -87,7 +88,7 @@ cogl_handle_get_type (void) G_GNUC_CONST;
 
 /* We forward declare this in cogl-types to avoid circular dependencies
  * between cogl-matrix.h and cogl-quaterion.h */
-typedef struct _CoglMatrix      CoglMatrix;
+typedef graphene_matrix_t CoglMatrix;
 
 /**
  * CoglAngle:

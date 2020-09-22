@@ -52,14 +52,14 @@ cogl_matrix_multiply (CoglMatrix *result,
 		      const CoglMatrix *a,
 		      const CoglMatrix *b)
 {
-  graphene_matrix_multiply (&b->m, &a->m, &result->m);
+  graphene_matrix_multiply (b, a, result);
   _COGL_MATRIX_DEBUG_PRINT (result);
 }
 
 void
 _cogl_matrix_prefix_print (const char *prefix, const CoglMatrix *matrix)
 {
-  graphene_matrix_print (&matrix->m);
+  graphene_matrix_print (matrix);
 }
 
 /*
@@ -95,7 +95,7 @@ calculate_inverse (const CoglMatrix *matrix,
   float v[16];
   float scale;
 
-  graphene_matrix_init_from_matrix (&m, &matrix->m);
+  graphene_matrix_init_from_matrix (&m, matrix);
   graphene_matrix_to_float (&m, v);
 
   pivot = MIN (pivot, v[0]);
@@ -109,12 +109,12 @@ calculate_inverse (const CoglMatrix *matrix,
   /* Float precision is a limiting factor */
   graphene_matrix_multiply (&m, &scaled, &m);
 
-  invertible = graphene_matrix_inverse (&m, &inverse->m);
+  invertible = graphene_matrix_inverse (&m, inverse);
 
   if (invertible)
-    graphene_matrix_multiply (&scaled, &inverse->m, &inverse->m);
+    graphene_matrix_multiply (&scaled, inverse, inverse);
   else
-    graphene_matrix_init_identity (&inverse->m);
+    graphene_matrix_init_identity (inverse);
 
   return invertible;
 }
@@ -137,7 +137,7 @@ cogl_matrix_rotate (CoglMatrix *matrix,
 
   graphene_vec3_init (&axis, x, y, z);
   graphene_matrix_init_rotate (&rotation, angle, &axis);
-  graphene_matrix_multiply (&rotation, &matrix->m, &matrix->m);
+  graphene_matrix_multiply (&rotation, matrix, matrix);
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -167,7 +167,7 @@ cogl_matrix_frustum (CoglMatrix *matrix,
                                 left, right,
                                 bottom, top,
                                 z_near, z_far);
-  graphene_matrix_multiply (&frustum, &matrix->m, &matrix->m);
+  graphene_matrix_multiply (&frustum, matrix, matrix);
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -206,7 +206,7 @@ cogl_matrix_orthographic (CoglMatrix *matrix,
                               left, right,
                               top, bottom,
                               near, far);
-  graphene_matrix_multiply (&ortho, &matrix->m, &matrix->m);
+  graphene_matrix_multiply (&ortho, matrix, matrix);
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -220,7 +220,7 @@ cogl_matrix_scale (CoglMatrix *matrix,
   graphene_matrix_t scale;
 
   graphene_matrix_init_scale (&scale, sx, sy, sz);
-  graphene_matrix_multiply (&scale, &matrix->m, &matrix->m);
+  graphene_matrix_multiply (&scale, matrix, matrix);
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -235,7 +235,7 @@ cogl_matrix_translate (CoglMatrix *matrix,
 
   graphene_matrix_init_translate (&translation,
                                   &GRAPHENE_POINT3D_INIT (x, y, z));
-  graphene_matrix_multiply (&translation, &matrix->m, &matrix->m);
+  graphene_matrix_multiply (&translation, matrix, matrix);
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -243,7 +243,7 @@ cogl_matrix_translate (CoglMatrix *matrix,
 void
 cogl_matrix_init_identity (CoglMatrix *matrix)
 {
-  graphene_matrix_init_identity (&matrix->m);
+  graphene_matrix_init_identity (matrix);
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
@@ -253,7 +253,7 @@ cogl_matrix_init_translation (CoglMatrix *matrix,
                               float       ty,
                               float       tz)
 {
-  graphene_matrix_init_translate (&matrix->m, &GRAPHENE_POINT3D_INIT (tx, ty, tz));
+  graphene_matrix_init_translate (matrix, &GRAPHENE_POINT3D_INIT (tx, ty, tz));
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
 
@@ -270,7 +270,7 @@ cogl_matrix_init_translation (CoglMatrix *matrix,
 static void
 _cogl_matrix_init_from_array (CoglMatrix *matrix, const float *array)
 {
-  graphene_matrix_init_from_float (&matrix->m, array);
+  graphene_matrix_init_from_float (matrix, array);
 }
 
 void
@@ -291,15 +291,15 @@ void
 _cogl_matrix_init_from_matrix_without_inverse (CoglMatrix *matrix,
                                                const CoglMatrix *src)
 {
-  graphene_matrix_init_from_matrix (&matrix->m, &src->m);
+  graphene_matrix_init_from_matrix (matrix, src);
 }
 
 void
 cogl_matrix_init_from_euler (CoglMatrix *matrix,
                              const graphene_euler_t *euler)
 {
-  graphene_matrix_init_identity (&matrix->m);
-  graphene_matrix_rotate_euler (&matrix->m, euler);
+  graphene_matrix_init_identity (matrix);
+  graphene_matrix_rotate_euler (matrix, euler);
 }
 
 void
@@ -368,7 +368,7 @@ cogl_matrix_equal (const void *v1, const void *v2)
   g_return_val_if_fail (v1 != NULL, FALSE);
   g_return_val_if_fail (v2 != NULL, FALSE);
 
-  return graphene_matrix_equal_fast (&a->m, &b->m);
+  return graphene_matrix_equal_fast (a, b);
 }
 
 CoglMatrix *
@@ -390,7 +390,7 @@ void
 cogl_matrix_to_float (const CoglMatrix *matrix,
                       float            *out_array)
 {
-  graphene_matrix_to_float (&matrix->m, out_array);
+  graphene_matrix_to_float (matrix, out_array);
 }
 
 float
@@ -398,7 +398,7 @@ cogl_matrix_get_value (const CoglMatrix *matrix,
                        unsigned int      row,
                        unsigned int      column)
 {
-  return graphene_matrix_get_value (&matrix->m, column, row);
+  return graphene_matrix_get_value (matrix, column, row);
 }
 
 void
@@ -411,7 +411,7 @@ cogl_matrix_transform_point (const CoglMatrix *matrix,
   graphene_vec4_t p;
 
   graphene_vec4_init (&p, *x, *y, *z, *w);
-  graphene_matrix_transform_vec4 (&matrix->m, &p, &p);
+  graphene_matrix_transform_vec4 (matrix, &p, &p);
 
   *x = graphene_vec4_get_x (&p);
   *y = graphene_vec4_get_y (&p);
@@ -448,7 +448,7 @@ init_matrix_rows (const CoglMatrix *matrix,
   graphene_matrix_t m;
   unsigned int i;
 
-  graphene_matrix_transpose (&matrix->m, &m);
+  graphene_matrix_transpose (matrix, &m);
 
   for (i = 0; i < n_rows; i++)
     graphene_matrix_get_row (&m, i, &rows[i]);
@@ -653,7 +653,7 @@ cogl_matrix_project_points (const CoglMatrix *matrix,
 gboolean
 cogl_matrix_is_identity (const CoglMatrix *matrix)
 {
-  return graphene_matrix_is_identity (&matrix->m);
+  return graphene_matrix_is_identity (matrix);
 }
 
 void
@@ -677,7 +677,7 @@ cogl_matrix_look_at (CoglMatrix *matrix,
   graphene_vec3_init (&center, object_x, object_y, object_z);
   graphene_vec3_init (&up, world_up_x, world_up_y, world_up_z);
 
-  graphene_matrix_init_look_at (&look_at.m, &eye, &center, &up);
+  graphene_matrix_init_look_at (&look_at, &eye, &center, &up);
 
   cogl_matrix_multiply (matrix, matrix, &look_at);
 }
@@ -686,10 +686,10 @@ void
 cogl_matrix_transpose (CoglMatrix *matrix)
 {
   /* We don't need to do anything if the matrix is the identity matrix */
-  if (graphene_matrix_is_identity (&matrix->m))
+  if (graphene_matrix_is_identity (matrix))
     return;
 
-  graphene_matrix_transpose (&matrix->m, &matrix->m);
+  graphene_matrix_transpose (matrix, matrix);
 }
 
 GType
@@ -706,7 +706,7 @@ cogl_matrix_skew_xy (CoglMatrix *matrix,
 
   graphene_matrix_init_identity (&skew);
   graphene_matrix_skew_xy (&skew, factor);
-  graphene_matrix_multiply (&skew, &matrix->m, &matrix->m);
+  graphene_matrix_multiply (&skew, matrix, matrix);
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -719,7 +719,7 @@ cogl_matrix_skew_xz (CoglMatrix *matrix,
 
   graphene_matrix_init_identity (&skew);
   graphene_matrix_skew_xz (&skew, factor);
-  graphene_matrix_multiply (&skew, &matrix->m, &matrix->m);
+  graphene_matrix_multiply (&skew, matrix, matrix);
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -732,7 +732,7 @@ cogl_matrix_skew_yz (CoglMatrix *matrix,
 
   graphene_matrix_init_identity (&skew);
   graphene_matrix_skew_yz (&skew, factor);
-  graphene_matrix_multiply (&skew, &matrix->m, &matrix->m);
+  graphene_matrix_multiply (&skew, matrix, matrix);
 
   _COGL_MATRIX_DEBUG_PRINT (matrix);
 }
@@ -740,5 +740,5 @@ cogl_matrix_skew_yz (CoglMatrix *matrix,
 const graphene_matrix_t *
 cogl_matrix_get_graphene_matrix (const CoglMatrix *matrix)
 {
-  return &matrix->m;
+  return matrix;
 }

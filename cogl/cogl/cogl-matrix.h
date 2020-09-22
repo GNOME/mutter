@@ -57,34 +57,6 @@ G_BEGIN_DECLS
  */
 
 /**
- * CoglMatrix:
- *
- * A CoglMatrix holds a 4x4 transform matrix. It uses #graphene_matrix_t
- * internally which means it is compatible with what OpenGL expects.
- *
- * A CoglMatrix can represent transforms such as, rotations, scaling,
- * translation, sheering, and linear projections. You can combine these
- * transforms by multiplying multiple matrices in the order you want them
- * applied.
- *
- * The transformation of a vertex (x, y, z, w) by a CoglMatrix is given by:
- *
- * |[
- *   x_new = xx * x + xy * y + xz * z + xw * w
- *   y_new = yx * x + yy * y + yz * z + yw * w
- *   z_new = zx * x + zy * y + zz * z + zw * w
- *   w_new = wx * x + wy * y + wz * z + ww * w
- * ]|
- *
- * Where w is normally 1
- */
-struct _CoglMatrix
-{
-  /*< private >*/
-  graphene_matrix_t m;
-};
-
-/**
  * cogl_matrix_init_identity:
  * @matrix: A 4x4 transformation matrix
  *
