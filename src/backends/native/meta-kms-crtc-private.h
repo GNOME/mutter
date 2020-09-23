@@ -32,9 +32,10 @@ typedef enum _MetaKmsCrtcProp
   META_KMS_CRTC_N_PROPS
 } MetaKmsCrtcProp;
 
-MetaKmsCrtc * meta_kms_crtc_new (MetaKmsImplDevice *impl_device,
-                                 drmModeCrtc       *drm_crtc,
-                                 int                idx);
+MetaKmsCrtc * meta_kms_crtc_new (MetaKmsImplDevice  *impl_device,
+                                 drmModeCrtc        *drm_crtc,
+                                 int                 idx,
+                                 GError            **error);
 
 void meta_kms_crtc_update_state (MetaKmsCrtc *crtc);
 

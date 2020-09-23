@@ -304,12 +304,30 @@ init_crtcs (MetaKmsImplDevice *impl_device,
 
   for (idx = 0; idx < drm_resources->count_crtcs; idx++)
     {
+      uint32_t crtc_id;
       drmModeCrtc *drm_crtc;
       MetaKmsCrtc *crtc;
+      g_autoptr (GError) error = NULL;
 
-      drm_crtc = drmModeGetCrtc (priv->fd, drm_resources->crtcs[idx]);
-      crtc = meta_kms_crtc_new (impl_device, drm_crtc, idx);
+      crtc_id = drm_resources->crtcs[idx];
+      drm_crtc = drmModeGetCrtc (priv->fd, crtc_id);
+      if (!drm_crtc)
+        {
+          g_warning ("Failed to get CRTC %u info on '%s': %s",
+                     crtc_id, priv->path, error->message);
+          continue;
+        }
+
+      crtc = meta_kms_crtc_new (impl_device, drm_crtc, idx, &error);
+
       drmModeFreeCrtc (drm_crtc);
+
+      if (!crtc)
+        {
+          g_warning ("Failed to create CRTC for %u on '%s': %s",
+                     crtc_id, priv->path, error->message);
+          continue;
+        }
 
       priv->crtcs = g_list_prepend (priv->crtcs, crtc);
     }

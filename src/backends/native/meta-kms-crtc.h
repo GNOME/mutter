@@ -29,6 +29,8 @@
 
 typedef struct _MetaKmsCrtcState
 {
+  gboolean is_active;
+
   MetaRectangle rect;
   gboolean is_drm_mode_valid;
   drmModeModeInfo drm_mode;
@@ -54,5 +56,7 @@ const MetaKmsCrtcState * meta_kms_crtc_get_current_state (MetaKmsCrtc *crtc);
 uint32_t meta_kms_crtc_get_id (MetaKmsCrtc *crtc);
 
 int meta_kms_crtc_get_idx (MetaKmsCrtc *crtc);
+
+gboolean meta_kms_crtc_is_active (MetaKmsCrtc *crtc);
 
 #endif /* META_KMS_CRTC_H */
