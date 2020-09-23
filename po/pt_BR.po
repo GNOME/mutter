@@ -21,8 +21,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: mutter\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/mutter/issues\n"
-"POT-Creation-Date: 2020-08-31 08:48+0000\n"
-"PO-Revision-Date: 2020-08-31 08:06-0300\n"
+"POT-Creation-Date: 2020-09-20 10:18+0000\n"
+"PO-Revision-Date: 2020-09-23 16:14-0300\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -30,7 +30,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1)\n"
-"X-Generator: Gtranslator 3.36.0\n"
+"X-Generator: Gtranslator 3.38.0\n"
 "X-Project-Style: gnome\n"
 
 #: data/50-mutter-navigation.xml:6
@@ -211,7 +211,7 @@ msgstr "Maximizar a janela"
 
 #: data/50-mutter-windows.xml:16
 msgid "Restore window"
-msgstr "Restaurar a anela"
+msgstr "Restaurar a janela"
 
 #: data/50-mutter-windows.xml:18
 msgid "Close window"
@@ -596,7 +596,7 @@ msgstr ""
 #. TRANSLATORS: This string refers to a button that switches between
 #. * different modes.
 #.
-#: src/backends/meta-input-settings.c:2698
+#: src/backends/meta-input-settings.c:2702
 #, c-format
 msgid "Mode Switch (Group %d)"
 msgstr "Alternador de modo (Grupo %d)"
@@ -604,11 +604,11 @@ msgstr "Alternador de modo (Grupo %d)"
 #. TRANSLATORS: This string refers to an action, cycles drawing tablets'
 #. * mapping through the available outputs.
 #.
-#: src/backends/meta-input-settings.c:2721
+#: src/backends/meta-input-settings.c:2725
 msgid "Switch monitor"
 msgstr "Trocar monitor"
 
-#: src/backends/meta-input-settings.c:2723
+#: src/backends/meta-input-settings.c:2727
 msgid "Show on-screen help"
 msgstr "Mostrar ajuda na tela"
 
@@ -757,7 +757,7 @@ msgstr "Plug-in do Mutter para usar"
 msgid "Workspace %d"
 msgstr "Espaço de trabalho %d"
 
-#: src/core/util.c:119
+#: src/core/util.c:118
 msgid "Mutter was compiled without support for verbose mode\n"
 msgstr "O Mutter foi compilado sem suporte para modo detalhado\n"
 
