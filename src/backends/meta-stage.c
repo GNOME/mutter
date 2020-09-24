@@ -395,7 +395,7 @@ void
 meta_stage_set_active (MetaStage *stage,
                        gboolean   is_active)
 {
-  ClutterEvent event = { 0 };
+  ClutterEvent *event;
 
   /* Used by the native backend to inform accessibility technologies
    * about when the stage loses and gains input focus.
@@ -407,12 +407,12 @@ meta_stage_set_active (MetaStage *stage,
   if (stage->is_active == is_active)
     return;
 
-  event.type = CLUTTER_STAGE_STATE;
-  clutter_event_set_stage (&event, CLUTTER_STAGE (stage));
-  event.stage_state.changed_mask = CLUTTER_STAGE_STATE_ACTIVATED;
+  event = clutter_event_new (CLUTTER_STAGE_STATE);
+  clutter_event_set_stage (event, CLUTTER_STAGE (stage));
+  event->stage_state.changed_mask = CLUTTER_STAGE_STATE_ACTIVATED;
 
   if (is_active)
-    event.stage_state.new_state = CLUTTER_STAGE_STATE_ACTIVATED;
+    event->stage_state.new_state = CLUTTER_STAGE_STATE_ACTIVATED;
 
   /* Emitting this StageState event will result in the stage getting
    * activated or deactivated (with the activated or deactivated signal
@@ -427,7 +427,8 @@ meta_stage_set_active (MetaStage *stage,
    *
    * See http://bugzilla.gnome.org/746670
    */
-  clutter_stage_event (CLUTTER_STAGE (stage), &event);
+  clutter_stage_event (CLUTTER_STAGE (stage), event);
+  clutter_event_free (event);
 }
 
 MetaStageWatch *
