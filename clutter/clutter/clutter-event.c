@@ -73,8 +73,6 @@ typedef struct _ClutterEventFilter {
   gpointer user_data;
 } ClutterEventFilter;
 
-static GHashTable *all_events = NULL;
-
 G_DEFINE_BOXED_TYPE (ClutterEvent, clutter_event,
                      clutter_event_copy,
                      clutter_event_free);
@@ -96,15 +94,6 @@ G_DEFINE_BOXED_TYPE (ClutterEventSequence, clutter_event_sequence,
                      clutter_event_sequence_copy,
                      clutter_event_sequence_free);
 
-static gboolean
-is_event_allocated (const ClutterEvent *event)
-{
-  if (all_events == NULL)
-    return FALSE;
-
-  return g_hash_table_lookup (all_events, event) != NULL;
-}
-
 /*
  * _clutter_event_get_platform_data:
  * @event: a #ClutterEvent
@@ -118,9 +107,6 @@ is_event_allocated (const ClutterEvent *event)
 gpointer
 _clutter_event_get_platform_data (const ClutterEvent *event)
 {
-  if (!is_event_allocated (event))
-    return NULL;
-
   return ((ClutterEventPrivate *) event)->platform_data;
 }
 
@@ -137,9 +123,6 @@ void
 _clutter_event_set_platform_data (ClutterEvent *event,
                                   gpointer      data)
 {
-  if (!is_event_allocated (event))
-    return;
-
   ((ClutterEventPrivate *) event)->platform_data = data;
 }
 
@@ -147,9 +130,6 @@ void
 _clutter_event_set_pointer_emulated (ClutterEvent *event,
                                      gboolean      is_emulated)
 {
-  if (!is_event_allocated (event))
-    return;
-
   ((ClutterEventPrivate *) event)->is_pointer_emulated = !!is_emulated;
 }
 
@@ -723,9 +703,6 @@ clutter_event_set_scroll_delta (ClutterEvent *event,
   g_return_if_fail (event != NULL);
   g_return_if_fail (event->type == CLUTTER_SCROLL);
 
-  if (!is_event_allocated (event))
-    return;
-
   event->scroll.direction = CLUTTER_SCROLL_SMOOTH;
 
   ((ClutterEventPrivate *) event)->delta_x = dx;
@@ -756,13 +733,8 @@ clutter_event_get_scroll_delta (const ClutterEvent *event,
   g_return_if_fail (event->type == CLUTTER_SCROLL);
   g_return_if_fail (event->scroll.direction == CLUTTER_SCROLL_SMOOTH);
 
-  delta_x = delta_y = 0;
-
-  if (is_event_allocated (event))
-    {
-      delta_x = ((ClutterEventPrivate *) event)->delta_x;
-      delta_y = ((ClutterEventPrivate *) event)->delta_y;
-    }
+  delta_x = ((ClutterEventPrivate *) event)->delta_x;
+  delta_y = ((ClutterEventPrivate *) event)->delta_y;
 
   if (dx != NULL)
     *dx = delta_x;
@@ -1097,15 +1069,12 @@ void
 clutter_event_set_device (ClutterEvent       *event,
                           ClutterInputDevice *device)
 {
+  ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
+
   g_return_if_fail (event != NULL);
   g_return_if_fail (device == NULL || CLUTTER_IS_INPUT_DEVICE (device));
 
-  if (is_event_allocated (event))
-    {
-      ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
-
-      g_set_object (&real_event->device, device);
-    }
+  g_set_object (&real_event->device, device);
 
   switch (event->type)
     {
@@ -1200,16 +1169,12 @@ ClutterInputDevice *
 clutter_event_get_device (const ClutterEvent *event)
 {
   ClutterInputDevice *device = NULL;
+  ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
 
   g_return_val_if_fail (event != NULL, NULL);
 
-  if (is_event_allocated (event))
-    {
-      ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
-
-      if (real_event->device != NULL)
-        return real_event->device;
-    }
+  if (real_event->device != NULL)
+    return real_event->device;
 
   switch (event->type)
     {
@@ -1298,14 +1263,11 @@ void
 clutter_event_set_device_tool (ClutterEvent           *event,
                                ClutterInputDeviceTool *tool)
 {
+  ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
+
   g_return_if_fail (event != NULL);
 
-  if (is_event_allocated (event))
-    {
-      ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
-
-      real_event->tool = tool;
-    }
+  real_event->tool = tool;
 }
 
 /**
@@ -1321,16 +1283,11 @@ clutter_event_set_device_tool (ClutterEvent           *event,
 ClutterInputDeviceTool *
 clutter_event_get_device_tool (const ClutterEvent *event)
 {
+  ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
+
   g_return_val_if_fail (event != NULL, NULL);
 
-  if (is_event_allocated (event))
-    {
-      ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
-
-      return real_event->tool;
-    }
-
-  return NULL;
+  return real_event->tool;
 }
 
 /**
@@ -1352,11 +1309,6 @@ clutter_event_new (ClutterEventType type)
   new_event = (ClutterEvent *) priv;
   new_event->type = new_event->any.type = type;
 
-  if (G_UNLIKELY (all_events == NULL))
-    all_events = g_hash_table_new (NULL, NULL);
-
-  g_hash_table_replace (all_events, priv, GUINT_TO_POINTER (1));
-
   return new_event;
 }
 
@@ -1374,6 +1326,7 @@ clutter_event_copy (const ClutterEvent *event)
   ClutterEvent *new_event;
   ClutterEventPrivate *new_real_event;
   ClutterInputDevice *device;
+  ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
   gint n_axes = 0;
 
   g_return_val_if_fail (event != NULL, NULL);
@@ -1383,21 +1336,16 @@ clutter_event_copy (const ClutterEvent *event)
 
   *new_event = *event;
 
-  if (is_event_allocated (event))
-    {
-      ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
-
-      g_set_object (&new_real_event->device, real_event->device);
-      g_set_object (&new_real_event->source_device, real_event->source_device);
-      new_real_event->delta_x = real_event->delta_x;
-      new_real_event->delta_y = real_event->delta_y;
-      new_real_event->is_pointer_emulated = real_event->is_pointer_emulated;
-      new_real_event->base_state = real_event->base_state;
-      new_real_event->button_state = real_event->button_state;
-      new_real_event->latched_state = real_event->latched_state;
-      new_real_event->locked_state = real_event->locked_state;
-      new_real_event->tool = real_event->tool;
-    }
+  g_set_object (&new_real_event->device, real_event->device);
+  g_set_object (&new_real_event->source_device, real_event->source_device);
+  new_real_event->delta_x = real_event->delta_x;
+  new_real_event->delta_y = real_event->delta_y;
+  new_real_event->is_pointer_emulated = real_event->is_pointer_emulated;
+  new_real_event->base_state = real_event->base_state;
+  new_real_event->button_state = real_event->button_state;
+  new_real_event->latched_state = real_event->latched_state;
+  new_real_event->locked_state = real_event->locked_state;
+  new_real_event->tool = real_event->tool;
 
   device = clutter_event_get_device (event);
   if (device != NULL)
@@ -1446,10 +1394,9 @@ clutter_event_copy (const ClutterEvent *event)
       break;
     }
 
-  if (is_event_allocated (event))
-    _clutter_backend_copy_event_data (clutter_get_default_backend (),
-                                      event,
-                                      new_event);
+  _clutter_backend_copy_event_data (clutter_get_default_backend (),
+                                    event,
+                                    new_event);
 
   return new_event;
 }
@@ -1465,15 +1412,12 @@ clutter_event_free (ClutterEvent *event)
 {
   if (G_LIKELY (event != NULL))
     {
+      ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
+
       _clutter_backend_free_event_data (clutter_get_default_backend (), event);
 
-      if (is_event_allocated (event))
-        {
-          ClutterEventPrivate *real_event = (ClutterEventPrivate *) event;
-
-          g_clear_object (&real_event->device);
-          g_clear_object (&real_event->source_device);
-        }
+      g_clear_object (&real_event->device);
+      g_clear_object (&real_event->source_device);
 
       switch (event->type)
         {
@@ -1506,7 +1450,6 @@ clutter_event_free (ClutterEvent *event)
           break;
         }
 
-      g_hash_table_remove (all_events, event);
       g_slice_free (ClutterEventPrivate, (ClutterEventPrivate *) event);
     }
 }
@@ -1673,9 +1616,6 @@ clutter_event_get_source_device (const ClutterEvent *event)
 {
   ClutterEventPrivate *real_event;
 
-  if (!is_event_allocated (event))
-    return NULL;
-
   real_event = (ClutterEventPrivate *) event;
 
   if (real_event->source_device != NULL)
@@ -1703,9 +1643,6 @@ clutter_event_set_source_device (ClutterEvent       *event,
 
   g_return_if_fail (event != NULL);
   g_return_if_fail (device == NULL || CLUTTER_IS_INPUT_DEVICE (device));
-
-  if (!is_event_allocated (event))
-    return;
 
   real_event = (ClutterEventPrivate *) event;
   g_set_object (&real_event->source_device, device);
@@ -1908,9 +1845,6 @@ gboolean
 clutter_event_is_pointer_emulated (const ClutterEvent *event)
 {
   g_return_val_if_fail (event != NULL, FALSE);
-
-  if (!is_event_allocated (event))
-    return FALSE;
 
   return ((ClutterEventPrivate *) event)->is_pointer_emulated;
 }
