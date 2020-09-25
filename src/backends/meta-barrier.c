@@ -294,7 +294,7 @@ meta_barrier_destroy (MetaBarrier *barrier)
   MetaBarrierImpl *impl = barrier->priv->impl;
 
   if (impl)
-    return META_BARRIER_IMPL_GET_CLASS (impl)->destroy (impl);
+    META_BARRIER_IMPL_GET_CLASS (impl)->destroy (impl);
 
   g_object_unref (barrier);
 }
