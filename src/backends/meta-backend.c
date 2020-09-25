@@ -456,6 +456,9 @@ on_device_removed (ClutterSeat        *seat,
                                                    !has_touchscreen);
         }
     }
+
+  if (priv->current_device == device)
+    meta_backend_update_last_device (backend, NULL);
 }
 
 static void
