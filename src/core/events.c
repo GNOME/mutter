@@ -206,7 +206,6 @@ meta_display_handle_event (MetaDisplay        *display,
   G_GNUC_UNUSED gboolean bypass_wayland = FALSE;
   MetaGestureTracker *gesture_tracker;
   ClutterEventSequence *sequence;
-  ClutterInputDevice *source;
 
   sequence = clutter_event_get_event_sequence (event);
 
@@ -272,10 +271,17 @@ meta_display_handle_event (MetaDisplay        *display,
         }
     }
 
-  source = clutter_event_get_source_device (event);
+  if (event->type != CLUTTER_DEVICE_ADDED &&
+      event->type != CLUTTER_DEVICE_REMOVED)
+    {
+      ClutterInputDevice *source;
 
-  if (source)
-    meta_backend_update_last_device (backend, source);
+      handle_idletime_for_event (event);
+      source = clutter_event_get_source_device (event);
+
+      if (source)
+        meta_backend_update_last_device (backend, source);
+    }
 
 #ifdef HAVE_WAYLAND
   if (meta_is_wayland_compositor () && event->type == CLUTTER_MOTION)
@@ -301,8 +307,6 @@ meta_display_handle_event (MetaDisplay        *display,
       display->monitor_cache_invalidated = TRUE;
     }
 #endif
-
-  handle_idletime_for_event (event);
 
   window = get_window_for_event (display, event);
 
