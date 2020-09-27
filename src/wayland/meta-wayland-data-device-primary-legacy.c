@@ -284,7 +284,8 @@ meta_wayland_data_device_primary_legacy_manager_init (MetaWaylandCompositor *com
 {
   if (wl_global_create (compositor->wayland_display,
 			&gtk_primary_selection_device_manager_interface,
-			1, NULL, bind_primary_manager) == NULL)
+			META_GTK_PRIMARY_SELECTION_VERSION,
+			NULL, bind_primary_manager) == NULL)
     g_error ("Could not create data_device");
 }
 
