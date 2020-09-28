@@ -1801,6 +1801,10 @@ meta_seat_x11_translate_event (MetaSeatX11  *seat,
                                       GINT_TO_POINTER (xev->deviceid));
         clutter_event_set_device (event, device);
 
+        if (clutter_input_device_get_device_mode (device) == CLUTTER_INPUT_MODE_LOGICAL &&
+            stage != NULL)
+          _clutter_input_device_set_stage (device, stage);
+
         /* XXX keep this in sync with the evdev device manager */
         n = print_keysym (event->key.keyval, buffer, sizeof (buffer));
         if (n == 0)
