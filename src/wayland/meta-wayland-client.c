@@ -129,7 +129,7 @@ meta_wayland_client_new (GSubprocessLauncher  *launcher,
     }
 
   client = g_object_new (META_TYPE_WAYLAND_CLIENT, NULL);
-  client->launcher = launcher;
+  client->launcher = g_object_ref (launcher);
   return client;
 }
 
