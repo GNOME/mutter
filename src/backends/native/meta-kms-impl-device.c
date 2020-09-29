@@ -45,6 +45,7 @@ enum
   PROP_DEVICE,
   PROP_IMPL,
   PROP_FD,
+  PROP_PATH,
   PROP_DRIVER_NAME,
   PROP_DRIVER_DESCRIPTION,
 
@@ -60,6 +61,7 @@ typedef struct _MetaKmsImplDevicePrivate
 
   int fd;
   GSource *fd_source;
+  char *path;
 
   char *driver_name;
   char *driver_description;
@@ -156,6 +158,15 @@ meta_kms_impl_device_get_driver_description (MetaKmsImplDevice *impl_device)
     meta_kms_impl_device_get_instance_private (impl_device);
 
   return priv->driver_description;
+}
+
+const char *
+meta_kms_impl_device_get_path (MetaKmsImplDevice *impl_device)
+{
+  MetaKmsImplDevicePrivate *priv =
+    meta_kms_impl_device_get_instance_private (impl_device);
+
+  return priv->path;
 }
 
 static void
@@ -677,6 +688,9 @@ meta_kms_impl_device_get_property (GObject    *object,
     case PROP_FD:
       g_value_set_int (value, priv->fd);
       break;
+    case PROP_PATH:
+      g_value_set_string (value, priv->path);
+      break;
     case PROP_DRIVER_NAME:
       g_value_set_string (value, priv->driver_name);
       break;
@@ -710,6 +724,9 @@ meta_kms_impl_device_set_property (GObject      *object,
     case PROP_FD:
       priv->fd = g_value_get_int (value);
       break;
+    case PROP_PATH:
+      priv->path = g_value_dup_string (value);
+      break;
     case PROP_DRIVER_NAME:
       priv->driver_name = g_value_dup_string (value);
       break;
@@ -738,6 +755,7 @@ meta_kms_impl_device_finalize (GObject *object)
                     (GDestroyNotify) meta_kms_mode_free);
   g_free (priv->driver_name);
   g_free (priv->driver_description);
+  g_free (priv->path);
 
   G_OBJECT_CLASS (meta_kms_impl_device_parent_class)->finalize (object);
 }
@@ -824,6 +842,14 @@ meta_kms_impl_device_class_init (MetaKmsImplDeviceClass *klass)
                       G_PARAM_READWRITE |
                       G_PARAM_CONSTRUCT_ONLY |
                       G_PARAM_STATIC_STRINGS);
+  obj_props[PROP_PATH] =
+    g_param_spec_string ("path",
+                         "path",
+                         "DRM device file path",
+                         NULL,
+                         G_PARAM_READWRITE |
+                         G_PARAM_CONSTRUCT_ONLY |
+                         G_PARAM_STATIC_STRINGS);
   obj_props[PROP_DRIVER_NAME] =
     g_param_spec_string ("driver-name",
                          "driver-name",

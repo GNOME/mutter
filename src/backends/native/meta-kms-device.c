@@ -225,6 +225,7 @@ typedef struct _CreateImplDeviceData
 {
   MetaKmsDevice *device;
   int fd;
+  const char *path;
 
   MetaKmsImplDevice *out_impl_device;
   GList *out_crtcs;
@@ -260,6 +261,7 @@ static MetaKmsImplDevice *
 meta_create_kms_impl_device (MetaKmsDevice  *device,
                              MetaKmsImpl    *impl,
                              int             fd,
+                             const char     *path,
                              GError        **error)
 {
   int ret;
@@ -287,6 +289,7 @@ meta_create_kms_impl_device (MetaKmsDevice  *device,
                          "device", device,
                          "impl", impl,
                          "fd", fd,
+                         "path", path,
                          "driver-name", driver_name,
                          "driver-description", driver_description,
                          NULL);
@@ -303,6 +306,7 @@ create_impl_device_in_impl (MetaKmsImpl  *impl,
   impl_device = meta_create_kms_impl_device (data->device,
                                              impl,
                                              data->fd,
+                                             data->path,
                                              error);
   if (!impl_device)
     return FALSE;
@@ -347,6 +351,7 @@ meta_kms_device_new (MetaKms            *kms,
   data = (CreateImplDeviceData) {
     .device = device,
     .fd = fd,
+    .path = path,
   };
   if (!meta_kms_run_impl_task_sync (kms, create_impl_device_in_impl, &data,
                                     error))

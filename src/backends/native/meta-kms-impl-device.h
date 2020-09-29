@@ -83,6 +83,8 @@ const char * meta_kms_impl_device_get_driver_name (MetaKmsImplDevice *impl_devic
 
 const char * meta_kms_impl_device_get_driver_description (MetaKmsImplDevice *impl_device);
 
+const char * meta_kms_impl_device_get_path (MetaKmsImplDevice *impl_device);
+
 gboolean meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
                                         GError            **error);
 
