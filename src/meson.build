@@ -935,10 +935,8 @@ mutter_built_sources += mutter_enum_types
 mutter_built_sources += mutter_version
 
 libmutter = shared_library(libmutter_name,
-  sources: [
-    mutter_sources,
-    mutter_built_sources,
-  ],
+  mutter_sources,
+  mutter_built_sources,
   version: '0.0.0',
   soversion: 0,
   gnu_symbol_visibility: 'hidden',
