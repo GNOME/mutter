@@ -47,8 +47,9 @@ G_DECLARE_FINAL_TYPE (MetaDrmBufferImport,
  * The import has a high chance of failing under normal operating
  * conditions and needs to be handled with fallbacks to something else.
  */
-MetaDrmBufferImport * meta_drm_buffer_import_new (MetaGpuKms        *gpu_kms,
-                                                  MetaDrmBufferGbm  *buffer_gbm,
-                                                  GError           **error);
+MetaDrmBufferImport * meta_drm_buffer_import_new (MetaKmsDevice      *device,
+                                                  struct gbm_device  *gbm_device,
+                                                  MetaDrmBufferGbm   *buffer_gbm,
+                                                  GError            **error);
 
 #endif /* META_DRM_BUFFER_IMPORT_H */

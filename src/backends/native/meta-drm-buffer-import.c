@@ -34,21 +34,47 @@
 #include "backends/native/meta-kms-utils.h"
 #include "backends/native/meta-renderer-native.h"
 
-#define INVALID_FB_ID 0U
-
 struct _MetaDrmBufferImport
 {
   MetaDrmBuffer parent;
 
-  MetaGpuKms *gpu_kms;
-
   MetaDrmBufferGbm *importee;
-
-  uint32_t fb_id;
 };
 
 G_DEFINE_TYPE (MetaDrmBufferImport, meta_drm_buffer_import,
                META_TYPE_DRM_BUFFER)
+
+static int
+meta_drm_buffer_import_get_width (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);
+
+  return meta_drm_buffer_get_width (META_DRM_BUFFER (buffer_import->importee));
+}
+
+static int
+meta_drm_buffer_import_get_height (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);
+
+  return meta_drm_buffer_get_height (META_DRM_BUFFER (buffer_import->importee));
+}
+
+static int
+meta_drm_buffer_import_get_stride (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);
+
+  return meta_drm_buffer_get_stride (META_DRM_BUFFER (buffer_import->importee));
+}
+
+static uint32_t
+meta_drm_buffer_import_get_format (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (buffer);
+
+  return meta_drm_buffer_get_format (META_DRM_BUFFER (buffer_import->importee));
+}
 
 static struct gbm_bo *
 dmabuf_to_gbm_bo (struct gbm_device *importer,
@@ -74,18 +100,14 @@ dmabuf_to_gbm_bo (struct gbm_device *importer,
 
 static gboolean
 import_gbm_buffer (MetaDrmBufferImport  *buffer_import,
+                   struct gbm_device    *importer,
                    GError              **error)
 {
-  MetaGpuKmsFBArgs fb_args = { 0, };
+  MetaDrmFbArgs fb_args = { 0, };
   struct gbm_bo *primary_bo;
-  struct gbm_device *importer;
   struct gbm_bo *imported_bo;
   int dmabuf_fd;
   gboolean ret;
-
-  g_assert (buffer_import->fb_id == INVALID_FB_ID);
-
-  importer = meta_gbm_device_from_gpu (buffer_import->gpu_kms);
 
   primary_bo = meta_drm_buffer_gbm_get_bo (buffer_import->importee);
 
@@ -122,11 +144,10 @@ import_gbm_buffer (MetaDrmBufferImport  *buffer_import,
 
   fb_args.handles[0] = gbm_bo_get_handle (imported_bo).u32;
 
-  ret = meta_gpu_kms_add_fb (buffer_import->gpu_kms,
-                             FALSE /* use_modifiers */,
-                             &fb_args,
-                             &buffer_import->fb_id,
-                             error);
+  ret = meta_drm_buffer_ensure_fb_id (META_DRM_BUFFER (buffer_import),
+                                      FALSE /* use_modifiers */,
+                                      &fb_args,
+                                      error);
 
   gbm_bo_destroy (imported_bo);
 
@@ -137,17 +158,19 @@ out_close:
 }
 
 MetaDrmBufferImport *
-meta_drm_buffer_import_new (MetaGpuKms        *gpu_kms,
-                            MetaDrmBufferGbm  *buffer_gbm,
-                            GError           **error)
+meta_drm_buffer_import_new (MetaKmsDevice      *device,
+                            struct gbm_device  *gbm_device,
+                            MetaDrmBufferGbm   *buffer_gbm,
+                            GError            **error)
 {
   MetaDrmBufferImport *buffer_import;
 
-  buffer_import = g_object_new (META_TYPE_DRM_BUFFER_IMPORT, NULL);
-  buffer_import->gpu_kms = gpu_kms;
+  buffer_import = g_object_new (META_TYPE_DRM_BUFFER_IMPORT,
+                                "device", device,
+                                NULL);
   g_set_object (&buffer_import->importee, buffer_gbm);
 
-  if (!import_gbm_buffer (buffer_import, error))
+  if (!import_gbm_buffer (buffer_import, gbm_device, error))
     {
       g_object_unref (buffer_import);
       return NULL;
@@ -156,24 +179,10 @@ meta_drm_buffer_import_new (MetaGpuKms        *gpu_kms,
   return buffer_import;
 }
 
-static uint32_t
-meta_drm_buffer_import_get_fb_id (MetaDrmBuffer *buffer)
-{
-  return META_DRM_BUFFER_IMPORT (buffer)->fb_id;
-}
-
 static void
 meta_drm_buffer_import_finalize (GObject *object)
 {
   MetaDrmBufferImport *buffer_import = META_DRM_BUFFER_IMPORT (object);
-
-  if (buffer_import->fb_id != INVALID_FB_ID)
-    {
-      int kms_fd;
-
-      kms_fd = meta_gpu_kms_get_fd (buffer_import->gpu_kms);
-      drmModeRmFB (kms_fd, buffer_import->fb_id);
-    }
 
   g_clear_object (&buffer_import->importee);
 
@@ -193,5 +202,8 @@ meta_drm_buffer_import_class_init (MetaDrmBufferImportClass *klass)
 
   object_class->finalize = meta_drm_buffer_import_finalize;
 
-  buffer_class->get_fb_id = meta_drm_buffer_import_get_fb_id;
+  buffer_class->get_width = meta_drm_buffer_import_get_width;
+  buffer_class->get_height = meta_drm_buffer_import_get_height;
+  buffer_class->get_stride = meta_drm_buffer_import_get_stride;
+  buffer_class->get_format = meta_drm_buffer_import_get_format;
 }

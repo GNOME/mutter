@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2018 Canonical Ltd.
+ * Copyright (C) 2019-2020 Red Hat Inc.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -31,16 +32,14 @@ G_DECLARE_DERIVABLE_TYPE (MetaDrmBuffer,
                           META, DRM_BUFFER,
                           GObject)
 
-struct _MetaDrmBufferClass
-{
-  GObjectClass parent_class;
-
-  uint32_t (* get_fb_id) (MetaDrmBuffer *buffer);
-};
-
-MetaDrmBuffer *
-meta_drm_buffer_new_from_dumb (uint32_t dumb_fb_id);
-
 uint32_t meta_drm_buffer_get_fb_id (MetaDrmBuffer *buffer);
+
+int meta_drm_buffer_get_width (MetaDrmBuffer *buffer);
+
+int meta_drm_buffer_get_height (MetaDrmBuffer *buffer);
+
+int meta_drm_buffer_get_stride (MetaDrmBuffer *buffer);
+
+uint32_t meta_drm_buffer_get_format (MetaDrmBuffer *buffer);
 
 #endif /* META_DRM_BUFFER_H */

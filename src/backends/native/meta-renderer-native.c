@@ -39,15 +39,12 @@
 
 #include <drm_fourcc.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <gbm.h>
 #include <gio/gio.h>
 #include <glib-object.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/mman.h>
 #include <unistd.h>
-#include <xf86drm.h>
 
 #include "backends/meta-backend-private.h"
 #include "backends/meta-crtc.h"
@@ -129,19 +126,6 @@ typedef struct _MetaRendererNativeGpuData
   } secondary;
 } MetaRendererNativeGpuData;
 
-typedef struct _MetaDumbBuffer
-{
-  uint32_t fb_id;
-  uint32_t handle;
-  void *map;
-  uint64_t map_size;
-  int width;
-  int height;
-  int stride_bytes;
-  uint32_t drm_format;
-  int dmabuf_fd;
-} MetaDumbBuffer;
-
 typedef enum _MetaSharedFramebufferImportStatus
 {
   /* Not tried importing yet. */
@@ -166,8 +150,8 @@ typedef struct _MetaOnscreenNativeSecondaryGpuState
   } gbm;
 
   struct {
-    MetaDumbBuffer *dumb_fb;
-    MetaDumbBuffer dumb_fbs[2];
+    MetaDrmBufferDumb *current_dumb_fb;
+    MetaDrmBufferDumb *dumb_fbs[2];
   } cpu;
 
   gboolean noted_primary_gpu_copy_ok;
@@ -194,7 +178,7 @@ typedef struct _MetaOnscreenNative
   struct {
     EGLStreamKHR stream;
 
-    MetaDumbBuffer dumb_fb;
+    MetaDrmBufferDumb *dumb_fb;
   } egl;
 #endif
 
@@ -234,22 +218,6 @@ G_DEFINE_TYPE_WITH_CODE (MetaRendererNative,
 
 static const CoglWinsysEGLVtable _cogl_winsys_egl_vtable;
 static const CoglWinsysVtable *parent_vtable;
-
-static void
-release_dumb_fb (MetaDumbBuffer *dumb_fb,
-                 MetaGpuKms     *gpu_kms);
-
-static gboolean
-init_dumb_fb (MetaDumbBuffer *dumb_fb,
-              MetaGpuKms     *gpu_kms,
-              int             width,
-              int             height,
-              uint32_t        format,
-              GError        **error);
-
-static int
-meta_dumb_buffer_ensure_dmabuf_fd (MetaDumbBuffer *dumb_fb,
-                                   MetaGpuKms     *gpu_kms);
 
 static MetaEgl *
 meta_renderer_native_get_egl (MetaRendererNative *renderer_native);
@@ -530,11 +498,10 @@ init_secondary_gpu_state_gpu_copy_mode (MetaRendererNative         *renderer_nat
 static void
 secondary_gpu_release_dumb (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
-  MetaGpuKms *gpu_kms = secondary_gpu_state->gpu_kms;
   unsigned i;
 
   for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
-    release_dumb_fb (&secondary_gpu_state->cpu.dumb_fbs[i], gpu_kms);
+    g_clear_object (&secondary_gpu_state->cpu.dumb_fbs[i]);
 }
 
 static void
@@ -635,6 +602,7 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state;
   MetaGpuKms *gpu_kms;
+  MetaKmsDevice *kms_device;
   int width, height;
   unsigned int i;
   uint32_t drm_format;
@@ -652,6 +620,7 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
   height = cogl_framebuffer_get_height (framebuffer);
 
   gpu_kms = META_GPU_KMS (meta_crtc_get_gpu (onscreen_native->crtc));
+  kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
   g_debug ("Secondary GPU %s using DRM format '%s' (0x%x) for a %dx%d output.",
            meta_gpu_kms_get_file_path (gpu_kms),
            meta_drm_format_to_string (&tmp, drm_format),
@@ -665,13 +634,12 @@ init_secondary_gpu_state_cpu_copy_mode (MetaRendererNative         *renderer_nat
 
   for (i = 0; i < G_N_ELEMENTS (secondary_gpu_state->cpu.dumb_fbs); i++)
     {
-      MetaDumbBuffer *dumb_fb = &secondary_gpu_state->cpu.dumb_fbs[i];
-
-      if (!init_dumb_fb (dumb_fb,
-                         gpu_kms,
-                         width, height,
-                         drm_format,
-                         error))
+      secondary_gpu_state->cpu.dumb_fbs[i] =
+        meta_drm_buffer_dumb_new (kms_device,
+                                  width, height,
+                                  drm_format,
+                                  error);
+      if (!secondary_gpu_state->cpu.dumb_fbs[i])
         {
           secondary_gpu_state_free (secondary_gpu_state);
           return FALSE;
@@ -1367,11 +1335,12 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
       {
-        uint32_t fb_id;
+        MetaDrmBuffer *buffer;
 
-        fb_id = onscreen_native->egl.dumb_fb.fb_id;
+        buffer = META_DRM_BUFFER (onscreen_native->egl.dumb_fb);
         meta_crtc_kms_assign_primary_plane (crtc_kms,
-                                            fb_id, kms_update);
+                                            meta_drm_buffer_get_fb_id (buffer),
+                                            kms_update);
         break;
       }
 #endif
@@ -1403,13 +1372,20 @@ import_shared_framebuffer (CoglOnscreen                        *onscreen,
 {
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
+  MetaGpuKms *gpu_kms;
+  MetaKmsDevice *kms_device;
+  struct gbm_device *gbm_device;
   MetaDrmBufferGbm *buffer_gbm;
   MetaDrmBufferImport *buffer_import;
   g_autoptr (GError) error = NULL;
 
   buffer_gbm = META_DRM_BUFFER_GBM (onscreen_native->gbm.next_fb);
 
-  buffer_import = meta_drm_buffer_import_new (secondary_gpu_state->gpu_kms,
+  gpu_kms = secondary_gpu_state->gpu_kms;
+  kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
+  gbm_device = meta_gbm_device_from_gpu (gpu_kms);
+  buffer_import = meta_drm_buffer_import_new (kms_device,
+                                              gbm_device,
                                               buffer_gbm,
                                               &error);
   if (!buffer_import)
@@ -1475,6 +1451,7 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
   MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
   MetaEgl *egl = meta_renderer_native_get_egl (renderer_native);
   GError *error = NULL;
+  MetaKmsDevice *kms_device;
   MetaDrmBufferGbm *buffer_gbm;
   struct gbm_bo *bo;
 
@@ -1523,8 +1500,9 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
       return;
     }
 
+  kms_device = meta_gpu_kms_get_kms_device (secondary_gpu_state->gpu_kms);
   buffer_gbm =
-    meta_drm_buffer_gbm_new_lock_front (secondary_gpu_state->gpu_kms,
+    meta_drm_buffer_gbm_new_lock_front (kms_device,
                                         secondary_gpu_state->gbm.surface,
                                         renderer_native->use_modifiers,
                                         &error);
@@ -1539,16 +1517,16 @@ copy_shared_framebuffer_gpu (CoglOnscreen                        *onscreen,
   secondary_gpu_state->gbm.next_fb = META_DRM_BUFFER (buffer_gbm);
 }
 
-static MetaDumbBuffer *
+static MetaDrmBufferDumb *
 secondary_gpu_get_next_dumb_buffer (MetaOnscreenNativeSecondaryGpuState *secondary_gpu_state)
 {
-  MetaDumbBuffer *current_dumb_fb;
+  MetaDrmBufferDumb *current_dumb_fb;
 
-  current_dumb_fb = secondary_gpu_state->cpu.dumb_fb;
-  if (current_dumb_fb == &secondary_gpu_state->cpu.dumb_fbs[0])
-    return &secondary_gpu_state->cpu.dumb_fbs[1];
+  current_dumb_fb = secondary_gpu_state->cpu.current_dumb_fb;
+  if (current_dumb_fb == secondary_gpu_state->cpu.dumb_fbs[0])
+    return secondary_gpu_state->cpu.dumb_fbs[1];
   else
-    return &secondary_gpu_state->cpu.dumb_fbs[0];
+    return secondary_gpu_state->cpu.dumb_fbs[0];
 }
 
 static CoglContext *
@@ -1648,7 +1626,9 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaRendererNativeGpuData *primary_gpu_data;
   MetaDrmBufferDumb *buffer_dumb;
-  MetaDumbBuffer *dumb_fb;
+  MetaDrmBuffer *buffer;
+  int width, height, stride;
+  uint32_t drm_format;
   CoglFramebuffer *dmabuf_fb;
   int dmabuf_fd;
   g_autoptr (GError) error = NULL;
@@ -1664,28 +1644,36 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   if (!primary_gpu_data->secondary.has_EGL_EXT_image_dma_buf_import_modifiers)
     return FALSE;
 
-  dumb_fb = secondary_gpu_get_next_dumb_buffer (secondary_gpu_state);
+  buffer_dumb = secondary_gpu_get_next_dumb_buffer (secondary_gpu_state);
+  buffer = META_DRM_BUFFER (buffer_dumb);
 
-  g_assert (cogl_framebuffer_get_width (framebuffer) == dumb_fb->width);
-  g_assert (cogl_framebuffer_get_height (framebuffer) == dumb_fb->height);
+  width = meta_drm_buffer_get_width (buffer);
+  height = meta_drm_buffer_get_height (buffer);
+  stride = meta_drm_buffer_get_stride (buffer);
+  drm_format = meta_drm_buffer_get_format (buffer);
 
-  ret = meta_cogl_pixel_format_from_drm_format (dumb_fb->drm_format,
+  g_assert (cogl_framebuffer_get_width (framebuffer) == width);
+  g_assert (cogl_framebuffer_get_height (framebuffer) == height);
+
+  ret = meta_cogl_pixel_format_from_drm_format (drm_format,
                                                 &cogl_format,
                                                 NULL);
   g_assert (ret);
 
-  dmabuf_fd = meta_dumb_buffer_ensure_dmabuf_fd (dumb_fb,
-                                                 secondary_gpu_state->gpu_kms);
-  if (dmabuf_fd == -1)
-    return FALSE;
+  dmabuf_fd = meta_drm_buffer_dumb_ensure_dmabuf_fd (buffer_dumb, &error);
+  if (!dmabuf_fd)
+    {
+      g_debug ("Failed to create DMA buffer: %s", error->message);
+      return FALSE;
+    }
 
   dmabuf_fb = create_dma_buf_framebuffer (renderer_native,
                                           dmabuf_fd,
-                                          dumb_fb->width,
-                                          dumb_fb->height,
-                                          dumb_fb->stride_bytes,
+                                          width,
+                                          height,
+                                          stride,
                                           0, DRM_FORMAT_MOD_LINEAR,
-                                          dumb_fb->drm_format,
+                                          drm_format,
                                           &error);
 
   if (error)
@@ -1697,8 +1685,7 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
 
   if (!cogl_blit_framebuffer (framebuffer, COGL_FRAMEBUFFER (dmabuf_fb),
                               0, 0, 0, 0,
-                              dumb_fb->width,
-                              dumb_fb->height,
+                              width, height,
                               &error))
     {
       g_object_unref (dmabuf_fb);
@@ -1708,9 +1695,8 @@ copy_shared_framebuffer_primary_gpu (CoglOnscreen                        *onscre
   g_object_unref (dmabuf_fb);
 
   g_clear_object (&secondary_gpu_state->gbm.next_fb);
-  buffer_dumb = meta_drm_buffer_dumb_new (dumb_fb->fb_id);
-  secondary_gpu_state->gbm.next_fb = META_DRM_BUFFER (buffer_dumb);
-  secondary_gpu_state->cpu.dumb_fb = dumb_fb;
+  secondary_gpu_state->gbm.next_fb = buffer;
+  secondary_gpu_state->cpu.current_dumb_fb = buffer_dumb;
 
   return TRUE;
 }
@@ -1722,31 +1708,41 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
 {
   CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
   CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-  MetaDumbBuffer *dumb_fb;
+  MetaDrmBufferDumb *buffer_dumb;
+  MetaDrmBuffer *buffer;
+  int width, height, stride;
+  uint32_t drm_format;
+  void *buffer_data;
   CoglBitmap *dumb_bitmap;
   CoglPixelFormat cogl_format;
   gboolean ret;
-  MetaDrmBufferDumb *buffer_dumb;
 
   COGL_TRACE_BEGIN_SCOPED (CopySharedFramebufferCpu,
                            "FB Copy (CPU)");
 
-  dumb_fb = secondary_gpu_get_next_dumb_buffer (secondary_gpu_state);
+  buffer_dumb = secondary_gpu_get_next_dumb_buffer (secondary_gpu_state);
+  buffer = META_DRM_BUFFER (buffer_dumb);
 
-  g_assert (cogl_framebuffer_get_width (framebuffer) == dumb_fb->width);
-  g_assert (cogl_framebuffer_get_height (framebuffer) == dumb_fb->height);
+  width = meta_drm_buffer_get_width (buffer);
+  height = meta_drm_buffer_get_height (buffer);
+  stride = meta_drm_buffer_get_stride (buffer);
+  drm_format = meta_drm_buffer_get_format (buffer);
+  buffer_data = meta_drm_buffer_dumb_get_data (buffer_dumb);
 
-  ret = meta_cogl_pixel_format_from_drm_format (dumb_fb->drm_format,
+  g_assert (cogl_framebuffer_get_width (framebuffer) == width);
+  g_assert (cogl_framebuffer_get_height (framebuffer) == height);
+
+  ret = meta_cogl_pixel_format_from_drm_format (drm_format,
                                                 &cogl_format,
                                                 NULL);
   g_assert (ret);
 
   dumb_bitmap = cogl_bitmap_new_for_data (cogl_context,
-                                          dumb_fb->width,
-                                          dumb_fb->height,
+                                          width,
+                                          height,
                                           cogl_format,
-                                          dumb_fb->stride_bytes,
-                                          dumb_fb->map);
+                                          stride,
+                                          buffer_data);
 
   if (!cogl_framebuffer_read_pixels_into_bitmap (framebuffer,
                                                  0 /* x */,
@@ -1758,9 +1754,8 @@ copy_shared_framebuffer_cpu (CoglOnscreen                        *onscreen,
   cogl_object_unref (dumb_bitmap);
 
   g_clear_object (&secondary_gpu_state->gbm.next_fb);
-  buffer_dumb = meta_drm_buffer_dumb_new (dumb_fb->fb_id);
-  secondary_gpu_state->gbm.next_fb = META_DRM_BUFFER (buffer_dumb);
-  secondary_gpu_state->cpu.dumb_fb = dumb_fb;
+  secondary_gpu_state->gbm.next_fb = buffer;
+  secondary_gpu_state->cpu.current_dumb_fb = buffer_dumb;
 }
 
 static void
@@ -1946,6 +1941,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   CoglOnscreenEGL *onscreen_egl = onscreen->winsys;
   MetaOnscreenNative *onscreen_native = onscreen_egl->platform;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
+  MetaKmsDevice *render_kms_device = meta_gpu_kms_get_kms_device (render_gpu);
   gboolean egl_context_changed = FALSE;
   MetaPowerSave power_save_mode;
   g_autoptr (GError) error = NULL;
@@ -1971,7 +1967,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
       g_clear_object (&onscreen_native->gbm.next_fb);
 
       buffer_gbm =
-        meta_drm_buffer_gbm_new_lock_front (render_gpu,
+        meta_drm_buffer_gbm_new_lock_front (render_kms_device,
                                             onscreen_native->gbm.surface,
                                             renderer_native->use_modifiers,
                                             &error);
@@ -2428,154 +2424,6 @@ meta_renderer_native_create_surface_egl_device (CoglOnscreen  *onscreen,
 #endif /* HAVE_EGL_DEVICE */
 
 static gboolean
-init_dumb_fb (MetaDumbBuffer  *dumb_fb,
-              MetaGpuKms      *gpu_kms,
-              int              width,
-              int              height,
-              uint32_t         format,
-              GError         **error)
-{
-  struct drm_mode_create_dumb create_arg;
-  struct drm_mode_destroy_dumb destroy_arg;
-  struct drm_mode_map_dumb map_arg;
-  uint32_t fb_id = 0;
-  void *map;
-  int kms_fd;
-  MetaGpuKmsFBArgs fb_args = {
-    .width = width,
-    .height = height,
-    .format = format,
-  };
-
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-
-  create_arg = (struct drm_mode_create_dumb) {
-    .bpp = 32, /* RGBX8888 */
-    .width = width,
-    .height = height
-  };
-  if (drmIoctl (kms_fd, DRM_IOCTL_MODE_CREATE_DUMB, &create_arg) != 0)
-    {
-      g_set_error (error, G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "Failed to create dumb drm buffer: %s",
-                   g_strerror (errno));
-      goto err_ioctl;
-    }
-
-  fb_args.handles[0] = create_arg.handle;
-  fb_args.strides[0] = create_arg.pitch;
-
-  if (!meta_gpu_kms_add_fb (gpu_kms, FALSE, &fb_args, &fb_id, error))
-    goto err_add_fb;
-
-  map_arg = (struct drm_mode_map_dumb) {
-    .handle = create_arg.handle
-  };
-  if (drmIoctl (kms_fd, DRM_IOCTL_MODE_MAP_DUMB,
-                &map_arg) != 0)
-    {
-      g_set_error (error, G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "Failed to map dumb drm buffer: %s",
-                   g_strerror (errno));
-      goto err_map_dumb;
-    }
-
-  map = mmap (NULL, create_arg.size, PROT_WRITE, MAP_SHARED,
-              kms_fd, map_arg.offset);
-  if (map == MAP_FAILED)
-    {
-      g_set_error (error, G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "Failed to mmap dumb drm buffer memory: %s",
-                   g_strerror (errno));
-      goto err_mmap;
-    }
-
-  dumb_fb->fb_id = fb_id;
-  dumb_fb->handle = create_arg.handle;
-  dumb_fb->map = map;
-  dumb_fb->map_size = create_arg.size;
-  dumb_fb->width = width;
-  dumb_fb->height = height;
-  dumb_fb->stride_bytes = create_arg.pitch;
-  dumb_fb->drm_format = format;
-  dumb_fb->dmabuf_fd = -1;
-
-  return TRUE;
-
-err_mmap:
-err_map_dumb:
-  drmModeRmFB (kms_fd, fb_id);
-
-err_add_fb:
-  destroy_arg = (struct drm_mode_destroy_dumb) {
-    .handle = create_arg.handle
-  };
-  drmIoctl (kms_fd, DRM_IOCTL_MODE_DESTROY_DUMB, &destroy_arg);
-
-err_ioctl:
-  return FALSE;
-}
-
-static int
-meta_dumb_buffer_ensure_dmabuf_fd (MetaDumbBuffer *dumb_fb,
-                                   MetaGpuKms     *gpu_kms)
-{
-  int ret;
-  int kms_fd;
-  int dmabuf_fd;
-
-  if (dumb_fb->dmabuf_fd != -1)
-    return dumb_fb->dmabuf_fd;
-
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-
-  ret = drmPrimeHandleToFD (kms_fd, dumb_fb->handle, DRM_CLOEXEC,
-                            &dmabuf_fd);
-  if (ret)
-    {
-      g_debug ("Failed to export dumb drm buffer: %s",
-               g_strerror (errno));
-      return -1;
-    }
-
-  dumb_fb->dmabuf_fd = dmabuf_fd;
-
-  return dumb_fb->dmabuf_fd;
-}
-
-static void
-release_dumb_fb (MetaDumbBuffer *dumb_fb,
-                 MetaGpuKms     *gpu_kms)
-{
-  struct drm_mode_destroy_dumb destroy_arg;
-  int kms_fd;
-
-  if (!dumb_fb->map)
-    return;
-
-  if (dumb_fb->dmabuf_fd != -1)
-    close (dumb_fb->dmabuf_fd);
-
-  munmap (dumb_fb->map, dumb_fb->map_size);
-
-  kms_fd = meta_gpu_kms_get_fd (gpu_kms);
-
-  drmModeRmFB (kms_fd, dumb_fb->fb_id);
-
-  destroy_arg = (struct drm_mode_destroy_dumb) {
-    .handle = dumb_fb->handle
-  };
-  drmIoctl (kms_fd, DRM_IOCTL_MODE_DESTROY_DUMB, &destroy_arg);
-
-  *dumb_fb = (MetaDumbBuffer) {
-    .dmabuf_fd = -1,
-  };
-}
-
-static gboolean
 meta_renderer_native_init_onscreen (CoglOnscreen *onscreen,
                                     GError      **error)
 {
@@ -2620,6 +2468,7 @@ meta_onscreen_native_allocate (CoglOnscreen *onscreen,
   int width;
   int height;
 #ifdef HAVE_EGL_DEVICE
+  MetaKmsDevice *render_kms_device;
   EGLStreamKHR egl_stream;
 #endif
 
@@ -2653,11 +2502,14 @@ meta_onscreen_native_allocate (CoglOnscreen *onscreen,
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      if (!init_dumb_fb (&onscreen_native->egl.dumb_fb,
-                         onscreen_native->render_gpu,
-                         width, height,
-                         DRM_FORMAT_XRGB8888,
-                         error))
+      render_kms_device =
+        meta_gpu_kms_get_kms_device (onscreen_native->render_gpu);
+      onscreen_native->egl.dumb_fb =
+        meta_drm_buffer_dumb_new (render_kms_device,
+                                  width, height,
+                                  DRM_FORMAT_XRGB8888,
+                                  error);
+      if (!onscreen_native->egl.dumb_fb)
         return FALSE;
 
       if (!meta_renderer_native_create_surface_egl_device (onscreen,
@@ -2750,8 +2602,7 @@ meta_renderer_native_release_onscreen (CoglOnscreen *onscreen)
       break;
 #ifdef HAVE_EGL_DEVICE
     case META_RENDERER_NATIVE_MODE_EGL_DEVICE:
-      release_dumb_fb (&onscreen_native->egl.dumb_fb,
-                       onscreen_native->render_gpu);
+      g_clear_object (&onscreen_native->egl.dumb_fb);
 
       destroy_egl_surface (onscreen);
 

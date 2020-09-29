@@ -23,7 +23,6 @@
 
 #include "config.h"
 
-#include "backends/native/meta-cogl-utils.h"
 #include "backends/native/meta-drm-buffer-gbm.h"
 
 #include <drm_fourcc.h>
@@ -31,18 +30,16 @@
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
-#define INVALID_FB_ID 0U
+#include "backends/native/meta-drm-buffer-private.h"
+#include "backends/native/meta-cogl-utils.h"
 
 struct _MetaDrmBufferGbm
 {
   MetaDrmBuffer parent;
 
-  MetaGpuKms *gpu_kms;
-
   struct gbm_surface *surface;
 
   struct gbm_bo *bo;
-  uint32_t fb_id;
 };
 
 static void
@@ -58,13 +55,45 @@ meta_drm_buffer_gbm_get_bo (MetaDrmBufferGbm *buffer_gbm)
   return buffer_gbm->bo;
 }
 
+static int
+meta_drm_buffer_gbm_get_width (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
+
+  return gbm_bo_get_width (buffer_gbm->bo);
+}
+
+static int
+meta_drm_buffer_gbm_get_height (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
+
+  return gbm_bo_get_height (buffer_gbm->bo);
+}
+
+static int
+meta_drm_buffer_gbm_get_stride (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
+
+  return gbm_bo_get_stride (buffer_gbm->bo);
+}
+
+static uint32_t
+meta_drm_buffer_gbm_get_format (MetaDrmBuffer *buffer)
+{
+  MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (buffer);
+
+  return gbm_bo_get_format (buffer_gbm->bo);
+}
+
 static gboolean
 init_fb_id (MetaDrmBufferGbm  *buffer_gbm,
             struct gbm_bo     *bo,
             gboolean           use_modifiers,
             GError           **error)
 {
-  MetaGpuKmsFBArgs fb_args = { 0, };
+  MetaDrmFbArgs fb_args = { 0, };
 
   if (gbm_bo_get_handle_for_plane (bo, 0).s32 == -1)
     {
@@ -91,10 +120,8 @@ init_fb_id (MetaDrmBufferGbm  *buffer_gbm,
   fb_args.height = gbm_bo_get_height (bo);
   fb_args.format = gbm_bo_get_format (bo);
 
-  if (!meta_gpu_kms_add_fb (buffer_gbm->gpu_kms,
-                            use_modifiers,
-                            &fb_args,
-                            &buffer_gbm->fb_id, error))
+  if (!meta_drm_buffer_ensure_fb_id (META_DRM_BUFFER (buffer_gbm),
+                                     use_modifiers, &fb_args, error))
     return FALSE;
 
   return TRUE;
@@ -119,15 +146,16 @@ lock_front_buffer (MetaDrmBufferGbm  *buffer_gbm,
 }
 
 MetaDrmBufferGbm *
-meta_drm_buffer_gbm_new_lock_front (MetaGpuKms          *gpu_kms,
+meta_drm_buffer_gbm_new_lock_front (MetaKmsDevice       *device,
                                     struct gbm_surface  *gbm_surface,
                                     gboolean             use_modifiers,
                                     GError             **error)
 {
   MetaDrmBufferGbm *buffer_gbm;
 
-  buffer_gbm = g_object_new (META_TYPE_DRM_BUFFER_GBM, NULL);
-  buffer_gbm->gpu_kms = gpu_kms;
+  buffer_gbm = g_object_new (META_TYPE_DRM_BUFFER_GBM,
+                             "device", device,
+                             NULL);
   buffer_gbm->surface = gbm_surface;
 
   if (!lock_front_buffer (buffer_gbm, use_modifiers, error))
@@ -140,15 +168,16 @@ meta_drm_buffer_gbm_new_lock_front (MetaGpuKms          *gpu_kms,
 }
 
 MetaDrmBufferGbm *
-meta_drm_buffer_gbm_new_take (MetaGpuKms     *gpu_kms,
+meta_drm_buffer_gbm_new_take (MetaKmsDevice  *device,
                               struct gbm_bo  *bo,
                               gboolean        use_modifiers,
                               GError        **error)
 {
   MetaDrmBufferGbm *buffer_gbm;
 
-  buffer_gbm = g_object_new (META_TYPE_DRM_BUFFER_GBM, NULL);
-  buffer_gbm->gpu_kms = gpu_kms;
+  buffer_gbm = g_object_new (META_TYPE_DRM_BUFFER_GBM,
+                             "device", device,
+                             NULL);
 
   if (!init_fb_id (buffer_gbm, bo, use_modifiers, error))
     {
@@ -159,12 +188,6 @@ meta_drm_buffer_gbm_new_take (MetaGpuKms     *gpu_kms,
   buffer_gbm->bo = bo;
 
   return buffer_gbm;
-}
-
-static uint32_t
-meta_drm_buffer_gbm_get_fb_id (MetaDrmBuffer *buffer)
-{
-  return META_DRM_BUFFER_GBM (buffer)->fb_id;
 }
 
 static gboolean
@@ -308,14 +331,6 @@ meta_drm_buffer_gbm_finalize (GObject *object)
 {
   MetaDrmBufferGbm *buffer_gbm = META_DRM_BUFFER_GBM (object);
 
-  if (buffer_gbm->fb_id != INVALID_FB_ID)
-    {
-      int kms_fd;
-
-      kms_fd = meta_gpu_kms_get_fd (buffer_gbm->gpu_kms);
-      drmModeRmFB (kms_fd, buffer_gbm->fb_id);
-    }
-
   if (buffer_gbm->bo)
     {
       if (buffer_gbm->surface)
@@ -340,5 +355,8 @@ meta_drm_buffer_gbm_class_init (MetaDrmBufferGbmClass *klass)
 
   object_class->finalize = meta_drm_buffer_gbm_finalize;
 
-  buffer_class->get_fb_id = meta_drm_buffer_gbm_get_fb_id;
+  buffer_class->get_width = meta_drm_buffer_gbm_get_width;
+  buffer_class->get_height = meta_drm_buffer_gbm_get_height;
+  buffer_class->get_stride = meta_drm_buffer_gbm_get_stride;
+  buffer_class->get_format = meta_drm_buffer_gbm_get_format;
 }
