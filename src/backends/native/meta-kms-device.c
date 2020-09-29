@@ -236,6 +236,26 @@ typedef struct _CreateImplDeviceData
   char *out_driver_description;
 } CreateImplDeviceData;
 
+static gboolean
+get_driver_info (int    fd,
+                 char **name,
+                 char **description)
+{
+  drmVersion *drm_version;
+
+  drm_version = drmGetVersion (fd);
+  if (!drm_version)
+    return FALSE;
+
+  *name = g_strndup (drm_version->name,
+                     drm_version->name_len);
+  *description = g_strndup (drm_version->desc,
+                            drm_version->desc_len);
+  drmFreeVersion (drm_version);
+
+  return TRUE;
+}
+
 static MetaKmsImplDevice *
 meta_create_kms_impl_device (MetaKmsDevice  *device,
                              MetaKmsImpl    *impl,
@@ -243,6 +263,8 @@ meta_create_kms_impl_device (MetaKmsDevice  *device,
                              GError        **error)
 {
   int ret;
+  g_autofree char *driver_name = NULL;
+  g_autofree char *driver_description = NULL;
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (impl));
 
@@ -255,10 +277,18 @@ meta_create_kms_impl_device (MetaKmsDevice  *device,
       return NULL;
     }
 
+  if (!get_driver_info (fd, &driver_name, &driver_description))
+    {
+      driver_name = g_strdup ("unknown");
+      driver_description = g_strdup ("Unknown");
+    }
+
   return g_initable_new (META_TYPE_KMS_IMPL_DEVICE_SIMPLE, NULL, error,
                          "device", device,
                          "impl", impl,
                          "fd", fd,
+                         "driver-name", driver_name,
+                         "driver-description", driver_description,
                          NULL);
 }
 
