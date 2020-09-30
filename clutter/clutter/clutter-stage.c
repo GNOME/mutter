@@ -3614,6 +3614,14 @@ clutter_stage_paint_to_framebuffer (ClutterStage                *stage,
   ClutterPaintContext *paint_context;
   cairo_region_t *redraw_clip;
 
+  if (paint_flags & CLUTTER_PAINT_FLAG_CLEAR)
+    {
+      CoglColor clear_color;
+
+      cogl_color_init_from_4ub (&clear_color, 0, 0, 0, 0);
+      cogl_framebuffer_clear (framebuffer, COGL_BUFFER_BIT_COLOR, &clear_color);
+    }
+
   redraw_clip = cairo_region_create_rectangle (rect);
   paint_context =
     clutter_paint_context_new_for_framebuffer (framebuffer,

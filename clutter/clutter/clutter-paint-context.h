@@ -34,6 +34,7 @@ typedef enum _ClutterPaintFlag
   CLUTTER_PAINT_FLAG_NONE = 0,
   CLUTTER_PAINT_FLAG_NO_CURSORS = 1 << 0,
   CLUTTER_PAINT_FLAG_FORCE_CURSORS = 1 << 1,
+  CLUTTER_PAINT_FLAG_CLEAR = 1 << 2,
 } ClutterPaintFlag;
 
 #define CLUTTER_TYPE_PAINT_CONTEXT (clutter_paint_context_get_type ())

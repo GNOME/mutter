@@ -414,7 +414,7 @@ meta_screen_cast_area_stream_src_record_to_buffer (MetaScreenCastStreamSrc  *src
   MetaRectangle *area;
   float scale;
   int stride;
-  ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_NONE;
+  ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_CLEAR;
 
   stage = get_stage (area_src);
   area = meta_screen_cast_area_stream_get_area (area_stream);
@@ -456,7 +456,7 @@ meta_screen_cast_area_stream_src_record_to_framebuffer (MetaScreenCastStreamSrc 
   ClutterStage *stage;
   MetaRectangle *area;
   float scale;
-  ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_NONE;
+  ClutterPaintFlag paint_flags = CLUTTER_PAINT_FLAG_CLEAR;
 
   stage = CLUTTER_STAGE (meta_backend_get_stage (backend));
   area = meta_screen_cast_area_stream_get_area (area_stream);
