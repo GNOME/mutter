@@ -295,25 +295,9 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
       cairo_region_t *scaled_opaque_region;
 
       opaque_region = meta_shaped_texture_get_opaque_region (priv->texture);
-      if (opaque_region)
-        {
-          cairo_region_reference (opaque_region);
-        }
-      else if (meta_shaped_texture_is_opaque (priv->texture))
-        {
-          cairo_rectangle_int_t rect;
 
-          rect = (cairo_rectangle_int_t) {
-            .width = meta_shaped_texture_get_width (priv->texture),
-            .height = meta_shaped_texture_get_height (priv->texture)
-          };
-
-          opaque_region = cairo_region_create_rectangle (&rect);
-        }
-      else
-        {
-          return;
-        }
+      if (!opaque_region)
+        return;
 
       scaled_opaque_region = get_scaled_region (surface_actor,
                                                 opaque_region,
@@ -324,7 +308,6 @@ meta_surface_actor_cull_out (MetaCullable   *cullable,
       if (clip_region)
         cairo_region_subtract (clip_region, scaled_opaque_region);
 
-      cairo_region_destroy (opaque_region);
       cairo_region_destroy (scaled_opaque_region);
     }
 }
