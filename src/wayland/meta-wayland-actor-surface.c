@@ -225,7 +225,15 @@ meta_wayland_actor_surface_real_sync_actor_state (MetaWaylandActorSurface *actor
 
   if (!META_IS_XWAYLAND_SURFACE (surface_role))
     {
-      if (surface->opaque_region)
+      if (!meta_shaped_texture_has_alpha (stex))
+        {
+          cairo_region_t *opaque_region;
+
+          opaque_region = cairo_region_create_rectangle (&surface_rect);
+          meta_surface_actor_set_opaque_region (surface_actor, opaque_region);
+          cairo_region_destroy (opaque_region);
+        }
+      else if (surface->opaque_region)
         {
           cairo_region_t *opaque_region;
 
