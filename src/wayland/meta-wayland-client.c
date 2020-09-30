@@ -50,6 +50,7 @@ struct _MetaWaylandClient
   GSubprocess *subprocess;
   GCancellable *died_cancellable;
   gboolean process_running;
+  gboolean process_launched;
   struct wl_client *wayland_client;
 };
 
@@ -165,21 +166,21 @@ meta_wayland_client_spawnv (MetaWaylandClient   *client,
                         argv[0][0] != '\0',
                         NULL);
 
+  if (client->process_launched)
+    {
+      g_set_error (error,
+                   G_IO_ERROR,
+                   G_IO_ERROR_FAILED,
+                   "This object already has spawned a subprocess.");
+      return NULL;
+    }
+
   if (client->launcher == NULL)
     {
       g_set_error (error,
                    G_IO_ERROR,
                    G_IO_ERROR_NOT_INITIALIZED,
                    "MetaWaylandClient must be created using meta_wayland_client_new().");
-      return NULL;
-    }
-
-  if (client->subprocess != NULL)
-    {
-      g_set_error (error,
-                   G_IO_ERROR,
-                   G_IO_ERROR_FAILED,
-                   "This object already has a process running.");
       return NULL;
     }
 
@@ -197,6 +198,8 @@ meta_wayland_client_spawnv (MetaWaylandClient   *client,
   g_subprocess_launcher_setenv (client->launcher, "WAYLAND_SOCKET", "3", TRUE);
   wayland_client = wl_client_create (compositor->wayland_display, client_fd[0]);
   subprocess = g_subprocess_launcher_spawnv (client->launcher, argv, error);
+  g_clear_object (&client->launcher);
+  client->process_launched = TRUE;
 
   if (subprocess == NULL)
     return NULL;
