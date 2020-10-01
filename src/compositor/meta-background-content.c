@@ -557,14 +557,22 @@ meta_background_content_paint_content (ClutterContent      *content,
               region = cairo_region_create_rectangle (&rect_within_stage);
             }
         }
-
-      if (self->unobscured_region)
-        cairo_region_intersect (region, self->unobscured_region);
     }
   else /* actor and stage space are different but we need actor space */
     {
-      region = cairo_region_create_rectangle (&rect_within_actor);
+      if (self->clip_region)
+        {
+          region = cairo_region_copy (self->clip_region);
+          cairo_region_intersect_rectangle (region, &rect_within_actor);
+        }
+      else
+        {
+          region = cairo_region_create_rectangle (&rect_within_actor);
+        }
     }
+
+  if (self->unobscured_region)
+    cairo_region_intersect (region, self->unobscured_region);
 
   /* region is now in actor space */
   if (cairo_region_is_empty (region))
