@@ -92,8 +92,6 @@ typedef struct _MetaKmsPageFlip
   const MetaKmsPageFlipFeedback *feedback;
   MetaKmsPageFlipFlag flags;
   gpointer user_data;
-  MetaKmsCustomPageFlipFunc custom_page_flip_func;
-  gpointer custom_page_flip_user_data;
 } MetaKmsPageFlip;
 
 void meta_kms_plane_feedback_free (MetaKmsPlaneFeedback *plane_feedback);
@@ -128,6 +126,10 @@ GList * meta_kms_update_get_page_flips (MetaKmsUpdate *update);
 GList * meta_kms_update_get_connector_updates (MetaKmsUpdate *update);
 
 GList * meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update);
+
+void meta_kms_update_get_custom_page_flip_func (MetaKmsUpdate             *update,
+                                                MetaKmsCustomPageFlipFunc *custom_page_flip_func,
+                                                gpointer                  *custom_page_flip_user_data);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsPlaneFeedback,
                                meta_kms_plane_feedback_free)

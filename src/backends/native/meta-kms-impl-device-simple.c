@@ -716,6 +716,7 @@ process_page_flip (MetaKmsImplDevice  *impl_device,
   MetaKmsPlaneAssignment *plane_assignment;
   MetaKmsPageFlipData *page_flip_data;
   MetaKmsCustomPageFlipFunc custom_page_flip_func;
+  gpointer custom_page_flip_user_data;
   int fd;
   int ret;
 
@@ -729,10 +730,12 @@ process_page_flip (MetaKmsImplDevice  *impl_device,
                                                 page_flip->user_data);
 
   fd = meta_kms_impl_device_get_fd (impl_device);
-  custom_page_flip_func = page_flip->custom_page_flip_func;
+  meta_kms_update_get_custom_page_flip_func (update,
+                                             &custom_page_flip_func,
+                                             &custom_page_flip_user_data);
   if (custom_page_flip_func)
     {
-      ret = custom_page_flip_func (page_flip->custom_page_flip_user_data,
+      ret = custom_page_flip_func (custom_page_flip_user_data,
                                    meta_kms_page_flip_data_ref (page_flip_data));
     }
   else
@@ -773,7 +776,7 @@ process_page_flip (MetaKmsImplDevice  *impl_device,
                                     refresh_rate,
                                     page_flip_data,
                                     custom_page_flip_func,
-                                    page_flip->custom_page_flip_user_data);
+                                    custom_page_flip_user_data);
         }
       else
         {

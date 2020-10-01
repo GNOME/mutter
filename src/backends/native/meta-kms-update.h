@@ -128,12 +128,9 @@ void meta_kms_update_page_flip (MetaKmsUpdate                 *update,
                                 MetaKmsPageFlipFlag            flags,
                                 gpointer                       user_data);
 
-void meta_kms_update_custom_page_flip (MetaKmsUpdate                 *update,
-                                       MetaKmsCrtc                   *crtc,
-                                       const MetaKmsPageFlipFeedback *feedback,
-                                       gpointer                       user_data,
-                                       MetaKmsCustomPageFlipFunc      custom_page_flip_func,
-                                       gpointer                       custom_page_flip_user_data);
+void meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
+                                           MetaKmsCustomPageFlipFunc  func,
+                                           gpointer                   user_data);
 
 void meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane_assignment,
                                                    int                     x,

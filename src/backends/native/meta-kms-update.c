@@ -40,6 +40,9 @@ struct _MetaKmsUpdate
   GList *page_flips;
   GList *connector_updates;
   GList *crtc_gammas;
+
+  MetaKmsCustomPageFlipFunc custom_page_flip_func;
+  gpointer custom_page_flip_user_data;
 };
 
 void
@@ -342,28 +345,14 @@ meta_kms_update_page_flip (MetaKmsUpdate                 *update,
 }
 
 void
-meta_kms_update_custom_page_flip (MetaKmsUpdate                 *update,
-                                  MetaKmsCrtc                   *crtc,
-                                  const MetaKmsPageFlipFeedback *feedback,
-                                  gpointer                       user_data,
-                                  MetaKmsCustomPageFlipFunc      custom_page_flip_func,
-                                  gpointer                       custom_page_flip_user_data)
+meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
+                                      MetaKmsCustomPageFlipFunc  func,
+                                      gpointer                   user_data)
 {
-  MetaKmsPageFlip *page_flip;
-
   g_assert (!meta_kms_update_is_sealed (update));
-  g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
-  page_flip = g_new0 (MetaKmsPageFlip, 1);
-  *page_flip = (MetaKmsPageFlip) {
-    .crtc = crtc,
-    .feedback = feedback,
-    .user_data = user_data,
-    .custom_page_flip_func = custom_page_flip_func,
-    .custom_page_flip_user_data = custom_page_flip_user_data,
-  };
-
-  update->page_flips = g_list_prepend (update->page_flips, page_flip);
+  update->custom_page_flip_func = func;
+  update->custom_page_flip_user_data = user_data;
 }
 
 void
@@ -449,6 +438,15 @@ MetaKmsDevice *
 meta_kms_update_get_device (MetaKmsUpdate *update)
 {
   return update->device;
+}
+
+void
+meta_kms_update_get_custom_page_flip_func (MetaKmsUpdate             *update,
+                                           MetaKmsCustomPageFlipFunc *custom_page_flip_func,
+                                           gpointer                  *custom_page_flip_user_data)
+{
+  *custom_page_flip_func = update->custom_page_flip_func;
+  *custom_page_flip_user_data = update->custom_page_flip_user_data;
 }
 
 MetaKmsUpdate *
