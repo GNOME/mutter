@@ -116,9 +116,6 @@ meta_set_verbose (gboolean setting)
 #ifndef WITH_VERBOSE_MODE
   if (setting)
     meta_fatal (_("Mutter was compiled without support for verbose mode\n"));
-#else
-  if (setting)
-    ensure_logfile ();
 #endif
 
   if (setting)
@@ -139,6 +136,9 @@ meta_add_verbose_topic (MetaDebugTopic topic)
 {
   if (verbose_topics == META_DEBUG_VERBOSE)
     return;
+
+  ensure_logfile ();
+
   if (topic == META_DEBUG_VERBOSE)
     verbose_topics = META_DEBUG_VERBOSE;
   else
