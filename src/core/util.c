@@ -240,33 +240,6 @@ utf8_fputs (const char *str,
 
 #ifdef WITH_VERBOSE_MODE
 void
-meta_debug_spew_real (const char *format, ...)
-{
-  va_list args;
-  gchar *str;
-  FILE *out;
-
-  g_return_if_fail (format != NULL);
-
-  if (!is_debugging)
-    return;
-
-  va_start (args, format);
-  str = g_strdup_vprintf (format, args);
-  va_end (args);
-
-  out = logfile ? logfile : stderr;
-
-  if (no_prefix == 0)
-    utf8_fputs ("Window manager: ", out);
-  utf8_fputs (str, out);
-
-  fflush (out);
-
-  g_free (str);
-}
-
-void
 meta_verbose_real (const char *format, ...)
 {
   va_list args;
