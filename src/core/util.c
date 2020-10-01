@@ -49,7 +49,6 @@ meta_topic_real_valist (MetaDebugTopic topic,
 #endif
 
 static gint verbose_topics = 0;
-static gboolean is_debugging = FALSE;
 static gboolean replace_current = FALSE;
 static int no_prefix = 0;
 static gboolean is_wayland_compositor = FALSE;
@@ -162,23 +161,6 @@ meta_remove_verbose_topic (MetaDebugTopic topic)
     verbose_topics = 0;
   else
     verbose_topics &= ~topic;
-}
-
-gboolean
-meta_is_debugging (void)
-{
-  return is_debugging;
-}
-
-void
-meta_set_debugging (gboolean setting)
-{
-#ifdef WITH_VERBOSE_MODE
-  if (setting)
-    ensure_logfile ();
-#endif
-
-  is_debugging = setting;
 }
 
 gboolean

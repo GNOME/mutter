@@ -33,9 +33,6 @@ META_EXPORT
 gboolean meta_is_verbose  (void);
 
 META_EXPORT
-gboolean meta_is_debugging (void);
-
-META_EXPORT
 gboolean meta_is_syncing (void);
 
 META_EXPORT
