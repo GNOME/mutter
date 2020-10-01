@@ -526,7 +526,7 @@ find_first_fit (MetaWindow         *window,
 
     meta_rectangle_to_string (&logical_monitor->rect,
                               monitor_location_string);
-    meta_topic (META_DEBUG_XINERAMA,
+    meta_topic (META_DEBUG_PLACEMENT,
                 "Natural monitor is %s\n",
                 monitor_location_string);
   }
