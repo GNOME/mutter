@@ -56,12 +56,6 @@ void meta_crtc_kms_assign_primary_plane (MetaCrtcKms   *crtc_kms,
 void meta_crtc_kms_set_mode (MetaCrtcKms   *crtc_kms,
                              MetaKmsUpdate *kms_update);
 
-void meta_crtc_kms_page_flip (MetaCrtcKms                   *crtc_kms,
-                              const MetaKmsPageFlipFeedback *page_flip_feedback,
-                              MetaKmsPageFlipFlag            flags,
-                              gpointer                       user_data,
-                              MetaKmsUpdate                 *kms_update);
-
 void meta_crtc_kms_set_is_underscanning (MetaCrtcKms *crtc_kms,
                                          gboolean     is_underscanning);
 

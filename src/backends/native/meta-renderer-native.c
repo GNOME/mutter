@@ -1291,11 +1291,11 @@ meta_onscreen_native_flip_crtc (CoglOnscreen        *onscreen,
         }
 
       meta_crtc_kms_assign_primary_plane (crtc_kms, buffer, kms_update);
-      meta_crtc_kms_page_flip (crtc_kms,
-                               &page_flip_feedback,
-                               flags,
-                               g_object_ref (view),
-                               kms_update);
+      meta_kms_update_page_flip (kms_update,
+                                 meta_crtc_kms_get_kms_crtc (crtc_kms),
+                                 &page_flip_feedback,
+                                 flags,
+                                 g_object_ref (view));
 
       break;
 #ifdef HAVE_EGL_DEVICE
