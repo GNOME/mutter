@@ -93,6 +93,12 @@ typedef struct _MetaKmsPageFlipListener
   gpointer user_data;
 } MetaKmsPageFlipListener;
 
+typedef struct _MetaKmsResultListener
+{
+  MetaKmsResultListenerFunc func;
+  gpointer user_data;
+} MetaKmsResultListener;
+
 void meta_kms_plane_feedback_free (MetaKmsPlaneFeedback *plane_feedback);
 
 MetaKmsPlaneFeedback * meta_kms_plane_feedback_new_take_error (MetaKmsPlane *plane,
@@ -129,6 +135,13 @@ GList * meta_kms_update_get_crtc_gammas (MetaKmsUpdate *update);
 void meta_kms_update_get_custom_page_flip_func (MetaKmsUpdate             *update,
                                                 MetaKmsCustomPageFlipFunc *custom_page_flip_func,
                                                 gpointer                  *custom_page_flip_user_data);
+
+GList * meta_kms_update_take_result_listeners (MetaKmsUpdate *update);
+
+void meta_kms_result_listener_notify (MetaKmsResultListener *listener,
+                                      const MetaKmsFeedback *feedback);
+
+void meta_kms_result_listener_free (MetaKmsResultListener *listener);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (MetaKmsPlaneFeedback,
                                meta_kms_plane_feedback_free)

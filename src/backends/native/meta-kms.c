@@ -251,6 +251,8 @@ meta_kms_post_pending_update_sync (MetaKms       *kms,
 {
   MetaKmsUpdate *update;
   MetaKmsFeedback *feedback;
+  GList *result_listeners;
+  GList *l;
 
   COGL_TRACE_BEGIN_SCOPED (MetaKmsPostUpdateSync,
                            "KMS (post update)");
@@ -265,6 +267,17 @@ meta_kms_post_pending_update_sync (MetaKms       *kms,
                                           meta_kms_process_update_in_impl,
                                           update,
                                           NULL);
+
+  result_listeners = meta_kms_update_take_result_listeners (update);
+
+  for (l = result_listeners; l; l = l->next)
+    {
+      MetaKmsResultListener *listener = l->data;
+
+      meta_kms_result_listener_notify (listener, feedback);
+      meta_kms_result_listener_free (listener);
+    }
+  g_list_free (result_listeners);
 
   meta_kms_update_free (update);
 

@@ -69,6 +69,9 @@ typedef struct _MetaKmsPlaneFeedback
   GError *error;
 } MetaKmsPlaneFeedback;
 
+typedef void (* MetaKmsResultListenerFunc) (const MetaKmsFeedback *feedback,
+                                            gpointer               user_data);
+
 void meta_kms_feedback_free (MetaKmsFeedback *feedback);
 
 MetaKmsFeedbackResult meta_kms_feedback_get_result (const MetaKmsFeedback *feedback);
@@ -129,6 +132,10 @@ void meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
 void meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane_assignment,
                                                    int                     x,
                                                    int                     y);
+
+void meta_kms_update_add_result_listener (MetaKmsUpdate             *update,
+                                          MetaKmsResultListenerFunc  func,
+                                          gpointer                   user_data);
 
 static inline MetaFixed16
 meta_fixed_16_from_int (int16_t d)

@@ -44,6 +44,7 @@ struct _MetaKmsUpdate
   gpointer custom_page_flip_user_data;
 
   GList *page_flip_listeners;
+  GList *result_listeners;
 };
 
 void
@@ -379,6 +380,42 @@ meta_kms_plane_assignment_set_cursor_hotspot (MetaKmsPlaneAssignment *plane_assi
   plane_assignment->cursor_hotspot.y = y;
 }
 
+void
+meta_kms_update_add_result_listener (MetaKmsUpdate             *update,
+                                     MetaKmsResultListenerFunc  func,
+                                     gpointer                   user_data)
+{
+  MetaKmsResultListener *listener;
+
+  listener = g_new0 (MetaKmsResultListener, 1);
+  *listener = (MetaKmsResultListener) {
+    .func = func,
+    .user_data = user_data,
+  };
+
+  update->result_listeners = g_list_append (update->result_listeners,
+                                            listener);
+}
+
+GList *
+meta_kms_update_take_result_listeners (MetaKmsUpdate *update)
+{
+  return g_steal_pointer (&update->result_listeners);
+}
+
+void
+meta_kms_result_listener_notify (MetaKmsResultListener *listener,
+                                 const MetaKmsFeedback *feedback)
+{
+  listener->func (feedback, listener->user_data);
+}
+
+void
+meta_kms_result_listener_free (MetaKmsResultListener *listener)
+{
+  g_free (listener);
+}
+
 MetaKmsPlaneAssignment *
 meta_kms_update_get_primary_plane_assignment (MetaKmsUpdate *update,
                                               MetaKmsCrtc   *crtc)
@@ -467,6 +504,8 @@ meta_kms_update_new (MetaKmsDevice *device)
 void
 meta_kms_update_free (MetaKmsUpdate *update)
 {
+  g_list_free_full (update->result_listeners,
+                    (GDestroyNotify) meta_kms_result_listener_free);
   g_list_free_full (update->plane_assignments,
                     (GDestroyNotify) meta_kms_plane_assignment_free);
   g_list_free_full (update->mode_sets,
