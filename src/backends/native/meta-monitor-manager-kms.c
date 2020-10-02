@@ -145,12 +145,16 @@ meta_monitor_manager_kms_set_power_save_mode (MetaMonitorManager *manager,
       MetaGpuKms *gpu_kms = l->data;
       MetaKmsDevice *kms_device = meta_gpu_kms_get_kms_device (gpu_kms);
       MetaKmsUpdate *kms_update;
+      MetaKmsUpdateFlag flags;
       g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
       kms_update = meta_kms_ensure_pending_update (kms, kms_device);
       meta_gpu_kms_set_power_save_mode (gpu_kms, state, kms_update);
 
-      kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device);
+      flags = META_KMS_UPDATE_FLAG_NONE;
+      kms_feedback = meta_kms_post_pending_update_sync (kms,
+                                                        kms_device,
+                                                        flags);
       if (meta_kms_feedback_get_result (kms_feedback) !=
           META_KMS_FEEDBACK_PASSED)
         {
@@ -423,6 +427,7 @@ meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
   MetaKmsDevice *kms_device;
   MetaKmsUpdate *kms_update;
   g_autofree char *gamma_ramp_string = NULL;
+  MetaKmsUpdateFlag flags;
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
@@ -434,7 +439,8 @@ meta_monitor_manager_kms_set_crtc_gamma (MetaMonitorManager *manager,
   g_debug ("Setting CRTC (%" G_GUINT64_FORMAT ") gamma to %s",
            meta_crtc_get_id (crtc), gamma_ramp_string);
 
-  kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device);
+  flags = META_KMS_UPDATE_FLAG_NONE;
+  kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
   if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
     {
       g_warning ("Failed to set CRTC gamma: %s",

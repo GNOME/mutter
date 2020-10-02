@@ -25,6 +25,12 @@
 #include "backends/meta-backend-private.h"
 #include "backends/native/meta-kms-types.h"
 
+typedef enum _MetaKmsUpdateFlag
+{
+  META_KMS_UPDATE_FLAG_NONE = 0,
+  META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR = 1 << 0,
+} MetaKmsUpdateFlag;
+
 #define META_TYPE_KMS (meta_kms_get_type ())
 G_DECLARE_FINAL_TYPE (MetaKms, meta_kms, META, KMS, GObject)
 
@@ -34,8 +40,9 @@ MetaKmsUpdate * meta_kms_ensure_pending_update (MetaKms       *kms,
 MetaKmsUpdate * meta_kms_get_pending_update (MetaKms       *kms,
                                              MetaKmsDevice *device);
 
-MetaKmsFeedback * meta_kms_post_pending_update_sync (MetaKms       *kms,
-                                                     MetaKmsDevice *device);
+MetaKmsFeedback * meta_kms_post_pending_update_sync (MetaKms           *kms,
+                                                     MetaKmsDevice     *device,
+                                                     MetaKmsUpdateFlag  flags);
 
 void meta_kms_discard_pending_page_flips (MetaKms *kms);
 

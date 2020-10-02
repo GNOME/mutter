@@ -177,6 +177,13 @@ struct _MetaKms
 
 G_DEFINE_TYPE (MetaKms, meta_kms, G_TYPE_OBJECT)
 
+static void
+meta_kms_add_pending_update (MetaKms       *kms,
+                             MetaKmsUpdate *update)
+{
+  kms->pending_updates = g_list_prepend (kms->pending_updates, update);
+}
+
 MetaKmsUpdate *
 meta_kms_ensure_pending_update (MetaKms       *kms,
                                 MetaKmsDevice *device)
@@ -188,7 +195,7 @@ meta_kms_ensure_pending_update (MetaKms       *kms,
     return update;
 
   update = meta_kms_update_new (device);
-  kms->pending_updates = g_list_prepend (kms->pending_updates, update);
+  meta_kms_add_pending_update (kms, update);
 
   return update;
 }
@@ -246,8 +253,9 @@ meta_kms_process_update_in_impl (MetaKmsImpl  *impl,
 }
 
 MetaKmsFeedback *
-meta_kms_post_pending_update_sync (MetaKms       *kms,
-                                   MetaKmsDevice *device)
+meta_kms_post_pending_update_sync (MetaKms           *kms,
+                                   MetaKmsDevice     *device,
+                                   MetaKmsUpdateFlag  flags)
 {
   MetaKmsUpdate *update;
   MetaKmsFeedback *feedback;
@@ -270,6 +278,27 @@ meta_kms_post_pending_update_sync (MetaKms       *kms,
 
   result_listeners = meta_kms_update_take_result_listeners (update);
 
+  if (feedback->error &&
+      flags & META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR)
+    {
+      GList *l;
+
+      meta_kms_update_unlock (update);
+
+      for (l = feedback->failed_planes; l; l = l->next)
+        {
+          MetaKmsPlane *plane = l->data;
+
+          meta_kms_update_drop_plane_assignment (update, plane);
+        }
+
+      meta_kms_add_pending_update (kms, update);
+    }
+  else
+    {
+      meta_kms_update_free (update);
+    }
+
   for (l = result_listeners; l; l = l->next)
     {
       MetaKmsResultListener *listener = l->data;
@@ -278,8 +307,6 @@ meta_kms_post_pending_update_sync (MetaKms       *kms,
       meta_kms_result_listener_free (listener);
     }
   g_list_free (result_listeners);
-
-  meta_kms_update_free (update);
 
   return feedback;
 }

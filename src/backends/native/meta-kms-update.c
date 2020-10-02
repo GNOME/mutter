@@ -141,6 +141,26 @@ meta_kms_mode_set_free (MetaKmsModeSet *mode_set)
   g_free (mode_set);
 }
 
+void
+meta_kms_update_drop_plane_assignment (MetaKmsUpdate *update,
+                                       MetaKmsPlane  *plane)
+{
+  GList *l;
+
+  for (l = update->plane_assignments; l; l = l->next)
+    {
+      MetaKmsPlaneAssignment *plane_assignment = l->data;
+
+      if (plane_assignment->plane == plane)
+        {
+          update->plane_assignments =
+            g_list_delete_link (update->plane_assignments, l);
+          meta_kms_plane_assignment_free (plane_assignment);
+          return;
+        }
+    }
+}
+
 MetaKmsPlaneAssignment *
 meta_kms_update_assign_plane (MetaKmsUpdate          *update,
                               MetaKmsCrtc            *crtc,
@@ -467,6 +487,12 @@ void
 meta_kms_update_lock (MetaKmsUpdate *update)
 {
   update->is_locked = TRUE;
+}
+
+void
+meta_kms_update_unlock (MetaKmsUpdate *update)
+{
+  update->is_locked = FALSE;
 }
 
 gboolean

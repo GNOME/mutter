@@ -1877,6 +1877,7 @@ unset_disabled_crtcs (MetaBackend *backend,
         meta_gpu_kms_get_kms_device (META_GPU_KMS (gpu));
       GList *k;
       gboolean did_mode_set = FALSE;
+      MetaKmsUpdateFlag flags;
       g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
       for (k = meta_gpu_get_crtcs (gpu); k; k = k->next)
@@ -1896,7 +1897,10 @@ unset_disabled_crtcs (MetaBackend *backend,
       if (!did_mode_set)
         continue;
 
-      kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device);
+      flags = META_KMS_UPDATE_FLAG_NONE;
+      kms_feedback = meta_kms_post_pending_update_sync (kms,
+                                                        kms_device,
+                                                        flags);
       if (meta_kms_feedback_get_result (kms_feedback) !=
           META_KMS_FEEDBACK_PASSED)
         {
@@ -1938,6 +1942,7 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   MetaDrmBufferGbm *buffer_gbm;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
+  MetaKmsUpdateFlag flags;
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
@@ -2006,7 +2011,9 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                     "Onscreen (post pending update)");
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
   kms_device = meta_kms_crtc_get_device (kms_crtc);
-  kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device);
+
+  flags = META_KMS_UPDATE_FLAG_NONE;
+  kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
   if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
     {
       const GError *error = meta_kms_feedback_get_error (kms_feedback);
@@ -2176,6 +2183,7 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   MetaPowerSave power_save_mode;
   MetaKmsCrtc *kms_crtc;
   MetaKmsDevice *kms_device;
+  MetaKmsUpdateFlag flags;
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
@@ -2199,7 +2207,9 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
 
   kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
   kms_device = meta_kms_crtc_get_device (kms_crtc);
-  kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device);
+
+  flags = META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR;
+  kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
   if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
     {
       const GError *feedback_error = meta_kms_feedback_get_error (kms_feedback);

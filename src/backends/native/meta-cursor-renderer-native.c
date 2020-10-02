@@ -1079,9 +1079,13 @@ meta_cursor_renderer_native_update_cursor (MetaCursorRenderer *renderer,
       for (l = meta_kms_get_devices (kms); l; l = l->next)
         {
           MetaKmsDevice *kms_device = l->data;
+          MetaKmsUpdateFlag flags;
           g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
-          kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device);
+          flags = META_KMS_UPDATE_FLAG_NONE;
+          kms_feedback = meta_kms_post_pending_update_sync (kms,
+                                                            kms_device,
+                                                            flags);
           on_kms_update_result (kms_feedback, renderer);
         }
     }
