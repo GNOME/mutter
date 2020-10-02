@@ -1072,6 +1072,31 @@ process_plane_assignments (MetaKmsImplDevice  *impl_device,
   return TRUE;
 }
 
+static void
+page_flip_handler (int           fd,
+                   unsigned int  sequence,
+                   unsigned int  tv_sec,
+                   unsigned int  tv_usec,
+                   void         *user_data)
+{
+  MetaKmsPageFlipData *page_flip_data = user_data;
+  MetaKmsImplDevice *impl_device;
+
+  meta_kms_page_flip_data_set_timings_in_impl (page_flip_data,
+                                               sequence, tv_sec, tv_usec);
+
+  impl_device = meta_kms_page_flip_data_get_impl_device (page_flip_data);
+  meta_kms_impl_device_handle_page_flip_callback (impl_device, page_flip_data);
+}
+
+static void
+meta_kms_impl_device_simple_setup_drm_event_context (MetaKmsImplDevice *impl,
+                                                     drmEventContext   *drm_event_context)
+{
+  drm_event_context->version = 2;
+  drm_event_context->page_flip_handler = page_flip_handler;
+}
+
 static MetaKmsFeedback *
 meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
                                             MetaKmsUpdate     *update)
@@ -1249,6 +1274,8 @@ meta_kms_impl_device_simple_class_init (MetaKmsImplDeviceSimpleClass *klass)
 
   object_class->finalize = meta_kms_impl_device_simple_finalize;
 
+  impl_device_class->setup_drm_event_context =
+    meta_kms_impl_device_simple_setup_drm_event_context;
   impl_device_class->process_update =
     meta_kms_impl_device_simple_process_update;
   impl_device_class->handle_page_flip_callback =

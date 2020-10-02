@@ -84,10 +84,6 @@ G_DEFINE_TYPE_WITH_CODE (MetaKmsImplDevice, meta_kms_impl_device,
                          G_IMPLEMENT_INTERFACE (G_TYPE_INITABLE,
                                                 initable_iface_init))
 
-static void
-meta_kms_impl_device_handle_page_flip_callback (MetaKmsImplDevice   *impl_device,
-                                                MetaKmsPageFlipData *page_flip_data);
-
 MetaKmsDevice *
 meta_kms_impl_device_get_device (MetaKmsImplDevice *impl_device)
 {
@@ -169,37 +165,20 @@ meta_kms_impl_device_get_path (MetaKmsImplDevice *impl_device)
   return priv->path;
 }
 
-static void
-page_flip_handler (int           fd,
-                   unsigned int  sequence,
-                   unsigned int  sec,
-                   unsigned int  usec,
-                   void         *user_data)
-{
-  MetaKmsPageFlipData *page_flip_data = user_data;
-  MetaKmsImplDevice *impl_device;
-
-  meta_kms_page_flip_data_set_timings_in_impl (page_flip_data,
-                                               sequence, sec, usec);
-
-  impl_device = meta_kms_page_flip_data_get_impl_device (page_flip_data);
-  meta_kms_impl_device_handle_page_flip_callback (impl_device, page_flip_data);
-}
-
 gboolean
 meta_kms_impl_device_dispatch (MetaKmsImplDevice  *impl_device,
                                GError            **error)
 {
   MetaKmsImplDevicePrivate *priv =
     meta_kms_impl_device_get_instance_private (impl_device);
+  MetaKmsImplDeviceClass *klass = META_KMS_IMPL_DEVICE_GET_CLASS (impl_device);
 
   drmEventContext drm_event_context;
 
   meta_assert_in_kms_impl (meta_kms_impl_get_kms (priv->impl));
 
   drm_event_context = (drmEventContext) { 0 };
-  drm_event_context.version = 2;
-  drm_event_context.page_flip_handler = page_flip_handler;
+  klass->setup_drm_event_context (impl_device, &drm_event_context);
 
   while (TRUE)
     {
@@ -652,7 +631,7 @@ meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
   return klass->process_update (impl_device, update);
 }
 
-static void
+void
 meta_kms_impl_device_handle_page_flip_callback (MetaKmsImplDevice   *impl_device,
                                                 MetaKmsPageFlipData *page_flip_data)
 {

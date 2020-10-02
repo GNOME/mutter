@@ -22,6 +22,7 @@
 
 #include <glib-object.h>
 #include <stdint.h>
+#include <xf86drm.h>
 #include <xf86drmMode.h>
 
 #include "backends/native/meta-kms-device.h"
@@ -60,6 +61,8 @@ struct _MetaKmsImplDeviceClass
 {
   GObjectClass parent_class;
 
+  void (* setup_drm_event_context) (MetaKmsImplDevice *impl,
+                                    drmEventContext   *drm_event_context);
   MetaKmsFeedback * (* process_update) (MetaKmsImplDevice *impl,
                                         MetaKmsUpdate     *update);
   void (* handle_page_flip_callback) (MetaKmsImplDevice   *impl,
@@ -114,8 +117,18 @@ void meta_kms_impl_device_init_prop_table (MetaKmsImplDevice *impl_device,
                                            int                n_props,
                                            gpointer           user_data);
 
+void meta_kms_impl_device_reload_prop_values (MetaKmsImplDevice *impl_device,
+                                              uint32_t          *drm_props,
+                                              uint64_t          *drm_prop_values,
+                                              int                n_drm_props,
+                                              gpointer           user_data,
+                                              ...);
+
 MetaKmsFeedback * meta_kms_impl_device_process_update (MetaKmsImplDevice *impl_device,
                                                        MetaKmsUpdate     *update);
+
+void meta_kms_impl_device_handle_page_flip_callback (MetaKmsImplDevice   *impl_device,
+                                                     MetaKmsPageFlipData *page_flip_data);
 
 void meta_kms_impl_device_discard_pending_page_flips (MetaKmsImplDevice *impl_device);
 
