@@ -1160,7 +1160,7 @@ page_flip_feedback_discarded (MetaKmsCrtc  *kms_crtc,
   g_object_unref (view);
 }
 
-static const MetaKmsPageFlipFeedback page_flip_feedback = {
+static const MetaKmsPageFlipListenerVtable page_flip_listener_vtable = {
   .flipped = page_flip_feedback_flipped,
   .mode_set_fallback = page_flip_feedback_mode_set_fallback,
   .discarded = page_flip_feedback_discarded,
@@ -1259,6 +1259,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
   MetaRendererNative *renderer_native = onscreen_native->renderer_native;
   MetaGpuKms *render_gpu = onscreen_native->render_gpu;
   MetaCrtcKms *crtc_kms = META_CRTC_KMS (crtc);
+  MetaKmsCrtc *kms_crtc = meta_crtc_kms_get_kms_crtc (crtc_kms);
   MetaRendererNativeGpuData *renderer_gpu_data;
   MetaGpuKms *gpu_kms;
   MetaKmsDevice *kms_device;
@@ -1301,10 +1302,10 @@ meta_onscreen_native_flip_crtc (CoglOnscreen     *onscreen,
 #endif
     }
 
-  meta_kms_update_page_flip (kms_update,
-                             meta_crtc_kms_get_kms_crtc (crtc_kms),
-                             &page_flip_feedback,
-                             g_object_ref (view));
+  meta_kms_update_add_page_flip_listener (kms_update,
+                                          kms_crtc,
+                                          &page_flip_listener_vtable,
+                                          g_object_ref (view));
 }
 
 static void

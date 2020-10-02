@@ -37,7 +37,7 @@ typedef struct _MetaKmsMode MetaKmsMode;
 
 typedef struct _MetaKmsFeedback MetaKmsFeedback;
 
-typedef struct _MetaKmsPageFlipFeedback MetaKmsPageFlipFeedback;
+typedef struct _MetaKmsPageFlipListenerVtable MetaKmsPageFlipListenerVtable;
 
 typedef struct _MetaKmsImpl MetaKmsImpl;
 typedef struct _MetaKmsImplDevice MetaKmsImplDevice;

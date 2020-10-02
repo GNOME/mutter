@@ -86,12 +86,12 @@ typedef struct _MetaKmsCrtcGamma
   uint16_t *blue;
 } MetaKmsCrtcGamma;
 
-typedef struct _MetaKmsPageFlip
+typedef struct _MetaKmsPageFlipListener
 {
   MetaKmsCrtc *crtc;
-  const MetaKmsPageFlipFeedback *feedback;
+  const MetaKmsPageFlipListenerVtable *vtable;
   gpointer user_data;
-} MetaKmsPageFlip;
+} MetaKmsPageFlipListener;
 
 void meta_kms_plane_feedback_free (MetaKmsPlaneFeedback *plane_feedback);
 
@@ -120,7 +120,7 @@ GList * meta_kms_update_get_plane_assignments (MetaKmsUpdate *update);
 
 GList * meta_kms_update_get_mode_sets (MetaKmsUpdate *update);
 
-GList * meta_kms_update_get_page_flips (MetaKmsUpdate *update);
+GList * meta_kms_update_get_page_flip_listeners (MetaKmsUpdate *update);
 
 GList * meta_kms_update_get_connector_updates (MetaKmsUpdate *update);
 

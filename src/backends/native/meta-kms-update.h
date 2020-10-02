@@ -43,7 +43,7 @@ typedef enum _MetaKmsAssignPlaneFlag
   META_KMS_ASSIGN_PLANE_FLAG_ALLOW_FAIL = 1 << 1,
 } MetaKmsAssignPlaneFlag;
 
-struct _MetaKmsPageFlipFeedback
+struct _MetaKmsPageFlipListenerVtable
 {
   void (* flipped) (MetaKmsCrtc  *crtc,
                     unsigned int  sequence,
@@ -117,10 +117,10 @@ MetaKmsPlaneAssignment * meta_kms_update_unassign_plane (MetaKmsUpdate *update,
                                                          MetaKmsCrtc   *crtc,
                                                          MetaKmsPlane  *plane);
 
-void meta_kms_update_page_flip (MetaKmsUpdate                 *update,
-                                MetaKmsCrtc                   *crtc,
-                                const MetaKmsPageFlipFeedback *feedback,
-                                gpointer                       user_data);
+void meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *update,
+                                             MetaKmsCrtc                         *crtc,
+                                             const MetaKmsPageFlipListenerVtable *vtable,
+                                             gpointer                             user_data);
 
 void meta_kms_update_set_custom_page_flip (MetaKmsUpdate             *update,
                                            MetaKmsCustomPageFlipFunc  func,

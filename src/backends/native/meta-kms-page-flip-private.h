@@ -28,16 +28,20 @@ typedef struct _MetaKmsPageFlipData MetaKmsPageFlipData;
 
 typedef void (* MetaPageFlipDataFeedbackFunc) (MetaKmsPageFlipData *page_flip_data);
 
-MetaKmsPageFlipData * meta_kms_page_flip_data_new (MetaKmsImplDevice             *impl_device,
-                                                   MetaKmsCrtc                   *crtc,
-                                                   const MetaKmsPageFlipFeedback *feedback,
-                                                   gpointer                       user_data);
+MetaKmsPageFlipData * meta_kms_page_flip_data_new (MetaKmsImplDevice *impl_device,
+                                                   MetaKmsCrtc       *crtc);
 
 MetaKmsPageFlipData * meta_kms_page_flip_data_ref (MetaKmsPageFlipData *page_flip_data);
 
 void meta_kms_page_flip_data_unref (MetaKmsPageFlipData *page_flip_data);
 
+void meta_kms_page_flip_data_add_listener (MetaKmsPageFlipData                 *page_flip_data,
+                                           const MetaKmsPageFlipListenerVtable *vtable,
+                                           gpointer                             user_data);
+
 MetaKmsImplDevice * meta_kms_page_flip_data_get_impl_device (MetaKmsPageFlipData *page_flip_data);
+
+MetaKmsCrtc * meta_kms_page_flip_data_get_crtc (MetaKmsPageFlipData *page_flip_data);
 
 void meta_kms_page_flip_data_set_timings_in_impl (MetaKmsPageFlipData *page_flip_data,
                                                   unsigned int         sequence,

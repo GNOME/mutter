@@ -37,12 +37,13 @@ struct _MetaKmsUpdate
   MetaPowerSave power_save;
   GList *mode_sets;
   GList *plane_assignments;
-  GList *page_flips;
   GList *connector_updates;
   GList *crtc_gammas;
 
   MetaKmsCustomPageFlipFunc custom_page_flip_func;
   gpointer custom_page_flip_user_data;
+
+  GList *page_flip_listeners;
 };
 
 void
@@ -326,24 +327,25 @@ meta_kms_update_set_crtc_gamma (MetaKmsUpdate  *update,
 }
 
 void
-meta_kms_update_page_flip (MetaKmsUpdate                 *update,
-                           MetaKmsCrtc                   *crtc,
-                           const MetaKmsPageFlipFeedback *feedback,
-                           gpointer                       user_data)
+meta_kms_update_add_page_flip_listener (MetaKmsUpdate                       *update,
+                                        MetaKmsCrtc                         *crtc,
+                                        const MetaKmsPageFlipListenerVtable *vtable,
+                                        gpointer                             user_data)
 {
-  MetaKmsPageFlip *page_flip;
+  MetaKmsPageFlipListener *listener;
 
   g_assert (!meta_kms_update_is_sealed (update));
   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
 
-  page_flip = g_new0 (MetaKmsPageFlip, 1);
-  *page_flip = (MetaKmsPageFlip) {
+  listener = g_new0 (MetaKmsPageFlipListener, 1);
+  *listener = (MetaKmsPageFlipListener) {
     .crtc = crtc,
-    .feedback = feedback,
+    .vtable = vtable,
     .user_data = user_data,
   };
 
-  update->page_flips = g_list_prepend (update->page_flips, page_flip);
+  update->page_flip_listeners = g_list_prepend (update->page_flip_listeners,
+                                                listener);
 }
 
 void
@@ -407,9 +409,9 @@ meta_kms_update_get_mode_sets (MetaKmsUpdate *update)
 }
 
 GList *
-meta_kms_update_get_page_flips (MetaKmsUpdate *update)
+meta_kms_update_get_page_flip_listeners (MetaKmsUpdate *update)
 {
-  return update->page_flips;
+  return update->page_flip_listeners;
 }
 
 GList *
@@ -469,7 +471,7 @@ meta_kms_update_free (MetaKmsUpdate *update)
                     (GDestroyNotify) meta_kms_plane_assignment_free);
   g_list_free_full (update->mode_sets,
                     (GDestroyNotify) meta_kms_mode_set_free);
-  g_list_free_full (update->page_flips, g_free);
+  g_list_free_full (update->page_flip_listeners, g_free);
   g_list_free_full (update->connector_updates, g_free);
   g_list_free_full (update->crtc_gammas, (GDestroyNotify) meta_kms_crtc_gamma_free);
 
