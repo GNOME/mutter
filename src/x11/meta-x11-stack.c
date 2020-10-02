@@ -191,7 +191,7 @@ x11_stack_do_window_additions (MetaX11Stack *x11_stack)
   if (n_added > 0)
     {
       meta_topic (META_DEBUG_STACK,
-                  "Adding %d windows to sorted list\n",
+                  "Adding %d windows to sorted list",
                   n_added);
 
       /* stack->added has the most recent additions at the
@@ -235,7 +235,7 @@ x11_stack_sync_to_xserver (MetaX11Stack *x11_stack)
   GList *tmp;
   GList *sorted;
 
-  meta_topic (META_DEBUG_STACK, "Syncing window stack to server\n");
+  meta_topic (META_DEBUG_STACK, "Syncing window stack to server");
 
   /* Create stacked xwindow arrays, in bottom-to-top order
    */

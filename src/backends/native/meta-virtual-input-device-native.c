@@ -119,7 +119,7 @@ release_pressed_buttons (ClutterVirtualInputDevice *virtual_device)
 
   meta_topic (META_DEBUG_INPUT,
               "Releasing pressed buttons while destroying virtual input device "
-              "(device %p)\n", virtual_device);
+              "(device %p)", virtual_device);
 
   for (code = 0; code < G_N_ELEMENTS (virtual_evdev->button_count); code++)
     {
@@ -248,7 +248,7 @@ meta_virtual_input_device_native_notify_button (ClutterVirtualInputDevice *virtu
     }
 
   meta_topic (META_DEBUG_INPUT,
-              "Emitting virtual button-%s of button 0x%x (device %p)\n",
+              "Emitting virtual button-%s of button 0x%x (device %p)",
               button_state == CLUTTER_BUTTON_STATE_PRESSED ? "press" : "release",
               evdev_button, virtual_device);
 
@@ -290,7 +290,7 @@ meta_virtual_input_device_native_notify_key (ClutterVirtualInputDevice *virtual_
     }
 
   meta_topic (META_DEBUG_INPUT,
-              "Emitting virtual key-%s of key 0x%x (device %p)\n",
+              "Emitting virtual key-%s of key 0x%x (device %p)",
               key_state == CLUTTER_KEY_STATE_PRESSED ? "press" : "release",
               key, virtual_device);
 
@@ -385,7 +385,7 @@ apply_level_modifiers (ClutterVirtualInputDevice *virtual_device,
                                          keycode, &evcode);
 
   meta_topic (META_DEBUG_INPUT,
-              "Emitting virtual key-%s of modifier key 0x%x (device %p)\n",
+              "Emitting virtual key-%s of modifier key 0x%x (device %p)",
               key_state == CLUTTER_KEY_STATE_PRESSED ? "press" : "release",
               evcode, virtual_device);
 
@@ -440,7 +440,7 @@ meta_virtual_input_device_native_notify_keyval (ClutterVirtualInputDevice *virtu
 
   meta_topic (META_DEBUG_INPUT,
               "Emitting virtual key-%s of key 0x%x with modifier level %d, "
-              "press count %d (device %p)\n",
+              "press count %d (device %p)",
               key_state == CLUTTER_KEY_STATE_PRESSED ? "press" : "release",
               evcode, level, key_count, virtual_device);
 
@@ -690,7 +690,7 @@ meta_virtual_input_device_native_constructed (GObject *object)
   device_type = clutter_virtual_input_device_get_device_type (virtual_device);
 
   meta_topic (META_DEBUG_INPUT,
-              "Creating new virtual input device of type %d (%p)\n",
+              "Creating new virtual input device of type %d (%p)",
               device_type, virtual_device);
 
   virtual_evdev->device =

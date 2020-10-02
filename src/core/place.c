@@ -360,7 +360,7 @@ avoid_being_obscured_as_second_modal_dialog (MetaWindow *window,
       meta_topic (META_DEBUG_PLACEMENT,
                   "Dialog window %s was denied focus but may be modal "
                   "to the focus window; had to move it to avoid the "
-                  "focus window\n",
+                  "focus window",
                   window->desc);
     }
 }
@@ -527,7 +527,7 @@ find_first_fit (MetaWindow         *window,
     meta_rectangle_to_string (&logical_monitor->rect,
                               monitor_location_string);
     meta_topic (META_DEBUG_PLACEMENT,
-                "Natural monitor is %s\n",
+                "Natural monitor is %s",
                 monitor_location_string);
   }
 #endif
@@ -669,7 +669,7 @@ meta_window_place (MetaWindow        *window,
   GList *windows = NULL;
   MetaLogicalMonitor *logical_monitor;
 
-  meta_topic (META_DEBUG_PLACEMENT, "Placing window %s\n", window->desc);
+  meta_topic (META_DEBUG_PLACEMENT, "Placing window %s", window->desc);
 
   g_return_if_fail (!window->placement.rule);
 
@@ -713,7 +713,8 @@ meta_window_place (MetaWindow        *window,
             {
               /* don't constrain with placement algorithm */
               meta_topic (META_DEBUG_PLACEMENT,
-                          "Honoring USPosition for %s instead of using placement algorithm\n", window->desc);
+                          "Honoring USPosition for %s instead of using placement algorithm",
+                          window->desc);
 
               goto done;
             }
@@ -742,7 +743,7 @@ meta_window_place (MetaWindow        *window,
           if (window->size_hints.flags & PPosition)
             {
               meta_topic (META_DEBUG_PLACEMENT,
-                          "Not placing non-normal non-dialog window with PPosition set\n");
+                          "Not placing non-normal non-dialog window with PPosition set");
               goto done;
             }
           break;
@@ -756,7 +757,7 @@ meta_window_place (MetaWindow        *window,
           (window->size_hints.flags & USPosition))
         {
           meta_topic (META_DEBUG_PLACEMENT,
-                      "Not placing window with PPosition or USPosition set\n");
+                      "Not placing window with PPosition or USPosition set");
           avoid_being_obscured_as_second_modal_dialog (window, &x, &y);
           goto done;
         }
@@ -786,7 +787,8 @@ meta_window_place (MetaWindow        *window,
            */
           y += (parent_frame_rect.height - frame_rect.height)/3;
 
-          meta_topic (META_DEBUG_PLACEMENT, "Centered window %s over transient parent\n",
+          meta_topic (META_DEBUG_PLACEMENT,
+                      "Centered window %s over transient parent",
                       window->desc);
 
           avoid_being_obscured_as_second_modal_dialog (window, &x, &y);
@@ -816,7 +818,7 @@ meta_window_place (MetaWindow        *window,
       x = work_area.x + (work_area.width - frame_rect.width) / 2;
       y = work_area.y + (work_area.height - frame_rect.height) / 2;
 
-      meta_topic (META_DEBUG_PLACEMENT, "Centered window %s on monitor %d\n",
+      meta_topic (META_DEBUG_PLACEMENT, "Centered window %s on monitor %d",
                   window->desc, logical_monitor->number);
 
       goto done_check_denied_focus;

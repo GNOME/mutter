@@ -577,7 +577,7 @@ meta_workspace_manager_update_workspace_layout (MetaWorkspaceManager *workspace_
   workspace_manager->rows_of_workspaces = n_rows;
   workspace_manager->columns_of_workspaces = n_columns;
 
-  meta_verbose ("Workspace layout rows = %d cols = %d orientation = %d starting corner = %u\n",
+  meta_verbose ("Workspace layout rows = %d cols = %d orientation = %d starting corner = %u",
                 workspace_manager->rows_of_workspaces,
                 workspace_manager->columns_of_workspaces,
                 workspace_manager->vertical_workspaces,
@@ -670,7 +670,7 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
   grid_area = rows * cols;
 
   meta_verbose ("Getting layout rows = %d cols = %d current = %d "
-                "num_spaces = %d vertical = %s corner = %s\n",
+                "num_spaces = %d vertical = %s corner = %s",
                 rows, cols, current_space, num_workspaces,
                 workspace_manager->vertical_workspaces ? "(true)" : "(false)",
                 meta_workspace_manager_corner_to_string (workspace_manager->starting_corner));
@@ -845,7 +845,7 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
     }
 
   if (i != grid_area)
-    meta_bug ("did not fill in the whole workspace grid in %s (%d filled)\n",
+    meta_bug ("did not fill in the whole workspace grid in %s (%d filled)",
               G_STRFUNC, i);
 
   current_row = 0;
@@ -896,7 +896,6 @@ meta_workspace_manager_calc_workspace_layout (MetaWorkspaceManager *workspace_ma
                 meta_verbose ("%3d ", layout->grid[r*layout->cols+c]);
               ++c;
             }
-          meta_verbose ("\n");
           meta_pop_no_msg_prefix ();
           ++r;
         }

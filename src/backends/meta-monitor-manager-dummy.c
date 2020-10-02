@@ -445,7 +445,7 @@ meta_monitor_manager_dummy_read_current (MetaMonitorManager *manager)
       scales_str_list = g_strsplit (monitor_scales_str, ",", -1);
       if (g_strv_length (scales_str_list) != num_monitors)
         meta_warning ("Number of specified monitor scales differ from number "
-                      "of monitors (defaults to 1).\n");
+                      "of monitors (defaults to 1).");
       for (i = 0; i < num_monitors && scales_str_list[i]; i++)
         {
           float scale = g_ascii_strtod (scales_str_list[i], NULL);

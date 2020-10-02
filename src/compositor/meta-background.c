@@ -611,7 +611,7 @@ ensure_color_texture (MetaBackground *self)
 
       if (error != NULL)
         {
-          meta_warning ("Failed to allocate color texture: %s\n", error->message);
+          meta_warning ("Failed to allocate color texture: %s", error->message);
           g_error_free (error);
         }
     }

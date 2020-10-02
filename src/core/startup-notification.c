@@ -135,13 +135,13 @@ meta_startup_notification_update_feedback (MetaStartupNotification *sn)
   if (meta_startup_notification_has_pending_sequences (sn))
     {
       meta_topic (META_DEBUG_STARTUP,
-                  "Setting busy cursor\n");
+                  "Setting busy cursor");
       meta_display_set_cursor (display, META_CURSOR_BUSY);
     }
   else
     {
       meta_topic (META_DEBUG_STARTUP,
-                  "Setting default cursor\n");
+                  "Setting default cursor");
       meta_display_set_cursor (display, META_CURSOR_DEFAULT);
     }
 }
@@ -459,7 +459,7 @@ collect_timed_out_foreach (void *element,
   elapsed = ctod->now - timestamp;
 
   meta_topic (META_DEBUG_STARTUP,
-              "Sequence used %" G_GINT64_FORMAT " ms vs. %d max: %s\n",
+              "Sequence used %" G_GINT64_FORMAT " ms vs. %d max: %s",
               elapsed, STARTUP_TIMEOUT_MS,
               meta_startup_sequence_get_id (sequence));
 
@@ -485,7 +485,7 @@ startup_sequence_timeout (void *data)
       MetaStartupSequence *sequence = l->data;
 
       meta_topic (META_DEBUG_STARTUP,
-                  "Timed out sequence %s\n",
+                  "Timed out sequence %s",
                   meta_startup_sequence_get_id (sequence));
 
       meta_startup_sequence_complete (sequence);

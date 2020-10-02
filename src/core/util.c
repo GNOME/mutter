@@ -79,7 +79,7 @@ ensure_logfile (void)
 
       if (err != NULL)
         {
-          meta_warning ("Failed to open debug log: %s\n",
+          meta_warning ("Failed to open debug log: %s",
                         err->message);
           g_error_free (err);
           return;
@@ -89,13 +89,13 @@ ensure_logfile (void)
 
       if (logfile == NULL)
         {
-          meta_warning ("Failed to fdopen() log file %s: %s\n",
+          meta_warning ("Failed to fdopen() log file %s: %s",
                         filename, strerror (errno));
           close (fd);
         }
       else
         {
-          g_printerr ("Opened log file %s\n", filename);
+          g_printerr ("Opened log file %s", filename);
         }
 
       g_free (filename);
@@ -114,7 +114,7 @@ meta_set_verbose (gboolean setting)
 {
 #ifndef WITH_VERBOSE_MODE
   if (setting)
-    meta_fatal (_("Mutter was compiled without support for verbose mode\n"));
+    meta_fatal (_("Mutter was compiled without support for verbose mode"));
 #endif
 
   if (setting)
@@ -314,6 +314,7 @@ meta_topic_real_valist (MetaDebugTopic topic,
     }
 
   utf8_fputs (str, out);
+  utf8_fputs ("\n", out);
 
   fflush (out);
 
@@ -355,6 +356,7 @@ meta_bug (const char *format, ...)
   if (no_prefix == 0)
     utf8_fputs ("Bug in window manager: ", out);
   utf8_fputs (str, out);
+  utf8_fputs ("\n", out);
 
   fflush (out);
 
@@ -386,6 +388,7 @@ meta_warning (const char *format, ...)
   if (no_prefix == 0)
     utf8_fputs ("Window manager warning: ", out);
   utf8_fputs (str, out);
+  utf8_fputs ("\n", out);
 
   fflush (out);
 
@@ -416,6 +419,7 @@ meta_fatal (const char *format, ...)
   if (no_prefix == 0)
     utf8_fputs ("Window manager error: ", out);
   utf8_fputs (str, out);
+  utf8_fputs ("\n", out);
 
   fflush (out);
 
@@ -647,7 +651,7 @@ meta_show_dialog (const char *type,
 
   if (error)
     {
-      meta_warning ("%s\n", error->message);
+      meta_warning ("%s", error->message);
       g_error_free (error);
     }
 

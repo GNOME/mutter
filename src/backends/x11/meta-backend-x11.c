@@ -556,7 +556,7 @@ meta_backend_x11_post_init (MetaBackend *backend)
     }
 
   if (!has_xi)
-    meta_fatal ("X server doesn't have the XInput extension, version 2.2 or newer\n");
+    meta_fatal ("X server doesn't have the XInput extension, version 2.2 or newer");
 
   if (!xkb_x11_setup_xkb_extension (priv->xcb,
                                     XKB_X11_MIN_MAJOR_XKB_VERSION,
@@ -565,7 +565,7 @@ meta_backend_x11_post_init (MetaBackend *backend)
                                     NULL, NULL,
                                     &priv->xkb_event_base,
                                     &priv->xkb_error_base))
-    meta_fatal ("X server doesn't have the XKB extension, version %d.%d or newer\n",
+    meta_fatal ("X server doesn't have the XKB extension, version %d.%d or newer",
                 XKB_X11_MIN_MAJOR_XKB_VERSION, XKB_X11_MIN_MINOR_XKB_VERSION);
 
   META_BACKEND_CLASS (meta_backend_x11_parent_class)->post_init (backend);

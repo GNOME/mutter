@@ -44,7 +44,7 @@ window_from_frame (MetaX11Display *x11_display,
   window = meta_x11_display_lookup_x_window (x11_display, frame_xwindow);
   if (!window || !window->frame)
     {
-      meta_bug ("No such frame window 0x%lx!\n", frame_xwindow);
+      meta_bug ("No such frame window 0x%lx!", frame_xwindow);
       return NULL;
     }
 
@@ -250,7 +250,7 @@ meta_x11_wm_grab_buttons  (MetaX11Display *x11_display,
 
   display = meta_x11_display_get_display (x11_display);
 
-  meta_verbose ("Grabbing buttons on frame 0x%lx\n", frame_xwindow);
+  meta_verbose ("Grabbing buttons on frame 0x%lx", frame_xwindow);
   meta_display_grab_window_buttons (display, frame_xwindow);
 }
 

@@ -208,7 +208,7 @@ meta_startup_notification_sn_event (SnMonitorEvent *event,
         wmclass = sn_startup_sequence_get_wmclass (sequence);
 
         meta_topic (META_DEBUG_STARTUP,
-                    "Received startup initiated for %s wmclass %s\n",
+                    "Received startup initiated for %s wmclass %s",
                     sn_startup_sequence_get_id (sequence),
                     wmclass ? wmclass : "(unset)");
 
@@ -221,7 +221,7 @@ meta_startup_notification_sn_event (SnMonitorEvent *event,
     case SN_MONITOR_EVENT_COMPLETED:
       {
         meta_topic (META_DEBUG_STARTUP,
-                    "Received startup completed for %s\n",
+                    "Received startup completed for %s",
                     sn_startup_sequence_get_id (sequence));
 
         seq = meta_startup_notification_lookup_sequence (sn, sn_startup_sequence_get_id (sequence));
@@ -235,13 +235,13 @@ meta_startup_notification_sn_event (SnMonitorEvent *event,
 
     case SN_MONITOR_EVENT_CHANGED:
       meta_topic (META_DEBUG_STARTUP,
-                  "Received startup changed for %s\n",
+                  "Received startup changed for %s",
                   sn_startup_sequence_get_id (sequence));
       break;
 
     case SN_MONITOR_EVENT_CANCELED:
       meta_topic (META_DEBUG_STARTUP,
-                  "Received startup canceled for %s\n",
+                  "Received startup canceled for %s",
                   sn_startup_sequence_get_id (sequence));
       break;
     }

@@ -178,12 +178,12 @@ maybe_unfreeze_pointer_events (MetaBackend          *backend,
     {
     case EVENTS_UNFREEZE_SYNC:
       event_mode = XISyncDevice;
-      meta_verbose ("Syncing events time %u device %i\n",
+      meta_verbose ("Syncing events time %u device %i",
                     (unsigned int) event->button.time, device_id);
       break;
     case EVENTS_UNFREEZE_REPLAY:
       event_mode = XIReplayDevice;
-      meta_verbose ("Replaying events time %u device %i\n",
+      meta_verbose ("Replaying events time %u device %i",
                     (unsigned int) event->button.time, device_id);
       break;
     default:
@@ -322,7 +322,7 @@ meta_display_handle_event (MetaDisplay        *display,
            */
           meta_warning ("Event has no timestamp! You may be using a broken "
                         "program such as xse.  Please ask the authors of that "
-                        "program to fix it.\n");
+                        "program to fix it.");
         }
       else
         {

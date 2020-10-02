@@ -147,9 +147,9 @@ static void
 meta_print_compilation_info (void)
 {
 #ifdef HAVE_STARTUP_NOTIFICATION
-  meta_verbose ("Compiled with startup notification\n");
+  meta_verbose ("Compiled with startup notification");
 #else
-  meta_verbose ("Compiled without startup notification\n");
+  meta_verbose ("Compiled without startup notification");
 #endif
 }
 
@@ -174,12 +174,12 @@ meta_print_self_identity (void)
   g_date_clear (&d, 1);
   g_date_set_time_t (&d, time (NULL));
   g_date_strftime (buf, sizeof (buf), "%x", &d);
-  meta_verbose ("Mutter version %s running on %s\n",
+  meta_verbose ("Mutter version %s running on %s",
     VERSION, buf);
 
   /* Locale and encoding. */
   g_get_charset (&charset);
-  meta_verbose ("Running in locale \"%s\" with encoding \"%s\"\n",
+  meta_verbose ("Running in locale \"%s\" with encoding \"%s\"",
     setlocale (LC_ALL, NULL), charset);
 
   /* Compilation settings. */
@@ -291,7 +291,7 @@ meta_get_option_context (void)
   GOptionContext *ctx;
 
   if (setlocale (LC_ALL, "") == NULL)
-    meta_warning ("Locale not understood by C library, internationalization will not work\n");
+    meta_warning ("Locale not understood by C library, internationalization will not work");
   bindtextdomain (GETTEXT_PACKAGE, MUTTER_LOCALEDIR);
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
 
@@ -415,7 +415,7 @@ find_session_type (void)
       goto out;
     }
 
-  meta_warning ("Unsupported session type\n");
+  meta_warning ("Unsupported session type");
   meta_exit (META_EXIT_ERROR);
 
 out:
@@ -469,14 +469,14 @@ calculate_compositor_configuration (MetaCompositorType *compositor_type,
   if ((opt_wayland || opt_nested) && opt_x11)
 #endif
     {
-      meta_warning ("Can't run both as Wayland compositor and X11 compositing manager\n");
+      meta_warning ("Can't run both as Wayland compositor and X11 compositing manager");
       meta_exit (META_EXIT_ERROR);
     }
 
 #ifdef HAVE_NATIVE_BACKEND
   if (opt_nested && opt_display_server)
     {
-      meta_warning ("Can't run both as nested and as a display server\n");
+      meta_warning ("Can't run both as nested and as a display server");
       meta_exit (META_EXIT_ERROR);
     }
 
@@ -486,7 +486,7 @@ calculate_compositor_configuration (MetaCompositorType *compositor_type,
 
   if (!run_as_wayland_compositor && opt_no_x11)
     {
-      meta_warning ("Can't disable X11 support on X11 compositor\n");
+      meta_warning ("Can't disable X11 support on X11 compositor");
       meta_exit (META_EXIT_ERROR);
     }
 
@@ -612,7 +612,7 @@ meta_init (void)
 
   if (g_get_home_dir ())
     if (chdir (g_get_home_dir ()) < 0)
-      meta_warning ("Could not change to home directory %s.\n",
+      meta_warning ("Could not change to home directory %s.",
                     g_get_home_dir ());
 
   meta_print_self_identity ();
@@ -634,7 +634,7 @@ meta_init (void)
     meta_set_replace_current_wm (TRUE);
 
   if (opt_save_file && opt_client_id)
-    meta_fatal ("Can't specify both SM save file and SM client id\n");
+    meta_fatal ("Can't specify both SM save file and SM client id");
 
   meta_main_loop = g_main_loop_new (NULL, FALSE);
 }

@@ -329,7 +329,7 @@ bind_output (struct wl_client *client,
 #ifdef WITH_VERBOSE_MODE
   monitor = pick_main_monitor (logical_monitor);
 
-  meta_verbose ("Binding monitor %p/%s (%u, %u, %u, %u) x %f\n",
+  meta_verbose ("Binding monitor %p/%s (%u, %u, %u, %u) x %f",
                 logical_monitor,
                 meta_monitor_get_product (monitor),
                 logical_monitor->rect.x, logical_monitor->rect.y,

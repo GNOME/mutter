@@ -826,15 +826,15 @@ cache_edges (MetaDisplay *display,
 
       meta_rectangle_edge_list_to_string (window_edges, ", ", big_buffer);
       meta_topic (META_DEBUG_EDGE_RESISTANCE,
-                  "Window edges for resistance  : %s\n", big_buffer);
+                  "Window edges for resistance  : %s", big_buffer);
 
       meta_rectangle_edge_list_to_string (monitor_edges, ", ", big_buffer);
       meta_topic (META_DEBUG_EDGE_RESISTANCE,
-                  "Monitor edges for resistance: %s\n", big_buffer);
+                  "Monitor edges for resistance: %s", big_buffer);
 
       meta_rectangle_edge_list_to_string (screen_edges, ", ", big_buffer);
       meta_topic (META_DEBUG_EDGE_RESISTANCE,
-                  "Screen edges for resistance  : %s\n", big_buffer);
+                  "Screen edges for resistance  : %s", big_buffer);
     }
 #endif
 
@@ -999,7 +999,7 @@ compute_resistance_and_snapping_edges (MetaDisplay *display)
 
   g_assert (display->grab_window != NULL);
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Computing edges to resist-movement or snap-to for %s.\n",
+              "Computing edges to resist-movement or snap-to for %s.",
               display->grab_window->desc);
 
   /*
@@ -1245,7 +1245,7 @@ meta_window_edge_resistance_for_move (MetaWindow  *window,
               (BOX_TOP (*reference) - BOX_TOP (old_outer));
 
       meta_topic (META_DEBUG_EDGE_RESISTANCE,
-                  "outer x & y move-to coordinate changed from %d,%d to %d,%d\n",
+                  "outer x & y move-to coordinate changed from %d,%d to %d,%d",
                   proposed_outer.x, proposed_outer.y,
                   *new_x, *new_y);
     }
@@ -1286,7 +1286,7 @@ meta_window_edge_resistance_for_resize (MetaWindow  *window,
       *new_height = new_outer.height;
 
       meta_topic (META_DEBUG_EDGE_RESISTANCE,
-                  "outer width & height got changed from %d,%d to %d,%d\n",
+                  "outer width & height got changed from %d,%d to %d,%d",
                   proposed_outer_width, proposed_outer_height,
                   new_outer.width, new_outer.height);
     }

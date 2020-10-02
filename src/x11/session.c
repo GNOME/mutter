@@ -38,7 +38,7 @@ void
 meta_session_init (const char *client_id,
                    const char *save_file)
 {
-  meta_topic (META_DEBUG_SM, "Compiled without session management support\n");
+  meta_topic (META_DEBUG_SM, "Compiled without session management support");
 }
 
 const MetaWindowSessionInfo*
@@ -233,7 +233,7 @@ meta_session_init (const char *previous_client_id,
   SmcCallbacks callbacks;
   char *saved_client_id;
 
-  meta_topic (META_DEBUG_SM, "Initializing session with save file '%s'\n",
+  meta_topic (META_DEBUG_SM, "Initializing session with save file '%s'",
               previous_save_file ? previous_save_file : "(none)");
 
   if (previous_save_file)
@@ -283,7 +283,7 @@ meta_session_init (const char *previous_client_id,
   if (session_connection == NULL)
     {
       meta_topic (META_DEBUG_SM,
-                  "Failed to a open connection to a session manager, so window positions will not be saved: %s\n",
+                  "Failed to a open connection to a session manager, so window positions will not be saved: %s",
                   buf);
 
       goto out;
@@ -292,7 +292,7 @@ meta_session_init (const char *previous_client_id,
     {
       if (client_id == NULL)
         meta_bug ("Session manager gave us a NULL client ID?");
-      meta_topic (META_DEBUG_SM, "Obtained session ID '%s'\n", client_id);
+      meta_topic (META_DEBUG_SM, "Obtained session ID '%s'", client_id);
     }
 
   if (previous_client_id && strcmp (previous_client_id, client_id) == 0)
@@ -389,7 +389,7 @@ save_yourself_possibly_done (gboolean shutdown,
                              gboolean successful)
 {
   meta_topic (META_DEBUG_SM,
-              "save possibly done shutdown = %d success = %d\n",
+              "save possibly done shutdown = %d success = %d",
               shutdown, successful);
 
   if (current_state == STATE_SAVING_PHASE_1)
@@ -404,7 +404,7 @@ save_yourself_possibly_done (gboolean shutdown,
         current_state = STATE_WAITING_FOR_PHASE_2;
 
       meta_topic (META_DEBUG_SM,
-                  "Requested phase 2, status = %d\n", status);
+                  "Requested phase 2, status = %d", status);
     }
 
   if (current_state == STATE_SAVING_PHASE_2 &&
@@ -424,7 +424,7 @@ save_yourself_possibly_done (gboolean shutdown,
         current_state = STATE_WAITING_FOR_INTERACT;
 
       meta_topic (META_DEBUG_SM,
-                  "Requested interact, status = %d\n", status);
+                  "Requested interact, status = %d", status);
     }
 
   if (current_state == STATE_SAVING_PHASE_1 ||
@@ -432,7 +432,7 @@ save_yourself_possibly_done (gboolean shutdown,
       current_state == STATE_DONE_WITH_INTERACT ||
       current_state == STATE_SKIPPING_GLOBAL_SAVE)
     {
-      meta_topic (META_DEBUG_SM, "Sending SaveYourselfDone\n");
+      meta_topic (META_DEBUG_SM, "Sending SaveYourselfDone");
 
       SmcSaveYourselfDone (session_connection,
                            successful);
@@ -546,13 +546,13 @@ static void
 save_complete_callback (SmcConn smc_conn, SmPointer client_data)
 {
   /* nothing */
-  meta_topic (META_DEBUG_SM, "SaveComplete received\n");
+  meta_topic (META_DEBUG_SM, "SaveComplete received");
 }
 
 static void
 shutdown_cancelled_callback (SmcConn smc_conn, SmPointer client_data)
 {
-  meta_topic (META_DEBUG_SM, "Shutdown cancelled received\n");
+  meta_topic (META_DEBUG_SM, "Shutdown cancelled received");
 
   if (session_connection != NULL &&
       (current_state != STATE_IDLE && current_state != STATE_FROZEN))
@@ -568,7 +568,7 @@ interact_callback (SmcConn smc_conn, SmPointer client_data)
   /* nothing */
   gboolean shutdown;
 
-  meta_topic (META_DEBUG_SM, "Interaction permission received\n");
+  meta_topic (META_DEBUG_SM, "Interaction permission received");
 
   shutdown = GPOINTER_TO_INT (client_data);
 
@@ -849,24 +849,24 @@ save_state (void)
   if (mkdir (mutter_dir, 0700) < 0 &&
       errno != EEXIST)
     {
-      meta_warning ("Could not create directory '%s': %s\n",
+      meta_warning ("Could not create directory '%s': %s",
                     mutter_dir, g_strerror (errno));
     }
 
   if (mkdir (session_dir, 0700) < 0 &&
       errno != EEXIST)
     {
-      meta_warning ("Could not create directory '%s': %s\n",
+      meta_warning ("Could not create directory '%s': %s",
                     session_dir, g_strerror (errno));
     }
 
-  meta_topic (META_DEBUG_SM, "Saving session to '%s'\n", full_save_file ());
+  meta_topic (META_DEBUG_SM, "Saving session to '%s'", full_save_file ());
 
   outfile = fopen (full_save_file (), "w");
 
   if (outfile == NULL)
     {
-      meta_warning ("Could not open session file '%s' for writing: %s\n",
+      meta_warning ("Could not open session file '%s' for writing: %s",
                     full_save_file (), g_strerror (errno));
       goto out;
     }
@@ -928,7 +928,7 @@ save_state (void)
           else
             title = NULL;
 
-          meta_topic (META_DEBUG_SM, "Saving session managed window %s, client ID '%s'\n",
+          meta_topic (META_DEBUG_SM, "Saving session managed window %s, client ID '%s'",
                       window->desc, window->sm_client_id);
 
           fprintf (outfile,
@@ -992,7 +992,7 @@ save_state (void)
         }
       else
         {
-          meta_topic (META_DEBUG_SM, "Not saving window '%s', not session managed\n",
+          meta_topic (META_DEBUG_SM, "Not saving window '%s', not session managed",
                       window->desc);
         }
 
@@ -1010,12 +1010,12 @@ save_state (void)
       /* FIXME need a dialog for this */
       if (ferror (outfile))
         {
-          meta_warning ("Error writing session file '%s': %s\n",
+          meta_warning ("Error writing session file '%s': %s",
                         full_save_file (), g_strerror (errno));
         }
       if (fclose (outfile))
         {
-          meta_warning ("Error closing session file '%s': %s\n",
+          meta_warning ("Error closing session file '%s': %s",
                         full_save_file (), g_strerror (errno));
         }
     }
@@ -1117,7 +1117,7 @@ load_state (const char *previous_save_file)
       g_free (canonical_session_file);
     }
 
-  meta_topic (META_DEBUG_SM, "Parsing saved session file %s\n", session_file);
+  meta_topic (META_DEBUG_SM, "Parsing saved session file %s", session_file);
   g_free (session_file);
   session_file = NULL;
 
@@ -1145,7 +1145,7 @@ load_state (const char *previous_save_file)
 
  error:
 
-  meta_warning ("Failed to parse saved session file: %s\n",
+  meta_warning ("Failed to parse saved session file: %s",
                 error->message);
   g_error_free (error);
 
@@ -1395,7 +1395,7 @@ start_element_handler  (GMarkupParseContext *context,
         }
 
       if (pd->info->saved_rect_set)
-        meta_topic (META_DEBUG_SM, "Saved unmaximized size %d,%d %dx%d \n",
+        meta_topic (META_DEBUG_SM, "Saved unmaximized size %d,%d %dx%d ",
                     pd->info->saved_rect.x,
                     pd->info->saved_rect.y,
                     pd->info->saved_rect.width,
@@ -1454,7 +1454,7 @@ start_element_handler  (GMarkupParseContext *context,
           ++i;
         }
 
-      meta_topic (META_DEBUG_SM, "Loaded geometry %d,%d %dx%d gravity %s\n",
+      meta_topic (META_DEBUG_SM, "Loaded geometry %d,%d %dx%d gravity %s",
                   pd->info->rect.x,
                   pd->info->rect.y,
                   pd->info->rect.width,
@@ -1489,7 +1489,7 @@ end_element_handler    (GMarkupParseContext *context,
       window_info_list = g_slist_prepend (window_info_list,
                                           pd->info);
 
-      meta_topic (META_DEBUG_SM, "Loaded window info from session with class: %s name: %s role: %s\n",
+      meta_topic (META_DEBUG_SM, "Loaded window info from session with class: %s name: %s role: %s",
                   pd->info->res_class ? pd->info->res_class : "(none)",
                   pd->info->res_name ? pd->info->res_name : "(none)",
                   pd->info->role ? pd->info->role : "(none)");
@@ -1547,7 +1547,7 @@ get_possible_matches (MetaWindow *window)
           both_null_or_matching (info->res_name, window->res_name) &&
           both_null_or_matching (info->role, window->role))
         {
-          meta_topic (META_DEBUG_SM, "Window %s may match saved window with class: %s name: %s role: %s\n",
+          meta_topic (META_DEBUG_SM, "Window %s may match saved window with class: %s name: %s role: %s",
                       window->desc,
                       info->res_class ? info->res_class : "(none)",
                       info->res_name ? info->res_name : "(none)",
@@ -1560,28 +1560,28 @@ get_possible_matches (MetaWindow *window)
           if (meta_is_verbose ())
             {
               if (!both_null_or_matching (info->id, window->sm_client_id))
-                meta_topic (META_DEBUG_SM, "Window %s has SM client ID %s, saved state has %s, no match\n",
+                meta_topic (META_DEBUG_SM, "Window %s has SM client ID %s, saved state has %s, no match",
                             window->desc,
                             window->sm_client_id ? window->sm_client_id : "(none)",
                             info->id ? info->id : "(none)");
               else if (!both_null_or_matching (info->res_class, window->res_class))
-                meta_topic (META_DEBUG_SM, "Window %s has class %s doesn't match saved class %s, no match\n",
+                meta_topic (META_DEBUG_SM, "Window %s has class %s doesn't match saved class %s, no match",
                             window->desc,
                             window->res_class ? window->res_class : "(none)",
                             info->res_class ? info->res_class : "(none)");
 
               else if (!both_null_or_matching (info->res_name, window->res_name))
-                meta_topic (META_DEBUG_SM, "Window %s has name %s doesn't match saved name %s, no match\n",
+                meta_topic (META_DEBUG_SM, "Window %s has name %s doesn't match saved name %s, no match",
                             window->desc,
                             window->res_name ? window->res_name : "(none)",
                             info->res_name ? info->res_name : "(none)");
               else if (!both_null_or_matching (info->role, window->role))
-                meta_topic (META_DEBUG_SM, "Window %s has role %s doesn't match saved role %s, no match\n",
+                meta_topic (META_DEBUG_SM, "Window %s has role %s doesn't match saved role %s, no match",
                             window->desc,
                             window->role ? window->role : "(none)",
                             info->role ? info->role : "(none)");
               else
-                meta_topic (META_DEBUG_SM, "???? should not happen - window %s doesn't match saved state %s for no good reason\n",
+                meta_topic (META_DEBUG_SM, "???? should not happen - window %s doesn't match saved state %s for no good reason",
                             window->desc, info->id);
             }
         }
@@ -1649,7 +1649,7 @@ meta_window_lookup_saved_state (MetaWindow *window)
   if (window->sm_client_id == NULL)
     {
       meta_topic (META_DEBUG_SM,
-                  "Window %s is not session managed, not checking for saved state\n",
+                  "Window %s is not session managed, not checking for saved state",
                   window->desc);
       return NULL;
     }
@@ -1658,7 +1658,8 @@ meta_window_lookup_saved_state (MetaWindow *window)
 
   if (possibles == NULL)
     {
-      meta_topic (META_DEBUG_SM, "Window %s has no possible matches in the list of saved window states\n",
+      meta_topic (META_DEBUG_SM,
+                  "Window %s has no possible matches in the list of saved window states",
                   window->desc);
       return NULL;
     }

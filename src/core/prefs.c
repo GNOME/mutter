@@ -578,7 +578,7 @@ handle_preference_init_string (void)
       if (cursor->handler)
         {
           if (cursor->target)
-            meta_bug ("%s has both a target and a handler\n", cursor->base.key);
+            meta_bug ("%s has both a target and a handler", cursor->base.key);
 
           g_settings_get_mapped (SETTINGS (cursor->base.schema),
                                  cursor->base.key, cursor->handler, NULL);
@@ -586,7 +586,7 @@ handle_preference_init_string (void)
       else
         {
           if (!cursor->target)
-            meta_bug ("%s must have handler or target\n", cursor->base.key);
+            meta_bug ("%s must have handler or target", cursor->base.key);
 
           g_free (*(cursor->target));
 
@@ -613,7 +613,7 @@ handle_preference_init_string_array (void)
       if (cursor->handler)
         {
           if (cursor->target)
-            meta_bug ("%s has both a target and a handler\n", cursor->base.key);
+            meta_bug ("%s has both a target and a handler", cursor->base.key);
 
           g_settings_get_mapped (SETTINGS (cursor->base.schema),
                                  cursor->base.key, cursor->handler, NULL);
@@ -621,7 +621,7 @@ handle_preference_init_string_array (void)
       else
         {
           if (!cursor->target)
-            meta_bug ("%s must have handler or target\n", cursor->base.key);
+            meta_bug ("%s must have handler or target", cursor->base.key);
 
           if (*(cursor->target))
             g_strfreev (*(cursor->target));
@@ -744,7 +744,7 @@ handle_preference_update_string (GSettings *settings,
   if (cursor->handler)
     {
       if (cursor->target)
-        meta_bug ("%s has both a target and a handler\n", cursor->base.key);
+        meta_bug ("%s has both a target and a handler", cursor->base.key);
 
       g_settings_get_mapped (SETTINGS (cursor->base.schema),
                              cursor->base.key, cursor->handler, NULL);
@@ -752,7 +752,7 @@ handle_preference_update_string (GSettings *settings,
   else
     {
       if (!cursor->target)
-        meta_bug ("%s must have handler or target\n", cursor->base.key);
+        meta_bug ("%s must have handler or target", cursor->base.key);
 
       value = g_settings_get_string (SETTINGS (cursor->base.schema),
                                      cursor->base.key);
@@ -786,7 +786,7 @@ handle_preference_update_string_array (GSettings *settings,
   if (cursor->handler)
     {
       if (cursor->target)
-        meta_bug ("%s has both a target and a handler\n", cursor->base.key);
+        meta_bug ("%s has both a target and a handler", cursor->base.key);
 
       g_settings_get_mapped (SETTINGS (cursor->base.schema),
                              cursor->base.key, cursor->handler, NULL);
@@ -797,7 +797,7 @@ handle_preference_update_string_array (GSettings *settings,
       int n_values, n_previous, i;
 
       if (!cursor->target)
-        meta_bug ("%s must have handler or target\n", cursor->base.key);
+        meta_bug ("%s must have handler or target", cursor->base.key);
 
       values = g_settings_get_strv (SETTINGS (cursor->base.schema),
                                     cursor->base.key);
@@ -924,7 +924,7 @@ emit_changed (MetaPreference pref)
   GList *tmp;
   GList *copy;
 
-  meta_topic (META_DEBUG_PREFS, "Notifying listeners that pref %s changed\n",
+  meta_topic (META_DEBUG_PREFS, "Notifying listeners that pref %s changed",
               meta_preference_to_string (pref));
 
   copy = g_list_copy (listeners);
@@ -974,13 +974,13 @@ changed_idle_handler (gpointer data)
 static void
 queue_changed (MetaPreference pref)
 {
-  meta_topic (META_DEBUG_PREFS, "Queueing change of pref %s\n",
+  meta_topic (META_DEBUG_PREFS, "Queueing change of pref %s",
               meta_preference_to_string (pref));
 
   if (g_list_find (changes, GINT_TO_POINTER (pref)) == NULL)
     changes = g_list_prepend (changes, GINT_TO_POINTER (pref));
   else
-    meta_topic (META_DEBUG_PREFS, "Change of pref %s was already pending\n",
+    meta_topic (META_DEBUG_PREFS, "Change of pref %s was already pending",
                 meta_preference_to_string (pref));
 
   if (changed_idle == 0)
@@ -1158,7 +1158,7 @@ maybe_give_disable_workarounds_warning (void)
       first_disable = FALSE;
 
       meta_warning ("Workarounds for broken applications disabled. "
-                    "Some applications may not behave properly.\n");
+                    "Some applications may not behave properly.");
     }
 }
 
@@ -1249,7 +1249,7 @@ titlebar_handler (GVariant *value,
   if (desc == NULL)
     {
       meta_warning ("Could not parse font description "
-                    "\"%s\" from GSettings key %s\n",
+                    "\"%s\" from GSettings key %s",
                     string_value ? string_value : "(null)",
                     KEY_TITLEBAR_FONT);
       return FALSE;
@@ -1287,17 +1287,17 @@ mouse_button_mods_handler (GVariant *value,
   if (!string_value || !meta_parse_modifier (string_value, &mods))
     {
       meta_topic (META_DEBUG_KEYBINDINGS,
-                  "Failed to parse new GSettings value\n");
+                  "Failed to parse new GSettings value");
 
       meta_warning ("\"%s\" found in configuration database is "
-                    "not a valid value for mouse button modifier\n",
+                    "not a valid value for mouse button modifier",
                     string_value);
 
       return FALSE;
     }
 
   meta_topic (META_DEBUG_KEYBINDINGS,
-              "Mouse button modifier has new GSettings value \"%s\"\n",
+              "Mouse button modifier has new GSettings value \"%s\"",
               string_value);
 
   if (mods != mouse_button_mods)
@@ -1406,7 +1406,8 @@ button_layout_handler (GVariant *value,
                 }
               else
                 {
-                  meta_topic (META_DEBUG_PREFS, "Ignoring unknown or already-used button name \"%s\"\n",
+                  meta_topic (META_DEBUG_PREFS,
+                              "Ignoring unknown or already-used button name \"%s\"",
                               buttons[b]);
                 }
             }
@@ -1457,7 +1458,8 @@ button_layout_handler (GVariant *value,
                 }
               else
                 {
-                  meta_topic (META_DEBUG_PREFS, "Ignoring unknown or already-used button name \"%s\"\n",
+                  meta_topic (META_DEBUG_PREFS,
+                              "Ignoring unknown or already-used button name \"%s\"",
                               buttons[b]);
                 }
             }
@@ -1540,7 +1542,7 @@ overlay_key_handler (GVariant *value,
   else
     {
       meta_topic (META_DEBUG_KEYBINDINGS,
-                  "Failed to parse value for overlay-key\n");
+                  "Failed to parse value for overlay-key");
       return FALSE;
     }
 
@@ -1570,7 +1572,7 @@ locate_pointer_key_handler (GVariant *value,
   if (!string_value || !meta_parse_accelerator (string_value, &combo))
     {
       meta_topic (META_DEBUG_KEYBINDINGS,
-                  "Failed to parse value for locate-pointer-key\n");
+                  "Failed to parse value for locate-pointer-key");
       return FALSE;
     }
 
@@ -1825,7 +1827,7 @@ update_binding (MetaKeyPref *binding,
   int i;
 
   meta_topic (META_DEBUG_KEYBINDINGS,
-              "Binding \"%s\" has new GSettings value\n",
+              "Binding \"%s\" has new GSettings value",
               binding->name);
 
   old_combos = binding->combos;
@@ -1840,8 +1842,8 @@ update_binding (MetaKeyPref *binding,
       if (!meta_parse_accelerator (strokes[i], combo))
         {
           meta_topic (META_DEBUG_KEYBINDINGS,
-                      "Failed to parse new GSettings value\n");
-          meta_warning ("\"%s\" found in configuration database is not a valid value for keybinding \"%s\"\n",
+                      "Failed to parse new GSettings value");
+          meta_warning ("\"%s\" found in configuration database is not a valid value for keybinding \"%s\"",
                         strokes[i], binding->name);
 
           g_free (combo);
@@ -1916,7 +1918,7 @@ meta_prefs_get_workspace_name (int i)
     name = workspace_names[i];
 
   meta_topic (META_DEBUG_PREFS,
-              "Getting name of workspace %d: \"%s\"\n", i, name);
+              "Getting name of workspace %d: \"%s\"", i, name);
 
   return name;
 }
@@ -1931,7 +1933,7 @@ meta_prefs_change_workspace_name (int         num,
   g_return_if_fail (num >= 0);
 
   meta_topic (META_DEBUG_PREFS,
-              "Changing name of workspace %d to %s\n",
+              "Changing name of workspace %d to %s",
               num, name ? name : "none");
 
   /* NULL and empty string both mean "default" here,
@@ -1941,10 +1943,10 @@ meta_prefs_change_workspace_name (int         num,
     {
       if (!name || !*name)
         meta_topic (META_DEBUG_PREFS,
-                    "Workspace %d already uses default name\n", num);
+                    "Workspace %d already uses default name", num);
       else
         meta_topic (META_DEBUG_PREFS,
-                    "Workspace %d already has name %s\n", num, name);
+                    "Workspace %d already has name %s", num, name);
       return;
     }
 
@@ -2009,7 +2011,7 @@ meta_prefs_add_keybinding (const char           *name,
 
   if (g_hash_table_lookup (key_bindings, name))
     {
-      meta_warning ("Trying to re-add keybinding \"%s\".\n", name);
+      meta_warning ("Trying to re-add keybinding \"%s\".", name);
       return FALSE;
     }
 
@@ -2059,13 +2061,13 @@ meta_prefs_remove_keybinding (const char *name)
   pref = g_hash_table_lookup (key_bindings, name);
   if (!pref)
     {
-      meta_warning ("Trying to remove non-existent keybinding \"%s\".\n", name);
+      meta_warning ("Trying to remove non-existent keybinding \"%s\".", name);
       return FALSE;
     }
 
   if (pref->builtin)
     {
-      meta_warning ("Trying to remove builtin keybinding \"%s\".\n", name);
+      meta_warning ("Trying to remove builtin keybinding \"%s\".", name);
       return FALSE;
     }
 

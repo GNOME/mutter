@@ -156,7 +156,7 @@ validate_or_free_results (GetPropertyResults *results,
   if (res_name == NULL)
     res_name = "unknown";
 
-  meta_warning ("Window 0x%lx has property %s\nthat was expected to have type %s format %d\nand actually has type %s format %d n_items %d.\nThis is most likely an application bug, not a window manager bug.\nThe window has title=\"%s\" class=\"%s\" name=\"%s\"\n",
+  meta_warning ("Window 0x%lx has property %s that was expected to have type %s format %d and actually has type %s format %d n_items %d. This is most likely an application bug, not a window manager bug. The window has title=\"%s\" class=\"%s\" name=\"%s\"",
                 results->xwindow,
                 prop_name ? prop_name : "(bad atom)",
                 expected_name ? expected_name : "(bad atom)",
@@ -305,7 +305,7 @@ motif_hints_from_results (GetPropertyResults *results,
     {
       g_free (results->prop);
       results->prop = NULL;
-      meta_verbose ("Motif hints had unexpected type or n_items\n");
+      meta_verbose ("Motif hints had unexpected type or n_items");
       return FALSE;
     }
 
@@ -390,7 +390,7 @@ utf8_string_from_results (GetPropertyResults *results,
       char *name;
 
       name = XGetAtomName (results->x11_display->xdisplay, results->xatom);
-      meta_warning ("Property %s on window 0x%lx contained invalid UTF-8\n",
+      meta_warning ("Property %s on window 0x%lx contained invalid UTF-8",
                     name, results->xwindow);
       meta_XFree (name);
       g_free (results->prop);
@@ -457,7 +457,7 @@ utf8_list_from_results (GetPropertyResults *results,
           meta_x11_error_trap_push (results->x11_display);
           name = XGetAtomName (results->x11_display->xdisplay, results->xatom);
           meta_x11_error_trap_pop (results->x11_display);
-          meta_warning ("Property %s on window 0x%lx contained invalid UTF-8 for item %d in the list\n",
+          meta_warning ("Property %s on window 0x%lx contained invalid UTF-8 for item %d in the list",
                         name, results->xwindow, i);
           meta_XFree (name);
           g_free (results->prop);
@@ -685,7 +685,7 @@ wm_hints_from_results (GetPropertyResults *results,
   /* pre-R3 bogusly truncated window_group, don't fail on them */
   if (results->n_items < (NumPropWMHintsElements - 1))
     {
-      meta_verbose ("WM_HINTS property too short: %d should be %d\n",
+      meta_verbose ("WM_HINTS property too short: %d should be %d",
                     (int) results->n_items, NumPropWMHintsElements - 1);
       if (results->prop)
         {
@@ -837,7 +837,7 @@ meta_prop_get_values (MetaX11Display *x11_display,
   xcb_get_property_cookie_t *tasks;
   xcb_connection_t *xcb_conn = XGetXCBConnection (x11_display->xdisplay);
 
-  meta_verbose ("Requesting %d properties of 0x%lx at once\n",
+  meta_verbose ("Requesting %d properties of 0x%lx at once",
                 n_values, xwindow);
 
   if (n_values == 0)
@@ -860,7 +860,7 @@ meta_prop_get_values (MetaX11Display *x11_display,
                * property notify on an atom we don't care about.
                */
               if (values[i].atom != None)
-                meta_bug ("META_PROP_VALUE_INVALID requested in %s\n", G_STRFUNC);
+                meta_bug ("META_PROP_VALUE_INVALID requested in %s", G_STRFUNC);
               break;
             case META_PROP_VALUE_UTF8_LIST:
             case META_PROP_VALUE_UTF8:
@@ -908,7 +908,7 @@ meta_prop_get_values (MetaX11Display *x11_display,
     }
 
   /* Get replies for all our tasks */
-  meta_topic (META_DEBUG_SYNC, "Syncing to get %d GetProperty replies in %s\n",
+  meta_topic (META_DEBUG_SYNC, "Syncing to get %d GetProperty replies in %s",
               n_values, G_STRFUNC);
   XSync (x11_display->xdisplay, False);
 

@@ -983,7 +983,7 @@ _meta_window_shared_new (MetaDisplay         *display,
 
   g_assert (attrs != NULL);
 
-  meta_verbose ("attrs->map_state = %d (%s)\n",
+  meta_verbose ("attrs->map_state = %d (%s)",
                 attrs->map_state,
                 (attrs->map_state == IsUnmapped) ?
                 "IsUnmapped" :
@@ -1203,14 +1203,14 @@ _meta_window_shared_new (MetaDisplay         *display,
     {
       /* WM_HINTS said minimized */
       window->minimized = TRUE;
-      meta_verbose ("Window %s asked to start out minimized\n", window->desc);
+      meta_verbose ("Window %s asked to start out minimized", window->desc);
     }
 
   if (existing_wm_state == IconicState)
     {
       /* WM_STATE said minimized */
       window->minimized = TRUE;
-      meta_verbose ("Window %s had preexisting WM_STATE = IconicState, minimizing\n",
+      meta_verbose ("Window %s had preexisting WM_STATE = IconicState, minimizing",
                     window->desc);
 
       /* Assume window was previously placed, though perhaps it's
@@ -1279,7 +1279,7 @@ _meta_window_shared_new (MetaDisplay         *display,
       if (window->initial_workspace == (int) 0xFFFFFFFF)
         {
           meta_topic (META_DEBUG_PLACEMENT,
-                      "Window %s is initially on all spaces\n",
+                      "Window %s is initially on all spaces",
                       window->desc);
 
 	  /* need to set on_all_workspaces first so that it will be
@@ -1292,7 +1292,7 @@ _meta_window_shared_new (MetaDisplay         *display,
       else if (!on_all_workspaces)
         {
           meta_topic (META_DEBUG_PLACEMENT,
-                      "Window %s is initially on space %d\n",
+                      "Window %s is initially on space %d",
                       window->desc, window->initial_workspace);
 
           workspace = meta_workspace_manager_get_workspace_by_index (workspace_manager,
@@ -1316,7 +1316,7 @@ _meta_window_shared_new (MetaDisplay         *display,
       if (window->transient_for != NULL)
         {
           meta_topic (META_DEBUG_PLACEMENT,
-                      "Putting window %s on same workspace as parent %s\n",
+                      "Putting window %s on same workspace as parent %s",
                       window->desc, window->transient_for->desc);
 
           g_warn_if_fail (!window->transient_for->override_redirect);
@@ -1327,7 +1327,7 @@ _meta_window_shared_new (MetaDisplay         *display,
       else if (window->on_all_workspaces)
         {
           meta_topic (META_DEBUG_PLACEMENT,
-                      "Putting window %s on all workspaces\n",
+                      "Putting window %s on all workspaces",
                       window->desc);
 
           set_workspace_state (window, TRUE, NULL);
@@ -1335,7 +1335,7 @@ _meta_window_shared_new (MetaDisplay         *display,
       else
         {
           meta_topic (META_DEBUG_PLACEMENT,
-                      "Putting window %s on active workspace\n",
+                      "Putting window %s on active workspace",
                       window->desc);
 
           set_workspace_state (window, FALSE, workspace_manager->active_workspace);
@@ -1441,7 +1441,7 @@ meta_window_unmanage (MetaWindow  *window,
   MetaWorkspaceManager *workspace_manager = window->display->workspace_manager;
   GList *tmp;
 
-  meta_verbose ("Unmanaging %s\n", window->desc);
+  meta_verbose ("Unmanaging %s", window->desc);
   window->unmanaging = TRUE;
 
   g_clear_handle_id (&window->unmanage_idle_id, g_source_remove);
@@ -1461,7 +1461,7 @@ meta_window_unmanage (MetaWindow  *window,
   window->known_to_compositor = FALSE;
 
   if (destroying_windows_disallowed > 0)
-    meta_bug ("Tried to destroy window %s while destruction was not allowed\n",
+    meta_bug ("Tried to destroy window %s while destruction was not allowed",
               window->desc);
 
   meta_display_unregister_stamp (window->display, window->stamp);
@@ -1519,7 +1519,7 @@ meta_window_unmanage (MetaWindow  *window,
   if (window->has_focus)
     {
       meta_topic (META_DEBUG_FOCUS,
-                  "Focusing default window since we're unmanaging %s\n",
+                  "Focusing default window since we're unmanaging %s",
                   window->desc);
       meta_workspace_focus_default_window (workspace_manager->active_workspace,
                                            window,
@@ -1528,7 +1528,7 @@ meta_window_unmanage (MetaWindow  *window,
   else
     {
       meta_topic (META_DEBUG_FOCUS,
-                  "Unmanaging window %s which doesn't currently have focus\n",
+                  "Unmanaging window %s which doesn't currently have focus",
                   window->desc);
     }
 
@@ -1540,7 +1540,7 @@ meta_window_unmanage (MetaWindow  *window,
       window->struts = NULL;
 
       meta_topic (META_DEBUG_WORKAREA,
-                  "Unmanaging window %s which has struts, so invalidating work areas\n",
+                  "Unmanaging window %s which has struts, so invalidating work areas",
                   window->desc);
       invalidate_work_areas (window);
     }
@@ -1706,7 +1706,7 @@ meta_window_showing_on_its_workspace (MetaWindow *window)
       workspace_of_window && workspace_of_window->showing_desktop &&
       !is_desktop_or_dock)
     {
-      meta_verbose ("We're showing the desktop on the workspace(s) that window %s is on\n",
+      meta_verbose ("We're showing the desktop on the workspace(s) that window %s is on",
                     window->desc);
       showing = FALSE;
     }
@@ -1747,7 +1747,7 @@ implement_showing (MetaWindow *window,
                    gboolean    showing)
 {
   /* Actually show/hide the window */
-  meta_verbose ("Implement showing = %d for window %s\n",
+  meta_verbose ("Implement showing = %d for window %s",
                 showing, window->desc);
 
   /* Some windows are not stackable until being showed, so add those now. */
@@ -1809,7 +1809,7 @@ idle_calc_showing (gpointer data)
   g_return_val_if_fail (queue_pending[queue_index] != NULL, FALSE);
 
   meta_topic (META_DEBUG_WINDOW_STATE,
-              "Clearing the calc_showing queue\n");
+              "Clearing the calc_showing queue");
 
   /* Work with a copy, for reentrancy. The allowed reentrancy isn't
    * complete; destroying a window while we're in here would result in
@@ -1959,7 +1959,7 @@ meta_window_unqueue (MetaWindow *window, guint queuebits)
         {
 
           meta_topic (META_DEBUG_WINDOW_STATE,
-              "Removing %s from the %s queue\n",
+              "Removing %s from the %s queue",
               window->desc,
               meta_window_queue_names[queuenum]);
 
@@ -2036,7 +2036,7 @@ meta_window_queue (MetaWindow *window, guint queuebits)
             break;
 
           meta_topic (META_DEBUG_WINDOW_STATE,
-              "Putting %s in the %s queue\n",
+              "Putting %s in the %s queue",
               window->desc,
               meta_window_queue_names[queuenum]);
 
@@ -2078,7 +2078,7 @@ intervening_user_event_occurred (MetaWindow *window)
               "  net_wm_user_time_set : %d\n"
               "  net_wm_user_time     : %u\n"
               "  initial_timestamp_set: %d\n"
-              "  initial_timestamp    : %u\n",
+              "  initial_timestamp    : %u",
               window->net_wm_user_time_set,
               window->net_wm_user_time,
               window->initial_timestamp_set,
@@ -2089,7 +2089,7 @@ intervening_user_event_occurred (MetaWindow *window)
                   "COMPARISON (continued):\n"
                   "  focus_window             : %s\n"
                   "  fw->net_wm_user_time_set : %d\n"
-                  "  fw->net_wm_user_time     : %u\n",
+                  "  fw->net_wm_user_time     : %u",
                   focus_window->desc,
                   focus_window->net_wm_user_time_set,
                   focus_window->net_wm_user_time);
@@ -2107,7 +2107,7 @@ intervening_user_event_occurred (MetaWindow *window)
        (window->initial_timestamp == 0)))
     {
       meta_topic (META_DEBUG_STARTUP,
-                  "window %s explicitly requested no focus\n",
+                  "window %s explicitly requested no focus",
                   window->desc);
       return TRUE;
     }
@@ -2115,7 +2115,7 @@ intervening_user_event_occurred (MetaWindow *window)
   if (!(window->net_wm_user_time_set) && !(window->initial_timestamp_set))
     {
       meta_topic (META_DEBUG_STARTUP,
-                  "no information about window %s found\n",
+                  "no information about window %s found",
                   window->desc);
       return FALSE;
     }
@@ -2124,7 +2124,7 @@ intervening_user_event_occurred (MetaWindow *window)
       !focus_window->net_wm_user_time_set)
     {
       meta_topic (META_DEBUG_STARTUP,
-                  "focus window, %s, doesn't have a user time set yet!\n",
+                  "focus window, %s, doesn't have a user time set yet!",
                   window->desc);
       return FALSE;
     }
@@ -2153,7 +2153,7 @@ intervening_user_event_occurred (MetaWindow *window)
       XSERVER_TIME_IS_BEFORE (compare, focus_window->net_wm_user_time))
     {
       meta_topic (META_DEBUG_STARTUP,
-                  "window %s focus prevented by other activity; %u < %u\n",
+                  "window %s focus prevented by other activity; %u < %u",
                   window->desc,
                   compare,
                   focus_window->net_wm_user_time);
@@ -2162,7 +2162,7 @@ intervening_user_event_occurred (MetaWindow *window)
   else
     {
       meta_topic (META_DEBUG_STARTUP,
-                  "new window %s with no intervening events\n",
+                  "new window %s with no intervening events",
                   window->desc);
       return FALSE;
     }
@@ -2255,7 +2255,7 @@ window_state_on_map (MetaWindow *window,
                                              window))
     {
       meta_topic (META_DEBUG_FOCUS,
-                  "focus_window is terminal; not focusing new window.\n");
+                  "focus_window is terminal; not focusing new window.");
       *takes_focus = FALSE;
       *places_on_top = FALSE;
     }
@@ -2396,7 +2396,7 @@ meta_window_show (MetaWindow *window)
   MetaDisplay *display = window->display;
 
   meta_topic (META_DEBUG_WINDOW_STATE,
-              "Showing window %s, shaded: %d iconic: %d placed: %d\n",
+              "Showing window %s, shaded: %d iconic: %d placed: %d",
               window->desc, window->shaded, window->iconic, window->placed);
 
   focus_window = window->display->focus_window;  /* May be NULL! */
@@ -2405,7 +2405,7 @@ meta_window_show (MetaWindow *window)
   needs_stacking_adjustment = FALSE;
 
   meta_topic (META_DEBUG_WINDOW_STATE,
-              "Window %s %s focus on map, and %s place on top on map.\n",
+              "Window %s %s focus on map, and %s place on top on map.",
               window->desc,
               takes_focus_on_map ? "does" : "does not",
               place_on_top_on_map ? "does" : "does not");
@@ -2577,7 +2577,7 @@ meta_window_show (MetaWindow *window)
   if (did_show && window->struts)
     {
       meta_topic (META_DEBUG_WORKAREA,
-                  "Mapped window %s with struts, so invalidating work areas\n",
+                  "Mapped window %s with struts, so invalidating work areas",
                   window->desc);
       invalidate_work_areas (window);
     }
@@ -2612,7 +2612,7 @@ meta_window_hide (MetaWindow *window)
   gboolean did_hide;
 
   meta_topic (META_DEBUG_WINDOW_STATE,
-              "Hiding window %s\n", window->desc);
+              "Hiding window %s", window->desc);
 
   if (window->visible_to_compositor)
     {
@@ -2658,7 +2658,7 @@ meta_window_hide (MetaWindow *window)
   if (did_hide && window->struts)
     {
       meta_topic (META_DEBUG_WORKAREA,
-                  "Unmapped window %s with struts, so invalidating work areas\n",
+                  "Unmapped window %s with struts, so invalidating work areas",
                   window->desc);
       invalidate_work_areas (window);
     }
@@ -2718,13 +2718,13 @@ meta_window_minimize (MetaWindow  *window)
       if (window->has_focus)
         {
           meta_topic (META_DEBUG_FOCUS,
-                      "Focusing default window due to minimization of focus window %s\n",
+                      "Focusing default window due to minimization of focus window %s",
                       window->desc);
         }
       else
         {
           meta_topic (META_DEBUG_FOCUS,
-                      "Minimizing window %s which doesn't have the focus\n",
+                      "Minimizing window %s which doesn't have the focus",
                       window->desc);
         }
 
@@ -2815,7 +2815,7 @@ meta_window_maximize_internal (MetaWindow        *window,
   g_assert (maximize_horizontally || maximize_vertically);
 
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Maximizing %s%s\n",
+              "Maximizing %s%s",
               window->desc,
               maximize_horizontally && maximize_vertically ? "" :
                 maximize_horizontally ? " horizontally" :
@@ -3243,7 +3243,7 @@ static void
 unmaximize_window_before_freeing (MetaWindow        *window)
 {
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Unmaximizing %s just before freeing\n",
+              "Unmaximizing %s just before freeing",
               window->desc);
 
   window->maximized_horizontally = FALSE;
@@ -3308,7 +3308,7 @@ meta_window_unmaximize (MetaWindow        *window,
         window->tile_mode = META_TILE_NONE;
 
       meta_topic (META_DEBUG_WINDOW_OPS,
-                  "Unmaximizing %s%s\n",
+                  "Unmaximizing %s%s",
                   window->desc,
                   unmaximize_horizontally && unmaximize_vertically ? "" :
                     unmaximize_horizontally ? " horizontally" :
@@ -3448,7 +3448,7 @@ meta_window_make_fullscreen_internal (MetaWindow  *window)
   if (!window->fullscreen)
     {
       meta_topic (META_DEBUG_WINDOW_OPS,
-                  "Fullscreening %s\n", window->desc);
+                  "Fullscreening %s", window->desc);
 
       if (window->shaded)
         {
@@ -3515,7 +3515,7 @@ meta_window_unmake_fullscreen (MetaWindow  *window)
       MetaRectangle old_frame_rect, old_buffer_rect, target_rect;
 
       meta_topic (META_DEBUG_WINDOW_OPS,
-                  "Unfullscreening %s\n", window->desc);
+                  "Unfullscreening %s", window->desc);
 
       window->fullscreen = FALSE;
       target_rect = window->saved_rect;
@@ -3611,7 +3611,7 @@ meta_window_shade (MetaWindow  *window,
   g_return_if_fail (!window->override_redirect);
 
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Shading %s\n", window->desc);
+              "Shading %s", window->desc);
   if (!window->shaded)
     {
       window->shaded = TRUE;
@@ -3623,7 +3623,7 @@ meta_window_shade (MetaWindow  *window,
        * and we need to focus the frame
        */
       meta_topic (META_DEBUG_FOCUS,
-                  "Re-focusing window %s after shading it\n",
+                  "Re-focusing window %s after shading it",
                   window->desc);
       meta_window_focus (window, timestamp);
 
@@ -3638,7 +3638,7 @@ meta_window_unshade (MetaWindow  *window,
   g_return_if_fail (!window->override_redirect);
 
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Unshading %s\n", window->desc);
+              "Unshading %s", window->desc);
   if (window->shaded)
     {
       window->shaded = FALSE;
@@ -3647,7 +3647,7 @@ meta_window_unshade (MetaWindow  *window,
 
       /* focus the window */
       meta_topic (META_DEBUG_FOCUS,
-                  "Focusing window %s after unshading it\n",
+                  "Focusing window %s after unshading it",
                   window->desc);
       meta_window_focus (window, timestamp);
 
@@ -3687,7 +3687,7 @@ meta_window_activate_full (MetaWindow     *window,
 
   meta_topic (META_DEBUG_FOCUS,
               "_NET_ACTIVE_WINDOW message sent for %s at time %u "
-              "by client type %u.\n",
+              "by client type %u.",
               window->desc, timestamp, source_indication);
 
   allow_workspace_switch = (timestamp != 0);
@@ -3696,7 +3696,7 @@ meta_window_activate_full (MetaWindow     *window,
     {
       meta_topic (META_DEBUG_FOCUS,
                   "last_user_time (%u) is more recent; ignoring "
-                  " _NET_ACTIVE_WINDOW message.\n",
+                  " _NET_ACTIVE_WINDOW message.",
                   window->display->last_user_time);
       meta_window_set_demands_attention(window);
       return;
@@ -3742,7 +3742,7 @@ meta_window_activate_full (MetaWindow     *window,
     meta_window_raise (window);
 
   meta_topic (META_DEBUG_FOCUS,
-              "Focusing window %s due to activation\n",
+              "Focusing window %s due to activation",
               window->desc);
 
   if (meta_window_located_on_workspace (window, workspace))
@@ -4368,7 +4368,7 @@ idle_move_resize (gpointer data)
   GSList *copy;
   guint queue_index = GPOINTER_TO_INT (data);
 
-  meta_topic (META_DEBUG_GEOMETRY, "Clearing the move_resize queue\n");
+  meta_topic (META_DEBUG_GEOMETRY, "Clearing the move_resize queue");
 
   /* Work with a copy, for reentrancy. The allowed reentrancy isn't
    * complete; destroying a window while we're in here would result in
@@ -4753,7 +4753,7 @@ meta_window_focus (MetaWindow  *window,
   window->restore_focus_on_map = FALSE;
 
   meta_topic (META_DEBUG_FOCUS,
-              "Setting input focus to window %s, input: %d focusable: %d\n",
+              "Setting input focus to window %s, input: %d focusable: %d",
               window->desc, window->input, meta_window_is_focusable (window));
 
   if (window->display->grab_window &&
@@ -4762,7 +4762,7 @@ meta_window_focus (MetaWindow  *window,
       !window->display->grab_window->unmanaging)
     {
       meta_topic (META_DEBUG_FOCUS,
-                  "Current focus window %s has global keygrab, not focusing window %s after all\n",
+                  "Current focus window %s has global keygrab, not focusing window %s after all",
                   window->display->grab_window->desc, window->desc);
       return;
     }
@@ -4773,7 +4773,7 @@ meta_window_focus (MetaWindow  *window,
       meta_window_transient_can_focus (modal_transient))
     {
       meta_topic (META_DEBUG_FOCUS,
-                  "%s has %s as a modal transient, so focusing it instead.\n",
+                  "%s has %s as a modal transient, so focusing it instead.",
                   window->desc, modal_transient->desc);
       if (!meta_window_located_on_workspace (modal_transient, workspace_manager->active_workspace))
         meta_window_change_workspace (modal_transient, workspace_manager->active_workspace);
@@ -4785,7 +4785,7 @@ meta_window_focus (MetaWindow  *window,
   if ((!window->mapped || window->hidden) && !window->shaded)
     {
       meta_topic (META_DEBUG_FOCUS,
-                  "Window %s is not showing, not focusing after all\n",
+                  "Window %s is not showing, not focusing after all",
                   window->desc);
       return;
     }
@@ -4976,7 +4976,7 @@ meta_window_change_workspace (MetaWindow    *window,
 static void
 window_stick_impl (MetaWindow  *window)
 {
-  meta_verbose ("Sticking window %s current on_all_workspaces = %d\n",
+  meta_verbose ("Sticking window %s current on_all_workspaces = %d",
                 window->desc, window->on_all_workspaces);
 
   if (window->on_all_workspaces_requested)
@@ -5091,7 +5091,7 @@ meta_window_raise (MetaWindow  *window)
   ancestor = meta_window_find_root_ancestor (window);
 
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Raising window %s, ancestor of %s\n",
+              "Raising window %s, ancestor of %s",
               ancestor->desc, window->desc);
 
   /* Raise the ancestor of the window (if the window has no ancestor,
@@ -5110,7 +5110,7 @@ meta_window_raise (MetaWindow  *window)
       meta_warning (
                     "Either stacks aren't per screen or some window has a weird "
                     "transient_for hint; window->display->stack != "
-                    "ancestor->screen->stack.  window = %s, ancestor = %s.\n",
+                    "ancestor->screen->stack.  window = %s, ancestor = %s.",
                     window->desc, ancestor->desc);
       /* We could raise the window here, but don't want to do that twice and
        * so we let the case below handle that.
@@ -5134,7 +5134,7 @@ meta_window_lower (MetaWindow  *window)
   g_return_if_fail (!window->override_redirect);
 
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Lowering window %s\n", window->desc);
+              "Lowering window %s", window->desc);
 
   meta_stack_lower (window->display->stack, window);
 }
@@ -5452,7 +5452,7 @@ idle_update_icon (gpointer data)
   GSList *copy;
   guint queue_index = GPOINTER_TO_INT (data);
 
-  meta_topic (META_DEBUG_GEOMETRY, "Clearing the update_icon queue\n");
+  meta_topic (META_DEBUG_GEOMETRY, "Clearing the update_icon queue");
 
   /* Work with a copy, for reentrancy. The allowed reentrancy isn't
    * complete; destroying a window while we're in here would result in
@@ -5671,7 +5671,7 @@ meta_window_recalc_features (MetaWindow *window)
        * about these apps but make them work.
        */
 
-      meta_warning ("Window %s sets an MWM hint indicating it isn't resizable, but sets min size %d x %d and max size %d x %d; this doesn't make much sense.\n",
+      meta_warning ("Window %s sets an MWM hint indicating it isn't resizable, but sets min size %d x %d and max size %d x %d; this doesn't make much sense.",
                     window->desc,
                     window->size_hints.min_width,
                     window->size_hints.min_height,
@@ -5767,7 +5767,7 @@ meta_window_recalc_features (MetaWindow *window)
     }
 
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Window %s fullscreen = %d not resizable, maximizable = %d fullscreenable = %d min size %dx%d max size %dx%d\n",
+              "Window %s fullscreen = %d not resizable, maximizable = %d fullscreenable = %d min size %dx%d max size %dx%d",
               window->desc,
               window->fullscreen,
               window->has_maximize_func, window->has_fullscreen_func,
@@ -5788,7 +5788,7 @@ meta_window_recalc_features (MetaWindow *window)
     window->has_minimize_func = FALSE;
 
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Window %s decorated = %d border_only = %d has_close = %d has_minimize = %d has_maximize = %d has_move = %d has_shade = %d skip_taskbar = %d skip_pager = %d\n",
+              "Window %s decorated = %d border_only = %d has_close = %d has_minimize = %d has_maximize = %d has_move = %d has_shade = %d skip_taskbar = %d skip_pager = %d",
               window->desc,
               window->decorated,
               window->border_only,
@@ -5958,7 +5958,7 @@ check_moveresize_frequency (MetaWindow *window,
   if (elapsed >= 0.0 && elapsed < ms_between_resizes)
     {
       meta_topic (META_DEBUG_RESIZING,
-                  "Delaying move/resize as only %g of %g ms elapsed\n",
+                  "Delaying move/resize as only %g of %g ms elapsed",
                   elapsed, ms_between_resizes);
 
       if (remaining)
@@ -5968,7 +5968,7 @@ check_moveresize_frequency (MetaWindow *window,
     }
 
   meta_topic (META_DEBUG_RESIZING,
-              " Checked moveresize freq, allowing move/resize now (%g of %g seconds elapsed)\n",
+              " Checked moveresize freq, allowing move/resize now (%g of %g seconds elapsed)",
               elapsed / 1000.0, 1.0 / max_resizes_per_second);
 
   return TRUE;
@@ -6063,7 +6063,7 @@ update_move (MetaWindow  *window,
   new_x = display->grab_anchor_window_pos.x + dx;
   new_y = display->grab_anchor_window_pos.y + dy;
 
-  meta_verbose ("x,y = %d,%d anchor ptr %d,%d anchor pos %d,%d dx,dy %d,%d\n",
+  meta_verbose ("x,y = %d,%d anchor ptr %d,%d anchor pos %d,%d dx,dy %d,%d",
                 x, y,
                 display->grab_anchor_root_x,
                 display->grab_anchor_root_y,
@@ -6541,7 +6541,7 @@ meta_window_get_work_area_for_logical_monitor (MetaWindow         *window,
     }
 
   meta_topic (META_DEBUG_WORKAREA,
-              "Window %s monitor %d has work area %d,%d %d x %d\n",
+              "Window %s monitor %d has work area %d,%d %d x %d",
               window->desc, logical_monitor->number,
               area->x, area->y, area->width, area->height);
 }
@@ -6623,7 +6623,7 @@ meta_window_get_work_area_all_monitors (MetaWindow    *window,
     }
 
   meta_topic (META_DEBUG_WORKAREA,
-              "Window %s has whole-screen work area %d,%d %d x %d\n",
+              "Window %s has whole-screen work area %d,%d %d x %d",
               window->desc, area->x, area->y, area->width, area->height);
 }
 
@@ -6634,7 +6634,7 @@ meta_window_get_current_tile_monitor_number (MetaWindow *window)
 
   if (tile_monitor_number < 0)
     {
-      meta_warning ("%s called with an invalid monitor number; using 0 instead\n", G_STRFUNC);
+      meta_warning ("%s called with an invalid monitor number; using 0 instead", G_STRFUNC);
       tile_monitor_number = 0;
     }
 
@@ -6864,7 +6864,7 @@ warp_grab_pointer (MetaWindow          *window,
   meta_x11_error_trap_push (display->x11_display);
 
   meta_topic (META_DEBUG_WINDOW_OPS,
-              "Warping pointer to %d,%d with window at %d,%d\n",
+              "Warping pointer to %d,%d with window at %d,%d",
               *x, *y, rect.x, rect.y);
 
   /* Need to update the grab positions so that the MotionNotify and other
@@ -6887,7 +6887,7 @@ warp_grab_pointer (MetaWindow          *window,
 
   if (meta_x11_error_trap_pop_with_return (display->x11_display) != Success)
     {
-      meta_verbose ("Failed to warp pointer for window %s\n",
+      meta_verbose ("Failed to warp pointer for window %s",
                     window->desc);
       return FALSE;
     }
@@ -7026,7 +7026,7 @@ meta_window_stack_just_below (MetaWindow *window,
   if (window->stack_position > below_this_one->stack_position)
     {
       meta_topic (META_DEBUG_STACK,
-                  "Setting stack position of window %s to %d (making it below window %s).\n",
+                  "Setting stack position of window %s to %d (making it below window %s).",
                   window->desc,
                   below_this_one->stack_position,
                   below_this_one->desc);
@@ -7035,7 +7035,7 @@ meta_window_stack_just_below (MetaWindow *window,
   else
     {
       meta_topic (META_DEBUG_STACK,
-                  "Window %s  was already below window %s.\n",
+                  "Window %s  was already below window %s.",
                   window->desc, below_this_one->desc);
     }
 }
@@ -7050,7 +7050,7 @@ meta_window_stack_just_above (MetaWindow *window,
   if (window->stack_position < above_this_one->stack_position)
     {
       meta_topic (META_DEBUG_STACK,
-                  "Setting stack position of window %s to %d (making it above window %s).\n",
+                  "Setting stack position of window %s to %d (making it above window %s).",
                   window->desc,
                   above_this_one->stack_position,
                   above_this_one->desc);
@@ -7059,7 +7059,7 @@ meta_window_stack_just_above (MetaWindow *window,
   else
     {
       meta_topic (META_DEBUG_STACK,
-                  "Window %s  was already above window %s.\n",
+                  "Window %s  was already above window %s.",
                   window->desc, above_this_one->desc);
     }
 }
@@ -7102,13 +7102,13 @@ meta_window_set_user_time (MetaWindow *window,
     {
       meta_topic (META_DEBUG_STARTUP,
                   "Window %s _NET_WM_USER_TIME not updated to %u, because it "
-                  "is less than %u\n",
+                  "is less than %u",
                   window->desc, timestamp, window->net_wm_user_time);
     }
   else
     {
       meta_topic (META_DEBUG_STARTUP,
-                  "Window %s has _NET_WM_USER_TIME of %u\n",
+                  "Window %s has _NET_WM_USER_TIME of %u",
                   window->desc, timestamp);
       window->net_wm_user_time_set = TRUE;
       window->net_wm_user_time = timestamp;
@@ -7199,7 +7199,7 @@ meta_window_set_demands_attention (MetaWindow *window)
   if (obscured)
     {
       meta_topic (META_DEBUG_WINDOW_OPS,
-                  "Marking %s as needing attention\n",
+                  "Marking %s as needing attention",
                   window->desc);
 
       window->wm_state_demands_attention = TRUE;
@@ -7214,7 +7214,7 @@ meta_window_set_demands_attention (MetaWindow *window)
 
       meta_topic (META_DEBUG_WINDOW_OPS,
                  "Not marking %s as needing attention because "
-                 "it's in full view\n",
+                 "it's in full view",
                  window->desc);
     }
 }
@@ -7223,7 +7223,7 @@ void
 meta_window_unset_demands_attention (MetaWindow *window)
 {
   meta_topic (META_DEBUG_WINDOW_OPS,
-      "Marking %s as not needing attention\n", window->desc);
+              "Marking %s as not needing attention", window->desc);
 
   if (window->wm_state_demands_attention)
     {
@@ -7990,7 +7990,7 @@ meta_window_set_transient_for (MetaWindow *window,
 {
   if (check_transient_for_loop (window, parent))
     {
-      meta_warning ("Setting %s transient for %s would create a loop.\n",
+      meta_warning ("Setting %s transient for %s would create a loop.",
                     window->desc, parent->desc);
       return;
     }
@@ -8096,14 +8096,14 @@ mouse_mode_focus (MetaWindow  *window,
   if (window->type != META_WINDOW_DESKTOP)
     {
       meta_topic (META_DEBUG_FOCUS,
-                  "Focusing %s at time %u.\n", window->desc, timestamp);
+                  "Focusing %s at time %u.", window->desc, timestamp);
 
       meta_window_focus (window, timestamp);
 
       if (meta_prefs_get_auto_raise ())
         meta_display_queue_autoraise_callback (display, window);
       else
-        meta_topic (META_DEBUG_FOCUS, "Auto raise is disabled\n");
+        meta_topic (META_DEBUG_FOCUS, "Auto raise is disabled");
     }
   else
     {
@@ -8121,7 +8121,7 @@ mouse_mode_focus (MetaWindow  *window,
         {
           meta_topic (META_DEBUG_FOCUS,
                       "Unsetting focus from %s due to mouse entering "
-                      "the DESKTOP window\n",
+                      "the DESKTOP window",
                       display->focus_window->desc);
           meta_display_unset_input_focus (display, timestamp);
         }
@@ -8335,7 +8335,7 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
   if (window->type != META_WINDOW_DOCK)
     {
       meta_topic (META_DEBUG_FOCUS,
-                  "Focusing %s due to button %u press (display.c)\n",
+                  "Focusing %s due to button %u press (display.c)",
                   window->desc, button);
       meta_window_focus (window, event->any.time);
       meta_window_check_alive (window, event->any.time);
@@ -8383,7 +8383,7 @@ meta_window_handle_ungrabbed_event (MetaWindow         *window,
         meta_window_raise (window);
       else
         meta_topic (META_DEBUG_FOCUS,
-                    "Not raising window on click due to don't-raise-on-click option\n");
+                    "Not raising window on click due to don't-raise-on-click option");
     }
   else if (is_window_grab && (int) button == meta_prefs_get_mouse_button_resize ())
     {

@@ -172,7 +172,7 @@ update_pixmap (MetaSurfaceActorX11 *self)
 
       if (new_pixmap == None)
         {
-          meta_verbose ("Unable to get named pixmap for %s\n",
+          meta_verbose ("Unable to get named pixmap for %s",
                         meta_window_get_description (self->window));
           return;
         }

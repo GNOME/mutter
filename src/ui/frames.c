@@ -990,7 +990,7 @@ get_action (const ClutterEvent *event)
         case CLUTTER_BUTTON_MIDDLE:
           return META_ACTION_MIDDLE_CLICK;
         default:
-          meta_verbose ("No action triggered for button %u %s\n",
+          meta_verbose ("No action triggered for button %u %s",
                         event->button.button,
                         (event->type == CLUTTER_BUTTON_PRESS) ? "press" : "release");
         }
@@ -1146,7 +1146,7 @@ handle_press_event (MetaUIFrame        *frame,
         control == META_FRAME_CONTROL_MAXIMIZE))
     {
       meta_topic (META_DEBUG_FOCUS,
-                  "Focusing window with frame 0x%lx due to button 1 press\n",
+                  "Focusing window with frame 0x%lx due to button 1 press",
                   frame->xwindow);
       meta_window_focus (frame->meta_window, evtime);
     }
@@ -1246,7 +1246,7 @@ meta_ui_frame_update_prelit_control (MetaUIFrame     *frame,
   MetaFrameControl old_control;
   MetaCursor cursor;
 
-  meta_verbose ("Updating prelit control from %u to %u\n",
+  meta_verbose ("Updating prelit control from %u to %u",
                 frame->prelit_control, control);
 
   cursor = META_CURSOR_DEFAULT;

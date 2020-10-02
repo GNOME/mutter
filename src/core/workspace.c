@@ -380,7 +380,7 @@ meta_workspace_add_window (MetaWorkspace *workspace,
   if (window->struts)
     {
       meta_topic (META_DEBUG_WORKAREA,
-                  "Invalidating work area of workspace %d since we're adding window %s to it\n",
+                  "Invalidating work area of workspace %d since we're adding window %s to it",
                   meta_workspace_index (workspace), window->desc);
       meta_workspace_invalidate_work_area (workspace);
     }
@@ -404,7 +404,7 @@ meta_workspace_remove_window (MetaWorkspace *workspace,
   if (window->struts)
     {
       meta_topic (META_DEBUG_WORKAREA,
-                  "Invalidating work area of workspace %d since we're removing window %s from it\n",
+                  "Invalidating work area of workspace %d since we're removing window %s from it",
                   meta_workspace_index (workspace), window->desc);
       meta_workspace_invalidate_work_area (workspace);
     }
@@ -470,7 +470,7 @@ workspace_switch_sound(MetaWorkspace *from,
 
   if (i >= nw)
     {
-      meta_bug("Failed to find destination workspace in layout\n");
+      meta_bug("Failed to find destination workspace in layout");
       goto finish;
     }
 
@@ -494,7 +494,7 @@ workspace_switch_sound(MetaWorkspace *from,
     e = "desktop-switch-down";
   else
     {
-      meta_bug("Uh, origin and destination workspace at same logic position!\n");
+      meta_bug("Uh, origin and destination workspace at same logic position!");
       goto finish;
     }
 
@@ -536,7 +536,7 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
   gint num_workspaces, current_space, new_space;
   MetaMotionDirection direction;
 
-  meta_verbose ("Activating workspace %d\n",
+  meta_verbose ("Activating workspace %d",
                 meta_workspace_index (workspace));
 
   if (workspace->manager->active_workspace == workspace)
@@ -664,7 +664,7 @@ meta_workspace_activate_with_focus (MetaWorkspace *workspace,
     }
   else
     {
-      meta_topic (META_DEBUG_FOCUS, "Focusing default window on new workspace\n");
+      meta_topic (META_DEBUG_FOCUS, "Focusing default window on new workspace");
       meta_workspace_focus_default_window (workspace, NULL, timestamp);
     }
 
@@ -687,7 +687,7 @@ meta_workspace_index (MetaWorkspace *workspace)
   ret = g_list_index (workspace->manager->workspaces, workspace);
 
   if (ret < 0)
-    meta_bug ("Workspace does not exist to index!\n");
+    meta_bug ("Workspace does not exist to index!");
 
   return ret;
 }
@@ -746,13 +746,13 @@ meta_workspace_invalidate_work_area (MetaWorkspace *workspace)
   if (workspace->work_areas_invalid)
     {
       meta_topic (META_DEBUG_WORKAREA,
-                  "Work area for workspace %d is already invalid\n",
+                  "Work area for workspace %d is already invalid",
                   meta_workspace_index (workspace));
       return;
     }
 
   meta_topic (META_DEBUG_WORKAREA,
-              "Invalidating work area for workspace %d\n",
+              "Invalidating work area for workspace %d",
               meta_workspace_index (workspace));
 
   /* If we are in the middle of a resize or move operation, we
@@ -922,7 +922,7 @@ ensure_work_areas_validated (MetaWorkspace *workspace)
     }
   workspace->work_area_screen = work_area;
   meta_topic (META_DEBUG_WORKAREA,
-              "Computed work area for workspace %d: %d,%d %d x %d\n",
+              "Computed work area for workspace %d: %d,%d %d x %d",
               meta_workspace_index (workspace),
               workspace->work_area_screen.x,
               workspace->work_area_screen.y,
@@ -953,7 +953,7 @@ ensure_work_areas_validated (MetaWorkspace *workspace)
 
       meta_topic (META_DEBUG_WORKAREA,
                   "Computed work area for workspace %d "
-                  "monitor %d: %d,%d %d x %d\n",
+                  "monitor %d: %d,%d %d x %d",
                   meta_workspace_index (workspace),
                   logical_monitor->number,
                   data->logical_monitor_work_area.x,
@@ -1227,7 +1227,7 @@ meta_workspace_get_neighbor (MetaWorkspace      *workspace,
   meta_workspace_manager_calc_workspace_layout (workspace->manager, num_workspaces,
                                                 current_space, &layout);
 
-  meta_verbose ("Getting neighbor of %d in direction %s\n",
+  meta_verbose ("Getting neighbor of %d in direction %s",
                 current_space, meta_motion_direction_to_string (direction));
 
   ltr = (meta_get_locale_direction () == META_LOCALE_DIRECTION_LTR);
@@ -1264,10 +1264,10 @@ meta_workspace_get_neighbor (MetaWorkspace      *workspace,
     i = current_space;
 
   if (i >= num_workspaces)
-    meta_bug ("calc_workspace_layout left an invalid (too-high) workspace number %d in the grid\n",
+    meta_bug ("calc_workspace_layout left an invalid (too-high) workspace number %d in the grid",
               i);
 
-  meta_verbose ("Neighbor workspace is %d at row %d col %d\n",
+  meta_verbose ("Neighbor workspace is %d at row %d col %d",
                 i, layout.current_row, layout.current_col);
 
   meta_workspace_manager_free_workspace_layout (&layout);
@@ -1288,7 +1288,7 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
 {
   if (timestamp == META_CURRENT_TIME)
     meta_warning ("META_CURRENT_TIME used to choose focus window; "
-                  "focus window may not be correct.\n");
+                  "focus window may not be correct.");
 
   if (meta_prefs_get_focus_mode () == G_DESKTOP_FOCUS_MODE_CLICK ||
       !workspace->display->mouse_mode)
@@ -1312,12 +1312,13 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
                */
 
               meta_topic (META_DEBUG_FOCUS,
-                          "Not focusing mouse window %s because EnterNotify events should handle that\n", window->desc);
+                          "Not focusing mouse window %s because EnterNotify events should handle that",
+                          window->desc);
             }
           else
             {
               meta_topic (META_DEBUG_FOCUS,
-                          "Focusing mouse window %s\n", window->desc);
+                          "Focusing mouse window %s", window->desc);
               meta_window_focus (window, timestamp);
             }
 
@@ -1333,7 +1334,7 @@ meta_workspace_focus_default_window (MetaWorkspace *workspace,
         {
           meta_topic (META_DEBUG_FOCUS,
                       "Setting focus to no_focus_window, since no valid "
-                      "window to focus found.\n");
+                      "window to focus found.");
           meta_display_unset_input_focus (workspace->display, timestamp);
         }
     }
@@ -1366,10 +1367,10 @@ focus_ancestor_or_top_window (MetaWorkspace *workspace,
 
   if (not_this_one)
     meta_topic (META_DEBUG_FOCUS,
-                "Focusing MRU window excluding %s\n", not_this_one->desc);
+                "Focusing MRU window excluding %s", not_this_one->desc);
   else
     meta_topic (META_DEBUG_FOCUS,
-                "Focusing MRU window\n");
+                "Focusing MRU window");
 
   /* First, check to see if we need to focus an ancestor of a window */
   if (not_this_one)
@@ -1386,7 +1387,7 @@ focus_ancestor_or_top_window (MetaWorkspace *workspace,
       if (ancestor)
         {
           meta_topic (META_DEBUG_FOCUS,
-                      "Focusing %s, ancestor of %s\n",
+                      "Focusing %s, ancestor of %s",
                       ancestor->desc, not_this_one->desc);
 
           meta_window_focus (ancestor, timestamp);
@@ -1406,7 +1407,7 @@ focus_ancestor_or_top_window (MetaWorkspace *workspace,
   if (window)
     {
       meta_topic (META_DEBUG_FOCUS,
-                  "Focusing workspace MRU window %s\n", window->desc);
+                  "Focusing workspace MRU window %s", window->desc);
 
       meta_window_focus (window, timestamp);
 
@@ -1416,7 +1417,8 @@ focus_ancestor_or_top_window (MetaWorkspace *workspace,
     }
   else
     {
-      meta_topic (META_DEBUG_FOCUS, "No MRU window to focus found; focusing no_focus_window.\n");
+      meta_topic (META_DEBUG_FOCUS,
+                  "No MRU window to focus found; focusing no_focus_window.");
       meta_display_unset_input_focus (workspace->display, timestamp);
     }
 }

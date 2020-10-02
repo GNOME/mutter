@@ -138,7 +138,7 @@ load_gl_symbol (const char  *name,
   *func = cogl_get_proc_address (name);
   if (!*func)
     {
-      meta_verbose ("MetaSyncRing: failed to resolve required GL symbol \"%s\"\n", name);
+      meta_verbose ("MetaSyncRing: failed to resolve required GL symbol \"%s\"", name);
       return FALSE;
     }
   return TRUE;
@@ -215,7 +215,7 @@ load_required_symbols (void)
 
   if (!check_gl_extensions ())
     {
-      meta_verbose ("MetaSyncRing: couldn't find required GL extensions\n");
+      meta_verbose ("MetaSyncRing: couldn't find required GL extensions");
       goto out;
     }
 
@@ -497,7 +497,7 @@ meta_sync_ring_reboot (Display *xdisplay)
 
   if (!meta_sync_ring_get ())
     {
-      meta_warning ("MetaSyncRing: Too many reboots -- disabling\n");
+      meta_warning ("MetaSyncRing: Too many reboots -- disabling");
       return FALSE;
     }
 
@@ -522,13 +522,13 @@ meta_sync_ring_after_frame (void)
       GLenum status = meta_sync_check_update_finished (sync_to_reset, 0);
       if (status == GL_TIMEOUT_EXPIRED)
         {
-          meta_warning ("MetaSyncRing: We should never wait for a sync -- add more syncs?\n");
+          meta_warning ("MetaSyncRing: We should never wait for a sync -- add more syncs?");
           status = meta_sync_check_update_finished (sync_to_reset, MAX_SYNC_WAIT_TIME);
         }
 
       if (status != GL_ALREADY_SIGNALED && status != GL_CONDITION_SATISFIED)
         {
-          meta_warning ("MetaSyncRing: Timed out waiting for sync object.\n");
+          meta_warning ("MetaSyncRing: Timed out waiting for sync object.");
           return meta_sync_ring_reboot (ring->xdisplay);
         }
 
@@ -559,7 +559,7 @@ meta_sync_ring_insert_wait (void)
 
   if (ring->current_sync->state != META_SYNC_STATE_READY)
     {
-      meta_warning ("MetaSyncRing: Sync object is not ready -- were events handled properly?\n");
+      meta_warning ("MetaSyncRing: Sync object is not ready -- were events handled properly?");
       if (!meta_sync_ring_reboot (ring->xdisplay))
         return FALSE;
     }

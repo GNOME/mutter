@@ -516,7 +516,7 @@ meta_frame_layout_calc_geometry (MetaFrameLayout        *layout,
         continue;
       else
         {
-          meta_bug ("Could not find a button to strip. n_left = %d n_right = %d\n",
+          meta_bug ("Could not find a button to strip. n_left = %d n_right = %d",
                     n_left, n_right);
         }
     }

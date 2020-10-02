@@ -1070,7 +1070,7 @@ meta_window_wayland_set_min_size (MetaWindow *window,
   gint64 new_width, new_height;
   float scale;
 
-  meta_topic (META_DEBUG_GEOMETRY, "Window %s sets min size %d x %d\n",
+  meta_topic (META_DEBUG_GEOMETRY, "Window %s sets min size %d x %d",
               window->desc, width, height);
 
   if (width == 0 && height == 0)
@@ -1104,7 +1104,7 @@ meta_window_wayland_set_max_size (MetaWindow *window,
   gint64 new_width, new_height;
   float scale;
 
-  meta_topic (META_DEBUG_GEOMETRY, "Window %s sets max size %d x %d\n",
+  meta_topic (META_DEBUG_GEOMETRY, "Window %s sets max size %d x %d",
               window->desc, width, height);
 
   if (width == 0 && height == 0)

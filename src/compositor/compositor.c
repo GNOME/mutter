@@ -960,7 +960,7 @@ meta_compositor_sync_stack (MetaCompositor  *compositor,
           if (!stack_actor)
             {
               meta_verbose ("Failed to find corresponding MetaWindowActor "
-                            "for window %s\n", meta_window_get_description (stack_window));
+                            "for window %s", meta_window_get_description (stack_window));
               stack = g_list_delete_link (stack, stack);
             }
           else

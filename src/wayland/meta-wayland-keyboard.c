@@ -622,16 +622,16 @@ meta_wayland_keyboard_handle_event (MetaWaylandKeyboard *keyboard,
       !(event->flags & CLUTTER_EVENT_FLAG_INPUT_METHOD))
     return FALSE;
 
-  meta_verbose ("Handling key %s event code %d\n",
+  meta_verbose ("Handling key %s event code %d",
 		is_press ? "press" : "release",
 		event->hardware_keycode);
 
   handled = notify_key (keyboard, (const ClutterEvent *) event);
 
   if (handled)
-    meta_verbose ("Sent event to wayland client\n");
+    meta_verbose ("Sent event to wayland client");
   else
-    meta_verbose ("No wayland surface is focused, continuing normal operation\n");
+    meta_verbose ("No wayland surface is focused, continuing normal operation");
 
   if (keyboard->mods_changed != 0)
     {

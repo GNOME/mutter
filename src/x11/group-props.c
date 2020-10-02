@@ -140,7 +140,7 @@ reload_wm_client_machine (MetaGroup     *group,
   if (value->type != META_PROP_VALUE_INVALID)
     group->wm_client_machine = g_strdup (value->v.str);
 
-  meta_verbose ("Group has client machine \"%s\"\n",
+  meta_verbose ("Group has client machine \"%s\"",
                 group->wm_client_machine ? group->wm_client_machine : "unset");
 }
 
@@ -163,7 +163,7 @@ reload_net_startup_id (MetaGroup     *group,
   if (value->type != META_PROP_VALUE_INVALID)
     group->startup_id = g_strdup (value->v.str);
 
-  meta_verbose ("Group has startup id \"%s\"\n",
+  meta_verbose ("Group has startup id \"%s\"",
                 group->startup_id ? group->startup_id : "unset");
 }
 

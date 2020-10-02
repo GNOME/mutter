@@ -100,14 +100,14 @@ meta_window_kill (MetaWindow *window)
   if (pid > 0)
     {
       meta_topic (META_DEBUG_WINDOW_OPS,
-                  "Killing %s with kill()\n",
+                  "Killing %s with kill()",
                   window->desc);
 
       if (kill (pid, 9) == 0)
         return;
 
       meta_topic (META_DEBUG_WINDOW_OPS,
-                  "Failed to signal %s: %s\n",
+                  "Failed to signal %s: %s",
                   window->desc, strerror (errno));
     }
 

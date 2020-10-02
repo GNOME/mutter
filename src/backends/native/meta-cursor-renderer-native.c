@@ -1196,7 +1196,7 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
 
   if (width > cursor_width || height > cursor_height)
     {
-      meta_warning ("Invalid theme cursor size (must be at most %ux%u)\n",
+      meta_warning ("Invalid theme cursor size (must be at most %ux%u)",
                     (unsigned int)cursor_width, (unsigned int)cursor_height);
       return;
     }
@@ -1213,7 +1213,7 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
                           gbm_format, GBM_BO_USE_CURSOR | GBM_BO_USE_WRITE);
       if (!bo)
         {
-          meta_warning ("Failed to allocate HW cursor buffer\n");
+          meta_warning ("Failed to allocate HW cursor buffer");
           return;
         }
 
@@ -1232,7 +1232,7 @@ load_cursor_sprite_gbm_buffer_for_gpu (MetaCursorRendererNative *native,
     }
   else
     {
-      meta_warning ("HW cursor for format %d not supported\n", gbm_format);
+      meta_warning ("HW cursor for format %d not supported", gbm_format);
     }
 }
 
@@ -1521,7 +1521,7 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
 
       if (width != cursor_width || height != cursor_height)
         {
-          meta_warning ("Invalid cursor size (must be 64x64), falling back to software (GL) cursors\n");
+          meta_warning ("Invalid cursor size (must be 64x64), falling back to software (GL) cursors");
           return;
         }
 
@@ -1532,7 +1532,7 @@ realize_cursor_sprite_from_wl_buffer_for_gpu (MetaCursorRenderer      *renderer,
                           GBM_BO_USE_CURSOR);
       if (!bo)
         {
-          meta_warning ("Importing HW cursor from wl_buffer failed\n");
+          meta_warning ("Importing HW cursor from wl_buffer failed");
           return;
         }
 

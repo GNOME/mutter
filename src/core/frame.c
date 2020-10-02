@@ -62,7 +62,7 @@ meta_window_ensure_frame (MetaWindow *window)
 
   frame->borders_cached = FALSE;
 
-  meta_verbose ("Frame geometry %d,%d  %dx%d\n",
+  meta_verbose ("Frame geometry %d,%d  %dx%d",
                 frame->rect.x, frame->rect.y,
                 frame->rect.width, frame->rect.height);
 
@@ -81,7 +81,7 @@ meta_window_ensure_frame (MetaWindow *window)
                                  frame->xwindow,
                                  create_serial);
 
-  meta_verbose ("Frame for %s is 0x%lx\n", frame->window->desc, frame->xwindow);
+  meta_verbose ("Frame for %s is 0x%lx", frame->window->desc, frame->xwindow);
   attrs.event_mask = EVENT_MASK;
   XChangeWindowAttributes (x11_display->xdisplay,
 			   frame->xwindow, CWEventMask, &attrs);
@@ -95,7 +95,7 @@ meta_window_ensure_frame (MetaWindow *window)
                                * we don't want to take that as a withdraw
                                */
       meta_topic (META_DEBUG_WINDOW_STATE,
-                  "Incrementing unmaps_pending on %s for reparent\n", window->desc);
+                  "Incrementing unmaps_pending on %s for reparent", window->desc);
       window->unmaps_pending += 1;
     }
 
@@ -171,7 +171,7 @@ meta_window_destroy_frame (MetaWindow *window)
 
   x11_display = window->display->x11_display;
 
-  meta_verbose ("Unframing window %s\n", window->desc);
+  meta_verbose ("Unframing window %s", window->desc);
 
   frame = window->frame;
 
@@ -188,7 +188,7 @@ meta_window_destroy_frame (MetaWindow *window)
                                * by the client.
                                */
       meta_topic (META_DEBUG_WINDOW_STATE,
-                  "Incrementing unmaps_pending on %s for reparent back to root\n", window->desc);
+                  "Incrementing unmaps_pending on %s for reparent back to root", window->desc);
       window->unmaps_pending += 1;
     }
 
@@ -349,7 +349,7 @@ meta_frame_sync_to_window (MetaFrame *frame,
                            gboolean   need_resize)
 {
   meta_topic (META_DEBUG_GEOMETRY,
-              "Syncing frame geometry %d,%d %dx%d (SE: %d,%d)\n",
+              "Syncing frame geometry %d,%d %dx%d (SE: %d,%d)",
               frame->rect.x, frame->rect.y,
               frame->rect.width, frame->rect.height,
               frame->rect.x + frame->rect.width,

@@ -288,7 +288,7 @@ reload_modmap (MetaKeyBindingManager *keys)
   keys->ignored_modifier_mask = (scroll_lock_mask | Mod2Mask | LockMask);
 
   meta_topic (META_DEBUG_KEYBINDINGS,
-              "Ignoring modmask 0x%x scroll lock 0x%x hyper 0x%x super 0x%x meta 0x%x\n",
+              "Ignoring modmask 0x%x scroll lock 0x%x hyper 0x%x super 0x%x meta 0x%x",
               keys->ignored_modifier_mask,
               scroll_lock_mask,
               keys->hyper_mask,
@@ -590,7 +590,7 @@ index_binding (MetaKeyBindingManager *keys,
             continue;
 
           meta_warning ("Overwriting existing binding of keysym %x"
-                        " with keysym %x (keycode %x).\n",
+                        " with keysym %x (keycode %x).",
                         binding->combo.keysym,
                         existing->combo.keysym,
                         binding->resolved_combo.keycodes[i]);
@@ -860,7 +860,7 @@ rebuild_binding_table (MetaKeyBindingManager *keys,
     }
 
   meta_topic (META_DEBUG_KEYBINDINGS,
-              " %d bindings in table\n",
+              " %d bindings in table",
               g_hash_table_size (keys->key_bindings));
 }
 
@@ -870,7 +870,7 @@ rebuild_key_binding_table (MetaKeyBindingManager *keys)
   GList *prefs, *grabs;
 
   meta_topic (META_DEBUG_KEYBINDINGS,
-              "Rebuilding key binding table from preferences\n");
+              "Rebuilding key binding table from preferences");
 
   prefs = meta_prefs_get_keybindings ();
   grabs = g_hash_table_get_values (external_grabs);
@@ -1257,7 +1257,7 @@ meta_display_grab_window_buttons (MetaDisplay *display,
    * Grab Alt + button3 for popping up window menu.
    * Grab Alt + Shift + button1 for snap-moving window.
    */
-  meta_verbose ("Grabbing window buttons for 0x%lx\n", xwindow);
+  meta_verbose ("Grabbing window buttons for 0x%lx", xwindow);
 
   /* FIXME If we ignored errors here instead of spewing, we could
    * put one big error trap around the loop and avoid a bunch of
@@ -1314,11 +1314,11 @@ meta_display_grab_focus_window_button (MetaDisplay *display,
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
   /* Grab button 1 for activating unfocused windows */
-  meta_verbose ("Grabbing unfocused window buttons for %s\n", window->desc);
+  meta_verbose ("Grabbing unfocused window buttons for %s", window->desc);
 
   if (window->have_focus_click_grab)
     {
-      meta_verbose (" (well, not grabbing since we already have the grab)\n");
+      meta_verbose (" (well, not grabbing since we already have the grab)");
       return;
     }
 
@@ -1337,7 +1337,7 @@ meta_display_ungrab_focus_window_button (MetaDisplay *display,
 {
   MetaKeyBindingManager *keys = &display->key_binding_manager;
 
-  meta_verbose ("Ungrabbing unfocused window buttons for %s\n", window->desc);
+  meta_verbose ("Ungrabbing unfocused window buttons for %s", window->desc);
 
   if (!window->have_focus_click_grab)
     return;
@@ -1440,7 +1440,7 @@ meta_change_keygrab (MetaKeyBindingManager *keys,
       xkb_keycode_t keycode = resolved_combo->keycodes[i];
 
       meta_topic (META_DEBUG_KEYBINDINGS,
-                  "%s keybinding keycode %d mask 0x%x on 0x%lx\n",
+                  "%s keybinding keycode %d mask 0x%x on 0x%lx",
                   grab ? "Grabbing" : "Ungrabbing",
                   keycode, resolved_combo->mask, xwindow);
 
@@ -1658,8 +1658,8 @@ meta_display_grab_accelerator (MetaDisplay         *display,
   if (!meta_parse_accelerator (accelerator, &combo))
     {
       meta_topic (META_DEBUG_KEYBINDINGS,
-                  "Failed to parse accelerator\n");
-      meta_warning ("\"%s\" is not a valid accelerator\n", accelerator);
+                  "Failed to parse accelerator");
+      meta_warning ("\"%s\" is not a valid accelerator", accelerator);
 
       return META_KEYBINDING_ACTION_NONE;
     }
@@ -1819,7 +1819,7 @@ meta_window_grab_all_keys (MetaWindow  *window,
    * won't do a lot of good.
    */
   meta_topic (META_DEBUG_FOCUS,
-              "Focusing %s because we're grabbing all its keys\n",
+              "Focusing %s because we're grabbing all its keys",
               window->desc);
   meta_window_focus (window, timestamp);
 
@@ -1828,7 +1828,7 @@ meta_window_grab_all_keys (MetaWindow  *window,
       grabwindow = meta_window_x11_get_toplevel_xwindow (window);
 
       meta_topic (META_DEBUG_KEYBINDINGS,
-                  "Grabbing all keys on window %s\n", window->desc);
+                  "Grabbing all keys on window %s", window->desc);
       retval = grab_keyboard (grabwindow, timestamp, XIGrabModeAsync);
     }
   if (retval)
@@ -1973,7 +1973,7 @@ process_event (MetaDisplay          *display,
     goto not_found;
 
   if (binding->handler == NULL)
-    meta_bug ("Binding %s has no handler\n", binding->name);
+    meta_bug ("Binding %s has no handler", binding->name);
 
   if (!meta_key_binding_has_handler_func (binding))
     goto not_found;
@@ -1998,13 +1998,13 @@ process_event (MetaDisplay          *display,
       binding->flags & META_KEY_BINDING_IGNORE_AUTOREPEAT)
     {
       meta_topic (META_DEBUG_KEYBINDINGS,
-                  "Ignore autorepeat for handler %s\n",
+                  "Ignore autorepeat for handler %s",
                   binding->name);
       return TRUE;
     }
 
   meta_topic (META_DEBUG_KEYBINDINGS,
-              "Running handler for %s\n",
+              "Running handler for %s",
               binding->name);
 
   /* Global keybindings count as a let-the-terminal-lose-focus
@@ -2019,7 +2019,7 @@ process_event (MetaDisplay          *display,
 
  not_found:
   meta_topic (META_DEBUG_KEYBINDINGS,
-              "No handler found for this event in this binding table\n");
+              "No handler found for this event in this binding table");
   return FALSE;
 }
 
@@ -2280,20 +2280,20 @@ process_key_event (MetaDisplay     *display,
               if (display->grab_op == META_GRAB_OP_KEYBOARD_MOVING)
                 {
                   meta_topic (META_DEBUG_KEYBINDINGS,
-                              "Processing event for keyboard move\n");
+                              "Processing event for keyboard move");
                   keep_grab = process_keyboard_move_grab (display, window, event);
                 }
               else
                 {
                   meta_topic (META_DEBUG_KEYBINDINGS,
-                              "Processing event for keyboard resize\n");
+                              "Processing event for keyboard resize");
                   keep_grab = process_keyboard_resize_grab (display, window, event);
                 }
             }
           else
             {
               meta_topic (META_DEBUG_KEYBINDINGS,
-                          "Processing event for mouse-only move/resize\n");
+                          "Processing event for mouse-only move/resize");
               keep_grab = process_mouse_move_resize_grab (display, window, event);
             }
         }
@@ -2494,7 +2494,7 @@ process_keyboard_move_grab (MetaDisplay     *display,
   if (handled)
     {
       meta_topic (META_DEBUG_KEYBINDINGS,
-                  "Computed new window location %d,%d due to keypress\n",
+                  "Computed new window location %d,%d due to keypress",
                   x, y);
 
       meta_window_edge_resistance_for_move (window,
@@ -2844,7 +2844,7 @@ process_keyboard_resize_grab (MetaDisplay     *display,
     {
       meta_topic (META_DEBUG_KEYBINDINGS,
                   "Computed new window size due to keypress: "
-                  "%dx%d, gravity %s\n",
+                  "%dx%d, gravity %s",
                   width, height, meta_gravity_to_string (gravity));
 
       /* Do any edge resistance/snapping */
@@ -3177,7 +3177,7 @@ handle_panel (MetaDisplay     *display,
 
   meta_topic (META_DEBUG_KEYBINDINGS,
               "Sending panel message with timestamp %u, and turning mouse_mode "
-              "off due to keybinding press\n", event->time);
+              "off due to keybinding press", event->time);
   display->mouse_mode = FALSE;
 
   meta_x11_error_trap_push (x11_display);
@@ -3231,7 +3231,7 @@ do_choose_window (MetaDisplay     *display,
   MetaWindow *window;
 
   meta_topic (META_DEBUG_KEYBINDINGS,
-              "Tab list = %u\n", type);
+              "Tab list = %u", type);
 
   window = meta_display_get_tab_next (display,
                                       type,
@@ -3496,7 +3496,7 @@ handle_move_to_workspace  (MetaDisplay     *display,
         {
           meta_topic (META_DEBUG_FOCUS,
                       "Resetting mouse_mode to FALSE due to "
-                      "handle_move_to_workspace() call with flip set.\n");
+                      "handle_move_to_workspace() call with flip set.");
           meta_display_clear_mouse_mode (workspace->display);
           meta_workspace_activate_with_focus (workspace,
                                               window,
@@ -3605,7 +3605,7 @@ handle_set_spew_mark (MetaDisplay     *display,
                       MetaKeyBinding  *binding,
                       gpointer         dummy)
 {
-  meta_verbose ("-- MARK MARK MARK MARK --\n");
+  meta_verbose ("-- MARK MARK MARK MARK --");
 }
 
 #ifdef HAVE_NATIVE_BACKEND
@@ -3675,7 +3675,7 @@ handle_restore_shortcuts (MetaDisplay     *display,
 
   source = clutter_event_get_source_device ((ClutterEvent *) event);
 
-  meta_topic (META_DEBUG_KEYBINDINGS, "Restoring normal keyboard shortcuts\n");
+  meta_topic (META_DEBUG_KEYBINDINGS, "Restoring normal keyboard shortcuts");
 
   meta_window_force_restore_shortcuts (display->focus_window, source);
 }

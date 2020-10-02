@@ -89,7 +89,7 @@ present_existing_delete_dialog (MetaCloseDialogDefault *dialog)
     return;
 
   meta_topic (META_DEBUG_PING,
-              "Presenting existing ping dialog for %s\n",
+              "Presenting existing ping dialog for %s",
               window->desc);
 
   /* Activate transient for window that belongs to

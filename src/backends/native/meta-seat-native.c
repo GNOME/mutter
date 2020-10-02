@@ -277,7 +277,7 @@ update_button_count (MetaSeatNative *seat,
       if (seat->button_count[button] == 0)
         {
           meta_topic (META_DEBUG_INPUT,
-                      "Counting release of key 0x%x and count is already 0\n",
+                      "Counting release of key 0x%x and count is already 0",
                       button);
           return 0;
         }
@@ -306,7 +306,7 @@ meta_seat_native_notify_key (MetaSeatNative     *seat,
           (!state && count != 0))
         {
           meta_topic (META_DEBUG_INPUT,
-                      "Dropping repeated %s of key 0x%x, count %d, state %d\n",
+                      "Dropping repeated %s of key 0x%x, count %d, state %d",
                       state ? "press" : "release", key, count, state);
           return;
         }
@@ -530,7 +530,7 @@ meta_seat_native_notify_button (MetaSeatNative     *seat,
       (!state && button_count != 0))
     {
       meta_topic (META_DEBUG_INPUT,
-                  "Dropping repeated %s of button 0x%x, count %d\n",
+                  "Dropping repeated %s of button 0x%x, count %d",
                   state ? "press" : "release", button, button_count);
       return;
     }
@@ -1823,7 +1823,7 @@ process_device_event (MetaSeatNative        *seat,
           {
             meta_topic (META_DEBUG_INPUT,
                         "Dropping key-%s of key 0x%x because seat-wide "
-                        "key count is %d\n",
+                        "key count is %d",
                         key_state == LIBINPUT_KEY_STATE_PRESSED ? "press" : "release",
                         key, seat_key_count);
             break;
@@ -1917,7 +1917,7 @@ process_device_event (MetaSeatNative        *seat,
           {
             meta_topic (META_DEBUG_INPUT,
                         "Dropping button-%s of button 0x%x because seat-wide "
-                        "button count is %d\n",
+                        "button count is %d",
                         button_state == LIBINPUT_BUTTON_STATE_PRESSED ? "press" : "release",
                         button, seat_button_count);
             break;

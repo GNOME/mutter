@@ -235,9 +235,8 @@ stack_dump (MetaStackTracker *tracker,
   for (i = 0; i < stack->len; i++)
     {
       guint64 window = g_array_index (stack, guint64, i);
-      meta_topic (META_DEBUG_STACK, "  %s", get_window_desc (tracker, window));
+      meta_topic (META_DEBUG_STACK, "    %s", get_window_desc (tracker, window));
     }
-  meta_topic (META_DEBUG_STACK, "\n");
   meta_pop_no_msg_prefix ();
 }
 #endif /* WITH_VERBOSE_MODE */
@@ -248,9 +247,9 @@ meta_stack_tracker_dump (MetaStackTracker *tracker)
 #ifdef WITH_VERBOSE_MODE
   GList *l;
 
-  meta_topic (META_DEBUG_STACK, "MetaStackTracker state\n");
+  meta_topic (META_DEBUG_STACK, "MetaStackTracker state");
   meta_push_no_msg_prefix ();
-  meta_topic (META_DEBUG_STACK, "  xserver_serial: %ld\n", tracker->xserver_serial);
+  meta_topic (META_DEBUG_STACK, "  xserver_serial: %ld", tracker->xserver_serial);
   meta_topic (META_DEBUG_STACK, "  verified_stack: ");
   stack_dump (tracker, tracker->verified_stack);
   meta_topic (META_DEBUG_STACK, "  unverified_predictions: [");
@@ -259,10 +258,10 @@ meta_stack_tracker_dump (MetaStackTracker *tracker)
       MetaStackOp *op = l->data;
       meta_stack_op_dump (tracker, op, "", l->next ? ", " : "");
     }
-  meta_topic (META_DEBUG_STACK, "]\n");
+  meta_topic (META_DEBUG_STACK, "]");
   if (tracker->predicted_stack)
     {
-      meta_topic (META_DEBUG_STACK, "\n  predicted_stack: ");
+      meta_topic (META_DEBUG_STACK, "  predicted_stack: ");
       stack_dump (tracker, tracker->predicted_stack);
     }
   meta_pop_no_msg_prefix ();
@@ -629,7 +628,7 @@ stack_tracker_apply_prediction (MetaStackTracker *tracker,
     }
   else
     {
-      meta_stack_op_dump (tracker, op, "Predicting: ", "\n");
+      meta_stack_op_dump (tracker, op, "Predicting: ", "");
       g_queue_push_tail (tracker->unverified_predictions, op);
     }
 
@@ -714,7 +713,7 @@ stack_tracker_event_received (MetaStackTracker *tracker,
   if (op->any.serial < tracker->xserver_serial)
     return;
 
-  meta_stack_op_dump (tracker, op, "Stack op event received: ", "\n");
+  meta_stack_op_dump (tracker, op, "Stack op event received: ", "");
 
   /* First we apply any operations that we have queued up that depended
    * on X operations *older* than what we received .. those operations

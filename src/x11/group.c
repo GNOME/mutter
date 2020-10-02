@@ -88,7 +88,7 @@ meta_group_new (MetaX11Display *x11_display,
   meta_group_reload_properties (group, initial_props, N_INITIAL_PROPS);
 
   meta_topic (META_DEBUG_GROUPS,
-              "Created new group with leader 0x%lx\n",
+              "Created new group with leader 0x%lx",
               group->group_leader);
 
   return g_steal_pointer (&group);
@@ -103,7 +103,7 @@ meta_group_unref (MetaGroup *group)
   if (group->refcount == 0)
     {
       meta_topic (META_DEBUG_GROUPS,
-                  "Destroying group with leader 0x%lx\n",
+                  "Destroying group with leader 0x%lx",
                   group->group_leader);
 
       g_assert (group->x11_display->groups_by_leader != NULL);
@@ -193,7 +193,7 @@ meta_window_compute_group (MetaWindow* window)
   window->group->windows = g_slist_prepend (window->group->windows, window);
 
   meta_topic (META_DEBUG_GROUPS,
-              "Adding %s to group with leader 0x%lx\n",
+              "Adding %s to group with leader 0x%lx",
               window->desc, group->group_leader);
 }
 
@@ -203,7 +203,7 @@ remove_window_from_group (MetaWindow *window)
   if (window->group != NULL)
     {
       meta_topic (META_DEBUG_GROUPS,
-                  "Removing %s from group with leader 0x%lx\n",
+                  "Removing %s from group with leader 0x%lx",
                   window->desc, window->group->group_leader);
 
       window->group->windows =
