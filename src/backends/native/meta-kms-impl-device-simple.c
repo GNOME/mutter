@@ -814,23 +814,6 @@ process_page_flip (MetaKmsImplDevice  *impl_device,
   return TRUE;
 }
 
-static void
-discard_page_flip (MetaKmsImplDevice *impl_device,
-                   MetaKmsUpdate     *update,
-                   MetaKmsPageFlip   *page_flip)
-{
-  MetaKmsCrtc *crtc;
-  MetaKmsPageFlipData *page_flip_data;
-
-  crtc = page_flip->crtc;
-  page_flip_data = meta_kms_page_flip_data_new (impl_device,
-                                                crtc,
-                                                page_flip->feedback,
-                                                page_flip->user_data);
-  meta_kms_page_flip_data_discard_in_impl (page_flip_data, NULL);
-  meta_kms_page_flip_data_unref (page_flip_data);
-}
-
 static gboolean
 process_entries (MetaKmsImplDevice  *impl_device,
                  MetaKmsUpdate      *update,
@@ -1029,7 +1012,6 @@ meta_kms_impl_device_simple_process_update (MetaKmsImplDevice *impl_device,
 {
   GError *error = NULL;
   GList *failed_planes;
-  GList *l;
 
   if (!process_entries (impl_device,
                         update,
@@ -1073,16 +1055,6 @@ err_planes_not_assigned:
   failed_planes = generate_all_failed_feedbacks (update);
 
 err_planes_assigned:
-  for (l = meta_kms_update_get_page_flips (update); l; l = l->next)
-    {
-      MetaKmsPageFlip *page_flip = l->data;
-
-      if (page_flip->flags & META_KMS_PAGE_FLIP_FLAG_NO_DISCARD_FEEDBACK)
-        continue;
-
-      discard_page_flip (impl_device, update, page_flip);
-    }
-
   return meta_kms_feedback_new_failed (failed_planes, error);
 }
 
