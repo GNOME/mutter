@@ -1867,24 +1867,24 @@ ensure_crtc_modes (CoglOnscreen *onscreen)
     }
 }
 
-static gboolean
+static void
 unset_disabled_crtcs (MetaBackend *backend,
                       MetaKms     *kms)
 {
-  gboolean did_mode_set = FALSE;
   GList *l;
 
   for (l = meta_backend_get_gpus (backend); l; l = l->next)
     {
       MetaGpu *gpu = l->data;
+      MetaKmsDevice *kms_device =
+        meta_gpu_kms_get_kms_device (META_GPU_KMS (gpu));
       GList *k;
+      gboolean did_mode_set = FALSE;
+      g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
       for (k = meta_gpu_get_crtcs (gpu); k; k = k->next)
         {
           MetaCrtc *crtc = k->data;
-          MetaKmsCrtc *kms_crtc =
-            meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (crtc));
-          MetaKmsDevice *kms_device = meta_kms_crtc_get_device (kms_crtc);
           MetaKmsUpdate *kms_update;
 
           if (meta_crtc_get_config (crtc))
@@ -1895,23 +1895,20 @@ unset_disabled_crtcs (MetaBackend *backend,
 
           did_mode_set = TRUE;
         }
-    }
 
-  return did_mode_set;
-}
+      if (!did_mode_set)
+        continue;
 
-static void
-post_pending_updates (MetaKms *kms)
-{
-  g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
+      kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device);
+      if (meta_kms_feedback_get_result (kms_feedback) !=
+          META_KMS_FEEDBACK_PASSED)
+        {
+          const GError *error = meta_kms_feedback_get_error (kms_feedback);
 
-  kms_feedback = meta_kms_post_pending_updates_sync (kms);
-  if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
-    {
-      const GError *error = meta_kms_feedback_get_error (kms_feedback);
-
-      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
-        g_warning ("Failed to post KMS update: %s", error->message);
+          if (!g_error_matches (error, G_IO_ERROR,
+                                G_IO_ERROR_PERMISSION_DENIED))
+            g_warning ("Failed to post KMS update: %s", error->message);
+        }
     }
 }
 
@@ -1942,6 +1939,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
   MetaPowerSave power_save_mode;
   g_autoptr (GError) error = NULL;
   MetaDrmBufferGbm *buffer_gbm;
+  MetaKmsCrtc *kms_crtc;
+  MetaKmsDevice *kms_device;
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
   COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
@@ -2008,7 +2007,22 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
 
   COGL_TRACE_BEGIN (MetaRendererNativePostKmsUpdate,
                     "Onscreen (post pending update)");
-  post_pending_updates (kms);
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
+  kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device);
+  if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
+    {
+      const GError *error = meta_kms_feedback_get_error (kms_feedback);
+      MetaGpuKms *gpu_kms =
+        META_GPU_KMS (meta_crtc_get_gpu (onscreen_native->crtc));
+      int64_t now_ns;
+
+      if (!g_error_matches (error, G_IO_ERROR, G_IO_ERROR_PERMISSION_DENIED))
+        g_warning ("Failed to post KMS update: %s", error->message);
+
+      now_ns = meta_gpu_kms_get_current_time_ns (gpu_kms);
+      notify_view_crtc_presented (onscreen_native->view, kms_crtc, now_ns);
+    }
   COGL_TRACE_END (MetaRendererNativePostKmsUpdate);
 }
 
@@ -2157,6 +2171,8 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   MetaMonitorManager *monitor_manager =
     meta_backend_get_monitor_manager (backend);
   MetaPowerSave power_save_mode;
+  MetaKmsCrtc *kms_crtc;
+  MetaKmsDevice *kms_device;
   g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
 
   power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
@@ -2179,7 +2195,9 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
   meta_onscreen_native_flip_crtcs (onscreen,
                                    META_KMS_PAGE_FLIP_FLAG_NO_DISCARD_FEEDBACK);
 
-  kms_feedback = meta_kms_post_pending_updates_sync (kms);
+  kms_crtc = meta_crtc_kms_get_kms_crtc (META_CRTC_KMS (onscreen_native->crtc));
+  kms_device = meta_kms_crtc_get_device (kms_crtc);
+  kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device);
   if (meta_kms_feedback_get_result (kms_feedback) != META_KMS_FEEDBACK_PASSED)
     {
       const GError *feedback_error = meta_kms_feedback_get_error (kms_feedback);
@@ -3010,16 +3028,12 @@ meta_renderer_native_finish_frame (MetaRendererNative *renderer_native)
   MetaBackend *backend = meta_renderer_get_backend (renderer);
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
-  gboolean did_mode_set = FALSE;
 
   if (renderer_native->pending_unset_disabled_crtcs)
     {
-      did_mode_set = unset_disabled_crtcs (backend, kms);
+      unset_disabled_crtcs (backend, kms);
       renderer_native->pending_unset_disabled_crtcs = FALSE;
     }
-
-  if (did_mode_set)
-    post_pending_updates (kms);
 }
 
 static gboolean
@@ -3603,8 +3617,7 @@ meta_renderer_native_reset_modes (MetaRendererNative *renderer_native)
   MetaBackendNative *backend_native = META_BACKEND_NATIVE (backend);
   MetaKms *kms = meta_backend_native_get_kms (backend_native);
 
-  if (unset_disabled_crtcs (backend, kms))
-    post_pending_updates (kms);
+  unset_disabled_crtcs (backend, kms);
 }
 
 static MetaGpuKms *

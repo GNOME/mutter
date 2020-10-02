@@ -210,95 +210,65 @@ meta_kms_get_pending_update (MetaKms       *kms,
   return NULL;
 }
 
-static void
-meta_kms_predict_states_in_impl (MetaKms       *kms,
-                                 MetaKmsUpdate *update)
+static MetaKmsUpdate *
+meta_kms_take_pending_update (MetaKms       *kms,
+                              MetaKmsDevice *device)
 {
-  meta_assert_in_kms_impl (kms);
+  GList *l;
 
-  g_list_foreach (kms->devices,
-                  (GFunc) meta_kms_device_predict_states_in_impl,
-                  update);
-}
-
-static MetaKmsFeedback *
-combine_feedbacks (MetaKmsFeedback *feedback,
-                   MetaKmsFeedback *other_feedback)
-{
-  GList *failed_planes;
-  MetaKmsFeedback *new_feedback;
-  const GError *error;
-
-  if (!feedback)
-    return other_feedback;
-
-  failed_planes =
-    g_list_concat (meta_kms_feedback_get_failed_planes (feedback),
-                   meta_kms_feedback_get_failed_planes (other_feedback));
-  error = meta_kms_feedback_get_error (feedback);
-  if (!error)
-    error = meta_kms_feedback_get_error (other_feedback);
-
-  if (error)
+  for (l = kms->pending_updates; l; l = l->next)
     {
-      new_feedback = meta_kms_feedback_new_failed (failed_planes,
-                                                   g_error_copy (error));
-    }
-  else
-    {
-      new_feedback = meta_kms_feedback_new_passed ();
+      MetaKmsUpdate *update = l->data;
+
+      if (meta_kms_update_get_device (update) == device)
+        {
+          kms->pending_updates = g_list_delete_link (kms->pending_updates, l);
+          return update;
+        }
     }
 
-  meta_kms_feedback_free (feedback);
-  meta_kms_feedback_free (other_feedback);
-
-  return new_feedback;
+  return NULL;
 }
 
 static gpointer
-meta_kms_process_updates_in_impl (MetaKmsImpl  *impl,
-                                  gpointer      user_data,
-                                  GError      **error)
+meta_kms_process_update_in_impl (MetaKmsImpl  *impl,
+                                 gpointer      user_data,
+                                 GError      **error)
 {
-  GList *updates = user_data;
-  MetaKmsFeedback *feedback = NULL;
-  GList *l;
+  MetaKmsFeedback *feedback;
+  MetaKmsUpdate *update = user_data;
 
-  for (l = updates; l; l = l->next)
-    {
-      MetaKmsUpdate *update = l->data;
-      MetaKmsFeedback *device_feedback;
-
-      device_feedback = meta_kms_impl_process_update (impl, update);
-      feedback = combine_feedbacks (feedback, device_feedback);
-      meta_kms_predict_states_in_impl (meta_kms_impl_get_kms (impl), update);
-    }
-
-  g_list_free_full (updates, (GDestroyNotify) meta_kms_update_free);
+  feedback = meta_kms_impl_process_update (impl, update);
+  meta_kms_device_predict_states_in_impl (meta_kms_update_get_device (update),
+                                          update);
 
   return feedback;
 }
 
-static MetaKmsFeedback *
-meta_kms_post_updates_sync (MetaKms *kms,
-                            GList   *updates)
+MetaKmsFeedback *
+meta_kms_post_pending_update_sync (MetaKms       *kms,
+                                   MetaKmsDevice *device)
 {
-  g_list_foreach (updates, (GFunc) meta_kms_update_seal, NULL);
+  MetaKmsUpdate *update;
+  MetaKmsFeedback *feedback;
 
   COGL_TRACE_BEGIN_SCOPED (MetaKmsPostUpdateSync,
                            "KMS (post update)");
 
-  return meta_kms_run_impl_task_sync (kms,
-                                      meta_kms_process_updates_in_impl,
-                                      updates,
-                                      NULL);
-}
+  update = meta_kms_take_pending_update (kms, device);
+  if (!update)
+    return NULL;
 
-MetaKmsFeedback *
-meta_kms_post_pending_updates_sync (MetaKms *kms)
-{
-  return meta_kms_post_updates_sync (kms,
-                                     g_steal_pointer (&kms->pending_updates));
+  meta_kms_update_seal (update);
+
+  feedback = meta_kms_run_impl_task_sync (kms,
+                                          meta_kms_process_update_in_impl,
+                                          update,
+                                          NULL);
+
+  meta_kms_update_free (update);
+
+  return feedback;
 }
 
 static gpointer
@@ -582,6 +552,12 @@ MetaBackend *
 meta_kms_get_backend (MetaKms *kms)
 {
   return kms->backend;
+}
+
+GList *
+meta_kms_get_devices (MetaKms *kms)
+{
+  return kms->devices;
 }
 
 MetaKmsDevice *
